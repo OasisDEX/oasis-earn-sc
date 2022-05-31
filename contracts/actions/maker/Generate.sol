@@ -2,7 +2,9 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../common/IAction.sol";
+import "../../common/IAction.sol";
+import "../../core/OperationStorage.sol";
+import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import "../../interfaces/maker/IVat.sol";
 import "../../interfaces/maker/IJoin.sol";
@@ -25,13 +27,19 @@ contract Generate is IAction {
     address public constant DAI_JOIN_ADDR =
         0x9759A6Ac90977b93B58547b4A71c78317f391A28;
 
-    function execute(bytes calldata _data, uint8[] memory _paramsMapping)
+    ServiceRegistry public immutable registry;
+
+    constructor(address _registry) {
+        registry = ServiceRegistry(_registry);
+    }
+
+    function execute(bytes calldata data, uint8[] memory _paramsMapping)
         external
         payable
         override
         returns (bytes memory)
     {
-        GenerateData memory generateData = abi.decode(_data, (GenerateData));
+        GenerateData memory generateData = abi.decode(data, (GenerateData));
 
         OperationStorage txStorage = OperationStorage(
             registry.getRegisteredService("OPERATION_STORAGE")
@@ -41,69 +49,44 @@ contract Generate is IAction {
         address vatAddr = mcdManager.vat();
         IVat vat = IVat(vatAddr);
 
-        uint256 vaultId = parseParamUint(
+        generateData.vaultId = parseParamUint(
             generateData.vaultId,
             _paramsMapping[2],
             txStorage
         );
 
-        _generate(
-            vaultId,
-            generateData.amount,
-            generateData.to,
-            mcdManager,
-            vat
-        );
+        bytes generatedAmount = _generate(generateData, mcdManager, vat);
 
-        txStorage.push(bytes32(""));
+        txStorage.push(generatedAmount);
         return "";
     }
 
-    function actionType() public pure override returns (uint8) {
-        return uint8(ActionType.DEFAULT);
-    }
-
     function _generate(
-        uint256 vaultId,
-        uint256 amount,
-        address to,
+        GenerateData memory data,
         IManager mcdManager,
         IVat vat
     ) internal returns (bytes32) {
         mcdManager.frob(
-            vaultId,
+            data.vaultId,
             int256(0),
             _getDrawDart(
                 address(vat),
                 JUG_ADDRESS,
                 mcdManager.urns(vaultId),
                 mcdManager.ilks(vaultId),
-                amount
+                data.amount
             )
         );
 
-        mcdManager.move(vaultId, address(this), toRad(amount));
+        mcdManager.move(data.vaultId, address(this), toRad(data.amount));
 
         if (vat.can(address(this), address(DAI_JOIN_ADDR)) == 0) {
             vat.hope(DAI_JOIN_ADDR);
         }
 
-        IDaiJoin(DAI_JOIN_ADDR).exit(to, amount);
-    }
+        IDaiJoin(DAI_JOIN_ADDR).exit(data.to, data.amount);
 
-    function toInt256(uint256 x) internal pure returns (int256 y) {
-        y = int256(x);
-        require(y >= 0, "int256-overflow");
-    }
-
-    function convertTo18(address gemJoin, uint256 amt)
-        internal
-        view
-        returns (uint256 wad)
-    {
-        // For those collaterals that have less than 18 decimals precision we need to do the conversion before passing to frob function
-        // Adapters will automatically handle the difference of precision
-        wad = amt.mul(10**(18 - IJoin(gemJoin).dec()));
+        return bytes32(data.amount);
     }
 
     function _getDrawDart(
@@ -126,6 +109,39 @@ contract Generate is IAction {
             // This is neeeded due lack of precision. It might need to sum an extra dart wei (for the given DAI wad amount)
             dart = uint256(dart).mul(rate) < wad.mul(RAY) ? dart + 1 : dart;
         }
+    }
+
+    function parseParamUint(
+        uint256 param,
+        uint256 paramMapping,
+        OperationStorage txStorage
+    ) internal view returns (uint256) {
+        if (paramMapping > 0) {
+            bytes32 value = txStorage.at(paramMapping - 1);
+
+            return uint256(value);
+        }
+
+        return param;
+    }
+
+    function actionType() public pure override returns (uint8) {
+        return uint8(ActionType.DEFAULT);
+    }
+
+    function toInt256(uint256 x) internal pure returns (int256 y) {
+        y = int256(x);
+        require(y >= 0, "int256-overflow");
+    }
+
+    function convertTo18(address gemJoin, uint256 amt)
+        internal
+        view
+        returns (uint256 wad)
+    {
+        // For those collaterals that have less than 18 decimals precision we need to do the conversion before passing to frob function
+        // Adapters will automatically handle the difference of precision
+        wad = amt.mul(10**(18 - IJoin(gemJoin).dec()));
     }
 
     function toRad(uint256 wad) internal pure returns (uint256 rad) {

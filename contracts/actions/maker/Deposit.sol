@@ -3,47 +3,46 @@ pragma solidity >=0.7.6;
 pragma abicoder v2;
 
 import "../common/IAction.sol";
+import "../../core/OperationStorage.sol";
+import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import "../../interfaces/maker/IVat.sol";
 import "../../interfaces/maker/IJoin.sol";
 import "../../interfaces/maker/IGem.sol";
 import "../../interfaces/maker/IManager.sol";
 import "../../libs/SafeMath.sol";
+
 import {DepositData} from "../../core/types/Maker.sol";
 
 contract Deposit is IAction {
     using SafeMath for uint256;
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-    function execute(bytes calldata _data)
+    ServiceRegistry public immutable registry;
+
+    constructor(address _registry) {
+        registry = ServiceRegistry(_registry);
+    }
+
+    function execute(bytes calldata data)
         external
         payable
         override
         returns (bytes memory)
     {
-        DepositData memory depositData = abi.decode(_data, (DepositData));
-        _deposit(depositData);
+        DepositData memory depositData = abi.decode(data, (DepositData));
+        bytes32 depositAmount = _deposit(depositData);
 
         OperationStorage txStorage = OperationStorage(
             registry.getRegisteredService("OPERATION_STORAGE")
         );
 
-        txStorage.push(bytes32(""));
+        txStorage.push(depositAmount);
         return "";
     }
 
-    function actionType() public pure override returns (uint8) {
-        return uint8(ActionType.DEFAULT);
-    }
-
-    function _deposit(
-        uint256 vaultId,
-        uint256 amount,
-        address _joinAddr,
-        // address _from,
-        address _mcdManager
-    ) internal returns (bytes32) {
-        IGem gem = IJoin(_joinAddr).gem();
+    function _deposit(DepositData memory data) internal returns (bytes32) {
+        IGem gem = IJoin(data.joinAddress).gem();
 
         if (address(gem) == WETH) {
             // gem.deposit{ value: msg.value }(); // no longer in msg.value, because of the flashloan callback
@@ -51,24 +50,34 @@ contract Deposit is IAction {
         }
 
         uint256 balance = IERC20(address(gem)).balanceOf(address(this));
-        IERC20(address(gem)).approve(_joinAddr, balance);
-        IJoin(_joinAddr).join(address(this), balance);
-        address vatAddr = IManager(_mcdManager).vat();
+
+        IERC20(address(gem)).approve(data.joinAddress, balance);
+        IJoin(data.joinAddress).join(address(this), balance);
+
+        address vatAddr = IManager(data.mcdManager).vat();
 
         IVat vat = IVat(vatAddr);
 
-        int256 convertedAmount = toInt256(convertTo18(_joinAddr, balance));
+        int256 convertedAmount = toInt256(
+            convertTo18(data.joinAddress, balance)
+        );
 
-        IManager mcdManager = IManager(_mcdManager);
+        IManager mcdManager = IManager(data.mcdManager);
 
         vat.frob(
-            mcdManager.ilks(vaultId),
-            mcdManager.urns(vaultId),
+            mcdManager.ilks(data.vaultId),
+            mcdManager.urns(data.vaultId),
             address(this),
             address(this),
             convertedAmount,
             0
         );
+
+        return bytes32(convertedAmount);
+    }
+
+    function actionType() public pure override returns (uint8) {
+        return uint8(ActionType.DEFAULT);
     }
 
     function toInt256(uint256 x) internal pure returns (int256 y) {

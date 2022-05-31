@@ -2,44 +2,46 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../common/IAction.sol";
-import "../../interfaces/mcd/IJoin.sol";
-import "../../interfaces/mcd/IManager.sol";
-import "./ActionBase.sol";
-import "hardhat/console.sol";
+import "../../common/IAction.sol";
+import "../../core/OperationStorage.sol";
+import "../../core/ServiceRegistry.sol";
+import "../../interfaces/maker/IJoin.sol";
+import "../../interfaces/maker/IManager.sol";
+
+import {OpenVaultData} from "../../core/types/Maker.sol";
 
 contract OpenVault is IAction {
-    function executeAction(
-        bytes[] memory _callData,
-        uint256[] memory _paramsMapping,
-        bytes32[] memory _returnValues,
-        uint256 fee
-    ) public payable override returns (bytes32) {
-        (address joinAddr, address mcdManager) = parseInputs(_callData);
+    ServiceRegistry public immutable registry;
 
-        uint256 newVaultId = _openVault(joinAddr, mcdManager);
+    constructor(address _registry) {
+        registry = ServiceRegistry(_registry);
+    }
 
-        return bytes32(newVaultId);
+    function execute(bytes calldata data, uint8[] memory _paramsMapping)
+        external
+        payable
+        override
+        returns (bytes memory)
+    {
+        OpenVaultData memory openVaultData = abi.decode(data, (OpenVaultData));
+
+        bytes32 vaultId = _openVault(openVaultData);
+        OperationStorage txStorage = OperationStorage(
+            registry.getRegisteredService("OPERATION_STORAGE")
+        );
+        txStorage.push(vaultId);
+
+        return "";
+    }
+
+    function _openVault(OpenVaultData memory data) internal returns (bytes32) {
+        bytes32 ilk = IJoin(data.joinAddress).ilk();
+        vaultId = IManager(data.mcdManager).open(ilk, address(this));
+
+        return bytes32(vaultId);
     }
 
     function actionType() public pure override returns (uint8) {
         return uint8(ActionType.DEFAULT);
-    }
-
-    function _openVault(address _joinAddr, address _mcdManager)
-        internal
-        returns (uint256 vaultId)
-    {
-        bytes32 ilk = IJoin(_joinAddr).ilk();
-        vaultId = IManager(_mcdManager).open(ilk, address(this));
-    }
-
-    function parseInputs(bytes[] memory _callData)
-        internal
-        pure
-        returns (address joinAddr, address mcdManager)
-    {
-        joinAddr = abi.decode(_callData[0], (address));
-        mcdManager = abi.decode(_callData[1], (address));
     }
 }

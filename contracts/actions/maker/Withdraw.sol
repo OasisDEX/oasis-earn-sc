@@ -3,103 +3,92 @@ pragma solidity >=0.7.6;
 pragma abicoder v2;
 
 import "../common/IAction.sol";
+import "../../core/OperationStorage.sol";
+import "../../core/ServiceRegistry.sol";
 import "../../interfaces/IERC20.sol";
-import "../../interfaces/mcd/IVat.sol";
-import "../../interfaces/mcd/IDaiJoin.sol";
-import "../../interfaces/mcd/IJoin.sol";
-import "../../interfaces/mcd/IGem.sol";
-import "../../interfaces/mcd/IManager.sol";
+import "../../interfaces/maker/IVat.sol";
+import "../../interfaces/maker/IDaiJoin.sol";
+import "../../interfaces/maker/IJoin.sol";
+import "../../interfaces/maker/IGem.sol";
+import "../../interfaces/maker/IManager.sol";
 import "../../utils/SafeMath.sol";
-import "hardhat/console.sol";
+
+import {WithdrawData} from "../../core/types/Maker.sol";
 
 contract Withdraw is IAction {
     using SafeMath for uint256;
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-    struct WithdrawParams {
-        uint256 vaultId;
-        address userAddress;
-        address joinAddr;
-        address mcdManager;
-        uint256 amount;
+    ServiceRegistry public immutable registry;
+
+    constructor(address _registry) {
+        registry = ServiceRegistry(_registry);
     }
 
-    function executeAction(
-        bytes[] memory _callData,
-        uint256[] memory _paramsMapping,
-        bytes32[] memory _returnValues,
-        uint256 fee
-    ) public payable override returns (bytes32) {
-        (
-            uint256 vaultId,
-            address userAddress,
-            address joinAddr,
-            address mcdManager,
-            uint256 amount
-        ) = parseInputs(_callData);
+    function execute(bytes calldata data, uint8[] memory _paramsMapping)
+        public
+        payable
+        override
+        returns (bytes32)
+    {
+        WithdrawData memory withdrawData = abi.decode(data, (WithdrawData));
 
-        vaultId = parseParamUint(vaultId, _paramsMapping[0], _returnValues);
-
-        WithdrawParams memory withdrawParams = WithdrawParams(
-            vaultId,
-            userAddress,
-            joinAddr,
-            mcdManager,
-            amount
+        OperationStorage txStorage = OperationStorage(
+            registry.getRegisteredService("OPERATION_STORAGE")
         );
 
-        _withdraw(withdrawParams);
+        withdrawData.vaultId = parseParamUint(
+            vaultId,
+            _paramsMapping[0],
+            txStorage
+        );
 
-        return bytes32("");
+        bytes32 withdrawAmount = _withdraw(withdrawData);
+
+        txStorage.push(withdrawAmount);
+        return "";
+    }
+
+    function _withdraw(WithdrawData memory data) internal returns (bytes32) {
+        IGem gem = IJoin(data.joinAddr).gem();
+        IManager manager = IManager(data.mcdManager);
+        uint256 convertedAmount = convertTo18(data.joinAddr, data.amount);
+
+        // Unlocks WETH/GEM amount from the CDP
+        manager.frob(data.vaultId, -toInt(convertedAmount), 0);
+
+        // Moves the amount from the CDP urn to proxy's address
+        manager.flux(data.vaultId, address(this), convertedAmount);
+
+        // Exits token/WETH amount to the user's wallet as a token
+        IGem(data.joinAddr).exit(address(this), convertedAmount);
+
+        if (address(gem) == WETH) {
+            // Converts WETH to ETH
+            IGem(data.joinAddr).gem().withdraw(convertedAmount);
+            // Sends ETH back to the user's wallet
+            payable(data.userAddress).transfer(convertedAmount);
+        }
+
+        return bytes32(convertedAmount);
+    }
+
+    function parseParamUint(
+        uint256 param,
+        uint256 paramMapping,
+        OperationStorage txStorage
+    ) internal view returns (uint256) {
+        if (paramMapping > 0) {
+            bytes32 value = txStorage.at(paramMapping - 1);
+
+            return uint256(value);
+        }
+
+        return param;
     }
 
     function actionType() public pure override returns (uint8) {
         return uint8(ActionType.DEFAULT);
-    }
-
-    function _withdraw(WithdrawParams memory params)
-        internal
-        returns (bytes32)
-    {
-        IGem gem = IJoin(params.joinAddr).gem();
-        IManager manager = IManager(params.mcdManager);
-        uint256 convertedAmount = convertTo18(params.joinAddr, params.amount);
-
-        // Unlocks WETH/GEM amount from the CDP
-        manager.frob(params.vaultId, -toInt(convertedAmount), 0);
-
-        // Moves the amount from the CDP urn to proxy's address
-        manager.flux(params.vaultId, address(this), convertedAmount);
-
-        // Exits token/WETH amount to the user's wallet as a token
-        IGem(params.joinAddr).exit(address(this), convertedAmount);
-
-        if (address(gem) == WETH) {
-            // Converts WETH to ETH
-            IGem(params.joinAddr).gem().withdraw(convertedAmount);
-            // Sends ETH back to the user's wallet
-            payable(params.userAddress).transfer(convertedAmount);
-        }
-
-        return bytes32("");
-    }
-
-    function parseInputs(bytes[] memory _callData)
-        internal
-        pure
-        returns (
-            uint256 vaultId,
-            address userAddress,
-            address daiJoin,
-            address mcdManager,
-            uint256 amount
-        )
-    {
-        vaultId = abi.decode(_callData[0], (uint256));
-        userAddress = abi.decode(_callData[1], (address));
-        daiJoin = abi.decode(_callData[2], (address));
-        mcdManager = abi.decode(_callData[3], (address));
-        amount = abi.decode(_callData[4], (uint256));
     }
 
     function toInt(uint256 x) internal pure returns (int256 y) {
