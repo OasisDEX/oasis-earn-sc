@@ -24,21 +24,6 @@ struct SetApprovalData {
     uint256 amount;
 }
 
-struct AAVEDepositData {
-    address asset;
-    uint256 amount;
-}
-
-struct AAVEBorrowData {
-    address asset;
-    uint256 amount;
-}
-
-struct AAVEWithdrawData {
-    address asset;
-    uint256 amount;
-}
-
 struct SwapData {
     address fromAsset;
     address toAsset;

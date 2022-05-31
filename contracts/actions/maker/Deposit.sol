@@ -3,36 +3,33 @@ pragma solidity >=0.7.6;
 pragma abicoder v2;
 
 import "../common/IAction.sol";
-import "../../interfaces/IERC20.sol";
-import "../../interfaces/mcd/IVat.sol";
-import "../../interfaces/mcd/IJoin.sol";
-import "../../interfaces/mcd/IGem.sol";
-import "../../interfaces/mcd/IManager.sol";
-import "../../utils/SafeMath.sol";
-import "./ActionBase.sol";
-import "hardhat/console.sol";
+import "../../interfaces/tokens/IERC20.sol";
+import "../../interfaces/maker/IVat.sol";
+import "../../interfaces/maker/IJoin.sol";
+import "../../interfaces/maker/IGem.sol";
+import "../../interfaces/maker/IManager.sol";
+import "../../libs/SafeMath.sol";
+import {DepositData} from "../../core/types/Maker.sol";
 
 contract Deposit is IAction {
     using SafeMath for uint256;
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-    function executeAction(
-        bytes[] memory _callData,
-        uint256[] memory _paramsMapping,
-        bytes32[] memory _returnValues,
-        uint256 fee
-    ) public payable override returns (bytes32) {
-        (
-            uint256 vaultId,
-            address joinAddr,
-            address mcdManager,
-            uint256 amount
-        ) = parseInputs(_callData);
+    function execute(bytes calldata _data)
+        external
+        payable
+        override
+        returns (bytes memory)
+    {
+        DepositData memory depositData = abi.decode(_data, (DepositData));
+        _deposit(depositData);
 
-        vaultId = parseParamUint(vaultId, _paramsMapping[0], _returnValues);
-        _deposit(vaultId, amount, joinAddr, mcdManager);
+        OperationStorage txStorage = OperationStorage(
+            registry.getRegisteredService("OPERATION_STORAGE")
+        );
 
-        return bytes32("");
+        txStorage.push(bytes32(""));
+        return "";
     }
 
     function actionType() public pure override returns (uint8) {
@@ -72,22 +69,6 @@ contract Deposit is IAction {
             convertedAmount,
             0
         );
-    }
-
-    function parseInputs(bytes[] memory _callData)
-        internal
-        pure
-        returns (
-            uint256 vaultId,
-            address joinAddr,
-            address mcdManager,
-            uint256 amount
-        )
-    {
-        vaultId = abi.decode(_callData[0], (uint256));
-        joinAddr = abi.decode(_callData[1], (address));
-        mcdManager = abi.decode(_callData[2], (address));
-        amount = abi.decode(_callData[3], (uint256));
     }
 
     function toInt256(uint256 x) internal pure returns (int256 y) {
