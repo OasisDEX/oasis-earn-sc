@@ -3,16 +3,16 @@ pragma solidity >=0.7.6;
 pragma abicoder v2;
 
 import "../common/IAction.sol";
-import "../../interfaces/IERC20.sol";
-import "../../interfaces/mcd/IVat.sol";
-import "../../interfaces/mcd/IJoin.sol";
-import "../../interfaces/mcd/IDaiJoin.sol";
-import "../../interfaces/mcd/IJug.sol";
-import "../../interfaces/mcd/IGem.sol";
-import "../../interfaces/mcd/IManager.sol";
-import "../../utils/SafeMath.sol";
-import "./ActionBase.sol";
-import "hardhat/console.sol";
+import "../../interfaces/tokens/IERC20.sol";
+import "../../interfaces/maker/IVat.sol";
+import "../../interfaces/maker/IJoin.sol";
+import "../../interfaces/maker/IDaiJoin.sol";
+import "../../interfaces/maker/IJug.sol";
+import "../../interfaces/maker/IGem.sol";
+import "../../interfaces/maker/IManager.sol";
+import "../../libs/SafeMath.sol";
+
+import {GenerateData} from "../../core/types/Maker.sol";
 
 contract Generate is IAction {
     using SafeMath for uint256;
@@ -25,28 +25,38 @@ contract Generate is IAction {
     address public constant DAI_JOIN_ADDR =
         0x9759A6Ac90977b93B58547b4A71c78317f391A28;
 
-    function executeAction(
-        bytes[] memory _callData,
-        uint256[] memory _paramsMapping,
-        bytes32[] memory _returnValues,
-        uint256 fee
-    ) public payable override returns (bytes32) {
-        (
-            uint256 vaultId,
-            address _mcdManager,
-            address to,
-            uint256 amount
-        ) = parseInputs(_callData);
+    function execute(bytes calldata _data, uint8[] memory _paramsMapping)
+        external
+        payable
+        override
+        returns (bytes memory)
+    {
+        GenerateData memory generateData = abi.decode(_data, (GenerateData));
 
-        vaultId = parseParamUint(vaultId, _paramsMapping[0], _returnValues);
+        OperationStorage txStorage = OperationStorage(
+            registry.getRegisteredService("OPERATION_STORAGE")
+        );
 
-        IManager mcdManager = IManager(_mcdManager);
+        IManager mcdManager = IManager(generateData.mcdManager);
         address vatAddr = mcdManager.vat();
-
         IVat vat = IVat(vatAddr);
-        _generate(vaultId, amount, to, mcdManager, vat);
 
-        return bytes32(amount);
+        uint256 vaultId = parseParamUint(
+            generateData.vaultId,
+            _paramsMapping[2],
+            txStorage
+        );
+
+        _generate(
+            vaultId,
+            generateData.amount,
+            generateData.to,
+            mcdManager,
+            vat
+        );
+
+        txStorage.push(bytes32(""));
+        return "";
     }
 
     function actionType() public pure override returns (uint8) {
@@ -79,22 +89,6 @@ contract Generate is IAction {
         }
 
         IDaiJoin(DAI_JOIN_ADDR).exit(to, amount);
-    }
-
-    function parseInputs(bytes[] memory _callData)
-        internal
-        pure
-        returns (
-            uint256 vaultId,
-            address mcdManager,
-            address to,
-            uint256 amount
-        )
-    {
-        vaultId = abi.decode(_callData[0], (uint256));
-        mcdManager = abi.decode(_callData[1], (address));
-        to = abi.decode(_callData[2], (address));
-        amount = abi.decode(_callData[3], (uint256));
     }
 
     function toInt256(uint256 x) internal pure returns (int256 y) {

@@ -6,3 +6,10 @@ struct DepositData {
     uint256 vaultId;
     uint256 amount;
 }
+
+struct GenerateData {
+    address to;
+    address mcdManager;
+    uint256 vaultId;
+    uint256 amount;
+}
