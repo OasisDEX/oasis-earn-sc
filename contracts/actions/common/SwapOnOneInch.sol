@@ -2,12 +2,12 @@ pragma solidity ^0.8.1;
 // TODO: Remove this for prod deploy
 import "hardhat/console.sol";
 
-import "../common/IAction.sol";
+import "../../interfaces/common/IAction.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import "../../interfaces/tokens/IWETH.sol";
-import {SwapData} from "../../core/Types.sol";
+import {SwapData} from "../../core/types/Common.sol";
 
 // TODO: Make it so it differentiate between ETH and any other token
 contract SwapOnOneInch is IAction {
