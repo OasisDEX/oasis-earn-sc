@@ -2,7 +2,7 @@ import "@nomiclabs/hardhat-ethers";
 import { ethers } from "hardhat";
 import fetch from "node-fetch";
 import ADDRESSES from "../helpers/addresses.json";
-import UNISWAP_ROUTER_V3_ABI from "../contracts/abis/IUniswapRouter.json";
+import UNISWAP_ROUTER_V3_ABI from "../abis/IUniswapRouter.json";
 import { OneInchSwapResponse, RuntimeConfig } from "./types";
 
 export async function swapUniswapTokens(
