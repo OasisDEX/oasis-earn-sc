@@ -1,10 +1,11 @@
 import "@nomiclabs/hardhat-ethers";
 import { ethers } from "hardhat";
 import { providers } from "ethers";
-import { RuntimeConfig } from "../helpers/types";
+import { RuntimeConfig } from "./types";
 
 export default async function init(): Promise<RuntimeConfig> {
-  const provider = new ethers.providers.JsonRpcProvider();
+  // const provider = new ethers.providers.JsonRpcProvider();
+  const provider = ethers.provider;
   const signer = provider.getSigner(0);
   const address = await signer.getAddress();
 

@@ -1,26 +1,21 @@
 pragma solidity ^0.8.1;
 import "hardhat/console.sol";
 
-import "../common/IAction.sol";
+import "./Action.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import "../../interfaces/flashloan/IERC3156FlashLender.sol";
 import "../../libs/DS/DSProxy.sol";
-import {FlashloanData} from "../../core/Types.sol";
+import {FlashloanData} from "../../core/types/Common.sol";
 
-contract TakeFlashloan is IAction {
-    ServiceRegistry public immutable registry;
+contract TakeFlashloan is Action {
+    constructor(ServiceRegistry _registry) Action(_registry) {}
 
-    constructor(address _registry) {
-        registry = ServiceRegistry(_registry);
-    }
-
-    function execute(bytes calldata data)
+    function execute(bytes calldata data, uint8[] memory)
         public
         payable
         override
-        returns (bytes memory)
     {
         console.log("PULL TOKEN!!!");
         DSProxy(payable(address(this))).setOwner(
@@ -41,7 +36,5 @@ contract TakeFlashloan is IAction {
             );
 
         DSProxy(payable(address(this))).setOwner(msg.sender);
-
-        return abi.encode("success");
     }
 }

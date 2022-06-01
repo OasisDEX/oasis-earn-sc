@@ -2,7 +2,7 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../../interfaces/common/IAction.sol";
+import "../common/Action.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -15,55 +15,34 @@ import "../../libs/SafeMath.sol";
 
 import {PaybackData} from "../../core/types/Maker.sol";
 
-contract Payback is IAction {
+contract Payback is Action {
     using SafeMath for uint256;
     uint256 public constant RAY = 10**27;
-
-    ServiceRegistry public immutable registry;
-
-    constructor(address _registry) {
-        registry = ServiceRegistry(_registry);
-    }
 
     struct WipeData {
         address vat;
         address usr;
         address urn;
         uint256 dai;
-        bytes3 ilk;
+        bytes32 ilk;
     }
 
-    function execute(bytes[] memory data, uint8[] memory _paramsMapping)
+    constructor(ServiceRegistry _registry) Action(_registry) {}
+
+    function execute(bytes calldata data, uint8[] memory _paramsMapping)
         public
         payable
         override
-        returns (bytes32)
     {
         PaybackData memory paybackData = abi.decode(data, (PaybackData));
+        uint256 vaultId = pull(paybackData.vaultId, _paramsMapping[0]);
+        paybackData.vaultId = vaultId;
 
-        vaultId = parseParamUint(vaultId, _paramsMapping[0], _returnValues);
+        paybackData.paybackAll
+            ? _paybackAll(paybackData)
+            : _payback(paybackData);
 
-        PaybackParams memory paybackParams = PaybackParams(
-            vaultId,
-            userAddress,
-            daiJoin,
-            mcdManager,
-            amount,
-            paybackAll
-        );
-
-        paybackAll ? _paybackAll(paybackParams) : _payback(paybackParams);
-
-        OperationStorage txStorage = OperationStorage(
-            registry.getRegisteredService("OPERATION_STORAGE")
-        );
-        txStorage.push(vaultId);
-
-        return "";
-    }
-
-    function actionType() public pure override returns (uint8) {
-        return uint8(ActionType.DEFAULT);
+        push(bytes32(paybackData.amount));
     }
 
     function _payback(PaybackData memory data) internal returns (bytes32) {
@@ -79,7 +58,7 @@ contract Payback is IAction {
             mcdManager.cdpCan(own, data.vaultId, address(this)) == 1
         ) {
             // Joins DAI amount into the vat
-            daiJoin_join(data.userAddress, urn);
+            daiJoin_join(data.userAddress, data.daiJoin, urn, data.amount);
             // Paybacks debt to the CDP
             mcdManager.frob(
                 data.vaultId,
@@ -88,9 +67,14 @@ contract Payback is IAction {
             );
         } else {
             // Joins DAI params.amount into the vat
-            daiJoin_join(data, urn);
+            daiJoin_join(
+                data.userAddress,
+                data.daiJoin,
+                address(this),
+                data.amount
+            );
             // Paybacks debt to the CDP
-            uint256 wadToWipe = params.amount * RAY;
+            uint256 wadToWipe = data.amount * RAY;
             IVat(vat).frob(
                 ilk,
                 urn,
@@ -148,16 +132,21 @@ contract Payback is IAction {
         return bytes32("");
     }
 
-    function daiJoin_join(PaybackData memory data, address urn) public {
-        IGem dai = IDaiJoin(data.daiJoin).dai();
+    function daiJoin_join(
+        address usr,
+        address daiJoin,
+        address urn,
+        uint256 amount
+    ) public {
+        IGem dai = IDaiJoin(daiJoin).dai();
 
-        dai.transferFrom(data.userAddress, address(this), data.amount);
+        dai.transferFrom(usr, address(this), amount);
 
         // Approves adapter to take the DAI amount
-        dai.approve(data.daiJoin, data.amount);
+        dai.approve(daiJoin, amount);
 
         // Joins DAI into the vat
-        IDaiJoin(data.daiJoin).join(urn, data.amount);
+        IDaiJoin(daiJoin).join(urn, amount);
     }
 
     function _getWipeDart(WipeData memory data)

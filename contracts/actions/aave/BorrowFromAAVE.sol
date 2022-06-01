@@ -2,36 +2,28 @@ pragma solidity ^0.8.1;
 // TODO: Remove this for prod deploy
 import "hardhat/console.sol";
 
-import "../common/IAction.sol";
+import "../common/Action.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/aave/IVariableDebtToken.sol";
 import "../../interfaces/aave/IWETHGateway.sol";
-import {AAVEBorrowData} from "../../core/Types.sol";
+import {AAVEBorrowData} from "../../core/types/Aave.sol";
 
 // TODO: Make it more generic so that anything could be withdrawn and not only ETH
-contract BorrowFromAAVE is IAction {
-    ServiceRegistry public immutable registry;
+contract BorrowFromAAVE is Action {
+    constructor(ServiceRegistry _registry) Action(_registry) {}
 
     // This will be removed once I make it more generic
     IVariableDebtToken public constant dWETH =
         IVariableDebtToken(0xF63B34710400CAd3e044cFfDcAb00a0f32E33eCf);
 
-    constructor(address _registry) {
-        registry = ServiceRegistry(_registry);
-    }
-
-    function execute(bytes calldata data)
+    function execute(bytes calldata data, uint8[] memory)
         external
         payable
         override
-        returns (bytes memory)
     {
         console.log("BorrowFromAAVE TOKEN!!!");
-        OperationStorage txStorage = OperationStorage(
-            registry.getRegisteredService("OPERATION_STORAGE")
-        );
-        txStorage.push("BorrowFromAAVE");
+        push("BorrowFromAAVE");
         AAVEBorrowData memory borrow = abi.decode(data, (AAVEBorrowData));
         address wethGatewayAddress = registry.getRegisteredService(
             "AAVE_WETH_GATEWAY"
@@ -43,6 +35,5 @@ contract BorrowFromAAVE is IAction {
             2,
             0
         );
-        return "";
     }
 }

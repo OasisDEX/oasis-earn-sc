@@ -2,7 +2,7 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../common/IAction.sol";
+import "../common/Action.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -14,31 +14,21 @@ import "../../libs/SafeMath.sol";
 
 import {DepositData} from "../../core/types/Maker.sol";
 
-contract Deposit is IAction {
+contract Deposit is Action {
     using SafeMath for uint256;
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-    ServiceRegistry public immutable registry;
+    constructor(ServiceRegistry _registry) Action(_registry) {}
 
-    constructor(address _registry) {
-        registry = ServiceRegistry(_registry);
-    }
-
-    function execute(bytes calldata data)
+    function execute(bytes calldata data, uint8[] memory)
         external
         payable
         override
-        returns (bytes memory)
     {
         DepositData memory depositData = abi.decode(data, (DepositData));
         bytes32 depositAmount = _deposit(depositData);
 
-        OperationStorage txStorage = OperationStorage(
-            registry.getRegisteredService("OPERATION_STORAGE")
-        );
-
-        txStorage.push(depositAmount);
-        return "";
+        push(depositAmount);
     }
 
     function _deposit(DepositData memory data) internal returns (bytes32) {
@@ -73,11 +63,7 @@ contract Deposit is IAction {
             0
         );
 
-        return bytes32(convertedAmount);
-    }
-
-    function actionType() public pure override returns (uint8) {
-        return uint8(ActionType.DEFAULT);
+        return bytes32(uint256(convertedAmount));
     }
 
     function toInt256(uint256 x) internal pure returns (int256 y) {

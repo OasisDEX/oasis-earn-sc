@@ -1,7 +1,7 @@
 import "@nomiclabs/hardhat-ethers";
 import { Signer } from "ethers";
 import { ethers } from "hardhat";
-import DS_PROXY_REGISTRY_ABI from "../abis/dsProxyRegistry.json";
+import DS_PROXY_REGISTRY_ABI from "../contracts/abis/dsProxyRegistry.json";
 
 export async function getOrCreateProxy(signer: Signer) {
   const PROXY_REGISTRY_MAINET = "0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4";

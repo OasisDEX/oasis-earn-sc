@@ -2,7 +2,7 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../../interfaces/common/IAction.sol";
+import "../common/Action.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -15,38 +15,25 @@ import "../../libs/SafeMath.sol";
 
 import {WithdrawData} from "../../core/types/Maker.sol";
 
-contract Withdraw is IAction {
+contract Withdraw is Action {
     using SafeMath for uint256;
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-    ServiceRegistry public immutable registry;
-
-    constructor(address _registry) {
-        registry = ServiceRegistry(_registry);
-    }
+    constructor(ServiceRegistry _registry) Action(_registry) {}
 
     function execute(bytes calldata data, uint8[] memory _paramsMapping)
         public
         payable
         override
-        returns (bytes32)
     {
         WithdrawData memory withdrawData = abi.decode(data, (WithdrawData));
 
-        OperationStorage txStorage = OperationStorage(
-            registry.getRegisteredService("OPERATION_STORAGE")
-        );
-
-        withdrawData.vaultId = parseParamUint(
-            vaultId,
-            _paramsMapping[0],
-            txStorage
-        );
+        uint256 vaultId = pull(withdrawData.vaultId, _paramsMapping[0]);
+        withdrawData.vaultId = vaultId;
 
         bytes32 withdrawAmount = _withdraw(withdrawData);
 
-        txStorage.push(withdrawAmount);
-        return "";
+        push(withdrawAmount);
     }
 
     function _withdraw(WithdrawData memory data) internal returns (bytes32) {
@@ -71,24 +58,6 @@ contract Withdraw is IAction {
         }
 
         return bytes32(convertedAmount);
-    }
-
-    function parseParamUint(
-        uint256 param,
-        uint256 paramMapping,
-        OperationStorage txStorage
-    ) internal view returns (uint256) {
-        if (paramMapping > 0) {
-            bytes32 value = txStorage.at(paramMapping - 1);
-
-            return uint256(value);
-        }
-
-        return param;
-    }
-
-    function actionType() public pure override returns (uint8) {
-        return uint8(ActionType.DEFAULT);
     }
 
     function toInt(uint256 x) internal pure returns (int256 y) {

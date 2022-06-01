@@ -1,4 +1,3 @@
-import { ethers } from "hardhat";
 import { Signer, providers } from "ethers";
 
 export type ValueOf<T> = T[keyof T];

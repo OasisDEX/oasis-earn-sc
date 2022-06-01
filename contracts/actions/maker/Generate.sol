@@ -2,7 +2,7 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../../common/IAction.sol";
+import "../common/Action.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -16,7 +16,7 @@ import "../../libs/SafeMath.sol";
 
 import {GenerateData} from "../../core/types/Maker.sol";
 
-contract Generate is IAction {
+contract Generate is Action {
     using SafeMath for uint256;
 
     uint256 constant RAY = 10**27;
@@ -27,38 +27,25 @@ contract Generate is IAction {
     address public constant DAI_JOIN_ADDR =
         0x9759A6Ac90977b93B58547b4A71c78317f391A28;
 
-    ServiceRegistry public immutable registry;
-
-    constructor(address _registry) {
-        registry = ServiceRegistry(_registry);
-    }
+    constructor(ServiceRegistry _registry) Action(_registry) {}
 
     function execute(bytes calldata data, uint8[] memory _paramsMapping)
         external
         payable
         override
-        returns (bytes memory)
     {
         GenerateData memory generateData = abi.decode(data, (GenerateData));
-
-        OperationStorage txStorage = OperationStorage(
-            registry.getRegisteredService("OPERATION_STORAGE")
-        );
 
         IManager mcdManager = IManager(generateData.mcdManager);
         address vatAddr = mcdManager.vat();
         IVat vat = IVat(vatAddr);
 
-        generateData.vaultId = parseParamUint(
-            generateData.vaultId,
-            _paramsMapping[2],
-            txStorage
-        );
+        uint256 vaultId = pull(generateData.vaultId, _paramsMapping[2]);
+        generateData.vaultId = vaultId;
 
-        bytes generatedAmount = _generate(generateData, mcdManager, vat);
+        bytes32 generatedAmount = _generate(generateData, mcdManager, vat);
 
-        txStorage.push(generatedAmount);
-        return "";
+        push(generatedAmount);
     }
 
     function _generate(
@@ -72,8 +59,8 @@ contract Generate is IAction {
             _getDrawDart(
                 address(vat),
                 JUG_ADDRESS,
-                mcdManager.urns(vaultId),
-                mcdManager.ilks(vaultId),
+                mcdManager.urns(data.vaultId),
+                mcdManager.ilks(data.vaultId),
                 data.amount
             )
         );
@@ -123,10 +110,6 @@ contract Generate is IAction {
         }
 
         return param;
-    }
-
-    function actionType() public pure override returns (uint8) {
-        return uint8(ActionType.DEFAULT);
     }
 
     function toInt256(uint256 x) internal pure returns (int256 y) {

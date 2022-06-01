@@ -12,7 +12,7 @@ import "../actions/common/TakeFlashloan.sol";
 import "../interfaces/tokens/IERC20.sol";
 import "../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import "../interfaces/flashloan/IERC3156FlashLender.sol";
-import {FlashloanData, Call} from "./Types.sol";
+import {FlashloanData, Call} from "./types/Common.sol";
 
 contract OperationExecutor is IERC3156FlashBorrower {
     ServiceRegistry public immutable registry;
@@ -29,11 +29,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
         txStorage.finalize();
     }
 
-    function aggregate(Call[] memory calls)
-        public
-        returns (bytes[] memory returnData)
-    {
-        returnData = new bytes[](calls.length);
+    function aggregate(Call[] memory calls) public {
         for (uint256 current = 0; current < calls.length; current++) {
             address target = registry.getServiceAddress(
                 calls[current].targetHash
@@ -43,7 +39,6 @@ contract OperationExecutor is IERC3156FlashBorrower {
                 calls[current].callData
             );
             require(success, "delegate call failed");
-            returnData[current] = result;
         }
     }
 
