@@ -2,58 +2,44 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../common/IAction.sol";
-import "../../interfaces/IERC20.sol";
-import "../../interfaces/mcd/IVat.sol";
-import "../../interfaces/mcd/IDaiJoin.sol";
-import "../../interfaces/mcd/IJoin.sol";
-import "../../interfaces/mcd/IGem.sol";
-import "../../interfaces/mcd/IManager.sol";
-import "../../utils/SafeMath.sol";
-import "./ActionBase.sol";
-import "hardhat/console.sol";
+import "../../interfaces/common/IAction.sol";
+import "../../core/OperationStorage.sol";
+import "../../core/ServiceRegistry.sol";
+import "../../interfaces/tokens/IERC20.sol";
+import "../../interfaces/maker/IVat.sol";
+import "../../interfaces/maker/IDaiJoin.sol";
+import "../../interfaces/maker/IJoin.sol";
+import "../../interfaces/maker/IGem.sol";
+import "../../interfaces/maker/IManager.sol";
+import "../../libs/SafeMath.sol";
+
+import {PaybackData} from "../../core/types/Maker.sol";
 
 contract Payback is IAction {
     using SafeMath for uint256;
     uint256 public constant RAY = 10**27;
 
-    struct WipeDartParams {
-        address vat;
-        uint256 dai;
-        address urn;
-        bytes32 ilk;
+    ServiceRegistry public immutable registry;
+
+    constructor(address _registry) {
+        registry = ServiceRegistry(_registry);
     }
 
-    struct WipeWadParams {
+    struct WipeData {
         address vat;
         address usr;
         address urn;
-        bytes32 ilk;
+        uint256 dai;
+        bytes3 ilk;
     }
 
-    struct PaybackParams {
-        uint256 vaultId;
-        address userAddress;
-        address daiJoin;
-        address mcdManager;
-        uint256 amount;
-        bool paybackAll;
-    }
-
-    function executeAction(
-        bytes[] memory _callData,
-        uint256[] memory _paramsMapping,
-        bytes32[] memory _returnValues,
-        uint256 fee
-    ) public payable override returns (bytes32) {
-        (
-            uint256 vaultId,
-            address userAddress,
-            address daiJoin,
-            address mcdManager,
-            uint256 amount,
-            bool paybackAll
-        ) = parseInputs(_callData);
+    function execute(bytes[] memory data, uint8[] memory _paramsMapping)
+        public
+        payable
+        override
+        returns (bytes32)
+    {
+        PaybackData memory paybackData = abi.decode(data, (PaybackData));
 
         vaultId = parseParamUint(vaultId, _paramsMapping[0], _returnValues);
 
@@ -68,46 +54,41 @@ contract Payback is IAction {
 
         paybackAll ? _paybackAll(paybackParams) : _payback(paybackParams);
 
-        return bytes32("");
+        OperationStorage txStorage = OperationStorage(
+            registry.getRegisteredService("OPERATION_STORAGE")
+        );
+        txStorage.push(vaultId);
+
+        return "";
     }
 
     function actionType() public pure override returns (uint8) {
         return uint8(ActionType.DEFAULT);
     }
 
-    function _payback(PaybackParams memory params) internal returns (bytes32) {
-        IManager mcdManager = IManager(params.mcdManager);
+    function _payback(PaybackData memory data) internal returns (bytes32) {
+        IManager mcdManager = IManager(data.mcdManager);
 
-        address own = mcdManager.owns(params.vaultId);
-        address urn = mcdManager.urns(params.vaultId);
+        address own = mcdManager.owns(data.vaultId);
+        address urn = mcdManager.urns(data.vaultId);
         address vat = mcdManager.vat();
-        bytes32 ilk = mcdManager.ilks(params.vaultId);
+        bytes32 ilk = mcdManager.ilks(data.vaultId);
 
         if (
             own == address(this) ||
-            mcdManager.cdpCan(own, params.vaultId, address(this)) == 1
+            mcdManager.cdpCan(own, data.vaultId, address(this)) == 1
         ) {
             // Joins DAI amount into the vat
-            daiJoin_join(
-                params.userAddress,
-                params.daiJoin,
-                urn,
-                params.amount
-            );
+            daiJoin_join(data.userAddress, urn);
             // Paybacks debt to the CDP
             mcdManager.frob(
-                params.vaultId,
+                data.vaultId,
                 0,
-                _getWipeDart(WipeDartParams(vat, IVat(vat).dai(urn), urn, ilk))
+                _getWipeDart(WipeData(vat, urn, urn, IVat(vat).dai(urn), ilk))
             );
         } else {
             // Joins DAI params.amount into the vat
-            daiJoin_join(
-                params.userAddress,
-                params.daiJoin,
-                address(this),
-                params.amount
-            );
+            daiJoin_join(data, urn);
             // Paybacks debt to the CDP
             uint256 wadToWipe = params.amount * RAY;
             IVat(vat).frob(
@@ -116,45 +97,42 @@ contract Payback is IAction {
                 address(this),
                 address(this),
                 0,
-                _getWipeDart(WipeDartParams(vat, wadToWipe, urn, ilk))
+                _getWipeDart(WipeData(vat, urn, urn, wadToWipe, ilk))
             );
         }
 
         return bytes32("");
     }
 
-    function _paybackAll(PaybackParams memory params)
-        internal
-        returns (bytes32)
-    {
-        IManager mcdManager = IManager(params.mcdManager);
+    function _paybackAll(PaybackData memory data) internal returns (bytes32) {
+        IManager mcdManager = IManager(data.mcdManager);
 
-        address own = mcdManager.owns(params.vaultId);
-        address urn = mcdManager.urns(params.vaultId);
+        address own = mcdManager.owns(data.vaultId);
+        address urn = mcdManager.urns(data.vaultId);
         address vat = mcdManager.vat();
-        bytes32 ilk = mcdManager.ilks(params.vaultId);
+        bytes32 ilk = mcdManager.ilks(data.vaultId);
         (, uint256 art) = IVat(mcdManager.vat()).urns(ilk, urn);
 
         if (
             own == address(this) ||
-            mcdManager.cdpCan(own, params.vaultId, address(this)) == 1
+            mcdManager.cdpCan(own, data.vaultId, address(this)) == 1
         ) {
             // Joins DAI amount into the vat
             daiJoin_join(
-                params.userAddress,
-                params.daiJoin,
+                data.userAddress,
+                data.daiJoin,
                 urn,
-                _getWipeAllWad(WipeWadParams(vat, urn, urn, ilk))
+                _getWipeAllWad(WipeData(vat, urn, urn, 0, ilk))
             );
             // Paybacks debt to the CDP
-            mcdManager.frob(params.vaultId, 0, -int256(art));
+            mcdManager.frob(data.vaultId, 0, -int256(art));
         } else {
-            // Joins DAI params.amount into the vat
+            // Joins DAI data.amount into the vat
             daiJoin_join(
-                params.userAddress,
-                params.daiJoin,
+                data.userAddress,
+                data.daiJoin,
                 address(this),
-                _getWipeAllWad(WipeWadParams(vat, address(this), urn, ilk))
+                _getWipeAllWad(WipeData(vat, address(this), urn, 0, ilk))
             );
             // Paybacks debt to the CDP
             IVat(vat).frob(
@@ -170,71 +148,46 @@ contract Payback is IAction {
         return bytes32("");
     }
 
-    function parseInputs(bytes[] memory _callData)
-        internal
-        pure
-        returns (
-            uint256 vaultId,
-            address userAddress,
-            address daiJoin,
-            address mcdManager,
-            uint256 amount,
-            bool paybackAll
-        )
-    {
-        vaultId = abi.decode(_callData[0], (uint256));
-        userAddress = abi.decode(_callData[1], (address));
-        daiJoin = abi.decode(_callData[2], (address));
-        mcdManager = abi.decode(_callData[3], (address));
-        amount = abi.decode(_callData[4], (uint256));
-        paybackAll = abi.decode(_callData[5], (bool));
-    }
+    function daiJoin_join(PaybackData memory data, address urn) public {
+        IGem dai = IDaiJoin(data.daiJoin).dai();
 
-    function daiJoin_join(
-        address userAddress,
-        address apt,
-        address urn,
-        uint256 amount
-    ) public {
-        IGem dai = IDaiJoin(apt).dai();
-
-        dai.transferFrom(userAddress, address(this), amount);
+        dai.transferFrom(data.userAddress, address(this), data.amount);
 
         // Approves adapter to take the DAI amount
-        dai.approve(apt, amount);
+        dai.approve(data.daiJoin, data.amount);
 
         // Joins DAI into the vat
-        IDaiJoin(apt).join(urn, amount);
+        IDaiJoin(data.daiJoin).join(urn, data.amount);
     }
 
-    function _getWipeDart(WipeDartParams memory params)
+    function _getWipeDart(WipeData memory data)
         internal
         view
         returns (int256 dart)
     {
         // Gets actual rate from the vat
-        (, uint256 rate, , , ) = IVat(params.vat).ilks(params.ilk);
+        (, uint256 rate, , , ) = IVat(data.vat).ilks(data.ilk);
 
         // Gets actual art value of the urn
-        (, uint256 art) = IVat(params.vat).urns(params.ilk, params.urn);
+        (, uint256 art) = IVat(data.vat).urns(data.ilk, data.urn);
 
-        dart = toInt(params.dai / rate);
+        dart = toInt(data.dai / rate);
 
         // Checks the calculated dart is not higher than urn.art (total debt), otherwise uses its value
         dart = uint256(dart) <= art ? -dart : -toInt(art);
     }
 
-    function _getWipeAllWad(WipeWadParams memory params)
+    function _getWipeAllWad(WipeData memory data)
         internal
         view
         returns (uint256 wad)
     {
         // Gets actual rate from the vat
-        (, uint256 rate, , , ) = IVat(params.vat).ilks(params.ilk);
+        (, uint256 rate, , , ) = IVat(data.vat).ilks(data.ilk);
         // Gets actual art value of the urn
-        (, uint256 art) = IVat(params.vat).urns(params.ilk, params.urn);
+        (, uint256 art) = IVat(data.vat).urns(data.ilk, data.urn);
         // Gets actual dai amount in the urn
-        uint256 dai = IVat(params.vat).dai(params.usr);
+        uint256 dai = IVat(data.vat).dai(data.usr);
 
         uint256 rad = sub(mul(art, rate), dai);
         wad = rad / RAY;

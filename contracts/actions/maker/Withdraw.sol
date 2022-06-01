@@ -2,16 +2,16 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../common/IAction.sol";
+import "../../interfaces/common/IAction.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
-import "../../interfaces/IERC20.sol";
+import "../../interfaces/tokens/IERC20.sol";
 import "../../interfaces/maker/IVat.sol";
 import "../../interfaces/maker/IDaiJoin.sol";
 import "../../interfaces/maker/IJoin.sol";
 import "../../interfaces/maker/IGem.sol";
 import "../../interfaces/maker/IManager.sol";
-import "../../utils/SafeMath.sol";
+import "../../libs/SafeMath.sol";
 
 import {WithdrawData} from "../../core/types/Maker.sol";
 

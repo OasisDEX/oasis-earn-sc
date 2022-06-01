@@ -2,7 +2,7 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../../common/IAction.sol";
+import "../../interfaces/common/IAction.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/maker/IJoin.sol";

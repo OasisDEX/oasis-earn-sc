@@ -22,6 +22,15 @@ struct GenerateData {
     uint256 amount;
 }
 
+struct PaybackData {
+    uint256 vaultId;
+    address userAddress;
+    address daiJoin;
+    address mcdManager;
+    uint256 amount;
+    bool paybackAll;
+}
+
 struct OpenVaultData {
     address joinAddress;
     address mcdManager;
