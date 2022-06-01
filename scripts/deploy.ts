@@ -133,7 +133,8 @@ async function main() {
     options
   );
 
-  //SETUPING REGISTRY ENTRIES:
+  //SETUP REGISTRY ENTRIES:
+  console.log("DEBUG SETTING UP REGISTRY ENTRIES...");
   const operationStorageHash = await registry.addEntry(
     "OPERATION_STORAGE",
     operationStorageAddress
