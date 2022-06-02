@@ -1,6 +1,5 @@
 pragma solidity ^0.8.1;
 
-
 struct FlashloanData {
     uint256 amount;
     address borrower;
@@ -51,4 +50,9 @@ struct SwapData {
 struct Call {
     bytes32 targetHash; //TODO: Figure out a better name
     bytes callData;
+}
+
+struct Operation {
+    uint8 currentStep;
+    bytes32[] steps;
 }

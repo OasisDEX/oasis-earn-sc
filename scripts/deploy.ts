@@ -18,8 +18,9 @@ import {
   approve,
   ActionFactory,
   ServiceRegistry,
+  OperationsRegistry,
 } from "../helpers/utils";
-import { CONTRACT_LABELS, ZERO } from "../helpers/constants";
+import { CONTRACT_LABELS, OPERATION_LABELS, ZERO } from "../helpers/constants";
 
 const createAction = ActionFactory.create;
 
@@ -69,6 +70,17 @@ async function main() {
     signer
   );
   registry.addEntry(CONTRACT_LABELS.FLASH_MINT_MODULE, ADDRESSES.main.FMM);
+
+  // OperationsRegistry Deploy:
+  const [, operationsRegistryAddress] = await deploy(
+    "OperationsRegistry",
+    [],
+    options
+  );
+  const operationsRegistry: OperationsRegistry = new OperationsRegistry(
+    operationsRegistryAddress,
+    signer
+  );
 
   // DEPLOYING Operation Executor
   const [operationExecutor, operationExecutorAddress] = await deploy(
@@ -135,8 +147,13 @@ async function main() {
 
   //SETUPING REGISTRY ENTRIES:
   const operationStorageHash = await registry.addEntry(
-    "OPERATION_STORAGE",
+    CONTRACT_LABELS.OPERATION_STORAGE,
     operationStorageAddress
+  );
+
+  const operationsRegistryHash = await registry.addEntry(
+    CONTRACT_LABELS.OPERATIONS_REGISTRY,
+    operationsRegistryAddress
   );
   const dummyActionHash = await registry.addEntry(
     "DUMMY_ACTION",
@@ -336,6 +353,19 @@ async function main() {
     ]
   );
 
+  await operationsRegistry.addOp(OPERATION_LABELS.OPEN_AAVE_POSITION, [
+    pullTokenHash,
+    takeAFlashloanHash,
+    pullTokenHash,
+    setApprovalHash,
+    depositInAAVEHash,
+    borrowFromAAVEHash,
+    swapOnOneInchHash,
+    withdrawFromAAVEHash,
+    sendTokenHash,
+    dummyActionHash,
+  ]);
+
   await approve(ADDRESSES.main.DAI, proxyAddress, depositAmount, config, true);
 
   await executeThroughProxy(
@@ -344,6 +374,7 @@ async function main() {
       address: operationExecutorAddress,
       calldata: operationExecutor.interface.encodeFunctionData("executeOp", [
         [pullToken, takeAFlashloan, dummyAction],
+        OPERATION_LABELS.OPEN_AAVE_POSITION,
       ]),
     },
     signer

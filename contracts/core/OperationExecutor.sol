@@ -6,6 +6,7 @@ pragma abicoder v2;
 import "hardhat/console.sol";
 
 import "./ServiceRegistry.sol";
+import "./OperationsRegistry.sol";
 import "./OperationStorage.sol";
 import "../libs/DS/DSProxy.sol";
 import "../actions/common/TakeFlashloan.sol";
@@ -13,7 +14,7 @@ import "../interfaces/tokens/IERC20.sol";
 import "../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import "../interfaces/flashloan/IERC3156FlashLender.sol";
 import {FlashloanData, Call} from "./Types.sol";
-import {OPERATION_STORAGE, FLASH_MINT_MODULE} from "./Constants.sol";
+import {OPERATION_STORAGE, OPERATIONS_REGISTRY, FLASH_MINT_MODULE} from "./Constants.sol";
 
 contract OperationExecutor is IERC3156FlashBorrower {
     ServiceRegistry public immutable registry;
@@ -22,29 +23,38 @@ contract OperationExecutor is IERC3156FlashBorrower {
         registry = ServiceRegistry(_registry);
     }
 
-    function executeOp(Call[] memory calls) public {
-        aggregate(calls);
-        OperationStorage txStorage = OperationStorage(
+    function executeOp(Call[] memory calls, string calldata operationName)
+        public
+    {
+        OperationStorage opStorage = OperationStorage(
             registry.getRegisteredService(OPERATION_STORAGE)
         );
-        txStorage.finalize();
+        OperationsRegistry opRegistry = OperationsRegistry(
+            registry.getRegisteredService(OPERATIONS_REGISTRY)
+        );
+
+        opStorage.setOperationSteps(opRegistry.getOperation(operationName));
+        aggregate(calls);
+        opStorage.finalize();
     }
 
     function aggregate(Call[] memory calls)
         public
         returns (bytes[] memory returnData)
     {
+        OperationStorage opStorage = OperationStorage(
+            registry.getRegisteredService(OPERATION_STORAGE)
+        );
         returnData = new bytes[](calls.length);
         for (uint256 current = 0; current < calls.length; current++) {
+            opStorage.verifyStep(calls[current].targetHash);
             address target = registry.getServiceAddress(
                 calls[current].targetHash
             );
 
-            (bool success, bytes memory result) = target.delegatecall(
-                calls[current].callData
-            );
+            (bool success, ) = target.delegatecall(calls[current].callData);
+
             require(success, "delegate call failed");
-            returnData[current] = result;
         }
     }
 
