@@ -1,6 +1,8 @@
 pragma solidity ^0.8.1;
 import "hardhat/console.sol";
 
+// TODO: Allow only whitelisted addresses to call methods on this storage
+// In our case this will be the OperationExecutor.
 contract OperationStorage {
     address private owner;
     bytes32[] private returnValues = [bytes32("test")];

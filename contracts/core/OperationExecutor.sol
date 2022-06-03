@@ -13,6 +13,7 @@ import "../interfaces/tokens/IERC20.sol";
 import "../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import "../interfaces/flashloan/IERC3156FlashLender.sol";
 import {FlashloanData, Call} from "./Types.sol";
+import {OPERATION_STORAGE, FLASH_MINT_MODULE} from "./Constants.sol";
 
 contract OperationExecutor is IERC3156FlashBorrower {
     ServiceRegistry public immutable registry;
@@ -24,7 +25,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     function executeOp(Call[] memory calls) public {
         aggregate(calls);
         OperationStorage txStorage = OperationStorage(
-            registry.getRegisteredService("OPERATION_STORAGE")
+            registry.getRegisteredService(OPERATION_STORAGE)
         );
         txStorage.finalize();
     }
@@ -54,10 +55,10 @@ contract OperationExecutor is IERC3156FlashBorrower {
         uint256, // fee - the implementation should support the fee even though now it's 0
         bytes calldata data
     ) external override returns (bytes32) {
-        address lender = registry.getRegisteredService("FLASH_MINT_MODULE");
+        address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
 
         FlashloanData memory flData = abi.decode(data, (FlashloanData));
-        // TODO - These errors should be in an enum. Probably grouped somehow
+        // TODO - Use custom errors from solidity introduced in 0.8.4  https://blog.soliditylang.org/2021/04/21/custom-errors/
         require(amount == flData.amount, "loan-inconsistency");
         IERC20(asset).approve(initiator, flData.amount);
 

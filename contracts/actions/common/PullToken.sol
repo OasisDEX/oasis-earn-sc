@@ -7,26 +7,16 @@ import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import {PullTokenData} from "../../core/Types.sol";
+import {OPERATION_STORAGE} from "../../core/Constants.sol";
 
 contract PullToken is IAction {
-    ServiceRegistry public immutable registry;
+    constructor(address _registry) IAction(_registry) {}
 
-    constructor(address _registry) {
-        registry = ServiceRegistry(_registry);
-    }
-
-    function execute(bytes calldata data)
-        external
-        payable
-        override
-        returns (bytes memory)
-    {
-        console.log("PULL TOKEN!!!");
+    function execute(bytes calldata data) external payable override {
         PullTokenData memory pull = abi.decode(data, (PullTokenData));
         // TODO: Use OZ's safeTransferFrom
         IERC20(pull.asset).transferFrom(pull.from, address(this), pull.amount);
-        OperationStorage(registry.getRegisteredService("OPERATION_STORAGE"))
-            .push("PullToken");
-        return "";
+        // TODO: REMOVE
+        storeResult("PULL_TOKEN");
     }
 }

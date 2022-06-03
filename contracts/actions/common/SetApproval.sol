@@ -7,30 +7,18 @@ import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import {SetApprovalData} from "../../core/Types.sol";
+import {OPERATION_STORAGE} from "../../core/Constants.sol";
 
 contract SetApproval is IAction {
-    ServiceRegistry public immutable registry;
-
     // TODO: Pass the service registry in here
-    constructor(address _registry) {
-        registry = ServiceRegistry(_registry);
-    }
+    constructor(address _registry) IAction(_registry) {}
 
-    function execute(bytes calldata data)
-        external
-        payable
-        override
-        returns (bytes memory)
-    {
-        console.log("SetApproval TOKEN!!!");
-        OperationStorage txStorage = OperationStorage(
-            registry.getRegisteredService("OPERATION_STORAGE")
-        );
-        txStorage.push("SetApproval");
+    function execute(bytes calldata data) external payable override {
         SetApprovalData memory approval = abi.decode(data, (SetApprovalData));
 
         // TODO: Use OZ's safeApprove
         IERC20(approval.asset).approve(approval.delegator, approval.amount);
-        return "";
+        // TODO: REMOVE
+        storeResult("SetApproval");
     }
 }
