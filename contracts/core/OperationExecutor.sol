@@ -24,7 +24,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     }
 
     function executeOp(Call[] memory calls, string calldata operationName)
-        public
+        external
     {
         OperationStorage opStorage = OperationStorage(
             registry.getRegisteredService(OPERATION_STORAGE)
@@ -38,14 +38,10 @@ contract OperationExecutor is IERC3156FlashBorrower {
         opStorage.finalize();
     }
 
-    function aggregate(Call[] memory calls)
-        public
-        returns (bytes[] memory returnData)
-    {
+    function aggregate(Call[] memory calls) public {
         OperationStorage opStorage = OperationStorage(
             registry.getRegisteredService(OPERATION_STORAGE)
         );
-        returnData = new bytes[](calls.length);
         for (uint256 current = 0; current < calls.length; current++) {
             opStorage.verifyStep(calls[current].targetHash);
             address target = registry.getServiceAddress(

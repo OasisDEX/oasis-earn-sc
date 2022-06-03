@@ -13,7 +13,7 @@ import {OPERATION_EXECUTOR, FLASH_MINT_MODULE, DAI} from "../../core/Constants.s
 contract TakeFlashloan is IAction {
     constructor(address _registry) IAction(_registry) {}
 
-    function execute(bytes calldata data) public payable override {
+    function execute(bytes calldata data) external payable override {
         DSProxy(payable(address(this))).setOwner(
             registry.getRegisteredService(OPERATION_EXECUTOR)
         );
