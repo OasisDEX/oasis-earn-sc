@@ -14,7 +14,7 @@ import {OPERATION_STORAGE, WETH, ONE_INCH_AGGREGATOR} from "../../core/Constants
 contract SwapOnOneInch is IAction {
     constructor(address _registry) IAction(_registry) {}
 
-    function execute(bytes calldata data) external payable override {
+    function execute(bytes calldata data, uint8[] memory) external payable override {
         // TODO figure out why using ETH doesn't work.
         // - Failed on the swap. 1Inch has some EthReceiver contract which checks the tx.origin and msg.sender
         //   If they are different msg.sender != tx.origin the deposit/transfer of ETH is not accepted

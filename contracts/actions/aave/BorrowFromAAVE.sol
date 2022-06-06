@@ -19,7 +19,7 @@ contract BorrowFromAAVE is IAction {
 
     constructor(address _registry) IAction(_registry) {}
 
-    function execute(bytes calldata data) external payable override {
+    function execute(bytes calldata data, uint8[] memory) external payable override {
         AAVEBorrowData memory borrow = abi.decode(data, (AAVEBorrowData));
         address wethGatewayAddress = registry.getRegisteredService(
             AAVE_WETH_GATEWAY
