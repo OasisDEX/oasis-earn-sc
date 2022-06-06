@@ -8,7 +8,7 @@ contract DummyAction is IAction {
     // TODO: Pass the service registry in here
     constructor(address _registry) IAction(_registry) {}
 
-    function execute(bytes calldata data) external payable override {
+    function execute(bytes calldata data, uint8[] memory) external payable override {
         OperationStorage txStorage = OperationStorage(
             registry.getRegisteredService("OPERATION_STORAGE")
         );
