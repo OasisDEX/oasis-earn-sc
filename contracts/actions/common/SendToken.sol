@@ -13,7 +13,7 @@ import {OPERATION_STORAGE} from "../../core/Constants.sol";
 contract SendToken is IAction {
     constructor(address _registry) IAction(_registry) {}
 
-    function execute(bytes calldata data) external payable override {
+    function execute(bytes calldata data, uint8[] memory) external payable override {
         SendTokenData memory send = abi.decode(data, (SendTokenData));
         // TODO: Use OZ's safeTransfer
         IERC20(send.asset).transfer(send.to, send.amount);

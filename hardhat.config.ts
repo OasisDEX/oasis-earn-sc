@@ -18,6 +18,19 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
+const blockNumber = process.env.BLOCK_NUMBER;
+if (!blockNumber) {
+  throw new Error(`You must provide a block number.`);
+}
+
+if (!/^\d+$/.test(blockNumber)) {
+  throw new Error(
+    `Provide a valid block number. Provided value is ${blockNumber}`
+  );
+}
+
+console.log(`Forking from block number: ${blockNumber}`);
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -45,17 +58,37 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
+    local: {
+      url: "http://127.0.0.1:8545",
+      timeout: 100000,
+    },
     hardhat: {
-      chainId: 2137,
       forking: {
-        url: process.env.MAINNET_URL!,
-        blockNumber: parseInt(process.env.BLOCK_NUMBER!),
+        url: process.env.ALCHEMY_NODE!,
+        blockNumber: parseInt(blockNumber),
       },
+      chainId: 2137,
+      mining: {
+        auto: true,
+      },
+      hardfork: "london",
+      gas: "auto",
+      initialBaseFeePerGas: 1000000000,
+      allowUnlimitedContractSize: true,
     },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
+  },
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts",
+  },
+  mocha: {
+    timeout: 600000,
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,

@@ -2,7 +2,7 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../common/Action.sol";
+import "../common/IAction.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -15,11 +15,11 @@ import "../../libs/SafeMath.sol";
 
 import {WithdrawData} from "../../core/types/Maker.sol";
 
-contract Withdraw is Action {
+contract Withdraw is IAction {
     using SafeMath for uint256;
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-    constructor(ServiceRegistry _registry) Action(_registry) {}
+    constructor(address _registry) IAction(_registry) {}
 
     function execute(bytes calldata data, uint8[] memory _paramsMapping)
         public

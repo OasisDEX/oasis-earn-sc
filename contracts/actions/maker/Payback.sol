@@ -2,7 +2,7 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../common/Action.sol";
+import "../common/IAction.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -15,7 +15,7 @@ import "../../libs/SafeMath.sol";
 
 import {PaybackData} from "../../core/types/Maker.sol";
 
-contract Payback is Action {
+contract Payback is IAction {
     using SafeMath for uint256;
     uint256 public constant RAY = 10**27;
 
@@ -27,7 +27,7 @@ contract Payback is Action {
         bytes32 ilk;
     }
 
-    constructor(ServiceRegistry _registry) Action(_registry) {}
+    constructor(address _registry) IAction(_registry) {}
 
     function execute(bytes calldata data, uint8[] memory _paramsMapping)
         public

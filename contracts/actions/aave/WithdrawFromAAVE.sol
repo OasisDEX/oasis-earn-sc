@@ -14,7 +14,7 @@ import {OPERATION_STORAGE, AAVE_LENDING_POOL} from "../../core/Constants.sol";
 contract WithdrawFromAAVE is IAction {
     constructor(address _registry) IAction(_registry) {}
 
-    function execute(bytes calldata data) external payable override {
+    function execute(bytes calldata data, uint8[] memory) external payable override {
         AAVEWithdrawData memory withdraw = abi.decode(data, (AAVEWithdrawData));
         ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).withdraw(
                 withdraw.asset,

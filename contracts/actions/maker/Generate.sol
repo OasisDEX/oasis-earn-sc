@@ -2,7 +2,7 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../common/Action.sol";
+import "../common/IAction.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -16,7 +16,7 @@ import "../../libs/SafeMath.sol";
 
 import {GenerateData} from "../../core/types/Maker.sol";
 
-contract Generate is Action {
+contract Generate is IAction {
     using SafeMath for uint256;
 
     uint256 constant RAY = 10**27;
@@ -27,7 +27,7 @@ contract Generate is Action {
     address public constant DAI_JOIN_ADDR =
         0x9759A6Ac90977b93B58547b4A71c78317f391A28;
 
-    constructor(ServiceRegistry _registry) Action(_registry) {}
+    constructor(address _registry) IAction(_registry) {}
 
     function execute(bytes calldata data, uint8[] memory _paramsMapping)
         external

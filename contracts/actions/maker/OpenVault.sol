@@ -2,7 +2,7 @@
 pragma solidity >=0.7.6;
 pragma abicoder v2;
 
-import "../common/Action.sol";
+import "../common/IAction.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/maker/IJoin.sol";
@@ -10,8 +10,8 @@ import "../../interfaces/maker/IManager.sol";
 
 import {OpenVaultData} from "../../core/types/Maker.sol";
 
-contract OpenVault is Action {
-    constructor(ServiceRegistry _registry) Action(_registry) {}
+contract OpenVault is IAction {
+    constructor(address _registry) IAction(_registry) {}
 
     function execute(bytes calldata data, uint8[] memory)
         external
