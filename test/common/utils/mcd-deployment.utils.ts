@@ -36,32 +36,6 @@ export interface ERC20TokenData {
   pip?: string
 }
 
-async function exchangeToToken(provider: JsonRpcProvider, signer: Signer, token: ERC20TokenData) {
-  const UNISWAP_ROUTER_V3 = '0xe592427a0aece92de3edee1f18e0157c05861564'
-  const uniswapV3 = new ethers.Contract(UNISWAP_ROUTER_V3, UniswapRouterV3ABI, provider).connect(
-    signer,
-  )
-
-  const address = await signer.getAddress()
-
-  const swapParams = {
-    tokenIn: MAINNET_ADDRESSES.ETH,
-    tokenOut: token.address,
-    fee: 3000,
-    recipient: address,
-    deadline: 1751366148,
-    amountIn: amountToWei(200).toFixed(0),
-    amountOutMinimum: amountToWei(ZERO, token.precision).toFixed(0),
-    sqrtPriceLimitX96: 0,
-  }
-
-  const uniswapTx = await uniswapV3.exactInputSingle(swapParams, {
-    value: amountToWei(200).toFixed(0),
-  })
-
-  await uniswapTx.wait()
-}
-
 async function transferToExchange(
   provider: JsonRpcProvider,
   signer: Signer,
