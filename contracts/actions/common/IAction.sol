@@ -12,10 +12,4 @@ abstract contract IAction {
     }
 
     function execute(bytes calldata data) external payable virtual;
-
-    function storeResult(bytes32 result) internal {
-        OperationStorage(registry.getRegisteredService(OPERATION_STORAGE)).push(
-                result
-            );
-    }
 }

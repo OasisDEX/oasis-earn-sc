@@ -17,8 +17,5 @@ contract SendToken is IAction {
         SendTokenData memory send = abi.decode(data, (SendTokenData));
         // TODO: Use OZ's safeTransfer
         IERC20(send.asset).transfer(send.to, send.amount);
-
-        // TODO: REMOVE
-        storeResult("SendToken");
     }
 }

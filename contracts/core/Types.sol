@@ -51,4 +51,5 @@ struct SwapData {
 struct Call {
     bytes32 targetHash; //TODO: Figure out a better name
     bytes callData;
+    bool isResultStored;
 }

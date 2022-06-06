@@ -5,21 +5,18 @@ import "hardhat/console.sol";
 // In our case this will be the OperationExecutor.
 contract OperationStorage {
     address private owner;
-    bytes32[] private returnValues = [bytes32("test")];
+    bytes[] private returnValues = [bytes("test")];
 
     constructor() {
         owner = msg.sender;
     }
 
-    function push(bytes32 value) external {
-        console.log("DEBUG: PUSHED");
-        console.logBytes32(value);
+    function push(bytes memory value) external {
         returnValues.push(value);
     }
 
-    function at(uint256 index) external view returns (bytes32) {
+    function at(uint256 index) external view returns (bytes memory) {
         console.log("DEBUG: PULLED");
-        console.logBytes32(returnValues[index]);
         return returnValues[index];
     }
 

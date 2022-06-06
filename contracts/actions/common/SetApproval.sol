@@ -18,7 +18,5 @@ contract SetApproval is IAction {
 
         // TODO: Use OZ's safeApprove
         IERC20(approval.asset).approve(approval.delegator, approval.amount);
-        // TODO: REMOVE
-        storeResult("SetApproval");
     }
 }

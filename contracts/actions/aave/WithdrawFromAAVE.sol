@@ -24,6 +24,5 @@ contract WithdrawFromAAVE is IAction {
         // TODO: Assert that the funds are indeed in the account.
 
         // TODO: REMOVE
-        storeResult("WithdrawFromAAVE");
     }
 }

@@ -23,8 +23,5 @@ contract DepositInAAVE is IAction {
             0
         );
         // TODO: verify if I received the amount in the give aToken
-
-        // TODO: REMOVE
-        storeResult("DepositInAAVE");
     }
 }

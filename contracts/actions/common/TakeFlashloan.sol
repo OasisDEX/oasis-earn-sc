@@ -14,6 +14,7 @@ contract TakeFlashloan is IAction {
     constructor(address _registry) IAction(_registry) {}
 
     function execute(bytes calldata data) public payable override {
+        console.log("AM I HERE in TAF?");
         DSProxy(payable(address(this))).setOwner(
             registry.getRegisteredService(OPERATION_EXECUTOR)
         );
@@ -27,7 +28,5 @@ contract TakeFlashloan is IAction {
             );
 
         DSProxy(payable(address(this))).setOwner(msg.sender);
-
-        storeResult("TakeAFlashloan");
     }
 }

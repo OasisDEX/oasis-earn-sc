@@ -31,7 +31,5 @@ contract BorrowFromAAVE is IAction {
             2,
             0
         );
-        // TODO: REMOVE
-        storeResult("BorrowFromAAVE");
     }
 }

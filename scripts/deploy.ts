@@ -222,7 +222,8 @@ async function main() {
         asset: ADDRESSES.main.DAI,
         from: operationExecutorAddress,
       },
-    ]
+    ],
+    true
   );
 
   // APPROVE LENDING POOL
@@ -247,7 +248,8 @@ async function main() {
         amount: flashloanAmount.plus(depositAmount).toFixed(0),
         asset: ADDRESSES.main.DAI,
       },
-    ]
+    ],
+    true
   );
 
   // BORROW FROM AAVE
@@ -259,7 +261,8 @@ async function main() {
         amount: borrowAmount.toFixed(0),
         asset: ADDRESSES.main.ETH,
       },
-    ]
+    ],
+    true
   );
 
   // SWAP TOKENS
@@ -317,7 +320,7 @@ async function main() {
   const takeAFlashloan = createAction(
     takeAFlashloanHash,
     [
-      "tuple(uint256 amount, address borrower, (bytes32 targetHash, bytes callData)[] calls)",
+      "tuple(uint256 amount, address borrower, (bytes32 targetHash, bytes callData, bool isResultStored)[] calls)",
     ],
     [
       {

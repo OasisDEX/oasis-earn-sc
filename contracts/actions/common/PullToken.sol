@@ -17,6 +17,5 @@ contract PullToken is IAction {
         // TODO: Use OZ's safeTransferFrom
         IERC20(pull.asset).transferFrom(pull.from, address(this), pull.amount);
         // TODO: REMOVE
-        storeResult("PULL_TOKEN");
     }
 }

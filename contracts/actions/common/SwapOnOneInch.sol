@@ -32,7 +32,5 @@ contract SwapOnOneInch is IAction {
         require(success, "Exchange / Could not swap");
         uint256 balance = IERC20(swap.toAsset).balanceOf(address(this));
         require(balance >= swap.receiveAtLeast, "Exchange / Received less");
-        // TODO: REmove
-        storeResult("SwapOnOneInch");
     }
 }

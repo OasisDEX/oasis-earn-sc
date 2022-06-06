@@ -135,10 +135,16 @@ export function amountFromWei(amount: BigNumber.Value, precision = 18) {
 type ActionCall = {
   targetHash: string;
   callData: string;
+  isResultStored: boolean;
 };
 
 export class ActionFactory {
-  static create(targetHash: string, types: string[], args: any[]): ActionCall {
+  static create(
+    targetHash: string,
+    types: string[],
+    args: any[],
+    isResultStored: boolean = false
+  ): ActionCall {
     const iface = new ethers.utils.Interface([
       " function execute(bytes calldata data) external payable returns (bytes calldata)",
     ]);
@@ -147,6 +153,7 @@ export class ActionFactory {
     return {
       targetHash,
       callData: calldata,
+      isResultStored,
     };
   }
 }
