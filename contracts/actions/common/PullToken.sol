@@ -2,24 +2,21 @@ pragma solidity ^0.8.1;
 // TODO: Remove this for prod deploy
 import "hardhat/console.sol";
 
-import "./Action.sol";
+import "./IAction.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import {PullTokenData} from "../../core/types/Common.sol";
+import {OPERATION_STORAGE} from "../../core/Constants.sol";
 
-contract PullToken is Action {
-    constructor(ServiceRegistry _registry) Action(_registry) {}
+contract PullToken is IAction {
+    constructor(address _registry) IAction(_registry) {}
 
-    function execute(bytes calldata data, uint8[] memory)
-        external
-        payable
-        override
-    {
-        console.log("PULL TOKEN!!!");
+    function execute(bytes calldata data) external payable override {
         PullTokenData memory pull = abi.decode(data, (PullTokenData));
         // TODO: Use OZ's safeTransferFrom
         IERC20(pull.asset).transferFrom(pull.from, address(this), pull.amount);
-        push("PullToken");
+        // TODO: REMOVE
+        storeResult("PULL_TOKEN");
     }
 }

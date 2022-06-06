@@ -2,25 +2,23 @@ pragma solidity ^0.8.1;
 // TODO: Remove this for prod deploy
 import "hardhat/console.sol";
 
-import "./Action.sol";
+import "./IAction.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import {SetApprovalData} from "../../core/types/Common.sol";
+import {OPERATION_STORAGE} from "../../core/Constants.sol";
 
-contract SetApproval is Action {
-    constructor(ServiceRegistry _registry) Action(_registry) {}
+contract SetApproval is IAction {
+    // TODO: Pass the service registry in here
+    constructor(address _registry) IAction(_registry) {}
 
-    function execute(bytes calldata data, uint8[] memory)
-        external
-        payable
-        override
-    {
-        console.log("SetApproval TOKEN!!!");
-        push("SetApproval");
+    function execute(bytes calldata data) external payable override {
         SetApprovalData memory approval = abi.decode(data, (SetApprovalData));
 
         // TODO: Use OZ's safeApprove
         IERC20(approval.asset).approve(approval.delegator, approval.amount);
+        // TODO: REMOVE
+        storeResult("SetApproval");
     }
 }

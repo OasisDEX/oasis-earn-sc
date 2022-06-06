@@ -1,13 +1,14 @@
 pragma solidity ^0.8.1;
 
-import "../common/Action.sol";
+import "../common/IAction.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 
-contract DummyAction is Action {
-    constructor(ServiceRegistry _registry) Action(_registry) {}
+contract DummyAction is IAction {
+    // TODO: Pass the service registry in here
+    constructor(address _registry) IAction(_registry) {}
 
-    function execute(bytes calldata, uint8[] memory) external payable override {
+    function execute(bytes calldata data) external payable override {
         OperationStorage txStorage = OperationStorage(
             registry.getRegisteredService("OPERATION_STORAGE")
         );
