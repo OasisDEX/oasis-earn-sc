@@ -82,21 +82,9 @@ async function main() {
   );
 
   // DEPLOYING ACTIONS
-  const [, pullTokenActionAddress] = await deploy(
-    "PullToken",
-    [serviceRegistryAddress],
-    options
-  );
-  const [, sendTokenAddress] = await deploy(
-    "SendToken",
-    [serviceRegistryAddress],
-    options
-  );
-  const [, setApprovalAddress] = await deploy(
-    "SetApproval",
-    [serviceRegistryAddress],
-    options
-  );
+  const [, pullTokenActionAddress] = await deploy("PullToken", [], options);
+  const [, sendTokenAddress] = await deploy("SendToken", [], options);
+  const [, setApprovalAddress] = await deploy("SetApproval", [], options);
   const [, flActionAddress] = await deploy(
     "TakeFlashloan",
     [serviceRegistryAddress],

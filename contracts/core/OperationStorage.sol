@@ -17,6 +17,8 @@ contract OperationStorage {
 
     function at(uint256 index) external view returns (bytes memory) {
         console.log("DEBUG: PULLED");
+        console.log("LENG", returnValues.length);
+        console.logBytes(returnValues[index]);
         return returnValues[index];
     }
 

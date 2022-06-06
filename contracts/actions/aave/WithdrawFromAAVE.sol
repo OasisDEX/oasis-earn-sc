@@ -2,7 +2,7 @@ pragma solidity ^0.8.1;
 // TODO: Remove this for prod deploy
 import "hardhat/console.sol";
 
-import "../common/IAction.sol";
+import "../common/Executable.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -11,8 +11,12 @@ import {AAVEWithdrawData} from "../../core/Types.sol";
 import {OPERATION_STORAGE, AAVE_LENDING_POOL} from "../../core/Constants.sol";
 
 // TODO: Make it more generic so that anything could be withdrawn and not only ETH
-contract WithdrawFromAAVE is IAction {
-    constructor(address _registry) IAction(_registry) {}
+contract WithdrawFromAAVE is Executable {
+    ServiceRegistry internal immutable registry;
+
+    constructor(address _registry) {
+        registry = ServiceRegistry(_registry);
+    }
 
     function execute(bytes calldata data) external payable override {
         AAVEWithdrawData memory withdraw = abi.decode(data, (AAVEWithdrawData));
