@@ -36,21 +36,6 @@ export interface ERC20TokenData {
   pip?: string
 }
 
-export async function getOrCreateProxy(provider: JsonRpcProvider, signer: Signer) {
-  const address = await signer.getAddress()
-  const dsProxyRegistry = new ethers.Contract(
-    MAINNET_ADDRESSES.PROXY_REGISTRY,
-    DSProxyRegistryABI,
-    provider,
-  ).connect(signer)
-  let proxyAddress = await dsProxyRegistry.proxies(address)
-  if (proxyAddress === ethers.constants.AddressZero) {
-    await (await dsProxyRegistry['build()']()).wait()
-    proxyAddress = await dsProxyRegistry.proxies(address)
-  }
-  return proxyAddress
-}
-
 async function exchangeToToken(provider: JsonRpcProvider, signer: Signer, token: ERC20TokenData) {
   const UNISWAP_ROUTER_V3 = '0xe592427a0aece92de3edee1f18e0157c05861564'
   const uniswapV3 = new ethers.Contract(UNISWAP_ROUTER_V3, UniswapRouterV3ABI, provider).connect(
