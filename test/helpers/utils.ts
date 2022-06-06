@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import { ethers } from "hardhat";
 
-import IERC20_ABI from "../../abi/IERC20.json";
+import IERC20_ABI from "../../abi/external/IERC20.json";
 import CTOKEN_ABI from "../../abi/external/CErc20.json";
 import { BalanceOptions, RuntimeConfig, ValueOf } from "../helpers/types";
 import { ONE, CONTRACT_LABELS } from "../helpers/constants";
