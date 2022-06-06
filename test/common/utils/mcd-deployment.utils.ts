@@ -36,40 +36,6 @@ export interface ERC20TokenData {
   pip?: string
 }
 
-export async function dsproxyExecuteAction(
-  proxyActions: Contract,
-  dsProxy: Contract,
-  fromAddress: string,
-  method: string,
-  params: any[],
-  value: BigNumber.Value = 0,
-  debug = false,
-): Promise<[boolean, ContractReceipt]> {
-  try {
-    const calldata = proxyActions.interface.encodeFunctionData(method, params)
-
-    debug && console.log(`\x1b[33m ${method} started \x1b[0m`, new Date())
-    const tx = await dsProxy['execute(address,bytes)'](proxyActions.address, calldata, {
-      from: fromAddress,
-      value: ensureWeiFormat(value),
-      gasLimit: 8500000,
-      gasPrice: 1000000000,
-    })
-
-    const result = await tx.wait()
-    debug &&
-      console.log(
-        `\x1b[33m  ${method} completed  gasCost = ${result.gasUsed.toString()} \x1b[0m`,
-        new Date(),
-      )
-
-    return [true, result]
-  } catch (ex) {
-    debug && console.log(`\x1b[33m  ${method} failed  \x1b[0m`, ex, params)
-    return [false, ex as any] // TODO:
-  }
-}
-
 export async function getOrCreateProxy(provider: JsonRpcProvider, signer: Signer) {
   const address = await signer.getAddress()
   const dsProxyRegistry = new ethers.Contract(
