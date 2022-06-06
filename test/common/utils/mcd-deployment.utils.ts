@@ -36,67 +36,6 @@ export interface ERC20TokenData {
   pip?: string
 }
 
-export async function init(params: MCDInitParams = {}): Promise<[JsonRpcProvider, Signer]> {
-  const provider = params.provider || new ethers.providers.JsonRpcProvider()
-  const signer = params.signer || provider.getSigner(0)
-
-  const forking = {
-    jsonRpcUrl: process.env.ALCHEMY_NODE,
-  }
-
-  if (params.blockNumber) {
-    // TODO:
-    ;(forking as any).blockNumber = params.blockNumber
-      ? parseInt(params.blockNumber, 10)
-      : undefined
-  }
-
-  await provider.send('hardhat_reset', [
-    {
-      forking,
-    },
-  ])
-
-  return [provider, signer]
-}
-
-/**
- * tokenIn: string - asset address
- * tokenOut: string - asset address
- * amountIn: BigNumber - already formatted to wei
- * amountOutMinimum: BigNumber - already fromatted to wei. The least amount to receive.
- * recipient: string - wallet's addrees that's going to receive the funds
- */
-export async function swapTokens(
-  tokenIn: string,
-  tokenOut: string,
-  amountIn: string,
-  amountOutMinimum: string,
-  recipient: string,
-  provider: JsonRpcProvider,
-  signer: Signer,
-) {
-  const value = tokenIn === MAINNET_ADDRESSES.ETH ? amountIn : 0
-
-  const UNISWAP_ROUTER_V3 = '0xe592427a0aece92de3edee1f18e0157c05861564'
-  const uniswapV3 = new ethers.Contract(UNISWAP_ROUTER_V3, UniswapRouterV3ABI, provider).connect(
-    signer,
-  )
-
-  const swapParams = {
-    tokenIn,
-    tokenOut,
-    fee: 3000,
-    recipient,
-    deadline: new Date().getTime(),
-    amountIn,
-    amountOutMinimum,
-    sqrtPriceLimitX96: 0,
-  }
-
-  await uniswapV3.exactInputSingle(swapParams, { value })
-}
-
 export async function dsproxyExecuteAction(
   proxyActions: Contract,
   dsProxy: Contract,

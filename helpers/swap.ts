@@ -1,27 +1,32 @@
-import "@nomiclabs/hardhat-ethers";
-import { ethers } from "hardhat";
-import fetch from "node-fetch";
-import ADDRESSES from "../helpers/addresses.json";
-import UNISWAP_ROUTER_V3_ABI from "../abi/IUniswapRouter.json";
-import { OneInchSwapResponse, RuntimeConfig } from "./types";
+import '@nomiclabs/hardhat-ethers'
+import { ethers } from 'hardhat'
+import fetch from 'node-fetch'
+import ADDRESSES from '../helpers/addresses.json'
+import UNISWAP_ROUTER_V3_ABI from '../abi/IUniswapRouter.json'
+import { OneInchSwapResponse, RuntimeConfig } from './types'
 
+/**
+ * tokenIn: string - asset address
+ * tokenOut: string - asset address
+ * amountIn: BigNumber - already formatted to wei
+ * amountOutMinimum: BigNumber - already fromatted to wei. The least amount to receive.
+ * recipient: string - wallet's addrees that's going to receive the funds
+ */
 export async function swapUniswapTokens(
   tokenIn: string,
   tokenOut: string,
   amountIn: string,
   amountOutMinimum: string,
   recipient: string,
-  { provider, signer }: RuntimeConfig
+  { provider, signer }: RuntimeConfig,
 ) {
-  const value = tokenIn === ADDRESSES.main.WETH ? amountIn : 0;
+  const value = tokenIn === ADDRESSES.main.WETH ? amountIn : 0
 
-  const UNISWAP_ROUTER_V3 = "0xe592427a0aece92de3edee1f18e0157c05861564";
+  const UNISWAP_ROUTER_V3 = '0xe592427a0aece92de3edee1f18e0157c05861564'
 
-  const uniswapV3 = new ethers.Contract(
-    UNISWAP_ROUTER_V3,
-    UNISWAP_ROUTER_V3_ABI,
-    provider
-  ).connect(signer);
+  const uniswapV3 = new ethers.Contract(UNISWAP_ROUTER_V3, UNISWAP_ROUTER_V3_ABI, provider).connect(
+    signer,
+  )
 
   const swapParams = {
     tokenIn,
@@ -32,9 +37,9 @@ export async function swapUniswapTokens(
     amountIn,
     amountOutMinimum,
     sqrtPriceLimitX96: 0,
-  };
+  }
 
-  await uniswapV3.exactInputSingle(swapParams, { value, gasLimit: 3000000 });
+  await uniswapV3.exactInputSingle(swapParams, { value, gasLimit: 3000000 })
 }
 
 function formatOneInchSwapUrl(
@@ -43,24 +48,20 @@ function formatOneInchSwapUrl(
   amount: string,
   slippage: string,
   recepient: string,
-  protocols: string[] = []
+  protocols: string[] = [],
 ) {
-  const protocolsParam = !protocols?.length
-    ? ""
-    : `&protocols=${protocols.join(",")}`;
-  return `https://oasis.api.enterprise.1inch.exchange/v4.0/1/swap?fromTokenAddress=${fromToken.toLowerCase()}&toTokenAddress=${toToken}&amount=${amount}&fromAddress=${recepient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`;
+  const protocolsParam = !protocols?.length ? '' : `&protocols=${protocols.join(',')}`
+  return `https://oasis.api.enterprise.1inch.exchange/v4.0/1/swap?fromTokenAddress=${fromToken.toLowerCase()}&toTokenAddress=${toToken}&amount=${amount}&fromAddress=${recepient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`
 }
 
 async function exchangeTokens(url: string): Promise<OneInchSwapResponse> {
-  const response = await fetch(url);
+  const response = await fetch(url)
 
   if (!response.ok) {
-    throw new Error(
-      `Error performing 1inch swap request ${url}: ${await response.text()}`
-    );
+    throw new Error(`Error performing 1inch swap request ${url}: ${await response.text()}`)
   }
 
-  return response.json() as Promise<OneInchSwapResponse>;
+  return response.json() as Promise<OneInchSwapResponse>
 }
 
 export async function swapOneInchTokens(
@@ -69,7 +70,7 @@ export async function swapOneInchTokens(
   amount: string,
   recepient: string,
   slippage: string,
-  protocols: string[] = []
+  protocols: string[] = [],
 ): Promise<OneInchSwapResponse> {
   const url = formatOneInchSwapUrl(
     fromTokenAddress,
@@ -77,8 +78,8 @@ export async function swapOneInchTokens(
     amount,
     slippage,
     recepient,
-    protocols
-  );
+    protocols,
+  )
 
-  return exchangeTokens(url);
+  return exchangeTokens(url)
 }
