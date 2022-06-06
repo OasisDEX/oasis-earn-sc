@@ -64,7 +64,7 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       forking: {
-        url: process.env.ALCHEMY_NODE!,
+        url: process.env.MAINNET_URL!,
         blockNumber: parseInt(blockNumber),
       },
       chainId: 2137,
