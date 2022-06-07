@@ -54,7 +54,7 @@ async function main() {
   // ServiceRegistry SETUP:
   const [, serviceRegistryAddress] = await deploy('ServiceRegistry', [0], options)
   const registry: ServiceRegistry = new ServiceRegistry(serviceRegistryAddress, signer)
-  registry.addEntry(CONTRACT_LABELS.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
+  registry.addEntry(CONTRACT_LABELS.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
 
   // DEPLOYING Operation Executor
   const [operationExecutor, operationExecutorAddress] = await deploy(
@@ -62,7 +62,7 @@ async function main() {
     [serviceRegistryAddress],
     options,
   )
-  registry.addEntry(CONTRACT_LABELS.OPERATION_EXECUTOR, operationExecutorAddress)
+  registry.addEntry(CONTRACT_LABELS.common.OPERATION_EXECUTOR, operationExecutorAddress)
 
   // DEPLOYING ACTIONS
   const [, pullTokenActionAddress] = await deploy('PullToken', [serviceRegistryAddress], options)
@@ -87,41 +87,47 @@ async function main() {
   //SETUPING REGISTRY ENTRIES:
   const operationStorageHash = await registry.addEntry('OPERATION_STORAGE', operationStorageAddress)
   const dummyActionHash = await registry.addEntry('DUMMY_ACTION', dummyActionAddress)
-  const pullTokenHash = await registry.addEntry(CONTRACT_LABELS.PULL_TOKEN, pullTokenActionAddress)
-  const sendTokenHash = await registry.addEntry(CONTRACT_LABELS.SEND_TOKEN, sendTokenAddress)
-  const setApprovalHash = await registry.addEntry(CONTRACT_LABELS.SET_APPROVAL, setApprovalAddress)
+  const pullTokenHash = await registry.addEntry(
+    CONTRACT_LABELS.common.PULL_TOKEN,
+    pullTokenActionAddress,
+  )
+  const sendTokenHash = await registry.addEntry(CONTRACT_LABELS.common.SEND_TOKEN, sendTokenAddress)
+  const setApprovalHash = await registry.addEntry(
+    CONTRACT_LABELS.common.SET_APPROVAL,
+    setApprovalAddress,
+  )
   const takeAFlashloanHash = await registry.addEntry(
-    CONTRACT_LABELS.TAKE_A_FLASHLOAN,
+    CONTRACT_LABELS.common.TAKE_A_FLASHLOAN,
     flActionAddress,
   )
   const depositInAAVEHash = await registry.addEntry(
-    CONTRACT_LABELS.DEPOSIT_IN_AAVE,
+    CONTRACT_LABELS.aave.DEPOSIT_IN_AAVE,
     depositInAAVEAddress,
   )
   const borrowFromAAVEHash = await registry.addEntry(
-    CONTRACT_LABELS.BORROW_FROM_AAVE,
+    CONTRACT_LABELS.aave.BORROW_FROM_AAVE,
     borrowFromAAVEAddress,
   )
   const withdrawFromAAVEHash = await registry.addEntry(
-    CONTRACT_LABELS.WITHDRAW_FROM_AAVE,
+    CONTRACT_LABELS.aave.WITHDRAW_FROM_AAVE,
     withdrawFromAAVEAddress,
   )
   const swapOnOneInchHash = await registry.addEntry(
-    CONTRACT_LABELS.SWAP_ON_ONE_INCH,
+    CONTRACT_LABELS.common.SWAP_ON_ONE_INCH,
     swapOnOninchAddress,
   )
   const lendingPoolHash = await registry.addEntry(
-    CONTRACT_LABELS.AAVE_LENDING_POOL,
+    CONTRACT_LABELS.aave.AAVE_LENDING_POOL,
     ADDRESSES.main.AAVEMainnetLendingPool,
   )
   const wethGatewayHash = await registry.addEntry(
-    CONTRACT_LABELS.AAVE_WETH_GATEWAY,
+    CONTRACT_LABELS.aave.AAVE_WETH_GATEWAY,
     ADDRESSES.main.AAVEWETHGateway,
   )
-  const wethHash = await registry.addEntry(CONTRACT_LABELS.WETH, ADDRESSES.main.WETH)
-  const daiHash = await registry.addEntry(CONTRACT_LABELS.DAI, ADDRESSES.main.DAI)
+  const wethHash = await registry.addEntry(CONTRACT_LABELS.common.WETH, ADDRESSES.main.WETH)
+  const daiHash = await registry.addEntry(CONTRACT_LABELS.common.DAI, ADDRESSES.main.DAI)
   const aggregatorRouterHash = await registry.addEntry(
-    CONTRACT_LABELS.ONE_INCH_AGGREGATOR,
+    CONTRACT_LABELS.common.ONE_INCH_AGGREGATOR,
     ADDRESSES.main.oneInchAggregator,
   )
 

@@ -1,8 +1,7 @@
 import BigNumber from 'bignumber.js'
 import _ from 'lodash'
-import { curry } from 'ramda'
 import { ethers } from 'hardhat'
-import { BigNumber as EthersBN, Contract, ContractReceipt, Signer, utils } from 'ethers'
+import { BigNumber as EthersBN, Contract, Signer, utils } from 'ethers'
 import DSProxyABI from '../../abi/ds-proxy.json'
 
 import GetCDPsABI from '../../abi/get-cdps.json'
@@ -10,10 +9,15 @@ import { ADDRESSES } from '../../helpers/addresses'
 
 import { JsonRpcProvider } from '@ethersproject/providers'
 
-import { CDPInfo } from './common.types'
 import { logDebug } from './test-utils'
 
 import { getOrCreateProxy } from '../../helpers/proxy'
+import { CDPInfo } from '../../helpers/types'
+import { loadDummyExchangeFixtures } from '../../helpers/swap/dummy-exchange'
+import { deploy } from '../../helpers/deploy'
+import init from '../../helpers/init'
+import { ServiceRegistry } from '../../helpers/utils'
+import { CONTRACT_LABELS } from '../../helpers/constants'
 
 export const FEE = 20
 export const FEE_BASE = 10000
@@ -28,13 +32,11 @@ export interface DeployedSystemInfo {
   userProxyAddress: string
   mcdViewInstance: Contract
   exchangeInstance: Contract
-  multiplyProxyActionsInstance: Contract
   dsProxyInstance: Contract
   daiTokenInstance: Contract
   gems: {
     wethTokenInstance: Contract
   }
-  guni: Contract
   actionOpenVault: Contract
   actionTakeFlashLoan: Contract
   actionDeposit: Contract
@@ -43,188 +45,159 @@ export interface DeployedSystemInfo {
   actionGenerate: Contract
   actionCdpAllow: Contract
   actionCdpDisallow: Contract
-  flashLoanProvider: Contract
-  operationRunner: Contract
+  actionTakeFlashloan: Contract
   operationExecutor: Contract
   operationStorage: Contract
   operationData: Contract
   serviceRegistry: Contract
 }
 
-export async function deploySystem(
-  provider: JsonRpcProvider,
-  signer: Signer,
+export async function deployTestSystem(
   usingDummyExchange = false,
   debug = false,
 ): Promise<DeployedSystemInfo> {
+  const config = await init()
+  const { provider, signer, address } = config
+
+  const options = {
+    debug: true,
+    config,
+  }
+
   const deployedContracts: Partial<DeployedSystemInfo> = {}
 
-  const userProxyAddress = await getOrCreateProxy(signer)
-
-  deployedContracts.userProxyAddress = userProxyAddress // TODO:
+  // Setup User
+  console.log('1/ Setting up user proxy')
+  const proxyAddress = await getOrCreateProxy(signer)
+  deployedContracts.userProxyAddress = proxyAddress
   deployedContracts.dsProxyInstance = new ethers.Contract(
-    userProxyAddress,
+    proxyAddress,
     DSProxyABI,
     provider,
   ).connect(signer)
 
-  // GUNI DEPLOYMENT
-  const GUni = await ethers.getContractFactory('GuniMultiplyProxyActions', signer)
-  const guni = await GUni.deploy()
-  deployedContracts.guni = await guni.deployed()
+  // Deploy System Contracts
+  console.log('2/ Deploying system contracts')
+  const [serviceRegistry, serviceRegistryAddress] = await deploy('ServiceRegistry', [0], options)
+  const registry = new ServiceRegistry(serviceRegistryAddress, signer)
+  deployedContracts.serviceRegistry = serviceRegistry
 
-  // const multiplyProxyActions = await deploy("MultiplyProxyActions");
-  const mpActionFactory = await ethers.getContractFactory('MultiplyProxyActions', signer)
-  const multiplyProxyActions = await mpActionFactory.deploy()
-  deployedContracts.multiplyProxyActionsInstance = await multiplyProxyActions.deployed()
-
-  const mcdViewFactory = await ethers.getContractFactory('McdView', signer)
-  const mcdView = await mcdViewFactory.deploy()
-  deployedContracts.mcdViewInstance = await mcdView.deployed()
-
-  const exchangeFactory = await ethers.getContractFactory('Exchange', signer)
-  const exchange = await exchangeFactory.deploy(
-    multiplyProxyActions.address,
-    ADDRESSES.main.feeRecipient,
-    FEE,
+  const [operationExecutor, operationExecutorAddress] = await deploy(
+    'OperationExecutor',
+    [serviceRegistryAddress],
+    options,
   )
-  const exchangeInstance = await exchange.deployed()
+  deployedContracts.operationExecutor = operationExecutor
 
-  const dummyExchangeFactory = await ethers.getContractFactory('DummyExchange', signer)
-  const dummyExchange = await dummyExchangeFactory.deploy()
-  const dummyExchangeInstance = await dummyExchange.deployed()
+  const [operationStorage, operationStorageAddress] = await deploy(
+    'OperationStorage',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.operationStorage = operationStorage
 
-  deployedContracts.exchangeInstance = !usingDummyExchange
-    ? exchangeInstance
-    : dummyExchangeInstance
+  const [mcdView, mcdViewAddress] = await deploy('McdView', [serviceRegistryAddress], options)
+  deployedContracts.mcdViewInstance = mcdView
 
-  await loadDummyExchangeFixtures(provider, signer, dummyExchangeInstance, debug)
+  const [dummyExchange, dummyExchangeAddress] = await deploy(
+    'DummyExchange',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.exchangeInstance = dummyExchange
 
-  const address = await signer.getAddress()
+  await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
+
+  // Deploy Actions
+  console.log('3/ Deploying actions')
+  const [actionFl, actionFlAddress] = await deploy(
+    'TakeFlashloan',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.actionTakeFlashLoan = actionFl
+
+  const [actionOpenVault, actionOpenVaultAddress] = await deploy(
+    'OpenVault',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.actionOpenVault = actionOpenVault
+
+  const [actionDeposit, actionDepositAddress] = await deploy(
+    'Deposit',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.actionDeposit = actionDeposit
+
+  const [actionPayback, actionPaybackAddress] = await deploy(
+    'Payback',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.actionPayback = actionPayback
+
+  const [actionWithdraw, actionWithdrawAddress] = await deploy(
+    'Withdraw',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.actionWithdraw = actionWithdraw
+
+  const [actionGenerate, actionGenerateAddress] = await deploy(
+    'Generate',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.actionGenerate = actionGenerate
+
+  const [actionCdpAllow, actionCdpAllowAddress] = await deploy(
+    'CdpAllow',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.actionCdpAllow = actionCdpAllow
+
+  const [actionCdpDisallow, actionCdpDisallowAddress] = await deploy(
+    'CdpDisallow',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.actionCdpDisallow = actionCdpDisallow
+
+  console.log('4/ Adding contracts to registry')
+  registry.addEntry(CONTRACT_LABELS.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
+  registry.addEntry(CONTRACT_LABELS.common.OPERATION_EXECUTOR, operationExecutorAddress)
+  registry.addEntry(CONTRACT_LABELS.common.OPERATION_STORAGE, operationStorageAddress)
+  registry.addEntry(CONTRACT_LABELS.maker.MCD_VIEW, mcdViewAddress)
+  registry.addEntry(CONTRACT_LABELS.common.EXCHANGE, dummyExchangeAddress)
+
+  registry.addEntry(CONTRACT_LABELS.common.TAKE_A_FLASHLOAN, actionFlAddress)
+  registry.addEntry(CONTRACT_LABELS.maker.OPEN_VAULT, actionOpenVaultAddress)
+  registry.addEntry(CONTRACT_LABELS.maker.DEPOSIT, actionDepositAddress)
+  registry.addEntry(CONTRACT_LABELS.maker.PAYBACK, actionPaybackAddress)
+  registry.addEntry(CONTRACT_LABELS.maker.WITHDRAW, actionWithdrawAddress)
+  registry.addEntry(CONTRACT_LABELS.maker.GENERATE, actionGenerateAddress)
+  registry.addEntry(CONTRACT_LABELS.maker.CDP_ALLOW, actionCdpAllowAddress)
+  registry.addEntry(CONTRACT_LABELS.maker.CDP_DISALLOW, actionCdpDisallowAddress)
+
   if (debug) {
+    console.log('5/ Debugging...')
     logDebug([
       `Signer address: ${address}`,
       `Exchange address: ${deployedContracts.exchangeInstance.address}`,
       `User Proxy Address: ${deployedContracts.userProxyAddress}`,
       `DSProxy address: ${deployedContracts.dsProxyInstance.address}`,
-      `MultiplyProxyActions address: ${deployedContracts.multiplyProxyActionsInstance.address}`,
-      `GuniMultiplyProxyActions address: ${guni.address}`,
+      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
+      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
+      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
+      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
+      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
       `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
     ])
   }
 
-  // ACTIONS POC deployed contracts
-  const FMM = '0x1EB4CF3A948E7D72A198fe073cCb8C7a948cD853' // Maker Flash Mint Module
-
-  const ServiceRegistry = await ethers.getContractFactory('ServiceRegistry', signer)
-  const serviceRegistry = await ServiceRegistry.deploy([0])
-  deployedContracts.serviceRegistry = await serviceRegistry.deployed()
-
-  const FlashLoanProvider = await ethers.getContractFactory('FlashLoanProvider', signer)
-  const flashLoanProvider = await FlashLoanProvider.deploy(serviceRegistry.address, FMM)
-  deployedContracts.flashLoanProvider = await flashLoanProvider.deployed()
-
-  const OperationRunner = await ethers.getContractFactory('OperationRunner', signer)
-  const operationRunner = await OperationRunner.deploy(serviceRegistry.address, FMM)
-  deployedContracts.operationRunner = await operationRunner.deployed()
-
-  const OperationExecutor = await ethers.getContractFactory('OperationExecutor', signer)
-  const operationExecutor = await OperationExecutor.deploy(serviceRegistry.address)
-  deployedContracts.operationExecutor = await operationExecutor.deployed()
-
-  const OperationStorage = await ethers.getContractFactory('OperationStorage', signer)
-  const operationStorage = await OperationStorage.deploy()
-  deployedContracts.operationStorage = await operationStorage.deployed()
-
-  const OperationData = await ethers.getContractFactory('OperationData', signer)
-  const operationData = await OperationData.deploy()
-  deployedContracts.operationData = await operationData.deployed()
-
-  const ActionOpenVault = await ethers.getContractFactory('OpenVault', signer)
-  const actionOpenVault = await ActionOpenVault.deploy(serviceRegistry.address)
-  deployedContracts.actionOpenVault = await actionOpenVault.deployed()
-
-  const ActionTakeFlashLoan = await ethers.getContractFactory('TakeFlashloan', signer)
-  const actionTakeFlashLoan = await ActionTakeFlashLoan.deploy(serviceRegistry.address)
-  deployedContracts.actionTakeFlashLoan = await actionTakeFlashLoan.deployed()
-
-  const ActionDeposit = await ethers.getContractFactory('Deposit', signer)
-  const actionDeposit = await ActionDeposit.deploy(serviceRegistry.address)
-  deployedContracts.actionDeposit = await actionDeposit.deployed()
-
-  const ActionPayback = await ethers.getContractFactory('Payback', signer)
-  const actionPayback = await ActionPayback.deploy(serviceRegistry.address)
-  deployedContracts.actionPayback = await actionPayback.deployed()
-
-  const ActionWithdraw = await ethers.getContractFactory('Withdraw', signer)
-  const actionWithdraw = await ActionWithdraw.deploy()
-  deployedContracts.actionWithdraw = await actionWithdraw.deployed()
-
-  const ActionGenerate = await ethers.getContractFactory('Generate', signer)
-  const actionGenerate = await ActionGenerate.deploy(serviceRegistry.address)
-  deployedContracts.actionGenerate = await actionGenerate.deployed()
-
-  const ActionCdpAllow = await ethers.getContractFactory('CdpAllow', signer)
-  const actionCdpAllow = await ActionCdpAllow.deploy()
-  deployedContracts.actionCdpAllow = await actionCdpAllow.deployed()
-
-  const ActionCdpDisallow = await ethers.getContractFactory('CdpDisallow', signer)
-  const actionCdpDisallow = await ActionCdpDisallow.deploy()
-  deployedContracts.actionCdpDisallow = await actionCdpDisallow.deployed()
-
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('DAI')),
-    ADDRESSES.main.DAI,
-  )
-
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('FLASH_MINT_MODULE')),
-    FMM,
-  )
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('OPERATION_RUNNER')),
-    operationRunner.address,
-  )
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('OPERATION_EXECUTOR')),
-    operationExecutor.address,
-  )
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('OPERATION_STORAGE')),
-    operationStorage.address,
-  )
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('FLASHLOAN')),
-    actionTakeFlashLoan.address,
-  )
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('OPEN_VAULT')),
-    actionOpenVault.address,
-  )
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('GENERATE')),
-    actionGenerate.address,
-  )
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('DEPOSIT')),
-    actionDeposit.address,
-  )
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('PAYBACK')),
-    actionPayback.address,
-  )
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('WITHDRAW')),
-    actionWithdraw.address,
-  )
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('CDP_ALLOW')),
-    actionCdpAllow.address,
-  )
-  await serviceRegistry.addNamedService(
-    utils.keccak256(utils.toUtf8Bytes('CDP_DISALLOW')),
-    actionCdpDisallow.address,
-  )
   return deployedContracts as DeployedSystemInfo
 }
 

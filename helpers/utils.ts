@@ -3,7 +3,7 @@ import { ethers } from 'hardhat'
 
 import IERC20_ABI from '../abi/IERC20.json'
 import CTOKEN_ABI from '../abi/CErc20.json'
-import { BalanceOptions, RuntimeConfig, ValueOf } from '../helpers/types'
+import { BalanceOptions, NestedKeys, RuntimeConfig, ValueOf } from '../helpers/types'
 import { ONE, CONTRACT_LABELS } from '../helpers/constants'
 import { Signer, utils } from 'ethers'
 
@@ -136,7 +136,7 @@ export class ServiceRegistry {
   }
 
   async addEntry(
-    label: ValueOf<typeof CONTRACT_LABELS>,
+    label: ValueOf<NestedKeys<typeof CONTRACT_LABELS>>,
     address: string,
     debug: boolean = false,
   ): Promise<string> {
@@ -151,7 +151,7 @@ export class ServiceRegistry {
     return entryHash
   }
 
-  async getEntryHash(label: ValueOf<typeof CONTRACT_LABELS>): Promise<string> {
+  async getEntryHash(label: ValueOf<NestedKeys<typeof CONTRACT_LABELS>>): Promise<string> {
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
 
     return registry.getServiceNameHash(label)
