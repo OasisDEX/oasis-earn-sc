@@ -3,22 +3,22 @@ import _ from 'lodash'
 import { curry } from 'ramda'
 import { ethers } from 'hardhat'
 import { BigNumber as EthersBN, Contract, ContractReceipt, Signer, utils } from 'ethers'
-import DSProxyRegistryABI from '../../../abi/ds-proxy-registry.json'
 import DSProxyABI from '../../../abi/ds-proxy.json'
 import WETHABI from '../../../abi/IWETH.json'
 import ERC20ABI from '../../../abi/IERC20.json'
 import GetCDPsABI from '../../../abi/get-cdps.json'
-import UniswapRouterV3ABI from '../../../abi/IUniswapRouter.json'
-import MAINNET_ADDRESSES from '../../../addresses/mainnet.json'
+import { ADDRESSES } from '../../../helpers/addresses'
 
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { balanceOf, WETH_ADDRESS } from '../../utils'
 
-import { amountToWei, amountFromWei, ensureWeiFormat } from './params-calculation.utils'
+import { amountToWei, amountFromWei } from './params-calculation.utils'
 import { getMarketPrice } from '../http-apis'
 import { CDPInfo } from '../common.types'
 import { logDebug } from './test.utils'
 import { ZERO } from '../../../helpers/constants'
+import { swapUniswapTokens } from '../../../helpers/swap'
+import { getOrCreateProxy } from '../../../helpers/proxy'
 
 export const FEE = 20
 export const FEE_BASE = 10000
@@ -34,6 +34,18 @@ export interface ERC20TokenData {
   address: string
   precision: number
   pip?: string
+}
+
+async function exchangeToToken(provider: JsonRpcProvider, signer: Signer, token: ERC20TokenData) {
+  const address = await signer.getAddress()
+  await swapUniswapTokens(
+    ADDRESSES.main.ETH,
+    token.address,
+    amountToWei(200).toFixed(0),
+    amountToWei(ZERO, token.precision).toFixed(0),
+    address,
+    { provider, signer },
+  )
 }
 
 async function transferToExchange(
@@ -120,32 +132,32 @@ export async function loadDummyExchangeFixtures(
   const tokens = [
     {
       name: 'ETH',
-      address: MAINNET_ADDRESSES.ETH,
-      pip: MAINNET_ADDRESSES.PIP_ETH,
+      address: ADDRESSES.main.common.WETH,
+      pip: ADDRESSES.main.maker.pipWETH,
       precision: 18,
     },
     {
       name: 'DAI',
-      address: MAINNET_ADDRESSES.MCD_DAI,
+      address: ADDRESSES.main.common.DAI,
       pip: undefined,
       precision: 18,
     },
     {
       name: 'LINK',
-      address: MAINNET_ADDRESSES.LINK,
-      pip: MAINNET_ADDRESSES.PIP_LINK,
+      address: ADDRESSES.main.common.LINK,
+      pip: ADDRESSES.main.maker.pipLINK,
       precision: 18,
     },
     {
       name: 'WBTC',
-      address: MAINNET_ADDRESSES.WBTC,
-      pip: MAINNET_ADDRESSES.PIP_WBTC,
+      address: ADDRESSES.main.common.WBTC,
+      pip: ADDRESSES.main.maker.pipWBTC,
       precision: 8,
     },
     {
       name: 'USDC',
-      address: MAINNET_ADDRESSES.USDC,
-      pip: MAINNET_ADDRESSES.PIP_USDC,
+      address: ADDRESSES.main.USDC,
+      pip: ADDRESSES.main.PIP_USDC,
       precision: 6,
     },
   ]
@@ -155,7 +167,7 @@ export async function loadDummyExchangeFixtures(
     provider,
     signer,
     WETH_ADDRESS,
-    tokens.filter(token => token.address !== MAINNET_ADDRESSES.ETH),
+    tokens.filter(token => token.address !== ADDRESSES.main.ETH),
     dummyExchangeInstance,
     debug,
   )
@@ -180,11 +192,7 @@ export async function loadDummyExchangeFixtures(
     tokens
       .filter(token => !!token.pip)
       .map(async token => {
-        const price = await getMarketPrice(
-          token.address,
-          MAINNET_ADDRESSES.MCD_DAI,
-          token.precision,
-        )
+        const price = await getMarketPrice(token.address, ADDRESSES.main.DAI, token.precision)
         const priceInWei = amountToWei(price).toFixed(0)
 
         if (debug) {
@@ -241,7 +249,7 @@ export async function deploySystem(
 ): Promise<DeployedSystemInfo> {
   const deployedContracts: Partial<DeployedSystemInfo> = {}
 
-  const userProxyAddress = await getOrCreateProxy(provider, signer)
+  const userProxyAddress = await getOrCreateProxy(signer)
 
   deployedContracts.userProxyAddress = userProxyAddress // TODO:
   deployedContracts.dsProxyInstance = new ethers.Contract(
@@ -251,7 +259,6 @@ export async function deploySystem(
   ).connect(signer)
 
   // GUNI DEPLOYMENT
-
   const GUni = await ethers.getContractFactory('GuniMultiplyProxyActions', signer)
   const guni = await GUni.deploy()
   deployedContracts.guni = await guni.deployed()
@@ -268,7 +275,7 @@ export async function deploySystem(
   const exchangeFactory = await ethers.getContractFactory('Exchange', signer)
   const exchange = await exchangeFactory.deploy(
     multiplyProxyActions.address,
-    ADDRESSES.feeRecipient,
+    ADDRESSES.main.feeRecipient,
     FEE,
   )
   const exchangeInstance = await exchange.deployed()
@@ -297,7 +304,6 @@ export async function deploySystem(
   }
 
   // ACTIONS POC deployed contracts
-
   const FMM = '0x1EB4CF3A948E7D72A198fe073cCb8C7a948cD853' // Maker Flash Mint Module
 
   const ServiceRegistry = await ethers.getContractFactory('ServiceRegistry', signer)
@@ -358,7 +364,7 @@ export async function deploySystem(
 
   await serviceRegistry.addNamedService(
     utils.keccak256(utils.toUtf8Bytes('DAI')),
-    MAINNET_ADDRESSES.MCD_DAI,
+    ADDRESSES.main.DAI,
   )
 
   await serviceRegistry.addNamedService(
@@ -414,7 +420,7 @@ export async function deploySystem(
 
 export async function getOraclePrice(
   provider: JsonRpcProvider,
-  pipAddress = MAINNET_ADDRESSES.PIP_ETH,
+  pipAddress = ADDRESSES.main.pipWETH,
 ) {
   const storageHexToBigNumber = (uint256: string) => {
     const matches = uint256.match(/^0x(\w+)$/)
@@ -441,10 +447,8 @@ export async function getLastCDP(
   signer: Signer,
   proxyAddress: string,
 ): Promise<CDPInfo> {
-  const getCdps = new ethers.Contract(MAINNET_ADDRESSES.GET_CDPS, GetCDPsABI, provider).connect(
-    signer,
-  )
-  const { ids, urns, ilks } = await getCdps.getCdpsAsc(MAINNET_ADDRESSES.CDP_MANAGER, proxyAddress)
+  const getCdps = new ethers.Contract(ADDRESSES.main.getCdps, GetCDPsABI, provider).connect(signer)
+  const { ids, urns, ilks } = await getCdps.getCdpsAsc(ADDRESSES.main.cdpManager, proxyAddress)
   const cdp = _.last(
     _.map(_.zip(ids, urns, ilks), cdp => ({
       id: (cdp[0] as EthersBN).toNumber(), // TODO:
@@ -458,31 +462,4 @@ export async function getLastCDP(
   }
 
   return cdp as CDPInfo
-}
-
-// TODO:
-export function findMPAEvent(txResult: any) {
-  const abi = [
-    'event MultipleActionCalled(string methodName, uint indexed cdpId, uint swapMinAmount, uint swapOptimistAmount, uint collateralLeft, uint daiLeft)',
-  ]
-  const iface = new ethers.utils.Interface(abi)
-  const events = txResult.events
-    // TODO:
-    .filter((x: any) => {
-      return x.topics[0] === iface.getEventTopic('MultipleActionCalled')
-    })
-    // TODO:
-    .map((x: any) => {
-      const result = iface.decodeEventLog('MultipleActionCalled', x.data, x.topics)
-      const retVal = {
-        methodName: result.methodName,
-        cdpId: result.cdpId.toString(),
-        swapMinAmount: result.swapMinAmount.toString(),
-        swapOptimistAmount: result.swapOptimistAmount.toString(),
-        collateralLeft: result.collateralLeft.toString(),
-        daiLeft: result.daiLeft.toString(),
-      }
-      return retVal
-    })
-  return events
 }

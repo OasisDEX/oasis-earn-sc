@@ -14,7 +14,7 @@ export type FormatUnit = {
 export interface RuntimeConfig {
   provider: providers.JsonRpcProvider
   signer: Signer
-  address: string
+  address?: string
 }
 
 export type WithRuntimeConfig = {

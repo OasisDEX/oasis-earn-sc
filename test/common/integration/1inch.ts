@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import MAINNET_ADDRESSES from '../../../addresses/mainnet.json'
+import ADDRESSES from '../../../addresses/mainnet.json'
 import { ONE } from '../../../helpers/constants'
 import { exchangeFromDAI, exchangeToDAI } from '../http-apis'
 
@@ -12,7 +12,7 @@ export async function getPayload(
 ) {
   const slippageAdjusted = new BigNumber(slippage).times(100)
 
-  if (exchangeData.fromTokenAddress === MAINNET_ADDRESSES.MCD_DAI) {
+  if (exchangeData.fromTokenAddress === ADDRESSES.main.DAI) {
     const response = await exchangeFromDAI(
       exchangeData.toTokenAddress,
       new BigNumber(exchangeData.fromTokenAmount).times(ONE.minus(fee)).toFixed(0),

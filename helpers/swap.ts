@@ -39,7 +39,8 @@ export async function swapUniswapTokens(
     sqrtPriceLimitX96: 0,
   }
 
-  await uniswapV3.exactInputSingle(swapParams, { value, gasLimit: 3000000 })
+  const uniswapTx = await uniswapV3.exactInputSingle(swapParams, { value, gasLimit: 3000000 })
+  await uniswapTx.wait()
 }
 
 function formatOneInchSwapUrl(
