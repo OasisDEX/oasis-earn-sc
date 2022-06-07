@@ -45,10 +45,8 @@ export interface DeployedSystemInfo {
   actionGenerate: Contract
   actionCdpAllow: Contract
   actionCdpDisallow: Contract
-  actionTakeFlashloan: Contract
   operationExecutor: Contract
   operationStorage: Contract
-  operationData: Contract
   serviceRegistry: Contract
 }
 
@@ -190,11 +188,17 @@ export async function deployTestSystem(
       `User Proxy Address: ${deployedContracts.userProxyAddress}`,
       `DSProxy address: ${deployedContracts.dsProxyInstance.address}`,
       `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
-      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
-      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
-      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
-      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
-      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
+      `Operation Executor address: ${deployedContracts.operationExecutor.address}`,
+      `Operator Storage address: ${deployedContracts.operationStorage.address}`,
+
+      `Flashloan Action address: ${deployedContracts.actionTakeFlashLoan.address}`,
+      `OpenVault Action address: ${deployedContracts.actionOpenVault.address}`,
+      `Depost Action address: ${deployedContracts.actionDeposit.address}`,
+      `Payback Action address: ${deployedContracts.actionPayback.address}`,
+      `Withdraw Action address: ${deployedContracts.actionWithdraw.address}`,
+      `Generate Action address: ${deployedContracts.actionGenerate.address}`,
+      `CdpAllow Action address: ${deployedContracts.actionCdpAllow.address}`,
+      `CdpDisallow Action address: ${deployedContracts.actionCdpDisallow.address}`,
     ])
   }
 
