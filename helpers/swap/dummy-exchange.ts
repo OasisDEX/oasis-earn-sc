@@ -5,7 +5,7 @@ import { ethers } from 'hardhat'
 import { curry } from 'ramda'
 
 import WETHABI from '../../abi/IWETH.json'
-import { ADDRESSES } from '../../helpers/addresses'
+import { ADDRESSES } from '../addresses'
 import { ZERO } from '../constants'
 import { OneInchBaseResponse } from '../types'
 import { amountFromWei, amountToWei, balanceOf, send } from '../utils'
