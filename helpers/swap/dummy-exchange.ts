@@ -8,7 +8,7 @@ import WETHABI from '../../abi/IWETH.json'
 import { ADDRESSES } from '../../helpers/addresses'
 import { ZERO } from '../constants'
 import { OneInchBaseResponse } from '../types'
-import { amountToWei, balanceOf, send } from '../utils'
+import { amountFromWei, amountToWei, balanceOf, send } from '../utils'
 import { swapUniswapTokens } from './uniswap'
 
 export const FEE = 20
@@ -103,8 +103,8 @@ const addFundsDummyExchange = async function (
     await Promise.all(
       erc20Tokens.map(async function (token) {
         const [exchangeTokenBalance, addressTokenBalance] = await Promise.all([
-          balanceOf(token.address, exchange.address),
-          balanceOf(token.address, address),
+          balanceOf(token.address, exchange.address, options),
+          balanceOf(token.address, address, options),
         ])
         console.log(
           `Exchange ${token.name} balance: ${amountFromWei(

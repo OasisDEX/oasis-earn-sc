@@ -1,10 +1,9 @@
 import BigNumber from 'bignumber.js'
 import { isError, tryF } from 'ts-try'
 
-import MAINNET_ADRESSES from '../../../addresses/mainnet.json'
-import { ONE, TEN,ZERO } from '../../helpers/constants'
-import { WETH_ADDRESS } from '../../utils'
-import { CdpData, ExchangeData } from '../common.types'
+import { ADDRESSES } from '../../helpers/addresses'
+import { ONE, TEN, ZERO } from '../../helpers/constants'
+import { CdpData, ExchangeData } from '../../helpers/types'
 import { logDebug } from './test-utils'
 
 // TODO:
@@ -160,7 +159,7 @@ export function calculateParamsDecreaseMP(
 // TODO:
 export function packMPAParams(cdpData: any, exchangeData: any, registry: any) {
   const registryClone = { ...registry }
-  delete registryClONE.feeRecepient
+  delete registryClone.feeRecepient
 
   return [exchangeData, cdpData, registryClone]
 }
@@ -202,8 +201,8 @@ export function prepareBasicParams(
   providedCollateral = ensureWeiFormat(providedCollateral)
 
   const exchangeData = {
-    fromTokenAddress: toDAI ? gemAddress : MAINNET_ADRESSES.MCD_DAI,
-    toTokenAddress: toDAI ? MAINNET_ADRESSES.MCD_DAI : gemAddress,
+    fromTokenAddress: toDAI ? gemAddress : ADDRESSES.main.DAI,
+    toTokenAddress: toDAI ? ADDRESSES.main.DAI : gemAddress,
     fromTokenAmount: toDAI ? collateralDelta : debtDelta,
     toTokenAmount: toDAI ? debtDelta : collateralDelta,
     minToTokenAmount: toDAI ? debtDelta : collateralDelta,
@@ -213,7 +212,7 @@ export function prepareBasicParams(
 
   const cdpData = {
     skipFL: skipFL,
-    gemJoin: MAINNET_ADRESSES.MCD_JOIN_ETH_A,
+    gemJoin: ADDRESSES.main.joinETH_A,
     cdpId: existingCDP ? existingCDP.id : 0,
     ilk: existingCDP
       ? existingCDP.ilk
@@ -254,8 +253,8 @@ export function prepareMultiplyParameters({
   skipFL?: boolean
 }) {
   const exchangeData = {
-    fromTokenAddress: toDAI ? WETH_ADDRESS : MAINNET_ADRESSES.MCD_DAI,
-    toTokenAddress: toDAI ? MAINNET_ADRESSES.MCD_DAI : WETH_ADDRESS,
+    fromTokenAddress: toDAI ? ADDRESSES.main.WETH : ADDRESSES.main.DAI,
+    toTokenAddress: toDAI ? ADDRESSES.main.DAI : ADDRESSES.main.WETH,
     fromTokenAmount: toDAI
       ? amountToWei(desiredCdpState.toBorrowCollateralAmount).toFixed(0)
       : amountToWei(desiredCdpState.requiredDebt).toFixed(0),
@@ -272,7 +271,7 @@ export function prepareMultiplyParameters({
 
   const cdpData = {
     skipFL: skipFL,
-    gemJoin: MAINNET_ADRESSES.MCD_JOIN_ETH_A,
+    gemJoin: ADDRESSES.main.joinETH_A,
     cdpId,
     ilk: '0x0000000000000000000000000000000000000000000000000000000000000000',
     fundsReceiver: fundsReceiver,
@@ -308,7 +307,7 @@ export function prepareMultiplyParameters2(
   exchangeInstanceAddress: string,
   userAddress: string,
   skipFL = false,
-  join = MAINNET_ADRESSES.MCD_JOIN_ETH_A,
+  join = ADDRESSES.main.joinETH_A,
   precision = 18,
   reversedSwap = false,
 ) {
@@ -486,8 +485,8 @@ export function prepareMultiplyParametersPoC({
   cdpData: CdpData
 } {
   const exchangeData = {
-    fromTokenAddress: toDAI ? WETH_ADDRESS : MAINNET_ADRESSES.MCD_DAI,
-    toTokenAddress: toDAI ? MAINNET_ADRESSES.MCD_DAI : WETH_ADDRESS,
+    fromTokenAddress: toDAI ? ADDRESSES.main.WETH : ADDRESSES.main.DAI,
+    toTokenAddress: toDAI ? ADDRESSES.main.DAI : ADDRESSES.main.WETH,
     fromTokenAmount: toDAI
       ? amountToWei(desiredCdpState.toBorrowCollateralAmount).toFixed(0)
       : amountToWei(desiredCdpState.requiredDebt).toFixed(0),
@@ -504,7 +503,7 @@ export function prepareMultiplyParametersPoC({
 
   const cdpData = {
     skipFL: skipFL,
-    gemJoin: MAINNET_ADRESSES.MCD_JOIN_ETH_A,
+    gemJoin: ADDRESSES.main.joinETH_A,
     cdpId,
     ilk: '0x0000000000000000000000000000000000000000000000000000000000000000',
     fundsReceiver: fundsReceiver,

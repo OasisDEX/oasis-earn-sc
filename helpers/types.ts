@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { providers,Signer } from 'ethers'
+import { providers, Signer } from 'ethers'
 
 export type ValueOf<T> = T[keyof T]
 
