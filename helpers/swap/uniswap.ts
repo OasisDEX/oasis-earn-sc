@@ -2,8 +2,7 @@ import '@nomiclabs/hardhat-ethers'
 import { ethers } from 'hardhat'
 import { ADDRESSES } from '../addresses'
 import UNISWAP_ROUTER_V3_ABI from '../../abi/IUniswapRouter.json'
-import { OneInchSwapResponse, RuntimeConfig } from '../types'
-import { exchangeTokens, formatOneInchSwapUrl } from './1inch'
+import { RuntimeConfig } from '../types'
 
 /**
  * tokenIn: string - asset address
@@ -41,24 +40,4 @@ export async function swapUniswapTokens(
 
   const uniswapTx = await uniswapV3.exactInputSingle(swapParams, { value, gasLimit: 3000000 })
   await uniswapTx.wait()
-}
-
-export async function swapOneInchTokens(
-  fromTokenAddress: string,
-  toTokenAddress: string,
-  amount: string,
-  recepient: string,
-  slippage: string,
-  protocols: string[] = [],
-): Promise<OneInchSwapResponse> {
-  const url = formatOneInchSwapUrl(
-    fromTokenAddress,
-    toTokenAddress,
-    amount,
-    slippage,
-    recepient,
-    protocols,
-  )
-
-  return exchangeTokens(url)
 }

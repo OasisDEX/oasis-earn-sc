@@ -27,8 +27,6 @@ export const CONTRACT_LABELS = {
     AAVE_LENDING_POOL: 'AAVE_LENDING_POOL',
     AAVE_WETH_GATEWAY: 'AAVE_WETH_GATEWAY',
   },
-
-  compound: {},
   maker: {
     DEPOSIT: 'DEPOSIT',
     PAYBACK: 'PAYBACK',
