@@ -22,3 +22,23 @@ export async function exchangeTokens(url: string): Promise<OneInchSwapResponse> 
 
   return response.json() as Promise<OneInchSwapResponse>
 }
+
+export async function swapOneInchTokens(
+  fromTokenAddress: string,
+  toTokenAddress: string,
+  amount: string,
+  recepient: string,
+  slippage: string,
+  protocols: string[] = [],
+): Promise<OneInchSwapResponse> {
+  const url = formatOneInchSwapUrl(
+    fromTokenAddress,
+    toTokenAddress,
+    amount,
+    slippage,
+    recepient,
+    protocols,
+  )
+
+  return exchangeTokens(url)
+}
