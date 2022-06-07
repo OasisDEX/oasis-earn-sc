@@ -1,5 +1,6 @@
 import { OneInchSwapResponse } from '../types'
 import fetch from 'node-fetch'
+import { ADDRESSES } from '../addresses'
 
 export function formatOneInchSwapUrl(
   fromToken: string,
@@ -34,6 +35,44 @@ export async function swapOneInchTokens(
   const url = formatOneInchSwapUrl(
     fromTokenAddress,
     toTokenAddress,
+    amount,
+    slippage,
+    recepient,
+    protocols,
+  )
+
+  return exchangeTokens(url)
+}
+
+export async function exchangeFromDAI(
+  toTokenAddress: string,
+  amount: string,
+  slippage: string,
+  recepient: string,
+  protocols: string[] = [],
+): Promise<OneInchSwapResponse> {
+  const url = formatOneInchSwapUrl(
+    ADDRESSES.main.DAI,
+    toTokenAddress,
+    amount,
+    slippage,
+    recepient,
+    protocols,
+  )
+
+  return exchangeTokens(url)
+}
+
+export async function exchangeToDAI(
+  fromTokenAddress: string,
+  amount: string,
+  recepient: string,
+  slippage: string,
+  protocols: string[] = [],
+): Promise<OneInchSwapResponse> {
+  const url = formatOneInchSwapUrl(
+    fromTokenAddress,
+    ADDRESSES.main.DAI,
     amount,
     slippage,
     recepient,

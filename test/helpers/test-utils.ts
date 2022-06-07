@@ -6,18 +6,6 @@ export function logDebug(lines: string[], prefix = '') {
   lines.forEach(line => console.log(`${prefix}${line}`))
 }
 
-export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value) {
-  const val = new BigNumber(value)
-
-  return {
-    get value() {
-      return val
-    },
-
-    asDecimal: val.div(base),
-  }
-}
-
 export function expectToBeEqual(lhs: BigNumber.Value, rhs: BigNumber.Value, precision?: number) {
   const [a, b] = [lhs, rhs].map(value => new BigNumber(value))
   const [formattedA, formattedB] =

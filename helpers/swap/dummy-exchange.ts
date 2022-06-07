@@ -5,16 +5,14 @@ import { ethers } from 'hardhat'
 import { Contract, Signer } from 'ethers'
 
 import WETHABI from '../../abi/IWETH.json'
-import ERC20ABI from '../../abi/IERC20.json'
 import { ADDRESSES } from '../../helpers/addresses'
 
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ZERO } from '../constants'
 
-import { OneInchBaseResponse, OneInchSwapResponse } from '../types'
-import { exchangeTokens, formatOneInchSwapUrl } from './1inch'
+import { OneInchBaseResponse } from '../types'
 import { swapUniswapTokens } from './uniswap'
-import { amountToWei, balanceOf } from '../utils'
+import { amountToWei, balanceOf, send } from '../utils'
 
 export const FEE = 20
 export const FEE_BASE = 10000
@@ -59,22 +57,8 @@ async function exchangeToToken(provider: JsonRpcProvider, signer: Signer, token:
     amountToWei(200).toFixed(0),
     amountToWei(ZERO, token.precision).toFixed(0),
     address,
-    { provider, signer },
+    { provider, signer, address },
   )
-}
-
-async function transferToExchange(
-  provider: JsonRpcProvider,
-  signer: Signer,
-  exchangeAddress: string,
-  token: ERC20TokenData,
-  amount: BigNumber.Value,
-) {
-  const contract = new ethers.Contract(token.address, ERC20ABI, provider).connect(signer)
-
-  const tokenTransferToExchangeTx = await contract.transfer(exchangeAddress, amount)
-
-  await tokenTransferToExchangeTx.wait()
 }
 
 const addFundsDummyExchange = async function (
@@ -89,7 +73,7 @@ const addFundsDummyExchange = async function (
   const address = await signer.getAddress()
 
   const exchangeToTokenCurried = curry(exchangeToToken)(provider, signer)
-  const transferToExchangeCurried = curry(transferToExchange)(provider, signer, exchange.address)
+  const transferToExchangeCurried = curry(send)(exchange.address)
 
   const wethDeposit = await WETH.deposit({
     value: amountToWei(1000).toFixed(0),
@@ -113,7 +97,7 @@ const addFundsDummyExchange = async function (
   await Promise.all(
     erc20Tokens.map(async token => {
       const balance = new BigNumber(await balanceOf(token.address, address, options))
-      return transferToExchangeCurried(token, balance.div(2).toFixed(0))
+      return transferToExchangeCurried(token.address, balance.div(2).toFixed(0))
     }),
   )
 
@@ -151,32 +135,32 @@ export async function loadDummyExchangeFixtures(
   const tokens = [
     {
       name: 'ETH',
-      address: ADDRESSES.main.common.WETH,
-      pip: ADDRESSES.main.maker.pipWETH,
+      address: ADDRESSES.main.WETH,
+      pip: ADDRESSES.main.pipWETH,
       precision: 18,
     },
     {
       name: 'DAI',
-      address: ADDRESSES.main.common.DAI,
+      address: ADDRESSES.main.DAI,
       pip: undefined,
       precision: 18,
     },
     {
       name: 'LINK',
-      address: ADDRESSES.main.common.LINK,
-      pip: ADDRESSES.main.maker.pipLINK,
+      address: ADDRESSES.main.LINK,
+      pip: ADDRESSES.main.pipLINK,
       precision: 18,
     },
     {
       name: 'WBTC',
-      address: ADDRESSES.main.common.WBTC,
-      pip: ADDRESSES.main.maker.pipWBTC,
+      address: ADDRESSES.main.WBTC,
+      pip: ADDRESSES.main.pipWBTC,
       precision: 8,
     },
     {
       name: 'USDC',
       address: ADDRESSES.main.USDC,
-      pip: ADDRESSES.main.PIP_USDC,
+      pip: ADDRESSES.main.pipUSDC,
       precision: 6,
     },
   ]
@@ -185,7 +169,7 @@ export async function loadDummyExchangeFixtures(
   await addFundsDummyExchange(
     provider,
     signer,
-    WETH_ADDRESS,
+    ADDRESSES.main.WETH,
     tokens.filter(token => token.address !== ADDRESSES.main.ETH),
     dummyExchangeInstance,
     debug,
@@ -231,42 +215,4 @@ export async function loadDummyExchangeFixtures(
       console.log(`${token.name}: ${token.address}`)
     })
   }
-}
-
-export async function exchangeFromDAI(
-  toTokenAddress: string,
-  amount: string,
-  slippage: string,
-  recepient: string,
-  protocols: string[] = [],
-): Promise<OneInchSwapResponse> {
-  const url = formatOneInchSwapUrl(
-    ADDRESSES.main.DAI,
-    toTokenAddress,
-    amount,
-    slippage,
-    recepient,
-    protocols,
-  )
-
-  return exchangeTokens(url)
-}
-
-export async function exchangeToDAI(
-  fromTokenAddress: string,
-  amount: string,
-  recepient: string,
-  slippage: string,
-  protocols: string[] = [],
-): Promise<OneInchSwapResponse> {
-  const url = formatOneInchSwapUrl(
-    fromTokenAddress,
-    ADDRESSES.main.DAI,
-    amount,
-    slippage,
-    recepient,
-    protocols,
-  )
-
-  return exchangeTokens(url)
 }

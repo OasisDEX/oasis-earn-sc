@@ -62,6 +62,13 @@ export async function approve(
   }
 }
 
+export async function send(tokenAddr: string, to: string, amount: BigNumber.Value) {
+  const tokenContract = await ethers.getContractAt(IERC20_ABI, tokenAddr)
+
+  const tokenTransferToExchangeTx = await tokenContract.transfer(to, amount)
+  await tokenTransferToExchangeTx.wait()
+}
+
 type PositionCalculationResult = {
   ownDepositAmount: BigNumber
   lendAmount: BigNumber
@@ -105,6 +112,18 @@ export function amountToWei(amount: BigNumber.Value, precision = 18) {
 
 export function amountFromWei(amount: BigNumber.Value, precision = 18) {
   return new BigNumber(amount || 0).div(new BigNumber(10).pow(precision))
+}
+
+export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value) {
+  const val = new BigNumber(value)
+
+  return {
+    get value() {
+      return val
+    },
+
+    asDecimal: val.div(base),
+  }
 }
 
 type ActionCall = {
