@@ -5,23 +5,21 @@ module.exports = {
     mocha: true,
     node: true,
   },
-  plugins: ['import', '@typescript-eslint', 'simple-import-sort'],
+  root: true,
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint', 'simple-import-sort'],
   extends: [
-    'standard',
+    'eslint:recommended',
     'plugin:prettier/recommended',
     'plugin:node/recommended',
-    'plugin:import/typescript',
+    'plugin:import/recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
   ],
-  settings: {
-    'import/parsers': {
-      '@typescript-eslint/parser': ['.ts', '.tsx'],
-    },
-  },
   parserOptions: {
     ecmaVersion: 12,
   },
   rules: {
-    'node/no-unsupported-features/es-syntax': ['error', { ignores: ['modules'] }],
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
   },

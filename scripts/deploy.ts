@@ -3,18 +3,18 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-import { ethers } from 'hardhat'
 import { BigNumber } from 'bignumber.js'
-import { ADDRESSES } from '../helpers/addresses'
+import { ethers } from 'hardhat'
 
+import { ADDRESSES } from '../helpers/addresses'
+import { CONTRACT_LABELS, ZERO } from '../helpers/constants'
+import { deploy, executeThroughProxy } from '../helpers/deploy'
+import init from '../helpers/init'
 // Helper functions
 import { getOrCreateProxy } from '../helpers/proxy'
-import init from '../helpers/init'
 import { swapOneInchTokens } from '../helpers/swap/1inch'
 import { swapUniswapTokens } from '../helpers/swap/uniswap'
-import { deploy, executeThroughProxy } from '../helpers/deploy'
-import { balanceOf, amountToWei, approve, ActionFactory, ServiceRegistry } from '../helpers/utils'
-import { CONTRACT_LABELS, ZERO } from '../helpers/constants'
+import { ActionFactory, amountToWei, approve, balanceOf, ServiceRegistry } from '../helpers/utils'
 
 const createAction = ActionFactory.create
 

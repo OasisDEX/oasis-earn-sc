@@ -1,6 +1,8 @@
 import '@nomiclabs/hardhat-ethers'
-import { ethers } from 'hardhat'
+
 import { providers } from 'ethers'
+import { ethers } from 'hardhat'
+
 import { RuntimeConfig } from '../helpers/types'
 
 export default async function init(): Promise<RuntimeConfig> {

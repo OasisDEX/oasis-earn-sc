@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { BigNumberish, Contract } from 'ethers'
 import { ethers } from 'hardhat'
+
 import { VaultInfo } from '../common.types'
 
 export const MCD_MANAGER_ADDR = '0x5ef30b9986345249bc32d8928B7ee64DE9435E39'

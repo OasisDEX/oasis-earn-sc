@@ -1,23 +1,20 @@
+import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
-import _ from 'lodash'
+import { BigNumber as EthersBN, Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
-import { BigNumber as EthersBN, Contract, Signer, utils } from 'ethers'
-import DSProxyABI from '../../abi/ds-proxy.json'
+import _ from 'lodash'
 
+import DSProxyABI from '../../abi/ds-proxy.json'
 import GetCDPsABI from '../../abi/get-cdps.json'
 import { ADDRESSES } from '../../helpers/addresses'
-
-import { JsonRpcProvider } from '@ethersproject/providers'
-
-import { logDebug } from './test-utils'
-
-import { getOrCreateProxy } from '../../helpers/proxy'
-import { CDPInfo } from '../../helpers/types'
-import { loadDummyExchangeFixtures } from '../../helpers/swap/dummy-exchange'
+import { CONTRACT_LABELS } from '../../helpers/constants'
 import { deploy } from '../../helpers/deploy'
 import init from '../../helpers/init'
+import { getOrCreateProxy } from '../../helpers/proxy'
+import { loadDummyExchangeFixtures } from '../../helpers/swap/dummy-exchange'
+import { CDPInfo } from '../../helpers/types'
 import { ServiceRegistry } from '../../helpers/utils'
-import { CONTRACT_LABELS } from '../../helpers/constants'
+import { logDebug } from './test-utils'
 
 export const FEE = 20
 export const FEE_BASE = 10000

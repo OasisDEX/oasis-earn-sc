@@ -1,18 +1,15 @@
+import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
-import _ from 'lodash'
-import { curry } from 'ramda'
-import { ethers } from 'hardhat'
 import { Contract, Signer } from 'ethers'
+import { ethers } from 'hardhat'
+import { curry } from 'ramda'
 
 import WETHABI from '../../abi/IWETH.json'
 import { ADDRESSES } from '../../helpers/addresses'
-
-import { JsonRpcProvider } from '@ethersproject/providers'
 import { ZERO } from '../constants'
-
 import { OneInchBaseResponse } from '../types'
-import { swapUniswapTokens } from './uniswap'
 import { amountToWei, balanceOf, send } from '../utils'
+import { swapUniswapTokens } from './uniswap'
 
 export const FEE = 20
 export const FEE_BASE = 10000

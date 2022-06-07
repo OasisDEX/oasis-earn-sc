@@ -1,11 +1,11 @@
 import BigNumber from 'bignumber.js'
+import { Signer, utils } from 'ethers'
 import { ethers } from 'hardhat'
 
-import IERC20_ABI from '../abi/IERC20.json'
 import CTOKEN_ABI from '../abi/CErc20.json'
+import IERC20_ABI from '../abi/IERC20.json'
+import { CONTRACT_LABELS, ONE } from '../helpers/constants'
 import { BalanceOptions, NestedKeys, RuntimeConfig, ValueOf } from '../helpers/types'
-import { ONE, CONTRACT_LABELS } from '../helpers/constants'
-import { Signer, utils } from 'ethers'
 
 export async function balanceOf(asset: string, address: string, options: BalanceOptions) {
   let balance = undefined
@@ -157,7 +157,7 @@ export class ServiceRegistry {
   async addEntry(
     label: ValueOf<NestedKeys<typeof CONTRACT_LABELS>>,
     address: string,
-    debug: boolean = false,
+    debug = false,
   ): Promise<string> {
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
