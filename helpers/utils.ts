@@ -18,6 +18,7 @@ export async function balanceOf(asset: string, address: string, options: Balance
   }
 
   const decimals = options.decimals ? options.decimals : 18
+
   const formattedBalance = ethers.utils.formatUnits(balance.toString(), decimals)
   if (options.debug) {
     console.log(

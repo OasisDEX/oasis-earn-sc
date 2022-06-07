@@ -12,6 +12,7 @@
     "uniswapAnchoredView": "0x046728da7cb8272284238bD3e47909823d63A58D",
     "oneInchAggregator": "0x1111111254fb6c44bac0bed2854e76f90643097d",
     "lender": "0x1EB4CF3A948E7D72A198fe073cCb8C7a948cD853",
-    "feeRecipient": "0x79d7176aE8F93A04bC73b9BC710d4b44f9e362Ce"
+    "feeRecipient": "0x79d7176aE8F93A04bC73b9BC710d4b44f9e362Ce",
+    "proxyRegistry": "0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4"
   }
 }

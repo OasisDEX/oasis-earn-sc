@@ -1,3 +1,3 @@
-describe("Dummy test", async () => {
-  it(`Dummy case`, async () => {});
-});
+describe('Dummy test', async () => {
+  it(`Dummy case`, async () => {})
+})

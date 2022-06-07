@@ -1,9 +1,9 @@
 import '@nomiclabs/hardhat-ethers'
 import { ethers } from 'hardhat'
-import fetch from 'node-fetch'
-import ADDRESSES from '../helpers/addresses.json'
-import UNISWAP_ROUTER_V3_ABI from '../abi/IUniswapRouter.json'
-import { OneInchSwapResponse, RuntimeConfig } from './types'
+import { ADDRESSES } from '../addresses'
+import UNISWAP_ROUTER_V3_ABI from '../../abi/IUniswapRouter.json'
+import { OneInchSwapResponse, RuntimeConfig } from '../types'
+import { exchangeTokens, formatOneInchSwapUrl } from './1inch'
 
 /**
  * tokenIn: string - asset address
@@ -41,28 +41,6 @@ export async function swapUniswapTokens(
 
   const uniswapTx = await uniswapV3.exactInputSingle(swapParams, { value, gasLimit: 3000000 })
   await uniswapTx.wait()
-}
-
-function formatOneInchSwapUrl(
-  fromToken: string,
-  toToken: string,
-  amount: string,
-  slippage: string,
-  recepient: string,
-  protocols: string[] = [],
-) {
-  const protocolsParam = !protocols?.length ? '' : `&protocols=${protocols.join(',')}`
-  return `https://oasis.api.enterprise.1inch.exchange/v4.0/1/swap?fromTokenAddress=${fromToken.toLowerCase()}&toTokenAddress=${toToken}&amount=${amount}&fromAddress=${recepient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`
-}
-
-async function exchangeTokens(url: string): Promise<OneInchSwapResponse> {
-  const response = await fetch(url)
-
-  if (!response.ok) {
-    throw new Error(`Error performing 1inch swap request ${url}: ${await response.text()}`)
-  }
-
-  return response.json() as Promise<OneInchSwapResponse>
 }
 
 export async function swapOneInchTokens(

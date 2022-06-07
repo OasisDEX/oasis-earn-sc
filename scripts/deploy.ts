@@ -5,12 +5,12 @@
 // Runtime Environment's members available in the global scope.
 import { ethers } from 'hardhat'
 import { BigNumber } from 'bignumber.js'
-import ADDRESSES from '../helpers/addresses.json'
+import { ADDRESSES } from '../helpers/addresses'
 
 // Helper functions
 import { getOrCreateProxy } from '../helpers/proxy'
 import init from '../helpers/init'
-import { swapOneInchTokens, swapUniswapTokens } from '../helpers/swap'
+import { swapOneInchTokens, swapUniswapTokens } from '../helpers/swap/uniswap'
 import { deploy, executeThroughProxy } from '../helpers/deploy'
 import { balanceOf, amountToWei, approve, ActionFactory, ServiceRegistry } from '../helpers/utils'
 import { CONTRACT_LABELS, ZERO } from '../helpers/constants'
@@ -38,8 +38,8 @@ async function main() {
   await balanceOf(ADDRESSES.main.ETH, address, options)
 
   console.log('DEBUG SWAPPING...')
-  const daiBalance = async () => await balanceOf(ADDRESSES.main.DAI, address, options)
-  if (new BigNumber(await daiBalance()).lte(ZERO)) {
+  const daiBalance = await balanceOf(ADDRESSES.main.DAI, address, options)
+  if (new BigNumber(daiBalance).lte(ZERO)) {
     await swapUniswapTokens(
       ADDRESSES.main.WETH,
       ADDRESSES.main.DAI,
@@ -54,7 +54,7 @@ async function main() {
   // ServiceRegistry SETUP:
   const [, serviceRegistryAddress] = await deploy('ServiceRegistry', [0], options)
   const registry: ServiceRegistry = new ServiceRegistry(serviceRegistryAddress, signer)
-  registry.addEntry(CONTRACT_LABELS.FLASH_MINT_MODULE, ADDRESSES.main.FMM)
+  registry.addEntry(CONTRACT_LABELS.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
 
   // DEPLOYING Operation Executor
   const [operationExecutor, operationExecutorAddress] = await deploy(

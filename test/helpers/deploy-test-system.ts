@@ -3,22 +3,17 @@ import _ from 'lodash'
 import { curry } from 'ramda'
 import { ethers } from 'hardhat'
 import { BigNumber as EthersBN, Contract, ContractReceipt, Signer, utils } from 'ethers'
-import DSProxyABI from '../../../abi/ds-proxy.json'
-import WETHABI from '../../../abi/IWETH.json'
-import ERC20ABI from '../../../abi/IERC20.json'
-import GetCDPsABI from '../../../abi/get-cdps.json'
-import { ADDRESSES } from '../../../helpers/addresses'
+import DSProxyABI from '../../abi/ds-proxy.json'
+
+import GetCDPsABI from '../../abi/get-cdps.json'
+import { ADDRESSES } from '../../helpers/addresses'
 
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { balanceOf, WETH_ADDRESS } from '../../utils'
 
-import { amountToWei, amountFromWei } from './params-calculation.utils'
-import { getMarketPrice } from '../http-apis'
-import { CDPInfo } from '../common.types'
-import { logDebug } from './test.utils'
-import { ZERO } from '../../../helpers/constants'
-import { swapUniswapTokens } from '../../../helpers/swap'
-import { getOrCreateProxy } from '../../../helpers/proxy'
+import { CDPInfo } from './common.types'
+import { logDebug } from './test-utils'
+
+import { getOrCreateProxy } from '../../helpers/proxy'
 
 export const FEE = 20
 export const FEE_BASE = 10000
@@ -27,191 +22,6 @@ export interface MCDInitParams {
   blockNumber?: string
   provider?: JsonRpcProvider
   signer?: Signer
-}
-
-export interface ERC20TokenData {
-  name: string
-  address: string
-  precision: number
-  pip?: string
-}
-
-async function exchangeToToken(provider: JsonRpcProvider, signer: Signer, token: ERC20TokenData) {
-  const address = await signer.getAddress()
-  await swapUniswapTokens(
-    ADDRESSES.main.ETH,
-    token.address,
-    amountToWei(200).toFixed(0),
-    amountToWei(ZERO, token.precision).toFixed(0),
-    address,
-    { provider, signer },
-  )
-}
-
-async function transferToExchange(
-  provider: JsonRpcProvider,
-  signer: Signer,
-  exchangeAddress: string,
-  token: ERC20TokenData,
-  amount: BigNumber.Value,
-) {
-  const contract = new ethers.Contract(token.address, ERC20ABI, provider).connect(signer)
-
-  const tokenTransferToExchangeTx = await contract.transfer(exchangeAddress, amount)
-
-  await tokenTransferToExchangeTx.wait()
-}
-
-const addFundsDummyExchange = async function (
-  provider: JsonRpcProvider,
-  signer: Signer,
-  weth: string, // TODO: remove
-  erc20Tokens: ERC20TokenData[], // TODO:
-  exchange: Contract,
-  debug: boolean,
-) {
-  const WETH = new ethers.Contract(weth, WETHABI, provider).connect(signer)
-  const address = await signer.getAddress()
-
-  const exchangeToTokenCurried = curry(exchangeToToken)(provider, signer)
-  const transferToExchangeCurried = curry(transferToExchange)(provider, signer, exchange.address)
-
-  const wethDeposit = await WETH.deposit({
-    value: amountToWei(1000).toFixed(0),
-  })
-  await wethDeposit.wait()
-
-  const wethTransferToExchangeTx = await WETH.transfer(
-    exchange.address,
-    amountToWei(500).toFixed(0),
-  )
-  await wethTransferToExchangeTx.wait()
-
-  // Exchange ETH for the `token`
-  await Promise.all(erc20Tokens.map(token => exchangeToTokenCurried(token)))
-
-  // Transfer half of the accounts balance of each token to the dummy exchange.
-  await Promise.all(
-    erc20Tokens.map(async token => {
-      const balance = await balanceOf(token.address, address)
-      return transferToExchangeCurried(token, balance.div(2).toFixed(0))
-    }),
-  )
-
-  if (debug) {
-    // Diplays balances of the exchange and account for each token
-    await Promise.all(
-      erc20Tokens.map(async function (token) {
-        const [exchangeTokenBalance, addressTokenBalance] = await Promise.all([
-          balanceOf(token.address, exchange.address),
-          balanceOf(token.address, address),
-        ])
-        console.log(
-          `Exchange ${token.name} balance: ${amountFromWei(
-            exchangeTokenBalance,
-            token.precision,
-          ).toString()}`,
-        )
-        console.log(
-          `${address} ${token.name} balance: ${amountFromWei(
-            addressTokenBalance,
-            token.precision,
-          ).toString()}`,
-        )
-      }),
-    )
-  }
-}
-
-export async function loadDummyExchangeFixtures(
-  provider: JsonRpcProvider,
-  signer: Signer,
-  dummyExchangeInstance: Contract,
-  debug: boolean,
-) {
-  const tokens = [
-    {
-      name: 'ETH',
-      address: ADDRESSES.main.common.WETH,
-      pip: ADDRESSES.main.maker.pipWETH,
-      precision: 18,
-    },
-    {
-      name: 'DAI',
-      address: ADDRESSES.main.common.DAI,
-      pip: undefined,
-      precision: 18,
-    },
-    {
-      name: 'LINK',
-      address: ADDRESSES.main.common.LINK,
-      pip: ADDRESSES.main.maker.pipLINK,
-      precision: 18,
-    },
-    {
-      name: 'WBTC',
-      address: ADDRESSES.main.common.WBTC,
-      pip: ADDRESSES.main.maker.pipWBTC,
-      precision: 8,
-    },
-    {
-      name: 'USDC',
-      address: ADDRESSES.main.USDC,
-      pip: ADDRESSES.main.PIP_USDC,
-      precision: 6,
-    },
-  ]
-
-  // Exchanging ETH for other @tokens
-  await addFundsDummyExchange(
-    provider,
-    signer,
-    WETH_ADDRESS,
-    tokens.filter(token => token.address !== ADDRESSES.main.ETH),
-    dummyExchangeInstance,
-    debug,
-  )
-
-  // Setting precision for each @token that is going to be used.
-  await Promise.all(
-    tokens.map(token => {
-      if (debug) {
-        console.log(`${token.name} precision: ${token.precision}`)
-      }
-
-      if (dummyExchangeInstance.setPrecision) {
-        return dummyExchangeInstance.setPrecision(token.address, token.precision)
-      }
-
-      return true
-    }),
-  )
-
-  // Setting price for each @token that has PIP
-  await Promise.all(
-    tokens
-      .filter(token => !!token.pip)
-      .map(async token => {
-        const price = await getMarketPrice(token.address, ADDRESSES.main.DAI, token.precision)
-        const priceInWei = amountToWei(price).toFixed(0)
-
-        if (debug) {
-          console.log(`${token.name} Price: ${price.toString()} and Price(wei): ${priceInWei}`)
-        }
-
-        if (dummyExchangeInstance.setPrice) {
-          return dummyExchangeInstance.setPrice(token.address, priceInWei)
-        }
-
-        return true
-      }),
-  )
-
-  if (debug) {
-    tokens.forEach(token => {
-      console.log(`${token.name}: ${token.address}`)
-    })
-  }
 }
 
 export interface DeployedSystemInfo {
