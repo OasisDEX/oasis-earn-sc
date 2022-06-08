@@ -1,10 +1,11 @@
 import BigNumber from 'bignumber.js'
 import { Signer, utils } from 'ethers'
 import { ethers } from 'hardhat'
+import { isError, tryF } from 'ts-try'
 
 import CTOKEN_ABI from '../abi/CErc20.json'
 import IERC20_ABI from '../abi/IERC20.json'
-import { CONTRACT_LABELS, ONE } from '../helpers/constants'
+import { CONTRACT_LABELS, ONE, TEN } from '../helpers/constants'
 import { BalanceOptions, NestedKeys, RuntimeConfig, ValueOf } from '../helpers/types'
 
 export async function balanceOf(asset: string, address: string, options: BalanceOptions) {
@@ -112,6 +113,27 @@ export function amountToWei(amount: BigNumber.Value, precision = 18) {
 
 export function amountFromWei(amount: BigNumber.Value, precision = 18) {
   return new BigNumber(amount || 0).div(new BigNumber(10).pow(precision))
+}
+
+export function ensureWeiFormat(
+  input: BigNumber.Value, // TODO:
+  interpretBigNum = true,
+) {
+  const bn = new BigNumber(input)
+
+  const result = tryF(() => {
+    if (interpretBigNum && bn.lt(TEN.pow(9))) {
+      return bn.times(TEN.pow(18))
+    }
+
+    return bn
+  })
+
+  if (isError(result)) {
+    throw Error(`Error running \`ensureWeiFormat\` with input ${input.toString()}: ${result}`)
+  }
+
+  return result.decimalPlaces(0).toFixed(0)
 }
 
 export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value) {
