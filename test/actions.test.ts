@@ -7,10 +7,11 @@ import { ethers } from 'hardhat'
 import CDPManagerABI from '../abi/dss-cdp-manager.json'
 import ERC20ABI from '../abi/IERC20.json'
 import { ADDRESSES } from '../helpers/addresses'
-import { ZERO } from '../helpers/constants'
+import { CONTRACT_LABELS, ZERO } from '../helpers/constants'
+import { executeThroughProxy } from '../helpers/deploy'
 import { getVaultInfo } from '../helpers/maker/vault-info'
 import { ExchangeData, SwapData, swapDataTypeToEncode } from '../helpers/types'
-import { amountToWei, ensureWeiFormat } from '../helpers/utils'
+import { ActionFactory, amountToWei, ensureWeiFormat, ServiceRegistry } from '../helpers/utils'
 import { Action } from './actions/action'
 import {
   DeployedSystemInfo,
@@ -27,9 +28,7 @@ import { expectToBeEqual } from './helpers/test-utils'
 
 const LENDER_FEE = new BigNumber(0)
 
-describe('Dummy test', async () => {
-  it(`Dummy case`, async () => {})
-})
+const createAction = ActionFactory.create
 
 async function testScenarios<S, R extends (scenario: S) => void>(scenarios: S[], runner: R) {
   for (const scenario of scenarios) {
@@ -68,14 +67,16 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   let signer: Signer
   let address: string
   let system: DeployedSystemInfo
+  let registry: ServiceRegistry
 
   before(async () => {
     provider = ethers.provider
     // provider = new ethers.providers.JsonRpcProvider()
     signer = provider.getSigner(0)
-    DAI = new ethers.Contract(ADDRESSES.main.MCD_DAI, ERC20ABI, provider).connect(signer)
+    DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     address = await signer.getAddress()
 
+    // TODO: Use util
     provider.send('hardhat_reset', [
       {
         forking: {
@@ -85,9 +86,11 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       },
     ])
 
-    system = await deployTestSystem(provider, signer, true)
+    system = await deployTestSystem(true)
+    registry = new ServiceRegistry(system.serviceRegistry.address, signer)
   })
 
+  // TODO: move to utils
   function buildOperationCalldata(actionsBefore: Action[]) {
     return {
       name: 'openDepositDrawPaybackOperation',
@@ -131,7 +134,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         'OPEN_VAULT',
         system.actionOpenVault.address,
         ['address', 'address'],
-        [ADDRESSES.main.MCD_JOIN_ETH_A, ADDRESSES.main.CDP_MANAGER],
+        [ADDRESSES.main.joinETH_A, ADDRESSES.main.cdpManager],
         [0, 0],
       )
 
@@ -139,22 +142,17 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         'DEPOSIT',
         system.actionDeposit.address,
         ['uint256', 'address', 'address', 'uint256'],
-        [
-          0,
-          ADDRESSES.main.MCD_JOIN_ETH_A,
-          ADDRESSES.main.CDP_MANAGER,
-          ensureWeiFormat(initialColl),
-        ],
+        [0, ADDRESSES.main.joinETH_A, ADDRESSES.main.cdpManager, ensureWeiFormat(initialColl)],
         [1, 0, 0, 0],
       )
 
-      const dsproxyCalldata = system.operationRunner.interface.encodeFunctionData(
+      const dsproxyCalldata = system.operationExecutor.interface.encodeFunctionData(
         'executeOperation',
         [useFlashloan, buildOperationCalldata([openVaultAction, depositAction])],
       )
 
       const tx = await system.dsProxyInstance['execute(address,bytes)'](
-        system.operationRunner.address,
+        system.operationExecutor.address,
         dsproxyCalldata,
         {
           from: address,
@@ -175,7 +173,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       expect(info.debt.toString()).to.equal(new BigNumber(0).toFixed(0))
 
       const cdpManagerContract = new ethers.Contract(
-        ADDRESSES.main.CDP_MANAGER,
+        ADDRESSES.main.cdpManager,
         CDPManagerABI,
         provider,
       ).connect(signer)
@@ -190,17 +188,17 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         'GENERATE',
         system.actionGenerate.address,
         ['uint256', 'address', 'address', 'uint256'],
-        [vaultId, ADDRESSES.main.CDP_MANAGER, address, ensureWeiFormat(initialDebt)],
+        [vaultId, ADDRESSES.main.cdpManager, address, ensureWeiFormat(initialDebt)],
         [0, 0, 0, 0],
       )
 
-      const dsproxyCalldata = system.operationRunner.interface.encodeFunctionData(
+      const dsproxyCalldata = system.operationExecutor.interface.encodeFunctionData(
         'executeOperation',
         [useFlashloan, buildOperationCalldata([generateAction])],
       )
 
       const tx = await system.dsProxyInstance['execute(address,bytes)'](
-        system.operationRunner.address,
+        system.operationExecutor.address,
         dsproxyCalldata,
         {
           from: address,
@@ -231,8 +229,8 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         [
           vaultId,
           address,
-          ADDRESSES.main.MCD_JOIN_DAI,
-          ADDRESSES.main.CDP_MANAGER,
+          ADDRESSES.main.joinETH_A,
+          ADDRESSES.main.cdpManager,
           ensureWeiFormat(paybackDai),
           paybackAll,
         ],
@@ -241,13 +239,13 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       const ALLOWANCE = new BigNumber(10000000000000000000000000)
       await DAI.approve(system.dsProxyInstance.address, ensureWeiFormat(ALLOWANCE))
 
-      const dsproxyCalldata = system.operationRunner.interface.encodeFunctionData(
+      const dsproxyCalldata = system.operationExecutor.interface.encodeFunctionData(
         'executeOperation',
         [useFlashloan, buildOperationCalldata([paybackAction])],
       )
 
       const tx = await system.dsProxyInstance['execute(address,bytes)'](
-        system.operationRunner.address,
+        system.operationExecutor.address,
         dsproxyCalldata,
         {
           from: address,
@@ -280,8 +278,8 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         [
           vaultId,
           address,
-          ADDRESSES.main.MCD_JOIN_DAI,
-          ADDRESSES.main.CDP_MANAGER,
+          ADDRESSES.main.joinETH_A,
+          ADDRESSES.main.cdpManager,
           ensureWeiFormat(paybackDai),
           paybackAll,
         ],
@@ -290,13 +288,13 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       const ALLOWANCE = new BigNumber(prePaybackInfo.debt)
       await DAI.approve(system.dsProxyInstance.address, ensureWeiFormat(ALLOWANCE))
 
-      const dsproxyCalldata = system.operationRunner.interface.encodeFunctionData(
+      const dsproxyCalldata = system.operationExecutor.interface.encodeFunctionData(
         'executeOperation',
         [useFlashloan, buildOperationCalldata([paybackAction])],
       )
 
       const tx = await system.dsProxyInstance['execute(address,bytes)'](
-        system.operationRunner.address,
+        system.operationExecutor.address,
         dsproxyCalldata,
         {
           from: address,
@@ -324,20 +322,20 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         [
           vaultId,
           address,
-          ADDRESSES.main.MCD_JOIN_ETH_A,
-          ADDRESSES.main.CDP_MANAGER,
+          ADDRESSES.main.joinETH_A,
+          ADDRESSES.main.cdpManager,
           ensureWeiFormat(initialColl),
         ],
         [0, 0, 0, 0],
       )
 
-      const dsproxyCalldata = system.operationRunner.interface.encodeFunctionData(
+      const dsproxyCalldata = system.operationExecutor.interface.encodeFunctionData(
         'executeOperation',
         [useFlashloan, buildOperationCalldata([withdrawAction])],
       )
 
       const tx = await system.dsProxyInstance['execute(address,bytes)'](
-        system.operationRunner.address,
+        system.operationExecutor.address,
         dsproxyCalldata,
         {
           from: address,
@@ -379,94 +377,93 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
     const testName = `should open vault, deposit ETH, generate DAI, repay debt in full and withdraw collateral`
     it(testName, async () => {
-      const useFlashloan = false
-
-      const openVaultAction = new Action(
-        'OPEN_VAULT',
-        system.actionOpenVault.address,
-        ['address', 'address'],
-        [ADDRESSES.main.MCD_JOIN_ETH_A, ADDRESSES.main.CDP_MANAGER],
-        [0, 0],
-      )
-
-      const depositAction = new Action(
-        'DEPOSIT',
-        system.actionDeposit.address,
-        ['uint256', 'address', 'address', 'uint256'],
+      const openVaultAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
+        ['tuple(address joinAddress, address mcdManager)'],
         [
-          0,
-          ADDRESSES.main.MCD_JOIN_ETH_A,
-          ADDRESSES.main.CDP_MANAGER,
-          ensureWeiFormat(initialColl),
+          {
+            joinAddress: ADDRESSES.main.joinETH_A,
+            mcdManager: ADDRESSES.main.cdpManager,
+          },
         ],
-        [1, 0, 0, 0],
       )
 
-      const generateAction = new Action(
-        'GENERATE',
-        system.actionGenerate.address,
-        ['uint256', 'address', 'address', 'uint256'],
-        [0, ADDRESSES.main.CDP_MANAGER, address, ensureWeiFormat(initialDebt)],
-        [1, 0, 0, 0],
+      const depositAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+        ['tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)'],
+        [
+          {
+            joinAddress: ADDRESSES.main.joinETH_A,
+            mcdManager: ADDRESSES.main.cdpManager,
+            vaultId: 0,
+            amount: ensureWeiFormat(initialColl),
+          },
+        ],
+      )
+
+      const generateAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
+        ['tuple(address to, address mcdManager, uint256 vaultId, uint256 amount)'],
+        [
+          {
+            to: address,
+            mcdManager: ADDRESSES.main.cdpManager,
+            vaultId: 0,
+            amount: ensureWeiFormat(initialDebt),
+          },
+        ],
       )
 
       const paybackDai = new BigNumber(0) // Can be anything because paybackAll flag is true
       const paybackAll = true
-      const paybackAction = new Action(
-        'PAYBACK',
-        system.actionPayback.address,
-        ['uint256', 'address', 'address', 'address', 'uint256', 'bool'],
+
+      const paybackAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
         [
-          0,
-          address,
-          ADDRESSES.main.MCD_JOIN_DAI,
-          ADDRESSES.main.CDP_MANAGER,
-          ensureWeiFormat(paybackDai),
-          paybackAll,
+          'tuple(uint256 vaultId, address userAddress, address daiJoin, address mcdManager, uint256 amount, bool paybackAll)',
         ],
-        [1, 0, 0, 0],
+        [
+          {
+            vaultId: 0,
+            userAddress: address,
+            daiJoin: ADDRESSES.main.joinDAI,
+            mcdManager: ADDRESSES.main.cdpManager,
+            amount: ensureWeiFormat(paybackDai),
+            paybackAll: paybackAll,
+          },
+        ],
       )
+
       const ALLOWANCE = new BigNumber('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
       await DAI.approve(system.dsProxyInstance.address, ensureWeiFormat(ALLOWANCE))
 
-      const withdrawAction = new Action(
-        'WITHDRAW',
-        system.actionWithdraw.address,
-        ['uint256', 'address', 'address', 'address', 'uint256'],
+      const withdrawAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
         [
-          0,
-          address,
-          ADDRESSES.main.MCD_JOIN_ETH_A,
-          ADDRESSES.main.CDP_MANAGER,
-          ensureWeiFormat(initialColl),
+          'tuple(uint256 vaultId, address userAddress, address joinAddr, address mcdManager, uint256 amount)',
         ],
-        [1, 0, 0, 0],
-      )
-
-      const dsproxyCalldata = system.operationRunner.interface.encodeFunctionData(
-        'executeOperation',
         [
-          useFlashloan,
-          buildOperationCalldata([
-            openVaultAction,
-            depositAction,
-            generateAction,
-            paybackAction,
-            withdrawAction,
-          ]),
+          {
+            vaultId: 0,
+            userAddress: address,
+            joinAddr: ADDRESSES.main.joinETH_A,
+            mcdManager: ADDRESSES.main.cdpManager,
+            amount: ensureWeiFormat(initialColl),
+          },
         ],
       )
 
-      const tx = await system.dsProxyInstance['execute(address,bytes)'](
-        system.operationRunner.address,
-        dsproxyCalldata,
+      const [_, txReceipt] = await executeThroughProxy(
+        system.userProxyAddress,
         {
-          from: address,
-          value: ensureWeiFormat(initialColl),
-          gasLimit: 8500000,
+          address: system.operationExecutor.address,
+          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+            [openVaultAction, depositAction, generateAction, paybackAction, withdrawAction],
+          ]),
         },
+        signer,
       )
-      const txReceipt = await tx.wait()
+
       gasEstimates.save(testName, txReceipt)
 
       const vault = await getLastCDP(provider, signer, system.userProxyAddress)
@@ -478,7 +475,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       expect(info.debt.toString()).to.equal(expectedDebt.toFixed(0))
 
       const cdpManagerContract = new ethers.Contract(
-        ADDRESSES.main.CDP_MANAGER,
+        ADDRESSES.main.cdpManager,
         CDPManagerABI,
         provider,
       ).connect(signer)
@@ -517,7 +514,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
     // provider = new ethers.providers.JsonRpcProvider()
     provider = ethers.provider
     signer = provider.getSigner(0)
-    DAI = new ethers.Contract(ADDRESSES.main.MCD_DAI, ERC20ABI, provider).connect(signer)
+    DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.ETH, ERC20ABI, provider).connect(signer)
     address = await signer.getAddress()
 
@@ -562,7 +559,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
     before(async () => {
       oraclePrice = await getOraclePrice(provider)
-      DAI = new ethers.Contract(ADDRESSES.main.MCD_DAI, ERC20ABI, provider).connect(signer)
+      DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
 
       await system.exchangeInstance.setPrice(
         ADDRESSES.main.ETH,
@@ -685,12 +682,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           'DEPOSIT',
           system.actionDeposit.address,
           ['uint256', 'address', 'address', 'uint256'],
-          [
-            0,
-            ADDRESSES.main.MCD_JOIN_ETH_A,
-            ADDRESSES.main.CDP_MANAGER,
-            ensureWeiFormat(collTopUp),
-          ],
+          [0, ADDRESSES.main.joinETH_A, ADDRESSES.main.cdpManager, ensureWeiFormat(collTopUp)],
           [1, 0, 0, 0],
         )
         actions.push(transferCollTopupToProxyAction)
@@ -727,7 +719,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           'GENERATE',
           system.actionGenerate.address,
           ['uint256', 'address', 'address', 'uint256'],
-          [0, ADDRESSES.main.CDP_MANAGER, address, ensureWeiFormat(cdpState.requiredDebt)],
+          [0, ADDRESSES.main.cdpManager, address, ensureWeiFormat(cdpState.requiredDebt)],
           [1, 0, 0, 0],
         )
 
@@ -755,7 +747,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         await DAI.approve(system.userProxyAddress, amountToWei(swapAmount).toFixed(0))
         const swapAction = new Action(
           'SWAP',
-          system.actionSwap.address,
+          system.actionTakeFlashLoan.address,
           [swapDataTypeToEncode],
           [swapData],
           [0],
@@ -768,8 +760,8 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           ['uint256', 'address', 'address', 'uint256'],
           [
             0,
-            ADDRESSES.main.MCD_JOIN_ETH_A,
-            ADDRESSES.main.CDP_MANAGER,
+            ADDRESSES.main.joinETH_A,
+            ADDRESSES.main.cdpManager,
             ensureWeiFormat(collateralToDeposit),
           ],
           [1, 0, 0, 0],
@@ -819,8 +811,8 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           ['uint256', 'address', 'address', 'uint256'],
           [
             0,
-            ADDRESSES.main.MCD_JOIN_ETH_A,
-            ADDRESSES.main.CDP_MANAGER,
+            ADDRESSES.main.joinETH_A,
+            ADDRESSES.main.cdpManager,
             ensureWeiFormat(cdpState.toBorrowCollateralAmount),
           ],
           [1, 0, 0, 0],
@@ -830,7 +822,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           'GENERATE',
           system.actionGenerate.address,
           ['uint256', 'address', 'address', 'uint256'],
-          [0, ADDRESSES.main.CDP_MANAGER, address, ensureWeiFormat(cdpState.requiredDebt)],
+          [0, ADDRESSES.main.cdpManager, address, ensureWeiFormat(cdpState.requiredDebt)],
           [1, 0, 0, 0],
         )
 
@@ -906,7 +898,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           'OPEN_VAULT',
           system.actionOpenVault.address,
           ['address', 'address'],
-          [ADDRESSES.main.MCD_JOIN_ETH_A, ADDRESSES.main.CDP_MANAGER],
+          [ADDRESSES.main.joinETH_A, ADDRESSES.main.cdpManager],
           [0, 0],
         )
 
@@ -916,8 +908,8 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           ['uint256', 'address', 'address', 'uint256'],
           [
             0,
-            ADDRESSES.main.MCD_JOIN_ETH_A,
-            ADDRESSES.main.CDP_MANAGER,
+            ADDRESSES.main.joinETH_A,
+            ADDRESSES.main.cdpManager,
             ensureWeiFormat(defaultInitialColl),
           ],
           [1, 0, 0, 0],
@@ -977,7 +969,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
             },
           })
 
-        const dsproxyCalldata = system.operationRunner.interface.encodeFunctionData(
+        const dsproxyCalldata = system.operationExecutor.interface.encodeFunctionData(
           'executeOperation',
           [
             useFlashloan,
@@ -995,7 +987,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
         try {
           const tx = await system.dsProxyInstance['execute(address,bytes)'](
-            system.operationRunner.address,
+            system.operationExecutor.address,
             dsproxyCalldata,
             {
               from: address,
@@ -1022,7 +1014,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         expect(info.debt.toFixed(0)).to.equal(expectedDebt.toFixed(0))
 
         const cdpManagerContract = new ethers.Contract(
-          ADDRESSES.main.CDP_MANAGER,
+          ADDRESSES.main.cdpManager,
           CDPManagerABI,
           provider,
         ).connect(signer)

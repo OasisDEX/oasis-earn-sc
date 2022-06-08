@@ -8,7 +8,7 @@ import "../../core/ServiceRegistry.sol";
 import "../../interfaces/maker/IJoin.sol";
 import "../../interfaces/maker/IManager.sol";
 
-import {OpenVaultData} from "../../core/types/Maker.sol";
+import { OpenVaultData } from "../../core/types/Maker.sol";
 
 contract OpenVault is IAction {
   constructor(address _registry) IAction(_registry) {}

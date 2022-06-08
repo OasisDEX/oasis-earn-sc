@@ -47,10 +47,7 @@ export interface DeployedSystemInfo {
   serviceRegistry: Contract
 }
 
-export async function deployTestSystem(
-  usingDummyExchange = false,
-  debug = false,
-): Promise<DeployedSystemInfo> {
+export async function deployTestSystem(debug = false): Promise<DeployedSystemInfo> {
   const config = await init()
   const { provider, signer, address } = config
 
@@ -185,6 +182,7 @@ export async function deployTestSystem(
       `User Proxy Address: ${deployedContracts.userProxyAddress}`,
       `DSProxy address: ${deployedContracts.dsProxyInstance.address}`,
       `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
+      `Registry address: ${deployedContracts.serviceRegistry.address}`,
       `Operation Executor address: ${deployedContracts.operationExecutor.address}`,
       `Operator Storage address: ${deployedContracts.operationStorage.address}`,
 
