@@ -13,19 +13,16 @@ export default async function init(): Promise<RuntimeConfig> {
     provider,
     signer,
     address,
-  };
+  }
 }
 
-export async function resetNode(
-  provider: providers.JsonRpcProvider,
-  blockNumber: number
-) {
-  provider.send("hardhat_reset", [
+export async function resetNode(provider: providers.JsonRpcProvider, blockNumber: number) {
+  provider.send('hardhat_reset', [
     {
       forking: {
         jsonRpcUrl: process.env.MAINNET_URL,
         blockNumber,
       },
     },
-  ]);
+  ])
 }

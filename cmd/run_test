@@ -1,9 +1,0 @@
-#!/bin/bash
-FILENAME=$2
-if [[ "$2" == *\.test.ts  ]]
-then
-  FILENAME=$2
-else
-  FILENAME="${FILENAME}.test.ts"
-fi
-npx hardhat test --network $1 test/${FILENAME}

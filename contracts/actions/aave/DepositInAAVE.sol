@@ -10,8 +10,8 @@ import {AAVEDepositData} from "../../core/types/Aave.sol";
 import {OPERATION_STORAGE, AAVE_LENDING_POOL} from "../../core/Constants.sol";
 
 contract DepositInAAVE is IAction {
-    // TODO: Pass the service registry in here
-    constructor(address _registry) IAction(_registry) {}
+  // TODO: Pass the service registry in here
+  constructor(address _registry) IAction(_registry) {}
 
     function execute(bytes calldata data, uint8[] memory) external payable override {
         AAVEDepositData memory deposit = abi.decode(data, (AAVEDepositData));
@@ -23,7 +23,7 @@ contract DepositInAAVE is IAction {
             0
         );
 
-        // TODO: REMOVE
-        storeResult("DepositInAAVE");
-    }
+    // TODO: REMOVE
+    storeResult("DepositInAAVE");
+  }
 }

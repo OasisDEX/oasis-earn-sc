@@ -12,7 +12,7 @@ import {OPERATION_STORAGE, AAVE_LENDING_POOL} from "../../core/Constants.sol";
 
 // TODO: Make it more generic so that anything could be withdrawn and not only ETH
 contract WithdrawFromAAVE is IAction {
-    constructor(address _registry) IAction(_registry) {}
+  constructor(address _registry) IAction(_registry) {}
 
     function execute(bytes calldata data, uint8[] memory) external payable override {
         AAVEWithdrawData memory withdraw = abi.decode(data, (AAVEWithdrawData));

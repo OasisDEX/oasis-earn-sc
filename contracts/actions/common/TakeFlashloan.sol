@@ -11,23 +11,20 @@ import {FlashloanData} from "../../core/types/Common.sol";
 import {OPERATION_EXECUTOR, FLASH_MINT_MODULE, DAI} from "../../core/Constants.sol";
 
 contract TakeFlashloan is IAction {
-    constructor(address _registry) IAction(_registry) {}
+  constructor(address _registry) IAction(_registry) {}
 
-    function execute(bytes calldata data, uint8[] memory) public payable override {
-        DSProxy(payable(address(this))).setOwner(
-            registry.getRegisteredService(OPERATION_EXECUTOR)
-        );
-        FlashloanData memory flData = abi.decode(data, (FlashloanData));
-        IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE))
-            .flashLoan(
-                IERC3156FlashBorrower(flData.borrower),
-                registry.getRegisteredService(DAI),
-                flData.amount,
-                data
-            );
+  function execute(bytes calldata data, uint8[] memory) public payable override {
+    DSProxy(payable(address(this))).setOwner(registry.getRegisteredService(OPERATION_EXECUTOR));
+    FlashloanData memory flData = abi.decode(data, (FlashloanData));
+    IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
+      IERC3156FlashBorrower(flData.borrower),
+      registry.getRegisteredService(DAI),
+      flData.amount,
+      data
+    );
 
-        DSProxy(payable(address(this))).setOwner(msg.sender);
+    DSProxy(payable(address(this))).setOwner(msg.sender);
 
-        storeResult("TakeAFlashloan");
-    }
+    storeResult("TakeAFlashloan");
+  }
 }
