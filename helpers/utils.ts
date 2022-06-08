@@ -129,10 +129,16 @@ export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value)
 type ActionCall = {
   targetHash: string
   callData: string
+  shouldStoreResult: boolean
 }
 
 export class ActionFactory {
-  static create(targetHash: string, types: string[], args: any[]): ActionCall {
+  static create(
+    targetHash: string,
+    types: string[],
+    args: any[],
+    shouldStoreResult = false,
+  ): ActionCall {
     const iface = new ethers.utils.Interface([
       ' function execute(bytes calldata data) external payable returns (bytes calldata)',
     ])
@@ -141,6 +147,7 @@ export class ActionFactory {
     return {
       targetHash,
       callData: calldata,
+      shouldStoreResult,
     }
   }
 }

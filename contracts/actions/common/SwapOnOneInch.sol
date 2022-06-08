@@ -2,7 +2,7 @@ pragma solidity ^0.8.1;
 // TODO: Remove this for prod deploy
 import "hardhat/console.sol";
 
-import "../common/IAction.sol";
+import "../common/Executable.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -11,10 +11,14 @@ import { SwapData } from "../../core/Types.sol";
 import { OPERATION_STORAGE, WETH, ONE_INCH_AGGREGATOR } from "../../core/Constants.sol";
 
 // TODO: Make it so it differentiate between ETH and any other token
-contract SwapOnOneInch is IAction {
-  constructor(address _registry) IAction(_registry) {}
+contract SwapOnOneInch is Executable {
+  ServiceRegistry internal immutable registry;
 
-  function execute(bytes calldata data, uint8[] memory) external payable override {
+  constructor(address _registry) {
+    registry = ServiceRegistry(_registry);
+  }
+
+  function execute(bytes calldata data) external payable override {
     // TODO figure out why using ETH doesn't work.
     // - Failed on the swap. 1Inch has some EthReceiver contract which checks the tx.origin and msg.sender
     //   If they are different msg.sender != tx.origin the deposit/transfer of ETH is not accepted
@@ -28,7 +32,5 @@ contract SwapOnOneInch is IAction {
     require(success, "Exchange / Could not swap");
     uint256 balance = IERC20(swap.toAsset).balanceOf(address(this));
     require(balance >= swap.receiveAtLeast, "Exchange / Received less");
-    // TODO: REmove
-    storeResult("SwapOnOneInch");
   }
 }

@@ -66,9 +66,9 @@ async function main() {
   registry.addEntry(CONTRACT_LABELS.common.OPERATION_EXECUTOR, operationExecutorAddress)
 
   // DEPLOYING ACTIONS
-  const [, pullTokenActionAddress] = await deploy('PullToken', [serviceRegistryAddress], options)
-  const [, sendTokenAddress] = await deploy('SendToken', [serviceRegistryAddress], options)
-  const [, setApprovalAddress] = await deploy('SetApproval', [serviceRegistryAddress], options)
+  const [, pullTokenActionAddress] = await deploy('PullToken', [], options)
+  const [, sendTokenAddress] = await deploy('SendToken', [], options)
+  const [, setApprovalAddress] = await deploy('SetApproval', [], options)
   const [, flActionAddress] = await deploy('TakeFlashloan', [serviceRegistryAddress], options)
   const [, depositInAAVEAddress] = await deploy('DepositInAAVE', [serviceRegistryAddress], options)
   const [, borrowFromAAVEAddress] = await deploy(
@@ -160,6 +160,7 @@ async function main() {
         from: operationExecutorAddress,
       },
     ],
+    true,
   )
 
   // APPROVE LENDING POOL
@@ -185,6 +186,7 @@ async function main() {
         asset: ADDRESSES.main.DAI,
       },
     ],
+    true,
   )
 
   // BORROW FROM AAVE
@@ -197,6 +199,7 @@ async function main() {
         asset: ADDRESSES.main.ETH,
       },
     ],
+    true,
   )
 
   // SWAP TOKENS
@@ -253,7 +256,9 @@ async function main() {
   // TAKE A FLASHLOAN ACTION
   const takeAFlashloan = createAction(
     takeAFlashloanHash,
-    ['tuple(uint256 amount, address borrower, (bytes32 targetHash, bytes callData)[] calls)'],
+    [
+      'tuple(uint256 amount, address borrower, (bytes32 targetHash, bytes callData, bool shouldStoreResult)[] calls)',
+    ],
     [
       {
         amount: flashloanAmount.toFixed(0),
