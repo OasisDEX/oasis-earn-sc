@@ -257,7 +257,7 @@ async function main() {
   const takeAFlashloan = createAction(
     takeAFlashloanHash,
     [
-      'tuple(uint256 amount, address borrower, (bytes32 targetHash, bytes callData, bool isResultStored)[] calls)',
+      'tuple(uint256 amount, address borrower, (bytes32 targetHash, bytes callData, bool shouldStoreResult)[] calls)',
     ],
     [
       {

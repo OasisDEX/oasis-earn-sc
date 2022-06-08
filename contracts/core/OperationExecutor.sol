@@ -36,7 +36,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
       (bool success, bytes memory result) = target.delegatecall(calls[current].callData);
       console.log("DEBUG: CALL FAILED?", success);
       require(success, "delegate call failed");
-      if (calls[current].isResultStored) {
+      if (calls[current].shouldStoreResult) {
         OperationStorage(registry.getRegisteredService(OPERATION_STORAGE)).push(result);
       }
       returnData[current] = result;
