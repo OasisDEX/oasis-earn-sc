@@ -1,0 +1,1549 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "contract ILendingPoolAddressesProviderV2",
+        "name": "provider",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "fallback"
+  },
+  {
+    "inputs": [],
+    "name": "ADDRESSES_PROVIDER",
+    "outputs": [
+      {
+        "internalType": "contract ILendingPoolAddressesProviderV2",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "DAI",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ETH_ADDR",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "FEE_RECEPIENT",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "LENDING_POOL",
+    "outputs": [
+      {
+        "internalType": "contract ILendingPoolV2",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "WETH",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "_daiJoin",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "_joinAddr",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "_mcdManager",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "_vat",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "usr",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "ok",
+        "type": "uint256"
+      }
+    ],
+    "name": "cdpAllow",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadD",
+        "type": "uint256"
+      }
+    ],
+    "name": "closeWithFL",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "apt",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "urn",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wad",
+        "type": "uint256"
+      }
+    ],
+    "name": "daiJoin_join",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "jug",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wad",
+        "type": "uint256"
+      }
+    ],
+    "name": "draw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "src",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      }
+    ],
+    "name": "enter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "apt",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "urn",
+        "type": "address"
+      }
+    ],
+    "name": "ethJoin_join",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "assets",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "premiums",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "address",
+        "name": "initiator",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "params",
+        "type": "bytes"
+      }
+    ],
+    "name": "executeOperation",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "ethJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wad",
+        "type": "uint256"
+      }
+    ],
+    "name": "exitETH",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "gemJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amt",
+        "type": "uint256"
+      }
+    ],
+    "name": "exitGem",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ilk",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadD",
+        "type": "uint256"
+      }
+    ],
+    "name": "flashLoanCloseCall",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ilk",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amtC",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadD",
+        "type": "uint256"
+      }
+    ],
+    "name": "flashLoanOpenCall",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "dst",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wad",
+        "type": "uint256"
+      }
+    ],
+    "name": "flux",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "ethJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wad",
+        "type": "uint256"
+      }
+    ],
+    "name": "freeETH",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "gemJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amt",
+        "type": "uint256"
+      }
+    ],
+    "name": "freeGem",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "int256",
+        "name": "dink",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "dart",
+        "type": "int256"
+      }
+    ],
+    "name": "frob",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "apt",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "urn",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "transferFrom",
+        "type": "bool"
+      }
+    ],
+    "name": "gemJoin_join",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "usr",
+        "type": "address"
+      }
+    ],
+    "name": "give",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "proxyRegistry",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "dst",
+        "type": "address"
+      }
+    ],
+    "name": "giveToProxy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "obj",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "usr",
+        "type": "address"
+      }
+    ],
+    "name": "hope",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "ethJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      }
+    ],
+    "name": "lockETH",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "jug",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "ethJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadD",
+        "type": "uint256"
+      }
+    ],
+    "name": "lockETHAndDraw",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "gemJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "transferFrom",
+        "type": "bool"
+      }
+    ],
+    "name": "lockGem",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "jug",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "gemJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amtC",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadD",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "transferFrom",
+        "type": "bool"
+      }
+    ],
+    "name": "lockGemAndDraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "gemJoin",
+        "type": "address"
+      }
+    ],
+    "name": "makeGemBag",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "bag",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "dst",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "rad",
+        "type": "uint256"
+      }
+    ],
+    "name": "move",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "obj",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "usr",
+        "type": "address"
+      }
+    ],
+    "name": "nope",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ilk",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "usr",
+        "type": "address"
+      }
+    ],
+    "name": "open",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "jug",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "ethJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ilk",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadD",
+        "type": "uint256"
+      }
+    ],
+    "name": "openLockETHAndDraw",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "jug",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "gntJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ilk",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amtC",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadD",
+        "type": "uint256"
+      }
+    ],
+    "name": "openLockGNTAndDraw",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "bag",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "jug",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "gemJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ilk",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amtC",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadD",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "transferFrom",
+        "type": "bool"
+      }
+    ],
+    "name": "openLockGemAndDraw",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "gemJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amtC",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadD",
+        "type": "uint256"
+      }
+    ],
+    "name": "openWithFL",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "dst",
+        "type": "address"
+      }
+    ],
+    "name": "quit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "ethJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "safeLockETH",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "gemJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "transferFrom",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "safeLockGem",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wad",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "safeWipe",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "safeWipeAll",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdpSrc",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdpOrg",
+        "type": "uint256"
+      }
+    ],
+    "name": "shift",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "requiredColl",
+        "type": "uint256"
+      }
+    ],
+    "name": "swap",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "requiredColl",
+        "type": "uint256"
+      }
+    ],
+    "name": "swapToDai",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "gem",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "dst",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amt",
+        "type": "uint256"
+      }
+    ],
+    "name": "transfer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "usr",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "ok",
+        "type": "uint256"
+      }
+    ],
+    "name": "urnAllow",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wad",
+        "type": "uint256"
+      }
+    ],
+    "name": "wipe",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      }
+    ],
+    "name": "wipeAll",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "ethJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadC",
+        "type": "uint256"
+      }
+    ],
+    "name": "wipeAllAndFreeETH",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "gemJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amtC",
+        "type": "uint256"
+      }
+    ],
+    "name": "wipeAllAndFreeGem",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "ethJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadC",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadD",
+        "type": "uint256"
+      }
+    ],
+    "name": "wipeAndFreeETH",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "gemJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "daiJoin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cdp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amtC",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wadD",
+        "type": "uint256"
+      }
+    ],
+    "name": "wipeAndFreeGem",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
