@@ -1,4 +1,3 @@
 describe('Dummy test', async () => {
-  it(`Dummy case`, async () => {
-  })
+  it(`Dummy case`, async () => null)
 })

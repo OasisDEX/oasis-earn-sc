@@ -7,23 +7,23 @@ import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import "../../interfaces/aave/ILendingPool.sol";
-import {AAVEWithdrawData} from "../../core/Types.sol";
-import {OPERATION_STORAGE, AAVE_LENDING_POOL} from "../../core/Constants.sol";
+import { AAVEWithdrawData } from "../../core/Types.sol";
+import { OPERATION_STORAGE, AAVE_LENDING_POOL } from "../../core/Constants.sol";
 
 // TODO: Make it more generic so that anything could be withdrawn and not only ETH
 contract WithdrawFromAAVE is IAction {
-    constructor(address _registry) IAction(_registry) {}
+  constructor(address _registry) IAction(_registry) {}
 
-    function execute(bytes calldata data, uint8[] memory) external payable override {
-        AAVEWithdrawData memory withdraw = abi.decode(data, (AAVEWithdrawData));
-        ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).withdraw(
-                withdraw.asset,
-                withdraw.amount,
-                address(this)
-            );
-        // TODO: Assert that the funds are indeed in the account.
+  function execute(bytes calldata data, uint8[] memory) external payable override {
+    AAVEWithdrawData memory withdraw = abi.decode(data, (AAVEWithdrawData));
+    ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).withdraw(
+      withdraw.asset,
+      withdraw.amount,
+      address(this)
+    );
+    // TODO: Assert that the funds are indeed in the account.
 
-        // TODO: REMOVE
-        storeResult("WithdrawFromAAVE");
-    }
+    // TODO: REMOVE
+    storeResult("WithdrawFromAAVE");
+  }
 }
