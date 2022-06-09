@@ -11,7 +11,8 @@ import { CONTRACT_LABELS, ZERO } from '../helpers/constants'
 import { executeThroughProxy } from '../helpers/deploy'
 import { resetNode } from '../helpers/init'
 import { getVaultInfo } from '../helpers/maker/vault-info'
-import { ExchangeData, SwapData } from '../helpers/types'
+import { calldataTypes } from '../helpers/types/actions'
+import { ExchangeData, SwapData } from '../helpers/types/common'
 import {
   ActionCall,
   ActionFactory,
@@ -93,7 +94,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       const shouldStoreResult = true
       const openVaultAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
-        ['tuple(address joinAddress, address mcdManager)'],
+        [calldataTypes.maker.Open],
         [
           {
             joinAddress: ADDRESSES.main.joinETH_A,
@@ -105,7 +106,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
       const depositAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
-        ['tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)'],
+        [calldataTypes.maker.Deposit],
         [
           {
             joinAddress: ADDRESSES.main.joinETH_A,
@@ -151,7 +152,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
     it(testNames.generatedDebt, async () => {
       const generateAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
-        ['tuple(address to, address mcdManager, uint256 vaultId, uint256 amount)'],
+        [calldataTypes.maker.Generate],
         [
           {
             to: address,
@@ -189,9 +190,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       const paybackAll = false
       const paybackAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
-        [
-          'tuple(uint256 vaultId, address userAddress, address daiJoin, address mcdManager, uint256 amount, bool paybackAll)',
-        ],
+        [calldataTypes.maker.Payback],
         [
           {
             vaultId,
@@ -239,9 +238,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
       const paybackAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
-        [
-          'tuple(uint256 vaultId, address userAddress, address daiJoin, address mcdManager, uint256 amount, bool paybackAll)',
-        ],
+        [calldataTypes.maker.Payback],
         [
           {
             vaultId,
@@ -280,9 +277,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
     it(testNames.withdrawColl, async () => {
       const withdrawAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
-        [
-          'tuple(uint256 vaultId, address userAddress, address joinAddr, address mcdManager, uint256 amount)',
-        ],
+        [calldataTypes.maker.Withdraw],
         [
           {
             vaultId,
@@ -340,7 +335,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       const shouldStoreResult = true
       const openVaultAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
-        ['tuple(address joinAddress, address mcdManager)'],
+        [calldataTypes.maker.Open],
         [
           {
             joinAddress: ADDRESSES.main.joinETH_A,
@@ -352,7 +347,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
       const depositAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
-        ['tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)'],
+        [calldataTypes.maker.Deposit],
         [
           {
             joinAddress: ADDRESSES.main.joinETH_A,
@@ -365,7 +360,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
       const generateAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
-        ['tuple(address to, address mcdManager, uint256 vaultId, uint256 amount)'],
+        [calldataTypes.maker.Generate],
         [
           {
             to: address,
@@ -381,9 +376,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
       const paybackAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
-        [
-          'tuple(uint256 vaultId, address userAddress, address daiJoin, address mcdManager, uint256 amount, bool paybackAll)',
-        ],
+        [calldataTypes.maker.Payback],
         [
           {
             vaultId: 0,
@@ -401,9 +394,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
       const withdrawAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
-        [
-          'tuple(uint256 vaultId, address userAddress, address joinAddr, address mcdManager, uint256 amount)',
-        ],
+        [calldataTypes.maker.Withdraw],
         [
           {
             vaultId: 0,
@@ -631,7 +622,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       }) {
         const transferCollTopupToProxyAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
-          ['tuple(address asset, address to, uint256 amount)'],
+          [calldataTypes.common.SendToken],
           [
             {
               asset: topUpData.token,
@@ -643,7 +634,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
         const topupCollateralAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
-          ['tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)'],
+          [calldataTypes.maker.Deposit],
           [
             {
               joinAddress: ADDRESSES.main.joinETH_A,
@@ -666,7 +657,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       }) {
         const transferDaiTopupToProxyAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
-          ['tuple(address asset, address to, uint256 amount)'],
+          [calldataTypes.common.SendToken],
           [
             {
               asset: topUpData.token,
@@ -690,7 +681,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         // Generate DAI -> Swap for collateral -> Deposit collateral
         const generateDaiForSwap = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
-          ['tuple(address to, address mcdManager, uint256 vaultId, uint256 amount)'],
+          [calldataTypes.maker.Generate],
           [
             {
               to: address,
@@ -703,7 +694,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
         const transferGeneratedDaiToProxyAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
-          ['tuple(address asset, address to, uint256 amount)'],
+          [SendTokenActionCalldataType],
           [
             {
               asset: exchangeData.fromTokenAddress,
@@ -729,16 +720,14 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         await DAI.approve(system.userProxyAddress, amountToWei(swapAmount).toFixed(0))
         const swapAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.common.EXCHANGE),
-          [
-            'tuple(address fromAsset, address toAsset, uint256 amount, uint256 receiveAtLeast, bytes withData)',
-          ],
+          [calldataTypes.common.Swap],
           [swapData],
         )
 
         const collateralToDeposit = cdpState.toBorrowCollateralAmount.plus(cdpState.collTopUp)
         const depositBorrowedCollateral = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
-          ['tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)'],
+          [calldataTypes.maker.Deposit],
           [
             {
               joinAddress: ADDRESSES.main.joinETH_A,
@@ -781,15 +770,13 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         await DAI.approve(system.userProxyAddress, amountToWei(swapAmount).toFixed(0))
         const swapAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.common.EXCHANGE),
-          [
-            'tuple(address fromAsset, address toAsset, uint256 amount, uint256 receiveAtLeast, bytes withData)',
-          ],
+          [calldataTypes.common.Swap],
           [swapData],
         )
 
         const depositBorrowedCollateral = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
-          ['tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)'],
+          [calldataTypes.maker.Deposit],
           [
             {
               joinAddress: ADDRESSES.main.joinETH_A,
@@ -802,7 +789,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
         const generateDaiToRepayFL = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
-          ['tuple(address to, address mcdManager, uint256 vaultId, uint256 amount)'],
+          [calldataTypes.maker.Generate],
           [
             {
               to: address,
@@ -815,7 +802,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
         const transferGeneratedDaiToProxyAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
-          ['tuple(address asset, address to, uint256 amount)'],
+          [calldataTypes.common.SendToken],
           [
             {
               asset: exchangeData.fromTokenAddress,
@@ -827,9 +814,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
         const takeAFlashloan = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.common.TAKE_A_FLASHLOAN),
-          [
-            'tuple(uint256 amount, address borrower, (bytes32 targetHash, bytes callData, bool shouldStoreResult)[] calls)',
-          ],
+          [calldataTypes.common.TakeAFlashLoan],
           [
             {
               amount: exchangeData.fromTokenAmount,
@@ -856,7 +841,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       }) {
         const flushProxyAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
-          ['tuple(address asset, address to, uint256 amount)'],
+          [calldataTypes.common.PullToken],
           [flushData.token, flushData.to, flushData.flAmount],
         )
 
@@ -902,7 +887,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         const shouldStoreResult = true
         const openVaultAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
-          ['tuple(address joinAddress, address mcdManager)'],
+          [calldataTypes.maker.Open],
           [
             {
               joinAddress: ADDRESSES.main.joinETH_A,
@@ -914,7 +899,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
         const initialDepositAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
-          ['tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)'],
+          [calldataTypes.maker.Deposit],
           [
             {
               joinAddress: ADDRESSES.main.joinETH_A,

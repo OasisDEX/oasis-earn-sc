@@ -18,18 +18,16 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
   }
 })
 
-const blockNumber = process.env.BLOCK_NUMBER;
+const blockNumber = process.env.BLOCK_NUMBER
 if (!blockNumber) {
-  throw new Error(`You must provide a block number.`);
+  throw new Error(`You must provide a block number.`)
 }
 
 if (!/^\d+$/.test(blockNumber)) {
-  throw new Error(
-    `Provide a valid block number. Provided value is ${blockNumber}`
-  );
+  throw new Error(`Provide a valid block number. Provided value is ${blockNumber}`)
 }
 
-console.log(`Forking from block number: ${blockNumber}`);
+console.log(`Forking from block number: ${blockNumber}`)
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -59,7 +57,7 @@ const config: HardhatUserConfig = {
   },
   networks: {
     local: {
-      url: "http://127.0.0.1:8545",
+      url: 'http://127.0.0.1:8545',
       timeout: 100000,
     },
     hardhat: {
@@ -71,8 +69,8 @@ const config: HardhatUserConfig = {
       mining: {
         auto: true,
       },
-      hardfork: "london",
-      gas: "auto",
+      hardfork: 'london',
+      gas: 'auto',
       initialBaseFeePerGas: 1000000000,
       allowUnlimitedContractSize: true,
     },
@@ -82,10 +80,10 @@ const config: HardhatUserConfig = {
     currency: 'USD',
   },
   paths: {
-    sources: "./contracts",
-    tests: "./test",
-    cache: "./cache",
-    artifacts: "./artifacts",
+    sources: './contracts',
+    tests: './test',
+    cache: './cache',
+    artifacts: './artifacts',
   },
   mocha: {
     timeout: 600000,

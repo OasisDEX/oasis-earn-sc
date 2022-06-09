@@ -7,7 +7,7 @@ import { curry } from 'ramda'
 import WETHABI from '../../abi/IWETH.json'
 import { ADDRESSES } from '../addresses'
 import { ZERO } from '../constants'
-import { OneInchBaseResponse } from '../types'
+import { OneInchBaseResponse } from '../types/common'
 import { amountFromWei, amountToWei, balanceOf, send } from '../utils'
 import { swapUniswapTokens } from './uniswap'
 

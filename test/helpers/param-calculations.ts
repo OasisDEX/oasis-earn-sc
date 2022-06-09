@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
-import { isError, tryF } from 'ts-try'
 
 import { ADDRESSES } from '../../helpers/addresses'
-import { ONE, TEN, ZERO } from '../../helpers/constants'
-import { CdpData, ExchangeData } from '../../helpers/types'
+import { ONE, ZERO } from '../../helpers/constants'
+import { ExchangeData } from '../../helpers/types/common'
+import { CdpData } from '../../helpers/types/maker'
 import { logDebug } from './test-utils'
 
 // TODO:

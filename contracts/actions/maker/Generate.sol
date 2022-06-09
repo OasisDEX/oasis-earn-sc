@@ -14,7 +14,7 @@ import "../../interfaces/maker/IGem.sol";
 import "../../interfaces/maker/IManager.sol";
 import "../../libs/SafeMath.sol";
 
-import {GenerateData} from "../../core/types/Maker.sol";
+import { GenerateData } from "../../core/types/Maker.sol";
 
 contract Generate is IAction {
   using SafeMath for uint256;

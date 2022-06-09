@@ -12,7 +12,7 @@ import { deploy } from '../../helpers/deploy'
 import init from '../../helpers/init'
 import { getOrCreateProxy } from '../../helpers/proxy'
 import { loadDummyExchangeFixtures } from '../../helpers/swap/dummy-exchange'
-import { CDPInfo } from '../../helpers/types'
+import { CDPInfo } from '../../helpers/types/maker'
 import { ServiceRegistry } from '../../helpers/utils'
 import { logDebug } from './test-utils'
 

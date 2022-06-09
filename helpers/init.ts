@@ -3,7 +3,7 @@ import '@nomiclabs/hardhat-ethers'
 import { providers } from 'ethers'
 import { ethers } from 'hardhat'
 
-import { RuntimeConfig } from './types'
+import { RuntimeConfig } from './types/common'
 
 export default async function init(): Promise<RuntimeConfig> {
   // const provider = new ethers.providers.JsonRpcProvider();

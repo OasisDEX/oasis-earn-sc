@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 
 import { ADDRESSES } from '../addresses'
-import { OneInchSwapResponse } from '../types'
+import { OneInchSwapResponse } from '../types/common'
 
 export function formatOneInchSwapUrl(
   fromToken: string,

@@ -1,7 +1,7 @@
 import { Contract, ContractReceipt, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
-import { Debug, WithRuntimeConfig } from './types'
+import { Debug, WithRuntimeConfig } from './types/common'
 
 type DeployOptions = WithRuntimeConfig & Debug
 

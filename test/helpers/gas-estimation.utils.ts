@@ -1,6 +1,6 @@
-import { TransactionReceipt } from "@ethersproject/providers";
-import BigNumber from "bignumber.js";
-import { BigNumberish } from "ethers";
+import { TransactionReceipt } from '@ethersproject/providers'
+import BigNumber from 'bignumber.js'
+import { BigNumberish } from 'ethers'
 
 /**
  * Returns save() and print() api
@@ -9,23 +9,23 @@ import { BigNumberish } from "ethers";
  * Inside after() call
  */
 type GasEstimateHelper = () => {
-  save: (testName: string, txReceipt: TransactionReceipt) => void;
-  print: () => void;
-};
+  save: (testName: string, txReceipt: TransactionReceipt) => void
+  print: () => void
+}
 
 export const gasEstimateHelper: GasEstimateHelper = () => {
-  const shouldUseEstimates = process.env.USE_GAS_ESTIMATES === "1";
+  const shouldUseEstimates = process.env.USE_GAS_ESTIMATES === '1'
 
   const estimates: {
-    test: string;
-    gasUsed: BigNumberish;
-    gasPrice: BigNumberish;
-    [`cost (gwei)`]: BigNumber;
-  }[] = [];
+    test: string
+    gasUsed: BigNumberish
+    gasPrice: BigNumberish
+    [`cost (gwei)`]: BigNumber
+  }[] = []
 
   return {
     save: (testName: string, txReceipt: TransactionReceipt) => {
-      if (txReceipt instanceof Error) return null;
+      if (txReceipt instanceof Error) return null
 
       estimates.push({
         test: testName,
@@ -34,26 +34,26 @@ export const gasEstimateHelper: GasEstimateHelper = () => {
         [`cost (gwei)`]: new BigNumber(txReceipt.gasUsed.toNumber())
           .times(new BigNumber(txReceipt.effectiveGasPrice.toNumber()))
           .div(1e9),
-      });
+      })
     },
     print: () => {
       shouldUseEstimates &&
         console.table(
           estimates
-            .map((e) => ({
+            .map(e => ({
               ...e,
               gasUsed: e.gasUsed.toString(),
               gasPrice: e.gasPrice.toString(),
               [`cost (gwei)`]: e[`cost (gwei)`].toString(),
             }))
             .reduce((acc, { test, ...x }) => {
-              acc[test] = x;
-              return acc;
+              acc[test] = x
+              return acc
             }, {}),
-          ["gasUsed", "gasPrice", "cost (gwei)"]
-        );
+          ['gasUsed', 'gasPrice', 'cost (gwei)'],
+        )
 
-      console.log("  --- --- --- --- ---");
+      console.log('  --- --- --- --- ---')
     },
-  };
-};
+  }
+}

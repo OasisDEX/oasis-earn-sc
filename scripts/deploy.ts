@@ -86,15 +86,9 @@ async function main() {
   const [, dummyActionAddress] = await deploy('DummyAction', [serviceRegistryAddress], options)
 
   //SETUP REGISTRY ENTRIES:
-  console.log("DEBUG SETTING UP REGISTRY ENTRIES...");
-  const operationStorageHash = await registry.addEntry(
-    "OPERATION_STORAGE",
-    operationStorageAddress
-  );
-  const dummyActionHash = await registry.addEntry(
-    "DUMMY_ACTION",
-    dummyActionAddress
-  );
+  console.log('DEBUG SETTING UP REGISTRY ENTRIES...')
+  const operationStorageHash = await registry.addEntry('OPERATION_STORAGE', operationStorageAddress)
+  const dummyActionHash = await registry.addEntry('DUMMY_ACTION', dummyActionAddress)
   const pullTokenHash = await registry.addEntry(
     CONTRACT_LABELS.common.PULL_TOKEN,
     pullTokenActionAddress,
