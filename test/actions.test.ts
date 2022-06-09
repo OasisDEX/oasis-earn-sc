@@ -446,544 +446,561 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   })
 })
 
-// describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
-//   const oazoFee = 2 // divided by base (10000), 1 = 0.01%;
-//   const oazoFeePct = new BigNumber(oazoFee).div(10000)
-//   const flashLoanFee = LENDER_FEE
-//   const slippage = new BigNumber(0.0001) // percentage
+describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
+  const oazoFee = 2 // divided by base (10000), 1 = 0.01%;
+  const oazoFeePct = new BigNumber(oazoFee).div(10000)
+  const flashLoanFee = LENDER_FEE
+  const slippage = new BigNumber(0.0001) // percentage
 
-//   let provider: JsonRpcProvider
-//   let signer: Signer
-//   let address: string
-//   let system: DeployedSystemInfo
-//   let exchangeDataMock: { to: string; data: number }
+  let provider: JsonRpcProvider
+  let signer: Signer
+  let address: string
+  let system: DeployedSystemInfo
+  let exchangeDataMock: { to: string; data: number }
+  let registry: ServiceRegistry
 
-//   type DesiredCdpState = {
-//     requiredDebt: BigNumber
-//     toBorrowCollateralAmount: BigNumber
-//     daiTopUp: BigNumber
-//     fromTokenAmount: BigNumber
-//     toTokenAmount: BigNumber
-//     collTopUp: BigNumber
-//   }
+  type DesiredCdpState = {
+    requiredDebt: BigNumber
+    toBorrowCollateralAmount: BigNumber
+    daiTopUp: BigNumber
+    fromTokenAmount: BigNumber
+    toTokenAmount: BigNumber
+    collTopUp: BigNumber
+  }
 
-//   before(async () => {
-//     // provider = new ethers.providers.JsonRpcProvider()
-//     provider = ethers.provider
-//     signer = provider.getSigner(0)
-//     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
-//     WETH = new ethers.Contract(ADDRESSES.main.ETH, ERC20ABI, provider).connect(signer)
-//     address = await signer.getAddress()
+  before(async () => {
+    // provider = new ethers.providers.JsonRpcProvider()
+    provider = ethers.provider
+    signer = provider.getSigner(0)
+    DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
+    WETH = new ethers.Contract(ADDRESSES.main.ETH, ERC20ABI, provider).connect(signer)
+    address = await signer.getAddress()
 
-//     provider.send('hardhat_reset', [
-//       {
-//         forking: {
-//           jsonRpcUrl: process.env.ALCHEMY_NODE,
-//           blockNumber: 13274574,
-//         },
-//       },
-//     ])
+    const blockNumber = 13274574
+    resetNode(provider, blockNumber)
 
-//     system = await deployTestSystem(true)
+    system = await deployTestSystem(true)
+    registry = new ServiceRegistry(system.serviceRegistry.address, signer)
 
-//     exchangeDataMock = {
-//       to: system.exchangeInstance.address,
-//       data: 0,
-//     }
-//   })
+    exchangeDataMock = {
+      to: system.exchangeInstance.address,
+      data: 0,
+    }
+  })
 
-//   describe(`Increase Multiple Operations`, async () => {
-//     let oraclePrice: BigNumber
-//     const marketPrice = new BigNumber(2900)
-//     const defaultInitialColl = new BigNumber(100)
-//     const defaultInitialDebt = new BigNumber(0)
-//     const defaultDaiTopUp = new BigNumber(0)
-//     const defaultCollTopUp = new BigNumber(0)
+  describe(`Increase Multiple Operations`, async () => {
+    let oraclePrice: BigNumber
+    const marketPrice = new BigNumber(2900)
+    const defaultInitialColl = new BigNumber(100)
+    const defaultInitialDebt = new BigNumber(0)
+    const defaultDaiTopUp = new BigNumber(0)
+    const defaultCollTopUp = new BigNumber(0)
 
-//     const gasEstimates = gasEstimateHelper()
+    const gasEstimates = gasEstimateHelper()
 
-//     type OpenDepositIncreaseMultipleScenario = {
-//       testName: string
-//       initialColl: BigNumber
-//       initialDebt: BigNumber
-//       daiTopUp: BigNumber
-//       collTopUp: BigNumber
-//       requiredCollRatio: BigNumber
-//       useFlashloan: boolean
-//       vaultUnsafe: boolean
-//       debug?: boolean
-//     }
+    type OpenDepositIncreaseMultipleScenario = {
+      testName: string
+      initialColl: BigNumber
+      initialDebt: BigNumber
+      daiTopUp: BigNumber
+      collTopUp: BigNumber
+      requiredCollRatio: BigNumber
+      useFlashloan: boolean
+      vaultUnsafe: boolean
+      debug?: boolean
+    }
 
-//     before(async () => {
-//       oraclePrice = await getOraclePrice(provider)
-//       DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
+    before(async () => {
+      oraclePrice = await getOraclePrice(provider)
+      DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
 
-//       await system.exchangeInstance.setPrice(
-//         ADDRESSES.main.ETH,
-//         amountToWei(marketPrice).toFixed(0),
-//       )
-//     })
+      await system.exchangeInstance.setPrice(
+        ADDRESSES.main.ETH,
+        amountToWei(marketPrice).toFixed(0),
+      )
+    })
 
-//     const scenarios: Array<OpenDepositIncreaseMultipleScenario> = [
-//       {
-//         testName: `should open vault, deposit ETH and increase multiple`,
-//         initialColl: defaultInitialColl,
-//         initialDebt: defaultInitialDebt,
-//         daiTopUp: defaultDaiTopUp,
-//         collTopUp: defaultCollTopUp,
-//         useFlashloan: false,
-//         requiredCollRatio: new BigNumber(5),
-//         vaultUnsafe: false,
-//       },
-//       {
-//         testName: `should open vault, deposit ETH and increase multiple & [+Flashloan]`,
-//         initialColl: defaultInitialColl,
-//         initialDebt: defaultInitialDebt,
-//         daiTopUp: defaultDaiTopUp,
-//         collTopUp: defaultCollTopUp,
-//         useFlashloan: true,
-//         requiredCollRatio: new BigNumber(2.5),
-//         vaultUnsafe: false,
-//       },
-//       {
-//         testName: `should open vault, deposit ETH and increase multiple & [+DAI topup]`,
-//         initialColl: defaultInitialColl,
-//         initialDebt: defaultInitialDebt,
-//         daiTopUp: new BigNumber(20000),
-//         collTopUp: defaultCollTopUp,
-//         useFlashloan: false,
-//         requiredCollRatio: new BigNumber(5),
-//         vaultUnsafe: false,
-//         debug: false,
-//       },
-//       {
-//         testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +DAI topup]`,
-//         initialColl: defaultInitialColl,
-//         initialDebt: defaultInitialDebt,
-//         daiTopUp: new BigNumber(20000),
-//         collTopUp: defaultCollTopUp,
-//         useFlashloan: true,
-//         requiredCollRatio: new BigNumber(2),
-//         vaultUnsafe: false,
-//       },
-//       {
-//         testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +DAI topup]`,
-//         initialColl: defaultInitialColl,
-//         initialDebt: defaultInitialDebt,
-//         daiTopUp: new BigNumber(20000),
-//         collTopUp: defaultCollTopUp,
-//         useFlashloan: true,
-//         requiredCollRatio: new BigNumber(1),
-//         vaultUnsafe: true,
-//       },
-//       {
-//         testName: `should open vault, deposit ETH and increase multiple & [+Coll topup]`,
-//         initialColl: defaultInitialColl,
-//         initialDebt: defaultInitialDebt,
-//         daiTopUp: defaultDaiTopUp,
-//         collTopUp: new BigNumber(10),
-//         useFlashloan: false,
-//         requiredCollRatio: new BigNumber(5),
-//         vaultUnsafe: false,
-//         debug: false,
-//       },
-//       {
-//         testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +Coll topup]`,
-//         initialColl: defaultInitialColl,
-//         initialDebt: defaultInitialDebt,
-//         daiTopUp: defaultDaiTopUp,
-//         collTopUp: new BigNumber(10),
-//         useFlashloan: true,
-//         requiredCollRatio: new BigNumber(2.5),
-//         vaultUnsafe: false,
-//       },
-//       {
-//         testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +Coll topup, +DAI topup]`,
-//         initialColl: defaultInitialColl,
-//         initialDebt: defaultInitialDebt,
-//         daiTopUp: new BigNumber(20000),
-//         collTopUp: new BigNumber(10),
-//         useFlashloan: true,
-//         requiredCollRatio: new BigNumber(2),
-//         vaultUnsafe: false,
-//       },
-//     ]
+    const scenarios: Array<OpenDepositIncreaseMultipleScenario> = [
+      {
+        testName: `should open vault, deposit ETH and increase multiple`,
+        initialColl: defaultInitialColl,
+        initialDebt: defaultInitialDebt,
+        daiTopUp: defaultDaiTopUp,
+        collTopUp: defaultCollTopUp,
+        useFlashloan: false,
+        requiredCollRatio: new BigNumber(5),
+        vaultUnsafe: false,
+      },
+      {
+        testName: `should open vault, deposit ETH and increase multiple & [+Flashloan]`,
+        initialColl: defaultInitialColl,
+        initialDebt: defaultInitialDebt,
+        daiTopUp: defaultDaiTopUp,
+        collTopUp: defaultCollTopUp,
+        useFlashloan: true,
+        requiredCollRatio: new BigNumber(2.5),
+        vaultUnsafe: false,
+      },
+      {
+        testName: `should open vault, deposit ETH and increase multiple & [+DAI topup]`,
+        initialColl: defaultInitialColl,
+        initialDebt: defaultInitialDebt,
+        daiTopUp: new BigNumber(20000),
+        collTopUp: defaultCollTopUp,
+        useFlashloan: false,
+        requiredCollRatio: new BigNumber(5),
+        vaultUnsafe: false,
+        debug: false,
+      },
+      {
+        testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +DAI topup]`,
+        initialColl: defaultInitialColl,
+        initialDebt: defaultInitialDebt,
+        daiTopUp: new BigNumber(20000),
+        collTopUp: defaultCollTopUp,
+        useFlashloan: true,
+        requiredCollRatio: new BigNumber(2),
+        vaultUnsafe: false,
+      },
+      {
+        testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +DAI topup]`,
+        initialColl: defaultInitialColl,
+        initialDebt: defaultInitialDebt,
+        daiTopUp: new BigNumber(20000),
+        collTopUp: defaultCollTopUp,
+        useFlashloan: true,
+        requiredCollRatio: new BigNumber(1),
+        vaultUnsafe: true,
+      },
+      {
+        testName: `should open vault, deposit ETH and increase multiple & [+Coll topup]`,
+        initialColl: defaultInitialColl,
+        initialDebt: defaultInitialDebt,
+        daiTopUp: defaultDaiTopUp,
+        collTopUp: new BigNumber(10),
+        useFlashloan: false,
+        requiredCollRatio: new BigNumber(5),
+        vaultUnsafe: false,
+        debug: false,
+      },
+      {
+        testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +Coll topup]`,
+        initialColl: defaultInitialColl,
+        initialDebt: defaultInitialDebt,
+        daiTopUp: defaultDaiTopUp,
+        collTopUp: new BigNumber(10),
+        useFlashloan: true,
+        requiredCollRatio: new BigNumber(2.5),
+        vaultUnsafe: false,
+      },
+      {
+        testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +Coll topup, +DAI topup]`,
+        initialColl: defaultInitialColl,
+        initialDebt: defaultInitialDebt,
+        daiTopUp: new BigNumber(20000),
+        collTopUp: new BigNumber(10),
+        useFlashloan: true,
+        requiredCollRatio: new BigNumber(2),
+        vaultUnsafe: false,
+      },
+    ]
 
-//     const scenarioRunner = ({
-//       testName,
-//       initialColl,
-//       initialDebt,
-//       daiTopUp,
-//       collTopUp,
-//       useFlashloan,
-//       requiredCollRatio,
-//       vaultUnsafe,
-//       debug = false,
-//     }: OpenDepositIncreaseMultipleScenario) => {
-//       function includeCollateralTopupActions({
-//         actions,
-//         topUpData,
-//       }: {
-//         actions: any[]
-//         topUpData: { token: string; amount: BigNumber; from: string }
-//       }) {
-//         const transferCollTopupToProxyAction = new Action(
-//           'TRANSFER_TO_PROXY',
-//           system.actionTransferToProxy.address,
-//           ['address', 'uint256', 'address'],
-//           [topUpData.token, ensureWeiFormat(topUpData.amount), topUpData.from],
-//           [],
-//         )
+    const scenarioRunner = ({
+      testName,
+      initialColl,
+      initialDebt,
+      daiTopUp,
+      collTopUp,
+      useFlashloan,
+      requiredCollRatio,
+      vaultUnsafe,
+      debug = false,
+    }: OpenDepositIncreaseMultipleScenario) => {
+      function includeCollateralTopupActions({
+        actions,
+        topUpData,
+      }: {
+        actions: any[]
+        topUpData: { token: string; amount: BigNumber; from: string }
+      }) {
+        const transferCollTopupToProxyAction = new Action(
+          'TRANSFER_TO_PROXY',
+          system.actionTransferToProxy.address,
+          ['address', 'uint256', 'address'],
+          [topUpData.token, ensureWeiFormat(topUpData.amount), topUpData.from],
+          [],
+        )
 
-//         const topupCollateralDepositAction = new Action(
-//           'DEPOSIT',
-//           system.actionDeposit.address,
-//           ['uint256', 'address', 'address', 'uint256'],
-//           [0, ADDRESSES.main.joinETH_A, ADDRESSES.main.cdpManager, ensureWeiFormat(collTopUp)],
-//           [1, 0, 0, 0],
-//         )
-//         actions.push(transferCollTopupToProxyAction)
-//         actions.push(topupCollateralDepositAction)
-//       }
-//       function includeDaiTopupActions({
-//         actions,
-//         topUpData,
-//       }: {
-//         actions: any[]
-//         topUpData: { token: string; amount: BigNumber; from: string }
-//       }) {
-//         const transferDaiTopupToProxyAction = new Action(
-//           'TRANSFER_TO_PROXY',
-//           system.actionTransferToProxy.address,
-//           ['address', 'uint256', 'address'],
-//           [topUpData.token, ensureWeiFormat(topUpData.amount), topUpData.from],
-//           [],
-//         )
+        const topupCollateralDepositAction = new Action(
+          'DEPOSIT',
+          system.actionDeposit.address,
+          ['uint256', 'address', 'address', 'uint256'],
+          [0, ADDRESSES.main.joinETH_A, ADDRESSES.main.cdpManager, ensureWeiFormat(collTopUp)],
+          [1, 0, 0, 0],
+        )
+        actions.push(transferCollTopupToProxyAction)
+        actions.push(topupCollateralDepositAction)
+      }
+      function includeDaiTopupActions({
+        actions,
+        topUpData,
+      }: {
+        actions: any[]
+        topUpData: { token: string; amount: BigNumber; from: string }
+      }) {
+        const transferDaiTopupToProxyAction = new Action(
+          'TRANSFER_TO_PROXY',
+          system.actionTransferToProxy.address,
+          ['address', 'uint256', 'address'],
+          [topUpData.token, ensureWeiFormat(topUpData.amount), topUpData.from],
+          [],
+        )
 
-//         actions.push(transferDaiTopupToProxyAction)
-//       }
-//       async function includeIncreaseMultipleActions({
-//         actions,
-//         cdpState,
-//         exchangeData,
-//       }: {
-//         actions: any[]
-//         cdpState: DesiredCdpState
-//         exchangeData: ExchangeData
-//       }) {
-//         // Generate DAI -> Swap for collateral -> Deposit collateral
-//         const generateDaiForSwap = new Action(
-//           'GENERATE',
-//           system.actionGenerate.address,
-//           ['uint256', 'address', 'address', 'uint256'],
-//           [0, ADDRESSES.main.cdpManager, address, ensureWeiFormat(cdpState.requiredDebt)],
-//           [1, 0, 0, 0],
-//         )
+        actions.push(transferDaiTopupToProxyAction)
+      }
+      async function includeIncreaseMultipleActions({
+        actions,
+        cdpState,
+        exchangeData,
+      }: {
+        actions: any[]
+        cdpState: DesiredCdpState
+        exchangeData: ExchangeData
+      }) {
+        // Generate DAI -> Swap for collateral -> Deposit collateral
+        const generateAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
+          ['tuple(address to, address mcdManager, uint256 vaultId, uint256 amount)'],
+          [
+            {
+              to: address,
+              mcdManager: ADDRESSES.main.cdpManager,
+              vaultId: 0,
+              amount: ensureWeiFormat(cdpState.requiredDebt),
+            },
+          ],
+        )
 
-//         const transferGeneratedDaiToProxyAction = new Action(
-//           'TRANSFER_TO_PROXY',
-//           system.actionTransferToProxy.address,
-//           ['address', 'uint256', 'address'],
-//           [exchangeData.fromTokenAddress, ensureWeiFormat(cdpState.requiredDebt), address],
-//           [],
-//         )
+        const transferGeneratedDaiToProxyAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
+          ['tuple(address asset, address to, uint256 amount)'],
+          [
+            {
+              asset: exchangeData.fromTokenAddress,
+              to: system.userProxyAddress,
+              amount: ensureWeiFormat(cdpState.requiredDebt),
+            },
+          ],
+        )
 
-//         const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
-//           .plus(ensureWeiFormat(cdpState.daiTopUp))
-//           .toFixed(0)
+        const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
+          .plus(ensureWeiFormat(cdpState.daiTopUp))
+          .toFixed(0)
 
-//         const swapData: SwapData = {
-//           fromAsset: exchangeData.fromTokenAddress,
-//           toAsset: exchangeData.toTokenAddress,
-//           // Add daiTopup amount to swap
-//           amount: swapAmount,
-//           receiveAtLeast: exchangeData.minToTokenAmount,
-//           withData: exchangeData._exchangeCalldata,
-//         }
+        const swapData: SwapData = {
+          fromAsset: exchangeData.fromTokenAddress,
+          toAsset: exchangeData.toTokenAddress,
+          // Add daiTopup amount to swap
+          amount: swapAmount,
+          receiveAtLeast: exchangeData.minToTokenAmount,
+          withData: exchangeData._exchangeCalldata,
+        }
 
-//         await DAI.approve(system.userProxyAddress, amountToWei(swapAmount).toFixed(0))
-//         const swapAction = new Action(
-//           'SWAP',
-//           system.actionTakeFlashLoan.address,
-//           [swapDataTypeToEncode],
-//           [swapData],
-//           [0],
-//         )
+        await DAI.approve(system.userProxyAddress, amountToWei(swapAmount).toFixed(0))
+        const swapAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.common.EXCHANGE),
+          [
+            'tuple(address fromAsset, address toAsset, uint256 amount, uint256 receiveAtLeast, bytes withData)',
+          ],
+          [swapData],
+        )
 
-//         const collateralToDeposit = cdpState.toBorrowCollateralAmount.plus(cdpState.collTopUp)
-//         const depositBorrowedCollateral = new Action(
-//           'DEPOSIT',
-//           system.actionDeposit.address,
-//           ['uint256', 'address', 'address', 'uint256'],
-//           [
-//             0,
-//             ADDRESSES.main.joinETH_A,
-//             ADDRESSES.main.cdpManager,
-//             ensureWeiFormat(collateralToDeposit),
-//           ],
-//           [1, 0, 0, 0],
-//         )
+        const collateralToDeposit = cdpState.toBorrowCollateralAmount.plus(cdpState.collTopUp)
+        const depositBorrowedCollateral = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.common.EXCHANGE),
+          ['tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)'],
+          [
+            {
+              joinAddress: ADDRESSES.main.joinETH_A,
+              mcdManager: ADDRESSES.main.cdpManager,
+              vaultId: 0,
+              amount: ensureWeiFormat(initialColl),
+            },
+          ],
+        )
+        // const depositBorrowedCollateral = new createAction(
+        //   'DEPOSIT',
+        //   system.actionDeposit.address,
+        //   ['uint256', 'address', 'address', 'uint256'],
+        //   [
+        //     0,
+        //     ADDRESSES.main.joinETH_A,
+        //     ADDRESSES.main.cdpManager,
+        //     ensureWeiFormat(collateralToDeposit),
+        //   ],
+        //   [1, 0, 0, 0],
+        // )
 
-//         // Add actions
-//         actions.push(generateDaiForSwap)
-//         actions.push(transferGeneratedDaiToProxyAction)
-//         actions.push(swapAction)
-//         actions.push(depositBorrowedCollateral)
-//       }
-//       async function includeIncreaseMultipleWithFlashloanActions({
-//         actions,
-//         cdpState,
-//         exchangeData,
-//       }: {
-//         actions: any[]
-//         cdpState: DesiredCdpState
-//         exchangeData: ExchangeData
-//       }) {
-//         // Get flashloan -> Swap for collateral -> Deposit collateral -> Generate DAI -> Repay flashloan
-//         const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
-//           .plus(ensureWeiFormat(cdpState.daiTopUp))
-//           .toFixed(0)
+        // Add actions
+        actions.push(generateDaiForSwap)
+        actions.push(transferGeneratedDaiToProxyAction)
+        actions.push(swapAction)
+        actions.push(depositBorrowedCollateral)
+      }
+      async function includeIncreaseMultipleWithFlashloanActions({
+        actions,
+        cdpState,
+        exchangeData,
+      }: {
+        actions: any[]
+        cdpState: DesiredCdpState
+        exchangeData: ExchangeData
+      }) {
+        // Get flashloan -> Swap for collateral -> Deposit collateral -> Generate DAI -> Repay flashloan
+        const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
+          .plus(ensureWeiFormat(cdpState.daiTopUp))
+          .toFixed(0)
 
-//         const swapData: SwapData = {
-//           fromAsset: exchangeData.fromTokenAddress,
-//           toAsset: exchangeData.toTokenAddress,
-//           // Add daiTopup amount to swap
-//           amount: swapAmount,
-//           receiveAtLeast: exchangeData.minToTokenAmount,
-//           withData: exchangeData._exchangeCalldata,
-//         }
+        const swapData: SwapData = {
+          fromAsset: exchangeData.fromTokenAddress,
+          toAsset: exchangeData.toTokenAddress,
+          // Add daiTopup amount to swap
+          amount: swapAmount,
+          receiveAtLeast: exchangeData.minToTokenAmount,
+          withData: exchangeData._exchangeCalldata,
+        }
 
-//         await DAI.approve(system.userProxyAddress, amountToWei(swapAmount).toFixed(0))
-//         const swapAction = new Action(
-//           'SWAP',
-//           system.actionSwap.address,
-//           [swapDataTypeToEncode],
-//           [swapData],
-//           [0, 0],
-//         )
+        await DAI.approve(system.userProxyAddress, amountToWei(swapAmount).toFixed(0))
+        const swapAction = new Action(
+          'SWAP',
+          system.actionSwap.address,
+          [swapDataTypeToEncode],
+          [swapData],
+          [0, 0],
+        )
 
-//         const depositBorrowedCollateral = new Action(
-//           'DEPOSIT',
-//           system.actionDeposit.address,
-//           ['uint256', 'address', 'address', 'uint256'],
-//           [
-//             0,
-//             ADDRESSES.main.joinETH_A,
-//             ADDRESSES.main.cdpManager,
-//             ensureWeiFormat(cdpState.toBorrowCollateralAmount),
-//           ],
-//           [1, 0, 0, 0],
-//         )
+        const depositBorrowedCollateral = new Action(
+          'DEPOSIT',
+          system.actionDeposit.address,
+          ['uint256', 'address', 'address', 'uint256'],
+          [
+            0,
+            ADDRESSES.main.joinETH_A,
+            ADDRESSES.main.cdpManager,
+            ensureWeiFormat(cdpState.toBorrowCollateralAmount),
+          ],
+          [1, 0, 0, 0],
+        )
 
-//         const generateDaiToRepayFL = new Action(
-//           'GENERATE',
-//           system.actionGenerate.address,
-//           ['uint256', 'address', 'address', 'uint256'],
-//           [0, ADDRESSES.main.cdpManager, address, ensureWeiFormat(cdpState.requiredDebt)],
-//           [1, 0, 0, 0],
-//         )
+        const generateDaiToRepayFL = new Action(
+          'GENERATE',
+          system.actionGenerate.address,
+          ['uint256', 'address', 'address', 'uint256'],
+          [0, ADDRESSES.main.cdpManager, address, ensureWeiFormat(cdpState.requiredDebt)],
+          [1, 0, 0, 0],
+        )
 
-//         const transferGeneratedDaiToProxyAction = new Action(
-//           'TRANSFER_TO_PROXY',
-//           system.actionTransferToProxy.address,
-//           ['address', 'uint256', 'address'],
-//           [exchangeData.fromTokenAddress, ensureWeiFormat(cdpState.requiredDebt), address],
-//           [0],
-//         )
+        const transferGeneratedDaiToProxyAction = new Action(
+          'TRANSFER_TO_PROXY',
+          system.actionTransferToProxy.address,
+          ['address', 'uint256', 'address'],
+          [exchangeData.fromTokenAddress, ensureWeiFormat(cdpState.requiredDebt), address],
+          [0],
+        )
 
-//         // Add actions
-//         actions.push(swapAction)
-//         actions.push(depositBorrowedCollateral)
-//         actions.push(generateDaiToRepayFL)
-//         actions.push(transferGeneratedDaiToProxyAction)
-//       }
-//       function includeFlushProxyAction({
-//         actions,
-//         flushData,
-//       }: {
-//         actions: any[]
-//         flushData: { token: string; to: string; flAmount: string }
-//       }) {
-//         const flushProxyAction = new Action(
-//           'FLUSH_PROXY',
-//           system.actionFlushProxy.address,
-//           ['address', 'address', 'uint256'],
-//           [flushData.token, flushData.to, flushData.flAmount],
-//           [],
-//         )
+        // Add actions
+        actions.push(swapAction)
+        actions.push(depositBorrowedCollateral)
+        actions.push(generateDaiToRepayFL)
+        actions.push(transferGeneratedDaiToProxyAction)
+      }
+      function includeFlushProxyAction({
+        actions,
+        flushData,
+      }: {
+        actions: any[]
+        flushData: { token: string; to: string; flAmount: string }
+      }) {
+        const flushProxyAction = new Action(
+          'FLUSH_PROXY',
+          system.actionFlushProxy.address,
+          ['address', 'address', 'uint256'],
+          [flushData.token, flushData.to, flushData.flAmount],
+          [],
+        )
 
-//         actions.push(flushProxyAction)
-//       }
+        actions.push(flushProxyAction)
+      }
 
-//       it(testName, async () => {
-//         await DAI.approve(system.userProxyAddress, amountToWei(daiTopUp).toFixed(0))
-//         await WETH.approve(system.userProxyAddress, amountToWei(collTopUp).toFixed(0))
+      it(testName, async () => {
+        await DAI.approve(system.userProxyAddress, amountToWei(daiTopUp).toFixed(0))
+        await WETH.approve(system.userProxyAddress, amountToWei(collTopUp).toFixed(0))
 
-//         const { requiredDebt, additionalCollateral, preIncreaseMPTopUp } =
-//           calculateParamsIncreaseMPPoC({
-//             oraclePrice,
-//             marketPrice,
-//             oazoFee: oazoFeePct,
-//             flashLoanFee,
-//             currentColl: initialColl,
-//             currentDebt: initialDebt,
-//             daiTopUp,
-//             collTopUp,
-//             requiredCollRatio,
-//             slippage,
-//             debug,
-//           })
+        const { requiredDebt, additionalCollateral, preIncreaseMPTopUp } =
+          calculateParamsIncreaseMPPoC({
+            oraclePrice,
+            marketPrice,
+            oazoFee: oazoFeePct,
+            flashLoanFee,
+            currentColl: initialColl,
+            currentDebt: initialDebt,
+            daiTopUp,
+            collTopUp,
+            requiredCollRatio,
+            slippage,
+            debug,
+          })
 
-//         const desiredCdpState = {
-//           requiredDebt,
-//           toBorrowCollateralAmount: additionalCollateral,
-//           daiTopUp,
-//           fromTokenAmount: requiredDebt.plus(daiTopUp),
-//           toTokenAmount: additionalCollateral,
-//           collTopUp,
-//         }
+        const desiredCdpState = {
+          requiredDebt,
+          toBorrowCollateralAmount: additionalCollateral,
+          daiTopUp,
+          fromTokenAmount: requiredDebt.plus(daiTopUp),
+          toTokenAmount: additionalCollateral,
+          collTopUp,
+        }
 
-//         const { exchangeData } = prepareMultiplyParametersPoC({
-//           oneInchPayload: exchangeDataMock,
-//           desiredCdpState,
-//           exchangeInstanceAddress: system.exchangeInstance.address,
-//           fundsReceiver: address,
-//           skipFL: !useFlashloan,
-//         })
+        const { exchangeData } = prepareMultiplyParametersPoC({
+          oneInchPayload: exchangeDataMock,
+          desiredCdpState,
+          exchangeInstanceAddress: system.exchangeInstance.address,
+          fundsReceiver: address,
+          skipFL: !useFlashloan,
+        })
 
-//         const openVaultAction = new Action(
-//           'OPEN_VAULT',
-//           system.actionOpenVault.address,
-//           ['address', 'address'],
-//           [ADDRESSES.main.joinETH_A, ADDRESSES.main.cdpManager],
-//           [0, 0],
-//         )
+        const openVaultAction = new Action(
+          'OPEN_VAULT',
+          system.actionOpenVault.address,
+          ['address', 'address'],
+          [ADDRESSES.main.joinETH_A, ADDRESSES.main.cdpManager],
+          [0, 0],
+        )
 
-//         const initialDepositAction = new Action(
-//           'DEPOSIT',
-//           system.actionDeposit.address,
-//           ['uint256', 'address', 'address', 'uint256'],
-//           [
-//             0,
-//             ADDRESSES.main.joinETH_A,
-//             ADDRESSES.main.cdpManager,
-//             ensureWeiFormat(defaultInitialColl),
-//           ],
-//           [1, 0, 0, 0],
-//         )
+        const initialDepositAction = new Action(
+          'DEPOSIT',
+          system.actionDeposit.address,
+          ['uint256', 'address', 'address', 'uint256'],
+          [
+            0,
+            ADDRESSES.main.joinETH_A,
+            ADDRESSES.main.cdpManager,
+            ensureWeiFormat(defaultInitialColl),
+          ],
+          [1, 0, 0, 0],
+        )
 
-//         const actionsBefore: Action[] = [openVaultAction, initialDepositAction]
-//         const actions: Action[] = []
-//         const useCollateralTopup = desiredCdpState.collTopUp.gt(ZERO)
-//         const useDaiTopup = desiredCdpState.daiTopUp.gt(ZERO)
+        const actionsBefore: Action[] = [openVaultAction, initialDepositAction]
+        const actions: Action[] = []
+        const useCollateralTopup = desiredCdpState.collTopUp.gt(ZERO)
+        const useDaiTopup = desiredCdpState.daiTopUp.gt(ZERO)
 
-//         // Deposit collateral prior to increasing multiple
-//         useCollateralTopup &&
-//           includeCollateralTopupActions({
-//             actions: actionsBefore,
-//             topUpData: {
-//               token: exchangeData?.toTokenAddress,
-//               amount: desiredCdpState.collTopUp,
-//               from: address,
-//             },
-//           })
+        // Deposit collateral prior to increasing multiple
+        useCollateralTopup &&
+          includeCollateralTopupActions({
+            actions: actionsBefore,
+            topUpData: {
+              token: exchangeData?.toTokenAddress,
+              amount: desiredCdpState.collTopUp,
+              from: address,
+            },
+          })
 
-//         // Add dai to proxy for use in primary swap
-//         useDaiTopup &&
-//           includeDaiTopupActions({
-//             actions: actionsBefore,
-//             topUpData: {
-//               token: DAI?.address,
-//               amount: desiredCdpState.daiTopUp,
-//               from: address,
-//             },
-//           })
+        // Add dai to proxy for use in primary swap
+        useDaiTopup &&
+          includeDaiTopupActions({
+            actions: actionsBefore,
+            topUpData: {
+              token: DAI?.address,
+              amount: desiredCdpState.daiTopUp,
+              from: address,
+            },
+          })
 
-//         // Gather dai from vault then swap for collateral
-//         !useFlashloan &&
-//           (await includeIncreaseMultipleActions({
-//             actions: actionsBefore,
-//             cdpState: desiredCdpState,
-//             exchangeData,
-//           }))
+        // Gather dai from vault then swap for collateral
+        !useFlashloan &&
+          (await includeIncreaseMultipleActions({
+            actions: actionsBefore,
+            cdpState: desiredCdpState,
+            exchangeData,
+          }))
 
-//         // Leverage flashloan to buy collateral, deposit borrowed collateral, draw dai and repay loan
-//         useFlashloan &&
-//           (await includeIncreaseMultipleWithFlashloanActions({
-//             actions,
-//             cdpState: desiredCdpState,
-//             exchangeData,
-//           }))
+        // Leverage flashloan to buy collateral, deposit borrowed collateral, draw dai and repay loan
+        useFlashloan &&
+          (await includeIncreaseMultipleWithFlashloanActions({
+            actions,
+            cdpState: desiredCdpState,
+            exchangeData,
+          }))
 
-//         // Transfer back unused balance from proxy
-//         useDaiTopup &&
-//           includeFlushProxyAction({
-//             actions: useFlashloan ? actions : actionsBefore,
-//             flushData: {
-//               token: DAI?.address,
-//               to: address,
-//               flAmount: useFlashloan ? exchangeData.fromTokenAmount : ZERO.toString(),
-//             },
-//           })
+        // Transfer back unused balance from proxy
+        useDaiTopup &&
+          includeFlushProxyAction({
+            actions: useFlashloan ? actions : actionsBefore,
+            flushData: {
+              token: DAI?.address,
+              to: address,
+              flAmount: useFlashloan ? exchangeData.fromTokenAmount : ZERO.toString(),
+            },
+          })
 
-//         const dsproxyCalldata = system.operationExecutor.interface.encodeFunctionData(
-//           'executeOperation',
-//           [
-//             useFlashloan,
-//             buildOperationCalldata({
-//               actionsBefore,
-//               actions,
-//               ...(useFlashloan
-//                 ? {
-//                     flashLoanAmount: amountToWei(desiredCdpState.requiredDebt).toFixed(0),
-//                   }
-//                 : {}),
-//             }),
-//           ],
-//         )
+        const dsproxyCalldata = system.operationExecutor.interface.encodeFunctionData(
+          'executeOperation',
+          [
+            useFlashloan,
+            buildOperationCalldata({
+              actionsBefore,
+              actions,
+              ...(useFlashloan
+                ? {
+                    flashLoanAmount: amountToWei(desiredCdpState.requiredDebt).toFixed(0),
+                  }
+                : {}),
+            }),
+          ],
+        )
 
-//         try {
-//           const tx = await system.dsProxyInstance['execute(address,bytes)'](
-//             system.operationExecutor.address,
-//             dsproxyCalldata,
-//             {
-//               from: address,
-//               value: ensureWeiFormat(defaultInitialColl),
-//               gasLimit: 8500000,
-//             },
-//           )
-//           const txReceipt = await tx.wait()
-//           gasEstimates.save(testName, txReceipt)
-//         } catch {
-//           expect(vaultUnsafe).to.be.true
-//           return
-//         }
+        try {
+          const tx = await system.dsProxyInstance['execute(address,bytes)'](
+            system.operationExecutor.address,
+            dsproxyCalldata,
+            {
+              from: address,
+              value: ensureWeiFormat(defaultInitialColl),
+              gasLimit: 8500000,
+            },
+          )
+          const txReceipt = await tx.wait()
+          gasEstimates.save(testName, txReceipt)
+        } catch {
+          expect(vaultUnsafe).to.be.true
+          return
+        }
 
-//         const vault = await getLastCDP(provider, signer, system.userProxyAddress)
-//         const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
-//         const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
-//         expectToBeEqual(currentCollRatio, requiredCollRatio, 3)
+        const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+        const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+        const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
+        expectToBeEqual(currentCollRatio, requiredCollRatio, 3)
 
-//         const expectedColl = additionalCollateral.plus(initialColl).plus(preIncreaseMPTopUp)
-//         const expectedDebt = desiredCdpState.requiredDebt
+        const expectedColl = additionalCollateral.plus(initialColl).plus(preIncreaseMPTopUp)
+        const expectedDebt = desiredCdpState.requiredDebt
 
-//         expect(info.coll.toFixed(0)).to.equal(expectedColl.toFixed(0))
-//         expect(info.debt.toFixed(0)).to.equal(expectedDebt.toFixed(0))
+        expect(info.coll.toFixed(0)).to.equal(expectedColl.toFixed(0))
+        expect(info.debt.toFixed(0)).to.equal(expectedDebt.toFixed(0))
 
-//         const cdpManagerContract = new ethers.Contract(
-//           ADDRESSES.main.cdpManager,
-//           CDPManagerABI,
-//           provider,
-//         ).connect(signer)
-//         const vaultOwner = await cdpManagerContract.owns(vault.id)
-//         expectToBeEqual(vaultOwner, system.userProxyAddress)
-//       })
-//     }
+        const cdpManagerContract = new ethers.Contract(
+          ADDRESSES.main.cdpManager,
+          CDPManagerABI,
+          provider,
+        ).connect(signer)
+        const vaultOwner = await cdpManagerContract.owns(vault.id)
+        expectToBeEqual(vaultOwner, system.userProxyAddress)
+      })
+    }
 
-//     testScenarios(scenarios, scenarioRunner)
+    testScenarios(scenarios, scenarioRunner)
 
-//     after(() => {
-//       gasEstimates.print()
-//     })
-//   })
-// })
+    after(() => {
+      gasEstimates.print()
+    })
+  })
+})
