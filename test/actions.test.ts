@@ -12,7 +12,13 @@ import { executeThroughProxy } from '../helpers/deploy'
 import { resetNode } from '../helpers/init'
 import { getVaultInfo } from '../helpers/maker/vault-info'
 import { ExchangeData, SwapData, swapDataTypeToEncode } from '../helpers/types'
-import { ActionFactory, amountToWei, ensureWeiFormat, ServiceRegistry } from '../helpers/utils'
+import {
+  ActionCall,
+  ActionFactory,
+  amountToWei,
+  ensureWeiFormat,
+  ServiceRegistry,
+} from '../helpers/utils'
 import {
   DeployedSystemInfo,
   deployTestSystem,
@@ -668,7 +674,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         exchangeData: ExchangeData
       }) {
         // Generate DAI -> Swap for collateral -> Deposit collateral
-        const generateAction = createAction(
+        const generateDaiForSwap = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
           ['tuple(address to, address mcdManager, uint256 vaultId, uint256 amount)'],
           [
@@ -724,22 +730,10 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
               joinAddress: ADDRESSES.main.joinETH_A,
               mcdManager: ADDRESSES.main.cdpManager,
               vaultId: 0,
-              amount: ensureWeiFormat(initialColl),
+              amount: ensureWeiFormat(collateralToDeposit),
             },
           ],
         )
-        // const depositBorrowedCollateral = new createAction(
-        //   'DEPOSIT',
-        //   system.actionDeposit.address,
-        //   ['uint256', 'address', 'address', 'uint256'],
-        //   [
-        //     0,
-        //     ADDRESSES.main.joinETH_A,
-        //     ADDRESSES.main.cdpManager,
-        //     ensureWeiFormat(collateralToDeposit),
-        //   ],
-        //   [1, 0, 0, 0],
-        // )
 
         // Add actions
         actions.push(generateDaiForSwap)
@@ -868,36 +862,40 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           skipFL: !useFlashloan,
         })
 
-        const openVaultAction = new Action(
-          'OPEN_VAULT',
-          system.actionOpenVault.address,
-          ['address', 'address'],
-          [ADDRESSES.main.joinETH_A, ADDRESSES.main.cdpManager],
-          [0, 0],
-        )
-
-        const initialDepositAction = new Action(
-          'DEPOSIT',
-          system.actionDeposit.address,
-          ['uint256', 'address', 'address', 'uint256'],
+        const shouldStoreResult = true
+        const openVaultAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
+          ['tuple(address joinAddress, address mcdManager)'],
           [
-            0,
-            ADDRESSES.main.joinETH_A,
-            ADDRESSES.main.cdpManager,
-            ensureWeiFormat(defaultInitialColl),
+            {
+              joinAddress: ADDRESSES.main.joinETH_A,
+              mcdManager: ADDRESSES.main.cdpManager,
+            },
           ],
-          [1, 0, 0, 0],
+          shouldStoreResult,
         )
 
-        const actionsBefore: Action[] = [openVaultAction, initialDepositAction]
-        const actions: Action[] = []
+        const initialDepositAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+          ['tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)'],
+          [
+            {
+              joinAddress: ADDRESSES.main.joinETH_A,
+              mcdManager: ADDRESSES.main.cdpManager,
+              vaultId: 0,
+              amount: ensureWeiFormat(initialColl),
+            },
+          ],
+        )
+
+        const actions: ActionCall[] = [openVaultAction, initialDepositAction]
         const useCollateralTopup = desiredCdpState.collTopUp.gt(ZERO)
         const useDaiTopup = desiredCdpState.daiTopUp.gt(ZERO)
 
         // Deposit collateral prior to increasing multiple
         useCollateralTopup &&
           includeCollateralTopupActions({
-            actions: actionsBefore,
+            actions,
             topUpData: {
               token: exchangeData?.toTokenAddress,
               amount: desiredCdpState.collTopUp,
@@ -908,7 +906,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         // Add dai to proxy for use in primary swap
         useDaiTopup &&
           includeDaiTopupActions({
-            actions: actionsBefore,
+            actions,
             topUpData: {
               token: DAI?.address,
               amount: desiredCdpState.daiTopUp,
@@ -916,10 +914,12 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
             },
           })
 
+        // TODO: Add FL Action where appropriate
+
         // Gather dai from vault then swap for collateral
         !useFlashloan &&
           (await includeIncreaseMultipleActions({
-            actions: actionsBefore,
+            actions,
             cdpState: desiredCdpState,
             exchangeData,
           }))
@@ -935,7 +935,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         // Transfer back unused balance from proxy
         useDaiTopup &&
           includeFlushProxyAction({
-            actions: useFlashloan ? actions : actionsBefore,
+            actions,
             flushData: {
               token: DAI?.address,
               to: address,
@@ -943,33 +943,19 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
             },
           })
 
-        const dsproxyCalldata = system.operationExecutor.interface.encodeFunctionData(
-          'executeOperation',
-          [
-            useFlashloan,
-            buildOperationCalldata({
-              actionsBefore,
-              actions,
-              ...(useFlashloan
-                ? {
-                    flashLoanAmount: amountToWei(desiredCdpState.requiredDebt).toFixed(0),
-                  }
-                : {}),
-            }),
-          ],
-        )
-
         try {
-          const tx = await system.dsProxyInstance['execute(address,bytes)'](
-            system.operationExecutor.address,
-            dsproxyCalldata,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const [_, txReceipt] = await executeThroughProxy(
+            system.userProxyAddress,
             {
-              from: address,
-              value: ensureWeiFormat(defaultInitialColl),
-              gasLimit: 8500000,
+              address: system.operationExecutor.address,
+              calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+                actions,
+              ]),
             },
+            signer,
           )
-          const txReceipt = await tx.wait()
+
           gasEstimates.save(testName, txReceipt)
         } catch {
           expect(vaultUnsafe).to.be.true

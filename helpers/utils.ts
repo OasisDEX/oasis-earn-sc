@@ -148,7 +148,7 @@ export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value)
   }
 }
 
-type ActionCall = {
+export type ActionCall = {
   targetHash: string
   callData: string
   shouldStoreResult: boolean
