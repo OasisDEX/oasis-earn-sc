@@ -847,19 +847,17 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         // Add actions
         actions.push(takeAFlashloan)
       }
-      function includeFlushProxyAction({
+      async function includeFlushProxyAction({
         actions,
         flushData,
       }: {
         actions: any[]
         flushData: { token: string; to: string; flAmount: string }
       }) {
-        const flushProxyAction = new Action(
-          'FLUSH_PROXY',
-          system.actionFlushProxy.address,
-          ['address', 'address', 'uint256'],
+        const flushProxyAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+          ['tuple(address asset, address to, uint256 amount)'],
           [flushData.token, flushData.to, flushData.flAmount],
-          [],
         )
 
         actions.push(flushProxyAction)
