@@ -657,19 +657,23 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         actions.push(transferCollTopupToProxyAction)
         actions.push(topupCollateralAction)
       }
-      function includeDaiTopupActions({
+      async function includeDaiTopupActions({
         actions,
         topUpData,
       }: {
         actions: any[]
         topUpData: { token: string; amount: BigNumber; from: string }
       }) {
-        const transferDaiTopupToProxyAction = new Action(
-          'TRANSFER_TO_PROXY',
-          system.actionTransferToProxy.address,
-          ['address', 'uint256', 'address'],
-          [topUpData.token, ensureWeiFormat(topUpData.amount), topUpData.from],
-          [],
+        const transferDaiTopupToProxyAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
+          ['tuple(address asset, address to, uint256 amount)'],
+          [
+            {
+              asset: topUpData.token,
+              to: system.userProxyAddress,
+              amount: ensureWeiFormat(topUpData.amount),
+            },
+          ],
         )
 
         actions.push(transferDaiTopupToProxyAction)
@@ -775,48 +779,73 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         }
 
         await DAI.approve(system.userProxyAddress, amountToWei(swapAmount).toFixed(0))
-        const swapAction = new Action(
-          'SWAP',
-          system.actionSwap.address,
-          [swapDataTypeToEncode],
-          [swapData],
-          [0, 0],
-        )
-
-        const depositBorrowedCollateral = new Action(
-          'DEPOSIT',
-          system.actionDeposit.address,
-          ['uint256', 'address', 'address', 'uint256'],
+        const swapAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.common.EXCHANGE),
           [
-            0,
-            ADDRESSES.main.joinETH_A,
-            ADDRESSES.main.cdpManager,
-            ensureWeiFormat(cdpState.toBorrowCollateralAmount),
+            'tuple(address fromAsset, address toAsset, uint256 amount, uint256 receiveAtLeast, bytes withData)',
           ],
-          [1, 0, 0, 0],
+          [swapData],
         )
 
-        const generateDaiToRepayFL = new Action(
-          'GENERATE',
-          system.actionGenerate.address,
-          ['uint256', 'address', 'address', 'uint256'],
-          [0, ADDRESSES.main.cdpManager, address, ensureWeiFormat(cdpState.requiredDebt)],
-          [1, 0, 0, 0],
+        const depositBorrowedCollateral = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+          ['tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)'],
+          [
+            {
+              joinAddress: ADDRESSES.main.joinETH_A,
+              mcdManager: ADDRESSES.main.cdpManager,
+              vaultId: 0,
+              amount: ensureWeiFormat(cdpState.toBorrowCollateralAmount),
+            },
+          ],
         )
 
-        const transferGeneratedDaiToProxyAction = new Action(
-          'TRANSFER_TO_PROXY',
-          system.actionTransferToProxy.address,
-          ['address', 'uint256', 'address'],
-          [exchangeData.fromTokenAddress, ensureWeiFormat(cdpState.requiredDebt), address],
-          [0],
+        const generateDaiToRepayFL = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
+          ['tuple(address to, address mcdManager, uint256 vaultId, uint256 amount)'],
+          [
+            {
+              to: address,
+              mcdManager: ADDRESSES.main.cdpManager,
+              vaultId: 0,
+              amount: ensureWeiFormat(cdpState.requiredDebt),
+            },
+          ],
+        )
+
+        const transferGeneratedDaiToProxyAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
+          ['tuple(address asset, address to, uint256 amount)'],
+          [
+            {
+              asset: exchangeData.fromTokenAddress,
+              to: system.userProxyAddress,
+              amount: ensureWeiFormat(cdpState.requiredDebt),
+            },
+          ],
+        )
+
+        const takeAFlashloan = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.common.TAKE_A_FLASHLOAN),
+          [
+            'tuple(uint256 amount, address borrower, (bytes32 targetHash, bytes callData, bool shouldStoreResult)[] calls)',
+          ],
+          [
+            {
+              amount: exchangeData.fromTokenAmount,
+              borrower: system.operationExecutor.address,
+              calls: [
+                swapAction,
+                depositBorrowedCollateral,
+                generateDaiToRepayFL,
+                transferGeneratedDaiToProxyAction,
+              ],
+            },
+          ],
         )
 
         // Add actions
-        actions.push(swapAction)
-        actions.push(depositBorrowedCollateral)
-        actions.push(generateDaiToRepayFL)
-        actions.push(transferGeneratedDaiToProxyAction)
+        actions.push(takeAFlashloan)
       }
       function includeFlushProxyAction({
         actions,
@@ -923,8 +952,6 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
               from: address,
             },
           })
-
-        // TODO: Add FL Action where appropriate
 
         // Gather dai from vault then swap for collateral
         !useFlashloan &&
