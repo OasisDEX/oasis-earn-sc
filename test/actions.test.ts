@@ -622,30 +622,40 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       vaultUnsafe,
       debug = false,
     }: OpenDepositIncreaseMultipleScenario) => {
-      function includeCollateralTopupActions({
+      async function includeCollateralTopupActions({
         actions,
         topUpData,
       }: {
         actions: any[]
         topUpData: { token: string; amount: BigNumber; from: string }
       }) {
-        const transferCollTopupToProxyAction = new Action(
-          'TRANSFER_TO_PROXY',
-          system.actionTransferToProxy.address,
-          ['address', 'uint256', 'address'],
-          [topUpData.token, ensureWeiFormat(topUpData.amount), topUpData.from],
-          [],
+        const transferCollTopupToProxyAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
+          ['tuple(address asset, address to, uint256 amount)'],
+          [
+            {
+              asset: topUpData.token,
+              to: system.userProxyAddress,
+              amount: ensureWeiFormat(topUpData.amount),
+            },
+          ],
         )
 
-        const topupCollateralDepositAction = new Action(
-          'DEPOSIT',
-          system.actionDeposit.address,
-          ['uint256', 'address', 'address', 'uint256'],
-          [0, ADDRESSES.main.joinETH_A, ADDRESSES.main.cdpManager, ensureWeiFormat(collTopUp)],
-          [1, 0, 0, 0],
+        const topupCollateralAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+          ['tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)'],
+          [
+            {
+              joinAddress: ADDRESSES.main.joinETH_A,
+              mcdManager: ADDRESSES.main.cdpManager,
+              vaultId: 0,
+              amount: ensureWeiFormat(collTopUp),
+            },
+          ],
         )
+
         actions.push(transferCollTopupToProxyAction)
-        actions.push(topupCollateralDepositAction)
+        actions.push(topupCollateralAction)
       }
       function includeDaiTopupActions({
         actions,
@@ -723,7 +733,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
         const collateralToDeposit = cdpState.toBorrowCollateralAmount.plus(cdpState.collTopUp)
         const depositBorrowedCollateral = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.EXCHANGE),
+          await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
           ['tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)'],
           [
             {
