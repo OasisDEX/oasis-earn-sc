@@ -11,7 +11,7 @@ import { CONTRACT_LABELS, ZERO } from '../helpers/constants'
 import { executeThroughProxy } from '../helpers/deploy'
 import { resetNode } from '../helpers/init'
 import { getVaultInfo } from '../helpers/maker/vault-info'
-import { ExchangeData, SwapData, swapDataTypeToEncode } from '../helpers/types'
+import { ExchangeData, SwapData } from '../helpers/types'
 import {
   ActionCall,
   ActionFactory,
