@@ -2,9 +2,9 @@
 
 pragma solidity >=0.8.1;
 
-import "./IERC20.sol";
+import "../interfaces/tokens/IERC20.sol";
 import "./Address.sol";
-import "../../libs/SafeMath.sol";
+import "./SafeMath.sol";
 
 library SafeERC20 {
     using SafeMath for uint256;

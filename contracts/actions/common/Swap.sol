@@ -1,9 +1,10 @@
 pragma solidity ^0.8.1;
 
-import "../../interfaces/tokens/IERC20.sol";
-import "../../lib/SafeMath.sol";
-import "../utils/SafeERC20.sol";
 import "hardhat/console.sol";
+
+import "../../interfaces/tokens/IERC20.sol";
+import "../../libs/SafeMath.sol";
+import "../../libs/SafeERC20.sol";
 
 contract Swap {
     using SafeMath for uint256;
