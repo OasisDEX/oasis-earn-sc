@@ -1,5 +1,6 @@
 export const calldataTypes = {
   common: {
+    Approval: 'tuple(address asset, address delegator, uint256 amount)',
     Swap: `tuple(address fromAsset,
     address toAsset,
     uint256 amount,
@@ -16,5 +17,9 @@ export const calldataTypes = {
     Withdraw: `tuple(uint256 vaultId, address userAddress, address joinAddr, address mcdManager, uint256 amount)`,
     Payback: `tuple(uint256 vaultId, address userAddress, address daiJoin, address mcdManager, uint256 amount, bool paybackAll)`,
   },
-  aave: {},
+  aave: {
+    Deposit: `tuple(address asset, uint256 amount)`,
+    Generate: `tuple(address asset, uint256 amount)`,
+    Withdraw: `tuple(address asset, uint256 amount)`,
+  },
 }

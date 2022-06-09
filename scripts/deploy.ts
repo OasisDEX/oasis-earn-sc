@@ -14,6 +14,7 @@ import init from '../helpers/init'
 import { getOrCreateProxy } from '../helpers/proxy'
 import { swapOneInchTokens } from '../helpers/swap/1inch'
 import { swapUniswapTokens } from '../helpers/swap/uniswap'
+import { calldataTypes } from '../helpers/types/actions'
 import { ActionFactory, amountToWei, approve, balanceOf, ServiceRegistry } from '../helpers/utils'
 
 const createAction = ActionFactory.create
@@ -139,7 +140,7 @@ async function main() {
   // PULL TOKEN ACTION
   const pullToken = createAction(
     pullTokenHash,
-    ['tuple(address asset, address from, uint256 amount)'],
+    [calldataTypes.common.PullToken],
     [
       {
         amount: depositAmount.toFixed(0),
@@ -153,7 +154,7 @@ async function main() {
   //  PULL TOKEN ACTION
   const pullBorrowedFundsIntoProxy = createAction(
     pullTokenHash,
-    ['tuple(address asset, address from, uint256 amount)'],
+    [calldataTypes.common.PullToken],
     [
       {
         amount: flashloanAmount.toFixed(0),
@@ -167,7 +168,7 @@ async function main() {
   // APPROVE LENDING POOL
   const setDaiApprovalOnLendingPool = createAction(
     setApprovalHash,
-    ['tuple(address asset, address delegator, uint256 amount)'],
+    [calldataTypes.common.Approval],
     [
       {
         amount: flashloanAmount.plus(depositAmount).toFixed(0),
@@ -180,7 +181,7 @@ async function main() {
   // DEPOSIT IN AAVE
   const depositDaiInAAVE = createAction(
     depositInAAVEHash,
-    ['tuple(address asset, uint256 amount)'],
+    [calldataTypes.aave.Deposit],
     [
       {
         amount: flashloanAmount.plus(depositAmount).toFixed(0),
@@ -193,7 +194,7 @@ async function main() {
   // BORROW FROM AAVE
   const borrowEthFromAAVE = createAction(
     borrowFromAAVEHash,
-    ['tuple(address asset, uint256 amount)'],
+    [calldataTypes.aave.Generate],
     [
       {
         amount: borrowAmount.toFixed(0),
@@ -214,9 +215,7 @@ async function main() {
 
   const swapETHforSTETH = createAction(
     swapOnOneInchHash,
-    [
-      'tuple(address fromAsset,address toAsset,uint256 amount,uint256 receiveAtLeast,bytes withData)',
-    ],
+    [calldataTypes.common.Swap],
     [
       {
         fromAsset: ADDRESSES.main.WETH,
@@ -231,7 +230,7 @@ async function main() {
   // WITHDRAW TOKENS
   const withdrawDAIFromAAVE = createAction(
     withdrawFromAAVEHash,
-    ['tuple(address asset, uint256 amount)'],
+    [calldataTypes.aave.Withdraw],
     [
       {
         asset: ADDRESSES.main.DAI,
@@ -243,7 +242,7 @@ async function main() {
   // SEND BACK TOKEN FROM PROXY TO EXECUTOR ( FL Borrower )
   const sendBackDAI = createAction(
     sendTokenHash,
-    ['tuple(address asset, address to, uint256 amount)'],
+    [calldataTypes.common.SendToken],
     [
       {
         asset: ADDRESSES.main.DAI,
@@ -257,9 +256,7 @@ async function main() {
   // TAKE A FLASHLOAN ACTION
   const takeAFlashloan = createAction(
     takeAFlashloanHash,
-    [
-      'tuple(uint256 amount, address borrower, (bytes32 targetHash, bytes callData, bool shouldStoreResult)[] calls)',
-    ],
+    [calldataTypes.common.TakeAFlashLoan],
     [
       {
         amount: flashloanAmount.toFixed(0),
