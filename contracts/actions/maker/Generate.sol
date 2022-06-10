@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity >=0.7.6;
-pragma abicoder v2;
+pragma solidity >=0.8.5;
 
-import "../common/IAction.sol";
+import "../common/Executable.sol";
+import "../common/UseStore.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -16,8 +16,10 @@ import "../../libs/SafeMath.sol";
 
 import { GenerateData } from "../../core/types/Maker.sol";
 
-contract Generate is IAction {
+contract Generate is Executable, UseStore {
   using SafeMath for uint256;
+  using Read for OperationStorage;
+  using Write for OperationStorage;
 
   uint256 constant RAY = 10**27;
 
@@ -25,7 +27,7 @@ contract Generate is IAction {
   address public constant JUG_ADDRESS = 0x19c0976f590D67707E62397C87829d896Dc0f1F1;
   address public constant DAI_JOIN_ADDR = 0x9759A6Ac90977b93B58547b4A71c78317f391A28;
 
-  constructor(address _registry) IAction(_registry) {}
+  constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory _paramsMapping) external payable override {
     GenerateData memory generateData = abi.decode(data, (GenerateData));
@@ -34,12 +36,8 @@ contract Generate is IAction {
     address vatAddr = mcdManager.vat();
     IVat vat = IVat(vatAddr);
 
-    uint256 vaultId = pull(generateData.vaultId, _paramsMapping[2]);
-    generateData.vaultId = vaultId;
-
-    bytes32 generatedAmount = _generate(generateData, mcdManager, vat);
-
-    push(generatedAmount);
+    generateData.vaultId = uint256(store().read(bytes32(generateData.vaultId), _paramsMapping[2]));
+    store().write(_generate(generateData, mcdManager, vat));
   }
 
   function _generate(

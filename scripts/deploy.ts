@@ -136,7 +136,6 @@ async function main() {
 
   // DUMMY ACTION
   const dummyAction = createAction(dummyActionHash, [], [])
-
   // PULL TOKEN ACTION
   const pullToken = createAction(
     pullTokenHash,
@@ -149,7 +148,6 @@ async function main() {
       },
     ],
   )
-
   //  --- ACTIONS IN THE FLASHLOAN SCOPE ---
   //  PULL TOKEN ACTION
   const pullBorrowedFundsIntoProxy = createAction(
@@ -162,7 +160,6 @@ async function main() {
         from: operationExecutorAddress,
       },
     ],
-    true,
   )
 
   // APPROVE LENDING POOL
@@ -188,7 +185,6 @@ async function main() {
         asset: ADDRESSES.main.DAI,
       },
     ],
-    true,
   )
 
   // BORROW FROM AAVE
@@ -201,7 +197,6 @@ async function main() {
         asset: ADDRESSES.main.ETH,
       },
     ],
-    true,
   )
 
   // SWAP TOKENS

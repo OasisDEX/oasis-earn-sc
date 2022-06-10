@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity >=0.7.6;
-pragma abicoder v2;
+pragma solidity >=0.8.5;
 
-import "../common/IAction.sol";
+import "../common/Executable.sol";
+import "../common/UseStore.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -13,10 +13,13 @@ import "../../interfaces/maker/IGem.sol";
 import "../../interfaces/maker/IManager.sol";
 import "../../libs/SafeMath.sol";
 
-import {PaybackData} from "../../core/types/Maker.sol";
+import { PaybackData } from "../../core/types/Maker.sol";
 
-contract Payback is IAction {
+contract Payback is Executable, UseStore {
   using SafeMath for uint256;
+  using Read for OperationStorage;
+  using Write for OperationStorage;
+
   uint256 public constant RAY = 10**27;
 
   struct WipeData {
@@ -27,16 +30,15 @@ contract Payback is IAction {
     bytes32 ilk;
   }
 
-  constructor(address _registry) IAction(_registry) {}
+  constructor(address _registry) UseStore(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory _paramsMapping) public payable override {
+  function execute(bytes calldata data, uint8[] memory _paramsMapping) external payable override {
     PaybackData memory paybackData = abi.decode(data, (PaybackData));
-    uint256 vaultId = pull(paybackData.vaultId, _paramsMapping[0]);
-    paybackData.vaultId = vaultId;
+    paybackData.vaultId = uint256(store().read(bytes32(paybackData.vaultId), _paramsMapping[0]));
 
     paybackData.paybackAll ? _paybackAll(paybackData) : _payback(paybackData);
 
-    push(bytes32(paybackData.amount));
+    store().write(bytes32(paybackData.amount));
   }
 
   function _payback(PaybackData memory data) internal returns (bytes32) {
