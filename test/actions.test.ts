@@ -91,7 +91,6 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
     }
 
     it(testNames.openVault, async () => {
-      const shouldStoreResult = true
       const openVaultAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
         [calldataTypes.maker.Open],
@@ -101,7 +100,6 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
             mcdManager: ADDRESSES.main.cdpManager,
           },
         ],
-        shouldStoreResult,
       )
 
       const depositAction = createAction(
@@ -332,7 +330,6 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
     const testName = `should open vault, deposit ETH, generate DAI, repay debt in full and withdraw collateral`
     it(testName, async () => {
-      const shouldStoreResult = true
       const openVaultAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
         [calldataTypes.maker.Open],
@@ -342,7 +339,6 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
             mcdManager: ADDRESSES.main.cdpManager,
           },
         ],
-        shouldStoreResult,
       )
 
       const depositAction = createAction(
@@ -884,7 +880,6 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           skipFL: !useFlashloan,
         })
 
-        const shouldStoreResult = true
         const openVaultAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
           [calldataTypes.maker.Open],
@@ -894,7 +889,6 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
               mcdManager: ADDRESSES.main.cdpManager,
             },
           ],
-          shouldStoreResult,
         )
 
         const initialDepositAction = createAction(

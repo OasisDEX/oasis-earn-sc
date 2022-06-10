@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity >=0.7.6;
-pragma abicoder v2;
+pragma solidity >=0.8.5;
 
-import "../common/IAction.sol";
+import "../common/Executable.sol";
+import { UseStore, Write } from "../common/UseStore.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -12,19 +12,18 @@ import "../../interfaces/maker/IGem.sol";
 import "../../interfaces/maker/IManager.sol";
 import "../../libs/SafeMath.sol";
 
-import {DepositData} from "../../core/types/Maker.sol";
+import { DepositData } from "../../core/types/Maker.sol";
 
-contract Deposit is IAction {
+contract Deposit is Executable, UseStore {
   using SafeMath for uint256;
+  using Write for OperationStorage;
   address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-  constructor(address _registry) IAction(_registry) {}
+  constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     DepositData memory depositData = abi.decode(data, (DepositData));
-    bytes32 depositAmount = _deposit(depositData);
-
-    push(depositAmount);
+    store().write(_deposit(depositData));
   }
 
   function _deposit(DepositData memory data) internal returns (bytes32) {

@@ -1,6 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.1;
-pragma abicoder v2;
+pragma solidity ^0.8.5;
 
 // TODO: This needs to be removed
 import "hardhat/console.sol";
@@ -12,8 +11,8 @@ import "../actions/common/TakeFlashloan.sol";
 import "../interfaces/tokens/IERC20.sol";
 import "../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import "../interfaces/flashloan/IERC3156FlashLender.sol";
-import {FlashloanData, Call} from "./types/Common.sol";
-import {OPERATION_STORAGE, FLASH_MINT_MODULE} from "./Constants.sol";
+import { FlashloanData, Call } from "./types/Common.sol";
+import { OPERATION_STORAGE, FLASH_MINT_MODULE } from "./Constants.sol";
 
 contract OperationExecutor is IERC3156FlashBorrower {
   ServiceRegistry public immutable registry;
@@ -28,20 +27,13 @@ contract OperationExecutor is IERC3156FlashBorrower {
     txStorage.finalize();
   }
 
-  function aggregate(Call[] memory calls) public returns (bytes[] memory returnData) {
-    returnData = new bytes[](calls.length);
+  function aggregate(Call[] memory calls) public {
     for (uint256 current = 0; current < calls.length; current++) {
       address target = registry.getServiceAddress(calls[current].targetHash);
-      console.log("Operation CALLED", target);
-      (bool success, bytes memory result) = target.delegatecall(calls[current].callData);
-      console.log("DEBUG: CALL FAILED?", success);
+      (bool success, ) = target.delegatecall(calls[current].callData);
       require(success, "delegate call failed");
-      if (calls[current].shouldStoreResult) {
-        OperationStorage(registry.getRegisteredService(OPERATION_STORAGE)).push(result);
-      }
-      returnData[current] = result;
     }
-  
+  }
 
   function onFlashLoan(
     address initiator, // this is actually the proxy address
