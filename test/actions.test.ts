@@ -27,10 +27,7 @@ import {
   getOraclePrice,
 } from './helpers/deploy-test-system'
 import { gasEstimateHelper } from './helpers/gas-estimation.utils'
-import {
-  calculateParamsIncreaseMPPoC,
-  prepareMultiplyParametersPoC,
-} from './helpers/param-calculations'
+import { calculateParamsIncreaseMP, prepareMultiplyParameters } from './helpers/param-calculations'
 import { expectToBeEqual } from './helpers/test-utils'
 
 const LENDER_FEE = new BigNumber(0)
@@ -690,7 +687,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
         const transferGeneratedDaiToProxyAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
-          [SendTokenActionCalldataType],
+          [calldataTypes.common.SendToken],
           [
             {
               asset: exchangeData.fromTokenAddress,
@@ -849,7 +846,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         await WETH.approve(system.userProxyAddress, amountToWei(collTopUp).toFixed(0))
 
         const { requiredDebt, additionalCollateral, preIncreaseMPTopUp } =
-          calculateParamsIncreaseMPPoC({
+          calculateParamsIncreaseMP({
             oraclePrice,
             marketPrice,
             oazoFee: oazoFeePct,
@@ -872,10 +869,9 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           collTopUp,
         }
 
-        const { exchangeData } = prepareMultiplyParametersPoC({
+        const { exchangeData } = prepareMultiplyParameters({
           oneInchPayload: exchangeDataMock,
           desiredCdpState,
-          exchangeInstanceAddress: system.exchangeInstance.address,
           fundsReceiver: address,
           skipFL: !useFlashloan,
         })
