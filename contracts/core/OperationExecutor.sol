@@ -30,7 +30,9 @@ contract OperationExecutor is IERC3156FlashBorrower {
   function aggregate(Call[] memory calls) public {
     for (uint256 current = 0; current < calls.length; current++) {
       address target = registry.getServiceAddress(calls[current].targetHash);
+
       (bool success, ) = target.delegatecall(calls[current].callData);
+
       require(success, "delegate call failed");
     }
   }
@@ -47,10 +49,9 @@ contract OperationExecutor is IERC3156FlashBorrower {
     // TODO - Use custom errors from solidity introduced in 0.8.4  https://blog.soliditylang.org/2021/04/21/custom-errors/
     require(amount == flData.amount, "loan-inconsistency");
     IERC20(asset).approve(initiator, flData.amount);
-
     DSProxy(payable(initiator)).execute(
       address(this),
-      abi.encodeWithSignature("aggregate((bytes32,bytes,bool)[])", flData.calls)
+      abi.encodeWithSignature("aggregate((bytes32,bytes)[])", flData.calls)
     );
     IERC20(asset).approve(lender, amount);
 
