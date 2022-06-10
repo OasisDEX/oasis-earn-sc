@@ -49,7 +49,7 @@ export const gasEstimateHelper: GasEstimateHelper = () => {
             .reduce((acc, { test, ...x }) => {
               acc[test] = x
               return acc
-            }, {}),
+            }, {} as Record<string, unknown>),
           ['gasUsed', 'gasPrice', 'cost (gwei)'],
         )
 
