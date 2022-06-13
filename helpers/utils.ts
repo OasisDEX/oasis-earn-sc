@@ -63,7 +63,7 @@ export async function approve(
   }
 }
 
-export async function send(tokenAddr: string, to: string, amount: BigNumber.Value) {
+export async function send(to: string, tokenAddr: string, amount: BigNumber.Value) {
   const tokenContract = await ethers.getContractAt(IERC20_ABI, tokenAddr)
 
   const tokenTransferToExchangeTx = await tokenContract.transfer(to, amount)

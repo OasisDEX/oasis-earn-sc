@@ -40,8 +40,6 @@ export interface DeployedSystemInfo {
   actionPayback: Contract
   actionWithdraw: Contract
   actionGenerate: Contract
-  actionCdpAllow: Contract
-  actionCdpDisallow: Contract
   operationExecutor: Contract
   operationStorage: Contract
   serviceRegistry: Contract
@@ -136,20 +134,6 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
   )
   deployedContracts.actionGenerate = actionGenerate
 
-  const [actionCdpAllow, actionCdpAllowAddress] = await deploy(
-    'CdpAllow',
-    [serviceRegistryAddress],
-    options,
-  )
-  deployedContracts.actionCdpAllow = actionCdpAllow
-
-  const [actionCdpDisallow, actionCdpDisallowAddress] = await deploy(
-    'CdpDisallow',
-    [serviceRegistryAddress],
-    options,
-  )
-  deployedContracts.actionCdpDisallow = actionCdpDisallow
-
   console.log('4/ Adding contracts to registry')
   registry.addEntry(CONTRACT_LABELS.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
   registry.addEntry(CONTRACT_LABELS.common.OPERATION_EXECUTOR, operationExecutorAddress)
@@ -163,8 +147,6 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
   registry.addEntry(CONTRACT_LABELS.maker.PAYBACK, actionPaybackAddress)
   registry.addEntry(CONTRACT_LABELS.maker.WITHDRAW, actionWithdrawAddress)
   registry.addEntry(CONTRACT_LABELS.maker.GENERATE, actionGenerateAddress)
-  registry.addEntry(CONTRACT_LABELS.maker.CDP_ALLOW, actionCdpAllowAddress)
-  registry.addEntry(CONTRACT_LABELS.maker.CDP_DISALLOW, actionCdpDisallowAddress)
 
   if (debug) {
     console.log('5/ Debugging...')
@@ -184,8 +166,6 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
       `Payback Action address: ${deployedContracts.actionPayback.address}`,
       `Withdraw Action address: ${deployedContracts.actionWithdraw.address}`,
       `Generate Action address: ${deployedContracts.actionGenerate.address}`,
-      `CdpAllow Action address: ${deployedContracts.actionCdpAllow.address}`,
-      `CdpDisallow Action address: ${deployedContracts.actionCdpDisallow.address}`,
     ])
   }
 
