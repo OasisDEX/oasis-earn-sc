@@ -36,7 +36,7 @@ contract Generate is Executable, UseStore {
     address vatAddr = mcdManager.vat();
     IVat vat = IVat(vatAddr);
 
-    generateData.vaultId = uint256(store().read(bytes32(generateData.vaultId), paramsMap[2]));
+    generateData.vaultId = uint256(store().read(bytes32(generateData.vaultId), paramsMap[0]));
     store().write(_generate(generateData, mcdManager, vat));
   }
 

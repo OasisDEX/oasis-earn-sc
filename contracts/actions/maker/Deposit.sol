@@ -25,7 +25,7 @@ contract Deposit is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositData memory depositData = abi.decode(data, (DepositData));
-    depositData.vaultId = uint256(store().read(bytes32(depositData.vaultId), paramsMap[1]));
+    depositData.vaultId = uint256(store().read(bytes32(depositData.vaultId), paramsMap[0]));
     store().write(_deposit(depositData));
   }
 
