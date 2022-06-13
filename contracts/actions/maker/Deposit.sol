@@ -26,6 +26,7 @@ contract Deposit is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositData memory depositData = abi.decode(data, (DepositData));
     depositData.vaultId = uint256(store().read(bytes32(depositData.vaultId), paramsMap[0]));
+
     store().write(_deposit(depositData));
   }
 
@@ -38,7 +39,6 @@ contract Deposit is Executable, UseStore {
     }
 
     uint256 balance = IERC20(address(gem)).balanceOf(address(this));
-
     IERC20(address(gem)).approve(data.joinAddress, balance);
     IJoin(data.joinAddress).join(address(this), balance);
 

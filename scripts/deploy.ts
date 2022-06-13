@@ -88,7 +88,10 @@ async function main() {
 
   //SETUP REGISTRY ENTRIES:
   console.log('DEBUG SETTING UP REGISTRY ENTRIES...')
-  const operationStorageHash = await registry.addEntry('OPERATION_STORAGE', operationStorageAddress)
+  const operationStorageHash = await registry.addEntry(
+    CONTRACT_LABELS.common.OPERATION_STORAGE,
+    operationStorageAddress,
+  )
   const dummyActionHash = await registry.addEntry('DUMMY_ACTION', dummyActionAddress)
   const pullTokenHash = await registry.addEntry(
     CONTRACT_LABELS.common.PULL_TOKEN,
@@ -284,10 +287,12 @@ async function main() {
 
   console.log('DEBUG: Deposited ( DAI )')
   await balanceOf(ADDRESSES.main.aDAI, proxyAddress, options)
+  console.log('DEBUG: Debt ( ETH )')
+  await balanceOf(ADDRESSES.main.ETH, proxyAddress, options)
   console.log('DEBUG: Debt ( WETH )')
-  await balanceOf(ADDRESSES.main.stETH, proxyAddress, options)
+  await balanceOf(ADDRESSES.main.WETH, proxyAddress, options)
   console.log('DEBUG: OWNED ( stETH )')
-  await balanceOf(ADDRESSES.main.variableDebtWETH, proxyAddress, options)
+  await balanceOf(ADDRESSES.main.stETH, proxyAddress, options)
 }
 
 main().catch(error => {

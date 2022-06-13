@@ -12,11 +12,13 @@ import { executeThroughProxy } from '../helpers/deploy'
 import { resetNode } from '../helpers/init'
 import { getVaultInfo } from '../helpers/maker/vault-info'
 import { calldataTypes } from '../helpers/types/actions'
-import { ExchangeData, SwapData } from '../helpers/types/common'
+import { ExchangeData, RuntimeConfig, SwapData } from '../helpers/types/common'
 import {
   ActionCall,
   ActionFactory,
   amountToWei,
+  approve,
+  send,
   ensureWeiFormat,
   ServiceRegistry,
 } from '../helpers/utils'
@@ -50,11 +52,17 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   let system: DeployedSystemInfo
   let registry: ServiceRegistry
 
+  let config: RuntimeConfig
+
   before(async () => {
-    provider = ethers.provider
-    // provider = new ethers.providers.JsonRpcProvider()
+    provider =
+      process.env.USE_STANDALONE_NODE === `1`
+        ? new ethers.providers.JsonRpcProvider()
+        : ethers.provider
     signer = provider.getSigner(0)
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
+    WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
+
     address = await signer.getAddress()
 
     const blockNumber = 13274574
@@ -63,6 +71,8 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
     system = await deployTestSystem(true)
 
     registry = new ServiceRegistry(system.serviceRegistry.address, signer)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    config = { provider, signer, address }
   })
 
   describe(`open|Deposit|Draw|Payback => Operation | Action by Action`, async () => {
@@ -75,7 +85,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
     before(async () => {
       await system.exchangeInstance.setPrice(
-        ADDRESSES.main.ETH,
+        ADDRESSES.main.WETH,
         amountToWei(marketPrice).toFixed(0),
       )
     })
@@ -89,29 +99,32 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
     }
 
     it(testNames.openVault, async () => {
+      await WETH.transfer(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
+
       const openVaultAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
-        [calldataTypes.maker.Open],
+        [calldataTypes.maker.Open, `uint8[] paramsMap`],
         [
           {
             joinAddress: ADDRESSES.main.joinETH_A,
             mcdManager: ADDRESSES.main.cdpManager,
           },
+          [0],
         ],
       )
 
       const depositAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
-        [calldataTypes.maker.Deposit],
+        [calldataTypes.maker.Deposit, `uint8[] paramsMap`],
         [
           {
             joinAddress: ADDRESSES.main.joinETH_A,
             mcdManager: ADDRESSES.main.cdpManager,
-            vaultId: 0,
+            vaultId: 25790,
             amount: ensureWeiFormat(initialColl),
           },
+          [1],
         ],
-        [1],
       )
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -120,20 +133,18 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         {
           address: system.operationExecutor.address,
           calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
-            // [openVaultAction],
             [openVaultAction, depositAction],
           ]),
         },
         signer,
       )
-      console.log('txReceipt:', txReceipt)
+
       gasEstimates.save(testNames.openVault, txReceipt)
 
       const vault = await getLastCDP(provider, signer, system.userProxyAddress)
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       vaultId = vault.id
-      console.log('vaultId:', vaultId)
       const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
 
       expect(info.coll.toString()).to.equal(initialColl.toFixed(0))
@@ -467,7 +478,7 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
     provider = ethers.provider
     signer = provider.getSigner(0)
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
-    WETH = new ethers.Contract(ADDRESSES.main.ETH, ERC20ABI, provider).connect(signer)
+    WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
     address = await signer.getAddress()
 
     const blockNumber = 13274574

@@ -75,7 +75,7 @@ const addFundsDummyExchange = async function (
   const transferToExchangeCurried = curry(send)(exchange.address)
 
   const wethDeposit = await WETH.deposit({
-    value: amountToWei(1000).toFixed(0),
+    value: amountToWei(2000).toFixed(0),
   })
   await wethDeposit.wait()
 
@@ -92,6 +92,7 @@ const addFundsDummyExchange = async function (
     config: { provider, signer, address },
   }
 
+  // console.log('weth-bal:', balanceOf(weth, address, options))
   // Transfer half of the accounts balance of each token to the dummy exchange.
   await Promise.all(
     erc20Tokens.map(async token => {
@@ -133,6 +134,12 @@ export async function loadDummyExchangeFixtures(
 ) {
   const tokens = [
     {
+      name: 'WETH',
+      address: ADDRESSES.main.WETH,
+      pip: ADDRESSES.main.pipWETH,
+      precision: 18,
+    },
+    {
       name: 'DAI',
       address: ADDRESSES.main.DAI,
       pip: undefined,
@@ -151,7 +158,7 @@ export async function loadDummyExchangeFixtures(
     provider,
     signer,
     ADDRESSES.main.WETH,
-    tokens.filter(token => token.address !== ADDRESSES.main.ETH),
+    tokens.filter(token => token.address !== ADDRESSES.main.WETH),
     dummyExchangeInstance,
     debug,
   )

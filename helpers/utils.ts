@@ -66,8 +66,8 @@ export async function approve(
 export async function send(to: string, tokenAddr: string, amount: BigNumber.Value) {
   const tokenContract = await ethers.getContractAt(IERC20_ABI, tokenAddr)
 
-  const tokenTransferToExchangeTx = await tokenContract.transfer(to, amount)
-  await tokenTransferToExchangeTx.wait()
+  const transferTx = await tokenContract.transfer(to, amount)
+  await transferTx.wait()
 }
 
 type PositionCalculationResult = {
@@ -154,18 +154,17 @@ export type ActionCall = {
 }
 
 export class ActionFactory {
-  static create(
-    targetHash: string,
-    types: string[],
-    args: any[],
-    paramsMap: number[] = [],
-  ): ActionCall {
+  static create(targetHash: string, types: string[], args: any[]): ActionCall {
     const iface = new ethers.utils.Interface([
-      ' function execute(bytes calldata data, uint8[] memory paramsMap) external payable',
+      ' function execute(bytes calldata data, uint8[] paramsMap) external payable returns (bytes calldata)',
     ])
-    const encodedArgs = ethers.utils.defaultAbiCoder.encode(types, args)
 
-    const calldata = iface.encodeFunctionData('execute', [encodedArgs, paramsMap])
+    const encodedArgs = ethers.utils.defaultAbiCoder.encode(
+      types[0] ? [types[0]] : [],
+      args[0] ? [args[0]] : [],
+    )
+    const calldata = iface.encodeFunctionData('execute', [encodedArgs, args[1] ? args[1] : []])
+
     return {
       targetHash,
       callData: calldata,

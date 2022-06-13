@@ -6,8 +6,12 @@ import { ethers } from 'hardhat'
 import { RuntimeConfig } from './types/common'
 
 export default async function init(): Promise<RuntimeConfig> {
-  // const provider = new ethers.providers.JsonRpcProvider();
-  const provider = ethers.provider
+  console.log('Using standalone node:', process.env.USE_STANDALONE_NODE === `1`)
+  const provider =
+    process.env.USE_STANDALONE_NODE === `1`
+      ? new ethers.providers.JsonRpcProvider()
+      : ethers.provider
+
   const signer = provider.getSigner(0)
   const address = await signer.getAddress()
 

@@ -40,6 +40,8 @@ export interface DeployedSystemInfo {
   actionPayback: Contract
   actionWithdraw: Contract
   actionGenerate: Contract
+  actionSendToken: Contract
+  actionPullToken: Contract
   operationExecutor: Contract
   operationStorage: Contract
   serviceRegistry: Contract
@@ -92,6 +94,12 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
 
   // Deploy Actions
   console.log('3/ Deploying actions')
+  const [sendToken, sendTokenAddress] = await deploy('SendToken', [], options)
+  deployedContracts.actionSendToken = sendToken
+
+  const [pullToken, pullTokenAddress] = await deploy('PullToken', [], options)
+  deployedContracts.actionPullToken = pullToken
+
   const [actionFl, actionFlAddress] = await deploy(
     'TakeFlashloan',
     [serviceRegistryAddress],
@@ -140,8 +148,10 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
   registry.addEntry(CONTRACT_LABELS.common.OPERATION_STORAGE, operationStorageAddress)
   registry.addEntry(CONTRACT_LABELS.maker.MCD_VIEW, mcdViewAddress)
   registry.addEntry(CONTRACT_LABELS.common.EXCHANGE, dummyExchangeAddress)
-
   registry.addEntry(CONTRACT_LABELS.common.TAKE_A_FLASHLOAN, actionFlAddress)
+  registry.addEntry(CONTRACT_LABELS.common.SEND_TOKEN, sendTokenAddress)
+  registry.addEntry(CONTRACT_LABELS.common.PULL_TOKEN, pullTokenAddress)
+
   registry.addEntry(CONTRACT_LABELS.maker.OPEN_VAULT, actionOpenVaultAddress)
   registry.addEntry(CONTRACT_LABELS.maker.DEPOSIT, actionDepositAddress)
   registry.addEntry(CONTRACT_LABELS.maker.PAYBACK, actionPaybackAddress)
@@ -159,6 +169,8 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
       `Registry address: ${deployedContracts.serviceRegistry.address}`,
       `Operation Executor address: ${deployedContracts.operationExecutor.address}`,
       `Operator Storage address: ${deployedContracts.operationStorage.address}`,
+      `Send Token address: ${deployedContracts.actionSendToken.address}`,
+      `Pull Token address: ${deployedContracts.actionPullToken.address}`,
 
       `Flashloan Action address: ${deployedContracts.actionTakeFlashLoan.address}`,
       `OpenVault Action address: ${deployedContracts.actionOpenVault.address}`,
@@ -201,10 +213,9 @@ export async function getLastCDP(
   signer: Signer,
   proxyAddress: string,
 ): Promise<CDPInfo> {
-  console.log('proxyAddress:', proxyAddress)
-  console.log('ADDRESSES.main.getCdps:', ADDRESSES.main.getCdps)
   const getCdps = new ethers.Contract(ADDRESSES.main.getCdps, GetCDPsABI, provider).connect(signer)
   const { ids, urns, ilks } = await getCdps.getCdpsAsc(ADDRESSES.main.cdpManager, proxyAddress)
+
   const cdp = _.last(
     _.map(_.zip(ids, urns, ilks), cdp => ({
       id: (cdp[0] as EthersBN).toNumber(), // TODO:
