@@ -2,7 +2,7 @@
 pragma solidity >=0.8.5;
 
 import "../common/Executable.sol";
-import { UseStore, Write } from "../common/UseStore.sol";
+import "../common/UseStore.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -17,12 +17,15 @@ import { DepositData } from "../../core/types/Maker.sol";
 contract Deposit is Executable, UseStore {
   using SafeMath for uint256;
   using Write for OperationStorage;
+  using Read for OperationStorage;
+
   address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
   constructor(address _registry) UseStore(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositData memory depositData = abi.decode(data, (DepositData));
+    depositData.vaultId = uint256(store().read(bytes32(depositData.vaultId), paramsMap[1]));
     store().write(_deposit(depositData));
   }
 

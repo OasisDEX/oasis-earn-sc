@@ -201,6 +201,8 @@ export async function getLastCDP(
   signer: Signer,
   proxyAddress: string,
 ): Promise<CDPInfo> {
+  console.log('proxyAddress:', proxyAddress)
+  console.log('ADDRESSES.main.getCdps:', ADDRESSES.main.getCdps)
   const getCdps = new ethers.Contract(ADDRESSES.main.getCdps, GetCDPsABI, provider).connect(signer)
   const { ids, urns, ilks } = await getCdps.getCdpsAsc(ADDRESSES.main.cdpManager, proxyAddress)
   const cdp = _.last(

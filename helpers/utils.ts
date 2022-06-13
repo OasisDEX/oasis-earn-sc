@@ -159,6 +159,7 @@ export class ActionFactory {
       ' function execute(bytes calldata data, uint8[] memory paramsMap) external payable returns (bytes calldata)',
     ])
     const encodedArgs = ethers.utils.defaultAbiCoder.encode(types, args)
+
     const calldata = iface.encodeFunctionData('execute', [encodedArgs, []])
     return {
       targetHash,
@@ -194,7 +195,6 @@ export class ServiceRegistry {
 
   async getEntryHash(label: ValueOf<NestedKeys<typeof CONTRACT_LABELS>>): Promise<string> {
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
-
     return registry.getServiceNameHash(label)
   }
 }

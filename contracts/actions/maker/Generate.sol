@@ -29,14 +29,14 @@ contract Generate is Executable, UseStore {
 
   constructor(address _registry) UseStore(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory _paramsMapping) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     GenerateData memory generateData = abi.decode(data, (GenerateData));
 
     IManager mcdManager = IManager(generateData.mcdManager);
     address vatAddr = mcdManager.vat();
     IVat vat = IVat(vatAddr);
 
-    generateData.vaultId = uint256(store().read(bytes32(generateData.vaultId), _paramsMapping[2]));
+    generateData.vaultId = uint256(store().read(bytes32(generateData.vaultId), paramsMap[2]));
     store().write(_generate(generateData, mcdManager, vat));
   }
 

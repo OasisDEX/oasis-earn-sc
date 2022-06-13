@@ -51,8 +51,8 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   let registry: ServiceRegistry
 
   before(async () => {
-    // provider = ethers.provider
-    provider = new ethers.providers.JsonRpcProvider()
+    provider = ethers.provider
+    // provider = new ethers.providers.JsonRpcProvider()
     signer = provider.getSigner(0)
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     address = await signer.getAddress()
@@ -61,11 +61,11 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
     resetNode(provider, blockNumber)
 
     system = await deployTestSystem(true)
-    console.log('creating registry....')
+
     registry = new ServiceRegistry(system.serviceRegistry.address, signer)
   })
 
-  describe.skip(`open|Deposit|Draw|Payback => Operation | Action by Action`, async () => {
+  describe(`open|Deposit|Draw|Payback => Operation | Action by Action`, async () => {
     const marketPrice = new BigNumber(2380)
     const initialColl = new BigNumber(100) // STARTING COLLATERAL AMOUNT
     const initialDebt = new BigNumber(20000) // STARTING VAULT DEBT
@@ -107,7 +107,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           {
             joinAddress: ADDRESSES.main.joinETH_A,
             mcdManager: ADDRESSES.main.cdpManager,
-            vaultId,
+            vaultId: 0,
             amount: ensureWeiFormat(initialColl),
           },
         ],
@@ -119,18 +119,20 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         {
           address: system.operationExecutor.address,
           calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+            // [openVaultAction],
             [openVaultAction, depositAction],
           ]),
         },
         signer,
       )
-
+      console.log('txReceipt:', txReceipt)
       gasEstimates.save(testNames.openVault, txReceipt)
 
       const vault = await getLastCDP(provider, signer, system.userProxyAddress)
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       vaultId = vault.id
+      console.log('vaultId:', vaultId)
       const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
 
       expect(info.coll.toString()).to.equal(initialColl.toFixed(0))
@@ -145,7 +147,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       expectToBeEqual(vaultOwner, system.userProxyAddress)
     })
 
-    it(testNames.generatedDebt, async () => {
+    it.skip(testNames.generatedDebt, async () => {
       const generateAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
         [calldataTypes.maker.Generate],
@@ -181,7 +183,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       expect(info.debt.toFixed(0)).to.equal(initialDebt.toFixed(0))
     })
 
-    it(testNames.paybackDebt, async () => {
+    it.skip(testNames.paybackDebt, async () => {
       const paybackDai = new BigNumber(5000)
       const paybackAll = false
       const paybackAction = createAction(
@@ -225,7 +227,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       expect(info.debt.toFixed(0)).to.equal(expectedDebt.toFixed(0))
     })
 
-    it(testNames.paybackAllDebt, async () => {
+    it.skip(testNames.paybackAllDebt, async () => {
       const vault = await getLastCDP(provider, signer, system.userProxyAddress)
 
       const prePaybackInfo = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
@@ -270,7 +272,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       expect(info.debt.toFixed(0)).to.equal(expectedDebt.toFixed(0))
     })
 
-    it(testNames.withdrawColl, async () => {
+    it.skip(testNames.withdrawColl, async () => {
       const withdrawAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
         [calldataTypes.maker.Withdraw],
