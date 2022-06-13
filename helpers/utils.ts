@@ -156,10 +156,10 @@ export type ActionCall = {
 export class ActionFactory {
   static create(targetHash: string, types: string[], args: any[]): ActionCall {
     const iface = new ethers.utils.Interface([
-      ' function execute(bytes calldata data) external payable returns (bytes calldata)',
+      ' function execute(bytes calldata data, uint8[] memory paramsMap) external payable returns (bytes calldata)',
     ])
     const encodedArgs = ethers.utils.defaultAbiCoder.encode(types, args)
-    const calldata = iface.encodeFunctionData('execute', [encodedArgs])
+    const calldata = iface.encodeFunctionData('execute', [encodedArgs, []])
     return {
       targetHash,
       callData: calldata,
