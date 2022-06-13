@@ -49,7 +49,7 @@ export async function getMarketPrice(
 async function exchangeToToken(provider: JsonRpcProvider, signer: Signer, token: ERC20TokenData) {
   const address = await signer.getAddress()
   await swapUniswapTokens(
-    ADDRESSES.main.ETH,
+    ADDRESSES.main.WETH,
     token.address,
     amountToWei(200).toFixed(0),
     amountToWei(ZERO, token.precision).toFixed(0),
@@ -72,17 +72,20 @@ const addFundsDummyExchange = async function (
   const exchangeToTokenCurried = curry(exchangeToToken)(provider, signer)
   const transferToExchangeCurried = curry(send)(exchange.address)
 
+  console.log('about to deposit WETH')
   const wethDeposit = await WETH.deposit({
     value: amountToWei(1000).toFixed(0),
   })
   await wethDeposit.wait()
 
+  console.log('transferring to exc')
   const wethTransferToExchangeTx = await WETH.transfer(
     exchange.address,
     amountToWei(500).toFixed(0),
   )
   await wethTransferToExchangeTx.wait()
 
+  console.log('/x for token')
   // Exchange ETH for the `token`
   await Promise.all(erc20Tokens.map(token => exchangeToTokenCurried(token)))
 
@@ -90,6 +93,7 @@ const addFundsDummyExchange = async function (
     config: { provider, signer, address },
   }
 
+  console.log('transfer hlaf')
   // Transfer half of the accounts balance of each token to the dummy exchange.
   await Promise.all(
     erc20Tokens.map(async token => {
@@ -129,6 +133,7 @@ export async function loadDummyExchangeFixtures(
   dummyExchangeInstance: Contract,
   debug: boolean,
 ) {
+  console.log('running loadDummyExchangeFixtures...')
   const tokens = [
     {
       name: 'ETH',
@@ -162,6 +167,7 @@ export async function loadDummyExchangeFixtures(
     },
   ]
 
+  console.log('exchange ETH...')
   // Exchanging ETH for other @tokens
   await addFundsDummyExchange(
     provider,
@@ -172,6 +178,7 @@ export async function loadDummyExchangeFixtures(
     debug,
   )
 
+  console.log('set precision...')
   // Setting precision for each @token that is going to be used.
   await Promise.all(
     tokens.map(token => {

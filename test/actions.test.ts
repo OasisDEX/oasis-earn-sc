@@ -51,8 +51,8 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   let registry: ServiceRegistry
 
   before(async () => {
-    provider = ethers.provider
-    // provider = new ethers.providers.JsonRpcProvider()
+    // provider = ethers.provider
+    provider = new ethers.providers.JsonRpcProvider()
     signer = provider.getSigner(0)
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     address = await signer.getAddress()
@@ -61,10 +61,11 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
     resetNode(provider, blockNumber)
 
     system = await deployTestSystem(true)
+    console.log('creating registry....')
     registry = new ServiceRegistry(system.serviceRegistry.address, signer)
   })
 
-  describe(`open|Deposit|Draw|Payback => Operation | Action by Action`, async () => {
+  describe.skip(`open|Deposit|Draw|Payback => Operation | Action by Action`, async () => {
     const marketPrice = new BigNumber(2380)
     const initialColl = new BigNumber(100) // STARTING COLLATERAL AMOUNT
     const initialDebt = new BigNumber(20000) // STARTING VAULT DEBT
@@ -311,7 +312,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
     })
   })
 
-  describe(`open|Deposit|Draw|Payback => Operation | Full Operation`, async () => {
+  describe.skip(`open|Deposit|Draw|Payback => Operation | Full Operation`, async () => {
     const marketPrice = new BigNumber(2380)
     const initialColl = new BigNumber(100)
     const initialDebt = new BigNumber(20000)
@@ -436,7 +437,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   })
 })
 
-describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
+describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   const oazoFee = 2 // divided by base (10000), 1 = 0.01%;
   const oazoFeePct = new BigNumber(oazoFee).div(10000)
   const flashLoanFee = LENDER_FEE

@@ -81,21 +81,13 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
   )
   deployedContracts.operationExecutor = operationExecutor
 
-  const [operationStorage, operationStorageAddress] = await deploy(
-    'OperationStorage',
-    [serviceRegistryAddress],
-    options,
-  )
+  const [operationStorage, operationStorageAddress] = await deploy('OperationStorage', [], options)
   deployedContracts.operationStorage = operationStorage
 
-  const [mcdView, mcdViewAddress] = await deploy('McdView', [serviceRegistryAddress], options)
+  const [mcdView, mcdViewAddress] = await deploy('McdView', [], options)
   deployedContracts.mcdViewInstance = mcdView
 
-  const [dummyExchange, dummyExchangeAddress] = await deploy(
-    'DummyExchange',
-    [serviceRegistryAddress],
-    options,
-  )
+  const [dummyExchange, dummyExchangeAddress] = await deploy('DummyExchange', [], options)
   deployedContracts.exchangeInstance = dummyExchange
 
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
