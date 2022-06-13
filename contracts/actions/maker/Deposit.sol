@@ -58,7 +58,6 @@ contract Deposit is Executable, UseStore {
       convertedAmount,
       0
     );
-
     return bytes32(uint256(convertedAmount));
   }
 

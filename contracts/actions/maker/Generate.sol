@@ -31,12 +31,12 @@ contract Generate is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     GenerateData memory generateData = abi.decode(data, (GenerateData));
-
     IManager mcdManager = IManager(generateData.mcdManager);
     address vatAddr = mcdManager.vat();
     IVat vat = IVat(vatAddr);
 
     generateData.vaultId = uint256(store().read(bytes32(generateData.vaultId), paramsMap[0]));
+
     store().write(_generate(generateData, mcdManager, vat));
   }
 
