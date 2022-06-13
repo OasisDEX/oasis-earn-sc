@@ -154,7 +154,12 @@ export type ActionCall = {
 }
 
 export class ActionFactory {
-  static create(targetHash: string, types: string[], args: any[], paramsMap: number[]): ActionCall {
+  static create(
+    targetHash: string,
+    types: string[],
+    args: any[],
+    paramsMap: number[] = [],
+  ): ActionCall {
     const iface = new ethers.utils.Interface([
       ' function execute(bytes calldata data, uint8[] memory paramsMap) external payable',
     ])

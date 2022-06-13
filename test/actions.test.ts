@@ -111,6 +111,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
             amount: ensureWeiFormat(initialColl),
           },
         ],
+        [1],
       )
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
