@@ -29,7 +29,7 @@ export async function swapOneInchTokens(
   fromTokenAddress: string,
   toTokenAddress: string,
   amount: string,
-  recepient: string,
+  recipient: string,
   slippage: string,
   protocols: string[] = [],
 ): Promise<OneInchSwapResponse> {
@@ -38,7 +38,7 @@ export async function swapOneInchTokens(
     toTokenAddress,
     amount,
     slippage,
-    recepient,
+    recipient,
     protocols,
   )
 

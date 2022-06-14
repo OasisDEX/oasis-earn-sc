@@ -5,7 +5,7 @@ import { ONE } from '../../helpers/constants'
 import { ExchangeData } from '../../helpers/types/common'
 import { CdpData } from '../../helpers/types/maker'
 import { amountToWei } from '../../helpers/utils'
-import { logDebug } from './test-utils'
+import { logDebug } from './testUtils'
 
 export function calculateParamsIncreaseMP({
   oraclePrice,

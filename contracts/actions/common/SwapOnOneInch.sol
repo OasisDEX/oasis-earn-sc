@@ -25,11 +25,17 @@ contract SwapOnOneInch is Executable {
     // - Forced to wrap the ETH into WETH
     // - There should be separate actions or utils to wrap/unwrap ETH into/from WETH
     address oneInchAggregatorAddress = registry.getRegisteredService(ONE_INCH_AGGREGATOR);
-    console.log("balance:", address(this).balance);
-    IWETH(registry.getRegisteredService(WETH)).deposit{ value: address(this).balance }();
+
+    if (address(this).balance > 0) {
+      IWETH(registry.getRegisteredService(WETH)).deposit{ value: address(this).balance }();
+    }
+
     SwapData memory swap = abi.decode(data, (SwapData));
+
     IERC20(swap.fromAsset).approve(oneInchAggregatorAddress, swap.amount);
+
     (bool success, ) = oneInchAggregatorAddress.call(swap.withData);
+
     require(success, "Exchange / Could not swap");
     uint256 balance = IERC20(swap.toAsset).balanceOf(address(this));
     require(balance >= swap.receiveAtLeast, "Exchange / Received less");

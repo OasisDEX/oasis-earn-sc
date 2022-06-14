@@ -11,6 +11,7 @@ import { CONTRACT_LABELS, ZERO } from '../helpers/constants'
 import { executeThroughProxy } from '../helpers/deploy'
 import { resetNode } from '../helpers/init'
 import { getVaultInfo } from '../helpers/maker/vault-info'
+import { swapOneInchTokens } from '../helpers/swap/1inch'
 import { calldataTypes } from '../helpers/types/actions'
 import { ExchangeData, RuntimeConfig, SwapData } from '../helpers/types/common'
 import {
@@ -18,8 +19,8 @@ import {
   ActionFactory,
   amountToWei,
   approve,
-  send,
   ensureWeiFormat,
+  send,
   ServiceRegistry,
 } from '../helpers/utils'
 import {
@@ -27,16 +28,16 @@ import {
   deployTestSystem,
   getLastCDP,
   getOraclePrice,
-} from './helpers/deploy-test-system'
-import { gasEstimateHelper } from './helpers/gas-estimation.utils'
-import { calculateParamsIncreaseMP, prepareMultiplyParameters } from './helpers/param-calculations'
-import { expectToBeEqual } from './helpers/test-utils'
+} from './helpers/deployTestSystem'
+import { gasEstimateHelper } from './helpers/gasEstimation'
+import { calculateParamsIncreaseMP, prepareMultiplyParameters } from './helpers/paramCalculations'
+import { expectToBeEqual } from './helpers/testUtils'
 
 const LENDER_FEE = new BigNumber(0)
 
 const createAction = ActionFactory.create
 
-async function testScenarios<S, R extends (scenario: S) => void>(scenarios: S[], runner: R) {
+function testScenarios<S, R extends (scenario: S) => void>(scenarios: S[], runner: R) {
   for (const scenario of scenarios) {
     runner(scenario)
   }
@@ -45,7 +46,7 @@ async function testScenarios<S, R extends (scenario: S) => void>(scenarios: S[],
 let DAI: Contract
 let WETH: Contract
 
-describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
+describe.skip('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   let provider: JsonRpcProvider
   let signer: Signer
   let address: string
@@ -113,7 +114,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         ],
       )
 
-      const pullTokenAction = createAction(
+      const pullCollateralIntoProxyAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
         [calldataTypes.common.PullToken, calldataTypes.paramsMap],
         [
@@ -146,7 +147,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         {
           address: system.operationExecutor.address,
           calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
-            [openVaultAction, pullTokenAction, depositAction],
+            [openVaultAction, pullCollateralIntoProxyAction, depositAction],
           ]),
         },
         signer,
@@ -373,7 +374,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         ],
       )
 
-      const pullTokenAction = createAction(
+      const pullCollateralIntoProxyAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
         [calldataTypes.common.PullToken, calldataTypes.paramsMap],
         [
@@ -458,7 +459,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
             [
               openVaultAction,
-              pullTokenAction,
+              pullCollateralIntoProxyAction,
               depositAction,
               generateAction,
               paybackAction,
@@ -494,7 +495,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   })
 })
 
-describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
+describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   const oazoFee = 2 // divided by base (10000), 1 = 0.01%;
   const oazoFeePct = new BigNumber(oazoFee).div(10000)
   const flashLoanFee = LENDER_FEE
@@ -530,7 +531,7 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
     const blockNumber = 13274574
     resetNode(provider, blockNumber)
 
-    system = await deployTestSystem(true)
+    system = await deployTestSystem()
     registry = new ServiceRegistry(system.serviceRegistry.address, signer)
 
     exchangeDataMock = {
@@ -565,10 +566,9 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
     before(async () => {
       oraclePrice = await getOraclePrice(provider)
-      DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
 
       await system.exchangeInstance.setPrice(
-        ADDRESSES.main.ETH,
+        ADDRESSES.main.WETH,
         amountToWei(marketPrice).toFixed(0),
       )
     })
@@ -584,6 +584,16 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         requiredCollRatio: new BigNumber(5),
         vaultUnsafe: false,
       },
+      // {
+      //   testName: `should open vault, deposit ETH and increase multiple`,
+      //   initialColl: defaultInitialColl,
+      //   initialDebt: defaultInitialDebt,
+      //   daiTopUp: defaultDaiTopUp,
+      //   collTopUp: defaultCollTopUp,
+      //   useFlashloan: false,
+      //   requiredCollRatio: new BigNumber(5),
+      //   vaultUnsafe: false,
+      // },
       // {
       //   testName: `should open vault, deposit ETH and increase multiple & [+Flashloan]`,
       //   initialColl: defaultInitialColl,
@@ -677,12 +687,12 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         topUpData: { token: string; amount: BigNumber; from: string }
       }) {
         const transferCollTopupToProxyAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
-          [calldataTypes.common.SendToken],
+          await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+          [calldataTypes.common.PullToken],
           [
             {
               asset: topUpData.token,
-              to: system.userProxyAddress,
+              from: address,
               amount: ensureWeiFormat(topUpData.amount),
             },
           ],
@@ -698,6 +708,7 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
               vaultId: 0,
               amount: ensureWeiFormat(collTopUp),
             },
+            [1],
           ],
         )
 
@@ -712,12 +723,12 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         topUpData: { token: string; amount: BigNumber; from: string }
       }) {
         const transferDaiTopupToProxyAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
-          [calldataTypes.common.SendToken],
+          await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+          [calldataTypes.common.PullToken],
           [
             {
               asset: topUpData.token,
-              to: system.userProxyAddress,
+              from: address,
               amount: ensureWeiFormat(topUpData.amount),
             },
           ],
@@ -740,7 +751,7 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           [calldataTypes.maker.Generate, calldataTypes.paramsMap],
           [
             {
-              to: address,
+              to: system.userProxyAddress,
               mcdManager: ADDRESSES.main.cdpManager,
               vaultId: 0,
               amount: ensureWeiFormat(cdpState.requiredDebt),
@@ -749,58 +760,45 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           ],
         )
 
-        const transferGeneratedDaiToProxyAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
-          [calldataTypes.common.PullToken],
+        const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
+          .plus(ensureWeiFormat(cdpState.daiTopUp))
+          .toFixed(0)
+
+        const swapData: SwapData = {
+          fromAsset: exchangeData.fromTokenAddress,
+          toAsset: exchangeData.toTokenAddress,
+          // Add daiTopup amount to swap
+          amount: swapAmount,
+          receiveAtLeast: exchangeData.minToTokenAmount,
+          withData: exchangeData._exchangeCalldata,
+        }
+
+        await DAI.approve(system.userProxyAddress, swapAmount)
+        const swapAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.common.DUMMY_SWAP),
+          [calldataTypes.common.Swap],
+          [swapData],
+        )
+
+        const collateralToDeposit = cdpState.toBorrowCollateralAmount.plus(cdpState.collTopUp)
+        const depositBorrowedCollateral = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+          [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
           [
             {
-              asset: exchangeData.fromTokenAddress,
-              from: address,
-              amount: ensureWeiFormat(cdpState.requiredDebt),
+              joinAddress: ADDRESSES.main.joinETH_A,
+              mcdManager: ADDRESSES.main.cdpManager,
+              vaultId: 0,
+              amount: ensureWeiFormat(collateralToDeposit),
             },
+            [1],
           ],
         )
 
-        // const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
-        //   .plus(ensureWeiFormat(cdpState.daiTopUp))
-        //   .toFixed(0)
-
-        // const swapData: SwapData = {
-        //   fromAsset: exchangeData.fromTokenAddress,
-        //   toAsset: exchangeData.toTokenAddress,
-        //   // Add daiTopup amount to swap
-        //   amount: swapAmount,
-        //   receiveAtLeast: exchangeData.minToTokenAmount,
-        //   withData: exchangeData._exchangeCalldata,
-        // }
-
-        await DAI.approve(system.userProxyAddress, amountToWei(cdpState.requiredDebt).toFixed(0))
-        // const swapAction = createAction(
-        //   await registry.getEntryHash(CONTRACT_LABELS.common.EXCHANGE),
-        //   [calldataTypes.common.Swap],
-        //   [swapData],
-        // )
-
-        // const collateralToDeposit = cdpState.toBorrowCollateralAmount.plus(cdpState.collTopUp)
-        // const depositBorrowedCollateral = createAction(
-        //   await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
-        //   [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
-        //   [
-        //     {
-        //       joinAddress: ADDRESSES.main.joinETH_A,
-        //       mcdManager: ADDRESSES.main.cdpManager,
-        //       vaultId: 0,
-        //       amount: ensureWeiFormat(collateralToDeposit),
-        //     },
-        //     [1],
-        //   ],
-        // )
-
         // Add actions
         actions.push(generateDaiForSwap)
-        actions.push(transferGeneratedDaiToProxyAction)
-        // actions.push(swapAction)
-        // actions.push(depositBorrowedCollateral)
+        actions.push(swapAction)
+        actions.push(depositBorrowedCollateral)
       }
       async function includeIncreaseMultipleWithFlashloanActions({
         actions,
@@ -907,9 +905,19 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       }
 
       it(testName, async () => {
+        try {
+          const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+          const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+          console.log('pre-info:', info.coll.toFixed(0))
+          console.log('pre-info:', info.debt.toFixed(0))
+        } catch {}
+
+        await WETH.approve(
+          system.userProxyAddress,
+          amountToWei(initialColl.plus(collTopUp)).toFixed(0),
+        )
+
         await DAI.approve(system.userProxyAddress, amountToWei(daiTopUp).toFixed(0))
-        await WETH.approve(system.userProxyAddress, amountToWei(collTopUp).toFixed(0))
-        // await WETH.transfer(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
 
         const { requiredDebt, additionalCollateral, preIncreaseMPTopUp } =
           calculateParamsIncreaseMP({
@@ -953,6 +961,19 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           ],
         )
 
+        const pullTokenIntoProxyAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+          [calldataTypes.common.PullToken, calldataTypes.paramsMap],
+          [
+            {
+              from: config.address,
+              asset: ADDRESSES.main.WETH,
+              amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
+            },
+            [0],
+          ],
+        )
+
         const initialDepositAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
           [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
@@ -967,33 +988,37 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
           ],
         )
 
-        const actions: ActionCall[] = [openVaultAction, initialDepositAction]
+        const actions: ActionCall[] = [
+          openVaultAction,
+          pullTokenIntoProxyAction,
+          initialDepositAction,
+        ]
         const useCollateralTopup = desiredCdpState.collTopUp.gt(ZERO)
         const useDaiTopup = desiredCdpState.daiTopUp.gt(ZERO)
 
-        // // Deposit collateral prior to increasing multiple
-        // useCollateralTopup &&
-        //   includeCollateralTopupActions({
-        //     actions,
-        //     topUpData: {
-        //       token: exchangeData?.toTokenAddress,
-        //       amount: desiredCdpState.collTopUp,
-        //       from: address,
-        //     },
-        //   })
+        // Deposit collateral prior to increasing multiple
+        useCollateralTopup &&
+          includeCollateralTopupActions({
+            actions,
+            topUpData: {
+              token: exchangeData?.toTokenAddress,
+              amount: desiredCdpState.collTopUp,
+              from: address,
+            },
+          })
 
-        // // Add dai to proxy for use in primary swap
-        // useDaiTopup &&
-        //   includeDaiTopupActions({
-        //     actions,
-        //     topUpData: {
-        //       token: DAI?.address,
-        //       amount: desiredCdpState.daiTopUp,
-        //       from: address,
-        //     },
-        //   })
+        // Add dai to proxy for use in primary swap
+        useDaiTopup &&
+          includeDaiTopupActions({
+            actions,
+            topUpData: {
+              token: DAI?.address,
+              amount: desiredCdpState.daiTopUp,
+              from: address,
+            },
+          })
 
-        // // Gather dai from vault then swap for collateral
+        // Gather dai from vault then swap for collateral
         !useFlashloan &&
           (await includeIncreaseMultipleActions({
             actions,
@@ -1042,9 +1067,14 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         const vault = await getLastCDP(provider, signer, system.userProxyAddress)
         const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
         const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
+
+        console.log('info-debt:', info.debt.toFixed(0))
+        console.log('info-coll:', info.coll.toFixed(0))
+        console.log('requiredCollRatio:', requiredCollRatio.toFixed(0))
+        console.log('currentCollRatio:', currentCollRatio.toFixed(0))
+
         expectToBeEqual(currentCollRatio, requiredCollRatio, 3)
-        console.log('vault:', vault)
-        console.log('info:', info)
+
         const expectedColl = additionalCollateral.plus(initialColl).plus(preIncreaseMPTopUp)
         const expectedDebt = desiredCdpState.requiredDebt
 
@@ -1058,6 +1088,53 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         ).connect(signer)
         const vaultOwner = await cdpManagerContract.owns(vault.id)
         expectToBeEqual(vaultOwner, system.userProxyAddress)
+
+        // CLEAR TEST VAULT
+        const paybackAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
+          [calldataTypes.maker.Payback, calldataTypes.paramsMap],
+          [
+            {
+              vaultId: vault.id,
+              userAddress: address,
+              daiJoin: ADDRESSES.main.joinDAI,
+              mcdManager: ADDRESSES.main.cdpManager,
+              amount: 0,
+              paybackAll: true,
+            },
+            [0],
+          ],
+        )
+
+        const ALLOWANCE = new BigNumber('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+        await DAI.approve(system.userProxyAddress, ensureWeiFormat(ALLOWANCE))
+
+        const withdrawAction = createAction(
+          await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
+          [calldataTypes.maker.Withdraw, calldataTypes.paramsMap],
+          [
+            {
+              vaultId: vault.id,
+              userAddress: address,
+              joinAddr: ADDRESSES.main.joinETH_A,
+              mcdManager: ADDRESSES.main.cdpManager,
+              amount: ensureWeiFormat(new BigNumber(info.coll)),
+            },
+            [0],
+          ],
+        )
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const [_, txReceipt] = await executeThroughProxy(
+          system.userProxyAddress,
+          {
+            address: system.operationExecutor.address,
+            calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+              [paybackAction, withdrawAction],
+            ]),
+          },
+          signer,
+        )
       })
     }
 

@@ -210,7 +210,14 @@ async function main() {
     proxyAddress,
     '10',
   )
-
+  console.log('response:', response)
+  console.log('swapData:', {
+    fromAsset: ADDRESSES.main.WETH,
+    toAsset: ADDRESSES.main.stETH,
+    amount: borrowAmount.toFixed(0),
+    receiveAtLeast: amountToWei(1).toFixed(), // just a number :D
+    withData: response.tx.data,
+  })
   const swapETHforSTETH = createAction(
     swapOnOneInchHash,
     [calldataTypes.common.Swap],

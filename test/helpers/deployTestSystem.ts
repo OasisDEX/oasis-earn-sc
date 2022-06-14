@@ -11,10 +11,10 @@ import { CONTRACT_LABELS } from '../../helpers/constants'
 import { deploy } from '../../helpers/deploy'
 import init from '../../helpers/init'
 import { getOrCreateProxy } from '../../helpers/proxy'
-import { loadDummyExchangeFixtures } from '../../helpers/swap/dummy-exchange'
+import { loadDummyExchangeFixtures } from '../../helpers/swap/DummyExchange'
 import { CDPInfo } from '../../helpers/types/maker'
 import { ServiceRegistry } from '../../helpers/utils'
-import { logDebug } from './test-utils'
+import { logDebug } from './testUtils'
 
 export const FEE = 20
 export const FEE_BASE = 10000
@@ -42,6 +42,8 @@ export interface DeployedSystemInfo {
   actionGenerate: Contract
   actionSendToken: Contract
   actionPullToken: Contract
+  actionSwap: Contract
+  actionDummySwap: Contract
   operationExecutor: Contract
   operationStorage: Contract
   serviceRegistry: Contract
@@ -94,6 +96,16 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
 
   // Deploy Actions
   console.log('3/ Deploying actions')
+  const [dummySwap, dummySwapAddress] = await deploy(
+    'DummySwap',
+    [serviceRegistryAddress, ADDRESSES.main.WETH, dummyExchangeAddress],
+    options,
+  )
+  deployedContracts.actionDummySwap = dummySwap
+
+  const [swap, swapAddress] = await deploy('SwapOnOneInch', [serviceRegistryAddress], options)
+  deployedContracts.actionSwap = swap
+
   const [sendToken, sendTokenAddress] = await deploy('SendToken', [], options)
   deployedContracts.actionSendToken = sendToken
 
@@ -151,6 +163,9 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
   registry.addEntry(CONTRACT_LABELS.common.TAKE_A_FLASHLOAN, actionFlAddress)
   registry.addEntry(CONTRACT_LABELS.common.SEND_TOKEN, sendTokenAddress)
   registry.addEntry(CONTRACT_LABELS.common.PULL_TOKEN, pullTokenAddress)
+  registry.addEntry(CONTRACT_LABELS.common.SWAP_ON_ONE_INCH, swapAddress)
+  registry.addEntry(CONTRACT_LABELS.common.DUMMY_SWAP, dummySwapAddress)
+  registry.addEntry(CONTRACT_LABELS.common.ONE_INCH_AGGREGATOR, ADDRESSES.main.oneInchAggregator)
 
   registry.addEntry(CONTRACT_LABELS.maker.OPEN_VAULT, actionOpenVaultAddress)
   registry.addEntry(CONTRACT_LABELS.maker.DEPOSIT, actionDepositAddress)

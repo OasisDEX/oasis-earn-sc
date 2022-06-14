@@ -81,7 +81,7 @@ const addFundsDummyExchange = async function (
 
   const wethTransferToExchangeTx = await WETH.transfer(
     exchange.address,
-    amountToWei(500).toFixed(0),
+    amountToWei(1000).toFixed(0),
   )
   await wethTransferToExchangeTx.wait()
 

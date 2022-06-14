@@ -39,6 +39,7 @@ contract Deposit is Executable, UseStore {
     }
 
     uint256 balance = IERC20(address(gem)).balanceOf(address(this));
+
     IERC20(address(gem)).approve(data.joinAddress, balance);
     IJoin(data.joinAddress).join(address(this), balance);
 
@@ -58,6 +59,7 @@ contract Deposit is Executable, UseStore {
       convertedAmount,
       0
     );
+
     return bytes32(uint256(convertedAmount));
   }
 
