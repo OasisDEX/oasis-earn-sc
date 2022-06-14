@@ -11,16 +11,13 @@ import { CONTRACT_LABELS, ZERO } from '../helpers/constants'
 import { executeThroughProxy } from '../helpers/deploy'
 import { resetNode } from '../helpers/init'
 import { getVaultInfo } from '../helpers/maker/vault-info'
-import { swapOneInchTokens } from '../helpers/swap/1inch'
 import { calldataTypes } from '../helpers/types/actions'
 import { ExchangeData, RuntimeConfig, SwapData } from '../helpers/types/common'
 import {
   ActionCall,
   ActionFactory,
   amountToWei,
-  approve,
   ensureWeiFormat,
-  send,
   ServiceRegistry,
 } from '../helpers/utils'
 import {

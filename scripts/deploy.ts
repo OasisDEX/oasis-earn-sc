@@ -88,10 +88,7 @@ async function main() {
 
   //SETUP REGISTRY ENTRIES:
   console.log('DEBUG SETTING UP REGISTRY ENTRIES...')
-  const operationStorageHash = await registry.addEntry(
-    CONTRACT_LABELS.common.OPERATION_STORAGE,
-    operationStorageAddress,
-  )
+  await registry.addEntry(CONTRACT_LABELS.common.OPERATION_STORAGE, operationStorageAddress)
   const dummyActionHash = await registry.addEntry('DUMMY_ACTION', dummyActionAddress)
   const pullTokenHash = await registry.addEntry(
     CONTRACT_LABELS.common.PULL_TOKEN,
@@ -122,17 +119,14 @@ async function main() {
     CONTRACT_LABELS.common.SWAP_ON_ONE_INCH,
     swapOnOninchAddress,
   )
-  const lendingPoolHash = await registry.addEntry(
+  await registry.addEntry(
     CONTRACT_LABELS.aave.AAVE_LENDING_POOL,
     ADDRESSES.main.AAVEMainnetLendingPool,
   )
-  const wethGatewayHash = await registry.addEntry(
-    CONTRACT_LABELS.aave.AAVE_WETH_GATEWAY,
-    ADDRESSES.main.AAVEWETHGateway,
-  )
-  const wethHash = await registry.addEntry(CONTRACT_LABELS.common.WETH, ADDRESSES.main.WETH)
-  const daiHash = await registry.addEntry(CONTRACT_LABELS.common.DAI, ADDRESSES.main.DAI)
-  const aggregatorRouterHash = await registry.addEntry(
+  await registry.addEntry(CONTRACT_LABELS.aave.AAVE_WETH_GATEWAY, ADDRESSES.main.AAVEWETHGateway)
+  await registry.addEntry(CONTRACT_LABELS.common.WETH, ADDRESSES.main.WETH)
+  await registry.addEntry(CONTRACT_LABELS.common.DAI, ADDRESSES.main.DAI)
+  await registry.addEntry(
     CONTRACT_LABELS.common.ONE_INCH_AGGREGATOR,
     ADDRESSES.main.oneInchAggregator,
   )

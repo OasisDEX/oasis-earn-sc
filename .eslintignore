@@ -3,4 +3,3 @@ artifacts
 .eslintrc.js
 cache
 coverage
-tenderly.yaml

@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+
 export interface CDPInfo {
   id: number
   ilk: string
