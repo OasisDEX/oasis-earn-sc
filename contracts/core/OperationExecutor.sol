@@ -45,14 +45,19 @@ contract OperationExecutor is IERC3156FlashBorrower {
     bytes calldata data
   ) external override returns (bytes32) {
     address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
+
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
+
     // TODO - Use custom errors from solidity introduced in 0.8.4  https://blog.soliditylang.org/2021/04/21/custom-errors/
     require(amount == flData.amount, "loan-inconsistency");
+
     IERC20(asset).approve(initiator, flData.amount);
+
     DSProxy(payable(initiator)).execute(
       address(this),
       abi.encodeWithSignature("aggregate((bytes32,bytes)[])", flData.calls)
     );
+
     IERC20(asset).approve(lender, amount);
 
     return keccak256("ERC3156FlashBorrower.onFlashLoan");

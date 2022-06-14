@@ -24,7 +24,6 @@ contract OperationStorage {
   }
 
   function finalize() external {
-    console.log("DEBUG: Finalizing...");
     delete returnValues;
   }
 }

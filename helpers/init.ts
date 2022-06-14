@@ -6,7 +6,6 @@ import { ethers } from 'hardhat'
 import { RuntimeConfig } from './types/common'
 
 export default async function init(): Promise<RuntimeConfig> {
-  console.log('Using standalone node:', process.env.USE_STANDALONE_NODE === `1`)
   const provider =
     process.env.USE_STANDALONE_NODE === `1`
       ? new ethers.providers.JsonRpcProvider()
@@ -23,7 +22,7 @@ export default async function init(): Promise<RuntimeConfig> {
 }
 
 export async function resetNode(provider: providers.JsonRpcProvider, blockNumber: number) {
-  provider.send('hardhat_reset', [
+  await provider.send('hardhat_reset', [
     {
       forking: {
         jsonRpcUrl: process.env.MAINNET_URL,

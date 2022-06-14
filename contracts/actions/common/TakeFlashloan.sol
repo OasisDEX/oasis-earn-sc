@@ -20,6 +20,7 @@ contract TakeFlashloan is Executable {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     DSProxy(payable(address(this))).setOwner(registry.getRegisteredService(OPERATION_EXECUTOR));
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
+
     IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
       IERC3156FlashBorrower(flData.borrower),
       registry.getRegisteredService(DAI),

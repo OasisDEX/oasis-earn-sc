@@ -54,14 +54,14 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
   const { provider, signer, address } = config
 
   const options = {
-    debug: true,
+    debug,
     config,
   }
 
   const deployedContracts: Partial<DeployedSystemInfo> = {}
 
   // Setup User
-  console.log('1/ Setting up user proxy')
+  debug && console.log('1/ Setting up user proxy')
   const proxyAddress = await getOrCreateProxy(signer)
   deployedContracts.userProxyAddress = proxyAddress
   deployedContracts.dsProxyInstance = new ethers.Contract(
@@ -71,7 +71,7 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
   ).connect(signer)
 
   // Deploy System Contracts
-  console.log('2/ Deploying system contracts')
+  debug && console.log('2/ Deploying system contracts')
   const [serviceRegistry, serviceRegistryAddress] = await deploy('ServiceRegistry', [0], options)
   const registry = new ServiceRegistry(serviceRegistryAddress, signer)
   deployedContracts.serviceRegistry = serviceRegistry
@@ -95,7 +95,7 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
 
   // Deploy Actions
-  console.log('3/ Deploying actions')
+  debug && console.log('3/ Deploying actions')
   const [dummySwap, dummySwapAddress] = await deploy(
     'DummySwap',
     [serviceRegistryAddress, ADDRESSES.main.WETH, dummyExchangeAddress],
@@ -154,7 +154,7 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
   )
   deployedContracts.actionGenerate = actionGenerate
 
-  console.log('4/ Adding contracts to registry')
+  debug && console.log('4/ Adding contracts to registry')
   registry.addEntry(CONTRACT_LABELS.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
   registry.addEntry(CONTRACT_LABELS.common.OPERATION_EXECUTOR, operationExecutorAddress)
   registry.addEntry(CONTRACT_LABELS.common.OPERATION_STORAGE, operationStorageAddress)
@@ -166,6 +166,8 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
   registry.addEntry(CONTRACT_LABELS.common.SWAP_ON_ONE_INCH, swapAddress)
   registry.addEntry(CONTRACT_LABELS.common.DUMMY_SWAP, dummySwapAddress)
   registry.addEntry(CONTRACT_LABELS.common.ONE_INCH_AGGREGATOR, ADDRESSES.main.oneInchAggregator)
+  registry.addEntry(CONTRACT_LABELS.common.DAI, ADDRESSES.main.DAI)
+  registry.addEntry(CONTRACT_LABELS.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
 
   registry.addEntry(CONTRACT_LABELS.maker.OPEN_VAULT, actionOpenVaultAddress)
   registry.addEntry(CONTRACT_LABELS.maker.DEPOSIT, actionDepositAddress)

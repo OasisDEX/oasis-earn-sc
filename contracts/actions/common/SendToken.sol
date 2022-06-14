@@ -13,9 +13,8 @@ import { OPERATION_STORAGE } from "../../core/Constants.sol";
 contract SendToken is Executable {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     SendTokenData memory send = abi.decode(data, (SendTokenData));
-    console.log("sending token");
+
     // TODO: Use OZ's safeTransfer
     IERC20(send.asset).transfer(send.to, send.amount);
-    console.log("token sent");
   }
 }
