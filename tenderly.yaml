@@ -16,6 +16,6 @@ exports:
       berlin_block: 0
       london_block: 0
     forked_network: mainnet
-    project_slug: 'backtothecode/project'
+    project_slug:
     protocol: ''
     rpc_address: 127.0.0.1:8545
