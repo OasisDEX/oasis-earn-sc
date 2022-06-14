@@ -35,7 +35,6 @@ contract Payback is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory _paramsMapping) external payable override {
     PaybackData memory paybackData = abi.decode(data, (PaybackData));
     paybackData.vaultId = uint256(store().read(bytes32(paybackData.vaultId), _paramsMapping[0]));
-
     paybackData.paybackAll ? _paybackAll(paybackData) : _payback(paybackData);
 
     store().write(bytes32(paybackData.amount));

@@ -196,7 +196,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       expect(info.debt.toFixed(0)).to.equal(initialDebt.toFixed(0))
     })
 
-    it.skip(testNames.paybackDebt, async () => {
+    it(testNames.paybackDebt, async () => {
       const paybackDai = new BigNumber(5000)
       const paybackAll = false
       const paybackAction = createAction(
@@ -204,13 +204,14 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         [calldataTypes.maker.Payback],
         [
           {
-            vaultId,
+            vaultId: vaultId,
             userAddress: address,
             daiJoin: ADDRESSES.main.joinDAI,
             mcdManager: ADDRESSES.main.cdpManager,
             amount: ensureWeiFormat(paybackDai),
             paybackAll: paybackAll,
           },
+          [0],
         ],
       )
 
@@ -240,7 +241,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       expect(info.debt.toFixed(0)).to.equal(expectedDebt.toFixed(0))
     })
 
-    it.skip(testNames.paybackAllDebt, async () => {
+    it(testNames.paybackAllDebt, async () => {
       const vault = await getLastCDP(provider, signer, system.userProxyAddress)
 
       const prePaybackInfo = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
@@ -259,6 +260,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
             amount: ensureWeiFormat(paybackDai),
             paybackAll: paybackAll,
           },
+          [0],
         ],
       )
 
@@ -285,7 +287,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       expect(info.debt.toFixed(0)).to.equal(expectedDebt.toFixed(0))
     })
 
-    it.skip(testNames.withdrawColl, async () => {
+    it(testNames.withdrawColl, async () => {
       const withdrawAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
         [calldataTypes.maker.Withdraw],
@@ -297,6 +299,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
             mcdManager: ADDRESSES.main.cdpManager,
             amount: ensureWeiFormat(initialColl),
           },
+          [0],
         ],
       )
 
