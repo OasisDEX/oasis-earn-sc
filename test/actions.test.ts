@@ -388,40 +388,41 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         ],
       )
 
-      // const paybackDai = new BigNumber(0) // Can be anything because paybackAll flag is true
-      // const paybackAll = true
+      const paybackDai = new BigNumber(0) // Can be anything because paybackAll flag is true
+      const paybackAll = true
+      const paybackAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
+        [calldataTypes.maker.Payback, `uint8[] paramsMap`],
+        [
+          {
+            vaultId: 0,
+            userAddress: address,
+            daiJoin: ADDRESSES.main.joinDAI,
+            mcdManager: ADDRESSES.main.cdpManager,
+            amount: ensureWeiFormat(paybackDai),
+            paybackAll: paybackAll,
+          },
+          [1],
+        ],
+      )
 
-      // const paybackAction = createAction(
-      //   await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
-      //   [calldataTypes.maker.Payback],
-      //   [
-      //     {
-      //       vaultId: 0,
-      //       userAddress: address,
-      //       daiJoin: ADDRESSES.main.joinDAI,
-      //       mcdManager: ADDRESSES.main.cdpManager,
-      //       amount: ensureWeiFormat(paybackDai),
-      //       paybackAll: paybackAll,
-      //     },
-      //   ],
-      // )
+      const ALLOWANCE = new BigNumber('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+      await DAI.approve(system.userProxyAddress, ensureWeiFormat(ALLOWANCE))
 
-      // const ALLOWANCE = new BigNumber('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
-      // await DAI.approve(system.dsProxyInstance.address, ensureWeiFormat(ALLOWANCE))
-
-      // const withdrawAction = createAction(
-      //   await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
-      //   [calldataTypes.maker.Withdraw],
-      //   [
-      //     {
-      //       vaultId: 0,
-      //       userAddress: address,
-      //       joinAddr: ADDRESSES.main.joinETH_A,
-      //       mcdManager: ADDRESSES.main.cdpManager,
-      //       amount: ensureWeiFormat(initialColl),
-      //     },
-      //   ],
-      // )
+      const withdrawAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
+        [calldataTypes.maker.Withdraw, `uint8[] paramsMap`],
+        [
+          {
+            vaultId: 0,
+            userAddress: address,
+            joinAddr: ADDRESSES.main.joinETH_A,
+            mcdManager: ADDRESSES.main.cdpManager,
+            amount: ensureWeiFormat(initialColl),
+          },
+          [1],
+        ],
+      )
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, txReceipt] = await executeThroughProxy(
@@ -429,7 +430,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         {
           address: system.operationExecutor.address,
           calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
-            [openVaultAction, depositAction, generateAction /*, paybackAction, withdrawAction*/],
+            [openVaultAction, depositAction, generateAction, paybackAction, withdrawAction],
           ]),
         },
         signer,
@@ -439,7 +440,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
       const vault = await getLastCDP(provider, signer, system.userProxyAddress)
       const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
-      console.log('vault.id', vault.id)
+
       const expectedColl = new BigNumber(0)
       const expectedDebt = new BigNumber(0)
       expect(info.coll.toString()).to.equal(expectedColl.toFixed(0))
