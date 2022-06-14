@@ -99,11 +99,11 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
     }
 
     it(testNames.openVault, async () => {
-      await WETH.transfer(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
+      await WETH.approve(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
 
       const openVaultAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
-        [calldataTypes.maker.Open, `uint8[] paramsMap`],
+        [calldataTypes.maker.Open, calldataTypes.paramsMap],
         [
           {
             joinAddress: ADDRESSES.main.joinETH_A,
@@ -113,9 +113,22 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         ],
       )
 
+      const pullTokenAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+        [calldataTypes.common.PullToken, calldataTypes.paramsMap],
+        [
+          {
+            from: config.address,
+            asset: ADDRESSES.main.WETH,
+            amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
+          },
+          [0],
+        ],
+      )
+
       const depositAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
-        [calldataTypes.maker.Deposit, `uint8[] paramsMap`],
+        [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
         [
           {
             joinAddress: ADDRESSES.main.joinETH_A,
@@ -133,7 +146,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         {
           address: system.operationExecutor.address,
           calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
-            [openVaultAction, depositAction],
+            [openVaultAction, pullTokenAction, depositAction],
           ]),
         },
         signer,
@@ -346,11 +359,11 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
     const testName = `should open vault, deposit ETH, generate DAI, repay debt in full and withdraw collateral`
     it(testName, async () => {
-      await WETH.transfer(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
+      await WETH.approve(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
 
       const openVaultAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
-        [calldataTypes.maker.Open, `uint8[] paramsMap`],
+        [calldataTypes.maker.Open, calldataTypes.paramsMap],
         [
           {
             joinAddress: ADDRESSES.main.joinETH_A,
@@ -360,9 +373,22 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         ],
       )
 
+      const pullTokenAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+        [calldataTypes.common.PullToken, calldataTypes.paramsMap],
+        [
+          {
+            from: config.address,
+            asset: ADDRESSES.main.WETH,
+            amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
+          },
+          [0],
+        ],
+      )
+
       const depositAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
-        [calldataTypes.maker.Deposit, `uint8[] paramsMap`],
+        [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
         [
           {
             joinAddress: ADDRESSES.main.joinETH_A,
@@ -376,7 +402,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
       const generateAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
-        [calldataTypes.maker.Generate, `uint8[] paramsMap`],
+        [calldataTypes.maker.Generate, calldataTypes.paramsMap],
         [
           {
             to: address,
@@ -392,7 +418,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       const paybackAll = true
       const paybackAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
-        [calldataTypes.maker.Payback, `uint8[] paramsMap`],
+        [calldataTypes.maker.Payback, calldataTypes.paramsMap],
         [
           {
             vaultId: 0,
@@ -411,7 +437,7 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
       const withdrawAction = createAction(
         await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
-        [calldataTypes.maker.Withdraw, `uint8[] paramsMap`],
+        [calldataTypes.maker.Withdraw, calldataTypes.paramsMap],
         [
           {
             vaultId: 0,
@@ -430,7 +456,14 @@ describe('Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         {
           address: system.operationExecutor.address,
           calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
-            [openVaultAction, depositAction, generateAction, paybackAction, withdrawAction],
+            [
+              openVaultAction,
+              pullTokenAction,
+              depositAction,
+              generateAction,
+              paybackAction,
+              withdrawAction,
+            ],
           ]),
         },
         signer,
@@ -473,6 +506,7 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   let system: DeployedSystemInfo
   let exchangeDataMock: { to: string; data: number }
   let registry: ServiceRegistry
+  let config: RuntimeConfig
 
   type DesiredCdpState = {
     requiredDebt: BigNumber
@@ -484,8 +518,10 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   }
 
   before(async () => {
-    // provider = new ethers.providers.JsonRpcProvider()
-    provider = ethers.provider
+    provider =
+      process.env.USE_STANDALONE_NODE === `1`
+        ? new ethers.providers.JsonRpcProvider()
+        : ethers.provider
     signer = provider.getSigner(0)
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
@@ -501,6 +537,8 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       to: system.exchangeInstance.address,
       data: 0,
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    config = { provider, signer, address }
   })
 
   describe(`Increase Multiple Operations`, async () => {
@@ -546,78 +584,78 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         requiredCollRatio: new BigNumber(5),
         vaultUnsafe: false,
       },
-      {
-        testName: `should open vault, deposit ETH and increase multiple & [+Flashloan]`,
-        initialColl: defaultInitialColl,
-        initialDebt: defaultInitialDebt,
-        daiTopUp: defaultDaiTopUp,
-        collTopUp: defaultCollTopUp,
-        useFlashloan: true,
-        requiredCollRatio: new BigNumber(2.5),
-        vaultUnsafe: false,
-      },
-      {
-        testName: `should open vault, deposit ETH and increase multiple & [+DAI topup]`,
-        initialColl: defaultInitialColl,
-        initialDebt: defaultInitialDebt,
-        daiTopUp: new BigNumber(20000),
-        collTopUp: defaultCollTopUp,
-        useFlashloan: false,
-        requiredCollRatio: new BigNumber(5),
-        vaultUnsafe: false,
-        debug: false,
-      },
-      {
-        testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +DAI topup]`,
-        initialColl: defaultInitialColl,
-        initialDebt: defaultInitialDebt,
-        daiTopUp: new BigNumber(20000),
-        collTopUp: defaultCollTopUp,
-        useFlashloan: true,
-        requiredCollRatio: new BigNumber(2),
-        vaultUnsafe: false,
-      },
-      {
-        testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +DAI topup]`,
-        initialColl: defaultInitialColl,
-        initialDebt: defaultInitialDebt,
-        daiTopUp: new BigNumber(20000),
-        collTopUp: defaultCollTopUp,
-        useFlashloan: true,
-        requiredCollRatio: new BigNumber(1),
-        vaultUnsafe: true,
-      },
-      {
-        testName: `should open vault, deposit ETH and increase multiple & [+Coll topup]`,
-        initialColl: defaultInitialColl,
-        initialDebt: defaultInitialDebt,
-        daiTopUp: defaultDaiTopUp,
-        collTopUp: new BigNumber(10),
-        useFlashloan: false,
-        requiredCollRatio: new BigNumber(5),
-        vaultUnsafe: false,
-        debug: false,
-      },
-      {
-        testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +Coll topup]`,
-        initialColl: defaultInitialColl,
-        initialDebt: defaultInitialDebt,
-        daiTopUp: defaultDaiTopUp,
-        collTopUp: new BigNumber(10),
-        useFlashloan: true,
-        requiredCollRatio: new BigNumber(2.5),
-        vaultUnsafe: false,
-      },
-      {
-        testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +Coll topup, +DAI topup]`,
-        initialColl: defaultInitialColl,
-        initialDebt: defaultInitialDebt,
-        daiTopUp: new BigNumber(20000),
-        collTopUp: new BigNumber(10),
-        useFlashloan: true,
-        requiredCollRatio: new BigNumber(2),
-        vaultUnsafe: false,
-      },
+      // {
+      //   testName: `should open vault, deposit ETH and increase multiple & [+Flashloan]`,
+      //   initialColl: defaultInitialColl,
+      //   initialDebt: defaultInitialDebt,
+      //   daiTopUp: defaultDaiTopUp,
+      //   collTopUp: defaultCollTopUp,
+      //   useFlashloan: true,
+      //   requiredCollRatio: new BigNumber(2.5),
+      //   vaultUnsafe: false,
+      // },
+      // {
+      //   testName: `should open vault, deposit ETH and increase multiple & [+DAI topup]`,
+      //   initialColl: defaultInitialColl,
+      //   initialDebt: defaultInitialDebt,
+      //   daiTopUp: new BigNumber(20000),
+      //   collTopUp: defaultCollTopUp,
+      //   useFlashloan: false,
+      //   requiredCollRatio: new BigNumber(5),
+      //   vaultUnsafe: false,
+      //   debug: false,
+      // },
+      // {
+      //   testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +DAI topup]`,
+      //   initialColl: defaultInitialColl,
+      //   initialDebt: defaultInitialDebt,
+      //   daiTopUp: new BigNumber(20000),
+      //   collTopUp: defaultCollTopUp,
+      //   useFlashloan: true,
+      //   requiredCollRatio: new BigNumber(2),
+      //   vaultUnsafe: false,
+      // },
+      // {
+      //   testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +DAI topup]`,
+      //   initialColl: defaultInitialColl,
+      //   initialDebt: defaultInitialDebt,
+      //   daiTopUp: new BigNumber(20000),
+      //   collTopUp: defaultCollTopUp,
+      //   useFlashloan: true,
+      //   requiredCollRatio: new BigNumber(1),
+      //   vaultUnsafe: true,
+      // },
+      // {
+      //   testName: `should open vault, deposit ETH and increase multiple & [+Coll topup]`,
+      //   initialColl: defaultInitialColl,
+      //   initialDebt: defaultInitialDebt,
+      //   daiTopUp: defaultDaiTopUp,
+      //   collTopUp: new BigNumber(10),
+      //   useFlashloan: false,
+      //   requiredCollRatio: new BigNumber(5),
+      //   vaultUnsafe: false,
+      //   debug: false,
+      // },
+      // {
+      //   testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +Coll topup]`,
+      //   initialColl: defaultInitialColl,
+      //   initialDebt: defaultInitialDebt,
+      //   daiTopUp: defaultDaiTopUp,
+      //   collTopUp: new BigNumber(10),
+      //   useFlashloan: true,
+      //   requiredCollRatio: new BigNumber(2.5),
+      //   vaultUnsafe: false,
+      // },
+      // {
+      //   testName: `should open vault, deposit ETH and increase multiple & [+Flashloan, +Coll topup, +DAI topup]`,
+      //   initialColl: defaultInitialColl,
+      //   initialDebt: defaultInitialDebt,
+      //   daiTopUp: new BigNumber(20000),
+      //   collTopUp: new BigNumber(10),
+      //   useFlashloan: true,
+      //   requiredCollRatio: new BigNumber(2),
+      //   vaultUnsafe: false,
+      // },
     ]
 
     const scenarioRunner = ({
@@ -699,7 +737,7 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         // Generate DAI -> Swap for collateral -> Deposit collateral
         const generateDaiForSwap = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
-          [calldataTypes.maker.Generate],
+          [calldataTypes.maker.Generate, calldataTypes.paramsMap],
           [
             {
               to: address,
@@ -707,60 +745,62 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
               vaultId: 0,
               amount: ensureWeiFormat(cdpState.requiredDebt),
             },
+            [1],
           ],
         )
 
         const transferGeneratedDaiToProxyAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
-          [calldataTypes.common.SendToken],
+          await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+          [calldataTypes.common.PullToken],
           [
             {
               asset: exchangeData.fromTokenAddress,
-              to: system.userProxyAddress,
+              from: address,
               amount: ensureWeiFormat(cdpState.requiredDebt),
             },
           ],
         )
 
-        const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
-          .plus(ensureWeiFormat(cdpState.daiTopUp))
-          .toFixed(0)
+        // const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
+        //   .plus(ensureWeiFormat(cdpState.daiTopUp))
+        //   .toFixed(0)
 
-        const swapData: SwapData = {
-          fromAsset: exchangeData.fromTokenAddress,
-          toAsset: exchangeData.toTokenAddress,
-          // Add daiTopup amount to swap
-          amount: swapAmount,
-          receiveAtLeast: exchangeData.minToTokenAmount,
-          withData: exchangeData._exchangeCalldata,
-        }
+        // const swapData: SwapData = {
+        //   fromAsset: exchangeData.fromTokenAddress,
+        //   toAsset: exchangeData.toTokenAddress,
+        //   // Add daiTopup amount to swap
+        //   amount: swapAmount,
+        //   receiveAtLeast: exchangeData.minToTokenAmount,
+        //   withData: exchangeData._exchangeCalldata,
+        // }
 
-        await DAI.approve(system.userProxyAddress, amountToWei(swapAmount).toFixed(0))
-        const swapAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.EXCHANGE),
-          [calldataTypes.common.Swap],
-          [swapData],
-        )
+        await DAI.approve(system.userProxyAddress, amountToWei(cdpState.requiredDebt).toFixed(0))
+        // const swapAction = createAction(
+        //   await registry.getEntryHash(CONTRACT_LABELS.common.EXCHANGE),
+        //   [calldataTypes.common.Swap],
+        //   [swapData],
+        // )
 
-        const collateralToDeposit = cdpState.toBorrowCollateralAmount.plus(cdpState.collTopUp)
-        const depositBorrowedCollateral = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
-          [calldataTypes.maker.Deposit],
-          [
-            {
-              joinAddress: ADDRESSES.main.joinETH_A,
-              mcdManager: ADDRESSES.main.cdpManager,
-              vaultId: 0,
-              amount: ensureWeiFormat(collateralToDeposit),
-            },
-          ],
-        )
+        // const collateralToDeposit = cdpState.toBorrowCollateralAmount.plus(cdpState.collTopUp)
+        // const depositBorrowedCollateral = createAction(
+        //   await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+        //   [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
+        //   [
+        //     {
+        //       joinAddress: ADDRESSES.main.joinETH_A,
+        //       mcdManager: ADDRESSES.main.cdpManager,
+        //       vaultId: 0,
+        //       amount: ensureWeiFormat(collateralToDeposit),
+        //     },
+        //     [1],
+        //   ],
+        // )
 
         // Add actions
         actions.push(generateDaiForSwap)
         actions.push(transferGeneratedDaiToProxyAction)
-        actions.push(swapAction)
-        actions.push(depositBorrowedCollateral)
+        // actions.push(swapAction)
+        // actions.push(depositBorrowedCollateral)
       }
       async function includeIncreaseMultipleWithFlashloanActions({
         actions,
@@ -869,6 +909,7 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
       it(testName, async () => {
         await DAI.approve(system.userProxyAddress, amountToWei(daiTopUp).toFixed(0))
         await WETH.approve(system.userProxyAddress, amountToWei(collTopUp).toFixed(0))
+        // await WETH.transfer(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
 
         const { requiredDebt, additionalCollateral, preIncreaseMPTopUp } =
           calculateParamsIncreaseMP({
@@ -914,7 +955,7 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
 
         const initialDepositAction = createAction(
           await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
-          [calldataTypes.maker.Deposit],
+          [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
           [
             {
               joinAddress: ADDRESSES.main.joinETH_A,
@@ -922,6 +963,7 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
               vaultId: 0,
               amount: ensureWeiFormat(initialColl),
             },
+            [1],
           ],
         )
 
@@ -929,29 +971,29 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         const useCollateralTopup = desiredCdpState.collTopUp.gt(ZERO)
         const useDaiTopup = desiredCdpState.daiTopUp.gt(ZERO)
 
-        // Deposit collateral prior to increasing multiple
-        useCollateralTopup &&
-          includeCollateralTopupActions({
-            actions,
-            topUpData: {
-              token: exchangeData?.toTokenAddress,
-              amount: desiredCdpState.collTopUp,
-              from: address,
-            },
-          })
+        // // Deposit collateral prior to increasing multiple
+        // useCollateralTopup &&
+        //   includeCollateralTopupActions({
+        //     actions,
+        //     topUpData: {
+        //       token: exchangeData?.toTokenAddress,
+        //       amount: desiredCdpState.collTopUp,
+        //       from: address,
+        //     },
+        //   })
 
-        // Add dai to proxy for use in primary swap
-        useDaiTopup &&
-          includeDaiTopupActions({
-            actions,
-            topUpData: {
-              token: DAI?.address,
-              amount: desiredCdpState.daiTopUp,
-              from: address,
-            },
-          })
+        // // Add dai to proxy for use in primary swap
+        // useDaiTopup &&
+        //   includeDaiTopupActions({
+        //     actions,
+        //     topUpData: {
+        //       token: DAI?.address,
+        //       amount: desiredCdpState.daiTopUp,
+        //       from: address,
+        //     },
+        //   })
 
-        // Gather dai from vault then swap for collateral
+        // // Gather dai from vault then swap for collateral
         !useFlashloan &&
           (await includeIncreaseMultipleActions({
             actions,
@@ -959,24 +1001,24 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
             exchangeData,
           }))
 
-        // Leverage flashloan to buy collateral, deposit borrowed collateral, draw dai and repay loan
-        useFlashloan &&
-          (await includeIncreaseMultipleWithFlashloanActions({
-            actions,
-            cdpState: desiredCdpState,
-            exchangeData,
-          }))
+        // // Leverage flashloan to buy collateral, deposit borrowed collateral, draw dai and repay loan
+        // useFlashloan &&
+        //   (await includeIncreaseMultipleWithFlashloanActions({
+        //     actions,
+        //     cdpState: desiredCdpState,
+        //     exchangeData,
+        //   }))
 
-        // Transfer back unused balance from proxy
-        useDaiTopup &&
-          includeFlushProxyAction({
-            actions,
-            flushData: {
-              token: DAI?.address,
-              to: address,
-              flAmount: useFlashloan ? exchangeData.fromTokenAmount : ZERO.toString(),
-            },
-          })
+        // // Transfer back unused balance from proxy
+        // useDaiTopup &&
+        //   includeFlushProxyAction({
+        //     actions,
+        //     flushData: {
+        //       token: DAI?.address,
+        //       to: address,
+        //       flAmount: useFlashloan ? exchangeData.fromTokenAmount : ZERO.toString(),
+        //     },
+        //   })
 
         try {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1001,7 +1043,8 @@ describe.skip('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
         const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
         const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
         expectToBeEqual(currentCollRatio, requiredCollRatio, 3)
-
+        console.log('vault:', vault)
+        console.log('info:', info)
         const expectedColl = additionalCollateral.plus(initialColl).plus(preIncreaseMPTopUp)
         const expectedDebt = desiredCdpState.requiredDebt
 

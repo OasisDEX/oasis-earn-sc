@@ -12,6 +12,7 @@ import { OPERATION_STORAGE } from "../../core/Constants.sol";
 contract PullToken is Executable {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     PullTokenData memory pull = abi.decode(data, (PullTokenData));
+
     // TODO: Use OZ's safeTransferFrom
     IERC20(pull.asset).transferFrom(pull.from, address(this), pull.amount);
   }
