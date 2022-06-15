@@ -1,16 +1,16 @@
 pragma solidity ^0.8.1;
 
-struct AAVEDepositData {
+struct DepositData {
   address asset;
   uint256 amount;
 }
 
-struct AAVEBorrowData {
+struct BorrowData {
   address asset;
   uint256 amount;
 }
 
-struct AAVEWithdrawData {
+struct WithdrawData {
   address asset;
   uint256 amount;
 }
