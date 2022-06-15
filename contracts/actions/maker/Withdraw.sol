@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity >=0.7.6;
-pragma abicoder v2;
+pragma solidity >=0.8.5;
 
-import "../common/IAction.sol";
+import "../common/Executable.sol";
+import "../common/UseStore.sol";
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
@@ -13,23 +13,20 @@ import "../../interfaces/maker/IGem.sol";
 import "../../interfaces/maker/IManager.sol";
 import "../../libs/SafeMath.sol";
 
-import { WithdrawData } from "../../core/Types.sol";
+import { WithdrawData } from "../../core/types/Maker.sol";
 
-contract Withdraw is IAction {
+contract Withdraw is Executable, UseStore {
   using SafeMath for uint256;
+  using Read for OperationStorage;
+  using Write for OperationStorage;
   address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-  constructor(address _registry) IAction(_registry) {}
+  constructor(address _registry) UseStore(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory _paramsMapping) public payable override {
+  function execute(bytes calldata data, uint8[] memory _paramsMapping) external payable override {
     WithdrawData memory withdrawData = abi.decode(data, (WithdrawData));
-
-    uint256 vaultId = pull(withdrawData.vaultId, _paramsMapping[0]);
-    withdrawData.vaultId = vaultId;
-
-    bytes32 withdrawAmount = _withdraw(withdrawData);
-
-    push(withdrawAmount);
+    withdrawData.vaultId = uint256(store().read(bytes32(withdrawData.vaultId), _paramsMapping[0]));
+    store().write(_withdraw(withdrawData));
   }
 
   function _withdraw(WithdrawData memory data) internal returns (bytes32) {

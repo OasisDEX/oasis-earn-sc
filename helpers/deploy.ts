@@ -1,7 +1,7 @@
 import { Contract, ContractReceipt, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
-import { Debug, WithRuntimeConfig } from './types'
+import { Debug, WithRuntimeConfig } from './types/common'
 
 type DeployOptions = WithRuntimeConfig & Debug
 
@@ -38,8 +38,9 @@ export async function executeThroughProxy(
   try {
     const dsProxy = await ethers.getContractAt('DSProxy', proxyAddress, signer)
     const tx = await dsProxy['execute(address,bytes)'](address, calldata, {
-      gasLimit: 5000000,
+      gasLimit: 3000000,
     })
+
     const result = await tx.wait()
     return [true, result]
   } catch (ex) {

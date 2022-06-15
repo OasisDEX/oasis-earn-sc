@@ -10,6 +10,8 @@
     "node": ">=14.17"
   },
   "scripts": {
+    "deploy": "npx hardhat run",
+    "test": "npx hardhat test",
     "lint": "eslint . --fix --ext .ts"
   },
   "devDependencies": {

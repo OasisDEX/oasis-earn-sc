@@ -83,7 +83,7 @@ contract ServiceRegistry {
     return trustedAddresses[testedAddress];
   }
 
-  function getServiceNameHash(string memory name) public pure returns (bytes32) {
+  function getServiceNameHash(string calldata name) public pure returns (bytes32) {
     return keccak256(abi.encodePacked(name));
   }
 

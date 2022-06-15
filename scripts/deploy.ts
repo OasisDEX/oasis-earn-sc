@@ -14,6 +14,7 @@ import init from '../helpers/init'
 import { getOrCreateProxy } from '../helpers/proxy'
 import { swapOneInchTokens } from '../helpers/swap/1inch'
 import { swapUniswapTokens } from '../helpers/swap/uniswap'
+import { calldataTypes } from '../helpers/types/actions'
 import { ActionFactory, amountToWei, approve, balanceOf, ServiceRegistry } from '../helpers/utils'
 
 const createAction = ActionFactory.create
@@ -85,8 +86,9 @@ async function main() {
   const [, operationStorageAddress] = await deploy('OperationStorage', [], options)
   const [, dummyActionAddress] = await deploy('DummyAction', [serviceRegistryAddress], options)
 
-  //SETUPING REGISTRY ENTRIES:
-  const operationStorageHash = await registry.addEntry('OPERATION_STORAGE', operationStorageAddress)
+  //SETUP REGISTRY ENTRIES:
+  console.log('DEBUG SETTING UP REGISTRY ENTRIES...')
+  await registry.addEntry(CONTRACT_LABELS.common.OPERATION_STORAGE, operationStorageAddress)
   const dummyActionHash = await registry.addEntry('DUMMY_ACTION', dummyActionAddress)
   const pullTokenHash = await registry.addEntry(
     CONTRACT_LABELS.common.PULL_TOKEN,
@@ -117,28 +119,24 @@ async function main() {
     CONTRACT_LABELS.common.SWAP_ON_ONE_INCH,
     swapOnOninchAddress,
   )
-  const lendingPoolHash = await registry.addEntry(
+  await registry.addEntry(
     CONTRACT_LABELS.aave.AAVE_LENDING_POOL,
     ADDRESSES.main.AAVEMainnetLendingPool,
   )
-  const wethGatewayHash = await registry.addEntry(
-    CONTRACT_LABELS.aave.AAVE_WETH_GATEWAY,
-    ADDRESSES.main.AAVEWETHGateway,
-  )
-  const wethHash = await registry.addEntry(CONTRACT_LABELS.common.WETH, ADDRESSES.main.WETH)
-  const daiHash = await registry.addEntry(CONTRACT_LABELS.common.DAI, ADDRESSES.main.DAI)
-  const aggregatorRouterHash = await registry.addEntry(
+  await registry.addEntry(CONTRACT_LABELS.aave.AAVE_WETH_GATEWAY, ADDRESSES.main.AAVEWETHGateway)
+  await registry.addEntry(CONTRACT_LABELS.common.WETH, ADDRESSES.main.WETH)
+  await registry.addEntry(CONTRACT_LABELS.common.DAI, ADDRESSES.main.DAI)
+  await registry.addEntry(
     CONTRACT_LABELS.common.ONE_INCH_AGGREGATOR,
     ADDRESSES.main.oneInchAggregator,
   )
 
   // DUMMY ACTION
   const dummyAction = createAction(dummyActionHash, [], [])
-
   // PULL TOKEN ACTION
   const pullToken = createAction(
     pullTokenHash,
-    ['tuple(address asset, address from, uint256 amount)'],
+    [calldataTypes.common.PullToken],
     [
       {
         amount: depositAmount.toFixed(0),
@@ -147,12 +145,11 @@ async function main() {
       },
     ],
   )
-
   //  --- ACTIONS IN THE FLASHLOAN SCOPE ---
   //  PULL TOKEN ACTION
   const pullBorrowedFundsIntoProxy = createAction(
     pullTokenHash,
-    ['tuple(address asset, address from, uint256 amount)'],
+    [calldataTypes.common.PullToken],
     [
       {
         amount: flashloanAmount.toFixed(0),
@@ -160,13 +157,12 @@ async function main() {
         from: operationExecutorAddress,
       },
     ],
-    true,
   )
 
   // APPROVE LENDING POOL
   const setDaiApprovalOnLendingPool = createAction(
     setApprovalHash,
-    ['tuple(address asset, address delegator, uint256 amount)'],
+    [calldataTypes.common.Approval],
     [
       {
         amount: flashloanAmount.plus(depositAmount).toFixed(0),
@@ -179,27 +175,25 @@ async function main() {
   // DEPOSIT IN AAVE
   const depositDaiInAAVE = createAction(
     depositInAAVEHash,
-    ['tuple(address asset, uint256 amount)'],
+    [calldataTypes.aave.Deposit],
     [
       {
         amount: flashloanAmount.plus(depositAmount).toFixed(0),
         asset: ADDRESSES.main.DAI,
       },
     ],
-    true,
   )
 
   // BORROW FROM AAVE
   const borrowEthFromAAVE = createAction(
     borrowFromAAVEHash,
-    ['tuple(address asset, uint256 amount)'],
+    [calldataTypes.aave.Generate],
     [
       {
         amount: borrowAmount.toFixed(0),
         asset: ADDRESSES.main.ETH,
       },
     ],
-    true,
   )
 
   // SWAP TOKENS
@@ -213,9 +207,7 @@ async function main() {
 
   const swapETHforSTETH = createAction(
     swapOnOneInchHash,
-    [
-      'tuple(address fromAsset,address toAsset,uint256 amount,uint256 receiveAtLeast,bytes withData)',
-    ],
+    [calldataTypes.common.Swap],
     [
       {
         fromAsset: ADDRESSES.main.WETH,
@@ -230,7 +222,7 @@ async function main() {
   // WITHDRAW TOKENS
   const withdrawDAIFromAAVE = createAction(
     withdrawFromAAVEHash,
-    ['tuple(address asset, uint256 amount)'],
+    [calldataTypes.aave.Withdraw],
     [
       {
         asset: ADDRESSES.main.DAI,
@@ -242,7 +234,7 @@ async function main() {
   // SEND BACK TOKEN FROM PROXY TO EXECUTOR ( FL Borrower )
   const sendBackDAI = createAction(
     sendTokenHash,
-    ['tuple(address asset, address to, uint256 amount)'],
+    [calldataTypes.common.SendToken],
     [
       {
         asset: ADDRESSES.main.DAI,
@@ -256,9 +248,7 @@ async function main() {
   // TAKE A FLASHLOAN ACTION
   const takeAFlashloan = createAction(
     takeAFlashloanHash,
-    [
-      'tuple(uint256 amount, address borrower, (bytes32 targetHash, bytes callData, bool shouldStoreResult)[] calls)',
-    ],
+    [calldataTypes.common.TakeAFlashLoan],
     [
       {
         amount: flashloanAmount.toFixed(0),
@@ -291,10 +281,12 @@ async function main() {
 
   console.log('DEBUG: Deposited ( DAI )')
   await balanceOf(ADDRESSES.main.aDAI, proxyAddress, options)
+  console.log('DEBUG: Debt ( ETH )')
+  await balanceOf(ADDRESSES.main.ETH, proxyAddress, options)
   console.log('DEBUG: Debt ( WETH )')
-  await balanceOf(ADDRESSES.main.stETH, proxyAddress, options)
+  await balanceOf(ADDRESSES.main.WETH, proxyAddress, options)
   console.log('DEBUG: OWNED ( stETH )')
-  await balanceOf(ADDRESSES.main.variableDebtWETH, proxyAddress, options)
+  await balanceOf(ADDRESSES.main.stETH, proxyAddress, options)
 }
 
 main().catch(error => {

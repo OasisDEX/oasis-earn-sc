@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.1;
+pragma solidity >=0.8.5;
 
 abstract contract IManager {
   function last(address) public virtual returns (uint256);

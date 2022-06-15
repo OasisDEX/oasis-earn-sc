@@ -1,11 +1,18 @@
 import BigNumber from 'bignumber.js'
 import { Signer, utils } from 'ethers'
 import { ethers } from 'hardhat'
+import { isError, tryF } from 'ts-try'
 
 import CTOKEN_ABI from '../abi/CErc20.json'
 import IERC20_ABI from '../abi/IERC20.json'
-import { CONTRACT_LABELS, ONE } from '../helpers/constants'
-import { BalanceOptions, NestedKeys, RuntimeConfig, ValueOf } from '../helpers/types'
+import { CONTRACT_LABELS, ONE, TEN } from '../helpers/constants'
+import {
+  ActionCall,
+  BalanceOptions,
+  NestedKeys,
+  RuntimeConfig,
+  ValueOf,
+} from '../helpers/types/common'
 
 export async function balanceOf(asset: string, address: string, options: BalanceOptions) {
   let balance = undefined
@@ -62,11 +69,11 @@ export async function approve(
   }
 }
 
-export async function send(tokenAddr: string, to: string, amount: BigNumber.Value) {
+export async function send(to: string, tokenAddr: string, amount: BigNumber.Value) {
   const tokenContract = await ethers.getContractAt(IERC20_ABI, tokenAddr)
 
-  const tokenTransferToExchangeTx = await tokenContract.transfer(to, amount)
-  await tokenTransferToExchangeTx.wait()
+  const transferTx = await tokenContract.transfer(to, amount)
+  await transferTx.wait()
 }
 
 type PositionCalculationResult = {
@@ -114,6 +121,27 @@ export function amountFromWei(amount: BigNumber.Value, precision = 18) {
   return new BigNumber(amount || 0).div(new BigNumber(10).pow(precision))
 }
 
+export function ensureWeiFormat(
+  input: BigNumber.Value, // TODO:
+  interpretBigNum = true,
+) {
+  const bn = new BigNumber(input)
+
+  const result = tryF(() => {
+    if (interpretBigNum && bn.lt(TEN.pow(9))) {
+      return bn.times(TEN.pow(18))
+    }
+
+    return bn
+  })
+
+  if (isError(result)) {
+    throw Error(`Error running \`ensureWeiFormat\` with input ${input.toString()}: ${result}`)
+  }
+
+  return result.decimalPlaces(0).toFixed(0)
+}
+
 export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value) {
   const val = new BigNumber(value)
 
@@ -126,28 +154,21 @@ export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value)
   }
 }
 
-type ActionCall = {
-  targetHash: string
-  callData: string
-  shouldStoreResult: boolean
-}
-
 export class ActionFactory {
-  static create(
-    targetHash: string,
-    types: string[],
-    args: any[],
-    shouldStoreResult = false,
-  ): ActionCall {
+  static create(targetHash: string, types: string[], args: any[]): ActionCall {
     const iface = new ethers.utils.Interface([
-      ' function execute(bytes calldata data) external payable returns (bytes calldata)',
+      ' function execute(bytes calldata data, uint8[] paramsMap) external payable returns (bytes calldata)',
     ])
-    const encodedArgs = ethers.utils.defaultAbiCoder.encode(types, args)
-    const calldata = iface.encodeFunctionData('execute', [encodedArgs])
+
+    const encodedArgs = ethers.utils.defaultAbiCoder.encode(
+      types[0] ? [types[0]] : [],
+      args[0] ? [args[0]] : [],
+    )
+    const calldata = iface.encodeFunctionData('execute', [encodedArgs, args[1] ? args[1] : []])
+
     return {
       targetHash,
       callData: calldata,
-      shouldStoreResult,
     }
   }
 }
@@ -179,7 +200,6 @@ export class ServiceRegistry {
 
   async getEntryHash(label: ValueOf<NestedKeys<typeof CONTRACT_LABELS>>): Promise<string> {
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
-
     return registry.getServiceNameHash(label)
   }
 }

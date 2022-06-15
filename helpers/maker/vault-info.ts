@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { BigNumberish, Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-import { VaultInfo } from '../types'
+import { VaultInfo } from '../types/maker'
 
 export async function getVaultInfo(
   mcdView: Contract,
