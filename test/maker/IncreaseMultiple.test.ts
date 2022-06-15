@@ -9,15 +9,12 @@ import ERC20ABI from '../../abi/IERC20.json'
 import { ADDRESSES } from '../../helpers/addresses'
 import { CONTRACT_LABELS, ZERO } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
-import {
-  DeployedSystemInfo,
-  deploySystem,
-  getLastCDP,
-  getOraclePrice,
-} from '../../helpers/deploySystem'
+import { DeployedSystemInfo, deploySystem } from '../../helpers/deploySystem'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
-import { getVaultInfo } from '../../helpers/maker/vault-info'
+import { getLastCDP } from '../../helpers/maker/getLastCdp'
+import { getOraclePrice } from '../../helpers/maker/getOraclePrice'
+import { getVaultInfo } from '../../helpers/maker/vaultInfo'
 import {
   calculateParamsIncreaseMP,
   prepareMultiplyParameters,
