@@ -9,20 +9,20 @@ import ERC20ABI from '../abi/IERC20.json'
 import { ADDRESSES } from '../helpers/addresses'
 import { CONTRACT_LABELS, ZERO } from '../helpers/constants'
 import { executeThroughProxy } from '../helpers/deploy'
-import { resetNode } from '../helpers/init'
-import { getVaultInfo } from '../helpers/maker/vault-info'
-import { calldataTypes } from '../helpers/types/actions'
-import { ActionCall, ExchangeData, RuntimeConfig, SwapData } from '../helpers/types/common'
-import { ActionFactory, amountToWei, ensureWeiFormat, ServiceRegistry } from '../helpers/utils'
 import {
   DeployedSystemInfo,
   deployTestSystem,
   getLastCDP,
   getOraclePrice,
-} from './helpers/deployTestSystem'
-import { gasEstimateHelper } from './helpers/gasEstimation'
-import { calculateParamsIncreaseMP, prepareMultiplyParameters } from './helpers/paramCalculations'
-import { expectToBeEqual } from './helpers/testUtils'
+} from '../helpers/deployTestSystem'
+import { gasEstimateHelper } from '../helpers/gasEstimation'
+import { resetNode } from '../helpers/init'
+import { getVaultInfo } from '../helpers/maker/vault-info'
+import { calculateParamsIncreaseMP, prepareMultiplyParameters } from '../helpers/paramCalculations'
+import { calldataTypes } from '../helpers/types/actions'
+import { ActionCall, ExchangeData, RuntimeConfig, SwapData } from '../helpers/types/common'
+import { ActionFactory, amountToWei, ensureWeiFormat, ServiceRegistry } from '../helpers/utils'
+import { expectToBeEqual } from './testUtils'
 
 const LENDER_FEE = new BigNumber(0)
 

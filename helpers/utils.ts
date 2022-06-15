@@ -142,6 +142,10 @@ export function ensureWeiFormat(
   return result.decimalPlaces(0).toFixed(0)
 }
 
+export function logDebug(lines: string[], prefix = '') {
+  lines.forEach(line => console.log(`${prefix}${line}`))
+}
+
 export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value) {
   const val = new BigNumber(value)
 
