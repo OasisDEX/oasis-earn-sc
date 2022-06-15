@@ -60,7 +60,7 @@ async function main() {
     options,
   )
   const registry: ServiceRegistry = new ServiceRegistry(serviceRegistryAddress, signer)
-  registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
+  registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
 
   // DEPLOYING Operation Executor
   const [operationExecutor, operationExecutorAddress] = await deploy(
@@ -135,8 +135,8 @@ async function main() {
     CONTRACT_NAMES.common.SWAP_ON_ONE_INCH,
     swapOnOninchAddress,
   )
-  await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.AAVEMainnetLendingPool)
-  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.AAVEWETHGateway)
+  await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
+  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
   await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
   await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
   await registry.addEntry(
@@ -180,7 +180,7 @@ async function main() {
       {
         amount: flashloanAmount.plus(depositAmount).toFixed(0),
         asset: ADDRESSES.main.DAI,
-        delegator: ADDRESSES.main.AAVEMainnetLendingPool,
+        delegator: ADDRESSES.main.aave.MainnetLendingPool,
       },
     ],
   )

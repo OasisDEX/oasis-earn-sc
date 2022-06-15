@@ -11,30 +11,36 @@ import { RuntimeConfig } from './types/common'
 import { logDebug, ServiceRegistry } from './utils'
 
 export interface DeployedSystemInfo {
-  userProxyAddress: string
-  mcdViewInstance: Contract
-  exchangeInstance: Contract
-  dsProxyInstance: Contract
-  daiTokenInstance: Contract
+  common: {
+    userProxyAddress: string
+    dsProxy: Contract
+    exchange: Contract
+    takeFlashLoan: Contract
+    sendToken: Contract
+    pullToken: Contract
+    swap: Contract
+    dummySwap: Contract
+    operationExecutor: Contract
+    operationStorage: Contract
+    serviceRegistry: Contract
+  }
+  aave: {
+    deposit: Contract
+    borrow: Contract
+    withdraw: Contract
+  }
+  maker: {
+    mcdView: Contract
+    openVault: Contract
+    deposit: Contract
+    payback: Contract
+    withdraw: Contract
+    generate: Contract
+  }
   gems: {
     wethTokenInstance: Contract
+    daiTokenInstance: Contract
   }
-  actionOpenVault: Contract
-  actionTakeFlashLoan: Contract
-  actionDeposit: Contract
-  actionPayback: Contract
-  actionWithdraw: Contract
-  actionGenerate: Contract
-  actionSendToken: Contract
-  actionPullToken: Contract
-  actionSwap: Contract
-  actionDummySwap: Contract
-  actionDepositInAAVE: Contract
-  actionBorrowInAAVE: Contract
-  actionWithdrawInAAVE: Contract
-  operationExecutor: Contract
-  operationStorage: Contract
-  serviceRegistry: Contract
 }
 
 export async function deploySystem(
@@ -48,13 +54,19 @@ export async function deploySystem(
     config,
   }
 
-  const deployedContracts: Partial<DeployedSystemInfo> = {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const deployedContracts: any = {
+    common: {},
+    maker: {},
+    aave: {},
+    gems: {},
+  }
 
   // Setup User
   debug && console.log('1/ Setting up user proxy')
   const proxyAddress = await getOrCreateProxy(signer)
-  deployedContracts.userProxyAddress = proxyAddress
-  deployedContracts.dsProxyInstance = new ethers.Contract(
+  deployedContracts.common.userProxyAddress = proxyAddress
+  deployedContracts.common.dsProxy = new ethers.Contract(
     proxyAddress,
     DSProxyABI,
     provider,
@@ -64,31 +76,31 @@ export async function deploySystem(
   debug && console.log('2/ Deploying system contracts')
   const [serviceRegistry, serviceRegistryAddress] = await deploy('ServiceRegistry', [0], options)
   const registry = new ServiceRegistry(serviceRegistryAddress, signer)
-  deployedContracts.serviceRegistry = serviceRegistry
+  deployedContracts.common.serviceRegistry = serviceRegistry
 
   const [operationExecutor, operationExecutorAddress] = await deploy(
     CONTRACT_NAMES.common.OPERATION_EXECUTOR,
     [serviceRegistryAddress],
     options,
   )
-  deployedContracts.operationExecutor = operationExecutor
+  deployedContracts.common.operationExecutor = operationExecutor
 
   const [operationStorage, operationStorageAddress] = await deploy(
     CONTRACT_NAMES.common.OPERATION_STORAGE,
     [],
     options,
   )
-  deployedContracts.operationStorage = operationStorage
+  deployedContracts.common.operationStorage = operationStorage
 
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [], options)
-  deployedContracts.mcdViewInstance = mcdView
+  deployedContracts.maker.mcdView = mcdView
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(
     CONTRACT_NAMES.test.DUMMY_EXCHANGE,
     [],
     options,
   )
-  deployedContracts.exchangeInstance = dummyExchange
+  deployedContracts.common.exchange = dummyExchange
 
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
 
@@ -100,27 +112,27 @@ export async function deploySystem(
     [serviceRegistryAddress, ADDRESSES.main.WETH, dummyExchangeAddress],
     options,
   )
-  deployedContracts.actionDummySwap = dummySwap
+  deployedContracts.common.dummySwap = dummySwap
 
   const [swap, swapAddress] = await deploy(
     CONTRACT_NAMES.common.SWAP_ON_ONE_INCH,
     [serviceRegistryAddress],
     options,
   )
-  deployedContracts.actionSwap = swap
+  deployedContracts.common.swap = swap
 
   const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [], options)
-  deployedContracts.actionSendToken = sendToken
+  deployedContracts.common.sendToken = sendToken
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [], options)
-  deployedContracts.actionPullToken = pullToken
+  deployedContracts.common.pullToken = pullToken
 
   const [actionFl, actionFlAddress] = await deploy(
     CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
     [serviceRegistryAddress],
     options,
   )
-  deployedContracts.actionTakeFlashLoan = actionFl
+  deployedContracts.common.takeFlashLoan = actionFl
 
   //-- Maker Actions
   const [actionOpenVault, actionOpenVaultAddress] = await deploy(
@@ -128,55 +140,55 @@ export async function deploySystem(
     [serviceRegistryAddress],
     options,
   )
-  deployedContracts.actionOpenVault = actionOpenVault
+  deployedContracts.maker.openVault = actionOpenVault
 
   const [actionDeposit, actionDepositAddress] = await deploy(
     CONTRACT_NAMES.maker.DEPOSIT,
     [serviceRegistryAddress],
     options,
   )
-  deployedContracts.actionDeposit = actionDeposit
+  deployedContracts.maker.deposit = actionDeposit
 
   const [actionPayback, actionPaybackAddress] = await deploy(
     CONTRACT_NAMES.maker.PAYBACK,
     [serviceRegistryAddress],
     options,
   )
-  deployedContracts.actionPayback = actionPayback
+  deployedContracts.maker.payback = actionPayback
 
   const [actionWithdraw, actionWithdrawAddress] = await deploy(
     CONTRACT_NAMES.maker.WITHDRAW,
     [serviceRegistryAddress],
     options,
   )
-  deployedContracts.actionWithdraw = actionWithdraw
+  deployedContracts.maker.withdraw = actionWithdraw
 
   const [actionGenerate, actionGenerateAddress] = await deploy(
     CONTRACT_NAMES.maker.GENERATE,
     [serviceRegistryAddress],
     options,
   )
-  deployedContracts.actionGenerate = actionGenerate
+  deployedContracts.maker.generate = actionGenerate
 
   //-- AAVE Actions
   const [depositInAAVEAction, actionDepositInAAVEAddress] = await deploy(
-    'DepositInAAVE',
+    CONTRACT_NAMES.aave.DEPOSIT,
     [serviceRegistryAddress],
     options,
   )
-  deployedContracts.actionDepositInAAVE = depositInAAVEAction
+  deployedContracts.aave.deposit = depositInAAVEAction
   const [borrowInAAVEAction, actionAaveBorrowAddress] = await deploy(
-    'AaveBorrow',
+    CONTRACT_NAMES.aave.BORROW,
     [serviceRegistryAddress],
     options,
   )
-  deployedContracts.actionBorrowInAAVE = borrowInAAVEAction
+  deployedContracts.aave.borrow = borrowInAAVEAction
   const [withdrawInAAVEAction, actionWithdrawFromAAVEAddress] = await deploy(
-    'WithdrawFromAAVE',
+    CONTRACT_NAMES.aave.WITHDRAW,
     [serviceRegistryAddress],
     options,
   )
-  deployedContracts.actionWithdrawInAAVE = withdrawInAAVEAction
+  deployedContracts.aave.withdraw = withdrawInAAVEAction
 
   debug && console.log('4/ Adding contracts to registry')
   //-- Add Token Contract Entries
@@ -201,7 +213,7 @@ export async function deploySystem(
 
   //-- Add Maker Contract Entries
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_VIEW, mcdViewAddress)
-  await registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
+  await registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
   await registry.addEntry(CONTRACT_NAMES.maker.OPEN_VAULT, actionOpenVaultAddress)
   await registry.addEntry(CONTRACT_NAMES.maker.DEPOSIT, actionDepositAddress)
   await registry.addEntry(CONTRACT_NAMES.maker.PAYBACK, actionPaybackAddress)
@@ -212,32 +224,32 @@ export async function deploySystem(
   await registry.addEntry(CONTRACT_NAMES.aave.BORROW, actionAaveBorrowAddress)
   await registry.addEntry(CONTRACT_NAMES.aave.DEPOSIT, actionDepositInAAVEAddress)
   await registry.addEntry(CONTRACT_NAMES.aave.WITHDRAW, actionWithdrawFromAAVEAddress)
-  await registry.addEntry(CONTRACT_NAMES.aave.AAVE_WETH_GATEWAY, ADDRESSES.main.AAVEWETHGateway)
+  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
 
   if (debug) {
     console.log('5/ Debugging...')
     logDebug([
       `Signer address: ${address}`,
-      `Exchange address: ${deployedContracts.exchangeInstance.address}`,
-      `User Proxy Address: ${deployedContracts.userProxyAddress}`,
-      `DSProxy address: ${deployedContracts.dsProxyInstance.address}`,
-      `Registry address: ${deployedContracts.serviceRegistry.address}`,
-      `Operation Executor address: ${deployedContracts.operationExecutor.address}`,
-      `Operator Storage address: ${deployedContracts.operationStorage.address}`,
-      `Send Token address: ${deployedContracts.actionSendToken.address}`,
-      `Pull Token address: ${deployedContracts.actionPullToken.address}`,
-      `Flashloan Action address: ${deployedContracts.actionTakeFlashLoan.address}`,
+      `Exchange address: ${deployedContracts.common.exchange.address}`,
+      `User Proxy Address: ${deployedContracts.common.userProxyAddress}`,
+      `DSProxy address: ${deployedContracts.common.dsProxy.address}`,
+      `Registry address: ${deployedContracts.common.serviceRegistry.address}`,
+      `Operation Executor address: ${deployedContracts.common.operationExecutor.address}`,
+      `Operator Storage address: ${deployedContracts.common.operationStorage.address}`,
+      `Send Token address: ${deployedContracts.common.sendToken.address}`,
+      `Pull Token address: ${deployedContracts.common.pullToken.address}`,
+      `Flashloan Action address: ${deployedContracts.common.takeFlashLoan.address}`,
 
-      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
-      `OpenVault Action address: ${deployedContracts.actionOpenVault.address}`,
-      `Depost Action address: ${deployedContracts.actionDeposit.address}`,
-      `Payback Action address: ${deployedContracts.actionPayback.address}`,
-      `Withdraw Action address: ${deployedContracts.actionWithdraw.address}`,
-      `Generate Action address: ${deployedContracts.actionGenerate.address}`,
+      `MCDView address: ${deployedContracts.maker.mcdView.address}`,
+      `OpenVault Action address: ${deployedContracts.maker.openVault.address}`,
+      `Depost Action address: ${deployedContracts.maker.deposit.address}`,
+      `Payback Action address: ${deployedContracts.maker.payback.address}`,
+      `Withdraw Action address: ${deployedContracts.maker.withdraw.address}`,
+      `Generate Action address: ${deployedContracts.maker.generate.address}`,
 
-      `AAVE|Borrow Action address: ${deployedContracts.actionBorrowInAAVE.address}`,
-      `AAVE|Deposit Action address: ${deployedContracts.actionDepositInAAVE.address}`,
-      `AAVE|Withdraw Action address: ${deployedContracts.actionWithdrawInAAVE.address}`,
+      `AAVE|Borrow Action address: ${deployedContracts.aave.borrow.address}`,
+      `AAVE|Deposit Action address: ${deployedContracts.aave.deposit.address}`,
+      `AAVE|Withdraw Action address: ${deployedContracts.aave.withdraw.address}`,
     ])
   }
 

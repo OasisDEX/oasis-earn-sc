@@ -135,7 +135,7 @@ export async function loadDummyExchangeFixtures(
     {
       name: 'WETH',
       address: ADDRESSES.main.WETH,
-      pip: ADDRESSES.main.pipWETH,
+      pip: ADDRESSES.main.maker.pipWETH,
       precision: 18,
     },
     {
@@ -147,7 +147,7 @@ export async function loadDummyExchangeFixtures(
     {
       name: 'LINK',
       address: ADDRESSES.main.LINK,
-      pip: ADDRESSES.main.pipLINK,
+      pip: ADDRESSES.main.maker.pipLINK,
       precision: 18,
     },
   ]

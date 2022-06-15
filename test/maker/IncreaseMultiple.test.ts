@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -213,8 +214,8 @@ describe('Operation => Maker | Increase Multiple', async () => {
           [calldataTypes.maker.Deposit],
           [
             {
-              joinAddress: ADDRESSES.main.joinETH_A,
-              mcdManager: ADDRESSES.main.cdpManager,
+              joinAddress: ADDRESSES.main.maker.joinETH_A,
+              mcdManager: ADDRESSES.main.maker.cdpManager,
               vaultId: 0,
               amount: ensureWeiFormat(collTopUp),
             },
@@ -261,8 +262,8 @@ describe('Operation => Maker | Increase Multiple', async () => {
           [calldataTypes.maker.Generate, calldataTypes.paramsMap],
           [
             {
-              to: system.userProxyAddress,
-              mcdManager: ADDRESSES.main.cdpManager,
+              to: system.common.userProxyAddress,
+              mcdManager: ADDRESSES.main.maker.cdpManager,
               vaultId: 0,
               amount: ensureWeiFormat(cdpState.requiredDebt),
             },
@@ -283,7 +284,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
           withData: exchangeData._exchangeCalldata,
         }
 
-        await DAI.approve(system.userProxyAddress, swapAmount)
+        await DAI.approve(system.common.userProxyAddress, swapAmount)
         const swapAction = createAction(
           await registry.getEntryHash(CONTRACT_NAMES.test.DUMMY_SWAP),
           [calldataTypes.common.Swap],
@@ -296,8 +297,8 @@ describe('Operation => Maker | Increase Multiple', async () => {
           [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
           [
             {
-              joinAddress: ADDRESSES.main.joinETH_A,
-              mcdManager: ADDRESSES.main.cdpManager,
+              joinAddress: ADDRESSES.main.maker.joinETH_A,
+              mcdManager: ADDRESSES.main.maker.cdpManager,
               vaultId: 0,
               amount: ensureWeiFormat(collateralToDeposit),
             },
@@ -327,7 +328,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
             {
               amount: exchangeData.fromTokenAmount,
               asset: ADDRESSES.main.DAI,
-              from: system.operationExecutor.address,
+              from: system.common.operationExecutor.address,
             },
           ],
         )
@@ -345,7 +346,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
           withData: exchangeData._exchangeCalldata,
         }
 
-        await DAI.approve(system.userProxyAddress, swapAmount)
+        await DAI.approve(system.common.userProxyAddress, swapAmount)
         // TODO: Move funds to proxy
         const swapAction = createAction(
           await registry.getEntryHash(CONTRACT_NAMES.test.DUMMY_SWAP),
@@ -358,8 +359,8 @@ describe('Operation => Maker | Increase Multiple', async () => {
           [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
           [
             {
-              joinAddress: ADDRESSES.main.joinETH_A,
-              mcdManager: ADDRESSES.main.cdpManager,
+              joinAddress: ADDRESSES.main.maker.joinETH_A,
+              mcdManager: ADDRESSES.main.maker.cdpManager,
               vaultId: 0,
               amount: ensureWeiFormat(cdpState.toBorrowCollateralAmount),
             },
@@ -372,8 +373,8 @@ describe('Operation => Maker | Increase Multiple', async () => {
           [calldataTypes.maker.Generate, calldataTypes.paramsMap],
           [
             {
-              to: system.userProxyAddress,
-              mcdManager: ADDRESSES.main.cdpManager,
+              to: system.common.userProxyAddress,
+              mcdManager: ADDRESSES.main.maker.cdpManager,
               vaultId: 0,
               amount: ensureWeiFormat(cdpState.requiredDebt),
             },
@@ -388,7 +389,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
             {
               amount: exchangeData.fromTokenAmount,
               asset: ADDRESSES.main.DAI,
-              to: system.operationExecutor.address,
+              to: system.common.operationExecutor.address,
             },
           ],
         )
@@ -399,7 +400,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
           [
             {
               amount: exchangeData.fromTokenAmount,
-              borrower: system.operationExecutor.address,
+              borrower: system.common.operationExecutor.address,
               calls: [
                 pullBorrowedFundsIntoProxy,
                 swapAction,
@@ -417,11 +418,11 @@ describe('Operation => Maker | Increase Multiple', async () => {
 
       it(testName, async () => {
         await WETH.approve(
-          system.userProxyAddress,
+          system.common.userProxyAddress,
           amountToWei(initialColl.plus(collTopUp)).toFixed(0),
         )
 
-        await DAI.approve(system.userProxyAddress, amountToWei(daiTopUp).toFixed(0))
+        await DAI.approve(system.common.userProxyAddress, amountToWei(daiTopUp).toFixed(0))
 
         const { requiredDebt, additionalCollateral, preIncreaseMPTopUp } =
           calculateParamsIncreaseMP({
@@ -459,8 +460,8 @@ describe('Operation => Maker | Increase Multiple', async () => {
           [calldataTypes.maker.Open],
           [
             {
-              joinAddress: ADDRESSES.main.joinETH_A,
-              mcdManager: ADDRESSES.main.cdpManager,
+              joinAddress: ADDRESSES.main.maker.joinETH_A,
+              mcdManager: ADDRESSES.main.maker.cdpManager,
             },
           ],
         )
@@ -483,8 +484,8 @@ describe('Operation => Maker | Increase Multiple', async () => {
           [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
           [
             {
-              joinAddress: ADDRESSES.main.joinETH_A,
-              mcdManager: ADDRESSES.main.cdpManager,
+              joinAddress: ADDRESSES.main.maker.joinETH_A,
+              mcdManager: ADDRESSES.main.maker.cdpManager,
               vaultId: 0,
               amount: ensureWeiFormat(initialColl),
             },
@@ -540,10 +541,12 @@ describe('Operation => Maker | Increase Multiple', async () => {
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [success, txReceipt] = await executeThroughProxy(
-          system.userProxyAddress,
+          system.common.userProxyAddress!,
           {
-            address: system.operationExecutor.address,
-            calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [actions]),
+            address: system.common.operationExecutor.address,
+            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+              actions,
+            ]),
           },
           signer,
         )
@@ -555,8 +558,8 @@ describe('Operation => Maker | Increase Multiple', async () => {
           return
         }
 
-        const vault = await getLastCDP(provider, signer, system.userProxyAddress)
-        const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+        const vault = await getLastCDP(provider, signer, system.common.userProxyAddress)
+        const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
         const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
 
         expectToBeEqual(currentCollRatio, requiredCollRatio, 3)
@@ -568,12 +571,12 @@ describe('Operation => Maker | Increase Multiple', async () => {
         expect(info.debt.toFixed(0)).to.equal(expectedDebt.toFixed(0))
 
         const cdpManagerContract = new ethers.Contract(
-          ADDRESSES.main.cdpManager,
+          ADDRESSES.main.maker.cdpManager,
           CDPManagerABI,
           provider,
         ).connect(signer)
         const vaultOwner = await cdpManagerContract.owns(vault.id)
-        expectToBeEqual(vaultOwner, system.userProxyAddress)
+        expectToBeEqual(vaultOwner, system.common.userProxyAddress)
       })
     }
 
@@ -593,13 +596,13 @@ describe('Operation => Maker | Increase Multiple', async () => {
       registry = _registry
 
       exchangeDataMock = {
-        to: system.exchangeInstance.address,
+        to: system.common.exchange.address,
         data: 0,
       }
 
       oraclePrice = await getOraclePrice(provider)
 
-      await system.exchangeInstance.setPrice(
+      await system.common.exchange.setPrice(
         ADDRESSES.main.WETH,
         amountToWei(marketPrice).toFixed(0),
       )

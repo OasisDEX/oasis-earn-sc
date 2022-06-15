@@ -59,7 +59,7 @@ describe('Operation => Maker | All Actions', async () => {
     const gasEstimates = gasEstimateHelper()
 
     before(async () => {
-      await system.exchangeInstance.setPrice(
+      await system.common.exchange.setPrice(
         ADDRESSES.main.WETH,
         amountToWei(marketPrice).toFixed(0),
       )
@@ -74,15 +74,15 @@ describe('Operation => Maker | All Actions', async () => {
     }
 
     it(testNames.openVault, async () => {
-      await WETH.approve(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
+      await WETH.approve(system.common.userProxyAddress, amountToWei(initialColl).toFixed(0))
 
       const openVaultAction = createAction(
         await registry.getEntryHash(CONTRACT_NAMES.maker.OPEN_VAULT),
         [calldataTypes.maker.Open, calldataTypes.paramsMap],
         [
           {
-            joinAddress: ADDRESSES.main.joinETH_A,
-            mcdManager: ADDRESSES.main.cdpManager,
+            joinAddress: ADDRESSES.main.maker.joinETH_A,
+            mcdManager: ADDRESSES.main.maker.cdpManager,
           },
           [0],
         ],
@@ -106,8 +106,8 @@ describe('Operation => Maker | All Actions', async () => {
         [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
         [
           {
-            joinAddress: ADDRESSES.main.joinETH_A,
-            mcdManager: ADDRESSES.main.cdpManager,
+            joinAddress: ADDRESSES.main.maker.joinETH_A,
+            mcdManager: ADDRESSES.main.maker.cdpManager,
             vaultId: 0,
             amount: ensureWeiFormat(initialColl),
           },
@@ -117,10 +117,10 @@ describe('Operation => Maker | All Actions', async () => {
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, txReceipt] = await executeThroughProxy(
-        system.userProxyAddress,
+        system.common.userProxyAddress,
         {
-          address: system.operationExecutor.address,
-          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+          address: system.common.operationExecutor.address,
+          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             [openVaultAction, pullCollateralIntoProxyAction, depositAction],
           ]),
         },
@@ -129,22 +129,22 @@ describe('Operation => Maker | All Actions', async () => {
 
       gasEstimates.save(testNames.openVault, txReceipt)
 
-      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      const vault = await getLastCDP(provider, signer, system.common.userProxyAddress)
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       vaultId = vault.id
-      const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+      const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
 
       expect(info.coll.toString()).to.equal(initialColl.toFixed(0))
       expect(info.debt.toString()).to.equal(new BigNumber(0).toFixed(0))
 
       const cdpManagerContract = new ethers.Contract(
-        ADDRESSES.main.cdpManager,
+        ADDRESSES.main.maker.cdpManager,
         CDPManagerABI,
         provider,
       ).connect(signer)
       const vaultOwner = await cdpManagerContract.owns(vault.id)
-      expectToBeEqual(vaultOwner, system.userProxyAddress)
+      expectToBeEqual(vaultOwner, system.common.userProxyAddress)
     })
 
     it(testNames.generatedDebt, async () => {
@@ -154,7 +154,7 @@ describe('Operation => Maker | All Actions', async () => {
         [
           {
             to: address,
-            mcdManager: ADDRESSES.main.cdpManager,
+            mcdManager: ADDRESSES.main.maker.cdpManager,
             vaultId,
             amount: ensureWeiFormat(initialDebt),
           },
@@ -164,10 +164,10 @@ describe('Operation => Maker | All Actions', async () => {
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, txReceipt] = await executeThroughProxy(
-        system.userProxyAddress,
+        system.common.userProxyAddress,
         {
-          address: system.operationExecutor.address,
-          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+          address: system.common.operationExecutor.address,
+          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             [generateAction],
           ]),
         },
@@ -176,9 +176,9 @@ describe('Operation => Maker | All Actions', async () => {
 
       gasEstimates.save(testNames.generatedDebt, txReceipt)
 
-      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      const vault = await getLastCDP(provider, signer, system.common.userProxyAddress)
       vaultId = vault.id
-      const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+      const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
 
       expect(info.coll.toFixed(0)).to.equal(initialColl.toFixed(0))
       expect(info.debt.toFixed(0)).to.equal(initialDebt.toFixed(0))
@@ -194,8 +194,8 @@ describe('Operation => Maker | All Actions', async () => {
           {
             vaultId: vaultId,
             userAddress: address,
-            daiJoin: ADDRESSES.main.joinDAI,
-            mcdManager: ADDRESSES.main.cdpManager,
+            daiJoin: ADDRESSES.main.maker.joinDAI,
+            mcdManager: ADDRESSES.main.maker.cdpManager,
             amount: ensureWeiFormat(paybackDai),
             paybackAll: paybackAll,
           },
@@ -204,14 +204,14 @@ describe('Operation => Maker | All Actions', async () => {
       )
 
       const ALLOWANCE = new BigNumber(10000000000000000000000000)
-      await DAI.approve(system.dsProxyInstance.address, ensureWeiFormat(ALLOWANCE))
+      await DAI.approve(system.common.dsProxy.address, ensureWeiFormat(ALLOWANCE))
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, txReceipt] = await executeThroughProxy(
-        system.userProxyAddress,
+        system.common.userProxyAddress,
         {
-          address: system.operationExecutor.address,
-          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+          address: system.common.operationExecutor.address,
+          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             [paybackAction],
           ]),
         },
@@ -220,9 +220,9 @@ describe('Operation => Maker | All Actions', async () => {
 
       gasEstimates.save(testNames.paybackDebt, txReceipt)
 
-      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      const vault = await getLastCDP(provider, signer, system.common.userProxyAddress)
       vaultId = vault.id
-      const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+      const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
 
       const expectedDebt = initialDebt.minus(paybackDai)
       expect(info.coll.toFixed(0)).to.equal(initialColl.toFixed(0))
@@ -230,9 +230,9 @@ describe('Operation => Maker | All Actions', async () => {
     })
 
     it(testNames.paybackAllDebt, async () => {
-      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      const vault = await getLastCDP(provider, signer, system.common.userProxyAddress)
 
-      const prePaybackInfo = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+      const prePaybackInfo = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
       const paybackDai = new BigNumber(0) // Can be anything because paybackAll flag is true
       const paybackAll = true
 
@@ -243,8 +243,8 @@ describe('Operation => Maker | All Actions', async () => {
           {
             vaultId,
             userAddress: address,
-            daiJoin: ADDRESSES.main.joinDAI,
-            mcdManager: ADDRESSES.main.cdpManager,
+            daiJoin: ADDRESSES.main.maker.joinDAI,
+            mcdManager: ADDRESSES.main.maker.cdpManager,
             amount: ensureWeiFormat(paybackDai),
             paybackAll: paybackAll,
           },
@@ -253,14 +253,14 @@ describe('Operation => Maker | All Actions', async () => {
       )
 
       const ALLOWANCE = new BigNumber(prePaybackInfo.debt)
-      await DAI.approve(system.dsProxyInstance.address, ensureWeiFormat(ALLOWANCE))
+      await DAI.approve(system.common.dsProxy.address, ensureWeiFormat(ALLOWANCE))
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, txReceipt] = await executeThroughProxy(
-        system.userProxyAddress,
+        system.common.userProxyAddress,
         {
-          address: system.operationExecutor.address,
-          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+          address: system.common.operationExecutor.address,
+          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             [paybackAction],
           ]),
         },
@@ -268,7 +268,7 @@ describe('Operation => Maker | All Actions', async () => {
       )
       gasEstimates.save(testNames.paybackAllDebt, txReceipt)
 
-      const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+      const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
 
       const expectedDebt = new BigNumber(0)
       expect(info.coll.toFixed(0)).to.equal(initialColl.toFixed(0))
@@ -283,8 +283,8 @@ describe('Operation => Maker | All Actions', async () => {
           {
             vaultId,
             userAddress: address,
-            joinAddr: ADDRESSES.main.joinETH_A,
-            mcdManager: ADDRESSES.main.cdpManager,
+            joinAddr: ADDRESSES.main.maker.joinETH_A,
+            mcdManager: ADDRESSES.main.maker.cdpManager,
             amount: ensureWeiFormat(initialColl),
           },
           [0],
@@ -293,10 +293,10 @@ describe('Operation => Maker | All Actions', async () => {
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, txReceipt] = await executeThroughProxy(
-        system.userProxyAddress,
+        system.common.userProxyAddress,
         {
-          address: system.operationExecutor.address,
-          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+          address: system.common.operationExecutor.address,
+          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             [withdrawAction],
           ]),
         },
@@ -304,8 +304,8 @@ describe('Operation => Maker | All Actions', async () => {
       )
       gasEstimates.save(testNames.withdrawColl, txReceipt)
 
-      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
-      const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+      const vault = await getLastCDP(provider, signer, system.common.userProxyAddress)
+      const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
 
       const expectedDebt = new BigNumber(0)
       const expectedColl = new BigNumber(0)
@@ -326,23 +326,20 @@ describe('Operation => Maker | All Actions', async () => {
     const gasEstimates = gasEstimateHelper()
 
     before(async () => {
-      await system.exchangeInstance.setPrice(
-        ADDRESSES.main.ETH,
-        amountToWei(marketPrice).toFixed(0),
-      )
+      await system.common.exchange.setPrice(ADDRESSES.main.ETH, amountToWei(marketPrice).toFixed(0))
     })
 
     const testName = `should open vault, deposit ETH, generate DAI, repay debt in full and withdraw collateral`
     it(testName, async () => {
-      await WETH.approve(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
+      await WETH.approve(system.common.userProxyAddress, amountToWei(initialColl).toFixed(0))
 
       const openVaultAction = createAction(
         await registry.getEntryHash(CONTRACT_NAMES.maker.OPEN_VAULT),
         [calldataTypes.maker.Open, calldataTypes.paramsMap],
         [
           {
-            joinAddress: ADDRESSES.main.joinETH_A,
-            mcdManager: ADDRESSES.main.cdpManager,
+            joinAddress: ADDRESSES.main.maker.joinETH_A,
+            mcdManager: ADDRESSES.main.maker.cdpManager,
           },
           [0],
         ],
@@ -366,8 +363,8 @@ describe('Operation => Maker | All Actions', async () => {
         [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
         [
           {
-            joinAddress: ADDRESSES.main.joinETH_A,
-            mcdManager: ADDRESSES.main.cdpManager,
+            joinAddress: ADDRESSES.main.maker.joinETH_A,
+            mcdManager: ADDRESSES.main.maker.cdpManager,
             vaultId: 0,
             amount: ensureWeiFormat(initialColl),
           },
@@ -381,7 +378,7 @@ describe('Operation => Maker | All Actions', async () => {
         [
           {
             to: address,
-            mcdManager: ADDRESSES.main.cdpManager,
+            mcdManager: ADDRESSES.main.maker.cdpManager,
             vaultId: 0,
             amount: ensureWeiFormat(initialDebt),
           },
@@ -398,8 +395,8 @@ describe('Operation => Maker | All Actions', async () => {
           {
             vaultId: 0,
             userAddress: address,
-            daiJoin: ADDRESSES.main.joinDAI,
-            mcdManager: ADDRESSES.main.cdpManager,
+            daiJoin: ADDRESSES.main.maker.joinDAI,
+            mcdManager: ADDRESSES.main.maker.cdpManager,
             amount: ensureWeiFormat(paybackDai),
             paybackAll: paybackAll,
           },
@@ -408,7 +405,7 @@ describe('Operation => Maker | All Actions', async () => {
       )
 
       const ALLOWANCE = new BigNumber('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
-      await DAI.approve(system.userProxyAddress, ensureWeiFormat(ALLOWANCE))
+      await DAI.approve(system.common.userProxyAddress, ensureWeiFormat(ALLOWANCE))
 
       const withdrawAction = createAction(
         await registry.getEntryHash(CONTRACT_NAMES.maker.WITHDRAW),
@@ -417,8 +414,8 @@ describe('Operation => Maker | All Actions', async () => {
           {
             vaultId: 0,
             userAddress: address,
-            joinAddr: ADDRESSES.main.joinETH_A,
-            mcdManager: ADDRESSES.main.cdpManager,
+            joinAddr: ADDRESSES.main.maker.joinETH_A,
+            mcdManager: ADDRESSES.main.maker.cdpManager,
             amount: ensureWeiFormat(initialColl),
           },
           [1],
@@ -427,10 +424,10 @@ describe('Operation => Maker | All Actions', async () => {
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, txReceipt] = await executeThroughProxy(
-        system.userProxyAddress,
+        system.common.userProxyAddress,
         {
-          address: system.operationExecutor.address,
-          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+          address: system.common.operationExecutor.address,
+          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             [
               openVaultAction,
               pullCollateralIntoProxyAction,
@@ -446,8 +443,8 @@ describe('Operation => Maker | All Actions', async () => {
 
       gasEstimates.save(testName, txReceipt)
 
-      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
-      const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+      const vault = await getLastCDP(provider, signer, system.common.userProxyAddress)
+      const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
 
       const expectedColl = new BigNumber(0)
       const expectedDebt = new BigNumber(0)
@@ -455,12 +452,12 @@ describe('Operation => Maker | All Actions', async () => {
       expect(info.debt.toString()).to.equal(expectedDebt.toFixed(0))
 
       const cdpManagerContract = new ethers.Contract(
-        ADDRESSES.main.cdpManager,
+        ADDRESSES.main.maker.cdpManager,
         CDPManagerABI,
         provider,
       ).connect(signer)
       const vaultOwner = await cdpManagerContract.owns(vault.id)
-      expectToBeEqual(vaultOwner, system.userProxyAddress)
+      expectToBeEqual(vaultOwner, system.common.userProxyAddress)
     })
 
     after(() => {
