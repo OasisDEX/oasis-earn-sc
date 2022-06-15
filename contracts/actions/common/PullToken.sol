@@ -7,7 +7,6 @@ import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import { PullTokenData } from "../../core/types/Common.sol";
-import { OPERATION_STORAGE } from "../../core/Constants.sol";
 
 contract PullToken is Executable {
   function execute(bytes calldata data, uint8[] memory) external payable override {

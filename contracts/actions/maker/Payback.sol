@@ -15,7 +15,7 @@ import "../../libs/SafeMath.sol";
 
 import { PaybackData } from "../../core/types/Maker.sol";
 
-contract Payback is Executable, UseStore {
+contract MakerPayback is Executable, UseStore {
   using SafeMath for uint256;
   using Read for OperationStorage;
   using Write for OperationStorage;

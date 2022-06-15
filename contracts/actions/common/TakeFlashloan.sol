@@ -8,7 +8,8 @@ import "../../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import "../../interfaces/flashloan/IERC3156FlashLender.sol";
 import "../../libs/DS/DSProxy.sol";
 import { FlashloanData } from "../../core/types/Common.sol";
-import { OPERATION_EXECUTOR, FLASH_MINT_MODULE, DAI } from "../../core/Constants.sol";
+import { OPERATION_EXECUTOR, DAI } from "../../core/constants/Common.sol";
+import { FLASH_MINT_MODULE } from "../../core/constants/Maker.sol";
 
 contract TakeFlashloan is Executable {
   ServiceRegistry internal immutable registry;

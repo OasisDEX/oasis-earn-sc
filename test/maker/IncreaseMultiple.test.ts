@@ -7,7 +7,7 @@ import { ethers } from 'hardhat'
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { ADDRESSES } from '../../helpers/addresses'
-import { CONTRACT_LABELS, ZERO } from '../../helpers/constants'
+import { CONTRACT_NAMES, ZERO } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { DeployedSystemInfo, deploySystem } from '../../helpers/deploySystem'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
@@ -197,7 +197,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
         topUpData: { token: string; amount: BigNumber; from: string }
       }) {
         const transferCollTopupToProxyAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+          await registry.getEntryHash(CONTRACT_NAMES.common.PULL_TOKEN),
           [calldataTypes.common.PullToken],
           [
             {
@@ -209,7 +209,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
         )
 
         const topupCollateralAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+          await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
           [calldataTypes.maker.Deposit],
           [
             {
@@ -233,7 +233,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
         topUpData: { token: string; amount: BigNumber; from: string }
       }) {
         const transferDaiTopupToProxyAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+          await registry.getEntryHash(CONTRACT_NAMES.common.PULL_TOKEN),
           [calldataTypes.common.PullToken],
           [
             {
@@ -257,7 +257,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
       }) {
         // Generate DAI -> Swap for collateral -> Deposit collateral
         const generateDaiForSwap = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
+          await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
           [calldataTypes.maker.Generate, calldataTypes.paramsMap],
           [
             {
@@ -285,14 +285,14 @@ describe('Operation => Maker | Increase Multiple', async () => {
 
         await DAI.approve(system.userProxyAddress, swapAmount)
         const swapAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.DUMMY_SWAP),
+          await registry.getEntryHash(CONTRACT_NAMES.test.DUMMY_SWAP),
           [calldataTypes.common.Swap],
           [swapData],
         )
 
         const collateralToDeposit = cdpState.toBorrowCollateralAmount.plus(cdpState.collTopUp)
         const depositBorrowedCollateral = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+          await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
           [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
           [
             {
@@ -321,7 +321,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
       }) {
         // Get flashloan -> Swap for collateral -> Deposit collateral -> Generate DAI -> Repay flashloan
         const pullBorrowedFundsIntoProxy = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+          await registry.getEntryHash(CONTRACT_NAMES.common.PULL_TOKEN),
           [calldataTypes.common.PullToken],
           [
             {
@@ -348,13 +348,13 @@ describe('Operation => Maker | Increase Multiple', async () => {
         await DAI.approve(system.userProxyAddress, swapAmount)
         // TODO: Move funds to proxy
         const swapAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.DUMMY_SWAP),
+          await registry.getEntryHash(CONTRACT_NAMES.test.DUMMY_SWAP),
           [calldataTypes.common.Swap],
           [swapData],
         )
 
         const depositBorrowedCollateral = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+          await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
           [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
           [
             {
@@ -368,7 +368,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
         )
 
         const generateDaiToRepayFL = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
+          await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
           [calldataTypes.maker.Generate, calldataTypes.paramsMap],
           [
             {
@@ -382,7 +382,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
         )
 
         const sendBackDAI = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.SEND_TOKEN),
+          await registry.getEntryHash(CONTRACT_NAMES.common.SEND_TOKEN),
           [calldataTypes.common.SendToken],
           [
             {
@@ -394,7 +394,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
         )
 
         const takeAFlashloan = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.TAKE_A_FLASHLOAN),
+          await registry.getEntryHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
           [calldataTypes.common.TakeAFlashLoan],
           [
             {
@@ -455,7 +455,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
         })
 
         const openVaultAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
+          await registry.getEntryHash(CONTRACT_NAMES.maker.OPEN_VAULT),
           [calldataTypes.maker.Open],
           [
             {
@@ -466,7 +466,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
         )
 
         const pullTokenIntoProxyAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+          await registry.getEntryHash(CONTRACT_NAMES.common.PULL_TOKEN),
           [calldataTypes.common.PullToken, calldataTypes.paramsMap],
           [
             {
@@ -479,7 +479,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
         )
 
         const initialDepositAction = createAction(
-          await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+          await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
           [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
           [
             {

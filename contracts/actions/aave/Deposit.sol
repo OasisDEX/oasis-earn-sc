@@ -8,9 +8,9 @@ import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/aave/ILendingPool.sol";
 import { AAVEDepositData } from "../../core/types/Aave.sol";
-import { OPERATION_STORAGE, AAVE_LENDING_POOL } from "../../core/Constants.sol";
+import { AAVE_LENDING_POOL } from "../../core/constants/Aave.sol";
 
-contract DepositInAAVE is Executable, UseStore {
+contract AaveDeposit is Executable, UseStore {
   using Write for OperationStorage;
 
   // TODO: Pass the service registry in here

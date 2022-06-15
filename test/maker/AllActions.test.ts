@@ -7,7 +7,7 @@ import { ethers } from 'hardhat'
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { ADDRESSES } from '../../helpers/addresses'
-import { CONTRACT_LABELS } from '../../helpers/constants'
+import { CONTRACT_NAMES } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { DeployedSystemInfo, deploySystem } from '../../helpers/deploySystem'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
@@ -77,7 +77,7 @@ describe('Operation => Maker | All Actions', async () => {
       await WETH.approve(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
 
       const openVaultAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
+        await registry.getEntryHash(CONTRACT_NAMES.maker.OPEN_VAULT),
         [calldataTypes.maker.Open, calldataTypes.paramsMap],
         [
           {
@@ -89,7 +89,7 @@ describe('Operation => Maker | All Actions', async () => {
       )
 
       const pullCollateralIntoProxyAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+        await registry.getEntryHash(CONTRACT_NAMES.common.PULL_TOKEN),
         [calldataTypes.common.PullToken, calldataTypes.paramsMap],
         [
           {
@@ -102,7 +102,7 @@ describe('Operation => Maker | All Actions', async () => {
       )
 
       const depositAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+        await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
         [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
         [
           {
@@ -149,7 +149,7 @@ describe('Operation => Maker | All Actions', async () => {
 
     it(testNames.generatedDebt, async () => {
       const generateAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
+        await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
         [calldataTypes.maker.Generate],
         [
           {
@@ -188,7 +188,7 @@ describe('Operation => Maker | All Actions', async () => {
       const paybackDai = new BigNumber(5000)
       const paybackAll = false
       const paybackAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
+        await registry.getEntryHash(CONTRACT_NAMES.maker.PAYBACK),
         [calldataTypes.maker.Payback],
         [
           {
@@ -237,7 +237,7 @@ describe('Operation => Maker | All Actions', async () => {
       const paybackAll = true
 
       const paybackAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
+        await registry.getEntryHash(CONTRACT_NAMES.maker.PAYBACK),
         [calldataTypes.maker.Payback],
         [
           {
@@ -277,7 +277,7 @@ describe('Operation => Maker | All Actions', async () => {
 
     it(testNames.withdrawColl, async () => {
       const withdrawAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
+        await registry.getEntryHash(CONTRACT_NAMES.maker.WITHDRAW),
         [calldataTypes.maker.Withdraw],
         [
           {
@@ -337,7 +337,7 @@ describe('Operation => Maker | All Actions', async () => {
       await WETH.approve(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
 
       const openVaultAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
+        await registry.getEntryHash(CONTRACT_NAMES.maker.OPEN_VAULT),
         [calldataTypes.maker.Open, calldataTypes.paramsMap],
         [
           {
@@ -349,7 +349,7 @@ describe('Operation => Maker | All Actions', async () => {
       )
 
       const pullCollateralIntoProxyAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+        await registry.getEntryHash(CONTRACT_NAMES.common.PULL_TOKEN),
         [calldataTypes.common.PullToken, calldataTypes.paramsMap],
         [
           {
@@ -362,7 +362,7 @@ describe('Operation => Maker | All Actions', async () => {
       )
 
       const depositAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+        await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
         [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
         [
           {
@@ -376,7 +376,7 @@ describe('Operation => Maker | All Actions', async () => {
       )
 
       const generateAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
+        await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
         [calldataTypes.maker.Generate, calldataTypes.paramsMap],
         [
           {
@@ -392,7 +392,7 @@ describe('Operation => Maker | All Actions', async () => {
       const paybackDai = new BigNumber(0) // Can be anything because paybackAll flag is true
       const paybackAll = true
       const paybackAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
+        await registry.getEntryHash(CONTRACT_NAMES.maker.PAYBACK),
         [calldataTypes.maker.Payback, calldataTypes.paramsMap],
         [
           {
@@ -411,7 +411,7 @@ describe('Operation => Maker | All Actions', async () => {
       await DAI.approve(system.userProxyAddress, ensureWeiFormat(ALLOWANCE))
 
       const withdrawAction = createAction(
-        await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
+        await registry.getEntryHash(CONTRACT_NAMES.maker.WITHDRAW),
         [calldataTypes.maker.Withdraw, calldataTypes.paramsMap],
         [
           {

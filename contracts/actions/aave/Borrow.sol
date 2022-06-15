@@ -4,16 +4,15 @@ import "hardhat/console.sol";
 
 import "../common/Executable.sol";
 import { Write, UseStore } from "../common/UseStore.sol";
-import "../../core/Constants.sol";
 import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/aave/IVariableDebtToken.sol";
 import "../../interfaces/aave/IWETHGateway.sol";
 import { AAVEBorrowData } from "../../core/types/Aave.sol";
-import { OPERATION_STORAGE, AAVE_WETH_GATEWAY, AAVE_LENDING_POOL } from "../../core/Constants.sol";
+import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL } from "../../core/constants/Aave.sol";
 
 // TODO: Make it more generic so that anything could be withdrawn and not only ETH
-contract BorrowFromAAVE is Executable, UseStore {
+contract AaveBorrow is Executable, UseStore {
   using Write for OperationStorage;
   // ServiceRegistry private immutable registry;
   // This will be removed once I make it more generic
