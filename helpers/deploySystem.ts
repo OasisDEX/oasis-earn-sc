@@ -9,20 +9,11 @@ import GetCDPsABI from '../abi/get-cdps.json'
 import { ADDRESSES } from './addresses'
 import { CONTRACT_LABELS } from './constants'
 import { deploy } from './deploy'
-import init from './init'
 import { getOrCreateProxy } from './proxy'
 import { loadDummyExchangeFixtures } from './swap/DummyExchange'
+import { RuntimeConfig } from './types/common'
 import { CDPInfo } from './types/maker'
 import { logDebug, ServiceRegistry } from './utils'
-
-export const FEE = 20
-export const FEE_BASE = 10000
-
-export interface MCDInitParams {
-  blockNumber?: string
-  provider?: JsonRpcProvider
-  signer?: Signer
-}
 
 export interface DeployedSystemInfo {
   userProxyAddress: string
@@ -43,13 +34,18 @@ export interface DeployedSystemInfo {
   actionPullToken: Contract
   actionSwap: Contract
   actionDummySwap: Contract
+  actionDepositInAAVE: Contract
+  actionBorrowInAAVE: Contract
+  actionWithdrawInAAVE: Contract
   operationExecutor: Contract
   operationStorage: Contract
   serviceRegistry: Contract
 }
 
-export async function deployTestSystem(debug = false): Promise<DeployedSystemInfo> {
-  const config = await init()
+export async function deploySystem(
+  config: RuntimeConfig,
+  debug = false,
+): Promise<{ system: DeployedSystemInfo; registry: ServiceRegistry }> {
   const { provider, signer, address } = config
 
   const options = {
@@ -95,6 +91,7 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
 
   // Deploy Actions
   debug && console.log('3/ Deploying actions')
+  //-- Common Actions
   const [dummySwap, dummySwapAddress] = await deploy(
     'DummySwap',
     [serviceRegistryAddress, ADDRESSES.main.WETH, dummyExchangeAddress],
@@ -118,6 +115,7 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
   )
   deployedContracts.actionTakeFlashLoan = actionFl
 
+  //-- Maker Actions
   const [actionOpenVault, actionOpenVaultAddress] = await deploy(
     'OpenVault',
     [serviceRegistryAddress],
@@ -153,26 +151,59 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
   )
   deployedContracts.actionGenerate = actionGenerate
 
-  debug && console.log('4/ Adding contracts to registry')
-  registry.addEntry(CONTRACT_LABELS.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
-  registry.addEntry(CONTRACT_LABELS.common.OPERATION_EXECUTOR, operationExecutorAddress)
-  registry.addEntry(CONTRACT_LABELS.common.OPERATION_STORAGE, operationStorageAddress)
-  registry.addEntry(CONTRACT_LABELS.maker.MCD_VIEW, mcdViewAddress)
-  registry.addEntry(CONTRACT_LABELS.common.EXCHANGE, dummyExchangeAddress)
-  registry.addEntry(CONTRACT_LABELS.common.TAKE_A_FLASHLOAN, actionFlAddress)
-  registry.addEntry(CONTRACT_LABELS.common.SEND_TOKEN, sendTokenAddress)
-  registry.addEntry(CONTRACT_LABELS.common.PULL_TOKEN, pullTokenAddress)
-  registry.addEntry(CONTRACT_LABELS.common.SWAP_ON_ONE_INCH, swapAddress)
-  registry.addEntry(CONTRACT_LABELS.common.DUMMY_SWAP, dummySwapAddress)
-  registry.addEntry(CONTRACT_LABELS.common.ONE_INCH_AGGREGATOR, ADDRESSES.main.oneInchAggregator)
-  registry.addEntry(CONTRACT_LABELS.common.DAI, ADDRESSES.main.DAI)
-  registry.addEntry(CONTRACT_LABELS.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
+  //-- AAVE Actions
+  const [depositInAAVEAction, actionDepositInAAVEAddress] = await deploy(
+    'DepositInAAVE',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.actionDepositInAAVE = depositInAAVEAction
+  const [borrowInAAVEAction, actionBorrowFromAAVEAddress] = await deploy(
+    'BorrowFromAAVE',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.actionBorrowInAAVE = borrowInAAVEAction
+  const [withdrawInAAVEAction, actionWithdrawFromAAVEAddress] = await deploy(
+    'WithdrawFromAAVE',
+    [serviceRegistryAddress],
+    options,
+  )
+  deployedContracts.actionWithdrawInAAVE = withdrawInAAVEAction
 
-  registry.addEntry(CONTRACT_LABELS.maker.OPEN_VAULT, actionOpenVaultAddress)
-  registry.addEntry(CONTRACT_LABELS.maker.DEPOSIT, actionDepositAddress)
-  registry.addEntry(CONTRACT_LABELS.maker.PAYBACK, actionPaybackAddress)
-  registry.addEntry(CONTRACT_LABELS.maker.WITHDRAW, actionWithdrawAddress)
-  registry.addEntry(CONTRACT_LABELS.maker.GENERATE, actionGenerateAddress)
+  debug && console.log('4/ Adding contracts to registry')
+  //-- Add Token Contract Entries
+  await registry.addEntry(CONTRACT_LABELS.common.DAI, ADDRESSES.main.DAI)
+  await registry.addEntry(CONTRACT_LABELS.common.WETH, ADDRESSES.main.WETH)
+
+  //-- Add Common Contract Entries
+  await registry.addEntry(CONTRACT_LABELS.common.OPERATION_EXECUTOR, operationExecutorAddress)
+  await registry.addEntry(CONTRACT_LABELS.common.OPERATION_STORAGE, operationStorageAddress)
+  await registry.addEntry(CONTRACT_LABELS.common.EXCHANGE, dummyExchangeAddress)
+  await registry.addEntry(CONTRACT_LABELS.common.TAKE_A_FLASHLOAN, actionFlAddress)
+  await registry.addEntry(CONTRACT_LABELS.common.SEND_TOKEN, sendTokenAddress)
+  await registry.addEntry(CONTRACT_LABELS.common.PULL_TOKEN, pullTokenAddress)
+  await registry.addEntry(CONTRACT_LABELS.common.SWAP_ON_ONE_INCH, swapAddress)
+  await registry.addEntry(CONTRACT_LABELS.common.DUMMY_SWAP, dummySwapAddress)
+  await registry.addEntry(
+    CONTRACT_LABELS.common.ONE_INCH_AGGREGATOR,
+    ADDRESSES.main.oneInchAggregator,
+  )
+
+  //-- Add Maker Contract Entries
+  await registry.addEntry(CONTRACT_LABELS.maker.MCD_VIEW, mcdViewAddress)
+  await registry.addEntry(CONTRACT_LABELS.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
+  await registry.addEntry(CONTRACT_LABELS.maker.OPEN_VAULT, actionOpenVaultAddress)
+  await registry.addEntry(CONTRACT_LABELS.maker.DEPOSIT, actionDepositAddress)
+  await registry.addEntry(CONTRACT_LABELS.maker.PAYBACK, actionPaybackAddress)
+  await registry.addEntry(CONTRACT_LABELS.maker.WITHDRAW, actionWithdrawAddress)
+  await registry.addEntry(CONTRACT_LABELS.maker.GENERATE, actionGenerateAddress)
+
+  //-- Add AAVE Contract Entries
+  await registry.addEntry(CONTRACT_LABELS.aave.BORROW_FROM_AAVE, actionBorrowFromAAVEAddress)
+  await registry.addEntry(CONTRACT_LABELS.aave.DEPOSIT_IN_AAVE, actionDepositInAAVEAddress)
+  await registry.addEntry(CONTRACT_LABELS.aave.WITHDRAW_FROM_AAVE, actionWithdrawFromAAVEAddress)
+  await registry.addEntry(CONTRACT_LABELS.aave.AAVE_WETH_GATEWAY, ADDRESSES.main.AAVEWETHGateway)
 
   if (debug) {
     console.log('5/ Debugging...')
@@ -181,23 +212,27 @@ export async function deployTestSystem(debug = false): Promise<DeployedSystemInf
       `Exchange address: ${deployedContracts.exchangeInstance.address}`,
       `User Proxy Address: ${deployedContracts.userProxyAddress}`,
       `DSProxy address: ${deployedContracts.dsProxyInstance.address}`,
-      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
       `Registry address: ${deployedContracts.serviceRegistry.address}`,
       `Operation Executor address: ${deployedContracts.operationExecutor.address}`,
       `Operator Storage address: ${deployedContracts.operationStorage.address}`,
       `Send Token address: ${deployedContracts.actionSendToken.address}`,
       `Pull Token address: ${deployedContracts.actionPullToken.address}`,
-
       `Flashloan Action address: ${deployedContracts.actionTakeFlashLoan.address}`,
+
+      `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
       `OpenVault Action address: ${deployedContracts.actionOpenVault.address}`,
       `Depost Action address: ${deployedContracts.actionDeposit.address}`,
       `Payback Action address: ${deployedContracts.actionPayback.address}`,
       `Withdraw Action address: ${deployedContracts.actionWithdraw.address}`,
       `Generate Action address: ${deployedContracts.actionGenerate.address}`,
+
+      `AAVE|Borrow Action address: ${deployedContracts.actionBorrowInAAVE.address}`,
+      `AAVE|Deposit Action address: ${deployedContracts.actionDepositInAAVE.address}`,
+      `AAVE|Withdraw Action address: ${deployedContracts.actionWithdrawInAAVE.address}`,
     ])
   }
 
-  return deployedContracts as DeployedSystemInfo
+  return { system: deployedContracts as DeployedSystemInfo, registry }
 }
 
 export async function getOraclePrice(

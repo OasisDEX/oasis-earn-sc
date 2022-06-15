@@ -1,0 +1,469 @@
+import { JsonRpcProvider } from '@ethersproject/providers'
+import BigNumber from 'bignumber.js'
+import { expect } from 'chai'
+import { Contract, Signer } from 'ethers'
+import { ethers } from 'hardhat'
+
+import CDPManagerABI from '../../abi/dss-cdp-manager.json'
+import ERC20ABI from '../../abi/IERC20.json'
+import { ADDRESSES } from '../../helpers/addresses'
+import { CONTRACT_LABELS } from '../../helpers/constants'
+import { executeThroughProxy } from '../../helpers/deploy'
+import { DeployedSystemInfo, deploySystem, getLastCDP } from '../../helpers/deploySystem'
+import { gasEstimateHelper } from '../../helpers/gasEstimation'
+import init, { resetNode } from '../../helpers/init'
+import { getVaultInfo } from '../../helpers/maker/vault-info'
+import { calldataTypes } from '../../helpers/types/actions'
+import { RuntimeConfig } from '../../helpers/types/common'
+import { ActionFactory, amountToWei, ensureWeiFormat, ServiceRegistry } from '../../helpers/utils'
+import { expectToBeEqual } from './../utils'
+
+const createAction = ActionFactory.create
+
+let DAI: Contract
+let WETH: Contract
+
+describe('Operation => Maker | All Actions', async () => {
+  let provider: JsonRpcProvider
+  let signer: Signer
+  let address: string
+  let system: DeployedSystemInfo
+  let registry: ServiceRegistry
+
+  let config: RuntimeConfig
+
+  before(async () => {
+    config = await init()
+    provider = config.provider
+    signer = config.signer
+    address = config.address
+
+    DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
+    WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
+
+    const blockNumber = 13274574
+    resetNode(provider, blockNumber)
+
+    const { system: _system, registry: _registry } = await deploySystem(config)
+    system = _system
+    registry = _registry
+  })
+
+  describe(`Operation => open|Deposit|Draw|Payback (1 by 1)`, async () => {
+    const marketPrice = new BigNumber(2380)
+    const initialColl = new BigNumber(100) // STARTING COLLATERAL AMOUNT
+    const initialDebt = new BigNumber(20000) // STARTING VAULT DEBT
+    let vaultId: number
+
+    const gasEstimates = gasEstimateHelper()
+
+    before(async () => {
+      await system.exchangeInstance.setPrice(
+        ADDRESSES.main.WETH,
+        amountToWei(marketPrice).toFixed(0),
+      )
+    })
+
+    const testNames = {
+      openVault: `should open vault with initial collateral`,
+      generatedDebt: `should generate expected debt`,
+      paybackDebt: `should partially payback debt`,
+      paybackAllDebt: `should payback remaining debt`,
+      withdrawColl: `should withdraw collateral`,
+    }
+
+    it(testNames.openVault, async () => {
+      await WETH.approve(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
+
+      const openVaultAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
+        [calldataTypes.maker.Open, calldataTypes.paramsMap],
+        [
+          {
+            joinAddress: ADDRESSES.main.joinETH_A,
+            mcdManager: ADDRESSES.main.cdpManager,
+          },
+          [0],
+        ],
+      )
+
+      const pullCollateralIntoProxyAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+        [calldataTypes.common.PullToken, calldataTypes.paramsMap],
+        [
+          {
+            from: config.address,
+            asset: ADDRESSES.main.WETH,
+            amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
+          },
+          [0],
+        ],
+      )
+
+      const depositAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+        [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
+        [
+          {
+            joinAddress: ADDRESSES.main.joinETH_A,
+            mcdManager: ADDRESSES.main.cdpManager,
+            vaultId: 0,
+            amount: ensureWeiFormat(initialColl),
+          },
+          [1],
+        ],
+      )
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_, txReceipt] = await executeThroughProxy(
+        system.userProxyAddress,
+        {
+          address: system.operationExecutor.address,
+          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+            [openVaultAction, pullCollateralIntoProxyAction, depositAction],
+          ]),
+        },
+        signer,
+      )
+
+      gasEstimates.save(testNames.openVault, txReceipt)
+
+      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      vaultId = vault.id
+      const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+
+      expect(info.coll.toString()).to.equal(initialColl.toFixed(0))
+      expect(info.debt.toString()).to.equal(new BigNumber(0).toFixed(0))
+
+      const cdpManagerContract = new ethers.Contract(
+        ADDRESSES.main.cdpManager,
+        CDPManagerABI,
+        provider,
+      ).connect(signer)
+      const vaultOwner = await cdpManagerContract.owns(vault.id)
+      expectToBeEqual(vaultOwner, system.userProxyAddress)
+    })
+
+    it(testNames.generatedDebt, async () => {
+      const generateAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
+        [calldataTypes.maker.Generate],
+        [
+          {
+            to: address,
+            mcdManager: ADDRESSES.main.cdpManager,
+            vaultId,
+            amount: ensureWeiFormat(initialDebt),
+          },
+          [0],
+        ],
+      )
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_, txReceipt] = await executeThroughProxy(
+        system.userProxyAddress,
+        {
+          address: system.operationExecutor.address,
+          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+            [generateAction],
+          ]),
+        },
+        signer,
+      )
+
+      gasEstimates.save(testNames.generatedDebt, txReceipt)
+
+      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      vaultId = vault.id
+      const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+
+      expect(info.coll.toFixed(0)).to.equal(initialColl.toFixed(0))
+      expect(info.debt.toFixed(0)).to.equal(initialDebt.toFixed(0))
+    })
+
+    it(testNames.paybackDebt, async () => {
+      const paybackDai = new BigNumber(5000)
+      const paybackAll = false
+      const paybackAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
+        [calldataTypes.maker.Payback],
+        [
+          {
+            vaultId: vaultId,
+            userAddress: address,
+            daiJoin: ADDRESSES.main.joinDAI,
+            mcdManager: ADDRESSES.main.cdpManager,
+            amount: ensureWeiFormat(paybackDai),
+            paybackAll: paybackAll,
+          },
+          [0],
+        ],
+      )
+
+      const ALLOWANCE = new BigNumber(10000000000000000000000000)
+      await DAI.approve(system.dsProxyInstance.address, ensureWeiFormat(ALLOWANCE))
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_, txReceipt] = await executeThroughProxy(
+        system.userProxyAddress,
+        {
+          address: system.operationExecutor.address,
+          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+            [paybackAction],
+          ]),
+        },
+        signer,
+      )
+
+      gasEstimates.save(testNames.paybackDebt, txReceipt)
+
+      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      vaultId = vault.id
+      const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+
+      const expectedDebt = initialDebt.minus(paybackDai)
+      expect(info.coll.toFixed(0)).to.equal(initialColl.toFixed(0))
+      expect(info.debt.toFixed(0)).to.equal(expectedDebt.toFixed(0))
+    })
+
+    it(testNames.paybackAllDebt, async () => {
+      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+
+      const prePaybackInfo = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+      const paybackDai = new BigNumber(0) // Can be anything because paybackAll flag is true
+      const paybackAll = true
+
+      const paybackAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
+        [calldataTypes.maker.Payback],
+        [
+          {
+            vaultId,
+            userAddress: address,
+            daiJoin: ADDRESSES.main.joinDAI,
+            mcdManager: ADDRESSES.main.cdpManager,
+            amount: ensureWeiFormat(paybackDai),
+            paybackAll: paybackAll,
+          },
+          [0],
+        ],
+      )
+
+      const ALLOWANCE = new BigNumber(prePaybackInfo.debt)
+      await DAI.approve(system.dsProxyInstance.address, ensureWeiFormat(ALLOWANCE))
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_, txReceipt] = await executeThroughProxy(
+        system.userProxyAddress,
+        {
+          address: system.operationExecutor.address,
+          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+            [paybackAction],
+          ]),
+        },
+        signer,
+      )
+      gasEstimates.save(testNames.paybackAllDebt, txReceipt)
+
+      const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+
+      const expectedDebt = new BigNumber(0)
+      expect(info.coll.toFixed(0)).to.equal(initialColl.toFixed(0))
+      expect(info.debt.toFixed(0)).to.equal(expectedDebt.toFixed(0))
+    })
+
+    it(testNames.withdrawColl, async () => {
+      const withdrawAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
+        [calldataTypes.maker.Withdraw],
+        [
+          {
+            vaultId,
+            userAddress: address,
+            joinAddr: ADDRESSES.main.joinETH_A,
+            mcdManager: ADDRESSES.main.cdpManager,
+            amount: ensureWeiFormat(initialColl),
+          },
+          [0],
+        ],
+      )
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_, txReceipt] = await executeThroughProxy(
+        system.userProxyAddress,
+        {
+          address: system.operationExecutor.address,
+          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+            [withdrawAction],
+          ]),
+        },
+        signer,
+      )
+      gasEstimates.save(testNames.withdrawColl, txReceipt)
+
+      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+
+      const expectedDebt = new BigNumber(0)
+      const expectedColl = new BigNumber(0)
+      expect(info.coll.toFixed(0)).to.equal(expectedColl.toFixed(0))
+      expect(info.debt.toFixed(0)).to.equal(expectedDebt.toFixed(0))
+    })
+
+    after(() => {
+      gasEstimates.print()
+    })
+  })
+
+  describe(`Operation => open|Deposit|Draw|Payback (Combined)`, async () => {
+    const marketPrice = new BigNumber(2380)
+    const initialColl = new BigNumber(100)
+    const initialDebt = new BigNumber(20000)
+
+    const gasEstimates = gasEstimateHelper()
+
+    before(async () => {
+      await system.exchangeInstance.setPrice(
+        ADDRESSES.main.ETH,
+        amountToWei(marketPrice).toFixed(0),
+      )
+    })
+
+    const testName = `should open vault, deposit ETH, generate DAI, repay debt in full and withdraw collateral`
+    it(testName, async () => {
+      await WETH.approve(system.userProxyAddress, amountToWei(initialColl).toFixed(0))
+
+      const openVaultAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.OPEN_VAULT),
+        [calldataTypes.maker.Open, calldataTypes.paramsMap],
+        [
+          {
+            joinAddress: ADDRESSES.main.joinETH_A,
+            mcdManager: ADDRESSES.main.cdpManager,
+          },
+          [0],
+        ],
+      )
+
+      const pullCollateralIntoProxyAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.common.PULL_TOKEN),
+        [calldataTypes.common.PullToken, calldataTypes.paramsMap],
+        [
+          {
+            from: config.address,
+            asset: ADDRESSES.main.WETH,
+            amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
+          },
+          [0],
+        ],
+      )
+
+      const depositAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.DEPOSIT),
+        [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
+        [
+          {
+            joinAddress: ADDRESSES.main.joinETH_A,
+            mcdManager: ADDRESSES.main.cdpManager,
+            vaultId: 0,
+            amount: ensureWeiFormat(initialColl),
+          },
+          [1],
+        ],
+      )
+
+      const generateAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.GENERATE),
+        [calldataTypes.maker.Generate, calldataTypes.paramsMap],
+        [
+          {
+            to: address,
+            mcdManager: ADDRESSES.main.cdpManager,
+            vaultId: 0,
+            amount: ensureWeiFormat(initialDebt),
+          },
+          [1],
+        ],
+      )
+
+      const paybackDai = new BigNumber(0) // Can be anything because paybackAll flag is true
+      const paybackAll = true
+      const paybackAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.PAYBACK),
+        [calldataTypes.maker.Payback, calldataTypes.paramsMap],
+        [
+          {
+            vaultId: 0,
+            userAddress: address,
+            daiJoin: ADDRESSES.main.joinDAI,
+            mcdManager: ADDRESSES.main.cdpManager,
+            amount: ensureWeiFormat(paybackDai),
+            paybackAll: paybackAll,
+          },
+          [1],
+        ],
+      )
+
+      const ALLOWANCE = new BigNumber('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+      await DAI.approve(system.userProxyAddress, ensureWeiFormat(ALLOWANCE))
+
+      const withdrawAction = createAction(
+        await registry.getEntryHash(CONTRACT_LABELS.maker.WITHDRAW),
+        [calldataTypes.maker.Withdraw, calldataTypes.paramsMap],
+        [
+          {
+            vaultId: 0,
+            userAddress: address,
+            joinAddr: ADDRESSES.main.joinETH_A,
+            mcdManager: ADDRESSES.main.cdpManager,
+            amount: ensureWeiFormat(initialColl),
+          },
+          [1],
+        ],
+      )
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_, txReceipt] = await executeThroughProxy(
+        system.userProxyAddress,
+        {
+          address: system.operationExecutor.address,
+          calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+            [
+              openVaultAction,
+              pullCollateralIntoProxyAction,
+              depositAction,
+              generateAction,
+              paybackAction,
+              withdrawAction,
+            ],
+          ]),
+        },
+        signer,
+      )
+
+      gasEstimates.save(testName, txReceipt)
+
+      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
+
+      const expectedColl = new BigNumber(0)
+      const expectedDebt = new BigNumber(0)
+      expect(info.coll.toString()).to.equal(expectedColl.toFixed(0))
+      expect(info.debt.toString()).to.equal(expectedDebt.toFixed(0))
+
+      const cdpManagerContract = new ethers.Contract(
+        ADDRESSES.main.cdpManager,
+        CDPManagerABI,
+        provider,
+      ).connect(signer)
+      const vaultOwner = await cdpManagerContract.owns(vault.id)
+      expectToBeEqual(vaultOwner, system.userProxyAddress)
+    })
+
+    after(() => {
+      gasEstimates.print()
+    })
+  })
+})
