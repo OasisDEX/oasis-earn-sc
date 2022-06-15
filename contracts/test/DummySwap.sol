@@ -2,14 +2,14 @@ pragma solidity ^0.8.1;
 // TODO: Remove this for prod deploy
 import "hardhat/console.sol";
 
-import "../common/Executable.sol";
+import "../actions/common/Executable.sol";
 
-import "../../core/OperationStorage.sol";
-import "../../core/ServiceRegistry.sol";
-import "../../interfaces/tokens/IERC20.sol";
-import "../../interfaces/tokens/IWETH.sol";
-import "../../interfaces/IExchange.sol";
-import { SwapData } from "../../core/types/Common.sol";
+import "../interfaces/tokens/IERC20.sol";
+import "../core/ServiceRegistry.sol";
+import "../interfaces/tokens/IWETH.sol";
+import "../interfaces/IExchange.sol";
+import "../core/OperationStorage.sol";
+import { SwapData } from "../core/types/Common.sol";
 
 contract DummySwap is Executable {
   ServiceRegistry public immutable registry;

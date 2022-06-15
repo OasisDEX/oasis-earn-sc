@@ -6,7 +6,13 @@ import { isError, tryF } from 'ts-try'
 import CTOKEN_ABI from '../abi/CErc20.json'
 import IERC20_ABI from '../abi/IERC20.json'
 import { CONTRACT_LABELS, ONE, TEN } from '../helpers/constants'
-import { BalanceOptions, NestedKeys, RuntimeConfig, ValueOf } from '../helpers/types/common'
+import {
+  ActionCall,
+  BalanceOptions,
+  NestedKeys,
+  RuntimeConfig,
+  ValueOf,
+} from '../helpers/types/common'
 
 export async function balanceOf(asset: string, address: string, options: BalanceOptions) {
   let balance = undefined
@@ -146,11 +152,6 @@ export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value)
 
     asDecimal: val.div(base),
   }
-}
-
-export type ActionCall = {
-  targetHash: string
-  callData: string
 }
 
 export class ActionFactory {

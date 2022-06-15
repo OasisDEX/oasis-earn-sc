@@ -20,9 +20,7 @@ contract BorrowFromAAVE is Executable, UseStore {
   IVariableDebtToken public constant dWETH =
     IVariableDebtToken(0xF63B34710400CAd3e044cFfDcAb00a0f32E33eCf);
 
-  constructor(address _registry) UseStore(_registry) {
-    // registry = ServiceRegistry(_registry);
-  }
+  constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     AAVEBorrowData memory borrow = abi.decode(data, (AAVEBorrowData));

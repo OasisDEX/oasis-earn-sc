@@ -12,14 +12,8 @@ import { executeThroughProxy } from '../helpers/deploy'
 import { resetNode } from '../helpers/init'
 import { getVaultInfo } from '../helpers/maker/vault-info'
 import { calldataTypes } from '../helpers/types/actions'
-import { ExchangeData, RuntimeConfig, SwapData } from '../helpers/types/common'
-import {
-  ActionCall,
-  ActionFactory,
-  amountToWei,
-  ensureWeiFormat,
-  ServiceRegistry,
-} from '../helpers/utils'
+import { ActionCall, ExchangeData, RuntimeConfig, SwapData } from '../helpers/types/common'
+import { ActionFactory, amountToWei, ensureWeiFormat, ServiceRegistry } from '../helpers/utils'
 import {
   DeployedSystemInfo,
   deployTestSystem,
@@ -516,10 +510,7 @@ describe('Multiply Proxy Actions | PoC | w/ Dummy Exchange', async () => {
   }
 
   before(async () => {
-    provider =
-      process.env.USE_STANDALONE_NODE === `1`
-        ? new ethers.providers.JsonRpcProvider()
-        : ethers.provider
+    provider = ethers.provider
     signer = provider.getSigner(0)
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)

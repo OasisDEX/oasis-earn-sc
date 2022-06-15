@@ -80,3 +80,8 @@ export type ExchangeData = {
   exchangeAddress: string
   _exchangeCalldata: any
 }
+
+export type ActionCall = {
+  targetHash: string
+  callData: string
+}

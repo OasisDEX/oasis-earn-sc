@@ -92,7 +92,6 @@ const addFundsDummyExchange = async function (
     config: { provider, signer, address },
   }
 
-  // console.log('weth-bal:', balanceOf(weth, address, options))
   // Transfer half of the accounts balance of each token to the dummy exchange.
   await Promise.all(
     erc20Tokens.map(async token => {
