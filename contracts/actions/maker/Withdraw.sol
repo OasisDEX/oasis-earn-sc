@@ -15,7 +15,7 @@ import "../../libs/SafeMath.sol";
 
 import { WithdrawData } from "../../core/types/Maker.sol";
 
-contract Withdraw is Executable, UseStore {
+contract MakerWithdraw is Executable, UseStore {
   using SafeMath for uint256;
   using Read for OperationStorage;
   using Write for OperationStorage;

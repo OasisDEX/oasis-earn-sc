@@ -146,7 +146,7 @@ export function prepareMultiplyParameters({
 
   const cdpData = {
     skipFL: skipFL,
-    gemJoin: ADDRESSES.main.joinETH_A,
+    gemJoin: ADDRESSES.main.maker.joinETH_A,
     cdpId,
     ilk: '0x0000000000000000000000000000000000000000000000000000000000000000',
     fundsReceiver: fundsReceiver,
