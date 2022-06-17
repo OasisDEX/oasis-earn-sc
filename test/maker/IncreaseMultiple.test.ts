@@ -9,12 +9,10 @@ import ERC20ABI from '../../abi/IERC20.json'
 import { ADDRESSES } from '../../helpers/addresses'
 import { CONTRACT_LABELS, ZERO } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
-import { DeployedSystemInfo, deploySystem } from '../../helpers/deploySystem'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
-import { getLastCDP } from '../../helpers/maker/getLastCdp'
-import { getOraclePrice } from '../../helpers/maker/getOraclePrice'
-import { getVaultInfo } from '../../helpers/maker/vaultInfo'
+import { getOraclePrice } from '../../helpers/maker/oracle'
+import { getLastVault, getVaultInfo } from '../../helpers/maker/vault'
 import {
   calculateParamsIncreaseMP,
   prepareMultiplyParameters,
@@ -22,6 +20,7 @@ import {
 import { calldataTypes } from '../../helpers/types/actions'
 import { ActionCall, ExchangeData, RuntimeConfig, SwapData } from '../../helpers/types/common'
 import { ActionFactory, amountToWei, ensureWeiFormat, ServiceRegistry } from '../../helpers/utils'
+import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from './../utils'
 
 const LENDER_FEE = new BigNumber(0)
@@ -555,7 +554,7 @@ describe('Operation => Maker | Increase Multiple', async () => {
           return
         }
 
-        const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+        const vault = await getLastVault(provider, signer, system.userProxyAddress)
         const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
         const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
 

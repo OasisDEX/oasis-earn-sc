@@ -9,14 +9,13 @@ import ERC20ABI from '../../abi/IERC20.json'
 import { ADDRESSES } from '../../helpers/addresses'
 import { CONTRACT_LABELS } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
-import { DeployedSystemInfo, deploySystem } from '../../helpers/deploySystem'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
-import { getLastCDP } from '../../helpers/maker/getLastCdp'
-import { getVaultInfo } from '../../helpers/maker/vaultInfo'
+import { getLastVault, getVaultInfo } from '../../helpers/maker/vault'
 import { calldataTypes } from '../../helpers/types/actions'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { ActionFactory, amountToWei, ensureWeiFormat, ServiceRegistry } from '../../helpers/utils'
+import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from './../utils'
 
 const createAction = ActionFactory.create
@@ -129,7 +128,7 @@ describe('Operation => Maker | All Actions', async () => {
 
       gasEstimates.save(testNames.openVault, txReceipt)
 
-      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      const vault = await getLastVault(provider, signer, system.userProxyAddress)
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       vaultId = vault.id
@@ -176,7 +175,7 @@ describe('Operation => Maker | All Actions', async () => {
 
       gasEstimates.save(testNames.generatedDebt, txReceipt)
 
-      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      const vault = await getLastVault(provider, signer, system.userProxyAddress)
       vaultId = vault.id
       const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
 
@@ -220,7 +219,7 @@ describe('Operation => Maker | All Actions', async () => {
 
       gasEstimates.save(testNames.paybackDebt, txReceipt)
 
-      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      const vault = await getLastVault(provider, signer, system.userProxyAddress)
       vaultId = vault.id
       const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
 
@@ -230,7 +229,7 @@ describe('Operation => Maker | All Actions', async () => {
     })
 
     it(testNames.paybackAllDebt, async () => {
-      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      const vault = await getLastVault(provider, signer, system.userProxyAddress)
 
       const prePaybackInfo = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
       const paybackDai = new BigNumber(0) // Can be anything because paybackAll flag is true
@@ -304,7 +303,7 @@ describe('Operation => Maker | All Actions', async () => {
       )
       gasEstimates.save(testNames.withdrawColl, txReceipt)
 
-      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      const vault = await getLastVault(provider, signer, system.userProxyAddress)
       const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
 
       const expectedDebt = new BigNumber(0)
@@ -446,7 +445,7 @@ describe('Operation => Maker | All Actions', async () => {
 
       gasEstimates.save(testName, txReceipt)
 
-      const vault = await getLastCDP(provider, signer, system.userProxyAddress)
+      const vault = await getLastVault(provider, signer, system.userProxyAddress)
       const info = await getVaultInfo(system.mcdViewInstance, vault.id, vault.ilk)
 
       const expectedColl = new BigNumber(0)

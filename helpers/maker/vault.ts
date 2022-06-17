@@ -1,13 +1,14 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { BigNumber as EthersBN, Signer } from 'ethers'
+import BigNumber from 'bignumber.js'
+import { BigNumber as EthersBN, BigNumberish, Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 import _ from 'lodash'
 
 import GetCDPsABI from '../../abi/get-cdps.json'
 import { ADDRESSES } from '../addresses'
-import { CDPInfo } from '../types/maker'
+import { CDPInfo, VaultInfo } from '../types/maker'
 
-export async function getLastCDP(
+export async function getLastVault(
   provider: JsonRpcProvider,
   signer: Signer,
   proxyAddress: string,
@@ -28,4 +29,16 @@ export async function getLastCDP(
   }
 
   return cdp as CDPInfo
+}
+
+export async function getVaultInfo(
+  mcdView: Contract,
+  vaultId: BigNumberish,
+  ilk: string,
+): Promise<VaultInfo> {
+  const info = await mcdView.getVaultInfo(vaultId, ilk)
+  return {
+    coll: new BigNumber(ethers.utils.formatUnits(info[0]).toString()),
+    debt: new BigNumber(ethers.utils.formatUnits(info[1]).toString()),
+  }
 }
