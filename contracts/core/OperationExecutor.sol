@@ -6,13 +6,14 @@ import "hardhat/console.sol";
 
 import "./ServiceRegistry.sol";
 import "./OperationStorage.sol";
+import "./OperationsRegistry.sol";
 import "../libs/DS/DSProxy.sol";
 import "../actions/common/TakeFlashloan.sol";
 import "../interfaces/tokens/IERC20.sol";
 import "../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import "../interfaces/flashloan/IERC3156FlashLender.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
-import { OPERATION_STORAGE } from "./constants/Common.sol";
+import { OPERATION_STORAGE, OPERATIONS_REGISTRY } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
 contract OperationExecutor is IERC3156FlashBorrower {
@@ -22,16 +23,24 @@ contract OperationExecutor is IERC3156FlashBorrower {
     registry = ServiceRegistry(_registry);
   }
 
-  function executeOp(Call[] memory calls) public {
+  function executeOp(Call[] memory calls, string calldata operationName) public {
+    console.log("EXECUTING OP...");
+    OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
+    OperationsRegistry opRegistry = OperationsRegistry(
+      registry.getRegisteredService(OPERATIONS_REGISTRY)
+    );
+
+    opStorage.setOperationSteps(opRegistry.getOperation(operationName));
     aggregate(calls);
-    OperationStorage txStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
-    txStorage.finalize();
+    opStorage.finalize();
   }
 
   function aggregate(Call[] memory calls) public {
+    OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
     for (uint256 current = 0; current < calls.length; current++) {
+      opStorage.verifyStep(calls[current].targetHash);
       address target = registry.getServiceAddress(calls[current].targetHash);
-
+      console.log("DEBUG: TARGET:", target);
       (bool success, ) = target.delegatecall(calls[current].callData);
 
       require(success, "delegate call failed");
@@ -46,7 +55,6 @@ contract OperationExecutor is IERC3156FlashBorrower {
     bytes calldata data
   ) external override returns (bytes32) {
     address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
-
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
 
     // TODO - Use custom errors from solidity introduced in 0.8.4  https://blog.soliditylang.org/2021/04/21/custom-errors/

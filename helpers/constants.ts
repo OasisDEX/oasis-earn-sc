@@ -17,6 +17,7 @@ export const CONTRACT_NAMES = {
     SWAP_ON_ONE_INCH: 'SwapOnOneInch',
     OPERATION_EXECUTOR: 'OperationExecutor',
     OPERATION_STORAGE: 'OperationStorage',
+    OPERATIONS_REGISTRY: 'OperationsRegistry',
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
     EXCHANGE: 'Exchange',
     SERVICE_REGISTRY: 'ServiceRegistry',
@@ -41,5 +42,11 @@ export const CONTRACT_NAMES = {
     DUMMY_ACTION: 'DummyAction',
     DUMMY_SWAP: 'DummySwap',
     DUMMY_EXCHANGE: 'DummyExchange',
+  },
+}
+
+export const OPERATION_NAMES = {
+  aave: {
+    OPEN_POSITION: 'OPEN_POSITION',
   },
 }

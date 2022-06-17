@@ -7,7 +7,7 @@ import { BigNumber } from 'bignumber.js'
 import { ethers } from 'hardhat'
 
 import { ADDRESSES } from '../helpers/addresses'
-import { CONTRACT_NAMES, ZERO } from '../helpers/constants'
+import { CONTRACT_NAMES, OPERATION_NAMES, ZERO } from '../helpers/constants'
 import { deploy, executeThroughProxy } from '../helpers/deploy'
 import init from '../helpers/init'
 // Helper functions
@@ -15,7 +15,14 @@ import { getOrCreateProxy } from '../helpers/proxy'
 import { swapOneInchTokens } from '../helpers/swap/1inch'
 import { swapUniswapTokens } from '../helpers/swap/uniswap'
 import { calldataTypes } from '../helpers/types/actions'
-import { ActionFactory, amountToWei, approve, balanceOf, ServiceRegistry } from '../helpers/utils'
+import {
+  ActionFactory,
+  amountToWei,
+  approve,
+  balanceOf,
+  ServiceRegistry,
+  OperationsRegistry,
+} from '../helpers/utils'
 
 const createAction = ActionFactory.create
 
@@ -62,6 +69,13 @@ async function main() {
   const registry: ServiceRegistry = new ServiceRegistry(serviceRegistryAddress, signer)
   registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
 
+  // DEPLOYING Operations Registry
+  const [, operationsRegistryAddress] = await deploy('OperationsRegistry', [], options)
+  const operationsRegistry: OperationsRegistry = new OperationsRegistry(
+    operationsRegistryAddress,
+    signer,
+  )
+
   // DEPLOYING Operation Executor
   const [operationExecutor, operationExecutorAddress] = await deploy(
     CONTRACT_NAMES.common.OPERATION_EXECUTOR,
@@ -105,6 +119,8 @@ async function main() {
   //SETUP REGISTRY ENTRIES:
   console.log('DEBUG SETTING UP REGISTRY ENTRIES...')
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
+  await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
+
   const dummyActionHash = await registry.addEntry(
     CONTRACT_NAMES.test.DUMMY_ACTION,
     dummyActionAddress,
@@ -126,7 +142,7 @@ async function main() {
     CONTRACT_NAMES.aave.DEPOSIT,
     depositInAAVEAddress,
   )
-  const AaveBorrowHash = await registry.addEntry(CONTRACT_NAMES.aave.BORROW, AaveBorrowAddress)
+  const aaveBorrowHash = await registry.addEntry(CONTRACT_NAMES.aave.BORROW, AaveBorrowAddress)
   const withdrawFromAAVEHash = await registry.addEntry(
     CONTRACT_NAMES.aave.WITHDRAW,
     withdrawFromAAVEAddress,
@@ -199,7 +215,7 @@ async function main() {
 
   // BORROW FROM AAVE
   const borrowEthFromAAVE = createAction(
-    AaveBorrowHash,
+    aaveBorrowHash,
     [calldataTypes.aave.Generate],
     [
       {
@@ -278,6 +294,19 @@ async function main() {
       },
     ],
   )
+  console.log('BEFORE OP SETs')
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
+    pullTokenHash,
+    takeAFlashloanHash,
+    pullTokenHash,
+    setApprovalHash,
+    depositInAAVEHash,
+    aaveBorrowHash,
+    swapOnOneInchHash,
+    withdrawFromAAVEHash,
+    sendTokenHash,
+    dummyActionHash,
+  ])
 
   await approve(ADDRESSES.main.DAI, proxyAddress, depositAmount, config, true)
 
@@ -287,6 +316,7 @@ async function main() {
       address: operationExecutorAddress,
       calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
         [pullToken, takeAFlashloan, dummyAction],
+        OPERATION_NAMES.aave.OPEN_POSITION,
       ]),
     },
     signer,
@@ -297,7 +327,7 @@ async function main() {
   console.log('DEBUG: Debt ( ETH )')
   await balanceOf(ADDRESSES.main.ETH, proxyAddress, options)
   console.log('DEBUG: Debt ( WETH )')
-  await balanceOf(ADDRESSES.main.WETH, proxyAddress, options)
+  await balanceOf(ADDRESSES.main.variableDebtWETH, proxyAddress, options)
   console.log('DEBUG: OWNED ( stETH )')
   await balanceOf(ADDRESSES.main.stETH, proxyAddress, options)
 }
