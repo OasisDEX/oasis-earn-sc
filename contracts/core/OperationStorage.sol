@@ -18,14 +18,7 @@ contract OperationStorage {
   }
 
   function verifyStep(bytes32 stepHash) external {
-    console.log("DEBUG: CURRENT VERIFIED STEP:", step);
-    console.log("DEBUG: STEP HASH TO VERIFY");
-    console.logBytes32(stepHash);
-    console.log("DEBUG: CURRENT STEP HASH:");
-    console.logBytes32(steps[step]);
     require(steps[step] == stepHash, "incorrect-step");
-    console.log("DEBUG: Step is valid!");
-    console.log("-------------------------");
     step++;
   }
 
