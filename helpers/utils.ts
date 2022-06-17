@@ -5,7 +5,7 @@ import { isError, tryF } from 'ts-try'
 
 import CTOKEN_ABI from '../abi/CErc20.json'
 import IERC20_ABI from '../abi/IERC20.json'
-import { CONTRACT_LABELS, ONE, TEN } from '../helpers/constants'
+import { CONTRACT_NAMES, ONE, TEN } from '../helpers/constants'
 import {
   ActionCall,
   BalanceOptions,
@@ -142,6 +142,10 @@ export function ensureWeiFormat(
   return result.decimalPlaces(0).toFixed(0)
 }
 
+export function logDebug(lines: string[], prefix = '') {
+  lines.forEach(line => console.log(`${prefix}${line}`))
+}
+
 export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value) {
   const val = new BigNumber(value)
 
@@ -183,7 +187,7 @@ export class ServiceRegistry {
   }
 
   async addEntry(
-    label: ValueOf<NestedKeys<typeof CONTRACT_LABELS>>,
+    label: ValueOf<NestedKeys<typeof CONTRACT_NAMES>>,
     address: string,
     debug = false,
   ): Promise<string> {
@@ -198,7 +202,7 @@ export class ServiceRegistry {
     return entryHash
   }
 
-  async getEntryHash(label: ValueOf<NestedKeys<typeof CONTRACT_LABELS>>): Promise<string> {
+  async getEntryHash(label: ValueOf<NestedKeys<typeof CONTRACT_NAMES>>): Promise<string> {
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     return registry.getServiceNameHash(label)
   }

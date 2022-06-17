@@ -14,7 +14,7 @@ import "../../libs/SafeMath.sol";
 
 import { DepositData } from "../../core/types/Maker.sol";
 
-contract Deposit is Executable, UseStore {
+contract MakerDeposit is Executable, UseStore {
   using SafeMath for uint256;
   using Write for OperationStorage;
   using Read for OperationStorage;

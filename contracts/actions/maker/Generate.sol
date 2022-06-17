@@ -16,7 +16,7 @@ import "../../libs/SafeMath.sol";
 
 import { GenerateData } from "../../core/types/Maker.sol";
 
-contract Generate is Executable, UseStore {
+contract MakerGenerate is Executable, UseStore {
   using SafeMath for uint256;
   using Read for OperationStorage;
   using Write for OperationStorage;

@@ -1,8 +1,9 @@
 pragma solidity ^0.8.1;
 
-import "../common/Executable.sol";
-import "../../core/ServiceRegistry.sol";
-import "../../core/OperationStorage.sol";
+import "../actions/common/Executable.sol";
+import "../core/ServiceRegistry.sol";
+import "../core/OperationStorage.sol";
+import { OPERATION_STORAGE } from "../core/constants/Common.sol";
 
 contract DummyAction is Executable {
   ServiceRegistry internal immutable registry;
@@ -12,9 +13,7 @@ contract DummyAction is Executable {
   }
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
-    OperationStorage txStorage = OperationStorage(
-      registry.getRegisteredService("OPERATION_STORAGE")
-    );
+    OperationStorage txStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
     console.log("IN THE DUMMY ACTION");
     console.log(txStorage.len());
   }

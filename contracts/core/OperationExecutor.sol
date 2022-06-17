@@ -12,7 +12,8 @@ import "../interfaces/tokens/IERC20.sol";
 import "../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import "../interfaces/flashloan/IERC3156FlashLender.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
-import { OPERATION_STORAGE, FLASH_MINT_MODULE } from "./Constants.sol";
+import { OPERATION_STORAGE } from "./constants/Common.sol";
+import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
 contract OperationExecutor is IERC3156FlashBorrower {
   ServiceRegistry public immutable registry;
