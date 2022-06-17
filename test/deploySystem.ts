@@ -2,13 +2,13 @@ import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
 import DSProxyABI from '../abi/ds-proxy.json'
-import { ADDRESSES } from './addresses'
-import { CONTRACT_NAMES } from './constants'
-import { deploy } from './deploy'
-import { getOrCreateProxy } from './proxy'
-import { loadDummyExchangeFixtures } from './swap/DummyExchange'
-import { RuntimeConfig } from './types/common'
-import { logDebug, ServiceRegistry } from './utils'
+import { ADDRESSES } from '../helpers/addresses'
+import { CONTRACT_NAMES } from '../helpers/constants'
+import { deploy } from '../helpers/deploy'
+import { getOrCreateProxy } from '../helpers/proxy'
+import { loadDummyExchangeFixtures } from '../helpers/swap/DummyExchange'
+import { RuntimeConfig } from '../helpers/types/common'
+import { logDebug, ServiceRegistry } from '../helpers/utils'
 
 export interface DeployedSystemInfo {
   common: {
