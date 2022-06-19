@@ -115,41 +115,8 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
       ],
     )
 
-    // const paybackDai = new BigNumber(0) // Can be anything because paybackAll flag is true
-    // const paybackAll = true
-    // const paybackAction = createAction(
-    //   await registry.getEntryHash(CONTRACT_NAMES.maker.PAYBACK),
-    //   [calldataTypes.maker.Payback, calldataTypes.paramsMap],
-    //   [
-    //     {
-    //       vaultId: 0,
-    //       userAddress: address,
-    //       daiJoin: ADDRESSES.main.maker.joinDAI,
-    //       mcdManager: ADDRESSES.main.maker.cdpManager,
-    //       amount: ensureWeiFormat(paybackDai),
-    //       paybackAll: paybackAll,
-    //     },
-    //     [1],
-    //   ],
-    // )
-
     const ALLOWANCE = new BigNumber('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
     await DAI.approve(system.common.userProxyAddress, ensureWeiFormat(ALLOWANCE))
-
-    // const withdrawAction = createAction(
-    //   await registry.getEntryHash(CONTRACT_NAMES.maker.WITHDRAW),
-    //   [calldataTypes.maker.Withdraw, calldataTypes.paramsMap],
-    //   [
-    //     {
-    //       vaultId: 0,
-    //       userAddress: address,
-    //       joinAddr: ADDRESSES.main.maker.joinETH_A,
-    //       mcdManager: ADDRESSES.main.maker.cdpManager,
-    //       amount: ensureWeiFormat(initialColl),
-    //     },
-    //     [1],
-    //   ],
-    // )
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, txReceipt] = await executeThroughProxy(
