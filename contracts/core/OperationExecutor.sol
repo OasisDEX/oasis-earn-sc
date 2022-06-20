@@ -24,23 +24,31 @@ contract OperationExecutor is IERC3156FlashBorrower {
   }
 
   function executeOp(Call[] memory calls, string calldata operationName) public {
+    console.log("KUUUUUURWA");
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
-    OperationsRegistry opRegistry = OperationsRegistry(
-      registry.getRegisteredService(OPERATIONS_REGISTRY)
-    );
+    // OperationsRegistry opRegistry = OperationsRegistry(
+    //   registry.getRegisteredService(OPERATIONS_REGISTRY)
+    // );
 
-    opStorage.setOperationSteps(opRegistry.getOperation(operationName));
+    // opStorage.setOperationSteps(opRegistry.getOperation(operationName));
     aggregate(calls);
     opStorage.finalize();
   }
 
   function aggregate(Call[] memory calls) public {
+    console.log("DEBUG: AM I EVEN HERE?");
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
+    // bool hasStepsToVerify = opStorage.hasStepsToVerify();
+    console.log("JA PIERDOLE!");
     for (uint256 current = 0; current < calls.length; current++) {
-      opStorage.verifyStep(calls[current].targetHash);
+      // if (false) {
+      //   opStorage.verifyStep(calls[current].targetHash);
+      // }
       address target = registry.getServiceAddress(calls[current].targetHash);
+      console.log("CO TAM KURWA!!");
       (bool success, ) = target.delegatecall(calls[current].callData);
-
+      console.log("target:", target);
+      console.log("success:", success);
       require(success, "delegate call failed");
     }
   }

@@ -190,6 +190,13 @@ export async function deploySystem(
   )
   deployedContracts.aave.withdraw = withdrawInAAVEAction
 
+  const [operationsRegistry, operationsRegistryAddress] = await deploy(
+    CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
+    [],
+    options,
+  )
+  deployedContracts.common.operationsRegistry = operationsRegistry
+
   debug && console.log('4/ Adding contracts to registry')
   //-- Add Token Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
@@ -201,6 +208,7 @@ export async function deploySystem(
   //-- Add Common Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_EXECUTOR, operationExecutorAddress)
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
+  await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
   await registry.addEntry(CONTRACT_NAMES.common.EXCHANGE, dummyExchangeAddress)
   await registry.addEntry(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, actionFlAddress)
   await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
@@ -235,7 +243,8 @@ export async function deploySystem(
       `DSProxy address: ${deployedContracts.common.dsProxy.address}`,
       `Registry address: ${deployedContracts.common.serviceRegistry.address}`,
       `Operation Executor address: ${deployedContracts.common.operationExecutor.address}`,
-      `Operator Storage address: ${deployedContracts.common.operationStorage.address}`,
+      `Operation Storage address: ${deployedContracts.common.operationStorage.address}`,
+      `Operations Registry address: ${deployedContracts.common.operationsRegistry.address}`,
       `Send Token address: ${deployedContracts.common.sendToken.address}`,
       `Pull Token address: ${deployedContracts.common.pullToken.address}`,
       `Flashloan Action address: ${deployedContracts.common.takeFlashLoan.address}`,

@@ -6,8 +6,8 @@ import "hardhat/console.sol";
 contract OperationStorage {
   address private owner;
   uint8 step = 0;
-  bytes32[] private steps;
-  bytes32[] private returnValues;
+  bytes32[] public steps;
+  bytes32[] public returnValues;
 
   constructor() {
     owner = msg.sender;
@@ -20,6 +20,10 @@ contract OperationStorage {
   function verifyStep(bytes32 stepHash) external {
     require(steps[step] == stepHash, "incorrect-step");
     step++;
+  }
+
+  function hasStepsToVerify() external view returns (bool) {
+    return steps.length > 0;
   }
 
   function push(bytes32 value) external {
