@@ -2,6 +2,7 @@ pragma solidity ^0.8.5;
 
 import "../../core/OperationStorage.sol";
 import "../../core/ServiceRegistry.sol";
+import { OPERATION_STORAGE } from "../../core/constants/Common.sol";
 
 library Read {
   function read(
@@ -31,6 +32,6 @@ abstract contract UseStore {
   }
 
   function store() internal view returns (OperationStorage) {
-    return OperationStorage(registry.getRegisteredService("OPERATION_STORAGE"));
+    return OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
   }
 }

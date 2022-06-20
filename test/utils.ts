@@ -2,10 +2,6 @@ import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { isError, tryF } from 'ts-try'
 
-export function logDebug(lines: string[], prefix = '') {
-  lines.forEach(line => console.log(`${prefix}${line}`))
-}
-
 export function expectToBeEqual(lhs: BigNumber.Value, rhs: BigNumber.Value, precision?: number) {
   const [a, b] = [lhs, rhs].map(value => new BigNumber(value))
   const [formattedA, formattedB] =

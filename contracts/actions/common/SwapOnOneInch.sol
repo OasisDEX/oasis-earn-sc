@@ -8,7 +8,7 @@ import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import "../../interfaces/tokens/IWETH.sol";
 import { SwapData } from "../../core/types/Common.sol";
-import { OPERATION_STORAGE, WETH, ONE_INCH_AGGREGATOR } from "../../core/Constants.sol";
+import { WETH, ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
 
 // TODO: Make it so it differentiate between ETH and any other token
 contract SwapOnOneInch is Executable {

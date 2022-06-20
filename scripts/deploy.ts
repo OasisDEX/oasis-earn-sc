@@ -7,7 +7,7 @@ import { BigNumber } from 'bignumber.js'
 import { ethers } from 'hardhat'
 
 import { ADDRESSES } from '../helpers/addresses'
-import { CONTRACT_LABELS, ZERO } from '../helpers/constants'
+import { CONTRACT_NAMES, ZERO } from '../helpers/constants'
 import { deploy, executeThroughProxy } from '../helpers/deploy'
 import init from '../helpers/init'
 // Helper functions
@@ -54,32 +54,48 @@ async function main() {
   console.log('DEBUG DEPLOYING ....')
 
   // ServiceRegistry SETUP:
-  const [, serviceRegistryAddress] = await deploy('ServiceRegistry', [0], options)
+  const [, serviceRegistryAddress] = await deploy(
+    CONTRACT_NAMES.common.SERVICE_REGISTRY,
+    [0],
+    options,
+  )
   const registry: ServiceRegistry = new ServiceRegistry(serviceRegistryAddress, signer)
-  registry.addEntry(CONTRACT_LABELS.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
+  registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
 
   // DEPLOYING Operation Executor
   const [operationExecutor, operationExecutorAddress] = await deploy(
-    'OperationExecutor',
+    CONTRACT_NAMES.common.OPERATION_EXECUTOR,
     [serviceRegistryAddress],
     options,
   )
-  registry.addEntry(CONTRACT_LABELS.common.OPERATION_EXECUTOR, operationExecutorAddress)
+  registry.addEntry(CONTRACT_NAMES.common.OPERATION_EXECUTOR, operationExecutorAddress)
 
   // DEPLOYING ACTIONS
-  const [, pullTokenActionAddress] = await deploy('PullToken', [], options)
-  const [, sendTokenAddress] = await deploy('SendToken', [], options)
-  const [, setApprovalAddress] = await deploy('SetApproval', [], options)
-  const [, flActionAddress] = await deploy('TakeFlashloan', [serviceRegistryAddress], options)
-  const [, depositInAAVEAddress] = await deploy('DepositInAAVE', [serviceRegistryAddress], options)
-  const [, borrowFromAAVEAddress] = await deploy(
-    'BorrowFromAAVE',
+  const [, pullTokenActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [], options)
+  const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [], options)
+  const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [], options)
+  const [, flActionAddress] = await deploy(
+    CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
     [serviceRegistryAddress],
     options,
   )
-  const [, swapOnOninchAddress] = await deploy('SwapOnOneInch', [serviceRegistryAddress], options)
+  const [, depositInAAVEAddress] = await deploy(
+    CONTRACT_NAMES.aave.DEPOSIT,
+    [serviceRegistryAddress],
+    options,
+  )
+  const [, AaveBorrowAddress] = await deploy(
+    CONTRACT_NAMES.aave.BORROW,
+    [serviceRegistryAddress],
+    options,
+  )
+  const [, swapOnOninchAddress] = await deploy(
+    CONTRACT_NAMES.common.SWAP_ON_ONE_INCH,
+    [serviceRegistryAddress],
+    options,
+  )
   const [, withdrawFromAAVEAddress] = await deploy(
-    'WithdrawFromAAVE',
+    CONTRACT_NAMES.aave.WITHDRAW,
     [serviceRegistryAddress],
     options,
   )
@@ -88,46 +104,43 @@ async function main() {
 
   //SETUP REGISTRY ENTRIES:
   console.log('DEBUG SETTING UP REGISTRY ENTRIES...')
-  await registry.addEntry(CONTRACT_LABELS.common.OPERATION_STORAGE, operationStorageAddress)
-  const dummyActionHash = await registry.addEntry('DUMMY_ACTION', dummyActionAddress)
+  await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
+  const dummyActionHash = await registry.addEntry(
+    CONTRACT_NAMES.test.DUMMY_ACTION,
+    dummyActionAddress,
+  )
   const pullTokenHash = await registry.addEntry(
-    CONTRACT_LABELS.common.PULL_TOKEN,
+    CONTRACT_NAMES.common.PULL_TOKEN,
     pullTokenActionAddress,
   )
-  const sendTokenHash = await registry.addEntry(CONTRACT_LABELS.common.SEND_TOKEN, sendTokenAddress)
+  const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
   const setApprovalHash = await registry.addEntry(
-    CONTRACT_LABELS.common.SET_APPROVAL,
+    CONTRACT_NAMES.common.SET_APPROVAL,
     setApprovalAddress,
   )
   const takeAFlashloanHash = await registry.addEntry(
-    CONTRACT_LABELS.common.TAKE_A_FLASHLOAN,
+    CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
     flActionAddress,
   )
   const depositInAAVEHash = await registry.addEntry(
-    CONTRACT_LABELS.aave.DEPOSIT_IN_AAVE,
+    CONTRACT_NAMES.aave.DEPOSIT,
     depositInAAVEAddress,
   )
-  const borrowFromAAVEHash = await registry.addEntry(
-    CONTRACT_LABELS.aave.BORROW_FROM_AAVE,
-    borrowFromAAVEAddress,
-  )
+  const AaveBorrowHash = await registry.addEntry(CONTRACT_NAMES.aave.BORROW, AaveBorrowAddress)
   const withdrawFromAAVEHash = await registry.addEntry(
-    CONTRACT_LABELS.aave.WITHDRAW_FROM_AAVE,
+    CONTRACT_NAMES.aave.WITHDRAW,
     withdrawFromAAVEAddress,
   )
   const swapOnOneInchHash = await registry.addEntry(
-    CONTRACT_LABELS.common.SWAP_ON_ONE_INCH,
+    CONTRACT_NAMES.common.SWAP_ON_ONE_INCH,
     swapOnOninchAddress,
   )
+  await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
+  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
+  await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
+  await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
   await registry.addEntry(
-    CONTRACT_LABELS.aave.AAVE_LENDING_POOL,
-    ADDRESSES.main.AAVEMainnetLendingPool,
-  )
-  await registry.addEntry(CONTRACT_LABELS.aave.AAVE_WETH_GATEWAY, ADDRESSES.main.AAVEWETHGateway)
-  await registry.addEntry(CONTRACT_LABELS.common.WETH, ADDRESSES.main.WETH)
-  await registry.addEntry(CONTRACT_LABELS.common.DAI, ADDRESSES.main.DAI)
-  await registry.addEntry(
-    CONTRACT_LABELS.common.ONE_INCH_AGGREGATOR,
+    CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     ADDRESSES.main.oneInchAggregator,
   )
 
@@ -167,7 +180,7 @@ async function main() {
       {
         amount: flashloanAmount.plus(depositAmount).toFixed(0),
         asset: ADDRESSES.main.DAI,
-        delegator: ADDRESSES.main.AAVEMainnetLendingPool,
+        delegator: ADDRESSES.main.aave.MainnetLendingPool,
       },
     ],
   )
@@ -186,7 +199,7 @@ async function main() {
 
   // BORROW FROM AAVE
   const borrowEthFromAAVE = createAction(
-    borrowFromAAVEHash,
+    AaveBorrowHash,
     [calldataTypes.aave.Generate],
     [
       {

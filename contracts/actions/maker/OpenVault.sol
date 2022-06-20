@@ -10,7 +10,7 @@ import "../../interfaces/maker/IManager.sol";
 
 import { OpenVaultData } from "../../core/types/Maker.sol";
 
-contract OpenVault is Executable, UseStore {
+contract MakerOpenVault is Executable, UseStore {
   using Write for OperationStorage;
 
   constructor(address _registry) UseStore(_registry) {}

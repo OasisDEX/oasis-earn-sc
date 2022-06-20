@@ -1,11 +1,10 @@
 import BigNumber from 'bignumber.js'
 
-import { ADDRESSES } from '../../helpers/addresses'
-import { ONE } from '../../helpers/constants'
-import { ExchangeData } from '../../helpers/types/common'
-import { CdpData } from '../../helpers/types/maker'
-import { amountToWei } from '../../helpers/utils'
-import { logDebug } from './testUtils'
+import { ADDRESSES } from './addresses'
+import { ONE } from './constants'
+import { ExchangeData } from './types/common'
+import { CdpData } from './types/maker'
+import { amountToWei, logDebug } from './utils'
 
 export function calculateParamsIncreaseMP({
   oraclePrice,
@@ -147,7 +146,7 @@ export function prepareMultiplyParameters({
 
   const cdpData = {
     skipFL: skipFL,
-    gemJoin: ADDRESSES.main.joinETH_A,
+    gemJoin: ADDRESSES.main.maker.joinETH_A,
     cdpId,
     ilk: '0x0000000000000000000000000000000000000000000000000000000000000000',
     fundsReceiver: fundsReceiver,

@@ -7,7 +7,6 @@ import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import { SendTokenData } from "../../core/types/Common.sol";
-import { OPERATION_STORAGE } from "../../core/Constants.sol";
 
 // TODO: Be able to differentiate between ETH and ERC20 tokens
 contract SendToken is Executable {
