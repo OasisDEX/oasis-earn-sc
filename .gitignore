@@ -3,6 +3,8 @@ node_modules
 coverage
 coverage.json
 typechain
+yarn-error.log
+tenderly.yaml
 
 #Hardhat files
 cache

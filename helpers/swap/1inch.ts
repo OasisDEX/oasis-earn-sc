@@ -1,7 +1,10 @@
+import { ethers, Signer } from 'ethers'
 import fetch from 'node-fetch'
 
 import { ADDRESSES } from '../addresses'
-import { OneInchSwapResponse } from '../types'
+import { OneInchSwapResponse, RuntimeConfig } from '../types/common'
+import * as UniswapRouterV3ABI from '../../abi/IUniswapRouter.json'
+import { Provider } from '@ethersproject/providers'
 
 export function formatOneInchSwapUrl(
   fromToken: string,
@@ -29,7 +32,7 @@ export async function swapOneInchTokens(
   fromTokenAddress: string,
   toTokenAddress: string,
   amount: string,
-  recepient: string,
+  recipient: string,
   slippage: string,
   protocols: string[] = [],
 ): Promise<OneInchSwapResponse> {
@@ -38,7 +41,7 @@ export async function swapOneInchTokens(
     toTokenAddress,
     amount,
     slippage,
-    recepient,
+    recipient,
     protocols,
   )
 
@@ -81,4 +84,34 @@ export async function exchangeToDAI(
   )
 
   return exchangeTokens(url)
+}
+
+ export async function swapTokens(
+  tokenIn: string,
+  tokenOut: string,
+  amountIn: string,
+  amountOutMinimum: string,
+  recipient: string,
+  provider: Provider,
+  signer: Signer,
+) {
+  const value = tokenIn === ADDRESSES.main.WETH ? amountIn : 0
+
+  const UNISWAP_ROUTER_V3 = ADDRESSES.main.uniswapRouterV3
+  const uniswapV3 = new ethers.Contract(UNISWAP_ROUTER_V3, UniswapRouterV3ABI, provider).connect(
+    signer,
+  )
+
+  const swapParams = {
+    tokenIn,
+    tokenOut,
+    fee: 3000,
+    recipient,
+    deadline: new Date().getTime(),
+    amountIn,
+    amountOutMinimum,
+    sqrtPriceLimitX96: 0,
+  }
+
+  await uniswapV3.exactInputSingle(swapParams, { value })
 }

@@ -4,7 +4,7 @@ import { ethers } from 'hardhat'
 
 import UNISWAP_ROUTER_V3_ABI from '../../abi/IUniswapRouter.json'
 import { ADDRESSES } from '../addresses'
-import { RuntimeConfig } from '../types'
+import { RuntimeConfig } from '../types/common'
 
 /**
  * tokenIn: string - asset address
@@ -23,11 +23,11 @@ export async function swapUniswapTokens(
 ) {
   const value = tokenIn === ADDRESSES.main.WETH ? amountIn : 0
 
-  const UNISWAP_ROUTER_V3 = '0xe592427a0aece92de3edee1f18e0157c05861564'
-
-  const uniswapV3 = new ethers.Contract(UNISWAP_ROUTER_V3, UNISWAP_ROUTER_V3_ABI, provider).connect(
-    signer,
-  )
+  const uniswapV3 = new ethers.Contract(
+    ADDRESSES.main.uniswapRouterV3,
+    UNISWAP_ROUTER_V3_ABI,
+    provider,
+  ).connect(signer)
 
   const swapParams = {
     tokenIn,

@@ -11,10 +11,10 @@ import { CONTRACT_LABELS } from '../../helpers/constants'
 import { deploy } from '../../helpers/deploy'
 import init from '../../helpers/init'
 import { getOrCreateProxy } from '../../helpers/proxy'
-import { loadDummyExchangeFixtures } from '../../helpers/swap/dummy-exchange'
-import { CDPInfo } from '../../helpers/types'
+import { loadDummyExchangeFixtures } from '../../helpers/swap/DummyExchange'
+import { CDPInfo } from '../../helpers/types/maker'
 import { ServiceRegistry } from '../../helpers/utils'
-import { logDebug } from './test-utils'
+import { logDebug } from './testUtils'
 
 export const FEE = 20
 export const FEE_BASE = 10000
@@ -40,29 +40,28 @@ export interface DeployedSystemInfo {
   actionPayback: Contract
   actionWithdraw: Contract
   actionGenerate: Contract
-  actionCdpAllow: Contract
-  actionCdpDisallow: Contract
+  actionSendToken: Contract
+  actionPullToken: Contract
+  actionSwap: Contract
+  actionDummySwap: Contract
   operationExecutor: Contract
   operationStorage: Contract
   serviceRegistry: Contract
 }
 
-export async function deployTestSystem(
-  usingDummyExchange = false,
-  debug = false,
-): Promise<DeployedSystemInfo> {
+export async function deployTestSystem(debug = false): Promise<DeployedSystemInfo> {
   const config = await init()
   const { provider, signer, address } = config
 
   const options = {
-    debug: true,
+    debug,
     config,
   }
 
   const deployedContracts: Partial<DeployedSystemInfo> = {}
 
   // Setup User
-  console.log('1/ Setting up user proxy')
+  debug && console.log('1/ Setting up user proxy')
   const proxyAddress = await getOrCreateProxy(signer)
   deployedContracts.userProxyAddress = proxyAddress
   deployedContracts.dsProxyInstance = new ethers.Contract(
@@ -72,7 +71,7 @@ export async function deployTestSystem(
   ).connect(signer)
 
   // Deploy System Contracts
-  console.log('2/ Deploying system contracts')
+  debug && console.log('2/ Deploying system contracts')
   const [serviceRegistry, serviceRegistryAddress] = await deploy('ServiceRegistry', [0], options)
   const registry = new ServiceRegistry(serviceRegistryAddress, signer)
   deployedContracts.serviceRegistry = serviceRegistry
@@ -84,27 +83,35 @@ export async function deployTestSystem(
   )
   deployedContracts.operationExecutor = operationExecutor
 
-  const [operationStorage, operationStorageAddress] = await deploy(
-    'OperationStorage',
-    [serviceRegistryAddress],
-    options,
-  )
+  const [operationStorage, operationStorageAddress] = await deploy('OperationStorage', [], options)
   deployedContracts.operationStorage = operationStorage
 
-  const [mcdView, mcdViewAddress] = await deploy('McdView', [serviceRegistryAddress], options)
+  const [mcdView, mcdViewAddress] = await deploy('McdView', [], options)
   deployedContracts.mcdViewInstance = mcdView
 
-  const [dummyExchange, dummyExchangeAddress] = await deploy(
-    'DummyExchange',
-    [serviceRegistryAddress],
-    options,
-  )
+  const [dummyExchange, dummyExchangeAddress] = await deploy('DummyExchange', [], options)
   deployedContracts.exchangeInstance = dummyExchange
 
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
 
   // Deploy Actions
-  console.log('3/ Deploying actions')
+  debug && console.log('3/ Deploying actions')
+  const [dummySwap, dummySwapAddress] = await deploy(
+    'DummySwap',
+    [serviceRegistryAddress, ADDRESSES.main.WETH, dummyExchangeAddress],
+    options,
+  )
+  deployedContracts.actionDummySwap = dummySwap
+
+  const [swap, swapAddress] = await deploy('SwapOnOneInch', [serviceRegistryAddress], options)
+  deployedContracts.actionSwap = swap
+
+  const [sendToken, sendTokenAddress] = await deploy('SendToken', [], options)
+  deployedContracts.actionSendToken = sendToken
+
+  const [pullToken, pullTokenAddress] = await deploy('PullToken', [], options)
+  deployedContracts.actionPullToken = pullToken
+
   const [actionFl, actionFlAddress] = await deploy(
     'TakeFlashloan',
     [serviceRegistryAddress],
@@ -147,35 +154,26 @@ export async function deployTestSystem(
   )
   deployedContracts.actionGenerate = actionGenerate
 
-  const [actionCdpAllow, actionCdpAllowAddress] = await deploy(
-    'CdpAllow',
-    [serviceRegistryAddress],
-    options,
-  )
-  deployedContracts.actionCdpAllow = actionCdpAllow
-
-  const [actionCdpDisallow, actionCdpDisallowAddress] = await deploy(
-    'CdpDisallow',
-    [serviceRegistryAddress],
-    options,
-  )
-  deployedContracts.actionCdpDisallow = actionCdpDisallow
-
-  console.log('4/ Adding contracts to registry')
+  debug && console.log('4/ Adding contracts to registry')
   registry.addEntry(CONTRACT_LABELS.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
   registry.addEntry(CONTRACT_LABELS.common.OPERATION_EXECUTOR, operationExecutorAddress)
   registry.addEntry(CONTRACT_LABELS.common.OPERATION_STORAGE, operationStorageAddress)
   registry.addEntry(CONTRACT_LABELS.maker.MCD_VIEW, mcdViewAddress)
   registry.addEntry(CONTRACT_LABELS.common.EXCHANGE, dummyExchangeAddress)
-
   registry.addEntry(CONTRACT_LABELS.common.TAKE_A_FLASHLOAN, actionFlAddress)
+  registry.addEntry(CONTRACT_LABELS.common.SEND_TOKEN, sendTokenAddress)
+  registry.addEntry(CONTRACT_LABELS.common.PULL_TOKEN, pullTokenAddress)
+  registry.addEntry(CONTRACT_LABELS.common.SWAP_ON_ONE_INCH, swapAddress)
+  registry.addEntry(CONTRACT_LABELS.common.DUMMY_SWAP, dummySwapAddress)
+  registry.addEntry(CONTRACT_LABELS.common.ONE_INCH_AGGREGATOR, ADDRESSES.main.oneInchAggregator)
+  registry.addEntry(CONTRACT_LABELS.common.DAI, ADDRESSES.main.DAI)
+  registry.addEntry(CONTRACT_LABELS.maker.FLASH_MINT_MODULE, ADDRESSES.main.fmm)
+
   registry.addEntry(CONTRACT_LABELS.maker.OPEN_VAULT, actionOpenVaultAddress)
   registry.addEntry(CONTRACT_LABELS.maker.DEPOSIT, actionDepositAddress)
   registry.addEntry(CONTRACT_LABELS.maker.PAYBACK, actionPaybackAddress)
   registry.addEntry(CONTRACT_LABELS.maker.WITHDRAW, actionWithdrawAddress)
   registry.addEntry(CONTRACT_LABELS.maker.GENERATE, actionGenerateAddress)
-  registry.addEntry(CONTRACT_LABELS.maker.CDP_ALLOW, actionCdpAllowAddress)
-  registry.addEntry(CONTRACT_LABELS.maker.CDP_DISALLOW, actionCdpDisallowAddress)
 
   if (debug) {
     console.log('5/ Debugging...')
@@ -185,8 +183,11 @@ export async function deployTestSystem(
       `User Proxy Address: ${deployedContracts.userProxyAddress}`,
       `DSProxy address: ${deployedContracts.dsProxyInstance.address}`,
       `MCDView address: ${deployedContracts.mcdViewInstance.address}`,
+      `Registry address: ${deployedContracts.serviceRegistry.address}`,
       `Operation Executor address: ${deployedContracts.operationExecutor.address}`,
       `Operator Storage address: ${deployedContracts.operationStorage.address}`,
+      `Send Token address: ${deployedContracts.actionSendToken.address}`,
+      `Pull Token address: ${deployedContracts.actionPullToken.address}`,
 
       `Flashloan Action address: ${deployedContracts.actionTakeFlashLoan.address}`,
       `OpenVault Action address: ${deployedContracts.actionOpenVault.address}`,
@@ -194,8 +195,6 @@ export async function deployTestSystem(
       `Payback Action address: ${deployedContracts.actionPayback.address}`,
       `Withdraw Action address: ${deployedContracts.actionWithdraw.address}`,
       `Generate Action address: ${deployedContracts.actionGenerate.address}`,
-      `CdpAllow Action address: ${deployedContracts.actionCdpAllow.address}`,
-      `CdpDisallow Action address: ${deployedContracts.actionCdpDisallow.address}`,
     ])
   }
 
@@ -233,6 +232,7 @@ export async function getLastCDP(
 ): Promise<CDPInfo> {
   const getCdps = new ethers.Contract(ADDRESSES.main.getCdps, GetCDPsABI, provider).connect(signer)
   const { ids, urns, ilks } = await getCdps.getCdpsAsc(ADDRESSES.main.cdpManager, proxyAddress)
+
   const cdp = _.last(
     _.map(_.zip(ids, urns, ilks), cdp => ({
       id: (cdp[0] as EthersBN).toNumber(), // TODO:

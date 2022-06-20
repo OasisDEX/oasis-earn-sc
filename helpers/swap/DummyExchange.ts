@@ -2,12 +2,13 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
+import fetch from 'node-fetch'
 import { curry } from 'ramda'
 
 import WETHABI from '../../abi/IWETH.json'
 import { ADDRESSES } from '../addresses'
-import { ZERO } from '../constants'
-import { OneInchBaseResponse } from '../types'
+import { ONE } from '../constants'
+import { OneInchBaseResponse } from '../types/common'
 import { amountFromWei, amountToWei, balanceOf, send } from '../utils'
 import { swapUniswapTokens } from './uniswap'
 
@@ -49,10 +50,10 @@ export async function getMarketPrice(
 async function exchangeToToken(provider: JsonRpcProvider, signer: Signer, token: ERC20TokenData) {
   const address = await signer.getAddress()
   await swapUniswapTokens(
-    ADDRESSES.main.ETH,
+    ADDRESSES.main.WETH,
     token.address,
     amountToWei(200).toFixed(0),
-    amountToWei(ZERO, token.precision).toFixed(0),
+    amountToWei(ONE, token.precision).toFixed(0),
     address,
     { provider, signer, address },
   )
@@ -70,16 +71,17 @@ const addFundsDummyExchange = async function (
   const address = await signer.getAddress()
 
   const exchangeToTokenCurried = curry(exchangeToToken)(provider, signer)
+
   const transferToExchangeCurried = curry(send)(exchange.address)
 
   const wethDeposit = await WETH.deposit({
-    value: amountToWei(1000).toFixed(0),
+    value: amountToWei(2000).toFixed(0),
   })
   await wethDeposit.wait()
 
   const wethTransferToExchangeTx = await WETH.transfer(
     exchange.address,
-    amountToWei(500).toFixed(0),
+    amountToWei(1000).toFixed(0),
   )
   await wethTransferToExchangeTx.wait()
 
@@ -131,7 +133,7 @@ export async function loadDummyExchangeFixtures(
 ) {
   const tokens = [
     {
-      name: 'ETH',
+      name: 'WETH',
       address: ADDRESSES.main.WETH,
       pip: ADDRESSES.main.pipWETH,
       precision: 18,
@@ -148,18 +150,6 @@ export async function loadDummyExchangeFixtures(
       pip: ADDRESSES.main.pipLINK,
       precision: 18,
     },
-    {
-      name: 'WBTC',
-      address: ADDRESSES.main.WBTC,
-      pip: ADDRESSES.main.pipWBTC,
-      precision: 8,
-    },
-    {
-      name: 'USDC',
-      address: ADDRESSES.main.USDC,
-      pip: ADDRESSES.main.pipUSDC,
-      precision: 6,
-    },
   ]
 
   // Exchanging ETH for other @tokens
@@ -167,7 +157,7 @@ export async function loadDummyExchangeFixtures(
     provider,
     signer,
     ADDRESSES.main.WETH,
-    tokens.filter(token => token.address !== ADDRESSES.main.ETH),
+    tokens.filter(token => token.address !== ADDRESSES.main.WETH),
     dummyExchangeInstance,
     debug,
   )

@@ -7,7 +7,7 @@ import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import "../../interfaces/aave/ILendingPool.sol";
-import { AAVEWithdrawData } from "../../core/Types.sol";
+import { AAVEWithdrawData } from "../../core/types/Aave.sol";
 import { OPERATION_STORAGE, AAVE_LENDING_POOL } from "../../core/Constants.sol";
 
 // TODO: Make it more generic so that anything could be withdrawn and not only ETH
