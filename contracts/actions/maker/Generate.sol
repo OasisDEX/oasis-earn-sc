@@ -15,21 +15,20 @@ import "../../interfaces/maker/IManager.sol";
 import "../../libs/SafeMath.sol";
 
 import { GenerateData } from "../../core/types/Maker.sol";
+import { GENERATE_ACTION, JUG } from "../../core/constants/Maker.sol";
+import { RAY } from "../../core/constants/Common.sol";
 
 contract MakerGenerate is Executable, UseStore {
   using SafeMath for uint256;
   using Read for OperationStorage;
   using Write for OperationStorage;
 
-  uint256 constant RAY = 10**27;
-
-  address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-  address public constant JUG_ADDRESS = 0x19c0976f590D67707E62397C87829d896Dc0f1F1;
   address public constant DAI_JOIN_ADDR = 0x9759A6Ac90977b93B58547b4A71c78317f391A28;
 
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
+    emit Started(GENERATE_ACTION, data, paramsMap);
     GenerateData memory generateData = abi.decode(data, (GenerateData));
     IManager mcdManager = IManager(generateData.mcdManager);
     address vatAddr = mcdManager.vat();
@@ -37,7 +36,9 @@ contract MakerGenerate is Executable, UseStore {
 
     generateData.vaultId = uint256(store().read(bytes32(generateData.vaultId), paramsMap[0]));
 
-    store().write(_generate(generateData, mcdManager, vat));
+    bytes32 amountGenerated = _generate(generateData, mcdManager, vat);
+    emit Completed(GENERATE_ACTION, amountGenerated);
+    store().write(amountGenerated);
   }
 
   function _generate(
@@ -50,7 +51,7 @@ contract MakerGenerate is Executable, UseStore {
       int256(0),
       _getDrawDart(
         address(vat),
-        JUG_ADDRESS,
+        registry.getRegisteredService(JUG),
         mcdManager.urns(data.vaultId),
         mcdManager.ilks(data.vaultId),
         data.amount

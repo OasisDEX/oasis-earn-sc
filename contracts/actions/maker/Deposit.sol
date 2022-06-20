@@ -13,27 +13,30 @@ import "../../interfaces/maker/IManager.sol";
 import "../../libs/SafeMath.sol";
 
 import { DepositData } from "../../core/types/Maker.sol";
+import { WETH } from "../../core/constants/Common.sol";
+import { DEPOSIT_ACTION } from "../../core/constants/Maker.sol";
 
 contract MakerDeposit is Executable, UseStore {
   using SafeMath for uint256;
   using Write for OperationStorage;
   using Read for OperationStorage;
 
-  address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
+    emit Started(DEPOSIT_ACTION, data, paramsMap);
     DepositData memory depositData = abi.decode(data, (DepositData));
     depositData.vaultId = uint256(store().read(bytes32(depositData.vaultId), paramsMap[0]));
 
-    store().write(_deposit(depositData));
+    bytes32 amountDeposited = _deposit(depositData);
+    emit Completed(DEPOSIT_ACTION, amountDeposited);
+    store().write(amountDeposited);
   }
 
   function _deposit(DepositData memory data) internal returns (bytes32) {
     IGem gem = IJoin(data.joinAddress).gem();
 
-    if (address(gem) == WETH) {
+    if (address(gem) == registry.getRegisteredService(WETH)) {
       // gem.deposit{ value: msg.value }(); // no longer in msg.value, because of the flashloan callback
       gem.deposit{ value: address(this).balance }();
     }
