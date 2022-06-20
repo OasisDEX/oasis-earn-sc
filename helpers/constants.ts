@@ -47,6 +47,20 @@ export const CONTRACT_NAMES = {
 
 export const OPERATION_NAMES = {
   aave: {
-    OPEN_POSITION: 'OPEN_POSITION',
+    OPEN_POSITION: 'OpenPosition',
+  },
+  maker: {
+    OPEN_AND_DRAW: 'OpenAndDraw',
+    OPEN_DRAW_AND_CLOSE: 'OpenDrawAndClose',
+    INCREASE_MULTIPLE: 'IncreaseMultiple',
+    INCREASE_MULTIPLE_WITH_DAI_TOP_UP: 'IncreaseMultipleWithDaiTopup',
+    INCREASE_MULTIPLE_WITH_COLL_TOP_UP: 'IncreaseMultipleWithCollateralTopup',
+    INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP: 'IncreaseMultipleWithDaiAndCollTopup',
+    INCREASE_MULTIPLE_WITH_FLASHLOAN: 'IncreaseMultipleWithFlashloan',
+    INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_TOP_UP: 'IncreaseMultipleWithFlashloanWithDaiTopup',
+    INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_COLL_TOP_UP:
+      'IncreaseMultipleWithFlashWithCollateralTopup',
+    INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP:
+      'IncreaseMultipleWithFlashloanWithDaiAndCollTopup',
   },
 }
