@@ -38,9 +38,13 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
   function aggregate(Call[] memory calls) public {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
+    bool hasStepsToVerify = opStorage.hasStepsToVerify();
     for (uint256 current = 0; current < calls.length; current++) {
-      opStorage.verifyStep(calls[current].targetHash);
+      if (hasStepsToVerify) {
+        opStorage.verifyStep(calls[current].targetHash);
+      }
       address target = registry.getServiceAddress(calls[current].targetHash);
+
       (bool success, ) = target.delegatecall(calls[current].callData);
 
       require(success, "delegate call failed");

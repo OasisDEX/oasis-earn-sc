@@ -22,6 +22,7 @@ export interface DeployedSystemInfo {
     dummySwap: Contract
     operationExecutor: Contract
     operationStorage: Contract
+    operationRegistry: Contract
     serviceRegistry: Contract
   }
   aave: {
@@ -286,8 +287,8 @@ export async function deploySystem(
       `DSProxy address: ${deployedContracts.common.dsProxy.address}`,
       `Registry address: ${deployedContracts.common.serviceRegistry.address}`,
       `Operation Executor address: ${deployedContracts.common.operationExecutor.address}`,
-      `Operation Registry address: ${deployedContracts.common.operationRegistry.address}`,
-      `Operator Storage address: ${deployedContracts.common.operationStorage.address}`,
+      `Operation Storage address: ${deployedContracts.common.operationStorage.address}`,
+      `Operations Registry address: ${deployedContracts.common.operationRegistry.address}`,
       `Send Token address: ${deployedContracts.common.sendToken.address}`,
       `Pull Token address: ${deployedContracts.common.pullToken.address}`,
       `Flashloan Action address: ${deployedContracts.common.takeFlashLoan.address}`,
