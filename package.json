@@ -11,8 +11,8 @@
   },
   "scripts": {
     "deploy": "npx hardhat run",
-    "test_": "npx hardhat test",
-    "lint_": "eslint . --fix --ext .ts"
+    "test": "npx hardhat test",
+    "lint": "eslint . --fix --ext .ts"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
