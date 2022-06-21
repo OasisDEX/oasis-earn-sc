@@ -52,7 +52,6 @@ contract DummyExchange {
     address asset,
     uint256 amount
   ) internal {
-    // console.log("TRANSFER IN", asset, amount);
     require(
       IERC20(asset).allowance(from, address(this)) >= amount,
       "Exchange / Not enought allowance"
@@ -70,7 +69,6 @@ contract DummyExchange {
   ) internal {
     IERC20(asset).safeTransfer(to, amount);
     emit SlippageSaved(amount, amount);
-    // console.log("TRANSFER OUT", asset, amount);
   }
 
   function _collectFee(address asset, uint256 fromAmount) public returns (uint256) {

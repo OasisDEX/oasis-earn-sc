@@ -11,7 +11,7 @@ library Read {
     uint256 paramMapping
   ) internal view returns (bytes32) {
     if (paramMapping > 0) {
-      return _storage.at(paramMapping);
+      return _storage.at(paramMapping - 1);
     }
 
     return param;

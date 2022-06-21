@@ -17,6 +17,7 @@ export const CONTRACT_NAMES = {
     SWAP_ON_ONE_INCH: 'SwapOnOneInch',
     OPERATION_EXECUTOR: 'OperationExecutor',
     OPERATION_STORAGE: 'OperationStorage',
+    OPERATIONS_REGISTRY: 'OperationsRegistry',
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
     EXCHANGE: 'Exchange',
     SERVICE_REGISTRY: 'ServiceRegistry',
@@ -41,5 +42,25 @@ export const CONTRACT_NAMES = {
     DUMMY_ACTION: 'DummyAction',
     DUMMY_SWAP: 'DummySwap',
     DUMMY_EXCHANGE: 'DummyExchange',
+  },
+}
+
+export const OPERATION_NAMES = {
+  aave: {
+    OPEN_POSITION: 'OpenPosition',
+  },
+  maker: {
+    OPEN_AND_DRAW: 'OpenAndDraw',
+    OPEN_DRAW_AND_CLOSE: 'OpenDrawAndClose',
+    INCREASE_MULTIPLE: 'IncreaseMultiple',
+    INCREASE_MULTIPLE_WITH_DAI_TOP_UP: 'IncreaseMultipleWithDaiTopup',
+    INCREASE_MULTIPLE_WITH_COLL_TOP_UP: 'IncreaseMultipleWithCollateralTopup',
+    INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP: 'IncreaseMultipleWithDaiAndCollTopup',
+    INCREASE_MULTIPLE_WITH_FLASHLOAN: 'IncreaseMultipleWithFlashloan',
+    INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_TOP_UP: 'IncreaseMultipleWithFlashloanWithDaiTopup',
+    INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_COLL_TOP_UP:
+      'IncreaseMultipleWithFlashWithCollateralTopup',
+    INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP:
+      'IncreaseMultipleWithFlashloanWithDaiAndCollTopup',
   },
 }

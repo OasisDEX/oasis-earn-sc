@@ -36,3 +36,8 @@ struct Call {
   bytes32 targetHash; //TODO: Figure out a better name
   bytes callData;
 }
+
+struct Operation {
+  uint8 currentStep;
+  bytes32[] steps;
+}
