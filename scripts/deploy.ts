@@ -20,8 +20,8 @@ import {
   amountToWei,
   approve,
   balanceOf,
-  ServiceRegistry,
   OperationsRegistry,
+  ServiceRegistry,
 } from '../helpers/utils'
 
 const createAction = ActionFactory.create

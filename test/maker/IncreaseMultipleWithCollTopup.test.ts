@@ -31,7 +31,7 @@ const createAction = ActionFactory.create
 let DAI: Contract
 let WETH: Contract
 
-describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, async () => {
+describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_COLL_TOP_UP}`, async () => {
   const oazoFee = 2 // divided by base (10000), 1 = 0.01%;
   const oazoFeePct = new BigNumber(oazoFee).div(10000)
   const flashLoanFee = LENDER_FEE
@@ -79,11 +79,11 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
   const initialColl = new BigNumber(100)
   const initialDebt = new BigNumber(0)
   const daiTopUp = new BigNumber(0)
-  const collTopUp = new BigNumber(0)
+  const collTopUp = new BigNumber(10)
   const requiredCollRatio = new BigNumber(5)
   const gasEstimates = gasEstimateHelper()
 
-  const testName = `should open vault, deposit ETH and increase multiple`
+  const testName = `should open vault, deposit ETH and increase multiple & [+Coll topup]`
   it(testName, async () => {
     await WETH.approve(
       system.common.userProxyAddress,
@@ -159,6 +159,32 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
       ],
     )
 
+    const transferCollTopupToProxyAction = createAction(
+      await registry.getEntryHash(CONTRACT_NAMES.common.PULL_TOKEN),
+      [calldataTypes.common.PullToken],
+      [
+        {
+          asset: exchangeData?.toTokenAddress,
+          from: address,
+          amount: ensureWeiFormat(desiredCdpState.collTopUp),
+        },
+      ],
+    )
+
+    const topupCollateralAction = createAction(
+      await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
+      [calldataTypes.maker.Deposit],
+      [
+        {
+          joinAddress: ADDRESSES.main.maker.joinETH_A,
+          mcdManager: ADDRESSES.main.maker.cdpManager,
+          vaultId: 0,
+          amount: ensureWeiFormat(collTopUp),
+        },
+        [1],
+      ],
+    )
+
     // Generate DAI -> Swap for collateral -> Deposit collateral
     const generateDaiForSwap = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
@@ -215,6 +241,8 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
       openVaultAction,
       pullTokenIntoProxyAction,
       initialDepositAction,
+      transferCollTopupToProxyAction,
+      topupCollateralAction,
       generateDaiForSwap,
       swapAction,
       depositBorrowedCollateral,
@@ -227,7 +255,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
         address: system.common.operationExecutor.address,
         calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
           actions,
-          OPERATION_NAMES.maker.INCREASE_MULTIPLE,
+          OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_COLL_TOP_UP,
         ]),
       },
       signer,
