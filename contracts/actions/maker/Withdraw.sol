@@ -29,8 +29,8 @@ contract MakerWithdraw is Executable, UseStore {
     withdrawData.vaultId = uint256(store().read(bytes32(withdrawData.vaultId), paramsMap[0]));
 
     bytes32 amountWithdrawn = _withdraw(withdrawData);
-    emit Action(WITHDRAW_ACTION, data, paramsMap, amountWithdrawn);
     store().write(amountWithdrawn);
+    emit Action(WITHDRAW_ACTION, data, paramsMap, amountWithdrawn);
   }
 
   function _withdraw(WithdrawData memory data) internal returns (bytes32) {

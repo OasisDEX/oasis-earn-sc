@@ -19,6 +19,13 @@ import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 contract OperationExecutor is IERC3156FlashBorrower {
   ServiceRegistry public immutable registry;
 
+  /**
+   * @dev Emitted once an Operation has completed execution
+   * @param name The address initiating the deposit
+   * @param calls The call data for the actions the operation must executes
+   **/
+  event Operation(string name, Call[] calls);
+
   constructor(address _registry) {
     registry = ServiceRegistry(_registry);
   }
@@ -34,6 +41,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     aggregate(calls);
 
     opStorage.finalize();
+    emit Operation(operationName, calls);
   }
 
   function aggregate(Call[] memory calls) public {

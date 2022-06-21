@@ -34,8 +34,8 @@ contract MakerGenerate is Executable, UseStore {
     generateData.vaultId = uint256(store().read(bytes32(generateData.vaultId), paramsMap[0]));
 
     bytes32 amountGenerated = _generate(generateData, mcdManager, vat);
-    emit Action(GENERATE_ACTION, data, paramsMap, amountGenerated);
     store().write(amountGenerated);
+    emit Action(GENERATE_ACTION, data, paramsMap, amountGenerated);
   }
 
   function _generate(

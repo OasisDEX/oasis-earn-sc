@@ -20,8 +20,8 @@ contract MakerOpenVault is Executable, UseStore {
     OpenVaultData memory openVaultData = abi.decode(data, (OpenVaultData));
 
     bytes32 vaultId = _openVault(openVaultData);
-    emit Action(OPEN_VAULT_ACTION, data, paramsMap, vaultId);
     store().write(vaultId);
+    emit Action(OPEN_VAULT_ACTION, data, paramsMap, vaultId);
   }
 
   function _openVault(OpenVaultData memory data) internal returns (bytes32) {
