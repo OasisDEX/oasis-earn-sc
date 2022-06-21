@@ -113,7 +113,11 @@ async function main() {
     [serviceRegistryAddress],
     options,
   )
-  const [, operationStorageAddress] = await deploy('OperationStorage', [], options)
+  const [, operationStorageAddress] = await deploy(
+    'OperationStorage',
+    [serviceRegistryAddress],
+    options,
+  )
   const [, dummyActionAddress] = await deploy('DummyAction', [serviceRegistryAddress], options)
 
   //SETUP REGISTRY ENTRIES:
