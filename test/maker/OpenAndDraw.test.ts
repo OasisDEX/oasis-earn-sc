@@ -143,8 +143,8 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
     const vault = await getLastVault(provider, signer, system.common.userProxyAddress)
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
 
-    expect(info.coll.toString()).to.equal(initialColl.toFixed(0))
-    expect(info.debt.toString()).to.equal(initialDebt.toFixed(0))
+    expect(info.coll.toFixed(0)).to.equal(initialColl.toFixed(0))
+    expect(info.debt.toFixed(0)).to.equal(initialDebt.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
       ADDRESSES.main.maker.cdpManager,

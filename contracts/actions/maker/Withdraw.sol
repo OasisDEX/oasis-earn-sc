@@ -13,20 +13,24 @@ import "../../interfaces/maker/IGem.sol";
 import "../../interfaces/maker/IManager.sol";
 import "../../libs/SafeMath.sol";
 
+import { WETH } from "../../core/constants/Common.sol";
+import { WITHDRAW_ACTION } from "../../core/constants/Maker.sol";
 import { WithdrawData } from "../../core/types/Maker.sol";
 
 contract MakerWithdraw is Executable, UseStore {
   using SafeMath for uint256;
   using Read for OperationStorage;
   using Write for OperationStorage;
-  address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
   constructor(address _registry) UseStore(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory _paramsMapping) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     WithdrawData memory withdrawData = abi.decode(data, (WithdrawData));
-    withdrawData.vaultId = uint256(store().read(bytes32(withdrawData.vaultId), _paramsMapping[0]));
-    store().write(_withdraw(withdrawData));
+    withdrawData.vaultId = uint256(store().read(bytes32(withdrawData.vaultId), paramsMap[0]));
+
+    bytes32 amountWithdrawn = _withdraw(withdrawData);
+    emit Action(WITHDRAW_ACTION, data, paramsMap, amountWithdrawn);
+    store().write(amountWithdrawn);
   }
 
   function _withdraw(WithdrawData memory data) internal returns (bytes32) {
@@ -43,7 +47,7 @@ contract MakerWithdraw is Executable, UseStore {
     // Exits token/WETH amount to the user's wallet as a token
     IGem(data.joinAddr).exit(address(this), convertedAmount);
 
-    if (address(gem) == WETH) {
+    if (address(gem) == registry.getRegisteredService(WETH)) {
       // Converts WETH to ETH
       IGem(data.joinAddr).gem().withdraw(convertedAmount);
       // Sends ETH back to the user's wallet

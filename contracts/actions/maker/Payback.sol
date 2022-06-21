@@ -14,13 +14,13 @@ import "../../interfaces/maker/IManager.sol";
 import "../../libs/SafeMath.sol";
 
 import { PaybackData } from "../../core/types/Maker.sol";
+import { PAYBACK_ACTION } from "../../core/constants/Maker.sol";
+import { RAY } from "../../core/constants/Common.sol";
 
 contract MakerPayback is Executable, UseStore {
   using SafeMath for uint256;
   using Read for OperationStorage;
   using Write for OperationStorage;
-
-  uint256 public constant RAY = 10**27;
 
   struct WipeData {
     address vat;
@@ -32,12 +32,16 @@ contract MakerPayback is Executable, UseStore {
 
   constructor(address _registry) UseStore(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory _paramsMapping) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     PaybackData memory paybackData = abi.decode(data, (PaybackData));
-    paybackData.vaultId = uint256(store().read(bytes32(paybackData.vaultId), _paramsMapping[0]));
-    paybackData.paybackAll ? _paybackAll(paybackData) : _payback(paybackData);
+    paybackData.vaultId = uint256(store().read(bytes32(paybackData.vaultId), paramsMap[0]));
 
-    store().write(bytes32(paybackData.amount));
+    bytes32 amountPaidBack = paybackData.paybackAll
+      ? _paybackAll(paybackData)
+      : _payback(paybackData);
+
+    emit Action(PAYBACK_ACTION, data, paramsMap, amountPaidBack);
+    store().write(amountPaidBack);
   }
 
   function _payback(PaybackData memory data) internal returns (bytes32) {
@@ -72,7 +76,7 @@ contract MakerPayback is Executable, UseStore {
       );
     }
 
-    return bytes32("");
+    return bytes32(data.amount);
   }
 
   function _paybackAll(PaybackData memory data) internal returns (bytes32) {
@@ -106,7 +110,7 @@ contract MakerPayback is Executable, UseStore {
       IVat(vat).frob(ilk, urn, address(this), address(this), 0, -int256(art));
     }
 
-    return bytes32("");
+    return bytes32(uint256(art));
   }
 
   function daiJoin_join(

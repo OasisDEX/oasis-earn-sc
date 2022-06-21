@@ -15,7 +15,7 @@ import "../../interfaces/maker/IManager.sol";
 import "../../libs/SafeMath.sol";
 
 import { GenerateData } from "../../core/types/Maker.sol";
-import { GENERATE_ACTION, JUG } from "../../core/constants/Maker.sol";
+import { GENERATE_ACTION, JUG, JOIN_DAI } from "../../core/constants/Maker.sol";
 import { RAY } from "../../core/constants/Common.sol";
 
 contract MakerGenerate is Executable, UseStore {
@@ -23,12 +23,9 @@ contract MakerGenerate is Executable, UseStore {
   using Read for OperationStorage;
   using Write for OperationStorage;
 
-  address public constant DAI_JOIN_ADDR = 0x9759A6Ac90977b93B58547b4A71c78317f391A28;
-
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    emit Started(GENERATE_ACTION, data, paramsMap);
     GenerateData memory generateData = abi.decode(data, (GenerateData));
     IManager mcdManager = IManager(generateData.mcdManager);
     address vatAddr = mcdManager.vat();
@@ -37,7 +34,7 @@ contract MakerGenerate is Executable, UseStore {
     generateData.vaultId = uint256(store().read(bytes32(generateData.vaultId), paramsMap[0]));
 
     bytes32 amountGenerated = _generate(generateData, mcdManager, vat);
-    emit Completed(GENERATE_ACTION, amountGenerated);
+    emit Action(GENERATE_ACTION, data, paramsMap, amountGenerated);
     store().write(amountGenerated);
   }
 
@@ -59,7 +56,7 @@ contract MakerGenerate is Executable, UseStore {
     );
 
     mcdManager.move(data.vaultId, address(this), toRad(data.amount));
-
+    address DAI_JOIN_ADDR = registry.getRegisteredService(JOIN_DAI);
     if (vat.can(address(this), address(DAI_JOIN_ADDR)) == 0) {
       vat.hope(DAI_JOIN_ADDR);
     }

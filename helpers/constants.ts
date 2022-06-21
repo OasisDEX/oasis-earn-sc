@@ -38,6 +38,7 @@ export const CONTRACT_NAMES = {
     MCD_VIEW: 'McdView',
     FLASH_MINT_MODULE: 'FlashMintModule',
     JUG: 'Jug',
+    JOIN_DAI: 'JoinDai',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',

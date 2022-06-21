@@ -24,12 +24,11 @@ contract MakerDeposit is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    emit Started(DEPOSIT_ACTION, data, paramsMap);
     DepositData memory depositData = abi.decode(data, (DepositData));
     depositData.vaultId = uint256(store().read(bytes32(depositData.vaultId), paramsMap[0]));
 
     bytes32 amountDeposited = _deposit(depositData);
-    emit Completed(DEPOSIT_ACTION, amountDeposited);
+    emit Action(DEPOSIT_ACTION, data, paramsMap, amountDeposited);
     store().write(amountDeposited);
   }
 

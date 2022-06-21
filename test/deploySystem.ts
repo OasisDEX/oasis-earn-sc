@@ -223,6 +223,7 @@ export async function deploySystem(
   //-- Add Maker Contract Entries
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_VIEW, mcdViewAddress)
   await registry.addEntry(CONTRACT_NAMES.maker.JUG, ADDRESSES.main.maker.jug)
+  await registry.addEntry(CONTRACT_NAMES.maker.JOIN_DAI, ADDRESSES.main.maker.joinDAI)
   await registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
   const makerOpenVaultHash = await registry.addEntry(
     CONTRACT_NAMES.maker.OPEN_VAULT,
