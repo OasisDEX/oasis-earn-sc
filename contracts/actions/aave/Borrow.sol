@@ -32,6 +32,6 @@ contract AaveBorrow is Executable, UseStore {
       2,
       0
     );
-    emit Action(BORROW_ACTION, data, paramsMap, bytes32(borrow.amount));
+    emit Action(BORROW_ACTION, bytes32(borrow.amount));
   }
 }

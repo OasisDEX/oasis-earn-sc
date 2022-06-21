@@ -7,14 +7,12 @@ import "../../core/ServiceRegistry.sol";
 import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import { SetApprovalData } from "../../core/types/Common.sol";
-import { SET_APPROVAL_ACTION, NULL } from "../../core/constants/Common.sol";
 
 contract SetApproval is Executable {
-  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
+  function execute(bytes calldata data, uint8[] memory) external payable override {
     SetApprovalData memory approval = abi.decode(data, (SetApprovalData));
 
     // TODO: Use OZ's safeApprove
     IERC20(approval.asset).approve(approval.delegator, approval.amount);
-    emit Action(SET_APPROVAL_ACTION, data, paramsMap, NULL);
   }
 }

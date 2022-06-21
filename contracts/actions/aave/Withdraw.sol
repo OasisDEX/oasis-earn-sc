@@ -26,6 +26,6 @@ contract AaveWithdraw is Executable {
       address(this)
     );
     // TODO: Assert that the funds are indeed in the account.
-    emit Action(WITHDRAW_ACTION, data, paramsMap, bytes32(withdraw.amount));
+    emit Action(WITHDRAW_ACTION, bytes32(withdraw.amount));
   }
 }

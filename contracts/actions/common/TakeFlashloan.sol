@@ -18,7 +18,7 @@ contract TakeFlashloan is Executable {
     registry = ServiceRegistry(_registry);
   }
 
-  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
+  function execute(bytes calldata data, uint8[] memory) external payable override {
     DSProxy(payable(address(this))).setOwner(registry.getRegisteredService(OPERATION_EXECUTOR));
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
 
@@ -30,6 +30,6 @@ contract TakeFlashloan is Executable {
     );
 
     DSProxy(payable(address(this))).setOwner(msg.sender);
-    emit Action(TAKE_FLASH_LOAN_ACTION, data, paramsMap, bytes32(flData.amount));
+    emit Action(TAKE_FLASH_LOAN_ACTION, bytes32(flData.amount));
   }
 }

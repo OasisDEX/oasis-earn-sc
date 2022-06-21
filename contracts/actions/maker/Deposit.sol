@@ -29,7 +29,8 @@ contract MakerDeposit is Executable, UseStore {
 
     bytes32 amountDeposited = _deposit(depositData);
     store().write(amountDeposited);
-    emit Action(DEPOSIT_ACTION, data, paramsMap, amountDeposited);
+
+    emit Action(DEPOSIT_ACTION, amountDeposited);
   }
 
   function _deposit(DepositData memory data) internal returns (bytes32) {

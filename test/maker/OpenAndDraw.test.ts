@@ -124,14 +124,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
       {
         address: system.common.operationExecutor.address,
         calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-          [
-            openVaultAction,
-            pullCollateralIntoProxyAction,
-            depositAction,
-            generateAction,
-            // paybackAction,
-            // withdrawAction,
-          ],
+          [openVaultAction, pullCollateralIntoProxyAction, depositAction, generateAction],
           OPERATION_NAMES.maker.OPEN_AND_DRAW,
         ]),
       },

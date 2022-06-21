@@ -41,7 +41,7 @@ contract MakerPayback is Executable, UseStore {
       : _payback(paybackData);
 
     store().write(amountPaidBack);
-    emit Action(PAYBACK_ACTION, data, paramsMap, amountPaidBack);
+    emit Action(PAYBACK_ACTION, amountPaidBack);
   }
 
   function _payback(PaybackData memory data) internal returns (bytes32) {

@@ -16,12 +16,13 @@ contract MakerOpenVault is Executable, UseStore {
 
   constructor(address _registry) UseStore(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
+  function execute(bytes calldata data, uint8[] memory) external payable override {
     OpenVaultData memory openVaultData = abi.decode(data, (OpenVaultData));
 
     bytes32 vaultId = _openVault(openVaultData);
     store().write(vaultId);
-    emit Action(OPEN_VAULT_ACTION, data, paramsMap, vaultId);
+
+    emit Action(OPEN_VAULT_ACTION, vaultId);
   }
 
   function _openVault(OpenVaultData memory data) internal returns (bytes32) {

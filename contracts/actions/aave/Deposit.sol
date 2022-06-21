@@ -27,6 +27,6 @@ contract AaveDeposit is Executable, UseStore {
       0
     );
     // TODO: verify if I received the amount in the give aToken
-    emit Action(DEPOSIT_ACTION, data, paramsMap, bytes32(deposit.amount));
+    emit Action(DEPOSIT_ACTION, bytes32(deposit.amount));
   }
 }

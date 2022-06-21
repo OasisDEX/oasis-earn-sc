@@ -6,9 +6,7 @@ interface Executable {
   /**
    * @dev Emitted once an Action has completed execution
    * @param name The Action name
-   * @param data The address initiating the deposit
-   * @param paramsMap The beneficiary of the deposit, receiving the aTokens
    * @param returned The name of the Action being executed
    **/
-  event Action(string name, bytes data, uint8[] paramsMap, bytes32 returned);
+  event Action(string name, bytes32 returned);
 }
