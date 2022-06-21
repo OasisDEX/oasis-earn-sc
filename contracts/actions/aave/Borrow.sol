@@ -9,7 +9,7 @@ import "../../core/OperationStorage.sol";
 import "../../interfaces/aave/IVariableDebtToken.sol";
 import "../../interfaces/aave/IWETHGateway.sol";
 import { BorrowData } from "../../core/types/Aave.sol";
-import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL } from "../../core/constants/Aave.sol";
+import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL, BORROW_ACTION } from "../../core/constants/Aave.sol";
 
 // TODO: Make it more generic so that anything could be withdrawn and not only ETH
 contract AaveBorrow is Executable, UseStore {
@@ -21,7 +21,7 @@ contract AaveBorrow is Executable, UseStore {
 
   constructor(address _registry) UseStore(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     BorrowData memory borrow = abi.decode(data, (BorrowData));
     address wethGatewayAddress = registry.getRegisteredService(AAVE_WETH_GATEWAY);
     dWETH.approveDelegation(wethGatewayAddress, borrow.amount);
@@ -32,5 +32,6 @@ contract AaveBorrow is Executable, UseStore {
       2,
       0
     );
+    emit Action(BORROW_ACTION, data, paramsMap, bytes32(borrow.amount));
   }
 }
