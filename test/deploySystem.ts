@@ -88,7 +88,7 @@ export async function deploySystem(
 
   const [operationStorage, operationStorageAddress] = await deploy(
     CONTRACT_NAMES.common.OPERATION_STORAGE,
-    [],
+    [serviceRegistryAddress],
     options,
   )
   deployedContracts.common.operationStorage = operationStorage
