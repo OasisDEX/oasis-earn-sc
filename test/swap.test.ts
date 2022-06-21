@@ -8,7 +8,7 @@ import ERC20ABI from '../abi/IERC20.json'
 import WETHABI from '../abi/IWETH.json'
 import { ADDRESSES } from '../helpers/addresses'
 import { ONE } from '../helpers/constants'
-import init from '../helpers/init'
+import init, { resetNode } from '../helpers/init'
 import {
   exchangeFromDAI,
   exchangeToDAI,
@@ -46,6 +46,13 @@ describe('Swap', async () => {
     provider = config.provider
     signer = config.signer
     address = config.address
+    await provider.send('hardhat_reset', [
+      {
+        forking: {
+          jsonRpcUrl: process.env.MAINNET_URL,
+        },
+      },
+    ])
 
     feeBeneficiary = ADDRESSES.main.feeRecipient
     slippage = asPercentageValue(8, 100)
@@ -158,7 +165,7 @@ describe('Swap', async () => {
 
     before(async () => {
       initialDaiWalletBalance = amountToWei(
-        new BigNumber(await balanceOf(ADDRESSES.main.WETH, address, { config })),
+        await balanceOf(ADDRESSES.main.WETH, address, { config }),
       )
 
       const response = await exchangeToDAI(
