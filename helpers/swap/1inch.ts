@@ -1,10 +1,10 @@
+import { Provider } from '@ethersproject/providers'
 import { ethers, Signer } from 'ethers'
 import fetch from 'node-fetch'
 
+import UniswapRouterV3ABI from '../../abi/IUniswapRouter.json'
 import { ADDRESSES } from '../addresses'
-import { OneInchSwapResponse, RuntimeConfig } from '../types/common'
-import * as UniswapRouterV3ABI from '../../abi/IUniswapRouter.json'
-import { Provider } from '@ethersproject/providers'
+import { OneInchSwapResponse } from '../types/common'
 
 export function formatOneInchSwapUrl(
   fromToken: string,
