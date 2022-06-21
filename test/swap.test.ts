@@ -8,7 +8,7 @@ import ERC20ABI from '../abi/IERC20.json'
 import WETHABI from '../abi/IWETH.json'
 import { ADDRESSES } from '../helpers/addresses'
 import { ONE } from '../helpers/constants'
-import init, { resetNode } from '../helpers/init'
+import init from '../helpers/init'
 import {
   exchangeFromDAI,
   exchangeToDAI,
@@ -603,7 +603,8 @@ describe('Swap', async () => {
 
       it('should not have DAI amount left in the exchange', async () => {
         const exchangeDaiBalanceWei = amountToWei(
-          new BigNumber(await balanceOf(ADDRESSES.main.DAI, swap.address, { config })))
+          new BigNumber(await balanceOf(ADDRESSES.main.DAI, swap.address, { config })),
+        )
         expectToBeEqual(exchangeDaiBalanceWei, 0)
       })
 
