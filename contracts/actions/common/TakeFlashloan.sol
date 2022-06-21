@@ -8,7 +8,7 @@ import "../../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import "../../interfaces/flashloan/IERC3156FlashLender.sol";
 import "../../libs/DS/DSProxy.sol";
 import { FlashloanData } from "../../core/types/Common.sol";
-import { OPERATION_EXECUTOR, DAI } from "../../core/constants/Common.sol";
+import { OPERATION_EXECUTOR, DAI, TAKE_FLASH_LOAN_ACTION } from "../../core/constants/Common.sol";
 import { FLASH_MINT_MODULE } from "../../core/constants/Maker.sol";
 
 contract TakeFlashloan is Executable {
@@ -18,7 +18,7 @@ contract TakeFlashloan is Executable {
     registry = ServiceRegistry(_registry);
   }
 
-  function execute(bytes calldata data, uint8[] memory) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DSProxy(payable(address(this))).setOwner(registry.getRegisteredService(OPERATION_EXECUTOR));
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
 
@@ -30,5 +30,6 @@ contract TakeFlashloan is Executable {
     );
 
     DSProxy(payable(address(this))).setOwner(msg.sender);
+    emit Action(TAKE_FLASH_LOAN_ACTION, data, paramsMap, bytes32(flData.amount));
   }
 }

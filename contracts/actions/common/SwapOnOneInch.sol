@@ -8,7 +8,12 @@ import "../../core/OperationStorage.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import "../../interfaces/tokens/IWETH.sol";
 import { SwapData } from "../../core/types/Common.sol";
-import { WETH, ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
+import {
+  SWAP_ON_ONE_INCH_ACTION,
+  WETH,
+  ONE_INCH_AGGREGATOR,
+  NULL
+} from "../../core/constants/Common.sol";
 
 // TODO: Make it so it differentiate between ETH and any other token
 contract SwapOnOneInch is Executable {
@@ -18,7 +23,7 @@ contract SwapOnOneInch is Executable {
     registry = ServiceRegistry(_registry);
   }
 
-  function execute(bytes calldata data, uint8[] memory) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     // TODO figure out why using ETH doesn't work.
     // - Failed on the swap. 1Inch has some EthReceiver contract which checks the tx.origin and msg.sender
     //   If they are different msg.sender != tx.origin the deposit/transfer of ETH is not accepted
@@ -39,5 +44,6 @@ contract SwapOnOneInch is Executable {
     require(success, "Exchange / Could not swap");
     uint256 balance = IERC20(swap.toAsset).balanceOf(address(this));
     require(balance >= swap.receiveAtLeast, "Exchange / Received less");
+    emit Action(SWAP_ON_ONE_INCH_ACTION, data, paramsMap, NULL);
   }
 }
