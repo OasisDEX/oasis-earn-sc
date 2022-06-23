@@ -82,7 +82,7 @@ describe('Swap', async () => {
     })
 
     it('should have a whitelisted caller set', async () => {
-      expect(await swap.WHITELISTED_CALLERS(address)).to.be.true
+      expect(await swap.allowedCallers(address)).to.be.true
     })
 
     it('should not allow unauthorized caller to add the fee tier', async () => {
