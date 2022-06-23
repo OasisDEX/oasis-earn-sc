@@ -82,7 +82,7 @@ describe('Swap', async () => {
     })
 
     it('should have a whitelisted caller set', async () => {
-      expect(await swap.allowedCallers(address)).to.be.true
+      expect(await swap.authorizedAddresses(address)).to.be.true
     })
 
     it('should not allow unauthorized caller to add the fee tier', async () => {
@@ -103,13 +103,21 @@ describe('Swap', async () => {
       await swap.addFeeTier(30)
       await swap.addFeeTier(40)
 
-      expect(await swap.getFee(0)).to.equal(20)
-      expect(await swap.getFee(1)).to.equal(30)
-      expect(await swap.getFee(2)).to.equal(40)
+      expect(await swap.verifyFee(20)).to.equal(true)
+      expect(await swap.verifyFee(30)).to.equal(true)
+      expect(await swap.verifyFee(40)).to.equal(true)
+    })
+
+    it('should support removing fee tiers', async () => {
+      await swap.addFeeTier(30)
+      await swap.removeFeeTier(30)
+      const tx = swap.verifyFee(30)
+
+      await expect(tx).to.be.revertedWith('Swap / Fee Tier does not exist.')
     })
 
     it('should throw on access to non existent fee tier', async () => {
-      const tx = swap.getFee(2)
+      const tx = swap.verifyFee(2)
       await expect(tx).to.be.revertedWith('Swap / Fee Tier does not exist.')
     })
 
@@ -139,7 +147,7 @@ describe('Swap', async () => {
         DAI.address,
         amountInWeiWithFee.toFixed(0),
         receiveAtLeastInWei.toFixed(0),
-        '1',
+        fee,
         response.tx.to,
         response.tx.data,
         {
@@ -213,7 +221,7 @@ describe('Swap', async () => {
           ADDRESSES.main.DAI,
           assetAmountInWeiWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          '0',
+          FEE,
           to,
           data,
           {
@@ -294,7 +302,7 @@ describe('Swap', async () => {
           ADDRESSES.main.DAI,
           moreThanTheTransferAmountWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          '0',
+          FEE,
           to,
           data,
           {
@@ -375,7 +383,7 @@ describe('Swap', async () => {
           ADDRESSES.main.DAI,
           lessThanTheTransferAmount.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          '0',
+          FEE,
           to,
           data,
           {
@@ -445,7 +453,7 @@ describe('Swap', async () => {
           ADDRESSES.main.DAI,
           assetAmountInWeiWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          '0',
+          FEE,
           to,
           data,
           {
@@ -495,7 +503,7 @@ describe('Swap', async () => {
           ADDRESSES.main.DAI,
           assetAmountInWeiWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          '0',
+          FEE,
           to,
           data,
           {
@@ -570,7 +578,7 @@ describe('Swap', async () => {
           ADDRESSES.main.WETH,
           amountWithFeeInWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          '0',
+          FEE,
           to,
           data,
           {
@@ -657,7 +665,7 @@ describe('Swap', async () => {
           ADDRESSES.main.WETH,
           moreThanTheTransferAmountWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          '0',
+          FEE,
           to,
           data,
           {
@@ -753,7 +761,7 @@ describe('Swap', async () => {
           ADDRESSES.main.WETH,
           lessThanTheTransferAmount.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          '0',
+          FEE,
           to,
           data,
           {
@@ -820,7 +828,7 @@ describe('Swap', async () => {
           ADDRESSES.main.WETH,
           amountWithFeeInWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          '0',
+          FEE,
           to,
           data,
           {
@@ -850,7 +858,7 @@ describe('Swap', async () => {
           ADDRESSES.main.WETH,
           amountWithFeeInWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          '0',
+          FEE,
           to,
           data,
           {
@@ -903,7 +911,7 @@ describe('Swap', async () => {
           ADDRESSES.main.WETH,
           amountWithFeeInWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
-          '0',
+          FEE,
           to,
           data,
           {
@@ -951,7 +959,7 @@ describe('Swap', async () => {
         ADDRESSES.main.DAI,
         amountInWei.toFixed(0),
         receiveAtLeastInWeiAny.toFixed(0),
-        '0',
+        FEE,
         AGGREGATOR_V3_ADDRESS,
         data,
         {
@@ -959,7 +967,7 @@ describe('Swap', async () => {
           gasLimit: 2500000,
         },
       )
-      await expect(tx).to.be.revertedWith('Swap / Not enough allowance')
+      await expect(tx).to.be.revertedWith('SafeERC20: low-level call failed')
     })
 
     it('should not have received anything', async () => {
@@ -975,7 +983,7 @@ describe('Swap', async () => {
         ADDRESSES.main.DAI,
         amountInWei.toFixed(0),
         receiveAtLeastInWeiAny.toFixed(0),
-        '0',
+        FEE,
         randomAddress,
         data,
         {
@@ -999,7 +1007,7 @@ describe('Swap', async () => {
         ADDRESSES.main.DAI,
         amountInWei.toFixed(0),
         receiveAtLeastInWeiAny.toFixed(0),
-        '0',
+        FEE,
         AGGREGATOR_V3_ADDRESS,
         data,
         {
@@ -1031,7 +1039,7 @@ describe('Swap', async () => {
         ADDRESSES.main.DAI,
         amountInWeiWithFee.toFixed(0),
         receiveAtLeast.toFixed(0),
-        '0',
+        FEE,
         response.tx.to,
         response.tx.data,
       )
@@ -1079,7 +1087,7 @@ describe('Swap', async () => {
         ADDRESSES.main.WETH,
         amountWithFeeInWei.toFixed(0),
         receiveAtLeastInWeiAny.toFixed(0),
-        '0',
+        FEE,
         AGGREGATOR_V3_ADDRESS,
         data,
         {
@@ -1088,7 +1096,7 @@ describe('Swap', async () => {
         },
       )
 
-      await expect(tx).to.be.revertedWith('Swap / Not enough allowance')
+      await expect(tx).to.be.revertedWith('Dai/insufficient-allowance')
     })
 
     it('should not have received anything', async () => {
@@ -1103,7 +1111,7 @@ describe('Swap', async () => {
         ADDRESSES.main.WETH,
         amountWithFeeInWei.toFixed(0),
         receiveAtLeastInWeiAny.toFixed(0),
-        '0',
+        FEE,
         randomAddress,
         data,
         {
@@ -1126,7 +1134,7 @@ describe('Swap', async () => {
         ADDRESSES.main.WETH,
         amountWithFeeInWei.toFixed(0),
         receiveAtLeastInWeiAny.toFixed(0),
-        '0',
+        FEE,
         AGGREGATOR_V3_ADDRESS,
         data,
         {
@@ -1155,7 +1163,7 @@ describe('Swap', async () => {
         ADDRESSES.main.WETH,
         amountWithFeeInWei.toFixed(0),
         receiveAtLeast.toFixed(0),
-        '0',
+        FEE,
         response.tx.to,
         response.tx.data,
       )
@@ -1224,7 +1232,7 @@ describe('Swap', async () => {
         ADDRESSES.main.DAI,
         initialUSDTBalanceInWei.toFixed(0),
         receiveAtLeastInWei.toFixed(0),
-        '0',
+        FEE,
         to,
         data,
         {
@@ -1299,7 +1307,7 @@ describe('Swap', async () => {
         ADDRESSES.main.USDT,
         amountWithFeeInWei.toFixed(0),
         receiveAtLeastInWei.toFixed(0),
-        '0',
+        FEE,
         to,
         data,
         {
@@ -1365,7 +1373,7 @@ describe('Swap', async () => {
         ADDRESSES.main.WBTC,
         amountWithFeeInWei.toFixed(0),
         receiveAtLeastInWei.toFixed(0),
-        '0',
+        FEE,
         to,
         data,
         {

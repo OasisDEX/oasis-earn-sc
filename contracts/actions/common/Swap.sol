@@ -11,18 +11,18 @@ contract Swap {
   using SafeERC20 for IERC20;
 
   address public feeBeneficiaryAddress;
-  uint256[] public feeTiers;
   uint256 public constant feeBase = 10000;
-  mapping(address => bool) public allowedCallers;
+  mapping(uint256 => bool) public feeTiers;
+  mapping(address => bool) public authorizedAddresses;
 
   constructor(
     address authorisedCaller,
     address feeBeneficiary,
-    uint256 _feeTier0
+    uint256 _initialFee
   ) {
-    allowedCallers[authorisedCaller] = true;
-    allowedCallers[feeBeneficiary] = true;
-    addFeeTier(_feeTier0);
+    authorizedAddresses[authorisedCaller] = true;
+    authorizedAddresses[feeBeneficiary] = true;
+    addFeeTier(_initialFee);
     feeBeneficiaryAddress = feeBeneficiary;
   }
 
@@ -37,18 +37,21 @@ contract Swap {
   event SlippageSaved(uint256 minimumPossible, uint256 actualAmount);
 
   modifier onlyAuthorised() {
-    require(allowedCallers[msg.sender], "Swap / Unauthorized Caller.");
+    require(authorizedAddresses[msg.sender], "Swap / Unauthorized Caller.");
     _;
   }
 
-  function addFeeTier(uint256 fee) public onlyAuthorised returns (uint256 feeTierId) {
-    feeTiers.push(fee);
-    feeTierId = feeTiers.length - 1;
+  function addFeeTier(uint256 fee) public onlyAuthorised {
+    feeTiers[fee] = true;
   }
 
-  function getFee(uint256 feeTierId) public view returns (uint256 fee) {
-    require(feeTiers.length > feeTierId, "Swap / Fee Tier does not exist.");
-    fee = feeTiers[feeTierId];
+  function removeFeeTier(uint256 fee) public onlyAuthorised {
+    feeTiers[fee] = false;
+  }
+
+  function verifyFee(uint256 feeId) public view returns (bool valid) {
+    valid = feeTiers[feeId];
+    require(valid, "Swap / Fee Tier does not exist.");
   }
 
   function _transferIn(
@@ -87,9 +90,9 @@ contract Swap {
   function _collectFee(
     address asset,
     uint256 fromAmount,
-    uint256 feeTierId
+    uint256 fee
   ) internal returns (uint256 remainedAmount) {
-    uint256 fee = getFee(feeTierId);
+    verifyFee(fee);
     uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
 
     if (fee > 0) {
@@ -105,12 +108,12 @@ contract Swap {
     address assetTo,
     uint256 amountFromWithFee,
     uint256 receiveAtLeast,
-    uint256 feeTierId,
+    uint256 fee,
     address callee,
     bytes calldata withData
   ) public {
     _transferIn(msg.sender, assetFrom, amountFromWithFee);
-    uint256 amountFrom = _collectFee(assetFrom, amountFromWithFee, feeTierId);
+    uint256 amountFrom = _collectFee(assetFrom, amountFromWithFee, fee);
 
     uint256 toTokenBalance = _swap(
       assetFrom,
