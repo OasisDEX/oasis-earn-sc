@@ -56,7 +56,6 @@ contract Swap {
     address asset,
     uint256 amount
   ) internal {
-    require(IERC20(asset).allowance(from, address(this)) >= amount, "Swap / Not enough allowance");
     IERC20(asset).safeTransferFrom(from, address(this), amount);
   }
 
