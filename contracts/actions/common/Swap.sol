@@ -54,22 +54,6 @@ contract Swap {
     require(valid, "Swap / Fee Tier does not exist.");
   }
 
-  function _transferIn(
-    address from,
-    address asset,
-    uint256 amount
-  ) internal {
-    IERC20(asset).safeTransferFrom(from, address(this), amount);
-  }
-
-  function _transferOut(
-    address asset,
-    address to,
-    uint256 amount
-  ) internal {
-    IERC20(asset).safeTransfer(to, amount);
-  }
-
   function _swap(
     address fromAsset,
     address toAsset,
@@ -112,7 +96,7 @@ contract Swap {
     address callee,
     bytes calldata withData
   ) public {
-    _transferIn(msg.sender, assetFrom, amountFromWithFee);
+    IERC20(assetFrom).safeTransferFrom(msg.sender, address(this), amountFromWithFee);
     uint256 amountFrom = _collectFee(assetFrom, amountFromWithFee, fee);
 
     uint256 toTokenBalance = _swap(
@@ -126,9 +110,9 @@ contract Swap {
 
     uint256 fromTokenBalance = IERC20(assetFrom).balanceOf(address(this));
     if (fromTokenBalance > 0) {
-      _transferOut(assetFrom, msg.sender, fromTokenBalance);
+      IERC20(assetFrom).safeTransfer(msg.sender, fromTokenBalance);
     }
 
-    _transferOut(assetTo, msg.sender, toTokenBalance);
+    IERC20(assetTo).safeTransfer(msg.sender, toTokenBalance);
   }
 }
