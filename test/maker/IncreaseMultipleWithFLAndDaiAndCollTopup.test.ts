@@ -199,18 +199,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     )
 
     // Get flashloan -> Swap for collateral -> Deposit collateral -> Generate DAI -> Repay flashloan
-    const pullBorrowedFundsIntoProxy = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.common.PULL_TOKEN),
-      [calldataTypes.common.PullToken],
-      [
-        {
-          amount: exchangeData.fromTokenAmount,
-          asset: ADDRESSES.main.DAI,
-          from: system.common.operationExecutor.address,
-        },
-        [0],
-      ],
-    )
 
     const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
       .plus(ensureWeiFormat(desiredCdpState.daiTopUp))
@@ -282,7 +270,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           amount: exchangeData.fromTokenAmount,
           borrower: system.common.operationExecutor.address,
           calls: [
-            pullBorrowedFundsIntoProxy,
             swapAction,
             depositBorrowedCollateral,
             generateDaiToRepayFL,
