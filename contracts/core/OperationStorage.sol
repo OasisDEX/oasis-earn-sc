@@ -16,17 +16,17 @@ contract OperationStorage {
     registry = ServiceRegistry(_registry);
   }
 
-  function setOperationSteps(bytes32[] memory _actions) external {
+  function setOperationActions(bytes32[] memory _actions) external {
     actions = _actions;
   }
 
-  function verifyStep(bytes32 actionHash) external {
-    require(actions[action] == actionHash, "incorrect-step");
+  function verifyAction(bytes32 actionHash) external {
+    require(actions[action] == actionHash, "incorrect-action");
     registry.getServiceAddress(actionHash);
     action++;
   }
 
-  function hasStepsToVerify() external view returns (bool) {
+  function hasActionsToVerify() external view returns (bool) {
     return actions.length > 0;
   }
 

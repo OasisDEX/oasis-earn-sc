@@ -217,10 +217,10 @@ export class OperationsRegistry {
     this.signer = signer
   }
 
-  async addOp(label: string, stepsHashes: string[], debug: boolean = false): Promise<string> {
+  async addOp(label: string, actionHashes: string[], debug = false): Promise<string> {
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
     const registry = await ethers.getContractAt('OperationsRegistry', this.address, this.signer)
-    await registry.addOperation(label, stepsHashes)
+    await registry.addOperation(label, actionHashes)
 
     if (debug) {
       console.log(`DEBUG: Service '${label}' has been added with hash: ${entryHash}`)
