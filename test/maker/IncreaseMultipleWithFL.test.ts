@@ -31,7 +31,7 @@ const createAction = ActionFactory.create
 let DAI: Contract
 let WETH: Contract
 
-describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, async () => {
+describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN}`, async () => {
   const oazoFee = 2 // divided by base (10000), 1 = 0.01%;
   const oazoFeePct = new BigNumber(oazoFee).div(10000)
   const flashLoanFee = LENDER_FEE
@@ -80,10 +80,10 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
   const initialDebt = new BigNumber(0)
   const daiTopUp = new BigNumber(0)
   const collTopUp = new BigNumber(0)
-  const requiredCollRatio = new BigNumber(5)
+  const requiredCollRatio = new BigNumber(2.5)
   const gasEstimates = gasEstimateHelper()
 
-  const testName = `should open vault, deposit ETH and increase multiple`
+  const testName = `should open vault, deposit ETH and increase multiple & [+Flashloan]`
   it(testName, async () => {
     await WETH.approve(
       system.common.userProxyAddress,
@@ -159,18 +159,17 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
       ],
     )
 
-    // Generate DAI -> Swap for collateral -> Deposit collateral
-    const generateDaiForSwap = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
-      [calldataTypes.maker.Generate, calldataTypes.paramsMap],
+    // Get flashloan -> Swap for collateral -> Deposit collateral -> Generate DAI -> Repay flashloan
+    const pullBorrowedFundsIntoProxy = createAction(
+      await registry.getEntryHash(CONTRACT_NAMES.common.PULL_TOKEN),
+      [calldataTypes.common.PullToken],
       [
         {
-          to: system.common.userProxyAddress,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
-          vaultId: 0,
-          amount: ensureWeiFormat(desiredCdpState.requiredDebt),
+          amount: exchangeData.fromTokenAmount,
+          asset: ADDRESSES.main.DAI,
+          from: system.common.operationExecutor.address,
         },
-        [1],
+        [0],
       ],
     )
 
@@ -188,15 +187,13 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
     }
 
     await DAI.approve(system.common.userProxyAddress, swapAmount)
+    // TODO: Move funds to proxy
     const swapAction = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.test.DUMMY_SWAP),
       [calldataTypes.common.Swap],
       [swapData],
     )
 
-    const collateralToDeposit = desiredCdpState.toBorrowCollateralAmount.plus(
-      desiredCdpState.collTopUp,
-    )
     const depositBorrowedCollateral = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
@@ -205,9 +202,55 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
           joinAddress: ADDRESSES.main.maker.joinETH_A,
           mcdManager: ADDRESSES.main.maker.cdpManager,
           vaultId: 0,
-          amount: ensureWeiFormat(collateralToDeposit),
+          amount: ensureWeiFormat(desiredCdpState.toBorrowCollateralAmount),
         },
         [1],
+      ],
+    )
+
+    const generateDaiToRepayFL = createAction(
+      await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
+      [calldataTypes.maker.Generate, calldataTypes.paramsMap],
+      [
+        {
+          to: system.common.userProxyAddress,
+          mcdManager: ADDRESSES.main.maker.cdpManager,
+          vaultId: 0,
+          amount: ensureWeiFormat(desiredCdpState.requiredDebt),
+        },
+        [1],
+      ],
+    )
+
+    const sendBackDAI = createAction(
+      await registry.getEntryHash(CONTRACT_NAMES.common.SEND_TOKEN),
+      [calldataTypes.common.SendToken],
+      [
+        {
+          amount: exchangeData.fromTokenAmount,
+          asset: ADDRESSES.main.DAI,
+          to: system.common.operationExecutor.address,
+        },
+        [0],
+      ],
+    )
+
+    const takeAFlashloan = createAction(
+      await registry.getEntryHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
+      [calldataTypes.common.TakeAFlashLoan, calldataTypes.paramsMap],
+      [
+        {
+          amount: exchangeData.fromTokenAmount,
+          borrower: system.common.operationExecutor.address,
+          calls: [
+            pullBorrowedFundsIntoProxy,
+            swapAction,
+            depositBorrowedCollateral,
+            generateDaiToRepayFL,
+            sendBackDAI,
+          ],
+        },
+        [0],
       ],
     )
 
@@ -215,9 +258,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
       openVaultAction,
       pullTokenIntoProxyAction,
       initialDepositAction,
-      generateDaiForSwap,
-      swapAction,
-      depositBorrowedCollateral,
+      takeAFlashloan,
     ]
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -227,7 +268,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
         address: system.common.operationExecutor.address,
         calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
           actions,
-          OPERATION_NAMES.maker.INCREASE_MULTIPLE,
+          OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN,
         ]),
       },
       signer,

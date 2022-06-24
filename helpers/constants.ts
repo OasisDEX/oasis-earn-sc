@@ -59,9 +59,6 @@ export const OPERATION_NAMES = {
     INCREASE_MULTIPLE_WITH_COLL_TOP_UP: 'IncreaseMultipleWithCollateralTopup',
     INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP: 'IncreaseMultipleWithDaiAndCollTopup',
     INCREASE_MULTIPLE_WITH_FLASHLOAN: 'IncreaseMultipleWithFlashloan',
-    INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_TOP_UP: 'IncreaseMultipleWithFlashloanWithDaiTopup',
-    INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_COLL_TOP_UP:
-      'IncreaseMultipleWithFlashWithCollateralTopup',
     INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP:
       'IncreaseMultipleWithFlashloanWithDaiAndCollTopup',
   },
