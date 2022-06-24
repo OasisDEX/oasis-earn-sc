@@ -211,8 +211,11 @@ export async function deploySystem(
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
   await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
   await registry.addEntry(CONTRACT_NAMES.common.EXCHANGE, dummyExchangeAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, actionFlAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
+  const takeFlashLoanHash = await registry.addEntry(
+    CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
+    actionFlAddress,
+  )
+  const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
   const pullTokenHash = await registry.addEntry(CONTRACT_NAMES.common.PULL_TOKEN, pullTokenAddress)
   await registry.addEntry(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, swapAddress)
   await registry.addEntry(
@@ -251,6 +254,7 @@ export async function deploySystem(
   await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
 
   debug && console.log('5/ Adding operations to registry')
+  // Add Maker Operations
   const operationsRegistry: OperationsRegistry = new OperationsRegistry(
     operationsRegistryAddress,
     signer,
@@ -277,6 +281,66 @@ export async function deploySystem(
     dummySwapHash,
     makerDepositHash,
   ])
+  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_TOP_UP, [
+    makerOpenVaultHash,
+    pullTokenHash,
+    makerDepositHash,
+    pullTokenHash,
+    makerGenerateHash,
+    dummySwapHash,
+    makerDepositHash,
+  ])
+  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_COLL_TOP_UP, [
+    makerOpenVaultHash,
+    pullTokenHash,
+    makerDepositHash,
+    pullTokenHash,
+    makerDepositHash,
+    makerGenerateHash,
+    dummySwapHash,
+    makerDepositHash,
+  ])
+  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP, [
+    makerOpenVaultHash,
+    pullTokenHash,
+    makerDepositHash,
+    pullTokenHash,
+    pullTokenHash,
+    makerDepositHash,
+    makerGenerateHash,
+    dummySwapHash,
+    makerDepositHash,
+  ])
+  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN, [
+    makerOpenVaultHash,
+    pullTokenHash,
+    makerDepositHash,
+    takeFlashLoanHash,
+    pullTokenHash,
+    dummySwapHash,
+    makerDepositHash,
+    makerGenerateHash,
+    sendTokenHash,
+  ])
+  await operationsRegistry.addOp(
+    OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP,
+    [
+      makerOpenVaultHash,
+      pullTokenHash,
+      makerDepositHash,
+      pullTokenHash,
+      pullTokenHash,
+      makerDepositHash,
+      takeFlashLoanHash,
+      pullTokenHash,
+      dummySwapHash,
+      makerDepositHash,
+      makerGenerateHash,
+      sendTokenHash,
+    ],
+  )
+
+  // Add AAVE Operations
 
   if (debug) {
     console.log('6/ Debugging...')

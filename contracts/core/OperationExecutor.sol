@@ -43,6 +43,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
       if (hasActionsToVerify) {
         opStorage.verifyAction(calls[current].targetHash);
       }
+
       address target = registry.getServiceAddress(calls[current].targetHash);
 
       (bool success, ) = target.delegatecall(calls[current].callData);
