@@ -65,7 +65,8 @@ contract OperationExecutor is IERC3156FlashBorrower {
     // TODO - Use custom errors from solidity introduced in 0.8.4  https://blog.soliditylang.org/2021/04/21/custom-errors/
     require(amount == flData.amount, "loan-inconsistency");
 
-    IERC20(asset).approve(initiator, flData.amount);
+
+    IERC20(asset).transfer(initiator, flData.amount);
 
     DSProxy(payable(initiator)).execute(
       address(this),
