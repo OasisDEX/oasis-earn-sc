@@ -14,7 +14,6 @@ contract DummyAction is Executable {
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     OperationStorage txStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
-    console.log("IN THE DUMMY ACTION");
     console.log(txStorage.len());
   }
 }
