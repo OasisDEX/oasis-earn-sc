@@ -6,7 +6,7 @@ interface Executable {
   /**
    * @dev Emitted once an Action has completed execution
    * @param name The Action name
-   * @param returned The name of the Action being executed
+   * @param returned The value returned by the Action
    **/
   event Action(string name, bytes32 returned);
 }
