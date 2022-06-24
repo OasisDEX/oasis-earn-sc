@@ -16,7 +16,7 @@ contract AaveDeposit is Executable, UseStore {
   // TODO: Pass the service registry in here
   constructor(address _registry) UseStore(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
+  function execute(bytes calldata data, uint8[] memory) external payable override {
     DepositData memory deposit = abi.decode(data, (DepositData));
     store().write(bytes32(deposit.amount));
     // TODO: Check if the asses could be deposited to the pool

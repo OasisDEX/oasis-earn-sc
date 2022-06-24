@@ -18,7 +18,7 @@ contract AaveWithdraw is Executable {
     registry = ServiceRegistry(_registry);
   }
 
-  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
+  function execute(bytes calldata data, uint8[] memory) external payable override {
     WithdrawData memory withdraw = abi.decode(data, (WithdrawData));
     ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).withdraw(
       withdraw.asset,
