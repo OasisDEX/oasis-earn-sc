@@ -8,6 +8,7 @@ import "./ServiceRegistry.sol";
 import "./OperationStorage.sol";
 import "./OperationsRegistry.sol";
 import "../libs/DS/DSProxy.sol";
+import "../libs/Address.sol";
 import "../actions/common/TakeFlashloan.sol";
 import "../interfaces/tokens/IERC20.sol";
 import "../interfaces/flashloan/IERC3156FlashBorrower.sol";
@@ -18,7 +19,7 @@ import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
 contract OperationExecutor is IERC3156FlashBorrower {
   ServiceRegistry public immutable registry;
-
+  using Address for address;
   constructor(address _registry) {
     registry = ServiceRegistry(_registry);
   }
@@ -46,9 +47,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
       address target = registry.getServiceAddress(calls[current].targetHash);
 
-      (bool success, ) = target.delegatecall(calls[current].callData);
-
-      require(success, "delegate call failed");
+      target.functionDelegateCall(calls[current].callData, "OpExecutor: low-level delegatecall failed");
     }
   }
 
