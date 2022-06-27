@@ -8,21 +8,16 @@ import { ethers } from 'hardhat'
 
 import { ADDRESSES } from '../helpers/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES, ZERO } from '../helpers/constants'
-import { deploy, executeThroughProxy } from '../helpers/deploy'
+import { createDeploy, executeThroughProxy } from '../helpers/deploy'
 import init from '../helpers/init'
 // Helper functions
 import { getOrCreateProxy } from '../helpers/proxy'
 import { swapOneInchTokens } from '../helpers/swap/1inch'
 import { swapUniswapTokens } from '../helpers/swap/uniswap'
 import { calldataTypes } from '../helpers/types/actions'
-import {
-  ActionFactory,
-  amountToWei,
-  approve,
-  balanceOf,
-  OperationsRegistry,
-  ServiceRegistry,
-} from '../helpers/utils'
+import { ActionFactory, amountToWei, approve, balanceOf } from '../helpers/utils'
+import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
+import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
 
 const createAction = ActionFactory.create
 
@@ -44,6 +39,8 @@ async function main() {
     config,
   }
 
+  const deploy = await createDeploy(options)
+
   await balanceOf(ADDRESSES.main.ETH, address, options)
 
   console.log('DEBUG SWAPPING...')
@@ -61,16 +58,12 @@ async function main() {
   console.log('DEBUG DEPLOYING ....')
 
   // ServiceRegistry SETUP:
-  const [, serviceRegistryAddress] = await deploy(
-    CONTRACT_NAMES.common.SERVICE_REGISTRY,
-    [0],
-    options,
-  )
+  const [, serviceRegistryAddress] = await deploy(CONTRACT_NAMES.common.SERVICE_REGISTRY, [0])
   const registry: ServiceRegistry = new ServiceRegistry(serviceRegistryAddress, signer)
   registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
 
   // DEPLOYING Operations Registry
-  const [, operationsRegistryAddress] = await deploy('OperationsRegistry', [], options)
+  const [, operationsRegistryAddress] = await deploy('OperationsRegistry', [])
   const operationsRegistry: OperationsRegistry = new OperationsRegistry(
     operationsRegistryAddress,
     signer,
@@ -80,55 +73,36 @@ async function main() {
   const [operationExecutor, operationExecutorAddress] = await deploy(
     CONTRACT_NAMES.common.OPERATION_EXECUTOR,
     [serviceRegistryAddress],
-    options,
   )
   registry.addEntry(CONTRACT_NAMES.common.OPERATION_EXECUTOR, operationExecutorAddress)
 
   // DEPLOYING ACTIONS
-  const [, pullTokenActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [], options)
-  const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [], options)
-  const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [], options)
-  const [, flActionAddress] = await deploy(
-    CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
-    [serviceRegistryAddress],
-    options,
-  )
-  const [, depositInAAVEAddress] = await deploy(
-    CONTRACT_NAMES.aave.DEPOSIT,
-    [serviceRegistryAddress],
-    options,
-  )
-  const [, AaveBorrowAddress] = await deploy(
-    CONTRACT_NAMES.aave.BORROW,
-    [serviceRegistryAddress],
-    options,
-  )
-  const [, swapOnOninchAddress] = await deploy(
-    CONTRACT_NAMES.common.SWAP_ON_ONE_INCH,
-    [serviceRegistryAddress],
-    options,
-  )
-  const [, withdrawFromAAVEAddress] = await deploy(
-    CONTRACT_NAMES.aave.WITHDRAW,
-    [serviceRegistryAddress],
-    options,
-  )
-  const [, operationStorageAddress] = await deploy(
-    'OperationStorage',
-    [serviceRegistryAddress],
-    options,
-  )
-  const [, dummyActionAddress] = await deploy('DummyAction', [serviceRegistryAddress], options)
-
+  const [, pullTokenActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
+  const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
+  const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [])
+  const [, flActionAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
+    serviceRegistryAddress,
+  ])
+  const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
+    serviceRegistryAddress,
+  ])
+  const [, borrowFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.BORROW, [
+    serviceRegistryAddress,
+  ])
+  const [, swapOnOninchAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, [
+    serviceRegistryAddress,
+  ])
+  const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.WITHDRAW, [
+    serviceRegistryAddress,
+  ])
+  const [, operationStorageAddress] = await deploy(CONTRACT_NAMES.common.OPERATION_STORAGE, [
+    serviceRegistryAddress,
+  ])
   //SETUP REGISTRY ENTRIES:
   console.log('DEBUG SETTING UP REGISTRY ENTRIES...')
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
   await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
 
-  const dummyActionHash = await registry.addEntry(
-    CONTRACT_NAMES.test.DUMMY_ACTION,
-    dummyActionAddress,
-  )
   const pullTokenHash = await registry.addEntry(
     CONTRACT_NAMES.common.PULL_TOKEN,
     pullTokenActionAddress,
@@ -146,7 +120,7 @@ async function main() {
     CONTRACT_NAMES.aave.DEPOSIT,
     depositInAAVEAddress,
   )
-  const aaveBorrowHash = await registry.addEntry(CONTRACT_NAMES.aave.BORROW, AaveBorrowAddress)
+  const aaveBorrowHash = await registry.addEntry(CONTRACT_NAMES.aave.BORROW, borrowFromAAVEAddress)
   const withdrawFromAAVEHash = await registry.addEntry(
     CONTRACT_NAMES.aave.WITHDRAW,
     withdrawFromAAVEAddress,
@@ -164,8 +138,6 @@ async function main() {
     ADDRESSES.main.oneInchAggregator,
   )
 
-  // DUMMY ACTION
-  const dummyAction = createAction(dummyActionHash, [], [])
   // PULL TOKEN ACTION
   const pullToken = createAction(
     pullTokenHash,
@@ -298,18 +270,15 @@ async function main() {
       },
     ],
   )
-  console.log('BEFORE OP SETs')
   await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
     pullTokenHash,
     takeAFlashloanHash,
-    pullTokenHash,
     setApprovalHash,
     depositInAAVEHash,
     aaveBorrowHash,
     swapOnOneInchHash,
     withdrawFromAAVEHash,
     sendTokenHash,
-    dummyActionHash,
   ])
 
   await approve(ADDRESSES.main.DAI, proxyAddress, depositAmount, config, true)
@@ -319,7 +288,7 @@ async function main() {
     {
       address: operationExecutorAddress,
       calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-        [pullToken, takeAFlashloan, dummyAction],
+        [pullToken, takeAFlashloan],
         OPERATION_NAMES.aave.OPEN_POSITION,
       ]),
     },

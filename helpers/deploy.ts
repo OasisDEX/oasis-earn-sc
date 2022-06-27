@@ -1,27 +1,30 @@
 import { Contract, ContractReceipt, Signer } from 'ethers'
-import { ethers } from 'hardhat'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { Debug, WithRuntimeConfig } from './types/common'
 
 type DeployOptions = WithRuntimeConfig & Debug
 
-export async function deploy(
-  contractName: string,
-  params: any[],
+export async function createDeploy(
   { config, debug }: DeployOptions,
-): Promise<[Contract, string]> {
-  const contractFactory = await ethers.getContractFactory(contractName, config.signer)
-  const instance = await contractFactory.deploy(...params)
-  if (debug) {
-    console.log(`DEBUG: Deploying ${contractName} ...`)
-  }
-  const address = instance.address
+  hre?: HardhatRuntimeEnvironment,
+) {
+  const ethers = hre?.ethers || (await import('hardhat')).ethers
 
-  if (debug) {
-    console.log(`DEBUG: Contract ${contractName} deployed at: ${address}`)
-  }
+  return async (contractName: string, params: any[]): Promise<[Contract, string]> => {
+    const contractFactory = await ethers.getContractFactory(contractName, config.signer)
+    const instance = await contractFactory.deploy(...params)
+    if (debug) {
+      console.log(`DEBUG: Deploying ${contractName} ...`)
+    }
+    const address = instance.address
 
-  return [instance, address]
+    if (debug) {
+      console.log(`DEBUG: Contract ${contractName} deployed at: ${address}`)
+    }
+
+    return [instance, address]
+  }
 }
 
 // TODO: CHECK IF I CAN REUSE ACTION CALL and rename things
@@ -36,6 +39,7 @@ export async function executeThroughProxy(
   signer: Signer,
 ): Promise<[boolean, ContractReceipt]> {
   try {
+    const ethers = (await import('hardhat')).ethers
     const dsProxy = await ethers.getContractAt('DSProxy', proxyAddress, signer)
     const tx = await dsProxy['execute(address,bytes)'](address, calldata, {
       gasLimit: 3000000,

@@ -5,6 +5,7 @@ import 'solidity-coverage'
 
 import * as dotenv from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
+import './tasks/deploy'
 
 dotenv.config()
 
