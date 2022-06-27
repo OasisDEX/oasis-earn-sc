@@ -1,18 +1,11 @@
 import BigNumber from 'bignumber.js'
-import { Signer, utils } from 'ethers'
 import { ethers } from 'hardhat'
 import { isError, tryF } from 'ts-try'
 
 import CTOKEN_ABI from '../abi/CErc20.json'
 import IERC20_ABI from '../abi/IERC20.json'
-import { CONTRACT_NAMES, ONE, TEN } from '../helpers/constants'
-import {
-  ActionCall,
-  BalanceOptions,
-  NestedKeys,
-  RuntimeConfig,
-  ValueOf,
-} from '../helpers/types/common'
+import { ONE, TEN } from '../helpers/constants'
+import { ActionCall, BalanceOptions, RuntimeConfig } from '../helpers/types/common'
 
 export async function balanceOf(asset: string, address: string, options: BalanceOptions) {
   let balance = undefined
@@ -174,64 +167,5 @@ export class ActionFactory {
       targetHash,
       callData: calldata,
     }
-  }
-}
-
-export class ServiceRegistry {
-  address: string
-  signer: Signer
-
-  constructor(address: string, signer: Signer) {
-    this.address = address
-    this.signer = signer
-  }
-
-  async addEntry(
-    label: ValueOf<NestedKeys<typeof CONTRACT_NAMES>>,
-    address: string,
-    debug = false,
-  ): Promise<string> {
-    const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
-    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
-    await registry.addNamedService(entryHash, address)
-
-    if (debug) {
-      console.log(`DEBUG: Service '${label}' has been added with hash: ${entryHash}`)
-    }
-
-    return entryHash
-  }
-
-  async getEntryHash(label: ValueOf<NestedKeys<typeof CONTRACT_NAMES>>): Promise<string> {
-    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
-    return registry.getServiceNameHash(label)
-  }
-}
-
-export class OperationsRegistry {
-  address: string
-  signer: Signer
-
-  constructor(address: string, signer: Signer) {
-    this.address = address
-    this.signer = signer
-  }
-
-  async addOp(label: string, actionHashes: string[], debug = false): Promise<string> {
-    const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
-    const registry = await ethers.getContractAt('OperationsRegistry', this.address, this.signer)
-    await registry.addOperation(label, actionHashes)
-
-    if (debug) {
-      console.log(`DEBUG: Service '${label}' has been added with hash: ${entryHash}`)
-    }
-
-    return entryHash
-  }
-
-  async getOp(label: string): Promise<string> {
-    const registry = await ethers.getContractAt('OperationsRegistry', this.address, this.signer)
-
-    return registry.getOperation(label)
   }
 }

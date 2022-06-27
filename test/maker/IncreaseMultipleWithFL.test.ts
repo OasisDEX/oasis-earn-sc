@@ -20,7 +20,8 @@ import {
 } from '../../helpers/paramCalculations'
 import { calldataTypes } from '../../helpers/types/actions'
 import { ActionCall, RuntimeConfig, SwapData } from '../../helpers/types/common'
-import { ActionFactory, amountToWei, ensureWeiFormat, ServiceRegistry } from '../../helpers/utils'
+import { ActionFactory, amountToWei, ensureWeiFormat } from '../../helpers/utils'
+import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
 
@@ -230,12 +231,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
         {
           amount: exchangeData.fromTokenAmount,
           borrower: system.common.operationExecutor.address,
-          calls: [
-            swapAction,
-            depositBorrowedCollateral,
-            generateDaiToRepayFL,
-            sendBackDAI,
-          ],
+          calls: [swapAction, depositBorrowedCollateral, generateDaiToRepayFL, sendBackDAI],
         },
         [0],
       ],
