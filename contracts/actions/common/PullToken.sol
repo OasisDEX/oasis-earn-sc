@@ -14,6 +14,7 @@ contract PullToken is IAction {
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     PullTokenData memory pull = abi.decode(data, (PullTokenData));
+    
     // TODO: Use OZ's safeTransferFrom
     IERC20(pull.asset).transferFrom(pull.from, address(this), pull.amount);
     // TODO: REMOVE

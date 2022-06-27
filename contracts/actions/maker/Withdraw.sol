@@ -20,10 +20,10 @@ contract Withdraw is IAction {
   address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
   constructor(address _registry) IAction(_registry) {}
-
   function execute(bytes calldata data, uint8[] memory _paramsMapping) public payable override {
     WithdrawData memory withdrawData = abi.decode(data, (WithdrawData));
 
+    
     uint256 vaultId = pull(withdrawData.vaultId, _paramsMapping[0]);
     withdrawData.vaultId = vaultId;
 
@@ -51,7 +51,7 @@ contract Withdraw is IAction {
       IGem(data.joinAddr).gem().withdraw(convertedAmount);
       // Sends ETH back to the user's wallet
       payable(data.userAddress).transfer(convertedAmount);
-    }
+    } 
 
     return bytes32(convertedAmount);
   }

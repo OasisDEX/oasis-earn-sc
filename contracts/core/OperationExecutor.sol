@@ -22,13 +22,14 @@ contract OperationExecutor is IERC3156FlashBorrower {
     registry = ServiceRegistry(_registry);
   }
 
-  function executeOp(Call[] memory calls) public {
+  function executeOp(Call[] memory calls) public payable {
     aggregate(calls);
     OperationStorage txStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
     txStorage.finalize();
   }
 
   function aggregate(Call[] memory calls) public returns (bytes[] memory returnData) {
+
     returnData = new bytes[](calls.length);
     for (uint256 current = 0; current < calls.length; current++) {
       address target = registry.getServiceAddress(calls[current].targetHash);
@@ -47,11 +48,12 @@ contract OperationExecutor is IERC3156FlashBorrower {
     bytes calldata data
   ) external override returns (bytes32) {
     address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
-
+    
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
     // TODO - Use custom errors from solidity introduced in 0.8.4  https://blog.soliditylang.org/2021/04/21/custom-errors/
     require(amount == flData.amount, "loan-inconsistency");
-    IERC20(asset).approve(initiator, flData.amount);
+    
+    IERC20(asset).transfer(initiator, flData.amount);
 
     DSProxy(payable(initiator)).execute(
       address(this),

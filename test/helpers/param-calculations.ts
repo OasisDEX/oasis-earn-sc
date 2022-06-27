@@ -186,13 +186,13 @@ export function ensureWeiFormat(
 }
 
 export function prepareBasicParams(
-  gemAddress,
-  debtDelta,
-  collateralDelta,
-  providedCollateral,
-  oneInchPayload,
-  existingCDP,
-  fundsReciver,
+  gemAddress: string,
+  debtDelta: any,
+  collateralDelta: any,
+  providedCollateral: any,
+  oneInchPayload: any,
+  existingCDP: any,
+  fundsReciver: string,
   toDAI = false,
   skipFL = false,
 ) {

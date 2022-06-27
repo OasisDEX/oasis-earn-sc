@@ -48,8 +48,10 @@ contract Payback is IAction {
     bytes32 ilk = mcdManager.ilks(data.vaultId);
 
     if (own == address(this) || mcdManager.cdpCan(own, data.vaultId, address(this)) == 1) {
+
       // Joins DAI amount into the vat
       daiJoin_join(data.userAddress, data.daiJoin, urn, data.amount);
+
       // Paybacks debt to the CDP
       mcdManager.frob(
         data.vaultId,
@@ -115,6 +117,8 @@ contract Payback is IAction {
     uint256 amount
   ) public {
     IGem dai = IDaiJoin(daiJoin).dai();
+
+    console.log("BALANCE",IERC20(address(dai)).balanceOf(usr));
 
     dai.transferFrom(usr, address(this), amount);
 

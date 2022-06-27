@@ -47,6 +47,9 @@ contract Generate is IAction {
     IManager mcdManager,
     IVat vat
   ) internal returns (bytes32) {
+
+    console.log('pre frob');
+    
     mcdManager.frob(
       data.vaultId,
       int256(0),
@@ -58,7 +61,7 @@ contract Generate is IAction {
         data.amount
       )
     );
-
+    
     mcdManager.move(data.vaultId, address(this), toRad(data.amount));
 
     if (vat.can(address(this), address(DAI_JOIN_ADDR)) == 0) {

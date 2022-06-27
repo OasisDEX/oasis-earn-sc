@@ -34,11 +34,13 @@ export async function executeThroughProxy(
   proxyAddress: string,
   { address, calldata }: Target,
   signer: Signer,
+  value: string,
 ): Promise<[boolean, ContractReceipt]> {
   try {
     const dsProxy = await ethers.getContractAt('DSProxy', proxyAddress, signer)
     const tx = await dsProxy['execute(address,bytes)'](address, calldata, {
       gasLimit: 5000000,
+      value
     })
     const result = await tx.wait()
     return [true, result]

@@ -20,8 +20,11 @@ contract Deposit is IAction {
 
   constructor(address _registry) IAction(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory) external payable override {
+  function execute(bytes calldata data, uint8[] memory _paramsMapping) external payable override {
     DepositData memory depositData = abi.decode(data, (DepositData));
+
+    uint256 vaultId = pull(depositData.vaultId, _paramsMapping[2]);
+    depositData.vaultId = vaultId;    
     bytes32 depositAmount = _deposit(depositData);
 
     push(depositAmount);

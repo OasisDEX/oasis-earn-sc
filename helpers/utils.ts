@@ -129,19 +129,22 @@ export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value)
 type ActionCall = {
   targetHash: string
   callData: string
+  paramsMapping: number[]
 }
 
 export class ActionFactory {
-  static create(targetHash: string, types: string[], args: any[]): ActionCall {
+  static create(targetHash: string, types: string[], args: any[], paramsMapping: number[]): ActionCall {
     const iface = new ethers.utils.Interface([
-      ' function execute(bytes calldata data) external payable returns (bytes calldata)',
-    ])
-    const encodedArgs = ethers.utils.defaultAbiCoder.encode(types, args)
-    const calldata = iface.encodeFunctionData('execute', [encodedArgs])
+      " function execute(bytes calldata data, uint8[] paramsMapping) external payable returns (bytes calldata)",
+    ]);
+    
+    const encodedArgs = ethers.utils.defaultAbiCoder.encode(types, args);
+    const calldata = iface.encodeFunctionData("execute", [encodedArgs, paramsMapping]);
     return {
+      paramsMapping,
       targetHash,
       callData: calldata,
-    }
+    };
   }
 }
 
