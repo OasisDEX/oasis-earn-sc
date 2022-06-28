@@ -3,12 +3,12 @@ pragma solidity >=0.8.1;
 import "hardhat/console.sol";
 
 contract ServiceRegistry {
+  mapping(address => bool) public trustedAddresses;
   mapping(bytes32 => uint256) public lastExecuted;
-  mapping(address => bool) private trustedAddresses;
   mapping(bytes32 => address) private namedService;
   address public owner;
 
-  uint256 public requiredDelay = 0; //big enaugh that any power of miner over timestamp does not matter
+  uint256 public requiredDelay = 0; // big enough that any power of miner over timestamp does not matter
 
   modifier validateInput(uint256 len) {
     require(msg.data.length == len, "illegal-padding");
@@ -68,11 +68,6 @@ contract ServiceRegistry {
 
   function removeTrustedAddress(address trustedAddress) public onlyOwner validateInput(36) {
     trustedAddresses[trustedAddress] = false;
-  }
-
-  // isn't really needed if trustedAddress visibility is changed
-  function isTrusted(address testedAddress) public view returns (bool) {
-    return trustedAddresses[testedAddress];
   }
 
   function getServiceNameHash(string calldata name) public pure returns (bytes32) {

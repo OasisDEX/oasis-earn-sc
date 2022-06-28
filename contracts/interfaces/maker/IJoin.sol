@@ -2,14 +2,12 @@
 
 pragma solidity ^0.8.1;
 
-import "./IGem.sol";
-
 abstract contract IJoin {
   bytes32 public ilk;
 
   function dec() public view virtual returns (uint256);
 
-  function gem() public view virtual returns (IGem);
+  function gem() public view virtual returns (address);
 
   function join(address, uint256) public payable virtual;
 

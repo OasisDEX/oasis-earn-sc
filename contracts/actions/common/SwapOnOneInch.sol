@@ -14,8 +14,8 @@ import { WETH, ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
 contract SwapOnOneInch is Executable {
   ServiceRegistry internal immutable registry;
 
-  constructor(address _registry) {
-    registry = ServiceRegistry(_registry);
+  constructor(ServiceRegistry _registry) {
+    registry = _registry;
   }
 
   function execute(bytes calldata data, uint8[] memory) external payable override {

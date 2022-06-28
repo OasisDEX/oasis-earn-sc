@@ -14,7 +14,7 @@ import { FLASH_MINT_MODULE } from "../../core/constants/Maker.sol";
 contract TakeFlashloan is Executable {
   ServiceRegistry internal immutable registry;
 
-  constructor(address _registry) {
+  constructor(ServiceRegistry _registry) {
     registry = ServiceRegistry(_registry);
   }
 

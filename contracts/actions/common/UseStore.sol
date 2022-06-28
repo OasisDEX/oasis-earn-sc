@@ -16,6 +16,14 @@ library Read {
 
     return param;
   }
+
+  function readUint(
+    OperationStorage _storage,
+    bytes32 param,
+    uint256 paramMapping
+  ) internal view returns (uint256) {
+    return uint256(read(_storage, param, paramMapping));
+  }
 }
 
 library Write {
