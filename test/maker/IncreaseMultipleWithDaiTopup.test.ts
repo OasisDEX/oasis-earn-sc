@@ -128,7 +128,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
         },
       ],
     )
@@ -152,7 +151,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -180,7 +178,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
       [
         {
           to: system.common.userProxyAddress,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
           vaultId: 0,
           amount: ensureWeiFormat(desiredCdpState.requiredDebt),
         },
@@ -217,7 +214,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
           vaultId: 0,
           amount: ensureWeiFormat(collateralToDeposit),
         },

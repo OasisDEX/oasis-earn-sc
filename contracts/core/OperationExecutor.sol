@@ -1,24 +1,22 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.5;
 
-// TODO: This needs to be removed
-import "hardhat/console.sol";
-
-import "./ServiceRegistry.sol";
-import "./OperationStorage.sol";
-import "./OperationsRegistry.sol";
-import "../libs/DS/DSProxy.sol";
-import "../libs/Address.sol";
-import "../actions/common/TakeFlashloan.sol";
-import "../interfaces/tokens/IERC20.sol";
-import "../interfaces/flashloan/IERC3156FlashBorrower.sol";
-import "../interfaces/flashloan/IERC3156FlashLender.sol";
+import { ServiceRegistry } from "./ServiceRegistry.sol";
+import { OperationStorage } from "./OperationStorage.sol";
+import { OperationsRegistry } from "./OperationsRegistry.sol";
+import { DSProxy } from "../libs/DS/DSProxy.sol";
+import { Address } from "../libs/Address.sol";
+import { TakeFlashloan } from "../actions/common/TakeFlashloan.sol";
+import { IERC3156FlashBorrower } from "../interfaces/flashloan/IERC3156FlashBorrower.sol";
+import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender.sol";
+import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
 contract OperationExecutor is IERC3156FlashBorrower {
   using Address for address;
+  using SafeERC20 for IERC20;
 
   ServiceRegistry public immutable registry;
 
@@ -69,14 +67,14 @@ contract OperationExecutor is IERC3156FlashBorrower {
     // TODO - Use custom errors from solidity introduced in 0.8.4  https://blog.soliditylang.org/2021/04/21/custom-errors/
     require(amount == flData.amount, "loan-inconsistency");
 
-    IERC20(asset).transfer(initiator, flData.amount);
+    IERC20(asset).safeTransfer(initiator, flData.amount);
 
     DSProxy(payable(initiator)).execute(
       address(this),
       abi.encodeWithSelector(this.aggregate.selector, flData.calls)
     );
 
-    IERC20(asset).approve(lender, amount);
+    IERC20(asset).safeApprove(lender, amount);
 
     return keccak256("ERC3156FlashBorrower.onFlashLoan");
   }

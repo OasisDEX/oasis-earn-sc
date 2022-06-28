@@ -4,7 +4,7 @@ pragma solidity >=0.8.5;
 import { Executable } from "../common/Executable.sol";
 import { UseStore, Read, Write } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
-import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
+import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IVat } from "../../interfaces/maker/IVat.sol";
 import { IDaiJoin } from "../../interfaces/maker/IDaiJoin.sol";
 import { IJoin } from "../../interfaces/maker/IJoin.sol";
@@ -12,9 +12,11 @@ import { IManager } from "../../interfaces/maker/IManager.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { PaybackData } from "../../core/types/Maker.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
+import { MCD_MANAGER } from "../../core/constants/Maker.sol";
 
 contract MakerPayback is Executable, UseStore {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20;
   using Read for OperationStorage;
   using Write for OperationStorage;
 
@@ -31,24 +33,23 @@ contract MakerPayback is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory _paramsMapping) external payable override {
     PaybackData memory paybackData = abi.decode(data, (PaybackData));
     paybackData.vaultId = uint256(store().read(bytes32(paybackData.vaultId), _paramsMapping[0]));
-    paybackData.paybackAll ? _paybackAll(paybackData) : _payback(paybackData);
+    IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
+    paybackData.paybackAll ? _paybackAll(paybackData, manager) : _payback(paybackData, manager);
 
     store().write(bytes32(paybackData.amount));
   }
 
-  function _payback(PaybackData memory data) internal returns (bytes32) {
-    IManager mcdManager = data.mcdManager;
+  function _payback(PaybackData memory data, IManager manager) internal returns (bytes32) {
+    address own = manager.owns(data.vaultId);
+    address urn = manager.urns(data.vaultId);
+    IVat vat = IVat(manager.vat());
+    bytes32 ilk = manager.ilks(data.vaultId);
 
-    address own = mcdManager.owns(data.vaultId);
-    address urn = mcdManager.urns(data.vaultId);
-    IVat vat = IVat(mcdManager.vat());
-    bytes32 ilk = mcdManager.ilks(data.vaultId);
-
-    if (own == address(this) || mcdManager.cdpCan(own, data.vaultId, address(this)) == 1) {
+    if (own == address(this) || manager.cdpCan(own, data.vaultId, address(this)) == 1) {
       // Joins DAI amount into the vat
       daiJoin_join(data.userAddress, IDaiJoin(address(data.daiJoin)), urn, data.amount); // TODO:
       // Paybacks debt to the CDP
-      mcdManager.frob(data.vaultId, 0, _getWipeDart(WipeData(vat, urn, urn, vat.dai(urn), ilk)));
+      manager.frob(data.vaultId, 0, _getWipeDart(WipeData(vat, urn, urn, vat.dai(urn), ilk)));
     } else {
       // Joins DAI params.amount into the vat
       daiJoin_join(data.userAddress, IDaiJoin(address(data.daiJoin)), address(this), data.amount); // TODO:
@@ -67,16 +68,14 @@ contract MakerPayback is Executable, UseStore {
     return bytes32("");
   }
 
-  function _paybackAll(PaybackData memory data) internal returns (bytes32) {
-    IManager mcdManager = data.mcdManager;
-
-    address own = mcdManager.owns(data.vaultId);
-    address urn = mcdManager.urns(data.vaultId);
-    IVat vat = IVat(mcdManager.vat());
-    bytes32 ilk = mcdManager.ilks(data.vaultId);
+  function _paybackAll(PaybackData memory data, IManager manager) internal returns (bytes32) {
+    address own = manager.owns(data.vaultId);
+    address urn = manager.urns(data.vaultId);
+    IVat vat = IVat(manager.vat());
+    bytes32 ilk = manager.ilks(data.vaultId);
     (, uint256 art) = vat.urns(ilk, urn);
 
-    if (own == address(this) || mcdManager.cdpCan(own, data.vaultId, address(this)) == 1) {
+    if (own == address(this) || manager.cdpCan(own, data.vaultId, address(this)) == 1) {
       // Joins DAI amount into the vat
       daiJoin_join(
         data.userAddress,
@@ -85,7 +84,7 @@ contract MakerPayback is Executable, UseStore {
         _getWipeAllWad(WipeData(vat, urn, urn, 0, ilk))
       );
       // Paybacks debt to the CDP
-      mcdManager.frob(data.vaultId, 0, -int256(art));
+      manager.frob(data.vaultId, 0, -int256(art));
     } else {
       // Joins DAI data.amount into the vat
       daiJoin_join(
@@ -108,12 +107,12 @@ contract MakerPayback is Executable, UseStore {
     address urn,
     uint256 amount
   ) public {
-    IERC20 dai = IERC20(IDaiJoin(daiJoin).dai());
+    IERC20 dai = IERC20(daiJoin.dai());
 
-    dai.transferFrom(usr, address(this), amount);
+    dai.safeTransferFrom(usr, address(this), amount);
 
     // Approves adapter to take the DAI amount
-    dai.approve(address(daiJoin), amount);
+    dai.safeApprove(address(daiJoin), amount);
 
     // Joins DAI into the vat
     daiJoin.join(urn, amount);

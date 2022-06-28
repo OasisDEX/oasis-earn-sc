@@ -37,6 +37,7 @@ export const CONTRACT_NAMES = {
     OPEN_VAULT: 'MakerOpenVault',
     MCD_VIEW: 'McdView',
     FLASH_MINT_MODULE: 'FlashMintModule',
+    MCD_MANAGER: 'McdManager',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',

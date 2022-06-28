@@ -5,13 +5,14 @@ import { Executable } from "../common/Executable.sol";
 import { UseStore, Read, Write } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { IVat } from "../../interfaces/maker/IVat.sol";
+import { IManager } from "../../interfaces/maker/IManager.sol";
 import { IJoin } from "../../interfaces/maker/IJoin.sol"; // TODO:
 import { IDaiJoin } from "../../interfaces/maker/IDaiJoin.sol";
 import { IJug } from "../../interfaces/maker/IJug.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
-
 import { MathUtils } from "../../libs/MathUtils.sol";
 import { GenerateData } from "../../core/types/Maker.sol";
+import { MCD_MANAGER } from "../../core/constants/Maker.sol";
 
 contract MakerGenerate is Executable, UseStore {
   using SafeMath for uint256;
@@ -19,7 +20,6 @@ contract MakerGenerate is Executable, UseStore {
   using Write for OperationStorage;
 
   // TODO: NO GOOD
-  address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
   address public constant JUG_ADDRESS = 0x19c0976f590D67707E62397C87829d896Dc0f1F1;
   address public constant DAI_JOIN_ADDR = 0x9759A6Ac90977b93B58547b4A71c78317f391A28;
 
@@ -27,27 +27,29 @@ contract MakerGenerate is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     GenerateData memory generateData = abi.decode(data, (GenerateData));
-    IVat vat = IVat(generateData.mcdManager.vat());
 
     generateData.vaultId = store().readUint(bytes32(generateData.vaultId), paramsMap[0]);
 
-    store().write(_generate(generateData, vat));
+    store().write(_generate(generateData));
   }
 
-  function _generate(GenerateData memory data, IVat vat) internal returns (bytes32) {
-    data.mcdManager.frob(
+  function _generate(GenerateData memory data) internal returns (bytes32) {
+    IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
+    IVat vat = IVat(manager.vat());
+
+    manager.frob(
       data.vaultId,
       int256(0),
       _getDrawDart(
         vat,
         JUG_ADDRESS,
-        data.mcdManager.urns(data.vaultId),
-        data.mcdManager.ilks(data.vaultId),
+        manager.urns(data.vaultId),
+        manager.ilks(data.vaultId),
         data.amount
       )
     );
 
-    data.mcdManager.move(data.vaultId, address(this), toRad(data.amount));
+    manager.move(data.vaultId, address(this), toRad(data.amount));
 
     if (vat.can(address(this), address(DAI_JOIN_ADDR)) == 0) {
       vat.hope(DAI_JOIN_ADDR);

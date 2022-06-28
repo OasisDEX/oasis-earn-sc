@@ -1,8 +1,20 @@
 pragma solidity ^0.8.5;
 
-import "../../core/OperationStorage.sol";
-import "../../core/ServiceRegistry.sol";
+import { OperationStorage } from "../../core/OperationStorage.sol";
+import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { OPERATION_STORAGE } from "../../core/constants/Common.sol";
+
+abstract contract UseStore {
+  ServiceRegistry internal immutable registry;
+
+  constructor(address _registry) {
+    registry = ServiceRegistry(_registry);
+  }
+
+  function store() internal view returns (OperationStorage) {
+    return OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
+  }
+}
 
 library Read {
   function read(
@@ -29,17 +41,5 @@ library Read {
 library Write {
   function write(OperationStorage _storage, bytes32 value) internal {
     _storage.push(value);
-  }
-}
-
-abstract contract UseStore {
-  ServiceRegistry internal immutable registry;
-
-  constructor(address _registry) {
-    registry = ServiceRegistry(_registry);
-  }
-
-  function store() internal view returns (OperationStorage) {
-    return OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
   }
 }

@@ -6,12 +6,14 @@ import { UseStore, Read, Write } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
 import { WithdrawData } from "../../core/types/Maker.sol";
+import { IManager } from "../../interfaces/maker/IManager.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
+import { MCD_MANAGER } from "../../core/constants/Maker.sol";
+import { WETH } from "../../core/constants/Common.sol";
 
 contract MakerWithdraw is Executable, UseStore {
   using Read for OperationStorage;
   using Write for OperationStorage;
-  address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // TODO:
 
   constructor(address _registry) UseStore(_registry) {}
 
@@ -26,15 +28,16 @@ contract MakerWithdraw is Executable, UseStore {
     uint256 convertedAmount = MathUtils.convertTo18(data.joinAddr, data.amount);
 
     // Unlocks WETH/GEM amount from the CDP
-    data.mcdManager.frob(data.vaultId, -MathUtils.uintToInt(convertedAmount), 0);
+    IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
+    manager.frob(data.vaultId, -MathUtils.uintToInt(convertedAmount), 0);
 
     // Moves the amount from the CDP urn to proxy's address
-    data.mcdManager.flux(data.vaultId, address(this), convertedAmount);
+    manager.flux(data.vaultId, address(this), convertedAmount);
 
     // Exits token/WETH amount to the user's wallet as a token
     data.joinAddr.exit(address(this), convertedAmount);
 
-    if (address(gem) == WETH) {
+    if (address(gem) == registry.getRegisteredService(WETH)) {
       // Converts WETH to ETH
       IWETH(gem).withdraw(convertedAmount);
       // Sends ETH back to the user's wallet

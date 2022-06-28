@@ -5,16 +5,18 @@ import { Executable } from "../common/Executable.sol";
 import { UseStore, Read, Write } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { IVat } from "../../interfaces/maker/IVat.sol";
+import { IManager } from "../../interfaces/maker/IManager.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
 import { DepositData } from "../../core/types/Maker.sol";
-import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
+import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
+import { WETH } from "../../core/constants/Common.sol";
+import { MCD_MANAGER } from "../../core/constants/Maker.sol";
 
 contract MakerDeposit is Executable, UseStore {
+  using SafeERC20 for IERC20;
   using Write for OperationStorage;
   using Read for OperationStorage;
-
-  address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // no good
 
   constructor(address _registry) UseStore(_registry) {}
 
@@ -27,24 +29,24 @@ contract MakerDeposit is Executable, UseStore {
   function _deposit(DepositData memory data) internal returns (bytes32) {
     address gem = data.joinAddress.gem();
 
-    if (address(gem) == WETH) {
+    if (address(gem) == registry.getRegisteredService(WETH)) {
       // gem.deposit{ value: msg.value }(); // no longer in msg.value, because of the flashloan callback
       IWETH(gem).deposit{ value: address(this).balance }();
     }
 
-    // TODO: gems
     uint256 balance = IERC20(gem).balanceOf(address(this));
 
-    IERC20(gem).approve(address(data.joinAddress), balance);
+    IERC20(gem).safeApprove(address(data.joinAddress), balance);
     data.joinAddress.join(address(this), balance);
 
     uint256 convertedAmount = MathUtils.convertTo18(data.joinAddress, balance);
 
-    IVat vat = IVat(data.mcdManager.vat());
+    IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
+    IVat vat = IVat(manager.vat());
 
     vat.frob(
-      data.mcdManager.ilks(data.vaultId),
-      data.mcdManager.urns(data.vaultId),
+      manager.ilks(data.vaultId),
+      manager.urns(data.vaultId),
       address(this),
       address(this),
       MathUtils.uintToInt(convertedAmount),

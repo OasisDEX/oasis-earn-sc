@@ -1,17 +1,16 @@
 pragma solidity ^0.8.1;
-// TODO: Remove this for prod deploy
-import "hardhat/console.sol";
 
-import "../common/Executable.sol";
-import "../../core/ServiceRegistry.sol";
-import "../../core/OperationStorage.sol";
-import "../../interfaces/tokens/IERC20.sol";
-import "../../interfaces/tokens/IWETH.sol";
+import { Executable } from "../common/Executable.sol";
+import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
+import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
+import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { SwapData } from "../../core/types/Common.sol";
 import { WETH, ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
 
 // TODO: Make it so it differentiate between ETH and any other token
 contract SwapOnOneInch is Executable {
+  using SafeERC20 for IERC20;
+
   ServiceRegistry internal immutable registry;
 
   constructor(ServiceRegistry _registry) {
@@ -27,12 +26,13 @@ contract SwapOnOneInch is Executable {
     address oneInchAggregatorAddress = registry.getRegisteredService(ONE_INCH_AGGREGATOR);
 
     if (address(this).balance > 0) {
+      // TODO: check
       IWETH(registry.getRegisteredService(WETH)).deposit{ value: address(this).balance }();
     }
 
     SwapData memory swap = abi.decode(data, (SwapData));
 
-    IERC20(swap.fromAsset).approve(oneInchAggregatorAddress, swap.amount);
+    IERC20(swap.fromAsset).safeApprove(oneInchAggregatorAddress, swap.amount);
 
     (bool success, ) = oneInchAggregatorAddress.call(swap.withData);
 

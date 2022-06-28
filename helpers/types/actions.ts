@@ -11,11 +11,11 @@ export const calldataTypes = {
     TakeAFlashLoan: `tuple(uint256 amount, address borrower, (bytes32 targetHash, bytes callData)[] calls)`,
   },
   maker: {
-    Open: `tuple(address joinAddress,address mcdManager)`,
-    Generate: `tuple(address to, address mcdManager, uint256 vaultId, uint256 amount)`,
-    Deposit: `tuple(address joinAddress, address mcdManager, uint256 vaultId, uint256 amount)`,
-    Withdraw: `tuple(uint256 vaultId, address userAddress, address joinAddr, address mcdManager, uint256 amount)`,
-    Payback: `tuple(uint256 vaultId, address userAddress, address daiJoin, address mcdManager, uint256 amount, bool paybackAll)`,
+    Open: `tuple(address joinAddress)`,
+    Generate: `tuple(address to, uint256 vaultId, uint256 amount)`,
+    Deposit: `tuple(address joinAddress, uint256 vaultId, uint256 amount)`,
+    Withdraw: `tuple(uint256 vaultId, address userAddress, address joinAddr, uint256 amount)`,
+    Payback: `tuple(uint256 vaultId, address userAddress, address daiJoin, uint256 amount, bool paybackAll)`,
   },
   aave: {
     Deposit: `tuple(address asset, uint256 amount)`,
