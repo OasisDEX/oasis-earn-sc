@@ -12,7 +12,7 @@ import { IManager } from "../../interfaces/maker/IManager.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { PaybackData } from "../../core/types/Maker.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
-import { MCD_MANAGER } from "../../core/constants/Maker.sol";
+import { MCD_MANAGER, MCD_JOIN_DAI } from "../../core/constants/Maker.sol";
 
 contract MakerPayback is Executable, UseStore {
   using SafeMath for uint256;
@@ -34,25 +34,32 @@ contract MakerPayback is Executable, UseStore {
     PaybackData memory paybackData = abi.decode(data, (PaybackData));
     paybackData.vaultId = uint256(store().read(bytes32(paybackData.vaultId), _paramsMapping[0]));
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
-    paybackData.paybackAll ? _paybackAll(paybackData, manager) : _payback(paybackData, manager);
+    IDaiJoin daiJoin = IDaiJoin(registry.getRegisteredService(MCD_JOIN_DAI));
+    paybackData.paybackAll
+      ? _paybackAll(manager, daiJoin, paybackData)
+      : _payback(manager, daiJoin, paybackData);
 
     store().write(bytes32(paybackData.amount));
   }
 
-  function _payback(PaybackData memory data, IManager manager) internal returns (bytes32) {
+  function _payback(
+    IManager manager,
+    IDaiJoin daiJoin,
+    PaybackData memory data
+  ) internal returns (bytes32) {
     address own = manager.owns(data.vaultId);
     address urn = manager.urns(data.vaultId);
-    IVat vat = IVat(manager.vat());
+    IVat vat = manager.vat();
     bytes32 ilk = manager.ilks(data.vaultId);
 
     if (own == address(this) || manager.cdpCan(own, data.vaultId, address(this)) == 1) {
       // Joins DAI amount into the vat
-      daiJoin_join(data.userAddress, IDaiJoin(address(data.daiJoin)), urn, data.amount); // TODO:
+      joinDai(data.userAddress, daiJoin, urn, data.amount);
       // Paybacks debt to the CDP
       manager.frob(data.vaultId, 0, _getWipeDart(WipeData(vat, urn, urn, vat.dai(urn), ilk)));
     } else {
       // Joins DAI params.amount into the vat
-      daiJoin_join(data.userAddress, IDaiJoin(address(data.daiJoin)), address(this), data.amount); // TODO:
+      joinDai(data.userAddress, daiJoin, address(this), data.amount);
       // Paybacks debt to the CDP
       uint256 wadToWipe = data.amount * MathUtils.RAY;
       vat.frob(
@@ -68,28 +75,27 @@ contract MakerPayback is Executable, UseStore {
     return bytes32("");
   }
 
-  function _paybackAll(PaybackData memory data, IManager manager) internal returns (bytes32) {
+  function _paybackAll(
+    IManager manager,
+    IDaiJoin daiJoin,
+    PaybackData memory data
+  ) internal returns (bytes32) {
     address own = manager.owns(data.vaultId);
     address urn = manager.urns(data.vaultId);
-    IVat vat = IVat(manager.vat());
     bytes32 ilk = manager.ilks(data.vaultId);
+    IVat vat = manager.vat();
     (, uint256 art) = vat.urns(ilk, urn);
 
     if (own == address(this) || manager.cdpCan(own, data.vaultId, address(this)) == 1) {
       // Joins DAI amount into the vat
-      daiJoin_join(
-        data.userAddress,
-        IDaiJoin(address(data.daiJoin)), // TODO:
-        urn,
-        _getWipeAllWad(WipeData(vat, urn, urn, 0, ilk))
-      );
+      joinDai(data.userAddress, daiJoin, urn, _getWipeAllWad(WipeData(vat, urn, urn, 0, ilk)));
       // Paybacks debt to the CDP
       manager.frob(data.vaultId, 0, -int256(art));
     } else {
       // Joins DAI data.amount into the vat
-      daiJoin_join(
+      joinDai(
         data.userAddress,
-        IDaiJoin(address(data.daiJoin)), // TODO:
+        daiJoin,
         address(this),
         _getWipeAllWad(WipeData(vat, address(this), urn, 0, ilk))
       );
@@ -100,8 +106,7 @@ contract MakerPayback is Executable, UseStore {
     return bytes32("");
   }
 
-  // TODO: fix name
-  function daiJoin_join(
+  function joinDai(
     address usr,
     IDaiJoin daiJoin,
     address urn,

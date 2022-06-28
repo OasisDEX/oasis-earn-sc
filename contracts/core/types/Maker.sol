@@ -25,7 +25,6 @@ struct GenerateData {
 struct PaybackData {
   uint256 vaultId;
   address userAddress;
-  IJoin daiJoin;
   uint256 amount;
   bool paybackAll;
 }

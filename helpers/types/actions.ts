@@ -15,7 +15,7 @@ export const calldataTypes = {
     Generate: `tuple(address to, uint256 vaultId, uint256 amount)`,
     Deposit: `tuple(address joinAddress, uint256 vaultId, uint256 amount)`,
     Withdraw: `tuple(uint256 vaultId, address userAddress, address joinAddr, uint256 amount)`,
-    Payback: `tuple(uint256 vaultId, address userAddress, address daiJoin, uint256 amount, bool paybackAll)`,
+    Payback: `tuple(uint256 vaultId, address userAddress, uint256 amount, bool paybackAll)`,
   },
   aave: {
     Deposit: `tuple(address asset, uint256 amount)`,

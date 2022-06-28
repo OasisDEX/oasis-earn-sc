@@ -36,8 +36,10 @@ export const CONTRACT_NAMES = {
     GENERATE: 'MakerGenerate',
     OPEN_VAULT: 'MakerOpenVault',
     MCD_VIEW: 'McdView',
-    FLASH_MINT_MODULE: 'FlashMintModule',
-    MCD_MANAGER: 'McdManager',
+    FLASH_MINT_MODULE: 'MCD_FLASH_MINT_MODULE',
+    MCD_MANAGER: 'MCD_MANAGER',
+    MCD_JUG: 'MCD_JUG',
+    MCD_JOIN_DAI: 'MCD_JOIN_DAI',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',

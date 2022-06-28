@@ -42,7 +42,7 @@ contract MakerDeposit is Executable, UseStore {
     uint256 convertedAmount = MathUtils.convertTo18(data.joinAddress, balance);
 
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
-    IVat vat = IVat(manager.vat());
+    IVat vat = manager.vat();
 
     vat.frob(
       manager.ilks(data.vaultId),

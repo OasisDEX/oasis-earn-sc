@@ -1,6 +1,6 @@
 pragma solidity ^0.8.1;
-import "hardhat/console.sol";
-import "./ServiceRegistry.sol";
+
+import { ServiceRegistry } from "./ServiceRegistry.sol";
 
 // TODO: Allow only whitelisted addresses to call methods on this storage
 // In our case this will be the OperationExecutor.
