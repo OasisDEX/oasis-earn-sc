@@ -21,8 +21,9 @@ contract MakerGenerate is Executable, UseStore {
   using Read for OperationStorage;
   using Write for OperationStorage;
 
-  uint256 constant RAY = 10**27;
+  uint256 public constant RAY = 10**27;
 
+  // TODO: NO GOOD
   address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
   address public constant JUG_ADDRESS = 0x19c0976f590D67707E62397C87829d896Dc0f1F1;
   address public constant DAI_JOIN_ADDR = 0x9759A6Ac90977b93B58547b4A71c78317f391A28;
@@ -90,6 +91,7 @@ contract MakerGenerate is Executable, UseStore {
     }
   }
 
+  // TODO:
   function parseParamUint(
     uint256 param,
     uint256 paramMapping,

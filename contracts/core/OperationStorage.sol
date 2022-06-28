@@ -6,14 +6,14 @@ import "./ServiceRegistry.sol";
 // In our case this will be the OperationExecutor.
 contract OperationStorage {
   address private owner;
-  uint8 action = 0;
+  uint8 internal action = 0;
   bytes32[] public actions;
   bytes32[] public returnValues;
   ServiceRegistry internal immutable registry;
 
-  constructor(address _registry) {
+  constructor(ServiceRegistry _registry) {
     owner = msg.sender;
-    registry = ServiceRegistry(_registry);
+    registry = _registry;
   }
 
   function setOperationActions(bytes32[] memory _actions) external {

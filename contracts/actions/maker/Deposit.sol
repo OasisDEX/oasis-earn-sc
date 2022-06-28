@@ -19,7 +19,7 @@ contract MakerDeposit is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
 
-  address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+  address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // no good
 
   constructor(address _registry) UseStore(_registry) {}
 
@@ -42,26 +42,24 @@ contract MakerDeposit is Executable, UseStore {
     IERC20(address(gem)).approve(data.joinAddress, balance);
     IJoin(data.joinAddress).join(address(this), balance);
 
-    address vatAddr = IManager(data.mcdManager).vat();
-
-    IVat vat = IVat(vatAddr);
-
-    int256 convertedAmount = toInt256(convertTo18(data.joinAddress, balance));
+    uint256 convertedAmount = convertTo18(data.joinAddress, balance);
 
     IManager mcdManager = IManager(data.mcdManager);
+    IVat vat = IVat(mcdManager.vat());
 
     vat.frob(
       mcdManager.ilks(data.vaultId),
       mcdManager.urns(data.vaultId),
       address(this),
       address(this),
-      convertedAmount,
+      toInt256(convertedAmount),
       0
     );
 
-    return bytes32(uint256(convertedAmount));
+    return bytes32(convertedAmount);
   }
 
+  // TODO: move to utils
   function toInt256(uint256 x) internal pure returns (int256 y) {
     y = int256(x);
     require(y >= 0, "int256-overflow");

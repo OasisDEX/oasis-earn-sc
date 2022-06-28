@@ -18,10 +18,12 @@ import { OPERATION_STORAGE, OPERATIONS_REGISTRY } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
 contract OperationExecutor is IERC3156FlashBorrower {
-  ServiceRegistry public immutable registry;
   using Address for address;
-  constructor(address _registry) {
-    registry = ServiceRegistry(_registry);
+
+  ServiceRegistry public immutable registry;
+
+  constructor(ServiceRegistry _registry) {
+    registry = _registry;
   }
 
   function executeOp(Call[] memory calls, string calldata operationName) public {
@@ -47,7 +49,10 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
       address target = registry.getServiceAddress(calls[current].targetHash);
 
-      target.functionDelegateCall(calls[current].callData, "OpExecutor: low-level delegatecall failed");
+      target.functionDelegateCall(
+        calls[current].callData,
+        "OpExecutor: low-level delegatecall failed"
+      );
     }
   }
 
@@ -64,12 +69,11 @@ contract OperationExecutor is IERC3156FlashBorrower {
     // TODO - Use custom errors from solidity introduced in 0.8.4  https://blog.soliditylang.org/2021/04/21/custom-errors/
     require(amount == flData.amount, "loan-inconsistency");
 
-
     IERC20(asset).transfer(initiator, flData.amount);
 
     DSProxy(payable(initiator)).execute(
       address(this),
-      abi.encodeWithSignature("aggregate((bytes32,bytes)[])", flData.calls)
+      abi.encodeWithSelector(this.aggregate.selector, flData.calls)
     );
 
     IERC20(asset).approve(lender, amount);
