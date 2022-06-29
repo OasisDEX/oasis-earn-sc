@@ -37,7 +37,7 @@ contract MakerWithdraw is Executable, UseStore {
     // Exits token/WETH amount to the user's wallet as a token
     data.joinAddr.exit(address(this), convertedAmount);
 
-    if (address(gem) == registry.getRegisteredService(WETH)) {
+    if (gem == registry.getRegisteredService(WETH)) {
       // Converts WETH to ETH
       IWETH(gem).withdraw(convertedAmount);
       // Sends ETH back to the user's wallet

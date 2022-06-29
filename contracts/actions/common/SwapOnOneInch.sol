@@ -26,7 +26,6 @@ contract SwapOnOneInch is Executable {
     address oneInchAggregatorAddress = registry.getRegisteredService(ONE_INCH_AGGREGATOR);
 
     if (address(this).balance > 0) {
-      // TODO: check
       IWETH(registry.getRegisteredService(WETH)).deposit{ value: address(this).balance }();
     }
 

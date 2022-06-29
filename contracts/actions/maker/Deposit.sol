@@ -29,7 +29,7 @@ contract MakerDeposit is Executable, UseStore {
   function _deposit(DepositData memory data) internal returns (bytes32) {
     address gem = data.joinAddress.gem();
 
-    if (address(gem) == registry.getRegisteredService(WETH)) {
+    if (gem == registry.getRegisteredService(WETH)) {
       // gem.deposit{ value: msg.value }(); // no longer in msg.value, because of the flashloan callback
       IWETH(gem).deposit{ value: address(this).balance }();
     }
