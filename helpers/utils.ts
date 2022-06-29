@@ -5,14 +5,8 @@ import { isError, tryF } from 'ts-try'
 
 import CTOKEN_ABI from '../abi/CErc20.json'
 import IERC20_ABI from '../abi/IERC20.json'
-import { CONTRACT_NAMES, ONE, TEN } from '../helpers/constants'
-import {
-  ActionCall,
-  BalanceOptions,
-  NestedKeys,
-  RuntimeConfig,
-  ValueOf,
-} from '../helpers/types/common'
+import { ContractNames, ONE, TEN } from '../helpers/constants'
+import { ActionCall, BalanceOptions, RuntimeConfig } from '../helpers/types/common'
 
 export async function balanceOf(asset: string, address: string, options: BalanceOptions) {
   let balance = undefined
@@ -186,11 +180,7 @@ export class ServiceRegistry {
     this.signer = signer
   }
 
-  async addEntry(
-    label: ValueOf<NestedKeys<typeof CONTRACT_NAMES>>,
-    address: string,
-    debug = false,
-  ): Promise<string> {
+  async addEntry(label: ContractNames, address: string, debug = false): Promise<string> {
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     await registry.addNamedService(entryHash, address)
@@ -202,7 +192,7 @@ export class ServiceRegistry {
     return entryHash
   }
 
-  async getEntryHash(label: ValueOf<NestedKeys<typeof CONTRACT_NAMES>>): Promise<string> {
+  async getEntryHash(label: ContractNames): Promise<string> {
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     return registry.getServiceNameHash(label)
   }
@@ -217,7 +207,7 @@ export class OperationsRegistry {
     this.signer = signer
   }
 
-  async addOp(label: string, stepsHashes: string[], debug: boolean = false): Promise<string> {
+  async addOp(label: string, stepsHashes: string[], debug = false): Promise<string> {
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
     const registry = await ethers.getContractAt('OperationsRegistry', this.address, this.signer)
     await registry.addOperation(label, stepsHashes)

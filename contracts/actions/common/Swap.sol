@@ -1,10 +1,17 @@
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.5;
 
 import "hardhat/console.sol";
 
+import "../../core/ServiceRegistry.sol";
 import "../../interfaces/tokens/IERC20.sol";
 import "../../libs/SafeMath.sol";
 import "../../libs/SafeERC20.sol";
+import { ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
+
+error ReceivedLess(uint256 receiveAtLeast, uint256 received);
+error Unauthorized();
+error FeeTierDoesNotExist();
+error SwapFailed();
 
 contract Swap {
   using SafeMath for uint256;
@@ -14,16 +21,19 @@ contract Swap {
   uint256 public constant feeBase = 10000;
   mapping(uint256 => bool) public feeTiers;
   mapping(address => bool) public authorizedAddresses;
+  ServiceRegistry internal immutable registry;
 
   constructor(
     address authorisedCaller,
     address feeBeneficiary,
-    uint256 _initialFee
+    uint256 _initialFee,
+    address _registry
   ) {
     authorizedAddresses[authorisedCaller] = true;
     authorizedAddresses[feeBeneficiary] = true;
     addFeeTier(_initialFee);
     feeBeneficiaryAddress = feeBeneficiary;
+    registry = ServiceRegistry(_registry);
   }
 
   event AssetSwap(
@@ -37,7 +47,9 @@ contract Swap {
   event SlippageSaved(uint256 minimumPossible, uint256 actualAmount);
 
   modifier onlyAuthorised() {
-    require(authorizedAddresses[msg.sender], "Swap / Unauthorized Caller.");
+    if (!authorizedAddresses[msg.sender]) {
+      revert Unauthorized();
+    }
     _;
   }
 
@@ -51,7 +63,9 @@ contract Swap {
 
   function verifyFee(uint256 feeId) public view returns (bool valid) {
     valid = feeTiers[feeId];
-    require(valid, "Swap / Fee Tier does not exist.");
+    if (!valid) {
+      revert FeeTierDoesNotExist();
+    }
   }
 
   function _swap(
@@ -64,10 +78,14 @@ contract Swap {
   ) internal returns (uint256 balance) {
     IERC20(fromAsset).safeApprove(callee, amount);
     (bool success, ) = callee.call(withData);
-    require(success, "Swap / Could not swap");
+    if (!success) {
+      revert SwapFailed();
+    }
     balance = IERC20(toAsset).balanceOf(address(this));
     emit SlippageSaved(receiveAtLeast, balance);
-    require(balance >= receiveAtLeast, "Swap / Received less");
+    if (balance < receiveAtLeast) {
+      revert ReceivedLess({ receiveAtLeast: receiveAtLeast, received: balance });
+    }
     emit AssetSwap(fromAsset, toAsset, amount, balance);
   }
 
@@ -93,18 +111,18 @@ contract Swap {
     uint256 amountFromWithFee,
     uint256 receiveAtLeast,
     uint256 fee,
-    address callee,
     bytes calldata withData
   ) public {
     IERC20(assetFrom).safeTransferFrom(msg.sender, address(this), amountFromWithFee);
     uint256 amountFrom = _collectFee(assetFrom, amountFromWithFee, fee);
 
+    address oneInch = registry.getRegisteredService(ONE_INCH_AGGREGATOR);
     uint256 toTokenBalance = _swap(
       assetFrom,
       assetTo,
       amountFrom,
       receiveAtLeast,
-      callee,
+      oneInch,
       withData
     );
 

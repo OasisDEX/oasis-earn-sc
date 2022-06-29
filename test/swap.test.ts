@@ -4,8 +4,8 @@ import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
-import ERC20ABI from '../abi/IERC20.json'
-import WETHABI from '../abi/IWETH.json'
+import ERC20_ABI from '../abi/IERC20.json'
+import WETH_ABI from '../abi/IWETH.json'
 import { ADDRESSES } from '../helpers/addresses'
 import { ONE } from '../helpers/constants'
 import init from '../helpers/init'
@@ -16,10 +16,16 @@ import {
   swapTokens,
 } from '../helpers/swap/1inch'
 import { RuntimeConfig } from '../helpers/types/common'
-import { amountFromWei, amountToWei, asPercentageValue, balanceOf } from '../helpers/utils'
-import { expectToBe, expectToBeEqual } from './utils'
+import {
+  amountFromWei,
+  amountToWei,
+  asPercentageValue,
+  balanceOf,
+  ServiceRegistry,
+} from '../helpers/utils'
+import { DeployedSystemInfo, deploySystem } from './deploySystem'
+import { expectRevert, expectToBe, expectToBeEqual } from './utils'
 
-const AGGREGATOR_V3_ADDRESS = ADDRESSES.main.oneInchAggregator
 const ALLOWED_PROTOCOLS = ['UNISWAP_V2', 'UNISWAP_V3']
 const FEE = 20
 const FEE_BASE = 10000
@@ -32,7 +38,6 @@ describe('Swap', async () => {
   let provider: JsonRpcProvider
   let signer: Signer
   let address: string
-  let swap: Contract
   let WETH: Contract
   let DAI: Contract
   let feeBeneficiary: string
@@ -40,6 +45,9 @@ describe('Swap', async () => {
   let fee: ReturnType<typeof asPercentageValue>
   let snapshotId: string
   let config: RuntimeConfig
+
+  let system: DeployedSystemInfo
+  let registry: ServiceRegistry
 
   before(async () => {
     config = await init()
@@ -54,17 +62,16 @@ describe('Swap', async () => {
       },
     ])
 
+    const { system: _system, registry: _registry } = await deploySystem(config)
+    system = _system
+    registry = _registry
+
     feeBeneficiary = ADDRESSES.main.feeRecipient
     slippage = asPercentageValue(8, 100)
     fee = asPercentageValue(FEE, FEE_BASE)
 
-    const swapFactory = await ethers.getContractFactory('Swap', signer)
-    swap = await swapFactory.deploy(address, feeBeneficiary, FEE)
-
-    await swap.deployed()
-
-    WETH = new ethers.Contract(ADDRESSES.main.WETH, WETHABI, provider).connect(signer)
-    DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
+    WETH = new ethers.Contract(ADDRESSES.main.WETH, WETH_ABI, provider).connect(signer)
+    DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20_ABI, provider).connect(signer)
   })
 
   beforeEach(async () => {
@@ -77,17 +84,17 @@ describe('Swap', async () => {
 
   describe('Fee tiers', async () => {
     it('should have fee beneficiary address set', async () => {
-      const exchangeFeeBeneficiary = await swap.feeBeneficiaryAddress()
+      const exchangeFeeBeneficiary = await system.common.swap.feeBeneficiaryAddress()
       expectToBeEqual(exchangeFeeBeneficiary, feeBeneficiary)
     })
 
     it('should have a whitelisted caller set', async () => {
-      expect(await swap.authorizedAddresses(address)).to.be.true
+      expect(await system.common.swap.authorizedAddresses(address)).to.be.true
     })
 
     it('should not allow unauthorized caller to add the fee tier', async () => {
-      const tx = swap.connect(provider.getSigner(1)).addFeeTier('30')
-      await expect(tx).to.be.revertedWith('Swap / Unauthorized Caller')
+      const tx = system.common.swap.connect(provider.getSigner(1)).addFeeTier('30')
+      await expect(tx).to.be.revertedWith('Unauthorized()')
     })
 
     it('should allow beneficiary to add the fee tier', async () => {
@@ -96,29 +103,29 @@ describe('Swap', async () => {
       await signer.sendTransaction(tx0)
       await provider.send('hardhat_impersonateAccount', [feeBeneficiary])
       const beneficiary = ethers.provider.getSigner(feeBeneficiary)
-      await swap.connect(beneficiary).addFeeTier('30')
+      await system.common.swap.connect(beneficiary).addFeeTier('30')
     })
 
     it('should support adding multiple fee tiers', async () => {
-      await swap.addFeeTier(30)
-      await swap.addFeeTier(40)
+      await system.common.swap.addFeeTier(30)
+      await system.common.swap.addFeeTier(40)
 
-      expect(await swap.verifyFee(20)).to.equal(true)
-      expect(await swap.verifyFee(30)).to.equal(true)
-      expect(await swap.verifyFee(40)).to.equal(true)
+      expect(await system.common.swap.verifyFee(20)).to.equal(true)
+      expect(await system.common.swap.verifyFee(30)).to.equal(true)
+      expect(await system.common.swap.verifyFee(40)).to.equal(true)
     })
 
     it('should support removing fee tiers', async () => {
-      await swap.addFeeTier(30)
-      await swap.removeFeeTier(30)
-      const tx = swap.verifyFee(30)
+      await system.common.swap.addFeeTier(30)
+      await system.common.swap.removeFeeTier(30)
+      const tx = system.common.swap.verifyFee(30)
 
-      await expect(tx).to.be.revertedWith('Swap / Fee Tier does not exist.')
+      await expect(tx).to.be.revertedWith('FeeTierDoesNotExist()')
     })
 
     it('should throw on access to non existent fee tier', async () => {
-      const tx = swap.verifyFee(2)
-      await expect(tx).to.be.revertedWith('Swap / Fee Tier does not exist.')
+      const tx = system.common.swap.verifyFee(2)
+      await expect(tx).to.be.revertedWith('FeeTierDoesNotExist()')
     })
 
     it('should allow to use different tiers', async () => {
@@ -126,13 +133,13 @@ describe('Swap', async () => {
       const fee = 50
       const feeAmount = calculateFee(amountInWei, fee)
       const amountInWeiWithFee = amountInWei.plus(feeAmount)
-      await swap.addFeeTier(fee)
+      await system.common.swap.addFeeTier(fee)
 
       const response = await swapOneInchTokens(
         WETH.address,
         DAI.address,
         amountInWei.toFixed(0),
-        swap.address,
+        system.common.swap.address,
         slippage.value.toFixed(),
         ALLOWED_PROTOCOLS,
       )
@@ -141,14 +148,13 @@ describe('Swap', async () => {
         ONE.minus(slippage.asDecimal),
       )
       await WETH.deposit({ value: amountInWeiWithFee.toFixed() })
-      await WETH.approve(swap.address, amountInWeiWithFee.toFixed())
-      await swap.swapTokens(
+      await WETH.approve(system.common.swap.address, amountInWeiWithFee.toFixed())
+      await system.common.swap.swapTokens(
         WETH.address,
         DAI.address,
         amountInWeiWithFee.toFixed(0),
         receiveAtLeastInWei.toFixed(0),
         fee,
-        response.tx.to,
         response.tx.data,
         {
           value: 0,
@@ -179,7 +185,7 @@ describe('Swap', async () => {
       const response = await exchangeToDAI(
         ADDRESSES.main.WETH,
         assetAmountInWei.toFixed(0),
-        swap.address,
+        system.common.swap.address,
         slippage.value.toFixed(),
         ALLOWED_PROTOCOLS,
       )
@@ -214,15 +220,14 @@ describe('Swap', async () => {
           new BigNumber(await balanceOf(ADDRESSES.main.DAI, address, { config })),
         )
 
-        await WETH.approve(swap.address, assetAmountInWeiWithFee.toFixed())
+        await WETH.approve(system.common.swap.address, assetAmountInWeiWithFee.toFixed())
 
-        await swap.swapTokens(
+        await system.common.swap.swapTokens(
           ADDRESSES.main.WETH,
           ADDRESSES.main.DAI,
           assetAmountInWeiWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
-          to,
           data,
           {
             value: 0,
@@ -250,7 +255,7 @@ describe('Swap', async () => {
 
       it('should not have Asset amount left in the exchange', async () => {
         const exchangeWethBalance = amountToWei(
-          await balanceOf(ADDRESSES.main.WETH, swap.address, { config }),
+          await balanceOf(ADDRESSES.main.WETH, system.common.swap.address, { config }),
         )
         const wethBalance = amountToWei(await balanceOf(ADDRESSES.main.WETH, address, { config }))
 
@@ -259,7 +264,9 @@ describe('Swap', async () => {
       })
 
       it('should not have DAI amount left in the exchange', async () => {
-        const exchangeDaiBalance = await balanceOf(ADDRESSES.main.DAI, swap.address, { config })
+        const exchangeDaiBalance = await balanceOf(ADDRESSES.main.DAI, system.common.swap.address, {
+          config,
+        })
         expectToBeEqual(exchangeDaiBalance, 0)
       })
 
@@ -296,14 +303,13 @@ describe('Swap', async () => {
           .integerValue(BigNumber.ROUND_DOWN)
         assetAmountInWeiWithFee = assetAmountInWei.plus(moreThanTheTransferFeeAmountWei)
 
-        await WETH.approve(swap.address, moreThanTheTransferAmountWei.toFixed(0))
-        await swap.swapTokens(
+        await WETH.approve(system.common.swap.address, moreThanTheTransferAmountWei.toFixed(0))
+        await system.common.swap.swapTokens(
           ADDRESSES.main.WETH,
           ADDRESSES.main.DAI,
           moreThanTheTransferAmountWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
-          to,
           data,
           {
             value: 0,
@@ -329,7 +335,7 @@ describe('Swap', async () => {
 
       it('should not have Asset amount left in the exchange', async () => {
         const exchangeWethBalanceWei = amountToWei(
-          await balanceOf(ADDRESSES.main.WETH, swap.address, { config }),
+          await balanceOf(ADDRESSES.main.WETH, system.common.swap.address, { config }),
         )
         const wethBalanceWei = amountToWei(
           await balanceOf(ADDRESSES.main.WETH, address, { config }),
@@ -340,7 +346,9 @@ describe('Swap', async () => {
       })
 
       it('should not have DAI amount left in the exchange', async () => {
-        const exchangeDaiBalance = await balanceOf(ADDRESSES.main.DAI, swap.address, { config })
+        const exchangeDaiBalance = await balanceOf(ADDRESSES.main.DAI, system.common.swap.address, {
+          config,
+        })
         expectToBeEqual(exchangeDaiBalance, 0)
       })
 
@@ -356,6 +364,7 @@ describe('Swap', async () => {
     describe('when transferring less amount to the exchange', async () => {
       let initialWethWalletBalance: BigNumber
       let lessThanTheTransferAmount: BigNumber
+      let initialDaiBalance: BigNumber
       let localSnapshotId: string
 
       beforeEach(async () => {
@@ -368,9 +377,12 @@ describe('Swap', async () => {
         initialWethWalletBalance = new BigNumber(
           await balanceOf(ADDRESSES.main.WETH, address, { config }),
         )
+
+        initialDaiBalance = new BigNumber(await balanceOf(ADDRESSES.main.DAI, address, { config }))
+
         lessThanTheTransferAmount = assetAmountInWeiWithFee.minus(amountToWei(5))
 
-        await WETH.approve(swap.address, lessThanTheTransferAmount.toFixed(0))
+        await WETH.approve(system.common.swap.address, lessThanTheTransferAmount.toFixed(0))
       })
 
       afterEach(async () => {
@@ -378,13 +390,12 @@ describe('Swap', async () => {
       })
 
       it('should throw an error and not exchange anything', async () => {
-        const tx = swap.swapTokens(
+        const tx = system.common.swap.swapTokens(
           ADDRESSES.main.WETH,
           ADDRESSES.main.DAI,
           lessThanTheTransferAmount.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
-          to,
           data,
           {
             value: 0,
@@ -392,17 +403,21 @@ describe('Swap', async () => {
           },
         )
 
-        await expect(tx).to.be.revertedWith('Swap / Could not swap')
+        await expect(tx).to.be.revertedWith('SwapFailed()')
 
         const wethBalance = await balanceOf(ADDRESSES.main.WETH, address, { config })
         const daiBalance = await balanceOf(ADDRESSES.main.DAI, address, { config })
 
         expectToBeEqual(wethBalance, initialWethWalletBalance)
-        expectToBeEqual(daiBalance, 0)
+        expectToBeEqual(daiBalance, initialDaiBalance)
       })
 
       it('should not have Asset amount left in the exchange', async () => {
-        const exchangeWethBalance = await balanceOf(ADDRESSES.main.WETH, swap.address, { config })
+        const exchangeWethBalance = await balanceOf(
+          ADDRESSES.main.WETH,
+          system.common.swap.address,
+          { config },
+        )
         const wethBalance = await balanceOf(ADDRESSES.main.WETH, address, { config })
 
         expectToBeEqual(exchangeWethBalance, 0)
@@ -410,7 +425,9 @@ describe('Swap', async () => {
       })
 
       it('should not have DAI amount left in the exchange', async () => {
-        const exchangeDaiBalance = await balanceOf(ADDRESSES.main.DAI, swap.address, { config })
+        const exchangeDaiBalance = await balanceOf(ADDRESSES.main.DAI, system.common.swap.address, {
+          config,
+        })
         expectToBeEqual(exchangeDaiBalance, 0)
       })
     })
@@ -425,7 +442,7 @@ describe('Swap', async () => {
           value: amountToWei(1000).toFixed(0),
         })
 
-        await WETH.approve(swap.address, assetAmountInWeiWithFee.toFixed(0))
+        await WETH.approve(system.common.swap.address, assetAmountInWeiWithFee.toFixed(0))
       })
 
       afterEach(async () => {
@@ -442,19 +459,21 @@ describe('Swap', async () => {
         await WETH.connect(otherWallet).deposit({
           value: amountToWei(1).toFixed(0),
         })
-        await WETH.connect(otherWallet).transfer(swap.address, transferredAmountWei.toFixed(0))
+        await WETH.connect(otherWallet).transfer(
+          system.common.swap.address,
+          transferredAmountWei.toFixed(0),
+        )
         const exchangeWethBalanceWei = amountToWei(
-          await balanceOf(ADDRESSES.main.WETH, swap.address, { config }),
+          await balanceOf(ADDRESSES.main.WETH, system.common.swap.address, { config }),
         )
         expectToBeEqual(exchangeWethBalanceWei, transferredAmountWei)
 
-        await swap.swapTokens(
+        await system.common.swap.swapTokens(
           ADDRESSES.main.WETH,
           ADDRESSES.main.DAI,
           assetAmountInWeiWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
-          to,
           data,
           {
             value: 0,
@@ -492,19 +511,20 @@ describe('Swap', async () => {
 
         expectToBe(otherWalletDaiBalance, 'gte', 1)
 
-        await DAI.connect(otherWallet).transfer(swap.address, amountWei.toFixed(0))
+        await DAI.connect(otherWallet).transfer(system.common.swap.address, amountWei.toFixed(0))
         let exchangeDaiBalanceWei = amountToWei(
-          new BigNumber(await balanceOf(ADDRESSES.main.DAI, swap.address, { config })),
+          new BigNumber(
+            await balanceOf(ADDRESSES.main.DAI, system.common.swap.address, { config }),
+          ),
         )
         expectToBeEqual(exchangeDaiBalanceWei, amountWei, 0)
 
-        await swap.swapTokens(
+        await system.common.swap.swapTokens(
           ADDRESSES.main.WETH,
           ADDRESSES.main.DAI,
           assetAmountInWeiWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
-          to,
           data,
           {
             value: 0,
@@ -515,7 +535,9 @@ describe('Swap', async () => {
         // This assertion basically asserts the funds that were pre-deposit are not left within the exchange
         // This DOES NOT test if the fund were actually sent to the caller. There is no way to do that with current design
         exchangeDaiBalanceWei = amountToWei(
-          new BigNumber(await balanceOf(ADDRESSES.main.DAI, swap.address, { config })),
+          new BigNumber(
+            await balanceOf(ADDRESSES.main.DAI, system.common.swap.address, { config }),
+          ),
         )
         expectToBeEqual(exchangeDaiBalanceWei, 0)
       })
@@ -538,7 +560,7 @@ describe('Swap', async () => {
         ADDRESSES.main.WETH,
         amountInWei.toFixed(0),
         slippage.value.toFixed(),
-        swap.address,
+        system.common.swap.address,
         ALLOWED_PROTOCOLS,
       )
 
@@ -571,15 +593,14 @@ describe('Swap', async () => {
           new BigNumber(await balanceOf(ADDRESSES.main.DAI, address, { config })),
         )
 
-        await DAI.approve(swap.address, amountWithFeeInWei.toFixed(0))
+        await DAI.approve(system.common.swap.address, amountWithFeeInWei.toFixed(0))
 
-        await swap.swapTokens(
+        await system.common.swap.swapTokens(
           ADDRESSES.main.DAI,
           ADDRESSES.main.WETH,
           amountWithFeeInWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
-          to,
           data,
           {
             value: 0,
@@ -604,14 +625,18 @@ describe('Swap', async () => {
 
       it('should not have Asset amount left in the exchange', async () => {
         const exchangeWethBalanceWei = amountToWei(
-          new BigNumber(await balanceOf(ADDRESSES.main.WETH, swap.address, { config })),
+          new BigNumber(
+            await balanceOf(ADDRESSES.main.WETH, system.common.swap.address, { config }),
+          ),
         )
         expectToBeEqual(exchangeWethBalanceWei, 0)
       })
 
       it('should not have DAI amount left in the exchange', async () => {
         const exchangeDaiBalanceWei = amountToWei(
-          new BigNumber(await balanceOf(ADDRESSES.main.DAI, swap.address, { config })),
+          new BigNumber(
+            await balanceOf(ADDRESSES.main.DAI, system.common.swap.address, { config }),
+          ),
         )
         expectToBeEqual(exchangeDaiBalanceWei, 0)
       })
@@ -658,15 +683,14 @@ describe('Swap', async () => {
           moreThanTheTransferAmountWei,
         )
 
-        await DAI.approve(swap.address, moreThanTheTransferAmountWithFee.toFixed(0))
+        await DAI.approve(system.common.swap.address, moreThanTheTransferAmountWithFee.toFixed(0))
 
-        await swap.swapTokens(
+        await system.common.swap.swapTokens(
           ADDRESSES.main.DAI,
           ADDRESSES.main.WETH,
           moreThanTheTransferAmountWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
-          to,
           data,
           {
             value: 0,
@@ -699,14 +723,18 @@ describe('Swap', async () => {
 
       it('should not have Asset amount left in the exchange', async () => {
         const exchangeWethBalanceWei = amountToWei(
-          new BigNumber(await balanceOf(ADDRESSES.main.WETH, swap.address, { config })),
+          new BigNumber(
+            await balanceOf(ADDRESSES.main.WETH, system.common.swap.address, { config }),
+          ),
         )
         expectToBeEqual(exchangeWethBalanceWei, 0)
       })
 
       it('should not have DAI amount left in the exchange', async () => {
         const exchangeDaiBalanceWei = amountToWei(
-          new BigNumber(await balanceOf(ADDRESSES.main.DAI, swap.address, { config })),
+          new BigNumber(
+            await balanceOf(ADDRESSES.main.DAI, system.common.swap.address, { config }),
+          ),
         )
         expectToBeEqual(exchangeDaiBalanceWei, 0)
       })
@@ -723,6 +751,7 @@ describe('Swap', async () => {
 
     describe('when transferring less amount to the exchange', async () => {
       let initialDaiWalletBalanceWei: BigNumber
+      let initialWethBalanceWei: BigNumber
       let lessThanTheTransferAmount: BigNumber
       let deficitAmount: BigNumber
       let localSnapshotId: string
@@ -743,12 +772,17 @@ describe('Swap', async () => {
         initialDaiWalletBalanceWei = amountToWei(
           new BigNumber(await balanceOf(ADDRESSES.main.DAI, address, { config })),
         )
+
+        initialWethBalanceWei = amountToWei(
+          new BigNumber(await balanceOf(ADDRESSES.main.WETH, address, { config })),
+        )
+
         deficitAmount = new BigNumber(10)
         lessThanTheTransferAmount = new BigNumber(amountWithFeeInWei).minus(
           amountToWei(deficitAmount),
         )
 
-        await DAI.approve(swap.address, amountWithFeeInWei.toFixed(0))
+        await DAI.approve(system.common.swap.address, amountWithFeeInWei.toFixed(0))
       })
 
       afterEach(async () => {
@@ -756,20 +790,19 @@ describe('Swap', async () => {
       })
 
       it('should throw an error and not exchange anything', async () => {
-        const tx = swap.swapTokens(
+        const tx = system.common.swap.swapTokens(
           ADDRESSES.main.DAI,
           ADDRESSES.main.WETH,
           lessThanTheTransferAmount.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
-          to,
           data,
           {
             value: 0,
             gasLimit: 2500000,
           },
         )
-        await expect(tx).to.be.revertedWith('Swap / Could not swap')
+        await expect(tx).to.be.revertedWith('SwapFailed()')
         const wethBalanceWei = amountToWei(
           new BigNumber(await balanceOf(ADDRESSES.main.WETH, address, { config })),
         )
@@ -778,16 +811,22 @@ describe('Swap', async () => {
         )
 
         expectToBeEqual(daiBalanceWei, initialDaiWalletBalanceWei)
-        expectToBeEqual(wethBalanceWei, 0)
+        expectToBeEqual(wethBalanceWei, initialWethBalanceWei)
       })
 
       it('should not have Asset amount left in the exchange', async () => {
-        const exchangeWethBalance = await balanceOf(ADDRESSES.main.WETH, swap.address, { config })
+        const exchangeWethBalance = await balanceOf(
+          ADDRESSES.main.WETH,
+          system.common.swap.address,
+          { config },
+        )
         expectToBeEqual(exchangeWethBalance, 0)
       })
 
       it('should not have DAI amount left in the exchange', async () => {
-        const exchangeDaiBalance = await balanceOf(ADDRESSES.main.DAI, swap.address, { config })
+        const exchangeDaiBalance = await balanceOf(ADDRESSES.main.DAI, system.common.swap.address, {
+          config,
+        })
         expectToBeEqual(exchangeDaiBalance, 0)
       })
     })
@@ -808,7 +847,7 @@ describe('Swap', async () => {
           signer,
         )
 
-        await DAI.approve(swap.address, amountWithFeeInWei.toFixed(0))
+        await DAI.approve(system.common.swap.address, amountWithFeeInWei.toFixed(0))
       })
 
       afterEach(async () => {
@@ -821,15 +860,15 @@ describe('Swap', async () => {
         const initialWethWalletBalanceWei = amountToWei(
           new BigNumber(await balanceOf(ADDRESSES.main.WETH, address, { config })),
         )
+
         const temporarySnapshot = await provider.send('evm_snapshot', [])
 
-        await swap.swapTokens(
+        await system.common.swap.swapTokens(
           ADDRESSES.main.DAI,
           ADDRESSES.main.WETH,
           amountWithFeeInWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
-          to,
           data,
           {
             value: 0,
@@ -837,9 +876,9 @@ describe('Swap', async () => {
           },
         )
 
-        const currentWethBalanceWei = amountToWei(
+        const wethFromExchangeInWei = amountToWei(
           await balanceOf(ADDRESSES.main.WETH, address, { config }),
-        )
+        ).minus(initialWethWalletBalanceWei)
 
         await provider.send('evm_revert', [temporarySnapshot])
 
@@ -847,19 +886,21 @@ describe('Swap', async () => {
           value: amountToWei(1).toFixed(0),
         })
 
-        await WETH.connect(otherWallet).transfer(swap.address, transferredAmountWei.toFixed(0))
+        await WETH.connect(otherWallet).transfer(
+          system.common.swap.address,
+          transferredAmountWei.toFixed(0),
+        )
         const exchangeWethBalanceWei = amountToWei(
-          await balanceOf(ADDRESSES.main.WETH, swap.address, { config }),
+          await balanceOf(ADDRESSES.main.WETH, system.common.swap.address, { config }),
         )
         expectToBeEqual(exchangeWethBalanceWei, transferredAmountWei)
 
-        await swap.swapTokens(
+        await system.common.swap.swapTokens(
           ADDRESSES.main.DAI,
           ADDRESSES.main.WETH,
           amountWithFeeInWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
-          to,
           data,
           {
             value: 0,
@@ -871,7 +912,7 @@ describe('Swap', async () => {
           await balanceOf(ADDRESSES.main.WETH, address, { config }),
         )
         const expectedWethBalanceWei = initialWethWalletBalanceWei
-          .plus(currentWethBalanceWei)
+          .plus(wethFromExchangeInWei)
           .plus(transferredAmountWei)
         expectToBeEqual(wethBalanceWei, expectedWethBalanceWei)
       })
@@ -900,19 +941,20 @@ describe('Swap', async () => {
 
         expectToBe(otherWalletDaiBalance, 'gte', 1)
 
-        await DAI.connect(otherWallet).transfer(swap.address, amountWei.toFixed(0))
+        await DAI.connect(otherWallet).transfer(system.common.swap.address, amountWei.toFixed(0))
         const exchangeDaiBalanceWei = amountToWei(
-          new BigNumber(await balanceOf(ADDRESSES.main.DAI, swap.address, { config })),
+          new BigNumber(
+            await balanceOf(ADDRESSES.main.DAI, system.common.swap.address, { config }),
+          ),
         )
         expectToBeEqual(exchangeDaiBalanceWei, amountWei, 0)
 
-        await swap.swapTokens(
+        await system.common.swap.swapTokens(
           ADDRESSES.main.DAI,
           ADDRESSES.main.WETH,
           amountWithFeeInWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
-          to,
           data,
           {
             value: 0,
@@ -933,7 +975,12 @@ describe('Swap', async () => {
 
   describe('Asset for DAI without proper call parameters', async () => {
     const balance = amountToWei(1000)
+    let initialWethBalanceWei: BigNumber
     let localSnapshotId: string
+
+    before(async () => {
+      initialWethBalanceWei = amountToWei(await balanceOf(ADDRESSES.main.WETH, address, { config }))
+    })
 
     beforeEach(async () => {
       localSnapshotId = await provider.send('evm_snapshot', [])
@@ -945,7 +992,7 @@ describe('Swap', async () => {
 
     afterEach(async () => {
       const wethBalance = amountToWei(await balanceOf(ADDRESSES.main.WETH, address, { config }))
-      expectToBeEqual(wethBalance, balance)
+      expectToBeEqual(wethBalance, initialWethBalanceWei.plus(balance))
       await provider.send('evm_revert', [localSnapshotId])
     })
 
@@ -954,13 +1001,12 @@ describe('Swap', async () => {
       const receiveAtLeastInWeiAny = amountToWei(1)
       const data = 0
 
-      const tx = swap.swapTokens(
+      const tx = system.common.swap.swapTokens(
         ADDRESSES.main.WETH,
         ADDRESSES.main.DAI,
         amountInWei.toFixed(0),
         receiveAtLeastInWeiAny.toFixed(0),
         FEE,
-        AGGREGATOR_V3_ADDRESS,
         data,
         {
           value: 0,
@@ -970,52 +1016,26 @@ describe('Swap', async () => {
       await expect(tx).to.be.revertedWith('SafeERC20: low-level call failed')
     })
 
-    it('should not have received anything', async () => {
-      const amountInWei = amountToWei(10)
-      const receiveAtLeastInWeiAny = amountToWei(1)
-      const randomAddress = '0xddD11F156bD353F110Ae11574Dc8f5E9f3cE9C7E'
-      const data = 0
-
-      await WETH.approve(swap.address, amountInWei.toFixed(0))
-
-      const tx = swap.swapTokens(
-        ADDRESSES.main.WETH,
-        ADDRESSES.main.DAI,
-        amountInWei.toFixed(0),
-        receiveAtLeastInWeiAny.toFixed(0),
-        FEE,
-        randomAddress,
-        data,
-        {
-          value: 0,
-          gasLimit: 2500000,
-        },
-      )
-
-      await expect(tx).to.be.revertedWith('Swap / Received less')
-    })
-
     it('should end up with unsuccessful swap', async () => {
       const amountInWei = amountToWei(10)
       const receiveAtLeastInWeiAny = amountToWei(1)
       const data = 0
 
-      await WETH.approve(swap.address, amountInWei.toFixed(0))
+      await WETH.approve(system.common.swap.address, amountInWei.toFixed(0))
 
-      const tx = swap.swapTokens(
+      const tx = system.common.swap.swapTokens(
         ADDRESSES.main.WETH,
         ADDRESSES.main.DAI,
         amountInWei.toFixed(0),
         receiveAtLeastInWeiAny.toFixed(0),
         FEE,
-        AGGREGATOR_V3_ADDRESS,
         data,
         {
           value: 0,
           gasLimit: 2500000,
         },
       )
-      await expect(tx).to.be.revertedWith('Swap / Could not swap')
+      await expect(tx).to.be.revertedWith('SwapFailed()')
     })
 
     it('should receive less', async () => {
@@ -1024,26 +1044,27 @@ describe('Swap', async () => {
       const amountInWeiWithFee = calculateFee(amountInWei).plus(amountInWei)
       const receiveAtLeast = amountToWei(100000)
 
-      await WETH.approve(swap.address, amountInWeiWithFee.toFixed(0))
+      await WETH.approve(system.common.swap.address, amountInWeiWithFee.toFixed(0))
 
       const response = await exchangeToDAI(
         ADDRESSES.main.WETH,
         amountInWei.toFixed(0),
-        swap.address,
+        system.common.swap.address,
         slippage.value.toFixed(),
         ALLOWED_PROTOCOLS,
       )
 
-      const tx = swap.swapTokens(
+      const tx = system.common.swap.swapTokens(
         ADDRESSES.main.WETH,
         ADDRESSES.main.DAI,
         amountInWeiWithFee.toFixed(0),
         receiveAtLeast.toFixed(0),
         FEE,
-        response.tx.to,
         response.tx.data,
       )
-      await expect(tx).to.be.revertedWith('Swap / Received less')
+
+      const expectedRevert = /ReceivedLess\(100000000000000000000000, \d+\)/
+      await expectRevert(expectedRevert, tx)
     })
   })
 
@@ -1082,13 +1103,12 @@ describe('Swap', async () => {
       const receiveAtLeastInWeiAny = amountToWei(1)
       const data = 0
 
-      const tx = swap.swapTokens(
+      const tx = system.common.swap.swapTokens(
         ADDRESSES.main.DAI,
         ADDRESSES.main.WETH,
         amountWithFeeInWei.toFixed(0),
         receiveAtLeastInWeiAny.toFixed(0),
         FEE,
-        AGGREGATOR_V3_ADDRESS,
         data,
         {
           value: 0,
@@ -1099,76 +1119,51 @@ describe('Swap', async () => {
       await expect(tx).to.be.revertedWith('Dai/insufficient-allowance')
     })
 
-    it('should not have received anything', async () => {
-      const receiveAtLeastInWeiAny = amountToWei(1)
-      const randomAddress = '0xddD11F156bD353F110Ae11574Dc8f5E9f3cE9C7E'
-      const data = 0
-
-      await DAI.approve(swap.address, amountWithFeeInWei.toFixed(0))
-
-      const tx = swap.swapTokens(
-        ADDRESSES.main.DAI,
-        ADDRESSES.main.WETH,
-        amountWithFeeInWei.toFixed(0),
-        receiveAtLeastInWeiAny.toFixed(0),
-        FEE,
-        randomAddress,
-        data,
-        {
-          value: 0,
-          gasLimit: 2500000,
-        },
-      )
-
-      await expect(tx).to.be.revertedWith('Swap / Received less')
-    })
-
     it('should end up with unsuccessful swap', async () => {
       const receiveAtLeastInWeiAny = amountToWei(1)
       const data = 0
 
-      await DAI.approve(swap.address, amountWithFeeInWei.toFixed(0))
+      await DAI.approve(system.common.swap.address, amountWithFeeInWei.toFixed(0))
 
-      const tx = swap.swapTokens(
+      const tx = system.common.swap.swapTokens(
         ADDRESSES.main.DAI,
         ADDRESSES.main.WETH,
         amountWithFeeInWei.toFixed(0),
         receiveAtLeastInWeiAny.toFixed(0),
         FEE,
-        AGGREGATOR_V3_ADDRESS,
         data,
         {
           value: 0,
           gasLimit: 2500000,
         },
       )
-      await expect(tx).to.be.revertedWith('Swap / Could not swap')
+      await expect(tx).to.be.revertedWith('SwapFailed()')
     })
 
     it('should receive less', async () => {
       const receiveAtLeast = amountToWei(100000)
 
-      await DAI.approve(swap.address, amountWithFeeInWei.toFixed(0))
+      await DAI.approve(system.common.swap.address, amountWithFeeInWei.toFixed(0))
 
       const response = await exchangeFromDAI(
         ADDRESSES.main.WETH,
         amountInWei.toFixed(0),
         slippage.value.toFixed(),
-        swap.address,
+        system.common.swap.address,
         ALLOWED_PROTOCOLS,
       )
 
-      const tx = swap.swapTokens(
+      const tx = system.common.swap.swapTokens(
         ADDRESSES.main.DAI,
         ADDRESSES.main.WETH,
         amountWithFeeInWei.toFixed(0),
         receiveAtLeast.toFixed(0),
         FEE,
-        response.tx.to,
         response.tx.data,
       )
 
-      await expect(tx).to.be.revertedWith('Swap / Received less')
+      const expectedRevert = /ReceivedLess\(100000000000000000000000, \d+\)/
+      await expectRevert(expectedRevert, tx)
     })
   })
 
@@ -1202,13 +1197,13 @@ describe('Swap', async () => {
         .div(new BigNumber(FEE_BASE).plus(FEE))
         .integerValue(BigNumber.ROUND_DOWN)
 
-      const USDT = new ethers.Contract(ADDRESSES.main.USDT, ERC20ABI, provider).connect(signer)
-      await USDT.approve(swap.address, initialUSDTBalanceInWei.toFixed(0))
+      const USDT = new ethers.Contract(ADDRESSES.main.USDT, ERC20_ABI, provider).connect(signer)
+      await USDT.approve(system.common.swap.address, initialUSDTBalanceInWei.toFixed(0))
 
       const response = await exchangeToDAI(
         ADDRESSES.main.USDT,
         initialUSDTBalanceInWei.minus(feeInUSDT).toFixed(0),
-        swap.address,
+        system.common.swap.address,
         slippage.value.toFixed(),
         ALLOWED_PROTOCOLS,
       )
@@ -1227,13 +1222,12 @@ describe('Swap', async () => {
     })
 
     it(`should exchange to at least amount specified in receiveAtLeast`, async () => {
-      await swap.swapTokens(
+      await system.common.swap.swapTokens(
         ADDRESSES.main.USDT,
         ADDRESSES.main.DAI,
         initialUSDTBalanceInWei.toFixed(0),
         receiveAtLeastInWei.toFixed(0),
         FEE,
-        to,
         data,
         {
           value: 0,
@@ -1283,7 +1277,7 @@ describe('Swap', async () => {
         ADDRESSES.main.USDT,
         amountInWei.toFixed(0),
         slippage.value.toFixed(),
-        swap.address,
+        system.common.swap.address,
         ALLOWED_PROTOCOLS,
       )
 
@@ -1301,14 +1295,13 @@ describe('Swap', async () => {
     })
 
     it(`should exchange to at least amount specified in receiveAtLeast`, async () => {
-      await DAI.approve(swap.address, amountWithFeeInWei.toFixed(0))
-      await swap.swapTokens(
+      await DAI.approve(system.common.swap.address, amountWithFeeInWei.toFixed(0))
+      await system.common.swap.swapTokens(
         ADDRESSES.main.DAI,
         ADDRESSES.main.USDT,
         amountWithFeeInWei.toFixed(0),
         receiveAtLeastInWei.toFixed(0),
         FEE,
-        to,
         data,
         {
           value: 0,
@@ -1350,7 +1343,7 @@ describe('Swap', async () => {
         fromToken,
         toToken,
         amountInWei.toFixed(0),
-        swap.address,
+        system.common.swap.address,
         slippage.value.toFixed(),
         ALLOWED_PROTOCOLS,
       )
@@ -1366,15 +1359,14 @@ describe('Swap', async () => {
         value: amountToWei(1000).toFixed(0),
       })
       wethBalanceBeforeWei = amountToWei(await balanceOf(WETH.address, address, { config }))
-      await WETH.approve(swap.address, amountWithFeeInWei.toFixed(0))
+      await WETH.approve(system.common.swap.address, amountWithFeeInWei.toFixed(0))
 
-      await swap.swapTokens(
+      await system.common.swap.swapTokens(
         ADDRESSES.main.WETH,
         ADDRESSES.main.WBTC,
         amountWithFeeInWei.toFixed(0),
         receiveAtLeastInWei.toFixed(0),
         FEE,
-        to,
         data,
         {
           value: 0,
@@ -1416,13 +1408,13 @@ describe('Swap', async () => {
     })
 
     it('should not leave any fromToken in Swap contract', async () => {
-      const swapBalance = await balanceOf(fromToken, swap.address, { config })
+      const swapBalance = await balanceOf(fromToken, system.common.swap.address, { config })
 
       expectToBeEqual(swapBalance, 0)
     })
 
     it('should not leave any toToken in Swap contract', async () => {
-      const swapBalance = await balanceOf(toToken, swap.address, { config })
+      const swapBalance = await balanceOf(toToken, system.common.swap.address, { config })
 
       expectToBeEqual(swapBalance, 0)
     })
