@@ -111,10 +111,14 @@ contract Swap {
     uint256 amountFromWithFee,
     uint256 receiveAtLeast,
     uint256 fee,
-    bytes calldata withData
+    bytes calldata withData,
+    bool collectFeeInFromToken
   ) public {
     IERC20(assetFrom).safeTransferFrom(msg.sender, address(this), amountFromWithFee);
-    uint256 amountFrom = _collectFee(assetFrom, amountFromWithFee, fee);
+    uint256 amountFrom = amountFromWithFee;
+    if (collectFeeInFromToken) {
+      amountFrom = _collectFee(assetFrom, amountFromWithFee, fee);
+    }
 
     address oneInch = registry.getRegisteredService(ONE_INCH_AGGREGATOR);
     uint256 toTokenBalance = _swap(
@@ -125,6 +129,10 @@ contract Swap {
       oneInch,
       withData
     );
+
+    if (!collectFeeInFromToken) {
+      toTokenBalance = _collectFee(assetTo, toTokenBalance, fee);
+    }
 
     uint256 fromTokenBalance = IERC20(assetFrom).balanceOf(address(this));
     if (fromTokenBalance > 0) {

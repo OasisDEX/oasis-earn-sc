@@ -156,6 +156,7 @@ describe('Swap', async () => {
         receiveAtLeastInWei.toFixed(0),
         fee,
         response.tx.data,
+        true,
         {
           value: 0,
           gasLimit: 2500000,
@@ -229,6 +230,7 @@ describe('Swap', async () => {
           receiveAtLeastInWei.toFixed(0),
           FEE,
           data,
+          true,
           {
             value: 0,
             gasLimit: 2500000,
@@ -311,6 +313,7 @@ describe('Swap', async () => {
           receiveAtLeastInWei.toFixed(0),
           FEE,
           data,
+          true,
           {
             value: 0,
             gasLimit: 2500000,
@@ -397,6 +400,7 @@ describe('Swap', async () => {
           receiveAtLeastInWei.toFixed(0),
           FEE,
           data,
+          true,
           {
             value: 0,
             gasLimit: 2500000,
@@ -475,6 +479,7 @@ describe('Swap', async () => {
           receiveAtLeastInWei.toFixed(0),
           FEE,
           data,
+          true,
           {
             value: 0,
             gasLimit: 2500000,
@@ -526,6 +531,7 @@ describe('Swap', async () => {
           receiveAtLeastInWei.toFixed(0),
           FEE,
           data,
+          true,
           {
             value: 0,
             gasLimit: 2500000,
@@ -602,6 +608,7 @@ describe('Swap', async () => {
           receiveAtLeastInWei.toFixed(0),
           FEE,
           data,
+          true,
           {
             value: 0,
             gasLimit: 2500000,
@@ -692,6 +699,7 @@ describe('Swap', async () => {
           receiveAtLeastInWei.toFixed(0),
           FEE,
           data,
+          true,
           {
             value: 0,
             gasLimit: 2500000,
@@ -797,6 +805,7 @@ describe('Swap', async () => {
           receiveAtLeastInWei.toFixed(0),
           FEE,
           data,
+          true,
           {
             value: 0,
             gasLimit: 2500000,
@@ -870,6 +879,7 @@ describe('Swap', async () => {
           receiveAtLeastInWei.toFixed(0),
           FEE,
           data,
+          true,
           {
             value: 0,
             gasLimit: 2500000,
@@ -902,6 +912,7 @@ describe('Swap', async () => {
           receiveAtLeastInWei.toFixed(0),
           FEE,
           data,
+          true,
           {
             value: 0,
             gasLimit: 2500000,
@@ -956,6 +967,7 @@ describe('Swap', async () => {
           receiveAtLeastInWei.toFixed(0),
           FEE,
           data,
+          true,
           {
             value: 0,
             gasLimit: 2500000,
@@ -1008,6 +1020,7 @@ describe('Swap', async () => {
         receiveAtLeastInWeiAny.toFixed(0),
         FEE,
         data,
+        true,
         {
           value: 0,
           gasLimit: 2500000,
@@ -1030,6 +1043,7 @@ describe('Swap', async () => {
         receiveAtLeastInWeiAny.toFixed(0),
         FEE,
         data,
+        true,
         {
           value: 0,
           gasLimit: 2500000,
@@ -1061,6 +1075,7 @@ describe('Swap', async () => {
         receiveAtLeast.toFixed(0),
         FEE,
         response.tx.data,
+        true,
       )
 
       const expectedRevert = /ReceivedLess\(100000000000000000000000, \d+\)/
@@ -1110,6 +1125,7 @@ describe('Swap', async () => {
         receiveAtLeastInWeiAny.toFixed(0),
         FEE,
         data,
+        true,
         {
           value: 0,
           gasLimit: 2500000,
@@ -1132,6 +1148,7 @@ describe('Swap', async () => {
         receiveAtLeastInWeiAny.toFixed(0),
         FEE,
         data,
+        true,
         {
           value: 0,
           gasLimit: 2500000,
@@ -1160,6 +1177,7 @@ describe('Swap', async () => {
         receiveAtLeast.toFixed(0),
         FEE,
         response.tx.data,
+        true,
       )
 
       const expectedRevert = /ReceivedLess\(100000000000000000000000, \d+\)/
@@ -1229,6 +1247,7 @@ describe('Swap', async () => {
         receiveAtLeastInWei.toFixed(0),
         FEE,
         data,
+        true,
         {
           value: 0,
           gasLimit: 2500000,
@@ -1303,6 +1322,7 @@ describe('Swap', async () => {
         receiveAtLeastInWei.toFixed(0),
         FEE,
         data,
+        true,
         {
           value: 0,
           gasLimit: 2500000,
@@ -1368,6 +1388,7 @@ describe('Swap', async () => {
         receiveAtLeastInWei.toFixed(0),
         FEE,
         data,
+        true,
         {
           value: 0,
           gasLimit: 2500000,
