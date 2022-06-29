@@ -179,8 +179,8 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
 
     const expectedColl = new BigNumber(0)
     const expectedDebt = new BigNumber(0)
-    expect(info.coll.toString()).to.equal(expectedColl.toFixed(0))
-    expect(info.debt.toString()).to.equal(expectedDebt.toFixed(0))
+    expect(info.coll.toFixed(3)).to.equal(expectedColl.toFixed(3))
+    expect(info.debt.toFixed(3)).to.equal(expectedDebt.toFixed(3))
 
     const cdpManagerContract = new ethers.Contract(
       ADDRESSES.main.maker.cdpManager,
