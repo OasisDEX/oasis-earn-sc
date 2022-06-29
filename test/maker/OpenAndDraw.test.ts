@@ -125,14 +125,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
       {
         address: system.common.operationExecutor.address,
         calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-          [
-            openVaultAction,
-            pullCollateralIntoProxyAction,
-            depositAction,
-            generateAction,
-            // paybackAction,
-            // withdrawAction,
-          ],
+          [openVaultAction, pullCollateralIntoProxyAction, depositAction, generateAction],
           OPERATION_NAMES.maker.OPEN_AND_DRAW,
         ]),
       },
@@ -144,8 +137,9 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
     const vault = await getLastVault(provider, signer, system.common.userProxyAddress)
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
 
-    expect(info.coll.toFixed(3)).to.equal(initialColl.toFixed(3))
-    expect(info.debt.toFixed(3)).to.equal(initialDebt.toFixed(3))
+    const precision = 18 - 1 // To account for precision loss in Maker Vat
+    expect(info.coll.toFixed(precision)).to.equal(initialColl.toFixed(precision))
+    expect(info.debt.toFixed(precision)).to.equal(initialDebt.toFixed(precision))
 
     const cdpManagerContract = new ethers.Contract(
       ADDRESSES.main.maker.cdpManager,
