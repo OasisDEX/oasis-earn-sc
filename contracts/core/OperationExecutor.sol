@@ -8,6 +8,7 @@ import "./ServiceRegistry.sol";
 import "./OperationStorage.sol";
 import "./OperationsRegistry.sol";
 import "../libs/DS/DSProxy.sol";
+import "../libs/Address.sol";
 import "../actions/common/TakeFlashloan.sol";
 import "../interfaces/tokens/IERC20.sol";
 import "../interfaces/flashloan/IERC3156FlashBorrower.sol";
@@ -18,7 +19,7 @@ import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
 contract OperationExecutor is IERC3156FlashBorrower {
   ServiceRegistry public immutable registry;
-
+  using Address for address;
   constructor(address _registry) {
     registry = ServiceRegistry(_registry);
   }
@@ -29,7 +30,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     OperationsRegistry opRegistry = OperationsRegistry(
       registry.getRegisteredService(OPERATIONS_REGISTRY)
     );
-    opStorage.setOperationSteps(opRegistry.getOperation(operationName));
+    opStorage.setOperationActions(opRegistry.getOperation(operationName));
 
     aggregate(calls);
 
@@ -38,16 +39,15 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
   function aggregate(Call[] memory calls) public {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
-    bool hasStepsToVerify = opStorage.hasStepsToVerify();
+    bool hasActionsToVerify = opStorage.hasActionsToVerify();
     for (uint256 current = 0; current < calls.length; current++) {
-      if (hasStepsToVerify) {
-        opStorage.verifyStep(calls[current].targetHash);
+      if (hasActionsToVerify) {
+        opStorage.verifyAction(calls[current].targetHash);
       }
+
       address target = registry.getServiceAddress(calls[current].targetHash);
 
-      (bool success, ) = target.delegatecall(calls[current].callData);
-
-      require(success, "delegate call failed");
+      target.functionDelegateCall(calls[current].callData, "OpExecutor: low-level delegatecall failed");
     }
   }
 
@@ -64,7 +64,8 @@ contract OperationExecutor is IERC3156FlashBorrower {
     // TODO - Use custom errors from solidity introduced in 0.8.4  https://blog.soliditylang.org/2021/04/21/custom-errors/
     require(amount == flData.amount, "loan-inconsistency");
 
-    IERC20(asset).approve(initiator, flData.amount);
+
+    IERC20(asset).transfer(initiator, flData.amount);
 
     DSProxy(payable(initiator)).execute(
       address(this),

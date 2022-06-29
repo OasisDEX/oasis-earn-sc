@@ -38,6 +38,6 @@ struct Call {
 }
 
 struct Operation {
-  uint8 currentStep;
-  bytes32[] steps;
+  uint8 currentAction;
+  bytes32[] actions;
 }
