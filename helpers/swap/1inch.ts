@@ -1,8 +1,5 @@
-import { Provider } from '@ethersproject/providers'
-import { ethers, Signer } from 'ethers'
 import fetch from 'node-fetch'
 
-import UniswapRouterV3ABI from '../../abi/IUniswapRouter.json'
 import { ADDRESSES } from '../addresses'
 import { OneInchSwapResponse } from '../types/common'
 

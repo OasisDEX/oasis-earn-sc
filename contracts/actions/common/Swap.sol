@@ -2,10 +2,10 @@ pragma solidity ^0.8.5;
 
 import "hardhat/console.sol";
 
-import "../../core/ServiceRegistry.sol";
-import "../../interfaces/tokens/IERC20.sol";
-import "../../libs/SafeMath.sol";
-import "../../libs/SafeERC20.sol";
+import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
+import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
+import { SafeMath } from "../../libs/SafeMath.sol";
+import { SafeERC20 } from "../../libs/SafeERC20.sol";
 import { ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
 
 error ReceivedLess(uint256 receiveAtLeast, uint256 received);
@@ -84,7 +84,7 @@ contract Swap {
     balance = IERC20(toAsset).balanceOf(address(this));
     emit SlippageSaved(receiveAtLeast, balance);
     if (balance < receiveAtLeast) {
-      revert ReceivedLess({ receiveAtLeast: receiveAtLeast, received: balance });
+      revert ReceivedLess(receiveAtLeast, balance);
     }
     emit AssetSwap(fromAsset, toAsset, amount, balance);
   }
@@ -93,7 +93,7 @@ contract Swap {
     address asset,
     uint256 fromAmount,
     uint256 fee
-  ) internal returns (uint256 remainedAmount) {
+  ) internal returns (uint256 amount) {
     verifyFee(fee);
     uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
 
@@ -102,7 +102,7 @@ contract Swap {
       emit FeePaid(feeBeneficiaryAddress, feeToTransfer, asset);
     }
 
-    remainedAmount = fromAmount.sub(feeToTransfer);
+    amount = fromAmount.sub(feeToTransfer);
   }
 
   function swapTokens(
