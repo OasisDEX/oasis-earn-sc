@@ -8,11 +8,6 @@ import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20 } from "../../libs/SafeERC20.sol";
 import { ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
 
-error ReceivedLess(uint256 receiveAtLeast, uint256 received);
-error Unauthorized();
-error FeeTierDoesNotExist();
-error SwapFailed();
-
 contract Swap {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -22,6 +17,12 @@ contract Swap {
   mapping(uint256 => bool) public feeTiers;
   mapping(address => bool) public authorizedAddresses;
   ServiceRegistry internal immutable registry;
+
+  error ReceivedLess(uint256 receiveAtLeast, uint256 received);
+  error Unauthorized();
+  error FeeTierDoesNotExist(uint256 fee);
+  error FeeTierAlreadyExists(uint256 fee);
+  error SwapFailed();
 
   constructor(
     address authorisedCaller,
@@ -45,6 +46,8 @@ contract Swap {
 
   event FeePaid(address indexed beneficiary, uint256 amount, address token);
   event SlippageSaved(uint256 minimumPossible, uint256 actualAmount);
+  event FeeTierAdded(uint256 fee);
+  event FeeTierRemoved(uint256 fee);
 
   modifier onlyAuthorised() {
     if (!authorizedAddresses[msg.sender]) {
@@ -54,18 +57,23 @@ contract Swap {
   }
 
   function addFeeTier(uint256 fee) public onlyAuthorised {
+    if (feeTiers[fee]) {
+      revert FeeTierAlreadyExists(fee);
+    }
     feeTiers[fee] = true;
+    emit FeeTierAdded(fee);
   }
 
   function removeFeeTier(uint256 fee) public onlyAuthorised {
+    if (!feeTiers[fee]) {
+      revert FeeTierDoesNotExist(fee);
+    }
     feeTiers[fee] = false;
+    emit FeeTierRemoved(fee);
   }
 
   function verifyFee(uint256 feeId) public view returns (bool valid) {
     valid = feeTiers[feeId];
-    if (!valid) {
-      revert FeeTierDoesNotExist();
-    }
   }
 
   function _swap(
@@ -94,7 +102,10 @@ contract Swap {
     uint256 fromAmount,
     uint256 fee
   ) internal returns (uint256 amount) {
-    verifyFee(fee);
+    bool isFeeValid = verifyFee(fee);
+    if (!isFeeValid) {
+      revert FeeTierDoesNotExist(fee);
+    }
     uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
 
     if (fee > 0) {

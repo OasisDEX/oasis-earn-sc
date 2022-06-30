@@ -109,14 +109,19 @@ describe('Swap', async () => {
     it('should support removing fee tiers', async () => {
       await system.common.swap.addFeeTier(30)
       await system.common.swap.removeFeeTier(30)
-      const tx = system.common.swap.verifyFee(30)
+      const isValid = await system.common.swap.verifyFee(30)
 
-      await expect(tx).to.be.revertedWith('FeeTierDoesNotExist()')
+      expect(isValid).to.be.equal(false)
     })
 
-    it('should throw on access to non existent fee tier', async () => {
-      const tx = system.common.swap.verifyFee(2)
-      await expect(tx).to.be.revertedWith('FeeTierDoesNotExist()')
+    it('should verify is fee exists', async () => {
+      const isFeeValid = await system.common.swap.verifyFee(2)
+      expect(isFeeValid).to.equal(false)
+    })
+
+    it('should throw on adding feeTier that already exists', async () => {
+      const tx = system.common.swap.addFeeTier(20)
+      await expect(tx).to.be.revertedWith('FeeTierAlreadyExists(20)')
     })
 
     it('should allow to use different tiers', async () => {
@@ -156,6 +161,43 @@ describe('Swap', async () => {
 
       const feeBeneficiaryBalance = await balanceOf(WETH.address, feeBeneficiary, { config })
       expectToBeEqual(amountToWei(feeBeneficiaryBalance), feeAmount)
+    })
+
+    it('should throw an error when fee tier does not exist', async () => {
+      const amountInWei = amountToWei(10)
+      const fee = 99
+      const feeAmount = calculateFee(amountInWei, fee)
+      const amountInWeiWithFee = amountInWei.plus(feeAmount)
+
+      const response = await swapOneInchTokens(
+        WETH.address,
+        DAI.address,
+        amountInWei.toFixed(0),
+        system.common.swap.address,
+        slippage.value.toFixed(),
+        ALLOWED_PROTOCOLS,
+      )
+
+      const receiveAtLeastInWei = new BigNumber(response.toTokenAmount).times(
+        ONE.minus(slippage.asDecimal),
+      )
+      await WETH.deposit({ value: amountInWeiWithFee.toFixed() })
+      await WETH.approve(system.common.swap.address, amountInWeiWithFee.toFixed())
+      const tx = system.common.swap.swapTokens(
+        WETH.address,
+        DAI.address,
+        amountInWeiWithFee.toFixed(0),
+        receiveAtLeastInWei.toFixed(0),
+        fee,
+        response.tx.data,
+        true,
+        {
+          value: 0,
+          gasLimit: 2500000,
+        },
+      )
+
+      await expect(tx).to.be.revertedWith(`FeeTierDoesNotExist(${fee})`)
     })
   })
 
