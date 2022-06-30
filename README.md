@@ -1,31 +1,63 @@
-# Advanced Sample Hardhat Project
+# Runtime Environment Variables
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used
-alongside Hardhat in the ecosystem.
+One should create an `.env` file and add the following variables:
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys
-that contract, and an example of a task implementation, which simply lists the available accounts.
-It also comes with a variety of other tools, preconfigured to work with the project code.
+- **ETHERSCAN_API_KEY** - API key used to verify contracts deployed on a blockchain supported by Etherscan
 
-Try running some of the following tasks:
+- **MAINNET_URL** - URL to a node that will be used for sync
+
+- **BLOCK_NUMBER** - Block number from which the chain will be forked
+
+- **REPORT_GAS** - This will allow gas report when running tests
+
+# Deploying system
+
+Checkout the project locally.
+In a shell prompt run the following command:
 
 ```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
+npx hardhat node`
+```
+
+That will run a node for you a separate process that will be waiting to accept new calls.
+
+In a separate shell prompt run the following command:
+
+```shell
+npx hardhat deploy
+```
+
+That will deploy all necessary contracts to use for AAVE.
+For now this task supports only deploying core & AAVE related contracts.
+
+In order to print the addresses out, one should provide the `--debug` flag
+
+```shell
+npx hardhat deploy --debug
+```
+
+That will output the deployed contract name and the corresponding address
+
+# Running a node
+
+Running a node is as simple as writing in a shell prompt:
+
+```shell
 npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.ts
-TS_NODE_FILES=true npx ts-node scripts/deploy.ts
-npx eslint '**/*.{js,ts}'
-npx eslint '**/*.{js,ts}' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
+```
+
+# Running tests
+
+Running the project tests could be done either by calling
+
+```shell
+npx hardhat test
+```
+
+in the shell prompt or:
+
+```shell
+yarn run test
 ```
 
 # Etherscan verification

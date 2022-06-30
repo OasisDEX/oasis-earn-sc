@@ -3,14 +3,6 @@
 pragma solidity ^0.8.1;
 
 abstract contract IGem {
-  function dec() public virtual returns (uint256);
-
-  function gem() public virtual returns (IGem);
-
-  function join(address, uint256) public payable virtual;
-
-  function exit(address, uint256) public virtual;
-
   function approve(address, uint256) public virtual;
 
   function transfer(address, uint256) public virtual returns (bool);
