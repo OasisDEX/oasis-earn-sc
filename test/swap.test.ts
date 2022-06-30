@@ -9,12 +9,8 @@ import WETH_ABI from '../abi/IWETH.json'
 import { ADDRESSES } from '../helpers/addresses'
 import { ONE } from '../helpers/constants'
 import init from '../helpers/init'
-import {
-  exchangeFromDAI,
-  exchangeToDAI,
-  swapOneInchTokens,
-  swapTokens,
-} from '../helpers/swap/1inch'
+import { exchangeFromDAI, exchangeToDAI, swapOneInchTokens } from '../helpers/swap/1inch'
+import { swapUniswapTokens } from '../helpers/swap/uniswap'
 import { RuntimeConfig } from '../helpers/types/common'
 import { amountFromWei, amountToWei, asPercentageValue, balanceOf } from '../helpers/utils'
 import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
@@ -584,14 +580,17 @@ describe('Swap', async () => {
         const otherWalletAddress = await otherWallet.getAddress()
         const amountWei = amountToWei(1)
 
-        await swapTokens(
+        await swapUniswapTokens(
           ADDRESSES.main.WETH,
           ADDRESSES.main.DAI,
           amountWei.toFixed(0), // swapping 1 ETH
           amountWei.toFixed(0), // expecting at least 1 DAI
           otherWalletAddress,
-          provider,
-          otherWallet,
+          {
+            provider,
+            signer: otherWallet,
+            address: await otherWallet.getAddress(),
+          },
         )
 
         const otherWalletDaiBalance = await balanceOf(ADDRESSES.main.DAI, otherWalletAddress, {
@@ -669,14 +668,13 @@ describe('Swap', async () => {
       beforeEach(async () => {
         localSnapshotId = await provider.send('evm_snapshot', [])
 
-        await swapTokens(
+        await swapUniswapTokens(
           ADDRESSES.main.WETH,
           ADDRESSES.main.DAI,
           amountToWei(10).toFixed(0),
           amountWithFeeInWei.toFixed(0),
           address,
-          provider,
-          signer,
+          config,
         )
 
         initialDaiWalletBalanceWei = amountToWei(
@@ -755,14 +753,13 @@ describe('Swap', async () => {
       beforeEach(async () => {
         localSnapshotId = await provider.send('evm_snapshot', [])
 
-        await swapTokens(
+        await swapUniswapTokens(
           ADDRESSES.main.WETH,
           ADDRESSES.main.DAI,
           amountToWei(10).toFixed(0),
           amountWithFeeInWei.toFixed(0),
           address,
-          provider,
-          signer,
+          config,
         )
 
         initialDaiWalletBalanceWei = amountToWei(
@@ -851,14 +848,13 @@ describe('Swap', async () => {
       beforeEach(async () => {
         localSnapshotId = await provider.send('evm_snapshot', [])
 
-        await swapTokens(
+        await swapUniswapTokens(
           ADDRESSES.main.WETH,
           ADDRESSES.main.DAI,
           amountToWei(10).toFixed(0),
           amountWithFeeInWei.toFixed(0),
           address,
-          provider,
-          signer,
+          config,
         )
 
         initialDaiWalletBalanceWei = amountToWei(
@@ -930,14 +926,13 @@ describe('Swap', async () => {
       beforeEach(async () => {
         localSnapshotId = await provider.send('evm_snapshot', [])
 
-        await swapTokens(
+        await swapUniswapTokens(
           ADDRESSES.main.WETH,
           ADDRESSES.main.DAI,
           amountToWei(10).toFixed(0),
           amountWithFeeInWei.toFixed(0),
           address,
-          provider,
-          signer,
+          config,
         )
 
         await DAI.approve(system.common.swap.address, amountWithFeeInWei.toFixed(0))
@@ -1017,14 +1012,13 @@ describe('Swap', async () => {
         const otherWalletAddress = await otherWallet.getAddress()
         const amountWei = amountToWei(ONE)
 
-        await swapTokens(
+        await swapUniswapTokens(
           ADDRESSES.main.WETH,
           ADDRESSES.main.DAI,
           amountWei.toFixed(0), // swapping 1 ETH
           amountWei.toFixed(0), // expecting at least 1 DAI
           otherWalletAddress,
-          provider,
-          otherWallet,
+          { provider, signer: otherWallet, address: await otherWallet.getAddress() },
         )
 
         const walletDaiBalanceWei = amountToWei(
@@ -1179,14 +1173,13 @@ describe('Swap', async () => {
       amountInWei = amountToWei(1000)
       amountWithFeeInWei = amountInWei.div(ONE.minus(fee.asDecimal))
 
-      await swapTokens(
+      await swapUniswapTokens(
         ADDRESSES.main.WETH,
         ADDRESSES.main.DAI,
         amountToWei(10).toFixed(0),
         amountWithFeeInWei.toFixed(0),
         address,
-        provider,
-        signer,
+        config,
       )
 
       daiBalance = new BigNumber(await balanceOf(ADDRESSES.main.DAI, address, { config }))
@@ -1280,14 +1273,13 @@ describe('Swap', async () => {
     before(async () => {
       localSnapshotId = await provider.send('evm_snapshot', [])
 
-      await swapTokens(
+      await swapUniswapTokens(
         ADDRESSES.main.WETH,
         ADDRESSES.main.USDT,
         amountToWei(1).toFixed(0),
         amountToWei(100, 6).toFixed(0),
         address,
-        provider,
-        signer,
+        config,
       )
 
       initialUSDTBalanceInWei = amountToWei(
@@ -1364,14 +1356,13 @@ describe('Swap', async () => {
       const amountInWei = amountToWei(1000)
       amountWithFeeInWei = calculateFee(amountInWei).plus(amountInWei)
 
-      await swapTokens(
+      await swapUniswapTokens(
         ADDRESSES.main.WETH,
         ADDRESSES.main.DAI,
         amountToWei(10).toFixed(0),
         amountWithFeeInWei.toFixed(0),
         address,
-        provider,
-        signer,
+        config,
       )
 
       daiBalanceInWei = amountToWei(await balanceOf(ADDRESSES.main.DAI, address, { config }))

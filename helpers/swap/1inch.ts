@@ -85,33 +85,3 @@ export async function exchangeToDAI(
 
   return exchangeTokens(url)
 }
-
-export async function swapTokens(
-  tokenIn: string,
-  tokenOut: string,
-  amountIn: string,
-  amountOutMinimum: string,
-  recipient: string,
-  provider: Provider,
-  signer: Signer,
-) {
-  const value = tokenIn === ADDRESSES.main.WETH ? amountIn : 0
-
-  const UNISWAP_ROUTER_V3 = ADDRESSES.main.uniswapRouterV3
-  const uniswapV3 = new ethers.Contract(UNISWAP_ROUTER_V3, UniswapRouterV3ABI, provider).connect(
-    signer,
-  )
-
-  const swapParams = {
-    tokenIn,
-    tokenOut,
-    fee: 3000,
-    recipient,
-    deadline: new Date().getTime(),
-    amountIn,
-    amountOutMinimum,
-    sqrtPriceLimitX96: 0,
-  }
-
-  await uniswapV3.exactInputSingle(swapParams, { value })
-}
