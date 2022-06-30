@@ -16,13 +16,8 @@ import {
   swapTokens,
 } from '../helpers/swap/1inch'
 import { RuntimeConfig } from '../helpers/types/common'
-import {
-  amountFromWei,
-  amountToWei,
-  asPercentageValue,
-  balanceOf,
-  ServiceRegistry,
-} from '../helpers/utils'
+import { amountFromWei, amountToWei, asPercentageValue, balanceOf } from '../helpers/utils'
+import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
 import { DeployedSystemInfo, deploySystem } from './deploySystem'
 import { expectRevert, expectToBe, expectToBeEqual } from './utils'
 
@@ -278,6 +273,95 @@ describe('Swap', async () => {
         )
 
         expectToBeEqual(beneficiaryWethBalance, feeAmount, 6)
+      })
+    })
+
+    describe('when taking fee in toToken', async () => {
+      let localSnapshotId: string
+      let initialWethWalletBalance: BigNumber
+      let initialDaiWalletBalance: BigNumber
+      const fromAmountInWei = amountToWei(new BigNumber(10))
+
+      beforeEach(async () => {
+        localSnapshotId = await provider.send('evm_snapshot', [])
+
+        await WETH.deposit({
+          value: amountToWei(1000).toFixed(0),
+        })
+
+        initialWethWalletBalance = amountToWei(
+          new BigNumber(await balanceOf(ADDRESSES.main.WETH, address, { config })),
+        )
+        initialDaiWalletBalance = amountToWei(
+          new BigNumber(await balanceOf(ADDRESSES.main.DAI, address, { config })),
+        )
+
+        await WETH.approve(system.common.swap.address, fromAmountInWei.toFixed())
+
+        const response = await exchangeToDAI(
+          ADDRESSES.main.WETH,
+          fromAmountInWei.toFixed(0),
+          system.common.swap.address,
+          slippage.value.toFixed(),
+          ALLOWED_PROTOCOLS,
+        )
+
+        const receiveAtLeastInWei = new BigNumber(response.toTokenAmount).times(
+          ONE.minus(slippage.asDecimal),
+        )
+
+        await system.common.swap.swapTokens(
+          ADDRESSES.main.WETH,
+          ADDRESSES.main.DAI,
+          fromAmountInWei.toFixed(0),
+          receiveAtLeastInWei.toFixed(0),
+          FEE,
+          response.tx.data,
+          false,
+          {
+            value: 0,
+            gasLimit: 2500000,
+          },
+        )
+      })
+
+      afterEach(async () => {
+        await provider.send('evm_revert', [localSnapshotId])
+      })
+
+      it(`should collect fee in DAI (toToken)`, async () => {
+        const feeWalletBalance = await balanceOf(ADDRESSES.main.DAI, feeBeneficiary, { config })
+        const daiBalance = await balanceOf(ADDRESSES.main.DAI, address, { config })
+
+        const expectedFee = amountToWei(daiBalance)
+          .minus(initialDaiWalletBalance)
+          .times(new BigNumber(FEE).div(FEE_BASE))
+          .toFixed(0, BigNumber.ROUND_DOWN)
+
+        expectToBeEqual(expectedFee, amountToWei(feeWalletBalance))
+
+        expectToBe(
+          amountToWei(daiBalance).plus(amountToWei(feeWalletBalance)),
+          'gte',
+          receiveAtLeastInWei,
+        )
+      })
+
+      it('should not have Asset amount left in the exchange', async () => {
+        const exchangeWethBalance = amountToWei(
+          await balanceOf(ADDRESSES.main.WETH, system.common.swap.address, { config }),
+        )
+        const wethBalance = amountToWei(await balanceOf(ADDRESSES.main.WETH, address, { config }))
+
+        expectToBeEqual(wethBalance, initialWethWalletBalance.minus(fromAmountInWei))
+        expectToBeEqual(exchangeWethBalance, 0)
+      })
+
+      it('should not have DAI amount left in the exchange', async () => {
+        const exchangeDaiBalance = await balanceOf(ADDRESSES.main.DAI, system.common.swap.address, {
+          config,
+        })
+        expectToBeEqual(exchangeDaiBalance, 0)
       })
     })
 

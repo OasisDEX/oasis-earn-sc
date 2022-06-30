@@ -1,7 +1,6 @@
 import { Signer, utils } from 'ethers'
 
-import { CONTRACT_NAMES } from '../constants'
-import { NestedKeys, ValueOf } from '../types/common'
+import { ContractNames } from '../constants'
 
 export class ServiceRegistry {
   address: string
@@ -12,11 +11,7 @@ export class ServiceRegistry {
     this.signer = signer
   }
 
-  async addEntry(
-    label: ValueOf<NestedKeys<typeof CONTRACT_NAMES>>,
-    address: string,
-    debug = false,
-  ): Promise<string> {
+  async addEntry(label: ContractNames, address: string, debug = false): Promise<string> {
     const ethers = (await import('hardhat')).ethers
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
@@ -29,7 +24,7 @@ export class ServiceRegistry {
     return entryHash
   }
 
-  async getEntryHash(label: ValueOf<NestedKeys<typeof CONTRACT_NAMES>>): Promise<string> {
+  async getEntryHash(label: ContractNames): Promise<string> {
     const ethers = (await import('hardhat')).ethers
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     return registry.getServiceNameHash(label)
