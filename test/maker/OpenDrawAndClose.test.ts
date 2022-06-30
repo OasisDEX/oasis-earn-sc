@@ -69,7 +69,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
         },
         [0],
       ],
@@ -94,7 +93,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -108,7 +106,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
       [
         {
           to: address,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
           vaultId: 0,
           amount: ensureWeiFormat(initialDebt),
         },
@@ -126,7 +123,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
           vaultId: 0,
           userAddress: address,
           daiJoin: ADDRESSES.main.maker.joinDAI,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
           amount: ensureWeiFormat(paybackDai),
           paybackAll: paybackAll,
         },
@@ -145,7 +141,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
           vaultId: 0,
           userAddress: address,
           joinAddr: ADDRESSES.main.maker.joinETH_A,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
           amount: ensureWeiFormat(initialColl),
         },
         [1],

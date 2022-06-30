@@ -1,13 +1,10 @@
 pragma solidity ^0.8.1;
-// TODO: Remove this for prod deploy
-import "hardhat/console.sol";
 
-import "../common/Executable.sol";
+import { Executable } from "../common/Executable.sol";
 import { Write, UseStore } from "../common/UseStore.sol";
-import "../../core/ServiceRegistry.sol";
-import "../../core/OperationStorage.sol";
-import "../../interfaces/aave/IVariableDebtToken.sol";
-import "../../interfaces/aave/IWETHGateway.sol";
+import { OperationStorage } from "../../core/OperationStorage.sol";
+import { IVariableDebtToken } from "../../interfaces/aave/IVariableDebtToken.sol";
+import { IWETHGateway } from "../../interfaces/aave/IWETHGateway.sol";
 import { BorrowData } from "../../core/types/Aave.sol";
 import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL } from "../../core/constants/Aave.sol";
 

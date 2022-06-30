@@ -59,7 +59,7 @@ contract DummyExchange {
 
     uint256 balance = IERC20(asset).balanceOf(from);
 
-    IERC20(asset).transferFrom(from, address(this), amount);
+    IERC20(asset).safeTransferFrom(from, address(this), amount);
   }
 
   function _transferOut(
@@ -73,7 +73,7 @@ contract DummyExchange {
 
   function _collectFee(address asset, uint256 fromAmount) public returns (uint256) {
     uint256 feeToTransfer = (fromAmount.mul(fee)).div(feeBase);
-    IERC20(asset).transferFrom(address(this), feeBeneficiaryAddress, feeToTransfer);
+    IERC20(asset).safeTransferFrom(address(this), feeBeneficiaryAddress, feeToTransfer);
     emit FeePaid(feeBeneficiaryAddress, feeToTransfer);
     return fromAmount.sub(feeToTransfer);
   }

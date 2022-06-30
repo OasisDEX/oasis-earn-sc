@@ -2,6 +2,8 @@
 
 pragma solidity >=0.8.5;
 
+import { IVat } from "./IVat.sol";
+
 abstract contract IManager {
   function last(address) public virtual returns (uint256);
 
@@ -17,7 +19,7 @@ abstract contract IManager {
 
   function urns(uint256) public view virtual returns (address);
 
-  function vat() public view virtual returns (address);
+  function vat() public view virtual returns (IVat);
 
   function open(bytes32, address) public virtual returns (uint256);
 

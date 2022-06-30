@@ -1,18 +1,14 @@
 pragma solidity ^0.8.1;
-// TODO: Remove this for prod deploy
-import "hardhat/console.sol";
 
-import "../common/Executable.sol";
-import "../../core/ServiceRegistry.sol";
-import "../../core/OperationStorage.sol";
-import "../../interfaces/tokens/IERC20.sol";
+import { Executable } from "../common/Executable.sol";
+import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { SetApprovalData } from "../../core/types/Common.sol";
 
 contract SetApproval is Executable {
+  using SafeERC20 for IERC20;
+
   function execute(bytes calldata data, uint8[] memory) external payable override {
     SetApprovalData memory approval = abi.decode(data, (SetApprovalData));
-
-    // TODO: Use OZ's safeApprove
-    IERC20(approval.asset).approve(approval.delegator, approval.amount);
+    IERC20(approval.asset).safeApprove(approval.delegator, approval.amount);
   }
 }

@@ -20,6 +20,4 @@ interface IERC20 {
   function allowance(address _owner, address _spender) external view returns (uint256 remaining);
 
   function decimals() external view returns (uint256 digits);
-
-  event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 }
