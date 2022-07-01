@@ -1,5 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 
+import { AllValues } from './types/common'
+
 export const ZERO = new BigNumber(0)
 export const ONE = new BigNumber(1)
 export const TEN = new BigNumber(10)
@@ -19,6 +21,7 @@ export const CONTRACT_NAMES = {
     OPERATION_STORAGE: 'OperationStorage',
     OPERATIONS_REGISTRY: 'OperationsRegistry',
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
+    SWAP: 'Swap',
     EXCHANGE: 'Exchange',
     SERVICE_REGISTRY: 'ServiceRegistry',
   },
@@ -46,7 +49,9 @@ export const CONTRACT_NAMES = {
     DUMMY_SWAP: 'DummySwap',
     DUMMY_EXCHANGE: 'DummyExchange',
   },
-}
+} as const
+
+export type ContractNames = AllValues<typeof CONTRACT_NAMES>
 
 export const OPERATION_NAMES = {
   aave: {
@@ -63,4 +68,4 @@ export const OPERATION_NAMES = {
     INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP:
       'IncreaseMultipleWithFlashloanWithDaiAndCollTopup',
   },
-}
+} as const

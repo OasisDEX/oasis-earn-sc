@@ -1,4 +1,3 @@
-import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
 import DSProxyABI from '../abi/ds-proxy.json'
@@ -7,49 +6,12 @@ import { CONTRACT_NAMES, OPERATION_NAMES } from '../helpers/constants'
 import { createDeploy } from '../helpers/deploy'
 import { getOrCreateProxy } from '../helpers/proxy'
 import { loadDummyExchangeFixtures } from '../helpers/swap/DummyExchange'
-import { RuntimeConfig } from '../helpers/types/common'
+import { RuntimeConfig, Unbox } from '../helpers/types/common'
 import { logDebug } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
 import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
 
-export interface DeployedSystemInfo {
-  common: {
-    userProxyAddress: string
-    dsProxy: Contract
-    exchange: Contract
-    takeFlashLoan: Contract
-    sendToken: Contract
-    pullToken: Contract
-    swap: Contract
-    dummySwap: Contract
-    operationExecutor: Contract
-    operationStorage: Contract
-    operationRegistry: Contract
-    serviceRegistry: Contract
-  }
-  aave: {
-    deposit: Contract
-    borrow: Contract
-    withdraw: Contract
-  }
-  maker: {
-    mcdView: Contract
-    openVault: Contract
-    deposit: Contract
-    payback: Contract
-    withdraw: Contract
-    generate: Contract
-  }
-  gems: {
-    wethTokenInstance: Contract
-    daiTokenInstance: Contract
-  }
-}
-
-export async function deploySystem(
-  config: RuntimeConfig,
-  debug = false,
-): Promise<{ system: DeployedSystemInfo; registry: ServiceRegistry }> {
+export async function deploySystem(config: RuntimeConfig, debug = false) {
   const { provider, signer, address } = config
 
   const options = {
@@ -57,53 +19,42 @@ export async function deploySystem(
     config,
   }
   const deploy = await createDeploy(options)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const deployedContracts: any = {
-    common: {},
-    maker: {},
-    aave: {},
-    gems: {},
-  }
 
   // Setup User
   debug && console.log('1/ Setting up user proxy')
   const proxyAddress = await getOrCreateProxy(signer)
-  deployedContracts.common.userProxyAddress = proxyAddress
-  deployedContracts.common.dsProxy = new ethers.Contract(
-    proxyAddress,
-    DSProxyABI,
-    provider,
-  ).connect(signer)
+  const dsProxy = new ethers.Contract(proxyAddress, DSProxyABI, provider).connect(signer)
 
   // Deploy System Contracts
   debug && console.log('2/ Deploying system contracts')
   const [serviceRegistry, serviceRegistryAddress] = await deploy('ServiceRegistry', [0])
   const registry = new ServiceRegistry(serviceRegistryAddress, signer)
-  deployedContracts.common.serviceRegistry = serviceRegistry
 
   const [operationExecutor, operationExecutorAddress] = await deploy(
     CONTRACT_NAMES.common.OPERATION_EXECUTOR,
     [serviceRegistryAddress],
   )
-  deployedContracts.common.operationExecutor = operationExecutor
 
   const [operationStorage, operationStorageAddress] = await deploy(
     CONTRACT_NAMES.common.OPERATION_STORAGE,
     [serviceRegistryAddress],
   )
-  deployedContracts.common.operationStorage = operationStorage
 
   const [operationRegistry, operationsRegistryAddress] = await deploy(
     CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
     [],
   )
-  deployedContracts.common.operationRegistry = operationRegistry
 
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
-  deployedContracts.maker.mcdView = mcdView
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
-  deployedContracts.common.exchange = dummyExchange
+
+  const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
+    address,
+    ADDRESSES.main.feeRecipient,
+    20,
+    serviceRegistryAddress,
+  ])
 
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
 
@@ -115,65 +66,54 @@ export async function deploySystem(
     ADDRESSES.main.WETH,
     dummyExchangeAddress,
   ])
-  deployedContracts.common.dummySwap = dummySwap
 
-  const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, [
+  const [oneInchSwap, oneInchSwapAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, [
     serviceRegistryAddress,
   ])
-  deployedContracts.common.swap = swap
 
   const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
-  deployedContracts.common.sendToken = sendToken
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
-  deployedContracts.common.pullToken = pullToken
 
   const [actionFl, actionFlAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
   ])
-  deployedContracts.common.takeFlashLoan = actionFl
 
   //-- Maker Actions
   const [actionOpenVault, actionOpenVaultAddress] = await deploy(CONTRACT_NAMES.maker.OPEN_VAULT, [
     serviceRegistryAddress,
   ])
-  deployedContracts.maker.openVault = actionOpenVault
 
   const [actionDeposit, actionDepositAddress] = await deploy(CONTRACT_NAMES.maker.DEPOSIT, [
     serviceRegistryAddress,
   ])
-  deployedContracts.maker.deposit = actionDeposit
 
   const [actionPayback, actionPaybackAddress] = await deploy(CONTRACT_NAMES.maker.PAYBACK, [
     serviceRegistryAddress,
   ])
-  deployedContracts.maker.payback = actionPayback
 
   const [actionWithdraw, actionWithdrawAddress] = await deploy(CONTRACT_NAMES.maker.WITHDRAW, [
     serviceRegistryAddress,
   ])
-  deployedContracts.maker.withdraw = actionWithdraw
 
   const [actionGenerate, actionGenerateAddress] = await deploy(CONTRACT_NAMES.maker.GENERATE, [
     serviceRegistryAddress,
   ])
-  deployedContracts.maker.generate = actionGenerate
 
   //-- AAVE Actions
   const [depositInAAVEAction, actionDepositInAAVEAddress] = await deploy(
     CONTRACT_NAMES.aave.DEPOSIT,
     [serviceRegistryAddress],
   )
-  deployedContracts.aave.deposit = depositInAAVEAction
+
   const [borrowInAAVEAction, actionAaveBorrowAddress] = await deploy(CONTRACT_NAMES.aave.BORROW, [
     serviceRegistryAddress,
   ])
-  deployedContracts.aave.borrow = borrowInAAVEAction
+
   const [withdrawInAAVEAction, actionWithdrawFromAAVEAddress] = await deploy(
     CONTRACT_NAMES.aave.WITHDRAW,
     [serviceRegistryAddress],
   )
-  deployedContracts.aave.withdraw = withdrawInAAVEAction
 
   debug && console.log('4/ Adding contracts to registry')
   //-- Add Token Contract Entries
@@ -194,7 +134,8 @@ export async function deploySystem(
   )
   const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
   const pullTokenHash = await registry.addEntry(CONTRACT_NAMES.common.PULL_TOKEN, pullTokenAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, swapAddress)
+  await registry.addEntry(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, oneInchSwapAddress)
+  await registry.addEntry(CONTRACT_NAMES.common.SWAP, swapAddress)
   await registry.addEntry(
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     ADDRESSES.main.oneInchAggregator,
@@ -322,6 +263,37 @@ export async function deploySystem(
 
   // Add AAVE Operations
 
+  const deployedContracts = {
+    common: {
+      userProxyAddress: proxyAddress,
+      dsProxy,
+      serviceRegistry,
+      operationExecutor,
+      operationStorage,
+      operationRegistry,
+      exchange: dummyExchange,
+      swap,
+      dummySwap,
+      oneInchSwap,
+      sendToken,
+      pullToken,
+      takeFlashLoan: actionFl,
+    },
+    maker: {
+      mcdView,
+      openVault: actionOpenVault,
+      deposit: actionDeposit,
+      payback: actionPayback,
+      withdraw: actionWithdraw,
+      generate: actionGenerate,
+    },
+    aave: {
+      deposit: depositInAAVEAction,
+      withdraw: withdrawInAAVEAction,
+      borrow: borrowInAAVEAction,
+    },
+  }
+
   if (debug) {
     console.log('6/ Debugging...')
     logDebug([
@@ -350,5 +322,7 @@ export async function deploySystem(
     ])
   }
 
-  return { system: deployedContracts as DeployedSystemInfo, registry }
+  return { system: deployedContracts, registry }
 }
+
+export type DeployedSystemInfo = Unbox<ReturnType<typeof deploySystem>>['system']
