@@ -22,6 +22,7 @@ export type Debug = {
 
 export type FormatUnit = {
   decimals?: number
+  isFormatted?: boolean
 }
 
 export interface RuntimeConfig {

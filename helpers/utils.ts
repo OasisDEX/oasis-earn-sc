@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { Signer } from 'ethers'
 import { ethers } from 'hardhat'
 import { isError, tryF } from 'ts-try'
 
@@ -6,27 +7,32 @@ import CTOKEN_ABI from '../abi/CErc20.json'
 import IERC20_ABI from '../abi/IERC20.json'
 import { ONE, TEN } from '../helpers/constants'
 import { ActionCall, BalanceOptions, RuntimeConfig } from '../helpers/types/common'
+import { ADDRESSES } from './addresses'
 
-export async function balanceOf(asset: string, address: string, options: BalanceOptions) {
-  let balance = undefined
+export async function balanceOf(
+  asset: string,
+  address: string,
+  options: BalanceOptions,
+): Promise<BigNumber> {
+  let balance: string
   const { provider, signer } = options.config
-  if (asset === '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
-    balance = await provider.getBalance(address)
+  if (asset === ADDRESSES.main.ETH) {
+    balance = (await provider.getBalance(address)).toString()
   } else {
     const ERC20Asset = new ethers.Contract(asset, IERC20_ABI, signer)
-    balance = await ERC20Asset.balanceOf(address)
+    balance = (await ERC20Asset.balanceOf(address)).toString()
   }
 
-  const decimals = options.decimals ? options.decimals : 18
+  if (options.isFormatted) {
+    const decimals = options.decimals ? options.decimals : 18
+    balance = ethers.utils.formatUnits(balance.toString(), decimals)
+  }
 
-  const formattedBalance = ethers.utils.formatUnits(balance.toString(), decimals)
   if (options.debug) {
-    console.log(
-      `DEBUG: Account ${address}'s balance for ${asset} is: ${formattedBalance.toString()}`,
-    )
+    console.log(`DEBUG: Account ${address}'s balance for ${asset} is: ${balance}`)
   }
 
-  return formattedBalance
+  return new BigNumber(balance)
 }
 
 export async function balanceOfUnderlying(asset: string, address: string, options: BalanceOptions) {
@@ -62,11 +68,21 @@ export async function approve(
   }
 }
 
-export async function send(to: string, tokenAddr: string, amount: BigNumber.Value) {
-  const tokenContract = await ethers.getContractAt(IERC20_ABI, tokenAddr)
+export async function send(to: string, tokenAddr: string, amount: string, signer?: Signer) {
+  if (to === ADDRESSES.main.ETH) {
+    const tx = await signer?.sendTransaction({
+      from: await signer.getAddress(),
+      to,
+      value: amount,
+      gasLimit: 30000000,
+    })
+    await tx?.wait()
+  } else {
+    const tokenContract = await ethers.getContractAt(IERC20_ABI, tokenAddr)
 
-  const transferTx = await tokenContract.transfer(to, amount)
-  await transferTx.wait()
+    const transferTx = await tokenContract.transfer(to, amount)
+    await transferTx.wait()
+  }
 }
 
 type PositionCalculationResult = {
