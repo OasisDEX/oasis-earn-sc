@@ -24,3 +24,18 @@ export function expectToBe(
     expect(result[0]).to.be[comp](result[1])
   }
 }
+
+export async function expectRevert(expression: RegExp, tx: Promise<unknown>) {
+  const result = await tryF(async () => await tx)
+
+  if (isError(result)) {
+    expect(
+      expression.test(JSON.stringify(result)),
+      `Expect the revert to match ${expression.toString()}, reverted with: ${JSON.stringify(
+        result,
+      )}`,
+    ).to.be.true
+  } else {
+    expect('Tx to fail', 'Tx should revert').to.be.eq('Tx succeeded')
+  }
+}

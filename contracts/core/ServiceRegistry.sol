@@ -3,12 +3,12 @@ pragma solidity >=0.8.1;
 import "hardhat/console.sol";
 
 contract ServiceRegistry {
+  mapping(address => bool) public trustedAddresses;
   mapping(bytes32 => uint256) public lastExecuted;
-  mapping(address => bool) private trustedAddresses;
   mapping(bytes32 => address) private namedService;
   address public owner;
 
-  uint256 public requiredDelay = 0; //big enaugh that any power of miner over timestamp does not matter
+  uint256 public requiredDelay = 0; // big enough that any power of miner over timestamp does not matter
 
   modifier validateInput(uint256 len) {
     require(msg.data.length == len, "illegal-padding");
@@ -19,24 +19,15 @@ contract ServiceRegistry {
     bytes32 operationHash = keccak256(msg.data);
     uint256 reqDelay = requiredDelay;
 
+    // solhint-disable-next-line not-rely-on-time
+    uint256 blockTimestamp = block.timestamp;
     if (lastExecuted[operationHash] == 0 && reqDelay > 0) {
-      //not called before, scheduled for execution
-      // solhint-disable-next-line not-rely-on-time
-      lastExecuted[operationHash] = block.timestamp;
-      emit ChangeScheduled(
-        msg.data,
-        operationHash,
-        // solhint-disable-next-line not-rely-on-time
-        block.timestamp + reqDelay
-      );
+      // not called before, scheduled for execution
+      lastExecuted[operationHash] = blockTimestamp;
+      emit ChangeScheduled(msg.data, operationHash, blockTimestamp + reqDelay);
     } else {
-      require(
-        // solhint-disable-next-line not-rely-on-time
-        block.timestamp - reqDelay > lastExecuted[operationHash],
-        "delay-to-small"
-      );
-      // solhint-disable-next-line not-rely-on-time
-      emit ChangeApplied(msg.data, block.timestamp);
+      require(blockTimestamp - reqDelay > lastExecuted[operationHash], "delay-to-small");
+      emit ChangeApplied(msg.data, blockTimestamp);
       _;
       lastExecuted[operationHash] = 0;
     }
@@ -79,10 +70,6 @@ contract ServiceRegistry {
     trustedAddresses[trustedAddress] = false;
   }
 
-  function isTrusted(address testedAddress) public view returns (bool) {
-    return trustedAddresses[testedAddress];
-  }
-
   function getServiceNameHash(string calldata name) public pure returns (bytes32) {
     return keccak256(abi.encodePacked(name));
   }
@@ -114,17 +101,16 @@ contract ServiceRegistry {
   }
 
   function getRegisteredService(string memory serviceName) public view returns (address) {
-    address retVal = getServiceAddress(keccak256(abi.encodePacked(serviceName)));
-    return retVal;
+    return getServiceAddress(keccak256(abi.encodePacked(serviceName)));
   }
 
   function getServiceAddress(bytes32 serviceNameHash) public view returns (address serviceAddress) {
     serviceAddress = namedService[serviceNameHash];
-    require(serviceAddress != 0x0000000000000000000000000000000000000000, "no-such-service");
+    require(serviceAddress != address(0), "no-such-service");
   }
 
   function clearScheduledExecution(bytes32 scheduledExecution) public onlyOwner validateInput(36) {
-    require(lastExecuted[scheduledExecution] > 0, "execution-not-sheduled");
+    require(lastExecuted[scheduledExecution] > 0, "execution-not-scheduled");
     lastExecuted[scheduledExecution] = 0;
     emit ChangeCancelled(scheduledExecution);
   }
