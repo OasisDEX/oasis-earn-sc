@@ -32,3 +32,8 @@ struct PaybackData {
 struct OpenVaultData {
   IJoin joinAddress;
 }
+
+struct CdpAllowData {
+  uint256 vaultId;
+  address userAddress;
+}
