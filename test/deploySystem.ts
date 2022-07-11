@@ -48,15 +48,16 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
-
+  
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
+
     ADDRESSES.main.feeRecipient,
     20,
     serviceRegistryAddress,
   ])
-
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
+  const [dummyAutomation, dummyAutomationAddress] = await deploy("DummyAutomation", [serviceRegistryAddress])
 
   // Deploy Actions
   debug && console.log('3/ Deploying actions')
@@ -76,6 +77,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
 
   const [setApproval, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [])
+  const [cdpAllow, cdpAllowAddress] = await deploy(CONTRACT_NAMES.maker.CDP_ALLOW, [serviceRegistryAddress])
 
   const [actionFl, actionFlAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
@@ -171,6 +173,11 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     actionGenerateAddress,
   )
 
+  const makerCdpAllowHash = await registry.addEntry(
+    CONTRACT_NAMES.maker.CDP_ALLOW,
+    cdpAllowAddress,
+  )
+
   //-- Add AAVE Contract Entries
   const aaveBorrowHash = await registry.addEntry(CONTRACT_NAMES.aave.BORROW, actionAaveBorrowAddress)
   const aaveDepositHash = await registry.addEntry(CONTRACT_NAMES.aave.DEPOSIT, actionDepositInAAVEAddress)
@@ -185,6 +192,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     operationsRegistryAddress,
     signer,
   )
+  await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
+  
   await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_AND_DRAW, [
     makerOpenVaultHash,
     pullTokenHash,
@@ -291,6 +300,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       operationExecutor,
       operationStorage,
       operationRegistry,
+      dummyAutomation,
       exchange: dummyExchange,
       swap,
       dummySwap,
@@ -306,6 +316,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       payback: actionPayback,
       withdraw: actionWithdraw,
       generate: actionGenerate,
+      cdpAllow,
     },
     aave: {
       deposit: depositInAAVEAction,

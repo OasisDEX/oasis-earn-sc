@@ -44,6 +44,7 @@ export const CONTRACT_NAMES = {
     MCD_MANAGER: 'McdManager',
     MCD_JUG: 'McdJug',
     MCD_JOIN_DAI: 'McdJoinDai',
+    CDP_ALLOW: 'CdpAllow',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',
@@ -69,4 +70,7 @@ export const OPERATION_NAMES = {
     INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP:
       'IncreaseMultipleWithFlashloanWithDaiAndCollTopup',
   },
+  common: {
+    CUSTOM_OPERATION: 'CustomOperation',
+  }
 } as const
