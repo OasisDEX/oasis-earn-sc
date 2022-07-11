@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity >=0.8.5;
 
-import "../common/Executable.sol";
+import { Executable } from "../common/Executable.sol";
 import { UseStore, Write } from "../common/UseStore.sol";
-import "../../core/OperationStorage.sol";
-import "../../core/ServiceRegistry.sol";
-import "../../interfaces/maker/IJoin.sol";
-import "../../interfaces/maker/IManager.sol";
-
+import { IManager } from "../../interfaces/maker/IManager.sol";
+import { OperationStorage } from "../../core/OperationStorage.sol";
 import { OpenVaultData } from "../../core/types/Maker.sol";
-import { OPEN_VAULT_ACTION } from "../../core/constants/Maker.sol";
+import { OPEN_VAULT_ACTION, MCD_MANAGER } from "../../core/constants/Maker.sol";
 
 contract MakerOpenVault is Executable, UseStore {
   using Write for OperationStorage;
@@ -26,8 +23,10 @@ contract MakerOpenVault is Executable, UseStore {
   }
 
   function _openVault(OpenVaultData memory data) internal returns (bytes32) {
-    bytes32 ilk = IJoin(data.joinAddress).ilk();
-    uint256 vaultId = IManager(data.mcdManager).open(ilk, address(this));
+    bytes32 ilk = data.joinAddress.ilk();
+
+    IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
+    uint256 vaultId = manager.open(ilk, address(this));
 
     return bytes32(vaultId);
   }

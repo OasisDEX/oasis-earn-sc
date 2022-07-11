@@ -1,29 +1,27 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity >=0.8.5;
 
-import "../common/Executable.sol";
-import "../common/UseStore.sol";
-import "../../core/OperationStorage.sol";
-import "../../core/ServiceRegistry.sol";
-import "../../interfaces/tokens/IERC20.sol";
-import "../../interfaces/maker/IVat.sol";
-import "../../interfaces/maker/IDaiJoin.sol";
-import "../../interfaces/maker/IJoin.sol";
-import "../../interfaces/maker/IGem.sol";
-import "../../interfaces/maker/IManager.sol";
-import "../../libs/SafeMath.sol";
-
+import { Executable } from "../common/Executable.sol";
+import { UseStore, Read, Write } from "../common/UseStore.sol";
+import { OperationStorage } from "../../core/OperationStorage.sol";
+import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
+import { IVat } from "../../interfaces/maker/IVat.sol";
+import { IDaiJoin } from "../../interfaces/maker/IDaiJoin.sol";
+import { IJoin } from "../../interfaces/maker/IJoin.sol";
+import { IManager } from "../../interfaces/maker/IManager.sol";
+import { SafeMath } from "../../libs/SafeMath.sol";
 import { PaybackData } from "../../core/types/Maker.sol";
-import { PAYBACK_ACTION } from "../../core/constants/Maker.sol";
-import { RAY } from "../../core/constants/Common.sol";
+import { MathUtils } from "../../libs/MathUtils.sol";
+import { PAYBACK_ACTION, MCD_MANAGER, MCD_JOIN_DAI } from "../../core/constants/Maker.sol";
 
 contract MakerPayback is Executable, UseStore {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20;
   using Read for OperationStorage;
   using Write for OperationStorage;
 
   struct WipeData {
-    address vat;
+    IVat vat;
     address usr;
     address urn;
     uint256 dai;
@@ -35,38 +33,37 @@ contract MakerPayback is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     PaybackData memory paybackData = abi.decode(data, (PaybackData));
     paybackData.vaultId = uint256(store().read(bytes32(paybackData.vaultId), paramsMap[0]));
-
+    IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
+    IDaiJoin daiJoin = IDaiJoin(registry.getRegisteredService(MCD_JOIN_DAI));
     bytes32 amountPaidBack = paybackData.paybackAll
-      ? _paybackAll(paybackData)
-      : _payback(paybackData);
+      ? _paybackAll(manager, daiJoin, paybackData)
+      : _payback(manager, daiJoin, paybackData);
 
     store().write(amountPaidBack);
     emit Action(PAYBACK_ACTION, amountPaidBack);
   }
 
-  function _payback(PaybackData memory data) internal returns (bytes32) {
-    IManager mcdManager = IManager(data.mcdManager);
+  function _payback(
+    IManager manager,
+    IDaiJoin daiJoin,
+    PaybackData memory data
+  ) internal returns (bytes32) {
+    address own = manager.owns(data.vaultId);
+    address urn = manager.urns(data.vaultId);
+    IVat vat = manager.vat();
+    bytes32 ilk = manager.ilks(data.vaultId);
 
-    address own = mcdManager.owns(data.vaultId);
-    address urn = mcdManager.urns(data.vaultId);
-    address vat = mcdManager.vat();
-    bytes32 ilk = mcdManager.ilks(data.vaultId);
-
-    if (own == address(this) || mcdManager.cdpCan(own, data.vaultId, address(this)) == 1) {
+    if (own == address(this) || manager.cdpCan(own, data.vaultId, address(this)) == 1) {
       // Joins DAI amount into the vat
-      daiJoin_join(data.userAddress, data.daiJoin, urn, data.amount);
+      joinDai(data.userAddress, daiJoin, urn, data.amount);
       // Paybacks debt to the CDP
-      mcdManager.frob(
-        data.vaultId,
-        0,
-        _getWipeDart(WipeData(vat, urn, urn, IVat(vat).dai(urn), ilk))
-      );
+      manager.frob(data.vaultId, 0, _getWipeDart(WipeData(vat, urn, urn, vat.dai(urn), ilk)));
     } else {
       // Joins DAI params.amount into the vat
-      daiJoin_join(data.userAddress, data.daiJoin, address(this), data.amount);
+      joinDai(data.userAddress, daiJoin, address(this), data.amount);
       // Paybacks debt to the CDP
-      uint256 wadToWipe = data.amount * RAY;
-      IVat(vat).frob(
+      uint256 wadToWipe = data.amount * MathUtils.RAY;
+      vat.frob(
         ilk,
         urn,
         address(this),
@@ -79,55 +76,52 @@ contract MakerPayback is Executable, UseStore {
     return bytes32(data.amount);
   }
 
-  function _paybackAll(PaybackData memory data) internal returns (bytes32) {
-    IManager mcdManager = IManager(data.mcdManager);
+  function _paybackAll(
+    IManager manager,
+    IDaiJoin daiJoin,
+    PaybackData memory data
+  ) internal returns (bytes32) {
+    address own = manager.owns(data.vaultId);
+    address urn = manager.urns(data.vaultId);
+    bytes32 ilk = manager.ilks(data.vaultId);
+    IVat vat = manager.vat();
+    (, uint256 art) = vat.urns(ilk, urn);
 
-    address own = mcdManager.owns(data.vaultId);
-    address urn = mcdManager.urns(data.vaultId);
-    address vat = mcdManager.vat();
-    bytes32 ilk = mcdManager.ilks(data.vaultId);
-    (, uint256 art) = IVat(mcdManager.vat()).urns(ilk, urn);
-
-    if (own == address(this) || mcdManager.cdpCan(own, data.vaultId, address(this)) == 1) {
+    if (own == address(this) || manager.cdpCan(own, data.vaultId, address(this)) == 1) {
       // Joins DAI amount into the vat
-      daiJoin_join(
-        data.userAddress,
-        data.daiJoin,
-        urn,
-        _getWipeAllWad(WipeData(vat, urn, urn, 0, ilk))
-      );
+      joinDai(data.userAddress, daiJoin, urn, _getWipeAllWad(WipeData(vat, urn, urn, 0, ilk)));
       // Paybacks debt to the CDP
-      mcdManager.frob(data.vaultId, 0, -int256(art));
+      manager.frob(data.vaultId, 0, -int256(art));
     } else {
       // Joins DAI data.amount into the vat
-      daiJoin_join(
+      joinDai(
         data.userAddress,
-        data.daiJoin,
+        daiJoin,
         address(this),
         _getWipeAllWad(WipeData(vat, address(this), urn, 0, ilk))
       );
       // Paybacks debt to the CDP
-      IVat(vat).frob(ilk, urn, address(this), address(this), 0, -int256(art));
+      vat.frob(ilk, urn, address(this), address(this), 0, -int256(art));
     }
 
     return bytes32(uint256(art));
   }
 
-  function daiJoin_join(
+  function joinDai(
     address usr,
-    address daiJoin,
+    IDaiJoin daiJoin,
     address urn,
     uint256 amount
   ) public {
-    IGem dai = IDaiJoin(daiJoin).dai();
+    IERC20 dai = IERC20(daiJoin.dai());
 
-    dai.transferFrom(usr, address(this), amount);
+    dai.safeTransferFrom(usr, address(this), amount);
 
     // Approves adapter to take the DAI amount
-    dai.approve(daiJoin, amount);
+    dai.safeApprove(address(daiJoin), amount);
 
     // Joins DAI into the vat
-    IDaiJoin(daiJoin).join(urn, amount);
+    daiJoin.join(urn, amount);
   }
 
   function _getWipeDart(WipeData memory data) internal view returns (int256 dart) {
@@ -137,37 +131,24 @@ contract MakerPayback is Executable, UseStore {
     // Gets actual art value of the urn
     (, uint256 art) = IVat(data.vat).urns(data.ilk, data.urn);
 
-    dart = toInt(data.dai / rate);
+    dart = MathUtils.uintToInt(data.dai / rate);
 
     // Checks the calculated dart is not higher than urn.art (total debt), otherwise uses its value
-    dart = uint256(dart) <= art ? -dart : -toInt(art);
+    dart = uint256(dart) <= art ? -dart : -MathUtils.uintToInt(art);
   }
 
   function _getWipeAllWad(WipeData memory data) internal view returns (uint256 wad) {
     // Gets actual rate from the vat
-    (, uint256 rate, , , ) = IVat(data.vat).ilks(data.ilk);
+    (, uint256 rate, , , ) = data.vat.ilks(data.ilk);
     // Gets actual art value of the urn
-    (, uint256 art) = IVat(data.vat).urns(data.ilk, data.urn);
+    (, uint256 art) = data.vat.urns(data.ilk, data.urn);
     // Gets actual dai amount in the urn
-    uint256 dai = IVat(data.vat).dai(data.usr);
+    uint256 dai = data.vat.dai(data.usr);
 
-    uint256 rad = sub(mul(art, rate), dai);
-    wad = rad / RAY;
+    uint256 rad = art.mul(rate).sub(dai);
+    wad = rad / MathUtils.RAY;
 
     // If the rad precision has some dust, it will need to request for 1 extra wad wei
-    wad = mul(wad, RAY) < rad ? wad + 1 : wad;
-  }
-
-  function toInt(uint256 x) internal pure returns (int256 y) {
-    y = int256(x);
-    require(y >= 0, "int-overflow");
-  }
-
-  function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
-    require((z = x - y) <= x, "sub-overflow");
-  }
-
-  function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
-    require(y == 0 || (z = x * y) / y == x, "mul-overflow");
+    wad = wad.mul(MathUtils.RAY) < rad ? wad + 1 : wad;
   }
 }

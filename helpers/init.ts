@@ -1,12 +1,10 @@
-import '@nomiclabs/hardhat-ethers'
-
 import { providers } from 'ethers'
-import { ethers } from 'hardhat'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { RuntimeConfig } from './types/common'
 
-export default async function init(): Promise<RuntimeConfig> {
-  const provider = ethers.provider
+export default async function init(hre?: HardhatRuntimeEnvironment): Promise<RuntimeConfig> {
+  const provider = hre ? hre.ethers.provider : (await import('hardhat')).ethers.provider
 
   const signer = provider.getSigner(0)
   const address = await signer.getAddress()
@@ -19,6 +17,7 @@ export default async function init(): Promise<RuntimeConfig> {
 }
 
 export async function resetNode(provider: providers.JsonRpcProvider, blockNumber: number) {
+  console.log(`  \x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
   await provider.send('hardhat_reset', [
     {
       forking: {

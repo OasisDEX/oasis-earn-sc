@@ -20,7 +20,8 @@ import {
 } from '../../helpers/paramCalculations'
 import { calldataTypes } from '../../helpers/types/actions'
 import { ActionCall, RuntimeConfig, SwapData } from '../../helpers/types/common'
-import { ActionFactory, amountToWei, ensureWeiFormat, ServiceRegistry } from '../../helpers/utils'
+import { ActionFactory, amountToWei, ensureWeiFormat } from '../../helpers/utils'
+import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
 
@@ -127,7 +128,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
         },
       ],
     )
@@ -151,7 +151,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -166,7 +165,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
       [
         {
           to: system.common.userProxyAddress,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
           vaultId: 0,
           amount: ensureWeiFormat(desiredCdpState.requiredDebt),
         },
@@ -203,7 +201,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE}`, asyn
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
           vaultId: 0,
           amount: ensureWeiFormat(collateralToDeposit),
         },

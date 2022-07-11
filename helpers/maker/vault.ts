@@ -16,6 +16,7 @@ export async function getLastVault(
   const getCdps = new ethers.Contract(ADDRESSES.main.maker.getCdps, GetCDPsABI, provider).connect(
     signer,
   )
+
   const { ids, urns, ilks } = await getCdps.getCdpsAsc(
     ADDRESSES.main.maker.cdpManager,
     proxyAddress,
@@ -41,9 +42,9 @@ export async function getVaultInfo(
   vaultId: BigNumberish,
   ilk: string,
 ): Promise<VaultInfo> {
-  const info = await mcdView.getVaultInfo(vaultId, ilk)
+  const [collateral, debt] = await mcdView.getVaultInfo(vaultId, ilk)
   return {
-    coll: new BigNumber(ethers.utils.formatUnits(info[0]).toString()),
-    debt: new BigNumber(ethers.utils.formatUnits(info[1]).toString()),
+    coll: new BigNumber(ethers.utils.formatUnits(collateral).toString()),
+    debt: new BigNumber(ethers.utils.formatUnits(debt).toString()),
   }
 }

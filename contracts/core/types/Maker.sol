@@ -1,8 +1,10 @@
 pragma solidity ^0.8.1;
 
+import { IJoin } from "../../interfaces/maker/IJoin.sol";
+import { IManager } from "../../interfaces/maker/IManager.sol";
+
 struct DepositData {
-  address joinAddress;
-  address mcdManager;
+  IJoin joinAddress;
   uint256 vaultId;
   uint256 amount;
 }
@@ -10,14 +12,12 @@ struct DepositData {
 struct WithdrawData {
   uint256 vaultId;
   address userAddress;
-  address joinAddr;
-  address mcdManager;
+  IJoin joinAddr;
   uint256 amount;
 }
 
 struct GenerateData {
   address to;
-  address mcdManager;
   uint256 vaultId;
   uint256 amount;
 }
@@ -25,13 +25,15 @@ struct GenerateData {
 struct PaybackData {
   uint256 vaultId;
   address userAddress;
-  address daiJoin;
-  address mcdManager;
   uint256 amount;
   bool paybackAll;
 }
 
 struct OpenVaultData {
-  address joinAddress;
-  address mcdManager;
+  IJoin joinAddress;
+}
+
+struct CdpAllowData {
+  uint256 vaultId;
+  address userAddress;
 }

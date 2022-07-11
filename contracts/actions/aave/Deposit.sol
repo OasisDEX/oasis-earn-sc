@@ -1,12 +1,9 @@
 pragma solidity ^0.8.1;
-// TODO: Remove this for prod deploy
-import "hardhat/console.sol";
 
-import "../common/Executable.sol";
+import { Executable } from "../common/Executable.sol";
 import { UseStore, Write } from "../common/UseStore.sol";
-import "../../core/ServiceRegistry.sol";
-import "../../core/OperationStorage.sol";
-import "../../interfaces/aave/ILendingPool.sol";
+import { OperationStorage } from "../../core/OperationStorage.sol";
+import { ILendingPool } from "../../interfaces/aave/ILendingPool.sol";
 import { DepositData } from "../../core/types/Aave.sol";
 import { AAVE_LENDING_POOL, DEPOSIT_ACTION } from "../../core/constants/Aave.sol";
 

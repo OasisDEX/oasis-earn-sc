@@ -14,7 +14,8 @@ import init, { resetNode } from '../../helpers/init'
 import { getLastVault, getVaultInfo } from '../../helpers/maker/vault'
 import { calldataTypes } from '../../helpers/types/actions'
 import { RuntimeConfig } from '../../helpers/types/common'
-import { ActionFactory, amountToWei, ensureWeiFormat, ServiceRegistry } from '../../helpers/utils'
+import { ActionFactory, amountToWei, ensureWeiFormat } from '../../helpers/utils'
+import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
 
@@ -68,7 +69,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
         },
         [0],
       ],
@@ -93,7 +93,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -107,7 +106,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
       [
         {
           to: address,
-          mcdManager: ADDRESSES.main.maker.cdpManager,
           vaultId: 0,
           amount: ensureWeiFormat(initialDebt),
         },

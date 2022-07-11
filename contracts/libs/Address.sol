@@ -2,6 +2,7 @@
 
 pragma solidity >=0.8.1;
 
+
 library Address {
   function isContract(address account) internal view returns (bool) {
     // According to EIP-1052, 0x0 is the value returned for not-yet created accounts
@@ -79,5 +80,27 @@ library Address {
         revert(errorMessage);
       }
     }
+  }
+
+  function functionDelegateCall(
+    address target,
+    bytes memory data,
+    string memory errorMessage
+  ) internal returns (bytes memory) {
+    require(isContract(target), "Address: delegate call to non-contract");
+    
+    (bool success, bytes memory returndata) = target.delegatecall(data);
+    if (success) {
+      return returndata;
+    }
+      
+    if (returndata.length > 0) {
+      assembly {
+        let returndata_size := mload(returndata)
+        revert(add(32, returndata), returndata_size)
+      }
+    }
+
+    revert(errorMessage);
   }
 }
