@@ -7,7 +7,7 @@ import { IERC3156FlashLender } from "../../interfaces/flashloan/IERC3156FlashLen
 import { FlashloanData } from "../../core/types/Common.sol";
 import { OPERATION_EXECUTOR, DAI } from "../../core/constants/Common.sol";
 import { FLASH_MINT_MODULE } from "../../core/constants/Maker.sol";
-import {ProxyPermission} from"../../libs/DS/ProxyPermission.sol";
+import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
 
 contract TakeFlashloan is Executable, ProxyPermission {
   ServiceRegistry internal immutable registry;
@@ -19,8 +19,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
 
-
-    if( flData.dsProxyFlashloan) {
+    if (flData.dsProxyFlashloan) {
       givePermission(registry.getRegisteredService(OPERATION_EXECUTOR));
     }
 
@@ -31,7 +30,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
       data
     );
 
-    if( flData.dsProxyFlashloan) {
+    if (flData.dsProxyFlashloan) {
       removePermission(registry.getRegisteredService(OPERATION_EXECUTOR));
     }
   }
