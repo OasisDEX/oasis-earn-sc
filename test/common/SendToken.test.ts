@@ -2,8 +2,9 @@ import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
+
 import { ADDRESSES } from '../../helpers/addresses'
-import { ONE, TEN_THOUSANDS, ZERO } from '../../helpers/constants'
+import { ONE, TEN_THOUSAND, ZERO } from '../../helpers/constants'
 import { createDeploy, DeployFunction } from '../../helpers/deploy'
 import init, { resetNode } from '../../helpers/init'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
@@ -78,7 +79,7 @@ describe('SendToken Action', () => {
     const aWallet = await config.provider.getSigner(2).getAddress()
 
     let aWalletEthBalance = await balanceOf(ADDRESSES.main.ETH, aWallet, { config, debug: false })
-    expect(aWalletEthBalance.toString()).to.equal(amountToWei(TEN_THOUSANDS).toString())
+    expect(aWalletEthBalance.toString()).to.equal(amountToWei(TEN_THOUSAND).toString())
 
     await sendToken.execute(
       ethers.utils.defaultAbiCoder.encode(
@@ -100,7 +101,7 @@ describe('SendToken Action', () => {
     )
 
     aWalletEthBalance = await balanceOf(ADDRESSES.main.ETH, aWallet, { config, debug: false })
-    expect(aWalletEthBalance.toString()).to.equal(amountToWei(TEN_THOUSANDS.plus(ONE)).toString())
+    expect(aWalletEthBalance.toString()).to.equal(amountToWei(TEN_THOUSAND.plus(ONE)).toString())
   })
 
   it('should fail if it does not have enough ERC20 balance', async () => {
