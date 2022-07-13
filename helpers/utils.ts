@@ -13,26 +13,26 @@ export async function balanceOf(
   asset: string,
   address: string,
   options: BalanceOptions,
-): Promise<BigNumber> {
-  let balance: string
+): Promise<string | BigNumber> {
+  let balance = undefined
   const { provider, signer } = options.config
   if (asset === ADDRESSES.main.ETH) {
-    balance = (await provider.getBalance(address)).toString()
+    balance = await provider.getBalance(address)
   } else {
     const ERC20Asset = new ethers.Contract(asset, IERC20_ABI, signer)
-    balance = (await ERC20Asset.balanceOf(address)).toString()
+    balance = await ERC20Asset.balanceOf(address)
   }
 
   if (options.isFormatted) {
     const decimals = options.decimals ? options.decimals : 18
-    balance = ethers.utils.formatUnits(balance.toString(), decimals)
+    return ethers.utils.formatUnits(balance.toString(), decimals)
   }
 
   if (options.debug) {
     console.log(`DEBUG: Account ${address}'s balance for ${asset} is: ${balance}`)
   }
 
-  return new BigNumber(balance)
+  return new BigNumber(balance.toString())
 }
 
 export async function balanceOfUnderlying(asset: string, address: string, options: BalanceOptions) {
