@@ -272,8 +272,8 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       signer,
     )
 
-    const autoTestAmount = new BigNumber(1000);
-    const autoVaultId = 25790;
+    const autoTestAmount = new BigNumber(1000)
+    const autoVaultId = 25790
     const generateDaiAutomation = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
       [calldataTypes.maker.Generate, calldataTypes.paramsMap],
@@ -296,30 +296,33 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           amount: ensureWeiFormat(autoTestAmount),
           borrower: system.common.operationExecutor.address,
           dsProxyFlashloan: false,
-          calls: [
-            generateDaiAutomation,
-          ],
+          calls: [generateDaiAutomation],
         },
         [0],
       ],
     )
 
-    console.log('proxy ADDRESS',  system.common.userProxyAddress );
-    console.log('AUTOMATION ADDRESS',  system.common.dummyAutomation.address );
-    console.log('OPERATION EXECUTOR ADDRESS',  system.common.operationExecutor.address );
+    console.log('proxy ADDRESS', system.common.userProxyAddress)
+    console.log('AUTOMATION ADDRESS', system.common.dummyAutomation.address)
+    console.log('OPERATION EXECUTOR ADDRESS', system.common.operationExecutor.address)
 
     // CALL
     // const tx = await system.common.dummyAutomation['doAutomationStuff((bytes32,bytes)[],string,address)']([generateDaiAutomation], OPERATION_NAMES.common.CUSTOM_OPERATION, system.common.operationExecutor.address, {
     //   gasLimit: 3000000,
     // });
 
-    const executionData = system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-      [takeAFlashloanAutomation],
-      OPERATION_NAMES.common.CUSTOM_OPERATION, //just to skip operation's actions verification
-    ]);
+    const executionData = system.common.operationExecutor.interface.encodeFunctionData(
+      'executeOp',
+      [
+        [takeAFlashloanAutomation],
+        OPERATION_NAMES.common.CUSTOM_OPERATION, //just to skip operation's actions verification
+      ],
+    )
 
     // DELEGATECALL
-    const tx2 = await system.common.dummyAutomation['doAutomationStuffDelegateCall(bytes,address,uint256)'](executionData, system.common.operationExecutor.address, autoVaultId, {
+    const tx2 = await system.common.dummyAutomation[
+      'doAutomationStuffDelegateCall(bytes,address,uint256)'
+    ](executionData, system.common.operationExecutor.address, autoVaultId, {
       gasLimit: 3000000,
     })
 
@@ -334,11 +337,10 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     const expectedColl = additionalCollateral.plus(initialColl).plus(preIncreaseMPTopUp)
     const expectedDebt = desiredCdpState.requiredDebt
 
+    console.log('vault.id', vault.id)
+    console.log('coll', info.coll.toFixed(0))
+    console.log('debt', info.debt.toFixed(0))
 
-    console.log('vault.id', vault.id);
-    console.log('coll',info.coll.toFixed(0));
-    console.log('debt',info.debt.toFixed(0));
-    
     expect(info.coll.toFixed(0)).to.equal(expectedColl.toFixed(0))
     expect(info.debt.toFixed(0)).to.equal(expectedDebt.plus(autoTestAmount).toFixed(0))
 

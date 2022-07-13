@@ -6,7 +6,7 @@ import { ADDRESSES } from '../addresses'
 export async function getOraclePrice(
   provider: JsonRpcProvider,
   pipAddress = ADDRESSES.main.maker.pipWETH,
-) {
+): Promise<BigNumber> {
   const storageHexToBigNumber = (uint256: string) => {
     const matches = uint256.match(/^0x(\w+)$/)
     if (!matches?.length) {

@@ -13,7 +13,6 @@ import { exchangeFromDAI, exchangeToDAI, swapOneInchTokens } from '../../helpers
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountFromWei, amountToWei, asPercentageValue, balanceOf } from '../../helpers/utils'
-import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectRevert, expectToBe, expectToBeEqual } from '../utils'
 
@@ -38,7 +37,6 @@ describe('Swap', async () => {
   let config: RuntimeConfig
 
   let system: DeployedSystemInfo
-  let registry: ServiceRegistry
 
   before(async () => {
     config = await init()
@@ -54,9 +52,8 @@ describe('Swap', async () => {
       },
     ])
 
-    const { system: _system, registry: _registry } = await deploySystem(config)
+    const { system: _system } = await deploySystem(config)
     system = _system
-    registry = _registry
 
     feeBeneficiary = ADDRESSES.main.feeRecipient
     slippage = asPercentageValue(8, 100)
