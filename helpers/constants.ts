@@ -71,5 +71,5 @@ export const OPERATION_NAMES = {
   },
   common: {
     CUSTOM_OPERATION: 'CustomOperation',
-  }
+  },
 } as const

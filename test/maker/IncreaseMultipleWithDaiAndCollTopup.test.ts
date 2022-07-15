@@ -275,6 +275,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
     gasEstimates.save(testName, txReceipt)
 
     const vault = await getLastVault(provider, signer, system.common.userProxyAddress)
+
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
     const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
 

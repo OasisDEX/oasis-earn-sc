@@ -12,7 +12,7 @@ import { IManager } from "../../interfaces/maker/IManager.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { PaybackData } from "../../core/types/Maker.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
-import { MCD_MANAGER, MCD_JOIN_DAI } from "../../core/constants/Maker.sol";
+import { PAYBACK_ACTION, MCD_MANAGER, MCD_JOIN_DAI } from "../../core/constants/Maker.sol";
 
 contract MakerPayback is Executable, UseStore {
   using SafeMath for uint256;
@@ -30,16 +30,17 @@ contract MakerPayback is Executable, UseStore {
 
   constructor(address _registry) UseStore(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory _paramsMapping) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     PaybackData memory paybackData = abi.decode(data, (PaybackData));
-    paybackData.vaultId = uint256(store().read(bytes32(paybackData.vaultId), _paramsMapping[0]));
+    paybackData.vaultId = uint256(store().read(bytes32(paybackData.vaultId), paramsMap[0]));
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
     IDaiJoin daiJoin = IDaiJoin(registry.getRegisteredService(MCD_JOIN_DAI));
-    paybackData.paybackAll
+    bytes32 amountPaidBack = paybackData.paybackAll
       ? _paybackAll(manager, daiJoin, paybackData)
       : _payback(manager, daiJoin, paybackData);
 
-    store().write(bytes32(paybackData.amount));
+    store().write(amountPaidBack);
+    emit Action(PAYBACK_ACTION, amountPaidBack);
   }
 
   function _payback(
@@ -72,7 +73,7 @@ contract MakerPayback is Executable, UseStore {
       );
     }
 
-    return bytes32("");
+    return bytes32(data.amount);
   }
 
   function _paybackAll(
@@ -103,7 +104,7 @@ contract MakerPayback is Executable, UseStore {
       vat.frob(ilk, urn, address(this), address(this), 0, -int256(art));
     }
 
-    return bytes32("");
+    return bytes32(uint256(art));
   }
 
   function joinDai(

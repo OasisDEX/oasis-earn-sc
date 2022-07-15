@@ -6,7 +6,7 @@ import { UseStore, Write } from "../common/UseStore.sol";
 import { IManager } from "../../interfaces/maker/IManager.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { OpenVaultData } from "../../core/types/Maker.sol";
-import { MCD_MANAGER } from "../../core/constants/Maker.sol";
+import { OPEN_VAULT_ACTION, MCD_MANAGER } from "../../core/constants/Maker.sol";
 
 contract MakerOpenVault is Executable, UseStore {
   using Write for OperationStorage;
@@ -16,7 +16,10 @@ contract MakerOpenVault is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     OpenVaultData memory openVaultData = abi.decode(data, (OpenVaultData));
 
-    store().write(_openVault(openVaultData));
+    bytes32 vaultId = _openVault(openVaultData);
+    store().write(vaultId);
+
+    emit Action(OPEN_VAULT_ACTION, vaultId);
   }
 
   function _openVault(OpenVaultData memory data) internal returns (bytes32) {

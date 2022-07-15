@@ -48,7 +48,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
-  
+
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
 
@@ -57,7 +57,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     serviceRegistryAddress,
   ])
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
-  const [dummyAutomation, dummyAutomationAddress] = await deploy("DummyAutomation", [serviceRegistryAddress])
+  const [dummyAutomation, dummyAutomationAddress] = await deploy('DummyAutomation', [
+    serviceRegistryAddress,
+  ])
 
   // Deploy Actions
   debug && console.log('3/ Deploying actions')
@@ -76,7 +78,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
 
-  const [cdpAllow, cdpAllowAddress] = await deploy(CONTRACT_NAMES.maker.CDP_ALLOW, [serviceRegistryAddress])
+  const [cdpAllow, cdpAllowAddress] = await deploy(CONTRACT_NAMES.maker.CDP_ALLOW, [
+    serviceRegistryAddress,
+  ])
 
   const [actionFl, actionFlAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
@@ -171,10 +175,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     actionGenerateAddress,
   )
 
-  const makerCdpAllowHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.CDP_ALLOW,
-    cdpAllowAddress,
-  )
+  const makerCdpAllowHash = await registry.addEntry(CONTRACT_NAMES.maker.CDP_ALLOW, cdpAllowAddress)
 
   //-- Add AAVE Contract Entries
   await registry.addEntry(CONTRACT_NAMES.aave.BORROW, actionAaveBorrowAddress)
@@ -189,7 +190,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     signer,
   )
   await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
-  
+
   await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_AND_DRAW, [
     makerOpenVaultHash,
     pullTokenHash,

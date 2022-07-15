@@ -197,7 +197,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     )
 
     // Get flashloan -> Swap for collateral -> Deposit collateral -> Generate DAI -> Repay flashloan
-
     const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
       .plus(ensureWeiFormat(desiredCdpState.daiTopUp))
       .toFixed(0)
@@ -265,6 +264,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
         {
           amount: exchangeData.fromTokenAmount,
           borrower: system.common.operationExecutor.address,
+          dsProxyFlashloan: true,
           calls: [swapAction, depositBorrowedCollateral, generateDaiToRepayFL, sendBackDAI],
         },
         [0],

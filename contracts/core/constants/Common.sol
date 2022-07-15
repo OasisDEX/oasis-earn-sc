@@ -6,3 +6,11 @@ string constant OPERATIONS_REGISTRY = "OperationsRegistry";
 string constant ONE_INCH_AGGREGATOR = "OneInchAggregator";
 string constant WETH = "WETH";
 string constant DAI = "DAI";
+uint256 constant RAY = 10**27;
+bytes32 constant NULL = "";
+
+string constant PULL_TOKEN_ACTION = "PullToken";
+string constant SEND_TOKEN_ACTION = "SendToken";
+string constant SET_APPROVAL_ACTION = "SetApproval";
+string constant SWAP_ON_ONE_INCH_ACTION = "SwapOnOneInch";
+string constant TAKE_FLASH_LOAN_ACTION = "TakeFlashloan";
