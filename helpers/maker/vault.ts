@@ -16,6 +16,7 @@ export async function getLastVault(
   const getCdps = new ethers.Contract(ADDRESSES.main.maker.getCdps, GetCDPsABI, provider).connect(
     signer,
   )
+
   const { ids, urns, ilks } = await getCdps.getCdpsAsc(
     ADDRESSES.main.maker.cdpManager,
     proxyAddress,

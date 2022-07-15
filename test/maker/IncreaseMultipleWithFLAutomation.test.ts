@@ -302,15 +302,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       ],
     )
 
-    console.log('proxy ADDRESS', system.common.userProxyAddress)
-    console.log('AUTOMATION ADDRESS', system.common.dummyAutomation.address)
-    console.log('OPERATION EXECUTOR ADDRESS', system.common.operationExecutor.address)
-
-    // CALL
-    // const tx = await system.common.dummyAutomation['doAutomationStuff((bytes32,bytes)[],string,address)']([generateDaiAutomation], OPERATION_NAMES.common.CUSTOM_OPERATION, system.common.operationExecutor.address, {
-    //   gasLimit: 3000000,
-    // });
-
     const executionData = system.common.operationExecutor.interface.encodeFunctionData(
       'executeOp',
       [
@@ -323,7 +314,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     const tx2 = await system.common.dummyAutomation[
       'doAutomationStuffDelegateCall(bytes,address,uint256)'
     ](executionData, system.common.operationExecutor.address, autoVaultId, {
-      gasLimit: 3000000,
+      gasLimit: 4000000,
     })
 
     gasEstimates.save(testName, txReceipt)
@@ -336,10 +327,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
 
     const expectedColl = additionalCollateral.plus(initialColl).plus(preIncreaseMPTopUp)
     const expectedDebt = desiredCdpState.requiredDebt
-
-    console.log('vault.id', vault.id)
-    console.log('coll', info.coll.toFixed(0))
-    console.log('debt', info.debt.toFixed(0))
 
     expect(info.coll.toFixed(0)).to.equal(expectedColl.toFixed(0))
     expect(info.debt.toFixed(0)).to.equal(expectedDebt.plus(autoTestAmount).toFixed(0))

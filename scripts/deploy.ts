@@ -129,6 +129,7 @@ async function main() {
     CONTRACT_NAMES.common.SWAP_ON_ONE_INCH,
     swapOnOninchAddress,
   )
+  await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES.main.maker.jug)
   await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
   await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
   await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)

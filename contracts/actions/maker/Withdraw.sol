@@ -8,7 +8,7 @@ import { MathUtils } from "../../libs/MathUtils.sol";
 import { WithdrawData } from "../../core/types/Maker.sol";
 import { IManager } from "../../interfaces/maker/IManager.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
-import { MCD_MANAGER } from "../../core/constants/Maker.sol";
+import { WITHDRAW_ACTION, MCD_MANAGER } from "../../core/constants/Maker.sol";
 import { WETH } from "../../core/constants/Common.sol";
 
 contract MakerWithdraw is Executable, UseStore {
@@ -17,10 +17,14 @@ contract MakerWithdraw is Executable, UseStore {
 
   constructor(address _registry) UseStore(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory _paramsMapping) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     WithdrawData memory withdrawData = abi.decode(data, (WithdrawData));
-    withdrawData.vaultId = store().readUint(bytes32(withdrawData.vaultId), _paramsMapping[0]);
-    store().write(_withdraw(withdrawData));
+    withdrawData.vaultId = store().readUint(bytes32(withdrawData.vaultId), paramsMap[0]);
+
+    bytes32 amountWithdrawn = _withdraw(withdrawData);
+    store().write(amountWithdrawn);
+
+    emit Action(WITHDRAW_ACTION, amountWithdrawn);
   }
 
   function _withdraw(WithdrawData memory data) internal returns (bytes32) {

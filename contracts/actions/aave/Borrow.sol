@@ -6,7 +6,7 @@ import { OperationStorage } from "../../core/OperationStorage.sol";
 import { IVariableDebtToken } from "../../interfaces/aave/IVariableDebtToken.sol";
 import { IWETHGateway } from "../../interfaces/aave/IWETHGateway.sol";
 import { BorrowData } from "../../core/types/Aave.sol";
-import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL } from "../../core/constants/Aave.sol";
+import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL, BORROW_ACTION } from "../../core/constants/Aave.sol";
 
 // TODO: Make it more generic so that anything could be withdrawn and not only ETH
 contract AaveBorrow is Executable, UseStore {
@@ -29,5 +29,6 @@ contract AaveBorrow is Executable, UseStore {
       2,
       0
     );
+    emit Action(BORROW_ACTION, bytes32(borrow.amount));
   }
 }

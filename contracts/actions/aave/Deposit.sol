@@ -5,7 +5,7 @@ import { UseStore, Write } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { ILendingPool } from "../../interfaces/aave/ILendingPool.sol";
 import { DepositData } from "../../core/types/Aave.sol";
-import { AAVE_LENDING_POOL } from "../../core/constants/Aave.sol";
+import { AAVE_LENDING_POOL, DEPOSIT_ACTION } from "../../core/constants/Aave.sol";
 
 contract AaveDeposit is Executable, UseStore {
   using Write for OperationStorage;
@@ -24,5 +24,6 @@ contract AaveDeposit is Executable, UseStore {
       0
     );
     // TODO: verify if I received the amount in the give aToken
+    emit Action(DEPOSIT_ACTION, bytes32(deposit.amount));
   }
 }

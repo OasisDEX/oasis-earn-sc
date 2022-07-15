@@ -11,6 +11,7 @@ import { DepositData } from "../../core/types/Maker.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { WETH } from "../../core/constants/Common.sol";
+import { DEPOSIT_ACTION } from "../../core/constants/Maker.sol";
 import { MCD_MANAGER } from "../../core/constants/Maker.sol";
 
 contract MakerDeposit is Executable, UseStore {
@@ -23,7 +24,11 @@ contract MakerDeposit is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositData memory depositData = abi.decode(data, (DepositData));
     depositData.vaultId = store().readUint(bytes32(depositData.vaultId), paramsMap[0]);
-    store().write(_deposit(depositData));
+
+    bytes32 amountDeposited = _deposit(depositData);
+    store().write(amountDeposited);
+
+    emit Action(DEPOSIT_ACTION, amountDeposited);
   }
 
   function _deposit(DepositData memory data) internal returns (bytes32) {
