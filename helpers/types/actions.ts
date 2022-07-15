@@ -22,6 +22,7 @@ export const calldataTypes = {
     Deposit: `tuple(address asset, uint256 amount)`,
     Generate: `tuple(address asset, uint256 amount)`,
     Withdraw: `tuple(address asset, uint256 amount)`,
+    Borrow: `tuple(address asset, uint256 amount)`,
   },
   paramsMap: `uint8[] paramsMap`,
 }

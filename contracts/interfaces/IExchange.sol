@@ -16,4 +16,11 @@ abstract contract IExchange {
     address callee,
     bytes calldata withData
   ) external virtual;
+
+  function swapTokenForToken(
+    address assetFrom,
+    address assetTo,
+    uint256 amount,
+    uint256 receiveAtLeast
+  ) external virtual;
 }

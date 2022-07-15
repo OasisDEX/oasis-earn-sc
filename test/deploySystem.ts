@@ -300,7 +300,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
     pullTokenHash,
     takeFlashLoanHash,
-    pullTokenHash,
+    // pullTokenHash,
     setApprovalHash,
     aaveDepositHash,
     aaveBorrowHash,
