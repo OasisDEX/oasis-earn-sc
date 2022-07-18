@@ -1,5 +1,7 @@
+import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
+import { Signer } from 'ethers'
 
 import { ADDRESSES } from '../../helpers/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES, TEN } from '../../helpers/constants'
@@ -19,17 +21,25 @@ describe('TakeFlashloan Action', () => {
   let config: RuntimeConfig
   let system: DeployedSystemInfo
   let registry: ServiceRegistry
+  let snapshotId: string
+  let provider: JsonRpcProvider
 
   before(async () => {
     config = await init()
-  })
-
-  beforeEach(async () => {
+    provider = config.provider
     await resetNode(config.provider, BLOCK_NUMBER)
 
     const { system: _system, registry: _registry } = await deploySystem(config)
     system = _system
     registry = _registry
+  })
+
+  beforeEach(async () => {
+    snapshotId = await provider.send('evm_snapshot', [])
+  })
+
+  afterEach(async () => {
+    await provider.send('evm_revert', [snapshotId])
   })
 
   it('should take flashloan', async () => {
