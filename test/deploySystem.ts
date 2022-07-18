@@ -78,6 +78,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
 
+  const [setApproval, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [])
   const [cdpAllow, cdpAllowAddress] = await deploy(CONTRACT_NAMES.maker.CDP_ALLOW, [
     serviceRegistryAddress,
   ])
@@ -141,7 +142,14 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   )
   const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
   const pullTokenHash = await registry.addEntry(CONTRACT_NAMES.common.PULL_TOKEN, pullTokenAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, oneInchSwapAddress)
+  const setApprovalHash = await registry.addEntry(
+    CONTRACT_NAMES.common.SET_APPROVAL,
+    setApprovalAddress,
+  )
+  const oneInchSwapHash = await registry.addEntry(
+    CONTRACT_NAMES.common.SWAP_ON_ONE_INCH,
+    oneInchSwapAddress,
+  )
   await registry.addEntry(CONTRACT_NAMES.common.SWAP, swapAddress)
   await registry.addEntry(
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
@@ -178,10 +186,26 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   const makerCdpAllowHash = await registry.addEntry(CONTRACT_NAMES.maker.CDP_ALLOW, cdpAllowAddress)
 
   //-- Add AAVE Contract Entries
-  await registry.addEntry(CONTRACT_NAMES.aave.BORROW, actionAaveBorrowAddress)
-  await registry.addEntry(CONTRACT_NAMES.aave.DEPOSIT, actionDepositInAAVEAddress)
-  await registry.addEntry(CONTRACT_NAMES.aave.WITHDRAW, actionWithdrawFromAAVEAddress)
-  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
+  const aaveBorrowHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.BORROW,
+    actionAaveBorrowAddress,
+  )
+  const aaveDepositHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.DEPOSIT,
+    actionDepositInAAVEAddress,
+  )
+  const aaveWithdrawHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.WITHDRAW,
+    actionWithdrawFromAAVEAddress,
+  )
+  const aaveWethGatewayHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.WETH_GATEWAY,
+    ADDRESSES.main.aave.WETHGateway,
+  )
+  const aaveLendingPoolHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.LENDING_POOL,
+    ADDRESSES.main.aave.MainnetLendingPool,
+  )
 
   debug && console.log('5/ Adding operations to registry')
   // Add Maker Operations
@@ -273,6 +297,17 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   )
 
   // Add AAVE Operations
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
+    pullTokenHash,
+    takeFlashLoanHash,
+    // pullTokenHash,
+    setApprovalHash,
+    aaveDepositHash,
+    aaveBorrowHash,
+    oneInchSwapHash,
+    aaveWithdrawHash,
+    sendTokenHash,
+  ])
 
   const deployedContracts = {
     common: {
