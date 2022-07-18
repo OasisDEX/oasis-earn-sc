@@ -6,7 +6,7 @@ import { UseStore, Read, Write } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { IVat } from "../../interfaces/maker/IVat.sol";
 import { IManager } from "../../interfaces/maker/IManager.sol";
-import { IJoin } from "../../interfaces/maker/IJoin.sol"; // TODO:
+import { IJoin } from "../../interfaces/maker/IJoin.sol";
 import { IDaiJoin } from "../../interfaces/maker/IDaiJoin.sol";
 import { IJug } from "../../interfaces/maker/IJug.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";

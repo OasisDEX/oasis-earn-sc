@@ -11,7 +11,5 @@ contract OperationsRegistry {
 
   function getOperation(string memory name) external view returns (bytes32[] memory actions) {
     actions = operations[name];
-    // TODO: Do we want to support non existing operation names that return empty array of actions ?
-    // require(actions.length > 0, "noop");
   }
 }
