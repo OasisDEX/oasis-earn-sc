@@ -12,19 +12,29 @@ import { swapOneInchTokens } from '../helpers/swap/1inch'
 import { calculateFee } from '../helpers/swap/calculateFee'
 import { FEE } from '../helpers/swap/DummyExchange'
 import { RuntimeConfig } from '../helpers/types/common'
-import { amountToWei, asPercentageValue } from '../helpers/utils'
+import { amountToWei, asPercentageValue, balanceOf } from '../helpers/utils'
 import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
+import { swap, uniswapV3Swap, unoswap } from './fixtures/oneInchFixtures'
+import { expectToBe, expectToBeEqual } from './utils'
 
 describe.only('uSwapp', () => {
   let uSwap: Contract
   let config: RuntimeConfig
   let registry: ServiceRegistry
   let WETH: Contract
-  Contract
+  let DAI: Contract
 
   before(async () => {
     config = await init()
     const deploy = await createDeploy({ config })
+
+    await config.provider.send('hardhat_reset', [
+      {
+        forking: {
+          jsonRpcUrl: process.env.MAINNET_URL,
+        },
+      },
+    ])
 
     const [serviceRegistry] = await deploy('ServiceRegistry', [0])
     registry = new ServiceRegistry(serviceRegistry.address, config.signer)
@@ -41,49 +51,73 @@ describe.only('uSwapp', () => {
     WETH = new ethers.Contract(ADDRESSES.main.WETH, WETH_ABI, config.provider).connect(
       config.signer,
     )
+    DAI = new ethers.Contract(ADDRESSES.main.DAI, WETH_ABI, config.provider).connect(config.signer)
+    await uSwap.setPool(WETH.address, DAI.address, 3000)
+    await uSwap.setPool(DAI.address, WETH.address, 3000)
   })
 
-  it('Performs swap WETH to DAi', async () => {
-    const depositAmountWithFeeWei = amountToWei(new BigNumber(10))
-    const fee = calculateFee(depositAmountWithFeeWei, FEE)
-    const amountInWei = depositAmountWithFeeWei.minus(fee)
+  describe('WETH to DAI, fee in WETH', () => {
+    const amountInWei = amountToWei(new BigNumber(10))
+    const fee = calculateFee(amountInWei, FEE)
+    const depositAmountWithFeeWei = amountInWei.plus(fee)
     const slippage = asPercentageValue(10, 100)
 
-    const response = await swapOneInchTokens(
-      ADDRESSES.main.WETH,
-      ADDRESSES.main.DAI,
-      amountInWei.toFixed(0),
-      uSwap.address,
-      slippage.value.toFixed(),
-    )
+    let receiveAtLeast: BigNumber
 
-    const receiveAtLeast = new BigNumber(response.toTokenAmount).times(
-      ONE.minus(slippage.asDecimal),
-    )
+    before(async () => {
+      const response = await swapOneInchTokens(
+        ADDRESSES.main.WETH,
+        ADDRESSES.main.DAI,
+        amountInWei.toFixed(0),
+        uSwap.address,
+        slippage.value.toFixed(),
+      )
 
-    console.log(`
-    data = ${response.tx.data}
-    receiveAtLeast: ${receiveAtLeast.toFixed()}
-    amountInWei:    ${amountInWei.toFixed()}
-    toTokenAmount:  ${response.toTokenAmount}
-    
-    
-    `)
+      receiveAtLeast = new BigNumber(response.toTokenAmount).times(ONE.minus(slippage.asDecimal))
 
-    await WETH.deposit({ value: depositAmountWithFeeWei.toFixed(0) })
-    await WETH.approve(uSwap.address, depositAmountWithFeeWei.toFixed(0))
-    await uSwap.swapTokens(
-      ADDRESSES.main.WETH,
-      ADDRESSES.main.DAI,
-      depositAmountWithFeeWei.toFixed(0),
-      0,//receiveAtLeast.toFixed(0)
-      20,
-      response.tx.data,
-      true,
-    )
+      await WETH.deposit({ value: depositAmountWithFeeWei.toFixed(0) })
+      await WETH.approve(uSwap.address, depositAmountWithFeeWei.toFixed(0))
+      await uSwap.swapTokens(
+        ADDRESSES.main.WETH,
+        ADDRESSES.main.DAI,
+        depositAmountWithFeeWei.toFixed(0),
+        receiveAtLeast.toFixed(0),
+        FEE,
+        response.tx.data,
+        true,
+      )
+    })
 
-    // const daiBalance = await WETH.balanceOf(ADDRESSES.main.DAI)
+    it('Performs swap WETH to DAi', async () => {
+      const daiBalance = await balanceOf(DAI.address, config.address, { config })
 
-    // expect(daiBalance).to.be.gte(receiveAtLeast)
+      expectToBe(amountToWei(daiBalance), 'gte', receiveAtLeast)
+    })
+
+    it('Pays fee in WETH', async () => {
+      const feeWallet = await balanceOf(WETH.address, ADDRESSES.main.feeRecipient, { config })
+      console.log(fee.toString(), 'feee')
+      expectToBeEqual(amountToWei(feeWallet), fee)
+    })
+  })
+
+  describe('Decodes 1inch calldata:', () => {
+    it('swap', async () => {
+      const minReturn = await uSwap.decodeOneInchCallData(swap)
+
+      expect(minReturn).to.eq('253155553433896897812874325')
+    })
+
+    it('unoswap', async () => {
+      const minReturn = await uSwap.decodeOneInchCallData(unoswap)
+
+      expect(minReturn).to.eq('1545434805092')
+    })
+
+    it('uniswapV3Swap', async () => {
+      const minReturn = await uSwap.decodeOneInchCallData(uniswapV3Swap)
+
+      expect(minReturn).to.eq('6227917975974974414')
+    })
   })
 })

@@ -17,6 +17,8 @@ contract uSwap {
   uint256 public constant feeBase = 10000;
   mapping(uint256 => bool) public feeTiers;
   mapping(address => bool) public authorizedAddresses;
+
+  mapping(bytes32 => uint24) public pools;
   ServiceRegistry internal immutable registry;
 
   error ReceivedLess(uint256 receiveAtLeast, uint256 received);
@@ -84,6 +86,20 @@ contract uSwap {
     emit FeeTierRemoved(fee);
   }
 
+  function setPool(address fromToken, address toToken, uint24 pool) public onlyAuthorised {
+    pools[keccak256(abi.encodePacked(fromToken,toToken))] = pool ;
+  }
+
+  function getPool(address fromToken, address toToken) public view returns (uint24) {
+    uint24 pool = pools[keccak256(abi.encodePacked(fromToken,toToken))];
+
+    if (pool > 0) {
+      return pool;
+    } else {
+      return 3000;
+    }
+  }
+
   function verifyFee(uint256 feeId) public view returns (bool valid) {
     valid = feeTiers[feeId];
   }
@@ -96,19 +112,18 @@ contract uSwap {
   ) internal returns (uint256 balance) {
     ISwapRouter uniswap = ISwapRouter(registry.getRegisteredService(UNISWAP_ROUTER));
     IERC20(fromAsset).safeApprove(address(uniswap), amount);
+    uint24 pool = getPool(fromAsset, toAsset);
 
     balance = uniswap.exactInputSingle(ISwapRouter.ExactInputSingleParams({
       tokenIn: fromAsset,
       tokenOut: toAsset,
       amountIn: amount,
       amountOutMinimum: receiveAtLeast,
-      fee: 3000,
+      fee: pool,
       recipient: address(this),
       deadline: block.timestamp + 15,
       sqrtPriceLimitX96: 0
     }));
-
-    console.log("Swap result:", balance);
 
     if (balance == 0) {
       revert SwapFailed();
@@ -144,7 +159,7 @@ contract uSwap {
     return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(bytes4(keccak256(b))));
   }
 
-  function decodeOneInchCallData (bytes calldata withData) internal pure returns (uint256 minReturn) {
+  function decodeOneInchCallData (bytes calldata withData) public pure returns (uint256 minReturn) {
     bytes memory uniswapV3Swap = "uniswapV3Swap(uint256,uint256,uint256[])";
     bytes memory unoswap = "unoswap(address,uint256,uint256,bytes32[])";
     bytes memory swap = "swap(address,(address,address,address,address,uint256,uint256,uint256,bytes),bytes)";
