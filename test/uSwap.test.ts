@@ -88,7 +88,7 @@ describe('uSwapp', () => {
       )
     })
 
-    it('Performs swap WETH to DAi', async () => {
+    it('Performs swap WETH to DAI', async () => {
       const daiBalance = await balanceOf(DAI.address, config.address, { config })
 
       expectToBe(amountToWei(daiBalance), 'gte', receiveAtLeast)
