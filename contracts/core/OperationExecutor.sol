@@ -63,16 +63,15 @@ contract OperationExecutor is IERC3156FlashBorrower {
   }
 
   function onFlashLoan(
-    address initiator, // this is actually the proxy address
+    address initiator,
     address asset,
     uint256 amount,
-    uint256, // fee - the implementation should support the fee even though now it's 0
+    uint256,
     bytes calldata data
   ) external override returns (bytes32) {
     address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
 
-    // TODO - Use custom errors from solidity introduced in 0.8.4  https://blog.soliditylang.org/2021/04/21/custom-errors/
     require(amount == flData.amount, "loan-inconsistency");
 
     if (flData.dsProxyFlashloan) {

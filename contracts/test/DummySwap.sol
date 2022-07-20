@@ -30,20 +30,16 @@ contract DummySwap is Executable {
     SwapData memory swap = abi.decode(data, (SwapData));
     IERC20(swap.fromAsset).approve(exchange, swap.amount);
 
-    // TOOD: Replace with real implementation
-    // Draw is generated and sent to msg.sender NOT to address(this)
-    IExchange(exchange).swapDaiForToken(
+    if (address(this).balance > 0) {
+      WETH.deposit{ value: address(this).balance }();
+    }
+    
+    IExchange(exchange).swapTokenForToken(
+      swap.fromAsset,
       swap.toAsset,
       swap.amount,
-      swap.receiveAtLeast,
-      exchange,
-      swap.withData
+      swap.receiveAtLeast
     );
-
-    // TODO: Replace with the following line once using 1inch
-    // (bool success, ) = exchange.call(swapData.withData);
-    // console.log("Swap successful", success);
-    // require(success, "Exchange / Could not swap");
 
     uint256 balance = IERC20(swap.toAsset).balanceOf(address(this));
 

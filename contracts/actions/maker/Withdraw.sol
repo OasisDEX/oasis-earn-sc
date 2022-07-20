@@ -45,7 +45,7 @@ contract MakerWithdraw is Executable, UseStore {
       // Converts WETH to ETH
       IWETH(gem).withdraw(convertedAmount);
       // Sends ETH back to the user's wallet
-      payable(data.userAddress).transfer(convertedAmount); // TODO:
+      payable(data.userAddress).transfer(convertedAmount);
     }
 
     return bytes32(convertedAmount);

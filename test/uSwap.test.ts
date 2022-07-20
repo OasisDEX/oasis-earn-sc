@@ -91,12 +91,12 @@ describe('uSwapp', () => {
     it('Performs swap WETH to DAI', async () => {
       const daiBalance = await balanceOf(DAI.address, config.address, { config })
 
-      expectToBe(amountToWei(daiBalance), 'gte', receiveAtLeast)
+      expectToBe(daiBalance, 'gte', receiveAtLeast)
     })
 
     it('Pays fee in WETH', async () => {
       const feeWallet = await balanceOf(WETH.address, ADDRESSES.main.feeRecipient, { config })
-      expectToBeEqual(amountToWei(feeWallet), fee)
+      expectToBeEqual(feeWallet, fee)
     })
   })
 

@@ -8,11 +8,9 @@ import { IWETHGateway } from "../../interfaces/aave/IWETHGateway.sol";
 import { BorrowData } from "../../core/types/Aave.sol";
 import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL, BORROW_ACTION } from "../../core/constants/Aave.sol";
 
-// TODO: Make it more generic so that anything could be withdrawn and not only ETH
 contract AaveBorrow is Executable, UseStore {
   using Write for OperationStorage;
-  // ServiceRegistry private immutable registry;
-  // This will be removed once I make it more generic
+
   IVariableDebtToken public constant dWETH =
     IVariableDebtToken(0xF63B34710400CAd3e044cFfDcAb00a0f32E33eCf);
 

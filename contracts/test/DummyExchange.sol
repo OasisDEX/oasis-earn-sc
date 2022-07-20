@@ -11,6 +11,7 @@ contract DummyExchange {
   using SafeERC20 for IERC20;
 
   address DAI_ADDRESS = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+  address STETH_ADDRESS = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84;
 
   uint256 price;
 
@@ -96,6 +97,20 @@ contract DummyExchange {
     emit AssetSwap(DAI_ADDRESS, asset, amount, amountOut);
 
     _transferOut(asset, msg.sender, amountOut);
+  }
+
+  function swapTokenForToken(
+    address assetFrom,
+    address assetTo,
+    uint256 amount,
+    uint256
+  ) public {
+    uint8 precision = precisions[assetFrom];
+    // amount = _collectFee(DAI_ADDRESS, amount);
+    uint256 amountOut = (mul(amount, 10**18) / prices[assetTo]) / (10**(18 - precision));
+    _transferIn(msg.sender, assetFrom, amount);
+    _transferOut(assetTo, msg.sender, amountOut);
+    emit AssetSwap(assetFrom, assetTo, amount, amountOut);
   }
 
   // uses the same interface as default Exchange contract

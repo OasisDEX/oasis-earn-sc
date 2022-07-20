@@ -311,14 +311,11 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     )
 
     // DELEGATECALL
-    await system.common.dummyAutomation['doAutomationStuffDelegateCall(bytes,address,uint256)'](
-      executionData,
-      system.common.operationExecutor.address,
-      autoVaultId,
-      {
-        gasLimit: 3000000,
-      },
-    )
+    const tx2 = await system.common.dummyAutomation[
+      'doAutomationStuffDelegateCall(bytes,address,uint256)'
+    ](executionData, system.common.operationExecutor.address, autoVaultId, {
+      gasLimit: 4000000,
+    })
 
     gasEstimates.save(testName, txReceipt)
 
