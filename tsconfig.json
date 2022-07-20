@@ -10,5 +10,5 @@
     "resolveJsonModule": true
   },
   "include": ["./helpers", "./scripts", "./test"],
-  "files": ["./hardhat.config.ts"]
+  "files": ["./hardhat.config.ts", "helpers/swap/calculateFee.ts"]
 }

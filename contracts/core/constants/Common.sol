@@ -14,3 +14,5 @@ string constant SEND_TOKEN_ACTION = "SendToken";
 string constant SET_APPROVAL_ACTION = "SetApproval";
 string constant SWAP_ON_ONE_INCH_ACTION = "SwapOnOneInch";
 string constant TAKE_FLASH_LOAN_ACTION = "TakeFlashloan";
+
+string constant UNISWAP_ROUTER = "UniswapRouter";

@@ -10,6 +10,7 @@ import { ADDRESSES } from '../helpers/addresses'
 import { ONE } from '../helpers/constants'
 import init from '../helpers/init'
 import { exchangeFromDAI, exchangeToDAI, swapOneInchTokens } from '../helpers/swap/1inch'
+import { calculateFee } from '../helpers/swap/calculateFee'
 import { swapUniswapTokens } from '../helpers/swap/uniswap'
 import { RuntimeConfig } from '../helpers/types/common'
 import { amountFromWei, amountToWei, asPercentageValue, balanceOf } from '../helpers/utils'
@@ -18,12 +19,8 @@ import { DeployedSystemInfo, deploySystem } from './deploySystem'
 import { expectRevert, expectToBe, expectToBeEqual } from './utils'
 
 const ALLOWED_PROTOCOLS = ['UNISWAP_V2', 'UNISWAP_V3']
-const FEE = 20
-const FEE_BASE = 10000
-
-function calculateFee(amountWei: BigNumber, fee: number = FEE): BigNumber {
-  return amountWei.times(new BigNumber(fee).div(FEE_BASE)).integerValue(BigNumber.ROUND_DOWN)
-}
+export const FEE = 20
+export const FEE_BASE = 10000
 
 describe('Swap', async () => {
   let provider: JsonRpcProvider

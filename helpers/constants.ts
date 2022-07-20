@@ -23,6 +23,7 @@ export const CONTRACT_NAMES = {
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
     SWAP: 'Swap',
     EXCHANGE: 'Exchange',
+    UNISWAP_ROUTER: 'UniswapRouter',
     SERVICE_REGISTRY: 'ServiceRegistry',
   },
   aave: {
