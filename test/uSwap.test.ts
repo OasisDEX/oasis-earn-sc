@@ -17,7 +17,7 @@ import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
 import { swap, uniswapV3Swap, unoswap } from './fixtures/oneInchFixtures'
 import { expectToBe, expectToBeEqual } from './utils'
 
-describe.only('uSwapp', () => {
+describe('uSwapp', () => {
   let uSwap: Contract
   let config: RuntimeConfig
   let registry: ServiceRegistry
@@ -96,7 +96,6 @@ describe.only('uSwapp', () => {
 
     it('Pays fee in WETH', async () => {
       const feeWallet = await balanceOf(WETH.address, ADDRESSES.main.feeRecipient, { config })
-      console.log(fee.toString(), 'feee')
       expectToBeEqual(amountToWei(feeWallet), fee)
     })
   })

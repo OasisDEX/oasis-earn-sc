@@ -201,7 +201,6 @@ contract uSwap {
     );
 
     uint256 receiveAtLeastFromCallData = decodeOneInchCallData(withData);
-    console.log("receiveAtLeastFromCallData:", receiveAtLeastFromCallData);
     if (receiveAtLeastFromCallData > toTokenBalance) {
       revert ReceivedLess(receiveAtLeastFromCallData, receiveAtLeast);
     }
