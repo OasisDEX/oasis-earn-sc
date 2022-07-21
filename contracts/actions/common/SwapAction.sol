@@ -8,6 +8,8 @@ import { SwapData } from "../../core/types/Common.sol";
 import { Swap } from "./Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
 
+import "hardhat/console.sol";
+
 contract SwapAction is Executable {
   using SafeERC20 for IERC20;
 
@@ -24,7 +26,7 @@ contract SwapAction is Executable {
     // - Forced to wrap the ETH into WETH
     // - There should be separate actions or utils to wrap/unwrap ETH into/from WETH
     address swapAddress = registry.getRegisteredService(SWAP);
-
+  
     if (address(this).balance > 0) {
       IWETH(registry.getRegisteredService(WETH)).deposit{ value: address(this).balance }();
     }

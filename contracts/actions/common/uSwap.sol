@@ -8,6 +8,7 @@ import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20 } from "../../libs/SafeERC20.sol";
 import { UNISWAP_ROUTER } from "../../core/constants/Common.sol";
+import { SwapData } from "../../core/types/Common.sol";
 
 contract uSwap {
   using SafeMath for uint256;
@@ -88,6 +89,7 @@ contract uSwap {
 
   function setPool(address fromToken, address toToken, uint24 pool) public onlyAuthorised {
     pools[keccak256(abi.encodePacked(fromToken,toToken))] = pool ;
+    pools[keccak256(abi.encodePacked(toToken,fromToken))] = pool ;
   }
 
   function getPool(address fromToken, address toToken) public view returns (uint24) {
@@ -114,7 +116,7 @@ contract uSwap {
     IERC20(fromAsset).safeApprove(address(uniswap), amount);
     uint24 pool = getPool(fromAsset, toAsset);
 
-    balance = uniswap.exactInputSingle(ISwapRouter.ExactInputSingleParams({
+    uniswap.exactInputSingle(ISwapRouter.ExactInputSingleParams({
       tokenIn: fromAsset,
       tokenOut: toAsset,
       amountIn: amount,
@@ -124,6 +126,10 @@ contract uSwap {
       deadline: block.timestamp + 15,
       sqrtPriceLimitX96: 0
     }));
+
+    balance = IERC20(toAsset).balanceOf(address(this));
+
+    console.log("balance", balance);
 
     if (balance == 0) {
       revert SwapFailed();
@@ -179,41 +185,35 @@ contract uSwap {
   }
 
   function swapTokens(
-    address assetFrom,
-    address assetTo,
-    uint256 amountFromWithFee,
-    uint256 receiveAtLeast,
-    uint256 fee,
-    bytes calldata withData,
-    bool collectFeeInFromToken
+    SwapData calldata swapData
   ) public {
-    IERC20(assetFrom).safeTransferFrom(msg.sender, address(this), amountFromWithFee);
-    uint256 amountFrom = amountFromWithFee;
-    if (collectFeeInFromToken) {
-      amountFrom = _collectFee(assetFrom, amountFromWithFee, fee);
+    IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
+    uint256 amountFrom = swapData.amount;
+    if (swapData.collectFeeInFromToken) {
+      amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
-  
+    console.log("uSWAAAAAAP!", amountFrom);
     uint256 toTokenBalance = _swap(
-      assetFrom,
-      assetTo,
+      swapData.fromAsset,
+      swapData.toAsset,
       amountFrom,
-      receiveAtLeast
+      swapData.receiveAtLeast
     );
-
-    uint256 receiveAtLeastFromCallData = decodeOneInchCallData(withData);
+    console.log("uSWAAAAAAP! after swap", toTokenBalance);
+    uint256 receiveAtLeastFromCallData = decodeOneInchCallData(swapData.withData);
     if (receiveAtLeastFromCallData > toTokenBalance) {
-      revert ReceivedLess(receiveAtLeastFromCallData, receiveAtLeast);
+      revert ReceivedLess(receiveAtLeastFromCallData, swapData.receiveAtLeast);
     }
 
-    if (!collectFeeInFromToken) {
-      toTokenBalance = _collectFee(assetTo, toTokenBalance, fee);
+    if (!swapData.collectFeeInFromToken) {
+      toTokenBalance = _collectFee(swapData.toAsset, toTokenBalance, swapData.fee);
     }
 
-    uint256 fromTokenBalance = IERC20(assetFrom).balanceOf(address(this));
+    uint256 fromTokenBalance = IERC20(swapData.fromAsset).balanceOf(address(this));
     if (fromTokenBalance > 0) {
-      IERC20(assetFrom).safeTransfer(msg.sender, fromTokenBalance);
+      IERC20(swapData.fromAsset).safeTransfer(msg.sender, fromTokenBalance);
     }
 
-    IERC20(assetTo).safeTransfer(msg.sender, toTokenBalance);
+    IERC20(swapData.toAsset).safeTransfer(msg.sender, toTokenBalance);
   }
 }

@@ -71,6 +71,7 @@ task(
 
     // Adding records in Service Registry
     const registry: ServiceRegistry = new ServiceRegistry(serviceRegistryAddress, config.signer)
+    await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
     await registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
     await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
     await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)

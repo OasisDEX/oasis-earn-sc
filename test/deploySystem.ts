@@ -52,14 +52,19 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
     address,
     ADDRESSES.main.feeRecipient,
-    20,
+    0,
     serviceRegistryAddress,
   ])
+  await uSwap.setPool(
+    '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
+    '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    10000,
+  )
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
     ADDRESSES.main.feeRecipient,
-    20,
+    0,
     serviceRegistryAddress,
   ])
 
@@ -135,7 +140,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     CONTRACT_NAMES.common.SWAP,
     useDummySwap ? uSwapAddress : swapAddress,
   )
-  // await registry.addEntry(CONTRACT_NAMES.common.SWAP, swapAddress)
 
   //-- Add Common Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_EXECUTOR, operationExecutorAddress)
@@ -158,7 +162,13 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     ADDRESSES.main.oneInchAggregator,
   )
 
+  const swapActionHash = await registry.addEntry(
+    CONTRACT_NAMES.common.SWAP_ACTION,
+    swapActionAddress,
+  )
+
   //-- Add Maker Contract Entries
+  await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_VIEW, mcdViewAddress)
   await registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_MANAGER, ADDRESSES.main.maker.cdpManager)
@@ -236,7 +246,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     pullTokenHash,
     makerDepositHash,
     makerGenerateHash,
-    swapHash,
+    swapActionHash,
     makerDepositHash,
   ])
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_TOP_UP, [
@@ -245,7 +255,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     makerDepositHash,
     pullTokenHash,
     makerGenerateHash,
-    swapHash,
+    swapActionHash,
     makerDepositHash,
   ])
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_COLL_TOP_UP, [
@@ -255,7 +265,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     pullTokenHash,
     makerDepositHash,
     makerGenerateHash,
-    swapHash,
+    swapActionHash,
     makerDepositHash,
   ])
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP, [
@@ -266,7 +276,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     pullTokenHash,
     makerDepositHash,
     makerGenerateHash,
-    swapHash,
+    swapActionHash,
     makerDepositHash,
   ])
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN, [
@@ -275,7 +285,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     makerDepositHash,
     takeFlashLoanHash,
     // pullTokenHash,
-    swapHash,
+    swapActionHash,
     makerDepositHash,
     makerGenerateHash,
     sendTokenHash,
@@ -291,7 +301,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       makerDepositHash,
       takeFlashLoanHash,
       // pullTokenHash,
-      swapHash,
+      swapActionHash,
       makerDepositHash,
       makerGenerateHash,
       sendTokenHash,
@@ -321,8 +331,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       operationRegistry,
       dummyAutomation,
       exchange: dummyExchange,
-      swap,
-      oneInchSwap: swapAction,
+      swap: useDummySwap ? uSwap : swap,
+      swapAction,
       sendToken,
       pullToken,
       takeFlashLoan: actionFl,

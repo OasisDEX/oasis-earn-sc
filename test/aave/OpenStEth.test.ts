@@ -61,7 +61,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
 
   const testName = `should open stEth position`
 
-  it(testName, async () => {
+  it.only(testName, async () => {
     // Transfer stETH to exchange for Swap
 
     const toImpersonate = '0xdc24316b9ae028f1497c275eb9192a3ea0f67022'
@@ -137,7 +137,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     )
 
     const swapETHforSTETH = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.common.SWAP),
+      await registry.getEntryHash(CONTRACT_NAMES.common.SWAP_ACTION),
       [calldataTypes.common.Swap],
       [
         {
