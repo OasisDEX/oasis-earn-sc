@@ -75,7 +75,9 @@ export type SwapData = {
   toAsset: string
   amount: string
   receiveAtLeast: string
+  fee: number
   withData: any
+  collectFeeInFromToken: boolean
 }
 
 export type ExchangeData = {

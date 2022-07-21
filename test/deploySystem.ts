@@ -49,13 +49,20 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
 
-  const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
+  const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
     address,
-
     ADDRESSES.main.feeRecipient,
     20,
     serviceRegistryAddress,
   ])
+
+  const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
+    address,
+    ADDRESSES.main.feeRecipient,
+    20,
+    serviceRegistryAddress,
+  ])
+
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
   const [dummyAutomation, dummyAutomationAddress] = await deploy('DummyAutomation', [
     serviceRegistryAddress,
@@ -64,13 +71,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   // Deploy Actions
   debug && console.log('3/ Deploying actions')
   //-- Common Actions
-  const [dummySwap, dummySwapAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_SWAP, [
-    serviceRegistryAddress,
-    ADDRESSES.main.WETH,
-    dummyExchangeAddress,
-  ])
-
-  const [oneInchSwap, oneInchSwapAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, [
+  const [swapAction, swapActionAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ACTION, [
     serviceRegistryAddress,
   ])
 
@@ -128,8 +129,13 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
   await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
 
-  //-- Add Test Contract Entries
-  const dummySwapHash = await registry.addEntry(CONTRACT_NAMES.test.DUMMY_SWAP, dummySwapAddress)
+  // add flag to deploy dummySwap
+  const useDummySwap = true
+  const swapHash = await registry.addEntry(
+    CONTRACT_NAMES.common.SWAP,
+    useDummySwap ? uSwapAddress : swapAddress,
+  )
+  // await registry.addEntry(CONTRACT_NAMES.common.SWAP, swapAddress)
 
   //-- Add Common Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_EXECUTOR, operationExecutorAddress)
@@ -146,11 +152,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     CONTRACT_NAMES.common.SET_APPROVAL,
     setApprovalAddress,
   )
-  const oneInchSwapHash = await registry.addEntry(
-    CONTRACT_NAMES.common.SWAP_ON_ONE_INCH,
-    oneInchSwapAddress,
-  )
-  await registry.addEntry(CONTRACT_NAMES.common.SWAP, swapAddress)
+
   await registry.addEntry(
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     ADDRESSES.main.oneInchAggregator,
@@ -234,7 +236,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     pullTokenHash,
     makerDepositHash,
     makerGenerateHash,
-    dummySwapHash,
+    swapHash,
     makerDepositHash,
   ])
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_TOP_UP, [
@@ -243,7 +245,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     makerDepositHash,
     pullTokenHash,
     makerGenerateHash,
-    dummySwapHash,
+    swapHash,
     makerDepositHash,
   ])
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_COLL_TOP_UP, [
@@ -253,7 +255,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     pullTokenHash,
     makerDepositHash,
     makerGenerateHash,
-    dummySwapHash,
+    swapHash,
     makerDepositHash,
   ])
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP, [
@@ -264,7 +266,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     pullTokenHash,
     makerDepositHash,
     makerGenerateHash,
-    dummySwapHash,
+    swapHash,
     makerDepositHash,
   ])
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN, [
@@ -273,7 +275,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     makerDepositHash,
     takeFlashLoanHash,
     // pullTokenHash,
-    dummySwapHash,
+    swapHash,
     makerDepositHash,
     makerGenerateHash,
     sendTokenHash,
@@ -289,7 +291,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       makerDepositHash,
       takeFlashLoanHash,
       // pullTokenHash,
-      dummySwapHash,
+      swapHash,
       makerDepositHash,
       makerGenerateHash,
       sendTokenHash,
@@ -304,7 +306,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     setApprovalHash,
     aaveDepositHash,
     aaveBorrowHash,
-    oneInchSwapHash,
+    swapHash,
     aaveWithdrawHash,
     sendTokenHash,
   ])
@@ -320,8 +322,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       dummyAutomation,
       exchange: dummyExchange,
       swap,
-      dummySwap,
-      oneInchSwap,
+      oneInchSwap: swapAction,
       sendToken,
       pullToken,
       takeFlashLoan: actionFl,
@@ -356,6 +357,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       `Send Token address: ${deployedContracts.common.sendToken.address}`,
       `Pull Token address: ${deployedContracts.common.pullToken.address}`,
       `Flashloan Action address: ${deployedContracts.common.takeFlashLoan.address}`,
+      `Swap Action address: ${deployedContracts.common.swap.address}`,
 
       `MCDView address: ${deployedContracts.maker.mcdView.address}`,
       `OpenVault Action address: ${deployedContracts.maker.openVault.address}`,

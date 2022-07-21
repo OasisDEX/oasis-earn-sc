@@ -5,7 +5,9 @@ export const calldataTypes = {
     address toAsset,
     uint256 amount,
     uint256 receiveAtLeast,
-    bytes withData) swapData`,
+    uint256 fee,
+    bytes withData,
+    bool collectFeeInFromToken) swapData`,
     SendToken: `tuple(address asset, address to, uint256 amount)`,
     PullToken: `tuple(address asset, address from, uint256 amount)`,
     TakeAFlashLoan: `tuple(uint256 amount, address borrower, bool dsProxyFlashloan, (bytes32 targetHash, bytes callData)[] calls)`,
@@ -19,6 +21,7 @@ export const calldataTypes = {
     CdpAllow: `tuple(uint256 vaultId, address userAddress)`,
   },
   aave: {
+    Generate: `tuple(address asset, uint256 amount)`,
     Deposit: `tuple(address asset, uint256 amount)`,
     Withdraw: `tuple(address asset, uint256 amount)`,
     Borrow: `tuple(address asset, uint256 amount)`,

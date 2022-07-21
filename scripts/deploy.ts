@@ -26,6 +26,8 @@ const flashloanAmount = amountToWei(new BigNumber(1000000))
 const depositAmount = amountToWei(new BigNumber(200000))
 const borrowAmount = amountToWei(new BigNumber(5))
 
+const useDummySwap = true
+
 async function main() {
   const config = await init()
   const { signer, address } = config
@@ -89,13 +91,30 @@ async function main() {
   const [, borrowFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.BORROW, [
     serviceRegistryAddress,
   ])
-  const [, swapOnOninchAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, [
-    serviceRegistryAddress,
-  ])
+
   const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.WITHDRAW, [
     serviceRegistryAddress,
   ])
   const [, operationStorageAddress] = await deploy(CONTRACT_NAMES.common.OPERATION_STORAGE, [
+    serviceRegistryAddress,
+  ])
+
+  const [, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
+    address,
+    ADDRESSES.main.feeRecipient,
+    0,
+    serviceRegistryAddress,
+  ])
+
+  const [, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
+    address,
+    ADDRESSES.main.feeRecipient,
+    0,
+    serviceRegistryAddress,
+  ])
+  const useDummySwap = true
+
+  const [, swapActionAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ACTION, [
     serviceRegistryAddress,
   ])
   //SETUP REGISTRY ENTRIES:
@@ -125,9 +144,12 @@ async function main() {
     CONTRACT_NAMES.aave.WITHDRAW,
     withdrawFromAAVEAddress,
   )
-  const swapOnOneInchHash = await registry.addEntry(
-    CONTRACT_NAMES.common.SWAP_ON_ONE_INCH,
-    swapOnOninchAddress,
+
+  await registry.addEntry(CONTRACT_NAMES.common.SWAP, useDummySwap ? uSwapAddress : swapAddress)
+
+  const swapActionHash = await registry.addEntry(
+    CONTRACT_NAMES.common.SWAP_ACTION,
+    swapActionAddress,
   )
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES.main.maker.jug)
   await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
@@ -212,7 +234,7 @@ async function main() {
   )
 
   const swapETHforSTETH = createAction(
-    swapOnOneInchHash,
+    swapActionHash,
     [calldataTypes.common.Swap],
     [
       {
@@ -220,7 +242,9 @@ async function main() {
         toAsset: ADDRESSES.main.stETH,
         amount: borrowAmount.toFixed(0),
         receiveAtLeast: amountToWei(1).toFixed(), // just a number :D
+        fee: 0,
         withData: response.tx.data,
+        collectFeeInFromToken: true,
       },
     ],
   )
@@ -277,7 +301,7 @@ async function main() {
     setApprovalHash,
     depositInAAVEHash,
     aaveBorrowHash,
-    swapOnOneInchHash,
+    swapActionHash,
     withdrawFromAAVEHash,
     sendTokenHash,
   ])
@@ -289,8 +313,7 @@ async function main() {
     {
       address: operationExecutorAddress,
       calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-        [pullToken,
-        takeAFlashloan],
+        [pullToken, takeAFlashloan],
         OPERATION_NAMES.aave.OPEN_POSITION,
       ]),
     },

@@ -5,10 +5,10 @@ import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { SwapData } from "../../core/types/Common.sol";
-import { WETH, ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
+import { Swap } from "./Swap.sol";
+import { WETH, SWAP } from "../../core/constants/Common.sol";
 
-// TODO: Make it so it differentiate between ETH and any other token
-contract SwapOnOneInch is Executable {
+contract SwapAction is Executable {
   using SafeERC20 for IERC20;
 
   ServiceRegistry internal immutable registry;
@@ -23,7 +23,7 @@ contract SwapOnOneInch is Executable {
     //   If they are different msg.sender != tx.origin the deposit/transfer of ETH is not accepted
     // - Forced to wrap the ETH into WETH
     // - There should be separate actions or utils to wrap/unwrap ETH into/from WETH
-    address oneInchAggregatorAddress = registry.getRegisteredService(ONE_INCH_AGGREGATOR);
+    address swapAddress = registry.getRegisteredService(SWAP);
 
     if (address(this).balance > 0) {
       IWETH(registry.getRegisteredService(WETH)).deposit{ value: address(this).balance }();
@@ -31,12 +31,8 @@ contract SwapOnOneInch is Executable {
 
     SwapData memory swap = abi.decode(data, (SwapData));
 
-    IERC20(swap.fromAsset).safeApprove(oneInchAggregatorAddress, swap.amount);
+    IERC20(swap.fromAsset).safeApprove(swapAddress, swap.amount);
 
-    (bool success, ) = oneInchAggregatorAddress.call(swap.withData);
-
-    require(success, "Exchange / Could not swap");
-    uint256 balance = IERC20(swap.toAsset).balanceOf(address(this));
-    require(balance >= swap.receiveAtLeast, "Exchange / Received less");
+    Swap(swapAddress).swapTokens(swap);
   }
 }

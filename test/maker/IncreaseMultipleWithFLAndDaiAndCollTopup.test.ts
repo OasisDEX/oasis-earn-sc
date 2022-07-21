@@ -207,13 +207,15 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       // Add daiTopup amount to swap
       amount: swapAmount,
       receiveAtLeast: exchangeData.minToTokenAmount,
+      fee: 0,
       withData: exchangeData._exchangeCalldata,
+      collectFeeInFromToken: true,
     }
 
     await DAI.approve(system.common.userProxyAddress, swapAmount)
     // TODO: Move funds to proxy
     const swapAction = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.test.DUMMY_SWAP),
+      await registry.getEntryHash(CONTRACT_NAMES.common.SWAP),
       [calldataTypes.common.Swap],
       [swapData],
     )

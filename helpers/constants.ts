@@ -17,7 +17,7 @@ export const CONTRACT_NAMES = {
     SEND_TOKEN: 'SendToken',
     SET_APPROVAL: 'SetApproval',
     TAKE_A_FLASHLOAN: 'TakeFlashloan',
-    SWAP_ON_ONE_INCH: 'SwapOnOneInch',
+    SWAP_ACTION: 'SwapAction',
     OPERATION_EXECUTOR: 'OperationExecutor',
     OPERATION_STORAGE: 'OperationStorage',
     OPERATIONS_REGISTRY: 'OperationsRegistry',
@@ -51,6 +51,7 @@ export const CONTRACT_NAMES = {
     DUMMY_ACTION: 'DummyAction',
     DUMMY_SWAP: 'DummySwap',
     DUMMY_EXCHANGE: 'DummyExchange',
+    SWAP: 'uSwap',
   },
 } as const
 

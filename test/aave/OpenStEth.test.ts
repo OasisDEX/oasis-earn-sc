@@ -62,19 +62,16 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
   const testName = `should open stEth position`
 
   it(testName, async () => {
-
-    
     // Transfer stETH to exchange for Swap
 
-    const toImpersonate = "0xdc24316b9ae028f1497c275eb9192a3ea0f67022"; 
+    const toImpersonate = '0xdc24316b9ae028f1497c275eb9192a3ea0f67022'
     await provider.send('hardhat_impersonateAccount', [toImpersonate])
     const account = ethers.provider.getSigner(toImpersonate)
-    const accountAddress =  await account.getAddress()
+    const accountAddress = await account.getAddress()
     stETH = new ethers.Contract(ADDRESSES.main.stETH, ERC20ABI, provider).connect(account)
-    const bal = await stETH.balanceOf(accountAddress);
-    await stETH.transfer(system.common.exchange.address, bal);
-    await provider.send('hardhat_stopImpersonatingAccount', [toImpersonate]);
-
+    const bal = await stETH.balanceOf(accountAddress)
+    await stETH.transfer(system.common.exchange.address, bal)
+    await provider.send('hardhat_stopImpersonatingAccount', [toImpersonate])
 
     // PULL TOKEN ACTION
     const pullToken = createAction(
@@ -140,7 +137,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     )
 
     const swapETHforSTETH = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.test.DUMMY_SWAP),
+      await registry.getEntryHash(CONTRACT_NAMES.common.SWAP),
       [calldataTypes.common.Swap],
       [
         {
@@ -148,7 +145,9 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
           toAsset: ADDRESSES.main.stETH,
           amount: borrowAmount.toFixed(0),
           receiveAtLeast: amountToWei(1).toFixed(),
+          fee: 0,
           withData: 0,
+          collectFeeInFromToken: true,
         },
       ],
     )
@@ -198,7 +197,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
         },
       ],
     )
-    
+
     await approve(ADDRESSES.main.DAI, system.common.dsProxy.address, depositAmount, config, true)
 
     await executeThroughProxy(
@@ -214,7 +213,13 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     )
 
     expectToBeEqual(await balanceOf(ADDRESSES.main.ETH, system.common.dsProxy.address, options), 0)
-    expectToBeEqual(await balanceOf(ADDRESSES.main.aDAI, system.common.dsProxy.address, options), depositAmount.toFixed())
-    expectToBeEqual(await balanceOf(ADDRESSES.main.variableDebtWETH, system.common.dsProxy.address, options), borrowAmount.toFixed())
+    expectToBeEqual(
+      await balanceOf(ADDRESSES.main.aDAI, system.common.dsProxy.address, options),
+      depositAmount.toFixed(),
+    )
+    expectToBeEqual(
+      await balanceOf(ADDRESSES.main.variableDebtWETH, system.common.dsProxy.address, options),
+      borrowAmount.toFixed(),
+    )
   })
 })

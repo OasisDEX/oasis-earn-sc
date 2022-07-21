@@ -195,7 +195,9 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
       // Add daiTopup amount to swap
       amount: swapAmount,
       receiveAtLeast: exchangeData.minToTokenAmount,
+      fee: 0,
       withData: exchangeData._exchangeCalldata,
+      collectFeeInFromToken: true,
     }
 
     await DAI.approve(system.common.userProxyAddress, swapAmount)

@@ -12,6 +12,7 @@ task(
   'Deploy specific system. Use a "key" to select a contracts set from predefined ones.',
 )
   .addFlag('debug', 'When used, deployed contract address is displayed')
+  .addFlag('useDummySwap', 'When used, dummy swap is used')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
     const options = {
@@ -41,9 +42,6 @@ task(
     const [, flActionAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
       serviceRegistryAddress,
     ])
-    const [, swapOnOninchAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, [
-      serviceRegistryAddress,
-    ])
 
     // AAVE Specific Actions Smart Contracts
     const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
@@ -53,6 +51,21 @@ task(
       serviceRegistryAddress,
     ])
     const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.WITHDRAW, [
+      serviceRegistryAddress,
+    ])
+    const [, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
+      config.address,
+      ADDRESSES.main.feeRecipient,
+      0, // TODO add different fee tiers
+      serviceRegistryAddress,
+    ])
+    const [, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
+      config.address,
+      ADDRESSES.main.feeRecipient,
+      0, // TODO add different fee tiers
+      serviceRegistryAddress,
+    ])
+    const [, swapActionAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ACTION, [
       serviceRegistryAddress,
     ])
 
@@ -73,10 +86,7 @@ task(
       ADDRESSES.main.aave.MainnetLendingPool,
     )
     await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
-    const swapOnOneInchHash = await registry.addEntry(
-      CONTRACT_NAMES.common.SWAP_ON_ONE_INCH,
-      swapOnOninchAddress,
-    )
+
     const pullTokenHash = await registry.addEntry(
       CONTRACT_NAMES.common.PULL_TOKEN,
       pullTokenActionAddress,
@@ -105,6 +115,14 @@ task(
       CONTRACT_NAMES.aave.WITHDRAW,
       withdrawFromAAVEAddress,
     )
+    await registry.addEntry(
+      CONTRACT_NAMES.common.SWAP,
+      taskArgs.useDummySwap ? uSwapAddress : swapAddress,
+    )
+    const swapActionHash = await registry.addEntry(
+      CONTRACT_NAMES.common.SWAP_ACTION,
+      swapActionAddress,
+    )
 
     // Adding records in Operations Registry
     const operationsRegistry: OperationsRegistry = new OperationsRegistry(
@@ -117,7 +135,7 @@ task(
       setApprovalHash,
       depositInAAVEHash,
       borromFromAAVEHash,
-      swapOnOneInchHash,
+      swapActionHash,
       withdrawFromAAVEHash,
       sendTokenHash,
     ])
