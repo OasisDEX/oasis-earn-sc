@@ -116,13 +116,6 @@ contract uSwap {
     IERC20(fromAsset).safeApprove(address(uniswap), amount);
     uint24 pool = getPool(fromAsset, toAsset);
 
-    console.log("pool", pool);
-    console.log("amount", amount);
-    console.log("receiveAtLeast", receiveAtLeast);
-    console.log("fromAsset", fromAsset);
-    console.log("toAsset", toAsset);
-    console.log("uniswap", address(uniswap));
-
     uniswap.exactInputSingle(ISwapRouter.ExactInputSingleParams({
       tokenIn: fromAsset,
       tokenOut: toAsset,
@@ -133,8 +126,6 @@ contract uSwap {
       deadline: block.timestamp + 15,
       sqrtPriceLimitX96: 0
     }));
-
-    console.log("after swap");
 
     balance = IERC20(toAsset).balanceOf(address(this));
 
@@ -202,20 +193,17 @@ contract uSwap {
   function swapTokens(
     SwapData calldata swapData
   ) public {
-    console.log("SWAP START");
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
     uint256 amountFrom = swapData.amount;
     if (swapData.collectFeeInFromToken) {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
-    console.log("SWAP BEFORE SWAP");
     uint256 toTokenBalance = _swap(
       swapData.fromAsset,
       swapData.toAsset,
       amountFrom,
       swapData.receiveAtLeast
     );
-    console.log("SWAP BEFORE SWAP");
     
     uint256 receiveAtLeastFromCallData = decodeOneInchCallData(swapData.withData);
 
