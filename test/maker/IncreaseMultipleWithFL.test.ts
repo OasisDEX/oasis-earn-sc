@@ -222,18 +222,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       ],
     )
 
-    const cdpAllow = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.maker.CDP_ALLOW),
-      [calldataTypes.maker.CdpAllow],
-      [
-        {
-          vaultId: 0,
-          userAddress: system.common.dummyAutomation.address,
-        },
-        [1],
-      ],
-    )
-
     const takeAFlashloan = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
       [calldataTypes.common.TakeAFlashLoan, calldataTypes.paramsMap],
@@ -242,13 +230,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           amount: exchangeData.fromTokenAmount,
           borrower: system.common.operationExecutor.address,
           dsProxyFlashloan: true,
-          calls: [
-            swapAction,
-            depositBorrowedCollateral,
-            generateDaiToRepayFL,
-            sendBackDAI,
-            cdpAllow, //this will be performed on trigger setup side
-          ],
+          calls: [swapAction, depositBorrowedCollateral, generateDaiToRepayFL, sendBackDAI],
         },
         [0],
       ],
