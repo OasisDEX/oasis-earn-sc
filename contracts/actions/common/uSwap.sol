@@ -205,10 +205,6 @@ contract uSwap {
       amountFrom,
       swapData.receiveAtLeast
     );
-
-    console.log(amountFrom/toTokenBalance);
-    console.log(toTokenBalance);
-    console.log(amountFrom);
     
     uint256 receiveAtLeastFromCallData = decodeOneInchCallData(swapData.withData);
 
