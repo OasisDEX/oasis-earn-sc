@@ -6,6 +6,7 @@ import { ethers } from 'hardhat'
 
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
+import { makeActions } from '../../helpers/actions'
 import { ADDRESSES } from '../../helpers/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
@@ -61,7 +62,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
 
   const testName = `should open stEth position`
 
-  it(testName, async () => {
+  it.only(testName, async () => {
     // Transfer stETH to exchange for Swap
 
     const toImpersonate = '0xdc24316b9ae028f1497c275eb9192a3ea0f67022'
@@ -73,130 +74,71 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     await stETH.transfer(system.common.exchange.address, bal)
     await provider.send('hardhat_stopImpersonatingAccount', [toImpersonate])
 
-    // PULL TOKEN ACTION
-    const pullToken = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.common.PULL_TOKEN),
-      [calldataTypes.common.PullToken],
-      [
-        {
-          amount: depositAmount.toFixed(0),
-          asset: ADDRESSES.main.DAI,
-          from: address,
-        },
-      ],
-    )
+    const actions = makeActions(registry)
 
-    //  PULL TOKEN ACTION
-    const pullBorrowedFundsIntoProxy = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.common.PULL_TOKEN),
-      [calldataTypes.common.PullToken],
-      [
-        {
-          amount: flashloanAmount.toFixed(0),
-          asset: ADDRESSES.main.DAI,
-          from: system.common.operationExecutor.address,
-        },
-      ],
-    )
+    // PULL TOKEN ACTION
+    const pullToken = await actions.pullToken({
+      amount: depositAmount,
+      asset: ADDRESSES.main.DAI,
+      from: address,
+    })
 
     // APPROVE LENDING POOL
-    const setDaiApprovalOnLendingPool = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.common.SET_APPROVAL),
-      [calldataTypes.common.Approval],
-      [
-        {
-          amount: flashloanAmount.plus(depositAmount).toFixed(0),
-          asset: ADDRESSES.main.DAI,
-          delegator: ADDRESSES.main.aave.MainnetLendingPool,
-        },
-      ],
-    )
+    const setDaiApprovalOnLendingPool = await actions.setApproval({
+      amount: flashloanAmount.plus(depositAmount),
+      asset: ADDRESSES.main.DAI,
+      delegator: ADDRESSES.main.aave.MainnetLendingPool,
+    })
 
     // DEPOSIT IN AAVE
-    const depositDaiInAAVE = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.aave.DEPOSIT),
-      [calldataTypes.aave.Deposit],
-      [
-        {
-          amount: flashloanAmount.plus(depositAmount).toFixed(0),
-          asset: ADDRESSES.main.DAI,
-        },
-      ],
-    )
+    const depositDaiInAAVE = await actions.aaveDeposit({
+      amount: flashloanAmount.plus(depositAmount),
+      asset: ADDRESSES.main.DAI,
+    })
 
     // BORROW FROM AAVE
-    const borrowEthFromAAVE = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.aave.BORROW),
-      [calldataTypes.aave.Borrow],
-      [
-        {
-          amount: borrowAmount.toFixed(0),
-          asset: ADDRESSES.main.ETH,
-        },
-      ],
-    )
+    const borrowEthFromAAVE = await actions.aaveBorrow({
+      amount: borrowAmount,
+      asset: ADDRESSES.main.ETH,
+    })
 
-    const swapETHforSTETH = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.common.SWAP_ACTION),
-      [calldataTypes.common.Swap],
-      [
-        {
-          fromAsset: ADDRESSES.main.WETH,
-          toAsset: ADDRESSES.main.stETH,
-          amount: borrowAmount.toFixed(0),
-          receiveAtLeast: amountToWei(1).toFixed(),
-          fee: 0,
-          withData: 0,
-          collectFeeInFromToken: true,
-        },
-      ],
-    )
+    const swapETHforSTETH = await actions.swap({
+      fromAsset: ADDRESSES.main.WETH,
+      toAsset: ADDRESSES.main.stETH,
+      amount: borrowAmount,
+      receiveAtLeast: amountToWei(1),
+      fee: 0,
+      withData: 0,
+      collectFeeInFromToken: true,
+    })
 
     // WITHDRAW TOKENS
-    const withdrawDAIFromAAVE = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.aave.WITHDRAW),
-      [calldataTypes.aave.Withdraw],
-      [
-        {
-          asset: ADDRESSES.main.DAI,
-          amount: flashloanAmount.toFixed(0),
-        },
-      ],
-    )
+    const withdrawDAIFromAAVE = await actions.aaveWithdraw({
+      asset: ADDRESSES.main.DAI,
+      amount: flashloanAmount,
+    })
 
     // SEND BACK TOKEN FROM PROXY TO EXECUTOR ( FL Borrower )
-    const sendBackDAI = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.common.SEND_TOKEN),
-      [calldataTypes.common.SendToken],
-      [
-        {
-          asset: ADDRESSES.main.DAI,
-          to: system.common.operationExecutor.address,
-          amount: flashloanAmount.toFixed(0),
-        },
-      ],
-    )
+    const sendBackDAI = await actions.sendToken({
+      asset: ADDRESSES.main.DAI,
+      to: system.common.operationExecutor.address,
+      amount: flashloanAmount,
+    })
 
     // TAKE A FLASHLOAN ACTION
-    const takeAFlashloan = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
-      [calldataTypes.common.TakeAFlashLoan],
-      [
-        {
-          amount: flashloanAmount.toFixed(0),
-          borrower: system.common.operationExecutor.address,
-          dsProxyFlashloan: true,
-          calls: [
-            setDaiApprovalOnLendingPool,
-            depositDaiInAAVE,
-            borrowEthFromAAVE,
-            swapETHforSTETH,
-            withdrawDAIFromAAVE,
-            sendBackDAI,
-          ],
-        },
+    const takeAFlashloan = await actions.takeAFlashLoan({
+      flashloanAmount,
+      borrower: system.common.operationExecutor.address,
+      dsProxyFlashloan: true,
+      calls: [
+        setDaiApprovalOnLendingPool,
+        depositDaiInAAVE,
+        borrowEthFromAAVE,
+        swapETHforSTETH,
+        withdrawDAIFromAAVE,
+        sendBackDAI,
       ],
-    )
+    })
 
     await approve(ADDRESSES.main.DAI, system.common.dsProxy.address, depositAmount, config, true)
 

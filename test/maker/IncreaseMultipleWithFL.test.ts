@@ -33,7 +33,7 @@ let DAI: Contract
 let WETH: Contract
 
 describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN}`, async () => {
-  const oazoFee = 2 // divided by base (10000), 1 = 0.01%;
+  const oazoFee = 0 // divided by base (10000), 1 = 0.01%;
   const oazoFeePct = new BigNumber(oazoFee).div(10000)
   const flashLoanFee = LENDER_FEE
   const slippage = new BigNumber(0.0001) // percentage
