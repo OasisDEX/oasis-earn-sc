@@ -13,6 +13,7 @@ import { executeThroughProxy } from '../../helpers/deploy'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
 import { getLastVault, getVaultInfo } from '../../helpers/maker/vault'
+import { makeOperation } from '../../helpers/operations/operations'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { calldataTypes } from '../../helpers/types/actions'
@@ -74,70 +75,16 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     await stETH.transfer(system.common.exchange.address, bal)
     await provider.send('hardhat_stopImpersonatingAccount', [toImpersonate])
 
-    const actions = makeActions(registry)
+    const operations = await makeOperation(registry, ADDRESSES.main)
 
-    // PULL TOKEN ACTION
-    const pullToken = await actions.pullToken({
-      amount: depositAmount,
-      asset: ADDRESSES.main.DAI,
-      from: address,
-    })
-
-    // APPROVE LENDING POOL
-    const setDaiApprovalOnLendingPool = await actions.setApproval({
-      amount: flashloanAmount.plus(depositAmount),
-      asset: ADDRESSES.main.DAI,
-      delegator: ADDRESSES.main.aave.MainnetLendingPool,
-    })
-
-    // DEPOSIT IN AAVE
-    const depositDaiInAAVE = await actions.aaveDeposit({
-      amount: flashloanAmount.plus(depositAmount),
-      asset: ADDRESSES.main.DAI,
-    })
-
-    // BORROW FROM AAVE
-    const borrowEthFromAAVE = await actions.aaveBorrow({
-      amount: borrowAmount,
-      asset: ADDRESSES.main.ETH,
-    })
-
-    const swapETHforSTETH = await actions.swap({
-      fromAsset: ADDRESSES.main.WETH,
-      toAsset: ADDRESSES.main.stETH,
-      amount: borrowAmount,
-      receiveAtLeast: amountToWei(1),
-      fee: 0,
-      withData: 0,
-      collectFeeInFromToken: true,
-    })
-
-    // WITHDRAW TOKENS
-    const withdrawDAIFromAAVE = await actions.aaveWithdraw({
-      asset: ADDRESSES.main.DAI,
-      amount: flashloanAmount,
-    })
-
-    // SEND BACK TOKEN FROM PROXY TO EXECUTOR ( FL Borrower )
-    const sendBackDAI = await actions.sendToken({
-      asset: ADDRESSES.main.DAI,
-      to: system.common.operationExecutor.address,
-      amount: flashloanAmount,
-    })
-
-    // TAKE A FLASHLOAN ACTION
-    const takeAFlashloan = await actions.takeAFlashLoan({
+    const calls = await operations.openStEth({
+      account: address,
+      depositAmount,
       flashloanAmount,
-      borrower: system.common.operationExecutor.address,
-      dsProxyFlashloan: true,
-      calls: [
-        setDaiApprovalOnLendingPool,
-        depositDaiInAAVE,
-        borrowEthFromAAVE,
-        swapETHforSTETH,
-        withdrawDAIFromAAVE,
-        sendBackDAI,
-      ],
+      borrowAmount,
+      fee: 0,
+      swapData: 0,
+      receiveAtLeast: new BigNumber(1),
     })
 
     await approve(ADDRESSES.main.DAI, system.common.dsProxy.address, depositAmount, config, true)
@@ -147,7 +94,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
       {
         address: system.common.operationExecutor.address,
         calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-          [pullToken, takeAFlashloan],
+          calls,
           OPERATION_NAMES.common.CUSTOM_OPERATION,
         ]),
       },
