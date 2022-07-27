@@ -49,12 +49,13 @@ describe('Swap', async () => {
       },
     ])
 
-    const { system: _system } = await deploySystem(config)
+    const { system: _system } = await deploySystem(config, false, false)
     system = _system
 
     feeBeneficiary = ADDRESSES.main.feeRecipient
     slippage = asPercentageValue(8, 100)
     fee = asPercentageValue(FEE, FEE_BASE)
+    await system.common.swap.addFeeTier(20)
 
     WETH = new ethers.Contract(ADDRESSES.main.WETH, WETH_ABI, provider).connect(signer)
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20_ABI, provider).connect(signer)

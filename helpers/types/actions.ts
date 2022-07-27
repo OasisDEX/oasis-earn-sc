@@ -27,4 +27,4 @@ export const calldataTypes = {
     Borrow: `tuple(address asset, uint256 amount)`,
   },
   paramsMap: `uint8[] paramsMap`,
-}
+} as const

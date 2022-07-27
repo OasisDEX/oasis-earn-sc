@@ -55,7 +55,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    const blockNumber = 13274574
+    const blockNumber = 15191046
     await resetNode(provider, blockNumber)
 
     const { system: _system, registry: _registry } = await deploySystem(config)
@@ -76,7 +76,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
   })
 
   let oraclePrice: BigNumber
-  const marketPrice = new BigNumber(2900)
+  const marketPrice = new BigNumber(1583)
   const initialColl = new BigNumber(100)
   const initialDebt = new BigNumber(0)
   const daiTopUp = new BigNumber(20000)
@@ -202,7 +202,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
 
     await DAI.approve(system.common.userProxyAddress, swapAmount)
     const swapAction = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.test.DUMMY_SWAP),
+      await registry.getEntryHash(CONTRACT_NAMES.common.SWAP_ACTION),
       [calldataTypes.common.Swap],
       [swapData],
     )

@@ -41,7 +41,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    const blockNumber = 13274574
+    const blockNumber = 15191046
     resetNode(provider, blockNumber)
 
     const { system: _system, registry: _registry } = await deploySystem(config)
@@ -53,7 +53,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
     await system.common.exchange.setPrice(ADDRESSES.main.ETH, amountToWei(marketPrice).toFixed(0))
   })
 
-  const marketPrice = new BigNumber(2380)
+  const marketPrice = new BigNumber(1582)
   const initialColl = new BigNumber(100)
   const initialDebt = new BigNumber(20000)
 

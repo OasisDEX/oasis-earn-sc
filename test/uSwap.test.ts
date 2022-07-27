@@ -77,7 +77,7 @@ describe('uSwapp', () => {
 
       await WETH.deposit({ value: depositAmountWithFeeWei.toFixed(0) })
       await WETH.approve(uSwap.address, depositAmountWithFeeWei.toFixed(0))
-      await uSwap.swapTokens(
+      await uSwap.swapTokens([
         ADDRESSES.main.WETH,
         ADDRESSES.main.DAI,
         depositAmountWithFeeWei.toFixed(0),
@@ -85,7 +85,7 @@ describe('uSwapp', () => {
         FEE,
         response.tx.data,
         true,
-      )
+      ])
     })
 
     it('Performs swap WETH to DAI', async () => {

@@ -47,7 +47,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
       config,
     }
 
-    const blockNumber = 13274574
+    const blockNumber = 15191046
     resetNode(provider, blockNumber)
 
     const { system: _system, registry: _registry } = await deploySystem(config)
@@ -61,7 +61,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
 
   const testName = `should open stEth position`
 
-  it.only(testName, async () => {
+  it(testName, async () => {
     // Transfer stETH to exchange for Swap
 
     const toImpersonate = '0xdc24316b9ae028f1497c275eb9192a3ea0f67022'

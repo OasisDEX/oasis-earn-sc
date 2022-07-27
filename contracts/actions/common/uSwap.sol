@@ -129,8 +129,6 @@ contract uSwap {
 
     balance = IERC20(toAsset).balanceOf(address(this));
 
-    console.log("balance", balance);
-
     if (balance == 0) {
       revert SwapFailed();
     }
@@ -170,6 +168,11 @@ contract uSwap {
     bytes memory unoswap = "unoswap(address,uint256,uint256,bytes32[])";
     bytes memory swap = "swap(address,(address,address,address,address,uint256,uint256,uint256,bytes),bytes)";
 
+    if (withData.length < 4) {
+      minReturn = 0;
+      return minReturn;
+    }
+
     bytes memory methodSig = withData[:4];
 
     if(compareMethodSigs(methodSig, uniswapV3Swap)) {
@@ -181,6 +184,9 @@ contract uSwap {
     } else if (compareMethodSigs(methodSig, swap)) {
       (address a, SwapDescription memory swapDescription, bytes memory j) = abi.decode(withData[4:], (address,SwapDescription,bytes));
       minReturn = swapDescription.minReturnAmount;
+    } else {
+      // Im not sure whether this is the best way to handle this
+      minReturn = 0;
     }
   }
 
@@ -192,15 +198,20 @@ contract uSwap {
     if (swapData.collectFeeInFromToken) {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
-    console.log("uSWAAAAAAP!", amountFrom);
+
     uint256 toTokenBalance = _swap(
       swapData.fromAsset,
       swapData.toAsset,
       amountFrom,
       swapData.receiveAtLeast
     );
-    console.log("uSWAAAAAAP! after swap", toTokenBalance);
+
+    console.log(amountFrom/toTokenBalance);
+    console.log(toTokenBalance);
+    console.log(amountFrom);
+    
     uint256 receiveAtLeastFromCallData = decodeOneInchCallData(swapData.withData);
+
     if (receiveAtLeastFromCallData > toTokenBalance) {
       revert ReceivedLess(receiveAtLeastFromCallData, swapData.receiveAtLeast);
     }
