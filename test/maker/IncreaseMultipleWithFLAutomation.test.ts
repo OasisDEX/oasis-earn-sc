@@ -33,7 +33,7 @@ let DAI: Contract
 let WETH: Contract
 
 describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN}`, async () => {
-  const oazoFee = 2 // divided by base (10000), 1 = 0.01%;
+  const oazoFee = 0 // divided by base (10000), 1 = 0.01%;
   const oazoFeePct = new BigNumber(oazoFee).div(10000)
   const flashLoanFee = LENDER_FEE
   const slippage = new BigNumber(0.0001) // percentage
@@ -76,7 +76,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
   })
 
   let oraclePrice: BigNumber
-  const marketPrice = new BigNumber(1582)
+  const marketPrice = new BigNumber(1585)
   const initialColl = new BigNumber(100)
   const initialDebt = new BigNumber(0)
   const daiTopUp = new BigNumber(0)
@@ -85,7 +85,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
   const gasEstimates = gasEstimateHelper()
 
   const testName = `should open vault, deposit ETH and increase multiple & [+Flashloan]`
-  it.only(testName, async () => {
+  it(testName, async () => {
     await WETH.approve(
       system.common.userProxyAddress,
       amountToWei(initialColl.plus(collTopUp)).toFixed(0),
@@ -275,7 +275,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     )
 
     const autoTestAmount = new BigNumber(1000)
-    const autoVaultId = 25790
+    const autoVaultId = 29062
     const generateDaiAutomation = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
       [calldataTypes.maker.Generate, calldataTypes.paramsMap],
@@ -325,7 +325,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
     const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
 
-    expectToBeEqual(currentCollRatio, new BigNumber(2.487), 3)
+    expectToBeEqual(currentCollRatio, new BigNumber(2.476), 3)
 
     const expectedColl = additionalCollateral.plus(initialColl).plus(preIncreaseMPTopUp)
     const expectedDebt = desiredCdpState.requiredDebt
