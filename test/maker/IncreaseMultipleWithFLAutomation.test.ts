@@ -55,6 +55,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
+    // When changing block number remember to check vault id that is used for automation
     const blockNumber = 15191046
     await resetNode(provider, blockNumber)
 
