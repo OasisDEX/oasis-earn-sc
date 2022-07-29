@@ -6,6 +6,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "private": "true",
+  "workspaces": [
+    "packages/*"
+  ],
   "engines": {
     "node": ">=14.17"
   },
