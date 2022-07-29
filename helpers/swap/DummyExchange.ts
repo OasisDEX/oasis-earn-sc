@@ -163,7 +163,9 @@ export async function loadDummyExchangeFixtures(
     provider,
     signer,
     ADDRESSES.main.WETH,
-    tokens.filter(token => (token.address !== ADDRESSES.main.WETH && token.address !== ADDRESSES.main.stETH )),
+    tokens.filter(
+      token => token.address !== ADDRESSES.main.WETH && token.address !== ADDRESSES.main.stETH,
+    ),
     dummyExchangeInstance,
     debug,
   )
@@ -192,11 +194,15 @@ export async function loadDummyExchangeFixtures(
         const priceInWei = amountToWei(price).toFixed(0)
 
         if (debug) {
-          console.log(`${token.name} ${token.address} Price: ${price.toString()} and Price(wei): ${priceInWei}`)
+          console.log(
+            `${token.name} ${
+              token.address
+            } Price: ${price.toString()} and Price(wei): ${priceInWei}`,
+          )
         }
 
         if (dummyExchangeInstance.setPrice) {
-          if(token.address === ADDRESSES.main.stETH) {
+          if (token.address === ADDRESSES.main.stETH) {
             const priceInWeiStEth = amountToWei(ONE).toFixed(0)
             return dummyExchangeInstance.setPrice(token.address, priceInWeiStEth)
           } else {

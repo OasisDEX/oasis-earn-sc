@@ -26,8 +26,6 @@ const flashloanAmount = amountToWei(new BigNumber(1000000))
 const depositAmount = amountToWei(new BigNumber(200000))
 const borrowAmount = amountToWei(new BigNumber(5))
 
-const useDummySwap = true
-
 async function main() {
   const config = await init()
   const { signer, address } = config
@@ -215,7 +213,7 @@ async function main() {
   // BORROW FROM AAVE
   const borrowEthFromAAVE = createAction(
     aaveBorrowHash,
-    [calldataTypes.aave.Generate],
+    [calldataTypes.aave.Borrow],
     [
       {
         amount: borrowAmount.toFixed(0),

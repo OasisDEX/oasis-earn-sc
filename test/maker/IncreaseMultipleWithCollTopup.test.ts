@@ -22,6 +22,7 @@ import { calldataTypes } from '../../helpers/types/actions'
 import { ActionCall, RuntimeConfig, SwapData } from '../../helpers/types/common'
 import { ActionFactory, amountToWei, ensureWeiFormat } from '../../helpers/utils'
 import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
+import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
 
@@ -55,8 +56,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_CO
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    const blockNumber = 15191046
-    await resetNode(provider, blockNumber)
+    await resetNode(provider, testBlockNumber)
 
     const { system: _system, registry: _registry } = await deploySystem(config)
     system = _system

@@ -1,7 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
-import { Signer } from 'ethers'
 
 import { ADDRESSES } from '../../helpers/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES, TEN } from '../../helpers/constants'

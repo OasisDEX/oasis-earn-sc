@@ -18,6 +18,7 @@ import { calldataTypes } from '../../helpers/types/actions'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { ActionFactory, amountToWei, approve, balanceOf } from '../../helpers/utils'
 import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
+import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
 
@@ -47,8 +48,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
       config,
     }
 
-    const blockNumber = 15191046
-    resetNode(provider, blockNumber)
+    await resetNode(provider, testBlockNumber)
 
     const { system: _system, registry: _registry } = await deploySystem(config)
     system = _system

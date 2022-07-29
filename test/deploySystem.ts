@@ -1,5 +1,4 @@
 import { ethers } from 'hardhat'
-import { boolean } from 'hardhat/internal/core/params/argumentTypes'
 
 import DSProxyABI from '../abi/ds-proxy.json'
 import { ADDRESSES } from '../helpers/addresses'
@@ -11,11 +10,6 @@ import { RuntimeConfig, Unbox } from '../helpers/types/common'
 import { logDebug } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
 import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
-
-interface DeployFlags {
-  debug: boolean
-  useDummySwap: boolean
-}
 
 export async function deploySystem(config: RuntimeConfig, debug = false, useDummySwap = true) {
   const { provider, signer, address } = config

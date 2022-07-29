@@ -16,7 +16,11 @@ export default async function init(hre?: HardhatRuntimeEnvironment): Promise<Run
   }
 }
 
-export async function resetNode(provider: providers.JsonRpcProvider, blockNumber: number) {
+const testBlockNumber = Number(process.env.TESTS_BLOCK_NUMBER)
+export async function resetNode(
+  provider: providers.JsonRpcProvider,
+  blockNumber: number = testBlockNumber,
+) {
   console.log(`  \x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
   await provider.send('hardhat_reset', [
     {

@@ -17,7 +17,7 @@ import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
 import { swap, uniswapV3Swap, unoswap } from './fixtures/oneInchFixtures'
 import { expectToBe, expectToBeEqual } from './utils'
 
-describe('uSwapp', () => {
+describe('uSwap', () => {
   let uSwap: Contract
   let config: RuntimeConfig
   let registry: ServiceRegistry
