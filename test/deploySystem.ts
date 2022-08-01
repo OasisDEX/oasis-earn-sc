@@ -1,6 +1,7 @@
 import { ethers } from 'hardhat'
 
 import DSProxyABI from '../abi/ds-proxy.json'
+import PriceOracleABI from '../abi/IPriceOracle.json'
 import { ADDRESSES } from '../helpers/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES } from '../helpers/constants'
 import { createDeploy } from '../helpers/deploy'
@@ -24,6 +25,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   debug && console.log('1/ Setting up user proxy')
   const proxyAddress = await getOrCreateProxy(signer)
   const dsProxy = new ethers.Contract(proxyAddress, DSProxyABI, provider).connect(signer)
+  const aavePriceOracle = new ethers.Contract(ADDRESSES.main.aave.PriceOracle, PriceOracleABI, provider).connect(signer)
 
   // Deploy System Contracts
   debug && console.log('2/ Deploying system contracts')
@@ -74,11 +76,13 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     serviceRegistryAddress,
   ])
 
+  const [wrapEth, wrapEthAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [serviceRegistryAddress])
+
   const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
 
-  const [setApproval, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [])
+  const [setApproval, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [serviceRegistryAddress])
   const [cdpAllow, cdpAllowAddress] = await deploy(CONTRACT_NAMES.maker.CDP_ALLOW, [
     serviceRegistryAddress,
   ])
@@ -140,6 +144,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
     actionFlAddress,
   )
+  const wrapEthHash = await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapEthAddress)
   const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
   const pullTokenHash = await registry.addEntry(CONTRACT_NAMES.common.PULL_TOKEN, pullTokenAddress)
   const setApprovalHash = await registry.addEntry(
@@ -325,6 +330,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       sendToken,
       pullToken,
       takeFlashLoan: actionFl,
+      wrapEth
     },
     maker: {
       mcdView,
@@ -336,6 +342,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       cdpAllow,
     },
     aave: {
+      aavePriceOracle,
       deposit: depositInAAVEAction,
       withdraw: withdrawInAAVEAction,
       borrow: borrowInAAVEAction,

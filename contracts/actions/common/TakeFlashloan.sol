@@ -17,8 +17,8 @@ contract TakeFlashloan is Executable, ProxyPermission {
   }
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
-    FlashloanData memory flData = abi.decode(data, (FlashloanData));
-
+    FlashloanData memory flData = parseInputs(data);
+    
     if (flData.dsProxyFlashloan) {
       givePermission(registry.getRegisteredService(OPERATION_EXECUTOR));
     }
@@ -34,5 +34,9 @@ contract TakeFlashloan is Executable, ProxyPermission {
       removePermission(registry.getRegisteredService(OPERATION_EXECUTOR));
     }
     emit Action(TAKE_FLASH_LOAN_ACTION, bytes32(flData.amount));
+  }
+
+  function parseInputs(bytes memory _callData) public pure returns (FlashloanData memory params) {
+    return abi.decode(_callData, (FlashloanData));
   }
 }

@@ -33,6 +33,10 @@ struct SwapData {
   bytes withData;
 }
 
+struct WrapEthData {
+  uint256 amount;
+}
+
 struct Call {
   bytes32 targetHash;
   bytes callData;
@@ -42,3 +46,4 @@ struct Operation {
   uint8 currentAction;
   bytes32[] actions;
 }
+

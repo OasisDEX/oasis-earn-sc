@@ -22,5 +22,5 @@ abstract contract IExchange {
     address assetTo,
     uint256 amount,
     uint256 receiveAtLeast
-  ) external virtual;
+  ) external virtual returns (uint256);
 }

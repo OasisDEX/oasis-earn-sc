@@ -25,6 +25,7 @@ export const CONTRACT_NAMES = {
     SWAP: 'Swap',
     EXCHANGE: 'Exchange',
     SERVICE_REGISTRY: 'ServiceRegistry',
+    WRAP_ETH: 'WrapEth',
   },
   aave: {
     DEPOSIT: 'AaveDeposit',

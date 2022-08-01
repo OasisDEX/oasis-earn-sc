@@ -104,13 +104,14 @@ contract DummyExchange {
     address assetTo,
     uint256 amount,
     uint256
-  ) public {
+  ) public returns (uint256) {
     uint8 precision = precisions[assetFrom];
     // amount = _collectFee(DAI_ADDRESS, amount);
     uint256 amountOut = (mul(amount, 10**18) / prices[assetTo]) / (10**(18 - precision));
     _transferIn(msg.sender, assetFrom, amount);
     _transferOut(assetTo, msg.sender, amountOut);
     emit AssetSwap(assetFrom, assetTo, amount, amountOut);
+    return amountOut;
   }
 
   // uses the same interface as default Exchange contract

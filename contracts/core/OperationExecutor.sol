@@ -31,7 +31,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     registry = _registry;
   }
 
-  function executeOp(Call[] memory calls, string calldata operationName) public {
+  function executeOp(Call[] memory calls, string calldata operationName) public payable {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
 
     OperationsRegistry opRegistry = OperationsRegistry(

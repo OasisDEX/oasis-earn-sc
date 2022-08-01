@@ -3,6 +3,7 @@ import '@nomiclabs/hardhat-waffle'
 import 'hardhat-gas-reporter'
 import 'solidity-coverage'
 import './tasks/deploy'
+import 'hardhat-abi-exporter'
 
 import * as dotenv from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
@@ -95,6 +96,13 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
+  abiExporter: {
+    path: './abi/generated',
+    flat: true,
+    spacing: 2,
+    runOnCompile: true,
+  },
+
 }
 
 export default config

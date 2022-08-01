@@ -8,7 +8,11 @@ contract PullToken is Executable {
   using SafeERC20 for IERC20;
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
-    PullTokenData memory pull = abi.decode(data, (PullTokenData));
+    PullTokenData memory pull = parseInputs(data);
     IERC20(pull.asset).safeTransferFrom(pull.from, address(this), pull.amount);
+  }
+
+  function parseInputs(bytes memory _callData) public pure returns (PullTokenData memory params) {
+    return abi.decode(_callData, (PullTokenData));
   }
 }
