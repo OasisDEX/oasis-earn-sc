@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 
-import { ActionCall } from '../../../../helpers/types/common'
+import { ActionCall } from './types/actionCall'
 
 export class ActionFactory {
   static create(targetHash: string, types: string[], args: any[]): ActionCall {

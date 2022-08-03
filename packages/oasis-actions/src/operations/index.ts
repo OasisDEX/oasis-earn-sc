@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
 
-import { ADDRESSES } from '../../../../helpers/addresses'
-import { CONTRACT_NAMES } from '../../../../helpers/constants'
-import { ServiceRegistry } from '../../../../helpers/wrappers/serviceRegistry'
 import * as actions from '../actions'
+import { ADDRESSES } from '../helpers/addresses'
+import { CONTRACT_NAMES } from '../helpers/constants'
+import { ServiceRegistry } from '../types/ServiceRegistry'
 
 type Addresses = typeof ADDRESSES['main']
 

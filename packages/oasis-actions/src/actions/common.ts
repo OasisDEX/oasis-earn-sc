@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
 
-import { CONTRACT_NAMES } from '../../../../helpers/constants'
-import { ActionCall } from '../../../../helpers/types/common'
+import { CONTRACT_NAMES } from '../helpers/constants'
 import { ActionFactory } from './actionFactory'
 import { getActionHash } from './getActionHash'
+import { ActionCall } from './types/actionCall'
 import { calldataTypes } from './types/actions'
 
 const createAction = ActionFactory.create

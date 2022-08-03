@@ -1,5 +1,20 @@
 {
     "name": "oasis-actions",
-    "version": "0.0.1",
-    "main": "./src/index.ts"
+    "version": "0.0.2",
+    "main": "lib/src/index.js",
+    "typings": "lib/src/index.d.ts",
+    "scripts": {
+        "build": "tsc -b",
+        "watch": "tsc -b -w",
+        "prepublish": "npm run build"
+      },
+      "license": "Apache-2.0",
+      "dependencies": {
+        "bignumber.js": "^9.0.1",
+        "ethers": "^5.0.19",
+        "lodash": "^4.17.21"
+      },
+      "devDependencies": {
+        "@types/lodash": "^4.14.178"
+      }
 }
