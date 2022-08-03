@@ -9,7 +9,7 @@ import { createDeploy, DeployFunction } from '../../helpers/deploy'
 import init, { resetNode } from '../../helpers/init'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei } from '../../helpers/utils'
-import { calldataTypes } from '../../packages/@oasis:actions/src/actions/types/actions'
+import { calldataTypes } from '../../packages/oasis-actions/src/actions/types/actions'
 
 describe('SetApproval Action', () => {
   const BLOCK_NUMBER = 14798701

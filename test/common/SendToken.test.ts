@@ -10,7 +10,7 @@ import init, { resetNode } from '../../helpers/init'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { BalanceOptions, RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf, send } from '../../helpers/utils'
-import { calldataTypes } from '../../packages/@oasis:actions/src/actions/types/actions'
+import { calldataTypes } from '../../packages/oasis-actions/src/actions/types/actions'
 
 describe('SendToken Action', () => {
   const BLOCK_NUMBER = 14798701

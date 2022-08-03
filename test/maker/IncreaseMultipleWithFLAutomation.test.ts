@@ -21,8 +21,8 @@ import {
 import { ActionCall, RuntimeConfig, SwapData } from '../../helpers/types/common'
 import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
 import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
-import { ActionFactory } from '../../packages/@oasis:actions/src/actions/actionFactory'
-import { calldataTypes } from '../../packages/@oasis:actions/src/actions/types/actions'
+import { ActionFactory } from '../../packages/oasis-actions/src/actions/actionFactory'
+import { calldataTypes } from '../../packages/oasis-actions/src/actions/types/actions'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
 

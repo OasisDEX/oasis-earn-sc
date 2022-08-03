@@ -17,8 +17,8 @@ import { swapUniswapTokens } from '../helpers/swap/uniswap'
 import { amountToWei, approve, balanceOf } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
 import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
-import { ActionFactory } from '../packages/@oasis:actions/src/actions/actionFactory'
-import { calldataTypes } from '../packages/@oasis:actions/src/actions/types/actions'
+import { ActionFactory } from '../packages/oasis-actions/src/actions/actionFactory'
+import { calldataTypes } from '../packages/oasis-actions/src/actions/types/actions'
 
 const createAction = ActionFactory.create
 

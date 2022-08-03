@@ -1,5 +1,5 @@
 {
-    "name": "@oasis/actions",
+    "name": "oasis-actions",
     "version": "0.0.1",
     "main": "./src/index.ts"
 }

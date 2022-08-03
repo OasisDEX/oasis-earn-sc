@@ -10,8 +10,8 @@ import init, { resetNode } from '../../helpers/init'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { ensureWeiFormat } from '../../helpers/utils'
 import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
-import { ActionFactory } from '../../packages/@oasis:actions/src/actions/actionFactory'
-import { calldataTypes } from '../../packages/@oasis:actions/src/actions/types/actions'
+import { ActionFactory } from '../../packages/oasis-actions/src/actions/actionFactory'
+import { calldataTypes } from '../../packages/oasis-actions/src/actions/types/actions'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 
 const createAction = ActionFactory.create
