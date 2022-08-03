@@ -1,11 +1,12 @@
-import { Contract } from "ethers";
-import { Action } from "./actions/Action";
-import { OPERATION_NAMES } from "./constants";
+import { Contract } from 'ethers'
+
+import { Action } from './actions/Action'
+import { OPERATION_NAMES } from './constants'
 
 export class Operation {
-    name: string
-    actions: Action[] = []
-    operationExecutor: Contract
+  name: string
+  actions: Action[] = []
+  operationExecutor: Contract
 
   constructor(operationExecutor: Contract, name: string, actions: Action[] = []) {
     this.name = name
@@ -14,8 +15,8 @@ export class Operation {
   }
 
   encodeActions(actions: Action[]) {
-     return actions.map( (action:Action) => {
-      if( action.subActions?.length > 0 ) {
+    return actions.map((action: Action) => {
+      if (action.subActions?.length > 0) {
         action.args.calls = this.encodeActions(action.subActions)
       }
       return action.encodeCalldata()
@@ -23,7 +24,7 @@ export class Operation {
   }
 
   encodeForProxyCall(): string {
-    const actionsEncoded = this.encodeActions(this.actions);
+    const actionsEncoded = this.encodeActions(this.actions)
     return this.operationExecutor.interface.encodeFunctionData('executeOp', [
       actionsEncoded,
       this.name,
@@ -31,33 +32,31 @@ export class Operation {
   }
 
   executeThroughProxy(dsProxyAddress: string) {
-      // await executeThroughProxy(
-      //   system.common.dsProxy.address,
-      //   {
-      //     address: system.common.operationExecutor.address,
-      //     calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-      //       [
-      //         new actions.common.PullTokenAction([{
-      //         amount: depositAmount.toFixed(0),
-      //         asset: ADDRESSES.main.DAI,
-      //         from: address,
-      //       }]).encodeCalldata(),
-      //       new actions.common.TakeFlashloanAction([{
-      //         amount: flashloanAmount.toFixed(0),
-      //         borrower: system.common.operationExecutor.address,
-      //         dsProxyFlashloan: true,
-      //         calls: [
-              
-      //         ],
-      //       }]).encodeCalldata()
-      //     ],
-      //       OPERATION_NAMES.common.CUSTOM_OPERATION,
-      //     ]),
-      //   },
-      //   signer,
-      // )
+    // await executeThroughProxy(
+    //   system.common.dsProxy.address,
+    //   {
+    //     address: system.common.operationExecutor.address,
+    //     calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+    //       [
+    //         new actions.common.PullTokenAction([{
+    //         amount: depositAmount.toFixed(0),
+    //         asset: ADDRESSES.main.DAI,
+    //         from: address,
+    //       }]).encodeCalldata(),
+    //       new actions.common.TakeFlashloanAction([{
+    //         amount: flashloanAmount.toFixed(0),
+    //         borrower: system.common.operationExecutor.address,
+    //         dsProxyFlashloan: true,
+    //         calls: [
+    //         ],
+    //       }]).encodeCalldata()
+    //     ],
+    //       OPERATION_NAMES.common.CUSTOM_OPERATION,
+    //     ]),
+    //   },
+    //   signer,
+    // )
   }
-
 
   // await executeThroughProxy(
   //   system.common.dsProxy.address,
@@ -75,7 +74,7 @@ export class Operation {
   //         borrower: system.common.operationExecutor.address,
   //         dsProxyFlashloan: true,
   //         calls: [
-           
+
   //         ],
   //       }]).encodeCalldata()
   //     ],
@@ -84,5 +83,4 @@ export class Operation {
   //   },
   //   signer,
   // )
-
 }

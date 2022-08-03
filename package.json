@@ -13,7 +13,8 @@
     "deploy": "npx hardhat run",
     "test": "npx hardhat test",
     "test:gas": "USE_GAS_ESTIMATES=1 npx hardhat test",
-    "lint": "eslint . --fix --ext .ts"
+    "lint": "eslint . --fix --ext .ts",
+    "postinstall": "npx hardhat compile"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",

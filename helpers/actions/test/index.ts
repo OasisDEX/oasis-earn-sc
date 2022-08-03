@@ -1,5 +1,5 @@
-import { DummySwapAction } from "./DummySwapAction";
+import { DummySwapAction } from './DummySwapAction'
 
 export const test = {
-    DummySwapAction,
+  DummySwapAction,
 }

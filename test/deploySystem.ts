@@ -25,7 +25,11 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   debug && console.log('1/ Setting up user proxy')
   const proxyAddress = await getOrCreateProxy(signer)
   const dsProxy = new ethers.Contract(proxyAddress, DSProxyABI, provider).connect(signer)
-  const aavePriceOracle = new ethers.Contract(ADDRESSES.main.aave.PriceOracle, PriceOracleABI, provider).connect(signer)
+  const aavePriceOracle = new ethers.Contract(
+    ADDRESSES.main.aave.PriceOracle,
+    PriceOracleABI,
+    provider,
+  ).connect(signer)
 
   // Deploy System Contracts
   debug && console.log('2/ Deploying system contracts')
@@ -76,13 +80,17 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     serviceRegistryAddress,
   ])
 
-  const [wrapEth, wrapEthAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [serviceRegistryAddress])
+  const [wrapEth, wrapEthAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
+    serviceRegistryAddress,
+  ])
 
   const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
 
-  const [setApproval, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [serviceRegistryAddress])
+  const [setApproval, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
+    serviceRegistryAddress,
+  ])
   const [cdpAllow, cdpAllowAddress] = await deploy(CONTRACT_NAMES.maker.CDP_ALLOW, [
     serviceRegistryAddress,
   ])
@@ -330,7 +338,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       sendToken,
       pullToken,
       takeFlashLoan: actionFl,
-      wrapEth
+      wrapEth,
     },
     maker: {
       mcdView,

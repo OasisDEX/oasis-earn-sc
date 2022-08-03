@@ -289,8 +289,7 @@ async function main() {
     {
       address: operationExecutorAddress,
       calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-        [pullToken,
-        takeAFlashloan],
+        [pullToken, takeAFlashloan],
         OPERATION_NAMES.aave.OPEN_POSITION,
       ]),
     },

@@ -102,7 +102,6 @@ const config: HardhatUserConfig = {
     spacing: 2,
     runOnCompile: true,
   },
-
 }
 
 export default config
