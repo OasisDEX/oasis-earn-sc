@@ -14,7 +14,7 @@
     "test": "npx hardhat test",
     "test:gas": "USE_GAS_ESTIMATES=1 npx hardhat test",
     "lint": "eslint . --fix --ext .ts",
-    "postinstall": "npx hardhat compile"
+    "postinstall": "BLOCK_NUMBER=15269824 npx hardhat compile"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
