@@ -6,7 +6,7 @@ import { isError, tryF } from 'ts-try'
 import CTOKEN_ABI from '../abi/CErc20.json'
 import IERC20_ABI from '../abi/IERC20.json'
 import { ONE, TEN } from '../helpers/constants'
-import { ActionCall, BalanceOptions, RuntimeConfig } from '../helpers/types/common'
+import { BalanceOptions, RuntimeConfig } from '../helpers/types/common'
 import { ADDRESSES } from './addresses'
 
 export async function balanceOf(
@@ -164,24 +164,5 @@ export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value)
     },
 
     asDecimal: val.div(base),
-  }
-}
-
-export class ActionFactory {
-  static create(targetHash: string, types: string[], args: any[]): ActionCall {
-    const iface = new ethers.utils.Interface([
-      ' function execute(bytes calldata data, uint8[] paramsMap) external payable returns (bytes calldata)',
-    ])
-
-    const encodedArgs = ethers.utils.defaultAbiCoder.encode(
-      types[0] ? [types[0]] : [],
-      args[0] ? [args[0]] : [],
-    )
-    const calldata = iface.encodeFunctionData('execute', [encodedArgs, args[1] ? args[1] : []])
-
-    return {
-      targetHash,
-      callData: calldata,
-    }
   }
 }

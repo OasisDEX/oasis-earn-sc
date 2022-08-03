@@ -9,6 +9,7 @@
     "declaration": true,
     "resolveJsonModule": true
   },
-  "include": ["./helpers", "./scripts", "./test"],
-  "files": ["./hardhat.config.ts", "helpers/swap/calculateFee.ts", "./helpers/actions/getActionHash.ts"]
+  "include": ["./helpers", "./scripts", "./test", "packages/*"],
+  "files": [
+    "./hardhat.config.ts", ]
 }

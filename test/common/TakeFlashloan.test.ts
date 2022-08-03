@@ -7,10 +7,11 @@ import { ADDRESSES } from '../../helpers/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES, TEN } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init, { resetNode } from '../../helpers/init'
-import { calldataTypes } from '../../helpers/types/actions'
 import { RuntimeConfig } from '../../helpers/types/common'
-import { ActionFactory, ensureWeiFormat } from '../../helpers/utils'
+import { ensureWeiFormat } from '../../helpers/utils'
 import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
+import { ActionFactory } from '../../packages/@oasis:actions/src/actions/actionFactory'
+import { calldataTypes } from '../../packages/@oasis:actions/src/actions/types/actions'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 
 const createAction = ActionFactory.create

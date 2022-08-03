@@ -7,9 +7,9 @@ import IERC20_ABI from '../../abi/IERC20.json'
 import { ADDRESSES } from '../../helpers/addresses'
 import { createDeploy, DeployFunction } from '../../helpers/deploy'
 import init, { resetNode } from '../../helpers/init'
-import { calldataTypes } from '../../helpers/types/actions'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei } from '../../helpers/utils'
+import { calldataTypes } from '../../packages/@oasis:actions/src/actions/types/actions'
 
 describe('SetApproval Action', () => {
   const BLOCK_NUMBER = 14798701

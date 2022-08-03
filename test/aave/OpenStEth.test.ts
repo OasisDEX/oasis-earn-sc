@@ -6,24 +6,20 @@ import { ethers } from 'hardhat'
 
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
-import { makeActions } from '../../helpers/actions'
 import { ADDRESSES } from '../../helpers/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
 import { getLastVault, getVaultInfo } from '../../helpers/maker/vault'
-import { makeOperation } from '../../helpers/operations/operations'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
-import { calldataTypes } from '../../helpers/types/actions'
 import { RuntimeConfig } from '../../helpers/types/common'
-import { ActionFactory, amountToWei, approve, balanceOf } from '../../helpers/utils'
+import { amountToWei, approve, balanceOf } from '../../helpers/utils'
 import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
+import { makeOperation } from '../../packages/@oasis:actions/src/operations'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
-
-const createAction = ActionFactory.create
 
 let DAI: Contract
 let WETH: Contract

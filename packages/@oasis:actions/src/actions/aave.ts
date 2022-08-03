@@ -1,13 +1,13 @@
 import BigNumber from 'bignumber.js'
 
-import { CONTRACT_NAMES } from '../constants'
-import { calldataTypes } from '../types/actions'
-import { ActionFactory } from '../utils'
+import { CONTRACT_NAMES } from '../../../../helpers/constants'
+import { ActionFactory } from './actionFactory'
 import { getActionHash } from './getActionHash'
+import { calldataTypes } from './types/actions'
 
 const createAction = ActionFactory.create
 
-export async function aaveDeposit(args: { amount: BigNumber; asset: string }) {
+export function aaveDeposit(args: { amount: BigNumber; asset: string }) {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.DEPOSIT),
     [calldataTypes.aave.Deposit],
@@ -20,7 +20,7 @@ export async function aaveDeposit(args: { amount: BigNumber; asset: string }) {
   )
 }
 
-export async function aaveBorrow(args: { amount: BigNumber; asset: string }) {
+export function aaveBorrow(args: { amount: BigNumber; asset: string }) {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.BORROW),
     [calldataTypes.aave.Borrow],
@@ -33,7 +33,7 @@ export async function aaveBorrow(args: { amount: BigNumber; asset: string }) {
   )
 }
 
-export async function aaveWithdraw(args: { amount: BigNumber; asset: string }) {
+export function aaveWithdraw(args: { amount: BigNumber; asset: string }) {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.WITHDRAW),
     [calldataTypes.aave.Withdraw],

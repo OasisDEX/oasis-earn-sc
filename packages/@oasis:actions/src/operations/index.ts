@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
 
+import { ADDRESSES } from '../../../../helpers/addresses'
+import { CONTRACT_NAMES } from '../../../../helpers/constants'
+import { ServiceRegistry } from '../../../../helpers/wrappers/serviceRegistry'
 import * as actions from '../actions'
-import { ADDRESSES } from '../addresses'
-import { CONTRACT_NAMES } from '../constants'
-import { ServiceRegistry } from '../wrappers/serviceRegistry'
 
 type Addresses = typeof ADDRESSES['main']
 
@@ -17,29 +17,29 @@ export async function makeOperation(registry: ServiceRegistry, addresses: Addres
     fee: number
     swapData: string | number
   }) {
-    const pullToken = await actions.common.pullToken({
+    const pullToken = actions.common.pullToken({
       amount: args.depositAmount,
       asset: addresses.DAI,
       from: args.account,
     })
 
-    const setDaiApprovalOnLendingPool = await actions.common.setApproval({
+    const setDaiApprovalOnLendingPool = actions.common.setApproval({
       amount: args.flashloanAmount.plus(args.depositAmount),
       asset: addresses.DAI,
       delegator: ADDRESSES.main.aave.MainnetLendingPool,
     })
 
-    const depositDaiInAAVE = await actions.aave.aaveDeposit({
+    const depositDaiInAAVE = actions.aave.aaveDeposit({
       amount: args.flashloanAmount.plus(args.depositAmount),
       asset: addresses.DAI,
     })
 
-    const borrowEthFromAAVE = await actions.aave.aaveBorrow({
+    const borrowEthFromAAVE = actions.aave.aaveBorrow({
       amount: args.borrowAmount,
       asset: addresses.ETH,
     })
 
-    const swapETHforSTETH = await actions.common.swap({
+    const swapETHforSTETH = actions.common.swap({
       fromAsset: addresses.WETH,
       toAsset: addresses.stETH,
       amount: args.borrowAmount,
@@ -49,18 +49,18 @@ export async function makeOperation(registry: ServiceRegistry, addresses: Addres
       collectFeeInFromToken: true,
     })
 
-    const withdrawDAIFromAAVE = await actions.aave.aaveWithdraw({
+    const withdrawDAIFromAAVE = actions.aave.aaveWithdraw({
       asset: addresses.DAI,
       amount: args.flashloanAmount,
     })
 
-    const sendBackDAI = await actions.common.sendToken({
+    const sendBackDAI = actions.common.sendToken({
       asset: addresses.DAI,
       to: await registry.getServiceAddress(CONTRACT_NAMES.common.OPERATION_EXECUTOR),
       amount: args.flashloanAmount,
     })
 
-    const takeAFlashloan = await actions.common.takeAFlashLoan({
+    const takeAFlashloan = actions.common.takeAFlashLoan({
       flashloanAmount: args.flashloanAmount,
       borrower: await registry.getServiceAddress(CONTRACT_NAMES.common.OPERATION_EXECUTOR),
       dsProxyFlashloan: true,

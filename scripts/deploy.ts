@@ -14,10 +14,11 @@ import init from '../helpers/init'
 import { getOrCreateProxy } from '../helpers/proxy'
 import { swapOneInchTokens } from '../helpers/swap/1inch'
 import { swapUniswapTokens } from '../helpers/swap/uniswap'
-import { calldataTypes } from '../helpers/types/actions'
-import { ActionFactory, amountToWei, approve, balanceOf } from '../helpers/utils'
+import { amountToWei, approve, balanceOf } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
 import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
+import { ActionFactory } from '../packages/@oasis:actions/src/actions/actionFactory'
+import { calldataTypes } from '../packages/@oasis:actions/src/actions/types/actions'
 
 const createAction = ActionFactory.create
 

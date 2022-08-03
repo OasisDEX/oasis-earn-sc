@@ -1,14 +1,14 @@
 import BigNumber from 'bignumber.js'
 
-import { CONTRACT_NAMES } from '../constants'
-import { calldataTypes } from '../types/actions'
-import { ActionCall } from '../types/common'
-import { ActionFactory } from '../utils'
+import { CONTRACT_NAMES } from '../../../../helpers/constants'
+import { ActionCall } from '../../../../helpers/types/common'
+import { ActionFactory } from './actionFactory'
 import { getActionHash } from './getActionHash'
+import { calldataTypes } from './types/actions'
 
 const createAction = ActionFactory.create
 
-export async function pullToken(args: { amount: BigNumber; asset: string; from: string }) {
+export function pullToken(args: { amount: BigNumber; asset: string; from: string }) {
   return createAction(
     getActionHash(CONTRACT_NAMES.common.PULL_TOKEN),
     [calldataTypes.common.PullToken],
@@ -22,7 +22,7 @@ export async function pullToken(args: { amount: BigNumber; asset: string; from: 
   )
 }
 
-export async function setApproval(args: { amount: BigNumber; asset: string; delegator: string }) {
+export function setApproval(args: { amount: BigNumber; asset: string; delegator: string }) {
   return createAction(
     getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
     [calldataTypes.common.Approval],
@@ -36,7 +36,7 @@ export async function setApproval(args: { amount: BigNumber; asset: string; dele
   )
 }
 
-export async function swap(args: {
+export function swap(args: {
   fromAsset: string
   toAsset: string
   amount: BigNumber
@@ -62,7 +62,7 @@ export async function swap(args: {
   )
 }
 
-export async function sendToken(args: { asset: string; to: string; amount: BigNumber }) {
+export function sendToken(args: { asset: string; to: string; amount: BigNumber }) {
   return createAction(
     getActionHash(CONTRACT_NAMES.common.SEND_TOKEN),
     [calldataTypes.common.SendToken],
@@ -76,7 +76,7 @@ export async function sendToken(args: { asset: string; to: string; amount: BigNu
   )
 }
 
-export async function takeAFlashLoan(args: {
+export function takeAFlashLoan(args: {
   flashloanAmount: BigNumber
   borrower: string
   dsProxyFlashloan: boolean
