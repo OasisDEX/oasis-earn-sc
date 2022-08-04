@@ -4,8 +4,22 @@ import { Operation } from "./types/Common.sol";
 
 contract OperationsRegistry {
   mapping(string => bytes32[]) private operations;
+  address public owner;
 
-  function addOperation(string memory name, bytes32[] memory actions) external {
+  modifier onlyOwner() {
+    require(msg.sender == owner, "only-owner");
+    _;
+  }
+
+  constructor() {
+    owner = msg.sender;
+  }
+
+  function transferOwnership(address newOwner) public onlyOwner {
+    owner = newOwner;
+  }
+
+  function addOperation(string memory name, bytes32[] memory actions) external onlyOwner {
     operations[name] = actions;
   }
 
