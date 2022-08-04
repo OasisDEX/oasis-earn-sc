@@ -1,13 +1,13 @@
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import { ethers } from 'hardhat'
+import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
+import { ONE, TEN } from 'oasis-actions/src/helpers/constants'
 import { isError, tryF } from 'ts-try'
 
 import CTOKEN_ABI from '../abi/CErc20.json'
 import IERC20_ABI from '../abi/IERC20.json'
-import { ONE, TEN } from '../helpers/constants'
 import { BalanceOptions, RuntimeConfig } from '../helpers/types/common'
-import { ADDRESSES } from './addresses'
 
 export async function balanceOf(
   asset: string,

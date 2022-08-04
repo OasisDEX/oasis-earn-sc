@@ -4,20 +4,20 @@ import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 import { makeOperation } from 'oasis-actions'
+import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
+import { CONTRACT_NAMES, OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
 
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
-import { ADDRESSES } from '../../helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
 import { getLastVault, getVaultInfo } from '../../helpers/maker/vault'
+import { ServiceRegistry } from '../../helpers/serviceRegistry'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, approve, balanceOf } from '../../helpers/utils'
-import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
 
@@ -59,7 +59,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
 
   const testName = `should open stEth position`
 
-  it.only(testName, async () => {
+  it(testName, async () => {
     // Transfer stETH to exchange for Swap
 
     const toImpersonate = '0xdc24316b9ae028f1497c275eb9192a3ea0f67022'

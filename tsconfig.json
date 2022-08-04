@@ -9,7 +9,7 @@
     "declaration": true,
     "resolveJsonModule": true
   },
-  "include": ["./helpers", "./scripts", "./test", "packages/*"],
+  "include": ["./helpers", "./scripts", "./test", "packages/*", "packages/oasis-actions/src/helpers/serviceRegistry.ts", "packages/oasis-actions/src/helpers/addresses", "packages/oasis-actions/src/helpers/constants.ts"],
   "files": [
     "./hardhat.config.ts", ]
 }

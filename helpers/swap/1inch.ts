@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
+import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
 
-import { ADDRESSES } from '../addresses'
 import { OneInchSwapResponse } from '../types/common'
 
 export function formatOneInchSwapUrl(

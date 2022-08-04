@@ -1,16 +1,16 @@
 import { ethers } from 'hardhat'
 import { boolean } from 'hardhat/internal/core/params/argumentTypes'
+import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
+import { CONTRACT_NAMES, OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
 
 import DSProxyABI from '../abi/ds-proxy.json'
-import { ADDRESSES } from '../helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '../helpers/constants'
 import { createDeploy } from '../helpers/deploy'
 import { getOrCreateProxy } from '../helpers/proxy'
+import { ServiceRegistry } from '../helpers/serviceRegistry'
 import { loadDummyExchangeFixtures } from '../helpers/swap/DummyExchange'
 import { RuntimeConfig, Unbox } from '../helpers/types/common'
 import { logDebug } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
-import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
 
 interface DeployFlags {
   debug: boolean

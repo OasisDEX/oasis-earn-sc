@@ -1,7 +1,5 @@
 pragma solidity ^0.8.5;
 
-import "hardhat/console.sol";
-
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { ISwapRouter } from "../../interfaces/common/ISwapRouter.sol";
 import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
@@ -198,6 +196,7 @@ contract uSwap {
     if (swapData.collectFeeInFromToken) {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
+
     uint256 toTokenBalance = _swap(
       swapData.fromAsset,
       swapData.toAsset,
@@ -221,5 +220,7 @@ contract uSwap {
     }
 
     IERC20(swapData.toAsset).safeTransfer(msg.sender, toTokenBalance);
+
+   
   }
 }

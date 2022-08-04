@@ -4,11 +4,12 @@ import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
+import { ActionCall } from 'oasis-actions/src/actions/types/actionCall'
+import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
+import { CONTRACT_NAMES, OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
 
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
-import { ADDRESSES } from '../../helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
@@ -18,9 +19,9 @@ import {
   calculateParamsIncreaseMP,
   prepareMultiplyParameters,
 } from '../../helpers/paramCalculations'
-import { ActionCall, RuntimeConfig, SwapData } from '../../helpers/types/common'
+import { ServiceRegistry } from '../../helpers/serviceRegistry'
+import { RuntimeConfig, SwapData } from '../../helpers/types/common'
 import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
-import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
 import { ActionFactory } from '../../packages/oasis-actions/src/actions/actionFactory'
 import { calldataTypes } from '../../packages/oasis-actions/src/actions/types/actions'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
@@ -77,7 +78,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
   })
 
   let oraclePrice: BigNumber
-  const marketPrice = new BigNumber(1582)
+  const marketPrice = new BigNumber(1585)
   const initialColl = new BigNumber(100)
   const initialDebt = new BigNumber(0)
   const daiTopUp = new BigNumber(0)
@@ -86,7 +87,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
   const gasEstimates = gasEstimateHelper()
 
   const testName = `should open vault, deposit ETH and increase multiple & [+Flashloan]`
-  it(testName, async () => {
+  it.only(testName, async () => {
     await WETH.approve(
       system.common.userProxyAddress,
       amountToWei(initialColl.plus(collTopUp)).toFixed(0),
@@ -170,7 +171,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       toAsset: exchangeData.toTokenAddress,
       // Add daiTopup amount to swap
       amount: swapAmount,
-      receiveAtLeast: exchangeData.minToTokenAmount,
+      receiveAtLeast: new BigNumber(exchangeData.minToTokenAmount).times(0.95).toFixed(0),
       fee: 0,
       withData: exchangeData._exchangeCalldata,
       collectFeeInFromToken: true,
@@ -276,7 +277,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     )
 
     const autoTestAmount = new BigNumber(1000)
-    const autoVaultId = 25790
+    const autoVaultId = 29062
     const generateDaiAutomation = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
       [calldataTypes.maker.Generate, calldataTypes.paramsMap],
@@ -326,7 +327,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
     const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
 
-    expectToBeEqual(currentCollRatio, new BigNumber(2.487), 3)
+    expectToBeEqual(currentCollRatio, new BigNumber(2.476), 3)
 
     const expectedColl = additionalCollateral.plus(initialColl).plus(preIncreaseMPTopUp)
     const expectedDebt = desiredCdpState.requiredDebt

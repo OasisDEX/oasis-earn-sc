@@ -5,7 +5,12 @@ import { ADDRESSES } from '../helpers/addresses'
 import { CONTRACT_NAMES } from '../helpers/constants'
 import { ServiceRegistry } from '../types/ServiceRegistry'
 
-type Addresses = typeof ADDRESSES['main']
+interface Addresses {
+  DAI: string
+  ETH: string
+  WETH: string
+  stETH: string
+}
 
 export async function makeOperation(registry: ServiceRegistry, addresses: Addresses) {
   async function openStEth(args: {
