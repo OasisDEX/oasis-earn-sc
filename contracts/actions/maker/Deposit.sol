@@ -63,8 +63,6 @@ contract MakerDeposit is Executable, UseStore {
       0
     );
 
-    uint256 newBalance = IERC20(gem).balanceOf(address(this));
-
     return bytes32(convertedAmount);
   }
 }

@@ -15,7 +15,7 @@ contract MakerOpenVault is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     OpenVaultData memory openVaultData = abi.decode(data, (OpenVaultData));
-    console.log("executing open vault");
+
     bytes32 vaultId = _openVault(openVaultData);
     store().write(vaultId);
 

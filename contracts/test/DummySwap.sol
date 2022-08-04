@@ -44,7 +44,7 @@ contract DummySwap is Executable, UseStore {
     );
 
     uint256 balance = IERC20(swap.toAsset).balanceOf(address(this));
-    console.log("swapped to balance ETH", balance);
+
     store().write(bytes32(balance));
     require(balance >= swap.receiveAtLeast, "Exchange / Received less");
   }
