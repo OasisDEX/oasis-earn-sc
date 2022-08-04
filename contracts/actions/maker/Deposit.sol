@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity >=0.8.5;
-
+pragma solidity >=0.8.15;
+import "hardhat/console.sol";
 import { Executable } from "../common/Executable.sol";
 import { UseStore, Read, Write } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
@@ -23,7 +23,9 @@ contract MakerDeposit is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositData memory depositData = abi.decode(data, (DepositData));
-    depositData.vaultId = store().readUint(bytes32(depositData.vaultId), paramsMap[0]);
+
+    depositData.vaultId = store().readUint(bytes32(depositData.vaultId), paramsMap[1]);
+    depositData.amount = store().readUint(bytes32(depositData.amount), paramsMap[2]);
 
     bytes32 amountDeposited = _deposit(depositData);
     store().write(amountDeposited);
@@ -38,7 +40,12 @@ contract MakerDeposit is Executable, UseStore {
       IWETH(gem).deposit{ value: address(this).balance }();
     }
 
+    if (data.amount == type(uint256).max) {
+      data.amount = IERC20(gem).balanceOf(address(this));
+    }
+
     uint256 amountToDeposit = data.amount;
+
     IERC20(gem).safeApprove(address(data.joinAddress), amountToDeposit);
     data.joinAddress.join(address(this), amountToDeposit);
 
@@ -55,6 +62,8 @@ contract MakerDeposit is Executable, UseStore {
       MathUtils.uintToInt(convertedAmount),
       0
     );
+
+    uint256 newBalance = IERC20(gem).balanceOf(address(this));
 
     return bytes32(convertedAmount);
   }

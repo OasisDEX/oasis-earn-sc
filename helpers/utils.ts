@@ -173,11 +173,30 @@ export class ActionFactory {
       ' function execute(bytes calldata data, uint8[] paramsMap) external payable returns (bytes calldata)',
     ])
 
-    const encodedArgs = ethers.utils.defaultAbiCoder.encode(
-      types[0] ? [types[0]] : [],
-      args[0] ? [args[0]] : [],
-    )
-    const calldata = iface.encodeFunctionData('execute', [encodedArgs, args[1] ? args[1] : []])
+    const [callDataTypes, paramsMapType] = types
+    // console.log('types:', types)
+    const [callData, paramsMap] = args
+    // console.log('paramsMap:', paramsMap)
+
+    const hasParamsMap = paramsMapType && paramsMap
+    // const encodedCallData = ethers.utils.defaultAbiCoder.encode(types, args)
+    const encodedCallData = ethers.utils.defaultAbiCoder.encode([callDataTypes], [callData])
+    // const encodedParamsMap = ethers.utils.defaultAbiCoder.encode([paramsMapType], [paramsMap])
+    // // const encodedArgs = ethers.utils.defaultAbiCoder.encode(types, args)
+    const calldata = iface.encodeFunctionData('execute', [
+      encodedCallData,
+      hasParamsMap ? paramsMap : [],
+    ])
+
+    // const encodedArgs = ethers.utils.defaultAbiCoder.encode(
+    //   types[0] ? [...types] : [],
+    //   args[0] ? [...args] : [],
+    // )
+    // const calldata = iface.encodeFunctionData('execute', [encodedArgs, args[1] ? args[1] : []])
+
+    // WORKS
+    // const encodedArgs = ethers.utils.defaultAbiCoder.encode(types, args)
+    // const calldata = iface.encodeFunctionData('execute', [encodedArgs])
 
     return {
       targetHash,

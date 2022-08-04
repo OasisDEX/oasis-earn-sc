@@ -1,5 +1,5 @@
 pragma solidity ^0.8.1;
-
+import "hardhat/console.sol";
 import { Executable } from "../common/Executable.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { PullTokenData } from "../../core/types/Common.sol";
@@ -9,6 +9,7 @@ contract PullToken is Executable {
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     PullTokenData memory pull = abi.decode(data, (PullTokenData));
+    console.log("executing  pull");
     IERC20(pull.asset).safeTransferFrom(pull.from, address(this), pull.amount);
   }
 }

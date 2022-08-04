@@ -1,6 +1,8 @@
 pragma solidity ^0.8.1;
 
 import { Executable } from "../common/Executable.sol";
+import { UseStore, Read, Write } from "../common/UseStore.sol";
+import { OperationStorage } from "../../core/OperationStorage.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
@@ -8,14 +10,12 @@ import { SwapData } from "../../core/types/Common.sol";
 import { WETH, ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
 
 // TODO: Make it so it differentiate between ETH and any other token
-contract SwapOnOneInch is Executable {
+contract SwapOnOneInch is Executable, UseStore {
   using SafeERC20 for IERC20;
+  using Write for OperationStorage;
+  using Read for OperationStorage;
 
-  ServiceRegistry internal immutable registry;
-
-  constructor(ServiceRegistry _registry) {
-    registry = _registry;
-  }
+  constructor(ServiceRegistry _registry) UseStore(address(_registry)) {}
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     // TODO figure out why using ETH doesn't work.
@@ -37,6 +37,7 @@ contract SwapOnOneInch is Executable {
 
     require(success, "Exchange / Could not swap");
     uint256 balance = IERC20(swap.toAsset).balanceOf(address(this));
+    store().write(bytes32(balance));
     require(balance >= swap.receiveAtLeast, "Exchange / Received less");
   }
 }

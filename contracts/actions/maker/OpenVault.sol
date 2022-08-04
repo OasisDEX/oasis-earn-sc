@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity >=0.8.5;
-
+import "hardhat/console.sol";
 import { Executable } from "../common/Executable.sol";
 import { UseStore, Write } from "../common/UseStore.sol";
 import { IManager } from "../../interfaces/maker/IManager.sol";
@@ -15,7 +15,7 @@ contract MakerOpenVault is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     OpenVaultData memory openVaultData = abi.decode(data, (OpenVaultData));
-
+    console.log("executing open vault");
     bytes32 vaultId = _openVault(openVaultData);
     store().write(vaultId);
 
