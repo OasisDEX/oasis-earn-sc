@@ -315,7 +315,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       system.common.operationExecutor.address,
       autoVaultId,
       {
-        gasLimit: 5000000,
+        gasLimit: 4000000,
       },
     )
 
