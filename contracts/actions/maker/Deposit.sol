@@ -38,12 +38,11 @@ contract MakerDeposit is Executable, UseStore {
       IWETH(gem).deposit{ value: address(this).balance }();
     }
 
-    uint256 balance = IERC20(gem).balanceOf(address(this));
+    uint256 amountToDeposit = data.amount;
+    IERC20(gem).safeApprove(address(data.joinAddress), amountToDeposit);
+    data.joinAddress.join(address(this), amountToDeposit);
 
-    IERC20(gem).safeApprove(address(data.joinAddress), balance);
-    data.joinAddress.join(address(this), balance);
-
-    uint256 convertedAmount = MathUtils.convertTo18(data.joinAddress, balance);
+    uint256 convertedAmount = MathUtils.convertTo18(data.joinAddress, amountToDeposit);
 
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
     IVat vat = manager.vat();
