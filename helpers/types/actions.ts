@@ -8,7 +8,7 @@ export const calldataTypes = {
     bytes withData) swapData`,
     SendToken: `tuple(address asset, address to, uint256 amount)`,
     PullToken: `tuple(address asset, address from, uint256 amount)`,
-    TakeAFlashLoan: `tuple(uint256 amount, address borrower, bool dsProxyFlashloan, (bytes32 targetHash, bytes callData)[] calls)`,
+    TakeAFlashLoan: `tuple(uint256 amount, bool dsProxyFlashloan, (bytes32 targetHash, bytes callData)[] calls)`,
   },
   maker: {
     Open: `tuple(address joinAddress)`,

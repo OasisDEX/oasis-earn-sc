@@ -19,19 +19,21 @@ contract TakeFlashloan is Executable, ProxyPermission {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
 
+    address operationExecutorAddress = registry.getRegisteredService(OPERATION_EXECUTOR);
+    
     if (flData.dsProxyFlashloan) {
-      givePermission(registry.getRegisteredService(OPERATION_EXECUTOR));
+      givePermission(operationExecutorAddress);
     }
 
     IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
-      IERC3156FlashBorrower(flData.borrower),
+      IERC3156FlashBorrower(operationExecutorAddress),
       registry.getRegisteredService(DAI),
       flData.amount,
       data
     );
 
     if (flData.dsProxyFlashloan) {
-      removePermission(registry.getRegisteredService(OPERATION_EXECUTOR));
+      removePermission(operationExecutorAddress);
     }
     emit Action(TAKE_FLASH_LOAN_ACTION, bytes32(flData.amount));
   }

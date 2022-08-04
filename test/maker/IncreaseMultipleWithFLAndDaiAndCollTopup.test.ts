@@ -263,7 +263,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       [
         {
           amount: exchangeData.fromTokenAmount,
-          borrower: system.common.operationExecutor.address,
           dsProxyFlashloan: true,
           calls: [swapAction, depositBorrowedCollateral, generateDaiToRepayFL, sendBackDAI],
         },

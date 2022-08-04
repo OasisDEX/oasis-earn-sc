@@ -10,6 +10,7 @@ import { TakeFlashloan } from "../actions/common/TakeFlashloan.sol";
 import { IERC3156FlashBorrower } from "../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
+import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
@@ -17,6 +18,7 @@ import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 contract OperationExecutor is IERC3156FlashBorrower {
   using Address for address;
   using SafeERC20 for IERC20;
+  using SafeMath for uint256;
 
   ServiceRegistry public immutable registry;
 
@@ -66,13 +68,16 @@ contract OperationExecutor is IERC3156FlashBorrower {
     address initiator,
     address asset,
     uint256 amount,
-    uint256,
+    uint256 fee,
     bytes calldata data
   ) external override returns (bytes32) {
     address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
+
+    require(msg.sender == lender, "Untrusted flashloan lender");
+    
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
 
-    require(amount == flData.amount, "loan-inconsistency");
+    require(IERC20(asset).balanceOf(address(this)) == flData.amount, "Flashloan inconsistency");
 
     if (flData.dsProxyFlashloan) {
       IERC20(asset).safeTransfer(initiator, flData.amount);
@@ -85,7 +90,10 @@ contract OperationExecutor is IERC3156FlashBorrower {
       aggregate(flData.calls);
     }
 
-    IERC20(asset).safeApprove(lender, amount);
+    uint256 paybackAmount = amount.add(fee);
+    require(IERC20(asset).balanceOf(address(this)) == paybackAmount, "Insuficient funds for payback");
+
+    IERC20(asset).safeApprove(lender, paybackAmount);
 
     return keccak256("ERC3156FlashBorrower.onFlashLoan");
   }
