@@ -26,7 +26,7 @@ let DAI: Contract
 let WETH: Contract
 let stETH: Contract
 
-describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () => {
+describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () => {
   let provider: JsonRpcProvider
   let signer: Signer
   let address: string
@@ -54,6 +54,10 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     registry = _registry
   })
 
+  const flashloanAmount = amountToWei(new BigNumber(1000000))
+  const depositAmount = amountToWei(new BigNumber(200000))
+  const borrowAmount = amountToWei(new BigNumber(5))
+
   const testName = `should open stEth position`
 
   it(testName, async () => {
@@ -64,12 +68,15 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
   const ethPrice = new BigNumber((roundData.answer.toString() / Math.pow(10, decimals)));
   console.log('PRICE', ethPrice.toFixed(2));
 
+
     const WEthPrice = await system.aave.aavePriceOracle.getAssetPrice(ADDRESSES.main.WETH)
     const stEthPriceinEth = await system.aave.aavePriceOracle.getAssetPrice(ADDRESSES.main.stETH)
     
+
     const stEthPrice = ethPrice.times(new BigNumber(stEthPriceinEth.toString()).div(Math.pow(10, 18)))
     console.log('ethPrice', ethPrice.toString() );
     console.log('stEthPrice', stEthPrice.toString() );
+
     
     // Transfer stETH to exchange for Swap
 
@@ -82,31 +89,10 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     await stETH.transfer(system.common.exchange.address, bal);
     await provider.send('hardhat_stopImpersonatingAccount', [toImpersonate]);
 
+    await approve(ADDRESSES.main.DAI, system.common.dsProxy.address, depositAmount, config, true)
 
-    // const flashloanAmount = new BigNumber(1000000)
-    // const borrowAmount = new BigNumber(5)
-    const initialDeposit = new BigNumber(10)
-    const multiple = new BigNumber(2)
+    const ethDepoAmount = amountToWei(new BigNumber(10))
 
-    const flashloanAmount = ethPrice.times(initialDeposit).times(multiple)
-
-    console.log('DAI TO BORROW', flashloanAmount.toString() );
-
-
-    const AAVE_MARKET_DATA_PROVIDER_ADDRESS = '0xb53c1a33016b2dc2ff3653530bff1848a515c8c5';
-
-    const ltv = await system.aave.aaveView.getTokenInfo(AAVE_MARKET_DATA_PROVIDER_ADDRESS, ADDRESSES.main.DAI)
-
-    const ltvDecimal = new BigNumber(ltv.toString()).div(10000)
-
-    console.log('TOKEN INFO', ltv.toString() );
-    console.log('TOKEN INFO', ltvDecimal.toString() );
-    
-    // const ltv = new BigNumber
-    const borrowAmount = (flashloanAmount.times(ltvDecimal)).div(ethPrice)
-
-    console.log('borrowAmount2', borrowAmount.toString() );
-    
     const aaveOpenSthEthOp = new Operation(
       system.common.operationExecutor,
       OPERATION_NAMES.common.CUSTOM_OPERATION,
@@ -114,33 +100,28 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
         new actions.common.WrapEthAction({
           amount: ethers.constants.MaxUint256
         }),
-        // new actions.common.PullTokenAction({
-        //   amount: depositAmount.toFixed(0),
-        //   asset: ADDRESSES.main.DAI,
-        //   from: address,
-        // }),
         new actions.common.TakeFlashloanAction({
-          amount: amountToWei(flashloanAmount).toFixed(0),
+          amount: flashloanAmount.toFixed(0),
           borrower: system.common.operationExecutor.address,
           dsProxyFlashloan: true,
           calls: [
             new actions.common.SetApprovalAction({
-              amount: amountToWei(flashloanAmount).toFixed(0),
+              amount: flashloanAmount.toFixed(0),
               asset: ADDRESSES.main.DAI,
               delegator: ADDRESSES.main.aave.MainnetLendingPool,  
             }, [0, 0, 0]),
             new actions.aave.AaveDepositAction({
               asset: ADDRESSES.main.DAI,
-              amount: amountToWei(flashloanAmount).toFixed(0),
+              amount: flashloanAmount.toFixed(0),
             }, [0, 0]),
             new actions.aave.AaveBorrowAction({
-              amount: amountToWei(borrowAmount).toFixed(0),
+              amount: borrowAmount.toFixed(0),
               asset: ADDRESSES.main.ETH,
             }),
             new actions.test.DummySwapAction({
               fromAsset: ADDRESSES.main.WETH,
               toAsset: ADDRESSES.main.stETH,
-              amount: amountToWei(borrowAmount.plus(initialDeposit)).toFixed(0),
+              amount: borrowAmount.plus(ethDepoAmount).toFixed(0),
               receiveAtLeast: amountToWei(1).toFixed(),
               withData: 0,
             }, [0, 0, 0, 0, 0]),
@@ -155,12 +136,12 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
             }, [0, 4]),
             new actions.aave.AaveWithdrawAction({
               asset: ADDRESSES.main.DAI,
-              amount: amountToWei(flashloanAmount).toFixed(0),
+              amount: flashloanAmount.toFixed(0),
             }),
             new actions.common.SendTokenAction({
               asset: ADDRESSES.main.DAI,
               to: system.common.operationExecutor.address,
-              amount: amountToWei(flashloanAmount).toFixed(0),
+              amount: flashloanAmount.toFixed(0),
             }),
           ],
         })
@@ -176,11 +157,118 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
         calldata: opCalldata,
       },
       signer,
-      amountToWei(initialDeposit).toFixed(0)
+      ensureWeiFormat(ethDepoAmount)
     )
 
     expectToBeEqual(await balanceOf(ADDRESSES.main.ETH, system.common.dsProxy.address, options), 0)
-    // expectToBeEqual(await balanceOf(ADDRESSES.main.aDAI, system.common.dsProxy.address, options), depositAmount.toFixed())
-    expectToBeEqual(await balanceOf(ADDRESSES.main.variableDebtWETH, system.common.dsProxy.address, options), amountToWei(borrowAmount).toFixed())
+    expectToBeEqual(await balanceOf(ADDRESSES.main.variableDebtWETH, system.common.dsProxy.address, options), borrowAmount.toFixed())
+
+    // CLOSING OPENED OPERATION
+
+    const aaveCloseSthEthOp = new Operation(
+      system.common.operationExecutor,
+      OPERATION_NAMES.common.CUSTOM_OPERATION,
+      [
+        // new actions.common.WrapEthAction({
+        //   amount: ethers.constants.MaxUint256
+        // }),
+        new actions.common.TakeFlashloanAction({
+          amount: flashloanAmount.toFixed(0),
+          borrower: system.common.operationExecutor.address,
+          dsProxyFlashloan: true,
+          calls: [
+            new actions.common.SetApprovalAction({
+              amount: flashloanAmount.toFixed(0),
+              asset: ADDRESSES.main.DAI,
+              delegator: ADDRESSES.main.aave.MainnetLendingPool,  
+            }, [0, 0, 0]),
+            new actions.aave.AaveDepositAction({
+              asset: ADDRESSES.main.DAI,
+              amount: flashloanAmount.toFixed(0),
+            }, [0, 0]),
+            new actions.aave.AaveWithdrawAction({
+              asset: ADDRESSES.main.stETH,
+              amount: ethers.constants.MaxUint256,
+            }),
+            new actions.test.DummySwapAction({
+              fromAsset: ADDRESSES.main.stETH,
+              toAsset: ADDRESSES.main.WETH,
+              amount: '0',
+              receiveAtLeast: amountToWei(1).toFixed(),
+              withData: 0,
+            }, [0, 0, 2, 0, 0]),
+            new actions.common.SetApprovalAction({
+              amount: flashloanAmount.toFixed(0),
+              asset: ADDRESSES.main.WETH,
+              delegator: ADDRESSES.main.aave.MainnetLendingPool,  
+            }, [0, 0, 0]),
+            new actions.aave.AavePaybackAction({
+              asset: ADDRESSES.main.WETH,
+              amount: ethers.constants.MaxUint256 //not recommended by Aave docs 
+            }),
+            new actions.aave.AaveWithdrawAction({
+              asset: ADDRESSES.main.DAI,
+              amount: flashloanAmount.toFixed(0),
+            }),
+            new actions.common.SendTokenAction({
+              asset: ADDRESSES.main.DAI,
+              to: system.common.operationExecutor.address,
+              amount: flashloanAmount.toFixed(0),
+            }),
+            new actions.common.SendTokenAction({
+              asset: ADDRESSES.main.WETH,
+              to: address,
+              amount: ethers.constants.MaxUint256,
+            }),
+            
+
+            // send back ETH to the user!!!!
+            // new actions.common.SetApprovalAction({
+            //   amount: flashloanAmount.toFixed(0),
+            //   asset: ADDRESSES.main.DAI,
+            //   delegator: ADDRESSES.main.aave.MainnetLendingPool,  
+            // }, [0, 0, 0]),
+            // new actions.aave.AaveBorrowAction({
+            //   amount: borrowAmount.toFixed(0),
+            //   asset: ADDRESSES.main.ETH,
+            // }),
+            
+            // new actions.common.SetApprovalAction({
+            //   amount: 0,
+            //   asset: ADDRESSES.main.stETH,
+            //   delegator: ADDRESSES.main.aave.MainnetLendingPool,  
+            // }, [4, 0, 0]),
+            // new actions.aave.AaveDepositAction({
+            //   asset: ADDRESSES.main.stETH,
+            //   amount: 0
+            // }, [0, 4]),
+            // new actions.common.SendTokenAction({
+            //   asset: ADDRESSES.main.DAI,
+            //   to: system.common.operationExecutor.address,
+            //   amount: flashloanAmount.toFixed(0),
+            // }),
+          ],
+        })
+      ]
+    )
+
+    const opCalldataClose = aaveCloseSthEthOp.encodeForProxyCall();
+
+    await executeThroughProxy(
+      system.common.dsProxy.address,
+      {
+        address: system.common.operationExecutor.address,
+        calldata: opCalldataClose,
+      },
+      signer,
+      '0'
+    )
+
+    // expectToBeEqual(await balanceOf(ADDRESSES.main.ETH, system.common.dsProxy.address, options), 0)
+    // expectToBeEqual(await balanceOf(ADDRESSES.main.variableDebtWETH, system.common.dsProxy.address, options), borrowAmount.toFixed())
+  
+  
+  
+  
   })
 })

@@ -4,8 +4,8 @@ import { Action } from "../Action";
 
 export class DummySwapAction extends Action {
 
-    constructor(args: any) {
-      super(CONTRACT_NAMES.test.DUMMY_SWAP, args);
+    constructor(args: any, paramMapping: number[]) {
+      super(CONTRACT_NAMES.test.DUMMY_SWAP, args, paramMapping);
       
       this.paramTypes = this.getParamTypes(ABI);
     }

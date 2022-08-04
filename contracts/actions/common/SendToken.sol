@@ -12,6 +12,9 @@ contract SendToken is Executable {
     if (msg.value > 0) {
       payable(send.to).transfer(msg.value);
     } else {
+      if(send.amount == type(uint256).max) {
+        send.amount = IERC20(send.asset).balanceOf(address(this));
+      }
       IERC20(send.asset).safeTransfer(send.to, send.amount);
     }
   }

@@ -14,3 +14,8 @@ struct WithdrawData {
   address asset;
   uint256 amount;
 }
+
+struct PaybackData {
+  address asset;
+  uint256 amount;
+}

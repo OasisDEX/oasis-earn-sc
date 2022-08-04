@@ -48,6 +48,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   )
 
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
+  const [aaveView, aaveViewAddress] = await deploy(CONTRACT_NAMES.aave.AAVE_VIEW, [])
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
 
@@ -127,6 +128,11 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     [serviceRegistryAddress],
   )
 
+  const [paybackInAaveAction, actionPaybackInAaveActionAddress] = await deploy(
+    CONTRACT_NAMES.aave.PAYBACK,
+    [serviceRegistryAddress],
+  )
+
   debug && console.log('4/ Adding contracts to registry')
   //-- Add Token Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
@@ -163,6 +169,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
 
   //-- Add Maker Contract Entries
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_VIEW, mcdViewAddress)
+  await registry.addEntry(CONTRACT_NAMES.aave.AAVE_VIEW, aaveViewAddress)
   await registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_MANAGER, ADDRESSES.main.maker.cdpManager)
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES.main.maker.jug)
@@ -202,6 +209,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
   const aaveWithdrawHash = await registry.addEntry(
     CONTRACT_NAMES.aave.WITHDRAW,
     actionWithdrawFromAAVEAddress,
+  )
+  const aavePaybackHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.PAYBACK,
+    actionPaybackInAaveActionAddress,
   )
   const aaveWethGatewayHash = await registry.addEntry(
     CONTRACT_NAMES.aave.WETH_GATEWAY,
@@ -342,9 +353,11 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       cdpAllow,
     },
     aave: {
+      aaveView,
       aavePriceOracle,
       deposit: depositInAAVEAction,
       withdraw: withdrawInAAVEAction,
+      payback: paybackInAaveAction,
       borrow: borrowInAAVEAction,
     },
   }

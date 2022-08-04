@@ -7,6 +7,9 @@ import { ILendingPool } from "../../interfaces/aave/ILendingPool.sol";
 import { DepositData } from "../../core/types/Aave.sol";
 import { AAVE_LENDING_POOL, DEPOSIT_ACTION } from "../../core/constants/Aave.sol";
 
+import { DataTypes } from "../../interfaces/aave/DataTypes.sol";
+
+import "hardhat/console.sol";
 contract AaveDeposit is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
@@ -17,6 +20,9 @@ contract AaveDeposit is Executable, UseStore {
     DepositData memory deposit = parseInputs(data);
 
     deposit.amount = store().readUint(bytes32(deposit.amount), paramsMap[1]);
+
+    console.log('DEPOSITING', deposit.amount );
+    
     ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).deposit(
       deposit.asset,
       deposit.amount,
@@ -24,8 +30,13 @@ contract AaveDeposit is Executable, UseStore {
       0
     );
 
+    console.log('DEPOSIT DONE' );
+    
+
     store().write(bytes32(deposit.amount));
     emit Action(DEPOSIT_ACTION, bytes32(deposit.amount));
+    console.log('DEPO END' );
+    
 
   }
 

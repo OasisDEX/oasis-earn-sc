@@ -49,6 +49,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
     bool hasActionsToVerify = opStorage.hasActionsToVerify();
     for (uint256 current = 0; current < calls.length; current++) {
+      
       if (hasActionsToVerify) {
         opStorage.verifyAction(calls[current].targetHash);
       }

@@ -4,6 +4,7 @@ import { OperationStorage } from "../../core/OperationStorage.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { OPERATION_STORAGE } from "../../core/constants/Common.sol";
 
+import "hardhat/console.sol";
 abstract contract UseStore {
   ServiceRegistry internal immutable registry;
 
@@ -40,6 +41,8 @@ library Read {
 
 library Write {
   function write(OperationStorage _storage, bytes32 value) internal {
+    console.log('STORAGE PUSH' );
+    
     _storage.push(value);
   }
 }

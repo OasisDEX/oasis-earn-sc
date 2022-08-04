@@ -19,16 +19,18 @@ contract AaveBorrow is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     BorrowData memory borrow = parseInputs(data);
-
+    console.log('BORROW' );
+    
     address wethGatewayAddress = registry.getRegisteredService(AAVE_WETH_GATEWAY);
     dWETH.approveDelegation(wethGatewayAddress, borrow.amount);
-    store().write(bytes32(borrow.amount));
     IWETHGateway(wethGatewayAddress).borrowETH(
       registry.getRegisteredService(AAVE_LENDING_POOL),
       borrow.amount,
       2,
       0
     );
+    store().write(bytes32(borrow.amount));
+    console.log('BORROW DONE' );
     emit Action(BORROW_ACTION, bytes32(borrow.amount));
   }
 

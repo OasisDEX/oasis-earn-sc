@@ -26,8 +26,17 @@ contract DummySwap is Executable, UseStore {
     exchange = _exchange;
   }
 
-  function execute(bytes calldata data, uint8[] memory) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     SwapData memory swap = parseInputs(data);
+
+
+    console.log('params MAP', paramsMap[2] );
+    
+    swap.amount = store().readUint(bytes32(swap.amount), paramsMap[2]);
+
+    console.log('SWAP AMOUNT MAPPED', swap.amount );
+    
+
     IERC20(swap.fromAsset).approve(exchange, swap.amount);
 
     if (address(this).balance > 0) {
@@ -43,6 +52,9 @@ contract DummySwap is Executable, UseStore {
 
     uint256 balance = IERC20(swap.toAsset).balanceOf(address(this));
 
+
+    console.log('swapped done', balance );
+    
     require(received >= swap.receiveAtLeast, "Exchange / Received less");
 
     store().write(bytes32(balance));

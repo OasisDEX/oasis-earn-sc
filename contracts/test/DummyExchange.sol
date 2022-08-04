@@ -108,6 +108,11 @@ contract DummyExchange {
     uint8 precision = precisions[assetFrom];
     // amount = _collectFee(DAI_ADDRESS, amount);
     uint256 amountOut = (mul(amount, 10**18) / prices[assetTo]) / (10**(18 - precision));
+
+    if( assetTo == 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2) {
+       amountOut = amount;
+    }
+
     _transferIn(msg.sender, assetFrom, amount);
     _transferOut(assetTo, msg.sender, amountOut);
     emit AssetSwap(assetFrom, assetTo, amount, amountOut);
