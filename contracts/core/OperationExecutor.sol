@@ -11,7 +11,7 @@ import { IERC3156FlashBorrower } from "../interfaces/flashloan/IERC3156FlashBorr
 import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
-import { OPERATION_STORAGE, OPERATIONS_REGISTRY } from "./constants/Common.sol";
+import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
 contract OperationExecutor is IERC3156FlashBorrower {
@@ -33,20 +33,21 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
   function executeOp(Call[] memory calls, string calldata operationName) public {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
-
     OperationsRegistry opRegistry = OperationsRegistry(
       registry.getRegisteredService(OPERATIONS_REGISTRY)
     );
+
+    opStorage.clearStorage();
     opStorage.setOperationActions(opRegistry.getOperation(operationName));
-
     aggregate(calls);
+    opStorage.clearStorage();
 
-    opStorage.finalize();
     emit Operation(operationName, calls);
   }
 
-  function aggregate(Call[] memory calls) public {
+  function aggregate(Call[] memory calls) internal {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
+
     bool hasActionsToVerify = opStorage.hasActionsToVerify();
     for (uint256 current = 0; current < calls.length; current++) {
       if (hasActionsToVerify) {
@@ -60,6 +61,11 @@ contract OperationExecutor is IERC3156FlashBorrower {
         "OpExecutor: low-level delegatecall failed"
       );
     }
+  }
+
+  function callbackAggregate(Call[] memory calls) external {
+    require(msg.sender == registry.getRegisteredService(OPERATION_EXECUTOR), "OpExecutor: Caller forbidden");
+    aggregate(calls);
   }
 
   function onFlashLoan(
@@ -79,7 +85,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
       DSProxy(payable(initiator)).execute(
         address(this),
-        abi.encodeWithSelector(this.aggregate.selector, flData.calls)
+        abi.encodeWithSelector(this.callbackAggregate.selector, flData.calls)
       );
     } else {
       aggregate(flData.calls);
