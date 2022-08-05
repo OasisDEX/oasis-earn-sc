@@ -22,16 +22,20 @@ export function pullToken(args: { amount: BigNumber; asset: string; from: string
   )
 }
 
-export function setApproval(args: { amount: BigNumber; asset: string; delegator: string }) {
+export function setApproval(
+  args: { amount: BigNumber | 0; asset: string; delegator: string },
+  paramsMapping: [asset: number, delegator: number, amount: number] = [0, 0, 0],
+) {
   return createAction(
     getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
     [calldataTypes.common.Approval],
     [
       {
-        amount: args.amount.toFixed(0),
         asset: args.asset,
         delegator: args.delegator,
+        amount: args.amount.toFixed(0),
       },
+      paramsMapping,
     ],
   )
 }

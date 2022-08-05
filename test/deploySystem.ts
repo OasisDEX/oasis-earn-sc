@@ -66,6 +66,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     10000,
   )
+  await uSwap.addFeeTier(20)
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
@@ -90,7 +91,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
 
-  const [setApproval, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [])
+  const [setApproval, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
+    serviceRegistryAddress,
+  ])
   const [cdpAllow, cdpAllowAddress] = await deploy(CONTRACT_NAMES.maker.CDP_ALLOW, [
     serviceRegistryAddress,
   ])

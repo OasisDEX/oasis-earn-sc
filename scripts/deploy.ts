@@ -82,7 +82,9 @@ async function main() {
   // DEPLOYING ACTIONS
   const [, pullTokenActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
   const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
-  const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [])
+  const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
+    serviceRegistryAddress,
+  ])
   const [, flActionAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
   ])

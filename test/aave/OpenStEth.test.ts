@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
-import { makeOperation } from 'oasis-actions'
+import { operation, strategy } from 'oasis-actions'
 import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
 
@@ -54,12 +54,12 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
   })
 
   const flashloanAmount = amountToWei(new BigNumber(1000000))
-  const depositAmount = amountToWei(new BigNumber(200000))
+  const depositAmount = amountToWei(new BigNumber(100))
   const borrowAmount = amountToWei(new BigNumber(5))
 
   const testName = `should open stEth position`
 
-  it(testName, async () => {
+  it.only(testName, async () => {
     // Transfer stETH to exchange for Swap
 
     const toImpersonate = '0xdc24316b9ae028f1497c275eb9192a3ea0f67022'
@@ -71,21 +71,35 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     await stETH.transfer(system.common.exchange.address, bal)
     await provider.send('hardhat_stopImpersonatingAccount', [toImpersonate])
 
-    const operations = await makeOperation(registry, ADDRESSES.main)
+    const calls = await strategy.openStEth(
+      registry,
+      ADDRESSES.main,
+      {
+        account: address,
+        depositAmount,
+        slippage: new BigNumber(0.1),
+      },
+      {
+        provider,
+        getSwapData: async (from, to, amount, slippage) => {
+          const marketPrice = 0.9849
+          return {
+            fromTokenAddress: from,
+            toTokenAddress: to,
+            fromTokenAmount: amount,
+            toTokenAmount: amount.times(new BigNumber(1).div(marketPrice)),
+            minToTokenAmount: amount
+              .times(new BigNumber(1).div(marketPrice))
+              .times(new BigNumber(1).minus(slippage)), // TODO: figure out slippage
+            exchangeCalldata: 0,
+          }
+        },
+      },
+    )
 
-    const calls = await operations.openStEth({
-      account: address,
-      depositAmount,
-      flashloanAmount,
-      borrowAmount,
-      fee: 0,
-      swapData: 0,
-      receiveAtLeast: new BigNumber(1),
-    })
+    // await approve(ADDRESSES.main.DAI, system.common.dsProxy.address, depositAmount, config, true)
 
-    await approve(ADDRESSES.main.DAI, system.common.dsProxy.address, depositAmount, config, true)
-
-    await executeThroughProxy(
+    const x = await executeThroughProxy(
       system.common.dsProxy.address,
       {
         address: system.common.operationExecutor.address,
@@ -95,7 +109,10 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
         ]),
       },
       signer,
+      depositAmount.toFixed(0),
     )
+
+    console.log(x)
 
     expectToBeEqual(await balanceOf(ADDRESSES.main.ETH, system.common.dsProxy.address, options), 0)
     expectToBeEqual(

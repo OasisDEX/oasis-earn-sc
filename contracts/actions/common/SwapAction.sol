@@ -5,19 +5,18 @@ import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { SwapData } from "../../core/types/Common.sol";
+import { UseStore, Write } from "../../actions/common/UseStore.sol";
 import { Swap } from "./Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
+import { OperationStorage } from "../../core/OperationStorage.sol";
 
 import "hardhat/console.sol";
 
-contract SwapAction is Executable {
+contract SwapAction is Executable, UseStore {
   using SafeERC20 for IERC20;
+  using Write for OperationStorage;
 
-  ServiceRegistry internal immutable registry;
-
-  constructor(ServiceRegistry _registry) {
-    registry = _registry;
-  }
+  constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     // TODO figure out why using ETH doesn't work.
@@ -29,12 +28,14 @@ contract SwapAction is Executable {
   
     if (address(this).balance > 0) {
       IWETH(registry.getRegisteredService(WETH)).deposit{ value: address(this).balance }();
-    }
+    } //TODO remove
 
     SwapData memory swap = abi.decode(data, (SwapData));
 
     IERC20(swap.fromAsset).safeApprove(swapAddress, swap.amount);
 
-    Swap(swapAddress).swapTokens(swap);
+    uint256 recived = Swap(swapAddress).swapTokens(swap);
+
+    store().write(bytes32(recived));
   }
 }

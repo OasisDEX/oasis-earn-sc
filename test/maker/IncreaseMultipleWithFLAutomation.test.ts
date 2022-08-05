@@ -87,7 +87,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
   const gasEstimates = gasEstimateHelper()
 
   const testName = `should open vault, deposit ETH and increase multiple & [+Flashloan]`
-  it.only(testName, async () => {
+  it(testName, async () => {
     await WETH.approve(
       system.common.userProxyAddress,
       amountToWei(initialColl.plus(collTopUp)).toFixed(0),
