@@ -62,7 +62,6 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     const { calls } = await strategy.openStEth(
       ADDRESSES.main,
       {
-        account: address,
         depositAmount,
         slippage: new BigNumber(0.1),
       },

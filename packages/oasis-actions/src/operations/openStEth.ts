@@ -16,7 +16,6 @@ export async function openStEth(
   registry: ServiceRegistry,
   addresses: OpenStEthAddresses,
   args: {
-    account: string
     depositAmount: BigNumber
     flashloanAmount: BigNumber
     borrowAmount: BigNumber

@@ -33,7 +33,6 @@ interface SwapData {
 }
 
 interface OpenStEthArgs {
-  account: string
   depositAmount: BigNumber // in wei
   slippage: BigNumber
 }
@@ -113,7 +112,6 @@ export async function openStEth(
   const stEthAmountAfterSwapWei = ethAmountToSwapWei.div(marketPriceWithSlippage)
 
   const calls = await operation.openStEth(dependencies.registry, address, {
-    account: args.account,
     depositAmount: depositEthWei,
     flashloanAmount: flashLoanAmountWei,
     borrowAmount: borrowEthAmountWei,
