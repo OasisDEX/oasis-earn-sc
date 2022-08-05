@@ -23,6 +23,7 @@ export async function openStEth(
     receiveAtLeast: BigNumber
     fee: number
     swapData: string | number
+    ethSwapAmount: BigNumber
   },
 ) {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
@@ -44,7 +45,7 @@ export async function openStEth(
   const swapETHforSTETH = actions.common.swap({
     fromAsset: addresses.WETH,
     toAsset: addresses.stETH,
-    amount: args.borrowAmount,
+    amount: args.ethSwapAmount,
     receiveAtLeast: args.receiveAtLeast,
     fee: args.fee,
     withData: args.swapData,

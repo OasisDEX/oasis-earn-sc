@@ -115,7 +115,7 @@ contract uSwap {
     ISwapRouter uniswap = ISwapRouter(registry.getRegisteredService(UNISWAP_ROUTER));
     IERC20(fromAsset).safeApprove(address(uniswap), amount);
     uint24 pool = getPool(fromAsset, toAsset);
-    console.log("POOL", pool);
+    
     console.log("AMOUNT", amount);
     console.log("RECEIVE AT LEAST", receiveAtLeast);
     console.log("fromAsset", fromAsset);
@@ -205,7 +205,13 @@ contract uSwap {
     if (swapData.collectFeeInFromToken) {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
+
+    console.log("swapData.amount", swapData.amount);
     console.log("amountFrom", amountFrom);
+    console.log("swapData.toAsset", swapData.toAsset);
+    console.log("swapData.fee", swapData.fee);
+    console.log("swapData.collectFeeInFromToken", swapData.collectFeeInFromToken);
+
     uint256 toTokenBalance = _swap(
       swapData.fromAsset,
       swapData.toAsset,

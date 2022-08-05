@@ -25,11 +25,11 @@ contract SwapAction is Executable, UseStore {
     // - Forced to wrap the ETH into WETH
     // - There should be separate actions or utils to wrap/unwrap ETH into/from WETH
     address swapAddress = registry.getRegisteredService(SWAP);
-  
+    
     if (address(this).balance > 0) {
       IWETH(registry.getRegisteredService(WETH)).deposit{ value: address(this).balance }();
     } //TODO remove
-
+    
     SwapData memory swap = abi.decode(data, (SwapData));
 
     IERC20(swap.fromAsset).safeApprove(swapAddress, swap.amount);

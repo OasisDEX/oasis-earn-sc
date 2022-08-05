@@ -9,7 +9,10 @@ import type { OpenStEthAddresses } from '../operations/openStEth'
 import { ServiceRegistry } from '../types/ServiceRegistry'
 
 function calculateFee(amountWei: BigNumber, fee: number, feeBase: number): BigNumber {
-  return amountWei.times(new BigNumber(fee).div(feeBase)).integerValue(BigNumber.ROUND_DOWN)
+  return amountWei
+    .times(fee)
+    .div(new BigNumber(fee).plus(feeBase))
+    .integerValue(BigNumber.ROUND_DOWN)
 }
 
 function amountToWei(amount: BigNumber, decimals = 18): BigNumber {
@@ -95,8 +98,9 @@ export async function openStEth(
 
   // Borrow ETH amount from AAVE
   const borrowEthAmountWei = flashLoanAmountWei.times(targetLTV).div(ethPrice)
-  const fee = calculateFee(borrowEthAmountWei, FEE, FEE_BASE)
-  const ethAmountToSwapWei = borrowEthAmountWei.minus(fee)
+  const ethOnExchange = borrowEthAmountWei.plus(depositEthWei)
+  const fee = calculateFee(ethOnExchange, FEE, FEE_BASE)
+  const ethAmountToSwapWei = ethOnExchange.minus(fee)
 
   const swapData = await dependencies.getSwapData(
     address.WETH,
@@ -118,17 +122,20 @@ export async function openStEth(
     initialDeposit: ${depositEthWei}
     stETHPrice: ${stETHPrice}
   
+    ethOnExchange: ${ethOnExchange}
     stEthToEthRate: ${stEthToEthRate}
     borrowEthAmountWei: ${borrowEthAmountWei}
     multiply: ${multiply}
+    feeAmount ${fee}
     ethAmountToSwapWei: ${ethAmountToSwapWei}
     stEthAmountAfterSwapWei: ${stEthAmountAfterSwapWei}
     marketPriceWithSlippage: ${marketPriceWithSlippage}
     fee: ${fee}
     flashLoanAmountWei: ${flashLoanAmountWei}
 
-    roundData: ${roundData}
-    decimals: ${decimals}
+    receiveAtLeast: ${swapData.minToTokenAmount}
+
+    182394881270052037259.783023049241146096475
   `)
 
   return operation.openStEth(registry, address, {
@@ -139,5 +146,6 @@ export async function openStEth(
     fee: FEE,
     swapData: swapData.exchangeCalldata,
     receiveAtLeast: swapData.minToTokenAmount,
+    ethSwapAmount: ethOnExchange,
   })
 }
