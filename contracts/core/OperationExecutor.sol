@@ -31,7 +31,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     registry = _registry;
   }
 
-  function executeOp(Call[] memory calls, string calldata operationName) public {
+  function executeOp(Call[] memory calls, string calldata operationName) public payable {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
 
     OperationsRegistry opRegistry = OperationsRegistry(
@@ -45,7 +45,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     emit Operation(operationName, calls);
   }
 
-  function aggregate(Call[] memory calls) public {
+  function aggregate(Call[] memory calls) public payable {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
     bool hasActionsToVerify = opStorage.hasActionsToVerify();
     for (uint256 current = 0; current < calls.length; current++) {
