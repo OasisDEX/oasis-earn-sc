@@ -3,14 +3,12 @@ pragma solidity ^0.8.1;
 import { ServiceRegistry } from "./ServiceRegistry.sol";
 
 contract OperationStorage {
-  address private owner;
   uint8 internal action = 0;
   bytes32[] public actions;
   bytes32[] public returnValues;
   ServiceRegistry internal immutable registry;
 
   constructor(ServiceRegistry _registry) {
-    owner = msg.sender;
     registry = _registry;
   }
 
