@@ -39,6 +39,7 @@ interface OpenStEthArgs {
 }
 interface OpenStEthDependencies {
   provider: providers.Provider
+  registry: ServiceRegistry
   getSwapData: (
     fromToken: string,
     toToken: string,
@@ -48,11 +49,10 @@ interface OpenStEthDependencies {
 }
 
 export async function openStEth(
-  registry: ServiceRegistry,
   address: OpenStEthAddresses,
   args: OpenStEthArgs,
   dependencies: OpenStEthDependencies,
-): Promise<any> {
+) {
   const chainlinkEthUsdPriceFeed = '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419'
   const priceFeed = new ethers.Contract(
     chainlinkEthUsdPriceFeed,
@@ -88,9 +88,8 @@ export async function openStEth(
 
   const targetLTV = new BigNumber(0.5)
   const depositEthWei = args.depositAmount
-  const stETHPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
+  const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
-  const stEthToEthRate = stETHPrice.div(ethPrice)
   const multiply = ONE.div(ONE.minus(targetLTV))
 
   // Borrow DAI amount from FL, and deposit it in aave
@@ -109,36 +108,11 @@ export async function openStEth(
     new BigNumber(slippage),
   )
 
+  const marketPice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
   const marketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
   const stEthAmountAfterSwapWei = ethAmountToSwapWei.div(marketPriceWithSlippage)
 
-  console.log(`
-    TEST
-    aaveWethPriceInEth: ${aaveWethPriceInEth}
-    aaveStEthPriceInEth: ${aaveStEthPriceInEth}
-
-    oracle ethPrice: ${ethPrice}
-    targetLTV: ${targetLTV}
-    initialDeposit: ${depositEthWei}
-    stETHPrice: ${stETHPrice}
-  
-    ethOnExchange: ${ethOnExchange}
-    stEthToEthRate: ${stEthToEthRate}
-    borrowEthAmountWei: ${borrowEthAmountWei}
-    multiply: ${multiply}
-    feeAmount ${fee}
-    ethAmountToSwapWei: ${ethAmountToSwapWei}
-    stEthAmountAfterSwapWei: ${stEthAmountAfterSwapWei}
-    marketPriceWithSlippage: ${marketPriceWithSlippage}
-    fee: ${fee}
-    flashLoanAmountWei: ${flashLoanAmountWei}
-
-    receiveAtLeast: ${swapData.minToTokenAmount}
-
-    182394881270052037259.783023049241146096475
-  `)
-
-  return operation.openStEth(registry, address, {
+  const calls = await operation.openStEth(dependencies.registry, address, {
     account: args.account,
     depositAmount: depositEthWei,
     flashloanAmount: flashLoanAmountWei,
@@ -148,4 +122,18 @@ export async function openStEth(
     receiveAtLeast: swapData.minToTokenAmount,
     ethSwapAmount: ethOnExchange,
   })
+
+  return {
+    calls,
+    swapData,
+    marketPice,
+    stEthAmountAfterSwap: amountFromWei(stEthAmountAfterSwapWei),
+    ethAmountToSwap: amountFromWei(ethAmountToSwapWei),
+    feeAmount: amountFromWei(fee),
+    flashLoanAmount: amountFromWei(flashLoanAmountWei),
+    borrowEthAmount: amountFromWei(borrowEthAmountWei),
+    ethPrice,
+    stEthPrice,
+    multiply,
+  }
 }

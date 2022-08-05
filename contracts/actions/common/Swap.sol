@@ -1,7 +1,5 @@
 pragma solidity ^0.8.5;
 
-import "hardhat/console.sol";
-
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";

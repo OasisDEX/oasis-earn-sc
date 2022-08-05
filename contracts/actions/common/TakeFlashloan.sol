@@ -9,8 +9,6 @@ import { OPERATION_EXECUTOR, DAI, TAKE_FLASH_LOAN_ACTION } from "../../core/cons
 import { FLASH_MINT_MODULE } from "../../core/constants/Maker.sol";
 import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
 
-import "hardhat/console.sol";
-
 contract TakeFlashloan is Executable, ProxyPermission {
   ServiceRegistry internal immutable registry;
 
@@ -20,7 +18,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
-    console.log("STRAT TAKE FLASH LOAN", flData.amount);
+    
     if (flData.dsProxyFlashloan) {
       givePermission(registry.getRegisteredService(OPERATION_EXECUTOR));
     }

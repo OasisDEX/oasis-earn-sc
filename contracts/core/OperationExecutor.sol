@@ -14,8 +14,6 @@ import { FlashloanData, Call } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
-import "hardhat/console.sol";
-
 contract OperationExecutor is IERC3156FlashBorrower {
   using Address for address;
   using SafeERC20 for IERC20;
@@ -53,11 +51,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
       if (hasActionsToVerify) {
         opStorage.verifyAction(calls[current].targetHash);
       }
-      console.log(current);
-      console.log("ETH", address(this).balance);
-      console.log("WETH:", IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2).balanceOf(address(this)));
-      console.log("StETH:", IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84).balanceOf(address(this)));
-      console.log("DAI:", IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F).balanceOf(address(this)));
+
       address target = registry.getServiceAddress(calls[current].targetHash);
       target.functionDelegateCall(
         calls[current].callData,

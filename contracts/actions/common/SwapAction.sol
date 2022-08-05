@@ -10,8 +10,6 @@ import { Swap } from "./Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 
-import "hardhat/console.sol";
-
 contract SwapAction is Executable, UseStore {
   using SafeERC20 for IERC20;
   using Write for OperationStorage;

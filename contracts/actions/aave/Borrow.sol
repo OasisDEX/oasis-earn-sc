@@ -8,8 +8,6 @@ import { IWETHGateway } from "../../interfaces/aave/IWETHGateway.sol";
 import { BorrowData } from "../../core/types/Aave.sol";
 import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL, BORROW_ACTION } from "../../core/constants/Aave.sol";
 
-import "hardhat/console.sol";
-
 contract AaveBorrow is Executable, UseStore {
   using Write for OperationStorage;
 
@@ -20,7 +18,7 @@ contract AaveBorrow is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     BorrowData memory borrow = abi.decode(data, (BorrowData));
-    console.log("STRAT BORROW IN AAVE", borrow.asset, borrow.amount);
+
     address wethGatewayAddress = registry.getRegisteredService(AAVE_WETH_GATEWAY);
     dWETH.approveDelegation(wethGatewayAddress, borrow.amount);
     store().write(bytes32(borrow.amount));
@@ -31,6 +29,5 @@ contract AaveBorrow is Executable, UseStore {
       0
     );
     emit Action(BORROW_ACTION, bytes32(borrow.amount));
-    console.log("END BORROW IN AAVE", borrow.asset, borrow.amount);
   }
 }

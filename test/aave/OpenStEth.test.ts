@@ -53,14 +53,13 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     registry = _registry
   })
 
-  const depositAmount = amountToWei(new BigNumber(50))
-  const borrowAmount = amountToWei(new BigNumber(5))
+  // Apparently there is not enough liquidity to deposit more then 100ETH`
+  const depositAmount = amountToWei(new BigNumber(60))
 
   const testName = `should open stEth position`
 
   it.only(testName, async () => {
-    const calls = await strategy.openStEth(
-      registry,
+    const { calls } = await strategy.openStEth(
       ADDRESSES.main,
       {
         account: address,
@@ -68,6 +67,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
         slippage: new BigNumber(0.1),
       },
       {
+        registry,
         provider,
         getSwapData: async (from, to, amount, slippage) => {
           const marketPrice = 0.979
@@ -86,7 +86,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
       },
     )
 
-    await executeThroughProxy(
+    const [success] = await executeThroughProxy(
       system.common.dsProxy.address,
       {
         address: system.common.operationExecutor.address,
@@ -99,14 +99,6 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
       depositAmount.toFixed(0),
     )
 
-    expectToBeEqual(await balanceOf(ADDRESSES.main.ETH, system.common.dsProxy.address, options), 0)
-    expectToBeEqual(
-      await balanceOf(ADDRESSES.main.aDAI, system.common.dsProxy.address, options),
-      depositAmount.toFixed(),
-    )
-    expectToBeEqual(
-      await balanceOf(ADDRESSES.main.variableDebtWETH, system.common.dsProxy.address, options),
-      borrowAmount.toFixed(),
-    )
+    expect(success, 'Transaction should be successful').to.be.true
   })
 })
