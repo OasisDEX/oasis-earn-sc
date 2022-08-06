@@ -14,7 +14,6 @@ export interface OpenStEthAddresses {
 }
 
 export async function openStEth(
-  addresses: OpenStEthAddresses,
   args: {
     depositAmount: BigNumber
     flashloanAmount: BigNumber
@@ -24,6 +23,7 @@ export async function openStEth(
     swapData: string | number
     ethSwapAmount: BigNumber
   },
+  addresses: OpenStEthAddresses,
 ) {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount.plus(args.depositAmount),

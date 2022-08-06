@@ -1,7 +1,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
-import { Contract, Signer } from 'ethers'
+import { Contract, ContractReceipt, Signer } from 'ethers'
 import { strategy } from 'oasis-actions'
 import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
@@ -13,27 +13,70 @@ import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
-import { getLastVault, getVaultInfo } from '../../helpers/maker/vault'
-import { ServiceRegistry } from '../../helpers/serviceRegistry'
-import { swapOneInchTokens } from '../../helpers/swap/1inch'
-import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, approve, balanceOf } from '../../helpers/utils'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
-import { expectToBeEqual } from '../utils'
+import { expectToBe, expectToBeEqual } from '../utils'
 
-let DAI: Contract
-let WETH: Contract
-let stETH: Contract
+const oneInchCallMock = async (
+  from: string,
+  to: string,
+  amount: BigNumber,
+  slippage: BigNumber,
+) => {
+  const marketPrice = 0.979
+  return {
+    fromTokenAddress: from,
+    toTokenAddress: to,
+    fromTokenAmount: amount,
+    toTokenAmount: amount.div(marketPrice),
+    minToTokenAmount: amount
+      .div(marketPrice)
+      .times(new BigNumber(1).minus(slippage))
+      .integerValue(BigNumber.ROUND_DOWN), // TODO: figure out slippage
+    exchangeCalldata: 0,
+  }
+}
 
-describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () => {
+interface AAVEReserveData {
+  currentATokenBalance: BigNumber
+  currentStableDebt: BigNumber
+  currentVariableDebt: BigNumber
+  principalStableDebt: BigNumber
+  scaledVariableDebt: BigNumber
+  stableBorrowRate: BigNumber
+  liquidityRate: BigNumber
+}
+
+interface AAVEAccountData {
+  totalCollateralETH: BigNumber
+  totalDebtETH: BigNumber
+  availableBorrowsETH: BigNumber
+  currentLiquidationThreshold: BigNumber
+  ltv: BigNumber
+  healthFactor: BigNumber
+}
+
+describe.only(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () => {
+  let DAI: Contract
+  let WETH: Contract
+  let stETH: Contract
+  let aaveLendingPool: Contract
+  let aaveDataProvider: Contract
   let provider: JsonRpcProvider
+  let config: RuntimeConfig
   let signer: Signer
   let address: string
-  let system: DeployedSystemInfo
-  let registry: ServiceRegistry
-  let config: RuntimeConfig
-  let options: any
+
+  const mainnetAddresses = {
+    DAI: ADDRESSES.main.DAI,
+    ETH: ADDRESSES.main.ETH,
+    WETH: ADDRESSES.main.WETH,
+    stETH: ADDRESSES.main.stETH,
+    chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
+    aavePriceOracle: ADDRESSES.main.aavePriceOracle,
+    aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
+  }
 
   before(async () => {
     config = await init()
@@ -41,107 +84,96 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     signer = config.signer
     address = config.address
 
-    options = {
-      debug: true,
-      config,
-    }
-
-    const blockNumber = 15191046
-    resetNode(provider, blockNumber)
-
-    const { system: _system, registry: _registry } = await deploySystem(config)
-    system = _system
-    registry = _registry
-  })
-
-  // Apparently there is not enough liquidity (at tested block) to deposit > 100ETH`
-  const depositAmount = amountToWei(new BigNumber(60))
-
-  const testName = `should open stEth position`
-
-  it.only(testName, async () => {
-    const { calls, multiply } = await strategy.openStEth(
-      {
-        DAI: ADDRESSES.main.DAI,
-        ETH: ADDRESSES.main.ETH,
-        WETH: ADDRESSES.main.WETH,
-        stETH: ADDRESSES.main.stETH,
-        operationExecutor: system.common.operationExecutor.address,
-        chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-        aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-        aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
-      },
-      {
-        depositAmount,
-        slippage: new BigNumber(0.1),
-      },
-      {
-        provider,
-        getSwapData: async (from, to, amount, slippage) => {
-          const marketPrice = 0.979
-          return {
-            fromTokenAddress: from,
-            toTokenAddress: to,
-            fromTokenAmount: amount,
-            toTokenAmount: amount.div(marketPrice),
-            minToTokenAmount: amount
-              .div(marketPrice)
-              .times(new BigNumber(1).minus(slippage))
-              .integerValue(BigNumber.ROUND_DOWN), // TODO: figure out slippage
-            exchangeCalldata: 0,
-          }
-        },
-      },
-    )
-
-    const [success] = await executeThroughProxy(
-      system.common.dsProxy.address,
-      {
-        address: system.common.operationExecutor.address,
-        calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-          calls,
-          OPERATION_NAMES.common.CUSTOM_OPERATION,
-        ]),
-      },
-      signer,
-      depositAmount.toFixed(0),
-    )
-
-    const aaveLendingPool = new Contract(
+    aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
       AAVELendigPoolABI,
       provider,
     )
-    const aaveDataProvider = new Contract(
-      ADDRESSES.main.aave.DataProvider,
-      AAVEDataProviderABI,
-      provider,
-    )
+    aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
+  })
 
-    const userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
-    const userReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES.main.stETH,
-      system.common.dsProxy.address,
-    )
+  describe('On forked chain', () => {
+    const blockNumber = 15191046
+    // Apparently there is not enough liquidity (at tested block) to deposit > 100ETH`
+    const depositAmount = amountToWei(new BigNumber(60))
+    const multiply = new BigNumber(2)
+    const slippage = new BigNumber(0.1)
 
-    console.log(userAccountData, userReserveData)
+    let system: DeployedSystemInfo
 
-    // console.log(`
-    //   totalCollateralETH: ${userAccountData.totalCollateralETH.toString()}
-    //   totalDebtETH: ${userAccountData.totalDebtETH.toString()}
-    //   availableBorrowsETH: ${userAccountData.availableBorrowsETH.toString()}
-    //   currentLiquidationThreshold: ${userAccountData.currentLiquidationThreshold.toString()}
-    //   ltv: ${userAccountData.ltv.toString()}
-    //   healthFactor: ${userAccountData.healthFactor.toString()}
+    let strategyReturn: Awaited<ReturnType<typeof strategy.openStEth>>
+    let txStatus: boolean
+    let tx: ContractReceipt
 
-    //   userReserveData:
-    // `)
+    let userAccountData: AAVEAccountData
+    let userStEthReserveData: AAVEReserveData
 
-    expect(success, 'Transaction should be successful').to.be.true
+    before(async () => {
+      resetNode(provider, blockNumber)
 
-    expectToBeEqual(
-      multiply.times(depositAmount).minus(depositAmount),
-      new BigNumber(userAccountData.totalDebtETH.toString()),
-    )
+      const { system: _system } = await deploySystem(config)
+      system = _system
+
+      const addresses = {
+        ...mainnetAddresses,
+        operationExecutor: system.common.operationExecutor.address,
+      }
+
+      strategyReturn = await strategy.openStEth(
+        {
+          depositAmount,
+          slippage,
+          multiply,
+        },
+        {
+          addresses,
+          provider,
+          getSwapData: oneInchCallMock,
+        },
+      )
+
+      const [_txStatus, _tx] = await executeThroughProxy(
+        system.common.dsProxy.address,
+        {
+          address: system.common.operationExecutor.address,
+          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+            strategyReturn.calls,
+            OPERATION_NAMES.common.CUSTOM_OPERATION,
+          ]),
+        },
+        signer,
+        depositAmount.toFixed(0),
+      )
+      txStatus = _txStatus
+      tx = _tx
+
+      userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
+      userStEthReserveData = await aaveDataProvider.getUserReserveData(
+        ADDRESSES.main.stETH,
+        system.common.dsProxy.address,
+      )
+    })
+
+    it('Tx should pass', () => {
+      expect(txStatus).to.be.true
+    })
+
+    it('Should draw debt according to multiply', () => {
+      expectToBeEqual(
+        strategyReturn.multiply
+          .times(depositAmount)
+          .minus(depositAmount)
+          .integerValue(BigNumber.ROUND_UP),
+        new BigNumber(userAccountData.totalDebtETH.toString()),
+      )
+    })
+
+    it('Should deposit all stEth tokens to aave', () => {
+      expectToBe(
+        strategyReturn.swapData.minToTokenAmount,
+        'lte',
+        new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
+      )
+    })
   })
 })
