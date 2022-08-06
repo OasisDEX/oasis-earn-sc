@@ -2,18 +2,16 @@ import BigNumber from 'bignumber.js'
 
 import * as actions from '../actions'
 import { ADDRESSES } from '../helpers/addresses'
-import { CONTRACT_NAMES } from '../helpers/constants'
-import { ServiceRegistry } from '../types/ServiceRegistry'
 
 export interface OpenStEthAddresses {
   DAI: string
   ETH: string
   WETH: string
   stETH: string
+  operationExecutor: string
 }
 
 export async function openStEth(
-  registry: ServiceRegistry,
   addresses: OpenStEthAddresses,
   args: {
     depositAmount: BigNumber
@@ -75,13 +73,13 @@ export async function openStEth(
 
   const sendBackDAI = actions.common.sendToken({
     asset: addresses.DAI,
-    to: await registry.getServiceAddress(CONTRACT_NAMES.common.OPERATION_EXECUTOR),
+    to: addresses.operationExecutor,
     amount: args.flashloanAmount,
   })
 
-  const takeAFlashloan = actions.common.takeAFlashLoan({
+  const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
-    borrower: await registry.getServiceAddress(CONTRACT_NAMES.common.OPERATION_EXECUTOR),
+    borrower: addresses.operationExecutor,
     dsProxyFlashloan: true,
     calls: [
       setDaiApprovalOnLendingPool,
@@ -95,8 +93,5 @@ export async function openStEth(
     ],
   })
 
-  return [
-    // pullToken,
-    takeAFlashloan,
-  ]
+  return [takeAFlashLoan]
 }

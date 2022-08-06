@@ -6,7 +6,6 @@ import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
 import { ONE } from '../helpers/constants'
 import * as operation from '../operations'
 import type { OpenStEthAddresses } from '../operations/openStEth'
-import { ServiceRegistry } from '../types/ServiceRegistry'
 
 function calculateFee(amountWei: BigNumber, fee: number, feeBase: number): BigNumber {
   return amountWei
@@ -29,7 +28,7 @@ interface SwapData {
   fromTokenAmount: BigNumber
   toTokenAmount: BigNumber
   minToTokenAmount: BigNumber
-  exchangeCalldata: any
+  exchangeCalldata: string | number
 }
 
 interface OpenStEthArgs {
@@ -38,7 +37,6 @@ interface OpenStEthArgs {
 }
 interface OpenStEthDependencies {
   provider: providers.Provider
-  registry: ServiceRegistry
   getSwapData: (
     fromToken: string,
     toToken: string,
@@ -111,7 +109,7 @@ export async function openStEth(
   const marketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
   const stEthAmountAfterSwapWei = ethAmountToSwapWei.div(marketPriceWithSlippage)
 
-  const calls = await operation.openStEth(dependencies.registry, address, {
+  const calls = await operation.openStEth(address, {
     depositAmount: depositEthWei,
     flashloanAmount: flashLoanAmountWei,
     borrowAmount: borrowEthAmountWei,

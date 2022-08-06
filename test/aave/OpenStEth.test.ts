@@ -53,20 +53,25 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     registry = _registry
   })
 
-  // Apparently there is not enough liquidity to deposit more then 100ETH`
+  // Apparently there is not enough liquidity (at tested block) to deposit > 100ETH`
   const depositAmount = amountToWei(new BigNumber(60))
 
   const testName = `should open stEth position`
 
   it.only(testName, async () => {
     const { calls } = await strategy.openStEth(
-      ADDRESSES.main,
+      {
+        DAI: ADDRESSES.main.DAI,
+        ETH: ADDRESSES.main.ETH,
+        WETH: ADDRESSES.main.WETH,
+        stETH: ADDRESSES.main.stETH,
+        operationExecutor: system.common.operationExecutor.address,
+      },
       {
         depositAmount,
         slippage: new BigNumber(0.1),
       },
       {
-        registry,
         provider,
         getSwapData: async (from, to, amount, slippage) => {
           const marketPrice = 0.979
