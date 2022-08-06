@@ -6,6 +6,7 @@ import { strategy } from 'oasis-actions'
 import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
 
+import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
@@ -111,17 +112,30 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
       AAVELendigPoolABI,
       provider,
     )
+    const aaveDataProvider = new Contract(
+      ADDRESSES.main.aave.DataProvider,
+      AAVEDataProviderABI,
+      provider,
+    )
 
     const userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
+    const userReserveData = await aaveDataProvider.getUserReserveData(
+      ADDRESSES.main.stETH,
+      system.common.dsProxy.address,
+    )
 
-    console.log(`
-      totalCollateralETH: ${userAccountData.totalCollateralETH.toString()}
-      totalDebtETH: ${userAccountData.totalDebtETH.toString()}
-      availableBorrowsETH: ${userAccountData.availableBorrowsETH.toString()}
-      currentLiquidationThreshold: ${userAccountData.currentLiquidationThreshold.toString()}
-      ltv: ${userAccountData.ltv.toString()}
-      healthFactor: ${userAccountData.healthFactor.toString()}
-    `)
+    console.log(userAccountData, userReserveData)
+
+    // console.log(`
+    //   totalCollateralETH: ${userAccountData.totalCollateralETH.toString()}
+    //   totalDebtETH: ${userAccountData.totalDebtETH.toString()}
+    //   availableBorrowsETH: ${userAccountData.availableBorrowsETH.toString()}
+    //   currentLiquidationThreshold: ${userAccountData.currentLiquidationThreshold.toString()}
+    //   ltv: ${userAccountData.ltv.toString()}
+    //   healthFactor: ${userAccountData.healthFactor.toString()}
+
+    //   userReserveData:
+    // `)
 
     expect(success, 'Transaction should be successful').to.be.true
 
