@@ -17,8 +17,6 @@ contract AaveWithdraw is Executable {
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     WithdrawData memory withdraw = abi.decode(data, (WithdrawData));
-    
-    (uint256 a,uint256 b,uint256 c,uint256 d,uint256 e,uint256 f) = ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).getUserAccountData(address(this));
 
     ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).withdraw(
       withdraw.asset,

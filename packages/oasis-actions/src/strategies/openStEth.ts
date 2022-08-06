@@ -50,9 +50,8 @@ export async function openStEth(
   args: OpenStEthArgs,
   dependencies: OpenStEthDependencies,
 ) {
-  const chainlinkEthUsdPriceFeed = '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419'
   const priceFeed = new ethers.Contract(
-    chainlinkEthUsdPriceFeed,
+    address.chainlinkEthUsdPriceFeed,
     chainlinkPriceFeedABI,
     dependencies.provider,
   )
@@ -60,9 +59,8 @@ export async function openStEth(
   const decimals = await priceFeed.decimals()
   const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
 
-  const aavePriceOracleAddress = '0xa50ba011c48153de246e5192c8f9258a2ba79ca9'
   const aavePriceOracle = new ethers.Contract(
-    aavePriceOracleAddress,
+    address.aavePriceOracle,
     aavePriceOracleABI,
     dependencies.provider,
   )
