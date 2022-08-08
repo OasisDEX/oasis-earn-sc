@@ -40,7 +40,7 @@ contract OperationStorage {
     return returnValues.length;
   }
 
-  function finalize() external {
+  function clearStorage() external {
     delete action;
     delete actions;
     delete returnValues;
