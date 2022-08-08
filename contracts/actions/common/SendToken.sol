@@ -1,4 +1,4 @@
-pragma solidity ^0.8.5;
+pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
