@@ -71,6 +71,9 @@ contract OperationExecutor is IERC3156FlashBorrower {
     bytes calldata data
   ) external override returns (bytes32) {
     address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
+
+    require(msg.sender == lender, "Untrusted flashloan lender");
+    
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
 
     require(amount == flData.amount, "loan-inconsistency");
