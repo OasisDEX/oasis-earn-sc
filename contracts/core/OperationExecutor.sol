@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.5;
+pragma solidity ^0.8.15;
 
 import { ServiceRegistry } from "./ServiceRegistry.sol";
 import { OperationStorage } from "./OperationStorage.sol";

@@ -1,4 +1,4 @@
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.15;
 
 string constant AAVE_LENDING_POOL = "AaveLendingPool";
 string constant AAVE_WETH_GATEWAY = "AaveWethGateway";

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.15;
 
 abstract contract IGem {
   function approve(address, uint256) public virtual;
