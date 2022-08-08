@@ -81,7 +81,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
 
-    require(amount == flData.amount, "loan-inconsistency");
+    require(IERC20(asset).balanceOf(address(this)) == flData.amount, "Flashloan inconsistency");
 
     if (flData.dsProxyFlashloan) {
       IERC20(asset).safeTransfer(initiator, flData.amount);
