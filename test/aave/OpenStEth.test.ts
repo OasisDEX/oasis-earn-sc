@@ -2,7 +2,7 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, ContractReceipt, Signer } from 'ethers'
-import { strategy } from 'oasis-actions'
+import { ONE, strategy } from 'oasis-actions'
 import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
 import { OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
 
@@ -116,7 +116,6 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
   })
 
   describe('On forked chain', () => {
-    const blockNumber = 15191046
     // Apparently there is not enough liquidity (at tested block) to deposit > 100ETH`
     const depositAmount = amountToWei(new BigNumber(60))
     const multiply = new BigNumber(2)
@@ -134,7 +133,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
-      resetNode(provider, blockNumber)
+      resetNode(provider, testBlockNumber)
 
       const { system: _system } = await deploySystem(config)
       system = _system
@@ -221,7 +220,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     })
   })
 
-  describe.only('On latest block using one inch exchange and api', () => {
+  describe('On latest block using one inch exchange and api', () => {
     const depositAmount = amountToWei(new BigNumber(60))
     const multiply = new BigNumber(2)
     const slippage = new BigNumber(0.1)
@@ -294,15 +293,6 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
         ADDRESSES.main.stETH,
         system.common.dsProxy.address,
       )
-
-      function log(obj: object) {
-        Object.entries(obj).forEach(([key, v]) => {
-          console.log(key, v.toString())
-        })
-      }
-
-      log(userAccountData)
-      log(userStEthReserveData)
     })
 
     it('Tx should pass', () => {

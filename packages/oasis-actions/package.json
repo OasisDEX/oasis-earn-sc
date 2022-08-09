@@ -1,5 +1,5 @@
 {
-    "name": "oasis-actions",
+    "name": "@oasisdex/oasis-actions",
     "version": "0.0.3",
     "main": "lib/src/index.js",
     "typings": "lib/src/index.d.ts",

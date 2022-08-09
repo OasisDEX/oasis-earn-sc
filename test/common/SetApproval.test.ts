@@ -5,30 +5,30 @@ import { ethers } from 'hardhat'
 import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
 
 import IERC20_ABI from '../../abi/IERC20.json'
-import { createDeploy, DeployFunction } from '../../helpers/deploy'
 import init, { resetNode } from '../../helpers/init'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei } from '../../helpers/utils'
 import { calldataTypes } from '../../packages/oasis-actions/src/actions/types/actions'
+import { testBlockNumber } from '../config'
+import { deploySystem } from '../deploySystem'
 
 describe('SetApproval Action', () => {
-  const BLOCK_NUMBER = 14798701
   const AMOUNT = new BigNumber(1000)
   let config: RuntimeConfig
-  let deploy: DeployFunction
   let approval: Contract
   let approvalActionAddress: string
 
   before(async () => {
     config = await init()
-    deploy = await createDeploy({ config, debug: false })
   })
 
   beforeEach(async () => {
-    await resetNode(config.provider, BLOCK_NUMBER)
-    const deployed = await deploy('SetApproval', [])
-    approval = deployed[0]
-    approvalActionAddress = deployed[1]
+    await resetNode(config.provider, testBlockNumber)
+
+    const { system: _system } = await deploySystem(config)
+
+    approval = _system.common.setApproval
+    approvalActionAddress = _system.common.setApproval.address
   })
 
   it('should set approval', async () => {
@@ -43,7 +43,7 @@ describe('SetApproval Action', () => {
           },
         ],
       ),
-      [],
+      [0, 0, 0],
     )
 
     const DAI = new ethers.Contract(ADDRESSES.main.DAI, IERC20_ABI, config.signer)
