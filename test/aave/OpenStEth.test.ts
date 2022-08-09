@@ -4,18 +4,17 @@ import { expect } from 'chai'
 import { Contract, ContractReceipt, Signer } from 'ethers'
 import { strategy } from 'oasis-actions'
 import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
+import { OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
-import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
-import { gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
-import { amountToWei, approve, balanceOf } from '../../helpers/utils'
+import { amountToWei, balanceOf } from '../../helpers/utils'
+import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBe, expectToBeEqual } from '../utils'
 
@@ -105,6 +104,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     signer = config.signer
     address = config.address
 
+    await resetNode(provider, testBlockNumber)
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
       AAVELendigPoolABI,
@@ -238,6 +238,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
+      //Reset to the latest block
       await provider.send('hardhat_reset', [
         {
           forking: {

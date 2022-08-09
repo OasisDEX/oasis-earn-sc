@@ -17,6 +17,7 @@ import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
 import { ActionFactory } from '../../packages/oasis-actions/src/actions/actionFactory'
 import { calldataTypes } from '../../packages/oasis-actions/src/actions/types/actions'
+import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
 
@@ -42,8 +43,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    const blockNumber = 15191046
-    resetNode(provider, blockNumber)
+    await resetNode(provider, testBlockNumber)
 
     const { system: _system, registry: _registry } = await deploySystem(config)
     system = _system

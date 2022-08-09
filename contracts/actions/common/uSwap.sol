@@ -52,14 +52,14 @@ contract uSwap {
   event FeeTierRemoved(uint256 fee);
 
   struct SwapDescription {
-        IERC20 srcToken;
-        IERC20 dstToken;
-        address payable srcReceiver;
-        address payable dstReceiver;
-        uint256 amount;
-        uint256 minReturnAmount;
-        uint256 flags;
-        bytes permit;
+    IERC20 srcToken;
+    IERC20 dstToken;
+    address payable srcReceiver;
+    address payable dstReceiver;
+    uint256 amount;
+    uint256 minReturnAmount;
+    uint256 flags;
+    bytes permit;
   }
 
   modifier onlyAuthorised() {
@@ -85,13 +85,17 @@ contract uSwap {
     emit FeeTierRemoved(fee);
   }
 
-  function setPool(address fromToken, address toToken, uint24 pool) public onlyAuthorised {
-    pools[keccak256(abi.encodePacked(fromToken,toToken))] = pool ;
-    pools[keccak256(abi.encodePacked(toToken,fromToken))] = pool ;
+  function setPool(
+    address fromToken,
+    address toToken,
+    uint24 pool
+  ) public onlyAuthorised {
+    pools[keccak256(abi.encodePacked(fromToken, toToken))] = pool;
+    pools[keccak256(abi.encodePacked(toToken, fromToken))] = pool;
   }
 
   function getPool(address fromToken, address toToken) public view returns (uint24) {
-    uint24 pool = pools[keccak256(abi.encodePacked(fromToken,toToken))];
+    uint24 pool = pools[keccak256(abi.encodePacked(fromToken, toToken))];
 
     if (pool > 0) {
       return pool;
@@ -114,16 +118,19 @@ contract uSwap {
     IERC20(fromAsset).safeApprove(address(uniswap), amount);
     uint24 pool = getPool(fromAsset, toAsset);
 
-    uniswap.exactInputSingle(ISwapRouter.ExactInputSingleParams({
-      tokenIn: fromAsset,
-      tokenOut: toAsset,
-      amountIn: amount,
-      amountOutMinimum: receiveAtLeast,
-      fee: pool,
-      recipient: address(this),
-      deadline: block.timestamp + 15,
-      sqrtPriceLimitX96: 0
-    }));
+    uniswap.exactInputSingle(
+      ISwapRouter.ExactInputSingleParams({
+        tokenIn: fromAsset,
+        tokenOut: toAsset,
+        amountIn: amount,
+        amountOutMinimum: receiveAtLeast,
+        fee: pool,
+        recipient: address(this),
+        deadline: block.timestamp + 15,
+        sqrtPriceLimitX96: 0
+      })
+    );
+
     balance = IERC20(toAsset).balanceOf(address(this));
 
     if (balance == 0) {
@@ -160,10 +167,11 @@ contract uSwap {
     return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(bytes4(keccak256(b))));
   }
 
-  function decodeOneInchCallData (bytes calldata withData) public pure returns (uint256 minReturn) {
+  function decodeOneInchCallData(bytes calldata withData) public pure returns (uint256 minReturn) {
     bytes memory uniswapV3Swap = "uniswapV3Swap(uint256,uint256,uint256[])";
     bytes memory unoswap = "unoswap(address,uint256,uint256,bytes32[])";
-    bytes memory swap = "swap(address,(address,address,address,address,uint256,uint256,uint256,bytes),bytes)";
+    bytes
+      memory swap = "swap(address,(address,address,address,address,uint256,uint256,uint256,bytes),bytes)";
 
     if (withData.length < 4) {
       minReturn = 0;
@@ -172,14 +180,23 @@ contract uSwap {
 
     bytes memory methodSig = withData[:4];
 
-    if(compareMethodSigs(methodSig, uniswapV3Swap)) {
-      (uint256 amount, uint256 _minReturn, uint256[] memory pools) = abi.decode(withData[4:], (uint256,uint256,uint256[]));
+    if (compareMethodSigs(methodSig, uniswapV3Swap)) {
+      (uint256 amount, uint256 _minReturn, uint256[] memory pools) = abi.decode(
+        withData[4:],
+        (uint256, uint256, uint256[])
+      );
       minReturn = _minReturn;
     } else if (compareMethodSigs(methodSig, unoswap)) {
-      (address srcToken, uint256 amount, uint256 _minReturn, bytes32[] memory pools) = abi.decode(withData[4:], (address,uint256,uint256,bytes32[]));
+      (address srcToken, uint256 amount, uint256 _minReturn, bytes32[] memory pools) = abi.decode(
+        withData[4:],
+        (address, uint256, uint256, bytes32[])
+      );
       minReturn = _minReturn;
     } else if (compareMethodSigs(methodSig, swap)) {
-      (address a, SwapDescription memory swapDescription, bytes memory j) = abi.decode(withData[4:], (address,SwapDescription,bytes));
+      (address a, SwapDescription memory swapDescription, bytes memory j) = abi.decode(
+        withData[4:],
+        (address, SwapDescription, bytes)
+      );
       minReturn = swapDescription.minReturnAmount;
     } else {
       // Im not sure whether this is the best way to handle this
@@ -187,9 +204,7 @@ contract uSwap {
     }
   }
 
-  function swapTokens(
-    SwapData calldata swapData
-  ) public returns (uint256) {
+  function swapTokens(SwapData calldata swapData) public {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
     uint256 amountFrom = swapData.amount;
 
@@ -203,7 +218,7 @@ contract uSwap {
       amountFrom,
       swapData.receiveAtLeast
     );
-    
+
     uint256 receiveAtLeastFromCallData = decodeOneInchCallData(swapData.withData);
 
     if (receiveAtLeastFromCallData > toTokenBalance) {

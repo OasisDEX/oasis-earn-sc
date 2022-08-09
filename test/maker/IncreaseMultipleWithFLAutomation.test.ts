@@ -24,6 +24,7 @@ import { RuntimeConfig, SwapData } from '../../helpers/types/common'
 import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
 import { ActionFactory } from '../../packages/oasis-actions/src/actions/actionFactory'
 import { calldataTypes } from '../../packages/oasis-actions/src/actions/types/actions'
+import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
 
@@ -57,8 +58,8 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    const blockNumber = 15191046
-    await resetNode(provider, blockNumber)
+    // When changing block number remember to check vault id that is used for automation
+    await resetNode(provider, testBlockNumber)
 
     const { system: _system, registry: _registry } = await deploySystem(config)
     system = _system
@@ -315,11 +316,14 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     )
 
     // DELEGATECALL
-    const tx2 = await system.common.dummyAutomation[
-      'doAutomationStuffDelegateCall(bytes,address,uint256)'
-    ](executionData, system.common.operationExecutor.address, autoVaultId, {
-      gasLimit: 4000000,
-    })
+    await system.common.dummyAutomation['doAutomationStuffDelegateCall(bytes,address,uint256)'](
+      executionData,
+      system.common.operationExecutor.address,
+      autoVaultId,
+      {
+        gasLimit: 4000000,
+      },
+    )
 
     gasEstimates.save(testName, txReceipt)
 
