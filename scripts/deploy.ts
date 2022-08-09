@@ -258,7 +258,6 @@ async function main() {
     [
       {
         amount: flashloanAmount.toFixed(0),
-        borrower: operationExecutorAddress,
         calls: [
           pullBorrowedFundsIntoProxy,
           setDaiApprovalOnLendingPool,

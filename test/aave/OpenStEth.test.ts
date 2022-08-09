@@ -185,7 +185,6 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
       [
         {
           amount: flashloanAmount.toFixed(0),
-          borrower: system.common.operationExecutor.address,
           dsProxyFlashloan: true,
           calls: [
             setDaiApprovalOnLendingPool,

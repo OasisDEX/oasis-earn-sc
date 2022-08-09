@@ -1,4 +1,4 @@
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.15;
 // TODO: Remove this for prod deploy
 import "hardhat/console.sol";
 
