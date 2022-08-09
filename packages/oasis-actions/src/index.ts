@@ -1,5 +1,4 @@
 export * as action from './actions'
-export * from './actions/actionFactory'
 export * from './helpers/addresses'
 export * as operation from './operations'
 export * as strategy from './strategies'

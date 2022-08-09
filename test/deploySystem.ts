@@ -74,6 +74,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     0,
     serviceRegistryAddress,
   ])
+  await swap.addFeeTier(20)
 
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
   const [dummyAutomation, dummyAutomationAddress] = await deploy('DummyAutomation', [
@@ -344,6 +345,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
       sendToken,
       pullToken,
       takeFlashLoan: actionFl,
+      setApproval,
     },
     maker: {
       mcdView,

@@ -13,7 +13,7 @@ export async function balanceOf(
   asset: string,
   address: string,
   options: BalanceOptions,
-): Promise<string | BigNumber> {
+): Promise<BigNumber> {
   let balance = undefined
   const { provider, signer } = options.config
   if (asset === ADDRESSES.main.ETH) {
@@ -25,7 +25,7 @@ export async function balanceOf(
 
   if (options.isFormatted) {
     const decimals = options.decimals ? options.decimals : 18
-    return ethers.utils.formatUnits(balance.toString(), decimals)
+    return new BigNumber(ethers.utils.formatUnits(balance.toString(), decimals))
   }
 
   if (options.debug) {

@@ -1,6 +1,6 @@
 {
     "name": "oasis-actions",
-    "version": "0.0.1-rc.1",
+    "version": "0.0.3",
     "main": "lib/src/index.js",
     "typings": "lib/src/index.d.ts",
     "scripts": {
