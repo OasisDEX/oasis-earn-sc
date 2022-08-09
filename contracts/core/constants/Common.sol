@@ -1,4 +1,4 @@
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.15;
 
 string constant OPERATION_STORAGE = "OperationStorage";
 string constant OPERATION_EXECUTOR = "OperationExecutor";

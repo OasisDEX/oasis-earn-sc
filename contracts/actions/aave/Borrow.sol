@@ -1,4 +1,4 @@
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
 import { Write, UseStore } from "../common/UseStore.sol";
