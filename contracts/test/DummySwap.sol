@@ -9,9 +9,11 @@ import "../core/ServiceRegistry.sol";
 import "../interfaces/tokens/IWETH.sol";
 import "../interfaces/IExchange.sol";
 import "../core/OperationStorage.sol";
+import { SafeMath } from "../libs/SafeMath.sol";
 import { SwapData } from "../core/types/Common.sol";
 
 contract DummySwap is Executable {
+  using SafeMath for uint256;
   ServiceRegistry public immutable registry;
   IWETH private immutable WETH;
   address private immutable exchange;
@@ -34,6 +36,8 @@ contract DummySwap is Executable {
       WETH.deposit{ value: address(this).balance }();
     }
 
+    uint256 balanceBefore = IERC20(swap.toAsset).balanceOf(address(this));
+
     IExchange(exchange).swapTokenForToken(
       swap.fromAsset,
       swap.toAsset,
@@ -41,8 +45,9 @@ contract DummySwap is Executable {
       swap.receiveAtLeast
     );
 
-    uint256 balance = IERC20(swap.toAsset).balanceOf(address(this));
-
-    require(balance >= swap.receiveAtLeast, "Exchange / Received less");
+    uint256 balanceAfter = IERC20(swap.toAsset).balanceOf(address(this));
+    uint256 amountBought = balanceAfter.sub(balanceBefore);
+    
+    require(amountBought >= swap.receiveAtLeast, "Exchange / Received less");
   }
 }
