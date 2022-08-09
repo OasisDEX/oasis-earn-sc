@@ -1,11 +1,11 @@
 pragma solidity ^0.8.15;
 
-contract ReentrancyGuard {
+abstract contract ReentrancyGuard {
 
-    bool private constant _NOT_ENTERED = false;
-    bool private constant _ENTERED = true;
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED = 2;
 
-    bool private _status;
+    uint256 private _status;
 
     constructor() {
         _status = _NOT_ENTERED;
