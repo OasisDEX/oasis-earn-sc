@@ -124,11 +124,12 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
 
     const openVaultAction = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.OPEN_VAULT),
-      [calldataTypes.maker.Open],
+      [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
         },
+        [0],
       ],
     )
 
@@ -141,7 +142,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           asset: ADDRESSES.main.WETH,
           amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
-        [0],
+        [0, 0, 0],
       ],
     )
 
@@ -154,12 +155,11 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
     // Get flashloan -> Swap for collateral -> Deposit collateral -> Generate DAI -> Repay flashloan
-
     const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
       .plus(ensureWeiFormat(desiredCdpState.daiTopUp))
       .toFixed(0)
@@ -190,7 +190,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           vaultId: 0,
           amount: ensureWeiFormat(desiredCdpState.toBorrowCollateralAmount),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
@@ -203,7 +203,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           vaultId: 0,
           amount: ensureWeiFormat(desiredCdpState.requiredDebt),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
@@ -216,19 +216,19 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           asset: ADDRESSES.main.DAI,
           to: system.common.operationExecutor.address,
         },
-        [0],
+        [0, 0, 0],
       ],
     )
 
     const cdpAllow = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.CDP_ALLOW),
-      [calldataTypes.maker.CdpAllow],
+      [calldataTypes.maker.CdpAllow, calldataTypes.paramsMap],
       [
         {
           vaultId: 0,
           userAddress: system.common.dummyAutomation.address,
         },
-        [1],
+        [1, 0],
       ],
     )
 
@@ -244,10 +244,10 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
             depositBorrowedCollateral,
             generateDaiToRepayFL,
             sendBackDAI,
-            cdpAllow, //this will be performed on trigger setup side
+            cdpAllow,
           ],
         },
-        [0],
+        [0, 0, 0, 0],
       ],
     )
 
@@ -280,10 +280,9 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
         {
           to: system.common.userProxyAddress,
           vaultId: autoVaultId,
-          // amount: ensureWeiFormat(desiredCdpState.requiredDebt),
           amount: ensureWeiFormat(autoTestAmount),
         },
-        [0],
+        [0, 0, 0],
       ],
     )
 
@@ -296,7 +295,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           dsProxyFlashloan: false,
           calls: [generateDaiAutomation],
         },
-        [0],
+        [0, 0, 0, 0],
       ],
     )
 
@@ -309,11 +308,14 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     )
 
     // DELEGATECALL
-    const tx2 = await system.common.dummyAutomation[
-      'doAutomationStuffDelegateCall(bytes,address,uint256)'
-    ](executionData, system.common.operationExecutor.address, autoVaultId, {
-      gasLimit: 4000000,
-    })
+    await system.common.dummyAutomation['doAutomationStuffDelegateCall(bytes,address,uint256)'](
+      executionData,
+      system.common.operationExecutor.address,
+      autoVaultId,
+      {
+        gasLimit: 4000000,
+      },
+    )
 
     gasEstimates.save(testName, txReceipt)
 
