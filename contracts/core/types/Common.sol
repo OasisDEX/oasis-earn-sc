@@ -2,7 +2,6 @@ pragma solidity ^0.8.15;
 
 struct FlashloanData {
   uint256 amount;
-  address borrower;
   bool dsProxyFlashloan;
   Call[] calls;
 }
