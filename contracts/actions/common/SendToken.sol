@@ -1,4 +1,4 @@
-pragma solidity ^0.8.5;
+pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
@@ -10,7 +10,7 @@ contract SendToken is Executable {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     SendTokenData memory send = abi.decode(data, (SendTokenData));
     if (msg.value > 0) {
-      payable(send.to).transfer(msg.value);
+      payable(send.to).transfer(send.amount);
     } else {
       IERC20(send.asset).safeTransfer(send.to, send.amount);
     }

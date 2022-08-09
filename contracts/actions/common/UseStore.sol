@@ -1,4 +1,4 @@
-pragma solidity ^0.8.5;
+pragma solidity ^0.8.15;
 
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
