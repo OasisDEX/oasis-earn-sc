@@ -1,6 +1,7 @@
 pragma solidity ^0.8.15;
 
 import { Operation } from "./types/Common.sol";
+import { OPERATIONS_REGISTRY } from "./constants/Common.sol";
 
 struct StoredOperation {
   bytes32[] actions;
@@ -24,8 +25,15 @@ contract OperationsRegistry {
     owner = newOwner;
   }
 
-  function addOperation(string memory name, bytes32[] memory actions) external {
+  /**
+   * @dev Emitted when a new operation is added or an existing operation is updated
+   * @param name The Operation name
+   **/
+  event OperationAdded(string name);
+
+  function addOperation(string memory name, bytes32[] memory actions) external onlyOwner {
     operations[name] = StoredOperation(actions, name);
+    emit OperationAdded(name);
   }
 
   function getOperation(string memory name) external view returns (bytes32[] memory actions) {
