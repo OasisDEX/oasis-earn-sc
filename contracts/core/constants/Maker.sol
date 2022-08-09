@@ -9,3 +9,4 @@ string constant WITHDRAW_ACTION = "MakerWithdraw";
 string constant MCD_MANAGER = "McdManager";
 string constant MCD_JUG = "McdJug";
 string constant MCD_JOIN_DAI = "McdJoinDai";
+string constant CDP_ALLOW = "MakerCdpAllow";

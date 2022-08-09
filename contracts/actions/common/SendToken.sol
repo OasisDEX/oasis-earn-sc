@@ -3,6 +3,7 @@ pragma solidity ^0.8.15;
 import { Executable } from "../common/Executable.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { SendTokenData } from "../../core/types/Common.sol";
+import { SEND_TOKEN_ACTION } from "../../core/constants/Common.sol";
 
 contract SendToken is Executable {
   using SafeERC20 for IERC20;
@@ -14,5 +15,7 @@ contract SendToken is Executable {
     } else {
       IERC20(send.asset).safeTransfer(send.to, send.amount);
     }
+
+    emit Action(SEND_TOKEN_ACTION, bytes32(send.amount));
   }
 }
