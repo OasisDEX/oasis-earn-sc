@@ -1,4 +1,4 @@
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.15;
 
 string constant FLASH_MINT_MODULE = "McdFlashMintModule";
 string constant OPEN_VAULT_ACTION = "MakerOpenVault";

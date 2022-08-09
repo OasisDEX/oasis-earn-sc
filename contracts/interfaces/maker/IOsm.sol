@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.15;
 
 abstract contract IOsm {
   mapping(address => uint256) public bud;

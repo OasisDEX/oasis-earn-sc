@@ -1,4 +1,4 @@
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.15;
 
 import "../actions/common/Executable.sol";
 import "../core/ServiceRegistry.sol";

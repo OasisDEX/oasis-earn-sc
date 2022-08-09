@@ -1,4 +1,4 @@
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.15;
 // TODO: Remove this for prod deploy
 import "hardhat/console.sol";
 
@@ -33,7 +33,7 @@ contract DummySwap is Executable {
     if (address(this).balance > 0) {
       WETH.deposit{ value: address(this).balance }();
     }
-    
+
     IExchange(exchange).swapTokenForToken(
       swap.fromAsset,
       swap.toAsset,
