@@ -1,4 +1,4 @@
-pragma solidity ^0.8.5;
+pragma solidity ^0.8.15;
 
 import { Operation } from "./types/Common.sol";
 
@@ -9,6 +9,20 @@ struct StoredOperation {
 
 contract OperationsRegistry {
   mapping(string => StoredOperation) private operations;
+  address public owner;
+
+  modifier onlyOwner() {
+    require(msg.sender == owner, "only-owner");
+    _;
+  }
+
+  constructor() {
+    owner = msg.sender;
+  }
+
+  function transferOwnership(address newOwner) public onlyOwner {
+    owner = newOwner;
+  }
 
   function addOperation(string memory name, bytes32[] memory actions) external {
     operations[name] = StoredOperation(actions, name);
