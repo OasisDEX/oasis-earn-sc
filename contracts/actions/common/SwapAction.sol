@@ -34,6 +34,6 @@ contract SwapAction is Executable, UseStore {
 
     uint256 received = Swap(swapAddress).swapTokens(swap);
 
-    store().write(bytes32(recived));
+    store().write(bytes32(received));
   }
 }
