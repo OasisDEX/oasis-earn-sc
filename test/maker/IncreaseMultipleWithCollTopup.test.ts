@@ -124,11 +124,12 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_CO
 
     const openVaultAction = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.OPEN_VAULT),
-      [calldataTypes.maker.Open],
+      [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
         },
+        [0],
       ],
     )
 
@@ -141,7 +142,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_CO
           asset: ADDRESSES.main.WETH,
           amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
-        [0],
+        [0, 0, 0],
       ],
     )
 
@@ -152,34 +153,35 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_CO
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
           vaultId: 0,
-          amount: ensureWeiFormat(initialColl),
+          amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
     const transferCollTopupToProxyAction = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.common.PULL_TOKEN),
-      [calldataTypes.common.PullToken],
+      [calldataTypes.common.PullToken, calldataTypes.paramsMap],
       [
         {
           asset: exchangeData?.toTokenAddress,
           from: address,
-          amount: ensureWeiFormat(desiredCdpState.collTopUp),
+          amount: new BigNumber(ensureWeiFormat(desiredCdpState.collTopUp)).toFixed(0),
         },
+        [0, 0, 0],
       ],
     )
 
     const topupCollateralAction = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
-      [calldataTypes.maker.Deposit],
+      [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
           vaultId: 0,
-          amount: ensureWeiFormat(collTopUp),
+          amount: new BigNumber(ensureWeiFormat(collTopUp)).toFixed(0),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
@@ -193,7 +195,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_CO
           vaultId: 0,
           amount: ensureWeiFormat(desiredCdpState.requiredDebt),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
@@ -217,9 +219,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_CO
       [swapData],
     )
 
-    const collateralToDeposit = desiredCdpState.toBorrowCollateralAmount.plus(
-      desiredCdpState.collTopUp,
-    )
+    const collateralToDeposit = desiredCdpState.toBorrowCollateralAmount
     const depositBorrowedCollateral = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
@@ -229,7 +229,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_CO
           vaultId: 0,
           amount: ensureWeiFormat(collateralToDeposit),
         },
-        [1],
+        [0, 1, 5],
       ],
     )
 

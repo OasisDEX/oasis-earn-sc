@@ -35,15 +35,16 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
   function executeOp(Call[] memory calls, string calldata operationName) public payable {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
-
     OperationsRegistry opRegistry = OperationsRegistry(
       registry.getRegisteredService(OPERATIONS_REGISTRY)
     );
+
+    opStorage.clearStorageBefore();
     opStorage.setOperationActions(opRegistry.getOperation(operationName));
 
-    opStorage.clearStorage();
     aggregate(calls);
-    opStorage.clearStorage();
+    
+    opStorage.clearStorageAfter();
 
     emit Operation(operationName, calls);
   }

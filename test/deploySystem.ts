@@ -70,10 +70,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     dummyExchangeAddress,
   ])
 
-  const [oneInchSwap, oneInchSwapAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, [
-    serviceRegistryAddress,
-  ])
-
   const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
@@ -147,10 +143,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     CONTRACT_NAMES.common.SET_APPROVAL,
     setApprovalAddress,
   )
-  const oneInchSwapHash = await registry.addEntry(
-    CONTRACT_NAMES.common.SWAP_ON_ONE_INCH,
-    oneInchSwapAddress,
-  )
+
   await registry.addEntry(CONTRACT_NAMES.common.SWAP, swapAddress)
   await registry.addEntry(
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
@@ -305,7 +298,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
     setApprovalHash,
     aaveDepositHash,
     aaveBorrowHash,
-    oneInchSwapHash,
     aaveWithdrawHash,
     sendTokenHash,
   ])
@@ -322,7 +314,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       exchange: dummyExchange,
       swap,
       dummySwap,
-      oneInchSwap,
       sendToken,
       pullToken,
       takeFlashLoan: actionFl,
