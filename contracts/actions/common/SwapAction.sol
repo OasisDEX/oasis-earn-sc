@@ -32,7 +32,7 @@ contract SwapAction is Executable, UseStore {
 
     IERC20(swap.fromAsset).safeApprove(swapAddress, swap.amount);
 
-    uint256 recived = Swap(swapAddress).swapTokens(swap);
+    uint256 received = Swap(swapAddress).swapTokens(swap);
 
     store().write(bytes32(recived));
   }
