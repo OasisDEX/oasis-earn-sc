@@ -8,9 +8,11 @@ struct DepositData {
 struct BorrowData {
   address asset;
   uint256 amount;
+  address to;
 }
 
 struct WithdrawData {
   address asset;
   uint256 amount;
+  address to;
 }
