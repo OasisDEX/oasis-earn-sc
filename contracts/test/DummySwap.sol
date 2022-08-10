@@ -3,7 +3,8 @@ pragma solidity ^0.8.15;
 import "hardhat/console.sol";
 
 import "../actions/common/Executable.sol";
-
+import { UseStore, Read, Write } from "../actions/common/UseStore.sol";
+import { OperationStorage } from "../core/OperationStorage.sol";
 import "../interfaces/tokens/IERC20.sol";
 import "../core/ServiceRegistry.sol";
 import "../interfaces/tokens/IWETH.sol";
@@ -12,18 +13,19 @@ import "../core/OperationStorage.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
 import { SwapData } from "../core/types/Common.sol";
 
-contract DummySwap is Executable {
+contract DummySwap is Executable, UseStore {
   using SafeMath for uint256;
-  ServiceRegistry public immutable registry;
+  using Write for OperationStorage;
+  using Read for OperationStorage;
+
   IWETH private immutable WETH;
   address private immutable exchange;
 
   constructor(
-    address _registry,
+    ServiceRegistry _registry,
     IWETH _weth,
     address _exchange
-  ) {
-    registry = ServiceRegistry(_registry);
+  ) UseStore(address(_registry)) {
     WETH = _weth;
     exchange = _exchange;
   }
@@ -47,7 +49,9 @@ contract DummySwap is Executable {
 
     uint256 balanceAfter = IERC20(swap.toAsset).balanceOf(address(this));
     uint256 amountBought = balanceAfter.sub(balanceBefore);
-    
+
     require(amountBought >= swap.receiveAtLeast, "Exchange / Received less");
+
+    store().write(bytes32(amountBought));
   }
 }

@@ -173,11 +173,17 @@ export class ActionFactory {
       ' function execute(bytes calldata data, uint8[] paramsMap) external payable returns (bytes calldata)',
     ])
 
-    const encodedArgs = ethers.utils.defaultAbiCoder.encode(
-      types[0] ? [types[0]] : [],
-      args[0] ? [args[0]] : [],
-    )
-    const calldata = iface.encodeFunctionData('execute', [encodedArgs, args[1] ? args[1] : []])
+    const [callDataTypes, paramsMapType] = types
+    const [callData, paramsMap] = args
+
+    const hasParamsToMap = paramsMapType && paramsMap
+
+    const encodedCallData = ethers.utils.defaultAbiCoder.encode([callDataTypes], [callData])
+
+    const calldata = iface.encodeFunctionData('execute', [
+      encodedCallData,
+      hasParamsToMap ? paramsMap : [],
+    ])
 
     return {
       targetHash,
