@@ -3,24 +3,10 @@ import { ethers, providers } from 'ethers'
 
 import aavePriceOracleABI from '../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
+import { amountFromWei, calculateFee } from '../helpers'
 import { ONE } from '../helpers/constants'
 import * as operation from '../operations'
 import type { OpenStEthAddresses } from '../operations/openStEth'
-
-function calculateFee(amountWei: BigNumber, fee: number, feeBase: number): BigNumber {
-  return amountWei
-    .times(fee)
-    .div(new BigNumber(fee).plus(feeBase))
-    .integerValue(BigNumber.ROUND_DOWN)
-}
-
-function amountToWei(amount: BigNumber, decimals = 18): BigNumber {
-  return amount.times(new BigNumber(10).pow(decimals))
-}
-
-function amountFromWei(amount: BigNumber, decimals = 18): BigNumber {
-  return amount.div(new BigNumber(10).pow(decimals))
-}
 
 interface SwapData {
   fromTokenAddress: string
