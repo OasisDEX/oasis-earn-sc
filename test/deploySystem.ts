@@ -81,6 +81,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
 
   const [actionFl, actionFlAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
+    ADDRESSES.main.DAI,
   ])
 
   //-- Maker Actions
@@ -316,6 +317,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false) {
       sendToken,
       pullToken,
       takeFlashLoan: actionFl,
+      setApproval,
     },
     maker: {
       mcdView,
