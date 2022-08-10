@@ -27,6 +27,8 @@ contract AaveBorrow is Executable, UseStore {
       2,
       0
     );
+    address payable to = payable(borrow.to);
+    to.transfer(borrow.amount);
     emit Action(BORROW_ACTION, bytes32(borrow.amount));
   }
 }

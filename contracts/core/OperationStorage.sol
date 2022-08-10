@@ -6,6 +6,11 @@ contract OperationStorage {
   uint8 internal action = 0;
   bytes32[] public actions;
   bytes32[] public returnValues;
+
+  uint256 private constant _NOT_ENTERED = 1;
+  uint256 private constant _ENTERED = 2;
+  uint256 private _status;
+
   ServiceRegistry internal immutable registry;
 
   constructor(ServiceRegistry _registry) {
@@ -38,9 +43,23 @@ contract OperationStorage {
     return returnValues.length;
   }
 
-  function clearStorage() external {
+  function nonReentrant() internal {
+    require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
+
+    _status = _ENTERED;
+  }
+
+  function clearStorageBefore() external {
+    nonReentrant();
     delete action;
     delete actions;
     delete returnValues;
+  }
+
+  function clearStorageAfter() external {
+    delete action;
+    delete actions;
+    delete returnValues;
+    _status = _NOT_ENTERED;
   }
 }
