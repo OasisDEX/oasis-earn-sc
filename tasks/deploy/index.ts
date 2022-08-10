@@ -40,6 +40,7 @@ task(
     const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [])
     const [, flActionAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
       serviceRegistryAddress,
+      ADDRESSES.main.DAI,
     ])
     const [, swapOnOninchAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, [
       serviceRegistryAddress,

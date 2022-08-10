@@ -11,9 +11,11 @@ import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
 
 contract TakeFlashloan is Executable, ProxyPermission {
   ServiceRegistry internal immutable registry;
+  address internal immutable dai;
 
-  constructor(ServiceRegistry _registry) {
+  constructor(ServiceRegistry _registry, address _dai) {
     registry = _registry;
+    dai = _dai;
   }
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
@@ -27,7 +29,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
 
     IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
       IERC3156FlashBorrower(operationExecutorAddress),
-      registry.getRegisteredService(DAI),
+      dai,
       flData.amount,
       data
     );
