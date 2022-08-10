@@ -1,15 +1,15 @@
 import { ethers } from 'hardhat'
+import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
+import { CONTRACT_NAMES, OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
 
 import DSProxyABI from '../abi/ds-proxy.json'
-import { ADDRESSES } from '../helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '../helpers/constants'
 import { createDeploy } from '../helpers/deploy'
 import { getOrCreateProxy } from '../helpers/proxy'
+import { ServiceRegistry } from '../helpers/serviceRegistry'
 import { loadDummyExchangeFixtures } from '../helpers/swap/DummyExchange'
 import { RuntimeConfig, Unbox } from '../helpers/types/common'
 import { logDebug } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
-import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
 
 export async function deploySystem(config: RuntimeConfig, debug = false, useDummySwap = true) {
   const { provider, signer, address } = config
@@ -60,6 +60,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     10000,
   )
+  await uSwap.addFeeTier(20)
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
@@ -67,6 +68,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     0,
     serviceRegistryAddress,
   ])
+  await swap.addFeeTier(20)
 
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
   const [dummyAutomation, dummyAutomationAddress] = await deploy('DummyAutomation', [
@@ -84,7 +86,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
 
-  const [setApproval, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [])
+  const [setApproval, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
+    serviceRegistryAddress,
+  ])
   const [cdpAllow, cdpAllowAddress] = await deploy(CONTRACT_NAMES.maker.CDP_ALLOW, [
     serviceRegistryAddress,
   ])
@@ -335,6 +339,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
       sendToken,
       pullToken,
       takeFlashLoan: actionFl,
+      setApproval,
     },
     maker: {
       mcdView,

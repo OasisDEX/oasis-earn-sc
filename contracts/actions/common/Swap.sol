@@ -1,7 +1,5 @@
 pragma solidity ^0.8.5;
 
-import "hardhat/console.sol";
-
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
@@ -91,6 +89,7 @@ contract Swap {
       revert SwapFailed();
     }
     balance = IERC20(toAsset).balanceOf(address(this));
+
     emit SlippageSaved(receiveAtLeast, balance);
     if (balance < receiveAtLeast) {
       revert ReceivedLess(receiveAtLeast, balance);
@@ -119,7 +118,7 @@ contract Swap {
 
   function swapTokens(
     SwapData calldata swapData
-  ) public {
+  ) public returns (uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
     uint256 amountFrom = swapData.amount;
     if (swapData.collectFeeInFromToken) {
@@ -146,5 +145,6 @@ contract Swap {
     }
 
     IERC20(swapData.toAsset).safeTransfer(msg.sender, toTokenBalance);
+    return toTokenBalance;
   }
 }

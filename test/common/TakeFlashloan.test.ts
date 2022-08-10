@@ -1,15 +1,20 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
+import {
+  ActionFactory,
+  ADDRESSES,
+  calldataTypes,
+  CONTRACT_NAMES,
+  OPERATION_NAMES,
+  TEN,
+} from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 
-import { ADDRESSES } from '../../helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES, TEN } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init, { resetNode } from '../../helpers/init'
-import { calldataTypes } from '../../helpers/types/actions'
+import { ServiceRegistry } from '../../helpers/serviceRegistry'
 import { RuntimeConfig } from '../../helpers/types/common'
-import { ActionFactory, ensureWeiFormat } from '../../helpers/utils'
-import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
+import { ensureWeiFormat } from '../../helpers/utils'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 
 const createAction = ActionFactory.create

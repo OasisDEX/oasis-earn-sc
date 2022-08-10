@@ -3,9 +3,9 @@ import BigNumber from 'bignumber.js'
 import { BigNumber as EthersBN, BigNumberish, Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 import _ from 'lodash'
+import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
 
 import GetCDPsABI from '../../abi/get-cdps.json'
-import { ADDRESSES } from '../addresses'
 import { CDPInfo, VaultInfo } from '../types/maker'
 
 export async function getLastVault(

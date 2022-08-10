@@ -1,6 +1,5 @@
 pragma solidity ^0.8.1;
 // TODO: Remove this for prod deploy
-import "hardhat/console.sol";
 
 import "../actions/common/Executable.sol";
 

@@ -31,7 +31,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     registry = _registry;
   }
 
-  function executeOp(Call[] memory calls, string calldata operationName) public {
+  function executeOp(Call[] memory calls, string calldata operationName) public payable {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
     OperationsRegistry opRegistry = OperationsRegistry(
       registry.getRegisteredService(OPERATIONS_REGISTRY)
@@ -53,7 +53,6 @@ contract OperationExecutor is IERC3156FlashBorrower {
       }
 
       address target = registry.getServiceAddress(calls[current].targetHash);
-
       target.functionDelegateCall(
         calls[current].callData,
         "OpExecutor: low-level delegatecall failed"

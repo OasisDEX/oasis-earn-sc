@@ -1,5 +1,4 @@
 pragma solidity ^0.8.1;
-import "hardhat/console.sol";
 import { ServiceRegistry } from "../core/ServiceRegistry.sol";
 import {OperationExecutor} from "../core/OperationExecutor.sol";
 import { MathUtils } from "../libs/MathUtils.sol";

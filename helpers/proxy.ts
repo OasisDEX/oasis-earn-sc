@@ -1,9 +1,9 @@
 import '@nomiclabs/hardhat-ethers'
 
 import { Signer } from 'ethers'
+import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
 
 import DS_PROXY_REGISTRY_ABI from '../abi/ds-proxy-registry.json'
-import { ADDRESSES } from './addresses'
 
 export async function getOrCreateProxy(signer: Signer) {
   const ethers = (await import('hardhat')).ethers

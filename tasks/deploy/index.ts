@@ -1,11 +1,10 @@
+import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
 import { task } from 'hardhat/config'
 
-import { ADDRESSES } from '../../helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '../../helpers/constants'
 import { createDeploy } from '../../helpers/deploy'
 import init from '../../helpers/init'
+import { ServiceRegistry } from '../../helpers/serviceRegistry'
 import { OperationsRegistry } from '../../helpers/wrappers/operationsRegistry'
-import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
 
 task(
   'deploy',

@@ -1,5 +1,5 @@
 {
-  "name": "oasis-actions",
+  "name": "oasis-earn-sc",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,6 +9,10 @@
   "engines": {
     "node": ">=14.17"
   },
+  "private": "true",
+  "workspaces": [
+    "packages/**"
+  ],
   "scripts": {
     "deploy": "npx hardhat run",
     "test": "npx hardhat test",

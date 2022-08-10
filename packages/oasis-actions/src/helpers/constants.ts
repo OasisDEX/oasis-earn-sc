@@ -1,7 +1,5 @@
 import { BigNumber } from 'bignumber.js'
 
-import { AllValues } from './types/common'
-
 export const ZERO = new BigNumber(0)
 export const ONE = new BigNumber(1)
 export const TEN = new BigNumber(10)
@@ -54,6 +52,8 @@ export const CONTRACT_NAMES = {
     SWAP: 'uSwap',
   },
 } as const
+
+export type AllValues<T> = { [K in keyof T]: T[K] extends object ? AllValues<T[K]> : T[K] }[keyof T]
 
 export type ContractNames = AllValues<typeof CONTRACT_NAMES>
 

@@ -1,4 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { ADDRESSES, ONE } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
@@ -6,8 +7,6 @@ import { ethers } from 'hardhat'
 
 import ERC20_ABI from '../../abi/IERC20.json'
 import WETH_ABI from '../../abi/IWETH.json'
-import { ADDRESSES } from '../../helpers/addresses'
-import { ONE } from '../../helpers/constants'
 import init from '../../helpers/init'
 import { exchangeFromDAI, exchangeToDAI, swapOneInchTokens } from '../../helpers/swap/1inch'
 import { calculateFee } from '../../helpers/swap/calculateFee'
@@ -55,7 +54,6 @@ describe('Swap', async () => {
     feeBeneficiary = ADDRESSES.main.feeRecipient
     slippage = asPercentageValue(8, 100)
     fee = asPercentageValue(FEE, FEE_BASE)
-    await system.common.swap.addFeeTier(20)
 
     WETH = new ethers.Contract(ADDRESSES.main.WETH, WETH_ABI, provider).connect(signer)
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20_ABI, provider).connect(signer)

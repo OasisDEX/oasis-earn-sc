@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { JsonRpcProvider } from '@ethersproject/providers'
+import {
+  ActionCall,
+  ActionFactory,
+  ADDRESSES,
+  calldataTypes,
+  CONTRACT_NAMES,
+  OPERATION_NAMES,
+} from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
@@ -7,8 +15,6 @@ import { ethers } from 'hardhat'
 
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
-import { ADDRESSES } from '../../helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
@@ -18,10 +24,9 @@ import {
   calculateParamsIncreaseMP,
   prepareMultiplyParameters,
 } from '../../helpers/paramCalculations'
-import { calldataTypes } from '../../helpers/types/actions'
-import { ActionCall, RuntimeConfig, SwapData } from '../../helpers/types/common'
-import { ActionFactory, amountToWei, ensureWeiFormat } from '../../helpers/utils'
-import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
+import { ServiceRegistry } from '../../helpers/serviceRegistry'
+import { RuntimeConfig, SwapData } from '../../helpers/types/common'
+import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
@@ -34,7 +39,7 @@ let DAI: Contract
 let WETH: Contract
 
 describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN}`, async () => {
-  const oazoFee = 2 // divided by base (10000), 1 = 0.01%;
+  const oazoFee = 0 // divided by base (10000), 1 = 0.01%;
   const oazoFeePct = new BigNumber(oazoFee).div(10000)
   const flashLoanFee = LENDER_FEE
   const slippage = new BigNumber(0.0001) // percentage

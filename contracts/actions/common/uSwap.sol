@@ -204,9 +204,10 @@ contract uSwap {
     }
   }
 
-  function swapTokens(SwapData calldata swapData) public {
+  function swapTokens(SwapData calldata swapData) public returns(uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
     uint256 amountFrom = swapData.amount;
+
     if (swapData.collectFeeInFromToken) {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
@@ -234,5 +235,6 @@ contract uSwap {
     }
 
     IERC20(swapData.toAsset).safeTransfer(msg.sender, toTokenBalance);
+    return toTokenBalance;
   }
 }

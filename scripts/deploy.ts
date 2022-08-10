@@ -3,21 +3,26 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
+import {
+  ActionFactory,
+  ADDRESSES,
+  calldataTypes,
+  CONTRACT_NAMES,
+  OPERATION_NAMES,
+  ZERO,
+} from '@oasisdex/oasis-actions'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'hardhat'
 
-import { ADDRESSES } from '../helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES, ZERO } from '../helpers/constants'
 import { createDeploy, executeThroughProxy } from '../helpers/deploy'
 import init from '../helpers/init'
 // Helper functions
 import { getOrCreateProxy } from '../helpers/proxy'
+import { ServiceRegistry } from '../helpers/serviceRegistry'
 import { swapOneInchTokens } from '../helpers/swap/1inch'
 import { swapUniswapTokens } from '../helpers/swap/uniswap'
-import { calldataTypes } from '../helpers/types/actions'
-import { ActionFactory, amountToWei, approve, balanceOf } from '../helpers/utils'
+import { amountToWei, approve, balanceOf } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
-import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
 
 const createAction = ActionFactory.create
 
@@ -79,7 +84,9 @@ async function main() {
   // DEPLOYING ACTIONS
   const [, pullTokenActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
   const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
-  const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [])
+  const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
+    serviceRegistryAddress,
+  ])
   const [, flActionAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
   ])
