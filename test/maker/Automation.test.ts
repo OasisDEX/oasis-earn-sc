@@ -32,7 +32,7 @@ const createAction = ActionFactory.create
 let DAI: Contract
 let WETH: Contract
 
-describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN}`, async () => {
+describe(`Operations | Maker | Test Automation Operation`, async () => {
   const oazoFee = 2 // divided by base (10000), 1 = 0.01%;
   const oazoFeePct = new BigNumber(oazoFee).div(10000)
   const flashLoanFee = LENDER_FEE
@@ -82,9 +82,8 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
   const daiTopUp = new BigNumber(0)
   const collTopUp = new BigNumber(0)
   const requiredCollRatio = new BigNumber(2.5)
-  const gasEstimates = gasEstimateHelper()
 
-  const testName = `should open vault, deposit ETH and increase multiple & [+Flashloan]`
+  const testName = `should open vault, deposit ETH, allow Automation Bot & then Run Automation based Operation`
   it(testName, async () => {
     await WETH.approve(
       system.common.userProxyAddress,
@@ -124,11 +123,12 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
 
     const openVaultAction = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.OPEN_VAULT),
-      [calldataTypes.maker.Open],
+      [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
         },
+        [0],
       ],
     )
 
@@ -141,7 +141,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           asset: ADDRESSES.main.WETH,
           amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
-        [0],
+        [0, 0, 0],
       ],
     )
 
@@ -154,100 +154,19 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
-        [1],
-      ],
-    )
-
-    // Get flashloan -> Swap for collateral -> Deposit collateral -> Generate DAI -> Repay flashloan
-
-    const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
-      .plus(ensureWeiFormat(desiredCdpState.daiTopUp))
-      .toFixed(0)
-
-    const swapData: SwapData = {
-      fromAsset: exchangeData.fromTokenAddress,
-      toAsset: exchangeData.toTokenAddress,
-      // Add daiTopup amount to swap
-      amount: swapAmount,
-      receiveAtLeast: exchangeData.minToTokenAmount,
-      withData: exchangeData._exchangeCalldata,
-    }
-
-    await DAI.approve(system.common.userProxyAddress, swapAmount)
-    // TODO: Move funds to proxy
-    const swapAction = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.test.DUMMY_SWAP),
-      [calldataTypes.common.Swap],
-      [swapData],
-    )
-
-    const depositBorrowedCollateral = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
-      [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
-      [
-        {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
-          vaultId: 0,
-          amount: ensureWeiFormat(desiredCdpState.toBorrowCollateralAmount),
-        },
-        [1],
-      ],
-    )
-
-    const generateDaiToRepayFL = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
-      [calldataTypes.maker.Generate, calldataTypes.paramsMap],
-      [
-        {
-          to: system.common.userProxyAddress,
-          vaultId: 0,
-          amount: ensureWeiFormat(desiredCdpState.requiredDebt),
-        },
-        [1],
-      ],
-    )
-
-    const sendBackDAI = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.common.SEND_TOKEN),
-      [calldataTypes.common.SendToken],
-      [
-        {
-          amount: exchangeData.fromTokenAmount,
-          asset: ADDRESSES.main.DAI,
-          to: system.common.operationExecutor.address,
-        },
-        [0],
+        [0, 1, 0],
       ],
     )
 
     const cdpAllow = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.CDP_ALLOW),
-      [calldataTypes.maker.CdpAllow],
+      [calldataTypes.maker.CdpAllow, calldataTypes.paramsMap],
       [
         {
           vaultId: 0,
           userAddress: system.common.dummyAutomation.address,
         },
-        [1],
-      ],
-    )
-
-    const takeAFlashloan = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
-      [calldataTypes.common.TakeAFlashLoan, calldataTypes.paramsMap],
-      [
-        {
-          amount: exchangeData.fromTokenAmount,
-          dsProxyFlashloan: true,
-          calls: [
-            swapAction,
-            depositBorrowedCollateral,
-            generateDaiToRepayFL,
-            sendBackDAI,
-            cdpAllow, //this will be performed on trigger setup side
-          ],
-        },
-        [0],
+        [1, 0],
       ],
     )
 
@@ -255,7 +174,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       openVaultAction,
       pullTokenIntoProxyAction,
       initialDepositAction,
-      takeAFlashloan,
+      cdpAllow,
     ]
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -271,7 +190,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       signer,
     )
 
-    const autoTestAmount = new BigNumber(1000)
+    const autoTestAmount = new BigNumber(10000)
     const autoVaultId = 25790
     const generateDaiAutomation = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
@@ -280,10 +199,9 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
         {
           to: system.common.userProxyAddress,
           vaultId: autoVaultId,
-          // amount: ensureWeiFormat(desiredCdpState.requiredDebt),
           amount: ensureWeiFormat(autoTestAmount),
         },
-        [0],
+        [0, 0, 0],
       ],
     )
 
@@ -296,7 +214,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           dsProxyFlashloan: false,
           calls: [generateDaiAutomation],
         },
-        [0],
+        [0, 0, 0, 0],
       ],
     )
 
@@ -309,36 +227,19 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     )
 
     // DELEGATECALL
-    const tx2 = await system.common.dummyAutomation[
-      'doAutomationStuffDelegateCall(bytes,address,uint256)'
-    ](executionData, system.common.operationExecutor.address, autoVaultId, {
-      gasLimit: 4000000,
-    })
-
-    gasEstimates.save(testName, txReceipt)
+    await system.common.dummyAutomation['doAutomationStuffDelegateCall(bytes,address,uint256)'](
+      executionData,
+      system.common.operationExecutor.address,
+      autoVaultId,
+      {
+        gasLimit: 4000000,
+      },
+    )
 
     const vault = await getLastVault(provider, signer, system.common.userProxyAddress)
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
     const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
 
-    expectToBeEqual(currentCollRatio, new BigNumber(2.487), 3)
-
-    const expectedColl = additionalCollateral.plus(initialColl).plus(preIncreaseMPTopUp)
-    const expectedDebt = desiredCdpState.requiredDebt
-
-    expect(info.coll.toFixed(0)).to.equal(expectedColl.toFixed(0))
-    expect(info.debt.toFixed(0)).to.equal(expectedDebt.plus(autoTestAmount).toFixed(0))
-
-    const cdpManagerContract = new ethers.Contract(
-      ADDRESSES.main.maker.cdpManager,
-      CDPManagerABI,
-      provider,
-    ).connect(signer)
-    const vaultOwner = await cdpManagerContract.owns(vault.id)
-    expectToBeEqual(vaultOwner, system.common.userProxyAddress)
-  })
-
-  after(() => {
-    gasEstimates.print()
+    expectToBeEqual(currentCollRatio, new BigNumber(28.842), 3)
   })
 })

@@ -3,7 +3,8 @@ pragma solidity ^0.8.15;
 import "hardhat/console.sol";
 
 import "../actions/common/Executable.sol";
-
+import { UseStore, Read, Write } from "../actions/common/UseStore.sol";
+import { OperationStorage } from "../core/OperationStorage.sol";
 import "../interfaces/tokens/IERC20.sol";
 import "../core/ServiceRegistry.sol";
 import "../interfaces/tokens/IWETH.sol";
@@ -11,17 +12,18 @@ import "../interfaces/IExchange.sol";
 import "../core/OperationStorage.sol";
 import { SwapData } from "../core/types/Common.sol";
 
-contract DummySwap is Executable {
-  ServiceRegistry public immutable registry;
+contract DummySwap is Executable, UseStore {
+  using Write for OperationStorage;
+  using Read for OperationStorage;
+
   IWETH private immutable WETH;
   address private immutable exchange;
 
   constructor(
-    address _registry,
+    ServiceRegistry _registry,
     IWETH _weth,
     address _exchange
-  ) {
-    registry = ServiceRegistry(_registry);
+  ) UseStore(address(_registry)) {
     WETH = _weth;
     exchange = _exchange;
   }
@@ -43,6 +45,7 @@ contract DummySwap is Executable {
 
     uint256 balance = IERC20(swap.toAsset).balanceOf(address(this));
 
+    store().write(bytes32(balance));
     require(balance >= swap.receiveAtLeast, "Exchange / Received less");
   }
 }

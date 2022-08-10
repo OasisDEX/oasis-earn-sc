@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity >=0.8.5;
+pragma solidity >=0.8.15;
 
 import { Executable } from "../common/Executable.sol";
 import { UseStore, Read, Write } from "../common/UseStore.sol";
@@ -23,7 +23,9 @@ contract MakerDeposit is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositData memory depositData = abi.decode(data, (DepositData));
-    depositData.vaultId = store().readUint(bytes32(depositData.vaultId), paramsMap[0]);
+
+    depositData.vaultId = store().readUint(bytes32(depositData.vaultId), paramsMap[1]);
+    depositData.amount = store().readUint(bytes32(depositData.amount), paramsMap[2]);
 
     bytes32 amountDeposited = _deposit(depositData);
     store().write(amountDeposited);
@@ -38,12 +40,14 @@ contract MakerDeposit is Executable, UseStore {
       IWETH(gem).deposit{ value: address(this).balance }();
     }
 
-    uint256 balance = IERC20(gem).balanceOf(address(this));
+    if (data.amount == type(uint256).max) {
+      data.amount = IERC20(gem).balanceOf(address(this));
+    }
 
-    IERC20(gem).safeApprove(address(data.joinAddress), balance);
-    data.joinAddress.join(address(this), balance);
+    IERC20(gem).safeApprove(address(data.joinAddress), data.amount);
+    data.joinAddress.join(address(this), data.amount);
 
-    uint256 convertedAmount = MathUtils.convertTo18(data.joinAddress, balance);
+    uint256 convertedAmount = MathUtils.convertTo18(data.joinAddress, data.amount);
 
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
     IVat vat = manager.vat();

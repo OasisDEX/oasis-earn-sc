@@ -96,7 +96,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
@@ -109,7 +109,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
           vaultId: 0,
           amount: ensureWeiFormat(initialDebt),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
@@ -126,7 +126,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
           amount: ensureWeiFormat(paybackDai),
           paybackAll: paybackAll,
         },
-        [1],
+        [1, 0, 0, 0, 0],
       ],
     )
 
@@ -143,7 +143,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
           joinAddr: ADDRESSES.main.maker.joinETH_A,
           amount: ensureWeiFormat(initialColl),
         },
-        [1],
+        [1, 0, 0, 0],
       ],
     )
 
