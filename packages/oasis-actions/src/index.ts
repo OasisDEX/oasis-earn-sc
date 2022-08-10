@@ -1,4 +1,7 @@
 export * as action from './actions'
+export { ActionFactory } from './actions/actionFactory'
+export { ActionCall } from './actions/types/actionCall'
+export { calldataTypes } from './actions/types/actions'
 export * from './helpers/addresses'
 export * from './helpers/constants'
 export * as operation from './operations'

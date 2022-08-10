@@ -3,10 +3,16 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
+import {
+  ActionFactory,
+  ADDRESSES,
+  calldataTypes,
+  CONTRACT_NAMES,
+  OPERATION_NAMES,
+  ZERO,
+} from '@oasisdex/oasis-actions'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'hardhat'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES, ZERO } from 'oasis-actions/src/helpers/constants'
 
 import { createDeploy, executeThroughProxy } from '../helpers/deploy'
 import init from '../helpers/init'
@@ -17,8 +23,6 @@ import { swapOneInchTokens } from '../helpers/swap/1inch'
 import { swapUniswapTokens } from '../helpers/swap/uniswap'
 import { amountToWei, approve, balanceOf } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
-import { ActionFactory } from '../packages/oasis-actions/src/actions/actionFactory'
-import { calldataTypes } from '../packages/oasis-actions/src/actions/types/actions'
 
 const createAction = ActionFactory.create
 

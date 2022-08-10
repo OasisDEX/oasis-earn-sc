@@ -1,16 +1,14 @@
+import { ADDRESSES, calldataTypes, ONE, TEN_THOUSAND, ZERO } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
-import { ONE, TEN_THOUSAND, ZERO } from 'oasis-actions/src/helpers/constants'
 
 import { createDeploy, DeployFunction } from '../../helpers/deploy'
 import init, { resetNode } from '../../helpers/init'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { BalanceOptions, RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf, send } from '../../helpers/utils'
-import { calldataTypes } from '../../packages/oasis-actions/src/actions/types/actions'
 
 describe('SendToken Action', () => {
   const BLOCK_NUMBER = 14798701

@@ -1,14 +1,13 @@
+import { ADDRESSES, calldataTypes } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
 
 import IERC20_ABI from '../../abi/IERC20.json'
 import init, { resetNode } from '../../helpers/init'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei } from '../../helpers/utils'
-import { calldataTypes } from '../../packages/oasis-actions/src/actions/types/actions'
 import { testBlockNumber } from '../config'
 import { deploySystem } from '../deploySystem'
 

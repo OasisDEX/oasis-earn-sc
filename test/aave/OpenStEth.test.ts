@@ -1,10 +1,8 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { ADDRESSES, OPERATION_NAMES, strategy } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, ContractReceipt, Signer } from 'ethers'
-import { ONE, strategy } from 'oasis-actions'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
-import { OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'

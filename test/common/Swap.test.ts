@@ -1,10 +1,9 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { ADDRESSES, ONE } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
-import { ONE } from 'oasis-actions/src/helpers/constants'
 
 import ERC20_ABI from '../../abi/IERC20.json'
 import WETH_ABI from '../../abi/IWETH.json'

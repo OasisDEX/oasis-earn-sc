@@ -1,12 +1,17 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { JsonRpcProvider } from '@ethersproject/providers'
+import {
+  ActionCall,
+  ActionFactory,
+  ADDRESSES,
+  calldataTypes,
+  CONTRACT_NAMES,
+  OPERATION_NAMES,
+} from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
-import { ActionCall } from 'oasis-actions/src/actions/types/actionCall'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
 
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
@@ -22,8 +27,6 @@ import {
 import { ServiceRegistry } from '../../helpers/serviceRegistry'
 import { RuntimeConfig, SwapData } from '../../helpers/types/common'
 import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
-import { ActionFactory } from '../../packages/oasis-actions/src/actions/actionFactory'
-import { calldataTypes } from '../../packages/oasis-actions/src/actions/types/actions'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
