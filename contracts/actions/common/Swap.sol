@@ -90,10 +90,10 @@ contract Swap {
       revert SwapFailed();
     }
     balance = IERC20(toAsset).balanceOf(address(this));
-    emit SlippageSaved(receiveAtLeast, balance);
     if (balance < receiveAtLeast) {
       revert ReceivedLess(receiveAtLeast, balance);
     }
+    emit SlippageSaved(receiveAtLeast, balance);
     emit AssetSwap(fromAsset, toAsset, amount, balance);
   }
 
