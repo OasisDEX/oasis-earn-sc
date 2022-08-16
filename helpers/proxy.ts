@@ -1,7 +1,7 @@
 import '@nomiclabs/hardhat-ethers'
 
 import { Signer } from 'ethers'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
+import { ADDRESSES } from '@oasisdex/oasis-actions'
 
 import DS_PROXY_REGISTRY_ABI from '../abi/ds-proxy-registry.json'
 

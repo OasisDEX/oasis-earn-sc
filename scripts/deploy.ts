@@ -89,6 +89,7 @@ async function main() {
   ])
   const [, flActionAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
+    ADDRESSES.main.DAI,
   ])
   const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
     serviceRegistryAddress,
@@ -287,7 +288,6 @@ async function main() {
     [
       {
         amount: flashloanAmount.toFixed(0),
-        borrower: operationExecutorAddress,
         calls: [
           pullBorrowedFundsIntoProxy,
           setDaiApprovalOnLendingPool,

@@ -151,6 +151,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
           addresses,
           provider,
           getSwapData: oneInchCallMock,
+          dsProxy: system.common.dsProxy.address
         },
       )
 
@@ -268,6 +269,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
           addresses,
           provider,
           getSwapData: getOneInchRealCall(system.common.swap.address),
+          dsProxy: system.common.dsProxy.address
         },
       )
 

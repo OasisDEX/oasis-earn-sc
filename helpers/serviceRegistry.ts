@@ -1,5 +1,5 @@
 import { Signer, utils } from 'ethers'
-import { ContractNames } from 'oasis-actions/src/helpers/constants'
+import { ContractNames } from '@oasisdex/oasis-actions'
 
 export class ServiceRegistry {
   address: string

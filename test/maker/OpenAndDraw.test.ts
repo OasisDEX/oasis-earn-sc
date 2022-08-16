@@ -87,7 +87,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
           asset: ADDRESSES.main.WETH,
           amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
-        [0],
+        [0, 0, 0],
       ],
     )
 
@@ -100,7 +100,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
@@ -113,7 +113,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
           vaultId: 0,
           amount: ensureWeiFormat(initialDebt),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 

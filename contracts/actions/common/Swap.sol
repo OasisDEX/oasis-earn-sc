@@ -1,4 +1,4 @@
-pragma solidity ^0.8.5;
+pragma solidity ^0.8.15;
 
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
@@ -89,11 +89,13 @@ contract Swap {
       revert SwapFailed();
     }
     balance = IERC20(toAsset).balanceOf(address(this));
-
+    
     emit SlippageSaved(receiveAtLeast, balance);
+
     if (balance < receiveAtLeast) {
       revert ReceivedLess(receiveAtLeast, balance);
     }
+    emit SlippageSaved(receiveAtLeast, balance);
     emit AssetSwap(fromAsset, toAsset, amount, balance);
   }
 

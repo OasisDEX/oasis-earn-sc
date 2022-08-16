@@ -3,8 +3,7 @@ import BigNumber from 'bignumber.js'
 import { BigNumber as EthersBN, BigNumberish, Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 import _ from 'lodash'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
-
+import { ADDRESSES } from '@oasisdex/oasis-actions'
 import GetCDPsABI from '../../abi/get-cdps.json'
 import { CDPInfo, VaultInfo } from '../types/maker'
 

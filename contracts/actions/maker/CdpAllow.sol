@@ -11,7 +11,7 @@ import { CdpAllowData } from "../../core/types/Maker.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { WETH } from "../../core/constants/Common.sol";
-import { MCD_MANAGER } from "../../core/constants/Maker.sol";
+import { CDP_ALLOW, MCD_MANAGER } from "../../core/constants/Maker.sol";
 
 contract CdpAllow is Executable, UseStore {
   using SafeERC20 for IERC20;
@@ -22,13 +22,11 @@ contract CdpAllow is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     CdpAllowData memory cdpAllowData = abi.decode(data, (CdpAllowData));
     cdpAllowData.vaultId = store().readUint(bytes32(cdpAllowData.vaultId), paramsMap[0]);
-    
+
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
 
-     manager.cdpAllow(
-      cdpAllowData.vaultId,
-      cdpAllowData.userAddress,
-      1
-    );
+    manager.cdpAllow(cdpAllowData.vaultId, cdpAllowData.userAddress, 1);
+
+    emit Action(CDP_ALLOW, bytes32(cdpAllowData.vaultId));
   }
 }

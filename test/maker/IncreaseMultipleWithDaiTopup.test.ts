@@ -129,11 +129,12 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
 
     const openVaultAction = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.OPEN_VAULT),
-      [calldataTypes.maker.Open],
+      [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
         },
+        [0],
       ],
     )
 
@@ -146,7 +147,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
           asset: ADDRESSES.main.WETH,
           amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
-        [0],
+        [0, 0, 0],
       ],
     )
 
@@ -159,7 +160,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
@@ -172,7 +173,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
           from: address,
           amount: ensureWeiFormat(desiredCdpState.daiTopUp),
         },
-        [0],
+        [0, 0, 0],
       ],
     )
 
@@ -186,7 +187,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
           vaultId: 0,
           amount: ensureWeiFormat(desiredCdpState.requiredDebt),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
@@ -224,7 +225,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DA
           vaultId: 0,
           amount: ensureWeiFormat(collateralToDeposit),
         },
-        [1],
+        [0, 1, 4],
       ],
     )
 

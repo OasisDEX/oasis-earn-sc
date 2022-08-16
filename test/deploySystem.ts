@@ -1,6 +1,5 @@
 import { ethers } from 'hardhat'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
+import { CONTRACT_NAMES, OPERATION_NAMES, ADDRESSES } from '@oasisdex/oasis-actions'
 
 import DSProxyABI from '../abi/ds-proxy.json'
 import { createDeploy } from '../helpers/deploy'
@@ -95,6 +94,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
 
   const [actionFl, actionFlAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
+    ADDRESSES.main.DAI,
   ])
 
   //-- Maker Actions

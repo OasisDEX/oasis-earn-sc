@@ -1,4 +1,4 @@
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
 import { Write, UseStore } from "../common/UseStore.sol";
@@ -28,6 +28,8 @@ contract AaveBorrow is Executable, UseStore {
       2,
       0
     );
+    address payable to = payable(borrow.to);
+    to.transfer(borrow.amount);
     emit Action(BORROW_ACTION, bytes32(borrow.amount));
   }
 }

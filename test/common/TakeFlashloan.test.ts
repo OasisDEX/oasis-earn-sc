@@ -66,7 +66,6 @@ describe('TakeFlashloan Action', () => {
       [
         {
           amount: ensureWeiFormat(AMOUNT),
-          borrower: system.common.operationExecutor.address,
           dsProxyFlashloan: true,
           calls: [sendBackDAI],
         },
@@ -108,7 +107,6 @@ describe('TakeFlashloan Action', () => {
       [
         {
           amount: ensureWeiFormat(AMOUNT),
-          borrower: system.common.operationExecutor.address,
           dsProxyFlashloan: true,
           calls: [sendBackDAI],
         },
@@ -137,7 +135,6 @@ describe('TakeFlashloan Action', () => {
       [
         {
           amount: ensureWeiFormat(AMOUNT),
-          borrower: system.common.operationExecutor.address,
           dsProxyFlashloan: true,
           calls: [],
         },
