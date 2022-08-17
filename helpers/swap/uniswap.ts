@@ -1,7 +1,7 @@
 import '@nomiclabs/hardhat-ethers'
 
+import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
 import { ethers } from 'hardhat'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
 
 import UNISWAP_ROUTER_V3_ABI from '../../abi/IUniswapRouter.json'
 import { RuntimeConfig } from '../types/common'

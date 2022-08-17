@@ -1,4 +1,4 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions/src'
 import { task } from 'hardhat/config'
 
 import { createDeploy } from '../../helpers/deploy'

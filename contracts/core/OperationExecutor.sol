@@ -13,7 +13,7 @@ import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
-
+import "hardhat/console.sol";
 contract OperationExecutor is IERC3156FlashBorrower {
   using Address for address;
   using SafeERC20 for IERC20;
@@ -32,10 +32,12 @@ contract OperationExecutor is IERC3156FlashBorrower {
   }
 
   function executeOp(Call[] memory calls, string calldata operationName) public payable {
+    console.log('executed..');
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
     OperationsRegistry opRegistry = OperationsRegistry(
       registry.getRegisteredService(OPERATIONS_REGISTRY)
     );
+
     opStorage.setOperationActions(opRegistry.getOperation(operationName));
 
     aggregate(calls);

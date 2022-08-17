@@ -1,10 +1,10 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
+import { ONE } from '@oasisdex/oasis-actions/src/helpers/constants'
 import BigNumber from 'bignumber.js'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 import fetch from 'node-fetch'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
-import { ONE } from 'oasis-actions/src/helpers/constants'
 import { curry } from 'ramda'
 
 import WETHABI from '../../abi/IWETH.json'

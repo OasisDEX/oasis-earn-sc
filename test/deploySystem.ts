@@ -1,6 +1,6 @@
+import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
+import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 import { ethers } from 'hardhat'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from 'oasis-actions/src/helpers/constants'
 
 import DSProxyABI from '../abi/ds-proxy.json'
 import { createDeploy } from '../helpers/deploy'
@@ -362,6 +362,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     logDebug([
       `Signer address: ${address}`,
       `Exchange address: ${deployedContracts.common.exchange.address}`,
+      `Swap address: ${deployedContracts.common.swap.address}`,
       `User Proxy Address: ${deployedContracts.common.userProxyAddress}`,
       `DSProxy address: ${deployedContracts.common.dsProxy.address}`,
       `Registry address: ${deployedContracts.common.serviceRegistry.address}`,
@@ -371,7 +372,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
       `Send Token address: ${deployedContracts.common.sendToken.address}`,
       `Pull Token address: ${deployedContracts.common.pullToken.address}`,
       `Flashloan Action address: ${deployedContracts.common.takeFlashLoan.address}`,
-      `Swap Action address: ${deployedContracts.common.swap.address}`,
+      `Swap Action address: ${deployedContracts.common.swapAction.address}`,
 
       `MCDView address: ${deployedContracts.maker.mcdView.address}`,
       `OpenVault Action address: ${deployedContracts.maker.openVault.address}`,
