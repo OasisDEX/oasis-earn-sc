@@ -5,6 +5,7 @@ coverage.json
 typechain
 yarn-error.log
 tenderly.yaml
+.idea/*
 
 #Hardhat files
 cache
