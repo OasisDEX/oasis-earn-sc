@@ -4,7 +4,7 @@ import 'hardhat-gas-reporter'
 import 'solidity-coverage'
 import './tasks/deploy'
 
-import * as dotenv from 'dotenv'
+import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
 
 dotenv.config()
@@ -51,6 +51,7 @@ const config: HardhatUserConfig = {
     local: {
       url: 'http://127.0.0.1:8545',
       timeout: 100000,
+      chainId: 2137,
     },
     hardhat: {
       forking: {

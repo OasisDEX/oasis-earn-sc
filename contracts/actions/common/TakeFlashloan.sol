@@ -26,7 +26,6 @@ contract TakeFlashloan is Executable, ProxyPermission {
     if (flData.dsProxyFlashloan) {
       givePermission(operationExecutorAddress);
     }
-
     IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
       IERC3156FlashBorrower(operationExecutorAddress),
       dai,

@@ -3,21 +3,26 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
+import {
+  ActionFactory,
+  ADDRESSES,
+  calldataTypes,
+  CONTRACT_NAMES,
+  OPERATION_NAMES,
+  ZERO,
+} from '@oasisdex/oasis-actions/src/index'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'hardhat'
 
-import { ADDRESSES } from '../helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES, ZERO } from '../helpers/constants'
 import { createDeploy, executeThroughProxy } from '../helpers/deploy'
 import init from '../helpers/init'
 // Helper functions
 import { getOrCreateProxy } from '../helpers/proxy'
+import { ServiceRegistry } from '../helpers/serviceRegistry'
 import { swapOneInchTokens } from '../helpers/swap/1inch'
 import { swapUniswapTokens } from '../helpers/swap/uniswap'
-import { calldataTypes } from '../helpers/types/actions'
-import { ActionFactory, amountToWei, approve, balanceOf } from '../helpers/utils'
+import { amountToWei, approve, balanceOf } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
-import { ServiceRegistry } from '../helpers/wrappers/serviceRegistry'
 
 const createAction = ActionFactory.create
 
@@ -79,7 +84,9 @@ async function main() {
   // DEPLOYING ACTIONS
   const [, pullTokenActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
   const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
-  const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [])
+  const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
+    serviceRegistryAddress,
+  ])
   const [, flActionAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
     ADDRESSES.main.DAI,
@@ -90,13 +97,30 @@ async function main() {
   const [, borrowFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.BORROW, [
     serviceRegistryAddress,
   ])
-  const [, swapOnOninchAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ON_ONE_INCH, [
-    serviceRegistryAddress,
-  ])
+
   const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.WITHDRAW, [
     serviceRegistryAddress,
   ])
   const [, operationStorageAddress] = await deploy(CONTRACT_NAMES.common.OPERATION_STORAGE, [
+    serviceRegistryAddress,
+  ])
+
+  const [, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
+    address,
+    ADDRESSES.main.feeRecipient,
+    0,
+    serviceRegistryAddress,
+  ])
+
+  const [, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
+    address,
+    ADDRESSES.main.feeRecipient,
+    0,
+    serviceRegistryAddress,
+  ])
+  const useDummySwap = true
+
+  const [, swapActionAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ACTION, [
     serviceRegistryAddress,
   ])
   //SETUP REGISTRY ENTRIES:
@@ -126,9 +150,12 @@ async function main() {
     CONTRACT_NAMES.aave.WITHDRAW,
     withdrawFromAAVEAddress,
   )
-  const swapOnOneInchHash = await registry.addEntry(
-    CONTRACT_NAMES.common.SWAP_ON_ONE_INCH,
-    swapOnOninchAddress,
+
+  await registry.addEntry(CONTRACT_NAMES.common.SWAP, useDummySwap ? uSwapAddress : swapAddress)
+
+  const swapActionHash = await registry.addEntry(
+    CONTRACT_NAMES.common.SWAP_ACTION,
+    swapActionAddress,
   )
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES.main.maker.jug)
   await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
@@ -194,7 +221,7 @@ async function main() {
   // BORROW FROM AAVE
   const borrowEthFromAAVE = createAction(
     aaveBorrowHash,
-    [calldataTypes.aave.Generate],
+    [calldataTypes.aave.Borrow],
     [
       {
         amount: borrowAmount.toFixed(0),
@@ -213,7 +240,7 @@ async function main() {
   )
 
   const swapETHforSTETH = createAction(
-    swapOnOneInchHash,
+    swapActionHash,
     [calldataTypes.common.Swap],
     [
       {
@@ -221,7 +248,9 @@ async function main() {
         toAsset: ADDRESSES.main.stETH,
         amount: borrowAmount.toFixed(0),
         receiveAtLeast: amountToWei(1).toFixed(), // just a number :D
+        fee: 0,
         withData: response.tx.data,
+        collectFeeInFromToken: true,
       },
     ],
   )
@@ -277,7 +306,7 @@ async function main() {
     setApprovalHash,
     depositInAAVEHash,
     aaveBorrowHash,
-    swapOnOneInchHash,
+    swapActionHash,
     withdrawFromAAVEHash,
     sendTokenHash,
   ])
@@ -289,8 +318,7 @@ async function main() {
     {
       address: operationExecutorAddress,
       calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-        [pullToken,
-        takeAFlashloan],
+        [pullToken, takeAFlashloan],
         OPERATION_NAMES.aave.OPEN_POSITION,
       ]),
     },

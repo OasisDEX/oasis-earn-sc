@@ -1,6 +1,5 @@
+import { ContractNames } from '@oasisdex/oasis-actions'
 import { Signer, utils } from 'ethers'
-
-import { ContractNames } from '../constants'
 
 export class ServiceRegistry {
   address: string
@@ -28,5 +27,11 @@ export class ServiceRegistry {
     const ethers = (await import('hardhat')).ethers
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     return registry.getServiceNameHash(label)
+  }
+
+  async getServiceAddress(label: ContractNames): Promise<string> {
+    const ethers = (await import('hardhat')).ethers
+    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    return registry.getRegisteredService(label)
   }
 }

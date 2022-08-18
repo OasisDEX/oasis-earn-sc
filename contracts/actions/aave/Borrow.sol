@@ -18,6 +18,7 @@ contract AaveBorrow is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     BorrowData memory borrow = abi.decode(data, (BorrowData));
+
     address wethGatewayAddress = registry.getRegisteredService(AAVE_WETH_GATEWAY);
     dWETH.approveDelegation(wethGatewayAddress, borrow.amount);
     store().write(bytes32(borrow.amount));

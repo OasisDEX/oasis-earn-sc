@@ -1,12 +1,11 @@
 pragma solidity ^0.8.15;
 
-import "hardhat/console.sol";
-
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20 } from "../../libs/SafeERC20.sol";
 import { ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
+import { SwapData } from "../../core/types/Common.sol";
 
 contract Swap {
   using SafeMath for uint256;
@@ -84,12 +83,16 @@ contract Swap {
     address callee,
     bytes calldata withData
   ) internal returns (uint256 balance) {
+
     IERC20(fromAsset).safeApprove(callee, amount);
     (bool success, ) = callee.call(withData);
     if (!success) {
       revert SwapFailed();
     }
     balance = IERC20(toAsset).balanceOf(address(this));
+    
+    emit SlippageSaved(receiveAtLeast, balance);
+
     if (balance < receiveAtLeast) {
       revert ReceivedLess(receiveAtLeast, balance);
     }
@@ -117,39 +120,34 @@ contract Swap {
   }
 
   function swapTokens(
-    address assetFrom,
-    address assetTo,
-    uint256 amountFromWithFee,
-    uint256 receiveAtLeast,
-    uint256 fee,
-    bytes calldata withData,
-    bool collectFeeInFromToken
-  ) public {
-    IERC20(assetFrom).safeTransferFrom(msg.sender, address(this), amountFromWithFee);
-    uint256 amountFrom = amountFromWithFee;
-    if (collectFeeInFromToken) {
-      amountFrom = _collectFee(assetFrom, amountFromWithFee, fee);
+    SwapData calldata swapData
+  ) public returns (uint256) {
+    IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
+    uint256 amountFrom = swapData.amount;
+    if (swapData.collectFeeInFromToken) {
+      amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
 
     address oneInch = registry.getRegisteredService(ONE_INCH_AGGREGATOR);
     uint256 toTokenBalance = _swap(
-      assetFrom,
-      assetTo,
+      swapData.fromAsset,
+      swapData.toAsset,
       amountFrom,
-      receiveAtLeast,
+      swapData.receiveAtLeast,
       oneInch,
-      withData
+      swapData.withData
     );
 
-    if (!collectFeeInFromToken) {
-      toTokenBalance = _collectFee(assetTo, toTokenBalance, fee);
+    if (!swapData.collectFeeInFromToken) {
+      toTokenBalance = _collectFee(swapData.toAsset, toTokenBalance, swapData.fee);
     }
 
-    uint256 fromTokenBalance = IERC20(assetFrom).balanceOf(address(this));
+    uint256 fromTokenBalance = IERC20(swapData.fromAsset).balanceOf(address(this));
     if (fromTokenBalance > 0) {
-      IERC20(assetFrom).safeTransfer(msg.sender, fromTokenBalance);
+      IERC20(swapData.fromAsset).safeTransfer(msg.sender, fromTokenBalance);
     }
 
-    IERC20(assetTo).safeTransfer(msg.sender, toTokenBalance);
+    IERC20(swapData.toAsset).safeTransfer(msg.sender, toTokenBalance);
+    return toTokenBalance;
   }
 }

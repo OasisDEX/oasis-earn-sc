@@ -75,7 +75,9 @@ export type SwapData = {
   toAsset: string
   amount: string
   receiveAtLeast: string
+  fee: number
   withData: any
+  collectFeeInFromToken: boolean
 }
 
 export type ExchangeData = {
@@ -86,9 +88,4 @@ export type ExchangeData = {
   minToTokenAmount: string
   exchangeAddress: string
   _exchangeCalldata: any
-}
-
-export type ActionCall = {
-  targetHash: string
-  callData: string
 }

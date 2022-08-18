@@ -5,8 +5,10 @@ coverage.json
 typechain
 yarn-error.log
 tenderly.yaml
-.idea
+.idea/**/*
 
 #Hardhat files
 cache
 artifacts
+
+lib

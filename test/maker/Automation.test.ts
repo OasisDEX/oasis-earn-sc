@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { JsonRpcProvider } from '@ethersproject/providers'
+import {
+  ActionCall,
+  ActionFactory,
+  ADDRESSES,
+  calldataTypes,
+  CONTRACT_NAMES,
+  OPERATION_NAMES,
+} from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
@@ -7,8 +15,6 @@ import { ethers } from 'hardhat'
 
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
-import { ADDRESSES } from '../../helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
@@ -18,10 +24,10 @@ import {
   calculateParamsIncreaseMP,
   prepareMultiplyParameters,
 } from '../../helpers/paramCalculations'
-import { calldataTypes } from '../../helpers/types/actions'
-import { ActionCall, RuntimeConfig, SwapData } from '../../helpers/types/common'
-import { ActionFactory, amountToWei, ensureWeiFormat } from '../../helpers/utils'
-import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
+import { ServiceRegistry } from '../../helpers/serviceRegistry'
+import { RuntimeConfig, SwapData } from '../../helpers/types/common'
+import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
+import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
 
@@ -32,8 +38,8 @@ const createAction = ActionFactory.create
 let DAI: Contract
 let WETH: Contract
 
-describe(`Operations | Maker | Test Automation Operation`, async () => {
-  const oazoFee = 2 // divided by base (10000), 1 = 0.01%;
+describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN}`, async () => {
+  const oazoFee = 0 // divided by base (10000), 1 = 0.01%;
   const oazoFeePct = new BigNumber(oazoFee).div(10000)
   const flashLoanFee = LENDER_FEE
   const slippage = new BigNumber(0.0001) // percentage
@@ -55,8 +61,8 @@ describe(`Operations | Maker | Test Automation Operation`, async () => {
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    const blockNumber = 13274574
-    await resetNode(provider, blockNumber)
+    // When changing block number remember to check vault id that is used for automation
+    await resetNode(provider, testBlockNumber)
 
     const { system: _system, registry: _registry } = await deploySystem(config)
     system = _system
@@ -76,7 +82,7 @@ describe(`Operations | Maker | Test Automation Operation`, async () => {
   })
 
   let oraclePrice: BigNumber
-  const marketPrice = new BigNumber(2900)
+  const marketPrice = new BigNumber(1585)
   const initialColl = new BigNumber(100)
   const initialDebt = new BigNumber(0)
   const daiTopUp = new BigNumber(0)
@@ -158,6 +164,70 @@ describe(`Operations | Maker | Test Automation Operation`, async () => {
       ],
     )
 
+    // Get flashloan -> Swap for collateral -> Deposit collateral -> Generate DAI -> Repay flashloan
+
+    const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
+      .plus(ensureWeiFormat(desiredCdpState.daiTopUp))
+      .toFixed(0)
+
+    const swapData: SwapData = {
+      fromAsset: exchangeData.fromTokenAddress,
+      toAsset: exchangeData.toTokenAddress,
+      // Add daiTopup amount to swap
+      amount: swapAmount,
+      receiveAtLeast: new BigNumber(exchangeData.minToTokenAmount).times(0.95).toFixed(0),
+      fee: 0,
+      withData: exchangeData._exchangeCalldata,
+      collectFeeInFromToken: true,
+    }
+
+    await DAI.approve(system.common.userProxyAddress, swapAmount)
+    // TODO: Move funds to proxy
+    const swapAction = createAction(
+      await registry.getEntryHash(CONTRACT_NAMES.common.SWAP_ACTION),
+      [calldataTypes.common.Swap],
+      [swapData],
+    )
+
+    const depositBorrowedCollateral = createAction(
+      await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
+      [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
+      [
+        {
+          joinAddress: ADDRESSES.main.maker.joinETH_A,
+          vaultId: 0,
+          amount: ensureWeiFormat(desiredCdpState.toBorrowCollateralAmount),
+        },
+        [1],
+      ],
+    )
+
+    const generateDaiToRepayFL = createAction(
+      await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
+      [calldataTypes.maker.Generate, calldataTypes.paramsMap],
+      [
+        {
+          to: system.common.userProxyAddress,
+          vaultId: 0,
+          amount: ensureWeiFormat(desiredCdpState.requiredDebt),
+        },
+        [1],
+      ],
+    )
+
+    const sendBackDAI = createAction(
+      await registry.getEntryHash(CONTRACT_NAMES.common.SEND_TOKEN),
+      [calldataTypes.common.SendToken],
+      [
+        {
+          amount: exchangeData.fromTokenAmount,
+          asset: ADDRESSES.main.DAI,
+          to: system.common.operationExecutor.address,
+        },
+        [0, 1, 0],
+      ],
+    )
+
     const cdpAllow = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.CDP_ALLOW),
       [calldataTypes.maker.CdpAllow, calldataTypes.paramsMap],
@@ -190,8 +260,8 @@ describe(`Operations | Maker | Test Automation Operation`, async () => {
       signer,
     )
 
-    const autoTestAmount = new BigNumber(10000)
-    const autoVaultId = 25790
+    const autoTestAmount = new BigNumber(1000)
+    const autoVaultId = 29062
     const generateDaiAutomation = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
       [calldataTypes.maker.Generate, calldataTypes.paramsMap],
@@ -240,6 +310,20 @@ describe(`Operations | Maker | Test Automation Operation`, async () => {
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
     const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
 
-    expectToBeEqual(currentCollRatio, new BigNumber(28.842), 3)
+    expectToBeEqual(currentCollRatio, new BigNumber(2.476), 3)
+
+    const expectedColl = additionalCollateral.plus(initialColl).plus(preIncreaseMPTopUp)
+    const expectedDebt = desiredCdpState.requiredDebt
+
+    expect(info.coll.toFixed(0)).to.equal(expectedColl.toFixed(0))
+    expect(info.debt.toFixed(0)).to.equal(expectedDebt.plus(autoTestAmount).toFixed(0))
+
+    const cdpManagerContract = new ethers.Contract(
+      ADDRESSES.main.maker.cdpManager,
+      CDPManagerABI,
+      provider,
+    ).connect(signer)
+    const vaultOwner = await cdpManagerContract.owns(vault.id)
+    expectToBeEqual(vaultOwner, system.common.userProxyAddress)
   })
 })

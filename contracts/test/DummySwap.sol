@@ -1,6 +1,5 @@
 pragma solidity ^0.8.15;
 // TODO: Remove this for prod deploy
-import "hardhat/console.sol";
 
 import "../actions/common/Executable.sol";
 import { UseStore, Read, Write } from "../actions/common/UseStore.sol";

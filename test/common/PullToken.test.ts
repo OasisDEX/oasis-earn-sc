@@ -1,14 +1,12 @@
+import { ADDRESSES, calldataTypes, ONE, TEN } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-import { ADDRESSES } from '../../helpers/addresses'
-import { ONE, TEN } from '../../helpers/constants'
 import { createDeploy, DeployFunction } from '../../helpers/deploy'
 import init, { resetNode } from '../../helpers/init'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
-import { calldataTypes } from '../../helpers/types/actions'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, approve, balanceOf } from '../../helpers/utils'
 

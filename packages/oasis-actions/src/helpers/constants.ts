@@ -1,7 +1,5 @@
 import { BigNumber } from 'bignumber.js'
 
-import { AllValues } from './types/common'
-
 export const ZERO = new BigNumber(0)
 export const ONE = new BigNumber(1)
 export const TEN = new BigNumber(10)
@@ -17,13 +15,14 @@ export const CONTRACT_NAMES = {
     SEND_TOKEN: 'SendToken',
     SET_APPROVAL: 'SetApproval',
     TAKE_A_FLASHLOAN: 'TakeFlashloan',
-    SWAP_ON_ONE_INCH: 'SwapOnOneInch',
+    SWAP_ACTION: 'SwapAction',
     OPERATION_EXECUTOR: 'OperationExecutor',
     OPERATION_STORAGE: 'OperationStorage',
     OPERATIONS_REGISTRY: 'OperationsRegistry',
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
     SWAP: 'Swap',
     EXCHANGE: 'Exchange',
+    UNISWAP_ROUTER: 'UniswapRouter',
     SERVICE_REGISTRY: 'ServiceRegistry',
   },
   aave: {
@@ -50,8 +49,11 @@ export const CONTRACT_NAMES = {
     DUMMY_ACTION: 'DummyAction',
     DUMMY_SWAP: 'DummySwap',
     DUMMY_EXCHANGE: 'DummyExchange',
+    SWAP: 'uSwap',
   },
 } as const
+
+export type AllValues<T> = { [K in keyof T]: T[K] extends object ? AllValues<T[K]> : T[K] }[keyof T]
 
 export type ContractNames = AllValues<typeof CONTRACT_NAMES>
 

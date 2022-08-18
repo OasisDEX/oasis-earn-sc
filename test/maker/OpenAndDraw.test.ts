@@ -1,4 +1,11 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
+import {
+  ActionFactory,
+  ADDRESSES,
+  calldataTypes,
+  CONTRACT_NAMES,
+  OPERATION_NAMES,
+} from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
@@ -6,16 +13,14 @@ import { ethers } from 'hardhat'
 
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
-import { ADDRESSES } from '../../helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '../../helpers/constants'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
 import { getLastVault, getVaultInfo } from '../../helpers/maker/vault'
-import { calldataTypes } from '../../helpers/types/actions'
+import { ServiceRegistry } from '../../helpers/serviceRegistry'
 import { RuntimeConfig } from '../../helpers/types/common'
-import { ActionFactory, amountToWei, ensureWeiFormat } from '../../helpers/utils'
-import { ServiceRegistry } from '../../helpers/wrappers/serviceRegistry'
+import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
+import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
 
@@ -41,8 +46,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    const blockNumber = 13274574
-    resetNode(provider, blockNumber)
+    await resetNode(provider, testBlockNumber)
 
     const { system: _system, registry: _registry } = await deploySystem(config)
     system = _system
@@ -53,7 +57,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_AND_DRAW}`, async ()
     await system.common.exchange.setPrice(ADDRESSES.main.ETH, amountToWei(marketPrice).toFixed(0))
   })
 
-  const marketPrice = new BigNumber(2380)
+  const marketPrice = new BigNumber(1582)
   const initialColl = new BigNumber(100)
   const initialDebt = new BigNumber(20000)
 

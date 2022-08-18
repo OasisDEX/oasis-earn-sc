@@ -29,7 +29,9 @@ struct SwapData {
   address toAsset;
   uint256 amount;
   uint256 receiveAtLeast;
+  uint256 fee;
   bytes withData;
+  bool collectFeeInFromToken;
 }
 
 struct Call {

@@ -1,3 +1,4 @@
+import { ADDRESSES, ONE, TEN } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import { ethers } from 'hardhat'
@@ -5,15 +6,13 @@ import { isError, tryF } from 'ts-try'
 
 import CTOKEN_ABI from '../abi/CErc20.json'
 import IERC20_ABI from '../abi/IERC20.json'
-import { ONE, TEN } from '../helpers/constants'
-import { ActionCall, BalanceOptions, RuntimeConfig } from '../helpers/types/common'
-import { ADDRESSES } from './addresses'
+import { BalanceOptions, RuntimeConfig } from '../helpers/types/common'
 
 export async function balanceOf(
   asset: string,
   address: string,
   options: BalanceOptions,
-): Promise<string | BigNumber> {
+): Promise<BigNumber> {
   let balance = undefined
   const { provider, signer } = options.config
   if (asset === ADDRESSES.main.ETH) {
@@ -25,7 +24,7 @@ export async function balanceOf(
 
   if (options.isFormatted) {
     const decimals = options.decimals ? options.decimals : 18
-    return ethers.utils.formatUnits(balance.toString(), decimals)
+    return new BigNumber(ethers.utils.formatUnits(balance.toString(), decimals))
   }
 
   if (options.debug) {
@@ -164,30 +163,5 @@ export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value)
     },
 
     asDecimal: val.div(base),
-  }
-}
-
-export class ActionFactory {
-  static create(targetHash: string, types: string[], args: any[]): ActionCall {
-    const iface = new ethers.utils.Interface([
-      ' function execute(bytes calldata data, uint8[] paramsMap) external payable returns (bytes calldata)',
-    ])
-
-    const [callDataTypes, paramsMapType] = types
-    const [callData, paramsMap] = args
-
-    const hasParamsToMap = paramsMapType && paramsMap
-
-    const encodedCallData = ethers.utils.defaultAbiCoder.encode([callDataTypes], [callData])
-
-    const calldata = iface.encodeFunctionData('execute', [
-      encodedCallData,
-      hasParamsToMap ? paramsMap : [],
-    ])
-
-    return {
-      targetHash,
-      callData: calldata,
-    }
   }
 }
