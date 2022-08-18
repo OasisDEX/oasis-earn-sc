@@ -90,7 +90,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
   const requiredCollRatio = new BigNumber(2.5)
 
   const testName = `should open vault, deposit ETH, allow Automation Bot & then Run Automation based Operation`
-  it(testName, async () => {
+  it.skip(testName, async () => {
     await WETH.approve(
       system.common.userProxyAddress,
       amountToWei(initialColl.plus(collTopUp)).toFixed(0),

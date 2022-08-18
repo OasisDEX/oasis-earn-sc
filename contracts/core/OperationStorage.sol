@@ -9,12 +9,31 @@ contract OperationStorage {
 
   uint256 private constant _NOT_ENTERED = 1;
   uint256 private constant _ENTERED = 2;
+
   uint256 private _status;
+
+  bool private locked;
+  address private whoLocked;
+
+
 
   ServiceRegistry internal immutable registry;
 
   constructor(ServiceRegistry _registry) {
     registry = _registry;
+  }
+
+  function lock() external{
+    require(locked == false, "Not locked");
+    locked = true;
+    whoLocked = msg.sender;
+  }
+
+  function unlock() external{
+    require(whoLocked == msg.sender, "Only the locker can unlock");
+    require(locked, "Not locked");
+    locked = false;
+    whoLocked = msg.sender;
   }
 
   function setOperationActions(bytes32[] memory _actions) external {
@@ -33,6 +52,7 @@ contract OperationStorage {
 
   function push(bytes32 value) external {
     returnValues.push(value);
+
   }
 
   function at(uint256 index) external view returns (bytes32) {
