@@ -48,8 +48,9 @@ contract OperationStorage {
   }
 
   function clearStorageAfter() external {
-    clearStorage();
+    require(msg.sender == context, "ReentrancyGuard: cannot reset call");
     context = address(0);
+    clearStorage();
   }
 
   function clearStorage() internal {
