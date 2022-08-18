@@ -5,12 +5,10 @@ import { ServiceRegistry } from "./ServiceRegistry.sol";
 contract OperationStorage {
   uint8 internal action = 0;
   bytes32[] public actions;
-  bytes32[] public returnValues;
+  mapping(address => bytes32[]) public returnValues;
 
-  uint256 private constant _NOT_ENTERED = 1;
-  uint256 private constant _ENTERED = 2;
+  address[] public valuesHolders;
 
-  uint256 private _status;
 
   bool private locked;
   address private whoLocked;
@@ -51,35 +49,37 @@ contract OperationStorage {
   }
 
   function push(bytes32 value) external {
-    returnValues.push(value);
+    if(returnValues[msg.sender].length ==0){
+      valuesHolders.push(msg.sender);
+    }
+    returnValues[msg.sender].push(value);
 
   }
 
-  function at(uint256 index) external view returns (bytes32) {
-    return returnValues[index];
+  function at(uint256 index, address who) external view returns (bytes32) {
+    return returnValues[who][index];
   }
 
-  function len() external view returns (uint256) {
-    return returnValues.length;
+  function len(address who) external view returns (uint256) {
+    return returnValues[who].length;
   }
 
-  function nonReentrant() internal {
-    require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
-
-    _status = _ENTERED;
-  }
 
   function clearStorageBefore() external {
-    nonReentrant();
     delete action;
     delete actions;
-    delete returnValues;
+    for(uint256 i = 0; i < valuesHolders.length; i++){
+      delete returnValues[valuesHolders[i]];
+    }
+    delete valuesHolders;
   }
 
   function clearStorageAfter() external {
     delete action;
     delete actions;
-    delete returnValues;
-    _status = _NOT_ENTERED;
+    for(uint256 i = 0; i < valuesHolders.length; i++){
+      delete returnValues[valuesHolders[i]];
+    }
+    delete valuesHolders;
   }
 }

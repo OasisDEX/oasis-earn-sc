@@ -16,7 +16,7 @@ contract SetApproval is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     SetApprovalData memory approval = abi.decode(data, (SetApprovalData));
 
-    approval.amount = store().readUint(bytes32(approval.amount), paramsMap[2]);
+    approval.amount = store().readUint(bytes32(approval.amount), paramsMap[2], address(this));//TODO: blind guess here
     IERC20(approval.asset).safeApprove(approval.delegator, approval.amount);
 
     emit Action(SET_APPROVAL_ACTION, bytes32(approval.amount));
