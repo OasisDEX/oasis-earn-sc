@@ -1,6 +1,4 @@
 import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
-import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 import { ethers } from 'hardhat'
 
 import DSProxyABI from '../abi/ds-proxy.json'
@@ -14,7 +12,7 @@ import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
 
 export async function deploySystem(config: RuntimeConfig, debug = false, useDummySwap = true) {
   const { provider, signer, address } = config
-
+  console.log('Using dummy swap: ', useDummySwap)
   const options = {
     debug,
     config,
