@@ -7,7 +7,7 @@ import { ILendingPool } from "../../interfaces/aave/ILendingPool.sol";
 import { DepositData } from "../../core/types/Aave.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { AAVE_LENDING_POOL, DEPOSIT_ACTION } from "../../core/constants/Aave.sol";
-import "hardhat/console.sol";
+
 contract AaveDeposit is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
@@ -16,7 +16,7 @@ contract AaveDeposit is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositData memory deposit = abi.decode(data, (DepositData));
-    console.log('executing aave deposit..');
+
     store().write(bytes32(deposit.amount));
     deposit.amount = store().readUint(bytes32(deposit.amount), paramsMap[1]);
 
