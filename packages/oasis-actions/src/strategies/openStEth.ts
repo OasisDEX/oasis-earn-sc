@@ -30,7 +30,7 @@ interface OpenStEthDependencies {
     toToken: string,
     amount: BigNumber,
     slippage: BigNumber,
-  ) => Promise<SwapData>,
+  ) => Promise<SwapData>
   dsProxy: string
 }
 
@@ -99,7 +99,7 @@ export async function openStEth(args: OpenStEthArgs, dependencies: OpenStEthDepe
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
       ethSwapAmount: ethOnExchange,
-      dsProxy: dependencies.dsProxy
+      dsProxy: dependencies.dsProxy,
     },
     dependencies.addresses,
   )

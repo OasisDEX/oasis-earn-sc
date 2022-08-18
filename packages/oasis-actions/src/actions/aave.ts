@@ -24,7 +24,7 @@ export function aaveDeposit(
   )
 }
 
-export function aaveBorrow(args: { amount: BigNumber; asset: string, to: string }) {
+export function aaveBorrow(args: { amount: BigNumber; asset: string; to: string }) {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.BORROW),
     [calldataTypes.aave.Borrow],
@@ -38,7 +38,7 @@ export function aaveBorrow(args: { amount: BigNumber; asset: string, to: string 
   )
 }
 
-export function aaveWithdraw(args: { amount: BigNumber; asset: string, to: string }) {
+export function aaveWithdraw(args: { amount: BigNumber; asset: string; to: string }) {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.WITHDRAW),
     [calldataTypes.aave.Withdraw],
@@ -46,7 +46,7 @@ export function aaveWithdraw(args: { amount: BigNumber; asset: string, to: strin
       {
         asset: args.asset,
         amount: args.amount.toFixed(0),
-        to: args.to
+        to: args.to,
       },
     ],
   )

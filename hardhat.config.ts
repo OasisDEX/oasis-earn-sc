@@ -4,7 +4,7 @@ import 'hardhat-gas-reporter'
 import 'solidity-coverage'
 import './tasks/deploy'
 
-import * as dotenv from 'dotenv'
+import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
 
 dotenv.config()

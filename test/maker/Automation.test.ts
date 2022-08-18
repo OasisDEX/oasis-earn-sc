@@ -326,5 +326,4 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     const vaultOwner = await cdpManagerContract.owns(vault.id)
     expectToBeEqual(vaultOwner, system.common.userProxyAddress)
   })
-
 })
