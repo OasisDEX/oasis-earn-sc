@@ -10,7 +10,7 @@ import {
   CONTRACT_NAMES,
   OPERATION_NAMES,
   ZERO,
-} from '@oasisdex/oasis-actions'
+} from '@oasisdex/oasis-actions/src/index'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'hardhat'
 

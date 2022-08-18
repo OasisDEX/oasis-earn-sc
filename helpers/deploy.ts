@@ -44,6 +44,7 @@ export async function executeThroughProxy(
   try {
     const ethers = (await import('hardhat')).ethers
     const dsProxy = await ethers.getContractAt('DSProxy', proxyAddress, signer)
+
     const tx = await dsProxy['execute(address,bytes)'](address, calldata, {
       gasLimit: 4000000,
       value,

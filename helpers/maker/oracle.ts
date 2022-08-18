@@ -1,6 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
 import BigNumber from 'bignumber.js'
-import { ADDRESSES } from 'oasis-actions/src/helpers/addresses'
 
 export async function getOraclePrice(
   provider: JsonRpcProvider,

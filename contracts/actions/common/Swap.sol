@@ -6,7 +6,7 @@ import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20 } from "../../libs/SafeERC20.sol";
 import { ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
 import { SwapData } from "../../core/types/Common.sol";
-
+import "hardhat/console.sol";
 contract Swap {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -83,6 +83,7 @@ contract Swap {
     address callee,
     bytes calldata withData
   ) internal returns (uint256 balance) {
+    console.log('swapping tokens..');
     IERC20(fromAsset).safeApprove(callee, amount);
     (bool success, ) = callee.call(withData);
     if (!success) {
