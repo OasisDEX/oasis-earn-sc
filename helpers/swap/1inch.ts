@@ -1,5 +1,5 @@
-import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
 import fetch from 'node-fetch'
+import { ADDRESSES } from '@oasisdex/oasis-actions'
 
 import { OneInchSwapResponse } from '../types/common'
 

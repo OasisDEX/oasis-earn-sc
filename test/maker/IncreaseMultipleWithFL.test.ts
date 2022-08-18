@@ -129,11 +129,12 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
 
     const openVaultAction = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.OPEN_VAULT),
-      [calldataTypes.maker.Open],
+      [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
           joinAddress: ADDRESSES.main.maker.joinETH_A,
         },
+        [0],
       ],
     )
 
@@ -146,7 +147,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           asset: ADDRESSES.main.WETH,
           amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
-        [0],
+        [0, 0, 0],
       ],
     )
 
@@ -159,7 +160,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
@@ -197,7 +198,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           vaultId: 0,
           amount: ensureWeiFormat(desiredCdpState.toBorrowCollateralAmount),
         },
-        [1],
+        [0, 1, 3],
       ],
     )
 
@@ -210,20 +211,20 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
           vaultId: 0,
           amount: ensureWeiFormat(desiredCdpState.requiredDebt),
         },
-        [1],
+        [0, 1, 0],
       ],
     )
 
     const sendBackDAI = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.common.SEND_TOKEN),
-      [calldataTypes.common.SendToken],
+      [calldataTypes.common.SendToken, calldataTypes.paramsMap],
       [
         {
           amount: exchangeData.fromTokenAmount,
           asset: ADDRESSES.main.DAI,
           to: system.common.operationExecutor.address,
         },
-        [0],
+        [0, 0, 0],
       ],
     )
 
@@ -233,11 +234,10 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       [
         {
           amount: exchangeData.fromTokenAmount,
-          borrower: system.common.operationExecutor.address,
           dsProxyFlashloan: true,
           calls: [swapAction, depositBorrowedCollateral, generateDaiToRepayFL, sendBackDAI],
         },
-        [0],
+        [0, 0, 0, 0],
       ],
     )
 
@@ -255,7 +255,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
         address: system.common.operationExecutor.address,
         calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
           actions,
-          OPERATION_NAMES.common.CUSTOM_OPERATION, //just to skip operation's actions verification
+          OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN,
         ]),
       },
       signer,

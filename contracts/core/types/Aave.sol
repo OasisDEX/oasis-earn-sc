@@ -1,4 +1,4 @@
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.15;
 
 struct DepositData {
   address asset;
@@ -8,9 +8,11 @@ struct DepositData {
 struct BorrowData {
   address asset;
   uint256 amount;
+  address to;
 }
 
 struct WithdrawData {
   address asset;
   uint256 amount;
+  address to;
 }

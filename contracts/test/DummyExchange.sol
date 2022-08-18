@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity >=0.8.5;
+
+pragma solidity ^0.8.15;
+
 import "../interfaces/tokens/IERC20.sol";
 import "../libs/SafeMath.sol";
 import "../libs/SafeERC20.sol";

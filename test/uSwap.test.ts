@@ -1,9 +1,8 @@
-import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
-import { CONTRACT_NAMES, ONE } from '@oasisdex/oasis-actions/src/helpers/constants'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
+import { CONTRACT_NAMES, ONE, ADDRESSES } from '@oasisdex/oasis-actions'
 
 import WETH_ABI from '../abi/IWETH.json'
 import { createDeploy } from '../helpers/deploy'

@@ -10,7 +10,7 @@ export const calldataTypes = {
     bool collectFeeInFromToken) swapData`,
     SendToken: `tuple(address asset, address to, uint256 amount)`,
     PullToken: `tuple(address asset, address from, uint256 amount)`,
-    TakeAFlashLoan: `tuple(uint256 amount, address borrower, bool dsProxyFlashloan, (bytes32 targetHash, bytes callData)[] calls)`,
+    TakeAFlashLoan: `tuple(uint256 amount, bool dsProxyFlashloan, (bytes32 targetHash, bytes callData)[] calls)`,
   },
   maker: {
     Open: `tuple(address joinAddress)`,
@@ -23,8 +23,8 @@ export const calldataTypes = {
   aave: {
     // Generate: `tuple(address asset, uint256 amount)`,
     Deposit: `tuple(address asset, uint256 amount)`,
-    Withdraw: `tuple(address asset, uint256 amount)`,
-    Borrow: `tuple(address asset, uint256 amount)`,
+    Withdraw: `tuple(address asset, uint256 amount, address to)`,
+    Borrow: `tuple(address asset, uint256 amount, address to)`,
   },
   paramsMap: `uint8[] paramsMap`,
 } as const

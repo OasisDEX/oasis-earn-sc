@@ -1,7 +1,5 @@
-import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
-import { ONE } from '@oasisdex/oasis-actions/src/helpers/constants'
 import BigNumber from 'bignumber.js'
-
+import { ONE, ADDRESSES } from '@oasisdex/oasis-actions'
 import { ExchangeData } from './types/common'
 import { CdpData } from './types/maker'
 import { amountToWei, logDebug } from './utils'

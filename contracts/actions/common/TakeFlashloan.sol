@@ -1,4 +1,4 @@
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
@@ -11,26 +11,30 @@ import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
 
 contract TakeFlashloan is Executable, ProxyPermission {
   ServiceRegistry internal immutable registry;
+  address internal immutable dai;
 
-  constructor(ServiceRegistry _registry) {
+  constructor(ServiceRegistry _registry, address _dai) {
     registry = _registry;
+    dai = _dai;
   }
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
-    
+
+    address operationExecutorAddress = registry.getRegisteredService(OPERATION_EXECUTOR);
+
     if (flData.dsProxyFlashloan) {
-      givePermission(registry.getRegisteredService(OPERATION_EXECUTOR));
+      givePermission(operationExecutorAddress);
     }
     IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
-      IERC3156FlashBorrower(flData.borrower),
-      registry.getRegisteredService(DAI),
+      IERC3156FlashBorrower(operationExecutorAddress),
+      dai,
       flData.amount,
       data
     );
 
     if (flData.dsProxyFlashloan) {
-      removePermission(registry.getRegisteredService(OPERATION_EXECUTOR));
+      removePermission(operationExecutorAddress);
     }
     emit Action(TAKE_FLASH_LOAN_ACTION, bytes32(flData.amount));
   }

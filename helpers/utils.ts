@@ -1,8 +1,7 @@
-import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
-import { ONE, TEN } from '@oasisdex/oasis-actions/src/helpers/constants'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import { ethers } from 'hardhat'
+import { ONE, TEN, ADDRESSES } from '@oasisdex/oasis-actions'
 import { isError, tryF } from 'ts-try'
 
 import CTOKEN_ABI from '../abi/CErc20.json'

@@ -42,6 +42,7 @@ task(
     ])
     const [, flActionAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
       serviceRegistryAddress,
+      ADDRESSES.main.DAI,
     ])
 
     // AAVE Specific Actions Smart Contracts
