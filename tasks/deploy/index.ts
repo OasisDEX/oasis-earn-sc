@@ -11,7 +11,7 @@ task(
   'Deploy specific system. Use a "key" to select a contracts set from predefined ones.',
 )
   .addFlag('debug', 'When used, deployed contract address is displayed')
-  .addFlag('useDummySwap', 'When used, dummy swap is used')
+  .addFlag('usedummyswap', 'When used, dummy swap is used')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
     const options = {
@@ -37,7 +37,9 @@ task(
     // Common Actions Smart Contracts
     const [, pullTokenActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
     const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
-    const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [])
+    const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
+      serviceRegistryAddress,
+    ])
     const [, flActionAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
       serviceRegistryAddress,
     ])
@@ -52,12 +54,19 @@ task(
     const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.WITHDRAW, [
       serviceRegistryAddress,
     ])
-    const [, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
+    const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
       config.address,
       ADDRESSES.main.feeRecipient,
       0, // TODO add different fee tiers
       serviceRegistryAddress,
     ])
+    await uSwap.setPool(
+      '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+      10000,
+    )
+    await uSwap.addFeeTier(20)
+
     const [, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
       config.address,
       ADDRESSES.main.feeRecipient,
@@ -117,7 +126,7 @@ task(
     )
     await registry.addEntry(
       CONTRACT_NAMES.common.SWAP,
-      taskArgs.useDummySwap ? uSwapAddress : swapAddress,
+      taskArgs.usedummyswap ? uSwapAddress : swapAddress,
     )
     const swapActionHash = await registry.addEntry(
       CONTRACT_NAMES.common.SWAP_ACTION,

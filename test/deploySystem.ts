@@ -376,7 +376,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
 
       `MCDView address: ${deployedContracts.maker.mcdView.address}`,
       `OpenVault Action address: ${deployedContracts.maker.openVault.address}`,
-      `Depost Action address: ${deployedContracts.maker.deposit.address}`,
+      `Deposit Action address: ${deployedContracts.maker.deposit.address}`,
       `Payback Action address: ${deployedContracts.maker.payback.address}`,
       `Withdraw Action address: ${deployedContracts.maker.withdraw.address}`,
       `Generate Action address: ${deployedContracts.maker.generate.address}`,
