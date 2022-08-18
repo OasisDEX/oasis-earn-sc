@@ -7,9 +7,7 @@ contract OperationStorage {
   bytes32[] public actions;
   bytes32[] public returnValues;
 
-  uint256 private constant _NOT_ENTERED = 1;
-  uint256 private constant _ENTERED = 2;
-  uint256 private _status;
+  address private context;
 
   ServiceRegistry internal immutable registry;
 
@@ -43,23 +41,20 @@ contract OperationStorage {
     return returnValues.length;
   }
 
-  function nonReentrant() internal {
-    require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
-
-    _status = _ENTERED;
-  }
-
   function clearStorageBefore() external {
-    nonReentrant();
-    delete action;
-    delete actions;
-    delete returnValues;
+    require(msg.sender != context, "ReentrancyGuard: reentrant call");
+    context = address(msg.sender);
+    clearStorage();
   }
 
   function clearStorageAfter() external {
+    clearStorage();
+    context = address(0);
+  }
+
+  function clearStorage() internal {
     delete action;
     delete actions;
     delete returnValues;
-    _status = _NOT_ENTERED;
   }
 }
