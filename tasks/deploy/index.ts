@@ -149,4 +149,6 @@ task(
       withdrawFromAAVEHash,
       sendTokenHash,
     ])
+
+    await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
   })
