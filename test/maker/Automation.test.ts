@@ -90,7 +90,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
   const requiredCollRatio = new BigNumber(2.5)
 
   const testName = `should open vault, deposit ETH, allow Automation Bot & then Run Automation based Operation`
-  it.skip(testName, async () => {
+  it(testName, async () => {
     await WETH.approve(
       system.common.userProxyAddress,
       amountToWei(initialColl.plus(collTopUp)).toFixed(0),
@@ -260,7 +260,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       signer,
     )
 
-    const autoTestAmount = new BigNumber(1000)
+    const autoTestAmount = new BigNumber(40000)
     const autoVaultId = 29062
     const generateDaiAutomation = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
@@ -310,13 +310,10 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
     const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
 
-    expectToBeEqual(currentCollRatio, new BigNumber(2.476), 3)
+    expectToBeEqual(currentCollRatio, new BigNumber(3.905), 3)
 
-    const expectedColl = additionalCollateral.plus(initialColl).plus(preIncreaseMPTopUp)
-    const expectedDebt = desiredCdpState.requiredDebt
-
-    expect(info.coll.toFixed(0)).to.equal(expectedColl.toFixed(0))
-    expect(info.debt.toFixed(0)).to.equal(expectedDebt.plus(autoTestAmount).toFixed(0))
+    expect(info.coll.toFixed(0)).to.equal(initialColl.toFixed(0))
+    expect(info.debt.toFixed(0)).to.equal(autoTestAmount.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
       ADDRESSES.main.maker.cdpManager,
