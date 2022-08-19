@@ -13,8 +13,6 @@ contract OperationStorage {
   bool private locked;
   address private whoLocked;
 
-
-
   ServiceRegistry internal immutable registry;
 
   constructor(ServiceRegistry _registry) {
@@ -31,7 +29,7 @@ contract OperationStorage {
     require(whoLocked == msg.sender, "Only the locker can unlock");
     require(locked, "Not locked");
     locked = false;
-    whoLocked = msg.sender;
+    whoLocked = address(0);
   }
 
   function setOperationActions(bytes32[] memory _actions) external {

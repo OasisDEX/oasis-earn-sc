@@ -28,7 +28,7 @@ contract MakerGenerate is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     GenerateData memory generateData = abi.decode(data, (GenerateData));
-    generateData.vaultId = store().readUint(bytes32(generateData.vaultId), paramsMap[1], address(this));//  TODO: blind guess here
+    generateData.vaultId = store().readUint(bytes32(generateData.vaultId), paramsMap[1], address(this));
 
     bytes32 amountGenerated = _generate(generateData);
     store().write(amountGenerated);

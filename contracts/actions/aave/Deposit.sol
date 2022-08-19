@@ -18,8 +18,7 @@ contract AaveDeposit is Executable, UseStore {
     DepositData memory deposit = abi.decode(data, (DepositData));
 
     store().write(bytes32(deposit.amount));
-    deposit.amount = store().readUint(bytes32(deposit.amount), paramsMap[1], address(this));//TODO: blind guess here
-    //maybe that should be in data, since if might be first after FL
+    deposit.amount = store().readUint(bytes32(deposit.amount), paramsMap[1], address(this));
 
     ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).deposit(
       deposit.asset,

@@ -32,7 +32,7 @@ contract MakerPayback is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     PaybackData memory paybackData = abi.decode(data, (PaybackData));
-    paybackData.vaultId = uint256(store().read(bytes32(paybackData.vaultId), paramsMap[0], address(this)));//TODO: blind guess here
+    paybackData.vaultId = uint256(store().read(bytes32(paybackData.vaultId), paramsMap[0], address(this)));
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
     IDaiJoin daiJoin = IDaiJoin(registry.getRegisteredService(MCD_JOIN_DAI));
     bytes32 amountPaidBack = paybackData.paybackAll
