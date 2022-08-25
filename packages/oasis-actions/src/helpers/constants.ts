@@ -29,6 +29,7 @@ export const CONTRACT_NAMES = {
     DEPOSIT: 'AaveDeposit',
     WITHDRAW: 'AaveWithdraw',
     BORROW: 'AaveBorrow',
+    PAYBACK: 'AavePayback',
     LENDING_POOL: 'AaveLendingPool',
     WETH_GATEWAY: 'AaveWethGateway',
   },
@@ -60,6 +61,7 @@ export type ContractNames = AllValues<typeof CONTRACT_NAMES>
 export const OPERATION_NAMES = {
   aave: {
     OPEN_POSITION: 'OpenPosition',
+    CLOSE_POSITION: 'ClosePosition',
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',

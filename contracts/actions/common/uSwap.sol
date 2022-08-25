@@ -210,9 +210,9 @@ contract uSwap {
     uint256 amountFrom = swapData.amount;
 
     if (swapData.collectFeeInFromToken) {
-      amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
+      // amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
-
+    
     uint256 toTokenBalance = _swap(
       swapData.fromAsset,
       swapData.toAsset,

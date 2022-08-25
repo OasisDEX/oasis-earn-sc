@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-import * as actions from '../actions'
+import * as actions from '../../actions'
 
 export interface OpenStEthAddresses {
   DAI: string
@@ -73,7 +73,7 @@ export async function openStEth(
   const withdrawDAIFromAAVE = actions.aave.aaveWithdraw({
     asset: addresses.DAI,
     amount: args.flashloanAmount,
-    to: args.dsProxy,
+    to: addresses.operationExecutor,
   })
 
   const sendBackDAI = actions.common.sendToken({
@@ -94,7 +94,6 @@ export async function openStEth(
       setSethApprovalOnLendingPool,
       depositSTETH,
       withdrawDAIFromAAVE,
-      sendBackDAI,
     ],
   })
 

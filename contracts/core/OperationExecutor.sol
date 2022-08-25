@@ -41,9 +41,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
     opStorage.clearStorageBefore();
     opStorage.setOperationActions(opRegistry.getOperation(operationName));
-
     aggregate(calls);
-    
     opStorage.clearStorageAfter();
 
     emit Operation(operationName, calls);
@@ -58,6 +56,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
       }
 
       address target = registry.getServiceAddress(calls[current].targetHash);
+
       target.functionDelegateCall(
         calls[current].callData,
         "OpExecutor: low-level delegatecall failed"

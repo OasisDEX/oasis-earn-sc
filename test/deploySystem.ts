@@ -133,6 +133,11 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     [serviceRegistryAddress],
   )
 
+  const [paybackInAAVEAction, actionPaybackFromAAVEAddress] = await deploy(
+    CONTRACT_NAMES.aave.PAYBACK,
+    [serviceRegistryAddress],
+  )
+
   debug && console.log('4/ Adding contracts to registry')
   //-- Add Token Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
@@ -212,6 +217,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
   const aaveWithdrawHash = await registry.addEntry(
     CONTRACT_NAMES.aave.WITHDRAW,
     actionWithdrawFromAAVEAddress,
+  )
+  const aavePaybackHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.PAYBACK,
+    actionPaybackFromAAVEAddress,
   )
   const aaveWethGatewayHash = await registry.addEntry(
     CONTRACT_NAMES.aave.WETH_GATEWAY,
@@ -354,6 +363,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
       deposit: depositInAAVEAction,
       withdraw: withdrawInAAVEAction,
       borrow: borrowInAAVEAction,
+      payback: paybackInAAVEAction,
     },
   }
 

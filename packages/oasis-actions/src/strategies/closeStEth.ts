@@ -3,10 +3,10 @@ import { ethers, providers } from 'ethers'
 
 import aavePriceOracleABI from '../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
-import { amountFromWei, calculateFee } from '../helpers'
+import { amountFromWei, amountToWei, calculateFee } from '../helpers'
 import { ONE } from '../helpers/constants'
 import * as operation from '../operations'
-import type { OpenStEthAddresses } from '../operations/aave/openStEth'
+import type { CloseStEthAddresses } from '../operations/aave/closeStEth'
 
 interface SwapData {
   fromTokenAddress: string
@@ -17,13 +17,12 @@ interface SwapData {
   exchangeCalldata: string | number
 }
 
-interface OpenStEthArgs {
-  depositAmount: BigNumber // in wei
+interface CloseStEthArgs {
+  stEthAmount: BigNumber
   slippage: BigNumber
-  multiply: BigNumber
 }
-interface OpenStEthDependencies {
-  addresses: OpenStEthAddresses
+interface CloseStEthDependencies {
+  addresses: CloseStEthAddresses
   provider: providers.Provider
   getSwapData: (
     fromToken: string,
@@ -34,7 +33,7 @@ interface OpenStEthDependencies {
   dsProxy: string
 }
 
-export async function openStEth(args: OpenStEthArgs, dependencies: OpenStEthDependencies) {
+export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthDependencies) {
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
     chainlinkPriceFeedABI,
@@ -66,16 +65,13 @@ export async function openStEth(args: OpenStEthArgs, dependencies: OpenStEthDepe
   const FEE_BASE = 10000
   const slippage = args.slippage
 
-  const targetLTV = ONE.minus(ONE.div(args.multiply))
-  const depositEthWei = args.depositAmount
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
-  // Borrow DAI amount from FL, and deposit it in aave
-  const flashLoanAmountWei = depositEthWei.times(ethPrice).times(args.multiply)
+  const flashLoanAmountWei = args.stEthAmount.times(stEthPrice)
 
   // Borrow ETH amount from AAVE
-  const borrowEthAmountWei = flashLoanAmountWei.times(targetLTV).div(ethPrice)
-  const ethOnExchange = borrowEthAmountWei.plus(depositEthWei)
+  const borrowEthAmountWei = flashLoanAmountWei.div(ethPrice)
+  const ethOnExchange = borrowEthAmountWei
   const fee = calculateFee(ethOnExchange, FEE, FEE_BASE)
   const ethAmountToSwapWei = ethOnExchange.minus(fee)
 
@@ -90,15 +86,14 @@ export async function openStEth(args: OpenStEthArgs, dependencies: OpenStEthDepe
   const marketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
   const stEthAmountAfterSwapWei = ethAmountToSwapWei.div(marketPriceWithSlippage)
 
-  const calls = await operation.aave.openStEth(
+  const calls = await operation.aave.closeStEth(
     {
-      depositAmount: depositEthWei,
+      stEthAmount: args.stEthAmount,
       flashloanAmount: flashLoanAmountWei,
-      borrowAmount: borrowEthAmountWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
-      receiveAtLeast: swapData.minToTokenAmount,
-      ethSwapAmount: ethOnExchange,
+      receiveAtLeast: new BigNumber(1),
+      ethSwapAmount: args.stEthAmount,
       dsProxy: dependencies.dsProxy,
     },
     dependencies.addresses,
@@ -112,10 +107,7 @@ export async function openStEth(args: OpenStEthArgs, dependencies: OpenStEthDepe
     ethAmountToSwap: amountFromWei(ethAmountToSwapWei),
     feeAmount: amountFromWei(fee),
     flashLoanAmount: amountFromWei(flashLoanAmountWei),
-    borrowEthAmount: amountFromWei(borrowEthAmountWei),
     ethPrice,
     stEthPrice,
-    multiply: args.multiply,
-    ltv: targetLTV,
   }
 }
