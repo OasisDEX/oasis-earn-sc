@@ -36,7 +36,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
 
   const [operationStorage, operationStorageAddress] = await deploy(
     CONTRACT_NAMES.common.OPERATION_STORAGE,
-    [serviceRegistryAddress],
+    [serviceRegistryAddress, operationExecutorAddress],
   )
 
   const [operationRegistry, operationsRegistryAddress] = await deploy(
@@ -73,6 +73,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
   const [dummyAutomation, dummyAutomationAddress] = await deploy('DummyAutomation', [
     serviceRegistryAddress,
   ])
+  const [dummyCommmand, dummyCommandAddress] = await deploy('DummyCommand', [
+    serviceRegistryAddress,
+  ])
 
   // Deploy Actions
   debug && console.log('3/ Deploying actions')
@@ -82,6 +85,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
   ])
 
   const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
+  const [dummyAction, dummyActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_ACTION, [serviceRegistryAddress])
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
 
@@ -154,6 +158,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     actionFlAddress,
   )
   const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
+  const dummyActionHash = await registry.addEntry(CONTRACT_NAMES.test.DUMMY_ACTION, dummyActionAddress)
   const pullTokenHash = await registry.addEntry(CONTRACT_NAMES.common.PULL_TOKEN, pullTokenAddress)
   const setApprovalHash = await registry.addEntry(
     CONTRACT_NAMES.common.SET_APPROVAL,
@@ -333,6 +338,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
       operationStorage,
       operationRegistry,
       dummyAutomation,
+      dummyCommmand,
       exchange: dummyExchange,
       swap: useDummySwap ? uSwap : swap,
       swapAction,

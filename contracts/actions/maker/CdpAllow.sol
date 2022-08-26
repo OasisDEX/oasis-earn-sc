@@ -21,7 +21,7 @@ contract CdpAllow is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     CdpAllowData memory cdpAllowData = abi.decode(data, (CdpAllowData));
-    cdpAllowData.vaultId = store().readUint(bytes32(cdpAllowData.vaultId), paramsMap[0]);
+    cdpAllowData.vaultId = store().readUint(bytes32(cdpAllowData.vaultId), paramsMap[0], address(this));
 
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
 

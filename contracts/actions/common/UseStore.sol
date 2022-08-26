@@ -20,10 +20,11 @@ library Read {
   function read(
     OperationStorage _storage,
     bytes32 param,
-    uint256 paramMapping
+    uint256 paramMapping,
+    address who
   ) internal view returns (bytes32) {
     if (paramMapping > 0) {
-      return _storage.at(paramMapping - 1);
+      return _storage.at(paramMapping - 1, who);
     }
 
     return param;
@@ -32,9 +33,10 @@ library Read {
   function readUint(
     OperationStorage _storage,
     bytes32 param,
-    uint256 paramMapping
+    uint256 paramMapping,
+    address who
   ) internal view returns (uint256) {
-    return uint256(read(_storage, param, paramMapping));
+    return uint256(read(_storage, param, paramMapping, who));
   }
 }
 

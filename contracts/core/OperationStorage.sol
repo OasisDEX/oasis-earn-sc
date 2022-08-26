@@ -5,22 +5,18 @@ import { ServiceRegistry } from "./ServiceRegistry.sol";
 contract OperationStorage {
   uint8 internal action = 0;
   bytes32[] public actions;
-  bytes32[] public returnValues;
-
-  uint256 private constant _NOT_ENTERED = 1;
-  uint256 private constant _ENTERED = 2;
-
-  uint256 private _status;
-
+  mapping(address => bytes32[]) public returnValues;
+  address[] public valuesHolders;
   bool private locked;
   address private whoLocked;
-
-
+  address public initiator;
+  address immutable operationExecutorAddress;
 
   ServiceRegistry internal immutable registry;
 
-  constructor(ServiceRegistry _registry) {
+  constructor(ServiceRegistry _registry, address _operationExecutorAddress) {
     registry = _registry;
+    operationExecutorAddress = _operationExecutorAddress;
   }
 
   function lock() external{
@@ -29,11 +25,16 @@ contract OperationStorage {
     whoLocked = msg.sender;
   }
 
-  function unlock() external{
+  function unlock() external {
     require(whoLocked == msg.sender, "Only the locker can unlock");
     require(locked, "Not locked");
     locked = false;
-    whoLocked = msg.sender;
+    whoLocked = address(0);
+  }
+
+  function setInitiator(address _initiator) external {
+    require(msg.sender == operationExecutorAddress);
+    initiator = _initiator;
   }
 
   function setOperationActions(bytes32[] memory _actions) external {
@@ -51,35 +52,46 @@ contract OperationStorage {
   }
 
   function push(bytes32 value) external {
-    returnValues.push(value);
+    address who = msg.sender;
+    if( who == operationExecutorAddress) {
+      who = initiator;
+    }
 
+    if(returnValues[who].length ==0){
+      valuesHolders.push(who);
+    }
+    returnValues[who].push(value);
   }
 
-  function at(uint256 index) external view returns (bytes32) {
-    return returnValues[index];
+  function at(uint256 index, address who) external view returns (bytes32) {
+    if( who == operationExecutorAddress) {
+      who = initiator;
+    }
+    return returnValues[who][index];
   }
 
-  function len() external view returns (uint256) {
-    return returnValues.length;
-  }
-
-  function nonReentrant() internal {
-    require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
-
-    _status = _ENTERED;
+  function len(address who) external view returns (uint256) {
+    if( who == operationExecutorAddress) {
+      who = initiator;
+    }
+    return returnValues[who].length;
   }
 
   function clearStorageBefore() external {
-    nonReentrant();
     delete action;
     delete actions;
-    delete returnValues;
+    for(uint256 i = 0; i < valuesHolders.length; i++){
+      delete returnValues[valuesHolders[i]];
+    }
+    delete valuesHolders;
   }
 
   function clearStorageAfter() external {
     delete action;
     delete actions;
-    delete returnValues;
-    _status = _NOT_ENTERED;
+    for(uint256 i = 0; i < valuesHolders.length; i++){
+      delete returnValues[valuesHolders[i]];
+    }
+    delete valuesHolders;
   }
 }

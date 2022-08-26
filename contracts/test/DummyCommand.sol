@@ -10,9 +10,9 @@ import { Call } from "../core/types/Common.sol";
 import { Address } from "../libs/Address.sol";
 import { IManager } from "../interfaces/maker/IManager.sol";
 import { MCD_MANAGER } from "../core/constants/Maker.sol";
-import { DummyCommand } from "./DummyCommand.sol";
+import "hardhat/console.sol";
 
-contract DummyAutomation {
+contract DummyCommand {
   using SafeMath for uint256;
   using Address for address;
 
@@ -22,16 +22,13 @@ contract DummyAutomation {
     registry = _registry;
   }
 
-  function doAutomationStuffDelegateCall(
+  function execute(
     bytes calldata executionData,
-    address opExecutorAddress,
-    uint256 vaultId,
-    address commandAddress
+    address opExecutorAddress
   ) public {
-
-    IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
-    manager.cdpAllow(vaultId, commandAddress, 1);
-    DummyCommand(commandAddress).execute(executionData, opExecutorAddress);
-    manager.cdpAllow(vaultId, commandAddress, 0);
+    opExecutorAddress.functionDelegateCall(
+    executionData,
+    "DummyAutomation: low-level delegatecall failed"
+    );
   }
 }
