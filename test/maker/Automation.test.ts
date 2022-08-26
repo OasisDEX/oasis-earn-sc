@@ -260,7 +260,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       signer,
     )
 
-    const autoTestAmount = new BigNumber(1000)
+    const autoTestAmount = new BigNumber(40000)
     const autoVaultId = 29062
     const generateDaiAutomation = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
@@ -275,6 +275,30 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       ],
     )
 
+    const dummyAction = createAction(
+      await registry.getEntryHash('DummyAction'),
+      ['tuple(address to)', calldataTypes.paramsMap],
+      [
+        {
+          to: system.common.userProxyAddress,
+        },
+        [0],
+      ],
+    )
+
+
+    const cdpAllowOpExecutor = createAction(
+      await registry.getEntryHash(CONTRACT_NAMES.maker.CDP_ALLOW),
+      [calldataTypes.maker.CdpAllow, calldataTypes.paramsMap],
+      [
+        {
+          vaultId: autoVaultId,
+          userAddress: system.common.operationExecutor.address,
+        },
+        [0, 0],
+      ],
+    )
+
     const takeAFlashloanAutomation = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
       [calldataTypes.common.TakeAFlashLoan, calldataTypes.paramsMap],
@@ -282,7 +306,11 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
         {
           amount: ensureWeiFormat(autoTestAmount),
           dsProxyFlashloan: false,
-          calls: [generateDaiAutomation],
+          calls: [
+            generateDaiAutomation,
+            dummyAction,
+            dummyAction
+          ],
         },
         [0, 0, 0, 0],
       ],
@@ -291,16 +319,17 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     const executionData = system.common.operationExecutor.interface.encodeFunctionData(
       'executeOp',
       [
-        [takeAFlashloanAutomation],
+        [cdpAllowOpExecutor, dummyAction, takeAFlashloanAutomation, dummyAction],
         OPERATION_NAMES.common.CUSTOM_OPERATION, //just to skip operation's actions verification
       ],
     )
 
     // DELEGATECALL
-    await system.common.dummyAutomation['doAutomationStuffDelegateCall(bytes,address,uint256)'](
+    await system.common.dummyAutomation['doAutomationStuffDelegateCall(bytes,address,uint256,address)'](
       executionData,
       system.common.operationExecutor.address,
       autoVaultId,
+      system.common.dummyCommmand.address,
       {
         gasLimit: 4000000,
       },
@@ -310,13 +339,10 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
     const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
 
-    expectToBeEqual(currentCollRatio, new BigNumber(2.476), 3)
+    expectToBeEqual(currentCollRatio, new BigNumber(3.905), 3)
 
-    const expectedColl = additionalCollateral.plus(initialColl).plus(preIncreaseMPTopUp)
-    const expectedDebt = desiredCdpState.requiredDebt
-
-    expect(info.coll.toFixed(0)).to.equal(expectedColl.toFixed(0))
-    expect(info.debt.toFixed(0)).to.equal(expectedDebt.plus(autoTestAmount).toFixed(0))
+    expect(info.coll.toFixed(0)).to.equal(initialColl.toFixed(0))
+    expect(info.debt.toFixed(0)).to.equal(autoTestAmount.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
       ADDRESSES.main.maker.cdpManager,

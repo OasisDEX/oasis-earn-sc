@@ -35,6 +35,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
   function executeOp(Call[] memory calls, string calldata operationName) public payable {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
+    opStorage.lock();
     OperationsRegistry opRegistry = OperationsRegistry(
       registry.getRegisteredService(OPERATIONS_REGISTRY)
     );
@@ -45,7 +46,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     aggregate(calls);
     
     opStorage.clearStorageAfter();
-
+    opStorage.unlock();
     emit Operation(operationName, calls);
   }
 
@@ -93,6 +94,8 @@ contract OperationExecutor is IERC3156FlashBorrower {
         abi.encodeWithSelector(this.callbackAggregate.selector, flData.calls)
       );
     } else {
+      OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
+      opStorage.setInitiator(initiator);
       aggregate(flData.calls);
     }
 
