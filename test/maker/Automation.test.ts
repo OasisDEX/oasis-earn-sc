@@ -275,6 +275,30 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       ],
     )
 
+    const dummyAction = createAction(
+      await registry.getEntryHash('DummyAction'),
+      ['tuple(address to)', calldataTypes.paramsMap],
+      [
+        {
+          to: system.common.userProxyAddress,
+        },
+        [0],
+      ],
+    )
+
+
+    const cdpAllowOpExecutor = createAction(
+      await registry.getEntryHash(CONTRACT_NAMES.maker.CDP_ALLOW),
+      [calldataTypes.maker.CdpAllow, calldataTypes.paramsMap],
+      [
+        {
+          vaultId: autoVaultId,
+          userAddress: system.common.operationExecutor.address,
+        },
+        [0, 0],
+      ],
+    )
+
     const takeAFlashloanAutomation = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
       [calldataTypes.common.TakeAFlashLoan, calldataTypes.paramsMap],
@@ -282,7 +306,11 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
         {
           amount: ensureWeiFormat(autoTestAmount),
           dsProxyFlashloan: false,
-          calls: [generateDaiAutomation],
+          calls: [
+            generateDaiAutomation,
+            dummyAction,
+            dummyAction
+          ],
         },
         [0, 0, 0, 0],
       ],
@@ -291,16 +319,17 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     const executionData = system.common.operationExecutor.interface.encodeFunctionData(
       'executeOp',
       [
-        [takeAFlashloanAutomation],
+        [cdpAllowOpExecutor, dummyAction, takeAFlashloanAutomation, dummyAction],
         OPERATION_NAMES.common.CUSTOM_OPERATION, //just to skip operation's actions verification
       ],
     )
 
     // DELEGATECALL
-    await system.common.dummyAutomation['doAutomationStuffDelegateCall(bytes,address,uint256)'](
+    await system.common.dummyAutomation['doAutomationStuffDelegateCall(bytes,address,uint256,address)'](
       executionData,
       system.common.operationExecutor.address,
       autoVaultId,
+      system.common.dummyCommmand.address,
       {
         gasLimit: 4000000,
       },

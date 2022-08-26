@@ -1,17 +1,16 @@
 pragma solidity ^0.8.15;
 
 import { ServiceRegistry } from "./ServiceRegistry.sol";
+import { OPERATION_EXECUTOR } from "./constants/Common.sol";
 
 contract OperationStorage {
   uint8 internal action = 0;
   bytes32[] public actions;
   mapping(address => bytes32[]) public returnValues;
-
   address[] public valuesHolders;
-
-
   bool private locked;
   address private whoLocked;
+  address public initiator;
 
   ServiceRegistry internal immutable registry;
 
@@ -25,11 +24,15 @@ contract OperationStorage {
     whoLocked = msg.sender;
   }
 
-  function unlock() external{
+  function unlock() external {
     require(whoLocked == msg.sender, "Only the locker can unlock");
     require(locked, "Not locked");
     locked = false;
     whoLocked = address(0);
+  }
+
+  function setInitiator(address _initiator) external {
+    initiator = _initiator;
   }
 
   function setOperationActions(bytes32[] memory _actions) external {
@@ -47,21 +50,30 @@ contract OperationStorage {
   }
 
   function push(bytes32 value) external {
-    if(returnValues[msg.sender].length ==0){
-      valuesHolders.push(msg.sender);
+    address who = msg.sender;
+    if( who == registry.getRegisteredService(OPERATION_EXECUTOR)) {
+      who = initiator;
     }
-    returnValues[msg.sender].push(value);
 
+    if(returnValues[who].length ==0){
+      valuesHolders.push(who);
+    }
+    returnValues[who].push(value);
   }
 
   function at(uint256 index, address who) external view returns (bytes32) {
+    if( who == registry.getRegisteredService(OPERATION_EXECUTOR)) {
+      who = initiator;
+    }
     return returnValues[who][index];
   }
 
   function len(address who) external view returns (uint256) {
+    if( who == registry.getRegisteredService(OPERATION_EXECUTOR)) {
+      who = initiator;
+    }
     return returnValues[who].length;
   }
-
 
   function clearStorageBefore() external {
     delete action;
