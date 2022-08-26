@@ -1,7 +1,6 @@
 pragma solidity ^0.8.15;
 
 import { ServiceRegistry } from "./ServiceRegistry.sol";
-import { OPERATION_EXECUTOR } from "./constants/Common.sol";
 
 contract OperationStorage {
   uint8 internal action = 0;
@@ -11,11 +10,13 @@ contract OperationStorage {
   bool private locked;
   address private whoLocked;
   address public initiator;
+  address immutable operationExecutorAddress;
 
   ServiceRegistry internal immutable registry;
 
-  constructor(ServiceRegistry _registry) {
+  constructor(ServiceRegistry _registry, address _operationExecutorAddress) {
     registry = _registry;
+    operationExecutorAddress = _operationExecutorAddress;
   }
 
   function lock() external{
@@ -32,6 +33,7 @@ contract OperationStorage {
   }
 
   function setInitiator(address _initiator) external {
+    require(msg.sender == operationExecutorAddress);
     initiator = _initiator;
   }
 
@@ -51,7 +53,7 @@ contract OperationStorage {
 
   function push(bytes32 value) external {
     address who = msg.sender;
-    if( who == registry.getRegisteredService(OPERATION_EXECUTOR)) {
+    if( who == operationExecutorAddress) {
       who = initiator;
     }
 
@@ -62,14 +64,14 @@ contract OperationStorage {
   }
 
   function at(uint256 index, address who) external view returns (bytes32) {
-    if( who == registry.getRegisteredService(OPERATION_EXECUTOR)) {
+    if( who == operationExecutorAddress) {
       who = initiator;
     }
     return returnValues[who][index];
   }
 
   function len(address who) external view returns (uint256) {
-    if( who == registry.getRegisteredService(OPERATION_EXECUTOR)) {
+    if( who == operationExecutorAddress) {
       who = initiator;
     }
     return returnValues[who].length;

@@ -16,7 +16,6 @@ contract DummyAction is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    console.log('STORING IN DUMMY' );
     store().write(bytes32("123"));
   }
 }

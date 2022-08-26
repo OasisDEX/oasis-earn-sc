@@ -36,7 +36,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
 
   const [operationStorage, operationStorageAddress] = await deploy(
     CONTRACT_NAMES.common.OPERATION_STORAGE,
-    [serviceRegistryAddress],
+    [serviceRegistryAddress, operationExecutorAddress],
   )
 
   const [operationRegistry, operationsRegistryAddress] = await deploy(
