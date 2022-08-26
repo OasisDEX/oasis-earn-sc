@@ -36,10 +36,6 @@ contract MakerDeposit is Executable, UseStore {
   function _deposit(DepositData memory data) internal returns (bytes32) {
     address gem = data.joinAddress.gem();
 
-    if (gem == registry.getRegisteredService(WETH)) {
-      IWETH(gem).deposit{ value: address(this).balance }();
-    }
-
     if (data.amount == type(uint256).max) {
       data.amount = IERC20(gem).balanceOf(address(this));
     }
