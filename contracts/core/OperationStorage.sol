@@ -3,14 +3,14 @@ pragma solidity ^0.8.15;
 import { ServiceRegistry } from "./ServiceRegistry.sol";
 
 contract OperationStorage {
+  mapping(address => bytes32[]) public returnValues;
+  mapping(address => bool) private whoLocked;
+
   uint8 internal action = 0;
   bytes32[] public actions;
-  mapping(address => bytes32[]) public returnValues;
   address[] public valuesHolders;
-  bool private locked;
-  address private whoLocked;
   address public initiator;
-  address immutable operationExecutorAddress;
+  address public immutable operationExecutorAddress;
 
   ServiceRegistry internal immutable registry;
 
@@ -20,16 +20,13 @@ contract OperationStorage {
   }
 
   function lock() external{
-    require(locked == false, "Not locked");
-    locked = true;
-    whoLocked = msg.sender;
+    require(whoLocked[msg.sender] == false, "Not locked");
+    whoLocked[msg.sender] = true;
   }
 
   function unlock() external {
-    require(whoLocked == msg.sender, "Only the locker can unlock");
-    require(locked, "Not locked");
-    locked = false;
-    whoLocked = address(0);
+    require(whoLocked[msg.sender], "Only the locker can unlock");
+    whoLocked[msg.sender] = false;
   }
 
   function setInitiator(address _initiator) external {
