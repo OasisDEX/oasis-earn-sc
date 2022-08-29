@@ -247,6 +247,8 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       cdpAllow,
     ]
 
+    await system.common.operationStorage.lock()
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, txReceipt] = await executeThroughProxy(
       system.common.userProxyAddress,
