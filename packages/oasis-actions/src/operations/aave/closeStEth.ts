@@ -21,24 +21,22 @@ export async function closeStEth(
     receiveAtLeast: BigNumber
     fee: number
     swapData: string | number
-    ethSwapAmount: BigNumber
     dsProxy: string
   },
   addresses: CloseStEthAddresses,
 ) {
-
-const setDaiApprovalOnLendingPool = actions.common.setApproval({
-  amount: args.flashloanAmount,
-  asset: addresses.DAI,
-  delegator: addresses.aaveLendingPool,
-})
+  const setDaiApprovalOnLendingPool = actions.common.setApproval({
+    amount: args.flashloanAmount,
+    asset: addresses.DAI,
+    delegator: addresses.aaveLendingPool,
+  })
 
   const depositDaiInAAVE = actions.aave.aaveDeposit({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
   })
 
-  const withdrawstEthFromAAVE = actions.aave.aaveWithdraw({
+  const withdrawStEthFromAAVE = actions.aave.aaveWithdraw({
     asset: addresses.stETH,
     amount: args.stEthAmount,
     to: args.dsProxy,
@@ -47,27 +45,27 @@ const setDaiApprovalOnLendingPool = actions.common.setApproval({
   const swapSTETHforETH = actions.common.swap({
     fromAsset: addresses.stETH,
     toAsset: addresses.WETH,
-    amount: args.ethSwapAmount,
+    amount: args.stEthAmount,
     receiveAtLeast: args.receiveAtLeast,
     fee: args.fee,
     withData: args.swapData,
-    collectFeeInFromToken: true,
+    collectFeeInFromToken: false,
   })
 
-  const setWethApprovalOnLendingPool = actions.common.setApproval({
-    amount: args.flashloanAmount,
-    asset: addresses.WETH,
-    delegator: addresses.aaveLendingPool,
-  },
-  [0, 0, 3],
+  const setWethApprovalOnLendingPool = actions.common.setApproval(
+    {
+      asset: addresses.WETH,
+      delegator: addresses.aaveLendingPool,
+      amount: new BigNumber(0),
+    },
+    [0, 0, 3],
   )
 
   const paybackInAAVE = actions.aave.aavePayback({
     amount: new BigNumber(0),
     asset: addresses.WETH,
-    paybackAll: true
+    paybackAll: true,
   })
-
 
   const withdrawDAIFromAAVE = actions.aave.aaveWithdraw({
     asset: addresses.DAI,
@@ -82,7 +80,7 @@ const setDaiApprovalOnLendingPool = actions.common.setApproval({
     calls: [
       setDaiApprovalOnLendingPool,
       depositDaiInAAVE,
-      withdrawstEthFromAAVE,
+      withdrawStEthFromAAVE,
       swapSTETHforETH,
       setWethApprovalOnLendingPool,
       paybackInAAVE,
@@ -91,5 +89,4 @@ const setDaiApprovalOnLendingPool = actions.common.setApproval({
   })
 
   return [takeAFlashLoan]
-
 }

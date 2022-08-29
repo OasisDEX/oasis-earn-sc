@@ -1,4 +1,4 @@
-import{ openStEth } from './openStEth'
-import{ closeStEth } from './closeStEth'
+import { closeStEth } from './closeStEth'
+import { openStEth } from './openStEth'
 
-export { openStEth, closeStEth }
+export { closeStEth, openStEth }

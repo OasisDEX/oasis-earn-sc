@@ -18,7 +18,7 @@ interface SwapData {
 }
 
 interface CloseStEthArgs {
-  stEthAmount: BigNumber
+  stEthAmountLockedInAave: BigNumber
   slippage: BigNumber
 }
 interface CloseStEthDependencies {
@@ -63,37 +63,30 @@ export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthD
 
   const FEE = 20
   const FEE_BASE = 10000
-  const slippage = args.slippage
 
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
-  const flashLoanAmountWei = args.stEthAmount.times(stEthPrice)
-
-  // Borrow ETH amount from AAVE
-  const borrowEthAmountWei = flashLoanAmountWei.div(ethPrice)
-  const ethOnExchange = borrowEthAmountWei
-  const fee = calculateFee(ethOnExchange, FEE, FEE_BASE)
-  const ethAmountToSwapWei = ethOnExchange.minus(fee)
+  const flashLoanAmountWei = args.stEthAmountLockedInAave.times(stEthPrice)
 
   const swapData = await dependencies.getSwapData(
-    dependencies.addresses.WETH,
     dependencies.addresses.stETH,
-    ethAmountToSwapWei,
-    new BigNumber(slippage),
+    dependencies.addresses.WETH,
+    args.stEthAmountLockedInAave,
+    args.slippage,
   )
 
+  const fee = calculateFee(swapData.toTokenAmount, FEE, FEE_BASE)
+
   const marketPice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
-  const marketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
-  const stEthAmountAfterSwapWei = ethAmountToSwapWei.div(marketPriceWithSlippage)
+  const ethAmountAfterSwapWei = swapData.minToTokenAmount
 
   const calls = await operation.aave.closeStEth(
     {
-      stEthAmount: args.stEthAmount,
+      stEthAmount: args.stEthAmountLockedInAave,
       flashloanAmount: flashLoanAmountWei,
       fee: FEE,
-      swapData: swapData.exchangeCalldata,
-      receiveAtLeast: new BigNumber(1),
-      ethSwapAmount: args.stEthAmount,
+      swapData: 0,
+      receiveAtLeast: new BigNumber(0),
       dsProxy: dependencies.dsProxy,
     },
     dependencies.addresses,
@@ -103,8 +96,8 @@ export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthD
     calls,
     swapData,
     marketPice,
-    stEthAmountAfterSwap: amountFromWei(stEthAmountAfterSwapWei),
-    ethAmountToSwap: amountFromWei(ethAmountToSwapWei),
+    ethAmountAfterSwap: amountFromWei(ethAmountAfterSwapWei),
+    stEthAmountToSwap: amountFromWei(args.stEthAmountLockedInAave),
     feeAmount: amountFromWei(fee),
     flashLoanAmount: amountFromWei(flashLoanAmountWei),
     ethPrice,

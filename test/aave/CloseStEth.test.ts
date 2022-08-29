@@ -16,25 +16,21 @@ import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBe, expectToBeEqual } from '../utils'
 
-const oneInchCallMock = async (
-  from: string,
-  to: string,
-  amount: BigNumber,
-  slippage: BigNumber,
-) => {
-  const marketPrice = 0.979
-  return {
-    fromTokenAddress: from,
-    toTokenAddress: to,
-    fromTokenAmount: amount,
-    toTokenAmount: amount.div(marketPrice),
-    minToTokenAmount: amount
-      .div(marketPrice)
-      .times(new BigNumber(1).minus(slippage))
-      .integerValue(BigNumber.ROUND_DOWN), // TODO: figure out slippage
-    exchangeCalldata: 0,
+const oneInchCallMock =
+  (marketPrice: BigNumber) =>
+  async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
+    return {
+      fromTokenAddress: from,
+      toTokenAddress: to,
+      fromTokenAmount: amount,
+      toTokenAmount: amount.div(marketPrice),
+      minToTokenAmount: amount
+        .div(marketPrice)
+        .times(new BigNumber(1).minus(slippage))
+        .integerValue(BigNumber.ROUND_DOWN), // TODO: figure out slippage
+      exchangeCalldata: 0,
+    }
   }
-}
 
 const getOneInchRealCall =
   (swapAddress: string) =>
@@ -102,7 +98,6 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
     signer = config.signer
     address = config.address
 
-    await resetNode(provider, testBlockNumber)
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
       AAVELendigPoolABI,
@@ -115,7 +110,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
 
   describe('On forked chain', () => {
     // Apparently there is not enough liquidity (at tested block) to deposit > 100ETH`
-    const depositAmount = amountToWei(new BigNumber(60))
+    const depositAmount = amountToWei(new BigNumber(10))
     const multiply = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
@@ -131,7 +126,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
-      resetNode(provider, testBlockNumber)
+      await resetNode(provider, 15433614)
 
       const { system: _system } = await deploySystem(config)
       system = _system
@@ -150,7 +145,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         {
           addresses,
           provider,
-          getSwapData: oneInchCallMock,
+          getSwapData: oneInchCallMock(new BigNumber(0.9759)),
           dsProxy: system.common.dsProxy.address,
         },
       )
@@ -175,6 +170,10 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
       )
       txStatus = _txStatus
       tx = _tx
+
+      console.log(`
+      open tx status: ${txStatus}
+      `)
 
       userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
       userStEthReserveData = await aaveDataProvider.getUserReserveData(
@@ -218,34 +217,31 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
       )
     })
 
-    it('Should close stEth position', async () => {
-
+    it.only('Should close stEth position', async () => {
       let strategyReturn: Awaited<ReturnType<typeof strategy.closeStEth.closeStEth>>
       let txStatus: boolean
       let tx: ContractReceipt
-
 
       const addresses = {
         ...mainnetAddresses,
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      const stEthAmount =  new BigNumber(userStEthReserveData.currentATokenBalance.toString())
-      
+      const stEthAmount = new BigNumber(userStEthReserveData.currentATokenBalance.toString())
+      console.log('CLOSE')
       strategyReturn = await strategy.closeStEth.closeStEth(
         {
-          stEthAmount,
+          stEthAmountLockedInAave: stEthAmount,
           slippage,
         },
         {
           addresses,
           provider,
-          getSwapData: oneInchCallMock,
+          getSwapData: oneInchCallMock(new BigNumber(1 / 0.9759)),
           dsProxy: system.common.dsProxy.address,
         },
       )
 
-      
       const [_txStatus, _tx] = await executeThroughProxy(
         system.common.dsProxy.address,
         {
@@ -256,11 +252,18 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
           ]),
         },
         signer,
-        '0'
+        '0',
       )
       txStatus = _txStatus
       tx = _tx
 
+      console.log(
+        `
+        tx: ${tx}
+        txStatus: ${txStatus}
+        stEthAmount: ${stEthAmount}
+        `,
+      )
 
       userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
       userStEthReserveData = await aaveDataProvider.getUserReserveData(
@@ -268,11 +271,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         system.common.dsProxy.address,
       )
 
-      expectToBeEqual(
-        ZERO,
-        new BigNumber(userAccountData.totalDebtETH.toString()),
-      )
-      
+      expectToBeEqual(ZERO, new BigNumber(userAccountData.totalDebtETH.toString()))
     })
   })
 })

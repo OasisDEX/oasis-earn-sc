@@ -102,7 +102,6 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     signer = config.signer
     address = config.address
 
-    await resetNode(provider, testBlockNumber)
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
       AAVELendigPoolABI,
@@ -131,7 +130,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
-      resetNode(provider, testBlockNumber)
+      await resetNode(provider, testBlockNumber)
 
       const { system: _system } = await deploySystem(config)
       system = _system
