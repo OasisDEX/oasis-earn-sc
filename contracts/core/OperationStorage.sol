@@ -20,7 +20,6 @@ contract OperationStorage {
   }
 
   function lock() external{
-    require(locked == false, "Not locked");
     locked = true;
     whoLocked = msg.sender;
   }
