@@ -20,7 +20,7 @@ struct SendTokenData {
 
 struct SetApprovalData {
   address asset;
-  address delegator;
+  address delegate;
   uint256 amount;
 }
 
