@@ -8,7 +8,7 @@ import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
-import init, { resetNode } from '../../helpers/init'
+import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
@@ -120,7 +120,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
 
     let system: DeployedSystemInfo
 
-    let strategyReturn: Awaited<ReturnType<typeof strategy.openStEth.openStEth>>
+    let strategyReturn: Awaited<ReturnType<typeof strategy.aave.openStEth>>
     let txStatus: boolean
     let tx: ContractReceipt
 
@@ -140,7 +140,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      strategyReturn = await strategy.openStEth.openStEth(
+      strategyReturn = await strategy.aave.openStEth(
         {
           depositAmount,
           slippage,
@@ -225,7 +225,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
 
     let system: DeployedSystemInfo
 
-    let strategyReturn: Awaited<ReturnType<typeof strategy.openStEth.openStEth>>
+    let strategyReturn: Awaited<ReturnType<typeof strategy.aave.openStEth>>
     let txStatus: boolean
     let tx: ContractReceipt
 
@@ -236,13 +236,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
 
     before(async () => {
       //Reset to the latest block
-      await provider.send('hardhat_reset', [
-        {
-          forking: {
-            jsonRpcUrl: process.env.MAINNET_URL,
-          },
-        },
-      ])
+      await resetNodeToLatestBlock(provider)
 
       const { system: _system } = await deploySystem(config, false, false)
       system = _system
@@ -258,7 +252,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
         { config, isFormatted: true },
       )
 
-      strategyReturn = await strategy.openStEth.openStEth(
+      strategyReturn = await strategy.aave.openStEth(
         {
           depositAmount,
           slippage,
