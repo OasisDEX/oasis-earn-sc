@@ -103,6 +103,7 @@ async function main() {
   ])
   const [, operationStorageAddress] = await deploy(CONTRACT_NAMES.common.OPERATION_STORAGE, [
     serviceRegistryAddress,
+    operationExecutor.address,
   ])
 
   const [, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
@@ -226,6 +227,7 @@ async function main() {
       {
         amount: borrowAmount.toFixed(0),
         asset: ADDRESSES.main.ETH,
+        to: proxyAddress,
       },
     ],
   )
@@ -263,6 +265,7 @@ async function main() {
       {
         asset: ADDRESSES.main.DAI,
         amount: flashloanAmount.toFixed(0),
+        to: proxyAddress,
       },
     ],
   )
