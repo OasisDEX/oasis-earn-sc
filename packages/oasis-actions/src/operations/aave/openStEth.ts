@@ -76,12 +76,6 @@ export async function openStEth(
     to: addresses.operationExecutor,
   })
 
-  const sendBackDAI = actions.common.sendToken({
-    asset: addresses.DAI,
-    to: addresses.operationExecutor,
-    amount: args.flashloanAmount,
-  })
-
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
