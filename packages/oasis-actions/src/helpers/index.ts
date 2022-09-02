@@ -10,3 +10,7 @@ export function calculateFee(amountWei: BigNumber, fee: number, feeBase: number)
 export function amountFromWei(amount: BigNumber, decimals = 18): BigNumber {
   return amount.div(new BigNumber(10).pow(decimals))
 }
+
+export function logDebug(lines: string[], prefix = '') {
+  lines.forEach(line => console.log(`${prefix}${line}`))
+}
