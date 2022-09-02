@@ -3,20 +3,11 @@ import BigNumber from 'bignumber.js'
 import { ONE, ZERO } from '../constants'
 import { logDebug } from '../index'
 
-/**
- * Calculates the target (or desired) state of a position
- *
- * Maths breakdown: {@link https://www.notion.so/oazo/Multiply-Calculations-950cb04838d84e4aaa529a280a9e050e}
- * Concrete scenarios: {@link https://docs.google.com/spreadsheets/d/1ZB0dlQbjgi7eM-cSyGowWlZCKG-326pWZeHxZAPFOT0/edit?usp=sharing}
- *
- * @returns A position's change in debt, change in collateral and whether a flashloan is necessary to achieve the change
- */
-
 interface IPosition {
   collateral: BigNumber
-  collateralPriceInUSD: BigNumber
   debt: BigNumber
-  debtPriceInUSD: BigNumber
+  collateralPriceInUSD?: BigNumber
+  debtPriceInUSD?: BigNumber
   collateralRatio: BigNumber
   liquidationRatio: BigNumber
   multiple: BigNumber
@@ -41,7 +32,16 @@ interface TargetPositionParams {
   debug?: boolean
 }
 
-export function calculatePosition(params: TargetPositionParams): {
+/**
+ * Calculates the target (or desired) state of a position
+ *
+ * Maths breakdown: {@link https://www.notion.so/oazo/Multiply-Calculations-950cb04838d84e4aaa529a280a9e050e}
+ * Concrete scenarios: {@link https://docs.google.com/spreadsheets/d/1ZB0dlQbjgi7eM-cSyGowWlZCKG-326pWZeHxZAPFOT0/edit?usp=sharing}
+ *
+ * @returns A position's change in debt, change in collateral and whether a flashloan is necessary to achieve the change
+ */
+export function calculateTargetPosition(params: TargetPositionParams): {
+  targetPosition: IPosition
   debtDelta: BigNumber
   collateralDelta: BigNumber
   isFlashloanRequired: boolean
@@ -120,11 +120,11 @@ export function calculatePosition(params: TargetPositionParams): {
    * Now, we need to calculate the amount of debt the position must generate and swap
    * for collateral to reach the desired (target) collateral ratio.
    *
-   * X represents the amount of debt the position must generate
+   * X represents the amount of debt the position must generate (or !!payback if decreasing multiple)
    *
    * X = \frac{(C_C\cdot P_O \cdot P_{MS}) - (T_{CR}\cdot D_C \cdot P_{MS})}{((T_{CR}\cdot (1 +F_F) \cdot P_{MS}) - ((1 -F_O)\cdot  P_O))}
    * */
-  const debtToFlashloanOrGenerate = currentCollateral
+  const debtDeltaBeforeFlashloanFees = currentCollateral
     .times(oraclePrice)
     .times(marketPriceAdjustedForSlippage)
     .minus(targetCollateralRatio.times(currentDebt).times(marketPriceAdjustedForSlippage))
@@ -149,7 +149,7 @@ export function calculatePosition(params: TargetPositionParams): {
     .times(oraclePrice)
     .div(currentPosition.liquidationRatio)
     .minus(currentDebt)
-    .lt(debtToFlashloanOrGenerate)
+    .lt(debtDeltaBeforeFlashloanFees)
 
   /**
    * Finally, we can compute the deltas in debt & collateral
@@ -160,18 +160,18 @@ export function calculatePosition(params: TargetPositionParams): {
    * ΔC  Collateral delta
    * \Delta C = X \cdot (1 - F_O) / P_{MS}
    * */
-  const debtDelta = debtToFlashloanOrGenerate.times(
+  const debtDelta = debtDeltaBeforeFlashloanFees.times(
     ONE.plus(isFlashloanRequired ? flashloanFee : ZERO),
   )
 
-  const collateralDelta = debtToFlashloanOrGenerate
+  const collateralDelta = debtDeltaBeforeFlashloanFees
     .times(ONE.minus(oazoFee))
     .div(marketPriceAdjustedForSlippage)
 
   if (debug) {
     logDebug(
       [
-        `Debt to flashloan or generate: ${debtToFlashloanOrGenerate.toFixed(2)}`,
+        `Debt delta before flashloan fees: ${debtDeltaBeforeFlashloanFees.toFixed(2)}`,
         `Is a flashloan required: ${isFlashloanRequired}`,
         `Debt delta: ${debtDelta.toFixed(2)}`,
         `Collateral delta: ${collateralDelta.toFixed(2)}`,
@@ -180,9 +180,32 @@ export function calculatePosition(params: TargetPositionParams): {
     )
   }
 
+  const targetPosition = recomputePosition(debtDelta, collateralDelta, oraclePrice, currentPosition)
+
   return {
+    targetPosition,
     debtDelta,
     collateralDelta,
     isFlashloanRequired,
+  }
+}
+
+function recomputePosition(
+  debtDelta: BigNumber,
+  collateralDelta: BigNumber,
+  oraclePrice: BigNumber,
+  currentPosition: IPosition,
+): IPosition {
+  const newCollateralAmount = currentPosition.collateral.plus(collateralDelta)
+  const newDebtAmount = currentPosition.debt.plus(debtDelta)
+  const newCollateralisationRatio = newCollateralAmount.times(oraclePrice)
+  const newPositionMultiple = newCollateralAmount.div(newCollateralAmount.minus(newDebtAmount))
+
+  return {
+    collateral: newCollateralAmount,
+    debt: newDebtAmount,
+    collateralRatio: newCollateralisationRatio,
+    liquidationRatio: currentPosition.liquidationRatio,
+    multiple: newPositionMultiple,
   }
 }

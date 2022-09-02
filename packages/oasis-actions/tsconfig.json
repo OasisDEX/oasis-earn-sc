@@ -10,7 +10,8 @@
       },
       "include": ["./src/**/*"],
       "exclude": [
-        "../node_modules"
+        "../../node_modules",
+        "./src/helpers/calculations/calculatePosition.test.ts"
       ],
       "files": []
 }
