@@ -1,16 +1,15 @@
 import BigNumber from 'bignumber.js'
 import { default as dotenv } from 'dotenv'
+import fs from 'fs'
 import { google } from 'googleapis'
 import path from 'path'
 import process from 'process'
+
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
-const CREDENTIALS_PATH = path.join(
-  process.cwd(),
-  './packages/oasis-actions/src/helpers/calculations/credentials.json',
-)
+const CREDENTIALS_PATH = path.join(process.cwd(), './src/helpers/calculations/credentials.json')
 
-dotenv.config({ path: '../../../../../.env' })
+dotenv.config({ path: path.join(process.cwd(), '../../.env') })
 
 const auth = new google.auth.GoogleAuth({
   keyFile: CREDENTIALS_PATH,
@@ -51,7 +50,7 @@ export type Scenario = {
   targetDebt: BigNumber
 }
 
-export async function testScenarios(): Promise<Scenario[] | undefined> {
+export async function generateTestScenarios() {
   const sheets = google.sheets({ version: 'v4' })
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: process.env.SHEET_ID,
@@ -59,24 +58,22 @@ export async function testScenarios(): Promise<Scenario[] | undefined> {
   })
 
   const rows = res.data.values
-  console.log('rows:', rows)
+
   if (!rows || rows.length === 0) {
     console.log('No data found.')
     return
   }
 
-  const scenarios = mapRowsToScenarios(rows)
-  console.log('new-rows:', scenarios)
-  return scenarios
+  const data = JSON.stringify(rows)
+  fs.writeFileSync(path.join(process.cwd(), './src/helpers/calculations/scenarios.json'), data)
 }
 
-testScenarios()
+generateTestScenarios()
 
-function mapRowsToScenarios(rows: any[][]): Scenario[] {
-  const transposedRows = rows[0].map((_, colIndex) => rows.map(row => row[colIndex]))
-  console.log('transposedRows:', transposedRows[1])
+export function mapRowsToScenarios(rows: any[][]): Scenario[] {
+  const [, ...transposedRows] = rows[0].map((_, colIndex) => rows.map(row => row[colIndex]))
 
-  const scenarios: Scenario[] = [transposedRows[1]].map(
+  const scenarios: Scenario[] = transposedRows.map(
     row =>
       ({
         name: row[0],

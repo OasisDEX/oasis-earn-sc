@@ -3,32 +3,39 @@ import BigNumber from 'bignumber.js'
 import { ONE, ZERO } from '../constants'
 import { logDebug } from '../index'
 
+interface IPositionCategory {
+  liquidationRatio: BigNumber
+}
+
 interface IPosition {
   collateral: BigNumber
   debt: BigNumber
-  collateralPriceInUSD?: BigNumber
-  debtPriceInUSD?: BigNumber
+  category: IPositionCategory
+}
+
+interface IMarketPosition extends IPosition {
+  collateralValueInUSD?: BigNumber
+  debtValueInUSD?: BigNumber
   collateralisationRatio: BigNumber
-  liquidationRatio: BigNumber
   multiple: BigNumber
 }
 
-export class Position implements IPosition {
+export class Position implements IMarketPosition {
   public debt: BigNumber
   public collateral: BigNumber
-  public liquidationRatio: BigNumber
+  public category: IPositionCategory
   private _oraclePriceForCollateralDebtExchangeRate: BigNumber
 
   constructor(
     debt: BigNumber,
     collateral: BigNumber,
     oraclePrice: BigNumber,
-    liquidationRatio: BigNumber,
+    category: IPositionCategory,
   ) {
     this.debt = debt
     this.collateral = collateral
     this._oraclePriceForCollateralDebtExchangeRate = oraclePrice
-    this.liquidationRatio = liquidationRatio
+    this.category = category
   }
 
   public get collateralisationRatio() {
@@ -92,7 +99,7 @@ export function calculateTargetPosition(params: TargetPositionParams): {
    * D_C	Current debt
    * */
   const currentCollateral = (currentPosition?.collateral || ZERO).plus(seedOrTopupCollateral)
-  const currentDebt = (currentPosition?.collateral || ZERO).plus(seedOrTopupDebt)
+  const currentDebt = (currentPosition?.debt || ZERO).minus(seedOrTopupDebt)
 
   /**
    * The Oracle price is what we use to convert a positions collateral into the same
@@ -175,7 +182,7 @@ export function calculateTargetPosition(params: TargetPositionParams): {
    * */
   const isFlashloanRequired = currentCollateral
     .times(oraclePrice)
-    .div(currentPosition.liquidationRatio)
+    .div(currentPosition.category.liquidationRatio)
     .minus(currentDebt)
     .lt(debtDeltaBeforeFlashloanFees)
 
@@ -214,7 +221,7 @@ export function calculateTargetPosition(params: TargetPositionParams): {
     oraclePrice,
     currentDebt,
     currentCollateral,
-    currentPosition.liquidationRatio,
+    currentPosition.category.liquidationRatio,
   )
 
   return {
@@ -236,12 +243,9 @@ function recomputePosition(
   const newCollateralAmount = currentCollateral.plus(collateralDelta)
   const newDebtAmount = currentDebt.plus(debtDelta)
 
-  const newPosition = new Position(
-    newDebtAmount,
-    newCollateralAmount,
-    oraclePrice,
+  const newPosition = new Position(newDebtAmount, newCollateralAmount, oraclePrice, {
     liquidationRatio,
-  )
+  })
 
   return newPosition
 }
