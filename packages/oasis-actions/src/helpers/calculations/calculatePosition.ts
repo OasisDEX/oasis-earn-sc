@@ -8,9 +8,36 @@ interface IPosition {
   debt: BigNumber
   collateralPriceInUSD?: BigNumber
   debtPriceInUSD?: BigNumber
-  collateralRatio: BigNumber
+  collateralisationRatio: BigNumber
   liquidationRatio: BigNumber
   multiple: BigNumber
+}
+
+export class Position implements IPosition {
+  public debt: BigNumber
+  public collateral: BigNumber
+  public liquidationRatio: BigNumber
+  private _oraclePriceForCollateralDebtExchangeRate: BigNumber
+
+  constructor(
+    debt: BigNumber,
+    collateral: BigNumber,
+    oraclePrice: BigNumber,
+    liquidationRatio: BigNumber,
+  ) {
+    this.debt = debt
+    this.collateral = collateral
+    this._oraclePriceForCollateralDebtExchangeRate = oraclePrice
+    this.liquidationRatio = liquidationRatio
+  }
+
+  public get collateralisationRatio() {
+    return this.collateral.times(this._oraclePriceForCollateralDebtExchangeRate).div(this.debt)
+  }
+
+  public get multiple() {
+    return ONE.plus(ONE.div(this.collateralisationRatio.minus(ONE)))
+  }
 }
 
 interface TargetPositionParams {
@@ -107,12 +134,13 @@ export function calculateTargetPosition(params: TargetPositionParams): {
         `Current debt inc. top-up/seed: ${currentDebt.toFixed(2)}`,
         `Oracle price: ${oraclePrice.toFixed(2)}`,
         `Market price: ${marketPrice.toFixed(2)}`,
+        `Slippage: ${slippage.toFixed(4)}`,
         `Market price adj. slippage: ${marketPriceAdjustedForSlippage.toFixed(2)}`,
-        `Target collateralisation ratio: ${targetCollateralRatio}`,
-        `Oazo fee: ${oazoFee.toFixed(2)}`,
-        `Flashloan fee: ${flashloanFee.toFixed(2)}`,
+        `Target collateralisation ratio: ${targetCollateralRatio.toFixed(2)}`,
+        `Oazo fee: ${oazoFee.toFixed(4)}`,
+        `Flashloan fee: ${flashloanFee.toFixed(4)}`,
       ],
-      'Calculate Position Params',
+      'Calculate Position Params: ',
     )
   }
 
@@ -176,11 +204,18 @@ export function calculateTargetPosition(params: TargetPositionParams): {
         `Debt delta: ${debtDelta.toFixed(2)}`,
         `Collateral delta: ${collateralDelta.toFixed(2)}`,
       ],
-      'Generate Target Position Values',
+      'Generate Target Position Values: ',
     )
   }
 
-  const targetPosition = recomputePosition(debtDelta, collateralDelta, oraclePrice, currentPosition)
+  const targetPosition = recomputePosition(
+    debtDelta,
+    collateralDelta,
+    oraclePrice,
+    currentDebt,
+    currentCollateral,
+    currentPosition.liquidationRatio,
+  )
 
   return {
     targetPosition,
@@ -194,18 +229,19 @@ function recomputePosition(
   debtDelta: BigNumber,
   collateralDelta: BigNumber,
   oraclePrice: BigNumber,
-  currentPosition: IPosition,
+  currentDebt: BigNumber,
+  currentCollateral: BigNumber,
+  liquidationRatio: BigNumber,
 ): IPosition {
-  const newCollateralAmount = currentPosition.collateral.plus(collateralDelta)
-  const newDebtAmount = currentPosition.debt.plus(debtDelta)
-  const newCollateralisationRatio = newCollateralAmount.times(oraclePrice)
-  const newPositionMultiple = newCollateralAmount.div(newCollateralAmount.minus(newDebtAmount))
+  const newCollateralAmount = currentCollateral.plus(collateralDelta)
+  const newDebtAmount = currentDebt.plus(debtDelta)
 
-  return {
-    collateral: newCollateralAmount,
-    debt: newDebtAmount,
-    collateralRatio: newCollateralisationRatio,
-    liquidationRatio: currentPosition.liquidationRatio,
-    multiple: newPositionMultiple,
-  }
+  const newPosition = new Position(
+    newDebtAmount,
+    newCollateralAmount,
+    oraclePrice,
+    liquidationRatio,
+  )
+
+  return newPosition
 }

@@ -6,6 +6,7 @@ typechain
 yarn-error.log
 tenderly.yaml
 .idea/**/*
+packages/oasis-actions/src/helpers/calculations/credentials.json
 
 #Hardhat files
 cache
