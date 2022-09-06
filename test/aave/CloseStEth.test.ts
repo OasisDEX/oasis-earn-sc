@@ -42,7 +42,7 @@ const getOneInchRealCall =
       swapAddress,
       slippage.toString(),
     )
-    console.log(JSON.stringify(response, null, 4))
+
     return {
       toTokenAddress: to,
       fromTokenAddress: from,
@@ -73,7 +73,6 @@ interface AAVEAccountData {
 }
 
 describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () => {
-  // Apparently there is not enough liquidity (at tested block) to deposit > 100ETH`
   const depositAmount = amountToWei(new BigNumber(10))
   const multiply = new BigNumber(2)
   const slippage = new BigNumber(0.1)
@@ -262,7 +261,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         },
       )
 
-      await executeThroughProxy(
+      const [openTxStatus] = await executeThroughProxy(
         system.common.dsProxy.address,
         {
           address: system.common.operationExecutor.address,
@@ -274,6 +273,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         signer,
         depositAmount.toFixed(0),
       )
+      console.log('OPEN STATUS', openTxStatus)
       console.log('CLOSE!!')
       feeRecipientWethBalanceBefore = await balanceOf(
         ADDRESSES.main.WETH,
@@ -287,10 +287,10 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         system.common.dsProxy.address,
       )
       const stEthAmount = new BigNumber(userStEthReserveData.currentATokenBalance.toString())
-
+      console.log("stEthAmount", stEthAmount.toString())
       closeStrategyReturn = await strategy.aave.closeStEth(
         {
-          stEthAmountLockedInAave: stEthAmount,
+          stEthAmountLockedInAave: stEthAmount.minus(1000),
           slippage,
         },
         {
