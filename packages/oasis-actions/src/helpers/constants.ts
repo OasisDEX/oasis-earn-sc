@@ -24,6 +24,8 @@ export const CONTRACT_NAMES = {
     EXCHANGE: 'Exchange',
     UNISWAP_ROUTER: 'UniswapRouter',
     SERVICE_REGISTRY: 'ServiceRegistry',
+    WRAP_ETH: 'WrapEth',
+    UNWRAP_ETH: 'UnwrapEth',
   },
   aave: {
     DEPOSIT: 'AaveDeposit',
