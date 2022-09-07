@@ -19,11 +19,17 @@ interface IBasePosition {
   category: IPositionCategory
 }
 
-interface IPosition extends IBasePosition {
+export interface IPosition extends IBasePosition {
   loanToValueRatio: BigNumber
   healthFactor: BigNumber
   liquidationPrice: BigNumber
   multiple: BigNumber
+  adjustPosition: (adjustment: IPositionAdjustment) => IPosition
+}
+
+interface IPositionAdjustment {
+  // ... all the things
+  marketPrice: BigNumber
 }
 
 export class Position implements IPosition {
@@ -73,7 +79,6 @@ interface TargetPositionParams {
     debt?: BigNumber
   }
   currentPosition: IBasePosition
-
   targetLoanToValue: BigNumber
   fees: {
     oazo: BigNumber
@@ -102,6 +107,7 @@ export function calculateTargetPosition(params: TargetPositionParams): {
   targetPosition: IPosition
   debtDelta: BigNumber
   collateralDelta: BigNumber
+  amountToBeSwappedOrPaidback: BigNumber
   flashloanAmount: BigNumber
   isFlashloanRequired: boolean
 } {
@@ -306,10 +312,14 @@ export function calculateTargetPosition(params: TargetPositionParams): {
     targetPosition,
     debtDelta,
     collateralDelta,
+    amountToBeSwappedOrPaidback: amountToBeSwappedOrPaidback,
     flashloanAmount: amountToFlashloan,
     isFlashloanRequired,
   }
 }
+
+// refinePosition()
+// refinePositionWithUpdatedMarketPrice()
 
 function recomputePosition(
   debtDelta: BigNumber,
