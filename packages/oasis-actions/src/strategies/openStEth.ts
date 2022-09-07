@@ -1,16 +1,13 @@
 import BigNumber from 'bignumber.js'
-import { ethers, providers } from 'ethers'
+import { Contract, ethers, providers } from 'ethers'
 
+import aaveLendingPoolABI from '../abi/aaveLendingPool.json'
 import aavePriceOracleABI from '../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
 import { ActionCall } from '../actions/types/actionCall'
 import { amountFromWei, calculateFee } from '../helpers'
-import {
-  calculateTargetPosition,
-  IPosition,
-  Position,
-} from '../helpers/calculations/calculatePosition'
-import { ONE } from '../helpers/constants'
+import { IPosition, Position } from '../helpers/calculations/calculatePosition'
+import { ONE, ZERO } from '../helpers/constants'
 import * as operation from '../operations'
 import type { OpenStEthAddresses } from '../operations/openStEth'
 
@@ -26,7 +23,7 @@ interface SwapData {
 interface OpenStEthArgs {
   depositAmount: BigNumber // in wei
   slippage: BigNumber
-  multiply: BigNumber
+  multiple: BigNumber
 }
 interface OpenStEthDependencies {
   addresses: OpenStEthAddresses
@@ -40,7 +37,7 @@ interface OpenStEthDependencies {
   dsProxy: string
 }
 
-interface IStrategyReturn {
+export interface IStrategyReturn {
   calls: ActionCall[]
   swapData: SwapData
   targetPosition: IPosition
@@ -54,16 +51,17 @@ interface IStrategyReturn {
 export async function openStEth(
   args: OpenStEthArgs,
   dependencies: OpenStEthDependencies,
-): IStrategyReturn {
+): Promise<IStrategyReturn> {
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
     chainlinkPriceFeedABI,
     dependencies.provider,
   )
+
   const roundData = await priceFeed.latestRoundData()
   const decimals = await priceFeed.decimals()
   const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
-  console.log('ethPrice:', ethPrice.toString())
+
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
     aavePriceOracleABI,
@@ -82,158 +80,114 @@ export async function openStEth(
     .then((amount: string) => new BigNumber(amount))
     .then((amount: BigNumber) => amountFromWei(amount))
 
+  const aaveDaiPriceInEth = await aavePriceOracle
+    .getAssetPrice(dependencies.addresses.DAI)
+    .then((amount: ethers.BigNumberish) => amount.toString())
+    .then((amount: string) => new BigNumber(amount))
+    .then((amount: BigNumber) => amountFromWei(amount))
+
+  console.log('aaveStEthPriceInEth:', aaveStEthPriceInEth.toString())
+  console.log('aaveDaiPriceInEth:', aaveDaiPriceInEth.toString())
+  // https://docs.aave.com/risk/v/aave-v2/asset-risk/risk-parameters
+  const liquidationThreshold = new BigNumber(0.75)
+  const maxLoanToValue = new BigNumber(0.73)
+
   const FEE = 20
   const FEE_BASE = 10000
+  console.log('after userAccountData...')
   const slippage = args.slippage
-
-  const targetLTV = ONE.minus(ONE.div(args.multiply))
+  const multiple = args.multiple
+  // const targetLTV = ONE.minus(ONE.div(args.multiply))
   const depositEthWei = args.depositAmount
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
+  console.log('stEthPrice:', stEthPrice.toString())
+  const emptyPosition = new Position({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
+    liquidationThreshold,
+    maxLoanToValue,
+  })
 
-  // Borrow DAI amount from FL, and deposit it in aave
-
-  // DODGES needing marketprice to get to swap amount because is multiplying
-  // from deposited debt rather than calculating based on collateral position so market price not essential
-  const flashLoanAmountWei = depositEthWei.times(ethPrice).times(args.multiply)
-
-  // So, we could pass a quote price
-  // Calculate amount to swap with the quote
-  // Get back a market price
-  // Pass the accurate market price into the equation to get amount to swap
-  // Send that to the swap
-
-  // Final position will differ depending on the actual swap price achieved versus slippage adjusted
-
-  // GOAL WE NEED the rough borrow amount w/ swapdata
-
-  // DAMIAN HAS Ignored market price:
-  // Calculated borrow amount without market price
-  // Used that to calculate amountToSwap
-  // Passed that value into swap data to get market price
-
-  // FROM FRONTEND
-  //  const marketPrice =
-  //     swap?.status === 'SUCCESS'
-  //       ? swap.tokenPrice
-  //       : quote?.status === 'SUCCESS'
-  //       ? quote.tokenPrice
-  //       : undefined
-
-  // So, we can refine target position with a swap call
-  // So, what we can do instead is:
-  // 1. feed in quote + slippage as market price -> get back target position based on quote price
-  // 2. use swap amount in swap params to get back updated market price
-
-  // -> HERE we either use that amount for the swap data
-  // -> Or we refine back the other way where now the swap amount is known??
-  // 3. If we feed that market price back in again we end up in a recursive loop where we'll try to converge on the exact
-  //    amount to swap
-  // So, that's the same here then -> we're simply using it at the end to show certain details
-
-  // So, on our side calc side we want to:
-  // 1. Get a quote
-  // 2. Calculate deltas / borrow amount etc
-  // 3. Generate swap call data
-  // 4. Refine certain fields like expected collateral using
-  // 5. So, we get a target Position and we could refine this further using swap market price to get expected
-  // 6. Let's call that RefinedTargetPosition
-
-  // Borrow ETH amount from AAVE
-  const borrowEthAmountWei = flashLoanAmountWei.times(targetLTV).div(ethPrice)
-  const ethOnExchange = borrowEthAmountWei.plus(depositEthWei)
-  const fee = calculateFee(ethOnExchange, FEE, FEE_BASE)
-  const ethAmountToSwapWei = ethOnExchange.minus(fee)
-
-  const swapData = await dependencies.getSwapData(
+  const estimatedSwapAmount = new BigNumber(1)
+  const quoteSwapData = await dependencies.getSwapData(
     dependencies.addresses.WETH,
     dependencies.addresses.stETH,
-    ethAmountToSwapWei,
+    estimatedSwapAmount,
     new BigNumber(slippage),
   )
 
-  const marketPice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
-  const marketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
-  // console.log('aaveStEthPriceInEth:', aaveStEthPriceInEth.toString())
-  // console.log('marketPice:', marketPice.toString())
-  // console.log('marketPriceWithSlippage:', marketPriceWithSlippage.toString())
+  const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
+
+  const oazoFee = new BigNumber(FEE / FEE_BASE)
+  const flashloanFee = new BigNumber(0)
   const {
     targetPosition,
     debtDelta,
     collateralDelta,
-    amountToBeSwappedOrPaidback,
-    isFlashloanRequired,
+    amountToBeSwappedOrPaidback: ethAmountToSwap,
+    // isFlashloanRequired,
     flashloanAmount,
-  } = calculateTargetPosition({
-    fees: { flashLoan: new BigNumber(0), oazo: new BigNumber(FEE / FEE_BASE) },
-    prices: { market: marketPice, oracle: aaveStEthPriceInEth },
+  } = emptyPosition.adjustToTargetMultiple(multiple, {
+    fees: { flashLoan: flashloanFee, oazo: oazoFee },
+    prices: {
+      market: quoteMarketPrice,
+      oracle: aaveStEthPriceInEth,
+      oracleFLtoDebtToken: ethPrice,
+    },
     slippage: args.slippage,
-    targetLoanToValue: targetLTV,
-    maxLoanToValueFL: new BigNumber(0.75),
+    maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
     depositedByUser: {
       debt: args.depositAmount,
     },
-
-    currentPosition: new Position(
-      { amount: new BigNumber(0) },
-      { amount: new BigNumber(0) },
-      stEthPrice,
-      {
-        liquidationThreshold: new BigNumber(0.81),
-        maxLoanToValue: new BigNumber(0.75),
-      },
-    ),
     debug: true,
   })
-  console.log('depositAmount', args.depositAmount.toString())
-  const stEthAmountAfterSwapWei = ethAmountToSwapWei.div(marketPriceWithSlippage)
+  // TODO: Return from adjustToTargetLTV
+  const fee = ethAmountToSwap.div(ONE.minus(oazoFee))
 
-  console.log('isFlashloanRequired', isFlashloanRequired)
-  console.log('flashloanAmount[orig]', flashLoanAmountWei.toString())
-  console.log('flashloanAmount[new]', flashloanAmount.toString())
+  const swapData = await dependencies.getSwapData(
+    dependencies.addresses.WETH,
+    dependencies.addresses.stETH,
+    ethAmountToSwap,
+    slippage,
+  )
 
-  console.log('borrowAmount[orig]', borrowEthAmountWei.toString())
-  console.log('borrowAmount[new]', collateralDelta.toString())
+  const actualMarketPrice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
+  const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
+
+  const borrowEthAmountWei = debtDelta.minus(depositEthWei)
+  console.log('calls: ', {
+    depositAmount: depositEthWei.toString(),
+    flashloanAmount: flashloanAmount.toString(),
+    borrowAmount: borrowEthAmountWei.toString(),
+    fee: FEE.toString(),
+    swapData: swapData.exchangeCalldata,
+    receiveAtLeast: swapData.minToTokenAmount.toString(),
+    ethSwapAmount: ethAmountToSwap.toString(),
+    dsProxy: dependencies.dsProxy,
+  })
   const calls = await operation.openStEth(
     {
-      depositAmount: depositEthWei, // Does not change
-      // flashloanAmount: flashLoanAmountWei,
-      flashloanAmount: flashloanAmount, // Does change based on new market price
-      // borrowAmount: collateralDelta,
-      borrowAmount: amountToBeSwappedOrPaidback, // Doesn't change after first swap params call
+      depositAmount: depositEthWei,
+      flashloanAmount: flashloanAmount,
+      borrowAmount: borrowEthAmountWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
-      ethSwapAmount: ethOnExchange,
+      ethSwapAmount: ethAmountToSwap,
       dsProxy: dependencies.dsProxy,
     },
     dependencies.addresses,
   )
-
-  // Could we return IStrategyReturn
-
-  // return {
-  //   calls,
-  //   swapData,
-  //   targetPosition: refinedTargetPosition
-  //   ethAmountToSwap
-  //   feeAmount
-  //   ethPrice
-  //   stEthPrice
-  // }
+  // Collateral Delta
+  const stEthAmountAfterSwapWei = ethAmountToSwap.div(actualMarketPriceWithSlippage)
+  // Can we generate a final position here?
 
   return {
     calls,
     swapData,
-    swapMarketPrice: marketPice,
-    // marketPice,
-    // stEthAmountAfterSwap: amountFromWei(stEthAmountAfterSwapWei),
-    // ethAmountToSwap: amountFromWei(ethAmountToSwapWei),
-    // feeAmount: amountFromWei(fee),
-    // flashLoanAmount: amountFromWei(flashLoanAmountWei),
-    // borrowEthAmount: amountFromWei(borrowEthAmountWei),
-    // ethPrice,
-    // stEthPrice,
-    // multiply: args.multiply,
-    // ltv: targetLTV,
+    targetPosition,
+    swapMarketPrice: actualMarketPrice,
+    swapAmount: amountFromWei(ethAmountToSwap),
+    feeAmount: amountFromWei(fee),
+    debtTokenPrice: ethPrice,
+    collateralTokenPrices: stEthPrice,
   }
 }

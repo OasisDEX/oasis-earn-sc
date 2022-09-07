@@ -3,7 +3,7 @@ import { default as dotenv } from 'dotenv'
 import path from 'path'
 import process from 'process'
 
-import { calculateTargetPosition, Position } from './calculatePosition'
+import { Position } from './calculatePosition'
 import { mapRowsToScenarios, Scenario } from './testDataUtils'
 
 dotenv.config({ path: path.join(process.cwd(), '../../.env') })
@@ -57,13 +57,11 @@ describe('Calculate Position Helper', async () => {
           { liquidationThreshold, maxLoanToValue },
         )
 
-        const calculatedPositionInfo = calculateTargetPosition({
+        const computed = currentPosition.adjustToTargetLTV(targetLoanToValue, {
           depositedByUser: {
             debt: debtDenominatedTokensDepositedByUser,
             collateral: collateralDepositedByUser,
           },
-          currentPosition: currentPosition,
-          targetLoanToValue,
           maxLoanToValueFL: maxLoanToValueFL,
           fees: { flashLoan: flashloanFees, oazo: oazoFees },
           prices: {
@@ -76,38 +74,30 @@ describe('Calculate Position Helper', async () => {
         })
 
         // Debt Delta
-        expect(calculatedPositionInfo.debtDelta.toFixed(2)).to.equal(debtDelta.toFixed(2))
+        expect(computed.debtDelta.toFixed(2)).to.equal(debtDelta.toFixed(2))
 
         // Collateral Delta
-        expect(calculatedPositionInfo.collateralDelta.toFixed(2)).to.equal(
-          collateralDelta.toFixed(2),
-        )
+        expect(computed.collateralDelta.toFixed(2)).to.equal(collateralDelta.toFixed(2))
 
         // Is Flashloan needed?
-        expect(calculatedPositionInfo.isFlashloanRequired).to.equal(isFlashLoanRequired)
+        expect(computed.isFlashloanRequired).to.equal(isFlashLoanRequired)
 
         // Flashloan Amount
-        expect(calculatedPositionInfo.flashloanAmount.toFixed(2)).to.equal(
-          amountToFlashloan.toFixed(2),
-        )
+        expect(computed.flashloanAmount.toFixed(2)).to.equal(amountToFlashloan.toFixed(2))
 
         // Target Debt
-        expect(calculatedPositionInfo.targetPosition.debt.amount.toFixed(2)).to.equal(
-          targetDebt.toFixed(2),
-        )
+        expect(computed.targetPosition.debt.amount.toFixed(2)).to.equal(targetDebt.toFixed(2))
 
         // Target Collateral
-        expect(calculatedPositionInfo.targetPosition.collateral.amount.toFixed(2)).to.equal(
+        expect(computed.targetPosition.collateral.amount.toFixed(2)).to.equal(
           targetCollateral.toFixed(2),
         )
 
         // Health Factor
-        expect(calculatedPositionInfo.targetPosition.healthFactor.toFixed(2)).to.equal(
-          healthFactor.toFixed(2),
-        )
+        expect(computed.targetPosition.healthFactor.toFixed(2)).to.equal(healthFactor.toFixed(2))
 
         // Liquidation Price
-        expect(calculatedPositionInfo.targetPosition.liquidationPrice.toFixed(2)).to.equal(
+        expect(computed.targetPosition.liquidationPrice.toFixed(2)).to.equal(
           minOraclePrice.toFixed(2),
         )
       })
