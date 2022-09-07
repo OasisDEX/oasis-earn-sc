@@ -3,32 +3,38 @@ import BigNumber from 'bignumber.js'
 import { ONE, ZERO } from '../constants'
 import { logDebug } from '../index'
 
-interface IPositionCategory {
-  liquidationRatio: BigNumber
+interface IPositionBalance {
+  amount: BigNumber
+  denomination?: string
 }
 
-interface IPosition {
-  collateral: BigNumber
-  debt: BigNumber
+interface IPositionCategory {
+  liquidationThreshold: BigNumber
+  maxLoanToValue: BigNumber
+}
+
+interface IBasePosition {
+  collateral: IPositionBalance
+  debt: IPositionBalance
   category: IPositionCategory
 }
 
-interface IMarketPosition extends IPosition {
-  collateralValueInUSD?: BigNumber
-  debtValueInUSD?: BigNumber
-  collateralisationRatio: BigNumber
+interface IPosition extends IBasePosition {
+  loanToValueRatio: BigNumber
+  healthFactor: BigNumber
+  liquidationPrice: BigNumber
   multiple: BigNumber
 }
 
-export class Position implements IMarketPosition {
-  public debt: BigNumber
-  public collateral: BigNumber
+export class Position implements IPosition {
+  public debt: IPositionBalance
+  public collateral: IPositionBalance
   public category: IPositionCategory
   private _oraclePriceForCollateralDebtExchangeRate: BigNumber
 
   constructor(
-    debt: BigNumber,
-    collateral: BigNumber,
+    debt: IPositionBalance,
+    collateral: IPositionBalance,
     oraclePrice: BigNumber,
     category: IPositionCategory,
   ) {
@@ -38,22 +44,37 @@ export class Position implements IMarketPosition {
     this.category = category
   }
 
-  public get collateralisationRatio() {
-    return this.collateral.times(this._oraclePriceForCollateralDebtExchangeRate).div(this.debt)
+  public get loanToValueRatio() {
+    return this.debt.amount.div(
+      this.collateral.amount.times(this._oraclePriceForCollateralDebtExchangeRate),
+    )
+  }
+
+  public get healthFactor() {
+    return this.collateral.amount
+      .times(this.category.liquidationThreshold)
+      .times(this._oraclePriceForCollateralDebtExchangeRate)
+      .div(this.debt.amount)
+  }
+
+  public get liquidationPrice() {
+    return this.debt.amount.div(this.collateral.amount.times(this.category.liquidationThreshold))
   }
 
   public get multiple() {
-    return ONE.plus(ONE.div(this.collateralisationRatio.minus(ONE)))
+    return ONE.div(ONE.minus(this.loanToValueRatio))
   }
 }
 
+// TODO: consider multi-collateral positions
 interface TargetPositionParams {
-  addedByUser?: {
+  depositedByUser?: {
     collateral?: BigNumber
     debt?: BigNumber
   }
-  currentPosition: IPosition
-  targetCollateralRatio: BigNumber
+  currentPosition: IBasePosition
+
+  targetLoanToValue: BigNumber
   fees: {
     oazo: BigNumber
     flashLoan: BigNumber
@@ -61,8 +82,11 @@ interface TargetPositionParams {
   prices: {
     oracle: BigNumber
     market: BigNumber
+    oracleFLtoDebtToken?: BigNumber
   }
   slippage: BigNumber
+  /* Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH) */
+  maxLoanToValueFL?: BigNumber
   debug?: boolean
 }
 
@@ -78,17 +102,26 @@ export function calculateTargetPosition(params: TargetPositionParams): {
   targetPosition: IPosition
   debtDelta: BigNumber
   collateralDelta: BigNumber
+  flashloanAmount: BigNumber
   isFlashloanRequired: boolean
 } {
-  const { addedByUser, currentPosition, targetCollateralRatio, fees, prices, slippage, debug } =
-    params
+  const {
+    depositedByUser,
+    currentPosition,
+    targetLoanToValue,
+    fees,
+    prices,
+    slippage,
+    maxLoanToValueFL: _maxLoanToValueFL,
+    debug,
+  } = params
 
   /**
    * C_W	Collateral in wallet to top-up or seed position
    * D_W	Debt token in wallet to top-up or seed position
    * */
-  const seedOrTopupCollateral = addedByUser?.collateral || ZERO
-  const seedOrTopupDebt = addedByUser?.debt || ZERO
+  const collateralDepositedByUser = depositedByUser?.collateral || ZERO
+  const debtDenominatedTokensDepositedByUser = depositedByUser?.debt || ZERO
 
   /**
    * These values are based on the initial state of the position.
@@ -98,8 +131,12 @@ export function calculateTargetPosition(params: TargetPositionParams): {
    * C_C	Current collateral
    * D_C	Current debt
    * */
-  const currentCollateral = (currentPosition?.collateral || ZERO).plus(seedOrTopupCollateral)
-  const currentDebt = (currentPosition?.debt || ZERO).minus(seedOrTopupDebt)
+  const currentCollateral = (currentPosition?.collateral.amount || ZERO).plus(
+    collateralDepositedByUser,
+  )
+  const currentDebt = (currentPosition?.debt.amount || ZERO).minus(
+    debtDenominatedTokensDepositedByUser,
+  )
 
   /**
    * The Oracle price is what we use to convert a positions collateral into the same
@@ -111,10 +148,12 @@ export function calculateTargetPosition(params: TargetPositionParams): {
    * Compound uses ETH
    *
    * P_O	Oracle Price
+   * P_{O(FL->D)} Oracle Price to convert Flashloan token to Debt token
    * P_M	Market Price
    * P_{MS} Market Price adjusted for Slippage
    * */
   const oraclePrice = prices.oracle
+  const oraclePriceFLtoDebtToken = prices?.oracleFLtoDebtToken || ONE
   const marketPrice = prices.market
   const marketPriceAdjustedForSlippage = marketPrice.times(ONE.plus(slippage))
 
@@ -132,42 +171,67 @@ export function calculateTargetPosition(params: TargetPositionParams): {
   const oazoFee = fees.oazo
   const flashloanFee = fees.flashLoan
 
+  /**
+   *
+   * Liquidation threshold is the ratio at which a position can be liquidated
+   *
+   * LT Liquidation threshold for position
+   * LTV_{Max} Max Opening Loan-to-Value when generated Debt (DAI)
+   * LTV_{MAX(FL)} Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH)
+   */
+  const liquidationThreshold = currentPosition.category.liquidationThreshold
+  const maxLoanToValue = currentPosition.category.maxLoanToValue
+  const maxLoanToValueFL = _maxLoanToValueFL || ONE
+
   if (debug) {
     logDebug(
       [
-        `Seed or top-up collateral: ${seedOrTopupCollateral.toFixed(2)}`,
-        `Seed or top-up debt: ${seedOrTopupDebt.toFixed(2)}`,
-        `Current collateral inc. top-up/seed: ${currentCollateral.toFixed(2)}`,
-        `Current debt inc. top-up/seed: ${currentDebt.toFixed(2)}`,
-        `Oracle price: ${oraclePrice.toFixed(2)}`,
-        `Market price: ${marketPrice.toFixed(2)}`,
+        `Collateral deposited by User: ${collateralDepositedByUser.toString()}`,
+        `Debt denominated tokens deposited by User: ${debtDenominatedTokensDepositedByUser.toString()}`,
+
+        `Current collateral inc. top-up/seed: ${currentCollateral.toString()}`,
+        `Current debt inc. top-up/seed: ${currentDebt.toString()}`,
+
+        `Oracle price: ${oraclePrice.toString()}`,
+        `Oracle Price FL-to-Debt token: ${oraclePriceFLtoDebtToken.toString()}`,
+        `Market price: ${marketPrice.toString()}`,
         `Slippage: ${slippage.toFixed(4)}`,
-        `Market price adj. slippage: ${marketPriceAdjustedForSlippage.toFixed(2)}`,
-        `Target collateralisation ratio: ${targetCollateralRatio.toFixed(2)}`,
+        `Market price adj. slippage: ${marketPriceAdjustedForSlippage.toString()}`,
+
         `Oazo fee: ${oazoFee.toFixed(4)}`,
         `Flashloan fee: ${flashloanFee.toFixed(4)}`,
+
+        `Liquidation threshold: ${liquidationThreshold.toFixed(4)}`,
+        `Max Loan-to-Value when opening: ${maxLoanToValue.toFixed(4)}`,
+        `Max Loan-to-Value when converting flashloaned DAI to Debt denominated tokens: ${maxLoanToValueFL.toFixed(
+          4,
+        )}`,
+
+        `Target loan-to-value: ${targetLoanToValue.toString()}`,
       ],
       'Calculate Position Params: ',
     )
   }
 
   /**
-   * Now, we need to calculate the amount of debt the position must generate and swap
-   * for collateral to reach the desired (target) collateral ratio.
+   * Amount to be swapped (increase/open) or paid back (decrease) after accounting for flashloan fees - if required
    *
-   * X represents the amount of debt the position must generate (or !!payback if decreasing multiple)
-   *
-   * X = \frac{(C_C\cdot P_O \cdot P_{MS}) - (T_{CR}\cdot D_C \cdot P_{MS})}{((T_{CR}\cdot (1 +F_F) \cdot P_{MS}) - ((1 -F_O)\cdot  P_O))}
+   * X = \frac{D_C\cdot P_{MS} - T_{LTV}\cdot C_C\cdot P_O\cdot P_{MS}}{((T_{LTV}\cdot (1 -F_O)\cdot P_O) - (1 +F_F)\cdot P_{MS})}
    * */
-  const debtDeltaBeforeFlashloanFees = currentCollateral
-    .times(oraclePrice)
+
+  const amountToBeSwappedOrPaidback = currentDebt
     .times(marketPriceAdjustedForSlippage)
-    .minus(targetCollateralRatio.times(currentDebt).times(marketPriceAdjustedForSlippage))
+    .minus(
+      targetLoanToValue
+        .times(currentCollateral)
+        .times(oraclePrice)
+        .times(marketPriceAdjustedForSlippage),
+    )
     .div(
-      targetCollateralRatio
-        .times(ONE.plus(flashloanFee))
-        .times(marketPriceAdjustedForSlippage)
-        .minus(ONE.minus(oazoFee).times(oraclePrice)),
+      targetLoanToValue
+        .times(ONE.minus(oazoFee))
+        .times(oraclePrice)
+        .minus(ONE.plus(flashloanFee).times(marketPriceAdjustedForSlippage)),
     )
 
   /**
@@ -175,16 +239,16 @@ export function calculateTargetPosition(params: TargetPositionParams): {
    *
    * Y represents the available liquidity in the position
    *
-   * If Y is less than X where X is the amount of debt that needed to be generate
-   * the target state for the position then a flashloan is necessary
+   * If Y is less than X where X is the amount of debt that's needed to be generate
+   * the target position state then a flashloan is required
    *
-   * Y=(\frac{C_C\cdot P_O}{LR})-D_C
+   * Y=(C_C\cdot P_O) \cdot LTV_{MAX} - D_C
    * */
   const isFlashloanRequired = currentCollateral
     .times(oraclePrice)
-    .div(currentPosition.category.liquidationRatio)
+    .times(currentPosition.category.maxLoanToValue)
     .minus(currentDebt)
-    .lt(debtDeltaBeforeFlashloanFees)
+    .lt(amountToBeSwappedOrPaidback)
 
   /**
    * Finally, we can compute the deltas in debt & collateral
@@ -195,21 +259,35 @@ export function calculateTargetPosition(params: TargetPositionParams): {
    * ΔC  Collateral delta
    * \Delta C = X \cdot (1 - F_O) / P_{MS}
    * */
-  const debtDelta = debtDeltaBeforeFlashloanFees.times(
+  const debtDelta = amountToBeSwappedOrPaidback.times(
     ONE.plus(isFlashloanRequired ? flashloanFee : ZERO),
   )
 
-  const collateralDelta = debtDeltaBeforeFlashloanFees
+  const collateralDelta = amountToBeSwappedOrPaidback
     .times(ONE.minus(oazoFee))
     .div(marketPriceAdjustedForSlippage)
+
+  /**
+   *
+   * Flashloan amount
+   *
+   * X_B Amount to flashloan or payback
+   */
+  const amountToFlashloan = isFlashloanRequired
+    ? debtDelta
+        .minus(debtDenominatedTokensDepositedByUser)
+        .times(oraclePriceFLtoDebtToken)
+        .times(maxLoanToValueFL)
+    : ZERO
 
   if (debug) {
     logDebug(
       [
-        `Debt delta before flashloan fees: ${debtDeltaBeforeFlashloanFees.toFixed(2)}`,
-        `Is a flashloan required: ${isFlashloanRequired}`,
-        `Debt delta: ${debtDelta.toFixed(2)}`,
-        `Collateral delta: ${collateralDelta.toFixed(2)}`,
+        `Is flashloan required: ${isFlashloanRequired}`,
+        `Amount to flashloan: ${amountToFlashloan}`,
+        `Amount to be swapped or paid back: ${amountToBeSwappedOrPaidback.toString()}`,
+        `Debt delta: ${debtDelta.toString()}`,
+        `Collateral delta: ${collateralDelta.toString()}`,
       ],
       'Generate Target Position Values: ',
     )
@@ -221,13 +299,14 @@ export function calculateTargetPosition(params: TargetPositionParams): {
     oraclePrice,
     currentDebt,
     currentCollateral,
-    currentPosition.category.liquidationRatio,
+    currentPosition,
   )
 
   return {
     targetPosition,
     debtDelta,
     collateralDelta,
+    flashloanAmount: amountToFlashloan,
     isFlashloanRequired,
   }
 }
@@ -238,14 +317,18 @@ function recomputePosition(
   oraclePrice: BigNumber,
   currentDebt: BigNumber,
   currentCollateral: BigNumber,
-  liquidationRatio: BigNumber,
+  currentPosition: IBasePosition,
 ): IPosition {
   const newCollateralAmount = currentCollateral.plus(collateralDelta)
-  const newDebtAmount = currentDebt.plus(debtDelta)
+  const newCollateral = {
+    amount: newCollateralAmount,
+    denomination: currentPosition.collateral.denomination,
+  }
 
-  const newPosition = new Position(newDebtAmount, newCollateralAmount, oraclePrice, {
-    liquidationRatio,
-  })
+  const newDebtAmount = currentDebt.plus(debtDelta)
+  const newDebt = { amount: newDebtAmount, denomination: currentPosition.debt.denomination }
+
+  const newPosition = new Position(newDebt, newCollateral, oraclePrice, currentPosition.category)
 
   return newPosition
 }

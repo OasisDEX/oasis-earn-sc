@@ -4,6 +4,7 @@ import { ethers, providers } from 'ethers'
 import aavePriceOracleABI from '../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, calculateFee } from '../helpers'
+import { calculateTargetPosition, Position } from '../helpers/calculations/calculatePosition'
 import { ONE } from '../helpers/constants'
 import * as operation from '../operations'
 import type { OpenStEthAddresses } from '../operations/openStEth'
@@ -43,7 +44,7 @@ export async function openStEth(args: OpenStEthArgs, dependencies: OpenStEthDepe
   const roundData = await priceFeed.latestRoundData()
   const decimals = await priceFeed.decimals()
   const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
-
+  console.log('ethPrice:', ethPrice.toString())
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
     aavePriceOracleABI,
@@ -88,12 +89,44 @@ export async function openStEth(args: OpenStEthArgs, dependencies: OpenStEthDepe
 
   const marketPice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
   const marketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
+  console.log('aaveStEthPriceInEth:', aaveStEthPriceInEth.toString())
+  console.log('marketPice:', marketPice.toString())
+  console.log('marketPriceWithSlippage:', marketPriceWithSlippage.toString())
+  const { targetPosition, debtDelta, collateralDelta, isFlashloanRequired } =
+    calculateTargetPosition({
+      fees: { flashLoan: new BigNumber(0), oazo: new BigNumber(FEE / FEE_BASE) },
+      prices: { market: marketPice, oracle: aaveStEthPriceInEth },
+      slippage: args.slippage,
+      targetLoanToValue: targetLTV,
+      depositedByUser: {
+        debt: args.depositAmount,
+      },
+      currentPosition: new Position(
+        { amount: new BigNumber(0) },
+        { amount: new BigNumber(0) },
+        stEthPrice,
+        {
+          liquidationThreshold: new BigNumber(0.8),
+          maxLoanToValue: new BigNumber(0.8),
+        },
+      ),
+      debug: true,
+    })
+  console.log('depositAmount', args.depositAmount.toString())
   const stEthAmountAfterSwapWei = ethAmountToSwapWei.div(marketPriceWithSlippage)
 
+  console.log('isFlashloanRequired', isFlashloanRequired)
+  console.log('flashloanAmount[orig]', flashLoanAmountWei.toString())
+  console.log('flashloanAmount[new]', debtDelta.toString())
+
+  console.log('borrowAmount[orig]', borrowEthAmountWei.toString())
+  console.log('borrowAmount[new]', collateralDelta.toString())
   const calls = await operation.openStEth(
     {
       depositAmount: depositEthWei,
       flashloanAmount: flashLoanAmountWei,
+      // flashloanAmount: debtDelta,
+      // borrowAmount: collateralDelta,
       borrowAmount: borrowEthAmountWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,

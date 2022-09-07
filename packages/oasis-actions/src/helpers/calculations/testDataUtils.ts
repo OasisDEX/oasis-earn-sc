@@ -21,33 +21,39 @@ google.options({
   auth: auth,
 })
 
-const RANGE = 'Scenarios_to_Import!A1:I23'
-//TODO: create Scenario type
+const RANGE = 'Scenarios_to_Import!A1:K29'
 
 export type Scenario = {
   name: string
   type: 'Open' | 'Increase multiple' | 'Decrease multiple'
   protocol: 'Maker' | 'AAVE'
-  collateralAddedByUser: BigNumber
-  debtAddedByUser: BigNumber
-  targetCollateralRatio: BigNumber
+  collateralDepositedByUser: BigNumber
+  debtDenominatedTokensDepositedByUser: BigNumber
+  targetLoanToValue: BigNumber
   currentCollateral: BigNumber
   currentDebt: BigNumber
   oraclePrice: BigNumber
+  oraclePriceFLtoDebtToken: BigNumber
   marketPrice: BigNumber
   slippage: BigNumber
   marketPriceAdjustedForSlippage: BigNumber
   oazoFees: BigNumber
   flashloanFees: BigNumber
-  liquidationRatio: BigNumber
+  liquidationThreshold: BigNumber
+  liquidationThresholdFL: BigNumber
+  maxLoanToValue: BigNumber
+  maxLoanToValueFL: BigNumber
   X: BigNumber
   Y: BigNumber
   isFlashLoanRequired: boolean
   debtDelta: BigNumber
   collateralDelta: BigNumber
   multiple: BigNumber
+  amountToFlashloan: BigNumber
   targetCollateral: BigNumber
   targetDebt: BigNumber
+  healthFactor: BigNumber
+  minOraclePrice: BigNumber
 }
 
 export async function generateTestScenarios() {
@@ -68,50 +74,36 @@ export async function generateTestScenarios() {
   fs.writeFileSync(path.join(process.cwd(), './src/helpers/calculations/scenarios.json'), data)
 }
 
-generateTestScenarios()
-
 export function mapRowsToScenarios(rows: any[][]): Scenario[] {
-  const [, ...transposedRows] = rows[0].map((_, colIndex) => rows.map(row => row[colIndex]))
-
-  const scenarios: Scenario[] = transposedRows.map(
-    row =>
-      ({
-        name: row[0],
-        type: row[1],
-        protocol: row[2],
-        collateralAddedByUser: prepareImportedNumber(row[3]),
-        debtAddedByUser: prepareImportedNumber(row[4]),
-        targetCollateralRatio: prepareImportedNumber(row[5]),
-        currentCollateral: prepareImportedNumber(row[6]),
-        currentDebt: prepareImportedNumber(row[7]),
-        oraclePrice: prepareImportedNumber(row[8]),
-        marketPrice: prepareImportedNumber(row[9]),
-        slippage: prepareImportedNumber(row[10]),
-        marketPriceAdjustedForSlippage: prepareImportedNumber(row[11]),
-        oazoFees: prepareImportedNumber(row[12]),
-        flashloanFees: prepareImportedNumber(row[13]),
-        liquidationRatio: prepareImportedNumber(row[14]),
-        X: prepareImportedNumber(row[15]),
-        Y: prepareImportedNumber(row[16]),
-        isFlashLoanRequired: getFlagValue(row[17]),
-        debtDelta: prepareImportedNumber(row[18]),
-        collateralDelta: prepareImportedNumber(row[19]),
-        multiple: prepareImportedNumber(row[20]),
-        targetDebt: prepareImportedNumber(row[21]),
-        targetCollateral: prepareImportedNumber(row[22]),
-      } as Scenario),
+  const [, headers, ...transposedRows] = rows[0].map((_, colIndex) =>
+    rows.map(row => row[colIndex]),
+  )
+  const scenarios: Scenario[] = transposedRows.map(row =>
+    row.reduce((acc, cur, index) => {
+      acc[headers[index]] = prepareImportedValue(cur)
+      return acc
+    }, {}),
   )
 
   return scenarios
 }
 
-function prepareImportedNumber(numberLikeString: string): BigNumber {
+function prepareImportedValue(numberLikeString: string): BigNumber | string | boolean {
   const noCommas = numberLikeString.replace(',', '')
-
   const isPercentage = noCommas.includes('%')
   const noPercentages = noCommas.replace('%', '')
 
-  return isPercentage ? new BigNumber(noPercentages).div(100) : new BigNumber(noPercentages)
+  const isNumberLike = !Number.isNaN(Number(noPercentages))
+  const isBoolLike = ['FALSE', 'TRUE'].some(el => noPercentages.includes(el))
+
+  if (isNumberLike) {
+    return isPercentage ? new BigNumber(noPercentages).div(100) : new BigNumber(noPercentages)
+  }
+  if (isBoolLike) {
+    return getFlagValue(noPercentages)
+  }
+
+  return noPercentages
 }
 
 function getFlagValue(booleanLikeString: string) {

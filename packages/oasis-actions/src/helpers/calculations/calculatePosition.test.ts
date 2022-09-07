@@ -4,7 +4,7 @@ import path from 'path'
 import process from 'process'
 
 import { calculateTargetPosition, Position } from './calculatePosition'
-import { mapRowsToScenarios, Scenario } from './generateScenarios'
+import { mapRowsToScenarios, Scenario } from './testDataUtils'
 
 dotenv.config({ path: path.join(process.cwd(), '../../.env') })
 
@@ -21,56 +21,94 @@ describe('Calculate Position Helper', async () => {
     ({
       name,
       type,
-      collateralAddedByUser,
-      debtAddedByUser,
-      collateralDelta,
-      debtDelta,
-      targetCollateralRatio,
+      collateralDepositedByUser,
+      debtDenominatedTokensDepositedByUser,
+      targetLoanToValue,
       currentCollateral,
       currentDebt,
-      liquidationRatio,
-      multiple,
-      isFlashLoanRequired,
-      marketPriceAdjustedForSlippage,
+      oraclePrice,
+      oraclePriceFLtoDebtToken,
       marketPrice,
       slippage,
-      oraclePrice,
+      marketPriceAdjustedForSlippage,
       oazoFees,
       flashloanFees,
+      liquidationThreshold,
+      maxLoanToValue,
+      maxLoanToValueFL,
+      X,
+      Y,
+      isFlashLoanRequired,
+      debtDelta,
+      collateralDelta,
+      multiple,
+      amountToFlashloan,
       targetDebt,
       targetCollateral,
+      healthFactor,
+      minOraclePrice,
     }) => {
       it(`Test: ${name}`, async () => {
-        /* Note: we have to remove seed/topups from current values because they've already been rolled up/assigned in googlesheets */
+        /* Note: we have to remove User deposits from current values because they've already been rolled up (assigned) in our googlesheets data*/
         const currentPosition = new Position(
-          currentDebt.plus(debtAddedByUser),
-          currentCollateral.minus(collateralAddedByUser),
+          { amount: currentDebt.plus(debtDenominatedTokensDepositedByUser) },
+          { amount: currentCollateral.minus(collateralDepositedByUser) },
           oraclePrice,
-          { liquidationRatio },
+          { liquidationThreshold, maxLoanToValue },
         )
 
         const calculatedPositionInfo = calculateTargetPosition({
-          addedByUser: {
-            debt: debtAddedByUser,
-            collateral: collateralAddedByUser,
+          depositedByUser: {
+            debt: debtDenominatedTokensDepositedByUser,
+            collateral: collateralDepositedByUser,
           },
           currentPosition: currentPosition,
-          targetCollateralRatio,
+          targetLoanToValue,
+          maxLoanToValueFL: maxLoanToValueFL,
           fees: { flashLoan: flashloanFees, oazo: oazoFees },
-          prices: { market: marketPrice, oracle: oraclePrice },
+          prices: {
+            market: marketPrice,
+            oracle: oraclePrice,
+            oracleFLtoDebtToken: oraclePriceFLtoDebtToken,
+          },
           slippage,
+          // debug: true,
         })
 
+        // Debt Delta
         expect(calculatedPositionInfo.debtDelta.toFixed(2)).to.equal(debtDelta.toFixed(2))
+
+        // Collateral Delta
         expect(calculatedPositionInfo.collateralDelta.toFixed(2)).to.equal(
           collateralDelta.toFixed(2),
         )
+
+        // Is Flashloan needed?
         expect(calculatedPositionInfo.isFlashloanRequired).to.equal(isFlashLoanRequired)
-        expect(calculatedPositionInfo.targetPosition.debt.toFixed(2)).to.equal(
+
+        // Flashloan Amount
+        expect(calculatedPositionInfo.flashloanAmount.toFixed(2)).to.equal(
+          amountToFlashloan.toFixed(2),
+        )
+
+        // Target Debt
+        expect(calculatedPositionInfo.targetPosition.debt.amount.toFixed(2)).to.equal(
           targetDebt.toFixed(2),
         )
-        expect(calculatedPositionInfo.targetPosition.collateral.toFixed(2)).to.equal(
+
+        // Target Collateral
+        expect(calculatedPositionInfo.targetPosition.collateral.amount.toFixed(2)).to.equal(
           targetCollateral.toFixed(2),
+        )
+
+        // Health Factor
+        expect(calculatedPositionInfo.targetPosition.healthFactor.toFixed(2)).to.equal(
+          healthFactor.toFixed(2),
+        )
+
+        // Liquidation Price
+        expect(calculatedPositionInfo.targetPosition.liquidationPrice.toFixed(2)).to.equal(
+          minOraclePrice.toFixed(2),
         )
       })
     },
