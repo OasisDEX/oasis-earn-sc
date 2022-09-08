@@ -1,7 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ADDRESSES, ONE, OPERATION_NAMES, strategy } from '@oasisdex/oasis-actions'
 import { IStrategyReturn } from '@oasisdex/oasis-actions/lib/src/strategies'
-// import type { IStrategyReturn } from ;
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, ContractReceipt, Signer } from 'ethers'
@@ -38,8 +37,6 @@ const oneInchCallMock = async (
 const getOneInchRealCall =
   (swapAddress: string) =>
   async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
-    console.log('amount[getOneInchRealCall]:', amount)
-    console.log('amount[getOneInchRealCall].toString():', amount.toString())
     const response = await swapOneInchTokens(
       from,
       to,
@@ -114,7 +111,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     stETH = new Contract(ADDRESSES.main.stETH, ERC20ABI, provider)
   })
 
-  describe.skip('On forked chain', () => {
+  describe('On forked chain', () => {
     // Apparently there is not enough liquidity (at tested block) to deposit > 100ETH`
     const depositAmount = amountToWei(new BigNumber(60))
     const multiple = new BigNumber(2)
@@ -141,11 +138,6 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
         ...mainnetAddresses,
         operationExecutor: system.common.operationExecutor.address,
       }
-      console.log('before hook: args ->', {
-        depositAmount,
-        slippage,
-        multiple,
-      })
 
       strategyReturn = await strategy.openStEth(
         {
@@ -194,10 +186,6 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
     })
 
     it('Should draw debt according to multiply', () => {
-      console.log(
-        'userAccountData.totalDebtETH.toString():',
-        userAccountData.totalDebtETH.toString(),
-      )
       expectToBeEqual(
         strategyReturn.targetPosition.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
@@ -217,15 +205,6 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
         ADDRESSES.main.WETH,
         ADDRESSES.main.feeRecipient,
         { config, isFormatted: true },
-      )
-
-      console.log('strategyReturn.feeAmount.toString()', strategyReturn.feeAmount.toString())
-      console.log('feeRecipientWethBalanceAfter', feeRecipientWethBalanceAfter.toString())
-      console.log('feeRecipientWethBalanceBefore', feeRecipientWethBalanceBefore.toString())
-
-      console.log(
-        'feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore)',
-        feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toString(),
       )
 
       expectToBeEqual(

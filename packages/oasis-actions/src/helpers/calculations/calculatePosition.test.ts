@@ -87,7 +87,7 @@ describe('Calculate Position Helper', async () => {
         expect(computed.isFlashloanRequired).to.equal(isFlashLoanRequired)
 
         // Flashloan Amount
-        expect(computed.flashloanAmount.toFixed(2)).to.equal(amountToFlashloan.toFixed(2))
+        expect(computed.flashloanAmount.toFixed(0)).to.equal(amountToFlashloan.toFixed(0))
 
         // Target Debt
         expect(computed.targetPosition.debt.amount.toFixed(2)).to.equal(targetDebt.toFixed(2))

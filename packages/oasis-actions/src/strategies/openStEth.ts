@@ -73,7 +73,6 @@ export async function openStEth(
     .then((amount: string) => new BigNumber(amount))
     .then((amount: BigNumber) => amountFromWei(amount))
 
-  console.log('aaveWethPriceInEth:', aaveWethPriceInEth.toString())
   const aaveStEthPriceInEth = await aavePriceOracle
     .getAssetPrice(dependencies.addresses.stETH)
     .then((amount: ethers.BigNumberish) => amount.toString())
@@ -86,21 +85,19 @@ export async function openStEth(
     .then((amount: string) => new BigNumber(amount))
     .then((amount: BigNumber) => amountFromWei(amount))
 
-  console.log('aaveStEthPriceInEth:', aaveStEthPriceInEth.toString())
-  console.log('aaveDaiPriceInEth:', aaveDaiPriceInEth.toString())
   // https://docs.aave.com/risk/v/aave-v2/asset-risk/risk-parameters
   const liquidationThreshold = new BigNumber(0.75)
   const maxLoanToValue = new BigNumber(0.73)
 
   const FEE = 20
   const FEE_BASE = 10000
-  console.log('after userAccountData...')
+
   const slippage = args.slippage
   const multiple = args.multiple
-  // const targetLTV = ONE.minus(ONE.div(args.multiply))
+
   const depositEthWei = args.depositAmount
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
-  console.log('stEthPrice:', stEthPrice.toString())
+
   const emptyPosition = new Position({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
     liquidationThreshold,
     maxLoanToValue,
@@ -121,7 +118,6 @@ export async function openStEth(
   const {
     targetPosition,
     debtDelta,
-    collateralDelta,
     fee,
     amountToBeSwappedOrPaidback: ethAmountToSwap,
     flashloanAmount,
@@ -137,61 +133,23 @@ export async function openStEth(
     depositedByUser: {
       debt: args.depositAmount,
     },
-    debug: true,
   })
 
-  console.log('slippage', slippage.toString())
+  const borrowEthAmountWei = debtDelta.minus(depositEthWei)
+
   const swapData = await dependencies.getSwapData(
     dependencies.addresses.WETH,
     dependencies.addresses.stETH,
     ethAmountToSwap,
     slippage,
   )
-  console.log('ethAmountToSwap:', ethAmountToSwap.toString())
-  console.log('ethAmountToSwap:', ethAmountToSwap.toString())
+
   const actualMarketPrice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
-  console.log('actualMarketPrice:', actualMarketPrice.toString())
-  console.log('actualMarketPriceWithSlippage:', actualMarketPriceWithSlippage.toString())
 
-  // targetPosition.adjustToTargetLTV(targetPosition.loanToValueRatio, {
-  //   fees: { flashLoan: flashloanFee, oazo: oazoFee },
-  //   prices: {
-  //     market: quoteMarketPrice,
-  //     oracle: aaveStEthPriceInEth,
-  //     oracleFLtoDebtToken: ethPrice,
-  //   },
-  //   slippage: args.slippage,
-  //   maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
-  //   depositedByUser: {
-  //     debt: args.depositAmount,
-  //   },
-  //   debug: true,
-  // })
-  const borrowEthAmountWei = debtDelta.minus(depositEthWei)
-  console.log('calls: ', {
-    depositAmount: depositEthWei.toString(),
-    flashloanAmount: flashloanAmount.toString(),
-    borrowAmount: borrowEthAmountWei.toString(),
-    fee: FEE.toString(),
-    swapData: swapData.exchangeCalldata,
-    receiveAtLeast: swapData.minToTokenAmount.toString(),
-    ethSwapAmount: ethAmountToSwap.toString(),
-    dsProxy: dependencies.dsProxy,
-  })
-
-  //OVERRIDE - STILL FAILS WITH SAME VALS
-  // DEBUG
   const calls = await operation.openStEth(
     {
-      // depositAmount: new BigNumber(`60000000000000000000`),
-      // flashloanAmount: new BigNumber(`192580560000000000000000`),
-      // borrowAmount: new BigNumber(`60000000000000000000`),
-      // receiveAtLeast: new BigNumber(`110096456729034270580`),
-      // ethSwapAmount: new BigNumber(`120000000000000000000`),
       depositAmount: depositEthWei,
-      // flashloanAmount,
-      // flashloanAmount: new BigNumber(`192580560000000000000000`),
       flashloanAmount,
       borrowAmount: borrowEthAmountWei,
       fee: FEE,
@@ -202,16 +160,21 @@ export async function openStEth(
     },
     dependencies.addresses,
   )
-  console.log('calls-data:', calls)
-  // Collateral Delta
+
   const stEthAmountAfterSwapWei = ethAmountToSwap.div(actualMarketPriceWithSlippage)
-  console.log('stEthAmountAfterSwapWei:', stEthAmountAfterSwapWei.toString())
-  // Can we generate a final position here?
+
+  // TODO: Should we create a final position here using exact market price?
+  const finalPosition = new Position(
+    targetPosition.debt,
+    { amount: stEthAmountAfterSwapWei, denomination: targetPosition.collateral.denomination },
+    aaveStEthPriceInEth,
+    targetPosition.category,
+  )
 
   return {
     calls,
     swapData,
-    targetPosition,
+    targetPosition: finalPosition,
     swapMarketPrice: actualMarketPrice,
     swapAmount: amountFromWei(ethAmountToSwap),
     feeAmount: amountFromWei(fee),

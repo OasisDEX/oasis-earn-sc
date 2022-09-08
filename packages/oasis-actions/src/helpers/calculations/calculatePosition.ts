@@ -58,7 +58,6 @@ export interface IPosition extends IBasePosition {
   healthFactor: BigNumber
   liquidationPrice: BigNumber
   multiple: BigNumber
-  // adjustMarketPrice: (newMarketPrice: BigNumber) => IPosition
   adjustToTargetLTV: (targetLTV: BigNumber, params: IPositionAdjustParams) => IPositionChangeReturn
   adjustToTargetMultiple: (
     targetMultiple: BigNumber,
@@ -242,6 +241,7 @@ export class Position implements IPosition {
           .times(oraclePrice)
           .minus(ONE.plus(flashloanFee).times(marketPriceAdjustedForSlippage)),
       )
+      .integerValue(BigNumber.ROUND_DOWN)
 
     /**
      * Is a flashloan required to reach the target state for the position?
@@ -287,6 +287,7 @@ export class Position implements IPosition {
           .minus(debtDenominatedTokensDepositedByUser)
           .times(oraclePriceFLtoDebtToken)
           .div(maxLoanToValueFL)
+          .integerValue(BigNumber.ROUND_DOWN)
       : ZERO
 
     const isIncreaseAdjustment = amountToBeSwappedOrPaidback.gte(ZERO)

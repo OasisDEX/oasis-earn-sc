@@ -7,7 +7,6 @@ import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20 } from "../../libs/SafeERC20.sol";
 import { UNISWAP_ROUTER } from "../../core/constants/Common.sol";
 import { SwapData } from "../../core/types/Common.sol";
-import "hardhat/console.sol";
 
 contract uSwap {
   using SafeMath for uint256;
@@ -151,16 +150,12 @@ contract uSwap {
     uint256 fromAmount,
     uint256 fee
   ) internal returns (uint256 amount) {
-    console.log('collecting fee');
-    console.log('from amount:', fromAmount);
     bool isFeeValid = verifyFee(fee);
     if (!isFeeValid) {
       revert FeeTierDoesNotExist(fee);
     }
     uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
-    console.log('fee', fee);
-    console.log('feeBase', feeBase);
-    console.log('feeToTransfer', feeToTransfer);
+
     if (fee > 0) {
       IERC20(asset).safeTransfer(feeBeneficiaryAddress, feeToTransfer);
       emit FeePaid(feeBeneficiaryAddress, feeToTransfer, asset);
