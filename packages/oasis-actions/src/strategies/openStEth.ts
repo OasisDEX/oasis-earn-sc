@@ -163,7 +163,9 @@ export async function openStEth(
 
   const stEthAmountAfterSwapWei = ethAmountToSwap.div(actualMarketPriceWithSlippage)
 
-  // TODO: Should we create a final position here using exact market price?
+  /*
+    Final position calculated using actual swap data and the latest market price
+   */
   const finalPosition = new Position(
     targetPosition.debt,
     { amount: stEthAmountAfterSwapWei, denomination: targetPosition.collateral.denomination },
