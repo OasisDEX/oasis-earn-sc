@@ -9,7 +9,7 @@ import { UseStore, Write } from "../../actions/common/UseStore.sol";
 import { Swap } from "./Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
-
+import "hardhat/console.sol";
 contract SwapAction is Executable, UseStore {
   using SafeERC20 for IERC20;
   using Write for OperationStorage;
@@ -30,6 +30,7 @@ contract SwapAction is Executable, UseStore {
     
     SwapData memory swap = abi.decode(data, (SwapData));
 
+    console.log('swap.amount:', swap.amount);
     IERC20(swap.fromAsset).safeApprove(swapAddress, swap.amount);
 
     uint256 received = Swap(swapAddress).swapTokens(swap);

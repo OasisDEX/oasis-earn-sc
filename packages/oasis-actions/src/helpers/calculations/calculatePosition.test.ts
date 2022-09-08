@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { default as dotenv } from 'dotenv'
 import path from 'path'
@@ -66,7 +67,7 @@ describe('Calculate Position Helper', async () => {
             collateral: collateralDepositedByUser,
           },
           maxLoanToValueFL: maxLoanToValueFL,
-          fees: { flashLoan: flashloanFees, oazo: oazoFees },
+          fees: { flashLoan: flashloanFees, oazo: oazoFees, oazoFeeBase: new BigNumber(10000) },
           prices: {
             market: marketPrice,
             oracle: oraclePrice,

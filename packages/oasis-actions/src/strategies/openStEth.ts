@@ -73,6 +73,7 @@ export async function openStEth(
     .then((amount: string) => new BigNumber(amount))
     .then((amount: BigNumber) => amountFromWei(amount))
 
+  console.log('aaveWethPriceInEth:', aaveWethPriceInEth.toString())
   const aaveStEthPriceInEth = await aavePriceOracle
     .getAssetPrice(dependencies.addresses.stETH)
     .then((amount: ethers.BigNumberish) => amount.toString())
@@ -125,7 +126,7 @@ export async function openStEth(
     amountToBeSwappedOrPaidback: ethAmountToSwap,
     flashloanAmount,
   } = emptyPosition.adjustToTargetMultiple(multiple, {
-    fees: { flashLoan: flashloanFee, oazo: oazoFee },
+    fees: { flashLoan: flashloanFee, oazo: oazoFee, oazoFeeBase: new BigNumber(10000) },
     prices: {
       market: quoteMarketPrice,
       oracle: aaveStEthPriceInEth,
@@ -139,16 +140,34 @@ export async function openStEth(
     debug: true,
   })
 
+  console.log('slippage', slippage.toString())
   const swapData = await dependencies.getSwapData(
     dependencies.addresses.WETH,
     dependencies.addresses.stETH,
     ethAmountToSwap,
     slippage,
   )
-
+  console.log('ethAmountToSwap:', ethAmountToSwap.toString())
+  console.log('ethAmountToSwap:', ethAmountToSwap.toString())
   const actualMarketPrice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
+  console.log('actualMarketPrice:', actualMarketPrice.toString())
+  console.log('actualMarketPriceWithSlippage:', actualMarketPriceWithSlippage.toString())
 
+  // targetPosition.adjustToTargetLTV(targetPosition.loanToValueRatio, {
+  //   fees: { flashLoan: flashloanFee, oazo: oazoFee },
+  //   prices: {
+  //     market: quoteMarketPrice,
+  //     oracle: aaveStEthPriceInEth,
+  //     oracleFLtoDebtToken: ethPrice,
+  //   },
+  //   slippage: args.slippage,
+  //   maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
+  //   depositedByUser: {
+  //     debt: args.depositAmount,
+  //   },
+  //   debug: true,
+  // })
   const borrowEthAmountWei = debtDelta.minus(depositEthWei)
   console.log('calls: ', {
     depositAmount: depositEthWei.toString(),
@@ -160,31 +179,25 @@ export async function openStEth(
     ethSwapAmount: ethAmountToSwap.toString(),
     dsProxy: dependencies.dsProxy,
   })
-  // const calls = await operation.openStEth(
-  //   {
-  //     depositAmount: depositEthWei,
-  //     flashloanAmount: flashloanAmount,
-  //     borrowAmount: borrowEthAmountWei,
-  //     fee: FEE,
-  //     swapData: swapData.exchangeCalldata,
-  //     receiveAtLeast: swapData.minToTokenAmount,
-  //     ethSwapAmount: ethAmountToSwap,
-  //     dsProxy: dependencies.dsProxy,
-  //   },
-  //   dependencies.addresses,
-  // )
 
   //OVERRIDE - STILL FAILS WITH SAME VALS
   // DEBUG
   const calls = await operation.openStEth(
     {
-      depositAmount: new BigNumber(`60000000000000000000`),
-      flashloanAmount: new BigNumber(`192580560000000000000000`),
-      borrowAmount: new BigNumber(`60000000000000000000`),
+      // depositAmount: new BigNumber(`60000000000000000000`),
+      // flashloanAmount: new BigNumber(`192580560000000000000000`),
+      // borrowAmount: new BigNumber(`60000000000000000000`),
+      // receiveAtLeast: new BigNumber(`110096456729034270580`),
+      // ethSwapAmount: new BigNumber(`120000000000000000000`),
+      depositAmount: depositEthWei,
+      // flashloanAmount,
+      // flashloanAmount: new BigNumber(`192580560000000000000000`),
+      flashloanAmount,
+      borrowAmount: borrowEthAmountWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
-      receiveAtLeast: new BigNumber(`110096456729034270580`),
-      ethSwapAmount: new BigNumber(`120000000000000000000`),
+      receiveAtLeast: swapData.minToTokenAmount,
+      ethSwapAmount: ethAmountToSwap,
       dsProxy: dependencies.dsProxy,
     },
     dependencies.addresses,
@@ -192,6 +205,7 @@ export async function openStEth(
   console.log('calls-data:', calls)
   // Collateral Delta
   const stEthAmountAfterSwapWei = ethAmountToSwap.div(actualMarketPriceWithSlippage)
+  console.log('stEthAmountAfterSwapWei:', stEthAmountAfterSwapWei.toString())
   // Can we generate a final position here?
 
   return {

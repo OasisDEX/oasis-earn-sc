@@ -37,6 +37,7 @@ interface IPositionAdjustParams {
   }
   fees: {
     oazo: BigNumber
+    oazoFeeBase: BigNumber
     flashLoan: BigNumber
   }
   prices: {
@@ -180,6 +181,7 @@ export class Position implements IPosition {
      * F_F Flashloan Fee
      * */
     const oazoFee = fees.oazo
+    const oazoFeeBase = fees.oazoFeeBase
     const flashloanFee = fees.flashLoan
 
     /**
@@ -284,7 +286,7 @@ export class Position implements IPosition {
       ? debtDelta
           .minus(debtDenominatedTokensDepositedByUser)
           .times(oraclePriceFLtoDebtToken)
-          .times(maxLoanToValueFL)
+          .div(maxLoanToValueFL)
       : ZERO
 
     const isIncreaseAdjustment = amountToBeSwappedOrPaidback.gte(ZERO)
@@ -294,8 +296,8 @@ export class Position implements IPosition {
     }
 
     const fee = collectFeeFromBaseToken
-      ? this._calculateFee(amountToBeSwappedOrPaidback, oazoFee)
-      : this._calculateFee(collateralDelta, oazoFee)
+      ? this._calculateFee(amountToBeSwappedOrPaidback, oazoFee, oazoFeeBase)
+      : this._calculateFee(collateralDelta, oazoFee, oazoFeeBase)
 
     if (debug) {
       logDebug(
@@ -360,7 +362,7 @@ export class Position implements IPosition {
     return newPosition
   }
 
-  private _calculateFee(amount: BigNumber, fee: BigNumber): BigNumber {
-    return amount.div(ONE.minus(fee)).minus(amount).abs()
+  private _calculateFee(amount: BigNumber, fee: BigNumber, feeBase: BigNumber): BigNumber {
+    return amount.times(fee.times(feeBase)).div(fee.times(feeBase).plus(feeBase)).abs()
   }
 }
