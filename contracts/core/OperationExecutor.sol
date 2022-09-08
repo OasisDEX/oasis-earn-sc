@@ -100,7 +100,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     }
 
     uint256 paybackAmount = amount.add(fee);
-    require(IERC20(asset).balanceOf(address(this)) == paybackAmount, "Insuficient funds for payback");
+    require(IERC20(asset).balanceOf(address(this)) >= paybackAmount, "Insufficient funds for payback");
 
     IERC20(asset).safeApprove(lender, paybackAmount);
 
