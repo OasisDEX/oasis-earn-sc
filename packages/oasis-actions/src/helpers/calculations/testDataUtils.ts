@@ -21,7 +21,7 @@ google.options({
   auth: auth,
 })
 
-const RANGE = 'Scenarios_to_Import!A1:K30'
+const RANGE = 'Scenarios_to_Import!A1:K31'
 
 export type Scenario = {
   name: string
@@ -54,7 +54,8 @@ export type Scenario = {
   targetDebt: BigNumber
   healthFactor: BigNumber
   minOraclePrice: BigNumber
-  feePaidToOazo: BigNumber
+  feePaidFromBaseToken: BigNumber
+  feePaidFromCollateralToken: BigNumber
 }
 
 export async function generateTestScenarios() {

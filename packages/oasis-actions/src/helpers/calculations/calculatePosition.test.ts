@@ -3,6 +3,7 @@ import { default as dotenv } from 'dotenv'
 import path from 'path'
 import process from 'process'
 
+import { ZERO } from '../constants'
 import { Position } from './calculatePosition'
 import { mapRowsToScenarios, Scenario } from './testDataUtils'
 
@@ -47,7 +48,8 @@ describe('Calculate Position Helper', async () => {
       targetCollateral,
       healthFactor,
       minOraclePrice,
-      feePaidToOazo,
+      feePaidFromBaseToken,
+      feePaidFromCollateralToken,
     }) => {
       it(`Test: ${name}`, async () => {
         /* Note: we have to remove User deposits from current values because they've already been rolled up (assigned) in our googlesheets data*/
@@ -103,7 +105,11 @@ describe('Calculate Position Helper', async () => {
         )
 
         // Fee Paid
-        expect(computed.fee.toFixed(2)).to.equal(feePaidToOazo.toFixed(2))
+        if (X.gte(ZERO)) {
+          expect(computed.fee.toFixed(4)).to.equal(feePaidFromBaseToken.toFixed(4))
+        } else {
+          expect(computed.fee.toFixed(4)).to.equal(feePaidFromCollateralToken.toFixed(4))
+        }
       })
     },
   )

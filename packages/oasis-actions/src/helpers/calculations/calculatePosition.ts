@@ -47,6 +47,8 @@ interface IPositionAdjustParams {
   slippage: BigNumber
   /* Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH) */
   maxLoanToValueFL?: BigNumber
+  /* For AAVE this would be ETH. For Maker it would be DAI (although strictly speaking USD) */
+  collectFeeFromCollateralTokenOverride?: boolean
   debug?: boolean
 }
 
@@ -125,6 +127,7 @@ export class Position implements IPosition {
       prices,
       slippage,
       maxLoanToValueFL: _maxLoanToValueFL,
+      collectFeeFromCollateralTokenOverride,
       debug,
     } = params
 
@@ -284,6 +287,16 @@ export class Position implements IPosition {
           .times(maxLoanToValueFL)
       : ZERO
 
+    const isIncreaseAdjustment = amountToBeSwappedOrPaidback.gte(ZERO)
+    let collectFeeFromBaseToken = isIncreaseAdjustment
+    if (collectFeeFromCollateralTokenOverride) {
+      collectFeeFromBaseToken = false
+    }
+
+    const fee = collectFeeFromBaseToken
+      ? this._calculateFee(amountToBeSwappedOrPaidback, oazoFee)
+      : this._calculateFee(collateralDelta, oazoFee)
+
     if (debug) {
       logDebug(
         [
@@ -292,6 +305,9 @@ export class Position implements IPosition {
           `Amount to be swapped or paid back: ${amountToBeSwappedOrPaidback.toString()}`,
           `Debt delta: ${debtDelta.toString()}`,
           `Collateral delta: ${collateralDelta.toString()}`,
+          `Fee amount ${fee.toString()}`,
+          `Fee taken from Base token ${collectFeeFromBaseToken}`,
+          `Fee take from Collateral token ${!collectFeeFromBaseToken}`,
         ],
         'Generate Target Position Values: ',
       )
@@ -311,7 +327,7 @@ export class Position implements IPosition {
       collateralDelta,
       amountToBeSwappedOrPaidback: amountToBeSwappedOrPaidback,
       flashloanAmount: amountToFlashloan,
-      fee: this._calculateFeeInBaseToken(amountToBeSwappedOrPaidback, oazoFee),
+      fee,
       isFlashloanRequired,
     }
   }
@@ -344,7 +360,7 @@ export class Position implements IPosition {
     return newPosition
   }
 
-  private _calculateFeeInBaseToken(amount: BigNumber, fee: BigNumber): BigNumber {
-    return amount.div(ONE.minus(fee)).minus(amount)
+  private _calculateFee(amount: BigNumber, fee: BigNumber): BigNumber {
+    return amount.div(ONE.minus(fee)).minus(amount).abs()
   }
 }
