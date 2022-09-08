@@ -25,6 +25,7 @@ interface IPositionChangeReturn {
   collateralDelta: BigNumber
   amountToBeSwappedOrPaidback: BigNumber
   flashloanAmount: BigNumber
+  fee: BigNumber
   isFlashloanRequired: boolean
 }
 
@@ -118,7 +119,6 @@ export class Position implements IPosition {
    * @returns A position's change in debt, change in collateral and whether a flashloan is necessary to achieve the change
    */
   adjustToTargetLTV(targetLTV: BigNumber, params: IPositionAdjustParams): IPositionChangeReturn {
-    console.log('adjustToTargetLTV...')
     const {
       depositedByUser,
       fees,
@@ -134,7 +134,7 @@ export class Position implements IPosition {
      * */
     const collateralDepositedByUser = depositedByUser?.collateral || ZERO
     const debtDenominatedTokensDepositedByUser = depositedByUser?.debt || ZERO
-    console.log('here...')
+
     /**
      * These values are based on the initial state of the position.
      * If it's a new position then these values will be whatever the
@@ -164,7 +164,7 @@ export class Position implements IPosition {
     const oraclePriceFLtoDebtToken = prices?.oracleFLtoDebtToken || ONE
     const marketPrice = prices.market
     const marketPriceAdjustedForSlippage = marketPrice.times(ONE.plus(slippage))
-    console.log('here...1')
+
     /**
      * Fees are relevant at different points in a transaction
      * Oazo fees are (as of writing) deducted before a Base token (eg DAI or ETH)
@@ -179,7 +179,6 @@ export class Position implements IPosition {
     const oazoFee = fees.oazo
     const flashloanFee = fees.flashLoan
 
-    console.log('this.category:', this.category)
     /**
      *
      * Liquidation threshold is the ratio at which a position can be liquidated
@@ -189,11 +188,9 @@ export class Position implements IPosition {
      * LTV_{MAX(FL)} Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH)
      */
     const liquidationThreshold = this.category.liquidationThreshold
-    console.log('1')
     const maxLoanToValue = this.category.maxLoanToValue
-    console.log('2')
     const maxLoanToValueFL = _maxLoanToValueFL || ONE
-    console.log('hy')
+
     if (debug) {
       logDebug(
         [
@@ -229,7 +226,6 @@ export class Position implements IPosition {
      *
      * X = \frac{D_C\cdot P_{MS} - T_{LTV}\cdot C_C\cdot P_O\cdot P_{MS}}{((T_{LTV}\cdot (1 -F_O)\cdot P_O) - (1 +F_F)\cdot P_{MS})}
      * */
-    console.log('hy1')
     const amountToBeSwappedOrPaidback = currentDebt
       .times(marketPriceAdjustedForSlippage)
       .minus(
@@ -241,7 +237,7 @@ export class Position implements IPosition {
           .times(oraclePrice)
           .minus(ONE.plus(flashloanFee).times(marketPriceAdjustedForSlippage)),
       )
-    console.log('hy2')
+
     /**
      * Is a flashloan required to reach the target state for the position?
      *
@@ -315,6 +311,7 @@ export class Position implements IPosition {
       collateralDelta,
       amountToBeSwappedOrPaidback: amountToBeSwappedOrPaidback,
       flashloanAmount: amountToFlashloan,
+      fee: this._calculateFeeInBaseToken(amountToBeSwappedOrPaidback, oazoFee),
       isFlashloanRequired,
     }
   }
@@ -345,5 +342,9 @@ export class Position implements IPosition {
     const newPosition = new Position(newDebt, newCollateral, oraclePrice, this.category)
 
     return newPosition
+  }
+
+  private _calculateFeeInBaseToken(amount: BigNumber, fee: BigNumber): BigNumber {
+    return amount.div(ONE.minus(fee)).minus(amount)
   }
 }

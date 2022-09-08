@@ -21,7 +21,7 @@ google.options({
   auth: auth,
 })
 
-const RANGE = 'Scenarios_to_Import!A1:K29'
+const RANGE = 'Scenarios_to_Import!A1:K30'
 
 export type Scenario = {
   name: string
@@ -54,6 +54,7 @@ export type Scenario = {
   targetDebt: BigNumber
   healthFactor: BigNumber
   minOraclePrice: BigNumber
+  feePaidToOazo: BigNumber
 }
 
 export async function generateTestScenarios() {
@@ -89,7 +90,7 @@ export function mapRowsToScenarios(rows: any[][]): Scenario[] {
 }
 
 function prepareImportedValue(numberLikeString: string): BigNumber | string | boolean {
-  const noCommas = numberLikeString.replace(',', '')
+  const noCommas = numberLikeString.replace(/,/g, '')
   const isPercentage = noCommas.includes('%')
   const noPercentages = noCommas.replace('%', '')
 

@@ -47,6 +47,7 @@ describe('Calculate Position Helper', async () => {
       targetCollateral,
       healthFactor,
       minOraclePrice,
+      feePaidToOazo,
     }) => {
       it(`Test: ${name}`, async () => {
         /* Note: we have to remove User deposits from current values because they've already been rolled up (assigned) in our googlesheets data*/
@@ -100,6 +101,9 @@ describe('Calculate Position Helper', async () => {
         expect(computed.targetPosition.liquidationPrice.toFixed(2)).to.equal(
           minOraclePrice.toFixed(2),
         )
+
+        // Fee Paid
+        expect(computed.fee.toFixed(2)).to.equal(feePaidToOazo.toFixed(2))
       })
     },
   )

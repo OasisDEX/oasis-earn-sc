@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js'
-import { Contract, ethers, providers } from 'ethers'
+import { ethers, providers } from 'ethers'
 
-import aaveLendingPoolABI from '../abi/aaveLendingPool.json'
 import aavePriceOracleABI from '../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
 import { ActionCall } from '../actions/types/actionCall'
@@ -122,8 +121,8 @@ export async function openStEth(
     targetPosition,
     debtDelta,
     collateralDelta,
+    fee,
     amountToBeSwappedOrPaidback: ethAmountToSwap,
-    // isFlashloanRequired,
     flashloanAmount,
   } = emptyPosition.adjustToTargetMultiple(multiple, {
     fees: { flashLoan: flashloanFee, oazo: oazoFee },
@@ -139,8 +138,6 @@ export async function openStEth(
     },
     debug: true,
   })
-  // TODO: Return from adjustToTargetLTV
-  const fee = ethAmountToSwap.div(ONE.minus(oazoFee))
 
   const swapData = await dependencies.getSwapData(
     dependencies.addresses.WETH,
@@ -163,19 +160,36 @@ export async function openStEth(
     ethSwapAmount: ethAmountToSwap.toString(),
     dsProxy: dependencies.dsProxy,
   })
+  // const calls = await operation.openStEth(
+  //   {
+  //     depositAmount: depositEthWei,
+  //     flashloanAmount: flashloanAmount,
+  //     borrowAmount: borrowEthAmountWei,
+  //     fee: FEE,
+  //     swapData: swapData.exchangeCalldata,
+  //     receiveAtLeast: swapData.minToTokenAmount,
+  //     ethSwapAmount: ethAmountToSwap,
+  //     dsProxy: dependencies.dsProxy,
+  //   },
+  //   dependencies.addresses,
+  // )
+
+  //OVERRIDE - STILL FAILS WITH SAME VALS
+  // DEBUG
   const calls = await operation.openStEth(
     {
-      depositAmount: depositEthWei,
-      flashloanAmount: flashloanAmount,
-      borrowAmount: borrowEthAmountWei,
+      depositAmount: new BigNumber(`60000000000000000000`),
+      flashloanAmount: new BigNumber(`192580560000000000000000`),
+      borrowAmount: new BigNumber(`60000000000000000000`),
       fee: FEE,
       swapData: swapData.exchangeCalldata,
-      receiveAtLeast: swapData.minToTokenAmount,
-      ethSwapAmount: ethAmountToSwap,
+      receiveAtLeast: new BigNumber(`110096456729034270580`),
+      ethSwapAmount: new BigNumber(`120000000000000000000`),
       dsProxy: dependencies.dsProxy,
     },
     dependencies.addresses,
   )
+  console.log('calls-data:', calls)
   // Collateral Delta
   const stEthAmountAfterSwapWei = ethAmountToSwap.div(actualMarketPriceWithSlippage)
   // Can we generate a final position here?
