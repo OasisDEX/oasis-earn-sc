@@ -43,7 +43,7 @@ export type Scenario = {
   liquidationThresholdFL: BigNumber
   maxLoanToValue: BigNumber
   maxLoanToValueFL: BigNumber
-  X: BigNumber
+  amountToSwapOrSwappedAmountToPayback: BigNumber
   Y: BigNumber
   isFlashLoanRequired: boolean
   debtDelta: BigNumber

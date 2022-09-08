@@ -90,9 +90,6 @@ export class Position implements IPosition {
   }
 
   public get healthFactor() {
-    if (!this.category?.liquidationThreshold) {
-      throw new Error('Position requires liquidationThreshold to be set to calculate Health Factor')
-    }
     return this.collateral.amount
       .times(this.category.liquidationThreshold)
       .times(this._oraclePriceForCollateralDebtExchangeRate)
@@ -100,11 +97,6 @@ export class Position implements IPosition {
   }
 
   public get liquidationPrice() {
-    if (!this.category?.liquidationThreshold) {
-      throw new Error(
-        'Position requires liquidationThreshold to be set to calculate Liquidation Price',
-      )
-    }
     return this.debt.amount.div(this.collateral.amount.times(this.category.liquidationThreshold))
   }
 

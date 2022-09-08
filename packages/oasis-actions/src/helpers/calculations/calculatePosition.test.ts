@@ -38,7 +38,7 @@ describe('Calculate Position Helper', async () => {
       liquidationThreshold,
       maxLoanToValue,
       maxLoanToValueFL,
-      X,
+      amountToSwapOrSwappedAmountToPayback,
       Y,
       isFlashLoanRequired,
       debtDelta,
@@ -106,7 +106,7 @@ describe('Calculate Position Helper', async () => {
         )
 
         // Fee Paid
-        if (X.gte(ZERO)) {
+        if (amountToSwapOrSwappedAmountToPayback.gte(ZERO)) {
           expect(computed.fee.toFixed(4)).to.equal(feePaidFromBaseToken.toFixed(4))
         } else {
           expect(computed.fee.toFixed(4)).to.equal(feePaidFromCollateralToken.toFixed(4))
