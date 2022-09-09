@@ -99,3 +99,29 @@ export function takeAFlashLoan(args: {
     ],
   )
 }
+
+export function wrapEth(args: { amount: BigNumber | 0 }, paramsMapping: [amount: number] = [0]) {
+  return createAction(
+    getActionHash(CONTRACT_NAMES.common.WRAP_ETH),
+    [calldataTypes.common.WrapEth],
+    [
+      {
+        amount: args.amount.toFixed(0),
+      },
+      paramsMapping,
+    ],
+  )
+}
+
+export function unwrapEth(args: { amount: BigNumber | 0 }, paramsMapping: [amount: number] = [0]) {
+  return createAction(
+    getActionHash(CONTRACT_NAMES.common.UNWRAP_ETH),
+    [calldataTypes.common.UnwrapEth],
+    [
+      {
+        amount: args.amount.toFixed(0),
+      },
+      paramsMapping,
+    ],
+  )
+}

@@ -43,3 +43,7 @@ struct Operation {
   uint8 currentAction;
   bytes32[] actions;
 }
+
+struct WrapEthData {
+  uint256 amount;
+}
