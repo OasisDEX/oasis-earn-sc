@@ -35,6 +35,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
   function executeOp(Call[] memory calls, string calldata operationName) public payable {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
+    opStorage.lock();
     OperationsRegistry opRegistry = OperationsRegistry(
       registry.getRegisteredService(OPERATIONS_REGISTRY)
     );
@@ -43,7 +44,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     opStorage.setOperationActions(opRegistry.getOperation(operationName));
     aggregate(calls);
     opStorage.clearStorageAfter();
-
+    opStorage.unlock();
     emit Operation(operationName, calls);
   }
 
@@ -92,11 +93,13 @@ contract OperationExecutor is IERC3156FlashBorrower {
         abi.encodeWithSelector(this.callbackAggregate.selector, flData.calls)
       );
     } else {
+      OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
+      opStorage.setInitiator(initiator);
       aggregate(flData.calls);
     }
 
     uint256 paybackAmount = amount.add(fee);
-    require(IERC20(asset).balanceOf(address(this)) == paybackAmount, "Insuficient funds for payback");
+    require(IERC20(asset).balanceOf(address(this)) >= paybackAmount, "Insufficient funds for payback");
 
     IERC20(asset).safeApprove(lender, paybackAmount);
 

@@ -36,7 +36,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
 
   const [operationStorage, operationStorageAddress] = await deploy(
     CONTRACT_NAMES.common.OPERATION_STORAGE,
-    [serviceRegistryAddress],
+    [serviceRegistryAddress, operationExecutorAddress],
   )
 
   const [operationRegistry, operationsRegistryAddress] = await deploy(
@@ -73,6 +73,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
   const [dummyAutomation, dummyAutomationAddress] = await deploy('DummyAutomation', [
     serviceRegistryAddress,
   ])
+  const [dummyCommmand, dummyCommandAddress] = await deploy('DummyCommand', [
+    serviceRegistryAddress,
+  ])
 
   // Deploy Actions
   debug && console.log('3/ Deploying actions')
@@ -82,6 +85,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
   ])
 
   const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
+  const [dummyAction, dummyActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_ACTION, [
+    serviceRegistryAddress,
+  ])
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
 
@@ -95,6 +101,13 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
   const [actionFl, actionFlAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
     ADDRESSES.main.DAI,
+  ])
+
+  const [wrapEth, wrapActionAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
+    serviceRegistryAddress,
+  ])
+  const [unwrapEth, unwrapActionAddress] = await deploy(CONTRACT_NAMES.common.UNWRAP_ETH, [
+    serviceRegistryAddress,
   ])
 
   //-- Maker Actions
@@ -159,6 +172,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     actionFlAddress,
   )
   const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
+  const dummyActionHash = await registry.addEntry(
+    CONTRACT_NAMES.test.DUMMY_ACTION,
+    dummyActionAddress,
+  )
   const pullTokenHash = await registry.addEntry(CONTRACT_NAMES.common.PULL_TOKEN, pullTokenAddress)
   const setApprovalHash = await registry.addEntry(
     CONTRACT_NAMES.common.SET_APPROVAL,
@@ -174,6 +191,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     CONTRACT_NAMES.common.SWAP_ACTION,
     swapActionAddress,
   )
+  await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
+  await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
 
   //-- Add Maker Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
@@ -342,6 +361,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
       operationStorage,
       operationRegistry,
       dummyAutomation,
+      dummyCommmand,
       exchange: dummyExchange,
       swap: useDummySwap ? uSwap : swap,
       swapAction,
@@ -349,6 +369,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
       pullToken,
       takeFlashLoan: actionFl,
       setApproval,
+      wrapEth,
+      unwrapEth,
     },
     maker: {
       mcdView,

@@ -43,6 +43,10 @@ export async function openStEth(
     to: args.dsProxy,
   })
 
+  const wrapEth = actions.common.wrapEth({
+    amount: args.ethSwapAmount,
+  })
+
   const swapETHforSTETH = actions.common.swap({
     fromAsset: addresses.WETH,
     toAsset: addresses.stETH,
@@ -84,6 +88,7 @@ export async function openStEth(
       setDaiApprovalOnLendingPool,
       depositDaiInAAVE,
       borrowEthFromAAVE,
+      wrapEth,
       swapETHforSTETH,
       setSethApprovalOnLendingPool,
       depositSTETH,
