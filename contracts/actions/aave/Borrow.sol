@@ -17,11 +17,11 @@ contract AaveBorrow is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
-    BorrowData memory borrow = abi.decode(data, (BorrowData));
+    BorrowData memory borrow = parseInputs(data);
 
     address wethGatewayAddress = registry.getRegisteredService(AAVE_WETH_GATEWAY);
     dWETH.approveDelegation(wethGatewayAddress, borrow.amount);
-    store().write(bytes32(borrow.amount));
+    
     IWETHGateway(wethGatewayAddress).borrowETH(
       registry.getRegisteredService(AAVE_LENDING_POOL),
       borrow.amount,
@@ -30,6 +30,12 @@ contract AaveBorrow is Executable, UseStore {
     );
     address payable to = payable(borrow.to);
     to.transfer(borrow.amount);
+
+    store().write(bytes32(borrow.amount));
     emit Action(BORROW_ACTION, bytes32(borrow.amount));
+  }
+
+  function parseInputs(bytes memory _callData) public pure returns (BorrowData memory params) {
+    return abi.decode(_callData, (BorrowData));
   }
 }

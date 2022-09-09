@@ -18,7 +18,7 @@ contract MakerWithdraw is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    WithdrawData memory withdrawData = abi.decode(data, (WithdrawData));
+    WithdrawData memory withdrawData = parseInputs(data);
     withdrawData.vaultId = store().readUint(bytes32(withdrawData.vaultId), paramsMap[0], address(this));
 
     bytes32 amountWithdrawn = _withdraw(withdrawData);
@@ -49,5 +49,9 @@ contract MakerWithdraw is Executable, UseStore {
     }
 
     return bytes32(convertedAmount);
+  }
+
+  function parseInputs(bytes memory _callData) public pure returns (WithdrawData memory params) {
+    return abi.decode(_callData, (WithdrawData));
   }
 }

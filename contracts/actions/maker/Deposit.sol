@@ -22,7 +22,7 @@ contract MakerDeposit is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    DepositData memory depositData = abi.decode(data, (DepositData));
+    DepositData memory depositData = parseInputs(data);
 
     depositData.vaultId = store().readUint(bytes32(depositData.vaultId), paramsMap[1], address(this));
     depositData.amount = store().readUint(bytes32(depositData.amount), paramsMap[2], address(this));
@@ -58,5 +58,9 @@ contract MakerDeposit is Executable, UseStore {
     );
 
     return bytes32(convertedAmount);
+  }
+
+  function parseInputs(bytes memory _callData) public pure returns (DepositData memory params) {
+    return abi.decode(_callData, (DepositData));
   }
 }
