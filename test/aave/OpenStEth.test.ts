@@ -42,7 +42,7 @@ const getOneInchRealCall =
     const response = await swapOneInchTokens(
       from,
       to,
-      amount.toString(),
+      amount.toFixed(),
       swapAddress,
       slippage.toString(),
     )

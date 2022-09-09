@@ -38,7 +38,7 @@ const getOneInchRealCall =
     const response = await swapOneInchTokens(
       from,
       to,
-      amount.toString(),
+      amount.toFixed(),
       swapAddress,
       slippage.toString(),
     )
@@ -236,7 +236,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
     })
   })
 
-  describe.only('On latest block', () => {
+  describe('On latest block', () => {
     before(async () => {
       await resetNodeToLatestBlock(provider)
       const { system: _system } = await deploySystem(config, false, false)
@@ -325,7 +325,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
       )
     })
 
-    it.only('Tx should pass', () => {
+    it('Tx should pass', () => {
       expect(closeTxStatus).to.be.true
     })
 

@@ -40,4 +40,6 @@ export async function resetNodeToLatestBlock(provider: providers.JsonRpcProvider
       },
     },
   ])
+
+  console.log('Currently at block number: ', await provider.getBlockNumber())
 }
