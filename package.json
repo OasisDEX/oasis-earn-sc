@@ -69,9 +69,13 @@
     "@ethersproject/contracts": "^5.4.0",
     "@ethersproject/providers": "^5.4.0",
     "@ethersproject/solidity": "^5.4.0",
+    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/hardhat": "^6.1.2",
     "bignumber.js": "^9.0.1",
     "chalk": "^4.1.1",
     "lodash": "^4.17.21",
-    "ramda": "^0.27.1"
+    "node-cache": "^5.1.2",
+    "ramda": "^0.27.1",
+    "typechain": "^8.1.0"
   }
 }

@@ -10,7 +10,7 @@
     "resolveJsonModule": true,
 
   },
-  "include": ["./helpers", "./scripts", "./test", "packages/*"],
+  "include": ["./helpers", "./scripts", "./test", "packages/*", "typechain/**/*"],
   "files": [
     "./hardhat.config.ts", ]
 }
