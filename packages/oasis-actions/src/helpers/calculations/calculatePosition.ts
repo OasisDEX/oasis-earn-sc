@@ -11,6 +11,7 @@ interface IPositionBalance {
 interface IPositionCategory {
   liquidationThreshold: BigNumber
   maxLoanToValue: BigNumber
+  dustLimit: BigNumber
 }
 
 interface IBasePosition {
@@ -54,6 +55,7 @@ interface IPositionAdjustParams {
 }
 
 export interface IPosition extends IBasePosition {
+  minimumConfigurableLTV: BigNumber
   loanToValueRatio: BigNumber
   healthFactor: BigNumber
   liquidationPrice: BigNumber
@@ -81,6 +83,12 @@ export class Position implements IPosition {
     this.collateral = collateral
     this._oraclePriceForCollateralDebtExchangeRate = oraclePrice
     this.category = category
+  }
+
+  public get minimumConfigurableLTV(): BigNumber {
+    return BigNumber.max(this.category.dustLimit, this.debt.amount).div(
+      this.collateral.amount.times(this._oraclePriceForCollateralDebtExchangeRate),
+    )
   }
 
   public get loanToValueRatio() {
@@ -124,8 +132,8 @@ export class Position implements IPosition {
     } = params
 
     /**
-     * C_W	Collateral in wallet to top-up or seed position
-     * D_W	Debt token in wallet to top-up or seed position
+     * C_W  Collateral in wallet to top-up or seed position
+     * D_W  Debt token in wallet to top-up or seed position
      * */
     const collateralDepositedByUser = depositedByUser?.collateral || ZERO
     const debtDenominatedTokensDepositedByUser = depositedByUser?.debt || ZERO
@@ -135,8 +143,8 @@ export class Position implements IPosition {
      * If it's a new position then these values will be whatever the
      * user decides to seed the position with.
      *
-     * C_C	Current collateral
-     * D_C	Current debt
+     * C_C  Current collateral
+     * D_C  Current debt
      * */
     const currentCollateral = (this.collateral.amount || ZERO).plus(collateralDepositedByUser)
     const currentDebt = (this.debt.amount || ZERO).minus(debtDenominatedTokensDepositedByUser)
@@ -150,9 +158,9 @@ export class Position implements IPosition {
      * AAVE uses ETH
      * Compound uses ETH
      *
-     * P_O	Oracle Price
+     * P_O  Oracle Price
      * P_{O(FL->D)} Oracle Price to convert Flashloan token to Debt token
-     * P_M	Market Price
+     * P_M  Market Price
      * P_{MS} Market Price adjusted for Slippage
      * */
     const oraclePrice = prices.oracle

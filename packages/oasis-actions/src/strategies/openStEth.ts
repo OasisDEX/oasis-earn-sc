@@ -24,6 +24,7 @@ interface OpenStEthArgs {
   slippage: BigNumber
   multiple: BigNumber
 }
+
 interface OpenStEthDependencies {
   addresses: OpenStEthAddresses
   provider: providers.Provider
@@ -88,6 +89,7 @@ export async function openStEth(
   // https://docs.aave.com/risk/v/aave-v2/asset-risk/risk-parameters
   const liquidationThreshold = new BigNumber(0.75)
   const maxLoanToValue = new BigNumber(0.73)
+  const dustLimit = new BigNumber(0)
 
   const FEE = 20
   const FEE_BASE = 10000
@@ -101,6 +103,7 @@ export async function openStEth(
   const emptyPosition = new Position({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
     liquidationThreshold,
     maxLoanToValue,
+    dustLimit,
   })
 
   const estimatedSwapAmount = new BigNumber(1)
