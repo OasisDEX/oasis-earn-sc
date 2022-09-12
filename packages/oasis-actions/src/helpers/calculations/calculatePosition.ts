@@ -86,7 +86,7 @@ export class Position implements IPosition {
   }
 
   public get minimumConfigurableLTV(): BigNumber {
-    return this.category.dustLimit.div(
+    return BigNumber.max(this.category.dustLimit, this.debt.amount).div(
       this.collateral.amount.times(this._oraclePriceForCollateralDebtExchangeRate),
     )
   }
