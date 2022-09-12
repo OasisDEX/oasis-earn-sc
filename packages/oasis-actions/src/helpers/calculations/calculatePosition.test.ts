@@ -53,12 +53,13 @@ describe('Calculate Position Helper', async () => {
       feePaidFromCollateralToken,
     }) => {
       it(`Test: ${name}`, async () => {
+        const dustLimit = new BigNumber(0)
         /* Note: we have to remove User deposits from current values because they've already been rolled up (assigned) in our googlesheets data*/
         const currentPosition = new Position(
           { amount: currentDebt.plus(debtDenominatedTokensDepositedByUser) },
           { amount: currentCollateral.minus(collateralDepositedByUser) },
           oraclePrice,
-          { liquidationThreshold, maxLoanToValue },
+          { liquidationThreshold, maxLoanToValue, dustLimit },
         )
 
         const computed = currentPosition.adjustToTargetLTV(targetLoanToValue, {
@@ -114,4 +115,48 @@ describe('Calculate Position Helper', async () => {
       })
     },
   )
+
+  describe('min-configurable and max-configurable LTV', () => {
+    it('sets the min-configurable LTV to zero if the dust limit is zero', () => {
+      const position = new Position(
+        {
+          amount: new BigNumber(100),
+          denomination: 'nope',
+        },
+        {
+          amount: new BigNumber(100),
+          denomination: 'nope',
+        },
+        new BigNumber(1),
+        {
+          liquidationThreshold: new BigNumber('0.81'),
+          maxLoanToValue: new BigNumber('0.69'),
+          dustLimit: new BigNumber(0),
+        },
+      )
+
+      expect(position.minimumConfigurableLTV.toFixed(2)).to.equal('0.00')
+    })
+
+    it('calculates the correct minimum configurable LTV based on dust limit, collateral, and collateral price', () => {
+      const position = new Position(
+        {
+          amount: new BigNumber(20_000),
+          denomination: 'nope',
+        },
+        {
+          amount: new BigNumber(10),
+          denomination: 'nope',
+        },
+        new BigNumber(3_000),
+        {
+          liquidationThreshold: new BigNumber('0.81'),
+          maxLoanToValue: new BigNumber('0.69'),
+          dustLimit: new BigNumber(15_000),
+        },
+      )
+
+      expect(position.minimumConfigurableLTV.toFixed(2)).to.equal('0.50')
+    })
+  })
 })
