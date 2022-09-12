@@ -76,16 +76,7 @@ contract OperationStorage {
     return returnValues[who].length;
   }
 
-  function clearStorageBefore() external {
-    delete action;
-    delete actions;
-    for(uint256 i = 0; i < valuesHolders.length; i++){
-      delete returnValues[valuesHolders[i]];
-    }
-    delete valuesHolders;
-  }
-
-  function clearStorageAfter() external {
+  function clearStorage() external {
     delete action;
     delete actions;
     for(uint256 i = 0; i < valuesHolders.length; i++){
