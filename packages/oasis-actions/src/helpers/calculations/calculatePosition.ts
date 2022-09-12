@@ -23,9 +23,11 @@ interface IPositionChangeReturn {
   targetPosition: IPosition
   debtDelta: BigNumber
   collateralDelta: BigNumber
-  amountToBeSwappedOrPaidback: BigNumber
+  fromTokenAmount: BigNumber
+  toTokenAmount: BigNumber
   flashloanAmount: BigNumber
   fee: BigNumber
+  isMultipleIncrease: boolean
   isFlashloanRequired: boolean
 }
 
@@ -37,7 +39,6 @@ interface IPositionAdjustParams {
   }
   fees: {
     oazo: BigNumber
-    oazoFeeBase: BigNumber
     flashLoan: BigNumber
   }
   prices: {
@@ -49,7 +50,7 @@ interface IPositionAdjustParams {
   /* Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH) */
   maxLoanToValueFL?: BigNumber
   /* For AAVE this would be ETH. For Maker it would be DAI (although strictly speaking USD) */
-  collectFeeFromCollateralTokenOverride?: boolean
+  collectFeeAfterSwap?: boolean
   debug?: boolean
 }
 
@@ -69,6 +70,7 @@ export class Position implements IPosition {
   public debt: IPositionBalance
   public collateral: IPositionBalance
   public category: IPositionCategory
+  private _feeBase: BigNumber = new BigNumber(10000)
   private _oraclePriceForCollateralDebtExchangeRate: BigNumber
 
   constructor(
@@ -119,7 +121,7 @@ export class Position implements IPosition {
       prices,
       slippage,
       maxLoanToValueFL: _maxLoanToValueFL,
-      collectFeeFromCollateralTokenOverride,
+      collectFeeAfterSwap,
       debug,
     } = params
 
@@ -172,7 +174,6 @@ export class Position implements IPosition {
      * F_F Flashloan Fee
      * */
     const oazoFee = fees.oazo
-    const oazoFeeBase = fees.oazoFeeBase
     const flashloanFee = fees.flashLoan
 
     /**
@@ -203,6 +204,7 @@ export class Position implements IPosition {
           `Market price adj. slippage: ${marketPriceAdjustedForSlippage.toString()}`,
 
           `Oazo fee: ${oazoFee.toFixed(4)}`,
+          `Oazo feeBase: ${this._feeBase.toFixed(4)}`,
           `Flashloan fee: ${flashloanFee.toFixed(4)}`,
 
           `Liquidation threshold: ${liquidationThreshold.toFixed(4)}`,
@@ -222,14 +224,14 @@ export class Position implements IPosition {
      *
      * X = \frac{D_C\cdot P_{MS} - T_{LTV}\cdot C_C\cdot P_O\cdot P_{MS}}{((T_{LTV}\cdot (1 -F_O)\cdot P_O) - (1 +F_F)\cdot P_{MS})}
      * */
-    const amountToBeSwappedOrPaidback = currentDebt
+    const amountToBeSwappedOrPaidback_X = currentDebt
       .times(marketPriceAdjustedForSlippage)
       .minus(
         targetLTV.times(currentCollateral).times(oraclePrice).times(marketPriceAdjustedForSlippage),
       )
       .div(
         targetLTV
-          .times(ONE.minus(oazoFee))
+          .times(ONE.minus(oazoFee.div(this._feeBase)))
           .times(oraclePrice)
           .minus(ONE.plus(flashloanFee).times(marketPriceAdjustedForSlippage)),
       )
@@ -249,7 +251,7 @@ export class Position implements IPosition {
       .times(oraclePrice)
       .times(this.category.maxLoanToValue)
       .minus(currentDebt)
-      .lt(amountToBeSwappedOrPaidback)
+      .lt(amountToBeSwappedOrPaidback_X)
 
     /**
      * Finally, we can compute the deltas in debt & collateral
@@ -260,12 +262,12 @@ export class Position implements IPosition {
      * ΔC  Collateral delta
      * \Delta C = X \cdot (1 - F_O) / P_{MS}
      * */
-    const debtDelta = amountToBeSwappedOrPaidback.times(
+    const debtDelta = amountToBeSwappedOrPaidback_X.times(
       ONE.plus(isFlashloanRequired ? flashloanFee : ZERO),
     )
 
-    const collateralDelta = amountToBeSwappedOrPaidback
-      .times(ONE.minus(oazoFee))
+    const collateralDelta = amountToBeSwappedOrPaidback_X
+      .times(ONE.minus(oazoFee.div(this._feeBase)))
       .div(marketPriceAdjustedForSlippage)
 
     /**
@@ -282,22 +284,59 @@ export class Position implements IPosition {
           .integerValue(BigNumber.ROUND_DOWN)
       : ZERO
 
-    const isIncreaseAdjustment = amountToBeSwappedOrPaidback.gte(ZERO)
+    const isIncreaseAdjustment = amountToBeSwappedOrPaidback_X.gte(ZERO)
+    /*
+     * Protocol Base Assets EG USD for Maker or ETH for AAVE.
+     */
     let collectFeeFromBaseToken = isIncreaseAdjustment
-    if (collectFeeFromCollateralTokenOverride) {
+    if (collectFeeAfterSwap && isIncreaseAdjustment) {
       collectFeeFromBaseToken = false
     }
 
+    if (collectFeeAfterSwap && !isIncreaseAdjustment) {
+      collectFeeFromBaseToken = true
+    }
+
     const fee = collectFeeFromBaseToken
-      ? this._calculateFee(amountToBeSwappedOrPaidback, oazoFee, oazoFeeBase)
-      : this._calculateFee(collateralDelta, oazoFee, oazoFeeBase)
+      ? this._calculateFee(amountToBeSwappedOrPaidback_X, oazoFee)
+      : this._calculateFee(collateralDelta, oazoFee)
+
+    const fromTokenAmount = isIncreaseAdjustment
+      ? amountToBeSwappedOrPaidback_X
+      : amountToBeSwappedOrPaidback_X
+          .negated()
+          .times(ONE.minus(oazoFee.div(this._feeBase)))
+          .div(marketPriceAdjustedForSlippage)
+    const toTokenAmount = isIncreaseAdjustment
+      ? collateralDelta
+      : amountToBeSwappedOrPaidback_X.negated()
+
+    const targetPosition = this._createTargetPosition(
+      debtDelta,
+      collateralDelta,
+      oraclePrice,
+      currentDebt,
+      currentCollateral,
+    )
 
     if (debug) {
       logDebug(
         [
           `Is flashloan required: ${isFlashloanRequired}`,
           `Amount to flashloan: ${amountToFlashloan}`,
-          `Amount to be swapped or paid back: ${amountToBeSwappedOrPaidback.toString()}`,
+          `Our unknown X: ${amountToBeSwappedOrPaidback_X.toString()}`,
+          `From token amount: ${fromTokenAmount.toString()}`,
+          `From token: ${
+            isIncreaseAdjustment
+              ? targetPosition.debt.denomination
+              : targetPosition.collateral.denomination
+          }`,
+          `To token amount: ${toTokenAmount.toString()}`,
+          `To token: ${
+            isIncreaseAdjustment
+              ? targetPosition.collateral.denomination
+              : targetPosition.debt.denomination
+          }`,
           `Debt delta: ${debtDelta.toString()}`,
           `Collateral delta: ${collateralDelta.toString()}`,
           `Fee amount ${fee.toString()}`,
@@ -308,21 +347,15 @@ export class Position implements IPosition {
       )
     }
 
-    const targetPosition = this._createTargetPosition(
-      debtDelta,
-      collateralDelta,
-      oraclePrice,
-      currentDebt,
-      currentCollateral,
-    )
-
     return {
       targetPosition,
       debtDelta,
       collateralDelta,
-      amountToBeSwappedOrPaidback: amountToBeSwappedOrPaidback,
+      fromTokenAmount,
+      toTokenAmount,
       flashloanAmount: amountToFlashloan,
       fee,
+      isMultipleIncrease: isIncreaseAdjustment,
       isFlashloanRequired,
     }
   }
@@ -355,7 +388,7 @@ export class Position implements IPosition {
     return newPosition
   }
 
-  private _calculateFee(amount: BigNumber, fee: BigNumber, feeBase: BigNumber): BigNumber {
-    return amount.times(fee.times(feeBase)).div(fee.times(feeBase).plus(feeBase)).abs()
+  private _calculateFee(amount: BigNumber, fee: BigNumber): BigNumber {
+    return amount.times(fee).div(fee.plus(this._feeBase)).abs()
   }
 }

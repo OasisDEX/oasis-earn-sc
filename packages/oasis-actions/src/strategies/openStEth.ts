@@ -41,7 +41,8 @@ export interface IStrategyReturn {
   swapData: SwapData
   targetPosition: IPosition
   swapMarketPrice: BigNumber
-  swapAmount: BigNumber
+  fromTokenAmount: BigNumber
+  toTokenAmount: BigNumber
   feeAmount: BigNumber
   debtTokenPrice: BigNumber
   collateralTokenPrices: BigNumber | BigNumber[]
@@ -79,18 +80,11 @@ export async function openStEth(
     .then((amount: string) => new BigNumber(amount))
     .then((amount: BigNumber) => amountFromWei(amount))
 
-  const aaveDaiPriceInEth = await aavePriceOracle
-    .getAssetPrice(dependencies.addresses.DAI)
-    .then((amount: ethers.BigNumberish) => amount.toString())
-    .then((amount: string) => new BigNumber(amount))
-    .then((amount: BigNumber) => amountFromWei(amount))
-
   // https://docs.aave.com/risk/v/aave-v2/asset-risk/risk-parameters
   const liquidationThreshold = new BigNumber(0.75)
   const maxLoanToValue = new BigNumber(0.73)
 
   const FEE = 20
-  const FEE_BASE = 10000
 
   const slippage = args.slippage
   const multiple = args.multiple
@@ -113,34 +107,32 @@ export async function openStEth(
 
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
-  const oazoFee = new BigNumber(FEE / FEE_BASE)
   const flashloanFee = new BigNumber(0)
-  const {
-    targetPosition,
-    debtDelta,
-    fee,
-    amountToBeSwappedOrPaidback: ethAmountToSwap,
-    flashloanAmount,
-  } = emptyPosition.adjustToTargetMultiple(multiple, {
-    fees: { flashLoan: flashloanFee, oazo: oazoFee, oazoFeeBase: new BigNumber(10000) },
-    prices: {
-      market: quoteMarketPrice,
-      oracle: aaveStEthPriceInEth,
-      oracleFLtoDebtToken: ethPrice,
-    },
-    slippage: args.slippage,
-    maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
-    depositedByUser: {
-      debt: args.depositAmount,
-    },
-  })
+  const { targetPosition, debtDelta, fee, fromTokenAmount, flashloanAmount } =
+    emptyPosition.adjustToTargetMultiple(multiple, {
+      fees: {
+        flashLoan: flashloanFee,
+        oazo: new BigNumber(FEE),
+      },
+      prices: {
+        market: quoteMarketPrice,
+        oracle: aaveStEthPriceInEth,
+        oracleFLtoDebtToken: ethPrice,
+      },
+      slippage: args.slippage,
+      maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
+      depositedByUser: {
+        debt: args.depositAmount,
+      },
+      // debug: true,
+    })
 
   const borrowEthAmountWei = debtDelta.minus(depositEthWei)
 
   const swapData = await dependencies.getSwapData(
     dependencies.addresses.WETH,
     dependencies.addresses.stETH,
-    ethAmountToSwap,
+    fromTokenAmount,
     slippage,
   )
 
@@ -155,13 +147,13 @@ export async function openStEth(
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
-      ethSwapAmount: ethAmountToSwap,
+      ethSwapAmount: fromTokenAmount,
       dsProxy: dependencies.dsProxy,
     },
     dependencies.addresses,
   )
 
-  const stEthAmountAfterSwapWei = ethAmountToSwap.div(actualMarketPriceWithSlippage)
+  const stEthAmountAfterSwapWei = fromTokenAmount.div(actualMarketPriceWithSlippage)
 
   /*
     Final position calculated using actual swap data and the latest market price
@@ -178,7 +170,8 @@ export async function openStEth(
     swapData,
     targetPosition: finalPosition,
     swapMarketPrice: actualMarketPrice,
-    swapAmount: amountFromWei(ethAmountToSwap),
+    fromTokenAmount: amountFromWei(fromTokenAmount),
+    toTokenAmount: amountFromWei(fromTokenAmount),
     feeAmount: amountFromWei(fee),
     debtTokenPrice: ethPrice,
     collateralTokenPrices: stEthPrice,

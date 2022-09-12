@@ -21,7 +21,7 @@ google.options({
   auth: auth,
 })
 
-const RANGE = 'Scenarios_to_Import!A1:K31'
+const RANGE = 'Test_Scenarios_LTV_target!A1:K35'
 
 export type Scenario = {
   name: string
@@ -43,7 +43,11 @@ export type Scenario = {
   liquidationThresholdFL: BigNumber
   maxLoanToValue: BigNumber
   maxLoanToValueFL: BigNumber
-  amountToSwapOrSwappedAmountToPayback: BigNumber
+  unknownX: BigNumber
+  fromTokenAmountInc: BigNumber
+  toTokenAmountInc: BigNumber
+  fromTokenAmountDec: BigNumber
+  toTokenAmountDec: BigNumber
   Y: BigNumber
   isFlashLoanRequired: boolean
   debtDelta: BigNumber
