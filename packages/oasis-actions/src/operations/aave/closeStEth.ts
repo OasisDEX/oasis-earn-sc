@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
 
 import * as actions from '../../actions'
+import { MAX_UINT } from '../../helpers/constants'
 
 export interface CloseStEthAddresses {
   DAI: string
@@ -73,6 +73,14 @@ export async function closeStEth(
     to: addresses.operationExecutor,
   })
 
+  const unwrapEth = actions.common.unwrapEth({
+    amount: new BigNumber(MAX_UINT),
+  })
+
+  const returnFunds = actions.common.returnFunds({
+    asset: addresses.ETH,
+  })
+
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
@@ -85,6 +93,8 @@ export async function closeStEth(
       setWethApprovalOnLendingPool,
       paybackInAAVE,
       withdrawDAIFromAAVE,
+      unwrapEth,
+      returnFunds,
     ],
   })
 

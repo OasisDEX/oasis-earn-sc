@@ -1,5 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES, OPERATION_NAMES, strategy, ZERO } from '@oasisdex/oasis-actions'
+import { ADDRESSES, ONE, OPERATION_NAMES, strategy, ZERO } from '@oasisdex/oasis-actions'
+import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, ContractReceipt, Signer } from 'ethers'
@@ -77,6 +78,10 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
   const multiply = new BigNumber(2)
   const slippage = new BigNumber(0.1)
 
+  // In this case we can safely assume this constant value for a given block,
+  // this value should be changed when changing block number
+  const ethAmountReturnedFromSwap = amountFromWei(new BigNumber('19524933454028254471'))
+
   let WETH: Contract
   let stETH: Contract
   let aaveLendingPool: Contract
@@ -96,6 +101,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
   let userStEthReserveData: AAVEReserveData
 
   let feeRecipientWethBalanceBefore: BigNumber
+  let userEthBalanceBeforeTx: BigNumber
 
   const mainnetAddresses = {
     DAI: ADDRESSES.main.DAI,
@@ -188,6 +194,11 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         },
       )
 
+      userEthBalanceBeforeTx = await balanceOf(ADDRESSES.main.ETH, address, {
+        config,
+        isFormatted: true,
+      })
+
       const [_closeTxStatus, _closeTx] = await executeThroughProxy(
         system.common.dsProxy.address,
         {
@@ -200,6 +211,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         signer,
         '0',
       )
+
       closeTxStatus = _closeTxStatus
       closeTx = _closeTx
 
@@ -219,7 +231,8 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
     })
 
     it('Should withdraw all stEth tokens from aave', () => {
-      expectToBeEqual(new BigNumber(userStEthReserveData.currentATokenBalance.toString()), ZERO)
+      //due to quirks of how stEth works there might be 1 wei left in aave
+      expectToBe(new BigNumber(userStEthReserveData.currentATokenBalance.toString()), 'lte', ONE)
     })
 
     it('Should collect fee', async () => {
@@ -228,15 +241,54 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         ADDRESSES.main.feeRecipient,
         { config, isFormatted: true },
       )
-
+      //TODO improve precision
       expectToBeEqual(
-        new BigNumber(closeStrategyReturn.feeAmount.toString()),
+        ethAmountReturnedFromSwap.times(0.002),
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
+        5,
       )
+    })
+
+    it('should not be any token left on proxy', async () => {
+      const proxyWethBalance = await balanceOf(ADDRESSES.main.WETH, system.common.dsProxy.address, {
+        config,
+        isFormatted: true,
+      })
+      const proxyStEthBalance = await balanceOf(
+        ADDRESSES.main.stETH,
+        system.common.dsProxy.address,
+        {
+          config,
+          isFormatted: true,
+        },
+      )
+      const proxyEthBalance = await balanceOf(ADDRESSES.main.ETH, system.common.dsProxy.address, {
+        config,
+        isFormatted: true,
+      })
+
+      expectToBeEqual(proxyWethBalance, ZERO)
+      expectToBeEqual(proxyStEthBalance, ZERO)
+      expectToBeEqual(proxyEthBalance, ZERO)
+    })
+
+    it('should return eth to the user', async () => {
+      const userEthBalanceAfterTx = await balanceOf(ADDRESSES.main.ETH, address, {
+        config,
+        isFormatted: true,
+      })
+
+      const txCost = amountFromWei(
+        new BigNumber(closeTx.gasUsed.mul(closeTx.effectiveGasPrice).toString()),
+      )
+
+      const delta = userEthBalanceAfterTx.minus(userEthBalanceBeforeTx).plus(txCost)
+
+      expectToBeEqual(delta, ethAmountReturnedFromSwap.minus(10), 4)
     })
   })
 
-  describe.only('On latest block', () => {
+  describe.skip('On latest block', () => {
     before(async () => {
       await resetNodeToLatestBlock(provider)
       const { system: _system } = await deploySystem(config, false, false)
@@ -273,8 +325,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         signer,
         depositAmount.toFixed(0),
       )
-      console.log('OPEN STATUS', openTxStatus)
-      console.log('CLOSE!!')
+
       feeRecipientWethBalanceBefore = await balanceOf(
         ADDRESSES.main.WETH,
         ADDRESSES.main.feeRecipient,
@@ -287,7 +338,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         system.common.dsProxy.address,
       )
       const stEthAmount = new BigNumber(userStEthReserveData.currentATokenBalance.toString())
-      console.log("stEthAmount", stEthAmount.toString())
+
       closeStrategyReturn = await strategy.aave.closeStEth(
         {
           stEthAmountLockedInAave: stEthAmount.minus(1000),
@@ -325,7 +376,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
       )
     })
 
-    it.only('Tx should pass', () => {
+    it('Tx should pass', () => {
       expect(closeTxStatus).to.be.true
     })
 

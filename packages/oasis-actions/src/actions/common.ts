@@ -125,3 +125,15 @@ export function unwrapEth(args: { amount: BigNumber | 0 }, paramsMapping: [amoun
     ],
   )
 }
+
+export function returnFunds(args: { asset: string }) {
+  return createAction(
+    getActionHash(CONTRACT_NAMES.common.RETURN_FUNDS),
+    [calldataTypes.common.ReturnFunds],
+    [
+      {
+        asset: args.asset,
+      },
+    ],
+  )
+}

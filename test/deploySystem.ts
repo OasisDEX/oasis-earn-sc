@@ -110,6 +110,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     serviceRegistryAddress,
   ])
 
+  const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
+
   //-- Maker Actions
   const [actionOpenVault, actionOpenVaultAddress] = await deploy(CONTRACT_NAMES.maker.OPEN_VAULT, [
     serviceRegistryAddress,
@@ -193,6 +195,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
   )
   await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
   await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
+
+  await registry.addEntry(CONTRACT_NAMES.common.RETURN_FUNDS, returnFundsActionAddress)
 
   //-- Add Maker Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)

@@ -155,7 +155,7 @@ contract uSwap {
       revert FeeTierDoesNotExist(fee);
     }
     uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
-
+    
     if (fee > 0) {
       IERC20(asset).safeTransfer(feeBeneficiaryAddress, feeToTransfer);
       emit FeePaid(feeBeneficiaryAddress, feeToTransfer, asset);

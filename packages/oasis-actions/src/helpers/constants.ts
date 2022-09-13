@@ -26,6 +26,7 @@ export const CONTRACT_NAMES = {
     SERVICE_REGISTRY: 'ServiceRegistry',
     WRAP_ETH: 'WrapEth',
     UNWRAP_ETH: 'UnwrapEth',
+    RETURN_FUNDS: 'ReturnFunds',
   },
   aave: {
     DEPOSIT: 'AaveDeposit',

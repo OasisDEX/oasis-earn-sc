@@ -47,3 +47,11 @@ struct Operation {
 struct WrapEthData {
   uint256 amount;
 }
+
+struct UnwrapEthData {
+  uint256 amount;
+}
+
+struct ReturnFundsData {
+  address asset;
+}
