@@ -286,7 +286,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       ],
     )
 
-
     const cdpAllowOpExecutor = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.CDP_ALLOW),
       [calldataTypes.maker.CdpAllow, calldataTypes.paramsMap],
@@ -306,11 +305,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
         {
           amount: ensureWeiFormat(autoTestAmount),
           dsProxyFlashloan: false,
-          calls: [
-            generateDaiAutomation,
-            dummyAction,
-            dummyAction
-          ],
+          calls: [generateDaiAutomation, dummyAction, dummyAction],
         },
         [0, 0, 0, 0],
       ],
@@ -325,7 +320,9 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     )
 
     // DELEGATECALL
-    await system.common.dummyAutomation['doAutomationStuffDelegateCall(bytes,address,uint256,address)'](
+    await system.common.dummyAutomation[
+      'doAutomationStuffDelegateCall(bytes,address,uint256,address)'
+    ](
       executionData,
       system.common.operationExecutor.address,
       autoVaultId,

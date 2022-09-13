@@ -5,7 +5,8 @@ import aavePriceOracleABI from '../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
 import { ActionCall } from '../actions/types/actionCall'
 import { amountFromWei, calculateFee } from '../helpers'
-import { IPosition, Position } from '../helpers/calculations/calculatePosition'
+import { IPosition, Position } from '../helpers/calculations/Position'
+import { RiskRatio } from '../helpers/calculations/RiskRatio'
 import { ONE, ZERO } from '../helpers/constants'
 import * as operation from '../operations'
 import type { OpenStEthAddresses } from '../operations/openStEth'
@@ -112,7 +113,7 @@ export async function openStEth(
 
   const flashloanFee = new BigNumber(0)
   const { targetPosition, debtDelta, fee, fromTokenAmount, flashloanAmount } =
-    emptyPosition.adjustToTargetMultiple(multiple, {
+    emptyPosition.adjustToTargetRiskRatio(new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE), {
       fees: {
         flashLoan: flashloanFee,
         oazo: new BigNumber(FEE),

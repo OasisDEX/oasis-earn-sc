@@ -16,7 +16,7 @@
   ],
   "exclude": [
     "../../node_modules",
-    "./src/helpers/calculations/calculatePosition.test.ts"
+    "./src/helpers/calculations/Position.test.ts"
   ],
   "files": []
 }

@@ -7,7 +7,7 @@ import process from 'process'
 
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
-const CREDENTIALS_PATH = path.join(process.cwd(), './src/helpers/calculations/credentials.json')
+const CREDENTIALS_PATH = path.join(process.cwd(), 'src/helpers/calculations/credentials.json')
 
 dotenv.config({ path: path.join(process.cwd(), '../../.env') })
 
@@ -20,79 +20,6 @@ const auth = new google.auth.GoogleAuth({
 google.options({
   auth: auth,
 })
-
-const RANGE = 'Test_Scenarios_LTV_target!A1:K35'
-
-export type Scenario = {
-  name: string
-  type: 'Open' | 'Increase multiple' | 'Decrease multiple'
-  protocol: 'Maker' | 'AAVE'
-  collateralDepositedByUser: BigNumber
-  debtDenominatedTokensDepositedByUser: BigNumber
-  targetLoanToValue: BigNumber
-  currentCollateral: BigNumber
-  currentDebt: BigNumber
-  oraclePrice: BigNumber
-  oraclePriceFLtoDebtToken: BigNumber
-  marketPrice: BigNumber
-  slippage: BigNumber
-  marketPriceAdjustedForSlippage: BigNumber
-  oazoFees: BigNumber
-  flashloanFees: BigNumber
-  liquidationThreshold: BigNumber
-  liquidationThresholdFL: BigNumber
-  maxLoanToValue: BigNumber
-  maxLoanToValueFL: BigNumber
-  unknownX: BigNumber
-  fromTokenAmountInc: BigNumber
-  toTokenAmountInc: BigNumber
-  fromTokenAmountDec: BigNumber
-  toTokenAmountDec: BigNumber
-  Y: BigNumber
-  isFlashLoanRequired: boolean
-  debtDelta: BigNumber
-  collateralDelta: BigNumber
-  multiple: BigNumber
-  amountToFlashloan: BigNumber
-  targetCollateral: BigNumber
-  targetDebt: BigNumber
-  healthFactor: BigNumber
-  minOraclePrice: BigNumber
-  feePaidFromBaseToken: BigNumber
-  feePaidFromCollateralToken: BigNumber
-}
-
-export async function generateTestScenarios() {
-  const sheets = google.sheets({ version: 'v4' })
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: process.env.SHEET_ID,
-    range: RANGE,
-  })
-
-  const rows = res.data.values
-
-  if (!rows || rows.length === 0) {
-    console.log('No data found.')
-    return
-  }
-
-  const data = JSON.stringify(rows)
-  fs.writeFileSync(path.join(process.cwd(), './src/helpers/calculations/scenarios.json'), data)
-}
-
-export function mapRowsToScenarios(rows: any[][]): Scenario[] {
-  const [, headers, ...transposedRows] = rows[0].map((_, colIndex) =>
-    rows.map(row => row[colIndex]),
-  )
-  const scenarios: Scenario[] = transposedRows.map(row =>
-    row.reduce((acc, cur, index) => {
-      acc[headers[index]] = prepareImportedValue(cur)
-      return acc
-    }, {}),
-  )
-
-  return scenarios
-}
 
 function prepareImportedValue(numberLikeString: string): BigNumber | string | boolean {
   const noCommas = numberLikeString.replace(/,/g, '')
@@ -114,4 +41,53 @@ function prepareImportedValue(numberLikeString: string): BigNumber | string | bo
 
 function getFlagValue(booleanLikeString: string) {
   return booleanLikeString === 'FALSE' ? false : true
+}
+
+export async function fetchTestScenarios<S>(range: string): Promise<Array<S>> {
+  const scenariosFilePath = generateFilepathForRange(range)
+
+  if (fs.existsSync(scenariosFilePath)) {
+    const data = JSON.parse(fs.readFileSync(scenariosFilePath, { encoding: 'utf8' }))
+
+    return mapRowsToScenariosGeneric<S>(data)
+  } else {
+    console.error(`No file found for range ${range}.  Checked ${scenariosFilePath}`)
+    throw new Error(`No test scenarios found for range ${range}`)
+  }
+}
+
+export function mapRowsToScenariosGeneric<S>(rows: any[][]): S[] {
+  const [, headers, ...transposedRows] = rows[0].map((_, colIndex) =>
+    rows.filter(row => !!row[colIndex]).map(row => row[colIndex]),
+  )
+  const scenarios: S[] = transposedRows.map(row =>
+    row.reduce((acc, cur, index) => {
+      acc[headers[index]] = prepareImportedValue(cur)
+      return acc
+    }, {}),
+  )
+  return scenarios
+}
+
+function generateFilepathForRange(range: string) {
+  return path.join(__dirname, `test-scenarios/${range}.json`)
+}
+
+export async function generateTestScenariosName(range: string) {
+  const sheets = google.sheets({ version: 'v4' })
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: process.env.SHEET_ID,
+    range: range,
+  })
+
+  const rows = res.data.values
+
+  if (!rows || rows.length === 0) {
+    console.log('No data found.')
+    return
+  }
+
+  const data = JSON.stringify(rows, null, 2)
+  const filePath = generateFilepathForRange(range)
+  fs.writeFileSync(filePath, data, { encoding: 'utf8' })
 }
