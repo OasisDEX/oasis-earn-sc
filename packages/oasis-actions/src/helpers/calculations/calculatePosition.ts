@@ -32,6 +32,48 @@ interface IPositionChangeReturn {
   isFlashloanRequired: boolean
 }
 
+interface IRiskRatio {
+  loanToValue: BigNumber
+  colRatio: BigNumber
+  multiple: BigNumber
+}
+
+enum RISK_RATIO_CTOR_TYPE {
+  LTV = 'LTV',
+  COL_RATIO = 'COL_RATIO',
+  MULITPLE = 'MULITPLE',
+}
+
+export class RiskRatio implements IRiskRatio {
+  static TYPE = RISK_RATIO_CTOR_TYPE
+
+  constructor(input: BigNumber, type: RISK_RATIO_CTOR_TYPE) {
+    switch (type) {
+      case RiskRatio.TYPE.LTV:
+        this.loanToValue = input
+        break
+      case RiskRatio.TYPE.COL_RATIO:
+        this.loanToValue = ONE.div(input)
+        break
+      case RiskRatio.TYPE.MULITPLE:
+        this.loanToValue = ONE.div(ONE.plus(ONE.div(input.minus(ONE))))
+        break
+      default:
+        throw new Error(`Unrecognized RiskRatio constructor type: ${type}`)
+    }
+  }
+
+  loanToValue: BigNumber
+
+  public get colRatio(): BigNumber {
+    return ONE.div(this.loanToValue)
+  }
+
+  public get multiple(): BigNumber {
+    return ONE.plus(ONE.div(ONE.div(this.loanToValue).minus(ONE)))
+  }
+}
+
 // TODO: consider multi-collateral positions
 interface IPositionAdjustParams {
   depositedByUser?: {
@@ -56,16 +98,20 @@ interface IPositionAdjustParams {
 }
 
 export interface IPosition extends IBasePosition {
-  minimumConfigurableLTV: BigNumber
-  loanToValueRatio: BigNumber
+  minConfigurableRiskRatio: (params: MinConfigurableRiskRatioParams) => IRiskRatio
+  riskRatio: IRiskRatio
   healthFactor: BigNumber
   liquidationPrice: BigNumber
-  multiple: BigNumber
-  adjustToTargetLTV: (targetLTV: BigNumber, params: IPositionAdjustParams) => IPositionChangeReturn
-  adjustToTargetMultiple: (
-    targetMultiple: BigNumber,
+  adjustToTargetRiskRatio: (
+    targetRiskRatio: IRiskRatio,
     params: IPositionAdjustParams,
   ) => IPositionChangeReturn
+}
+
+type MinConfigurableRiskRatioParams = {
+  marketPrice: BigNumber
+  slippage: BigNumber
+  oraclePrice: BigNumber
 }
 
 export class Position implements IPosition {
@@ -87,16 +133,26 @@ export class Position implements IPosition {
     this.category = category
   }
 
-  public get minimumConfigurableLTV(): BigNumber {
-    return BigNumber.max(this.category.dustLimit, this.debt.amount).div(
-      this.collateral.amount.times(this._oraclePriceForCollateralDebtExchangeRate),
+  public minConfigurableRiskRatio(params: MinConfigurableRiskRatioParams): IRiskRatio {
+    const { oraclePrice, marketPrice, slippage } = params
+
+    const marketPriceAccountingForSlippage = marketPrice.times(ONE.plus(slippage))
+    const debtDelta = this.category.dustLimit.minus(this.debt.amount)
+
+    const ltv = this.category.dustLimit.div(
+      debtDelta
+        .div(marketPriceAccountingForSlippage)
+        .plus(this.collateral.amount)
+        .times(oraclePrice),
     )
+    return new RiskRatio(ltv, RiskRatio.TYPE.LTV)
   }
 
-  public get loanToValueRatio() {
-    return this.debt.amount.div(
+  public get riskRatio() {
+    const ltv = this.debt.amount.div(
       this.collateral.amount.times(this._oraclePriceForCollateralDebtExchangeRate),
     )
+    return new RiskRatio(ltv, RiskRatio.TYPE.LTV)
   }
 
   public get healthFactor() {
@@ -110,10 +166,6 @@ export class Position implements IPosition {
     return this.debt.amount.div(this.collateral.amount.times(this.category.liquidationThreshold))
   }
 
-  public get multiple() {
-    return ONE.div(ONE.minus(this.loanToValueRatio))
-  }
-
   /**
    * Calculates the target (or desired) state of a position
    *
@@ -122,7 +174,12 @@ export class Position implements IPosition {
    *
    * @returns A position's change in debt, change in collateral and whether a flashloan is necessary to achieve the change
    */
-  adjustToTargetLTV(targetLTV: BigNumber, params: IPositionAdjustParams): IPositionChangeReturn {
+  adjustToTargetRiskRatio(
+    targetRiskRatio: IRiskRatio,
+    params: IPositionAdjustParams,
+  ): IPositionChangeReturn {
+    const targetLTV = targetRiskRatio.loanToValue
+
     const {
       depositedByUser,
       fees,
@@ -366,13 +423,6 @@ export class Position implements IPosition {
       isMultipleIncrease: isIncreaseAdjustment,
       isFlashloanRequired,
     }
-  }
-
-  adjustToTargetMultiple(
-    targetMultiple: BigNumber,
-    params: IPositionAdjustParams,
-  ): IPositionChangeReturn {
-    return this.adjustToTargetLTV(ONE.minus(ONE.div(targetMultiple)), params)
   }
 
   private _createTargetPosition(

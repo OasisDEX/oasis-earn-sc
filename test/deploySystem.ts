@@ -85,7 +85,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
   ])
 
   const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
-  const [dummyAction, dummyActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_ACTION, [serviceRegistryAddress])
+  const [dummyAction, dummyActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_ACTION, [
+    serviceRegistryAddress,
+  ])
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
 
@@ -158,7 +160,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     actionFlAddress,
   )
   const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
-  const dummyActionHash = await registry.addEntry(CONTRACT_NAMES.test.DUMMY_ACTION, dummyActionAddress)
+  const dummyActionHash = await registry.addEntry(
+    CONTRACT_NAMES.test.DUMMY_ACTION,
+    dummyActionAddress,
+  )
   const pullTokenHash = await registry.addEntry(CONTRACT_NAMES.common.PULL_TOKEN, pullTokenAddress)
   const setApprovalHash = await registry.addEntry(
     CONTRACT_NAMES.common.SET_APPROVAL,

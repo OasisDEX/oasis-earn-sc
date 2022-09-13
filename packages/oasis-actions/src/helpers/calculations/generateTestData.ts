@@ -1,3 +1,6 @@
-import { generateTestScenarios } from './testDataUtils'
+import { testDataSources } from './test-scenarios/scenarioDataSources'
+import { generateTestScenariosName } from './testDataUtils'
 
-generateTestScenarios()
+Object.values(testDataSources).forEach(range => {
+  generateTestScenariosName(range)
+})

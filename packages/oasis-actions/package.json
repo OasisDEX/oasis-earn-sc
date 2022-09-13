@@ -1,21 +1,21 @@
 {
-    "name": "@oasisdex/oasis-actions",
-    "version": "0.0.3",
-    "main": "lib/src/index.js",
-    "typings": "lib/src/index.d.ts",
-    "scripts": {
-        "build": "tsc -b",
-        "watch": "tsc -b -w",
-        "generate:scenarios": "npx ts-node src/helpers/calculations/generateTestData.ts",
-        "prepublish": "npm run build"
-      },
-      "license": "Apache-2.0",
-      "dependencies": {
-        "bignumber.js": "^9.0.1",
-        "ethers": "^5.0.19",
-        "lodash": "^4.17.21"
-      },
-      "devDependencies": {
-        "@types/lodash": "^4.14.178"
-      }
+  "name": "@oasisdex/oasis-actions",
+  "version": "0.0.3",
+  "main": "lib/src/index.js",
+  "typings": "lib/src/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "watch": "tsc -b -w",
+    "generate:scenarios": "npx ts-node src/helpers/calculations/generateTestData.ts",
+    "prepublish": "npm run build"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "bignumber.js": "^9.0.1",
+    "ethers": "^5.0.19",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.178"
+  }
 }

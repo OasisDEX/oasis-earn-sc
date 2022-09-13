@@ -39,7 +39,6 @@ let DAI: Contract
 let WETH: Contract
 
 describe(`Reentrancy guard test`, async () => {
-
   let provider: JsonRpcProvider
   let signer: Signer
   let address: string
@@ -75,7 +74,6 @@ describe(`Reentrancy guard test`, async () => {
 
   const testName = `should execute an action, even if OperationStorage lock() was called by another address`
   it(testName, async () => {
-   
     const openVaultAction = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.OPEN_VAULT),
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
@@ -86,7 +84,7 @@ describe(`Reentrancy guard test`, async () => {
         [0],
       ],
     )
-    
+
     // LOCK OperationStorage before operation execution
     await system.common.operationStorage.lock()
 
@@ -96,9 +94,7 @@ describe(`Reentrancy guard test`, async () => {
       {
         address: system.common.operationExecutor.address,
         calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-          [
-            openVaultAction,
-          ],
+          [openVaultAction],
           OPERATION_NAMES.common.CUSTOM_OPERATION, //just to skip operation's actions verification
         ]),
       },
