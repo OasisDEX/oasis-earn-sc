@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -b",
     "watch": "tsc -b -w",
-    "generate:scenarios": "npx ts-node src/helpers/calculations/generateTestData.ts",
+    "generate:scenarios": "npx ts-node src/helpers/calculations/test-scenarios/generateTestData.ts",
     "prepublish": "npm run build"
   },
   "license": "Apache-2.0",
