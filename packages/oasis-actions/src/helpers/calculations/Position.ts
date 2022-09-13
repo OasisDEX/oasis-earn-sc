@@ -22,16 +22,14 @@ interface IBasePosition {
 }
 
 type Delta = { debt: BigNumber; collateral: BigNumber; flashloanAmount: BigNumber }
-type Swap = { fromTokenAmount: BigNumber; toTokenAmount: BigNumber; fee: BigNumber }
+export type Swap = { fromTokenAmount: BigNumber; toTokenAmount: BigNumber; fee: BigNumber }
 type Flags = { usesFlashloan: boolean; isMultipleIncrease: boolean }
 
 export interface IPositionChange {
   position: IPosition
-  change: {
-    delta: Delta
-    swap: Swap
-    flags: Flags
-  }
+  delta: Delta
+  swap: Swap
+  flags: Flags
 }
 
 // TODO: consider multi-collateral positions
@@ -374,17 +372,15 @@ export class Position implements IPosition {
 
     return {
       position: targetPosition,
-      change: {
-        delta: { debt: debtDelta, collateral: collateralDelta, flashloanAmount: amountToFlashloan },
-        swap: {
-          fromTokenAmount,
-          toTokenAmount,
-          fee,
-        },
-        flags: {
-          usesFlashloan: isFlashloanRequired,
-          isMultipleIncrease: isIncreaseAdjustment,
-        },
+      delta: { debt: debtDelta, collateral: collateralDelta, flashloanAmount: amountToFlashloan },
+      swap: {
+        fromTokenAmount,
+        toTokenAmount,
+        fee,
+      },
+      flags: {
+        usesFlashloan: isFlashloanRequired,
+        isMultipleIncrease: isIncreaseAdjustment,
       },
     }
   }

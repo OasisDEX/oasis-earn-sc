@@ -8,7 +8,7 @@ import { amountFromWei, calculateFee } from '../helpers'
 import { IPositionChange, Position } from '../helpers/calculations/Position'
 import { RiskRatio } from '../helpers/calculations/RiskRatio'
 import { ZERO } from '../helpers/constants'
-import * as operation from '../operations'
+import * as operations from '../operations'
 import type { OpenStEthAddresses } from '../operations/openStEth'
 
 interface SwapData {
@@ -40,6 +40,7 @@ interface OpenStEthDependencies {
 
 interface ISimulation extends IPositionChange {
   prices: { debtTokenPrice: BigNumber; collateralTokenPrices: BigNumber | BigNumber[] }
+  swap: SwapData & { fee: BigNumber }
 }
 
 export interface IStrategy {
@@ -109,7 +110,7 @@ export async function openStEth(
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
   const flashloanFee = new BigNumber(0)
-  const positionChange = emptyPosition.adjustToTargetRiskRatio(
+  const target = emptyPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
       fees: {
@@ -130,44 +131,42 @@ export async function openStEth(
     },
   )
 
-  const { position: targetPosition, change } = positionChange
-
-  const borrowEthAmountWei = change.delta.debt.minus(depositEthWei)
+  const borrowEthAmountWei = target.delta.debt.minus(depositEthWei)
 
   const swapData = await dependencies.getSwapData(
     dependencies.addresses.WETH,
     dependencies.addresses.stETH,
-    change.swap.fromTokenAmount,
+    target.swap.fromTokenAmount,
     slippage,
   )
 
   // const actualMarketPrice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
-  const calls = await operation.openStEth(
+  const calls = await operations.openStEth(
     {
       depositAmount: depositEthWei,
-      flashloanAmount: change.delta.flashloanAmount,
+      flashloanAmount: target.delta.flashloanAmount,
       borrowAmount: borrowEthAmountWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
-      ethSwapAmount: change.swap.fromTokenAmount,
+      ethSwapAmount: target.swap.fromTokenAmount,
       dsProxy: dependencies.dsProxy,
     },
     dependencies.addresses,
   )
 
-  const stEthAmountAfterSwapWei = change.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
+  const stEthAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
 
   /*
     Final position calculated using actual swap data and the latest market price
    */
   const finalPosition = new Position(
-    targetPosition.debt,
-    { amount: stEthAmountAfterSwapWei, denomination: targetPosition.collateral.denomination },
+    target.position.debt,
+    { amount: stEthAmountAfterSwapWei, denomination: target.position.collateral.denomination },
     aaveStEthPriceInEth,
-    targetPosition.category,
+    target.position.category,
   )
 
   const prices = {
@@ -178,7 +177,13 @@ export async function openStEth(
   return {
     calls,
     simulation: {
-      ...positionChange,
+      delta: target.delta,
+      flags: target.flags,
+      swap: {
+        ...target.swap,
+        ...swapData,
+        fee: amountFromWei(target.swap.fee),
+      },
       position: finalPosition,
       prices,
     },

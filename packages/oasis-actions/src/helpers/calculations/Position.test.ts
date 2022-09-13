@@ -103,7 +103,7 @@ describe('Calculate Position Helper', async () => {
           )
 
           const oazoFeeBase = new BigNumber(10000)
-          const computed = currentPosition.adjustToTargetRiskRatio(riskRatio, {
+          const target = currentPosition.adjustToTargetRiskRatio(riskRatio, {
             depositedByUser: {
               debt: debtDenominatedTokensDepositedByUser,
               collateral: collateralDepositedByUser,
@@ -119,52 +119,48 @@ describe('Calculate Position Helper', async () => {
             // debug: true,
           })
 
-          const actualFromTokenAmount = computed.isMultipleIncrease
+          const actualFromTokenAmount = target.flags.isMultipleIncrease
             ? fromTokenAmountInc
             : fromTokenAmountDec
-          const actualToTokenAmount = computed.isMultipleIncrease
+          const actualToTokenAmount = target.flags.isMultipleIncrease
             ? toTokenAmountInc
             : toTokenAmountDec
 
           // From Token Swap Amount
-          expect(computed.fromTokenAmount.toFixed(2)).to.equal(actualFromTokenAmount.toFixed(2))
+          expect(target.swap.fromTokenAmount.toFixed(2)).to.equal(actualFromTokenAmount.toFixed(2))
 
           // To Token Swapped Amount
-          expect(computed.toTokenAmount.toFixed(2)).to.equal(actualToTokenAmount.toFixed(2))
+          expect(target.swap.toTokenAmount.toFixed(2)).to.equal(actualToTokenAmount.toFixed(2))
 
           // Debt Delta
-          expect(computed.debtDelta.toFixed(2)).to.equal(debtDelta.toFixed(2))
+          expect(target.delta.debt.toFixed(2)).to.equal(debtDelta.toFixed(2))
 
           // Collateral Delta
-          expect(computed.collateralDelta.toFixed(2)).to.equal(collateralDelta.toFixed(2))
+          expect(target.delta.collateral.toFixed(2)).to.equal(collateralDelta.toFixed(2))
 
           // Is Flashloan needed?
-          expect(computed.isFlashloanRequired).to.equal(isFlashLoanRequired)
+          expect(target.flags.usesFlashloan).to.equal(isFlashLoanRequired)
 
           // Flashloan Amount
-          expect(computed.flashloanAmount.toFixed(0)).to.equal(amountToFlashloan.toFixed(0))
+          expect(target.delta.flashloanAmount.toFixed(0)).to.equal(amountToFlashloan.toFixed(0))
 
           // Target Debt
-          expect(computed.targetPosition.debt.amount.toFixed(2)).to.equal(targetDebt.toFixed(2))
+          expect(target.position.debt.amount.toFixed(2)).to.equal(targetDebt.toFixed(2))
 
           // Target Collateral
-          expect(computed.targetPosition.collateral.amount.toFixed(2)).to.equal(
-            targetCollateral.toFixed(2),
-          )
+          expect(target.position.collateral.amount.toFixed(2)).to.equal(targetCollateral.toFixed(2))
 
           // Health Factor
-          expect(computed.targetPosition.healthFactor.toFixed(2)).to.equal(healthFactor.toFixed(2))
+          expect(target.position.healthFactor.toFixed(2)).to.equal(healthFactor.toFixed(2))
 
           // Liquidation Price
-          expect(computed.targetPosition.liquidationPrice.toFixed(2)).to.equal(
-            minOraclePrice.toFixed(2),
-          )
+          expect(target.position.liquidationPrice.toFixed(2)).to.equal(minOraclePrice.toFixed(2))
 
           // Fee Paid
-          if (computed.isMultipleIncrease) {
-            expect(computed.fee.toFixed(4)).to.equal(feePaidFromBaseToken.toFixed(4))
+          if (target.flags.isMultipleIncrease) {
+            expect(target.swap.fee.toFixed(4)).to.equal(feePaidFromBaseToken.toFixed(4))
           } else {
-            expect(computed.fee.toFixed(4)).to.equal(feePaidFromCollateralToken.toFixed(4))
+            expect(target.swap.fee.toFixed(4)).to.equal(feePaidFromCollateralToken.toFixed(4))
           }
         })
       },
@@ -185,10 +181,6 @@ describe('Calculate Position Helper', async () => {
     const scenarios: Scenario[] = await fetchTestScenarios<Scenario>(testDataSources.LTV_min)
 
     scenarios.forEach(scenario => {
-      // // console.log(scenario)
-      // if (scenario.name !== 'Example 2') {
-      //   return
-      // }
       it(`Test LTV_min ${scenario.name}`, () => {
         const position = new Position(
           {
