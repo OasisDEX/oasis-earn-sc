@@ -40,10 +40,11 @@ contract OperationExecutor is IERC3156FlashBorrower {
       registry.getRegisteredService(OPERATIONS_REGISTRY)
     );
 
-    opStorage.clearStorageBefore();
+    opStorage.clearStorage();
     opStorage.setOperationActions(opRegistry.getOperation(operationName));
     aggregate(calls);
-    opStorage.clearStorageAfter();
+    
+    opStorage.clearStorage();
     opStorage.unlock();
     emit Operation(operationName, calls);
   }
