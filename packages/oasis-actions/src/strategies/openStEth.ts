@@ -5,9 +5,9 @@ import aavePriceOracleABI from '../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
 import { ActionCall } from '../actions/types/actionCall'
 import { amountFromWei, calculateFee } from '../helpers'
-import { IPosition, Position } from '../helpers/calculations/Position'
+import { IPositionChange, Position } from '../helpers/calculations/Position'
 import { RiskRatio } from '../helpers/calculations/RiskRatio'
-import { ONE, ZERO } from '../helpers/constants'
+import { ZERO } from '../helpers/constants'
 import * as operation from '../operations'
 import type { OpenStEthAddresses } from '../operations/openStEth'
 
@@ -38,22 +38,19 @@ interface OpenStEthDependencies {
   dsProxy: string
 }
 
-export interface IStrategyReturn {
+interface ISimulation extends IPositionChange {
+  prices: { debtTokenPrice: BigNumber; collateralTokenPrices: BigNumber | BigNumber[] }
+}
+
+export interface IStrategy {
   calls: ActionCall[]
-  swapData: SwapData
-  targetPosition: IPosition
-  swapMarketPrice: BigNumber
-  fromTokenAmount: BigNumber
-  toTokenAmount: BigNumber
-  feeAmount: BigNumber
-  debtTokenPrice: BigNumber
-  collateralTokenPrices: BigNumber | BigNumber[]
+  simulation: ISimulation
 }
 
 export async function openStEth(
   args: OpenStEthArgs,
   dependencies: OpenStEthDependencies,
-): Promise<IStrategyReturn> {
+): Promise<IStrategy> {
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
     chainlinkPriceFeedABI,
@@ -112,8 +109,9 @@ export async function openStEth(
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
   const flashloanFee = new BigNumber(0)
-  const { targetPosition, debtDelta, fee, fromTokenAmount, flashloanAmount } =
-    emptyPosition.adjustToTargetRiskRatio(new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE), {
+  const positionChange = emptyPosition.adjustToTargetRiskRatio(
+    new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
+    {
       fees: {
         flashLoan: flashloanFee,
         oazo: new BigNumber(FEE),
@@ -129,35 +127,38 @@ export async function openStEth(
         debt: args.depositAmount,
       },
       // debug: true,
-    })
+    },
+  )
 
-  const borrowEthAmountWei = debtDelta.minus(depositEthWei)
+  const { position: targetPosition, change } = positionChange
+
+  const borrowEthAmountWei = change.delta.debt.minus(depositEthWei)
 
   const swapData = await dependencies.getSwapData(
     dependencies.addresses.WETH,
     dependencies.addresses.stETH,
-    fromTokenAmount,
+    change.swap.fromTokenAmount,
     slippage,
   )
 
-  const actualMarketPrice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
+  // const actualMarketPrice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
   const calls = await operation.openStEth(
     {
       depositAmount: depositEthWei,
-      flashloanAmount,
+      flashloanAmount: change.delta.flashloanAmount,
       borrowAmount: borrowEthAmountWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
-      ethSwapAmount: fromTokenAmount,
+      ethSwapAmount: change.swap.fromTokenAmount,
       dsProxy: dependencies.dsProxy,
     },
     dependencies.addresses,
   )
 
-  const stEthAmountAfterSwapWei = fromTokenAmount.div(actualMarketPriceWithSlippage)
+  const stEthAmountAfterSwapWei = change.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
 
   /*
     Final position calculated using actual swap data and the latest market price
@@ -169,15 +170,17 @@ export async function openStEth(
     targetPosition.category,
   )
 
-  return {
-    calls,
-    swapData,
-    targetPosition: finalPosition,
-    swapMarketPrice: actualMarketPrice,
-    fromTokenAmount: amountFromWei(fromTokenAmount),
-    toTokenAmount: amountFromWei(fromTokenAmount),
-    feeAmount: amountFromWei(fee),
+  const prices = {
     debtTokenPrice: ethPrice,
     collateralTokenPrices: stEthPrice,
+  }
+
+  return {
+    calls,
+    simulation: {
+      ...positionChange,
+      position: finalPosition,
+      prices,
+    },
   }
 }

@@ -21,20 +21,21 @@ interface IBasePosition {
   category: IPositionCategory
 }
 
-interface IPositionChangeReturn {
-  targetPosition: IPosition
-  debtDelta: BigNumber
-  collateralDelta: BigNumber
-  fromTokenAmount: BigNumber
-  toTokenAmount: BigNumber
-  flashloanAmount: BigNumber
-  fee: BigNumber
-  isMultipleIncrease: boolean
-  isFlashloanRequired: boolean
+type Delta = { debt: BigNumber; collateral: BigNumber; flashloanAmount: BigNumber }
+type Swap = { fromTokenAmount: BigNumber; toTokenAmount: BigNumber; fee: BigNumber }
+type Flags = { usesFlashloan: boolean; isMultipleIncrease: boolean }
+
+export interface IPositionChange {
+  position: IPosition
+  change: {
+    delta: Delta
+    swap: Swap
+    flags: Flags
+  }
 }
 
 // TODO: consider multi-collateral positions
-interface IPositionAdjustParams {
+interface IPositionChangeParams {
   depositedByUser?: {
     collateral?: BigNumber
     debt?: BigNumber
@@ -63,8 +64,8 @@ export interface IPosition extends IBasePosition {
   liquidationPrice: BigNumber
   adjustToTargetRiskRatio: (
     targetRiskRatio: IRiskRatio,
-    params: IPositionAdjustParams,
-  ) => IPositionChangeReturn
+    params: IPositionChangeParams,
+  ) => IPositionChange
 }
 
 type MinConfigurableRiskRatioParams = {
@@ -135,8 +136,8 @@ export class Position implements IPosition {
    */
   adjustToTargetRiskRatio(
     targetRiskRatio: IRiskRatio,
-    params: IPositionAdjustParams,
-  ): IPositionChangeReturn {
+    params: IPositionChangeParams,
+  ): IPositionChange {
     const targetLTV = targetRiskRatio.loanToValue
 
     const {
@@ -372,15 +373,19 @@ export class Position implements IPosition {
     }
 
     return {
-      targetPosition,
-      debtDelta,
-      collateralDelta,
-      fromTokenAmount,
-      toTokenAmount,
-      flashloanAmount: amountToFlashloan,
-      fee,
-      isMultipleIncrease: isIncreaseAdjustment,
-      isFlashloanRequired,
+      position: targetPosition,
+      change: {
+        delta: { debt: debtDelta, collateral: collateralDelta, flashloanAmount: amountToFlashloan },
+        swap: {
+          fromTokenAmount,
+          toTokenAmount,
+          fee,
+        },
+        flags: {
+          usesFlashloan: isFlashloanRequired,
+          isMultipleIncrease: isIncreaseAdjustment,
+        },
+      },
     }
   }
 
