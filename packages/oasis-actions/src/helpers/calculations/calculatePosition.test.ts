@@ -17,7 +17,7 @@ describe('Calculate Position Helper', async () => {
     )
   ).default
 
-  const scenarios: Scenario[] = mapRowsToScenarios(data)
+  const scenarios = mapRowsToScenarios(data) as Scenario[]
 
   scenarios.forEach(
     ({
@@ -38,7 +38,11 @@ describe('Calculate Position Helper', async () => {
       liquidationThreshold,
       maxLoanToValue,
       maxLoanToValueFL,
-      amountToSwapOrSwappedAmountToPayback,
+      unknownX,
+      fromTokenAmountInc,
+      toTokenAmountInc,
+      fromTokenAmountDec,
+      toTokenAmountDec,
       Y,
       isFlashLoanRequired,
       debtDelta,
@@ -62,13 +66,14 @@ describe('Calculate Position Helper', async () => {
           { liquidationThreshold, maxLoanToValue, dustLimit },
         )
 
+        const oazoFeeBase = new BigNumber(10000)
         const computed = currentPosition.adjustToTargetLTV(targetLoanToValue, {
           depositedByUser: {
             debt: debtDenominatedTokensDepositedByUser,
             collateral: collateralDepositedByUser,
           },
           maxLoanToValueFL: maxLoanToValueFL,
-          fees: { flashLoan: flashloanFees, oazo: oazoFees, oazoFeeBase: new BigNumber(10000) },
+          fees: { flashLoan: flashloanFees, oazo: oazoFees.times(oazoFeeBase) },
           prices: {
             market: marketPrice,
             oracle: oraclePrice,
@@ -77,6 +82,19 @@ describe('Calculate Position Helper', async () => {
           slippage,
           // debug: true,
         })
+
+        const actualFromTokenAmount = computed.isMultipleIncrease
+          ? fromTokenAmountInc
+          : fromTokenAmountDec
+        const actualToTokenAmount = computed.isMultipleIncrease
+          ? toTokenAmountInc
+          : toTokenAmountDec
+
+        // From Token Swap Amount
+        expect(computed.fromTokenAmount.toFixed(2)).to.equal(actualFromTokenAmount.toFixed(2))
+
+        // To Token Swapped Amount
+        expect(computed.toTokenAmount.toFixed(2)).to.equal(actualToTokenAmount.toFixed(2))
 
         // Debt Delta
         expect(computed.debtDelta.toFixed(2)).to.equal(debtDelta.toFixed(2))
@@ -107,7 +125,7 @@ describe('Calculate Position Helper', async () => {
         )
 
         // Fee Paid
-        if (amountToSwapOrSwappedAmountToPayback.gte(ZERO)) {
+        if (computed.isMultipleIncrease) {
           expect(computed.fee.toFixed(4)).to.equal(feePaidFromBaseToken.toFixed(4))
         } else {
           expect(computed.fee.toFixed(4)).to.equal(feePaidFromCollateralToken.toFixed(4))

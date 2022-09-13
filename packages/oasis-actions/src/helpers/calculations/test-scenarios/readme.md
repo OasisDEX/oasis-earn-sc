@@ -1,0 +1,1 @@
+Contains auto-generated test scenarios. Files here are git ignored and may be overridden.

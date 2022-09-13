@@ -109,6 +109,7 @@ contract Swap {
     if (!isFeeValid) {
       revert FeeTierDoesNotExist(fee);
     }
+
     uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
 
     if (fee > 0) {
