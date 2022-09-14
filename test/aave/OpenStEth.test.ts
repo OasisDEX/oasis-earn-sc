@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES, ONE, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { ADDRESSES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
 import { IStrategy } from '@oasisdex/oasis-actions/lib/src/strategies'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -7,53 +7,14 @@ import { Contract, ContractReceipt, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
-import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init, { resetNode } from '../../helpers/init'
-import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
+import { getOneInchRealCall, oneInchCallMock } from '../helpers/oneInchCalls'
 import { expectToBe, expectToBeEqual } from '../utils'
-
-const oneInchCallMock = async (
-  from: string,
-  to: string,
-  amount: BigNumber,
-  slippage: BigNumber,
-) => {
-  const marketPrice = new BigNumber(0.979)
-  return {
-    fromTokenAddress: from,
-    toTokenAddress: to,
-    fromTokenAmount: amount,
-    toTokenAmount: amount.div(marketPrice),
-    minToTokenAmount: amount.div(marketPrice.times(ONE.plus(slippage))),
-    exchangeCalldata: 0,
-  }
-}
-
-const getOneInchRealCall =
-  (swapAddress: string) =>
-  async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
-    const response = await swapOneInchTokens(
-      from,
-      to,
-      amount.toString(),
-      swapAddress,
-      slippage.toString(),
-    )
-
-    return {
-      toTokenAddress: to,
-      fromTokenAddress: from,
-      minToTokenAmount: new BigNumber(0),
-      toTokenAmount: new BigNumber(response.toTokenAmount),
-      fromTokenAmount: new BigNumber(response.fromTokenAmount),
-      exchangeCalldata: response.tx.data,
-    }
-  }
 
 interface AAVEReserveData {
   currentATokenBalance: BigNumber
