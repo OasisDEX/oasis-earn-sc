@@ -100,7 +100,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     config = await init()
     provider = config.provider
     signer = config.signer
-    address = config.address
 
     await resetNode(provider, testBlockNumber)
     aaveLendingPool = new Contract(
@@ -109,8 +108,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       provider,
     )
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
-    WETH = new Contract(ADDRESSES.main.WETH, ERC20ABI, provider)
-    stETH = new Contract(ADDRESSES.main.stETH, ERC20ABI, provider)
   })
 
   describe('On forked chain', () => {
@@ -174,7 +171,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         depositAmount.toFixed(0),
       )
       txStatus = _txStatus
-      tx = _tx
 
       userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
       userStEthReserveData = await aaveDataProvider.getUserReserveData(
@@ -217,7 +213,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     })
   })
 
-  describe('On latest block using one inch exchange and api', () => {
+  describe.skip('On latest block using one inch exchange and api', () => {
     const depositAmount = amountToWei(new BigNumber(60))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
@@ -284,7 +280,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         depositAmount.toFixed(0),
       )
       txStatus = _txStatus
-      tx = _tx
 
       userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
       userStEthReserveData = await aaveDataProvider.getUserReserveData(

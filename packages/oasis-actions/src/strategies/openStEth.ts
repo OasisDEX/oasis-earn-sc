@@ -4,9 +4,9 @@ import { ethers, providers } from 'ethers'
 import aavePriceOracleABI from '../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
 import { ActionCall } from '../actions/types/actionCall'
-import { amountFromWei, calculateFee } from '../helpers'
+import { amountFromWei } from '../helpers'
 import { IPositionChange, Position } from '../helpers/calculations/Position'
-import { RiskRatio } from '../helpers/calculations/RiskRatio'
+import { IRiskRatio, RiskRatio } from '../helpers/calculations/RiskRatio'
 import { ZERO } from '../helpers/constants'
 import * as operations from '../operations'
 import type { OpenStEthAddresses } from '../operations/openStEth'
@@ -41,6 +41,7 @@ interface OpenStEthDependencies {
 interface ISimulation extends IPositionChange {
   prices: { debtTokenPrice: BigNumber; collateralTokenPrices: BigNumber | BigNumber[] }
   swap: SwapData & { fee: BigNumber }
+  minConfigurableRiskRatio: IRiskRatio
 }
 
 export interface IStrategy {
@@ -187,6 +188,9 @@ export async function openStEth(
         fee: amountFromWei(target.swap.fee),
       },
       position: finalPosition,
+      minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
+        actualMarketPriceWithSlippage,
+      ),
       prices,
     },
   }

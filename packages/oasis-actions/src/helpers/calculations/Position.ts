@@ -60,7 +60,7 @@ interface IPositionTransform {
 }
 
 export interface IPosition extends IBasePosition {
-  minConfigurableRiskRatio: (params: MinConfigurableRiskRatioParams) => IRiskRatio
+  minConfigurableRiskRatio: (marketPriceAccountingForSlippage: BigNumber) => IRiskRatio
   riskRatio: IRiskRatio
   healthFactor: BigNumber
   liquidationPrice: BigNumber
@@ -79,12 +79,6 @@ export interface IPosition extends IBasePosition {
     targetRiskRatio: IRiskRatio,
     params: IPositionChangeParams,
   ) => IPositionChange
-}
-
-type MinConfigurableRiskRatioParams = {
-  marketPrice: BigNumber
-  slippage: BigNumber
-  oraclePrice: BigNumber
 }
 
 export class Position implements IPosition {
@@ -106,17 +100,14 @@ export class Position implements IPosition {
     this.category = category
   }
 
-  public minConfigurableRiskRatio(params: MinConfigurableRiskRatioParams): IRiskRatio {
-    const { oraclePrice, marketPrice, slippage } = params
-
-    const marketPriceAccountingForSlippage = marketPrice.times(ONE.plus(slippage))
+  public minConfigurableRiskRatio(marketPriceAccountingForSlippage: BigNumber): IRiskRatio {
     const debtDelta = this.category.dustLimit.minus(this.debt.amount)
 
     const ltv = this.category.dustLimit.div(
       debtDelta
         .div(marketPriceAccountingForSlippage)
         .plus(this.collateral.amount)
-        .times(oraclePrice),
+        .times(this._oraclePriceForCollateralDebtExchangeRate),
     )
     return new RiskRatio(ltv, RiskRatio.TYPE.LTV)
   }
