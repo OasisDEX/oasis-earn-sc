@@ -162,6 +162,7 @@ describe('Calculate Position Helper', async () => {
       },
     )
   })
+
   describe('LTV_min', async () => {
     type Scenario = {
       name: string
@@ -205,76 +206,4 @@ describe('Calculate Position Helper', async () => {
       })
     })
   })
-
-  // it('sets the min-configurable LTV to zero if both the dust limit and current debt are zero', () => {
-  //   const position = new Position(
-  //     {
-  //       amount: new BigNumber(0),
-  //       denomination: 'nope',
-  //     },
-  //     {
-  //       amount: new BigNumber(100),
-  //       denomination: 'nope',
-  //     },
-  //     new BigNumber(1),
-  //     {
-  //       liquidationThreshold: new BigNumber('0.81'),
-  //       maxLoanToValue: new BigNumber('0.69'),
-  //       dustLimit: new BigNumber(0),
-  //     },
-  //   )
-  //
-  //   expect(position.minConfigurableRiskRatio(params).loanToValue.toFixed(2)).to.equal('0.00')
-  // })
-  //
-  // it('calculates the correct minimum configurable LTV based on dust limit, collateral, and collateral price', () => {
-  //   const position = new Position(
-  //     {
-  //       amount: new BigNumber(10_000),
-  //       denomination: 'nope',
-  //     },
-  //     {
-  //       amount: new BigNumber(10),
-  //       denomination: 'nope',
-  //     },
-  //     new BigNumber(3_000),
-  //     {
-  //       liquidationThreshold: new BigNumber('0.81'),
-  //       maxLoanToValue: new BigNumber('0.69'),
-  //       dustLimit: new BigNumber(15_000),
-  //     },
-  //   )
-  //
-  //   expect(position.minConfigurableRiskRatio(params).loanToValue.toFixed(2)).to.equal('0.50')
-  // })
-  //
-  // it('uses the current debt on the vault if set', () => {
-  //   const position = new Position(
-  //     {
-  //       amount: new BigNumber(15_000),
-  //       denomination: 'nope',
-  //     },
-  //     {
-  //       amount: new BigNumber(10),
-  //       denomination: 'nope',
-  //     },
-  //     new BigNumber(3_000),
-  //     {
-  //       liquidationThreshold: new BigNumber('0.81'),
-  //       maxLoanToValue: new BigNumber('0.69'),
-  //       dustLimit: new BigNumber(0),
-  //     },
-  //   )
-  //
-  //   expect(position.minConfigurableRiskRatio(params).loanToValue.toFixed(2)).to.equal('0.50')
-  // })
-
-  // describe('RiskRatio', () => {
-  //   type RiskRatioScenario = {
-  //     name: string
-  //     input: BigNumber
-  //     type
-  //   }
-  //   const scenarios: RiskRatioScenario[] = [
-  // })
 })
