@@ -1,9 +1,10 @@
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
-import { default as dotenv } from 'dotenv'
+import * as dotenv from 'dotenv'
 import path from 'path'
 import process from 'process'
 
+import { ONE } from '../constants'
 import { Position } from './Position'
 import { RiskRatio } from './RiskRatio'
 import { testDataSources } from './test-scenarios/generateTestData'
@@ -198,14 +199,12 @@ describe('Calculate Position Helper', async () => {
             dustLimit: scenario.dustLimit,
           },
         )
-
+        const marketPriceAccountingForSlippage = scenario.marketPrice.times(
+          ONE.plus(scenario.slippage),
+        )
         expect(
           position
-            .minConfigurableRiskRatio({
-              slippage: scenario.slippage,
-              marketPrice: scenario.marketPrice,
-              oraclePrice: scenario.oraclePrice,
-            })
+            .minConfigurableRiskRatio(marketPriceAccountingForSlippage)
             .loanToValue.toFixed(4),
         ).to.equal(scenario.ltvMin.toFixed(4))
       })

@@ -214,7 +214,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     })
   })
 
-  describe('On latest block using one inch exchange and api', () => {
+  describe.skip('On latest block using one inch exchange and api', () => {
     const depositAmount = amountToWei(new BigNumber(60))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
