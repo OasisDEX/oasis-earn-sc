@@ -103,6 +103,13 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     ADDRESSES.main.DAI,
   ])
 
+  const [wrapEth, wrapActionAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
+    serviceRegistryAddress,
+  ])
+  const [unwrapEth, unwrapActionAddress] = await deploy(CONTRACT_NAMES.common.UNWRAP_ETH, [
+    serviceRegistryAddress,
+  ])
+
   //-- Maker Actions
   const [actionOpenVault, actionOpenVaultAddress] = await deploy(CONTRACT_NAMES.maker.OPEN_VAULT, [
     serviceRegistryAddress,
@@ -179,6 +186,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     CONTRACT_NAMES.common.SWAP_ACTION,
     swapActionAddress,
   )
+  await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
+  await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
 
   //-- Add Maker Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
@@ -351,6 +360,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
       pullToken,
       takeFlashLoan: actionFl,
       setApproval,
+      wrapEth,
+      unwrapEth,
     },
     maker: {
       mcdView,

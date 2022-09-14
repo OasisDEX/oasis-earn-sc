@@ -29,7 +29,7 @@ export async function openStEth(
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount.plus(args.depositAmount),
     asset: addresses.DAI,
-    delegator: addresses.aaveLendingPool,
+    delegate: addresses.aaveLendingPool,
   })
 
   const depositDaiInAAVE = actions.aave.aaveDeposit({
@@ -41,6 +41,10 @@ export async function openStEth(
     amount: args.borrowAmount,
     asset: addresses.ETH,
     to: args.dsProxy,
+  })
+
+  const wrapEth = actions.common.wrapEth({
+    amount: args.ethSwapAmount,
   })
 
   const swapETHforSTETH = actions.common.swap({
@@ -57,7 +61,7 @@ export async function openStEth(
     {
       amount: 0,
       asset: addresses.stETH,
-      delegator: addresses.aaveLendingPool,
+      delegate: addresses.aaveLendingPool,
     },
     [0, 0, 3],
   )
@@ -90,6 +94,7 @@ export async function openStEth(
       setDaiApprovalOnLendingPool,
       depositDaiInAAVE,
       borrowEthFromAAVE,
+      wrapEth,
       swapETHforSTETH,
       setSethApprovalOnLendingPool,
       depositSTETH,

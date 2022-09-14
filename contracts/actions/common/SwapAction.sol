@@ -17,16 +17,7 @@ contract SwapAction is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
-    // TODO figure out why using ETH doesn't work.
-    // - Failed on the swap. 1Inch has some EthReceiver contract which checks the tx.origin and msg.sender
-    //   If they are different msg.sender != tx.origin the deposit/transfer of ETH is not accepted
-    // - Forced to wrap the ETH into WETH
-    // - There should be separate actions or utils to wrap/unwrap ETH into/from WETH
     address swapAddress = registry.getRegisteredService(SWAP);
-    
-    if (address(this).balance > 0) {
-      IWETH(registry.getRegisteredService(WETH)).deposit{ value: address(this).balance }();
-    } //TODO remove
     
     SwapData memory swap = abi.decode(data, (SwapData));
 

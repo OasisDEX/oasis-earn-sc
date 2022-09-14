@@ -1,6 +1,6 @@
 export const calldataTypes = {
   common: {
-    Approval: 'tuple(address asset, address delegator, uint256 amount)',
+    Approval: 'tuple(address asset, address delegate, uint256 amount)',
     Swap: `tuple(address fromAsset,
     address toAsset,
     uint256 amount,
@@ -9,6 +9,8 @@ export const calldataTypes = {
     bytes withData,
     bool collectFeeInFromToken) swapData`,
     SendToken: `tuple(address asset, address to, uint256 amount)`,
+    WrapEth: `tuple(uint256 amount)`,
+    UnwrapEth: `tuple(uint256 amount)`,
     PullToken: `tuple(address asset, address from, uint256 amount)`,
     TakeAFlashLoan: `tuple(uint256 amount, bool dsProxyFlashloan, (bytes32 targetHash, bytes callData)[] calls)`,
   },

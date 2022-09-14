@@ -23,8 +23,8 @@ export function pullToken(args: { amount: BigNumber; asset: string; from: string
 }
 
 export function setApproval(
-  args: { amount: BigNumber | 0; asset: string; delegator: string },
-  paramsMapping: [asset: number, delegator: number, amount: number] = [0, 0, 0],
+  args: { amount: BigNumber | 0; asset: string; delegate: string },
+  paramsMapping: [asset: number, delegate: number, amount: number] = [0, 0, 0],
 ) {
   return createAction(
     getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
@@ -32,7 +32,7 @@ export function setApproval(
     [
       {
         asset: args.asset,
-        delegator: args.delegator,
+        delegate: args.delegate,
         amount: args.amount.toFixed(0),
       },
       paramsMapping,
@@ -96,6 +96,32 @@ export function takeAFlashLoan(args: {
         dsProxyFlashloan: args.dsProxyFlashloan,
         calls: args.calls,
       },
+    ],
+  )
+}
+
+export function wrapEth(args: { amount: BigNumber | 0 }, paramsMapping: [amount: number] = [0]) {
+  return createAction(
+    getActionHash(CONTRACT_NAMES.common.WRAP_ETH),
+    [calldataTypes.common.WrapEth],
+    [
+      {
+        amount: args.amount.toFixed(0),
+      },
+      paramsMapping,
+    ],
+  )
+}
+
+export function unwrapEth(args: { amount: BigNumber | 0 }, paramsMapping: [amount: number] = [0]) {
+  return createAction(
+    getActionHash(CONTRACT_NAMES.common.UNWRAP_ETH),
+    [calldataTypes.common.UnwrapEth],
+    [
+      {
+        amount: args.amount.toFixed(0),
+      },
+      paramsMapping,
     ],
   )
 }

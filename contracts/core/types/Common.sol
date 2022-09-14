@@ -20,7 +20,7 @@ struct SendTokenData {
 
 struct SetApprovalData {
   address asset;
-  address delegator;
+  address delegate;
   uint256 amount;
 }
 
@@ -42,4 +42,8 @@ struct Call {
 struct Operation {
   uint8 currentAction;
   bytes32[] actions;
+}
+
+struct WrapEthData {
+  uint256 amount;
 }
