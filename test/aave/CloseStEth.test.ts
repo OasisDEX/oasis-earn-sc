@@ -367,8 +367,6 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
       closeTxStatus = _closeTxStatus
       closeTx = _closeTx
 
-      console.log(closeTx)
-
       userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
       userStEthReserveData = await aaveDataProvider.getUserReserveData(
         ADDRESSES.main.stETH,

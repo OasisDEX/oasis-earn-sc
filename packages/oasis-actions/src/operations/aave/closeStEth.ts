@@ -28,7 +28,7 @@ export async function closeStEth(
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
-    delegator: addresses.aaveLendingPool,
+    delegate: addresses.aaveLendingPool,
   })
 
   const depositDaiInAAVE = actions.aave.aaveDeposit({
@@ -55,7 +55,7 @@ export async function closeStEth(
   const setWethApprovalOnLendingPool = actions.common.setApproval(
     {
       asset: addresses.WETH,
-      delegator: addresses.aaveLendingPool,
+      delegate: addresses.aaveLendingPool,
       amount: new BigNumber(0),
     },
     [0, 0, 3],

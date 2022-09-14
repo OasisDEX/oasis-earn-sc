@@ -6,8 +6,6 @@ import { ReturnFundsData } from "../../core/types/Common.sol";
 import { RETURN_FUNDS_ACTION, ETH } from "../../core/constants/Common.sol";
 import { DSProxy } from "../../libs/DS/DSProxy.sol";
 
-import "hardhat/console.sol";
-
 contract ReturnFunds is Executable {
   using SafeERC20 for IERC20;
 
@@ -18,7 +16,6 @@ contract ReturnFunds is Executable {
 
     if (returnData.asset == ETH) {
       amount = address(this).balance;
-      console.log(amount, "ETH TRANSFERED");
       payable(owner).transfer(amount);
     } else {
       amount = IERC20(returnData.asset).balanceOf(address(this));
