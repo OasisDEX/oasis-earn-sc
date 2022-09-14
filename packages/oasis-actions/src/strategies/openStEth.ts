@@ -81,8 +81,11 @@ export async function openStEth(
     .then((amount: BigNumber) => amountFromWei(amount))
 
   // https://docs.aave.com/risk/v/aave-v2/asset-risk/risk-parameters
+  // TODO: these figures should be read from the blockchain
   const liquidationThreshold = new BigNumber(0.75)
   const maxLoanToValue = new BigNumber(0.73)
+
+  // TODO: Read it from blockchain if AAVE introduces a dust limit
   const dustLimit = new BigNumber(0)
 
   const FEE = 20
@@ -140,7 +143,6 @@ export async function openStEth(
     slippage,
   )
 
-  // const actualMarketPrice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
   const calls = await operations.openStEth(

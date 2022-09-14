@@ -29,7 +29,9 @@ const oneInchCallMock = async (
     toTokenAddress: to,
     fromTokenAmount: amount,
     toTokenAmount: amount.div(marketPrice),
-    minToTokenAmount: amount.div(marketPrice.times(ONE.plus(slippage))),
+    minToTokenAmount: amount
+      .div(marketPrice.times(ONE.plus(slippage)))
+      .integerValue(BigNumber.ROUND_DOWN),
     exchangeCalldata: 0,
   }
 }
@@ -207,9 +209,10 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         { config, isFormatted: true },
       )
 
+      // Precision of 13. That's the best precision that could be achieved given data imported from Google Spreadsheets
       expectToBeEqual(
-        new BigNumber(strategy.simulation.swap.fee.toFixed(6)),
-        feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(6),
+        new BigNumber(strategy.simulation.swap.fee.toFixed(13)),
+        feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(13),
       )
     })
   })
@@ -316,9 +319,10 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         { config, isFormatted: true },
       )
 
+      // Precision of 13. That's the best precision that could be achieved given data imported from Google Spreadsheets
       expectToBeEqual(
-        new BigNumber(strategy.simulation.swap.fee.toFixed(6)),
-        feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(6),
+        new BigNumber(strategy.simulation.swap.fee.toString(13)),
+        feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(13),
       )
     })
   })
