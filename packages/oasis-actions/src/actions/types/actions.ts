@@ -1,6 +1,6 @@
 export const calldataTypes = {
   common: {
-    Approval: 'tuple(address asset, address delegator, uint256 amount)',
+    Approval: 'tuple(address asset, address delegate, uint256 amount)',
     Swap: `tuple(address fromAsset,
     address toAsset,
     uint256 amount,
