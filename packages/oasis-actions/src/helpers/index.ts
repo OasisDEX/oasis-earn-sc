@@ -14,3 +14,8 @@ export function amountFromWei(amount: BigNumber, decimals = 18): BigNumber {
 export function logDebug(lines: string[], prefix = '') {
   lines.forEach(line => console.log(`${prefix}${line}`))
 }
+
+export function amountToWei(amount: BigNumber.Value, precision = 18) {
+  BigNumber.config({ EXPONENTIAL_AT: 30 })
+  return new BigNumber(amount || 0).times(new BigNumber(10).pow(precision))
+}

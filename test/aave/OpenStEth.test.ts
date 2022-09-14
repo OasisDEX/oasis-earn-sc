@@ -1,6 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ADDRESSES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
-import { IStrategy } from '@oasisdex/oasis-actions/lib/src/strategies'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, ContractReceipt, Signer } from 'ethers'
@@ -8,13 +7,15 @@ import { Contract, ContractReceipt, Signer } from 'ethers'
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import { executeThroughProxy } from '../../helpers/deploy'
-import init, { resetNode } from '../../helpers/init'
+import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
-import { getOneInchRealCall, oneInchCallMock } from '../helpers/oneInchCalls'
+import { getOneInchRealCall, makeOneInchCallMock } from '../helpers/oneInchCalls'
 import { expectToBe, expectToBeEqual } from '../utils'
+
+export const oneInchCallMock = makeOneInchCallMock(new BigNumber(0.979))
 
 interface AAVEReserveData {
   currentATokenBalance: BigNumber
@@ -60,7 +61,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     provider = config.provider
     signer = config.signer
 
-    await resetNode(provider, testBlockNumber)
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
       AAVELendigPoolABI,
@@ -77,7 +77,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let system: DeployedSystemInfo
 
-    let strategy: IStrategy
+    let strategy: strategies.aave.IStrategy
     let txStatus: boolean
     let tx: ContractReceipt
 
@@ -87,7 +87,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
-      resetNode(provider, testBlockNumber)
+      await resetNode(provider, testBlockNumber)
 
       const { system: _system } = await deploySystem(config)
       system = _system
@@ -97,7 +97,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      strategy = await strategies.openStEth(
+      strategy = await strategies.aave.openStEth(
         {
           depositAmount,
           slippage,
@@ -178,7 +178,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let system: DeployedSystemInfo
 
-    let strategy: IStrategy
+    let strategy: strategies.aave.IStrategy
     let txStatus: boolean
     let tx: ContractReceipt
 
@@ -189,13 +189,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     before(async () => {
       //Reset to the latest block
-      await provider.send('hardhat_reset', [
-        {
-          forking: {
-            jsonRpcUrl: process.env.MAINNET_URL,
-          },
-        },
-      ])
+      await resetNodeToLatestBlock(provider)
 
       const { system: _system } = await deploySystem(config, false, false)
       system = _system
@@ -211,7 +205,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         { config, isFormatted: true },
       )
 
-      strategy = await strategies.openStEth(
+      strategy = await strategies.aave.openStEth(
         {
           depositAmount,
           slippage,

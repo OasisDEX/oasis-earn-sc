@@ -15,6 +15,8 @@ import { FlashloanData, Call } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
+import "hardhat/console.sol";
+
 contract OperationExecutor is IERC3156FlashBorrower {
   using Address for address;
   using SafeERC20 for IERC20;
@@ -40,12 +42,11 @@ contract OperationExecutor is IERC3156FlashBorrower {
       registry.getRegisteredService(OPERATIONS_REGISTRY)
     );
 
-    opStorage.clearStorageBefore();
+    opStorage.clearStorage();
     opStorage.setOperationActions(opRegistry.getOperation(operationName));
-
     aggregate(calls);
     
-    opStorage.clearStorageAfter();
+    opStorage.clearStorage();
     opStorage.unlock();
     emit Operation(operationName, calls);
   }
@@ -57,8 +58,9 @@ contract OperationExecutor is IERC3156FlashBorrower {
       if (hasActionsToVerify) {
         opStorage.verifyAction(calls[current].targetHash);
       }
-
+      console.log(current);
       address target = registry.getServiceAddress(calls[current].targetHash);
+
       target.functionDelegateCall(
         calls[current].callData,
         "OpExecutor: low-level delegatecall failed"

@@ -124,6 +124,16 @@ async function main() {
   const [, swapActionAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ACTION, [
     serviceRegistryAddress,
   ])
+
+  const [, wrapActionAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
+    serviceRegistryAddress,
+  ])
+  const [, unwrapActionAddress] = await deploy(CONTRACT_NAMES.common.UNWRAP_ETH, [
+    serviceRegistryAddress,
+  ])
+
+  const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
+
   //SETUP REGISTRY ENTRIES:
   console.log('DEBUG SETTING UP REGISTRY ENTRIES...')
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
@@ -167,6 +177,11 @@ async function main() {
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     ADDRESSES.main.oneInchAggregator,
   )
+
+  await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
+  await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
+
+  await registry.addEntry(CONTRACT_NAMES.common.RETURN_FUNDS, returnFundsActionAddress)
 
   // PULL TOKEN ACTION
   const pullToken = createAction(

@@ -1,15 +1,15 @@
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 
-import aavePriceOracleABI from '../abi/aavePriceOracle.json'
-import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
-import { ActionCall } from '../actions/types/actionCall'
-import { amountFromWei } from '../helpers'
-import { IPositionChange, Position } from '../helpers/calculations/Position'
-import { IRiskRatio, RiskRatio } from '../helpers/calculations/RiskRatio'
-import { ZERO } from '../helpers/constants'
-import * as operations from '../operations'
-import type { OpenStEthAddresses } from '../operations/openStEth'
+import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
+import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
+import { ActionCall } from '../../actions/types/actionCall'
+import { amountFromWei } from '../../helpers'
+import { IPositionChange, Position } from '../../helpers/calculations/Position'
+import { IRiskRatio, RiskRatio } from '../../helpers/calculations/RiskRatio'
+import { ZERO } from '../../helpers/constants'
+import * as operations from '../../operations'
+import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
 
 interface SwapData {
   fromTokenAddress: string
@@ -144,7 +144,7 @@ export async function openStEth(
   // const actualMarketPrice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
-  const calls = await operations.openStEth(
+  const calls = await operations.aave.openStEth(
     {
       depositAmount: depositEthWei,
       flashloanAmount: target.delta.flashloanAmount,

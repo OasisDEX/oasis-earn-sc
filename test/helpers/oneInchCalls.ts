@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 
-const makeOneInchCallMock =
+export const makeOneInchCallMock =
   (marketPrice: BigNumber) =>
   async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
     return {
@@ -15,7 +15,7 @@ const makeOneInchCallMock =
       exchangeCalldata: 0,
     }
   }
-export const oneInchCallMock = makeOneInchCallMock(new BigNumber(0.979))
+
 export const getOneInchRealCall =
   (swapAddress: string) =>
   async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {

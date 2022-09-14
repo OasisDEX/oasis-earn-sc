@@ -24,11 +24,15 @@ export const CONTRACT_NAMES = {
     EXCHANGE: 'Exchange',
     UNISWAP_ROUTER: 'UniswapRouter',
     SERVICE_REGISTRY: 'ServiceRegistry',
+    WRAP_ETH: 'WrapEth',
+    UNWRAP_ETH: 'UnwrapEth',
+    RETURN_FUNDS: 'ReturnFunds',
   },
   aave: {
     DEPOSIT: 'AaveDeposit',
     WITHDRAW: 'AaveWithdraw',
     BORROW: 'AaveBorrow',
+    PAYBACK: 'AavePayback',
     LENDING_POOL: 'AaveLendingPool',
     WETH_GATEWAY: 'AaveWethGateway',
   },
@@ -60,6 +64,7 @@ export type ContractNames = AllValues<typeof CONTRACT_NAMES>
 export const OPERATION_NAMES = {
   aave: {
     OPEN_POSITION: 'OpenPosition',
+    CLOSE_POSITION: 'ClosePosition',
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',
