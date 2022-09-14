@@ -49,22 +49,24 @@ export async function fetchTestScenarios<S>(range: string): Promise<Array<S>> {
   if (fs.existsSync(scenariosFilePath)) {
     const data = JSON.parse(fs.readFileSync(scenariosFilePath, { encoding: 'utf8' }))
 
-    return mapRowsToScenariosGeneric<S>(data)
+    return mapRowsToScenarios<S>(data)
   } else {
     console.error(`No file found for range ${range}.  Checked ${scenariosFilePath}`)
     throw new Error(`No test scenarios found for range ${range}`)
   }
 }
 
-export function mapRowsToScenariosGeneric<S>(rows: any[][]): S[] {
+export function mapRowsToScenarios<S>(rows: string[][]): S[] {
   const [, headers, ...transposedRows] = rows[0].map((_, colIndex) =>
     rows.filter(row => !!row[colIndex]).map(row => row[colIndex]),
   )
   const scenarios: S[] = transposedRows.map(row =>
-    row.reduce((acc, cur, index) => {
+    row.reduce<S>((acc, cur, index) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       acc[headers[index]] = prepareImportedValue(cur)
       return acc
-    }, {}),
+    }, {} as S),
   )
   return scenarios
 }
@@ -73,7 +75,7 @@ function generateFilepathForRange(range: string) {
   return path.join(__dirname, `test-scenarios/${range}.json`)
 }
 
-export async function generateTestScenariosName(range: string) {
+export async function generateTestScenarios(range: string) {
   const sheets = google.sheets({ version: 'v4' })
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: process.env.SHEET_ID,

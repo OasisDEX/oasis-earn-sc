@@ -1,4 +1,4 @@
-import { generateTestScenariosName } from '../testDataUtils'
+import { generateTestScenarios } from '../testDataUtils'
 
 export const testDataSources = {
   LTV_target: 'Test_Scenarios_LTV_target!A1:K35',
@@ -6,5 +6,5 @@ export const testDataSources = {
 }
 
 Object.values(testDataSources).forEach(range => {
-  generateTestScenariosName(range)
+  generateTestScenarios(range)
 })
