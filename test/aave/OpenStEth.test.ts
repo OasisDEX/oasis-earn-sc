@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES, ONE, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { ADDRESSES, ONE, OPERATION_NAMES, Position, strategies } from '@oasisdex/oasis-actions'
 import { IStrategy } from '@oasisdex/oasis-actions/lib/src/strategies'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -77,14 +77,11 @@ interface AAVEAccountData {
 }
 
 describe(`Strategy | AAVE | Open Position`, async () => {
-  let WETH: Contract
-  let stETH: Contract
   let aaveLendingPool: Contract
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
   let config: RuntimeConfig
   let signer: Signer
-  let address: string
 
   const mainnetAddresses = {
     DAI: ADDRESSES.main.DAI,
@@ -115,12 +112,12 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     const depositAmount = amountToWei(new BigNumber(60))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
+    const aaveStEthPriceInEth = new BigNumber(0.9790986995818977)
 
     let system: DeployedSystemInfo
 
     let strategy: IStrategy
     let txStatus: boolean
-    let tx: ContractReceipt
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
@@ -183,10 +180,60 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       expect(txStatus).to.be.true
     })
 
-    it('Should draw debt according to multiply', () => {
+    it('Should draw debt according to multiple', () => {
       expectToBeEqual(
         strategy.simulation.position.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
+      )
+    })
+
+    it('Should achieve target multiple', () => {
+      console.log('aaveStEthPriceInEth[tests]', aaveStEthPriceInEth.toString())
+      const actualPosition = new Position(
+        { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
+        { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
+        aaveStEthPriceInEth,
+        strategy.simulation.position.category,
+      )
+
+      console.log('SIMULATED')
+      console.log(
+        'strategy.simulation.swap.fromTokenAmount:',
+        strategy.simulation.swap.fromTokenAmount.toString(),
+      )
+      console.log(
+        'strategy.simulation.swap.fromTokenAmount:',
+        strategy.simulation.swap.fromTokenAmount.toString(),
+      )
+      console.log('simulated')
+      console.log(
+        'strategy.simulation.position.collateral:',
+        strategy.simulation.position.collateral.amount.toString(),
+      )
+      console.log(
+        'strategy.simulation.position.debt:',
+        strategy.simulation.position.debt.amount.toString(),
+      )
+      console.log(
+        'strategy.simulation.position.riskRatio.multiple:',
+        strategy.simulation.position.riskRatio.multiple.toString(),
+      )
+
+      console.log(
+        'strategy.simulation.swap.minToTokenAmount:',
+        strategy.simulation.swap.minToTokenAmount.toString(),
+      )
+
+      console.log('ACTUAL')
+      console.log('actualPosition.collateral:', actualPosition.collateral.amount.toString())
+      console.log('actualPosition.debt:', actualPosition.debt.amount.toString())
+      console.log(
+        'actualPosition.riskRatio.multiple:',
+        actualPosition.riskRatio.multiple.toString(),
+      )
+      expectToBeEqual(
+        strategy.simulation.position.riskRatio.multiple,
+        actualPosition.riskRatio.multiple,
       )
     })
 

@@ -97,6 +97,7 @@ export async function openStEth(
   const depositEthWei = args.depositAmount
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
+  console.log('aaveStEthPriceInEth:', aaveStEthPriceInEth.toString())
   const emptyPosition = new Position({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
     liquidationThreshold,
     maxLoanToValue,
@@ -161,10 +162,12 @@ export async function openStEth(
   )
 
   const stEthAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
-
+  console.log('stEthAmountAfterSwapWei[strategy]', stEthAmountAfterSwapWei.toString())
   /*
     Final position calculated using actual swap data and the latest market price
    */
+  console.log('aaveStEthPriceInEth[strategy]', aaveStEthPriceInEth.toString())
+
   const finalPosition = new Position(
     target.position.debt,
     { amount: stEthAmountAfterSwapWei, denomination: target.position.collateral.denomination },

@@ -27,7 +27,7 @@ export async function openStEth(
   addresses: OpenStEthAddresses,
 ) {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
-    amount: args.flashloanAmount.plus(args.depositAmount),
+    amount: args.flashloanAmount,
     asset: addresses.DAI,
     delegate: addresses.aaveLendingPool,
   })

@@ -98,6 +98,10 @@ export class Position implements IPosition {
   }
 
   public get riskRatio() {
+    console.log(
+      'this._oraclePriceForCollateralDebtExchangeRate',
+      this._oraclePriceForCollateralDebtExchangeRate.toString(),
+    )
     const ltv = this.debt.amount.div(
       this.collateral.amount.times(this._oraclePriceForCollateralDebtExchangeRate),
     )
