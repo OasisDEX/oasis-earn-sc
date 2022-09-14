@@ -55,11 +55,26 @@ interface IPositionChangeParams {
   debug?: boolean
 }
 
+interface IPositionTransform {
+  execute: (target: unknown, params: IPositionChangeParams) => IPositionChange
+}
+
 export interface IPosition extends IBasePosition {
   minConfigurableRiskRatio: (params: MinConfigurableRiskRatioParams) => IRiskRatio
   riskRatio: IRiskRatio
   healthFactor: BigNumber
   liquidationPrice: BigNumber
+  transform: (
+    target: IRiskRatio,
+    params: IPositionChangeParams,
+    s: IPositionTransform,
+  ) => IPositionChange
+
+  // depositCollateral()
+  // depositDebtTokens()
+  // withdrawCollateral()
+  // generateDebt()
+  // close()
   adjustToTargetRiskRatio: (
     targetRiskRatio: IRiskRatio,
     params: IPositionChangeParams,
@@ -122,6 +137,10 @@ export class Position implements IPosition {
 
   public get liquidationPrice() {
     return this.debt.amount.div(this.collateral.amount.times(this.category.liquidationThreshold))
+  }
+
+  transform(target: unknown, params: IPositionChangeParams, transformer: IPositionTransform) {
+    return transformer.execute(target, params)
   }
 
   /**
