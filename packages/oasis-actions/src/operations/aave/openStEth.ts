@@ -11,6 +11,7 @@ export interface OpenStEthAddresses {
   chainlinkEthUsdPriceFeed: string
   aavePriceOracle: string
   aaveLendingPool: string
+  aaveProtocolDataProvider: string
 }
 
 export async function openStEth(

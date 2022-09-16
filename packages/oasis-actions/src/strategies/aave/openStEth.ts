@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
+import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { ActionCall } from '../../actions/types/actionCall'
 import { amountFromWei } from '../../helpers'
@@ -69,6 +70,12 @@ export async function openStEth(
     dependencies.provider,
   )
 
+  const aaveProtocolDataProvider = new ethers.Contract(
+    dependencies.addresses.aaveProtocolDataProvider,
+    aaveProtocolDataProviderABI,
+    dependencies.provider,
+  )
+
   const aaveWethPriceInEth = await aavePriceOracle
     .getAssetPrice(dependencies.addresses.WETH)
     .then((amount: ethers.BigNumberish) => amount.toString())
@@ -81,10 +88,11 @@ export async function openStEth(
     .then((amount: string) => new BigNumber(amount))
     .then((amount: BigNumber) => amountFromWei(amount))
 
-  // https://docs.aave.com/risk/v/aave-v2/asset-risk/risk-parameters
-  // TODO: these figures should be read from the blockchain
-  const liquidationThreshold = new BigNumber(0.75)
-  const maxLoanToValue = new BigNumber(0.73)
+  const reserveData = await aaveProtocolDataProvider.getReserveConfigurationData(
+    dependencies.addresses.stETH,
+  )
+  const liquidationThreshold = new BigNumber(reserveData.liquidationThreshold.toString())
+  const maxLoanToValue = new BigNumber(reserveData.ltv.toString())
 
   // TODO: Read it from blockchain if AAVE introduces a dust limit
   const dustLimit = new BigNumber(0)
