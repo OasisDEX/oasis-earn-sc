@@ -20,6 +20,7 @@ interface CloseStEthArgs {
   stEthAmountLockedInAave: BigNumber
   slippage: BigNumber
 }
+
 interface CloseStEthDependencies {
   addresses: CloseStEthAddresses
   provider: providers.Provider
@@ -38,9 +39,6 @@ export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthD
     chainlinkPriceFeedABI,
     dependencies.provider,
   )
-  const roundData = await priceFeed.latestRoundData()
-  const decimals = await priceFeed.decimals()
-  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
 
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
@@ -48,31 +46,31 @@ export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthD
     dependencies.provider,
   )
 
-  const aaveWethPriceInEth = await aavePriceOracle
-    .getAssetPrice(dependencies.addresses.WETH)
-    .then((amount: ethers.BigNumberish) => amount.toString())
-    .then((amount: string) => new BigNumber(amount))
-    .then((amount: BigNumber) => amountFromWei(amount))
+  const [roundData, decimals, aaveWethPriceInEth, aaveStEthPriceInEth, swapData] =
+    await Promise.all([
+      priceFeed.latestRoundData(),
+      priceFeed.decimals(),
+      aavePriceOracle
+        .getAssetPrice(dependencies.addresses.WETH)
+        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+      aavePriceOracle
+        .getAssetPrice(dependencies.addresses.stETH)
+        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+      dependencies.getSwapData(
+        dependencies.addresses.stETH,
+        dependencies.addresses.WETH,
+        args.stEthAmountLockedInAave,
+        args.slippage,
+      ),
+    ])
 
-  const aaveStEthPriceInEth = await aavePriceOracle
-    .getAssetPrice(dependencies.addresses.stETH)
-    .then((amount: ethers.BigNumberish) => amount.toString())
-    .then((amount: string) => new BigNumber(amount))
-    .then((amount: BigNumber) => amountFromWei(amount))
-
+  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
   const FEE = 20
   const FEE_BASE = 10000
 
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
   const flashLoanAmountWei = args.stEthAmountLockedInAave.times(stEthPrice)
-
-  const swapData = await dependencies.getSwapData(
-    dependencies.addresses.stETH,
-    dependencies.addresses.WETH,
-    args.stEthAmountLockedInAave,
-    args.slippage,
-  )
 
   const fee = calculateFee(swapData.toTokenAmount, FEE, FEE_BASE)
 

@@ -60,10 +60,6 @@ export async function openStEth(
     dependencies.provider,
   )
 
-  const roundData = await priceFeed.latestRoundData()
-  const decimals = await priceFeed.decimals()
-  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
-
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
     aavePriceOracleABI,
@@ -76,21 +72,30 @@ export async function openStEth(
     dependencies.provider,
   )
 
-  const aaveWethPriceInEth = await aavePriceOracle
-    .getAssetPrice(dependencies.addresses.WETH)
-    .then((amount: ethers.BigNumberish) => amount.toString())
-    .then((amount: string) => new BigNumber(amount))
-    .then((amount: BigNumber) => amountFromWei(amount))
+  const slippage = args.slippage
+  const estimatedSwapAmount = new BigNumber(1)
 
-  const aaveStEthPriceInEth = await aavePriceOracle
-    .getAssetPrice(dependencies.addresses.stETH)
-    .then((amount: ethers.BigNumberish) => amount.toString())
-    .then((amount: string) => new BigNumber(amount))
-    .then((amount: BigNumber) => amountFromWei(amount))
+  const [roundData, decimals, aaveWethPriceInEth, aaveStEthPriceInEth, reserveData, quoteSwapData] =
+    await Promise.all([
+      priceFeed.latestRoundData(),
+      priceFeed.decimals(),
+      aavePriceOracle
+        .getAssetPrice(dependencies.addresses.WETH)
+        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+      aavePriceOracle
+        .getAssetPrice(dependencies.addresses.stETH)
+        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+      aaveProtocolDataProvider.getReserveConfigurationData(dependencies.addresses.stETH),
+      dependencies.getSwapData(
+        dependencies.addresses.WETH,
+        dependencies.addresses.stETH,
+        estimatedSwapAmount,
+        new BigNumber(slippage),
+      ),
+    ])
 
-  const reserveData = await aaveProtocolDataProvider.getReserveConfigurationData(
-    dependencies.addresses.stETH,
-  )
+  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
+
   const liquidationThreshold = new BigNumber(reserveData.liquidationThreshold.toString())
   const maxLoanToValue = new BigNumber(reserveData.ltv.toString())
 
@@ -99,7 +104,6 @@ export async function openStEth(
 
   const FEE = 20
 
-  const slippage = args.slippage
   const multiple = args.multiple
 
   const depositEthWei = args.depositAmount
@@ -110,14 +114,6 @@ export async function openStEth(
     maxLoanToValue,
     dustLimit,
   })
-
-  const estimatedSwapAmount = new BigNumber(1)
-  const quoteSwapData = await dependencies.getSwapData(
-    dependencies.addresses.WETH,
-    dependencies.addresses.stETH,
-    estimatedSwapAmount,
-    new BigNumber(slippage),
-  )
 
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
