@@ -3,12 +3,12 @@ import { ethers, providers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
-import { ActionCall } from '../actions/types/actionCall'
+import { ActionCall } from '../../actions/types/actionCall'
 import { amountFromWei } from '../../helpers'
-import { IPositionChange, Position } from '../helpers/calculations/Position'
-import { IRiskRatio, RiskRatio } from '../helpers/calculations/RiskRatio'
+import { IPositionChange, Position } from '../../helpers/calculations/Position'
+import { IRiskRatio, RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { ZERO } from '../../helpers/constants'
-import * as operations from '../../operations'
+import * as operation from '../../operations'
 import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
 
 interface SwapData {
@@ -143,6 +143,8 @@ export async function openStEth(
     target.swap.fromTokenAmount,
     slippage,
   )
+
+  const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
   const calls = await operation.aave.openStEth(
     {

@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES, ONE, OPERATION_NAMES, strategy, ZERO } from '@oasisdex/oasis-actions'
+import { ADDRESSES, ONE, OPERATION_NAMES, strategies, ZERO } from '@oasisdex/oasis-actions'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -75,7 +75,7 @@ interface AAVEAccountData {
 
 describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () => {
   const depositAmount = amountToWei(new BigNumber(10))
-  const multiply = new BigNumber(2)
+  const multiple = new BigNumber(2)
   const slippage = new BigNumber(0.1)
 
   // In this case we can safely assume this constant value for a given block,
@@ -93,7 +93,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
 
   let system: DeployedSystemInfo
 
-  let closeStrategyReturn: Awaited<ReturnType<typeof strategy.aave.closeStEth>>
+  let closeStrategyReturn: Awaited<ReturnType<typeof strategies.aave.closeStEth>>
   let closeTxStatus: boolean
   let closeTx: ContractReceipt
 
@@ -141,11 +141,11 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      const openStrategyReturn = await strategy.aave.openStEth(
+      const openStrategyReturn = await strategies.aave.openStEth(
         {
           depositAmount,
           slippage,
-          multiply,
+          multiple,
         },
         {
           addresses,
@@ -181,7 +181,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
       )
       const stEthAmount = new BigNumber(userStEthReserveData.currentATokenBalance.toString())
 
-      closeStrategyReturn = await strategy.aave.closeStEth(
+      closeStrategyReturn = await strategies.aave.closeStEth(
         {
           stEthAmountLockedInAave: stEthAmount,
           slippage,
@@ -299,11 +299,11 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      const openStrategyReturn = await strategy.aave.openStEth(
+      const openStrategyReturn = await strategies.aave.openStEth(
         {
           depositAmount,
           slippage,
-          multiply,
+          multiple,
         },
         {
           addresses,
@@ -339,7 +339,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
       )
       const stEthAmount = new BigNumber(userStEthReserveData.currentATokenBalance.toString())
 
-      closeStrategyReturn = await strategy.aave.closeStEth(
+      closeStrategyReturn = await strategies.aave.closeStEth(
         {
           stEthAmountLockedInAave: stEthAmount.minus(1000),
           slippage,

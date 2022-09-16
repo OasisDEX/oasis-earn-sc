@@ -1,6 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ADDRESSES, ONE, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
-import { IStrategy } from '@oasisdex/oasis-actions/lib/src/strategies'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, ContractReceipt, Signer } from 'ethers'
@@ -117,7 +116,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let system: DeployedSystemInfo
 
-    let strategyReturn: Awaited<ReturnType<typeof strategy.aave.openStEth>>
+    let strategyReturn: Awaited<ReturnType<typeof strategies.aave.openStEth>>
     let txStatus: boolean
     let tx: ContractReceipt
 
@@ -137,7 +136,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      strategyReturn = await strategy.aave.openStEth(
+      strategyReturn = await strategies.aave.openStEth(
         {
           depositAmount,
           slippage,
@@ -162,7 +161,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            strategy.calls,
+            strategyReturn.calls,
             OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
@@ -184,14 +183,14 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     it('Should draw debt according to multiply', () => {
       expectToBeEqual(
-        strategy.simulation.position.debt.amount.toFixed(0),
+        strategyReturn.simulation.position.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
 
     it('Should deposit all stEth tokens to aave', () => {
       expectToBe(
-        strategy.simulation.swap.minToTokenAmount,
+        strategyReturn.simulation.swap.minToTokenAmount,
         'lte',
         new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
       )
@@ -206,7 +205,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
       // Precision of 13. That's the best precision that could be achieved given data imported from Google Spreadsheets
       expectToBeEqual(
-        new BigNumber(strategy.simulation.swap.fee.toFixed(13)),
+        new BigNumber(strategyReturn.simulation.swap.fee.toFixed(13)),
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(13),
       )
     })
@@ -219,7 +218,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let system: DeployedSystemInfo
 
-    let strategyReturn: Awaited<ReturnType<typeof strategy.aave.openStEth>>
+    let strategyReturn: Awaited<ReturnType<typeof strategies.aave.openStEth>>
     let txStatus: boolean
     let tx: ContractReceipt
 
@@ -246,7 +245,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         { config, isFormatted: true },
       )
 
-      strategyReturn = await strategy.aave.openStEth(
+      strategyReturn = await strategies.aave.openStEth(
         {
           depositAmount,
           slippage,
@@ -265,7 +264,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            strategy.calls,
+            strategyReturn.calls,
             OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
@@ -287,14 +286,14 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     it('Should draw debt according to multiply', () => {
       expectToBeEqual(
-        strategy.simulation.position.debt.amount.toFixed(0),
+        strategyReturn.simulation.position.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
 
     it('Should deposit all stEth tokens to aave', () => {
       expectToBe(
-        strategy.simulation.swap.minToTokenAmount,
+        strategyReturn.simulation.swap.minToTokenAmount,
         'lte',
         new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
       )
@@ -309,7 +308,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
       // Precision of 13. That's the best precision that could be achieved given data imported from Google Spreadsheets
       expectToBeEqual(
-        new BigNumber(strategy.simulation.swap.fee.toString(13)),
+        new BigNumber(strategyReturn.simulation.swap.fee.toString(13)),
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(13),
       )
     })
