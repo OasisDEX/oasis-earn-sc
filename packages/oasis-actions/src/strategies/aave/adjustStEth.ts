@@ -4,22 +4,24 @@ import { ethers, providers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei } from '../../helpers'
-import { Position } from '../../helpers/calculations/Position'
+import { IBasePosition, IPosition, Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
+import { DecreaseMultipleStEthAddresses } from '../../operations/aave/decreaseMultipleStEth'
 import type { IncreaseMultipleStEthAddresses } from '../../operations/aave/increaseMultipleStEth'
 import { IStrategy } from '../types/IStrategy'
 import { SwapData } from '../types/SwapData'
 
-interface OpenStEthArgs {
-  depositAmount: BigNumber // in wei
+interface AdjustStEthArgs {
+  depositAmount?: BigNumber // in wei
   slippage: BigNumber
   multiple: BigNumber
 }
 interface AdjustStEthDependencies {
-  addresses: IncreaseMultipleStEthAddresses
+  addresses: IncreaseMultipleStEthAddresses | DecreaseMultipleStEthAddresses
   provider: providers.Provider
+  position: IBasePosition
   getSwapData: (
     fromToken: string,
     toToken: string,
@@ -30,9 +32,19 @@ interface AdjustStEthDependencies {
 }
 
 export async function adjustStEth(
-  args: OpenStEthArgs,
+  args: AdjustStEthArgs,
   dependencies: AdjustStEthDependencies,
 ): Promise<IStrategy> {
+  const existingBasePosition = dependencies.position
+  console.log(
+    'existingBasePosition.debt.amount.toString()',
+    existingBasePosition.debt.amount.toString(),
+  )
+  console.log(
+    'existingBasePosition.collateral.amount.toString()',
+    existingBasePosition.collateral.amount.toString(),
+  )
+
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
     chainlinkPriceFeedABI,
@@ -61,24 +73,20 @@ export async function adjustStEth(
     .then((amount: string) => new BigNumber(amount))
     .then((amount: BigNumber) => amountFromWei(amount))
 
-  // https://docs.aave.com/risk/v/aave-v2/asset-risk/risk-parameters
-  const liquidationThreshold = new BigNumber(0.75)
-  const maxLoanToValue = new BigNumber(0.73)
-  const dustLimit = new BigNumber(0)
+  const existingPosition = new Position(
+    existingBasePosition.debt,
+    existingBasePosition.collateral,
+    aaveStEthPriceInEth,
+    existingBasePosition.category,
+  )
 
   const FEE = 20
 
   const slippage = args.slippage
   const multiple = args.multiple
 
-  const depositEthWei = args.depositAmount
+  const depositEthWei = args.depositAmount || ZERO
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
-
-  const emptyPosition = new Position({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
-    liquidationThreshold,
-    maxLoanToValue,
-    dustLimit,
-  })
 
   const estimatedSwapAmount = new BigNumber(1)
   const quoteSwapData = await dependencies.getSwapData(
@@ -90,8 +98,11 @@ export async function adjustStEth(
 
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
+  console.log('ethPrice', ethPrice.toString())
+  console.log('quoteMarketPrice', quoteMarketPrice.toString())
+  console.log('aaveStEthPriceInEth', aaveStEthPriceInEth.toString())
   const flashloanFee = new BigNumber(0)
-  const target = emptyPosition.adjustToTargetRiskRatio(
+  const target = existingPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
       fees: {
@@ -104,15 +115,13 @@ export async function adjustStEth(
         oracleFLtoDebtToken: ethPrice,
       },
       slippage: args.slippage,
-      maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
+      maxLoanToValueFL: existingPosition.category.maxLoanToValue,
       depositedByUser: {
         debt: args.depositAmount,
       },
       // debug: true,
     },
   )
-
-  const borrowEthAmountWei = target.delta.debt.minus(depositEthWei)
 
   const swapData = await dependencies.getSwapData(
     dependencies.addresses.WETH,
@@ -125,6 +134,11 @@ export async function adjustStEth(
 
   let calls
   if (target.flags.isMultipleIncrease) {
+    console.log('increasing...')
+    console.log('depositEthWei', depositEthWei.toString())
+    console.log('target.delta.debt...', target.delta.debt.toString())
+    const borrowEthAmountWei = target.delta.debt.minus(depositEthWei)
+    console.log('borrowEthAmountWei', borrowEthAmountWei.toString())
     calls = await operations.aave.increaseMultipleStEth(
       {
         depositAmount: depositEthWei,
@@ -139,11 +153,20 @@ export async function adjustStEth(
       dependencies.addresses,
     )
   } else {
-    calls = await operations.aave.increaseMultipleStEth(
+    /*
+     * The Maths can produce negative amounts for flashloan on decrease
+     * because it's calculated using Debt Delta which will be negative
+     */
+    const absFlashloanAmount = target.delta.flashloanAmount.abs()
+
+    console.log('target.delta.debt.toString()', target.delta.debt.toString())
+    console.log('target.delta.collateral.toString()', target.delta.collateral.toString())
+    const withdrawStEthAmountWei = target.delta.collateral
+    console.log('withdrawStEthAmountWei', withdrawStEthAmountWei.toString())
+    calls = await operations.aave.decreaseMultipleStEth(
       {
-        depositAmount: depositEthWei,
-        flashloanAmount: target.delta.flashloanAmount,
-        borrowAmount: borrowEthAmountWei,
+        flashloanAmount: absFlashloanAmount,
+        withdrawAmount: withdrawStEthAmountWei,
         fee: FEE,
         swapData: swapData.exchangeCalldata,
         receiveAtLeast: swapData.minToTokenAmount,

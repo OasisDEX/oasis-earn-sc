@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
 
-export interface IncreaseMultipleStEthAddresses {
+export interface DecreaseMultipleStEthAddresses {
   DAI: string
   ETH: string
   WETH: string
@@ -15,16 +15,15 @@ export interface IncreaseMultipleStEthAddresses {
 
 export async function decreaseMultipleStEth(
   args: {
-    depositAmount: BigNumber
     flashloanAmount: BigNumber
-    borrowAmount: BigNumber
+    withdrawAmount: BigNumber
     receiveAtLeast: BigNumber
     fee: number
     swapData: string | number
     ethSwapAmount: BigNumber
     dsProxy: string
   },
-  addresses: IncreaseMultipleStEthAddresses,
+  addresses: DecreaseMultipleStEthAddresses,
 ) {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,
@@ -37,9 +36,9 @@ export async function decreaseMultipleStEth(
     asset: addresses.DAI,
   })
 
-  const borrowEthFromAAVE = actions.aave.aaveBorrow({
-    amount: args.borrowAmount,
-    asset: addresses.ETH,
+  const withdrawStEthFromAAVE = actions.aave.aaveBorrow({
+    amount: args.withdrawAmount,
+    asset: addresses.stETH,
     to: args.dsProxy,
   })
 
@@ -47,14 +46,14 @@ export async function decreaseMultipleStEth(
     amount: args.ethSwapAmount,
   })
 
-  const swapETHforSTETH = actions.common.swap({
-    fromAsset: addresses.WETH,
-    toAsset: addresses.stETH,
+  const swapSTETHforETH = actions.common.swap({
+    fromAsset: addresses.stETH,
+    toAsset: addresses.WETH,
     amount: args.ethSwapAmount,
     receiveAtLeast: args.receiveAtLeast,
     fee: args.fee,
     withData: args.swapData,
-    collectFeeInFromToken: true,
+    collectFeeInFromToken: false,
   })
 
   const setSethApprovalOnLendingPool = actions.common.setApproval(
@@ -66,9 +65,9 @@ export async function decreaseMultipleStEth(
     [0, 0, 3],
   )
 
-  const depositSTETH = actions.aave.aaveDeposit(
+  const depositETH = actions.aave.aaveDeposit(
     {
-      asset: addresses.stETH,
+      asset: addresses.ETH,
       amount: 0,
     },
     [0, 3],
@@ -86,6 +85,7 @@ export async function decreaseMultipleStEth(
     amount: args.flashloanAmount,
   })
 
+  // TODO: determine if a flashloan is necessary
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
@@ -93,11 +93,11 @@ export async function decreaseMultipleStEth(
     calls: [
       setDaiApprovalOnLendingPool,
       depositDaiInAAVE,
-      borrowEthFromAAVE,
+      withdrawStEthFromAAVE,
       wrapEth,
-      swapETHforSTETH,
+      swapSTETHforETH,
       setSethApprovalOnLendingPool,
-      depositSTETH,
+      depositETH,
       withdrawDAIFromAAVE,
       sendBackDAI,
     ],

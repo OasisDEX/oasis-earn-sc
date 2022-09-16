@@ -15,7 +15,7 @@ interface IPositionCategory {
   dustLimit: BigNumber
 }
 
-interface IBasePosition {
+export interface IBasePosition {
   collateral: IPositionBalance
   debt: IPositionBalance
   category: IPositionCategory
@@ -98,10 +98,6 @@ export class Position implements IPosition {
   }
 
   public get riskRatio() {
-    console.log(
-      'this._oraclePriceForCollateralDebtExchangeRate',
-      this._oraclePriceForCollateralDebtExchangeRate.toString(),
-    )
     const ltv = this.debt.amount.div(
       this.collateral.amount.times(this._oraclePriceForCollateralDebtExchangeRate),
     )
@@ -265,7 +261,7 @@ export class Position implements IPosition {
      *
      * Y=(C_C\cdot P_O) \cdot LTV_{MAX} - D_C
      * */
-    const isFlashloanRequired = currentCollateral
+    const isFlashloanRequiredForIncrease = currentCollateral
       .times(oraclePrice)
       .times(this.category.maxLoanToValue)
       .minus(currentDebt)
@@ -280,13 +276,27 @@ export class Position implements IPosition {
      * ΔC  Collateral delta
      * \Delta C = X \cdot (1 - F_O) / P_{MS}
      * */
-    const debtDelta = amountToBeSwappedOrPaidback_X.times(
-      ONE.plus(isFlashloanRequired ? flashloanFee : ZERO),
-    )
+    const debtDeltaPreFlashloanFee = amountToBeSwappedOrPaidback_X
 
     const collateralDelta = amountToBeSwappedOrPaidback_X
       .times(ONE.minus(oazoFee.div(this._feeBase)))
       .div(marketPriceAdjustedForSlippage)
+
+    /**
+     * Is a flashloan required to reach the target state for the position when decreasing?
+     *
+     * */
+    const isFlashloanRequiredForDecrease = this.category.maxLoanToValue.lte(
+      currentDebt.div(
+        collateralDelta.plus(currentCollateral).times(marketPriceAdjustedForSlippage),
+      ),
+    )
+
+    const isFlashloanRequired = isFlashloanRequiredForIncrease || isFlashloanRequiredForDecrease
+
+    const debtDelta = debtDeltaPreFlashloanFee.times(
+      ONE.plus(isFlashloanRequired ? flashloanFee : ZERO),
+    )
 
     /**
      *

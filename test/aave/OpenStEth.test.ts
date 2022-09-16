@@ -1,13 +1,18 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES, ONE, OPERATION_NAMES, Position, strategies } from '@oasisdex/oasis-actions'
-import { IStrategy } from '@oasisdex/oasis-actions/lib/src/strategies'
+import {
+  ADDRESSES,
+  IStrategy,
+  ONE,
+  OPERATION_NAMES,
+  Position,
+  strategies,
+} from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, ContractReceipt, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
-import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init, { resetNode } from '../../helpers/init'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
@@ -135,7 +140,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      strategy = await strategies.openStEth(
+      strategy = await strategies.aave.openStEth(
         {
           depositAmount,
           slippage,
@@ -188,7 +193,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     })
 
     it('Should achieve target multiple', () => {
-      console.log('aaveStEthPriceInEth[tests]', aaveStEthPriceInEth.toString())
       const actualPosition = new Position(
         { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
         { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
@@ -196,43 +200,9 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         strategy.simulation.position.category,
       )
 
-      console.log('SIMULATED')
-      console.log(
-        'strategy.simulation.swap.fromTokenAmount:',
-        strategy.simulation.swap.fromTokenAmount.toString(),
-      )
-      console.log(
-        'strategy.simulation.swap.fromTokenAmount:',
-        strategy.simulation.swap.fromTokenAmount.toString(),
-      )
-      console.log('simulated')
-      console.log(
-        'strategy.simulation.position.collateral:',
-        strategy.simulation.position.collateral.amount.toString(),
-      )
-      console.log(
-        'strategy.simulation.position.debt:',
-        strategy.simulation.position.debt.amount.toString(),
-      )
-      console.log(
-        'strategy.simulation.position.riskRatio.multiple:',
-        strategy.simulation.position.riskRatio.multiple.toString(),
-      )
-
-      console.log(
-        'strategy.simulation.swap.minToTokenAmount:',
-        strategy.simulation.swap.minToTokenAmount.toString(),
-      )
-
-      console.log('ACTUAL')
-      console.log('actualPosition.collateral:', actualPosition.collateral.amount.toString())
-      console.log('actualPosition.debt:', actualPosition.debt.amount.toString())
-      console.log(
-        'actualPosition.riskRatio.multiple:',
-        actualPosition.riskRatio.multiple.toString(),
-      )
-      expectToBeEqual(
+      expectToBe(
         strategy.simulation.position.riskRatio.multiple,
+        'gte',
         actualPosition.riskRatio.multiple,
       )
     })
@@ -300,7 +270,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         { config, isFormatted: true },
       )
 
-      strategy = await strategies.openStEth(
+      strategy = await strategies.aave.openStEth(
         {
           depositAmount,
           slippage,
