@@ -4,7 +4,7 @@ import { Executable } from "../common/Executable.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
-import { WrapEthData } from "../../core/types/Common.sol";
+import { UnwrapEthData } from "../../core/types/Common.sol";
 import { UseStore, Read } from "../../actions/common/UseStore.sol";
 import { Swap } from "./Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
@@ -18,7 +18,7 @@ contract UnwrapEth is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     IWETH weth = IWETH(registry.getRegisteredService(WETH));
-    WrapEthData memory unwrapData = abi.decode(data, (WrapEthData));
+    UnwrapEthData memory unwrapData = abi.decode(data, (UnwrapEthData));
     unwrapData.amount = store().readUint(bytes32(unwrapData.amount), paramsMap[0], address(this));
 
     if (unwrapData.amount == type(uint256).max) {

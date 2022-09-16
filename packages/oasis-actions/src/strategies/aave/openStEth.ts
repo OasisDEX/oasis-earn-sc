@@ -1,12 +1,12 @@
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 
-import aavePriceOracleABI from '../abi/aavePriceOracle.json'
-import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
-import { amountFromWei, calculateFee } from '../helpers'
-import { ONE } from '../helpers/constants'
-import * as operation from '../operations'
-import type { OpenStEthAddresses } from '../operations/openStEth'
+import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
+import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
+import { amountFromWei, calculateFee } from '../../helpers'
+import { ONE } from '../../helpers/constants'
+import * as operation from '../../operations'
+import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
 
 interface SwapData {
   fromTokenAddress: string
@@ -90,7 +90,7 @@ export async function openStEth(args: OpenStEthArgs, dependencies: OpenStEthDepe
   const marketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
   const stEthAmountAfterSwapWei = ethAmountToSwapWei.div(marketPriceWithSlippage)
 
-  const calls = await operation.openStEth(
+  const calls = await operation.aave.openStEth(
     {
       depositAmount: depositEthWei,
       flashloanAmount: flashLoanAmountWei,
