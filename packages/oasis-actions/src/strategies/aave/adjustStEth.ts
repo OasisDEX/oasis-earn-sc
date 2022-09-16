@@ -36,14 +36,10 @@ export async function adjustStEth(
   dependencies: AdjustStEthDependencies,
 ): Promise<IStrategy> {
   const existingBasePosition = dependencies.position
-  console.log(
-    'existingBasePosition.debt.amount.toString()',
-    existingBasePosition.debt.amount.toString(),
-  )
-  console.log(
-    'existingBasePosition.collateral.amount.toString()',
-    existingBasePosition.collateral.amount.toString(),
-  )
+  console.log('====')
+  console.log('Existing position')
+  console.log('Debt: ', existingBasePosition.debt.amount.toString())
+  console.log('Collateral: ', existingBasePosition.collateral.amount.toString())
 
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
@@ -98,10 +94,8 @@ export async function adjustStEth(
 
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
-  console.log('ethPrice', ethPrice.toString())
-  console.log('quoteMarketPrice', quoteMarketPrice.toString())
-  console.log('aaveStEthPriceInEth', aaveStEthPriceInEth.toString())
   const flashloanFee = new BigNumber(0)
+
   const target = existingPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
@@ -119,7 +113,7 @@ export async function adjustStEth(
       depositedByUser: {
         debt: args.depositAmount,
       },
-      // debug: true,
+      debug: true,
     },
   )
 
@@ -134,14 +128,10 @@ export async function adjustStEth(
 
   let calls
   if (target.flags.isMultipleIncrease) {
-    console.log('increasing...')
-    console.log('depositEthWei', depositEthWei.toString())
-    console.log('target.delta.debt...', target.delta.debt.toString())
     const borrowEthAmountWei = target.delta.debt.minus(depositEthWei)
-    console.log('borrowEthAmountWei', borrowEthAmountWei.toString())
+
     calls = await operations.aave.increaseMultipleStEth(
       {
-        depositAmount: depositEthWei,
         flashloanAmount: target.delta.flashloanAmount,
         borrowAmount: borrowEthAmountWei,
         fee: FEE,
@@ -158,11 +148,8 @@ export async function adjustStEth(
      * because it's calculated using Debt Delta which will be negative
      */
     const absFlashloanAmount = target.delta.flashloanAmount.abs()
+    const withdrawStEthAmountWei = target.delta.collateral.abs()
 
-    console.log('target.delta.debt.toString()', target.delta.debt.toString())
-    console.log('target.delta.collateral.toString()', target.delta.collateral.toString())
-    const withdrawStEthAmountWei = target.delta.collateral
-    console.log('withdrawStEthAmountWei', withdrawStEthAmountWei.toString())
     calls = await operations.aave.decreaseMultipleStEth(
       {
         flashloanAmount: absFlashloanAmount,

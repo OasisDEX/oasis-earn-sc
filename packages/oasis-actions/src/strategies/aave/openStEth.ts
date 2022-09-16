@@ -96,6 +96,8 @@ export async function openStEth(
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
   const flashloanFee = new BigNumber(0)
+  console.log('====')
+  console.log('Target position when opening')
   const target = emptyPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
@@ -113,7 +115,7 @@ export async function openStEth(
       depositedByUser: {
         debt: args.depositAmount,
       },
-      // debug: true,
+      debug: true,
     },
   )
 
@@ -130,7 +132,6 @@ export async function openStEth(
 
   const calls = await operations.aave.openStEth(
     {
-      depositAmount: depositEthWei,
       flashloanAmount: target.delta.flashloanAmount,
       borrowAmount: borrowEthAmountWei,
       fee: FEE,

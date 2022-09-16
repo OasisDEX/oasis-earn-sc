@@ -121,6 +121,7 @@ contract uSwap {
 
     uint256 allowance = IERC20(fromAsset).allowance(address(this), address(uniswap));
 
+    console.log('swap starting');
     uniswap.exactInputSingle(
       ISwapRouter.ExactInputSingleParams({
         tokenIn: fromAsset,
@@ -133,6 +134,7 @@ contract uSwap {
         sqrtPriceLimitX96: 0
       })
     );
+    console.log('swap successful');
 
     balance = IERC20(toAsset).balanceOf(address(this));
 

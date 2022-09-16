@@ -1,6 +1,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
+  IPosition,
   IStrategy,
   ONE,
   OPERATION_NAMES,
@@ -113,7 +114,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
   })
 
   describe('On forked chain', () => {
-    // Apparently there is not enough liquidity (at tested block) to deposit > 100ETH`
     const depositAmount = amountToWei(new BigNumber(60))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
@@ -126,6 +126,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
+    let actualPosition: IPosition
 
     let feeRecipientWethBalanceBefore: BigNumber
 
@@ -179,6 +180,18 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         ADDRESSES.main.stETH,
         system.common.dsProxy.address,
       )
+
+      actualPosition = new Position(
+        { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
+        { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
+        aaveStEthPriceInEth,
+        strategy.simulation.position.category,
+      )
+
+      console.log('=====')
+      console.log('Actual Position on AAVE')
+      console.log('Debt: ', actualPosition.debt.amount.toString())
+      console.log('Collateral: ', actualPosition.collateral.amount.toString())
     })
 
     it('Tx should pass', () => {
@@ -193,13 +206,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     })
 
     it('Should achieve target multiple', () => {
-      const actualPosition = new Position(
-        { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
-        { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
-        aaveStEthPriceInEth,
-        strategy.simulation.position.category,
-      )
-
       expectToBe(
         strategy.simulation.position.riskRatio.multiple,
         'gte',

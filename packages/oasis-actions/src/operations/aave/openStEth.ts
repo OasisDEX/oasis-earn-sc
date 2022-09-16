@@ -15,7 +15,6 @@ export interface OpenStEthAddresses {
 
 export async function openStEth(
   args: {
-    depositAmount: BigNumber
     flashloanAmount: BigNumber
     borrowAmount: BigNumber
     receiveAtLeast: BigNumber

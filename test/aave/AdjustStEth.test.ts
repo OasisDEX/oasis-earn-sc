@@ -1,6 +1,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
+  IPosition,
   IStrategy,
   ONE,
   OPERATION_NAMES,
@@ -118,10 +119,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
   })
 
   describe('On forked chain', () => {
-    // Apparently there is not enough liquidity (at tested block) to deposit > 100ETH`
-    const depositAmount = amountToWei(new BigNumber(60))
+    const depositAmount = amountToWei(new BigNumber(60 / 1e12))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
+    const aaveStEthPriceInEth = new BigNumber(0.9790986995818977)
 
     let system: DeployedSystemInfo
 
@@ -132,6 +133,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
+    let actualPosition: IPosition
 
     let feeRecipientWethBalanceBefore: BigNumber
 
@@ -186,30 +188,53 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         ADDRESSES.main.stETH,
         system.common.dsProxy.address,
       )
+
+      actualPosition = new Position(
+        { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
+        { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
+        aaveStEthPriceInEth,
+        openStrategy.simulation.position.category,
+      )
+
+      console.log('=====')
+      console.log('Actual Position on AAVE')
+      console.log('Debt: ', actualPosition.debt.amount.toString())
+      console.log('Collateral: ', actualPosition.collateral.amount.toString())
     })
 
     it('Open Position Tx should pass', () => {
       expect(txStatus).to.be.true
     })
 
+    it('Should draw debt according to multiple', () => {
+      expectToBeEqual(
+        openStrategy.simulation.position.debt.amount.toFixed(0),
+        new BigNumber(userAccountData.totalDebtETH.toString()),
+      )
+    })
+
     describe('Increase Loan-to-Value (Increase risk)', () => {
       let adjustStrategyIncreaseRisk: IStrategy
-      const adjustMultipleUp = new BigNumber(3)
+      const adjustMultipleUp = new BigNumber(3.5)
       let increaseRiskTxStatus: boolean
       let increaseRiskTx: ContractReceipt
-      let _userAccountData: AAVEAccountData
-      let _userStEthReserveData: AAVEReserveData
+      let afterUserAccountData: AAVEAccountData
+      let afterUserStEthReserveData: AAVEReserveData
+      let actualPositionAfterIncreaseAdjust: IPosition
 
       before(async () => {
-        resetNode(provider, testBlockNumber)
-
-        const { system: _system } = await deploySystem(config)
-        system = _system
-
         const addresses = {
           ...mainnetAddresses,
           operationExecutor: system.common.operationExecutor.address,
         }
+
+        const beforeUserAccountData = await aaveLendingPool.getUserAccountData(
+          system.common.dsProxy.address,
+        )
+        const beforeUserStEthReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.stETH,
+          system.common.dsProxy.address,
+        )
 
         adjustStrategyIncreaseRisk = await strategies.aave.adjustStEth(
           {
@@ -221,10 +246,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             provider,
             position: {
               debt: {
-                amount: new BigNumber(userAccountData.totalDebtETH.toString()),
+                amount: new BigNumber(beforeUserAccountData.totalDebtETH.toString()),
               },
               collateral: {
-                amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
+                amount: new BigNumber(beforeUserStEthReserveData.currentATokenBalance.toString()),
               },
               category: {
                 liquidationThreshold: new BigNumber(0.75),
@@ -232,7 +257,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
                 dustLimit: new BigNumber(0),
               },
             },
-
             getSwapData: oneInchCallMock,
             dsProxy: system.common.dsProxy.address,
           },
@@ -254,46 +278,40 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             ]),
           },
           signer,
-          depositAmount.toFixed(0),
         )
         increaseRiskTxStatus = _txStatus
         increaseRiskTx = _tx
 
-        _userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
-        _userStEthReserveData = await aaveDataProvider.getUserReserveData(
+        afterUserAccountData = await aaveLendingPool.getUserAccountData(
+          system.common.dsProxy.address,
+        )
+        afterUserStEthReserveData = await aaveDataProvider.getUserReserveData(
           ADDRESSES.main.stETH,
           system.common.dsProxy.address,
         )
+
+        actualPositionAfterIncreaseAdjust = new Position(
+          { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()) },
+          { amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()) },
+          aaveStEthPriceInEth,
+          openStrategy.simulation.position.category,
+        )
+
+        console.log('=====')
+        console.log('Actual Position after increase adjustment on AAVE')
+        console.log('Debt: ', actualPositionAfterIncreaseAdjust.debt.amount.toString())
+        console.log('Collateral: ', actualPositionAfterIncreaseAdjust.collateral.amount.toString())
       })
 
-      it('Increase Position Risk Tx should pass', () => {
+      it('Increase Position Risk T/x should pass', () => {
         expect(increaseRiskTxStatus).to.be.true
       })
 
-      it('Should draw debt according to multiply', () => {
-        console.log(
-          'BeforeuserAccountData.totalDebtETH.toString()',
-          userAccountData.totalDebtETH.toString(),
-        )
-        console.log(
-          '_userAccountData.totalDebtETH.toString()',
-          _userAccountData.totalDebtETH.toString(),
-        )
-        console.log(
-          'adjustStrategyIncreaseRisk.simulation.position.debt.amount.toFixed(0)',
-          adjustStrategyIncreaseRisk.simulation.position.debt.amount.toFixed(0),
-        )
-        expectToBeEqual(
-          adjustStrategyIncreaseRisk.simulation.position.debt.amount.toFixed(0),
-          new BigNumber(_userAccountData.totalDebtETH.toString()),
-        )
-      })
-
-      it('Should deposit all stEth tokens to aave', () => {
+      it('Should draw debt according to multiply', async () => {
         expectToBe(
-          adjustStrategyIncreaseRisk.simulation.swap.minToTokenAmount,
+          adjustStrategyIncreaseRisk.simulation.position.debt.amount.toFixed(0),
           'lte',
-          new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
+          new BigNumber(afterUserAccountData.totalDebtETH.toString()),
         )
       })
 
@@ -317,16 +335,27 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       let reduceRiskTxStatus: boolean
       let reduceRiskTx: ContractReceipt
 
+      let afterUserAccountData: AAVEAccountData
+      let afterUserStEthReserveData: AAVEReserveData
+
       before(async () => {
-        resetNode(provider, testBlockNumber)
-
-        const { system: _system } = await deploySystem(config)
-        system = _system
-
         const addresses = {
           ...mainnetAddresses,
           operationExecutor: system.common.operationExecutor.address,
         }
+
+        const beforeUserAccountData = await aaveLendingPool.getUserAccountData(
+          system.common.dsProxy.address,
+        )
+        const beforeUserStEthReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.stETH,
+          system.common.dsProxy.address,
+        )
+
+        console.log(
+          '[BEFORE DEC] Debt',
+          new BigNumber(beforeUserAccountData.totalDebtETH.toString()).toString(),
+        )
 
         adjustStrategyReduceRisk = await strategies.aave.adjustStEth(
           {
@@ -338,10 +367,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             provider,
             position: {
               debt: {
-                amount: new BigNumber(userAccountData.totalDebtETH.toString()),
+                amount: new BigNumber(beforeUserAccountData.totalDebtETH.toString()),
               },
               collateral: {
-                amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
+                amount: new BigNumber(beforeUserStEthReserveData.currentATokenBalance.toString()),
               },
               category: {
                 liquidationThreshold: new BigNumber(0.75),
@@ -375,17 +404,28 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         reduceRiskTxStatus = _txStatus
         reduceRiskTx = _tx
 
-        userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
-        userStEthReserveData = await aaveDataProvider.getUserReserveData(
+        afterUserAccountData = await aaveLendingPool.getUserAccountData(
+          system.common.dsProxy.address,
+        )
+        afterUserStEthReserveData = await aaveDataProvider.getUserReserveData(
           ADDRESSES.main.stETH,
           system.common.dsProxy.address,
         )
       })
 
+      it('Reduce Position Risk T/x should pass', () => {
+        expect(reduceRiskTxStatus).to.be.true
+      })
+
       it('Should draw debt according to multiply', () => {
+        console.log(
+          '[DEC] simulate Debt',
+          adjustStrategyReduceRisk.simulation.position.debt.amount.toString(),
+        )
+        console.log('[DEC] totalDebtETH', afterUserAccountData.totalDebtETH.toString())
         expectToBeEqual(
           adjustStrategyReduceRisk.simulation.position.debt.amount.toFixed(0),
-          new BigNumber(userAccountData.totalDebtETH.toString()),
+          new BigNumber(afterUserAccountData.totalDebtETH.toString()),
         )
       })
 
@@ -393,7 +433,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         expectToBe(
           adjustStrategyReduceRisk.simulation.swap.minToTokenAmount,
           'lte',
-          new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
+          new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()),
         )
       })
 

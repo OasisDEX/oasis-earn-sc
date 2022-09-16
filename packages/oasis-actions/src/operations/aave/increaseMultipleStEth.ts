@@ -15,7 +15,6 @@ export interface IncreaseMultipleStEthAddresses {
 
 export async function increaseMultipleStEth(
   args: {
-    depositAmount: BigNumber
     flashloanAmount: BigNumber
     borrowAmount: BigNumber
     receiveAtLeast: BigNumber

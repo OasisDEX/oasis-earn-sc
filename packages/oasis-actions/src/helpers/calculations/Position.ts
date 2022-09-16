@@ -229,7 +229,7 @@ export class Position implements IPosition {
 
           `Target loan-to-value: ${targetLTV.toString()}`,
         ],
-        'Calculate Position Params: ',
+        'Params: ',
       )
     }
 
@@ -370,8 +370,10 @@ export class Position implements IPosition {
           `Fee amount ${fee.toString()}`,
           `Fee taken from Base token ${collectFeeFromBaseToken}`,
           `Fee take from Collateral token ${!collectFeeFromBaseToken}`,
+          `Target position debt ${targetPosition.debt.amount.toString()}`,
+          `Target position collateral ${targetPosition.collateral.amount.toString()}`,
         ],
-        'Generate Target Position Values: ',
+        'Output: ',
       )
     }
 
