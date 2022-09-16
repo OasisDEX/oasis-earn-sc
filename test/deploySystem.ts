@@ -110,6 +110,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     serviceRegistryAddress,
   ])
 
+  const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
+
   //-- Maker Actions
   const [actionOpenVault, actionOpenVaultAddress] = await deploy(CONTRACT_NAMES.maker.OPEN_VAULT, [
     serviceRegistryAddress,
@@ -143,6 +145,11 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
 
   const [withdrawInAAVEAction, actionWithdrawFromAAVEAddress] = await deploy(
     CONTRACT_NAMES.aave.WITHDRAW,
+    [serviceRegistryAddress],
+  )
+
+  const [paybackInAAVEAction, actionPaybackFromAAVEAddress] = await deploy(
+    CONTRACT_NAMES.aave.PAYBACK,
     [serviceRegistryAddress],
   )
 
@@ -189,6 +196,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
   await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
   await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
 
+  await registry.addEntry(CONTRACT_NAMES.common.RETURN_FUNDS, returnFundsActionAddress)
+
   //-- Add Maker Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_VIEW, mcdViewAddress)
@@ -231,6 +240,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
   const aaveWithdrawHash = await registry.addEntry(
     CONTRACT_NAMES.aave.WITHDRAW,
     actionWithdrawFromAAVEAddress,
+  )
+  const aavePaybackHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.PAYBACK,
+    actionPaybackFromAAVEAddress,
   )
   const aaveWethGatewayHash = await registry.addEntry(
     CONTRACT_NAMES.aave.WETH_GATEWAY,
@@ -376,6 +389,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
       deposit: depositInAAVEAction,
       withdraw: withdrawInAAVEAction,
       borrow: borrowInAAVEAction,
+      payback: paybackInAAVEAction,
     },
   }
 

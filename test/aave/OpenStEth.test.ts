@@ -9,7 +9,7 @@ import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
-import init, { resetNode } from '../../helpers/init'
+import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
@@ -101,7 +101,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     provider = config.provider
     signer = config.signer
 
-    await resetNode(provider, testBlockNumber)
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
       AAVELendigPoolABI,
@@ -118,7 +117,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let system: DeployedSystemInfo
 
-    let strategy: IStrategy
+    let strategyReturn: Awaited<ReturnType<typeof strategy.aave.openStEth>>
     let txStatus: boolean
     let tx: ContractReceipt
 
@@ -128,7 +127,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
-      resetNode(provider, testBlockNumber)
+      await resetNode(provider, testBlockNumber)
 
       const { system: _system } = await deploySystem(config)
       system = _system
@@ -138,7 +137,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      strategy = await strategies.openStEth(
+      strategyReturn = await strategy.aave.openStEth(
         {
           depositAmount,
           slippage,
@@ -220,7 +219,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let system: DeployedSystemInfo
 
-    let strategy: IStrategy
+    let strategyReturn: Awaited<ReturnType<typeof strategy.aave.openStEth>>
     let txStatus: boolean
     let tx: ContractReceipt
 
@@ -231,13 +230,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     before(async () => {
       //Reset to the latest block
-      await provider.send('hardhat_reset', [
-        {
-          forking: {
-            jsonRpcUrl: process.env.MAINNET_URL,
-          },
-        },
-      ])
+      await resetNodeToLatestBlock(provider)
 
       const { system: _system } = await deploySystem(config, false, false)
       system = _system
@@ -253,7 +246,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         { config, isFormatted: true },
       )
 
-      strategy = await strategies.openStEth(
+      strategyReturn = await strategy.aave.openStEth(
         {
           depositAmount,
           slippage,
