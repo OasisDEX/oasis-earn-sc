@@ -1,24 +1,17 @@
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 
-import aavePriceOracleABI from '../abi/aavePriceOracle.json'
-import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
-import { ActionCall } from '../actions/types/actionCall'
-import { amountFromWei } from '../helpers'
-import { IPositionChange, Position } from '../helpers/calculations/Position'
-import { IRiskRatio, RiskRatio } from '../helpers/calculations/RiskRatio'
-import { ZERO } from '../helpers/constants'
-import * as operations from '../operations'
-import type { OpenStEthAddresses } from '../operations/openStEth'
-
-interface SwapData {
-  fromTokenAddress: string
-  toTokenAddress: string
-  fromTokenAmount: BigNumber
-  toTokenAmount: BigNumber
-  minToTokenAmount: BigNumber
-  exchangeCalldata: string | number
-}
+import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
+import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
+import { ActionCall } from '../../actions/types/actionCall'
+import { amountFromWei } from '../../helpers'
+import { IPositionChange, Position } from '../../helpers/calculations/Position'
+import { IRiskRatio, RiskRatio } from '../../helpers/calculations/RiskRatio'
+import { ZERO } from '../../helpers/constants'
+import * as operations from '../../operations'
+import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
+import { IStrategy } from '../types/IStrategy'
+import { SwapData } from '../types/SwapData'
 
 interface OpenStEthArgs {
   depositAmount: BigNumber // in wei
@@ -36,17 +29,6 @@ interface OpenStEthDependencies {
     slippage: BigNumber,
   ) => Promise<SwapData>
   dsProxy: string
-}
-
-interface ISimulation extends IPositionChange {
-  prices: { debtTokenPrice: BigNumber; collateralTokenPrices: BigNumber | BigNumber[] }
-  swap: SwapData & { fee: BigNumber }
-  minConfigurableRiskRatio: IRiskRatio
-}
-
-export interface IStrategy {
-  calls: ActionCall[]
-  simulation: ISimulation
 }
 
 export async function openStEth(
@@ -97,7 +79,6 @@ export async function openStEth(
   const depositEthWei = args.depositAmount
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
-  console.log('aaveStEthPriceInEth:', aaveStEthPriceInEth.toString())
   const emptyPosition = new Position({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
     liquidationThreshold,
     maxLoanToValue,
@@ -147,7 +128,7 @@ export async function openStEth(
 
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
-  const calls = await operations.openStEth(
+  const calls = await operations.aave.openStEth(
     {
       depositAmount: depositEthWei,
       flashloanAmount: target.delta.flashloanAmount,
@@ -162,12 +143,9 @@ export async function openStEth(
   )
 
   const stEthAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
-  console.log('stEthAmountAfterSwapWei[strategy]', stEthAmountAfterSwapWei.toString())
   /*
     Final position calculated using actual swap data and the latest market price
    */
-  console.log('aaveStEthPriceInEth[strategy]', aaveStEthPriceInEth.toString())
-
   const finalPosition = new Position(
     target.position.debt,
     { amount: stEthAmountAfterSwapWei, denomination: target.position.collateral.denomination },

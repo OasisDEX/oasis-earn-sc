@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-import * as actions from '../actions'
+import * as actions from '../../actions'
 
 export interface IncreaseMultipleStEthAddresses {
   DAI: string
@@ -13,7 +13,7 @@ export interface IncreaseMultipleStEthAddresses {
   aaveLendingPool: string
 }
 
-export async function increaseMultipleStEth(
+export async function decreaseMultipleStEth(
   args: {
     depositAmount: BigNumber
     flashloanAmount: BigNumber

@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 
-import * as actions from '../actions'
+import * as actions from '../../actions'
 
-export interface OpenStEthAddresses {
+export interface IncreaseMultipleStEthAddresses {
   DAI: string
   ETH: string
   WETH: string
@@ -13,7 +13,7 @@ export interface OpenStEthAddresses {
   aaveLendingPool: string
 }
 
-export async function openStEth(
+export async function increaseMultipleStEth(
   args: {
     depositAmount: BigNumber
     flashloanAmount: BigNumber
@@ -24,7 +24,7 @@ export async function openStEth(
     ethSwapAmount: BigNumber
     dsProxy: string
   },
-  addresses: OpenStEthAddresses,
+  addresses: IncreaseMultipleStEthAddresses,
 ) {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,

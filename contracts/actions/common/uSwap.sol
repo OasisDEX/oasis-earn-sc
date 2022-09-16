@@ -120,9 +120,6 @@ contract uSwap {
     uint24 pool = getPool(fromAsset, toAsset);
 
     uint256 allowance = IERC20(fromAsset).allowance(address(this), address(uniswap));
-    console.log('allowance');
-    console.log(allowance);
-
 
     uniswap.exactInputSingle(
       ISwapRouter.ExactInputSingleParams({
