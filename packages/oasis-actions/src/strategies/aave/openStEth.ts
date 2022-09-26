@@ -96,8 +96,9 @@ export async function openStEth(
 
   const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
 
-  const liquidationThreshold = new BigNumber(reserveData.liquidationThreshold.toString())
-  const maxLoanToValue = new BigNumber(reserveData.ltv.toString())
+  const BASE = new BigNumber(10000)
+  const liquidationThreshold = new BigNumber(reserveData.liquidationThreshold.toString()).div(BASE)
+  const maxLoanToValue = new BigNumber(reserveData.ltv.toString()).div(BASE)
 
   // TODO: Read it from blockchain if AAVE introduces a dust limit
   const dustLimit = new BigNumber(0)
@@ -109,7 +110,6 @@ export async function openStEth(
   const depositEthWei = args.depositAmount
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
-  console.log('aaveStEthPriceInEth:', aaveStEthPriceInEth.toString())
   const emptyPosition = new Position({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
     liquidationThreshold,
     maxLoanToValue,
@@ -119,6 +119,8 @@ export async function openStEth(
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
   const flashloanFee = new BigNumber(0)
+  console.log('====')
+  console.log('Target position when opening')
   const target = emptyPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
@@ -136,7 +138,7 @@ export async function openStEth(
       depositedByUser: {
         debt: args.depositAmount,
       },
-      // debug: true,
+      debug: true,
     },
   )
 
@@ -166,12 +168,10 @@ export async function openStEth(
   )
 
   const stEthAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
-  console.log('stEthAmountAfterSwapWei[strategy]', stEthAmountAfterSwapWei.toString())
+
   /*
     Final position calculated using actual swap data and the latest market price
    */
-  console.log('aaveStEthPriceInEth[strategy]', aaveStEthPriceInEth.toString())
-
   const finalPosition = new Position(
     target.position.debt,
     { amount: stEthAmountAfterSwapWei, denomination: target.position.collateral.denomination },

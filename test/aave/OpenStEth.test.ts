@@ -1,5 +1,12 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES, ONE, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import {
+  ADDRESSES,
+  IPosition,
+  ONE,
+  OPERATION_NAMES,
+  Position,
+  strategies,
+} from '@oasisdex/oasis-actions'
 import { IStrategy } from '@oasisdex/oasis-actions/lib/src/strategies/aave'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -107,24 +114,25 @@ describe(`Strategy | AAVE | Open Position`, async () => {
   })
 
   describe('On forked chain', () => {
-    // Apparently there is not enough liquidity (at tested block) to deposit > 100ETH`
-    const depositAmount = amountToWei(new BigNumber(60))
+    const depositAmount = amountToWei(new BigNumber(60 / 1e12))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
+    const aaveStEthPriceInEth = new BigNumber(0.98066643)
 
     let system: DeployedSystemInfo
 
     let strategy: IStrategy
     let txStatus: boolean
-    let tx: ContractReceipt
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
+    let actualPosition: IPosition
 
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
-      await resetNode(provider, testBlockNumber)
+      const testSpecificBlock = 15200000 // Must be this block to match oracle price above (used when constructing actualPosition below)
+      await resetNode(provider, testSpecificBlock)
 
       const { system: _system } = await deploySystem(config)
       system = _system
@@ -173,6 +181,18 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         ADDRESSES.main.stETH,
         system.common.dsProxy.address,
       )
+
+      actualPosition = new Position(
+        { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
+        { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
+        aaveStEthPriceInEth,
+        strategy.simulation.position.category,
+      )
+
+      console.log('=====')
+      console.log('Actual Position on AAVE')
+      console.log('Debt: ', actualPosition.debt.amount.toString())
+      console.log('Collateral: ', actualPosition.collateral.amount.toString())
     })
 
     it('Tx should pass', () => {
@@ -191,6 +211,14 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         strategy.simulation.swap.minToTokenAmount,
         'lte',
         new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
+      )
+    })
+
+    it('Should achieve target multiple', () => {
+      expectToBe(
+        strategy.simulation.position.riskRatio.multiple,
+        'gte',
+        actualPosition.riskRatio.multiple,
       )
     })
 
