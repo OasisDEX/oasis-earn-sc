@@ -1,46 +1,41 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
-  IPosition,
   IStrategy,
-  ONE,
+  IVault,
   OPERATION_NAMES,
-  Position,
   strategies,
+  Vault,
 } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
-import { Contract, ContractReceipt, Signer } from 'ethers'
+import { Contract, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import { executeThroughProxy } from '../../helpers/deploy'
-import init, { resetNode } from '../../helpers/init'
+import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
-import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBe, expectToBeEqual } from '../utils'
 
-const oneInchCallMock = async (
-  from: string,
-  to: string,
-  amount: BigNumber,
-  slippage: BigNumber,
-) => {
-  const marketPrice = new BigNumber(0.979)
-  return {
-    fromTokenAddress: from,
-    toTokenAddress: to,
-    fromTokenAmount: amount,
-    toTokenAmount: amount.div(marketPrice),
-    minToTokenAmount: amount
-      .div(marketPrice.times(ONE.plus(slippage)))
-      .integerValue(BigNumber.ROUND_DOWN),
-    exchangeCalldata: 0,
+const oneInchCallMock =
+  (marketPrice: BigNumber) =>
+  async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
+    return {
+      fromTokenAddress: from,
+      toTokenAddress: to,
+      fromTokenAmount: amount,
+      toTokenAmount: amount.div(marketPrice),
+      minToTokenAmount: amount
+        .div(marketPrice)
+        .times(new BigNumber(1).minus(slippage))
+        .integerValue(BigNumber.ROUND_DOWN), // TODO: figure out slippage
+      exchangeCalldata: 0,
+    }
   }
-}
 
 const getOneInchRealCall =
   (swapAddress: string) =>
@@ -95,6 +90,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     WETH: ADDRESSES.main.WETH,
     stETH: ADDRESSES.main.stETH,
     chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
+    aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
     aavePriceOracle: ADDRESSES.main.aavePriceOracle,
     aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
   }
@@ -104,7 +100,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     provider = config.provider
     signer = config.signer
 
-    await resetNode(provider, testBlockNumber)
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
       AAVELendigPoolABI,
@@ -114,10 +109,10 @@ describe(`Strategy | AAVE | Open Position`, async () => {
   })
 
   describe('On forked chain', () => {
-    const depositAmount = amountToWei(new BigNumber(60))
+    const depositAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
-    const aaveStEthPriceInEth = new BigNumber(0.9790986995818977)
+    const aaveStEthPriceInEth = new BigNumber(0.98066643)
 
     let system: DeployedSystemInfo
 
@@ -126,12 +121,13 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
-    let actualPosition: IPosition
+    let actualVault: IVault
 
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
-      resetNode(provider, testBlockNumber)
+      const testSpecificBlock = 15200000 // Must be this block to match oracle price above (used when constructing actualPosition below)
+      await resetNode(provider, testSpecificBlock)
 
       const { system: _system } = await deploySystem(config)
       system = _system
@@ -150,7 +146,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         {
           addresses,
           provider,
-          getSwapData: oneInchCallMock,
+          getSwapData: oneInchCallMock(new BigNumber(0.9759)),
           dsProxy: system.common.dsProxy.address,
         },
       )
@@ -181,17 +177,12 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         system.common.dsProxy.address,
       )
 
-      actualPosition = new Position(
+      actualVault = new Vault(
         { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
         { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
         aaveStEthPriceInEth,
-        strategy.simulation.position.category,
+        strategy.simulation.vault.category,
       )
-
-      console.log('=====')
-      console.log('Actual Position on AAVE')
-      console.log('Debt: ', actualPosition.debt.amount.toString())
-      console.log('Collateral: ', actualPosition.collateral.amount.toString())
     })
 
     it('Tx should pass', () => {
@@ -200,16 +191,8 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     it('Should draw debt according to multiple', () => {
       expectToBeEqual(
-        strategy.simulation.position.debt.amount.toFixed(0),
+        strategy.simulation.vault.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
-      )
-    })
-
-    it('Should achieve target multiple', () => {
-      expectToBe(
-        strategy.simulation.position.riskRatio.multiple,
-        'gte',
-        actualPosition.riskRatio.multiple,
       )
     })
 
@@ -218,6 +201,14 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         strategy.simulation.swap.minToTokenAmount,
         'lte',
         new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
+      )
+    })
+
+    it('Should achieve target multiple', () => {
+      expectToBe(
+        strategy.simulation.vault.riskRatio.multiple,
+        'gte',
+        actualVault.riskRatio.multiple,
       )
     })
 
@@ -237,7 +228,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
   })
 
   describe.skip('On latest block using one inch exchange and api', () => {
-    const depositAmount = amountToWei(new BigNumber(60))
+    const depositAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
@@ -245,7 +236,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let strategy: IStrategy
     let txStatus: boolean
-    let tx: ContractReceipt
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
@@ -254,13 +244,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     before(async () => {
       //Reset to the latest block
-      await provider.send('hardhat_reset', [
-        {
-          forking: {
-            jsonRpcUrl: process.env.MAINNET_URL,
-          },
-        },
-      ])
+      await resetNodeToLatestBlock(provider)
 
       const { system: _system } = await deploySystem(config, false, false)
       system = _system
@@ -315,9 +299,9 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       expect(txStatus).to.be.true
     })
 
-    it('Should draw debt according to multiply', () => {
+    it('Should draw debt according to multiple', () => {
       expectToBeEqual(
-        strategy.simulation.position.debt.amount.toFixed(0),
+        strategy.simulation.vault.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
