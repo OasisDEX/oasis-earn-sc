@@ -1,13 +1,12 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES, ONE, OPERATION_NAMES, Position, strategies } from '@oasisdex/oasis-actions'
-import { IStrategy } from '@oasisdex/oasis-actions/lib/src/strategies'
+import { ADDRESSES, ONE, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { IStrategy } from '@oasisdex/oasis-actions/lib/src/strategies/aave'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { Contract, ContractReceipt, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
-
 import { executeThroughProxy } from '../../helpers/deploy'
 import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
@@ -89,6 +88,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     WETH: ADDRESSES.main.WETH,
     stETH: ADDRESSES.main.stETH,
     chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
+    aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
     aavePriceOracle: ADDRESSES.main.aavePriceOracle,
     aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
   }
