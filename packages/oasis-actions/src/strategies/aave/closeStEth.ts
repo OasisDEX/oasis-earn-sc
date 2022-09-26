@@ -77,6 +77,7 @@ export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthD
   const marketPice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
   const ethAmountAfterSwapWei = swapData.minToTokenAmount
 
+  console.log('Close: stEthAmountLockedInAave', args.stEthAmountLockedInAave.toString())
   const calls = await operation.aave.closeStEth(
     {
       stEthAmount: args.stEthAmountLockedInAave,

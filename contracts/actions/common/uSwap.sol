@@ -119,11 +119,19 @@ contract uSwap {
     IERC20(fromAsset).safeApprove(address(uniswap), amount);
     uint24 pool = getPool(fromAsset, toAsset);
 
-    uint256 allowance = IERC20(fromAsset).allowance(address(this), address(uniswap));
-    console.log('allowance');
-    console.log(allowance);
+    uint256 fromAllowance = IERC20(fromAsset).allowance(address(this), address(uniswap));
+    uint256 toAllowance = IERC20(toAsset).allowance(address(this), address(uniswap));
 
+    console.log('from allowance');
+    console.log(fromAllowance);
 
+    console.log('to allowance');
+    console.log(toAllowance);
+
+    console.log('amount of FROM token to swap');
+    console.log(amount);
+
+    console.log('swap starting');
     uniswap.exactInputSingle(
       ISwapRouter.ExactInputSingleParams({
         tokenIn: fromAsset,
@@ -136,9 +144,10 @@ contract uSwap {
         sqrtPriceLimitX96: 0
       })
     );
-
+    console.log('swap successful');
     balance = IERC20(toAsset).balanceOf(address(this));
-
+    console.log('balance');
+    console.log(balance);
     if (balance == 0) {
       revert SwapFailed();
     }

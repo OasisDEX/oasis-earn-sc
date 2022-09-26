@@ -6,7 +6,7 @@ import { OperationStorage } from "../../core/OperationStorage.sol";
 import { ILendingPool } from "../../interfaces/aave/ILendingPool.sol";
 import { WithdrawData } from "../../core/types/Aave.sol";
 import { AAVE_LENDING_POOL, WITHDRAW_ACTION } from "../../core/constants/Aave.sol";
-
+import "hardhat/console.sol";
 contract AaveWithdraw is Executable, UseStore {
   using Write for OperationStorage;
 
@@ -15,10 +15,11 @@ contract AaveWithdraw is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     WithdrawData memory withdraw = abi.decode(data, (WithdrawData));
 
+    console.log('withdraw starting');
     uint256 amountWithdrawn = ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL))
       .withdraw(withdraw.asset, type(uint256).max, withdraw.to);
     store().write(bytes32(amountWithdrawn));
-
+    console.log('withdraw:', amountWithdrawn);
     emit Action(WITHDRAW_ACTION, bytes32(amountWithdrawn));
   }
 }

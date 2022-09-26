@@ -23,24 +23,21 @@ import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBe, expectToBeEqual } from '../utils'
 
-const oneInchCallMock = async (
-  from: string,
-  to: string,
-  amount: BigNumber,
-  slippage: BigNumber,
-) => {
-  const marketPrice = new BigNumber(0.979)
-  return {
-    fromTokenAddress: from,
-    toTokenAddress: to,
-    fromTokenAmount: amount,
-    toTokenAmount: amount.div(marketPrice),
-    minToTokenAmount: amount
-      .div(marketPrice.times(ONE.plus(slippage)))
-      .integerValue(BigNumber.ROUND_DOWN),
-    exchangeCalldata: 0,
+const oneInchCallMock =
+  (marketPrice: BigNumber) =>
+  async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
+    return {
+      fromTokenAddress: from,
+      toTokenAddress: to,
+      fromTokenAmount: amount,
+      toTokenAmount: amount.div(marketPrice),
+      minToTokenAmount: amount
+        .div(marketPrice)
+        .times(new BigNumber(1).minus(slippage))
+        .integerValue(BigNumber.ROUND_DOWN), // TODO: figure out slippage
+      exchangeCalldata: 0,
+    }
   }
-}
 
 const getOneInchRealCall =
   (swapAddress: string) =>
@@ -114,7 +111,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
   })
 
   describe('On forked chain', () => {
-    const depositAmount = amountToWei(new BigNumber(60 / 1e12))
+    const depositAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
     const aaveStEthPriceInEth = new BigNumber(0.98066643)
@@ -151,7 +148,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         {
           addresses,
           provider,
-          getSwapData: oneInchCallMock,
+          getSwapData: oneInchCallMock(new BigNumber(0.9759)),
           dsProxy: system.common.dsProxy.address,
         },
       )
@@ -238,7 +235,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
   })
 
   describe.skip('On latest block using one inch exchange and api', () => {
-    const depositAmount = amountToWei(new BigNumber(60))
+    const depositAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
