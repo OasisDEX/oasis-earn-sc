@@ -12,17 +12,6 @@ import * as operation from '../../operations'
 import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
 import { IStrategy } from '../types/IStrategy'
 import { SwapData } from '../types/SwapData'
-import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
-import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
-import { ActionCall } from '../../actions/types/actionCall'
-import { amountFromWei } from '../../helpers'
-import { IPositionChange, Position } from '../../helpers/calculations/Position'
-import { IRiskRatio, RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { ZERO } from '../../helpers/constants'
-import * as operations from '../../operations'
-import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
-import { IStrategy } from '../types/IStrategy'
-import { SwapData } from '../types/SwapData'
 
 interface OpenStEthArgs {
   depositAmount: BigNumber // in wei
@@ -146,7 +135,7 @@ export async function openStEth(
 
   const calls = await operation.aave.openStEth(
     {
-      depositAmount: depositEthWei,
+      // depositAmount: depositEthWei,
       flashloanAmount: target.delta?.flashloanAmount || ZERO,
       borrowAmount: borrowEthAmountWei,
       fee: FEE,
