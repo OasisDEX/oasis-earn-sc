@@ -160,7 +160,7 @@ contract uSwap {
       revert FeeTierDoesNotExist(fee);
     }
     uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
-
+    
     if (fee > 0) {
       IERC20(asset).safeTransfer(feeBeneficiaryAddress, feeToTransfer);
       emit FeePaid(feeBeneficiaryAddress, feeToTransfer, asset);
@@ -216,7 +216,7 @@ contract uSwap {
     if (swapData.collectFeeInFromToken) {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
-
+    
     uint256 toTokenBalance = _swap(
       swapData.fromAsset,
       swapData.toAsset,

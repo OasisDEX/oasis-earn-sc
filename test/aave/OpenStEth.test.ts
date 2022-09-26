@@ -7,9 +7,9 @@ import { Contract, ContractReceipt, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
-import ERC20ABI from '../../abi/IERC20.json'
+
 import { executeThroughProxy } from '../../helpers/deploy'
-import init, { resetNode } from '../../helpers/init'
+import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
@@ -98,7 +98,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     provider = config.provider
     signer = config.signer
 
-    await resetNode(provider, testBlockNumber)
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
       AAVELendigPoolABI,
@@ -112,12 +111,12 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     const depositAmount = amountToWei(new BigNumber(60))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
-    const aaveStEthPriceInEth = new BigNumber(0.9790986995818977)
 
     let system: DeployedSystemInfo
 
     let strategy: IStrategy
     let txStatus: boolean
+    let tx: ContractReceipt
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
@@ -125,7 +124,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
-      resetNode(provider, testBlockNumber)
+      await resetNode(provider, testBlockNumber)
 
       const { system: _system } = await deploySystem(config)
       system = _system
@@ -135,7 +134,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      strategy = await strategies.openStEth(
+      strategy = await strategies.aave.openStEth(
         {
           depositAmount,
           slippage,
@@ -187,56 +186,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       )
     })
 
-    it('Should achieve target multiple', () => {
-      console.log('aaveStEthPriceInEth[tests]', aaveStEthPriceInEth.toString())
-      const actualPosition = new Position(
-        { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
-        { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
-        aaveStEthPriceInEth,
-        strategy.simulation.position.category,
-      )
-
-      console.log('SIMULATED')
-      console.log(
-        'strategy.simulation.swap.fromTokenAmount:',
-        strategy.simulation.swap.fromTokenAmount.toString(),
-      )
-      console.log(
-        'strategy.simulation.swap.fromTokenAmount:',
-        strategy.simulation.swap.fromTokenAmount.toString(),
-      )
-      console.log('simulated')
-      console.log(
-        'strategy.simulation.position.collateral:',
-        strategy.simulation.position.collateral.amount.toString(),
-      )
-      console.log(
-        'strategy.simulation.position.debt:',
-        strategy.simulation.position.debt.amount.toString(),
-      )
-      console.log(
-        'strategy.simulation.position.riskRatio.multiple:',
-        strategy.simulation.position.riskRatio.multiple.toString(),
-      )
-
-      console.log(
-        'strategy.simulation.swap.minToTokenAmount:',
-        strategy.simulation.swap.minToTokenAmount.toString(),
-      )
-
-      console.log('ACTUAL')
-      console.log('actualPosition.collateral:', actualPosition.collateral.amount.toString())
-      console.log('actualPosition.debt:', actualPosition.debt.amount.toString())
-      console.log(
-        'actualPosition.riskRatio.multiple:',
-        actualPosition.riskRatio.multiple.toString(),
-      )
-      expectToBeEqual(
-        strategy.simulation.position.riskRatio.multiple,
-        actualPosition.riskRatio.multiple,
-      )
-    })
-
     it('Should deposit all stEth tokens to aave', () => {
       expectToBe(
         strategy.simulation.swap.minToTokenAmount,
@@ -278,13 +227,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     before(async () => {
       //Reset to the latest block
-      await provider.send('hardhat_reset', [
-        {
-          forking: {
-            jsonRpcUrl: process.env.MAINNET_URL,
-          },
-        },
-      ])
+      await resetNodeToLatestBlock(provider)
 
       const { system: _system } = await deploySystem(config, false, false)
       system = _system
@@ -300,7 +243,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         { config, isFormatted: true },
       )
 
-      strategy = await strategies.openStEth(
+      strategy = await strategies.aave.openStEth(
         {
           depositAmount,
           slippage,
@@ -339,7 +282,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       expect(txStatus).to.be.true
     })
 
-    it('Should draw debt according to multiply', () => {
+    it('Should draw debt according to multiple', () => {
       expectToBeEqual(
         strategy.simulation.position.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),

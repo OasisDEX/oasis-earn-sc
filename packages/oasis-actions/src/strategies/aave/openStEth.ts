@@ -1,15 +1,16 @@
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 
-import aavePriceOracleABI from '../abi/aavePriceOracle.json'
-import chainlinkPriceFeedABI from '../abi/chainlinkPriceFeedABI.json'
-import { ActionCall } from '../actions/types/actionCall'
-import { amountFromWei } from '../helpers'
-import { IPositionChange, Position } from '../helpers/calculations/Position'
-import { IRiskRatio, RiskRatio } from '../helpers/calculations/RiskRatio'
-import { ZERO } from '../helpers/constants'
-import * as operations from '../operations'
-import type { OpenStEthAddresses } from '../operations/openStEth'
+import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
+import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
+import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
+import { ActionCall } from '../../actions/types/actionCall'
+import { amountFromWei } from '../../helpers'
+import { IPositionChange, Position } from '../../helpers/calculations/Position'
+import { IRiskRatio, RiskRatio } from '../../helpers/calculations/RiskRatio'
+import { ZERO } from '../../helpers/constants'
+import * as operation from '../../operations'
+import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
 
 interface SwapData {
   fromTokenAddress: string
@@ -59,39 +60,50 @@ export async function openStEth(
     dependencies.provider,
   )
 
-  const roundData = await priceFeed.latestRoundData()
-  const decimals = await priceFeed.decimals()
-  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
-
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
     aavePriceOracleABI,
     dependencies.provider,
   )
 
-  const aaveWethPriceInEth = await aavePriceOracle
-    .getAssetPrice(dependencies.addresses.WETH)
-    .then((amount: ethers.BigNumberish) => amount.toString())
-    .then((amount: string) => new BigNumber(amount))
-    .then((amount: BigNumber) => amountFromWei(amount))
+  const aaveProtocolDataProvider = new ethers.Contract(
+    dependencies.addresses.aaveProtocolDataProvider,
+    aaveProtocolDataProviderABI,
+    dependencies.provider,
+  )
 
-  const aaveStEthPriceInEth = await aavePriceOracle
-    .getAssetPrice(dependencies.addresses.stETH)
-    .then((amount: ethers.BigNumberish) => amount.toString())
-    .then((amount: string) => new BigNumber(amount))
-    .then((amount: BigNumber) => amountFromWei(amount))
+  const slippage = args.slippage
+  const estimatedSwapAmount = new BigNumber(1)
 
-  // https://docs.aave.com/risk/v/aave-v2/asset-risk/risk-parameters
-  // TODO: these figures should be read from the blockchain
-  const liquidationThreshold = new BigNumber(0.75)
-  const maxLoanToValue = new BigNumber(0.73)
+  const [roundData, decimals, aaveWethPriceInEth, aaveStEthPriceInEth, reserveData, quoteSwapData] =
+    await Promise.all([
+      priceFeed.latestRoundData(),
+      priceFeed.decimals(),
+      aavePriceOracle
+        .getAssetPrice(dependencies.addresses.WETH)
+        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+      aavePriceOracle
+        .getAssetPrice(dependencies.addresses.stETH)
+        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+      aaveProtocolDataProvider.getReserveConfigurationData(dependencies.addresses.stETH),
+      dependencies.getSwapData(
+        dependencies.addresses.WETH,
+        dependencies.addresses.stETH,
+        estimatedSwapAmount,
+        new BigNumber(slippage),
+      ),
+    ])
+
+  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
+
+  const liquidationThreshold = new BigNumber(reserveData.liquidationThreshold.toString())
+  const maxLoanToValue = new BigNumber(reserveData.ltv.toString())
 
   // TODO: Read it from blockchain if AAVE introduces a dust limit
   const dustLimit = new BigNumber(0)
 
   const FEE = 20
 
-  const slippage = args.slippage
   const multiple = args.multiple
 
   const depositEthWei = args.depositAmount
@@ -103,14 +115,6 @@ export async function openStEth(
     maxLoanToValue,
     dustLimit,
   })
-
-  const estimatedSwapAmount = new BigNumber(1)
-  const quoteSwapData = await dependencies.getSwapData(
-    dependencies.addresses.WETH,
-    dependencies.addresses.stETH,
-    estimatedSwapAmount,
-    new BigNumber(slippage),
-  )
 
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
@@ -147,7 +151,7 @@ export async function openStEth(
 
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
-  const calls = await operations.openStEth(
+  const calls = await operation.aave.openStEth(
     {
       depositAmount: depositEthWei,
       flashloanAmount: target.delta.flashloanAmount,
