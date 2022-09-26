@@ -4,22 +4,14 @@ import { ethers, providers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
-import { ActionCall } from '../../actions/types/actionCall'
 import { amountFromWei } from '../../helpers'
-import { IPositionChange, Position } from '../../helpers/calculations/Position'
-import { IRiskRatio, RiskRatio } from '../../helpers/calculations/RiskRatio'
+import { RiskRatio } from '../../helpers/calculations/RiskRatio'
+import { Vault } from '../../helpers/calculations/Vault'
 import { ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
 import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
-
-interface SwapData {
-  fromTokenAddress: string
-  toTokenAddress: string
-  fromTokenAmount: BigNumber
-  toTokenAmount: BigNumber
-  minToTokenAmount: BigNumber
-  exchangeCalldata: string | number
-}
+import { IStrategy } from '../types/IStrategy'
+import { SwapData } from '../types/SwapData'
 
 interface OpenStEthArgs {
   depositAmount: BigNumber // in wei
@@ -37,17 +29,6 @@ interface OpenStEthDependencies {
     slippage: BigNumber,
   ) => Promise<SwapData>
   dsProxy: string
-}
-
-interface ISimulation extends IPositionChange {
-  prices: { debtTokenPrice: BigNumber; collateralTokenPrices: BigNumber | BigNumber[] }
-  swap: SwapData & { fee: BigNumber }
-  minConfigurableRiskRatio: IRiskRatio
-}
-
-export interface IStrategy {
-  calls: ActionCall[]
-  simulation: ISimulation
 }
 
 export async function openStEth(
@@ -110,7 +91,7 @@ export async function openStEth(
   const depositEthWei = args.depositAmount
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
-  const emptyPosition = new Position({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
+  const emptyVault = new Vault({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
     liquidationThreshold,
     maxLoanToValue,
     dustLimit,
@@ -119,9 +100,8 @@ export async function openStEth(
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
   const flashloanFee = new BigNumber(0)
-  console.log('====')
-  console.log('Target position when opening')
-  const target = emptyPosition.adjustToTargetRiskRatio(
+
+  const target = emptyVault.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
       fees: {
@@ -134,11 +114,11 @@ export async function openStEth(
         oracleFLtoDebtToken: ethPrice,
       },
       slippage: args.slippage,
-      maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
+      maxLoanToValueFL: emptyVault.category.maxLoanToValue,
       depositedByUser: {
         debt: args.depositAmount,
       },
-      debug: true,
+      // debug: true,
     },
   )
 
@@ -156,7 +136,7 @@ export async function openStEth(
   const calls = await operation.aave.openStEth(
     {
       depositAmount: depositEthWei,
-      flashloanAmount: target.delta.flashloanAmount,
+      flashloanAmount: target.delta?.flashloanAmount || ZERO,
       borrowAmount: borrowEthAmountWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
@@ -170,13 +150,13 @@ export async function openStEth(
   const stEthAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
 
   /*
-    Final position calculated using actual swap data and the latest market price
+    Final vault calculated using actual swap data and the latest market price
    */
-  const finalPosition = new Position(
-    target.position.debt,
-    { amount: stEthAmountAfterSwapWei, denomination: target.position.collateral.denomination },
+  const finalVault = new Vault(
+    target.vault.debt,
+    { amount: stEthAmountAfterSwapWei, denomination: target.vault.collateral.denomination },
     aaveStEthPriceInEth,
-    target.position.category,
+    target.vault.category,
   )
 
   const prices = {
@@ -194,10 +174,8 @@ export async function openStEth(
         ...swapData,
         fee: amountFromWei(target.swap.fee),
       },
-      position: finalPosition,
-      minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
-        actualMarketPriceWithSlippage,
-      ),
+      vault: finalVault,
+      minConfigurableRiskRatio: finalVault.minConfigurableRiskRatio(actualMarketPriceWithSlippage),
       prices,
     },
   }

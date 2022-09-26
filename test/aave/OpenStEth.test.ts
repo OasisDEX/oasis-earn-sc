@@ -1,16 +1,15 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
-  IPosition,
-  ONE,
+  IStrategy,
+  IVault,
   OPERATION_NAMES,
-  Position,
   strategies,
+  Vault,
 } from '@oasisdex/oasis-actions'
-import { IStrategy } from '@oasisdex/oasis-actions/lib/src/strategies/aave'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
-import { Contract, ContractReceipt, Signer } from 'ethers'
+import { Contract, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
@@ -19,7 +18,6 @@ import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
-import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBe, expectToBeEqual } from '../utils'
 
@@ -123,7 +121,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
-    let actualPosition: IPosition
+    let actualVault: IVault
 
     let feeRecipientWethBalanceBefore: BigNumber
 
@@ -179,17 +177,12 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         system.common.dsProxy.address,
       )
 
-      actualPosition = new Position(
+      actualVault = new Vault(
         { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
         { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
         aaveStEthPriceInEth,
-        strategy.simulation.position.category,
+        strategy.simulation.vault.category,
       )
-
-      console.log('=====')
-      console.log('Actual Position on AAVE')
-      console.log('Debt: ', actualPosition.debt.amount.toString())
-      console.log('Collateral: ', actualPosition.collateral.amount.toString())
     })
 
     it('Tx should pass', () => {
@@ -198,7 +191,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     it('Should draw debt according to multiple', () => {
       expectToBeEqual(
-        strategy.simulation.position.debt.amount.toFixed(0),
+        strategy.simulation.vault.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
@@ -213,9 +206,9 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     it('Should achieve target multiple', () => {
       expectToBe(
-        strategy.simulation.position.riskRatio.multiple,
+        strategy.simulation.vault.riskRatio.multiple,
         'gte',
-        actualPosition.riskRatio.multiple,
+        actualVault.riskRatio.multiple,
       )
     })
 
@@ -243,7 +236,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let strategy: IStrategy
     let txStatus: boolean
-    let tx: ContractReceipt
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
@@ -309,7 +301,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     it('Should draw debt according to multiple', () => {
       expectToBeEqual(
-        strategy.simulation.position.debt.amount.toFixed(0),
+        strategy.simulation.vault.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })

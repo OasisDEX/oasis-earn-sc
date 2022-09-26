@@ -4,8 +4,11 @@ import { ethers, providers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, calculateFee } from '../../helpers'
+import { IBaseVault, Vault } from '../../helpers/calculations/Vault'
+import { ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
 import type { CloseStEthAddresses } from '../../operations/aave/closeStEth'
+import { IStrategy } from '../types/IStrategy'
 
 interface SwapData {
   fromTokenAddress: string
@@ -24,6 +27,7 @@ interface CloseStEthArgs {
 interface CloseStEthDependencies {
   addresses: CloseStEthAddresses
   provider: providers.Provider
+  vault: IBaseVault
   getSwapData: (
     fromToken: string,
     toToken: string,
@@ -33,7 +37,12 @@ interface CloseStEthDependencies {
   dsProxy: string
 }
 
-export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthDependencies) {
+export async function closeStEth(
+  args: CloseStEthArgs,
+  dependencies: CloseStEthDependencies,
+): Promise<IStrategy> {
+  const existingVault = dependencies.vault
+
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
     chainlinkPriceFeedABI,
@@ -74,10 +83,10 @@ export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthD
 
   const fee = calculateFee(swapData.toTokenAmount, FEE, FEE_BASE)
 
-  const marketPice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
-  const ethAmountAfterSwapWei = swapData.minToTokenAmount
+  const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
+  // TODO: We might want to return this and update ISimulation accordingly
+  // const ethAmountAfterSwapWei = swapData.minToTokenAmount
 
-  console.log('Close: stEthAmountLockedInAave', args.stEthAmountLockedInAave.toString())
   const calls = await operation.aave.closeStEth(
     {
       stEthAmount: args.stEthAmountLockedInAave,
@@ -90,15 +99,40 @@ export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthD
     dependencies.addresses,
   )
 
+  /*
+  Final vault calculated using actual swap data and the latest market price
+ */
+  const finalPosition = new Vault(
+    { amount: ZERO, denomination: existingVault.debt.denomination },
+    { amount: ZERO, denomination: existingVault.collateral.denomination },
+    aaveStEthPriceInEth,
+    existingVault.category,
+  )
+
+  const prices = {
+    debtTokenPrice: ethPrice,
+    collateralTokenPrices: stEthPrice,
+  }
+
+  const flags = { usesFlashloan: true, isIncreasingRisk: false }
+
   return {
     calls,
-    swapData,
-    marketPice,
-    ethAmountAfterSwap: amountFromWei(ethAmountAfterSwapWei),
-    stEthAmountToSwap: amountFromWei(args.stEthAmountLockedInAave),
-    feeAmount: amountFromWei(fee),
-    flashLoanAmount: amountFromWei(flashLoanAmountWei),
-    ethPrice,
-    stEthPrice,
+    simulation: {
+      delta: {
+        debt: existingVault.debt.amount.negated(),
+        collateral: existingVault.collateral.amount.negated(),
+      },
+      flags: flags,
+      swap: {
+        ...swapData,
+        fee: amountFromWei(fee),
+      },
+      vault: finalPosition,
+      minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
+        actualMarketPriceWithSlippage,
+      ),
+      prices,
+    },
   }
 }
