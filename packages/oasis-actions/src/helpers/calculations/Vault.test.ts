@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv'
 import path from 'path'
 import process from 'process'
 
-import { ONE } from '../constants'
+import { ONE, ZERO } from '../constants'
 import { RiskRatio } from './RiskRatio'
 import { testDataSources } from './test-scenarios/generateTestData'
 import { fetchTestScenarios } from './testDataUtils'
@@ -91,7 +91,7 @@ describe('Calculate Vault Helper', async () => {
           const riskRatio = new RiskRatio(targetLoanToValue, RiskRatio.TYPE.LTV)
           const dustLimit = new BigNumber(0)
           /* Note: we have to remove User deposits from current values because they've already been rolled up (assigned) in our googlesheets data*/
-          const currentPosition = new Vault(
+          const currentVault = new Vault(
             { amount: currentDebt.plus(debtDenominatedTokensDepositedByUser) },
             { amount: currentCollateral.minus(collateralDepositedByUser) },
             oraclePrice,
@@ -99,7 +99,7 @@ describe('Calculate Vault Helper', async () => {
           )
 
           const oazoFeeBase = new BigNumber(10000)
-          const target = currentPosition.adjustToTargetRiskRatio(riskRatio, {
+          const target = currentVault.adjustToTargetRiskRatio(riskRatio, {
             depositedByUser: {
               debt: debtDenominatedTokensDepositedByUser,
               collateral: collateralDepositedByUser,
@@ -115,10 +115,10 @@ describe('Calculate Vault Helper', async () => {
             // debug: true,
           })
 
-          const actualFromTokenAmount = target.flags.isMultipleIncrease
+          const actualFromTokenAmount = target.flags.isIncreasingRisk
             ? fromTokenAmountInc
             : fromTokenAmountDec
-          const actualToTokenAmount = target.flags.isMultipleIncrease
+          const actualToTokenAmount = target.flags.isIncreasingRisk
             ? toTokenAmountInc
             : toTokenAmountDec
 
@@ -138,22 +138,24 @@ describe('Calculate Vault Helper', async () => {
           expect(target.flags.usesFlashloan).to.equal(isFlashLoanRequired)
 
           // Flashloan Amount
-          expect(target.delta.flashloanAmount.toFixed(0)).to.equal(amountToFlashloan.toFixed(0))
+          expect((target.delta?.flashloanAmount || ZERO).toFixed(0)).to.equal(
+            amountToFlashloan.toFixed(0),
+          )
 
           // Target Debt
-          expect(target.position.debt.amount.toFixed(2)).to.equal(targetDebt.toFixed(2))
+          expect(target.vault.debt.amount.toFixed(2)).to.equal(targetDebt.toFixed(2))
 
           // Target Collateral
-          expect(target.position.collateral.amount.toFixed(2)).to.equal(targetCollateral.toFixed(2))
+          expect(target.vault.collateral.amount.toFixed(2)).to.equal(targetCollateral.toFixed(2))
 
           // Health Factor
-          expect(target.position.healthFactor.toFixed(2)).to.equal(healthFactor.toFixed(2))
+          expect(target.vault.healthFactor.toFixed(2)).to.equal(healthFactor.toFixed(2))
 
           // Liquidation Price
-          expect(target.position.liquidationPrice.toFixed(2)).to.equal(minOraclePrice.toFixed(2))
+          expect(target.vault.liquidationPrice.toFixed(2)).to.equal(minOraclePrice.toFixed(2))
 
           // Fee Paid
-          if (target.flags.isMultipleIncrease) {
+          if (target.flags.isIncreasingRisk) {
             expect(target.swap.fee.toFixed(4)).to.equal(feePaidFromBaseToken.toFixed(4))
           } else {
             expect(target.swap.fee.toFixed(4)).to.equal(feePaidFromCollateralToken.toFixed(4))
@@ -179,7 +181,7 @@ describe('Calculate Vault Helper', async () => {
 
     scenarios.forEach(scenario => {
       it(`Test LTV_min ${scenario.name}`, () => {
-        const position = new Vault(
+        const vault = new Vault(
           {
             amount: scenario.currentDebt,
             denomination: 'nope',
@@ -199,9 +201,7 @@ describe('Calculate Vault Helper', async () => {
           ONE.plus(scenario.slippage),
         )
         expect(
-          position
-            .minConfigurableRiskRatio(marketPriceAccountingForSlippage)
-            .loanToValue.toFixed(4),
+          vault.minConfigurableRiskRatio(marketPriceAccountingForSlippage).loanToValue.toFixed(4),
         ).to.equal(scenario.ltvMin.toFixed(4))
       })
     })
