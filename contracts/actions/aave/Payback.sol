@@ -1,7 +1,7 @@
 pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
-import { Write, Read, UseStore } from "../common/UseStore.sol";
+import { UseStore, Write, Read } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { IVariableDebtToken } from "../../interfaces/aave/IVariableDebtToken.sol";
 import { IWETHGateway } from "../../interfaces/aave/IWETHGateway.sol";
