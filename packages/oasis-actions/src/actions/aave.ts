@@ -52,7 +52,10 @@ export function aaveWithdraw(args: { amount: BigNumber; asset: string; to: strin
   )
 }
 
-export function aavePayback(args: { amount: BigNumber; asset: string; paybackAll: boolean }) {
+export function aavePayback(
+  args: { amount: BigNumber; asset: string; paybackAll: boolean },
+  paramsMapping: [amount: number, asset: number, paybackAll: number] = [0, 0, 0],
+) {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.PAYBACK),
     [calldataTypes.aave.Payback],
@@ -62,6 +65,7 @@ export function aavePayback(args: { amount: BigNumber; asset: string; paybackAll
         amount: args.amount.toFixed(0),
         paybackAll: args.paybackAll,
       },
+      paramsMapping,
     ],
   )
 }

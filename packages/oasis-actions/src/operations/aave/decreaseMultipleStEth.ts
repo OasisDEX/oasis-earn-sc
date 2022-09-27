@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
+import { MAX_UINT } from '../../helpers/constants'
 
 export interface DecreaseMultipleStEthAddresses {
   DAI: string
@@ -20,7 +21,7 @@ export async function decreaseMultipleStEth(
     receiveAtLeast: BigNumber
     fee: number
     swapData: string | number
-    ethSwapAmount: BigNumber
+    stEthSwapAmount: BigNumber
     dsProxy: string
   },
   addresses: DecreaseMultipleStEthAddresses,
@@ -36,53 +37,52 @@ export async function decreaseMultipleStEth(
     asset: addresses.DAI,
   })
 
-  const withdrawStEthFromAAVE = actions.aave.aaveBorrow({
+  const withdrawStEthFromAAVE = actions.aave.aaveWithdraw({
     amount: args.withdrawAmount,
     asset: addresses.stETH,
     to: args.dsProxy,
   })
 
-  const wrapEth = actions.common.wrapEth({
-    amount: args.ethSwapAmount,
-  })
-
   const swapSTETHforETH = actions.common.swap({
     fromAsset: addresses.stETH,
     toAsset: addresses.WETH,
-    amount: args.ethSwapAmount,
+    amount: args.stEthSwapAmount,
     receiveAtLeast: args.receiveAtLeast,
     fee: args.fee,
     withData: args.swapData,
     collectFeeInFromToken: false,
   })
 
-  const setSethApprovalOnLendingPool = actions.common.setApproval(
+  const setWethApprovalOnLendingPool = actions.common.setApproval(
     {
       amount: 0,
-      asset: addresses.stETH,
+      asset: addresses.WETH,
       delegate: addresses.aaveLendingPool,
     },
     [0, 0, 3],
   )
 
-  const depositETH = actions.aave.aaveDeposit(
+  const paybackInAAVE = actions.aave.aavePayback(
     {
-      asset: addresses.ETH,
-      amount: 0,
+      amount: new BigNumber(0),
+      asset: addresses.WETH,
+      paybackAll: false,
     },
-    [0, 3],
+    [3, 0, 0],
   )
 
   const withdrawDAIFromAAVE = actions.aave.aaveWithdraw({
     asset: addresses.DAI,
     amount: args.flashloanAmount,
-    to: args.dsProxy,
+    to: addresses.operationExecutor,
   })
 
-  const sendBackDAI = actions.common.sendToken({
-    asset: addresses.DAI,
-    to: addresses.operationExecutor,
-    amount: args.flashloanAmount,
+  const unwrapEth = actions.common.unwrapEth({
+    amount: new BigNumber(MAX_UINT),
+  })
+
+  const returnFunds = actions.common.returnFunds({
+    asset: addresses.ETH,
   })
 
   // TODO: determine if a flashloan is necessary
@@ -94,12 +94,12 @@ export async function decreaseMultipleStEth(
       setDaiApprovalOnLendingPool,
       depositDaiInAAVE,
       withdrawStEthFromAAVE,
-      wrapEth,
       swapSTETHforETH,
-      setSethApprovalOnLendingPool,
-      depositETH,
+      setWethApprovalOnLendingPool,
+      paybackInAAVE,
       withdrawDAIFromAAVE,
-      sendBackDAI,
+      unwrapEth,
+      returnFunds,
     ],
   })
 
