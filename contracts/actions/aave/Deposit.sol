@@ -26,7 +26,7 @@ contract AaveDeposit is Executable, UseStore {
       address(this),
       0
     );
-  
+
     emit Action(DEPOSIT_ACTION, bytes32(deposit.amount));
   }
 }
