@@ -135,7 +135,6 @@ export async function openStEth(
 
   const calls = await operation.aave.openStEth(
     {
-      depositAmount: depositEthWei,
       flashloanAmount: target.delta?.flashloanAmount || ZERO,
       borrowAmount: borrowEthAmountWei,
       fee: FEE,
