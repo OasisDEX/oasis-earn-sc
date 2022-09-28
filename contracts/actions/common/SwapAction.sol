@@ -22,7 +22,6 @@ contract SwapAction is Executable, UseStore {
     SwapData memory swap = abi.decode(data, (SwapData));
 
     IERC20(swap.fromAsset).safeApprove(swapAddress, swap.amount);
-
     uint256 received = Swap(swapAddress).swapTokens(swap);
 
     store().write(bytes32(received));
