@@ -76,13 +76,7 @@ export async function increaseMultipleStEth(
   const withdrawDAIFromAAVE = actions.aave.aaveWithdraw({
     asset: addresses.DAI,
     amount: args.flashloanAmount,
-    to: args.dsProxy,
-  })
-
-  const sendBackDAI = actions.common.sendToken({
-    asset: addresses.DAI,
     to: addresses.operationExecutor,
-    amount: args.flashloanAmount,
   })
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
@@ -98,7 +92,6 @@ export async function increaseMultipleStEth(
       setSethApprovalOnLendingPool,
       depositSTETH,
       withdrawDAIFromAAVE,
-      sendBackDAI,
     ],
   })
 
