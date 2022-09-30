@@ -27,7 +27,7 @@ contract MakerGenerate is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    GenerateData memory generateData = abi.decode(data, (GenerateData));
+    GenerateData memory generateData = parseInputs(data);
     generateData.vaultId = store().readUint(bytes32(generateData.vaultId), paramsMap[1], address(this));
 
     bytes32 amountGenerated = _generate(generateData);
@@ -84,5 +84,9 @@ contract MakerGenerate is Executable, UseStore {
       // This is neeeded due lack of precision. It might need to sum an extra dart wei (for the given DAI wad amount)
       dart = uint256(dart).mul(rate) < wad.mul(MathUtils.RAY) ? dart + 1 : dart;
     }
+  }
+
+  function parseInputs(bytes memory _callData) public pure returns (GenerateData memory params) {
+    return abi.decode(_callData, (GenerateData));
   }
 }

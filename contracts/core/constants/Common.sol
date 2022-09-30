@@ -13,6 +13,8 @@ string constant PULL_TOKEN_ACTION = "PullToken";
 string constant SEND_TOKEN_ACTION = "SendToken";
 string constant SET_APPROVAL_ACTION = "SetApproval";
 string constant TAKE_FLASH_LOAN_ACTION = "TakeFlashloan";
+string constant WRAP_ETH = "WrapEth";
+string constant UNWRAP_ETH = "UnwrapEth";
 string constant RETURN_FUNDS_ACTION = "ReturnFunds";
 
 string constant UNISWAP_ROUTER = "UniswapRouter";
