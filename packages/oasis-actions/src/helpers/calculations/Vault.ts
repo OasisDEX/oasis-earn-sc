@@ -98,7 +98,8 @@ export class Vault implements IVault {
     const ltv = this.debt.amount.div(
       this.collateral.amount.times(this._oraclePriceForCollateralDebtExchangeRate),
     )
-    return new RiskRatio(ltv, RiskRatio.TYPE.LTV)
+
+    return new RiskRatio(ltv.isNaN() || !ltv.isFinite() ? ZERO : ltv, RiskRatio.TYPE.LTV)
   }
 
   public get healthFactor() {
@@ -122,6 +123,11 @@ export class Vault implements IVault {
    */
   adjustToTargetRiskRatio(targetRiskRatio: IRiskRatio, params: IVaultChangeParams): IVaultChange {
     const targetLTV = targetRiskRatio.loanToValue
+    let isIncreasingRisk = false
+
+    if (targetLTV.gt(this.riskRatio.loanToValue)) {
+      isIncreasingRisk = true
+    }
 
     const {
       depositedByUser,
@@ -168,7 +174,9 @@ export class Vault implements IVault {
     const oraclePrice = prices.oracle
     const oraclePriceFLtoDebtToken = prices?.oracleFLtoDebtToken || ONE
     const marketPrice = prices.market
-    const marketPriceAdjustedForSlippage = marketPrice.times(ONE.plus(slippage))
+    const marketPriceAdjustedForSlippage = marketPrice.times(
+      isIncreasingRisk ? ONE.plus(slippage) : ONE.minus(slippage),
+    )
 
     /**
      * Fees are relevant at different points in a transaction
@@ -306,16 +314,15 @@ export class Vault implements IVault {
           .integerValue(BigNumber.ROUND_DOWN)
       : ZERO
 
-    const isRiskIncreasingAdjustment = amountToBeSwappedOrPaidback_X.gte(ZERO)
     /*
      * Protocol Base Assets EG USD for Maker or ETH for AAVE.
      */
-    let collectFeeFromBaseToken = isRiskIncreasingAdjustment
-    if (collectFeeAfterSwap && isRiskIncreasingAdjustment) {
+    let collectFeeFromBaseToken = isIncreasingRisk
+    if (collectFeeAfterSwap && isIncreasingRisk) {
       collectFeeFromBaseToken = false
     }
 
-    if (collectFeeAfterSwap && !isRiskIncreasingAdjustment) {
+    if (collectFeeAfterSwap && !isIncreasingRisk) {
       collectFeeFromBaseToken = true
     }
 
@@ -323,13 +330,13 @@ export class Vault implements IVault {
       ? this._calculateFee(amountToBeSwappedOrPaidback_X, oazoFee)
       : this._calculateFee(collateralDelta, oazoFee)
 
-    const fromTokenAmount = isRiskIncreasingAdjustment
+    const fromTokenAmount = isIncreasingRisk
       ? amountToBeSwappedOrPaidback_X
       : amountToBeSwappedOrPaidback_X
           .negated()
           .times(ONE.minus(oazoFee.div(this._feeBase)))
           .div(marketPriceAdjustedForSlippage)
-    const toTokenAmount = isRiskIncreasingAdjustment
+    const toTokenAmount = isIncreasingRisk
       ? collateralDelta
       : amountToBeSwappedOrPaidback_X.negated()
 
@@ -349,15 +356,11 @@ export class Vault implements IVault {
           `Our unknown X: ${amountToBeSwappedOrPaidback_X.toString()}`,
           `From token amount: ${fromTokenAmount.toString()}`,
           `From token: ${
-            isRiskIncreasingAdjustment
-              ? targetVault.debt.denomination
-              : targetVault.collateral.denomination
+            isIncreasingRisk ? targetVault.debt.denomination : targetVault.collateral.denomination
           }`,
           `To token amount: ${toTokenAmount.toString()}`,
           `To token: ${
-            isRiskIncreasingAdjustment
-              ? targetVault.collateral.denomination
-              : targetVault.debt.denomination
+            isIncreasingRisk ? targetVault.collateral.denomination : targetVault.debt.denomination
           }`,
           `Debt delta: ${debtDelta.toString()}`,
           `Collateral delta: ${collateralDelta.toString()}`,
@@ -381,7 +384,7 @@ export class Vault implements IVault {
       },
       flags: {
         usesFlashloan: isFlashloanRequired,
-        isIncreasingRisk: isRiskIncreasingAdjustment,
+        isIncreasingRisk,
       },
     }
   }

@@ -54,7 +54,7 @@ type Scenario = {
 describe('Calculate Vault Helper', async () => {
   describe('LTV_target', async () => {
     const scenarios = (await fetchTestScenarios<Scenario>(testDataSources.LTV_target)) as Scenario[]
-    // console.log(scenarios)
+
     scenarios.forEach(
       ({
         name,
