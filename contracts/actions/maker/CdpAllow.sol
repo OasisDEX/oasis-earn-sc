@@ -20,7 +20,7 @@ contract CdpAllow is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    CdpAllowData memory cdpAllowData = abi.decode(data, (CdpAllowData));
+    CdpAllowData memory cdpAllowData = parseInputs(data);
     cdpAllowData.vaultId = store().readUint(bytes32(cdpAllowData.vaultId), paramsMap[0], address(this));
 
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
@@ -28,5 +28,9 @@ contract CdpAllow is Executable, UseStore {
     manager.cdpAllow(cdpAllowData.vaultId, cdpAllowData.userAddress, 1);
 
     emit Action(CDP_ALLOW, bytes32(cdpAllowData.vaultId));
+  }
+
+  function parseInputs(bytes memory _callData) public pure returns (CdpAllowData memory params) {
+    return abi.decode(_callData, (CdpAllowData));
   }
 }
