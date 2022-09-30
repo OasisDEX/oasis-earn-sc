@@ -49,7 +49,7 @@ task('createPosition', 'Create stETH position on AAVE').setAction(async (taskArg
 
   console.log(`Proxy Address for account: ${proxyAddress}`)
 
-  const depositAmount = amountToWei(new BigNumber(60))
+  const depositAmount = amountToWei(new BigNumber(30))
   const multiply = new BigNumber(2)
   const slippage = new BigNumber(0.1)
 
@@ -94,6 +94,11 @@ task('createPosition', 'Create stETH position on AAVE').setAction(async (taskArg
     dsProxy.address,
   )
 
+  const userDaiReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
+    ADDRESSES.main.DAI,
+    dsProxy.address,
+  )
+
   const proxyStEthBalance = await balanceOf(
     ADDRESSES.main.stETH,
     dsProxy.address,
@@ -113,6 +118,7 @@ task('createPosition', 'Create stETH position on AAVE').setAction(async (taskArg
 
   console.log('userAccountData', userAccountData.totalDebtETH.toString())
   console.log('userStEthReserveData', userStEthReserveData.currentATokenBalance.toString())
+  console.log('userDaiReserveData', userDaiReserveData.currentATokenBalance.toString())
   console.log('txStatus', txStatus)
   console.log('txHash', tx.transactionHash)
   console.log('proxyStEthBalance', proxyStEthBalance.toString())
