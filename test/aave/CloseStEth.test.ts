@@ -13,7 +13,7 @@ import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
-import { testBlockNumber } from '../config'
+import { testBlockNumber, testMarketPrice } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBe, expectToBeEqual } from '../utils'
 
@@ -131,7 +131,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
 
   describe('On forked chain', () => {
     before(async () => {
-      await resetNode(provider, 15433614)
+      await resetNode(provider, testBlockNumber)
 
       const { system: _system } = await deploySystem(config)
       system = _system
@@ -150,7 +150,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         {
           addresses,
           provider,
-          getSwapData: oneInchCallMock(new BigNumber(0.9759)),
+          getSwapData: oneInchCallMock(new BigNumber(testMarketPrice)),
           dsProxy: system.common.dsProxy.address,
         },
       )
