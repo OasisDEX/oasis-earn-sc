@@ -16,9 +16,10 @@ contract AaveWithdraw is Executable, UseStore {
     WithdrawData memory withdraw = parseInputs(data);
     
     uint256 amountWithdrawn = ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL))
-      .withdraw(withdraw.asset, withdraw.amount, withdraw.to);
-      
+      .withdraw(withdraw.asset, type(uint256).max, withdraw.to);
+
     store().write(bytes32(amountWithdrawn));
+
     emit Action(WITHDRAW_ACTION, bytes32(amountWithdrawn));
   }
 

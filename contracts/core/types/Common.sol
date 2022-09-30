@@ -20,7 +20,7 @@ struct SendTokenData {
 
 struct SetApprovalData {
   address asset;
-  address delegator;
+  address delegate;
   uint256 amount;
 }
 
@@ -46,4 +46,12 @@ struct Operation {
 
 struct WrapEthData {
   uint256 amount;
+}
+
+struct UnwrapEthData {
+  uint256 amount;
+}
+
+struct ReturnFundsData {
+  address asset;
 }

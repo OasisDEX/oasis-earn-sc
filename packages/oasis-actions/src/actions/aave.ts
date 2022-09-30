@@ -51,3 +51,17 @@ export function aaveWithdraw(args: { amount: BigNumber; asset: string; to: strin
     ],
   )
 }
+
+export function aavePayback(args: { amount: BigNumber; asset: string; paybackAll: boolean }) {
+  return createAction(
+    getActionHash(CONTRACT_NAMES.aave.PAYBACK),
+    [calldataTypes.aave.Payback],
+    [
+      {
+        asset: args.asset,
+        amount: args.amount.toFixed(0),
+        paybackAll: args.paybackAll,
+      },
+    ],
+  )
+}

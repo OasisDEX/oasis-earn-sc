@@ -132,6 +132,8 @@ async function main() {
     serviceRegistryAddress,
   ])
 
+  const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
+
   //SETUP REGISTRY ENTRIES:
   console.log('DEBUG SETTING UP REGISTRY ENTRIES...')
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
@@ -178,6 +180,8 @@ async function main() {
 
   await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
   await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
+
+  await registry.addEntry(CONTRACT_NAMES.common.RETURN_FUNDS, returnFundsActionAddress)
 
   // PULL TOKEN ACTION
   const pullToken = createAction(

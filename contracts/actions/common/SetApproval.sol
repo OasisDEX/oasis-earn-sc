@@ -17,7 +17,7 @@ contract SetApproval is Executable, UseStore {
     SetApprovalData memory approval = parseInputs(data);
 
     approval.amount = store().readUint(bytes32(approval.amount), paramsMap[2], address(this));
-    IERC20(approval.asset).safeApprove(approval.delegator, approval.amount);
+    IERC20(approval.asset).safeApprove(approval.delegate, approval.amount);
 
     emit Action(SET_APPROVAL_ACTION, bytes32(approval.amount));
   }

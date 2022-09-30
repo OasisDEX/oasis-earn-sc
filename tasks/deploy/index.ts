@@ -32,6 +32,7 @@ task(
     ])
     const [, operationStorageAddress] = await deploy(CONTRACT_NAMES.common.OPERATION_STORAGE, [
       serviceRegistryAddress,
+      operationExecutorAddress,
     ])
 
     // Common Actions Smart Contracts
