@@ -44,6 +44,19 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     [],
   )
 
+  // deploy Oasis Position Manager
+  const [guard, guardAddress] = await deploy('AccountGuard', [])
+  const [accountImplementation, accountImplementationAddress] = await deploy(
+    'AccountImplementation',
+    [guardAddress],
+  )
+
+  const [accountFactory, accountFactoryAddress] = await deploy('AccountFactory', [
+    accountImplementationAddress,
+    guardAddress,
+    serviceRegistryAddress,
+  ])
+
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
@@ -146,6 +159,11 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     [serviceRegistryAddress],
   )
 
+  const [migrateMakerVaults, actionMigrateMakerVaultAddress] = await deploy(
+    CONTRACT_NAMES.manager.MIGRATE_VAULT,
+    [accountFactoryAddress],
+  )
+
   debug && console.log('4/ Adding contracts to registry')
   //-- Add Token Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
@@ -240,7 +258,23 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     CONTRACT_NAMES.aave.LENDING_POOL,
     ADDRESSES.main.aave.MainnetLendingPool,
   )
-
+  const managerMigrateHash = await registry.addEntry(
+    CONTRACT_NAMES.manager.MIGRATE_VAULT,
+    actionMigrateMakerVaultAddress,
+  )
+  const cdpManagerHash = await registry.addEntry(
+    CONTRACT_NAMES.maker.CDP_MANAGER,
+    ADDRESSES.main.maker.cdpManager,
+  )
+  const proxyRegistryHash = await registry.addEntry(
+    CONTRACT_NAMES.common.PROXY_REGISTRY,
+    ADDRESSES.main.proxyRegistry,
+  )
+  const managerHash = await registry.addEntry(
+    CONTRACT_NAMES.manager.ACCOUNT_FACTORY,
+    accountFactoryAddress,
+  )
+  const guardHash = await registry.addEntry(CONTRACT_NAMES.manager.ACCOUNT_GUARD, guardAddress)
   debug && console.log('5/ Adding operations to registry')
   // Add Maker Operations
   const operationsRegistry: OperationsRegistry = new OperationsRegistry(
@@ -342,6 +376,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
     aaveWithdrawHash,
     sendTokenHash,
   ])
+  // Add manager Operations
+  await operationsRegistry.addOp(OPERATION_NAMES.manager.MIGRATE_VAULT, [managerMigrateHash])
 
   const deployedContracts = {
     common: {
@@ -377,6 +413,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
       withdraw: withdrawInAAVEAction,
       borrow: borrowInAAVEAction,
     },
+    manager: {
+      migrate: migrateMakerVaults,
+      factory: accountFactory,
+    },
   }
 
   if (debug) {
@@ -406,6 +446,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
       `AAVE|Borrow Action address: ${deployedContracts.aave.borrow.address}`,
       `AAVE|Deposit Action address: ${deployedContracts.aave.deposit.address}`,
       `AAVE|Withdraw Action address: ${deployedContracts.aave.withdraw.address}`,
+
+      `Oasis Position Manager|Migrate:  ${deployedContracts.manager.migrate.address}`,
     ])
   }
 

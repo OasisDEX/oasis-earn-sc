@@ -28,5 +28,8 @@ export const calldataTypes = {
     Withdraw: `tuple(address asset, uint256 amount, address to)`,
     Borrow: `tuple(address asset, uint256 amount, address to)`,
   },
+  manager: {
+    MigrateMakerVaults: 'tuple(uint256[] cdpIds)',
+  },
   paramsMap: `uint8[] paramsMap`,
 } as const

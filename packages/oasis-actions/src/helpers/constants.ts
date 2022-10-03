@@ -26,6 +26,7 @@ export const CONTRACT_NAMES = {
     SERVICE_REGISTRY: 'ServiceRegistry',
     WRAP_ETH: 'WrapEth',
     UNWRAP_ETH: 'UnwrapEth',
+    PROXY_REGISTRY: 'PROXY_REGISTRY_KEY',
   },
   aave: {
     DEPOSIT: 'AaveDeposit',
@@ -46,12 +47,18 @@ export const CONTRACT_NAMES = {
     MCD_JUG: 'McdJug',
     MCD_JOIN_DAI: 'McdJoinDai',
     CDP_ALLOW: 'CdpAllow',
+    CDP_MANAGER: 'CDP_MANAGER_KEY',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',
     DUMMY_SWAP: 'DummySwap',
     DUMMY_EXCHANGE: 'DummyExchange',
     SWAP: 'uSwap',
+  },
+  manager: {
+    MIGRATE_VAULT: 'MigrateMakerVaults',
+    ACCOUNT_FACTORY: 'ACCOUNT_FACTORY_KEY',
+    ACCOUNT_GUARD: 'ACCOUNT_GUARD_KEY',
   },
 } as const
 
@@ -76,5 +83,8 @@ export const OPERATION_NAMES = {
   },
   common: {
     CUSTOM_OPERATION: 'CustomOperation',
+  },
+  manager: {
+    MIGRATE_VAULT: 'MigrateMakerVaults',
   },
 } as const

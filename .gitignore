@@ -6,6 +6,7 @@ typechain
 yarn-error.log
 tenderly.yaml
 .idea/**/*
+.vscode
 
 #Hardhat files
 cache

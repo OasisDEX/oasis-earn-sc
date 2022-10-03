@@ -47,3 +47,7 @@ struct Operation {
 struct WrapEthData {
   uint256 amount;
 }
+
+  struct MakerMigrationData {
+    uint256[] cdpIds;
+  }
