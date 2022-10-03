@@ -15,9 +15,11 @@ import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
+import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
+import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBe, expectToBeEqual } from '../utils'
 
@@ -127,10 +129,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     before(async () => {
       const testSpecificBlock = 15200000 // Must be this block to match oracle price above (used when constructing actualPosition below)
-      await resetNode(provider, testSpecificBlock)
-
-      const { system: _system } = await deploySystem(config)
-      system = _system
+      system = await restoreSnapshot(config, provider, testSpecificBlock)
 
       const addresses = {
         ...mainnetAddresses,

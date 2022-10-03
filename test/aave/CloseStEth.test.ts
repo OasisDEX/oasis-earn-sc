@@ -18,6 +18,7 @@ import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
+import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
@@ -144,10 +145,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   describe('On forked chain', () => {
     before(async () => {
       const testSpecificBlock = 15200000 // Must be this block to match oracle price above (used when constructing actualPosition below)
-      await resetNode(provider, testSpecificBlock)
+      system = await restoreSnapshot(config, provider, testSpecificBlock)
+      // await resetNode(provider, testSpecificBlock)
 
-      const { system: _system } = await deploySystem(config)
-      system = _system
+      // const { system: _system } = await deploySystem(config)
+      // system = _system
 
       const addresses = {
         ...mainnetAddresses,
