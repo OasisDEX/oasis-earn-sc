@@ -146,10 +146,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     before(async () => {
       const testSpecificBlock = 15200000 // Must be this block to match oracle price above (used when constructing actualPosition below)
       system = await restoreSnapshot(config, provider, testSpecificBlock)
-      // await resetNode(provider, testSpecificBlock)
-
-      // const { system: _system } = await deploySystem(config)
-      // system = _system
 
       const addresses = {
         ...mainnetAddresses,
