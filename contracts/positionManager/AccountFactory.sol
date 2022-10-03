@@ -41,12 +41,8 @@ contract AccountFactory is Constants {
     self = address(this);
   }
 
-  function createAccount(uint32 protocolIdentifier) public returns (address) {
-    accountsGlobalCounter++;
-    address clone = Clones.clone(proxyTemplate);
-    accounts[msg.sender].push(Account(clone, protocolIdentifier, accountsGlobalCounter));
-    guard.permit(msg.sender, clone, true);
-    emit AccountCreated(clone, msg.sender, protocolIdentifier, accountsGlobalCounter);
+  function createAccount(uint32 protocolIdentifier) public returns (address clone) {
+    clone = createAccount(protocolIdentifier, msg.sender);
     return clone;
   }
 
@@ -55,9 +51,9 @@ contract AccountFactory is Constants {
     address clone = Clones.clone(proxyTemplate);
     accounts[user].push(Account(clone, protocolIdentifier, accountsGlobalCounter));
     guard.permit(user, clone, true);
-    emit AccountCreated(clone, msg.sender, protocolIdentifier, accountsGlobalCounter);
+    emit AccountCreated(clone, user, protocolIdentifier, accountsGlobalCounter);
     return clone;
-  } 
+  }
 
   function accountsCount(address user) public view returns (uint256) {
     return accounts[user].length;
@@ -89,8 +85,10 @@ contract AccountFactory is Constants {
   function migrateMaker(uint256[] calldata cdpIds) public onlyDelegate returns (address newProxy) {
     require(migrated[msg.sender] == address(0), "factory/already-migrated");
     IManager manager = IManager(serviceRegistry.getRegisteredService(CDP_MANAGER_KEY));
-    AccountFactory _factory = AccountFactory(serviceRegistry.getRegisteredService(ACCOUNT_FACTORY_KEY));
-    newProxy = _factory.createAccount(0,msg.sender);
+    AccountFactory _factory = AccountFactory(
+      serviceRegistry.getRegisteredService(ACCOUNT_FACTORY_KEY)
+    );
+    newProxy = _factory.createAccount(0, msg.sender);
     uint256[] memory _cdpIds = cdpIds;
     uint256 length = _cdpIds.length;
     for (uint256 i; i < length; i++) {
