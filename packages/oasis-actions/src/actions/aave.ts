@@ -53,8 +53,8 @@ export function aaveWithdraw(args: { amount: BigNumber; asset: string; to: strin
 }
 
 export function aavePayback(
-  args: { amount: BigNumber; asset: string; paybackAll: boolean },
-  paramsMapping: [amount: number, asset: number, paybackAll: number] = [0, 0, 0],
+  args: { asset: string; amount: BigNumber; paybackAll: boolean },
+  paramsMapping: [asset: number, amount: number, paybackAll: number] = [0, 0, 0],
 ) {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.PAYBACK),
