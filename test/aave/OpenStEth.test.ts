@@ -9,16 +9,20 @@ import {
 } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
+import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
+import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
+import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
+import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
 
 const oneInchCallMock =
@@ -96,9 +100,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
   }
 
   before(async () => {
-    config = await init()
-    provider = config.provider
-    signer = config.signer
+    ;({ config, provider, signer } = await loadFixture(initialiseConfig))
 
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -127,10 +129,8 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     before(async () => {
       const testSpecificBlock = 15200000 // Must be this block to match oracle price above (used when constructing actualPosition below)
-      await resetNode(provider, testSpecificBlock)
-
-      const { system: _system } = await deploySystem(config)
-      system = _system
+      const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+      system = snapshot.deployed.system
 
       const addresses = {
         ...mainnetAddresses,

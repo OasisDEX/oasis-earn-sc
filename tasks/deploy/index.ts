@@ -11,7 +11,7 @@ task(
   'Deploy specific system. Use a "key" to select a contracts set from predefined ones.',
 )
   .addFlag('debug', 'When used, deployed contract address is displayed')
-  .addFlag('usedummyswap', 'When used, dummy swap is used')
+  .addFlag('usefallbackswap', 'Use fallback (or dummy) swap contract')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
     const options = {
@@ -128,7 +128,7 @@ task(
     )
     await registry.addEntry(
       CONTRACT_NAMES.common.SWAP,
-      taskArgs.usedummyswap ? uSwapAddress : swapAddress,
+      taskArgs.usefallbackswap ? uSwapAddress : swapAddress,
     )
     const swapActionHash = await registry.addEntry(
       CONTRACT_NAMES.common.SWAP_ACTION,
