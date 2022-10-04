@@ -45,6 +45,12 @@ task(
       serviceRegistryAddress,
       ADDRESSES.main.DAI,
     ])
+    const [wrapEth, wrapActionAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
+      serviceRegistryAddress,
+    ])
+    const [unwrapEth, unwrapActionAddress] = await deploy(CONTRACT_NAMES.common.UNWRAP_ETH, [
+      serviceRegistryAddress,
+    ])
 
     // AAVE Specific Actions Smart Contracts
     const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
@@ -69,12 +75,15 @@ task(
     )
     await uSwap.addFeeTier(20)
 
-    const [, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
+    const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
       config.address,
       ADDRESSES.main.feeRecipient,
       0, // TODO add different fee tiers
       serviceRegistryAddress,
     ])
+
+    await swap.addFeeTier(20)
+
     const [, swapActionAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ACTION, [
       serviceRegistryAddress,
     ])
@@ -126,6 +135,7 @@ task(
       CONTRACT_NAMES.aave.WITHDRAW,
       withdrawFromAAVEAddress,
     )
+    console.log('USING: ', taskArgs.usedummyswap ? 'DUMMY SWAP' : '1INCH SWAP')
     await registry.addEntry(
       CONTRACT_NAMES.common.SWAP,
       taskArgs.usedummyswap ? uSwapAddress : swapAddress,
@@ -134,6 +144,9 @@ task(
       CONTRACT_NAMES.common.SWAP_ACTION,
       swapActionAddress,
     )
+
+    await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
+    await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
 
     // Adding records in Operations Registry
     const operationsRegistry: OperationsRegistry = new OperationsRegistry(
