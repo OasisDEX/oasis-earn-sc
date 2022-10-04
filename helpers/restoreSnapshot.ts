@@ -2,17 +2,20 @@ import { providers } from 'ethers'
 
 import { DeployedSystemInfo, deploySystem } from '../test/deploySystem'
 import { resetNode } from './init'
+import { ServiceRegistry } from './serviceRegistry'
 import { RuntimeConfig } from './types/common'
 
-const snapshotCache: Record<string, { id: string; system: DeployedSystemInfo } | undefined> = {}
-const testBlockNumber = Number(process.env.TESTS_BLOCK_NUMBER)
+type System = { system: DeployedSystemInfo; registry: ServiceRegistry }
 
+const snapshotCache: Record<string, { id: string; system: System } | undefined> = {}
+
+const testBlockNumber = Number(process.env.TESTS_BLOCK_NUMBER)
 export async function restoreSnapshot(
   config: RuntimeConfig,
   provider: providers.JsonRpcProvider,
   blockNumber: number = testBlockNumber,
   useFallbackSwap = true,
-): Promise<DeployedSystemInfo> {
+): Promise<System> {
   const cacheKey = `${blockNumber}|${useFallbackSwap}`
   const snapshot = snapshotCache[cacheKey]
 
@@ -21,11 +24,11 @@ export async function restoreSnapshot(
     return snapshot.system
   } else {
     await resetNode(provider, blockNumber)
-    const { system } = await deploySystem(config, false, useFallbackSwap)
+    const system = await deploySystem(config, false, useFallbackSwap)
 
     snapshotCache[cacheKey] = {
       id: await provider.send('evm_snapshot', []),
-      system,
+      system: system,
     }
 
     return system
