@@ -17,7 +17,13 @@
     "deploy": "npx hardhat run",
     "test": "npx hardhat test",
     "test:gas": "USE_GAS_ESTIMATES=1 npx hardhat test",
-    "lint": "eslint . --fix --ext .ts"
+    "lint": "eslint . --fix --ext .ts",
+    "compile": "npx hardhat compile",
+    "start": "npx hardhat node --network hardhat",
+    "deploy:dummy": "yarn compile && npx hardhat deploy --usedummyswap --network local",
+    "deploy:1inch": "yarn compile && npx hardhat deploy --network local",
+    "steth": "npx hardhat createPosition --network local"
+
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
