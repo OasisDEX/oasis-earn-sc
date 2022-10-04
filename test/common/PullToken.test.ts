@@ -1,34 +1,33 @@
-import { ADDRESSES, calldataTypes, ONE, TEN } from '@oasisdex/oasis-actions'
+import { ADDRESSES, calldataTypes, ONE, TEN, TEN_THOUSAND } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
+import { loadFixture } from 'ethereum-waffle'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-import { createDeploy, DeployFunction } from '../../helpers/deploy'
-import init, { resetNode } from '../../helpers/init'
+import init from '../../helpers/init'
+import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, approve, balanceOf } from '../../helpers/utils'
+import { testBlockNumber } from '../config'
+import { initialiseConfig } from '../fixtures/setup'
 
 describe('PullToken Action', () => {
-  const BLOCK_NUMBER = 14798701
   const AMOUNT = new BigNumber(1000)
   let config: RuntimeConfig
-  let deploy: DeployFunction
   let pullToken: Contract
   let pullTokenActionAddress: string
 
   before(async () => {
-    config = await init()
-    deploy = await createDeploy({ config, debug: false })
+    ;({ config } = await loadFixture(initialiseConfig))
+    const snapshot = await restoreSnapshot(config, config.provider, testBlockNumber)
+
+    pullToken = snapshot.deployed.system.common.pullToken
+    pullTokenActionAddress = snapshot.deployed.system.common.pullToken.address
   })
 
   beforeEach(async () => {
-    await resetNode(config.provider, BLOCK_NUMBER)
-    const deployed = await deploy('PullToken', [])
-    pullToken = deployed[0]
-    pullTokenActionAddress = deployed[1]
-
     await swapUniswapTokens(
       ADDRESSES.main.WETH,
       ADDRESSES.main.DAI,
@@ -37,7 +36,12 @@ describe('PullToken Action', () => {
       config.address,
       config,
     )
+
     await approve(ADDRESSES.main.DAI, pullTokenActionAddress, amountToWei(AMOUNT), config, false)
+  })
+
+  afterEach(async () => {
+    await restoreSnapshot(config, config.provider, testBlockNumber)
   })
 
   it('should pull tokens from the caller', async () => {
@@ -94,7 +98,7 @@ describe('PullToken Action', () => {
         [calldataTypes.common.PullToken],
         [
           {
-            amount: amountToWei(AMOUNT.times(TEN)).toFixed(0),
+            amount: amountToWei(AMOUNT.times(TEN_THOUSAND)).toFixed(0),
             asset: ADDRESSES.main.DAI,
             from: config.address,
           },

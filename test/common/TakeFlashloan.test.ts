@@ -9,41 +9,38 @@ import {
 } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
+import { loadFixture } from 'ethereum-waffle'
 
 import { executeThroughProxy } from '../../helpers/deploy'
 import init, { resetNode } from '../../helpers/init'
+import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { ServiceRegistry } from '../../helpers/serviceRegistry'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { ensureWeiFormat } from '../../helpers/utils'
-import { DeployedSystemInfo, deploySystem } from '../deploySystem'
+import { testBlockNumber } from '../config'
+import { DeployedSystemInfo } from '../deploySystem'
+import { initialiseConfig } from '../fixtures/setup'
 
 const createAction = ActionFactory.create
 
 describe('TakeFlashloan Action', () => {
-  const BLOCK_NUMBER = 14798701
   const AMOUNT = new BigNumber(1000)
   let config: RuntimeConfig
   let system: DeployedSystemInfo
   let registry: ServiceRegistry
-  let snapshotId: string
   let provider: JsonRpcProvider
 
   before(async () => {
-    config = await init()
-    provider = config.provider
-    await resetNode(config.provider, BLOCK_NUMBER)
+    ;({ config, provider } = await loadFixture(initialiseConfig))
 
-    const { system: _system, registry: _registry } = await deploySystem(config)
-    system = _system
-    registry = _registry
-  })
+    const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
 
-  beforeEach(async () => {
-    snapshotId = await provider.send('evm_snapshot', [])
+    system = snapshot.deployed.system
+    registry = snapshot.deployed.registry
   })
 
   afterEach(async () => {
-    await provider.send('evm_revert', [snapshotId])
+    await restoreSnapshot(config, provider, testBlockNumber)
   })
 
   it('should take flashloan', async () => {
