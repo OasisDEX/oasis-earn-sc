@@ -15,8 +15,8 @@
   ],
   "scripts": {
     "deploy": "npx hardhat run",
-    "test": "npx hardhat test",
-    "test:gas": "USE_GAS_ESTIMATES=1 npx hardhat test",
+    "test": "npx hardhat test && yarn workspaces run test",
+    "test:gas": "USE_GAS_ESTIMATES=1 yarn test",
     "lint": "eslint . --fix --ext .ts"
   },
   "devDependencies": {

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc -b",
     "watch": "tsc -b -w",
+    "test": "npx hardhat test src/helpers/calculations/Vault.test.ts",
     "generate:scenarios": "npx ts-node src/helpers/calculations/test-scenarios/generateTestData.ts",
     "prepublish": "npm run build"
   },

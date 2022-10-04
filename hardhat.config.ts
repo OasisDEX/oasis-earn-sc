@@ -6,8 +6,10 @@ import './tasks/deploy'
 
 import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
+import path from 'path'
+import process from 'process'
 
-dotenv.config()
+dotenv.config({ path: path.join(__dirname, './.env') })
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
