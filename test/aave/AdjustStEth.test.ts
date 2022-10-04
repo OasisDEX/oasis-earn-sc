@@ -11,36 +11,35 @@ import {
 } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
+import { loadFixture } from 'ethereum-waffle'
 import { Contract, ContractReceipt, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
-import init, { resetNode } from '../../helpers/init'
+import init from '../../helpers/init'
+import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
+import { initialiseConfig } from '../fixtures/setup'
 import { expectToBeEqual } from '../utils'
 
-const oneInchCallMock = async (
-  from: string,
-  to: string,
-  amount: BigNumber,
-  slippage: BigNumber,
-) => {
-  const marketPrice = new BigNumber(0.979)
-  return {
-    fromTokenAddress: from,
-    toTokenAddress: to,
-    fromTokenAmount: amount,
-    toTokenAmount: amount.div(marketPrice),
-    minToTokenAmount: amount.div(marketPrice.times(ONE.plus(slippage))),
-    exchangeCalldata: 0,
+const oneInchCallMock =
+  (marketPrice: BigNumber) =>
+  async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
+    return {
+      fromTokenAddress: from,
+      toTokenAddress: to,
+      fromTokenAmount: amount,
+      toTokenAmount: amount.div(marketPrice),
+      minToTokenAmount: amount.div(marketPrice.times(ONE.plus(slippage))),
+      exchangeCalldata: 0,
+    }
   }
-}
 
 const getOneInchRealCall =
   (swapAddress: string) =>
@@ -139,10 +138,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
-      resetNode(provider, testBlockNumber)
+      ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
 
-      const { system: _system } = await deploySystem(config)
-      system = _system
+      const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+      system = snapshot.deployed.system
 
       const addresses = {
         ...mainnetAddresses,
@@ -158,7 +157,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         {
           addresses,
           provider,
-          getSwapData: oneInchCallMock,
+          getSwapData: oneInchCallMock(new BigNumber(0.979)),
           dsProxy: system.common.dsProxy.address,
         },
       )
@@ -253,7 +252,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
                 dustLimit: new BigNumber(0),
               },
             },
-            getSwapData: oneInchCallMock,
+            getSwapData: oneInchCallMock(new BigNumber(0.979)),
             dsProxy: system.common.dsProxy.address,
           },
         )
@@ -341,10 +340,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
-      resetNode(provider, testBlockNumber)
+      ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
 
-      const { system: _system } = await deploySystem(config)
-      system = _system
+      const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+      system = snapshot.deployed.system
 
       const addresses = {
         ...mainnetAddresses,
@@ -360,7 +359,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         {
           addresses,
           provider,
-          getSwapData: oneInchCallMock,
+          getSwapData: oneInchCallMock(new BigNumber(0.979)),
           dsProxy: system.common.dsProxy.address,
         },
       )
@@ -456,7 +455,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
                 dustLimit: new BigNumber(0),
               },
             },
-            getSwapData: oneInchCallMock,
+            getSwapData: oneInchCallMock(new BigNumber(1 / 0.976)),
             dsProxy: system.common.dsProxy.address,
           },
         )

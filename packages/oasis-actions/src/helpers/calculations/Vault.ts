@@ -174,6 +174,7 @@ export class Vault implements IVault {
     const oraclePrice = prices.oracle
     const oraclePriceFLtoDebtToken = prices?.oracleFLtoDebtToken || ONE
     const marketPrice = prices.market
+
     const marketPriceAdjustedForSlippage = marketPrice.times(
       isIncreasingRisk ? ONE.plus(slippage) : ONE.minus(slippage),
     )

@@ -8,7 +8,6 @@ import { ethers } from 'hardhat'
 
 import ERC20_ABI from '../../abi/IERC20.json'
 import WETH_ABI from '../../abi/IWETH.json'
-import init from '../../helpers/init'
 import { exchangeFromDAI, exchangeToDAI, swapOneInchTokens } from '../../helpers/swap/1inch'
 import { calculateFee } from '../../helpers/swap/calculateFee'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
