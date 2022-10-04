@@ -14,22 +14,25 @@ import { ethers } from 'hardhat'
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
-import { gasEstimateHelper } from '../../helpers/gasEstimation'
+import { GasEstimateHelper, gasEstimateHelper } from '../../helpers/gasEstimation'
 import init, { resetNode } from '../../helpers/init'
 import { getLastVault, getVaultInfo } from '../../helpers/maker/vault'
+import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { ServiceRegistry } from '../../helpers/serviceRegistry'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
-import { expectToBeEqual } from '../utils'
+import { expectToBe, expectToBeEqual } from '../utils'
 
 const createAction = ActionFactory.create
 
 let DAI: Contract
 let WETH: Contract
 
-describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, async () => {
+describe(`Operations | Maker | Open Position`, async () => {
+  const marketPrice = new BigNumber(1582)
+
   let provider: JsonRpcProvider
   let signer: Signer
   let address: string
@@ -37,7 +40,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
   let registry: ServiceRegistry
   let config: RuntimeConfig
 
-  before(async () => {
+  beforeEach(async () => {
     config = await init()
     provider = config.provider
     signer = config.signer
@@ -46,25 +49,23 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    await resetNode(provider, testBlockNumber)
+    const systemSnapshot = await restoreSnapshot(config, provider, testBlockNumber)
 
-    const { system: _system, registry: _registry } = await deploySystem(config)
-    system = _system
-    registry = _registry
-  })
+    system = systemSnapshot.system
+    registry = systemSnapshot.registry
 
-  before(async () => {
     await system.common.exchange.setPrice(ADDRESSES.main.ETH, amountToWei(marketPrice).toFixed(0))
   })
 
-  const marketPrice = new BigNumber(1582)
-  const initialColl = new BigNumber(100)
-  const initialDebt = new BigNumber(20000)
+  let gasEstimates: GasEstimateHelper
 
-  const gasEstimates = gasEstimateHelper()
+  it(`should open vault, deposit ETH, generate DAI`, async () => {
+    // Test set up values
+    const initialColl = new BigNumber(100)
+    const initialDebt = new BigNumber(20000)
 
-  const testName = `should open vault, deposit ETH, generate DAI, repay debt in full and withdraw collateral`
-  it(testName, async () => {
+    gasEstimates = gasEstimateHelper()
+
     await WETH.approve(system.common.userProxyAddress, amountToWei(initialColl).toFixed(0))
 
     const openVaultAction = createAction(
@@ -87,7 +88,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
           asset: ADDRESSES.main.WETH,
           amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
-        [0],
+        [0, 0, 0],
       ],
     )
 
@@ -117,39 +118,8 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
       ],
     )
 
-    const paybackDai = new BigNumber(0) // Can be anything because paybackAll flag is true
-    const paybackAll = true
-    const paybackAction = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.maker.PAYBACK),
-      [calldataTypes.maker.Payback, calldataTypes.paramsMap],
-      [
-        {
-          vaultId: 0,
-          userAddress: address,
-          daiJoin: ADDRESSES.main.maker.joinDAI,
-          amount: ensureWeiFormat(paybackDai),
-          paybackAll: paybackAll,
-        },
-        [1, 0, 0, 0, 0],
-      ],
-    )
-
     const ALLOWANCE = new BigNumber('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
     await DAI.approve(system.common.userProxyAddress, ensureWeiFormat(ALLOWANCE))
-
-    const withdrawAction = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.maker.WITHDRAW),
-      [calldataTypes.maker.Withdraw, calldataTypes.paramsMap],
-      [
-        {
-          vaultId: 0,
-          userAddress: address,
-          joinAddr: ADDRESSES.main.maker.joinETH_A,
-          amount: ensureWeiFormat(initialColl),
-        },
-        [1, 0, 0, 0],
-      ],
-    )
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, txReceipt] = await executeThroughProxy(
@@ -157,31 +127,21 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
       {
         address: system.common.operationExecutor.address,
         calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-          [
-            openVaultAction,
-            pullCollateralIntoProxyAction,
-            depositAction,
-            generateAction,
-            paybackAction,
-            withdrawAction,
-          ],
-          OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE,
+          [openVaultAction, pullCollateralIntoProxyAction, depositAction, generateAction],
+          OPERATION_NAMES.maker.OPEN_AND_DRAW,
         ]),
       },
       signer,
     )
 
-    gasEstimates.save(testName, txReceipt)
+    gasEstimates.save(txReceipt)
 
     const vault = await getLastVault(provider, signer, system.common.userProxyAddress)
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
 
-    const expectedColl = new BigNumber(0)
-    const expectedDebt = new BigNumber(0)
-
     const precision = 18 - 1 // To account for precision loss in Maker Vat
-    expect(info.coll.toFixed(precision)).to.equal(expectedColl.toFixed(precision))
-    expect(info.debt.toFixed(precision)).to.equal(expectedDebt.toFixed(precision))
+    expectToBe(info.coll.toFixed(precision), 'gte', initialColl.toFixed(precision))
+    expectToBeEqual(info.debt.toFixed(precision), initialDebt.toFixed(precision))
 
     const cdpManagerContract = new ethers.Contract(
       ADDRESSES.main.maker.cdpManager,
@@ -192,7 +152,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE}`, as
     expectToBeEqual(vaultOwner, system.common.userProxyAddress)
   })
 
-  after(() => {
+  afterEach(() => {
     gasEstimates.print()
   })
 })

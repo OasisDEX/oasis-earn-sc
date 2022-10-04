@@ -4,32 +4,29 @@ import { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-import { createDeploy, DeployFunction } from '../../helpers/deploy'
-import init, { resetNode } from '../../helpers/init'
+import init from '../../helpers/init'
+import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { BalanceOptions, RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf, send } from '../../helpers/utils'
+import { testBlockNumber } from '../config'
 
 describe('SendToken Action', () => {
-  const BLOCK_NUMBER = 14798701
   const AMOUNT = new BigNumber(1000)
   const AMOUNT_TO_WEI = amountToWei(AMOUNT).toFixed(0)
   let config: RuntimeConfig
-  let deploy: DeployFunction
   let sendToken: Contract
   let sendTokenActionAddress: string
 
   before(async () => {
     config = await init()
-    deploy = await createDeploy({ config, debug: false })
   })
 
   beforeEach(async () => {
-    await resetNode(config.provider, BLOCK_NUMBER)
+    const systemSnapshot = await restoreSnapshot(config, config.provider, testBlockNumber)
 
-    const sendTokenDeployment = await deploy('SendToken', [])
-    sendToken = sendTokenDeployment[0]
-    sendTokenActionAddress = sendTokenDeployment[1]
+    sendToken = systemSnapshot.system.common.sendToken
+    sendTokenActionAddress = systemSnapshot.system.common.sendToken.address
 
     await swapUniswapTokens(
       ADDRESSES.main.WETH,

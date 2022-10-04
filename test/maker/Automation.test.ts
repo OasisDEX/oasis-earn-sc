@@ -9,40 +9,30 @@ import {
   OPERATION_NAMES,
 } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
-import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
-import { gasEstimateHelper } from '../../helpers/gasEstimation'
-import init, { resetNode } from '../../helpers/init'
+import init from '../../helpers/init'
 import { getOraclePrice } from '../../helpers/maker/oracle'
 import { getLastVault, getVaultInfo } from '../../helpers/maker/vault'
-import {
-  calculateParamsIncreaseMP,
-  prepareMultiplyParameters,
-} from '../../helpers/paramCalculations'
+import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { ServiceRegistry } from '../../helpers/serviceRegistry'
-import { RuntimeConfig, SwapData } from '../../helpers/types/common'
+import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
-import { DeployedSystemInfo, deploySystem } from '../deploySystem'
+import { DeployedSystemInfo } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
-
-const LENDER_FEE = new BigNumber(0)
 
 const createAction = ActionFactory.create
 
 let DAI: Contract
 let WETH: Contract
 
-describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN}`, async () => {
-  const oazoFee = 0 // divided by base (10000), 1 = 0.01%;
-  const oazoFeePct = new BigNumber(oazoFee).div(10000)
-  const flashLoanFee = LENDER_FEE
-  const slippage = new BigNumber(0.0001) // percentage
+describe(`Operations | Maker | Automation Integration`, async () => {
+  const marketPrice = new BigNumber(1585)
 
   let provider: JsonRpcProvider
   let signer: Signer
@@ -51,8 +41,9 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
   let exchangeDataMock: { to: string; data: number }
   let registry: ServiceRegistry
   let config: RuntimeConfig
+  let oraclePrice: BigNumber
 
-  before(async () => {
+  beforeEach(async () => {
     config = await init()
     provider = config.provider
     signer = config.signer
@@ -62,14 +53,10 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
     // When changing block number remember to check vault id that is used for automation
-    await resetNode(provider, testBlockNumber)
+    const systemSnapshot = await restoreSnapshot(config, provider, testBlockNumber)
 
-    const { system: _system, registry: _registry } = await deploySystem(config)
-    system = _system
-    registry = _registry
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    config = { provider, signer, address }
+    system = systemSnapshot.system
+    registry = systemSnapshot.registry
 
     exchangeDataMock = {
       to: system.common.exchange.address,
@@ -81,51 +68,18 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     await system.common.exchange.setPrice(ADDRESSES.main.WETH, amountToWei(marketPrice).toFixed(0))
   })
 
-  let oraclePrice: BigNumber
-  const marketPrice = new BigNumber(1585)
-  const initialColl = new BigNumber(100)
-  const initialDebt = new BigNumber(0)
-  const daiTopUp = new BigNumber(0)
-  const collTopUp = new BigNumber(0)
-  const requiredCollRatio = new BigNumber(2.5)
+  it(`should open vault, deposit ETH, allow Automation Bot & then Run Automation based Operation`, async () => {
+    // Test set up values
+    const initialColl = new BigNumber(100)
+    const daiTopUp = new BigNumber(0)
+    const collTopUp = new BigNumber(0)
 
-  const testName = `should open vault, deposit ETH, allow Automation Bot & then Run Automation based Operation`
-  it(testName, async () => {
     await WETH.approve(
       system.common.userProxyAddress,
       amountToWei(initialColl.plus(collTopUp)).toFixed(0),
     )
 
     await DAI.approve(system.common.userProxyAddress, amountToWei(daiTopUp).toFixed(0))
-
-    const { requiredDebt, additionalCollateral, preIncreaseMPTopUp } = calculateParamsIncreaseMP({
-      oraclePrice,
-      marketPrice,
-      oazoFee: oazoFeePct,
-      flashLoanFee,
-      currentColl: initialColl,
-      currentDebt: initialDebt,
-      daiTopUp,
-      collTopUp,
-      requiredCollRatio,
-      slippage,
-    })
-
-    const desiredCdpState = {
-      requiredDebt,
-      toBorrowCollateralAmount: additionalCollateral,
-      daiTopUp,
-      fromTokenAmount: requiredDebt.plus(daiTopUp),
-      toTokenAmount: additionalCollateral,
-      collTopUp,
-    }
-
-    const { exchangeData } = prepareMultiplyParameters({
-      oneInchPayload: exchangeDataMock,
-      desiredCdpState,
-      fundsReceiver: address,
-      skipFL: false,
-    })
 
     const openVaultAction = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.OPEN_VAULT),
@@ -164,70 +118,6 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       ],
     )
 
-    // Get flashloan -> Swap for collateral -> Deposit collateral -> Generate DAI -> Repay flashloan
-
-    const swapAmount = new BigNumber(exchangeData.fromTokenAmount)
-      .plus(ensureWeiFormat(desiredCdpState.daiTopUp))
-      .toFixed(0)
-
-    const swapData: SwapData = {
-      fromAsset: exchangeData.fromTokenAddress,
-      toAsset: exchangeData.toTokenAddress,
-      // Add daiTopup amount to swap
-      amount: swapAmount,
-      receiveAtLeast: new BigNumber(exchangeData.minToTokenAmount).times(0.95).toFixed(0),
-      fee: 0,
-      withData: exchangeData._exchangeCalldata,
-      collectFeeInFromToken: true,
-    }
-
-    await DAI.approve(system.common.userProxyAddress, swapAmount)
-    // TODO: Move funds to proxy
-    const swapAction = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.common.SWAP_ACTION),
-      [calldataTypes.common.Swap],
-      [swapData],
-    )
-
-    const depositBorrowedCollateral = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.maker.DEPOSIT),
-      [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
-      [
-        {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
-          vaultId: 0,
-          amount: ensureWeiFormat(desiredCdpState.toBorrowCollateralAmount),
-        },
-        [1],
-      ],
-    )
-
-    const generateDaiToRepayFL = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
-      [calldataTypes.maker.Generate, calldataTypes.paramsMap],
-      [
-        {
-          to: system.common.userProxyAddress,
-          vaultId: 0,
-          amount: ensureWeiFormat(desiredCdpState.requiredDebt),
-        },
-        [1],
-      ],
-    )
-
-    const sendBackDAI = createAction(
-      await registry.getEntryHash(CONTRACT_NAMES.common.SEND_TOKEN),
-      [calldataTypes.common.SendToken],
-      [
-        {
-          amount: exchangeData.fromTokenAmount,
-          asset: ADDRESSES.main.DAI,
-          to: system.common.operationExecutor.address,
-        },
-        [0, 1, 0],
-      ],
-    )
-
     const cdpAllow = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.CDP_ALLOW),
       [calldataTypes.maker.CdpAllow, calldataTypes.paramsMap],
@@ -247,8 +137,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
       cdpAllow,
     ]
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_, txReceipt] = await executeThroughProxy(
+    await executeThroughProxy(
       system.common.userProxyAddress,
       {
         address: system.common.operationExecutor.address,
@@ -261,7 +150,7 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     )
 
     const autoTestAmount = new BigNumber(40000)
-    const autoVaultId = 29062
+    const autoVaultId = 29073
     const generateDaiAutomation = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
       [calldataTypes.maker.Generate, calldataTypes.paramsMap],
@@ -336,10 +225,10 @@ describe(`Operations | Maker | ${OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FL
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
     const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
 
-    expectToBeEqual(currentCollRatio, new BigNumber(3.905), 3)
+    expectToBeEqual(currentCollRatio, new BigNumber(3.808), 3)
 
-    expect(info.coll.toFixed(0)).to.equal(initialColl.toFixed(0))
-    expect(info.debt.toFixed(0)).to.equal(autoTestAmount.toFixed(0))
+    expectToBeEqual(info.coll.toFixed(0), initialColl.toFixed(0))
+    expectToBeEqual(info.debt.toFixed(0), autoTestAmount.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
       ADDRESSES.main.maker.cdpManager,
