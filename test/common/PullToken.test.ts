@@ -1,34 +1,33 @@
 import { ADDRESSES, calldataTypes, ONE, TEN, TEN_THOUSAND } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
+import { loadFixture } from 'ethereum-waffle'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-import { createDeploy, DeployFunction } from '../../helpers/deploy'
 import init from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, approve, balanceOf } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
+import { initialiseConfig } from '../fixtures/setup'
 
 describe('PullToken Action', () => {
   const AMOUNT = new BigNumber(1000)
   let config: RuntimeConfig
-  let deploy: DeployFunction
   let pullToken: Contract
   let pullTokenActionAddress: string
 
   before(async () => {
-    config = await init()
+    ;({ config } = await loadFixture(initialiseConfig))
+    const snapshot = await restoreSnapshot(config, config.provider, testBlockNumber)
+
+    pullToken = snapshot.deployed.system.common.pullToken
+    pullTokenActionAddress = snapshot.deployed.system.common.pullToken.address
   })
 
   beforeEach(async () => {
-    const systemSnapshot = await restoreSnapshot(config, config.provider, testBlockNumber)
-
-    pullToken = systemSnapshot.system.common.pullToken
-    pullTokenActionAddress = systemSnapshot.system.common.pullToken.address
-
     await swapUniswapTokens(
       ADDRESSES.main.WETH,
       ADDRESSES.main.DAI,
@@ -39,6 +38,10 @@ describe('PullToken Action', () => {
     )
 
     await approve(ADDRESSES.main.DAI, pullTokenActionAddress, amountToWei(AMOUNT), config, false)
+  })
+
+  afterEach(async () => {
+    await restoreSnapshot(config, config.provider, testBlockNumber)
   })
 
   it('should pull tokens from the caller', async () => {

@@ -8,6 +8,7 @@ import {
 } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
+import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
@@ -23,6 +24,7 @@ import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
+import { initialiseConfig } from '../fixtures/setup'
 import { expectToBeEqual } from '../utils'
 
 const createAction = ActionFactory.create
@@ -41,18 +43,15 @@ describe(`Operations | Maker | Close Position`, async () => {
   let config: RuntimeConfig
 
   beforeEach(async () => {
-    config = await init()
-    provider = config.provider
-    signer = config.signer
-    address = config.address
+    ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
 
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    const systemSnapshot = await restoreSnapshot(config, provider, testBlockNumber)
+    const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
 
-    system = systemSnapshot.system
-    registry = systemSnapshot.registry
+    system = snapshot.deployed.system
+    registry = snapshot.deployed.registry
 
     await system.common.exchange.setPrice(ADDRESSES.main.ETH, amountToWei(marketPrice).toFixed(0))
   })

@@ -9,6 +9,7 @@ import {
   OPERATION_NAMES,
 } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
+import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
@@ -24,6 +25,7 @@ import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo } from '../deploySystem'
+import { initialiseConfig } from '../fixtures/setup'
 import { expectToBeEqual } from '../utils'
 
 const createAction = ActionFactory.create
@@ -44,19 +46,16 @@ describe(`Operations | Maker | Automation Integration`, async () => {
   let oraclePrice: BigNumber
 
   beforeEach(async () => {
-    config = await init()
-    provider = config.provider
-    signer = config.signer
-    address = config.address
+    ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
 
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
     // When changing block number remember to check vault id that is used for automation
-    const systemSnapshot = await restoreSnapshot(config, provider, testBlockNumber)
+    const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
 
-    system = systemSnapshot.system
-    registry = systemSnapshot.registry
+    system = snapshot.deployed.system
+    registry = snapshot.deployed.registry
 
     exchangeDataMock = {
       to: system.common.exchange.address,

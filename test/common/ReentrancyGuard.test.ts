@@ -7,6 +7,7 @@ import {
   OPERATION_NAMES,
 } from '@oasisdex/oasis-actions'
 import { expect } from 'chai'
+import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
@@ -21,6 +22,7 @@ import { RuntimeConfig, SwapData } from '../../helpers/types/common'
 import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
+import { initialiseConfig } from '../fixtures/setup'
 import { expectToBeEqual } from '../utils'
 
 const createAction = ActionFactory.create
@@ -33,28 +35,31 @@ describe(`Reentrancy guard test`, async () => {
   let signer: Signer
   let address: string
   let system: DeployedSystemInfo
+  let snapshotId: string
   let exchangeDataMock: { to: string; data: number }
   let registry: ServiceRegistry
   let config: RuntimeConfig
 
   before(async () => {
-    config = await init()
-    provider = config.provider
-    signer = config.signer
-    address = config.address
+    ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
 
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    const systemSnapshot = await restoreSnapshot(config, provider, testBlockNumber)
-
-    system = systemSnapshot.system
-    registry = systemSnapshot.registry
+    const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+    snapshotId = snapshot.id
+    system = snapshot.deployed.system
+    registry = snapshot.deployed.registry
 
     exchangeDataMock = {
       to: system.common.exchange.address,
       data: 0,
     }
+  })
+
+  afterEach(async () => {
+    await restoreSnapshot(config, provider, testBlockNumber)
+    // await provider.send('evm_revert', [snapshotId])
   })
 
   it(`should execute an action, even if OperationStorage lock() was called by another address`, async () => {

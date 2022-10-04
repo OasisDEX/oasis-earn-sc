@@ -10,6 +10,7 @@ import {
 } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
+import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
@@ -30,6 +31,7 @@ import { RuntimeConfig, SwapData } from '../../helpers/types/common'
 import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
+import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
 
 const LENDER_FEE = new BigNumber(0)
@@ -55,19 +57,16 @@ describe(`Operations | Maker | Increase Multiple`, async () => {
   let config: RuntimeConfig
   let oraclePrice: BigNumber
 
-  beforeEach(async () => {
-    config = await init()
-    provider = config.provider
-    signer = config.signer
-    address = config.address
+  before(async () => {
+    ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
 
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    const systemSnapshot = await restoreSnapshot(config, provider, testBlockNumber)
+    const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
 
-    system = systemSnapshot.system
-    registry = systemSnapshot.registry
+    system = snapshot.deployed.system
+    registry = snapshot.deployed.registry
 
     exchangeDataMock = {
       to: system.common.exchange.address,
@@ -77,6 +76,10 @@ describe(`Operations | Maker | Increase Multiple`, async () => {
     oraclePrice = await getOraclePrice(provider)
 
     await system.common.exchange.setPrice(ADDRESSES.main.WETH, amountToWei(marketPrice).toFixed(0))
+  })
+
+  afterEach(async () => {
+    await restoreSnapshot(config, provider, testBlockNumber)
   })
 
   let gasEstimates: GasEstimateHelper

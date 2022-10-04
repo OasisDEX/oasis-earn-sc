@@ -1,7 +1,6 @@
 import { ethers, providers } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { DeployedSystemInfo, deploySystem } from '../test/deploySystem'
 import { RuntimeConfig } from './types/common'
 
 export default async function init(hre?: HardhatRuntimeEnvironment): Promise<RuntimeConfig> {

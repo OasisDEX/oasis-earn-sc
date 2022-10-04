@@ -1,15 +1,16 @@
 import { ADDRESSES, calldataTypes, ONE, TEN_THOUSAND, ZERO } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
+import { loadFixture } from 'ethereum-waffle'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-import init from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { BalanceOptions, RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf, send } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
+import { initialiseConfig } from '../fixtures/setup'
 
 describe('SendToken Action', () => {
   const AMOUNT = new BigNumber(1000)
@@ -19,15 +20,15 @@ describe('SendToken Action', () => {
   let sendTokenActionAddress: string
 
   before(async () => {
-    config = await init()
+    ;({ config } = await loadFixture(initialiseConfig))
+
+    const snapshot = await restoreSnapshot(config, config.provider, testBlockNumber)
+
+    sendToken = snapshot.deployed.system.common.sendToken
+    sendTokenActionAddress = snapshot.deployed.system.common.sendToken.address
   })
 
   beforeEach(async () => {
-    const systemSnapshot = await restoreSnapshot(config, config.provider, testBlockNumber)
-
-    sendToken = systemSnapshot.system.common.sendToken
-    sendTokenActionAddress = systemSnapshot.system.common.sendToken.address
-
     await swapUniswapTokens(
       ADDRESSES.main.WETH,
       ADDRESSES.main.DAI,
@@ -36,6 +37,10 @@ describe('SendToken Action', () => {
       config.address,
       config,
     )
+  })
+
+  afterEach(async () => {
+    await restoreSnapshot(config, config.provider, testBlockNumber)
   })
 
   it('should send tokens to the sender', async () => {
