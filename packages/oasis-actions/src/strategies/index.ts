@@ -1,1 +1,1 @@
-export * from './openStEth'
+export * as aave from './aave'

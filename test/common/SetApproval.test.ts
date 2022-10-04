@@ -37,7 +37,7 @@ describe('SetApproval Action', () => {
         [
           {
             asset: ADDRESSES.main.DAI,
-            delegator: config.address,
+            delegate: config.address,
             amount: amountToWei(AMOUNT).toFixed(0),
           },
         ],

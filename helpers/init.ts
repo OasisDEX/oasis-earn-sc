@@ -31,3 +31,13 @@ export async function resetNode(
     },
   ])
 }
+
+export async function resetNodeToLatestBlock(provider: providers.JsonRpcProvider) {
+  await provider.send('hardhat_reset', [
+    {
+      forking: {
+        jsonRpcUrl: process.env.MAINNET_URL,
+      },
+    },
+  ])
+}
