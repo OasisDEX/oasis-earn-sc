@@ -7,6 +7,7 @@ import {
   OPERATION_NAMES,
   strategies,
   Vault,
+  ZERO,
 } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -22,7 +23,7 @@ import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
-import { expectToBe, expectToBeEqual } from '../utils'
+import { expectToBeEqual } from '../utils'
 
 const oneInchCallMock = async (
   from: string,
@@ -476,7 +477,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             ]),
           },
           signer,
-          depositAmount.toFixed(0),
         )
         reduceRiskTxStatus = _txStatus
         reduceRiskTx = _tx
@@ -509,13 +509,32 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         )
       })
 
-      // it('Should payback all Eth tokens to aave', () => {
-      //   expectToBe(
-      //     adjustStrategyReduceRisk.simulation.swap.minToTokenAmount,
-      //     'lte',
-      //     new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()),
-      //   )
-      // })
+      it('should not be any token left on proxy', async () => {
+        const proxyWethBalance = await balanceOf(
+          ADDRESSES.main.WETH,
+          system.common.dsProxy.address,
+          {
+            config,
+            isFormatted: true,
+          },
+        )
+        const proxyStEthBalance = await balanceOf(
+          ADDRESSES.main.stETH,
+          system.common.dsProxy.address,
+          {
+            config,
+            isFormatted: true,
+          },
+        )
+        const proxyEthBalance = await balanceOf(ADDRESSES.main.ETH, system.common.dsProxy.address, {
+          config,
+          isFormatted: true,
+        })
+
+        expectToBeEqual(proxyWethBalance, ZERO)
+        expectToBeEqual(proxyStEthBalance, ZERO)
+        expectToBeEqual(proxyEthBalance, ZERO)
+      })
 
       it('Should collect fee', async () => {
         const feeRecipientWethBalanceAfter = await balanceOf(

@@ -23,7 +23,7 @@ contract AavePayback is Executable, UseStore {
 
     uint256 variableNormalizedDebt = ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).getReserveNormalizedVariableDebt(payback.asset);
 
-    payback.amount = store().readUint(bytes32(payback.amount), paramsMap[0], address(this));
+    payback.amount = store().readUint(bytes32(payback.amount), paramsMap[1], address(this));
 
     ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).repay(
       payback.asset,

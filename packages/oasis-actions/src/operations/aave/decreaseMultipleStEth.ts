@@ -64,11 +64,11 @@ export async function decreaseMultipleStEth(
 
   const paybackInAAVE = actions.aave.aavePayback(
     {
-      amount: new BigNumber(0),
       asset: addresses.WETH,
+      amount: new BigNumber(0),
       paybackAll: false,
     },
-    [3, 0, 0],
+    [0, 3, 0],
   )
 
   const withdrawDAIFromAAVE = actions.aave.aaveWithdraw({

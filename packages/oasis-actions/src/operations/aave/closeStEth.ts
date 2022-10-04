@@ -62,8 +62,8 @@ export async function closeStEth(
   )
 
   const paybackInAAVE = actions.aave.aavePayback({
-    amount: new BigNumber(0),
     asset: addresses.WETH,
+    amount: new BigNumber(0),
     paybackAll: true,
   })
 
