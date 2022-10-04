@@ -77,14 +77,6 @@ export async function decreaseMultipleStEth(
     to: addresses.operationExecutor,
   })
 
-  const unwrapEth = actions.common.unwrapEth({
-    amount: new BigNumber(MAX_UINT),
-  })
-
-  const returnFunds = actions.common.returnFunds({
-    asset: addresses.ETH,
-  })
-
   // TODO: determine if a flashloan is necessary
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
@@ -98,8 +90,6 @@ export async function decreaseMultipleStEth(
       setWethApprovalOnLendingPool,
       paybackInAAVE,
       withdrawDAIFromAAVE,
-      unwrapEth,
-      returnFunds,
     ],
   })
 
