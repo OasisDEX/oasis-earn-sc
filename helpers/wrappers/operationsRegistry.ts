@@ -22,7 +22,7 @@ export class OperationsRegistry {
     return entryHash
   }
 
-  async getOp(label: string): Promise<string> {
+  async getOp(label: string): Promise<string[]> {
     const ethers = (await import('hardhat')).ethers
     const registry = await ethers.getContractAt('OperationsRegistry', this.address, this.signer)
 
