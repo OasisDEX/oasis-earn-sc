@@ -59,7 +59,6 @@ describe(`Reentrancy guard test`, async () => {
 
   afterEach(async () => {
     await restoreSnapshot(config, provider, testBlockNumber)
-    // await provider.send('evm_revert', [snapshotId])
   })
 
   it(`should execute an action, even if OperationStorage lock() was called by another address`, async () => {
