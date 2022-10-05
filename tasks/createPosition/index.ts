@@ -1,4 +1,4 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategy } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -25,6 +25,7 @@ task('createPosition', 'Create stETH position on AAVE').setAction(async (taskArg
     ETH: ADDRESSES.main.ETH,
     WETH: ADDRESSES.main.WETH,
     stETH: ADDRESSES.main.stETH,
+    aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
     chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
     aavePriceOracle: ADDRESSES.main.aavePriceOracle,
     aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
@@ -53,11 +54,11 @@ task('createPosition', 'Create stETH position on AAVE').setAction(async (taskArg
   const multiply = new BigNumber(2)
   const slippage = new BigNumber(0.1)
 
-  const strategyReturn = await strategy.aave.openStEth(
+  const strategyReturn = await strategies.aave.openStEth(
     {
       depositAmount,
       slippage,
-      multiply,
+      multiple: multiply,
     },
     {
       addresses: mainnetAddresses,

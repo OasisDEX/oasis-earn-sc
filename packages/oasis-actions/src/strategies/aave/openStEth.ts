@@ -5,8 +5,8 @@ import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei } from '../../helpers'
+import { Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { Vault } from '../../helpers/calculations/Vault'
 import { ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
 import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
@@ -91,7 +91,7 @@ export async function openStEth(
   const depositEthWei = args.depositAmount
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
-  const emptyVault = new Vault({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
+  const emptyPosition = new Position({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
     liquidationThreshold,
     maxLoanToValue,
     dustLimit,
@@ -101,7 +101,7 @@ export async function openStEth(
 
   const flashloanFee = new BigNumber(0)
 
-  const target = emptyVault.adjustToTargetRiskRatio(
+  const target = emptyPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
       fees: {
@@ -114,7 +114,7 @@ export async function openStEth(
         oracleFLtoDebtToken: ethPrice,
       },
       slippage: args.slippage,
-      maxLoanToValueFL: emptyVault.category.maxLoanToValue,
+      maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
       depositedByUser: {
         debt: args.depositAmount,
       },
@@ -149,13 +149,13 @@ export async function openStEth(
   const stEthAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
 
   /*
-    Final vault calculated using actual swap data and the latest market price
+    Final position calculated using actual swap data and the latest market price
    */
-  const finalVault = new Vault(
-    target.vault.debt,
-    { amount: stEthAmountAfterSwapWei, denomination: target.vault.collateral.denomination },
+  const finalPosition = new Position(
+    target.position.debt,
+    { amount: stEthAmountAfterSwapWei, denomination: target.position.collateral.denomination },
     aaveStEthPriceInEth,
-    target.vault.category,
+    target.position.category,
   )
 
   const prices = {
@@ -173,8 +173,10 @@ export async function openStEth(
         ...swapData,
         fee: amountFromWei(target.swap.fee),
       },
-      vault: finalVault,
-      minConfigurableRiskRatio: finalVault.minConfigurableRiskRatio(actualMarketPriceWithSlippage),
+      position: finalPosition,
+      minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
+        actualMarketPriceWithSlippage,
+      ),
       prices,
     },
   }

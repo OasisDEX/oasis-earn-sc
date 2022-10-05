@@ -4,36 +4,36 @@ import { ONE, ZERO } from '../constants'
 import { logDebug } from '../index'
 import { IRiskRatio, RiskRatio } from './RiskRatio'
 
-interface IVaultBalance {
+interface IPositionBalance {
   amount: BigNumber
   denomination?: string
 }
 
-interface IVaultCategory {
+interface IPositionCategory {
   liquidationThreshold: BigNumber
   maxLoanToValue: BigNumber
   dustLimit: BigNumber
 }
 
-export interface IBaseVault {
-  collateral: IVaultBalance
-  debt: IVaultBalance
-  category: IVaultCategory
+export interface IBasePosition {
+  collateral: IPositionBalance
+  debt: IPositionBalance
+  category: IPositionCategory
 }
 
 type Delta = { debt: BigNumber; collateral: BigNumber; flashloanAmount?: BigNumber }
 export type Swap = { fromTokenAmount: BigNumber; toTokenAmount: BigNumber; fee: BigNumber }
 type Flags = { usesFlashloan: boolean; isIncreasingRisk: boolean }
 
-export interface IVaultChange {
-  vault: IVault
+export interface IPositionChange {
+  position: IPosition
   delta: Delta
   swap: Swap
   flags: Flags
 }
 
-// TODO: consider multi-collateral vaults
-interface IVaultChangeParams {
+// TODO: consider multi-collateral positions
+interface IPositionChangeParams {
   depositedByUser?: {
     collateral?: BigNumber
     debt?: BigNumber
@@ -43,6 +43,11 @@ interface IVaultChangeParams {
     flashLoan: BigNumber
   }
   prices: {
+    /*
+        TODO: Update params to make differentiate the price configurations between increase/decrease more clearly
+        This oracle price is the exchange rate going from collateral -> debt.
+        When decreasing risk / closing we need the inverse of the exchange rate going in the opposite direction (debt -> collateral)
+     */
     oracle: BigNumber
     market: BigNumber
     oracleFLtoDebtToken?: BigNumber
@@ -55,26 +60,29 @@ interface IVaultChangeParams {
   debug?: boolean
 }
 
-export interface IVault extends IBaseVault {
+export interface IPosition extends IBasePosition {
   minConfigurableRiskRatio: (marketPriceAccountingForSlippage: BigNumber) => IRiskRatio
   riskRatio: IRiskRatio
   healthFactor: BigNumber
   liquidationPrice: BigNumber
-  adjustToTargetRiskRatio: (targetRiskRatio: IRiskRatio, params: IVaultChangeParams) => IVaultChange
+  adjustToTargetRiskRatio: (
+    targetRiskRatio: IRiskRatio,
+    params: IPositionChangeParams,
+  ) => IPositionChange
 }
 
-export class Vault implements IVault {
-  public debt: IVaultBalance
-  public collateral: IVaultBalance
-  public category: IVaultCategory
+export class Position implements IPosition {
+  public debt: IPositionBalance
+  public collateral: IPositionBalance
+  public category: IPositionCategory
   private _feeBase: BigNumber = new BigNumber(10000)
   private _oraclePriceForCollateralDebtExchangeRate: BigNumber
 
   constructor(
-    debt: IVaultBalance,
-    collateral: IVaultBalance,
+    debt: IPositionBalance,
+    collateral: IPositionBalance,
     oraclePrice: BigNumber,
-    category: IVaultCategory,
+    category: IPositionCategory,
   ) {
     this.debt = debt
     this.collateral = collateral
@@ -114,14 +122,17 @@ export class Vault implements IVault {
   }
 
   /**
-   * Calculates the target (or desired) state of a vault
+   * Calculates the target (or desired) state of a position
    *
    * Maths breakdown: {@linkhttps://www.notion.so/oazo/Oasis-Maths-cceaa36d5c2b49a7b5129105cee1d35f#608e831f54fc4557bf004af7c453f865}
    * Concrete scenarios: {@link https://docs.google.com/spreadsheets/d/1ZB0dlQbjgi7eM-cSyGowWlZCKG-326pWZeHxZAPFOT0/edit?usp=sharing}
    *
-   * @returns A vault's change in debt, change in collateral and whether a flashloan is necessary to achieve the change
+   * @returns A position's change in debt, change in collateral and whether a flashloan is necessary to achieve the change
    */
-  adjustToTargetRiskRatio(targetRiskRatio: IRiskRatio, params: IVaultChangeParams): IVaultChange {
+  adjustToTargetRiskRatio(
+    targetRiskRatio: IRiskRatio,
+    params: IPositionChangeParams,
+  ): IPositionChange {
     const targetLTV = targetRiskRatio.loanToValue
     let isIncreasingRisk = false
 
@@ -140,16 +151,16 @@ export class Vault implements IVault {
     } = params
 
     /**
-     * C_W  Collateral in wallet to top-up or seed vault
-     * D_W  Debt token in wallet to top-up or seed vault
+     * C_W  Collateral in wallet to top-up or seed position
+     * D_W  Debt token in wallet to top-up or seed position
      * */
     const collateralDepositedByUser = depositedByUser?.collateral || ZERO
     const debtDenominatedTokensDepositedByUser = depositedByUser?.debt || ZERO
 
     /**
-     * These values are based on the initial state of the vault.
-     * If it's a new vault then these values will be whatever the
-     * user decides to seed the vault with.
+     * These values are based on the initial state of the position.
+     * If it's a new position then these values will be whatever the
+     * user decides to seed the position with.
      *
      * C_C  Current collateral
      * D_C  Current debt
@@ -158,8 +169,8 @@ export class Vault implements IVault {
     const currentDebt = (this.debt.amount || ZERO).minus(debtDenominatedTokensDepositedByUser)
 
     /**
-     * The Oracle price is what we use to convert a vault's collateral into the same
-     * denomination/units as the vault's Debt. Different protocols use different
+     * The Oracle price is what we use to convert a position's collateral into the same
+     * denomination/units as the position's Debt. Different protocols use different
      * base assets.
      * EG:
      * Maker uses DAI
@@ -182,7 +193,7 @@ export class Vault implements IVault {
     /**
      * Fees are relevant at different points in a transaction
      * Oazo fees are (as of writing) deducted before a Base token (eg DAI or ETH)
-     * is converted to a Vault's target collateral.
+     * is converted to a Position's target collateral.
      *
      * Flashloan fees are charged by Flashloan lenders. (As of writing Maker's Mint Module
      * was free of charge).
@@ -195,9 +206,9 @@ export class Vault implements IVault {
 
     /**
      *
-     * Liquidation threshold is the ratio at which a vault can be liquidated
+     * Liquidation threshold is the ratio at which a position can be liquidated
      *
-     * LT Liquidation threshold for vault
+     * LT Liquidation threshold for position
      * LTV_{Max} Max Opening Loan-to-Value when generated Debt (DAI)
      * LTV_{MAX(FL)} Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH)
      */
@@ -255,12 +266,12 @@ export class Vault implements IVault {
       .integerValue(BigNumber.ROUND_DOWN)
 
     /**
-     * Is a flashloan required to reach the target state for the vault?
+     * Is a flashloan required to reach the target state for the position?
      *
-     * Y represents the available liquidity in the vault
+     * Y represents the available liquidity in the positio
      *
      * If Y is less than X where X is the amount of debt that's needed to be generate
-     * the target vault state then a flashloan is required
+     * the target position state then a flashloan is required
      *
      * Y=(C_C\cdot P_O) \cdot LTV_{MAX} - D_C
      * */
@@ -282,11 +293,11 @@ export class Vault implements IVault {
     const debtDeltaPreFlashloanFee = amountToBeSwappedOrPaidback_X
 
     const collateralDelta = amountToBeSwappedOrPaidback_X
-      .times(ONE.minus(oazoFee.div(this._feeBase)))
       .div(marketPriceAdjustedForSlippage)
+      .div(isIncreasingRisk ? ONE : ONE.minus(oazoFee.div(this._feeBase)))
 
     /**
-     * Is a flashloan required to reach the target state for the vault when decreasing?
+     * Is a flashloan required to reach the target state for the position when decreasing?
      *
      * */
     const isFlashloanRequiredForDecrease = this.category.maxLoanToValue.lte(
@@ -335,13 +346,14 @@ export class Vault implements IVault {
       ? amountToBeSwappedOrPaidback_X
       : amountToBeSwappedOrPaidback_X
           .negated()
-          .times(ONE.minus(oazoFee.div(this._feeBase)))
           .div(marketPriceAdjustedForSlippage)
+          .div(ONE.minus(oazoFee.div(this._feeBase)))
+
     const toTokenAmount = isIncreasingRisk
       ? collateralDelta
       : amountToBeSwappedOrPaidback_X.negated()
 
-    const targetVault = this._createTargetVault(
+    const targetPosition = this._createTargetPosition(
       debtDelta,
       collateralDelta,
       oraclePrice,
@@ -357,26 +369,30 @@ export class Vault implements IVault {
           `Our unknown X: ${amountToBeSwappedOrPaidback_X.toString()}`,
           `From token amount: ${fromTokenAmount.toString()}`,
           `From token: ${
-            isIncreasingRisk ? targetVault.debt.denomination : targetVault.collateral.denomination
+            isIncreasingRisk
+              ? targetPosition.debt.denomination
+              : targetPosition.collateral.denomination
           }`,
           `To token amount: ${toTokenAmount.toString()}`,
           `To token: ${
-            isIncreasingRisk ? targetVault.collateral.denomination : targetVault.debt.denomination
+            isIncreasingRisk
+              ? targetPosition.collateral.denomination
+              : targetPosition.debt.denomination
           }`,
           `Debt delta: ${debtDelta.toString()}`,
           `Collateral delta: ${collateralDelta.toString()}`,
           `Fee amount ${fee.toString()}`,
           `Fee taken from Base token ${collectFeeFromBaseToken}`,
           `Fee take from Collateral token ${!collectFeeFromBaseToken}`,
-          `Target vault debt ${targetVault.debt.amount.toString()}`,
-          `Target vault collateral ${targetVault.collateral.amount.toString()}`,
+          `Target position debt ${targetPosition.debt.amount.toString()}`,
+          `Target position collateral ${targetPosition.collateral.amount.toString()}`,
         ],
         'Output: ',
       )
     }
 
     return {
-      vault: targetVault,
+      position: targetPosition,
       delta: { debt: debtDelta, collateral: collateralDelta, flashloanAmount: amountToFlashloan },
       swap: {
         fromTokenAmount,
@@ -390,13 +406,13 @@ export class Vault implements IVault {
     }
   }
 
-  private _createTargetVault(
+  private _createTargetPosition(
     debtDelta: BigNumber,
     collateralDelta: BigNumber,
     oraclePrice: BigNumber,
     currentDebt: BigNumber,
     currentCollateral: BigNumber,
-  ): IVault {
+  ): IPosition {
     const newCollateralAmount = currentCollateral.plus(collateralDelta)
     const newCollateral = {
       amount: newCollateralAmount,
@@ -406,9 +422,9 @@ export class Vault implements IVault {
     const newDebtAmount = currentDebt.plus(debtDelta)
     const newDebt = { amount: newDebtAmount, denomination: this.debt.denomination }
 
-    const newVault = new Vault(newDebt, newCollateral, oraclePrice, this.category)
+    const newPosition = new Position(newDebt, newCollateral, oraclePrice, this.category)
 
-    return newVault
+    return newPosition
   }
 
   private _calculateFee(amount: BigNumber, fee: BigNumber): BigNumber {

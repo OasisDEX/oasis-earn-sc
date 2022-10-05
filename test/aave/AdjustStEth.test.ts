@@ -1,12 +1,12 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
+  IPosition,
   IStrategy,
-  IVault,
   ONE,
   OPERATION_NAMES,
+  Position,
   strategies,
-  Vault,
   ZERO,
 } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
@@ -133,7 +133,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
-    let actualVault: IVault
+    let actualPosition: IPosition
 
     let feeRecipientWethBalanceBefore: BigNumber
 
@@ -189,11 +189,11 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         system.common.dsProxy.address,
       )
 
-      actualVault = new Vault(
+      actualPosition = new Position(
         { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
         { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
         aaveStEthPriceInEth,
-        openStrategy.simulation.vault.category,
+        openStrategy.simulation.position.category,
       )
     })
 
@@ -203,7 +203,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
     it('Should draw debt according to multiple', () => {
       expectToBeEqual(
-        openStrategy.simulation.vault.debt.amount.toFixed(0),
+        openStrategy.simulation.position.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
@@ -215,7 +215,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       let increaseRiskTx: ContractReceipt
       let afterUserAccountData: AAVEAccountData
       let afterUserStEthReserveData: AAVEReserveData
-      let actualVaultAfterIncreaseAdjust: IVault
+      let actualPositionAfterIncreaseAdjust: IPosition
 
       before(async () => {
         const addresses = {
@@ -239,7 +239,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           {
             addresses,
             provider,
-            vault: {
+            position: {
               debt: {
                 amount: new BigNumber(beforeUserAccountData.totalDebtETH.toString()),
               },
@@ -286,11 +286,11 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           system.common.dsProxy.address,
         )
 
-        actualVaultAfterIncreaseAdjust = new Vault(
+        actualPositionAfterIncreaseAdjust = new Position(
           { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()) },
           { amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()) },
           aaveStEthPriceInEth,
-          openStrategy.simulation.vault.category,
+          openStrategy.simulation.position.category,
         )
       })
 
@@ -300,7 +300,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
       it('Should draw debt according to multiply', async () => {
         expectToBeEqual(
-          adjustStrategyIncreaseRisk.simulation.vault.debt.amount.toFixed(0),
+          adjustStrategyIncreaseRisk.simulation.position.debt.amount.toFixed(0),
           new BigNumber(afterUserAccountData.totalDebtETH.toString()),
         )
       })
@@ -335,7 +335,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
-    let actualVault: IVault
+    let actualPosition: IPosition
 
     let feeRecipientWethBalanceBefore: BigNumber
 
@@ -391,11 +391,11 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         system.common.dsProxy.address,
       )
 
-      actualVault = new Vault(
+      actualPosition = new Position(
         { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
         { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
         aaveStEthPriceInEth,
-        openStrategy.simulation.vault.category,
+        openStrategy.simulation.position.category,
       )
     })
 
@@ -405,7 +405,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
     it('Should draw debt according to multiple', () => {
       expectToBeEqual(
-        openStrategy.simulation.vault.debt.amount.toFixed(0),
+        openStrategy.simulation.position.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
@@ -418,7 +418,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
       let afterUserAccountData: AAVEAccountData
       let afterUserStEthReserveData: AAVEReserveData
-      let actualVaultAfterDecreasingRisk: IVault
+      let actualPositionAfterDecreasingRisk: IPosition
 
       before(async () => {
         const addresses = {
@@ -442,7 +442,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           {
             addresses,
             provider,
-            vault: {
+            position: {
               debt: {
                 amount: new BigNumber(beforeUserAccountData.totalDebtETH.toString()),
               },
@@ -489,11 +489,11 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           system.common.dsProxy.address,
         )
 
-        actualVaultAfterDecreasingRisk = new Vault(
+        actualPositionAfterDecreasingRisk = new Position(
           { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()) },
           { amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()) },
           aaveStEthPriceInEth,
-          openStrategy.simulation.vault.category,
+          openStrategy.simulation.position.category,
         )
       })
 
@@ -503,7 +503,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
       it('Should reduce collateral according to multiple', () => {
         expectToBeEqual(
-          adjustStrategyReduceRisk.simulation.vault.collateral.amount.toFixed(0),
+          adjustStrategyReduceRisk.simulation.position.collateral.amount.toFixed(0),
           new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()),
         )
       })

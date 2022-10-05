@@ -1,11 +1,11 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
-  IVault,
+  IPosition,
   ONE,
   OPERATION_NAMES,
+  Position,
   strategies,
-  Vault,
   ZERO,
 } from '@oasisdex/oasis-actions'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
@@ -18,11 +18,12 @@ import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
-import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
+import { resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
+import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
@@ -112,7 +113,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
   let afterCloseUserAccountData: AAVEAccountData
   let afterCloseUserStEthReserveData: AAVEReserveData
-  let actualVault: IVault
+  let actualPosition: IPosition
 
   let feeRecipientWethBalanceBefore: BigNumber
   let userEthBalanceBeforeTx: BigNumber
@@ -188,11 +189,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         system.common.dsProxy.address,
       )
 
-      const actualVaultAfterOpen = new Vault(
+      const actualPositionAfterOpen = new Position(
         { amount: new BigNumber(afterOpenUserAccountData.totalDebtETH.toString()) },
         { amount: new BigNumber(afterOpenUserStEthReserveData.currentATokenBalance.toString()) },
         aaveStEthPriceInEth,
-        openStrategy.simulation.vault.category,
+        openStrategy.simulation.position.category,
       )
 
       feeRecipientWethBalanceBefore = await balanceOf(
@@ -214,11 +215,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         beforeCloseUserStEthReserveData.currentATokenBalance.toString(),
       )
 
-      const vaultAfterOpen = new Vault(
+      const positionAfterOpen = new Position(
         { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },
         { amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()) },
         aaveStEthPriceInEth,
-        openStrategy.simulation.vault.category,
+        openStrategy.simulation.position.category,
       )
 
       closeStrategy = await strategies.aave.closeStEth(
@@ -229,7 +230,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         {
           addresses,
           provider,
-          vault: vaultAfterOpen,
+          position: positionAfterOpen,
           getSwapData: oneInchCallMock(new BigNumber(1.1)),
           dsProxy: system.common.dsProxy.address,
         },
@@ -265,11 +266,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         system.common.dsProxy.address,
       )
 
-      actualVault = new Vault(
+      actualPosition = new Position(
         { amount: new BigNumber(afterCloseUserAccountData.totalDebtETH.toString()) },
         { amount: new BigNumber(afterCloseUserStEthReserveData.currentATokenBalance.toString()) },
         aaveStEthPriceInEth,
-        openStrategy.simulation.vault.category,
+        openStrategy.simulation.position.category,
       )
     })
 
@@ -405,11 +406,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         beforeCloseUserStEthReserveData.currentATokenBalance.toString(),
       )
 
-      const vaultAfterOpen = new Vault(
+      const positionAfterOpen = new Position(
         { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },
         { amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()) },
         aaveStEthPriceInEth,
-        openStrategy.simulation.vault.category,
+        openStrategy.simulation.position.category,
       )
 
       closeStrategy = await strategies.aave.closeStEth(
@@ -420,7 +421,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         {
           addresses,
           provider,
-          vault: vaultAfterOpen,
+          position: positionAfterOpen,
           getSwapData: getOneInchRealCall(system.common.swap.address),
           dsProxy: system.common.dsProxy.address,
         },

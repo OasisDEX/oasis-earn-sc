@@ -4,7 +4,7 @@ import { ethers, providers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, calculateFee } from '../../helpers'
-import { IBaseVault, Vault } from '../../helpers/calculations/Vault'
+import { IBasePosition, Position } from '../../helpers/calculations/Position'
 import { ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
 import type { CloseStEthAddresses } from '../../operations/aave/closeStEth'
@@ -27,7 +27,7 @@ interface CloseStEthArgs {
 interface CloseStEthDependencies {
   addresses: CloseStEthAddresses
   provider: providers.Provider
-  vault: IBaseVault
+  position: IBasePosition
   getSwapData: (
     fromToken: string,
     toToken: string,
@@ -41,7 +41,7 @@ export async function closeStEth(
   args: CloseStEthArgs,
   dependencies: CloseStEthDependencies,
 ): Promise<IStrategy> {
-  const existingVault = dependencies.vault
+  const existingPosition = dependencies.position
 
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
@@ -100,13 +100,13 @@ export async function closeStEth(
   )
 
   /*
-  Final vault calculated using actual swap data and the latest market price
+  Final position calculated using actual swap data and the latest market price
  */
-  const finalPosition = new Vault(
-    { amount: ZERO, denomination: existingVault.debt.denomination },
-    { amount: ZERO, denomination: existingVault.collateral.denomination },
+  const finalPosition = new Position(
+    { amount: ZERO, denomination: existingPosition.debt.denomination },
+    { amount: ZERO, denomination: existingPosition.collateral.denomination },
     aaveStEthPriceInEth,
-    existingVault.category,
+    existingPosition.category,
   )
 
   const prices = {
@@ -120,15 +120,15 @@ export async function closeStEth(
     calls,
     simulation: {
       delta: {
-        debt: existingVault.debt.amount.negated(),
-        collateral: existingVault.collateral.amount.negated(),
+        debt: existingPosition.debt.amount.negated(),
+        collateral: existingPosition.collateral.amount.negated(),
       },
       flags: flags,
       swap: {
         ...swapData,
         fee: amountFromWei(fee),
       },
-      vault: finalPosition,
+      position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
         actualMarketPriceWithSlippage,
       ),

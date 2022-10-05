@@ -5,10 +5,10 @@ import path from 'path'
 import process from 'process'
 
 import { ONE, ZERO } from '../constants'
+import { Position } from './Position'
 import { RiskRatio } from './RiskRatio'
 import { testDataSources } from './test-scenarios/generateTestData'
 import { fetchTestScenarios } from './testDataUtils'
-import { Vault } from './Vault'
 
 dotenv.config({ path: path.join(process.cwd(), '../../.env') })
 
@@ -51,7 +51,7 @@ type Scenario = {
   feePaidFromCollateralToken: BigNumber
 }
 
-describe('Calculate Vault Helper', async () => {
+describe('Calculate Position Helper', async () => {
   describe('LTV_target', async () => {
     const scenarios = (await fetchTestScenarios<Scenario>(testDataSources.LTV_target)) as Scenario[]
 
@@ -91,7 +91,7 @@ describe('Calculate Vault Helper', async () => {
           const riskRatio = new RiskRatio(targetLoanToValue, RiskRatio.TYPE.LTV)
           const dustLimit = new BigNumber(0)
           /* Note: we have to remove User deposits from current values because they've already been rolled up (assigned) in our googlesheets data*/
-          const currentVault = new Vault(
+          const currentVault = new Position(
             { amount: currentDebt.plus(debtDenominatedTokensDepositedByUser) },
             { amount: currentCollateral.minus(collateralDepositedByUser) },
             oraclePrice,
@@ -143,16 +143,16 @@ describe('Calculate Vault Helper', async () => {
           )
 
           // Target Debt
-          expect(target.vault.debt.amount.toFixed(2)).to.equal(targetDebt.toFixed(2))
+          expect(target.position.debt.amount.toFixed(2)).to.equal(targetDebt.toFixed(2))
 
           // Target Collateral
-          expect(target.vault.collateral.amount.toFixed(2)).to.equal(targetCollateral.toFixed(2))
+          expect(target.position.collateral.amount.toFixed(2)).to.equal(targetCollateral.toFixed(2))
 
           // Health Factor
-          expect(target.vault.healthFactor.toFixed(2)).to.equal(healthFactor.toFixed(2))
+          expect(target.position.healthFactor.toFixed(2)).to.equal(healthFactor.toFixed(2))
 
           // Liquidation Price
-          expect(target.vault.liquidationPrice.toFixed(2)).to.equal(minOraclePrice.toFixed(2))
+          expect(target.position.liquidationPrice.toFixed(2)).to.equal(minOraclePrice.toFixed(2))
 
           // Fee Paid
           if (target.flags.isIncreasingRisk) {
@@ -181,7 +181,7 @@ describe('Calculate Vault Helper', async () => {
 
     scenarios.forEach(scenario => {
       it(`Test LTV_min ${scenario.name}`, () => {
-        const vault = new Vault(
+        const position = new Position(
           {
             amount: scenario.currentDebt,
             denomination: 'nope',
@@ -201,7 +201,9 @@ describe('Calculate Vault Helper', async () => {
           ONE.plus(scenario.slippage),
         )
         expect(
-          vault.minConfigurableRiskRatio(marketPriceAccountingForSlippage).loanToValue.toFixed(4),
+          position
+            .minConfigurableRiskRatio(marketPriceAccountingForSlippage)
+            .loanToValue.toFixed(4),
         ).to.equal(scenario.ltvMin.toFixed(4))
       })
     })

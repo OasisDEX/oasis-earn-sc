@@ -1,11 +1,11 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
+  IPosition,
   IStrategy,
-  IVault,
   OPERATION_NAMES,
+  Position,
   strategies,
-  Vault,
 } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -123,7 +123,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
-    let actualVault: IVault
+    let actualPosition: IPosition
 
     let feeRecipientWethBalanceBefore: BigNumber
 
@@ -177,11 +177,11 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         system.common.dsProxy.address,
       )
 
-      actualVault = new Vault(
+      actualPosition = new Position(
         { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
         { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
         aaveStEthPriceInEth,
-        strategy.simulation.vault.category,
+        strategy.simulation.position.category,
       )
     })
 
@@ -191,7 +191,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     it('Should draw debt according to multiple', () => {
       expectToBeEqual(
-        strategy.simulation.vault.debt.amount.toFixed(0),
+        strategy.simulation.position.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
@@ -206,9 +206,9 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     it('Should achieve target multiple', () => {
       expectToBe(
-        strategy.simulation.vault.riskRatio.multiple,
+        strategy.simulation.position.riskRatio.multiple,
         'gte',
-        actualVault.riskRatio.multiple,
+        actualPosition.riskRatio.multiple,
       )
     })
 
@@ -301,7 +301,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     it('Should draw debt according to multiple', () => {
       expectToBeEqual(
-        strategy.simulation.vault.debt.amount.toFixed(0),
+        strategy.simulation.position.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })

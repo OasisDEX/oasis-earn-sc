@@ -4,8 +4,8 @@ import { ethers, providers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei } from '../../helpers'
+import { IBasePosition, IPosition, Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { IBaseVault, IVault, Vault } from '../../helpers/calculations/Vault'
 import { ONE, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { DecreaseMultipleStEthAddresses } from '../../operations/aave/decreaseMultipleStEth'
@@ -21,7 +21,7 @@ interface AdjustStEthArgs {
 interface AdjustStEthDependencies {
   addresses: IncreaseMultipleStEthAddresses | DecreaseMultipleStEthAddresses
   provider: providers.Provider
-  vault: IBaseVault
+  position: IBasePosition
   getSwapData: (
     fromToken: string,
     toToken: string,
@@ -35,7 +35,7 @@ export async function adjustStEth(
   args: AdjustStEthArgs,
   dependencies: AdjustStEthDependencies,
 ): Promise<IStrategy> {
-  const existingBaseVault = dependencies.vault
+  const existingBasePosition = dependencies.position
 
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
@@ -65,11 +65,11 @@ export async function adjustStEth(
     .then((amount: string) => new BigNumber(amount))
     .then((amount: BigNumber) => amountFromWei(amount))
 
-  const existingVault = new Vault(
-    existingBaseVault.debt,
-    existingBaseVault.collateral,
+  const existingPosition = new Position(
+    existingBasePosition.debt,
+    existingBasePosition.collateral,
     aaveStEthPriceInEth,
-    existingBaseVault.category,
+    existingBasePosition.category,
   )
 
   const FEE = 20
@@ -92,7 +92,7 @@ export async function adjustStEth(
 
   const flashloanFee = new BigNumber(0)
 
-  const target = existingVault.adjustToTargetRiskRatio(
+  const target = existingPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
       fees: {
@@ -105,7 +105,7 @@ export async function adjustStEth(
         oracleFLtoDebtToken: ethPrice,
       },
       slippage: args.slippage,
-      maxLoanToValueFL: existingVault.category.maxLoanToValue,
+      maxLoanToValueFL: existingPosition.category.maxLoanToValue,
       depositedByUser: {
         debt: args.depositAmount,
       },
@@ -114,7 +114,7 @@ export async function adjustStEth(
   )
 
   let calls
-  let finalVault: IVault
+  let finalPosition: IPosition
   let actualMarketPriceWithSlippage
   let swapData
   if (target.flags.isIncreasingRisk) {
@@ -142,14 +142,14 @@ export async function adjustStEth(
     )
 
     /*
-      Final vault calculated using actual swap data and the latest market price
+      Final position calculated using actual swap data and the latest market price
     */
     const stEthAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
-    finalVault = new Vault(
-      target.vault.debt,
-      { amount: stEthAmountAfterSwapWei, denomination: target.vault.collateral.denomination },
+    finalPosition = new Position(
+      target.position.debt,
+      { amount: stEthAmountAfterSwapWei, denomination: target.position.collateral.denomination },
       aaveStEthPriceInEth,
-      target.vault.category,
+      target.position.category,
     )
   } else {
     swapData = await dependencies.getSwapData(
@@ -181,14 +181,14 @@ export async function adjustStEth(
       dependencies.addresses,
     )
     /*
-   Final vault calculated using actual swap data and the latest market price
+   Final position calculated using actual swap data and the latest market price
  */
     const ethAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
-    finalVault = new Vault(
-      { amount: ethAmountAfterSwapWei, denomination: target.vault.collateral.denomination },
-      target.vault.collateral,
+    finalPosition = new Position(
+      { amount: ethAmountAfterSwapWei, denomination: target.position.collateral.denomination },
+      target.position.collateral,
       aaveStEthPriceInEth,
-      target.vault.category,
+      target.position.category,
     )
   }
 
@@ -207,8 +207,10 @@ export async function adjustStEth(
         ...swapData,
         fee: amountFromWei(target.swap.fee),
       },
-      vault: finalVault,
-      minConfigurableRiskRatio: finalVault.minConfigurableRiskRatio(actualMarketPriceWithSlippage),
+      position: finalPosition,
+      minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
+        actualMarketPriceWithSlippage,
+      ),
       prices,
     },
   }

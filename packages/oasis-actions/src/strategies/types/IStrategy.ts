@@ -1,11 +1,11 @@
 import BigNumber from 'bignumber.js'
 
 import { ActionCall } from '../../actions/types/actionCall'
+import { IPositionChange } from '../../helpers/calculations/Position'
 import { IRiskRatio } from '../../helpers/calculations/RiskRatio'
-import { IVaultChange } from '../../helpers/calculations/Vault'
 import { SwapData } from './SwapData'
 
-interface ISimulation extends IVaultChange {
+interface ISimulation extends IPositionChange {
   prices: { debtTokenPrice: BigNumber; collateralTokenPrices: BigNumber | BigNumber[] }
   swap: SwapData & { fee: BigNumber }
   minConfigurableRiskRatio: IRiskRatio
