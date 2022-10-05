@@ -71,12 +71,12 @@ const config: HardhatUserConfig = {
       initialBaseFeePerGas: 1000000000,
       allowUnlimitedContractSize: true,
     },
-    // goerli: {
-    //   url: process.env.ALCHEMY_NODE_GOERLI!,ib
-    //   accounts: [process.env.PRIV_KEY_GOERLI!],
-    //   // gasPrice: 5000000000,
-    //   initialBaseFeePerGas: 1000000000,
-    // }
+    goerli: {
+      url: process.env.ALCHEMY_NODE_GOERLI!,
+      accounts: [process.env.PRIV_KEY_GOERLI!],
+      // gasPrice: 5000000000,
+      initialBaseFeePerGas: 1000000000,
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
@@ -96,7 +96,7 @@ const config: HardhatUserConfig = {
   },
   typechain: {
     outDir: 'typechain',
-  }
+  },
 }
 
 export default config
