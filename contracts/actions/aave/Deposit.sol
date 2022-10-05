@@ -15,9 +15,8 @@ contract AaveDeposit is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    DepositData memory deposit = abi.decode(data, (DepositData));
+    DepositData memory deposit = parseInputs(data);
 
-    store().write(bytes32(deposit.amount));
     deposit.amount = store().readUint(bytes32(deposit.amount), paramsMap[1], address(this));
 
     ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).deposit(
@@ -27,6 +26,12 @@ contract AaveDeposit is Executable, UseStore {
       0
     );
 
+
+    store().write(bytes32(deposit.amount));
     emit Action(DEPOSIT_ACTION, bytes32(deposit.amount));
+  }
+
+  function parseInputs(bytes memory _callData) public pure returns (DepositData memory params) {
+    return abi.decode(_callData, (DepositData));
   }
 }

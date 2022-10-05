@@ -17,7 +17,13 @@
     "deploy": "npx hardhat run",
     "test": "npx hardhat test && yarn workspaces run test",
     "test:gas": "USE_GAS_ESTIMATES=1 yarn test",
-    "lint": "eslint . --fix --ext .ts"
+    "lint": "eslint . --fix --ext .ts",
+    "compile": "npx hardhat compile",
+    "start": "npx hardhat node --network hardhat",
+    "deploy:dummy": "yarn compile && npx hardhat deploy --usedummyswap --network local",
+    "deploy:1inch": "yarn compile && npx hardhat deploy --network local",
+    "steth": "npx hardhat createPosition --network local"
+
   },
   "devDependencies": {
     "@google-cloud/local-auth": "2.1.0",
@@ -71,9 +77,13 @@
     "@ethersproject/contracts": "^5.4.0",
     "@ethersproject/providers": "^5.4.0",
     "@ethersproject/solidity": "^5.4.0",
+    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/hardhat": "^6.1.2",
     "bignumber.js": "^9.0.1",
     "chalk": "^4.1.1",
     "lodash": "^4.17.21",
-    "ramda": "^0.27.1"
+    "node-cache": "^5.1.2",
+    "ramda": "^0.27.1",
+    "typechain": "^8.1.0"
   }
 }

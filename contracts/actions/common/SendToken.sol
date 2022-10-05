@@ -9,7 +9,7 @@ contract SendToken is Executable {
   using SafeERC20 for IERC20;
 
   function execute(bytes calldata data, uint8[] memory) external payable override {
-    SendTokenData memory send = abi.decode(data, (SendTokenData));
+    SendTokenData memory send = parseInputs(data);
     if (msg.value > 0) {
       payable(send.to).transfer(send.amount);
     } else {
@@ -17,5 +17,9 @@ contract SendToken is Executable {
     }
 
     emit Action(SEND_TOKEN_ACTION, bytes32(send.amount));
+  }
+
+  function parseInputs(bytes memory _callData) public pure returns (SendTokenData memory params) {
+    return abi.decode(_callData, (SendTokenData));
   }
 }

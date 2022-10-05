@@ -31,7 +31,7 @@ contract MakerPayback is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    PaybackData memory paybackData = abi.decode(data, (PaybackData));
+    PaybackData memory paybackData = parseInputs(data);
     paybackData.vaultId = uint256(store().read(bytes32(paybackData.vaultId), paramsMap[0], address(this)));
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
     IDaiJoin daiJoin = IDaiJoin(registry.getRegisteredService(MCD_JOIN_DAI));
@@ -150,5 +150,9 @@ contract MakerPayback is Executable, UseStore {
 
     // If the rad precision has some dust, it will need to request for 1 extra wad wei
     wad = wad.mul(MathUtils.RAY) < rad ? wad + 1 : wad;
+  }
+
+  function parseInputs(bytes memory _callData) public pure returns (PaybackData memory params) {
+    return abi.decode(_callData, (PaybackData));
   }
 }

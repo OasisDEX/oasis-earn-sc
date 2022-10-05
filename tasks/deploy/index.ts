@@ -46,6 +46,15 @@ task(
       ADDRESSES.main.DAI,
     ])
 
+    const [, wrapActionAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
+      serviceRegistryAddress,
+    ])
+    const [, unwrapActionAddress] = await deploy(CONTRACT_NAMES.common.UNWRAP_ETH, [
+      serviceRegistryAddress,
+    ])
+
+    const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
+
     // AAVE Specific Actions Smart Contracts
     const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
       serviceRegistryAddress,
@@ -134,6 +143,11 @@ task(
       CONTRACT_NAMES.common.SWAP_ACTION,
       swapActionAddress,
     )
+
+    await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
+    await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
+
+    await registry.addEntry(CONTRACT_NAMES.common.RETURN_FUNDS, returnFundsActionAddress)
 
     // Adding records in Operations Registry
     const operationsRegistry: OperationsRegistry = new OperationsRegistry(

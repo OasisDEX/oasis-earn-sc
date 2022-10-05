@@ -1,4 +1,4 @@
-import { ethers, providers } from 'ethers'
+import { providers } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { RuntimeConfig } from './types/common'
