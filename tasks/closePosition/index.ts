@@ -1,4 +1,4 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategy } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -18,7 +18,11 @@ function amountToWei(amount: BigNumber.Value, precision = 18) {
   return new BigNumber(amount || 0).times(new BigNumber(10).pow(precision))
 }
 
-task('createPosition', 'Create stETH position on AAVE')
+export function amountFromWei(amount: BigNumber.Value, precision = 18) {
+  return new BigNumber(amount || 0).div(new BigNumber(10).pow(precision))
+}
+
+task('closePosition', 'Close stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
   .addFlag('dummyswap', 'Use dummy swap')
   .setAction(async (taskArgs, hre) => {
@@ -60,6 +64,8 @@ task('createPosition', 'Create stETH position on AAVE')
 
     const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
 
+    console.log('Operation executor address', operationExecutorAddress)
+
     const mainnetAddresses = {
       DAI: ADDRESSES.main.DAI,
       ETH: ADDRESSES.main.ETH,
@@ -69,7 +75,6 @@ task('createPosition', 'Create stETH position on AAVE')
       aavePriceOracle: ADDRESSES.main.aavePriceOracle,
       aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
       operationExecutor: operationExecutorAddress,
-      aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
     }
     const aaveLendingPool = new hre.ethers.Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -88,18 +93,35 @@ task('createPosition', 'Create stETH position on AAVE')
       config.signer,
     )
 
+    let userStEthReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
+      ADDRESSES.main.stETH,
+      dsProxy.address,
+    )
+
+    const address = await config.signer.getAddress()
+    let balanceEth = await balanceOf(
+      ADDRESSES.main.ETH,
+      address,
+      { config, isFormatted: true },
+      hre,
+    )
+
+    console.log('Current stETH Balance: ', userStEthReserveData.currentATokenBalance.toString())
+    console.log('Current ETH Balance: ', balanceEth.toString())
+
+    const stEthAmountLockedInAave = new BigNumber(
+      userStEthReserveData.currentATokenBalance.toString(),
+    )
+    const slippage = new BigNumber(0.1)
+
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
     const swapData = taskArgs.dummyswap ? oneInchCallMock : getOneInchCall(swapAddress)
-    const depositAmount = amountToWei(new BigNumber(5))
-    const multiply = new BigNumber(2)
-    const slippage = new BigNumber(0.1)
 
-    const strategyReturn = await strategies.aave.openStEth(
+    const strategyReturn = await strategy.aave.closeStEth(
       {
-        depositAmount,
+        stEthAmountLockedInAave,
         slippage,
-        multiple: multiply,
       },
       {
         addresses: mainnetAddresses,
@@ -125,39 +147,20 @@ task('createPosition', 'Create stETH position on AAVE')
         ]),
       },
       config.signer,
-      depositAmount.toFixed(0),
+      '0',
       hre,
     )
 
-    const userAccountData: AAVEAccountData = await aaveLendingPool.getUserAccountData(
-      dsProxy.address,
-    )
-    const userStEthReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES.main.stETH,
-      dsProxy.address,
-    )
-
-    const proxyStEthBalance = await balanceOf(
-      ADDRESSES.main.stETH,
-      dsProxy.address,
-      {
-        config,
-        isFormatted: true,
-      },
-      hre,
-    )
-
-    const proxyEthBalance = await balanceOf(
-      ADDRESSES.main.ETH,
-      dsProxy.address,
-      { config, isFormatted: true },
-      hre,
-    )
-
-    console.log('userAccountData', userAccountData.totalDebtETH.toString())
-    console.log('userStEthReserveData', userStEthReserveData.currentATokenBalance.toString())
     console.log('txStatus', txStatus)
     console.log('txHash', tx.transactionHash)
-    console.log('proxyStEthBalance', proxyStEthBalance.toString())
-    console.log('proxyEthBalance', proxyEthBalance.toString())
+
+    userStEthReserveData = await aaveDataProvider.getUserReserveData(
+      ADDRESSES.main.stETH,
+      dsProxy.address,
+    )
+
+    balanceEth = await balanceOf(ADDRESSES.main.ETH, address, { config, isFormatted: true }, hre)
+
+    console.log('Current stETH Balance: ', userStEthReserveData.currentATokenBalance.toString())
+    console.log('Current ETH Balance: ', balanceEth.toString())
   })

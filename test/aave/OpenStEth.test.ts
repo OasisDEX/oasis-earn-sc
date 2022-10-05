@@ -14,6 +14,7 @@ import { Contract, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
+import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
@@ -25,21 +26,25 @@ import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
 
-const oneInchCallMock =
-  (marketPrice: BigNumber) =>
-  async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
-    return {
-      fromTokenAddress: from,
-      toTokenAddress: to,
-      fromTokenAmount: amount,
-      toTokenAmount: amount.div(marketPrice),
-      minToTokenAmount: amount
-        .div(marketPrice)
-        .times(new BigNumber(1).minus(slippage))
-        .integerValue(BigNumber.ROUND_DOWN), // TODO: figure out slippage
-      exchangeCalldata: 0,
-    }
+const oneInchCallMock = async (
+  from: string,
+  to: string,
+  amount: BigNumber,
+  slippage: BigNumber,
+) => {
+  const marketPrice = 0.979
+  return {
+    fromTokenAddress: from,
+    toTokenAddress: to,
+    fromTokenAmount: amount,
+    toTokenAmount: amount.div(marketPrice),
+    minToTokenAmount: amount
+      .div(marketPrice)
+      .times(new BigNumber(1).minus(slippage))
+      .integerValue(BigNumber.ROUND_DOWN), // TODO: figure out slippage
+    exchangeCalldata: 0,
   }
+}
 
 const getOneInchRealCall =
   (swapAddress: string) =>
@@ -81,12 +86,15 @@ interface AAVEAccountData {
   healthFactor: BigNumber
 }
 
-describe(`Strategy | AAVE | Open Position`, async () => {
+describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () => {
+  let WETH: Contract
+  let stETH: Contract
   let aaveLendingPool: Contract
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
   let config: RuntimeConfig
   let signer: Signer
+  let address: string
 
   const mainnetAddresses = {
     DAI: ADDRESSES.main.DAI,
@@ -108,10 +116,13 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       provider,
     )
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
+    WETH = new Contract(ADDRESSES.main.WETH, ERC20ABI, provider)
+    stETH = new Contract(ADDRESSES.main.stETH, ERC20ABI, provider)
   })
 
   describe('On forked chain', () => {
-    const depositAmount = amountToWei(new BigNumber(60 / 1e15))
+    // Apparently there is not enough liquidity (at tested block) to deposit > 100ETH`
+    const depositAmount = amountToWei(new BigNumber(60))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
     const aaveStEthPriceInEth = new BigNumber(0.98066643)
@@ -120,6 +131,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let strategy: IStrategy
     let txStatus: boolean
+    let tx: ContractReceipt
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
@@ -146,7 +158,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         {
           addresses,
           provider,
-          getSwapData: oneInchCallMock(new BigNumber(0.9759)),
+          getSwapData: oneInchCallMock,
           dsProxy: system.common.dsProxy.address,
         },
       )
@@ -170,6 +182,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         depositAmount.toFixed(0),
       )
       txStatus = _txStatus
+      tx = _tx
 
       userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
       userStEthReserveData = await aaveDataProvider.getUserReserveData(
@@ -227,8 +240,8 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     })
   })
 
-  describe.skip('On latest block using one inch exchange and api', () => {
-    const depositAmount = amountToWei(new BigNumber(60 / 1e15))
+  describe('On latest block using one inch exchange and api', () => {
+    const depositAmount = amountToWei(new BigNumber(60))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
@@ -236,6 +249,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let strategy: IStrategy
     let txStatus: boolean
+    let tx: ContractReceipt
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
@@ -287,6 +301,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         depositAmount.toFixed(0),
       )
       txStatus = _txStatus
+      tx = _tx
 
       userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
       userStEthReserveData = await aaveDataProvider.getUserReserveData(
