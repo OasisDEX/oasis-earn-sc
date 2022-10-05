@@ -349,7 +349,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     })
   })
 
-  describe.skip('On latest block', () => {
+  describe('On latest block', () => {
     before(async () => {
       await resetNodeToLatestBlock(provider)
       const { system: _system } = await deploySystem(config, false, false)
@@ -387,6 +387,9 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         depositAmount.toFixed(0),
       )
       openTxStatus = _openTxStatus
+      if (!openTxStatus) {
+        throw new Error('Position should be open before closing')
+      }
 
       feeRecipientWethBalanceBefore = await balanceOf(
         ADDRESSES.main.WETH,
