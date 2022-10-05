@@ -23,7 +23,6 @@ import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
-import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
@@ -524,8 +523,8 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
 
       const delta = userEthBalanceAfterTx.minus(userEthBalanceBeforeTx).plus(txCost)
 
-      const expectToGet = closeStrategy.ethAmountAfterSwap
-        .minus(closeStrategy.feeAmount)
+      const expectToGet = closeStrategy.simulation.swap.toTokenAmount
+        .minus(closeStrategy.simulation.swap.fee)
         .minus(amountFromWei(depositAmount).times(multiple).minus(amountFromWei(depositAmount)))
 
       expectToBe(delta, 'gte', expectToGet)

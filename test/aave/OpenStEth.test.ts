@@ -10,7 +10,7 @@ import {
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Contract, Signer } from 'ethers'
+import { Contract, ContractReceipt, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
