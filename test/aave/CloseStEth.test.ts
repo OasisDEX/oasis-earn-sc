@@ -26,7 +26,7 @@ const oneInchCallMock =
       toTokenAmount: amount.div(marketPrice),
       minToTokenAmount: amount
         .div(marketPrice)
-        .times(new BigNumber(1).minus(slippage))
+        .times(ONE.minus(slippage))
         .integerValue(BigNumber.ROUND_DOWN), // TODO: figure out slippage
       exchangeCalldata: 0,
     }
@@ -46,7 +46,9 @@ const getOneInchRealCall =
     return {
       toTokenAddress: to,
       fromTokenAddress: from,
-      minToTokenAmount: new BigNumber(0),
+      minToTokenAmount: new BigNumber(response.toTokenAmount)
+        .times(ONE.minus(slippage))
+        .integerValue(BigNumber.ROUND_DOWN),
       toTokenAmount: new BigNumber(response.toTokenAmount),
       fromTokenAmount: new BigNumber(response.fromTokenAmount),
       exchangeCalldata: response.tx.data,
@@ -288,6 +290,8 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
   })
 
   describe('On latest block', () => {
+    const slippage = new BigNumber(0.01)
+
     before(async () => {
       await resetNodeToLatestBlock(provider)
       const { system: _system } = await deploySystem(config, false, false)
@@ -340,6 +344,11 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         system.common.dsProxy.address,
       )
       const stEthAmount = new BigNumber(userStEthReserveData.currentATokenBalance.toString())
+
+      userEthBalanceBeforeTx = await balanceOf(ADDRESSES.main.ETH, address, {
+        config,
+        isFormatted: true,
+      })
 
       closeStrategyReturn = await strategy.aave.closeStEth(
         {
@@ -437,7 +446,11 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
 
       const delta = userEthBalanceAfterTx.minus(userEthBalanceBeforeTx).plus(txCost)
 
-      expectToBeEqual(delta, ethAmountReturnedFromSwap.minus(10), 4)
+      const expectToGet = closeStrategyReturn.ethAmountAfterSwap
+        .minus(closeStrategyReturn.feeAmount)
+        .minus(amountFromWei(depositAmount).times(multiply).minus(amountFromWei(depositAmount)))
+
+      expectToBe(delta, 'gte', expectToGet)
     })
   })
 })
