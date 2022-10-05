@@ -1,8 +1,10 @@
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-gas-reporter'
+import '@typechain/hardhat'
 import 'solidity-coverage'
 import './tasks/deploy'
+import './tasks/createPosition'
 
 import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
@@ -67,6 +69,12 @@ const config: HardhatUserConfig = {
       initialBaseFeePerGas: 1000000000,
       allowUnlimitedContractSize: true,
     },
+    goerli: {
+      url: process.env.ALCHEMY_NODE_GOERLI!,
+      accounts: [process.env.PRIV_KEY_GOERLI!],
+      // gasPrice: 5000000000,
+      initialBaseFeePerGas: 1000000000,
+    }
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
@@ -84,6 +92,9 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
+  typechain: {
+    outDir: 'typechain',
+  }
 }
 
 export default config

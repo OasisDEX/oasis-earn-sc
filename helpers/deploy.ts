@@ -40,9 +40,10 @@ export async function executeThroughProxy(
   { address, calldata }: Target,
   signer: Signer,
   value = '0',
+  hre?: HardhatRuntimeEnvironment,
 ): Promise<[boolean, ContractReceipt]> {
   try {
-    const ethers = (await import('hardhat')).ethers
+    const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
     const dsProxy = await ethers.getContractAt('DSProxy', proxyAddress, signer)
 
     const tx = await dsProxy['execute(address,bytes)'](address, calldata, {

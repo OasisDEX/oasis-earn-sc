@@ -13,7 +13,6 @@ import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
-import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBe, expectToBeEqual } from '../utils'
 
@@ -288,7 +287,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
     })
   })
 
-  describe.skip('On latest block', () => {
+  describe('On latest block', () => {
     before(async () => {
       await resetNodeToLatestBlock(provider)
       const { system: _system } = await deploySystem(config, false, false)
@@ -325,6 +324,9 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
         signer,
         depositAmount.toFixed(0),
       )
+      if (!openTxStatus) {
+        throw new Error('Position should be open before closing')
+      }
 
       feeRecipientWethBalanceBefore = await balanceOf(
         ADDRESSES.main.WETH,
