@@ -26,7 +26,7 @@ const oneInchCallMock =
       toTokenAmount: amount.div(marketPrice),
       minToTokenAmount: amount
         .div(marketPrice)
-        .times(new BigNumber(1).minus(slippage))
+        .times(ONE.minus(slippage))
         .integerValue(BigNumber.ROUND_DOWN), // TODO: figure out slippage
       exchangeCalldata: 0,
     }
@@ -46,7 +46,9 @@ const getOneInchRealCall =
     return {
       toTokenAddress: to,
       fromTokenAddress: from,
-      minToTokenAmount: new BigNumber(0),
+      minToTokenAmount: new BigNumber(response.toTokenAmount)
+        .times(ONE.minus(slippage))
+        .integerValue(BigNumber.ROUND_DOWN),
       toTokenAmount: new BigNumber(response.toTokenAmount),
       fromTokenAmount: new BigNumber(response.fromTokenAmount),
       exchangeCalldata: response.tx.data,
@@ -288,6 +290,8 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
   })
 
   describe('On latest block', () => {
+    const slippage = new BigNumber(0.01)
+
     before(async () => {
       await resetNodeToLatestBlock(provider)
       const { system: _system } = await deploySystem(config, false, false)
@@ -341,9 +345,14 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
       )
       const stEthAmount = new BigNumber(userStEthReserveData.currentATokenBalance.toString())
 
+      userEthBalanceBeforeTx = await balanceOf(ADDRESSES.main.ETH, address, {
+        config,
+        isFormatted: true,
+      })
+
       closeStrategyReturn = await strategy.aave.closeStEth(
         {
-          stEthAmountLockedInAave: stEthAmount.minus(1000),
+          stEthAmountLockedInAave: stEthAmount,
           slippage,
         },
         {
@@ -385,7 +394,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
     })
 
     it('Should withdraw all stEth tokens from aave', () => {
-      expectToBeEqual(new BigNumber(userStEthReserveData.currentATokenBalance.toString()), ZERO)
+      expectToBe(new BigNumber(userStEthReserveData.currentATokenBalance.toString()), 'lte', ONE)
     })
 
     it('Should collect fee', async () => {
@@ -398,7 +407,50 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
       expectToBeEqual(
         new BigNumber(closeStrategyReturn.feeAmount.toString()),
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
+        3,
       )
+    })
+
+    it('should not be any token left on proxy', async () => {
+      const proxyWethBalance = await balanceOf(ADDRESSES.main.WETH, system.common.dsProxy.address, {
+        config,
+        isFormatted: true,
+      })
+      const proxyStEthBalance = await balanceOf(
+        ADDRESSES.main.stETH,
+        system.common.dsProxy.address,
+        {
+          config,
+          isFormatted: true,
+        },
+      )
+      const proxyEthBalance = await balanceOf(ADDRESSES.main.ETH, system.common.dsProxy.address, {
+        config,
+        isFormatted: true,
+      })
+
+      expectToBeEqual(proxyWethBalance, ZERO)
+      expectToBeEqual(proxyStEthBalance, ZERO)
+      expectToBeEqual(proxyEthBalance, ZERO)
+    })
+
+    it('should return eth to the user', async () => {
+      const userEthBalanceAfterTx = await balanceOf(ADDRESSES.main.ETH, address, {
+        config,
+        isFormatted: true,
+      })
+
+      const txCost = amountFromWei(
+        new BigNumber(closeTx.gasUsed.mul(closeTx.effectiveGasPrice).toString()),
+      )
+
+      const delta = userEthBalanceAfterTx.minus(userEthBalanceBeforeTx).plus(txCost)
+
+      const expectToGet = closeStrategyReturn.ethAmountAfterSwap
+        .minus(closeStrategyReturn.feeAmount)
+        .minus(amountFromWei(depositAmount).times(multiply).minus(amountFromWei(depositAmount)))
+
+      expectToBe(delta, 'gte', expectToGet)
     })
   })
 })

@@ -65,6 +65,9 @@ task(
     const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.WITHDRAW, [
       serviceRegistryAddress,
     ])
+    const [, actionPaybackFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.PAYBACK, [
+      serviceRegistryAddress,
+    ])
     const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
       config.address,
       ADDRESSES.main.feeRecipient,
@@ -78,12 +81,15 @@ task(
     )
     await uSwap.addFeeTier(20)
 
-    const [, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
+    const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
       config.address,
       ADDRESSES.main.feeRecipient,
-      0, // TODO add different fee tiers
+      0,
       serviceRegistryAddress,
     ])
+
+    await swap.addFeeTier(20)
+
     const [, swapActionAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ACTION, [
       serviceRegistryAddress,
     ])
@@ -135,6 +141,7 @@ task(
       CONTRACT_NAMES.aave.WITHDRAW,
       withdrawFromAAVEAddress,
     )
+    await registry.addEntry(CONTRACT_NAMES.aave.PAYBACK, actionPaybackFromAAVEAddress)
     await registry.addEntry(
       CONTRACT_NAMES.common.SWAP,
       taskArgs.usedummyswap ? uSwapAddress : swapAddress,
