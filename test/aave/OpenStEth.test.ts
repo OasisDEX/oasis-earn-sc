@@ -110,7 +110,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe('On forked chain', () => {
+  describe.skip('On forked chain', () => {
     const depositAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)

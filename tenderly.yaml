@@ -1,5 +1,5 @@
 account_id: 32c2ed01-fe37-4b94-a5b7-24f6d196b675
-project_slug:
+project_slug: project
 provider: ''
 exports:
   hardhat:
@@ -16,6 +16,6 @@ exports:
       berlin_block: 0
       london_block: 0
     forked_network: mainnet
-    project_slug:
+    project_slug: project
     protocol: ''
     rpc_address: 127.0.0.1:8545
