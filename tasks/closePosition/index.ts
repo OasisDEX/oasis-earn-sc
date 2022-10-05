@@ -12,7 +12,6 @@ import { getOrCreateProxy } from '../../helpers/proxy'
 import { getOneInchCall } from '../../helpers/swap/OneIchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { balanceOf } from '../../helpers/utils'
-import { zero } from '../../scripts/common'
 
 function amountToWei(amount: BigNumber.Value, precision = 18) {
   BigNumber.config({ EXPONENTIAL_AT: 30 })
@@ -29,10 +28,7 @@ task('closePosition', 'Close stETH position on AAVE')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
 
-    const serviceRegistryAddress =
-      taskArgs.serviceRegistry ||
-      process.env.SERVICE_REGISTRY_ADDRESS ||
-      '0x9Fcca440F19c62CDF7f973eB6DDF218B15d4C71D'
+    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS!
 
     const serviceRegistryAbi = [
       {
@@ -113,7 +109,9 @@ task('closePosition', 'Close stETH position on AAVE')
     console.log('Current stETH Balance: ', userStEthReserveData.currentATokenBalance.toString())
     console.log('Current ETH Balance: ', balanceEth.toString())
 
-    const stEthAmountLockedInAave = new BigNumber(userStEthReserveData.currentATokenBalance)
+    const stEthAmountLockedInAave = new BigNumber(
+      userStEthReserveData.currentATokenBalance.toString(),
+    )
     const slippage = new BigNumber(0.1)
 
     console.log(`Proxy Address for account: ${proxyAddress}`)
