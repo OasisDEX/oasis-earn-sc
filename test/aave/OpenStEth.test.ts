@@ -15,76 +15,17 @@ import { Contract, ContractReceipt, Signer } from 'ethers'
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
+import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
-import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
+import { resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
-import { swapOneInchTokens } from '../../helpers/swap/1inch'
+import { getOneInchCall } from '../../helpers/swap/OneIchCall'
+import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
-import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
-
-const oneInchCallMock = async (
-  from: string,
-  to: string,
-  amount: BigNumber,
-  slippage: BigNumber,
-) => {
-  const marketPrice = 0.979
-  return {
-    fromTokenAddress: from,
-    toTokenAddress: to,
-    fromTokenAmount: amount,
-    toTokenAmount: amount.div(marketPrice),
-    minToTokenAmount: amount
-      .div(marketPrice)
-      .times(new BigNumber(1).minus(slippage))
-      .integerValue(BigNumber.ROUND_DOWN), // TODO: figure out slippage
-    exchangeCalldata: 0,
-  }
-}
-
-const getOneInchRealCall =
-  (swapAddress: string) =>
-  async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
-    const response = await swapOneInchTokens(
-      from,
-      to,
-      amount.toString(),
-      swapAddress,
-      slippage.toString(),
-    )
-
-    return {
-      toTokenAddress: to,
-      fromTokenAddress: from,
-      minToTokenAmount: new BigNumber(0),
-      toTokenAmount: new BigNumber(response.toTokenAmount),
-      fromTokenAmount: new BigNumber(response.fromTokenAmount),
-      exchangeCalldata: response.tx.data,
-    }
-  }
-
-interface AAVEReserveData {
-  currentATokenBalance: BigNumber
-  currentStableDebt: BigNumber
-  currentVariableDebt: BigNumber
-  principalStableDebt: BigNumber
-  scaledVariableDebt: BigNumber
-  stableBorrowRate: BigNumber
-  liquidityRate: BigNumber
-}
-
-interface AAVEAccountData {
-  totalCollateralETH: BigNumber
-  totalDebtETH: BigNumber
-  availableBorrowsETH: BigNumber
-  currentLiquidationThreshold: BigNumber
-  ltv: BigNumber
-  healthFactor: BigNumber
-}
 
 describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () => {
   let WETH: Contract
@@ -141,7 +82,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
 
     before(async () => {
       const testSpecificBlock = 15200000 // Must be this block to match oracle price above (used when constructing actualPosition below)
-      const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+      const snapshot = await restoreSnapshot(config, provider, testSpecificBlock)
       system = snapshot.deployed.system
 
       const addresses = {
@@ -158,7 +99,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
         {
           addresses,
           provider,
-          getSwapData: oneInchCallMock,
+          getSwapData: oneInchCallMock(),
           dsProxy: system.common.dsProxy.address,
         },
       )
@@ -283,7 +224,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.OPEN_POSITION}`, async () =
         {
           addresses,
           provider,
-          getSwapData: getOneInchRealCall(system.common.swap.address),
+          getSwapData: getOneInchCall(system.common.swap.address),
           dsProxy: system.common.dsProxy.address,
         },
       )

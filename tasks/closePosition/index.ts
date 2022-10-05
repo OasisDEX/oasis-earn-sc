@@ -1,4 +1,10 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, Position, strategies } from "@oasisdex/oasis-actions";
+import {
+  ADDRESSES,
+  CONTRACT_NAMES,
+  OPERATION_NAMES,
+  Position,
+  strategies,
+} from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -12,7 +18,7 @@ import { getOrCreateProxy } from '../../helpers/proxy'
 import { getOneInchCall } from '../../helpers/swap/OneIchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { balanceOf } from '../../helpers/utils'
-import { one, zero } from "../../scripts/common";
+import { one, zero } from '../../scripts/common'
 
 function amountToWei(amount: BigNumber.Value, precision = 18) {
   BigNumber.config({ EXPONENTIAL_AT: 30 })
@@ -118,17 +124,14 @@ task('closePosition', 'Close stETH position on AAVE')
 
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
-    const swapData = taskArgs.dummyswap ? oneInchCallMock : getOneInchCall(swapAddress)
+    const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress)
 
     const beforeCloseUserAccountData: AAVEAccountData = await aaveLendingPool.getUserAccountData(
       dsProxy.address,
     )
 
-
-    const beforeCloseUserStEthReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES.main.stETH,
-      dsProxy,
-    )
+    const beforeCloseUserStEthReserveData: AAVEReserveData =
+      await aaveDataProvider.getUserReserveData(ADDRESSES.main.stETH, dsProxy)
     const stEthAmount = new BigNumber(
       beforeCloseUserStEthReserveData.currentATokenBalance.toString(),
     )

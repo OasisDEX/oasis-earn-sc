@@ -90,7 +90,7 @@ task('createPosition', 'Create stETH position on AAVE')
 
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
-    const swapData = taskArgs.dummyswap ? oneInchCallMock : getOneInchCall(swapAddress)
+    const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress)
     const depositAmount = amountToWei(new BigNumber(5))
     const multiply = new BigNumber(2)
     const slippage = new BigNumber(0.1)
