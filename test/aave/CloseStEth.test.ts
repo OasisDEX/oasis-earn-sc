@@ -343,7 +343,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
 
       closeStrategyReturn = await strategy.aave.closeStEth(
         {
-          stEthAmountLockedInAave: stEthAmount.minus(1000),
+          stEthAmountLockedInAave: stEthAmount,
           slippage,
         },
         {
@@ -385,7 +385,7 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
     })
 
     it('Should withdraw all stEth tokens from aave', () => {
-      expectToBeEqual(new BigNumber(userStEthReserveData.currentATokenBalance.toString()), ZERO)
+      expectToBe(new BigNumber(userStEthReserveData.currentATokenBalance.toString()), 'lte', ONE)
     })
 
     it('Should collect fee', async () => {
@@ -398,7 +398,46 @@ describe(`Operations | AAVE | ${OPERATION_NAMES.aave.CLOSE_POSITION}`, async () 
       expectToBeEqual(
         new BigNumber(closeStrategyReturn.feeAmount.toString()),
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
+        3,
       )
+    })
+
+    it('should not be any token left on proxy', async () => {
+      const proxyWethBalance = await balanceOf(ADDRESSES.main.WETH, system.common.dsProxy.address, {
+        config,
+        isFormatted: true,
+      })
+      const proxyStEthBalance = await balanceOf(
+        ADDRESSES.main.stETH,
+        system.common.dsProxy.address,
+        {
+          config,
+          isFormatted: true,
+        },
+      )
+      const proxyEthBalance = await balanceOf(ADDRESSES.main.ETH, system.common.dsProxy.address, {
+        config,
+        isFormatted: true,
+      })
+
+      expectToBeEqual(proxyWethBalance, ZERO)
+      expectToBeEqual(proxyStEthBalance, ZERO)
+      expectToBeEqual(proxyEthBalance, ZERO)
+    })
+
+    it('should return eth to the user', async () => {
+      const userEthBalanceAfterTx = await balanceOf(ADDRESSES.main.ETH, address, {
+        config,
+        isFormatted: true,
+      })
+
+      const txCost = amountFromWei(
+        new BigNumber(closeTx.gasUsed.mul(closeTx.effectiveGasPrice).toString()),
+      )
+
+      const delta = userEthBalanceAfterTx.minus(userEthBalanceBeforeTx).plus(txCost)
+
+      expectToBeEqual(delta, ethAmountReturnedFromSwap.minus(10), 4)
     })
   })
 })

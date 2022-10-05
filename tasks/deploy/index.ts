@@ -81,12 +81,15 @@ task(
     )
     await uSwap.addFeeTier(20)
 
-    const [, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
+    const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
       config.address,
       ADDRESSES.main.feeRecipient,
-      0, // TODO add different fee tiers
+      0,
       serviceRegistryAddress,
     ])
+
+    await swap.addFeeTier(20)
+
     const [, swapActionAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ACTION, [
       serviceRegistryAddress,
     ])
