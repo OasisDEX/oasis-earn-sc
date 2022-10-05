@@ -13,6 +13,12 @@ export const getOneInchCall =
       slippage.toString(),
     )
 
+    console.log(`
+    
+      toTokenAmount: ${response.toTokenAmount}
+    
+    `)
+
     return {
       toTokenAddress: to,
       fromTokenAddress: from,
