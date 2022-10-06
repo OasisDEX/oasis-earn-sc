@@ -20,10 +20,10 @@
     "lint": "eslint . --fix --ext .ts",
     "compile": "npx hardhat compile",
     "start": "npx hardhat node --network hardhat",
-    "deploy:dummy": "yarn compile && npx hardhat deploy --usedummyswap --network local",
+    "deploy:dummy": "yarn compile && npx hardhat deploy --usefallbackswap --network local",
     "deploy:1inch": "yarn compile && npx hardhat deploy --network local",
-    "steth": "npx hardhat createPosition --network local"
-
+    "steth": "npx hardhat createPosition --dummyswap --network local",
+    "close": "npx hardhat closePosition --dummyswap --network local"
   },
   "devDependencies": {
     "@google-cloud/local-auth": "2.1.0",

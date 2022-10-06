@@ -131,10 +131,7 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     const beforeCloseUserStEthReserveData: AAVEReserveData =
-      await aaveDataProvider.getUserReserveData(ADDRESSES.main.stETH, dsProxy)
-    const stEthAmount = new BigNumber(
-      beforeCloseUserStEthReserveData.currentATokenBalance.toString(),
-    )
+      await aaveDataProvider.getUserReserveData(ADDRESSES.main.stETH, dsProxy.address)
 
     const positionAfterOpen = new Position(
       { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },

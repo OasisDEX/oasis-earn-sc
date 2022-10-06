@@ -26,11 +26,12 @@ import { getOneInchCall } from '../../helpers/swap/OneIchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
+import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
 
-describe(`Strategy | AAVE | Close Position`, async () => {
+describe.only(`Strategy | AAVE | Close Position`, async () => {
   const depositAmount = amountToWei(new BigNumber(60 / 1e15))
   const multiple = new BigNumber(2)
   const slippage = new BigNumber(0.01)
@@ -54,7 +55,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   let openTxStatus: boolean
 
   let openStrategy: IStrategy
-  let closeStrategy: Awaited<ReturnType<typeof strategies.aave.closeStEth>>
+  let closeStrategy: Awaited<IStrategy>
   let closeTxStatus: boolean
   let closeTx: ContractReceipt
 
@@ -89,9 +90,9 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     stETH = new Contract(ADDRESSES.main.stETH, ERC20ABI, provider)
   })
 
-  describe('On forked chain', () => {
+  describe('After opening position', () => {
     before(async () => {
-      const snapshot = await restoreSnapshot(config, provider, 15433614)
+      const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
 
       system = snapshot.deployed.system
 
@@ -139,7 +140,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       expect(openTxStatus).to.be.true
     })
 
-    describe('asdas', () => {
+    describe('Should close on forked chain', () => {
       before(async () => {
         const addresses = {
           ...mainnetAddresses,
@@ -296,7 +297,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     })
   })
 
-  describe('On latest block', () => {
+  describe('Should close position with real oneInch', () => {
     const slippage = new BigNumber(0.01)
 
     before(async () => {
@@ -336,9 +337,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         depositAmount.toFixed(0),
       )
       openTxStatus = _openTxStatus
-      if (!openTxStatus) {
-        throw new Error('Position should be open before closing')
-      }
 
       feeRecipientWethBalanceBefore = await balanceOf(
         ADDRESSES.main.WETH,
@@ -378,6 +376,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           dsProxy: system.common.dsProxy.address,
         },
       )
+
+      userEthBalanceBeforeTx = await balanceOf(ADDRESSES.main.ETH, address, {
+        config,
+        isFormatted: true,
+      })
 
       const [_closeTxStatus, _closeTx] = await executeThroughProxy(
         system.common.dsProxy.address,
@@ -430,10 +433,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         { config, isFormatted: true },
       )
 
-      expectToBe(new BigNumber(closeStrategy.simulation.swap.targetTokenFee), 'gt', ZERO)
-      expectToBe(
-        new BigNumber(closeStrategy.simulation.swap.targetTokenFee),
-        'lte',
+      expectToBeEqual(
+        new BigNumber(closeStrategy.simulation.swap.sourceTokenFee),
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
       )
     })
@@ -473,8 +474,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       const delta = userEthBalanceAfterTx.minus(userEthBalanceBeforeTx).plus(txCost)
 
-      const expectToGet = closeStrategy.simulation.swap.toTokenAmount
-        .minus(closeStrategy.simulation.swap.fee)
+      const expectToGet = amountFromWei(closeStrategy.simulation.swap.toTokenAmount)
+        .minus(closeStrategy.simulation.swap.sourceTokenFee)
         .minus(amountFromWei(depositAmount).times(multiple).minus(amountFromWei(depositAmount)))
 
       expectToBe(delta, 'gte', expectToGet)
