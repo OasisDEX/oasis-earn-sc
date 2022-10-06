@@ -9,15 +9,7 @@ import { ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
 import type { CloseStEthAddresses } from '../../operations/aave/closeStEth'
 import { IStrategy } from '../types/IStrategy'
-
-interface SwapData {
-  fromTokenAddress: string
-  toTokenAddress: string
-  fromTokenAmount: BigNumber
-  toTokenAmount: BigNumber
-  minToTokenAmount: BigNumber
-  exchangeCalldata: string | number
-}
+import { SwapData } from '../types/SwapData'
 
 interface CloseStEthArgs {
   stEthAmountLockedInAave: BigNumber
@@ -55,6 +47,7 @@ export async function closeStEth(
     dependencies.provider,
   )
 
+  console.log('args.stEthAmountLockedInAave', args.stEthAmountLockedInAave.toString())
   const [roundData, decimals, aaveWethPriceInEth, aaveStEthPriceInEth, swapData] =
     await Promise.all([
       priceFeed.latestRoundData(),
