@@ -126,7 +126,8 @@ export async function closeStEth(
       flags: flags,
       swap: {
         ...swapData,
-        fee: amountFromWei(fee),
+        sourceTokenFee: amountFromWei(fee),
+        targetTokenFee: ZERO,
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(

@@ -22,7 +22,12 @@ export interface IBasePosition {
 }
 
 type Delta = { debt: BigNumber; collateral: BigNumber; flashloanAmount?: BigNumber }
-export type Swap = { fromTokenAmount: BigNumber; toTokenAmount: BigNumber; fee: BigNumber }
+export type Swap = {
+  fromTokenAmount: BigNumber
+  minToTokenAmount: BigNumber
+  sourceTokenFee: BigNumber
+  targetTokenFee: BigNumber
+}
 type Flags = { usesFlashloan: boolean; isIncreasingRisk: boolean }
 
 export interface IPositionChange {
@@ -56,7 +61,7 @@ interface IPositionChangeParams {
   /* Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH) */
   maxLoanToValueFL?: BigNumber
   /* For AAVE this would be ETH. For Maker it would be DAI (although strictly speaking USD) */
-  collectFeeAfterSwap?: boolean
+  collectSwapFeeFrom?: 'sourceToken' | 'targetToken'
   debug?: boolean
 }
 
@@ -146,9 +151,10 @@ export class Position implements IPosition {
       prices,
       slippage,
       maxLoanToValueFL: _maxLoanToValueFL,
-      collectFeeAfterSwap,
       debug,
     } = params
+    params.collectSwapFeeFrom = params.collectSwapFeeFrom ?? 'sourceToken'
+    const collectFeeFromSourceToken = params.collectSwapFeeFrom === 'sourceToken'
 
     /**
      * C_W  Collateral in wallet to top-up or seed position
@@ -248,11 +254,11 @@ export class Position implements IPosition {
     }
 
     /**
-     * Amount to be swapped (increase/open) or paid back (decrease) after accounting for flashloan fees - if required
+     * Swap or swapped amount after fees
      *
      * X = \frac{D_C\cdot P_{MS} - T_{LTV}\cdot C_C\cdot P_O\cdot P_{MS}}{((T_{LTV}\cdot (1 -F_O)\cdot P_O) - (1 +F_F)\cdot P_{MS})}
      * */
-    const amountToBeSwappedOrPaidback_X = currentDebt
+    const swapOrSwappedAmount = currentDebt
       .times(marketPriceAdjustedForSlippage)
       .minus(
         targetLTV.times(currentCollateral).times(oraclePrice).times(marketPriceAdjustedForSlippage),
@@ -279,7 +285,7 @@ export class Position implements IPosition {
       .times(oraclePrice)
       .times(this.category.maxLoanToValue)
       .minus(currentDebt)
-      .lt(amountToBeSwappedOrPaidback_X)
+      .lt(swapOrSwappedAmount)
 
     /**
      * Finally, we can compute the deltas in debt & collateral
@@ -290,11 +296,15 @@ export class Position implements IPosition {
      * ΔC  Collateral delta
      * \Delta C = X \cdot (1 - F_O) / P_{MS}
      * */
-    const debtDeltaPreFlashloanFee = amountToBeSwappedOrPaidback_X
+    const shouldIncreaseDebtDeltaToAccountForFees = isIncreasingRisk && collectFeeFromSourceToken
+    const debtDeltaPreFlashloanFee = swapOrSwappedAmount.div(
+      shouldIncreaseDebtDeltaToAccountForFees ? ONE.minus(oazoFee.div(this._feeBase)) : ONE,
+    )
 
-    const collateralDelta = amountToBeSwappedOrPaidback_X
+    const collateralDelta = swapOrSwappedAmount
       .div(marketPriceAdjustedForSlippage)
       .div(isIncreasingRisk ? ONE : ONE.minus(oazoFee.div(this._feeBase)))
+      .integerValue(BigNumber.ROUND_DOWN)
 
     /**
      * Is a flashloan required to reach the target state for the position when decreasing?
@@ -308,9 +318,9 @@ export class Position implements IPosition {
 
     const isFlashloanRequired = isFlashloanRequiredForIncrease || isFlashloanRequiredForDecrease
 
-    const debtDelta = debtDeltaPreFlashloanFee.times(
-      ONE.plus(isFlashloanRequired ? flashloanFee : ZERO),
-    )
+    const debtDelta = debtDeltaPreFlashloanFee
+      .times(ONE.plus(isFlashloanRequired ? flashloanFee : ZERO))
+      .integerValue(BigNumber.ROUND_DOWN)
 
     /**
      *
@@ -327,31 +337,44 @@ export class Position implements IPosition {
       : ZERO
 
     /*
-     * Protocol Base Assets EG USD for Maker or ETH for AAVE.
+     * Account for fees being collected from either
+     * The sourceToken or targetToken in the swap
      */
-    let collectFeeFromBaseToken = isIncreasingRisk
-    if (collectFeeAfterSwap && isIncreasingRisk) {
-      collectFeeFromBaseToken = false
+    let sourceFee = ZERO
+    let targetFee = ZERO
+    if (collectFeeFromSourceToken) {
+      sourceFee = (
+        isIncreasingRisk
+          ? this._calculateFee(debtDelta, oazoFee)
+          : this._calculateFee(collateralDelta, oazoFee)
+      ).integerValue(BigNumber.ROUND_DOWN)
+    }
+    if (!collectFeeFromSourceToken) {
+      targetFee = (
+        isIncreasingRisk
+          ? this._calculateFee(collateralDelta, oazoFee)
+          : this._calculateFee(debtDelta, oazoFee)
+      ).integerValue(BigNumber.ROUND_DOWN)
     }
 
-    if (collectFeeAfterSwap && !isIncreasingRisk) {
-      collectFeeFromBaseToken = true
+    let fromTokenAmount
+    let minToTokenAmount
+    if (isIncreasingRisk) {
+      fromTokenAmount = debtDelta
+      minToTokenAmount = collateralDelta
+    } else {
+      fromTokenAmount = new BigNumber(0)
+      minToTokenAmount = new BigNumber(0)
     }
 
-    const fee = collectFeeFromBaseToken
-      ? this._calculateFee(amountToBeSwappedOrPaidback_X, oazoFee)
-      : this._calculateFee(collateralDelta, oazoFee)
-
-    const fromTokenAmount = isIncreasingRisk
-      ? amountToBeSwappedOrPaidback_X
-      : amountToBeSwappedOrPaidback_X
-          .negated()
-          .div(marketPriceAdjustedForSlippage)
-          .div(ONE.minus(oazoFee.div(this._feeBase)))
-
-    const toTokenAmount = isIncreasingRisk
-      ? collateralDelta
-      : amountToBeSwappedOrPaidback_X.negated()
+    // const fromTokenAmount = shouldIncreaseDebtDeltaToAccountForFees
+    //   ? swapOrSwappedAmount
+    //   : swapOrSwappedAmount
+    //       .negated()
+    //       .div(marketPriceAdjustedForSlippage)
+    //       .div(ONE.minus(oazoFee.div(this._feeBase)))
+    //
+    // const toTokenAmount = isIncreasingRisk ? collateralDelta : swapOrSwappedAmount.negated()
 
     const targetPosition = this._createTargetPosition(
       debtDelta,
@@ -366,24 +389,30 @@ export class Position implements IPosition {
         [
           `Is flashloan required: ${isFlashloanRequired}`,
           `Amount to flashloan: ${amountToFlashloan}`,
-          `Our unknown X: ${amountToBeSwappedOrPaidback_X.toString()}`,
+          `----`,
+          `Swap or Swapped Amount: ${swapOrSwappedAmount.toString()}`,
           `From token amount: ${fromTokenAmount.toString()}`,
+          `From token amount after fees: ${fromTokenAmount.minus(sourceFee).toString()}`,
           `From token: ${
             isIncreasingRisk
               ? targetPosition.debt.denomination
               : targetPosition.collateral.denomination
           }`,
-          `To token amount: ${toTokenAmount.toString()}`,
+          `Min To token amount: ${minToTokenAmount.toString()}`,
           `To token: ${
             isIncreasingRisk
               ? targetPosition.collateral.denomination
               : targetPosition.debt.denomination
           }`,
+          `----`,
           `Debt delta: ${debtDelta.toString()}`,
           `Collateral delta: ${collateralDelta.toString()}`,
-          `Fee amount ${fee.toString()}`,
-          `Fee taken from Base token ${collectFeeFromBaseToken}`,
-          `Fee take from Collateral token ${!collectFeeFromBaseToken}`,
+          `----`,
+          `Source fee amount ${sourceFee.toString()}`,
+          `Target fee amount ${targetFee.toString()}`,
+          `Fee taken from Source token ${collectFeeFromSourceToken}`,
+          `Fee take from Target token ${!collectFeeFromSourceToken}`,
+          `----`,
           `Target position debt ${targetPosition.debt.amount.toString()}`,
           `Target position collateral ${targetPosition.collateral.amount.toString()}`,
         ],
@@ -396,8 +425,9 @@ export class Position implements IPosition {
       delta: { debt: debtDelta, collateral: collateralDelta, flashloanAmount: amountToFlashloan },
       swap: {
         fromTokenAmount,
-        toTokenAmount,
-        fee,
+        minToTokenAmount,
+        sourceTokenFee: sourceFee.integerValue(),
+        targetTokenFee: targetFee,
       },
       flags: {
         usesFlashloan: isFlashloanRequired,

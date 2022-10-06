@@ -84,6 +84,7 @@ contract Swap {
     bytes calldata withData
   ) internal returns (uint256 balance) {
 
+
     IERC20(fromAsset).safeApprove(callee, amount);
     (bool success, ) = callee.call(withData);
     console.log('success:', success);
@@ -92,7 +93,7 @@ contract Swap {
     }
 
     balance = IERC20(toAsset).balanceOf(address(this));
-    console.log('balance:', balance);
+    console.log('balanceTo:', balance);
     emit SlippageSaved(receiveAtLeast, balance);
 
     if (balance < receiveAtLeast) {
@@ -127,10 +128,11 @@ contract Swap {
   ) public returns (uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
     uint256 amountFrom = swapData.amount;
+    console.log('balanceFrom:', IERC20(swapData.fromAsset).balanceOf(address(this)));
     if (swapData.collectFeeInFromToken) {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
-
+    console.log('balanceFromAfterFee:', IERC20(swapData.fromAsset).balanceOf(address(this)));
     address oneInch = registry.getRegisteredService(ONE_INCH_AGGREGATOR);
     uint256 toTokenBalance = _swap(
       swapData.fromAsset,

@@ -7,7 +7,7 @@ import { SwapData } from './SwapData'
 
 interface ISimulation extends IPositionChange {
   prices: { debtTokenPrice: BigNumber; collateralTokenPrices: BigNumber | BigNumber[] }
-  swap: SwapData & { fee: BigNumber }
+  swap: SwapData & { sourceTokenFee: BigNumber; targetTokenFee: BigNumber }
   minConfigurableRiskRatio: IRiskRatio
 }
 

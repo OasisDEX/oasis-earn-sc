@@ -205,7 +205,8 @@ export async function adjustStEth(
       swap: {
         ...target.swap,
         ...swapData,
-        fee: amountFromWei(target.swap.fee),
+        sourceTokenFee: amountFromWei(target.swap.sourceTokenFee),
+        targetTokenFee: amountFromWei(target.swap.targetTokenFee),
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(

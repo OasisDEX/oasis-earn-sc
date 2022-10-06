@@ -118,7 +118,7 @@ export async function openStEth(
       depositedByUser: {
         debt: args.depositAmount,
       },
-      // debug: true,
+      debug: true,
     },
   )
 
@@ -127,7 +127,7 @@ export async function openStEth(
   const swapData = await dependencies.getSwapData(
     dependencies.addresses.WETH,
     dependencies.addresses.stETH,
-    target.swap.fromTokenAmount,
+    target.swap.fromTokenAmount.minus(target.swap.sourceTokenFee),
     slippage,
   )
 
@@ -171,7 +171,8 @@ export async function openStEth(
       swap: {
         ...target.swap,
         ...swapData,
-        fee: amountFromWei(target.swap.fee),
+        sourceTokenFee: amountFromWei(target.swap.sourceTokenFee),
+        targetTokenFee: amountFromWei(target.swap.targetTokenFee),
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(

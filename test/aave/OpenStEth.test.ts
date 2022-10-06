@@ -15,7 +15,7 @@ import { Contract, Signer } from 'ethers'
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import { executeThroughProxy } from '../../helpers/deploy'
-import init, { resetNode, resetNodeToLatestBlock } from '../../helpers/init'
+import { resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
@@ -51,6 +51,10 @@ const getOneInchRealCall =
       swapAddress,
       slippage.toString(),
     )
+
+    console.log('1inch Response:')
+    console.log(response.fromTokenAmount.toString())
+    console.log(response.toTokenAmount.toString())
 
     return {
       toTokenAddress: to,
@@ -110,7 +114,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe.skip('On forked chain', () => {
+  describe('On forked chain', () => {
     const depositAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
@@ -218,10 +222,9 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         { config, isFormatted: true },
       )
 
-      // Precision of 13. That's the best precision that could be achieved given data imported from Google Spreadsheets
       expectToBeEqual(
-        new BigNumber(strategy.simulation.swap.fee.toFixed(13)),
-        feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(13),
+        new BigNumber(strategy.simulation.swap.sourceTokenFee),
+        feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
       )
     })
   })
@@ -258,6 +261,8 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         ADDRESSES.main.feeRecipient,
         { config, isFormatted: true },
       )
+
+      console.log('feeRecipientWethBalanceBefore:', feeRecipientWethBalanceBefore.toString())
 
       strategy = await strategies.aave.openStEth(
         {
@@ -320,10 +325,9 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         { config, isFormatted: true },
       )
 
-      // Precision of 13. That's the best precision that could be achieved given data imported from Google Spreadsheets
       expectToBeEqual(
-        new BigNumber(strategy.simulation.swap.fee.toString(13)),
-        feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(13),
+        new BigNumber(strategy.simulation.swap.sourceTokenFee),
+        feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
       )
     })
   })
