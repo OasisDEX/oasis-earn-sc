@@ -18,88 +18,17 @@ import { Contract, ContractReceipt, Signer } from 'ethers'
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
+import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
-import { swapOneInchTokens } from '../../helpers/swap/1inch'
+import { getOneInchCall } from '../../helpers/swap/OneIchCall'
+import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
-import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
-
-const oneInchCallMock =
-  (marketPrice: BigNumber) =>
-  async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
-    console.log('1inch mock')
-    console.log('fromTokenAmount:', amount.toString())
-    console.log('toTokenAmount:', amount.div(marketPrice).toString())
-    console.log(
-      'minToTokenAmount:',
-      amount
-        .div(marketPrice)
-        .times(new BigNumber(1).minus(slippage))
-        .integerValue(BigNumber.ROUND_DOWN)
-        .toString(),
-    )
-    return {
-      fromTokenAddress: from,
-      toTokenAddress: to,
-      fromTokenAmount: amount,
-      toTokenAmount: amount.div(marketPrice),
-      minToTokenAmount: amount
-        .div(marketPrice)
-        .times(new BigNumber(1).minus(slippage))
-        .integerValue(BigNumber.ROUND_DOWN), // TODO: figure out slippage
-      exchangeCalldata: 0,
-    }
-  }
-
-const getOneInchRealCall =
-  (swapAddress: string) =>
-  async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
-    const response = await swapOneInchTokens(
-      from,
-      to,
-      amount.toString(),
-      swapAddress,
-      slippage.toString(),
-    )
-
-    console.log('1inch Response:')
-    console.log(response.fromTokenAmount.toString())
-    console.log(response.toTokenAmount.toString())
-    console.log(new BigNumber(0))
-
-    return {
-      toTokenAddress: to,
-      fromTokenAddress: from,
-      minToTokenAmount: new BigNumber(0),
-      toTokenAmount: new BigNumber(response.toTokenAmount),
-      fromTokenAmount: new BigNumber(response.fromTokenAmount),
-      exchangeCalldata: response.tx.data,
-    }
-  }
-
-interface AAVEReserveData {
-  currentATokenBalance: BigNumber
-  currentStableDebt: BigNumber
-  currentVariableDebt: BigNumber
-  principalStableDebt: BigNumber
-  scaledVariableDebt: BigNumber
-  stableBorrowRate: BigNumber
-  liquidityRate: BigNumber
-}
-
-interface AAVEAccountData {
-  totalCollateralETH: BigNumber
-  totalDebtETH: BigNumber
-  availableBorrowsETH: BigNumber
-  currentLiquidationThreshold: BigNumber
-  ltv: BigNumber
-  healthFactor: BigNumber
-}
 
 describe(`Strategy | AAVE | Close Position`, async () => {
   const depositAmount = amountToWei(new BigNumber(60 / 1e15))
@@ -160,9 +89,9 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     stETH = new Contract(ADDRESSES.main.stETH, ERC20ABI, provider)
   })
 
-  describe.skip('On forked chain', () => {
+  describe('On forked chain', () => {
     before(async () => {
-      const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+      const snapshot = await restoreSnapshot(config, provider, 15433614)
 
       system = snapshot.deployed.system
 
@@ -258,7 +187,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           isFormatted: true,
         })
 
-        console.log('running close...')
         const [_closeTxStatus, _closeTx] = await executeThroughProxy(
           system.common.dsProxy.address,
           {
@@ -369,6 +297,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   })
 
   describe('On latest block', () => {
+    const slippage = new BigNumber(0.01)
+
     before(async () => {
       await resetNodeToLatestBlock(provider)
       const { system: _system } = await deploySystem(config, false, false)
@@ -388,7 +318,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         {
           addresses,
           provider,
-          getSwapData: getOneInchRealCall(system.common.swap.address),
+          getSwapData: getOneInchCall(system.common.swap.address),
           dsProxy: system.common.dsProxy.address,
         },
       )
@@ -435,17 +365,16 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         openStrategy.simulation.position.category,
       )
 
-      console.log('system.common.dsProxy.address', system.common.dsProxy.address)
       closeStrategy = await strategies.aave.closeStEth(
         {
-          stEthAmountLockedInAave: stEthAmount.minus(1000),
+          stEthAmountLockedInAave: stEthAmount,
           slippage,
         },
         {
           addresses,
           provider,
           position: positionAfterOpen,
-          getSwapData: getOneInchRealCall(system.common.swap.address),
+          getSwapData: getOneInchCall(system.common.swap.address),
           dsProxy: system.common.dsProxy.address,
         },
       )
@@ -478,7 +407,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       expect(openTxStatus).to.be.true
     })
 
-    it('Tx should pass', () => {
+    it('Close Tx should pass', () => {
       expect(closeTxStatus).to.be.true
     })
 
@@ -487,9 +416,10 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     })
 
     it('Should withdraw all stEth tokens from aave', () => {
-      expectToBeEqual(
+      expectToBe(
         new BigNumber(afterCloseUserStEthReserveData.currentATokenBalance.toString()),
-        ZERO,
+        'lte',
+        ONE,
       )
     })
 
@@ -506,6 +436,48 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         'lte',
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
       )
+    })
+
+    it('should not be any token left on proxy', async () => {
+      const proxyWethBalance = await balanceOf(ADDRESSES.main.WETH, system.common.dsProxy.address, {
+        config,
+        isFormatted: true,
+      })
+      const proxyStEthBalance = await balanceOf(
+        ADDRESSES.main.stETH,
+        system.common.dsProxy.address,
+        {
+          config,
+          isFormatted: true,
+        },
+      )
+      const proxyEthBalance = await balanceOf(ADDRESSES.main.ETH, system.common.dsProxy.address, {
+        config,
+        isFormatted: true,
+      })
+
+      expectToBeEqual(proxyWethBalance, ZERO)
+      expectToBeEqual(proxyStEthBalance, ZERO)
+      expectToBeEqual(proxyEthBalance, ZERO)
+    })
+
+    it('should return eth to the user', async () => {
+      const userEthBalanceAfterTx = await balanceOf(ADDRESSES.main.ETH, address, {
+        config,
+        isFormatted: true,
+      })
+
+      const txCost = amountFromWei(
+        new BigNumber(closeTx.gasUsed.mul(closeTx.effectiveGasPrice).toString()),
+      )
+
+      const delta = userEthBalanceAfterTx.minus(userEthBalanceBeforeTx).plus(txCost)
+
+      const expectToGet = closeStrategy.simulation.swap.toTokenAmount
+        .minus(closeStrategy.simulation.swap.fee)
+        .minus(amountFromWei(depositAmount).times(multiple).minus(amountFromWei(depositAmount)))
+
+      expectToBe(delta, 'gte', expectToGet)
     })
   })
 })
