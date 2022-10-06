@@ -126,10 +126,13 @@ contract Swap {
   function swapTokens(
     SwapData calldata swapData
   ) public returns (uint256) {
+    console.log('msg.sender', msg.sender);
     console.log('transferFrom:', IERC20(swapData.fromAsset).balanceOf(msg.sender));
+    console.log('transferring amount from msg.sender to address(this):', swapData.amount );
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
     uint256 amountFrom = swapData.amount;
     console.log('balanceFrom:', IERC20(swapData.fromAsset).balanceOf(address(this)));
+    console.log('collectFeeInFrom', swapData.collectFeeInFromToken );
     if (swapData.collectFeeInFromToken) {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
