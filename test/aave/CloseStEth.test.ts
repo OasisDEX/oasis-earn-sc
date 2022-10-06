@@ -31,7 +31,7 @@ import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
 
-describe.only(`Strategy | AAVE | Close Position`, async () => {
+describe(`Strategy | AAVE | Close Position`, async () => {
   const depositAmount = amountToWei(new BigNumber(60 / 1e15))
   const multiple = new BigNumber(2)
   const slippage = new BigNumber(0.01)

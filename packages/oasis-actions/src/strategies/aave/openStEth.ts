@@ -118,7 +118,7 @@ export async function openStEth(
       depositedByUser: {
         debt: args.depositAmount,
       },
-      debug: true,
+      // debug: true,
     },
   )
 

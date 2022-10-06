@@ -1,6 +1,6 @@
 import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
-import { task } from 'hardhat/config'
+import { task, types } from 'hardhat/config'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
@@ -20,6 +20,8 @@ function amountToWei(amount: BigNumber.Value, precision = 18) {
 
 task('createPosition', 'Create stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
+  .addOptionalParam('deposit', 'ETH deposit', 5, types.float)
+  .addOptionalParam('multiply', 'Required multiply', 2, types.float)
   .addFlag('dummyswap', 'Use dummy swap')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
@@ -91,8 +93,8 @@ task('createPosition', 'Create stETH position on AAVE')
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
     const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress)
-    const depositAmount = amountToWei(new BigNumber(5))
-    const multiply = new BigNumber(2)
+    const depositAmount = amountToWei(new BigNumber(taskArgs.deposit))
+    const multiply = new BigNumber(taskArgs.multiply)
     const slippage = new BigNumber(0.1)
 
     const strategyReturn = await strategies.aave.openStEth(
@@ -160,4 +162,6 @@ task('createPosition', 'Create stETH position on AAVE')
     console.log('txHash', tx.transactionHash)
     console.log('proxyStEthBalance', proxyStEthBalance.toString())
     console.log('proxyEthBalance', proxyEthBalance.toString())
+
+    return [txStatus, tx]
   })
