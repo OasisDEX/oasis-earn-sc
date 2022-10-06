@@ -160,7 +160,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     stETH = new Contract(ADDRESSES.main.stETH, ERC20ABI, provider)
   })
 
-  describe('On forked chain', () => {
+  describe.skip('On forked chain', () => {
     before(async () => {
       const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
 
