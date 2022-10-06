@@ -26,7 +26,6 @@ contract AaveDeposit is Executable, UseStore {
       0
     );
 
-
     store().write(bytes32(deposit.amount));
     emit Action(DEPOSIT_ACTION, bytes32(deposit.amount));
   }

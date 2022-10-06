@@ -36,6 +36,7 @@ export async function closeStEth(
     asset: addresses.DAI,
   })
 
+  console.log('args:', args.dsProxy)
   const withdrawStEthFromAAVE = actions.aave.aaveWithdraw({
     asset: addresses.stETH,
     amount: args.stEthAmount,

@@ -21,7 +21,7 @@ contract SwapAction is Executable, UseStore {
     address swapAddress = registry.getRegisteredService(SWAP);
     
     SwapData memory swap = parseInputs(data);
-    
+
     IERC20(swap.fromAsset).safeApprove(swapAddress, swap.amount);
     uint256 received = Swap(swapAddress).swapTokens(swap);
 

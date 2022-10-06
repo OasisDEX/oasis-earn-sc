@@ -5,19 +5,11 @@ import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, calculateFee } from '../../helpers'
 import { IBasePosition, Position } from '../../helpers/calculations/Position'
-import { ZERO } from '../../helpers/constants'
+import { ONE, TEN_THOUSAND, ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
 import type { CloseStEthAddresses } from '../../operations/aave/closeStEth'
 import { IStrategy } from '../types/IStrategy'
-
-interface SwapData {
-  fromTokenAddress: string
-  toTokenAddress: string
-  fromTokenAmount: BigNumber
-  toTokenAmount: BigNumber
-  minToTokenAmount: BigNumber
-  exchangeCalldata: string | number
-}
+import { SwapData } from '../types/SwapData'
 
 interface CloseStEthArgs {
   stEthAmountLockedInAave: BigNumber
@@ -55,6 +47,7 @@ export async function closeStEth(
     dependencies.provider,
   )
 
+  console.log('args.stEthAmountLockedInAave', args.stEthAmountLockedInAave.toString())
   const [roundData, decimals, aaveWethPriceInEth, aaveStEthPriceInEth, swapData] =
     await Promise.all([
       priceFeed.latestRoundData(),
@@ -92,8 +85,10 @@ export async function closeStEth(
       stEthAmount: args.stEthAmountLockedInAave,
       flashloanAmount: flashLoanAmountWei,
       fee: FEE,
-      swapData: swapData.exchangeCalldata,
-      receiveAtLeast: swapData.minToTokenAmount,
+      swapData: 0,
+      receiveAtLeast: new BigNumber(0),
+      // swapData: swapData.exchangeCalldata,
+      // receiveAtLeast: swapData.minToTokenAmount,
       dsProxy: dependencies.dsProxy,
     },
     dependencies.addresses,
@@ -126,7 +121,8 @@ export async function closeStEth(
       flags: flags,
       swap: {
         ...swapData,
-        fee: amountFromWei(fee),
+        sourceTokenFee: amountFromWei(fee),
+        targetTokenFee: ZERO,
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
