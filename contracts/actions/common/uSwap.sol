@@ -7,7 +7,7 @@ import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20 } from "../../libs/SafeERC20.sol";
 import { UNISWAP_ROUTER } from "../../core/constants/Common.sol";
 import { SwapData } from "../../core/types/Common.sol";
-import "hardhat/console.sol";
+
 contract uSwap {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -118,8 +118,6 @@ contract uSwap {
     IERC20(fromAsset).safeApprove(address(uniswap), amount);
     uint24 pool = getPool(fromAsset, toAsset);
 
-    console.log('approved amount', amount);
-    console.log('balanceFrom:', IERC20(fromAsset).balanceOf(address(this)));
     uniswap.exactInputSingle(
       ISwapRouter.ExactInputSingleParams({
         tokenIn: fromAsset,
@@ -132,10 +130,9 @@ contract uSwap {
         sqrtPriceLimitX96: 0
       })
     );
-    console.log('success');
+
     balance = IERC20(toAsset).balanceOf(address(this));
 
-    console.log('balanceTo:', balance);
     if (balance == 0) {
       revert SwapFailed();
     }
@@ -210,15 +207,11 @@ contract uSwap {
   function swapTokens(SwapData calldata swapData) public returns(uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
     uint256 amountFrom = swapData.amount;
-    console.log('balanceFrom:', IERC20(swapData.fromAsset).balanceOf(address(this)));
 
     if (swapData.collectFeeInFromToken) {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
-    console.log('balanceFromAfterFee:', IERC20(swapData.fromAsset).balanceOf(address(this)));
 
-    console.log('amountFrom:', amountFrom);
-    console.log('swapData.receiveAtLeast:', swapData.receiveAtLeast);
     uint256 toTokenBalance = _swap(
       swapData.fromAsset,
       swapData.toAsset,
@@ -226,7 +219,6 @@ contract uSwap {
       swapData.receiveAtLeast
     );
 
-    console.log('toTokenBalance', toTokenBalance);
     uint256 receiveAtLeastFromCallData = decodeOneInchCallData(swapData.withData);
 
     if (receiveAtLeastFromCallData > toTokenBalance) {

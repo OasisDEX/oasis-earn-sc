@@ -10,7 +10,7 @@ import { Swap } from "./Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { SWAP } from "../../core/constants/Common.sol";
-import "hardhat/console.sol";
+
 contract SwapAction is Executable, UseStore {
   using SafeERC20 for IERC20;
   using Write for OperationStorage;
@@ -21,11 +21,10 @@ contract SwapAction is Executable, UseStore {
     address swapAddress = registry.getRegisteredService(SWAP);
     
     SwapData memory swap = parseInputs(data);
-    console.log('----');
+
     IERC20(swap.fromAsset).safeApprove(swapAddress, swap.amount);
-    console.log('about to swap...');
     uint256 received = Swap(swapAddress).swapTokens(swap);
-    console.log('Swapped and received...:', received);
+
     store().write(bytes32(received));
 
     emit Action(SWAP, bytes32(received));
