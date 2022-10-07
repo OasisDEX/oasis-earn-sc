@@ -1,15 +1,16 @@
 import { ADDRESSES, calldataTypes } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
+import { loadFixture } from 'ethereum-waffle'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
 import IERC20_ABI from '../../abi/IERC20.json'
-import init, { resetNode } from '../../helpers/init'
+import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
-import { deploySystem } from '../deploySystem'
+import { initialiseConfig } from '../fixtures/setup'
 
 describe('SetApproval Action', () => {
   const AMOUNT = new BigNumber(1000)
@@ -18,16 +19,16 @@ describe('SetApproval Action', () => {
   let approvalActionAddress: string
 
   before(async () => {
-    config = await init()
+    ;({ config } = await loadFixture(initialiseConfig))
+
+    const snapshot = await restoreSnapshot(config, config.provider, testBlockNumber)
+
+    approval = snapshot.deployed.system.common.setApproval
+    approvalActionAddress = snapshot.deployed.system.common.setApproval.address
   })
 
-  beforeEach(async () => {
-    await resetNode(config.provider, testBlockNumber)
-
-    const { system: _system } = await deploySystem(config)
-
-    approval = _system.common.setApproval
-    approvalActionAddress = _system.common.setApproval.address
+  afterEach(async () => {
+    await restoreSnapshot(config, config.provider, testBlockNumber)
   })
 
   it('should set approval', async () => {

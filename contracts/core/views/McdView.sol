@@ -7,7 +7,7 @@ import "../../interfaces/maker/IManager.sol";
 import "../../interfaces/maker/ISpotter.sol";
 import "../../interfaces/maker/IVat.sol";
 
-/// @title Getter contract for Vault info from Maker protocol
+/// @title Getter contract for Position info from Maker protocol
 contract McdView is DSMath {
   address public constant MANAGER_ADDRESS = 0x5ef30b9986345249bc32d8928B7ee64DE9435E39;
   address public constant VAT_ADDRESS = 0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B;
@@ -17,9 +17,9 @@ contract McdView is DSMath {
   IVat public constant vat = IVat(VAT_ADDRESS);
   ISpotter public constant spotter = ISpotter(SPOTTER_ADDRESS);
 
-  /// @notice Gets Vault info (collateral, debt)
-  /// @param _vaultId Id of the Vault
-  /// @param _ilk Ilk of the Vault
+  /// @notice Gets Position info (collateral, debt)
+  /// @param _vaultId Id of the Position
+  /// @param _ilk Ilk of the Position
   function getVaultInfo(uint256 _vaultId, bytes32 _ilk) public view returns (uint256, uint256) {
     address urn = manager.urns(_vaultId);
 
@@ -30,7 +30,7 @@ contract McdView is DSMath {
   }
 
   /// @notice Gets a price of the asset
-  /// @param _ilk Ilk of the Vault
+  /// @param _ilk Ilk of the Position
   function getPrice(bytes32 _ilk) public view returns (uint256) {
     (, uint256 mat) = spotter.ilks(_ilk);
     (, , uint256 spot, , ) = vat.ilks(_ilk);
@@ -39,7 +39,7 @@ contract McdView is DSMath {
   }
 
   /// @notice Gets Vaults ratio
-  /// @param _vaultId Id of the Vault
+  /// @param _vaultId Id of the Position
   function getRatio(uint256 _vaultId) public view returns (uint256) {
     bytes32 ilk = manager.ilks(_vaultId);
     uint256 price = getPrice(ilk);

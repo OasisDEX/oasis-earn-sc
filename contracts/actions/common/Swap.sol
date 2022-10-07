@@ -86,11 +86,13 @@ contract Swap {
 
     IERC20(fromAsset).safeApprove(callee, amount);
     (bool success, ) = callee.call(withData);
+
     if (!success) {
       revert SwapFailed();
     }
+
     balance = IERC20(toAsset).balanceOf(address(this));
-    
+
     emit SlippageSaved(receiveAtLeast, balance);
 
     if (balance < receiveAtLeast) {
@@ -109,6 +111,7 @@ contract Swap {
     if (!isFeeValid) {
       revert FeeTierDoesNotExist(fee);
     }
+
     uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
 
     if (fee > 0) {
@@ -124,6 +127,7 @@ contract Swap {
   ) public returns (uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
     uint256 amountFrom = swapData.amount;
+
     if (swapData.collectFeeInFromToken) {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }

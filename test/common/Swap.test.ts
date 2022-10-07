@@ -2,18 +2,19 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { ADDRESSES, ONE } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
+import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
 import ERC20_ABI from '../../abi/IERC20.json'
 import WETH_ABI from '../../abi/IWETH.json'
-import init from '../../helpers/init'
 import { exchangeFromDAI, exchangeToDAI, swapOneInchTokens } from '../../helpers/swap/1inch'
 import { calculateFee } from '../../helpers/swap/calculateFee'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountFromWei, amountToWei, asPercentageValue, balanceOf } from '../../helpers/utils'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
+import { initialiseConfig } from '../fixtures/setup'
 import { expectRevert, expectToBe, expectToBeEqual } from '../utils'
 
 const ALLOWED_PROTOCOLS = ['UNISWAP_V2', 'UNISWAP_V3']
@@ -35,11 +36,10 @@ describe('Swap', async () => {
   let system: DeployedSystemInfo
 
   before(async () => {
-    config = await init()
-    provider = config.provider
-    signer = config.signer
-    address = config.address
+    ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
+  })
 
+  before(async () => {
     await provider.send('hardhat_reset', [
       {
         forking: {

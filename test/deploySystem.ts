@@ -10,9 +10,9 @@ import { RuntimeConfig, Unbox } from '../helpers/types/common'
 import { logDebug } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
 
-export async function deploySystem(config: RuntimeConfig, debug = false, useDummySwap = true) {
+export async function deploySystem(config: RuntimeConfig, debug = false, useFallbackSwap = true) {
   const { provider, signer, address } = config
-  console.log('Using dummy swap: ', useDummySwap)
+  console.log(`    \x1b[90mUsing fallback swap: ${useFallbackSwap}\x1b[0m`)
   const options = {
     debug,
     config,
@@ -158,10 +158,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
   await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
   await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
 
-  // add flag to deploy dummySwap
+  // add flag to deploy fallbackSwap contract
   const swapHash = await registry.addEntry(
     CONTRACT_NAMES.common.SWAP,
-    useDummySwap ? uSwapAddress : swapAddress,
+    useFallbackSwap ? uSwapAddress : swapAddress,
   )
 
   //-- Add Common Contract Entries
@@ -347,7 +347,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
   await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
     pullTokenHash,
     takeFlashLoanHash,
-    // pullTokenHash,
     setApprovalHash,
     aaveDepositHash,
     aaveBorrowHash,
@@ -367,7 +366,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useDumm
       dummyAutomation,
       dummyCommmand,
       exchange: dummyExchange,
-      swap: useDummySwap ? uSwap : swap,
+      swap: useFallbackSwap ? uSwap : swap,
       swapAction,
       sendToken,
       pullToken,

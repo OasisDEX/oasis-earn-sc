@@ -15,17 +15,19 @@
   ],
   "scripts": {
     "deploy": "npx hardhat run",
-    "test": "npx hardhat test",
-    "test:gas": "USE_GAS_ESTIMATES=1 npx hardhat test",
+    "test": "npx hardhat test && yarn workspaces run test",
+    "test:gas": "USE_GAS_ESTIMATES=1 yarn test",
     "lint": "eslint . --fix --ext .ts",
     "compile": "npx hardhat compile",
     "start": "npx hardhat node --network hardhat",
-    "deploy:dummy": "yarn compile && npx hardhat deploy --usedummyswap --network local",
+    "deploy:dummy": "yarn compile && npx hardhat deploy --usefallbackswap --network local",
     "deploy:1inch": "yarn compile && npx hardhat deploy --network local",
-    "steth": "npx hardhat createPosition --network local"
-
+    "steth": "npx hardhat createPosition --dummyswap --network local",
+    "close": "npx hardhat closePosition --dummyswap --network local"
   },
   "devDependencies": {
+    "@google-cloud/local-auth": "2.1.0",
+    "@tenderly/hardhat-tenderly": "^1.1.0-beta.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.7",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
@@ -52,6 +54,7 @@
     "ethereum-waffle": "^3.1.1",
     "ethers": "^5.0.19",
     "hardhat": "2.8.0",
+    "googleapis": "107",
     "hardhat-abi-exporter": "^2.2.1",
     "hardhat-contract-sizer": "^2.0.1",
     "hardhat-gas-reporter": "^1.0.4",

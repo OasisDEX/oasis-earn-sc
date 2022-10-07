@@ -11,11 +11,11 @@ export interface OpenStEthAddresses {
   chainlinkEthUsdPriceFeed: string
   aavePriceOracle: string
   aaveLendingPool: string
+  aaveProtocolDataProvider: string
 }
 
 export async function openStEth(
   args: {
-    depositAmount: BigNumber
     flashloanAmount: BigNumber
     borrowAmount: BigNumber
     receiveAtLeast: BigNumber
@@ -27,7 +27,7 @@ export async function openStEth(
   addresses: OpenStEthAddresses,
 ) {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
-    amount: args.flashloanAmount.plus(args.depositAmount),
+    amount: args.flashloanAmount,
     asset: addresses.DAI,
     delegate: addresses.aaveLendingPool,
   })

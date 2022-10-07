@@ -36,6 +36,7 @@ export async function closeStEth(
     asset: addresses.DAI,
   })
 
+  console.log('args:', args.dsProxy)
   const withdrawStEthFromAAVE = actions.aave.aaveWithdraw({
     asset: addresses.stETH,
     amount: args.stEthAmount,
@@ -62,8 +63,8 @@ export async function closeStEth(
   )
 
   const paybackInAAVE = actions.aave.aavePayback({
-    amount: new BigNumber(0),
     asset: addresses.WETH,
+    amount: new BigNumber(0),
     paybackAll: true,
   })
 

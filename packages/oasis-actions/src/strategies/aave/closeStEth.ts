@@ -4,25 +4,22 @@ import { ethers, providers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, calculateFee } from '../../helpers'
+import { IBasePosition, Position } from '../../helpers/calculations/Position'
+import { ONE, TEN_THOUSAND, ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
 import type { CloseStEthAddresses } from '../../operations/aave/closeStEth'
-
-interface SwapData {
-  fromTokenAddress: string
-  toTokenAddress: string
-  fromTokenAmount: BigNumber
-  toTokenAmount: BigNumber
-  minToTokenAmount: BigNumber
-  exchangeCalldata: string | number
-}
+import { IStrategy } from '../types/IStrategy'
+import { SwapData } from '../types/SwapData'
 
 interface CloseStEthArgs {
   stEthAmountLockedInAave: BigNumber
   slippage: BigNumber
 }
+
 interface CloseStEthDependencies {
   addresses: CloseStEthAddresses
   provider: providers.Provider
+  position: IBasePosition
   getSwapData: (
     fromToken: string,
     toToken: string,
@@ -32,15 +29,17 @@ interface CloseStEthDependencies {
   dsProxy: string
 }
 
-export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthDependencies) {
+export async function closeStEth(
+  args: CloseStEthArgs,
+  dependencies: CloseStEthDependencies,
+): Promise<IStrategy> {
+  const existingPosition = dependencies.position
+
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
     chainlinkPriceFeedABI,
     dependencies.provider,
   )
-  const roundData = await priceFeed.latestRoundData()
-  const decimals = await priceFeed.decimals()
-  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
 
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
@@ -48,18 +47,26 @@ export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthD
     dependencies.provider,
   )
 
-  const aaveWethPriceInEth = await aavePriceOracle
-    .getAssetPrice(dependencies.addresses.WETH)
-    .then((amount: ethers.BigNumberish) => amount.toString())
-    .then((amount: string) => new BigNumber(amount))
-    .then((amount: BigNumber) => amountFromWei(amount))
+  console.log('args.stEthAmountLockedInAave', args.stEthAmountLockedInAave.toString())
+  const [roundData, decimals, aaveWethPriceInEth, aaveStEthPriceInEth, swapData] =
+    await Promise.all([
+      priceFeed.latestRoundData(),
+      priceFeed.decimals(),
+      aavePriceOracle
+        .getAssetPrice(dependencies.addresses.WETH)
+        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+      aavePriceOracle
+        .getAssetPrice(dependencies.addresses.stETH)
+        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+      dependencies.getSwapData(
+        dependencies.addresses.stETH,
+        dependencies.addresses.WETH,
+        args.stEthAmountLockedInAave,
+        args.slippage,
+      ),
+    ])
 
-  const aaveStEthPriceInEth = await aavePriceOracle
-    .getAssetPrice(dependencies.addresses.stETH)
-    .then((amount: ethers.BigNumberish) => amount.toString())
-    .then((amount: string) => new BigNumber(amount))
-    .then((amount: BigNumber) => amountFromWei(amount))
-
+  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
   const FEE = 20
   const FEE_BASE = 10000
 
@@ -67,17 +74,11 @@ export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthD
 
   const flashLoanAmountWei = args.stEthAmountLockedInAave.times(stEthPrice)
 
-  const swapData = await dependencies.getSwapData(
-    dependencies.addresses.stETH,
-    dependencies.addresses.WETH,
-    args.stEthAmountLockedInAave,
-    args.slippage,
-  )
-
   const fee = calculateFee(swapData.toTokenAmount, FEE, FEE_BASE)
 
-  const marketPice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
-  const ethAmountAfterSwapWei = swapData.minToTokenAmount
+  const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
+  // TODO: We might want to return this and update ISimulation accordingly
+  // const ethAmountAfterSwapWei = swapData.minToTokenAmount
 
   const calls = await operation.aave.closeStEth(
     {
@@ -91,15 +92,41 @@ export async function closeStEth(args: CloseStEthArgs, dependencies: CloseStEthD
     dependencies.addresses,
   )
 
+  /*
+  Final position calculated using actual swap data and the latest market price
+ */
+  const finalPosition = new Position(
+    { amount: ZERO, denomination: existingPosition.debt.denomination },
+    { amount: ZERO, denomination: existingPosition.collateral.denomination },
+    aaveStEthPriceInEth,
+    existingPosition.category,
+  )
+
+  const prices = {
+    debtTokenPrice: ethPrice,
+    collateralTokenPrices: stEthPrice,
+  }
+
+  const flags = { usesFlashloan: true, isIncreasingRisk: false }
+
   return {
     calls,
-    swapData,
-    marketPice,
-    ethAmountAfterSwap: amountFromWei(ethAmountAfterSwapWei),
-    stEthAmountToSwap: amountFromWei(args.stEthAmountLockedInAave),
-    feeAmount: amountFromWei(fee),
-    flashLoanAmount: amountFromWei(flashLoanAmountWei),
-    ethPrice,
-    stEthPrice,
+    simulation: {
+      delta: {
+        debt: existingPosition.debt.amount.negated(),
+        collateral: existingPosition.collateral.amount.negated(),
+      },
+      flags: flags,
+      swap: {
+        ...swapData,
+        sourceTokenFee: amountFromWei(fee),
+        targetTokenFee: ZERO,
+      },
+      position: finalPosition,
+      minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
+        actualMarketPriceWithSlippage,
+      ),
+      prices,
+    },
   }
 }

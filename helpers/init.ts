@@ -21,7 +21,7 @@ export async function resetNode(
   provider: providers.JsonRpcProvider,
   blockNumber: number = testBlockNumber,
 ) {
-  console.log(`  \x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
+  console.log(`    \x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
   await provider.send('hardhat_reset', [
     {
       forking: {

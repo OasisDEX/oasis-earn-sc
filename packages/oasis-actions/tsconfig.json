@@ -1,16 +1,22 @@
 {
-    "extends": "../../tsconfig.json",
-    "compilerOptions": {
-        "outDir": "lib",
-        "rootDir": ".",
-        "types": ["node"],
-        "typeRoots" : [
-          "../node_modules/@types"
-        ]
-      },
-      "include": ["./src/**/*"],
-      "exclude": [
-        "../node_modules"
-      ],
-      "files": []
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "lib",
+    "rootDir": ".",
+    "types": [
+      "node"
+    ],
+    "esModuleInterop": true,
+    "typeRoots": [
+      "../node_modules/@types"
+    ]
+  },
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "../../node_modules",
+    "./src/helpers/calculations/Position.test.ts"
+  ],
+  "files": []
 }

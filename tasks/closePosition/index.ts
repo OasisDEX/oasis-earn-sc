@@ -1,4 +1,10 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategy } from '@oasisdex/oasis-actions'
+import {
+  ADDRESSES,
+  CONTRACT_NAMES,
+  OPERATION_NAMES,
+  Position,
+  strategies,
+} from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -12,6 +18,7 @@ import { getOrCreateProxy } from '../../helpers/proxy'
 import { getOneInchCall } from '../../helpers/swap/OneIchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { balanceOf } from '../../helpers/utils'
+import { one, zero } from '../../scripts/common'
 
 function amountToWei(amount: BigNumber.Value, precision = 18) {
   BigNumber.config({ EXPONENTIAL_AT: 30 })
@@ -75,6 +82,7 @@ task('closePosition', 'Close stETH position on AAVE')
       aavePriceOracle: ADDRESSES.main.aavePriceOracle,
       aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
       operationExecutor: operationExecutorAddress,
+      aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
     }
     const aaveLendingPool = new hre.ethers.Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -116,15 +124,34 @@ task('closePosition', 'Close stETH position on AAVE')
 
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
-    const swapData = taskArgs.dummyswap ? oneInchCallMock : getOneInchCall(swapAddress)
+    const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress)
 
-    const strategyReturn = await strategy.aave.closeStEth(
+    const beforeCloseUserAccountData: AAVEAccountData = await aaveLendingPool.getUserAccountData(
+      dsProxy.address,
+    )
+
+    const beforeCloseUserStEthReserveData: AAVEReserveData =
+      await aaveDataProvider.getUserReserveData(ADDRESSES.main.stETH, dsProxy.address)
+
+    const positionAfterOpen = new Position(
+      { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },
+      { amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()) },
+      one,
+      {
+        dustLimit: new BigNumber(0),
+        maxLoanToValue: new BigNumber(beforeCloseUserAccountData.ltv.toString()).plus(one),
+        liquidationThreshold: zero,
+      },
+    )
+
+    const strategyReturn = await strategies.aave.closeStEth(
       {
         stEthAmountLockedInAave,
         slippage,
       },
       {
         addresses: mainnetAddresses,
+        position: positionAfterOpen,
         provider: config.provider,
         getSwapData: swapData,
         dsProxy: dsProxy.address,
