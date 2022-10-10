@@ -32,9 +32,9 @@ import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
 
 describe(`Strategy | AAVE | Close Position`, async () => {
-  const depositAmount = amountToWei(new BigNumber(60 / 1e15))
+  const depositAmount = amountToWei(new BigNumber(60 / 1e12))
   const multiple = new BigNumber(2)
-  const slippage = new BigNumber(0.01)
+  const slippage = new BigNumber(0.1)
   const aaveStEthPriceInEth = new BigNumber(0.98066643)
 
   // In this case we can safely assume this constant value for a given block,
@@ -91,8 +91,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   })
 
   describe('After opening position', () => {
+    const testBlockWithSufficientLiquidityInUswapPool = 15690000
     before(async () => {
-      const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+      const snapshot = await restoreSnapshot(
+        config,
+        provider,
+        testBlockWithSufficientLiquidityInUswapPool,
+      )
 
       system = snapshot.deployed.system
 

@@ -20,7 +20,7 @@ function amountToWei(amount: BigNumber.Value, precision = 18) {
 
 task('createPosition', 'Create stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
-  .addOptionalParam('deposit', 'ETH deposit', 5, types.float)
+  .addOptionalParam('deposit', 'ETH deposit', 2, types.float)
   .addOptionalParam('multiply', 'Required multiply', 2, types.float)
   .addFlag('dummyswap', 'Use dummy swap')
   .setAction(async (taskArgs, hre) => {

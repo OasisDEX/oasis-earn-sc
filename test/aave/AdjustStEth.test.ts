@@ -118,7 +118,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     stETH = new Contract(ADDRESSES.main.stETH, ERC20ABI, provider)
   })
 
-  describe('On forked chain', () => {
+  describe.skip('On forked chain', () => {
     const depositAmount = amountToWei(new BigNumber(60 / 1e12))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
