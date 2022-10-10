@@ -1,12 +1,14 @@
 pragma solidity ^0.8.5;
 
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
-import { ISwapRouter } from "../../interfaces/common/ISwapRouter.sol";
+import { ICrvStablePool } from "../../interfaces/common/ICrvStablePool.sol";
 import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20 } from "../../libs/SafeERC20.sol";
-import { UNISWAP_ROUTER } from "../../core/constants/Common.sol";
+import { CRV_STETH_ETH_POOL } from "../../core/constants/Common.sol";
 import { SwapData } from "../../core/types/Common.sol";
+
+import "hardhat/console.sol";
 
 contract uSwap {
   using SafeMath for uint256;
@@ -114,22 +116,23 @@ contract uSwap {
     uint256 amount,
     uint256 receiveAtLeast
   ) internal returns (uint256 balance) {
-    ISwapRouter uniswap = ISwapRouter(registry.getRegisteredService(UNISWAP_ROUTER));
-    IERC20(fromAsset).safeApprove(address(uniswap), amount);
+    ICrvStablePool crv = ICrvStablePool(registry.getRegisteredService(CRV_STETH_ETH_POOL));
+    IERC20(fromAsset).safeApprove(address(crv), amount);
     uint24 pool = getPool(fromAsset, toAsset);
 
-    uniswap.exactInputSingle(
-      ISwapRouter.ExactInputSingleParams({
-        tokenIn: fromAsset,
-        tokenOut: toAsset,
-        amountIn: amount,
-        amountOutMinimum: receiveAtLeast,
-        fee: pool,
-        recipient: address(this),
-        deadline: block.timestamp + 15,
-        sqrtPriceLimitX96: 0
-      })
-    );
+    int128 i;
+    int128 j;
+
+    if (fromAsset == 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84) {
+      i = 1;
+      j = 0;
+    } else {
+      i = 0;
+      j = 1;
+    }
+    console.log("EXHCNAGING USING CRV");
+    
+    crv.exchange(i,j,amount,receiveAtLeast);
 
     balance = IERC20(toAsset).balanceOf(address(this));
 

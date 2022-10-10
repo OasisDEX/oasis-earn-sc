@@ -19,5 +19,6 @@ string constant RETURN_FUNDS_ACTION = "ReturnFunds";
 
 string constant UNISWAP_ROUTER = "UniswapRouter";
 string constant SWAP = "Swap";
+string constant CRV_STETH_ETH_POOL = "crvStEthEthPool";
 
 address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;

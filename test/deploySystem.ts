@@ -189,6 +189,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     ADDRESSES.main.oneInchAggregator,
   )
 
+  await registry.addEntry(CONTRACT_NAMES.common.CRV_STETH_ETH_POOL, ADDRESSES.main.crvStEthEthPool)
+
   const swapActionHash = await registry.addEntry(
     CONTRACT_NAMES.common.SWAP_ACTION,
     swapActionAddress,

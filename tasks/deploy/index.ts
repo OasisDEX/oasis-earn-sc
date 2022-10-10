@@ -108,6 +108,10 @@ task(
       ADDRESSES.main.oneInchAggregator,
     )
     await registry.addEntry(
+      CONTRACT_NAMES.common.CRV_STETH_ETH_POOL,
+      ADDRESSES.main.crvStEthEthPool,
+    )
+    await registry.addEntry(
       CONTRACT_NAMES.aave.LENDING_POOL,
       ADDRESSES.main.aave.MainnetLendingPool,
     )
