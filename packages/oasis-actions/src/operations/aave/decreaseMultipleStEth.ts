@@ -38,8 +38,8 @@ export async function decreaseMultipleStEth(
   })
 
   const withdrawStEthFromAAVE = actions.aave.aaveWithdraw({
-    amount: args.withdrawAmount,
     asset: addresses.stETH,
+    amount: args.withdrawAmount,
     to: args.dsProxy,
   })
 

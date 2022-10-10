@@ -109,7 +109,7 @@ export async function adjustStEth(
       depositedByUser: {
         debt: args.depositAmount,
       },
-      // debug: true,
+      debug: true,
     },
   )
 
@@ -167,6 +167,7 @@ export async function adjustStEth(
     const absFlashloanAmount = (target.delta?.flashloanAmount || ZERO).abs()
     const withdrawStEthAmountWei = target.delta.collateral.abs()
 
+    console.log('target.swap.fromTokenAmount:', target.swap.fromTokenAmount.toString())
     calls = await operations.aave.decreaseMultipleStEth(
       {
         //TODO: sort the below out before PR

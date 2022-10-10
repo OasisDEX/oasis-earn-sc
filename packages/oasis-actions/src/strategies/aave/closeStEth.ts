@@ -47,7 +47,6 @@ export async function closeStEth(
     dependencies.provider,
   )
 
-  console.log('args.stEthAmountLockedInAave', args.stEthAmountLockedInAave.toString())
   const [roundData, decimals, aaveWethPriceInEth, aaveStEthPriceInEth, swapData] =
     await Promise.all([
       priceFeed.latestRoundData(),
@@ -78,8 +77,7 @@ export async function closeStEth(
 
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
   // TODO: We might want to return this and update ISimulation accordingly
-  // const ethAmountAfterSwapWei = swapData.minToTokenAmount
-  console.log('flashLoanAmountWei:', flashLoanAmountWei.toString())
+
   const calls = await operation.aave.closeStEth(
     {
       stEthAmount: args.stEthAmountLockedInAave,

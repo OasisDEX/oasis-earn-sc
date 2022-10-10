@@ -118,13 +118,14 @@ contract uSwap {
 
     IERC20(fromAsset).safeApprove(address(uniswap), amount);
     uint24 pool = getPool(fromAsset, toAsset);
-    console.log('swapping...receiveatleast', receiveAtLeast);
+    console.log('swapping:' , amount);
+    console.log('receiveatleast:', receiveAtLeast);
     uniswap.exactInputSingle(
       ISwapRouter.ExactInputSingleParams({
         tokenIn: fromAsset,
         tokenOut: toAsset,
         amountIn: amount,
-        amountOutMinimum: receiveAtLeast,
+        amountOutMinimum: 0,
         fee: pool,
         recipient: address(this),
         deadline: block.timestamp + 15,
@@ -169,7 +170,7 @@ contract uSwap {
   }
 
   function decodeOneInchCallData(bytes calldata withData) public pure returns (uint256 minReturn) {
-    bytes memory uniswapV3Swap = "uniswapV3Swap(uint256,uint256,uint256[])";
+      bytes memory uniswapV3Swap = "uniswapV3Swap(uint256,uint256,uint256[])";
     bytes memory unoswap = "unoswap(address,uint256,uint256,bytes32[])";
     bytes
       memory swap = "swap(address,(address,address,address,address,uint256,uint256,uint256,bytes),bytes)";

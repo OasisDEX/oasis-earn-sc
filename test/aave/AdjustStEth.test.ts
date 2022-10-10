@@ -13,12 +13,13 @@ import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, ContractReceipt, Signer } from 'ethers'
+import { adjust } from 'ramda'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
-import init from '../../helpers/init'
+import init, { resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapOneInchTokens } from '../../helpers/swap/1inch'
 import { RuntimeConfig } from '../../helpers/types/common'
@@ -26,7 +27,7 @@ import { amountToWei, balanceOf } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
-import { expectToBeEqual } from '../utils'
+import { expectToBe, expectToBeEqual } from '../utils'
 
 const oneInchCallMock =
   (marketPrice: BigNumber) =>
@@ -139,8 +140,12 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
     before(async () => {
       ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
-
-      const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+      const testBlockWithSufficientLiquidityInUswapPool = 15695000
+      const snapshot = await restoreSnapshot(
+        config,
+        provider,
+        testBlockWithSufficientLiquidityInUswapPool,
+      )
       system = snapshot.deployed.system
 
       const addresses = {
@@ -320,8 +325,235 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     })
   })
 
-  describe('On forked chain', () => {
-    const depositAmount = amountToWei(new BigNumber(60 / 1e12))
+  describe('On latest block using one inch exchange and api', () => {
+    const slippage = new BigNumber(0.01)
+    const depositAmount = amountToWei(new BigNumber(60))
+    const multiple = new BigNumber(2)
+    const aaveStEthPriceInEth = new BigNumber(0.9790986995818977)
+
+    let system: DeployedSystemInfo
+
+    let openStrategy: IStrategy
+    let txStatus: boolean
+    let tx: ContractReceipt
+
+    let userAccountData: AAVEAccountData
+    let userStEthReserveData: AAVEReserveData
+
+    let feeRecipientWethBalanceBefore: BigNumber
+
+    let adjustStrategyIncreaseRisk: IStrategy
+    const adjustMultipleUp = new BigNumber(3.5)
+    let increaseRiskTxStatus: boolean
+    let increaseRiskTx: ContractReceipt
+    let afterUserAccountData: AAVEAccountData
+    let afterUserStEthReserveData: AAVEReserveData
+    let actualPositionAfterIncreaseAdjust: IPosition
+
+    before(async () => {
+      await resetNodeToLatestBlock(provider)
+      const { system: _system } = await deploySystem(config, false, false)
+      system = _system
+
+      const addresses = {
+        ...mainnetAddresses,
+        operationExecutor: system.common.operationExecutor.address,
+      }
+
+      const beforeUserAccountData = await aaveLendingPool.getUserAccountData(
+        system.common.dsProxy.address,
+      )
+      const beforeUserStEthReserveData = await aaveDataProvider.getUserReserveData(
+        ADDRESSES.main.stETH,
+        system.common.dsProxy.address,
+      )
+
+      adjustStrategyIncreaseRisk = await strategies.aave.adjustStEth(
+        {
+          slippage,
+          multiple: adjustMultipleUp,
+        },
+        {
+          addresses,
+          provider,
+          position: {
+            debt: {
+              amount: new BigNumber(beforeUserAccountData.totalDebtETH.toString()),
+            },
+            collateral: {
+              amount: new BigNumber(beforeUserStEthReserveData.currentATokenBalance.toString()),
+            },
+            category: {
+              liquidationThreshold: new BigNumber(0.75),
+              maxLoanToValue: new BigNumber(0.73),
+              dustLimit: new BigNumber(0),
+            },
+          },
+          getSwapData: oneInchCallMock(new BigNumber(0.979)),
+          dsProxy: system.common.dsProxy.address,
+        },
+      )
+
+      feeRecipientWethBalanceBefore = await balanceOf(
+        ADDRESSES.main.WETH,
+        ADDRESSES.main.feeRecipient,
+        { config, isFormatted: true },
+      )
+
+      const [_txStatus, _tx] = await executeThroughProxy(
+        system.common.dsProxy.address,
+        {
+          address: system.common.operationExecutor.address,
+          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+            adjustStrategyIncreaseRisk.calls,
+            OPERATION_NAMES.common.CUSTOM_OPERATION,
+          ]),
+        },
+        signer,
+      )
+      increaseRiskTxStatus = _txStatus
+      increaseRiskTx = _tx
+
+      afterUserAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
+
+      afterUserStEthReserveData = await aaveDataProvider.getUserReserveData(
+        ADDRESSES.main.stETH,
+        system.common.dsProxy.address,
+      )
+
+      actualPositionAfterIncreaseAdjust = new Position(
+        { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()) },
+        { amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()) },
+        aaveStEthPriceInEth,
+        openStrategy.simulation.position.category,
+      )
+    })
+
+    it('Open Position Tx should pass', () => {
+      expect(txStatus).to.be.true
+    })
+
+    it('Should draw debt according to multiple', () => {
+      expectToBeEqual(
+        openStrategy.simulation.position.debt.amount.toFixed(0),
+        new BigNumber(userAccountData.totalDebtETH.toString()),
+      )
+    })
+
+    describe('Increase Loan-to-Value (Increase risk)', () => {
+      let adjustStrategyIncreaseRisk: IStrategy
+      const adjustMultipleUp = new BigNumber(3.5)
+      let increaseRiskTxStatus: boolean
+      let increaseRiskTx: ContractReceipt
+      let afterUserAccountData: AAVEAccountData
+      let afterUserStEthReserveData: AAVEReserveData
+      let actualPositionAfterIncreaseAdjust: IPosition
+
+      before(async () => {
+        const addresses = {
+          ...mainnetAddresses,
+          operationExecutor: system.common.operationExecutor.address,
+        }
+
+        const beforeUserAccountData = await aaveLendingPool.getUserAccountData(
+          system.common.dsProxy.address,
+        )
+        const beforeUserStEthReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.stETH,
+          system.common.dsProxy.address,
+        )
+
+        adjustStrategyIncreaseRisk = await strategies.aave.adjustStEth(
+          {
+            slippage,
+            multiple: adjustMultipleUp,
+          },
+          {
+            addresses,
+            provider,
+            position: {
+              debt: {
+                amount: new BigNumber(beforeUserAccountData.totalDebtETH.toString()),
+              },
+              collateral: {
+                amount: new BigNumber(beforeUserStEthReserveData.currentATokenBalance.toString()),
+              },
+              category: {
+                liquidationThreshold: new BigNumber(0.75),
+                maxLoanToValue: new BigNumber(0.73),
+                dustLimit: new BigNumber(0),
+              },
+            },
+            getSwapData: oneInchCallMock(new BigNumber(0.979)),
+            dsProxy: system.common.dsProxy.address,
+          },
+        )
+
+        feeRecipientWethBalanceBefore = await balanceOf(
+          ADDRESSES.main.WETH,
+          ADDRESSES.main.feeRecipient,
+          { config, isFormatted: true },
+        )
+
+        const [_txStatus, _tx] = await executeThroughProxy(
+          system.common.dsProxy.address,
+          {
+            address: system.common.operationExecutor.address,
+            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+              adjustStrategyIncreaseRisk.calls,
+              OPERATION_NAMES.common.CUSTOM_OPERATION,
+            ]),
+          },
+          signer,
+        )
+        increaseRiskTxStatus = _txStatus
+        increaseRiskTx = _tx
+
+        afterUserAccountData = await aaveLendingPool.getUserAccountData(
+          system.common.dsProxy.address,
+        )
+
+        afterUserStEthReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.stETH,
+          system.common.dsProxy.address,
+        )
+
+        actualPositionAfterIncreaseAdjust = new Position(
+          { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()) },
+          { amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()) },
+          aaveStEthPriceInEth,
+          openStrategy.simulation.position.category,
+        )
+      })
+
+      it('Increase Position Risk T/x should pass', () => {
+        expect(increaseRiskTxStatus).to.be.true
+      })
+
+      it('Should draw debt according to multiply', async () => {
+        expectToBeEqual(
+          adjustStrategyIncreaseRisk.simulation.position.debt.amount.toFixed(0),
+          new BigNumber(afterUserAccountData.totalDebtETH.toString()),
+        )
+      })
+
+      it('Should collect fee', async () => {
+        const feeRecipientWethBalanceAfter = await balanceOf(
+          ADDRESSES.main.WETH,
+          ADDRESSES.main.feeRecipient,
+          { config, isFormatted: true },
+        )
+
+        expectToBeEqual(
+          new BigNumber(adjustStrategyIncreaseRisk.simulation.swap.sourceTokenFee.toFixed(6)),
+          feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(6),
+        )
+      })
+    })
+  })
+
+  describe.skip('On forked chain', () => {
+    const depositAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
     const aaveStEthPriceInEth = new BigNumber(0.9790986995818977)
@@ -341,8 +573,8 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
     before(async () => {
       ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
-
-      const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+      const testBlockThatWorksWithUSwap = 15695000
+      const snapshot = await restoreSnapshot(config, provider, testBlockThatWorksWithUSwap)
       system = snapshot.deployed.system
 
       const addresses = {
@@ -397,6 +629,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         aaveStEthPriceInEth,
         openStrategy.simulation.position.category,
       )
+
+      console.log('OPEN POSITION')
+      console.log('Debt:', actualPosition.debt.amount.toString())
+      console.log('Collateral:', actualPosition.collateral.amount.toString())
     })
 
     it('Open Position Tx should pass', () => {
@@ -460,6 +696,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           },
         )
 
+        console.log('ADJUST')
+        console.log(adjustStrategyReduceRisk.simulation.swap.sourceTokenFee.toString())
+        console.log(adjustStrategyReduceRisk.simulation.swap.targetTokenFee.toString())
+
         feeRecipientWethBalanceBefore = await balanceOf(
           ADDRESSES.main.WETH,
           ADDRESSES.main.feeRecipient,
@@ -502,8 +742,9 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       })
 
       it('Should reduce collateral according to multiple', () => {
-        expectToBeEqual(
-          adjustStrategyReduceRisk.simulation.position.collateral.amount.toFixed(0),
+        expectToBe(
+          adjustStrategyReduceRisk.simulation.position.collateral.amount.minus(ONE).toFixed(0),
+          'lte',
           new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()),
         )
       })
@@ -535,127 +776,18 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         expectToBeEqual(proxyEthBalance, ZERO)
       })
 
-      // it('Should collect fee', async () => {
-      //   const feeRecipientWethBalanceAfter = await balanceOf(
-      //     ADDRESSES.main.WETH,
-      //     ADDRESSES.main.feeRecipient,
-      //     { config, isFormatted: true },
-      //   )
-      //
-      //   expectToBeEqual(
-      //     new BigNumber(adjustStrategyReduceRisk.simulation.swap.targetTokenFee.toFixed(6)),
-      //     feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(6),
-      //   )
-      // })
+      it('Should collect fee', async () => {
+        const feeRecipientWethBalanceAfter = await balanceOf(
+          ADDRESSES.main.WETH,
+          ADDRESSES.main.feeRecipient,
+          { config, isFormatted: true },
+        )
+
+        expectToBeEqual(
+          new BigNumber(adjustStrategyReduceRisk.simulation.swap.targetTokenFee.toFixed(6)),
+          feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(6),
+        )
+      })
     })
   })
-
-  // describe.skip('On latest block using one inch exchange and api', () => {
-  //   const depositAmount = amountToWei(new BigNumber(60))
-  //   const multiple = new BigNumber(2)
-  //   const slippage = new BigNumber(0.1)
-  //
-  //   let system: DeployedSystemInfo
-  //
-  //   let strategy: IStrategy
-  //   let txStatus: boolean
-  //   let tx: ContractReceipt
-  //
-  //   let userAccountData: AAVEAccountData
-  //   let userStEthReserveData: AAVEReserveData
-  //
-  //   let feeRecipientWethBalanceBefore: BigNumber
-  //
-  //   before(async () => {
-  //     //Reset to the latest block
-  //     await provider.send('hardhat_reset', [
-  //       {
-  //         forking: {
-  //           jsonRpcUrl: process.env.MAINNET_URL,
-  //         },
-  //       },
-  //     ])
-  //
-  //     const { system: _system } = await deploySystem(config, false, false)
-  //     system = _system
-  //
-  //     const addresses = {
-  //       ...mainnetAddresses,
-  //       operationExecutor: system.common.operationExecutor.address,
-  //     }
-  //
-  //     feeRecipientWethBalanceBefore = await balanceOf(
-  //       ADDRESSES.main.WETH,
-  //       ADDRESSES.main.feeRecipient,
-  //       { config, isFormatted: true },
-  //     )
-  //
-  //     strategy = await strategies.aave.adjustStEth(
-  //       {
-  //         depositAmount,
-  //         slippage,
-  //         multiple,
-  //       },
-  //       {
-  //         addresses,
-  //         provider,
-  //         getSwapData: getOneInchRealCall(system.common.swap.address),
-  //         dsProxy: system.common.dsProxy.address,
-  //       },
-  //     )
-  //
-  //     const [_txStatus, _tx] = await executeThroughProxy(
-  //       system.common.dsProxy.address,
-  //       {
-  //         address: system.common.operationExecutor.address,
-  //         calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-  //           strategy.calls,
-  //           OPERATION_NAMES.common.CUSTOM_OPERATION,
-  //         ]),
-  //       },
-  //       signer,
-  //       depositAmount.toFixed(0),
-  //     )
-  //     txStatus = _txStatus
-  //     tx = _tx
-  //
-  //     userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
-  //     userStEthReserveData = await aaveDataProvider.getUserReserveData(
-  //       ADDRESSES.main.stETH,
-  //       system.common.dsProxy.address,
-  //     )
-  //   })
-  //
-  //   it('Tx should pass', () => {
-  //     expect(txStatus).to.be.true
-  //   })
-  //
-  //   it('Should draw debt according to multiply', () => {
-  //     expectToBeEqual(
-  //       strategy.simulation.position.debt.amount.toFixed(0),
-  //       new BigNumber(userAccountData.totalDebtETH.toString()),
-  //     )
-  //   })
-  //
-  //   it('Should deposit all stEth tokens to aave', () => {
-  //     expectToBe(
-  //       strategy.simulation.swap.minToTokenAmount,
-  //       'lte',
-  //       new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
-  //     )
-  //   })
-  //
-  //   it('Should collect fee', async () => {
-  //     const feeRecipientWethBalanceAfter = await balanceOf(
-  //       ADDRESSES.main.WETH,
-  //       ADDRESSES.main.feeRecipient,
-  //       { config, isFormatted: true },
-  //     )
-  //
-  //     expectToBeEqual(
-  //       new BigNumber(strategy.simulation.swap.fee.toFixed(6)),
-  //       feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(6),
-  //     )
-  //   })
-  // })
 })
