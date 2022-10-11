@@ -188,9 +188,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     before(async () => {
       //Reset to the latest block
-      console.log('running...-1')
       await resetNodeToLatestBlock(provider)
-      console.log('running...0')
       const { system: _system } = await deploySystem(config, false, false)
       system = _system
 
@@ -218,7 +216,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           dsProxy: system.common.dsProxy.address,
         },
       )
-      console.log('running...0A')
+
       const [_txStatus] = await executeThroughProxy(
         system.common.dsProxy.address,
         {

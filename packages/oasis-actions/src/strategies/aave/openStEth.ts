@@ -17,6 +17,7 @@ interface OpenStEthArgs {
   depositAmount: BigNumber // in wei
   slippage: BigNumber
   multiple: BigNumber
+  collectFeeFromSourceToken: boolean
 }
 
 interface OpenStEthDependencies {
@@ -118,6 +119,7 @@ export async function openStEth(
       depositedByUser: {
         debt: args.depositAmount,
       },
+      collectSwapFeeFrom: args.collectFeeFromSourceToken ? 'sourceToken' : 'targetToken',
       // debug: true,
     },
   )

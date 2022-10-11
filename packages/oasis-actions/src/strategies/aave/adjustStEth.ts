@@ -17,6 +17,7 @@ interface AdjustStEthArgs {
   depositAmount?: BigNumber // in wei
   slippage: BigNumber
   multiple: BigNumber
+  collectFeeFromSourceToken: boolean
 }
 interface AdjustStEthDependencies {
   addresses: IncreaseMultipleStEthAddresses | DecreaseMultipleStEthAddresses
@@ -109,6 +110,7 @@ export async function adjustStEth(
       depositedByUser: {
         debt: args.depositAmount,
       },
+      collectSwapFeeFrom: args.collectFeeFromSourceToken ? 'sourceToken' : 'targetToken',
       debug: true,
     },
   )
@@ -121,7 +123,7 @@ export async function adjustStEth(
     swapData = await dependencies.getSwapData(
       dependencies.addresses.WETH,
       dependencies.addresses.stETH,
-      target.swap.fromTokenAmount,
+      target.swap.fromTokenAmount.minus(target.swap.sourceTokenFee),
       slippage,
     )
     actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)

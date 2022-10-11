@@ -16,9 +16,10 @@ contract AaveDeposit is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositData memory deposit = parseInputs(data);
-
-    deposit.amount = store().readUint(bytes32(deposit.amount), paramsMap[1], address(this));
     console.log('Depositing');
+    console.log('Deposit1:', deposit.amount);
+    deposit.amount = store().readUint(bytes32(deposit.amount), paramsMap[1], address(this));
+    console.log('Deposit2:', deposit.amount);
     ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).deposit(
       deposit.asset,
       deposit.amount,
