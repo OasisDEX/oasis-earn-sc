@@ -124,7 +124,7 @@ contract uSwap {
         tokenIn: fromAsset,
         tokenOut: toAsset,
         amountIn: amount,
-        amountOutMinimum: 0,
+        amountOutMinimum: receiveAtLeast,
         fee: pool,
         recipient: address(this),
         deadline: block.timestamp + 15,

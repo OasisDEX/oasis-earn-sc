@@ -1,7 +1,7 @@
 account_id: ""
 exports:
   local:
-    project_slug: backtothecode/project
+    project_slug:
     rpc_address: 127.0.0.1:8545
     protocol: ""
     forked_network: Mainnet
