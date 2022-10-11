@@ -265,9 +265,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         expect(increaseRiskTxStatus).to.be.true
       })
 
-      it('Should draw debt according to multiply', async () => {
-        expectToBeEqual(
-          adjustStrategyIncreaseRisk.simulation.position.debt.amount.toFixed(0),
+      it('Should draw debt according to multiple', async () => {
+        expectToBe(
+          adjustStrategyIncreaseRisk.simulation.position.debt.amount.minus(ONE).toFixed(0),
+          'lte',
           new BigNumber(afterUserAccountData.totalDebtETH.toString()),
         )
       })
@@ -384,8 +385,9 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     })
 
     it('Should draw debt according to multiple', () => {
-      expectToBeEqual(
-        openStrategy.simulation.position.debt.amount.toFixed(0),
+      expectToBe(
+        openStrategy.simulation.position.debt.amount.minus(ONE).toFixed(0),
+        'lte',
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
@@ -599,8 +601,9 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     })
 
     it('Should draw debt according to multiple', () => {
-      expectToBeEqual(
-        openStrategy.simulation.position.debt.amount.toFixed(0),
+      expectToBe(
+        openStrategy.simulation.position.debt.amount.minus(ONE).toFixed(0),
+        'lte',
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
@@ -844,8 +847,9 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     })
 
     it('Should draw debt according to multiple', () => {
-      expectToBeEqual(
-        openStrategy.simulation.position.debt.amount.toFixed(0),
+      expectToBe(
+        openStrategy.simulation.position.debt.amount.minus(ONE).toFixed(0),
+        'lte',
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
