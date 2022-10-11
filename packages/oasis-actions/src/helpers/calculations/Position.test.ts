@@ -55,7 +55,7 @@ describe('Calculate Position Helper', async () => {
   describe('LTV_target', async () => {
     const scenarios = (await fetchTestScenarios<Scenario>(testDataSources.LTV_target)) as Scenario[]
 
-    scenarios.forEach(
+    ;[scenarios[0]].forEach(
       ({
         name,
         collateralDepositedByUser,
@@ -126,7 +126,7 @@ describe('Calculate Position Helper', async () => {
           expect(target.swap.fromTokenAmount.toFixed(2)).to.equal(actualFromTokenAmount.toFixed(2))
 
           // To Token Swapped Amount
-          expect(target.swap.toTokenAmount.toFixed(2)).to.equal(actualToTokenAmount.toFixed(2))
+          expect(target.swap.minToTokenAmount.toFixed(2)).to.equal(actualToTokenAmount.toFixed(2))
 
           // Debt Delta
           expect(target.delta.debt.toFixed(2)).to.equal(debtDelta.toFixed(2))
@@ -156,9 +156,11 @@ describe('Calculate Position Helper', async () => {
 
           // Fee Paid
           if (target.flags.isIncreasingRisk) {
-            expect(target.swap.fee.toFixed(4)).to.equal(feePaidFromBaseToken.toFixed(4))
+            expect(target.swap.sourceTokenFee.toFixed(4)).to.equal(feePaidFromBaseToken.toFixed(4))
           } else {
-            expect(target.swap.fee.toFixed(4)).to.equal(feePaidFromCollateralToken.toFixed(4))
+            expect(target.swap.targetTokenFee.toFixed(4)).to.equal(
+              feePaidFromCollateralToken.toFixed(4),
+            )
           }
         })
       },

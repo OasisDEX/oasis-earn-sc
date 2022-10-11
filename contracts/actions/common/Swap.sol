@@ -6,7 +6,7 @@ import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20 } from "../../libs/SafeERC20.sol";
 import { ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
 import { SwapData } from "../../core/types/Common.sol";
-import "hardhat/console.sol";
+
 contract Swap {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -83,10 +83,10 @@ contract Swap {
     address callee,
     bytes calldata withData
   ) internal returns (uint256 balance) {
-    console.log("swapping..", amount);
+
     IERC20(fromAsset).safeApprove(callee, amount);
     (bool success, ) = callee.call(withData);
-    console.log("swap:", success);
+
     if (!success) {
       revert SwapFailed();
     }
@@ -128,11 +128,10 @@ contract Swap {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
     uint256 amountFrom = swapData.amount;
 
-    console.log("amountBeforeFee..", amountFrom);
     if (swapData.collectFeeInFromToken) {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
-    console.log("amountAfterFee..", amountFrom);
+
     address oneInch = registry.getRegisteredService(ONE_INCH_AGGREGATOR);
     uint256 toTokenBalance = _swap(
       swapData.fromAsset,
@@ -143,7 +142,6 @@ contract Swap {
       swapData.withData
     );
 
-    console.log("toTokenBal", toTokenBalance);
     if (!swapData.collectFeeInFromToken) {
       toTokenBalance = _collectFee(swapData.toAsset, toTokenBalance, swapData.fee);
     }
@@ -152,7 +150,7 @@ contract Swap {
     if (fromTokenBalance > 0) {
       IERC20(swapData.fromAsset).safeTransfer(msg.sender, fromTokenBalance);
     }
-    console.log("toTokenBal2", toTokenBalance);
+
     IERC20(swapData.toAsset).safeTransfer(msg.sender, toTokenBalance);
     return toTokenBalance;
   }

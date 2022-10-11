@@ -111,7 +111,7 @@ export async function adjustStEth(
         debt: args.depositAmount,
       },
       collectSwapFeeFrom: args.collectFeeFromSourceToken ? 'sourceToken' : 'targetToken',
-      debug: true,
+      // debug: true,
     },
   )
 
@@ -169,10 +169,9 @@ export async function adjustStEth(
     const absFlashloanAmount = (target.delta?.flashloanAmount || ZERO).abs()
     const withdrawStEthAmountWei = target.delta.collateral.abs()
 
-    console.log('target.swap.fromTokenAmount:', target.swap.fromTokenAmount.toString())
     calls = await operations.aave.decreaseMultipleStEth(
       {
-        //TODO: sort the below out before PR
+        //TODO: hacky fix for using flashloan. Needs conditional in operation itself
         flashloanAmount: absFlashloanAmount.eq(ZERO) ? ONE : absFlashloanAmount,
         withdrawAmount: withdrawStEthAmountWei,
         fee: FEE,

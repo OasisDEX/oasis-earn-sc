@@ -27,7 +27,6 @@ import { getOneInchCall } from '../../helpers/swap/OneIchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
-import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
@@ -315,123 +314,130 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   })
 
   describe('Should close position with real oneInch', () => {
-    const slippage = new BigNumber(0.01)
+    const slippage = new BigNumber(0.1)
 
-    before(async () => {
-      await resetNodeToLatestBlock(provider)
-      const { system: _system } = await deploySystem(config, false, false)
-      system = _system
+    before(async function () {
+      const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
+      if (shouldRun1InchTests) {
+        await resetNodeToLatestBlock(provider)
+        const { system: _system } = await deploySystem(config, false, false)
+        system = _system
 
-      const addresses = {
-        ...mainnetAddresses,
-        operationExecutor: system.common.operationExecutor.address,
+        const addresses = {
+          ...mainnetAddresses,
+          operationExecutor: system.common.operationExecutor.address,
+        }
+
+        const openStrategy = await strategies.aave.openStEth(
+          {
+            depositAmount,
+            slippage,
+            multiple,
+            collectFeeFromSourceToken: true,
+          },
+          {
+            addresses,
+            provider,
+            getSwapData: getOneInchCall(system.common.swap.address),
+            dsProxy: system.common.dsProxy.address,
+          },
+        )
+
+        const [_openTxStatus] = await executeThroughProxy(
+          system.common.dsProxy.address,
+          {
+            address: system.common.operationExecutor.address,
+            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+              openStrategy.calls,
+              OPERATION_NAMES.common.CUSTOM_OPERATION,
+            ]),
+          },
+          signer,
+          depositAmount.toFixed(0),
+        )
+        openTxStatus = _openTxStatus
+
+        feeRecipientWethBalanceBefore = await balanceOf(
+          ADDRESSES.main.WETH,
+          ADDRESSES.main.feeRecipient,
+          { config, isFormatted: true },
+        )
+
+        const beforeCloseUserAccountData = await aaveLendingPool.getUserAccountData(
+          system.common.dsProxy.address,
+        )
+
+        const beforeCloseUserStEthReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.stETH,
+          system.common.dsProxy.address,
+        )
+        const stEthAmount = new BigNumber(
+          beforeCloseUserStEthReserveData.currentATokenBalance.toString(),
+        )
+
+        const aavePriceOracle = new ethers.Contract(
+          addresses.aavePriceOracle,
+          aavePriceOracleABI,
+          provider,
+        )
+
+        aaveStEthPriceInEth = await aavePriceOracle
+          .getAssetPrice(addresses.stETH)
+          .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
+
+        const positionAfterOpen = new Position(
+          { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },
+          {
+            amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
+          },
+          aaveStEthPriceInEth,
+          openStrategy.simulation.position.category,
+        )
+
+        closeStrategy = await strategies.aave.closeStEth(
+          {
+            stEthAmountLockedInAave: stEthAmount,
+            slippage,
+          },
+          {
+            addresses,
+            provider,
+            position: positionAfterOpen,
+            getSwapData: getOneInchCall(system.common.swap.address),
+            dsProxy: system.common.dsProxy.address,
+          },
+        )
+
+        userEthBalanceBeforeTx = await balanceOf(ADDRESSES.main.ETH, address, {
+          config,
+          isFormatted: true,
+        })
+
+        const [_closeTxStatus, _closeTx] = await executeThroughProxy(
+          system.common.dsProxy.address,
+          {
+            address: system.common.operationExecutor.address,
+            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+              closeStrategy.calls,
+              OPERATION_NAMES.common.CUSTOM_OPERATION,
+            ]),
+          },
+          signer,
+          '0',
+        )
+        closeTxStatus = _closeTxStatus
+        closeTx = _closeTx
+
+        afterCloseUserAccountData = await aaveLendingPool.getUserAccountData(
+          system.common.dsProxy.address,
+        )
+        afterCloseUserStEthReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.stETH,
+          system.common.dsProxy.address,
+        )
+      } else {
+        this.skip()
       }
-
-      const openStrategy = await strategies.aave.openStEth(
-        {
-          depositAmount,
-          slippage,
-          multiple,
-          collectFeeFromSourceToken: true,
-        },
-        {
-          addresses,
-          provider,
-          getSwapData: getOneInchCall(system.common.swap.address),
-          dsProxy: system.common.dsProxy.address,
-        },
-      )
-
-      const [_openTxStatus] = await executeThroughProxy(
-        system.common.dsProxy.address,
-        {
-          address: system.common.operationExecutor.address,
-          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            openStrategy.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
-          ]),
-        },
-        signer,
-        depositAmount.toFixed(0),
-      )
-      openTxStatus = _openTxStatus
-
-      feeRecipientWethBalanceBefore = await balanceOf(
-        ADDRESSES.main.WETH,
-        ADDRESSES.main.feeRecipient,
-        { config, isFormatted: true },
-      )
-
-      const beforeCloseUserAccountData = await aaveLendingPool.getUserAccountData(
-        system.common.dsProxy.address,
-      )
-
-      const beforeCloseUserStEthReserveData = await aaveDataProvider.getUserReserveData(
-        ADDRESSES.main.stETH,
-        system.common.dsProxy.address,
-      )
-      const stEthAmount = new BigNumber(
-        beforeCloseUserStEthReserveData.currentATokenBalance.toString(),
-      )
-
-      const aavePriceOracle = new ethers.Contract(
-        addresses.aavePriceOracle,
-        aavePriceOracleABI,
-        provider,
-      )
-
-      aaveStEthPriceInEth = await aavePriceOracle
-        .getAssetPrice(addresses.stETH)
-        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
-
-      const positionAfterOpen = new Position(
-        { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },
-        { amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()) },
-        aaveStEthPriceInEth,
-        openStrategy.simulation.position.category,
-      )
-
-      closeStrategy = await strategies.aave.closeStEth(
-        {
-          stEthAmountLockedInAave: stEthAmount,
-          slippage,
-        },
-        {
-          addresses,
-          provider,
-          position: positionAfterOpen,
-          getSwapData: getOneInchCall(system.common.swap.address),
-          dsProxy: system.common.dsProxy.address,
-        },
-      )
-
-      userEthBalanceBeforeTx = await balanceOf(ADDRESSES.main.ETH, address, {
-        config,
-        isFormatted: true,
-      })
-
-      const [_closeTxStatus, _closeTx] = await executeThroughProxy(
-        system.common.dsProxy.address,
-        {
-          address: system.common.operationExecutor.address,
-          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            closeStrategy.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
-          ]),
-        },
-        signer,
-        '0',
-      )
-      closeTxStatus = _closeTxStatus
-      closeTx = _closeTx
-
-      afterCloseUserAccountData = await aaveLendingPool.getUserAccountData(
-        system.common.dsProxy.address,
-      )
-      afterCloseUserStEthReserveData = await aaveDataProvider.getUserReserveData(
-        ADDRESSES.main.stETH,
-        system.common.dsProxy.address,
-      )
     })
 
     it('Open Tx should pass', () => {
