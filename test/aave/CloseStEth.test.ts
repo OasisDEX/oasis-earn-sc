@@ -111,7 +111,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           depositAmount,
           slippage,
           multiple,
-          collectFeeFromSourceToken: true,
         },
         {
           addresses,
@@ -333,7 +332,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             depositAmount,
             slippage,
             multiple,
-            collectFeeFromSourceToken: true,
           },
           {
             addresses,

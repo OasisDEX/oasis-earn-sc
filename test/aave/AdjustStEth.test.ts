@@ -107,7 +107,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           depositAmount,
           slippage,
           multiple,
-          collectFeeFromSourceToken: true,
         },
         {
           addresses,
@@ -191,7 +190,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           {
             slippage,
             multiple: adjustMultipleUp,
-            collectFeeFromSourceToken: true,
           },
           {
             addresses,
@@ -323,7 +321,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             depositAmount,
             slippage,
             multiple,
-            collectFeeFromSourceToken: true,
           },
           {
             addresses,
@@ -419,7 +416,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           {
             slippage,
             multiple: adjustMultipleUp,
-            collectFeeFromSourceToken: true,
           },
           {
             addresses,
@@ -541,7 +537,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           depositAmount,
           slippage,
           multiple,
-          collectFeeFromSourceToken: true,
         },
         {
           addresses,
@@ -636,7 +631,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           {
             slippage,
             multiple: adjustMultipleDown,
-            collectFeeFromSourceToken: false,
           },
           {
             addresses,
@@ -785,7 +779,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             depositAmount,
             slippage,
             multiple,
-            collectFeeFromSourceToken: true,
           },
           {
             addresses,
@@ -882,7 +875,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           {
             slippage,
             multiple: adjustMultipleDown,
-            collectFeeFromSourceToken: false,
           },
           {
             addresses,

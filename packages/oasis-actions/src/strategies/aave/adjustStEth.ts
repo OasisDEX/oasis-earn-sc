@@ -17,7 +17,6 @@ interface AdjustStEthArgs {
   depositAmount?: BigNumber // in wei
   slippage: BigNumber
   multiple: BigNumber
-  collectFeeFromSourceToken: boolean
 }
 interface AdjustStEthDependencies {
   addresses: IncreaseMultipleStEthAddresses | DecreaseMultipleStEthAddresses
@@ -93,6 +92,13 @@ export async function adjustStEth(
 
   const flashloanFee = new BigNumber(0)
 
+  const targetLTV = new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE).loanToValue
+  let isIncreasingRisk = false
+
+  if (targetLTV.gt(existingPosition.riskRatio.loanToValue)) {
+    isIncreasingRisk = true
+  }
+
   const target = existingPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
@@ -110,7 +116,7 @@ export async function adjustStEth(
       depositedByUser: {
         debt: args.depositAmount,
       },
-      collectSwapFeeFrom: args.collectFeeFromSourceToken ? 'sourceToken' : 'targetToken',
+      collectSwapFeeFrom: isIncreasingRisk ? 'sourceToken' : 'targetToken',
       // debug: true,
     },
   )

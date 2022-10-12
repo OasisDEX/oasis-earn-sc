@@ -102,7 +102,6 @@ task('createPosition', 'Create stETH position on AAVE')
         depositAmount,
         slippage,
         multiple: multiply,
-        collectFeeFromSourceToken: true,
       },
       {
         addresses: mainnetAddresses,

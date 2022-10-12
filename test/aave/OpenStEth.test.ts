@@ -89,7 +89,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           depositAmount,
           slippage,
           multiple,
-          collectFeeFromSourceToken: true,
         },
         {
           addresses,
@@ -224,7 +223,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
             depositAmount,
             slippage,
             multiple,
-            collectFeeFromSourceToken: true,
           },
           {
             addresses,
