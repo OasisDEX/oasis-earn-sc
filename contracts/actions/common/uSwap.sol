@@ -115,6 +115,7 @@ contract uSwap {
     uint256 receiveAtLeast
   ) internal returns (uint256 balance) {
     ISwapRouter uniswap = ISwapRouter(registry.getRegisteredService(UNISWAP_ROUTER));
+
     IERC20(fromAsset).safeApprove(address(uniswap), amount);
     uint24 pool = getPool(fromAsset, toAsset);
 
@@ -168,7 +169,7 @@ contract uSwap {
   }
 
   function decodeOneInchCallData(bytes calldata withData) public pure returns (uint256 minReturn) {
-    bytes memory uniswapV3Swap = "uniswapV3Swap(uint256,uint256,uint256[])";
+      bytes memory uniswapV3Swap = "uniswapV3Swap(uint256,uint256,uint256[])";
     bytes memory unoswap = "unoswap(address,uint256,uint256,bytes32[])";
     bytes
       memory swap = "swap(address,(address,address,address,address,uint256,uint256,uint256,bytes),bytes)";

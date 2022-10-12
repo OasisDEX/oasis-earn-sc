@@ -118,6 +118,7 @@ export async function openStEth(
       depositedByUser: {
         debt: args.depositAmount,
       },
+      collectSwapFeeFrom: 'sourceToken',
       // debug: true,
     },
   )

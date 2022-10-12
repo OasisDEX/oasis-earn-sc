@@ -363,18 +363,9 @@ export class Position implements IPosition {
       fromTokenAmount = debtDelta
       minToTokenAmount = collateralDelta
     } else {
-      fromTokenAmount = new BigNumber(0)
-      minToTokenAmount = new BigNumber(0)
+      fromTokenAmount = collateralDelta.abs()
+      minToTokenAmount = debtDelta.abs()
     }
-
-    // const fromTokenAmount = shouldIncreaseDebtDeltaToAccountForFees
-    //   ? swapOrSwappedAmount
-    //   : swapOrSwappedAmount
-    //       .negated()
-    //       .div(marketPriceAdjustedForSlippage)
-    //       .div(ONE.minus(oazoFee.div(this._feeBase)))
-    //
-    // const toTokenAmount = isIncreasingRisk ? collateralDelta : swapOrSwappedAmount.negated()
 
     const targetPosition = this._createTargetPosition(
       debtDelta,
