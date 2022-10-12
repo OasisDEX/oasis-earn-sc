@@ -34,7 +34,7 @@ contract uSwap {
   ) {
     authorizedAddresses[authorisedCaller] = true;
     authorizedAddresses[feeBeneficiary] = true;
-    addFeeTier(_initialFee);
+    _addFeeTier(_initialFee);
     feeBeneficiaryAddress = feeBeneficiary;
     registry = ServiceRegistry(_registry);
   }
@@ -69,13 +69,18 @@ contract uSwap {
     _;
   }
 
-  function addFeeTier(uint256 fee) public onlyAuthorised {
+  function _addFeeTier(uint256 fee) private {
     if (feeTiers[fee]) {
       revert FeeTierAlreadyExists(fee);
     }
     feeTiers[fee] = true;
     emit FeeTierAdded(fee);
   }
+
+  function addFeeTier(uint256 fee) public onlyAuthorised {
+    _addFeeTier(fee);
+  }
+  
 
   function removeFeeTier(uint256 fee) public onlyAuthorised {
     if (!feeTiers[fee]) {
