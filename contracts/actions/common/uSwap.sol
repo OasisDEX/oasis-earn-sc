@@ -34,7 +34,7 @@ contract uSwap {
   ) {
     authorizedAddresses[authorisedCaller] = true;
     authorizedAddresses[feeBeneficiary] = true;
-    addFeeTier(_initialFee);
+    _addFeeTier(_initialFee);
     feeBeneficiaryAddress = feeBeneficiary;
     registry = ServiceRegistry(_registry);
   }
@@ -69,13 +69,18 @@ contract uSwap {
     _;
   }
 
-  function addFeeTier(uint256 fee) public onlyAuthorised {
+  function _addFeeTier(uint256 fee) private {
     if (feeTiers[fee]) {
       revert FeeTierAlreadyExists(fee);
     }
     feeTiers[fee] = true;
     emit FeeTierAdded(fee);
   }
+
+  function addFeeTier(uint256 fee) public onlyAuthorised {
+    _addFeeTier(fee);
+  }
+  
 
   function removeFeeTier(uint256 fee) public onlyAuthorised {
     if (!feeTiers[fee]) {
@@ -169,7 +174,7 @@ contract uSwap {
   }
 
   function decodeOneInchCallData(bytes calldata withData) public pure returns (uint256 minReturn) {
-      bytes memory uniswapV3Swap = "uniswapV3Swap(uint256,uint256,uint256[])";
+    bytes memory uniswapV3Swap = "uniswapV3Swap(uint256,uint256,uint256[])";
     bytes memory unoswap = "unoswap(address,uint256,uint256,bytes32[])";
     bytes
       memory swap = "swap(address,(address,address,address,address,uint256,uint256,uint256,bytes),bytes)";
@@ -205,7 +210,7 @@ contract uSwap {
     }
   }
 
-  function swapTokens(SwapData calldata swapData) public returns(uint256) {
+  function swapTokens(SwapData calldata swapData) public returns (uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
     uint256 amountFrom = swapData.amount;
 
