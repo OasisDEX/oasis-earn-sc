@@ -14,6 +14,10 @@ import {
   PAYBACK_ACTION
 } from "../../core/constants/Aave.sol";
 
+/**
+ * @title Payback | AAVE Action contract
+ * @notice Pays back a specified amount to AAVE's lending pool
+ */
 contract AavePayback is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
@@ -23,11 +27,14 @@ contract AavePayback is Executable, UseStore {
 
   constructor(address _registry) UseStore(_registry) {}
 
+  /**
+   * @dev Look at UseStore.sol to get additional info on paramsMapping.
+   * @dev The paybackAll flag - when passed - will signal the user wants to repay the full debt balance for a given asset
+   * @param data Encoded calldata that conforms to the PaybackData struct
+   * @param paramsMap Maps operation storage values by index (index offset by +1) to execute calldata params
+   */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     PaybackData memory payback = abi.decode(data, (PaybackData));
-
-    uint256 variableNormalizedDebt = ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL))
-      .getReserveNormalizedVariableDebt(payback.asset);
 
     payback.amount = store().readUint(bytes32(payback.amount), paramsMap[1], address(this));
 

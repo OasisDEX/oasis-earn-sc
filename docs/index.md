@@ -1,5 +1,123 @@
 # Solidity API
 
+## AaveBorrow
+
+Borrows ETH from AAVE's lending pool
+
+### dWETH
+
+```solidity
+contract IVariableDebtToken dWETH
+```
+
+### constructor
+
+```solidity
+constructor(address _registry) public
+```
+
+### execute
+
+```solidity
+function execute(bytes data, uint8[]) external payable
+```
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | bytes | Encoded calldata that conforms to the BorrowData struct |
+|  | uint8[] |  |
+
+### parseInputs
+
+```solidity
+function parseInputs(bytes _callData) public pure returns (struct BorrowData params)
+```
+
+## AaveDeposit
+
+Deposits the specified asset as collateral on AAVE's lending pool
+
+### constructor
+
+```solidity
+constructor(address _registry) public
+```
+
+### execute
+
+```solidity
+function execute(bytes data, uint8[] paramsMap) external payable
+```
+
+_look at UseStore.sol to get additional info on paramsMapping_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | bytes | Encoded calldata that conforms to the DepositData struct |
+| paramsMap | uint8[] | Maps operation storage values by index (index offset by +1) to execute calldata params |
+
+### parseInputs
+
+```solidity
+function parseInputs(bytes _callData) public pure returns (struct DepositData params)
+```
+
+## AavePayback
+
+Pays back a specified amount to AAVE's lending pool
+
+### dWETH
+
+```solidity
+contract IVariableDebtToken dWETH
+```
+
+### constructor
+
+```solidity
+constructor(address _registry) public
+```
+
+### execute
+
+```solidity
+function execute(bytes data, uint8[] paramsMap) external payable
+```
+
+_look at UseStore.sol to get additional info on paramsMapping
+look at UseStore.sol to get additional info on paramsMapping_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | bytes | Encoded calldata that conforms to the PaybackData struct |
+| paramsMap | uint8[] | Maps operation storage values by index (index offset by +1) to execute calldata params |
+
+## AaveWithdraw
+
+### constructor
+
+```solidity
+constructor(address _registry) public
+```
+
+### execute
+
+```solidity
+function execute(bytes data, uint8[]) external payable
+```
+
+### parseInputs
+
+```solidity
+function parseInputs(bytes _callData) public pure returns (struct WithdrawData params)
+```
+
 ## Executable
 
 ### execute
@@ -21,9 +139,11 @@ _Emitted once an Action has completed execution_
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | name | string | The Action name |
-| returned | bytes32 | The value returned by the Action |
+| returned | bytes32 | The bytes32 value returned by the Action |
 
 ## PullToken
+
+Pulls token from a target address to the current calling context
 
 ### execute
 
@@ -31,13 +151,13 @@ _Emitted once an Action has completed execution_
 function execute(bytes data, uint8[]) external payable
 ```
 
-_Pulls token from a target address to the current calling context_
+_Is intended to pull tokens in to a user's proxy (the calling context)_
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| data | bytes | Encoded calldata that conforms to PullTokenData struct |
+| data | bytes | Encoded calldata that conforms to the PullTokenData struct |
 |  | uint8[] |  |
 
 ### parseInputs
@@ -46,393 +166,393 @@ _Pulls token from a target address to the current calling context_
 function parseInputs(bytes _callData) public pure returns (struct PullTokenData params)
 ```
 
-## OPERATION_STORAGE
+## ReturnFunds
+
+Returns funds sitting on a user's proxy to a user's EOA
+
+### execute
 
 ```solidity
-string OPERATION_STORAGE
+function execute(bytes data, uint8[]) external payable
 ```
 
-## OPERATION_EXECUTOR
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | bytes | Encoded calldata that conforms to the ReturnFundsData struct |
+|  | uint8[] |  |
+
+## SendToken
+
+Transfer token from the calling contract to the destination address
+
+### execute
 
 ```solidity
-string OPERATION_EXECUTOR
+function execute(bytes data, uint8[]) external payable
 ```
 
-## OPERATIONS_REGISTRY
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | bytes | Encoded calldata that conforms to the SendTokenData struct |
+|  | uint8[] |  |
+
+### parseInputs
 
 ```solidity
-string OPERATIONS_REGISTRY
+function parseInputs(bytes _callData) public pure returns (struct SendTokenData params)
 ```
 
-## ONE_INCH_AGGREGATOR
+## SetApproval
+
+Transfer token from the calling contract to the destination address
+
+### constructor
 
 ```solidity
-string ONE_INCH_AGGREGATOR
+constructor(address _registry) public
 ```
 
-## WETH
+### execute
 
 ```solidity
-string WETH
+function execute(bytes data, uint8[] paramsMap) external payable
 ```
 
-## DAI
+_look at UseStore.sol to get additional info on paramsMapping_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | bytes | Encoded calldata that conforms to the SetApprovalData struct |
+| paramsMap | uint8[] | Maps operation storage values by index (index offset by +1) to execute calldata params |
+
+### parseInputs
 
 ```solidity
-string DAI
+function parseInputs(bytes _callData) public pure returns (struct SetApprovalData params)
 ```
 
-## RAY
+## Swap
+
+### feeBeneficiaryAddress
 
 ```solidity
-uint256 RAY
+address feeBeneficiaryAddress
 ```
 
-## NULL
+### feeBase
 
 ```solidity
-bytes32 NULL
+uint256 feeBase
 ```
 
-## PULL_TOKEN_ACTION
+### feeTiers
 
 ```solidity
-string PULL_TOKEN_ACTION
+mapping(uint256 => bool) feeTiers
 ```
 
-## SEND_TOKEN_ACTION
+### authorizedAddresses
 
 ```solidity
-string SEND_TOKEN_ACTION
+mapping(address => bool) authorizedAddresses
 ```
 
-## SET_APPROVAL_ACTION
+### registry
 
 ```solidity
-string SET_APPROVAL_ACTION
+contract ServiceRegistry registry
 ```
 
-## TAKE_FLASH_LOAN_ACTION
+### ReceivedLess
 
 ```solidity
-string TAKE_FLASH_LOAN_ACTION
+error ReceivedLess(uint256 receiveAtLeast, uint256 received)
 ```
 
-## WRAP_ETH
+### Unauthorized
 
 ```solidity
-string WRAP_ETH
+error Unauthorized()
 ```
 
-## UNWRAP_ETH
+### FeeTierDoesNotExist
 
 ```solidity
-string UNWRAP_ETH
+error FeeTierDoesNotExist(uint256 fee)
 ```
 
-## RETURN_FUNDS_ACTION
+### FeeTierAlreadyExists
 
 ```solidity
-string RETURN_FUNDS_ACTION
+error FeeTierAlreadyExists(uint256 fee)
 ```
 
-## UNISWAP_ROUTER
+### SwapFailed
 
 ```solidity
-string UNISWAP_ROUTER
+error SwapFailed()
 ```
 
-## SWAP
+### constructor
 
 ```solidity
-string SWAP
+constructor(address authorisedCaller, address feeBeneficiary, uint256 _initialFee, address _registry) public
 ```
 
-## ETH
+### AssetSwap
 
 ```solidity
-address ETH
+event AssetSwap(address assetIn, address assetOut, uint256 amountIn, uint256 amountOut)
 ```
 
-## FlashloanData
+### FeePaid
 
 ```solidity
-struct FlashloanData {
-  uint256 amount;
-  bool dsProxyFlashloan;
-  struct Call[] calls;
-}
+event FeePaid(address beneficiary, uint256 amount, address token)
 ```
 
-## PullTokenData
+### SlippageSaved
 
 ```solidity
-struct PullTokenData {
-  address asset;
-  address from;
-  uint256 amount;
-}
+event SlippageSaved(uint256 minimumPossible, uint256 actualAmount)
 ```
 
-## SendTokenData
+### FeeTierAdded
 
 ```solidity
-struct SendTokenData {
-  address asset;
-  address to;
-  uint256 amount;
-}
+event FeeTierAdded(uint256 fee)
 ```
 
-## SetApprovalData
+### FeeTierRemoved
 
 ```solidity
-struct SetApprovalData {
-  address asset;
-  address delegate;
-  uint256 amount;
-}
+event FeeTierRemoved(uint256 fee)
 ```
 
-## SwapData
+### onlyAuthorised
 
 ```solidity
-struct SwapData {
-  address fromAsset;
-  address toAsset;
-  uint256 amount;
-  uint256 receiveAtLeast;
-  uint256 fee;
-  bytes withData;
-  bool collectFeeInFromToken;
-}
+modifier onlyAuthorised()
 ```
 
-## Call
+### addFeeTier
 
 ```solidity
-struct Call {
-  bytes32 targetHash;
-  bytes callData;
-}
+function addFeeTier(uint256 fee) public
 ```
 
-## Operation
+### removeFeeTier
 
 ```solidity
-struct Operation {
-  uint8 currentAction;
-  bytes32[] actions;
-}
+function removeFeeTier(uint256 fee) public
 ```
 
-## WrapEthData
+### verifyFee
 
 ```solidity
-struct WrapEthData {
-  uint256 amount;
-}
+function verifyFee(uint256 feeId) public view returns (bool valid)
 ```
 
-## UnwrapEthData
+### _swap
 
 ```solidity
-struct UnwrapEthData {
-  uint256 amount;
-}
+function _swap(address fromAsset, address toAsset, uint256 amount, uint256 receiveAtLeast, address callee, bytes withData) internal returns (uint256 balance)
 ```
 
-## ReturnFundsData
+### _collectFee
 
 ```solidity
-struct ReturnFundsData {
-  address asset;
-}
+function _collectFee(address asset, uint256 fromAmount, uint256 fee) internal returns (uint256 amount)
 ```
 
-## IERC20
-
-### totalSupply
+### swapTokens
 
 ```solidity
-function totalSupply() external view returns (uint256 supply)
+function swapTokens(struct SwapData swapData) public returns (uint256)
 ```
 
-### balanceOf
+## SwapAction
+
+Call the deployed Swap contract which handles swap execution
+
+### constructor
 
 ```solidity
-function balanceOf(address _owner) external view returns (uint256 balance)
+constructor(address _registry) public
 ```
 
-### transfer
+### execute
 
 ```solidity
-function transfer(address _to, uint256 _value) external returns (bool success)
+function execute(bytes data, uint8[]) external payable
 ```
 
-### transferFrom
+_The swap contract is pre-configured to use a specific exchange (EG 1inch)_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | bytes | Encoded calldata that conforms to the SwapData struct |
+|  | uint8[] |  |
+
+### parseInputs
 
 ```solidity
-function transferFrom(address _from, address _to, uint256 _value) external returns (bool success)
+function parseInputs(bytes _callData) public pure returns (struct SwapData params)
 ```
 
-### approve
+## TakeFlashloan
+
+Executes a sequence of Actions after flashloaning funds
+
+### registry
 
 ```solidity
-function approve(address _spender, uint256 _value) external returns (bool success)
+contract ServiceRegistry registry
 ```
 
-### allowance
+### dai
 
 ```solidity
-function allowance(address _owner, address _spender) external view returns (uint256 remaining)
+address dai
 ```
 
-### decimals
+### constructor
 
 ```solidity
-function decimals() external view returns (uint256 digits)
+constructor(contract ServiceRegistry _registry, address _dai) public
 ```
 
-## Address
-
-### isContract
+### execute
 
 ```solidity
-function isContract(address account) internal view returns (bool)
+function execute(bytes data, uint8[]) external payable
 ```
 
-### sendValue
+_The Flashloan lender calls back the Operation Executor we may need to re-establish the calling context as the User's proxy contract_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | bytes | Encoded calldata that conforms to the FlashloanData struct |
+|  | uint8[] |  |
+
+### parseInputs
 
 ```solidity
-function sendValue(address payable recipient, uint256 amount) internal
+function parseInputs(bytes _callData) public pure returns (struct FlashloanData params)
 ```
 
-### functionCall
+## UnwrapEth
+
+Unwraps WETH balances to ETH
+
+### constructor
 
 ```solidity
-function functionCall(address target, bytes data) internal returns (bytes)
+constructor(address _registry) public
 ```
 
-### functionCall
+### execute
 
 ```solidity
-function functionCall(address target, bytes data, string errorMessage) internal returns (bytes)
+function execute(bytes data, uint8[] paramsMap) external payable
 ```
 
-### functionCallWithValue
+_look at UseStore.sol to get additional info on paramsMapping_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | bytes | Encoded calldata that conforms to the UnwrapEthData struct |
+| paramsMap | uint8[] | Maps operation storage values by index (index offset by +1) to execute calldata params |
+
+### parseInputs
 
 ```solidity
-function functionCallWithValue(address target, bytes data, uint256 value) internal returns (bytes)
+function parseInputs(bytes _callData) public pure returns (struct UnwrapEthData params)
 ```
 
-### functionCallWithValue
+## UseStore
+
+### registry
 
 ```solidity
-function functionCallWithValue(address target, bytes data, uint256 value, string errorMessage) internal returns (bytes)
+contract ServiceRegistry registry
 ```
 
-### _functionCallWithValue
+### constructor
 
 ```solidity
-function _functionCallWithValue(address target, bytes data, uint256 weiValue, string errorMessage) private returns (bytes)
+constructor(address _registry) internal
 ```
 
-### functionDelegateCall
+### store
 
 ```solidity
-function functionDelegateCall(address target, bytes data, string errorMessage) internal returns (bytes)
+function store() internal view returns (contract OperationStorage)
 ```
 
-## SafeERC20
+## Read
 
-### safeTransfer
+### read
 
 ```solidity
-function safeTransfer(contract IERC20 token, address to, uint256 value) internal
+function read(contract OperationStorage _storage, bytes32 param, uint256 paramMapping, address who) internal view returns (bytes32)
 ```
 
-### safeTransferFrom
+### readUint
 
 ```solidity
-function safeTransferFrom(contract IERC20 token, address from, address to, uint256 value) internal
+function readUint(contract OperationStorage _storage, bytes32 param, uint256 paramMapping, address who) internal view returns (uint256)
 ```
 
-### safeApprove
+## Write
+
+### write
 
 ```solidity
-function safeApprove(contract IERC20 token, address spender, uint256 value) internal
+function write(contract OperationStorage _storage, bytes32 value) internal
 ```
 
-_Deprecated. This function has issues similar to the ones found in
-{ERC20-approve}, and its usage is discouraged._
+## WrapEth
 
-### safeIncreaseAllowance
+Wraps ETH balances to Wrapped ETH
+
+### constructor
 
 ```solidity
-function safeIncreaseAllowance(contract IERC20 token, address spender, uint256 value) internal
+constructor(address _registry) public
 ```
 
-### safeDecreaseAllowance
+### execute
 
 ```solidity
-function safeDecreaseAllowance(contract IERC20 token, address spender, uint256 value) internal
+function execute(bytes data, uint8[] paramsMap) external payable
 ```
 
-### _callOptionalReturn
+_look at UseStore.sol to get additional info on paramsMapping_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | bytes | Encoded calldata that conforms to the WrapEthData struct |
+| paramsMap | uint8[] | Maps operation storage values by index (index offset by +1) to execute calldata params |
+
+### parseInputs
 
 ```solidity
-function _callOptionalReturn(contract IERC20 token, bytes data) private
-```
-
-## SafeMath
-
-### add
-
-```solidity
-function add(uint256 a, uint256 b) internal pure returns (uint256)
-```
-
-### sub
-
-```solidity
-function sub(uint256 a, uint256 b) internal pure returns (uint256)
-```
-
-### sub
-
-```solidity
-function sub(uint256 a, uint256 b, string errorMessage) internal pure returns (uint256)
-```
-
-### mul
-
-```solidity
-function mul(uint256 a, uint256 b) internal pure returns (uint256)
-```
-
-### div
-
-```solidity
-function div(uint256 a, uint256 b) internal pure returns (uint256)
-```
-
-### div
-
-```solidity
-function div(uint256 a, uint256 b, string errorMessage) internal pure returns (uint256)
-```
-
-### mod
-
-```solidity
-function mod(uint256 a, uint256 b) internal pure returns (uint256)
-```
-
-### mod
-
-```solidity
-function mod(uint256 a, uint256 b, string errorMessage) internal pure returns (uint256)
+function parseInputs(bytes _callData) public pure returns (struct WrapEthData params)
 ```
 
 ## uSwap
@@ -620,6 +740,440 @@ function decodeOneInchCallData(bytes withData) public pure returns (uint256 minR
 function swapTokens(struct SwapData swapData) public returns (uint256)
 ```
 
+## CdpAllow
+
+### constructor
+
+```solidity
+constructor(address _registry) public
+```
+
+### execute
+
+```solidity
+function execute(bytes data, uint8[] paramsMap) external payable
+```
+
+### parseInputs
+
+```solidity
+function parseInputs(bytes _callData) public pure returns (struct CdpAllowData params)
+```
+
+## MakerDeposit
+
+### constructor
+
+```solidity
+constructor(address _registry) public
+```
+
+### execute
+
+```solidity
+function execute(bytes data, uint8[] paramsMap) external payable
+```
+
+### _deposit
+
+```solidity
+function _deposit(struct DepositData data) internal returns (bytes32)
+```
+
+### parseInputs
+
+```solidity
+function parseInputs(bytes _callData) public pure returns (struct DepositData params)
+```
+
+## MakerGenerate
+
+### constructor
+
+```solidity
+constructor(address _registry) public
+```
+
+### execute
+
+```solidity
+function execute(bytes data, uint8[] paramsMap) external payable
+```
+
+### _generate
+
+```solidity
+function _generate(struct GenerateData data) internal returns (bytes32)
+```
+
+### _getDrawDart
+
+```solidity
+function _getDrawDart(contract IVat vat, address jug, address urn, bytes32 ilk, uint256 wad) internal returns (int256 dart)
+```
+
+### parseInputs
+
+```solidity
+function parseInputs(bytes _callData) public pure returns (struct GenerateData params)
+```
+
+## MakerOpenVault
+
+### constructor
+
+```solidity
+constructor(address _registry) public
+```
+
+### execute
+
+```solidity
+function execute(bytes data, uint8[]) external payable
+```
+
+### _openVault
+
+```solidity
+function _openVault(struct OpenVaultData data) internal returns (bytes32)
+```
+
+### parseInputs
+
+```solidity
+function parseInputs(bytes _callData) public pure returns (struct OpenVaultData params)
+```
+
+## MakerPayback
+
+### WipeData
+
+```solidity
+struct WipeData {
+  contract IVat vat;
+  address usr;
+  address urn;
+  uint256 dai;
+  bytes32 ilk;
+}
+```
+
+### constructor
+
+```solidity
+constructor(address _registry) public
+```
+
+### execute
+
+```solidity
+function execute(bytes data, uint8[] paramsMap) external payable
+```
+
+### _payback
+
+```solidity
+function _payback(contract IManager manager, contract IDaiJoin daiJoin, struct PaybackData data) internal returns (bytes32)
+```
+
+### _paybackAll
+
+```solidity
+function _paybackAll(contract IManager manager, contract IDaiJoin daiJoin, struct PaybackData data) internal returns (bytes32)
+```
+
+### joinDai
+
+```solidity
+function joinDai(address usr, contract IDaiJoin daiJoin, address urn, uint256 amount) public
+```
+
+### _getWipeDart
+
+```solidity
+function _getWipeDart(struct MakerPayback.WipeData data) internal view returns (int256 dart)
+```
+
+### _getWipeAllWad
+
+```solidity
+function _getWipeAllWad(struct MakerPayback.WipeData data) internal view returns (uint256 wad)
+```
+
+### parseInputs
+
+```solidity
+function parseInputs(bytes _callData) public pure returns (struct PaybackData params)
+```
+
+## MakerWithdraw
+
+### constructor
+
+```solidity
+constructor(address _registry) public
+```
+
+### execute
+
+```solidity
+function execute(bytes data, uint8[] paramsMap) external payable
+```
+
+### _withdraw
+
+```solidity
+function _withdraw(struct WithdrawData data) internal returns (bytes32)
+```
+
+### parseInputs
+
+```solidity
+function parseInputs(bytes _callData) public pure returns (struct WithdrawData params)
+```
+
+## OperationExecutor
+
+### registry
+
+```solidity
+contract ServiceRegistry registry
+```
+
+### Operation
+
+```solidity
+event Operation(string name, struct Call[] calls)
+```
+
+_Emitted once an Operation has completed execution_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| name | string | The address initiating the deposit |
+| calls | struct Call[] | The call data for the actions the operation must executes |
+
+### constructor
+
+```solidity
+constructor(contract ServiceRegistry _registry) public
+```
+
+### executeOp
+
+```solidity
+function executeOp(struct Call[] calls, string operationName) public payable
+```
+
+### aggregate
+
+```solidity
+function aggregate(struct Call[] calls) internal
+```
+
+### callbackAggregate
+
+```solidity
+function callbackAggregate(struct Call[] calls) external
+```
+
+### onFlashLoan
+
+```solidity
+function onFlashLoan(address initiator, address asset, uint256 amount, uint256 fee, bytes data) external returns (bytes32)
+```
+
+## OperationStorage
+
+### action
+
+```solidity
+uint8 action
+```
+
+### actions
+
+```solidity
+bytes32[] actions
+```
+
+### returnValues
+
+```solidity
+mapping(address => bytes32[]) returnValues
+```
+
+### valuesHolders
+
+```solidity
+address[] valuesHolders
+```
+
+### locked
+
+```solidity
+bool locked
+```
+
+### whoLocked
+
+```solidity
+address whoLocked
+```
+
+### initiator
+
+```solidity
+address initiator
+```
+
+### operationExecutorAddress
+
+```solidity
+address operationExecutorAddress
+```
+
+### registry
+
+```solidity
+contract ServiceRegistry registry
+```
+
+### constructor
+
+```solidity
+constructor(contract ServiceRegistry _registry, address _operationExecutorAddress) public
+```
+
+### lock
+
+```solidity
+function lock() external
+```
+
+### unlock
+
+```solidity
+function unlock() external
+```
+
+### setInitiator
+
+```solidity
+function setInitiator(address _initiator) external
+```
+
+### setOperationActions
+
+```solidity
+function setOperationActions(bytes32[] _actions) external
+```
+
+### verifyAction
+
+```solidity
+function verifyAction(bytes32 actionHash) external
+```
+
+### hasActionsToVerify
+
+```solidity
+function hasActionsToVerify() external view returns (bool)
+```
+
+### push
+
+```solidity
+function push(bytes32 value) external
+```
+
+### at
+
+```solidity
+function at(uint256 index, address who) external view returns (bytes32)
+```
+
+### len
+
+```solidity
+function len(address who) external view returns (uint256)
+```
+
+### clearStorage
+
+```solidity
+function clearStorage() external
+```
+
+## StoredOperation
+
+```solidity
+struct StoredOperation {
+  bytes32[] actions;
+  string name;
+}
+```
+
+## OperationsRegistry
+
+### operations
+
+```solidity
+mapping(string => struct StoredOperation) operations
+```
+
+### owner
+
+```solidity
+address owner
+```
+
+### onlyOwner
+
+```solidity
+modifier onlyOwner()
+```
+
+### constructor
+
+```solidity
+constructor() public
+```
+
+### transferOwnership
+
+```solidity
+function transferOwnership(address newOwner) public
+```
+
+### OperationAdded
+
+```solidity
+event OperationAdded(string name)
+```
+
+_Emitted when a new operation is added or an existing operation is updated_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| name | string | The Operation name |
+
+### addOperation
+
+```solidity
+function addOperation(string name, bytes32[] actions) external
+```
+
+### getOperation
+
+```solidity
+function getOperation(string name) external view returns (bytes32[] actions)
+```
+
 ## ServiceRegistry
 
 ### trustedAddresses
@@ -766,217 +1320,148 @@ event ChangeApplied(bytes data, uint256 firstPossibleExecutionTime)
 event RemoveApplied(bytes32 nameHash)
 ```
 
-## ISwapRouter
-
-### ExactInputSingleParams
+## AAVE_LENDING_POOL
 
 ```solidity
-struct ExactInputSingleParams {
-  address tokenIn;
-  address tokenOut;
-  uint24 fee;
-  address recipient;
-  uint256 deadline;
-  uint256 amountIn;
-  uint256 amountOutMinimum;
-  uint160 sqrtPriceLimitX96;
-}
+string AAVE_LENDING_POOL
 ```
 
-### exactInputSingle
+## AAVE_WETH_GATEWAY
 
 ```solidity
-function exactInputSingle(struct ISwapRouter.ExactInputSingleParams params) external returns (uint256)
+string AAVE_WETH_GATEWAY
 ```
 
-## UseStore
-
-### registry
+## BORROW_ACTION
 
 ```solidity
-contract ServiceRegistry registry
+string BORROW_ACTION
 ```
 
-### constructor
+## DEPOSIT_ACTION
 
 ```solidity
-constructor(address _registry) internal
+string DEPOSIT_ACTION
 ```
 
-### store
+## WITHDRAW_ACTION
 
 ```solidity
-function store() internal view returns (contract OperationStorage)
+string WITHDRAW_ACTION
 ```
 
-## Read
-
-### read
+## PAYBACK_ACTION
 
 ```solidity
-function read(contract OperationStorage _storage, bytes32 param, uint256 paramMapping, address who) internal view returns (bytes32)
+string PAYBACK_ACTION
 ```
 
-### readUint
+## OPERATION_STORAGE
 
 ```solidity
-function readUint(contract OperationStorage _storage, bytes32 param, uint256 paramMapping, address who) internal view returns (uint256)
+string OPERATION_STORAGE
 ```
 
-## Write
-
-### write
+## OPERATION_EXECUTOR
 
 ```solidity
-function write(contract OperationStorage _storage, bytes32 value) internal
+string OPERATION_EXECUTOR
 ```
 
-## MakerOpenVault
-
-### constructor
+## OPERATIONS_REGISTRY
 
 ```solidity
-constructor(address _registry) public
+string OPERATIONS_REGISTRY
 ```
 
-### execute
+## ONE_INCH_AGGREGATOR
 
 ```solidity
-function execute(bytes data, uint8[]) external payable
+string ONE_INCH_AGGREGATOR
 ```
 
-### _openVault
+## WETH
 
 ```solidity
-function _openVault(struct OpenVaultData data) internal returns (bytes32)
+string WETH
 ```
 
-### parseInputs
+## DAI
 
 ```solidity
-function parseInputs(bytes _callData) public pure returns (struct OpenVaultData params)
+string DAI
 ```
 
-## OperationStorage
-
-### action
+## RAY
 
 ```solidity
-uint8 action
+uint256 RAY
 ```
 
-### actions
+## NULL
 
 ```solidity
-bytes32[] actions
+bytes32 NULL
 ```
 
-### returnValues
+## PULL_TOKEN_ACTION
 
 ```solidity
-mapping(address => bytes32[]) returnValues
+string PULL_TOKEN_ACTION
 ```
 
-### valuesHolders
+## SEND_TOKEN_ACTION
 
 ```solidity
-address[] valuesHolders
+string SEND_TOKEN_ACTION
 ```
 
-### locked
+## SET_APPROVAL_ACTION
 
 ```solidity
-bool locked
+string SET_APPROVAL_ACTION
 ```
 
-### whoLocked
+## TAKE_FLASH_LOAN_ACTION
 
 ```solidity
-address whoLocked
+string TAKE_FLASH_LOAN_ACTION
 ```
 
-### initiator
+## WRAP_ETH
 
 ```solidity
-address initiator
+string WRAP_ETH
 ```
 
-### operationExecutorAddress
+## UNWRAP_ETH
 
 ```solidity
-address operationExecutorAddress
+string UNWRAP_ETH
 ```
 
-### registry
+## RETURN_FUNDS_ACTION
 
 ```solidity
-contract ServiceRegistry registry
+string RETURN_FUNDS_ACTION
 ```
 
-### constructor
+## UNISWAP_ROUTER
 
 ```solidity
-constructor(contract ServiceRegistry _registry, address _operationExecutorAddress) public
+string UNISWAP_ROUTER
 ```
 
-### lock
+## SWAP
 
 ```solidity
-function lock() external
+string SWAP
 ```
 
-### unlock
+## ETH
 
 ```solidity
-function unlock() external
-```
-
-### setInitiator
-
-```solidity
-function setInitiator(address _initiator) external
-```
-
-### setOperationActions
-
-```solidity
-function setOperationActions(bytes32[] _actions) external
-```
-
-### verifyAction
-
-```solidity
-function verifyAction(bytes32 actionHash) external
-```
-
-### hasActionsToVerify
-
-```solidity
-function hasActionsToVerify() external view returns (bool)
-```
-
-### push
-
-```solidity
-function push(bytes32 value) external
-```
-
-### at
-
-```solidity
-function at(uint256 index, address who) external view returns (bytes32)
-```
-
-### len
-
-```solidity
-function len(address who) external view returns (uint256)
-```
-
-### clearStorage
-
-```solidity
-function clearStorage() external
+address ETH
 ```
 
 ## FLASH_MINT_MODULE
@@ -1043,6 +1528,141 @@ string CDP_ALLOW
 
 ```solidity
 struct DepositData {
+  address asset;
+  uint256 amount;
+}
+```
+
+## BorrowData
+
+```solidity
+struct BorrowData {
+  address asset;
+  uint256 amount;
+  address to;
+}
+```
+
+## WithdrawData
+
+```solidity
+struct WithdrawData {
+  address asset;
+  uint256 amount;
+  address to;
+}
+```
+
+## PaybackData
+
+```solidity
+struct PaybackData {
+  address asset;
+  uint256 amount;
+  bool paybackAll;
+}
+```
+
+## FlashloanData
+
+```solidity
+struct FlashloanData {
+  uint256 amount;
+  bool dsProxyFlashloan;
+  struct Call[] calls;
+}
+```
+
+## PullTokenData
+
+```solidity
+struct PullTokenData {
+  address asset;
+  address from;
+  uint256 amount;
+}
+```
+
+## SendTokenData
+
+```solidity
+struct SendTokenData {
+  address asset;
+  address to;
+  uint256 amount;
+}
+```
+
+## SetApprovalData
+
+```solidity
+struct SetApprovalData {
+  address asset;
+  address delegate;
+  uint256 amount;
+}
+```
+
+## SwapData
+
+```solidity
+struct SwapData {
+  address fromAsset;
+  address toAsset;
+  uint256 amount;
+  uint256 receiveAtLeast;
+  uint256 fee;
+  bytes withData;
+  bool collectFeeInFromToken;
+}
+```
+
+## Call
+
+```solidity
+struct Call {
+  bytes32 targetHash;
+  bytes callData;
+}
+```
+
+## Operation
+
+```solidity
+struct Operation {
+  uint8 currentAction;
+  bytes32[] actions;
+}
+```
+
+## WrapEthData
+
+```solidity
+struct WrapEthData {
+  uint256 amount;
+}
+```
+
+## UnwrapEthData
+
+```solidity
+struct UnwrapEthData {
+  uint256 amount;
+}
+```
+
+## ReturnFundsData
+
+```solidity
+struct ReturnFundsData {
+  address asset;
+}
+```
+
+## DepositData
+
+```solidity
+struct DepositData {
   contract IJoin joinAddress;
   uint256 vaultId;
   uint256 amount;
@@ -1097,1021 +1717,6 @@ struct CdpAllowData {
   address userAddress;
 }
 ```
-
-## IJoin
-
-### ilk
-
-```solidity
-bytes32 ilk
-```
-
-### dec
-
-```solidity
-function dec() public view virtual returns (uint256)
-```
-
-### gem
-
-```solidity
-function gem() public view virtual returns (address)
-```
-
-### join
-
-```solidity
-function join(address, uint256) public payable virtual
-```
-
-### exit
-
-```solidity
-function exit(address, uint256) public virtual
-```
-
-## IManager
-
-### last
-
-```solidity
-function last(address) public virtual returns (uint256)
-```
-
-### cdpCan
-
-```solidity
-function cdpCan(address, uint256, address) public view virtual returns (uint256)
-```
-
-### ilks
-
-```solidity
-function ilks(uint256) public view virtual returns (bytes32)
-```
-
-### owns
-
-```solidity
-function owns(uint256) public view virtual returns (address)
-```
-
-### urns
-
-```solidity
-function urns(uint256) public view virtual returns (address)
-```
-
-### vat
-
-```solidity
-function vat() public view virtual returns (contract IVat)
-```
-
-### open
-
-```solidity
-function open(bytes32, address) public virtual returns (uint256)
-```
-
-### give
-
-```solidity
-function give(uint256, address) public virtual
-```
-
-### cdpAllow
-
-```solidity
-function cdpAllow(uint256, address, uint256) public virtual
-```
-
-### urnAllow
-
-```solidity
-function urnAllow(address, uint256) public virtual
-```
-
-### frob
-
-```solidity
-function frob(uint256, int256, int256) public virtual
-```
-
-### flux
-
-```solidity
-function flux(uint256, address, uint256) public virtual
-```
-
-### move
-
-```solidity
-function move(uint256, address, uint256) public virtual
-```
-
-### exit
-
-```solidity
-function exit(address, uint256, address, uint256) public virtual
-```
-
-### quit
-
-```solidity
-function quit(uint256, address) public virtual
-```
-
-### enter
-
-```solidity
-function enter(address, uint256) public virtual
-```
-
-### shift
-
-```solidity
-function shift(uint256, uint256) public virtual
-```
-
-## IVat
-
-### Urn
-
-```solidity
-struct Urn {
-  uint256 ink;
-  uint256 art;
-}
-```
-
-### Ilk
-
-```solidity
-struct Ilk {
-  uint256 Art;
-  uint256 rate;
-  uint256 spot;
-  uint256 line;
-  uint256 dust;
-}
-```
-
-### urns
-
-```solidity
-mapping(bytes32 => mapping(address => struct IVat.Urn)) urns
-```
-
-### ilks
-
-```solidity
-mapping(bytes32 => struct IVat.Ilk) ilks
-```
-
-### gem
-
-```solidity
-mapping(bytes32 => mapping(address => uint256)) gem
-```
-
-### can
-
-```solidity
-function can(address, address) public view virtual returns (uint256)
-```
-
-### dai
-
-```solidity
-function dai(address) public view virtual returns (uint256)
-```
-
-### frob
-
-```solidity
-function frob(bytes32, address, address, address, int256, int256) public virtual
-```
-
-### hope
-
-```solidity
-function hope(address) public virtual
-```
-
-### move
-
-```solidity
-function move(address, address, uint256) public virtual
-```
-
-### fork
-
-```solidity
-function fork(bytes32, address, address, int256, int256) public virtual
-```
-
-## AaveBorrow
-
-### dWETH
-
-```solidity
-contract IVariableDebtToken dWETH
-```
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[]) external payable
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct BorrowData params)
-```
-
-## AaveDeposit
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[] paramsMap) external payable
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct DepositData params)
-```
-
-## AavePayback
-
-### dWETH
-
-```solidity
-contract IVariableDebtToken dWETH
-```
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[] paramsMap) external payable
-```
-
-## AaveWithdraw
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[]) external payable
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct WithdrawData params)
-```
-
-## ReturnFunds
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[]) external payable
-```
-
-## SendToken
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[]) external payable
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct SendTokenData params)
-```
-
-## SetApproval
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[] paramsMap) external payable
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct SetApprovalData params)
-```
-
-## Swap
-
-### feeBeneficiaryAddress
-
-```solidity
-address feeBeneficiaryAddress
-```
-
-### feeBase
-
-```solidity
-uint256 feeBase
-```
-
-### feeTiers
-
-```solidity
-mapping(uint256 => bool) feeTiers
-```
-
-### authorizedAddresses
-
-```solidity
-mapping(address => bool) authorizedAddresses
-```
-
-### registry
-
-```solidity
-contract ServiceRegistry registry
-```
-
-### ReceivedLess
-
-```solidity
-error ReceivedLess(uint256 receiveAtLeast, uint256 received)
-```
-
-### Unauthorized
-
-```solidity
-error Unauthorized()
-```
-
-### FeeTierDoesNotExist
-
-```solidity
-error FeeTierDoesNotExist(uint256 fee)
-```
-
-### FeeTierAlreadyExists
-
-```solidity
-error FeeTierAlreadyExists(uint256 fee)
-```
-
-### SwapFailed
-
-```solidity
-error SwapFailed()
-```
-
-### constructor
-
-```solidity
-constructor(address authorisedCaller, address feeBeneficiary, uint256 _initialFee, address _registry) public
-```
-
-### AssetSwap
-
-```solidity
-event AssetSwap(address assetIn, address assetOut, uint256 amountIn, uint256 amountOut)
-```
-
-### FeePaid
-
-```solidity
-event FeePaid(address beneficiary, uint256 amount, address token)
-```
-
-### SlippageSaved
-
-```solidity
-event SlippageSaved(uint256 minimumPossible, uint256 actualAmount)
-```
-
-### FeeTierAdded
-
-```solidity
-event FeeTierAdded(uint256 fee)
-```
-
-### FeeTierRemoved
-
-```solidity
-event FeeTierRemoved(uint256 fee)
-```
-
-### onlyAuthorised
-
-```solidity
-modifier onlyAuthorised()
-```
-
-### addFeeTier
-
-```solidity
-function addFeeTier(uint256 fee) public
-```
-
-### removeFeeTier
-
-```solidity
-function removeFeeTier(uint256 fee) public
-```
-
-### verifyFee
-
-```solidity
-function verifyFee(uint256 feeId) public view returns (bool valid)
-```
-
-### _swap
-
-```solidity
-function _swap(address fromAsset, address toAsset, uint256 amount, uint256 receiveAtLeast, address callee, bytes withData) internal returns (uint256 balance)
-```
-
-### _collectFee
-
-```solidity
-function _collectFee(address asset, uint256 fromAmount, uint256 fee) internal returns (uint256 amount)
-```
-
-### swapTokens
-
-```solidity
-function swapTokens(struct SwapData swapData) public returns (uint256)
-```
-
-## SwapAction
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[]) external payable
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct SwapData params)
-```
-
-## TakeFlashloan
-
-### registry
-
-```solidity
-contract ServiceRegistry registry
-```
-
-### dai
-
-```solidity
-address dai
-```
-
-### constructor
-
-```solidity
-constructor(contract ServiceRegistry _registry, address _dai) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[]) external payable
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct FlashloanData params)
-```
-
-## UnwrapEth
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[] paramsMap) external payable
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct UnwrapEthData params)
-```
-
-## WrapEth
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[] paramsMap) external payable
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct WrapEthData params)
-```
-
-## CdpAllow
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[] paramsMap) external payable
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct CdpAllowData params)
-```
-
-## MakerDeposit
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[] paramsMap) external payable
-```
-
-### _deposit
-
-```solidity
-function _deposit(struct DepositData data) internal returns (bytes32)
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct DepositData params)
-```
-
-## MakerGenerate
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[] paramsMap) external payable
-```
-
-### _generate
-
-```solidity
-function _generate(struct GenerateData data) internal returns (bytes32)
-```
-
-### _getDrawDart
-
-```solidity
-function _getDrawDart(contract IVat vat, address jug, address urn, bytes32 ilk, uint256 wad) internal returns (int256 dart)
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct GenerateData params)
-```
-
-## MakerPayback
-
-### WipeData
-
-```solidity
-struct WipeData {
-  contract IVat vat;
-  address usr;
-  address urn;
-  uint256 dai;
-  bytes32 ilk;
-}
-```
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[] paramsMap) external payable
-```
-
-### _payback
-
-```solidity
-function _payback(contract IManager manager, contract IDaiJoin daiJoin, struct PaybackData data) internal returns (bytes32)
-```
-
-### _paybackAll
-
-```solidity
-function _paybackAll(contract IManager manager, contract IDaiJoin daiJoin, struct PaybackData data) internal returns (bytes32)
-```
-
-### joinDai
-
-```solidity
-function joinDai(address usr, contract IDaiJoin daiJoin, address urn, uint256 amount) public
-```
-
-### _getWipeDart
-
-```solidity
-function _getWipeDart(struct MakerPayback.WipeData data) internal view returns (int256 dart)
-```
-
-### _getWipeAllWad
-
-```solidity
-function _getWipeAllWad(struct MakerPayback.WipeData data) internal view returns (uint256 wad)
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct PaybackData params)
-```
-
-## MakerWithdraw
-
-### constructor
-
-```solidity
-constructor(address _registry) public
-```
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[] paramsMap) external payable
-```
-
-### _withdraw
-
-```solidity
-function _withdraw(struct WithdrawData data) internal returns (bytes32)
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct WithdrawData params)
-```
-
-## OperationExecutor
-
-### registry
-
-```solidity
-contract ServiceRegistry registry
-```
-
-### Operation
-
-```solidity
-event Operation(string name, struct Call[] calls)
-```
-
-_Emitted once an Operation has completed execution_
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| name | string | The address initiating the deposit |
-| calls | struct Call[] | The call data for the actions the operation must executes |
-
-### constructor
-
-```solidity
-constructor(contract ServiceRegistry _registry) public
-```
-
-### executeOp
-
-```solidity
-function executeOp(struct Call[] calls, string operationName) public payable
-```
-
-### aggregate
-
-```solidity
-function aggregate(struct Call[] calls) internal
-```
-
-### callbackAggregate
-
-```solidity
-function callbackAggregate(struct Call[] calls) external
-```
-
-### onFlashLoan
-
-```solidity
-function onFlashLoan(address initiator, address asset, uint256 amount, uint256 fee, bytes data) external returns (bytes32)
-```
-
-## StoredOperation
-
-```solidity
-struct StoredOperation {
-  bytes32[] actions;
-  string name;
-}
-```
-
-## OperationsRegistry
-
-### operations
-
-```solidity
-mapping(string => struct StoredOperation) operations
-```
-
-### owner
-
-```solidity
-address owner
-```
-
-### onlyOwner
-
-```solidity
-modifier onlyOwner()
-```
-
-### constructor
-
-```solidity
-constructor() public
-```
-
-### transferOwnership
-
-```solidity
-function transferOwnership(address newOwner) public
-```
-
-### OperationAdded
-
-```solidity
-event OperationAdded(string name)
-```
-
-_Emitted when a new operation is added or an existing operation is updated_
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| name | string | The Operation name |
-
-### addOperation
-
-```solidity
-function addOperation(string name, bytes32[] actions) external
-```
-
-### getOperation
-
-```solidity
-function getOperation(string name) external view returns (bytes32[] actions)
-```
-
-## AAVE_LENDING_POOL
-
-```solidity
-string AAVE_LENDING_POOL
-```
-
-## AAVE_WETH_GATEWAY
-
-```solidity
-string AAVE_WETH_GATEWAY
-```
-
-## BORROW_ACTION
-
-```solidity
-string BORROW_ACTION
-```
-
-## DEPOSIT_ACTION
-
-```solidity
-string DEPOSIT_ACTION
-```
-
-## WITHDRAW_ACTION
-
-```solidity
-string WITHDRAW_ACTION
-```
-
-## PAYBACK_ACTION
-
-```solidity
-string PAYBACK_ACTION
-```
-
-## DepositData
-
-```solidity
-struct DepositData {
-  address asset;
-  uint256 amount;
-}
-```
-
-## BorrowData
-
-```solidity
-struct BorrowData {
-  address asset;
-  uint256 amount;
-  address to;
-}
-```
-
-## WithdrawData
-
-```solidity
-struct WithdrawData {
-  address asset;
-  uint256 amount;
-  address to;
-}
-```
-
-## PaybackData
-
-```solidity
-struct PaybackData {
-  address asset;
-  uint256 amount;
-  bool paybackAll;
-}
-```
-
-## McdView
-
-### MANAGER_ADDRESS
-
-```solidity
-address MANAGER_ADDRESS
-```
-
-### VAT_ADDRESS
-
-```solidity
-address VAT_ADDRESS
-```
-
-### SPOTTER_ADDRESS
-
-```solidity
-address SPOTTER_ADDRESS
-```
-
-### manager
-
-```solidity
-contract IManager manager
-```
-
-### vat
-
-```solidity
-contract IVat vat
-```
-
-### spotter
-
-```solidity
-contract ISpotter spotter
-```
-
-### getVaultInfo
-
-```solidity
-function getVaultInfo(uint256 _vaultId, bytes32 _ilk) public view returns (uint256, uint256)
-```
-
-Gets Position info (collateral, debt)
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _vaultId | uint256 | Id of the Position |
-| _ilk | bytes32 | Ilk of the Position |
-
-### getPrice
-
-```solidity
-function getPrice(bytes32 _ilk) public view returns (uint256)
-```
-
-Gets a price of the asset
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _ilk | bytes32 | Ilk of the Position |
-
-### getRatio
-
-```solidity
-function getRatio(uint256 _vaultId) public view returns (uint256)
-```
-
-Gets Vaults ratio
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _vaultId | uint256 | Id of the Position |
 
 ## IExchange
 
@@ -3104,6 +2709,29 @@ _Burns user variable debt_
 function borrowETH(address lendingPool, uint256 amount, uint256 interestRateMode, uint16 referralCode) external
 ```
 
+## ISwapRouter
+
+### ExactInputSingleParams
+
+```solidity
+struct ExactInputSingleParams {
+  address tokenIn;
+  address tokenOut;
+  uint24 fee;
+  address recipient;
+  uint256 deadline;
+  uint256 amountIn;
+  uint256 amountOutMinimum;
+  uint160 sqrtPriceLimitX96;
+}
+```
+
+### exactInputSingle
+
+```solidity
+function exactInputSingle(struct ISwapRouter.ExactInputSingleParams params) external returns (uint256)
+```
+
 ## IERC3156FlashBorrower
 
 ### onFlashLoan
@@ -3216,6 +2844,38 @@ function join(address, uint256) public payable virtual
 function exit(address, uint256) public virtual
 ```
 
+## IJoin
+
+### ilk
+
+```solidity
+bytes32 ilk
+```
+
+### dec
+
+```solidity
+function dec() public view virtual returns (uint256)
+```
+
+### gem
+
+```solidity
+function gem() public view virtual returns (address)
+```
+
+### join
+
+```solidity
+function join(address, uint256) public payable virtual
+```
+
+### exit
+
+```solidity
+function exit(address, uint256) public virtual
+```
+
 ## IJug
 
 ### Ilk
@@ -3239,35 +2899,229 @@ mapping(bytes32 => struct IJug.Ilk) ilks
 function drip(bytes32) public virtual returns (uint256)
 ```
 
-## IPipInterface
+## IManager
 
-### read
+### last
 
 ```solidity
-function read() public virtual returns (bytes32)
+function last(address) public virtual returns (uint256)
 ```
 
-## ISpotter
-
-### Ilk
+### cdpCan
 
 ```solidity
-struct Ilk {
-  contract IPipInterface pip;
-  uint256 mat;
-}
+function cdpCan(address, uint256, address) public view virtual returns (uint256)
 ```
 
 ### ilks
 
 ```solidity
-mapping(bytes32 => struct ISpotter.Ilk) ilks
+function ilks(uint256) public view virtual returns (bytes32)
 ```
 
-### par
+### owns
 
 ```solidity
-uint256 par
+function owns(uint256) public view virtual returns (address)
+```
+
+### urns
+
+```solidity
+function urns(uint256) public view virtual returns (address)
+```
+
+### vat
+
+```solidity
+function vat() public view virtual returns (contract IVat)
+```
+
+### open
+
+```solidity
+function open(bytes32, address) public virtual returns (uint256)
+```
+
+### give
+
+```solidity
+function give(uint256, address) public virtual
+```
+
+### cdpAllow
+
+```solidity
+function cdpAllow(uint256, address, uint256) public virtual
+```
+
+### urnAllow
+
+```solidity
+function urnAllow(address, uint256) public virtual
+```
+
+### frob
+
+```solidity
+function frob(uint256, int256, int256) public virtual
+```
+
+### flux
+
+```solidity
+function flux(uint256, address, uint256) public virtual
+```
+
+### move
+
+```solidity
+function move(uint256, address, uint256) public virtual
+```
+
+### exit
+
+```solidity
+function exit(address, uint256, address, uint256) public virtual
+```
+
+### quit
+
+```solidity
+function quit(uint256, address) public virtual
+```
+
+### enter
+
+```solidity
+function enter(address, uint256) public virtual
+```
+
+### shift
+
+```solidity
+function shift(uint256, uint256) public virtual
+```
+
+## IVat
+
+### Urn
+
+```solidity
+struct Urn {
+  uint256 ink;
+  uint256 art;
+}
+```
+
+### Ilk
+
+```solidity
+struct Ilk {
+  uint256 Art;
+  uint256 rate;
+  uint256 spot;
+  uint256 line;
+  uint256 dust;
+}
+```
+
+### urns
+
+```solidity
+mapping(bytes32 => mapping(address => struct IVat.Urn)) urns
+```
+
+### ilks
+
+```solidity
+mapping(bytes32 => struct IVat.Ilk) ilks
+```
+
+### gem
+
+```solidity
+mapping(bytes32 => mapping(address => uint256)) gem
+```
+
+### can
+
+```solidity
+function can(address, address) public view virtual returns (uint256)
+```
+
+### dai
+
+```solidity
+function dai(address) public view virtual returns (uint256)
+```
+
+### frob
+
+```solidity
+function frob(bytes32, address, address, address, int256, int256) public virtual
+```
+
+### hope
+
+```solidity
+function hope(address) public virtual
+```
+
+### move
+
+```solidity
+function move(address, address, uint256) public virtual
+```
+
+### fork
+
+```solidity
+function fork(bytes32, address, address, int256, int256) public virtual
+```
+
+## IERC20
+
+### totalSupply
+
+```solidity
+function totalSupply() external view returns (uint256 supply)
+```
+
+### balanceOf
+
+```solidity
+function balanceOf(address _owner) external view returns (uint256 balance)
+```
+
+### transfer
+
+```solidity
+function transfer(address _to, uint256 _value) external returns (bool success)
+```
+
+### transferFrom
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _value) external returns (bool success)
+```
+
+### approve
+
+```solidity
+function approve(address _spender, uint256 _value) external returns (bool success)
+```
+
+### allowance
+
+```solidity
+function allowance(address _owner, address _spender) external view returns (uint256 remaining)
+```
+
+### decimals
+
+```solidity
+function decimals() external view returns (uint256 digits)
 ```
 
 ## IWETH
@@ -3312,6 +3166,56 @@ function deposit() external payable
 
 ```solidity
 function withdraw(uint256) external
+```
+
+## Address
+
+### isContract
+
+```solidity
+function isContract(address account) internal view returns (bool)
+```
+
+### sendValue
+
+```solidity
+function sendValue(address payable recipient, uint256 amount) internal
+```
+
+### functionCall
+
+```solidity
+function functionCall(address target, bytes data) internal returns (bytes)
+```
+
+### functionCall
+
+```solidity
+function functionCall(address target, bytes data, string errorMessage) internal returns (bytes)
+```
+
+### functionCallWithValue
+
+```solidity
+function functionCallWithValue(address target, bytes data, uint256 value) internal returns (bytes)
+```
+
+### functionCallWithValue
+
+```solidity
+function functionCallWithValue(address target, bytes data, uint256 value, string errorMessage) internal returns (bytes)
+```
+
+### _functionCallWithValue
+
+```solidity
+function _functionCallWithValue(address target, bytes data, uint256 weiValue, string errorMessage) private returns (bytes)
+```
+
+### functionDelegateCall
+
+```solidity
+function functionDelegateCall(address target, bytes data, string errorMessage) internal returns (bytes)
 ```
 
 ## DSAuthEvents
@@ -3418,98 +3322,6 @@ function forbid(address src, address dst, bytes32 sig) public virtual
 
 ```solidity
 function newGuard() public virtual returns (contract DSGuard guard)
-```
-
-## DSMath
-
-### add
-
-```solidity
-function add(uint256 x, uint256 y) internal pure returns (uint256 z)
-```
-
-### sub
-
-```solidity
-function sub(uint256 x, uint256 y) internal pure returns (uint256 z)
-```
-
-### mul
-
-```solidity
-function mul(uint256 x, uint256 y) internal pure returns (uint256 z)
-```
-
-### div
-
-```solidity
-function div(uint256 x, uint256 y) internal pure returns (uint256 z)
-```
-
-### min
-
-```solidity
-function min(uint256 x, uint256 y) internal pure returns (uint256 z)
-```
-
-### max
-
-```solidity
-function max(uint256 x, uint256 y) internal pure returns (uint256 z)
-```
-
-### imin
-
-```solidity
-function imin(int256 x, int256 y) internal pure returns (int256 z)
-```
-
-### imax
-
-```solidity
-function imax(int256 x, int256 y) internal pure returns (int256 z)
-```
-
-### WAD
-
-```solidity
-uint256 WAD
-```
-
-### RAY
-
-```solidity
-uint256 RAY
-```
-
-### wmul
-
-```solidity
-function wmul(uint256 x, uint256 y) internal pure returns (uint256 z)
-```
-
-### rmul
-
-```solidity
-function rmul(uint256 x, uint256 y) internal pure returns (uint256 z)
-```
-
-### wdiv
-
-```solidity
-function wdiv(uint256 x, uint256 y) internal pure returns (uint256 z)
-```
-
-### rdiv
-
-```solidity
-function rdiv(uint256 x, uint256 y) internal pure returns (uint256 z)
-```
-
-### rpow
-
-```solidity
-function rpow(uint256 x, uint256 n) internal pure returns (uint256 z)
 ```
 
 ## DSNote
@@ -3630,6 +3442,97 @@ function uintToInt(uint256 x) internal pure returns (int256 y)
 function convertTo18(contract IJoin gemJoin, uint256 amt) internal view returns (uint256 wad)
 ```
 
+## SafeERC20
+
+### safeTransfer
+
+```solidity
+function safeTransfer(contract IERC20 token, address to, uint256 value) internal
+```
+
+### safeTransferFrom
+
+```solidity
+function safeTransferFrom(contract IERC20 token, address from, address to, uint256 value) internal
+```
+
+### safeApprove
+
+```solidity
+function safeApprove(contract IERC20 token, address spender, uint256 value) internal
+```
+
+_Deprecated. This function has issues similar to the ones found in
+{ERC20-approve}, and its usage is discouraged._
+
+### safeIncreaseAllowance
+
+```solidity
+function safeIncreaseAllowance(contract IERC20 token, address spender, uint256 value) internal
+```
+
+### safeDecreaseAllowance
+
+```solidity
+function safeDecreaseAllowance(contract IERC20 token, address spender, uint256 value) internal
+```
+
+### _callOptionalReturn
+
+```solidity
+function _callOptionalReturn(contract IERC20 token, bytes data) private
+```
+
+## SafeMath
+
+### add
+
+```solidity
+function add(uint256 a, uint256 b) internal pure returns (uint256)
+```
+
+### sub
+
+```solidity
+function sub(uint256 a, uint256 b) internal pure returns (uint256)
+```
+
+### sub
+
+```solidity
+function sub(uint256 a, uint256 b, string errorMessage) internal pure returns (uint256)
+```
+
+### mul
+
+```solidity
+function mul(uint256 a, uint256 b) internal pure returns (uint256)
+```
+
+### div
+
+```solidity
+function div(uint256 a, uint256 b) internal pure returns (uint256)
+```
+
+### div
+
+```solidity
+function div(uint256 a, uint256 b, string errorMessage) internal pure returns (uint256)
+```
+
+### mod
+
+```solidity
+function mod(uint256 a, uint256 b) internal pure returns (uint256)
+```
+
+### mod
+
+```solidity
+function mod(uint256 a, uint256 b, string errorMessage) internal pure returns (uint256)
+```
+
 ## DummyAction
 
 ### constructor
@@ -3684,6 +3587,134 @@ constructor(contract ServiceRegistry _registry) public
 function execute(bytes executionData, address opExecutorAddress) public
 ```
 
+## DummyExchange
+
+### DAI_ADDRESS
+
+```solidity
+address DAI_ADDRESS
+```
+
+### STETH_ADDRESS
+
+```solidity
+address STETH_ADDRESS
+```
+
+### price
+
+```solidity
+uint256 price
+```
+
+### fee
+
+```solidity
+uint8 fee
+```
+
+### feeBase
+
+```solidity
+uint256 feeBase
+```
+
+### precisions
+
+```solidity
+mapping(address => uint8) precisions
+```
+
+### prices
+
+```solidity
+mapping(address => uint256) prices
+```
+
+### feeBeneficiaryAddress
+
+```solidity
+address feeBeneficiaryAddress
+```
+
+### AssetSwap
+
+```solidity
+event AssetSwap(address assetIn, address assetOut, uint256 amountIn, uint256 amountOut)
+```
+
+### FeePaid
+
+```solidity
+event FeePaid(address beneficiary, uint256 amount)
+```
+
+### SlippageSaved
+
+```solidity
+event SlippageSaved(uint256 minimumPossible, uint256 actualAmount)
+```
+
+### mul
+
+```solidity
+function mul(uint256 x, uint256 y) internal pure returns (uint256 z)
+```
+
+### setPrice
+
+```solidity
+function setPrice(address token, uint256 p) public
+```
+
+### setFee
+
+```solidity
+function setFee(uint8 f) public
+```
+
+### setPrecision
+
+```solidity
+function setPrecision(address token, uint8 _precision) public
+```
+
+### _transferIn
+
+```solidity
+function _transferIn(address from, address asset, uint256 amount) internal
+```
+
+### _transferOut
+
+```solidity
+function _transferOut(address asset, address to, uint256 amount) internal
+```
+
+### _collectFee
+
+```solidity
+function _collectFee(address asset, uint256 fromAmount) public returns (uint256)
+```
+
+### swapDaiForToken
+
+```solidity
+function swapDaiForToken(address asset, uint256 amount, uint256, address, bytes) public
+```
+
+### swapTokenForToken
+
+```solidity
+function swapTokenForToken(address assetFrom, address assetTo, uint256 amount, uint256) public
+```
+
+### swapTokenForDai
+
+```solidity
+function swapTokenForDai(address asset, uint256 amount, uint256, address, bytes) public
+```
+
 ## DummySwap
 
 ### WETH
@@ -3709,6 +3740,87 @@ constructor(contract ServiceRegistry _registry, contract IWETH _weth, address _e
 ```solidity
 function execute(bytes data, uint8[]) external payable
 ```
+
+## McdView
+
+### MANAGER_ADDRESS
+
+```solidity
+address MANAGER_ADDRESS
+```
+
+### VAT_ADDRESS
+
+```solidity
+address VAT_ADDRESS
+```
+
+### SPOTTER_ADDRESS
+
+```solidity
+address SPOTTER_ADDRESS
+```
+
+### manager
+
+```solidity
+contract IManager manager
+```
+
+### vat
+
+```solidity
+contract IVat vat
+```
+
+### spotter
+
+```solidity
+contract ISpotter spotter
+```
+
+### getVaultInfo
+
+```solidity
+function getVaultInfo(uint256 _vaultId, bytes32 _ilk) public view returns (uint256, uint256)
+```
+
+Gets Position info (collateral, debt)
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _vaultId | uint256 | Id of the Position |
+| _ilk | bytes32 | Ilk of the Position |
+
+### getPrice
+
+```solidity
+function getPrice(bytes32 _ilk) public view returns (uint256)
+```
+
+Gets a price of the asset
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _ilk | bytes32 | Ilk of the Position |
+
+### getRatio
+
+```solidity
+function getRatio(uint256 _vaultId) public view returns (uint256)
+```
+
+Gets Vaults ratio
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _vaultId | uint256 | Id of the Position |
 
 ## IAToken
 
@@ -3938,72 +4050,49 @@ mapping(address => uint256) bud
 function peep() external view virtual returns (bytes32, bool)
 ```
 
-## DummyExchange
+## IPipInterface
 
-### DAI_ADDRESS
+### read
 
 ```solidity
-address DAI_ADDRESS
+function read() public virtual returns (bytes32)
 ```
 
-### STETH_ADDRESS
+## ISpotter
+
+### Ilk
 
 ```solidity
-address STETH_ADDRESS
+struct Ilk {
+  contract IPipInterface pip;
+  uint256 mat;
+}
 ```
 
-### price
+### ilks
 
 ```solidity
-uint256 price
+mapping(bytes32 => struct ISpotter.Ilk) ilks
 ```
 
-### fee
+### par
 
 ```solidity
-uint8 fee
+uint256 par
 ```
 
-### feeBase
+## DSMath
+
+### add
 
 ```solidity
-uint256 feeBase
+function add(uint256 x, uint256 y) internal pure returns (uint256 z)
 ```
 
-### precisions
+### sub
 
 ```solidity
-mapping(address => uint8) precisions
-```
-
-### prices
-
-```solidity
-mapping(address => uint256) prices
-```
-
-### feeBeneficiaryAddress
-
-```solidity
-address feeBeneficiaryAddress
-```
-
-### AssetSwap
-
-```solidity
-event AssetSwap(address assetIn, address assetOut, uint256 amountIn, uint256 amountOut)
-```
-
-### FeePaid
-
-```solidity
-event FeePaid(address beneficiary, uint256 amount)
-```
-
-### SlippageSaved
-
-```solidity
-event SlippageSaved(uint256 minimumPossible, uint256 actualAmount)
+function sub(uint256 x, uint256 y) internal pure returns (uint256 z)
 ```
 
 ### mul
@@ -4012,57 +4101,75 @@ event SlippageSaved(uint256 minimumPossible, uint256 actualAmount)
 function mul(uint256 x, uint256 y) internal pure returns (uint256 z)
 ```
 
-### setPrice
+### div
 
 ```solidity
-function setPrice(address token, uint256 p) public
+function div(uint256 x, uint256 y) internal pure returns (uint256 z)
 ```
 
-### setFee
+### min
 
 ```solidity
-function setFee(uint8 f) public
+function min(uint256 x, uint256 y) internal pure returns (uint256 z)
 ```
 
-### setPrecision
+### max
 
 ```solidity
-function setPrecision(address token, uint8 _precision) public
+function max(uint256 x, uint256 y) internal pure returns (uint256 z)
 ```
 
-### _transferIn
+### imin
 
 ```solidity
-function _transferIn(address from, address asset, uint256 amount) internal
+function imin(int256 x, int256 y) internal pure returns (int256 z)
 ```
 
-### _transferOut
+### imax
 
 ```solidity
-function _transferOut(address asset, address to, uint256 amount) internal
+function imax(int256 x, int256 y) internal pure returns (int256 z)
 ```
 
-### _collectFee
+### WAD
 
 ```solidity
-function _collectFee(address asset, uint256 fromAmount) public returns (uint256)
+uint256 WAD
 ```
 
-### swapDaiForToken
+### RAY
 
 ```solidity
-function swapDaiForToken(address asset, uint256 amount, uint256, address, bytes) public
+uint256 RAY
 ```
 
-### swapTokenForToken
+### wmul
 
 ```solidity
-function swapTokenForToken(address assetFrom, address assetTo, uint256 amount, uint256) public
+function wmul(uint256 x, uint256 y) internal pure returns (uint256 z)
 ```
 
-### swapTokenForDai
+### rmul
 
 ```solidity
-function swapTokenForDai(address asset, uint256 amount, uint256, address, bytes) public
+function rmul(uint256 x, uint256 y) internal pure returns (uint256 z)
+```
+
+### wdiv
+
+```solidity
+function wdiv(uint256 x, uint256 y) internal pure returns (uint256 z)
+```
+
+### rdiv
+
+```solidity
+function rdiv(uint256 x, uint256 y) internal pure returns (uint256 z)
+```
+
+### rpow
+
+```solidity
+function rpow(uint256 x, uint256 n) internal pure returns (uint256 z)
 ```
 

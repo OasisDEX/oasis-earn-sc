@@ -23,7 +23,8 @@ contract TakeFlashloan is Executable, ProxyPermission {
   }
 
   /**
-   * @dev The Flashloan lender calls back the Operation Executor we may need to re-establish the calling context as the User's proxy contract
+   * @dev When the Flashloan lender calls back the Operation Executor we may need to re-establish the calling context.
+   * @dev The dsProxyFlashloan flag is used to give the Operation Executor temporary authority to call the execute method on a user's proxy
    * @param data Encoded calldata that conforms to the FlashloanData struct
    */
   function execute(bytes calldata data, uint8[] memory) external payable override {

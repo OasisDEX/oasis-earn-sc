@@ -18,7 +18,7 @@ contract SetApproval is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   /**
-   * @dev look at UseStore.sol to get additional info on paramsMapping
+   * @dev Look at UseStore.sol to get additional info on paramsMapping
    * @param data Encoded calldata that conforms to the SetApprovalData struct
    * @param paramsMap Maps operation storage values by index (index offset by +1) to execute calldata params
    */
