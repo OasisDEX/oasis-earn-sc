@@ -7,6 +7,7 @@ import './tasks/deploy'
 import './tasks/createPosition'
 import './tasks/closePosition'
 import './tasks/proxy'
+import 'solidity-docgen'
 
 import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
@@ -99,6 +100,7 @@ const config: HardhatUserConfig = {
   typechain: {
     outDir: 'typechain',
   },
+  docgen: {},
 }
 
 export default config
