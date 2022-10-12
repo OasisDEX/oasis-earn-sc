@@ -31,7 +31,7 @@ contract Swap {
   ) {
     authorizedAddresses[authorisedCaller] = true;
     authorizedAddresses[feeBeneficiary] = true;
-    addFeeTier(_initialFee);
+    _addFeeTier(_initialFee);
     feeBeneficiaryAddress = feeBeneficiary;
     registry = ServiceRegistry(_registry);
   }
@@ -55,12 +55,16 @@ contract Swap {
     _;
   }
 
-  function addFeeTier(uint256 fee) public onlyAuthorised {
+  function _addFeeTier(uint256 fee) private {
     if (feeTiers[fee]) {
       revert FeeTierAlreadyExists(fee);
     }
     feeTiers[fee] = true;
     emit FeeTierAdded(fee);
+  }
+
+  function addFeeTier(uint256 fee) public onlyAuthorised {
+    _addFeeTier(fee);
   }
 
   function removeFeeTier(uint256 fee) public onlyAuthorised {
@@ -83,7 +87,6 @@ contract Swap {
     address callee,
     bytes calldata withData
   ) internal returns (uint256 balance) {
-
     IERC20(fromAsset).safeApprove(callee, amount);
     (bool success, ) = callee.call(withData);
 
