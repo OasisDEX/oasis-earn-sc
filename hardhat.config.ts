@@ -104,6 +104,7 @@ const config: HardhatUserConfig = {
     outputDir: './docs',
     pages: 'files',
     exclude: [
+      './actions/maker',
       './core/constants',
       './core/types',
       './core/views',
