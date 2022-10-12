@@ -2,6 +2,10 @@ pragma solidity ^0.8.15;
 
 import { ServiceRegistry } from "./ServiceRegistry.sol";
 
+/**
+ * @title Operation Storage
+ * @notice Stores the return values from Actions during an Operation's execution
+ */
 contract OperationStorage {
   uint8 internal action = 0;
   bytes32[] public actions;
@@ -19,11 +23,17 @@ contract OperationStorage {
     operationExecutorAddress = _operationExecutorAddress;
   }
 
+  /**
+   * @dev Locks storage to protect against re-entrancy attacks.@author
+   */
   function lock() external {
     locked = true;
     whoLocked = msg.sender;
   }
 
+  /**
+   * @dev Only the original locker can unlock the contract at the end of the transaction
+   */
   function unlock() external {
     require(whoLocked == msg.sender, "Only the locker can unlock");
     require(locked, "Not locked");
@@ -31,25 +41,42 @@ contract OperationStorage {
     whoLocked = address(0);
   }
 
+  /**
+   * @dev Sets the initiator which is used to store flashloan nested return values in an isolated slice of state
+   * @param _initiator Sets the initiator to Operation Executor contract when storing return values from flashloan nested Action
+   */
   function setInitiator(address _initiator) external {
     require(msg.sender == operationExecutorAddress);
     initiator = _initiator;
   }
 
+  /**
+   * @param _actions Stores the Actions currently being executed for a given Operation
+   */
   function setOperationActions(bytes32[] memory _actions) external {
     actions = _actions;
   }
 
+  /**
+   * @param actionHash Checks the current action has against the expected action hash
+   */
   function verifyAction(bytes32 actionHash) external {
     require(actions[action] == actionHash, "incorrect-action");
     registry.getServiceAddress(actionHash);
     action++;
   }
 
+  /**
+   * @dev Custom operations have no Actions stored in Operation Registry
+   * @return Returns true / false depending on whether the Operation has any actions to verify the Operation against
+   */
   function hasActionsToVerify() external view returns (bool) {
     return actions.length > 0;
   }
 
+  /**
+   * @param value Pushes a bytes32 to end of the returnValues array
+   */
   function push(bytes32 value) external {
     address who = msg.sender;
     if (who == operationExecutorAddress) {
@@ -62,6 +89,10 @@ contract OperationStorage {
     returnValues[who].push(value);
   }
 
+  /**
+   * @param index The index of the desired value
+   * @param who The msg.sender address responsible for storing values
+   */
   function at(uint256 index, address who) external view returns (bytes32) {
     if (who == operationExecutorAddress) {
       who = initiator;
@@ -69,6 +100,10 @@ contract OperationStorage {
     return returnValues[who][index];
   }
 
+  /**
+   * @param who The msg.sender address responsible for storing values
+   * @return The length of return values stored against a given msg.sender address
+   */
   function len(address who) external view returns (uint256) {
     if (who == operationExecutorAddress) {
       who = initiator;
@@ -76,6 +111,9 @@ contract OperationStorage {
     return returnValues[who].length;
   }
 
+  /**
+   * @dev Clears storage in preparation for the next Operation
+   */
   function clearStorage() external {
     delete action;
     delete actions;

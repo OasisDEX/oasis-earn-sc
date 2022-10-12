@@ -15,6 +15,10 @@ import { FlashloanData, Call } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
+/**
+ * @title Operation Executor
+ * @notice Is responsible for executing sequences of Actions (Operations)
+ */
 contract OperationExecutor is IERC3156FlashBorrower {
   using Address for address;
   using SafeERC20 for IERC20;
@@ -25,7 +29,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
   /**
    * @dev Emitted once an Operation has completed execution
    * @param name The address initiating the deposit
-   * @param calls The call data for the actions the operation must executes
+   * @param calls An array of Action calls the operation must execute
    **/
   event Operation(string name, Call[] calls);
 
@@ -33,6 +37,12 @@ contract OperationExecutor is IERC3156FlashBorrower {
     registry = _registry;
   }
 
+  /**
+   * @notice Executes an operation
+   * @dev Operation storage is cleared before and after an operation is executed
+   * @param calls An array of Action calls the operation must execute
+   * @param operationName The name of the Operation being executed
+   */
   function executeOp(Call[] memory calls, string calldata operationName) public payable {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
     opStorage.lock();
@@ -66,6 +76,11 @@ contract OperationExecutor is IERC3156FlashBorrower {
     }
   }
 
+  /**
+   * @notice Not to be called directly
+   * @dev Is called by the Operation Executor via a user's proxy to execute Actions nested in the FlashloanAction
+   * @param calls An array of Action calls the operation must execute
+   */
   function callbackAggregate(Call[] memory calls) external {
     require(
       msg.sender == registry.getRegisteredService(OPERATION_EXECUTOR),
@@ -74,6 +89,15 @@ contract OperationExecutor is IERC3156FlashBorrower {
     aggregate(calls);
   }
 
+  /**
+   * @notice Not to be called directly.
+   * @dev Callback handler for use by a flashloan lender contract
+   * @param initiator Is the address of the contract that initiated the flashloan (EG Operation Executor)
+   * @param asset The address of the asset being flash loaned
+   * @param amount The size of the flash loan
+   * @param fee The Fee charged for the loan
+   * @param data Any calldata sent to the contract for execution later in the callback
+   */
   function onFlashLoan(
     address initiator,
     address asset,

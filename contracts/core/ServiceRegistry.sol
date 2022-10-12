@@ -1,6 +1,10 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.1;
 
+/**
+ * @title Service Registry
+ * @notice Stores addresses of deployed contracts
+ */
 contract ServiceRegistry {
   mapping(address => bool) public trustedAddresses;
   mapping(bytes32 => uint256) public lastExecuted;
