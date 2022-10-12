@@ -42,6 +42,10 @@ export async function restoreSnapshot(
 
     return snapshot
   } else {
+    if (debug) {
+      console.log('resetting node to:', blockNumber)
+      console.log('deploying system again')
+    }
     await resetNode(provider, blockNumber)
 
     const system = await deploySystem(config, false, useFallbackSwap)

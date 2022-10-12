@@ -7,10 +7,12 @@ import {
   Position,
   strategies,
 } from '@oasisdex/oasis-actions'
+import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
+import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Contract, Signer } from 'ethers'
+import { Contract, ethers, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
@@ -60,7 +62,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     const depositAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
-    const aaveStEthPriceInEth = new BigNumber(0.98066643)
+    let aaveStEthPriceInEth: BigNumber
 
     let system: DeployedSystemInfo
 
@@ -121,6 +123,16 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         ADDRESSES.main.stETH,
         system.common.dsProxy.address,
       )
+
+      const aavePriceOracle = new ethers.Contract(
+        addresses.aavePriceOracle,
+        aavePriceOracleABI,
+        provider,
+      )
+
+      aaveStEthPriceInEth = await aavePriceOracle
+        .getAssetPrice(addresses.stETH)
+        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
       actualPosition = new Position(
         { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
@@ -186,57 +198,62 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let feeRecipientWethBalanceBefore: BigNumber
 
-    before(async () => {
-      //Reset to the latest block
-      await resetNodeToLatestBlock(provider)
+    before(async function () {
+      const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
+      if (shouldRun1InchTests) {
+        console.log('running')
+        //Reset to the latest block
+        await resetNodeToLatestBlock(provider)
+        const { system: _system } = await deploySystem(config, false, false)
+        system = _system
 
-      const { system: _system } = await deploySystem(config, false, false)
-      system = _system
+        const addresses = {
+          ...mainnetAddresses,
+          operationExecutor: system.common.operationExecutor.address,
+        }
 
-      const addresses = {
-        ...mainnetAddresses,
-        operationExecutor: system.common.operationExecutor.address,
+        feeRecipientWethBalanceBefore = await balanceOf(
+          ADDRESSES.main.WETH,
+          ADDRESSES.main.feeRecipient,
+          { config, isFormatted: true },
+        )
+
+        strategy = await strategies.aave.openStEth(
+          {
+            depositAmount,
+            slippage,
+            multiple,
+          },
+          {
+            addresses,
+            provider,
+            getSwapData: getOneInchCall(system.common.swap.address),
+            dsProxy: system.common.dsProxy.address,
+          },
+        )
+
+        const [_txStatus] = await executeThroughProxy(
+          system.common.dsProxy.address,
+          {
+            address: system.common.operationExecutor.address,
+            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+              strategy.calls,
+              OPERATION_NAMES.common.CUSTOM_OPERATION,
+            ]),
+          },
+          signer,
+          depositAmount.toFixed(0),
+        )
+        txStatus = _txStatus
+
+        userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
+        userStEthReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.stETH,
+          system.common.dsProxy.address,
+        )
+      } else {
+        this.skip()
       }
-
-      feeRecipientWethBalanceBefore = await balanceOf(
-        ADDRESSES.main.WETH,
-        ADDRESSES.main.feeRecipient,
-        { config, isFormatted: true },
-      )
-
-      strategy = await strategies.aave.openStEth(
-        {
-          depositAmount,
-          slippage,
-          multiple,
-        },
-        {
-          addresses,
-          provider,
-          getSwapData: getOneInchCall(system.common.swap.address),
-          dsProxy: system.common.dsProxy.address,
-        },
-      )
-
-      const [_txStatus] = await executeThroughProxy(
-        system.common.dsProxy.address,
-        {
-          address: system.common.operationExecutor.address,
-          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            strategy.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
-          ]),
-        },
-        signer,
-        depositAmount.toFixed(0),
-      )
-      txStatus = _txStatus
-
-      userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
-      userStEthReserveData = await aaveDataProvider.getUserReserveData(
-        ADDRESSES.main.stETH,
-        system.common.dsProxy.address,
-      )
     })
 
     it('Tx should pass', () => {

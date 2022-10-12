@@ -44,14 +44,15 @@ describe(`Operations | Maker | Automation Integration`, async () => {
   let config: RuntimeConfig
   let oraclePrice: BigNumber
 
-  beforeEach(async () => {
+  beforeEach(async function () {
     ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
 
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
     // When changing block number remember to check vault id that is used for automation
-    const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+    const testBlockNumberToGetCorrectVaultId = 15695000
+    const snapshot = await restoreSnapshot(config, provider, testBlockNumberToGetCorrectVaultId)
 
     system = snapshot.deployed.system
     registry = snapshot.deployed.registry
@@ -148,7 +149,7 @@ describe(`Operations | Maker | Automation Integration`, async () => {
     )
 
     const autoTestAmount = new BigNumber(40000)
-    const autoVaultId = 29073
+    const autoVaultId = 29595
     const generateDaiAutomation = createAction(
       await registry.getEntryHash(CONTRACT_NAMES.maker.GENERATE),
       [calldataTypes.maker.Generate, calldataTypes.paramsMap],
@@ -223,7 +224,7 @@ describe(`Operations | Maker | Automation Integration`, async () => {
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
     const currentCollRatio = info.coll.times(oraclePrice).div(info.debt)
 
-    expectToBeEqual(currentCollRatio, new BigNumber(3.808), 3)
+    expectToBeEqual(currentCollRatio, new BigNumber(3.384), 3)
 
     expectToBeEqual(info.coll.toFixed(0), initialColl.toFixed(0))
     expectToBeEqual(info.debt.toFixed(0), autoTestAmount.toFixed(0))

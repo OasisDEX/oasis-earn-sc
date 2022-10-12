@@ -1,21 +1,20 @@
-account_id: 32c2ed01-fe37-4b94-a5b7-24f6d196b675
-project_slug:
-provider: ''
+account_id: ""
 exports:
-  hardhat:
+  local:
+    project_slug:
+    rpc_address: 127.0.0.1:8545
+    protocol: ""
+    forked_network: Mainnet
     chain_config:
-      byzantium_block: 0
-      constantinople_block: 0
+      homestead_block: 0
       eip150_block: 0
-      eip150_hash: '0x0000000000000000000000000000000000000000000000000000000000000000'
+      eip150_hash: "0x0000000000000000000000000000000000000000000000000000000000000000"
       eip155_block: 0
       eip158_block: 0
-      homestead_block: 0
-      istanbul_block: 0
+      byzantium_block: 0
+      constantinople_block: 0
       petersburg_block: 0
+      istanbul_block: 0
       berlin_block: 0
       london_block: 0
-    forked_network: mainnet
-    project_slug:
-    protocol: ''
-    rpc_address: 127.0.0.1:8545
+project_slug: ""

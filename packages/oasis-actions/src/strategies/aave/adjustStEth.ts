@@ -92,6 +92,13 @@ export async function adjustStEth(
 
   const flashloanFee = new BigNumber(0)
 
+  const targetLTV = new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE).loanToValue
+  let isIncreasingRisk = false
+
+  if (targetLTV.gt(existingPosition.riskRatio.loanToValue)) {
+    isIncreasingRisk = true
+  }
+
   const target = existingPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
@@ -109,6 +116,7 @@ export async function adjustStEth(
       depositedByUser: {
         debt: args.depositAmount,
       },
+      collectSwapFeeFrom: isIncreasingRisk ? 'sourceToken' : 'targetToken',
       // debug: true,
     },
   )
@@ -121,7 +129,7 @@ export async function adjustStEth(
     swapData = await dependencies.getSwapData(
       dependencies.addresses.WETH,
       dependencies.addresses.stETH,
-      target.swap.fromTokenAmount,
+      target.swap.fromTokenAmount.minus(target.swap.sourceTokenFee),
       slippage,
     )
     actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
@@ -169,7 +177,7 @@ export async function adjustStEth(
 
     calls = await operations.aave.decreaseMultipleStEth(
       {
-        //TODO: sort the below out before PR
+        //TODO: hacky fix for using flashloan. Needs conditional in operation itself
         flashloanAmount: absFlashloanAmount.eq(ZERO) ? ONE : absFlashloanAmount,
         withdrawAmount: withdrawStEthAmountWei,
         fee: FEE,

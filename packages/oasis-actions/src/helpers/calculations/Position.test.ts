@@ -1,16 +1,11 @@
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
-import * as dotenv from 'dotenv'
-import path from 'path'
-import process from 'process'
 
 import { ONE, ZERO } from '../constants'
 import { Position } from './Position'
 import { RiskRatio } from './RiskRatio'
 import { testDataSources } from './test-scenarios/generateTestData'
 import { fetchTestScenarios } from './testDataUtils'
-
-dotenv.config({ path: path.join(process.cwd(), '../../.env') })
 
 type Scenario = {
   name: string
@@ -47,13 +42,14 @@ type Scenario = {
   targetDebt: BigNumber
   healthFactor: BigNumber
   minOraclePrice: BigNumber
-  feePaidFromBaseToken: BigNumber
-  feePaidFromCollateralToken: BigNumber
+  feePaidFromSourceToken: BigNumber
+  feePaidFromTargetToken: BigNumber
 }
 
 describe('Calculate Position Helper', async () => {
   describe('LTV_target', async () => {
     const scenarios = (await fetchTestScenarios<Scenario>(testDataSources.LTV_target)) as Scenario[]
+    const debug = false
 
     scenarios.forEach(
       ({
@@ -84,8 +80,8 @@ describe('Calculate Position Helper', async () => {
         targetCollateral,
         healthFactor,
         minOraclePrice,
-        feePaidFromBaseToken,
-        feePaidFromCollateralToken,
+        feePaidFromSourceToken,
+        feePaidFromTargetToken,
       }) => {
         it(`Test: ${name}`, async () => {
           const riskRatio = new RiskRatio(targetLoanToValue, RiskRatio.TYPE.LTV)
@@ -111,8 +107,9 @@ describe('Calculate Position Helper', async () => {
               oracle: oraclePrice,
               oracleFLtoDebtToken: oraclePriceFLtoDebtToken,
             },
+            collectSwapFeeFrom: 'sourceToken',
             slippage,
-            // debug: true,
+            // debug,
           })
 
           const actualFromTokenAmount = target.flags.isIncreasingRisk
@@ -123,43 +120,50 @@ describe('Calculate Position Helper', async () => {
             : toTokenAmountDec
 
           // From Token Swap Amount
+          debug && console.log('From Token Swap Amount')
           expect(target.swap.fromTokenAmount.toFixed(2)).to.equal(actualFromTokenAmount.toFixed(2))
 
           // To Token Swapped Amount
-          expect(target.swap.toTokenAmount.toFixed(2)).to.equal(actualToTokenAmount.toFixed(2))
+          debug && console.log('To Token Swap Amount')
+          expect(target.swap.minToTokenAmount.toFixed(2)).to.equal(actualToTokenAmount.toFixed(2))
 
           // Debt Delta
+          debug && console.log('Debt Delta')
           expect(target.delta.debt.toFixed(2)).to.equal(debtDelta.toFixed(2))
 
           // Collateral Delta
+          debug && console.log('Collateral Delta')
           expect(target.delta.collateral.toFixed(2)).to.equal(collateralDelta.toFixed(2))
 
           // Is Flashloan needed?
+          debug && console.log('Is Flashloan needed?')
           expect(target.flags.usesFlashloan).to.equal(isFlashLoanRequired)
 
           // Flashloan Amount
+          debug && console.log('Flashloan Amount')
           expect((target.delta?.flashloanAmount || ZERO).toFixed(0)).to.equal(
             amountToFlashloan.toFixed(0),
           )
 
           // Target Debt
+          debug && console.log('Target Debt')
           expect(target.position.debt.amount.toFixed(2)).to.equal(targetDebt.toFixed(2))
 
           // Target Collateral
+          debug && console.log('Target Collateral')
           expect(target.position.collateral.amount.toFixed(2)).to.equal(targetCollateral.toFixed(2))
 
           // Health Factor
+          debug && console.log('Health Factor')
           expect(target.position.healthFactor.toFixed(2)).to.equal(healthFactor.toFixed(2))
 
           // Liquidation Price
+          debug && console.log('Liquidation Price')
           expect(target.position.liquidationPrice.toFixed(2)).to.equal(minOraclePrice.toFixed(2))
 
-          // Fee Paid
-          if (target.flags.isIncreasingRisk) {
-            expect(target.swap.fee.toFixed(4)).to.equal(feePaidFromBaseToken.toFixed(4))
-          } else {
-            expect(target.swap.fee.toFixed(4)).to.equal(feePaidFromCollateralToken.toFixed(4))
-          }
+          // Fee Paid - assumes fees always collected from source token
+          debug && console.log('Fees')
+          expect(target.swap.sourceTokenFee.toFixed(4)).to.equal(feePaidFromSourceToken.toFixed(4))
         })
       },
     )

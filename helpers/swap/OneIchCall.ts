@@ -4,7 +4,7 @@ import { one } from '../../scripts/common'
 import { swapOneInchTokens } from './1inch'
 
 export const getOneInchCall =
-  (swapAddress: string) =>
+  (swapAddress: string, debug?: true) =>
   async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
     const response = await swapOneInchTokens(
       from,
@@ -13,6 +13,13 @@ export const getOneInchCall =
       swapAddress,
       slippage.toString(),
     )
+
+    if (debug) {
+      console.log('1inch')
+      console.log('fromTokenAmount', response.fromTokenAmount.toString())
+      console.log('toTokenAmount', response.toTokenAmount.toString())
+      console.log('slippage', slippage.toString())
+    }
 
     return {
       toTokenAddress: to,
