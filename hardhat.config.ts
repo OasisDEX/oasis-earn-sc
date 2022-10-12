@@ -102,6 +102,15 @@ const config: HardhatUserConfig = {
   },
   docgen: {
     outputDir: './docs',
+    pages: 'files',
+    exclude: [
+      './core/constants',
+      './core/types',
+      './core/views',
+      './interfaces',
+      './libs',
+      './test',
+    ],
   },
 }
 
