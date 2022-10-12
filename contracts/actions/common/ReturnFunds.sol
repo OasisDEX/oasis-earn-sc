@@ -6,9 +6,16 @@ import { ReturnFundsData } from "../../core/types/Common.sol";
 import { RETURN_FUNDS_ACTION, ETH } from "../../core/constants/Common.sol";
 import { DSProxy } from "../../libs/DS/DSProxy.sol";
 
+/**
+ * @title ReturnFunds Action contract
+ * @notice Returns funds sitting on a user's proxy to a user's EOA
+ */
 contract ReturnFunds is Executable {
   using SafeERC20 for IERC20;
 
+  /**
+   * @param data Encoded calldata that conforms to the ReturnFundsData struct
+   */
   function execute(bytes calldata data, uint8[] memory) external payable override {
     ReturnFundsData memory returnData = abi.decode(data, (ReturnFundsData));
     address owner = DSProxy(payable(address(this))).owner();

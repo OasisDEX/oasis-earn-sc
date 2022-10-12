@@ -1,5 +1,440 @@
 # Solidity API
 
+## Executable
+
+### execute
+
+```solidity
+function execute(bytes data, uint8[] paramsMap) external payable
+```
+
+### Action
+
+```solidity
+event Action(string name, bytes32 returned)
+```
+
+_Emitted once an Action has completed execution_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| name | string | The Action name |
+| returned | bytes32 | The value returned by the Action |
+
+## PullToken
+
+### execute
+
+```solidity
+function execute(bytes data, uint8[]) external payable
+```
+
+_Pulls token from a target address to the current calling context_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| data | bytes | Encoded calldata that conforms to PullTokenData struct |
+|  | uint8[] |  |
+
+### parseInputs
+
+```solidity
+function parseInputs(bytes _callData) public pure returns (struct PullTokenData params)
+```
+
+## OPERATION_STORAGE
+
+```solidity
+string OPERATION_STORAGE
+```
+
+## OPERATION_EXECUTOR
+
+```solidity
+string OPERATION_EXECUTOR
+```
+
+## OPERATIONS_REGISTRY
+
+```solidity
+string OPERATIONS_REGISTRY
+```
+
+## ONE_INCH_AGGREGATOR
+
+```solidity
+string ONE_INCH_AGGREGATOR
+```
+
+## WETH
+
+```solidity
+string WETH
+```
+
+## DAI
+
+```solidity
+string DAI
+```
+
+## RAY
+
+```solidity
+uint256 RAY
+```
+
+## NULL
+
+```solidity
+bytes32 NULL
+```
+
+## PULL_TOKEN_ACTION
+
+```solidity
+string PULL_TOKEN_ACTION
+```
+
+## SEND_TOKEN_ACTION
+
+```solidity
+string SEND_TOKEN_ACTION
+```
+
+## SET_APPROVAL_ACTION
+
+```solidity
+string SET_APPROVAL_ACTION
+```
+
+## TAKE_FLASH_LOAN_ACTION
+
+```solidity
+string TAKE_FLASH_LOAN_ACTION
+```
+
+## WRAP_ETH
+
+```solidity
+string WRAP_ETH
+```
+
+## UNWRAP_ETH
+
+```solidity
+string UNWRAP_ETH
+```
+
+## RETURN_FUNDS_ACTION
+
+```solidity
+string RETURN_FUNDS_ACTION
+```
+
+## UNISWAP_ROUTER
+
+```solidity
+string UNISWAP_ROUTER
+```
+
+## SWAP
+
+```solidity
+string SWAP
+```
+
+## ETH
+
+```solidity
+address ETH
+```
+
+## FlashloanData
+
+```solidity
+struct FlashloanData {
+  uint256 amount;
+  bool dsProxyFlashloan;
+  struct Call[] calls;
+}
+```
+
+## PullTokenData
+
+```solidity
+struct PullTokenData {
+  address asset;
+  address from;
+  uint256 amount;
+}
+```
+
+## SendTokenData
+
+```solidity
+struct SendTokenData {
+  address asset;
+  address to;
+  uint256 amount;
+}
+```
+
+## SetApprovalData
+
+```solidity
+struct SetApprovalData {
+  address asset;
+  address delegate;
+  uint256 amount;
+}
+```
+
+## SwapData
+
+```solidity
+struct SwapData {
+  address fromAsset;
+  address toAsset;
+  uint256 amount;
+  uint256 receiveAtLeast;
+  uint256 fee;
+  bytes withData;
+  bool collectFeeInFromToken;
+}
+```
+
+## Call
+
+```solidity
+struct Call {
+  bytes32 targetHash;
+  bytes callData;
+}
+```
+
+## Operation
+
+```solidity
+struct Operation {
+  uint8 currentAction;
+  bytes32[] actions;
+}
+```
+
+## WrapEthData
+
+```solidity
+struct WrapEthData {
+  uint256 amount;
+}
+```
+
+## UnwrapEthData
+
+```solidity
+struct UnwrapEthData {
+  uint256 amount;
+}
+```
+
+## ReturnFundsData
+
+```solidity
+struct ReturnFundsData {
+  address asset;
+}
+```
+
+## IERC20
+
+### totalSupply
+
+```solidity
+function totalSupply() external view returns (uint256 supply)
+```
+
+### balanceOf
+
+```solidity
+function balanceOf(address _owner) external view returns (uint256 balance)
+```
+
+### transfer
+
+```solidity
+function transfer(address _to, uint256 _value) external returns (bool success)
+```
+
+### transferFrom
+
+```solidity
+function transferFrom(address _from, address _to, uint256 _value) external returns (bool success)
+```
+
+### approve
+
+```solidity
+function approve(address _spender, uint256 _value) external returns (bool success)
+```
+
+### allowance
+
+```solidity
+function allowance(address _owner, address _spender) external view returns (uint256 remaining)
+```
+
+### decimals
+
+```solidity
+function decimals() external view returns (uint256 digits)
+```
+
+## Address
+
+### isContract
+
+```solidity
+function isContract(address account) internal view returns (bool)
+```
+
+### sendValue
+
+```solidity
+function sendValue(address payable recipient, uint256 amount) internal
+```
+
+### functionCall
+
+```solidity
+function functionCall(address target, bytes data) internal returns (bytes)
+```
+
+### functionCall
+
+```solidity
+function functionCall(address target, bytes data, string errorMessage) internal returns (bytes)
+```
+
+### functionCallWithValue
+
+```solidity
+function functionCallWithValue(address target, bytes data, uint256 value) internal returns (bytes)
+```
+
+### functionCallWithValue
+
+```solidity
+function functionCallWithValue(address target, bytes data, uint256 value, string errorMessage) internal returns (bytes)
+```
+
+### _functionCallWithValue
+
+```solidity
+function _functionCallWithValue(address target, bytes data, uint256 weiValue, string errorMessage) private returns (bytes)
+```
+
+### functionDelegateCall
+
+```solidity
+function functionDelegateCall(address target, bytes data, string errorMessage) internal returns (bytes)
+```
+
+## SafeERC20
+
+### safeTransfer
+
+```solidity
+function safeTransfer(contract IERC20 token, address to, uint256 value) internal
+```
+
+### safeTransferFrom
+
+```solidity
+function safeTransferFrom(contract IERC20 token, address from, address to, uint256 value) internal
+```
+
+### safeApprove
+
+```solidity
+function safeApprove(contract IERC20 token, address spender, uint256 value) internal
+```
+
+_Deprecated. This function has issues similar to the ones found in
+{ERC20-approve}, and its usage is discouraged._
+
+### safeIncreaseAllowance
+
+```solidity
+function safeIncreaseAllowance(contract IERC20 token, address spender, uint256 value) internal
+```
+
+### safeDecreaseAllowance
+
+```solidity
+function safeDecreaseAllowance(contract IERC20 token, address spender, uint256 value) internal
+```
+
+### _callOptionalReturn
+
+```solidity
+function _callOptionalReturn(contract IERC20 token, bytes data) private
+```
+
+## SafeMath
+
+### add
+
+```solidity
+function add(uint256 a, uint256 b) internal pure returns (uint256)
+```
+
+### sub
+
+```solidity
+function sub(uint256 a, uint256 b) internal pure returns (uint256)
+```
+
+### sub
+
+```solidity
+function sub(uint256 a, uint256 b, string errorMessage) internal pure returns (uint256)
+```
+
+### mul
+
+```solidity
+function mul(uint256 a, uint256 b) internal pure returns (uint256)
+```
+
+### div
+
+```solidity
+function div(uint256 a, uint256 b) internal pure returns (uint256)
+```
+
+### div
+
+```solidity
+function div(uint256 a, uint256 b, string errorMessage) internal pure returns (uint256)
+```
+
+### mod
+
+```solidity
+function mod(uint256 a, uint256 b) internal pure returns (uint256)
+```
+
+### mod
+
+```solidity
+function mod(uint256 a, uint256 b, string errorMessage) internal pure returns (uint256)
+```
+
 ## uSwap
 
 ### feeBeneficiaryAddress
@@ -331,210 +766,6 @@ event ChangeApplied(bytes data, uint256 firstPossibleExecutionTime)
 event RemoveApplied(bytes32 nameHash)
 ```
 
-## OPERATION_STORAGE
-
-```solidity
-string OPERATION_STORAGE
-```
-
-## OPERATION_EXECUTOR
-
-```solidity
-string OPERATION_EXECUTOR
-```
-
-## OPERATIONS_REGISTRY
-
-```solidity
-string OPERATIONS_REGISTRY
-```
-
-## ONE_INCH_AGGREGATOR
-
-```solidity
-string ONE_INCH_AGGREGATOR
-```
-
-## WETH
-
-```solidity
-string WETH
-```
-
-## DAI
-
-```solidity
-string DAI
-```
-
-## RAY
-
-```solidity
-uint256 RAY
-```
-
-## NULL
-
-```solidity
-bytes32 NULL
-```
-
-## PULL_TOKEN_ACTION
-
-```solidity
-string PULL_TOKEN_ACTION
-```
-
-## SEND_TOKEN_ACTION
-
-```solidity
-string SEND_TOKEN_ACTION
-```
-
-## SET_APPROVAL_ACTION
-
-```solidity
-string SET_APPROVAL_ACTION
-```
-
-## TAKE_FLASH_LOAN_ACTION
-
-```solidity
-string TAKE_FLASH_LOAN_ACTION
-```
-
-## WRAP_ETH
-
-```solidity
-string WRAP_ETH
-```
-
-## UNWRAP_ETH
-
-```solidity
-string UNWRAP_ETH
-```
-
-## RETURN_FUNDS_ACTION
-
-```solidity
-string RETURN_FUNDS_ACTION
-```
-
-## UNISWAP_ROUTER
-
-```solidity
-string UNISWAP_ROUTER
-```
-
-## SWAP
-
-```solidity
-string SWAP
-```
-
-## ETH
-
-```solidity
-address ETH
-```
-
-## FlashloanData
-
-```solidity
-struct FlashloanData {
-  uint256 amount;
-  bool dsProxyFlashloan;
-  struct Call[] calls;
-}
-```
-
-## PullTokenData
-
-```solidity
-struct PullTokenData {
-  address asset;
-  address from;
-  uint256 amount;
-}
-```
-
-## SendTokenData
-
-```solidity
-struct SendTokenData {
-  address asset;
-  address to;
-  uint256 amount;
-}
-```
-
-## SetApprovalData
-
-```solidity
-struct SetApprovalData {
-  address asset;
-  address delegate;
-  uint256 amount;
-}
-```
-
-## SwapData
-
-```solidity
-struct SwapData {
-  address fromAsset;
-  address toAsset;
-  uint256 amount;
-  uint256 receiveAtLeast;
-  uint256 fee;
-  bytes withData;
-  bool collectFeeInFromToken;
-}
-```
-
-## Call
-
-```solidity
-struct Call {
-  bytes32 targetHash;
-  bytes callData;
-}
-```
-
-## Operation
-
-```solidity
-struct Operation {
-  uint8 currentAction;
-  bytes32[] actions;
-}
-```
-
-## WrapEthData
-
-```solidity
-struct WrapEthData {
-  uint256 amount;
-}
-```
-
-## UnwrapEthData
-
-```solidity
-struct UnwrapEthData {
-  uint256 amount;
-}
-```
-
-## ReturnFundsData
-
-```solidity
-struct ReturnFundsData {
-  address asset;
-}
-```
-
 ## ISwapRouter
 
 ### ExactInputSingleParams
@@ -557,214 +788,6 @@ struct ExactInputSingleParams {
 ```solidity
 function exactInputSingle(struct ISwapRouter.ExactInputSingleParams params) external returns (uint256)
 ```
-
-## IERC20
-
-### totalSupply
-
-```solidity
-function totalSupply() external view returns (uint256 supply)
-```
-
-### balanceOf
-
-```solidity
-function balanceOf(address _owner) external view returns (uint256 balance)
-```
-
-### transfer
-
-```solidity
-function transfer(address _to, uint256 _value) external returns (bool success)
-```
-
-### transferFrom
-
-```solidity
-function transferFrom(address _from, address _to, uint256 _value) external returns (bool success)
-```
-
-### approve
-
-```solidity
-function approve(address _spender, uint256 _value) external returns (bool success)
-```
-
-### allowance
-
-```solidity
-function allowance(address _owner, address _spender) external view returns (uint256 remaining)
-```
-
-### decimals
-
-```solidity
-function decimals() external view returns (uint256 digits)
-```
-
-## Address
-
-### isContract
-
-```solidity
-function isContract(address account) internal view returns (bool)
-```
-
-### sendValue
-
-```solidity
-function sendValue(address payable recipient, uint256 amount) internal
-```
-
-### functionCall
-
-```solidity
-function functionCall(address target, bytes data) internal returns (bytes)
-```
-
-### functionCall
-
-```solidity
-function functionCall(address target, bytes data, string errorMessage) internal returns (bytes)
-```
-
-### functionCallWithValue
-
-```solidity
-function functionCallWithValue(address target, bytes data, uint256 value) internal returns (bytes)
-```
-
-### functionCallWithValue
-
-```solidity
-function functionCallWithValue(address target, bytes data, uint256 value, string errorMessage) internal returns (bytes)
-```
-
-### _functionCallWithValue
-
-```solidity
-function _functionCallWithValue(address target, bytes data, uint256 weiValue, string errorMessage) private returns (bytes)
-```
-
-### functionDelegateCall
-
-```solidity
-function functionDelegateCall(address target, bytes data, string errorMessage) internal returns (bytes)
-```
-
-## SafeERC20
-
-### safeTransfer
-
-```solidity
-function safeTransfer(contract IERC20 token, address to, uint256 value) internal
-```
-
-### safeTransferFrom
-
-```solidity
-function safeTransferFrom(contract IERC20 token, address from, address to, uint256 value) internal
-```
-
-### safeApprove
-
-```solidity
-function safeApprove(contract IERC20 token, address spender, uint256 value) internal
-```
-
-_Deprecated. This function has issues similar to the ones found in
-{ERC20-approve}, and its usage is discouraged._
-
-### safeIncreaseAllowance
-
-```solidity
-function safeIncreaseAllowance(contract IERC20 token, address spender, uint256 value) internal
-```
-
-### safeDecreaseAllowance
-
-```solidity
-function safeDecreaseAllowance(contract IERC20 token, address spender, uint256 value) internal
-```
-
-### _callOptionalReturn
-
-```solidity
-function _callOptionalReturn(contract IERC20 token, bytes data) private
-```
-
-## SafeMath
-
-### add
-
-```solidity
-function add(uint256 a, uint256 b) internal pure returns (uint256)
-```
-
-### sub
-
-```solidity
-function sub(uint256 a, uint256 b) internal pure returns (uint256)
-```
-
-### sub
-
-```solidity
-function sub(uint256 a, uint256 b, string errorMessage) internal pure returns (uint256)
-```
-
-### mul
-
-```solidity
-function mul(uint256 a, uint256 b) internal pure returns (uint256)
-```
-
-### div
-
-```solidity
-function div(uint256 a, uint256 b) internal pure returns (uint256)
-```
-
-### div
-
-```solidity
-function div(uint256 a, uint256 b, string errorMessage) internal pure returns (uint256)
-```
-
-### mod
-
-```solidity
-function mod(uint256 a, uint256 b) internal pure returns (uint256)
-```
-
-### mod
-
-```solidity
-function mod(uint256 a, uint256 b, string errorMessage) internal pure returns (uint256)
-```
-
-## Executable
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[] paramsMap) external payable
-```
-
-### Action
-
-```solidity
-event Action(string name, bytes32 returned)
-```
-
-_Emitted once an Action has completed execution_
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| name | string | The Action name |
-| returned | bytes32 | The value returned by the Action |
 
 ## UseStore
 
@@ -1372,20 +1395,6 @@ function execute(bytes data, uint8[]) external payable
 
 ```solidity
 function parseInputs(bytes _callData) public pure returns (struct WithdrawData params)
-```
-
-## PullToken
-
-### execute
-
-```solidity
-function execute(bytes data, uint8[]) external payable
-```
-
-### parseInputs
-
-```solidity
-function parseInputs(bytes _callData) public pure returns (struct PullTokenData params)
 ```
 
 ## ReturnFunds

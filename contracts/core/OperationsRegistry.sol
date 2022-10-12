@@ -37,7 +37,7 @@ contract OperationsRegistry {
   }
 
   function getOperation(string memory name) external view returns (bytes32[] memory actions) {
-    if(keccak256(bytes(operations[name].name)) == keccak256(bytes(""))) {
+    if (keccak256(bytes(operations[name].name)) == keccak256(bytes(""))) {
       revert("Operation doesn't exist");
     }
     actions = operations[name].actions;

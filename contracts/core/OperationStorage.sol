@@ -19,7 +19,7 @@ contract OperationStorage {
     operationExecutorAddress = _operationExecutorAddress;
   }
 
-  function lock() external{
+  function lock() external {
     locked = true;
     whoLocked = msg.sender;
   }
@@ -52,25 +52,25 @@ contract OperationStorage {
 
   function push(bytes32 value) external {
     address who = msg.sender;
-    if( who == operationExecutorAddress) {
+    if (who == operationExecutorAddress) {
       who = initiator;
     }
 
-    if(returnValues[who].length ==0){
+    if (returnValues[who].length == 0) {
       valuesHolders.push(who);
     }
     returnValues[who].push(value);
   }
 
   function at(uint256 index, address who) external view returns (bytes32) {
-    if( who == operationExecutorAddress) {
+    if (who == operationExecutorAddress) {
       who = initiator;
     }
     return returnValues[who][index];
   }
 
   function len(address who) external view returns (uint256) {
-    if( who == operationExecutorAddress) {
+    if (who == operationExecutorAddress) {
       who = initiator;
     }
     return returnValues[who].length;
@@ -79,7 +79,7 @@ contract OperationStorage {
   function clearStorage() external {
     delete action;
     delete actions;
-    for(uint256 i = 0; i < valuesHolders.length; i++){
+    for (uint256 i = 0; i < valuesHolders.length; i++) {
       delete returnValues[valuesHolders[i]];
     }
     delete valuesHolders;

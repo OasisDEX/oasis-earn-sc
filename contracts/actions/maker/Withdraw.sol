@@ -19,7 +19,11 @@ contract MakerWithdraw is Executable, UseStore {
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     WithdrawData memory withdrawData = parseInputs(data);
-    withdrawData.vaultId = store().readUint(bytes32(withdrawData.vaultId), paramsMap[0], address(this));
+    withdrawData.vaultId = store().readUint(
+      bytes32(withdrawData.vaultId),
+      paramsMap[0],
+      address(this)
+    );
 
     bytes32 amountWithdrawn = _withdraw(withdrawData);
     store().write(amountWithdrawn);

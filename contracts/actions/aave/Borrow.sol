@@ -21,7 +21,7 @@ contract AaveBorrow is Executable, UseStore {
 
     address wethGatewayAddress = registry.getRegisteredService(AAVE_WETH_GATEWAY);
     dWETH.approveDelegation(wethGatewayAddress, borrow.amount);
-    
+
     IWETHGateway(wethGatewayAddress).borrowETH(
       registry.getRegisteredService(AAVE_LENDING_POOL),
       borrow.amount,

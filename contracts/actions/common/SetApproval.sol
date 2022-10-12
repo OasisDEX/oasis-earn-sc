@@ -7,12 +7,21 @@ import { UseStore, Read } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { SET_APPROVAL_ACTION } from "../../core/constants/Common.sol";
 
+/**
+ * @title SetApproval Action contract
+ * @notice Transfer token from the calling contract to the destination address
+ */
 contract SetApproval is Executable, UseStore {
   using SafeERC20 for IERC20;
   using Read for OperationStorage;
 
   constructor(address _registry) UseStore(_registry) {}
 
+  /**
+   * @dev look at UseStore.sol to get additional info on paramsMapping
+   * @param data Encoded calldata that conforms to the SetApprovalData struct
+   * @param paramsMap Maps operation storage values by index (index offset by +1) to execute calldata params
+   */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     SetApprovalData memory approval = parseInputs(data);
 

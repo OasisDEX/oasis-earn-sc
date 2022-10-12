@@ -169,7 +169,7 @@ contract uSwap {
   }
 
   function decodeOneInchCallData(bytes calldata withData) public pure returns (uint256 minReturn) {
-      bytes memory uniswapV3Swap = "uniswapV3Swap(uint256,uint256,uint256[])";
+    bytes memory uniswapV3Swap = "uniswapV3Swap(uint256,uint256,uint256[])";
     bytes memory unoswap = "unoswap(address,uint256,uint256,bytes32[])";
     bytes
       memory swap = "swap(address,(address,address,address,address,uint256,uint256,uint256,bytes),bytes)";
@@ -205,7 +205,7 @@ contract uSwap {
     }
   }
 
-  function swapTokens(SwapData calldata swapData) public returns(uint256) {
+  function swapTokens(SwapData calldata swapData) public returns (uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
     uint256 amountFrom = swapData.amount;
 

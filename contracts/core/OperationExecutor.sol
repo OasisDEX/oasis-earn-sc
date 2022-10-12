@@ -43,7 +43,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     opStorage.clearStorage();
     opStorage.setOperationActions(opRegistry.getOperation(operationName));
     aggregate(calls);
-    
+
     opStorage.clearStorage();
     opStorage.unlock();
     emit Operation(operationName, calls);
@@ -67,7 +67,10 @@ contract OperationExecutor is IERC3156FlashBorrower {
   }
 
   function callbackAggregate(Call[] memory calls) external {
-    require(msg.sender == registry.getRegisteredService(OPERATION_EXECUTOR), "OpExecutor: Caller forbidden");
+    require(
+      msg.sender == registry.getRegisteredService(OPERATION_EXECUTOR),
+      "OpExecutor: Caller forbidden"
+    );
     aggregate(calls);
   }
 
@@ -81,7 +84,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
     address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
 
     require(msg.sender == lender, "Untrusted flashloan lender");
-    
+
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
 
     require(IERC20(asset).balanceOf(address(this)) >= flData.amount, "Flashloan inconsistency");
@@ -94,13 +97,18 @@ contract OperationExecutor is IERC3156FlashBorrower {
         abi.encodeWithSelector(this.callbackAggregate.selector, flData.calls)
       );
     } else {
-      OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
+      OperationStorage opStorage = OperationStorage(
+        registry.getRegisteredService(OPERATION_STORAGE)
+      );
       opStorage.setInitiator(initiator);
       aggregate(flData.calls);
     }
 
     uint256 paybackAmount = amount.add(fee);
-    require(IERC20(asset).balanceOf(address(this)) >= paybackAmount, "Insufficient funds for payback");
+    require(
+      IERC20(asset).balanceOf(address(this)) >= paybackAmount,
+      "Insufficient funds for payback"
+    );
 
     IERC20(asset).safeApprove(lender, paybackAmount);
 

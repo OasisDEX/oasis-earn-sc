@@ -83,7 +83,6 @@ contract Swap {
     address callee,
     bytes calldata withData
   ) internal returns (uint256 balance) {
-
     IERC20(fromAsset).safeApprove(callee, amount);
     (bool success, ) = callee.call(withData);
 
@@ -122,9 +121,7 @@ contract Swap {
     amount = fromAmount.sub(feeToTransfer);
   }
 
-  function swapTokens(
-    SwapData calldata swapData
-  ) public returns (uint256) {
+  function swapTokens(SwapData calldata swapData) public returns (uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
     uint256 amountFrom = swapData.amount;
 

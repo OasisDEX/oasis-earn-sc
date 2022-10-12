@@ -100,7 +100,9 @@ const config: HardhatUserConfig = {
   typechain: {
     outDir: 'typechain',
   },
-  docgen: {},
+  docgen: {
+    outputDir: './docs',
+  },
 }
 
 export default config
