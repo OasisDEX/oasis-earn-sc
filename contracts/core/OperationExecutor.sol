@@ -91,7 +91,17 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
   /**
    * @notice Not to be called directly.
-   * @dev Callback handler for use by a flashloan lender contract
+   * @dev Callback handler for use by a flashloan lender contract.
+   * If the dsProxyFlashloan flag is supplied we reestablish the calling context as the user's proxy (at time of writing DSProxy)
+   * We set the initiator on Operation Storage
+
+      * @dev
+   * There are operations stored at OperationsRegistry which guarantees the order of execution of the actions.
+   * There is a possibility to execute an arrays of calls that don't form an operation.
+   * Operation storage is cleared before and after an operation is executed.
+   * To avoid re-entracy attack, there is a lock implemented.
+
+
    * @param initiator Is the address of the contract that initiated the flashloan (EG Operation Executor)
    * @param asset The address of the asset being flash loaned
    * @param amount The size of the flash loan

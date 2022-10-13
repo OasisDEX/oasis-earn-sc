@@ -201,7 +201,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     before(async function () {
       const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
       if (shouldRun1InchTests) {
-        console.log('running')
         //Reset to the latest block
         await resetNodeToLatestBlock(provider)
         const { system: _system } = await deploySystem(config, false, false)
