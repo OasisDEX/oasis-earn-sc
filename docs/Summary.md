@@ -10,7 +10,7 @@
 * [Operation Executor](core/OperationExecutor.md)
 * [Operation Storage](core/OperationStorage.md)
 * [Service Registry](core/ServiceRegistry.md)
-* [Operation Registry](core/OperationRegistry.md)
+* [Operation Registry](core/OperationsRegistry.md)
 
 ## Action Contracts
 
