@@ -66,9 +66,9 @@ export interface DeploySystemArgs {
 }
 
 export async function deploySystem({
-                                       utils,
-                                       logDebug = false,
-                                   }: DeploySystemArgs): Promise<DeployedSystem> {
+    utils,
+    logDebug = false,
+}: DeploySystemArgs): Promise<DeployedSystem> {
     const { ethers } = utils.hre
     const delay = utils.hre.network.name === Network.MAINNET ? 1800 : 0
 
@@ -83,40 +83,40 @@ export async function deploySystem({
     if( serviceRegistry.address === ethers.constants.AddressZero ) {
         if (logDebug) console.log('Deploying ServiceRegistry....')
         serviceRegistry = await utils.deployContract(
-          ethers.getContractFactory('ServiceRegistry'),
-          [delay],
+            ethers.getContractFactory('ServiceRegistry'),
+            [delay],
         )
     }
 
     if( operationExecutor.address === ethers.constants.AddressZero ) {
         if (logDebug) console.log('Deploying OperationExecutor....')
         operationExecutor = await utils.deployContract(
-          ethers.getContractFactory(CONTRACT_NAMES.common.OPERATION_EXECUTOR),
-          [serviceRegistry.address],
+            ethers.getContractFactory(CONTRACT_NAMES.common.OPERATION_EXECUTOR),
+            [serviceRegistry.address],
         )
     }
 
     if( operationsRegistry.address === ethers.constants.AddressZero ) {
         if (logDebug) console.log('Deploying OperationsRegistry....')
         operationsRegistry = await utils.deployContract(
-          ethers.getContractFactory(CONTRACT_NAMES.common.OPERATIONS_REGISTRY),
-          [],
+            ethers.getContractFactory(CONTRACT_NAMES.common.OPERATIONS_REGISTRY),
+            [],
         )
     }
 
     if( operationStorage.address === ethers.constants.AddressZero ) {
         if (logDebug) console.log('Deploying OperationStorage....',)
         operationStorage = await utils.deployContract(
-          ethers.getContractFactory(CONTRACT_NAMES.common.OPERATION_STORAGE),
-          [serviceRegistry.address, operationExecutor.address],
+            ethers.getContractFactory(CONTRACT_NAMES.common.OPERATION_STORAGE),
+            [serviceRegistry.address, operationExecutor.address],
         )
     }
 
     if( swap.address === ethers.constants.AddressZero ) {
         if (logDebug) console.log('Deploying Swap....',serviceRegistry.address)
         swap = await utils.deployContract(
-          ethers.getContractFactory(CONTRACT_NAMES.common.SWAP),
-          [ADDRESSES.main.authorizedCaller, ADDRESSES.main.feeRecipient, 20, serviceRegistry.address],
+            ethers.getContractFactory(CONTRACT_NAMES.common.SWAP),
+            [ADDRESSES.main.authorizedCaller, ADDRESSES.main.feeRecipient, 20, serviceRegistry.address],
         )
     }
 
