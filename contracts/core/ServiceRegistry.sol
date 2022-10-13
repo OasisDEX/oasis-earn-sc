@@ -81,7 +81,7 @@ contract ServiceRegistry {
   }
 
   /**
-   * @param serviceHashName The hashed name
+   * @param serviceNameHash The hashed name
    * @param serviceAddress The address stored for a given name
    */
   function addNamedService(bytes32 serviceNameHash, address serviceAddress)
@@ -95,7 +95,7 @@ contract ServiceRegistry {
   }
 
   /**
-   * @param serviceHashName The hashed name
+   * @param serviceNameHash The hashed name
    * @param serviceAddress The address to update for a given name
    */
   function updateNamedService(bytes32 serviceNameHash, address serviceAddress)
@@ -109,7 +109,7 @@ contract ServiceRegistry {
   }
 
   /**
-   * @param serviceHashName The hashed service name to remove
+   * @param serviceNameHash The hashed service name to remove
    */
   function removeNamedService(bytes32 serviceNameHash) external onlyOwner validateInput(36) {
     require(namedService[serviceNameHash] != address(0), "registry/service-does-not-exist");
@@ -125,7 +125,7 @@ contract ServiceRegistry {
   }
 
   /**
-   * @param serviceName Get a service address by the hash of its name
+   * @param serviceNameHash Get a service address by the hash of its name
    */
   function getServiceAddress(bytes32 serviceNameHash) external view returns (address) {
     return namedService[serviceNameHash];

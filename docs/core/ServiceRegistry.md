@@ -4,10 +4,10 @@
 
 Stores addresses of deployed contracts
 
-### trustedAddresses
+### MAX_DELAY
 
 ```solidity
-mapping(address => bool) trustedAddresses
+uint256 MAX_DELAY
 ```
 
 ### lastExecuted
@@ -61,90 +61,142 @@ constructor(uint256 initialDelay) public
 ### transferOwnership
 
 ```solidity
-function transferOwnership(address newOwner) public
+function transferOwnership(address newOwner) external
 ```
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| newOwner | address | Transfers ownership of the registry to a new address |
 
 ### changeRequiredDelay
 
 ```solidity
-function changeRequiredDelay(uint256 newDelay) public
+function changeRequiredDelay(uint256 newDelay) external
 ```
 
-### addTrustedAddress
+#### Parameters
 
-```solidity
-function addTrustedAddress(address trustedAddress) public
-```
-
-### removeTrustedAddress
-
-```solidity
-function removeTrustedAddress(address trustedAddress) public
-```
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| newDelay | uint256 | Updates the required delay before an change can be confirmed with a follow up t/x |
 
 ### getServiceNameHash
 
 ```solidity
-function getServiceNameHash(string name) public pure returns (bytes32)
+function getServiceNameHash(string name) external pure returns (bytes32)
 ```
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| name | string | Hashes the supplied name |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | bytes32 | Returns the hash of the name |
 
 ### addNamedService
 
 ```solidity
-function addNamedService(bytes32 serviceNameHash, address serviceAddress) public
+function addNamedService(bytes32 serviceNameHash, address serviceAddress) external
 ```
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| serviceNameHash | bytes32 | The hashed name |
+| serviceAddress | address | The address stored for a given name |
 
 ### updateNamedService
 
 ```solidity
-function updateNamedService(bytes32 serviceNameHash, address serviceAddress) public
+function updateNamedService(bytes32 serviceNameHash, address serviceAddress) external
 ```
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| serviceNameHash | bytes32 | The hashed name |
+| serviceAddress | address | The address to update for a given name |
 
 ### removeNamedService
 
 ```solidity
-function removeNamedService(bytes32 serviceNameHash) public
+function removeNamedService(bytes32 serviceNameHash) external
 ```
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| serviceNameHash | bytes32 | The hashed service name to remove |
 
 ### getRegisteredService
 
 ```solidity
-function getRegisteredService(string serviceName) public view returns (address)
+function getRegisteredService(string serviceName) external view returns (address)
 ```
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| serviceName | string | Get a service address by its name |
 
 ### getServiceAddress
 
 ```solidity
-function getServiceAddress(bytes32 serviceNameHash) public view returns (address serviceAddress)
+function getServiceAddress(bytes32 serviceNameHash) external view returns (address)
 ```
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| serviceNameHash | bytes32 | Get a service address by the hash of its name |
 
 ### clearScheduledExecution
 
 ```solidity
-function clearScheduledExecution(bytes32 scheduledExecution) public
+function clearScheduledExecution(bytes32 scheduledExecution) external
 ```
+
+_Voids any submitted changes that are yet to be confirmed by a follow-up transaction_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| scheduledExecution | bytes32 | Clear any scheduled changes |
 
 ### ChangeScheduled
 
 ```solidity
-event ChangeScheduled(bytes data, bytes32 dataHash, uint256 firstPossibleExecutionTime)
-```
-
-### ChangeCancelled
-
-```solidity
-event ChangeCancelled(bytes32 data)
+event ChangeScheduled(bytes32 dataHash, uint256 scheduledFor, bytes data)
 ```
 
 ### ChangeApplied
 
 ```solidity
-event ChangeApplied(bytes data, uint256 firstPossibleExecutionTime)
+event ChangeApplied(bytes32 dataHash, uint256 appliedAt, bytes data)
 ```
 
-### RemoveApplied
+### ChangeCancelled
 
 ```solidity
-event RemoveApplied(bytes32 nameHash)
+event ChangeCancelled(bytes32 dataHash)
+```
+
+### NamedServiceRemoved
+
+```solidity
+event NamedServiceRemoved(bytes32 nameHash)
 ```
 
