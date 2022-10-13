@@ -81,3 +81,7 @@ export const OPERATION_NAMES = {
     CUSTOM_OPERATION: 'CustomOperation',
   },
 } as const
+
+export const WAD = new BigNumber(10).pow(18)
+export const RAY = new BigNumber(10).pow(27)
+export const RAD = new BigNumber(10).pow(45)

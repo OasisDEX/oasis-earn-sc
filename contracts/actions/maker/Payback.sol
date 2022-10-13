@@ -86,25 +86,28 @@ contract MakerPayback is Executable, UseStore {
     bytes32 ilk = manager.ilks(data.vaultId);
     IVat vat = manager.vat();
     (, uint256 art) = vat.urns(ilk, urn);
+    uint256 paybackAmount;
 
     if (own == address(this) || manager.cdpCan(own, data.vaultId, address(this)) == 1) {
       // Joins DAI amount into the vat
-      joinDai(data.userAddress, daiJoin, urn, _getWipeAllWad(WipeData(vat, urn, urn, 0, ilk)));
+      paybackAmount = _getWipeAllWad(WipeData(vat, urn, urn, 0, ilk));
+      joinDai(data.userAddress, daiJoin, urn, paybackAmount);
       // Paybacks debt to the CDP
       manager.frob(data.vaultId, 0, -int256(art));
     } else {
       // Joins DAI data.amount into the vat
+      paybackAmount = _getWipeAllWad(WipeData(vat, address(this), urn, 0, ilk));
       joinDai(
         data.userAddress,
         daiJoin,
         address(this),
-        _getWipeAllWad(WipeData(vat, address(this), urn, 0, ilk))
+        paybackAmount
       );
       // Paybacks debt to the CDP
       vat.frob(ilk, urn, address(this), address(this), 0, -int256(art));
     }
 
-    return bytes32(uint256(art));
+    return bytes32(paybackAmount);
   }
 
   function joinDai(
