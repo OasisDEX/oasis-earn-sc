@@ -78,7 +78,7 @@ export async function deploySystem({
         operationsRegistry,
         operationStorage,
         swap
-    } = await utils.getDefaultSystem() 
+    } = await utils.getDefaultSystem()
 
     if( serviceRegistry.address === ethers.constants.AddressZero ) {
         if (logDebug) console.log('Deploying ServiceRegistry....')
@@ -86,7 +86,7 @@ export async function deploySystem({
             ethers.getContractFactory('ServiceRegistry'),
             [delay],
         )
-    } 
+    }
 
     if( operationExecutor.address === ethers.constants.AddressZero ) {
         if (logDebug) console.log('Deploying OperationExecutor....')
@@ -102,7 +102,7 @@ export async function deploySystem({
             ethers.getContractFactory(CONTRACT_NAMES.common.OPERATIONS_REGISTRY),
             [],
         )
-    } 
+    }
 
     if( operationStorage.address === ethers.constants.AddressZero ) {
         if (logDebug) console.log('Deploying OperationStorage....',)

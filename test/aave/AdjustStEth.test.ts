@@ -156,11 +156,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     })
 
     it('Should draw debt according to multiple', () => {
-      expectToBe(
-        openStrategy.simulation.position.debt.amount.minus(ONE).toFixed(0),
-        'lte',
-        new BigNumber(userAccountData.totalDebtETH.toString()),
-      )
+      expect(actualPosition.debt.amount.toString()).to.be.oneOf([
+        openStrategy.simulation.position.debt.amount.toString(),
+        openStrategy.simulation.position.debt.amount.plus(ONE).toString(),
+      ])
     })
 
     describe('Increase Loan-to-Value (Increase risk)', () => {
@@ -264,11 +263,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       })
 
       it('Should draw debt according to multiple', async () => {
-        expectToBe(
-          adjustStrategyIncreaseRisk.simulation.position.debt.amount.minus(ONE).toFixed(0),
-          'lte',
-          new BigNumber(afterUserAccountData.totalDebtETH.toString()),
-        )
+        expect(actualPositionAfterIncreaseAdjust.debt.amount.toString()).to.be.oneOf([
+          adjustStrategyIncreaseRisk.simulation.position.debt.amount.toString(),
+          adjustStrategyIncreaseRisk.simulation.position.debt.amount.plus(ONE).toString(),
+        ])
       })
 
       it('Should collect fee', async () => {
@@ -336,6 +334,8 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           { config, isFormatted: true },
         )
 
+        userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
+
         const [_txStatus] = await executeThroughProxy(
           system.common.dsProxy.address,
           {
@@ -382,11 +382,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     })
 
     it('Should draw debt according to multiple', () => {
-      expectToBe(
-        openStrategy.simulation.position.debt.amount.minus(ONE).toFixed(0),
-        'lte',
-        new BigNumber(userAccountData.totalDebtETH.toString()),
-      )
+      expect(new BigNumber(actualPosition.debt.amount.toString()).toString()).to.be.oneOf([
+        openStrategy.simulation.position.debt.amount.toString(),
+        openStrategy.simulation.position.debt.amount.minus(ONE).toString(),
+      ])
     })
 
     describe('Increase Loan-to-Value (Increase risk)', () => {
@@ -480,11 +479,12 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       })
 
       it('Should draw debt according to multiply', async () => {
-        expectToBe(
-          adjustStrategyIncreaseRisk.simulation.position.debt.amount.minus(ONE).toFixed(0),
-          'lte',
-          new BigNumber(afterUserAccountData.totalDebtETH.toString()),
-        )
+        expect(
+          new BigNumber(actualPositionAfterIncreaseAdjust.debt.amount.toString()).toString(),
+        ).to.be.oneOf([
+          adjustStrategyIncreaseRisk.simulation.position.debt.amount.toString(),
+          adjustStrategyIncreaseRisk.simulation.position.debt.amount.minus(ONE).toString(),
+        ])
       })
 
       it('Should collect fee', async () => {
@@ -695,11 +695,12 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       })
 
       it('Should reduce collateral according to multiple', () => {
-        expectToBe(
+        expect(
+          new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()).toString(),
+        ).to.be.oneOf([
+          adjustStrategyReduceRisk.simulation.position.collateral.amount.toFixed(0),
           adjustStrategyReduceRisk.simulation.position.collateral.amount.minus(ONE).toFixed(0),
-          'lte',
-          new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()),
-        )
+        ])
       })
 
       it('should not be any token left on proxy', async () => {
@@ -853,8 +854,8 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       let reduceRiskTxStatus: boolean
       let reduceRiskTx: ContractReceipt
 
-      let afterUserAccountData: AAVEAccountData
-      let afterUserStEthReserveData: AAVEReserveData
+      let afterReduceUserAccountData: AAVEAccountData
+      let afterReduceUserStEthReserveData: AAVEReserveData
       let actualPositionAfterDecreasingRisk: IPosition
 
       before(async () => {
@@ -917,18 +918,30 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         reduceRiskTxStatus = _txStatus
         reduceRiskTx = _tx
 
-        afterUserAccountData = await aaveLendingPool.getUserAccountData(
+        afterReduceUserAccountData = await aaveLendingPool.getUserAccountData(
           system.common.dsProxy.address,
         )
 
-        afterUserStEthReserveData = await aaveDataProvider.getUserReserveData(
+        afterReduceUserStEthReserveData = await aaveDataProvider.getUserReserveData(
           ADDRESSES.main.stETH,
           system.common.dsProxy.address,
         )
 
+        const aavePriceOracle = new ethers.Contract(
+          addresses.aavePriceOracle,
+          aavePriceOracleABI,
+          provider,
+        )
+
+        aaveStEthPriceInEth = await aavePriceOracle
+          .getAssetPrice(addresses.stETH)
+          .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
+
         actualPositionAfterDecreasingRisk = new Position(
-          { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()) },
-          { amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()) },
+          { amount: new BigNumber(afterReduceUserAccountData.totalDebtETH.toString()) },
+          {
+            amount: new BigNumber(afterReduceUserStEthReserveData.currentATokenBalance.toString()),
+          },
           aaveStEthPriceInEth,
           openStrategy.simulation.position.category,
         )
@@ -939,11 +952,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       })
 
       it('Should reduce collateral according to multiple', () => {
-        expectToBe(
+        expect(actualPositionAfterDecreasingRisk.collateral.amount.toString()).to.be.oneOf([
+          adjustStrategyReduceRisk.simulation.position.collateral.amount.toFixed(0),
           adjustStrategyReduceRisk.simulation.position.collateral.amount.minus(ONE).toFixed(0),
-          'lte',
-          new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()),
-        )
+        ])
       })
 
       it('should not be any token left on proxy', async () => {
