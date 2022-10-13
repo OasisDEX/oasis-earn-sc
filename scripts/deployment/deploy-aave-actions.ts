@@ -1,10 +1,10 @@
-import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 import hre from 'hardhat'
-
-import { AaveBorrow, AaveDeposit, AaveWithdraw } from '../../typechain'
+import { AaveBorrow, AaveDeposit, AaveWithdraw, AavePayback } from '../../typechain'
 import { HardhatUtils } from '../common'
-import { getServiceNameHash } from '../common/utils'
+import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 
+// TODO: Make this as core deployment script:
+// If there is a populated address for the given address, skip deployment
 async function main() {
   const utils = new HardhatUtils(hre) // the hardhat network is coalesced to mainnet
   const signer = hre.ethers.provider.getSigner(0)
@@ -12,7 +12,6 @@ async function main() {
   console.log(`Deployer address: ${await signer.getAddress()}`)
   console.log(`Network: ${network}`)
 
-  const gasSettings = await utils.getGasSettings()
   const system = await utils.getDefaultSystem()
 
   system.aaveBorrow = (await utils.deployContract(
@@ -33,32 +32,11 @@ async function main() {
   )) as AaveWithdraw
   console.log(`aaveWithdraw action Deployed: ${system.aaveWithdraw.address}`)
 
-  console.log(`Adding aaveBorrow action to ServiceRegistry....`)
-  await (
-    await system.serviceRegistry.addNamedService(
-      getServiceNameHash(CONTRACT_NAMES.aave.BORROW),
-      system.aaveBorrow.address,
-      gasSettings,
-    )
-  ).wait()
-
-  console.log(`Adding aaveDeposit action to ServiceRegistry....`)
-  await (
-    await system.serviceRegistry.addNamedService(
-      getServiceNameHash(CONTRACT_NAMES.aave.DEPOSIT),
-      system.aaveDeposit.address,
-      gasSettings,
-    )
-  ).wait()
-
-  console.log(`Adding aaveWithdraw action to ServiceRegistry....`)
-  await (
-    await system.serviceRegistry.addNamedService(
-      getServiceNameHash(CONTRACT_NAMES.aave.WITHDRAW),
-      system.aaveWithdraw.address,
-      gasSettings,
-    )
-  ).wait()
+  system.aavePayback = (await utils.deployContract(
+    hre.ethers.getContractFactory(CONTRACT_NAMES.aave.PAYBACK),
+    [system.serviceRegistry.address],
+  )) as AavePayback
+  console.log(`aavePayback action Deployed: ${system.aavePayback.address}`)
 }
 
 main().catch(error => {
