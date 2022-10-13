@@ -39,7 +39,11 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
   /**
    * @notice Executes an operation
-   * @dev Operation storage is cleared before and after an operation is executed
+   * @dev
+   * There are operations stored at OperationsRegistry which guarantees the order of execution of the actions.
+   * There is a possibility to execute an arrays of calls that don't form an operation.
+   * Operation storage is cleared before and after an operation is executed.
+   * To avoid re-entracy attack, there is a lock implemented.
    * @param calls An array of Action calls the operation must execute
    * @param operationName The name of the Operation being executed
    */
