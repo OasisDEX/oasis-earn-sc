@@ -83,11 +83,11 @@ const config: HardhatUserConfig = {
     mainnet: {
       url: process.env.MAINNET_URL!,
       accounts: [process.env.PRIV_KEY_MAINNET!],
-      gasPrice: 50000000000
+      gasPrice: 50000000000,
     },
   },
   gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
+    enabled: process.env.REPORT_GAS === '1',
     currency: 'USD',
   },
   paths: {
