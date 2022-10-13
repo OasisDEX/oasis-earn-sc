@@ -3,7 +3,7 @@
 ## Getting Started
 
 * [Overview](Readme.md)
-* [Contracts Overview](OriginalDocs.md)
+* [Audit Documentation](OriginalDocs.md)
 
 ## Core Contracts
 
