@@ -11,12 +11,21 @@ import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { UNWRAP_ETH } from "../../core/constants/Common.sol";
 
+/**
+ * @title Unwrap ETH Action contract
+ * @notice Unwraps WETH balances to ETH
+ */
 contract UnwrapEth is Executable, UseStore {
   using SafeERC20 for IERC20;
   using Read for OperationStorage;
 
   constructor(address _registry) UseStore(_registry) {}
 
+  /**
+   * @dev look at UseStore.sol to get additional info on paramsMapping
+   * @param data Encoded calldata that conforms to the UnwrapEthData struct
+   * @param paramsMap Maps operation storage values by index (index offset by +1) to execute calldata params
+   */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     IWETH weth = IWETH(registry.getRegisteredService(WETH));
 
@@ -27,7 +36,7 @@ contract UnwrapEth is Executable, UseStore {
     if (unwrapData.amount == type(uint256).max) {
       unwrapData.amount = weth.balanceOf(address(this));
     }
-    
+
     weth.withdraw(unwrapData.amount);
 
     emit Action(UNWRAP_ETH, bytes32(unwrapData.amount));

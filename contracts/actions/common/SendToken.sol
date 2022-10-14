@@ -5,9 +5,16 @@ import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { SendTokenData } from "../../core/types/Common.sol";
 import { SEND_TOKEN_ACTION } from "../../core/constants/Common.sol";
 
+/**
+ * @title SendToken Action contract
+ * @notice Transfer token from the calling contract to the destination address
+ */
 contract SendToken is Executable {
   using SafeERC20 for IERC20;
 
+  /**
+   * @param data Encoded calldata that conforms to the SendTokenData struct
+   */
   function execute(bytes calldata data, uint8[] memory) external payable override {
     SendTokenData memory send = parseInputs(data);
     if (msg.value > 0) {

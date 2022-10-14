@@ -2,6 +2,18 @@
 import '@nomiclabs/hardhat-ethers'
 
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
+import { HardhatRuntimeEnvironment } from 'hardhat/types/runtime'
+import {
+  CallOverrides,
+  constants,
+  Contract,
+  ethers,
+  Signer,
+  utils,
+  BigNumber as EthersBN,
+  BaseContract,
+} from 'ethers'
+import R from 'ramda'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 import {
@@ -40,78 +52,113 @@ export class HardhatUtils {
 
   public async getDefaultSystem(): Promise<DeployedSystem> {
     return {
-      serviceRegistry: await this.hre.ethers.getContractAt(
+      serviceRegistry: await this.getContractAt(
         'ServiceRegistry',
         this.addresses.AUTOMATION_SERVICE_REGISTRY,
       ),
-      operationExecutor: await this.hre.ethers.getContractAt(
+      operationExecutor: await this.getContractAt(
         CONTRACT_NAMES.common.OPERATION_EXECUTOR,
         this.addresses.OPERATION_EXECUTOR,
       ),
-      operationsRegistry: await this.hre.ethers.getContractAt(
+      operationsRegistry: await this.getContractAt(
         CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
         this.addresses.OPERATIONS_REGISTRY,
       ),
-      operationStorage: await this.hre.ethers.getContractAt(
+      operationStorage: await this.getContractAt(
         CONTRACT_NAMES.common.OPERATION_STORAGE,
         this.addresses.OPERATION_STORAGE,
       ),
-      cdpAllow: await this.hre.ethers.getContractAt(
+      swap: await this.getContractAt(CONTRACT_NAMES.common.SWAP, this.addresses.SWAP),
+      cdpAllow: await this.getContractAt(
         CONTRACT_NAMES.maker.CDP_ALLOW,
         this.addresses.CDP_ALLOW_ACTION,
       ),
-      makerOpenVault: await this.hre.ethers.getContractAt(
+      makerOpenVault: await this.getContractAt(
         CONTRACT_NAMES.maker.OPEN_VAULT,
         this.addresses.MAKER_OPEN_VAULT_ACTION,
       ),
-      makerDeposit: await this.hre.ethers.getContractAt(
+      makerDeposit: await this.getContractAt(
         CONTRACT_NAMES.maker.DEPOSIT,
         this.addresses.MAKER_DEPOSIT_ACTION,
       ),
-      makerGenerate: await this.hre.ethers.getContractAt(
+      makerGenerate: await this.getContractAt(
         CONTRACT_NAMES.maker.GENERATE,
         this.addresses.MAKER_GENERATE_ACTION,
       ),
-      makerPayback: await this.hre.ethers.getContractAt(
+      makerPayback: await this.getContractAt(
         CONTRACT_NAMES.maker.PAYBACK,
         this.addresses.MAKER_PAYBACK_ACTION,
       ),
-      makerWithdraw: await this.hre.ethers.getContractAt(
+      makerWithdraw: await this.getContractAt(
         CONTRACT_NAMES.maker.WITHDRAW,
         this.addresses.MAKER_WITHDRAW_ACTION,
       ),
-      aaveBorrow: await this.hre.ethers.getContractAt(
+      aaveBorrow: await this.getContractAt(
         CONTRACT_NAMES.aave.BORROW,
         this.addresses.AAVE_BORROW_ACTION,
       ),
-      aaveDeposit: await this.hre.ethers.getContractAt(
+      aaveDeposit: await this.getContractAt(
         CONTRACT_NAMES.aave.DEPOSIT,
         this.addresses.AAVE_DEPOSIT_ACTION,
       ),
-      aaveWithdraw: await this.hre.ethers.getContractAt(
+      aaveWithdraw: await this.getContractAt(
         CONTRACT_NAMES.aave.WITHDRAW,
         this.addresses.AAVE_WITHDRAW_ACTION,
       ),
-      pullToken: await this.hre.ethers.getContractAt(
+      aavePayback: await this.getContractAt(
+        CONTRACT_NAMES.aave.PAYBACK,
+        this.addresses.AAVE_PAYBACK_ACTION
+      ),
+      pullToken: await this.getContractAt(
         CONTRACT_NAMES.common.PULL_TOKEN,
         this.addresses.PULL_TOKEN_ACTION,
       ),
-      sendToken: await this.hre.ethers.getContractAt(
+      sendToken: await this.getContractAt(
         CONTRACT_NAMES.common.SEND_TOKEN,
         this.addresses.SEND_TOKEN_ACTION,
       ),
-      setApproval: await this.hre.ethers.getContractAt(
+      setApproval: await this.getContractAt(
         CONTRACT_NAMES.common.SET_APPROVAL,
         this.addresses.SET_APPROVAL_ACTION,
       ),
-      swap: await this.hre.ethers.getContractAt(
+      swapAction: await this.getContractAt(
         CONTRACT_NAMES.common.SWAP_ACTION,
         this.addresses.SWAP_ACTION,
       ),
-      takeFlashloan: await this.hre.ethers.getContractAt(
+      takeFlashloan: await this.getContractAt(
         CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
         this.addresses.TAKE_FLASHLOAN_ACTION,
       ),
+      unwrapEth: await this.getContractAt(
+        CONTRACT_NAMES.common.UNWRAP_ETH,
+        this.addresses.UNWRAP_ETH_ACTION,
+      ),
+      wrapEth: await this.getContractAt(
+        CONTRACT_NAMES.common.WRAP_ETH,
+        this.addresses.WRAP_ETH_ACTION
+      ),
+      returnFunds: await this.getContractAt(
+        CONTRACT_NAMES.common.RETURN_FUNDS,
+        this.addresses.RETURN_FUNDS_ACTION
+      )
+    }
+  }
+
+  // hre.ethers.getContractAt will throw an error if the provided adddres is equal to 0x
+  // We would like to handle this situation but returned an object that contains the 0x as an address
+  // This is explicitly related to out functionality.
+  // The idea is that we have a configuration <key=value> with contracts.
+  // For each contract name there is either the real blockchain address or 0x.
+  // 0x is provided when there is no deployed version of the given contract.
+  // A login in the deployment process will deploy a new version of the contract if it see that the address is 0x
+  // otherwise it will use an instance of that smart contract.
+  public async getContractAt(name: string, address: string): Promise<any> {
+    try {
+      return await this.hre.ethers.getContractAt(name, address)
+    } catch {
+      return {
+        address: constants.AddressZero,
+      } as BaseContract
     }
   }
 

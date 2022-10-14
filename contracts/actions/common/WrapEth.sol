@@ -11,12 +11,21 @@ import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { WRAP_ETH } from "../../core/constants/Common.sol";
 
+/**
+ * @title Wraps ETH Action contract
+ * @notice Wraps ETH balances to Wrapped ETH
+ */
 contract WrapEth is Executable, UseStore {
   using SafeERC20 for IERC20;
   using Read for OperationStorage;
 
   constructor(address _registry) UseStore(_registry) {}
 
+  /**
+   * @dev look at UseStore.sol to get additional info on paramsMapping
+   * @param data Encoded calldata that conforms to the WrapEthData struct
+   * @param paramsMap Maps operation storage values by index (index offset by +1) to execute calldata params
+   */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     WrapEthData memory wrapData = parseInputs(data);
     wrapData.amount = store().readUint(bytes32(wrapData.amount), paramsMap[0], address(this));

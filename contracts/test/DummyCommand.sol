@@ -22,13 +22,10 @@ contract DummyCommand {
     registry = _registry;
   }
 
-  function execute(
-    bytes calldata executionData,
-    address opExecutorAddress
-  ) public {
+  function execute(bytes calldata executionData, address opExecutorAddress) public {
     opExecutorAddress.functionDelegateCall(
-    executionData,
-    "DummyAutomation: low-level delegatecall failed"
+      executionData,
+      "DummyAutomation: low-level delegatecall failed"
     );
   }
 }

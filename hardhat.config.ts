@@ -7,6 +7,8 @@ import './tasks/deploy'
 import './tasks/createPosition'
 import './tasks/closePosition'
 import './tasks/proxy'
+import './tasks/verify-earn'
+import 'solidity-docgen'
 
 import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
@@ -49,7 +51,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 300,
+        runs: 1000,
       },
     },
   },
@@ -79,9 +81,14 @@ const config: HardhatUserConfig = {
       // gasPrice: 5000000000,
       initialBaseFeePerGas: 1000000000,
     },
+    mainnet: {
+      url: process.env.MAINNET_URL!,
+      accounts: [process.env.PRIV_KEY_MAINNET!],
+      gasPrice: 50000000000,
+    },
   },
   gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
+    enabled: process.env.REPORT_GAS === '1',
     currency: 'USD',
   },
   paths: {
@@ -98,6 +105,19 @@ const config: HardhatUserConfig = {
   },
   typechain: {
     outDir: 'typechain',
+  },
+  docgen: {
+    outputDir: './docs',
+    pages: 'files',
+    exclude: [
+      './actions/maker',
+      './core/constants',
+      './core/types',
+      './core/views',
+      './interfaces',
+      './libs',
+      './test',
+    ],
   },
 }
 

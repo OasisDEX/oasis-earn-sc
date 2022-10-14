@@ -80,7 +80,6 @@ contract uSwap {
   function addFeeTier(uint256 fee) public onlyAuthorised {
     _addFeeTier(fee);
   }
-  
 
   function removeFeeTier(uint256 fee) public onlyAuthorised {
     if (!feeTiers[fee]) {
