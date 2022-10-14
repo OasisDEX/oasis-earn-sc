@@ -40,10 +40,16 @@ contract OperationExecutor is IERC3156FlashBorrower {
   /**
    * @notice Executes an operation
    * @dev
-   * There are operations stored at OperationsRegistry which guarantees the order of execution of the actions.
-   * There is a possibility to execute an arrays of calls that don't form an operation.
+   * There are operations stored in the OperationsRegistry which guarantee the order of execution of actions for a given Operation.
+   * There is a possibility to execute an arrays of calls that don't form an official operation.
+   *
    * Operation storage is cleared before and after an operation is executed.
-   * To avoid re-entracy attack, there is a lock implemented.
+   *
+   * To avoid re-entrancy attack, there is a lock implemented on OpStorage.
+   * A standard reentrancy modifier is not sufficient because the second call via the onFlashloan handler
+   * calls aggregateCallback via DSProxy once again but this breaks the special modifier _ behaviour
+   * and the modifier cannot return the execution flow to the original function.
+   * This is why re-entrancy defence is immplemented here using an external storage contract via the lock/unlock functions
    * @param calls An array of Action calls the operation must execute
    * @param operationName The name of the Operation being executed
    */
@@ -96,9 +102,10 @@ contract OperationExecutor is IERC3156FlashBorrower {
   /**
    * @notice Not to be called directly.
    * @dev Callback handler for use by a flashloan lender contract.
-   * If the dsProxyFlashloan flag is supplied we reestablish the calling context as the user's proxy (at time of writing DSProxy)
-   * We set the initiator on Operation Storage such that calls originating from the Oasis Automation Bot (see https://github.com/OasisDEX/automation-smartcontracts) will be stored against the original msg.sender (the Automation Bot)
-   * If a third party contract attempts to push values to Operation Storage they will be unable to overwrite stored values
+   * If the dsProxyFlashloan flag is supplied we reestablish the calling context as the user's proxy (at time of writing DSProxy). Although stored values will
+   * We set the initiator on Operation Storage such that calls originating from other contracts EG Oasis Automation Bot (see https://github.com/OasisDEX/automation-smartcontracts)
+   * The initiator address will be used to store values against the original msg.sender.
+   * This protects against the Operation Storage values being polluted by malicious code from untrusted 3rd party contracts.
 
    * @param initiator Is the address of the contract that initiated the flashloan (EG Operation Executor)
    * @param asset The address of the asset being flash loaned
