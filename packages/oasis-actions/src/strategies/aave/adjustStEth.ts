@@ -152,7 +152,9 @@ export async function adjustStEth(
     /*
       Final position calculated using actual swap data and the latest market price
     */
-    const stEthAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
+    const stEthAmountAfterSwapWei = target.swap.fromTokenAmount
+      .div(actualMarketPriceWithSlippage)
+      .plus(existingPosition.collateral.amount)
     finalPosition = new Position(
       target.position.debt,
       { amount: stEthAmountAfterSwapWei, denomination: target.position.collateral.denomination },
@@ -191,7 +193,9 @@ export async function adjustStEth(
     /*
    Final position calculated using actual swap data and the latest market price
  */
-    const ethAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
+    const ethAmountAfterSwapWei = existingPosition.debt.amount.minus(
+      target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage),
+    )
     finalPosition = new Position(
       { amount: ethAmountAfterSwapWei, denomination: target.position.collateral.denomination },
       target.position.collateral,
