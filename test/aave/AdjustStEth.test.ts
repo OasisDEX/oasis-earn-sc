@@ -63,6 +63,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       AAVELendigPoolABI,
       provider,
     )
+
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
     WETH = new Contract(ADDRESSES.main.WETH, ERC20ABI, provider)
     stETH = new Contract(ADDRESSES.main.stETH, ERC20ABI, provider)
@@ -264,8 +265,8 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
       it('Should draw debt according to multiple', async () => {
         expect(actualPositionAfterIncreaseAdjust.debt.amount.toString()).to.be.oneOf([
+          adjustStrategyIncreaseRisk.simulation.position.debt.amount.minus(ONE).toString(),
           adjustStrategyIncreaseRisk.simulation.position.debt.amount.toString(),
-          adjustStrategyIncreaseRisk.simulation.position.debt.amount.plus(ONE).toString(),
         ])
       })
 
