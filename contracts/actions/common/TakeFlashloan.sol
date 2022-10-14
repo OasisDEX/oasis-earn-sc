@@ -9,6 +9,10 @@ import { OPERATION_EXECUTOR, DAI, TAKE_FLASH_LOAN_ACTION } from "../../core/cons
 import { FLASH_MINT_MODULE } from "../../core/constants/Maker.sol";
 import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
 
+/**
+ * @title TakeFlashloan Action contract
+ * @notice Executes a sequence of Actions after flashloaning funds
+ */
 contract TakeFlashloan is Executable, ProxyPermission {
   ServiceRegistry internal immutable registry;
   address internal immutable dai;
@@ -18,6 +22,11 @@ contract TakeFlashloan is Executable, ProxyPermission {
     dai = _dai;
   }
 
+  /**
+   * @dev When the Flashloan lender calls back the Operation Executor we may need to re-establish the calling context.
+   * @dev The dsProxyFlashloan flag is used to give the Operation Executor temporary authority to call the execute method on a user's proxy
+   * @param data Encoded calldata that conforms to the FlashloanData struct
+   */
   function execute(bytes calldata data, uint8[] memory) external payable override {
     FlashloanData memory flData = parseInputs(data);
 
@@ -26,6 +35,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
     if (flData.dsProxyFlashloan) {
       givePermission(operationExecutorAddress);
     }
+
     IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
       IERC3156FlashBorrower(operationExecutorAddress),
       dai,
@@ -36,6 +46,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
     if (flData.dsProxyFlashloan) {
       removePermission(operationExecutorAddress);
     }
+
     emit Action(TAKE_FLASH_LOAN_ACTION, bytes32(flData.amount));
   }
 

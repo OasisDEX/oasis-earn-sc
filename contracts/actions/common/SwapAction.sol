@@ -11,15 +11,23 @@ import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { SWAP } from "../../core/constants/Common.sol";
 
+/**
+ * @title SwapAction Action contract
+ * @notice Call the deployed Swap contract which handles swap execution
+ */
 contract SwapAction is Executable, UseStore {
   using SafeERC20 for IERC20;
   using Write for OperationStorage;
 
   constructor(address _registry) UseStore(_registry) {}
 
+  /**
+   * @dev The swap contract is pre-configured to use a specific exchange (EG 1inch)
+   * @param data Encoded calldata that conforms to the SwapData struct
+   */
   function execute(bytes calldata data, uint8[] memory) external payable override {
     address swapAddress = registry.getRegisteredService(SWAP);
-    
+
     SwapData memory swap = parseInputs(data);
 
     IERC20(swap.fromAsset).safeApprove(swapAddress, swap.amount);

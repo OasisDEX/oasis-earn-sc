@@ -4,6 +4,12 @@ import { OperationStorage } from "../../core/OperationStorage.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { OPERATION_STORAGE } from "../../core/constants/Common.sol";
 
+/**
+ * @title UseStore contract
+ * @notice Provides access to the OperationStorage contract
+ * @dev Is used by Action contracts to store and retrieve values from Operation Storage.
+ * @dev Previously stored values are used to override values passed to Actions during Operation execution
+ */
 abstract contract UseStore {
   ServiceRegistry internal immutable registry;
 

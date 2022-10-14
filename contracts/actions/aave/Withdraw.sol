@@ -7,11 +7,18 @@ import { ILendingPool } from "../../interfaces/aave/ILendingPool.sol";
 import { WithdrawData } from "../../core/types/Aave.sol";
 import { AAVE_LENDING_POOL, WITHDRAW_ACTION } from "../../core/constants/Aave.sol";
 
+/**
+ * @title Withdraw | AAVE Action contract
+ * @notice Withdraw collateral from AAVE's lending pool
+ */
 contract AaveWithdraw is Executable, UseStore {
   using Write for OperationStorage;
 
   constructor(address _registry) UseStore(_registry) {}
 
+  /**
+   * @param data Encoded calldata that conforms to the WithdrawData struct
+   */
   function execute(bytes calldata data, uint8[] memory) external payable override {
     WithdrawData memory withdraw = parseInputs(data);
 

@@ -8,6 +8,10 @@ import { IWETHGateway } from "../../interfaces/aave/IWETHGateway.sol";
 import { BorrowData } from "../../core/types/Aave.sol";
 import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL, BORROW_ACTION } from "../../core/constants/Aave.sol";
 
+/**
+ * @title Borrow | AAVE Action contract
+ * @notice Borrows ETH from AAVE's lending pool
+ */
 contract AaveBorrow is Executable, UseStore {
   using Write for OperationStorage;
 
@@ -16,12 +20,15 @@ contract AaveBorrow is Executable, UseStore {
 
   constructor(address _registry) UseStore(_registry) {}
 
+  /**
+   * @param data Encoded calldata that conforms to the BorrowData struct
+   */
   function execute(bytes calldata data, uint8[] memory) external payable override {
     BorrowData memory borrow = parseInputs(data);
 
     address wethGatewayAddress = registry.getRegisteredService(AAVE_WETH_GATEWAY);
     dWETH.approveDelegation(wethGatewayAddress, borrow.amount);
-    
+
     IWETHGateway(wethGatewayAddress).borrowETH(
       registry.getRegisteredService(AAVE_LENDING_POOL),
       borrow.amount,

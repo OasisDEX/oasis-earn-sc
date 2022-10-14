@@ -28,7 +28,6 @@ contract DummyAutomation {
     uint256 vaultId,
     address commandAddress
   ) public {
-
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
     manager.cdpAllow(vaultId, commandAddress, 1);
     DummyCommand(commandAddress).execute(executionData, opExecutorAddress);

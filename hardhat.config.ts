@@ -8,6 +8,7 @@ import './tasks/createPosition'
 import './tasks/closePosition'
 import './tasks/proxy'
 import './tasks/verify-earn'
+import 'solidity-docgen'
 
 import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
@@ -104,6 +105,19 @@ const config: HardhatUserConfig = {
   },
   typechain: {
     outDir: 'typechain',
+  },
+  docgen: {
+    outputDir: './docs',
+    pages: 'files',
+    exclude: [
+      './actions/maker',
+      './core/constants',
+      './core/types',
+      './core/views',
+      './interfaces',
+      './libs',
+      './test',
+    ],
   },
 }
 

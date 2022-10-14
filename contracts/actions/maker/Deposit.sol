@@ -24,7 +24,11 @@ contract MakerDeposit is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositData memory depositData = parseInputs(data);
 
-    depositData.vaultId = store().readUint(bytes32(depositData.vaultId), paramsMap[1], address(this));
+    depositData.vaultId = store().readUint(
+      bytes32(depositData.vaultId),
+      paramsMap[1],
+      address(this)
+    );
     depositData.amount = store().readUint(bytes32(depositData.amount), paramsMap[2], address(this));
 
     bytes32 amountDeposited = _deposit(depositData);
