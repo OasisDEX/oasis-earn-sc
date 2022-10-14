@@ -81,6 +81,21 @@ command:
 npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
 ```
 
+# Debugging with Tenderly
+
+Tenderly export only works with Hardhat v2.8.0. More recently versions will result in errors such as the one below
+
+```shell
+Errors encountered in param 1: Storage slot argument must have a length of 66 ("0x" + 32 bytes), but '0x0' has a length of 3
+```
+
+However, tests will fail with Hardhat v2.8.0 because of how HardHat's JsonRpcProvider implementation. See https://github.com/NomicFoundation/hardhat/issues/1700.
+Errors such as the one below will appear when running tests with v2.8.0. Use Hardhat v2.9.5 when running tests.
+
+```shell
+InvalidArgumentsError: Errors encountered in param 1: Invalid value "0x0000000000000000000000000000000000000000000000000000000000000003" supplied to : QUANTITY
+```
+
 # Performance optimizations
 
 For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the
