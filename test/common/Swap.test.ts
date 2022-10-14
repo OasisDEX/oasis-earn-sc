@@ -37,9 +37,7 @@ describe('Swap', async () => {
 
   before(async () => {
     ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
-  })
 
-  before(async () => {
     await provider.send('hardhat_reset', [
       {
         forking: {
