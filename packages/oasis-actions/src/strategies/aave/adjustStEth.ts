@@ -18,6 +18,7 @@ interface AdjustStEthArgs {
   slippage: BigNumber
   multiple: BigNumber
 }
+
 interface AdjustStEthDependencies {
   addresses: IncreaseMultipleStEthAddresses | DecreaseMultipleStEthAddresses
   provider: providers.Provider
@@ -136,9 +137,11 @@ export async function adjustStEth(
 
     const borrowEthAmountWei = target.delta.debt.minus(depositEthWei)
 
+    const flashloanAmount = target.delta?.flashloanAmount || ZERO
+
     calls = await operations.aave.increaseMultipleStEth(
       {
-        flashloanAmount: target.delta?.flashloanAmount || ZERO,
+        flashloanAmount: flashloanAmount.eq(ZERO) ? ONE : flashloanAmount,
         borrowAmount: borrowEthAmountWei,
         fee: FEE,
         swapData: swapData.exchangeCalldata,

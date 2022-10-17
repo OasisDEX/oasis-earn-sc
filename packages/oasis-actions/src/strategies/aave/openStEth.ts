@@ -7,7 +7,7 @@ import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei } from '../../helpers'
 import { Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { ZERO } from '../../helpers/constants'
+import { ONE, ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
 import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
 import { IStrategy } from '../types/IStrategy'
@@ -136,7 +136,7 @@ export async function openStEth(
 
   const calls = await operation.aave.openStEth(
     {
-      flashloanAmount: target.delta?.flashloanAmount || ZERO,
+      flashloanAmount: target.delta?.flashloanAmount || ONE,
       borrowAmount: borrowEthAmountWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
