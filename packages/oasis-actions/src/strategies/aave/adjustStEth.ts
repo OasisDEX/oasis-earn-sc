@@ -6,7 +6,7 @@ import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei } from '../../helpers'
 import { IBasePosition, IPosition, Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { ONE, ZERO } from '../../helpers/constants'
+import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { DecreaseMultipleStEthAddresses } from '../../operations/aave/decreaseMultipleStEth'
 import type { IncreaseMultipleStEthAddresses } from '../../operations/aave/increaseMultipleStEth'
@@ -141,7 +141,7 @@ export async function adjustStEth(
 
     calls = await operations.aave.increaseMultipleStEth(
       {
-        flashloanAmount: flashloanAmount.eq(ZERO) ? ONE : flashloanAmount,
+        flashloanAmount: flashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : flashloanAmount,
         borrowAmount: borrowEthAmountWei,
         fee: FEE,
         swapData: swapData.exchangeCalldata,
@@ -182,8 +182,7 @@ export async function adjustStEth(
 
     calls = await operations.aave.decreaseMultipleStEth(
       {
-        //TODO: hacky fix for using flashloan. Needs conditional in operation itself
-        flashloanAmount: absFlashloanAmount.eq(ZERO) ? ONE : absFlashloanAmount,
+        flashloanAmount: absFlashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : absFlashloanAmount,
         withdrawAmount: withdrawStEthAmountWei,
         fee: FEE,
         swapData: swapData.exchangeCalldata,
