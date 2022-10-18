@@ -56,6 +56,39 @@ async function main() {
     OPERATION_NAMES.aave.CLOSE_POSITION,
     closeAPositionActions,
   )
+
+  const increaseAPositionActions = [
+    getServiceNameHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
+    getServiceNameHash(CONTRACT_NAMES.common.SET_APPROVAL),
+    getServiceNameHash(CONTRACT_NAMES.aave.DEPOSIT),
+    getServiceNameHash(CONTRACT_NAMES.aave.BORROW),
+    getServiceNameHash(CONTRACT_NAMES.common.WRAP_ETH),
+    getServiceNameHash(CONTRACT_NAMES.common.SWAP_ACTION),
+    getServiceNameHash(CONTRACT_NAMES.common.SET_APPROVAL),
+    getServiceNameHash(CONTRACT_NAMES.aave.DEPOSIT),
+    getServiceNameHash(CONTRACT_NAMES.aave.WITHDRAW),
+  ]
+  console.log(`Adding ${OPERATION_NAMES.aave.INCREASE_POSITION} to OperationsRegistry...`)
+  await system.operationsRegistry.addOperation(
+    OPERATION_NAMES.aave.INCREASE_POSITION,
+    increaseAPositionActions,
+  )
+
+  const decreaseAPositionActions = [
+    getServiceNameHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
+    getServiceNameHash(CONTRACT_NAMES.common.SET_APPROVAL),
+    getServiceNameHash(CONTRACT_NAMES.aave.DEPOSIT),
+    getServiceNameHash(CONTRACT_NAMES.aave.WITHDRAW),
+    getServiceNameHash(CONTRACT_NAMES.common.SWAP_ACTION),
+    getServiceNameHash(CONTRACT_NAMES.common.SET_APPROVAL),
+    getServiceNameHash(CONTRACT_NAMES.aave.PAYBACK),
+    getServiceNameHash(CONTRACT_NAMES.aave.WITHDRAW),
+  ]
+  console.log(`Adding ${OPERATION_NAMES.aave.DECREASE_POSITION} to OperationsRegistry...`)
+  await system.operationsRegistry.addOperation(
+    OPERATION_NAMES.aave.DECREASE_POSITION,
+    decreaseAPositionActions,
+  )
 }
 
 main().catch(error => {
