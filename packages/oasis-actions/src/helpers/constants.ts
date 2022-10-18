@@ -65,6 +65,8 @@ export const OPERATION_NAMES = {
   aave: {
     OPEN_POSITION: 'OpenAAVEPosition',
     CLOSE_POSITION: 'CloseAAVEPosition',
+    INCREASE_POSITION: 'IncreaseAAVEPosition',
+    DECREASE_POSITION: 'DecreaseAAVEPosition',
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',
