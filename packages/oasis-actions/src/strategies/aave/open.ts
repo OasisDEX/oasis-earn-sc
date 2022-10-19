@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { ethers, providers } from 'ethers'
+import { ethers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
@@ -9,32 +9,29 @@ import { Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
-import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
-import { IStrategyReturn } from '../types/IStrategyReturn'
-import { SwapData } from '../types/SwapData'
+import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
+import { AAVETokens } from '../../operations/aave/tokens'
+import { IStrategy } from '../types/IStrategy'
+import { IStrategyArgs, IStrategyDependencies } from '../types/IStrategyGenerator'
 
-interface OpenStEthArgs {
-  depositAmount: BigNumber // in wei
-  slippage: BigNumber
-  multiple: BigNumber
-}
+export async function open(
+  args: IStrategyArgs<AAVETokens>,
+  dependencies: IStrategyDependencies<AAVEStrategyAddresses>,
+): Promise<IStrategy> {
+  const tokenAddresses = {
+    WETH: dependencies.addresses.WETH,
+    ETH: dependencies.addresses.WETH,
+    STETH: dependencies.addresses.stETH,
+  }
 
-interface OpenStEthDependencies {
-  addresses: OpenStEthAddresses
-  provider: providers.Provider
-  getSwapData: (
-    fromToken: string,
-    toToken: string,
-    amount: BigNumber,
-    slippage: BigNumber,
-  ) => Promise<SwapData>
-  dsProxy: string
-}
+  const collateralTokenAddress = tokenAddresses[args.collateralToken]
+  const debtTokenAddress = tokenAddresses[args.debtToken]
 
-export async function openStEth(
-  args: OpenStEthArgs,
-  dependencies: OpenStEthDependencies,
-): Promise<IStrategyReturn> {
+  if (!collateralTokenAddress)
+    throw new Error('Collateral token not recognised or address missing in dependencies')
+  if (!debtTokenAddress)
+    throw new Error('Debt token not recognised or address missing in dependencies')
+
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
     chainlinkPriceFeedABI,
@@ -56,24 +53,30 @@ export async function openStEth(
   const slippage = args.slippage
   const estimatedSwapAmount = new BigNumber(1)
 
-  const [roundData, decimals, aaveWethPriceInEth, aaveStEthPriceInEth, reserveData, quoteSwapData] =
-    await Promise.all([
-      priceFeed.latestRoundData(),
-      priceFeed.decimals(),
-      aavePriceOracle
-        .getAssetPrice(dependencies.addresses.WETH)
-        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-      aavePriceOracle
-        .getAssetPrice(dependencies.addresses.stETH)
-        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-      aaveProtocolDataProvider.getReserveConfigurationData(dependencies.addresses.stETH),
-      dependencies.getSwapData(
-        dependencies.addresses.WETH,
-        dependencies.addresses.stETH,
-        estimatedSwapAmount,
-        new BigNumber(slippage),
-      ),
-    ])
+  const [
+    roundData,
+    decimals,
+    aaveDebtTokenPriceInEth,
+    aaveCollateralTokenPriceInEth,
+    reserveData,
+    quoteSwapData,
+  ] = await Promise.all([
+    priceFeed.latestRoundData(),
+    priceFeed.decimals(),
+    aavePriceOracle
+      .getAssetPrice(debtTokenAddress)
+      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+    aavePriceOracle
+      .getAssetPrice(collateralTokenAddress)
+      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+    aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
+    dependencies.getSwapData(
+      debtTokenAddress,
+      collateralTokenAddress,
+      estimatedSwapAmount,
+      new BigNumber(slippage),
+    ),
+  ])
 
   const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
 
@@ -88,14 +91,21 @@ export async function openStEth(
 
   const multiple = args.multiple
 
-  const depositEthWei = args.depositAmount
-  const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
+  const depositEthWei = args.depositAmountInWei
+  const collateralPrice = aaveCollateralTokenPriceInEth.times(
+    ethPrice.times(aaveDebtTokenPriceInEth),
+  )
 
-  const emptyPosition = new Position({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
-    liquidationThreshold,
-    maxLoanToValue,
-    dustLimit,
-  })
+  const emptyPosition = new Position(
+    { amount: ZERO },
+    { amount: ZERO },
+    aaveCollateralTokenPriceInEth,
+    {
+      liquidationThreshold,
+      maxLoanToValue,
+      dustLimit,
+    },
+  )
 
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
@@ -110,24 +120,24 @@ export async function openStEth(
       },
       prices: {
         market: quoteMarketPrice,
-        oracle: aaveStEthPriceInEth,
+        oracle: aaveCollateralTokenPriceInEth,
         oracleFLtoDebtToken: ethPrice,
       },
       slippage: args.slippage,
       maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
       depositedByUser: {
-        debt: args.depositAmount,
+        debt: args.depositAmountInWei,
       },
       collectSwapFeeFrom: 'sourceToken',
       // debug: true,
     },
   )
 
-  const borrowEthAmountWei = target.delta.debt.minus(depositEthWei)
+  const borrowEthAmountInWei = target.delta.debt.minus(depositEthWei)
 
   const swapData = await dependencies.getSwapData(
-    dependencies.addresses.WETH,
-    dependencies.addresses.stETH,
+    debtTokenAddress,
+    collateralTokenAddress,
     target.swap.fromTokenAmount.minus(target.swap.sourceTokenFee),
     slippage,
   )
@@ -137,12 +147,12 @@ export async function openStEth(
   const calls = await operation.aave.openStEth(
     {
       flashloanAmount: target.delta?.flashloanAmount || UNUSED_FLASHLOAN_AMOUNT,
-      borrowAmount: borrowEthAmountWei,
+      borrowAmount: borrowEthAmountInWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
       ethSwapAmount: target.swap.fromTokenAmount,
-      dsProxy: dependencies.dsProxy,
+      dsProxy: dependencies.proxy,
     },
     dependencies.addresses,
   )
@@ -155,13 +165,13 @@ export async function openStEth(
   const finalPosition = new Position(
     target.position.debt,
     { amount: stEthAmountAfterSwapWei, denomination: target.position.collateral.denomination },
-    aaveStEthPriceInEth,
+    aaveCollateralTokenPriceInEth,
     target.position.category,
   )
 
   const prices = {
     debtTokenPrice: ethPrice,
-    collateralTokenPrices: stEthPrice,
+    collateralTokenPrices: collateralPrice,
   }
 
   return {

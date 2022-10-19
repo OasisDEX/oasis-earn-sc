@@ -1,38 +1,25 @@
 import BigNumber from 'bignumber.js'
-import { ethers, providers } from 'ethers'
+import { ethers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, calculateFee } from '../../helpers'
-import { IBasePosition, Position } from '../../helpers/calculations/Position'
-import { ONE, TEN_THOUSAND, ZERO } from '../../helpers/constants'
+import { Position } from '../../helpers/calculations/Position'
+import { ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
-import type { CloseStEthAddresses } from '../../operations/aave/closeStEth'
-import { IStrategyReturn } from '../types/IStrategyReturn'
-import { SwapData } from '../types/SwapData'
-
-interface CloseStEthArgs {
-  stEthAmountLockedInAave: BigNumber
-  slippage: BigNumber
-}
-
-interface CloseStEthDependencies {
-  addresses: CloseStEthAddresses
-  provider: providers.Provider
-  position: IBasePosition
-  getSwapData: (
-    fromToken: string,
-    toToken: string,
-    amount: BigNumber,
-    slippage: BigNumber,
-  ) => Promise<SwapData>
-  dsProxy: string
-}
+import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
+import { AAVETokens } from '../../operations/aave/tokens'
+import { IStrategy } from '../types/IStrategy'
+import {
+  IStrategyCloseArgs,
+  IStrategyDependencies,
+  WithPosition,
+} from '../types/IStrategyGenerator'
 
 export async function closeStEth(
-  args: CloseStEthArgs,
-  dependencies: CloseStEthDependencies,
-): Promise<IStrategyReturn> {
+  args: IStrategyCloseArgs<AAVETokens>,
+  dependencies: IStrategyDependencies<AAVEStrategyAddresses> & WithPosition,
+): Promise<IStrategy> {
   const existingPosition = dependencies.position
 
   const priceFeed = new ethers.Contract(
@@ -60,7 +47,7 @@ export async function closeStEth(
       dependencies.getSwapData(
         dependencies.addresses.stETH,
         dependencies.addresses.WETH,
-        args.stEthAmountLockedInAave,
+        args.collateralAmountLockedInProtocolInWei,
         args.slippage,
       ),
     ])
@@ -71,7 +58,7 @@ export async function closeStEth(
 
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
-  const flashLoanAmountWei = args.stEthAmountLockedInAave.times(stEthPrice)
+  const flashLoanAmountWei = args.collateralAmountLockedInProtocolInWei.times(stEthPrice)
 
   const fee = calculateFee(swapData.toTokenAmount, FEE, FEE_BASE)
 
@@ -80,12 +67,12 @@ export async function closeStEth(
 
   const calls = await operation.aave.closeStEth(
     {
-      stEthAmount: args.stEthAmountLockedInAave,
+      stEthAmount: args.collateralAmountLockedInProtocolInWei,
       flashloanAmount: flashLoanAmountWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
-      dsProxy: dependencies.dsProxy,
+      dsProxy: dependencies.proxy,
     },
     dependencies.addresses,
   )

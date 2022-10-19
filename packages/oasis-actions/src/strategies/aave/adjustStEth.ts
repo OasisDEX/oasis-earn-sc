@@ -1,41 +1,22 @@
 import BigNumber from 'bignumber.js'
-import { ethers, providers } from 'ethers'
+import { ethers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei } from '../../helpers'
-import { IBasePosition, IPosition, Position } from '../../helpers/calculations/Position'
+import { IPosition, Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
-import { DecreaseMultipleStEthAddresses } from '../../operations/aave/decreaseMultipleStEth'
-import type { IncreaseMultipleStEthAddresses } from '../../operations/aave/increaseMultipleStEth'
-import { IStrategyReturn } from '../types/IStrategyReturn'
-import { SwapData } from '../types/SwapData'
-
-interface AdjustStEthArgs {
-  depositAmount?: BigNumber // in wei
-  slippage: BigNumber
-  multiple: BigNumber
-}
-
-interface AdjustStEthDependencies {
-  addresses: IncreaseMultipleStEthAddresses | DecreaseMultipleStEthAddresses
-  provider: providers.Provider
-  position: IBasePosition
-  getSwapData: (
-    fromToken: string,
-    toToken: string,
-    amount: BigNumber,
-    slippage: BigNumber,
-  ) => Promise<SwapData>
-  dsProxy: string
-}
+import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
+import { AAVETokens } from '../../operations/aave/tokens'
+import { IStrategy } from '../types/IStrategy'
+import { IStrategyArgs, IStrategyDependencies, WithPosition } from '../types/IStrategyGenerator'
 
 export async function adjustStEth(
-  args: AdjustStEthArgs,
-  dependencies: AdjustStEthDependencies,
-): Promise<IStrategyReturn> {
+  args: IStrategyArgs<AAVETokens>,
+  dependencies: IStrategyDependencies<AAVEStrategyAddresses> & WithPosition,
+): Promise<IStrategy> {
   const existingBasePosition = dependencies.position
 
   const priceFeed = new ethers.Contract(
@@ -78,7 +59,7 @@ export async function adjustStEth(
   const slippage = args.slippage
   const multiple = args.multiple
 
-  const depositEthWei = args.depositAmount || ZERO
+  const depositEthWei = args.depositAmountInWei || ZERO
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
   const estimatedSwapAmount = new BigNumber(1)
@@ -115,7 +96,7 @@ export async function adjustStEth(
       slippage: args.slippage,
       maxLoanToValueFL: existingPosition.category.maxLoanToValue,
       depositedByUser: {
-        debt: args.depositAmount,
+        debt: args.depositAmountInWei,
       },
       collectSwapFeeFrom: isIncreasingRisk ? 'sourceToken' : 'targetToken',
       // debug: true,
@@ -147,7 +128,7 @@ export async function adjustStEth(
         swapData: swapData.exchangeCalldata,
         receiveAtLeast: swapData.minToTokenAmount,
         ethSwapAmount: target.swap.fromTokenAmount,
-        dsProxy: dependencies.dsProxy,
+        dsProxy: dependencies.proxy,
       },
       dependencies.addresses,
     )
@@ -188,7 +169,7 @@ export async function adjustStEth(
         swapData: swapData.exchangeCalldata,
         receiveAtLeast: swapData.minToTokenAmount,
         stEthSwapAmount: target.swap.fromTokenAmount,
-        dsProxy: dependencies.dsProxy,
+        dsProxy: dependencies.proxy,
       },
       dependencies.addresses,
     )

@@ -84,11 +84,13 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      strategy = await strategies.aave.openStEth(
+      strategy = await strategies.aave.open(
         {
-          depositAmount,
+          depositAmountInWei: depositAmount,
           slippage,
           multiple,
+          debtToken: 'ETH',
+          collateralToken: 'STETH',
         },
         {
           addresses,
@@ -104,7 +106,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         { config, isFormatted: true },
       )
 
-      const [_txStatus, _tx] = await executeThroughProxy(
+      const [_txStatus] = await executeThroughProxy(
         system.common.dsProxy.address,
         {
           address: system.common.operationExecutor.address,
