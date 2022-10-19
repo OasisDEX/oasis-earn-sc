@@ -10,7 +10,7 @@ import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { DecreaseMultipleStEthAddresses } from '../../operations/aave/decreaseMultipleStEth'
 import type { IncreaseMultipleStEthAddresses } from '../../operations/aave/increaseMultipleStEth'
-import { IStrategy } from '../types/IStrategy'
+import { IStrategyReturn } from '../types/IStrategyReturn'
 import { SwapData } from '../types/SwapData'
 
 interface AdjustStEthArgs {
@@ -35,7 +35,7 @@ interface AdjustStEthDependencies {
 export async function adjustStEth(
   args: AdjustStEthArgs,
   dependencies: AdjustStEthDependencies,
-): Promise<IStrategy> {
+): Promise<IStrategyReturn> {
   const existingBasePosition = dependencies.position
 
   const priceFeed = new ethers.Contract(

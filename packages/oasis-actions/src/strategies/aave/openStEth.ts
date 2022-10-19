@@ -10,7 +10,7 @@ import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
 import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
-import { IStrategy } from '../types/IStrategy'
+import { IStrategyReturn } from '../types/IStrategyReturn'
 import { SwapData } from '../types/SwapData'
 
 interface OpenStEthArgs {
@@ -34,7 +34,7 @@ interface OpenStEthDependencies {
 export async function openStEth(
   args: OpenStEthArgs,
   dependencies: OpenStEthDependencies,
-): Promise<IStrategy> {
+): Promise<IStrategyReturn> {
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
     chainlinkPriceFeedABI,

@@ -1,17 +1,42 @@
 import BigNumber from 'bignumber.js'
+import { ethers, providers } from 'ethers'
+import { SwapData } from '../types/SwapData'
+import { IStrategyReturn } from './IStrategyReturn'
+import { IBasePosition, Position } from '../../helpers/calculations/Position'
 
-import { ActionCall } from '../../actions/types/actionCall'
-import { IPositionChange } from '../../helpers/calculations/Position'
-import { IRiskRatio } from '../../helpers/calculations/RiskRatio'
-import { SwapData } from './SwapData'
-
-interface ISimulation extends IPositionChange {
-  prices: { debtTokenPrice: BigNumber; collateralTokenPrices: BigNumber | BigNumber[] }
-  swap: SwapData & { sourceTokenFee: BigNumber; targetTokenFee: BigNumber }
-  minConfigurableRiskRatio: IRiskRatio
+interface IStrategyArgs {
+  depositAmountInWei: BigNumber // in wei
+  slippage: BigNumber
+  multiple: BigNumber
 }
 
-export interface IStrategy {
-  calls: ActionCall[]
-  simulation: ISimulation
+interface IStrategyDependencies<Addresses> {
+  addresses: Addresses
+  provider: providers.Provider
+  getSwapData: (
+    fromToken: string,
+    toToken: string,
+    amount: BigNumber,
+    slippage: BigNumber,
+  ) => Promise<SwapData>
+  proxy: string
+}
+
+type WithPosition = {
+  position: IBasePosition
+}
+export interface IStrategy<Addresses> {
+  open: (
+    args: IStrategyArgs,
+    dependencies: IStrategyDependencies<Addresses>,
+  ) => Promise<IStrategyReturn>
+  close: (
+    args: IStrategyArgs,
+    dependencies: IStrategyDependencies<Addresses> & WithPosition,
+  ) => Promise<IStrategyReturn>
+  adjust: (
+    args: IStrategyArgs,
+    dependencies: IStrategyDependencies<Addresses> & WithPosition,
+  ) => Promise<IStrategyReturn>
+  view: unknown // Not being implemented yet
 }

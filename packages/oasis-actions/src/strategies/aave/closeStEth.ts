@@ -8,7 +8,7 @@ import { IBasePosition, Position } from '../../helpers/calculations/Position'
 import { ONE, TEN_THOUSAND, ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
 import type { CloseStEthAddresses } from '../../operations/aave/closeStEth'
-import { IStrategy } from '../types/IStrategy'
+import { IStrategyReturn } from '../types/IStrategyReturn'
 import { SwapData } from '../types/SwapData'
 
 interface CloseStEthArgs {
@@ -32,7 +32,7 @@ interface CloseStEthDependencies {
 export async function closeStEth(
   args: CloseStEthArgs,
   dependencies: CloseStEthDependencies,
-): Promise<IStrategy> {
+): Promise<IStrategyReturn> {
   const existingPosition = dependencies.position
 
   const priceFeed = new ethers.Contract(
