@@ -1,10 +1,10 @@
-# Service Registry
+# Solidity API
 
 ## ServiceRegistry
 
 Stores addresses of deployed contracts
 
-### MAX\_DELAY
+### MAX_DELAY
 
 ```solidity
 uint256 MAX_DELAY
@@ -66,8 +66,8 @@ function transferOwnership(address newOwner) external
 
 #### Parameters
 
-| Name     | Type    | Description                                          |
-| -------- | ------- | ---------------------------------------------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | newOwner | address | Transfers ownership of the registry to a new address |
 
 ### changeRequiredDelay
@@ -78,8 +78,8 @@ function changeRequiredDelay(uint256 newDelay) external
 
 #### Parameters
 
-| Name     | Type    | Description                                                                       |
-| -------- | ------- | --------------------------------------------------------------------------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | newDelay | uint256 | Updates the required delay before an change can be confirmed with a follow up t/x |
 
 ### getServiceNameHash
@@ -90,15 +90,15 @@ function getServiceNameHash(string name) external pure returns (bytes32)
 
 #### Parameters
 
-| Name | Type   | Description              |
-| ---- | ------ | ------------------------ |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | name | string | Hashes the supplied name |
 
 #### Return Values
 
-| Name | Type    | Description                  |
-| ---- | ------- | ---------------------------- |
-| \[0] | bytes32 | Returns the hash of the name |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | bytes32 | Returns the hash of the name |
 
 ### addNamedService
 
@@ -108,10 +108,10 @@ function addNamedService(bytes32 serviceNameHash, address serviceAddress) extern
 
 #### Parameters
 
-| Name            | Type    | Description                         |
-| --------------- | ------- | ----------------------------------- |
-| serviceNameHash | bytes32 | The hashed name                     |
-| serviceAddress  | address | The address stored for a given name |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| serviceNameHash | bytes32 | The hashed name |
+| serviceAddress | address | The address stored for a given name |
 
 ### updateNamedService
 
@@ -121,10 +121,10 @@ function updateNamedService(bytes32 serviceNameHash, address serviceAddress) ext
 
 #### Parameters
 
-| Name            | Type    | Description                            |
-| --------------- | ------- | -------------------------------------- |
-| serviceNameHash | bytes32 | The hashed name                        |
-| serviceAddress  | address | The address to update for a given name |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| serviceNameHash | bytes32 | The hashed name |
+| serviceAddress | address | The address to update for a given name |
 
 ### removeNamedService
 
@@ -134,8 +134,8 @@ function removeNamedService(bytes32 serviceNameHash) external
 
 #### Parameters
 
-| Name            | Type    | Description                       |
-| --------------- | ------- | --------------------------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | serviceNameHash | bytes32 | The hashed service name to remove |
 
 ### getRegisteredService
@@ -146,8 +146,8 @@ function getRegisteredService(string serviceName) external view returns (address
 
 #### Parameters
 
-| Name        | Type   | Description                       |
-| ----------- | ------ | --------------------------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | serviceName | string | Get a service address by its name |
 
 ### getServiceAddress
@@ -158,8 +158,8 @@ function getServiceAddress(bytes32 serviceNameHash) external view returns (addre
 
 #### Parameters
 
-| Name            | Type    | Description                                   |
-| --------------- | ------- | --------------------------------------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | serviceNameHash | bytes32 | Get a service address by the hash of its name |
 
 ### clearScheduledExecution
@@ -172,8 +172,8 @@ _Voids any submitted changes that are yet to be confirmed by a follow-up transac
 
 #### Parameters
 
-| Name               | Type    | Description                 |
-| ------------------ | ------- | --------------------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | scheduledExecution | bytes32 | Clear any scheduled changes |
 
 ### ChangeScheduled
@@ -199,3 +199,4 @@ event ChangeCancelled(bytes32 dataHash)
 ```solidity
 event NamedServiceRemoved(bytes32 nameHash)
 ```
+

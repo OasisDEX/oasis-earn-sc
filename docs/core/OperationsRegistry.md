@@ -1,4 +1,4 @@
-# Operation Registry
+# Solidity API
 
 ## StoredOperation
 
@@ -47,8 +47,8 @@ Stores the Actions that constitute a given Operation
 
 #### Parameters
 
-| Name     | Type    | Description                                             |
-| -------- | ------- | ------------------------------------------------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | newOwner | address | The address of the new owner of the Operations Registry |
 
 ### OperationAdded
@@ -61,8 +61,8 @@ _Emitted when a new operation is added or an existing operation is updated_
 
 #### Parameters
 
-| Name | Type   | Description        |
-| ---- | ------ | ------------------ |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | name | string | The Operation name |
 
 ### addOperation
@@ -75,10 +75,10 @@ Adds an Operation's Actions keyed to a an operation name
 
 #### Parameters
 
-| Name    | Type       | Description                                    |
-| ------- | ---------- | ---------------------------------------------- |
-| name    | string     | The Operation name                             |
-| actions | bytes32\[] | An array the Actions the Operation consists of |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| name | string | The Operation name |
+| actions | bytes32[] | An array the Actions the Operation consists of |
 
 ### getOperation
 
@@ -90,12 +90,13 @@ Gets an Operation from the Registry
 
 #### Parameters
 
-| Name | Type   | Description               |
-| ---- | ------ | ------------------------- |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 | name | string | The name of the Operation |
 
 #### Return Values
 
-| Name    | Type       | Description                 |
-| ------- | ---------- | --------------------------- |
-| actions | bytes32\[] | Returns an array of Actions |
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| actions | bytes32[] | Returns an array of Actions |
+
