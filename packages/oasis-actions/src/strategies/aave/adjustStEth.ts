@@ -10,13 +10,17 @@ import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IStrategy } from '../types/IStrategy'
-import { IStrategyArgs, IStrategyDependencies, WithPosition } from '../types/IStrategyGenerator'
+import { IPositionMutation } from '../types/IPositionMutation'
+import {
+  IMutationDependencies,
+  IPositionMutationArgs,
+  WithPosition,
+} from '../types/IPositionRepository'
 
 export async function adjustStEth(
-  args: IStrategyArgs<AAVETokens>,
-  dependencies: IStrategyDependencies<AAVEStrategyAddresses> & WithPosition,
-): Promise<IStrategy> {
+  args: IPositionMutationArgs<AAVETokens>,
+  dependencies: IMutationDependencies<AAVEStrategyAddresses> & WithPosition,
+): Promise<IPositionMutation> {
   const existingBasePosition = dependencies.position
 
   const priceFeed = new ethers.Contract(

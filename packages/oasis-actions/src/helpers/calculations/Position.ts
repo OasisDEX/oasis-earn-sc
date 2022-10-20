@@ -49,10 +49,10 @@ interface IPositionChangeParams {
   }
   prices: {
     /*
-        TODO: Update params to make differentiate the price configurations between increase/decrease more clearly
-        This oracle price is the exchange rate going from collateral -> debt.
-        When decreasing risk / closing we need the inverse of the exchange rate going in the opposite direction (debt -> collateral)
-     */
+      TODO: Update params to make differentiate the price configurations between increase/decrease more clearly
+      This oracle price is the exchange rate going from collateral -> debt.
+      When decreasing risk / closing we need the inverse of the exchange rate going in the opposite direction (debt -> collateral)
+    */
     oracle: BigNumber
     market: BigNumber
     oracleFLtoDebtToken?: BigNumber

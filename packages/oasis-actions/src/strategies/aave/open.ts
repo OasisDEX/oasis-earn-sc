@@ -11,13 +11,13 @@ import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IStrategy } from '../types/IStrategy'
-import { IStrategyArgs, IStrategyDependencies } from '../types/IStrategyGenerator'
+import { IPositionMutation } from '../types/IPositionMutation'
+import { IMutationDependencies, IPositionMutationArgs } from '../types/IPositionRepository'
 
 export async function open(
-  args: IStrategyArgs<AAVETokens>,
-  dependencies: IStrategyDependencies<AAVEStrategyAddresses>,
-): Promise<IStrategy> {
+  args: IPositionMutationArgs<AAVETokens>,
+  dependencies: IMutationDependencies<AAVEStrategyAddresses>,
+): Promise<IPositionMutation> {
   const tokenAddresses = {
     WETH: dependencies.addresses.WETH,
     ETH: dependencies.addresses.WETH,
