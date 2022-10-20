@@ -22,6 +22,8 @@ export async function open(
     WETH: dependencies.addresses.WETH,
     ETH: dependencies.addresses.WETH,
     STETH: dependencies.addresses.stETH,
+    USDC: dependencies.addresses.USDC,
+    WBTC: dependencies.addresses.wBTC,
   }
 
   const collateralTokenAddress = tokenAddresses[args.collateralToken]
@@ -144,15 +146,17 @@ export async function open(
 
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
-  const calls = await operation.aave.openStEth(
+  const transaction = await operation.aave.open(
     {
       flashloanAmount: target.delta?.flashloanAmount || UNUSED_FLASHLOAN_AMOUNT,
       borrowAmount: borrowEthAmountInWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
-      ethSwapAmount: target.swap.fromTokenAmount,
-      dsProxy: dependencies.proxy,
+      swapAmountInWei: target.swap.fromTokenAmount,
+      collateralTokenAddress,
+      debtTokenAddress,
+      proxy: dependencies.proxy,
     },
     dependencies.addresses,
   )
@@ -175,7 +179,10 @@ export async function open(
   }
 
   return {
-    calls,
+    transaction: {
+      calls: transaction.calls,
+      operationName: transaction.operationName,
+    },
     simulation: {
       delta: target.delta,
       flags: target.flags,

@@ -67,6 +67,8 @@ task('createPosition', 'Create stETH position on AAVE')
       ETH: ADDRESSES.main.ETH,
       WETH: ADDRESSES.main.WETH,
       stETH: ADDRESSES.main.stETH,
+      wBTC: ADDRESSES.main.WBTC,
+      USDC: ADDRESSES.main.USDC,
       chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
       aavePriceOracle: ADDRESSES.main.aavePriceOracle,
       aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
@@ -97,7 +99,7 @@ task('createPosition', 'Create stETH position on AAVE')
     const multiply = new BigNumber(taskArgs.multiply)
     const slippage = new BigNumber(0.1)
 
-    const strategyReturn = await strategies.aave.open(
+    const positionMutation = await strategies.aave.open(
       {
         depositAmountInWei: depositAmount,
         slippage,
@@ -124,7 +126,7 @@ task('createPosition', 'Create stETH position on AAVE')
       {
         address: mainnetAddresses.operationExecutor,
         calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-          strategyReturn.calls,
+          positionMutation.calls,
           OPERATION_NAMES.common.CUSTOM_OPERATION,
         ]),
       },

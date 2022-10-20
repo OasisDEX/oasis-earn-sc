@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js'
 import { ActionCall } from '../../actions/types/actionCall'
 import { IPositionChange, Swap } from '../../helpers/calculations/Position'
 import { IRiskRatio } from '../../helpers/calculations/RiskRatio'
+import { OperationNames } from '../../helpers/constants'
 import { SwapData } from './SwapData'
 
 interface ISimulatedMutation extends IPositionChange {
@@ -13,5 +14,9 @@ interface ISimulatedMutation extends IPositionChange {
 
 export interface IPositionMutation {
   calls: ActionCall[]
+  transaction: {
+    calls: ActionCall[]
+    operationName: OperationNames
+  }
   simulation: ISimulatedMutation
 }

@@ -82,6 +82,12 @@ export const OPERATION_NAMES = {
   },
 } as const
 
+type ValuesOf<T> = T[keyof T]
+type AAVEOperations = ValuesOf<typeof OPERATION_NAMES['aave']>
+type MakerOperations = ValuesOf<typeof OPERATION_NAMES['maker']>
+type CommonOperations = ValuesOf<typeof OPERATION_NAMES['maker']>
+export type OperationNames = AAVEOperations | MakerOperations | CommonOperations
+
 // If configuring a low LTV, we might not need a flashloan (therefore flashloan == 0), but we still perform
 // the swap because the actions in operation executor pass args to each other referenced via index.
 // 1inch however errors out when trying to swap 0 amount, so we swap some small amount instead.

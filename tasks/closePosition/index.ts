@@ -78,6 +78,8 @@ task('closePosition', 'Close stETH position on AAVE')
       ETH: ADDRESSES.main.ETH,
       WETH: ADDRESSES.main.WETH,
       stETH: ADDRESSES.main.stETH,
+      wBTC: ADDRESSES.main.WBTC,
+      USDC: ADDRESSES.main.USDC,
       chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
       aavePriceOracle: ADDRESSES.main.aavePriceOracle,
       aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,

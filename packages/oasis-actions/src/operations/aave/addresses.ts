@@ -3,6 +3,8 @@ export interface AAVEStrategyAddresses {
   ETH: string
   WETH: string
   stETH: string
+  USDC: string
+  wBTC: string
   operationExecutor: string
   chainlinkEthUsdPriceFeed: string
   aavePriceOracle: string
