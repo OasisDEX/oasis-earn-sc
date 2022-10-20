@@ -36,6 +36,15 @@ export async function adjustStEth(
   args: AdjustStEthArgs,
   dependencies: AdjustStEthDependencies,
 ): Promise<IStrategy> {
+  const FEE = 20
+
+  const slippage = args.slippage
+  const multiple = args.multiple
+
+  const depositEthWei = args.depositAmount || ZERO
+
+  const estimatedSwapAmount = new BigNumber(1)
+
   const existingBasePosition = dependencies.position
 
   const priceFeed = new ethers.Contract(
@@ -44,27 +53,33 @@ export async function adjustStEth(
     dependencies.provider,
   )
 
-  const roundData = await priceFeed.latestRoundData()
-  const decimals = await priceFeed.decimals()
-  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
-
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
     aavePriceOracleABI,
     dependencies.provider,
   )
 
-  const aaveWethPriceInEth = await aavePriceOracle
-    .getAssetPrice(dependencies.addresses.WETH)
-    .then((amount: ethers.BigNumberish) => amount.toString())
-    .then((amount: string) => new BigNumber(amount))
-    .then((amount: BigNumber) => amountFromWei(amount))
-
-  const aaveStEthPriceInEth = await aavePriceOracle
-    .getAssetPrice(dependencies.addresses.stETH)
-    .then((amount: ethers.BigNumberish) => amount.toString())
-    .then((amount: string) => new BigNumber(amount))
-    .then((amount: BigNumber) => amountFromWei(amount))
+  const [roundData, decimals, aaveWethPriceInEth, aaveStEthPriceInEth, quoteSwapData] =
+    await Promise.all([
+      priceFeed.latestRoundData(),
+      priceFeed.decimals(),
+      aavePriceOracle
+        .getAssetPrice(dependencies.addresses.WETH)
+        .then((amount: ethers.BigNumberish) => amount.toString())
+        .then((amount: string) => new BigNumber(amount))
+        .then((amount: BigNumber) => amountFromWei(amount)),
+      aavePriceOracle
+        .getAssetPrice(dependencies.addresses.stETH)
+        .then((amount: ethers.BigNumberish) => amount.toString())
+        .then((amount: string) => new BigNumber(amount))
+        .then((amount: BigNumber) => amountFromWei(amount)),
+      dependencies.getSwapData(
+        dependencies.addresses.WETH,
+        dependencies.addresses.stETH,
+        estimatedSwapAmount,
+        new BigNumber(slippage),
+      ),
+    ])
 
   const existingPosition = new Position(
     existingBasePosition.debt,
@@ -73,21 +88,8 @@ export async function adjustStEth(
     existingBasePosition.category,
   )
 
-  const FEE = 20
-
-  const slippage = args.slippage
-  const multiple = args.multiple
-
-  const depositEthWei = args.depositAmount || ZERO
+  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
-
-  const estimatedSwapAmount = new BigNumber(1)
-  const quoteSwapData = await dependencies.getSwapData(
-    dependencies.addresses.WETH,
-    dependencies.addresses.stETH,
-    estimatedSwapAmount,
-    new BigNumber(slippage),
-  )
 
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
