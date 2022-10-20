@@ -66,7 +66,7 @@ export async function closeStEth(
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
   // TODO: We might want to return this and update ISimulation accordingly
 
-  const calls = await operation.aave.closeStEth(
+  const operation = await operation.aave.closeStEth(
     {
       stEthAmount: args.collateralAmountLockedInProtocolInWei,
       flashloanAmount: flashLoanAmountWei,
@@ -96,7 +96,10 @@ export async function closeStEth(
   const flags = { usesFlashloan: true, isIncreasingRisk: false }
 
   return {
-    calls,
+    transaction: {
+      calls: operation.calls,
+      operationName: operation.operationName,
+    },
     simulation: {
       delta: {
         debt: existingPosition.debt.amount.negated(),

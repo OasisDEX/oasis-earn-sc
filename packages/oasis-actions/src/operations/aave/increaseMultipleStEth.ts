@@ -1,6 +1,8 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
+import { IOperation } from '../../strategies/types/IOperation'
+import { AAVEStrategyAddresses } from './addresses'
 
 export interface IncreaseMultipleStEthAddresses {
   DAI: string
@@ -23,8 +25,8 @@ export async function increaseMultipleStEth(
     ethSwapAmount: BigNumber
     dsProxy: string
   },
-  addresses: IncreaseMultipleStEthAddresses,
-) {
+  addresses: AAVEStrategyAddresses,
+): Promise<IOperation> {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,
     asset: addresses.DAI,

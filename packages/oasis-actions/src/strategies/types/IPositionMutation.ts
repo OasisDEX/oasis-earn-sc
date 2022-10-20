@@ -13,7 +13,6 @@ interface ISimulatedMutation extends IPositionChange {
 }
 
 export interface IPositionMutation {
-  calls: ActionCall[]
   transaction: {
     calls: ActionCall[]
     operationName: OperationNames

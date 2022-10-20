@@ -36,7 +36,6 @@ export async function open(
     to: args.proxy,
   })
 
-  const needsEthToBeWrapped = addresses.ETH === args.debtTokenAddress
   const wrapEth = actions.common.wrapEth({
     amount: args.swapAmountInWei,
   })
@@ -74,29 +73,16 @@ export async function open(
     to: addresses.operationExecutor,
   })
 
-  let calls = []
-  if (needsEthToBeWrapped) {
-    calls = [
-      setDaiApprovalOnLendingPool,
-      depositDaiInAAVE,
-      borrowEthFromAAVE,
-      wrapEth,
-      swapDebtTokensForCollateralTokens,
-      setCollateralTokenApprovalOnLendingPool,
-      depositCollateral,
-      withdrawDAIFromAAVE,
-    ]
-  } else {
-    calls = [
-      setDaiApprovalOnLendingPool,
-      depositDaiInAAVE,
-      borrowEthFromAAVE,
-      swapDebtTokensForCollateralTokens,
-      setCollateralTokenApprovalOnLendingPool,
-      depositCollateral,
-      withdrawDAIFromAAVE,
-    ]
-  }
+  const calls = [
+    setDaiApprovalOnLendingPool,
+    depositDaiInAAVE,
+    borrowEthFromAAVE,
+    wrapEth,
+    swapDebtTokensForCollateralTokens,
+    setCollateralTokenApprovalOnLendingPool,
+    depositCollateral,
+    withdrawDAIFromAAVE,
+  ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,

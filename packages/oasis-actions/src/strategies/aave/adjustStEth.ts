@@ -10,6 +10,7 @@ import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
+import { IOperation } from '../types/IOperation'
 import { IPositionMutation } from '../types/IPositionMutation'
 import {
   IMutationDependencies,
@@ -107,7 +108,7 @@ export async function adjustStEth(
     },
   )
 
-  let calls
+  let operation: IOperation
   let finalPosition: IPosition
   let actualMarketPriceWithSlippage
   let swapData
@@ -124,7 +125,7 @@ export async function adjustStEth(
 
     const flashloanAmount = target.delta?.flashloanAmount || ZERO
 
-    calls = await operations.aave.increaseMultipleStEth(
+    operation = await operations.aave.increaseMultipleStEth(
       {
         flashloanAmount: flashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : flashloanAmount,
         borrowAmount: borrowEthAmountWei,
@@ -166,7 +167,7 @@ export async function adjustStEth(
     const absFlashloanAmount = (target.delta?.flashloanAmount || ZERO).abs()
     const withdrawStEthAmountWei = target.delta.collateral.abs()
 
-    calls = await operations.aave.decreaseMultipleStEth(
+    operation = await operations.aave.decreaseMultipleStEth(
       {
         flashloanAmount: absFlashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : absFlashloanAmount,
         withdrawAmount: withdrawStEthAmountWei,
@@ -200,7 +201,10 @@ export async function adjustStEth(
   }
 
   return {
-    calls,
+    transaction: {
+      calls: operation.calls,
+      operationName: operation.operationName,
+    },
     simulation: {
       delta: target.delta,
       flags: target.flags,

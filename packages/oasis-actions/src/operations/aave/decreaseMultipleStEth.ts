@@ -2,6 +2,8 @@ import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
 import { MAX_UINT } from '../../helpers/constants'
+import { IOperation } from '../../strategies/types/IOperation'
+import { AAVEStrategyAddresses } from './addresses'
 
 export interface DecreaseMultipleStEthAddresses {
   DAI: string
@@ -24,8 +26,8 @@ export async function decreaseMultipleStEth(
     stEthSwapAmount: BigNumber
     dsProxy: string
   },
-  addresses: DecreaseMultipleStEthAddresses,
-) {
+  addresses: AAVEStrategyAddresses,
+): Promise<IOperation> {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
