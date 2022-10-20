@@ -146,7 +146,7 @@ task('closePosition', 'Close stETH position on AAVE')
       },
     )
 
-    const strategyReturn = await strategies.aave.close(
+    const positionMutation = await strategies.aave.close(
       {
         collateralAmountLockedInProtocolInWei: stEthAmountLockedInAave,
         slippage,
@@ -173,8 +173,8 @@ task('closePosition', 'Close stETH position on AAVE')
       {
         address: mainnetAddresses.operationExecutor,
         calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-          strategyReturn.calls,
-          OPERATION_NAMES.common.CUSTOM_OPERATION,
+          positionMutation.transaction.calls,
+          positionMutation.transaction.operationName,
         ]),
       },
       config.signer,

@@ -1,7 +1,9 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
-import { MAX_UINT } from '../../helpers/constants'
+import { MAX_UINT, OPERATION_NAMES } from '../../helpers/constants'
+import { IOperation } from '../../strategies/types/IOperation'
+import { AAVEStrategyAddresses } from './addresses'
 
 export interface CloseStEthAddresses {
   DAI: string
@@ -23,8 +25,8 @@ export async function closeStEth(
     swapData: string | number
     dsProxy: string
   },
-  addresses: CloseStEthAddresses,
-) {
+  addresses: AAVEStrategyAddresses,
+): Promise<IOperation> {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
@@ -98,5 +100,5 @@ export async function closeStEth(
     ],
   })
 
-  return [takeAFlashLoan]
+  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.CLOSE_POSITION }
 }

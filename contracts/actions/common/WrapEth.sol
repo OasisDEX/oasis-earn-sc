@@ -10,6 +10,7 @@ import { Swap } from "./Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { WRAP_ETH } from "../../core/constants/Common.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Wraps ETH Action contract
@@ -27,14 +28,16 @@ contract WrapEth is Executable, UseStore {
    * @param paramsMap Maps operation storage values by index (index offset by +1) to execute calldata params
    */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
+    console.log("wrapping");
     WrapEthData memory wrapData = parseInputs(data);
     wrapData.amount = store().readUint(bytes32(wrapData.amount), paramsMap[0], address(this));
 
     if (wrapData.amount == type(uint256).max) {
+      console.log("running");
       wrapData.amount = address(this).balance;
     }
     IWETH(registry.getRegisteredService(WETH)).deposit{ value: wrapData.amount }();
-
+    console.log("wrapped");
     emit Action(WRAP_ETH, bytes32(wrapData.amount));
   }
 

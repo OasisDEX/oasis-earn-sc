@@ -7,6 +7,7 @@ import { ILendingPool } from "../../interfaces/aave/ILendingPool.sol";
 import { DepositData } from "../../core/types/Aave.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { AAVE_LENDING_POOL, DEPOSIT_ACTION } from "../../core/constants/Aave.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Deposit | AAVE Action contract
@@ -28,13 +29,14 @@ contract AaveDeposit is Executable, UseStore {
 
     deposit.amount = store().readUint(bytes32(deposit.amount), paramsMap[1], address(this));
 
+    console.log("depositing:", deposit.amount);
     ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).deposit(
       deposit.asset,
       deposit.amount,
       address(this),
       0
     );
-
+    console.log("deposited:", deposit.amount);
     store().write(bytes32(deposit.amount));
     emit Action(DEPOSIT_ACTION, bytes32(deposit.amount));
   }

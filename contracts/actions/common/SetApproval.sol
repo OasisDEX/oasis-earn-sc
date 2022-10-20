@@ -6,6 +6,7 @@ import { SetApprovalData } from "../../core/types/Common.sol";
 import { UseStore, Read } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { SET_APPROVAL_ACTION } from "../../core/constants/Common.sol";
+import "hardhat/console.sol";
 
 /**
  * @title SetApproval Action contract
@@ -24,7 +25,7 @@ contract SetApproval is Executable, UseStore {
    */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     SetApprovalData memory approval = parseInputs(data);
-
+    console.log("approving");
     approval.amount = store().readUint(bytes32(approval.amount), paramsMap[2], address(this));
     IERC20(approval.asset).safeApprove(approval.delegate, approval.amount);
 

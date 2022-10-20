@@ -71,7 +71,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     const depositAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
-    let aaveStEthPriceInEth: BigNumber
+    let aaveCollateralTokenPriceInEth: BigNumber
 
     let system: DeployedSystemInfo
 
@@ -121,7 +121,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              positionMutation.calls,
+              positionMutation.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -142,14 +142,14 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           provider,
         )
 
-        aaveStEthPriceInEth = await aavePriceOracle
+        aaveCollateralTokenPriceInEth = await aavePriceOracle
           .getAssetPrice(addresses.stETH)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         actualPosition = new Position(
           { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
           { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
-          aaveStEthPriceInEth,
+          aaveCollateralTokenPriceInEth,
           positionMutation.simulation.position.category,
         )
       })
@@ -196,6 +196,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     })
 
     describe(`With ${tokens.ETH} collateral & ${tokens.USDC} debt`, () => {
+      const depositAmount = new BigNumber(60000)
       before(async () => {
         const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
         system = snapshot.deployed.system
@@ -216,7 +217,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           {
             addresses,
             provider,
-            getSwapData: oneInchCallMock(new BigNumber(0.9759)),
+            getSwapData: oneInchCallMock(new BigNumber(1300)),
             proxy: system.common.dsProxy.address,
           },
         )
@@ -232,7 +233,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              positionMutation.calls,
+              positionMutation.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -253,14 +254,14 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           provider,
         )
 
-        aaveStEthPriceInEth = await aavePriceOracle
-          .getAssetPrice(addresses.stETH)
+        aaveCollateralTokenPriceInEth = await aavePriceOracle
+          .getAssetPrice(addresses.ETH)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         actualPosition = new Position(
           { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
           { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
-          aaveStEthPriceInEth,
+          aaveCollateralTokenPriceInEth,
           positionMutation.simulation.position.category,
         )
       })
@@ -362,7 +363,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              positionMutation.calls,
+              positionMutation.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },

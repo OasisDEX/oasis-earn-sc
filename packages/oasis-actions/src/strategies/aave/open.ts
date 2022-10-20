@@ -5,10 +5,11 @@ import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei } from '../../helpers'
+import { ADDRESSES } from '../../helpers/addresses'
 import { Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
-import * as operation from '../../operations'
+import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
 import { IPositionMutation } from '../types/IPositionMutation'
@@ -58,6 +59,7 @@ export async function open(
   const [
     roundData,
     decimals,
+    aaveFlashloanDaiPriceInEth,
     aaveDebtTokenPriceInEth,
     aaveCollateralTokenPriceInEth,
     reserveData,
@@ -65,6 +67,9 @@ export async function open(
   ] = await Promise.all([
     priceFeed.latestRoundData(),
     priceFeed.decimals(),
+    aavePriceOracle
+      .getAssetPrice(ADDRESSES.main.DAI)
+      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     aavePriceOracle
       .getAssetPrice(debtTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
@@ -113,6 +118,10 @@ export async function open(
 
   const flashloanFee = new BigNumber(0)
 
+  const ethPerDAI = aaveFlashloanDaiPriceInEth
+  const ethPerDebtToken = aaveDebtTokenPriceInEth
+
+  const oracleFLtoDebtToken = ethPerDebtToken.div(ethPerDAI)
   const target = emptyPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
@@ -123,7 +132,7 @@ export async function open(
       prices: {
         market: quoteMarketPrice,
         oracle: aaveCollateralTokenPriceInEth,
-        oracleFLtoDebtToken: ethPrice,
+        oracleFLtoDebtToken: oracleFLtoDebtToken,
       },
       slippage: args.slippage,
       maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
@@ -131,10 +140,11 @@ export async function open(
         debt: args.depositAmountInWei,
       },
       collectSwapFeeFrom: 'sourceToken',
-      // debug: true,
+      debug: true,
     },
   )
 
+  console.log('target.delta.debt', target.delta.debt.toString)
   const borrowEthAmountInWei = target.delta.debt.minus(depositEthWei)
 
   const swapData = await dependencies.getSwapData(
@@ -146,7 +156,7 @@ export async function open(
 
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
-  const transaction = await operation.aave.open(
+  const operation = await operations.aave.open(
     {
       flashloanAmount: target.delta?.flashloanAmount || UNUSED_FLASHLOAN_AMOUNT,
       borrowAmount: borrowEthAmountInWei,
@@ -180,8 +190,8 @@ export async function open(
 
   return {
     transaction: {
-      calls: transaction.calls,
-      operationName: transaction.operationName,
+      calls: operation.calls,
+      operationName: operation.operationName,
     },
     simulation: {
       delta: target.delta,

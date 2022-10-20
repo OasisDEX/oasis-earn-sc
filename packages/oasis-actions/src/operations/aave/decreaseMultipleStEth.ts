@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
-import { MAX_UINT } from '../../helpers/constants'
+import { MAX_UINT, OPERATION_NAMES } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
 
@@ -95,5 +95,5 @@ export async function decreaseMultipleStEth(
     ],
   })
 
-  return [takeAFlashLoan]
+  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.DECREASE_POSITION }
 }

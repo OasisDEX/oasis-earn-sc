@@ -5,8 +5,10 @@ import { Write, UseStore } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { IVariableDebtToken } from "../../interfaces/aave/IVariableDebtToken.sol";
 import { IWETHGateway } from "../../interfaces/aave/IWETHGateway.sol";
+import { ILendingPool } from "../../interfaces/aave/ILendingPool.sol";
 import { BorrowData } from "../../core/types/Aave.sol";
 import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL, BORROW_ACTION } from "../../core/constants/Aave.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Borrow | AAVE Action contract
@@ -25,16 +27,29 @@ contract AaveBorrow is Executable, UseStore {
    */
   function execute(bytes calldata data, uint8[] memory) external payable override {
     BorrowData memory borrow = parseInputs(data);
+    console.log("borrowing");
 
-    address wethGatewayAddress = registry.getRegisteredService(AAVE_WETH_GATEWAY);
-    dWETH.approveDelegation(wethGatewayAddress, borrow.amount);
-
-    IWETHGateway(wethGatewayAddress).borrowETH(
-      registry.getRegisteredService(AAVE_LENDING_POOL),
+    //     if (deposit.asset)
+    // address wethGatewayAddress = registry.getRegisteredService(AAVE_WETH_GATEWAY);
+    // dWETH.approveDelegation(wethGatewayAddress, borrow.amount);
+    // borrow.asset
+    console.log("borrow.asset:", borrow.asset);
+    console.log("borrowing:", borrow.amount);
+    ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).borrow(
+      borrow.asset,
       borrow.amount,
       2,
-      0
+      0,
+      address(this)
     );
+
+    console.log("borrowed");
+    // IWETHGateway(wethGatewayAddress).borrowETH(
+    //   registry.getRegisteredService(AAVE_LENDING_POOL),
+    //   borrow.amount,
+    //   2,
+    //   0
+    // );
     address payable to = payable(borrow.to);
     to.transfer(borrow.amount);
 

@@ -126,8 +126,8 @@ task('createPosition', 'Create stETH position on AAVE')
       {
         address: mainnetAddresses.operationExecutor,
         calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-          positionMutation.calls,
-          OPERATION_NAMES.common.CUSTOM_OPERATION,
+          positionMutation.transaction.calls,
+          positionMutation.transaction.operationName,
         ]),
       },
       config.signer,

@@ -6,7 +6,7 @@ import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, calculateFee } from '../../helpers'
 import { Position } from '../../helpers/calculations/Position'
 import { ZERO } from '../../helpers/constants'
-import * as operation from '../../operations'
+import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
 import { IPositionMutation } from '../types/IPositionMutation'
@@ -66,7 +66,7 @@ export async function closeStEth(
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
   // TODO: We might want to return this and update ISimulation accordingly
 
-  const operation = await operation.aave.closeStEth(
+  const operation = await operations.aave.closeStEth(
     {
       stEthAmount: args.collateralAmountLockedInProtocolInWei,
       flashloanAmount: flashLoanAmountWei,

@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
 
 import * as actions from '../../actions'
 import { OPERATION_NAMES } from '../../helpers/constants'
@@ -30,14 +31,14 @@ export async function open(
     asset: addresses.DAI,
   })
 
-  const borrowEthFromAAVE = actions.aave.aaveBorrow({
+  const borrowDebtTokensFromAAVE = actions.aave.aaveBorrow({
     amount: args.borrowAmount,
-    asset: addresses.ETH,
+    asset: args.debtTokenAddress,
     to: args.proxy,
   })
 
   const wrapEth = actions.common.wrapEth({
-    amount: args.swapAmountInWei,
+    amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
   })
 
   const swapDebtTokensForCollateralTokens = actions.common.swap({
@@ -76,7 +77,7 @@ export async function open(
   const calls = [
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
-    borrowEthFromAAVE,
+    borrowDebtTokensFromAAVE,
     wrapEth,
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnLendingPool,
