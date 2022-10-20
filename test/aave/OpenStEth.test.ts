@@ -2,13 +2,13 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
   IPosition,
-  IStrategy,
   OPERATION_NAMES,
   Position,
   strategies,
 } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
+import { IPositionMutation } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -66,7 +66,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let system: DeployedSystemInfo
 
-    let strategy: IStrategy
+    let positionMutation: IPositionMutation
     let txStatus: boolean
 
     let userAccountData: AAVEAccountData
@@ -84,7 +84,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      strategy = await strategies.aave.open(
+      positionMutation = await strategies.aave.open(
         {
           depositAmountInWei: depositAmount,
           slippage,
@@ -96,7 +96,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           addresses,
           provider,
           getSwapData: oneInchCallMock(new BigNumber(0.9759)),
-          dsProxy: system.common.dsProxy.address,
+          proxy: system.common.dsProxy.address,
         },
       )
 
@@ -111,7 +111,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            strategy.calls,
+            positionMutation.calls,
             OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
@@ -140,7 +140,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
         { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
         aaveStEthPriceInEth,
-        strategy.simulation.position.category,
+        positionMutation.simulation.position.category,
       )
     })
 
@@ -150,14 +150,14 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     it('Should draw debt according to multiple', () => {
       expectToBeEqual(
-        strategy.simulation.position.debt.amount.toFixed(0),
+        positionMutation.simulation.position.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
 
     it('Should deposit all stEth tokens to aave', () => {
       expectToBe(
-        strategy.simulation.swap.minToTokenAmount,
+        positionMutation.simulation.swap.minToTokenAmount,
         'lte',
         new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
       )
@@ -165,7 +165,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     it('Should achieve target multiple', () => {
       expectToBe(
-        strategy.simulation.position.riskRatio.multiple,
+        positionMutation.simulation.position.riskRatio.multiple,
         'gte',
         actualPosition.riskRatio.multiple,
       )
@@ -179,7 +179,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       )
 
       expectToBeEqual(
-        new BigNumber(strategy.simulation.swap.sourceTokenFee),
+        new BigNumber(positionMutation.simulation.swap.sourceTokenFee),
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
       )
     })
@@ -192,7 +192,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     let system: DeployedSystemInfo
 
-    let strategy: IStrategy
+    let positionMutation: IPositionMutation
     let txStatus: boolean
 
     let userAccountData: AAVEAccountData
@@ -219,17 +219,19 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           { config, isFormatted: true },
         )
 
-        strategy = await strategies.aave.openStEth(
+        positionMutation = await strategies.aave.open(
           {
-            depositAmount,
+            depositAmountInWei: depositAmount,
             slippage,
             multiple,
+            debtToken: 'ETH',
+            collateralToken: 'STETH',
           },
           {
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
-            dsProxy: system.common.dsProxy.address,
+            proxy: system.common.dsProxy.address,
           },
         )
 
@@ -238,7 +240,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              strategy.calls,
+              positionMutation.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -263,14 +265,14 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
     it('Should draw debt according to multiple', () => {
       expectToBeEqual(
-        strategy.simulation.position.debt.amount.toFixed(0),
+        positionMutation.simulation.position.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
 
     it('Should deposit all stEth tokens to aave', () => {
       expectToBe(
-        strategy.simulation.swap.minToTokenAmount,
+        positionMutation.simulation.swap.minToTokenAmount,
         'lte',
         new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
       )
@@ -284,7 +286,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       )
 
       expectToBeEqual(
-        new BigNumber(strategy.simulation.swap.sourceTokenFee),
+        new BigNumber(positionMutation.simulation.swap.sourceTokenFee),
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
       )
     })

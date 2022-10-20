@@ -144,17 +144,19 @@ task('closePosition', 'Close stETH position on AAVE')
       },
     )
 
-    const strategyReturn = await strategies.aave.closeStEth(
+    const strategyReturn = await strategies.aave.close(
       {
-        stEthAmountLockedInAave,
+        collateralAmountLockedInProtocolInWei: stEthAmountLockedInAave,
         slippage,
+        debtToken: 'ETH',
+        collateralToken: 'STETH',
       },
       {
         addresses: mainnetAddresses,
         position: positionAfterOpen,
         provider: config.provider,
         getSwapData: swapData,
-        dsProxy: dsProxy.address,
+        proxy: dsProxy.address,
       },
     )
 

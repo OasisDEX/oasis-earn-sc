@@ -97,17 +97,19 @@ task('createPosition', 'Create stETH position on AAVE')
     const multiply = new BigNumber(taskArgs.multiply)
     const slippage = new BigNumber(0.1)
 
-    const strategyReturn = await strategies.aave.openStEth(
+    const strategyReturn = await strategies.aave.open(
       {
-        depositAmount,
+        depositAmountInWei: depositAmount,
         slippage,
         multiple: multiply,
+        debtToken: 'ETH',
+        collateralToken: 'STETH',
       },
       {
         addresses: mainnetAddresses,
         provider: config.provider,
         getSwapData: swapData,
-        dsProxy: dsProxy.address,
+        proxy: dsProxy.address,
       },
     )
 
