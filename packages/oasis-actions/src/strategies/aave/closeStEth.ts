@@ -94,8 +94,8 @@ export async function closeStEth(
   Final position calculated using actual swap data and the latest market price
  */
   const finalPosition = new Position(
-    { amount: ZERO, denomination: existingPosition.debt.denomination },
-    { amount: ZERO, denomination: existingPosition.collateral.denomination },
+    { amount: ZERO, symbol: existingPosition.debt.symbol },
+    { amount: ZERO, symbol: existingPosition.collateral.symbol },
     aaveStEthPriceInEth,
     existingPosition.category,
   )

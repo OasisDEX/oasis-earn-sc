@@ -91,11 +91,16 @@ export async function openStEth(
   const depositEthWei = args.depositAmount
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
-  const emptyPosition = new Position({ amount: ZERO }, { amount: ZERO }, aaveStEthPriceInEth, {
-    liquidationThreshold,
-    maxLoanToValue,
-    dustLimit,
-  })
+  const emptyPosition = new Position(
+    { amount: ZERO, symbol: 'ETH' },
+    { amount: ZERO, symbol: 'STETH' },
+    aaveStEthPriceInEth,
+    {
+      liquidationThreshold,
+      maxLoanToValue,
+      dustLimit,
+    },
+  )
 
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
@@ -114,7 +119,10 @@ export async function openStEth(
         oracleFLtoDebtToken: ethPrice,
       },
       slippage: args.slippage,
-      maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
+      flashloan: {
+        maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
+        tokenSymbol: 'DAI',
+      },
       depositedByUser: {
         debt: args.depositAmount,
       },
@@ -154,7 +162,7 @@ export async function openStEth(
    */
   const finalPosition = new Position(
     target.position.debt,
-    { amount: stEthAmountAfterSwapWei, denomination: target.position.collateral.denomination },
+    { amount: stEthAmountAfterSwapWei, symbol: target.position.collateral.symbol },
     aaveStEthPriceInEth,
     target.position.category,
   )

@@ -7,7 +7,6 @@ import { IRiskRatio, RiskRatio } from './RiskRatio'
 interface IPositionBalance {
   amount: BigNumber
   symbol: string
-  precision: BigNumber
 }
 
 interface IPositionCategory {
@@ -160,7 +159,7 @@ export class Position implements IPosition {
      * D_W  Debt token in wallet to top-up or seed position
      * */
     const collateralDepositedByUser = depositedByUser?.collateral || ZERO
-    const debtDenominatedTokensDepositedByUser = depositedByUser?.debt || ZERO
+    const debtTokensDepositedByUser = depositedByUser?.debt || ZERO
 
     /**
      * These values are based on the initial state of the position.
@@ -171,11 +170,11 @@ export class Position implements IPosition {
      * D_C  Current debt
      * */
     const currentCollateral = (this.collateral.amount || ZERO).plus(collateralDepositedByUser)
-    const currentDebt = (this.debt.amount || ZERO).minus(debtDenominatedTokensDepositedByUser)
+    const currentDebt = (this.debt.amount || ZERO).minus(debtTokensDepositedByUser)
 
     /**
      * The Oracle price is what we use to convert a position's collateral into the same
-     * denomination/units as the position's Debt. Different protocols use different
+     * to the equivalent value as the position's Debt. Different protocols use different
      * base assets.
      * EG:
      * Maker uses DAI
@@ -224,8 +223,8 @@ export class Position implements IPosition {
     if (debug) {
       logDebug(
         [
-          `Collateral deposited by User: ${collateralDepositedByUser.toString()}`,
-          `Debt denominated tokens deposited by User: ${debtDenominatedTokensDepositedByUser.toString()}`,
+          `Collateral tokens deposited by User: ${collateralDepositedByUser.toString()}`,
+          `Debt tokens deposited by User: ${debtTokensDepositedByUser.toString()}`,
 
           `Current collateral inc. top-up/seed: ${currentCollateral.toString()}`,
           `Current debt inc. top-up/seed: ${currentDebt.toString()}`,
@@ -242,7 +241,7 @@ export class Position implements IPosition {
 
           `Liquidation threshold: ${liquidationThreshold.toFixed(4)}`,
           `Max Loan-to-Value when opening: ${maxLoanToValue.toFixed(4)}`,
-          `Max Loan-to-Value when converting flashloaned DAI to Debt denominated tokens: ${maxLoanToValueFL.toFixed(
+          `Max Loan-to-Value when converting flashloaned DAI to Debt symbol tokens: ${maxLoanToValueFL.toFixed(
             4,
           )}`,
 
@@ -330,7 +329,7 @@ export class Position implements IPosition {
     const flashloanTokenIsSameAsDebt = flashloan.tokenSymbol === this.debt.symbol
     const amountToFlashloan = isFlashloanRequired
       ? debtDelta
-          .minus(flashloanTokenIsSameAsDebt ? debtDenominatedTokensDepositedByUser : ZERO)
+          .minus(flashloanTokenIsSameAsDebt ? debtTokensDepositedByUser : ZERO)
           .times(oraclePriceFLtoDebtToken)
           .div(maxLoanToValueFL)
           .integerValue(BigNumber.ROUND_DOWN)
