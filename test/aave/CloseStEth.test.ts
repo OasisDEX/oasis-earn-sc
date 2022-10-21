@@ -176,9 +176,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         const positionAfterOpen = new Position(
-          { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },
+          {
+            amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()),
+            symbol: 'ETH',
+          },
           {
             amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
+            symbol: 'STETH',
           },
           aaveStEthPriceInEth,
           openStrategy.simulation.position.category,
@@ -229,8 +233,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         actualPosition = new Position(
-          { amount: new BigNumber(afterCloseUserAccountData.totalDebtETH.toString()) },
-          { amount: new BigNumber(afterCloseUserStEthReserveData.currentATokenBalance.toString()) },
+          {
+            amount: new BigNumber(afterCloseUserAccountData.totalDebtETH.toString()),
+            symbol: 'ETH',
+          },
+          {
+            amount: new BigNumber(afterCloseUserStEthReserveData.currentATokenBalance.toString()),
+            symbol: 'STETH',
+          },
           aaveStEthPriceInEth,
           openStrategy.simulation.position.category,
         )
@@ -384,9 +394,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const positionAfterOpen = new Position(
-          { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },
+          {
+            amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()),
+            symbol: 'ETH',
+          },
           {
             amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
+            symbol: 'STETH',
           },
           aaveStEthPriceInEth,
           openStrategy.simulation.position.category,

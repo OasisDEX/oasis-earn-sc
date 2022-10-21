@@ -134,8 +134,11 @@ task('closePosition', 'Close stETH position on AAVE')
       await aaveDataProvider.getUserReserveData(ADDRESSES.main.stETH, dsProxy.address)
 
     const positionAfterOpen = new Position(
-      { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },
-      { amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()) },
+      { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()), symbol: 'ETH' },
+      {
+        amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
+        symbol: 'STETH',
+      },
       one,
       {
         dustLimit: new BigNumber(0),

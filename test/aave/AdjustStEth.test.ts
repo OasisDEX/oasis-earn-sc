@@ -145,8 +145,11 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       )
 
       actualPosition = new Position(
-        { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
-        { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
+        { amount: new BigNumber(userAccountData.totalDebtETH.toString()), symbol: 'ETH' },
+        {
+          amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
+          symbol: 'STETH',
+        },
         aaveStEthPriceInEth,
         openStrategy.simulation.position.category,
       )
@@ -252,8 +255,11 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         actualPositionAfterIncreaseAdjust = new Position(
-          { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()) },
-          { amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()) },
+          { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()), symbol: 'ETH' },
+          {
+            amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()),
+            symbol: 'STETH',
+          },
           aaveStEthPriceInEth,
           openStrategy.simulation.position.category,
         )
@@ -368,8 +374,11 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         actualPosition = new Position(
-          { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
-          { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
+          { amount: new BigNumber(userAccountData.totalDebtETH.toString()), symbol: 'ETH' },
+          {
+            amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
+            symbol: 'STETH',
+          },
           aaveStEthPriceInEth,
           openStrategy.simulation.position.category,
         )
@@ -468,8 +477,11 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         )
 
         actualPositionAfterIncreaseAdjust = new Position(
-          { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()) },
-          { amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()) },
+          { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()), symbol: 'ETH' },
+          {
+            amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()),
+            symbol: 'STETH',
+          },
           aaveStEthPriceInEth,
           openStrategy.simulation.position.category,
         )
@@ -585,8 +597,11 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
       actualPosition = new Position(
-        { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
-        { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
+        { amount: new BigNumber(userAccountData.totalDebtETH.toString()), symbol: 'ETH' },
+        {
+          amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
+          symbol: 'STETH',
+        },
         aaveStEthPriceInEth,
         openStrategy.simulation.position.category,
       )
@@ -684,8 +699,11 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         )
 
         actualPositionAfterDecreasingRisk = new Position(
-          { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()) },
-          { amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()) },
+          { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()), symbol: 'ETH' },
+          {
+            amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()),
+            symbol: 'STETH',
+          },
           aaveStEthPriceInEth,
           openStrategy.simulation.position.category,
         )
@@ -827,8 +845,11 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         actualPosition = new Position(
-          { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
-          { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
+          { amount: new BigNumber(userAccountData.totalDebtETH.toString()), symbol: 'ETH' },
+          {
+            amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
+            symbol: 'STETH',
+          },
           aaveStEthPriceInEth,
           openStrategy.simulation.position.category,
         )
@@ -939,9 +960,13 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         actualPositionAfterDecreasingRisk = new Position(
-          { amount: new BigNumber(afterReduceUserAccountData.totalDebtETH.toString()) },
+          {
+            amount: new BigNumber(afterReduceUserAccountData.totalDebtETH.toString()),
+            symbol: 'ETH',
+          },
           {
             amount: new BigNumber(afterReduceUserStEthReserveData.currentATokenBalance.toString()),
+            symbol: 'STETH',
           },
           aaveStEthPriceInEth,
           openStrategy.simulation.position.category,
