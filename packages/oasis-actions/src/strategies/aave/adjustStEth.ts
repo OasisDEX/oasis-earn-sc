@@ -99,7 +99,10 @@ export async function adjustStEth(
         oracleFLtoDebtToken: ethPrice,
       },
       slippage: args.slippage,
-      maxLoanToValueFL: existingPosition.category.maxLoanToValue,
+      flashloan: {
+        maxLoanToValueFL: existingPosition.category.maxLoanToValue,
+        tokenSymbol: 'DAI',
+      },
       depositedByUser: {
         debt: args.depositAmountInWei,
       },
@@ -146,7 +149,7 @@ export async function adjustStEth(
       target.position.debt,
       {
         amount: stEthAmountAfterSwapWei.plus(existingPosition.collateral.amount),
-        denomination: target.position.collateral.denomination,
+        symbol: target.position.collateral.symbol,
       },
       aaveStEthPriceInEth,
       target.position.category,
@@ -187,7 +190,7 @@ export async function adjustStEth(
     finalPosition = new Position(
       {
         amount: existingPosition.debt.amount.minus(ethAmountAfterSwapWei),
-        denomination: target.position.collateral.denomination,
+        symbol: target.position.collateral.symbol,
       },
       target.position.collateral,
       aaveStEthPriceInEth,

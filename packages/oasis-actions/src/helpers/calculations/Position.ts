@@ -6,7 +6,7 @@ import { IRiskRatio, RiskRatio } from './RiskRatio'
 
 interface IPositionBalance {
   amount: BigNumber
-  denomination?: string
+  symbol: string
 }
 
 interface IPositionCategory {
@@ -43,6 +43,11 @@ interface IPositionChangeParams {
     collateral?: BigNumber
     debt?: BigNumber
   }
+  flashloan: {
+    /* Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH) */
+    maxLoanToValueFL?: BigNumber
+    tokenSymbol: string
+  }
   fees: {
     oazo: BigNumber
     flashLoan: BigNumber
@@ -58,8 +63,7 @@ interface IPositionChangeParams {
     oracleFLtoDebtToken?: BigNumber
   }
   slippage: BigNumber
-  /* Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH) */
-  maxLoanToValueFL?: BigNumber
+
   /* For AAVE this would be ETH. For Maker it would be DAI (although strictly speaking USD) */
   collectSwapFeeFrom?: 'sourceToken' | 'targetToken'
   debug?: boolean
@@ -145,14 +149,8 @@ export class Position implements IPosition {
       isIncreasingRisk = true
     }
 
-    const {
-      depositedByUser,
-      fees,
-      prices,
-      slippage,
-      maxLoanToValueFL: _maxLoanToValueFL,
-      debug,
-    } = params
+    const { depositedByUser, fees, prices, slippage, flashloan, debug } = params
+    const { maxLoanToValueFL: _maxLoanToValueFL } = flashloan
     params.collectSwapFeeFrom = params.collectSwapFeeFrom ?? 'sourceToken'
     const collectFeeFromSourceToken = params.collectSwapFeeFrom === 'sourceToken'
 
@@ -161,7 +159,7 @@ export class Position implements IPosition {
      * D_W  Debt token in wallet to top-up or seed position
      * */
     const collateralDepositedByUser = depositedByUser?.collateral || ZERO
-    const debtDenominatedTokensDepositedByUser = depositedByUser?.debt || ZERO
+    const debtTokensDepositedByUser = depositedByUser?.debt || ZERO
 
     /**
      * These values are based on the initial state of the position.
@@ -172,11 +170,11 @@ export class Position implements IPosition {
      * D_C  Current debt
      * */
     const currentCollateral = (this.collateral.amount || ZERO).plus(collateralDepositedByUser)
-    const currentDebt = (this.debt.amount || ZERO).minus(debtDenominatedTokensDepositedByUser)
+    const currentDebt = (this.debt.amount || ZERO).minus(debtTokensDepositedByUser)
 
     /**
      * The Oracle price is what we use to convert a position's collateral into the same
-     * denomination/units as the position's Debt. Different protocols use different
+     * to the equivalent value as the position's Debt. Different protocols use different
      * base assets.
      * EG:
      * Maker uses DAI
@@ -225,8 +223,8 @@ export class Position implements IPosition {
     if (debug) {
       logDebug(
         [
-          `Collateral deposited by User: ${collateralDepositedByUser.toString()}`,
-          `Debt denominated tokens deposited by User: ${debtDenominatedTokensDepositedByUser.toString()}`,
+          `Collateral tokens deposited by User: ${collateralDepositedByUser.toString()}`,
+          `Debt tokens deposited by User: ${debtTokensDepositedByUser.toString()}`,
 
           `Current collateral inc. top-up/seed: ${currentCollateral.toString()}`,
           `Current debt inc. top-up/seed: ${currentDebt.toString()}`,
@@ -243,7 +241,7 @@ export class Position implements IPosition {
 
           `Liquidation threshold: ${liquidationThreshold.toFixed(4)}`,
           `Max Loan-to-Value when opening: ${maxLoanToValue.toFixed(4)}`,
-          `Max Loan-to-Value when converting flashloaned DAI to Debt denominated tokens: ${maxLoanToValueFL.toFixed(
+          `Max Loan-to-Value when converting flashloaned DAI to Debt symbol tokens: ${maxLoanToValueFL.toFixed(
             4,
           )}`,
 
@@ -328,9 +326,10 @@ export class Position implements IPosition {
      *
      * X_B Amount to flashloan or payback
      */
+    const flashloanTokenIsSameAsDebt = flashloan.tokenSymbol === this.debt.symbol
     const amountToFlashloan = isFlashloanRequired
       ? debtDelta
-          .minus(debtDenominatedTokensDepositedByUser)
+          .minus(flashloanTokenIsSameAsDebt ? debtTokensDepositedByUser : ZERO)
           .times(oraclePriceFLtoDebtToken)
           .div(maxLoanToValueFL)
           .integerValue(BigNumber.ROUND_DOWN)
@@ -385,15 +384,11 @@ export class Position implements IPosition {
           `From token amount: ${fromTokenAmount.toString()}`,
           `From token amount after fees: ${fromTokenAmount.minus(sourceFee).toString()}`,
           `From token: ${
-            isIncreasingRisk
-              ? targetPosition.debt.denomination
-              : targetPosition.collateral.denomination
+            isIncreasingRisk ? targetPosition.debt.symbol : targetPosition.collateral.symbol
           }`,
           `Min To token amount: ${minToTokenAmount.toString()}`,
           `To token: ${
-            isIncreasingRisk
-              ? targetPosition.collateral.denomination
-              : targetPosition.debt.denomination
+            isIncreasingRisk ? targetPosition.collateral.symbol : targetPosition.debt.symbol
           }`,
           `----`,
           `Debt delta: ${debtDelta.toString()}`,
@@ -436,12 +431,12 @@ export class Position implements IPosition {
   ): IPosition {
     const newCollateralAmount = currentCollateral.plus(collateralDelta)
     const newCollateral = {
+      ...this.collateral,
       amount: newCollateralAmount,
-      denomination: this.collateral.denomination,
     }
 
     const newDebtAmount = currentDebt.plus(debtDelta)
-    const newDebt = { amount: newDebtAmount, denomination: this.debt.denomination }
+    const newDebt = { ...this.debt, amount: newDebtAmount }
 
     const newPosition = new Position(newDebt, newCollateral, oraclePrice, this.category)
 

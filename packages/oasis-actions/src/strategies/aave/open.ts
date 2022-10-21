@@ -104,8 +104,8 @@ export async function open(
   )
 
   const emptyPosition = new Position(
-    { amount: ZERO },
-    { amount: ZERO },
+    { amount: ZERO, symbol: 'ETH' },
+    { amount: ZERO, symbol: 'STETH' },
     aaveCollateralTokenPriceInEth,
     {
       liquidationThreshold,
@@ -135,7 +135,10 @@ export async function open(
         oracleFLtoDebtToken: oracleFLtoDebtToken,
       },
       slippage: args.slippage,
-      maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
+      flashloan: {
+        maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
+        tokenSymbol: 'DAI',
+      },
       depositedByUser: {
         debt: args.depositAmountInWei,
       },
@@ -178,7 +181,7 @@ export async function open(
    */
   const finalPosition = new Position(
     target.position.debt,
-    { amount: stEthAmountAfterSwapWei, denomination: target.position.collateral.denomination },
+    { amount: stEthAmountAfterSwapWei, symbol: target.position.collateral.symbol },
     aaveCollateralTokenPriceInEth,
     target.position.category,
   )
