@@ -10,7 +10,6 @@ import { task } from 'hardhat/config'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
-import DSProxyABI from '../../abi/ds-proxy.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init from '../../helpers/init'
@@ -19,11 +18,6 @@ import { getOneInchCall } from '../../helpers/swap/OneIchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { balanceOf } from '../../helpers/utils'
 import { one, zero } from '../../scripts/common'
-
-function amountToWei(amount: BigNumber.Value, precision = 18) {
-  BigNumber.config({ EXPONENTIAL_AT: 30 })
-  return new BigNumber(amount || 0).times(new BigNumber(10).pow(precision))
-}
 
 export function amountFromWei(amount: BigNumber.Value, precision = 18) {
   return new BigNumber(amount || 0).div(new BigNumber(10).pow(precision))
@@ -35,7 +29,8 @@ task('closePosition', 'Close stETH position on AAVE')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
 
-    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS!
+    const serviceRegistryAddress =
+      taskArgs.serviceRegistry || '0x9b4Ae7b164d195df9C4Da5d08Be88b2848b2EaDA'
 
     const serviceRegistryAbi = [
       {
@@ -97,13 +92,9 @@ task('closePosition', 'Close stETH position on AAVE')
 
     const proxyAddress = await getOrCreateProxy(config.signer)
 
-    const dsProxy = new hre.ethers.Contract(proxyAddress, DSProxyABI, config.provider).connect(
-      config.signer,
-    )
-
     let userStEthReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
       ADDRESSES.main.stETH,
-      dsProxy.address,
+      proxyAddress,
     )
 
     const address = await config.signer.getAddress()
@@ -127,11 +118,13 @@ task('closePosition', 'Close stETH position on AAVE')
     const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress)
 
     const beforeCloseUserAccountData: AAVEAccountData = await aaveLendingPool.getUserAccountData(
-      dsProxy.address,
+      proxyAddress,
     )
 
-    const beforeCloseUserStEthReserveData: AAVEReserveData =
-      await aaveDataProvider.getUserReserveData(ADDRESSES.main.stETH, dsProxy.address)
+    const beforeCloseUserStEthReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
+      ADDRESSES.main.stETH,
+      proxyAddress,
+    )
 
     const positionAfterOpen = new Position(
       { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },
@@ -154,7 +147,7 @@ task('closePosition', 'Close stETH position on AAVE')
         position: positionAfterOpen,
         provider: config.provider,
         getSwapData: swapData,
-        dsProxy: dsProxy.address,
+        dsProxy: proxyAddress,
       },
     )
 
@@ -165,7 +158,7 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     const [txStatus, tx] = await executeThroughProxy(
-      dsProxy.address,
+      proxyAddress,
       {
         address: mainnetAddresses.operationExecutor,
         calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
@@ -183,7 +176,7 @@ task('closePosition', 'Close stETH position on AAVE')
 
     userStEthReserveData = await aaveDataProvider.getUserReserveData(
       ADDRESSES.main.stETH,
-      dsProxy.address,
+      proxyAddress,
     )
 
     balanceEth = await balanceOf(ADDRESSES.main.ETH, address, { config, isFormatted: true }, hre)

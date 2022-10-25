@@ -4,7 +4,6 @@ import { task, types } from 'hardhat/config'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
-import DSProxyABI from '../../abi/ds-proxy.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init from '../../helpers/init'
@@ -26,7 +25,8 @@ task('createPosition', 'Create stETH position on AAVE')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
 
-    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS!
+    const serviceRegistryAddress =
+      taskArgs.serviceRegistry || '0x9b4Ae7b164d195df9C4Da5d08Be88b2848b2EaDA'
 
     const serviceRegistryAbi = [
       {
@@ -62,6 +62,10 @@ task('createPosition', 'Create stETH position on AAVE')
 
     const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
 
+    console.log('Addresses from service registry:')
+    console.log('\tOperation executor: ', operationExecutorAddress)
+    console.log('\tSwap: ', swapAddress)
+
     const mainnetAddresses = {
       DAI: ADDRESSES.main.DAI,
       ETH: ADDRESSES.main.ETH,
@@ -86,16 +90,12 @@ task('createPosition', 'Create stETH position on AAVE')
 
     const proxyAddress = await getOrCreateProxy(config.signer)
 
-    const dsProxy = new hre.ethers.Contract(proxyAddress, DSProxyABI, config.provider).connect(
-      config.signer,
-    )
-
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
-    const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress)
+    const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress, true)
     const depositAmount = amountToWei(new BigNumber(taskArgs.deposit))
     const multiply = new BigNumber(taskArgs.multiply)
-    const slippage = new BigNumber(0.1)
+    const slippage = new BigNumber(0.5)
 
     const strategyReturn = await strategies.aave.openStEth(
       {
@@ -107,7 +107,7 @@ task('createPosition', 'Create stETH position on AAVE')
         addresses: mainnetAddresses,
         provider: config.provider,
         getSwapData: swapData,
-        dsProxy: dsProxy.address,
+        dsProxy: proxyAddress,
       },
     )
 
@@ -118,7 +118,7 @@ task('createPosition', 'Create stETH position on AAVE')
     )
 
     const [txStatus, tx] = await executeThroughProxy(
-      dsProxy.address,
+      proxyAddress,
       {
         address: mainnetAddresses.operationExecutor,
         calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
@@ -131,17 +131,15 @@ task('createPosition', 'Create stETH position on AAVE')
       hre,
     )
 
-    const userAccountData: AAVEAccountData = await aaveLendingPool.getUserAccountData(
-      dsProxy.address,
-    )
+    const userAccountData: AAVEAccountData = await aaveLendingPool.getUserAccountData(proxyAddress)
     const userStEthReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
       ADDRESSES.main.stETH,
-      dsProxy.address,
+      proxyAddress,
     )
 
     const proxyStEthBalance = await balanceOf(
       ADDRESSES.main.stETH,
-      dsProxy.address,
+      proxyAddress,
       {
         config,
         isFormatted: true,
@@ -151,7 +149,7 @@ task('createPosition', 'Create stETH position on AAVE')
 
     const proxyEthBalance = await balanceOf(
       ADDRESSES.main.ETH,
-      dsProxy.address,
+      proxyAddress,
       { config, isFormatted: true },
       hre,
     )
