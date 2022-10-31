@@ -79,9 +79,10 @@ export async function increaseMultipleStEth(
     to: addresses.operationExecutor,
   })
 
+  console.log()
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
-    borrower: addresses.operationExecutor,
+    borrower: args.dsProxy,
     dsProxyFlashloan: true,
     calls: [
       setDaiApprovalOnLendingPool,

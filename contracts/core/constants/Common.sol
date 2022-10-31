@@ -19,5 +19,6 @@ string constant RETURN_FUNDS_ACTION = "ReturnFunds";
 
 string constant UNISWAP_ROUTER = "UniswapRouter";
 string constant SWAP = "Swap";
+string constant BALANCER_VAULT = "BalancerVault";
 
 address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;

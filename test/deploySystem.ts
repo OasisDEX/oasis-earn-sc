@@ -188,6 +188,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     ADDRESSES.main.oneInchAggregator,
   )
+  await registry.addEntry(
+    CONTRACT_NAMES.balancer.VAULT,
+    ADDRESSES.main.balancerVault
+  )
 
   const swapActionHash = await registry.addEntry(
     CONTRACT_NAMES.common.SWAP_ACTION,

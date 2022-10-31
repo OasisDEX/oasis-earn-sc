@@ -49,6 +49,9 @@ export const CONTRACT_NAMES = {
     MCD_JOIN_DAI: 'McdJoinDai',
     CDP_ALLOW: 'CdpAllow',
   },
+  balancer: {
+    VAULT: 'BalancerVault',
+  },
   test: {
     DUMMY_ACTION: 'DummyAction',
     DUMMY_SWAP: 'DummySwap',

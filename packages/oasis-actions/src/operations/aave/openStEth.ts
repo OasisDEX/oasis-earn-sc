@@ -82,7 +82,7 @@ export async function openStEth(
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
-    borrower: addresses.operationExecutor,
+    borrower: args.dsProxy,
     dsProxyFlashloan: true,
     calls: [
       setDaiApprovalOnLendingPool,

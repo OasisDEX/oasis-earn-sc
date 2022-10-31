@@ -80,7 +80,7 @@ export async function decreaseMultipleStEth(
   // TODO: determine if a flashloan is necessary
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
-    borrower: addresses.operationExecutor,
+    borrower: args.dsProxy,
     dsProxyFlashloan: true,
     calls: [
       setDaiApprovalOnLendingPool,

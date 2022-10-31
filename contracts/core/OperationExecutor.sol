@@ -7,19 +7,23 @@ import { OperationsRegistry } from "./OperationsRegistry.sol";
 import { DSProxy } from "../libs/DS/DSProxy.sol";
 import { Address } from "../libs/Address.sol";
 import { TakeFlashloan } from "../actions/common/TakeFlashloan.sol";
-import { IERC3156FlashBorrower } from "../interfaces/flashloan/IERC3156FlashBorrower.sol";
-import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender.sol";
+import { IFlashLoanRecipient } from "../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
-import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
+import {
+  OPERATION_STORAGE,
+  OPERATIONS_REGISTRY,
+  OPERATION_EXECUTOR,
+  BALANCER_VAULT
+} from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
 /**
  * @title Operation Executor
  * @notice Is responsible for executing sequences of Actions (Operations)
  */
-contract OperationExecutor is IERC3156FlashBorrower {
+contract OperationExecutor is IFlashLoanRecipient {
   using Address for address;
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
@@ -99,38 +103,23 @@ contract OperationExecutor is IERC3156FlashBorrower {
     aggregate(calls);
   }
 
-  /**
-   * @notice Not to be called directly.
-   * @dev Callback handler for use by a flashloan lender contract.
-   * If the dsProxyFlashloan flag is supplied we reestablish the calling context as the user's proxy (at time of writing DSProxy). Although stored values will
-   * We set the initiator on Operation Storage such that calls originating from other contracts EG Oasis Automation Bot (see https://github.com/OasisDEX/automation-smartcontracts)
-   * The initiator address will be used to store values against the original msg.sender.
-   * This protects against the Operation Storage values being polluted by malicious code from untrusted 3rd party contracts.
-
-   * @param initiator Is the address of the contract that initiated the flashloan (EG Operation Executor)
-   * @param asset The address of the asset being flash loaned
-   * @param amount The size of the flash loan
-   * @param fee The Fee charged for the loan
-   * @param data Any calldata sent to the contract for execution later in the callback
-   */
-  function onFlashLoan(
-    address initiator,
-    address asset,
-    uint256 amount,
-    uint256 fee,
-    bytes calldata data
-  ) external override returns (bytes32) {
-    address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
-
+  function receiveFlashLoan(
+    IERC20[] memory tokens,
+    uint256[] memory amounts,
+    uint256[] memory feeAmounts,
+    bytes memory data
+  ) external override {
+    address lender = registry.getRegisteredService(BALANCER_VAULT);
     require(msg.sender == lender, "Untrusted flashloan lender");
 
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
+    address initiator = flData.borrower;
+    IERC20 borrowedToken = tokens[0];
 
-    require(IERC20(asset).balanceOf(address(this)) >= flData.amount, "Flashloan inconsistency");
+    require(borrowedToken.balanceOf(address(this)) >= flData.amount, "Flashloan inconsistency");
 
     if (flData.dsProxyFlashloan) {
-      IERC20(asset).safeTransfer(initiator, flData.amount);
-
+      borrowedToken.safeTransfer(initiator, flData.amount);
       DSProxy(payable(initiator)).execute(
         address(this),
         abi.encodeWithSelector(this.callbackAggregate.selector, flData.calls)
@@ -143,14 +132,12 @@ contract OperationExecutor is IERC3156FlashBorrower {
       aggregate(flData.calls);
     }
 
-    uint256 paybackAmount = amount.add(fee);
+    uint256 paybackAmount = amounts[0].add(feeAmounts[0]);
     require(
-      IERC20(asset).balanceOf(address(this)) >= paybackAmount,
+      borrowedToken.balanceOf(address(this)) >= paybackAmount,
       "Insufficient funds for payback"
     );
 
-    IERC20(asset).safeApprove(lender, paybackAmount);
-
-    return keccak256("ERC3156FlashBorrower.onFlashLoan");
+    borrowedToken.safeTransfer(lender, paybackAmount);
   }
 }

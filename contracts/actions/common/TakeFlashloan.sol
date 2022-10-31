@@ -4,6 +4,9 @@ import { Executable } from "../common/Executable.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { IERC3156FlashBorrower } from "../../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "../../interfaces/flashloan/IERC3156FlashLender.sol";
+import { IFlashLoanRecipient } from "../../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
+import { IVault } from "../../interfaces/balancer/IVault.sol";
+import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
 import { FlashloanData } from "../../core/types/Common.sol";
 import { OPERATION_EXECUTOR, DAI, TAKE_FLASH_LOAN_ACTION } from "../../core/constants/Common.sol";
 import { FLASH_MINT_MODULE } from "../../core/constants/Maker.sol";
@@ -36,10 +39,23 @@ contract TakeFlashloan is Executable, ProxyPermission {
       givePermission(operationExecutorAddress);
     }
 
-    IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
-      IERC3156FlashBorrower(operationExecutorAddress),
-      dai,
-      flData.amount,
+    // IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
+    //   IERC3156FlashBorrower(operationExecutorAddress),
+    //   dai,
+    //   flData.amount,
+    //   data
+    // );
+
+    IERC20[] memory tokens = new IERC20[](1);
+    uint256[] memory amounts = new uint256[](1);
+
+    tokens[0] = IERC20(dai);
+    amounts[0] = flData.amount;
+
+    IVault(0xBA12222222228d8Ba445958a75a0704d566BF2C8).flashLoan(
+      IFlashLoanRecipient(operationExecutorAddress),
+      tokens,
+      amounts,
       data
     );
 
