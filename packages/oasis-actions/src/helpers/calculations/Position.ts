@@ -21,14 +21,14 @@ export interface IBasePosition {
   category: IPositionCategory
 }
 
-type Delta = { debt: BigNumber; collateral: BigNumber; flashloanAmount?: BigNumber }
+type Delta = { debt: BigNumber; collateral: BigNumber; flashloanAmount: BigNumber }
 export type Swap = {
   fromTokenAmount: BigNumber
   minToTokenAmount: BigNumber
   sourceTokenFee: BigNumber
   targetTokenFee: BigNumber
 }
-type Flags = { usesFlashloan: boolean; isIncreasingRisk: boolean }
+type Flags = { requiresFlashloan: boolean; isIncreasingRisk: boolean }
 
 export interface IPositionChange {
   position: IPosition
@@ -327,13 +327,11 @@ export class Position implements IPosition {
      * X_B Amount to flashloan or payback
      */
     const flashloanTokenIsSameAsDebt = flashloan.tokenSymbol === this.debt.symbol
-    const amountToFlashloan = isFlashloanRequired
-      ? debtDelta
-          .minus(flashloanTokenIsSameAsDebt ? debtTokensDepositedByUser : ZERO)
-          .times(oraclePriceFLtoDebtToken)
-          .div(maxLoanToValueFL)
-          .integerValue(BigNumber.ROUND_DOWN)
-      : ZERO
+    const amountToFlashloan = debtDelta
+      .minus(flashloanTokenIsSameAsDebt ? debtTokensDepositedByUser : ZERO)
+      .times(oraclePriceFLtoDebtToken)
+      .div(maxLoanToValueFL)
+      .integerValue(BigNumber.ROUND_DOWN)
 
     /*
      * Account for fees being collected from either
@@ -416,7 +414,7 @@ export class Position implements IPosition {
         targetTokenFee: targetFee,
       },
       flags: {
-        usesFlashloan: isFlashloanRequired,
+        requiresFlashloan: isFlashloanRequired,
         isIncreasingRisk,
       },
     }

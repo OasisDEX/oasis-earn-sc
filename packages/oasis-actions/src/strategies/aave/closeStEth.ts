@@ -93,7 +93,7 @@ export async function closeStEth(
     collateralTokenPrices: stEthPrice,
   }
 
-  const flags = { usesFlashloan: true, isIncreasingRisk: false }
+  const flags = { requiresFlashloan: true, isIncreasingRisk: false }
 
   return {
     transaction: {
@@ -104,6 +104,7 @@ export async function closeStEth(
       delta: {
         debt: existingPosition.debt.amount.negated(),
         collateral: existingPosition.collateral.amount.negated(),
+        flashloanAmount: ZERO,
       },
       flags: flags,
       swap: {

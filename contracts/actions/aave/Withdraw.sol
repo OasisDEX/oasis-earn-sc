@@ -22,7 +22,9 @@ contract AaveWithdraw is Executable, UseStore {
    */
   function execute(bytes calldata data, uint8[] memory) external payable override {
     WithdrawData memory withdraw = parseInputs(data);
-    console.log("withdrawing");
+    console.log("withdrawing", withdraw.amount);
+    console.log("withdraw.asset", withdraw.asset);
+    console.log("withdraw.to", withdraw.to);
     uint256 amountWithdrawn = ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL))
       .withdraw(withdraw.asset, withdraw.amount, withdraw.to);
     store().write(bytes32(amountWithdrawn));

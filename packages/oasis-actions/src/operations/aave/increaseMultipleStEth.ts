@@ -32,11 +32,13 @@ export async function increaseMultipleStEth(
     amount: args.flashloanAmount,
     asset: addresses.DAI,
     delegate: addresses.aaveLendingPool,
+    sumAmounts: false,
   })
 
   const depositDaiInAAVE = actions.aave.aaveDeposit({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
+    sumAmounts: false,
   })
 
   const borrowEthFromAAVE = actions.aave.aaveBorrow({
@@ -64,16 +66,18 @@ export async function increaseMultipleStEth(
       amount: 0,
       asset: addresses.stETH,
       delegate: addresses.aaveLendingPool,
+      sumAmounts: true,
     },
-    [0, 0, 3],
+    [0, 0, 3, 0],
   )
 
   const depositSTETH = actions.aave.aaveDeposit(
     {
       asset: addresses.stETH,
       amount: 0,
+      sumAmounts: false,
     },
-    [0, 3],
+    [0, 3, 0],
   )
 
   const withdrawDAIFromAAVE = actions.aave.aaveWithdraw({
@@ -98,5 +102,5 @@ export async function increaseMultipleStEth(
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.INCREASE_POSITION }
+  return { calls: [takeAFlashLoan], operationName: 'CUSTOM_OPERATION' }
 }

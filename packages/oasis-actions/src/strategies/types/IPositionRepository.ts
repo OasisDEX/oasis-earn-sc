@@ -8,12 +8,15 @@ import { SwapData } from './SwapData'
 
 export interface IBasePositionMutationArgs<Tokens> {
   slippage: BigNumber
-  collateralToken: Tokens
-  debtToken: Tokens
+  collateralToken: { symbol: Tokens; precision?: number }
+  debtToken: { symbol: Tokens; precision?: number }
 }
 
 type WithDeposit = {
-  depositAmountInWei: BigNumber // in wei
+  depositedByUser?: {
+    collateralInWei?: BigNumber
+    debtInWei?: BigNumber
+  }
 }
 
 type WithMultiple = {

@@ -101,11 +101,11 @@ task('createPosition', 'Create stETH position on AAVE')
 
     const positionMutation = await strategies.aave.open(
       {
-        depositAmountInWei: depositAmount,
+        depositedByUser: { debtInWei: depositAmount },
         slippage,
         multiple: multiply,
-        debtToken: 'ETH',
-        collateralToken: 'STETH',
+        debtToken: { symbol: 'ETH' },
+        collateralToken: { symbol: 'STETH' },
       },
       {
         addresses: mainnetAddresses,

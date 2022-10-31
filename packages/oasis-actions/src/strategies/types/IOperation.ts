@@ -3,5 +3,6 @@ import { OperationNames } from '../../helpers/constants'
 
 export interface IOperation {
   calls: ActionCall[]
-  operationName: OperationNames
+  // operationName: OperationNames
+  operationName: 'CUSTOM_OPERATION'
 }

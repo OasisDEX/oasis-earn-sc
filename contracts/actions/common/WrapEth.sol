@@ -36,6 +36,8 @@ contract WrapEth is Executable, UseStore {
       console.log("running");
       wrapData.amount = address(this).balance;
     }
+    console.log("wrapData.amount:", wrapData.amount);
+    console.log("WETH address:", registry.getRegisteredService(WETH));
     IWETH(registry.getRegisteredService(WETH)).deposit{ value: wrapData.amount }();
     console.log("wrapped");
     emit Action(WRAP_ETH, bytes32(wrapData.amount));

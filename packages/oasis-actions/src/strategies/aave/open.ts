@@ -4,11 +4,11 @@ import { ethers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
-import { amountFromWei } from '../../helpers'
+import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
 import { Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
+import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
@@ -27,8 +27,8 @@ export async function open(
     WBTC: dependencies.addresses.wBTC,
   }
 
-  const collateralTokenAddress = tokenAddresses[args.collateralToken]
-  const debtTokenAddress = tokenAddresses[args.debtToken]
+  const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
+  const debtTokenAddress = tokenAddresses[args.debtToken.symbol]
 
   if (!collateralTokenAddress)
     throw new Error('Collateral token not recognised or address missing in dependencies')
@@ -62,7 +62,8 @@ export async function open(
     aaveFlashloanDaiPriceInEth,
     aaveDebtTokenPriceInEth,
     aaveCollateralTokenPriceInEth,
-    reserveData,
+    reserveDataForCollateral,
+    reserveDataForFlashloan,
     quoteSwapData,
   ] = await Promise.all([
     priceFeed.latestRoundData(),
@@ -77,6 +78,7 @@ export async function open(
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
+    aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
     dependencies.getSwapData(
       debtTokenAddress,
       collateralTokenAddress,
@@ -88,24 +90,27 @@ export async function open(
   const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
 
   const BASE = new BigNumber(10000)
-  const liquidationThreshold = new BigNumber(reserveData.liquidationThreshold.toString()).div(BASE)
-  const maxLoanToValue = new BigNumber(reserveData.ltv.toString()).div(BASE)
+  const liquidationThreshold = new BigNumber(
+    reserveDataForCollateral.liquidationThreshold.toString(),
+  ).div(BASE)
+  const maxLoanToValue = new BigNumber(reserveDataForCollateral.ltv.toString()).div(BASE)
+  const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(BASE)
 
   // TODO: Read it from blockchain if AAVE introduces a dust limit
   const dustLimit = new BigNumber(0)
 
   const FEE = 20
-
   const multiple = args.multiple
 
-  const depositEthWei = args.depositAmountInWei
+  const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
+  const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
   const collateralPrice = aaveCollateralTokenPriceInEth.times(
     ethPrice.times(aaveDebtTokenPriceInEth),
   )
 
   const emptyPosition = new Position(
-    { amount: ZERO, symbol: 'ETH' },
-    { amount: ZERO, symbol: 'STETH' },
+    { amount: ZERO, symbol: args.debtToken.symbol },
+    { amount: ZERO, symbol: args.collateralToken.symbol },
     aaveCollateralTokenPriceInEth,
     {
       liquidationThreshold,
@@ -118,10 +123,17 @@ export async function open(
 
   const flashloanFee = new BigNumber(0)
 
+  // ETH/DAI
   const ethPerDAI = aaveFlashloanDaiPriceInEth
+
+  // EG USDC/ETH
   const ethPerDebtToken = aaveDebtTokenPriceInEth
 
+  // EG USDC/ETH divided by ETH/DAI = USDC/ETH times by DAI/ETH = USDC/DAI
   const oracleFLtoDebtToken = ethPerDebtToken.div(ethPerDAI)
+
+  // EG STETH/ETH divided by USDC/ETH = STETH/USDC
+  const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
   const target = emptyPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
@@ -131,29 +143,45 @@ export async function open(
       },
       prices: {
         market: quoteMarketPrice,
-        oracle: aaveCollateralTokenPriceInEth,
+        oracle: oracle,
         oracleFLtoDebtToken: oracleFLtoDebtToken,
       },
       slippage: args.slippage,
       flashloan: {
-        maxLoanToValueFL: emptyPosition.category.maxLoanToValue,
+        maxLoanToValueFL: maxLoanToValueForFL,
         tokenSymbol: 'DAI',
       },
       depositedByUser: {
-        debt: args.depositAmountInWei,
+        debt: depositDebtAmountInWei,
+        collateral: depositCollateralAmountInWei,
       },
       collectSwapFeeFrom: 'sourceToken',
       debug: true,
     },
   )
 
-  console.log('target.delta.debt', target.delta.debt.toString)
-  const borrowEthAmountInWei = target.delta.debt.minus(depositEthWei)
+  const borrowAmountInWei = target.delta.debt.minus(depositDebtAmountInWei)
 
+  const precisionAdjustedBorrowAmount = amountToWei(
+    amountFromWei(borrowAmountInWei),
+    args.debtToken.precision || TYPICAL_PRECISION,
+  )
+
+  const swapAmountBeforeFees = target.swap.fromTokenAmount
+  const swapAmountAfterFees = swapAmountBeforeFees.minus(target.swap.sourceTokenFee)
+  const precisionAdjustSwapAmountBeforeFees = amountToWei(
+    amountFromWei(swapAmountBeforeFees),
+    args.debtToken.precision || TYPICAL_PRECISION,
+  )
+  const precisionAdjustSwapAmountAfterFees = amountToWei(
+    amountFromWei(swapAmountAfterFees),
+    args.debtToken.precision || TYPICAL_PRECISION,
+  )
+  console.log('precisionAdjustSwapAmountAfterFees:', precisionAdjustSwapAmountAfterFees.toString())
   const swapData = await dependencies.getSwapData(
     debtTokenAddress,
     collateralTokenAddress,
-    target.swap.fromTokenAmount.minus(target.swap.sourceTokenFee),
+    precisionAdjustSwapAmountAfterFees,
     slippage,
   )
 
@@ -161,12 +189,20 @@ export async function open(
 
   const operation = await operations.aave.open(
     {
-      flashloanAmount: target.delta?.flashloanAmount || UNUSED_FLASHLOAN_AMOUNT,
-      borrowAmount: borrowEthAmountInWei,
+      depositCollateral: {
+        amountInWei: depositCollateralAmountInWei,
+        isEth: args.collateralToken.symbol === 'ETH',
+      },
+      depositDebtTokens: {
+        amountInWei: depositDebtAmountInWei, // Reduces amount of borrowing required
+        isEth: args.debtToken.symbol === 'ETH',
+      },
+      flashloanAmount: target.delta.flashloanAmount,
+      borrowAmountInWei: precisionAdjustedBorrowAmount, // This is the amount that should be correct precision
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
-      swapAmountInWei: target.swap.fromTokenAmount,
+      swapAmountInWei: precisionAdjustSwapAmountBeforeFees,
       collateralTokenAddress,
       debtTokenAddress,
       proxy: dependencies.proxy,
@@ -174,17 +210,24 @@ export async function open(
     dependencies.addresses,
   )
 
-  const stEthAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
+  const collateralAmountAfterSwapInWei = target.swap.fromTokenAmount.div(
+    actualMarketPriceWithSlippage,
+  )
 
   /*
     Final position calculated using actual swap data and the latest market price
    */
   const finalPosition = new Position(
     target.position.debt,
-    { amount: stEthAmountAfterSwapWei, symbol: target.position.collateral.symbol },
-    aaveCollateralTokenPriceInEth,
+    {
+      amount: collateralAmountAfterSwapInWei.plus(depositCollateralAmountInWei),
+      symbol: target.position.collateral.symbol,
+    },
+    oracle,
     target.position.category,
   )
+
+  console.log('SIMULATED ORACLE: ', oracle.toString())
 
   const prices = {
     debtTokenPrice: ethPrice,

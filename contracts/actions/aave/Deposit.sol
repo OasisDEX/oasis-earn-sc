@@ -5,6 +5,7 @@ import { UseStore, Write, Read } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { ILendingPool } from "../../interfaces/aave/ILendingPool.sol";
 import { DepositData } from "../../core/types/Aave.sol";
+import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { AAVE_LENDING_POOL, DEPOSIT_ACTION } from "../../core/constants/Aave.sol";
 import "hardhat/console.sol";
@@ -16,6 +17,7 @@ import "hardhat/console.sol";
 contract AaveDeposit is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
+  using SafeMath for uint256;
 
   constructor(address _registry) UseStore(_registry) {}
 
@@ -25,20 +27,38 @@ contract AaveDeposit is Executable, UseStore {
    * @param paramsMap Maps operation storage values by index (index offset by +1) to execute calldata params
    */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
+    console.log("depositing");
     DepositData memory deposit = parseInputs(data);
 
-    deposit.amount = store().readUint(bytes32(deposit.amount), paramsMap[1], address(this));
+    console.log("deposit.amount:", deposit.amount);
+    uint256 mappedDepositAmount = store().readUint(
+      bytes32(deposit.amount),
+      paramsMap[1],
+      address(this)
+    );
 
-    console.log("depositing:", deposit.amount);
+    uint256 actualDepositAmount = deposit.sumAmounts
+      ? mappedDepositAmount.add(deposit.amount)
+      : mappedDepositAmount;
+    console.log("Deposited:", actualDepositAmount);
+
+    console.log("msg.sender:", msg.sender);
+    console.log("address(this):", address(this));
+    uint256 balanceMsgSender = IERC20(deposit.asset).balanceOf(msg.sender);
+    uint256 balanceThis = IERC20(deposit.asset).balanceOf(address(this));
+    console.log("balanceMsgSender:", balanceMsgSender);
+    console.log("balanceThis:", balanceThis);
     ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).deposit(
       deposit.asset,
-      deposit.amount,
+      actualDepositAmount,
       address(this),
       0
     );
-    console.log("deposited:", deposit.amount);
-    store().write(bytes32(deposit.amount));
-    emit Action(DEPOSIT_ACTION, bytes32(deposit.amount));
+
+    console.log("Deposit successful");
+
+    store().write(bytes32(actualDepositAmount));
+    emit Action(DEPOSIT_ACTION, bytes32(actualDepositAmount));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (DepositData memory params) {

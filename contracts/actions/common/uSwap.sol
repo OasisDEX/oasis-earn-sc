@@ -119,6 +119,7 @@ contract uSwap {
     uint256 amount,
     uint256 receiveAtLeast
   ) internal returns (uint256 balance) {
+    console.log("in _swap");
     ISwapRouter uniswap = ISwapRouter(registry.getRegisteredService(UNISWAP_ROUTER));
 
     IERC20(fromAsset).safeApprove(address(uniswap), amount);
@@ -159,8 +160,11 @@ contract uSwap {
     if (!isFeeValid) {
       revert FeeTierDoesNotExist(fee);
     }
-    uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
 
+    console.log("fromAmount:", fromAmount);
+    uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
+    console.log("feeToTransfer:", feeToTransfer);
+    console.log("asset", asset);
     if (fee > 0) {
       IERC20(asset).safeTransfer(feeBeneficiaryAddress, feeToTransfer);
       emit FeePaid(feeBeneficiaryAddress, feeToTransfer, asset);
@@ -187,19 +191,13 @@ contract uSwap {
     bytes memory methodSig = withData[:4];
 
     if (compareMethodSigs(methodSig, uniswapV3Swap)) {
-      (uint256 amount, uint256 _minReturn, uint256[] memory pools) = abi.decode(
-        withData[4:],
-        (uint256, uint256, uint256[])
-      );
+      (, uint256 _minReturn, ) = abi.decode(withData[4:], (uint256, uint256, uint256[]));
       minReturn = _minReturn;
     } else if (compareMethodSigs(methodSig, unoswap)) {
-      (address srcToken, uint256 amount, uint256 _minReturn, bytes32[] memory pools) = abi.decode(
-        withData[4:],
-        (address, uint256, uint256, bytes32[])
-      );
+      (, , uint256 _minReturn, ) = abi.decode(withData[4:], (address, uint256, uint256, bytes32[]));
       minReturn = _minReturn;
     } else if (compareMethodSigs(methodSig, swap)) {
-      (address a, SwapDescription memory swapDescription, bytes memory j) = abi.decode(
+      (, SwapDescription memory swapDescription, ) = abi.decode(
         withData[4:],
         (address, SwapDescription, bytes)
       );
@@ -211,9 +209,23 @@ contract uSwap {
   }
 
   function swapTokens(SwapData calldata swapData) public returns (uint256) {
-    IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
+    console.log("about to transfer within swap");
+    console.log("msg.sender", msg.sender);
+    console.log("address(this)", address(this));
+    console.log("swap amount:", swapData.amount);
+    uint256 balance = IERC20(swapData.fromAsset).balanceOf(msg.sender);
+    console.log("balance:", balance);
+    uint256 allowance = IERC20(swapData.fromAsset).allowance(msg.sender, address(this));
+    console.log("allowance:", allowance);
+    require(
+      IERC20(swapData.fromAsset).transferFrom(msg.sender, address(this), swapData.amount),
+      "swapTokens/failed-transfer-to-swap-contract"
+    );
+    // IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
+
     uint256 amountFrom = swapData.amount;
 
+    console.log("about to collect fee w/:", swapData.amount);
     if (swapData.collectFeeInFromToken) {
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }

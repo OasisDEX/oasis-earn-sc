@@ -64,7 +64,7 @@ export async function adjustStEth(
   const slippage = args.slippage
   const multiple = args.multiple
 
-  const depositEthWei = args.depositAmountInWei || ZERO
+  const depositEthWei = args.depositedByUser?.debtInWei || ZERO
   const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
   const estimatedSwapAmount = new BigNumber(1)
@@ -104,7 +104,7 @@ export async function adjustStEth(
         tokenSymbol: 'DAI',
       },
       depositedByUser: {
-        debt: args.depositAmountInWei,
+        debt: depositEthWei,
       },
       collectSwapFeeFrom: isIncreasingRisk ? 'sourceToken' : 'targetToken',
       // debug: true,

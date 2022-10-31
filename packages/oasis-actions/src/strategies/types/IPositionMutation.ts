@@ -15,7 +15,8 @@ interface ISimulatedMutation extends IPositionChange {
 export interface IPositionMutation {
   transaction: {
     calls: ActionCall[]
-    operationName: OperationNames
+    // operationName: OperationNames
+    operationName: 'CUSTOM_OPERATION'
   }
   simulation: ISimulatedMutation
 }

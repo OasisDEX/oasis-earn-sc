@@ -31,11 +31,13 @@ export async function closeStEth(
     amount: args.flashloanAmount,
     asset: addresses.DAI,
     delegate: addresses.aaveLendingPool,
+    sumAmounts: false,
   })
 
   const depositDaiInAAVE = actions.aave.aaveDeposit({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
+    sumAmounts: false,
   })
 
   const withdrawStEthFromAAVE = actions.aave.aaveWithdraw({
@@ -59,8 +61,9 @@ export async function closeStEth(
       asset: addresses.WETH,
       delegate: addresses.aaveLendingPool,
       amount: new BigNumber(0),
+      sumAmounts: false,
     },
-    [0, 0, 3],
+    [0, 0, 3, 0],
   )
 
   const paybackInAAVE = actions.aave.aavePayback({
@@ -100,5 +103,5 @@ export async function closeStEth(
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.CLOSE_POSITION }
+  return { calls: [takeAFlashLoan], operationName: 'CUSTOM_OPERATION' }
 }

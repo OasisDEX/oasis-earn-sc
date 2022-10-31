@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
-import { MAX_UINT, OPERATION_NAMES } from '../../helpers/constants'
+import { OPERATION_NAMES } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
 
@@ -32,11 +32,13 @@ export async function decreaseMultipleStEth(
     amount: args.flashloanAmount,
     asset: addresses.DAI,
     delegate: addresses.aaveLendingPool,
+    sumAmounts: false,
   })
 
   const depositDaiInAAVE = actions.aave.aaveDeposit({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
+    sumAmounts: false,
   })
 
   const withdrawStEthFromAAVE = actions.aave.aaveWithdraw({
@@ -60,8 +62,9 @@ export async function decreaseMultipleStEth(
       amount: 0,
       asset: addresses.WETH,
       delegate: addresses.aaveLendingPool,
+      sumAmounts: false,
     },
-    [0, 0, 3],
+    [0, 0, 3, 0],
   )
 
   const paybackInAAVE = actions.aave.aavePayback(
@@ -95,5 +98,5 @@ export async function decreaseMultipleStEth(
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.DECREASE_POSITION }
+  return { calls: [takeAFlashLoan], operationName: 'CUSTOM_OPERATION' }
 }

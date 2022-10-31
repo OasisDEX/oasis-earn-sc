@@ -153,8 +153,8 @@ task('closePosition', 'Close stETH position on AAVE')
       {
         collateralAmountLockedInProtocolInWei: stEthAmountLockedInAave,
         slippage,
-        debtToken: 'ETH',
-        collateralToken: 'STETH',
+        debtToken: { symbol: 'ETH' },
+        collateralToken: { symbol: 'STETH' },
       },
       {
         addresses: mainnetAddresses,

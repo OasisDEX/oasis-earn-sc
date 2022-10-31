@@ -9,6 +9,7 @@ import './tasks/closePosition'
 import './tasks/proxy'
 import './tasks/verify-earn'
 import 'solidity-docgen'
+import 'hardhat-tracer'
 
 import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'

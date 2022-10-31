@@ -8,8 +8,8 @@ import { calldataTypes } from './types/actions'
 const createAction = ActionFactory.create
 
 export function aaveDeposit(
-  args: { amount: BigNumber | 0; asset: string },
-  paramsMapping: [asset: number, amount: number] = [0, 0],
+  args: { asset: string; amount: BigNumber | 0; sumAmounts: boolean },
+  paramsMapping: [asset: number, amount: number, sumAmounts: number] = [0, 0, 0],
 ) {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.DEPOSIT),
@@ -18,6 +18,7 @@ export function aaveDeposit(
       {
         asset: args.asset,
         amount: args.amount.toFixed(0),
+        sumAmounts: args.sumAmounts,
       },
       paramsMapping,
     ],
