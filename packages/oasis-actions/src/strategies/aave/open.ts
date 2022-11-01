@@ -6,7 +6,7 @@ import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
-import { Position } from '../../helpers/calculations/Position'
+import { Position, PositionBalance } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
@@ -109,8 +109,16 @@ export async function open(
   )
 
   const emptyPosition = new Position(
-    { amount: ZERO, symbol: args.debtToken.symbol },
-    { amount: ZERO, symbol: args.collateralToken.symbol },
+    new PositionBalance({
+      amount: ZERO,
+      symbol: args.debtToken.symbol,
+      precision: args.debtToken.precision,
+    }),
+    new PositionBalance({
+      amount: ZERO,
+      symbol: args.collateralToken.symbol,
+      precision: args.collateralToken.precision,
+    }),
     aaveCollateralTokenPriceInEth,
     {
       liquidationThreshold,
@@ -134,6 +142,11 @@ export async function open(
 
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+
+  const precisionAdjustCollateralDepositAmount = new BigNumber(1e18).div(
+    `1e${args.collateralToken.precision}`,
+  )
+
   const target = emptyPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
@@ -152,11 +165,11 @@ export async function open(
         tokenSymbol: 'DAI',
       },
       depositedByUser: {
-        debt: depositDebtAmountInWei,
-        collateral: depositCollateralAmountInWei,
+        debtInWei: depositDebtAmountInWei,
+        collateralInWei: depositCollateralAmountInWei,
       },
       collectSwapFeeFrom: 'sourceToken',
-      debug: true,
+      // debug: true,
     },
   )
 
@@ -177,7 +190,7 @@ export async function open(
     amountFromWei(swapAmountAfterFees),
     args.debtToken.precision || TYPICAL_PRECISION,
   )
-  console.log('precisionAdjustSwapAmountAfterFees:', precisionAdjustSwapAmountAfterFees.toString())
+
   const swapData = await dependencies.getSwapData(
     debtTokenAddress,
     collateralTokenAddress,
@@ -210,24 +223,23 @@ export async function open(
     dependencies.addresses,
   )
 
-  const collateralAmountAfterSwapInWei = target.swap.fromTokenAmount.div(
-    actualMarketPriceWithSlippage,
-  )
+  const collateralAmountAfterSwapInWei = target.swap.fromTokenAmount
+    .div(actualMarketPriceWithSlippage)
+    .div(precisionAdjustCollateralDepositAmount)
 
   /*
     Final position calculated using actual swap data and the latest market price
    */
   const finalPosition = new Position(
-    target.position.debt,
-    {
+    new PositionBalance(target.position.debt),
+    new PositionBalance({
       amount: collateralAmountAfterSwapInWei.plus(depositCollateralAmountInWei),
       symbol: target.position.collateral.symbol,
-    },
+      precision: target.position.collateral.precision,
+    }),
     oracle,
     target.position.category,
   )
-
-  console.log('SIMULATED ORACLE: ', oracle.toString())
 
   const prices = {
     debtTokenPrice: ethPrice,

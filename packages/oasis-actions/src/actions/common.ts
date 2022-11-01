@@ -140,3 +140,16 @@ export function returnFunds(args: { asset: string }) {
     ],
   )
 }
+
+export function depositFunds(args: { asset: string; amount: BigNumber }) {
+  return createAction(
+    getActionHash(CONTRACT_NAMES.common.DEPOSIT_FUNDS),
+    [calldataTypes.common.DepositFunds],
+    [
+      {
+        asset: args.asset,
+        amount: args.amount.toFixed(0),
+      },
+    ],
+  )
+}

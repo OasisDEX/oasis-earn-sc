@@ -17,6 +17,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     debug,
     config,
   }
+  debug && console.log('Deploying with address:', config.address)
   const deploy = await createDeploy(options)
 
   // Setup User
@@ -54,12 +55,15 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     0,
     serviceRegistryAddress,
   ])
-  await uSwap.setPool(
-    '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
-    '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    10000,
-  )
-  await uSwap.addFeeTier(20)
+
+  await uSwap
+    .connect(signer)
+    .setPool(
+      '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+      10000,
+    )
+  await uSwap.connect(signer).addFeeTier(20)
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
@@ -67,7 +71,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     0,
     serviceRegistryAddress,
   ])
-  await swap.addFeeTier(20)
+
+  await swap.connect(signer).addFeeTier(20)
 
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
   const [dummyAutomation, dummyAutomationAddress] = await deploy('DummyAutomation', [
@@ -110,7 +115,14 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     serviceRegistryAddress,
   ])
 
-  const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
+  const [returnFunds, returnFundsActionAddress] = await deploy(
+    CONTRACT_NAMES.common.RETURN_FUNDS,
+    [],
+  )
+  const [depositFunds, depositFundsActionAddress] = await deploy(
+    CONTRACT_NAMES.common.DEPOSIT_FUNDS,
+    [],
+  )
 
   //-- Maker Actions
   const [actionOpenVault, actionOpenVaultAddress] = await deploy(CONTRACT_NAMES.maker.OPEN_VAULT, [
@@ -197,6 +209,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
 
   await registry.addEntry(CONTRACT_NAMES.common.RETURN_FUNDS, returnFundsActionAddress)
+  await registry.addEntry(CONTRACT_NAMES.common.DEPOSIT_FUNDS, depositFundsActionAddress)
 
   //-- Add Maker Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
@@ -374,6 +387,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       setApproval,
       wrapEth,
       unwrapEth,
+      returnFunds: returnFunds,
+      depositFunds: depositFunds,
     },
     maker: {
       mcdView,
@@ -408,6 +423,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       `Pull Token address: ${deployedContracts.common.pullToken.address}`,
       `Flashloan Action address: ${deployedContracts.common.takeFlashLoan.address}`,
       `Swap Action address: ${deployedContracts.common.swapAction.address}`,
+      `Return Funds Action address: ${deployedContracts.common.returnFunds.address}`,
+      `Deposit Funds Action address: ${deployedContracts.common.depositFunds.address}`,
 
       `MCDView address: ${deployedContracts.maker.mcdView.address}`,
       `OpenVault Action address: ${deployedContracts.maker.openVault.address}`,

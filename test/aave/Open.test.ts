@@ -2,13 +2,16 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
   IPosition,
+  IPositionMutation,
   OPERATION_NAMES,
   Position,
   strategies,
 } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
-import { IPositionMutation, ONE } from '@oasisdex/oasis-actions/src'
+import { PositionBalance } from '@oasisdex/oasis-actions/lib/src/helpers/calculations/Position'
+import { ONE, ZERO } from '@oasisdex/oasis-actions/src'
+import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -16,6 +19,7 @@ import { Contract, ethers, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
+import ERC20ABI from '../../abi/IERC20.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { resetNodeToLatestBlock } from '../../helpers/init'
@@ -70,92 +74,193 @@ describe(`Strategy | AAVE | Open Position`, async () => {
   describe('On forked chain', () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
-    let aaveCollateralTokenPriceInEth: BigNumber
-    let aaveDebtTokenPriceInEth: BigNumber
-
-    let system: DeployedSystemInfo
 
     let positionMutation: IPositionMutation
     let txStatus: boolean
 
-    let userAccountData: AAVEAccountData
-    let userReserveData: AAVEReserveData
-    let actualPosition: IPosition
+    async function setupOpenPositionTest(
+      collateralToken: {
+        depositAmountInWei: BigNumber
+        symbol: AAVETokens
+        address: string
+        precision: number
+        isEth: boolean
+      },
+      debtToken: {
+        depositAmountInWei: BigNumber
+        symbol: AAVETokens
+        address: string
+        precision: number
+        isEth: boolean
+      },
+      mockMarketPrice: BigNumber | undefined,
+      isFeeFromDebtToken: boolean,
+    ) {
+      const { snapshot, config: newConfig } = await restoreSnapshot(
+        config,
+        provider,
+        testBlockNumber,
+      )
+      config = newConfig
+      signer = newConfig.signer
+      const system = snapshot.deployed.system
 
-    let feeRecipientWethBalanceBefore: BigNumber
-
-    describe.skip(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
-      const depositEthAmount = amountToWei(new BigNumber(60 / 1e15))
-      before(async () => {
-        const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
-        system = snapshot.deployed.system
-
-        const addresses = {
-          ...mainnetAddresses,
-          operationExecutor: system.common.operationExecutor.address,
-        }
-
-        positionMutation = await strategies.aave.open(
-          {
-            depositedByUser: { debtInWei: depositEthAmount },
-            slippage,
-            multiple,
-            debtToken: { symbol: tokens.ETH },
-            collateralToken: { symbol: tokens.STETH },
-          },
-          {
-            addresses,
-            provider,
-            getSwapData: oneInchCallMock(new BigNumber(0.9759)),
-            proxy: system.common.dsProxy.address,
-          },
-        )
-
-        feeRecipientWethBalanceBefore = await balanceOf(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.feeRecipient,
-          { config, isFormatted: true },
-        )
-
-        const [_txStatus] = await executeThroughProxy(
-          system.common.dsProxy.address,
-          {
-            address: system.common.operationExecutor.address,
-            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              positionMutation.transaction.calls,
-              OPERATION_NAMES.common.CUSTOM_OPERATION,
-            ]),
-          },
+      if (!collateralToken.isEth) {
+        const COLL_TOKEN = new ethers.Contract(collateralToken.address, ERC20ABI, provider).connect(
           signer,
-          depositEthAmount.toFixed(0),
         )
-        txStatus = _txStatus
-
-        userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
-        userReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.stETH,
-          system.common.dsProxy.address,
+        await COLL_TOKEN.connect(signer).approve(
+          system.common.userProxyAddress,
+          collateralToken.depositAmountInWei.toFixed(0),
         )
-
-        const aavePriceOracle = new ethers.Contract(
-          addresses.aavePriceOracle,
-          aavePriceOracleABI,
-          provider,
+      }
+      if (!debtToken.isEth) {
+        const DEBT_TOKEN = new ethers.Contract(debtToken.address, ERC20ABI, provider).connect(
+          signer,
         )
+        await DEBT_TOKEN.connect(signer).approve(
+          system.common.userProxyAddress,
+          debtToken.depositAmountInWei.toFixed(0),
+        )
+      }
 
-        aaveCollateralTokenPriceInEth = await aavePriceOracle
-          .getAssetPrice(addresses.stETH)
-          .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
+      const addresses = {
+        ...mainnetAddresses,
+        operationExecutor: system.common.operationExecutor.address,
+      }
 
-        actualPosition = new Position(
-          { amount: new BigNumber(userAccountData.totalDebtETH.toString()), symbol: tokens.ETH },
-          {
-            amount: new BigNumber(userReserveData.currentATokenBalance.toString()),
-            symbol: tokens.STETH,
+      const positionMutation = await strategies.aave.open(
+        {
+          depositedByUser: {
+            debtInWei: debtToken.depositAmountInWei,
+            collateralInWei: collateralToken.depositAmountInWei,
           },
-          aaveCollateralTokenPriceInEth,
-          positionMutation.simulation.position.category,
+          slippage,
+          multiple,
+          debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
+          collateralToken: { symbol: collateralToken.symbol, precision: collateralToken.precision },
+        },
+        {
+          addresses,
+          provider,
+          getSwapData: oneInchCallMock(mockMarketPrice),
+          proxy: system.common.dsProxy.address,
+        },
+      )
+
+      const feeRecipientBalanceBefore = await balanceOf(
+        isFeeFromDebtToken ? debtToken.address : collateralToken.address,
+        ADDRESSES.main.feeRecipient,
+        { config },
+      )
+
+      const ethDepositAmt = (debtToken.isEth ? debtToken.depositAmountInWei : ZERO).plus(
+        collateralToken.isEth ? collateralToken.depositAmountInWei : ZERO,
+      )
+
+      const [txStatus] = await executeThroughProxy(
+        system.common.dsProxy.address,
+        {
+          address: system.common.operationExecutor.address,
+          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+            positionMutation.transaction.calls,
+            OPERATION_NAMES.common.CUSTOM_OPERATION,
+          ]),
+        },
+        signer,
+        ethDepositAmt.toFixed(0),
+      )
+
+      const userCollateralReserveData = await aaveDataProvider.getUserReserveData(
+        collateralToken.address,
+        system.common.dsProxy.address,
+      )
+
+      const userDebtReserveData = await aaveDataProvider.getUserReserveData(
+        debtToken.address,
+        system.common.dsProxy.address,
+      )
+
+      const aavePriceOracle = new ethers.Contract(
+        addresses.aavePriceOracle,
+        aavePriceOracleABI,
+        provider,
+      )
+
+      const aaveCollateralTokenPriceInEth = collateralToken.isEth
+        ? ONE
+        : await aavePriceOracle
+            .getAssetPrice(collateralToken.address)
+            .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
+
+      const aaveDebtTokenPriceInEth = debtToken.isEth
+        ? ONE
+        : await aavePriceOracle
+            .getAssetPrice(debtToken.address)
+            .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
+
+      const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+
+      const actualPosition = new Position(
+        new PositionBalance({
+          amount: new BigNumber(userDebtReserveData.currentVariableDebt.toString()),
+          precision: debtToken.precision,
+          symbol: debtToken.symbol,
+        }),
+        new PositionBalance({
+          amount: new BigNumber(userCollateralReserveData.currentATokenBalance.toString()),
+          precision: collateralToken.precision,
+          symbol: collateralToken.symbol,
+        }),
+        oracle,
+        positionMutation.simulation.position.category,
+      )
+
+      return {
+        system,
+        positionMutation,
+        feeRecipientBalanceBefore,
+        txStatus,
+        oracle,
+        actualPosition,
+        userCollateralReserveData,
+        userDebtReserveData,
+      }
+    }
+
+    describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
+      const depositEthAmount = amountToWei(new BigNumber(60 / 1e15))
+
+      let userStEthReserveData: AAVEReserveData
+      let userWethReserveData: AAVEReserveData
+      let feeRecipientWethBalanceBefore: BigNumber
+      let actualPosition: IPosition
+
+      before(async () => {
+        const setup = await setupOpenPositionTest(
+          {
+            depositAmountInWei: ZERO,
+            symbol: tokens.STETH,
+            address: ADDRESSES.main.stETH,
+            precision: 18,
+            isEth: false,
+          },
+          {
+            depositAmountInWei: depositEthAmount,
+            symbol: tokens.ETH,
+            address: ADDRESSES.main.WETH,
+            precision: 18,
+            isEth: true,
+          },
+          new BigNumber(0.9759),
+          true,
         )
+        txStatus = setup.txStatus
+        positionMutation = setup.positionMutation
+        actualPosition = setup.actualPosition
+        userStEthReserveData = setup.userCollateralReserveData
+        userWethReserveData = setup.userDebtReserveData
+        feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
       })
 
       it('Tx should pass', () => {
@@ -165,19 +270,27 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       it('Should draw debt according to multiple', () => {
         expectToBeEqual(
           positionMutation.simulation.position.debt.amount.toFixed(0),
-          new BigNumber(userAccountData.totalDebtETH.toString()),
+          new BigNumber(userWethReserveData.currentVariableDebt.toString()).toFixed(0),
         )
       })
 
       it(`Should deposit all ${tokens.STETH} tokens to aave`, () => {
         expectToBe(
-          positionMutation.simulation.swap.minToTokenAmount,
+          positionMutation.simulation.position.collateral.amount,
           'lte',
-          new BigNumber(userReserveData.currentATokenBalance.toString()),
+          new BigNumber(userStEthReserveData.currentATokenBalance.toString()).toFixed(0),
         )
       })
 
       it('Should achieve target multiple', () => {
+        expectToBe(
+          positionMutation.simulation.position.riskRatio.multiple.times(
+            ONE.minus(MULTIPLE_TESTING_OFFSET),
+          ),
+          'lte',
+          actualPosition.riskRatio.multiple,
+        )
+
         expectToBe(
           positionMutation.simulation.position.riskRatio.multiple,
           'gte',
@@ -189,116 +302,87 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         const feeRecipientWethBalanceAfter = await balanceOf(
           ADDRESSES.main.WETH,
           ADDRESSES.main.feeRecipient,
-          { config, isFormatted: true },
-        )
-
-        expectToBeEqual(
-          new BigNumber(positionMutation.simulation.swap.sourceTokenFee),
-          feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
-        )
-      })
-    })
-
-    describe(`With ${tokens.ETH} collateral & ${tokens.USDC} debt`, () => {
-      const depositEthAmount = new BigNumber(600)
-      const precisionAdjustmentUSDC = new BigNumber(1e12)
-
-      let userEthReserveData: AAVEReserveData
-      let userUSDCReserveData: AAVEReserveData
-
-      let feeRecipientUSDCBalanceBefore: BigNumber
-
-      before(async () => {
-        const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
-        system = snapshot.deployed.system
-
-        const addresses = {
-          ...mainnetAddresses,
-          operationExecutor: system.common.operationExecutor.address,
-        }
-
-        console.log('config.address', config.address)
-        console.log('system.common.dsProxy.address', system.common.dsProxy.address)
-        positionMutation = await strategies.aave.open(
-          {
-            depositedByUser: {
-              collateralInWei: amountToWei(depositEthAmount),
-            },
-            slippage,
-            multiple,
-            debtToken: { symbol: tokens.USDC, precision: 6 },
-            collateralToken: { symbol: tokens.ETH },
-          },
-          {
-            addresses,
-            provider,
-            getSwapData: oneInchCallMock(new BigNumber(1300)),
-            proxy: system.common.dsProxy.address,
-          },
-        )
-
-        feeRecipientUSDCBalanceBefore = await balanceOf(
-          ADDRESSES.main.USDC,
-          ADDRESSES.main.feeRecipient,
           { config },
         )
 
-        const [_txStatus] = await executeThroughProxy(
-          system.common.dsProxy.address,
+        expectToBeEqual(
+          amountToWei(new BigNumber(positionMutation.simulation.swap.sourceTokenFee), 18).toFixed(
+            0,
+          ),
+          feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
+        )
+      })
+
+      // it('Should draw debt according to multiple', () => {
+      //   expectToBeEqual(
+      //     positionMutation.simulation.position.debt.amount.toFixed(0),
+      //     new BigNumber(userAccountData.totalDebtETH.toString()),
+      //   )
+      // })
+
+      // it(`Should deposit all ${tokens.STETH} tokens to aave`, () => {
+      //   expectToBe(
+      //     positionMutation.simulation.swap.minToTokenAmount,
+      //     'lte',
+      //     new BigNumber(userCollateralReserveData.currentATokenBalance.toString()),
+      //   )
+      // })
+
+      // it('Should achieve target multiple', () => {
+      //   expectToBe(
+      //     positionMutation.simulation.position.riskRatio.multiple,
+      //     'gte',
+      //     actualPosition.riskRatio.multiple,
+      //   )
+      // })
+
+      // it('Should collect fee', async () => {
+      //   const feeRecipientWethBalanceAfter = await balanceOf(
+      //     ADDRESSES.main.WETH,
+      //     ADDRESSES.main.feeRecipient,
+      //     { config, isFormatted: true },
+      //   )
+
+      //   expectToBeEqual(
+      //     new BigNumber(positionMutation.simulation.swap.sourceTokenFee),
+      //     feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
+      //   )
+      // })
+    })
+
+    describe(`With ${tokens.ETH} collateral (+dep) & ${tokens.USDC} debt`, () => {
+      const depositEthAmount = new BigNumber(600)
+
+      let userEthReserveData: AAVEReserveData
+      let userUSDCReserveData: AAVEReserveData
+      let feeRecipientUSDCBalanceBefore: BigNumber
+      let actualPosition: IPosition
+
+      before(async () => {
+        const setup = await setupOpenPositionTest(
           {
-            address: system.common.operationExecutor.address,
-            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              positionMutation.transaction.calls,
-              OPERATION_NAMES.common.CUSTOM_OPERATION,
-            ]),
-          },
-          signer,
-          amountToWei(depositEthAmount).toFixed(0),
-        )
-        txStatus = _txStatus
-
-        userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
-        console.log('here')
-        userEthReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.WETH,
-          system.common.dsProxy.address,
-        )
-
-        console.log('ADDRESSES.main.USDC', ADDRESSES.main.USDC)
-        userUSDCReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.USDC,
-          system.common.dsProxy.address,
-        )
-
-        const aavePriceOracle = new ethers.Contract(
-          addresses.aavePriceOracle,
-          aavePriceOracleABI,
-          provider,
-        )
-
-        aaveCollateralTokenPriceInEth = await aavePriceOracle
-          .getAssetPrice(addresses.WETH)
-          .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
-
-        aaveDebtTokenPriceInEth = await aavePriceOracle
-          .getAssetPrice(addresses.USDC)
-          .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
-
-        const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
-        actualPosition = new Position(
-          {
-            amount: new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).times(
-              precisionAdjustmentUSDC,
-            ),
-            symbol: tokens.USDC,
-          },
-          {
-            amount: new BigNumber(userEthReserveData.currentATokenBalance.toString()),
+            depositAmountInWei: amountToWei(depositEthAmount),
             symbol: tokens.ETH,
+            address: ADDRESSES.main.WETH,
+            precision: 18,
+            isEth: true,
           },
-          oracle,
-          positionMutation.simulation.position.category,
+          {
+            depositAmountInWei: ZERO,
+            symbol: tokens.USDC,
+            address: ADDRESSES.main.USDC,
+            precision: 6,
+            isEth: false,
+          },
+          new BigNumber(1300),
+          true,
         )
+        txStatus = setup.txStatus
+        positionMutation = setup.positionMutation
+        actualPosition = setup.actualPosition
+        userEthReserveData = setup.userCollateralReserveData
+        userUSDCReserveData = setup.userDebtReserveData
+        feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
       })
 
       it('Tx should pass', () => {
@@ -307,7 +391,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
 
       it('Should draw debt according to multiple', () => {
         expectToBeEqual(
-          positionMutation.simulation.position.debt.amount.div(precisionAdjustmentUSDC).toFixed(0),
+          positionMutation.simulation.position.debt.amount.toFixed(0),
           new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).toFixed(0),
         )
       })
@@ -317,6 +401,90 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           positionMutation.simulation.position.collateral.amount,
           'lte',
           new BigNumber(userEthReserveData.currentATokenBalance.toString()).toFixed(0),
+        )
+      })
+
+      it('Should achieve target multiple', () => {
+        expectToBe(
+          positionMutation.simulation.position.riskRatio.multiple.times(
+            ONE.minus(MULTIPLE_TESTING_OFFSET),
+          ),
+          'lte',
+          actualPosition.riskRatio.multiple,
+        )
+
+        expectToBe(
+          positionMutation.simulation.position.riskRatio.multiple,
+          'gte',
+          actualPosition.riskRatio.multiple,
+        )
+      })
+
+      it('Should collect fee', async () => {
+        const feeRecipientUSDCBalanceAfter = await balanceOf(
+          ADDRESSES.main.USDC,
+          ADDRESSES.main.feeRecipient,
+          { config },
+        )
+
+        expectToBeEqual(
+          amountToWei(new BigNumber(positionMutation.simulation.swap.sourceTokenFee), 6).toFixed(0),
+          feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore),
+        )
+      })
+    })
+
+    describe(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, () => {
+      const depositWBTCAmount = new BigNumber(6)
+
+      let userWBTCReserveData: AAVEReserveData
+      let userUSDCReserveData: AAVEReserveData
+      let feeRecipientUSDCBalanceBefore: BigNumber
+      let actualPosition: IPosition
+
+      before(async () => {
+        const setup = await setupOpenPositionTest(
+          {
+            depositAmountInWei: amountToWei(depositWBTCAmount, 8),
+            symbol: tokens.WBTC,
+            address: ADDRESSES.main.WBTC,
+            precision: 8,
+            isEth: false,
+          },
+          {
+            depositAmountInWei: ZERO,
+            symbol: tokens.USDC,
+            address: ADDRESSES.main.USDC,
+            precision: 6,
+            isEth: false,
+          },
+          new BigNumber(20032),
+          true,
+        )
+        txStatus = setup.txStatus
+        positionMutation = setup.positionMutation
+        actualPosition = setup.actualPosition
+        userWBTCReserveData = setup.userCollateralReserveData
+        userUSDCReserveData = setup.userDebtReserveData
+        feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
+      })
+
+      it('Tx should pass', () => {
+        expect(txStatus).to.be.true
+      })
+
+      it('Should draw debt according to multiple', () => {
+        expectToBeEqual(
+          positionMutation.simulation.position.debt.amount.toFixed(0),
+          new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).toFixed(0),
+        )
+      })
+
+      it(`Should deposit all ${tokens.WBTC} tokens to aave`, () => {
+        expectToBe(
+          positionMutation.simulation.position.collateral.amount,
+          'lte',
+          new BigNumber(userWBTCReserveData.currentATokenBalance.toString()).toFixed(0),
         )
       })
 

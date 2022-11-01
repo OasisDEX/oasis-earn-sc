@@ -15,8 +15,9 @@ export async function createDeploy(
 
   return async (contractName: string, params: string[] = []): Promise<[Contract, string]> => {
     const contractFactory = await ethers.getContractFactory(contractName, config.signer)
-    const instance = await contractFactory.deploy(...params)
+    const instance = await contractFactory.connect(config.signer).deploy(...params)
     if (debug) {
+      console.log('DEBUG: Owner of deploy:', await config.signer.getAddress())
       console.log(`DEBUG: Deploying ${contractName} ...`)
     }
     const address = instance.address

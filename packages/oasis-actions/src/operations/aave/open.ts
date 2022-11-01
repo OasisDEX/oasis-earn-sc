@@ -29,21 +29,19 @@ export async function open(
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
   const use = {
-    sendDepositToProxy:
+    depositDebtTokensInToProxy:
       args.depositDebtTokens.amountInWei.gt(ZERO) && !args.depositDebtTokens.isEth,
-    sendCollateralToProxy:
+    depositCollateralInToProxy:
       args.depositCollateral.amountInWei.gt(ZERO) && !args.depositCollateral.isEth,
   }
 
-  const sendDepositToProxy = actions.common.sendToken({
+  const depositDebtTokensToProxy = actions.common.depositFunds({
     asset: args.debtTokenAddress,
-    to: args.proxy,
     amount: args.depositDebtTokens.amountInWei,
   })
 
-  const sendCollateralToProxy = actions.common.sendToken({
+  const depositCollateralTokensToProxy = actions.common.depositFunds({
     asset: args.collateralTokenAddress,
-    to: args.proxy,
     amount: args.depositCollateral.amountInWei,
   })
 
@@ -54,7 +52,6 @@ export async function open(
     sumAmounts: false,
   })
 
-  console.log('Flashloan amount: ', args.flashloanAmount.toString())
   const depositDaiInAAVE = actions.aave.aaveDeposit({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
@@ -107,7 +104,7 @@ export async function open(
   })
 
   // TODO: Redeploy all new OpNames to registry
-  const calls = [
+  const flashloanCalls = [
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
     borrowDebtTokensFromAAVE,
@@ -118,24 +115,25 @@ export async function open(
     withdrawDAIFromAAVE,
   ]
 
-  use.sendDepositToProxy && calls.unshift(sendDepositToProxy)
-  use.sendCollateralToProxy && calls.unshift(sendCollateralToProxy)
-
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
     dsProxyFlashloan: true,
-    calls,
+    calls: flashloanCalls,
   })
 
-  let operationName: OperationNames = OPERATION_NAMES.aave.OPEN_POSITION
-  if (use.sendDepositToProxy) operationName = OPERATION_NAMES.aave.OPEN_POSITION_1
-  if (use.sendCollateralToProxy) operationName = OPERATION_NAMES.aave.OPEN_POSITION_2
-  if (use.sendDepositToProxy && use.sendCollateralToProxy)
-    operationName = OPERATION_NAMES.aave.OPEN_POSITION_3
+  const calls = [takeAFlashLoan]
+  use.depositDebtTokensInToProxy && calls.unshift(depositDebtTokensToProxy)
+  use.depositCollateralInToProxy && calls.unshift(depositCollateralTokensToProxy)
+
+  // let operationName: OperationNames = OPERATION_NAMES.aave.OPEN_POSITION
+  // if (use.sendDepositToProxy) operationName = OPERATION_NAMES.aave.OPEN_POSITION_1
+  // if (use.sendCollateralToProxy) operationName = OPERATION_NAMES.aave.OPEN_POSITION_2
+  // if (use.sendDepositToProxy && use.sendCollateralToProxy)
+  //   operationName = OPERATION_NAMES.aave.OPEN_POSITION_3
 
   return {
-    calls: [takeAFlashLoan],
-    operationName: 'CUSTOM_OPERATION', // TODO: Disabled for now until OpRegistry has been discussed
+    calls,
+    operationName: 'CUSTOM_OPERATION', // TODO: Disabled for now until OpRegistry has been rediscussed
   }
 }

@@ -27,7 +27,6 @@ contract SetApproval is Executable, UseStore {
    */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     SetApprovalData memory approval = parseInputs(data);
-    console.log("approving");
 
     uint256 mappedApprovalAmount = store().readUint(
       bytes32(approval.amount),
@@ -38,7 +37,6 @@ contract SetApproval is Executable, UseStore {
       ? mappedApprovalAmount.add(approval.amount)
       : mappedApprovalAmount;
 
-    console.log("actualApprovalAmount", actualApprovalAmount);
     IERC20(approval.asset).safeApprove(approval.delegate, actualApprovalAmount);
 
     emit Action(SET_APPROVAL_ACTION, bytes32(actualApprovalAmount));

@@ -1,12 +1,34 @@
 import BigNumber from 'bignumber.js'
 
-import { ONE, ZERO } from '../constants'
+import { ONE, TYPICAL_PRECISION, ZERO } from '../constants'
 import { logDebug } from '../index'
 import { IRiskRatio, RiskRatio } from './RiskRatio'
+import { Optional } from 'utility-types'
 
 interface IPositionBalance {
   amount: BigNumber
+  precision: number
   symbol: string
+}
+
+export class PositionBalance implements IPositionBalance {
+  public amount: BigNumber
+  public precision: number
+  public symbol: string
+
+  constructor(args: Optional<IPositionBalance, 'precision'>) {
+    this.amount = args.amount
+    this.precision = args.precision || TYPICAL_PRECISION
+    this.symbol = args.symbol
+  }
+
+  public toString(): string {
+    return `${this.amount.toFixed(this.precision)} ${this.symbol}`
+  }
+
+  public get normalisedAmount() {
+    return this.amount.times(10 ** TYPICAL_PRECISION - this.precision)
+  }
 }
 
 interface IPositionCategory {
@@ -39,9 +61,10 @@ export interface IPositionChange {
 
 // TODO: consider multi-collateral positions
 interface IPositionChangeParams {
+  // Where Wei is the smallest unit of the token
   depositedByUser?: {
-    collateral?: BigNumber
-    debt?: BigNumber
+    collateralInWei?: BigNumber
+    debtInWei?: BigNumber
   }
   flashloan: {
     /* Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH) */
@@ -81,15 +104,15 @@ export interface IPosition extends IBasePosition {
 }
 
 export class Position implements IPosition {
-  public debt: IPositionBalance
-  public collateral: IPositionBalance
+  public debt: PositionBalance
+  public collateral: PositionBalance
   public category: IPositionCategory
   private _feeBase: BigNumber = new BigNumber(10000)
   private _oraclePriceForCollateralDebtExchangeRate: BigNumber
 
   constructor(
-    debt: IPositionBalance,
-    collateral: IPositionBalance,
+    debt: PositionBalance,
+    collateral: PositionBalance,
     oraclePrice: BigNumber,
     category: IPositionCategory,
   ) {
@@ -103,17 +126,17 @@ export class Position implements IPosition {
     const debtDelta = this.category.dustLimit.minus(this.debt.amount)
 
     const ltv = this.category.dustLimit.div(
-      debtDelta
+      this._normaliseAmount(debtDelta, this.debt.precision)
         .div(marketPriceAccountingForSlippage)
-        .plus(this.collateral.amount)
+        .plus(this.collateral.normalisedAmount)
         .times(this._oraclePriceForCollateralDebtExchangeRate),
     )
     return new RiskRatio(ltv, RiskRatio.TYPE.LTV)
   }
 
   public get riskRatio() {
-    const ltv = this.debt.amount.div(
-      this.collateral.amount.times(this._oraclePriceForCollateralDebtExchangeRate),
+    const ltv = this.debt.normalisedAmount.div(
+      this.collateral.normalisedAmount.times(this._oraclePriceForCollateralDebtExchangeRate),
     )
 
     return new RiskRatio(ltv.isNaN() || !ltv.isFinite() ? ZERO : ltv, RiskRatio.TYPE.LTV)
@@ -132,6 +155,7 @@ export class Position implements IPosition {
 
   /**
    * Calculates the target (or desired) state of a position
+   * We must convert all values to the same 18 decimal precision to ensure the maths works as expected
    *
    * Maths breakdown: {@linkhttps://www.notion.so/oazo/Oasis-Maths-cceaa36d5c2b49a7b5129105cee1d35f#608e831f54fc4557bf004af7c453f865}
    * Concrete scenarios: {@link https://docs.google.com/spreadsheets/d/1ZB0dlQbjgi7eM-cSyGowWlZCKG-326pWZeHxZAPFOT0/edit?usp=sharing}
@@ -158,8 +182,14 @@ export class Position implements IPosition {
      * C_W  Collateral in wallet to top-up or seed position
      * D_W  Debt token in wallet to top-up or seed position
      * */
-    const collateralDepositedByUser = depositedByUser?.collateral || ZERO
-    const debtTokensDepositedByUser = depositedByUser?.debt || ZERO
+    const collateralDepositedByUser = this._normaliseAmount(
+      depositedByUser?.collateralInWei || ZERO,
+      this.collateral.precision,
+    )
+    const debtTokensDepositedByUser = this._normaliseAmount(
+      depositedByUser?.debtInWei || ZERO,
+      this.debt.precision,
+    )
 
     /**
      * These values are based on the initial state of the position.
@@ -169,8 +199,10 @@ export class Position implements IPosition {
      * C_C  Current collateral
      * D_C  Current debt
      * */
-    const currentCollateral = (this.collateral.amount || ZERO).plus(collateralDepositedByUser)
-    const currentDebt = (this.debt.amount || ZERO).minus(debtTokensDepositedByUser)
+    const currentCollateral = (this.collateral.normalisedAmount || ZERO).plus(
+      collateralDepositedByUser,
+    )
+    const currentDebt = (this.debt.normalisedAmount || ZERO).minus(debtTokensDepositedByUser)
 
     /**
      * The Oracle price is what we use to convert a position's collateral into the same
@@ -223,11 +255,16 @@ export class Position implements IPosition {
     if (debug) {
       logDebug(
         [
-          `Collateral tokens deposited by User: ${collateralDepositedByUser.toString()}`,
-          `Debt tokens deposited by User: ${debtTokensDepositedByUser.toString()}`,
+          `**!!All values are converted to same precision during calculations!!**`,
+          `Collateral tokens deposited by User: ${(
+            depositedByUser?.collateralInWei || ZERO
+          ).toString()}`,
+          `Normalised collateral tokens deposited by User: ${collateralDepositedByUser.toString()}`,
+          `Debt tokens deposited by User: ${(depositedByUser?.debtInWei || ZERO).toString()}`,
+          `Normalised debt tokens deposited by User: ${debtTokensDepositedByUser.toString()}`,
 
-          `Current collateral inc. top-up/seed: ${currentCollateral.toString()}`,
-          `Current debt inc. top-up/seed: ${currentDebt.toString()}`,
+          `Normalised current collateral inc. top-up/seed: ${currentCollateral.toString()}`,
+          `Normalised current debt inc. top-up/seed: ${currentDebt.toString()}`,
 
           `Oracle price: ${oraclePrice.toString()}`,
           `Oracle Price FL-to-Debt token: ${oraclePriceFLtoDebtToken.toString()}`,
@@ -430,18 +467,31 @@ export class Position implements IPosition {
     const newCollateralAmount = currentCollateral.plus(collateralDelta)
     const newCollateral = {
       ...this.collateral,
-      amount: newCollateralAmount,
+      amount: this._denormaliseAmount(newCollateralAmount, this.collateral.precision),
     }
 
-    const newDebtAmount = currentDebt.plus(debtDelta)
+    const newDebtAmount = this._denormaliseAmount(currentDebt.plus(debtDelta), this.debt.precision)
     const newDebt = { ...this.debt, amount: newDebtAmount }
 
-    const newPosition = new Position(newDebt, newCollateral, oraclePrice, this.category)
+    const newPosition = new Position(
+      new PositionBalance(newDebt),
+      new PositionBalance(newCollateral),
+      oraclePrice,
+      this.category,
+    )
 
     return newPosition
   }
 
   private _calculateFee(amount: BigNumber, fee: BigNumber): BigNumber {
     return amount.times(fee).div(fee.plus(this._feeBase)).abs()
+  }
+
+  private _normaliseAmount(amount: BigNumber, precision: number): BigNumber {
+    return amount.times(10 ** (TYPICAL_PRECISION - precision))
+  }
+
+  private _denormaliseAmount(amount: BigNumber, precision: number): BigNumber {
+    return amount.div(10 ** (TYPICAL_PRECISION - precision))
   }
 }

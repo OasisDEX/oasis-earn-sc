@@ -10,7 +10,6 @@ import { Swap } from "./Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { SWAP } from "../../core/constants/Common.sol";
-import "hardhat/console.sol";
 
 /**
  * @title SwapAction Action contract
@@ -31,25 +30,8 @@ contract SwapAction is Executable, UseStore {
 
     SwapData memory swap = parseInputs(data);
 
-    console.log("swapAddress", swapAddress);
-    console.log("swap.amount", swap.amount);
-    console.log("address(this)", address(this));
-    console.log("msg.sender", msg.sender);
     IERC20(swap.fromAsset).safeApprove(swapAddress, swap.amount);
-    // console.log("entering swap");
 
-    uint256 allowance = IERC20(swap.fromAsset).allowance(address(this), swapAddress);
-
-    console.log("swap.fromAsset:", swap.fromAsset);
-    console.log("allowance:", allowance);
-
-    uint256 balance = IERC20(swap.fromAsset).balanceOf(msg.sender);
-    uint256 balance2 = IERC20(swap.fromAsset).balanceOf(address(this));
-    console.log("balance:", balance);
-    console.log("balance2:", balance2);
-
-    // IERC20(swap.fromAsset).safeTransferFrom(address(this), swapAddress, swap.amount);
-    console.log("starting swap");
     uint256 received = Swap(swapAddress).swapTokens(swap);
 
     store().write(bytes32(received));

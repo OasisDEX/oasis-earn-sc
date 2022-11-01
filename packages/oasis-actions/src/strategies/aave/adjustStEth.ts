@@ -4,7 +4,7 @@ import { ethers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei } from '../../helpers'
-import { IPosition, Position } from '../../helpers/calculations/Position'
+import { IPosition, Position, PositionBalance } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
@@ -53,8 +53,8 @@ export async function adjustStEth(
     .then((amount: BigNumber) => amountFromWei(amount))
 
   const existingPosition = new Position(
-    existingBasePosition.debt,
-    existingBasePosition.collateral,
+    new PositionBalance(existingBasePosition.debt),
+    new PositionBalance(existingBasePosition.collateral),
     aaveStEthPriceInEth,
     existingBasePosition.category,
   )
@@ -104,7 +104,7 @@ export async function adjustStEth(
         tokenSymbol: 'DAI',
       },
       depositedByUser: {
-        debt: depositEthWei,
+        debtInWei: depositEthWei,
       },
       collectSwapFeeFrom: isIncreasingRisk ? 'sourceToken' : 'targetToken',
       // debug: true,
@@ -146,11 +146,11 @@ export async function adjustStEth(
     */
     const stEthAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
     finalPosition = new Position(
-      target.position.debt,
-      {
+      new PositionBalance(target.position.debt),
+      new PositionBalance({
         amount: stEthAmountAfterSwapWei.plus(existingPosition.collateral.amount),
         symbol: target.position.collateral.symbol,
-      },
+      }),
       aaveStEthPriceInEth,
       target.position.category,
     )
@@ -188,11 +188,11 @@ export async function adjustStEth(
     */
     const ethAmountAfterSwapWei = target.swap.fromTokenAmount.div(actualMarketPriceWithSlippage)
     finalPosition = new Position(
-      {
+      new PositionBalance({
         amount: existingPosition.debt.amount.minus(ethAmountAfterSwapWei),
         symbol: target.position.collateral.symbol,
-      },
-      target.position.collateral,
+      }),
+      new PositionBalance(target.position.collateral),
       aaveStEthPriceInEth,
       target.position.category,
     )

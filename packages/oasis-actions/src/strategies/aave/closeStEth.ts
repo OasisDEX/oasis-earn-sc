@@ -4,7 +4,7 @@ import { ethers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, calculateFee } from '../../helpers'
-import { Position } from '../../helpers/calculations/Position'
+import { Position, PositionBalance } from '../../helpers/calculations/Position'
 import { ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
@@ -82,8 +82,8 @@ export async function closeStEth(
   Final position calculated using actual swap data and the latest market price
  */
   const finalPosition = new Position(
-    { amount: ZERO, symbol: existingPosition.debt.symbol },
-    { amount: ZERO, symbol: existingPosition.collateral.symbol },
+    new PositionBalance({ amount: ZERO, symbol: existingPosition.debt.symbol }),
+    new PositionBalance({ amount: ZERO, symbol: existingPosition.collateral.symbol }),
     aaveStEthPriceInEth,
     existingPosition.category,
   )

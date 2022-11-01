@@ -29,6 +29,7 @@ export const CONTRACT_NAMES = {
     WRAP_ETH: 'WrapEth',
     UNWRAP_ETH: 'UnwrapEth',
     RETURN_FUNDS: 'ReturnFunds',
+    DEPOSIT_FUNDS: 'DepositFunds',
   },
   aave: {
     DEPOSIT: 'AaveDeposit',

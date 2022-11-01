@@ -56,3 +56,8 @@ struct UnwrapEthData {
 struct ReturnFundsData {
   address asset;
 }
+
+struct DepositFundsData {
+  address asset;
+  uint256 amount;
+}
