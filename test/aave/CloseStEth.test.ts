@@ -2,7 +2,6 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
   IPosition,
-  IStrategy,
   ONE,
   OPERATION_NAMES,
   Position,
@@ -10,7 +9,9 @@ import {
   ZERO,
 } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
+import { IPositionMutation } from '@oasisdex/oasis-actions/src'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
+import { PositionBalance } from '@oasisdex/oasis-actions/src/helpers/calculations/Position'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -27,6 +28,8 @@ import { getOneInchCall } from '../../helpers/swap/OneIchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
+import { mainnetAddresses } from '../addresses'
+import { tokens } from '../constants'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
@@ -54,8 +57,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
   let openTxStatus: boolean
 
-  let openStrategy: IStrategy
-  let closeStrategy: Awaited<IStrategy>
+  let openPositionMutation: IPositionMutation
+  let closePositionMutation: IPositionMutation
   let closeTxStatus: boolean
   let closeTx: ContractReceipt
 
@@ -65,17 +68,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
   let feeRecipientWethBalanceBefore: BigNumber
   let userEthBalanceBeforeTx: BigNumber
-
-  const mainnetAddresses = {
-    DAI: ADDRESSES.main.DAI,
-    ETH: ADDRESSES.main.ETH,
-    WETH: ADDRESSES.main.WETH,
-    stETH: ADDRESSES.main.stETH,
-    aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
-    chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-    aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-    aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
-  }
 
   before(async () => {
     ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
@@ -93,7 +85,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   describe('On forked chain', () => {
     const testBlockWithSufficientLiquidityInUswapPool = 15690000
     before(async () => {
-      const snapshot = await restoreSnapshot(
+      const { snapshot } = await restoreSnapshot(
         config,
         provider,
         testBlockWithSufficientLiquidityInUswapPool,
@@ -106,17 +98,21 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      openStrategy = await strategies.aave.openStEth(
+      openPositionMutation = await strategies.aave.open(
         {
-          depositAmount,
+          depositedByUser: {
+            debtInWei: depositAmount,
+          },
           slippage,
           multiple,
+          debtToken: { symbol: tokens.STETH },
+          collateralToken: { symbol: tokens.ETH },
         },
         {
           addresses,
           provider,
           getSwapData: oneInchCallMock(new BigNumber(0.9759)),
-          dsProxy: system.common.dsProxy.address,
+          proxy: system.common.dsProxy.address,
         },
       )
 
@@ -125,7 +121,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            openStrategy.calls,
+            openPositionMutation.transaction.calls,
             OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
@@ -176,29 +172,31 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         const positionAfterOpen = new Position(
-          {
+          new PositionBalance({
             amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()),
             symbol: 'ETH',
-          },
-          {
+          }),
+          new PositionBalance({
             amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
             symbol: 'STETH',
-          },
+          }),
           aaveStEthPriceInEth,
-          openStrategy.simulation.position.category,
+          openPositionMutation.simulation.position.category,
         )
 
-        closeStrategy = await strategies.aave.closeStEth(
+        closePositionMutation = await strategies.aave.close(
           {
-            stEthAmountLockedInAave: stEthAmount,
+            collateralToken: { symbol: tokens.STETH },
+            debtToken: { symbol: tokens.ETH },
             slippage,
+            collateralAmountLockedInProtocolInWei: stEthAmount,
           },
           {
             addresses,
             provider,
             position: positionAfterOpen,
             getSwapData: oneInchCallMock(ONE.div(new BigNumber(0.9759))),
-            dsProxy: system.common.dsProxy.address,
+            proxy: system.common.dsProxy.address,
           },
         )
 
@@ -212,7 +210,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              closeStrategy.calls,
+              closePositionMutation.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -233,16 +231,16 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         actualPosition = new Position(
-          {
+          new PositionBalance({
             amount: new BigNumber(afterCloseUserAccountData.totalDebtETH.toString()),
             symbol: 'ETH',
-          },
-          {
+          }),
+          new PositionBalance({
             amount: new BigNumber(afterCloseUserStEthReserveData.currentATokenBalance.toString()),
             symbol: 'STETH',
-          },
+          }),
           aaveStEthPriceInEth,
-          openStrategy.simulation.position.category,
+          openPositionMutation.simulation.position.category,
         )
       })
 
@@ -337,17 +335,23 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           operationExecutor: system.common.operationExecutor.address,
         }
 
-        const openStrategy = await strategies.aave.openStEth(
+        const openStrategy = await strategies.aave.open(
           {
-            depositAmount,
+            depositedByUser: {
+              debtInWei: depositAmount,
+            },
             slippage,
             multiple,
+            debtToken: { symbol: tokens.ETH },
+            collateralToken: {
+              symbol: tokens.STETH,
+            },
           },
           {
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
-            dsProxy: system.common.dsProxy.address,
+            proxy: system.common.dsProxy.address,
           },
         )
 
@@ -356,7 +360,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              openStrategy.calls,
+              openPositionMutation.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -394,29 +398,31 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const positionAfterOpen = new Position(
-          {
+          new PositionBalance({
             amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()),
             symbol: 'ETH',
-          },
-          {
+          }),
+          new PositionBalance({
             amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
             symbol: 'STETH',
-          },
+          }),
           aaveStEthPriceInEth,
           openStrategy.simulation.position.category,
         )
 
-        closeStrategy = await strategies.aave.closeStEth(
+        closePositionMutation = await strategies.aave.close(
           {
-            stEthAmountLockedInAave: stEthAmount,
+            collateralToken: { symbol: tokens.STETH },
+            debtToken: { symbol: tokens.ETH },
             slippage,
+            collateralAmountLockedInProtocolInWei: stEthAmount,
           },
           {
             addresses,
             provider,
             position: positionAfterOpen,
             getSwapData: getOneInchCall(system.common.swap.address),
-            dsProxy: system.common.dsProxy.address,
+            proxy: system.common.dsProxy.address,
           },
         )
 
@@ -430,7 +436,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              closeStrategy.calls,
+              closePositionMutation.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -480,7 +486,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       )
 
       expectToBeEqual(
-        new BigNumber(closeStrategy.simulation.swap.sourceTokenFee),
+        new BigNumber(closePositionMutation.simulation.swap.sourceTokenFee),
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
       )
     })
@@ -520,8 +526,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       const delta = userEthBalanceAfterTx.minus(userEthBalanceBeforeTx).plus(txCost)
 
-      const expectToGet = amountFromWei(closeStrategy.simulation.swap.toTokenAmount)
-        .minus(closeStrategy.simulation.swap.sourceTokenFee)
+      const expectToGet = amountFromWei(closePositionMutation.simulation.swap.toTokenAmount)
+        .minus(closePositionMutation.simulation.swap.sourceTokenFee)
         .minus(amountFromWei(depositAmount).times(multiple).minus(amountFromWei(depositAmount)))
 
       expectToBe(delta, 'gte', expectToGet)

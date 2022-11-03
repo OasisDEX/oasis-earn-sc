@@ -28,17 +28,12 @@ import { getOneInchCall } from '../../helpers/swap/OneIchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
+import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
+import { tokens } from '../constants'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual, MULTIPLE_TESTING_OFFSET } from '../utils'
-
-const tokens = {
-  ETH: 'ETH',
-  WBTC: 'WBTC',
-  STETH: 'STETH',
-  USDC: 'USDC',
-} as const
 
 describe(`Strategy | AAVE | Open Position`, async () => {
   let aaveLendingPool: Contract
@@ -46,19 +41,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
   let provider: JsonRpcProvider
   let config: RuntimeConfig
   let signer: Signer
-
-  const mainnetAddresses = {
-    DAI: ADDRESSES.main.DAI,
-    ETH: ADDRESSES.main.ETH,
-    WETH: ADDRESSES.main.WETH,
-    stETH: ADDRESSES.main.stETH,
-    wBTC: ADDRESSES.main.WBTC,
-    USDC: ADDRESSES.main.USDC,
-    chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-    aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
-    aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-    aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
-  }
 
   before(async () => {
     ;({ config, provider, signer } = await loadFixture(initialiseConfig))
