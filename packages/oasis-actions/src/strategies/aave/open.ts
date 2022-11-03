@@ -169,7 +169,7 @@ export async function open(
         collateralInWei: depositCollateralAmountInWei,
       },
       collectSwapFeeFrom: 'sourceToken',
-      // debug: true,
+      debug: true,
     },
   )
 

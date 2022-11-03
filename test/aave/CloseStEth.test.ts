@@ -105,8 +105,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           },
           slippage,
           multiple,
-          debtToken: { symbol: tokens.STETH },
-          collateralToken: { symbol: tokens.ETH },
+          debtToken: { symbol: tokens.ETH },
+          collateralToken: { symbol: tokens.STETH },
         },
         {
           addresses,
