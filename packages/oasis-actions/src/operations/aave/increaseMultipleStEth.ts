@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
 
 import * as actions from '../../actions'
 import { OPERATION_NAMES } from '../../helpers/constants'
@@ -43,12 +44,12 @@ export async function increaseMultipleStEth(
 
   const borrowEthFromAAVE = actions.aave.aaveBorrow({
     amount: args.borrowAmount,
-    asset: addresses.ETH,
+    asset: addresses.WETH,
     to: args.dsProxy,
   })
 
   const wrapEth = actions.common.wrapEth({
-    amount: args.ethSwapAmount,
+    amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
   })
 
   const swapETHforSTETH = actions.common.swap({

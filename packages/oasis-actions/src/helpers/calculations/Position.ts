@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
+import { Optional } from 'utility-types'
 
 import { ONE, TYPICAL_PRECISION, ZERO } from '../constants'
 import { logDebug } from '../index'
 import { IRiskRatio, RiskRatio } from './RiskRatio'
-import { Optional } from 'utility-types'
 
 interface IPositionBalance {
   amount: BigNumber
@@ -27,7 +27,7 @@ export class PositionBalance implements IPositionBalance {
   }
 
   public get normalisedAmount() {
-    return this.amount.times(10 ** TYPICAL_PRECISION - this.precision)
+    return this.amount.times(10 ** (TYPICAL_PRECISION - this.precision))
   }
 }
 
@@ -111,13 +111,13 @@ export class Position implements IPosition {
   private _oraclePriceForCollateralDebtExchangeRate: BigNumber
 
   constructor(
-    debt: PositionBalance,
-    collateral: PositionBalance,
+    debt: Optional<IPositionBalance, 'precision'>,
+    collateral: Optional<IPositionBalance, 'precision'>,
     oraclePrice: BigNumber,
     category: IPositionCategory,
   ) {
-    this.debt = debt
-    this.collateral = collateral
+    this.debt = new PositionBalance(debt)
+    this.collateral = new PositionBalance(collateral)
     this._oraclePriceForCollateralDebtExchangeRate = oraclePrice
     this.category = category
   }
@@ -126,7 +126,7 @@ export class Position implements IPosition {
     const debtDelta = this.category.dustLimit.minus(this.debt.amount)
 
     const ltv = this.category.dustLimit.div(
-      this._normaliseAmount(debtDelta, this.debt.precision)
+      this._normaliseAmount(debtDelta, this.debt.precision || TYPICAL_PRECISION)
         .div(marketPriceAccountingForSlippage)
         .plus(this.collateral.normalisedAmount)
         .times(this._oraclePriceForCollateralDebtExchangeRate),
@@ -184,11 +184,11 @@ export class Position implements IPosition {
      * */
     const collateralDepositedByUser = this._normaliseAmount(
       depositedByUser?.collateralInWei || ZERO,
-      this.collateral.precision,
+      this.collateral.precision || TYPICAL_PRECISION,
     )
     const debtTokensDepositedByUser = this._normaliseAmount(
       depositedByUser?.debtInWei || ZERO,
-      this.debt.precision,
+      this.debt.precision || TYPICAL_PRECISION,
     )
 
     /**
@@ -260,6 +260,7 @@ export class Position implements IPosition {
             depositedByUser?.collateralInWei || ZERO
           ).toString()}`,
           `Normalised collateral tokens deposited by User: ${collateralDepositedByUser.toString()}`,
+
           `Debt tokens deposited by User: ${(depositedByUser?.debtInWei || ZERO).toString()}`,
           `Normalised debt tokens deposited by User: ${debtTokensDepositedByUser.toString()}`,
 
@@ -467,10 +468,16 @@ export class Position implements IPosition {
     const newCollateralAmount = currentCollateral.plus(collateralDelta)
     const newCollateral = {
       ...this.collateral,
-      amount: this._denormaliseAmount(newCollateralAmount, this.collateral.precision),
+      amount: this._denormaliseAmount(
+        newCollateralAmount,
+        this.collateral.precision || TYPICAL_PRECISION,
+      ),
     }
 
-    const newDebtAmount = this._denormaliseAmount(currentDebt.plus(debtDelta), this.debt.precision)
+    const newDebtAmount = this._denormaliseAmount(
+      currentDebt.plus(debtDelta),
+      this.debt.precision || TYPICAL_PRECISION,
+    )
     const newDebt = { ...this.debt, amount: newDebtAmount }
 
     const newPosition = new Position(

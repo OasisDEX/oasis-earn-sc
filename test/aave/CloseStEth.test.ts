@@ -64,7 +64,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
   let afterCloseUserAccountData: AAVEAccountData
   let afterCloseUserStEthReserveData: AAVEReserveData
-  let actualPosition: IPosition
 
   let feeRecipientWethBalanceBefore: BigNumber
   let userEthBalanceBeforeTx: BigNumber
@@ -172,14 +171,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         const positionAfterOpen = new Position(
-          new PositionBalance({
+          {
             amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()),
-            symbol: 'ETH',
-          }),
-          new PositionBalance({
+            symbol: tokens.ETH,
+          },
+          {
             amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
-            symbol: 'STETH',
-          }),
+            symbol: tokens.STETH,
+          },
           aaveStEthPriceInEth,
           openPositionMutation.simulation.position.category,
         )
@@ -228,19 +227,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         afterCloseUserStEthReserveData = await aaveDataProvider.getUserReserveData(
           ADDRESSES.main.stETH,
           system.common.dsProxy.address,
-        )
-
-        actualPosition = new Position(
-          new PositionBalance({
-            amount: new BigNumber(afterCloseUserAccountData.totalDebtETH.toString()),
-            symbol: 'ETH',
-          }),
-          new PositionBalance({
-            amount: new BigNumber(afterCloseUserStEthReserveData.currentATokenBalance.toString()),
-            symbol: 'STETH',
-          }),
-          aaveStEthPriceInEth,
-          openPositionMutation.simulation.position.category,
         )
       })
 
@@ -398,14 +384,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const positionAfterOpen = new Position(
-          new PositionBalance({
+          {
             amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()),
-            symbol: 'ETH',
-          }),
-          new PositionBalance({
+            symbol: tokens.ETH,
+          },
+          {
             amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
-            symbol: 'STETH',
-          }),
+            symbol: tokens.STETH,
+          },
           aaveStEthPriceInEth,
           openStrategy.simulation.position.category,
         )

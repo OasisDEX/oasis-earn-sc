@@ -53,11 +53,17 @@ export async function adjustStEth(
     .then((amount: BigNumber) => amountFromWei(amount))
 
   const existingPosition = new Position(
-    new PositionBalance(existingBasePosition.debt),
-    new PositionBalance(existingBasePosition.collateral),
+    existingBasePosition.debt,
+    existingBasePosition.collateral,
     aaveStEthPriceInEth,
     existingBasePosition.category,
   )
+
+  console.log('EXISTING POSITION')
+  console.log(existingPosition.debt.amount.toString())
+  console.log(existingPosition.debt.normalisedAmount.toString())
+  console.log(existingPosition.collateral.amount.toString())
+  console.log(existingPosition.collateral.normalisedAmount.toString())
 
   const FEE = 20
 
@@ -107,7 +113,7 @@ export async function adjustStEth(
         debtInWei: depositEthWei,
       },
       collectSwapFeeFrom: isIncreasingRisk ? 'sourceToken' : 'targetToken',
-      // debug: true,
+      debug: true,
     },
   )
 

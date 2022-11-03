@@ -6,7 +6,7 @@ import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
-import { Position, PositionBalance } from '../../helpers/calculations/Position'
+import { Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
@@ -109,16 +109,16 @@ export async function open(
   )
 
   const emptyPosition = new Position(
-    new PositionBalance({
+    {
       amount: ZERO,
       symbol: args.debtToken.symbol,
       precision: args.debtToken.precision,
-    }),
-    new PositionBalance({
+    },
+    {
       amount: ZERO,
       symbol: args.collateralToken.symbol,
       precision: args.collateralToken.precision,
-    }),
+    },
     aaveCollateralTokenPriceInEth,
     {
       liquidationThreshold,
@@ -231,12 +231,12 @@ export async function open(
     Final position calculated using actual swap data and the latest market price
    */
   const finalPosition = new Position(
-    new PositionBalance(target.position.debt),
-    new PositionBalance({
+    target.position.debt,
+    {
       amount: collateralAmountAfterSwapInWei.plus(depositCollateralAmountInWei),
       symbol: target.position.collateral.symbol,
       precision: target.position.collateral.precision,
-    }),
+    },
     oracle,
     target.position.category,
   )

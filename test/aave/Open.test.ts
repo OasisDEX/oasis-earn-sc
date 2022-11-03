@@ -9,7 +9,6 @@ import {
 } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
-import { PositionBalance } from '@oasisdex/oasis-actions/lib/src/helpers/calculations/Position'
 import { ONE, ZERO } from '@oasisdex/oasis-actions/src'
 import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import BigNumber from 'bignumber.js'
@@ -184,16 +183,16 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
       const actualPosition = new Position(
-        new PositionBalance({
+        {
           amount: new BigNumber(userDebtReserveData.currentVariableDebt.toString()),
           precision: debtToken.precision,
           symbol: debtToken.symbol,
-        }),
-        new PositionBalance({
+        },
+        {
           amount: new BigNumber(userCollateralReserveData.currentATokenBalance.toString()),
           precision: collateralToken.precision,
           symbol: collateralToken.symbol,
-        }),
+        },
         oracle,
         positionMutation.simulation.position.category,
       )
@@ -294,42 +293,6 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
         )
       })
-
-      // it('Should draw debt according to multiple', () => {
-      //   expectToBeEqual(
-      //     positionMutation.simulation.position.debt.amount.toFixed(0),
-      //     new BigNumber(userAccountData.totalDebtETH.toString()),
-      //   )
-      // })
-
-      // it(`Should deposit all ${tokens.STETH} tokens to aave`, () => {
-      //   expectToBe(
-      //     positionMutation.simulation.swap.minToTokenAmount,
-      //     'lte',
-      //     new BigNumber(userCollateralReserveData.currentATokenBalance.toString()),
-      //   )
-      // })
-
-      // it('Should achieve target multiple', () => {
-      //   expectToBe(
-      //     positionMutation.simulation.position.riskRatio.multiple,
-      //     'gte',
-      //     actualPosition.riskRatio.multiple,
-      //   )
-      // })
-
-      // it('Should collect fee', async () => {
-      //   const feeRecipientWethBalanceAfter = await balanceOf(
-      //     ADDRESSES.main.WETH,
-      //     ADDRESSES.main.feeRecipient,
-      //     { config, isFormatted: true },
-      //   )
-
-      //   expectToBeEqual(
-      //     new BigNumber(positionMutation.simulation.swap.sourceTokenFee),
-      //     feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
-      //   )
-      // })
     })
 
     describe(`With ${tokens.ETH} collateral (+dep) & ${tokens.USDC} debt`, () => {
