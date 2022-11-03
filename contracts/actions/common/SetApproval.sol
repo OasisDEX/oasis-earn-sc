@@ -7,7 +7,6 @@ import { UseStore, Read } from "../common/UseStore.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { SET_APPROVAL_ACTION } from "../../core/constants/Common.sol";
-import "hardhat/console.sol";
 
 /**
  * @title SetApproval Action contract
