@@ -158,7 +158,6 @@ contract uSwap {
     if (!isFeeValid) {
       revert FeeTierDoesNotExist(fee);
     }
-
     uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
 
     if (fee > 0) {
@@ -187,13 +186,19 @@ contract uSwap {
     bytes memory methodSig = withData[:4];
 
     if (compareMethodSigs(methodSig, uniswapV3Swap)) {
-      (, uint256 _minReturn, ) = abi.decode(withData[4:], (uint256, uint256, uint256[]));
+      (uint256 amount, uint256 _minReturn, uint256[] memory pools) = abi.decode(
+        withData[4:],
+        (uint256, uint256, uint256[])
+      );
       minReturn = _minReturn;
     } else if (compareMethodSigs(methodSig, unoswap)) {
-      (, , uint256 _minReturn, ) = abi.decode(withData[4:], (address, uint256, uint256, bytes32[]));
+      (address srcToken, uint256 amount, uint256 _minReturn, bytes32[] memory pools) = abi.decode(
+        withData[4:],
+        (address, uint256, uint256, bytes32[])
+      );
       minReturn = _minReturn;
     } else if (compareMethodSigs(methodSig, swap)) {
-      (, SwapDescription memory swapDescription, ) = abi.decode(
+      (address a, SwapDescription memory swapDescription, bytes memory j) = abi.decode(
         withData[4:],
         (address, SwapDescription, bytes)
       );
@@ -206,7 +211,6 @@ contract uSwap {
 
   function swapTokens(SwapData calldata swapData) public returns (uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
-
     uint256 amountFrom = swapData.amount;
 
     if (swapData.collectFeeInFromToken) {
