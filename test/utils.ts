@@ -40,4 +40,4 @@ export async function expectRevert(expression: RegExp, tx: Promise<unknown>) {
   }
 }
 
-export const MULTIPLE_TESTING_OFFSET = 0.1
+export const TESTING_OFFSET = 0.1
