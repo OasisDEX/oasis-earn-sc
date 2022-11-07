@@ -3,7 +3,12 @@ import { ethers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
+<<<<<<< HEAD
 import { amountFromWei, amountToWei, calculateFee } from '../../helpers'
+=======
+import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
+import { amountFromWei, calculateFee } from '../../helpers'
+>>>>>>> 2c43f8e (refactor: (WIP) multi token pair Close AAVE position tests)
 import { ADDRESSES } from '../../helpers/addresses'
 import { Position } from '../../helpers/calculations/Position'
 import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
@@ -42,20 +47,43 @@ export async function close(
   )
 
   const [
+<<<<<<< HEAD
     aaveFlashloanDaiPriceInEth,
+=======
+    roundData,
+    decimals,
+    aaveFlashloanDaiPriceInEth,
+    aaveDebtTokenPriceInEth,
+>>>>>>> 2c43f8e (refactor: (WIP) multi token pair Close AAVE position tests)
     aaveCollateralTokenPriceInEth,
     swapData,
     reserveDataForFlashloan,
   ] = await Promise.all([
+<<<<<<< HEAD
+=======
+    priceFeed.latestRoundData(),
+    priceFeed.decimals(),
+>>>>>>> 2c43f8e (refactor: (WIP) multi token pair Close AAVE position tests)
     aavePriceOracle
       .getAssetPrice(ADDRESSES.main.DAI)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     aavePriceOracle
+<<<<<<< HEAD
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     dependencies.getSwapData(
       collateralTokenAddress,
       debtTokenAddress,
+=======
+      .getAssetPrice(debtTokenAddress)
+      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+    aavePriceOracle
+      .getAssetPrice(collateralTokenAddress)
+      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+    dependencies.getSwapData(
+      debtTokenAddress,
+      collateralTokenAddress,
+>>>>>>> 2c43f8e (refactor: (WIP) multi token pair Close AAVE position tests)
       args.collateralAmountLockedInProtocolInWei,
       args.slippage,
     ),
@@ -66,6 +94,7 @@ export async function close(
   const FEE_BASE = 10000
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
 
+<<<<<<< HEAD
   const ethPerDAI = aaveFlashloanDaiPriceInEth
   const ethPerCollateralToken = aaveCollateralTokenPriceInEth
   // EG STETH/ETH divided by ETH/DAI = STETH/ETH times by DAI/ETH = STETH/DAI
@@ -79,9 +108,40 @@ export async function close(
   )
     .div(maxLoanToValueForFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
     .integerValue(BigNumber.ROUND_DOWN)
+=======
+  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
 
+  console.log('aaveCollateralTokenPriceInEth:', aaveCollateralTokenPriceInEth.toString())
+  console.log('ethPrice:', ethPrice.toString())
+  console.log('aaveCollateralTokenPriceInEth:', aaveCollateralTokenPriceInEth.toString())
+>>>>>>> 2c43f8e (refactor: (WIP) multi token pair Close AAVE position tests)
+
+  const collateralPriceInUSD = aaveCollateralTokenPriceInEth.times(ethPrice)
+
+  console.log('collateralPrice:', collateralPriceInUSD.toString())
+
+  const ethPerDAI = aaveFlashloanDaiPriceInEth
+  const ethPerCollateralToken = aaveCollateralTokenPriceInEth
+  // EG STETH/ETH divided by ETH/DAI = STETH/ETH times by DAI/ETH = STETH/DAI
+  const oracleFLtoCollateralToken = ethPerCollateralToken.div(ethPerDAI)
+
+  // We need FL to cover the debt position
+  // But we don't know debt
+  // So, we need FL to cover collateral locked in protocol
+  console.log(
+    'args.collateralAmountLockedInProtocolInWei:',
+    args.collateralAmountLockedInProtocolInWei.toString(),
+  )
+  console.log('swapData.minToTokenAmount:', swapData.minToTokenAmount.toString())
+  const amountToFlashloanInWei = args.collateralAmountLockedInProtocolInWei
+    .times(oracleFLtoCollateralToken)
+    .div(maxLoanToValueForFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
+    .integerValue(BigNumber.ROUND_DOWN)
+  console.log('amountToFlashloanInWei:', amountToFlashloanInWei.toString())
+  // const flashLoanAmountWei = args.collateralAmountLockedInProtocolInWei.times(collateralPriceInUSD)
+
+  console.log('swapData.toTokenAmount:', swapData.toTokenAmount.toString())
   const fee = calculateFee(swapData.toTokenAmount, FEE, FEE_BASE)
-
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'

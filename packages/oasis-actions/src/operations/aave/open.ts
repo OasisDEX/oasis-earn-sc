@@ -49,7 +49,7 @@ export async function open(
     amount: args.depositCollateral.amountInWei,
     from: args.user,
   })
-
+  console.log(' args.flashloanAmount:', args.flashloanAmount.toString())
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
