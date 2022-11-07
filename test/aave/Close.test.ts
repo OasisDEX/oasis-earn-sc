@@ -41,10 +41,16 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   let provider: JsonRpcProvider
   let config: RuntimeConfig
   let signer: Signer
+<<<<<<< HEAD
   let userAddress: Address
 
   before(async () => {
     ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
+=======
+
+  before(async () => {
+    ;({ config, provider, signer } = await loadFixture(initialiseConfig))
+>>>>>>> 2c43f8e (refactor: (WIP) multi token pair Close AAVE position tests)
 
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -264,6 +270,10 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         system.common.dsProxy.address,
       )
 
+<<<<<<< HEAD
+=======
+      console.log('after Collateral Address:', collateralToken.address)
+>>>>>>> 2c43f8e (refactor: (WIP) multi token pair Close AAVE position tests)
       const userCollateralReserveDataAfterClose = await aaveDataProvider.getUserReserveData(
         collateralToken.address,
         system.common.dsProxy.address,
@@ -723,6 +733,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           ADDRESSES.main.stETH,
           system.common.dsProxy.address,
         )
+
         const stEthAmount = new BigNumber(
           beforeCloseUserStEthReserveData.currentATokenBalance.toString(),
         )
