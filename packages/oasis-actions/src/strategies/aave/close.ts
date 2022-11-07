@@ -2,11 +2,10 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
-import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
-import { amountFromWei, amountToWei, calculateFee } from '../../helpers'
-import { ADDRESSES } from '../../helpers/addresses'
+import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
+import { amountFromWei, calculateFee } from '../../helpers'
 import { Position } from '../../helpers/calculations/Position'
-import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
+import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
@@ -29,56 +28,45 @@ export async function close(
     dependencies.addresses,
   )
 
+  const priceFeed = new ethers.Contract(
+    dependencies.addresses.chainlinkEthUsdPriceFeed,
+    chainlinkPriceFeedABI,
+    dependencies.provider,
+  )
+
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
     aavePriceOracleABI,
     dependencies.provider,
   )
 
-  const aaveProtocolDataProvider = new ethers.Contract(
-    dependencies.addresses.aaveProtocolDataProvider,
-    aaveProtocolDataProviderABI,
-    dependencies.provider,
-  )
+  const [roundData, decimals, aaveDebtTokenPriceInEth, aaveCollateralTokenPriceInEth, swapData] =
+    await Promise.all([
+      priceFeed.latestRoundData(),
+      priceFeed.decimals(),
+      aavePriceOracle
+        .getAssetPrice(debtTokenAddress)
+        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+      aavePriceOracle
+        .getAssetPrice(collateralTokenAddress)
+        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+      dependencies.getSwapData(
+        debtTokenAddress,
+        collateralTokenAddress,
+        args.collateralAmountLockedInProtocolInWei,
+        args.slippage,
+      ),
+    ])
 
-  const [
-    aaveFlashloanDaiPriceInEth,
-    aaveCollateralTokenPriceInEth,
-    swapData,
-    reserveDataForFlashloan,
-  ] = await Promise.all([
-    aavePriceOracle
-      .getAssetPrice(ADDRESSES.main.DAI)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aavePriceOracle
-      .getAssetPrice(collateralTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    dependencies.getSwapData(
-      collateralTokenAddress,
-      debtTokenAddress,
-      args.collateralAmountLockedInProtocolInWei,
-      args.slippage,
-    ),
-    aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
-  ])
-
+  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
   const FEE = 20
   const FEE_BASE = 10000
-  const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
 
-  const ethPerDAI = aaveFlashloanDaiPriceInEth
-  const ethPerCollateralToken = aaveCollateralTokenPriceInEth
-  // EG STETH/ETH divided by ETH/DAI = STETH/ETH times by DAI/ETH = STETH/DAI
-  const oracleFLtoCollateralToken = ethPerCollateralToken.div(ethPerDAI)
-
-  const amountToFlashloanInWei = amountToWei(
-    amountFromWei(args.collateralAmountLockedInProtocolInWei, args.collateralToken.precision).times(
-      oracleFLtoCollateralToken,
-    ),
-    18,
+  const collateralPrice = aaveCollateralTokenPriceInEth.times(
+    ethPrice.times(aaveDebtTokenPriceInEth),
   )
-    .div(maxLoanToValueForFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
-    .integerValue(BigNumber.ROUND_DOWN)
+
+  const flashLoanAmountWei = args.collateralAmountLockedInProtocolInWei.times(collateralPrice)
 
   const fee = calculateFee(swapData.toTokenAmount, FEE, FEE_BASE)
 
@@ -88,7 +76,7 @@ export async function close(
   const operation = await operations.aave.close(
     {
       lockedCollateralAmountInWei: args.collateralAmountLockedInProtocolInWei,
-      flashloanAmount: amountToFlashloanInWei,
+      flashloanAmount: flashLoanAmountWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
@@ -127,7 +115,7 @@ export async function close(
       flags: flags,
       swap: {
         ...swapData,
-        tokenFee: fee,
+        tokenFee: amountFromWei(fee),
         collectFeeFrom: args.collectSwapFeeFrom ?? 'sourceToken',
         sourceToken: {
           symbol: args.collateralToken.symbol,

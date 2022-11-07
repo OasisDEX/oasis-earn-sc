@@ -637,12 +637,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     })
   })
 
-  /**
-   * NOTE: This test seems to periodically fail due to 1inch occassionally
-   * routing the t/x via a uniswap pool that has a very low liquidity
-   * and it seems to break the constant product K invariant on the pool.
-   * Mostly likely because of out by 1 wei issues given Lido STETH is a rebased token
-   */
   describe.skip('Should close position with real oneInch', () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
@@ -729,7 +723,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           ADDRESSES.main.stETH,
           system.common.dsProxy.address,
         )
-
         const stEthAmount = new BigNumber(
           beforeCloseUserStEthReserveData.currentATokenBalance.toString(),
         )
