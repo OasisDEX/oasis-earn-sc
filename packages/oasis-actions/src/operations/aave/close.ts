@@ -13,11 +13,15 @@ export async function close(
     fee: number
     swapData: string | number
     proxy: string
+    collectFeeFrom: 'sourceToken' | 'targetToken'
     collateralTokenAddress: string
     debtTokenAddress: string
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
+  console.log('OP-FLASH:', args.flashloanAmount.toString())
+  console.log('OP-LOCKED:', args.lockedCollateralAmountInWei.toString())
+
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
@@ -33,7 +37,7 @@ export async function close(
 
   const withdrawCollateralFromAAVE = actions.aave.aaveWithdraw({
     asset: args.collateralTokenAddress,
-    amount: args.lockedCollateralAmountInWei,
+    amount: new BigNumber(MAX_UINT),
     to: args.proxy,
   })
 
@@ -44,7 +48,7 @@ export async function close(
     receiveAtLeast: args.receiveAtLeast,
     fee: args.fee,
     withData: args.swapData,
-    collectFeeInFromToken: false,
+    collectFeeInFromToken: args.collectFeeFrom === 'sourceToken',
   })
 
   const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
@@ -74,7 +78,7 @@ export async function close(
   })
 
   const returnFunds = actions.common.returnFunds({
-    asset: addresses.ETH,
+    asset: args.debtTokenAddress,
   })
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({

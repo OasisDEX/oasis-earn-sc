@@ -33,7 +33,7 @@ import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
-import { expectToBe, expectToBeEqual, MULTIPLE_TESTING_OFFSET } from '../utils'
+import { expectToBe, expectToBeEqual, TESTING_OFFSET } from '../utils'
 
 describe(`Strategy | AAVE | Open Position`, async function () {
   let aaveLendingPool: Contract
