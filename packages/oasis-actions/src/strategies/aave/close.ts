@@ -5,7 +5,7 @@ import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, calculateFee } from '../../helpers'
 import { Position } from '../../helpers/calculations/Position'
-import { ZERO } from '../../helpers/constants'
+import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
@@ -16,12 +16,18 @@ import {
   WithLockedCollateral,
   WithPosition,
 } from '../types/IPositionRepository'
+import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
-export async function closeStEth(
+export async function close(
   args: IBasePositionMutationArgs<AAVETokens> & WithLockedCollateral,
   dependencies: IMutationDependencies<AAVEStrategyAddresses> & WithPosition,
 ): Promise<IPositionMutation> {
   const existingPosition = dependencies.position
+
+  const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
+    { debtToken: args.debtToken, collateralToken: args.collateralToken },
+    dependencies.addresses,
+  )
 
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
@@ -35,19 +41,19 @@ export async function closeStEth(
     dependencies.provider,
   )
 
-  const [roundData, decimals, aaveWethPriceInEth, aaveStEthPriceInEth, swapData] =
+  const [roundData, decimals, aaveDebtTokenPriceInEth, aaveCollateralTokenPriceInEth, swapData] =
     await Promise.all([
       priceFeed.latestRoundData(),
       priceFeed.decimals(),
       aavePriceOracle
-        .getAssetPrice(dependencies.addresses.WETH)
+        .getAssetPrice(debtTokenAddress)
         .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
       aavePriceOracle
-        .getAssetPrice(dependencies.addresses.stETH)
+        .getAssetPrice(collateralTokenAddress)
         .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
       dependencies.getSwapData(
-        dependencies.addresses.stETH,
-        dependencies.addresses.WETH,
+        debtTokenAddress,
+        collateralTokenAddress,
         args.collateralAmountLockedInProtocolInWei,
         args.slippage,
       ),
@@ -57,23 +63,26 @@ export async function closeStEth(
   const FEE = 20
   const FEE_BASE = 10000
 
-  const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
+  const collateralPrice = aaveCollateralTokenPriceInEth.times(
+    ethPrice.times(aaveDebtTokenPriceInEth),
+  )
 
-  const flashLoanAmountWei = args.collateralAmountLockedInProtocolInWei.times(stEthPrice)
+  const flashLoanAmountWei = args.collateralAmountLockedInProtocolInWei.times(collateralPrice)
 
   const fee = calculateFee(swapData.toTokenAmount, FEE, FEE_BASE)
 
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
-  // TODO: We might want to return this and update ISimulation accordingly
 
-  const operation = await operations.aave.closeStEth(
+  const operation = await operations.aave.close(
     {
-      stEthAmount: args.collateralAmountLockedInProtocolInWei,
+      lockedCollateralAmountInWei: args.collateralAmountLockedInProtocolInWei,
       flashloanAmount: flashLoanAmountWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
-      dsProxy: dependencies.proxy,
+      proxy: dependencies.proxy,
+      collateralTokenAddress,
+      debtTokenAddress,
     },
     dependencies.addresses,
   )
@@ -84,7 +93,7 @@ export async function closeStEth(
   const finalPosition = new Position(
     { amount: ZERO, symbol: existingPosition.debt.symbol },
     { amount: ZERO, symbol: existingPosition.collateral.symbol },
-    aaveStEthPriceInEth,
+    aaveCollateralTokenPriceInEth,
     existingPosition.category,
   )
 
@@ -106,8 +115,14 @@ export async function closeStEth(
         ...swapData,
         tokenFee: amountFromWei(fee),
         collectFeeFrom: args.collectSwapFeeFrom ?? 'sourceToken',
-        sourceToken: { symbol: 'STETH', precision: 18 },
-        targetToken: { symbol: 'WETH', precision: 18 },
+        sourceToken: {
+          symbol: args.collateralToken.symbol,
+          precision: args.collateralToken.precision ?? TYPICAL_PRECISION,
+        },
+        targetToken: {
+          symbol: args.debtToken.symbol,
+          precision: args.debtToken.precision ?? TYPICAL_PRECISION,
+        },
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(

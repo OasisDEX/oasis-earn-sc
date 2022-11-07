@@ -13,26 +13,16 @@ import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
 import { IPositionMutation } from '../types/IPositionMutation'
 import { IMutationDependencies, IPositionMutationArgs } from '../types/IPositionRepository'
+import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
 export async function open(
   args: IPositionMutationArgs<AAVETokens>,
   dependencies: IMutationDependencies<AAVEStrategyAddresses>,
 ): Promise<IPositionMutation> {
-  const tokenAddresses = {
-    WETH: dependencies.addresses.WETH,
-    ETH: dependencies.addresses.WETH,
-    STETH: dependencies.addresses.stETH,
-    USDC: dependencies.addresses.USDC,
-    WBTC: dependencies.addresses.wBTC,
-  }
-
-  const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
-  const debtTokenAddress = tokenAddresses[args.debtToken.symbol]
-
-  if (!collateralTokenAddress)
-    throw new Error('Collateral token not recognised or address missing in dependencies')
-  if (!debtTokenAddress)
-    throw new Error('Debt token not recognised or address missing in dependencies')
+  const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
+    { debtToken: args.debtToken, collateralToken: args.collateralToken },
+    dependencies.addresses,
+  )
 
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
