@@ -472,7 +472,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       )
 
       expectToBeEqual(
-        new BigNumber(closePositionMutation.simulation.swap.sourceTokenFee),
+        new BigNumber(closePositionMutation.simulation.swap.tokenFee),
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
       )
     })
@@ -513,7 +513,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       const delta = userEthBalanceAfterTx.minus(userEthBalanceBeforeTx).plus(txCost)
 
       const expectToGet = amountFromWei(closePositionMutation.simulation.swap.toTokenAmount)
-        .minus(closePositionMutation.simulation.swap.sourceTokenFee)
+        .minus(closePositionMutation.simulation.swap.tokenFee)
         .minus(amountFromWei(depositAmount).times(multiple).minus(amountFromWei(depositAmount)))
 
       expectToBe(delta, 'gte', expectToGet)

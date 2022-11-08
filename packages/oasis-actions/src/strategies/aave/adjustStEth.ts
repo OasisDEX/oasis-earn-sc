@@ -109,7 +109,7 @@ export async function adjustStEth(
         debtInWei: depositEthWei,
       },
       collectSwapFeeFrom: isIncreasingRisk ? 'sourceToken' : 'targetToken',
-      debug: true,
+      // debug: true,
     },
   )
 

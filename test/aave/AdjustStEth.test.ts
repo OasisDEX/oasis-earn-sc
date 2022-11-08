@@ -56,7 +56,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe('On forked chain', () => {
+  describe.skip('On forked chain', () => {
     const depositAmount = amountToWei(new BigNumber(60 / 1e12))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
@@ -277,7 +277,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         )
 
         expectToBeEqual(
-          new BigNumber(adjustPositionUpMutation.simulation.swap.sourceTokenFee.toFixed(6)),
+          new BigNumber(adjustPositionUpMutation.simulation.swap.tokenFee.toFixed(6)),
           feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(6),
         )
       })
@@ -514,7 +514,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         )
 
         expectToBeEqual(
-          new BigNumber(adjustPositionUpMutation.simulation.swap.sourceTokenFee.toFixed(6)),
+          new BigNumber(adjustPositionUpMutation.simulation.swap.tokenFee.toFixed(6)),
           feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(6),
         )
       })
@@ -538,12 +538,13 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
     before(async () => {
       ;({ config, provider, signer } = await loadFixture(initialiseConfig))
+
       const { snapshot, config: newConfig } = await restoreSnapshot(
         config,
         provider,
         testBlockNumber,
       )
-      config = newConfig
+      // config = newConfig
       system = snapshot.deployed.system
 
       const addresses = {
@@ -636,16 +637,16 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             addresses,
             provider,
             position: {
-              debt: {
+              debt: new PositionBalance({
                 symbol: tokens.ETH,
                 precision: TYPICAL_PRECISION,
                 amount: new BigNumber(beforeUserAccountData.totalDebtETH.toString()),
-              },
-              collateral: {
+              }),
+              collateral: new PositionBalance({
                 symbol: tokens.STETH,
                 precision: TYPICAL_PRECISION,
                 amount: new BigNumber(beforeUserStEthReserveData.currentATokenBalance.toString()),
-              },
+              }),
               category: {
                 liquidationThreshold: new BigNumber(0.75),
                 maxLoanToValue: new BigNumber(0.73),
@@ -730,7 +731,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         )
 
         expectToBeEqual(
-          new BigNumber(adjustPositionDownMutation.simulation.swap.targetTokenFee.toFixed(6)),
+          new BigNumber(adjustPositionDownMutation.simulation.swap.tokenFee.toFixed(6)),
           feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(6),
         )
       })
@@ -971,7 +972,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         )
 
         expectToBeEqual(
-          new BigNumber(adjustPositionDownMutation.simulation.swap.targetTokenFee.toFixed(6)),
+          new BigNumber(adjustPositionDownMutation.simulation.swap.tokenFee.toFixed(6)),
           feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(6),
         )
       })
