@@ -21,7 +21,7 @@ import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
-import { resetNodeToLatestBlock } from '../../helpers/init'
+import { impersonateRichAccount, resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { getOneInchCall } from '../../helpers/swap/OneIchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
@@ -120,6 +120,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           multiple,
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
           collateralToken: { symbol: collateralToken.symbol, precision: collateralToken.precision },
+          collectSwapFeeFrom: isFeeFromDebtToken ? 'sourceToken' : 'targetToken',
         },
         {
           addresses,
@@ -287,9 +288,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         )
 
         expectToBeEqual(
-          amountToWei(new BigNumber(positionMutation.simulation.swap.sourceTokenFee), 18).toFixed(
-            0,
-          ),
+          new BigNumber(positionMutation.simulation.swap.tokenFee),
           feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
         )
       })
@@ -373,7 +372,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         )
 
         expectToBeEqual(
-          amountToWei(new BigNumber(positionMutation.simulation.swap.sourceTokenFee), 6).toFixed(0),
+          new BigNumber(positionMutation.simulation.swap.tokenFee),
           feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore),
         )
       })
@@ -419,10 +418,10 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       })
 
       it('Should draw debt according to multiple', () => {
-        expectToBeEqual(
+        expect(new BigNumber(actualPosition.debt.amount.toString()).toString()).to.be.oneOf([
           positionMutation.simulation.position.debt.amount.toFixed(0),
-          new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).toFixed(0),
-        )
+          positionMutation.simulation.position.debt.amount.minus(ONE).toFixed(0),
+        ])
       })
 
       it(`Should deposit all ${tokens.WBTC} tokens to aave`, () => {
@@ -457,14 +456,108 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         )
 
         expectToBeEqual(
-          amountToWei(new BigNumber(positionMutation.simulation.swap.sourceTokenFee), 6).toFixed(0),
+          new BigNumber(positionMutation.simulation.swap.tokenFee),
           feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore),
+        )
+      })
+    })
+
+    describe(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, () => {
+      const depositWBTCAmount = new BigNumber(6)
+
+      let userWBTCReserveData: AAVEReserveData
+      let userUSDCReserveData: AAVEReserveData
+      let feeRecipientWBTCBalanceBefore: BigNumber
+      let actualPosition: IPosition
+
+      before(async () => {
+        const setup = await setupOpenPositionTest(
+          {
+            depositAmountInWei: amountToWei(depositWBTCAmount, 8),
+            symbol: tokens.WBTC,
+            address: ADDRESSES.main.WBTC,
+            precision: 8,
+            isEth: false,
+          },
+          {
+            depositAmountInWei: ZERO,
+            symbol: tokens.USDC,
+            address: ADDRESSES.main.USDC,
+            precision: 6,
+            isEth: false,
+          },
+          new BigNumber(20032),
+          false,
+        )
+        txStatus = setup.txStatus
+        positionMutation = setup.positionMutation
+        actualPosition = setup.actualPosition
+        userWBTCReserveData = setup.userCollateralReserveData
+        userUSDCReserveData = setup.userDebtReserveData
+        feeRecipientWBTCBalanceBefore = setup.feeRecipientBalanceBefore
+      })
+
+      it('Tx should pass', () => {
+        expect(txStatus).to.be.true
+      })
+
+      it('Should draw debt according to multiple', () => {
+        expect(new BigNumber(actualPosition.debt.amount.toString()).toString()).to.be.oneOf([
+          positionMutation.simulation.position.debt.amount.toFixed(0),
+          positionMutation.simulation.position.debt.amount.minus(ONE).toFixed(0),
+        ])
+      })
+
+      it(`Should deposit all ${tokens.WBTC} tokens to aave`, () => {
+        expectToBe(
+          positionMutation.simulation.position.collateral.amount,
+          'lte',
+          new BigNumber(userWBTCReserveData.currentATokenBalance.toString()).toFixed(0),
+        )
+      })
+
+      it('Should achieve target multiple', () => {
+        expectToBe(
+          positionMutation.simulation.position.riskRatio.multiple.times(
+            ONE.minus(MULTIPLE_TESTING_OFFSET),
+          ),
+          'lte',
+          actualPosition.riskRatio.multiple,
+        )
+
+        expectToBe(
+          positionMutation.simulation.position.riskRatio.multiple,
+          'gte',
+          actualPosition.riskRatio.multiple,
+        )
+      })
+
+      it('Should collect fee', async () => {
+        const feeRecipientWBTCBalanceAfter = await balanceOf(
+          ADDRESSES.main.WBTC,
+          ADDRESSES.main.feeRecipient,
+          { config },
+        )
+
+        // Test for equivalence within slippage adjusted range when taking fee from target token
+        expectToBe(
+          new BigNumber(
+            positionMutation.simulation.swap.tokenFee.div(ONE.minus(slippage)).toString(),
+          ).toFixed(0),
+          'gte',
+          feeRecipientWBTCBalanceAfter.minus(feeRecipientWBTCBalanceBefore),
+        )
+
+        expectToBe(
+          positionMutation.simulation.swap.tokenFee,
+          'lte',
+          feeRecipientWBTCBalanceAfter.minus(feeRecipientWBTCBalanceBefore),
         )
       })
     })
   })
 
-  describe.skip('On latest block using one inch exchange and api', () => {
+  describe('On latest block using one inch exchange and api', () => {
     const depositEthAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
@@ -484,6 +577,9 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       if (shouldRun1InchTests) {
         //Reset to the latest block
         await resetNodeToLatestBlock(provider)
+        const { signer, address } = await impersonateRichAccount(provider)
+        config.signer = signer
+        config.address = address
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
 
@@ -565,7 +661,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       )
 
       expectToBeEqual(
-        new BigNumber(positionMutation.simulation.swap.sourceTokenFee),
+        new BigNumber(positionMutation.simulation.swap.tokenFee),
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
       )
     })

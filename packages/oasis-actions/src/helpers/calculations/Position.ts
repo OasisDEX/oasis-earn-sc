@@ -38,8 +38,8 @@ interface IPositionCategory {
 }
 
 export interface IBasePosition {
-  collateral: IPositionBalance
-  debt: IPositionBalance
+  collateral: PositionBalance
+  debt: PositionBalance
   category: IPositionCategory
 }
 
@@ -47,8 +47,8 @@ type Delta = { debt: BigNumber; collateral: BigNumber; flashloanAmount: BigNumbe
 export type Swap = {
   fromTokenAmount: BigNumber
   minToTokenAmount: BigNumber
-  sourceTokenFee: BigNumber
-  targetTokenFee: BigNumber
+  tokenFee: BigNumber
+  collectFeeFrom: 'sourceToken' | 'targetToken'
 }
 type Flags = { requiresFlashloan: boolean; isIncreasingRisk: boolean }
 
@@ -377,6 +377,8 @@ export class Position implements IPosition {
      */
     let sourceFee = ZERO
     let targetFee = ZERO
+    const debtTokenIsSourceToken = isIncreasingRisk
+
     if (collectFeeFromSourceToken) {
       sourceFee = (
         isIncreasingRisk
@@ -410,6 +412,15 @@ export class Position implements IPosition {
       currentCollateral,
     )
 
+    const normalisedSourceFee = this._denormaliseAmount(
+      sourceFee,
+      debtTokenIsSourceToken ? this.debt.precision : this.collateral.precision,
+    )
+    const normalisedTargetFee = this._denormaliseAmount(
+      targetFee,
+      debtTokenIsSourceToken ? this.collateral.precision : this.debt.precision,
+    )
+
     if (debug) {
       logDebug(
         [
@@ -432,11 +443,13 @@ export class Position implements IPosition {
           `----`,
           `Source fee amount ${sourceFee.toString()}`,
           `Target fee amount ${targetFee.toString()}`,
+          `Normalised source fee amount ${normalisedSourceFee.toFixed(0)}`,
+          `Normalised target fee amount ${normalisedTargetFee.toFixed(0)}`,
           `Fee taken from Source token ${collectFeeFromSourceToken}`,
           `Fee take from Target token ${!collectFeeFromSourceToken}`,
           `----`,
-          `Target position debt ${targetPosition.debt.amount.toString()}`,
-          `Target position collateral ${targetPosition.collateral.amount.toString()}`,
+          `Target position debt ${targetPosition.debt.normalisedAmount.toString()}`,
+          `Target position collateral ${targetPosition.collateral.normalisedAmount.toString()}`,
         ],
         'Output: ',
       )
@@ -448,8 +461,10 @@ export class Position implements IPosition {
       swap: {
         fromTokenAmount,
         minToTokenAmount,
-        sourceTokenFee: sourceFee.integerValue(),
-        targetTokenFee: targetFee,
+        tokenFee: collectFeeFromSourceToken
+          ? normalisedSourceFee.integerValue()
+          : normalisedTargetFee.integerValue(),
+        collectFeeFrom: collectFeeFromSourceToken ? 'sourceToken' : 'targetToken',
       },
       flags: {
         requiresFlashloan: isFlashloanRequired,
@@ -480,12 +495,7 @@ export class Position implements IPosition {
     )
     const newDebt = { ...this.debt, amount: newDebtAmount }
 
-    const newPosition = new Position(
-      new PositionBalance(newDebt),
-      new PositionBalance(newCollateral),
-      oraclePrice,
-      this.category,
-    )
+    const newPosition = new Position(newDebt, newCollateral, oraclePrice, this.category)
 
     return newPosition
   }

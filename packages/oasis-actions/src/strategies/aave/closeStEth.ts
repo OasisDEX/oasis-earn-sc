@@ -4,7 +4,7 @@ import { ethers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, calculateFee } from '../../helpers'
-import { Position, PositionBalance } from '../../helpers/calculations/Position'
+import { Position } from '../../helpers/calculations/Position'
 import { ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
@@ -109,8 +109,8 @@ export async function closeStEth(
       flags: flags,
       swap: {
         ...swapData,
-        sourceTokenFee: amountFromWei(fee),
-        targetTokenFee: ZERO,
+        tokenFee: amountFromWei(fee),
+        collectFeeFrom: args.collectSwapFeeFrom ?? 'sourceToken',
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(

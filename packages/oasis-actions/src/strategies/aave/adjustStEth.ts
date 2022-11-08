@@ -113,6 +113,8 @@ export async function adjustStEth(
     },
   )
 
+  const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
+
   let operation: IOperation
   let finalPosition: IPosition
   let actualMarketPriceWithSlippage
@@ -121,7 +123,9 @@ export async function adjustStEth(
     swapData = await dependencies.getSwapData(
       dependencies.addresses.WETH,
       dependencies.addresses.stETH,
-      target.swap.fromTokenAmount.minus(target.swap.sourceTokenFee),
+      target.swap.fromTokenAmount.minus(
+        collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
+      ),
       slippage,
     )
     actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
@@ -160,7 +164,9 @@ export async function adjustStEth(
     swapData = await dependencies.getSwapData(
       dependencies.addresses.stETH,
       dependencies.addresses.WETH,
-      target.swap.fromTokenAmount,
+      target.swap.fromTokenAmount.minus(
+        collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
+      ),
       slippage,
     )
     actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
@@ -216,8 +222,7 @@ export async function adjustStEth(
       swap: {
         ...target.swap,
         ...swapData,
-        sourceTokenFee: amountFromWei(target.swap.sourceTokenFee),
-        targetTokenFee: amountFromWei(target.swap.targetTokenFee),
+        tokenFee: amountFromWei(target.swap.tokenFee),
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(

@@ -147,6 +147,7 @@ export async function open(
     `1e${args.collateralToken.precision}`,
   )
 
+  const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
   const target = emptyPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
@@ -168,8 +169,8 @@ export async function open(
         debtInWei: depositDebtAmountInWei,
         collateralInWei: depositCollateralAmountInWei,
       },
-      collectSwapFeeFrom: 'sourceToken',
-      debug: true,
+      collectSwapFeeFrom: collectFeeFrom,
+      // debug: true,
     },
   )
 
@@ -181,7 +182,9 @@ export async function open(
   )
 
   const swapAmountBeforeFees = target.swap.fromTokenAmount
-  const swapAmountAfterFees = swapAmountBeforeFees.minus(target.swap.sourceTokenFee)
+  const swapAmountAfterFees = swapAmountBeforeFees.minus(
+    collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
+  )
   const precisionAdjustSwapAmountBeforeFees = amountToWei(
     amountFromWei(swapAmountBeforeFees),
     args.debtToken.precision || TYPICAL_PRECISION,
@@ -216,6 +219,7 @@ export async function open(
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
       swapAmountInWei: precisionAdjustSwapAmountBeforeFees,
+      collectFeeFrom: collectFeeFrom,
       collateralTokenAddress,
       debtTokenAddress,
       proxy: dependencies.proxy,
@@ -257,8 +261,6 @@ export async function open(
       swap: {
         ...target.swap,
         ...swapData,
-        sourceTokenFee: amountFromWei(target.swap.sourceTokenFee),
-        targetTokenFee: amountFromWei(target.swap.targetTokenFee),
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(

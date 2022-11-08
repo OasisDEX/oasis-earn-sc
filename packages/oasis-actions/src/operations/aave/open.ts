@@ -22,6 +22,7 @@ export async function open(
     fee: number
     swapData: string | number
     swapAmountInWei: BigNumber
+    collectFeeFrom: 'sourceToken' | 'targetToken'
     collateralTokenAddress: string
     debtTokenAddress: string
     proxy: string
@@ -75,7 +76,7 @@ export async function open(
     receiveAtLeast: args.receiveAtLeast,
     fee: args.fee,
     withData: args.swapData,
-    collectFeeInFromToken: true,
+    collectFeeInFromToken: args.collectFeeFrom === 'sourceToken',
   })
 
   const setCollateralTokenApprovalOnLendingPool = actions.common.setApproval(
