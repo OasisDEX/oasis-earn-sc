@@ -21,9 +21,6 @@ export async function close(
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
-  console.log('OP-FLASH:', args.flashloanAmount.toString())
-  console.log('OP-LOCKED:', args.lockedCollateralAmountInWei.toString())
-
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
