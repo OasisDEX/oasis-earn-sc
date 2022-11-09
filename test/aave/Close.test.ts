@@ -563,6 +563,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           new BigNumber(19829),
           ONE.div(new BigNumber(19829)),
           true,
+<<<<<<< HEAD
           userAddress,
           blockNumber,
         )
@@ -573,6 +574,23 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         userWethReserveData = setup.userCollateralReserveData
         userAccountData = setup.userAccountData
         feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
+=======
+          blockNumber,
+        )
+        address = setup.address
+        system = setup.system
+        txStatus = setup.txStatus
+        tx = setup.tx
+        openTxStatus = setup.openTxStatus
+        positionMutation = setup.positionMutation
+        finalPosition = setup.finalPosition
+        positionAfterOpen = setup.positionAfterOpen
+        userWethReserveData = setup.userCollateralReserveData
+        userUSDCReserveData = setup.userDebtReserveData
+        userAccountData = setup.userAccountData
+        feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
+        userEthBalanceBeforeTx = setup.userEthBalanceBeforeTx
+>>>>>>> bbcd312 (refactor: complete multi-token pair Close aave position tests)
       })
 
       it('Open Tx should pass', () => {
