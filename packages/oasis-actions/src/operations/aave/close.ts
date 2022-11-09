@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
-import { MAX_UINT } from '../../helpers/constants'
+import { ADDRESSES } from '../../helpers/addresses'
+import { MAX_UINT, OPERATION_NAMES } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
 
@@ -16,12 +17,10 @@ export async function close(
     collectFeeFrom: 'sourceToken' | 'targetToken'
     collateralTokenAddress: string
     debtTokenAddress: string
+    debtTokenIsEth: boolean
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
-  console.log('OP-FLASH:', args.flashloanAmount.toString())
-  console.log('OP-LOCKED:', args.lockedCollateralAmountInWei.toString())
-
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
@@ -78,7 +77,7 @@ export async function close(
   })
 
   const returnFunds = actions.common.returnFunds({
-    asset: args.debtTokenAddress,
+    asset: args.debtTokenIsEth ? ADDRESSES.main.ETH : args.debtTokenAddress,
   })
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
