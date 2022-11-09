@@ -277,7 +277,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(
           positionMutation.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(MULTIPLE_TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
         )
       })
 
@@ -359,7 +359,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(
           positionMutation.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(MULTIPLE_TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
         )
       })
 
@@ -441,7 +441,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(
           positionMutation.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(MULTIPLE_TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
         )
       })
 
@@ -523,7 +523,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(
           positionMutation.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(MULTIPLE_TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
         )
       })
 
