@@ -4,7 +4,7 @@ import { ethers, providers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
-import { amountFromWei } from '../../helpers'
+import { amountFromWei, amountToWei } from '../../helpers'
 import { Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
@@ -54,7 +54,7 @@ export async function openStEth(
   )
 
   const slippage = args.slippage
-  const estimatedSwapAmount = new BigNumber(1)
+  const estimatedSwapAmount = amountToWei(new BigNumber(1))
 
   const [roundData, decimals, aaveWethPriceInEth, aaveStEthPriceInEth, reserveData, quoteSwapData] =
     await Promise.all([
