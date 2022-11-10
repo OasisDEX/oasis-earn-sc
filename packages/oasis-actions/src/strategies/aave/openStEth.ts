@@ -174,6 +174,8 @@ export async function openStEth(
         ...swapData,
         sourceTokenFee: amountFromWei(target.swap.sourceTokenFee),
         targetTokenFee: amountFromWei(target.swap.targetTokenFee),
+        sourceToken: { symbol: 'WETH', precision: new BigNumber(18) },
+        targetToken: { symbol: 'STETH', precision: new BigNumber(18) },
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
