@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
-import { amountFromWei } from '../../helpers'
+import { amountFromWei, amountToWei } from '../../helpers'
 import { IPosition, Position, PositionBalance } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
@@ -29,7 +29,7 @@ export async function adjustStEth(
 
   const depositEthWei = args.depositedByUser?.debtInWei || ZERO
 
-  const estimatedSwapAmount = new BigNumber(1)
+  const estimatedSwapAmount = amountToWei(new BigNumber(1))
 
   const existingBasePosition = dependencies.position
 
@@ -120,14 +120,19 @@ export async function adjustStEth(
   let actualMarketPriceWithSlippage
   let swapData
   if (target.flags.isIncreasingRisk) {
-    swapData = await dependencies.getSwapData(
-      dependencies.addresses.WETH,
-      dependencies.addresses.stETH,
-      target.swap.fromTokenAmount.minus(
-        collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
-      ),
-      slippage,
-    )
+    swapData = {
+      ...(await dependencies.getSwapData(
+        dependencies.addresses.WETH,
+        dependencies.addresses.stETH,
+        target.swap.fromTokenAmount.minus(
+          collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
+        ),
+
+        slippage,
+      )),
+      sourceToken: { symbol: 'WETH', precision: new BigNumber(18) },
+      targetToken: { symbol: 'STETH', precision: new BigNumber(18) },
+    }
     actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
     const borrowEthAmountWei = target.delta.debt.minus(depositEthWei)
@@ -161,14 +166,18 @@ export async function adjustStEth(
       target.position.category,
     )
   } else {
-    swapData = await dependencies.getSwapData(
-      dependencies.addresses.stETH,
-      dependencies.addresses.WETH,
-      target.swap.fromTokenAmount.minus(
-        collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
-      ),
-      slippage,
-    )
+    swapData = {
+      ...(await dependencies.getSwapData(
+        dependencies.addresses.stETH,
+        dependencies.addresses.WETH,
+        target.swap.fromTokenAmount.minus(
+          collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
+        ),
+        slippage,
+      )),
+      sourceToken: { symbol: 'STETH', precision: new BigNumber(18) },
+      targetToken: { symbol: 'WETH', precision: new BigNumber(18) },
+    }
     actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
     /*

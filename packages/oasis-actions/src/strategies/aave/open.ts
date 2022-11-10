@@ -54,7 +54,7 @@ export async function open(
   )
 
   const slippage = args.slippage
-  const estimatedSwapAmount = new BigNumber(1)
+  const estimatedSwapAmount = amountToWei(new BigNumber(1))
 
   const [
     roundData,

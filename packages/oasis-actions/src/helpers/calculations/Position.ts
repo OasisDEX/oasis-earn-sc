@@ -48,6 +48,8 @@ export type Swap = {
   fromTokenAmount: BigNumber
   minToTokenAmount: BigNumber
   tokenFee: BigNumber
+  sourceToken: { symbol: string; precision: BigNumber }
+  targetToken: { symbol: string; precision: BigNumber }
   collectFeeFrom: 'sourceToken' | 'targetToken'
 }
 type Flags = { requiresFlashloan: boolean; isIncreasingRisk: boolean }
