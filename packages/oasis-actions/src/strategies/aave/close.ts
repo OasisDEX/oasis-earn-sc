@@ -45,16 +45,12 @@ export async function close(
 
   const [
     aaveFlashloanDaiPriceInEth,
-    aaveDebtTokenPriceInEth,
     aaveCollateralTokenPriceInEth,
     swapData,
     reserveDataForFlashloan,
   ] = await Promise.all([
     aavePriceOracle
       .getAssetPrice(ADDRESSES.main.DAI)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aavePriceOracle
-      .getAssetPrice(debtTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     aavePriceOracle
       .getAssetPrice(collateralTokenAddress)
