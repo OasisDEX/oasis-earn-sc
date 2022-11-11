@@ -1,4 +1,5 @@
 import { constants } from 'ethers'
+
 import { isSupportedNetwork, Network } from './types'
 
 export const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'

@@ -12,7 +12,6 @@ import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 
 import { executeThroughProxy } from '../../helpers/deploy'
-import init, { resetNode } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { ServiceRegistry } from '../../helpers/serviceRegistry'
 import { RuntimeConfig } from '../../helpers/types/common'

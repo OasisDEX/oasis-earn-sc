@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
-import { MAX_UINT } from '../../helpers/constants'
 
 export interface DecreaseMultipleStEthAddresses {
   DAI: string
