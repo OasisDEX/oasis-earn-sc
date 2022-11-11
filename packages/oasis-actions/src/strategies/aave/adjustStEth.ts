@@ -232,12 +232,13 @@ export async function adjustStEth(
         ...target.swap,
         ...swapData,
         tokenFee: amountFromWei(target.swap.tokenFee),
+        sourceToken: { symbol: 'STETH', precision: 18 },
+        targetToken: { symbol: 'WETH', precision: 18 },
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
         actualMarketPriceWithSlippage,
       ),
-      prices,
     },
   }
 }

@@ -9,7 +9,7 @@ import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init from '../../helpers/init'
 import { getOrCreateProxy } from '../../helpers/proxy'
-import { getOneInchCall } from '../../helpers/swap/OneIchCall'
+import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { balanceOf } from '../../helpers/utils'
 

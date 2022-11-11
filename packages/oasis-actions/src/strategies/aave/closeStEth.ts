@@ -88,11 +88,6 @@ export async function closeStEth(
     existingPosition.category,
   )
 
-  const prices = {
-    debtTokenPrice: ethPrice,
-    collateralTokenPrices: stEthPrice,
-  }
-
   const flags = { requiresFlashloan: true, isIncreasingRisk: false }
 
   return {
@@ -111,14 +106,13 @@ export async function closeStEth(
         ...swapData,
         tokenFee: amountFromWei(fee),
         collectFeeFrom: args.collectSwapFeeFrom ?? 'sourceToken',
-        sourceToken: { symbol: 'STETH', precision: new BigNumber(18) },
-        targetToken: { symbol: 'WETH', precision: new BigNumber(18) },
+        sourceToken: { symbol: 'STETH', precision: 18 },
+        targetToken: { symbol: 'WETH', precision: 18 },
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
         actualMarketPriceWithSlippage,
       ),
-      prices,
     },
   }
 }

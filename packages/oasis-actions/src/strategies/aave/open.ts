@@ -104,9 +104,6 @@ export async function open(
 
   const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
   const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
-  const collateralPrice = aaveCollateralTokenPriceInEth.times(
-    ethPrice.times(aaveDebtTokenPriceInEth),
-  )
 
   const emptyPosition = new Position(
     {
@@ -127,7 +124,16 @@ export async function open(
     },
   )
 
-  const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
+  // Needs to be correct precision. First convert to base 18. Then divide
+  const base18FromTokenAmount = amountToWei(
+    amountFromWei(quoteSwapData.fromTokenAmount, args.debtToken.precision),
+    18,
+  )
+  const base18ToTokenAmount = amountToWei(
+    amountFromWei(quoteSwapData.toTokenAmount, args.collateralToken.precision),
+    18,
+  )
+  const quoteMarketPrice = base18FromTokenAmount.div(base18ToTokenAmount)
 
   const flashloanFee = new BigNumber(0)
 
@@ -142,10 +148,6 @@ export async function open(
 
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
-
-  const precisionAdjustCollateralDepositAmount = new BigNumber(1e18).div(
-    `1e${args.collateralToken.precision}`,
-  )
 
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
   const target = emptyPosition.adjustToTargetRiskRatio(
@@ -185,23 +187,26 @@ export async function open(
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
     collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
   )
-  const precisionAdjustSwapAmountBeforeFees = amountToWei(
-    amountFromWei(swapAmountBeforeFees),
-    args.debtToken.precision || TYPICAL_PRECISION,
-  )
-  const precisionAdjustSwapAmountAfterFees = amountToWei(
-    amountFromWei(swapAmountAfterFees),
-    args.debtToken.precision || TYPICAL_PRECISION,
-  )
 
   const swapData = await dependencies.getSwapData(
     debtTokenAddress,
     collateralTokenAddress,
-    precisionAdjustSwapAmountAfterFees,
+    swapAmountAfterFees,
     slippage,
   )
 
-  const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
+  // Needs to be correct precision. First convert to base 18. Then divide
+  const actualSwapBase18FromTokenAmount = amountToWei(
+    amountFromWei(swapData.fromTokenAmount, args.debtToken.precision),
+    18,
+  )
+  const actualSwapBase18ToTokenAmount = amountToWei(
+    amountFromWei(swapData.toTokenAmount, args.collateralToken.precision),
+    18,
+  )
+  const actualMarketPriceWithSlippage = actualSwapBase18FromTokenAmount.div(
+    actualSwapBase18ToTokenAmount,
+  )
 
   const operation = await operations.aave.open(
     {
@@ -218,7 +223,7 @@ export async function open(
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
-      swapAmountInWei: precisionAdjustSwapAmountBeforeFees,
+      swapAmountInWei: swapAmountBeforeFees,
       collectFeeFrom: collectFeeFrom,
       collateralTokenAddress,
       debtTokenAddress,
@@ -227,9 +232,20 @@ export async function open(
     dependencies.addresses,
   )
 
-  const collateralAmountAfterSwapInWei = target.swap.fromTokenAmount
-    .div(actualMarketPriceWithSlippage)
-    .div(precisionAdjustCollateralDepositAmount)
+  // EG FROM WBTC 8 to USDC 6
+  // Convert WBTC toWei at 18
+  // Apply market price
+  // Convert result back to USDC at 6
+  const collateralAmountAfterSwapInWei = amountToWei(
+    amountFromWei(
+      amountToWei(
+        amountFromWei(target.swap.fromTokenAmount, args.debtToken.precision),
+        TYPICAL_PRECISION,
+      ).div(actualMarketPriceWithSlippage),
+      TYPICAL_PRECISION,
+    ),
+    args.collateralToken.precision,
+  ).integerValue(BigNumber.ROUND_DOWN)
 
   /*
     Final position calculated using actual swap data and the latest market price
@@ -244,11 +260,6 @@ export async function open(
     oracle,
     target.position.category,
   )
-
-  const prices = {
-    debtTokenPrice: ethPrice,
-    collateralTokenPrices: collateralPrice,
-  }
 
   return {
     transaction: {
@@ -266,7 +277,6 @@ export async function open(
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
         actualMarketPriceWithSlippage,
       ),
-      prices,
     },
   }
 }

@@ -101,3 +101,4 @@ export type OperationNames = AAVEOperations | MakerOperations | CommonOperations
 // 1inch however errors out when trying to swap 0 amount, so we swap some small amount instead.
 // This is that amount.
 export const UNUSED_FLASHLOAN_AMOUNT = ONE
+export const FLASHLOAN_SAFETY_MARGIN = new BigNumber(0.2)

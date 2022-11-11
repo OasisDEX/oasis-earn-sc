@@ -7,7 +7,6 @@ import { OperationNames } from '../../helpers/constants'
 import { SwapData } from './SwapData'
 
 interface ISimulatedMutation extends IPositionChange {
-  prices: { debtTokenPrice: BigNumber; collateralTokenPrices: BigNumber | BigNumber[] }
   swap: SwapData & Swap
   minConfigurableRiskRatio: IRiskRatio
 }

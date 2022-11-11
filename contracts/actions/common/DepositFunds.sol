@@ -8,7 +8,7 @@ import { DSProxy } from "../../libs/DS/DSProxy.sol";
 
 /**
  * @title DepositFunds Action contract
- * @notice Deposits funds to a user's proxy from a user's EOA
+ * @notice Pulls funds into a user's proxy from a user's EOA
  */
 contract DepositFunds is Executable {
   using SafeERC20 for IERC20;

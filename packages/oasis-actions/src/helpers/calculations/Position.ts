@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { Optional } from 'utility-types'
 
-import { ONE, TYPICAL_PRECISION, ZERO } from '../constants'
+import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../constants'
 import { logDebug } from '../index'
 import { IRiskRatio, RiskRatio } from './RiskRatio'
 
@@ -48,9 +48,9 @@ export type Swap = {
   fromTokenAmount: BigNumber
   minToTokenAmount: BigNumber
   tokenFee: BigNumber
-  sourceToken: { symbol: string; precision: BigNumber }
-  targetToken: { symbol: string; precision: BigNumber }
   collectFeeFrom: 'sourceToken' | 'targetToken'
+  sourceToken: { symbol: string; precision: number }
+  targetToken: { symbol: string; precision: number }
 }
 type Flags = { requiresFlashloan: boolean; isIncreasingRisk: boolean }
 
@@ -201,10 +201,12 @@ export class Position implements IPosition {
      * C_C  Current collateral
      * D_C  Current debt
      * */
-    const currentCollateral = (this.collateral.normalisedAmount || ZERO).plus(
+    const normalisedCurrentCollateral = (this.collateral.normalisedAmount || ZERO).plus(
       collateralDepositedByUser,
     )
-    const currentDebt = (this.debt.normalisedAmount || ZERO).minus(debtTokensDepositedByUser)
+    const normalisedCurrentDebt = (this.debt.normalisedAmount || ZERO).minus(
+      debtTokensDepositedByUser,
+    )
 
     /**
      * The Oracle price is what we use to convert a position's collateral into the same
@@ -266,13 +268,13 @@ export class Position implements IPosition {
           `Debt tokens deposited by User: ${(depositedByUser?.debtInWei || ZERO).toString()}`,
           `Normalised debt tokens deposited by User: ${debtTokensDepositedByUser.toString()}`,
 
-          `Normalised current collateral inc. top-up/seed: ${currentCollateral.toString()}`,
-          `Normalised current debt inc. top-up/seed: ${currentDebt.toString()}`,
+          `Normalised current collateral inc. top-up/seed: ${normalisedCurrentCollateral.toString()}`,
+          `Normalised current debt inc. top-up/seed: ${normalisedCurrentDebt.toString()}`,
 
           `Oracle price: ${oraclePrice.toString()}`,
           `Oracle Price FL-to-Debt token: ${oraclePriceFLtoDebtToken.toString()}`,
           `Market price: ${marketPrice.toString()}`,
-          `Slippage: ${slippage.toFixed(4)}`,
+          `Slippage: ${slippage.toFixed(0)}`,
           `Market price adj. slippage: ${marketPriceAdjustedForSlippage.toString()}`,
 
           `Oazo fee: ${oazoFee.toFixed(4)}`,
@@ -296,10 +298,13 @@ export class Position implements IPosition {
      *
      * X = \frac{D_C\cdot P_{MS} - T_{LTV}\cdot C_C\cdot P_O\cdot P_{MS}}{((T_{LTV}\cdot (1 -F_O)\cdot P_O) - (1 +F_F)\cdot P_{MS})}
      * */
-    const swapOrSwappedAmount = currentDebt
+    const normalisedSwapOrSwappedAmount = normalisedCurrentDebt
       .times(marketPriceAdjustedForSlippage)
       .minus(
-        targetLTV.times(currentCollateral).times(oraclePrice).times(marketPriceAdjustedForSlippage),
+        targetLTV
+          .times(normalisedCurrentCollateral)
+          .times(oraclePrice)
+          .times(marketPriceAdjustedForSlippage),
       )
       .div(
         targetLTV
@@ -319,11 +324,11 @@ export class Position implements IPosition {
      *
      * Y=(C_C\cdot P_O) \cdot LTV_{MAX} - D_C
      * */
-    const isFlashloanRequiredForIncrease = currentCollateral
+    const isFlashloanRequiredForIncrease = normalisedCurrentCollateral
       .times(oraclePrice)
       .times(this.category.maxLoanToValue)
-      .minus(currentDebt)
-      .lt(swapOrSwappedAmount)
+      .minus(normalisedCurrentDebt)
+      .lt(normalisedSwapOrSwappedAmount)
 
     /**
      * Finally, we can compute the deltas in debt & collateral
@@ -335,11 +340,11 @@ export class Position implements IPosition {
      * \Delta C = X \cdot (1 - F_O) / P_{MS}
      * */
     const shouldIncreaseDebtDeltaToAccountForFees = isIncreasingRisk && collectFeeFromSourceToken
-    const debtDeltaPreFlashloanFee = swapOrSwappedAmount.div(
+    const debtDeltaPreFlashloanFee = normalisedSwapOrSwappedAmount.div(
       shouldIncreaseDebtDeltaToAccountForFees ? ONE.minus(oazoFee.div(this._feeBase)) : ONE,
     )
 
-    const collateralDelta = swapOrSwappedAmount
+    const collateralDelta = normalisedSwapOrSwappedAmount
       .div(marketPriceAdjustedForSlippage)
       .div(isIncreasingRisk ? ONE : ONE.minus(oazoFee.div(this._feeBase)))
       .integerValue(BigNumber.ROUND_DOWN)
@@ -349,8 +354,8 @@ export class Position implements IPosition {
      *
      * */
     const isFlashloanRequiredForDecrease = this.category.maxLoanToValue.lte(
-      currentDebt.div(
-        collateralDelta.plus(currentCollateral).times(marketPriceAdjustedForSlippage),
+      normalisedCurrentDebt.div(
+        collateralDelta.plus(normalisedCurrentCollateral).times(marketPriceAdjustedForSlippage),
       ),
     )
 
@@ -370,58 +375,83 @@ export class Position implements IPosition {
     const amountToFlashloan = debtDelta
       .minus(flashloanTokenIsSameAsDebt ? debtTokensDepositedByUser : ZERO)
       .times(oraclePriceFLtoDebtToken)
-      .div(maxLoanToValueFL)
+      .div(maxLoanToValueFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
       .integerValue(BigNumber.ROUND_DOWN)
 
     /*
      * Account for fees being collected from either
      * The sourceToken or targetToken in the swap
      */
-    let sourceFee = ZERO
-    let targetFee = ZERO
+    let normalisedSourceFee = ZERO
+    let normalisedTargetFee = ZERO
     const debtTokenIsSourceToken = isIncreasingRisk
 
     if (collectFeeFromSourceToken) {
-      sourceFee = (
+      normalisedSourceFee = (
         isIncreasingRisk
           ? this._calculateFee(debtDelta, oazoFee)
           : this._calculateFee(collateralDelta, oazoFee)
       ).integerValue(BigNumber.ROUND_DOWN)
     }
     if (!collectFeeFromSourceToken) {
-      targetFee = (
+      normalisedTargetFee = (
         isIncreasingRisk
           ? this._calculateFee(collateralDelta, oazoFee)
           : this._calculateFee(debtDelta, oazoFee)
       ).integerValue(BigNumber.ROUND_DOWN)
     }
 
-    let fromTokenAmount
-    let minToTokenAmount
+    let normalisedFromTokenAmount
+    let normalisedMinToTokenAmount
     if (isIncreasingRisk) {
-      fromTokenAmount = debtDelta
-      minToTokenAmount = collateralDelta
+      normalisedFromTokenAmount = debtDelta
+      normalisedMinToTokenAmount = collateralDelta
     } else {
-      fromTokenAmount = collateralDelta.abs()
-      minToTokenAmount = debtDelta.abs()
+      normalisedFromTokenAmount = collateralDelta.abs()
+      normalisedMinToTokenAmount = debtDelta.abs()
     }
 
     const targetPosition = this._createTargetPosition(
       debtDelta,
       collateralDelta,
       oraclePrice,
-      currentDebt,
-      currentCollateral,
+      normalisedCurrentDebt,
+      normalisedCurrentCollateral,
     )
 
-    const normalisedSourceFee = this._denormaliseAmount(
-      sourceFee,
+    const sourceFee = this._denormaliseAmount(
+      normalisedSourceFee,
       debtTokenIsSourceToken ? this.debt.precision : this.collateral.precision,
     )
-    const normalisedTargetFee = this._denormaliseAmount(
-      targetFee,
+    const targetFee = this._denormaliseAmount(
+      normalisedTargetFee,
       debtTokenIsSourceToken ? this.collateral.precision : this.debt.precision,
     )
+
+    const fromTokenPrecision = isIncreasingRisk
+      ? targetPosition.debt.precision
+      : targetPosition.collateral.precision
+
+    const toTokenPrecision = isIncreasingRisk
+      ? targetPosition.collateral.precision
+      : targetPosition.debt.precision
+
+    const fromTokenAmount = this._denormaliseAmount(
+      normalisedFromTokenAmount,
+      fromTokenPrecision,
+    ).integerValue(BigNumber.ROUND_DOWN)
+    const fromTokenAmountAfterFee = this._denormaliseAmount(
+      normalisedFromTokenAmount.minus(normalisedSourceFee),
+      fromTokenPrecision,
+    ).integerValue(BigNumber.ROUND_DOWN)
+    const swapOrSwappedAmount = this._denormaliseAmount(
+      normalisedSwapOrSwappedAmount,
+      fromTokenPrecision,
+    ).integerValue(BigNumber.ROUND_DOWN)
+    const minToTokenAmount = this._denormaliseAmount(
+      normalisedMinToTokenAmount,
+      toTokenPrecision,
+    ).integerValue(BigNumber.ROUND_DOWN)
 
     if (debug) {
       logDebug(
@@ -429,12 +459,18 @@ export class Position implements IPosition {
           `Is flashloan required: ${isFlashloanRequired}`,
           `Amount to flashloan: ${amountToFlashloan}`,
           `----`,
+          `Normalised swap or Swapped Amount: ${normalisedSwapOrSwappedAmount.toString()}`,
+          `Normalised from token amount: ${normalisedFromTokenAmount.toString()}`,
+          `Normalised from token amount after fees: ${normalisedFromTokenAmount
+            .minus(normalisedSourceFee)
+            .toString()}`,
           `Swap or Swapped Amount: ${swapOrSwappedAmount.toString()}`,
           `From token amount: ${fromTokenAmount.toString()}`,
-          `From token amount after fees: ${fromTokenAmount.minus(sourceFee).toString()}`,
+          `From token amount after fees: ${fromTokenAmountAfterFee.toString()}`,
           `From token: ${
             isIncreasingRisk ? targetPosition.debt.symbol : targetPosition.collateral.symbol
           }`,
+          `Normalised min To token amount: ${normalisedMinToTokenAmount.toString()}`,
           `Min To token amount: ${minToTokenAmount.toString()}`,
           `To token: ${
             isIncreasingRisk ? targetPosition.collateral.symbol : targetPosition.debt.symbol
@@ -443,15 +479,17 @@ export class Position implements IPosition {
           `Debt delta: ${debtDelta.toString()}`,
           `Collateral delta: ${collateralDelta.toString()}`,
           `----`,
-          `Source fee amount ${sourceFee.toString()}`,
-          `Target fee amount ${targetFee.toString()}`,
           `Normalised source fee amount ${normalisedSourceFee.toFixed(0)}`,
           `Normalised target fee amount ${normalisedTargetFee.toFixed(0)}`,
+          `Source fee amount ${sourceFee.toString()}`,
+          `Target fee amount ${targetFee.toString()}`,
           `Fee taken from Source token ${collectFeeFromSourceToken}`,
           `Fee take from Target token ${!collectFeeFromSourceToken}`,
           `----`,
-          `Target position debt ${targetPosition.debt.normalisedAmount.toString()}`,
-          `Target position collateral ${targetPosition.collateral.normalisedAmount.toString()}`,
+          `Normalised target position debt ${targetPosition.debt.normalisedAmount.toString()}`,
+          `Normalised target position collateral ${targetPosition.collateral.normalisedAmount.toString()}`,
+          `Target position debt ${targetPosition.debt.amount.toString()}`,
+          `Target position collateral ${targetPosition.collateral.amount.toString()}`,
         ],
         'Output: ',
       )
@@ -463,10 +501,14 @@ export class Position implements IPosition {
       swap: {
         fromTokenAmount,
         minToTokenAmount,
-        tokenFee: collectFeeFromSourceToken
-          ? normalisedSourceFee.integerValue()
-          : normalisedTargetFee.integerValue(),
+        tokenFee: collectFeeFromSourceToken ? sourceFee.integerValue() : targetFee.integerValue(),
         collectFeeFrom: collectFeeFromSourceToken ? 'sourceToken' : 'targetToken',
+        sourceToken: isIncreasingRisk
+          ? { symbol: this.debt.symbol, precision: this.debt.precision }
+          : { symbol: this.collateral.symbol, precision: this.collateral.precision },
+        targetToken: isIncreasingRisk
+          ? { symbol: this.collateral.symbol, precision: this.collateral.precision }
+          : { symbol: this.debt.symbol, precision: this.debt.precision },
       },
       flags: {
         requiresFlashloan: isFlashloanRequired,
@@ -488,13 +530,14 @@ export class Position implements IPosition {
       amount: this._denormaliseAmount(
         newCollateralAmount,
         this.collateral.precision || TYPICAL_PRECISION,
-      ),
+      ).integerValue(BigNumber.ROUND_DOWN),
     }
 
     const newDebtAmount = this._denormaliseAmount(
       currentDebt.plus(debtDelta),
       this.debt.precision || TYPICAL_PRECISION,
-    )
+    ).integerValue(BigNumber.ROUND_DOWN)
+
     const newDebt = { ...this.debt, amount: newDebtAmount }
 
     const newPosition = new Position(newDebt, newCollateral, oraclePrice, this.category)
