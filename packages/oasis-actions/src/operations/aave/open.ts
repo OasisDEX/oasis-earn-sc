@@ -30,18 +30,18 @@ export async function open(
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
   const use = {
-    depositDebtTokensInToProxy:
+    pullDebtTokensInToProxy:
       args.depositDebtTokens.amountInWei.gt(ZERO) && !args.depositDebtTokens.isEth,
-    depositCollateralInToProxy:
+    pullCollateralInToProxy:
       args.depositCollateral.amountInWei.gt(ZERO) && !args.depositCollateral.isEth,
   }
 
-  const depositDebtTokensToProxy = actions.common.depositFunds({
+  const pullDebtTokensToProxy = actions.common.pullToProxy({
     asset: args.debtTokenAddress,
     amount: args.depositDebtTokens.amountInWei,
   })
 
-  const depositCollateralTokensToProxy = actions.common.depositFunds({
+  const pullCollateralTokensToProxy = actions.common.pullToProxy({
     asset: args.collateralTokenAddress,
     amount: args.depositCollateral.amountInWei,
   })
@@ -124,8 +124,8 @@ export async function open(
   })
 
   const calls = [takeAFlashLoan]
-  use.depositDebtTokensInToProxy && calls.unshift(depositDebtTokensToProxy)
-  use.depositCollateralInToProxy && calls.unshift(depositCollateralTokensToProxy)
+  use.pullDebtTokensInToProxy && calls.unshift(pullDebtTokensToProxy)
+  use.pullCollateralInToProxy && calls.unshift(pullCollateralTokensToProxy)
 
   // let operationName: OperationNames = OPERATION_NAMES.aave.OPEN_POSITION
   // if (use.sendDepositToProxy) operationName = OPERATION_NAMES.aave.OPEN_POSITION_1

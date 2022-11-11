@@ -141,10 +141,10 @@ export function returnFunds(args: { asset: string }) {
   )
 }
 
-export function depositFunds(args: { asset: string; amount: BigNumber }) {
+export function pullToProxy(args: { asset: string; amount: BigNumber }) {
   return createAction(
-    getActionHash(CONTRACT_NAMES.common.DEPOSIT_FUNDS),
-    [calldataTypes.common.DepositFunds],
+    getActionHash(CONTRACT_NAMES.common.PULL_TO_PROXY),
+    [calldataTypes.common.PullToProxy],
     [
       {
         asset: args.asset,

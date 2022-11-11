@@ -57,7 +57,7 @@ struct ReturnFundsData {
   address asset;
 }
 
-struct DepositFundsData {
+struct PullToProxyData {
   address asset;
   uint256 amount;
 }

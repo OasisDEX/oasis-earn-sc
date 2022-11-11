@@ -10,8 +10,6 @@ export const oneInchCallMock =
     debug = false,
   ) =>
   async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
-    // LOOK AT THIS
-
     // EG FROM WBTC 8 to USDC 6
     // Convert WBTC toWei at 18
     // Apply market price

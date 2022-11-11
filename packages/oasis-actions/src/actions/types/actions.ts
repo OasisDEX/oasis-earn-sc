@@ -12,7 +12,7 @@ export const calldataTypes = {
     WrapEth: `tuple(uint256 amount)`,
     UnwrapEth: `tuple(uint256 amount)`,
     ReturnFunds: `tuple(address asset)`,
-    DepositFunds: `tuple(address asset, uint256 amount)`,
+    PullToProxy: `tuple(address asset, uint256 amount)`,
     PullToken: `tuple(address asset, address from, uint256 amount)`,
     TakeAFlashLoan: `tuple(uint256 amount, bool dsProxyFlashloan, (bytes32 targetHash, bytes callData)[] calls)`,
   },

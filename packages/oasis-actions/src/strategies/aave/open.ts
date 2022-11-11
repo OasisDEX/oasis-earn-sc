@@ -3,7 +3,6 @@ import { ethers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
-import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
 import { Position } from '../../helpers/calculations/Position'
@@ -35,12 +34,6 @@ export async function open(
   if (!debtTokenAddress)
     throw new Error('Debt token not recognised or address missing in dependencies')
 
-  const priceFeed = new ethers.Contract(
-    dependencies.addresses.chainlinkEthUsdPriceFeed,
-    chainlinkPriceFeedABI,
-    dependencies.provider,
-  )
-
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
     aavePriceOracleABI,
@@ -57,8 +50,6 @@ export async function open(
   const estimatedSwapAmount = amountToWei(new BigNumber(1))
 
   const [
-    roundData,
-    decimals,
     aaveFlashloanDaiPriceInEth,
     aaveDebtTokenPriceInEth,
     aaveCollateralTokenPriceInEth,
@@ -66,8 +57,6 @@ export async function open(
     reserveDataForFlashloan,
     quoteSwapData,
   ] = await Promise.all([
-    priceFeed.latestRoundData(),
-    priceFeed.decimals(),
     aavePriceOracle
       .getAssetPrice(ADDRESSES.main.DAI)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
