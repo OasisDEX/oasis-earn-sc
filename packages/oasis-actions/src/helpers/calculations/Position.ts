@@ -92,6 +92,9 @@ interface IPositionChangeParams {
   /* For AAVE this would be ETH. For Maker it would be DAI (although strictly speaking USD) */
   collectSwapFeeFrom?: 'sourceToken' | 'targetToken'
   debug?: boolean
+
+  /* Flashloan logic for when flashloan is not same token symbol as debt */
+  useFlashloanSafetyMargin?: boolean
 }
 
 export interface IPosition extends IBasePosition {
@@ -168,6 +171,7 @@ export class Position implements IPosition {
     targetRiskRatio: IRiskRatio,
     params: IPositionChangeParams,
   ): IPositionChange {
+    const useFlashloanSafetyMargin = params.useFlashloanSafetyMargin ?? true
     const targetLTV = targetRiskRatio.loanToValue
     let isIncreasingRisk = false
 
@@ -372,10 +376,16 @@ export class Position implements IPosition {
      * X_B Amount to flashloan or payback
      */
     const flashloanTokenIsSameAsDebt = flashloan.tokenSymbol === this.debt.symbol
+
+    const _useFlashloanSafetyMargin = flashloanTokenIsSameAsDebt ? ZERO : useFlashloanSafetyMargin
     const amountToFlashloan = debtDelta
-      .minus(flashloanTokenIsSameAsDebt ? debtTokensDepositedByUser : ZERO)
+      .minus(debtTokensDepositedByUser)
       .times(oraclePriceFLtoDebtToken)
-      .div(maxLoanToValueFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
+      .div(
+        maxLoanToValueFL.times(
+          _useFlashloanSafetyMargin ? ONE.minus(FLASHLOAN_SAFETY_MARGIN) : ONE,
+        ),
+      )
       .integerValue(BigNumber.ROUND_DOWN)
 
     /*

@@ -34,14 +34,14 @@ import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual, MULTIPLE_TESTING_OFFSET } from '../utils'
 
-describe(`Strategy | AAVE | Open Position`, async () => {
+describe(`Strategy | AAVE | Open Position`, async function () {
   let aaveLendingPool: Contract
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
   let config: RuntimeConfig
   let signer: Signer
 
-  before(async () => {
+  before(async function () {
     ;({ config, provider, signer } = await loadFixture(initialiseConfig))
 
     aaveLendingPool = new Contract(
@@ -52,7 +52,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe('On forked chain', () => {
+  describe('On forked chain', function () {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
@@ -213,7 +213,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       }
     }
 
-    describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
+    describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
       const depositEthAmount = amountToWei(new BigNumber(60 / 1e15))
 
       let userStEthReserveData: AAVEReserveData
@@ -221,7 +221,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       let feeRecipientWethBalanceBefore: BigNumber
       let actualPosition: IPosition
 
-      before(async () => {
+      before(async function () {
         const setup = await setupOpenPositionTest(
           {
             depositAmountInWei: ZERO,
@@ -248,18 +248,18 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
       })
 
-      it('Tx should pass', () => {
+      it('Tx should pass', function () {
         expect(txStatus).to.be.true
       })
 
-      it('Should draw debt according to multiple', () => {
+      it('Should draw debt according to multiple', function () {
         expectToBeEqual(
           positionMutation.simulation.position.debt.amount.toFixed(0),
           new BigNumber(userWethReserveData.currentVariableDebt.toString()).toFixed(0),
         )
       })
 
-      it(`Should deposit all ${tokens.STETH} tokens to aave`, () => {
+      it(`Should deposit all ${tokens.STETH} tokens to aave`, function () {
         expectToBe(
           positionMutation.simulation.position.collateral.amount,
           'gte',
@@ -267,7 +267,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         )
       })
 
-      it('Should achieve target multiple', () => {
+      it('Should achieve target multiple', function () {
         expectToBe(
           positionMutation.simulation.position.riskRatio.multiple,
           'lte',
@@ -281,7 +281,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         )
       })
 
-      it('Should collect fee', async () => {
+      it('Should collect fee', async function () {
         const feeRecipientWethBalanceAfter = await balanceOf(
           ADDRESSES.main.WETH,
           ADDRESSES.main.feeRecipient,
@@ -295,7 +295,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       })
     })
 
-    describe.skip(`With ${tokens.ETH} collateral (+dep) & ${tokens.USDC} debt`, () => {
+    describe(`With ${tokens.ETH} collateral (+dep) & ${tokens.USDC} debt`, function () {
       const depositEthAmount = new BigNumber(600)
 
       let userEthReserveData: AAVEReserveData
@@ -303,7 +303,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       let feeRecipientUSDCBalanceBefore: BigNumber
       let actualPosition: IPosition
 
-      before(async () => {
+      before(async function () {
         const setup = await setupOpenPositionTest(
           {
             depositAmountInWei: amountToWei(depositEthAmount),
@@ -330,18 +330,18 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
       })
 
-      it('Tx should pass', () => {
+      it('Tx should pass', function () {
         expect(txStatus).to.be.true
       })
 
-      it('Should draw debt according to multiple', () => {
+      it('Should draw debt according to multiple', function () {
         expectToBeEqual(
           positionMutation.simulation.position.debt.amount.toFixed(0),
           new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).toFixed(0),
         )
       })
 
-      it(`Should deposit all ${tokens.ETH} tokens to aave`, () => {
+      it(`Should deposit all ${tokens.ETH} tokens to aave`, function () {
         expectToBe(
           positionMutation.simulation.position.collateral.amount,
           'gte',
@@ -349,7 +349,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         )
       })
 
-      it('Should achieve target multiple', () => {
+      it('Should achieve target multiple', function () {
         expectToBe(
           positionMutation.simulation.position.riskRatio.multiple,
           'lte',
@@ -363,7 +363,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         )
       })
 
-      it('Should collect fee', async () => {
+      it('Should collect fee', async function () {
         const feeRecipientUSDCBalanceAfter = await balanceOf(
           ADDRESSES.main.USDC,
           ADDRESSES.main.feeRecipient,
@@ -377,7 +377,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       })
     })
 
-    describe.skip(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, () => {
+    describe(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
@@ -385,7 +385,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       let feeRecipientUSDCBalanceBefore: BigNumber
       let actualPosition: IPosition
 
-      before(async () => {
+      before(async function () {
         const setup = await setupOpenPositionTest(
           {
             depositAmountInWei: amountToWei(depositWBTCAmount, 8),
@@ -412,18 +412,18 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
       })
 
-      it('Tx should pass', () => {
+      it('Tx should pass', function () {
         expect(txStatus).to.be.true
       })
 
-      it('Should draw debt according to multiple', () => {
+      it('Should draw debt according to multiple', function () {
         expect(new BigNumber(actualPosition.debt.amount.toString()).toString()).to.be.oneOf([
           positionMutation.simulation.position.debt.amount.toFixed(0),
           positionMutation.simulation.position.debt.amount.minus(ONE).toFixed(0),
         ])
       })
 
-      it(`Should deposit all ${tokens.WBTC} tokens to aave`, () => {
+      it(`Should deposit all ${tokens.WBTC} tokens to aave`, function () {
         expectToBe(
           positionMutation.simulation.position.collateral.amount,
           'gte',
@@ -431,7 +431,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         )
       })
 
-      it('Should achieve target multiple', () => {
+      it('Should achieve target multiple', function () {
         expectToBe(
           positionMutation.simulation.position.riskRatio.multiple,
           'lte',
@@ -445,7 +445,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         )
       })
 
-      it('Should collect fee', async () => {
+      it('Should collect fee', async function () {
         const feeRecipientUSDCBalanceAfter = await balanceOf(
           ADDRESSES.main.USDC,
           ADDRESSES.main.feeRecipient,
@@ -459,7 +459,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       })
     })
 
-    describe.skip(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, () => {
+    describe(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
@@ -467,7 +467,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       let feeRecipientWBTCBalanceBefore: BigNumber
       let actualPosition: IPosition
 
-      before(async () => {
+      before(async function () {
         const setup = await setupOpenPositionTest(
           {
             depositAmountInWei: amountToWei(depositWBTCAmount, 8),
@@ -494,18 +494,18 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         feeRecipientWBTCBalanceBefore = setup.feeRecipientBalanceBefore
       })
 
-      it('Tx should pass', () => {
+      it('Tx should pass', function () {
         expect(txStatus).to.be.true
       })
 
-      it('Should draw debt according to multiple', () => {
+      it('Should draw debt according to multiple', function () {
         expect(new BigNumber(actualPosition.debt.amount.toString()).toString()).to.be.oneOf([
           positionMutation.simulation.position.debt.amount.toFixed(0),
           positionMutation.simulation.position.debt.amount.minus(ONE).toFixed(0),
         ])
       })
 
-      it(`Should deposit all ${tokens.WBTC} tokens to aave`, () => {
+      it(`Should deposit all ${tokens.WBTC} tokens to aave`, function () {
         expectToBe(
           positionMutation.simulation.position.collateral.amount,
           'gte',
@@ -513,7 +513,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         )
       })
 
-      it('Should achieve target multiple', () => {
+      it('Should achieve target multiple', function () {
         expectToBe(
           positionMutation.simulation.position.riskRatio.multiple,
           'lte',
@@ -527,7 +527,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         )
       })
 
-      it('Should collect fee', async () => {
+      it('Should collect fee', async function () {
         const feeRecipientWBTCBalanceAfter = await balanceOf(
           ADDRESSES.main.WBTC,
           ADDRESSES.main.feeRecipient,
@@ -552,7 +552,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     })
   })
 
-  describe('On latest block using one inch exchange and api', () => {
+  describe('On latest block using one inch exchange and api', function () {
     const depositEthAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
@@ -629,18 +629,18 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       }
     })
 
-    it('Tx should pass', () => {
+    it('Tx should pass', function () {
       expect(txStatus).to.be.true
     })
 
-    it('Should draw debt according to multiple', () => {
+    it('Should draw debt according to multiple', function () {
       expectToBeEqual(
         positionMutation.simulation.position.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
 
-    it('Should deposit all stEth tokens to aave', () => {
+    it('Should deposit all stEth tokens to aave', function () {
       expectToBe(
         positionMutation.simulation.position.collateral.amount,
         'gte',
@@ -648,7 +648,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
       )
     })
 
-    it('Should collect fee', async () => {
+    it('Should collect fee', async function () {
       const feeRecipientWethBalanceAfter = await balanceOf(
         ADDRESSES.main.WETH,
         ADDRESSES.main.feeRecipient,

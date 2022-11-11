@@ -87,8 +87,6 @@ export async function open(
     ),
   ])
 
-  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
-
   const BASE = new BigNumber(10000)
   const liquidationThreshold = new BigNumber(
     reserveDataForCollateral.liquidationThreshold.toString(),
