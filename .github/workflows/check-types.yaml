@@ -1,0 +1,26 @@
+name: typecheck
+
+on:
+  push:
+    paths:
+      - 'packages/oasis-actions/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Cache YARN dependencies
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.OS }}-yarn-cache-
+
+      - name: Install
+        run: yarn --no-progress --non-interactive --frozen-lockfile
+
+      - name: Typecheck
+        run: yarn workspace @oasisdex/oasis-actions run typecheck
