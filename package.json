@@ -62,7 +62,7 @@
     "eslint-plugin-unused-imports": "^2.0.0",
     "ethereum-waffle": "^3.1.1",
     "ethers": "^5.0.19",
-    "googleapis": "107",
+    "googleapis": "109.0.1",
     "hardhat": "2.9.5",
     "hardhat-abi-exporter": "^2.2.1",
     "hardhat-contract-sizer": "^2.0.1",
