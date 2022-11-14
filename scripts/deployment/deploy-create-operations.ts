@@ -1,12 +1,7 @@
 import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
-import { utils } from 'ethers'
 import hre from 'hardhat'
 
 import { getServiceNameHash, HardhatUtils } from '../common'
-
-function operationLabelHash(label: string): string {
-  return utils.keccak256(utils.toUtf8Bytes(label))
-}
 
 async function main() {
   const utils = new HardhatUtils(hre) // the hardhat network is coalesced to mainnet

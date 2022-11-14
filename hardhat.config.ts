@@ -36,6 +36,22 @@ if (!/^\d+$/.test(blockNumber)) {
   throw new Error(`Provide a valid block number. Provided value is ${blockNumber}`)
 }
 
+if (!process.env.MAINNET_URL) {
+  throw new Error(`process.env.MAINNET_URL is not defined`)
+}
+
+if (!process.env.ALCHEMY_NODE_GOERLI) {
+  throw new Error(`process.env.ALCHEMY_NODE_GOERLI is not defined`)
+}
+
+if (!process.env.PRIV_KEY_GOERLI) {
+  throw new Error(`process.env.PRIV_KEY_GOERLI is not defined`)
+}
+
+if (!process.env.PRIV_KEY_MAINNET) {
+  throw new Error(`process.env.PRIV_KEY_MAINNET is not defined`)
+}
+
 console.log(`Forking from block number: ${blockNumber}`)
 
 // You need to export an object to set up your config
@@ -63,7 +79,7 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       forking: {
-        url: process.env.MAINNET_URL!,
+        url: process.env.MAINNET_URL,
         blockNumber: parseInt(blockNumber),
       },
       chainId: 2137,
@@ -76,14 +92,14 @@ const config: HardhatUserConfig = {
       allowUnlimitedContractSize: true,
     },
     goerli: {
-      url: process.env.ALCHEMY_NODE_GOERLI!,
-      accounts: [process.env.PRIV_KEY_GOERLI!],
+      url: process.env.ALCHEMY_NODE_GOERLI,
+      accounts: [process.env.PRIV_KEY_GOERLI],
       // gasPrice: 5000000000,
       initialBaseFeePerGas: 1000000000,
     },
     mainnet: {
-      url: process.env.MAINNET_URL!,
-      accounts: [process.env.PRIV_KEY_MAINNET!],
+      url: process.env.MAINNET_URL,
+      accounts: [process.env.PRIV_KEY_MAINNET],
       gasPrice: 50000000000,
     },
   },

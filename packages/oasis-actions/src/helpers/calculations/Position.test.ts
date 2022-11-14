@@ -81,7 +81,6 @@ describe('Calculate Position Helper', async () => {
         healthFactor,
         minOraclePrice,
         feePaidFromSourceToken,
-        feePaidFromTargetToken,
       }) => {
         it(`Test: ${name}`, async () => {
           const riskRatio = new RiskRatio(targetLoanToValue, RiskRatio.TYPE.LTV)

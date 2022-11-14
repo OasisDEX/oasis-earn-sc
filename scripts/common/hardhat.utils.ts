@@ -1,4 +1,3 @@
-// @ts-nocheck
 import '@nomiclabs/hardhat-ethers'
 
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
@@ -14,9 +13,9 @@ import {
   Signer,
   utils,
 } from 'ethers'
-import { HardhatRuntimeEnvironment, HardhatRuntimeEnvironment } from 'hardhat/types/runtime'
+import { HardhatRuntimeEnvironment } from 'hardhat/types/runtime'
 import NodeCache from 'node-cache'
-import R from 'ramda'
+import { hasPath } from 'ramda'
 
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { coalesceNetwork, ETH_ADDRESS, getAddressesFor } from './addresses'
@@ -171,13 +170,13 @@ export class HardhatUtils {
     }
   }
 
-  public async getOrCreateProxy(address: string, signer?: Signer) {
+  public async getOrCreateProxy(address: string, signer: Signer) {
     const proxyRegistry = await this.hre.ethers.getContractAt(
       DS_PROXY_REGISTRY_ABI,
       this.addresses.PROXY_REGISTRY,
     )
 
-    await proxyRegistry.connect(signer!)
+    await proxyRegistry.connect(signer)
 
     let proxyAddr = await proxyRegistry.proxies(address)
     if (proxyAddr === constants.AddressZero) {
@@ -264,7 +263,7 @@ export class HardhatUtils {
 
   private abiEncodeArgs(deployed: any, contractArgs: any[]) {
     // not writing abi encoded args if this does not pass
-    if (!contractArgs || !deployed || !R.hasPath(['interface', 'deploy'], deployed)) {
+    if (!contractArgs || !deployed || hasPath(['interface', 'deploy'], deployed)) {
       return ''
     }
     const encoded = utils.defaultAbiCoder.encode(deployed.interface.deploy.inputs, contractArgs)

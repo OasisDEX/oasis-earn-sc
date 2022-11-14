@@ -508,7 +508,6 @@ describe(`Operations | Maker | Increase Multiple`, async () => {
       oneInchPayload: exchangeDataMock,
       desiredCdpState,
       fundsReceiver: address,
-      skipFL: false,
     })
 
     const openVaultAction = createAction(
