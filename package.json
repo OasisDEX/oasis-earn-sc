@@ -90,10 +90,10 @@
     "@ethersproject/providers": "^5.4.0",
     "@ethersproject/solidity": "^5.4.0",
     "bignumber.js": "^9.0.1",
-    "chalk": "^4.1.1",
+    "chalk": "^5.1.2",
     "lodash": "^4.17.21",
     "node-cache": "^5.1.2",
-    "ramda": "^0.27.1",
+    "ramda": "^0.28.0",
     "typechain": "^8.1.0"
   },
   "resolutions": {
