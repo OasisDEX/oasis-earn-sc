@@ -129,12 +129,16 @@ export async function adjustStEth(
   let actualMarketPriceWithSlippage
   let swapData
   if (target.flags.isIncreasingRisk) {
-    swapData = await dependencies.getSwapData(
-      dependencies.addresses.WETH,
-      dependencies.addresses.stETH,
-      target.swap.fromTokenAmount.minus(target.swap.sourceTokenFee),
-      slippage,
-    )
+    swapData = {
+      ...(await dependencies.getSwapData(
+        dependencies.addresses.WETH,
+        dependencies.addresses.stETH,
+        target.swap.fromTokenAmount.minus(target.swap.sourceTokenFee),
+        slippage,
+      )),
+      sourceToken: { symbol: 'WETH', precision: new BigNumber(18) },
+      targetToken: { symbol: 'STETH', precision: new BigNumber(18) },
+    }
     actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
     const borrowEthAmountWei = target.delta.debt.minus(depositEthWei)
@@ -168,12 +172,16 @@ export async function adjustStEth(
       target.position.category,
     )
   } else {
-    swapData = await dependencies.getSwapData(
-      dependencies.addresses.stETH,
-      dependencies.addresses.WETH,
-      target.swap.fromTokenAmount,
-      slippage,
-    )
+    swapData = {
+      ...(await dependencies.getSwapData(
+        dependencies.addresses.stETH,
+        dependencies.addresses.WETH,
+        target.swap.fromTokenAmount,
+        slippage,
+      )),
+      sourceToken: { symbol: 'STETH', precision: new BigNumber(18) },
+      targetToken: { symbol: 'WETH', precision: new BigNumber(18) },
+    }
     actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
     /*
