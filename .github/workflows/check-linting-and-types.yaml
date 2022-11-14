@@ -19,8 +19,11 @@ jobs:
       - name: Install
         run: yarn --no-progress --non-interactive --frozen-lockfile
 
-      - name: Build
+      - name: Build @oasisdex/oasis-actions
         run: yarn workspace @oasisdex/oasis-actions run build
+
+      - name: Compile contracts
+        run: yarn compile
 
       - name: Lint
         run: yarn lint
