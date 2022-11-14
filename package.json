@@ -71,7 +71,6 @@
     "hardhat-tenderly": "^1.0.1",
     "husky": "^4.3.0",
     "mocha": "^10.1.0",
-    "node-fetch": "2",
     "prettier": "^2.1.2",
     "prettier-plugin-solidity": "^1.0.0-beta.17",
     "solhint": "^3.2.2",
