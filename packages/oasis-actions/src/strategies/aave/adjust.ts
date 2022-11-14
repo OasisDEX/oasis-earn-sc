@@ -4,7 +4,11 @@ import { ethers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
+<<<<<<< HEAD
 import { IBaseSimulatedTransition, IPosition, Position } from '../../helpers/calculations/Position'
+=======
+import { IPosition, IPositionChange, Position } from '../../helpers/calculations/Position'
+>>>>>>> e613ddd (refactor: generalise decreaseMultiple operation)
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
