@@ -69,7 +69,7 @@
     "hardhat-gas-reporter": "^1.0.4",
     "hardhat-log-remover": "^2.0.0",
     "hardhat-tenderly": "^1.0.1",
-    "husky": "^4.3.0",
+    "husky": "^8.0.2",
     "mocha": "^10.1.0",
     "prettier": "^2.1.2",
     "prettier-plugin-solidity": "^1.0.0-beta.17",
