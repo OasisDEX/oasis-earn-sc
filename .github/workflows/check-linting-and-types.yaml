@@ -2,6 +2,9 @@ name: Check linting & types
 
 on: [ push ]
 
+env:
+  BLOCK_NUMBER: 15946543
+
 jobs:
   build:
     runs-on: ubuntu-latest
