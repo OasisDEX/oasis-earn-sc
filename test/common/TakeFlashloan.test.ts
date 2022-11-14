@@ -69,7 +69,7 @@ describe('TakeFlashloan Action', () => {
       ],
     )
 
-    const [_, txReceipt] = await executeThroughProxy(
+    const [, txReceipt] = await executeThroughProxy(
       system.common.userProxyAddress,
       {
         address: system.common.operationExecutor.address,
@@ -110,7 +110,7 @@ describe('TakeFlashloan Action', () => {
       ],
     )
 
-    const [_, txReceipt] = await executeThroughProxy(
+    const [, txReceipt] = await executeThroughProxy(
       system.common.userProxyAddress,
       {
         address: system.common.operationExecutor.address,
@@ -138,7 +138,7 @@ describe('TakeFlashloan Action', () => {
       ],
     )
 
-    const [_, txReceipt] = await executeThroughProxy(
+    const [, txReceipt] = await executeThroughProxy(
       system.common.userProxyAddress,
       {
         address: system.common.operationExecutor.address,

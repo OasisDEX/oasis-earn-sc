@@ -8,11 +8,10 @@ import {
 } from '@oasisdex/oasis-actions'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Contract, Signer } from 'ethers'
+import { Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
 import CDPManagerABI from '../../abi/dss-cdp-manager.json'
-import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { getLastVault } from '../../helpers/maker/vault'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
@@ -25,34 +24,19 @@ import { expectToBeEqual } from '../utils'
 
 const createAction = ActionFactory.create
 
-let DAI: Contract
-let WETH: Contract
-
 describe(`Reentrancy guard test`, async () => {
   let provider: JsonRpcProvider
   let signer: Signer
-  let address: string
   let system: DeployedSystemInfo
-  let snapshotId: string
-  let exchangeDataMock: { to: string; data: number }
   let registry: ServiceRegistry
   let config: RuntimeConfig
 
   before(async () => {
-    ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
-
-    DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
-    WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
+    ;({ config, provider, signer } = await loadFixture(initialiseConfig))
 
     const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
-    snapshotId = snapshot.id
     system = snapshot.deployed.system
     registry = snapshot.deployed.registry
-
-    exchangeDataMock = {
-      to: system.common.exchange.address,
-      data: 0,
-    }
   })
 
   afterEach(async () => {

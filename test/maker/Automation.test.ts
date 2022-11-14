@@ -36,15 +36,13 @@ describe(`Operations | Maker | Automation Integration`, async () => {
 
   let provider: JsonRpcProvider
   let signer: Signer
-  let address: string
   let system: DeployedSystemInfo
-  let exchangeDataMock: { to: string; data: number }
   let registry: ServiceRegistry
   let config: RuntimeConfig
   let oraclePrice: BigNumber
 
   beforeEach(async function () {
-    ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
+    ;({ config, provider, signer } = await loadFixture(initialiseConfig))
 
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
@@ -55,11 +53,6 @@ describe(`Operations | Maker | Automation Integration`, async () => {
 
     system = snapshot.deployed.system
     registry = snapshot.deployed.registry
-
-    exchangeDataMock = {
-      to: system.common.exchange.address,
-      data: 0,
-    }
 
     oraclePrice = await getOraclePrice(provider)
 
