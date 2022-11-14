@@ -94,8 +94,8 @@ contract OperationStorage {
   }
 
   /**
-    * @dev Values are stored against an address (who)
-    * This ensures that malicious actors looking to push values to Operation Storage mid transaction cannot overwrite values
+   * @dev Values are stored against an address (who)
+   * This ensures that malicious actors looking to push values to Operation Storage mid transaction cannot overwrite values
    * @param index The index of the desired value
    * @param who The msg.sender address responsible for storing values
    */
