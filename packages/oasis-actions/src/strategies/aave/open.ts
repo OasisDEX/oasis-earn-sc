@@ -36,7 +36,12 @@ export async function open(
     dependencies.provider,
   )
 
+  // Params
   const slippage = args.slippage
+  const multiple = args.multiple
+  const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
+  const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
+
   const estimatedSwapAmount = amountToWei(new BigNumber(1))
 
   const [
@@ -66,7 +71,9 @@ export async function open(
     ),
   ])
 
+  const FEE = 20
   const BASE = new BigNumber(10000)
+  const flashloanFee = new BigNumber(0)
   const liquidationThreshold = new BigNumber(
     reserveDataForCollateral.liquidationThreshold.toString(),
   ).div(BASE)
@@ -75,12 +82,6 @@ export async function open(
 
   // TODO: Read it from blockchain if AAVE introduces a dust limit
   const dustLimit = new BigNumber(0)
-
-  const FEE = 20
-  const multiple = args.multiple
-
-  const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
-  const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
 
   const emptyPosition = new Position(
     {
@@ -111,8 +112,6 @@ export async function open(
     18,
   )
   const quoteMarketPrice = base18FromTokenAmount.div(base18ToTokenAmount)
-
-  const flashloanFee = new BigNumber(0)
 
   // ETH/DAI
   const ethPerDAI = aaveFlashloanDaiPriceInEth

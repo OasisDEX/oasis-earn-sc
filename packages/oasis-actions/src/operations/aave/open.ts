@@ -104,6 +104,9 @@ export async function open(
     to: addresses.operationExecutor,
   })
 
+  // FLASHLOAN WETH
+  // SWAP INTO STETH & DEPOSIT
+  // BORROW WETH + DEPOSIT TO REPAY FLASHLOAN
   // TODO: Redeploy all new OpNames to registry
   const flashloanCalls = [
     setDaiApprovalOnLendingPool,
