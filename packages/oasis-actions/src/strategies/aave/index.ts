@@ -9,5 +9,11 @@ export const aave: IPositionRepository<AAVEStrategyAddresses> = {
   open: open,
   close: close,
   adjust: adjust,
+<<<<<<< HEAD
   view: getCurrentPosition,
+=======
+  view: () => {
+    throw new Error('View not implemented')
+  },
+>>>>>>> e7706c6 (refactor: adjuststeth tests)
 }
