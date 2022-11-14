@@ -9,6 +9,7 @@ import {
 } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
+import { FLASHLOAN_TYPE } from '@oasisdex/oasis-actions/src/helpers/constants'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -24,6 +25,7 @@ import { getOneInchCall } from '../../helpers/swap/OneIchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
+import { flashloan } from '../../typechain/interfaces'
 import { testBlockNumber } from '../config'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
@@ -58,7 +60,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe('On forked chain', () => {
+  describe('On forked chain with FMM flashloan', () => {
     const depositAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
@@ -95,6 +97,134 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           provider,
           getSwapData: oneInchCallMock(new BigNumber(0.9759)),
           dsProxy: system.common.dsProxy.address,
+          flashloanType: FLASHLOAN_TYPE.FMM
+        },
+      )
+
+      feeRecipientWethBalanceBefore = await balanceOf(
+        ADDRESSES.main.WETH,
+        ADDRESSES.main.feeRecipient,
+        { config, isFormatted: true },
+      )
+
+      const [_txStatus, _tx] = await executeThroughProxy(
+        system.common.dsProxy.address,
+        {
+          address: system.common.operationExecutor.address,
+          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+            strategy.calls,
+            OPERATION_NAMES.common.CUSTOM_OPERATION,
+          ]),
+        },
+        signer,
+        depositAmount.toFixed(0),
+      )
+      txStatus = _txStatus
+
+      userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
+      userStEthReserveData = await aaveDataProvider.getUserReserveData(
+        ADDRESSES.main.stETH,
+        system.common.dsProxy.address,
+      )
+
+      const aavePriceOracle = new ethers.Contract(
+        addresses.aavePriceOracle,
+        aavePriceOracleABI,
+        provider,
+      )
+
+      aaveStEthPriceInEth = await aavePriceOracle
+        .getAssetPrice(addresses.stETH)
+        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
+
+      actualPosition = new Position(
+        { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
+        { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
+        aaveStEthPriceInEth,
+        strategy.simulation.position.category,
+      )
+    })
+
+    it('Tx should pass', () => {
+      expect(txStatus).to.be.true
+    })
+
+    it('Should draw debt according to multiple', () => {
+      expectToBeEqual(
+        strategy.simulation.position.debt.amount.toFixed(0),
+        new BigNumber(userAccountData.totalDebtETH.toString()),
+      )
+    })
+
+    it('Should deposit all stEth tokens to aave', () => {
+      expectToBe(
+        strategy.simulation.swap.minToTokenAmount,
+        'lte',
+        new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
+      )
+    })
+
+    it('Should achieve target multiple', () => {
+      expectToBe(
+        strategy.simulation.position.riskRatio.multiple,
+        'gte',
+        actualPosition.riskRatio.multiple,
+      )
+    })
+
+    it('Should collect fee', async () => {
+      const feeRecipientWethBalanceAfter = await balanceOf(
+        ADDRESSES.main.WETH,
+        ADDRESSES.main.feeRecipient,
+        { config, isFormatted: true },
+      )
+
+      expectToBeEqual(
+        new BigNumber(strategy.simulation.swap.sourceTokenFee),
+        feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
+      )
+    })
+  })
+
+  describe('On forked chain with Balancer flashloan', () => {
+
+    const depositAmount = amountToWei(new BigNumber(60 / 1e15))
+    const multiple = new BigNumber(2)
+    const slippage = new BigNumber(0.1)
+    let aaveStEthPriceInEth: BigNumber
+
+    let system: DeployedSystemInfo
+
+    let strategy: IStrategy
+    let txStatus: boolean
+
+    let userAccountData: AAVEAccountData
+    let userStEthReserveData: AAVEReserveData
+    let actualPosition: IPosition
+
+    let feeRecipientWethBalanceBefore: BigNumber
+
+    before(async () => {
+      const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+      system = snapshot.deployed.system
+
+      const addresses = {
+        ...mainnetAddresses,
+        operationExecutor: system.common.operationExecutor.address,
+      }
+
+      strategy = await strategies.aave.openStEth(
+        {
+          depositAmount,
+          slippage,
+          multiple,
+        },
+        {
+          addresses,
+          provider,
+          getSwapData: oneInchCallMock(new BigNumber(0.9759)),
+          dsProxy: system.common.dsProxy.address,
+          flashloanType: FLASHLOAN_TYPE.BALANCER
         },
       )
 
@@ -228,6 +358,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
             dsProxy: system.common.dsProxy.address,
+            flashloanType: FLASHLOAN_TYPE.FMM,
           },
         )
 

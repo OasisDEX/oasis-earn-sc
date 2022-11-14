@@ -15,6 +15,7 @@ export const CONTRACT_NAMES = {
     SEND_TOKEN: 'SendToken',
     SET_APPROVAL: 'SetApproval',
     TAKE_A_FLASHLOAN: 'TakeFlashloan',
+    TAKE_A_BALANCER_FLASHLOAN: 'TakeBalancerFlashloan',
     SWAP_ACTION: 'SwapAction',
     OPERATION_EXECUTOR: 'OperationExecutor',
     OPERATION_STORAGE: 'OperationStorage',
@@ -48,6 +49,9 @@ export const CONTRACT_NAMES = {
     MCD_JUG: 'McdJug',
     MCD_JOIN_DAI: 'McdJoinDai',
     CDP_ALLOW: 'CdpAllow',
+  },
+  balancer: {
+    VAULT: 'BalancerVault',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',
@@ -89,3 +93,8 @@ export const OPERATION_NAMES = {
 // 1inch however errors out when trying to swap 0 amount, so we swap some small amount instead.
 // This is that amount.
 export const UNUSED_FLASHLOAN_AMOUNT = ONE
+
+export enum FLASHLOAN_TYPE {
+  FMM = 'FMM',
+  BALANCER = 'BALANCER'
+}

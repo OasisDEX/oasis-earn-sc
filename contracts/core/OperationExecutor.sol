@@ -9,17 +9,24 @@ import { Address } from "../libs/Address.sol";
 import { TakeFlashloan } from "../actions/common/TakeFlashloan.sol";
 import { IERC3156FlashBorrower } from "../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender.sol";
+import { IFlashLoanRecipient } from "../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
-import { FlashloanData, Call } from "./types/Common.sol";
-import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
+import { FlashloanData, BalancerFlashloanData, Call } from "./types/Common.sol";
+
+import {
+  OPERATION_STORAGE,
+  OPERATIONS_REGISTRY,
+  OPERATION_EXECUTOR,
+  BALANCER_VAULT
+} from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
 /**
  * @title Operation Executor
  * @notice Is responsible for executing sequences of Actions (Operations)
  */
-contract OperationExecutor is IERC3156FlashBorrower {
+contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
   using Address for address;
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
@@ -152,5 +159,44 @@ contract OperationExecutor is IERC3156FlashBorrower {
     IERC20(asset).safeApprove(lender, paybackAmount);
 
     return keccak256("ERC3156FlashBorrower.onFlashLoan");
+  }
+
+  function receiveFlashLoan(
+    IERC20[] memory tokens,
+    uint256[] memory amounts,
+    uint256[] memory feeAmounts,
+    bytes memory data
+  ) external override {
+
+    address lender = registry.getRegisteredService(BALANCER_VAULT);
+    require(msg.sender == lender, "Untrusted flashloan lender");
+
+    BalancerFlashloanData memory flData = abi.decode(data, (BalancerFlashloanData));
+    address initiator = flData.borrower;
+    IERC20 borrowedToken = tokens[0];
+
+    require(borrowedToken.balanceOf(address(this)) >= flData.amount, "Flashloan inconsistency");
+
+    if (flData.dsProxyFlashloan) {
+      borrowedToken.safeTransfer(initiator, flData.amount);
+      DSProxy(payable(initiator)).execute(
+        address(this),
+        abi.encodeWithSelector(this.callbackAggregate.selector, flData.calls)
+      );
+    } else {
+      OperationStorage opStorage = OperationStorage(
+        registry.getRegisteredService(OPERATION_STORAGE)
+      );
+      opStorage.setInitiator(initiator);
+      aggregate(flData.calls);
+    }
+
+    uint256 paybackAmount = amounts[0].add(feeAmounts[0]);
+    require(
+      borrowedToken.balanceOf(address(this)) >= paybackAmount,
+      "Insufficient funds for payback"
+    );
+
+    borrowedToken.safeTransfer(lender, paybackAmount);
   }
 }

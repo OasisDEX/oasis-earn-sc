@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-import { CONTRACT_NAMES } from '../helpers/constants'
+import { CONTRACT_NAMES, FLASHLOAN_TYPE } from '../helpers/constants'
 import { ActionFactory } from './actionFactory'
 import { getActionHash } from './getActionHash'
 import { ActionCall } from './types/actionCall'
@@ -81,21 +81,46 @@ export function sendToken(args: { asset: string; to: string; amount: BigNumber }
 }
 
 export function takeAFlashLoan(args: {
+  flashloanType: FLASHLOAN_TYPE
   flashloanAmount: BigNumber
   borrower: string
   dsProxyFlashloan: boolean
   calls: ActionCall[]
 }) {
-  return createAction(
-    getActionHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
-    [calldataTypes.common.TakeAFlashLoan],
-    [
-      {
+
+  let actionName;
+  let flashloanCalldataType;
+  let flashloanCalldata;
+
+  switch(args.flashloanType) {
+    case FLASHLOAN_TYPE.FMM:
+      actionName = CONTRACT_NAMES.common.TAKE_A_FLASHLOAN
+      flashloanCalldataType = calldataTypes.common.TakeAFlashLoan
+      flashloanCalldata = {
+        amount: args.flashloanAmount.toFixed(0),
+        dsProxyFlashloan: args.dsProxyFlashloan,
+        calls: args.calls,
+      }
+      break
+    case FLASHLOAN_TYPE.BALANCER:
+      actionName = CONTRACT_NAMES.common.TAKE_A_BALANCER_FLASHLOAN
+      flashloanCalldataType = calldataTypes.common.TakeABalancerFlashLoan
+      flashloanCalldata = {
         amount: args.flashloanAmount.toFixed(0),
         borrower: args.borrower,
         dsProxyFlashloan: args.dsProxyFlashloan,
         calls: args.calls,
-      },
+      }
+      break
+    default:
+      throw new Error(`Unrecognized flashloan type`)
+  }
+
+  return createAction(
+    getActionHash(actionName),
+    [flashloanCalldataType],
+    [
+      flashloanCalldata
     ],
   )
 }

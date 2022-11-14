@@ -102,6 +102,11 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     serviceRegistryAddress,
     ADDRESSES.main.DAI,
   ])
+  const [actionBalancerFl, actionBalancerFlAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_BALANCER_FLASHLOAN, [
+    serviceRegistryAddress,
+    ADDRESSES.main.DAI,
+    ADDRESSES.main.balancerVault
+  ])
 
   const [wrapEth, wrapActionAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
     serviceRegistryAddress,
@@ -173,6 +178,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
     actionFlAddress,
   )
+  const takeBalancerFlashLoanHash = await registry.addEntry(
+    CONTRACT_NAMES.common.TAKE_A_BALANCER_FLASHLOAN,
+    actionBalancerFlAddress,
+  )
   const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
   const dummyActionHash = await registry.addEntry(
     CONTRACT_NAMES.test.DUMMY_ACTION,
@@ -187,6 +196,11 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await registry.addEntry(
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     ADDRESSES.main.oneInchAggregator,
+  )
+
+  await registry.addEntry(
+    CONTRACT_NAMES.balancer.VAULT,
+    ADDRESSES.main.balancerVault
   )
 
   const swapActionHash = await registry.addEntry(

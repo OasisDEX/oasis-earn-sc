@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
+import { FLASHLOAN_TYPE } from '../../helpers/constants'
 
 export interface IncreaseMultipleStEthAddresses {
   DAI: string
@@ -80,6 +81,7 @@ export async function increaseMultipleStEth(
   })
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
+    flashloanType: FLASHLOAN_TYPE.FMM,
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
     dsProxyFlashloan: true,

@@ -1,4 +1,4 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, FLASHLOAN_TYPE, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { task, types } from 'hardhat/config'
 
@@ -108,6 +108,7 @@ task('createPosition', 'Create stETH position on AAVE')
         provider: config.provider,
         getSwapData: swapData,
         dsProxy: dsProxy.address,
+        flashloanType: FLASHLOAN_TYPE.FMM
       },
     )
 

@@ -6,6 +6,13 @@ struct FlashloanData {
   Call[] calls;
 }
 
+struct BalancerFlashloanData {
+  uint256 amount;
+  bool dsProxyFlashloan;
+  Call[] calls;
+  address borrower;
+}
+
 struct PullTokenData {
   address asset;
   address from;

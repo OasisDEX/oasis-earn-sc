@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
-import { MAX_UINT } from '../../helpers/constants'
+import { FLASHLOAN_TYPE, MAX_UINT } from '../../helpers/constants'
 
 export interface DecreaseMultipleStEthAddresses {
   DAI: string
@@ -79,6 +79,7 @@ export async function decreaseMultipleStEth(
 
   // TODO: determine if a flashloan is necessary
   const takeAFlashLoan = actions.common.takeAFlashLoan({
+    flashloanType: FLASHLOAN_TYPE.FMM,
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
     dsProxyFlashloan: true,

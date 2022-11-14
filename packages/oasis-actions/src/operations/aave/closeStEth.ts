@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
-import { MAX_UINT } from '../../helpers/constants'
+import { FLASHLOAN_TYPE, MAX_UINT } from '../../helpers/constants'
 
 export interface CloseStEthAddresses {
   DAI: string
@@ -82,6 +82,7 @@ export async function closeStEth(
   })
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
+    flashloanType: FLASHLOAN_TYPE.FMM,
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
     dsProxyFlashloan: true,

@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
+import { FLASHLOAN_TYPE } from '../../helpers/constants'
 
 export interface OpenStEthAddresses {
   DAI: string
@@ -16,6 +17,7 @@ export interface OpenStEthAddresses {
 
 export async function openStEth(
   args: {
+    flashloanType: FLASHLOAN_TYPE
     flashloanAmount: BigNumber
     borrowAmount: BigNumber
     receiveAtLeast: BigNumber
@@ -80,9 +82,23 @@ export async function openStEth(
     to: addresses.operationExecutor,
   })
 
+  let borrower;
+
+  switch(args.flashloanType) {
+    case FLASHLOAN_TYPE.FMM:
+      borrower = addresses.operationExecutor
+      break
+    case FLASHLOAN_TYPE.BALANCER:
+      borrower = args.dsProxy
+      break
+    default:
+      throw new Error(`Unrecognized flashloan type`)
+  }
+
   const takeAFlashLoan = actions.common.takeAFlashLoan({
+    borrower,
+    flashloanType: args.flashloanType,
     flashloanAmount: args.flashloanAmount,
-    borrower: addresses.operationExecutor,
     dsProxyFlashloan: true,
     calls: [
       setDaiApprovalOnLendingPool,

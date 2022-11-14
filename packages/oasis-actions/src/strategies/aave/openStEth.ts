@@ -7,7 +7,7 @@ import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
 import { amountFromWei, amountToWei } from '../../helpers'
 import { Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
+import { FLASHLOAN_TYPE, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operation from '../../operations'
 import type { OpenStEthAddresses } from '../../operations/aave/openStEth'
 import { IStrategy } from '../types/IStrategy'
@@ -29,6 +29,7 @@ interface OpenStEthDependencies {
     slippage: BigNumber,
   ) => Promise<SwapData>
   dsProxy: string
+  flashloanType: FLASHLOAN_TYPE
 }
 
 export async function openStEth(
@@ -136,6 +137,7 @@ export async function openStEth(
 
   const calls = await operation.aave.openStEth(
     {
+      flashloanType: dependencies.flashloanType,
       flashloanAmount: target.delta?.flashloanAmount || UNUSED_FLASHLOAN_AMOUNT,
       borrowAmount: borrowEthAmountWei,
       fee: FEE,
