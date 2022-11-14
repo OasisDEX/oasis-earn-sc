@@ -85,7 +85,7 @@ export async function adjust(
   )
 
   const FEE = 20
-  const BASE = new BigNumber(10000)
+  // const BASE = new BigNumber(10000)
   const flashloanFee = new BigNumber(0)
 
   // Needs to be correct precision. First convert to base 18. Then divide
@@ -143,13 +143,16 @@ export async function adjust(
   let actualMarketPriceWithSlippage
   let swapData
   if (target.flags.isIncreasingRisk) {
+    const swapAmountBeforeFees = target.swap.fromTokenAmount
+    const swapAmountAfterFees = swapAmountBeforeFees.minus(
+      collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
+    )
+
     swapData = {
       ...(await dependencies.getSwapData(
         debtTokenAddress,
         collateralTokenAddress,
-        target.swap.fromTokenAmount.minus(
-          collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
-        ),
+        swapAmountAfterFees,
         slippage,
       )),
       sourceToken: {
@@ -169,13 +172,24 @@ export async function adjust(
 
     operation = await operations.aave.increaseMultipleStEth(
       {
+        depositCollateral: {
+          amountInWei: depositCollateralAmountInWei,
+          isEth: args.collateralToken.symbol === 'ETH',
+        },
+        depositDebtTokens: {
+          amountInWei: depositDebtAmountInWei, // Reduces amount of borrowing required
+          isEth: args.debtToken.symbol === 'ETH',
+        },
         flashloanAmount: flashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : flashloanAmount,
-        borrowAmount: borrowEthAmountWei,
+        borrowAmountInWei: borrowEthAmountWei,
         fee: FEE,
         swapData: swapData.exchangeCalldata,
         receiveAtLeast: swapData.minToTokenAmount,
-        ethSwapAmount: target.swap.fromTokenAmount,
-        dsProxy: dependencies.proxy,
+        swapAmountInWei: swapAmountBeforeFees,
+        collectFeeFrom: collectFeeFrom,
+        collateralTokenAddress,
+        debtTokenAddress,
+        proxy: dependencies.proxy,
       },
       dependencies.addresses,
     )
