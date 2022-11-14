@@ -1,4 +1,4 @@
-name: Check linting
+name: Check linting & types
 
 on: [ push ]
 
@@ -18,9 +18,15 @@ jobs:
 
       - name: Install
         run: yarn --no-progress --non-interactive --frozen-lockfile
+        
+      - name: Build
+        run: yarn workspaces @oasisdex/oasis-actions run build
 
       - name: Lint
         run: yarn lint
 
       - name: Prettier
         run: yarn format
+
+      - name: Typecheck
+        run: yarn workspace @oasisdex/oasis-actions run typecheck
