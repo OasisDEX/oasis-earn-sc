@@ -41,7 +41,6 @@ describe(`Operations | Maker | Open Position`, async () => {
   let config: RuntimeConfig
 
   beforeEach(async () => {
-    const test = ''
     ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
 
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
