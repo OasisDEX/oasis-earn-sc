@@ -19,7 +19,7 @@
     "test:gas": "USE_GAS_ESTIMATES=1 yarn test",
     "test:1inch": "RUN_1INCH_TESTS=1 yarn test",
     "test:1inch:gas": "RUN_1INCH_TESTS=1 yarn test:gas",
-    "lint": "eslint . --ext .ts && prettier --list-different 'contracts/**/*.sol'",
+    "lint": "eslint . --ext .ts && prettier --list-different 'contracts/**/*.sol'; echo $?",
     "lint:fix": "eslint . --fix --ext .ts",
     "format": "prettier --check \"./**/*.{ts,tsx,js,jsx}\"",
     "format:fix": "prettier --write \"./**/*.{ts,tsx,js,jsx}\"",
