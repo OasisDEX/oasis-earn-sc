@@ -200,6 +200,18 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         oracle,
         positionMutation.simulation.position.category,
       )
+      console.log(
+        'debt:',
+        new BigNumber(userDebtReserveData.currentVariableDebt.toString()).toString(),
+      )
+      console.log('debt precision:', debtToken.precision)
+      console.log(
+        'coll:',
+        new BigNumber(userCollateralReserveData.currentATokenBalance.toString()).toString(),
+      )
+      console.log('coll precision:', collateralToken.precision)
+      console.log('actualPosition multiple:', actualPosition.riskRatio.multiple.toString())
+      console.log('oracle:', oracle.toString())
 
       return {
         system,
@@ -213,7 +225,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       }
     }
 
-    describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+    describe.skip(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
       const depositEthAmount = amountToWei(new BigNumber(60 / 1e15))
 
       let userStEthReserveData: AAVEReserveData
@@ -377,7 +389,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
+    describe.skip(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
@@ -459,7 +471,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
+    describe.skip(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
@@ -552,7 +564,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     })
   })
 
-  describe('On latest block using one inch exchange and api', function () {
+  describe.skip('On latest block using one inch exchange and api', function () {
     const depositEthAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)

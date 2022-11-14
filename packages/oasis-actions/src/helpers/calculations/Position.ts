@@ -178,6 +178,7 @@ export class Position implements IPosition {
     if (targetLTV.gt(this.riskRatio.loanToValue)) {
       isIncreasingRisk = true
     }
+    console.log('isIncreasingRisk:', isIncreasingRisk)
 
     const { depositedByUser, fees, prices, slippage, flashloan, debug } = params
     const { maxLoanToValueFL: _maxLoanToValueFL } = flashloan
@@ -278,7 +279,7 @@ export class Position implements IPosition {
           `Oracle price: ${oraclePrice.toString()}`,
           `Oracle Price FL-to-Debt token: ${oraclePriceFLtoDebtToken.toString()}`,
           `Market price: ${marketPrice.toString()}`,
-          `Slippage: ${slippage.toFixed(0)}`,
+          `Slippage: ${slippage.toString()}`,
           `Market price adj. slippage: ${marketPriceAdjustedForSlippage.toString()}`,
 
           `Oazo fee: ${oazoFee.toFixed(4)}`,

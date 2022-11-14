@@ -69,8 +69,6 @@ export async function adjust(
     aavePriceOracle
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
-    aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
     dependencies.getSwapData(
       dependencies.addresses.WETH,
       dependencies.addresses.stETH,
@@ -79,24 +77,16 @@ export async function adjust(
     ),
   ])
 
-  const existingPosition = new Position(
-    existingBasePosition.debt,
-    existingBasePosition.collateral,
-    aaveCollateralTokenPriceInEth,
-    existingBasePosition.category,
-  )
-
-  // const BASE = new BigNumber(10000)
   const flashloanFee = new BigNumber(0)
 
   // Needs to be correct precision. First convert to base 18. Then divide
   const base18FromTokenAmount = amountToWei(
     amountFromWei(quoteSwapData.fromTokenAmount, args.debtToken.precision),
-    18,
+    TYPICAL_PRECISION,
   )
   const base18ToTokenAmount = amountToWei(
     amountFromWei(quoteSwapData.toTokenAmount, args.collateralToken.precision),
-    18,
+    TYPICAL_PRECISION,
   )
   const quoteMarketPrice = base18FromTokenAmount.div(base18ToTokenAmount)
 
@@ -112,7 +102,15 @@ export async function adjust(
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
+  const existingPosition = new Position(
+    existingBasePosition.debt,
+    existingBasePosition.collateral,
+    oracle,
+    existingBasePosition.category,
+  )
+
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
+  console.log('existing x:', existingPosition.riskRatio.multiple.toString())
   const target = existingPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
@@ -135,9 +133,10 @@ export async function adjust(
         collateralInWei: depositCollateralAmountInWei,
       },
       collectSwapFeeFrom: collectFeeFrom,
-      // debug: true,
+      debug: true,
     },
   )
+  console.log('target x:', target.position.riskRatio.multiple.toString())
 
   let operation: IOperation
   let finalPosition: IPosition
@@ -153,6 +152,8 @@ export async function adjust(
       target,
       existingPosition,
       swapAmountAfterFees,
+      swapAmountBeforeFees,
+      collectFeeFrom,
       collateralTokenAddress,
       debtTokenAddress,
       depositDebtAmountInWei,
@@ -166,6 +167,8 @@ export async function adjust(
       target,
       existingPosition,
       swapAmountAfterFees,
+      swapAmountBeforeFees,
+      collectFeeFrom,
       collateralTokenAddress,
       debtTokenAddress,
       depositDebtAmountInWei,
@@ -209,7 +212,9 @@ interface BranchProps {
   depositDebtAmountInWei: BigNumber
   depositCollateralAmountInWei?: BigNumber
   debtTokenAddress: string
+  swapAmountBeforeFees: BigNumber
   swapAmountAfterFees: BigNumber
+  collectFeeFrom: 'sourceToken' | 'targetToken'
   aaveCollateralTokenPriceInEth: BigNumber
   args: IPositionMutationArgs<AAVETokens>
   dependencies: IMutationDependencies<AAVEStrategyAddresses> & WithPosition
@@ -218,7 +223,9 @@ interface BranchProps {
 async function _increaseRisk({
   target,
   existingPosition,
+  swapAmountBeforeFees,
   swapAmountAfterFees,
+  collectFeeFrom,
   collateralTokenAddress,
   debtTokenAddress,
   depositDebtAmountInWei,
@@ -227,8 +234,11 @@ async function _increaseRisk({
   args,
   dependencies,
 }: BranchProps): Promise<BranchReturn> {
+  console.log('EXISTING IN ADJUST')
+  console.log('DEBT:', existingPosition.debt.amount.toString())
+
   // Params
-  const depositEthWei = args.depositedByUser?.debtInWei || ZERO
+  const depositedDebtTokensInWei = args.depositedByUser?.debtInWei || ZERO
 
   const swapData = {
     ...(await dependencies.getSwapData(
@@ -259,14 +269,18 @@ async function _increaseRisk({
     actualSwapBase18ToTokenAmount,
   )
 
-  const borrowEthAmountWei = target.delta.debt.minus(depositEthWei)
+  const borrowAmountInWei = target.delta.debt.minus(depositedDebtTokensInWei)
+  const precisionAdjustedBorrowAmount = amountToWei(
+    amountFromWei(borrowAmountInWei),
+    args.debtToken.precision || TYPICAL_PRECISION,
+  )
 
   const flashloanAmount = target.delta?.flashloanAmount || ZERO
 
-  const operation = await operations.aave.increaseMultipleStEth(
+  const operation = await operations.aave.increaseMultiple(
     {
       depositCollateral: {
-        amountInWei: depositCollateralAmountInWei,
+        amountInWei: depositCollateralAmountInWei || ZERO,
         isEth: args.collateralToken.symbol === 'ETH',
       },
       depositDebtTokens: {
@@ -274,7 +288,7 @@ async function _increaseRisk({
         isEth: args.debtToken.symbol === 'ETH',
       },
       flashloanAmount: flashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : flashloanAmount,
-      borrowAmountInWei: borrowEthAmountWei,
+      borrowAmountInWei: precisionAdjustedBorrowAmount,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
@@ -305,11 +319,15 @@ async function _increaseRisk({
     args.collateralToken.precision,
   ).integerValue(BigNumber.ROUND_DOWN)
 
+  console.log('FINAL IN ADJUST')
+  console.log('DEBT:', target.position.debt.amount.toString())
+  console.log('ORACLE:', aaveCollateralTokenPriceInEth.toString())
+
   const finalPosition = new Position(
     target.position.debt,
     {
       amount: collateralAmountAfterSwapInWei
-        .plus(depositCollateralAmountInWei)
+        .plus(depositCollateralAmountInWei || ZERO)
         .plus(existingPosition.collateral.amount),
       symbol: target.position.collateral.symbol,
     },
@@ -328,7 +346,9 @@ async function _increaseRisk({
 async function _decreaseRisk({
   target,
   existingPosition,
+  swapAmountBeforeFees,
   swapAmountAfterFees,
+  collectFeeFrom,
   collateralTokenAddress,
   debtTokenAddress,
   depositDebtAmountInWei,
@@ -374,16 +394,18 @@ async function _decreaseRisk({
   // TODO: Precision check here!!
   const withdrawCollateralAmountWei = target.delta.collateral.abs()
 
-  const operation = await operations.aave.decreaseMultipleStEth(
+  const operation = await operations.aave.decreaseMultiple(
     {
       flashloanAmount: absFlashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : absFlashloanAmount,
-      withdrawAmount: withdrawCollateralAmountWei,
+      withdrawAmountInWei: withdrawCollateralAmountWei,
+      receiveAtLeast: swapData.minToTokenAmount,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
-      receiveAtLeast: swapData.minToTokenAmount,
-      // TODO: Generalise param name
-      stEthSwapAmount: target.swap.fromTokenAmount,
-      dsProxy: dependencies.proxy,
+      swapAmountInWei: swapAmountBeforeFees,
+      collectFeeFrom,
+      collateralTokenAddress,
+      debtTokenAddress,
+      proxy: dependencies.proxy,
     },
     dependencies.addresses,
   )
