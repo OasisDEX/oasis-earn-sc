@@ -6,7 +6,7 @@ import { OPERATION_NAMES, ZERO } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
 
-export async function increaseMultipleStEth(
+export async function increaseMultiple(
   args: {
     depositCollateral: {
       amountInWei: BigNumber
