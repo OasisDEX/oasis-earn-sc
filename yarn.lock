@@ -3137,18 +3137,13 @@ chalk@^2.0.0, chalk@^2.1.0, chalk@^2.4.1, chalk@^2.4.2:
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
 
-chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.2:
+chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.1, chalk@^4.1.2:
   version "4.1.2"
-  resolved "https://registry.npmjs.org/chalk/-/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
+  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
   integrity sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
-
-chalk@^5.1.2:
-  version "5.1.2"
-  resolved "https://registry.yarnpkg.com/chalk/-/chalk-5.1.2.tgz#d957f370038b75ac572471e83be4c5ca9f8e8c45"
-  integrity sha512-E5CkT4jWURs1Vy5qGJye+XwCkNj7Od3Af7CP6SujMetSMkLs8Do2RWJK5yx1wamHV/op8Rz+9rltjaTQWDnEFQ==
 
 chardet@^0.7.0:
   version "0.7.0"
@@ -4984,7 +4979,7 @@ ethers@^5.0.1, ethers@^5.0.2, ethers@^5.5.2:
     "@ethersproject/web" "5.5.1"
     "@ethersproject/wordlists" "5.5.0"
 
-ethers@^5.0.19:
+ethers@^5.0.19, ethers@^5.6.1:
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
   integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==
@@ -6134,6 +6129,13 @@ hardhat-tenderly@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hardhat-tenderly/-/hardhat-tenderly-1.0.1.tgz#3d3cbe7e6845a225cb33a9919c64c802969aa2de"
   integrity sha512-21vFyEhpjbaLjUVp/XV5EsjwaE2IvVTNfWO6o4Xk5BUDkRk6uodt/1U4rJ9wMKH5ryT3J91+qu4ODoj4dVAk2g==
+
+hardhat-tracer@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/hardhat-tracer/-/hardhat-tracer-1.1.1.tgz#7ffa1affc06ef3346d7086f7cacb1718efe1a87b"
+  integrity sha512-NgOnnNAvARBtYC5x5c7Qcbw+lr+Jb+0OV1NC2tTpUUQj0ym+/0y42F0CYT/zKnHw3uf046NKg0CNTzYg1j0JWg==
+  dependencies:
+    ethers "^5.6.1"
 
 hardhat@2.9.5:
   version "2.9.5"
