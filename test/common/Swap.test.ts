@@ -205,16 +205,10 @@ describe('Swap', async () => {
     const assetAmountInWei = amountToWei(assetAmount)
     const feeAmount = calculateFee(assetAmountInWei)
     const assetAmountInWeiWithFee = assetAmountInWei.plus(feeAmount)
-    let initialDaiWalletBalance: BigNumber
     let receiveAtLeastInWei: BigNumber
-    let to: string
     let data: string
 
     before(async () => {
-      initialDaiWalletBalance = amountToWei(
-        await balanceOf(ADDRESSES.main.WETH, address, { config, isFormatted: true }),
-      )
-
       const response = await exchangeToDAI(
         ADDRESSES.main.WETH,
         assetAmountInWei.toFixed(0),
@@ -222,7 +216,6 @@ describe('Swap', async () => {
         slippage.value.toFixed(),
         ALLOWED_PROTOCOLS,
       )
-      to = response.tx.to
       data = response.tx.data
 
       const receiveAtLeast = amountFromWei(response.toTokenAmount).times(
@@ -249,11 +242,6 @@ describe('Swap', async () => {
         initialWethWalletBalance = amountToWei(
           new BigNumber(
             await balanceOf(ADDRESSES.main.WETH, address, { config, isFormatted: true }),
-          ),
-        )
-        initialDaiWalletBalance = amountToWei(
-          new BigNumber(
-            await balanceOf(ADDRESSES.main.DAI, address, { config, isFormatted: true }),
           ),
         )
 
@@ -749,7 +737,6 @@ describe('Swap', async () => {
     let amountInWei: BigNumber
     let amountWithFeeInWei: BigNumber
     let receiveAtLeastInWei: BigNumber
-    let to: string
     let data: string
 
     before(async () => {
@@ -764,7 +751,6 @@ describe('Swap', async () => {
         ALLOWED_PROTOCOLS,
       )
 
-      to = response.tx.to
       data = response.tx.data
 
       const receiveAtLeast = amountFromWei(response.toTokenAmount).times(
@@ -1452,7 +1438,6 @@ describe('Swap', async () => {
     let initialUSDTBalanceInWei: BigNumber
     let receiveAtLeastInWei: BigNumber
     let feeInUSDT: BigNumber
-    let to: string
     let data: string
     let localSnapshotId: string
 
@@ -1488,7 +1473,6 @@ describe('Swap', async () => {
         ALLOWED_PROTOCOLS,
       )
 
-      to = response.tx.to
       data = response.tx.data
 
       const receiveAtLeast = amountFromWei(response.toTokenAmount).times(
@@ -1536,7 +1520,6 @@ describe('Swap', async () => {
     let daiBalanceInWei: BigNumber
     let amountWithFeeInWei: BigNumber
     let receiveAtLeastInWei: BigNumber
-    let to: string
     let data: string
     let localSnapshotId: string
 
@@ -1566,7 +1549,6 @@ describe('Swap', async () => {
         ALLOWED_PROTOCOLS,
       )
 
-      to = response.tx.to
       data = response.tx.data
 
       const receiveAtLeast = amountFromWei(response.toTokenAmount, 6).times(
@@ -1619,7 +1601,6 @@ describe('Swap', async () => {
     const toTokenDecimals = 8
     let amountWithFeeInWei: BigNumber
     let receiveAtLeastInWei: BigNumber
-    let to: string
     let data: string
     let localSnapshotId: string
     let wethBalanceBeforeWei: BigNumber
@@ -1637,7 +1618,6 @@ describe('Swap', async () => {
         ALLOWED_PROTOCOLS,
       )
 
-      to = response.tx.to
       data = response.tx.data
 
       const receiveAtLeast = amountFromWei(response.toTokenAmount, 8).times(

@@ -1,5 +1,3 @@
-import { BigNumber } from 'bignumber.js'
-
 export enum Network {
   MAINNET = 'mainnet',
   GOERLI = 'goerli',

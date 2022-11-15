@@ -1,0 +1,44 @@
+name: Check linting & types
+
+on: [ push ]
+
+jobs:
+  check_lint_and_types:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Cache YARN dependencies
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.OS }}-yarn-cache-
+
+      - name: Install
+        run: yarn --no-progress --non-interactive --frozen-lockfile
+
+      - name: Build @oasisdex/oasis-actions
+        run: yarn workspace @oasisdex/oasis-actions run build
+
+      - name: Compile contracts
+        run: yarn compile
+        env:
+          BLOCK_NUMBER: 15946543
+          ETHERSCAN_API_KEY: YAJI4NVD8QTQ9JVWG2NKN3FFUK6IZTMV5S
+          MAINNET_URL: https://eth-mainnet.alchemyapi.io/v2/K7pZy8x91lW2KwbtJLtYNOYwB8LMJYYZ
+          ALCHEMY_NODE_GOERLI: https://eth-goerli.g.alchemy.com/v2/N0REGg84iixfhYlkj97u6BbLZBD7t988
+          REPORT_GAS: 1
+          RUN_1INCH_TESTS: 1
+          PRIV_KEY_GOERLI: ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+          PRIV_KEY_MAINNET: ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Prettier
+        run: yarn format
+
+      - name: Typecheck
+        run: yarn workspace @oasisdex/oasis-actions run typecheck

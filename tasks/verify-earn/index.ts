@@ -1,5 +1,6 @@
 import { ADDRESSES } from '@oasisdex/oasis-actions/src'
 import { task } from 'hardhat/config'
+
 import { getAddressesFor } from '../../scripts/common/addresses'
 
 task('verify-earn', 'Verifies Earn Contracts').setAction(async (_: any, hre) => {
@@ -41,7 +42,12 @@ task('verify-earn', 'Verifies Earn Contracts').setAction(async (_: any, hre) => 
     },
     {
       address: SWAP,
-      constructorArguments: [ADDRESSES.main.authorizedCaller, ADDRESSES.main.feeRecipient, 20, SERVICE_REGISTRY], // Doesn't really matter where we take authorizedCaller and feeRecipient from
+      constructorArguments: [
+        ADDRESSES.main.authorizedCaller,
+        ADDRESSES.main.feeRecipient,
+        20,
+        SERVICE_REGISTRY,
+      ], // Doesn't really matter where we take authorizedCaller and feeRecipient from
     },
     {
       address: PULL_TOKEN_ACTION,

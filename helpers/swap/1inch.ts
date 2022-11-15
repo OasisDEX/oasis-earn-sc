@@ -1,5 +1,5 @@
 import { ADDRESSES } from '@oasisdex/oasis-actions'
-import fetch from 'node-fetch'
+import axios from 'axios'
 
 import { OneInchSwapResponse } from '../types/common'
 
@@ -16,13 +16,13 @@ export function formatOneInchSwapUrl(
 }
 
 export async function exchangeTokens(url: string): Promise<OneInchSwapResponse> {
-  const response = await fetch(url)
+  const response = await axios.get(url)
 
-  if (!response.ok) {
-    throw new Error(`Error performing 1inch swap request ${url}: ${await response.text()}`)
+  if (!(response.status === 200 && response.statusText === 'OK')) {
+    throw new Error(`Error performing 1inch swap request ${url}: ${await response.data}`)
   }
 
-  return response.json() as Promise<OneInchSwapResponse>
+  return response.data as Promise<OneInchSwapResponse>
 }
 
 export async function swapOneInchTokens(

@@ -5,7 +5,6 @@ import { loadFixture } from 'ethereum-waffle'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-import init from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'

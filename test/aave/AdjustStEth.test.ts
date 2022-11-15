@@ -14,11 +14,10 @@ import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Contract, ContractReceipt, ethers, Signer } from 'ethers'
+import { Contract, ethers, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
-import ERC20ABI from '../../abi/IERC20.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init, { resetNodeToLatestBlock } from '../../helpers/init'
@@ -32,14 +31,11 @@ import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
 
 describe(`Strategy | AAVE | Adjust Position`, async () => {
-  let WETH: Contract
-  let stETH: Contract
   let aaveLendingPool: Contract
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
   let config: RuntimeConfig
   let signer: Signer
-  let address: string
 
   const mainnetAddresses = {
     DAI: ADDRESSES.main.DAI,
@@ -56,7 +52,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     config = await init()
     provider = config.provider
     signer = config.signer
-    address = config.address
 
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -65,8 +60,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     )
 
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
-    WETH = new Contract(ADDRESSES.main.WETH, ERC20ABI, provider)
-    stETH = new Contract(ADDRESSES.main.stETH, ERC20ABI, provider)
   })
 
   describe('On forked chain', () => {
@@ -80,7 +73,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     let openStrategy: IStrategy
 
     let txStatus: boolean
-    let tx: ContractReceipt
 
     let userAccountData: AAVEAccountData
     let userStEthReserveData: AAVEReserveData
@@ -89,7 +81,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
-      ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
+      ;({ config, provider, signer } = await loadFixture(initialiseConfig))
       const testBlockWithSufficientLiquidityInUswapPool = 15695000
       const snapshot = await restoreSnapshot(
         config,
@@ -123,7 +115,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         { config, isFormatted: true },
       )
 
-      const [_txStatus, _tx] = await executeThroughProxy(
+      const [_txStatus] = await executeThroughProxy(
         system.common.dsProxy.address,
         {
           address: system.common.operationExecutor.address,
@@ -136,7 +128,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         depositAmount.toFixed(0),
       )
       txStatus = _txStatus
-      tx = _tx
 
       userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
       userStEthReserveData = await aaveDataProvider.getUserReserveData(
@@ -167,7 +158,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       let adjustStrategyIncreaseRisk: IStrategy
       const adjustMultipleUp = new BigNumber(3.5)
       let increaseRiskTxStatus: boolean
-      let increaseRiskTx: ContractReceipt
       let afterUserAccountData: AAVEAccountData
       let afterUserStEthReserveData: AAVEReserveData
       let actualPositionAfterIncreaseAdjust: IPosition
@@ -218,7 +208,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           { config, isFormatted: true },
         )
 
-        const [_txStatus, _tx] = await executeThroughProxy(
+        const [_txStatus] = await executeThroughProxy(
           system.common.dsProxy.address,
           {
             address: system.common.operationExecutor.address,
@@ -230,7 +220,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           signer,
         )
         increaseRiskTxStatus = _txStatus
-        increaseRiskTx = _tx
 
         afterUserAccountData = await aaveLendingPool.getUserAccountData(
           system.common.dsProxy.address,
@@ -393,7 +382,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       let adjustStrategyIncreaseRisk: IStrategy
       const adjustMultipleUp = new BigNumber(3.5)
       let increaseRiskTxStatus: boolean
-      let increaseRiskTx: ContractReceipt
       let afterUserAccountData: AAVEAccountData
       let afterUserStEthReserveData: AAVEReserveData
       let actualPositionAfterIncreaseAdjust: IPosition
@@ -444,7 +432,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           { config, isFormatted: true },
         )
 
-        const [_txStatus, _tx] = await executeThroughProxy(
+        const [_txStatus] = await executeThroughProxy(
           system.common.dsProxy.address,
           {
             address: system.common.operationExecutor.address,
@@ -456,7 +444,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           signer,
         )
         increaseRiskTxStatus = _txStatus
-        increaseRiskTx = _tx
 
         afterUserAccountData = await aaveLendingPool.getUserAccountData(
           system.common.dsProxy.address,
@@ -507,23 +494,19 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     const depositAmount = amountToWei(new BigNumber(60 / 1e15))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
-    let aaveStEthPriceInEth: BigNumber
 
     let system: DeployedSystemInfo
 
     let openStrategy: IStrategy
 
     let txStatus: boolean
-    let tx: ContractReceipt
 
     let userAccountData: AAVEAccountData
-    let userStEthReserveData: AAVEReserveData
-    let actualPosition: IPosition
 
     let feeRecipientWethBalanceBefore: BigNumber
 
     before(async () => {
-      ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
+      ;({ config, provider, signer } = await loadFixture(initialiseConfig))
       const testBlockThatWorksWithUSwap = 15695000
       const snapshot = await restoreSnapshot(config, provider, testBlockThatWorksWithUSwap)
       system = snapshot.deployed.system
@@ -553,7 +536,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         { config, isFormatted: true },
       )
 
-      const [_txStatus, _tx] = await executeThroughProxy(
+      const [_txStatus] = await executeThroughProxy(
         system.common.dsProxy.address,
         {
           address: system.common.operationExecutor.address,
@@ -566,30 +549,8 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         depositAmount.toFixed(0),
       )
       txStatus = _txStatus
-      tx = _tx
 
       userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
-      userStEthReserveData = await aaveDataProvider.getUserReserveData(
-        ADDRESSES.main.stETH,
-        system.common.dsProxy.address,
-      )
-
-      const aavePriceOracle = new ethers.Contract(
-        addresses.aavePriceOracle,
-        aavePriceOracleABI,
-        provider,
-      )
-
-      aaveStEthPriceInEth = await aavePriceOracle
-        .getAssetPrice(addresses.stETH)
-        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
-
-      actualPosition = new Position(
-        { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
-        { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
-        aaveStEthPriceInEth,
-        openStrategy.simulation.position.category,
-      )
     })
 
     it('Open Position Tx should pass', () => {
@@ -608,11 +569,8 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       let adjustStrategyReduceRisk: IStrategy
       const adjustMultipleDown = new BigNumber(1.5)
       let reduceRiskTxStatus: boolean
-      let reduceRiskTx: ContractReceipt
 
-      let afterUserAccountData: AAVEAccountData
       let afterUserStEthReserveData: AAVEReserveData
-      let actualPositionAfterDecreasingRisk: IPosition
 
       before(async () => {
         const addresses = {
@@ -660,7 +618,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           { config, isFormatted: true },
         )
 
-        const [_txStatus, _tx] = await executeThroughProxy(
+        const [_txStatus] = await executeThroughProxy(
           system.common.dsProxy.address,
           {
             address: system.common.operationExecutor.address,
@@ -672,22 +630,10 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           signer,
         )
         reduceRiskTxStatus = _txStatus
-        reduceRiskTx = _tx
-
-        afterUserAccountData = await aaveLendingPool.getUserAccountData(
-          system.common.dsProxy.address,
-        )
 
         afterUserStEthReserveData = await aaveDataProvider.getUserReserveData(
           ADDRESSES.main.stETH,
           system.common.dsProxy.address,
-        )
-
-        actualPositionAfterDecreasingRisk = new Position(
-          { amount: new BigNumber(afterUserAccountData.totalDebtETH.toString()) },
-          { amount: new BigNumber(afterUserStEthReserveData.currentATokenBalance.toString()) },
-          aaveStEthPriceInEth,
-          openStrategy.simulation.position.category,
         )
       })
 
@@ -758,11 +704,8 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     let txStatus: boolean
 
     let userAccountData: AAVEAccountData
-    let userStEthReserveData: AAVEReserveData
 
     let feeRecipientWethBalanceBefore: BigNumber
-
-    let actualPosition: IPosition
 
     before(async function () {
       const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
@@ -811,10 +754,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         txStatus = _txStatus
 
         userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
-        userStEthReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.stETH,
-          system.common.dsProxy.address,
-        )
 
         const aavePriceOracle = new ethers.Contract(
           addresses.aavePriceOracle,
@@ -825,13 +764,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         aaveStEthPriceInEth = await aavePriceOracle
           .getAssetPrice(addresses.stETH)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
-
-        actualPosition = new Position(
-          { amount: new BigNumber(userAccountData.totalDebtETH.toString()) },
-          { amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()) },
-          aaveStEthPriceInEth,
-          openStrategy.simulation.position.category,
-        )
       } else {
         this.skip()
       }
@@ -853,7 +785,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
       let adjustStrategyReduceRisk: IStrategy
       const adjustMultipleDown = new BigNumber(1.5)
       let reduceRiskTxStatus: boolean
-      let reduceRiskTx: ContractReceipt
 
       let afterReduceUserAccountData: AAVEAccountData
       let afterReduceUserStEthReserveData: AAVEReserveData
@@ -905,7 +836,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           { config, isFormatted: true },
         )
 
-        const [_txStatus, _tx] = await executeThroughProxy(
+        const [_txStatus] = await executeThroughProxy(
           system.common.dsProxy.address,
           {
             address: system.common.operationExecutor.address,
@@ -917,7 +848,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           signer,
         )
         reduceRiskTxStatus = _txStatus
-        reduceRiskTx = _tx
 
         afterReduceUserAccountData = await aaveLendingPool.getUserAccountData(
           system.common.dsProxy.address,

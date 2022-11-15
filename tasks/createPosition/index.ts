@@ -24,9 +24,13 @@ task('createPosition', 'Create stETH position on AAVE')
   .addOptionalParam('multiply', 'Required multiply', 2, types.float)
   .addFlag('dummyswap', 'Use dummy swap')
   .setAction(async (taskArgs, hre) => {
+    if (!process.env.SERVICE_REGISTRY_ADDRESS) {
+      throw new Error('SERVICE_REGISTRY_ADDRESS env variable is not set')
+    }
+
     const config = await init(hre)
 
-    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS!
+    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
 
     const serviceRegistryAbi = [
       {

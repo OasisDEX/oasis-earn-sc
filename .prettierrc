@@ -12,7 +12,7 @@
       "options": {
         "printWidth": 100,
         "tabWidth": 2,
-        "compiler": "0.7.6",
+        "compiler": "0.8.15",
         "useTabs": false,
         "singleQuote": false,
         "bracketSpacing": true,

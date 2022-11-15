@@ -104,7 +104,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         { config, isFormatted: true },
       )
 
-      const [_txStatus, _tx] = await executeThroughProxy(
+      const [_txStatus] = await executeThroughProxy(
         system.common.dsProxy.address,
         {
           address: system.common.operationExecutor.address,

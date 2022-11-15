@@ -20,11 +20,6 @@ import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { balanceOf } from '../../helpers/utils'
 import { one, zero } from '../../scripts/common'
 
-function amountToWei(amount: BigNumber.Value, precision = 18) {
-  BigNumber.config({ EXPONENTIAL_AT: 30 })
-  return new BigNumber(amount || 0).times(new BigNumber(10).pow(precision))
-}
-
 export function amountFromWei(amount: BigNumber.Value, precision = 18) {
   return new BigNumber(amount || 0).div(new BigNumber(10).pow(precision))
 }
@@ -33,9 +28,13 @@ task('closePosition', 'Close stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
   .addFlag('dummyswap', 'Use dummy swap')
   .setAction(async (taskArgs, hre) => {
+    if (!process.env.SERVICE_REGISTRY_ADDRESS) {
+      throw new Error('SERVICE_REGISTRY_ADDRESS env variable is not set')
+    }
+
     const config = await init(hre)
 
-    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS!
+    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
 
     const serviceRegistryAbi = [
       {

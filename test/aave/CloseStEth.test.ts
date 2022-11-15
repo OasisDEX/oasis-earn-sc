@@ -1,7 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
-  IPosition,
   IStrategy,
   ONE,
   OPERATION_NAMES,
@@ -18,7 +17,6 @@ import { Contract, ContractReceipt, ethers, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
-import ERC20ABI from '../../abi/IERC20.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { resetNodeToLatestBlock } from '../../helpers/init'
@@ -41,8 +39,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   // this value should be changed when changing block number
   const ethAmountReturnedFromSwap = amountFromWei(new BigNumber('107850'))
 
-  let WETH: Contract
-  let stETH: Contract
   let aaveLendingPool: Contract
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
@@ -61,7 +57,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
   let afterCloseUserAccountData: AAVEAccountData
   let afterCloseUserStEthReserveData: AAVEReserveData
-  let actualPosition: IPosition
 
   let feeRecipientWethBalanceBefore: BigNumber
   let userEthBalanceBeforeTx: BigNumber
@@ -86,8 +81,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       provider,
     )
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
-    WETH = new Contract(ADDRESSES.main.WETH, ERC20ABI, provider)
-    stETH = new Contract(ADDRESSES.main.stETH, ERC20ABI, provider)
   })
 
   describe('On forked chain', () => {
@@ -226,13 +219,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         afterCloseUserStEthReserveData = await aaveDataProvider.getUserReserveData(
           ADDRESSES.main.stETH,
           system.common.dsProxy.address,
-        )
-
-        actualPosition = new Position(
-          { amount: new BigNumber(afterCloseUserAccountData.totalDebtETH.toString()) },
-          { amount: new BigNumber(afterCloseUserStEthReserveData.currentATokenBalance.toString()) },
-          aaveStEthPriceInEth,
-          openStrategy.simulation.position.category,
         )
       })
 

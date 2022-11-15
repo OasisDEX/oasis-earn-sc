@@ -1,22 +1,10 @@
-// @ts-nocheck
 import '@nomiclabs/hardhat-ethers'
 
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
-import { HardhatRuntimeEnvironment } from 'hardhat/types/runtime'
-import {
-  CallOverrides,
-  constants,
-  Contract,
-  ethers,
-  Signer,
-  utils,
-  BigNumber as EthersBN,
-  BaseContract,
-} from 'ethers'
-import R from 'ramda'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 import {
+  BaseContract,
   BigNumber as EthersBN,
   CallOverrides,
   constants,
@@ -27,17 +15,17 @@ import {
 } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types/runtime'
 import NodeCache from 'node-cache'
-import R from 'ramda'
+import { hasPath } from 'ramda'
 
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { coalesceNetwork, ETH_ADDRESS, getAddressesFor } from './addresses'
 import { DeployedSystem } from './deploy-system'
 import { EtherscanGasPrice, Network } from './types'
-import { isLocalNetwork } from './utils'
 
 export class HardhatUtils {
   private readonly _cache = new NodeCache()
   public readonly addresses
+
   constructor(public readonly hre: HardhatRuntimeEnvironment, public readonly forked?: Network) {
     this.addresses = getAddressesFor(this.forked || this.hre.network.name)
   }
@@ -107,7 +95,7 @@ export class HardhatUtils {
       ),
       aavePayback: await this.getContractAt(
         CONTRACT_NAMES.aave.PAYBACK,
-        this.addresses.AAVE_PAYBACK_ACTION
+        this.addresses.AAVE_PAYBACK_ACTION,
       ),
       pullToken: await this.getContractAt(
         CONTRACT_NAMES.common.PULL_TOKEN,
@@ -135,12 +123,12 @@ export class HardhatUtils {
       ),
       wrapEth: await this.getContractAt(
         CONTRACT_NAMES.common.WRAP_ETH,
-        this.addresses.WRAP_ETH_ACTION
+        this.addresses.WRAP_ETH_ACTION,
       ),
       returnFunds: await this.getContractAt(
         CONTRACT_NAMES.common.RETURN_FUNDS,
-        this.addresses.RETURN_FUNDS_ACTION
-      )
+        this.addresses.RETURN_FUNDS_ACTION,
+      ),
     }
   }
 
@@ -182,13 +170,13 @@ export class HardhatUtils {
     }
   }
 
-  public async getOrCreateProxy(address: string, signer?: Signer) {
+  public async getOrCreateProxy(address: string, signer: Signer) {
     const proxyRegistry = await this.hre.ethers.getContractAt(
       DS_PROXY_REGISTRY_ABI,
       this.addresses.PROXY_REGISTRY,
     )
 
-    await proxyRegistry.connect(signer!)
+    await proxyRegistry.connect(signer)
 
     let proxyAddr = await proxyRegistry.proxies(address)
     if (proxyAddr === constants.AddressZero) {
@@ -275,7 +263,7 @@ export class HardhatUtils {
 
   private abiEncodeArgs(deployed: any, contractArgs: any[]) {
     // not writing abi encoded args if this does not pass
-    if (!contractArgs || !deployed || !R.hasPath(['interface', 'deploy'], deployed)) {
+    if (!contractArgs || !deployed || hasPath(['interface', 'deploy'], deployed)) {
       return ''
     }
     const encoded = utils.defaultAbiCoder.encode(deployed.interface.deploy.inputs, contractArgs)
