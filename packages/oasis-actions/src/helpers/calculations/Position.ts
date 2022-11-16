@@ -178,7 +178,6 @@ export class Position implements IPosition {
     if (targetLTV.gt(this.riskRatio.loanToValue)) {
       isIncreasingRisk = true
     }
-    console.log('isIncreasingRisk:', isIncreasingRisk)
 
     const { depositedByUser, fees, prices, slippage, flashloan, debug } = params
     const { maxLoanToValueFL: _maxLoanToValueFL } = flashloan
