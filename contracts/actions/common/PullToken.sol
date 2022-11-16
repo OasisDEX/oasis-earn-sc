@@ -22,7 +22,7 @@ contract PullToken is Executable {
 
     IERC20(pull.asset).safeTransferFrom(pull.from, address(this), pull.amount);
 
-    emit Action(PULL_TOKEN_ACTION, bytes32(pull.amount));
+    emit Action(PULL_TOKEN_ACTION, bytes(abi.encode(pull.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (PullTokenData memory params) {

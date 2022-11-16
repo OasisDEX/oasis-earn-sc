@@ -21,6 +21,6 @@ contract PullToProxy is Executable {
 
     IERC20(pull.asset).safeTransferFrom(msg.sender, address(this), pull.amount);
 
-    emit Action(PULL_TO_PROXY_ACTION, bytes32(abi.encodePacked(pull.amount, pull.asset)));
+    emit Action(PULL_TO_PROXY_ACTION, bytes(abi.encode(pull.amount, pull.asset)));
   }
 }

@@ -29,6 +29,6 @@ contract ReturnFunds is Executable {
       IERC20(returnData.asset).safeTransfer(owner, amount);
     }
 
-    emit Action(RETURN_FUNDS_ACTION, bytes32(abi.encodePacked(amount, returnData.asset)));
+    emit Action(RETURN_FUNDS_ACTION, bytes(abi.encode(amount, returnData.asset)));
   }
 }

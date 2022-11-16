@@ -20,7 +20,6 @@ export async function decreaseMultiple(
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
-  console.log('DECREASING')
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,
     asset: addresses.DAI,

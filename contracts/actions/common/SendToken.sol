@@ -24,7 +24,7 @@ contract SendToken is Executable {
       IERC20(send.asset).safeTransfer(send.to, send.amount);
     }
 
-    emit Action(SEND_TOKEN_ACTION, bytes32(send.amount));
+    emit Action(SEND_TOKEN_ACTION, bytes(abi.encode(send.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (SendTokenData memory params) {
