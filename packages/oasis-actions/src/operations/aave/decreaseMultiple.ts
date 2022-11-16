@@ -36,7 +36,7 @@ export async function decreaseMultiple(
 
   const withdrawCollateralFromAAVE = actions.aave.aaveWithdraw({
     amount: args.withdrawAmountInWei,
-    asset: args.debtTokenAddress,
+    asset: args.collateralTokenAddress,
     to: args.proxy,
   })
 
