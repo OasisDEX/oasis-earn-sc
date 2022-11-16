@@ -242,7 +242,11 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     }
 
     describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+<<<<<<< HEAD
       const depositEthAmount = amountToWei(new BigNumber(1))
+=======
+      const depositEthAmount = amountToWei(new BigNumber(60 / 1e15))
+>>>>>>> 32f2992 (refactor: (WIP) complete refactor of Adjust multiple down tests)
 
       let userStEthReserveData: AAVEReserveData
       let userWethReserveData: AAVEReserveData
@@ -409,7 +413,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe.skip(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
+    describe(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
@@ -490,7 +494,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe.skip(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
+    describe(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData

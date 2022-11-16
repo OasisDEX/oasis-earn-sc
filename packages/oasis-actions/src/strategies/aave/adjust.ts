@@ -241,10 +241,13 @@ async function _increaseRisk({
   console.log('EXISTING IN ADJUST')
   console.log('DEBT:', existingPosition.debt.amount.toString())
 
+<<<<<<< HEAD
   // Params
   const depositedDebtTokensInWei = args.depositedByUser?.debtInWei || ZERO
 
 >>>>>>> e7706c6 (refactor: adjuststeth tests)
+=======
+>>>>>>> 32f2992 (refactor: (WIP) complete refactor of Adjust multiple down tests)
   const swapData = {
     ...(await dependencies.getSwapData(
       debtTokenAddress,
@@ -275,11 +278,15 @@ async function _increaseRisk({
   )
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   const _depositDebtAmountInWei = depositDebtAmountInWei || ZERO
   const borrowAmountInWei = target.delta.debt.minus(_depositDebtAmountInWei)
 =======
   const borrowAmountInWei = target.delta.debt.minus(depositedDebtTokensInWei)
 >>>>>>> e7706c6 (refactor: adjuststeth tests)
+=======
+  const borrowAmountInWei = target.delta.debt.minus(depositDebtAmountInWei)
+>>>>>>> 32f2992 (refactor: (WIP) complete refactor of Adjust multiple down tests)
   const precisionAdjustedBorrowAmount = amountToWei(
     amountFromWei(borrowAmountInWei),
     args.debtToken.precision || TYPICAL_PRECISION,
@@ -376,6 +383,11 @@ async function _decreaseRisk({
   collectFeeFrom,
   collateralTokenAddress,
   debtTokenAddress,
+<<<<<<< HEAD
+=======
+  depositDebtAmountInWei,
+  depositCollateralAmountInWei,
+>>>>>>> 32f2992 (refactor: (WIP) complete refactor of Adjust multiple down tests)
   aaveCollateralTokenPriceInEth,
   args,
   dependencies,
@@ -421,14 +433,19 @@ async function _decreaseRisk({
    */
   const absFlashloanAmount = (target.delta?.flashloanAmount || ZERO).abs()
 
+  console.log('SWAP BEFORE FEES:', swapAmountBeforeFees.toString())
   const operation = await operations.aave.decreaseMultiple(
     {
       flashloanAmount: absFlashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : absFlashloanAmount,
+<<<<<<< HEAD
 <<<<<<< HEAD
       withdrawAmountInWei: precisionAdjustedWithdrawAmount,
 =======
       withdrawAmountInWei: withdrawCollateralAmountWei,
 >>>>>>> e7706c6 (refactor: adjuststeth tests)
+=======
+      withdrawAmountInWei: precisionAdjustedWithdrawAmount,
+>>>>>>> 32f2992 (refactor: (WIP) complete refactor of Adjust multiple down tests)
       receiveAtLeast: swapData.minToTokenAmount,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
