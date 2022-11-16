@@ -29,9 +29,9 @@
     "deploy:fallback": "yarn compile && npx hardhat deploy --usefallbackswap --network local --debug",
     "deploy:1inch": "yarn compile && npx hardhat deploy --network local --debug",
     "steth": "npx hardhat createPosition --network local",
-    "steth:fallback": "npx hardhat createPosition --dummyswap --network local",
+    "steth:fallback": "npx hardhat createPosition --usefallbackswap --network local",
     "close": "npx hardhat closePosition --network local",
-    "close:fallback": "npx hardhat closePosition --dummyswap --network local"
+    "close:fallback": "npx hardhat closePosition --usefallbackswap --network local"
   },
   "devDependencies": {
     "@google-cloud/local-auth": "2.1.1",
