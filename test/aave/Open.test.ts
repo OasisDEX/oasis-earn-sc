@@ -216,18 +216,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         oracle,
         positionTransition.simulation.position.category,
       )
-      console.log(
-        'debt:',
-        new BigNumber(userDebtReserveData.currentVariableDebt.toString()).toString(),
-      )
-      console.log('debt precision:', debtToken.precision)
-      console.log(
-        'coll:',
-        new BigNumber(userCollateralReserveData.currentATokenBalance.toString()).toString(),
-      )
-      console.log('coll precision:', collateralToken.precision)
-      console.log('actualPosition multiple:', actualPosition.riskRatio.multiple.toString())
-      console.log('oracle:', oracle.toString())
 
       return {
         system,
