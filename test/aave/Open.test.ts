@@ -409,7 +409,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe.skip(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
+    describe(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
@@ -490,7 +490,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe.skip(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
+    describe(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData

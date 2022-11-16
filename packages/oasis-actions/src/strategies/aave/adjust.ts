@@ -237,9 +237,6 @@ async function _increaseRisk({
   console.log('EXISTING IN ADJUST')
   console.log('DEBT:', existingPosition.debt.amount.toString())
 
-  // Params
-  const depositedDebtTokensInWei = args.depositedByUser?.debtInWei || ZERO
-
   const swapData = {
     ...(await dependencies.getSwapData(
       debtTokenAddress,
@@ -269,7 +266,7 @@ async function _increaseRisk({
     actualSwapBase18ToTokenAmount,
   )
 
-  const borrowAmountInWei = target.delta.debt.minus(depositedDebtTokensInWei)
+  const borrowAmountInWei = target.delta.debt.minus(depositDebtAmountInWei)
   const precisionAdjustedBorrowAmount = amountToWei(
     amountFromWei(borrowAmountInWei),
     args.debtToken.precision || TYPICAL_PRECISION,
@@ -352,6 +349,7 @@ async function _decreaseRisk({
   collateralTokenAddress,
   debtTokenAddress,
   depositDebtAmountInWei,
+  depositCollateralAmountInWei,
   aaveCollateralTokenPriceInEth,
   args,
   dependencies,
@@ -386,18 +384,22 @@ async function _decreaseRisk({
     actualSwapBase18ToTokenAmount,
   )
 
+  const withdrawCollateralAmountWei = target.delta.collateral.abs()
+  const precisionAdjustedWithdrawAmount = amountToWei(
+    amountFromWei(withdrawCollateralAmountWei),
+    args.collateralToken.precision || TYPICAL_PRECISION,
+  )
   /*
    * The Maths can produce negative amounts for flashloan on decrease
    * because it's calculated using Debt Delta which will be negative
    */
   const absFlashloanAmount = (target.delta?.flashloanAmount || ZERO).abs()
-  // TODO: Precision check here!!
-  const withdrawCollateralAmountWei = target.delta.collateral.abs()
 
+  console.log('SWAP BEFORE FEES:', swapAmountBeforeFees.toString())
   const operation = await operations.aave.decreaseMultiple(
     {
       flashloanAmount: absFlashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : absFlashloanAmount,
-      withdrawAmountInWei: withdrawCollateralAmountWei,
+      withdrawAmountInWei: precisionAdjustedWithdrawAmount,
       receiveAtLeast: swapData.minToTokenAmount,
       fee: FEE,
       swapData: swapData.exchangeCalldata,

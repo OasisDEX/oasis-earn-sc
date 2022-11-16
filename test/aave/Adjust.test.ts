@@ -85,7 +85,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       adjustToMultiple: BigNumber,
       mockMarketPriceOnOpen: BigNumber,
       mockMarketPriceOnAdjust: BigNumber,
-      isFeeFromSourceToken: boolean,
+      isFeeFromSourceTokenOnOpen: boolean,
+      isFeeFromSourceTokenOnAdjust: boolean,
       blockNumber?: number,
     ) {
       const _blockNumber = blockNumber || testBlockNumber
@@ -137,7 +138,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             symbol: collateralToken.symbol,
             precision: collateralToken.precision,
           },
-          collectSwapFeeFrom: isFeeFromSourceToken ? 'sourceToken' : 'targetToken',
+          collectSwapFeeFrom: isFeeFromSourceTokenOnOpen ? 'sourceToken' : 'targetToken',
         },
         {
           addresses,
@@ -247,6 +248,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       console.log('oracle:', oracle.toString())
 
       // Now adjust the position
+      const isIncreasingRisk = adjustToMultiple.gte(positionAfterOpen.riskRatio.multiple)
       const positionMutation = await strategies.aave.adjust(
         {
           depositedByUser: {
@@ -260,24 +262,35 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             symbol: collateralToken.symbol,
             precision: collateralToken.precision,
           },
-          collectSwapFeeFrom: isFeeFromSourceToken ? 'sourceToken' : 'targetToken',
+          collectSwapFeeFrom: isFeeFromSourceTokenOnAdjust ? 'sourceToken' : 'targetToken',
         },
         {
           addresses,
           provider,
           position: positionAfterOpen,
           getSwapData: oneInchCallMock(mockMarketPriceOnAdjust, {
-            from: debtToken.precision,
-            to: collateralToken.precision,
+            from: isIncreasingRisk ? debtToken.precision : collateralToken.precision,
+            to: isIncreasingRisk ? collateralToken.precision : debtToken.precision,
           }),
           proxy: system.common.dsProxy.address,
         },
       )
 
-      const isIncreasingRisk = positionMutation.simulation.flags.isIncreasingRisk
-
+      let isFeeFromDebtToken = true
+      if (isIncreasingRisk && isFeeFromSourceTokenOnAdjust) {
+        isFeeFromDebtToken = true
+      }
+      if (isIncreasingRisk && !isFeeFromSourceTokenOnAdjust) {
+        isFeeFromDebtToken = false
+      }
+      if (!isIncreasingRisk && isFeeFromSourceTokenOnAdjust) {
+        isFeeFromDebtToken = false
+      }
+      if (!isIncreasingRisk && !isFeeFromSourceTokenOnAdjust) {
+        isFeeFromDebtToken = true
+      }
       const feeRecipientBalanceBeforeAdjust = await balanceOf(
-        isIncreasingRisk ? debtToken.address : collateralToken.address,
+        isFeeFromDebtToken ? debtToken.address : collateralToken.address,
         ADDRESSES.main.feeRecipient,
         { config },
       )
@@ -416,6 +429,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           new BigNumber(0.9759),
           new BigNumber(0.9759),
           true,
+          true,
         )
         address = setup.address
         system = setup.system
@@ -510,6 +524,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           new BigNumber(1351),
           new BigNumber(1351),
           true,
+          true,
         )
         address = setup.address
         system = setup.system
@@ -569,7 +584,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       })
     })
 
-    describe(`Increase Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
+    describe.skip(`Increase Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
       const adjustMultipleUp = new BigNumber(3.5)
 
@@ -602,6 +617,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           adjustMultipleUp,
           new BigNumber(20032),
           new BigNumber(20032),
+          true,
           true,
         )
         address = setup.address
@@ -655,6 +671,101 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
 
         expectToBe(positionMutation.simulation.swap.tokenFee, 'lte', actualUSDCFees)
+      })
+    })
+
+    describe(`Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+      const depositAmount = amountToWei(new BigNumber(1))
+      const adjustMultipleDown = new BigNumber(1.5)
+
+      let userStEthReserveData: AAVEReserveData
+      let userWethReserveData: AAVEReserveData
+      let userEthBalanceBeforeTx: BigNumber
+      let userAccountData: AAVEAccountData
+      let feeRecipientWethBalanceBefore: BigNumber
+      let finalPosition: IPosition
+      let system: DeployedSystemInfo
+      let address: string
+
+      before(async () => {
+        const setup = await setupAdjustPositionTest(
+          {
+            depositOnOpenAmountInWei: ZERO,
+            depositOnAdjustAmountInWei: ZERO,
+            symbol: tokens.STETH,
+            address: ADDRESSES.main.stETH,
+            precision: 18,
+            isEth: false,
+          },
+          {
+            depositOnOpenAmountInWei: depositAmount,
+            depositOnAdjustAmountInWei: ZERO,
+            symbol: tokens.ETH,
+            address: ADDRESSES.main.WETH,
+            precision: 18,
+            isEth: true,
+          },
+          adjustMultipleDown,
+          new BigNumber(0.9759),
+          ONE.div(new BigNumber(0.9759)),
+          true,
+          false,
+        )
+        address = setup.address
+        system = setup.system
+        txStatus = setup.txStatus
+        tx = setup.tx
+        openTxStatus = setup.openTxStatus
+        positionMutation = setup.positionMutation
+        finalPosition = setup.finalPosition
+        positionAfterOpen = setup.positionAfterOpen
+        userStEthReserveData = setup.userCollateralReserveData
+        userWethReserveData = setup.userDebtReserveData
+        userAccountData = setup.userAccountData
+        feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
+        userEthBalanceBeforeTx = setup.userEthBalanceBeforeTx
+      })
+
+      it('Open Tx should pass', () => {
+        expect(openTxStatus).to.be.true
+      })
+
+      it('Adjust Tx should pass', () => {
+        expect(txStatus).to.be.true
+      })
+
+      it('Should draw debt according to multiple', async () => {
+        expectToBe(
+          finalPosition.debt.amount.toString(),
+          'gte',
+          positionMutation.simulation.position.debt.amount.toString(),
+        )
+      })
+
+      it('Should collect fee', async () => {
+        const feeRecipientWethBalanceAfter = await balanceOf(
+          ADDRESSES.main.WETH,
+          ADDRESSES.main.feeRecipient,
+          { config },
+        )
+        console.log('FEE')
+        console.log('feeRecipientWethBalanceBefore:', feeRecipientWethBalanceBefore.toString())
+        console.log('feeRecipientWethBalanceAfter:', feeRecipientWethBalanceAfter.toString())
+
+        const actualWethFees = feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore)
+        console.log('actualWethFees', actualWethFees.toString())
+        // Test for equivalence within slippage adjusted range when taking fee from target token
+        expectToBe(
+          new BigNumber(
+            positionMutation.simulation.swap.tokenFee
+              .div(ONE.minus(slippage).minus(TESTING_OFFSET))
+              .toString(),
+          ).toFixed(0),
+          'gte',
+          actualWethFees,
+        )
+
+        expectToBe(positionMutation.simulation.swap.tokenFee, 'lte', actualWethFees)
       })
     })
 
