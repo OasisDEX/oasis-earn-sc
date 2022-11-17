@@ -1,7 +1,7 @@
 import { Contract, ContractReceipt, Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { removeAllVersions } from '../scripts/common/utils'
 
+import { removeAllVersions } from '../scripts/common/utils'
 import { Debug, WithRuntimeConfig } from './types/common'
 
 type DeployOptions = WithRuntimeConfig & Debug
