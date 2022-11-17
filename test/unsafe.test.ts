@@ -1,14 +1,26 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
+import {
+  ADDRESSES,
+  CONTRACT_NAMES,
+  ONE,
+  OPERATION_NAMES,
+  TEN,
+  TEN_THOUSAND,
+  ZERO,
+} from '@oasisdex/oasis-actions'
+import { pullToken } from '@oasisdex/oasis-actions/lib/src/actions/common'
 import { takeAFlashLoan } from '@oasisdex/oasis-actions/src/actions/common'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
+import { Signer } from 'ethers'
 import hre from 'hardhat'
 
 import { createDeploy, executeThroughProxy } from '../helpers/deploy'
 import init from '../helpers/init'
 import { getOrCreateProxy } from '../helpers/proxy'
+import { swapUniswapTokens } from '../helpers/swap/uniswap'
+import { amountToWei, approve, balanceOf } from '../helpers/utils'
 import { getAddressesFor, getServiceNameHash, Network } from '../scripts/common'
-import { expectRevert } from './utils'
+import { expectRevert, expectToBeEqual } from './utils'
 
 const ethers = hre.ethers
 
@@ -123,5 +135,128 @@ describe('OperationExecutor', () => {
     )
 
     expect(success).to.be.false
+  })
+})
+
+describe('OperationStorage', () => {
+  it('should allow the operation in a direct call to continue even when someone called lock on it', async () => {
+    const THOUSAND = new BigNumber('1000')
+    const config = await init()
+    const signer = config.signer
+    const spoofer = config.provider.getSigner(3)
+    const addresses = getAddressesFor(Network.MAINNET)
+    const OperationStorage = await ethers.getContractAt(
+      'OperationStorage',
+      addresses.OPERATION_STORAGE,
+      spoofer,
+    )
+
+    const OperationExecutor = await ethers.getContractAt(
+      'OperationExecutor',
+      addresses.OPERATION_EXECUTOR,
+      signer,
+    )
+
+    await swapUniswapTokens(
+      addresses.WETH,
+      addresses.DAI,
+      amountToWei(TEN).toFixed(0),
+      amountToWei(TEN_THOUSAND).toFixed(0),
+      config.address,
+      config,
+    )
+
+    let opExecBalance = await balanceOf(addresses.DAI, OperationExecutor.address, {
+      config,
+      isFormatted: true,
+    })
+
+    expect(opExecBalance.toString(), ZERO.toString())
+    await OperationStorage.lock()
+
+    await approve(addresses.DAI, OperationExecutor.address, amountToWei(THOUSAND), config)
+
+    await OperationExecutor.executeOp(
+      [pullToken({ amount: amountToWei(THOUSAND), asset: addresses.DAI, from: config.address })],
+      OPERATION_NAMES.common.CUSTOM_OPERATION,
+    )
+
+    opExecBalance = await balanceOf(addresses.DAI, OperationExecutor.address, {
+      config,
+      isFormatted: true,
+    })
+
+    expectToBeEqual(opExecBalance.toString(), THOUSAND.toString())
+  })
+
+  it('should allow the operation in a delegated call to continue even when someone called lock on it', async () => {
+    const THOUSAND = new BigNumber('1000')
+    const config = await init()
+    const signer = config.signer
+    const spoofer = config.provider.getSigner(3)
+    const addresses = getAddressesFor(Network.MAINNET)
+    const proxyAddress = await getOrCreateProxy(config.signer)
+    const OperationStorage = await ethers.getContractAt(
+      'OperationStorage',
+      addresses.OPERATION_STORAGE,
+      spoofer,
+    )
+
+    const OperationExecutor = await ethers.getContractAt(
+      'OperationExecutor',
+      addresses.OPERATION_EXECUTOR,
+      signer,
+    )
+
+    await swapUniswapTokens(
+      addresses.WETH,
+      addresses.DAI,
+      amountToWei(TEN).toFixed(0),
+      amountToWei(TEN_THOUSAND).toFixed(0),
+      config.address,
+      config,
+    )
+
+    let proxyAddressBalance = await balanceOf(addresses.DAI, proxyAddress, {
+      config,
+      isFormatted: true,
+    })
+
+    expect(proxyAddressBalance.toString(), ZERO.toString())
+    await OperationStorage.lock()
+
+    await approve(addresses.DAI, proxyAddress, amountToWei(THOUSAND), config)
+
+    await executeThroughProxy(
+      proxyAddress,
+      {
+        address: OperationExecutor.address,
+        calldata: OperationExecutor.interface.encodeFunctionData('executeOp', [
+          [
+            takeAFlashLoan({
+              flashloanAmount: new BigNumber(1),
+              borrower: proxyAddress,
+              dsProxyFlashloan: false,
+              calls: [
+                pullToken({
+                  amount: amountToWei(THOUSAND),
+                  asset: addresses.DAI,
+                  from: config.address,
+                }),
+              ],
+            }),
+          ],
+          OPERATION_NAMES.common.CUSTOM_OPERATION,
+        ]),
+      },
+      config.signer,
+    )
+
+    proxyAddressBalance = await balanceOf(addresses.DAI, OperationExecutor.address, {
+      config,
+      isFormatted: true,
+    })
+
+    expectToBeEqual(proxyAddressBalance.toString(), THOUSAND.toString())
   })
 })
