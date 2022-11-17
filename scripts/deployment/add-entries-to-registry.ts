@@ -3,7 +3,7 @@ import { constants } from 'ethers'
 import fs from 'fs'
 import hre from 'hardhat'
 
-import { getServiceNameHash, HardhatUtils, removePatchVersionFromServiceName } from '../common'
+import { getServiceNameHash, HardhatUtils, removePatchVersion } from '../common'
 
 /**
  * This is a convenience script.
@@ -95,7 +95,7 @@ function printEntries(entries: Entry[]) {
 
 function createEntry(label: string, contractName: string, address: string | undefined): Entry {
   const hash = getServiceNameHash(contractName)
-  const trimmedServiceName = removePatchVersionFromServiceName(contractName)
+  const trimmedServiceName = removePatchVersion(contractName)
 
   return { label, contractName, nameToHash: trimmedServiceName, hash, address }
 }

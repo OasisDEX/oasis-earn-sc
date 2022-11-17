@@ -12,7 +12,7 @@ export class ServiceRegistry {
 
   async addEntry(label: ContractNames, address: string, debug = false): Promise<string> {
     const ethers = (await import('hardhat')).ethers
-    const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
+    const entryHash = utils.keccak256(utils.toUtf8Bytes(this._removePatchVersion(label)))
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     await registry.addNamedService(entryHash, address)
 
@@ -33,5 +33,12 @@ export class ServiceRegistry {
     const ethers = (await import('hardhat')).ethers
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     return registry.getRegisteredService(label)
+  }
+
+  _removePatchVersion(service: string): string {
+    const splitArray = service.split('_')
+    const hasVersions = splitArray.length >= 4
+    const indexToIgnorePatch = hasVersions ? splitArray.length - 1 : splitArray.length
+    return splitArray.slice(0, indexToIgnorePatch).join('_')
   }
 }

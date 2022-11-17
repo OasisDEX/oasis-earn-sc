@@ -43,7 +43,7 @@ That will output the deployed contract name and the corresponding address
 1. Running a node is as simple as writing in a shell prompt:
 
 ```shell
-npx hardhat node --max-memory 8192 --fork <ALCHEMY_API_URL>
+npx hardhat node --max-memory 8192 --fork <MAINNET_URL>
 ```
 
 2. Deploying the system against the node you've spun up

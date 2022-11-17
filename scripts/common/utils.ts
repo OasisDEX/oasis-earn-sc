@@ -16,15 +16,24 @@ export function isLocalNetwork(network: string) {
 }
 
 export function getServiceNameHash(service: string) {
-  const stripPatchVersion = removePatchVersionFromServiceName(service)
+  const stripPatchVersion = removePatchVersion(service)
 
   return utils.keccak256(Buffer.from(stripPatchVersion))
 }
 
-export function removePatchVersionFromServiceName(service: string) {
+export function removePatchVersion(service: string) {
   const splitArray = service.split('_')
-  const indexToIgnorePatch = splitArray.length - 1
+  const hasVersions = splitArray.length >= 4
+  const indexToIgnorePatch = hasVersions ? splitArray.length - 1 : splitArray.length
   return splitArray.slice(0, indexToIgnorePatch).join('_')
+}
+
+export function removeAllVersions(service: string) {
+  const splitArray = service.split('_')
+  const hasVersions = splitArray.length >= 4
+
+  const indexToIgnoreAll = hasVersions ? splitArray.length - 3 : 1
+  return splitArray.slice(0, indexToIgnoreAll).join('')
 }
 
 export function getEvents(receipt: ContractReceipt, eventAbi: utils.EventFragment) {
