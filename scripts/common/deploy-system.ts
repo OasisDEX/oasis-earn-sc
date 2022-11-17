@@ -2,30 +2,31 @@ import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 
 import {
-  McdView,
-  ServiceRegistry,
-  OperationExecutor,
-  OperationStorage,
-  OperationsRegistry,
-  Swap,
-  MakerOpenVault,
+  AaveBorrow,
+  AaveDeposit,
+  AavePayback,
+  AaveWithdraw,
   CdpAllow,
   MakerDeposit,
   MakerGenerate,
+  MakerOpenVault,
   MakerPayback,
   MakerWithdraw,
-  AaveBorrow,
-  AaveDeposit,
-  AaveWithdraw,
+  McdView,
+  OperationExecutor,
+  OperationsRegistry,
+  OperationStorage,
   PullToken,
+  PullToProxy,
+  ReturnFunds,
   SendToken,
+  ServiceRegistry,
   SetApproval,
+  Swap,
   SwapAction,
   TakeFlashloan,
   UnwrapEth,
   WrapEth,
-  ReturnFunds,
-  AavePayback,
 } from '../../typechain'
 import { AddressRegistry } from './addresses'
 import { HardhatUtils } from './hardhat.utils'
@@ -56,6 +57,7 @@ export interface DeployedSystem {
   unwrapEth?: UnwrapEth
   wrapEth?: WrapEth
   returnFunds?: ReturnFunds
+  pullToProxy?: PullToProxy
 }
 
 export interface DeploySystemArgs {

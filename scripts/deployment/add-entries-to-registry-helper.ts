@@ -26,12 +26,11 @@ async function main() {
 
   const entries = []
 
-  console.log('!REMEMBER!')
+  console.log('DEBUG: !REMEMBER!')
   console.log(
     'Double check the contract names versions used in Action events \n and deployed contract names align used in SR hashes align \n',
   )
 
-  console.log(`PRINTING SERVICE REGISTRY ENTRIES`)
   entries.push(
     createEntry(`PullToken action`, CONTRACT_NAMES.common.PULL_TOKEN, system.pullToken?.address),
   )
@@ -85,7 +84,10 @@ async function main() {
     createEntry(`AavePayback action`, CONTRACT_NAMES.aave.PAYBACK, system.aavePayback?.address),
   )
 
+  console.log('DEBUG: PRINTING ENTRIES TO CONSOLE')
   printEntries(entries)
+
+  console.log('DEBUG: SAVING ENTRIES TO CONSOLE')
   saveEntriesToFile(entries)
 }
 

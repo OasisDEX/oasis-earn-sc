@@ -1,21 +1,10 @@
 import '@nomiclabs/hardhat-ethers'
 
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
-import { HardhatRuntimeEnvironment } from 'hardhat/types/runtime'
-import {
-  CallOverrides,
-  constants,
-  Contract,
-  ethers,
-  Signer,
-  utils,
-  BigNumber as EthersBN,
-  BaseContract,
-} from 'ethers'
-import R from 'ramda'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 import {
+  BaseContract,
   BigNumber as EthersBN,
   CallOverrides,
   constants,
@@ -32,7 +21,6 @@ import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { coalesceNetwork, ETH_ADDRESS, getAddressesFor } from './addresses'
 import { DeployedSystem } from './deploy-system'
 import { EtherscanGasPrice, Network } from './types'
-import { isLocalNetwork } from './utils'
 
 export class HardhatUtils {
   private readonly _cache = new NodeCache()
@@ -140,6 +128,10 @@ export class HardhatUtils {
       returnFunds: await this.getContractAt(
         CONTRACT_NAMES.common.RETURN_FUNDS,
         this.addresses.RETURN_FUNDS_ACTION,
+      ),
+      pullToProxy: await this.getContractAt(
+        CONTRACT_NAMES.common.PULL_TO_PROXY,
+        this.addresses.PULL_TO_PROXY_ACTION,
       ),
     }
   }
