@@ -34,6 +34,11 @@ export async function open(
   if (!debtTokenAddress)
     throw new Error('Debt token not recognised or address missing in dependencies')
 
+  /**
+   * We've add current Position into all strategy dependencies
+   * It turned out that after opening and then closing a position there might be artifacts
+   * Left in a position that make it difficult to re-open it
+   */
   const currentPosition = dependencies.currentPosition
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,

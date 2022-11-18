@@ -35,6 +35,12 @@ export interface IPositionTransitionArgs<Tokens>
 
 export type Address = string
 
+export interface IViewPositionParams<Tokens> {
+  proxy: string
+  collateralToken: { symbol: Tokens; precision?: number }
+  debtToken: { symbol: Tokens; precision?: number }
+}
+
 /**
  * We've add current Position into all strategy dependencies
  * It turned out that after opening and then closing a position there might be artifacts
@@ -51,9 +57,14 @@ export interface IMutationDependencies<Addresses> {
     slippage: BigNumber,
   ) => Promise<SwapData>
   proxy: Address
-
   user: Address
 }
+
+export interface IViewPositionDependencies<Addresses> {
+  addresses: Addresses
+  provider: providers.Provider
+}
+
 export interface IPositionRepository<Addresses> {
   open: (
     args: IPositionTransitionArgs<AAVETokens>,
@@ -67,5 +78,8 @@ export interface IPositionRepository<Addresses> {
     args: IPositionTransitionArgs<AAVETokens>,
     dependencies: IMutationDependencies<Addresses>,
   ) => Promise<IPositionTransition>
-  view: (args: unknown) => Promise<IPosition> // Not being implemented yet
+  view: (
+    args: IViewPositionParams<AAVETokens>,
+    dependencies: IViewPositionDependencies<Addresses>,
+  ) => Promise<IPosition>
 }

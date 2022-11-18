@@ -110,15 +110,18 @@ task('createPosition', 'Create stETH position on AAVE')
     const multiply = new BigNumber(taskArgs.multiply)
     const slippage = new BigNumber(0.1)
 
-    
-    const currentPosition = await strategies.aave.getCurrentStEthEthPosition(
-      { proxyAddress: dsProxy.address },
+    const debtToken = { symbol: 'ETH' as const }
+    const collateralToken = { symbol: 'STETH' as const }
+    const proxy = dsProxy.address
+    const currentPosition = await strategies.aave.view(
+      { proxy: dsProxy.address, debtToken, collateralToken },
       {
         addresses: {
-          stETH: ADDRESSES.main.stETH,
-          aavePriceOracle: aavePriceOracle.address,
-          aaveLendingPool: aaveLendingPool.address,
-          aaveDataProvider: aaveDataProvider.address,
+          // stETH: ADDRESSES.main.stETH,
+          // aavePriceOracle: aavePriceOracle.address,
+          // aaveLendingPool: aaveLendingPool.address,
+          // aaveProtocolDataProvider: aaveDataProvider.address,
+          ...mainnetAddresses,
         },
         provider: config.provider,
       },
@@ -129,16 +132,16 @@ task('createPosition', 'Create stETH position on AAVE')
         depositedByUser: { debtInWei: depositAmount },
         slippage,
         multiple: multiply,
-        debtToken: { symbol: 'ETH' },
-        collateralToken: { symbol: 'STETH' },
+        debtToken,
+        collateralToken,
       },
       {
         addresses: mainnetAddresses,
         provider: config.provider,
         getSwapData: swapData,
-        proxy: dsProxy.address,
+        proxy,
         user: config.address,
-        currentPosition: currentPosition,
+        currentPosition,
       },
     )
 

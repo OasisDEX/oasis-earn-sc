@@ -113,6 +113,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         operationExecutor: system.common.operationExecutor.address,
       }
 
+      const proxy = system.common.dsProxy.address
       const positionTransition = await strategies.aave.open(
         {
           depositedByUser: {
@@ -132,8 +133,19 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             from: debtToken.precision,
             to: collateralToken.precision,
           }),
-          proxy: system.common.dsProxy.address,
+          proxy,
           user: userAddress,
+          currentPosition: await strategies.aave.view(
+            {
+              proxy,
+              collateralToken,
+              debtToken,
+            },
+            {
+              addresses,
+              provider,
+            },
+          ),
         },
       )
 
@@ -597,13 +609,28 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           { config },
         )
 
+        const proxy = system.common.dsProxy.address
+        const debtToken = { symbol: 'ETH' as const }
+        const collateralToken = { symbol: 'STETH' as const }
+        const currentPosition = await strategies.aave.view(
+          {
+            proxy,
+            collateralToken,
+            debtToken,
+          },
+          {
+            addresses,
+            provider,
+          },
+        )
+
         positionTransition = await strategies.aave.open(
           {
             depositedByUser: { debtInWei: depositEthAmount },
             slippage,
             multiple,
-            debtToken: { symbol: 'ETH' },
-            collateralToken: { symbol: 'STETH' },
+            debtToken,
+            collateralToken,
           },
           {
             addresses,
@@ -611,6 +638,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
             user: config.address,
+            currentPosition,
           },
         )
 
