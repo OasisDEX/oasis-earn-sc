@@ -14,13 +14,12 @@ import { IOperation } from '../types/IOperation'
 import {
   IMutationDependencies,
   IPositionTransitionArgs,
-  WithPosition,
 } from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
 
 export async function adjustStEth(
   args: IPositionTransitionArgs<AAVETokens>,
-  dependencies: IMutationDependencies<AAVEStrategyAddresses> & WithPosition,
+  dependencies: IMutationDependencies<AAVEStrategyAddresses>,
 ): Promise<IPositionTransition> {
   const FEE = 20
 
@@ -31,7 +30,7 @@ export async function adjustStEth(
 
   const estimatedSwapAmount = amountToWei(new BigNumber(1))
 
-  const existingBasePosition = dependencies.position
+  const currentPosition = dependencies.currentPosition
 
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
@@ -68,10 +67,10 @@ export async function adjustStEth(
     ])
 
   const existingPosition = new Position(
-    existingBasePosition.debt,
-    existingBasePosition.collateral,
+    currentPosition.debt,
+    currentPosition.collateral,
     aaveStEthPriceInEth,
-    existingBasePosition.category,
+    currentPosition.category,
   )
 
   const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))

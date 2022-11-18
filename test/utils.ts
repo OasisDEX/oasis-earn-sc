@@ -27,13 +27,10 @@ export function expectToBe(
 
 export async function expectRevert(expression: RegExp, tx: Promise<unknown>) {
   const result = await tryF(async () => await tx)
-
   if (isError(result)) {
     expect(
-      expression.test(JSON.stringify(result)),
-      `Expect the revert to match ${expression.toString()}, reverted with: ${JSON.stringify(
-        result,
-      )}`,
+      expression.test(result.message),
+      `Expect the revert to match ${expression.toString()}, reverted with: ${result.message}`,
     ).to.be.true
   } else {
     expect('Tx to fail', 'Tx should revert').to.be.eq('Tx succeeded')

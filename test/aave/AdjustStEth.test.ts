@@ -12,7 +12,7 @@ import {
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
 import { PositionBalance } from '@oasisdex/oasis-actions/lib/src/helpers/calculations/Position'
-import { IPositionMutation } from '@oasisdex/oasis-actions/src'
+import { IPositionTransition } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -41,11 +41,13 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
   let provider: JsonRpcProvider
   let config: RuntimeConfig
   let signer: Signer
+  let address: string
 
   before(async () => {
     config = await init()
     provider = config.provider
     signer = config.signer
+    address = config.address
 
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -64,7 +66,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     let aaveStEthPriceInEth: BigNumber
     let system: DeployedSystemInfo
 
-    let openPositionMutation: IPositionMutation
+    let openPositionMutation: IPositionTransition
 
     let txStatus: boolean
 
@@ -100,6 +102,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           provider,
           getSwapData: oneInchCallMock(new BigNumber(0.979)),
           proxy: system.common.dsProxy.address,
+          user: address
         },
       )
 
@@ -155,7 +158,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     })
 
     describe('Increase Loan-to-Value (Increase risk)', () => {
-      let adjustPositionUpMutation: IPositionMutation
+      let adjustPositionUpTransition: IPositionTransition
       const adjustMultipleUp = new BigNumber(3.5)
       let increaseRiskTxStatus: boolean
       let afterUserAccountData: AAVEAccountData
@@ -176,7 +179,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           system.common.dsProxy.address,
         )
 
-        adjustPositionUpMutation = await strategies.aave.adjust(
+        adjustPositionUpTransition = await strategies.aave.adjust(
           {
             slippage,
             multiple: adjustMultipleUp,
@@ -203,6 +206,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             },
             getSwapData: oneInchCallMock(new BigNumber(0.979)),
             proxy: system.common.dsProxy.address,
+            user: address
           },
         )
 
@@ -217,7 +221,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              adjustPositionUpMutation.transaction.calls,
+              adjustPositionUpTransition.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -264,8 +268,8 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
       it('Should draw debt according to multiple', async () => {
         expect(actualPositionAfterIncreaseAdjust.debt.amount.toString()).to.be.oneOf([
-          adjustPositionUpMutation.simulation.position.debt.amount.minus(ONE).toString(),
-          adjustPositionUpMutation.simulation.position.debt.amount.toString(),
+          adjustPositionUpTransition.simulation.position.debt.amount.minus(ONE).toString(),
+          adjustPositionUpTransition.simulation.position.debt.amount.toString(),
         ])
       })
 
@@ -277,7 +281,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         )
 
         expectToBeEqual(
-          new BigNumber(adjustPositionUpMutation.simulation.swap.tokenFee.toFixed(6)),
+          new BigNumber(adjustPositionUpTransition.simulation.swap.tokenFee.toFixed(6)),
           feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(6),
         )
       })
@@ -292,7 +296,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
     let system: DeployedSystemInfo
 
-    let openPositionMutation: IPositionMutation
+    let openPositionMutation: IPositionTransition
     let txStatus: boolean
 
     let userAccountData: AAVEAccountData
@@ -330,6 +334,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
+            user: address
           },
         )
 
@@ -400,7 +405,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     })
 
     describe('Increase Loan-to-Value (Increase risk)', () => {
-      let adjustPositionUpMutation: IPositionMutation
+      let adjustPositionUpTransition: IPositionTransition
       const adjustMultipleUp = new BigNumber(3.5)
       let increaseRiskTxStatus: boolean
       let afterUserAccountData: AAVEAccountData
@@ -421,7 +426,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           system.common.dsProxy.address,
         )
 
-        adjustPositionUpMutation = await strategies.aave.adjust(
+        adjustPositionUpTransition = await strategies.aave.adjust(
           {
             slippage,
             multiple: adjustMultipleUp,
@@ -448,6 +453,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
+            user: address
           },
         )
 
@@ -462,7 +468,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              adjustPositionUpMutation.transaction.calls,
+              adjustPositionUpTransition.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -501,8 +507,8 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         expect(
           new BigNumber(actualPositionAfterIncreaseAdjust.debt.amount.toString()).toString(),
         ).to.be.oneOf([
-          adjustPositionUpMutation.simulation.position.debt.amount.toString(),
-          adjustPositionUpMutation.simulation.position.debt.amount.minus(ONE).toString(),
+          adjustPositionUpTransition.simulation.position.debt.amount.toString(),
+          adjustPositionUpTransition.simulation.position.debt.amount.minus(ONE).toString(),
         ])
       })
 
@@ -514,7 +520,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
         )
 
         expectToBeEqual(
-          new BigNumber(adjustPositionUpMutation.simulation.swap.tokenFee.toFixed(6)),
+          new BigNumber(adjustPositionUpTransition.simulation.swap.tokenFee.toFixed(6)),
           feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore).toFixed(6),
         )
       })
@@ -528,7 +534,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
     let system: DeployedSystemInfo
 
-    let openPositionMutation: IPositionMutation
+    let openPositionMutation: IPositionTransition
 
     let txStatus: boolean
 
@@ -567,6 +573,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           provider,
           getSwapData: oneInchCallMock(new BigNumber(0.979)),
           proxy: system.common.dsProxy.address,
+          user: address
         },
       )
 
@@ -606,7 +613,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     })
 
     describe('Decrease Loan-to-Value (Reduce risk)', () => {
-      let adjustPositionDownMutation: IPositionMutation
+      let adjustPositionDownMutation: IPositionTransition
       const adjustMultipleDown = new BigNumber(1.5)
       let reduceRiskTxStatus: boolean
 
@@ -655,6 +662,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             },
             getSwapData: oneInchCallMock(new BigNumber(1 / 0.976)),
             proxy: system.common.dsProxy.address,
+            user: address,
           },
         )
 
@@ -746,7 +754,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
 
     let system: DeployedSystemInfo
 
-    let openPositionMutation: IPositionMutation
+    let openPositionMutation: IPositionTransition
     let txStatus: boolean
 
     let userAccountData: AAVEAccountData
@@ -780,6 +788,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
+            user: address
           },
         )
 
@@ -822,7 +831,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     })
 
     describe('Decrease Loan-to-Value (Decrease risk)', () => {
-      let adjustPositionDownMutation: IPositionMutation
+      let adjustPositionDownMutation: IPositionTransition
       const adjustMultipleDown = new BigNumber(1.5)
       let reduceRiskTxStatus: boolean
 
@@ -871,6 +880,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
+            user: address
           },
         )
 

@@ -34,6 +34,7 @@ export async function open(
   if (!debtTokenAddress)
     throw new Error('Debt token not recognised or address missing in dependencies')
 
+  const currentPosition = dependencies.currentPosition
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
     aavePriceOracleABI,
@@ -77,10 +78,6 @@ export async function open(
   ])
 
   const BASE = new BigNumber(10000)
-  const liquidationThreshold = new BigNumber(
-    reserveDataForCollateral.liquidationThreshold.toString(),
-  ).div(BASE)
-  const maxLoanToValue = new BigNumber(reserveDataForCollateral.ltv.toString()).div(BASE)
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(BASE)
 
   // TODO: Read it from blockchain if AAVE introduces a dust limit
@@ -91,25 +88,6 @@ export async function open(
 
   const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
   const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
-
-  const emptyPosition = new Position(
-    {
-      amount: ZERO,
-      symbol: args.debtToken.symbol,
-      precision: args.debtToken.precision,
-    },
-    {
-      amount: ZERO,
-      symbol: args.collateralToken.symbol,
-      precision: args.collateralToken.precision,
-    },
-    aaveCollateralTokenPriceInEth,
-    {
-      liquidationThreshold,
-      maxLoanToValue,
-      dustLimit,
-    },
-  )
 
   // Needs to be correct precision. First convert to base 18. Then divide
   const base18FromTokenAmount = amountToWei(
@@ -137,7 +115,7 @@ export async function open(
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
-  const target = emptyPosition.adjustToTargetRiskRatio(
+  const target = currentPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
       fees: {

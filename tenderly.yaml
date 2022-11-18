@@ -1,14 +1,14 @@
-account_id: ""
+account_id: ''
 exports:
   local:
-    project_slug:
+    project_slug: ''
     rpc_address: 127.0.0.1:8545
-    protocol: ""
+    protocol: ''
     forked_network: Mainnet
     chain_config:
       homestead_block: 0
       eip150_block: 0
-      eip150_hash: "0x0000000000000000000000000000000000000000000000000000000000000000"
+      eip150_hash: '0x0000000000000000000000000000000000000000000000000000000000000000'
       eip155_block: 0
       eip158_block: 0
       byzantium_block: 0
@@ -17,4 +17,4 @@ exports:
       istanbul_block: 0
       berlin_block: 0
       london_block: 0
-project_slug: ""
+project_slug: ''

@@ -58,6 +58,6 @@ export async function executeThroughProxy(
     const result = await tx.wait()
     return [true, result]
   } catch (ex) {
-    return [false, ex as any] // TODO:
+    return [false, ex as ContractReceipt] // TODO:
   }
 }

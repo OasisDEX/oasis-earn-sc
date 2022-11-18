@@ -91,9 +91,9 @@ describe('Calculate Position Helper', async () => {
             console.log(`${key}: ${value}`)
           })
         }
-
         const riskRatio = new RiskRatio(targetLoanToValue, RiskRatio.TYPE.LTV)
         const dustLimit = new BigNumber(0)
+
         /* Note: we have to remove User deposits from current values because they've already been rolled up (assigned) in our googlesheets data*/
         const currentVault = new Position(
           { amount: currentDebt.plus(debtDenominatedTokensDepositedByUser), symbol: 'ANY' },

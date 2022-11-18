@@ -2,8 +2,13 @@ import { ADDRESSES, ONE } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 
 import { ExchangeData } from './types/common'
-import { CdpData } from './types/maker'
 import { amountToWei, logDebug } from './utils'
+
+type IncreaseMultipleParams = [BigNumber, BigNumber, BigNumber] & {
+  requiredDebt: BigNumber
+  additionalCollateral: BigNumber
+  preIncreaseMPTopUp: BigNumber
+}
 
 export function calculateParamsIncreaseMP({
   oraclePrice,
@@ -100,7 +105,7 @@ export function calculateParamsIncreaseMP({
   }
 
   // https://betterprogramming.pub/this-pattern-will-make-your-react-hooks-cleaner-ca9deba5d58d
-  const params = [debt, collateral, preIncreaseMPTopUp] as any
+  const params = [debt, collateral, preIncreaseMPTopUp] as IncreaseMultipleParams
   params.requiredDebt = debt
   params.additionalCollateral = collateral
   params.preIncreaseMPTopUp = preIncreaseMPTopUp
@@ -108,23 +113,30 @@ export function calculateParamsIncreaseMP({
   return params
 }
 
+type DesiredCdpState = {
+  requiredDebt: BigNumber
+  toBorrowCollateralAmount: BigNumber
+  daiTopUp: BigNumber
+  fromTokenAmount: BigNumber
+  toTokenAmount: BigNumber
+  collTopUp: BigNumber
+}
+
+type ExchangeDataMock = { to: string; data: number }
+
 export function prepareMultiplyParameters({
-  oneInchPayload, // TODO:
-  desiredCdpState, // TODO:
-  fundsReceiver,
+  oneInchPayload,
+  desiredCdpState,
   toDAI = false,
-  cdpId = 0,
-  skipFL = false,
 }: {
-  oneInchPayload: any // TODO:
-  desiredCdpState: any // TODO:
+  oneInchPayload: ExchangeDataMock
+  desiredCdpState: DesiredCdpState
   fundsReceiver: string
   toDAI?: boolean
   cdpId?: number
   skipFL?: boolean
 }): {
   exchangeData: ExchangeData
-  cdpData: CdpData
 } {
   const exchangeData = {
     fromTokenAddress: toDAI ? ADDRESSES.main.WETH : ADDRESSES.main.DAI,
@@ -143,20 +155,5 @@ export function prepareMultiplyParameters({
     _exchangeCalldata: oneInchPayload.data,
   }
 
-  const cdpData = {
-    skipFL: skipFL,
-    gemJoin: ADDRESSES.main.maker.joinETH_A,
-    cdpId,
-    ilk: '0x0000000000000000000000000000000000000000000000000000000000000000',
-    fundsReceiver: fundsReceiver,
-    borrowCollateral: amountToWei(desiredCdpState.toBorrowCollateralAmount).toFixed(0),
-    requiredDebt: amountToWei(desiredCdpState.requiredDebt).toFixed(0),
-    daiTopUp: amountToWei(desiredCdpState.daiTopUp).toFixed(0),
-    collTopUp: amountToWei(desiredCdpState.collTopUp).toFixed(0),
-    withdrawDai: amountToWei(desiredCdpState.withdrawDai).toFixed(0),
-    withdrawCollateral: amountToWei(desiredCdpState.withdrawCollateral).toFixed(0),
-    methodName: '',
-  }
-
-  return { exchangeData, cdpData }
+  return { exchangeData }
 }

@@ -1,7 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
-  IPosition,
   ONE,
   OPERATION_NAMES,
   Position,
@@ -9,9 +8,8 @@ import {
   ZERO,
 } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
-import { IPositionMutation } from '@oasisdex/oasis-actions/src'
+import { IPositionTransition } from '@oasisdex/oasis-actions/src'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
-import { PositionBalance } from '@oasisdex/oasis-actions/src/helpers/calculations/Position'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -19,7 +17,6 @@ import { Contract, ContractReceipt, ethers, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
-import ERC20ABI from '../../abi/IERC20.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { resetNodeToLatestBlock } from '../../helpers/init'
@@ -44,8 +41,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   // this value should be changed when changing block number
   const ethAmountReturnedFromSwap = amountFromWei(new BigNumber('107850'))
 
-  let WETH: Contract
-  let stETH: Contract
   let aaveLendingPool: Contract
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
@@ -57,8 +52,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
   let openTxStatus: boolean
 
-  let openPositionMutation: IPositionMutation
-  let closePositionMutation: IPositionMutation
+  let openPositionTransition: IPositionTransition
+  let closePositionPosition: IPositionTransition
   let closeTxStatus: boolean
   let closeTx: ContractReceipt
 
@@ -77,8 +72,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       provider,
     )
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
-    WETH = new Contract(ADDRESSES.main.WETH, ERC20ABI, provider)
-    stETH = new Contract(ADDRESSES.main.stETH, ERC20ABI, provider)
   })
 
   describe('On forked chain', () => {
@@ -97,7 +90,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      openPositionMutation = await strategies.aave.open(
+      openPositionTransition = await strategies.aave.open(
         {
           depositedByUser: {
             debtInWei: depositAmount,
@@ -112,6 +105,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           provider,
           getSwapData: oneInchCallMock(new BigNumber(0.9759)),
           proxy: system.common.dsProxy.address,
+          user: address
         },
       )
 
@@ -120,7 +114,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            openPositionMutation.transaction.calls,
+            openPositionTransition.transaction.calls,
             OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
@@ -180,10 +174,10 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             symbol: tokens.STETH,
           },
           aaveStEthPriceInEth,
-          openPositionMutation.simulation.position.category,
+          openPositionTransition.simulation.position.category,
         )
 
-        closePositionMutation = await strategies.aave.close(
+        closePositionPosition = await strategies.aave.close(
           {
             collateralToken: { symbol: tokens.STETH },
             debtToken: { symbol: tokens.ETH },
@@ -196,6 +190,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             position: positionAfterOpen,
             getSwapData: oneInchCallMock(ONE.div(new BigNumber(0.9759))),
             proxy: system.common.dsProxy.address,
+            user: address
           },
         )
 
@@ -209,7 +204,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              closePositionMutation.transaction.calls,
+              closePositionPosition.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -338,6 +333,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
+            user: address
           },
         )
 
@@ -346,7 +342,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              openPositionMutation.transaction.calls,
+              openPositionTransition.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -396,7 +392,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           openStrategy.simulation.position.category,
         )
 
-        closePositionMutation = await strategies.aave.close(
+        closePositionPosition = await strategies.aave.close(
           {
             collateralToken: { symbol: tokens.STETH },
             debtToken: { symbol: tokens.ETH },
@@ -409,6 +405,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             position: positionAfterOpen,
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
+            user: address
           },
         )
 
@@ -422,7 +419,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              closePositionMutation.transaction.calls,
+              closePositionPosition.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -472,7 +469,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       )
 
       expectToBeEqual(
-        new BigNumber(closePositionMutation.simulation.swap.tokenFee),
+        new BigNumber(closePositionPosition.simulation.swap.tokenFee),
         feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
       )
     })
@@ -512,8 +509,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       const delta = userEthBalanceAfterTx.minus(userEthBalanceBeforeTx).plus(txCost)
 
-      const expectToGet = amountFromWei(closePositionMutation.simulation.swap.toTokenAmount)
-        .minus(closePositionMutation.simulation.swap.tokenFee)
+      const expectToGet = amountFromWei(closePositionPosition.simulation.swap.toTokenAmount)
+        .minus(closePositionPosition.simulation.swap.tokenFee)
         .minus(amountFromWei(depositAmount).times(multiple).minus(amountFromWei(depositAmount)))
 
       expectToBe(delta, 'gte', expectToGet)

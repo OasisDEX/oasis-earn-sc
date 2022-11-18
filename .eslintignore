@@ -3,3 +3,4 @@ artifacts
 .eslintrc.js
 cache
 coverage
+packages/oasis-actions/lib

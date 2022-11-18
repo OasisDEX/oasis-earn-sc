@@ -5,7 +5,6 @@
 // Runtime Environment's members available in the global scope.
 import {
   ActionFactory,
-  ADDRESSES,
   calldataTypes,
   CONTRACT_NAMES,
   OPERATION_NAMES,

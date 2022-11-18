@@ -12,7 +12,6 @@ import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 
 import { executeThroughProxy } from '../../helpers/deploy'
-import init, { resetNode } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { ServiceRegistry } from '../../helpers/serviceRegistry'
 import { RuntimeConfig } from '../../helpers/types/common'
@@ -70,7 +69,7 @@ describe('TakeFlashloan Action', () => {
       ],
     )
 
-    const [_, txReceipt] = await executeThroughProxy(
+    const [, txReceipt] = await executeThroughProxy(
       system.common.userProxyAddress,
       {
         address: system.common.operationExecutor.address,
@@ -111,7 +110,7 @@ describe('TakeFlashloan Action', () => {
       ],
     )
 
-    const [_, txReceipt] = await executeThroughProxy(
+    const [, txReceipt] = await executeThroughProxy(
       system.common.userProxyAddress,
       {
         address: system.common.operationExecutor.address,
@@ -139,7 +138,7 @@ describe('TakeFlashloan Action', () => {
       ],
     )
 
-    const [_, txReceipt] = await executeThroughProxy(
+    const [, txReceipt] = await executeThroughProxy(
       system.common.userProxyAddress,
       {
         address: system.common.operationExecutor.address,

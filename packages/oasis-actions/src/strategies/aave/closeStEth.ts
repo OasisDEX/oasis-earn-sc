@@ -13,15 +13,14 @@ import {
   IBasePositionTransitionArgs,
   IMutationDependencies,
   WithLockedCollateral,
-  WithPosition,
 } from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
 
 export async function closeStEth(
   args: IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral,
-  dependencies: IMutationDependencies<AAVEStrategyAddresses> & WithPosition,
+  dependencies: IMutationDependencies<AAVEStrategyAddresses>,
 ): Promise<IPositionTransition> {
-  const existingPosition = dependencies.position
+  const currentPosition = dependencies.currentPosition
 
   const priceFeed = new ethers.Contract(
     dependencies.addresses.chainlinkEthUsdPriceFeed,
@@ -82,10 +81,10 @@ export async function closeStEth(
   Final position calculated using actual swap data and the latest market price
  */
   const finalPosition = new Position(
-    { amount: ZERO, symbol: existingPosition.debt.symbol },
-    { amount: ZERO, symbol: existingPosition.collateral.symbol },
+    { amount: ZERO, symbol: currentPosition.debt.symbol },
+    { amount: ZERO, symbol: currentPosition.collateral.symbol },
     aaveStEthPriceInEth,
-    existingPosition.category,
+    currentPosition.category,
   )
 
   const flags = { requiresFlashloan: true, isIncreasingRisk: false }
@@ -97,8 +96,8 @@ export async function closeStEth(
     },
     simulation: {
       delta: {
-        debt: existingPosition.debt.amount.negated(),
-        collateral: existingPosition.collateral.amount.negated(),
+        debt: currentPosition.debt.amount.negated(),
+        collateral: currentPosition.collateral.amount.negated(),
         flashloanAmount: ZERO,
       },
       flags: flags,
