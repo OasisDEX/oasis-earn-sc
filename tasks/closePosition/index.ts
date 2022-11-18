@@ -5,7 +5,6 @@ import {
   Position,
   strategies,
 } from '@oasisdex/oasis-actions'
-import { PositionBalance } from '@oasisdex/oasis-actions/src/helpers/calculations/Position'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 

@@ -117,10 +117,6 @@ task('createPosition', 'Create stETH position on AAVE')
       { proxy: dsProxy.address, debtToken, collateralToken },
       {
         addresses: {
-          // stETH: ADDRESSES.main.stETH,
-          // aavePriceOracle: aavePriceOracle.address,
-          // aaveLendingPool: aaveLendingPool.address,
-          // aaveProtocolDataProvider: aaveDataProvider.address,
           ...mainnetAddresses,
         },
         provider: config.provider,
