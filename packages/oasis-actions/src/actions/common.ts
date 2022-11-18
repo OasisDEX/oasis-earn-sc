@@ -140,16 +140,3 @@ export function returnFunds(args: { asset: string }) {
     ],
   )
 }
-
-export function pullToProxy(args: { asset: string; amount: BigNumber }) {
-  return createAction(
-    getActionHash(CONTRACT_NAMES.common.PULL_TO_PROXY),
-    [calldataTypes.common.PullToProxy],
-    [
-      {
-        asset: args.asset,
-        amount: args.amount.toFixed(0),
-      },
-    ],
-  )
-}

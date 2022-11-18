@@ -119,7 +119,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.common.RETURN_FUNDS,
     [],
   )
-  const [pullToProxy, pullToProxyAddress] = await deploy(CONTRACT_NAMES.common.PULL_TO_PROXY, [])
 
   //-- Maker Actions
   const [actionOpenVault, actionOpenVaultAddress] = await deploy(CONTRACT_NAMES.maker.OPEN_VAULT, [
@@ -206,7 +205,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
 
   await registry.addEntry(CONTRACT_NAMES.common.RETURN_FUNDS, returnFundsActionAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.PULL_TO_PROXY, pullToProxyAddress)
 
   //-- Add Maker Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
@@ -385,7 +383,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       wrapEth,
       unwrapEth,
       returnFunds: returnFunds,
-      pullToProxy: pullToProxy,
     },
     maker: {
       mcdView,
@@ -421,7 +418,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       `Flashloan Action address: ${deployedContracts.common.takeFlashLoan.address}`,
       `Swap Action address: ${deployedContracts.common.swapAction.address}`,
       `Return Funds Action address: ${deployedContracts.common.returnFunds.address}`,
-      `Pull To Proxy Action address: ${deployedContracts.common.pullToProxy.address}`,
 
       `MCDView address: ${deployedContracts.maker.mcdView.address}`,
       `OpenVault Action address: ${deployedContracts.maker.openVault.address}`,

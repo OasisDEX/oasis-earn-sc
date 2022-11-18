@@ -215,6 +215,7 @@ export async function open(
       collateralTokenAddress,
       debtTokenAddress,
       proxy: dependencies.proxy,
+      user: dependencies.user,
     },
     dependencies.addresses,
   )

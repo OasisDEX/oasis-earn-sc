@@ -33,6 +33,8 @@ export interface IPositionMutationArgs<Tokens>
     WithDeposit,
     WithMultiple {}
 
+export type Address = string
+
 export interface IMutationDependencies<Addresses> {
   addresses: Addresses
   provider: providers.Provider
@@ -42,7 +44,8 @@ export interface IMutationDependencies<Addresses> {
     amount: BigNumber,
     slippage: BigNumber,
   ) => Promise<SwapData>
-  proxy: string
+  proxy: Address
+  user: Address
 }
 
 export type WithPosition = {

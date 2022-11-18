@@ -112,6 +112,7 @@ task('createPosition', 'Create stETH position on AAVE')
         provider: config.provider,
         getSwapData: swapData,
         proxy: dsProxy.address,
+        user: config.address,
       },
     )
 

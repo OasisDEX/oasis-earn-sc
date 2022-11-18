@@ -11,6 +11,7 @@ import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOra
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
 import { ONE, ZERO } from '@oasisdex/oasis-actions/src'
 import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
+import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionRepository'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -40,9 +41,10 @@ describe(`Strategy | AAVE | Open Position`, async function () {
   let provider: JsonRpcProvider
   let config: RuntimeConfig
   let signer: Signer
+  let userAddress: Address
 
   before(async function () {
-    ;({ config, provider, signer } = await loadFixture(initialiseConfig))
+    ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
 
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -76,6 +78,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       },
       mockMarketPrice: BigNumber | undefined,
       isFeeFromDebtToken: boolean,
+      userAddress: Address,
     ) {
       const { snapshot, config: newConfig } = await restoreSnapshot(
         config,
@@ -130,6 +133,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             to: collateralToken.precision,
           }),
           proxy: system.common.dsProxy.address,
+          user: userAddress,
         },
       )
 
@@ -239,6 +243,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           },
           new BigNumber(0.9759),
           true,
+          userAddress,
         )
         txStatus = setup.txStatus
         positionMutation = setup.positionMutation
@@ -321,6 +326,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           },
           new BigNumber(1300),
           true,
+          userAddress,
         )
         txStatus = setup.txStatus
         positionMutation = setup.positionMutation
@@ -403,6 +409,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           },
           new BigNumber(20032),
           true,
+          userAddress,
         )
         txStatus = setup.txStatus
         positionMutation = setup.positionMutation
@@ -485,6 +492,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           },
           new BigNumber(20032),
           false,
+          userAddress,
         )
         txStatus = setup.txStatus
         positionMutation = setup.positionMutation
@@ -602,6 +610,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
+            user: config.address,
           },
         )
 
