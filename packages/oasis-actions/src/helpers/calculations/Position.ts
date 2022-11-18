@@ -54,7 +54,7 @@ export type Swap = {
 }
 type Flags = { requiresFlashloan: boolean; isIncreasingRisk: boolean }
 
-export interface IPositionChange {
+export interface IBaseSimulatedTransition {
   position: IPosition
   delta: Delta
   swap: Swap
@@ -62,7 +62,7 @@ export interface IPositionChange {
 }
 
 // TODO: consider multi-collateral positions
-interface IPositionChangeParams {
+interface IPositionTransitionParams {
   // Where Wei is the smallest unit of the token
   depositedByUser?: {
     collateralInWei?: BigNumber
@@ -104,8 +104,8 @@ export interface IPosition extends IBasePosition {
   liquidationPrice: BigNumber
   adjustToTargetRiskRatio: (
     targetRiskRatio: IRiskRatio,
-    params: IPositionChangeParams,
-  ) => IPositionChange
+    params: IPositionTransitionParams,
+  ) => IBaseSimulatedTransition
 }
 
 export class Position implements IPosition {
@@ -169,8 +169,8 @@ export class Position implements IPosition {
    */
   adjustToTargetRiskRatio(
     targetRiskRatio: IRiskRatio,
-    params: IPositionChangeParams,
-  ): IPositionChange {
+    params: IPositionTransitionParams,
+  ): IBaseSimulatedTransition {
     const useFlashloanSafetyMargin = params.useFlashloanSafetyMargin ?? true
     const targetLTV = targetRiskRatio.loanToValue
     let isIncreasingRisk = false

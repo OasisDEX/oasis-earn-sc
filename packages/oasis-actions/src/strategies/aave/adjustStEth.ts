@@ -11,17 +11,17 @@ import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
 import { IOperation } from '../types/IOperation'
-import { IPositionMutation } from '../types/IPositionMutation'
 import {
   IMutationDependencies,
-  IPositionMutationArgs,
+  IPositionTransitionArgs,
   WithPosition,
 } from '../types/IPositionRepository'
+import { IPositionTransition } from '../types/IPositionTransition'
 
 export async function adjustStEth(
-  args: IPositionMutationArgs<AAVETokens>,
+  args: IPositionTransitionArgs<AAVETokens>,
   dependencies: IMutationDependencies<AAVEStrategyAddresses> & WithPosition,
-): Promise<IPositionMutation> {
+): Promise<IPositionTransition> {
   const FEE = 20
 
   const slippage = args.slippage

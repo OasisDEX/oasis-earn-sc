@@ -3,10 +3,10 @@ import { providers } from 'ethers'
 
 import { IBasePosition, IPosition } from '../../helpers/calculations/Position'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IPositionMutation } from './IPositionMutation'
+import { IPositionTransition } from './IPositionTransition'
 import { SwapData } from './SwapData'
 
-export interface IBasePositionMutationArgs<Tokens> {
+export interface IBasePositionTransitionArgs<Tokens> {
   slippage: BigNumber
   collateralToken: { symbol: Tokens; precision?: number }
   debtToken: { symbol: Tokens; precision?: number }
@@ -28,8 +28,8 @@ export type WithLockedCollateral = {
   collateralAmountLockedInProtocolInWei: BigNumber
 }
 
-export interface IPositionMutationArgs<Tokens>
-  extends IBasePositionMutationArgs<Tokens>,
+export interface IPositionTransitionArgs<Tokens>
+  extends IBasePositionTransitionArgs<Tokens>,
     WithDeposit,
     WithMultiple {}
 
@@ -54,16 +54,16 @@ export type WithPosition = {
 
 export interface IPositionRepository<Addresses> {
   open: (
-    args: IPositionMutationArgs<AAVETokens>,
+    args: IPositionTransitionArgs<AAVETokens>,
     dependencies: IMutationDependencies<Addresses>,
-  ) => Promise<IPositionMutation>
+  ) => Promise<IPositionTransition>
   close: (
-    args: IBasePositionMutationArgs<AAVETokens> & WithLockedCollateral,
+    args: IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral,
     dependencies: IMutationDependencies<Addresses> & WithPosition,
-  ) => Promise<IPositionMutation>
+  ) => Promise<IPositionTransition>
   adjust: (
-    args: IPositionMutationArgs<AAVETokens>,
+    args: IPositionTransitionArgs<AAVETokens>,
     dependencies: IMutationDependencies<Addresses> & WithPosition,
-  ) => Promise<IPositionMutation>
+  ) => Promise<IPositionTransition>
   view: (args: unknown) => Promise<IPosition> // Not being implemented yet
 }

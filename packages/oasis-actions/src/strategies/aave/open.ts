@@ -11,13 +11,13 @@ import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IPositionMutation } from '../types/IPositionMutation'
-import { IMutationDependencies, IPositionMutationArgs } from '../types/IPositionRepository'
+import { IMutationDependencies, IPositionTransitionArgs } from '../types/IPositionRepository'
+import { IPositionTransition } from '../types/IPositionTransition'
 
 export async function open(
-  args: IPositionMutationArgs<AAVETokens>,
+  args: IPositionTransitionArgs<AAVETokens>,
   dependencies: IMutationDependencies<AAVEStrategyAddresses>,
-): Promise<IPositionMutation> {
+): Promise<IPositionTransition> {
   const tokenAddresses = {
     WETH: dependencies.addresses.WETH,
     ETH: dependencies.addresses.WETH,

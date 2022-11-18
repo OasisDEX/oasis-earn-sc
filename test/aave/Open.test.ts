@@ -2,7 +2,7 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
   IPosition,
-  IPositionMutation,
+  IPositionTransition,
   OPERATION_NAMES,
   Position,
   strategies,
@@ -58,7 +58,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
-    let positionMutation: IPositionMutation
+    let positionTransition: IPositionTransition
     let txStatus: boolean
 
     async function setupOpenPositionTest(
@@ -113,7 +113,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         operationExecutor: system.common.operationExecutor.address,
       }
 
-      const positionMutation = await strategies.aave.open(
+      const positionTransition = await strategies.aave.open(
         {
           depositedByUser: {
             debtInWei: debtToken.depositAmountInWei,
@@ -152,7 +152,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            positionMutation.transaction.calls,
+            positionTransition.transaction.calls,
             OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
@@ -202,12 +202,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           symbol: collateralToken.symbol,
         },
         oracle,
-        positionMutation.simulation.position.category,
+        positionTransition.simulation.position.category,
       )
 
       return {
         system,
-        positionMutation,
+        positionTransition,
         feeRecipientBalanceBefore,
         txStatus,
         oracle,
@@ -246,7 +246,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           userAddress,
         )
         txStatus = setup.txStatus
-        positionMutation = setup.positionMutation
+        positionTransition = setup.positionTransition
         actualPosition = setup.actualPosition
         userStEthReserveData = setup.userCollateralReserveData
         userWethReserveData = setup.userDebtReserveData
@@ -259,14 +259,14 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it('Should draw debt according to multiple', function () {
         expectToBeEqual(
-          positionMutation.simulation.position.debt.amount.toFixed(0),
+          positionTransition.simulation.position.debt.amount.toFixed(0),
           new BigNumber(userWethReserveData.currentVariableDebt.toString()).toFixed(0),
         )
       })
 
       it(`Should deposit all ${tokens.STETH} tokens to aave`, function () {
         expectToBe(
-          positionMutation.simulation.position.collateral.amount,
+          positionTransition.simulation.position.collateral.amount,
           'gte',
           new BigNumber(userStEthReserveData.currentATokenBalance.toString()).toFixed(0),
         )
@@ -274,13 +274,13 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it('Should achieve target multiple', function () {
         expectToBe(
-          positionMutation.simulation.position.riskRatio.multiple,
+          positionTransition.simulation.position.riskRatio.multiple,
           'lte',
           actualPosition.riskRatio.multiple,
         )
 
         expectToBe(
-          positionMutation.simulation.position.riskRatio.multiple,
+          positionTransition.simulation.position.riskRatio.multiple,
           'gte',
           actualPosition.riskRatio.multiple.times(ONE.minus(MULTIPLE_TESTING_OFFSET)),
         )
@@ -294,7 +294,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         )
 
         expectToBeEqual(
-          new BigNumber(positionMutation.simulation.swap.tokenFee),
+          new BigNumber(positionTransition.simulation.swap.tokenFee),
           feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
         )
       })
@@ -329,7 +329,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           userAddress,
         )
         txStatus = setup.txStatus
-        positionMutation = setup.positionMutation
+        positionTransition = setup.positionTransition
         actualPosition = setup.actualPosition
         userEthReserveData = setup.userCollateralReserveData
         userUSDCReserveData = setup.userDebtReserveData
@@ -342,14 +342,14 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it('Should draw debt according to multiple', function () {
         expectToBeEqual(
-          positionMutation.simulation.position.debt.amount.toFixed(0),
+          positionTransition.simulation.position.debt.amount.toFixed(0),
           new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).toFixed(0),
         )
       })
 
       it(`Should deposit all ${tokens.ETH} tokens to aave`, function () {
         expectToBe(
-          positionMutation.simulation.position.collateral.amount,
+          positionTransition.simulation.position.collateral.amount,
           'gte',
           new BigNumber(userEthReserveData.currentATokenBalance.toString()).toFixed(0),
         )
@@ -357,13 +357,13 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it('Should achieve target multiple', function () {
         expectToBe(
-          positionMutation.simulation.position.riskRatio.multiple,
+          positionTransition.simulation.position.riskRatio.multiple,
           'lte',
           actualPosition.riskRatio.multiple,
         )
 
         expectToBe(
-          positionMutation.simulation.position.riskRatio.multiple,
+          positionTransition.simulation.position.riskRatio.multiple,
           'gte',
           actualPosition.riskRatio.multiple.times(ONE.minus(MULTIPLE_TESTING_OFFSET)),
         )
@@ -377,7 +377,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         )
 
         expectToBeEqual(
-          new BigNumber(positionMutation.simulation.swap.tokenFee),
+          new BigNumber(positionTransition.simulation.swap.tokenFee),
           feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore),
         )
       })
@@ -412,7 +412,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           userAddress,
         )
         txStatus = setup.txStatus
-        positionMutation = setup.positionMutation
+        positionTransition = setup.positionTransition
         actualPosition = setup.actualPosition
         userWBTCReserveData = setup.userCollateralReserveData
         userUSDCReserveData = setup.userDebtReserveData
@@ -425,14 +425,14 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it('Should draw debt according to multiple', function () {
         expect(new BigNumber(actualPosition.debt.amount.toString()).toString()).to.be.oneOf([
-          positionMutation.simulation.position.debt.amount.toFixed(0),
-          positionMutation.simulation.position.debt.amount.minus(ONE).toFixed(0),
+          positionTransition.simulation.position.debt.amount.toFixed(0),
+          positionTransition.simulation.position.debt.amount.minus(ONE).toFixed(0),
         ])
       })
 
       it(`Should deposit all ${tokens.WBTC} tokens to aave`, function () {
         expectToBe(
-          positionMutation.simulation.position.collateral.amount,
+          positionTransition.simulation.position.collateral.amount,
           'gte',
           new BigNumber(userWBTCReserveData.currentATokenBalance.toString()).toFixed(0),
         )
@@ -440,13 +440,13 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it('Should achieve target multiple', function () {
         expectToBe(
-          positionMutation.simulation.position.riskRatio.multiple,
+          positionTransition.simulation.position.riskRatio.multiple,
           'lte',
           actualPosition.riskRatio.multiple,
         )
 
         expectToBe(
-          positionMutation.simulation.position.riskRatio.multiple,
+          positionTransition.simulation.position.riskRatio.multiple,
           'gte',
           actualPosition.riskRatio.multiple.times(ONE.minus(MULTIPLE_TESTING_OFFSET)),
         )
@@ -460,7 +460,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         )
 
         expectToBeEqual(
-          new BigNumber(positionMutation.simulation.swap.tokenFee),
+          new BigNumber(positionTransition.simulation.swap.tokenFee),
           feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore),
         )
       })
@@ -495,7 +495,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           userAddress,
         )
         txStatus = setup.txStatus
-        positionMutation = setup.positionMutation
+        positionTransition = setup.positionTransition
         actualPosition = setup.actualPosition
         userWBTCReserveData = setup.userCollateralReserveData
         userUSDCReserveData = setup.userDebtReserveData
@@ -508,14 +508,14 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it('Should draw debt according to multiple', function () {
         expect(new BigNumber(actualPosition.debt.amount.toString()).toString()).to.be.oneOf([
-          positionMutation.simulation.position.debt.amount.toFixed(0),
-          positionMutation.simulation.position.debt.amount.minus(ONE).toFixed(0),
+          positionTransition.simulation.position.debt.amount.toFixed(0),
+          positionTransition.simulation.position.debt.amount.minus(ONE).toFixed(0),
         ])
       })
 
       it(`Should deposit all ${tokens.WBTC} tokens to aave`, function () {
         expectToBe(
-          positionMutation.simulation.position.collateral.amount,
+          positionTransition.simulation.position.collateral.amount,
           'gte',
           new BigNumber(userWBTCReserveData.currentATokenBalance.toString()).toFixed(0),
         )
@@ -523,13 +523,13 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it('Should achieve target multiple', function () {
         expectToBe(
-          positionMutation.simulation.position.riskRatio.multiple,
+          positionTransition.simulation.position.riskRatio.multiple,
           'lte',
           actualPosition.riskRatio.multiple,
         )
 
         expectToBe(
-          positionMutation.simulation.position.riskRatio.multiple,
+          positionTransition.simulation.position.riskRatio.multiple,
           'gte',
           actualPosition.riskRatio.multiple.times(ONE.minus(MULTIPLE_TESTING_OFFSET)),
         )
@@ -545,14 +545,14 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
           new BigNumber(
-            positionMutation.simulation.swap.tokenFee.div(ONE.minus(slippage)).toString(),
+            positionTransition.simulation.swap.tokenFee.div(ONE.minus(slippage)).toString(),
           ).toFixed(0),
           'gte',
           feeRecipientWBTCBalanceAfter.minus(feeRecipientWBTCBalanceBefore),
         )
 
         expectToBe(
-          positionMutation.simulation.swap.tokenFee,
+          positionTransition.simulation.swap.tokenFee,
           'lte',
           feeRecipientWBTCBalanceAfter.minus(feeRecipientWBTCBalanceBefore),
         )
@@ -567,7 +567,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     let system: DeployedSystemInfo
 
-    let positionMutation: IPositionMutation
+    let positionTransition: IPositionTransition
     let txStatus: boolean
 
     let userAccountData: AAVEAccountData
@@ -597,7 +597,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           { config },
         )
 
-        positionMutation = await strategies.aave.open(
+        positionTransition = await strategies.aave.open(
           {
             depositedByUser: { debtInWei: depositEthAmount },
             slippage,
@@ -619,7 +619,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              positionMutation.transaction.calls,
+              positionTransition.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -644,14 +644,14 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     it('Should draw debt according to multiple', function () {
       expectToBeEqual(
-        positionMutation.simulation.position.debt.amount.toFixed(0),
+        positionTransition.simulation.position.debt.amount.toFixed(0),
         new BigNumber(userAccountData.totalDebtETH.toString()),
       )
     })
 
     it('Should deposit all stEth tokens to aave', function () {
       expectToBe(
-        positionMutation.simulation.position.collateral.amount,
+        positionTransition.simulation.position.collateral.amount,
         'gte',
         new BigNumber(userStEthReserveData.currentATokenBalance.toString()).toFixed(0),
       )
@@ -668,13 +668,13 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       const actualFees = feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore)
       expectToBe(
         new BigNumber(
-          positionMutation.simulation.swap.tokenFee.div(ONE.minus(slippage)).toString(),
+          positionTransition.simulation.swap.tokenFee.div(ONE.minus(slippage)).toString(),
         ).toFixed(0),
         'gte',
         actualFees,
       )
 
-      expectToBe(positionMutation.simulation.swap.tokenFee, 'lte', actualFees)
+      expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualFees)
     })
   })
 })

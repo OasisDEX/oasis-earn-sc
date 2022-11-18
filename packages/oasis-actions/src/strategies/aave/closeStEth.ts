@@ -9,18 +9,18 @@ import { ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IPositionMutation } from '../types/IPositionMutation'
 import {
-  IBasePositionMutationArgs,
+  IBasePositionTransitionArgs,
   IMutationDependencies,
   WithLockedCollateral,
   WithPosition,
 } from '../types/IPositionRepository'
+import { IPositionTransition } from '../types/IPositionTransition'
 
 export async function closeStEth(
-  args: IBasePositionMutationArgs<AAVETokens> & WithLockedCollateral,
+  args: IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral,
   dependencies: IMutationDependencies<AAVEStrategyAddresses> & WithPosition,
-): Promise<IPositionMutation> {
+): Promise<IPositionTransition> {
   const existingPosition = dependencies.position
 
   const priceFeed = new ethers.Contract(

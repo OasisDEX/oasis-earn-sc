@@ -1,21 +1,19 @@
-import BigNumber from 'bignumber.js'
-
 import { ActionCall } from '../../actions/types/actionCall'
-import { IPositionChange, Swap } from '../../helpers/calculations/Position'
+import { IBaseSimulatedTransition, Swap } from '../../helpers/calculations/Position'
 import { IRiskRatio } from '../../helpers/calculations/RiskRatio'
 import { OperationNames } from '../../helpers/constants'
 import { SwapData } from './SwapData'
 
-interface ISimulatedMutation extends IPositionChange {
+interface ISimulatedTransition extends IBaseSimulatedTransition {
   swap: SwapData & Swap
   minConfigurableRiskRatio: IRiskRatio
 }
 
-export interface IPositionMutation {
+export interface IPositionTransition {
   transaction: {
     calls: ActionCall[]
     // operationName: OperationNames
     operationName: 'CUSTOM_OPERATION'
   }
-  simulation: ISimulatedMutation
+  simulation: ISimulatedTransition
 }
