@@ -1,4 +1,5 @@
 import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import BigNumber from 'bignumber.js'
 import { task, types } from 'hardhat/config'
 
@@ -20,7 +21,7 @@ function amountToWei(amount: BigNumber.Value, precision = 18) {
 
 task('createPosition', 'Create stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
-  .addOptionalParam('deposit', 'ETH deposit', 2, types.float)
+  .addOptionalParam('deposit', 'ETH deposit', 8, types.float)
   .addOptionalParam('multiply', 'Required multiply', 2, types.float)
   .addFlag('dummyswap', 'Use dummy swap')
   .setAction(async (taskArgs, hre) => {
@@ -88,6 +89,12 @@ task('createPosition', 'Create stETH position on AAVE')
       config.provider,
     )
 
+    const aavePriceOracle = new hre.ethers.Contract(
+      ADDRESSES.main.aavePriceOracle,
+      aavePriceOracleABI,
+      config.provider,
+    )
+
     const proxyAddress = await getOrCreateProxy(config.signer)
 
     const dsProxy = new hre.ethers.Contract(proxyAddress, DSProxyABI, config.provider).connect(
@@ -101,6 +108,18 @@ task('createPosition', 'Create stETH position on AAVE')
     const multiply = new BigNumber(taskArgs.multiply)
     const slippage = new BigNumber(0.1)
 
+    const currentPosition = await strategies.aave.getCurrentStEthEthPosition(
+      { proxyAddress: dsProxy.address },
+      {
+        addresses: {
+          stETH: ADDRESSES.main.stETH,
+          aavePriceOracle: aavePriceOracle.address,
+          aaveLendingPool: aaveLendingPool.address,
+          aaveDataProvider: aaveDataProvider.address,
+        },
+        provider: config.provider,
+      },
+    )
     const strategyReturn = await strategies.aave.openStEth(
       {
         depositAmount,
@@ -112,6 +131,7 @@ task('createPosition', 'Create stETH position on AAVE')
         provider: config.provider,
         getSwapData: swapData,
         dsProxy: dsProxy.address,
+        currentPosition: currentPosition,
       },
     )
 
