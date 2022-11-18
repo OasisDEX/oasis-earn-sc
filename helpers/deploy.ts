@@ -14,8 +14,11 @@ export async function createDeploy(
   const ethers = hre?.ethers || (await import('hardhat')).ethers
 
   return async (contractName: string, params: string[] = []): Promise<[Contract, string]> => {
-    const contractFactory = await ethers.getContractFactory(contractName, config.signer)
-    const instance = await contractFactory.connect(config.signer).deploy(...params)
+    // Hardhat is not connecting the signer correctly without the following code. You can't just pass the signer to the contract factory as 2nd argument. It doesn't persist
+    const contractFactory = await ethers.getContractFactory(contractName, {
+      signer: await ethers.getSigner(await config.signer.getAddress()),
+    })
+    const instance = await contractFactory.deploy(...params)
     if (debug) {
       console.log('DEBUG: Owner of deploy:', await config.signer.getAddress())
       console.log(`DEBUG: Deploying ${contractName} ...`)
