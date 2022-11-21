@@ -326,6 +326,7 @@ async function _increaseRisk({
       amount: collateralAmountAfterSwapInWei
         .plus(depositCollateralAmountInWei || ZERO)
         .plus(existingPosition.collateral.amount),
+      precision: args.collateralToken.precision,
       symbol: target.position.collateral.symbol,
     },
     aaveCollateralTokenPriceInEth,
@@ -431,13 +432,19 @@ async function _decreaseRisk({
     args.debtToken.precision,
   ).integerValue(BigNumber.ROUND_DOWN)
 
+  console.log('FINAL POISTION | SIMULATION')
+  const newDebt = {
+    amount: existingPosition.debt.amount
+      .minus(depositDebtAmountInWei)
+      .minus(debtTokenAmountAfterSwapInWei),
+    precision: existingPosition.debt.precision,
+    symbol: target.position.collateral.symbol,
+  }
+  console.log('Debt:', newDebt.amount.toString())
+  console.log('Collateral:', target.position.collateral.amount.toString())
+  console.log('CollateralTokenPrice', aaveCollateralTokenPriceInEth.toString())
   const finalPosition = new Position(
-    {
-      amount: existingPosition.debt.amount
-        .minus(depositDebtAmountInWei)
-        .minus(debtTokenAmountAfterSwapInWei),
-      symbol: target.position.collateral.symbol,
-    },
+    newDebt,
     target.position.collateral,
     aaveCollateralTokenPriceInEth,
     target.position.category,

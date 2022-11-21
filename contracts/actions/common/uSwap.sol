@@ -7,6 +7,7 @@ import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20 } from "../../libs/SafeERC20.sol";
 import { UNISWAP_ROUTER } from "../../core/constants/Common.sol";
 import { SwapData } from "../../core/types/Common.sol";
+import "hardhat/console.sol";
 
 contract uSwap {
   using SafeMath for uint256;
@@ -122,6 +123,10 @@ contract uSwap {
 
     IERC20(fromAsset).safeApprove(address(uniswap), amount);
     uint24 pool = getPool(fromAsset, toAsset);
+
+    uint256 balanceOnContract = IERC20(fromAsset).balanceOf(address(this));
+    console.log("balanceOnContract", balanceOnContract);
+    console.log("amount", amount);
 
     uniswap.exactInputSingle(
       ISwapRouter.ExactInputSingleParams({
