@@ -293,6 +293,7 @@ async function _increaseRisk({
       collateralTokenAddress,
       debtTokenAddress,
       proxy: dependencies.proxy,
+      user: dependencies.user,
     },
     dependencies.addresses,
   )
@@ -407,6 +408,7 @@ async function _decreaseRisk({
       collateralTokenAddress,
       debtTokenAddress,
       proxy: dependencies.proxy,
+      user: dependencies.user,
     },
     dependencies.addresses,
   )

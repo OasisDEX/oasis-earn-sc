@@ -540,19 +540,9 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWethReserveData: AAVEReserveData
-<<<<<<< HEAD
       let userAccountData: AAVEAccountData
       let feeRecipientUSDCBalanceBefore: BigNumber
       let system: DeployedSystemInfo
-=======
-      let userUSDCReserveData: AAVEReserveData
-      let userEthBalanceBeforeTx: BigNumber
-      let userAccountData: AAVEAccountData
-      let feeRecipientUSDCBalanceBefore: BigNumber
-      let finalPosition: IPosition
-      let system: DeployedSystemInfo
-      let address: string
->>>>>>> bbcd312 (refactor: complete multi-token pair Close aave position tests)
 
       before(async () => {
         const setup = await setupClosePositionTest(

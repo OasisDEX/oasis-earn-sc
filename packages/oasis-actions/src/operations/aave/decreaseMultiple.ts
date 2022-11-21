@@ -16,6 +16,7 @@ export async function decreaseMultiple(
     collateralTokenAddress: string
     debtTokenAddress: string
     proxy: string
+    user: string
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
