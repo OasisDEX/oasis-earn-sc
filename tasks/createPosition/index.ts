@@ -1,4 +1,4 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, strategies } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import BigNumber from 'bignumber.js'
 import { task, types } from 'hardhat/config'

@@ -1,10 +1,4 @@
-import {
-  ADDRESSES,
-  CONTRACT_NAMES,
-  OPERATION_NAMES,
-  Position,
-  strategies,
-} from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, Position, strategies } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 

@@ -12,8 +12,8 @@ import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
 import { IOperation } from '../types/IOperation'
 import {
-  IPositionTransitionDependencies,
   IPositionTransitionArgs,
+  IPositionTransitionDependencies,
 } from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
 

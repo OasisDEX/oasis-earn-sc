@@ -1,13 +1,13 @@
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
+import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import { amountFromWei } from '../../helpers'
 import { IPosition, Position } from '../../helpers/calculations/Position'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IViewPositionParams, IViewPositionDependencies } from '../types/IPositionRepository'
+import { IViewPositionDependencies, IViewPositionParams } from '../types/IPositionRepository'
 
 export async function getCurrentPosition(
   { collateralToken, debtToken, proxy }: IViewPositionParams<AAVETokens>,

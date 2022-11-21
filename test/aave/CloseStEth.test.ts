@@ -105,7 +105,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           provider,
           getSwapData: oneInchCallMock(new BigNumber(0.9759)),
           proxy: system.common.dsProxy.address,
-          user: address
+          user: address,
         },
       )
 
@@ -190,7 +190,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             position: positionAfterOpen,
             getSwapData: oneInchCallMock(ONE.div(new BigNumber(0.9759))),
             proxy: system.common.dsProxy.address,
-            user: address
+            user: address,
           },
         )
 
@@ -333,7 +333,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
-            user: address
+            user: address,
           },
         )
 
@@ -405,7 +405,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             position: positionAfterOpen,
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
-            user: address
+            user: address,
           },
         )
 

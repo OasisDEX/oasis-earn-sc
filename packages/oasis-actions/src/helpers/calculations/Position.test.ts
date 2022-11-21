@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 
-import { FLASHLOAN_SAFETY_MARGIN, ONE, ZERO } from '../constants'
+import { ONE, ZERO } from '../constants'
 import { Position } from './Position'
 import { RiskRatio } from './RiskRatio'
 import { testDataSources } from './test-scenarios/generateTestData'

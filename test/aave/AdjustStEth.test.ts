@@ -102,7 +102,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           provider,
           getSwapData: oneInchCallMock(new BigNumber(0.979)),
           proxy: system.common.dsProxy.address,
-          user: address
+          user: address,
         },
       )
 
@@ -206,7 +206,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             },
             getSwapData: oneInchCallMock(new BigNumber(0.979)),
             proxy: system.common.dsProxy.address,
-            user: address
+            user: address,
           },
         )
 
@@ -334,7 +334,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
-            user: address
+            user: address,
           },
         )
 
@@ -453,7 +453,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
-            user: address
+            user: address,
           },
         )
 
@@ -573,7 +573,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           provider,
           getSwapData: oneInchCallMock(new BigNumber(0.979)),
           proxy: system.common.dsProxy.address,
-          user: address
+          user: address,
         },
       )
 
@@ -788,7 +788,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
-            user: address
+            user: address,
           },
         )
 
@@ -880,7 +880,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
             },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
-            user: address
+            user: address,
           },
         )
 

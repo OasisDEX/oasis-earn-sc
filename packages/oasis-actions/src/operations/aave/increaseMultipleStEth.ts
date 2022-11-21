@@ -2,7 +2,6 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import * as actions from '../../actions'
-import { OPERATION_NAMES } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
 
