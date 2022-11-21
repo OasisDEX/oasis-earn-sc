@@ -401,7 +401,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
-      let userUSDCReserveData: AAVEReserveData
       let feeRecipientUSDCBalanceBefore: BigNumber
       let actualPosition: IPosition
 
@@ -429,7 +428,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         positionTransition = setup.positionTransition
         actualPosition = setup.actualPosition
         userWBTCReserveData = setup.userCollateralReserveData
-        userUSDCReserveData = setup.userDebtReserveData
         feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
       })
 
@@ -484,7 +482,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
-      let userUSDCReserveData: AAVEReserveData
       let feeRecipientWBTCBalanceBefore: BigNumber
       let actualPosition: IPosition
 
@@ -512,7 +509,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         positionTransition = setup.positionTransition
         actualPosition = setup.actualPosition
         userWBTCReserveData = setup.userCollateralReserveData
-        userUSDCReserveData = setup.userDebtReserveData
         feeRecipientWBTCBalanceBefore = setup.feeRecipientBalanceBefore
       })
 

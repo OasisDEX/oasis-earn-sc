@@ -81,7 +81,6 @@ describe('Calculate Position Helper', async () => {
         healthFactor,
         minOraclePrice,
         feePaidFromSourceToken,
-        feePaidFromTargetToken,
       } = scenario
       it(`Test: ${name}`, async () => {
         if (debug) {

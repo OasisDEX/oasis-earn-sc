@@ -62,7 +62,6 @@ export async function open(
     aaveFlashloanDaiPriceInEth,
     aaveDebtTokenPriceInEth,
     aaveCollateralTokenPriceInEth,
-    reserveDataForCollateral,
     reserveDataForFlashloan,
     quoteSwapData,
   ] = await Promise.all([
@@ -75,7 +74,6 @@ export async function open(
     aavePriceOracle
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
     aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
     dependencies.getSwapData(
       debtTokenAddress,
@@ -87,9 +85,6 @@ export async function open(
 
   const BASE = new BigNumber(10000)
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(BASE)
-
-  // TODO: Read it from blockchain if AAVE introduces a dust limit
-  const dustLimit = new BigNumber(0)
 
   const FEE = 20
   const multiple = args.multiple

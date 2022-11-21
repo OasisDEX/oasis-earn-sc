@@ -46,7 +46,6 @@ export async function getCurrentPosition(
     aaveCollateralTokenPriceInEth,
     userReserveDataForDebtToken,
     userReserveDataForCollateral,
-    reserveDataForDebtToken,
     reserveDataForCollateral,
   ] = await Promise.all([
     aavePriceOracle
@@ -57,7 +56,6 @@ export async function getCurrentPosition(
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     aaveProtocolDataProvider.getUserReserveData(debtTokenAddress, proxy),
     aaveProtocolDataProvider.getUserReserveData(collateralTokenAddress, proxy),
-    aaveProtocolDataProvider.getReserveConfigurationData(debtTokenAddress),
     aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
   ])
 

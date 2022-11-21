@@ -44,27 +44,21 @@ export async function adjustStEth(
     dependencies.provider,
   )
 
-  const [roundData, decimals, aaveWethPriceInEth, aaveStEthPriceInEth, quoteSwapData] =
-    await Promise.all([
-      priceFeed.latestRoundData(),
-      priceFeed.decimals(),
-      aavePriceOracle
-        .getAssetPrice(dependencies.addresses.WETH)
-        .then((amount: ethers.BigNumberish) => amount.toString())
-        .then((amount: string) => new BigNumber(amount))
-        .then((amount: BigNumber) => amountFromWei(amount)),
-      aavePriceOracle
-        .getAssetPrice(dependencies.addresses.stETH)
-        .then((amount: ethers.BigNumberish) => amount.toString())
-        .then((amount: string) => new BigNumber(amount))
-        .then((amount: BigNumber) => amountFromWei(amount)),
-      dependencies.getSwapData(
-        dependencies.addresses.WETH,
-        dependencies.addresses.stETH,
-        estimatedSwapAmount,
-        new BigNumber(slippage),
-      ),
-    ])
+  const [roundData, decimals, aaveStEthPriceInEth, quoteSwapData] = await Promise.all([
+    priceFeed.latestRoundData(),
+    priceFeed.decimals(),
+    aavePriceOracle
+      .getAssetPrice(dependencies.addresses.stETH)
+      .then((amount: ethers.BigNumberish) => amount.toString())
+      .then((amount: string) => new BigNumber(amount))
+      .then((amount: BigNumber) => amountFromWei(amount)),
+    dependencies.getSwapData(
+      dependencies.addresses.WETH,
+      dependencies.addresses.stETH,
+      estimatedSwapAmount,
+      new BigNumber(slippage),
+    ),
+  ])
 
   const existingPosition = new Position(
     currentPosition.debt,
@@ -74,7 +68,6 @@ export async function adjustStEth(
   )
 
   const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
-  const stEthPrice = aaveStEthPriceInEth.times(ethPrice.times(aaveWethPriceInEth))
 
   const quoteMarketPrice = quoteSwapData.fromTokenAmount.div(quoteSwapData.toTokenAmount)
 
@@ -212,11 +205,6 @@ export async function adjustStEth(
       aaveStEthPriceInEth,
       target.position.category,
     )
-  }
-
-  const prices = {
-    debtTokenPrice: ethPrice,
-    collateralTokenPrices: stEthPrice,
   }
 
   return {

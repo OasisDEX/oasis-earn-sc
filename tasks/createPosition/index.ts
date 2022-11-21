@@ -1,5 +1,4 @@
 import { ADDRESSES, CONTRACT_NAMES, strategies } from '@oasisdex/oasis-actions'
-import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import BigNumber from 'bignumber.js'
 import { task, types } from 'hardhat/config'
 
@@ -88,12 +87,6 @@ task('createPosition', 'Create stETH position on AAVE')
     const aaveDataProvider = new hre.ethers.Contract(
       ADDRESSES.main.aave.DataProvider,
       AAVEDataProviderABI,
-      config.provider,
-    )
-
-    const aavePriceOracle = new hre.ethers.Contract(
-      ADDRESSES.main.aavePriceOracle,
-      aavePriceOracleABI,
       config.provider,
     )
 

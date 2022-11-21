@@ -189,21 +189,22 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
           {
             addresses,
             provider,
-            position: {
-              debt: new PositionBalance({
+            currentPosition: new Position(
+              new PositionBalance({
                 symbol: tokens.ETH,
                 amount: new BigNumber(beforeUserAccountData.totalDebtETH.toString()),
               }),
-              collateral: new PositionBalance({
+              new PositionBalance({
                 symbol: tokens.STETH,
                 amount: new BigNumber(beforeUserStEthReserveData.currentATokenBalance.toString()),
               }),
-              category: {
+              aaveStEthPriceInEth,
+              {
                 liquidationThreshold: new BigNumber(0.75),
                 maxLoanToValue: new BigNumber(0.73),
                 dustLimit: new BigNumber(0),
               },
-            },
+            ),
             getSwapData: oneInchCallMock(new BigNumber(0.979)),
             proxy: system.common.dsProxy.address,
             user: address,
@@ -545,11 +546,7 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     before(async () => {
       ;({ config, provider, signer } = await loadFixture(initialiseConfig))
 
-      const { snapshot, config: newConfig } = await restoreSnapshot(
-        config,
-        provider,
-        testBlockNumber,
-      )
+      const { snapshot } = await restoreSnapshot(config, provider, testBlockNumber)
       // config = newConfig
       system = snapshot.deployed.system
 
