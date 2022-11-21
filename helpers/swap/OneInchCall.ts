@@ -13,6 +13,7 @@ export const getOneInchCall =
       amount.toString(),
       swapAddress,
       slippageAsPercentage.toString(),
+      protocols,
     )
 
     if (debug) {

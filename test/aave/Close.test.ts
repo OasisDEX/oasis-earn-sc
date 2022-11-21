@@ -1,7 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
-  IPosition,
   ONE,
   OPERATION_NAMES,
   Position,
@@ -16,7 +15,7 @@ import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionR
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Contract, ContractReceipt, ethers, Signer } from 'ethers'
+import { Contract, ethers, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
@@ -61,10 +60,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     const blockNumber = 15695000 // Required to marry up with market price
 
     let positionTransition: IPositionTransition
-    let positionAfterOpen: IPosition
     let openTxStatus: boolean
     let txStatus: boolean
-    let tx: ContractReceipt
 
     async function setupClosePositionTest(
       collateralToken: {
@@ -338,13 +335,9 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       const depositAmount = amountToWei(new BigNumber(1))
 
       let userStEthReserveData: AAVEReserveData
-      let userWethReserveData: AAVEReserveData
-      let userEthBalanceBeforeTx: BigNumber
       let userAccountData: AAVEAccountData
       let feeRecipientWethBalanceBefore: BigNumber
-      let finalPosition: IPosition
       let system: DeployedSystemInfo
-      let address: string
 
       before(async () => {
         const setup = await setupClosePositionTest(
@@ -367,19 +360,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           true,
           userAddress,
         )
-        address = setup.address
         system = setup.system
         txStatus = setup.txStatus
-        tx = setup.tx
         openTxStatus = setup.openTxStatus
         positionTransition = setup.positionTransition
-        finalPosition = setup.finalPosition
-        positionAfterOpen = setup.positionAfterOpen
         userStEthReserveData = setup.userCollateralReserveData
-        userWethReserveData = setup.userDebtReserveData
         userAccountData = setup.userAccountData
         feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
-        userEthBalanceBeforeTx = setup.userEthBalanceBeforeTx
       })
 
       it('Open Tx should pass', () => {
@@ -454,13 +441,9 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       const depositEthAmount = amountToWei(new BigNumber(1))
 
       let userWethReserveData: AAVEReserveData
-      let userUSDCReserveData: AAVEReserveData
-      let userEthBalanceBeforeTx: BigNumber
       let userAccountData: AAVEAccountData
       let feeRecipientUSDCBalanceBefore: BigNumber
-      let finalPosition: IPosition
       let system: DeployedSystemInfo
-      let address: string
 
       before(async () => {
         const setup = await setupClosePositionTest(
@@ -483,19 +466,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           true,
           userAddress,
         )
-        address = setup.address
         system = setup.system
         txStatus = setup.txStatus
-        tx = setup.tx
         openTxStatus = setup.openTxStatus
         positionTransition = setup.positionTransition
-        finalPosition = setup.finalPosition
-        positionAfterOpen = setup.positionAfterOpen
         userWethReserveData = setup.userCollateralReserveData
-        userUSDCReserveData = setup.userDebtReserveData
         userAccountData = setup.userAccountData
         feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
-        userEthBalanceBeforeTx = setup.userEthBalanceBeforeTx
       })
 
       it('Open Tx should pass', () => {
@@ -563,13 +540,9 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWethReserveData: AAVEReserveData
-      let userUSDCReserveData: AAVEReserveData
-      let userEthBalanceBeforeTx: BigNumber
       let userAccountData: AAVEAccountData
       let feeRecipientUSDCBalanceBefore: BigNumber
-      let finalPosition: IPosition
       let system: DeployedSystemInfo
-      let address: string
 
       before(async () => {
         const setup = await setupClosePositionTest(
@@ -593,19 +566,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           userAddress,
           blockNumber,
         )
-        address = setup.address
         system = setup.system
         txStatus = setup.txStatus
-        tx = setup.tx
         openTxStatus = setup.openTxStatus
         positionTransition = setup.positionTransition
-        finalPosition = setup.finalPosition
-        positionAfterOpen = setup.positionAfterOpen
         userWethReserveData = setup.userCollateralReserveData
-        userUSDCReserveData = setup.userDebtReserveData
         userAccountData = setup.userAccountData
         feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
-        userEthBalanceBeforeTx = setup.userEthBalanceBeforeTx
       })
 
       it('Open Tx should pass', () => {
@@ -681,20 +648,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     const slippage = new BigNumber(0.1)
     const depositAmount = amountToWei(new BigNumber(1))
 
-    let positionTransition: IPositionTransition
-    let positionAfterOpen: IPosition
     let openTxStatus: boolean
     let txStatus: boolean
-    let tx: ContractReceipt
 
     let userStEthReserveData: AAVEReserveData
-    let userWethReserveData: AAVEReserveData
-    let userEthBalanceBeforeTx: BigNumber
     let userAccountData: AAVEAccountData
-    let feeRecipientWethBalanceBefore: BigNumber
-    let finalPosition: IPosition
     let system: DeployedSystemInfo
-    let address: string
 
     before(async function () {
       const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
@@ -761,12 +720,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
         openTxStatus = _openTxStatus
 
-        feeRecipientWethBalanceBefore = await balanceOf(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.feeRecipient,
-          { config, isFormatted: true },
-        )
-
         const beforeCloseUserWethReserveData = await aaveDataProvider.getUserReserveData(
           ADDRESSES.main.WETH,
           system.common.dsProxy.address,
@@ -824,12 +777,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           },
         )
 
-        userEthBalanceBeforeTx = await balanceOf(ADDRESSES.main.ETH, address, {
-          config,
-          isFormatted: true,
-        })
-
-        const [_closeTxStatus, _closeTx] = await executeThroughProxy(
+        const [_closeTxStatus] = await executeThroughProxy(
           system.common.dsProxy.address,
           {
             address: system.common.operationExecutor.address,
@@ -842,42 +790,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           '0',
         )
         txStatus = _closeTxStatus
-        tx = _closeTx
 
         userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
         userStEthReserveData = await aaveDataProvider.getUserReserveData(
           ADDRESSES.main.stETH,
           system.common.dsProxy.address,
-        )
-
-        userWethReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.WETH,
-          system.common.dsProxy.address,
-        )
-
-        const aaveStEthTokenPriceInEth = await aavePriceOracle
-          .getAssetPrice(ADDRESSES.main.stETH)
-          .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
-
-        const aaveWethTokenPriceInEth = await aavePriceOracle
-          .getAssetPrice(ADDRESSES.main.WETH)
-          .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
-
-        const oracle = aaveStEthTokenPriceInEth.div(aaveWethTokenPriceInEth)
-
-        finalPosition = new Position(
-          {
-            amount: new BigNumber(userWethReserveData.currentVariableDebt.toString()),
-            precision: 18,
-            symbol: tokens.ETH,
-          },
-          {
-            amount: new BigNumber(userStEthReserveData.currentATokenBalance.toString()),
-            precision: 18,
-            symbol: tokens.STETH,
-          },
-          oracle,
-          positionTransition.simulation.position.category,
         )
       } else {
         this.skip()
