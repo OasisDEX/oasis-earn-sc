@@ -2,7 +2,6 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
-import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
 import { IBaseSimulatedTransition, IPosition, Position } from '../../helpers/calculations/Position'
@@ -12,11 +11,11 @@ import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
 import { IOperation } from '../types/IOperation'
-import { IPositionTransition } from '../types/IPositionTransition'
 import {
-  IPositionTransitionDependencies,
   IPositionTransitionArgs,
+  IPositionTransitionDependencies,
 } from '../types/IPositionRepository'
+import { IPositionTransition } from '../types/IPositionTransition'
 import { SwapData } from '../types/SwapData'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
@@ -44,12 +43,6 @@ export async function adjust(
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
     aavePriceOracleABI,
-    dependencies.provider,
-  )
-
-  const aaveProtocolDataProvider = new ethers.Contract(
-    dependencies.addresses.aaveProtocolDataProvider,
-    aaveProtocolDataProviderABI,
     dependencies.provider,
   )
 
@@ -168,7 +161,6 @@ export async function adjust(
       collectFeeFrom,
       collateralTokenAddress,
       debtTokenAddress,
-      depositDebtAmountInWei,
       aaveCollateralTokenPriceInEth,
       args,
       dependencies,
@@ -206,7 +198,7 @@ interface BranchProps {
   target: IBaseSimulatedTransition
   existingPosition: IPosition
   collateralTokenAddress: string
-  depositDebtAmountInWei: BigNumber
+  depositDebtAmountInWei?: BigNumber
   depositCollateralAmountInWei?: BigNumber
   debtTokenAddress: string
   swapAmountBeforeFees: BigNumber
@@ -260,7 +252,8 @@ async function _increaseRisk({
     actualSwapBase18ToTokenAmount,
   )
 
-  const borrowAmountInWei = target.delta.debt.minus(depositDebtAmountInWei)
+  const _depositDebtAmountInWei = depositDebtAmountInWei || ZERO
+  const borrowAmountInWei = target.delta.debt.minus(_depositDebtAmountInWei)
   const precisionAdjustedBorrowAmount = amountToWei(
     amountFromWei(borrowAmountInWei),
     args.debtToken.precision || TYPICAL_PRECISION,
@@ -275,7 +268,7 @@ async function _increaseRisk({
         isEth: args.collateralToken.symbol === 'ETH',
       },
       depositDebtTokens: {
-        amountInWei: depositDebtAmountInWei, // Reduces amount of borrowing required
+        amountInWei: _depositDebtAmountInWei, // Reduces amount of borrowing required
         isEth: args.debtToken.symbol === 'ETH',
       },
       flashloanAmount: flashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : flashloanAmount,
@@ -342,8 +335,6 @@ async function _decreaseRisk({
   collectFeeFrom,
   collateralTokenAddress,
   debtTokenAddress,
-  depositDebtAmountInWei,
-  depositCollateralAmountInWei,
   aaveCollateralTokenPriceInEth,
   args,
   dependencies,
@@ -425,9 +416,7 @@ async function _decreaseRisk({
   ).integerValue(BigNumber.ROUND_DOWN)
 
   const newDebt = {
-    amount: existingPosition.debt.amount
-      .minus(depositDebtAmountInWei)
-      .minus(debtTokenAmountAfterSwapInWei),
+    amount: existingPosition.debt.amount.minus(debtTokenAmountAfterSwapInWei),
     precision: existingPosition.debt.precision,
     symbol: target.position.collateral.symbol,
   }

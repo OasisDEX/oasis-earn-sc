@@ -16,14 +16,13 @@ import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Contract, ContractReceipt, ethers, Signer } from 'ethers'
+import { Contract, ethers, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
-import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
-import init, { impersonateRichAccount, resetNodeToLatestBlock } from '../../helpers/init'
+import { impersonateRichAccount, resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
@@ -34,7 +33,7 @@ import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
-import { expectToBe, expectToBeEqual, TESTING_OFFSET } from '../utils'
+import { expectToBe, TESTING_OFFSET } from '../utils'
 
 describe(`Strategy | AAVE | Adjust Position`, async function () {
   let aaveLendingPool: Contract
@@ -61,10 +60,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     const slippage = new BigNumber(0.1)
 
     let positionTransition: IPositionTransition
-    let positionAfterOpen: IPosition
     let openTxStatus: boolean
     let txStatus: boolean
-    let tx: ContractReceipt
 
     async function setupAdjustPositionTest(
       collateralToken: {
@@ -410,14 +407,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       const depositAmount = amountToWei(new BigNumber(1))
       const adjustMultipleUp = new BigNumber(3.5)
 
-      let userStEthReserveData: AAVEReserveData
-      let userWethReserveData: AAVEReserveData
-      let userEthBalanceBeforeTx: BigNumber
-      let userAccountData: AAVEAccountData
       let feeRecipientWethBalanceBefore: BigNumber
       let finalPosition: IPosition
-      let system: DeployedSystemInfo
-      let address: string
 
       before(async () => {
         const setup = await setupAdjustPositionTest(
@@ -444,19 +435,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           true,
           userAddress,
         )
-        address = setup.address
-        system = setup.system
         txStatus = setup.txStatus
-        tx = setup.tx
         openTxStatus = setup.openTxStatus
         positionTransition = setup.positionTransition
         finalPosition = setup.finalPosition
-        positionAfterOpen = setup.positionAfterOpen
-        userStEthReserveData = setup.userCollateralReserveData
-        userWethReserveData = setup.userDebtReserveData
-        userAccountData = setup.userAccountData
         feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
-        userEthBalanceBeforeTx = setup.userEthBalanceBeforeTx
       })
 
       it('Open Tx should pass', () => {
@@ -506,14 +489,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       const depositAmount = amountToWei(new BigNumber(1))
       const adjustMultipleUp = new BigNumber(3.5)
 
-      let userWethReserveData: AAVEReserveData
-      let userUSDCReserveData: AAVEReserveData
-      let userEthBalanceBeforeTx: BigNumber
-      let userAccountData: AAVEAccountData
       let feeRecipientWethBalanceBefore: BigNumber
       let finalPosition: IPosition
-      let system: DeployedSystemInfo
-      let address: string
 
       before(async () => {
         const setup = await setupAdjustPositionTest(
@@ -540,19 +517,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           true,
           userAddress,
         )
-        address = setup.address
-        system = setup.system
         txStatus = setup.txStatus
-        tx = setup.tx
         openTxStatus = setup.openTxStatus
         positionTransition = setup.positionTransition
         finalPosition = setup.finalPosition
-        positionAfterOpen = setup.positionAfterOpen
-        userWethReserveData = setup.userCollateralReserveData
-        userUSDCReserveData = setup.userDebtReserveData
-        userAccountData = setup.userAccountData
         feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
-        userEthBalanceBeforeTx = setup.userEthBalanceBeforeTx
       })
 
       it('Open Tx should pass', () => {
@@ -954,7 +923,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
 
     it('Open Position Tx should pass', () => {
-      expect(txStatus).to.be.true
+      expect(openTxStatus).to.be.true
     })
 
     it('Adjust Tx should pass', () => {
