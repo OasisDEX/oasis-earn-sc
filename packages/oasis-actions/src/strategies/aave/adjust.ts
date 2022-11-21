@@ -5,18 +5,17 @@ import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
-import { IPosition, IPositionChange, Position } from '../../helpers/calculations/Position'
+import { IBaseSimulatedTransition, IPosition, Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
 import { IOperation } from '../types/IOperation'
-import { IPositionMutation } from '../types/IPositionMutation'
+import { IPositionTransition } from '../types/IPositionTransition'
 import {
-  IMutationDependencies,
-  IPositionMutationArgs,
-  WithPosition,
+  IPositionTransitionDependencies,
+  IPositionTransitionArgs,
 } from '../types/IPositionRepository'
 import { SwapData } from '../types/SwapData'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
@@ -24,9 +23,9 @@ import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 const FEE = 20
 
 export async function adjust(
-  args: IPositionMutationArgs<AAVETokens>,
-  dependencies: IMutationDependencies<AAVEStrategyAddresses> & WithPosition,
-): Promise<IPositionMutation> {
+  args: IPositionTransitionArgs<AAVETokens>,
+  dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
+): Promise<IPositionTransition> {
   const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
@@ -40,7 +39,7 @@ export async function adjust(
 
   const estimatedSwapAmount = amountToWei(new BigNumber(1))
 
-  const existingBasePosition = dependencies.position
+  const currentPosition = dependencies.currentPosition
 
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
@@ -103,10 +102,10 @@ export async function adjust(
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
   const existingPosition = new Position(
-    existingBasePosition.debt,
-    existingBasePosition.collateral,
+    currentPosition.debt,
+    currentPosition.collateral,
     oracle,
-    existingBasePosition.category,
+    currentPosition.category,
   )
 
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
@@ -206,7 +205,7 @@ type BranchReturn = {
 }
 
 interface BranchProps {
-  target: IPositionChange
+  target: IBaseSimulatedTransition
   existingPosition: IPosition
   collateralTokenAddress: string
   depositDebtAmountInWei: BigNumber
@@ -216,8 +215,8 @@ interface BranchProps {
   swapAmountAfterFees: BigNumber
   collectFeeFrom: 'sourceToken' | 'targetToken'
   aaveCollateralTokenPriceInEth: BigNumber
-  args: IPositionMutationArgs<AAVETokens>
-  dependencies: IMutationDependencies<AAVEStrategyAddresses> & WithPosition
+  args: IPositionTransitionArgs<AAVETokens>
+  dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>
 }
 
 async function _increaseRisk({
