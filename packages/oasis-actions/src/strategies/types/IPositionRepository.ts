@@ -46,7 +46,7 @@ export interface IViewPositionParams<Tokens> {
  * It turned out that after opening and then closing a position there might be artifacts
  * Left in a position that make it difficult to re-open it
  */
-export interface IMutationDependencies<Addresses> {
+export interface IPositionTransitionDependencies<Addresses> {
   addresses: Addresses
   provider: providers.Provider
   currentPosition: IPosition
@@ -68,15 +68,15 @@ export interface IViewPositionDependencies<Addresses> {
 export interface IPositionRepository<Addresses> {
   open: (
     args: IPositionTransitionArgs<AAVETokens>,
-    dependencies: IMutationDependencies<Addresses>,
+    dependencies: IPositionTransitionDependencies<Addresses>,
   ) => Promise<IPositionTransition>
   close: (
     args: IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral,
-    dependencies: IMutationDependencies<Addresses>,
+    dependencies: IPositionTransitionDependencies<Addresses>,
   ) => Promise<IPositionTransition>
   adjust: (
     args: IPositionTransitionArgs<AAVETokens>,
-    dependencies: IMutationDependencies<Addresses>,
+    dependencies: IPositionTransitionDependencies<Addresses>,
   ) => Promise<IPositionTransition>
   view: (
     args: IViewPositionParams<AAVETokens>,

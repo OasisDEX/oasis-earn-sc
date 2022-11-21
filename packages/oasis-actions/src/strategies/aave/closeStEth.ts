@@ -11,14 +11,14 @@ import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
 import {
   IBasePositionTransitionArgs,
-  IMutationDependencies,
+  IPositionTransitionDependencies,
   WithLockedCollateral,
 } from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
 
 export async function closeStEth(
   args: IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral,
-  dependencies: IMutationDependencies<AAVEStrategyAddresses>,
+  dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
 ): Promise<IPositionTransition> {
   const currentPosition = dependencies.currentPosition
 

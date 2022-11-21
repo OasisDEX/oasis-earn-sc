@@ -12,14 +12,14 @@ import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
 import { IOperation } from '../types/IOperation'
 import {
-  IMutationDependencies,
+  IPositionTransitionDependencies,
   IPositionTransitionArgs,
 } from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
 
 export async function adjustStEth(
   args: IPositionTransitionArgs<AAVETokens>,
-  dependencies: IMutationDependencies<AAVEStrategyAddresses>,
+  dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
 ): Promise<IPositionTransition> {
   const FEE = 20
 
