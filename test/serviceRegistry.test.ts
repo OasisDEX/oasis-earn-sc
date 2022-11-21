@@ -8,8 +8,7 @@ import { ServiceRegistry } from '../helpers/serviceRegistry'
 
 describe('Service Registry: Semantic Action Versioning', function () {
   let registry: ServiceRegistry
-  const testContractNameWithVersion = 'PullToken_2_3_7'
-  const testNameWithPatchVersionStripped = 'PullToken_2_3'
+  const testContractNameWithVersion = 'PullToken_2'
   const testAddress = '0xB1E7D2241B0d81DbD43ddB12A9CBfaA3AF9645d1'
   let actualPullTokenHash: string
 
@@ -26,7 +25,7 @@ describe('Service Registry: Semantic Action Versioning', function () {
   })
 
   it('should return the correct entry hash with patch version removed', async () => {
-    const expectedEntryHash = utils.keccak256(utils.toUtf8Bytes(testNameWithPatchVersionStripped))
+    const expectedEntryHash = utils.keccak256(utils.toUtf8Bytes(testContractNameWithVersion))
     expect(expectedEntryHash, actualPullTokenHash)
   })
 

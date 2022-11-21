@@ -11,7 +11,7 @@ string constant AAVE_WETH_GATEWAY = "AaveWethGateway";
  * update the ServiceRegistry with a new entry
  * and update TheGraph decoding accordingly
  */
-string constant BORROW_ACTION = "AaveBorrow_2_0";
-string constant DEPOSIT_ACTION = "AaveDeposit_2_0";
-string constant WITHDRAW_ACTION = "AaveWithdraw_2_0";
-string constant PAYBACK_ACTION = "AavePayback_2_0";
+string constant BORROW_ACTION = "AaveBorrow_2";
+string constant DEPOSIT_ACTION = "AaveDeposit_2";
+string constant WITHDRAW_ACTION = "AaveWithdraw_2";
+string constant PAYBACK_ACTION = "AavePayback_2";

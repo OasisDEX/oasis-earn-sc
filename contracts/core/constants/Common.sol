@@ -17,14 +17,14 @@ bytes32 constant NULL = "";
  * update the ServiceRegistry with a new entry
  * and update TheGraph decoding accordingly
  */
-string constant PULL_TOKEN_ACTION = "PullToken_2_0";
-string constant SEND_TOKEN_ACTION = "SendToken_2_0";
-string constant SET_APPROVAL_ACTION = "SetApproval_2_0";
-string constant TAKE_FLASH_LOAN_ACTION = "TakeFlashloan_2_0";
-string constant WRAP_ETH = "WrapEth_2_0";
-string constant UNWRAP_ETH = "UnwrapEth_2_0";
-string constant RETURN_FUNDS_ACTION = "ReturnFunds_2_0";
-string constant PULL_TO_PROXY_ACTION = "PullToProxy_2_0";
+string constant PULL_TOKEN_ACTION = "PullToken_2";
+string constant SEND_TOKEN_ACTION = "SendToken_2";
+string constant SET_APPROVAL_ACTION = "SetApproval_2";
+string constant TAKE_FLASH_LOAN_ACTION = "TakeFlashloan_2";
+string constant WRAP_ETH = "WrapEth_2";
+string constant UNWRAP_ETH = "UnwrapEth_2";
+string constant RETURN_FUNDS_ACTION = "ReturnFunds_2";
+string constant PULL_TO_PROXY_ACTION = "PullToProxy_2";
 
 string constant UNISWAP_ROUTER = "UniswapRouter";
 string constant SWAP = "Swap";
