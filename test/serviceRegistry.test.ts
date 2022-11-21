@@ -24,7 +24,7 @@ describe('Service Registry: Semantic Action Versioning', function () {
     )
   })
 
-  it('should return the correct entry hash with patch version removed', async () => {
+  it('should return the correct entry hash', async () => {
     const expectedEntryHash = utils.keccak256(utils.toUtf8Bytes(testContractNameWithVersion))
     expect(expectedEntryHash, actualPullTokenHash)
   })

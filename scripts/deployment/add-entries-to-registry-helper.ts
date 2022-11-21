@@ -97,9 +97,8 @@ function printEntries(entries: Entry[]) {
 
 function createEntry(label: string, contractName: string, address: string | undefined): Entry {
   const hash = getServiceNameHash(contractName)
-  const trimmedServiceName = removePatchVersion(contractName)
 
-  return { label, contractName, nameToHash: trimmedServiceName, hash, address }
+  return { label, contractName, nameToHash: contractName, hash, address }
 }
 
 function printEntryToConsole({ label, contractName, nameToHash, hash, address }: Entry) {

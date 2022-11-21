@@ -1,8 +1,6 @@
 import { ContractNames } from '@oasisdex/oasis-actions'
 import { Signer, utils } from 'ethers'
 
-import { removePatchVersion } from '../scripts/common/utils'
-
 export class ServiceRegistry {
   address: string
   signer: Signer
@@ -14,7 +12,7 @@ export class ServiceRegistry {
 
   async addEntry(label: ContractNames, address: string, debug = false): Promise<string> {
     const ethers = (await import('hardhat')).ethers
-    const entryHash = utils.keccak256(utils.toUtf8Bytes(this._removePatchVersion(label)))
+    const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     await registry.addNamedService(entryHash, address)
 
@@ -28,16 +26,13 @@ export class ServiceRegistry {
   async getEntryHash(label: ContractNames): Promise<string> {
     const ethers = (await import('hardhat')).ethers
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
-    return registry.getServiceNameHash(this._removePatchVersion(label))
+    return registry.getServiceNameHash(label)
   }
 
   async getServiceAddress(label: ContractNames): Promise<string> {
     const ethers = (await import('hardhat')).ethers
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
-    return registry.getRegisteredService(this._removePatchVersion(label))
+    return registry.getRegisteredService(label)
   }
 
-  private _removePatchVersion(service: string): string {
-    return removePatchVersion(service)
-  }
 }

@@ -1,7 +1,7 @@
 import { Contract, ContractReceipt, Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { removeAllVersions } from '../scripts/common/utils'
+import { removeVersion } from '../scripts/common/utils'
 import { Debug, WithRuntimeConfig } from './types/common'
 
 type DeployOptions = WithRuntimeConfig & Debug
@@ -15,10 +15,11 @@ export async function createDeploy(
   const ethers = hre?.ethers || (await import('hardhat')).ethers
 
   return async (contractName: string, params: string[] = []): Promise<[Contract, string]> => {
-    const contractNameWithVersionRemoved = removeAllVersions(contractName)
-    const contractFactory = await ethers.getContractFactory(contractNameWithVersionRemoved, {
-      signer: await ethers.getSigner(await config.signer.getAddress()),
-    })
+    const contractNameWithVersionRemoved = removeVersion(contractName)
+    const contractFactory = await ethers.getContractFactory(
+      contractNameWithVersionRemoved,
+      config.signer,
+    )
     const instance = await contractFactory.connect(config.signer).deploy(...params)
     if (debug) {
       console.log('DEBUG: Owner of deploy:', await config.signer.getAddress())
