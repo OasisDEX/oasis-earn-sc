@@ -230,7 +230,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     }
 
     describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
-      const depositEthAmount = amountToWei(new BigNumber(60 / 1e15))
+      const depositEthAmount = amountToWei(new BigNumber(1))
 
       let userStEthReserveData: AAVEReserveData
       let userWethReserveData: AAVEReserveData
@@ -353,10 +353,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
 
       it('Should draw debt according to multiple', function () {
-        expectToBeEqual(
-          positionTransition.simulation.position.debt.amount.toFixed(0),
+        expect(
+          new BigNumber(positionTransition.simulation.position.debt.amount.toString()).toString(),
+        ).to.be.oneOf([
           new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).toFixed(0),
-        )
+          new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).minus(ONE).toFixed(0),
+        ])
       })
 
       it(`Should deposit all ${tokens.ETH} tokens to aave`, function () {
