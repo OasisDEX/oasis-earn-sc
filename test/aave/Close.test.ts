@@ -9,9 +9,10 @@ import {
   ZERO,
 } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
-import { IPositionMutation } from '@oasisdex/oasis-actions/src'
+import { IPositionTransition } from '@oasisdex/oasis-actions/src'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
 import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
+import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionRepository'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -41,9 +42,10 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   let provider: JsonRpcProvider
   let config: RuntimeConfig
   let signer: Signer
+  let userAddress: Address
 
   before(async () => {
-    ;({ config, provider, signer } = await loadFixture(initialiseConfig))
+    ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
 
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -58,7 +60,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     const slippage = new BigNumber(0.1)
     const blockNumber = 15695000 // Required to marry up with market price
 
-    let positionMutation: IPositionMutation
+    let positionTransition: IPositionTransition
     let positionAfterOpen: IPosition
     let openTxStatus: boolean
     let txStatus: boolean
@@ -82,6 +84,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       mockMarketPriceOnOpen: BigNumber,
       mockMarketPriceOnClose: BigNumber,
       isFeeFromDebtToken: boolean,
+      userAddress: Address,
       blockNumber?: number,
     ) {
       const _blockNumber = blockNumber || testBlockNumber
@@ -120,7 +123,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       )
 
       // Set up the position
-      const openPositionMutation = await strategies.aave.open(
+      const proxy = system.common.dsProxy.address
+      const openPositionTransition = await strategies.aave.open(
         {
           depositedByUser: {
             debtInWei: debtToken.depositOnOpenAmountInWei,
@@ -137,6 +141,18 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           provider,
           getSwapData: oneInchCallMock(mockMarketPriceOnOpen),
           proxy: system.common.dsProxy.address,
+          user: userAddress,
+          currentPosition: await strategies.aave.view(
+            {
+              proxy,
+              collateralToken,
+              debtToken,
+            },
+            {
+              addresses,
+              provider,
+            },
+          ),
         },
       )
 
@@ -145,7 +161,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            openPositionMutation.transaction.calls,
+            openPositionTransition.transaction.calls,
             OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
@@ -196,11 +212,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           symbol: collateralToken.symbol,
         },
         oracle,
-        openPositionMutation.simulation.position.category,
+        openPositionTransition.simulation.position.category,
       )
 
       // Now close the position
-      const positionMutation = await strategies.aave.close(
+      const positionTransition = await strategies.aave.close(
         {
           slippage,
           collateralAmountLockedInProtocolInWei: positionAfterOpen.collateral.amount,
@@ -214,12 +230,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         {
           addresses,
           provider,
-          position: positionAfterOpen,
+          currentPosition: positionAfterOpen,
           getSwapData: oneInchCallMock(mockMarketPriceOnClose, {
             from: collateralToken.precision,
             to: debtToken.precision,
           }),
           proxy: system.common.dsProxy.address,
+          user: userAddress,
         },
       )
 
@@ -238,7 +255,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            positionMutation.transaction.calls,
+            positionTransition.transaction.calls,
             OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
@@ -296,13 +313,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           symbol: collateralToken.symbol,
         },
         oracleAfterClose,
-        positionMutation.simulation.position.category,
+        positionTransition.simulation.position.category,
       )
 
       return {
         system,
         address: config.address,
-        positionMutation,
+        positionTransition,
         feeRecipientBalanceBefore: feeRecipientBalanceBeforeClose,
         openTxStatus,
         txStatus,
@@ -348,13 +365,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           new BigNumber(0.9759),
           ONE.div(new BigNumber(0.9759)),
           true,
+          userAddress,
         )
         address = setup.address
         system = setup.system
         txStatus = setup.txStatus
         tx = setup.tx
         openTxStatus = setup.openTxStatus
-        positionMutation = setup.positionMutation
+        positionTransition = setup.positionTransition
         finalPosition = setup.finalPosition
         positionAfterOpen = setup.positionAfterOpen
         userStEthReserveData = setup.userCollateralReserveData
@@ -393,7 +411,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
           new BigNumber(
-            positionMutation.simulation.swap.tokenFee
+            positionTransition.simulation.swap.tokenFee
               .div(ONE.minus(slippage).minus(TESTING_OFFSET))
               .toString(),
           ).toFixed(0),
@@ -401,7 +419,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           actualWethFees,
         )
 
-        expectToBe(positionMutation.simulation.swap.tokenFee, 'lte', actualWethFees)
+        expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualWethFees)
       })
 
       it('should not be any token left on proxy', async () => {
@@ -463,13 +481,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           new BigNumber(1351),
           ONE.div(new BigNumber(1351)),
           true,
+          userAddress,
         )
         address = setup.address
         system = setup.system
         txStatus = setup.txStatus
         tx = setup.tx
         openTxStatus = setup.openTxStatus
-        positionMutation = setup.positionMutation
+        positionTransition = setup.positionTransition
         finalPosition = setup.finalPosition
         positionAfterOpen = setup.positionAfterOpen
         userWethReserveData = setup.userCollateralReserveData
@@ -508,7 +527,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
           new BigNumber(
-            positionMutation.simulation.swap.tokenFee
+            positionTransition.simulation.swap.tokenFee
               .div(ONE.minus(slippage).minus(TESTING_OFFSET))
               .toString(),
           ).toFixed(0),
@@ -516,7 +535,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           actualUSDCFees,
         )
 
-        expectToBe(positionMutation.simulation.swap.tokenFee, 'lte', actualUSDCFees)
+        expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualUSDCFees)
       })
 
       it('should not be any token left on proxy', async () => {
@@ -571,6 +590,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           new BigNumber(19829),
           ONE.div(new BigNumber(19829)),
           true,
+          userAddress,
           blockNumber,
         )
         address = setup.address
@@ -578,7 +598,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         txStatus = setup.txStatus
         tx = setup.tx
         openTxStatus = setup.openTxStatus
-        positionMutation = setup.positionMutation
+        positionTransition = setup.positionTransition
         finalPosition = setup.finalPosition
         positionAfterOpen = setup.positionAfterOpen
         userWethReserveData = setup.userCollateralReserveData
@@ -617,7 +637,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
           new BigNumber(
-            positionMutation.simulation.swap.tokenFee
+            positionTransition.simulation.swap.tokenFee
               .div(ONE.minus(slippage).minus(TESTING_OFFSET))
               .toString(),
           ).toFixed(0),
@@ -625,7 +645,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           actualUSDCFees,
         )
 
-        expectToBe(positionMutation.simulation.swap.tokenFee, 'lte', actualUSDCFees)
+        expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualUSDCFees)
       })
 
       it('should not be any token left on proxy', async () => {
@@ -661,7 +681,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     const slippage = new BigNumber(0.1)
     const depositAmount = amountToWei(new BigNumber(1))
 
-    let positionMutation: IPositionMutation
+    let positionTransition: IPositionTransition
     let positionAfterOpen: IPosition
     let openTxStatus: boolean
     let txStatus: boolean
@@ -692,23 +712,38 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           operationExecutor: system.common.operationExecutor.address,
         }
 
-        const openPositionMutation = await strategies.aave.open(
+        const proxy = system.common.dsProxy.address
+        const debtToken = { symbol: tokens.ETH }
+        const collateralToken = {
+          symbol: tokens.STETH,
+        }
+        const openPositionTransition = await strategies.aave.open(
           {
             depositedByUser: {
               debtInWei: depositAmount,
             },
             slippage,
             multiple,
-            debtToken: { symbol: tokens.ETH },
-            collateralToken: {
-              symbol: tokens.STETH,
-            },
+            debtToken,
+            collateralToken,
           },
           {
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address, ['ST_ETH']),
             proxy: system.common.dsProxy.address,
+            currentPosition: await strategies.aave.view(
+              {
+                proxy,
+                collateralToken,
+                debtToken,
+              },
+              {
+                addresses,
+                provider,
+              },
+            ),
+            user: config.address,
           },
         )
 
@@ -717,7 +752,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              openPositionMutation.transaction.calls,
+              openPositionTransition.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -768,10 +803,10 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             symbol: tokens.STETH,
           },
           aaveStEthTokenPriceInEthOnOpen,
-          openPositionMutation.simulation.position.category,
+          openPositionTransition.simulation.position.category,
         )
 
-        const positionMutation = await strategies.aave.close(
+        const positionTransition = await strategies.aave.close(
           {
             collateralToken: { symbol: tokens.STETH },
             debtToken: { symbol: tokens.ETH },
@@ -782,9 +817,10 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             addresses,
             provider,
-            position: positionAfterOpen,
+            currentPosition: positionAfterOpen,
             getSwapData: getOneInchCall(system.common.swap.address, ['ST_ETH']),
             proxy: system.common.dsProxy.address,
+            user: config.address,
           },
         )
 
@@ -798,7 +834,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              positionMutation.transaction.calls,
+              positionTransition.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -841,7 +877,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             symbol: tokens.STETH,
           },
           oracle,
-          positionMutation.simulation.position.category,
+          positionTransition.simulation.position.category,
         )
       } else {
         this.skip()
@@ -863,58 +899,5 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     it('Should withdraw all stEth tokens from aave', () => {
       expectToBe(new BigNumber(userStEthReserveData.currentATokenBalance.toString()), 'lte', ONE)
     })
-
-    // it('Should collect fee', async () => {
-    //   const feeRecipientWethBalanceAfter = await balanceOf(
-    //     ADDRESSES.main.WETH,
-    //     ADDRESSES.main.feeRecipient,
-    //     { config, isFormatted: true },
-    //   )
-
-    //   expectToBeEqual(
-    //     new BigNumber(closePositionMutation.simulation.swap.sourceTokenFee),
-    //     feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
-    //   )
-    // })
-
-    // it('should not be any token left on proxy', async () => {
-    //   const proxyWethBalance = await balanceOf(ADDRESSES.main.WETH, system.common.dsProxy.address, {
-    //     config,
-    //     isFormatted: true,
-    //   })
-    //   const proxyStEthBalance = await balanceOf(
-    //     ADDRESSES.main.stETH,
-    //     system.common.dsProxy.address,
-    //     {
-    //       config,
-    //       isFormatted: true,
-    //     },
-    //   )
-    //   const proxyEthBalance = await balanceOf(ADDRESSES.main.ETH, system.common.dsProxy.address, {
-    //     config,
-    //     isFormatted: true,
-    //   })
-
-    //   expectToBeEqual(proxyWethBalance, ZERO)
-    //   expectToBeEqual(proxyStEthBalance, ZERO)
-    //   expectToBeEqual(proxyEthBalance, ZERO)
-    // })
-
-    // it('should return eth to the user', async () => {
-    //   const userEthBalanceAfterTx = await balanceOf(ADDRESSES.main.ETH, address, {
-    //     config,
-    //     isFormatted: true,
-    //   })
-
-    //   const txCost = amountFromWei(new BigNumber(tx.gasUsed.mul(tx.effectiveGasPrice).toString()))
-
-    //   const delta = userEthBalanceAfterTx.minus(userEthBalanceBeforeTx).plus(txCost)
-
-    //   const expectToGet = amountFromWei(closePositionMutation.simulation.swap.toTokenAmount)
-    //     .minus(closePositionMutation.simulation.swap.sourceTokenFee)
-    //     .minus(amountFromWei(depositAmount).times(multiple).minus(amountFromWei(depositAmount)))
-
-    //   expectToBe(delta, 'gte', expectToGet)
-    // })
   })
 })
