@@ -65,13 +65,6 @@ async function main() {
     ),
   )
   entries.push(
-    createEntry(
-      `PullToProxy action`,
-      CONTRACT_NAMES.common.PULL_TO_PROXY,
-      system.pullToProxy?.address,
-    ),
-  )
-  entries.push(
     createEntry(`AaveBorrow action`, CONTRACT_NAMES.aave.BORROW, system.aaveBorrow?.address),
   )
   entries.push(

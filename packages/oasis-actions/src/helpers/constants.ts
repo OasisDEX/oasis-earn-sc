@@ -19,7 +19,6 @@ export const CONTRACT_NAMES = {
     WRAP_ETH: 'WrapEth_2',
     UNWRAP_ETH: 'UnwrapEth_2',
     RETURN_FUNDS: 'ReturnFunds_2',
-    PULL_TO_PROXY: 'PullToProxy',
 
     OPERATION_EXECUTOR: 'OperationExecutor',
     OPERATION_STORAGE: 'OperationStorage',

@@ -14,6 +14,7 @@ task(
   .addFlag('debug', 'When used, deployed contract address is displayed')
   .addFlag('usefallbackswap', 'Use fallback (or dummy) swap contract')
   .setAction(async (taskArgs, hre) => {
+    console.log('running')
     const config = await init(hre)
     const options = {
       debug: taskArgs.debug,
@@ -37,7 +38,6 @@ task(
       wrapActionAddress,
       unwrapActionAddress,
       returnFundsActionAddress,
-      pullToProxyActionAddress,
     } = await deployCommonActions(deploy, serviceRegistryAddress)
 
     const {
@@ -70,7 +70,6 @@ task(
         wrapActionAddress,
         unwrapActionAddress,
         returnFundsActionAddress,
-        pullToProxyActionAddress,
       })
 
     const { depositInAAVEHash, borromFromAAVEHash, withdrawFromAAVEHash } =
@@ -138,8 +137,6 @@ async function deployCommonActions(deploy: DeployFunction, serviceRegistryAddres
 
   const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
 
-  const [, pullToProxyActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TO_PROXY, [])
-
   return {
     pullTokenActionAddress,
     sendTokenAddress,
@@ -148,7 +145,6 @@ async function deployCommonActions(deploy: DeployFunction, serviceRegistryAddres
     wrapActionAddress,
     unwrapActionAddress,
     returnFundsActionAddress,
-    pullToProxyActionAddress,
   }
 }
 
@@ -253,7 +249,6 @@ async function addCommonActionsToRegistry(
     wrapActionAddress: string
     unwrapActionAddress: string
     returnFundsActionAddress: string
-    pullToProxyActionAddress: string
   },
 ) {
   const pullTokenHash = await registry.addEntry(
@@ -280,7 +275,6 @@ async function addCommonActionsToRegistry(
   await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, addresses.wrapActionAddress)
   await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, addresses.unwrapActionAddress)
   await registry.addEntry(CONTRACT_NAMES.common.RETURN_FUNDS, addresses.returnFundsActionAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.PULL_TO_PROXY, addresses.pullToProxyActionAddress)
 
   return {
     pullTokenHash,
