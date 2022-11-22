@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.5;
 
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
@@ -186,19 +187,13 @@ contract uSwap {
     bytes memory methodSig = withData[:4];
 
     if (compareMethodSigs(methodSig, uniswapV3Swap)) {
-      (uint256 amount, uint256 _minReturn, uint256[] memory pools) = abi.decode(
-        withData[4:],
-        (uint256, uint256, uint256[])
-      );
+      (, uint256 _minReturn, ) = abi.decode(withData[4:], (uint256, uint256, uint256[]));
       minReturn = _minReturn;
     } else if (compareMethodSigs(methodSig, unoswap)) {
-      (address srcToken, uint256 amount, uint256 _minReturn, bytes32[] memory pools) = abi.decode(
-        withData[4:],
-        (address, uint256, uint256, bytes32[])
-      );
+      (, , uint256 _minReturn, ) = abi.decode(withData[4:], (address, uint256, uint256, bytes32[]));
       minReturn = _minReturn;
     } else if (compareMethodSigs(methodSig, swap)) {
-      (address a, SwapDescription memory swapDescription, bytes memory j) = abi.decode(
+      (, SwapDescription memory swapDescription, ) = abi.decode(
         withData[4:],
         (address, SwapDescription, bytes)
       );
