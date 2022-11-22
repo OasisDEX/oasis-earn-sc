@@ -34,5 +34,4 @@ export class ServiceRegistry {
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     return registry.getRegisteredService(label)
   }
-
 }

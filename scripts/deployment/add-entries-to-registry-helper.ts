@@ -3,7 +3,7 @@ import { constants } from 'ethers'
 import fs from 'fs'
 import hre from 'hardhat'
 
-import { getServiceNameHash, HardhatUtils, removePatchVersion } from '../common'
+import { getServiceNameHash, HardhatUtils } from '../common'
 
 /**
  * This is a convenience script.
@@ -112,7 +112,7 @@ function printEntryToConsole({ label, contractName, nameToHash, hash, address }:
 
 function saveEntriesToFile(entries: Entry[]) {
   const file = fs.createWriteStream('serviceRegistryEntries.txt')
-  file.on('error', function (err) {
+  file.on('error', function () {
     /* error handling */
     console.log('file: serviceRegistryEntries.txt could not be saved')
   })

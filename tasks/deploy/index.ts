@@ -73,7 +73,7 @@ task(
         pullToProxyActionAddress,
       })
 
-    const { depositInAAVEHash, borromFromAAVEHash, withdrawFromAAVEHash, paybackFromAAVEHash } =
+    const { depositInAAVEHash, borromFromAAVEHash, withdrawFromAAVEHash } =
       await addAAVEActionsToRegistry(registry, {
         depositInAAVEAddress,
         borrowFromAAVEAddress,
