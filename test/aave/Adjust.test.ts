@@ -55,7 +55,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe.skip('On forked chain', () => {
+  describe('On forked chain', () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
@@ -316,7 +316,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         system.common.dsProxy.address,
       )
 
-      console.log('debtToken.address:', debtToken.address)
       const userDebtReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
         debtToken.address,
         system.common.dsProxy.address,
@@ -344,17 +343,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         aaveDebtTokenPriceInEthAfterAdjust,
       )
 
-      console.log('FINAL OUTSIDE')
-      console.log(
-        'DEBT-Current:',
-        new BigNumber(userDebtReserveDataAfterAdjust.currentVariableDebt.toString()).toString(),
-      )
-      console.log(
-        'DEBT-Scaled:',
-        new BigNumber(userDebtReserveDataAfterAdjust.scaledVariableDebt.toString()).toString(),
-      )
-
-      console.log('FINAL POISTION | TEST')
       const newDebt = {
         amount: new BigNumber(userDebtReserveDataAfterAdjust.currentVariableDebt.toString()),
         precision: debtToken.precision,
@@ -365,22 +353,10 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         precision: collateralToken.precision,
         symbol: collateralToken.symbol,
       }
-      console.log('Debt:', newDebt.amount.toString())
-      console.log('Collateral:', newCollateral.amount.toString())
-      console.log('CollateralTokenPrice', oracleAfterAdjust.toString())
+
       const finalPosition = new Position(
-        {
-          amount: new BigNumber(userDebtReserveDataAfterAdjust.currentVariableDebt.toString()),
-          precision: debtToken.precision,
-          symbol: debtToken.symbol,
-        },
-        {
-          amount: new BigNumber(
-            userCollateralReserveDataAfterAdjust.currentATokenBalance.toString(),
-          ),
-          precision: collateralToken.precision,
-          symbol: collateralToken.symbol,
-        },
+        newDebt,
+        newCollateral,
         oracleAfterAdjust,
         positionTransition.simulation.position.category,
       )
@@ -464,9 +440,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           ADDRESSES.main.feeRecipient,
           { config },
         )
-        console.log('FEE')
-        console.log('feeRecipientWethBalanceBefore:', feeRecipientWethBalanceBefore.toString())
-        console.log('feeRecipientWethBalanceAfter:', feeRecipientWethBalanceAfter.toString())
 
         const actualWethFees = feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore)
 
@@ -546,9 +519,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           ADDRESSES.main.feeRecipient,
           { config },
         )
-        console.log('FEE')
-        console.log('feeRecipientWethBalanceBefore:', feeRecipientWethBalanceBefore.toString())
-        console.log('feeRecipientUSDCBalanceAfter:', feeRecipientUSDCBalanceAfter.toString())
 
         const actualUSDCFees = feeRecipientUSDCBalanceAfter.minus(feeRecipientWethBalanceBefore)
 
@@ -567,7 +537,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       })
     })
 
-    describe.skip(`Increase Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
+    describe(`Increase Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
       const adjustMultipleUp = new BigNumber(3.5)
 
@@ -600,11 +570,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           userAddress,
         )
         txStatus = setup.txStatus
-        tx = setup.tx
         openTxStatus = setup.openTxStatus
         positionTransition = setup.positionTransition
         finalPosition = setup.finalPosition
-        positionAfterOpen = setup.positionAfterOpen
         feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
       })
 
@@ -648,7 +616,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       })
     })
 
-    describe(`Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+    describe.skip(`Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
       const depositAmount = amountToWei(new BigNumber(1))
       const adjustMultipleDown = new BigNumber(1.5)
 
@@ -683,11 +651,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           15696000,
         )
         txStatus = setup.txStatus
-        tx = setup.tx
         openTxStatus = setup.openTxStatus
         positionTransition = setup.positionTransition
         finalPosition = setup.finalPosition
-        positionAfterOpen = setup.positionAfterOpen
         feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
       })
 
@@ -720,12 +686,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           ADDRESSES.main.feeRecipient,
           { config },
         )
-        console.log('FEE')
-        console.log('feeRecipientWethBalanceBefore:', feeRecipientWethBalanceBefore.toString())
-        console.log('feeRecipientWethBalanceAfter:', feeRecipientWethBalanceAfter.toString())
 
         const actualWethFees = feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore)
-        console.log('actualWethFees', actualWethFees.toString())
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
           new BigNumber(
@@ -742,7 +704,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe('On latest block using one inch exchange and api', () => {
+  describe.skip('On latest block using one inch exchange and api', () => {
     const slippage = new BigNumber(0.1)
     const depositAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)

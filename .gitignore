@@ -8,6 +8,8 @@ tenderly.yaml
 .idea/**/*
 packages/oasis-actions/src/helpers/calculations/credentials.json
 
+serviceRegistryEntries.txt
+
 #Hardhat files
 cache
 artifacts
