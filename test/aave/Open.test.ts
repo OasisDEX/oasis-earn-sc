@@ -571,7 +571,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
   })
 
   describe('On latest block using one inch exchange and api', function () {
-    const depositEthAmount = amountToWei(new BigNumber(60 / 1e15))
+    const depositEthAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 

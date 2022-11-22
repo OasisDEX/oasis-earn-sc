@@ -22,7 +22,7 @@ task('createPosition', 'Create stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
   .addOptionalParam('deposit', 'ETH deposit', 8, types.float)
   .addOptionalParam('multiply', 'Required multiply', 2, types.float)
-  .addFlag('dummyswap', 'Use dummy swap')
+  .addFlag('usefallbackswap', 'Use fallback swap')
   .setAction(async (taskArgs, hre) => {
     if (!process.env.SERVICE_REGISTRY_ADDRESS) {
       throw new Error('SERVICE_REGISTRY_ADDRESS env variable is not set')
@@ -98,7 +98,7 @@ task('createPosition', 'Create stETH position on AAVE')
 
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
-    const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress)
+    const swapData = taskArgs.usefallbackswap ? oneInchCallMock() : getOneInchCall(swapAddress)
     const depositAmount = amountToWei(new BigNumber(taskArgs.deposit))
     const multiply = new BigNumber(taskArgs.multiply)
     const slippage = new BigNumber(0.1)

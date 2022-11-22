@@ -20,7 +20,7 @@ export function amountFromWei(amount: BigNumber.Value, precision = 18) {
 
 task('closePosition', 'Close stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
-  .addFlag('dummyswap', 'Use dummy swap')
+  .addFlag('usefallbackswap', 'Use fallback swap')
   .setAction(async (taskArgs, hre) => {
     if (!process.env.SERVICE_REGISTRY_ADDRESS) {
       throw new Error('SERVICE_REGISTRY_ADDRESS env variable is not set')
@@ -119,7 +119,7 @@ task('closePosition', 'Close stETH position on AAVE')
 
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
-    const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress)
+    const swapData = taskArgs.usefallbackswap ? oneInchCallMock() : getOneInchCall(swapAddress)
 
     const beforeCloseUserAccountData: AAVEAccountData = await aaveLendingPool.getUserAccountData(
       dsProxy.address,

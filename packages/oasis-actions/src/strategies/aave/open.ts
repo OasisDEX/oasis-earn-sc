@@ -55,6 +55,7 @@ export async function open(
     dependencies.provider,
   )
 
+  // Params
   const slippage = args.slippage
   const estimatedSwapAmount = amountToWei(new BigNumber(1))
 
