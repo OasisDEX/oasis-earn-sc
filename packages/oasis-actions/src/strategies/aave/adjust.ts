@@ -4,11 +4,7 @@ import { ethers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
-<<<<<<< HEAD
 import { IBaseSimulatedTransition, IPosition, Position } from '../../helpers/calculations/Position'
-=======
-import { IPosition, IPositionChange, Position } from '../../helpers/calculations/Position'
->>>>>>> e613ddd (refactor: generalise decreaseMultiple operation)
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
@@ -99,21 +95,13 @@ export async function adjust(
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
   const existingPosition = new Position(
-<<<<<<< HEAD
     currentPosition.debt,
     currentPosition.collateral,
     oracle,
     currentPosition.category,
-=======
-    existingBasePosition.debt,
-    existingBasePosition.collateral,
-    oracle,
-    existingBasePosition.category,
->>>>>>> e7706c6 (refactor: adjuststeth tests)
   )
 
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
-  console.log('existing x:', existingPosition.riskRatio.multiple.toString())
   const target = existingPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
@@ -136,10 +124,9 @@ export async function adjust(
         collateralInWei: depositCollateralAmountInWei,
       },
       collectSwapFeeFrom: collectFeeFrom,
-      debug: true,
+      // debug: true,
     },
   )
-  console.log('target x:', target.position.riskRatio.multiple.toString())
 
   let operation: IOperation
   let finalPosition: IPosition
@@ -236,18 +223,6 @@ async function _increaseRisk({
   args,
   dependencies,
 }: BranchProps): Promise<BranchReturn> {
-<<<<<<< HEAD
-=======
-  console.log('EXISTING IN ADJUST')
-  console.log('DEBT:', existingPosition.debt.amount.toString())
-
-<<<<<<< HEAD
-  // Params
-  const depositedDebtTokensInWei = args.depositedByUser?.debtInWei || ZERO
-
->>>>>>> e7706c6 (refactor: adjuststeth tests)
-=======
->>>>>>> 32f2992 (refactor: (WIP) complete refactor of Adjust multiple down tests)
   const swapData = {
     ...(await dependencies.getSwapData(
       debtTokenAddress,
@@ -277,16 +252,8 @@ async function _increaseRisk({
     actualSwapBase18ToTokenAmount,
   )
 
-<<<<<<< HEAD
-<<<<<<< HEAD
   const _depositDebtAmountInWei = depositDebtAmountInWei || ZERO
   const borrowAmountInWei = target.delta.debt.minus(_depositDebtAmountInWei)
-=======
-  const borrowAmountInWei = target.delta.debt.minus(depositedDebtTokensInWei)
->>>>>>> e7706c6 (refactor: adjuststeth tests)
-=======
-  const borrowAmountInWei = target.delta.debt.minus(depositDebtAmountInWei)
->>>>>>> 32f2992 (refactor: (WIP) complete refactor of Adjust multiple down tests)
   const precisionAdjustedBorrowAmount = amountToWei(
     amountFromWei(borrowAmountInWei),
     args.debtToken.precision || TYPICAL_PRECISION,
@@ -337,7 +304,6 @@ async function _increaseRisk({
     args.collateralToken.precision,
   ).integerValue(BigNumber.ROUND_DOWN)
 
-<<<<<<< HEAD
   const newCollateral = {
     amount: collateralAmountAfterSwapInWei
       .plus(depositCollateralAmountInWei || ZERO)
@@ -349,20 +315,6 @@ async function _increaseRisk({
   const finalPosition = new Position(
     target.position.debt,
     newCollateral,
-=======
-  console.log('FINAL IN ADJUST')
-  console.log('DEBT:', target.position.debt.amount.toString())
-  console.log('ORACLE:', aaveCollateralTokenPriceInEth.toString())
-
-  const finalPosition = new Position(
-    target.position.debt,
-    {
-      amount: collateralAmountAfterSwapInWei
-        .plus(depositCollateralAmountInWei || ZERO)
-        .plus(existingPosition.collateral.amount),
-      symbol: target.position.collateral.symbol,
-    },
->>>>>>> e7706c6 (refactor: adjuststeth tests)
     aaveCollateralTokenPriceInEth,
     target.position.category,
   )
@@ -383,11 +335,6 @@ async function _decreaseRisk({
   collectFeeFrom,
   collateralTokenAddress,
   debtTokenAddress,
-<<<<<<< HEAD
-=======
-  depositDebtAmountInWei,
-  depositCollateralAmountInWei,
->>>>>>> 32f2992 (refactor: (WIP) complete refactor of Adjust multiple down tests)
   aaveCollateralTokenPriceInEth,
   args,
   dependencies,
@@ -433,19 +380,10 @@ async function _decreaseRisk({
    */
   const absFlashloanAmount = (target.delta?.flashloanAmount || ZERO).abs()
 
-  console.log('SWAP BEFORE FEES:', swapAmountBeforeFees.toString())
   const operation = await operations.aave.decreaseMultiple(
     {
       flashloanAmount: absFlashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : absFlashloanAmount,
-<<<<<<< HEAD
-<<<<<<< HEAD
       withdrawAmountInWei: precisionAdjustedWithdrawAmount,
-=======
-      withdrawAmountInWei: withdrawCollateralAmountWei,
->>>>>>> e7706c6 (refactor: adjuststeth tests)
-=======
-      withdrawAmountInWei: precisionAdjustedWithdrawAmount,
->>>>>>> 32f2992 (refactor: (WIP) complete refactor of Adjust multiple down tests)
       receiveAtLeast: swapData.minToTokenAmount,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
@@ -454,10 +392,7 @@ async function _decreaseRisk({
       collateralTokenAddress,
       debtTokenAddress,
       proxy: dependencies.proxy,
-<<<<<<< HEAD
       user: dependencies.user,
-=======
->>>>>>> e7706c6 (refactor: adjuststeth tests)
     },
     dependencies.addresses,
   )
@@ -500,3 +435,4 @@ async function _decreaseRisk({
     swapData,
   }
 }
+

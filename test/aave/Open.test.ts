@@ -230,11 +230,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     }
 
     describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
-<<<<<<< HEAD
       const depositEthAmount = amountToWei(new BigNumber(1))
-=======
-      const depositEthAmount = amountToWei(new BigNumber(60 / 1e15))
->>>>>>> 32f2992 (refactor: (WIP) complete refactor of Adjust multiple down tests)
 
       let userStEthReserveData: AAVEReserveData
       let userWethReserveData: AAVEReserveData

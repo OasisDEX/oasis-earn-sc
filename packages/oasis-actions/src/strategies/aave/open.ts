@@ -57,10 +57,6 @@ export async function open(
 
   // Params
   const slippage = args.slippage
-  const multiple = args.multiple
-  const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
-  const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
-
   const estimatedSwapAmount = amountToWei(new BigNumber(1))
 
   const [
@@ -88,7 +84,6 @@ export async function open(
     ),
   ])
 
-  const FEE = 20
   const BASE = new BigNumber(10000)
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(BASE)
 
@@ -108,6 +103,8 @@ export async function open(
     18,
   )
   const quoteMarketPrice = base18FromTokenAmount.div(base18ToTokenAmount)
+
+  const flashloanFee = new BigNumber(0)
 
   // ETH/DAI
   const ethPerDAI = aaveFlashloanDaiPriceInEth

@@ -129,10 +129,6 @@ export class HardhatUtils {
         CONTRACT_NAMES.common.RETURN_FUNDS,
         this.addresses.RETURN_FUNDS_ACTION,
       ),
-      pullToProxy: await this.getContractAt(
-        CONTRACT_NAMES.common.PULL_TO_PROXY,
-        this.addresses.PULL_TO_PROXY_ACTION,
-      ),
     }
   }
 

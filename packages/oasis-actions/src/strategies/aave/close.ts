@@ -3,19 +3,7 @@ import { ethers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { amountFromWei, amountToWei, calculateFee } from '../../helpers'
-=======
-import chainlinkPriceFeedABI from '../../abi/chainlinkPriceFeedABI.json'
-<<<<<<< HEAD
-import { amountFromWei, calculateFee } from '../../helpers'
->>>>>>> 2c43f8e (refactor: (WIP) multi token pair Close AAVE position tests)
-=======
-=======
->>>>>>> e7706c6 (refactor: adjuststeth tests)
-import { amountFromWei, amountToWei, calculateFee } from '../../helpers'
->>>>>>> bbcd312 (refactor: complete multi-token pair Close aave position tests)
 import { ADDRESSES } from '../../helpers/addresses'
 import { Position } from '../../helpers/calculations/Position'
 import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
@@ -54,52 +42,20 @@ export async function close(
   )
 
   const [
-<<<<<<< HEAD
-<<<<<<< HEAD
     aaveFlashloanDaiPriceInEth,
-=======
-    roundData,
-    decimals,
-=======
->>>>>>> bbcd312 (refactor: complete multi-token pair Close aave position tests)
-    aaveFlashloanDaiPriceInEth,
-    aaveDebtTokenPriceInEth,
->>>>>>> 2c43f8e (refactor: (WIP) multi token pair Close AAVE position tests)
     aaveCollateralTokenPriceInEth,
     swapData,
     reserveDataForFlashloan,
   ] = await Promise.all([
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    priceFeed.latestRoundData(),
-    priceFeed.decimals(),
->>>>>>> 2c43f8e (refactor: (WIP) multi token pair Close AAVE position tests)
-=======
->>>>>>> bbcd312 (refactor: complete multi-token pair Close aave position tests)
     aavePriceOracle
       .getAssetPrice(ADDRESSES.main.DAI)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     aavePriceOracle
-<<<<<<< HEAD
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     dependencies.getSwapData(
       collateralTokenAddress,
       debtTokenAddress,
-=======
-      .getAssetPrice(debtTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aavePriceOracle
-      .getAssetPrice(collateralTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    dependencies.getSwapData(
-      collateralTokenAddress,
-<<<<<<< HEAD
->>>>>>> 2c43f8e (refactor: (WIP) multi token pair Close AAVE position tests)
-=======
-      debtTokenAddress,
->>>>>>> bbcd312 (refactor: complete multi-token pair Close aave position tests)
       args.collateralAmountLockedInProtocolInWei,
       args.slippage,
     ),
@@ -110,35 +66,6 @@ export async function close(
   const FEE_BASE = 10000
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  const ethPerDAI = aaveFlashloanDaiPriceInEth
-  const ethPerCollateralToken = aaveCollateralTokenPriceInEth
-  // EG STETH/ETH divided by ETH/DAI = STETH/ETH times by DAI/ETH = STETH/DAI
-  const oracleFLtoCollateralToken = ethPerCollateralToken.div(ethPerDAI)
-
-  const amountToFlashloanInWei = amountToWei(
-    amountFromWei(args.collateralAmountLockedInProtocolInWei, args.collateralToken.precision).times(
-      oracleFLtoCollateralToken,
-    ),
-    18,
-  )
-    .div(maxLoanToValueForFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
-    .integerValue(BigNumber.ROUND_DOWN)
-=======
-  const ethPrice = new BigNumber(roundData.answer.toString() / Math.pow(10, decimals))
-
-  console.log('aaveCollateralTokenPriceInEth:', aaveCollateralTokenPriceInEth.toString())
-  console.log('ethPrice:', ethPrice.toString())
-  console.log('aaveCollateralTokenPriceInEth:', aaveCollateralTokenPriceInEth.toString())
->>>>>>> 2c43f8e (refactor: (WIP) multi token pair Close AAVE position tests)
-
-  const collateralPriceInUSD = aaveCollateralTokenPriceInEth.times(ethPrice)
-
-  console.log('collateralPrice:', collateralPriceInUSD.toString())
-
-=======
->>>>>>> bbcd312 (refactor: complete multi-token pair Close aave position tests)
   const ethPerDAI = aaveFlashloanDaiPriceInEth
   const ethPerCollateralToken = aaveCollateralTokenPriceInEth
   // EG STETH/ETH divided by ETH/DAI = STETH/ETH times by DAI/ETH = STETH/DAI
