@@ -278,7 +278,7 @@ export class Position implements IPosition {
           `Oracle price: ${oraclePrice.toString()}`,
           `Oracle Price FL-to-Debt token: ${oraclePriceFLtoDebtToken.toString()}`,
           `Market price: ${marketPrice.toString()}`,
-          `Slippage: ${slippage.toFixed(0)}`,
+          `Slippage: ${slippage.toString()}`,
           `Market price adj. slippage: ${marketPriceAdjustedForSlippage.toString()}`,
 
           `Oazo fee: ${oazoFee.toFixed(4)}`,

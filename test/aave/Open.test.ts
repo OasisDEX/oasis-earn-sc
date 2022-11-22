@@ -33,7 +33,7 @@ import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
-import { expectToBe, expectToBeEqual, MULTIPLE_TESTING_OFFSET } from '../utils'
+import { expectToBe, expectToBeEqual, TESTING_OFFSET } from '../utils'
 
 describe(`Strategy | AAVE | Open Position`, async function () {
   let aaveLendingPool: Contract
@@ -294,7 +294,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(MULTIPLE_TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
         )
       })
 
@@ -379,7 +379,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(MULTIPLE_TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
         )
       })
 
@@ -460,7 +460,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(MULTIPLE_TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
         )
       })
 
@@ -541,7 +541,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(MULTIPLE_TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
         )
       })
 
@@ -571,7 +571,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
   })
 
   describe('On latest block using one inch exchange and api', function () {
-    const depositEthAmount = amountToWei(new BigNumber(60 / 1e15))
+    const depositEthAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 

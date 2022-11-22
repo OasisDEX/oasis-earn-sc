@@ -1,30 +1,22 @@
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
 
 import * as actions from '../../actions'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
 
-export interface IncreaseMultipleStEthAddresses {
-  DAI: string
-  ETH: string
-  WETH: string
-  stETH: string
-  operationExecutor: string
-  chainlinkEthUsdPriceFeed: string
-  aavePriceOracle: string
-  aaveLendingPool: string
-}
-
-export async function increaseMultipleStEth(
+export async function decreaseMultiple(
   args: {
     flashloanAmount: BigNumber
-    borrowAmount: BigNumber
+    withdrawAmountInWei: BigNumber
     receiveAtLeast: BigNumber
     fee: number
     swapData: string | number
-    ethSwapAmount: BigNumber
-    dsProxy: string
+    swapAmountInWei: BigNumber
+    collectFeeFrom: 'sourceToken' | 'targetToken'
+    collateralTokenAddress: string
+    debtTokenAddress: string
+    proxy: string
+    user: string
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
@@ -41,41 +33,37 @@ export async function increaseMultipleStEth(
     sumAmounts: false,
   })
 
-  const borrowEthFromAAVE = actions.aave.aaveBorrow({
-    amount: args.borrowAmount,
-    asset: addresses.WETH,
-    to: args.dsProxy,
+  const withdrawCollateralFromAAVE = actions.aave.aaveWithdraw({
+    amount: args.withdrawAmountInWei,
+    asset: args.collateralTokenAddress,
+    to: args.proxy,
   })
 
-  const wrapEth = actions.common.wrapEth({
-    amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
-  })
-
-  const swapETHforSTETH = actions.common.swap({
-    fromAsset: addresses.WETH,
-    toAsset: addresses.stETH,
-    amount: args.ethSwapAmount,
+  const swapCollateralTokensForDebtTokens = actions.common.swap({
+    fromAsset: args.collateralTokenAddress,
+    toAsset: args.debtTokenAddress,
+    amount: args.swapAmountInWei,
     receiveAtLeast: args.receiveAtLeast,
     fee: args.fee,
     withData: args.swapData,
-    collectFeeInFromToken: true,
+    collectFeeInFromToken: args.collectFeeFrom === 'sourceToken',
   })
 
-  const setSethApprovalOnLendingPool = actions.common.setApproval(
+  const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
     {
       amount: 0,
-      asset: addresses.stETH,
+      asset: args.debtTokenAddress,
       delegate: addresses.aaveLendingPool,
-      sumAmounts: true,
+      sumAmounts: false,
     },
     [0, 0, 3, 0],
   )
 
-  const depositSTETH = actions.aave.aaveDeposit(
+  const paybackInAAVE = actions.aave.aavePayback(
     {
-      asset: addresses.stETH,
-      amount: 0,
-      sumAmounts: false,
+      asset: args.debtTokenAddress,
+      amount: new BigNumber(0),
+      paybackAll: false,
     },
     [0, 3, 0],
   )
@@ -86,6 +74,7 @@ export async function increaseMultipleStEth(
     to: addresses.operationExecutor,
   })
 
+  // TODO: determine if a flashloan is necessary
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
@@ -93,11 +82,10 @@ export async function increaseMultipleStEth(
     calls: [
       setDaiApprovalOnLendingPool,
       depositDaiInAAVE,
-      borrowEthFromAAVE,
-      wrapEth,
-      swapETHforSTETH,
-      setSethApprovalOnLendingPool,
-      depositSTETH,
+      withdrawCollateralFromAAVE,
+      swapCollateralTokensForDebtTokens,
+      setDebtTokenApprovalOnLendingPool,
+      paybackInAAVE,
       withdrawDAIFromAAVE,
     ],
   })

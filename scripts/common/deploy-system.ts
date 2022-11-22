@@ -17,6 +17,7 @@ import {
   OperationsRegistry,
   OperationStorage,
   PullToken,
+  PullToProxy,
   ReturnFunds,
   SendToken,
   ServiceRegistry,
@@ -56,6 +57,7 @@ export interface DeployedSystem {
   unwrapEth?: UnwrapEth
   wrapEth?: WrapEth
   returnFunds?: ReturnFunds
+  pullToProxy?: PullToProxy
 }
 
 export interface DeploySystemArgs {

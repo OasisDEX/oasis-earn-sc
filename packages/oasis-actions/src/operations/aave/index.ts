@@ -1,6 +1,6 @@
-import { closeStEth } from './closeStEth'
-import { decreaseMultipleStEth } from './decreaseMultipleStEth'
-import { increaseMultipleStEth } from './increaseMultipleStEth'
+import { close } from './close'
+import { decreaseMultiple } from './decreaseMultiple'
+import { increaseMultiple } from './increaseMultiple'
 import { open } from './open'
 
-export { closeStEth, decreaseMultipleStEth, increaseMultipleStEth, open }
+export { close, decreaseMultiple, increaseMultiple, open }
