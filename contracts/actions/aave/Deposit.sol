@@ -35,6 +35,11 @@ contract AaveDeposit is Executable, UseStore {
       0
     );
 
+    ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).setUserUseReserveAsCollateral(
+      deposit.asset,
+      true
+    );
+
     store().write(bytes32(deposit.amount));
     emit Action(DEPOSIT_ACTION, bytes32(deposit.amount));
   }
