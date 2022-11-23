@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.15;
 
+import { Call } from "./types/Common.sol";
 /**
  * @title Event Emitter
  * @notice Is responsible for emitting events
@@ -23,11 +24,11 @@ contract EventEmitter {
     **/
     event Operation(string name, Call[] calls);
 
-    function emitActionEvent(string actionName, bytes encodedReturnValues) external {
+    function emitActionEvent(string memory actionName, bytes calldata encodedReturnValues) external {
         emit Action(actionName, encodedReturnValues);
     }
 
-    function emitOperationEvent(string operationName, Call[] calls) external {
+    function emitOperationEvent(string memory operationName, Call[] calldata calls) external {
         emit Operation(operationName, calls);
     }
 }

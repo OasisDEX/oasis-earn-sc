@@ -23,6 +23,7 @@ export const CONTRACT_NAMES = {
     OPERATION_EXECUTOR: 'OperationExecutor',
     OPERATION_STORAGE: 'OperationStorage',
     OPERATIONS_REGISTRY: 'OperationsRegistry',
+    EVENT_EMITTER: 'EventEmitter',
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
     SWAP: 'Swap',
     EXCHANGE: 'Exchange',

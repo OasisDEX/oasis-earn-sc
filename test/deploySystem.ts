@@ -45,6 +45,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     [],
   )
 
+  // const [, eventEmitterAddress] = await deploy(CONTRACT_NAMES.common.EVENT_EMITTER, [])
+
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
