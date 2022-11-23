@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 
-import { FLASHLOAN_SAFETY_MARGIN, ONE, ZERO } from '../constants'
+import { ONE, ZERO } from '../constants'
 import { Position } from './Position'
 import { RiskRatio } from './RiskRatio'
 import { testDataSources } from './test-scenarios/generateTestData'
@@ -81,7 +81,6 @@ describe('Calculate Position Helper', async () => {
         healthFactor,
         minOraclePrice,
         feePaidFromSourceToken,
-        feePaidFromTargetToken,
       } = scenario
       it(`Test: ${name}`, async () => {
         if (debug) {
@@ -91,9 +90,9 @@ describe('Calculate Position Helper', async () => {
             console.log(`${key}: ${value}`)
           })
         }
-
         const riskRatio = new RiskRatio(targetLoanToValue, RiskRatio.TYPE.LTV)
         const dustLimit = new BigNumber(0)
+
         /* Note: we have to remove User deposits from current values because they've already been rolled up (assigned) in our googlesheets data*/
         const currentVault = new Position(
           { amount: currentDebt.plus(debtDenominatedTokensDepositedByUser), symbol: 'ANY' },

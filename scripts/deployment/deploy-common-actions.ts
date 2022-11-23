@@ -1,4 +1,6 @@
+import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 import hre from 'hardhat'
+
 import {
   PullToken,
   ReturnFunds,
@@ -10,7 +12,6 @@ import {
   WrapEth,
 } from '../../typechain'
 import { HardhatUtils } from '../common'
-import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 
 // TODO: Make this as core deployment script:
 // If there is a populated address for the given address, skip deployment

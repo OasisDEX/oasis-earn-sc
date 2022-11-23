@@ -64,6 +64,7 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       forking: {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         url: process.env.MAINNET_URL!,
         blockNumber: parseInt(blockNumber),
       },
@@ -77,13 +78,17 @@ const config: HardhatUserConfig = {
       allowUnlimitedContractSize: true,
     },
     goerli: {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       url: process.env.ALCHEMY_NODE_GOERLI!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       accounts: [process.env.PRIV_KEY_GOERLI!],
       // gasPrice: 5000000000,
       initialBaseFeePerGas: 1000000000,
     },
     mainnet: {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       url: process.env.MAINNET_URL!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       accounts: [process.env.PRIV_KEY_MAINNET!],
       gasPrice: 50000000000,
     },

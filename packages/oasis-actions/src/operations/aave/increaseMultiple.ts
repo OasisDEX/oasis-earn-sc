@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import * as actions from '../../actions'
-import { OPERATION_NAMES, ZERO } from '../../helpers/constants'
+import { ZERO } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
 
@@ -26,6 +26,7 @@ export async function increaseMultiple(
     collateralTokenAddress: string
     debtTokenAddress: string
     proxy: string
+    user: string
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
@@ -36,14 +37,16 @@ export async function increaseMultiple(
       args.depositCollateral.amountInWei.gt(ZERO) && !args.depositCollateral.isEth,
   }
 
-  const pullDebtTokensToProxy = actions.common.pullToProxy({
+  const pullDebtTokensToProxy = actions.common.pullToken({
     asset: args.debtTokenAddress,
     amount: args.depositDebtTokens.amountInWei,
+    from: args.user,
   })
 
-  const pullCollateralTokensToProxy = actions.common.pullToProxy({
+  const pullCollateralTokensToProxy = actions.common.pullToken({
     asset: args.collateralTokenAddress,
     amount: args.depositCollateral.amountInWei,
+    from: args.user,
   })
 
   const setDaiApprovalOnLendingPool = actions.common.setApproval({

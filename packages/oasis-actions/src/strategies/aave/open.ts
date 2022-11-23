@@ -11,19 +11,38 @@ import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IPositionMutation } from '../types/IPositionMutation'
-import { IMutationDependencies, IPositionMutationArgs } from '../types/IPositionRepository'
-import { getAAVETokenAddresses } from './getAAVETokenAddresses'
+import {
+  IPositionTransitionArgs,
+  IPositionTransitionDependencies,
+} from '../types/IPositionRepository'
+import { IPositionTransition } from '../types/IPositionTransition'
 
 export async function open(
-  args: IPositionMutationArgs<AAVETokens>,
-  dependencies: IMutationDependencies<AAVEStrategyAddresses>,
-): Promise<IPositionMutation> {
-  const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
-    { debtToken: args.debtToken, collateralToken: args.collateralToken },
-    dependencies.addresses,
-  )
+  args: IPositionTransitionArgs<AAVETokens>,
+  dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
+): Promise<IPositionTransition> {
+  const tokenAddresses = {
+    WETH: dependencies.addresses.WETH,
+    ETH: dependencies.addresses.WETH,
+    STETH: dependencies.addresses.stETH,
+    USDC: dependencies.addresses.USDC,
+    WBTC: dependencies.addresses.wBTC,
+  }
 
+  const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
+  const debtTokenAddress = tokenAddresses[args.debtToken.symbol]
+
+  if (!collateralTokenAddress)
+    throw new Error('Collateral token not recognised or address missing in dependencies')
+  if (!debtTokenAddress)
+    throw new Error('Debt token not recognised or address missing in dependencies')
+
+  /**
+   * We've add current Position into all strategy dependencies
+   * It turned out that after opening and then closing a position there might be artifacts
+   * Left in a position that make it difficult to re-open it
+   */
+  const currentPosition = dependencies.currentPosition
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
     aavePriceOracleABI,
@@ -38,17 +57,12 @@ export async function open(
 
   // Params
   const slippage = args.slippage
-  const multiple = args.multiple
-  const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
-  const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
-
   const estimatedSwapAmount = amountToWei(new BigNumber(1))
 
   const [
     aaveFlashloanDaiPriceInEth,
     aaveDebtTokenPriceInEth,
     aaveCollateralTokenPriceInEth,
-    reserveDataForCollateral,
     reserveDataForFlashloan,
     quoteSwapData,
   ] = await Promise.all([
@@ -61,7 +75,6 @@ export async function open(
     aavePriceOracle
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
     aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
     dependencies.getSwapData(
       debtTokenAddress,
@@ -71,36 +84,14 @@ export async function open(
     ),
   ])
 
-  const FEE = 20
   const BASE = new BigNumber(10000)
-  const flashloanFee = new BigNumber(0)
-  const liquidationThreshold = new BigNumber(
-    reserveDataForCollateral.liquidationThreshold.toString(),
-  ).div(BASE)
-  const maxLoanToValue = new BigNumber(reserveDataForCollateral.ltv.toString()).div(BASE)
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(BASE)
 
-  // TODO: Read it from blockchain if AAVE introduces a dust limit
-  const dustLimit = new BigNumber(0)
+  const FEE = 20
+  const multiple = args.multiple
 
-  const emptyPosition = new Position(
-    {
-      amount: ZERO,
-      symbol: args.debtToken.symbol,
-      precision: args.debtToken.precision,
-    },
-    {
-      amount: ZERO,
-      symbol: args.collateralToken.symbol,
-      precision: args.collateralToken.precision,
-    },
-    aaveCollateralTokenPriceInEth,
-    {
-      liquidationThreshold,
-      maxLoanToValue,
-      dustLimit,
-    },
-  )
+  const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
+  const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
 
   // Needs to be correct precision. First convert to base 18. Then divide
   const base18FromTokenAmount = amountToWei(
@@ -112,6 +103,8 @@ export async function open(
     18,
   )
   const quoteMarketPrice = base18FromTokenAmount.div(base18ToTokenAmount)
+
+  const flashloanFee = new BigNumber(0)
 
   // ETH/DAI
   const ethPerDAI = aaveFlashloanDaiPriceInEth
@@ -126,7 +119,7 @@ export async function open(
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
-  const target = emptyPosition.adjustToTargetRiskRatio(
+  const target = currentPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
       fees: {
@@ -204,6 +197,7 @@ export async function open(
       collateralTokenAddress,
       debtTokenAddress,
       proxy: dependencies.proxy,
+      user: dependencies.user,
     },
     dependencies.addresses,
   )

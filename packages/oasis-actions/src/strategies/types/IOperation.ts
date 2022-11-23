@@ -1,5 +1,4 @@
 import { ActionCall } from '../../actions/types/actionCall'
-import { OperationNames } from '../../helpers/constants'
 
 export interface IOperation {
   calls: ActionCall[]

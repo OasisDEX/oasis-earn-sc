@@ -1,7 +1,8 @@
-import hre from 'hardhat'
-import { AaveBorrow, AaveDeposit, AaveWithdraw, AavePayback } from '../../typechain'
-import { HardhatUtils } from '../common'
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
+import hre from 'hardhat'
+
+import { AaveBorrow, AaveDeposit, AavePayback, AaveWithdraw } from '../../typechain'
+import { HardhatUtils } from '../common'
 
 // TODO: Make this as core deployment script:
 // If there is a populated address for the given address, skip deployment

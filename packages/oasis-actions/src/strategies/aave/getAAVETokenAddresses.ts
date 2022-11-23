@@ -1,7 +1,7 @@
 import { ADDRESSES } from '../../helpers/addresses'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IPositionMutationArgs } from '../types/IPositionRepository'
+import { IPositionTransitionArgs } from '../types/IPositionRepository'
 
 export const mainnetAAVEAddresses = {
   DAI: ADDRESSES.main.DAI,
@@ -19,8 +19,8 @@ export const mainnetAAVEAddresses = {
 
 export const getAAVETokenAddresses = (
   args: {
-    collateralToken: IPositionMutationArgs<AAVETokens>['collateralToken']
-    debtToken: IPositionMutationArgs<AAVETokens>['debtToken']
+    collateralToken: IPositionTransitionArgs<AAVETokens>['collateralToken']
+    debtToken: IPositionTransitionArgs<AAVETokens>['debtToken']
   },
   addresses: AAVEStrategyAddresses,
 ): {

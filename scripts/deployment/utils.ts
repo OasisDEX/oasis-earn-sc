@@ -36,8 +36,9 @@ export async function getExecutorWhitelistedCallers(
     .filter(
       ({ to, input }) =>
         to?.toLowerCase() === executor.address.toLowerCase() &&
-        input?.toLowerCase()?.startsWith(addCallerSighash),
+        input?.toLowerCase().startsWith(addCallerSighash),
     )
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     .flatMap(({ input }) => executor.interface.decodeFunctionData('addCallers', input!)._callers)
 
   const whitelistedCallers = (

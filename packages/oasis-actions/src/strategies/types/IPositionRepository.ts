@@ -1,12 +1,12 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
-import { IBasePosition, IPosition } from '../../helpers/calculations/Position'
+import { IPosition } from '../../helpers/calculations/Position'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IPositionMutation } from './IPositionMutation'
+import { IPositionTransition } from './IPositionTransition'
 import { SwapData } from './SwapData'
 
-export interface IBasePositionMutationArgs<Tokens> {
+export interface IBasePositionTransitionArgs<Tokens> {
   slippage: BigNumber
   collateralToken: { symbol: Tokens; precision?: number }
   debtToken: { symbol: Tokens; precision?: number }
@@ -28,39 +28,58 @@ export type WithLockedCollateral = {
   collateralAmountLockedInProtocolInWei: BigNumber
 }
 
-export interface IPositionMutationArgs<Tokens>
-  extends IBasePositionMutationArgs<Tokens>,
+export interface IPositionTransitionArgs<Tokens>
+  extends IBasePositionTransitionArgs<Tokens>,
     WithDeposit,
     WithMultiple {}
 
-export interface IMutationDependencies<Addresses> {
+export type Address = string
+
+export interface IViewPositionParams<Tokens> {
+  proxy: string
+  collateralToken: { symbol: Tokens; precision?: number }
+  debtToken: { symbol: Tokens; precision?: number }
+}
+
+/**
+ * We've add current Position into all strategy dependencies
+ * It turned out that after opening and then closing a position there might be artifacts
+ * Left in a position that make it difficult to re-open it
+ */
+export interface IPositionTransitionDependencies<Addresses> {
   addresses: Addresses
   provider: providers.Provider
+  currentPosition: IPosition
   getSwapData: (
     fromToken: string,
     toToken: string,
     amount: BigNumber,
     slippage: BigNumber,
   ) => Promise<SwapData>
-  proxy: string
+  proxy: Address
+  user: Address
 }
 
-export type WithPosition = {
-  position: IBasePosition
+export interface IViewPositionDependencies<Addresses> {
+  addresses: Addresses
+  provider: providers.Provider
 }
 
 export interface IPositionRepository<Addresses> {
   open: (
-    args: IPositionMutationArgs<AAVETokens>,
-    dependencies: IMutationDependencies<Addresses>,
-  ) => Promise<IPositionMutation>
+    args: IPositionTransitionArgs<AAVETokens>,
+    dependencies: IPositionTransitionDependencies<Addresses>,
+  ) => Promise<IPositionTransition>
   close: (
-    args: IBasePositionMutationArgs<AAVETokens> & WithLockedCollateral,
-    dependencies: IMutationDependencies<Addresses> & WithPosition,
-  ) => Promise<IPositionMutation>
+    args: IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral,
+    dependencies: IPositionTransitionDependencies<Addresses>,
+  ) => Promise<IPositionTransition>
   adjust: (
-    args: IPositionMutationArgs<AAVETokens>,
-    dependencies: IMutationDependencies<Addresses> & WithPosition,
-  ) => Promise<IPositionMutation>
-  view: (args: unknown) => Promise<IPosition> // Not being implemented yet
+    args: IPositionTransitionArgs<AAVETokens>,
+    dependencies: IPositionTransitionDependencies<Addresses>,
+  ) => Promise<IPositionTransition>
+  view: (
+    args: IViewPositionParams<AAVETokens>,
+    dependencies: IViewPositionDependencies<Addresses>,
+  ) => Promise<IPosition>
 }

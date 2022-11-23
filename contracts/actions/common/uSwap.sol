@@ -211,7 +211,6 @@ contract uSwap {
 
   function swapTokens(SwapData calldata swapData) public returns (uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
-    uint256 balanceOnContract = IERC20(swapData.fromAsset).balanceOf(address(this));
 
     uint256 amountFrom = swapData.amount;
 

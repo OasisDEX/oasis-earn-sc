@@ -76,12 +76,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await swap.connect(signer).addFeeTier(20)
 
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
-  const [dummyAutomation, dummyAutomationAddress] = await deploy('DummyAutomation', [
-    serviceRegistryAddress,
-  ])
-  const [dummyCommmand, dummyCommandAddress] = await deploy('DummyCommand', [
-    serviceRegistryAddress,
-  ])
+  const [dummyAutomation] = await deploy('DummyAutomation', [serviceRegistryAddress])
+  const [dummyCommmand] = await deploy('DummyCommand', [serviceRegistryAddress])
 
   // Deploy Actions
   debug && console.log('3/ Deploying actions')
@@ -91,7 +87,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   ])
 
   const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
-  const [dummyAction, dummyActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_ACTION, [
+  const [, dummyActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_ACTION, [
     serviceRegistryAddress,
   ])
 
@@ -120,7 +116,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.common.RETURN_FUNDS,
     [],
   )
-  const [pullToProxy, pullToProxyAddress] = await deploy(CONTRACT_NAMES.common.PULL_TO_PROXY, [])
 
   //-- Maker Actions
   const [actionOpenVault, actionOpenVaultAddress] = await deploy(CONTRACT_NAMES.maker.OPEN_VAULT, [
@@ -184,10 +179,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     actionFlAddress,
   )
   const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
-  const dummyActionHash = await registry.addEntry(
-    CONTRACT_NAMES.test.DUMMY_ACTION,
-    dummyActionAddress,
-  )
+  await registry.addEntry(CONTRACT_NAMES.test.DUMMY_ACTION, dummyActionAddress)
   const pullTokenHash = await registry.addEntry(CONTRACT_NAMES.common.PULL_TOKEN, pullTokenAddress)
   const setApprovalHash = await registry.addEntry(
     CONTRACT_NAMES.common.SET_APPROVAL,
@@ -207,7 +199,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
 
   await registry.addEntry(CONTRACT_NAMES.common.RETURN_FUNDS, returnFundsActionAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.PULL_TO_PROXY, pullToProxyAddress)
 
   //-- Add Maker Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
@@ -237,7 +228,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     actionGenerateAddress,
   )
 
-  const makerCdpAllowHash = await registry.addEntry(CONTRACT_NAMES.maker.CDP_ALLOW, cdpAllowAddress)
+  await registry.addEntry(CONTRACT_NAMES.maker.CDP_ALLOW, cdpAllowAddress)
 
   //-- Add AAVE Contract Entries
   const aaveBorrowHash = await registry.addEntry(
@@ -252,18 +243,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.aave.WITHDRAW,
     actionWithdrawFromAAVEAddress,
   )
-  const aavePaybackHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.PAYBACK,
-    actionPaybackFromAAVEAddress,
-  )
-  const aaveWethGatewayHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.WETH_GATEWAY,
-    ADDRESSES.main.aave.WETHGateway,
-  )
-  const aaveLendingPoolHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.LENDING_POOL,
-    ADDRESSES.main.aave.MainnetLendingPool,
-  )
+  await registry.addEntry(CONTRACT_NAMES.aave.PAYBACK, actionPaybackFromAAVEAddress)
+  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
+  await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
 
   debug && console.log('5/ Adding operations to registry')
   // Add Maker Operations
@@ -386,7 +368,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       wrapEth,
       unwrapEth,
       returnFunds: returnFunds,
-      pullToProxy: pullToProxy,
     },
     maker: {
       mcdView,
@@ -422,7 +403,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       `Flashloan Action address: ${deployedContracts.common.takeFlashLoan.address}`,
       `Swap Action address: ${deployedContracts.common.swapAction.address}`,
       `Return Funds Action address: ${deployedContracts.common.returnFunds.address}`,
-      `Pull To Proxy Action address: ${deployedContracts.common.pullToProxy.address}`,
 
       `MCDView address: ${deployedContracts.maker.mcdView.address}`,
       `OpenVault Action address: ${deployedContracts.maker.openVault.address}`,

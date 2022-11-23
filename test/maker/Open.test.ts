@@ -21,7 +21,7 @@ import { ServiceRegistry } from '../../helpers/serviceRegistry'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, ensureWeiFormat } from '../../helpers/utils'
 import { testBlockNumber } from '../config'
-import { DeployedSystemInfo, deploySystem } from '../deploySystem'
+import { DeployedSystemInfo } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
 

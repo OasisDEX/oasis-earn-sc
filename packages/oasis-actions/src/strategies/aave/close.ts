@@ -10,20 +10,19 @@ import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../../hel
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IPositionMutation } from '../types/IPositionMutation'
 import {
-  IBasePositionMutationArgs,
-  IMutationDependencies,
+  IBasePositionTransitionArgs,
+  IPositionTransitionDependencies,
   WithLockedCollateral,
-  WithPosition,
 } from '../types/IPositionRepository'
+import { IPositionTransition } from '../types/IPositionTransition'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
 export async function close(
-  args: IBasePositionMutationArgs<AAVETokens> & WithLockedCollateral,
-  dependencies: IMutationDependencies<AAVEStrategyAddresses> & WithPosition,
-): Promise<IPositionMutation> {
-  const existingPosition = dependencies.position
+  args: IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral,
+  dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
+): Promise<IPositionTransition> {
+  const currentPosition = dependencies.currentPosition
 
   const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
@@ -106,10 +105,10 @@ export async function close(
   Final position calculated using actual swap data and the latest market price
  */
   const finalPosition = new Position(
-    { amount: ZERO, symbol: existingPosition.debt.symbol },
-    { amount: ZERO, symbol: existingPosition.collateral.symbol },
+    { amount: ZERO, symbol: currentPosition.debt.symbol },
+    { amount: ZERO, symbol: currentPosition.collateral.symbol },
     aaveCollateralTokenPriceInEth,
-    existingPosition.category,
+    currentPosition.category,
   )
 
   const flags = { requiresFlashloan: true, isIncreasingRisk: false }
@@ -121,8 +120,8 @@ export async function close(
     },
     simulation: {
       delta: {
-        debt: existingPosition.debt.amount.negated(),
-        collateral: existingPosition.collateral.amount.negated(),
+        debt: currentPosition.debt.amount.negated(),
+        collateral: currentPosition.collateral.amount.negated(),
         flashloanAmount: ZERO,
       },
       flags: flags,

@@ -1,11 +1,4 @@
-import {
-  ADDRESSES,
-  CONTRACT_NAMES,
-  OPERATION_NAMES,
-  Position,
-  strategies,
-} from '@oasisdex/oasis-actions'
-import { PositionBalance } from '@oasisdex/oasis-actions/src/helpers/calculations/Position'
+import { ADDRESSES, CONTRACT_NAMES, Position, strategies } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -21,22 +14,21 @@ import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { balanceOf } from '../../helpers/utils'
 import { one, zero } from '../../scripts/common'
 
-function amountToWei(amount: BigNumber.Value, precision = 18) {
-  BigNumber.config({ EXPONENTIAL_AT: 30 })
-  return new BigNumber(amount || 0).times(new BigNumber(10).pow(precision))
-}
-
 export function amountFromWei(amount: BigNumber.Value, precision = 18) {
   return new BigNumber(amount || 0).div(new BigNumber(10).pow(precision))
 }
 
 task('closePosition', 'Close stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
-  .addFlag('dummyswap', 'Use dummy swap')
+  .addFlag('usefallbackswap', 'Use fallback swap')
   .setAction(async (taskArgs, hre) => {
+    if (!process.env.SERVICE_REGISTRY_ADDRESS) {
+      throw new Error('SERVICE_REGISTRY_ADDRESS env variable is not set')
+    }
+
     const config = await init(hre)
 
-    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS!
+    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
 
     const serviceRegistryAbi = [
       {
@@ -127,7 +119,7 @@ task('closePosition', 'Close stETH position on AAVE')
 
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
-    const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress)
+    const swapData = taskArgs.usefallbackswap ? oneInchCallMock() : getOneInchCall(swapAddress)
 
     const beforeCloseUserAccountData: AAVEAccountData = await aaveLendingPool.getUserAccountData(
       dsProxy.address,
@@ -137,14 +129,14 @@ task('closePosition', 'Close stETH position on AAVE')
       await aaveDataProvider.getUserReserveData(ADDRESSES.main.stETH, dsProxy.address)
 
     const positionAfterOpen = new Position(
-      new PositionBalance({
+      {
         amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()),
         symbol: 'ETH',
-      }),
-      new PositionBalance({
+      },
+      {
         amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
         symbol: 'STETH',
-      }),
+      },
       one,
       {
         dustLimit: new BigNumber(0),
@@ -162,10 +154,11 @@ task('closePosition', 'Close stETH position on AAVE')
       },
       {
         addresses: mainnetAddresses,
-        position: positionAfterOpen,
+        currentPosition: positionAfterOpen,
         provider: config.provider,
         getSwapData: swapData,
         proxy: dsProxy.address,
+        user: config.address,
       },
     )
 

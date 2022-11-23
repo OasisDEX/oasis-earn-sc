@@ -1,4 +1,4 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, strategies } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { task, types } from 'hardhat/config'
 
@@ -20,13 +20,17 @@ function amountToWei(amount: BigNumber.Value, precision = 18) {
 
 task('createPosition', 'Create stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
-  .addOptionalParam('deposit', 'ETH deposit', 2, types.float)
+  .addOptionalParam('deposit', 'ETH deposit', 8, types.float)
   .addOptionalParam('multiply', 'Required multiply', 2, types.float)
-  .addFlag('dummyswap', 'Use dummy swap')
+  .addFlag('usefallbackswap', 'Use fallback swap')
   .setAction(async (taskArgs, hre) => {
+    if (!process.env.SERVICE_REGISTRY_ADDRESS) {
+      throw new Error('SERVICE_REGISTRY_ADDRESS env variable is not set')
+    }
+
     const config = await init(hre)
 
-    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS!
+    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
 
     const serviceRegistryAbi = [
       {
@@ -94,24 +98,39 @@ task('createPosition', 'Create stETH position on AAVE')
 
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
-    const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress)
+    const swapData = taskArgs.usefallbackswap ? oneInchCallMock() : getOneInchCall(swapAddress)
     const depositAmount = amountToWei(new BigNumber(taskArgs.deposit))
     const multiply = new BigNumber(taskArgs.multiply)
     const slippage = new BigNumber(0.1)
 
-    const positionMutation = await strategies.aave.open(
+    const debtToken = { symbol: 'ETH' as const }
+    const collateralToken = { symbol: 'STETH' as const }
+    const proxy = dsProxy.address
+    const currentPosition = await strategies.aave.view(
+      { proxy: dsProxy.address, debtToken, collateralToken },
+      {
+        addresses: {
+          ...mainnetAddresses,
+        },
+        provider: config.provider,
+      },
+    )
+
+    const positionTransition = await strategies.aave.open(
       {
         depositedByUser: { debtInWei: depositAmount },
         slippage,
         multiple: multiply,
-        debtToken: { symbol: 'ETH' },
-        collateralToken: { symbol: 'STETH' },
+        debtToken,
+        collateralToken,
       },
       {
         addresses: mainnetAddresses,
         provider: config.provider,
         getSwapData: swapData,
-        proxy: dsProxy.address,
+        proxy,
+        user: config.address,
+        currentPosition,
       },
     )
 
@@ -126,8 +145,8 @@ task('createPosition', 'Create stETH position on AAVE')
       {
         address: mainnetAddresses.operationExecutor,
         calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-          positionMutation.transaction.calls,
-          positionMutation.transaction.operationName,
+          positionTransition.transaction.calls,
+          positionTransition.transaction.operationName,
         ]),
       },
       config.signer,

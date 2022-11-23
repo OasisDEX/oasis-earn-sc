@@ -5,8 +5,9 @@ import { ServiceRegistry } from "./ServiceRegistry.sol";
 import { OperationStorage } from "./OperationStorage.sol";
 import { OperationsRegistry } from "./OperationsRegistry.sol";
 import { DSProxy } from "../libs/DS/DSProxy.sol";
-import { Address } from "../libs/Address.sol";
+import { ActionAddress } from "../libs/ActionAddress.sol";
 import { TakeFlashloan } from "../actions/common/TakeFlashloan.sol";
+import { Executable } from "../actions/common/Executable.sol";
 import { IERC3156FlashBorrower } from "../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
@@ -20,7 +21,7 @@ import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
  * @notice Is responsible for executing sequences of Actions (Operations)
  */
 contract OperationExecutor is IERC3156FlashBorrower {
-  using Address for address;
+  using ActionAddress for address;
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
 
@@ -78,11 +79,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
       }
 
       address target = registry.getServiceAddress(calls[current].targetHash);
-
-      target.functionDelegateCall(
-        calls[current].callData,
-        "OpExecutor: low-level delegatecall failed"
-      );
+      target.execute(calls[current].callData);
     }
   }
 

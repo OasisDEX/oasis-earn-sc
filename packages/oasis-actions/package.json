@@ -1,11 +1,12 @@
 {
   "name": "@oasisdex/oasis-actions",
-  "version": "0.0.4-alpha.21",
+  "version": "0.0.4-alpha.24",
   "main": "lib/src/index.js",
   "typings": "lib/src/index.d.ts",
   "scripts": {
     "build": "tsc -b",
     "watch": "tsc -b -w",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit",
     "test": "npx hardhat test src/helpers/calculations/Position.test.ts",
     "generate:scenarios": "npx ts-node src/helpers/calculations/test-scenarios/generateTestData.ts",
     "prepublish": "npm run build"

@@ -1,6 +1,7 @@
 import { Contract, ContractReceipt, Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
+import { removeVersion } from '../scripts/common/utils'
 import { Debug, WithRuntimeConfig } from './types/common'
 
 type DeployOptions = WithRuntimeConfig & Debug
@@ -14,16 +15,20 @@ export async function createDeploy(
   const ethers = hre?.ethers || (await import('hardhat')).ethers
 
   return async (contractName: string, params: string[] = []): Promise<[Contract, string]> => {
-    const contractFactory = await ethers.getContractFactory(contractName, config.signer)
+    const contractNameWithVersionRemoved = removeVersion(contractName)
+    const contractFactory = await ethers.getContractFactory(
+      contractNameWithVersionRemoved,
+      config.signer,
+    )
     const instance = await contractFactory.connect(config.signer).deploy(...params)
     if (debug) {
       console.log('DEBUG: Owner of deploy:', await config.signer.getAddress())
-      console.log(`DEBUG: Deploying ${contractName} ...`)
+      console.log(`DEBUG: Deploying ${contractNameWithVersionRemoved} ...`)
     }
     const address = instance.address
 
     if (debug) {
-      console.log(`DEBUG: Contract ${contractName} deployed at: ${address}`)
+      console.log(`DEBUG: Contract ${contractNameWithVersionRemoved} deployed at: ${address}`)
     }
 
     return [instance, address]
@@ -55,6 +60,6 @@ export async function executeThroughProxy(
     const result = await tx.wait()
     return [true, result]
   } catch (ex) {
-    return [false, ex as any] // TODO:
+    return [false, ex as ContractReceipt] // TODO:
   }
 }

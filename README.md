@@ -16,7 +16,7 @@ Checkout the project locally.
 In a shell prompt run the following command:
 
 ```shell
-npx hardhat node`
+npx hardhat node
 ```
 
 That will run a node for you a separate process that will be waiting to accept new calls.
@@ -38,13 +38,22 @@ npx hardhat deploy --debug
 
 That will output the deployed contract name and the corresponding address
 
-# Running a node
+# Running a node & deploying the system to a locally running node
 
-Running a node is as simple as writing in a shell prompt:
+1. Running a node is as simple as writing in a shell prompt:
 
 ```shell
-npx hardhat node
+npx hardhat node --max-memory 8192 --fork <MAINNET_URL>
 ```
+
+2. Deploying the system against the node you've spun up
+
+`yarn deploy:fallback` 
+
+or 
+
+`yarn deploy:1inch` // if you want to use 1inch as exchange
+
 
 # Running tests
 
@@ -89,7 +98,8 @@ Tenderly export only works with Hardhat v2.8.0. More recently versions will resu
 Errors encountered in param 1: Storage slot argument must have a length of 66 ("0x" + 32 bytes), but '0x0' has a length of 3
 ```
 
-However, tests will fail with Hardhat v2.8.0 because of how HardHat's JsonRpcProvider implementation. See https://github.com/NomicFoundation/hardhat/issues/1700.
+However, tests will fail with Hardhat v2.8.0 because of how HardHat's JsonRpcProvider implementation.
+See https://github.com/NomicFoundation/hardhat/issues/1700.
 Errors such as the one below will appear when running tests with v2.8.0. Use Hardhat v2.9.5 when running tests.
 
 ```shell

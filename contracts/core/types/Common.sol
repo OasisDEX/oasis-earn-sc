@@ -56,8 +56,3 @@ struct UnwrapEthData {
 struct ReturnFundsData {
   address asset;
 }
-
-struct PullToProxyData {
-  address asset;
-  uint256 amount;
-}
