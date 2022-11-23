@@ -4,7 +4,6 @@ import { ethers, providers } from 'ethers'
 import aaveDataProviderABI from '../../abi/aaveDataProvider.json'
 import aaveLendingPoolABI from '../../abi/aaveLendingPool.json'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
-import { amountFromWei } from '../../helpers'
 import { IPosition, Position } from '../../helpers/calculations/Position'
 
 export interface getCurrentStEthEthPositionParams {
@@ -53,7 +52,7 @@ export async function getCurrentStEthEthPosition(
     aaveDataProvider.getReserveConfigurationData(addresses.stETH),
     aavePriceOracle
       .getAssetPrice(addresses.stETH)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+      .then((amount: ethers.BigNumberish) => new BigNumber(amount.toString())),
   ])
 
   const BASE = new BigNumber(10000)
@@ -64,13 +63,11 @@ export async function getCurrentStEthEthPosition(
 
   return new Position(
     {
-      amount: amountFromWei(new BigNumber(userAccountData.totalDebtETH.toString())),
+      amount: new BigNumber(userAccountData.totalDebtETH.toString()),
       denomination: 'ETH',
     },
     {
-      amount: amountFromWei(
-        new BigNumber(sthEthEthUserReverseData.currentATokenBalance.toString()),
-      ),
+      amount: new BigNumber(sthEthEthUserReverseData.currentATokenBalance.toString()),
       denomination: 'STETH',
     },
     aaveStEthPriceInEth,
