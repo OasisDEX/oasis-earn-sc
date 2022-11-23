@@ -85,11 +85,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       isFeeFromDebtToken: boolean,
       userAddress: Address,
     ) {
-      const { snapshot, config: newConfig } = await restoreSnapshot(
+      const { snapshot, config: newConfig } = await restoreSnapshot({
         config,
         provider,
-        testBlockNumber,
-      )
+        blockNumber: testBlockNumber,
+        useRichAccount: true,
+      })
       config = newConfig
       signer = newConfig.signer
       const system = snapshot.deployed.system

@@ -12,14 +12,19 @@ type Snapshot = { id: string; deployed: System }
 const snapshotCache: Record<string, Snapshot | undefined> = {}
 const testBlockNumber = Number(process.env.TESTS_BLOCK_NUMBER)
 
-export async function restoreSnapshot(
-  config: RuntimeConfig,
-  provider: providers.JsonRpcProvider,
-  blockNumber: number = testBlockNumber,
-  useFallbackSwap = true,
-  debug = false,
-): Promise<{ snapshot: Snapshot; config: RuntimeConfig }> {
-  const cacheKey = `${blockNumber}|${useFallbackSwap}`
+export async function restoreSnapshot(args: {
+  config: RuntimeConfig
+  provider: providers.JsonRpcProvider
+  blockNumber: number
+  use1inchSwap?: boolean
+  debug?: boolean
+  useRichAccount?: boolean
+}): Promise<{ snapshot: Snapshot; config: RuntimeConfig }> {
+  const { config, provider, blockNumber, use1inchSwap, debug, useRichAccount } = args
+
+  const _blockNumber = blockNumber || testBlockNumber
+
+  const cacheKey = `${_blockNumber}|${use1inchSwap}`
   const snapshot = snapshotCache[cacheKey]
 
   let revertSuccessful = false
@@ -43,17 +48,22 @@ export async function restoreSnapshot(
     return { snapshot, config }
   } else {
     if (debug) {
-      console.log('resetting node to:', blockNumber)
+      console.log('resetting node to:', _blockNumber)
       console.log('deploying system again')
     }
-    await resetNode(provider, blockNumber)
+    await resetNode(provider, _blockNumber)
 
-    const { signer, address } = await impersonateRichAccount(config.provider)
+    let signer
+    let address
+    if (useRichAccount) {
+      ;({ signer, address } = await impersonateRichAccount(config.provider))
+    }
+
     const newConfig = { ...config }
-    newConfig.signer = signer
-    newConfig.address = address
+    newConfig.signer = signer || config.signer
+    newConfig.address = address || config.address
 
-    const system = await deploySystem(newConfig, debug, useFallbackSwap)
+    const system = await deploySystem(newConfig, debug, !use1inchSwap)
     const snapshotId = await provider.send('evm_snapshot', [])
 
     const snapshot = {

@@ -94,7 +94,12 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       blockNumber?: number,
     ) {
       const _blockNumber = blockNumber || testBlockNumber
-      const { snapshot, config: newConfig } = await restoreSnapshot(config, provider, _blockNumber)
+      const { snapshot, config: newConfig } = await restoreSnapshot({
+        config,
+        provider,
+        blockNumber: _blockNumber,
+        useRichAccount: true,
+      })
       config = newConfig
       signer = newConfig.signer
 

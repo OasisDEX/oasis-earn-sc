@@ -22,7 +22,11 @@ describe('SendToken Action', () => {
   before(async () => {
     ;({ config } = await loadFixture(initialiseConfig))
 
-    const { snapshot } = await restoreSnapshot(config, config.provider, testBlockNumber)
+    const { snapshot } = await restoreSnapshot({
+      config,
+      provider: config.provider,
+      blockNumber: testBlockNumber,
+    })
 
     sendToken = snapshot.deployed.system.common.sendToken
     sendTokenActionAddress = snapshot.deployed.system.common.sendToken.address
@@ -40,7 +44,7 @@ describe('SendToken Action', () => {
   })
 
   afterEach(async () => {
-    await restoreSnapshot(config, config.provider, testBlockNumber)
+    await restoreSnapshot({ config, provider: config.provider, blockNumber: testBlockNumber })
   })
 
   it('should send tokens to the sender', async () => {

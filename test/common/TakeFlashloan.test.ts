@@ -32,14 +32,14 @@ describe('TakeFlashloan Action', () => {
   before(async () => {
     ;({ config, provider } = await loadFixture(initialiseConfig))
 
-    const { snapshot } = await restoreSnapshot(config, provider, testBlockNumber)
+    const { snapshot } = await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
 
     system = snapshot.deployed.system
     registry = snapshot.deployed.registry
   })
 
   afterEach(async () => {
-    await restoreSnapshot(config, provider, testBlockNumber)
+    await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
   })
 
   it('should take flashloan', async () => {
