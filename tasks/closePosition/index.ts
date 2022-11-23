@@ -13,6 +13,7 @@ import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { balanceOf } from '../../helpers/utils'
 import { one, zero } from '../../scripts/common'
+import { mainnetAddresses } from '../../test/addresses'
 
 export function amountFromWei(amount: BigNumber.Value, precision = 18) {
   return new BigNumber(amount || 0).div(new BigNumber(10).pow(precision))
@@ -66,18 +67,9 @@ task('closePosition', 'Close stETH position on AAVE')
 
     console.log('Operation executor address', operationExecutorAddress)
 
-    const mainnetAddresses = {
-      DAI: ADDRESSES.main.DAI,
-      ETH: ADDRESSES.main.ETH,
-      WETH: ADDRESSES.main.WETH,
-      stETH: ADDRESSES.main.stETH,
-      wBTC: ADDRESSES.main.WBTC,
-      USDC: ADDRESSES.main.USDC,
-      chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-      aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-      aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
+    const addresses = {
+      ...mainnetAddresses,
       operationExecutor: operationExecutorAddress,
-      aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
     }
     const aaveLendingPool = new hre.ethers.Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -153,7 +145,7 @@ task('closePosition', 'Close stETH position on AAVE')
         collateralToken: { symbol: 'STETH' },
       },
       {
-        addresses: mainnetAddresses,
+        addresses: addresses,
         currentPosition: positionAfterOpen,
         provider: config.provider,
         getSwapData: swapData,
@@ -164,14 +156,14 @@ task('closePosition', 'Close stETH position on AAVE')
 
     const operationExecutor = await hre.ethers.getContractAt(
       CONTRACT_NAMES.common.OPERATION_EXECUTOR,
-      mainnetAddresses.operationExecutor,
+      addresses.operationExecutor,
       config.signer,
     )
 
     const [txStatus, tx] = await executeThroughProxy(
       dsProxy.address,
       {
-        address: mainnetAddresses.operationExecutor,
+        address: addresses.operationExecutor,
         calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
           positionMutation.transaction.calls,
           positionMutation.transaction.operationName,

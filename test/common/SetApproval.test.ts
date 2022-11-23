@@ -21,7 +21,7 @@ describe('SetApproval Action', () => {
   before(async () => {
     ;({ config } = await loadFixture(initialiseConfig))
 
-    const snapshot = await restoreSnapshot(config, config.provider, testBlockNumber)
+    const { snapshot } = await restoreSnapshot(config, config.provider, testBlockNumber)
 
     approval = snapshot.deployed.system.common.setApproval
     approvalActionAddress = snapshot.deployed.system.common.setApproval.address

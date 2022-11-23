@@ -22,7 +22,7 @@ describe('SendToken Action', () => {
   before(async () => {
     ;({ config } = await loadFixture(initialiseConfig))
 
-    const snapshot = await restoreSnapshot(config, config.provider, testBlockNumber)
+    const { snapshot } = await restoreSnapshot(config, config.provider, testBlockNumber)
 
     sendToken = snapshot.deployed.system.common.sendToken
     sendTokenActionAddress = snapshot.deployed.system.common.sendToken.address

@@ -203,16 +203,12 @@ export async function open(
   )
 
   // EG FROM WBTC 8 to USDC 6
-  // Convert WBTC toWei at 18
+  // Convert WBTC fromWei
   // Apply market price
-  // Convert result back to USDC at 6
+  // Convert result back to USDC at precision 6
   const collateralAmountAfterSwapInWei = amountToWei(
-    amountFromWei(
-      amountToWei(
-        amountFromWei(target.swap.fromTokenAmount, args.debtToken.precision),
-        TYPICAL_PRECISION,
-      ).div(actualMarketPriceWithSlippage),
-      TYPICAL_PRECISION,
+    amountFromWei(target.swap.fromTokenAmount, args.debtToken.precision).div(
+      actualMarketPriceWithSlippage,
     ),
     args.collateralToken.precision,
   ).integerValue(BigNumber.ROUND_DOWN)

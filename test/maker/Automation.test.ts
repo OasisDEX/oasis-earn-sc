@@ -49,7 +49,7 @@ describe(`Operations | Maker | Automation Integration`, async () => {
 
     // When changing block number remember to check vault id that is used for automation
     const testBlockNumberToGetCorrectVaultId = 15695000
-    const snapshot = await restoreSnapshot(config, provider, testBlockNumberToGetCorrectVaultId)
+    const { snapshot } = await restoreSnapshot(config, provider, testBlockNumberToGetCorrectVaultId)
 
     system = snapshot.deployed.system
     registry = snapshot.deployed.registry

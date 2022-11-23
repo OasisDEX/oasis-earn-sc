@@ -34,7 +34,7 @@ describe(`Reentrancy guard test`, async () => {
   before(async () => {
     ;({ config, provider, signer } = await loadFixture(initialiseConfig))
 
-    const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+    const { snapshot } = await restoreSnapshot(config, provider, testBlockNumber)
     system = snapshot.deployed.system
     registry = snapshot.deployed.registry
   })
