@@ -32,7 +32,7 @@ import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
-import { initialiseConfig } from '../fixtures/setup'
+import { initialiseConfigWithRichAccount } from '../fixtures/setup'
 import { expectToBe, TESTING_OFFSET } from '../utils'
 
 describe(`Strategy | AAVE | Adjust Position`, async function () {
@@ -44,7 +44,12 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
   let userAddress: string
 
   before(async function () {
-    ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
+    ;({
+      config,
+      provider,
+      signer,
+      address: userAddress,
+    } = await loadFixture(initialiseConfigWithRichAccount))
 
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
