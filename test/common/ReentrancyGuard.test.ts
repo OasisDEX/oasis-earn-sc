@@ -34,13 +34,13 @@ describe(`Reentrancy guard test`, async () => {
   before(async () => {
     ;({ config, provider, signer } = await loadFixture(initialiseConfig))
 
-    const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+    const { snapshot } = await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
     system = snapshot.deployed.system
     registry = snapshot.deployed.registry
   })
 
   afterEach(async () => {
-    await restoreSnapshot(config, provider, testBlockNumber)
+    await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
   })
 
   it(`should execute an action, even if OperationStorage lock() was called by another address`, async () => {

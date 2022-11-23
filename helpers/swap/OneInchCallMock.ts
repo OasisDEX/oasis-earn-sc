@@ -11,11 +11,11 @@ export const oneInchCallMock =
   ) =>
   async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
     // EG FROM WBTC 8 to USDC 6
-    // Convert WBTC toWei at 18
+    // Convert WBTC fromWei
     // Apply market price
-    // Convert result back to USDC at 6
+    // Convert result back to USDC at precision 6
     const precisionAdjustedToAmount = amountToWei(
-      amountFromWei(amountToWei(amountFromWei(amount, precision.from), 18).div(marketPrice), 18),
+      amountFromWei(amount, precision.from).div(marketPrice),
       precision.to,
     )
 
