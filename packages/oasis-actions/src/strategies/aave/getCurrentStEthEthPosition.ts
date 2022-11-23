@@ -16,7 +16,7 @@ export interface getCurrentStEthEthPositionDependencies {
     stETH: string
     aavePriceOracle: string
     aaveLendingPool: string
-    aaveDataProvider: string
+    aaveProtocolDataProvider: string
   }
   provider: providers.Provider
 }
@@ -31,7 +31,7 @@ export async function getCurrentStEthEthPosition(
     provider,
   )
   const aaveDataProvider = new ethers.Contract(
-    addresses.aaveDataProvider,
+    addresses.aaveProtocolDataProvider,
     aaveDataProviderABI,
     provider,
   )

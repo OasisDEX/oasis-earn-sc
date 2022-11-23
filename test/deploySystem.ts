@@ -186,10 +186,16 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.common.SWAP_ACTION,
     swapActionAddress,
   )
-  await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
+  const wrapEthHash = await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
+  const unwrapEthHash = await registry.addEntry(
+    CONTRACT_NAMES.common.UNWRAP_ETH,
+    unwrapActionAddress,
+  )
 
-  await registry.addEntry(CONTRACT_NAMES.common.RETURN_FUNDS, returnFundsActionAddress)
+  const returnFundsActionHash = await registry.addEntry(
+    CONTRACT_NAMES.common.RETURN_FUNDS,
+    returnFundsActionAddress,
+  )
 
   //-- Add Maker Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
@@ -234,7 +240,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.aave.WITHDRAW,
     actionWithdrawFromAAVEAddress,
   )
-  await registry.addEntry(CONTRACT_NAMES.aave.PAYBACK, actionPaybackFromAAVEAddress)
+  const aavePaybackHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.PAYBACK,
+    actionPaybackFromAAVEAddress,
+  )
   await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
   await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
 
@@ -329,14 +338,28 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   // Add AAVE Operations
   await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
-    pullTokenHash,
     takeFlashLoanHash,
     setApprovalHash,
     aaveDepositHash,
     aaveBorrowHash,
-    swapHash,
+    wrapEthHash,
+    swapActionHash,
+    setApprovalHash,
+    aaveDepositHash,
     aaveWithdrawHash,
-    sendTokenHash,
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.CLOSE_POSITION, [
+    takeFlashLoanHash,
+    setApprovalHash,
+    aaveDepositHash,
+    aaveWithdrawHash,
+    swapActionHash,
+    setApprovalHash,
+    aavePaybackHash,
+    aaveWithdrawHash,
+    unwrapEthHash,
+    returnFundsActionHash,
   ])
 
   const deployedContracts = {

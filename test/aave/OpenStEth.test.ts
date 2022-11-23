@@ -45,6 +45,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
     aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
     aavePriceOracle: ADDRESSES.main.aavePriceOracle,
     aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
+    aaveDataProvider: ADDRESSES.main.aave.DataProvider,
   }
 
   before(async () => {
@@ -84,6 +85,16 @@ describe(`Strategy | AAVE | Open Position`, async () => {
         operationExecutor: system.common.operationExecutor.address,
       }
 
+      const currentPosition = await strategies.aave.getCurrentStEthEthPosition(
+        { proxyAddress: system.common.dsProxy.address },
+        {
+          addresses: {
+            ...mainnetAddresses,
+          },
+          provider: config.provider,
+        },
+      )
+
       strategy = await strategies.aave.openStEth(
         {
           depositAmount,
@@ -91,6 +102,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           multiple,
         },
         {
+          currentPosition,
           addresses,
           provider,
           getSwapData: oneInchCallMock(new BigNumber(0.9759)),
@@ -110,7 +122,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             strategy.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
+            OPERATION_NAMES.aave.OPEN_POSITION,
           ]),
         },
         signer,
@@ -217,6 +229,16 @@ describe(`Strategy | AAVE | Open Position`, async () => {
           { config, isFormatted: true },
         )
 
+        const currentPosition = await strategies.aave.getCurrentStEthEthPosition(
+          { proxyAddress: system.common.dsProxy.address },
+          {
+            addresses: {
+              ...mainnetAddresses,
+            },
+            provider: config.provider,
+          },
+        )
+
         strategy = await strategies.aave.openStEth(
           {
             depositAmount,
@@ -224,6 +246,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
             multiple,
           },
           {
+            currentPosition,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
@@ -237,7 +260,7 @@ describe(`Strategy | AAVE | Open Position`, async () => {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
               strategy.calls,
-              OPERATION_NAMES.common.CUSTOM_OPERATION,
+              OPERATION_NAMES.aave.OPEN_POSITION,
             ]),
           },
           signer,

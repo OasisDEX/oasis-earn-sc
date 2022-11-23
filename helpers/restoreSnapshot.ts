@@ -48,7 +48,7 @@ export async function restoreSnapshot(
     }
     await resetNode(provider, blockNumber)
 
-    const system = await deploySystem(config, false, useFallbackSwap)
+    const system = await deploySystem(config, debug, useFallbackSwap)
     const snapshotId = await provider.send('evm_snapshot', [])
 
     const snapshot = {
