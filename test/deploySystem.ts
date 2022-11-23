@@ -155,10 +155,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
 
   // add flag to deploy fallbackSwap contract
-  const swapHash = await registry.addEntry(
-    CONTRACT_NAMES.common.SWAP,
-    useFallbackSwap ? uSwapAddress : swapAddress,
-  )
+  await registry.addEntry(CONTRACT_NAMES.common.SWAP, useFallbackSwap ? uSwapAddress : swapAddress)
 
   //-- Add Common Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_EXECUTOR, operationExecutorAddress)
