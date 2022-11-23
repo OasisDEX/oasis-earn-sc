@@ -77,7 +77,7 @@ describe(`Operations | Maker | Increase Multiple`, async () => {
   })
 
   afterEach(async () => {
-    await restoreSnapshot(config, provider, testBlockNumber)
+    await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
   })
 
   let gasEstimates: GasEstimateHelper
