@@ -13,6 +13,8 @@ import {
   AAVE_LENDING_POOL,
   PAYBACK_ACTION
 } from "../../core/constants/Aave.sol";
+import { EVENT_EMITTER } from "../../core/constants/Common.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 /**
  * @title Payback | AAVE Action contract
@@ -46,6 +48,8 @@ contract AavePayback is Executable, UseStore {
     );
 
     store().write(bytes32(payback.amount));
-    emit Action(PAYBACK_ACTION, bytes(abi.encode(payback.amount)));
+
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(PAYBACK_ACTION, msg.sender, bytes(abi.encode(payback.amount)));
   }
 }

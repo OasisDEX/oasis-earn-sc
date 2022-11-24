@@ -8,6 +8,8 @@ import { DepositData } from "../../core/types/Aave.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { AAVE_LENDING_POOL, DEPOSIT_ACTION } from "../../core/constants/Aave.sol";
+import { EVENT_EMITTER } from "../../core/constants/Common.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 /**
  * @title Deposit | AAVE Action contract
@@ -46,7 +48,9 @@ contract AaveDeposit is Executable, UseStore {
     );
 
     store().write(bytes32(actualDepositAmount));
-    emit Action(DEPOSIT_ACTION, bytes(abi.encode(actualDepositAmount)));
+
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(DEPOSIT_ACTION, msg.sender, bytes(abi.encode(actualDepositAmount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (DepositData memory params) {

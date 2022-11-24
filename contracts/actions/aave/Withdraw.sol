@@ -6,6 +6,8 @@ import { OperationStorage } from "../../core/OperationStorage.sol";
 import { ILendingPool } from "../../interfaces/aave/ILendingPool.sol";
 import { WithdrawData } from "../../core/types/Aave.sol";
 import { AAVE_LENDING_POOL, WITHDRAW_ACTION } from "../../core/constants/Aave.sol";
+import { EVENT_EMITTER } from "../../core/constants/Common.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 /**
  * @title Withdraw | AAVE Action contract
@@ -27,7 +29,8 @@ contract AaveWithdraw is Executable, UseStore {
 
     store().write(bytes32(amountWithdrawn));
 
-    emit Action(WITHDRAW_ACTION, bytes(abi.encode(amountWithdrawn)));
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(BORROW_ACTION, msg.sender, bytes(abi.encode(amountWithdrawn)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (WithdrawData memory params) {

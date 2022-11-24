@@ -9,6 +9,8 @@ import { ILendingPool } from "../../interfaces/aave/ILendingPool.sol";
 import { BorrowData } from "../../core/types/Aave.sol";
 import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL, BORROW_ACTION } from "../../core/constants/Aave.sol";
 import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
+import { EVENT_EMITTER } from "../../core/constants/Common.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 /**
  * @title Borrow | AAVE Action contract
@@ -37,7 +39,9 @@ contract AaveBorrow is Executable, UseStore {
     );
 
     store().write(bytes32(borrow.amount));
-    emit Action(BORROW_ACTION, bytes(abi.encode(borrow.amount)));
+
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(BORROW_ACTION, msg.sender, bytes(abi.encode(borrow.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (BorrowData memory params) {
