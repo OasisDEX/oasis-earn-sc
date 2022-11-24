@@ -318,7 +318,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe.skip(`With ${tokens.ETH} collateral (+dep) & ${tokens.USDC} debt`, function () {
+    describe(`With ${tokens.ETH} collateral (+dep) & ${tokens.USDC} debt`, function () {
       const depositEthAmount = new BigNumber(600)
 
       let userEthReserveData: AAVEReserveData
@@ -403,7 +403,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe.skip(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
+    describe(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
@@ -484,7 +484,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe.skip(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
+    describe(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
@@ -576,7 +576,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     })
   })
 
-  describe.skip('On latest block using one inch exchange and api', function () {
+  describe('On latest block using one inch exchange and api', function () {
     const depositEthAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)

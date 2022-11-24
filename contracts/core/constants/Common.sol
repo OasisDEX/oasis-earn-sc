@@ -27,5 +27,6 @@ string constant RETURN_FUNDS_ACTION = "ReturnFunds_2";
 
 string constant UNISWAP_ROUTER = "UniswapRouter";
 string constant SWAP = "Swap";
+string constant EVENT_EMITTER = "EventEmitter";
 
 address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;

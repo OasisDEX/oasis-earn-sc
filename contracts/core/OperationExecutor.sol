@@ -13,8 +13,9 @@ import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
-import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
+import { EVENT_EMITTER, OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
+import { IEventEmitter } from "../interfaces/common/IEventEmitter.sol";
 
 /**
  * @title Operation Executor
@@ -26,13 +27,6 @@ contract OperationExecutor is IERC3156FlashBorrower {
   using SafeMath for uint256;
 
   ServiceRegistry public immutable registry;
-
-  /**
-   * @dev Emitted once an Operation has completed execution
-   * @param name The address initiating the deposit
-   * @param calls An array of Action calls the operation must execute
-   **/
-  event Operation(string name, Call[] calls);
 
   constructor(ServiceRegistry _registry) {
     registry = _registry;
@@ -67,7 +61,8 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
     opStorage.clearStorage();
     opStorage.unlock();
-    emit Operation(operationName, calls);
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitOperationEvent(operationName, msg.sender, calls);
   }
 
   function aggregate(Call[] memory calls) internal {
