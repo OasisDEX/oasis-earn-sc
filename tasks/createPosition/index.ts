@@ -28,6 +28,10 @@ task('createPosition', 'Create stETH position on AAVE')
 
     const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
 
+    if (!serviceRegistryAddress) {
+      throw new Error('ServiceRegistry params or SERVICE_REGISTRY_ADDRESS env variable is not set')
+    }
+
     const serviceRegistryAbi = [
       {
         inputs: [
