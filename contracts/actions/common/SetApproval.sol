@@ -18,10 +18,7 @@ contract SetApproval is Executable, UseStore {
   using Read for OperationStorage;
   using SafeMath for uint256;
 
-  constructor(address _registry) UseStore(_registry) {
-    registry = ServiceRegistry(_registry);
-  }
-
+  constructor(address _registry) UseStore(_registry) {}
 
   /**
    * @dev Look at UseStore.sol to get additional info on paramsMapping

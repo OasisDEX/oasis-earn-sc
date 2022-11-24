@@ -13,7 +13,7 @@ import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
  * @title ReturnFunds Action contract
  * @notice Returns funds sitting on a user's proxy to a user's EOA
  */
-contract ReturnFunds is Executable, UseStore {
+contract ReturnFunds is Executable {
   using SafeERC20 for IERC20;
   ServiceRegistry internal immutable registry;
 

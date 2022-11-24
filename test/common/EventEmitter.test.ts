@@ -37,7 +37,6 @@ describe('EventEmitter', () => {
     const result = await receipt.wait()
 
     const actualEventArgs = result.events[0].args
-
     const actualEventName = actualEventArgs[0]
     const actualProxyAddress = actualEventArgs[1]
     const encodedValues = actualEventArgs[2]
@@ -47,7 +46,9 @@ describe('EventEmitter', () => {
       encodedValues,
     )
 
-    expect(actualEventName).to.equal(testActionName)
+    expect(actualEventName.hash).to.equal(
+      ethers.utils.keccak256(ethers.utils.toUtf8Bytes(testActionName)),
+    )
     expect(actualProxyAddress).to.equal(expectedProxyAddress)
     expect(actualReturnValA).to.equal(testReturnValueA)
     expect(actualReturnValB).to.equal(testReturnValueB)
@@ -83,7 +84,9 @@ describe('EventEmitter', () => {
 
     const returnedActionsCalldata = emittedCallsData[0]
 
-    expect(actualEventName).to.equal(testOperationName)
+    expect(actualEventName.hash).to.equal(
+      ethers.utils.keccak256(ethers.utils.toUtf8Bytes(testOperationName)),
+    )
     expect(actualProxyAddress).to.equal(expectedProxyAddress)
     expect(testAction).to.deep.equal({
       targetHash: returnedActionsCalldata.targetHash,
