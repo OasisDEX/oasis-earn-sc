@@ -28,6 +28,7 @@ task(
       operationsRegistryAddress,
       operationExecutorAddress,
       operationStorageAddress,
+      eventEmitterAddress,
     } = await deployCoreContacts(deploy)
 
     const {
@@ -57,6 +58,7 @@ task(
       operationExecutorAddress,
       operationStorageAddress,
       operationsRegistryAddress,
+      eventEmitterAddress,
     })
 
     const { pullTokenHash, sendTokenHash, setApprovalHash, takeAFlashloanHash, swapActionHash } =
@@ -108,12 +110,14 @@ async function deployCoreContacts(deploy: DeployFunction) {
     serviceRegistryAddress,
     operationExecutorAddress,
   ])
+  const [, eventEmitterAddress] = await deploy(CONTRACT_NAMES.common.EVENT_EMITTER, [])
 
   return {
     serviceRegistryAddress,
     operationsRegistryAddress,
     operationExecutorAddress,
     operationStorageAddress,
+    eventEmitterAddress,
   }
 }
 
@@ -221,6 +225,7 @@ async function addCoreContractsToRegistry(
     operationExecutorAddress: string
     operationStorageAddress: string
     operationsRegistryAddress: string
+    eventEmitterAddress: string
   },
 ) {
   await registry.addEntry(
@@ -235,6 +240,7 @@ async function addCoreContractsToRegistry(
     CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
     addresses.operationsRegistryAddress,
   )
+  await registry.addEntry(CONTRACT_NAMES.common.EVENT_EMITTER, addresses.eventEmitterAddress)
 }
 
 async function addCommonActionsToRegistry(

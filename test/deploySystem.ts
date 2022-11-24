@@ -45,7 +45,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     [],
   )
 
-  // const [, eventEmitterAddress] = await deploy(CONTRACT_NAMES.common.EVENT_EMITTER, [])
+  const [, eventEmitterAddress] = await deploy(CONTRACT_NAMES.common.EVENT_EMITTER, [])
 
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
 
@@ -175,6 +175,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_EXECUTOR, operationExecutorAddress)
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
   await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
+  await registry.addEntry(CONTRACT_NAMES.common.EVENT_EMITTER, eventEmitterAddress)
   await registry.addEntry(CONTRACT_NAMES.common.EXCHANGE, dummyExchangeAddress)
   const takeFlashLoanHash = await registry.addEntry(
     CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
