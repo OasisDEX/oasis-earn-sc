@@ -12,12 +12,14 @@ import { IJug } from "../../interfaces/maker/IJug.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
 import { GenerateData } from "../../core/types/Maker.sol";
+import { EVENT_EMITTER } from "../../core/constants/Common.sol";
 import {
   GENERATE_ACTION,
   MCD_MANAGER,
   MCD_JUG,
   MCD_JOIN_DAI
 } from "../../core/constants/Maker.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 contract MakerGenerate is Executable, UseStore {
   using SafeMath for uint256;
@@ -37,7 +39,8 @@ contract MakerGenerate is Executable, UseStore {
     uint256 amountGenerated = _generate(generateData);
     store().write(bytes32(amountGenerated));
 
-    emit Action(GENERATE_ACTION, bytes(abi.encode(amountGenerated)));
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(GENERATE_ACTION, address(this), bytes(abi.encode(amountGenerated)));
   }
 
   function _generate(GenerateData memory data) internal returns (uint256) {

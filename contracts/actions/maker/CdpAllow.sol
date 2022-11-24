@@ -10,8 +10,9 @@ import { MathUtils } from "../../libs/MathUtils.sol";
 import { CdpAllowData } from "../../core/types/Maker.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
-import { WETH } from "../../core/constants/Common.sol";
+import { EVENT_EMITTER, WETH } from "../../core/constants/Common.sol";
 import { CDP_ALLOW, MCD_MANAGER } from "../../core/constants/Maker.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 contract CdpAllow is Executable, UseStore {
   using SafeERC20 for IERC20;
@@ -31,7 +32,8 @@ contract CdpAllow is Executable, UseStore {
 
     manager.cdpAllow(cdpAllowData.vaultId, cdpAllowData.userAddress, 1);
 
-    emit Action(CDP_ALLOW, bytes(abi.encode(cdpAllowData.vaultId)));
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(CDP_ALLOW, address(this), bytes(abi.encode(cdpAllowData.vaultId)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (CdpAllowData memory params) {

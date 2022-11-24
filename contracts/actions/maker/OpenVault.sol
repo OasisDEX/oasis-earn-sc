@@ -7,6 +7,8 @@ import { IManager } from "../../interfaces/maker/IManager.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { OpenVaultData } from "../../core/types/Maker.sol";
 import { OPEN_VAULT_ACTION, MCD_MANAGER } from "../../core/constants/Maker.sol";
+import { EVENT_EMITTER } from "../../core/constants/Common.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 contract MakerOpenVault is Executable, UseStore {
   using Write for OperationStorage;
@@ -19,7 +21,8 @@ contract MakerOpenVault is Executable, UseStore {
     uint256 vaultId = _openVault(openVaultData);
     store().write(bytes32(vaultId));
 
-    emit Action(OPEN_VAULT_ACTION, bytes(abi.encode(vaultId)));
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(OPEN_VAULT_ACTION, address(this), bytes(abi.encode(vaultId)));
   }
 
   function _openVault(OpenVaultData memory data) internal returns (uint256) {

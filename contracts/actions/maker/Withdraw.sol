@@ -9,7 +9,8 @@ import { WithdrawData } from "../../core/types/Maker.sol";
 import { IManager } from "../../interfaces/maker/IManager.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { WITHDRAW_ACTION, MCD_MANAGER } from "../../core/constants/Maker.sol";
-import { WETH } from "../../core/constants/Common.sol";
+import { EVENT_EMITTER, WETH } from "../../core/constants/Common.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 contract MakerWithdraw is Executable, UseStore {
   using Read for OperationStorage;
@@ -28,7 +29,8 @@ contract MakerWithdraw is Executable, UseStore {
     uint256 amountWithdrawn = _withdraw(withdrawData);
     store().write(bytes32(amountWithdrawn));
 
-    emit Action(WITHDRAW_ACTION, bytes(abi.encode(amountWithdrawn)));
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(WITHDRAW_ACTION, address(this), bytes(abi.encode(amountWithdrawn)));
   }
 
   function _withdraw(WithdrawData memory data) internal returns (uint256) {
