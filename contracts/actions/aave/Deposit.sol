@@ -50,7 +50,11 @@ contract AaveDeposit is Executable, UseStore {
     store().write(bytes32(actualDepositAmount));
 
     IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
-    eventEmitter.emitActionEvent(DEPOSIT_ACTION, address(this), bytes(abi.encode(actualDepositAmount)));
+    eventEmitter.emitActionEvent(
+      DEPOSIT_ACTION,
+      address(this),
+      bytes(abi.encode(actualDepositAmount))
+    );
   }
 
   function parseInputs(bytes memory _callData) public pure returns (DepositData memory params) {

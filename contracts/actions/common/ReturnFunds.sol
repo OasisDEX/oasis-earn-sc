@@ -34,6 +34,10 @@ contract ReturnFunds is Executable, UseStore {
     }
 
     IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
-    eventEmitter.emitActionEvent(RETURN_FUNDS_ACTION, address(this), bytes(abi.encode(amount, returnData.asset)));
+    eventEmitter.emitActionEvent(
+      RETURN_FUNDS_ACTION,
+      address(this),
+      bytes(abi.encode(amount, returnData.asset))
+    );
   }
 }

@@ -30,7 +30,11 @@ contract AaveWithdraw is Executable, UseStore {
     store().write(bytes32(amountWithdrawn));
 
     IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
-    eventEmitter.emitActionEvent(WITHDRAW_ACTION, address(this), bytes(abi.encode(amountWithdrawn)));
+    eventEmitter.emitActionEvent(
+      WITHDRAW_ACTION,
+      address(this),
+      bytes(abi.encode(amountWithdrawn))
+    );
   }
 
   function parseInputs(bytes memory _callData) public pure returns (WithdrawData memory params) {

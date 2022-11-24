@@ -40,7 +40,11 @@ contract MakerGenerate is Executable, UseStore {
     store().write(bytes32(amountGenerated));
 
     IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
-    eventEmitter.emitActionEvent(GENERATE_ACTION, address(this), bytes(abi.encode(amountGenerated)));
+    eventEmitter.emitActionEvent(
+      GENERATE_ACTION,
+      address(this),
+      bytes(abi.encode(amountGenerated))
+    );
   }
 
   function _generate(GenerateData memory data) internal returns (uint256) {

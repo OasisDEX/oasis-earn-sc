@@ -13,7 +13,12 @@ import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
-import { EVENT_EMITTER, OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
+import {
+  EVENT_EMITTER,
+  OPERATION_STORAGE,
+  OPERATIONS_REGISTRY,
+  OPERATION_EXECUTOR
+} from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 import { IEventEmitter } from "../interfaces/common/IEventEmitter.sol";
 

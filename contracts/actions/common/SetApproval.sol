@@ -40,7 +40,11 @@ contract SetApproval is Executable, UseStore {
     IERC20(approval.asset).safeApprove(approval.delegate, actualApprovalAmount);
 
     IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
-    eventEmitter.emitActionEvent(SET_APPROVAL_ACTION, msg.sender, bytes(abi.encode(actualApprovalAmount)));
+    eventEmitter.emitActionEvent(
+      SET_APPROVAL_ACTION,
+      msg.sender,
+      bytes(abi.encode(actualApprovalAmount))
+    );
   }
 
   function parseInputs(bytes memory _callData) public pure returns (SetApprovalData memory params) {

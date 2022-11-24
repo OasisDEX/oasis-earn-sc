@@ -30,7 +30,11 @@ contract MakerWithdraw is Executable, UseStore {
     store().write(bytes32(amountWithdrawn));
 
     IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
-    eventEmitter.emitActionEvent(WITHDRAW_ACTION, address(this), bytes(abi.encode(amountWithdrawn)));
+    eventEmitter.emitActionEvent(
+      WITHDRAW_ACTION,
+      address(this),
+      bytes(abi.encode(amountWithdrawn))
+    );
   }
 
   function _withdraw(WithdrawData memory data) internal returns (uint256) {
