@@ -7,9 +7,10 @@ import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { WrapEthData } from "../../core/types/Common.sol";
 import { UseStore, Read } from "../../actions/common/UseStore.sol";
 import { Swap } from "./Swap.sol";
-import { WETH, SWAP } from "../../core/constants/Common.sol";
+import { EVENT_EMITTER, WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { WRAP_ETH } from "../../core/constants/Common.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 /**
  * @title Wraps ETH Action contract
@@ -36,7 +37,8 @@ contract WrapEth is Executable, UseStore {
 
     IWETH(registry.getRegisteredService(WETH)).deposit{ value: wrapData.amount }();
 
-    emit Action(WRAP_ETH, bytes(abi.encode(wrapData.amount)));
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(WRAP_ETH, address(this), bytes(abi.encode(wrapData.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (WrapEthData memory params) {

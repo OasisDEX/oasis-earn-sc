@@ -7,9 +7,9 @@ import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { UnwrapEthData } from "../../core/types/Common.sol";
 import { UseStore, Read } from "../../actions/common/UseStore.sol";
 import { Swap } from "./Swap.sol";
-import { WETH, SWAP } from "../../core/constants/Common.sol";
+import { EVENT_EMITTER, UNWRAP_ETH, WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
-import { UNWRAP_ETH } from "../../core/constants/Common.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 /**
  * @title Unwrap ETH Action contract
@@ -39,7 +39,8 @@ contract UnwrapEth is Executable, UseStore {
 
     weth.withdraw(unwrapData.amount);
 
-    emit Action(UNWRAP_ETH, bytes(abi.encode(unwrapData.amount)));
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(UNWRAP_ETH, address(this), bytes(abi.encode(unwrapData.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (UnwrapEthData memory params) {

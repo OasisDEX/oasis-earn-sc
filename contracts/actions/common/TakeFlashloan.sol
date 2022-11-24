@@ -5,9 +5,10 @@ import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { IERC3156FlashBorrower } from "../../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "../../interfaces/flashloan/IERC3156FlashLender.sol";
 import { FlashloanData } from "../../core/types/Common.sol";
-import { OPERATION_EXECUTOR, DAI, TAKE_FLASH_LOAN_ACTION } from "../../core/constants/Common.sol";
+import { EVENT_EMITTER, OPERATION_EXECUTOR, DAI, TAKE_FLASH_LOAN_ACTION } from "../../core/constants/Common.sol";
 import { FLASH_MINT_MODULE } from "../../core/constants/Maker.sol";
 import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 /**
  * @title TakeFlashloan Action contract
@@ -47,7 +48,8 @@ contract TakeFlashloan is Executable, ProxyPermission {
       removePermission(operationExecutorAddress);
     }
 
-    emit Action(TAKE_FLASH_LOAN_ACTION, bytes(abi.encode(flData.amount)));
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(TAKE_FLASH_LOAN_ACTION, address(this), bytes(abi.encode(flData.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (FlashloanData memory params) {

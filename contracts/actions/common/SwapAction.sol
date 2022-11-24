@@ -7,9 +7,9 @@ import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { SwapData } from "../../core/types/Common.sol";
 import { UseStore, Write } from "../../actions/common/UseStore.sol";
 import { Swap } from "./Swap.sol";
-import { WETH, SWAP } from "../../core/constants/Common.sol";
+import { EVENT_EMITTER, WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
-import { SWAP } from "../../core/constants/Common.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 /**
  * @title SwapAction Action contract
@@ -36,7 +36,8 @@ contract SwapAction is Executable, UseStore {
 
     store().write(bytes32(received));
 
-    emit Action(SWAP, bytes(abi.encode(received)));
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(SWAP, address(this), bytes(abi.encode(received)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (SwapData memory params) {
