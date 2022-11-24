@@ -15,13 +15,14 @@ import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionR
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Contract, ethers, Signer } from 'ethers'
+import { Contract, ContractReceipt, ethers, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
+import { GasEstimateHelper, gasEstimateHelper } from '../../helpers/gasEstimation'
 import { impersonateRichAccount, resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
@@ -65,6 +66,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     let positionTransition: IPositionTransition
     let txStatus: boolean
+    let gasEstimates: GasEstimateHelper
 
     async function setupOpenPositionTest(
       collateralToken: {
@@ -165,7 +167,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         collateralToken.isEth ? collateralToken.depositAmountInWei : ZERO,
       )
 
-      const [txStatus] = await executeThroughProxy(
+      const [txStatus, tx] = await executeThroughProxy(
         system.common.dsProxy.address,
         {
           address: system.common.operationExecutor.address,
@@ -228,6 +230,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         positionTransition,
         feeRecipientBalanceBefore,
         txStatus,
+        tx,
         oracle,
         actualPosition,
         userCollateralReserveData,
@@ -237,11 +240,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
       const depositEthAmount = amountToWei(new BigNumber(1))
-
+      gasEstimates = gasEstimateHelper()
       let userStEthReserveData: AAVEReserveData
       let userWethReserveData: AAVEReserveData
       let feeRecipientWethBalanceBefore: BigNumber
       let actualPosition: IPosition
+      let tx: ContractReceipt
 
       before(async function () {
         const setup = await setupOpenPositionTest(
@@ -264,11 +268,14 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           userAddress,
         )
         txStatus = setup.txStatus
+        tx = setup.tx
         positionTransition = setup.positionTransition
         actualPosition = setup.actualPosition
         userStEthReserveData = setup.userCollateralReserveData
         userWethReserveData = setup.userDebtReserveData
         feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
+
+        gasEstimates.save(tx)
       })
 
       it('Tx should pass', function () {
@@ -315,6 +322,10 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           new BigNumber(positionTransition.simulation.swap.tokenFee),
           feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
         )
+      })
+
+      after(() => {
+        gasEstimates.print()
       })
     })
 
