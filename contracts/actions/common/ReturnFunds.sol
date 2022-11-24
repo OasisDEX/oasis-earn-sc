@@ -7,6 +7,7 @@ import { ReturnFundsData } from "../../core/types/Common.sol";
 import { EVENT_EMITTER, RETURN_FUNDS_ACTION, ETH } from "../../core/constants/Common.sol";
 import { DSProxy } from "../../libs/DS/DSProxy.sol";
 import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
+import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 
 /**
  * @title ReturnFunds Action contract
@@ -14,8 +15,11 @@ import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
  */
 contract ReturnFunds is Executable, UseStore {
   using SafeERC20 for IERC20;
+  ServiceRegistry internal immutable registry;
 
-  constructor(address _registry) UseStore(_registry) {}
+  constructor(address _registry) {
+    registry = ServiceRegistry(_registry);
+  }
 
   /**
    * @param data Encoded calldata that conforms to the ReturnFundsData struct

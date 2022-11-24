@@ -18,7 +18,10 @@ contract SetApproval is Executable, UseStore {
   using Read for OperationStorage;
   using SafeMath for uint256;
 
-  constructor(address _registry) UseStore(_registry) {}
+  constructor(address _registry) UseStore(_registry) {
+    registry = ServiceRegistry(_registry);
+  }
+
 
   /**
    * @dev Look at UseStore.sol to get additional info on paramsMapping
@@ -42,7 +45,7 @@ contract SetApproval is Executable, UseStore {
     IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
     eventEmitter.emitActionEvent(
       SET_APPROVAL_ACTION,
-      msg.sender,
+      address(this),
       bytes(abi.encode(actualApprovalAmount))
     );
   }
