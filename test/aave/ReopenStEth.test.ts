@@ -114,7 +114,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       const closeStrategy = await strategies.aave.closeStEth(
         {
-          stEthAmountLockedInAave: amountToWei(positionAfterOpen.collateral.amount),
+          stEthAmountLockedInAave: positionAfterOpen.collateral.amount,
           slippage,
         },
         {

@@ -1,5 +1,4 @@
 import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
-import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import BigNumber from 'bignumber.js'
 import { task, types } from 'hardhat/config'
 
@@ -80,17 +79,11 @@ task('createPosition', 'Create stETH position on AAVE')
       config.provider,
     )
 
-    config.provider.on(aaveLendingPool.filters.Deposit(ADDRESSES.main.DAI), (log, event) => {
-      console.log('Deposit event', log)
-      console.log('Deposit event', event)
-    })
-
     const aaveDataProvider = new hre.ethers.Contract(
       ADDRESSES.main.aave.DataProvider,
       AAVEDataProviderABI,
       config.provider,
     )
-    new hre.ethers.Contract(ADDRESSES.main.aavePriceOracle, aavePriceOracleABI, config.provider)
     const proxyAddress = await getOrCreateProxy(config.signer)
 
     const dsProxy = new hre.ethers.Contract(proxyAddress, DSProxyABI, config.provider).connect(
@@ -186,30 +179,6 @@ task('createPosition', 'Create stETH position on AAVE')
     console.log('txHash', tx.transactionHash)
     console.log('proxyStEthBalance', proxyStEthBalance.toString())
     console.log('proxyEthBalance', proxyEthBalance.toString())
-
-    const filter = aaveLendingPool.filters.Deposit(null, null, dsProxy.address)
-
-    const logs = await config.provider.getLogs(filter)
-    logs.forEach(log => {
-      const decoded = hre.ethers.utils.defaultAbiCoder.decode(['address', 'uint256'], log.data)
-      console.log('decoded', decoded)
-    })
-
-    const collateralForStEth = await config.provider.getLogs(
-      aaveLendingPool.filters.ReserveUsedAsCollateralEnabled(ADDRESSES.main.stETH, dsProxy.address),
-    )
-
-    collateralForStEth.forEach(() => {
-      console.log('STETH enabled as collateral')
-    })
-
-    const collateralForDai = await config.provider.getLogs(
-      aaveLendingPool.filters.ReserveUsedAsCollateralEnabled(ADDRESSES.main.DAI, dsProxy.address),
-    )
-
-    collateralForDai.forEach(() => {
-      console.log('DAI enabled as collateral')
-    })
 
     return [txStatus, tx]
   })
