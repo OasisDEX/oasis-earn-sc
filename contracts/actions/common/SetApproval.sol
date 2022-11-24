@@ -6,7 +6,8 @@ import { SetApprovalData } from "../../core/types/Common.sol";
 import { UseStore, Read } from "../common/UseStore.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
-import { SET_APPROVAL_ACTION } from "../../core/constants/Common.sol";
+import { EVENT_EMITTER, SET_APPROVAL_ACTION } from "../../core/constants/Common.sol";
+import { IEventEmitter } from "../../interfaces/common/IEventEmitter.sol";
 
 /**
  * @title SetApproval Action contract
@@ -38,7 +39,8 @@ contract SetApproval is Executable, UseStore {
 
     IERC20(approval.asset).safeApprove(approval.delegate, actualApprovalAmount);
 
-    emit Action(SET_APPROVAL_ACTION, bytes(abi.encode(actualApprovalAmount)));
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitActionEvent(SET_APPROVAL_ACTION, msg.sender, bytes(abi.encode(actualApprovalAmount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (SetApprovalData memory params) {

@@ -122,8 +122,12 @@ async function deployCoreContacts(deploy: DeployFunction) {
 }
 
 async function deployCommonActions(deploy: DeployFunction, serviceRegistryAddress: string) {
-  const [, pullTokenActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
-  const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
+  const [, pullTokenActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [
+    serviceRegistryAddress,
+  ])
+  const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [
+    serviceRegistryAddress,
+  ])
   const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
     serviceRegistryAddress,
   ])
@@ -139,7 +143,9 @@ async function deployCommonActions(deploy: DeployFunction, serviceRegistryAddres
     serviceRegistryAddress,
   ])
 
-  const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
+  const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [
+    serviceRegistryAddress,
+  ])
 
   return {
     pullTokenActionAddress,

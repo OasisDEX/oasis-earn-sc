@@ -88,12 +88,16 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     serviceRegistryAddress,
   ])
 
-  const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
+  const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [
+    serviceRegistryAddress,
+  ])
   const [, dummyActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_ACTION, [
     serviceRegistryAddress,
   ])
 
-  const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
+  const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [
+    serviceRegistryAddress,
+  ])
 
   const [setApproval, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
     serviceRegistryAddress,
@@ -114,10 +118,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     serviceRegistryAddress,
   ])
 
-  const [returnFunds, returnFundsActionAddress] = await deploy(
-    CONTRACT_NAMES.common.RETURN_FUNDS,
-    [],
-  )
+  const [returnFunds, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [
+    serviceRegistryAddress,
+  ])
 
   //-- Maker Actions
   const [actionOpenVault, actionOpenVaultAddress] = await deploy(CONTRACT_NAMES.maker.OPEN_VAULT, [

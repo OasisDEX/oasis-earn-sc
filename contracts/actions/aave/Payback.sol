@@ -50,6 +50,6 @@ contract AavePayback is Executable, UseStore {
     store().write(bytes32(payback.amount));
 
     IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
-    eventEmitter.emitActionEvent(PAYBACK_ACTION, msg.sender, bytes(abi.encode(payback.amount)));
+    eventEmitter.emitActionEvent(PAYBACK_ACTION, address(this), bytes(abi.encode(payback.amount)));
   }
 }

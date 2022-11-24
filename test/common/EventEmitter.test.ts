@@ -13,8 +13,9 @@ describe('EventEmitter', () => {
     // Arrange
     const config = await init()
     const deploy = await createDeploy({ config }, hre)
-
-    const [eventEmitter] = await deploy('EventEmitter', [])
+    const [eventEmitter, eventEmitterAddress] = await deploy('EventEmitter', [])
+    // Because we're not executing this in context of proxy address(this) will equal contract address
+    const expectedProxyAddress = eventEmitterAddress
 
     // Act
     const testActionName = 'testAction'
@@ -28,7 +29,7 @@ describe('EventEmitter', () => {
       [testReturnValueA, testReturnValueB],
     )
 
-    const tx = eventEmitter.emitActionEvent(testActionName, config.address, encodedCallData, {
+    const tx = eventEmitter.emitActionEvent(testActionName, expectedProxyAddress, encodedCallData, {
       gasLimit: 4000000,
     })
 
@@ -38,16 +39,16 @@ describe('EventEmitter', () => {
     const actualEventArgs = result.events[0].args
 
     const actualEventName = actualEventArgs[0]
-    const actualMsgSender = actualEventArgs[1]
-    const encoededValues = actualEventArgs[2]
+    const actualProxyAddress = actualEventArgs[1]
+    const encodedValues = actualEventArgs[2]
 
     const [actualReturnValA, actualReturnValB] = abiCoder.decode(
       ['uint256', 'address'],
-      encoededValues,
+      encodedValues,
     )
 
     expect(actualEventName).to.equal(testActionName)
-    expect(config.address).to.equal(actualMsgSender)
+    expect(actualProxyAddress).to.equal(expectedProxyAddress)
     expect(actualReturnValA).to.equal(testReturnValueA)
     expect(actualReturnValB).to.equal(testReturnValueB)
   })
@@ -55,7 +56,9 @@ describe('EventEmitter', () => {
     // Arrange
     const config = await init()
     const deploy = await createDeploy({ config }, hre)
-    const [eventEmitter] = await deploy('EventEmitter', [])
+    const [eventEmitter, eventEmitterAddress] = await deploy('EventEmitter', [])
+    // Because we're not executing this in context of proxy address(this) will equal contract address
+    const expectedProxyAddress = eventEmitterAddress
 
     // Act
     const testOperationName = 'testOperation'
@@ -65,7 +68,7 @@ describe('EventEmitter', () => {
 
     const calls = [testAction]
 
-    const tx = eventEmitter.emitOperationEvent(testOperationName, config.address, calls, {
+    const tx = eventEmitter.emitOperationEvent(testOperationName, expectedProxyAddress, calls, {
       gasLimit: 4000000,
     })
 
@@ -73,14 +76,15 @@ describe('EventEmitter', () => {
     const result = await receipt.wait()
 
     const actualEventArgs = result.events[0].args
+
     const actualEventName = actualEventArgs[0]
-    const actualMsgSender = actualEventArgs[1]
+    const actualProxyAddress = actualEventArgs[1]
     const emittedCallsData = actualEventArgs[2]
 
     const returnedActionsCalldata = emittedCallsData[0]
 
     expect(actualEventName).to.equal(testOperationName)
-    expect(actualMsgSender).to.equal(config.address)
+    expect(actualProxyAddress).to.equal(expectedProxyAddress)
     expect(testAction).to.deep.equal({
       targetHash: returnedActionsCalldata.targetHash,
       callData: returnedActionsCalldata.callData,
