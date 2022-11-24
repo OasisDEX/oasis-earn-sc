@@ -11,10 +11,8 @@ import {
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Contract, Signer } from 'ethers'
+import { Signer } from 'ethers'
 
-import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
-import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init, { resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
@@ -27,8 +25,6 @@ import { initialiseConfig } from '../fixtures/setup'
 import { expectToBeEqual } from '../utils'
 
 describe(`Strategy | AAVE | Adjust Position`, async () => {
-  let aaveLendingPool: Contract
-  let aaveDataProvider: Contract
   let provider: JsonRpcProvider
   let config: RuntimeConfig
   let signer: Signer
@@ -49,14 +45,6 @@ describe(`Strategy | AAVE | Adjust Position`, async () => {
     config = await init()
     provider = config.provider
     signer = config.signer
-
-    aaveLendingPool = new Contract(
-      ADDRESSES.main.aave.MainnetLendingPool,
-      AAVELendigPoolABI,
-      provider,
-    )
-
-    aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
   describe('On forked chain', () => {
