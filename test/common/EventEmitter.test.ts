@@ -1,3 +1,6 @@
+import * as actions from '@oasisdex/oasis-actions/lib/src/actions'
+import BigNumber from 'bignumber.js'
+import { expect } from 'chai'
 import hre from 'hardhat'
 
 import { createDeploy } from '../../helpers/deploy'
@@ -11,37 +14,72 @@ describe('EventEmitter', () => {
     // Arrange
     const config = await init()
     const deploy = await createDeploy({ config }, hre)
-    const addresses = getAddressesFor(Network.MAINNET)
 
-    console.log('here0')
-    // const { system: _system } = await deploySystem(config, false, true)
-    const [eventEmitter, eventEmitterAddress] = await deploy('EventEmitter', [])
-    console.log('here0A')
+    const [eventEmitter] = await deploy('EventEmitter', [])
+
     // Act
     const testActionName = 'testAction'
     const testReturnValueA = 123
     const testReturnValueB = '0xE5c5482220CaB3dB0d222Df095dA739DA277a18F'
-    const emitActionEvent = new ethers.utils.Interface([
-      'emitActionEvent(string actionName, bytes encodedReturnValues)',
-    ])
-    // const abiCoder = new ethers.utils.AbiCoder()
-    // console.log('here1')
-    // const encodedCallData = abiCoder.encode(
-    //   ['uint256', 'address'],
-    //   [testReturnValueA, testReturnValueB],
-    // )
-    // console.log('here2')
-    // const emitActionEventCall = emitActionEvent.encodeFunctionData('emitActionEvent', [
-    //   testActionName,
-    //   encodedCallData,
-    // ])
-    //
-    // const tx = eventEmitter.emitActionEvent(testActionName, encodedCallData, {
-    //   gasLimit: 4000000,
-    // })
-    //
-    // console.log('tx:', tx)
 
-    // await expectRevert(/OpExecutor: illegal call/, tx)
+    const abiCoder = new ethers.utils.AbiCoder()
+
+    const encodedCallData = abiCoder.encode(
+      ['uint256', 'address'],
+      [testReturnValueA, testReturnValueB],
+    )
+
+    const tx = eventEmitter.emitActionEvent(testActionName, encodedCallData, {
+      gasLimit: 4000000,
+    })
+
+    const receipt = await tx
+    const result = await receipt.wait()
+
+    const actualEventArgs = result.events[0].args
+    const actualEventName = actualEventArgs[0]
+    const returnValues = actualEventArgs[1]
+    const [actualReturnValA, actualReturnValB] = abiCoder.decode(
+      ['uint256', 'address'],
+      returnValues,
+    )
+
+    expect(actualEventName).to.equal(testActionName)
+    expect(actualReturnValA).to.equal(testReturnValueA)
+    expect(actualReturnValB).to.equal(testReturnValueB)
+  })
+  it('should emit Operation event with correct return values', async () => {
+    // Arrange
+    const config = await init()
+    const deploy = await createDeploy({ config }, hre)
+    const addresses = getAddressesFor(Network.MAINNET)
+    const [eventEmitter] = await deploy('EventEmitter', [])
+
+    // Act
+    const testOperationName = 'testOperation'
+    const testAction = actions.common.wrapEth({
+      amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
+    })
+
+    const calls = [testAction]
+
+    const tx = eventEmitter.emitOperationEvent(testOperationName, calls, {
+      gasLimit: 4000000,
+    })
+
+    const receipt = await tx
+    const result = await receipt.wait()
+
+    const actualEventArgs = result.events[0].args
+    const actualEventName = actualEventArgs[0]
+    const returnValues = actualEventArgs[1]
+
+    const returnedActionsCalldata = returnValues[0]
+
+    expect(actualEventName).to.equal(testOperationName)
+    expect(testAction).to.deep.equal({
+      targetHash: returnedActionsCalldata.targetHash,
+      callData: returnedActionsCalldata.callData,
+    })
   })
 })
