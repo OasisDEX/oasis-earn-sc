@@ -5,7 +5,6 @@ import hre from 'hardhat'
 
 import { createDeploy } from '../../helpers/deploy'
 import init from '../../helpers/init'
-import { getAddressesFor, Network } from '../../scripts/common'
 
 const ethers = hre.ethers
 
@@ -29,7 +28,7 @@ describe('EventEmitter', () => {
       [testReturnValueA, testReturnValueB],
     )
 
-    const tx = eventEmitter.emitActionEvent(testActionName, encodedCallData, {
+    const tx = eventEmitter.emitActionEvent(testActionName, config.address, encodedCallData, {
       gasLimit: 4000000,
     })
 
@@ -37,14 +36,18 @@ describe('EventEmitter', () => {
     const result = await receipt.wait()
 
     const actualEventArgs = result.events[0].args
+
     const actualEventName = actualEventArgs[0]
-    const returnValues = actualEventArgs[1]
+    const actualMsgSender = actualEventArgs[1]
+    const encoededValues = actualEventArgs[2]
+
     const [actualReturnValA, actualReturnValB] = abiCoder.decode(
       ['uint256', 'address'],
-      returnValues,
+      encoededValues,
     )
 
     expect(actualEventName).to.equal(testActionName)
+    expect(config.address).to.equal(actualMsgSender)
     expect(actualReturnValA).to.equal(testReturnValueA)
     expect(actualReturnValB).to.equal(testReturnValueB)
   })
@@ -52,7 +55,6 @@ describe('EventEmitter', () => {
     // Arrange
     const config = await init()
     const deploy = await createDeploy({ config }, hre)
-    const addresses = getAddressesFor(Network.MAINNET)
     const [eventEmitter] = await deploy('EventEmitter', [])
 
     // Act
@@ -63,7 +65,7 @@ describe('EventEmitter', () => {
 
     const calls = [testAction]
 
-    const tx = eventEmitter.emitOperationEvent(testOperationName, calls, {
+    const tx = eventEmitter.emitOperationEvent(testOperationName, config.address, calls, {
       gasLimit: 4000000,
     })
 
@@ -72,11 +74,13 @@ describe('EventEmitter', () => {
 
     const actualEventArgs = result.events[0].args
     const actualEventName = actualEventArgs[0]
-    const returnValues = actualEventArgs[1]
+    const actualMsgSender = actualEventArgs[1]
+    const emittedCallsData = actualEventArgs[2]
 
-    const returnedActionsCalldata = returnValues[0]
+    const returnedActionsCalldata = emittedCallsData[0]
 
     expect(actualEventName).to.equal(testOperationName)
+    expect(actualMsgSender).to.equal(config.address)
     expect(testAction).to.deep.equal({
       targetHash: returnedActionsCalldata.targetHash,
       callData: returnedActionsCalldata.callData,
