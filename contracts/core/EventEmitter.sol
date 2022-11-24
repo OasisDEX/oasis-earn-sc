@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import { Call } from "./types/Common.sol";
+
 /**
  * @title Event Emitter
  * @notice Is responsible for emitting events
