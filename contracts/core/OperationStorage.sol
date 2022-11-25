@@ -11,6 +11,7 @@ import { ServiceRegistry } from "./ServiceRegistry.sol";
 contract OperationStorage {
   uint8 internal action = 0;
   bytes32[] public actions;
+  bool[] public optionals;
   mapping(address => bytes32[]) public returnValues;
   address[] public valuesHolders;
   bool private locked;
@@ -55,16 +56,20 @@ contract OperationStorage {
   }
 
   /**
-   * @param _actions Stores the Actions currently being executed for a given Operation
+   * @param _actions Stores the Actions currently being executed for a given Operation and their optionality
    */
-  function setOperationActions(bytes32[] memory _actions) external {
+  function setOperationActions(bytes32[] memory _actions, bool[] memory _optionals) external {
     actions = _actions;
+    optionals = _optionals;
   }
 
   /**
    * @param actionHash Checks the current action has against the expected action hash
    */
-  function verifyAction(bytes32 actionHash) external {
+  function verifyAction(bytes32 actionHash, bool skipped) external {
+    if(skipped) {
+      require(optionals[action], "Action cannot be skipped");
+    }
     require(actions[action] == actionHash, "incorrect-action");
     registry.getServiceAddress(actionHash);
     action++;

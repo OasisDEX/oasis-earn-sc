@@ -347,16 +347,20 @@ async function addAAVEOperationsToRegistry(
     sendTokenHash,
   } = hashes
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
-    pullTokenHash,
-    takeAFlashloanHash,
-    setApprovalHash,
-    depositInAAVEHash,
-    borromFromAAVEHash,
-    swapActionHash,
-    withdrawFromAAVEHash,
-    sendTokenHash,
-  ])
+  await operationsRegistry.addOp(
+    OPERATION_NAMES.aave.OPEN_POSITION,
+    [
+      pullTokenHash,
+      takeAFlashloanHash,
+      setApprovalHash,
+      depositInAAVEHash,
+      borromFromAAVEHash,
+      swapActionHash,
+      withdrawFromAAVEHash,
+      sendTokenHash,
+    ],
+    Array(8).fill(false),
+  )
 
-  await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
+  await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [], [])
 }
