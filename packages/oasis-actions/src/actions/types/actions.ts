@@ -25,7 +25,7 @@ export const calldataTypes = {
   },
   aave: {
     // Generate: `tuple(address asset, uint256 amount)`,
-    Deposit: `tuple(address asset, uint256 amount)`,
+    Deposit: `tuple(address asset, uint256 amount, bool setAsCollateral)`,
     Withdraw: `tuple(address asset, uint256 amount, address to)`,
     Borrow: `tuple(address asset, uint256 amount, address to)`,
     Payback: `tuple(address asset, uint256 amount, bool paybackAll)`,
