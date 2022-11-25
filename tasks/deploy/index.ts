@@ -110,7 +110,9 @@ async function deployCoreContacts(deploy: DeployFunction) {
     serviceRegistryAddress,
     operationExecutorAddress,
   ])
-  const [, eventEmitterAddress] = await deploy(CONTRACT_NAMES.common.EVENT_EMITTER, [])
+  const [, eventEmitterAddress] = await deploy(CONTRACT_NAMES.common.EVENT_EMITTER, [
+    serviceRegistryAddress,
+  ])
 
   return {
     serviceRegistryAddress,

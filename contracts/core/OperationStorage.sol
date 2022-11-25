@@ -17,6 +17,7 @@ contract OperationStorage {
   address private whoLocked;
   address public initiator;
   address immutable operationExecutorAddress;
+  address private proxyAddress;
 
   ServiceRegistry internal immutable registry;
 
@@ -117,6 +118,17 @@ contract OperationStorage {
     return returnValues[who].length;
   }
 
+
+  function setProxy() external {
+    require(msg.sender != address(0));
+    address proxy = msg.sender;
+    proxyAddress = proxy;
+  }
+
+  function getProxy() external returns(address) {
+    return proxyAddress;
+  }
+
   /**
    * @dev Clears storage in preparation for the next Operation
    */
@@ -127,5 +139,7 @@ contract OperationStorage {
       delete returnValues[valuesHolders[i]];
     }
     delete valuesHolders;
+    delete proxyAddress;
   }
+
 }

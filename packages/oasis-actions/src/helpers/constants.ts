@@ -59,6 +59,7 @@ export const CONTRACT_NAMES = {
     DUMMY_SWAP: 'DummySwap',
     DUMMY_EXCHANGE: 'DummyExchange',
     SWAP: 'uSwap',
+    EVENT_EMITTER_TEST_ACTION: 'EventEmitterTestAction',
   },
 } as const
 

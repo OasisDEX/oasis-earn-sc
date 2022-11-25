@@ -1,96 +1,174 @@
-import * as actions from '@oasisdex/oasis-actions/lib/src/actions'
-import BigNumber from 'bignumber.js'
+import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
 import { expect } from 'chai'
 import hre from 'hardhat'
 
 import { createDeploy } from '../../helpers/deploy'
 import init from '../../helpers/init'
+import { ServiceRegistry } from '../../helpers/serviceRegistry'
+import { OperationsRegistry } from '../../helpers/wrappers/operationsRegistry'
+import { expectRevert } from '../utils'
 
 const ethers = hre.ethers
 
 describe('EventEmitter', () => {
-  it('should emit Action event with correct return values', async () => {
+  it('should emit Operation and Action events with correct values emitted', async () => {
     // Arrange
     const config = await init()
     const deploy = await createDeploy({ config }, hre)
-    const [eventEmitter, eventEmitterAddress] = await deploy('EventEmitter', [])
-    // Because we're not executing this in context of proxy address(this) will equal contract address
-    const expectedProxyAddress = eventEmitterAddress
+    const expectedEmittedReturnVal = 123
+    const [serviceRegistry, serviceRegistryAddress] = await deploy('ServiceRegistry', [0])
+    const registry = new ServiceRegistry(serviceRegistryAddress, config.signer)
+    const [operationExecutor, operationExecutorAddress] = await deploy('OperationExecutor', [
+      serviceRegistryAddress,
+    ])
+    const [operationStorage, operationStorageAddress] = await deploy('OperationStorage', [
+      serviceRegistryAddress,
+      operationExecutorAddress,
+    ])
+    const [eventEmitterTestAction, eventEmitterTestActionAddress] = await deploy(
+      CONTRACT_NAMES.test.EVENT_EMITTER_TEST_ACTION,
+      [serviceRegistryAddress],
+    )
+
+    const [eventEmitter, eventEmitterAddress] = await deploy('EventEmitter', [
+      serviceRegistryAddress,
+    ])
+    const [, operationsRegistryAddress] = await deploy('OperationsRegistry', [])
+    await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
+    await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
+    await registry.addEntry(
+      CONTRACT_NAMES.test.EVENT_EMITTER_TEST_ACTION,
+      eventEmitterTestActionAddress,
+    )
+    await registry.addEntry(CONTRACT_NAMES.common.EVENT_EMITTER, eventEmitterAddress)
+
+    const operationsRegistry: OperationsRegistry = new OperationsRegistry(
+      operationsRegistryAddress,
+      config.signer,
+    )
+    await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
 
     // Act
-    const testActionName = 'testAction'
-    const testReturnValueA = 123
-    const testReturnValueB = '0xE5c5482220CaB3dB0d222Df095dA739DA277a18F'
+    const actionHash = ethers.utils.keccak256(
+      ethers.utils.toUtf8Bytes(CONTRACT_NAMES.test.EVENT_EMITTER_TEST_ACTION),
+    )
+    const types = [`tuple(bool breakEvents)`]
+    const args = [
+      {
+        breakEvents: false,
+      },
+    ]
+
+    const iface = new ethers.utils.Interface([
+      ' function execute(bytes calldata data, uint8[] paramsMap) external payable returns (bytes calldata)',
+    ])
+
+    const encodedArgs = ethers.utils.defaultAbiCoder.encode(
+      types[0] ? [types[0]] : [],
+      args[0] ? [args[0]] : [],
+    )
+    const calldata = iface.encodeFunctionData('execute', [encodedArgs, args[1] ? args[1] : []])
+    const calls = [
+      {
+        targetHash: actionHash,
+        callData: calldata,
+      },
+    ]
+
+    const tx = operationExecutor.executeOp(calls, OPERATION_NAMES.common.CUSTOM_OPERATION, {
+      gasLimit: 4000000,
+    })
+
+    const receipt = await tx
+    const result = await receipt.wait()
+
+    const actionEventData = result.logs[0].data
+    const actionEventTopics = result.logs[0].topics
+    const emittedActionEventName = actionEventTopics[1]
 
     const abiCoder = new ethers.utils.AbiCoder()
+    const [actualEmittedProxyAddress, actualEmittedEncodedActionData] = abiCoder.decode(
+      ['address', 'bytes'],
+      actionEventData,
+    )
+    const [actualEmittedReturnVal] = abiCoder.decode(['uint256'], actualEmittedEncodedActionData)
 
-    const encodedCallData = abiCoder.encode(
-      ['uint256', 'address'],
-      [testReturnValueA, testReturnValueB],
+    expect(emittedActionEventName).to.equal(
+      ethers.utils.keccak256(
+        ethers.utils.toUtf8Bytes(CONTRACT_NAMES.test.EVENT_EMITTER_TEST_ACTION),
+      ),
     )
 
-    const tx = eventEmitter.emitActionEvent(testActionName, expectedProxyAddress, encodedCallData, {
-      gasLimit: 4000000,
-    })
-
-    const receipt = await tx
-    const result = await receipt.wait()
-
-    const actualEventArgs = result.events[0].args
-    const actualEventName = actualEventArgs[0]
-    const actualProxyAddress = actualEventArgs[1]
-    const encodedValues = actualEventArgs[2]
-
-    const [actualReturnValA, actualReturnValB] = abiCoder.decode(
-      ['uint256', 'address'],
-      encodedValues,
-    )
-
-    expect(actualEventName.hash).to.equal(
-      ethers.utils.keccak256(ethers.utils.toUtf8Bytes(testActionName)),
-    )
-    expect(actualProxyAddress).to.equal(expectedProxyAddress)
-    expect(actualReturnValA).to.equal(testReturnValueA)
-    expect(actualReturnValB).to.equal(testReturnValueB)
+    // We use operationExecutor as the expected value because we're calling OpExec directly here
+    expect(actualEmittedProxyAddress).to.equal(operationExecutorAddress)
+    expect(actualEmittedReturnVal).to.equal(expectedEmittedReturnVal)
   })
-  it('should emit Operation event with correct return values', async () => {
+  it('should not emit when OpStorage proxy address is different', async () => {
     // Arrange
     const config = await init()
     const deploy = await createDeploy({ config }, hre)
-    const [eventEmitter, eventEmitterAddress] = await deploy('EventEmitter', [])
-    // Because we're not executing this in context of proxy address(this) will equal contract address
-    const expectedProxyAddress = eventEmitterAddress
+    const [serviceRegistry, serviceRegistryAddress] = await deploy('ServiceRegistry', [0])
+    const registry = new ServiceRegistry(serviceRegistryAddress, config.signer)
+    const [operationExecutor, operationExecutorAddress] = await deploy('OperationExecutor', [
+      serviceRegistryAddress,
+    ])
+    const [operationStorage, operationStorageAddress] = await deploy('OperationStorage', [
+      serviceRegistryAddress,
+      operationExecutorAddress,
+    ])
+    const [eventEmitterTestAction, eventEmitterTestActionAddress] = await deploy(
+      CONTRACT_NAMES.test.EVENT_EMITTER_TEST_ACTION,
+      [serviceRegistryAddress],
+    )
+    const [, operationsRegistryAddress] = await deploy('OperationsRegistry', [])
+    const [eventEmitter, eventEmitterAddress] = await deploy('EventEmitter', [
+      serviceRegistryAddress,
+    ])
 
-    // Act
-    const testOperationName = 'testOperation'
-    const testAction = actions.common.wrapEth({
-      amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
-    })
+    await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
+    await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
+    await registry.addEntry(
+      CONTRACT_NAMES.test.EVENT_EMITTER_TEST_ACTION,
+      eventEmitterTestActionAddress,
+    )
+    await registry.addEntry(CONTRACT_NAMES.common.EVENT_EMITTER, eventEmitterAddress)
 
-    const calls = [testAction]
+    const operationsRegistry: OperationsRegistry = new OperationsRegistry(
+      operationsRegistryAddress,
+      config.signer,
+    )
+    await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
 
-    const tx = eventEmitter.emitOperationEvent(testOperationName, expectedProxyAddress, calls, {
+    const actionHash = ethers.utils.keccak256(
+      ethers.utils.toUtf8Bytes(CONTRACT_NAMES.test.EVENT_EMITTER_TEST_ACTION),
+    )
+    const types = [`tuple(bool breakEvents)`]
+    const args = [
+      {
+        breakEvents: true,
+      },
+    ]
+
+    const iface = new ethers.utils.Interface([
+      ' function execute(bytes calldata data, uint8[] paramsMap) external payable returns (bytes calldata)',
+    ])
+
+    const encodedArgs = ethers.utils.defaultAbiCoder.encode(
+      types[0] ? [types[0]] : [],
+      args[0] ? [args[0]] : [],
+    )
+    const calldata = iface.encodeFunctionData('execute', [encodedArgs, args[1] ? args[1] : []])
+    const calls = [
+      {
+        targetHash: actionHash,
+        callData: calldata,
+      },
+    ]
+
+    const tx = operationExecutor.executeOp(calls, 'CustomOperation', {
       gasLimit: 4000000,
     })
 
-    const receipt = await tx
-    const result = await receipt.wait()
-
-    const actualEventArgs = result.events[0].args
-
-    const actualEventName = actualEventArgs[0]
-    const actualProxyAddress = actualEventArgs[1]
-    const emittedCallsData = actualEventArgs[2]
-
-    const returnedActionsCalldata = emittedCallsData[0]
-
-    expect(actualEventName.hash).to.equal(
-      ethers.utils.keccak256(ethers.utils.toUtf8Bytes(testOperationName)),
-    )
-    expect(actualProxyAddress).to.equal(expectedProxyAddress)
-    expect(testAction).to.deep.equal({
-      targetHash: returnedActionsCalldata.targetHash,
-      callData: returnedActionsCalldata.callData,
-    })
+    await expectRevert(/proxy address and stored proxy address do not match/, tx)
   })
 })

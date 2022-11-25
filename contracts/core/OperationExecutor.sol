@@ -62,12 +62,14 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
     opStorage.clearStorage();
     opStorage.setOperationActions(opRegistry.getOperation(operationName));
+    opStorage.setProxy();
     aggregate(calls);
+
+    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
+    eventEmitter.emitOperationEvent(operationName, address(this), calls);
 
     opStorage.clearStorage();
     opStorage.unlock();
-    IEventEmitter eventEmitter = IEventEmitter(registry.getRegisteredService(EVENT_EMITTER));
-    eventEmitter.emitOperationEvent(operationName, address(this), calls);
   }
 
   function aggregate(Call[] memory calls) internal {

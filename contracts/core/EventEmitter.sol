@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.15;
 
+import { Read, UseStore } from "../actions/common/UseStore.sol";
 import { Call } from "./types/Common.sol";
-
+import "hardhat/console.sol";
 /**
  * @title Event Emitter
  * @notice Is responsible for emitting events
@@ -10,7 +11,10 @@ import { Call } from "./types/Common.sol";
  * rather than events being emitted in the context of every users
  * proxy contract.
  */
-contract EventEmitter {
+contract EventEmitter is UseStore {
+
+  constructor(address _registry) UseStore(_registry) {}
+
   /**
    * @dev Emitted once an Action has completed execution
    * @param name The Action name
@@ -31,6 +35,7 @@ contract EventEmitter {
     address proxyAddress,
     bytes calldata encodedReturnValues
   ) external {
+    require(proxyAddress == store().getProxy(), "proxy address and stored proxy address do not match");
     emit Action(actionName, proxyAddress, encodedReturnValues);
   }
 
@@ -39,6 +44,7 @@ contract EventEmitter {
     address proxyAddress,
     Call[] calldata calls
   ) external {
+    require(proxyAddress == store().getProxy(), "proxy address and stored proxy address do not match");
     emit Operation(operationName, proxyAddress, calls);
   }
 }
