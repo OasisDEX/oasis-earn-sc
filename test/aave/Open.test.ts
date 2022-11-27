@@ -23,17 +23,18 @@ import ERC20ABI from '../../abi/IERC20.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { GasEstimateHelper, gasEstimateHelper } from '../../helpers/gasEstimation'
-import { impersonateRichAccount, resetNodeToLatestBlock } from '../../helpers/init'
+import { resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
+import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
-import { initialiseConfigWithRichAccount } from '../fixtures/setup'
+import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual, TESTING_OFFSET } from '../utils'
 
 describe(`Strategy | AAVE | Open Position`, async function () {
@@ -45,12 +46,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
   let userAddress: Address
 
   before(async function () {
-    ;({
-      config,
-      provider,
-      signer,
-      address: userAddress,
-    } = await loadFixture(initialiseConfigWithRichAccount))
+    ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
 
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -87,15 +83,39 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       isFeeFromDebtToken: boolean,
       userAddress: Address,
     ) {
-      const { snapshot, config: newConfig } = await restoreSnapshot({
+      const { snapshot } = await restoreSnapshot({
         config,
         provider,
         blockNumber: testBlockNumber,
-        useRichAccount: true,
       })
-      config = newConfig
-      signer = newConfig.signer
       const system = snapshot.deployed.system
+
+      /**
+       * Need to have correct tokens in hand before
+       * to marry up with what user is depositing
+       */
+      const swapETHtoDepositTokens = amountToWei(new BigNumber(100))
+      !debtToken.isEth &&
+        debtToken.depositAmountInWei.gt(ZERO) &&
+        (await swapUniswapTokens(
+          ADDRESSES.main.WETH,
+          debtToken.address,
+          swapETHtoDepositTokens.toFixed(0),
+          ONE.toFixed(0),
+          config.address,
+          config,
+        ))
+
+      !collateralToken.isEth &&
+        collateralToken.depositAmountInWei.gt(ZERO) &&
+        (await swapUniswapTokens(
+          ADDRESSES.main.WETH,
+          collateralToken.address,
+          swapETHtoDepositTokens.toFixed(0),
+          ONE.toFixed(0),
+          config.address,
+          config,
+        ))
 
       if (!collateralToken.isEth) {
         const COLL_TOKEN = new ethers.Contract(collateralToken.address, ERC20ABI, provider).connect(
@@ -607,9 +627,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       if (shouldRun1InchTests) {
         //Reset to the latest block
         await resetNodeToLatestBlock(provider)
-        const { signer, address } = await impersonateRichAccount(provider)
-        config.signer = signer
-        config.address = address
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
 
