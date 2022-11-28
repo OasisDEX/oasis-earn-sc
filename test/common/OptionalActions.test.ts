@@ -8,7 +8,6 @@ import { Signer, utils } from 'ethers'
 
 import { executeThroughProxy } from '../../helpers/deploy'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
-import { ServiceRegistry } from '../../helpers/serviceRegistry'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { OperationsRegistry } from '../../helpers/wrappers/operationsRegistry'
 import { testBlockNumber } from '../config'
