@@ -57,3 +57,13 @@ struct UnwrapEthData {
 struct ReturnFundsData {
   address asset;
 }
+
+struct Action {
+  bytes32 targetHash;
+  bool isOptional;
+}
+
+struct StoredOperation {
+  Action[] actions;
+  string name;
+}

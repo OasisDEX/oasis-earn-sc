@@ -1,5 +1,6 @@
 pragma solidity ^0.8.15;
 
+import { Action } from "./types/Common.sol";
 import { ServiceRegistry } from "./ServiceRegistry.sol";
 
 /**
@@ -10,8 +11,7 @@ import { ServiceRegistry } from "./ServiceRegistry.sol";
  */
 contract OperationStorage {
   uint8 internal action = 0;
-  bytes32[] public actions;
-  bool[] public optionals;
+  Action[] internal actions;
   mapping(address => bytes32[]) public returnValues;
   address[] public valuesHolders;
   bool private locked;
@@ -55,12 +55,8 @@ contract OperationStorage {
     initiator = _initiator;
   }
 
-  /**
-   * @param _actions Stores the Actions currently being executed for a given Operation and their optionality
-   */
-  function setOperationActions(bytes32[] memory _actions, bool[] memory _optionals) external {
+  function setOperationActions(Action[] calldata _actions) external {
     actions = _actions;
-    optionals = _optionals;
   }
 
   /**
@@ -68,9 +64,9 @@ contract OperationStorage {
    */
   function verifyAction(bytes32 actionHash, bool skipped) external {
     if(skipped) {
-      require(optionals[action], "Action cannot be skipped");
+      require(actions[action].isOptional, "Action cannot be skipped");
     }
-    require(actions[action] == actionHash, "incorrect-action");
+    require(actions[action].targetHash == actionHash, "incorrect-action");
     registry.getServiceAddress(actionHash);
     action++;
   }

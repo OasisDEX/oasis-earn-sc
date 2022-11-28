@@ -12,7 +12,7 @@ import { IERC3156FlashBorrower } from "../interfaces/flashloan/IERC3156FlashBorr
 import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
-import { FlashloanData, Call } from "./types/Common.sol";
+import { FlashloanData, Call, StoredOperation } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 
@@ -62,8 +62,8 @@ contract OperationExecutor is IERC3156FlashBorrower {
     );
 
     opStorage.clearStorage();
-    (bytes32[] memory actions, bool[] memory optional) = opRegistry.getOperation(operationName);
-    opStorage.setOperationActions(actions, optional);
+    StoredOperation memory operation = opRegistry.getOperation(operationName);
+    opStorage.setOperationActions(operation.actions);
     aggregate(calls);
 
     opStorage.clearStorage();
@@ -76,9 +76,9 @@ contract OperationExecutor is IERC3156FlashBorrower {
     bool hasActionsToVerify = opStorage.hasActionsToVerify();
     for (uint256 current = 0; current < calls.length; current++) {
       if (hasActionsToVerify) {
-         opStorage.verifyAction(calls[current].targetHash, calls[current].skipped);
+        // opStorage.verifyAction(calls[current].targetHash, calls[current].skipped);
       }
-      if(!calls[current].skipped) {
+      if (!calls[current].skipped) {
         address target = registry.getServiceAddress(calls[current].targetHash);
         target.execute(calls[current].callData);
       }
