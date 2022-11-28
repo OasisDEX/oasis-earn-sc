@@ -118,14 +118,13 @@ contract OperationStorage {
     return returnValues[who].length;
   }
 
-
   function setProxy() external {
     require(msg.sender != address(0));
     address proxy = msg.sender;
     proxyAddress = proxy;
   }
 
-  function getProxy() external returns(address) {
+  function getProxy() external returns (address) {
     return proxyAddress;
   }
 
@@ -141,5 +140,4 @@ contract OperationStorage {
     delete valuesHolders;
     delete proxyAddress;
   }
-
 }
