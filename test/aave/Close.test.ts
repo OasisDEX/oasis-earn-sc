@@ -90,6 +90,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         config,
         provider,
         blockNumber: _blockNumber,
+        useFallbackSwap: true,
       })
 
       const system = snapshot.deployed.system

@@ -8,7 +8,7 @@ import { calldataTypes } from './types/actions'
 const createAction = ActionFactory.create
 
 export function aaveDeposit(
-  args: { asset: string; amount: BigNumber | 0; sumAmounts: boolean },
+  args: { asset: string; amount: BigNumber | 0; sumAmounts: boolean; setAsCollateral?: boolean },
   paramsMapping: [asset: number, amount: number, sumAmounts: number] = [0, 0, 0],
 ) {
   return createAction(
@@ -19,6 +19,7 @@ export function aaveDeposit(
         asset: args.asset,
         amount: args.amount.toFixed(0),
         sumAmounts: args.sumAmounts,
+        setAsCollateral: args.setAsCollateral === undefined ? true : args.setAsCollateral,
       },
       paramsMapping,
     ],

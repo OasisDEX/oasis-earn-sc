@@ -94,6 +94,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         config,
         provider,
         blockNumber: _blockNumber,
+        useFallbackSwap: true,
       })
 
       const system = snapshot.deployed.system

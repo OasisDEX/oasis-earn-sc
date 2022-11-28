@@ -16,15 +16,14 @@ export async function restoreSnapshot(args: {
   config: RuntimeConfig
   provider: providers.JsonRpcProvider
   blockNumber: number
-  use1inchSwap?: boolean
+  useFallbackSwap?: boolean
   debug?: boolean
-  useRichAccount?: boolean
 }): Promise<{ snapshot: Snapshot; config: RuntimeConfig }> {
-  const { config, provider, blockNumber, use1inchSwap, debug } = args
+  const { config, provider, blockNumber, useFallbackSwap, debug } = args
 
   const _blockNumber = blockNumber || testBlockNumber
 
-  const cacheKey = `${_blockNumber}|${use1inchSwap}`
+  const cacheKey = `${_blockNumber}|${useFallbackSwap}`
   const snapshot = snapshotCache[cacheKey]
 
   let revertSuccessful = false
@@ -53,7 +52,7 @@ export async function restoreSnapshot(args: {
     }
     await resetNode(provider, _blockNumber)
 
-    const system = await deploySystem(config, debug, !use1inchSwap)
+    const system = await deploySystem(config, debug, useFallbackSwap)
     const snapshotId = await provider.send('evm_snapshot', [])
 
     const snapshot = {

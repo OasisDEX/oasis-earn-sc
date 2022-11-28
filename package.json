@@ -32,6 +32,7 @@
     "steth:fallback": "npx hardhat createPosition --usefallbackswap --network local",
     "close": "npx hardhat closePosition --network local",
     "close:fallback": "npx hardhat closePosition --usefallbackswap --network local"
+    "update-block": "node update-block-number.ts"
   },
   "devDependencies": {
     "@google-cloud/local-auth": "2.1.1",
