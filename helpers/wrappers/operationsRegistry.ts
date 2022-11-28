@@ -11,17 +11,17 @@ export class OperationsRegistry {
 
   async addOp(
     label: string,
-    actionHashes: string[],
-    optionals: boolean[],
+    actions: string[],
+    optional: boolean[],
     debug = false,
   ): Promise<string> {
-    if (actionHashes.length !== optionals.length) {
+    if (actions.length !== optional.length) {
       throw new Error('Actions and optionals arrays lenght missmatch')
     }
     const ethers = (await import('hardhat')).ethers
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
     const registry = await ethers.getContractAt('OperationsRegistry', this.address, this.signer)
-    await registry.addOperation(label, actionHashes, optionals)
+    await registry.addOperation({ name: label, actions, optional })
 
     if (debug) {
       console.log(`DEBUG: Service '${label}' has been added with hash: ${entryHash}`)

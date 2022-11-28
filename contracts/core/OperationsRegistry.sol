@@ -43,13 +43,11 @@ contract OperationsRegistry {
 
   /**
    * @notice Adds an Operation's Actions keyed to a an operation name
-   * @param name The Operation name
-   * @param actions An array the Actions the Operation consists of
-   * @param optional An array indicating given Action can be skipped
+   * @param operation Struct with Operation name, actions and their optionality
    */
-  function addOperation(string memory name, bytes32[] memory actions, bool[] memory optional) external onlyOwner {
-    operations[name] = StoredOperation(actions, optional, name);
-    emit OperationAdded(name);
+  function addOperation(StoredOperation calldata operation) external onlyOwner {
+    operations[operation.name] = operation;
+    emit OperationAdded(operation.name);
   }
 
   /**
