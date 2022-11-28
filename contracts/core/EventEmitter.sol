@@ -33,9 +33,9 @@ contract EventEmitter is UseStore {
   /**
     * @notice function called by inidividual Actions to emit an event
     * @dev Cannot be called unless proxyAddress matches up with proxyAddress stored in OperationStorage
-    * @param name The Action name
+    * @param actionName The Action name
     * @param proxyAddress The proxy address of the user executing the t/x
-    * @param returned The bytes value returned by the Action
+    * @param encodedReturnValues The bytes value returned by the Action
    **/
   function emitActionEvent(
     string memory actionName,
@@ -48,7 +48,7 @@ contract EventEmitter is UseStore {
     /**
     * @notice function called by Operation Executor to emit event
     * @dev Cannot be called unless proxyAddress matches up with proxyAddress stored in OperationStorage
-    * @param name The name of the operation
+    * @param operationName The name of the operation
     * @param proxyAddress The proxy address of the user executing the t/x
     * @param calls An array of Action calls the operation must execute
    **/
