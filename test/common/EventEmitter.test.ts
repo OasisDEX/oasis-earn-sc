@@ -16,23 +16,21 @@ describe('EventEmitter', () => {
     const config = await init()
     const deploy = await createDeploy({ config }, hre)
     const expectedEmittedReturnVal = 123
-    const [serviceRegistry, serviceRegistryAddress] = await deploy('ServiceRegistry', [0])
+    const [, serviceRegistryAddress] = await deploy('ServiceRegistry', [0])
     const registry = new ServiceRegistry(serviceRegistryAddress, config.signer)
     const [operationExecutor, operationExecutorAddress] = await deploy('OperationExecutor', [
       serviceRegistryAddress,
     ])
-    const [operationStorage, operationStorageAddress] = await deploy('OperationStorage', [
+    const [, operationStorageAddress] = await deploy('OperationStorage', [
       serviceRegistryAddress,
       operationExecutorAddress,
     ])
-    const [eventEmitterTestAction, eventEmitterTestActionAddress] = await deploy(
+    const [, eventEmitterTestActionAddress] = await deploy(
       CONTRACT_NAMES.test.EVENT_EMITTER_TEST_ACTION,
       [serviceRegistryAddress],
     )
 
-    const [eventEmitter, eventEmitterAddress] = await deploy('EventEmitter', [
-      serviceRegistryAddress,
-    ])
+    const [, eventEmitterAddress] = await deploy('EventEmitter', [serviceRegistryAddress])
     const [, operationsRegistryAddress] = await deploy('OperationsRegistry', [])
     await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
     await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
@@ -107,23 +105,21 @@ describe('EventEmitter', () => {
     // Arrange
     const config = await init()
     const deploy = await createDeploy({ config }, hre)
-    const [serviceRegistry, serviceRegistryAddress] = await deploy('ServiceRegistry', [0])
+    const [, serviceRegistryAddress] = await deploy('ServiceRegistry', [0])
     const registry = new ServiceRegistry(serviceRegistryAddress, config.signer)
     const [operationExecutor, operationExecutorAddress] = await deploy('OperationExecutor', [
       serviceRegistryAddress,
     ])
-    const [operationStorage, operationStorageAddress] = await deploy('OperationStorage', [
+    const [, operationStorageAddress] = await deploy('OperationStorage', [
       serviceRegistryAddress,
       operationExecutorAddress,
     ])
-    const [eventEmitterTestAction, eventEmitterTestActionAddress] = await deploy(
+    const [, eventEmitterTestActionAddress] = await deploy(
       CONTRACT_NAMES.test.EVENT_EMITTER_TEST_ACTION,
       [serviceRegistryAddress],
     )
     const [, operationsRegistryAddress] = await deploy('OperationsRegistry', [])
-    const [eventEmitter, eventEmitterAddress] = await deploy('EventEmitter', [
-      serviceRegistryAddress,
-    ])
+    const [, eventEmitterAddress] = await deploy('EventEmitter', [serviceRegistryAddress])
 
     await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
     await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
