@@ -1,7 +1,7 @@
 import { providers } from 'ethers'
 
 import { DeployedSystemInfo, deploySystem } from '../test/deploySystem'
-import { impersonateRichAccount, resetNode } from './init'
+import { resetNode } from './init'
 import { ServiceRegistry } from './serviceRegistry'
 import { RuntimeConfig } from './types/common'
 
@@ -53,17 +53,7 @@ export async function restoreSnapshot(args: {
     }
     await resetNode(provider, _blockNumber)
 
-    let signer
-    let address
-    if (useRichAccount) {
-      ;({ signer, address } = await impersonateRichAccount(config.provider))
-    }
-
-    const newConfig = { ...config }
-    newConfig.signer = signer || config.signer
-    newConfig.address = address || config.address
-
-    const system = await deploySystem(newConfig, debug, !use1inchSwap)
+    const system = await deploySystem(config, debug, !use1inchSwap)
     const snapshotId = await provider.send('evm_snapshot', [])
 
     const snapshot = {
@@ -73,6 +63,6 @@ export async function restoreSnapshot(args: {
 
     snapshotCache[cacheKey] = snapshot
 
-    return { snapshot, config: newConfig }
+    return { snapshot, config: config }
   }
 }

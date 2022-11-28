@@ -3,25 +3,6 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { RuntimeConfig } from './types/common'
 
-export async function impersonate(
-  provider: providers.JsonRpcProvider,
-  impersonatedAddress: string,
-) {
-  await provider.send('hardhat_impersonateAccount', [impersonatedAddress])
-
-  const signer = provider.getSigner(impersonatedAddress)
-  const address = await signer.getAddress()
-
-  return { signer, address }
-}
-
-export async function impersonateRichAccount(provider: providers.JsonRpcProvider) {
-  // https://etherscan.io/address/0xe3dd3914ab28bb552d41b8dfe607355de4c37a51
-  const richAccount = '0xe3dd3914ab28bb552d41b8dfe607355de4c37a51'
-
-  return await impersonate(provider, richAccount)
-}
-
 export default async function init(
   hre?: HardhatRuntimeEnvironment,
   impersonateAccount?: (
