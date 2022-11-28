@@ -464,7 +464,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       })
     })
 
-    describe(`With ${tokens.ETH} collateral & ${tokens.USDC} debt`, () => {
+    describe.skip(`With ${tokens.ETH} collateral & ${tokens.USDC} debt`, () => {
       const depositEthAmount = amountToWei(new BigNumber(1))
 
       let userWethReserveData: AAVEReserveData
@@ -563,7 +563,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       })
     })
 
-    describe(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, () => {
+    describe.skip(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, () => {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWethReserveData: AAVEReserveData
