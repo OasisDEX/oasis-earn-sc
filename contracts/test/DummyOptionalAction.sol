@@ -7,7 +7,7 @@ import { UseStore, Read, Write } from "../actions/common/UseStore.sol";
 import { OperationStorage } from "../core/OperationStorage.sol";
 import { SET_APPROVAL_ACTION } from "../core/constants/Common.sol";
 
-contract DummyAction is Executable, UseStore {
+contract DummyOptionalAction is Executable, UseStore {
   using SafeERC20 for IERC20;
   using Read for OperationStorage;
   using Write for OperationStorage;
@@ -15,7 +15,6 @@ contract DummyAction is Executable, UseStore {
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    store().write(bytes32("123"));
-    emit Action("DummyActionEvent", bytes32("Mandatory"));
+     emit Action("DummyOptionalActionEvent", bytes32("Optional"));
   }
 }

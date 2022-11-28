@@ -1,11 +1,13 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ActionFactory, ADDRESSES, calldataTypes, CONTRACT_NAMES } from '@oasisdex/oasis-actions'
+import { ActionFactory, calldataTypes, CONTRACT_NAMES } from '@oasisdex/oasis-actions'
 import { ActionCall } from '@oasisdex/oasis-actions/src/actions/types/actionCall'
-import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Signer, utils } from 'ethers'
+import { ContractReceipt, Signer, utils } from 'ethers'
+import { Interface } from 'ethers/lib/utils'
+import { ethers } from 'hardhat'
 
+import DummyActionABI from '../../abi/generated/DummyAction.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { RuntimeConfig } from '../../helpers/types/common'
@@ -16,15 +18,15 @@ import { initialiseConfig } from '../fixtures/setup'
 
 const createAction = ActionFactory.create
 
+const dummyActionIface = new ethers.utils.Interface(DummyActionABI)
+
 async function executeOperation(
   system: DeployedSystemInfo,
   calls: ActionCall[],
   operationName: string,
   signer: Signer,
-  wrapAmount: BigNumber,
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [success, _] = await executeThroughProxy(
+  const result = await executeThroughProxy(
     system.common.userProxyAddress,
     {
       address: system.common.operationExecutor.address,
@@ -34,25 +36,38 @@ async function executeOperation(
       ]),
     },
     signer,
-    wrapAmount.toString(),
+    '0',
   )
-
-  return success
+  return result
 }
+
+function getContractLogs(iface: Interface, receipt: ContractReceipt) {
+  const logs: any = []
+
+  receipt.events?.forEach(event => {
+    try {
+      logs.push(iface.parseLog(event))
+    } catch (e) {
+      //eslint-disable-next-line
+    }
+  })
+
+  return logs
+}
+
 describe(`Common | Optional Actions`, async () => {
   let provider: JsonRpcProvider
   let signer: Signer
   let system: DeployedSystemInfo
   let config: RuntimeConfig
   let operationsRegistry: OperationsRegistry
-  let wrapAmount: BigNumber
   let OPERATION_NAME: string
-  let OpenVaultHash: string
-  let WrapEthHash: string
-  let setApprovalHash: string
-  let openVaultAction: ActionCall
-  let wrapEthAction: ActionCall
-  let setApprovalAction: ActionCall
+  let Action1Hash: string
+  let Action2Hash: string
+  let Action3Hash: string
+  let action1: ActionCall
+  let action2: ActionCall
+  let action3: ActionCall
 
   beforeEach(async () => {
     ;({ config, provider, signer } = await loadFixture(initialiseConfig))
@@ -60,55 +75,34 @@ describe(`Common | Optional Actions`, async () => {
     const { snapshot } = await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
     system = snapshot.deployed.system
 
-    wrapAmount = new BigNumber(10000)
     operationsRegistry = new OperationsRegistry(system.common.operationRegistry.address, signer)
 
     // Add new operation with optional Actions
     OPERATION_NAME = 'TEST_OPERATION_1'
-    OpenVaultHash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.maker.OPEN_VAULT))
-    WrapEthHash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.WRAP_ETH))
-    setApprovalHash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.SET_APPROVAL))
+    Action1Hash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.test.DUMMY_ACTION))
+    Action2Hash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.test.DUMMY_OPTIONAL_ACTION))
+    Action3Hash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.test.DUMMY_ACTION))
 
     await operationsRegistry.addOp(
       OPERATION_NAME,
-      [OpenVaultHash, WrapEthHash, setApprovalHash],
+      [Action1Hash, Action2Hash, Action3Hash],
       [false, true, false],
     )
 
-    openVaultAction = createAction(
-      OpenVaultHash,
-      [calldataTypes.maker.Open, calldataTypes.paramsMap],
-      [
-        {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
-        },
-        [0],
-      ],
+    action1 = createAction(
+      Action1Hash,
+      ['tuple(address to)', calldataTypes.paramsMap],
+      [{ to: ethers.constants.AddressZero }, [0]],
     )
-
-    wrapEthAction = createAction(
-      WrapEthHash,
-      [calldataTypes.common.WrapEth, calldataTypes.paramsMap],
-      [
-        {
-          amount: wrapAmount.toFixed(0),
-        },
-        [0],
-      ],
+    action2 = createAction(
+      Action2Hash,
+      ['tuple(address to)', calldataTypes.paramsMap],
+      [{ to: ethers.constants.AddressZero }, [0]],
     )
-
-    setApprovalAction = createAction(
-      setApprovalHash,
-      [calldataTypes.common.Approval, calldataTypes.paramsMap],
-      [
-        {
-          asset: ADDRESSES.main.DAI,
-          delegate: ADDRESSES.main.lender,
-          amount: new BigNumber(100).toFixed(0),
-          sumAmounts: false,
-        },
-        [0, 0, 0, 0],
-      ],
+    action3 = createAction(
+      Action3Hash,
+      ['tuple(address to)', calldataTypes.paramsMap],
+      [{ to: ethers.constants.AddressZero }, [0]],
     )
   })
 
@@ -116,46 +110,75 @@ describe(`Common | Optional Actions`, async () => {
     await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
   })
 
-  describe(`Regular Operation successful`, async () => {
-    it(`should execute an Operation successfully`, async () => {
-      const success = await executeOperation(
-        system,
-        [openVaultAction, wrapEthAction, setApprovalAction],
-        OPERATION_NAME,
-        signer,
-        wrapAmount,
+  describe(`New operation added to OperationRegistry`, async () => {
+    it(`should add new operation succesfully`, async () => {
+      const OP_NAME = 'TEST_OPERATION_2'
+      await operationsRegistry.addOp(
+        OP_NAME,
+        [Action1Hash, Action2Hash, Action3Hash],
+        [true, false, false],
       )
 
+      const operation = await operationsRegistry.getOp(OP_NAME)
+
+      expect(operation[0]).to.deep.equal([Action1Hash, Action2Hash, Action3Hash])
+      expect(operation[1]).to.deep.equal([true, false, false])
+    })
+  })
+
+  describe(`Regular Operation successful`, async () => {
+    it(`should execute an Operation successfully`, async () => {
+      const [success, rc] = await executeOperation(
+        system,
+        [action1, action2, action3],
+        OPERATION_NAME,
+        signer,
+      )
+
+      const actionLogs = getContractLogs(dummyActionIface, rc)
+
       expect(success).to.be.eq(true)
+      expect(actionLogs.length).to.be.eq(3)
+      expect(actionLogs[0].args[0]).to.be.eq('DummyActionEvent')
+      expect(actionLogs[1].args[0]).to.be.eq('DummyOptionalActionEvent')
+      expect(actionLogs[2].args[0]).to.be.eq('DummyActionEvent')
     })
   })
 
   describe(`Operation with skipped Action successful`, async () => {
     it(`should execute an Operation successfully with optional Action skipped`, async () => {
-      wrapEthAction.skipped = true
-      const success = await executeOperation(
+      action2.skipped = true
+
+      const [success, rc] = await executeOperation(
         system,
-        [openVaultAction, wrapEthAction, setApprovalAction],
+        [action1, action2, action3],
         OPERATION_NAME,
         signer,
-        wrapAmount,
       )
 
+      const actionLogs = getContractLogs(dummyActionIface, rc)
+
       expect(success).to.be.eq(true)
+      expect(actionLogs.length).to.be.eq(2)
+      expect(actionLogs[0].args[0]).to.be.eq('DummyActionEvent')
+      expect(actionLogs[1].args[0]).to.be.eq('DummyActionEvent')
     })
   })
 
   describe(`Operation with mandatory Action skipped`, async () => {
     it(`should fail executing an Operation with mandatory Action skipped`, async () => {
-      setApprovalAction.skipped = true
-      const success = await executeOperation(
+      action3.skipped = true
+
+      const [success, rc] = await executeOperation(
         system,
-        [openVaultAction, wrapEthAction, setApprovalAction],
+        [action1, action2, action3],
         OPERATION_NAME,
         signer,
-        wrapAmount,
       )
 
+      const actionLogs = getContractLogs(dummyActionIface, rc)
+
+      expect(actionLogs.length).to.be.eq(0)
       expect(success).to.be.eq(false)
     })
   })
