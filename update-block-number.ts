@@ -6,6 +6,7 @@ const mainnetInfoUrl = 'https://blockexplorer.one/ajax/eth/mainnet/info'
 const envFile = `${path.join(__dirname)}/.env`
 const envFileBackup = `${path.join(__dirname)}/.env_bak`
 const newLine = '\n'
+const blockNumberOffset = -10
 
 const updateNumber = () => {
   fetch(mainnetInfoUrl)
@@ -30,11 +31,15 @@ const updateNumber = () => {
       const envFileContents = fs.readFileSync(envFile, 'utf8')
       const envFileContentLines = envFileContents.split(newLine)
       const filteredEnvFileContentLines = envFileContentLines.map(line =>
-        line.startsWith('BLOCK_NUMBER') ? `BLOCK_NUMBER=${blockHeight - 50}` : line,
+        line.startsWith('BLOCK_NUMBER') ? `BLOCK_NUMBER=${blockHeight + blockNumberOffset}` : line,
       )
       try {
         fs.writeFileSync(envFile, filteredEnvFileContentLines.join(newLine))
-        console.log('🙌 Updated the block number with', blockHeight - 50, '(latest block minus 50)')
+        console.log(
+          '🙌 Updated the block number with',
+          blockHeight + blockNumberOffset,
+          `(latest block minus ${blockNumberOffset})`,
+        )
       } catch (error) {
         console.error(`❌ Could not update the block number (${error})`)
       }
