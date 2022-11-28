@@ -22,17 +22,18 @@ import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
-import { impersonateRichAccount, resetNodeToLatestBlock } from '../../helpers/init'
+import { resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
+import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
-import { initialiseConfigWithRichAccount } from '../fixtures/setup'
+import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, TESTING_OFFSET } from '../utils'
 
 describe(`Strategy | AAVE | Adjust Position`, async function () {
@@ -44,12 +45,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
   let userAddress: string
 
   before(async function () {
-    ;({
-      config,
-      provider,
-      signer,
-      address: userAddress,
-    } = await loadFixture(initialiseConfigWithRichAccount))
+    ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
 
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -94,16 +90,43 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       blockNumber?: number,
     ) {
       const _blockNumber = blockNumber || testBlockNumber
-      const { snapshot, config: newConfig } = await restoreSnapshot({
+      const { snapshot } = await restoreSnapshot({
         config,
         provider,
         blockNumber: _blockNumber,
-        useRichAccount: true,
+        useFallbackSwap: true,
       })
-      config = newConfig
-      signer = newConfig.signer
 
       const system = snapshot.deployed.system
+
+      /**
+       * Need to have correct tokens in hand before
+       * to marry up with what user is depositing
+       */
+      const swapETHtoDepositTokens = amountToWei(new BigNumber(100))
+      !debtToken.isEth &&
+        (debtToken.depositOnOpenAmountInWei.gt(ZERO) ||
+          debtToken.depositOnAdjustAmountInWei.gt(ZERO)) &&
+        (await swapUniswapTokens(
+          ADDRESSES.main.WETH,
+          debtToken.address,
+          swapETHtoDepositTokens.toFixed(0),
+          ONE.toFixed(0),
+          config.address,
+          config,
+        ))
+
+      !collateralToken.isEth &&
+        (collateralToken.depositOnOpenAmountInWei.gt(ZERO) ||
+          collateralToken.depositOnAdjustAmountInWei.gt(ZERO)) &&
+        (await swapUniswapTokens(
+          ADDRESSES.main.WETH,
+          collateralToken.address,
+          swapETHtoDepositTokens.toFixed(0),
+          ONE.toFixed(0),
+          config.address,
+          config,
+        ))
 
       const addresses = {
         ...mainnetAddresses,
@@ -111,18 +134,14 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       }
 
       if (!collateralToken.isEth) {
-        const COLL_TOKEN = new ethers.Contract(collateralToken.address, ERC20ABI, provider).connect(
-          signer,
-        )
+        const COLL_TOKEN = new ethers.Contract(collateralToken.address, ERC20ABI, provider)
         await COLL_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           collateralToken.depositOnOpenAmountInWei.toFixed(0),
         )
       }
       if (!debtToken.isEth) {
-        const DEBT_TOKEN = new ethers.Contract(debtToken.address, ERC20ABI, provider).connect(
-          signer,
-        )
+        const DEBT_TOKEN = new ethers.Contract(debtToken.address, ERC20ABI, provider)
         await DEBT_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           debtToken.depositOnOpenAmountInWei.toFixed(0),
@@ -135,7 +154,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
       // Set up the position
       const proxy = system.common.dsProxy.address
-      const openPositionMutation = await strategies.aave.open(
+      const openPositionTransition = await strategies.aave.open(
         {
           depositedByUser: {
             debtInWei: debtToken.depositOnOpenAmountInWei,
@@ -178,7 +197,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            openPositionMutation.transaction.calls,
+            openPositionTransition.transaction.calls,
             OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
@@ -188,18 +207,14 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       const openTxStatus = _openTxStatus
 
       if (!collateralToken.isEth) {
-        const COLL_TOKEN = new ethers.Contract(collateralToken.address, ERC20ABI, provider).connect(
-          signer,
-        )
+        const COLL_TOKEN = new ethers.Contract(collateralToken.address, ERC20ABI, provider)
         await COLL_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           collateralToken.depositOnAdjustAmountInWei.toFixed(0),
         )
       }
       if (!debtToken.isEth) {
-        const DEBT_TOKEN = new ethers.Contract(debtToken.address, ERC20ABI, provider).connect(
-          signer,
-        )
+        const DEBT_TOKEN = new ethers.Contract(debtToken.address, ERC20ABI, provider)
         await DEBT_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           debtToken.depositOnAdjustAmountInWei.toFixed(0),
@@ -248,7 +263,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           symbol: collateralToken.symbol,
         },
         oracle,
-        openPositionMutation.simulation.position.category,
+        openPositionTransition.simulation.position.category,
       )
 
       // Now adjust the position
@@ -389,7 +404,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       }
     }
 
-    describe(`Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+    describe.skip(`Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
       const depositAmount = amountToWei(new BigNumber(1))
       const adjustMultipleUp = new BigNumber(3.5)
 
@@ -468,7 +483,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       })
     })
 
-    describe(`Increase Multiple: With ${tokens.ETH} collateral & ${tokens.USDC} debt`, function () {
+    describe.skip(`Increase Multiple: With ${tokens.ETH} collateral & ${tokens.USDC} debt`, function () {
       const depositAmount = amountToWei(new BigNumber(1))
       const adjustMultipleUp = new BigNumber(3.5)
 
@@ -548,7 +563,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
 
     describe(`Increase Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
-      const depositWBTCAmount = new BigNumber(6)
+      const depositWBTCAmount = new BigNumber(1)
       const adjustMultipleUp = new BigNumber(3.5)
 
       let feeRecipientUSDCBalanceBefore: BigNumber
@@ -657,8 +672,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           true,
           false,
           userAddress,
-          /** some block numbers  */
-          15696000,
+          15697000,
         )
         txStatus = setup.txStatus
         openTxStatus = setup.openTxStatus
@@ -735,9 +749,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
       if (shouldRun1InchTests) {
         await resetNodeToLatestBlock(provider)
-        const { signer, address } = await impersonateRichAccount(provider)
-        config.signer = signer
-        config.address = address
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
 
@@ -766,7 +777,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             provider,
           },
         )
-        const openPositionMutation = await strategies.aave.open(
+        const openPositionTransition = await strategies.aave.open(
           {
             depositedByUser: {
               debtInWei: depositAmount,
@@ -791,7 +802,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              openPositionMutation.transaction.calls,
+              openPositionTransition.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -887,7 +898,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           finalDebt,
           finalCollateral,
           aaveStEthPriceInEth,
-          openPositionMutation.simulation.position.category,
+          openPositionTransition.simulation.position.category,
         )
       } else {
         this.skip()

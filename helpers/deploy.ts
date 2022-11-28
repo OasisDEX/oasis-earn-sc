@@ -20,7 +20,7 @@ export async function createDeploy(
       contractNameWithVersionRemoved,
       config.signer,
     )
-    const instance = await contractFactory.connect(config.signer).deploy(...params)
+    const instance = await contractFactory.deploy(...params)
     if (debug) {
       console.log('DEBUG: Owner of deploy:', await config.signer.getAddress())
       console.log(`DEBUG: Deploying ${contractNameWithVersionRemoved} ...`)
@@ -59,7 +59,16 @@ export async function executeThroughProxy(
 
     const result = await tx.wait()
     return [true, result]
-  } catch (ex) {
-    return [false, ex as ContractReceipt] // TODO:
+  } catch (ex: any) {
+    console.error(ex)
+    console.log(typeof ex)
+    let result: Partial<ContractReceipt> = ex
+    if (ex?.name === 'ProviderError') {
+      result = {
+        status: 0,
+        transactionHash: ex.data.txHash,
+      }
+    }
+    return [false, result as ContractReceipt] // TODO:
   }
 }

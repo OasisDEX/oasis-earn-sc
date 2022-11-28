@@ -1,7 +1,7 @@
 import { providers } from 'ethers'
 
 import { DeployedSystemInfo, deploySystem } from '../test/deploySystem'
-import { impersonateRichAccount, resetNode } from './init'
+import { resetNode } from './init'
 import { ServiceRegistry } from './serviceRegistry'
 import { RuntimeConfig } from './types/common'
 
@@ -16,15 +16,14 @@ export async function restoreSnapshot(args: {
   config: RuntimeConfig
   provider: providers.JsonRpcProvider
   blockNumber: number
-  use1inchSwap?: boolean
+  useFallbackSwap?: boolean
   debug?: boolean
-  useRichAccount?: boolean
 }): Promise<{ snapshot: Snapshot; config: RuntimeConfig }> {
-  const { config, provider, blockNumber, use1inchSwap, debug, useRichAccount } = args
+  const { config, provider, blockNumber, useFallbackSwap, debug } = args
 
   const _blockNumber = blockNumber || testBlockNumber
 
-  const cacheKey = `${_blockNumber}|${use1inchSwap}`
+  const cacheKey = `${_blockNumber}|${useFallbackSwap}`
   const snapshot = snapshotCache[cacheKey]
 
   let revertSuccessful = false
@@ -53,17 +52,7 @@ export async function restoreSnapshot(args: {
     }
     await resetNode(provider, _blockNumber)
 
-    let signer
-    let address
-    if (useRichAccount) {
-      ;({ signer, address } = await impersonateRichAccount(config.provider))
-    }
-
-    const newConfig = { ...config }
-    newConfig.signer = signer || config.signer
-    newConfig.address = address || config.address
-
-    const system = await deploySystem(newConfig, debug, !use1inchSwap)
+    const system = await deploySystem(config, debug, useFallbackSwap)
     const snapshotId = await provider.send('evm_snapshot', [])
 
     const snapshot = {
@@ -73,6 +62,6 @@ export async function restoreSnapshot(args: {
 
     snapshotCache[cacheKey] = snapshot
 
-    return { snapshot, config: newConfig }
+    return { snapshot, config: config }
   }
 }

@@ -4,6 +4,7 @@ struct DepositData {
   address asset;
   uint256 amount;
   bool sumAmounts;
+  bool setAsCollateral;
 }
 
 struct BorrowData {

@@ -15,25 +15,27 @@ import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionR
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Contract, ethers, Signer } from 'ethers'
+import { Contract, ContractReceipt, ethers, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
-import { impersonateRichAccount, resetNodeToLatestBlock } from '../../helpers/init'
+import { GasEstimateHelper, gasEstimateHelper } from '../../helpers/gasEstimation'
+import { resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
+import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
-import { initialiseConfigWithRichAccount } from '../fixtures/setup'
-import { expectToBe, expectToBeEqual, TESTING_OFFSET } from '../utils'
+import { initialiseConfig } from '../fixtures/setup'
+import { expectToBe, expectToBeEqual } from '../utils'
 
 describe(`Strategy | AAVE | Open Position`, async function () {
   let aaveLendingPool: Contract
@@ -44,12 +46,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
   let userAddress: Address
 
   before(async function () {
-    ;({
-      config,
-      provider,
-      signer,
-      address: userAddress,
-    } = await loadFixture(initialiseConfigWithRichAccount))
+    ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
 
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -65,6 +62,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     let positionTransition: IPositionTransition
     let txStatus: boolean
+    let gasEstimates: GasEstimateHelper
 
     async function setupOpenPositionTest(
       collateralToken: {
@@ -85,15 +83,40 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       isFeeFromDebtToken: boolean,
       userAddress: Address,
     ) {
-      const { snapshot, config: newConfig } = await restoreSnapshot({
+      const { snapshot } = await restoreSnapshot({
         config,
         provider,
         blockNumber: testBlockNumber,
-        useRichAccount: true,
+        useFallbackSwap: true,
       })
-      config = newConfig
-      signer = newConfig.signer
       const system = snapshot.deployed.system
+
+      /**
+       * Need to have correct tokens in hand before
+       * to marry up with what user is depositing
+       */
+      const swapETHtoDepositTokens = amountToWei(new BigNumber(100))
+      !debtToken.isEth &&
+        debtToken.depositAmountInWei.gt(ZERO) &&
+        (await swapUniswapTokens(
+          ADDRESSES.main.WETH,
+          debtToken.address,
+          swapETHtoDepositTokens.toFixed(0),
+          ONE.toFixed(0),
+          config.address,
+          config,
+        ))
+
+      !collateralToken.isEth &&
+        collateralToken.depositAmountInWei.gt(ZERO) &&
+        (await swapUniswapTokens(
+          ADDRESSES.main.WETH,
+          collateralToken.address,
+          swapETHtoDepositTokens.toFixed(0),
+          ONE.toFixed(0),
+          config.address,
+          config,
+        ))
 
       if (!collateralToken.isEth) {
         const COLL_TOKEN = new ethers.Contract(collateralToken.address, ERC20ABI, provider).connect(
@@ -165,7 +188,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         collateralToken.isEth ? collateralToken.depositAmountInWei : ZERO,
       )
 
-      const [txStatus] = await executeThroughProxy(
+      const [txStatus, tx] = await executeThroughProxy(
         system.common.dsProxy.address,
         {
           address: system.common.operationExecutor.address,
@@ -228,6 +251,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         positionTransition,
         feeRecipientBalanceBefore,
         txStatus,
+        tx,
         oracle,
         actualPosition,
         userCollateralReserveData,
@@ -237,11 +261,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
       const depositEthAmount = amountToWei(new BigNumber(1))
-
+      gasEstimates = gasEstimateHelper()
       let userStEthReserveData: AAVEReserveData
       let userWethReserveData: AAVEReserveData
       let feeRecipientWethBalanceBefore: BigNumber
       let actualPosition: IPosition
+      let tx: ContractReceipt
 
       before(async function () {
         const setup = await setupOpenPositionTest(
@@ -264,11 +289,14 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           userAddress,
         )
         txStatus = setup.txStatus
+        tx = setup.tx
         positionTransition = setup.positionTransition
         actualPosition = setup.actualPosition
         userStEthReserveData = setup.userCollateralReserveData
         userWethReserveData = setup.userDebtReserveData
         feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
+
+        gasEstimates.save(tx)
       })
 
       it('Tx should pass', function () {
@@ -284,23 +312,17 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it(`Should deposit all ${tokens.STETH} tokens to aave`, function () {
         expectToBe(
-          positionTransition.simulation.position.collateral.amount,
-          'gte',
           new BigNumber(userStEthReserveData.currentATokenBalance.toString()).toFixed(0),
+          'gte',
+          positionTransition.simulation.position.collateral.amount,
         )
       })
 
       it('Should achieve target multiple', function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
-          'lte',
-          actualPosition.riskRatio.multiple,
-        )
-
-        expectToBe(
-          positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple,
         )
       })
 
@@ -315,6 +337,10 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           new BigNumber(positionTransition.simulation.swap.tokenFee),
           feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
         )
+      })
+
+      after(() => {
+        gasEstimates.print()
       })
     })
 
@@ -369,23 +395,17 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it(`Should deposit all ${tokens.ETH} tokens to aave`, function () {
         expectToBe(
-          positionTransition.simulation.position.collateral.amount,
-          'gte',
           new BigNumber(userEthReserveData.currentATokenBalance.toString()).toFixed(0),
+          'gte',
+          positionTransition.simulation.position.collateral.amount,
         )
       })
 
       it('Should achieve target multiple', function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
-          'lte',
-          actualPosition.riskRatio.multiple,
-        )
-
-        expectToBe(
-          positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple,
         )
       })
 
@@ -450,23 +470,17 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it(`Should deposit all ${tokens.WBTC} tokens to aave`, function () {
         expectToBe(
-          positionTransition.simulation.position.collateral.amount,
-          'gte',
           new BigNumber(userWBTCReserveData.currentATokenBalance.toString()).toFixed(0),
+          'gte',
+          positionTransition.simulation.position.collateral.amount,
         )
       })
 
       it('Should achieve target multiple', function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
-          'lte',
-          actualPosition.riskRatio.multiple,
-        )
-
-        expectToBe(
-          positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple,
         )
       })
 
@@ -531,23 +545,17 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it(`Should deposit all ${tokens.WBTC} tokens to aave`, function () {
         expectToBe(
-          positionTransition.simulation.position.collateral.amount,
-          'gte',
           new BigNumber(userWBTCReserveData.currentATokenBalance.toString()).toFixed(0),
+          'gte',
+          positionTransition.simulation.position.collateral.amount,
         )
       })
 
       it('Should achieve target multiple', function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
-          'lte',
-          actualPosition.riskRatio.multiple,
-        )
-
-        expectToBe(
-          positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple,
         )
       })
 
@@ -596,9 +604,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       if (shouldRun1InchTests) {
         //Reset to the latest block
         await resetNodeToLatestBlock(provider)
-        const { signer, address } = await impersonateRichAccount(provider)
-        config.signer = signer
-        config.address = address
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
 
@@ -683,9 +688,9 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     it('Should deposit all stEth tokens to aave', function () {
       expectToBe(
-        positionTransition.simulation.position.collateral.amount,
-        'gte',
         new BigNumber(userStEthReserveData.currentATokenBalance.toString()).toFixed(0),
+        'gte',
+        positionTransition.simulation.position.collateral.amount,
       )
     })
 
