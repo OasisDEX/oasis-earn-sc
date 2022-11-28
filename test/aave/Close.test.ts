@@ -129,14 +129,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       if (!collateralToken.isEth) {
         const COLL_TOKEN = new ethers.Contract(collateralToken.address, ERC20ABI, provider)
-        await COLL_TOKEN.approve(
+        await COLL_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           collateralToken.depositOnOpenAmountInWei.toFixed(0),
         )
       }
       if (!debtToken.isEth) {
         const DEBT_TOKEN = new ethers.Contract(debtToken.address, ERC20ABI, provider)
-        await DEBT_TOKEN.approve(
+        await DEBT_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           debtToken.depositOnOpenAmountInWei.toFixed(0),
         )

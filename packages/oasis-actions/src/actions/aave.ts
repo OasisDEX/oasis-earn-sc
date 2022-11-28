@@ -9,7 +9,9 @@ const createAction = ActionFactory.create
 
 export function aaveDeposit(
   args: { asset: string; amount: BigNumber | 0; sumAmounts: boolean; setAsCollateral?: boolean },
-  paramsMapping: [asset: number, amount: number, sumAmounts: number] = [0, 0, 0],
+  paramsMapping: [asset: number, amount: number, sumAmounts: number, setAsCollateral: number] = [
+    0, 0, 0, 0,
+  ],
 ) {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.DEPOSIT),

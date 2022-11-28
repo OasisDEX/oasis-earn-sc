@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -8,17 +8,18 @@ import { Contract, Signer } from 'ethers'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
-import { getOneInchCall } from '../../helpers/swap/OneIchCall'
+import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei } from '../../helpers/utils'
 import { zero } from '../../scripts/common'
+import { mainnetAddresses } from '../addresses'
 import { deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
 
 describe(`Strategy | AAVE | Reopen Position`, async () => {
-  const depositAmount = amountToWei(new BigNumber(10))
+  const depositAmountInWei = amountToWei(new BigNumber(10))
   const multiple = new BigNumber(2)
   const slippage = new BigNumber(0.5)
 
@@ -27,21 +28,10 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
   let signer: Signer
 
   let dependencies: Pick<
-    Parameters<typeof strategies.aave.openStEth>[1],
-    'dsProxy' | 'provider' | 'addresses' | 'getSwapData'
+    Parameters<typeof strategies.aave.open>[1],
+    'proxy' | 'provider' | 'addresses' | 'getSwapData' | 'user'
   >
   let operationExecutor: Contract
-
-  const mainnetAddresses = {
-    DAI: ADDRESSES.main.DAI,
-    ETH: ADDRESSES.main.ETH,
-    WETH: ADDRESSES.main.WETH,
-    stETH: ADDRESSES.main.stETH,
-    aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
-    chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-    aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-    aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
-  }
 
   before(async () => {
     ;({ config, provider, signer } = await loadFixture(initialiseConfig))
@@ -51,13 +41,12 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     const testBlockWithSufficientLiquidityInUswapPool = 15690000
 
     before(async () => {
-      const snapshot = await restoreSnapshot(
+      const { snapshot } = await restoreSnapshot({
         config,
         provider,
-        testBlockWithSufficientLiquidityInUswapPool,
-        true,
-        false,
-      )
+        blockNumber: testBlockWithSufficientLiquidityInUswapPool,
+        useFallbackSwap: true,
+      })
 
       const system = snapshot.deployed.system
 
@@ -72,13 +61,16 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         addresses,
         provider,
         getSwapData: oneInchCallMock(new BigNumber(0.9759)),
-        dsProxy: system.common.dsProxy.address,
+        proxy: system.common.dsProxy.address,
+        user: config.address,
       }
     })
 
     it('Should open new position', async () => {
-      const beforeTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const debtToken = { symbol: 'ETH' as const, precision: 18 }
+      const collateralToken = { symbol: 'STETH' as const, precision: 18 }
+      const beforeTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -89,11 +81,16 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         'Position should be empty at the beginning',
       )
 
-      const openStrategy = await strategies.aave.openStEth(
+      const openPositionTransition = await strategies.aave.open(
         {
-          depositAmount,
+          depositedByUser: {
+            debtInWei: depositAmountInWei,
+          },
           slippage,
           multiple,
+          debtToken,
+          collateralToken,
+          collectSwapFeeFrom: 'sourceToken',
         },
         {
           ...dependencies,

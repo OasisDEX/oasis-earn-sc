@@ -53,6 +53,7 @@ describe(`Operations | Maker | Automation Integration`, async () => {
       config,
       provider,
       blockNumber: testBlockNumberToGetCorrectVaultId,
+      useFallbackSwap: true,
     })
 
     system = snapshot.deployed.system
