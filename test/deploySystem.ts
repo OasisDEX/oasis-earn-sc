@@ -60,15 +60,13 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     serviceRegistryAddress,
   ])
 
-  await uSwap
-    .connect(signer)
-    .setPool(
-      '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
-      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      10000,
-    )
+  await uSwap.setPool(
+    '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
+    '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    10000,
+  )
 
-  await uSwap.connect(signer).addFeeTier(20)
+  await uSwap.addFeeTier(20)
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
@@ -77,7 +75,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     serviceRegistryAddress,
   ])
 
-  await swap.connect(signer).addFeeTier(20)
+  await swap.addFeeTier(20)
 
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
   const [dummyAutomation] = await deploy('DummyAutomation', [serviceRegistryAddress])

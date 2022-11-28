@@ -20,7 +20,7 @@ export async function createDeploy(
       contractNameWithVersionRemoved,
       config.signer,
     )
-    const instance = await contractFactory.connect(config.signer).deploy(...params)
+    const instance = await contractFactory.deploy(...params)
     if (debug) {
       console.log('DEBUG: Owner of deploy:', await config.signer.getAddress())
       console.log(`DEBUG: Deploying ${contractNameWithVersionRemoved} ...`)
