@@ -4,16 +4,14 @@ import {
   IStrategy,
   ONE,
   OPERATION_NAMES,
-  Position,
   strategies,
   ZERO,
 } from '@oasisdex/oasis-actions'
-import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Contract, ContractReceipt, ethers, Signer } from 'ethers'
+import { Contract, ContractReceipt, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
@@ -33,7 +31,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   const depositAmount = amountToWei(new BigNumber(60 / 1e12))
   const multiple = new BigNumber(2)
   const slippage = new BigNumber(0.1)
-  let aaveStEthPriceInEth: BigNumber
 
   // In this case we can safely assume this constant value for a given block,
   // this value should be changed when changing block number
@@ -70,6 +67,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
     aavePriceOracle: ADDRESSES.main.aavePriceOracle,
     aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
+    aaveDataProvider: ADDRESSES.main.aave.DataProvider,
   }
 
   before(async () => {
@@ -99,6 +97,16 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         operationExecutor: system.common.operationExecutor.address,
       }
 
+      const beforeOpenPosition = await strategies.aave.getCurrentStEthEthPosition(
+        { proxyAddress: system.common.dsProxy.address },
+        {
+          addresses: {
+            ...mainnetAddresses,
+          },
+          provider: config.provider,
+        },
+      )
+
       openStrategy = await strategies.aave.openStEth(
         {
           depositAmount,
@@ -106,6 +114,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           multiple,
         },
         {
+          currentPosition: beforeOpenPosition,
           addresses,
           provider,
           getSwapData: oneInchCallMock(new BigNumber(0.9759)),
@@ -119,23 +128,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             openStrategy.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
+            OPERATION_NAMES.aave.OPEN_POSITION,
           ]),
         },
         signer,
         depositAmount.toFixed(0),
       )
       openTxStatus = _openTxStatus
-
-      const aavePriceOracle = new ethers.Contract(
-        addresses.aavePriceOracle,
-        aavePriceOracleABI,
-        provider,
-      )
-
-      aaveStEthPriceInEth = await aavePriceOracle
-        .getAssetPrice(addresses.stETH)
-        .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
       feeRecipientWethBalanceBefore = await balanceOf(
         ADDRESSES.main.WETH,
@@ -155,10 +154,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           operationExecutor: system.common.operationExecutor.address,
         }
 
-        const beforeCloseUserAccountData = await aaveLendingPool.getUserAccountData(
-          system.common.dsProxy.address,
-        )
-
         const beforeCloseUserStEthReserveData = await aaveDataProvider.getUserReserveData(
           ADDRESSES.main.stETH,
           system.common.dsProxy.address,
@@ -168,13 +163,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           beforeCloseUserStEthReserveData.currentATokenBalance.toString(),
         )
 
-        const positionAfterOpen = new Position(
-          { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },
+        const positionAfterOpen = await strategies.aave.getCurrentStEthEthPosition(
+          { proxyAddress: system.common.dsProxy.address },
           {
-            amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
+            addresses: {
+              ...mainnetAddresses,
+            },
+            provider: config.provider,
           },
-          aaveStEthPriceInEth,
-          openStrategy.simulation.position.category,
         )
 
         closeStrategy = await strategies.aave.closeStEth(
@@ -202,7 +198,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
               closeStrategy.calls,
-              OPERATION_NAMES.common.CUSTOM_OPERATION,
+              OPERATION_NAMES.aave.CLOSE_POSITION,
             ]),
           },
           signer,
@@ -313,6 +309,16 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           operationExecutor: system.common.operationExecutor.address,
         }
 
+        const beforeOpenPosition = await strategies.aave.getCurrentStEthEthPosition(
+          { proxyAddress: system.common.dsProxy.address },
+          {
+            addresses: {
+              ...mainnetAddresses,
+            },
+            provider: config.provider,
+          },
+        )
+
         const openStrategy = await strategies.aave.openStEth(
           {
             depositAmount,
@@ -320,6 +326,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             multiple,
           },
           {
+            currentPosition: beforeOpenPosition,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
@@ -333,7 +340,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
               openStrategy.calls,
-              OPERATION_NAMES.common.CUSTOM_OPERATION,
+              OPERATION_NAMES.aave.OPEN_POSITION,
             ]),
           },
           signer,
@@ -347,10 +354,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           { config, isFormatted: true },
         )
 
-        const beforeCloseUserAccountData = await aaveLendingPool.getUserAccountData(
-          system.common.dsProxy.address,
-        )
-
         const beforeCloseUserStEthReserveData = await aaveDataProvider.getUserReserveData(
           ADDRESSES.main.stETH,
           system.common.dsProxy.address,
@@ -359,23 +362,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           beforeCloseUserStEthReserveData.currentATokenBalance.toString(),
         )
 
-        const aavePriceOracle = new ethers.Contract(
-          addresses.aavePriceOracle,
-          aavePriceOracleABI,
-          provider,
-        )
-
-        aaveStEthPriceInEth = await aavePriceOracle
-          .getAssetPrice(addresses.stETH)
-          .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
-
-        const positionAfterOpen = new Position(
-          { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },
+        const positionAfterOpen = await strategies.aave.getCurrentStEthEthPosition(
+          { proxyAddress: system.common.dsProxy.address },
           {
-            amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
+            addresses: {
+              ...mainnetAddresses,
+            },
+            provider: config.provider,
           },
-          aaveStEthPriceInEth,
-          openStrategy.simulation.position.category,
         )
 
         closeStrategy = await strategies.aave.closeStEth(
@@ -403,7 +397,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
               closeStrategy.calls,
-              OPERATION_NAMES.common.CUSTOM_OPERATION,
+              OPERATION_NAMES.aave.CLOSE_POSITION,
             ]),
           },
           signer,

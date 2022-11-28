@@ -1,5 +1,4 @@
 import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
-import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import BigNumber from 'bignumber.js'
 import { task, types } from 'hardhat/config'
 
@@ -25,13 +24,13 @@ task('createPosition', 'Create stETH position on AAVE')
   .addOptionalParam('multiply', 'Required multiply', 2, types.float)
   .addFlag('dummyswap', 'Use dummy swap')
   .setAction(async (taskArgs, hre) => {
-    if (!process.env.SERVICE_REGISTRY_ADDRESS) {
-      throw new Error('SERVICE_REGISTRY_ADDRESS env variable is not set')
-    }
-
     const config = await init(hre)
 
     const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
+
+    if (!serviceRegistryAddress) {
+      throw new Error('ServiceRegistry params or SERVICE_REGISTRY_ADDRESS env variable is not set')
+    }
 
     const serviceRegistryAbi = [
       {
@@ -83,39 +82,37 @@ task('createPosition', 'Create stETH position on AAVE')
       AAVELendigPoolABI,
       config.provider,
     )
+
     const aaveDataProvider = new hre.ethers.Contract(
       ADDRESSES.main.aave.DataProvider,
       AAVEDataProviderABI,
       config.provider,
     )
-
-    const aavePriceOracle = new hre.ethers.Contract(
-      ADDRESSES.main.aavePriceOracle,
-      aavePriceOracleABI,
-      config.provider,
-    )
-
     const proxyAddress = await getOrCreateProxy(config.signer)
 
     const dsProxy = new hre.ethers.Contract(proxyAddress, DSProxyABI, config.provider).connect(
       config.signer,
     )
 
+    const userDaiReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
+      ADDRESSES.main.DAI,
+      dsProxy.address,
+    )
+
+    console.log('Current DAI reserve data', userDaiReserveData.currentATokenBalance.toString())
+
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
     const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress)
     const depositAmount = amountToWei(new BigNumber(taskArgs.deposit))
     const multiply = new BigNumber(taskArgs.multiply)
-    const slippage = new BigNumber(0.1)
+    const slippage = new BigNumber(0.5)
 
     const currentPosition = await strategies.aave.getCurrentStEthEthPosition(
       { proxyAddress: dsProxy.address },
       {
         addresses: {
-          stETH: ADDRESSES.main.stETH,
-          aavePriceOracle: aavePriceOracle.address,
-          aaveLendingPool: aaveLendingPool.address,
-          aaveDataProvider: aaveDataProvider.address,
+          ...mainnetAddresses,
         },
         provider: config.provider,
       },
