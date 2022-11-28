@@ -117,9 +117,9 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       expect(transactionStatus, 'Transaction should pass.').to.be.true
       expectToBe(
-        openPositionTransition.simulation.position.collateral.amount,
-        'gte',
         afterTransaction.collateral.amount,
+        'gte',
+        openPositionTransition.simulation.position.collateral.amount,
         'Collateral cannot be smaller than simulation. Can be greater because of slippage',
       )
       expectToBeEqual(
@@ -238,9 +238,9 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       expect(transactionStatus, 'Transaction should pass.').to.be.true
       expectToBe(
-        reopenPositionTransition.simulation.position.collateral.amount,
-        'gte',
         afterTransaction.collateral.amount,
+        'gte',
+        reopenPositionTransition.simulation.position.collateral.amount,
         'Collateral cannot be smaller than simulation. Can be greater because of slippage',
       )
     })
@@ -324,9 +324,9 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       expect(transactionStatus, 'Transaction should pass.').to.be.true
       expectToBe(
-        openPositionTransition.simulation.position.collateral.amount,
-        'gte',
         afterTransaction.collateral.amount,
+        'gte',
+        openPositionTransition.simulation.position.collateral.amount,
         'Collateral cannot be smaller than simulation. Can be greater because of slippage',
       )
       expectToBeEqual(
@@ -441,9 +441,9 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       expect(transactionStatus, 'Transaction should pass.').to.be.true
       expectToBe(
-        reopenPositionTransition.simulation.position.collateral.amount,
-        'gte',
         afterTransaction.collateral.amount,
+        'gte',
+        reopenPositionTransition.simulation.position.collateral.amount,
         'Collateral cannot be smaller than simulation. Can be greater because of slippage',
       )
     })

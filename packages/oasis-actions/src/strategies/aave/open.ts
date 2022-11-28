@@ -170,7 +170,7 @@ export async function open(
     18,
   )
   const actualSwapBase18ToTokenAmount = amountToWei(
-    amountFromWei(swapData.toTokenAmount, args.collateralToken.precision),
+    amountFromWei(swapData.minToTokenAmount, args.collateralToken.precision),
     18,
   )
   const actualMarketPriceWithSlippage = actualSwapBase18FromTokenAmount.div(

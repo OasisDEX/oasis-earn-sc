@@ -35,7 +35,7 @@ import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
-import { expectToBe, expectToBeEqual, TESTING_OFFSET } from '../utils'
+import { expectToBe, expectToBeEqual } from '../utils'
 
 describe(`Strategy | AAVE | Open Position`, async function () {
   let aaveLendingPool: Contract
@@ -312,23 +312,17 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it(`Should deposit all ${tokens.STETH} tokens to aave`, function () {
         expectToBe(
-          positionTransition.simulation.position.collateral.amount,
-          'gte',
           new BigNumber(userStEthReserveData.currentATokenBalance.toString()).toFixed(0),
+          'gte',
+          positionTransition.simulation.position.collateral.amount,
         )
       })
 
       it('Should achieve target multiple', function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
-          'lte',
-          actualPosition.riskRatio.multiple,
-        )
-
-        expectToBe(
-          positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple,
         )
       })
 
@@ -401,23 +395,17 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it(`Should deposit all ${tokens.ETH} tokens to aave`, function () {
         expectToBe(
-          positionTransition.simulation.position.collateral.amount,
-          'gte',
           new BigNumber(userEthReserveData.currentATokenBalance.toString()).toFixed(0),
+          'gte',
+          positionTransition.simulation.position.collateral.amount,
         )
       })
 
       it('Should achieve target multiple', function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
-          'lte',
-          actualPosition.riskRatio.multiple,
-        )
-
-        expectToBe(
-          positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple,
         )
       })
 
@@ -482,23 +470,17 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it(`Should deposit all ${tokens.WBTC} tokens to aave`, function () {
         expectToBe(
-          positionTransition.simulation.position.collateral.amount,
-          'gte',
           new BigNumber(userWBTCReserveData.currentATokenBalance.toString()).toFixed(0),
+          'gte',
+          positionTransition.simulation.position.collateral.amount,
         )
       })
 
       it('Should achieve target multiple', function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
-          'lte',
-          actualPosition.riskRatio.multiple,
-        )
-
-        expectToBe(
-          positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple,
         )
       })
 
@@ -563,23 +545,17 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it(`Should deposit all ${tokens.WBTC} tokens to aave`, function () {
         expectToBe(
-          positionTransition.simulation.position.collateral.amount,
-          'gte',
           new BigNumber(userWBTCReserveData.currentATokenBalance.toString()).toFixed(0),
+          'gte',
+          positionTransition.simulation.position.collateral.amount,
         )
       })
 
       it('Should achieve target multiple', function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
-          'lte',
-          actualPosition.riskRatio.multiple,
-        )
-
-        expectToBe(
-          positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple.times(ONE.minus(TESTING_OFFSET)),
+          actualPosition.riskRatio.multiple,
         )
       })
 
@@ -608,7 +584,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     })
   })
 
-  describe.skip('On latest block using one inch exchange and api', function () {
+  describe('On latest block using one inch exchange and api', function () {
     const depositEthAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
@@ -712,9 +688,9 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     it('Should deposit all stEth tokens to aave', function () {
       expectToBe(
-        positionTransition.simulation.position.collateral.amount,
-        'gte',
         new BigNumber(userStEthReserveData.currentATokenBalance.toString()).toFixed(0),
+        'gte',
+        positionTransition.simulation.position.collateral.amount,
       )
     })
 
