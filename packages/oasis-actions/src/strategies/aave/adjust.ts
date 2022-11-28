@@ -148,6 +148,7 @@ export async function adjust(
       debtTokenAddress,
       depositDebtAmountInWei,
       depositCollateralAmountInWei,
+      aaveDebtTokenPriceInEth,
       aaveCollateralTokenPriceInEth,
       args,
       dependencies,
@@ -161,6 +162,7 @@ export async function adjust(
       collectFeeFrom,
       collateralTokenAddress,
       debtTokenAddress,
+      aaveDebtTokenPriceInEth,
       aaveCollateralTokenPriceInEth,
       args,
       dependencies,
@@ -204,6 +206,7 @@ interface BranchProps {
   swapAmountBeforeFees: BigNumber
   swapAmountAfterFees: BigNumber
   collectFeeFrom: 'sourceToken' | 'targetToken'
+  aaveDebtTokenPriceInEth: BigNumber
   aaveCollateralTokenPriceInEth: BigNumber
   args: IPositionTransitionArgs<AAVETokens>
   dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>
@@ -219,6 +222,7 @@ async function _increaseRisk({
   debtTokenAddress,
   depositDebtAmountInWei,
   depositCollateralAmountInWei,
+  aaveDebtTokenPriceInEth,
   aaveCollateralTokenPriceInEth,
   args,
   dependencies,
@@ -308,10 +312,13 @@ async function _increaseRisk({
     symbol: target.position.collateral.symbol,
   }
 
+  // EG STETH/ETH divided by USDC/ETH = STETH/USDC
+  const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+
   const finalPosition = new Position(
     target.position.debt,
     newCollateral,
-    aaveCollateralTokenPriceInEth,
+    oracle,
     target.position.category,
   )
 
@@ -331,6 +338,7 @@ async function _decreaseRisk({
   collectFeeFrom,
   collateralTokenAddress,
   debtTokenAddress,
+  aaveDebtTokenPriceInEth,
   aaveCollateralTokenPriceInEth,
   args,
   dependencies,
@@ -413,10 +421,13 @@ async function _decreaseRisk({
     symbol: target.position.collateral.symbol,
   }
 
+  // EG STETH/ETH divided by USDC/ETH = STETH/USDC
+  const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+
   const finalPosition = new Position(
     newDebt,
     target.position.collateral,
-    aaveCollateralTokenPriceInEth,
+    oracle,
     target.position.category,
   )
 

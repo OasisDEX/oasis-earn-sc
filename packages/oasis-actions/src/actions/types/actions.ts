@@ -24,8 +24,7 @@ export const calldataTypes = {
     CdpAllow: `tuple(uint256 vaultId, address userAddress)`,
   },
   aave: {
-    // Generate: `tuple(address asset, uint256 amount)`,
-    Deposit: `tuple(address asset, uint256 amount, bool sumAmounts)`,
+    Deposit: `tuple(address asset, uint256 amount, bool sumAmounts, bool setAsCollateral)`,
     Withdraw: `tuple(address asset, uint256 amount, address to)`,
     Borrow: `tuple(address asset, uint256 amount, address to)`,
     Payback: `tuple(address asset, uint256 amount, bool paybackAll)`,

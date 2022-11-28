@@ -24,13 +24,13 @@ task('createPosition', 'Create stETH position on AAVE')
   .addOptionalParam('multiply', 'Required multiply', 2, types.float)
   .addFlag('usefallbackswap', 'Use fallback swap')
   .setAction(async (taskArgs, hre) => {
-    if (!process.env.SERVICE_REGISTRY_ADDRESS) {
-      throw new Error('SERVICE_REGISTRY_ADDRESS env variable is not set')
-    }
-
     const config = await init(hre)
 
     const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
+
+    if (!serviceRegistryAddress) {
+      throw new Error('ServiceRegistry params or SERVICE_REGISTRY_ADDRESS env variable is not set')
+    }
 
     const serviceRegistryAbi = [
       {
@@ -84,6 +84,7 @@ task('createPosition', 'Create stETH position on AAVE')
       AAVELendigPoolABI,
       config.provider,
     )
+
     const aaveDataProvider = new hre.ethers.Contract(
       ADDRESSES.main.aave.DataProvider,
       AAVEDataProviderABI,
@@ -95,6 +96,13 @@ task('createPosition', 'Create stETH position on AAVE')
     const dsProxy = new hre.ethers.Contract(proxyAddress, DSProxyABI, config.provider).connect(
       config.signer,
     )
+
+    const userDaiReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
+      ADDRESSES.main.DAI,
+      dsProxy.address,
+    )
+
+    console.log('Current DAI reserve data', userDaiReserveData.currentATokenBalance.toString())
 
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
