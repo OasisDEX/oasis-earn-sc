@@ -20,7 +20,7 @@ export async function restoreSnapshot(args: {
   debug?: boolean
   useRichAccount?: boolean
 }): Promise<{ snapshot: Snapshot; config: RuntimeConfig }> {
-  const { config, provider, blockNumber, use1inchSwap, debug, useRichAccount } = args
+  const { config, provider, blockNumber, use1inchSwap, debug } = args
 
   const _blockNumber = blockNumber || testBlockNumber
 
