@@ -116,25 +116,25 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   )
 
   //-- Maker Actions
-  const [actionOpenVault, actionOpenVaultAddress] = await deploy(CONTRACT_NAMES.maker.OPEN_VAULT, [
-    serviceRegistryAddress,
-  ])
+  // const [actionOpenVault, actionOpenVaultAddress] = await deploy(CONTRACT_NAMES.maker.OPEN_VAULT, [
+  //   serviceRegistryAddress,
+  // ])
 
-  const [actionDeposit, actionDepositAddress] = await deploy(CONTRACT_NAMES.maker.DEPOSIT, [
-    serviceRegistryAddress,
-  ])
+  // const [actionDeposit, actionDepositAddress] = await deploy(CONTRACT_NAMES.maker.DEPOSIT, [
+  //   serviceRegistryAddress,
+  // ])
 
-  const [actionPayback, actionPaybackAddress] = await deploy(CONTRACT_NAMES.maker.PAYBACK, [
-    serviceRegistryAddress,
-  ])
+  // const [actionPayback, actionPaybackAddress] = await deploy(CONTRACT_NAMES.maker.PAYBACK, [
+  //   serviceRegistryAddress,
+  // ])
 
-  const [actionWithdraw, actionWithdrawAddress] = await deploy(CONTRACT_NAMES.maker.WITHDRAW, [
-    serviceRegistryAddress,
-  ])
+  // const [actionWithdraw, actionWithdrawAddress] = await deploy(CONTRACT_NAMES.maker.WITHDRAW, [
+  //   serviceRegistryAddress,
+  // ])
 
-  const [actionGenerate, actionGenerateAddress] = await deploy(CONTRACT_NAMES.maker.GENERATE, [
-    serviceRegistryAddress,
-  ])
+  // const [actionGenerate, actionGenerateAddress] = await deploy(CONTRACT_NAMES.maker.GENERATE, [
+  //   serviceRegistryAddress,
+  // ])
 
   //-- AAVE Actions
   const [depositInAAVEAction, actionDepositInAAVEAddress] = await deploy(
@@ -208,26 +208,26 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_MANAGER, ADDRESSES.main.maker.cdpManager)
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES.main.maker.jug)
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_JOIN_DAI, ADDRESSES.main.maker.joinDAI)
-  const makerOpenVaultHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.OPEN_VAULT,
-    actionOpenVaultAddress,
-  )
-  const makerDepositHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.DEPOSIT,
-    actionDepositAddress,
-  )
-  const makerPaybackHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.PAYBACK,
-    actionPaybackAddress,
-  )
-  const makerWithdrawHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.WITHDRAW,
-    actionWithdrawAddress,
-  )
-  const makerGenerateHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.GENERATE,
-    actionGenerateAddress,
-  )
+  // const makerOpenVaultHash = await registry.addEntry(
+  //   CONTRACT_NAMES.maker.OPEN_VAULT,
+  //   actionOpenVaultAddress,
+  // )
+  // const makerDepositHash = await registry.addEntry(
+  //   CONTRACT_NAMES.maker.DEPOSIT,
+  //   actionDepositAddress,
+  // )
+  // const makerPaybackHash = await registry.addEntry(
+  //   CONTRACT_NAMES.maker.PAYBACK,
+  //   actionPaybackAddress,
+  // )
+  // const makerWithdrawHash = await registry.addEntry(
+  //   CONTRACT_NAMES.maker.WITHDRAW,
+  //   actionWithdrawAddress,
+  // )
+  // const makerGenerateHash = await registry.addEntry(
+  //   CONTRACT_NAMES.maker.GENERATE,
+  //   actionGenerateAddress,
+  // )
 
   await registry.addEntry(CONTRACT_NAMES.maker.CDP_ALLOW, cdpAllowAddress)
 
@@ -259,86 +259,86 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   )
   await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_AND_DRAW, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    makerGenerateHash,
-  ])
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    makerGenerateHash,
-    makerPaybackHash,
-    makerWithdrawHash,
-  ])
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    makerGenerateHash,
-    swapActionHash,
-    makerDepositHash,
-  ])
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_TOP_UP, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    pullTokenHash,
-    makerGenerateHash,
-    swapActionHash,
-    makerDepositHash,
-  ])
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_COLL_TOP_UP, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    pullTokenHash,
-    makerDepositHash,
-    makerGenerateHash,
-    swapActionHash,
-    makerDepositHash,
-  ])
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    pullTokenHash,
-    pullTokenHash,
-    makerDepositHash,
-    makerGenerateHash,
-    swapActionHash,
-    makerDepositHash,
-  ])
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    takeFlashLoanHash,
-    // pullTokenHash,
-    swapActionHash,
-    makerDepositHash,
-    makerGenerateHash,
-    sendTokenHash,
-  ])
-  await operationsRegistry.addOp(
-    OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP,
-    [
-      makerOpenVaultHash,
-      pullTokenHash,
-      makerDepositHash,
-      pullTokenHash,
-      pullTokenHash,
-      makerDepositHash,
-      takeFlashLoanHash,
-      // pullTokenHash,
-      swapActionHash,
-      makerDepositHash,
-      makerGenerateHash,
-      sendTokenHash,
-    ],
-  )
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_AND_DRAW, [
+  //   makerOpenVaultHash,
+  //   pullTokenHash,
+  //   makerDepositHash,
+  //   makerGenerateHash,
+  // ])
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE, [
+  //   makerOpenVaultHash,
+  //   pullTokenHash,
+  //   makerDepositHash,
+  //   makerGenerateHash,
+  //   makerPaybackHash,
+  //   makerWithdrawHash,
+  // ])
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE, [
+  //   makerOpenVaultHash,
+  //   pullTokenHash,
+  //   makerDepositHash,
+  //   makerGenerateHash,
+  //   swapActionHash,
+  //   makerDepositHash,
+  // ])
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_TOP_UP, [
+  //   makerOpenVaultHash,
+  //   pullTokenHash,
+  //   makerDepositHash,
+  //   pullTokenHash,
+  //   makerGenerateHash,
+  //   swapActionHash,
+  //   makerDepositHash,
+  // ])
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_COLL_TOP_UP, [
+  //   makerOpenVaultHash,
+  //   pullTokenHash,
+  //   makerDepositHash,
+  //   pullTokenHash,
+  //   makerDepositHash,
+  //   makerGenerateHash,
+  //   swapActionHash,
+  //   makerDepositHash,
+  // ])
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP, [
+  //   makerOpenVaultHash,
+  //   pullTokenHash,
+  //   makerDepositHash,
+  //   pullTokenHash,
+  //   pullTokenHash,
+  //   makerDepositHash,
+  //   makerGenerateHash,
+  //   swapActionHash,
+  //   makerDepositHash,
+  // ])
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN, [
+  //   makerOpenVaultHash,
+  //   pullTokenHash,
+  //   makerDepositHash,
+  //   takeFlashLoanHash,
+  //   // pullTokenHash,
+  //   swapActionHash,
+  //   makerDepositHash,
+  //   makerGenerateHash,
+  //   sendTokenHash,
+  // ])
+  // await operationsRegistry.addOp(
+  //   OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP,
+  //   [
+  //     makerOpenVaultHash,
+  //     pullTokenHash,
+  //     makerDepositHash,
+  //     pullTokenHash,
+  //     pullTokenHash,
+  //     makerDepositHash,
+  //     takeFlashLoanHash,
+  //     // pullTokenHash,
+  //     swapActionHash,
+  //     makerDepositHash,
+  //     makerGenerateHash,
+  //     sendTokenHash,
+  //   ],
+  // )
 
   // Add AAVE Operations
   await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
@@ -389,11 +389,11 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
     maker: {
       mcdView,
-      openVault: actionOpenVault,
-      deposit: actionDeposit,
-      payback: actionPayback,
-      withdraw: actionWithdraw,
-      generate: actionGenerate,
+      // openVault: actionOpenVault,
+      // deposit: actionDeposit,
+      // payback: actionPayback,
+      // withdraw: actionWithdraw,
+      // generate: actionGenerate,
       cdpAllow,
     },
     aave: {
@@ -423,11 +423,11 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       `Return Funds Action address: ${deployedContracts.common.returnFunds.address}`,
 
       `MCDView address: ${deployedContracts.maker.mcdView.address}`,
-      `OpenVault Action address: ${deployedContracts.maker.openVault.address}`,
-      `Deposit Action address: ${deployedContracts.maker.deposit.address}`,
-      `Payback Action address: ${deployedContracts.maker.payback.address}`,
-      `Withdraw Action address: ${deployedContracts.maker.withdraw.address}`,
-      `Generate Action address: ${deployedContracts.maker.generate.address}`,
+      // `OpenVault Action address: ${deployedContracts.maker.openVault.address}`,
+      // `Deposit Action address: ${deployedContracts.maker.deposit.address}`,
+      // `Payback Action address: ${deployedContracts.maker.payback.address}`,
+      // `Withdraw Action address: ${deployedContracts.maker.withdraw.address}`,
+      // `Generate Action address: ${deployedContracts.maker.generate.address}`,
 
       `AAVE|Borrow Action address: ${deployedContracts.aave.borrow.address}`,
       `AAVE|Deposit Action address: ${deployedContracts.aave.deposit.address}`,

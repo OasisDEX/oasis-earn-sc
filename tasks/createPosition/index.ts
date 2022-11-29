@@ -1,4 +1,6 @@
-import { ADDRESSES, CONTRACT_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
+import { TOKEN_DEFINITIONS } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import BigNumber from 'bignumber.js'
 import { task, types } from 'hardhat/config'
 
@@ -11,6 +13,7 @@ import init from '../../helpers/init'
 import { getOrCreateProxy } from '../../helpers/proxy'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
+import { RuntimeConfig } from '../../helpers/types/common'
 import { balanceOf } from '../../helpers/utils'
 
 function amountToWei(amount: BigNumber.Value, precision = 18) {
@@ -24,7 +27,7 @@ task('createPosition', 'Create stETH position on AAVE')
   .addOptionalParam('multiply', 'Required multiply', 2, types.float)
   .addFlag('usefallbackswap', 'Use fallback swap')
   .setAction(async (taskArgs, hre) => {
-    const config = await init(hre)
+    const config: RuntimeConfig = await init(hre)
 
     const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
 
@@ -71,7 +74,7 @@ task('createPosition', 'Create stETH position on AAVE')
       ETH: ADDRESSES.main.ETH,
       WETH: ADDRESSES.main.WETH,
       stETH: ADDRESSES.main.stETH,
-      wBTC: ADDRESSES.main.WBTC,
+      wBTC: ADDRESSES.main.wBTC,
       USDC: ADDRESSES.main.USDC,
       chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
       aavePriceOracle: ADDRESSES.main.aavePriceOracle,
@@ -111,8 +114,8 @@ task('createPosition', 'Create stETH position on AAVE')
     const multiply = new BigNumber(taskArgs.multiply)
     const slippage = new BigNumber(0.1)
 
-    const debtToken = { symbol: 'ETH' as const }
-    const collateralToken = { symbol: 'STETH' as const }
+    const debtToken = TOKEN_DEFINITIONS.ETH
+    const collateralToken = TOKEN_DEFINITIONS.stETH
     const proxy = dsProxy.address
     const currentPosition = await strategies.aave.view(
       { proxy: dsProxy.address, debtToken, collateralToken },

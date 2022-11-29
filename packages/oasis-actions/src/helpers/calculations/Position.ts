@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { Optional } from 'utility-types'
+import { AAVETokens, TokenDef } from '../../operations/aave/tokens'
 
 import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../constants'
 import { logDebug } from '../index'
@@ -49,8 +50,8 @@ export type Swap = {
   minToTokenAmount: BigNumber
   tokenFee: BigNumber
   collectFeeFrom: 'sourceToken' | 'targetToken'
-  sourceToken: { symbol: string; precision: number }
-  targetToken: { symbol: string; precision: number }
+  sourceToken: TokenDef<AAVETokens>
+  targetToken: TokenDef<AAVETokens>
 }
 type Flags = { requiresFlashloan: boolean; isIncreasingRisk: boolean }
 
@@ -514,11 +515,17 @@ export class Position implements IPosition {
         tokenFee: collectFeeFromSourceToken ? sourceFee.integerValue() : targetFee.integerValue(),
         collectFeeFrom: collectFeeFromSourceToken ? 'sourceToken' : 'targetToken',
         sourceToken: isIncreasingRisk
-          ? { symbol: this.debt.symbol, precision: this.debt.precision }
-          : { symbol: this.collateral.symbol, precision: this.collateral.precision },
+          ? ({ symbol: this.debt.symbol, precision: this.debt.precision } as TokenDef<AAVETokens>)
+          : ({
+              symbol: this.collateral.symbol,
+              precision: this.collateral.precision,
+            } as TokenDef<AAVETokens>),
         targetToken: isIncreasingRisk
-          ? { symbol: this.collateral.symbol, precision: this.collateral.precision }
-          : { symbol: this.debt.symbol, precision: this.debt.precision },
+          ? ({
+              symbol: this.collateral.symbol,
+              precision: this.collateral.precision,
+            } as TokenDef<AAVETokens>)
+          : ({ symbol: this.debt.symbol, precision: this.debt.precision } as TokenDef<AAVETokens>),
       },
       flags: {
         requiresFlashloan: isFlashloanRequired,

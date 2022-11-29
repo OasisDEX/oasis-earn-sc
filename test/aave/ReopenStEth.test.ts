@@ -1,5 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ONE, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { TOKEN_DEFINITIONS } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -23,8 +24,8 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
   const depositAmountInWei = amountToWei(new BigNumber(1))
   const multiple = new BigNumber(2)
   const slippage = new BigNumber(0.1)
-  const debtToken = { symbol: 'ETH' as const, precision: 18 }
-  const collateralToken = { symbol: 'STETH' as const, precision: 18 }
+  const debtToken = TOKEN_DEFINITIONS.ETH
+  const collateralToken = TOKEN_DEFINITIONS.stETH
 
   let provider: JsonRpcProvider
   let config: RuntimeConfig

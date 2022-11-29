@@ -10,7 +10,7 @@ import {
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { IPositionTransition } from '@oasisdex/oasis-actions/src'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
-import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
+import { AAVETokens, TOKEN_DEFINITIONS } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionRepository'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -358,7 +358,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       }
     }
 
-    describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
+    describe(`With ${tokens.stETH} collateral & ${tokens.ETH} debt`, () => {
       const depositAmount = amountToWei(new BigNumber(1))
 
       let userStEthReserveData: AAVEReserveData
@@ -370,7 +370,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         const setup = await setupClosePositionTest(
           {
             depositOnOpenAmountInWei: ZERO,
-            symbol: tokens.STETH,
+            symbol: tokens.stETH,
             address: ADDRESSES.main.stETH,
             precision: 18,
             isEth: false,
@@ -408,7 +408,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         expectToBeEqual(new BigNumber(userAccountData.totalDebtETH.toString()), ZERO)
       })
 
-      it(`Should withdraw all ${tokens.STETH} tokens from aave`, () => {
+      it(`Should withdraw all ${tokens.stETH} tokens from aave`, () => {
         //due to quirks of how stEth works there might be 1 wei left in aave
         expectToBe(new BigNumber(userStEthReserveData.currentATokenBalance.toString()), 'lte', ONE)
       })
@@ -563,7 +563,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       })
     })
 
-    describe(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, () => {
+    describe(`With ${tokens.wBTC} collateral & ${tokens.USDC} debt`, () => {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWethReserveData: AAVEReserveData
@@ -575,8 +575,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         const setup = await setupClosePositionTest(
           {
             depositOnOpenAmountInWei: amountToWei(depositWBTCAmount, 8),
-            symbol: tokens.WBTC,
-            address: ADDRESSES.main.WBTC,
+            symbol: tokens.wBTC,
+            address: ADDRESSES.main.wBTC,
             precision: 8,
             isEth: false,
           },
@@ -644,7 +644,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       it('should not be any token left on proxy', async () => {
         const proxyWBTCBalance = await balanceOf(
-          ADDRESSES.main.WBTC,
+          ADDRESSES.main.wBTC,
           system.common.dsProxy.address,
           {
             config,
@@ -690,10 +690,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         }
 
         const proxy = system.common.dsProxy.address
-        const debtToken = { symbol: tokens.ETH }
-        const collateralToken = {
-          symbol: tokens.STETH,
-        }
+        const debtToken = TOKEN_DEFINITIONS.ETH
+        const collateralToken = TOKEN_DEFINITIONS.stETH
         const openPositionTransition = await strategies.aave.open(
           {
             depositedByUser: {
@@ -771,7 +769,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
             precision: 18,
-            symbol: tokens.STETH,
+            symbol: tokens.stETH,
           },
           aaveStEthTokenPriceInEthOnOpen,
           openPositionTransition.simulation.position.category,
@@ -779,8 +777,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
         const positionTransition = await strategies.aave.close(
           {
-            collateralToken: { symbol: tokens.STETH },
-            debtToken: { symbol: tokens.ETH },
+            collateralToken: TOKEN_DEFINITIONS.stETH,
+            debtToken: TOKEN_DEFINITIONS.ETH,
             slippage,
             collateralAmountLockedInProtocolInWei: stEthAmount,
             collectSwapFeeFrom: 'targetToken',

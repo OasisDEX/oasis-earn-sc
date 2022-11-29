@@ -1,4 +1,5 @@
 import { ADDRESSES, CONTRACT_NAMES, Position, strategies } from '@oasisdex/oasis-actions'
+import { TOKEN_DEFINITIONS } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -127,7 +128,7 @@ task('closePosition', 'Close stETH position on AAVE')
       },
       {
         amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
-        symbol: 'STETH',
+        symbol: 'stETH',
       },
       one,
       {
@@ -141,8 +142,8 @@ task('closePosition', 'Close stETH position on AAVE')
       {
         collateralAmountLockedInProtocolInWei: stEthAmountLockedInAave,
         slippage,
-        debtToken: { symbol: 'ETH' },
-        collateralToken: { symbol: 'STETH' },
+        debtToken: TOKEN_DEFINITIONS.ETH,
+        collateralToken: TOKEN_DEFINITIONS.stETH,
       },
       {
         addresses: addresses,

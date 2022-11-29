@@ -24,9 +24,10 @@ export async function open(
   const tokenAddresses = {
     WETH: dependencies.addresses.WETH,
     ETH: dependencies.addresses.WETH,
-    STETH: dependencies.addresses.stETH,
+    stETH: dependencies.addresses.stETH,
     USDC: dependencies.addresses.USDC,
-    WBTC: dependencies.addresses.wBTC,
+    wBTC: dependencies.addresses.wBTC,
+    DAI: dependencies.addresses.DAI,
   }
 
   const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
@@ -115,7 +116,7 @@ export async function open(
   // EG USDC/ETH divided by ETH/DAI = USDC/ETH times by DAI/ETH = USDC/DAI
   const oracleFLtoDebtToken = ethPerDebtToken.div(ethPerDAI)
 
-  // EG STETH/ETH divided by USDC/ETH = STETH/USDC
+  // EG stETH/ETH divided by USDC/ETH = stETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'

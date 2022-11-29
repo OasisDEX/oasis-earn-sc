@@ -91,7 +91,7 @@ export async function adjust(
   // EG USDC/ETH divided by ETH/DAI = USDC/ETH times by DAI/ETH = USDC/DAI
   const oracleFLtoDebtToken = ethPerDebtToken.div(ethPerDAI)
 
-  // EG STETH/ETH divided by USDC/ETH = STETH/USDC
+  // EG stETH/ETH divided by USDC/ETH = stETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
   const existingPosition = new Position(
@@ -312,7 +312,7 @@ async function _increaseRisk({
     symbol: target.position.collateral.symbol,
   }
 
-  // EG STETH/ETH divided by USDC/ETH = STETH/USDC
+  // EG stETH/ETH divided by USDC/ETH = stETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
   const finalPosition = new Position(
@@ -421,7 +421,7 @@ async function _decreaseRisk({
     symbol: target.position.collateral.symbol,
   }
 
-  // EG STETH/ETH divided by USDC/ETH = STETH/USDC
+  // EG stETH/ETH divided by USDC/ETH = stETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
   const finalPosition = new Position(

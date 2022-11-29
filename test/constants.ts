@@ -1,6 +1,6 @@
 export const tokens = {
   ETH: 'ETH',
-  WBTC: 'WBTC',
-  STETH: 'STETH',
+  wBTC: 'wBTC',
+  stETH: 'stETH',
   USDC: 'USDC',
 } as const

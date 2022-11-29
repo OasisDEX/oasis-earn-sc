@@ -2,22 +2,26 @@ import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
 import { IPosition } from '../../helpers/calculations/Position'
-import { AAVETokens } from '../../operations/aave/tokens'
-import { IPositionTransition } from './IPositionTransition'
+import { AAVETokens, TokenDef } from '../../operations/aave/tokens'
+import { IPositionTransition, IPositionTransitionWithOptionalSwap } from './IPositionTransition'
 import { SwapData } from './SwapData'
 
 export interface IBasePositionTransitionArgs<Tokens> {
   slippage: BigNumber
-  collateralToken: { symbol: Tokens; precision?: number }
-  debtToken: { symbol: Tokens; precision?: number }
+  collateralToken: TokenDef<Tokens>
+  debtToken: TokenDef<Tokens>
   collectSwapFeeFrom?: 'sourceToken' | 'targetToken'
 }
 
-type WithDeposit = {
+export type WithDeposit = {
   depositedByUser?: {
     collateralInWei?: BigNumber
     debtInWei?: BigNumber
   }
+}
+
+export type WithDifferentEntryToken<Tokens> = {
+  entryToken: TokenDef<Tokens>
 }
 
 type WithMultiple = {
@@ -37,8 +41,8 @@ export type Address = string
 
 export interface IViewPositionParams<Tokens> {
   proxy: string
-  collateralToken: { symbol: Tokens; precision?: number }
-  debtToken: { symbol: Tokens; precision?: number }
+  collateralToken: TokenDef<Tokens>
+  debtToken: TokenDef<Tokens>
 }
 
 /**
@@ -82,4 +86,10 @@ export interface IPositionRepository<Addresses> {
     args: IViewPositionParams<AAVETokens>,
     dependencies: IViewPositionDependencies<Addresses>,
   ) => Promise<IPosition>
+  deposit: (
+    args: IBasePositionTransitionArgs<AAVETokens> &
+      WithDeposit &
+      WithDifferentEntryToken<AAVETokens>,
+    dependencies: IPositionTransitionDependencies<Addresses>,
+  ) => Promise<IPositionTransitionWithOptionalSwap>
 }

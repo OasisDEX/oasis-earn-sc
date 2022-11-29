@@ -8,7 +8,7 @@ export const mainnetAAVEAddresses = {
   ETH: ADDRESSES.main.ETH,
   WETH: ADDRESSES.main.WETH,
   stETH: ADDRESSES.main.stETH,
-  wBTC: ADDRESSES.main.WBTC,
+  wBTC: ADDRESSES.main.wBTC,
   USDC: ADDRESSES.main.USDC,
   chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
   aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
@@ -30,9 +30,10 @@ export const getAAVETokenAddresses = (
   const tokenAddresses: Record<AAVETokens, string> = {
     WETH: addresses.WETH,
     ETH: addresses.WETH,
-    STETH: addresses.stETH,
+    stETH: addresses.stETH,
     USDC: addresses.USDC,
-    WBTC: addresses.wBTC,
+    wBTC: addresses.wBTC,
+    DAI: addresses.DAI,
   }
 
   const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]

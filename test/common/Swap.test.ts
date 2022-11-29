@@ -1596,7 +1596,7 @@ describe('Swap', async () => {
 
   describe('between two erc20 tokens, (no DAI in the pair)', () => {
     const fromToken = ADDRESSES.main.WETH
-    const toToken = ADDRESSES.main.WBTC
+    const toToken = ADDRESSES.main.wBTC
     const amountInWei = amountToWei(10)
     const toTokenDecimals = 8
     let amountWithFeeInWei: BigNumber
@@ -1635,7 +1635,7 @@ describe('Swap', async () => {
       await system.common.swap.swapTokens(
         [
           ADDRESSES.main.WETH,
-          ADDRESSES.main.WBTC,
+          ADDRESSES.main.wBTC,
           amountWithFeeInWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,

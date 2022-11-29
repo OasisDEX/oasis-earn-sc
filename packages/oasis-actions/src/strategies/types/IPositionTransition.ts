@@ -1,3 +1,4 @@
+import { Optional } from 'utility-types'
 import { ActionCall } from '../../actions/types/actionCall'
 import { IBaseSimulatedTransition, Swap } from '../../helpers/calculations/Position'
 import { IRiskRatio } from '../../helpers/calculations/RiskRatio'
@@ -12,7 +13,11 @@ export interface IPositionTransition {
   transaction: {
     calls: ActionCall[]
     // operationName: OperationNames
-    operationName: 'CUSTOM_OPERATION'
+    operationName: 'CustomOperation'
   }
   simulation: ISimulatedTransition
+}
+
+export type IPositionTransitionWithOptionalSwap = Pick<IPositionTransition, 'transaction'> & {
+  simulation: Optional<ISimulatedTransition, 'swap'>
 }

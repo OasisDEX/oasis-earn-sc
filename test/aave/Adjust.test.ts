@@ -12,7 +12,7 @@ import {
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
 import { IPositionTransition } from '@oasisdex/oasis-actions/src'
-import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
+import { AAVETokens, TOKEN_DEFINITIONS } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -404,7 +404,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       }
     }
 
-    describe.skip(`Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+    describe.skip(`Increase Multiple: With ${tokens.stETH} collateral & ${tokens.ETH} debt`, function () {
       const depositAmount = amountToWei(new BigNumber(1))
       const adjustMultipleUp = new BigNumber(3.5)
 
@@ -416,7 +416,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             depositOnOpenAmountInWei: ZERO,
             depositOnAdjustAmountInWei: ZERO,
-            symbol: tokens.STETH,
+            symbol: tokens.stETH,
             address: ADDRESSES.main.stETH,
             precision: 18,
             isEth: false,
@@ -562,7 +562,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       })
     })
 
-    describe(`Increase Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
+    describe(`Increase Multiple: With ${tokens.wBTC} collateral & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(1)
       const adjustMultipleUp = new BigNumber(3.5)
 
@@ -574,8 +574,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             depositOnOpenAmountInWei: amountToWei(depositWBTCAmount, 8),
             depositOnAdjustAmountInWei: amountToWei(depositWBTCAmount, 8),
-            symbol: tokens.WBTC,
-            address: ADDRESSES.main.WBTC,
+            symbol: tokens.wBTC,
+            address: ADDRESSES.main.wBTC,
             precision: 8,
             isEth: false,
           },
@@ -641,7 +641,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       })
     })
 
-    describe(`Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+    describe(`Decrease Multiple: With ${tokens.stETH} collateral & ${tokens.ETH} debt`, function () {
       const depositAmount = amountToWei(new BigNumber(1))
       const adjustMultipleDown = new BigNumber(1.5)
 
@@ -653,7 +653,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             depositOnOpenAmountInWei: ZERO,
             depositOnAdjustAmountInWei: ZERO,
-            symbol: tokens.STETH,
+            symbol: tokens.stETH,
             address: ADDRESSES.main.stETH,
             precision: 18,
             isEth: false,
@@ -734,7 +734,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     const multiple = new BigNumber(2)
     const adjustToMultiple = new BigNumber(3.5)
 
-    let aaveStEthPriceInEth: BigNumber
+    let aavestETHPriceInEth: BigNumber
     let system: DeployedSystemInfo
 
     let openTxStatus: boolean
@@ -764,8 +764,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
 
         const proxy = system.common.dsProxy.address
-        const debtToken = { symbol: 'ETH' as const }
-        const collateralToken = { symbol: 'STETH' as const }
+        const debtToken = TOKEN_DEFINITIONS.ETH
+        const collateralToken = TOKEN_DEFINITIONS.stETH
         const currentPosition = await strategies.aave.view(
           {
             proxy,
@@ -784,8 +784,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             },
             slippage,
             multiple,
-            debtToken: { symbol: tokens.ETH },
-            collateralToken: { symbol: tokens.STETH },
+            debtToken: TOKEN_DEFINITIONS.ETH,
+            collateralToken: TOKEN_DEFINITIONS.stETH,
           },
           {
             addresses,
@@ -870,7 +870,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           provider,
         )
 
-        aaveStEthPriceInEth = await aavePriceOracle
+        aavestETHPriceInEth = await aavePriceOracle
           .getAssetPrice(addresses.stETH)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
@@ -878,7 +878,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           ADDRESSES.main.WETH,
           system.common.dsProxy.address,
         )
-        const userStEthReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
+        const userstETHReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
           ADDRESSES.main.stETH,
           system.common.dsProxy.address,
         )
@@ -889,15 +889,15 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           symbol: tokens.ETH,
         }
         const finalCollateral = {
-          amount: new BigNumber(userStEthReserveDataAfterAdjust.currentATokenBalance.toString()),
+          amount: new BigNumber(userstETHReserveDataAfterAdjust.currentATokenBalance.toString()),
           precision: TYPICAL_PRECISION,
-          symbol: tokens.STETH,
+          symbol: tokens.stETH,
         }
 
         finalPosition = new Position(
           finalDebt,
           finalCollateral,
-          aaveStEthPriceInEth,
+          aavestETHPriceInEth,
           openPositionTransition.simulation.position.category,
         )
       } else {

@@ -1,4 +1,3 @@
-import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
   IPosition,
@@ -10,7 +9,7 @@ import {
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
 import { ONE, ZERO } from '@oasisdex/oasis-actions/src'
-import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
+import { AAVETokens, TOKEN_DEFINITIONS } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionRepository'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -36,11 +35,12 @@ import { tokens } from '../constants'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
+import { providers } from 'ethers'
 
 describe(`Strategy | AAVE | Open Position`, async function () {
   let aaveLendingPool: Contract
   let aaveDataProvider: Contract
-  let provider: JsonRpcProvider
+  let provider: providers.JsonRpcProvider
   let config: RuntimeConfig
   let signer: Signer
   let userAddress: Address
@@ -151,8 +151,8 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           },
           slippage,
           multiple,
-          debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
-          collateralToken: { symbol: collateralToken.symbol, precision: collateralToken.precision },
+          debtToken: TOKEN_DEFINITIONS[debtToken.symbol],
+          collateralToken: TOKEN_DEFINITIONS[collateralToken.symbol],
           collectSwapFeeFrom: isFeeFromDebtToken ? 'sourceToken' : 'targetToken',
         },
         {
@@ -259,7 +259,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       }
     }
 
-    describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+    describe(`With ${tokens.stETH} collateral & ${tokens.ETH} debt`, function () {
       const depositEthAmount = amountToWei(new BigNumber(1))
       gasEstimates = gasEstimateHelper()
       let userStEthReserveData: AAVEReserveData
@@ -272,7 +272,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         const setup = await setupOpenPositionTest(
           {
             depositAmountInWei: ZERO,
-            symbol: tokens.STETH,
+            symbol: tokens.stETH,
             address: ADDRESSES.main.stETH,
             precision: 18,
             isEth: false,
@@ -310,7 +310,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         )
       })
 
-      it(`Should deposit all ${tokens.STETH} tokens to aave`, function () {
+      it(`Should deposit all ${tokens.stETH} tokens to aave`, function () {
         expectToBe(
           new BigNumber(userStEthReserveData.currentATokenBalance.toString()).toFixed(0),
           'gte',
@@ -423,7 +423,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
+    describe(`With ${tokens.wBTC} collateral & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
@@ -434,8 +434,8 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         const setup = await setupOpenPositionTest(
           {
             depositAmountInWei: amountToWei(depositWBTCAmount, 8),
-            symbol: tokens.WBTC,
-            address: ADDRESSES.main.WBTC,
+            symbol: tokens.wBTC,
+            address: ADDRESSES.main.wBTC,
             precision: 8,
             isEth: false,
           },
@@ -468,7 +468,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         ])
       })
 
-      it(`Should deposit all ${tokens.WBTC} tokens to aave`, function () {
+      it(`Should deposit all ${tokens.wBTC} tokens to aave`, function () {
         expectToBe(
           new BigNumber(userWBTCReserveData.currentATokenBalance.toString()).toFixed(0),
           'gte',
@@ -498,7 +498,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
+    describe(`With ${tokens.wBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
@@ -509,8 +509,8 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         const setup = await setupOpenPositionTest(
           {
             depositAmountInWei: amountToWei(depositWBTCAmount, 8),
-            symbol: tokens.WBTC,
-            address: ADDRESSES.main.WBTC,
+            symbol: tokens.wBTC,
+            address: ADDRESSES.main.wBTC,
             precision: 8,
             isEth: false,
           },
@@ -543,7 +543,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         ])
       })
 
-      it(`Should deposit all ${tokens.WBTC} tokens to aave`, function () {
+      it(`Should deposit all ${tokens.wBTC} tokens to aave`, function () {
         expectToBe(
           new BigNumber(userWBTCReserveData.currentATokenBalance.toString()).toFixed(0),
           'gte',
@@ -561,7 +561,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it('Should collect fee', async function () {
         const feeRecipientWBTCBalanceAfter = await balanceOf(
-          ADDRESSES.main.WBTC,
+          ADDRESSES.main.wBTC,
           ADDRESSES.main.feeRecipient,
           { config },
         )
@@ -619,8 +619,8 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         )
 
         const proxy = system.common.dsProxy.address
-        const debtToken = { symbol: 'ETH' as const }
-        const collateralToken = { symbol: 'STETH' as const }
+        const debtToken = TOKEN_DEFINITIONS.ETH
+        const collateralToken = TOKEN_DEFINITIONS.stETH
         const currentPosition = await strategies.aave.view(
           {
             proxy,

@@ -22,14 +22,14 @@ export const getOneInchCall =
       console.log('to:', to)
       console.log('fromTokenAmount', response.fromTokenAmount.toString())
       console.log('toTokenAmount', response.toTokenAmount.toString())
-      console.log('slippage %', slippageAsPercentage.toString())
+      console.log(`slippage ${slippageAsPercentage.toString()}%`)
     }
 
     return {
       toTokenAddress: to,
       fromTokenAddress: from,
       minToTokenAmount: new BigNumber(response.toTokenAmount)
-        .times(one.minus(slippage))
+        .times(one.minus(slippage.div(new BigNumber(100))))
         .integerValue(BigNumber.ROUND_DOWN),
       toTokenAmount: new BigNumber(response.toTokenAmount),
       fromTokenAmount: new BigNumber(response.fromTokenAmount),

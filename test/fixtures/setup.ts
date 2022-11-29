@@ -1,4 +1,5 @@
 import init from '../../helpers/init'
+import { providers } from 'ethers'
 
 export async function initialiseConfig() {
   const config = await init()

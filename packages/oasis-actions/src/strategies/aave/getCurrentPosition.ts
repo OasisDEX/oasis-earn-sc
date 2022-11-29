@@ -16,9 +16,10 @@ export async function getCurrentPosition(
   const tokenAddresses = {
     WETH: addresses.WETH,
     ETH: addresses.WETH,
-    STETH: addresses.stETH,
+    stETH: addresses.stETH,
     USDC: addresses.USDC,
-    WBTC: addresses.wBTC,
+    wBTC: addresses.wBTC,
+    DAI: addresses.DAI,
   }
 
   const collateralTokenAddress = tokenAddresses[collateralToken.symbol]

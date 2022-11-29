@@ -5,7 +5,7 @@ export const mainnetAddresses = {
   ETH: ADDRESSES.main.ETH,
   WETH: ADDRESSES.main.WETH,
   stETH: ADDRESSES.main.stETH,
-  wBTC: ADDRESSES.main.WBTC,
+  wBTC: ADDRESSES.main.wBTC,
   USDC: ADDRESSES.main.USDC,
   chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
   aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,

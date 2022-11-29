@@ -68,7 +68,7 @@ export async function close(
 
   const ethPerDAI = aaveFlashloanDaiPriceInEth
   const ethPerCollateralToken = aaveCollateralTokenPriceInEth
-  // EG STETH/ETH divided by ETH/DAI = STETH/ETH times by DAI/ETH = STETH/DAI
+  // EG stETH/ETH divided by ETH/DAI = stETH/ETH times by DAI/ETH = stETH/DAI
   const oracleFLtoCollateralToken = ethPerCollateralToken.div(ethPerDAI)
 
   const amountToFlashloanInWei = amountToWei(

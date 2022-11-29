@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import * as actions from '../../actions'
-import { ZERO } from '../../helpers/constants'
+import { OPERATION_NAMES, ZERO } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { Address } from '../../strategies/types/IPositionRepository'
 import { AAVEStrategyAddresses } from './addresses'
@@ -140,6 +140,6 @@ export async function open(
 
   return {
     calls,
-    operationName: 'CUSTOM_OPERATION', // TODO: Disabled for now until OpRegistry has been rediscussed
+    operationName: OPERATION_NAMES.common.CUSTOM_OPERATION, // TODO: Disabled for now until OpRegistry has been rediscussed
   }
 }
