@@ -94,6 +94,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         config,
         provider,
         blockNumber: _blockNumber,
+        useFallbackSwap: true,
       })
 
       const system = snapshot.deployed.system
@@ -134,14 +135,14 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
       if (!collateralToken.isEth) {
         const COLL_TOKEN = new ethers.Contract(collateralToken.address, ERC20ABI, provider)
-        await COLL_TOKEN.approve(
+        await COLL_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           collateralToken.depositOnOpenAmountInWei.toFixed(0),
         )
       }
       if (!debtToken.isEth) {
         const DEBT_TOKEN = new ethers.Contract(debtToken.address, ERC20ABI, provider)
-        await DEBT_TOKEN.approve(
+        await DEBT_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           debtToken.depositOnOpenAmountInWei.toFixed(0),
         )
@@ -153,7 +154,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
       // Set up the position
       const proxy = system.common.dsProxy.address
-      const openPositionMutation = await strategies.aave.open(
+      const openPositionTransition = await strategies.aave.open(
         {
           depositedByUser: {
             debtInWei: debtToken.depositOnOpenAmountInWei,
@@ -196,7 +197,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            openPositionMutation.transaction.calls,
+            openPositionTransition.transaction.calls,
             OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
@@ -207,14 +208,14 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
       if (!collateralToken.isEth) {
         const COLL_TOKEN = new ethers.Contract(collateralToken.address, ERC20ABI, provider)
-        await COLL_TOKEN.approve(
+        await COLL_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           collateralToken.depositOnAdjustAmountInWei.toFixed(0),
         )
       }
       if (!debtToken.isEth) {
         const DEBT_TOKEN = new ethers.Contract(debtToken.address, ERC20ABI, provider)
-        await DEBT_TOKEN.approve(
+        await DEBT_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           debtToken.depositOnAdjustAmountInWei.toFixed(0),
         )
@@ -262,7 +263,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           symbol: collateralToken.symbol,
         },
         oracle,
-        openPositionMutation.simulation.position.category,
+        openPositionTransition.simulation.position.category,
       )
 
       // Now adjust the position
@@ -561,7 +562,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       })
     })
 
-    describe.skip(`Increase Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
+    describe(`Increase Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(1)
       const adjustMultipleUp = new BigNumber(3.5)
 
@@ -640,7 +641,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       })
     })
 
-    describe.skip(`Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+    describe(`Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
       const depositAmount = amountToWei(new BigNumber(1))
       const adjustMultipleDown = new BigNumber(1.5)
 
@@ -671,8 +672,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           true,
           false,
           userAddress,
-          /** some block numbers  */
-          15696000,
+          15697000,
         )
         txStatus = setup.txStatus
         openTxStatus = setup.openTxStatus
@@ -777,7 +777,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             provider,
           },
         )
-        const openPositionMutation = await strategies.aave.open(
+        const openPositionTransition = await strategies.aave.open(
           {
             depositedByUser: {
               debtInWei: depositAmount,
@@ -802,7 +802,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-              openPositionMutation.transaction.calls,
+              openPositionTransition.transaction.calls,
               OPERATION_NAMES.common.CUSTOM_OPERATION,
             ]),
           },
@@ -898,7 +898,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           finalDebt,
           finalCollateral,
           aaveStEthPriceInEth,
-          openPositionMutation.simulation.position.category,
+          openPositionTransition.simulation.position.category,
         )
       } else {
         this.skip()

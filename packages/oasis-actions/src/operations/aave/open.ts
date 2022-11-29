@@ -98,8 +98,9 @@ export async function open(
       asset: args.collateralTokenAddress,
       amount: args.depositCollateral.amountInWei,
       sumAmounts: true,
+      setAsCollateral: true,
     },
-    [0, 3, 0],
+    [0, 3, 0, 0],
   )
 
   const withdrawDAIFromAAVE = actions.aave.aaveWithdraw({
