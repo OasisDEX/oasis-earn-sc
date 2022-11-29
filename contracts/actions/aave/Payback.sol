@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
@@ -21,9 +22,6 @@ import {
 contract AavePayback is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
-
-  IVariableDebtToken public constant dWETH =
-    IVariableDebtToken(0xF63B34710400CAd3e044cFfDcAb00a0f32E33eCf);
 
   constructor(address _registry) UseStore(_registry) {}
 

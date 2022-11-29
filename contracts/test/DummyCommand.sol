@@ -10,7 +10,6 @@ import { Call } from "../core/types/Common.sol";
 import { Address } from "../libs/Address.sol";
 import { IManager } from "../interfaces/maker/IManager.sol";
 import { MCD_MANAGER } from "../core/constants/Maker.sol";
-import "hardhat/console.sol";
 
 contract DummyCommand {
   using SafeMath for uint256;
