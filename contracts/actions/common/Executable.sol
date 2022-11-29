@@ -12,5 +12,5 @@ interface Executable {
    * @param name The Action name
    * @param returned The bytes value returned by the Action
    **/
-  event Action(string name, bytes returned);
+  event Action(string indexed name, bytes returned);
 }
