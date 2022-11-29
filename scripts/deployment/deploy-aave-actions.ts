@@ -2,7 +2,7 @@ import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 import hre from 'hardhat'
 
 import { AaveBorrow, AaveDeposit, AavePayback, AaveWithdraw } from '../../typechain'
-import { HardhatUtils } from '../common'
+import { HardhatUtils, removeVersion } from '../common'
 
 // TODO: Make this as core deployment script:
 // If there is a populated address for the given address, skip deployment
@@ -16,25 +16,25 @@ async function main() {
   const system = await utils.getDefaultSystem()
 
   system.aaveBorrow = (await utils.deployContract(
-    hre.ethers.getContractFactory(CONTRACT_NAMES.aave.BORROW),
+    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.aave.BORROW)),
     [system.serviceRegistry.address],
   )) as AaveBorrow
   console.log(`aaveBorrow action Deployed: ${system.aaveBorrow.address}`)
 
   system.aaveDeposit = (await utils.deployContract(
-    hre.ethers.getContractFactory(CONTRACT_NAMES.aave.DEPOSIT),
+    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.aave.DEPOSIT)),
     [system.serviceRegistry.address],
   )) as AaveDeposit
   console.log(`aaveDeposit action Deployed: ${system.aaveDeposit.address}`)
 
   system.aaveWithdraw = (await utils.deployContract(
-    hre.ethers.getContractFactory(CONTRACT_NAMES.aave.WITHDRAW),
+    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.aave.WITHDRAW)),
     [system.serviceRegistry.address],
   )) as AaveWithdraw
   console.log(`aaveWithdraw action Deployed: ${system.aaveWithdraw.address}`)
 
   system.aavePayback = (await utils.deployContract(
-    hre.ethers.getContractFactory(CONTRACT_NAMES.aave.PAYBACK),
+    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.aave.PAYBACK)),
     [system.serviceRegistry.address],
   )) as AavePayback
   console.log(`aavePayback action Deployed: ${system.aavePayback.address}`)
