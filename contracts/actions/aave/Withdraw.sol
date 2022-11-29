@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
@@ -27,7 +28,7 @@ contract AaveWithdraw is Executable, UseStore {
 
     store().write(bytes32(amountWithdrawn));
 
-    emit Action(WITHDRAW_ACTION, bytes32(amountWithdrawn));
+    emit Action(WITHDRAW_ACTION, bytes(abi.encode(amountWithdrawn)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (WithdrawData memory params) {

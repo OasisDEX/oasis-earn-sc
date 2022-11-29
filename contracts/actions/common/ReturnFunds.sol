@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
@@ -29,6 +30,6 @@ contract ReturnFunds is Executable {
       IERC20(returnData.asset).safeTransfer(owner, amount);
     }
 
-    emit Action(RETURN_FUNDS_ACTION, bytes32(abi.encodePacked(amount, returnData.asset)));
+    emit Action(RETURN_FUNDS_ACTION, bytes(abi.encode(amount, returnData.asset)));
   }
 }

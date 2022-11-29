@@ -32,7 +32,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
    * @param name The address initiating the deposit
    * @param calls An array of Action calls the operation must execute
    **/
-  event Operation(string name, Call[] calls);
+  event Operation(string indexed name, Call[] calls);
 
   constructor(ServiceRegistry _registry) {
     registry = _registry;

@@ -34,13 +34,13 @@ contract MakerGenerate is Executable, UseStore {
       address(this)
     );
 
-    bytes32 amountGenerated = _generate(generateData);
-    store().write(amountGenerated);
+    uint256 amountGenerated = _generate(generateData);
+    store().write(bytes32(amountGenerated));
 
-    emit Action(GENERATE_ACTION, amountGenerated);
+    emit Action(GENERATE_ACTION, bytes(abi.encode(amountGenerated)));
   }
 
-  function _generate(GenerateData memory data) internal returns (bytes32) {
+  function _generate(GenerateData memory data) internal returns (uint256) {
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
     IVat vat = manager.vat();
 
@@ -65,7 +65,7 @@ contract MakerGenerate is Executable, UseStore {
 
     IDaiJoin(daiJoin).exit(data.to, data.amount);
 
-    return bytes32(data.amount);
+    return data.amount;
   }
 
   function _getDrawDart(
