@@ -16,7 +16,7 @@
   "scripts": {
     "deploy": "npx hardhat run",
     "test": "npx hardhat test && yarn workspaces run test",
-    "test:gas": "USE_GAS_ESTIMATES=1 yarn test",
+    "test:gas": "REPORT_GAS=1 yarn test",
     "test:1inch": "RUN_1INCH_TESTS=1 yarn test",
     "test:1inch:gas": "RUN_1INCH_TESTS=1 yarn test:gas",
     "lint": "eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
