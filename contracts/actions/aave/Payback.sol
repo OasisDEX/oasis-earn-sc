@@ -46,6 +46,6 @@ contract AavePayback is Executable, UseStore {
     );
 
     store().write(bytes32(payback.amount));
-    emit Action(PAYBACK_ACTION, bytes32(payback.amount));
+    emit Action(PAYBACK_ACTION, bytes(abi.encode(payback.amount)));
   }
 }

@@ -39,7 +39,7 @@ contract UnwrapEth is Executable, UseStore {
 
     weth.withdraw(unwrapData.amount);
 
-    emit Action(UNWRAP_ETH, bytes32(unwrapData.amount));
+    emit Action(UNWRAP_ETH, bytes(abi.encode(unwrapData.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (UnwrapEthData memory params) {

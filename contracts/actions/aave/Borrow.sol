@@ -37,7 +37,7 @@ contract AaveBorrow is Executable, UseStore {
     );
 
     store().write(bytes32(borrow.amount));
-    emit Action(BORROW_ACTION, bytes32(borrow.amount));
+    emit Action(BORROW_ACTION, bytes(abi.encode(borrow.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (BorrowData memory params) {

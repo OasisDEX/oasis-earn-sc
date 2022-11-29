@@ -27,7 +27,7 @@ contract AaveWithdraw is Executable, UseStore {
 
     store().write(bytes32(amountWithdrawn));
 
-    emit Action(WITHDRAW_ACTION, bytes32(amountWithdrawn));
+    emit Action(WITHDRAW_ACTION, bytes(abi.encode(amountWithdrawn)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (WithdrawData memory params) {

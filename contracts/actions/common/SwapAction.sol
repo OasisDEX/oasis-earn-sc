@@ -36,7 +36,7 @@ contract SwapAction is Executable, UseStore {
 
     store().write(bytes32(received));
 
-    emit Action(SWAP, bytes32(received));
+    emit Action(SWAP, bytes(abi.encode(received)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (SwapData memory params) {

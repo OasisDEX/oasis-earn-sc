@@ -37,7 +37,7 @@ contract OperationsRegistry {
    * @dev Emitted when a new operation is added or an existing operation is updated
    * @param name The Operation name
    **/
-  event OperationAdded(string name);
+  event OperationAdded(string indexed name);
 
   /**
    * @notice Adds an Operation's Actions keyed to a an operation name
