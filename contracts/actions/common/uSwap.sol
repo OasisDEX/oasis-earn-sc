@@ -211,6 +211,7 @@ contract uSwap {
 
   function swapTokens(SwapData calldata swapData) public returns (uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
+
     uint256 amountFrom = swapData.amount;
 
     if (swapData.collectFeeInFromToken) {

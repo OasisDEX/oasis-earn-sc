@@ -33,6 +33,7 @@ contract WrapEth is Executable, UseStore {
     if (wrapData.amount == type(uint256).max) {
       wrapData.amount = address(this).balance;
     }
+
     IWETH(registry.getRegisteredService(WETH)).deposit{ value: wrapData.amount }();
 
     emit Action(WRAP_ETH, bytes32(wrapData.amount));

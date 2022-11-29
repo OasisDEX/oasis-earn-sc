@@ -23,8 +23,10 @@ export function pullToken(args: { amount: BigNumber; asset: string; from: string
 }
 
 export function setApproval(
-  args: { amount: BigNumber | 0; asset: string; delegate: string },
-  paramsMapping: [asset: number, delegate: number, amount: number] = [0, 0, 0],
+  args: { amount: BigNumber | 0; asset: string; delegate: string; sumAmounts: boolean },
+  paramsMapping: [asset: number, delegate: number, amount: number, sumAmounts: number] = [
+    0, 0, 0, 0,
+  ],
 ) {
   return createAction(
     getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
@@ -34,6 +36,7 @@ export function setApproval(
         asset: args.asset,
         delegate: args.delegate,
         amount: args.amount.toFixed(0),
+        sumAmounts: args.sumAmounts,
       },
       paramsMapping,
     ],

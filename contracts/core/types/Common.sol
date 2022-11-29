@@ -22,6 +22,7 @@ struct SetApprovalData {
   address asset;
   address delegate;
   uint256 amount;
+  bool sumAmounts;
 }
 
 struct SwapData {

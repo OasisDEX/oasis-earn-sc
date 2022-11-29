@@ -16,7 +16,7 @@
   "scripts": {
     "deploy": "npx hardhat run",
     "test": "npx hardhat test && yarn workspaces run test",
-    "test:gas": "USE_GAS_ESTIMATES=1 yarn test",
+    "test:gas": "REPORT_GAS=1 yarn test",
     "test:1inch": "RUN_1INCH_TESTS=1 yarn test",
     "test:1inch:gas": "RUN_1INCH_TESTS=1 yarn test:gas",
     "lint": "eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
@@ -29,9 +29,9 @@
     "deploy:fallback": "yarn compile && npx hardhat deploy --usefallbackswap --network local --debug",
     "deploy:1inch": "yarn compile && npx hardhat deploy --network local --debug",
     "steth": "npx hardhat createPosition --network local",
-    "steth:fallback": "npx hardhat createPosition --dummyswap --network local",
+    "steth:fallback": "npx hardhat createPosition --usefallbackswap --network local",
     "close": "npx hardhat closePosition --network local",
-    "close:fallback": "npx hardhat closePosition --dummyswap --network local",
+    "close:fallback": "npx hardhat closePosition --usefallbackswap --network local",
     "update-block": "node update-block-number.ts"
   },
   "devDependencies": {
@@ -63,8 +63,8 @@
     "eslint-plugin-unused-imports": "^2.0.0",
     "ethereum-waffle": "^3.1.1",
     "ethers": "^5.0.19",
-    "googleapis": "109.0.1",
-    "hardhat": "2.8.0",
+    "googleapis": "107",
+    "hardhat": "2.9.5",
     "hardhat-abi-exporter": "^2.2.1",
     "hardhat-contract-sizer": "^2.0.1",
     "hardhat-gas-reporter": "^1.0.4",
@@ -82,6 +82,7 @@
     "ts-node": "^10.4.0",
     "ts-try": "^0.2.0",
     "typescript": "^4.7.3",
+    "utility-types": "^3.10.0",
     "web3": "^1.3.5"
   },
   "dependencies": {

@@ -3,11 +3,20 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { RuntimeConfig } from './types/common'
 
-export default async function init(hre?: HardhatRuntimeEnvironment): Promise<RuntimeConfig> {
-  const provider = hre ? hre.ethers.provider : (await import('hardhat')).ethers.provider
-  // const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545', 2137)
-  const signer = provider.getSigner(0)
-  const address = await signer.getAddress()
+export default async function init(
+  hre?: HardhatRuntimeEnvironment,
+  impersonateAccount?: (
+    provider: providers.JsonRpcProvider,
+  ) => Promise<{ signer: providers.JsonRpcSigner; address: string }>,
+): Promise<RuntimeConfig> {
+  const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
+  const provider = ethers.provider
+  let signer = provider.getSigner()
+  let address = await signer.getAddress()
+
+  if (impersonateAccount) {
+    ;({ signer, address } = await impersonateAccount(provider))
+  }
 
   return {
     provider,

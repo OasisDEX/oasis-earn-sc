@@ -1,10 +1,4 @@
-import {
-  ADDRESSES,
-  CONTRACT_NAMES,
-  OPERATION_NAMES,
-  Position,
-  strategies,
-} from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, Position, strategies } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -15,10 +9,11 @@ import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init from '../../helpers/init'
 import { getOrCreateProxy } from '../../helpers/proxy'
-import { getOneInchCall } from '../../helpers/swap/OneIchCall'
+import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { balanceOf } from '../../helpers/utils'
 import { one, zero } from '../../scripts/common'
+import { mainnetAddresses } from '../../test/addresses'
 
 export function amountFromWei(amount: BigNumber.Value, precision = 18) {
   return new BigNumber(amount || 0).div(new BigNumber(10).pow(precision))
@@ -26,7 +21,7 @@ export function amountFromWei(amount: BigNumber.Value, precision = 18) {
 
 task('closePosition', 'Close stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
-  .addFlag('dummyswap', 'Use dummy swap')
+  .addFlag('usefallbackswap', 'Use fallback swap')
   .setAction(async (taskArgs, hre) => {
     if (!process.env.SERVICE_REGISTRY_ADDRESS) {
       throw new Error('SERVICE_REGISTRY_ADDRESS env variable is not set')
@@ -72,16 +67,9 @@ task('closePosition', 'Close stETH position on AAVE')
 
     console.log('Operation executor address', operationExecutorAddress)
 
-    const mainnetAddresses = {
-      DAI: ADDRESSES.main.DAI,
-      ETH: ADDRESSES.main.ETH,
-      WETH: ADDRESSES.main.WETH,
-      stETH: ADDRESSES.main.stETH,
-      chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-      aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-      aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
+    const addresses = {
+      ...mainnetAddresses,
       operationExecutor: operationExecutorAddress,
-      aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
     }
     const aaveLendingPool = new hre.ethers.Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -123,7 +111,7 @@ task('closePosition', 'Close stETH position on AAVE')
 
     console.log(`Proxy Address for account: ${proxyAddress}`)
 
-    const swapData = taskArgs.dummyswap ? oneInchCallMock() : getOneInchCall(swapAddress)
+    const swapData = taskArgs.usefallbackswap ? oneInchCallMock() : getOneInchCall(swapAddress)
 
     const beforeCloseUserAccountData: AAVEAccountData = await aaveLendingPool.getUserAccountData(
       dsProxy.address,
@@ -133,8 +121,14 @@ task('closePosition', 'Close stETH position on AAVE')
       await aaveDataProvider.getUserReserveData(ADDRESSES.main.stETH, dsProxy.address)
 
     const positionAfterOpen = new Position(
-      { amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()) },
-      { amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()) },
+      {
+        amount: new BigNumber(beforeCloseUserAccountData.totalDebtETH.toString()),
+        symbol: 'ETH',
+      },
+      {
+        amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
+        symbol: 'STETH',
+      },
       one,
       {
         dustLimit: new BigNumber(0),
@@ -143,33 +137,36 @@ task('closePosition', 'Close stETH position on AAVE')
       },
     )
 
-    const strategyReturn = await strategies.aave.closeStEth(
+    const positionMutation = await strategies.aave.close(
       {
-        stEthAmountLockedInAave,
+        collateralAmountLockedInProtocolInWei: stEthAmountLockedInAave,
         slippage,
+        debtToken: { symbol: 'ETH' },
+        collateralToken: { symbol: 'STETH' },
       },
       {
-        addresses: mainnetAddresses,
-        position: positionAfterOpen,
+        addresses: addresses,
+        currentPosition: positionAfterOpen,
         provider: config.provider,
         getSwapData: swapData,
-        dsProxy: dsProxy.address,
+        proxy: dsProxy.address,
+        user: config.address,
       },
     )
 
     const operationExecutor = await hre.ethers.getContractAt(
       CONTRACT_NAMES.common.OPERATION_EXECUTOR,
-      mainnetAddresses.operationExecutor,
+      addresses.operationExecutor,
       config.signer,
     )
 
     const [txStatus, tx] = await executeThroughProxy(
       dsProxy.address,
       {
-        address: mainnetAddresses.operationExecutor,
+        address: addresses.operationExecutor,
         calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-          strategyReturn.calls,
-          OPERATION_NAMES.common.CUSTOM_OPERATION,
+          positionMutation.transaction.calls,
+          positionMutation.transaction.operationName,
         ]),
       },
       config.signer,

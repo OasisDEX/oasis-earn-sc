@@ -1,69 +1,67 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
+import { IOperation } from '../../strategies/types/IOperation'
+import { AAVEStrategyAddresses } from './addresses'
 
-export interface DecreaseMultipleStEthAddresses {
-  DAI: string
-  ETH: string
-  WETH: string
-  stETH: string
-  operationExecutor: string
-  chainlinkEthUsdPriceFeed: string
-  aavePriceOracle: string
-  aaveLendingPool: string
-}
-
-export async function decreaseMultipleStEth(
+export async function decreaseMultiple(
   args: {
     flashloanAmount: BigNumber
-    withdrawAmount: BigNumber
+    withdrawAmountInWei: BigNumber
     receiveAtLeast: BigNumber
     fee: number
     swapData: string | number
-    stEthSwapAmount: BigNumber
-    dsProxy: string
+    swapAmountInWei: BigNumber
+    collectFeeFrom: 'sourceToken' | 'targetToken'
+    collateralTokenAddress: string
+    debtTokenAddress: string
+    proxy: string
+    user: string
   },
-  addresses: DecreaseMultipleStEthAddresses,
-) {
+  addresses: AAVEStrategyAddresses,
+): Promise<IOperation> {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
     delegate: addresses.aaveLendingPool,
+    sumAmounts: false,
   })
 
   const depositDaiInAAVE = actions.aave.aaveDeposit({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
+    sumAmounts: false,
   })
 
-  const withdrawStEthFromAAVE = actions.aave.aaveWithdraw({
-    asset: addresses.stETH,
-    amount: args.withdrawAmount,
-    to: args.dsProxy,
+  const withdrawCollateralFromAAVE = actions.aave.aaveWithdraw({
+    amount: args.withdrawAmountInWei,
+    asset: args.collateralTokenAddress,
+    to: args.proxy,
   })
 
-  const swapSTETHforETH = actions.common.swap({
-    fromAsset: addresses.stETH,
-    toAsset: addresses.WETH,
-    amount: args.stEthSwapAmount,
+  const swapCollateralTokensForDebtTokens = actions.common.swap({
+    fromAsset: args.collateralTokenAddress,
+    toAsset: args.debtTokenAddress,
+    amount: args.swapAmountInWei,
     receiveAtLeast: args.receiveAtLeast,
     fee: args.fee,
     withData: args.swapData,
-    collectFeeInFromToken: false,
+    collectFeeInFromToken: args.collectFeeFrom === 'sourceToken',
   })
 
-  const setWethApprovalOnLendingPool = actions.common.setApproval(
+  const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
     {
       amount: 0,
-      asset: addresses.WETH,
+      asset: args.debtTokenAddress,
       delegate: addresses.aaveLendingPool,
+      sumAmounts: false,
     },
-    [0, 0, 3],
+    [0, 0, 3, 0],
   )
 
   const paybackInAAVE = actions.aave.aavePayback(
     {
-      asset: addresses.WETH,
+      asset: args.debtTokenAddress,
       amount: new BigNumber(0),
       paybackAll: false,
     },
@@ -84,13 +82,13 @@ export async function decreaseMultipleStEth(
     calls: [
       setDaiApprovalOnLendingPool,
       depositDaiInAAVE,
-      withdrawStEthFromAAVE,
-      swapSTETHforETH,
-      setWethApprovalOnLendingPool,
+      withdrawCollateralFromAAVE,
+      swapCollateralTokensForDebtTokens,
+      setDebtTokenApprovalOnLendingPool,
       paybackInAAVE,
       withdrawDAIFromAAVE,
     ],
   })
 
-  return [takeAFlashLoan]
+  return { calls: [takeAFlashLoan], operationName: 'CUSTOM_OPERATION' }
 }

@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { ONE, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -8,56 +8,46 @@ import { Contract, Signer } from 'ethers'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
-import { getOneInchCall } from '../../helpers/swap/OneIchCall'
+import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei } from '../../helpers/utils'
 import { zero } from '../../scripts/common'
+import { mainnetAddresses } from '../addresses'
+import { testBlockNumber } from '../config'
 import { deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
 
 describe(`Strategy | AAVE | Reopen Position`, async () => {
-  const depositAmount = amountToWei(new BigNumber(10))
+  const depositAmountInWei = amountToWei(new BigNumber(1))
   const multiple = new BigNumber(2)
-  const slippage = new BigNumber(0.5)
+  const slippage = new BigNumber(0.1)
+  const debtToken = { symbol: 'ETH' as const, precision: 18 }
+  const collateralToken = { symbol: 'STETH' as const, precision: 18 }
 
   let provider: JsonRpcProvider
   let config: RuntimeConfig
   let signer: Signer
 
   let dependencies: Pick<
-    Parameters<typeof strategies.aave.openStEth>[1],
-    'dsProxy' | 'provider' | 'addresses' | 'getSwapData'
+    Parameters<typeof strategies.aave.open>[1],
+    'proxy' | 'provider' | 'addresses' | 'getSwapData' | 'user'
   >
   let operationExecutor: Contract
-
-  const mainnetAddresses = {
-    DAI: ADDRESSES.main.DAI,
-    ETH: ADDRESSES.main.ETH,
-    WETH: ADDRESSES.main.WETH,
-    stETH: ADDRESSES.main.stETH,
-    aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
-    chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-    aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-    aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
-  }
 
   before(async () => {
     ;({ config, provider, signer } = await loadFixture(initialiseConfig))
   })
 
   describe('On forked chain', () => {
-    const testBlockWithSufficientLiquidityInUswapPool = 15690000
-
     before(async () => {
-      const snapshot = await restoreSnapshot(
+      const { snapshot } = await restoreSnapshot({
         config,
         provider,
-        testBlockWithSufficientLiquidityInUswapPool,
-        true,
-        false,
-      )
+        useFallbackSwap: true,
+        blockNumber: testBlockNumber,
+      })
 
       const system = snapshot.deployed.system
 
@@ -72,13 +62,14 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         addresses,
         provider,
         getSwapData: oneInchCallMock(new BigNumber(0.9759)),
-        dsProxy: system.common.dsProxy.address,
+        proxy: system.common.dsProxy.address,
+        user: config.address,
       }
     })
 
     it('Should open new position', async () => {
-      const beforeTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const beforeTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -89,11 +80,16 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         'Position should be empty at the beginning',
       )
 
-      const openStrategy = await strategies.aave.openStEth(
+      const openPositionTransition = await strategies.aave.open(
         {
-          depositAmount,
+          depositedByUser: {
+            debtInWei: depositAmountInWei,
+          },
           slippage,
           multiple,
+          debtToken,
+          collateralToken,
+          collectSwapFeeFrom: 'sourceToken',
         },
         {
           ...dependencies,
@@ -102,20 +98,20 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       )
 
       const [transactionStatus] = await executeThroughProxy(
-        dependencies.dsProxy,
+        dependencies.proxy,
         {
           address: operationExecutor.address,
           calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-            openStrategy.calls,
-            OPERATION_NAMES.aave.OPEN_POSITION,
+            openPositionTransition.transaction.calls,
+            OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
         signer,
-        depositAmount.toString(),
+        depositAmountInWei.toString(),
       )
 
-      const afterTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const afterTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -123,15 +119,18 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       expectToBe(
         afterTransaction.collateral.amount,
         'gte',
-        openStrategy.simulation.position.collateral.amount,
+        openPositionTransition.simulation.position.collateral.amount,
         'Collateral cannot be smaller than simulation. Can be greater because of slippage',
       )
-      expectToBeEqual(afterTransaction.debt.amount, openStrategy.simulation.position.debt.amount)
+      expectToBeEqual(
+        afterTransaction.debt.amount,
+        openPositionTransition.simulation.position.debt.amount,
+      )
     })
 
     it('Should close opened position', async () => {
-      const beforeTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const beforeTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -141,24 +140,31 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         zero,
         'Position should exist at the beginning',
       )
-
-      const closeStrategy = await strategies.aave.closeStEth(
+      const mockMarketPriceOnClose = ONE.div(new BigNumber(0.9759))
+      const closePositionTransition = await strategies.aave.close(
         {
-          stEthAmountLockedInAave: beforeTransaction.collateral.amount,
+          collateralAmountLockedInProtocolInWei: beforeTransaction.collateral.amount,
+          debtToken,
+          collateralToken,
           slippage,
+          collectSwapFeeFrom: 'targetToken',
         },
         {
           ...dependencies,
-          position: beforeTransaction,
+          currentPosition: beforeTransaction,
+          getSwapData: oneInchCallMock(mockMarketPriceOnClose, {
+            from: collateralToken.precision,
+            to: debtToken.precision,
+          }),
         },
       )
 
       const [closeTxStatus] = await executeThroughProxy(
-        dependencies.dsProxy,
+        dependencies.proxy,
         {
           address: operationExecutor.address,
           calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-            closeStrategy.calls,
+            closePositionTransition.transaction.calls,
             OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
@@ -168,8 +174,8 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       expect(closeTxStatus, 'Transaction should pass.').to.be.true
 
-      const afterTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const afterTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -183,8 +189,8 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     })
 
     it('Should re-open closed position', async () => {
-      const beforeTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const beforeTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -195,11 +201,16 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         'Position could have max 2 wei left if is closed',
       )
 
-      const reopenStrategy = await strategies.aave.openStEth(
+      const reopenPositionTransition = await strategies.aave.open(
         {
-          depositAmount,
+          depositedByUser: {
+            debtInWei: depositAmountInWei,
+          },
           slippage,
           multiple,
+          debtToken,
+          collateralToken,
+          collectSwapFeeFrom: 'sourceToken',
         },
         {
           ...dependencies,
@@ -208,20 +219,20 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       )
 
       const [transactionStatus] = await executeThroughProxy(
-        dependencies.dsProxy,
+        dependencies.proxy,
         {
           address: operationExecutor.address,
           calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-            reopenStrategy.calls,
-            OPERATION_NAMES.aave.OPEN_POSITION,
+            reopenPositionTransition.transaction.calls,
+            OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
         signer,
-        depositAmount.toFixed(0),
+        depositAmountInWei.toFixed(0),
       )
 
-      const afterTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const afterTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -229,7 +240,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       expectToBe(
         afterTransaction.collateral.amount,
         'gte',
-        reopenStrategy.simulation.position.collateral.amount,
+        reopenPositionTransition.simulation.position.collateral.amount,
         'Collateral cannot be smaller than simulation. Can be greater because of slippage',
       )
     })
@@ -255,7 +266,8 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           addresses,
           provider,
           getSwapData: getOneInchCall(system.common.swap.address),
-          dsProxy: system.common.dsProxy.address,
+          proxy: system.common.dsProxy.address,
+          user: config.address,
         }
       } else {
         this.skip()
@@ -263,8 +275,8 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     })
 
     it('Should open new position', async () => {
-      const beforeTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const beforeTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -275,11 +287,16 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         'Position should be empty at the beginning',
       )
 
-      const openStrategy = await strategies.aave.openStEth(
+      const openPositionTransition = await strategies.aave.open(
         {
-          depositAmount,
+          depositedByUser: {
+            debtInWei: depositAmountInWei,
+          },
           slippage,
           multiple,
+          debtToken,
+          collateralToken,
+          collectSwapFeeFrom: 'sourceToken',
         },
         {
           ...dependencies,
@@ -288,20 +305,20 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       )
 
       const [transactionStatus] = await executeThroughProxy(
-        dependencies.dsProxy,
+        dependencies.proxy,
         {
           address: operationExecutor.address,
           calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-            openStrategy.calls,
+            openPositionTransition.transaction.calls,
             OPERATION_NAMES.aave.OPEN_POSITION,
           ]),
         },
         signer,
-        depositAmount.toString(),
+        depositAmountInWei.toString(),
       )
 
-      const afterTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const afterTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -309,15 +326,18 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       expectToBe(
         afterTransaction.collateral.amount,
         'gte',
-        openStrategy.simulation.position.collateral.amount,
+        openPositionTransition.simulation.position.collateral.amount,
         'Collateral cannot be smaller than simulation. Can be greater because of slippage',
       )
-      expectToBeEqual(afterTransaction.debt.amount, openStrategy.simulation.position.debt.amount)
+      expectToBeEqual(
+        afterTransaction.debt.amount,
+        openPositionTransition.simulation.position.debt.amount,
+      )
     })
 
     it('Should close opened position', async () => {
-      const beforeTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const beforeTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -328,23 +348,26 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         'Position should exist at the beginning',
       )
 
-      const closeStrategy = await strategies.aave.closeStEth(
+      const closePositionTransition = await strategies.aave.close(
         {
-          stEthAmountLockedInAave: beforeTransaction.collateral.amount,
+          collateralAmountLockedInProtocolInWei: beforeTransaction.collateral.amount,
           slippage,
+          debtToken,
+          collateralToken,
+          collectSwapFeeFrom: 'targetToken',
         },
         {
           ...dependencies,
-          position: beforeTransaction,
+          currentPosition: beforeTransaction,
         },
       )
 
       const [closeTxStatus] = await executeThroughProxy(
-        dependencies.dsProxy,
+        dependencies.proxy,
         {
           address: operationExecutor.address,
           calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-            closeStrategy.calls,
+            closePositionTransition.transaction.calls,
             OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
@@ -354,8 +377,8 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       expect(closeTxStatus, 'Transaction should pass.').to.be.true
 
-      const afterTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const afterTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -369,8 +392,8 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     })
 
     it('Should re-open closed position', async () => {
-      const beforeTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const beforeTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -381,11 +404,16 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         'Position could have max 2 wei left if is closed',
       )
 
-      const reopenStrategy = await strategies.aave.openStEth(
+      const reopenPositionTransition = await strategies.aave.open(
         {
-          depositAmount,
+          depositedByUser: {
+            debtInWei: depositAmountInWei,
+          },
           slippage,
           multiple,
+          debtToken,
+          collateralToken,
+          collectSwapFeeFrom: 'sourceToken',
         },
         {
           ...dependencies,
@@ -394,20 +422,20 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       )
 
       const [transactionStatus] = await executeThroughProxy(
-        dependencies.dsProxy,
+        dependencies.proxy,
         {
           address: operationExecutor.address,
           calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-            reopenStrategy.calls,
-            OPERATION_NAMES.aave.OPEN_POSITION,
+            reopenPositionTransition.transaction.calls,
+            OPERATION_NAMES.common.CUSTOM_OPERATION,
           ]),
         },
         signer,
-        depositAmount.toFixed(0),
+        depositAmountInWei.toFixed(0),
       )
 
-      const afterTransaction = await strategies.aave.getCurrentStEthEthPosition(
-        { proxyAddress: dependencies.dsProxy },
+      const afterTransaction = await strategies.aave.view(
+        { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies },
       )
 
@@ -415,7 +443,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       expectToBe(
         afterTransaction.collateral.amount,
         'gte',
-        reopenStrategy.simulation.position.collateral.amount,
+        reopenPositionTransition.simulation.position.collateral.amount,
         'Collateral cannot be smaller than simulation. Can be greater because of slippage',
       )
     })
