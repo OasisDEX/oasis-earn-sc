@@ -1,4 +1,5 @@
-pragma solidity ^0.8.1;
+// SPDX-License-Identifier: AGPL-3.0-or-later
+pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";

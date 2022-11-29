@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
 import { Executable } from "../actions/common/Executable.sol";
@@ -6,7 +7,6 @@ import { SetApprovalData } from "../core/types/Common.sol";
 import { UseStore, Read, Write } from "../actions/common/UseStore.sol";
 import { OperationStorage } from "../core/OperationStorage.sol";
 import { SET_APPROVAL_ACTION } from "../core/constants/Common.sol";
-import "hardhat/console.sol";
 
 contract DummyAction is Executable, UseStore {
   using SafeERC20 for IERC20;
