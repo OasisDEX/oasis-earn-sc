@@ -133,7 +133,7 @@ const config: HardhatUserConfig = {
     flat: true,
     spacing: 2,
     pretty: true,
-  }
+  },
 }
 
 export default config

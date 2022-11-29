@@ -383,33 +383,38 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     ],
     Array(8).fill(false),
   )
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
-    takeFlashLoanHash,
-    setApprovalHash,
-    aaveDepositHash,
-    aaveBorrowHash,
-    wrapEthHash,
-    swapActionHash,
-    setApprovalHash,
-    aaveDepositHash,
-    aaveWithdrawHash,
-  ],
-  Array(9).fill(false),
+  await operationsRegistry.addOp(
+    OPERATION_NAMES.aave.OPEN_POSITION,
+    [
+      takeFlashLoanHash,
+      setApprovalHash,
+      aaveDepositHash,
+      aaveBorrowHash,
+      wrapEthHash,
+      swapActionHash,
+      setApprovalHash,
+      aaveDepositHash,
+      aaveWithdrawHash,
+    ],
+    Array(9).fill(false),
   )
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.CLOSE_POSITION, [
-    takeFlashLoanHash,
-    setApprovalHash,
-    aaveDepositHash,
-    aaveWithdrawHash,
-    swapActionHash,
-    setApprovalHash,
-    aavePaybackHash,
-    aaveWithdrawHash,
-    unwrapEthHash,
-    returnFundsActionHash,
-  ],
-  Array(10).fill(false))
+  await operationsRegistry.addOp(
+    OPERATION_NAMES.aave.CLOSE_POSITION,
+    [
+      takeFlashLoanHash,
+      setApprovalHash,
+      aaveDepositHash,
+      aaveWithdrawHash,
+      swapActionHash,
+      setApprovalHash,
+      aavePaybackHash,
+      aaveWithdrawHash,
+      unwrapEthHash,
+      returnFundsActionHash,
+    ],
+    Array(10).fill(false),
+  )
 
   const deployedContracts = {
     common: {

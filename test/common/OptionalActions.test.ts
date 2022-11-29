@@ -139,9 +139,15 @@ describe(`Common | Optional Actions`, async () => {
 
       expect(success).to.be.eq(true)
       expect(actionLogs.length).to.be.eq(3)
-      expect(actionLogs[0].args[0]).to.be.eq('DummyActionEvent')
-      expect(actionLogs[1].args[0]).to.be.eq('DummyOptionalActionEvent')
-      expect(actionLogs[2].args[0]).to.be.eq('DummyActionEvent')
+      expect(actionLogs[0].args[0].hash).to.be.eq(
+        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
+      )
+      expect(actionLogs[1].args[0].hash).to.be.eq(
+        ethers.utils.keccak256(utils.toUtf8Bytes('DummyOptionalActionEvent')),
+      )
+      expect(actionLogs[2].args[0].hash).to.be.eq(
+        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
+      )
     })
   })
 
@@ -160,8 +166,12 @@ describe(`Common | Optional Actions`, async () => {
 
       expect(success).to.be.eq(true)
       expect(actionLogs.length).to.be.eq(2)
-      expect(actionLogs[0].args[0]).to.be.eq('DummyActionEvent')
-      expect(actionLogs[1].args[0]).to.be.eq('DummyActionEvent')
+      expect(actionLogs[0].args[0].hash).to.be.eq(
+        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
+      )
+      expect(actionLogs[1].args[0].hash).to.be.eq(
+        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
+      )
     })
   })
 
