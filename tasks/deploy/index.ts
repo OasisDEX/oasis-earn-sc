@@ -59,20 +59,28 @@ task(
       operationsRegistryAddress,
     })
 
-    const { pullTokenHash, sendTokenHash, setApprovalHash, takeAFlashloanHash, swapActionHash } =
-      await addCommonActionsToRegistry(registry, {
-        pullTokenActionAddress,
-        sendTokenAddress,
-        setApprovalAddress,
-        flActionAddress,
-        swapActionAddress,
-        swapAddress: taskArgs.usefallbackswap ? uSwapAddress : swapAddress,
-        wrapActionAddress,
-        unwrapActionAddress,
-        returnFundsActionAddress,
-      })
+    const {
+      pullTokenHash,
+      sendTokenHash,
+      setApprovalHash,
+      takeAFlashloanHash,
+      swapActionHash,
+      wrapEthHash,
+      unwrapEthHash,
+      returnFundsHash,
+    } = await addCommonActionsToRegistry(registry, {
+      pullTokenActionAddress,
+      sendTokenAddress,
+      setApprovalAddress,
+      flActionAddress,
+      swapActionAddress,
+      swapAddress: taskArgs.usefallbackswap ? uSwapAddress : swapAddress,
+      wrapActionAddress,
+      unwrapActionAddress,
+      returnFundsActionAddress,
+    })
 
-    const { depositInAAVEHash, borromFromAAVEHash, withdrawFromAAVEHash } =
+    const { depositInAAVEHash, borromFromAAVEHash, withdrawFromAAVEHash, paybackToAAVEHash } =
       await addAAVEActionsToRegistry(registry, {
         depositInAAVEAddress,
         borrowFromAAVEAddress,
@@ -91,10 +99,14 @@ task(
       takeAFlashloanHash,
       setApprovalHash,
       depositInAAVEHash,
+      paybackToAAVEHash,
       borromFromAAVEHash,
       swapActionHash,
       withdrawFromAAVEHash,
       sendTokenHash,
+      wrapEthHash,
+      unwrapEthHash,
+      returnFundsHash,
     })
   })
 
@@ -272,9 +284,18 @@ async function addCommonActionsToRegistry(
     CONTRACT_NAMES.common.SWAP_ACTION,
     addresses.swapActionAddress,
   )
-  await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, addresses.wrapActionAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, addresses.unwrapActionAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.RETURN_FUNDS, addresses.returnFundsActionAddress)
+  const wrapEthHash = await registry.addEntry(
+    CONTRACT_NAMES.common.WRAP_ETH,
+    addresses.wrapActionAddress,
+  )
+  const unwrapEthHash = await registry.addEntry(
+    CONTRACT_NAMES.common.UNWRAP_ETH,
+    addresses.unwrapActionAddress,
+  )
+  const returnFundsHash = await registry.addEntry(
+    CONTRACT_NAMES.common.RETURN_FUNDS,
+    addresses.returnFundsActionAddress,
+  )
 
   return {
     pullTokenHash,
@@ -282,6 +303,9 @@ async function addCommonActionsToRegistry(
     setApprovalHash,
     takeAFlashloanHash,
     swapActionHash,
+    wrapEthHash,
+    unwrapEthHash,
+    returnFundsHash,
   }
 }
 
@@ -306,7 +330,7 @@ async function addAAVEActionsToRegistry(
     CONTRACT_NAMES.aave.WITHDRAW,
     addresses.withdrawFromAAVEAddress,
   )
-  const paybackFromAAVEHash = await registry.addEntry(
+  const paybackToAAVEHash = await registry.addEntry(
     CONTRACT_NAMES.aave.PAYBACK,
     addresses.actionPaybackFromAAVEAddress,
   )
@@ -315,7 +339,7 @@ async function addAAVEActionsToRegistry(
     depositInAAVEHash,
     borromFromAAVEHash,
     withdrawFromAAVEHash,
-    paybackFromAAVEHash,
+    paybackToAAVEHash,
   }
 }
 
@@ -331,9 +355,13 @@ async function addAAVEOperationsToRegistry(
     setApprovalHash: string
     depositInAAVEHash: string
     borromFromAAVEHash: string
+    paybackToAAVEHash: string
     swapActionHash: string
     withdrawFromAAVEHash: string
     sendTokenHash: string
+    wrapEthHash: string
+    unwrapEthHash: string
+    returnFundsHash: string
   },
 ) {
   const {
@@ -342,24 +370,82 @@ async function addAAVEOperationsToRegistry(
     setApprovalHash,
     depositInAAVEHash,
     borromFromAAVEHash,
+    paybackToAAVEHash,
     swapActionHash,
     withdrawFromAAVEHash,
-    sendTokenHash,
+    wrapEthHash,
+    unwrapEthHash,
+    returnFundsHash,
   } = hashes
 
   await operationsRegistry.addOp(
     OPERATION_NAMES.aave.OPEN_POSITION,
     [
-      pullTokenHash,
       takeAFlashloanHash,
+      pullTokenHash,
+      pullTokenHash,
       setApprovalHash,
       depositInAAVEHash,
       borromFromAAVEHash,
+      wrapEthHash,
       swapActionHash,
+      setApprovalHash,
+      depositInAAVEHash,
       withdrawFromAAVEHash,
-      sendTokenHash,
     ],
-    Array(8).fill(false),
+    [false, true, true, false, false, false, true, false, false, false, false],
+  )
+
+  await operationsRegistry.addOp(
+    OPERATION_NAMES.aave.CLOSE_POSITION,
+    [
+      takeAFlashloanHash,
+      setApprovalHash,
+      depositInAAVEHash,
+      withdrawFromAAVEHash,
+      swapActionHash,
+      setApprovalHash,
+      paybackToAAVEHash,
+      withdrawFromAAVEHash,
+      unwrapEthHash,
+      returnFundsHash,
+      returnFundsHash,
+    ],
+    [false, false, false, false, false, false, false, false, true, false, false],
+  )
+
+  await operationsRegistry.addOp(
+    OPERATION_NAMES.aave.INCREASE_POSITION,
+    [
+      takeAFlashloanHash,
+      pullTokenHash,
+      pullTokenHash,
+      setApprovalHash,
+      depositInAAVEHash,
+      borromFromAAVEHash,
+      wrapEthHash,
+      swapActionHash,
+      setApprovalHash,
+      depositInAAVEHash,
+      withdrawFromAAVEHash,
+    ],
+    [false, true, true, false, false, false, true, false, false, false, false],
+  )
+
+  await operationsRegistry.addOp(
+    OPERATION_NAMES.aave.DECREASE_POSITION,
+    [
+      takeAFlashloanHash,
+      setApprovalHash,
+      depositInAAVEHash,
+      withdrawFromAAVEHash,
+      swapActionHash,
+      setApprovalHash,
+      depositInAAVEHash,
+      paybackToAAVEHash,
+      withdrawFromAAVEHash,
+    ],
+    [false, false, false, false, false, false, false, false, false],
   )
 
   await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [], [])

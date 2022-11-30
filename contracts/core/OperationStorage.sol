@@ -68,7 +68,7 @@ contract OperationStorage {
    * @param actionHash Checks the current action has against the expected action hash
    */
   function verifyAction(bytes32 actionHash, bool skipped) external {
-    if(skipped) {
+    if (skipped) {
       require(optionals[action], "Action cannot be skipped");
     }
     require(actions[action] == actionHash, "incorrect-action");
