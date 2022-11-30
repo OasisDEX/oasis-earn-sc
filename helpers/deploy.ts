@@ -53,7 +53,7 @@ export async function executeThroughProxy(
     const dsProxy = await ethers.getContractAt('DSProxy', proxyAddress, signer)
 
     const tx = await dsProxy['execute(address,bytes)'](address, calldata, {
-      gasLimit: 4000000,
+      gasLimit: 5000000,
       value,
     })
 

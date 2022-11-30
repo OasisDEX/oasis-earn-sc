@@ -55,7 +55,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe('On forked chain', function () {
+  describe.skip('On forked chain', function () {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 

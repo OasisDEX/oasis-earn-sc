@@ -405,6 +405,40 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     [false, false, false, false, false, false, false, false, true, false, false],
   )
 
+  await operationsRegistry.addOp(
+    OPERATION_NAMES.aave.INCREASE_POSITION,
+    [
+      takeFlashLoanHash,
+      pullTokenHash,
+      pullTokenHash,
+      setApprovalHash,
+      aaveDepositHash,
+      aaveBorrowHash,
+      wrapEthHash,
+      swapActionHash,
+      setApprovalHash,
+      aaveDepositHash,
+      aaveWithdrawHash,
+    ],
+    [false, true, true, false, false, false, true, false, false, false, false],
+  )
+
+  await operationsRegistry.addOp(
+    OPERATION_NAMES.aave.DECREASE_POSITION,
+    [
+      takeFlashLoanHash,
+      setApprovalHash,
+      aaveDepositHash,
+      aaveWithdrawHash,
+      swapActionHash,
+      setApprovalHash,
+      aaveDepositHash,
+      aavePaybackHash,
+      aaveWithdrawHash,
+    ],
+    [false, false, false, false, false, false, false, false, false],
+  )
+
   const deployedContracts = {
     common: {
       userProxyAddress: proxyAddress,

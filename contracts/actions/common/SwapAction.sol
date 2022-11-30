@@ -11,7 +11,7 @@ import { Swap } from "./Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { SWAP } from "../../core/constants/Common.sol";
-import "hardhat/console.sol";
+
 /**
  * @title SwapAction Action contract
  * @notice Call the deployed Swap contract which handles swap execution
@@ -33,19 +33,7 @@ contract SwapAction is Executable, UseStore {
 
     IERC20(swap.fromAsset).safeApprove(swapAddress, swap.amount);
 
-    console.log("SWAP-ACTION");
-    console.log("swap.amount:", swap.amount);
-//    0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
-    uint256 weth1 = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2).balanceOf(address(this));
-    console.log("WETH Bal", weth1);
-    uint256 balance = IERC20(swap.fromAsset).balanceOf(address(this));
-    console.log("PRE FROM balance:", balance);
     uint256 received = Swap(swapAddress).swapTokens(swap);
-
-    uint256 _balance = IERC20(swap.fromAsset).balanceOf(address(this));
-    uint256 weth2 = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2).balanceOf(address(this));
-    console.log("WETH2 Bal", weth2);
-    console.log("POST FROM balance:", _balance);
 
     store().write(bytes32(received));
 
