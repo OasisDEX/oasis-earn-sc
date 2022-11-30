@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
+import { OPERATION_NAMES } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
 
@@ -15,6 +16,7 @@ export async function decreaseMultiple(
     collectFeeFrom: 'sourceToken' | 'targetToken'
     collateralTokenAddress: string
     debtTokenAddress: string
+    useFlashloan: boolean
     proxy: string
     user: string
   },
@@ -74,21 +76,39 @@ export async function decreaseMultiple(
     to: addresses.operationExecutor,
   })
 
-  // TODO: determine if a flashloan is necessary
+  /** DISABLED FLASHLOAN CALLS */
+  const noFlashloanCalls = [
+    depositDaiInAAVE,
+    withdrawCollateralFromAAVE,
+    swapCollateralTokensForDebtTokens,
+    setDebtTokenApprovalOnLendingPool,
+    paybackInAAVE,
+  ]
+
+  /** ENABLED FLASHLOAN CALLS */
+  const useFlashloan = args.useFlashloan
+
+  const flashloanCalls = [
+    setDaiApprovalOnLendingPool,
+    depositDaiInAAVE,
+    withdrawCollateralFromAAVE,
+    swapCollateralTokensForDebtTokens,
+    setDebtTokenApprovalOnLendingPool,
+    paybackInAAVE,
+    withdrawDAIFromAAVE,
+  ]
+
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
     dsProxyFlashloan: true,
-    calls: [
-      setDaiApprovalOnLendingPool,
-      depositDaiInAAVE,
-      withdrawCollateralFromAAVE,
-      swapCollateralTokensForDebtTokens,
-      setDebtTokenApprovalOnLendingPool,
-      paybackInAAVE,
-      withdrawDAIFromAAVE,
-    ],
+    calls: flashloanCalls,
   })
 
-  return { calls: [takeAFlashLoan], operationName: 'CustomOperation' }
+  const calls = useFlashloan ? [takeAFlashLoan] : noFlashloanCalls
+  const operationName = useFlashloan
+    ? OPERATION_NAMES.aave.DECREASE_POSITION_FL
+    : OPERATION_NAMES.aave.DECREASE_POSITION
+
+  return { calls, operationName }
 }
