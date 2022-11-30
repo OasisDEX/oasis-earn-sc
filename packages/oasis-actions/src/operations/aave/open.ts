@@ -109,20 +109,6 @@ export async function open(
     args.depositCollateral.amountInWei.eq(ZERO) || args.depositCollateral.isEth
   wrapEth.skipped = !args.depositDebtTokens.isEth && !args.depositCollateral.isEth
 
-  /** DISABLED FLASHLOAN CALLS */
-  const noFlashloanCalls = [
-    pullDebtTokensToProxy,
-    pullCollateralTokensToProxy,
-    borrowDebtTokensFromAAVE,
-    wrapEth,
-    swapDebtTokensForCollateralTokens,
-    setCollateralTokenApprovalOnLendingPool,
-    depositCollateral,
-  ]
-
-  /** ENABLED FLASHLOAN CALLS */
-  const useFlashloan = args.useFlashloan
-
   const flashloanCalls = [
     pullDebtTokensToProxy,
     pullCollateralTokensToProxy,
@@ -143,10 +129,8 @@ export async function open(
     calls: flashloanCalls,
   })
 
-  const calls = useFlashloan ? [takeAFlashLoan] : noFlashloanCalls
-  const operationName = useFlashloan
-    ? OPERATION_NAMES.aave.OPEN_POSITION_FL
-    : OPERATION_NAMES.aave.OPEN_POSITION
+  const calls = [takeAFlashLoan]
+  const operationName = OPERATION_NAMES.aave.OPEN_POSITION
 
   return {
     calls,

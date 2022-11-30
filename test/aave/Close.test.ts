@@ -187,6 +187,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       )
       const openTxStatus = _openTxStatus
 
+      if (!openTxStatus) throw new Error('open t/x failed')
       const userCollateralReserveData = await aaveDataProvider.getUserReserveData(
         collateralToken.address,
         system.common.dsProxy.address,
@@ -277,7 +278,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           ]),
         },
         signer,
-        ethDepositAmt.toFixed(0),
+        '0',
       )
 
       const afterCloseUserAccountData = await aaveLendingPool.getUserAccountData(
@@ -657,7 +658,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     })
   })
 
-  describe('Should close position with real oneInch', () => {
+  describe.skip('Should close position with real oneInch', () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
     const depositAmount = amountToWei(new BigNumber(1))

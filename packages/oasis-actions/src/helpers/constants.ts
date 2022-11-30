@@ -69,12 +69,9 @@ export type ContractNames = AllValues<typeof CONTRACT_NAMES>
 export const OPERATION_NAMES = {
   aave: {
     OPEN_POSITION: 'OpenAAVEPosition',
-    OPEN_POSITION_FL: 'OpenAAVEPositionFL',
     CLOSE_POSITION: 'CloseAAVEPosition',
     INCREASE_POSITION: 'IncreaseAAVEPosition',
-    INCREASE_POSITION_FL: 'IncreaseAAVEPositionFL',
     DECREASE_POSITION: 'DecreaseAAVEPosition',
-    DECREASE_POSITION_FL: 'DecreaseAAVEPositionFL',
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',

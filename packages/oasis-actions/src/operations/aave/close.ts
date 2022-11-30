@@ -16,6 +16,7 @@ export async function close(
     proxy: string
     collectFeeFrom: 'sourceToken' | 'targetToken'
     collateralTokenAddress: string
+    collateralIsEth: boolean
     debtTokenAddress: string
     debtTokenIsEth: boolean
   },
@@ -76,11 +77,15 @@ export async function close(
     amount: new BigNumber(MAX_UINT),
   })
 
-  const returnFunds = actions.common.returnFunds({
+  const returnDebtFunds = actions.common.returnFunds({
     asset: args.debtTokenIsEth ? ADDRESSES.main.ETH : args.debtTokenAddress,
   })
 
-  unwrapEth.skipped = !args.debtTokenIsEth
+  const returnCollateralFunds = actions.common.returnFunds({
+    asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
+  })
+
+  unwrapEth.skipped = !args.debtTokenIsEth && !args.collateralIsEth
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
@@ -95,7 +100,8 @@ export async function close(
       paybackInAAVE,
       withdrawDAIFromAAVE,
       unwrapEth,
-      returnFunds,
+      returnDebtFunds,
+      returnCollateralFunds,
     ],
   })
 

@@ -108,20 +108,6 @@ export async function increaseMultiple(
     args.depositCollateral.amountInWei.eq(ZERO) || args.depositCollateral.isEth
   wrapEth.skipped = !args.depositDebtTokens.isEth && !args.depositCollateral.isEth
 
-  /** DISABLED FLASHLOAN CALLS */
-  const noFlashloanCalls = [
-    pullDebtTokensToProxy,
-    pullCollateralTokensToProxy,
-    borrowDebtTokensFromAAVE,
-    wrapEth,
-    swapDebtTokensForCollateralTokens,
-    setCollateralTokenApprovalOnLendingPool,
-    depositCollateral,
-  ]
-
-  /** ENABLED FLASHLOAN CALLS */
-  const useFlashloan = args.useFlashloan
-
   const flashloanCalls = [
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
@@ -140,10 +126,8 @@ export async function increaseMultiple(
     calls: flashloanCalls,
   })
 
-  const calls = useFlashloan ? [takeAFlashLoan] : noFlashloanCalls
-  const operationName = useFlashloan
-    ? OPERATION_NAMES.aave.INCREASE_POSITION_FL
-    : OPERATION_NAMES.aave.INCREASE_POSITION
+  const calls = [takeAFlashLoan]
+  const operationName = OPERATION_NAMES.aave.INCREASE_POSITION
 
   return {
     calls,

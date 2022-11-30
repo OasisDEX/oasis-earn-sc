@@ -76,18 +76,6 @@ export async function decreaseMultiple(
     to: addresses.operationExecutor,
   })
 
-  /** DISABLED FLASHLOAN CALLS */
-  const noFlashloanCalls = [
-    depositDaiInAAVE,
-    withdrawCollateralFromAAVE,
-    swapCollateralTokensForDebtTokens,
-    setDebtTokenApprovalOnLendingPool,
-    paybackInAAVE,
-  ]
-
-  /** ENABLED FLASHLOAN CALLS */
-  const useFlashloan = args.useFlashloan
-
   const flashloanCalls = [
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
@@ -105,10 +93,8 @@ export async function decreaseMultiple(
     calls: flashloanCalls,
   })
 
-  const calls = useFlashloan ? [takeAFlashLoan] : noFlashloanCalls
-  const operationName = useFlashloan
-    ? OPERATION_NAMES.aave.DECREASE_POSITION_FL
-    : OPERATION_NAMES.aave.DECREASE_POSITION
+  const calls = [takeAFlashLoan]
+  const operationName = OPERATION_NAMES.aave.DECREASE_POSITION
 
   return { calls, operationName }
 }

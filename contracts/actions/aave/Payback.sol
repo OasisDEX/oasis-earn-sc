@@ -34,6 +34,9 @@ contract AavePayback is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     PaybackData memory payback = abi.decode(data, (PaybackData));
 
+//    console.log("PAYBACK-ACTION");
+//    uint256 balance = IERC20(swap.fromAsset).balanceOf(address(this));
+//    console.log("From balance:", balance);
     payback.amount = store().readUint(bytes32(payback.amount), paramsMap[1], address(this));
 
     ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).repay(

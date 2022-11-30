@@ -372,19 +372,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await operationsRegistry.addOp(
     OPERATION_NAMES.aave.OPEN_POSITION,
     [
-      pullTokenHash,
-      pullTokenHash,
-      aaveBorrowHash,
-      wrapEthHash,
-      swapActionHash,
-      setApprovalHash,
-      aaveDepositHash,
-    ],
-    [true, true, false, true, false, false, false],
-  )
-  await operationsRegistry.addOp(
-    OPERATION_NAMES.aave.OPEN_POSITION_FL,
-    [
       takeFlashLoanHash,
       pullTokenHash,
       pullTokenHash,
@@ -413,8 +400,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       aaveWithdrawHash,
       unwrapEthHash,
       returnFundsActionHash,
+      returnFundsActionHash,
     ],
-    Array(10).fill(false),
+    [false, false, false, false, false, false, false, false, true, false, false],
   )
 
   const deployedContracts = {
