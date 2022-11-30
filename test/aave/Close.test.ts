@@ -1,12 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import {
-  ADDRESSES,
-  ONE,
-  OPERATION_NAMES,
-  Position,
-  strategies,
-  ZERO,
-} from '@oasisdex/oasis-actions'
+import { ADDRESSES, ONE, Position, strategies, ZERO } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { IPositionTransition } from '@oasisdex/oasis-actions/src'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
@@ -186,7 +179,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             openPositionTransition.transaction.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
+            openPositionTransition.transaction.operationName,
           ]),
         },
         signer,
@@ -280,7 +273,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             positionTransition.transaction.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
+            positionTransition.transaction.operationName,
           ]),
         },
         signer,
@@ -730,7 +723,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
               openPositionTransition.transaction.calls,
-              OPERATION_NAMES.common.CUSTOM_OPERATION,
+              openPositionTransition.transaction.operationName,
             ]),
           },
           signer,
@@ -801,7 +794,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
               positionTransition.transaction.calls,
-              OPERATION_NAMES.common.CUSTOM_OPERATION,
+              positionTransition.transaction.operationName,
             ]),
           },
           signer,

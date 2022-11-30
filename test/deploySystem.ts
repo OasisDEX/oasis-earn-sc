@@ -373,20 +373,21 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     OPERATION_NAMES.aave.OPEN_POSITION,
     [
       pullTokenHash,
-      takeFlashLoanHash,
+      pullTokenHash,
+      aaveBorrowHash,
+      wrapEthHash,
+      swapActionHash,
       setApprovalHash,
       aaveDepositHash,
-      aaveBorrowHash,
-      swapActionHash,
-      aaveWithdrawHash,
-      sendTokenHash,
     ],
-    Array(8).fill(false),
+    [true, true, false, true, false, false, false],
   )
   await operationsRegistry.addOp(
-    OPERATION_NAMES.aave.OPEN_POSITION,
+    OPERATION_NAMES.aave.OPEN_POSITION_FL,
     [
       takeFlashLoanHash,
+      pullTokenHash,
+      pullTokenHash,
       setApprovalHash,
       aaveDepositHash,
       aaveBorrowHash,
@@ -396,7 +397,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       aaveDepositHash,
       aaveWithdrawHash,
     ],
-    Array(9).fill(false),
+    [false, true, true, false, false, false, true, false, false, false, false],
   )
 
   await operationsRegistry.addOp(
