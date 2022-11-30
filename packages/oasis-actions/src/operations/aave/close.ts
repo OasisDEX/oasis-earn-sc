@@ -97,5 +97,5 @@ export async function close(
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: 'CUSTOM_OPERATION' }
+  return { calls: [takeAFlashLoan], operationName: 'CustomOperation' }
 }

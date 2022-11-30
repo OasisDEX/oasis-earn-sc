@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import * as actions from '../../actions'
-import { ZERO } from '../../helpers/constants'
+import { OPERATION_NAMES, ZERO } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { Address } from '../../strategies/types/IPositionRepository'
 import { AAVEStrategyAddresses } from './addresses'
@@ -26,18 +26,12 @@ export async function open(
     collectFeeFrom: 'sourceToken' | 'targetToken'
     collateralTokenAddress: Address
     debtTokenAddress: Address
+    useFlashloan: boolean
     proxy: Address
     user: Address
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
-  const use = {
-    pullDebtTokensInToProxy:
-      args.depositDebtTokens.amountInWei.gt(ZERO) && !args.depositDebtTokens.isEth,
-    pullCollateralInToProxy:
-      args.depositCollateral.amountInWei.gt(ZERO) && !args.depositCollateral.isEth,
-  }
-
   const pullDebtTokensToProxy = actions.common.pullToken({
     asset: args.debtTokenAddress,
     amount: args.depositDebtTokens.amountInWei,
@@ -109,8 +103,29 @@ export async function open(
     to: addresses.operationExecutor,
   })
 
-  // TODO: Redeploy all new OpNames to registry
+  pullDebtTokensToProxy.skipped =
+    args.depositDebtTokens.amountInWei.eq(ZERO) || args.depositDebtTokens.isEth
+  pullCollateralTokensToProxy.skipped =
+    args.depositCollateral.amountInWei.eq(ZERO) || args.depositCollateral.isEth
+  wrapEth.skipped = !args.depositDebtTokens.isEth && !args.depositCollateral.isEth
+
+  /** DISABLED FLASHLOAN CALLS */
+  const noFlashloanCalls = [
+    pullDebtTokensToProxy,
+    pullCollateralTokensToProxy,
+    borrowDebtTokensFromAAVE,
+    wrapEth,
+    swapDebtTokensForCollateralTokens,
+    setCollateralTokenApprovalOnLendingPool,
+    depositCollateral,
+  ]
+
+  /** ENABLED FLASHLOAN CALLS */
+  const useFlashloan = args.useFlashloan
+
   const flashloanCalls = [
+    pullDebtTokensToProxy,
+    pullCollateralTokensToProxy,
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
     borrowDebtTokensFromAAVE,
@@ -128,18 +143,13 @@ export async function open(
     calls: flashloanCalls,
   })
 
-  const calls = [takeAFlashLoan]
-  use.pullDebtTokensInToProxy && calls.unshift(pullDebtTokensToProxy)
-  use.pullCollateralInToProxy && calls.unshift(pullCollateralTokensToProxy)
-
-  // let operationName: OperationNames = OPERATION_NAMES.aave.OPEN_POSITION
-  // if (use.sendDepositToProxy) operationName = OPERATION_NAMES.aave.OPEN_POSITION_1
-  // if (use.sendCollateralToProxy) operationName = OPERATION_NAMES.aave.OPEN_POSITION_2
-  // if (use.sendDepositToProxy && use.sendCollateralToProxy)
-  //   operationName = OPERATION_NAMES.aave.OPEN_POSITION_3
+  const calls = useFlashloan ? [takeAFlashLoan] : noFlashloanCalls
+  const operationName = useFlashloan
+    ? OPERATION_NAMES.aave.OPEN_POSITION_FL
+    : OPERATION_NAMES.aave.OPEN_POSITION
 
   return {
     calls,
-    operationName: 'CUSTOM_OPERATION', // TODO: Disabled for now until OpRegistry has been rediscussed
+    operationName,
   }
 }

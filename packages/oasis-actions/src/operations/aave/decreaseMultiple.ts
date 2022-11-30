@@ -90,5 +90,5 @@ export async function decreaseMultiple(
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: 'CUSTOM_OPERATION' }
+  return { calls: [takeAFlashLoan], operationName: 'CustomOperation' }
 }

@@ -132,6 +132,6 @@ export async function increaseMultiple(
 
   return {
     calls,
-    operationName: 'CUSTOM_OPERATION', // TODO: Disabled for now until OpRegistry has been rediscussed
+    operationName: 'CustomOperation', // TODO: Disabled for now until OpRegistry has been rediscussed
   }
 }
