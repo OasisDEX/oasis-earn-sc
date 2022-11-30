@@ -70,12 +70,11 @@ export const OPERATION_NAMES = {
   aave: {
     OPEN_POSITION: 'OpenAAVEPosition',
     OPEN_POSITION_FL: 'OpenAAVEPositionFL',
-    // OPEN_POSITION_1: 'OpenAAVEPosition_1', // Requires sending deposit
-    // OPEN_POSITION_2: 'OpenAAVEPosition_2', // Requires sending collateral
-    // OPEN_POSITION_3: 'OpenAAVEPosition_3', // Requires sending deposit & collateral
     CLOSE_POSITION: 'CloseAAVEPosition',
     INCREASE_POSITION: 'IncreaseAAVEPosition',
+    INCREASE_POSITION_FL: 'IncreaseAAVEPositionFL',
     DECREASE_POSITION: 'DecreaseAAVEPosition',
+    DECREASE_POSITION_FL: 'DecreaseAAVEPositionFL',
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',
