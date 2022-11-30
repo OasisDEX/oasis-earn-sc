@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
 import { ADDRESSES } from '../../helpers/addresses'
-import { MAX_UINT } from '../../helpers/constants'
+import { MAX_UINT, OPERATION_NAMES } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
 
@@ -80,6 +80,8 @@ export async function close(
     asset: args.debtTokenIsEth ? ADDRESSES.main.ETH : args.debtTokenAddress,
   })
 
+  unwrapEth.skipped = !args.debtTokenIsEth
+
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
@@ -97,5 +99,7 @@ export async function close(
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: 'CustomOperation' }
+  const operationName = OPERATION_NAMES.aave.CLOSE_POSITION
+
+  return { calls: [takeAFlashLoan], operationName: operationName }
 }
