@@ -11,7 +11,7 @@ import { Swap } from "./Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { UNWRAP_ETH } from "../../core/constants/Common.sol";
-import "hardhat/console.sol";
+
 /**
  * @title Unwrap ETH Action contract
  * @notice Unwraps WETH balances to ETH
@@ -36,7 +36,6 @@ contract UnwrapEth is Executable, UseStore {
 
     if (unwrapData.amount == type(uint256).max) {
       unwrapData.amount = weth.balanceOf(address(this));
-      console.log("unwrapData.amount", unwrapData.amount);
     }
 
     weth.withdraw(unwrapData.amount);
