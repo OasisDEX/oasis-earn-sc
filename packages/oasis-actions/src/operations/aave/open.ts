@@ -7,8 +7,43 @@ import { IOperation } from '../../strategies/types/IOperation'
 import { Address } from '../../strategies/types/IPositionRepository'
 import { AAVEStrategyAddresses } from './addresses'
 
+// export async function deposit({
+//                                 entryToken,
+//                                 depositToken,
+//                                 amount,
+//                                 depositorAddress,
+//                                 swapArgs,
+//                               }: DepositArgs) {
+type Protocol = 'AAVE' | 'Maker'
+type PositionType = 'Earn' | 'Multiply'
+interface OpenArgs {
+  deposit: {
+    collateralToken: { amountInBaseUnit: BigNumber; isEth: boolean }
+    debtToken: { amountInBaseUnit: BigNumber; isEth: boolean }
+  }
+  swapArgs: {
+    fee: number
+    swapData: string | number
+    swapAmountInBaseUnit: BigNumber
+    collectFeeFrom: 'sourceToken' | 'targetToken'
+    receiveAtLeast: BigNumber
+  }
+  addresses: AAVEStrategyAddresses
+  flashloanAmount: BigNumber
+  borrowAmountInWei: BigNumber
+  collateralTokenAddress: Address
+  debtTokenAddress: Address
+  positionId: number
+  positionType: PositionType
+  protocol: Protocol
+  proxy: Address
+  user: Address
+}
+
 export async function open(
-  args: {
+  deposit: {
+    collateralToken: { amountInBaseUnit: }
+  }
     depositCollateral: {
       amountInWei: BigNumber
       isEth: boolean
@@ -28,9 +63,32 @@ export async function open(
     debtTokenAddress: Address
     proxy: Address
     user: Address
-  },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
+  // export async function open(
+  //   args: {
+  //     depositCollateral: {
+  //       amountInWei: BigNumber
+  //       isEth: boolean
+  //     }
+  //     depositDebtTokens: {
+  //       amountInWei: BigNumber
+  //       isEth: boolean
+  //     }
+  //     flashloanAmount: BigNumber
+  //     borrowAmountInWei: BigNumber
+  //     receiveAtLeast: BigNumber
+  //     fee: number
+  //     swapData: string | number
+  //     swapAmountInWei: BigNumber
+  //     collectFeeFrom: 'sourceToken' | 'targetToken'
+  //     collateralTokenAddress: Address
+  //     debtTokenAddress: Address
+  //     proxy: Address
+  //     user: Address
+  //   },
+  //   addresses: AAVEStrategyAddresses,
+  // ): Promise<IOperation> {
   const use = {
     pullDebtTokensInToProxy:
       args.depositDebtTokens.amountInWei.gt(ZERO) && !args.depositDebtTokens.isEth,
@@ -109,6 +167,15 @@ export async function open(
     to: addresses.operationExecutor,
   })
 
+  const positionCreated = actions.common.positionCreated({
+    proxyAddress: args.proxyAddress,
+    positionId: args.positionId,
+    protocol: args.protocol,
+    positionType: args.positionType,
+    collateralToken: args.collateralTokenAddress,
+    debtToken: args.debtTokenAddress,
+  })
+
   // TODO: Redeploy all new OpNames to registry
   const flashloanCalls = [
     setDaiApprovalOnLendingPool,
@@ -119,6 +186,7 @@ export async function open(
     setCollateralTokenApprovalOnLendingPool,
     depositCollateral,
     withdrawDAIFromAAVE,
+    positionCreated,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
