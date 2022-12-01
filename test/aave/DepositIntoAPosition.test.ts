@@ -205,7 +205,6 @@ describe('A Position', () => {
 
     it('and user deposits same asset as in the position ( swap NOT required )', async () => {
       const entryToken = TOKEN_DEFINITIONS.DAI
-      const depositToken = entryToken
       const entryAmount = amountToWei(TEN_THOUSAND)
 
       const walletDAIBalance = await balanceOf(ADDRESSES.main.DAI, config.address, {
@@ -220,7 +219,7 @@ describe('A Position', () => {
 
       let { currentATokenBalance: currentATokenBalanceBeforeDeposit }: AAVEReserveData =
         await aaveDataProvider.getUserReserveData(
-          mainnetAAVEAddresses[depositToken.symbol],
+          mainnetAAVEAddresses[entryToken.symbol],
           proxyAddress,
         )
 
@@ -231,7 +230,6 @@ describe('A Position', () => {
         deployedContracts,
         {
           entryToken,
-          depositToken,
           entryAmount,
         },
         {
@@ -244,7 +242,7 @@ describe('A Position', () => {
       const [depositedAmount] = await getDepositedAmounts(receipt)
       const { currentATokenBalance: currentATokenBalanceAfterDeposit }: AAVEReserveData =
         await aaveDataProvider.getUserReserveData(
-          mainnetAAVEAddresses[depositToken.symbol],
+          mainnetAAVEAddresses[entryToken.symbol],
           proxyAddress,
         )
 
@@ -267,7 +265,7 @@ async function depositToAPosition(
     depositToken,
   }: {
     entryToken: TokenDef<AAVETokens>
-    depositToken: TokenDef<AAVETokens>
+    depositToken?: TokenDef<AAVETokens>
     entryAmount: BigNumber
   },
   {
@@ -304,8 +302,8 @@ async function depositToAPosition(
       currentPosition: await strategies.aave.view(
         {
           proxy: proxyAddress,
-          collateralToken: depositToken,
-          debtToken: depositToken,
+          collateralToken: depositToken || entryToken,
+          debtToken: depositToken || entryToken,
         },
         {
           addresses,

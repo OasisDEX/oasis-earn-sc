@@ -1,29 +1,26 @@
 import BigNumber from 'bignumber.js'
+import { Optional } from 'utility-types'
 import { ONE, TEN_THOUSAND, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { AAVETokens } from '../../operations/aave/tokens'
+import { AAVETokens, TokenDef } from '../../operations/aave/tokens'
 import {
   IBasePositionTransitionArgs,
   IPositionTransitionDependencies,
   WithDeposit,
   WithDifferentEntryToken,
 } from '../types/IPositionRepository'
-import {
-  IPositionTransition,
-  IPositionTransitionWithOptionalSwap,
-} from '../types/IPositionTransition'
+import { IPositionTransitionWithOptionalSwap } from '../types/IPositionTransition'
+
+type Deposit = Optional<
+  Omit<IBasePositionTransitionArgs<AAVETokens>, 'debtToken'>,
+  'collateralToken'
+> &
+  WithDeposit &
+  WithDifferentEntryToken<AAVETokens>
 
 export async function deposit(
-  {
-    entryToken,
-    collateralToken,
-    slippage,
-    collectSwapFeeFrom,
-    depositedByUser,
-  }: Omit<IBasePositionTransitionArgs<AAVETokens>, 'debtToken'> &
-    WithDeposit &
-    WithDifferentEntryToken<AAVETokens>,
+  { entryToken, collateralToken, slippage, collectSwapFeeFrom, depositedByUser }: Deposit,
   {
     user,
     currentPosition,
@@ -42,7 +39,7 @@ export async function deposit(
     swapAmount = swapAmount.times(ONE.minus(new BigNumber(FEE).div(FEE_BASE)))
   }
 
-  const shouldUseSwap = entryToken.symbol !== collateralToken.symbol
+  const shouldUseSwap = !!collateralToken
 
   const swapData = shouldUseSwap
     ? await getSwapData(
@@ -55,8 +52,9 @@ export async function deposit(
 
   return {
     transaction: await operations.aave.deposit({
-      entryToken: addresses[entryToken.symbol],
-      depositToken: shouldUseSwap ? addresses[collateralToken.symbol] : undefined,
+      entryTokenAddress: addresses[entryToken.symbol],
+      depositTokenAddress: shouldUseSwap ? addresses[collateralToken.symbol] : undefined,
+      isSwapNeeded: shouldUseSwap,
       amount: depositedByUser?.collateralInWei!,
       depositorAddress: user,
       allowDepositTokenAsCollateral: true,

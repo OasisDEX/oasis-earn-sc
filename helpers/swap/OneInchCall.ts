@@ -24,7 +24,7 @@ export const getOneInchCall =
       console.log('to:', to)
       console.log('fromTokenAmount', response.fromTokenAmount.toString())
       console.log('toTokenAmount', response.toTokenAmount.toString())
-``      console.log(`slippage ${slippage.toString()}%`)
+      console.log(`slippage ${slippage.toString()}%`)
     }
 
     return {

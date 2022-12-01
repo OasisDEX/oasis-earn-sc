@@ -15,34 +15,40 @@ interface SwapArgs {
 // TODO: Probably put a generic about the tokens i.e DepositArgs<Tokens> and provide AAVETokens
 // TODO: Take into consideration the precision for the tokens. So indeed might be a good idea for the Tokens generics
 interface DepositArgs {
-  // - either for a swap where the `entryToken` will be exchanged for the `depositToken`
+  // - either for a swap where the `entryTokenAddress` will be exchanged for the `depositTokenAddress`
   // - or it will be directly deposited in the protocol
-  entryToken: string
-  // - either used for a swap if `entryToken` is swapped for `depositToken`
+  entryTokenAddress: string
+  // - either used for a swap if `entryTokenAddress` is swapped for `depositTokenAddress`
   // - or it will be directly deposited in the protocol
   amount: BigNumber
-  // - if it's omitted that means that the `entryToken` will be used in the deposit
-  // - if it's provided that means that the `entryToken` will be swapped for `depositToken`
-  depositToken?: string
+  // - if it's omitted that means that the `entryTokenAddress` will be used in the deposit
+  // - if it's provided that means that the `entryTokenAddress` will be swapped for `depositTokenAddress`
+  depositTokenAddress?: string
+  // - User might want to deposit the entry token so there won't be any need of a swap.
+  isSwapNeeded?: boolean
   // Used to pull tokens from if ERC20 is used in the deposit
   depositorAddress: string
   // In order to borrow assets on aave the deposited ones ( lent ) should be allowed to be used as collateral.
   allowDepositTokenAsCollateral: boolean
-  // Must be provided if `depositToken` is also provided
+  // Must be provided if `depositTokenAddress` is also provided
   swapArgs?: SwapArgs
 }
 export async function deposit({
-  entryToken,
-  depositToken,
+  entryTokenAddress,
+  depositTokenAddress,
+  isSwapNeeded = true,
   amount,
   depositorAddress,
   swapArgs,
 }: DepositArgs) {
-  const isSwapNeeded = !!depositToken
-  const isAssetEth = entryToken === ADDRESSES.main.ETH
-  const actualAssetToSwap = entryToken != ADDRESSES.main.ETH ? entryToken : ADDRESSES.main.WETH
+  const isAssetEth = entryTokenAddress === ADDRESSES.main.ETH
+  const actualAssetToSwap =
+    entryTokenAddress != ADDRESSES.main.ETH ? entryTokenAddress : ADDRESSES.main.WETH
 
-  if (isSwapNeeded) assert(swapArgs, 'Provide Swap Args')
+  if (isSwapNeeded) {
+    assert(depositTokenAddress, 'Provide a Deposit token')
+    assert(swapArgs, 'Provide Swap Args')
+  }
 
   return {
     calls: [
@@ -55,7 +61,7 @@ export async function deposit({
         : [
             pullToken({
               amount,
-              asset: entryToken,
+              asset: entryTokenAddress,
               from: depositorAddress,
             }),
           ]),
@@ -63,7 +69,7 @@ export async function deposit({
         ? [
             swap({
               fromAsset: actualAssetToSwap,
-              toAsset: depositToken,
+              toAsset: depositTokenAddress!,
               amount: amount,
               receiveAtLeast: swapArgs?.receiveAtLeast!,
               fee: swapArgs?.fee!,
@@ -74,7 +80,7 @@ export async function deposit({
         : []),
       setApproval(
         {
-          asset: depositToken || entryToken,
+          asset: depositTokenAddress || entryTokenAddress,
           delegate: ADDRESSES.main.aave.MainnetLendingPool,
           // Check the explanation about the deposit action.
           // This approval is about the amount that's going to be deposit in the following action
@@ -91,7 +97,7 @@ export async function deposit({
       // therefore the actual deposited value will be used.
       aaveDeposit(
         {
-          asset: depositToken || entryToken,
+          asset: depositTokenAddress || entryTokenAddress,
           amount,
           sumAmounts: false,
           setAsCollateral: false,
