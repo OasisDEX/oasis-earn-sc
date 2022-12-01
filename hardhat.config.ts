@@ -8,6 +8,7 @@ import './tasks/createPosition'
 import './tasks/closePosition'
 import './tasks/proxy'
 import './tasks/verify-earn'
+import './tasks/transfer-erc20'
 import 'solidity-docgen'
 import 'hardhat-tracer'
 
