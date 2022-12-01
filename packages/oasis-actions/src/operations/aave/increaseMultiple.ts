@@ -126,11 +126,8 @@ export async function increaseMultiple(
     calls: flashloanCalls,
   })
 
-  const calls = [takeAFlashLoan]
-  const operationName = OPERATION_NAMES.aave.INCREASE_POSITION
-
   return {
-    calls,
-    operationName: operationName, // TODO: Disabled for now until OpRegistry has been rediscussed
+    calls: [takeAFlashLoan],
+    operationName: OPERATION_NAMES.aave.INCREASE_POSITION,
   }
 }

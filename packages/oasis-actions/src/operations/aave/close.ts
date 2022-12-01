@@ -105,7 +105,5 @@ export async function close(
     ],
   })
 
-  const operationName = OPERATION_NAMES.aave.CLOSE_POSITION
-
-  return { calls: [takeAFlashLoan], operationName: operationName }
+  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.CLOSE_POSITION }
 }

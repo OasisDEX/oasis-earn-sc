@@ -93,8 +93,5 @@ export async function decreaseMultiple(
     calls: flashloanCalls,
   })
 
-  const calls = [takeAFlashLoan]
-  const operationName = OPERATION_NAMES.aave.DECREASE_POSITION
-
-  return { calls, operationName }
+  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.DECREASE_POSITION }
 }

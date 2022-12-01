@@ -129,11 +129,8 @@ export async function open(
     calls: flashloanCalls,
   })
 
-  const calls = [takeAFlashLoan]
-  const operationName = OPERATION_NAMES.aave.OPEN_POSITION
-
   return {
-    calls,
-    operationName,
+    calls: [takeAFlashLoan],
+    operationName: OPERATION_NAMES.aave.OPEN_POSITION,
   }
 }
