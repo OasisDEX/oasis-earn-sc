@@ -76,9 +76,9 @@ contract OperationExecutor is IERC3156FlashBorrower {
     bool hasActionsToVerify = opStorage.hasActionsToVerify();
     for (uint256 current = 0; current < calls.length; current++) {
       if (hasActionsToVerify) {
-         opStorage.verifyAction(calls[current].targetHash, calls[current].skipped);
+        opStorage.verifyAction(calls[current].targetHash, calls[current].skipped);
       }
-      if(!calls[current].skipped) {
+      if (!calls[current].skipped) {
         address target = registry.getServiceAddress(calls[current].targetHash);
         target.execute(calls[current].callData);
       }
