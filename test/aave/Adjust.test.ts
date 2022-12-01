@@ -6,6 +6,7 @@ import {
   OPERATION_NAMES,
   Position,
   strategies,
+  TEN,
   TYPICAL_PRECISION,
   ZERO,
 } from '@oasisdex/oasis-actions'
@@ -729,7 +730,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
   })
 
   describe('On latest block using one inch exchange and api', () => {
-    const slippage = new BigNumber(0.1)
+    const slippage = TEN
     const depositAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
     const adjustToMultiple = new BigNumber(3.5)

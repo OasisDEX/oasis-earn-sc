@@ -27,7 +27,7 @@ describe('A Position', () => {
   let aaveDataProvider: Contract
   let proxyAddress: string
 
-  const slippage = new BigNumber(0.2) // 20%
+  const slippage = TEN // 10%
   const fee = new BigNumber(0.2)
   const collectSwapFeeFrom = 'sourceToken'
 
@@ -106,8 +106,6 @@ describe('A Position', () => {
         config,
         isFormatted: true,
       })
-
-      console.log('DAI BLAANMCE?', walletDAIBalance.toString())
 
       assert.isOk(
         walletDAIBalance.gt(TEN_THOUSAND),
@@ -340,7 +338,7 @@ async function openAPosition(
   const proxy = common.dsProxy.address
   const depositEthAmount = amountToWei(new BigNumber(TEN))
   const multiple = new BigNumber(2)
-  const slippage = new BigNumber(0.02) // 2%
+  const slippage = TEN
   const debtToken = TOKEN_DEFINITIONS.ETH
   const collateralToken = TOKEN_DEFINITIONS.stETH
   const addresses = {
@@ -393,9 +391,7 @@ async function openAPosition(
 
 // TODO: Generalize for parsing Action events events.
 async function getDepositedAmounts(receipt: TransactionReceipt) {
-  const actionEventTopic = ethers.utils.keccak256(
-    ethers.utils.toUtf8Bytes('Action(string,bytes32)'),
-  )
+  const actionEventTopic = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('Action(string,bytes)'))
 
   if (receipt.logs) {
     return receipt.logs
@@ -403,15 +399,14 @@ async function getDepositedAmounts(receipt: TransactionReceipt) {
         return log.topics[0] === actionEventTopic
       })
       .filter(log => {
-        const [name] = ethers.utils.defaultAbiCoder.decode(['string', 'bytes32'], log.data)
-        return name === CONTRACT_NAMES.aave.DEPOSIT
+        return (
+          log.topics[1] ===
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes(CONTRACT_NAMES.aave.DEPOSIT))
+        )
       })
       .map(log => {
-        const [, depositedAmount] = ethers.utils.defaultAbiCoder.decode(
-          ['string', 'bytes32'],
-          log.data,
-        )
-        return new BigNumber(depositedAmount)
+        const [amount] = ethers.utils.defaultAbiCoder.decode(['bytes'], log.data)
+        return new BigNumber(amount)
       })
   }
 

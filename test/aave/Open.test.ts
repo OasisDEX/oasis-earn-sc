@@ -5,6 +5,7 @@ import {
   OPERATION_NAMES,
   Position,
   strategies,
+  TEN,
 } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
@@ -587,7 +588,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
   describe('On latest block using one inch exchange and api', function () {
     const depositEthAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
-    const slippage = new BigNumber(0.1)
+    const slippage = TEN
 
     let system: DeployedSystemInfo
 
@@ -705,7 +706,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       const actualFees = feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore)
       expectToBe(
         new BigNumber(
-          positionTransition.simulation.swap.tokenFee.div(ONE.minus(slippage)).toString(),
+          positionTransition.simulation.swap.tokenFee.div(ONE.minus(slippage.div(100))).toString(),
         ).toFixed(0),
         'gte',
         actualFees,

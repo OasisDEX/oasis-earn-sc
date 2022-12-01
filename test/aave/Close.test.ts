@@ -5,6 +5,7 @@ import {
   OPERATION_NAMES,
   Position,
   strategies,
+  TEN,
   ZERO,
 } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
@@ -666,7 +667,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
   describe('Should close position with real oneInch', () => {
     const multiple = new BigNumber(2)
-    const slippage = new BigNumber(0.1)
+    const slippage = TEN
     const depositAmount = amountToWei(new BigNumber(1))
 
     let openTxStatus: boolean

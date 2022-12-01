@@ -5,14 +5,16 @@ import { swapOneInchTokens } from './1inch'
 
 export const getOneInchCall =
   (swapAddress: string, protocols: string[] = [], debug?: true) =>
+  // @param from - The value MUST be in WEI
+  // @param to - The value MUST be in WEI
+  // @param slippage - The value MUST be a percentage
   async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
-    const slippageAsPercentage = slippage.times(100).toString()
     const response = await swapOneInchTokens(
       from,
       to,
       amount.toString(),
       swapAddress,
-      slippageAsPercentage.toString(),
+      slippage.toString(),
       protocols,
     )
 
@@ -22,7 +24,7 @@ export const getOneInchCall =
       console.log('to:', to)
       console.log('fromTokenAmount', response.fromTokenAmount.toString())
       console.log('toTokenAmount', response.toTokenAmount.toString())
-      console.log(`slippage ${slippageAsPercentage.toString()}%`)
+``      console.log(`slippage ${slippage.toString()}%`)
     }
 
     return {
