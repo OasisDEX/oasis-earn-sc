@@ -404,7 +404,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       }
     }
 
-    describe.skip(`Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+    describe(`Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
       const depositAmount = amountToWei(new BigNumber(1))
       const adjustMultipleUp = new BigNumber(3.5)
 
@@ -483,7 +483,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       })
     })
 
-    describe.skip(`Increase Multiple: With ${tokens.ETH} collateral & ${tokens.USDC} debt`, function () {
+    describe(`Increase Multiple: With ${tokens.ETH} collateral & ${tokens.USDC} debt`, function () {
       const depositAmount = amountToWei(new BigNumber(1))
       const adjustMultipleUp = new BigNumber(3.5)
 
@@ -562,7 +562,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       })
     })
 
-    describe.skip(`Increase Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
+    describe(`Increase Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(1)
       const adjustMultipleUp = new BigNumber(3.5)
 

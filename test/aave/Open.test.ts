@@ -55,7 +55,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe.skip('On forked chain', function () {
+  describe('On forked chain', function () {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
@@ -258,7 +258,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       }
     }
 
-    describe.skip(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+    describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
       const depositEthAmount = amountToWei(new BigNumber(1))
       gasEstimates = gasEstimateHelper()
       let userStEthReserveData: AAVEReserveData
@@ -343,7 +343,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe.skip(`With ${tokens.ETH} collateral (+dep) & ${tokens.USDC} debt`, function () {
+    describe(`With ${tokens.ETH} collateral (+dep) & ${tokens.USDC} debt`, function () {
       const depositEthAmount = new BigNumber(600)
 
       let userEthReserveData: AAVEReserveData
@@ -422,7 +422,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe.skip(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
+    describe(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
@@ -497,7 +497,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
 
-    describe.skip(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
+    describe(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
       const depositWBTCAmount = new BigNumber(6)
 
       let userWBTCReserveData: AAVEReserveData
