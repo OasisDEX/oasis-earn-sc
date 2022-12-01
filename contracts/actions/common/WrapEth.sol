@@ -1,4 +1,5 @@
-pragma solidity ^0.8.1;
+// SPDX-License-Identifier: AGPL-3.0-or-later
+pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
@@ -36,7 +37,7 @@ contract WrapEth is Executable, UseStore {
 
     IWETH(registry.getRegisteredService(WETH)).deposit{ value: wrapData.amount }();
 
-    emit Action(WRAP_ETH, bytes32(wrapData.amount));
+    emit Action(WRAP_ETH, bytes(abi.encode(wrapData.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (WrapEthData memory params) {

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
@@ -17,9 +18,6 @@ import { IERC20 } from "../../interfaces/tokens/IERC20.sol";
 contract AaveBorrow is Executable, UseStore {
   using Write for OperationStorage;
 
-  IVariableDebtToken public constant dWETH =
-    IVariableDebtToken(0xF63B34710400CAd3e044cFfDcAb00a0f32E33eCf);
-
   constructor(address _registry) UseStore(_registry) {}
 
   /**
@@ -37,7 +35,7 @@ contract AaveBorrow is Executable, UseStore {
     );
 
     store().write(bytes32(borrow.amount));
-    emit Action(BORROW_ACTION, bytes32(borrow.amount));
+    emit Action(BORROW_ACTION, bytes(abi.encode(borrow.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (BorrowData memory params) {

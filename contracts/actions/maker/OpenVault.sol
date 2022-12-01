@@ -16,19 +16,19 @@ contract MakerOpenVault is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     OpenVaultData memory openVaultData = parseInputs(data);
 
-    bytes32 vaultId = _openVault(openVaultData);
-    store().write(vaultId);
+    uint256 vaultId = _openVault(openVaultData);
+    store().write(bytes32(vaultId));
 
-    emit Action(OPEN_VAULT_ACTION, vaultId);
+    emit Action(OPEN_VAULT_ACTION, bytes(abi.encode(vaultId)));
   }
 
-  function _openVault(OpenVaultData memory data) internal returns (bytes32) {
+  function _openVault(OpenVaultData memory data) internal returns (uint256) {
     bytes32 ilk = data.joinAddress.ilk();
 
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
     uint256 vaultId = manager.open(ilk, address(this));
 
-    return bytes32(vaultId);
+    return vaultId;
   }
 
   function parseInputs(bytes memory _callData) public pure returns (OpenVaultData memory params) {
