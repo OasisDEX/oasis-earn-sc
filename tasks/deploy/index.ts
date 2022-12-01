@@ -378,75 +378,185 @@ async function addAAVEOperationsToRegistry(
     returnFundsHash,
   } = hashes
 
-  await operationsRegistry.addOp(
-    OPERATION_NAMES.aave.OPEN_POSITION,
-    [
-      takeAFlashloanHash,
-      pullTokenHash,
-      pullTokenHash,
-      setApprovalHash,
-      depositInAAVEHash,
-      borromFromAAVEHash,
-      wrapEthHash,
-      swapActionHash,
-      setApprovalHash,
-      depositInAAVEHash,
-      withdrawFromAAVEHash,
-    ],
-    [false, true, true, false, false, false, true, false, false, false, false],
-  )
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
+    {
+      hash: takeAFlashloanHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEHash,
+      optional: false,
+    },
+    {
+      hash: borromFromAAVEHash,
+      optional: false,
+    },
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEHash,
+      optional: false,
+    },
+    {
+      hash: withdrawFromAAVEHash,
+      optional: false,
+    },
+  ])
 
-  await operationsRegistry.addOp(
-    OPERATION_NAMES.aave.CLOSE_POSITION,
-    [
-      takeAFlashloanHash,
-      setApprovalHash,
-      depositInAAVEHash,
-      withdrawFromAAVEHash,
-      swapActionHash,
-      setApprovalHash,
-      paybackToAAVEHash,
-      withdrawFromAAVEHash,
-      unwrapEthHash,
-      returnFundsHash,
-      returnFundsHash,
-    ],
-    [false, false, false, false, false, false, false, false, true, false, false],
-  )
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.CLOSE_POSITION, [
+    {
+      hash: takeAFlashloanHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEHash,
+      optional: false,
+    },
+    {
+      hash: withdrawFromAAVEHash,
+      optional: false,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: paybackToAAVEHash,
+      optional: false,
+    },
+    {
+      hash: withdrawFromAAVEHash,
+      optional: false,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsHash,
+      optional: false,
+    },
+    {
+      hash: returnFundsHash,
+      optional: false,
+    },
+  ])
 
-  await operationsRegistry.addOp(
-    OPERATION_NAMES.aave.INCREASE_POSITION,
-    [
-      takeAFlashloanHash,
-      pullTokenHash,
-      pullTokenHash,
-      setApprovalHash,
-      depositInAAVEHash,
-      borromFromAAVEHash,
-      wrapEthHash,
-      swapActionHash,
-      setApprovalHash,
-      depositInAAVEHash,
-      withdrawFromAAVEHash,
-    ],
-    [false, true, true, false, false, false, true, false, false, false, false],
-  )
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.INCREASE_POSITION, [
+    {
+      hash: takeAFlashloanHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEHash,
+      optional: false,
+    },
+    {
+      hash: borromFromAAVEHash,
+      optional: false,
+    },
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEHash,
+      optional: false,
+    },
+    {
+      hash: withdrawFromAAVEHash,
+      optional: false,
+    },
+  ])
 
-  await operationsRegistry.addOp(
-    OPERATION_NAMES.aave.DECREASE_POSITION,
-    [
-      takeAFlashloanHash,
-      setApprovalHash,
-      depositInAAVEHash,
-      withdrawFromAAVEHash,
-      swapActionHash,
-      setApprovalHash,
-      depositInAAVEHash,
-      paybackToAAVEHash,
-      withdrawFromAAVEHash,
-    ],
-    [false, false, false, false, false, false, false, false, false],
-  )
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.DECREASE_POSITION, [
+    {
+      hash: takeAFlashloanHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEHash,
+      optional: false,
+    },
+    {
+      hash: withdrawFromAAVEHash,
+      optional: false,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEHash,
+      optional: false,
+    },
+    {
+      hash: paybackToAAVEHash,
+      optional: false,
+    },
+    {
+      hash: withdrawFromAAVEHash,
+      optional: false,
+    },
+  ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [], [])
+  await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
 }
