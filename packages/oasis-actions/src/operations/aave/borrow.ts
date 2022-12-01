@@ -1,49 +1,21 @@
 import BigNumber from 'bignumber.js'
-import { assert } from 'console'
 
 import { aaveDeposit } from '../../actions/aave'
 import { pullToken, setApproval, swap, wrapEth } from '../../actions/common'
 import { ADDRESSES } from '../../helpers/addresses'
 import { OPERATION_NAMES } from '../../helpers/constants'
 
-interface SwapArgs {
-  fee: number
-  receiveAtLeast: BigNumber
-  calldata: string
-  collectFeeInFromToken: boolean
-}
-
-// TODO: Probably put a generic about the tokens i.e DepositArgs<Tokens> and provide AAVETokens
-// TODO: Take into consideration the precision for the tokens. So indeed might be a good idea for the Tokens generics
-interface DepositArgs {
-  // - either for a swap where the `entryToken` will be exchanged for the `depositToken`
-  // - or it will be directly deposited in the protocol
-  entryToken: string
-  // - either used for a swap if `entryToken` is swapped for `depositToken`
-  // - or it will be directly deposited in the protocol
+interface BorrowArgs {
+  borrowToken: string
   amount: BigNumber
-  // - if it's omitted that means that the `entryToken` with bbe used in the deposit
-  // - if it's provided that means that the `entryToken` will be swapped for `depositToken`
-  depositToken?: string
-  // Used to pull tokens from if ERC20 is used in the deposit
-  depositorAddress: string
-  // In order to borrow assets on aave the deposited ones ( lent ) should be allowed to be used as collateral.
-  allowDepositTokenAsCollateral: boolean
-  // Must be provided if `depositToken` is also provided
-  swapArgs?: SwapArgs
 }
-export async function deposit({
-  entryToken,
-  depositToken,
-  amount,
-  depositorAddress,
-  swapArgs,
-}: DepositArgs) {
-  const isSwapNeeded = !!depositToken
-  const isAssetEth = entryToken === ADDRESSES.main.ETH
-  const actualAssetToSwap = entryToken != ADDRESSES.main.ETH ? entryToken : ADDRESSES.main.WETH
+export async function borrow({ borrowToken, amount }: BorrowArgs) {
+  const isAssetEth = borrowToken === ADDRESSES.main.ETH
 
-  if (isSwapNeeded) assert(swapArgs, 'Provide Swap Args')
+  return {
+    calls: [],
+    operationName: OPERATION_NAMES.common.CUSTOM_OPERATION,
+  }
 
   return {
     calls: [
