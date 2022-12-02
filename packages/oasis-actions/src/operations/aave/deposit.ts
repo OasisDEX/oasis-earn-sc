@@ -3,7 +3,9 @@ import { assert } from 'console'
 import { aaveDeposit } from '../../actions/aave'
 import { wrapEth, pullToken, swap, setApproval } from '../../actions/common'
 import { ADDRESSES } from '../../helpers/addresses'
-import { OPERATION_NAMES } from '../../helpers/constants'
+import { CONTRACT_NAMES, OPERATION_NAMES } from '../../helpers/constants'
+import { AddressZero } from '@ethersproject/constants'
+import { getActionHash } from '../../actions/getActionHash'
 
 interface SwapArgs {
   fee: number
@@ -50,61 +52,67 @@ export async function deposit({
     assert(swapArgs, 'Provide Swap Args')
   }
 
+  const wrapEthAction = {
+    ...wrapEth({
+      amount,
+    }),
+    skipped: !isAssetEth,
+  }
+
+  const pullTokenAction = {
+    ...pullToken({
+      amount,
+      asset: entryTokenAddress,
+      from: depositorAddress,
+    }),
+    skipped: isAssetEth,
+  }
+
+  const swapAction = {
+    ...(isSwapNeeded
+      ? swap({
+          fromAsset: actualAssetToSwap,
+          toAsset: depositTokenAddress!,
+          amount: amount,
+          receiveAtLeast: swapArgs?.receiveAtLeast!,
+          fee: swapArgs?.fee!,
+          withData: swapArgs?.calldata!,
+          collectFeeInFromToken: swapArgs?.collectFeeInFromToken!,
+        })
+      : { targetHash: getActionHash(CONTRACT_NAMES.common.SWAP_ACTION), callData: '0x' }),
+    skipped: !isSwapNeeded,
+  }
+
+  const setApprovalAction = setApproval(
+    {
+      asset: depositTokenAddress || entryTokenAddress,
+      delegate: ADDRESSES.main.aave.MainnetLendingPool,
+      // Check the explanation about the deposit action.
+      // This approval is about the amount that's going to be deposit in the following action
+      amount,
+      sumAmounts: false,
+    },
+    [0, 0, isSwapNeeded ? 1 : 0, 0],
+  )
+
+  // If there is a 1 in the mapping for this param,
+  // that means that the actual value that will be deposited
+  // is amount that was received from the swap therefore no matter what is provided here
+  // it will be ignored.
+  // On other note, if mapping is 0, that means that no swap is required
+  // therefore the actual deposited value will be used.
+  const aaveDepositAction = aaveDeposit(
+    {
+      asset: depositTokenAddress || entryTokenAddress,
+      amount,
+      sumAmounts: false,
+      setAsCollateral: false,
+    },
+    [0, isSwapNeeded ? 1 : 0, 0, 0],
+  )
+
   return {
-    calls: [
-      ...(isAssetEth
-        ? [
-            wrapEth({
-              amount,
-            }),
-          ]
-        : [
-            pullToken({
-              amount,
-              asset: entryTokenAddress,
-              from: depositorAddress,
-            }),
-          ]),
-      ...(isSwapNeeded
-        ? [
-            swap({
-              fromAsset: actualAssetToSwap,
-              toAsset: depositTokenAddress!,
-              amount: amount,
-              receiveAtLeast: swapArgs?.receiveAtLeast!,
-              fee: swapArgs?.fee!,
-              withData: swapArgs?.calldata!,
-              collectFeeInFromToken: swapArgs?.collectFeeInFromToken!,
-            }),
-          ]
-        : []),
-      setApproval(
-        {
-          asset: depositTokenAddress || entryTokenAddress,
-          delegate: ADDRESSES.main.aave.MainnetLendingPool,
-          // Check the explanation about the deposit action.
-          // This approval is about the amount that's going to be deposit in the following action
-          amount,
-          sumAmounts: false,
-        },
-        [0, 0, isSwapNeeded ? 1 : 0, 0],
-      ),
-      // If there is a 1 in the mapping for this param,
-      // that means that the actual value that will be deposited
-      // is amount that was received from the swap therefore no matter what is provided here
-      // it will be ignored.
-      // On other note, if mapping is 0, that means that no swap is required
-      // therefore the actual deposited value will be used.
-      aaveDeposit(
-        {
-          asset: depositTokenAddress || entryTokenAddress,
-          amount,
-          sumAmounts: false,
-          setAsCollateral: false,
-        },
-        [0, isSwapNeeded ? 1 : 0, 0, 0],
-      ),
-    ],
-    operationName: OPERATION_NAMES.common.CUSTOM_OPERATION,
+    calls: [wrapEthAction, pullTokenAction, swapAction, setApprovalAction, aaveDepositAction],
+    operationName: OPERATION_NAMES.aave.DEPOSIT_WITH_OPTIONAL_SWAP,
   }
 }

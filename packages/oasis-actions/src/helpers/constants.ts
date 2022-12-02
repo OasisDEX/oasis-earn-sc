@@ -56,6 +56,7 @@ export const CONTRACT_NAMES = {
   },
   test: {
     DUMMY_ACTION: 'DummyAction',
+    DUMMY_OPTIONAL_ACTION: 'DummyOptionalAction',
     DUMMY_SWAP: 'DummySwap',
     DUMMY_EXCHANGE: 'DummyExchange',
     SWAP: 'uSwap',
@@ -75,6 +76,7 @@ export const OPERATION_NAMES = {
     CLOSE_POSITION: 'CloseAAVEPosition',
     INCREASE_POSITION: 'IncreaseAAVEPosition',
     DECREASE_POSITION: 'DecreaseAAVEPosition',
+    DEPOSIT_WITH_OPTIONAL_SWAP: 'DepositWithOptionalSwap',
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',
@@ -95,7 +97,7 @@ export const OPERATION_NAMES = {
 type ValuesOf<T> = T[keyof T]
 type AAVEOperations = ValuesOf<typeof OPERATION_NAMES['aave']>
 type MakerOperations = ValuesOf<typeof OPERATION_NAMES['maker']>
-type CommonOperations = ValuesOf<typeof OPERATION_NAMES['maker']>
+type CommonOperations = ValuesOf<typeof OPERATION_NAMES['common']>
 export type OperationNames = AAVEOperations | MakerOperations | CommonOperations
 
 // If configuring a low LTV, we might not need a flashloan (therefore flashloan == 0), but we still perform
