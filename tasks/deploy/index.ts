@@ -27,7 +27,7 @@ task(
       operationsRegistryAddress,
       operationExecutorAddress,
       operationStorageAddress,
-    } = await deployCoreContacts({ deploy, debug: options.debug })
+    } = await deployCoreContacts({ deploy, debug: taskArgs.debug })
 
     const {
       pullTokenActionAddress,
@@ -37,25 +37,29 @@ task(
       wrapActionAddress,
       unwrapActionAddress,
       returnFundsActionAddress,
-    } = await deployCommonActions(deploy, serviceRegistryAddress)
+      uSwapAddress,
+      swapAddress,
+      swapActionAddress,
+    } = await deployCommonActions({ deploy, serviceRegistryAddress, config, debug: taskArgs.debug })
 
     const {
       depositInAAVEAddress,
       borrowFromAAVEAddress,
       withdrawFromAAVEAddress,
       actionPaybackFromAAVEAddress,
-      uSwapAddress,
-      swapAddress,
-      swapActionAddress,
-    } = await deployAaveActions(deploy, serviceRegistryAddress, config)
+    } = await deployAaveActions({ deploy, serviceRegistryAddress, debug: taskArgs.debug })
 
     const registry: ServiceRegistry = new ServiceRegistry(serviceRegistryAddress, config.signer)
-    await addThirdPartyContractsToRegistry(registry)
+    await addThirdPartyContractsToRegistry({ registry, debug: taskArgs.debug })
 
-    await addCoreContractsToRegistry(registry, {
-      operationExecutorAddress,
-      operationStorageAddress,
-      operationsRegistryAddress,
+    await addCoreContractsToRegistry({
+      registry,
+      addresses: {
+        operationExecutorAddress,
+        operationStorageAddress,
+        operationsRegistryAddress,
+      },
+      debug: taskArgs.debug,
     })
 
     const {
@@ -67,24 +71,32 @@ task(
       wrapEthHash,
       unwrapEthHash,
       returnFundsHash,
-    } = await addCommonActionsToRegistry(registry, {
-      pullTokenActionAddress,
-      sendTokenAddress,
-      setApprovalAddress,
-      flActionAddress,
-      swapActionAddress,
-      swapAddress: taskArgs.usefallbackswap ? uSwapAddress : swapAddress,
-      wrapActionAddress,
-      unwrapActionAddress,
-      returnFundsActionAddress,
+    } = await addCommonActionsToRegistry({
+      registry,
+      addresses: {
+        pullTokenActionAddress,
+        sendTokenAddress,
+        setApprovalAddress,
+        flActionAddress,
+        swapActionAddress,
+        swapAddress: taskArgs.usefallbackswap ? uSwapAddress : swapAddress,
+        wrapActionAddress,
+        unwrapActionAddress,
+        returnFundsActionAddress,
+      },
+      debug: taskArgs.debug,
     })
 
     const { depositInAAVEHash, borromFromAAVEHash, withdrawFromAAVEHash, paybackToAAVEHash } =
-      await addAAVEActionsToRegistry(registry, {
-        depositInAAVEAddress,
-        borrowFromAAVEAddress,
-        withdrawFromAAVEAddress,
-        actionPaybackFromAAVEAddress,
+      await addAAVEActionsToRegistry({
+        registry,
+        addresses: {
+          depositInAAVEAddress,
+          borrowFromAAVEAddress,
+          withdrawFromAAVEAddress,
+          actionPaybackFromAAVEAddress,
+        },
+        debug: taskArgs.debug,
       })
 
     await addMakerActionsToRegistry()
@@ -93,24 +105,32 @@ task(
       operationsRegistryAddress,
       config.signer,
     )
-    await addAAVEOperationsToRegistry(operationsRegistry, {
-      pullTokenHash,
-      takeAFlashloanHash,
-      setApprovalHash,
-      depositInAAVEHash,
-      paybackToAAVEHash,
-      borromFromAAVEHash,
-      swapActionHash,
-      withdrawFromAAVEHash,
-      sendTokenHash,
-      wrapEthHash,
-      unwrapEthHash,
-      returnFundsHash,
+    await addAAVEOperationsToRegistry({
+      operationsRegistry,
+      hashes: {
+        pullTokenHash,
+        takeAFlashloanHash,
+        setApprovalHash,
+        depositInAAVEHash,
+        paybackToAAVEHash,
+        borromFromAAVEHash,
+        swapActionHash,
+        withdrawFromAAVEHash,
+        sendTokenHash,
+        wrapEthHash,
+        unwrapEthHash,
+        returnFundsHash,
+      },
+      debug: taskArgs.debug,
     })
   })
 
 async function deployCoreContacts(args: { deploy: DeployFunction; debug: boolean }) {
   const { deploy, debug } = args
+  if (debug) {
+    console.log('==== ==== ====')
+    console.log('DEPLOYING CORE CONTRACTS')
+  }
   const [, serviceRegistryAddress] = await deploy(CONTRACT_NAMES.common.SERVICE_REGISTRY, [0])
   const [, operationsRegistryAddress] = await deploy(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, [])
   const [, operationExecutorAddress] = await deploy(CONTRACT_NAMES.common.OPERATION_EXECUTOR, [
@@ -132,9 +152,14 @@ async function deployCoreContacts(args: { deploy: DeployFunction; debug: boolean
 async function deployCommonActions(args: {
   deploy: DeployFunction
   serviceRegistryAddress: string
+  config: RuntimeConfig
   debug: boolean
 }) {
-  const { deploy, serviceRegistryAddress, debug } = args
+  const { deploy, serviceRegistryAddress, config, debug } = args
+  if (debug) {
+    console.log('==== ==== ====')
+    console.log('DEPLOYING COMMON CONTRACTS')
+  }
   const [, pullTokenActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
   const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
   const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
@@ -154,36 +179,6 @@ async function deployCommonActions(args: {
 
   const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
 
-  return {
-    pullTokenActionAddress,
-    sendTokenAddress,
-    setApprovalAddress,
-    flActionAddress,
-    wrapActionAddress,
-    unwrapActionAddress,
-    returnFundsActionAddress,
-  }
-}
-
-async function deployAaveActions(args: {
-  deploy: DeployFunction
-  serviceRegistryAddress: string
-  config: RuntimeConfig
-  debug: boolean
-}) {
-  const { deploy, serviceRegistryAddress, config, debug } = args
-  const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
-    serviceRegistryAddress,
-  ])
-  const [, borrowFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.BORROW, [
-    serviceRegistryAddress,
-  ])
-  const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.WITHDRAW, [
-    serviceRegistryAddress,
-  ])
-  const [, actionPaybackFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.PAYBACK, [
-    serviceRegistryAddress,
-  ])
   const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
     config.address,
     ADDRESSES.main.feeRecipient,
@@ -211,13 +206,47 @@ async function deployAaveActions(args: {
   ])
 
   return {
+    pullTokenActionAddress,
+    sendTokenAddress,
+    setApprovalAddress,
+    flActionAddress,
+    wrapActionAddress,
+    unwrapActionAddress,
+    returnFundsActionAddress,
+    uSwapAddress,
+    swapAddress,
+    swapActionAddress,
+  }
+}
+
+async function deployAaveActions(args: {
+  deploy: DeployFunction
+  serviceRegistryAddress: string
+  debug: boolean
+}) {
+  const { deploy, serviceRegistryAddress, debug } = args
+  if (debug) {
+    console.log('==== ==== ====')
+    console.log('DEPLOYING AAVE CONTRACTS')
+  }
+  const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
+    serviceRegistryAddress,
+  ])
+  const [, borrowFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.BORROW, [
+    serviceRegistryAddress,
+  ])
+  const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.WITHDRAW, [
+    serviceRegistryAddress,
+  ])
+  const [, actionPaybackFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.PAYBACK, [
+    serviceRegistryAddress,
+  ])
+
+  return {
     depositInAAVEAddress,
     borrowFromAAVEAddress,
     withdrawFromAAVEAddress,
     actionPaybackFromAAVEAddress,
-    uSwapAddress,
-    swapAddress,
-    swapActionAddress,
   }
 }
 
@@ -282,18 +311,32 @@ async function addCoreContractsToRegistry(args: {
   debug: boolean
 }) {
   const { registry, addresses, debug } = args
-  await registry.addEntry(
+  const operationExecutorHash = await registry.addEntry(
     CONTRACT_NAMES.common.OPERATION_EXECUTOR,
     addresses.operationExecutorAddress,
   )
-  await registry.addEntry(
+  const operationStorageHash = await registry.addEntry(
     CONTRACT_NAMES.common.OPERATION_STORAGE,
     addresses.operationStorageAddress,
   )
-  await registry.addEntry(
+  const operationsRegistryHash = await registry.addEntry(
     CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
     addresses.operationsRegistryAddress,
   )
+
+  if (debug) {
+    console.log('==== ==== ====')
+    console.log('ADDING CORE CONTRACTS TO REGISTRY')
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.OPERATION_EXECUTOR} is ${operationExecutorHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.OPERATION_STORAGE} is ${operationStorageHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.OPERATIONS_REGISTRY} is ${operationsRegistryHash}`,
+    )
+  }
 }
 
 async function addCommonActionsToRegistry(args: {
@@ -328,7 +371,7 @@ async function addCommonActionsToRegistry(args: {
     CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
     addresses.flActionAddress,
   )
-  await registry.addEntry(CONTRACT_NAMES.common.SWAP, addresses.swapAddress)
+  const swapHash = await registry.addEntry(CONTRACT_NAMES.common.SWAP, addresses.swapAddress)
   const swapActionHash = await registry.addEntry(
     CONTRACT_NAMES.common.SWAP_ACTION,
     addresses.swapActionAddress,
@@ -345,6 +388,36 @@ async function addCommonActionsToRegistry(args: {
     CONTRACT_NAMES.common.RETURN_FUNDS,
     addresses.returnFundsActionAddress,
   )
+
+  if (debug) {
+    console.log('==== ==== ====')
+    console.log('ADDING COMMON ACTIONS TO REGISTRY')
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.PULL_TOKEN} is ${pullTokenHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.SEND_TOKEN} is ${sendTokenHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.SET_APPROVAL} is ${setApprovalHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.TAKE_A_FLASHLOAN} is ${takeAFlashloanHash}`,
+    )
+    console.log(`Service Registry Hash for contract: ${CONTRACT_NAMES.common.SWAP} is ${swapHash}`)
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.SWAP_ACTION} is ${swapActionHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.WRAP_ETH} is ${wrapEthHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.UNWRAP_ETH} is ${unwrapEthHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.RETURN_FUNDS} is ${returnFundsHash}`,
+    )
+  }
 
   return {
     pullTokenHash,
@@ -385,6 +458,23 @@ async function addAAVEActionsToRegistry(args: {
     CONTRACT_NAMES.aave.PAYBACK,
     addresses.actionPaybackFromAAVEAddress,
   )
+
+  if (debug) {
+    console.log('==== ==== ====')
+    console.log('ADDING AAVE ACTIONS TO REGISTRY')
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.DEPOSIT} is ${depositInAAVEHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.BORROW} is ${borromFromAAVEHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.WITHDRAW} is ${withdrawFromAAVEHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.PAYBACK} is ${paybackToAAVEHash}`,
+    )
+  }
 
   return {
     depositInAAVEHash,
@@ -431,7 +521,7 @@ async function addAAVEOperationsToRegistry(args: {
     returnFundsHash,
   } = hashes
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
+  const openPositionActions = [
     {
       hash: takeAFlashloanHash,
       optional: false,
@@ -476,9 +566,10 @@ async function addAAVEOperationsToRegistry(args: {
       hash: withdrawFromAAVEHash,
       optional: false,
     },
-  ])
+  ]
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, openPositionActions)
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.CLOSE_POSITION, [
+  const closePositionActions = [
     {
       hash: takeAFlashloanHash,
       optional: false,
@@ -523,9 +614,10 @@ async function addAAVEOperationsToRegistry(args: {
       hash: returnFundsHash,
       optional: false,
     },
-  ])
+  ]
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.CLOSE_POSITION, closePositionActions)
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.INCREASE_POSITION, [
+  const increasePositionMultipleActions = [
     {
       hash: takeAFlashloanHash,
       optional: false,
@@ -570,9 +662,13 @@ async function addAAVEOperationsToRegistry(args: {
       hash: withdrawFromAAVEHash,
       optional: false,
     },
-  ])
+  ]
+  await operationsRegistry.addOp(
+    OPERATION_NAMES.aave.INCREASE_POSITION,
+    increasePositionMultipleActions,
+  )
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.DECREASE_POSITION, [
+  const decreasePositionMultipleActions = [
     {
       hash: takeAFlashloanHash,
       optional: false,
@@ -609,7 +705,32 @@ async function addAAVEOperationsToRegistry(args: {
       hash: withdrawFromAAVEHash,
       optional: false,
     },
-  ])
+  ]
+  await operationsRegistry.addOp(
+    OPERATION_NAMES.aave.DECREASE_POSITION,
+    decreasePositionMultipleActions,
+  )
 
   await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
+
+  if (debug) {
+    console.log('==== ==== ====')
+    console.log('ADDING OPERATIONS TO REGISTRY')
+    console.log(
+      `Operations Registry Entry for Open AAVE Position: ${JSON.stringify(openPositionActions)}`,
+    )
+    console.log(
+      `Operations Registry Entry for Close AAVE Position: ${JSON.stringify(closePositionActions)}`,
+    )
+    console.log(
+      `Operations Registry Entry for Increase Multiple AAVE Position: ${JSON.stringify(
+        increasePositionMultipleActions,
+      )}`,
+    )
+    console.log(
+      `Operations Registry Entry for Decrease Multiple AAVE Position: ${JSON.stringify(
+        decreasePositionMultipleActions,
+      )}`,
+    )
+  }
 }
