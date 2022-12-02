@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import * as actions from '../../actions'
-import { ZERO } from '../../helpers/constants'
+import { OPERATION_NAMES, ZERO } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
 
@@ -25,18 +25,12 @@ export async function increaseMultiple(
     collectFeeFrom: 'sourceToken' | 'targetToken'
     collateralTokenAddress: string
     debtTokenAddress: string
+    useFlashloan: boolean
     proxy: string
     user: string
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
-  const use = {
-    pullDebtTokensInToProxy:
-      args.depositDebtTokens.amountInWei.gt(ZERO) && !args.depositDebtTokens.isEth,
-    pullCollateralInToProxy:
-      args.depositCollateral.amountInWei.gt(ZERO) && !args.depositCollateral.isEth,
-  }
-
   const pullDebtTokensToProxy = actions.common.pullToken({
     asset: args.debtTokenAddress,
     amount: args.depositDebtTokens.amountInWei,
@@ -108,6 +102,12 @@ export async function increaseMultiple(
     to: addresses.operationExecutor,
   })
 
+  pullDebtTokensToProxy.skipped =
+    args.depositDebtTokens.amountInWei.eq(ZERO) || args.depositDebtTokens.isEth
+  pullCollateralTokensToProxy.skipped =
+    args.depositCollateral.amountInWei.eq(ZERO) || args.depositCollateral.isEth
+  wrapEth.skipped = !args.depositDebtTokens.isEth && !args.depositCollateral.isEth
+
   const flashloanCalls = [
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
@@ -126,12 +126,8 @@ export async function increaseMultiple(
     calls: flashloanCalls,
   })
 
-  const calls = [takeAFlashLoan]
-  use.pullDebtTokensInToProxy && calls.unshift(pullDebtTokensToProxy)
-  use.pullCollateralInToProxy && calls.unshift(pullCollateralTokensToProxy)
-
   return {
-    calls,
-    operationName: 'CUSTOM_OPERATION', // TODO: Disabled for now until OpRegistry has been rediscussed
+    calls: [takeAFlashLoan],
+    operationName: OPERATION_NAMES.aave.INCREASE_POSITION,
   }
 }

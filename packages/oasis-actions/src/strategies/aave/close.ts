@@ -95,6 +95,7 @@ export async function close(
       proxy: dependencies.proxy,
       collectFeeFrom: collectFeeFrom,
       collateralTokenAddress,
+      collateralIsEth: args.collateralToken.symbol === 'ETH',
       debtTokenAddress,
       debtTokenIsEth: args.debtToken.symbol === 'ETH',
     },
