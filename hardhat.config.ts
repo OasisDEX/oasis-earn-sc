@@ -132,7 +132,6 @@ const config: HardhatUserConfig = {
     clear: true,
     flat: true,
     spacing: 2,
-    pretty: true,
   },
 }
 
