@@ -14,7 +14,6 @@ task(
   .addFlag('debug', 'When used, deployed contract address is displayed')
   .addFlag('usefallbackswap', 'Use fallback (or dummy) swap contract')
   .setAction(async (taskArgs, hre) => {
-    console.log('running')
     const config = await init(hre)
     const options = {
       debug: taskArgs.debug,
@@ -28,7 +27,7 @@ task(
       operationsRegistryAddress,
       operationExecutorAddress,
       operationStorageAddress,
-    } = await deployCoreContacts(deploy)
+    } = await deployCoreContacts({ deploy, debug: options.debug })
 
     const {
       pullTokenActionAddress,
@@ -110,7 +109,8 @@ task(
     })
   })
 
-async function deployCoreContacts(deploy: DeployFunction) {
+async function deployCoreContacts(args: { deploy: DeployFunction; debug: boolean }) {
+  const { deploy, debug } = args
   const [, serviceRegistryAddress] = await deploy(CONTRACT_NAMES.common.SERVICE_REGISTRY, [0])
   const [, operationsRegistryAddress] = await deploy(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, [])
   const [, operationExecutorAddress] = await deploy(CONTRACT_NAMES.common.OPERATION_EXECUTOR, [
@@ -129,7 +129,12 @@ async function deployCoreContacts(deploy: DeployFunction) {
   }
 }
 
-async function deployCommonActions(deploy: DeployFunction, serviceRegistryAddress: string) {
+async function deployCommonActions(args: {
+  deploy: DeployFunction
+  serviceRegistryAddress: string
+  debug: boolean
+}) {
+  const { deploy, serviceRegistryAddress, debug } = args
   const [, pullTokenActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
   const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
   const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
@@ -160,11 +165,13 @@ async function deployCommonActions(deploy: DeployFunction, serviceRegistryAddres
   }
 }
 
-async function deployAaveActions(
-  deploy: DeployFunction,
-  serviceRegistryAddress: string,
-  config: RuntimeConfig,
-) {
+async function deployAaveActions(args: {
+  deploy: DeployFunction
+  serviceRegistryAddress: string
+  config: RuntimeConfig
+  debug: boolean
+}) {
+  const { deploy, serviceRegistryAddress, config, debug } = args
   const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
     serviceRegistryAddress,
   ])
@@ -214,27 +221,67 @@ async function deployAaveActions(
   }
 }
 
-async function addThirdPartyContractsToRegistry(registry: ServiceRegistry) {
-  await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
-  await registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
-  await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
-  await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
-  await registry.addEntry(
+async function addThirdPartyContractsToRegistry(args: {
+  registry: ServiceRegistry
+  debug?: boolean
+}) {
+  const { registry, debug } = args
+  const uniswapRouterHash = await registry.addEntry(
+    CONTRACT_NAMES.common.UNISWAP_ROUTER,
+    ADDRESSES.main.uniswapRouterV3,
+  )
+  const flashmintModuleHash = await registry.addEntry(
+    CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
+    ADDRESSES.main.maker.fmm,
+  )
+  const wethHash = await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
+  const daiHash = await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
+  const oneInchAggregatorHash = await registry.addEntry(
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     ADDRESSES.main.oneInchAggregator,
   )
-  await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
-  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
+  const aaveLendingPoolHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.LENDING_POOL,
+    ADDRESSES.main.aave.MainnetLendingPool,
+  )
+  const wethGatewayhash = await registry.addEntry(
+    CONTRACT_NAMES.aave.WETH_GATEWAY,
+    ADDRESSES.main.aave.WETHGateway,
+  )
+
+  if (debug) {
+    console.log('==== ==== ====')
+    console.log('ADDING THIRD PARTY CONTRACTS TO REGISTRY')
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.UNISWAP_ROUTER} is ${uniswapRouterHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.maker.FLASH_MINT_MODULE} is ${flashmintModuleHash}`,
+    )
+    console.log(`Service Registry Hash for contract: ${CONTRACT_NAMES.common.WETH} is ${wethHash}`)
+    console.log(`Service Registry Hash for contract: ${CONTRACT_NAMES.common.DAI} is ${daiHash}`)
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR} is ${oneInchAggregatorHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.LENDING_POOL} is ${aaveLendingPoolHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.WETH_GATEWAY} is ${wethGatewayhash}`,
+    )
+  }
 }
 
-async function addCoreContractsToRegistry(
-  registry: ServiceRegistry,
+async function addCoreContractsToRegistry(args: {
+  registry: ServiceRegistry
   addresses: {
     operationExecutorAddress: string
     operationStorageAddress: string
     operationsRegistryAddress: string
-  },
-) {
+  }
+  debug: boolean
+}) {
+  const { registry, addresses, debug } = args
   await registry.addEntry(
     CONTRACT_NAMES.common.OPERATION_EXECUTOR,
     addresses.operationExecutorAddress,
@@ -249,8 +296,8 @@ async function addCoreContractsToRegistry(
   )
 }
 
-async function addCommonActionsToRegistry(
-  registry: ServiceRegistry,
+async function addCommonActionsToRegistry(args: {
+  registry: ServiceRegistry
   addresses: {
     pullTokenActionAddress: string
     sendTokenAddress: string
@@ -261,8 +308,10 @@ async function addCommonActionsToRegistry(
     wrapActionAddress: string
     unwrapActionAddress: string
     returnFundsActionAddress: string
-  },
-) {
+  }
+  debug: boolean
+}) {
+  const { registry, addresses, debug } = args
   const pullTokenHash = await registry.addEntry(
     CONTRACT_NAMES.common.PULL_TOKEN,
     addresses.pullTokenActionAddress,
@@ -309,15 +358,17 @@ async function addCommonActionsToRegistry(
   }
 }
 
-async function addAAVEActionsToRegistry(
-  registry: ServiceRegistry,
+async function addAAVEActionsToRegistry(args: {
+  registry: ServiceRegistry
   addresses: {
     depositInAAVEAddress: string
     borrowFromAAVEAddress: string
     withdrawFromAAVEAddress: string
     actionPaybackFromAAVEAddress: string
-  },
-) {
+  }
+  debug: boolean
+}) {
+  const { registry, addresses, debug } = args
   const depositInAAVEHash = await registry.addEntry(
     CONTRACT_NAMES.aave.DEPOSIT,
     addresses.depositInAAVEAddress,
@@ -347,8 +398,8 @@ async function addMakerActionsToRegistry() {
   // TODO: Deploy Maker actions
 }
 
-async function addAAVEOperationsToRegistry(
-  operationsRegistry: OperationsRegistry,
+async function addAAVEOperationsToRegistry(args: {
+  operationsRegistry: OperationsRegistry
   hashes: {
     pullTokenHash: string
     takeAFlashloanHash: string
@@ -362,8 +413,10 @@ async function addAAVEOperationsToRegistry(
     wrapEthHash: string
     unwrapEthHash: string
     returnFundsHash: string
-  },
-) {
+  }
+  debug: boolean
+}) {
+  const { operationsRegistry, hashes, debug } = args
   const {
     pullTokenHash,
     takeAFlashloanHash,
