@@ -78,15 +78,9 @@ export async function deposit(
         ? {
             ...swapData!,
             tokenFee: new BigNumber(FEE),
-            collectFeeFrom: 'sourceToken',
-            sourceToken: {
-              symbol: entryToken.symbol,
-              precision: entryToken.precision!,
-            },
-            targetToken: {
-              symbol: collateralToken.symbol,
-              precision: collateralToken.precision!,
-            },
+            collectFeeFrom: collectSwapFeeFrom!,
+            sourceToken: entryToken,
+            targetToken: collateralToken,
           }
         : undefined,
       flags: { requiresFlashloan: false, isIncreasingRisk: false },
