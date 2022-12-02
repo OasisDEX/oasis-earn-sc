@@ -28,6 +28,11 @@ type WithMultiple = {
   multiple: BigNumber
 }
 
+export type WithFee = {
+  fee: number
+  feeBase: number
+}
+
 export type WithLockedCollateral = {
   collateralAmountLockedInProtocolInWei: BigNumber
 }
@@ -89,6 +94,7 @@ export interface IPositionRepository<Addresses> {
   deposit: (
     args: IBasePositionTransitionArgs<AAVETokens> &
       WithDeposit &
+      WithFee &
       WithDifferentEntryToken<AAVETokens>,
     dependencies: IPositionTransitionDependencies<Addresses>,
   ) => Promise<IPositionTransitionWithOptionalSwap>

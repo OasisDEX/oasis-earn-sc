@@ -28,7 +28,8 @@ describe('A Position', () => {
   let proxyAddress: string
 
   const slippage = TEN // 10%
-  const fee = new BigNumber(0.2)
+  const fee = 0
+  const feeBase = 10000
   const collectSwapFeeFrom = 'sourceToken'
 
   before(async () => {
@@ -77,6 +78,7 @@ describe('A Position', () => {
         },
         {
           fee,
+          feeBase,
           slippage,
           collectSwapFeeFrom,
         },
@@ -130,6 +132,7 @@ describe('A Position', () => {
         },
         {
           fee,
+          feeBase,
           slippage,
           collectSwapFeeFrom,
         },
@@ -183,6 +186,7 @@ describe('A Position', () => {
         },
         {
           fee,
+          feeBase,
           slippage,
           collectSwapFeeFrom,
         },
@@ -234,6 +238,7 @@ describe('A Position', () => {
         },
         {
           fee,
+          feeBase,
           slippage,
           collectSwapFeeFrom,
         },
@@ -271,10 +276,12 @@ async function depositToAPosition(
   {
     slippage,
     fee,
+    feeBase,
     collectSwapFeeFrom,
   }: {
     slippage: BigNumber
-    fee: BigNumber // hardcoded to 0.2%. For now it will be 0.0%.
+    fee: number // For now it will be 0.0%.
+    feeBase: number
     collectSwapFeeFrom: 'sourceToken' | 'targetToken'
   },
 ) {
@@ -283,6 +290,7 @@ async function depositToAPosition(
     ...mainnetAddresses,
     operationExecutor: common.operationExecutor.address,
   }
+
   const { transaction } = await deposit(
     {
       entryToken,
@@ -292,6 +300,8 @@ async function depositToAPosition(
       depositedByUser: {
         collateralInWei: entryAmount,
       },
+      fee,
+      feeBase: 10000,
     },
     {
       addresses,

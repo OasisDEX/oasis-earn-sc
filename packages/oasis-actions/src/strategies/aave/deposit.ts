@@ -3,11 +3,12 @@ import { Optional } from 'utility-types'
 import { ONE, TEN_THOUSAND, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { AAVETokens, TokenDef } from '../../operations/aave/tokens'
+import { AAVETokens } from '../../operations/aave/tokens'
 import {
   IBasePositionTransitionArgs,
   IPositionTransitionDependencies,
   WithDeposit,
+  WithFee,
   WithDifferentEntryToken,
 } from '../types/IPositionRepository'
 import { IPositionTransitionWithOptionalSwap } from '../types/IPositionTransition'
@@ -17,10 +18,19 @@ type Deposit = Optional<
   'collateralToken'
 > &
   WithDeposit &
+  WithFee &
   WithDifferentEntryToken<AAVETokens>
 
 export async function deposit(
-  { entryToken, collateralToken, slippage, collectSwapFeeFrom, depositedByUser }: Deposit,
+  {
+    entryToken,
+    collateralToken,
+    slippage,
+    collectSwapFeeFrom,
+    depositedByUser,
+    fee,
+    feeBase,
+  }: Deposit,
   {
     user,
     currentPosition,
@@ -28,15 +38,11 @@ export async function deposit(
     addresses,
   }: IPositionTransitionDependencies<AAVEStrategyAddresses>,
 ): Promise<IPositionTransitionWithOptionalSwap> {
-  // TODO: Read from some more global place or just passed as an argument
-  const FEE = 20
-  const FEE_BASE = TEN_THOUSAND
-
   let swapAmount = depositedByUser?.collateralInWei!
   const collectFeeInFromToken = collectSwapFeeFrom === 'sourceToken'
 
   if (collectFeeInFromToken) {
-    swapAmount = swapAmount.times(ONE.minus(new BigNumber(FEE).div(FEE_BASE)))
+    swapAmount = swapAmount.times(ONE.minus(new BigNumber(fee).div(feeBase)))
   }
 
   const shouldUseSwap = !!collateralToken
@@ -60,7 +66,7 @@ export async function deposit(
       allowDepositTokenAsCollateral: true,
       swapArgs: shouldUseSwap
         ? {
-            fee: FEE,
+            fee,
             collectFeeInFromToken,
             receiveAtLeast: swapData?.minToTokenAmount!,
             calldata: swapData?.exchangeCalldata! as string,
@@ -77,7 +83,7 @@ export async function deposit(
       swap: shouldUseSwap
         ? {
             ...swapData!,
-            tokenFee: new BigNumber(FEE),
+            tokenFee: new BigNumber(fee),
             collectFeeFrom: collectSwapFeeFrom!,
             sourceToken: entryToken,
             targetToken: collateralToken,
