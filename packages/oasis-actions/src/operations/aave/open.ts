@@ -5,10 +5,9 @@ import * as actions from '../../actions'
 import { ZERO } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { Address } from '../../strategies/types/IPositionRepository'
+import { PositionType } from '../../strategies/types/PositionType'
+import { Protocol } from '../../strategies/types/Protocol'
 import { AAVEStrategyAddresses } from './addresses'
-
-type Protocol = 'AAVE' | 'Maker'
-type PositionType = 'Earn' | 'Multiply'
 
 interface OpenArgs {
   deposit: {
@@ -24,7 +23,7 @@ interface OpenArgs {
   }
   addresses: AAVEStrategyAddresses
   flashloanAmount: BigNumber
-  borrowAmountInWei: BigNumber
+  borrowAmountInBaseUnit: BigNumber
   collateralTokenAddress: Address
   debtTokenAddress: Address
   positionId: number
@@ -39,7 +38,7 @@ export async function open({
   swapArgs,
   addresses,
   flashloanAmount,
-  borrowAmountInWei,
+  borrowAmountInBaseUnit,
   collateralTokenAddress,
   debtTokenAddress,
   positionId,
@@ -81,7 +80,7 @@ export async function open({
   })
 
   const borrowDebtTokensFromAAVE = actions.aave.aaveBorrow({
-    amount: borrowAmountInWei,
+    amount: borrowAmountInBaseUnit,
     asset: debtTokenAddress,
     to: proxy,
   })
