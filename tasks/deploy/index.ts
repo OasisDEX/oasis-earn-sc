@@ -38,6 +38,7 @@ task(
       wrapActionAddress,
       unwrapActionAddress,
       returnFundsActionAddress,
+      positionCreatedAddress,
     } = await deployCommonActions(deploy, serviceRegistryAddress)
 
     const {
@@ -68,6 +69,7 @@ task(
       wrapEthHash,
       unwrapEthHash,
       returnFundsHash,
+      positionCreatedHash,
     } = await addCommonActionsToRegistry(registry, {
       pullTokenActionAddress,
       sendTokenAddress,
@@ -78,6 +80,7 @@ task(
       wrapActionAddress,
       unwrapActionAddress,
       returnFundsActionAddress,
+      positionCreatedAddress,
     })
 
     const { depositInAAVEHash, borromFromAAVEHash, withdrawFromAAVEHash, paybackToAAVEHash } =
@@ -107,6 +110,7 @@ task(
       wrapEthHash,
       unwrapEthHash,
       returnFundsHash,
+      positionCreatedHash,
     })
   })
 
@@ -146,7 +150,10 @@ async function deployCommonActions(deploy: DeployFunction, serviceRegistryAddres
   const [, unwrapActionAddress] = await deploy(CONTRACT_NAMES.common.UNWRAP_ETH, [
     serviceRegistryAddress,
   ])
-
+  const [positionCreatedAction, positionCreatedAddress] = await deploy(
+    CONTRACT_NAMES.common.POSITION_CREATED,
+    [],
+  )
   const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
 
   return {
@@ -157,6 +164,7 @@ async function deployCommonActions(deploy: DeployFunction, serviceRegistryAddres
     wrapActionAddress,
     unwrapActionAddress,
     returnFundsActionAddress,
+    positionCreatedAddress,
   }
 }
 
@@ -261,6 +269,7 @@ async function addCommonActionsToRegistry(
     wrapActionAddress: string
     unwrapActionAddress: string
     returnFundsActionAddress: string
+    positionCreatedAddress: string
   },
 ) {
   const pullTokenHash = await registry.addEntry(
@@ -297,6 +306,11 @@ async function addCommonActionsToRegistry(
     addresses.returnFundsActionAddress,
   )
 
+  const positionCreatedHash = await registry.addEntry(
+    CONTRACT_NAMES.common.POSITION_CREATED,
+    addresses.positionCreatedAddress,
+  )
+
   return {
     pullTokenHash,
     sendTokenHash,
@@ -306,6 +320,7 @@ async function addCommonActionsToRegistry(
     wrapEthHash,
     unwrapEthHash,
     returnFundsHash,
+    positionCreatedHash,
   }
 }
 
@@ -362,6 +377,7 @@ async function addAAVEOperationsToRegistry(
     wrapEthHash: string
     unwrapEthHash: string
     returnFundsHash: string
+    positionCreatedHash: string
   },
 ) {
   const {
@@ -376,6 +392,7 @@ async function addAAVEOperationsToRegistry(
     wrapEthHash,
     unwrapEthHash,
     returnFundsHash,
+    positionCreatedHash,
   } = hashes
 
   await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
@@ -423,6 +440,7 @@ async function addAAVEOperationsToRegistry(
       hash: withdrawFromAAVEHash,
       optional: false,
     },
+    { hash: positionCreatedHash, optional: false },
   ])
 
   await operationsRegistry.addOp(OPERATION_NAMES.aave.CLOSE_POSITION, [
