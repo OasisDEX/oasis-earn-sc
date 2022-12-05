@@ -48,13 +48,6 @@ export async function open({
   proxy,
   user,
 }: OpenArgs): Promise<IOperation> {
-  const use = {
-    pullDebtTokensInToProxy:
-      deposit.debtToken.amountInBaseUnit.gt(ZERO) && !deposit.debtToken.isEth,
-    pullCollateralInToProxy:
-      deposit.collateralToken.amountInBaseUnit.gt(ZERO) && !deposit.collateralToken.isEth,
-  }
-
   const pullDebtTokensToProxy = actions.common.pullToken({
     asset: debtTokenAddress,
     amount: deposit.debtToken.amountInBaseUnit,

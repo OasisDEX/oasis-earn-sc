@@ -150,10 +150,7 @@ async function deployCommonActions(deploy: DeployFunction, serviceRegistryAddres
   const [, unwrapActionAddress] = await deploy(CONTRACT_NAMES.common.UNWRAP_ETH, [
     serviceRegistryAddress,
   ])
-  const [positionCreatedAction, positionCreatedAddress] = await deploy(
-    CONTRACT_NAMES.common.POSITION_CREATED,
-    [],
-  )
+  const [, positionCreatedAddress] = await deploy(CONTRACT_NAMES.common.POSITION_CREATED, [])
   const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
 
   return {
