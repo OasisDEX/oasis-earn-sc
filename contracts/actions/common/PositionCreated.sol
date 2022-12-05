@@ -32,7 +32,7 @@ contract PositionCreated is Executable {
     function execute(bytes calldata data, uint8[] memory) external payable override {
         PositionCreatedData memory positionCreated = parseInputs(data);
 
-        emit CreatePosition(positionCreatedData.proxyAddress, positionCreatedData.positionId, positionCreatedData.protocol, positionCreatedData.positionType, positionCreatedData.collateralToken, positionCreatedData.debtToken);
+        emit CreatePosition(positionCreated.proxyAddress, positionCreated.positionId, positionCreated.protocol, positionCreated.positionType, positionCreated.collateralToken, positionCreated.debtToken);
     }
 
     function parseInputs(bytes memory _callData) public pure returns (PositionCreatedData memory params) {
