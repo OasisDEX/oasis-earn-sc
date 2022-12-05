@@ -83,11 +83,14 @@ describe(`Common | Optional Actions`, async () => {
     Action2Hash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.test.DUMMY_OPTIONAL_ACTION))
     Action3Hash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.test.DUMMY_ACTION))
 
-    await operationsRegistry.addOp(
-      OPERATION_NAME,
-      [Action1Hash, Action2Hash, Action3Hash],
-      [false, true, false],
-    )
+    await operationsRegistry.addOp(OPERATION_NAME, [
+      { hash: Action1Hash, optional: false },
+      { hash: Action2Hash, optional: true },
+      {
+        hash: Action3Hash,
+        optional: false,
+      },
+    ])
 
     action1 = createAction(
       Action1Hash,
@@ -113,11 +116,14 @@ describe(`Common | Optional Actions`, async () => {
   describe(`New operation added to OperationRegistry`, async () => {
     it(`should add new operation succesfully`, async () => {
       const OP_NAME = 'TEST_OPERATION_2'
-      await operationsRegistry.addOp(
-        OP_NAME,
-        [Action1Hash, Action2Hash, Action3Hash],
-        [true, false, false],
-      )
+      await operationsRegistry.addOp(OP_NAME, [
+        { hash: Action1Hash, optional: false },
+        { hash: Action2Hash, optional: false },
+        {
+          hash: Action3Hash,
+          optional: false,
+        },
+      ])
 
       const operation = await operationsRegistry.getOp(OP_NAME)
 
