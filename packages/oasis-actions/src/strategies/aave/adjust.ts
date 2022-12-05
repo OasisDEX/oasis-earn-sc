@@ -146,6 +146,7 @@ export async function adjust(
       collectFeeFrom,
       collateralTokenAddress,
       debtTokenAddress,
+      useFlashloan: target.flags.requiresFlashloan,
       depositDebtAmountInWei,
       depositCollateralAmountInWei,
       aaveDebtTokenPriceInEth,
@@ -162,6 +163,7 @@ export async function adjust(
       collectFeeFrom,
       collateralTokenAddress,
       debtTokenAddress,
+      useFlashloan: target.flags.requiresFlashloan,
       aaveDebtTokenPriceInEth,
       aaveCollateralTokenPriceInEth,
       args,
@@ -203,6 +205,7 @@ interface BranchProps {
   depositDebtAmountInWei?: BigNumber
   depositCollateralAmountInWei?: BigNumber
   debtTokenAddress: string
+  useFlashloan: boolean
   swapAmountBeforeFees: BigNumber
   swapAmountAfterFees: BigNumber
   collectFeeFrom: 'sourceToken' | 'targetToken'
@@ -220,6 +223,7 @@ async function _increaseRisk({
   collectFeeFrom,
   collateralTokenAddress,
   debtTokenAddress,
+  useFlashloan,
   depositDebtAmountInWei,
   depositCollateralAmountInWei,
   aaveDebtTokenPriceInEth,
@@ -276,6 +280,7 @@ async function _increaseRisk({
         isEth: args.debtToken.symbol === 'ETH',
       },
       flashloanAmount: flashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : flashloanAmount,
+      useFlashloan,
       borrowAmountInWei: precisionAdjustedBorrowAmount,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
@@ -338,6 +343,7 @@ async function _decreaseRisk({
   collectFeeFrom,
   collateralTokenAddress,
   debtTokenAddress,
+  useFlashloan,
   aaveDebtTokenPriceInEth,
   aaveCollateralTokenPriceInEth,
   args,
@@ -395,6 +401,7 @@ async function _decreaseRisk({
       collectFeeFrom,
       collateralTokenAddress,
       debtTokenAddress,
+      useFlashloan,
       proxy: dependencies.proxy,
       user: dependencies.user,
     },

@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import * as actions from '../../actions'
-import { ZERO } from '../../helpers/constants'
+import { OPERATION_NAMES, ZERO } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { Address } from '../../strategies/types/IPositionRepository'
 import { PositionType } from '../../strategies/types/PositionType'
@@ -26,6 +26,7 @@ interface OpenArgs {
   borrowAmountInBaseUnit: BigNumber
   collateralTokenAddress: Address
   debtTokenAddress: Address
+  useFlashloan: boolean
   positionId: number
   positionType: PositionType
   protocol: Protocol
@@ -135,7 +136,15 @@ export async function open({
   })
 
   // TODO: Redeploy all new OpNames to registry
+  pullDebtTokensToProxy.skipped =
+    deposit.debtToken.amountInBaseUnit.eq(ZERO) || deposit.debtToken.isEth
+  pullCollateralTokensToProxy.skipped =
+    deposit.collateralToken.amountInBaseUnit.eq(ZERO) || deposit.collateralToken.isEth
+  wrapEth.skipped = !deposit.debtToken.isEth && !deposit.collateralToken.isEth
+
   const flashloanCalls = [
+    pullDebtTokensToProxy,
+    pullCollateralTokensToProxy,
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
     borrowDebtTokensFromAAVE,
@@ -154,12 +163,8 @@ export async function open({
     calls: flashloanCalls,
   })
 
-  const calls = [takeAFlashLoan]
-  use.pullDebtTokensInToProxy && calls.unshift(pullDebtTokensToProxy)
-  use.pullCollateralInToProxy && calls.unshift(pullCollateralTokensToProxy)
-
   return {
-    calls,
-    operationName: 'CUSTOM_OPERATION', // TODO: Disabled for now until OpRegistry has been rediscussed
+    calls: [takeAFlashLoan],
+    operationName: OPERATION_NAMES.aave.OPEN_POSITION,
   }
 }

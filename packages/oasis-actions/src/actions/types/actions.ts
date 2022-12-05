@@ -13,8 +13,8 @@ export const calldataTypes = {
     UnwrapEth: `tuple(uint256 amount)`,
     ReturnFunds: `tuple(address asset)`,
     PullToken: `tuple(address asset, address from, uint256 amount)`,
-    TakeAFlashLoan: `tuple(uint256 amount, bool dsProxyFlashloan, (bytes32 targetHash, bytes callData)[] calls)`,
     PositionCreated: `tuple(address proxyAddress, uint256 positionId, string protocol, string positionType, address collateralToken, address debtToken)`,
+    TakeAFlashLoan: `tuple(uint256 amount, bool dsProxyFlashloan, (bytes32 targetHash, bytes callData, bool skipped)[] calls)`,
   },
   maker: {
     Open: `tuple(address joinAddress)`,

@@ -243,6 +243,7 @@ export async function open(
     borrowAmountInBaseUnit: precisionAdjustedBorrowAmount,
     collateralTokenAddress,
     debtTokenAddress,
+    useFlashloan: target.flags.requiresFlashloan,
     positionId: args.positionArgs.positionId,
     positionType: args.positionArgs.positionType,
     protocol: args.positionArgs.protocol,
