@@ -12,6 +12,7 @@ packages/oasis-actions/src/helpers/calculations/credentials.json
 serviceRegistryEntries.txt
 
 #Hardhat files
+abi/generated
 cache
 artifacts
 

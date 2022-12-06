@@ -196,6 +196,7 @@ export async function open(
       collectFeeFrom: collectFeeFrom,
       collateralTokenAddress,
       debtTokenAddress,
+      useFlashloan: target.flags.requiresFlashloan,
       proxy: dependencies.proxy,
       user: dependencies.user,
     },

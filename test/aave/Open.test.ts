@@ -3,7 +3,6 @@ import {
   ADDRESSES,
   IPosition,
   IPositionTransition,
-  OPERATION_NAMES,
   Position,
   strategies,
 } from '@oasisdex/oasis-actions'
@@ -194,7 +193,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             positionTransition.transaction.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
+            positionTransition.transaction.operationName,
           ]),
         },
         signer,
@@ -657,7 +656,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
               positionTransition.transaction.calls,
-              OPERATION_NAMES.common.CUSTOM_OPERATION,
+              positionTransition.transaction.operationName,
             ]),
           },
           signer,

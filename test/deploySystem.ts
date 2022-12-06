@@ -88,6 +88,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   const [, dummyActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_ACTION, [
     serviceRegistryAddress,
   ])
+  const [, dummyOptionalActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_OPTIONAL_ACTION, [
+    serviceRegistryAddress,
+  ])
 
   const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
 
@@ -175,6 +178,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   )
   const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
   await registry.addEntry(CONTRACT_NAMES.test.DUMMY_ACTION, dummyActionAddress)
+  await registry.addEntry(CONTRACT_NAMES.test.DUMMY_OPTIONAL_ACTION, dummyOptionalActionAddress)
   const pullTokenHash = await registry.addEntry(CONTRACT_NAMES.common.PULL_TOKEN, pullTokenAddress)
   const setApprovalHash = await registry.addEntry(
     CONTRACT_NAMES.common.SET_APPROVAL,
@@ -260,110 +264,447 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
 
   await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_AND_DRAW, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    makerGenerateHash,
+    {
+      hash: makerOpenVaultHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
+    {
+      hash: makerGenerateHash,
+      optional: false,
+    },
   ])
+
   await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    makerGenerateHash,
-    makerPaybackHash,
-    makerWithdrawHash,
+    {
+      hash: makerOpenVaultHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
+    {
+      hash: makerGenerateHash,
+      optional: false,
+    },
+    {
+      hash: makerPaybackHash,
+      optional: false,
+    },
+    {
+      hash: makerWithdrawHash,
+      optional: false,
+    },
   ])
+
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    makerGenerateHash,
-    swapActionHash,
-    makerDepositHash,
+    {
+      hash: makerOpenVaultHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
+    {
+      hash: makerGenerateHash,
+      optional: false,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
   ])
+
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_TOP_UP, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    pullTokenHash,
-    makerGenerateHash,
-    swapActionHash,
-    makerDepositHash,
+    {
+      hash: makerOpenVaultHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: false,
+    },
+    {
+      hash: makerGenerateHash,
+      optional: false,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
   ])
+
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_COLL_TOP_UP, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    pullTokenHash,
-    makerDepositHash,
-    makerGenerateHash,
-    swapActionHash,
-    makerDepositHash,
+    {
+      hash: makerOpenVaultHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
+    {
+      hash: makerGenerateHash,
+      optional: false,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
   ])
+
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    pullTokenHash,
-    pullTokenHash,
-    makerDepositHash,
-    makerGenerateHash,
-    swapActionHash,
-    makerDepositHash,
+    {
+      hash: makerOpenVaultHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
+    {
+      hash: makerGenerateHash,
+      optional: false,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
   ])
+
   await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN, [
-    makerOpenVaultHash,
-    pullTokenHash,
-    makerDepositHash,
-    takeFlashLoanHash,
-    // pullTokenHash,
-    swapActionHash,
-    makerDepositHash,
-    makerGenerateHash,
-    sendTokenHash,
+    {
+      hash: makerOpenVaultHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
+    {
+      hash: takeFlashLoanHash,
+      optional: false,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: makerDepositHash,
+      optional: false,
+    },
+    {
+      hash: makerGenerateHash,
+      optional: false,
+    },
+    {
+      hash: sendTokenHash,
+      optional: false,
+    },
   ])
+
   await operationsRegistry.addOp(
     OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP,
     [
-      makerOpenVaultHash,
-      pullTokenHash,
-      makerDepositHash,
-      pullTokenHash,
-      pullTokenHash,
-      makerDepositHash,
-      takeFlashLoanHash,
-      // pullTokenHash,
-      swapActionHash,
-      makerDepositHash,
-      makerGenerateHash,
-      sendTokenHash,
+      {
+        hash: makerOpenVaultHash,
+        optional: false,
+      },
+      {
+        hash: pullTokenHash,
+        optional: false,
+      },
+      {
+        hash: makerDepositHash,
+        optional: false,
+      },
+      {
+        hash: pullTokenHash,
+        optional: false,
+      },
+      {
+        hash: pullTokenHash,
+        optional: false,
+      },
+      {
+        hash: makerDepositHash,
+        optional: false,
+      },
+      {
+        hash: takeFlashLoanHash,
+        optional: false,
+      },
+      {
+        hash: swapActionHash,
+        optional: false,
+      },
+      {
+        hash: makerDepositHash,
+        optional: false,
+      },
+      {
+        hash: makerGenerateHash,
+        optional: false,
+      },
+      {
+        hash: sendTokenHash,
+        optional: false,
+      },
     ],
   )
 
   // Add AAVE Operations
   await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
-    takeFlashLoanHash,
-    setApprovalHash,
-    aaveDepositHash,
-    aaveBorrowHash,
-    wrapEthHash,
-    swapActionHash,
-    setApprovalHash,
-    aaveDepositHash,
-    aaveWithdrawHash,
+    {
+      hash: takeFlashLoanHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveDepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveBorrowHash,
+      optional: false,
+    },
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveDepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveWithdrawHash,
+      optional: false,
+    },
   ])
 
   await operationsRegistry.addOp(OPERATION_NAMES.aave.CLOSE_POSITION, [
-    takeFlashLoanHash,
-    setApprovalHash,
-    aaveDepositHash,
-    aaveWithdrawHash,
-    swapActionHash,
-    setApprovalHash,
-    aavePaybackHash,
-    aaveWithdrawHash,
-    unwrapEthHash,
-    returnFundsActionHash,
+    {
+      hash: takeFlashLoanHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveDepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveWithdrawHash,
+      optional: false,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aavePaybackHash,
+      optional: false,
+    },
+    {
+      hash: aaveWithdrawHash,
+      optional: false,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsActionHash,
+      optional: false,
+    },
+    {
+      hash: returnFundsActionHash,
+      optional: false,
+    },
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.INCREASE_POSITION, [
+    {
+      hash: takeFlashLoanHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveDepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveBorrowHash,
+      optional: false,
+    },
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveDepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveWithdrawHash,
+      optional: false,
+    },
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.DECREASE_POSITION, [
+    {
+      hash: takeFlashLoanHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveDepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveWithdrawHash,
+      optional: false,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveDepositHash,
+      optional: false,
+    },
+    {
+      hash: aavePaybackHash,
+      optional: false,
+    },
+    {
+      hash: aaveWithdrawHash,
+      optional: false,
+    },
   ])
 
   const deployedContracts = {
