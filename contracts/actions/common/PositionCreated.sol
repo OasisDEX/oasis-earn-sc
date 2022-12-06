@@ -11,7 +11,6 @@ import "../../core/types/Common.sol";
  * @notice Emits PositionCreated event
  */
 contract PositionCreated is Executable {
-
   /**
    * @dev Emitted once a position is created
    * @param proxyAddress The address of the proxy where that's a DSProxy or DeFi Positions manager proxy
