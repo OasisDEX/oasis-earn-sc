@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
-string constant OPERATION_STORAGE = "OperationStorage";
-string constant OPERATION_EXECUTOR = "OperationExecutor";
-string constant OPERATIONS_REGISTRY = "OperationsRegistry";
+string constant OPERATION_STORAGE = "OperationStorage_2";
+string constant OPERATION_EXECUTOR = "OperationExecutor_2";
+string constant OPERATIONS_REGISTRY = "OperationsRegistry_2";
 string constant ONE_INCH_AGGREGATOR = "OneInchAggregator";
 string constant WETH = "WETH";
 string constant DAI = "DAI";
@@ -18,13 +18,13 @@ bytes32 constant NULL = "";
  * update the ServiceRegistry with a new entry
  * and update TheGraph decoding accordingly
  */
-string constant PULL_TOKEN_ACTION = "PullToken_2";
-string constant SEND_TOKEN_ACTION = "SendToken_2";
-string constant SET_APPROVAL_ACTION = "SetApproval_2";
-string constant TAKE_FLASH_LOAN_ACTION = "TakeFlashloan_2";
-string constant WRAP_ETH = "WrapEth_2";
-string constant UNWRAP_ETH = "UnwrapEth_2";
-string constant RETURN_FUNDS_ACTION = "ReturnFunds_2";
+string constant PULL_TOKEN_ACTION = "PullToken_3";
+string constant SEND_TOKEN_ACTION = "SendToken_3";
+string constant SET_APPROVAL_ACTION = "SetApproval_3";
+string constant TAKE_FLASH_LOAN_ACTION = "TakeFlashloan_3";
+string constant WRAP_ETH = "WrapEth_3";
+string constant UNWRAP_ETH = "UnwrapEth_3";
+string constant RETURN_FUNDS_ACTION = "ReturnFunds_3";
 
 string constant UNISWAP_ROUTER = "UniswapRouter";
 string constant SWAP = "Swap";
