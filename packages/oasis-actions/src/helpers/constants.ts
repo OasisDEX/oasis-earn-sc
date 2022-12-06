@@ -19,6 +19,7 @@ export const CONTRACT_NAMES = {
     WRAP_ETH: 'WrapEth_3',
     UNWRAP_ETH: 'UnwrapEth_3',
     RETURN_FUNDS: 'ReturnFunds_3',
+    POSITION_CREATED: 'PositionCreated',
 
     OPERATION_EXECUTOR: 'OperationExecutor_2',
     OPERATION_STORAGE: 'OperationStorage_2',

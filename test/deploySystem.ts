@@ -80,6 +80,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   // Deploy Actions
   debug && console.log('3/ Deploying actions')
   //-- Common Actions
+  const [positionCreatedAction, positionCreatedAddress] = await deploy(
+    CONTRACT_NAMES.common.POSITION_CREATED,
+    [],
+  )
   const [swapAction, swapActionAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ACTION, [
     serviceRegistryAddress,
   ])
@@ -175,6 +179,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   const takeFlashLoanHash = await registry.addEntry(
     CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
     actionFlAddress,
+  )
+  const positionCreatedHash = await registry.addEntry(
+    CONTRACT_NAMES.common.POSITION_CREATED,
+    positionCreatedAddress,
   )
   const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
   await registry.addEntry(CONTRACT_NAMES.test.DUMMY_ACTION, dummyActionAddress)
@@ -572,6 +580,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       hash: aaveWithdrawHash,
       optional: false,
     },
+    { hash: positionCreatedHash, optional: false },
   ])
 
   await operationsRegistry.addOp(OPERATION_NAMES.aave.CLOSE_POSITION, [
@@ -727,6 +736,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       wrapEth,
       unwrapEth,
       returnFunds: returnFunds,
+      positionCreated: positionCreatedAction,
     },
     maker: {
       mcdView,
@@ -762,7 +772,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       `Flashloan Action address: ${deployedContracts.common.takeFlashLoan.address}`,
       `Swap Action address: ${deployedContracts.common.swapAction.address}`,
       `Return Funds Action address: ${deployedContracts.common.returnFunds.address}`,
-
+      `Position Created Action address: ${deployedContracts.common.positionCreated.address}`,
       `MCDView address: ${deployedContracts.maker.mcdView.address}`,
       `OpenVault Action address: ${deployedContracts.maker.openVault.address}`,
       `Deposit Action address: ${deployedContracts.maker.deposit.address}`,

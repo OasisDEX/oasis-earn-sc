@@ -25,6 +25,7 @@ string constant TAKE_FLASH_LOAN_ACTION = "TakeFlashloan_3";
 string constant WRAP_ETH = "WrapEth_3";
 string constant UNWRAP_ETH = "UnwrapEth_3";
 string constant RETURN_FUNDS_ACTION = "ReturnFunds_3";
+string constant POSITION_CREATED_ACTION = "PositionCreated";
 
 string constant UNISWAP_ROUTER = "UniswapRouter";
 string constant SWAP = "Swap";

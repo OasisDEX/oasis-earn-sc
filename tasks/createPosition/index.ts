@@ -114,21 +114,17 @@ task('createPosition', 'Create stETH position on AAVE')
     const debtToken = { symbol: 'ETH' as const }
     const collateralToken = { symbol: 'STETH' as const }
     const proxy = dsProxy.address
-    const currentPosition = await strategies.aave.view(
-      { proxy: dsProxy.address, debtToken, collateralToken },
-      {
-        addresses: {
-          ...mainnetAddresses,
-        },
-        provider: config.provider,
-      },
-    )
 
     const positionTransition = await strategies.aave.open(
       {
-        depositedByUser: { debtInWei: depositAmount },
+        depositedByUser: { debtToken: { amountInBaseUnit: depositAmount } },
         slippage,
         multiple: multiply,
+        positionArgs: {
+          positionId: 123,
+          positionType: 'Earn',
+          protocol: 'AAVE',
+        },
         debtToken,
         collateralToken,
       },
@@ -138,7 +134,6 @@ task('createPosition', 'Create stETH position on AAVE')
         getSwapData: swapData,
         proxy,
         user: config.address,
-        currentPosition,
       },
     )
 
