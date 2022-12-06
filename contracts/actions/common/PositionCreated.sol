@@ -2,7 +2,6 @@
 pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
-import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { PositionCreatedData } from "../../core/types/Common.sol";
 import { POSITION_CREATED_ACTION } from "../../core/constants/Common.sol";
 import "../../core/types/Common.sol";
@@ -12,7 +11,6 @@ import "../../core/types/Common.sol";
  * @notice Emits PositionCreated event
  */
 contract PositionCreated is Executable {
-  using SafeERC20 for IERC20;
 
   /**
    * @dev Emitted once a position is created
@@ -34,7 +32,7 @@ contract PositionCreated is Executable {
 
   /**
    * @dev Is intended to pull tokens in to a user's proxy (the calling context)
-   * @param data Encoded calldata that conforms to the PullTokenData struct
+   * @param data Encoded calldata that conforms to the PositionCreatedData struct
    */
   function execute(bytes calldata data, uint8[] memory) external payable override {
     PositionCreatedData memory positionCreated = parseInputs(data);

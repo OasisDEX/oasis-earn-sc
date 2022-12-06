@@ -154,7 +154,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           positionArgs: {
             positionId: 123,
             positionType: positionType,
-            protocol: 'AAVE',
+            protocol: 'AAVE' as const,
           },
           slippage,
           multiple,
