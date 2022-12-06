@@ -55,6 +55,7 @@ export const CONTRACT_NAMES = {
   },
   test: {
     DUMMY_ACTION: 'DummyAction',
+    DUMMY_OPTIONAL_ACTION: 'DummyOptionalAction',
     DUMMY_SWAP: 'DummySwap',
     DUMMY_EXCHANGE: 'DummyExchange',
     SWAP: 'uSwap',
@@ -68,9 +69,6 @@ export type ContractNames = AllValues<typeof CONTRACT_NAMES>
 export const OPERATION_NAMES = {
   aave: {
     OPEN_POSITION: 'OpenAAVEPosition',
-    // OPEN_POSITION_1: 'OpenAAVEPosition_1', // Requires sending deposit
-    // OPEN_POSITION_2: 'OpenAAVEPosition_2', // Requires sending collateral
-    // OPEN_POSITION_3: 'OpenAAVEPosition_3', // Requires sending deposit & collateral
     CLOSE_POSITION: 'CloseAAVEPosition',
     INCREASE_POSITION: 'IncreaseAAVEPosition',
     DECREASE_POSITION: 'DecreaseAAVEPosition',
@@ -94,8 +92,8 @@ export const OPERATION_NAMES = {
 type ValuesOf<T> = T[keyof T]
 type AAVEOperations = ValuesOf<typeof OPERATION_NAMES['aave']>
 type MakerOperations = ValuesOf<typeof OPERATION_NAMES['maker']>
-type CommonOperations = ValuesOf<typeof OPERATION_NAMES['maker']>
-export type OperationNames = AAVEOperations | MakerOperations | CommonOperations
+type CommonOperations = ValuesOf<typeof OPERATION_NAMES['common']>
+export type OperationNames = CommonOperations | AAVEOperations | MakerOperations
 
 // If configuring a low LTV, we might not need a flashloan (therefore flashloan == 0), but we still perform
 // the swap because the actions in operation executor pass args to each other referenced via index.

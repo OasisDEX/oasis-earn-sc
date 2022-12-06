@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
 import { ADDRESSES } from '../../helpers/addresses'
-import { MAX_UINT } from '../../helpers/constants'
+import { MAX_UINT, OPERATION_NAMES } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
 
@@ -16,6 +16,7 @@ export async function close(
     proxy: string
     collectFeeFrom: 'sourceToken' | 'targetToken'
     collateralTokenAddress: string
+    collateralIsEth: boolean
     debtTokenAddress: string
     debtTokenIsEth: boolean
   },
@@ -76,9 +77,15 @@ export async function close(
     amount: new BigNumber(MAX_UINT),
   })
 
-  const returnFunds = actions.common.returnFunds({
+  const returnDebtFunds = actions.common.returnFunds({
     asset: args.debtTokenIsEth ? ADDRESSES.main.ETH : args.debtTokenAddress,
   })
+
+  const returnCollateralFunds = actions.common.returnFunds({
+    asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
+  })
+
+  unwrapEth.skipped = !args.debtTokenIsEth && !args.collateralIsEth
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
@@ -93,9 +100,10 @@ export async function close(
       paybackInAAVE,
       withdrawDAIFromAAVE,
       unwrapEth,
-      returnFunds,
+      returnDebtFunds,
+      returnCollateralFunds,
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: 'CUSTOM_OPERATION' }
+  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.CLOSE_POSITION }
 }

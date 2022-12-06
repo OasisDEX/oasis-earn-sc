@@ -11,6 +11,7 @@ import './tasks/verify-earn'
 import './tasks/transfer-erc20'
 import 'solidity-docgen'
 import 'hardhat-tracer'
+import 'hardhat-abi-exporter'
 
 import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
@@ -125,6 +126,14 @@ const config: HardhatUserConfig = {
       './libs',
       './test',
     ],
+  },
+  abiExporter: {
+    path: './abi/generated',
+    runOnCompile: true,
+    clear: true,
+    flat: true,
+    spacing: 2,
+    pretty: true,
   },
 }
 
