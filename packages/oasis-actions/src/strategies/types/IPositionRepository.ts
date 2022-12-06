@@ -2,8 +2,6 @@ import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
 import { IPosition } from '../../helpers/calculations/Position'
-import { AAVETokens } from '../../operations/aave/tokens'
-import { IPositionTransition } from './IPositionTransition'
 import { SwapData } from './SwapData'
 
 export interface IBasePositionTransitionArgs<Tokens> {
@@ -63,23 +61,4 @@ export interface IPositionTransitionDependencies<Addresses> {
 export interface IViewPositionDependencies<Addresses> {
   addresses: Addresses
   provider: providers.Provider
-}
-
-export interface IPositionRepository<Addresses> {
-  open: (
-    args: IPositionTransitionArgs<AAVETokens>,
-    dependencies: IPositionTransitionDependencies<Addresses>,
-  ) => Promise<IPositionTransition>
-  close: (
-    args: IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral,
-    dependencies: IPositionTransitionDependencies<Addresses>,
-  ) => Promise<IPositionTransition>
-  adjust: (
-    args: IPositionTransitionArgs<AAVETokens>,
-    dependencies: IPositionTransitionDependencies<Addresses>,
-  ) => Promise<IPositionTransition>
-  view: (
-    args: IViewPositionParams<AAVETokens>,
-    dependencies: IViewPositionDependencies<Addresses>,
-  ) => Promise<IPosition>
 }

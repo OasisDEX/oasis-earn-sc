@@ -58,3 +58,12 @@ struct UnwrapEthData {
 struct ReturnFundsData {
   address asset;
 }
+
+struct PositionCreatedData {
+  address proxyAddress;
+  uint256 positionId;
+  string protocol;
+  string positionType;
+  address collateralToken;
+  address debtToken;
+}
