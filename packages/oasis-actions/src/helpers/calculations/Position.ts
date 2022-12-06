@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { Optional } from 'utility-types'
-import { AAVETokens, TokenDef } from '../../operations/aave/tokens'
 
+import { AAVETokens, TokenDef } from '../../operations/aave/tokens'
 import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../constants'
 import { logDebug } from '../index'
 import { IRiskRatio, RiskRatio } from './RiskRatio'
@@ -58,7 +58,7 @@ type Flags = { requiresFlashloan: boolean; isIncreasingRisk: boolean }
 export interface IBaseSimulatedTransition {
   position: IPosition
   delta: Delta
-  swap: Swap
+  swap?: Swap
   flags: Flags
 }
 
@@ -103,6 +103,12 @@ export interface IPosition extends IBasePosition {
   riskRatio: IRiskRatio
   healthFactor: BigNumber
   liquidationPrice: BigNumber
+
+  deposit(amount: BigNumber): IPosition
+  withdraw(amount: BigNumber): IPosition
+  borrow(amount: BigNumber): IPosition
+  repay(amount: BigNumber): IPosition
+
   adjustToTargetRiskRatio: (
     targetRiskRatio: IRiskRatio,
     params: IPositionTransitionParams,
@@ -157,6 +163,78 @@ export class Position implements IPosition {
 
   public get liquidationPrice() {
     return this.debt.amount.div(this.collateral.amount.times(this.category.liquidationThreshold))
+  }
+
+  public deposit(amount: BigNumber): Position {
+    return new Position(
+      new PositionBalance({
+        amount: this.debt.amount,
+        symbol: this.debt.symbol,
+        precision: this.debt.precision,
+      }),
+      new PositionBalance({
+        amount: this.collateral.amount.plus(amount),
+        symbol: this.collateral.symbol,
+        precision: this.collateral.precision,
+      }),
+      this._oraclePriceForCollateralDebtExchangeRate,
+      { ...this.category },
+    )
+  }
+
+  public withdraw(amount: BigNumber): Position {
+    const newBalance = this.collateral.amount.minus(amount)
+
+    // what should happen here?
+    return new Position(
+      new PositionBalance({
+        amount: newBalance.lt(ZERO) ? ZERO : this.debt.amount.minus(amount),
+        symbol: this.debt.symbol,
+        precision: this.debt.precision,
+      }),
+      new PositionBalance({
+        amount: newBalance,
+        symbol: this.collateral.symbol,
+        precision: this.collateral.precision,
+      }),
+      this._oraclePriceForCollateralDebtExchangeRate,
+      { ...this.category },
+    )
+  }
+
+  public borrow(amount: BigNumber): Position {
+    return new Position(
+      new PositionBalance({
+        amount: this.debt.amount.plus(amount),
+        symbol: this.debt.symbol,
+        precision: this.debt.precision,
+      }),
+      new PositionBalance({
+        amount: this.collateral.amount,
+        symbol: this.collateral.symbol,
+        precision: this.collateral.precision,
+      }),
+      this._oraclePriceForCollateralDebtExchangeRate,
+      { ...this.category },
+    )
+  }
+
+  public repay(amount: BigNumber): Position {
+    const newBalance = this.debt.amount.minus(amount)
+    return new Position(
+      new PositionBalance({
+        amount: newBalance.lt(ZERO) ? ZERO : newBalance,
+        symbol: this.debt.symbol,
+        precision: this.debt.precision,
+      }),
+      new PositionBalance({
+        amount: this.collateral.amount,
+        symbol: this.collateral.symbol,
+        precision: this.collateral.precision,
+      }),
+      this._oraclePriceForCollateralDebtExchangeRate,
+      { ...this.category },
+    )
   }
 
   /**

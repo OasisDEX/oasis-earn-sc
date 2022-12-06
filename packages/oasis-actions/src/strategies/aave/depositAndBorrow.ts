@@ -3,25 +3,20 @@ import BigNumber from 'bignumber.js'
 import { ONE, TEN_THOUSAND, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
+import { BorrowArgs } from '../../operations/aave/borrow'
+import { DepositArgs } from '../../operations/aave/deposit'
 import { AAVETokens } from '../../operations/aave/tokens'
 import {
-  IBasePositionTransitionArgs,
   IPositionTransitionDependencies,
-  WithDeposit,
-  WithDifferentEntryToken,
 } from '../types/IPositionRepository'
 import { IPositionTransitionWithOptionalSwap } from '../types/IPositionTransition'
 
-export async function deposit(
+export async function depositBorrow(
   {
-    entryToken,
-    collateralToken,
-    slippage,
-    collectSwapFeeFrom,
-    depositedByUser,
-  }: Omit<IBasePositionTransitionArgs<AAVETokens>, 'debtToken'> &
-    WithDeposit &
-    WithDifferentEntryToken<AAVETokens>,
+    
+  }: IPositionTransitionWithOptionalSwap,
+  depositArgs: Omit<DepositArgs, 'swapArgs'>,
+  borrowArgs: BorrowArgs,
   {
     user,
     currentPosition,
@@ -32,6 +27,26 @@ export async function deposit(
   // TODO: Read from some more global place or just passed as an argument
   const FEE = 20
   const FEE_BASE = TEN_THOUSAND
+
+  let collateralDelta = ZERO
+  let debtDelta = ZERO
+
+  if (depositArgs) {
+    const isSwapNeeded = depositArgs.depositToken !== depositArgs.entryToken
+
+    if (isSwapNeeded) {
+      const swapData = await getSwapData(
+        addresses[entryToken.symbol === 'ETH' ? 'WETH' : entryToken.symbol],
+        addresses[collateralToken.symbol],
+        swapAmount,
+        slippage,
+      )
+    } else {
+      collateralDelta = depositArgs.amount
+    }
+  }
+
+
 
   let swapAmount = depositedByUser?.collateralInWei!
   const collectFeeInFromToken = collectSwapFeeFrom === 'sourceToken'
@@ -90,6 +105,7 @@ export async function deposit(
           }
         : undefined,
       flags: { requiresFlashloan: false, isIncreasingRisk: false },
+      minConfigurableRiskRatio: currentPosition.minConfigurableRiskRatio(ZERO),
     },
   }
 }
