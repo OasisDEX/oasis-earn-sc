@@ -1,5 +1,6 @@
 node_modules
 .env
+.env_bak
 coverage
 coverage.json
 typechain
@@ -8,7 +9,10 @@ tenderly.yaml
 .idea/**/*
 packages/oasis-actions/src/helpers/calculations/credentials.json
 
+serviceRegistryEntries.txt
+
 #Hardhat files
+abi/generated
 cache
 artifacts
 

@@ -1,6 +1,7 @@
 import { Contract, ContractReceipt, Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
+import { removeVersion } from '../scripts/common/utils'
 import { Debug, WithRuntimeConfig } from './types/common'
 
 type DeployOptions = WithRuntimeConfig & Debug
@@ -14,15 +15,20 @@ export async function createDeploy(
   const ethers = hre?.ethers || (await import('hardhat')).ethers
 
   return async (contractName: string, params: string[] = []): Promise<[Contract, string]> => {
-    const contractFactory = await ethers.getContractFactory(contractName, config.signer)
+    const contractNameWithVersionRemoved = removeVersion(contractName)
+    const contractFactory = await ethers.getContractFactory(
+      contractNameWithVersionRemoved,
+      config.signer,
+    )
     const instance = await contractFactory.deploy(...params)
     if (debug) {
-      console.log(`DEBUG: Deploying ${contractName} ...`)
+      console.log('DEBUG: Owner of deploy:', await config.signer.getAddress())
+      console.log(`DEBUG: Deploying ${contractNameWithVersionRemoved} ...`)
     }
     const address = instance.address
 
     if (debug) {
-      console.log(`DEBUG: Contract ${contractName} deployed at: ${address}`)
+      console.log(`DEBUG: Contract ${contractNameWithVersionRemoved} deployed at: ${address}`)
     }
 
     return [instance, address]
@@ -47,13 +53,22 @@ export async function executeThroughProxy(
     const dsProxy = await ethers.getContractAt('DSProxy', proxyAddress, signer)
 
     const tx = await dsProxy['execute(address,bytes)'](address, calldata, {
-      gasLimit: 4000000,
+      gasLimit: 5000000,
       value,
     })
 
     const result = await tx.wait()
     return [true, result]
-  } catch (ex) {
-    return [false, ex as ContractReceipt] // TODO:
+  } catch (ex: any) {
+    console.error(ex)
+    console.log(typeof ex)
+    let result: Partial<ContractReceipt> = ex
+    if (ex?.name === 'ProviderError') {
+      result = {
+        status: 0,
+        transactionHash: ex.data.txHash,
+      }
+    }
+    return [false, result as ContractReceipt] // TODO:
   }
 }

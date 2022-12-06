@@ -61,7 +61,12 @@ describe(`Operations | Maker | Increase Multiple`, async () => {
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+    const { snapshot } = await restoreSnapshot({
+      config,
+      provider,
+      blockNumber: testBlockNumber,
+      useFallbackSwap: true,
+    })
 
     system = snapshot.deployed.system
     registry = snapshot.deployed.registry
@@ -77,7 +82,7 @@ describe(`Operations | Maker | Increase Multiple`, async () => {
   })
 
   afterEach(async () => {
-    await restoreSnapshot(config, provider, testBlockNumber)
+    await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
   })
 
   let gasEstimates: GasEstimateHelper

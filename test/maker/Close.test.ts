@@ -47,7 +47,12 @@ describe(`Operations | Maker | Close Position`, async () => {
     DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
     WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
 
-    const snapshot = await restoreSnapshot(config, provider, testBlockNumber)
+    const { snapshot } = await restoreSnapshot({
+      config,
+      provider,
+      blockNumber: testBlockNumber,
+      useFallbackSwap: true,
+    })
 
     system = snapshot.deployed.system
     registry = snapshot.deployed.registry

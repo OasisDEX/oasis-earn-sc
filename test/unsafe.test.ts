@@ -15,7 +15,7 @@ const ethers = hre.ethers
 describe('OperationExecutor', () => {
   it('should allow only delegate calls', async () => {
     const config = await init()
-    const deploy = await createDeploy({ config, debug: true }, hre)
+    const deploy = await createDeploy({ config }, hre)
     const addresses = getAddressesFor(Network.MAINNET)
 
     const [, suicideBombAddress] = await deploy('SuicideBomb', [])
@@ -45,9 +45,9 @@ describe('OperationExecutor', () => {
     await expectRevert(/OpExecutor: illegal call/, tx)
   })
 
-  it('should hack OpExec through a workaround ', async () => {
+  it('should hack OpExec through a workaround', async () => {
     const config = await init()
-    const deploy = await createDeploy({ config, debug: true }, hre)
+    const deploy = await createDeploy({ config }, hre)
     const addresses = getAddressesFor(Network.MAINNET)
     const proxyAddress = await getOrCreateProxy(config.signer)
     const [, suicideBombAddress] = await deploy('SuicideBomb', [])

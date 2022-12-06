@@ -25,13 +25,13 @@ contract MakerWithdraw is Executable, UseStore {
       address(this)
     );
 
-    bytes32 amountWithdrawn = _withdraw(withdrawData);
-    store().write(amountWithdrawn);
+    uint256 amountWithdrawn = _withdraw(withdrawData);
+    store().write(bytes32(amountWithdrawn));
 
-    emit Action(WITHDRAW_ACTION, amountWithdrawn);
+    emit Action(WITHDRAW_ACTION, bytes(abi.encode(amountWithdrawn)));
   }
 
-  function _withdraw(WithdrawData memory data) internal returns (bytes32) {
+  function _withdraw(WithdrawData memory data) internal returns (uint256) {
     address gem = data.joinAddr.gem();
     uint256 convertedAmount = MathUtils.convertTo18(data.joinAddr, data.amount);
 
@@ -52,7 +52,7 @@ contract MakerWithdraw is Executable, UseStore {
       payable(data.userAddress).transfer(convertedAmount);
     }
 
-    return bytes32(convertedAmount);
+    return convertedAmount;
   }
 
   function parseInputs(bytes memory _callData) public pure returns (WithdrawData memory params) {

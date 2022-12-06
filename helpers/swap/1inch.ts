@@ -3,13 +3,33 @@ import axios from 'axios'
 
 import { OneInchSwapResponse } from '../types/common'
 
+const defaultExchangeProtocols = [
+  'UNISWAP_V3',
+  'PMM1',
+  'PMM2',
+  'PMM3',
+  'PMM4',
+  'UNISWAP_V2',
+  'SUSHI',
+  'CURVE',
+  'CURVE_V2',
+  'PSM',
+  'WSTETH',
+  'BALANCER',
+  'BALANCER_V2',
+  'BALANCER_V2_WRAPPER',
+  'ST_ETH',
+  'WETH',
+  'ROCKET_POOL',
+]
+
 export function formatOneInchSwapUrl(
   fromToken: string,
   toToken: string,
   amount: string,
   slippage: string,
   recepient: string,
-  protocols: string[] = [],
+  protocols: string[] = defaultExchangeProtocols,
 ) {
   const protocolsParam = !protocols?.length ? '' : `&protocols=${protocols.join(',')}`
   return `https://oasis.api.enterprise.1inch.exchange/v4.0/1/swap?fromTokenAddress=${fromToken.toLowerCase()}&toTokenAddress=${toToken}&amount=${amount}&fromAddress=${recepient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`

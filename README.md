@@ -38,13 +38,22 @@ npx hardhat deploy --debug
 
 That will output the deployed contract name and the corresponding address
 
-# Running a node
+# Running a node & deploying the system to a locally running node
 
-Running a node is as simple as writing in a shell prompt:
+1. Running a node is as simple as writing in a shell prompt:
 
 ```shell
-npx hardhat node
+npx hardhat node --max-memory 8192 --fork <MAINNET_URL>
 ```
+
+2. Deploying the system against the node you've spun up
+
+`yarn deploy:fallback` 
+
+or 
+
+`yarn deploy:1inch` // if you want to use 1inch as exchange
+
 
 # Running tests
 

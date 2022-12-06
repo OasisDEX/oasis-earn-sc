@@ -1,6 +1,6 @@
 export const calldataTypes = {
   common: {
-    Approval: 'tuple(address asset, address delegate, uint256 amount)',
+    Approval: 'tuple(address asset, address delegate, uint256 amount, bool sumAmounts)',
     Swap: `tuple(address fromAsset,
     address toAsset,
     uint256 amount,
@@ -13,7 +13,7 @@ export const calldataTypes = {
     UnwrapEth: `tuple(uint256 amount)`,
     ReturnFunds: `tuple(address asset)`,
     PullToken: `tuple(address asset, address from, uint256 amount)`,
-    TakeAFlashLoan: `tuple(uint256 amount, bool dsProxyFlashloan, (bytes32 targetHash, bytes callData)[] calls)`,
+    TakeAFlashLoan: `tuple(uint256 amount, bool dsProxyFlashloan, (bytes32 targetHash, bytes callData, bool skipped)[] calls)`,
   },
   maker: {
     Open: `tuple(address joinAddress)`,
@@ -24,8 +24,7 @@ export const calldataTypes = {
     CdpAllow: `tuple(uint256 vaultId, address userAddress)`,
   },
   aave: {
-    // Generate: `tuple(address asset, uint256 amount)`,
-    Deposit: `tuple(address asset, uint256 amount)`,
+    Deposit: `tuple(address asset, uint256 amount, bool sumAmounts, bool setAsCollateral)`,
     Withdraw: `tuple(address asset, uint256 amount, address to)`,
     Borrow: `tuple(address asset, uint256 amount, address to)`,
     Payback: `tuple(address asset, uint256 amount, bool paybackAll)`,

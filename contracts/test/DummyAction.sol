@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
 import { Executable } from "../actions/common/Executable.sol";
@@ -17,5 +17,6 @@ contract DummyAction is Executable, UseStore {
 
   function execute(bytes calldata, uint8[] memory) external payable override {
     store().write(bytes32("123"));
+    emit Action("DummyActionEvent", bytes(abi.encode("Mandatory")));
   }
 }

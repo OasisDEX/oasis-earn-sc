@@ -14,7 +14,7 @@ export type GasEstimateHelper = {
 }
 
 export const gasEstimateHelper: () => GasEstimateHelper = () => {
-  const shouldUseEstimates = process.env.USE_GAS_ESTIMATES === '1'
+  const shouldUseEstimates = process.env.REPORT_GAS === '1'
 
   const estimates: {
     test?: string

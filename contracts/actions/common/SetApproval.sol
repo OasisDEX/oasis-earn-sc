@@ -1,9 +1,11 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { SetApprovalData } from "../../core/types/Common.sol";
 import { UseStore, Read } from "../common/UseStore.sol";
+import { SafeMath } from "../../libs/SafeMath.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { SET_APPROVAL_ACTION } from "../../core/constants/Common.sol";
 
@@ -14,6 +16,7 @@ import { SET_APPROVAL_ACTION } from "../../core/constants/Common.sol";
 contract SetApproval is Executable, UseStore {
   using SafeERC20 for IERC20;
   using Read for OperationStorage;
+  using SafeMath for uint256;
 
   constructor(address _registry) UseStore(_registry) {}
 
@@ -25,10 +28,18 @@ contract SetApproval is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     SetApprovalData memory approval = parseInputs(data);
 
-    approval.amount = store().readUint(bytes32(approval.amount), paramsMap[2], address(this));
-    IERC20(approval.asset).safeApprove(approval.delegate, approval.amount);
+    uint256 mappedApprovalAmount = store().readUint(
+      bytes32(approval.amount),
+      paramsMap[2],
+      address(this)
+    );
+    uint256 actualApprovalAmount = approval.sumAmounts
+      ? mappedApprovalAmount.add(approval.amount)
+      : mappedApprovalAmount;
 
-    emit Action(SET_APPROVAL_ACTION, bytes32(approval.amount));
+    IERC20(approval.asset).safeApprove(approval.delegate, actualApprovalAmount);
+
+    emit Action(SET_APPROVAL_ACTION, bytes(abi.encode(actualApprovalAmount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (SetApprovalData memory params) {

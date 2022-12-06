@@ -51,8 +51,8 @@ describe('Calculate Position Helper', async () => {
     const scenarios = (await fetchTestScenarios<Scenario>(testDataSources.LTV_target)) as Scenario[]
     const debug = false
 
-    scenarios.forEach(
-      ({
+    scenarios.forEach((scenario, index) => {
+      const {
         name,
         collateralDepositedByUser,
         debtDenominatedTokensDepositedByUser,
@@ -81,91 +81,101 @@ describe('Calculate Position Helper', async () => {
         healthFactor,
         minOraclePrice,
         feePaidFromSourceToken,
-      }) => {
-        it(`Test: ${name}`, async () => {
-          const riskRatio = new RiskRatio(targetLoanToValue, RiskRatio.TYPE.LTV)
-          const dustLimit = new BigNumber(0)
-          /* Note: we have to remove User deposits from current values because they've already been rolled up (assigned) in our googlesheets data*/
-          const currentVault = new Position(
-            { amount: currentDebt.plus(debtDenominatedTokensDepositedByUser) },
-            { amount: currentCollateral.minus(collateralDepositedByUser) },
-            oraclePrice,
-            { liquidationThreshold, maxLoanToValue, dustLimit },
-          )
-
-          const oazoFeeBase = new BigNumber(10000)
-          const target = currentVault.adjustToTargetRiskRatio(riskRatio, {
-            depositedByUser: {
-              debt: debtDenominatedTokensDepositedByUser,
-              collateral: collateralDepositedByUser,
-            },
-            maxLoanToValueFL: maxLoanToValueFL,
-            fees: { flashLoan: flashloanFees, oazo: oazoFees.times(oazoFeeBase) },
-            prices: {
-              market: marketPrice,
-              oracle: oraclePrice,
-              oracleFLtoDebtToken: oraclePriceFLtoDebtToken,
-            },
-            collectSwapFeeFrom: 'sourceToken',
-            slippage,
-            // debug,
+      } = scenario
+      it(`Test: ${name}`, async () => {
+        if (debug) {
+          console.log('Values from Google Sheets')
+          console.log('Scenario index', index)
+          Object.entries(scenario).forEach(([key, value]) => {
+            console.log(`${key}: ${value}`)
           })
+        }
+        const riskRatio = new RiskRatio(targetLoanToValue, RiskRatio.TYPE.LTV)
+        const dustLimit = new BigNumber(0)
 
-          const actualFromTokenAmount = target.flags.isIncreasingRisk
-            ? fromTokenAmountInc
-            : fromTokenAmountDec
-          const actualToTokenAmount = target.flags.isIncreasingRisk
-            ? toTokenAmountInc
-            : toTokenAmountDec
+        /* Note: we have to remove User deposits from current values because they've already been rolled up (assigned) in our googlesheets data*/
+        const currentVault = new Position(
+          { amount: currentDebt.plus(debtDenominatedTokensDepositedByUser), symbol: 'ANY' },
+          { amount: currentCollateral.minus(collateralDepositedByUser), symbol: 'ANY' },
+          oraclePrice,
+          { liquidationThreshold, maxLoanToValue, dustLimit },
+        )
 
-          // From Token Swap Amount
-          debug && console.log('From Token Swap Amount')
-          expect(target.swap.fromTokenAmount.toFixed(2)).to.equal(actualFromTokenAmount.toFixed(2))
-
-          // To Token Swapped Amount
-          debug && console.log('To Token Swap Amount')
-          expect(target.swap.minToTokenAmount.toFixed(2)).to.equal(actualToTokenAmount.toFixed(2))
-
-          // Debt Delta
-          debug && console.log('Debt Delta')
-          expect(target.delta.debt.toFixed(2)).to.equal(debtDelta.toFixed(2))
-
-          // Collateral Delta
-          debug && console.log('Collateral Delta')
-          expect(target.delta.collateral.toFixed(2)).to.equal(collateralDelta.toFixed(2))
-
-          // Is Flashloan needed?
-          debug && console.log('Is Flashloan needed?')
-          expect(target.flags.usesFlashloan).to.equal(isFlashLoanRequired)
-
-          // Flashloan Amount
-          debug && console.log('Flashloan Amount')
-          expect((target.delta?.flashloanAmount || ZERO).toFixed(0)).to.equal(
-            amountToFlashloan.toFixed(0),
-          )
-
-          // Target Debt
-          debug && console.log('Target Debt')
-          expect(target.position.debt.amount.toFixed(2)).to.equal(targetDebt.toFixed(2))
-
-          // Target Collateral
-          debug && console.log('Target Collateral')
-          expect(target.position.collateral.amount.toFixed(2)).to.equal(targetCollateral.toFixed(2))
-
-          // Health Factor
-          debug && console.log('Health Factor')
-          expect(target.position.healthFactor.toFixed(2)).to.equal(healthFactor.toFixed(2))
-
-          // Liquidation Price
-          debug && console.log('Liquidation Price')
-          expect(target.position.liquidationPrice.toFixed(2)).to.equal(minOraclePrice.toFixed(2))
-
-          // Fee Paid - assumes fees always collected from source token
-          debug && console.log('Fees')
-          expect(target.swap.sourceTokenFee.toFixed(4)).to.equal(feePaidFromSourceToken.toFixed(4))
+        const oazoFeeBase = new BigNumber(10000)
+        const target = currentVault.adjustToTargetRiskRatio(riskRatio, {
+          depositedByUser: {
+            debtInWei: debtDenominatedTokensDepositedByUser,
+            collateralInWei: collateralDepositedByUser,
+          },
+          flashloan: {
+            maxLoanToValueFL: maxLoanToValueFL,
+            tokenSymbol: 'DAI',
+          },
+          fees: { flashLoan: flashloanFees, oazo: oazoFees.times(oazoFeeBase) },
+          prices: {
+            market: marketPrice,
+            oracle: oraclePrice,
+            oracleFLtoDebtToken: oraclePriceFLtoDebtToken,
+          },
+          collectSwapFeeFrom: 'sourceToken',
+          slippage,
+          useFlashloanSafetyMargin: false,
+          // debug,
         })
-      },
-    )
+
+        const actualFromTokenAmount = target.flags.isIncreasingRisk
+          ? fromTokenAmountInc
+          : fromTokenAmountDec
+        const actualToTokenAmount = target.flags.isIncreasingRisk
+          ? toTokenAmountInc
+          : toTokenAmountDec
+
+        // From Token Swap Amount
+        debug && console.log('From Token Swap Amount')
+        expect(target.swap.fromTokenAmount.toFixed(2)).to.equal(actualFromTokenAmount.toFixed(2))
+
+        // To Token Swapped Amount
+        debug && console.log('To Token Swap Amount')
+        expect(target.swap.minToTokenAmount.toFixed(2)).to.equal(actualToTokenAmount.toFixed(2))
+
+        // Debt Delta
+        debug && console.log('Debt Delta')
+        expect(target.delta.debt.toFixed(2)).to.equal(debtDelta.toFixed(2))
+
+        // Collateral Delta
+        debug && console.log('Collateral Delta')
+        expect(target.delta.collateral.toFixed(2)).to.equal(collateralDelta.toFixed(2))
+
+        // Is Flashloan needed?
+        debug && console.log('Is Flashloan required?')
+        expect(target.flags.requiresFlashloan).to.equal(isFlashLoanRequired)
+
+        // Flashloan Amount
+        debug && console.log('Flashloan Amount')
+        const expectedAmountToFlashloan = isFlashLoanRequired ? target.delta?.flashloanAmount : ZERO
+        expect(expectedAmountToFlashloan.toFixed(0)).to.equal(amountToFlashloan.toFixed(0))
+
+        // Target Debt
+        debug && console.log('Target Debt')
+        expect(target.position.debt.amount.toFixed(2)).to.equal(targetDebt.toFixed(2))
+
+        // Target Collateral
+        debug && console.log('Target Collateral')
+        expect(target.position.collateral.amount.toFixed(2)).to.equal(targetCollateral.toFixed(2))
+
+        // Health Factor
+        debug && console.log('Health Factor')
+        expect(target.position.healthFactor.toFixed(2)).to.equal(healthFactor.toFixed(2))
+
+        // Liquidation Price
+        debug && console.log('Liquidation Price')
+        expect(target.position.liquidationPrice.toFixed(2)).to.equal(minOraclePrice.toFixed(2))
+
+        // Fee Paid - assumes fees always collected from source token
+        debug && console.log('Fees')
+        expect(target.swap.tokenFee.toFixed(4)).to.equal(feePaidFromSourceToken.toFixed(4))
+      })
+    })
   })
 
   describe('LTV_min', async () => {
@@ -187,11 +197,11 @@ describe('Calculate Position Helper', async () => {
         const position = new Position(
           {
             amount: scenario.currentDebt,
-            denomination: 'nope',
+            symbol: 'ANY',
           },
           {
             amount: scenario.currentCollateral,
-            denomination: 'nope',
+            symbol: 'ANY',
           },
           scenario.oraclePrice,
           {

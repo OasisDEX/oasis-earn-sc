@@ -31,13 +31,13 @@ contract MakerDeposit is Executable, UseStore {
     );
     depositData.amount = store().readUint(bytes32(depositData.amount), paramsMap[2], address(this));
 
-    bytes32 amountDeposited = _deposit(depositData);
-    store().write(amountDeposited);
+    uint256 amountDeposited = _deposit(depositData);
+    store().write(bytes32(amountDeposited));
 
-    emit Action(DEPOSIT_ACTION, amountDeposited);
+    emit Action(DEPOSIT_ACTION, bytes(abi.encode(amountDeposited)));
   }
 
-  function _deposit(DepositData memory data) internal returns (bytes32) {
+  function _deposit(DepositData memory data) internal returns (uint256) {
     address gem = data.joinAddress.gem();
 
     if (data.amount == type(uint256).max) {
@@ -61,7 +61,7 @@ contract MakerDeposit is Executable, UseStore {
       0
     );
 
-    return bytes32(convertedAmount);
+    return convertedAmount;
   }
 
   function parseInputs(bytes memory _callData) public pure returns (DepositData memory params) {

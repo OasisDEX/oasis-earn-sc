@@ -20,7 +20,11 @@ describe('PullToken Action', () => {
 
   before(async () => {
     ;({ config } = await loadFixture(initialiseConfig))
-    const snapshot = await restoreSnapshot(config, config.provider, testBlockNumber)
+    const { snapshot } = await restoreSnapshot({
+      config,
+      provider: config.provider,
+      blockNumber: testBlockNumber,
+    })
 
     pullToken = snapshot.deployed.system.common.pullToken
     pullTokenActionAddress = snapshot.deployed.system.common.pullToken.address
@@ -40,7 +44,7 @@ describe('PullToken Action', () => {
   })
 
   afterEach(async () => {
-    await restoreSnapshot(config, config.provider, testBlockNumber)
+    await restoreSnapshot({ config, provider: config.provider, blockNumber: testBlockNumber })
   })
 
   it('should pull tokens from the caller', async () => {

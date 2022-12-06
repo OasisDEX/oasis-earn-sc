@@ -17,6 +17,7 @@ export class ActionFactory {
     return {
       targetHash,
       callData: calldata,
+      skipped: false,
     }
   }
 }

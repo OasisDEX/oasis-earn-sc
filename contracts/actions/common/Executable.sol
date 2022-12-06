@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
 /**
@@ -11,7 +11,7 @@ interface Executable {
   /**
    * @dev Emitted once an Action has completed execution
    * @param name The Action name
-   * @param returned The bytes32 value returned by the Action
+   * @param returned The bytes value returned by the Action
    **/
-  event Action(string name, bytes32 returned);
+  event Action(string indexed name, bytes returned);
 }

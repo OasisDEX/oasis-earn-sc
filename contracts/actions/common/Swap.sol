@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
@@ -88,6 +89,7 @@ contract Swap {
     bytes calldata withData
   ) internal returns (uint256 balance) {
     IERC20(fromAsset).safeApprove(callee, amount);
+
     (bool success, ) = callee.call(withData);
 
     if (!success) {
@@ -127,6 +129,7 @@ contract Swap {
 
   function swapTokens(SwapData calldata swapData) public returns (uint256) {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
+
     uint256 amountFrom = swapData.amount;
 
     if (swapData.collectFeeInFromToken) {
@@ -134,6 +137,7 @@ contract Swap {
     }
 
     address oneInch = registry.getRegisteredService(ONE_INCH_AGGREGATOR);
+
     uint256 toTokenBalance = _swap(
       swapData.fromAsset,
       swapData.toAsset,

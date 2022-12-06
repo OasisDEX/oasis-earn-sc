@@ -31,7 +31,7 @@ contract CdpAllow is Executable, UseStore {
 
     manager.cdpAllow(cdpAllowData.vaultId, cdpAllowData.userAddress, 1);
 
-    emit Action(CDP_ALLOW, bytes32(cdpAllowData.vaultId));
+    emit Action(CDP_ALLOW, bytes(abi.encode(cdpAllowData.vaultId)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (CdpAllowData memory params) {
