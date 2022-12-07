@@ -11,6 +11,7 @@ import {
 } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
+import { PositionType } from '@oasisdex/oasis-actions/lib/src/strategies/types/PositionType'
 import { IPositionTransition } from '@oasisdex/oasis-actions/src'
 import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import BigNumber from 'bignumber.js'
@@ -88,6 +89,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       isFeeFromSourceTokenOnOpen: boolean,
       isFeeFromSourceTokenOnAdjust: boolean,
       user: string,
+      positionType: PositionType,
       blockNumber?: number,
     ) {
       const _blockNumber = blockNumber || testBlockNumber
@@ -158,8 +160,13 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       const openPositionTransition = await strategies.aave.open(
         {
           depositedByUser: {
-            debtInWei: debtToken.depositOnOpenAmountInWei,
-            collateralInWei: collateralToken.depositOnOpenAmountInWei,
+            debtToken: { amountInBaseUnit: debtToken.depositOnOpenAmountInWei },
+            collateralToken: { amountInBaseUnit: collateralToken.depositOnOpenAmountInWei },
+          },
+          positionArgs: {
+            positionId: 123,
+            positionType: positionType,
+            protocol: 'AAVE' as const,
           },
           slippage,
           multiple,
@@ -177,18 +184,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             from: debtToken.precision,
             to: collateralToken.precision,
           }),
-          currentPosition: await strategies.aave.view(
-            {
-              proxy,
-              collateralToken,
-              debtToken,
-            },
-            {
-              addresses,
-              provider,
-            },
-          ),
-          proxy: system.common.dsProxy.address,
+          proxy,
           user: user,
         },
       )
@@ -436,6 +432,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           true,
           true,
           userAddress,
+          'Earn',
         )
         txStatus = setup.txStatus
         openTxStatus = setup.openTxStatus
@@ -515,6 +512,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           true,
           true,
           userAddress,
+          'Multiply',
         )
         txStatus = setup.txStatus
         openTxStatus = setup.openTxStatus
@@ -594,6 +592,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           true,
           true,
           userAddress,
+          'Multiply',
         )
         txStatus = setup.txStatus
         openTxStatus = setup.openTxStatus
@@ -673,6 +672,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           true,
           false,
           userAddress,
+          'Multiply',
           15697000,
         )
         txStatus = setup.txStatus
@@ -729,7 +729,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe('On latest block using one inch exchange and api', () => {
+  describe.skip('On latest block using one inch exchange and api', () => {
     const slippage = new BigNumber(0.1)
     const depositAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
@@ -782,7 +782,12 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         const openPositionTransition = await strategies.aave.open(
           {
             depositedByUser: {
-              debtInWei: depositAmount,
+              debtToken: { amountInBaseUnit: depositAmount },
+            },
+            positionArgs: {
+              positionId: 123,
+              positionType: 'Earn',
+              protocol: 'AAVE' as const,
             },
             slippage,
             multiple,
@@ -795,7 +800,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
             user: config.address,
-            currentPosition,
           },
         )
 
