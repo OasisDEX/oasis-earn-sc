@@ -471,15 +471,15 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
           new BigNumber(
-            positionTransition.simulation.swap.tokenFee
-              .div(ONE.minus(slippage).minus(TESTING_OFFSET))
+            positionTransition.simulation
+              .swap!.tokenFee.div(ONE.minus(slippage).minus(TESTING_OFFSET))
               .toString(),
           ).toFixed(0),
           'gte',
           actualWethFees,
         )
 
-        expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualWethFees)
+        expectToBe(positionTransition.simulation.swap!.tokenFee, 'lte', actualWethFees)
       })
     })
 
@@ -550,15 +550,15 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
           new BigNumber(
-            positionTransition.simulation.swap.tokenFee
-              .div(ONE.minus(slippage).minus(TESTING_OFFSET))
+            positionTransition.simulation
+              .swap!.tokenFee.div(ONE.minus(slippage).minus(TESTING_OFFSET))
               .toString(),
           ).toFixed(0),
           'gte',
           actualUSDCFees,
         )
 
-        expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualUSDCFees)
+        expectToBe(positionTransition.simulation.swap!.tokenFee, 'lte', actualUSDCFees)
       })
     })
 
@@ -629,15 +629,15 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
           new BigNumber(
-            positionTransition.simulation.swap.tokenFee
-              .div(ONE.minus(slippage).minus(TESTING_OFFSET))
+            positionTransition.simulation
+              .swap!.tokenFee.div(ONE.minus(slippage).minus(TESTING_OFFSET))
               .toString(),
           ).toFixed(0),
           'gte',
           actualUSDCFees,
         )
 
-        expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualUSDCFees)
+        expectToBe(positionTransition.simulation.swap!.tokenFee, 'lte', actualUSDCFees)
       })
     })
 
@@ -715,15 +715,15 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
           new BigNumber(
-            positionTransition.simulation.swap.tokenFee
-              .div(ONE.minus(slippage).minus(TESTING_OFFSET))
+            positionTransition.simulation
+              .swap!.tokenFee.div(ONE.minus(slippage).minus(TESTING_OFFSET))
               .toString(),
           ).toFixed(0),
           'gte',
           actualWethFees,
         )
 
-        expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualWethFees)
+        expectToBe(positionTransition.simulation.swap!.tokenFee, 'lte', actualWethFees)
       })
     })
   })
@@ -933,15 +933,15 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       // Test for equivalence within slippage adjusted range when taking fee from target token
       expectToBe(
         new BigNumber(
-          positionTransition.simulation.swap.tokenFee
-            .div(ONE.minus(slippage).minus(TESTING_OFFSET))
+          positionTransition.simulation
+            .swap!.tokenFee.div(ONE.minus(slippage).minus(TESTING_OFFSET))
             .toString(),
         ).toFixed(0),
         'gte',
         actualWethFees,
       )
 
-      expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualWethFees)
+      expectToBe(positionTransition.simulation.swap!.tokenFee, 'lte', actualWethFees)
     })
   })
 })

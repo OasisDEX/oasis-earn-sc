@@ -334,7 +334,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         )
 
         expectToBeEqual(
-          new BigNumber(positionTransition.simulation.swap.tokenFee),
+          new BigNumber(positionTransition.simulation.swap!.tokenFee),
           feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
         )
       })
@@ -417,7 +417,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         )
 
         expectToBeEqual(
-          new BigNumber(positionTransition.simulation.swap.tokenFee),
+          new BigNumber(positionTransition.simulation.swap!.tokenFee),
           feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore),
         )
       })
@@ -492,7 +492,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         )
 
         expectToBeEqual(
-          new BigNumber(positionTransition.simulation.swap.tokenFee),
+          new BigNumber(positionTransition.simulation.swap!.tokenFee),
           feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore),
         )
       })
@@ -569,14 +569,14 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
           new BigNumber(
-            positionTransition.simulation.swap.tokenFee.div(ONE.minus(slippage)).toString(),
+            positionTransition.simulation.swap!.tokenFee.div(ONE.minus(slippage)).toString(),
           ).toFixed(0),
           'gte',
           feeRecipientWBTCBalanceAfter.minus(feeRecipientWBTCBalanceBefore),
         )
 
         expectToBe(
-          positionTransition.simulation.swap.tokenFee,
+          positionTransition.simulation.swap!.tokenFee,
           'lte',
           feeRecipientWBTCBalanceAfter.minus(feeRecipientWBTCBalanceBefore),
         )
@@ -705,13 +705,13 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       const actualFees = feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore)
       expectToBe(
         new BigNumber(
-          positionTransition.simulation.swap.tokenFee.div(ONE.minus(slippage)).toString(),
+          positionTransition.simulation.swap!.tokenFee.div(ONE.minus(slippage)).toString(),
         ).toFixed(0),
         'gte',
         actualFees,
       )
 
-      expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualFees)
+      expectToBe(positionTransition.simulation.swap!.tokenFee, 'lte', actualFees)
     })
   })
 })

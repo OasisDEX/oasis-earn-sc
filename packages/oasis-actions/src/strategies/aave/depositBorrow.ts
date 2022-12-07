@@ -11,21 +11,34 @@ import { Address, IPositionTransitionDependencies } from '../types/IPositionRepo
 import { IPositionTransition } from '../types/IPositionTransition'
 import { SwapData } from '../types/SwapData'
 
+function checkTokenSupport<S extends string>(
+  token: string,
+  supportedTokens: Record<S, string>,
+  message: string,
+): asserts token is keyof typeof supportedTokens {
+  if (!Object.keys(supportedTokens).some(key => key === token)) {
+    throw new Error(message)
+  }
+}
+
 export async function depositBorrow(
   {
     entryToken,
     entryTokenAmount,
     slippage,
     borrowAmount,
+    collectFeeFrom,
   }: {
     entryToken?: Address
     entryTokenAmount?: BigNumber
     slippage?: BigNumber
     borrowAmount?: BigNumber
+    collectFeeFrom: 'sourceToken' | 'targetToken'
   },
   dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
 ): Promise<IPositionTransition> {
   const FEE = 20
+  const FEE_BASE = 10000
 
   const tokenAddresses = {
     WETH: dependencies.addresses.WETH,
@@ -36,21 +49,21 @@ export async function depositBorrow(
     DAI: dependencies.addresses.DAI,
   }
 
-  const collateralTokenAddress = tokenAddresses[dependencies.currentPosition.collateral.symbol]
-  const debtTokenAddress = tokenAddresses[dependencies.currentPosition.debt.symbol]
+  const collateralSymbol = dependencies.currentPosition.collateral.symbol
+  const debtSymbol = dependencies.currentPosition.debt.symbol
 
-  if (!collateralTokenAddress) {
-    throw new Error('Collateral token not recognized or address missing in dependencies')
-  }
-  if (!debtTokenAddress) {
-    throw new Error('Debt token not recognized or address missing in dependencies')
-  }
+  checkTokenSupport(collateralSymbol, tokenAddresses, 'Collateral token not supported')
+  checkTokenSupport(debtSymbol, tokenAddresses, 'Debt token not supported')
+
+  const collateralTokenAddress = tokenAddresses[collateralSymbol]
+  const debtTokenAddress = tokenAddresses[debtSymbol]
 
   let depositArgs: DepositArgs | undefined
   let borrowArgs: BorrowArgs | undefined
   let swapData: SwapData | undefined
   let collateralDelta: BigNumber = ZERO
   let debtDelta: BigNumber = ZERO
+  let fee: BigNumber = ZERO
 
   if (entryToken && entryTokenAmount && slippage) {
     swapData =
@@ -62,7 +75,7 @@ export async function depositBorrow(
             slippage,
           )
         : undefined
-
+    const collectFeeInFromToken = collectFeeFrom === 'sourceToken'
     depositArgs = {
       depositorAddress: dependencies.user,
       depositToken: collateralTokenAddress,
@@ -72,11 +85,17 @@ export async function depositBorrow(
       swapArgs: swapData
         ? {
             calldata: swapData.exchangeCalldata.toString(),
-            collectFeeInFromToken: true,
+            collectFeeInFromToken,
             fee: FEE,
             receiveAtLeast: swapData.minToTokenAmount,
           }
         : undefined,
+    }
+
+    if (collectFeeInFromToken) {
+      fee = swapData?.fromTokenAmount.times(FEE).div(FEE_BASE) || ZERO
+    } else {
+      fee = swapData?.toTokenAmount.times(FEE).div(FEE_BASE) || ZERO
     }
 
     // should we show toTokenAmount or minTokenAmount
@@ -118,15 +137,15 @@ export async function depositBorrow(
       },
       flags: {
         isIncreasingRisk: finalPosition.riskRatio.loanToValue.gt(
-          dependencies.currentPosition.riskRatio.loanToValue
+          dependencies.currentPosition.riskRatio.loanToValue,
         ),
         requiresFlashloan: false,
       },
       swap: swapData
         ? {
             ...swapData,
-            tokenFee: ZERO,
-            collectFeeFrom: 'sourceToken',
+            tokenFee: fee,
+            collectFeeFrom,
             sourceToken: TOKEN_DEFINITIONS.DAI,
             targetToken: TOKEN_DEFINITIONS.DAI,
           }

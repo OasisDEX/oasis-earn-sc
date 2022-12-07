@@ -1,25 +1,31 @@
-import init from '../../helpers/init'
-import { RuntimeConfig } from '../../helpers/types/common'
-import { DeployedSystemInfo, deploySystem } from '../deploySystem'
-import { BigNumber } from 'bignumber.js'
-import { amountFromWei, amountToWei, approve, balanceOf } from '../../helpers/utils'
-import { CONTRACT_NAMES, TEN, TEN_THOUSAND } from '@oasisdex/oasis-actions'
-import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
-import { ADDRESSES, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
-import { getOneInchCall } from '../../helpers/swap/OneInchCall'
-import { mainnetAddresses } from '../addresses'
-import { executeThroughProxy } from '../../helpers/deploy'
-import { Contract } from 'ethers'
-import { zero } from '../../scripts/common'
-import { assert } from 'chai'
-import { ethers } from 'hardhat'
 import { TransactionReceipt } from '@ethersproject/providers'
-import { expectToBeEqual } from '../utils'
-import { AAVEReserveData } from '../../helpers/aave'
-import { deposit } from '@oasisdex/oasis-actions/src/strategies/aave/deposit'
+import {
+  ADDRESSES,
+  CONTRACT_NAMES,
+  OPERATION_NAMES,
+  strategies,
+  TEN,
+  TEN_THOUSAND,
+} from '@oasisdex/oasis-actions'
+import { TokenDef } from '@oasisdex/oasis-actions/lib/src/operations/aave/tokens'
 import { AAVETokens, TOKEN_DEFINITIONS } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import { mainnetAAVEAddresses } from '@oasisdex/oasis-actions/src/strategies/aave/getAAVETokenAddresses'
-import { TokenDef } from '@oasisdex/oasis-actions/lib/src/operations/aave/tokens'
+import { BigNumber } from 'bignumber.js'
+import { assert } from 'chai'
+import { Contract } from 'ethers'
+import { ethers } from 'hardhat'
+
+import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
+import { AAVEReserveData } from '../../helpers/aave'
+import { executeThroughProxy } from '../../helpers/deploy'
+import init from '../../helpers/init'
+import { getOneInchCall } from '../../helpers/swap/OneInchCall'
+import { RuntimeConfig } from '../../helpers/types/common'
+import { amountFromWei, amountToWei, approve, balanceOf } from '../../helpers/utils'
+import { zero } from '../../scripts/common'
+import { mainnetAddresses } from '../addresses'
+import { DeployedSystemInfo, deploySystem } from '../deploySystem'
+import { expectToBeEqual } from '../utils'
 
 describe('A Position', () => {
   let config: RuntimeConfig
@@ -61,7 +67,7 @@ describe('A Position', () => {
       const depositToken = TOKEN_DEFINITIONS.stETH
       const entryAmount = amountToWei(TEN)
 
-      let { currentATokenBalance: currentATokenBalanceBeforeDeposit }: AAVEReserveData =
+      const { currentATokenBalance: currentATokenBalanceBeforeDeposit }: AAVEReserveData =
         await aaveDataProvider.getUserReserveData(
           mainnetAAVEAddresses[depositToken.symbol],
           proxyAddress,
@@ -114,7 +120,7 @@ describe('A Position', () => {
         `Not enough DAI to execute test ( balance: ${walletDAIBalance.toString()}`,
       )
 
-      let { currentATokenBalance: currentATokenBalanceBeforeDeposit }: AAVEReserveData =
+      const { currentATokenBalance: currentATokenBalanceBeforeDeposit }: AAVEReserveData =
         await aaveDataProvider.getUserReserveData(
           mainnetAAVEAddresses[depositToken.symbol],
           proxyAddress,
@@ -169,7 +175,7 @@ describe('A Position', () => {
       const depositToken = TOKEN_DEFINITIONS.stETH
       const entryAmount = amountToWei(TEN)
 
-      let { currentATokenBalance: currentATokenBalanceBeforeDeposit }: AAVEReserveData =
+      const { currentATokenBalance: currentATokenBalanceBeforeDeposit }: AAVEReserveData =
         await aaveDataProvider.getUserReserveData(
           mainnetAAVEAddresses[depositToken.symbol],
           proxyAddress,
@@ -220,7 +226,7 @@ describe('A Position', () => {
         `Not enough DAI to execute test ( balance: ${walletDAIBalance.toString()}`,
       )
 
-      let { currentATokenBalance: currentATokenBalanceBeforeDeposit }: AAVEReserveData =
+      const { currentATokenBalance: currentATokenBalanceBeforeDeposit }: AAVEReserveData =
         await aaveDataProvider.getUserReserveData(
           mainnetAAVEAddresses[depositToken.symbol],
           proxyAddress,
@@ -287,15 +293,13 @@ async function depositToAPosition(
     ...mainnetAddresses,
     operationExecutor: common.operationExecutor.address,
   }
-  const { transaction } = await deposit(
+
+  const { transaction } = await strategies.aave.depositBorrow(
     {
-      entryToken,
-      collateralToken: depositToken,
+      entryToken: mainnetAddresses[entryToken.symbol],
+      entryTokenAmount: entryAmount,
       slippage,
-      collectSwapFeeFrom,
-      depositedByUser: {
-        collateralInWei: entryAmount,
-      },
+      collectFeeFrom: collectSwapFeeFrom,
     },
     {
       addresses,

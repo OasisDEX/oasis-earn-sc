@@ -132,9 +132,9 @@ export async function adjust(
   let finalPosition: IPosition
   let actualMarketPriceWithSlippage: BigNumber
   let swapData: SwapData
-  const swapAmountBeforeFees = target.swap.fromTokenAmount
+  const swapAmountBeforeFees = target.swap!.fromTokenAmount
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
-    collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
+    collectFeeFrom === 'sourceToken' ? target.swap!.tokenFee : ZERO,
   )
 
   if (target.flags.isIncreasingRisk) {
@@ -178,7 +178,7 @@ export async function adjust(
       delta: target.delta,
       flags: target.flags,
       swap: {
-        ...target.swap,
+        ...target.swap!,
         ...swapData,
       },
       position: finalPosition,
@@ -298,7 +298,7 @@ async function _increaseRisk({
   // Apply market price
   // Convert result back to USDC at precision 6
   const collateralAmountAfterSwapInWei = amountToWei(
-    amountFromWei(target.swap.fromTokenAmount, args.debtToken.precision).div(
+    amountFromWei(target.swap!.fromTokenAmount, args.debtToken.precision).div(
       actualMarketPriceWithSlippage,
     ),
     args.collateralToken.precision,
@@ -409,7 +409,7 @@ async function _decreaseRisk({
   // Apply market price
   // Convert result back to USDC at precision 6
   const debtTokenAmountAfterSwapInWei = amountToWei(
-    amountFromWei(target.swap.fromTokenAmount, args.collateralToken.precision).div(
+    amountFromWei(target.swap!.fromTokenAmount, args.collateralToken.precision).div(
       actualMarketPriceWithSlippage,
     ),
     args.debtToken.precision,

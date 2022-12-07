@@ -153,9 +153,9 @@ export async function open(
     args.debtToken.precision || TYPICAL_PRECISION,
   )
 
-  const swapAmountBeforeFees = target.swap.fromTokenAmount
+  const swapAmountBeforeFees = target.swap!.fromTokenAmount
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
-    collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
+    collectFeeFrom === 'sourceToken' ? target.swap!.tokenFee : ZERO,
   )
 
   const swapData = await dependencies.getSwapData(
@@ -208,7 +208,7 @@ export async function open(
   // Apply market price
   // Convert result back to USDC at precision 6
   const collateralAmountAfterSwapInWei = amountToWei(
-    amountFromWei(target.swap.fromTokenAmount, args.debtToken.precision).div(
+    amountFromWei(target.swap!.fromTokenAmount, args.debtToken.precision).div(
       actualMarketPriceWithSlippage,
     ),
     args.collateralToken.precision,
@@ -237,7 +237,7 @@ export async function open(
       delta: target.delta,
       flags: target.flags,
       swap: {
-        ...target.swap,
+        ...target.swap!,
         ...swapData,
       },
       position: finalPosition,

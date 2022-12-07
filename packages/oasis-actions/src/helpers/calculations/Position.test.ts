@@ -132,11 +132,11 @@ describe('Calculate Position Helper', async () => {
 
         // From Token Swap Amount
         debug && console.log('From Token Swap Amount')
-        expect(target.swap.fromTokenAmount.toFixed(2)).to.equal(actualFromTokenAmount.toFixed(2))
+        expect(target.swap!.fromTokenAmount.toFixed(2)).to.equal(actualFromTokenAmount.toFixed(2))
 
         // To Token Swapped Amount
         debug && console.log('To Token Swap Amount')
-        expect(target.swap.minToTokenAmount.toFixed(2)).to.equal(actualToTokenAmount.toFixed(2))
+        expect(target.swap!.minToTokenAmount.toFixed(2)).to.equal(actualToTokenAmount.toFixed(2))
 
         // Debt Delta
         debug && console.log('Debt Delta')
@@ -173,7 +173,7 @@ describe('Calculate Position Helper', async () => {
 
         // Fee Paid - assumes fees always collected from source token
         debug && console.log('Fees')
-        expect(target.swap.tokenFee.toFixed(4)).to.equal(feePaidFromSourceToken.toFixed(4))
+        expect(target.swap!.tokenFee.toFixed(4)).to.equal(feePaidFromSourceToken.toFixed(4))
       })
     })
   })
