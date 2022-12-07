@@ -26,6 +26,7 @@ import {
   TakeFlashloan,
   UnwrapEth,
   WrapEth,
+  PositionCreated,
 } from '../../typechain'
 import { AddressRegistry } from './addresses'
 import { HardhatUtils } from './hardhat.utils'
@@ -56,6 +57,7 @@ export interface DeployedSystem {
   unwrapEth?: UnwrapEth
   wrapEth?: WrapEth
   returnFunds?: ReturnFunds
+  positionCreated?: PositionCreated
 }
 
 export interface DeploySystemArgs {

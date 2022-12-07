@@ -129,6 +129,10 @@ export class HardhatUtils {
         CONTRACT_NAMES.common.RETURN_FUNDS,
         this.addresses.RETURN_FUNDS_ACTION,
       ),
+      positionCreated: await this.getContractAt(
+        CONTRACT_NAMES.common.POSITION_CREATED,
+        this.addresses.POSITION_CREATED_ACTION,
+      ),
     }
   }
 

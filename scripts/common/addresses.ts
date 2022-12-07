@@ -58,6 +58,7 @@ const addresses = {
     WRAP_ETH_ACTION: '0x55D4d311Cd9B2dD5693FB51f06DbE50B9Da84D13',
     RETURN_FUNDS_ACTION: '0x746a6f9Acb42bcB43C08C829A035DBa7Db9E7385',
     PULL_TO_PROXY_ACTION: constants.AddressZero,
+    POSITION_CREATED_ACTION: '0xb3f0C5E4012aF22359c9Ab233DABd80cD81F5ec5',
   },
   [Network.GOERLI]: {
     CDP_MANAGER: '0xdcBf58c9640A7bd0e062f8092d70fb981Bb52032',
@@ -98,6 +99,7 @@ const addresses = {
     UNWRAP_ETH_ACTION: constants.AddressZero,
     WRAP_ETH_ACTION: constants.AddressZero,
     RETURN_FUNDS_ACTION: constants.AddressZero,
+    POSITION_CREATED_ACTION: constants.AddressZero,
   },
 }
 
