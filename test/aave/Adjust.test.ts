@@ -768,17 +768,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         const proxy = system.common.dsProxy.address
         const debtToken = { symbol: 'ETH' as const }
         const collateralToken = { symbol: 'STETH' as const }
-        const currentPosition = await strategies.aave.view(
-          {
-            proxy,
-            collateralToken,
-            debtToken,
-          },
-          {
-            addresses,
-            provider,
-          },
-        )
         const openPositionTransition = await strategies.aave.open(
           {
             depositedByUser: {
