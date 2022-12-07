@@ -703,10 +703,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: false,
     },
     {
-      hash: aaveDepositHash,
-      optional: false,
-    },
-    {
       hash: aavePaybackHash,
       optional: false,
     },

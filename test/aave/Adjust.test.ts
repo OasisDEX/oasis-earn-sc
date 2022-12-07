@@ -322,7 +322,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             positionTransition.transaction.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
+            positionTransition.transaction.operationName,
           ]),
         },
         signer,
@@ -729,7 +729,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe.skip('On latest block using one inch exchange and api', () => {
+  describe('On latest block using one inch exchange and api', () => {
     const slippage = new BigNumber(0.1)
     const depositAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
@@ -798,7 +798,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
               openPositionTransition.transaction.calls,
-              OPERATION_NAMES.common.CUSTOM_OPERATION,
+              positionTransition.transaction.operationName,
             ]),
           },
           signer,

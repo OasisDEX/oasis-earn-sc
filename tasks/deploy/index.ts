@@ -560,10 +560,6 @@ async function addAAVEOperationsToRegistry(
       optional: false,
     },
     {
-      hash: depositInAAVEHash,
-      optional: false,
-    },
-    {
       hash: paybackToAAVEHash,
       optional: false,
     },
