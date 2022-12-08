@@ -195,7 +195,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             openPositionTransition.transaction.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
+            openPositionTransition.transaction.operationName,
           ]),
         },
         signer,
@@ -729,7 +729,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe.skip(`[1inch] Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
+  describe.skip(`[1inch] Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
     const slippage = new BigNumber(0.1)
     const depositAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
@@ -798,7 +798,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
               openPositionTransition.transaction.calls,
-              positionTransition.transaction.operationName,
+              openPositionTransition.transaction.operationName,
             ]),
           },
           signer,
@@ -944,7 +944,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
   describe(`[1inch] Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.USDC} debt`, () => {
     const slippage = new BigNumber(0.2)
-    const depositAmount = amountToWei(new BigNumber(1))
+    const USDCPrecision = 6
+    const stETHPrecision = TYPICAL_PRECISION
+    const depositAmount = amountToWei(new BigNumber(1), USDCPrecision)
     const multiple = new BigNumber(2)
     const adjustDownToMultiple = new BigNumber(3.5)
 
@@ -965,7 +967,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         await resetNodeToLatestBlock(provider)
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
-        hre.tracer.enabled = Boolean(process.env.TRACE_TX) || false
 
         const addresses = {
           ...mainnetAddresses,
@@ -973,8 +974,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         }
 
         const proxy = system.common.dsProxy.address
-        const debtToken = { symbol: 'ETH' as const }
-        const collateralToken = { symbol: 'STETH' as const }
+        const debtToken = { symbol: tokens.USDC, precision: USDCPrecision }
+        const collateralToken = { symbol: tokens.STETH, precision: stETHPrecision }
+
         const openPositionTransition = await strategies.aave.open(
           {
             depositedByUser: {
@@ -987,13 +989,14 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             },
             slippage,
             multiple,
-            debtToken: { symbol: tokens.USDC },
-            collateralToken: { symbol: tokens.STETH },
+            debtToken,
+            collateralToken,
           },
           {
             addresses,
             provider,
-            getSwapData: getOneInchCall(system.common.swap.address),
+            // @ts-ignore
+            getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
             user: config.address,
           },
@@ -1005,7 +1008,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
               openPositionTransition.transaction.calls,
-              positionTransition.transaction.operationName,
+              openPositionTransition.transaction.operationName,
             ]),
           },
           signer,
@@ -1039,7 +1042,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             addresses,
             provider,
-            getSwapData: getOneInchCall(system.common.swap.address),
+            getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy,
             user: config.address,
             currentPosition: currentPositionBeforeAdjust,
@@ -1086,14 +1089,14 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
 
         const finalDebt = {
-          amount: new BigNumber(userStEthReserveDataAfterAdjust.currentVariableDebt.toString()),
-          precision: TYPICAL_PRECISION,
-          symbol: tokens.STETH,
+          amount: new BigNumber(userUSDCReserveDataAfterAdjust.currentVariableDebt.toString()),
+          precision: debtToken.precision,
+          symbol: debtToken.symbol,
         }
         const finalCollateral = {
-          amount: new BigNumber(userUSDCReserveDataAfterAdjust.currentATokenBalance.toString()),
-          precision: TYPICAL_PRECISION,
-          symbol: tokens.USDC,
+          amount: new BigNumber(userStEthReserveDataAfterAdjust.currentATokenBalance.toString()),
+          precision: collateralToken.precision,
+          symbol: collateralToken.symbol,
         }
 
         finalPosition = new Position(
@@ -1105,8 +1108,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       } else {
         this.skip()
       }
-
-      hre.tracer.enabled = false
     })
 
     it('Open Position Tx should pass', () => {

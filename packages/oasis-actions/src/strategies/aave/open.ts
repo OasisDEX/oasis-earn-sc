@@ -99,7 +99,7 @@ export async function open(
 
   // Params
   const slippage = args.slippage
-  const estimatedSwapAmount = amountToWei(new BigNumber(1))
+  const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
 
   const [
     aaveFlashloanDaiPriceInEth,
@@ -184,7 +184,7 @@ export async function open(
         collateralInWei: depositCollateralAmountInWei,
       },
       collectSwapFeeFrom: collectFeeFrom,
-      // debug: true,
+      debug: true,
     },
   )
 
