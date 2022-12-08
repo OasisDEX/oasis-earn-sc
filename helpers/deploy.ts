@@ -35,6 +35,42 @@ export async function createDeploy(
   }
 }
 
+export async function createInstance(
+  { config, debug }: DeployOptions,
+  hre?: HardhatRuntimeEnvironment,
+): Promise<any> {
+  const ethers = hre?.ethers || (await import('hardhat')).ethers
+
+  return async (contractName: string, contractAddress: string, params: string[] = []): Promise<[Contract, string]> => {
+    const contractNameWithVersionRemoved = removeVersion(contractName)
+
+    let abi
+    try { abi = require(`../abi/${contractNameWithVersionRemoved}.json`) } catch(e) {}
+    try { abi = require(`../abi/generated/${contractNameWithVersionRemoved}.json`) } catch(e) {}
+
+
+    // console.log('CONTR ABI ==========', contractNameWithVersionRemoved, abi );
+    
+    // const instance = await ethers.getContractAt(
+    //   abi,
+    //   contractAddress,
+    //   config.signer,
+    // )
+    
+    const instance = await ethers.getContractAt(
+      contractNameWithVersionRemoved,
+      contractAddress,
+      config.signer,
+    )
+    
+    if (debug) {
+      console.log(`DEBUG: Contract ${contractNameWithVersionRemoved} instantiated at: ${instance.address}`)
+    }
+
+    return [instance, instance.address]
+  }
+}
+
 // TODO: CHECK IF I CAN REUSE ACTION CALL and rename things
 type Target = {
   address: string
