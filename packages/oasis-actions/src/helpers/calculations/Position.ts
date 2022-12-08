@@ -536,6 +536,7 @@ export class Position implements IPosition {
       )
     }
 
+    console.log('NEXT MULTIPLE:', targetPosition.riskRatio.multiple.toString())
     return {
       position: targetPosition,
       delta: {

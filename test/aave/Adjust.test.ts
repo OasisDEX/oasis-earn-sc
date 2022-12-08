@@ -946,7 +946,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     const slippage = new BigNumber(0.2)
     const USDCPrecision = 6
     const stETHPrecision = TYPICAL_PRECISION
-    const depositAmount = amountToWei(new BigNumber(10), USDCPrecision)
+    const depositAmount = amountToWei(new BigNumber(100), USDCPrecision)
     const multiple = new BigNumber(2)
     const adjustDownToMultiple = new BigNumber(1.3)
 

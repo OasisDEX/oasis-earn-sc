@@ -154,10 +154,12 @@ export async function adjust(
   let swapData: SwapData
 
   const swapAmountBeforeFees = target.swap.fromTokenAmount
+  console.log('==== Calculating swapAmountAfterFees ====')
+  console.log('swapAmountBeforeFees:', swapAmountBeforeFees.toString())
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
     collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
   )
-
+  console.log('swapAmountAfterFees:', swapAmountAfterFees.toString())
   if (isIncreasingRisk) {
     ;({ operation, finalPosition, actualMarketPriceWithSlippage, swapData } = await _increaseRisk({
       target,
@@ -356,6 +358,7 @@ async function _decreaseRisk({
   target,
   existingPosition,
   swapAmountAfterFees,
+  swapAmountBeforeFees,
   collectFeeFrom,
   collateralTokenAddress,
   debtTokenAddress,
@@ -382,18 +385,23 @@ async function _decreaseRisk({
     },
   }
 
+  // market: isIncreasingRisk ? quoteMarketPrice : ONE.div(quoteMarketPrice),
+
   // Needs to be correct precision. First convert to base 18. Then divide
   const actualSwapBase18FromTokenAmount = amountToWei(
     amountFromWei(swapData.fromTokenAmount, args.collateralToken.precision),
-    18,
+    TYPICAL_PRECISION,
   )
   const actualSwapBase18ToTokenAmount = amountToWei(
     amountFromWei(swapData.toTokenAmount, args.debtToken.precision),
-    18,
+    TYPICAL_PRECISION,
   )
   const actualMarketPriceWithSlippage = actualSwapBase18FromTokenAmount.div(
     actualSwapBase18ToTokenAmount,
   )
+
+  console.log('ACTUAL MARKET PRICE IN _decrease')
+  console.log(actualMarketPriceWithSlippage.toString())
 
   const withdrawCollateralAmountWei = target.delta.collateral.abs()
   const precisionAdjustedWithdrawAmount = amountToWei(
@@ -413,7 +421,7 @@ async function _decreaseRisk({
       receiveAtLeast: swapData.minToTokenAmount,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
-      swapAmountInWei: swapAmountAfterFees,
+      swapAmountInWei: swapAmountBeforeFees,
       collectFeeFrom,
       collateralTokenAddress,
       debtTokenAddress,
@@ -427,19 +435,14 @@ async function _decreaseRisk({
   /*
     Final position calculated using actual swap data and the latest market price
   */
-  // EG FROM WBTC 8 to USDC 6
-  // Convert WBTC fromWei
-  // Apply market price
-  // Convert result back to USDC at precision 6
-  const debtTokenAmountAfterSwapInWei = amountToWei(
-    amountFromWei(target.swap.fromTokenAmount, args.collateralToken.precision).div(
-      actualMarketPriceWithSlippage,
-    ),
-    args.debtToken.precision,
-  ).integerValue(BigNumber.ROUND_DOWN)
+  const debtTokenAmount = amountFromWei(
+    target.swap.fromTokenAmount,
+    args.collateralToken.precision,
+  ).div(actualMarketPriceWithSlippage)
+  const debtTokenAmountInBaseUnits = amountToWei(debtTokenAmount, args.debtToken.precision)
 
   const newDebt = {
-    amount: existingPosition.debt.amount.minus(debtTokenAmountAfterSwapInWei),
+    amount: BigNumber.max(existingPosition.debt.amount.minus(debtTokenAmountInBaseUnits), ZERO),
     precision: existingPosition.debt.precision,
     symbol: target.position.collateral.symbol,
   }
@@ -447,12 +450,20 @@ async function _decreaseRisk({
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
+  console.log('FINAL POSITION')
   const finalPosition = new Position(
     newDebt,
     target.position.collateral,
     oracle,
     target.position.category,
   )
+  console.log('NEXT MULTIPLE', finalPosition.riskRatio.multiple.toString())
+  console.log('oracle:', oracle.toString())
+  console.log('oracle:', oracle.toString())
+  console.log('Debt:', finalPosition.debt.amount.toString())
+  console.log('Debt normalised:', finalPosition.debt.normalisedAmount.toString())
+  console.log('Collateral:', finalPosition.collateral.amount.toString())
+  console.log('Collateral normalised:', finalPosition.collateral.normalisedAmount.toString())
 
   return {
     operation,
