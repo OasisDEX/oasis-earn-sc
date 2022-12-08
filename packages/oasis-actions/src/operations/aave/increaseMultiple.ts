@@ -109,6 +109,8 @@ export async function increaseMultiple(
   wrapEth.skipped = !args.depositDebtTokens.isEth && !args.depositCollateral.isEth
 
   const flashloanCalls = [
+    pullDebtTokensToProxy,
+    pullCollateralTokensToProxy,
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
     borrowDebtTokensFromAAVE,

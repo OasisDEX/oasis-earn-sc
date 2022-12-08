@@ -11,6 +11,7 @@ import {
 } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
+import { PositionType } from '@oasisdex/oasis-actions/lib/src/strategies/types/PositionType'
 import { IPositionTransition } from '@oasisdex/oasis-actions/src'
 import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import BigNumber from 'bignumber.js'
@@ -88,6 +89,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       isFeeFromSourceTokenOnOpen: boolean,
       isFeeFromSourceTokenOnAdjust: boolean,
       user: string,
+      positionType: PositionType,
       blockNumber?: number,
     ) {
       const _blockNumber = blockNumber || testBlockNumber
@@ -158,8 +160,13 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       const openPositionTransition = await strategies.aave.open(
         {
           depositedByUser: {
-            debtInWei: debtToken.depositOnOpenAmountInWei,
-            collateralInWei: collateralToken.depositOnOpenAmountInWei,
+            debtToken: { amountInBaseUnit: debtToken.depositOnOpenAmountInWei },
+            collateralToken: { amountInBaseUnit: collateralToken.depositOnOpenAmountInWei },
+          },
+          positionArgs: {
+            positionId: 123,
+            positionType: positionType,
+            protocol: 'AAVE' as const,
           },
           slippage,
           multiple,
@@ -177,18 +184,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             from: debtToken.precision,
             to: collateralToken.precision,
           }),
-          currentPosition: await strategies.aave.view(
-            {
-              proxy,
-              collateralToken,
-              debtToken,
-            },
-            {
-              addresses,
-              provider,
-            },
-          ),
-          proxy: system.common.dsProxy.address,
+          proxy,
           user: user,
         },
       )
@@ -326,7 +322,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             positionTransition.transaction.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
+            positionTransition.transaction.operationName,
           ]),
         },
         signer,
@@ -436,6 +432,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           true,
           true,
           userAddress,
+          'Earn',
         )
         txStatus = setup.txStatus
         openTxStatus = setup.openTxStatus
@@ -515,6 +512,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           true,
           true,
           userAddress,
+          'Multiply',
         )
         txStatus = setup.txStatus
         openTxStatus = setup.openTxStatus
@@ -594,6 +592,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           true,
           true,
           userAddress,
+          'Multiply',
         )
         txStatus = setup.txStatus
         openTxStatus = setup.openTxStatus
@@ -673,6 +672,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           true,
           false,
           userAddress,
+          'Multiply',
           15697000,
         )
         txStatus = setup.txStatus
@@ -768,21 +768,15 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         const proxy = system.common.dsProxy.address
         const debtToken = { symbol: 'ETH' as const }
         const collateralToken = { symbol: 'STETH' as const }
-        const currentPosition = await strategies.aave.view(
-          {
-            proxy,
-            collateralToken,
-            debtToken,
-          },
-          {
-            addresses,
-            provider,
-          },
-        )
         const openPositionTransition = await strategies.aave.open(
           {
             depositedByUser: {
-              debtInWei: depositAmount,
+              debtToken: { amountInBaseUnit: depositAmount },
+            },
+            positionArgs: {
+              positionId: 123,
+              positionType: 'Earn',
+              protocol: 'AAVE' as const,
             },
             slippage,
             multiple,
@@ -795,7 +789,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
             user: config.address,
-            currentPosition,
           },
         )
 
@@ -805,7 +798,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             address: system.common.operationExecutor.address,
             calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
               openPositionTransition.transaction.calls,
-              OPERATION_NAMES.common.CUSTOM_OPERATION,
+              positionTransition.transaction.operationName,
             ]),
           },
           signer,
