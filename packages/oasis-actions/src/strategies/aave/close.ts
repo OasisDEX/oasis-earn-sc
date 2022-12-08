@@ -45,8 +45,9 @@ export async function close(
   const FEE_BASE = 10000
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
   const swapAmountBeforeFees = args.collateralAmountLockedInProtocolInWei
+  const fee = calculateFee(swapAmountBeforeFees, FEE, FEE_BASE)
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
-    args.collectSwapFeeFrom === 'sourceToken' ? new BigNumber(FEE) : ZERO,
+    args.collectSwapFeeFrom === 'sourceToken' ? fee : ZERO,
   )
 
   const [
@@ -85,8 +86,6 @@ export async function close(
   )
     .div(maxLoanToValueForFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
     .integerValue(BigNumber.ROUND_DOWN)
-
-  const fee = calculateFee(swapData.toTokenAmount, FEE, FEE_BASE)
 
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
