@@ -162,7 +162,7 @@ export class Position implements IPosition {
    * Calculates the target (or desired) state of a position
    * We must convert all values to the same 18 decimal precision to ensure the maths works as expected
    *
-   * Maths breakdown: {@linkhttps://www.notion.so/oazo/Oasis-Maths-cceaa36d5c2b49a7b5129105cee1d35f#608e831f54fc4557bf004af7c453f865}
+   * Maths breakdown: {@link https://www.notion.so/oazo/Oasis-Maths-cceaa36d5c2b49a7b5129105cee1d35f#608e831f54fc4557bf004af7c453f865}
    * Concrete scenarios: {@link https://docs.google.com/spreadsheets/d/1ZB0dlQbjgi7eM-cSyGowWlZCKG-326pWZeHxZAPFOT0/edit?usp=sharing}
    *
    * @returns A position's change in debt, change in collateral and whether a flashloan is necessary to achieve the change

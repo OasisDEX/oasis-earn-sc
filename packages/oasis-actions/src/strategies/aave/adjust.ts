@@ -85,11 +85,17 @@ export async function adjust(
 
   // Needs to be correct precision. First convert to base 18. Then divide
   const base18FromTokenAmount = amountToWei(
-    amountFromWei(quoteSwapData.fromTokenAmount, args.debtToken.precision),
+    amountFromWei(
+      quoteSwapData.fromTokenAmount,
+      isIncreasingRisk ? args.debtToken.precision : args.collateralToken.precision,
+    ),
     TYPICAL_PRECISION,
   )
   const base18ToTokenAmount = amountToWei(
-    amountFromWei(quoteSwapData.toTokenAmount, args.collateralToken.precision),
+    amountFromWei(
+      quoteSwapData.toTokenAmount,
+      isIncreasingRisk ? args.collateralToken.precision : args.debtToken.precision,
+    ),
     TYPICAL_PRECISION,
   )
   const quoteMarketPrice = base18FromTokenAmount.div(base18ToTokenAmount)
