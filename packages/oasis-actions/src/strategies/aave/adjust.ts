@@ -6,7 +6,7 @@ import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
 import { IBaseSimulatedTransition, IPosition, Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
+import { ONE, TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
@@ -46,11 +46,13 @@ export async function adjust(
   ) {
     isIncreasingRisk = false
   }
-
+  console.log('isIncreasingRisk:', isIncreasingRisk)
   const estimatedSwapAmount = amountToWei(
     new BigNumber(1),
     isIncreasingRisk ? args.debtToken.precision : args.collateralToken.precision,
   )
+
+  console.log('estimatedSwapAmount:', estimatedSwapAmount.toString())
 
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
@@ -128,7 +130,7 @@ export async function adjust(
         oazo: new BigNumber(FEE),
       },
       prices: {
-        market: quoteMarketPrice,
+        market: isIncreasingRisk ? quoteMarketPrice : ONE.div(quoteMarketPrice),
         oracle: oracle,
         oracleFLtoDebtToken: oracleFLtoDebtToken,
       },
@@ -150,6 +152,7 @@ export async function adjust(
   let finalPosition: IPosition
   let actualMarketPriceWithSlippage: BigNumber
   let swapData: SwapData
+
   const swapAmountBeforeFees = target.swap.fromTokenAmount
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
     collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
@@ -280,10 +283,6 @@ async function _increaseRisk({
 
   const _depositDebtAmountInWei = depositDebtAmountInWei || ZERO
   const borrowAmountInWei = target.delta.debt.minus(_depositDebtAmountInWei)
-  const precisionAdjustedBorrowAmount = amountToWei(
-    amountFromWei(borrowAmountInWei),
-    args.debtToken.precision || TYPICAL_PRECISION,
-  )
 
   const flashloanAmount = target.delta?.flashloanAmount || ZERO
 
@@ -299,7 +298,7 @@ async function _increaseRisk({
       },
       flashloanAmount: flashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : flashloanAmount,
       useFlashloan,
-      borrowAmountInWei: precisionAdjustedBorrowAmount,
+      borrowAmountInWei: borrowAmountInWei,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
@@ -356,7 +355,6 @@ async function _increaseRisk({
 async function _decreaseRisk({
   target,
   existingPosition,
-  swapAmountBeforeFees,
   swapAmountAfterFees,
   collectFeeFrom,
   collateralTokenAddress,
@@ -415,7 +413,7 @@ async function _decreaseRisk({
       receiveAtLeast: swapData.minToTokenAmount,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
-      swapAmountInWei: swapAmountBeforeFees,
+      swapAmountInWei: swapAmountAfterFees,
       collectFeeFrom,
       collateralTokenAddress,
       debtTokenAddress,

@@ -5,6 +5,7 @@ import {
   IPositionTransition,
   Position,
   strategies,
+  TYPICAL_PRECISION,
 } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
@@ -56,7 +57,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe('On forked chain', function () {
+  describe.skip('Uniswap t/x', function () {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
@@ -584,7 +585,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     })
   })
 
-  describe('On latest block using one inch exchange and api', function () {
+  describe.skip(`[1inch] Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
     const depositEthAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
@@ -696,6 +697,137 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       // Test for equivalence within slippage adjusted range when taking fee from target token
       const actualFees = feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore)
+      expectToBe(
+        new BigNumber(
+          positionTransition.simulation.swap.tokenFee.div(ONE.minus(slippage)).toString(),
+        ).toFixed(0),
+        'gte',
+        actualFees,
+      )
+
+      expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualFees)
+    })
+  })
+
+  describe(`[1inch] Increase Multiple: With ${tokens.ETH} collateral & ${tokens.USDC} debt`, function () {
+    const depositEthAmount = amountToWei(new BigNumber(1))
+    const multiple = new BigNumber(2)
+    const slippage = new BigNumber(0.1)
+    const ethPrecision = TYPICAL_PRECISION
+    const USDCPrecision = 6
+
+    let system: DeployedSystemInfo
+
+    let positionTransition: IPositionTransition
+    let txStatus: boolean
+
+    let userUSDCReserveData: AAVEReserveData
+    let userWethReserveData: AAVEReserveData
+
+    let feeRecipientUSDCBalanceBefore: BigNumber
+
+    before(async function () {
+      const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
+      if (shouldRun1InchTests) {
+        //Reset to the latest block
+        await resetNodeToLatestBlock(provider)
+        const { system: _system } = await deploySystem(config, false, false)
+        system = _system
+
+        const addresses = {
+          ...mainnetAddresses,
+          operationExecutor: system.common.operationExecutor.address,
+        }
+
+        feeRecipientUSDCBalanceBefore = await balanceOf(
+          ADDRESSES.main.USDC,
+          ADDRESSES.main.feeRecipient,
+          { config },
+        )
+
+        const proxy = system.common.dsProxy.address
+        const debtToken = { symbol: tokens.USDC, precision: USDCPrecision }
+        const collateralToken = { symbol: tokens.ETH, precision: ethPrecision }
+
+        positionTransition = await strategies.aave.open(
+          {
+            depositedByUser: { collateralToken: { amountInBaseUnit: depositEthAmount } },
+            slippage,
+            positionArgs: {
+              positionId: 123,
+              positionType: 'Multiply',
+              protocol: 'AAVE',
+            },
+            multiple,
+            debtToken,
+            collateralToken,
+          },
+          {
+            addresses,
+            provider,
+            getSwapData: getOneInchCall(system.common.swap.address),
+            proxy,
+            user: config.address,
+          },
+        )
+
+        const [_txStatus] = await executeThroughProxy(
+          system.common.dsProxy.address,
+          {
+            address: system.common.operationExecutor.address,
+            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+              positionTransition.transaction.calls,
+              positionTransition.transaction.operationName,
+            ]),
+          },
+          signer,
+          depositEthAmount.toFixed(0),
+        )
+        txStatus = _txStatus
+
+        userWethReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.WETH,
+          system.common.dsProxy.address,
+        )
+        userUSDCReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.USDC,
+          system.common.dsProxy.address,
+        )
+      } else {
+        this.skip()
+      }
+    })
+
+    it('Tx should pass', function () {
+      expect(txStatus).to.be.true
+    })
+
+    it('Should draw debt according to multiple', function () {
+      expect(
+        new BigNumber(positionTransition.simulation.position.debt.amount.toString()).toString(),
+      ).to.be.oneOf([
+        new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).toFixed(0),
+        new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).minus(ONE).toFixed(0),
+      ])
+    })
+
+    it('Should deposit all WETH tokens to aave', function () {
+      expectToBe(
+        new BigNumber(userWethReserveData.currentATokenBalance.toString()).toFixed(0),
+        'gte',
+        positionTransition.simulation.position.collateral.amount,
+      )
+    })
+
+    it('Should collect fee', async function () {
+      const feeRecipientUSDCBalanceAfter = await balanceOf(
+        ADDRESSES.main.USDC,
+        ADDRESSES.main.feeRecipient,
+        { config },
+      )
+
+      // Test for equivalence within slippage adjusted range when taking fee from target token
+      const actualFees = feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore)
       expectToBe(
         new BigNumber(
           positionTransition.simulation.swap.tokenFee.div(ONE.minus(slippage)).toString(),

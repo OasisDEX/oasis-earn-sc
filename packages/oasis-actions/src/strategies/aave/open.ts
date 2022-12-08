@@ -7,7 +7,7 @@ import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
 import { Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
+import { ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
@@ -100,6 +100,8 @@ export async function open(
   // Params
   const slippage = args.slippage
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
+  console.log('estimatedSwapAmount:', estimatedSwapAmount.toString())
+  console.log('args.debtToken.precision:', args.debtToken.precision)
 
   const [
     aaveFlashloanDaiPriceInEth,
@@ -188,12 +190,10 @@ export async function open(
     },
   )
 
+  console.log('CHECK!!')
+  console.log('target.delta.debt:', target.delta.debt.toString())
+  console.log('depositDebtAmountInWei:', depositDebtAmountInWei.toString())
   const borrowAmountInWei = target.delta.debt.minus(depositDebtAmountInWei)
-
-  const precisionAdjustedBorrowAmount = amountToWei(
-    amountFromWei(borrowAmountInWei),
-    args.debtToken.precision || TYPICAL_PRECISION,
-  )
 
   const swapAmountBeforeFees = target.swap.fromTokenAmount
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
@@ -240,7 +240,7 @@ export async function open(
     },
     addresses: dependencies.addresses,
     flashloanAmount: target.delta.flashloanAmount,
-    borrowAmountInBaseUnit: precisionAdjustedBorrowAmount,
+    borrowAmountInBaseUnit: borrowAmountInWei,
     collateralTokenAddress,
     debtTokenAddress,
     useFlashloan: target.flags.requiresFlashloan,
