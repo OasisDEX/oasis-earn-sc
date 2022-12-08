@@ -36,9 +36,21 @@ export async function adjust(
   const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
   const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
 
-  const estimatedSwapAmount = amountToWei(new BigNumber(1))
-
   const currentPosition = dependencies.currentPosition
+
+  let isIncreasingRisk = true
+  if (
+    new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE).loanToValue.lte(
+      currentPosition.riskRatio.loanToValue,
+    )
+  ) {
+    isIncreasingRisk = false
+  }
+
+  const estimatedSwapAmount = amountToWei(
+    new BigNumber(1),
+    isIncreasingRisk ? args.debtToken.precision : args.collateralToken.precision,
+  )
 
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
@@ -62,8 +74,8 @@ export async function adjust(
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     dependencies.getSwapData(
-      dependencies.addresses.WETH,
-      dependencies.addresses.stETH,
+      isIncreasingRisk ? debtTokenAddress : collateralTokenAddress,
+      isIncreasingRisk ? collateralTokenAddress : debtTokenAddress,
       estimatedSwapAmount,
       new BigNumber(slippage),
     ),
@@ -124,7 +136,7 @@ export async function adjust(
         collateralInWei: depositCollateralAmountInWei,
       },
       collectSwapFeeFrom: collectFeeFrom,
-      // debug: true,
+      debug: true,
     },
   )
 
@@ -137,7 +149,7 @@ export async function adjust(
     collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
   )
 
-  if (target.flags.isIncreasingRisk) {
+  if (isIncreasingRisk) {
     ;({ operation, finalPosition, actualMarketPriceWithSlippage, swapData } = await _increaseRisk({
       target,
       existingPosition,
