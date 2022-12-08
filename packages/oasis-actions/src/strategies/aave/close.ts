@@ -41,6 +41,14 @@ export async function close(
     dependencies.provider,
   )
 
+  const FEE = 20
+  const FEE_BASE = 10000
+  const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
+  const swapAmountBeforeFees = args.collateralAmountLockedInProtocolInWei
+  const swapAmountAfterFees = swapAmountBeforeFees.minus(
+    args.collectSwapFeeFrom === 'sourceToken' ? new BigNumber(FEE) : ZERO,
+  )
+
   const [
     aaveFlashloanDaiPriceInEth,
     aaveCollateralTokenPriceInEth,
@@ -56,14 +64,12 @@ export async function close(
     dependencies.getSwapData(
       collateralTokenAddress,
       debtTokenAddress,
-      args.collateralAmountLockedInProtocolInWei,
+      swapAmountAfterFees,
       args.slippage,
     ),
     aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
   ])
 
-  const FEE = 20
-  const FEE_BASE = 10000
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
 
   const ethPerDAI = aaveFlashloanDaiPriceInEth
@@ -84,7 +90,6 @@ export async function close(
 
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
-  const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
   const operation = await operations.aave.close(
     {
       lockedCollateralAmountInWei: args.collateralAmountLockedInProtocolInWei,

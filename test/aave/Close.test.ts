@@ -659,8 +659,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
   describe('Should close position with real oneInch', () => {
     const multiple = new BigNumber(2)
-    const slippage = new BigNumber(0.1)
-    const depositAmount = amountToWei(new BigNumber(1))
+    const slippage = new BigNumber(0.2)
+    const depositAmount = amountToWei(new BigNumber(20))
 
     let openTxStatus: boolean
     let txStatus: boolean
