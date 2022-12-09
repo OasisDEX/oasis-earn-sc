@@ -1,4 +1,4 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
+import { ActionCall, ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
 import { takeAFlashLoan } from '@oasisdex/oasis-actions/src/actions/common'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -96,10 +96,11 @@ describe('OperationExecutor', () => {
       'function initialize(address _logic, bytes memory _data) public payable',
     ])
 
-    const calls = [
+    const calls: ActionCall[] = [
       {
         targetHash: getServiceNameHash(CONTRACT_NAMES.aave.LENDING_POOL),
         callData: iface.encodeFunctionData('initialize', [suicideBombAddress, bombCall]),
+        skipped: false,
       },
     ]
 

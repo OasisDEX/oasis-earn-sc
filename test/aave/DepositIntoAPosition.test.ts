@@ -27,7 +27,7 @@ import { mainnetAddresses } from '../addresses'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
 import { expectToBeEqual } from '../utils'
 
-describe('A Position', () => {
+describe.only('A Position', () => {
   let config: RuntimeConfig
   let deployedContracts: DeployedSystemInfo
   let aaveDataProvider: Contract
