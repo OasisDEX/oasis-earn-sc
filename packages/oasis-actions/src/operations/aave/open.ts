@@ -32,6 +32,7 @@ interface OpenArgs {
   protocol: Protocol
   proxy: Address
   user: Address
+  isDPMProxy: boolean
 }
 
 export async function open({
@@ -47,6 +48,7 @@ export async function open({
   protocol,
   proxy,
   user,
+  isDPMProxy,
 }: OpenArgs): Promise<IOperation> {
   const pullDebtTokensToProxy = actions.common.pullToken({
     asset: debtTokenAddress,
@@ -150,9 +152,10 @@ export async function open({
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
+    isDPMProxy,
     flashloanAmount: flashloanAmount,
     borrower: addresses.operationExecutor,
-    dsProxyFlashloan: true,
+    isProxyFlashloan: true,
     calls: flashloanCalls,
   })
 

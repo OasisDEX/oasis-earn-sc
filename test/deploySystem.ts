@@ -45,6 +45,23 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     [],
   )
 
+  // DPM
+  const [accountGuard, accountGuardAddress] = await deploy(
+    'AccountGuard',
+    [],
+  )
+  const [accountFactory, accountFactoryAddress] = await deploy(
+    'AccountFactory',
+    [accountGuardAddress],
+  )
+
+  const tx = await accountFactory["createAccount()"]();
+  const receipt = await tx.wait();
+
+  const dpmProxyAddress = receipt.events![1].args!.proxy;
+
+  await accountGuard.setWhitelist(operationExecutorAddress, true)
+  
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
@@ -733,6 +750,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       unwrapEth,
       returnFunds: returnFunds,
       positionCreated: positionCreatedAction,
+      accountGuard,
+      accountFactory,
+      dpmProxyAddress
     },
     maker: {
       mcdView,

@@ -97,7 +97,8 @@
     "lodash": "^4.17.21",
     "node-cache": "^5.1.2",
     "ramda": "^0.28.0",
-    "typechain": "^8.1.0"
+    "typechain": "^8.1.0",
+    "@openzeppelin/contracts": "4.7.3"
   },
   "resolutions": {
     "hardhat/**/@ethereumjs/tx": "3.5.0"

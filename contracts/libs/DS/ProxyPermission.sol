@@ -5,6 +5,7 @@ pragma solidity ^0.8.15;
 import "./DSGuard.sol";
 import "./DSAuth.sol";
 
+import "hardhat/console.sol";
 contract ProxyPermission {
   address internal constant FACTORY_ADDRESS = 0x5a15566417e6C1c9546523066500bDDBc53F88C7;
 
@@ -13,6 +14,7 @@ contract ProxyPermission {
   function givePermission(address _contractAddr) public {
     address currAuthority = address(DSAuth(address(this)).authority());
     DSGuard guard = DSGuard(currAuthority);
+
 
     if (currAuthority == address(0)) {
       guard = DSGuardFactory(FACTORY_ADDRESS).newGuard();

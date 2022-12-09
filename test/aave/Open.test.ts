@@ -83,6 +83,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       mockMarketPrice: BigNumber | undefined,
       isFeeFromDebtToken: boolean,
       userAddress: Address,
+      isDPMProxy: boolean,
     ) {
       const { snapshot } = await restoreSnapshot({
         config,
@@ -171,6 +172,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           }),
           proxy,
           user: userAddress,
+          isDPMProxy,
         },
       )
 
@@ -284,6 +286,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           new BigNumber(0.9759),
           true,
           userAddress,
+          false,
         )
         txStatus = setup.txStatus
         tx = setup.tx
@@ -369,6 +372,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           new BigNumber(1300),
           true,
           userAddress,
+          false,
         )
         txStatus = setup.txStatus
         positionTransition = setup.positionTransition
@@ -448,6 +452,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           new BigNumber(20032),
           true,
           userAddress,
+          false,
         )
         txStatus = setup.txStatus
         positionTransition = setup.positionTransition
@@ -524,6 +529,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           new BigNumber(20032),
           false,
           userAddress,
+          false,
         )
         txStatus = setup.txStatus
         positionTransition = setup.positionTransition
@@ -641,6 +647,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy,
             user: config.address,
+            isDPMProxy: false,
           },
         )
 

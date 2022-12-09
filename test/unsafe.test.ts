@@ -112,7 +112,8 @@ describe('OperationExecutor', () => {
             takeAFlashLoan({
               flashloanAmount: new BigNumber(1),
               borrower: proxyAddress,
-              dsProxyFlashloan: false,
+              isProxyFlashloan: false,
+              isDPMProxy: false,
               calls: calls,
             }),
           ],
