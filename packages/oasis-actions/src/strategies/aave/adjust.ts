@@ -404,10 +404,9 @@ async function _decreaseRisk({
   console.log(actualMarketPriceWithSlippage.toString())
 
   const withdrawCollateralAmountWei = target.delta.collateral.abs()
-  const precisionAdjustedWithdrawAmount = amountToWei(
-    amountFromWei(withdrawCollateralAmountWei),
-    args.collateralToken.precision || TYPICAL_PRECISION,
-  )
+
+  console.log('COLL AMOUNT IN WEI')
+  console.log('withdrawCollateralAmountWei:', withdrawCollateralAmountWei.toString())
   /*
    * The Maths can produce negative amounts for flashloan on decrease
    * because it's calculated using Debt Delta which will be negative
@@ -417,7 +416,7 @@ async function _decreaseRisk({
   const operation = await operations.aave.decreaseMultiple(
     {
       flashloanAmount: absFlashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : absFlashloanAmount,
-      withdrawAmountInWei: precisionAdjustedWithdrawAmount,
+      withdrawAmountInWei: withdrawCollateralAmountWei,
       receiveAtLeast: swapData.minToTokenAmount,
       fee: FEE,
       swapData: swapData.exchangeCalldata,
