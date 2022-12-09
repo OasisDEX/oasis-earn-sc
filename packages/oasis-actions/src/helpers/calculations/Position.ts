@@ -171,10 +171,23 @@ export class Position implements IPosition {
     targetRiskRatio: IRiskRatio,
     params: IPositionTransitionParams,
   ): IBaseSimulatedTransition {
+    if (params.debug) {
+      logDebug(
+        [
+          `**!!All values are converted to same precision during calculations!!**`,
+          `Current position debt: ${this.debt.amount.toString()}`,
+          `Current position collateral ${this.collateral.amount.toString()}`,
+          `Normalised current position debt: ${this.debt.normalisedAmount.toString()}`,
+          `Normalised current position collateral ${this.collateral.normalisedAmount.toString()}`,
+        ],
+        'Initial: ',
+      )
+    }
+
     const useFlashloanSafetyMargin = params.useFlashloanSafetyMargin ?? true
     const targetLTV = targetRiskRatio.loanToValue
-    let isIncreasingRisk = false
 
+    let isIncreasingRisk = false
     if (targetLTV.gt(this.riskRatio.loanToValue)) {
       isIncreasingRisk = true
     }
@@ -387,6 +400,17 @@ export class Position implements IPosition {
         ),
       )
       .integerValue(BigNumber.ROUND_DOWN)
+    console.log('AMOUNT TO FL')
+    console.log('Debt Delta:', debtDelta.toString())
+    console.log('debtTokensDepositedByUser:', debtTokensDepositedByUser.toString())
+    console.log('oraclePriceFLtoDebtToken:', oraclePriceFLtoDebtToken.toString())
+    console.log('maxLoanToValueFL:', maxLoanToValueFL.toString())
+    console.log(
+      'With margin:',
+      maxLoanToValueFL
+        .times(_useFlashloanSafetyMargin ? ONE.minus(FLASHLOAN_SAFETY_MARGIN) : ONE)
+        .toString(),
+    )
 
     /*
      * Account for fees being collected from either
@@ -486,8 +510,15 @@ export class Position implements IPosition {
             isIncreasingRisk ? targetPosition.collateral.symbol : targetPosition.debt.symbol
           }`,
           `----`,
-          `Debt delta: ${debtDelta.toString()}`,
-          `Collateral delta: ${collateralDelta.toString()}`,
+          `Normalised debt delta: ${debtDelta.toString()}`,
+          `Normalised collateral delta: ${collateralDelta.toString()}`,
+          `Debt delta: ${this._denormaliseAmount(debtDelta, this.debt.precision).integerValue(
+            BigNumber.ROUND_DOWN,
+          )}`,
+          `Collateral delta: ${this._denormaliseAmount(
+            collateralDelta,
+            this.collateral.precision,
+          ).integerValue(BigNumber.ROUND_DOWN)}`,
           `----`,
           `Normalised source fee amount ${normalisedSourceFee.toFixed(0)}`,
           `Normalised target fee amount ${normalisedTargetFee.toFixed(0)}`,
@@ -505,9 +536,19 @@ export class Position implements IPosition {
       )
     }
 
+    console.log('NEXT MULTIPLE:', targetPosition.riskRatio.multiple.toString())
     return {
       position: targetPosition,
-      delta: { debt: debtDelta, collateral: collateralDelta, flashloanAmount: amountToFlashloan },
+      delta: {
+        debt: this._denormaliseAmount(debtDelta, this.debt.precision).integerValue(
+          BigNumber.ROUND_DOWN,
+        ),
+        collateral: this._denormaliseAmount(
+          collateralDelta,
+          this.collateral.precision,
+        ).integerValue(BigNumber.ROUND_DOWN),
+        flashloanAmount: amountToFlashloan,
+      },
       swap: {
         fromTokenAmount,
         minToTokenAmount,

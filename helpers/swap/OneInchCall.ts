@@ -13,7 +13,7 @@ export const getOneInchCall =
       console.log('from:', from)
       console.log('to:', to)
       console.log('amount:', amount.toString())
-      console.log('slippage %', slippageAsPercentage.toString())
+      console.log('slippage', `${slippageAsPercentage.toString()}%`)
     }
     const response = await swapOneInchTokens(
       from,

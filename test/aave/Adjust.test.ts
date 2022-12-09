@@ -538,13 +538,13 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       })
 
       it('Should collect fee', async () => {
-        const feeRecipientUSDCBalanceAfter = await balanceOf(
+        const feeRecipientWETHBalanceAfter = await balanceOf(
           ADDRESSES.main.USDC,
           ADDRESSES.main.feeRecipient,
           { config },
         )
 
-        const actualUSDCFees = feeRecipientUSDCBalanceAfter.minus(feeRecipientWethBalanceBefore)
+        const actualUSDCFees = feeRecipientWETHBalanceAfter.minus(feeRecipientWethBalanceBefore)
 
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
@@ -946,9 +946,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     const slippage = new BigNumber(0.2)
     const USDCPrecision = 6
     const stETHPrecision = TYPICAL_PRECISION
-    const depositAmount = amountToWei(new BigNumber(1), USDCPrecision)
+    const depositAmount = amountToWei(new BigNumber(100), USDCPrecision)
     const multiple = new BigNumber(2)
-    const adjustDownToMultiple = new BigNumber(3.5)
+    const adjustDownToMultiple = new BigNumber(1.3)
 
     let aaveStEthPriceInEth: BigNumber
     let system: DeployedSystemInfo
@@ -977,6 +977,21 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         const debtToken = { symbol: tokens.USDC, precision: USDCPrecision }
         const collateralToken = { symbol: tokens.STETH, precision: stETHPrecision }
 
+        await swapUniswapTokens(
+          ADDRESSES.main.WETH,
+          ADDRESSES.main.USDC,
+          amountToWei(new BigNumber(100)).toFixed(0),
+          ONE.toFixed(0),
+          config.address,
+          config,
+        )
+
+        const DEBT_TOKEN = new ethers.Contract(ADDRESSES.main.USDC, ERC20ABI, provider)
+        await DEBT_TOKEN.connect(signer).approve(
+          system.common.userProxyAddress,
+          depositAmount.toFixed(0),
+        )
+
         const openPositionTransition = await strategies.aave.open(
           {
             depositedByUser: {
@@ -995,7 +1010,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             addresses,
             provider,
-            // @ts-ignore
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
             user: config.address,
@@ -1012,7 +1026,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             ]),
           },
           signer,
-          depositAmount.toFixed(0),
+          '',
         )
         openTxStatus = _openTxStatus
 
@@ -1030,14 +1044,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
         positionTransition = await strategies.aave.adjust(
           {
-            depositedByUser: {
-              debtInWei: depositAmount,
-            },
             slippage,
             multiple: adjustDownToMultiple,
             debtToken,
             collateralToken,
-            collectSwapFeeFrom: 'sourceToken',
+            collectSwapFeeFrom: 'targetToken',
           },
           {
             addresses,
@@ -1050,7 +1061,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
 
         feeRecipientUSDCBalanceBefore = await balanceOf(
-          ADDRESSES.main.stETH,
+          ADDRESSES.main.USDC,
           ADDRESSES.main.feeRecipient,
           { config },
         )
@@ -1128,12 +1139,12 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
     it('Should collect fee', async () => {
       const feeRecipientUSDCBalanceAfter = await balanceOf(
-        ADDRESSES.main.WETH,
+        ADDRESSES.main.USDC,
         ADDRESSES.main.feeRecipient,
         { config },
       )
 
-      const actualUSDCFees = feeRecipientUSDCBalanceBefore.minus(feeRecipientUSDCBalanceAfter)
+      const actualUSDCFees = feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore)
 
       // Test for equivalence within slippage adjusted range when taking fee from target token
       expectToBe(
