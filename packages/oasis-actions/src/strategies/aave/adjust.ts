@@ -444,7 +444,7 @@ async function _decreaseRisk({
   const newDebt = {
     amount: BigNumber.max(existingPosition.debt.amount.minus(debtTokenAmountInBaseUnits), ZERO),
     precision: existingPosition.debt.precision,
-    symbol: target.position.collateral.symbol,
+    symbol: target.position.debt.symbol,
   }
 
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
