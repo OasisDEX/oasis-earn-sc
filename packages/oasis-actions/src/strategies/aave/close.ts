@@ -46,10 +46,13 @@ export async function close(
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
   const swapAmountBeforeFees = args.collateralAmountLockedInProtocolInWei
   const fee = calculateFee(swapAmountBeforeFees, FEE, FEE_BASE)
+  console.log('swapAmountBeforeFees:', swapAmountBeforeFees.toString())
+
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
-    args.collectSwapFeeFrom === 'sourceToken' ? fee : ZERO,
+    collectFeeFrom === 'sourceToken' ? fee : ZERO,
   )
 
+  console.log('Getting swap price with:', swapAmountAfterFees.toString())
   const [
     aaveFlashloanDaiPriceInEth,
     aaveCollateralTokenPriceInEth,
@@ -89,6 +92,7 @@ export async function close(
 
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
+  console.log('Getting swap price with:', swapAmountAfterFees.toString())
   const operation = await operations.aave.close(
     {
       lockedCollateralAmountInWei: args.collateralAmountLockedInProtocolInWei,
