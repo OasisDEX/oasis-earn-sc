@@ -385,8 +385,6 @@ async function _decreaseRisk({
     },
   }
 
-  // market: isIncreasingRisk ? quoteMarketPrice : ONE.div(quoteMarketPrice),
-
   // Needs to be correct precision. First convert to base 18. Then divide
   const actualSwapBase18FromTokenAmount = amountToWei(
     amountFromWei(swapData.fromTokenAmount, args.collateralToken.precision),
@@ -399,20 +397,13 @@ async function _decreaseRisk({
   const actualMarketPriceWithSlippage = actualSwapBase18FromTokenAmount.div(
     actualSwapBase18ToTokenAmount,
   )
-
-  console.log('ACTUAL MARKET PRICE IN _decrease')
-  console.log(actualMarketPriceWithSlippage.toString())
-
   const withdrawCollateralAmountWei = target.delta.collateral.abs()
 
-  console.log('COLL AMOUNT IN WEI')
-  console.log('withdrawCollateralAmountWei:', withdrawCollateralAmountWei.toString())
   /*
    * The Maths can produce negative amounts for flashloan on decrease
    * because it's calculated using Debt Delta which will be negative
    */
   const absFlashloanAmount = (target.delta?.flashloanAmount || ZERO).abs()
-
   const operation = await operations.aave.decreaseMultiple(
     {
       flashloanAmount: absFlashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : absFlashloanAmount,
@@ -449,20 +440,12 @@ async function _decreaseRisk({
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
-  console.log('FINAL POSITION')
   const finalPosition = new Position(
     newDebt,
     target.position.collateral,
     oracle,
     target.position.category,
   )
-  console.log('NEXT MULTIPLE', finalPosition.riskRatio.multiple.toString())
-  console.log('oracle:', oracle.toString())
-  console.log('oracle:', oracle.toString())
-  console.log('Debt:', finalPosition.debt.amount.toString())
-  console.log('Debt normalised:', finalPosition.debt.normalisedAmount.toString())
-  console.log('Collateral:', finalPosition.collateral.amount.toString())
-  console.log('Collateral normalised:', finalPosition.collateral.normalisedAmount.toString())
 
   return {
     operation,

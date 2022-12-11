@@ -49,7 +49,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe.skip('On forked chain', () => {
+  describe('On forked chain', () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
     const blockNumber = 15695000 // Required to marry up with market price
@@ -657,7 +657,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     })
   })
 
-  describe.skip(`[1inch] Close Position: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
+  describe(`[1inch] Close Position: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.2)
     const depositAmount = amountToWei(new BigNumber(20))

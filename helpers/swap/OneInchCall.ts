@@ -1,4 +1,3 @@
-import { ZERO } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 
 import { one } from '../../scripts/common'
@@ -33,11 +32,11 @@ export const getOneInchCall =
     return {
       toTokenAddress: to,
       fromTokenAddress: from,
-      minToTokenAmount: new BigNumber(response?.toTokenAmount || ZERO)
+      minToTokenAmount: new BigNumber(response.toTokenAmount)
         .times(one.minus(slippage))
         .integerValue(BigNumber.ROUND_DOWN),
-      toTokenAmount: new BigNumber(response?.toTokenAmount || ZERO),
-      fromTokenAmount: new BigNumber(response?.fromTokenAmount || ZERO),
-      exchangeCalldata: response?.tx.data || '',
+      toTokenAmount: new BigNumber(response.toTokenAmount),
+      fromTokenAmount: new BigNumber(response.fromTokenAmount),
+      exchangeCalldata: response.tx.data,
     }
   }

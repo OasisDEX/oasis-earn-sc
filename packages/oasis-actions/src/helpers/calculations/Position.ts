@@ -400,17 +400,6 @@ export class Position implements IPosition {
         ),
       )
       .integerValue(BigNumber.ROUND_DOWN)
-    console.log('AMOUNT TO FL')
-    console.log('Debt Delta:', debtDelta.toString())
-    console.log('debtTokensDepositedByUser:', debtTokensDepositedByUser.toString())
-    console.log('oraclePriceFLtoDebtToken:', oraclePriceFLtoDebtToken.toString())
-    console.log('maxLoanToValueFL:', maxLoanToValueFL.toString())
-    console.log(
-      'With margin:',
-      maxLoanToValueFL
-        .times(_useFlashloanSafetyMargin ? ONE.minus(FLASHLOAN_SAFETY_MARGIN) : ONE)
-        .toString(),
-    )
 
     /*
      * Account for fees being collected from either
@@ -536,7 +525,6 @@ export class Position implements IPosition {
       )
     }
 
-    console.log('NEXT MULTIPLE:', targetPosition.riskRatio.multiple.toString())
     return {
       position: targetPosition,
       delta: {

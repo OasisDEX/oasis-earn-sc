@@ -100,8 +100,6 @@ export async function open(
   // Params
   const slippage = args.slippage
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
-  console.log('estimatedSwapAmount:', estimatedSwapAmount.toString())
-  console.log('args.debtToken.precision:', args.debtToken.precision)
 
   const [
     aaveFlashloanDaiPriceInEth,
@@ -190,9 +188,6 @@ export async function open(
     },
   )
 
-  console.log('CHECK!!')
-  console.log('target.delta.debt:', target.delta.debt.toString())
-  console.log('depositDebtAmountInWei:', depositDebtAmountInWei.toString())
   const borrowAmountInWei = target.delta.debt.minus(depositDebtAmountInWei)
 
   const swapAmountBeforeFees = target.swap.fromTokenAmount
