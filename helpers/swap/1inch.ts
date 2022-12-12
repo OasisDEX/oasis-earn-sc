@@ -51,7 +51,7 @@ export async function swapOneInchTokens(
   amount: string,
   recipient: string,
   slippage: string,
-  protocols: string[] = [],
+  protocols?: string[],
 ): Promise<OneInchSwapResponse> {
   const url = formatOneInchSwapUrl(
     fromTokenAddress,
