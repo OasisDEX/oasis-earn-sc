@@ -8,8 +8,12 @@ import './tasks/createPosition'
 import './tasks/closePosition'
 import './tasks/proxy'
 import './tasks/verify-earn'
+import './tasks/transfer-erc20'
+import './tasks/getTokens'
 import 'solidity-docgen'
 import 'hardhat-tracer'
+import 'hardhat-abi-exporter'
+import './tasks/userDpmProxies'
 
 import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
@@ -124,6 +128,14 @@ const config: HardhatUserConfig = {
       './libs',
       './test',
     ],
+  },
+  abiExporter: {
+    path: './abi/generated',
+    runOnCompile: true,
+    clear: true,
+    flat: true,
+    spacing: 2,
+    pretty: false,
   },
 }
 

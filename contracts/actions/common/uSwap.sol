@@ -1,4 +1,5 @@
-pragma solidity ^0.8.5;
+// SPDX-License-Identifier: AGPL-3.0-or-later
+pragma solidity ^0.8.15;
 
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { ISwapRouter } from "../../interfaces/common/ISwapRouter.sol";

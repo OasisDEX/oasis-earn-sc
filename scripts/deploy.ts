@@ -318,16 +318,20 @@ async function main() {
       },
     ],
   )
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
-    pullTokenHash,
-    takeAFlashloanHash,
-    setApprovalHash,
-    depositInAAVEHash,
-    aaveBorrowHash,
-    swapActionHash,
-    withdrawFromAAVEHash,
-    sendTokenHash,
-  ])
+  await operationsRegistry.addOp(
+    OPERATION_NAMES.aave.OPEN_POSITION,
+    [
+      pullTokenHash,
+      takeAFlashloanHash,
+      setApprovalHash,
+      depositInAAVEHash,
+      aaveBorrowHash,
+      swapActionHash,
+      withdrawFromAAVEHash,
+      sendTokenHash,
+    ],
+    Array(8).fill(false),
+  )
 
   await approve(ADDRESSES.main.DAI, proxyAddress, depositAmount, config, true)
 

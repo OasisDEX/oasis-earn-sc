@@ -1,5 +1,11 @@
-export { adjust } from './adjust'
-export { close } from './close'
-export { depositBorrow } from './depositBorrow'
-export { getCurrentPosition as view } from './getCurrentPosition'
-export { open } from './open'
+import { adjust } from './adjust'
+import { close } from './close'
+import { getCurrentPosition } from './getCurrentPosition'
+import { open } from './open'
+
+export const aave = {
+  open: open,
+  close: close,
+  adjust: adjust,
+  view: getCurrentPosition,
+}

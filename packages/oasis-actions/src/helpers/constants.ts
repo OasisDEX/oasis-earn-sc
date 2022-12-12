@@ -12,18 +12,19 @@ export const MAX_UINT =
 
 export const CONTRACT_NAMES = {
   common: {
-    PULL_TOKEN: 'PullToken_2',
-    SEND_TOKEN: 'SendToken_2',
-    SET_APPROVAL: 'SetApproval_2',
-    TAKE_A_FLASHLOAN: 'TakeFlashloan_2',
-    SWAP_ACTION: 'SwapAction_2',
-    WRAP_ETH: 'WrapEth_2',
-    UNWRAP_ETH: 'UnwrapEth_2',
-    RETURN_FUNDS: 'ReturnFunds_2',
+    PULL_TOKEN: 'PullToken_3',
+    SEND_TOKEN: 'SendToken_3',
+    SET_APPROVAL: 'SetApproval_3',
+    TAKE_A_FLASHLOAN: 'TakeFlashloan_3',
+    SWAP_ACTION: 'SwapAction_3',
+    WRAP_ETH: 'WrapEth_3',
+    UNWRAP_ETH: 'UnwrapEth_3',
+    RETURN_FUNDS: 'ReturnFunds_3',
+    POSITION_CREATED: 'PositionCreated',
 
-    OPERATION_EXECUTOR: 'OperationExecutor',
-    OPERATION_STORAGE: 'OperationStorage',
-    OPERATIONS_REGISTRY: 'OperationsRegistry',
+    OPERATION_EXECUTOR: 'OperationExecutor_2',
+    OPERATION_STORAGE: 'OperationStorage_2',
+    OPERATIONS_REGISTRY: 'OperationsRegistry_2',
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
     SWAP: 'Swap',
     EXCHANGE: 'Exchange',
@@ -33,10 +34,10 @@ export const CONTRACT_NAMES = {
     DAI: 'DAI',
   },
   aave: {
-    DEPOSIT: 'AaveDeposit_2',
-    WITHDRAW: 'AaveWithdraw_2',
-    BORROW: 'AaveBorrow_2',
-    PAYBACK: 'AavePayback_2',
+    DEPOSIT: 'AaveDeposit_3',
+    WITHDRAW: 'AaveWithdraw_3',
+    BORROW: 'AaveBorrow_3',
+    PAYBACK: 'AavePayback_3',
     LENDING_POOL: 'AaveLendingPool',
     WETH_GATEWAY: 'AaveWethGateway',
   },
@@ -56,6 +57,7 @@ export const CONTRACT_NAMES = {
   },
   test: {
     DUMMY_ACTION: 'DummyAction',
+    DUMMY_OPTIONAL_ACTION: 'DummyOptionalAction',
     DUMMY_SWAP: 'DummySwap',
     DUMMY_EXCHANGE: 'DummyExchange',
     SWAP: 'uSwap',
@@ -69,9 +71,6 @@ export type ContractNames = AllValues<typeof CONTRACT_NAMES>
 export const OPERATION_NAMES = {
   aave: {
     OPEN_POSITION: 'OpenAAVEPosition',
-    // OPEN_POSITION_1: 'OpenAAVEPosition_1', // Requires sending deposit
-    // OPEN_POSITION_2: 'OpenAAVEPosition_2', // Requires sending collateral
-    // OPEN_POSITION_3: 'OpenAAVEPosition_3', // Requires sending deposit & collateral
     CLOSE_POSITION: 'CloseAAVEPosition',
     INCREASE_POSITION: 'IncreaseAAVEPosition',
     DECREASE_POSITION: 'DecreaseAAVEPosition',
@@ -95,8 +94,8 @@ export const OPERATION_NAMES = {
 type ValuesOf<T> = T[keyof T]
 type AAVEOperations = ValuesOf<typeof OPERATION_NAMES['aave']>
 type MakerOperations = ValuesOf<typeof OPERATION_NAMES['maker']>
-type CommonOperations = ValuesOf<typeof OPERATION_NAMES['maker']>
-export type OperationNames = AAVEOperations | MakerOperations | CommonOperations
+type CommonOperations = ValuesOf<typeof OPERATION_NAMES['common']>
+export type OperationNames = CommonOperations | AAVEOperations | MakerOperations
 
 // If configuring a low LTV, we might not need a flashloan (therefore flashloan == 0), but we still perform
 // the swap because the actions in operation executor pass args to each other referenced via index.

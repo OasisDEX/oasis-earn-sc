@@ -84,7 +84,12 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       const openPositionTransition = await strategies.aave.open(
         {
           depositedByUser: {
-            debtInWei: depositAmountInWei,
+            debtToken: { amountInBaseUnit: depositAmountInWei },
+          },
+          positionArgs: {
+            positionId: 123,
+            positionType: 'Earn',
+            protocol: 'AAVE' as const,
           },
           slippage,
           multiple,
@@ -94,7 +99,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         },
         {
           ...dependencies,
-          currentPosition: beforeTransaction,
         },
       )
 
@@ -104,7 +108,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           address: operationExecutor.address,
           calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
             openPositionTransition.transaction.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
+            openPositionTransition.transaction.operationName,
           ]),
         },
         signer,
@@ -205,7 +209,12 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       const reopenPositionTransition = await strategies.aave.open(
         {
           depositedByUser: {
-            debtInWei: depositAmountInWei,
+            debtToken: { amountInBaseUnit: depositAmountInWei },
+          },
+          positionArgs: {
+            positionId: 123,
+            positionType: 'Earn',
+            protocol: 'AAVE' as const,
           },
           slippage,
           multiple,
@@ -215,7 +224,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         },
         {
           ...dependencies,
-          currentPosition: beforeTransaction,
         },
       )
 
@@ -225,7 +233,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           address: operationExecutor.address,
           calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
             reopenPositionTransition.transaction.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
+            reopenPositionTransition.transaction.operationName,
           ]),
         },
         signer,
@@ -291,7 +299,12 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       const openPositionTransition = await strategies.aave.open(
         {
           depositedByUser: {
-            debtInWei: depositAmountInWei,
+            debtToken: { amountInBaseUnit: depositAmountInWei },
+          },
+          positionArgs: {
+            positionId: 123,
+            positionType: 'Earn',
+            protocol: 'AAVE' as const,
           },
           slippage,
           multiple,
@@ -301,7 +314,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         },
         {
           ...dependencies,
-          currentPosition: beforeTransaction,
         },
       )
 
@@ -369,7 +381,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           address: operationExecutor.address,
           calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
             closePositionTransition.transaction.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
+            closePositionTransition.transaction.operationName,
           ]),
         },
         signer,
@@ -408,7 +420,12 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       const reopenPositionTransition = await strategies.aave.open(
         {
           depositedByUser: {
-            debtInWei: depositAmountInWei,
+            debtToken: { amountInBaseUnit: depositAmountInWei },
+          },
+          positionArgs: {
+            positionId: 123,
+            positionType: 'Earn',
+            protocol: 'AAVE' as const,
           },
           slippage,
           multiple,
@@ -418,7 +435,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         },
         {
           ...dependencies,
-          currentPosition: beforeTransaction,
         },
       )
 
@@ -428,7 +444,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           address: operationExecutor.address,
           calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
             reopenPositionTransition.transaction.calls,
-            OPERATION_NAMES.common.CUSTOM_OPERATION,
+            reopenPositionTransition.transaction.operationName,
           ]),
         },
         signer,

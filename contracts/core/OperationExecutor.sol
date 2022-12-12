@@ -32,7 +32,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
    * @param name The address initiating the deposit
    * @param calls An array of Action calls the operation must execute
    **/
-  event Operation(string name, Call[] calls);
+  event Operation(string indexed name, Call[] calls);
 
   constructor(ServiceRegistry _registry) {
     registry = _registry;
@@ -62,7 +62,8 @@ contract OperationExecutor is IERC3156FlashBorrower {
     );
 
     opStorage.clearStorage();
-    opStorage.setOperationActions(opRegistry.getOperation(operationName));
+    (bytes32[] memory actions, bool[] memory optional) = opRegistry.getOperation(operationName);
+    opStorage.setOperationActions(actions, optional);
     aggregate(calls);
 
     opStorage.clearStorage();
@@ -75,11 +76,12 @@ contract OperationExecutor is IERC3156FlashBorrower {
     bool hasActionsToVerify = opStorage.hasActionsToVerify();
     for (uint256 current = 0; current < calls.length; current++) {
       if (hasActionsToVerify) {
-        opStorage.verifyAction(calls[current].targetHash);
+        opStorage.verifyAction(calls[current].targetHash, calls[current].skipped);
       }
-
-      address target = registry.getServiceAddress(calls[current].targetHash);
-      target.execute(calls[current].callData);
+      if (!calls[current].skipped) {
+        address target = registry.getServiceAddress(calls[current].targetHash);
+        target.execute(calls[current].callData);
+      }
     }
   }
 

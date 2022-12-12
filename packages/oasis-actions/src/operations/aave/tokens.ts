@@ -6,7 +6,7 @@ export type TokenDef<Tokens> = {
   precision: number
 }
 
-export const TOKEN_DEFINITIONS = {
+export const TOKEN_DEFINITIONS: Record<AAVETokens, TokenDef<AAVETokens>> = {
   ETH: {
     symbol: 'ETH',
     precision: 18,

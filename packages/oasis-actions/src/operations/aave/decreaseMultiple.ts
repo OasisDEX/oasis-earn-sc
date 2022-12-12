@@ -16,6 +16,7 @@ export async function decreaseMultiple(
     collectFeeFrom: 'sourceToken' | 'targetToken'
     collateralTokenAddress: string
     debtTokenAddress: string
+    useFlashloan: boolean
     proxy: string
     user: string
   },
@@ -75,20 +76,21 @@ export async function decreaseMultiple(
     to: addresses.operationExecutor,
   })
 
-  // TODO: determine if a flashloan is necessary
+  const flashloanCalls = [
+    setDaiApprovalOnLendingPool,
+    depositDaiInAAVE,
+    withdrawCollateralFromAAVE,
+    swapCollateralTokensForDebtTokens,
+    setDebtTokenApprovalOnLendingPool,
+    paybackInAAVE,
+    withdrawDAIFromAAVE,
+  ]
+
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
     dsProxyFlashloan: true,
-    calls: [
-      setDaiApprovalOnLendingPool,
-      depositDaiInAAVE,
-      withdrawCollateralFromAAVE,
-      swapCollateralTokensForDebtTokens,
-      setDebtTokenApprovalOnLendingPool,
-      paybackInAAVE,
-      withdrawDAIFromAAVE,
-    ],
+    calls: flashloanCalls,
   })
 
   return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.common.CUSTOM_OPERATION }

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
 string constant AAVE_LENDING_POOL = "AaveLendingPool";
@@ -11,7 +12,7 @@ string constant AAVE_WETH_GATEWAY = "AaveWethGateway";
  * update the ServiceRegistry with a new entry
  * and update TheGraph decoding accordingly
  */
-string constant BORROW_ACTION = "AaveBorrow_2";
-string constant DEPOSIT_ACTION = "AaveDeposit_2";
-string constant WITHDRAW_ACTION = "AaveWithdraw_2";
-string constant PAYBACK_ACTION = "AavePayback_2";
+string constant BORROW_ACTION = "AaveBorrow_3";
+string constant DEPOSIT_ACTION = "AaveDeposit_3";
+string constant WITHDRAW_ACTION = "AaveWithdraw_3";
+string constant PAYBACK_ACTION = "AavePayback_3";

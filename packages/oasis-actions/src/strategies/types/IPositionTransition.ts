@@ -3,6 +3,7 @@ import { Optional } from 'utility-types'
 import { ActionCall } from '../../actions/types/actionCall'
 import { IBaseSimulatedTransition, Swap } from '../../helpers/calculations/Position'
 import { IRiskRatio } from '../../helpers/calculations/RiskRatio'
+import { OperationNames } from '../../helpers/constants'
 import { SwapData } from './SwapData'
 
 interface ISimulatedTransition extends IBaseSimulatedTransition {
@@ -13,8 +14,7 @@ interface ISimulatedTransition extends IBaseSimulatedTransition {
 export interface IPositionTransition {
   transaction: {
     calls: ActionCall[]
-    // operationName: OperationNames
-    operationName: 'CustomOperation'
+    operationName: OperationNames
   }
   simulation: ISimulatedTransition
 }

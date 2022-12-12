@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
@@ -38,7 +39,7 @@ contract SetApproval is Executable, UseStore {
 
     IERC20(approval.asset).safeApprove(approval.delegate, actualApprovalAmount);
 
-    emit Action(SET_APPROVAL_ACTION, bytes32(actualApprovalAmount));
+    emit Action(SET_APPROVAL_ACTION, bytes(abi.encode(actualApprovalAmount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (SetApprovalData memory params) {

@@ -2,10 +2,9 @@ import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
 import { IPosition } from '../../helpers/calculations/Position'
-import { AAVETokens, TokenDef } from '../../operations/aave/tokens'
-import { IPositionTransition, IPositionTransitionWithOptionalSwap } from './IPositionTransition'
 import { SwapData } from './SwapData'
 
+type TokenDef<T> = { symbol: T; precision?: number }
 export interface IBasePositionTransitionArgs<Tokens> {
   slippage: BigNumber
   collateralToken: TokenDef<Tokens>
@@ -67,29 +66,4 @@ export interface IPositionTransitionDependencies<Addresses> {
 export interface IViewPositionDependencies<Addresses> {
   addresses: Addresses
   provider: providers.Provider
-}
-
-export interface IPositionRepository<Addresses> {
-  open: (
-    args: IPositionTransitionArgs<AAVETokens>,
-    dependencies: IPositionTransitionDependencies<Addresses>,
-  ) => Promise<IPositionTransition>
-  close: (
-    args: IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral,
-    dependencies: IPositionTransitionDependencies<Addresses>,
-  ) => Promise<IPositionTransition>
-  adjust: (
-    args: IPositionTransitionArgs<AAVETokens>,
-    dependencies: IPositionTransitionDependencies<Addresses>,
-  ) => Promise<IPositionTransition>
-  view: (
-    args: IViewPositionParams<AAVETokens>,
-    dependencies: IViewPositionDependencies<Addresses>,
-  ) => Promise<IPosition>
-  deposit: (
-    args: IBasePositionTransitionArgs<AAVETokens> &
-      WithDeposit &
-      WithDifferentEntryToken<AAVETokens>,
-    dependencies: IPositionTransitionDependencies<Addresses>,
-  ) => Promise<IPositionTransitionWithOptionalSwap>
 }

@@ -37,19 +37,19 @@ contract MakerPayback is Executable, UseStore {
     );
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
     IDaiJoin daiJoin = IDaiJoin(registry.getRegisteredService(MCD_JOIN_DAI));
-    bytes32 amountPaidBack = paybackData.paybackAll
+    uint256 amountPaidBack = paybackData.paybackAll
       ? _paybackAll(manager, daiJoin, paybackData)
       : _payback(manager, daiJoin, paybackData);
 
-    store().write(amountPaidBack);
-    emit Action(PAYBACK_ACTION, amountPaidBack);
+    store().write(bytes32(amountPaidBack));
+    emit Action(PAYBACK_ACTION, bytes(abi.encode(amountPaidBack)));
   }
 
   function _payback(
     IManager manager,
     IDaiJoin daiJoin,
     PaybackData memory data
-  ) internal returns (bytes32) {
+  ) internal returns (uint256) {
     address own = manager.owns(data.vaultId);
     address urn = manager.urns(data.vaultId);
     IVat vat = manager.vat();
@@ -75,14 +75,14 @@ contract MakerPayback is Executable, UseStore {
       );
     }
 
-    return bytes32(data.amount);
+    return data.amount;
   }
 
   function _paybackAll(
     IManager manager,
     IDaiJoin daiJoin,
     PaybackData memory data
-  ) internal returns (bytes32) {
+  ) internal returns (uint256) {
     address own = manager.owns(data.vaultId);
     address urn = manager.urns(data.vaultId);
     bytes32 ilk = manager.ilks(data.vaultId);
@@ -106,7 +106,7 @@ contract MakerPayback is Executable, UseStore {
       vat.frob(ilk, urn, address(this), address(this), 0, -int256(art));
     }
 
-    return bytes32(uint256(art));
+    return uint256(art);
   }
 
   function joinDai(
