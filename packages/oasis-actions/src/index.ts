@@ -7,5 +7,6 @@ export { IBasePosition, IPosition, Position, Swap } from './helpers/calculations
 export { IRiskRatio, RiskRatio } from './helpers/calculations/RiskRatio'
 export * from './helpers/constants'
 export * as operations from './operations'
+export { AAVETokens } from './operations/aave/tokens'
 export * as strategies from './strategies'
 export { IPositionTransition } from './strategies/types/IPositionTransition'
