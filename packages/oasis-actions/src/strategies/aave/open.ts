@@ -184,7 +184,7 @@ export async function open(
         collateralInWei: depositCollateralAmountInWei,
       },
       collectSwapFeeFrom: collectFeeFrom,
-      debug: true,
+      // debug: true,
     },
   )
 

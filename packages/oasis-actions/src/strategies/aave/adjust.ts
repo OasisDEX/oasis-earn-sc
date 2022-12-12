@@ -46,13 +46,11 @@ export async function adjust(
   ) {
     isIncreasingRisk = false
   }
-  console.log('isIncreasingRisk:', isIncreasingRisk)
+
   const estimatedSwapAmount = amountToWei(
     new BigNumber(1),
     isIncreasingRisk ? args.debtToken.precision : args.collateralToken.precision,
   )
-
-  console.log('estimatedSwapAmount:', estimatedSwapAmount.toString())
 
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
@@ -144,7 +142,7 @@ export async function adjust(
         collateralInWei: depositCollateralAmountInWei,
       },
       collectSwapFeeFrom: collectFeeFrom,
-      debug: true,
+      // debug: true,
     },
   )
 
