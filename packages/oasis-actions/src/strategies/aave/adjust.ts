@@ -154,12 +154,11 @@ export async function adjust(
   let swapData: SwapData
 
   const swapAmountBeforeFees = target.swap.fromTokenAmount
-  console.log('==== Calculating swapAmountAfterFees ====')
-  console.log('swapAmountBeforeFees:', swapAmountBeforeFees.toString())
+
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
     collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
   )
-  console.log('swapAmountAfterFees:', swapAmountAfterFees.toString())
+
   if (isIncreasingRisk) {
     ;({ operation, finalPosition, actualMarketPriceWithSlippage, swapData } = await _increaseRisk({
       target,
