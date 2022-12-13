@@ -58,7 +58,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe.skip('On forked chain', () => {
+  describe('On forked chain', () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
@@ -725,7 +725,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe.skip(`[1inch] Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
+  describe(`[1inch] Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
     const slippage = new BigNumber(0.1)
     const depositAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
@@ -748,7 +748,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         await resetNodeToLatestBlock(provider)
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
-        hre.tracer.enabled = Boolean(process.env.TRACE_TX) || false
+        hre.tracer.enabled = process.env.TRACE_TX === 'true' || false
 
         const addresses = {
           ...mainnetAddresses,
@@ -934,7 +934,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe.skip(`[1inch] Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.USDC} debt`, () => {
+  describe(`[1inch] Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.USDC} debt`, () => {
     const slippage = new BigNumber(0.2)
     const USDCPrecision = 6
     const stETHPrecision = TYPICAL_PRECISION
@@ -1034,7 +1034,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
         )
 
-        hre.tracer.enabled = Boolean(process.env.TRACE_TX) || false
+        hre.tracer.enabled = process.env.TRACE_TX === 'true' || false
         positionTransition = await strategies.aave.adjust(
           {
             slippage,
@@ -1228,7 +1228,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
         )
 
-        hre.tracer.enabled = Boolean(process.env.TRACE_TX) || false
+        hre.tracer.enabled = process.env.TRACE_TX === 'true' || false
         const [_openTxStatus] = await executeThroughProxy(
           system.common.dsProxy.address,
           {
