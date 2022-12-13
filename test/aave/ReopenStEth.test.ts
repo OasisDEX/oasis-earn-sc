@@ -85,16 +85,12 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           depositedByUser: {
             debtToken: { amountInBaseUnit: depositAmountInWei },
           },
-          positionArgs: {
-            positionId: 123,
-            positionType: 'Earn',
-            protocol: 'AAVE' as const,
-          },
           slippage,
           multiple,
           debtToken,
           collateralToken,
           collectSwapFeeFrom: 'sourceToken',
+          positionType: 'Earn',
         },
         {
           ...dependencies,
@@ -210,16 +206,12 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           depositedByUser: {
             debtToken: { amountInBaseUnit: depositAmountInWei },
           },
-          positionArgs: {
-            positionId: 123,
-            positionType: 'Earn',
-            protocol: 'AAVE' as const,
-          },
           slippage,
           multiple,
           debtToken,
           collateralToken,
           collectSwapFeeFrom: 'sourceToken',
+          positionType: 'Earn',
         },
         {
           ...dependencies,
@@ -300,16 +292,12 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           depositedByUser: {
             debtToken: { amountInBaseUnit: depositAmountInWei },
           },
-          positionArgs: {
-            positionId: 123,
-            positionType: 'Earn',
-            protocol: 'AAVE' as const,
-          },
           slippage,
           multiple,
           debtToken,
           collateralToken,
           collectSwapFeeFrom: 'sourceToken',
+          positionType: 'Earn',
         },
         {
           ...dependencies,
@@ -421,16 +409,12 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           depositedByUser: {
             debtToken: { amountInBaseUnit: depositAmountInWei },
           },
-          positionArgs: {
-            positionId: 123,
-            positionType: 'Earn',
-            protocol: 'AAVE' as const,
-          },
           slippage,
           multiple,
           debtToken,
           collateralToken,
           collectSwapFeeFrom: 'sourceToken',
+          positionType: 'Earn',
         },
         {
           ...dependencies,
