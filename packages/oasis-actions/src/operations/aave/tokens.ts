@@ -1,4 +1,3 @@
-
 export type AAVETokens = 'ETH' | 'WETH' | 'stETH' | 'wBTC' | 'USDC' | 'DAI'
 
 export type TokenDef<Tokens> = {

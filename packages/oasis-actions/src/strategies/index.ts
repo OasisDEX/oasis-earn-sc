@@ -1,1 +1,1 @@
-export * as aave from './aave'
+export { aave } from './aave'

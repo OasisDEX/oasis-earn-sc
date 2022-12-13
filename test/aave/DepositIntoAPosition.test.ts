@@ -7,8 +7,7 @@ import {
   TEN,
   TEN_THOUSAND,
 } from '@oasisdex/oasis-actions'
-import { TokenDef } from '@oasisdex/oasis-actions/lib/src/operations/aave/tokens'
-import { AAVETokens, TOKEN_DEFINITIONS } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
+import { AAVETokens, TokenDef, TOKEN_DEFINITIONS } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import { mainnetAAVEAddresses } from '@oasisdex/oasis-actions/src/strategies/aave/getAAVETokenAddresses'
 import { BigNumber } from 'bignumber.js'
 import { assert } from 'chai'
