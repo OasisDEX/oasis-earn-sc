@@ -13,7 +13,7 @@ import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOra
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
 import { PositionType } from '@oasisdex/oasis-actions/lib/src/strategies/types/PositionType'
 import { IPositionTransition } from '@oasisdex/oasis-actions/src'
-import { AAVETokens, TOKEN_DEFINITIONS } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
+import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -163,13 +163,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             debtToken: { amountInBaseUnit: debtToken.depositOnOpenAmountInWei },
             collateralToken: { amountInBaseUnit: collateralToken.depositOnOpenAmountInWei },
           },
-          positionArgs: {
-            positionId: 123,
-            positionType: positionType,
-            protocol: 'AAVE' as const,
-          },
           slippage,
           multiple,
+          positionType: 'Earn',
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
           collateralToken: {
             symbol: collateralToken.symbol,
@@ -773,15 +769,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositedByUser: {
               debtToken: { amountInBaseUnit: depositAmount },
             },
-            positionArgs: {
-              positionId: 123,
-              positionType: 'Earn',
-              protocol: 'AAVE' as const,
-            },
             slippage,
             multiple,
-            debtToken: TOKEN_DEFINITIONS.ETH,
-            collateralToken: TOKEN_DEFINITIONS.stETH,
+            debtToken: { symbol: tokens.ETH },
+            collateralToken: { symbol: tokens.STETH },
+            positionType: 'Earn',
           },
           {
             addresses,
