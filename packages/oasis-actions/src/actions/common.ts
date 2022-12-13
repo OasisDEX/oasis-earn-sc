@@ -142,8 +142,6 @@ export function returnFunds(args: { asset: string }) {
 }
 
 export function positionCreated(args: {
-  proxyAddress: string
-  positionId: number
   protocol: string
   positionType: string
   collateralToken: string
@@ -154,8 +152,6 @@ export function positionCreated(args: {
     [calldataTypes.common.PositionCreated],
     [
       {
-        proxyAddress: args.proxyAddress,
-        positionId: args.positionId,
         protocol: args.protocol,
         positionType: args.positionType,
         collateralToken: args.collateralToken,
