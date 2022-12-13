@@ -34,7 +34,9 @@ contract TakeFlashloan is Executable, ProxyPermission {
 
     address operationExecutorAddress = registry.getRegisteredService(OPERATION_EXECUTOR);
 
-    givePermission(flData, operationExecutorAddress);
+    if (flData.isProxyFlashloan) {
+      givePermission(flData.isDPMProxy, operationExecutorAddress);
+    }
 
     IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
       IERC3156FlashBorrower(operationExecutorAddress),
@@ -42,8 +44,10 @@ contract TakeFlashloan is Executable, ProxyPermission {
       flData.amount,
       data
     );
-   
-    removePermission(flData, operationExecutorAddress);
+
+    if (flData.isProxyFlashloan) {
+      removePermission(flData.isDPMProxy, operationExecutorAddress);
+    }
 
     emit Action(TAKE_FLASH_LOAN_ACTION, bytes(abi.encode(flData.amount)));
   }
