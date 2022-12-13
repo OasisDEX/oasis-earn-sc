@@ -9,8 +9,6 @@ import { FlashloanData } from "../../core/types/Common.sol";
 import { OPERATION_EXECUTOR, DAI, TAKE_FLASH_LOAN_ACTION } from "../../core/constants/Common.sol";
 import { FLASH_MINT_MODULE } from "../../core/constants/Maker.sol";
 import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
-import { IAccountImplementation } from "../../interfaces/dpm/IAccountImplementation.sol";
-import { IAccountGuard } from "../../interfaces/dpm/IAccountGuard.sol";
 
 /**
  * @title TakeFlashloan Action contract
@@ -36,13 +34,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
 
     address operationExecutorAddress = registry.getRegisteredService(OPERATION_EXECUTOR);
 
-    if (flData.isProxyFlashloan) {
-      if(flData.isDPMProxy) {
-        IAccountGuard(IAccountImplementation(address(this)).guard()).permit(operationExecutorAddress, address(this), true);
-      } else {
-        givePermission(operationExecutorAddress);
-      }
-    }
+    givePermission(flData, operationExecutorAddress);
 
     IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
       IERC3156FlashBorrower(operationExecutorAddress),
@@ -50,14 +42,8 @@ contract TakeFlashloan is Executable, ProxyPermission {
       flData.amount,
       data
     );
-
-    if (flData.isProxyFlashloan) {
-      if(flData.isDPMProxy) {
-        IAccountGuard(IAccountImplementation(address(this)).guard()).permit(operationExecutorAddress, address(this), false);
-      } else {
-        removePermission(operationExecutorAddress);
-      }
-    }
+   
+    removePermission(flData, operationExecutorAddress);
 
     emit Action(TAKE_FLASH_LOAN_ACTION, bytes(abi.encode(flData.amount)));
   }
