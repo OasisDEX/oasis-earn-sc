@@ -942,7 +942,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe(`[1inch] Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.USDC} debt`, () => {
+  describe.skip(`[1inch] Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.USDC} debt`, () => {
     const slippage = new BigNumber(0.2)
     const USDCPrecision = 6
     const stETHPrecision = TYPICAL_PRECISION
@@ -1042,7 +1042,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
         )
 
-        hre.tracer.enabled = true
+        hre.tracer.enabled = Boolean(process.env.TRACE_TX) || false
         positionTransition = await strategies.aave.adjust(
           {
             slippage,
@@ -1162,7 +1162,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe.skip(`[1inch] Decrease Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, () => {
+  describe(`[1inch] Decrease Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, () => {
     const slippage = new BigNumber(0.2)
     const USDCPrecision = 6
     const wBTCPrecision = 8
@@ -1236,6 +1236,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
         )
 
+        hre.tracer.enabled = Boolean(process.env.TRACE_TX) || false
         const [_openTxStatus] = await executeThroughProxy(
           system.common.dsProxy.address,
           {
@@ -1318,7 +1319,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           ADDRESSES.main.USDC,
           system.common.dsProxy.address,
         )
-
+        hre.tracer.enabled = false
         const finalDebt = {
           amount: new BigNumber(userUSDCReserveDataAfterAdjust.currentVariableDebt.toString()),
           precision: debtToken.precision,
