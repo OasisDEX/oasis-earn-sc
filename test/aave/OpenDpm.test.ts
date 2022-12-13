@@ -20,7 +20,7 @@ import { Contract, ContractReceipt, ethers, Signer } from 'ethers'
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { AAVEReserveData } from '../../helpers/aave'
-import { executeThroughProxy } from '../../helpers/deploy'
+import { executeThroughDPMProxy, executeThroughProxy } from '../../helpers/deploy'
 import { GasEstimateHelper, gasEstimateHelper } from '../../helpers/gasEstimation'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
@@ -172,7 +172,7 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
         collateralToken.isEth ? collateralToken.depositAmountInBaseUnit : ZERO,
       )
 
-      const [txStatus, tx] = await executeThroughProxy(
+      const [txStatus, tx] = await executeThroughDPMProxy(
         system.common.dsProxy.address,
         {
           address: system.common.operationExecutor.address,
