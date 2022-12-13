@@ -163,13 +163,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             debtToken: { amountInBaseUnit: debtToken.depositOnOpenAmountInWei },
             collateralToken: { amountInBaseUnit: collateralToken.depositOnOpenAmountInWei },
           },
-          positionArgs: {
-            positionId: 123,
-            positionType: positionType,
-            protocol: 'AAVE' as const,
-          },
           slippage,
           multiple,
+          positionType: positionType,
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
           collateralToken: {
             symbol: collateralToken.symbol,
@@ -752,7 +748,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         await resetNodeToLatestBlock(provider)
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
-        hre.tracer.enabled = Boolean(process.env.TRACE_TX) || false
+        hre.tracer.enabled = process.env.TRACE_TX === 'true' || false
 
         const addresses = {
           ...mainnetAddresses,
@@ -773,15 +769,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositedByUser: {
               debtToken: { amountInBaseUnit: depositAmount },
             },
-            positionArgs: {
-              positionId: 123,
-              positionType: 'Earn',
-              protocol: 'AAVE' as const,
-            },
             slippage,
             multiple,
             debtToken: { symbol: tokens.ETH },
             collateralToken: { symbol: tokens.STETH },
+            positionType: 'Earn',
           },
           {
             addresses,
@@ -997,11 +989,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositedByUser: {
               debtToken: { amountInBaseUnit: depositAmount },
             },
-            positionArgs: {
-              positionId: 123,
-              positionType: 'Earn',
-              protocol: 'AAVE' as const,
-            },
+            positionType: 'Earn',
             slippage,
             multiple,
             debtToken,
@@ -1042,7 +1030,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
         )
 
-        hre.tracer.enabled = Boolean(process.env.TRACE_TX) || false
+        hre.tracer.enabled = process.env.TRACE_TX === 'true' || false
         positionTransition = await strategies.aave.adjust(
           {
             slippage,
@@ -1217,11 +1205,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositedByUser: {
               collateralToken: { amountInBaseUnit: depositWBTCAmount },
             },
-            positionArgs: {
-              positionId: 123,
-              positionType: 'Multiply',
-              protocol: 'AAVE' as const,
-            },
+            positionType: 'Multiply',
             slippage,
             multiple,
             debtToken,
@@ -1236,7 +1220,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
         )
 
-        hre.tracer.enabled = Boolean(process.env.TRACE_TX) || false
+        hre.tracer.enabled = process.env.TRACE_TX === 'true' || false
         const [_openTxStatus] = await executeThroughProxy(
           system.common.dsProxy.address,
           {

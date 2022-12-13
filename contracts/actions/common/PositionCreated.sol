@@ -14,7 +14,6 @@ contract PositionCreated is Executable {
   /**
    * @dev Emitted once a position is created
    * @param proxyAddress The address of the proxy where that's a DSProxy or DeFi Positions manager proxy
-   * @param positionId The id of the position owned by the proxy. If a DSProxy then positionId will be zero (0).this
    * @param protocol The name of the protocol the position is being created on
    * @param positionType The nature of the position EG Earn / Multiply.. etc.this
    * @param collateralToken The address of the collateral used in the position. ETH positions will use WETH by default.
@@ -22,7 +21,6 @@ contract PositionCreated is Executable {
    **/
   event CreatePosition(
     address indexed proxyAddress,
-    uint256 indexed positionId,
     string protocol,
     string positionType,
     address collateralToken,
@@ -37,8 +35,7 @@ contract PositionCreated is Executable {
     PositionCreatedData memory positionCreated = parseInputs(data);
 
     emit CreatePosition(
-      positionCreated.proxyAddress,
-      positionCreated.positionId,
+      msg.sender,
       positionCreated.protocol,
       positionCreated.positionType,
       positionCreated.collateralToken,
