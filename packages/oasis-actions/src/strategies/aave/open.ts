@@ -250,7 +250,7 @@ export async function open(
     protocol: args.positionArgs.protocol,
     proxy: dependencies.proxy,
     user: dependencies.user,
-    isDPMProxy: dependencies.isDPMProxy
+    isDPMProxy: dependencies.isDPMProxy,
   })
 
   // EG FROM WBTC 8 to USDC 6

@@ -89,7 +89,6 @@ export async function executeThroughDPMProxy(
       value,
     })
 
-    
     const result = await tx.wait()
     return [true, result]
   } catch (ex: any) {
