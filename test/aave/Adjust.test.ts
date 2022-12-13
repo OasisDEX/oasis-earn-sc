@@ -989,11 +989,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositedByUser: {
               debtToken: { amountInBaseUnit: depositAmount },
             },
-            positionArgs: {
-              positionId: 123,
-              positionType: 'Earn',
-              protocol: 'AAVE' as const,
-            },
+            positionType: 'Earn',
             slippage,
             multiple,
             debtToken,
@@ -1209,11 +1205,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositedByUser: {
               collateralToken: { amountInBaseUnit: depositWBTCAmount },
             },
-            positionArgs: {
-              positionId: 123,
-              positionType: 'Multiply',
-              protocol: 'AAVE' as const,
-            },
+            positionType: 'Multiply',
             slippage,
             multiple,
             debtToken,
