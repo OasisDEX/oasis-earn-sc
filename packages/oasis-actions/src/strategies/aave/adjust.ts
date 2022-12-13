@@ -46,11 +46,11 @@ export async function adjust(
   ) {
     isIncreasingRisk = false
   }
-
-  const estimatedSwapAmount = amountToWei(
-    new BigNumber(1),
-    isIncreasingRisk ? args.debtToken.precision : args.collateralToken.precision,
-  )
+  const fromToken = isIncreasingRisk ? args.debtToken : args.collateralToken
+  const fromTokenAddress = isIncreasingRisk ? debtTokenAddress : collateralTokenAddress
+  const toTokenAddress = isIncreasingRisk ? collateralTokenAddress : debtTokenAddress
+  const toToken = isIncreasingRisk ? args.collateralToken : args.debtToken
+  const estimatedSwapAmount = amountToWei(new BigNumber(1), fromToken.precision)
 
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
@@ -74,8 +74,8 @@ export async function adjust(
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     dependencies.getSwapData(
-      isIncreasingRisk ? debtTokenAddress : collateralTokenAddress,
-      isIncreasingRisk ? collateralTokenAddress : debtTokenAddress,
+      fromTokenAddress,
+      toTokenAddress,
       estimatedSwapAmount,
       new BigNumber(slippage),
     ),
@@ -85,17 +85,11 @@ export async function adjust(
 
   // Needs to be correct precision. First convert to base 18. Then divide
   const base18FromTokenAmount = amountToWei(
-    amountFromWei(
-      quoteSwapData.fromTokenAmount,
-      isIncreasingRisk ? args.debtToken.precision : args.collateralToken.precision,
-    ),
+    amountFromWei(quoteSwapData.fromTokenAmount, fromToken.precision),
     TYPICAL_PRECISION,
   )
   const base18ToTokenAmount = amountToWei(
-    amountFromWei(
-      quoteSwapData.toTokenAmount,
-      isIncreasingRisk ? args.collateralToken.precision : args.debtToken.precision,
-    ),
+    amountFromWei(quoteSwapData.toTokenAmount, toToken.precision),
     TYPICAL_PRECISION,
   )
   const quoteMarketPrice = base18FromTokenAmount.div(base18ToTokenAmount)
@@ -120,6 +114,9 @@ export async function adjust(
   )
 
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
+  const quoteMarketPriceExpectedByMaths = isIncreasingRisk
+    ? quoteMarketPrice
+    : ONE.div(quoteMarketPrice)
   const target = existingPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
@@ -128,7 +125,13 @@ export async function adjust(
         oazo: new BigNumber(FEE),
       },
       prices: {
-        market: isIncreasingRisk ? quoteMarketPrice : ONE.div(quoteMarketPrice),
+        /**
+         * This might look strange when decreasing risk
+         * The maths is expecting a price in the form of COLL -> DEBT
+         * Even when we're actually swapping COLL for DEBT as we are when decreasing
+         * Therefore the market price is shown as the inverse of the COLL -> DEBT quote
+         * */
+        market: quoteMarketPriceExpectedByMaths,
         oracle: oracle,
         oracleFLtoDebtToken: oracleFLtoDebtToken,
       },
@@ -152,7 +155,6 @@ export async function adjust(
   let swapData: SwapData
 
   const swapAmountBeforeFees = target.swap.fromTokenAmount
-
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
     collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
   )
@@ -164,8 +166,10 @@ export async function adjust(
       swapAmountAfterFees,
       swapAmountBeforeFees,
       collectFeeFrom,
-      collateralTokenAddress,
-      debtTokenAddress,
+      fromTokenAddress,
+      toTokenAddress,
+      fromToken,
+      toToken,
       useFlashloan: target.flags.requiresFlashloan,
       depositDebtAmountInWei,
       depositCollateralAmountInWei,
@@ -181,8 +185,10 @@ export async function adjust(
       swapAmountAfterFees,
       swapAmountBeforeFees,
       collectFeeFrom,
-      collateralTokenAddress,
-      debtTokenAddress,
+      fromTokenAddress,
+      fromToken,
+      toTokenAddress,
+      toToken,
       useFlashloan: target.flags.requiresFlashloan,
       aaveDebtTokenPriceInEth,
       aaveCollateralTokenPriceInEth,
@@ -218,13 +224,15 @@ type BranchReturn = {
   swapData: SwapData
 }
 
-interface BranchProps {
+interface BranchProps<AAVETokens> {
   target: IBaseSimulatedTransition
   existingPosition: IPosition
-  collateralTokenAddress: string
+  fromTokenAddress: string
+  toTokenAddress: string
+  fromToken: { symbol: AAVETokens; precision?: number | undefined }
+  toToken: { symbol: AAVETokens; precision?: number | undefined }
   depositDebtAmountInWei?: BigNumber
   depositCollateralAmountInWei?: BigNumber
-  debtTokenAddress: string
   useFlashloan: boolean
   swapAmountBeforeFees: BigNumber
   swapAmountAfterFees: BigNumber
@@ -241,8 +249,10 @@ async function _increaseRisk({
   swapAmountBeforeFees,
   swapAmountAfterFees,
   collectFeeFrom,
-  collateralTokenAddress,
-  debtTokenAddress,
+  fromTokenAddress,
+  toTokenAddress,
+  fromToken,
+  toToken,
   useFlashloan,
   depositDebtAmountInWei,
   depositCollateralAmountInWei,
@@ -250,31 +260,31 @@ async function _increaseRisk({
   aaveCollateralTokenPriceInEth,
   args,
   dependencies,
-}: BranchProps): Promise<BranchReturn> {
+}: BranchProps<AAVETokens>): Promise<BranchReturn> {
   const swapData = {
     ...(await dependencies.getSwapData(
-      debtTokenAddress,
-      collateralTokenAddress,
+      fromTokenAddress,
+      toTokenAddress,
       swapAmountAfterFees,
       args.slippage,
     )),
     sourceToken: {
-      ...args.debtToken,
-      precision: args.debtToken.precision || TYPICAL_PRECISION,
+      ...fromToken,
+      precision: fromToken.precision || TYPICAL_PRECISION,
     },
     targetToken: {
-      ...args.collateralToken,
-      precision: args.collateralToken.precision || TYPICAL_PRECISION,
+      ...toToken,
+      precision: toToken.precision || TYPICAL_PRECISION,
     },
   }
   // Needs to be correct precision. First convert to base 18. Then divide
   const actualSwapBase18FromTokenAmount = amountToWei(
-    amountFromWei(swapData.fromTokenAmount, args.debtToken.precision),
-    18,
+    amountFromWei(swapData.fromTokenAmount, fromToken.precision),
+    TYPICAL_PRECISION,
   )
   const actualSwapBase18ToTokenAmount = amountToWei(
-    amountFromWei(swapData.toTokenAmount, args.collateralToken.precision),
-    18,
+    amountFromWei(swapData.toTokenAmount, toToken.precision),
+    TYPICAL_PRECISION,
   )
   const actualMarketPriceWithSlippage = actualSwapBase18FromTokenAmount.div(
     actualSwapBase18ToTokenAmount,
@@ -303,8 +313,8 @@ async function _increaseRisk({
       receiveAtLeast: swapData.minToTokenAmount,
       swapAmountInWei: swapAmountBeforeFees,
       collectFeeFrom: collectFeeFrom,
-      collateralTokenAddress,
-      debtTokenAddress,
+      fromTokenAddress,
+      toTokenAddress,
       proxy: dependencies.proxy,
       user: dependencies.user,
     },
@@ -357,38 +367,40 @@ async function _decreaseRisk({
   swapAmountAfterFees,
   swapAmountBeforeFees,
   collectFeeFrom,
-  collateralTokenAddress,
-  debtTokenAddress,
+  fromTokenAddress,
+  toTokenAddress,
+  fromToken,
+  toToken,
   useFlashloan,
   aaveDebtTokenPriceInEth,
   aaveCollateralTokenPriceInEth,
   args,
   dependencies,
-}: BranchProps): Promise<BranchReturn> {
+}: BranchProps<AAVETokens>): Promise<BranchReturn> {
   const swapData = {
     ...(await dependencies.getSwapData(
-      collateralTokenAddress,
-      debtTokenAddress,
+      fromTokenAddress,
+      toTokenAddress,
       swapAmountAfterFees,
       args.slippage,
     )),
     sourceToken: {
-      ...args.collateralToken,
-      precision: args.collateralToken.precision || TYPICAL_PRECISION,
+      ...fromToken,
+      precision: fromToken.precision || TYPICAL_PRECISION,
     },
     targetToken: {
-      ...args.debtToken,
-      precision: args.debtToken.precision || TYPICAL_PRECISION,
+      ...toToken,
+      precision: toToken.precision || TYPICAL_PRECISION,
     },
   }
 
   // Needs to be correct precision. First convert to base 18. Then divide
   const actualSwapBase18FromTokenAmount = amountToWei(
-    amountFromWei(swapData.fromTokenAmount, args.collateralToken.precision),
+    amountFromWei(swapData.fromTokenAmount, fromToken.precision),
     TYPICAL_PRECISION,
   )
   const actualSwapBase18ToTokenAmount = amountToWei(
-    amountFromWei(swapData.toTokenAmount, args.debtToken.precision),
+    amountFromWei(swapData.toTokenAmount, toToken.precision),
     TYPICAL_PRECISION,
   )
   const actualMarketPriceWithSlippage = actualSwapBase18FromTokenAmount.div(
@@ -410,8 +422,8 @@ async function _decreaseRisk({
       swapData: swapData.exchangeCalldata,
       swapAmountInWei: swapAmountBeforeFees,
       collectFeeFrom,
-      collateralTokenAddress,
-      debtTokenAddress,
+      fromTokenAddress,
+      toTokenAddress,
       useFlashloan,
       proxy: dependencies.proxy,
       user: dependencies.user,
