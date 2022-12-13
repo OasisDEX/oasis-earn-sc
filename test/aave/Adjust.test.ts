@@ -163,13 +163,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             debtToken: { amountInBaseUnit: debtToken.depositOnOpenAmountInWei },
             collateralToken: { amountInBaseUnit: collateralToken.depositOnOpenAmountInWei },
           },
-          positionArgs: {
-            positionId: 123,
-            positionType: positionType,
-            protocol: 'AAVE' as const,
-          },
           slippage,
           multiple,
+          positionType: 'Earn',
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
           collateralToken: {
             symbol: collateralToken.symbol,
@@ -773,15 +769,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositedByUser: {
               debtToken: { amountInBaseUnit: depositAmount },
             },
-            positionArgs: {
-              positionId: 123,
-              positionType: 'Earn',
-              protocol: 'AAVE' as const,
-            },
             slippage,
             multiple,
             debtToken: { symbol: tokens.ETH },
             collateralToken: { symbol: tokens.STETH },
+            positionType: 'Earn',
           },
           {
             addresses,

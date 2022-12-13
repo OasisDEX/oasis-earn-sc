@@ -61,8 +61,6 @@ struct ReturnFundsData {
 }
 
 struct PositionCreatedData {
-  address proxyAddress;
-  uint256 positionId;
   string protocol;
   string positionType;
   address collateralToken;

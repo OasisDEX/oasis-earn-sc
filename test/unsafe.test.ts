@@ -100,6 +100,7 @@ describe('OperationExecutor', () => {
       {
         targetHash: getServiceNameHash(CONTRACT_NAMES.aave.LENDING_POOL),
         callData: iface.encodeFunctionData('initialize', [suicideBombAddress, bombCall]),
+        skipped: false,
       },
     ]
 
