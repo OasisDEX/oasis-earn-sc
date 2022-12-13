@@ -54,7 +54,7 @@ function getContractLogs(iface: Interface, receipt: ContractReceipt) {
   return logs
 }
 
-describe(`Common | Optional Actions`, async () => {
+describe(`Optional Actions`, async () => {
   let provider: JsonRpcProvider
   let signer: Signer
   let system: DeployedSystemInfo
