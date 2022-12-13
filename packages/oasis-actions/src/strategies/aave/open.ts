@@ -13,6 +13,7 @@ import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
 import { Address } from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
+import { PositionType } from '../types/PositionType'
 import { SwapData } from '../types/SwapData'
 import { getCurrentPosition } from './getCurrentPosition'
 
@@ -23,6 +24,7 @@ interface OpenPositionArgs {
   }
   multiple: BigNumber
   slippage: BigNumber
+  positionType: PositionType
   collateralToken: { symbol: AAVETokens; precision?: number }
   debtToken: { symbol: AAVETokens; precision?: number }
   collectSwapFeeFrom?: 'sourceToken' | 'targetToken'
@@ -231,6 +233,7 @@ export async function open(
       collectFeeFrom,
       receiveAtLeast: swapData.minToTokenAmount,
     },
+    positionType: args.positionType,
     addresses: dependencies.addresses,
     flashloanAmount: target.delta.flashloanAmount,
     borrowAmountInBaseUnit: precisionAdjustedBorrowAmount,

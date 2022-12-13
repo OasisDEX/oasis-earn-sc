@@ -21,6 +21,7 @@ interface OpenArgs {
     collectFeeFrom: 'sourceToken' | 'targetToken'
     receiveAtLeast: BigNumber
   }
+  positionType: PositionType
   addresses: AAVEStrategyAddresses
   flashloanAmount: BigNumber
   borrowAmountInBaseUnit: BigNumber
@@ -41,6 +42,7 @@ export async function open({
   debtTokenAddress,
   proxy,
   user,
+  positionType,
 }: OpenArgs): Promise<IOperation> {
   const pullDebtTokensToProxy = actions.common.pullToken({
     asset: debtTokenAddress,
@@ -114,7 +116,6 @@ export async function open({
   })
 
   const protocol: Protocol = 'AAVE'
-  const positionType: PositionType = 'Multiply'
 
   const positionCreated = actions.common.positionCreated({
     protocol,
