@@ -122,6 +122,7 @@ task('createPosition', 'Create stETH position on AAVE')
         multiple: multiply,
         debtToken,
         collateralToken,
+        positionType: 'Earn',
       },
       {
         addresses: mainnetAddresses,

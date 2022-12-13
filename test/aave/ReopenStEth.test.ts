@@ -90,6 +90,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           debtToken,
           collateralToken,
           collectSwapFeeFrom: 'sourceToken',
+          positionType: 'Earn',
         },
         {
           ...dependencies,
@@ -210,6 +211,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           debtToken,
           collateralToken,
           collectSwapFeeFrom: 'sourceToken',
+          positionType: 'Earn',
         },
         {
           ...dependencies,
@@ -295,6 +297,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           debtToken,
           collateralToken,
           collectSwapFeeFrom: 'sourceToken',
+          positionType: 'Earn',
         },
         {
           ...dependencies,
@@ -411,6 +414,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           debtToken,
           collateralToken,
           collectSwapFeeFrom: 'sourceToken',
+          positionType: 'Earn',
         },
         {
           ...dependencies,

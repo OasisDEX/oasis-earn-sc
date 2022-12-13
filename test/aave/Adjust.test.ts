@@ -165,6 +165,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
           slippage,
           multiple,
+          positionType: 'Earn',
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
           collateralToken: {
             symbol: collateralToken.symbol,
@@ -772,6 +773,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             multiple,
             debtToken: { symbol: tokens.ETH },
             collateralToken: { symbol: tokens.STETH },
+            positionType: 'Earn',
           },
           {
             addresses,

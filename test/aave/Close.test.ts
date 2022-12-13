@@ -154,6 +154,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
           collateralToken: { symbol: collateralToken.symbol, precision: collateralToken.precision },
           collectSwapFeeFrom: isFeeFromDebtToken ? 'sourceToken' : 'targetToken',
+          positionType: 'Multiply',
         },
         {
           addresses,
@@ -691,6 +692,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             multiple,
             debtToken,
             collateralToken,
+            positionType: 'Multiply',
           },
           {
             addresses,
