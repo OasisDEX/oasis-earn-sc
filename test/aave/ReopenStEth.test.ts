@@ -85,11 +85,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           depositedByUser: {
             debtToken: { amountInBaseUnit: depositAmountInWei },
           },
-          positionArgs: {
-            positionId: 123,
-            positionType: 'Earn',
-            protocol: 'AAVE' as const,
-          },
           slippage,
           multiple,
           debtToken,
@@ -210,11 +205,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           depositedByUser: {
             debtToken: { amountInBaseUnit: depositAmountInWei },
           },
-          positionArgs: {
-            positionId: 123,
-            positionType: 'Earn',
-            protocol: 'AAVE' as const,
-          },
           slippage,
           multiple,
           debtToken,
@@ -299,11 +289,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         {
           depositedByUser: {
             debtToken: { amountInBaseUnit: depositAmountInWei },
-          },
-          positionArgs: {
-            positionId: 123,
-            positionType: 'Earn',
-            protocol: 'AAVE' as const,
           },
           slippage,
           multiple,
@@ -420,11 +405,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         {
           depositedByUser: {
             debtToken: { amountInBaseUnit: depositAmountInWei },
-          },
-          positionArgs: {
-            positionId: 123,
-            positionType: 'Earn',
-            protocol: 'AAVE' as const,
           },
           slippage,
           multiple,

@@ -27,9 +27,6 @@ interface OpenArgs {
   collateralTokenAddress: Address
   debtTokenAddress: Address
   useFlashloan: boolean
-  positionId: number
-  positionType: PositionType
-  protocol: Protocol
   proxy: Address
   user: Address
 }
@@ -42,9 +39,6 @@ export async function open({
   borrowAmountInBaseUnit,
   collateralTokenAddress,
   debtTokenAddress,
-  positionId,
-  positionType,
-  protocol,
   proxy,
   user,
 }: OpenArgs): Promise<IOperation> {
@@ -119,9 +113,10 @@ export async function open({
     to: addresses.operationExecutor,
   })
 
+  const protocol: Protocol = 'AAVE'
+  const positionType: PositionType = 'Multiply'
+
   const positionCreated = actions.common.positionCreated({
-    proxyAddress: proxy,
-    positionId: positionId,
     protocol: protocol,
     positionType: positionType,
     collateralToken: collateralTokenAddress,

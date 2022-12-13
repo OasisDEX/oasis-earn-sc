@@ -151,11 +151,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             collateralToken: { amountInBaseUnit: collateralToken.depositAmountInBaseUnit },
           },
           // TODO: Integrate properly with DPM and execute t/x through that
-          positionArgs: {
-            positionId: 123,
-            positionType: positionType,
-            protocol: 'AAVE' as const,
-          },
           slippage,
           multiple,
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
@@ -626,11 +621,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           {
             depositedByUser: { debtToken: { amountInBaseUnit: depositEthAmount } },
             slippage,
-            positionArgs: {
-              positionId: 123,
-              positionType: 'Earn',
-              protocol: 'AAVE',
-            },
             multiple,
             debtToken,
             collateralToken,

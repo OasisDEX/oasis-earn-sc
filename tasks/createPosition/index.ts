@@ -120,11 +120,6 @@ task('createPosition', 'Create stETH position on AAVE')
         depositedByUser: { debtToken: { amountInBaseUnit: depositAmount } },
         slippage,
         multiple: multiply,
-        positionArgs: {
-          positionId: 123,
-          positionType: 'Earn',
-          protocol: 'AAVE',
-        },
         debtToken,
         collateralToken,
       },
