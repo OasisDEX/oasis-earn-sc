@@ -31,7 +31,13 @@ const createAction = ActionFactory.create
 let DAI: Contract
 let WETH: Contract
 
-describe(`Operations | Maker | Close Position`, async () => {
+/**
+ * Skipped until Maker operations more relevant.
+ * Also fails due to issue with getOracleProvider and hardhat version.
+ * Requires hardhat v2.9.5 or greater
+ * Currently only hardhat v2.8.0 is tested as working well with tenderly export
+ * */
+describe.skip(`Operations | Maker | Close Position`, async () => {
   const marketPrice = new BigNumber(1582)
 
   let provider: JsonRpcProvider

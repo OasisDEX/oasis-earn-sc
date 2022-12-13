@@ -39,7 +39,13 @@ const createAction = ActionFactory.create
 let DAI: Contract
 let WETH: Contract
 
-describe(`Operations | Maker | Increase Multiple`, async () => {
+/**
+ * Skipped until Maker operations more relevant.
+ * Also fails due to issue with getOracleProvider and hardhat version.
+ * Requires hardhat v2.9.5 or greater
+ * Currently only hardhat v2.8.0 is tested as working well with tenderly export
+ * */
+describe.skip(`Operations | Maker | Increase Multiple`, async () => {
   const oazoFee = 2 // divided by base (10000), 1 = 0.01%;
   const oazoFeePct = new BigNumber(oazoFee).div(10000)
   const marketPrice = new BigNumber(1582)
