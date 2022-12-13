@@ -2,7 +2,6 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { ActionFactory, calldataTypes, CONTRACT_NAMES } from '@oasisdex/oasis-actions'
 import { ActionCall } from '@oasisdex/oasis-actions/src/actions/types/actionCall'
 import { expect } from 'chai'
-import { loadFixture } from 'ethereum-waffle'
 import { ContractReceipt, Signer, utils } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
@@ -70,7 +69,7 @@ describe(`Common | Optional Actions`, async () => {
   let action3: ActionCall
 
   beforeEach(async () => {
-    ;({ config, provider, signer } = await loadFixture(initialiseConfig))
+    ;({ config, provider, signer } = await initialiseConfig())
 
     const { snapshot } = await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
     system = snapshot.deployed.system
@@ -128,7 +127,7 @@ describe(`Common | Optional Actions`, async () => {
       const operation = await operationsRegistry.getOp(OP_NAME)
 
       expect(operation[0]).to.deep.equal([Action1Hash, Action2Hash, Action3Hash])
-      expect(operation[1]).to.deep.equal([true, false, false])
+      expect(operation[1]).to.deep.equal([false, false, false])
     })
   })
 
@@ -185,16 +184,13 @@ describe(`Common | Optional Actions`, async () => {
     it(`should fail executing an Operation with mandatory Action skipped`, async () => {
       action3.skipped = true
 
-      const [success, rc] = await executeOperation(
+      const [success] = await executeOperation(
         system,
         [action1, action2, action3],
         OPERATION_NAME,
         signer,
       )
 
-      const actionLogs = getContractLogs(dummyActionIface, rc)
-
-      expect(actionLogs.length).to.be.eq(0)
       expect(success).to.be.eq(false)
     })
   })
