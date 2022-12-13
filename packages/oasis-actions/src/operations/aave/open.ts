@@ -117,8 +117,8 @@ export async function open({
   const positionType: PositionType = 'Multiply'
 
   const positionCreated = actions.common.positionCreated({
-    protocol: protocol,
-    positionType: positionType,
+    protocol,
+    positionType,
     collateralToken: collateralTokenAddress,
     debtToken: debtTokenAddress,
   })
