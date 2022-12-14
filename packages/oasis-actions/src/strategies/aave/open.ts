@@ -41,6 +41,7 @@ interface OpenPositionDependencies {
   ) => Promise<SwapData>
   proxy: Address
   user: Address
+  isDPMProxy: boolean
 }
 
 export async function open(
@@ -242,6 +243,7 @@ export async function open(
     useFlashloan: target.flags.requiresFlashloan,
     proxy: dependencies.proxy,
     user: dependencies.user,
+    isDPMProxy: dependencies.isDPMProxy,
   })
 
   // EG FROM WBTC 8 to USDC 6

@@ -101,7 +101,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
   /**
    * @notice Not to be called directly.
    * @dev Callback handler for use by a flashloan lender contract.
-   * If the dsProxyFlashloan flag is supplied we reestablish the calling context as the user's proxy (at time of writing DSProxy). Although stored values will
+   * If the isProxyFlashloan flag is supplied we reestablish the calling context as the user's proxy (at time of writing DSProxy). Although stored values will
    * We set the initiator on Operation Storage such that calls originating from other contracts EG Oasis Automation Bot (see https://github.com/OasisDEX/automation-smartcontracts)
    * The initiator address will be used to store values against the original msg.sender.
    * This protects against the Operation Storage values being polluted by malicious code from untrusted 3rd party contracts.
@@ -127,7 +127,7 @@ contract OperationExecutor is IERC3156FlashBorrower {
 
     require(IERC20(asset).balanceOf(address(this)) >= flData.amount, "Flashloan inconsistency");
 
-    if (flData.dsProxyFlashloan) {
+    if (flData.isProxyFlashloan) {
       IERC20(asset).safeTransfer(initiator, flData.amount);
 
       DSProxy(payable(initiator)).execute(

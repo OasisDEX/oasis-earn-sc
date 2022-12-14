@@ -124,7 +124,8 @@ export async function increaseMultiple(
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
-    dsProxyFlashloan: true,
+    isProxyFlashloan: true,
+    isDPMProxy: false,
     calls: flashloanCalls,
   })
 

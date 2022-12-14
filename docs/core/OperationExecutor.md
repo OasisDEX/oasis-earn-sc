@@ -82,7 +82,7 @@ function onFlashLoan(address initiator, address asset, uint256 amount, uint256 f
 Not to be called directly.
 
 _Callback handler for use by a flashloan lender contract.
-If the dsProxyFlashloan flag is supplied we reestablish the calling context as the user's proxy (at time of writing DSProxy)
+If the isProxyFlashloan flag is supplied we reestablish the calling context as the user's proxy (at time of writing DSProxy)
 We set the initiator on Operation Storage such that calls originating from the Oasis Automation Bot (see https://github.com/OasisDEX/automation-smartcontracts) will be stored against the original msg.sender (the Automation Bot)
 If a third party contract attempts to push values to Operation Storage they will be unable to overwrite stored values_
 
