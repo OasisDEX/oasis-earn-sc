@@ -23,8 +23,8 @@ export async function increaseMultiple(
     swapData: string | number
     swapAmountInWei: BigNumber
     collectFeeFrom: 'sourceToken' | 'targetToken'
-    collateralTokenAddress: string
-    debtTokenAddress: string
+    fromTokenAddress: string
+    toTokenAddress: string
     useFlashloan: boolean
     proxy: string
     user: string
@@ -32,13 +32,13 @@ export async function increaseMultiple(
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
   const pullDebtTokensToProxy = actions.common.pullToken({
-    asset: args.debtTokenAddress,
+    asset: args.fromTokenAddress,
     amount: args.depositDebtTokens.amountInWei,
     from: args.user,
   })
 
   const pullCollateralTokensToProxy = actions.common.pullToken({
-    asset: args.collateralTokenAddress,
+    asset: args.toTokenAddress,
     amount: args.depositCollateral.amountInWei,
     from: args.user,
   })
@@ -58,7 +58,7 @@ export async function increaseMultiple(
 
   const borrowDebtTokensFromAAVE = actions.aave.aaveBorrow({
     amount: args.borrowAmountInWei,
-    asset: args.debtTokenAddress,
+    asset: args.fromTokenAddress,
     to: args.proxy,
   })
 
@@ -67,8 +67,8 @@ export async function increaseMultiple(
   })
 
   const swapDebtTokensForCollateralTokens = actions.common.swap({
-    fromAsset: args.debtTokenAddress,
-    toAsset: args.collateralTokenAddress,
+    fromAsset: args.fromTokenAddress,
+    toAsset: args.toTokenAddress,
     amount: args.swapAmountInWei,
     receiveAtLeast: args.receiveAtLeast,
     fee: args.fee,
@@ -78,7 +78,7 @@ export async function increaseMultiple(
 
   const setCollateralTokenApprovalOnLendingPool = actions.common.setApproval(
     {
-      asset: args.collateralTokenAddress,
+      asset: args.toTokenAddress,
       delegate: addresses.aaveLendingPool,
       amount: args.depositCollateral.amountInWei,
       sumAmounts: true,
@@ -88,7 +88,7 @@ export async function increaseMultiple(
 
   const depositCollateral = actions.aave.aaveDeposit(
     {
-      asset: args.collateralTokenAddress,
+      asset: args.toTokenAddress,
       amount: args.depositCollateral.amountInWei,
       sumAmounts: true,
       setAsCollateral: true,
