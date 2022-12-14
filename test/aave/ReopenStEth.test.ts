@@ -94,6 +94,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         },
         {
           ...dependencies,
+          isDPMProxy: false,
         },
       )
 
@@ -215,6 +216,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         },
         {
           ...dependencies,
+          isDPMProxy: false,
         },
       )
 
@@ -301,6 +303,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         },
         {
           ...dependencies,
+          isDPMProxy: false,
         },
       )
 
@@ -418,6 +421,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         },
         {
           ...dependencies,
+          isDPMProxy: false,
         },
       )
 

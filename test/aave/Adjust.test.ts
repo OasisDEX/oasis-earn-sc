@@ -58,7 +58,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe('On forked chain', () => {
+  describe.skip('On forked chain', () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
@@ -182,6 +182,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           }),
           proxy,
           user: user,
+          isDPMProxy: false,
         },
       )
 
@@ -725,7 +726,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe(`[1inch] Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
+  describe.skip(`[1inch] Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
     const slippage = new BigNumber(0.1)
     const depositAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
@@ -781,6 +782,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
             user: config.address,
+            isDPMProxy: false,
           },
         )
 
@@ -934,7 +936,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe(`[1inch] Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.USDC} debt`, () => {
+  describe.skip(`[1inch] Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.USDC} debt`, () => {
     const slippage = new BigNumber(0.2)
     const USDCPrecision = 6
     const stETHPrecision = TYPICAL_PRECISION
@@ -1001,6 +1003,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
             user: config.address,
+            isDPMProxy: false,
           },
         )
 
@@ -1217,6 +1220,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
             user: config.address,
+            isDPMProxy: false,
           },
         )
 
