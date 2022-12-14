@@ -12,10 +12,9 @@ import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
 import { PositionType } from '@oasisdex/oasis-actions/lib/src/strategies/types/PositionType'
 import { ONE, ZERO } from '@oasisdex/oasis-actions/src'
 import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
-import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionRepository'
+import { Address } from '@oasisdex/oasis-actions/src/strategies/types/StrategyParams'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
-import { loadFixture } from 'ethereum-waffle'
 import { Contract, ContractReceipt, ethers, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
@@ -39,6 +38,7 @@ import { initialiseConfig } from '../fixtures/setup'
 import { expectToBe, expectToBeEqual } from '../utils'
 
 describe(`Strategy | AAVE | Open Position`, async function () {
+  let gasHelper: GasEstimateHelper
   let aaveLendingPool: Contract
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
@@ -46,8 +46,9 @@ describe(`Strategy | AAVE | Open Position`, async function () {
   let signer: Signer
   let userAddress: Address
 
+  const defaultSlippage = new BigNumber(0.1)
   before(async function () {
-    ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
+    ;({ config, provider, signer, address: userAddress } = await initialiseConfig())
 
     aaveLendingPool = new Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
@@ -57,243 +58,333 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe('Open Position: With [Uniswap] (Fallback) Swap', function () {
-    const multiple = new BigNumber(2)
-    const slippage = new BigNumber(0.1)
+  type OpenPositionScenario = {
+    collateralToken: {
+      symbol: AAVETokens
+      address: string
+      precision: number
+      depositAmountInBasePrecision: BigNumber
+      isEth: boolean
+    }
+    debtToken: {
+      symbol: AAVETokens
+      address: string
+      precision: number
+      depositAmountInBasePrecision: BigNumber
+      isEth: boolean
+    }
+    positionType: PositionType
+    marketPrice?: BigNumber
+    getSwapData?: typeof getOneInchCall
+    targetMultiple: BigNumber
+    slippage: BigNumber
+    takeFeeAsFromToken: boolean
+  }
+  async function openPosition({
+    scenario,
+    userAddress,
+    isDPMProxy,
+    gasHelper,
+  }: {
+    scenario: OpenPositionScenario
+    userAddress: Address
+    isDPMProxy: boolean
+    gasHelper: GasEstimateHelper
+  }) {
+    const { collateralToken, debtToken } = scenario
+    const fromToken = debtToken
+    const toToken = collateralToken
 
-    let positionTransition: IPositionTransition
-    let txStatus: boolean
-    let gasEstimates: GasEstimateHelper
+    const { snapshot } = await restoreSnapshot({
+      config,
+      provider,
+      blockNumber: testBlockNumber,
+      useFallbackSwap: true,
+    })
+    const system = snapshot.deployed.system
 
-    async function setupOpenPositionTest(
-      collateralToken: {
-        depositAmountInBaseUnit: BigNumber
-        symbol: AAVETokens
-        address: string
-        precision: number
-        isEth: boolean
-      },
-      debtToken: {
-        depositAmountInBaseUnit: BigNumber
-        symbol: AAVETokens
-        address: string
-        precision: number
-        isEth: boolean
-      },
-      positionType: PositionType,
-      mockMarketPrice: BigNumber | undefined,
-      isFeeFromDebtToken: boolean,
-      userAddress: Address,
-      isDPMProxy: boolean,
-    ) {
-      const { snapshot } = await restoreSnapshot({
-        config,
-        provider,
-        blockNumber: testBlockNumber,
-        useFallbackSwap: true,
-      })
-      const system = snapshot.deployed.system
-
-      /**
-       * Need to have correct tokens in hand before
-       * to marry up with what user is depositing
-       */
-      const swapETHtoDepositTokens = amountToWei(new BigNumber(100))
-      !debtToken.isEth &&
-        debtToken.depositAmountInBaseUnit.gt(ZERO) &&
-        (await swapUniswapTokens(
-          ADDRESSES.main.WETH,
-          debtToken.address,
-          swapETHtoDepositTokens.toFixed(0),
-          ONE.toFixed(0),
-          config.address,
-          config,
-        ))
-
-      !collateralToken.isEth &&
-        collateralToken.depositAmountInBaseUnit.gt(ZERO) &&
-        (await swapUniswapTokens(
-          ADDRESSES.main.WETH,
-          collateralToken.address,
-          swapETHtoDepositTokens.toFixed(0),
-          ONE.toFixed(0),
-          config.address,
-          config,
-        ))
-
-      if (!collateralToken.isEth) {
-        const COLL_TOKEN = new ethers.Contract(collateralToken.address, ERC20ABI, provider).connect(
-          signer,
-        )
-        await COLL_TOKEN.connect(signer).approve(
-          system.common.userProxyAddress,
-          collateralToken.depositAmountInBaseUnit.toFixed(0),
-        )
-      }
-      if (!debtToken.isEth) {
-        const DEBT_TOKEN = new ethers.Contract(debtToken.address, ERC20ABI, provider).connect(
-          signer,
-        )
-        await DEBT_TOKEN.connect(signer).approve(
-          system.common.userProxyAddress,
-          debtToken.depositAmountInBaseUnit.toFixed(0),
-        )
-      }
-
-      const addresses = {
-        ...mainnetAddresses,
-        operationExecutor: system.common.operationExecutor.address,
-      }
-
-      const proxy = system.common.dsProxy.address
-      const positionTransition = await strategies.aave.open(
-        {
-          depositedByUser: {
-            debtToken: { amountInBaseUnit: debtToken.depositAmountInBaseUnit },
-            collateralToken: { amountInBaseUnit: collateralToken.depositAmountInBaseUnit },
-          },
-          // TODO: Integrate properly with DPM and execute t/x through that
-          slippage,
-          multiple,
-          debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
-          collateralToken: { symbol: collateralToken.symbol, precision: collateralToken.precision },
-          collectSwapFeeFrom: isFeeFromDebtToken ? 'sourceToken' : 'targetToken',
-          positionType: 'Earn',
-        },
-        {
-          addresses,
-          provider,
-          getSwapData: oneInchCallMock(mockMarketPrice, {
-            from: debtToken.precision,
-            to: collateralToken.precision,
-          }),
-          proxy,
-          user: userAddress,
-          isDPMProxy,
-        },
-      )
-
-      const feeRecipientBalanceBefore = await balanceOf(
-        isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
-        { config },
-      )
-
-      const ethDepositAmt = (debtToken.isEth ? debtToken.depositAmountInBaseUnit : ZERO).plus(
-        collateralToken.isEth ? collateralToken.depositAmountInBaseUnit : ZERO,
-      )
-
-      const [txStatus, tx] = await executeThroughProxy(
-        system.common.dsProxy.address,
-        {
-          address: system.common.operationExecutor.address,
-          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            positionTransition.transaction.calls,
-            positionTransition.transaction.operationName,
-          ]),
-        },
-        signer,
-        ethDepositAmt.toFixed(0),
-      )
-
-      const userCollateralReserveData = await aaveDataProvider.getUserReserveData(
-        collateralToken.address,
-        system.common.dsProxy.address,
-      )
-
-      const userDebtReserveData = await aaveDataProvider.getUserReserveData(
+    /**
+     * Test setup
+     * Swap test account for ETH for tokens required for transaction
+     */
+    const swap100ETHtoDepositTokens = amountToWei(new BigNumber(100))
+    !debtToken.isEth &&
+      debtToken.depositAmountInBasePrecision.gt(ZERO) &&
+      (await swapUniswapTokens(
+        ADDRESSES.main.WETH,
         debtToken.address,
-        system.common.dsProxy.address,
-      )
+        swap100ETHtoDepositTokens.toFixed(0),
+        ONE.toFixed(0),
+        config.address,
+        config,
+      ))
 
-      const aavePriceOracle = new ethers.Contract(
-        addresses.aavePriceOracle,
-        aavePriceOracleABI,
+    !collateralToken.isEth &&
+      collateralToken.depositAmountInBasePrecision.gt(ZERO) &&
+      (await swapUniswapTokens(
+        ADDRESSES.main.WETH,
+        collateralToken.address,
+        swap100ETHtoDepositTokens.toFixed(0),
+        ONE.toFixed(0),
+        config.address,
+        config,
+      ))
+
+    /**
+     * Give proxy approval to pull tokens from user wallet
+     * */
+    if (!collateralToken.isEth) {
+      const COLL_TOKEN = new ethers.Contract(collateralToken.address, ERC20ABI, provider).connect(
+        signer,
+      )
+      await COLL_TOKEN.connect(signer).approve(
+        system.common.userProxyAddress,
+        collateralToken.depositAmountInBasePrecision.toFixed(0),
+      )
+    }
+    if (!debtToken.isEth) {
+      const DEBT_TOKEN = new ethers.Contract(debtToken.address, ERC20ABI, provider).connect(signer)
+      await DEBT_TOKEN.connect(signer).approve(
+        system.common.userProxyAddress,
+        debtToken.depositAmountInBasePrecision.toFixed(0),
+      )
+    }
+
+    const addresses = {
+      ...mainnetAddresses,
+      operationExecutor: system.common.operationExecutor.address,
+    }
+
+    /** Generate t/x calldata and simulate position transition */
+    const proxy = system.common.dsProxy.address
+    const collectSwapFeeFrom = scenario.takeFeeAsFromToken ? 'sourceToken' : 'targetToken'
+    const positionTransition = await strategies.aave.open(
+      {
+        depositedByUser: {
+          debtToken: { amountInBaseUnit: debtToken.depositAmountInBasePrecision },
+          collateralToken: { amountInBaseUnit: collateralToken.depositAmountInBasePrecision },
+        },
+        // TODO: Integrate properly with DPM and execute t/x through that
+        slippage: scenario.slippage,
+        multiple: scenario.targetMultiple,
+        debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
+        collateralToken: { symbol: collateralToken.symbol, precision: collateralToken.precision },
+        collectSwapFeeFrom: collectSwapFeeFrom,
+        positionType: scenario.positionType,
+      },
+      {
+        addresses,
         provider,
-      )
+        getSwapData: scenario?.getSwapData
+          ? scenario.getSwapData(system.common.swap.address)
+          : oneInchCallMock(scenario.marketPrice, {
+              from: fromToken.precision,
+              to: toToken.precision,
+            }),
+        proxy,
+        user: userAddress,
+        isDPMProxy,
+      },
+    )
 
-      const aaveCollateralTokenPriceInEth = collateralToken.isEth
-        ? ONE
-        : await aavePriceOracle
-            .getAssetPrice(collateralToken.address)
-            .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
+    /** Record fee balance before t/x */
+    const collectFeeFromAsset = scenario.takeFeeAsFromToken ? fromToken.address : toToken.address
+    const feeRecipientBalanceBefore = await balanceOf(
+      collectFeeFromAsset,
+      ADDRESSES.main.feeRecipient,
+      { config },
+    )
 
-      const aaveDebtTokenPriceInEth = debtToken.isEth
-        ? ONE
-        : await aavePriceOracle
-            .getAssetPrice(debtToken.address)
-            .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
+    const ethDepositAmt = (debtToken.isEth ? debtToken.depositAmountInBasePrecision : ZERO).plus(
+      collateralToken.isEth ? collateralToken.depositAmountInBasePrecision : ZERO,
+    )
+    const [txStatus, tx] = await executeThroughProxy(
+      system.common.dsProxy.address,
+      {
+        address: system.common.operationExecutor.address,
+        calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+          positionTransition.transaction.calls,
+          positionTransition.transaction.operationName,
+        ]),
+      },
+      signer,
+      ethDepositAmt.toFixed(0),
+    )
+    gasHelper.save(tx)
 
-      const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+    /** User reserves after opening */
+    const userCollateralReserveDataAfterOpening = await aaveDataProvider.getUserReserveData(
+      collateralToken.address,
+      system.common.dsProxy.address,
+    )
+    const userDebtReserveDataAfterOpening = await aaveDataProvider.getUserReserveData(
+      debtToken.address,
+      system.common.dsProxy.address,
+    )
 
-      const actualPosition = new Position(
-        {
-          amount: new BigNumber(userDebtReserveData.currentVariableDebt.toString()),
-          precision: debtToken.precision,
-          symbol: debtToken.symbol,
+    const aavePriceOracle = new ethers.Contract(
+      addresses.aavePriceOracle,
+      aavePriceOracleABI,
+      provider,
+    )
+    const aaveCollateralTokenPriceInEth = collateralToken.isEth
+      ? ONE
+      : await aavePriceOracle
+          .getAssetPrice(collateralToken.address)
+          .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
+    const aaveDebtTokenPriceInEth = debtToken.isEth
+      ? ONE
+      : await aavePriceOracle
+          .getAssetPrice(debtToken.address)
+          .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
+    const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+
+    const actualPositionAfterOpening = new Position(
+      {
+        amount: new BigNumber(userDebtReserveDataAfterOpening.currentVariableDebt.toString()),
+        precision: debtToken.precision,
+        symbol: debtToken.symbol,
+      },
+      {
+        amount: new BigNumber(
+          userCollateralReserveDataAfterOpening.currentATokenBalance.toString(),
+        ),
+        precision: collateralToken.precision,
+        symbol: collateralToken.symbol,
+      },
+      oracle,
+      positionTransition.simulation.position.category,
+    )
+
+    return {
+      positionTransition,
+      txStatus,
+      tx,
+      oracle,
+      feeRecipientBalanceBefore,
+      actualPositionAfterOpening,
+      userCollateralReserveDataAfterOpening,
+      userDebtReserveDataAfterOpening,
+      system,
+    }
+  }
+
+  describe.skip('Open Position: With [Uniswap] (Fallback) Swap', function () {
+    /** Slippages are between 0 and 1. So, 0.1 === 10% slippage */
+    const scenarios: Record<string, OpenPositionScenario> = {
+      [`${tokens.STETH}:${tokens.ETH}`]: {
+        collateralToken: {
+          symbol: tokens.STETH,
+          precision: TYPICAL_PRECISION,
+          address: ADDRESSES.main.stETH,
+          depositAmountInBasePrecision: ZERO,
+          isEth: false,
         },
-        {
-          amount: new BigNumber(userCollateralReserveData.currentATokenBalance.toString()),
-          precision: collateralToken.precision,
-          symbol: collateralToken.symbol,
+        debtToken: {
+          symbol: tokens.ETH,
+          precision: TYPICAL_PRECISION,
+          address: ADDRESSES.main.WETH,
+          depositAmountInBasePrecision: amountToWei(new BigNumber(1), TYPICAL_PRECISION),
+          isEth: true,
         },
-        oracle,
-        positionTransition.simulation.position.category,
-      )
-
-      return {
-        system,
-        positionTransition,
-        feeRecipientBalanceBefore,
-        txStatus,
-        tx,
-        oracle,
-        actualPosition,
-        userCollateralReserveData,
-        userDebtReserveData,
-      }
+        positionType: 'Earn',
+        marketPrice: new BigNumber(0.9759),
+        targetMultiple: new BigNumber(2),
+        slippage: defaultSlippage,
+        takeFeeAsFromToken: true,
+      },
+      [`${tokens.ETH}:${tokens.USDC}`]: {
+        collateralToken: {
+          symbol: tokens.ETH,
+          precision: TYPICAL_PRECISION,
+          address: ADDRESSES.main.WETH,
+          depositAmountInBasePrecision: amountToWei(new BigNumber(600)),
+          isEth: true,
+        },
+        debtToken: {
+          symbol: tokens.USDC,
+          precision: 6,
+          address: ADDRESSES.main.USDC,
+          depositAmountInBasePrecision: ZERO,
+          isEth: false,
+        },
+        positionType: 'Multiply',
+        marketPrice: new BigNumber(1300),
+        targetMultiple: new BigNumber(2),
+        slippage: defaultSlippage,
+        takeFeeAsFromToken: true,
+      },
+      [`${tokens.WBTC}:${tokens.USDC}_A`]: {
+        collateralToken: {
+          symbol: tokens.WBTC,
+          precision: 8,
+          address: ADDRESSES.main.WBTC,
+          depositAmountInBasePrecision: amountToWei(new BigNumber(6), 8),
+          isEth: false,
+        },
+        debtToken: {
+          symbol: tokens.USDC,
+          precision: 6,
+          address: ADDRESSES.main.USDC,
+          depositAmountInBasePrecision: ZERO,
+          isEth: false,
+        },
+        positionType: 'Multiply',
+        marketPrice: new BigNumber(20032),
+        targetMultiple: new BigNumber(2),
+        slippage: defaultSlippage,
+        takeFeeAsFromToken: true,
+      },
+      [`${tokens.WBTC}:${tokens.USDC}_B`]: {
+        collateralToken: {
+          symbol: tokens.WBTC,
+          precision: 8,
+          address: ADDRESSES.main.WBTC,
+          depositAmountInBasePrecision: amountToWei(new BigNumber(6), 8),
+          isEth: false,
+        },
+        debtToken: {
+          symbol: tokens.USDC,
+          precision: 6,
+          address: ADDRESSES.main.USDC,
+          depositAmountInBasePrecision: ZERO,
+          isEth: false,
+        },
+        positionType: 'Multiply',
+        marketPrice: new BigNumber(20032),
+        targetMultiple: new BigNumber(2),
+        slippage: defaultSlippage,
+        takeFeeAsFromToken: false,
+      },
     }
 
     describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
-      const depositEthAmount = amountToWei(new BigNumber(1))
-      gasEstimates = gasEstimateHelper()
+      gasHelper = gasEstimateHelper()
       let userStEthReserveData: AAVEReserveData
       let userWethReserveData: AAVEReserveData
-      let feeRecipientWethBalanceBefore: BigNumber
-      let actualPosition: IPosition
+      let feeRecipientBalanceBefore: BigNumber
+      let actualPositionAfterOpening: IPosition
+      let positionTransition: IPositionTransition
       let tx: ContractReceipt
+      let txStatus: boolean
 
       before(async function () {
-        const setup = await setupOpenPositionTest(
-          {
-            depositAmountInBaseUnit: ZERO,
-            symbol: tokens.STETH,
-            address: ADDRESSES.main.stETH,
-            precision: 18,
-            isEth: false,
-          },
-          {
-            depositAmountInBaseUnit: depositEthAmount,
-            symbol: tokens.ETH,
-            address: ADDRESSES.main.WETH,
-            precision: 18,
-            isEth: true,
-          },
-          'Earn',
-          new BigNumber(0.9759),
-          true,
+        ;({
+          actualPositionAfterOpening,
+          positionTransition,
+          tx,
+          txStatus,
+          userCollateralReserveDataAfterOpening: userStEthReserveData,
+          userDebtReserveDataAfterOpening: userWethReserveData,
+          feeRecipientBalanceBefore,
+        } = await openPosition({
+          scenario: scenarios[`${tokens.STETH}:${tokens.ETH}`],
           userAddress,
-          false,
-        )
-        txStatus = setup.txStatus
-        tx = setup.tx
-        positionTransition = setup.positionTransition
-        actualPosition = setup.actualPosition
-        userStEthReserveData = setup.userCollateralReserveData
-        userWethReserveData = setup.userDebtReserveData
-        feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
+          isDPMProxy: false,
+          gasHelper,
+        }))
 
-        gasEstimates.save(tx)
+        gasHelper.save(tx)
       })
 
       it('Tx should pass', function () {
@@ -319,12 +410,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple,
+          actualPositionAfterOpening.riskRatio.multiple,
         )
       })
 
       it('Should collect fee', async function () {
-        const feeRecipientWethBalanceAfter = await balanceOf(
+        const feeRecipientBalanceAfter = await balanceOf(
           ADDRESSES.main.WETH,
           ADDRESSES.main.feeRecipient,
           { config },
@@ -332,50 +423,41 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
         expectToBeEqual(
           new BigNumber(positionTransition.simulation.swap.tokenFee),
-          feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
+          feeRecipientBalanceAfter.minus(feeRecipientBalanceBefore),
         )
       })
 
       after(() => {
-        gasEstimates.print()
+        gasHelper.print()
       })
     })
     describe(`With ${tokens.ETH} collateral (+dep) & ${tokens.USDC} debt`, function () {
-      const depositEthAmount = new BigNumber(600)
-
-      let userEthReserveData: AAVEReserveData
+      gasHelper = gasEstimateHelper()
+      let userWethReserveData: AAVEReserveData
       let userUSDCReserveData: AAVEReserveData
-      let feeRecipientUSDCBalanceBefore: BigNumber
-      let actualPosition: IPosition
+      let feeRecipientBalanceBefore: BigNumber
+      let actualPositionAfterOpening: IPosition
+      let positionTransition: IPositionTransition
+      let tx: ContractReceipt
+      let txStatus: boolean
 
       before(async function () {
-        const setup = await setupOpenPositionTest(
-          {
-            depositAmountInBaseUnit: amountToWei(depositEthAmount),
-            symbol: tokens.ETH,
-            address: ADDRESSES.main.WETH,
-            precision: 18,
-            isEth: true,
-          },
-          {
-            depositAmountInBaseUnit: ZERO,
-            symbol: tokens.USDC,
-            address: ADDRESSES.main.USDC,
-            precision: 6,
-            isEth: false,
-          },
-          'Multiply',
-          new BigNumber(1300),
-          true,
+        ;({
+          actualPositionAfterOpening,
+          positionTransition,
+          tx,
+          txStatus,
+          userCollateralReserveDataAfterOpening: userWethReserveData,
+          userDebtReserveDataAfterOpening: userUSDCReserveData,
+          feeRecipientBalanceBefore,
+        } = await openPosition({
+          scenario: scenarios[`${tokens.ETH}:${tokens.USDC}`],
           userAddress,
-          false,
-        )
-        txStatus = setup.txStatus
-        positionTransition = setup.positionTransition
-        actualPosition = setup.actualPosition
-        userEthReserveData = setup.userCollateralReserveData
-        userUSDCReserveData = setup.userDebtReserveData
-        feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
+          isDPMProxy: false,
+          gasHelper,
+        }))
+
+        gasHelper.save(tx)
       })
 
       it('Tx should pass', function () {
@@ -386,6 +468,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expect(
           new BigNumber(positionTransition.simulation.position.debt.amount.toString()).toString(),
         ).to.be.oneOf([
+          new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).plus(ONE).toFixed(0),
           new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).toFixed(0),
           new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).minus(ONE).toFixed(0),
         ])
@@ -393,7 +476,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it(`Should deposit all ${tokens.ETH} tokens to aave`, function () {
         expectToBe(
-          new BigNumber(userEthReserveData.currentATokenBalance.toString()).toFixed(0),
+          new BigNumber(userWethReserveData.currentATokenBalance.toString()).toFixed(0),
           'gte',
           positionTransition.simulation.position.collateral.amount,
         )
@@ -403,12 +486,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple,
+          actualPositionAfterOpening.riskRatio.multiple,
         )
       })
 
       it('Should collect fee', async function () {
-        const feeRecipientUSDCBalanceAfter = await balanceOf(
+        const feeRecipientBalanceAfter = await balanceOf(
           ADDRESSES.main.USDC,
           ADDRESSES.main.feeRecipient,
           { config },
@@ -416,44 +499,41 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
         expectToBeEqual(
           new BigNumber(positionTransition.simulation.swap.tokenFee),
-          feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore),
+          feeRecipientBalanceAfter.minus(feeRecipientBalanceBefore),
         )
+      })
+
+      after(() => {
+        gasHelper.print()
       })
     })
     describe(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
-      const depositWBTCAmount = new BigNumber(6)
-
+      gasHelper = gasEstimateHelper()
       let userWBTCReserveData: AAVEReserveData
-      let feeRecipientUSDCBalanceBefore: BigNumber
-      let actualPosition: IPosition
+      let userUSDCReserveData: AAVEReserveData
+      let feeRecipientBalanceBefore: BigNumber
+      let actualPositionAfterOpening: IPosition
+      let positionTransition: IPositionTransition
+      let tx: ContractReceipt
+      let txStatus: boolean
 
       before(async function () {
-        const setup = await setupOpenPositionTest(
-          {
-            depositAmountInBaseUnit: amountToWei(depositWBTCAmount, 8),
-            symbol: tokens.WBTC,
-            address: ADDRESSES.main.WBTC,
-            precision: 8,
-            isEth: false,
-          },
-          {
-            depositAmountInBaseUnit: ZERO,
-            symbol: tokens.USDC,
-            address: ADDRESSES.main.USDC,
-            precision: 6,
-            isEth: false,
-          },
-          'Multiply',
-          new BigNumber(20032),
-          true,
+        ;({
+          actualPositionAfterOpening,
+          positionTransition,
+          tx,
+          txStatus,
+          userCollateralReserveDataAfterOpening: userWBTCReserveData,
+          userDebtReserveDataAfterOpening: userUSDCReserveData,
+          feeRecipientBalanceBefore,
+        } = await openPosition({
+          scenario: scenarios[`${tokens.WBTC}:${tokens.USDC}_A`],
           userAddress,
-          false,
-        )
-        txStatus = setup.txStatus
-        positionTransition = setup.positionTransition
-        actualPosition = setup.actualPosition
-        userWBTCReserveData = setup.userCollateralReserveData
-        feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
+          isDPMProxy: false,
+          gasHelper,
+        }))
+
+        gasHelper.save(tx)
       })
 
       it('Tx should pass', function () {
@@ -461,10 +541,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
 
       it('Should draw debt according to multiple', function () {
-        expect(new BigNumber(actualPosition.debt.amount.toString()).toString()).to.be.oneOf([
-          positionTransition.simulation.position.debt.amount.minus(ONE).toFixed(0),
-          positionTransition.simulation.position.debt.amount.toFixed(0),
-          positionTransition.simulation.position.debt.amount.plus(ONE).toFixed(0),
+        expect(
+          new BigNumber(positionTransition.simulation.position.debt.amount.toString()).toString(),
+        ).to.be.oneOf([
+          new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).plus(ONE).toFixed(0),
+          new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).toFixed(0),
+          new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).minus(ONE).toFixed(0),
         ])
       })
 
@@ -480,12 +562,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple,
+          actualPositionAfterOpening.riskRatio.multiple,
         )
       })
 
       it('Should collect fee', async function () {
-        const feeRecipientUSDCBalanceAfter = await balanceOf(
+        const feeRecipientBalanceAfter = await balanceOf(
           ADDRESSES.main.USDC,
           ADDRESSES.main.feeRecipient,
           { config },
@@ -493,44 +575,41 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
         expectToBeEqual(
           new BigNumber(positionTransition.simulation.swap.tokenFee),
-          feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore),
+          feeRecipientBalanceAfter.minus(feeRecipientBalanceBefore),
         )
       })
-    })
-    describe(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
-      const depositWBTCAmount = new BigNumber(6)
 
+      after(() => {
+        gasHelper.print()
+      })
+    })
+    describe(`With ${tokens.WBTC} collateral (+take fee from coll) & ${tokens.USDC} debt`, function () {
+      gasHelper = gasEstimateHelper()
       let userWBTCReserveData: AAVEReserveData
-      let feeRecipientWBTCBalanceBefore: BigNumber
-      let actualPosition: IPosition
+      let userUSDCReserveData: AAVEReserveData
+      let feeRecipientBalanceBefore: BigNumber
+      let actualPositionAfterOpening: IPosition
+      let positionTransition: IPositionTransition
+      let tx: ContractReceipt
+      let txStatus: boolean
 
       before(async function () {
-        const setup = await setupOpenPositionTest(
-          {
-            depositAmountInBaseUnit: amountToWei(depositWBTCAmount, 8),
-            symbol: tokens.WBTC,
-            address: ADDRESSES.main.WBTC,
-            precision: 8,
-            isEth: false,
-          },
-          {
-            depositAmountInBaseUnit: ZERO,
-            symbol: tokens.USDC,
-            address: ADDRESSES.main.USDC,
-            precision: 6,
-            isEth: false,
-          },
-          'Multiply',
-          new BigNumber(20032),
-          false,
+        ;({
+          actualPositionAfterOpening,
+          positionTransition,
+          tx,
+          txStatus,
+          userCollateralReserveDataAfterOpening: userWBTCReserveData,
+          userDebtReserveDataAfterOpening: userUSDCReserveData,
+          feeRecipientBalanceBefore,
+        } = await openPosition({
+          scenario: scenarios[`${tokens.WBTC}:${tokens.USDC}_B`],
           userAddress,
-          false,
-        )
-        txStatus = setup.txStatus
-        positionTransition = setup.positionTransition
-        actualPosition = setup.actualPosition
-        userWBTCReserveData = setup.userCollateralReserveData
-        feeRecipientWBTCBalanceBefore = setup.feeRecipientBalanceBefore
+          isDPMProxy: false,
+          gasHelper,
+        }))
+
+        gasHelper.save(tx)
       })
 
       it('Tx should pass', function () {
@@ -538,9 +617,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
 
       it('Should draw debt according to multiple', function () {
-        expect(new BigNumber(actualPosition.debt.amount.toString()).toString()).to.be.oneOf([
-          positionTransition.simulation.position.debt.amount.toFixed(0),
-          positionTransition.simulation.position.debt.amount.minus(ONE).toFixed(0),
+        expect(
+          new BigNumber(positionTransition.simulation.position.debt.amount.toString()).toString(),
+        ).to.be.oneOf([
+          new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).plus(ONE).toFixed(0),
+          new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).toFixed(0),
+          new BigNumber(userUSDCReserveData.currentVariableDebt.toString()).minus(ONE).toFixed(0),
         ])
       })
 
@@ -556,37 +638,125 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(
           positionTransition.simulation.position.riskRatio.multiple,
           'gte',
-          actualPosition.riskRatio.multiple,
+          actualPositionAfterOpening.riskRatio.multiple,
         )
       })
 
       it('Should collect fee', async function () {
-        const feeRecipientWBTCBalanceAfter = await balanceOf(
+        const feeRecipientBalanceAfter = await balanceOf(
           ADDRESSES.main.WBTC,
           ADDRESSES.main.feeRecipient,
           { config },
         )
 
-        // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
-          new BigNumber(
-            positionTransition.simulation.swap.tokenFee.div(ONE.minus(slippage)).toString(),
-          ).toFixed(0),
-          'gte',
-          feeRecipientWBTCBalanceAfter.minus(feeRecipientWBTCBalanceBefore),
-        )
-
-        expectToBe(
-          positionTransition.simulation.swap.tokenFee,
+          new BigNumber(positionTransition.simulation.swap.tokenFee),
           'lte',
-          feeRecipientWBTCBalanceAfter.minus(feeRecipientWBTCBalanceBefore),
+          feeRecipientBalanceAfter.minus(feeRecipientBalanceBefore),
         )
+      })
+
+      after(() => {
+        gasHelper.print()
       })
     })
   })
 
   describe('Open Position: With [1inch] Swap', function () {
+    /** Slippages are between 0 and 1. So, 0.1 === 10% slippage */
+    const scenarios: Record<string, OpenPositionScenario> = {
+      [`${tokens.STETH}:${tokens.ETH}`]: {
+        collateralToken: {
+          symbol: tokens.STETH,
+          precision: TYPICAL_PRECISION,
+          address: ADDRESSES.main.stETH,
+          depositAmountInBasePrecision: ZERO,
+          isEth: false,
+        },
+        debtToken: {
+          symbol: tokens.ETH,
+          precision: TYPICAL_PRECISION,
+          address: ADDRESSES.main.WETH,
+          depositAmountInBasePrecision: amountToWei(new BigNumber(1), TYPICAL_PRECISION),
+          isEth: true,
+        },
+        positionType: 'Earn',
+        getSwapData: getOneInchCall,
+        targetMultiple: new BigNumber(2),
+        slippage: defaultSlippage,
+        takeFeeAsFromToken: true,
+      },
+    }
+
     describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+      gasHelper = gasEstimateHelper()
+      let userStEthReserveData: AAVEReserveData
+      let userWethReserveData: AAVEReserveData
+      let feeRecipientBalanceBefore: BigNumber
+      let actualPositionAfterOpening: IPosition
+      let positionTransition: IPositionTransition
+      let tx: ContractReceipt
+      let txStatus: boolean
+
+      before(async function () {
+        const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
+        if (!shouldRun1InchTests) {
+          this.skip()
+        }
+
+        ;({
+          actualPositionAfterOpening,
+          positionTransition,
+          tx,
+          txStatus,
+          userCollateralReserveDataAfterOpening: userStEthReserveData,
+          userDebtReserveDataAfterOpening: userWethReserveData,
+          feeRecipientBalanceBefore,
+        } = await openPosition({
+          scenario: scenarios[`${tokens.STETH}:${tokens.ETH}`],
+          userAddress,
+          isDPMProxy: false,
+          gasHelper,
+        }))
+
+        gasHelper.save(tx)
+      })
+
+      it('Tx should pass', function () {
+        expect(txStatus).to.be.true
+      })
+
+      it('Should draw debt according to multiple', function () {
+        expectToBeEqual(
+          positionTransition.simulation.position.debt.amount.toFixed(0),
+          new BigNumber(userWethReserveData.currentVariableDebt.toString()),
+        )
+      })
+
+      it(`Should deposit all ${tokens.STETH} tokens to aave`, function () {
+        expectToBe(
+          new BigNumber(userStEthReserveData.currentATokenBalance.toString()).toFixed(0),
+          'gte',
+          positionTransition.simulation.position.collateral.amount,
+        )
+      })
+
+      it('Should collect fee', async function () {
+        const feeRecipientBalanceAfter = await balanceOf(
+          ADDRESSES.main.WETH,
+          ADDRESSES.main.feeRecipient,
+          { config },
+        )
+
+        const actualFees = feeRecipientBalanceAfter.minus(feeRecipientBalanceBefore)
+        expectToBeEqual(
+          new BigNumber(positionTransition.simulation.swap.tokenFee.toString()).toFixed(0),
+          actualFees,
+        )
+      })
+    })
+
+    describe.skip(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
       const depositEthAmount = amountToWei(new BigNumber(1))
       const multiple = new BigNumber(2)
       const slippage = new BigNumber(0.1)
@@ -706,7 +876,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualFees)
       })
     })
-    describe(`With ${tokens.ETH} collateral & ${tokens.USDC} debt`, function () {
+    describe.skip(`With ${tokens.ETH} collateral & ${tokens.USDC} debt`, function () {
       const depositEthAmount = amountToWei(new BigNumber(1))
       const multiple = new BigNumber(2)
       const slippage = new BigNumber(0.1)

@@ -7,7 +7,7 @@ import { amountFromWei } from '../../helpers'
 import { IPosition, Position } from '../../helpers/calculations/Position'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IViewPositionDependencies, IViewPositionParams } from '../types/IPositionRepository'
+import { IViewPositionDependencies, IViewPositionParams } from '../types/StrategyParams'
 
 export async function getCurrentPosition(
   { collateralToken, debtToken, proxy }: IViewPositionParams<AAVETokens>,

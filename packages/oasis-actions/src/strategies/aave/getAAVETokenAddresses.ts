@@ -1,7 +1,7 @@
 import { ADDRESSES } from '../../helpers/addresses'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IPositionTransitionArgs } from '../types/IPositionRepository'
+import { IPositionTransitionArgs } from '../types/StrategyParams'
 
 export const mainnetAAVEAddresses = {
   DAI: ADDRESSES.main.DAI,

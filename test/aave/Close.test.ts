@@ -5,11 +5,11 @@ import { PositionType } from '@oasisdex/oasis-actions/lib/src/strategies/types/P
 import { IPositionTransition } from '@oasisdex/oasis-actions/src'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
 import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
-import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionRepository'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers, Signer } from 'ethers'
+import { Address } from 'packages/oasis-actions/src/strategies/types/StrategyParams'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
 import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'

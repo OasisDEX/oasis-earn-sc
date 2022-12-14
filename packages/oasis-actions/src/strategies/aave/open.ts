@@ -7,13 +7,13 @@ import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
 import { Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { ZERO } from '../../helpers/constants'
+import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { Address } from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
 import { PositionType } from '../types/PositionType'
+import { Address } from '../types/StrategyParams'
 import { SwapData } from '../types/SwapData'
 import { getCurrentPosition } from './getCurrentPosition'
 
@@ -135,14 +135,13 @@ export async function open(
   // Needs to be correct precision. First convert to base 18. Then divide
   const base18FromTokenAmount = amountToWei(
     amountFromWei(quoteSwapData.fromTokenAmount, args.debtToken.precision),
-    18,
+    TYPICAL_PRECISION,
   )
   const base18ToTokenAmount = amountToWei(
     amountFromWei(quoteSwapData.toTokenAmount, args.collateralToken.precision),
-    18,
+    TYPICAL_PRECISION,
   )
   const quoteMarketPrice = base18FromTokenAmount.div(base18ToTokenAmount)
-
   const flashloanFee = new BigNumber(0)
 
   // ETH/DAI
@@ -158,7 +157,8 @@ export async function open(
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
-  const target = currentPosition.adjustToTargetRiskRatio(
+
+  const simulatedPositionTransition = currentPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
       fees: {
@@ -184,11 +184,11 @@ export async function open(
     },
   )
 
-  const borrowAmountInWei = target.delta.debt.minus(depositDebtAmountInWei)
+  const borrowAmountInWei = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
 
-  const swapAmountBeforeFees = target.swap.fromTokenAmount
+  const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
-    collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
+    collectFeeFrom === 'sourceToken' ? simulatedPositionTransition.swap.tokenFee : ZERO,
   )
 
   const swapData = await dependencies.getSwapData(
@@ -201,11 +201,12 @@ export async function open(
   // Needs to be correct precision. First convert to base 18. Then divide
   const actualSwapBase18FromTokenAmount = amountToWei(
     amountFromWei(swapData.fromTokenAmount, args.debtToken.precision),
-    18,
+    TYPICAL_PRECISION,
   )
+  const toAmountWithMaxSlippage = swapData.minToTokenAmount
   const actualSwapBase18ToTokenAmount = amountToWei(
-    amountFromWei(swapData.minToTokenAmount, args.collateralToken.precision),
-    18,
+    amountFromWei(toAmountWithMaxSlippage, args.collateralToken.precision),
+    TYPICAL_PRECISION,
   )
   const actualMarketPriceWithSlippage = actualSwapBase18FromTokenAmount.div(
     actualSwapBase18ToTokenAmount,
@@ -231,11 +232,11 @@ export async function open(
     },
     positionType: args.positionType,
     addresses: dependencies.addresses,
-    flashloanAmount: target.delta.flashloanAmount,
+    flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
     borrowAmountInBaseUnit: borrowAmountInWei,
     collateralTokenAddress,
     debtTokenAddress,
-    useFlashloan: target.flags.requiresFlashloan,
+    useFlashloan: simulatedPositionTransition.flags.requiresFlashloan,
     proxy: dependencies.proxy,
     user: dependencies.user,
     isDPMProxy: dependencies.isDPMProxy,
@@ -246,7 +247,7 @@ export async function open(
   // Apply market price
   // Convert result back to USDC at precision 6
   const collateralAmountAfterSwapInWei = amountToWei(
-    amountFromWei(target.swap.fromTokenAmount, args.debtToken.precision).div(
+    amountFromWei(simulatedPositionTransition.swap.fromTokenAmount, args.debtToken.precision).div(
       actualMarketPriceWithSlippage,
     ),
     args.collateralToken.precision,
@@ -256,14 +257,14 @@ export async function open(
     Final position calculated using actual swap data and the latest market price
    */
   const finalPosition = new Position(
-    target.position.debt,
+    simulatedPositionTransition.position.debt,
     {
       amount: collateralAmountAfterSwapInWei.plus(depositCollateralAmountInWei),
-      symbol: target.position.collateral.symbol,
-      precision: target.position.collateral.precision,
+      symbol: simulatedPositionTransition.position.collateral.symbol,
+      precision: simulatedPositionTransition.position.collateral.precision,
     },
     oracle,
-    target.position.category,
+    simulatedPositionTransition.position.category,
   )
 
   return {
@@ -272,10 +273,10 @@ export async function open(
       operationName: operation.operationName,
     },
     simulation: {
-      delta: target.delta,
-      flags: target.flags,
+      delta: simulatedPositionTransition.delta,
+      flags: simulatedPositionTransition.flags,
       swap: {
-        ...target.swap,
+        ...simulatedPositionTransition.swap,
         ...swapData,
       },
       position: finalPosition,

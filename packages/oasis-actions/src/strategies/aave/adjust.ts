@@ -11,11 +11,8 @@ import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
 import { IOperation } from '../types/IOperation'
-import {
-  IPositionTransitionArgs,
-  IPositionTransitionDependencies,
-} from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
+import { IPositionTransitionArgs, IPositionTransitionDependencies } from '../types/StrategyParams'
 import { SwapData } from '../types/SwapData'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 

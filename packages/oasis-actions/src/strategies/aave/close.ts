@@ -10,12 +10,12 @@ import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../../hel
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
+import { IPositionTransition } from '../types/IPositionTransition'
 import {
   IBasePositionTransitionArgs,
   IPositionTransitionDependencies,
   WithLockedCollateral,
-} from '../types/IPositionRepository'
-import { IPositionTransition } from '../types/IPositionTransition'
+} from '../types/StrategyParams'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
 export async function close(
