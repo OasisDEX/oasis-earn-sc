@@ -103,6 +103,7 @@ export async function close(
       collateralIsEth: args.collateralToken.symbol === 'ETH',
       debtTokenAddress,
       debtTokenIsEth: args.debtToken.symbol === 'ETH',
+      isDPMProxy: dependencies.isDPMProxy,
     },
     dependencies.addresses,
   )
