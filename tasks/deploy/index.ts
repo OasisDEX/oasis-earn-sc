@@ -40,7 +40,7 @@ task(
       uSwapAddress,
       swapAddress,
       swapActionAddress,
-      positionCreatedAddress
+      positionCreatedAddress,
     } = await deployCommonActions({ deploy, serviceRegistryAddress, config, debug: taskArgs.debug })
 
     const {
@@ -72,6 +72,7 @@ task(
       wrapEthHash,
       unwrapEthHash,
       returnFundsHash,
+      positionCreatedHash,
     } = await addCommonActionsToRegistry({
       registry,
       addresses: {
@@ -183,36 +184,6 @@ async function deployCommonActions(args: {
   const [, positionCreatedAddress] = await deploy(CONTRACT_NAMES.common.POSITION_CREATED, [])
   const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
 
-  return {
-    pullTokenActionAddress,
-    sendTokenAddress,
-    setApprovalAddress,
-    flActionAddress,
-    wrapActionAddress,
-    unwrapActionAddress,
-    returnFundsActionAddress,
-    positionCreatedAddress,
-  }
-}
-
-async function deployAaveActions(
-  deploy: DeployFunction,
-  serviceRegistryAddress: string,
-  config: RuntimeConfig,
-) {
-  const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
-    serviceRegistryAddress,
-  ])
-  const [, borrowFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.BORROW, [
-    serviceRegistryAddress,
-  ])
-  const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.WITHDRAW, [
-    serviceRegistryAddress,
-  ])
-  const [, actionPaybackFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.PAYBACK, [
-    serviceRegistryAddress,
-  ])
-
   const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
     config.address,
     ADDRESSES.main.feeRecipient,
@@ -247,11 +218,70 @@ async function deployAaveActions(
     wrapActionAddress,
     unwrapActionAddress,
     returnFundsActionAddress,
+    positionCreatedAddress,
     uSwapAddress,
     swapAddress,
     swapActionAddress,
   }
 }
+
+// async function deployAaveActions(
+//   deploy: DeployFunction,
+//   serviceRegistryAddress: string,
+//   config: RuntimeConfig,
+// ) {
+//   const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
+//     serviceRegistryAddress,
+//   ])
+//   const [, borrowFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.BORROW, [
+//     serviceRegistryAddress,
+//   ])
+//   const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.WITHDRAW, [
+//     serviceRegistryAddress,
+//   ])
+//   const [, actionPaybackFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.PAYBACK, [
+//     serviceRegistryAddress,
+//   ])
+//
+//   const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
+//     config.address,
+//     ADDRESSES.main.feeRecipient,
+//     0, // TODO add different fee tiers
+//     serviceRegistryAddress,
+//   ])
+//   await uSwap.setPool(
+//     '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
+//     '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+//     10000,
+//   )
+//   await uSwap.addFeeTier(20)
+//
+//   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
+//     config.address,
+//     ADDRESSES.main.feeRecipient,
+//     0,
+//     serviceRegistryAddress,
+//   ])
+//
+//   await swap.addFeeTier(20)
+//
+//   const [, swapActionAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ACTION, [
+//     serviceRegistryAddress,
+//   ])
+//
+//   return {
+//     pullTokenActionAddress,
+//     sendTokenAddress,
+//     setApprovalAddress,
+//     flActionAddress,
+//     wrapActionAddress,
+//     unwrapActionAddress,
+//     returnFundsActionAddress,
+//     uSwapAddress,
+//     swapAddress,
+//     swapActionAddress,
+//   }
+// }
 
 async function deployAaveActions(args: {
   deploy: DeployFunction
@@ -389,7 +419,7 @@ async function addCommonActionsToRegistry(args: {
   }
   debug: boolean
 }) {
-  const { registry, addresses, debug } = args 
+  const { registry, addresses, debug } = args
   const pullTokenHash = await registry.addEntry(
     CONTRACT_NAMES.common.PULL_TOKEN,
     addresses.pullTokenActionAddress,
@@ -423,7 +453,7 @@ async function addCommonActionsToRegistry(args: {
     CONTRACT_NAMES.common.RETURN_FUNDS,
     addresses.returnFundsActionAddress,
   )
-  
+
   const positionCreatedHash = await registry.addEntry(
     CONTRACT_NAMES.common.POSITION_CREATED,
     addresses.positionCreatedAddress,
