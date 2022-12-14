@@ -420,7 +420,8 @@ describe(`Operations | Maker | Increase Multiple`, async () => {
       [
         {
           amount: exchangeData.fromTokenAmount,
-          dsProxyFlashloan: true,
+          isProxyFlashloan: true,
+          isDPMProxy: false,
           calls: [swapAction, depositBorrowedCollateral, generateDaiToRepayFL, sendBackDAI],
         },
         [0, 0, 0, 0],
@@ -1283,7 +1284,8 @@ describe(`Operations | Maker | Increase Multiple`, async () => {
       [
         {
           amount: exchangeData.fromTokenAmount,
-          dsProxyFlashloan: true,
+          isProxyFlashloan: true,
+          isDPMProxy: false,
           calls: [swapAction, depositBorrowedCollateral, generateDaiToRepayFL, sendBackDAI],
         },
         [0, 0, 0, 0],

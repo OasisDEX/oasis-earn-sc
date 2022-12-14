@@ -162,7 +162,7 @@ export class Position implements IPosition {
    * Calculates the target (or desired) state of a position
    * We must convert all values to the same 18 decimal precision to ensure the maths works as expected
    *
-   * Maths breakdown: {@linkhttps://www.notion.so/oazo/Oasis-Maths-cceaa36d5c2b49a7b5129105cee1d35f#608e831f54fc4557bf004af7c453f865}
+   * Maths breakdown: {@link https://www.notion.so/oazo/Oasis-Maths-cceaa36d5c2b49a7b5129105cee1d35f#608e831f54fc4557bf004af7c453f865}
    * Concrete scenarios: {@link https://docs.google.com/spreadsheets/d/1ZB0dlQbjgi7eM-cSyGowWlZCKG-326pWZeHxZAPFOT0/edit?usp=sharing}
    *
    * @returns A position's change in debt, change in collateral and whether a flashloan is necessary to achieve the change
@@ -171,10 +171,23 @@ export class Position implements IPosition {
     targetRiskRatio: IRiskRatio,
     params: IPositionTransitionParams,
   ): IBaseSimulatedTransition {
+    if (params.debug) {
+      logDebug(
+        [
+          `**!!All values are converted to same precision during calculations!!**`,
+          `Current position debt: ${this.debt.amount.toString()}`,
+          `Current position collateral ${this.collateral.amount.toString()}`,
+          `Normalised current position debt: ${this.debt.normalisedAmount.toString()}`,
+          `Normalised current position collateral ${this.collateral.normalisedAmount.toString()}`,
+        ],
+        'Initial: ',
+      )
+    }
+
     const useFlashloanSafetyMargin = params.useFlashloanSafetyMargin ?? true
     const targetLTV = targetRiskRatio.loanToValue
-    let isIncreasingRisk = false
 
+    let isIncreasingRisk = false
     if (targetLTV.gt(this.riskRatio.loanToValue)) {
       isIncreasingRisk = true
     }
@@ -486,8 +499,15 @@ export class Position implements IPosition {
             isIncreasingRisk ? targetPosition.collateral.symbol : targetPosition.debt.symbol
           }`,
           `----`,
-          `Debt delta: ${debtDelta.toString()}`,
-          `Collateral delta: ${collateralDelta.toString()}`,
+          `Normalised debt delta: ${debtDelta.toString()}`,
+          `Normalised collateral delta: ${collateralDelta.toString()}`,
+          `Debt delta: ${this._denormaliseAmount(debtDelta, this.debt.precision).integerValue(
+            BigNumber.ROUND_DOWN,
+          )}`,
+          `Collateral delta: ${this._denormaliseAmount(
+            collateralDelta,
+            this.collateral.precision,
+          ).integerValue(BigNumber.ROUND_DOWN)}`,
           `----`,
           `Normalised source fee amount ${normalisedSourceFee.toFixed(0)}`,
           `Normalised target fee amount ${normalisedTargetFee.toFixed(0)}`,
@@ -507,7 +527,16 @@ export class Position implements IPosition {
 
     return {
       position: targetPosition,
-      delta: { debt: debtDelta, collateral: collateralDelta, flashloanAmount: amountToFlashloan },
+      delta: {
+        debt: this._denormaliseAmount(debtDelta, this.debt.precision).integerValue(
+          BigNumber.ROUND_DOWN,
+        ),
+        collateral: this._denormaliseAmount(
+          collateralDelta,
+          this.collateral.precision,
+        ).integerValue(BigNumber.ROUND_DOWN),
+        flashloanAmount: amountToFlashloan,
+      },
       swap: {
         fromTokenAmount,
         minToTokenAmount,

@@ -100,6 +100,7 @@ describe('OperationExecutor', () => {
       {
         targetHash: getServiceNameHash(CONTRACT_NAMES.aave.LENDING_POOL),
         callData: iface.encodeFunctionData('initialize', [suicideBombAddress, bombCall]),
+        skipped: false,
       },
     ]
 
@@ -112,7 +113,8 @@ describe('OperationExecutor', () => {
             takeAFlashLoan({
               flashloanAmount: new BigNumber(1),
               borrower: proxyAddress,
-              dsProxyFlashloan: false,
+              isProxyFlashloan: false,
+              isDPMProxy: false,
               calls: calls,
             }),
           ],

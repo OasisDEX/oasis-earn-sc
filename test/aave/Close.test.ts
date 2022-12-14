@@ -1,6 +1,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ADDRESSES, ONE, Position, strategies, ZERO } from '@oasisdex/oasis-actions'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
+import { PositionType } from '@oasisdex/oasis-actions/lib/src/strategies/types/PositionType'
 import { IPositionTransition } from '@oasisdex/oasis-actions/src'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
 import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
@@ -76,6 +77,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       mockMarketPriceOnClose: BigNumber,
       isFeeFromDebtToken: boolean,
       userAddress: Address,
+      positionType: PositionType,
       blockNumber?: number,
     ) {
       const _blockNumber = blockNumber || testBlockNumber
@@ -144,32 +146,22 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       const openPositionTransition = await strategies.aave.open(
         {
           depositedByUser: {
-            debtInWei: debtToken.depositOnOpenAmountInWei,
-            collateralInWei: collateralToken.depositOnOpenAmountInWei,
+            debtToken: { amountInBaseUnit: debtToken.depositOnOpenAmountInWei },
+            collateralToken: { amountInBaseUnit: collateralToken.depositOnOpenAmountInWei },
           },
           slippage,
           multiple,
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
           collateralToken: { symbol: collateralToken.symbol, precision: collateralToken.precision },
           collectSwapFeeFrom: isFeeFromDebtToken ? 'sourceToken' : 'targetToken',
+          positionType: 'Multiply',
         },
         {
           addresses,
           provider,
           getSwapData: oneInchCallMock(mockMarketPriceOnOpen),
-          proxy: system.common.dsProxy.address,
+          proxy,
           user: userAddress,
-          currentPosition: await strategies.aave.view(
-            {
-              proxy,
-              collateralToken,
-              debtToken,
-            },
-            {
-              addresses,
-              provider,
-            },
-          ),
         },
       )
 
@@ -253,7 +245,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             from: collateralToken.precision,
             to: debtToken.precision,
           }),
-          proxy: system.common.dsProxy.address,
+          proxy,
           user: userAddress,
         },
       )
@@ -380,6 +372,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           ONE.div(new BigNumber(0.9759)),
           true,
           userAddress,
+          'Earn',
         )
         system = setup.system
         txStatus = setup.txStatus
@@ -486,6 +479,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           ONE.div(new BigNumber(1351)),
           true,
           userAddress,
+          'Multiply',
         )
         system = setup.system
         txStatus = setup.txStatus
@@ -585,6 +579,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           ONE.div(new BigNumber(19829)),
           true,
           userAddress,
+          'Multiply',
           blockNumber,
         )
         system = setup.system
@@ -658,10 +653,10 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     })
   })
 
-  describe('Should close position with real oneInch', () => {
+  describe(`[1inch] Close Position: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
     const multiple = new BigNumber(2)
-    const slippage = new BigNumber(0.1)
-    const depositAmount = amountToWei(new BigNumber(1))
+    const slippage = new BigNumber(0.2)
+    const depositAmount = amountToWei(new BigNumber(20))
 
     let openTxStatus: boolean
     let txStatus: boolean
@@ -691,29 +686,19 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         const openPositionTransition = await strategies.aave.open(
           {
             depositedByUser: {
-              debtInWei: depositAmount,
+              debtToken: { amountInBaseUnit: depositAmount },
             },
             slippage,
             multiple,
             debtToken,
             collateralToken,
+            positionType: 'Multiply',
           },
           {
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address, ['ST_ETH']),
-            proxy: system.common.dsProxy.address,
-            currentPosition: await strategies.aave.view(
-              {
-                proxy,
-                collateralToken,
-                debtToken,
-              },
-              {
-                addresses,
-                provider,
-              },
-            ),
+            proxy,
             user: config.address,
           },
         )
@@ -827,6 +812,192 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
     it('Should withdraw all stEth tokens from aave', () => {
       expectToBe(new BigNumber(userStEthReserveData.currentATokenBalance.toString()), 'lte', ONE)
+    })
+  })
+
+  describe(`[1inch] Close Position: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
+    const multiple = new BigNumber(2)
+    const slippage = new BigNumber(0.2)
+    const USDCPrecision = 6
+    const wBTCPrecision = 8
+    const depositWBTCAmount = amountToWei(new BigNumber(1), wBTCPrecision)
+
+    let openTxStatus: boolean
+    let txStatus: boolean
+
+    let userWBTCReserveData: AAVEReserveData
+    let userUSDCReserveData: AAVEReserveData
+    let system: DeployedSystemInfo
+
+    before(async function () {
+      const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
+      if (shouldRun1InchTests) {
+        await resetNodeToLatestBlock(provider)
+
+        const { system: _system } = await deploySystem(config, false, false)
+        system = _system
+
+        const addresses = {
+          ...mainnetAddresses,
+          operationExecutor: system.common.operationExecutor.address,
+        }
+
+        const proxy = system.common.dsProxy.address
+        const debtToken = { symbol: tokens.USDC, precision: USDCPrecision }
+        const collateralToken = { symbol: tokens.WBTC, precision: wBTCPrecision }
+
+        await swapUniswapTokens(
+          ADDRESSES.main.WETH,
+          ADDRESSES.main.WBTC,
+          amountToWei(new BigNumber(100)).toFixed(0),
+          ONE.toFixed(0),
+          config.address,
+          config,
+        )
+
+        const COLL_TOKEN = new ethers.Contract(ADDRESSES.main.WBTC, ERC20ABI, provider)
+        await COLL_TOKEN.connect(signer).approve(
+          system.common.userProxyAddress,
+          depositWBTCAmount.toFixed(0),
+        )
+
+        const openPositionTransition = await strategies.aave.open(
+          {
+            depositedByUser: {
+              collateralToken: { amountInBaseUnit: depositWBTCAmount },
+            },
+            positionType: 'Multiply',
+            slippage,
+            multiple,
+            debtToken,
+            collateralToken,
+          },
+          {
+            addresses,
+            provider,
+            getSwapData: getOneInchCall(system.common.swap.address),
+            proxy,
+            user: config.address,
+          },
+        )
+
+        const [_openTxStatus] = await executeThroughProxy(
+          system.common.dsProxy.address,
+          {
+            address: system.common.operationExecutor.address,
+            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+              openPositionTransition.transaction.calls,
+              openPositionTransition.transaction.operationName,
+            ]),
+          },
+          signer,
+          '',
+        )
+        openTxStatus = _openTxStatus
+
+        const beforeCloseUserWBTCReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.WBTC,
+          system.common.dsProxy.address,
+        )
+
+        const beforeCloseUserUSDCReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.USDC,
+          system.common.dsProxy.address,
+        )
+
+        const wBTCAmount = new BigNumber(
+          beforeCloseUserWBTCReserveData.currentATokenBalance.toString(),
+        )
+
+        const aavePriceOracle = new ethers.Contract(
+          addresses.aavePriceOracle,
+          aavePriceOracleABI,
+          provider,
+        )
+
+        const aaveWBTCTokenPriceInEthOnOpen = await aavePriceOracle
+          .getAssetPrice(ADDRESSES.main.WBTC)
+          .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
+        const aaveUSDCTokenPriceInEthOnOpen = await aavePriceOracle
+          .getAssetPrice(ADDRESSES.main.USDC)
+          .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
+
+        const oracle = aaveWBTCTokenPriceInEthOnOpen.div(aaveUSDCTokenPriceInEthOnOpen)
+
+        const positionAfterOpen = new Position(
+          {
+            amount: new BigNumber(beforeCloseUserUSDCReserveData.currentVariableDebt.toString()),
+            precision: debtToken.precision,
+            symbol: tokens.USDC,
+          },
+          {
+            amount: new BigNumber(beforeCloseUserWBTCReserveData.currentATokenBalance.toString()),
+            precision: collateralToken.precision,
+            symbol: tokens.WBTC,
+          },
+          oracle,
+          openPositionTransition.simulation.position.category,
+        )
+
+        const positionTransition = await strategies.aave.close(
+          {
+            collateralToken,
+            debtToken,
+            slippage,
+            collateralAmountLockedInProtocolInWei: wBTCAmount,
+            // collectSwapFeeFrom: 'source',
+          },
+          {
+            addresses,
+            provider,
+            currentPosition: positionAfterOpen,
+            getSwapData: getOneInchCall(system.common.swap.address),
+            proxy: system.common.dsProxy.address,
+            user: config.address,
+          },
+        )
+
+        const [_closeTxStatus] = await executeThroughProxy(
+          system.common.dsProxy.address,
+          {
+            address: system.common.operationExecutor.address,
+            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+              positionTransition.transaction.calls,
+              positionTransition.transaction.operationName,
+            ]),
+          },
+          signer,
+          '0',
+        )
+        txStatus = _closeTxStatus
+
+        userWBTCReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.WBTC,
+          system.common.dsProxy.address,
+        )
+        userUSDCReserveData = await aaveDataProvider.getUserReserveData(
+          ADDRESSES.main.USDC,
+          system.common.dsProxy.address,
+        )
+      } else {
+        this.skip()
+      }
+    })
+
+    it('Open Tx should pass', () => {
+      expect(openTxStatus).to.be.true
+    })
+
+    it('Close Tx should pass', () => {
+      expect(txStatus).to.be.true
+    })
+
+    it('Should payback all debt', () => {
+      expectToBeEqual(new BigNumber(userUSDCReserveData.currentVariableDebt.toString()), ZERO)
+    })
+
+    it('Should withdraw all WBTC tokens from aave', () => {
+      expectToBe(new BigNumber(userWBTCReserveData.currentATokenBalance.toString()), 'lte', ONE)
     })
   })
 })

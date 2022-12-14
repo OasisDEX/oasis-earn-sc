@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
+import { ethers, providers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
@@ -7,19 +7,46 @@ import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
 import { Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
+import { ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../../operations/aave/tokens'
-import {
-  IPositionTransitionArgs,
-  IPositionTransitionDependencies,
-} from '../types/IPositionRepository'
+import { Address } from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
+import { PositionType } from '../types/PositionType'
+import { SwapData } from '../types/SwapData'
+import { getCurrentPosition } from './getCurrentPosition'
+
+interface OpenPositionArgs {
+  depositedByUser?: {
+    collateralToken?: { amountInBaseUnit: BigNumber }
+    debtToken?: { amountInBaseUnit: BigNumber }
+  }
+  multiple: BigNumber
+  slippage: BigNumber
+  positionType: PositionType
+  collateralToken: { symbol: AAVETokens; precision?: number }
+  debtToken: { symbol: AAVETokens; precision?: number }
+  collectSwapFeeFrom?: 'sourceToken' | 'targetToken'
+}
+
+interface OpenPositionDependencies {
+  addresses: AAVEStrategyAddresses
+  provider: providers.Provider
+  getSwapData: (
+    fromToken: string,
+    toToken: string,
+    amount: BigNumber,
+    slippage: BigNumber,
+  ) => Promise<SwapData>
+  proxy: Address
+  user: Address
+  isDPMProxy: boolean
+}
 
 export async function open(
-  args: IPositionTransitionArgs<AAVETokens>,
-  dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
+  args: OpenPositionArgs,
+  dependencies: OpenPositionDependencies,
 ): Promise<IPositionTransition> {
   const tokenAddresses = {
     WETH: dependencies.addresses.WETH,
@@ -42,7 +69,18 @@ export async function open(
    * It turned out that after opening and then closing a position there might be artifacts
    * Left in a position that make it difficult to re-open it
    */
-  const currentPosition = dependencies.currentPosition
+  const currentPosition = await getCurrentPosition(
+    {
+      collateralToken: args.collateralToken,
+      debtToken: args.debtToken,
+      proxy: dependencies.proxy,
+    },
+    {
+      addresses: dependencies.addresses,
+      provider: dependencies.provider,
+    },
+  )
+
   const aavePriceOracle = new ethers.Contract(
     dependencies.addresses.aavePriceOracle,
     aavePriceOracleABI,
@@ -57,7 +95,7 @@ export async function open(
 
   // Params
   const slippage = args.slippage
-  const estimatedSwapAmount = amountToWei(new BigNumber(1))
+  const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
 
   const [
     aaveFlashloanDaiPriceInEth,
@@ -90,8 +128,9 @@ export async function open(
   const FEE = 20
   const multiple = args.multiple
 
-  const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
-  const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
+  const depositDebtAmountInWei = args.depositedByUser?.debtToken?.amountInBaseUnit || ZERO
+  const depositCollateralAmountInWei =
+    args.depositedByUser?.collateralToken?.amountInBaseUnit || ZERO
 
   // Needs to be correct precision. First convert to base 18. Then divide
   const base18FromTokenAmount = amountToWei(
@@ -147,11 +186,6 @@ export async function open(
 
   const borrowAmountInWei = target.delta.debt.minus(depositDebtAmountInWei)
 
-  const precisionAdjustedBorrowAmount = amountToWei(
-    amountFromWei(borrowAmountInWei),
-    args.debtToken.precision || TYPICAL_PRECISION,
-  )
-
   const swapAmountBeforeFees = target.swap.fromTokenAmount
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
     collectFeeFrom === 'sourceToken' ? target.swap.tokenFee : ZERO,
@@ -177,31 +211,35 @@ export async function open(
     actualSwapBase18ToTokenAmount,
   )
 
-  const operation = await operations.aave.open(
-    {
-      depositCollateral: {
-        amountInWei: depositCollateralAmountInWei,
+  const operation = await operations.aave.open({
+    deposit: {
+      collateralToken: {
+        amountInBaseUnit: depositCollateralAmountInWei,
         isEth: args.collateralToken.symbol === 'ETH',
       },
-      depositDebtTokens: {
-        amountInWei: depositDebtAmountInWei, // Reduces amount of borrowing required
+      debtToken: {
+        amountInBaseUnit: depositDebtAmountInWei,
         isEth: args.debtToken.symbol === 'ETH',
       },
-      flashloanAmount: target.delta.flashloanAmount,
-      borrowAmountInWei: precisionAdjustedBorrowAmount, // This is the amount that should be correct precision
+    },
+    swapArgs: {
       fee: FEE,
       swapData: swapData.exchangeCalldata,
+      swapAmountInBaseUnit: swapAmountBeforeFees,
+      collectFeeFrom,
       receiveAtLeast: swapData.minToTokenAmount,
-      swapAmountInWei: swapAmountBeforeFees,
-      collectFeeFrom: collectFeeFrom,
-      collateralTokenAddress,
-      debtTokenAddress,
-      useFlashloan: target.flags.requiresFlashloan,
-      proxy: dependencies.proxy,
-      user: dependencies.user,
     },
-    dependencies.addresses,
-  )
+    positionType: args.positionType,
+    addresses: dependencies.addresses,
+    flashloanAmount: target.delta.flashloanAmount,
+    borrowAmountInBaseUnit: borrowAmountInWei,
+    collateralTokenAddress,
+    debtTokenAddress,
+    useFlashloan: target.flags.requiresFlashloan,
+    proxy: dependencies.proxy,
+    user: dependencies.user,
+    isDPMProxy: dependencies.isDPMProxy,
+  })
 
   // EG FROM WBTC 8 to USDC 6
   // Convert WBTC fromWei

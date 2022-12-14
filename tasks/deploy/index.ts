@@ -40,6 +40,7 @@ task(
       uSwapAddress,
       swapAddress,
       swapActionAddress,
+      positionCreatedAddress
     } = await deployCommonActions({ deploy, serviceRegistryAddress, config, debug: taskArgs.debug })
 
     const {
@@ -83,6 +84,7 @@ task(
         wrapActionAddress,
         unwrapActionAddress,
         returnFundsActionAddress,
+        positionCreatedAddress,
       },
       debug: taskArgs.debug,
     })
@@ -105,6 +107,7 @@ task(
       operationsRegistryAddress,
       config.signer,
     )
+
     await addAAVEOperationsToRegistry({
       operationsRegistry,
       hashes: {
@@ -120,6 +123,7 @@ task(
         wrapEthHash,
         unwrapEthHash,
         returnFundsHash,
+        positionCreatedHash,
       },
       debug: taskArgs.debug,
     })
@@ -176,8 +180,38 @@ async function deployCommonActions(args: {
   const [, unwrapActionAddress] = await deploy(CONTRACT_NAMES.common.UNWRAP_ETH, [
     serviceRegistryAddress,
   ])
-
+  const [, positionCreatedAddress] = await deploy(CONTRACT_NAMES.common.POSITION_CREATED, [])
   const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
+
+  return {
+    pullTokenActionAddress,
+    sendTokenAddress,
+    setApprovalAddress,
+    flActionAddress,
+    wrapActionAddress,
+    unwrapActionAddress,
+    returnFundsActionAddress,
+    positionCreatedAddress,
+  }
+}
+
+async function deployAaveActions(
+  deploy: DeployFunction,
+  serviceRegistryAddress: string,
+  config: RuntimeConfig,
+) {
+  const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
+    serviceRegistryAddress,
+  ])
+  const [, borrowFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.BORROW, [
+    serviceRegistryAddress,
+  ])
+  const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.WITHDRAW, [
+    serviceRegistryAddress,
+  ])
+  const [, actionPaybackFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.PAYBACK, [
+    serviceRegistryAddress,
+  ])
 
   const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
     config.address,
@@ -351,10 +385,11 @@ async function addCommonActionsToRegistry(args: {
     wrapActionAddress: string
     unwrapActionAddress: string
     returnFundsActionAddress: string
+    positionCreatedAddress: string
   }
   debug: boolean
 }) {
-  const { registry, addresses, debug } = args
+  const { registry, addresses, debug } = args 
   const pullTokenHash = await registry.addEntry(
     CONTRACT_NAMES.common.PULL_TOKEN,
     addresses.pullTokenActionAddress,
@@ -388,6 +423,11 @@ async function addCommonActionsToRegistry(args: {
     CONTRACT_NAMES.common.RETURN_FUNDS,
     addresses.returnFundsActionAddress,
   )
+  
+  const positionCreatedHash = await registry.addEntry(
+    CONTRACT_NAMES.common.POSITION_CREATED,
+    addresses.positionCreatedAddress,
+  )
 
   if (debug) {
     console.log('==== ==== ====')
@@ -417,6 +457,9 @@ async function addCommonActionsToRegistry(args: {
     console.log(
       `Service Registry Hash for contract: ${CONTRACT_NAMES.common.RETURN_FUNDS} is ${returnFundsHash}`,
     )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.POSITION_CREATED} is ${positionCreatedHash}`,
+    )
   }
 
   return {
@@ -428,6 +471,7 @@ async function addCommonActionsToRegistry(args: {
     wrapEthHash,
     unwrapEthHash,
     returnFundsHash,
+    positionCreatedHash,
   }
 }
 
@@ -503,6 +547,7 @@ async function addAAVEOperationsToRegistry(args: {
     wrapEthHash: string
     unwrapEthHash: string
     returnFundsHash: string
+    positionCreatedHash: string
   }
   debug: boolean
 }) {
@@ -519,6 +564,7 @@ async function addAAVEOperationsToRegistry(args: {
     wrapEthHash,
     unwrapEthHash,
     returnFundsHash,
+    positionCreatedHash,
   } = hashes
 
   const openPositionActions = [
@@ -566,6 +612,7 @@ async function addAAVEOperationsToRegistry(args: {
       hash: withdrawFromAAVEHash,
       optional: false,
     },
+    { hash: positionCreatedHash, optional: false },
   ]
   await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, openPositionActions)
 
@@ -691,10 +738,6 @@ async function addAAVEOperationsToRegistry(args: {
     },
     {
       hash: setApprovalHash,
-      optional: false,
-    },
-    {
-      hash: depositInAAVEHash,
       optional: false,
     },
     {

@@ -62,7 +62,8 @@ describe('TakeFlashloan Action', () => {
       [
         {
           amount: ensureWeiFormat(AMOUNT),
-          dsProxyFlashloan: true,
+          isProxyFlashloan: true,
+          isDPMProxy: false,
           calls: [sendBackDAI],
         },
         [0],
@@ -103,7 +104,8 @@ describe('TakeFlashloan Action', () => {
       [
         {
           amount: ensureWeiFormat(AMOUNT),
-          dsProxyFlashloan: true,
+          isProxyFlashloan: true,
+          isDPMProxy: false,
           calls: [sendBackDAI],
         },
         [0],
@@ -131,7 +133,8 @@ describe('TakeFlashloan Action', () => {
       [
         {
           amount: ensureWeiFormat(AMOUNT),
-          dsProxyFlashloan: true,
+          isProxyFlashloan: true,
+          isDPMProxy: false,
           calls: [],
         },
         [0],

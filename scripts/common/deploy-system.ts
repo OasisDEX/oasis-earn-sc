@@ -1,4 +1,3 @@
-import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 
 import {
@@ -30,6 +29,7 @@ import {
 import { AddressRegistry } from './addresses'
 import { HardhatUtils } from './hardhat.utils'
 import { Network } from './types'
+import { removeVersion } from './utils'
 
 export interface DeployedSystem {
   serviceRegistry: ServiceRegistry
@@ -84,7 +84,7 @@ export async function deploySystem({
   if (operationExecutor.address === ethers.constants.AddressZero) {
     if (logDebug) console.log('Deploying OperationExecutor....')
     operationExecutor = await utils.deployContract(
-      ethers.getContractFactory(CONTRACT_NAMES.common.OPERATION_EXECUTOR),
+      ethers.getContractFactory(removeVersion(CONTRACT_NAMES.common.OPERATION_EXECUTOR)),
       [serviceRegistry.address],
     )
   }

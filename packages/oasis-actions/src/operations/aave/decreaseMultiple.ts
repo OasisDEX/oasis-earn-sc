@@ -14,8 +14,8 @@ export async function decreaseMultiple(
     swapData: string | number
     swapAmountInWei: BigNumber
     collectFeeFrom: 'sourceToken' | 'targetToken'
-    collateralTokenAddress: string
-    debtTokenAddress: string
+    fromTokenAddress: string
+    toTokenAddress: string
     useFlashloan: boolean
     proxy: string
     user: string
@@ -37,13 +37,13 @@ export async function decreaseMultiple(
 
   const withdrawCollateralFromAAVE = actions.aave.aaveWithdraw({
     amount: args.withdrawAmountInWei,
-    asset: args.collateralTokenAddress,
+    asset: args.fromTokenAddress,
     to: args.proxy,
   })
 
   const swapCollateralTokensForDebtTokens = actions.common.swap({
-    fromAsset: args.collateralTokenAddress,
-    toAsset: args.debtTokenAddress,
+    fromAsset: args.fromTokenAddress,
+    toAsset: args.toTokenAddress,
     amount: args.swapAmountInWei,
     receiveAtLeast: args.receiveAtLeast,
     fee: args.fee,
@@ -54,7 +54,7 @@ export async function decreaseMultiple(
   const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
     {
       amount: 0,
-      asset: args.debtTokenAddress,
+      asset: args.toTokenAddress,
       delegate: addresses.aaveLendingPool,
       sumAmounts: false,
     },
@@ -63,7 +63,7 @@ export async function decreaseMultiple(
 
   const paybackInAAVE = actions.aave.aavePayback(
     {
-      asset: args.debtTokenAddress,
+      asset: args.toTokenAddress,
       amount: new BigNumber(0),
       paybackAll: false,
     },
@@ -89,7 +89,8 @@ export async function decreaseMultiple(
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
-    dsProxyFlashloan: true,
+    isProxyFlashloan: true,
+    isDPMProxy: false,
     calls: flashloanCalls,
   })
 

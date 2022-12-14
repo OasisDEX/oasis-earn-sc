@@ -25,7 +25,8 @@ contract TakeFlashloan is Executable, ProxyPermission {
 
   /**
    * @dev When the Flashloan lender calls back the Operation Executor we may need to re-establish the calling context.
-   * @dev The dsProxyFlashloan flag is used to give the Operation Executor temporary authority to call the execute method on a user's proxy
+   * @dev The isProxyFlashloan flag is used to give the Operation Executor temporary authority to call the execute method on a user"s proxy. Refers to any proxy wallet (DSProxy or DPMProxy at time of writing)
+   * @dev isDPMProxy flag switches between regular DSPRoxy and DPMProxy
    * @param data Encoded calldata that conforms to the FlashloanData struct
    */
   function execute(bytes calldata data, uint8[] memory) external payable override {
@@ -33,8 +34,8 @@ contract TakeFlashloan is Executable, ProxyPermission {
 
     address operationExecutorAddress = registry.getRegisteredService(OPERATION_EXECUTOR);
 
-    if (flData.dsProxyFlashloan) {
-      givePermission(operationExecutorAddress);
+    if (flData.isProxyFlashloan) {
+      givePermission(flData.isDPMProxy, operationExecutorAddress);
     }
 
     IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
@@ -44,8 +45,8 @@ contract TakeFlashloan is Executable, ProxyPermission {
       data
     );
 
-    if (flData.dsProxyFlashloan) {
-      removePermission(operationExecutorAddress);
+    if (flData.isProxyFlashloan) {
+      removePermission(flData.isDPMProxy, operationExecutorAddress);
     }
 
     emit Action(TAKE_FLASH_LOAN_ACTION, bytes(abi.encode(flData.amount)));

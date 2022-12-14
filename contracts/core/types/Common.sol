@@ -3,7 +3,8 @@ pragma solidity ^0.8.15;
 
 struct FlashloanData {
   uint256 amount;
-  bool dsProxyFlashloan;
+  bool isProxyFlashloan;
+  bool isDPMProxy;
   Call[] calls;
 }
 
@@ -57,4 +58,11 @@ struct UnwrapEthData {
 
 struct ReturnFundsData {
   address asset;
+}
+
+struct PositionCreatedData {
+  string protocol;
+  string positionType;
+  address collateralToken;
+  address debtToken;
 }
