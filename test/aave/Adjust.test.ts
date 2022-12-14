@@ -58,7 +58,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe('[Uniswap] Fallback tests', () => {
+  describe('On forked chain', () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
@@ -165,7 +165,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
           slippage,
           multiple,
-          positionType: positionType,
+          positionType: 'Earn',
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
           collateralToken: {
             symbol: collateralToken.symbol,
@@ -1214,7 +1214,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             addresses,
             provider,
-            getSwapData: getOneInchCall(system.common.swap.address),
+            getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
             user: config.address,
           },
@@ -1258,7 +1258,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             addresses,
             provider,
-            getSwapData: getOneInchCall(system.common.swap.address),
+            getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy,
             user: config.address,
             currentPosition: currentPositionBeforeAdjust,

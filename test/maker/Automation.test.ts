@@ -195,7 +195,8 @@ describe.skip(`Operations | Maker | Automation Integration`, async () => {
       [
         {
           amount: ensureWeiFormat(autoTestAmount),
-          dsProxyFlashloan: false,
+          isProxyFlashloan: false,
+          isDPMProxy: false,
           calls: [generateDaiAutomation, dummyAction, dummyAction],
         },
         [0, 0, 0, 0],

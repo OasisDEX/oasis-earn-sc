@@ -90,7 +90,8 @@ export async function close(
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
-    dsProxyFlashloan: true,
+    isProxyFlashloan: true,
+    isDPMProxy: false,
     calls: [
       setDaiApprovalOnLendingPool,
       depositDaiInAAVE,

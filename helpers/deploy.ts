@@ -70,3 +70,35 @@ export async function executeThroughProxy(
     return [false, result as ContractReceipt] // TODO:
   }
 }
+
+export async function executeThroughDPMProxy(
+  dpmProxyAddress: string,
+  { address, calldata }: Target,
+  signer: Signer,
+  value = '0',
+  hre?: HardhatRuntimeEnvironment,
+): Promise<[boolean, ContractReceipt]> {
+  try {
+    const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
+    const dpmProxy = await ethers.getContractAt('AccountImplementation', dpmProxyAddress, signer)
+
+    const tx = await (dpmProxy as any)['execute(address,bytes)'](address, calldata, {
+      gasLimit: 5000000,
+      value,
+    })
+
+    const result = await tx.wait()
+    return [true, result]
+  } catch (ex: any) {
+    console.error(ex)
+    console.log(typeof ex)
+    let result: Partial<ContractReceipt> = ex
+    if (ex?.name === 'ProviderError') {
+      result = {
+        status: 0,
+        transactionHash: ex.data.txHash,
+      }
+    }
+    return [false, result as ContractReceipt] // TODO:
+  }
+}

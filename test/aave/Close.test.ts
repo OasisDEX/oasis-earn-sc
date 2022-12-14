@@ -866,11 +866,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             depositedByUser: {
               collateralToken: { amountInBaseUnit: depositWBTCAmount },
             },
-            positionArgs: {
-              positionId: 123,
-              positionType: 'Multiply',
-              protocol: 'AAVE' as const,
-            },
+            positionType: 'Multiply',
             slippage,
             multiple,
             debtToken,
