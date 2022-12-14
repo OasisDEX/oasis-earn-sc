@@ -2,5 +2,5 @@
 pragma solidity >=0.8.15;
 
 interface IAccountImplementation {
-    function guard() external returns (address);
+  function guard() external returns (address);
 }

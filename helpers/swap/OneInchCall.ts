@@ -7,6 +7,13 @@ export const getOneInchCall =
   (swapAddress: string, protocols?: string[], debug?: true) =>
   async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
     const slippageAsPercentage = slippage.times(100).toString()
+    if (debug) {
+      console.log('1inch: Pre call')
+      console.log('from:', from)
+      console.log('to:', to)
+      console.log('amount:', amount.toString())
+      console.log('slippage', `${slippageAsPercentage.toString()}%`)
+    }
     const response = await swapOneInchTokens(
       from,
       to,
@@ -17,12 +24,9 @@ export const getOneInchCall =
     )
 
     if (debug) {
-      console.log('1inch')
-      console.log('from:', from)
-      console.log('to:', to)
-      console.log('fromTokenAmount', response.fromTokenAmount.toString())
-      console.log('toTokenAmount', response.toTokenAmount.toString())
-      console.log('slippage %', slippageAsPercentage.toString())
+      console.log('1inch: Post call')
+      console.log('fromTokenAmount', response?.fromTokenAmount.toString())
+      console.log('toTokenAmount', response?.toTokenAmount.toString())
     }
 
     return {
