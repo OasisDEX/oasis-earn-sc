@@ -1,3 +1,4 @@
+import { ADDRESSES } from '@oasisdex/oasis-actions'
 import { task } from 'hardhat/config'
 
 import { getAddressesFor } from '../../scripts/common/addresses'
@@ -28,75 +29,75 @@ task('verify-earn', 'Verifies Earn Contracts').setAction(async (_: any, hre) => 
   } = await getAddressesFor(network)
 
   const contracts = [
-    {
-      address: OPERATION_STORAGE,
-      constructorArguments: [SERVICE_REGISTRY, OPERATION_EXECUTOR],
-    },
-    {
-      address: OPERATION_EXECUTOR,
-      constructorArguments: [SERVICE_REGISTRY],
-    },
-    {
-      address: OPERATIONS_REGISTRY,
-      constructorArguments: [],
-    },
-    {
-      address: SWAP,
-      constructorArguments: [
-        ADDRESSES.main.authorizedCaller,
-        ADDRESSES.main.feeRecipient,
-        20,
-        SERVICE_REGISTRY,
-      ], // Doesn't really matter where we take authorizedCaller and feeRecipient from
-    },
-    {
-      address: PULL_TOKEN_ACTION,
-      constructorArguments: [],
-    },
-    {
-      address: SEND_TOKEN_ACTION,
-      constructorArguments: [],
-    },
-    {
-      address: SET_APPROVAL_ACTION,
-      constructorArguments: [SERVICE_REGISTRY],
-    },
-    {
-      address: SWAP_ACTION,
-      constructorArguments: [SERVICE_REGISTRY],
-    },
-    {
-      address: TAKE_FLASHLOAN_ACTION,
-      constructorArguments: [SERVICE_REGISTRY, DAI],
-    },
-    {
-      address: AAVE_BORROW_ACTION,
-      constructorArguments: [SERVICE_REGISTRY],
-    },
-    {
-      address: AAVE_DEPOSIT_ACTION,
-      constructorArguments: [SERVICE_REGISTRY],
-    },
-    {
-      address: AAVE_WITHDRAW_ACTION,
-      constructorArguments: [SERVICE_REGISTRY],
-    },
-    {
-      address: AAVE_PAYBACK_ACTION,
-      constructorArguments: [SERVICE_REGISTRY],
-    },
-    {
-      address: UNWRAP_ETH_ACTION,
-      constructorArguments: [SERVICE_REGISTRY],
-    },
-    {
-      address: WRAP_ETH_ACTION,
-      constructorArguments: [SERVICE_REGISTRY],
-    },
-    {
-      address: RETURN_FUNDS_ACTION,
-      constructorArguments: [],
-    },
+    // {
+    //   address: OPERATION_STORAGE,
+    //   constructorArguments: [SERVICE_REGISTRY, OPERATION_EXECUTOR],
+    // },
+    // {
+    //   address: OPERATION_EXECUTOR,
+    //   constructorArguments: [SERVICE_REGISTRY],
+    // },
+    // {
+    //   address: OPERATIONS_REGISTRY,
+    //   constructorArguments: [],
+    // },
+    // {
+    //   address: SWAP,
+    //   constructorArguments: [
+    //     ADDRESSES.main.authorizedCaller,
+    //     ADDRESSES.main.feeRecipient,
+    //     20,
+    //     SERVICE_REGISTRY,
+    //   ], // Doesn't really matter where we take authorizedCaller and feeRecipient from
+    // },
+    // {
+    //   address: PULL_TOKEN_ACTION,
+    //   constructorArguments: [],
+    // },
+    // {
+    //   address: SEND_TOKEN_ACTION,
+    //   constructorArguments: [],
+    // },
+    // {
+    //   address: SET_APPROVAL_ACTION,
+    //   constructorArguments: [SERVICE_REGISTRY],
+    // },
+    // {
+    //   address: SWAP_ACTION,
+    //   constructorArguments: [SERVICE_REGISTRY],
+    // },
+    // {
+    //   address: TAKE_FLASHLOAN_ACTION,
+    //   constructorArguments: [SERVICE_REGISTRY, DAI],
+    // },
+    // {
+    //   address: AAVE_BORROW_ACTION,
+    //   constructorArguments: [SERVICE_REGISTRY],
+    // },
+    // {
+    //   address: AAVE_DEPOSIT_ACTION,
+    //   constructorArguments: [SERVICE_REGISTRY],
+    // },
+    // {
+    //   address: AAVE_WITHDRAW_ACTION,
+    //   constructorArguments: [SERVICE_REGISTRY],
+    // },
+    // {
+    //   address: AAVE_PAYBACK_ACTION,
+    //   constructorArguments: [SERVICE_REGISTRY],
+    // },
+    // {
+    //   address: UNWRAP_ETH_ACTION,
+    //   constructorArguments: [SERVICE_REGISTRY],
+    // },
+    // {
+    //   address: WRAP_ETH_ACTION,
+    //   constructorArguments: [SERVICE_REGISTRY],
+    // },
+    // {
+    //   address: RETURN_FUNDS_ACTION,
+    //   constructorArguments: [],
+    // },
     {
       address: POSITION_CREATED_ACTION,
       constructorArguments: [],
