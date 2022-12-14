@@ -745,11 +745,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           {
             depositedByUser: { collateralToken: { amountInBaseUnit: depositEthAmount } },
             slippage,
-            positionArgs: {
-              positionId: 123,
-              positionType: 'Multiply',
-              protocol: 'AAVE',
-            },
+            positionType: 'Multiply',
             multiple,
             debtToken,
             collateralToken,
