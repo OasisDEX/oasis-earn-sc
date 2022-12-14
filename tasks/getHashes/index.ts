@@ -36,50 +36,50 @@ task('get-hashes', 'get Addresses hashes').setAction(async (_: any, hre) => {
     opExecutorHash,
   )
 
-  // const opStorageHash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.OPERATION_STORAGE))
-  // console.log(
-  //   'OPERATION_STORAGE',
-  //   OPERATION_STORAGE,
-  //   CONTRACT_NAMES.common.OPERATION_STORAGE,
-  //   opStorageHash,
-  // )
+  const opStorageHash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.OPERATION_STORAGE))
+  console.log(
+    'OPERATION_STORAGE',
+    OPERATION_STORAGE,
+    CONTRACT_NAMES.common.OPERATION_STORAGE,
+    opStorageHash,
+  )
 
-  // const opRegistryHash = utils.keccak256(
-  //   utils.toUtf8Bytes(CONTRACT_NAMES.common.OPERATIONS_REGISTRY),
-  // )
-  // console.log(
-  //   'OPERATIONS_REGISTRY',
-  //   OPERATIONS_REGISTRY,
-  //   CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
-  //   opRegistryHash,
-  // )
+  const opRegistryHash = utils.keccak256(
+    utils.toUtf8Bytes(CONTRACT_NAMES.common.OPERATIONS_REGISTRY),
+  )
+  console.log(
+    'OPERATIONS_REGISTRY',
+    OPERATIONS_REGISTRY,
+    CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
+    opRegistryHash,
+  )
 
-  // const pullTokenHash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.PULL_TOKEN))
-  // console.log(
-  //   'PULL_TOKEN_ACTION',
-  //   PULL_TOKEN_ACTION,
-  //   CONTRACT_NAMES.common.PULL_TOKEN,
-  //   pullTokenHash,
-  // )
+  const pullTokenHash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.PULL_TOKEN))
+  console.log(
+    'PULL_TOKEN_ACTION',
+    PULL_TOKEN_ACTION,
+    CONTRACT_NAMES.common.PULL_TOKEN,
+    pullTokenHash,
+  )
 
-  // const sendTokenHash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.SEND_TOKEN))
-  // console.log(
-  //   'SEND_TOKEN_ACTION',
-  //   SEND_TOKEN_ACTION,
-  //   CONTRACT_NAMES.common.SEND_TOKEN,
-  //   sendTokenHash,
-  // )
+  const sendTokenHash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.SEND_TOKEN))
+  console.log(
+    'SEND_TOKEN_ACTION',
+    SEND_TOKEN_ACTION,
+    CONTRACT_NAMES.common.SEND_TOKEN,
+    sendTokenHash,
+  )
 
-  // const setApprovalHash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.SET_APPROVAL))
-  // console.log(
-  //   'SET_APPROVAL_ACTION',
-  //   SET_APPROVAL_ACTION,
-  //   CONTRACT_NAMES.common.SET_APPROVAL,
-  //   setApprovalHash,
-  // )
+  const setApprovalHash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.SET_APPROVAL))
+  console.log(
+    'SET_APPROVAL_ACTION',
+    SET_APPROVAL_ACTION,
+    CONTRACT_NAMES.common.SET_APPROVAL,
+    setApprovalHash,
+  )
 
-  // const swapAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.SWAP_ACTION))
-  // console.log('SWAP_ACTION', SWAP_ACTION, CONTRACT_NAMES.common.SWAP_ACTION, swapAction)
+  const swapAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.SWAP_ACTION))
+  console.log('SWAP_ACTION', SWAP_ACTION, CONTRACT_NAMES.common.SWAP_ACTION, swapAction)
 
   const takeFlashloanAction = utils.keccak256(
     utils.toUtf8Bytes(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
