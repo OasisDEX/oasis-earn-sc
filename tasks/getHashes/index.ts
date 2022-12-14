@@ -101,54 +101,54 @@ task('get-hashes', 'get Addresses hashes').setAction(async (_: any, hre) => {
     positionCreatedAction,
   )
 
-  // const unwrapAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.UNWRAP_ETH))
-  // console.log(
-  //   'UNWRAP_ETH_ACTION',
-  //   UNWRAP_ETH_ACTION,
-  //   CONTRACT_NAMES.common.UNWRAP_ETH,
-  //   unwrapAction,
-  // )
+  const unwrapAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.UNWRAP_ETH))
+  console.log(
+    'UNWRAP_ETH_ACTION',
+    UNWRAP_ETH_ACTION,
+    CONTRACT_NAMES.common.UNWRAP_ETH,
+    unwrapAction,
+  )
 
-  // const wrapAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.WRAP_ETH))
-  // console.log('WRAP_ETH_ACTION', WRAP_ETH_ACTION, CONTRACT_NAMES.common.WRAP_ETH, wrapAction)
+  const wrapAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.WRAP_ETH))
+  console.log('WRAP_ETH_ACTION', WRAP_ETH_ACTION, CONTRACT_NAMES.common.WRAP_ETH, wrapAction)
 
-  // const returnFundsAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.RETURN_FUNDS))
-  // console.log(
-  //   'RETURN_FUNDS_ACTION',
-  //   RETURN_FUNDS_ACTION,
-  //   CONTRACT_NAMES.common.RETURN_FUNDS,
-  //   returnFundsAction,
-  // )
+  const returnFundsAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.common.RETURN_FUNDS))
+  console.log(
+    'RETURN_FUNDS_ACTION',
+    RETURN_FUNDS_ACTION,
+    CONTRACT_NAMES.common.RETURN_FUNDS,
+    returnFundsAction,
+  )
 
-  // const aaveBorrowAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.BORROW))
-  // console.log(
-  //   'AAVE_BORROW_ACTION',
-  //   AAVE_BORROW_ACTION,
-  //   CONTRACT_NAMES.aave.BORROW,
-  //   aaveBorrowAction,
-  // )
+  const aaveBorrowAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.BORROW))
+  console.log(
+    'AAVE_BORROW_ACTION',
+    AAVE_BORROW_ACTION,
+    CONTRACT_NAMES.aave.BORROW,
+    aaveBorrowAction,
+  )
 
-  // const aaveDepositAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.DEPOSIT))
-  // console.log(
-  //   'AAVE_DEPOSIT_ACTION',
-  //   AAVE_DEPOSIT_ACTION,
-  //   CONTRACT_NAMES.aave.DEPOSIT,
-  //   aaveDepositAction,
-  // )
+  const aaveDepositAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.DEPOSIT))
+  console.log(
+    'AAVE_DEPOSIT_ACTION',
+    AAVE_DEPOSIT_ACTION,
+    CONTRACT_NAMES.aave.DEPOSIT,
+    aaveDepositAction,
+  )
 
-  // const aaveWithdrawAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.WITHDRAW))
-  // console.log(
-  //   'AAVE_WITHDRAW_ACTION',
-  //   AAVE_WITHDRAW_ACTION,
-  //   CONTRACT_NAMES.aave.WITHDRAW,
-  //   aaveWithdrawAction,
-  // )
+  const aaveWithdrawAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.WITHDRAW))
+  console.log(
+    'AAVE_WITHDRAW_ACTION',
+    AAVE_WITHDRAW_ACTION,
+    CONTRACT_NAMES.aave.WITHDRAW,
+    aaveWithdrawAction,
+  )
 
-  // const aavePaybackAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.PAYBACK))
-  // console.log(
-  //   'AAVE_PAYBACK_ACTION',
-  //   AAVE_PAYBACK_ACTION,
-  //   CONTRACT_NAMES.aave.PAYBACK,
-  //   aavePaybackAction,
-  // )
+  const aavePaybackAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.PAYBACK))
+  console.log(
+    'AAVE_PAYBACK_ACTION',
+    AAVE_PAYBACK_ACTION,
+    CONTRACT_NAMES.aave.PAYBACK,
+    aavePaybackAction,
+  )
 })
