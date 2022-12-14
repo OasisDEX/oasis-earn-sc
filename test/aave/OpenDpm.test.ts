@@ -135,6 +135,7 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
       }
 
       const proxy = system.common.dpmProxyAddress
+
       const positionTransition = await strategies.aave.open(
         {
           depositedByUser: {
@@ -173,7 +174,7 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
       )
 
       const [txStatus, tx] = await executeThroughDPMProxy(
-        system.common.dsProxy.address,
+        proxy,
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
@@ -187,12 +188,12 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
 
       const userCollateralReserveData = await aaveDataProvider.getUserReserveData(
         collateralToken.address,
-        system.common.dsProxy.address,
+        proxy,
       )
 
       const userDebtReserveData = await aaveDataProvider.getUserReserveData(
         debtToken.address,
-        system.common.dsProxy.address,
+        proxy,
       )
 
       const aavePriceOracle = new ethers.Contract(

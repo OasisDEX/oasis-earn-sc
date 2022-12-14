@@ -116,7 +116,7 @@ describe(`Optional Actions`, async () => {
     it(`should add new operation succesfully`, async () => {
       const OP_NAME = 'TEST_OPERATION_2'
       await operationsRegistry.addOp(OP_NAME, [
-        { hash: Action1Hash, optional: false },
+        { hash: Action1Hash, optional: true },
         { hash: Action2Hash, optional: false },
         {
           hash: Action3Hash,

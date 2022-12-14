@@ -15,7 +15,7 @@ contract DummyAction is Executable, UseStore {
 
   constructor(address _registry) UseStore(_registry) {}
 
-  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
+  function execute(bytes calldata, uint8[] memory) external payable override {
     store().write(bytes32("123"));
     emit Action("DummyActionEvent", bytes(abi.encode("Mandatory")));
   }
