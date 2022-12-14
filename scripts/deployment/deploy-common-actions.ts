@@ -1,17 +1,7 @@
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 import hre from 'hardhat'
 
-import {
-  PullToken,
-  ReturnFunds,
-  SendToken,
-  SetApproval,
-  SwapAction,
-  TakeFlashloan,
-  UnwrapEth,
-  WrapEth,
-  PositionCreated
-} from '../../typechain'
+import { PositionCreated, TakeFlashloan } from '../../typechain'
 import { HardhatUtils, removeVersion } from '../common'
 
 // TODO: Make this as core deployment script:
@@ -79,7 +69,6 @@ async function main() {
   )) as PositionCreated
   console.log(`positionCreated action Deployed: ${system.positionCreated.address}`)
 }
-
 
 main().catch(error => {
   console.error(error)

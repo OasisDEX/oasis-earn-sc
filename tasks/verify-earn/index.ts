@@ -1,4 +1,3 @@
-import { ADDRESSES } from '@oasisdex/oasis-actions/src'
 import { task } from 'hardhat/config'
 
 import { getAddressesFor } from '../../scripts/common/addresses'
