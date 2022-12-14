@@ -98,7 +98,7 @@ export function takeAFlashLoan(args: {
         amount: args.flashloanAmount.toFixed(0),
         borrower: args.borrower,
         isProxyFlashloan: args.isProxyFlashloan,
-        isDPMProxy: false,
+        isDPMProxy: args.isDPMProxy,
         calls: args.calls,
       },
     ],
