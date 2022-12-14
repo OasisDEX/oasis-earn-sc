@@ -8,7 +8,7 @@ export const mainnetAAVEAddresses = {
   ETH: ADDRESSES.main.ETH,
   WETH: ADDRESSES.main.WETH,
   stETH: ADDRESSES.main.stETH,
-  wBTC: ADDRESSES.main.wBTC,
+  wBTC: ADDRESSES.main.WBTC,
   USDC: ADDRESSES.main.USDC,
   chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
   aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,

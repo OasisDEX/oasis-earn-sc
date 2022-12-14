@@ -397,7 +397,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       }
     }
 
-    describe(`Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+    describe(`Increase Multiple: With ${tokens.stETH} collateral & ${tokens.ETH} debt`, function () {
       const depositAmount = amountToWei(new BigNumber(1))
       const adjustMultipleUp = new BigNumber(3.5)
 

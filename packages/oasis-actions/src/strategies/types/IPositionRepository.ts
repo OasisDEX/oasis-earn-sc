@@ -2,9 +2,9 @@ import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
 import { IPosition } from '../../helpers/calculations/Position'
+import { TokenDef } from '../../operations/aave/tokens'
 import { SwapData } from './SwapData'
 
-type TokenDef<T> = { symbol: T; precision?: number }
 export interface IBasePositionTransitionArgs<Tokens> {
   slippage: BigNumber
   collateralToken: TokenDef<Tokens>
