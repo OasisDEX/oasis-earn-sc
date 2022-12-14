@@ -15,6 +15,7 @@ import {
   OperationExecutor,
   OperationsRegistry,
   OperationStorage,
+  PositionCreated,
   PullToken,
   ReturnFunds,
   SendToken,
@@ -25,7 +26,6 @@ import {
   TakeFlashloan,
   UnwrapEth,
   WrapEth,
-  PositionCreated,
 } from '../../typechain'
 import { AddressRegistry } from './addresses'
 import { HardhatUtils } from './hardhat.utils'
