@@ -2,6 +2,8 @@ import { BigNumber } from 'bignumber.js'
 
 export const TYPICAL_PRECISION = 18
 
+export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
+
 export const ZERO = new BigNumber(0)
 export const ONE = new BigNumber(1)
 export const TEN = new BigNumber(10)
