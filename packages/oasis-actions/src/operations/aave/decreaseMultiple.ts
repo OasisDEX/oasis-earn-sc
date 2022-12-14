@@ -89,7 +89,8 @@ export async function decreaseMultiple(
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
-    dsProxyFlashloan: true,
+    isProxyFlashloan: true,
+    isDPMProxy: false,
     calls: flashloanCalls,
   })
 

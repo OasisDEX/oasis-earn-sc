@@ -14,7 +14,7 @@ export const calldataTypes = {
     ReturnFunds: `tuple(address asset)`,
     PullToken: `tuple(address asset, address from, uint256 amount)`,
     PositionCreated: `tuple(string protocol, string positionType, address collateralToken, address debtToken)`,
-    TakeAFlashLoan: `tuple(uint256 amount, bool dsProxyFlashloan, (bytes32 targetHash, bytes callData, bool skipped)[] calls)`,
+    TakeAFlashLoan: `tuple(uint256 amount, bool isProxyFlashloan, bool isDPMProxy, (bytes32 targetHash, bytes callData, bool skipped)[] calls)`,
   },
   maker: {
     Open: `tuple(address joinAddress)`,
