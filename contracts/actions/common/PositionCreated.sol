@@ -35,7 +35,7 @@ contract PositionCreated is Executable {
     PositionCreatedData memory positionCreated = parseInputs(data);
 
     emit CreatePosition(
-      msg.sender,
+      address(this),
       positionCreated.protocol,
       positionCreated.positionType,
       positionCreated.collateralToken,
