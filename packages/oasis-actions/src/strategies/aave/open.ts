@@ -10,7 +10,7 @@ import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { AAVETokens } from '../../operations/aave/tokens'
+import { AAVETokens, TokenDef } from '../../operations/aave/tokens'
 import { Address } from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
 import { PositionType } from '../types/PositionType'
@@ -25,8 +25,8 @@ interface OpenPositionArgs {
   multiple: BigNumber
   slippage: BigNumber
   positionType: PositionType
-  collateralToken: { symbol: AAVETokens; precision?: number }
-  debtToken: { symbol: AAVETokens; precision?: number }
+  collateralToken: TokenDef<AAVETokens>
+  debtToken: TokenDef<AAVETokens>
   collectSwapFeeFrom?: 'sourceToken' | 'targetToken'
 }
 
