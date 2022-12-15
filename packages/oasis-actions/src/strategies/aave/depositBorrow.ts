@@ -124,6 +124,7 @@ export async function depositBorrow(
     .deposit(collateralDelta)
     .borrow(debtDelta)
 
+  console.log(JSON.stringify(operation.calls, null, 4))
   return {
     transaction: {
       calls: operation.calls,
@@ -152,7 +153,7 @@ export async function depositBorrow(
         targetToken: {
           symbol: '',
           precision: TYPICAL_PRECISION,
-        }
+        },
       },
       position: finalPosition,
       minConfigurableRiskRatio: new RiskRatio(ZERO, RiskRatio.TYPE.MULITPLE), // REMOVE IT

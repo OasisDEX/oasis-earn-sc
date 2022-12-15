@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
 import { ADDRESSES } from '../../helpers/addresses'
-import { OPERATION_NAMES } from '../../helpers/constants'
+import { OPERATION_NAMES, ZERO } from '../../helpers/constants'
 import { isDefined } from '../../helpers/isDefined'
 
 interface SwapArgs {
@@ -40,7 +40,12 @@ function getSwapCalls(
   ETH: string,
   WETH: string,
 ) {
-  const isSwapNeeded = depositToken !== entryToken
+  const sameTokens = depositToken.toLowerCase() === entryToken.toLowerCase()
+  const ethToWeth =
+    entryToken.toLowerCase() === ETH.toLowerCase() &&
+    depositToken.toLowerCase() === WETH.toLowerCase()
+
+  const isSwapNeeded = !(sameTokens || ethToWeth)
   const actualAssetToSwap = entryToken != ETH ? entryToken : WETH
 
   if (
@@ -62,7 +67,17 @@ function getSwapCalls(
       isSwapNeeded,
     }
   } else {
-    return { calls: [], isSwapNeeded }
+    const skippedCall = actions.common.swap({
+      fromAsset: '',
+      toAsset: '',
+      amount: ZERO,
+      receiveAtLeast: ZERO,
+      fee: 0,
+      withData: '',
+      collectFeeInFromToken: true,
+    })
+    skippedCall.skipped = true
+    return { calls: [skippedCall], isSwapNeeded }
   }
 }
 
@@ -74,20 +89,34 @@ export async function deposit({
   swapArgs,
 }: DepositArgs) {
   const isAssetEth = entryToken === ADDRESSES.main.ETH
+  console.log(`
 
-  const tokenTransferCalls = isAssetEth
-    ? [
-        actions.common.wrapEth({
-          amount,
-        }),
-      ]
-    : [
-        actions.common.pullToken({
-          amount,
-          asset: entryToken,
-          from: depositorAddress,
-        }),
-      ]
+  depositToken ${depositToken}
+  entryToken ${entryToken}
+  ETH ${ADDRESSES.main.ETH}
+  isAssetEth$ ${isAssetEth}
+
+  
+  `)
+
+  const tokenTransferCalls = [
+    actions.common.wrapEth({
+      amount,
+    }),
+    actions.common.pullToken({
+      amount,
+      asset: entryToken,
+      from: depositorAddress,
+    }),
+  ]
+
+  if (isAssetEth) {
+    //Asset IS eth
+    tokenTransferCalls[1].skipped = true
+  } else {
+    //Asset is NOT eth
+    tokenTransferCalls[0].skipped = true
+  }
 
   const { calls: swapCalls, isSwapNeeded } = getSwapCalls(
     depositToken,
@@ -98,13 +127,18 @@ export async function deposit({
     ADDRESSES.main.WETH,
   )
 
+  console.log(`
+    swapCalls" ${swapCalls.length}
+    isSwapNeeded ${isSwapNeeded}
+  `)
+
   return {
     calls: [
       ...tokenTransferCalls,
       ...swapCalls,
       actions.common.setApproval(
         {
-          asset: depositToken || entryToken,
+          asset: depositToken,
           delegate: ADDRESSES.main.aave.MainnetLendingPool,
           // Check the explanation about the deposit action.
           // This approval is about the amount that's going to be deposit in the following action
