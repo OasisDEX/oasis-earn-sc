@@ -4,7 +4,11 @@ import { Signer } from 'ethers'
 import DS_PROXY_REGISTRY_ABI from '../abi/ds-proxy-registry.json'
 import { HardhatEthers } from './types/common'
 
-export async function getOrCreateProxy(signer: Signer, ethers: HardhatEthers) {
+export async function getOrCreateProxy(signer: Signer, ethers: HardhatEthers, debug?: boolean) {
+  if (debug) {
+    console.log('==== ==== ====')
+    console.log('GETTING OR CREATING PROXY')
+  }
   const address = await signer.getAddress()
 
   const dsProxyRegistry = await ethers.getContractAt(

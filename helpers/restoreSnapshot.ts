@@ -1,6 +1,6 @@
 import { providers } from 'ethers'
 
-import { DeployedSystemInfo, deploySystem } from '../test/deploySystem'
+import { DeployedSystemInfo, deploySystem } from './_deploySystem'
 import { resetNode } from './init'
 import { ServiceRegistry } from './serviceRegistry'
 import { RuntimeConfig } from './types/common'

@@ -131,6 +131,10 @@ export async function loadDummyExchangeFixtures(
   dummyExchangeInstance: Contract,
   debug: boolean,
 ) {
+  if (debug) {
+    console.log('==== ==== ====')
+    console.log('LOAD DUMMY EXCHANGE FIXTURES')
+  }
   const tokens = [
     {
       name: 'WETH',

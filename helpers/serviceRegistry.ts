@@ -15,7 +15,6 @@ export class ServiceRegistry {
   }
 
   async addEntry(label: ContractNames, address: string, debug = false): Promise<string> {
-    console.log('Add Entry Provider: ', await this.ethers.provider.getNetwork())
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
     const registry = await this.ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     await registry.addNamedService(entryHash, address)

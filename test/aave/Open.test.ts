@@ -135,25 +135,25 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         signer,
       )
       await COLL_TOKEN.connect(signer).approve(
-        system.common.userProxyAddress,
+        system.user.dsProxyAddress,
         collateralToken.depositAmountInBasePrecision.toFixed(0),
       )
     }
     if (!debtToken.isEth) {
       const DEBT_TOKEN = new ethers.Contract(debtToken.address, ERC20ABI, provider).connect(signer)
       await DEBT_TOKEN.connect(signer).approve(
-        system.common.userProxyAddress,
+        system.user.dsProxyAddress,
         debtToken.depositAmountInBasePrecision.toFixed(0),
       )
     }
 
     const addresses = {
       ...mainnetAddresses,
-      operationExecutor: system.common.operationExecutor.address,
+      operationExecutor: system.core.operationExecutor.address,
     }
 
     /** Generate t/x calldata and simulate position transition */
-    const proxy = system.common.dsProxy.address
+    const proxy = system.user.dsProxy.address
     const collectSwapFeeFrom = scenario.takeFeeAsFromToken ? 'sourceToken' : 'targetToken'
     const positionTransition = await strategies.aave.open(
       {
@@ -196,10 +196,10 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       collateralToken.isEth ? collateralToken.depositAmountInBasePrecision : ZERO,
     )
     const [txStatus, tx] = await executeThroughProxy(
-      system.common.dsProxy.address,
+      system.user.dsProxy.address,
       {
-        address: system.common.operationExecutor.address,
-        calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+        address: system.core.operationExecutor.address,
+        calldata: system.core.operationExecutor.interface.encodeFunctionData('executeOp', [
           positionTransition.transaction.calls,
           positionTransition.transaction.operationName,
         ]),
@@ -213,11 +213,11 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     /** User reserves after opening */
     const userCollateralReserveDataAfterOpening = await aaveDataProvider.getUserReserveData(
       collateralToken.address,
-      system.common.dsProxy.address,
+      system.user.dsProxy.address,
     )
     const userDebtReserveDataAfterOpening = await aaveDataProvider.getUserReserveData(
       debtToken.address,
-      system.common.dsProxy.address,
+      system.user.dsProxy.address,
     )
 
     const aavePriceOracle = new ethers.Contract(

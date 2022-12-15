@@ -10,8 +10,6 @@ export type DeployFunction = (contractName: string, params?: any[]) => Promise<[
 export async function createDeploy({ config, debug }: DeployOptions): Promise<DeployFunction> {
   const ethers = config.ethers
 
-  console.log('Create Deploy Provider: ', await ethers.provider.send())
-
   return async (contractName: string, params: string[] = []): Promise<[Contract, string]> => {
     const contractNameWithVersionRemoved = removeVersion(contractName)
     const contractFactory = await ethers.getContractFactory(
