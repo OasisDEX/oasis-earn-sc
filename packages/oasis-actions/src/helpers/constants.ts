@@ -73,6 +73,7 @@ export const OPERATION_NAMES = {
     CLOSE_POSITION: 'CloseAAVEPosition',
     INCREASE_POSITION: 'IncreaseAAVEPosition',
     DECREASE_POSITION: 'DecreaseAAVEPosition',
+    DEPOSIT_BORROW: 'AAVEDepositBorrow',
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',

@@ -93,6 +93,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           positionType: 'Earn',
         },
         {
+          isDPMProxy: false,
           ...dependencies,
         },
       )
@@ -301,6 +302,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           positionType: 'Earn',
         },
         {
+          isDPMProxy: false,
           ...dependencies,
         },
       )
@@ -418,6 +420,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           positionType: 'Earn',
         },
         {
+          isDPMProxy: false,
           ...dependencies,
         },
       )

@@ -18,6 +18,6 @@ export async function depositBorrow(
 
   return {
     calls: operationCalls,
-    operationName: OPERATION_NAMES.common.CUSTOM_OPERATION,
+    operationName: OPERATION_NAMES.aave.DEPOSIT_BORROW,
   }
 }
