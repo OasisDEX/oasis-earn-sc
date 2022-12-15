@@ -183,7 +183,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           }),
           proxy,
           user: user,
-          isDPMProxy: false,
         },
       )
 
@@ -279,6 +278,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           collectSwapFeeFrom: isFeeFromSourceTokenOnAdjust ? 'sourceToken' : 'targetToken',
         },
         {
+          isDPMProxy: false,
           addresses,
           provider,
           currentPosition: positionAfterOpen,
@@ -784,7 +784,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
             user: config.address,
-            isDPMProxy: false,
           },
         )
 
@@ -826,6 +825,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             collectSwapFeeFrom: 'sourceToken',
           },
           {
+            isDPMProxy: false,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
@@ -1006,7 +1006,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
             user: config.address,
-            isDPMProxy: false,
           },
         )
 
@@ -1046,6 +1045,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             collectSwapFeeFrom: 'targetToken',
           },
           {
+            isDPMProxy: false,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
@@ -1224,7 +1224,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
             user: config.address,
-            isDPMProxy: false,
           },
         )
 
@@ -1264,6 +1263,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             // collectSwapFeeFrom: 'targetToken',
           },
           {
+            isDPMProxy: false,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
