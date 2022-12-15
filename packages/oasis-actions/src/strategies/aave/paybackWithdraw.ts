@@ -41,30 +41,35 @@ export async function paybackWithdraw(
   ])
 
   const transaction = await operations.aave.paybackWithdraw({
-    amountCollateralToWithdrawInWei: args.collateralAmountWithdrawnFromProtocolInWei,
-    amountDebtToPaybackInWei: args.debtAmountToPaybackInWei,
+    amountCollateralToWithdrawInBaseUnit: args.amountCollateralToWithdrawInBaseUnit,
+    amountDebtToPaybackInBaseUnit: args.amountDebtToPaybackInBaseUnit,
     collateralTokenAddress: collateralTokenAddress,
     debtTokenAddress: debtTokenAddress,
     collateralIsEth: currentPosition.collateral.symbol === 'ETH',
     debtTokenIsEth: currentPosition.debt.symbol === 'ETH',
     proxy: dependencies.proxy,
+    user: dependencies.user,
     addresses: dependencies.addresses,
   })
 
   const finalPosition = new Position(
     {
-      amount: currentPosition.debt.amount.plus(args.debtAmountToPaybackInWei),
+      amount: currentPosition.debt.amount.minus(args.amountDebtToPaybackInBaseUnit),
       symbol: currentPosition.debt.symbol,
     },
     {
-      amount: currentPosition.collateral.amount.minus(
-        args.collateralAmountWithdrawnFromProtocolInWei,
-      ),
+      amount: currentPosition.collateral.amount.plus(args.amountCollateralToWithdrawInBaseUnit),
       symbol: currentPosition.collateral.symbol,
     },
     aaveCollateralTokenPriceInEth,
     currentPosition.category,
   )
+
+  console.log('IM HERE')
+
+  console.log('paybackdebt', args.amountDebtToPaybackInBaseUnit.toString())
+  console.log('currentPosition', currentPosition.debt.amount.toString())
+  console.log('finalPosition', finalPosition.debt.amount.toString())
 
   const flags = {
     requiresFlashloan: false,
@@ -75,9 +80,9 @@ export async function paybackWithdraw(
     transaction: transaction,
     simulation: {
       delta: {
-        debt: currentPosition.debt.amount.plus(args.debtAmountToPaybackInWei),
+        debt: currentPosition.debt.amount.plus(args.amountDebtToPaybackInBaseUnit),
         collateral: currentPosition.collateral.amount.minus(
-          args.collateralAmountWithdrawnFromProtocolInWei,
+          args.amountCollateralToWithdrawInBaseUnit,
         ),
         flashloanAmount: ZERO,
       },

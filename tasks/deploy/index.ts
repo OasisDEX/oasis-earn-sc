@@ -803,11 +803,15 @@ async function addAAVEOperationsToRegistry(args: {
 
   await operationsRegistry.addOp(OPERATION_NAMES.aave.PAYBACK_WITHDRAW, [
     {
-      hash: wrapEthHash,
+      hash: pullTokenHash,
       optional: true,
     },
     {
       hash: setApprovalHash,
+      optional: true,
+    },
+    {
+      hash: wrapEthHash,
       optional: true,
     },
     {

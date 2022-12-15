@@ -2,35 +2,42 @@ import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
 import { ADDRESSES } from '../../helpers/addresses'
-import { MAX_UINT, OPERATION_NAMES } from '../../helpers/constants'
+import { MAX_UINT, OPERATION_NAMES, ZERO } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
 
 export async function paybackWithdraw(args: {
-  amountCollateralToWithdrawInWei: BigNumber
-  amountDebtToPaybackInWei: BigNumber
+  amountCollateralToWithdrawInBaseUnit: BigNumber
+  amountDebtToPaybackInBaseUnit: BigNumber
   collateralTokenAddress: string
   collateralIsEth: boolean
   debtTokenAddress: string
   debtTokenIsEth: boolean
   proxy: string
+  user: string
   addresses: AAVEStrategyAddresses
 }): Promise<IOperation> {
-  const setApproval = actions.common.setApproval({
-    amount: args.amountDebtToPaybackInWei,
+  const pullDebtTokensToProxy = actions.common.pullToken({
+    asset: args.debtTokenAddress,
+    amount: args.amountDebtToPaybackInBaseUnit,
+    from: args.user,
+  })
+
+  const setDebtApprovalOnLendingPool = actions.common.setApproval({
+    amount: args.amountDebtToPaybackInBaseUnit,
     asset: args.debtTokenAddress,
     delegate: args.addresses.aaveLendingPool,
     sumAmounts: false,
   })
   const paybackDebt = actions.aave.aavePayback({
     asset: args.debtTokenAddress,
-    amount: args.amountDebtToPaybackInWei,
+    amount: args.amountDebtToPaybackInBaseUnit,
     paybackAll: false,
   })
 
   const withdrawCollateralFromAAVE = actions.aave.aaveWithdraw({
     asset: args.collateralTokenAddress,
-    amount: args.amountCollateralToWithdrawInWei,
+    amount: args.amountCollateralToWithdrawInBaseUnit,
     to: args.proxy,
   })
 
@@ -38,27 +45,32 @@ export async function paybackWithdraw(args: {
     asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
   })
   const wrapEth = actions.common.wrapEth({
-    amount: args.amountDebtToPaybackInWei,
+    amount: args.amountDebtToPaybackInBaseUnit,
   })
 
   const unwrapEth = actions.common.unwrapEth({
     amount: new BigNumber(MAX_UINT),
   })
 
-  wrapEth.skipped = !args.debtTokenIsEth
-  unwrapEth.skipped = !args.collateralIsEth
+  pullDebtTokensToProxy.skipped =
+    args.amountDebtToPaybackInBaseUnit.lte(ZERO) || args.debtTokenIsEth
+  setDebtApprovalOnLendingPool.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
+  paybackDebt.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
+  wrapEth.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !args.debtTokenIsEth
 
-  const calls = []
-  if (args.amountDebtToPaybackInWei.gt(0)) {
-    calls.push(wrapEth)
-    calls.push(setApproval)
-    calls.push(paybackDebt)
-  }
-  if (args.amountCollateralToWithdrawInWei.gt(0)) {
-    calls.push(withdrawCollateralFromAAVE)
-    calls.push(unwrapEth)
-    calls.push(returnCollateralFunds)
-  }
+  withdrawCollateralFromAAVE.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
+  unwrapEth.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !args.collateralIsEth
+  returnCollateralFunds.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
+
+  const calls = [
+    pullDebtTokensToProxy,
+    setDebtApprovalOnLendingPool,
+    wrapEth,
+    paybackDebt,
+    withdrawCollateralFromAAVE,
+    unwrapEth,
+    returnCollateralFunds,
+  ]
 
   return { calls: calls, operationName: OPERATION_NAMES.aave.PAYBACK_WITHDRAW }
 }
