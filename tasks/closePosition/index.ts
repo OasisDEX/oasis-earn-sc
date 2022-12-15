@@ -151,6 +151,7 @@ task('closePosition', 'Close stETH position on AAVE')
         getSwapData: swapData,
         proxy: dsProxy.address,
         user: config.address,
+        isDPMProxy: false,
       },
     )
 
