@@ -32,7 +32,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
   let dependencies: Pick<
     Parameters<typeof strategies.aave.open>[1],
-    'proxy' | 'provider' | 'addresses' | 'getSwapData' | 'user'
+    'proxy' | 'provider' | 'addresses' | 'getSwapData' | 'user' | 'isDPMProxy'
   >
   let operationExecutor: Contract
 
@@ -64,6 +64,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         getSwapData: oneInchCallMock(new BigNumber(0.9759)),
         proxy: system.common.dsProxy.address,
         user: config.address,
+        isDPMProxy: false,
       }
     })
 
@@ -270,6 +271,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           getSwapData: getOneInchCall(system.common.swap.address),
           proxy: system.common.dsProxy.address,
           user: config.address,
+          isDPMProxy: false,
         }
       } else {
         this.skip()

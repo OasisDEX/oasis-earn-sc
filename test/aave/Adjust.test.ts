@@ -287,6 +287,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           }),
           proxy: system.common.dsProxy.address,
           user: user,
+          isDPMProxy: false,
         },
       )
 
@@ -830,6 +831,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             proxy,
             user: config.address,
             currentPosition: currentPositionBeforeAdjust,
+            isDPMProxy: false,
           },
         )
 
@@ -1049,6 +1051,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             proxy,
             user: config.address,
             currentPosition: currentPositionBeforeAdjust,
+            isDPMProxy: false,
           },
         )
 
@@ -1266,6 +1269,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             proxy,
             user: config.address,
             currentPosition: currentPositionBeforeAdjust,
+            isDPMProxy: false,
           },
         )
 
