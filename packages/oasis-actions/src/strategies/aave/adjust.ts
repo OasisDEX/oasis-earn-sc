@@ -314,6 +314,7 @@ async function _increaseRisk({
       toTokenAddress,
       proxy: dependencies.proxy,
       user: dependencies.user,
+      isDPMProxy: dependencies.isDPMProxy,
     },
     dependencies.addresses,
   )
@@ -424,6 +425,7 @@ async function _decreaseRisk({
       useFlashloan,
       proxy: dependencies.proxy,
       user: dependencies.user,
+      isDPMProxy: dependencies.isDPMProxy,
     },
     dependencies.addresses,
   )

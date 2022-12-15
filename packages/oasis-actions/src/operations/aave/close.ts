@@ -19,6 +19,7 @@ export async function close(
     collateralIsEth: boolean
     debtTokenAddress: string
     debtTokenIsEth: boolean
+    isDPMProxy: boolean
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
@@ -91,7 +92,7 @@ export async function close(
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
     isProxyFlashloan: true,
-    isDPMProxy: false,
+    isDPMProxy: args.isDPMProxy,
     calls: [
       setDaiApprovalOnLendingPool,
       depositDaiInAAVE,
@@ -106,5 +107,5 @@ export async function close(
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.CLOSE_POSITION }
+  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.common.CUSTOM_OPERATION }
 }

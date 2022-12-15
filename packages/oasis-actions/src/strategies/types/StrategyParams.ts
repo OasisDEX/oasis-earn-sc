@@ -56,6 +56,7 @@ export interface IPositionTransitionDependencies<Addresses> {
   ) => Promise<SwapData>
   proxy: Address
   user: Address
+  isDPMProxy: boolean
 }
 
 export interface IViewPositionDependencies<Addresses> {
