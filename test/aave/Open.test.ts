@@ -78,11 +78,13 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     userAddress,
     isDPMProxy,
     gasHelper,
+    useFallbackSwap,
   }: {
     scenario: OpenPositionScenario
     userAddress: Address
     isDPMProxy: boolean
     gasHelper: GasEstimateHelper
+    useFallbackSwap: boolean
   }) {
     const { collateralToken, debtToken } = scenario
     const fromToken = debtToken
@@ -92,7 +94,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       config,
       provider,
       blockNumber: testBlockNumber,
-      useFallbackSwap: true,
+      useFallbackSwap,
     })
     const system = snapshot.deployed.system
 
@@ -375,6 +377,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           userAddress,
           isDPMProxy: false,
           gasHelper,
+          useFallbackSwap: true,
         }))
 
         gasHelper.save(tx)
@@ -448,6 +451,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           userAddress,
           isDPMProxy: false,
           gasHelper,
+          useFallbackSwap: true,
         }))
 
         gasHelper.save(tx)
@@ -524,6 +528,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           userAddress,
           isDPMProxy: false,
           gasHelper,
+          useFallbackSwap: true,
         }))
 
         gasHelper.save(tx)
@@ -600,6 +605,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           userAddress,
           isDPMProxy: false,
           gasHelper,
+          useFallbackSwap: true,
         }))
 
         gasHelper.save(tx)
@@ -731,6 +737,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           userAddress,
           isDPMProxy: false,
           gasHelper,
+          useFallbackSwap: false,
         }))
 
         gasHelper.save(tx)
@@ -806,6 +813,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           userAddress,
           isDPMProxy: false,
           gasHelper,
+          useFallbackSwap: false,
         }))
 
         gasHelper.save(tx)
@@ -816,10 +824,13 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
 
       it('Should draw debt according to multiple', function () {
-        expectToBeEqual(
-          positionTransition.simulation.position.debt.amount.toFixed(0),
-          new BigNumber(userUSDCReserveData.currentVariableDebt.toString()),
-        )
+        const userUSDCReserve = new BigNumber(userUSDCReserveData.currentVariableDebt.toString())
+
+        expect(positionTransition.simulation.position.debt.amount.toFixed(0)).to.be.oneOf([
+          new BigNumber(userUSDCReserve.toString()).plus(ONE).toFixed(0),
+          new BigNumber(userUSDCReserve.toString()).toFixed(0),
+          new BigNumber(userUSDCReserve.toString()).minus(ONE).toFixed(0),
+        ])
       })
 
       it(`Should deposit all ${tokens.ETH} tokens to aave`, function () {
