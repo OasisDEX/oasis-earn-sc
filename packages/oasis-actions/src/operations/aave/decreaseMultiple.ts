@@ -19,6 +19,7 @@ export async function decreaseMultiple(
     useFlashloan: boolean
     proxy: string
     user: string
+    isDPMProxy: boolean
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
@@ -90,7 +91,7 @@ export async function decreaseMultiple(
     flashloanAmount: args.flashloanAmount,
     borrower: addresses.operationExecutor,
     isProxyFlashloan: true,
-    isDPMProxy: false,
+    isDPMProxy: args.isDPMProxy,
     calls: flashloanCalls,
   })
 
