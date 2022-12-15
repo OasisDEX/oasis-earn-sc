@@ -7,7 +7,7 @@ import fetch from 'node-fetch'
 import { curry } from 'ramda'
 
 import WETHABI from '../../abi/IWETH.json'
-import { OneInchBaseResponse } from '../types/common'
+import { HardhatEthers, OneInchBaseResponse } from '../types/common'
 import { amountFromWei, amountToWei, balanceOf, send } from '../utils'
 import { swapUniswapTokens } from './uniswap'
 
@@ -61,6 +61,7 @@ async function exchangeToToken(provider: JsonRpcProvider, signer: Signer, token:
 const addFundsDummyExchange = async function (
   provider: JsonRpcProvider,
   signer: Signer,
+  ethers: HardhatEthers,
   weth: string, // TODO: remove
   erc20Tokens: ERC20TokenData[], // TODO:
   exchange: Contract,
@@ -88,7 +89,7 @@ const addFundsDummyExchange = async function (
   await Promise.all(erc20Tokens.map(token => exchangeToTokenCurried(token)))
 
   const options = {
-    config: { provider, signer, address },
+    config: { provider, signer, address, ethers },
   }
 
   // Transfer half of the accounts balance of each token to the dummy exchange.
@@ -161,6 +162,7 @@ export async function loadDummyExchangeFixtures(
   await addFundsDummyExchange(
     provider,
     signer,
+    ethers,
     ADDRESSES.main.WETH,
     tokens.filter(
       token => token.address !== ADDRESSES.main.WETH && token.address !== ADDRESSES.main.stETH,

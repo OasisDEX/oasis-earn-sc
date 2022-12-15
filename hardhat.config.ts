@@ -78,7 +78,7 @@ const config: HardhatUserConfig = {
       },
       hardfork: 'london',
       gas: 'auto',
-      initialBaseFeePerGas: 1000000000,
+      // initialBaseFeePerGas: 1000000000,
       allowUnlimitedContractSize: true,
     },
     goerli: {

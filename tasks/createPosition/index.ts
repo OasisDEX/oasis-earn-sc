@@ -91,9 +91,9 @@ task('createPosition', 'Create stETH position on AAVE')
       config.provider,
     )
 
-    const proxyAddress = await getOrCreateProxy(config.signer)
+    const proxyAddress = await getOrCreateProxy(config.signer, config.ethers)
 
-    const dsProxy = new hre.ethers.Contract(proxyAddress, DSProxyABI, config.provider).connect(
+    const dsProxy = new config.ethers.Contract(proxyAddress, DSProxyABI, config.provider).connect(
       config.signer,
     )
 
@@ -151,7 +151,7 @@ task('createPosition', 'Create stETH position on AAVE')
       },
       config.signer,
       depositAmount.toFixed(0),
-      hre,
+      config.ethers,
     )
 
     const userAccountData: AAVEAccountData = await aaveLendingPool.getUserAccountData(
@@ -162,22 +162,15 @@ task('createPosition', 'Create stETH position on AAVE')
       dsProxy.address,
     )
 
-    const proxyStEthBalance = await balanceOf(
-      ADDRESSES.main.stETH,
-      dsProxy.address,
-      {
-        config,
-        isFormatted: true,
-      },
-      hre,
-    )
+    const proxyStEthBalance = await balanceOf(ADDRESSES.main.stETH, dsProxy.address, {
+      config,
+      isFormatted: true,
+    })
 
-    const proxyEthBalance = await balanceOf(
-      ADDRESSES.main.ETH,
-      dsProxy.address,
-      { config, isFormatted: true },
-      hre,
-    )
+    const proxyEthBalance = await balanceOf(ADDRESSES.main.ETH, dsProxy.address, {
+      config,
+      isFormatted: true,
+    })
 
     console.log('userAccountData', userAccountData.totalDebtETH.toString())
     console.log('userStEthReserveData', userStEthReserveData.currentATokenBalance.toString())

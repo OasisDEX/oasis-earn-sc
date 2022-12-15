@@ -1,22 +1,20 @@
 import { ADDRESSES, ONE, TEN } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
-import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { isError, tryF } from 'ts-try'
 
 import CTOKEN_ABI from '../abi/CErc20.json'
 import IERC20_ABI from '../abi/IERC20.json'
-import { BalanceOptions, RuntimeConfig } from './types/common'
+import { BalanceOptions, HardhatEthers, RuntimeConfig } from './types/common'
 
 export async function balanceOf(
   asset: string,
   address: string,
   options: BalanceOptions,
-  hre?: HardhatRuntimeEnvironment,
 ): Promise<BigNumber> {
   let balance = undefined
   const { provider, signer } = options.config
-  const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
+  const ethers = options.config.ethers
   if (asset === ADDRESSES.main.ETH) {
     balance = await provider.getBalance(address)
   } else {
@@ -40,10 +38,9 @@ export async function balanceOfUnderlying(
   asset: string,
   address: string,
   options: BalanceOptions,
-  hre?: HardhatRuntimeEnvironment,
 ): Promise<string> {
   const { signer } = options.config
-  const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
+  const ethers = options.config.ethers
   const CERC20Asset = new ethers.Contract(asset, CTOKEN_ABI, signer)
   const balance = await CERC20Asset.callStatic.balanceOfUnderlying(address)
   const decimals = options.decimals ? options.decimals : 18
@@ -64,9 +61,8 @@ export async function approve(
   amount: BigNumber,
   config: RuntimeConfig,
   debug?: boolean,
-  hre?: HardhatRuntimeEnvironment,
 ) {
-  const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
+  const ethers = config.ethers
   const instance = new ethers.Contract(asset, IERC20_ABI, config.signer)
   await instance.approve(spender, amount.toString(), {
     gasLimit: 3000000,
@@ -81,10 +77,9 @@ export async function send(
   to: string,
   tokenAddr: string,
   amount: string,
+  ethers: HardhatEthers,
   signer?: Signer,
-  hre?: HardhatRuntimeEnvironment,
 ) {
-  const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
   if (to === ADDRESSES.main.ETH) {
     const tx = await signer?.sendTransaction({
       from: await signer.getAddress(),

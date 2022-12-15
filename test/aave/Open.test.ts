@@ -26,7 +26,7 @@ import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
-import { RuntimeConfig } from '../../helpers/types/common'
+import { HardhatEthers, RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
@@ -41,12 +41,13 @@ describe(`Strategy | AAVE | Open Position`, async function () {
   let config: RuntimeConfig
   let signer: Signer
   let userAddress: Address
+  let ethers: HardhatEthers
 
   const defaultSlippage = new BigNumber(0.1)
   const USDCPrecision = 6
   const WBTCPrecision = 8
   before(async function () {
-    ;({ config, provider, signer, address: userAddress } = await initialiseConfig())
+    ;({ config, provider, signer, address: userAddress, ethers } = await initialiseConfig())
 
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
@@ -95,6 +96,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       provider,
       blockNumber: testBlockNumber,
       useFallbackSwap,
+      debug: true,
     })
     const system = snapshot.deployed.system
 
@@ -204,6 +206,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       },
       signer,
       ethDepositAmt.toFixed(0),
+      config.ethers,
     )
     gasHelper.save(tx)
 
@@ -427,7 +430,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         gasHelper.print()
       })
     })
-    describe(`With ${tokens.ETH} collateral (+dep) & ${tokens.USDC} debt`, function () {
+    describe.skip(`With ${tokens.ETH} collateral (+dep) & ${tokens.USDC} debt`, function () {
       gasHelper = gasEstimateHelper()
       let userWethReserveData: AAVEReserveData
       let userUSDCReserveData: AAVEReserveData
@@ -504,7 +507,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         gasHelper.print()
       })
     })
-    describe(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
+    describe.skip(`With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, function () {
       gasHelper = gasEstimateHelper()
       let userWBTCReserveData: AAVEReserveData
       let userUSDCReserveData: AAVEReserveData
@@ -581,7 +584,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         gasHelper.print()
       })
     })
-    describe(`With ${tokens.WBTC} collateral (+take fee from coll) & ${tokens.USDC} debt`, function () {
+    describe.skip(`With ${tokens.WBTC} collateral (+take fee from coll) & ${tokens.USDC} debt`, function () {
       gasHelper = gasEstimateHelper()
       let userWBTCReserveData: AAVEReserveData
       let userUSDCReserveData: AAVEReserveData
@@ -661,7 +664,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     })
   })
 
-  describe('Open Position: With [1inch] Swap', function () {
+  describe.skip('Open Position: With [1inch] Swap', function () {
     /** Slippages are between 0 and 1. So, 0.1 === 10% slippage */
     const scenarios: Record<string, OpenPositionScenario> = {
       [`${tokens.STETH}:${tokens.ETH}`]: {

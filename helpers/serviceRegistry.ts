@@ -1,19 +1,23 @@
 import { ContractNames } from '@oasisdex/oasis-actions'
 import { Signer, utils } from 'ethers'
 
+import { HardhatEthers } from './types/common'
+
 export class ServiceRegistry {
   address: string
   signer: Signer
+  ethers: HardhatEthers
 
-  constructor(address: string, signer: Signer) {
+  constructor(address: string, signer: Signer, ethers: HardhatEthers) {
     this.address = address
     this.signer = signer
+    this.ethers = ethers
   }
 
   async addEntry(label: ContractNames, address: string, debug = false): Promise<string> {
-    const ethers = (await import('hardhat')).ethers
+    console.log('Add Entry Provider: ', await this.ethers.provider.getNetwork())
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
-    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    const registry = await this.ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     await registry.addNamedService(entryHash, address)
 
     if (debug) {
@@ -24,14 +28,12 @@ export class ServiceRegistry {
   }
 
   async getEntryHash(label: ContractNames): Promise<string> {
-    const ethers = (await import('hardhat')).ethers
-    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    const registry = await this.ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     return registry.getServiceNameHash(label)
   }
 
   async getServiceAddress(label: ContractNames): Promise<string> {
-    const ethers = (await import('hardhat')).ethers
-    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    const registry = await this.ethers.getContractAt('ServiceRegistry', this.address, this.signer)
     return registry.getRegisteredService(label)
   }
 }

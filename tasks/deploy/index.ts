@@ -20,7 +20,7 @@ task(
       config,
     }
 
-    const deploy = await createDeploy(options, hre)
+    const deploy = await createDeploy(options)
 
     const {
       serviceRegistryAddress,
@@ -50,7 +50,11 @@ task(
       actionPaybackFromAAVEAddress,
     } = await deployAaveActions({ deploy, serviceRegistryAddress, debug: taskArgs.debug })
 
-    const registry: ServiceRegistry = new ServiceRegistry(serviceRegistryAddress, config.signer)
+    const registry: ServiceRegistry = new ServiceRegistry(
+      serviceRegistryAddress,
+      config.signer,
+      config.ethers,
+    )
     await addThirdPartyContractsToRegistry({ registry, debug: taskArgs.debug })
 
     await addCoreContractsToRegistry({
@@ -107,6 +111,7 @@ task(
     const operationsRegistry: OperationsRegistry = new OperationsRegistry(
       operationsRegistryAddress,
       config.signer,
+      config.ethers,
     )
 
     await addAAVEOperationsToRegistry({

@@ -5,7 +5,7 @@ import { getOrCreateProxy } from '../../helpers/proxy'
 
 task('proxy', 'Create a proxy for the current account').setAction(async (taskArgs, hre) => {
   const config = await init(hre)
-  const proxyAddress = await getOrCreateProxy(config.signer)
+  const proxyAddress = await getOrCreateProxy(config.signer, config.ethers)
 
   console.log(`Proxy Address for account: ${proxyAddress}`)
 })

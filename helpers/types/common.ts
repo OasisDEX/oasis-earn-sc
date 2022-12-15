@@ -1,4 +1,6 @@
+import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types'
 import { providers, Signer } from 'ethers'
+import * as hre from 'hardhat'
 
 export type ValueOf<T> = T[keyof T]
 
@@ -25,10 +27,12 @@ export type FormatUnit = {
   isFormatted?: boolean
 }
 
+export type HardhatEthers = typeof hre.ethers & HardhatEthersHelpers
 export interface RuntimeConfig {
   provider: providers.JsonRpcProvider
   signer: Signer
   address: string
+  ethers: HardhatEthers
 }
 
 export type WithRuntimeConfig = {

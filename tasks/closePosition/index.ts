@@ -53,7 +53,7 @@ task('closePosition', 'Close stETH position on AAVE')
       },
     ]
 
-    const serviceRegistry = await hre.ethers.getContractAt(
+    const serviceRegistry = await config.ethers.getContractAt(
       serviceRegistryAbi,
       serviceRegistryAddress,
       config.signer,
@@ -71,20 +71,20 @@ task('closePosition', 'Close stETH position on AAVE')
       ...mainnetAddresses,
       operationExecutor: operationExecutorAddress,
     }
-    const aaveLendingPool = new hre.ethers.Contract(
+    const aaveLendingPool = new config.ethers.Contract(
       ADDRESSES.main.aave.MainnetLendingPool,
       AAVELendigPoolABI,
       config.provider,
     )
-    const aaveDataProvider = new hre.ethers.Contract(
+    const aaveDataProvider = new config.ethers.Contract(
       ADDRESSES.main.aave.DataProvider,
       AAVEDataProviderABI,
       config.provider,
     )
 
-    const proxyAddress = await getOrCreateProxy(config.signer)
+    const proxyAddress = await getOrCreateProxy(config.signer, config.ethers)
 
-    const dsProxy = new hre.ethers.Contract(proxyAddress, DSProxyABI, config.provider).connect(
+    const dsProxy = new config.ethers.Contract(proxyAddress, DSProxyABI, config.provider).connect(
       config.signer,
     )
 
@@ -94,12 +94,7 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     const address = await config.signer.getAddress()
-    let balanceEth = await balanceOf(
-      ADDRESSES.main.ETH,
-      address,
-      { config, isFormatted: true },
-      hre,
-    )
+    let balanceEth = await balanceOf(ADDRESSES.main.ETH, address, { config, isFormatted: true })
 
     console.log('Current stETH Balance: ', userStEthReserveData.currentATokenBalance.toString())
     console.log('Current ETH Balance: ', balanceEth.toString())
@@ -155,7 +150,7 @@ task('closePosition', 'Close stETH position on AAVE')
       },
     )
 
-    const operationExecutor = await hre.ethers.getContractAt(
+    const operationExecutor = await config.ethers.getContractAt(
       CONTRACT_NAMES.common.OPERATION_EXECUTOR,
       addresses.operationExecutor,
       config.signer,
@@ -172,7 +167,7 @@ task('closePosition', 'Close stETH position on AAVE')
       },
       config.signer,
       '0',
-      hre,
+      config.ethers,
     )
 
     console.log('txStatus', txStatus)
@@ -183,7 +178,7 @@ task('closePosition', 'Close stETH position on AAVE')
       dsProxy.address,
     )
 
-    balanceEth = await balanceOf(ADDRESSES.main.ETH, address, { config, isFormatted: true }, hre)
+    balanceEth = await balanceOf(ADDRESSES.main.ETH, address, { config, isFormatted: true })
 
     console.log('Current stETH Balance: ', userStEthReserveData.currentATokenBalance.toString())
     console.log('Current ETH Balance: ', balanceEth.toString())

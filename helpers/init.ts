@@ -10,7 +10,8 @@ export default async function init(
   ) => Promise<{ signer: providers.JsonRpcSigner; address: string }>,
 ): Promise<RuntimeConfig> {
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
-  const provider = ethers.provider
+  // const provider = ethers.provider
+  const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545', 2137)
   let signer = provider.getSigner()
   let address = await signer.getAddress()
 
@@ -22,6 +23,7 @@ export default async function init(
     provider,
     signer,
     address,
+    ethers,
   }
 }
 

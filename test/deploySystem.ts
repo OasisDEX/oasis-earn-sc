@@ -1,5 +1,4 @@
 import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
-import { ethers } from 'hardhat'
 
 import DSProxyABI from '../abi/ds-proxy.json'
 import { createDeploy } from '../helpers/deploy'
@@ -11,7 +10,7 @@ import { logDebug } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
 
 export async function deploySystem(config: RuntimeConfig, debug = false, useFallbackSwap = true) {
-  const { provider, signer, address } = config
+  const { provider, signer, address, ethers } = config
   console.log(`    \x1b[90mUsing fallback swap: ${useFallbackSwap}\x1b[0m`)
   const options = {
     debug,
@@ -22,13 +21,13 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   // Setup User
   debug && console.log('1/ Setting up user proxy')
-  const proxyAddress = await getOrCreateProxy(signer)
+  const proxyAddress = await getOrCreateProxy(signer, ethers)
   const dsProxy = new ethers.Contract(proxyAddress, DSProxyABI, provider).connect(signer)
 
   // Deploy System Contracts
   debug && console.log('2/ Deploying system contracts')
   const [serviceRegistry, serviceRegistryAddress] = await deploy('ServiceRegistry', [0])
-  const registry = new ServiceRegistry(serviceRegistryAddress, signer)
+  const registry = new ServiceRegistry(serviceRegistryAddress, signer, config.ethers)
 
   const [operationExecutor, operationExecutorAddress] = await deploy(
     CONTRACT_NAMES.common.OPERATION_EXECUTOR,
@@ -177,12 +176,14 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   debug && console.log('4/ Adding contracts to registry')
   //-- Add Token Contract Entries
+  console.log('HERE 1')
   await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
   await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
 
+  console.log('HERE 2')
   // add flag to deploy fallbackSwap contract
   await registry.addEntry(CONTRACT_NAMES.common.SWAP, useFallbackSwap ? uSwapAddress : swapAddress)
-
+  console.log('HERE 3')
   //-- Add Common Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_EXECUTOR, operationExecutorAddress)
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
@@ -280,6 +281,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   const operationsRegistry: OperationsRegistry = new OperationsRegistry(
     operationsRegistryAddress,
     signer,
+    config.ethers,
   )
   await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
 
