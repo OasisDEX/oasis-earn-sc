@@ -75,6 +75,7 @@ export const OPERATION_NAMES = {
     CLOSE_POSITION: 'CloseAAVEPosition',
     INCREASE_POSITION: 'IncreaseAAVEPosition',
     DECREASE_POSITION: 'DecreaseAAVEPosition',
+    PAYBACK_WITHDRAW: 'PaybackWithdrawAAVE',
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',

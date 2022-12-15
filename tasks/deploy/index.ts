@@ -146,11 +146,26 @@ async function deployCoreContacts(args: { deploy: DeployFunction; debug: boolean
     operationExecutorAddress,
   ])
 
+  // DPM
+  const [accountGuard, accountGuardAddress] = await deploy('AccountGuard', [])
+  const [accountFactory, accountFactoryAddress] = await deploy('AccountFactory', [
+    accountGuardAddress,
+  ])
+
+  const tx = await accountFactory['createAccount()']()
+  const receipt = await tx.wait()
+
+  // eslint-disable-next-line
+  const dpmProxyAddress = receipt.events![1].args!.proxy
+
+  await accountGuard.setWhitelist(operationExecutorAddress, true)
+
   return {
     serviceRegistryAddress,
     operationsRegistryAddress,
     operationExecutorAddress,
     operationStorageAddress,
+    accountFactoryAddress,
   }
 }
 
@@ -784,7 +799,34 @@ async function addAAVEOperationsToRegistry(args: {
     decreasePositionMultipleActions,
   )
 
-  await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
+  // await operationsRegistry.addOp(OPERATION_NAMESNAMES.common.CUSTOM_OPERATION, [])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.PAYBACK_WITHDRAW, [
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: true,
+    },
+    {
+      hash: paybackToAAVEHash,
+      optional: true,
+    },
+    {
+      hash: withdrawFromAAVEHash,
+      optional: true,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsHash,
+      optional: true,
+    },
+  ])
 
   if (debug) {
     console.log('==== ==== ====')

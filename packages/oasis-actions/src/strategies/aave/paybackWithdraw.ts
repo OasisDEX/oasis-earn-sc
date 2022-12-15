@@ -48,6 +48,7 @@ export async function paybackWithdraw(
     collateralIsEth: currentPosition.collateral.symbol === 'ETH',
     debtTokenIsEth: currentPosition.debt.symbol === 'ETH',
     proxy: dependencies.proxy,
+    addresses: dependencies.addresses,
   })
 
   const finalPosition = new Position(
