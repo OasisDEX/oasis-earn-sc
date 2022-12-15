@@ -758,6 +758,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             collateralToken,
           },
           {
+            isDPMProxy: false,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),

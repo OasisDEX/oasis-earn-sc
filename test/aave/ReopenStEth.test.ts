@@ -214,6 +214,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           positionType: 'Earn',
         },
         {
+          isDPMProxy: false,
           ...dependencies,
         },
       )

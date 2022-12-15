@@ -102,6 +102,10 @@ export interface IPosition extends IBasePosition {
   riskRatio: IRiskRatio
   healthFactor: BigNumber
   liquidationPrice: BigNumber
+  deposit(amount: BigNumber): IPosition
+  borrow(amount: BigNumber): IPosition
+  withdraw(amount: BigNumber): IPosition
+  repay(amount: BigNumber): IPosition
   adjustToTargetRiskRatio: (
     targetRiskRatio: IRiskRatio,
     params: IPositionTransitionParams,
@@ -156,6 +160,46 @@ export class Position implements IPosition {
 
   public get liquidationPrice() {
     return this.debt.amount.div(this.collateral.amount.times(this.category.liquidationThreshold))
+  }
+
+  public deposit(amount: BigNumber): IPosition {
+    return this._createTargetPosition(
+      ZERO,
+      amount,
+      this._oraclePriceForCollateralDebtExchangeRate,
+      this.debt.amount,
+      this.collateral.amount,
+    )
+  }
+
+  public withdraw(amount: BigNumber): IPosition {
+    return this._createTargetPosition(
+      ZERO,
+      amount.negated(),
+      this._oraclePriceForCollateralDebtExchangeRate,
+      this.debt.amount,
+      this.collateral.amount,
+    )
+  }
+
+  public borrow(amount: BigNumber): IPosition {
+    return this._createTargetPosition(
+      amount,
+      ZERO,
+      this._oraclePriceForCollateralDebtExchangeRate,
+      this.debt.amount,
+      this.collateral.amount,
+    )
+  }
+
+  public repay(amount: BigNumber): IPosition {
+    return this._createTargetPosition(
+      amount.negated(),
+      ZERO,
+      this._oraclePriceForCollateralDebtExchangeRate,
+      this.debt.amount,
+      this.collateral.amount,
+    )
   }
 
   /**

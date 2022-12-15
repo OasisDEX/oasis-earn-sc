@@ -174,6 +174,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           collectSwapFeeFrom: isFeeFromSourceTokenOnOpen ? 'sourceToken' : 'targetToken',
         },
         {
+          isDPMProxy: false,
           addresses,
           provider,
           getSwapData: oneInchCallMock(mockMarketPriceOnOpen, {
@@ -776,6 +777,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             positionType: 'Earn',
           },
           {
+            isDPMProxy: false,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
@@ -996,6 +998,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             collateralToken,
           },
           {
+            isDPMProxy: false,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
@@ -1212,6 +1215,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             collateralToken,
           },
           {
+            isDPMProxy: false,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address, [], true),

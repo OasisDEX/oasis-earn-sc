@@ -157,6 +157,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           positionType: 'Multiply',
         },
         {
+          isDPMProxy: false,
           addresses,
           provider,
           getSwapData: oneInchCallMock(mockMarketPriceOnOpen),
@@ -695,6 +696,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             positionType: 'Multiply',
           },
           {
+            isDPMProxy: false,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address, ['ST_ETH']),
@@ -873,6 +875,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             collateralToken,
           },
           {
+            isDPMProxy: false,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
