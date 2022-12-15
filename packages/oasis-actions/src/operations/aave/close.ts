@@ -107,5 +107,5 @@ export async function close(
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.common.CUSTOM_OPERATION }
+  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.CLOSE_POSITION }
 }
