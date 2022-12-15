@@ -15,6 +15,7 @@ import {
   OperationExecutor,
   OperationsRegistry,
   OperationStorage,
+  PositionCreated,
   PullToken,
   ReturnFunds,
   SendToken,
@@ -56,6 +57,7 @@ export interface DeployedSystem {
   unwrapEth?: UnwrapEth
   wrapEth?: WrapEth
   returnFunds?: ReturnFunds
+  positionCreated?: PositionCreated
 }
 
 export interface DeploySystemArgs {

@@ -183,6 +183,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           }),
           proxy,
           user: user,
+          isDPMProxy: false,
         },
       )
 
@@ -783,6 +784,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
             user: config.address,
+            isDPMProxy: false,
           },
         )
 
@@ -1004,6 +1006,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
             user: config.address,
+            isDPMProxy: false,
           },
         )
 
@@ -1221,6 +1224,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
             user: config.address,
+            isDPMProxy: false,
           },
         )
 

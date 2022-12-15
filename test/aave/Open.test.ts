@@ -764,6 +764,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy,
             user: config.address,
+            isDPMProxy: false,
           },
         )
 

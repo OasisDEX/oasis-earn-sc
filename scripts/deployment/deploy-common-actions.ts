@@ -2,6 +2,7 @@ import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 import hre from 'hardhat'
 
 import {
+  PositionCreated,
   PullToken,
   ReturnFunds,
   SendToken,
@@ -71,6 +72,12 @@ async function main() {
     [],
   )) as ReturnFunds
   console.log(`returnFunds action Deployed: ${system.returnFunds.address}`)
+
+  system.positionCreated = (await utils.deployContract(
+    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.common.POSITION_CREATED)),
+    [],
+  )) as PositionCreated
+  console.log(`positionCreated action Deployed: ${system.positionCreated.address}`)
 }
 
 main().catch(error => {

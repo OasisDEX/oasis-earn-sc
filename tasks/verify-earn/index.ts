@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/oasis-actions/src'
+import { ADDRESSES } from '@oasisdex/oasis-actions'
 import { task } from 'hardhat/config'
 
 import { getAddressesFor } from '../../scripts/common/addresses'
@@ -24,6 +24,7 @@ task('verify-earn', 'Verifies Earn Contracts').setAction(async (_: any, hre) => 
     AAVE_DEPOSIT_ACTION,
     AAVE_WITHDRAW_ACTION,
     AAVE_PAYBACK_ACTION,
+    POSITION_CREATED_ACTION,
     DAI,
   } = await getAddressesFor(network)
 
@@ -95,6 +96,10 @@ task('verify-earn', 'Verifies Earn Contracts').setAction(async (_: any, hre) => 
     },
     {
       address: RETURN_FUNDS_ACTION,
+      constructorArguments: [],
+    },
+    {
+      address: POSITION_CREATED_ACTION,
       constructorArguments: [],
     },
   ]

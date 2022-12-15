@@ -47,9 +47,10 @@ task('getTokens', '')
         await signer.sendTransaction({
           to: response.tx.to,
           data: response.tx.data,
-          value: response.tx.value,
+          value: '0x' + new BigNumber(response.tx.value).toString(16),
         })
       } catch (e) {
+        console.log(e)
         console.log(`Could not swap ETH for ${token}`)
       }
     }

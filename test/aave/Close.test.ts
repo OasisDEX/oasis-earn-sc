@@ -163,6 +163,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           getSwapData: oneInchCallMock(mockMarketPriceOnOpen),
           proxy,
           user: userAddress,
+          isDPMProxy: false,
         },
       )
 
@@ -702,6 +703,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             getSwapData: getOneInchCall(system.common.swap.address, ['ST_ETH']),
             proxy,
             user: config.address,
+            isDPMProxy: false,
           },
         )
 
@@ -881,6 +883,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy,
             user: config.address,
+            isDPMProxy: false,
           },
         )
 
