@@ -7,14 +7,14 @@ import { Position } from '../../helpers/calculations/Position'
 import { ZERO } from '../../helpers/constants'
 import { getZeroSwap } from '../../helpers/swap/getZeroSwap'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { AAVETokens } from '../../operations/aave/tokens'
 import {
   IBasePositionTransitionArgs,
+  IPositionTransition,
   IPositionTransitionDependencies,
   WithPaybackDebt,
   WithWithdrawCollateral,
-} from '../types/IPositionRepository'
-import { IPositionTransition } from '../types/IPositionTransition'
+} from '../types'
+import { AAVETokens } from '../types/aave'
 import * as operations from './../../operations'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 export async function paybackWithdraw(
@@ -49,6 +49,7 @@ export async function paybackWithdraw(
     debtTokenIsEth: currentPosition.debt.symbol === 'ETH',
     proxy: dependencies.proxy,
     user: dependencies.user,
+    isDPMProxy: dependencies.isDPMProxy,
     addresses: dependencies.addresses,
   })
 

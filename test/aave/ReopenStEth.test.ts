@@ -16,7 +16,7 @@ import { zero } from '../../scripts/common'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { deploySystem } from '../deploySystem'
-import { initialiseConfig } from '../fixtures/setup'
+import { initialiseConfig } from '../fixtures'
 import { expectToBe, expectToBeEqual } from '../utils'
 
 describe(`Strategy | AAVE | Reopen Position`, async () => {
@@ -154,6 +154,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           ...dependencies,
           isDPMProxy: false,
           currentPosition: beforeTransaction,
+          isDPMProxy: false,
           getSwapData: oneInchCallMock(mockMarketPriceOnClose, {
             from: collateralToken.precision,
             to: debtToken.precision,

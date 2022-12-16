@@ -10,7 +10,7 @@ import { RuntimeConfig, Unbox } from '../helpers/types/common'
 import { logDebug } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
 
-export async function deploySystem(config: RuntimeConfig, debug = true, useFallbackSwap = true) {
+export async function deploySystem(config: RuntimeConfig, debug = false, useFallbackSwap = true) {
   const { provider, signer, address } = config
   console.log(`    \x1b[90mUsing fallback swap: ${useFallbackSwap}\x1b[0m`)
   const options = {
@@ -53,7 +53,7 @@ export async function deploySystem(config: RuntimeConfig, debug = true, useFallb
   const receipt = await tx.wait()
 
   // eslint-disable-next-line
-  const dpmProxyAddress = receipt.events![1].args!.proxy
+  const dpmProxyAddress: string = receipt.events![1].args!.proxy
 
   await accountGuard.setWhitelist(operationExecutorAddress, true)
 
@@ -281,7 +281,6 @@ export async function deploySystem(config: RuntimeConfig, debug = true, useFallb
     operationsRegistryAddress,
     signer,
   )
-  await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
 
   await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_AND_DRAW, [
     {
@@ -794,6 +793,41 @@ export async function deploySystem(config: RuntimeConfig, debug = true, useFallb
     {
       hash: aaveWithdrawHash,
       optional: false,
+    },
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.PAYBACK_WITHDRAW, [
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: true,
+    },
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: aavePaybackHash,
+      optional: true,
+    },
+    {
+      hash: aaveWithdrawHash,
+      optional: true,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: sendTokenHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsActionHash,
+      optional: true,
     },
   ])
 

@@ -8,10 +8,8 @@ import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { BorrowArgs } from '../../operations/aave/borrow'
 import { DepositArgs } from '../../operations/aave/deposit'
-import { AAVETokens } from '../../operations/aave/tokens'
-import { Address, IPositionTransitionDependencies } from '../types/IPositionRepository'
-import { IPositionTransition } from '../types/IPositionTransition'
-import { SwapData } from '../types/SwapData'
+import { Address, IPositionTransition, IPositionTransitionDependencies, SwapData } from '../types'
+import { AAVETokens } from '../types/aave'
 
 interface DepositBorrowArgs {
   entryToken?: { amountInBaseUnit: BigNumber; symbol: AAVETokens; precision?: number }
@@ -61,7 +59,7 @@ export async function depositBorrow(
   }
 
   const entryTokenAmount = entryToken?.amountInBaseUnit || ZERO
-  const entryTokenAddress = (entryToken?.symbol && tokenAddresses[entryToken?.symbol]) || ''
+  const entryTokenAddress: string = (entryToken?.symbol && tokenAddresses[entryToken?.symbol]) || ''
   const entryTokenIsEth = entryToken?.symbol === 'ETH'
 
   const collateralSymbol = dependencies.currentPosition.collateral.symbol

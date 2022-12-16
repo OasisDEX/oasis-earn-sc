@@ -4,7 +4,7 @@ import * as actions from '../../actions'
 import { ADDRESSES } from '../../helpers/addresses'
 import { OPERATION_NAMES, ZERO } from '../../helpers/constants'
 import { isDefined } from '../../helpers/isDefined'
-import { Address } from '../../strategies/types/IPositionRepository'
+import { Address } from '../../strategies/types'
 
 interface SwapArgs {
   fee: number

@@ -1,4 +1,4 @@
-import { providers, Signer } from 'ethers'
+import { ethers, providers } from 'ethers'
 
 export type ValueOf<T> = T[keyof T]
 
@@ -27,7 +27,7 @@ export type FormatUnit = {
 
 export interface RuntimeConfig {
   provider: providers.JsonRpcProvider
-  signer: Signer
+  signer: ethers.Signer
   address: string
 }
 
