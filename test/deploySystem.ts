@@ -10,7 +10,7 @@ import { RuntimeConfig, Unbox } from '../helpers/types/common'
 import { logDebug } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
 
-export async function deploySystem(config: RuntimeConfig, debug = false, useFallbackSwap = true) {
+export async function deploySystem(config: RuntimeConfig, debug = true, useFallbackSwap = true) {
   const { provider, signer, address } = config
   console.log(`    \x1b[90mUsing fallback swap: ${useFallbackSwap}\x1b[0m`)
   const options = {

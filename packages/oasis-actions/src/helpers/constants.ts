@@ -2,6 +2,8 @@ import { BigNumber } from 'bignumber.js'
 
 export const TYPICAL_PRECISION = 18
 
+export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
+
 export const ZERO = new BigNumber(0)
 export const ONE = new BigNumber(1)
 export const TEN = new BigNumber(10)
@@ -73,6 +75,7 @@ export const OPERATION_NAMES = {
     CLOSE_POSITION: 'CloseAAVEPosition',
     INCREASE_POSITION: 'IncreaseAAVEPosition',
     DECREASE_POSITION: 'DecreaseAAVEPosition',
+    PAYBACK_WITHDRAW: 'PaybackWithdrawAAVE',
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',
