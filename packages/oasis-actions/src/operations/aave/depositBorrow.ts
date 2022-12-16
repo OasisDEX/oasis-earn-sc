@@ -1,4 +1,3 @@
-import { ActionCall } from '../../actions/types/actionCall'
 import { OPERATION_NAMES } from '../../helpers/constants'
 import { borrow, BorrowArgs } from './borrow'
 import { deposit, DepositArgs } from './deposit'
@@ -7,17 +6,18 @@ export async function depositBorrow(
   depositArgs: DepositArgs | undefined,
   borrowArgs: BorrowArgs | undefined,
 ) {
-  const operationCalls: ActionCall[] = [
-    ...(depositArgs ? (await deposit(depositArgs)).calls : []),
-    ...(borrowArgs ? (await borrow(borrowArgs)).calls : []),
-  ]
-
-  if (operationCalls.length === 0) {
-    throw new Error('No calls')
+  if (depositArgs && borrowArgs) {
+    return {
+      calls: [...(await deposit(depositArgs)).calls, ...(await borrow(borrowArgs)).calls],
+      operationName: OPERATION_NAMES.aave.DEPOSIT_BORROW,
+    }
+  }
+  if (depositArgs) {
+    return deposit(depositArgs)
+  }
+  if (borrowArgs) {
+    return borrow(borrowArgs)
   }
 
-  return {
-    calls: operationCalls,
-    operationName: OPERATION_NAMES.aave.DEPOSIT_BORROW,
-  }
+  throw new Error('At least one argument needs to be provided')
 }

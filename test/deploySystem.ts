@@ -728,6 +728,40 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.BORROW, [
+    {
+      hash: aaveBorrowHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsActionHash,
+      optional: true,
+    },
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.DEPOSIT, [
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: true,
+    },
+    {
+      hash: aaveDepositHash,
+      optional: true,
+    },
+  ])
+
   await operationsRegistry.addOp(OPERATION_NAMES.aave.DECREASE_POSITION, [
     {
       hash: takeFlashLoanHash,

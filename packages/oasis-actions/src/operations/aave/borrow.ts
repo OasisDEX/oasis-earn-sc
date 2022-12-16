@@ -21,6 +21,6 @@ export async function borrow({ borrowToken, amount, account }: BorrowArgs) {
         asset: borrowToken,
       }),
     ],
-    operationName: OPERATION_NAMES.common.CUSTOM_OPERATION,
+    operationName: OPERATION_NAMES.aave.BORROW,
   }
 }

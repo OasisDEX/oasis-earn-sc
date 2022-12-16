@@ -68,12 +68,12 @@ function getSwapCalls(
     }
   } else {
     const skippedCall = actions.common.swap({
-      fromAsset: '',
-      toAsset: '',
+      fromAsset: entryToken,
+      toAsset: depositToken,
       amount: ZERO,
       receiveAtLeast: ZERO,
       fee: 0,
-      withData: '',
+      withData: 0,
       collectFeeInFromToken: true,
     })
     skippedCall.skipped = true
@@ -89,15 +89,6 @@ export async function deposit({
   swapArgs,
 }: DepositArgs) {
   const isAssetEth = entryToken === ADDRESSES.main.ETH
-  console.log(`
-
-  depositToken ${depositToken}
-  entryToken ${entryToken}
-  ETH ${ADDRESSES.main.ETH}
-  isAssetEth$ ${isAssetEth}
-
-  
-  `)
 
   const tokenTransferCalls = [
     actions.common.wrapEth({
@@ -127,11 +118,6 @@ export async function deposit({
     ADDRESSES.main.WETH,
   )
 
-  console.log(`
-    swapCalls" ${swapCalls.length}
-    isSwapNeeded ${isSwapNeeded}
-  `)
-
   return {
     calls: [
       ...tokenTransferCalls,
@@ -155,14 +141,14 @@ export async function deposit({
       // therefore the actual deposited value will be used.
       actions.aave.aaveDeposit(
         {
-          asset: depositToken || entryToken,
+          asset: depositToken,
           amount,
           sumAmounts: false,
-          setAsCollateral: false,
+          setAsCollateral: true,
         },
         [0, isSwapNeeded ? 1 : 0, 0, 0],
       ),
     ],
-    operationName: OPERATION_NAMES.common.CUSTOM_OPERATION,
+    operationName: OPERATION_NAMES.aave.DEPOSIT,
   }
 }

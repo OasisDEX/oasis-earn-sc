@@ -124,7 +124,8 @@ export async function depositBorrow(
     .deposit(collateralDelta)
     .borrow(debtDelta)
 
-  console.log(JSON.stringify(operation.calls, null, 4))
+  console.log(JSON.stringify(operation, null, 4))
+
   return {
     transaction: {
       calls: operation.calls,
