@@ -92,7 +92,7 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
       const positionTransition = await strategies.aave.depositBorrow(
         {
           collectFeeFrom: 'sourceToken',
-          borrowAmount: debtToken.depositAmountInBaseUnit,
+          borrowAmount: ZERO,
           entryToken: ADDRESSES.main.ETH,
           entryTokenAmount: collateralToken.depositAmountInBaseUnit,
           slippage: slippage,
@@ -119,6 +119,8 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
           isDPMProxy: true,
         },
       )
+
+      console.log(JSON.stringify(positionTransition), null, 4)
 
       const feeRecipientBalanceBefore = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,

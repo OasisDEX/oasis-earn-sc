@@ -712,30 +712,38 @@ export async function deploySystem(config: RuntimeConfig, debug = true, useFallb
     },
     {
       hash: setApprovalHash,
-      optional: true,
+      optional: false,
     },
     {
       hash: aaveDepositHash,
-      optional: true,
+      optional: false,
     },
     {
       hash: aaveBorrowHash,
+      optional: false,
+    },
+    {
+      hash: unwrapEthHash,
       optional: true,
     },
     {
-      hash: returnFundsActionHash,
-      optional: true,
+      hash: sendTokenHash,
+      optional: false,
     },
   ])
 
   await operationsRegistry.addOp(OPERATION_NAMES.aave.BORROW, [
     {
       hash: aaveBorrowHash,
+      optional: false,
+    },
+    {
+      hash: unwrapEthHash,
       optional: true,
     },
     {
-      hash: returnFundsActionHash,
-      optional: true,
+      hash: sendTokenHash,
+      optional: false,
     },
   ])
 
@@ -754,11 +762,11 @@ export async function deploySystem(config: RuntimeConfig, debug = true, useFallb
     },
     {
       hash: setApprovalHash,
-      optional: true,
+      optional: false,
     },
     {
       hash: aaveDepositHash,
-      optional: true,
+      optional: false,
     },
   ])
 

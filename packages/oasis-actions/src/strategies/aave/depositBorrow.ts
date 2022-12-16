@@ -104,12 +104,13 @@ export async function depositBorrow(
     console.log('Skipping deposit')
   }
 
-  if (borrowAmount) {
+  if (borrowAmount?.gt(ZERO)) {
     borrowArgs = {
       account: dependencies.proxy,
       amount: borrowAmount,
       borrowToken: debtTokenAddress,
       user: dependencies.user,
+      unwrap: debtTokenAddress === dependencies.addresses.WETH,
     }
     debtDelta = borrowAmount
   } else {
