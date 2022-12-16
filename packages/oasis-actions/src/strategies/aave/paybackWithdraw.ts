@@ -65,12 +65,6 @@ export async function paybackWithdraw(
     currentPosition.category,
   )
 
-  console.log('IM HERE')
-
-  console.log('paybackdebt', args.amountDebtToPaybackInBaseUnit.toString())
-  console.log('currentPosition', currentPosition.debt.amount.toString())
-  console.log('finalPosition', finalPosition.debt.amount.toString())
-
   const flags = {
     requiresFlashloan: false,
     isIncreasingRisk: currentPosition.riskRatio.loanToValue.lt(finalPosition.riskRatio.loanToValue),
