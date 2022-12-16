@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
-import { ADDRESSES } from '../../helpers/addresses'
 import { MAX_UINT, OPERATION_NAMES, ZERO } from '../../helpers/constants'
 import { IOperation } from '../../strategies/types/IOperation'
 import { AAVEStrategyAddresses } from './addresses'
