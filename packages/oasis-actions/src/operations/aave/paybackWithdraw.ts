@@ -21,7 +21,6 @@ export async function paybackWithdraw(args: {
     amount: args.amountDebtToPaybackInBaseUnit,
     from: args.user,
   })
-
   const setDebtApprovalOnLendingPool = actions.common.setApproval({
     amount: args.amountDebtToPaybackInBaseUnit,
     asset: args.debtTokenAddress,

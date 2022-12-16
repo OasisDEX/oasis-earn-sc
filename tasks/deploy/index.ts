@@ -608,7 +608,6 @@ async function addAAVEOperationsToRegistry(args: {
     withdrawFromAAVEHash,
     wrapEthHash,
     unwrapEthHash,
-    returnFundsHash,
     positionCreatedHash,
     sendTokenHash,
   } = hashes
