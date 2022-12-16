@@ -65,7 +65,7 @@ export async function depositBorrow(
   let debtDelta: BigNumber = ZERO
   let fee: BigNumber = ZERO
 
-  if (entryToken && entryTokenAmount && slippage) {
+  if (entryToken && entryTokenAmount && slippage && entryTokenAmount.gt(ZERO)) {
     swapData =
       entryToken !== collateralTokenAddress
         ? await dependencies.getSwapData(
