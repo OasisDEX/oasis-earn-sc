@@ -220,10 +220,10 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
             isEth: true,
           },
           {
-            depositAmountInBaseUnit: depositEthAmount,
+            depositAmountInBaseUnit: amountToWei(1000, 6),
             symbol: tokens.USDC,
             address: ADDRESSES.main.USDC,
-            precision: 18,
+            precision: 6,
             isEth: false,
           },
           new BigNumber(1200),

@@ -109,6 +109,7 @@ export async function depositBorrow(
       account: dependencies.proxy,
       amount: borrowAmount,
       borrowToken: debtTokenAddress,
+      user: dependencies.user,
     }
     debtDelta = borrowAmount
   } else {
