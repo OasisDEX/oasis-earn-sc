@@ -610,6 +610,7 @@ async function addAAVEOperationsToRegistry(args: {
     unwrapEthHash,
     returnFundsHash,
     positionCreatedHash,
+    sendTokenHash,
   } = hashes
 
   const openPositionActions = [
@@ -827,7 +828,7 @@ async function addAAVEOperationsToRegistry(args: {
       optional: true,
     },
     {
-      hash: returnFundsHash,
+      hash: sendTokenHash,
       optional: true,
     },
   ])

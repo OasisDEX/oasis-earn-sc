@@ -41,15 +41,21 @@ export async function paybackWithdraw(args: {
     to: args.proxy,
   })
 
-  const returnCollateralFunds = actions.common.returnFunds({
-    asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
-  })
+  // const returnCollateralFunds = actions.common.returnFunds({
+  //   asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
+  // })
   const wrapEth = actions.common.wrapEth({
     amount: args.amountDebtToPaybackInBaseUnit,
   })
 
   const unwrapEth = actions.common.unwrapEth({
     amount: new BigNumber(MAX_UINT),
+  })
+
+  const sendTokenToUser = actions.common.sendToken({
+    amount: args.amountCollateralToWithdrawInBaseUnit,
+    asset: args.collateralTokenAddress,
+    to: args.user,
   })
 
   pullDebtTokensToProxy.skipped =
@@ -59,8 +65,9 @@ export async function paybackWithdraw(args: {
   wrapEth.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !args.debtTokenIsEth
 
   withdrawCollateralFromAAVE.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
-  unwrapEth.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !args.collateralIsEth
-  returnCollateralFunds.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
+  unwrapEth.skipped = true // args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !args.collateralIsEth // TODO: SendToken can't send `ETH`
+  // returnCollateralFunds.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
+  sendTokenToUser.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
 
   const calls = [
     pullDebtTokensToProxy,
@@ -69,7 +76,7 @@ export async function paybackWithdraw(args: {
     paybackDebt,
     withdrawCollateralFromAAVE,
     unwrapEth,
-    returnCollateralFunds,
+    sendTokenToUser,
   ]
 
   return { calls: calls, operationName: OPERATION_NAMES.aave.PAYBACK_WITHDRAW }
