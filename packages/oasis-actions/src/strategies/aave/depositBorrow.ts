@@ -81,7 +81,6 @@ export async function depositBorrow(
       depositToken: collateralTokenAddress,
       entryToken: entryToken,
       amount: entryTokenAmount,
-      allowDepositTokenAsCollateral: true,
       swapArgs: swapData
         ? {
             calldata: swapData.exchangeCalldata.toString(),

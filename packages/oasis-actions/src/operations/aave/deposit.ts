@@ -21,14 +21,9 @@ export interface DepositArgs {
   // - either used for a swap if `entryToken` is swapped for `depositToken`
   // - or it will be directly deposited in the protocol
   amount: BigNumber
-  // - if it's omitted that means that the `entryToken` with bbe used in the deposit
-  // - if it's provided that means that the `entryToken` will be swapped for `depositToken`
   depositToken: string
   // Used to pull tokens from if ERC20 is used in the deposit
   depositorAddress: string
-  // In order to borrow assets on aave the deposited ones ( lent ) should be allowed to be used as collateral.
-  allowDepositTokenAsCollateral: boolean
-  // Must be provided if `depositToken` is also provided
   swapArgs?: SwapArgs
 }
 
