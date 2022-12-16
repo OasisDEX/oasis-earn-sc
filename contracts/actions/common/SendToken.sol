@@ -19,6 +19,14 @@ contract SendToken is Executable {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     SendTokenData memory send = parseInputs(data);
 
+    if (msg.value > 0 && send.amount == type(uint256).max) {
+      send.amount = address(this).balance;
+    }
+
+    if (msg.value == 0 && send.amount == type(uint256).max) {
+      send.amount = IERC20(send.asset).balanceOf(address(this));
+    }
+
     if (msg.value > 0) {
       payable(send.to).transfer(send.amount);
     } else {

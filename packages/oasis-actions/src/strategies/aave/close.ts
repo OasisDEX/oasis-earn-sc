@@ -104,6 +104,7 @@ export async function close(
       debtTokenAddress,
       debtTokenIsEth: args.debtToken.symbol === 'ETH',
       isDPMProxy: dependencies.isDPMProxy,
+      user: dependencies.user,
     },
     dependencies.addresses,
   )

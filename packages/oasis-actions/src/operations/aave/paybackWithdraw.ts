@@ -40,9 +40,6 @@ export async function paybackWithdraw(args: {
     to: args.proxy,
   })
 
-  // const returnCollateralFunds = actions.common.returnFunds({
-  //   asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
-  // })
   const wrapEth = actions.common.wrapEth({
     amount: args.amountDebtToPaybackInBaseUnit,
   })
@@ -52,8 +49,8 @@ export async function paybackWithdraw(args: {
   })
 
   const sendTokenToUser = actions.common.sendToken({
-    amount: args.amountCollateralToWithdrawInBaseUnit,
-    asset: args.collateralTokenAddress,
+    amount: new BigNumber(MAX_UINT),
+    asset: args.collateralIsEth ? args.addresses.ETH : args.collateralTokenAddress,
     to: args.user,
   })
 
@@ -64,8 +61,7 @@ export async function paybackWithdraw(args: {
   wrapEth.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !args.debtTokenIsEth
 
   withdrawCollateralFromAAVE.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
-  unwrapEth.skipped = true // args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !args.collateralIsEth // TODO: SendToken can't send `ETH`
-  // returnCollateralFunds.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
+  unwrapEth.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !args.collateralIsEth
   sendTokenToUser.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
 
   const calls = [
