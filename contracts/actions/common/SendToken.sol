@@ -4,7 +4,7 @@ pragma solidity ^0.8.15;
 import { Executable } from "../common/Executable.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { SendTokenData } from "../../core/types/Common.sol";
-import { SEND_TOKEN_ACTION } from "../../core/constants/Common.sol";
+import { SEND_TOKEN_ACTION, ETH } from "../../core/constants/Common.sol";
 
 /**
  * @title SendToken Action contract
@@ -19,7 +19,15 @@ contract SendToken is Executable {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     SendTokenData memory send = parseInputs(data);
 
-    if (msg.value > 0) {
+    if (send.asset == ETH && send.amount == type(uint256).max) {
+      send.amount = address(this).balance;
+    }
+
+    if (send.asset != ETH && send.amount == type(uint256).max) {
+      send.amount = IERC20(send.asset).balanceOf(address(this));
+    }
+
+    if (send.asset == ETH) {
       payable(send.to).transfer(send.amount);
     } else {
       IERC20(send.asset).safeTransfer(send.to, send.amount);

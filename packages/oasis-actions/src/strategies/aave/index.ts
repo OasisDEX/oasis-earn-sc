@@ -3,6 +3,7 @@ import { close } from './close'
 import { depositBorrow } from './depositBorrow'
 import { getCurrentPosition } from './getCurrentPosition'
 import { open } from './open'
+import { paybackWithdraw } from './paybackWithdraw'
 
 export const aave = {
   open: open,
@@ -10,4 +11,5 @@ export const aave = {
   adjust: adjust,
   view: getCurrentPosition,
   depositBorrow,
+  paybackWithdraw: paybackWithdraw,
 }

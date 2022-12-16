@@ -20,6 +20,7 @@ export async function close(
     debtTokenAddress: string
     debtTokenIsEth: boolean
     isDPMProxy: boolean
+    user: string
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
@@ -78,12 +79,16 @@ export async function close(
     amount: new BigNumber(MAX_UINT),
   })
 
-  const returnDebtFunds = actions.common.returnFunds({
-    asset: args.debtTokenIsEth ? ADDRESSES.main.ETH : args.debtTokenAddress,
+  const sendCollateralToUser = actions.common.sendToken({
+    amount: new BigNumber(MAX_UINT),
+    asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
+    to: args.user,
   })
 
-  const returnCollateralFunds = actions.common.returnFunds({
-    asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
+  const sendDebtToUser = actions.common.sendToken({
+    amount: new BigNumber(MAX_UINT),
+    asset: args.debtTokenIsEth ? ADDRESSES.main.ETH : args.debtTokenAddress,
+    to: args.user,
   })
 
   unwrapEth.skipped = !args.debtTokenIsEth && !args.collateralIsEth
@@ -102,10 +107,10 @@ export async function close(
       paybackInAAVE,
       withdrawDAIFromAAVE,
       unwrapEth,
-      returnDebtFunds,
-      returnCollateralFunds,
+      sendCollateralToUser,
+      sendDebtToUser,
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.common.CUSTOM_OPERATION }
+  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.CLOSE_POSITION }
 }

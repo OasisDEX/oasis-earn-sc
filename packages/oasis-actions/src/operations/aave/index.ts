@@ -5,5 +5,15 @@ import { deposit } from './deposit'
 import { depositBorrow } from './depositBorrow'
 import { increaseMultiple } from './increaseMultiple'
 import { open } from './open'
+import { paybackWithdraw } from './paybackWithdraw'
 
-export { borrow, close, decreaseMultiple, deposit, depositBorrow, increaseMultiple, open }
+export {
+  borrow,
+  close,
+  decreaseMultiple,
+  deposit,
+  depositBorrow,
+  increaseMultiple,
+  open,
+  paybackWithdraw,
+}

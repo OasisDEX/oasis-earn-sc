@@ -26,6 +26,14 @@ export type WithLockedCollateral = {
   collateralAmountLockedInProtocolInWei: BigNumber
 }
 
+export type WithWithdrawCollateral = {
+  amountCollateralToWithdrawInBaseUnit: BigNumber
+}
+
+export type WithPaybackDebt = {
+  amountDebtToPaybackInBaseUnit: BigNumber
+}
+
 export interface IPositionTransitionArgs<Tokens>
   extends IBasePositionTransitionArgs<Tokens>,
     WithDeposit,
