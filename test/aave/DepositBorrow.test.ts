@@ -31,7 +31,8 @@ import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
 import { initialiseConfig } from '../fixtures/setup'
 
-describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
+// IMPLEMENT THIS TEST
+describe.skip(`Strategy | AAVE | Deposit-Borrow`, async function () {
   let aaveLendingPool: Contract
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
@@ -120,7 +121,30 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
         },
       )
 
+      const positionTransition2 = await strategies.aave.depositBorrow(
+        {
+          collectFeeFrom: 'sourceToken',
+          borrowAmount: amountToWei(1000, 6),
+          entryToken: ADDRESSES.main.ETH,
+          entryTokenAmount: ZERO,
+          slippage: slippage,
+        },
+        {
+          addresses,
+          currentPosition: positionTransition.simulation.position,
+          provider,
+          getSwapData: oneInchCallMock(mockMarketPrice, {
+            from: debtToken.precision,
+            to: collateralToken.precision,
+          }),
+          proxy: proxy,
+          user: userAddress,
+          isDPMProxy: true,
+        },
+      )
+
       console.log(JSON.stringify(positionTransition), null, 4)
+      console.log(JSON.stringify(positionTransition2), null, 4)
 
       const feeRecipientBalanceBefore = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
@@ -139,6 +163,19 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
             positionTransition.transaction.calls,
             positionTransition.transaction.operationName,
+          ]),
+        },
+        signer,
+        ethDepositAmt.toFixed(0),
+      )
+
+      const [_txStatus, _tx] = await executeThroughProxy(
+        proxy,
+        {
+          address: system.common.operationExecutor.address,
+          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+            positionTransition2.transaction.calls,
+            positionTransition2.transaction.operationName,
           ]),
         },
         signer,
@@ -194,8 +231,8 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
         system,
         positionTransition,
         feeRecipientBalanceBefore,
-        txStatus,
-        tx,
+        txStatus: _txStatus,
+        tx: _tx,
         oracle,
         actualPosition,
         userCollateralReserveData,

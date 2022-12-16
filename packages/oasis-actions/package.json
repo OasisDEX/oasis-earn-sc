@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/oasis-actions",
-  "version": "0.0.4-alpha-borrowDeposit-v4",
+  "version": "0.0.4-alpha-borrowDeposit-v5",
   "main": "lib/src/index.js",
   "typings": "lib/src/index.d.ts",
   "scripts": {
