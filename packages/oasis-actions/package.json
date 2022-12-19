@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/oasis-actions",
-  "version": "0.0.4-alpha.55",
+  "version": "0.0.4-alpha.deposit-v8",
   "main": "lib/src/index.js",
   "typings": "lib/src/index.d.ts",
   "scripts": {

@@ -4,6 +4,7 @@ import * as actions from '../../actions'
 import { ADDRESSES } from '../../helpers/addresses'
 import { OPERATION_NAMES, ZERO } from '../../helpers/constants'
 import { isDefined } from '../../helpers/isDefined'
+import { Address } from '../../strategies/types/IPositionRepository'
 
 interface SwapArgs {
   fee: number
@@ -17,7 +18,7 @@ interface SwapArgs {
 export interface DepositArgs {
   // - either for a swap where the `entryToken` will be exchanged for the `depositToken`
   // - or it will be directly deposited in the protocol
-  entryToken: string
+  entryToken: Address
   // - either used for a swap if `entryToken` is swapped for `depositToken`
   // - or it will be directly deposited in the protocol
   amount: BigNumber

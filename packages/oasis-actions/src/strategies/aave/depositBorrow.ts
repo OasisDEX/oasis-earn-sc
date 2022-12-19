@@ -43,9 +43,9 @@ export async function depositBorrow(
   const tokenAddresses = {
     WETH: dependencies.addresses.WETH,
     ETH: dependencies.addresses.ETH,
-    stETH: dependencies.addresses.stETH,
+    STETH: dependencies.addresses.STETH,
     USDC: dependencies.addresses.USDC,
-    wBTC: dependencies.addresses.wBTC,
+    WBTC: dependencies.addresses.WBTC,
     DAI: dependencies.addresses.DAI,
   }
 

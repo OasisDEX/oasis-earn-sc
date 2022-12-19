@@ -6,9 +6,9 @@ import { amountToWei } from '../../helpers/utils'
 import { mainnetAddresses } from '../../test/addresses'
 
 const tokens = {
-  STETH: mainnetAddresses.stETH,
+  STETH: mainnetAddresses.STETH,
   WETH: mainnetAddresses.WETH,
-  WBTC: mainnetAddresses.wBTC,
+  WBTC: mainnetAddresses.WBTC,
   USDC: mainnetAddresses.USDC,
   DAI: mainnetAddresses.DAI,
 }
