@@ -689,14 +689,6 @@ export async function deploySystem(config: RuntimeConfig, debug = true, useFallb
     },
   ])
 
-  console.log(`
-  wrapEthHash ${wrapEthHash}
-  pullTokenHash ${pullTokenHash}
-  swapActionHash ${swapActionHash}
-  setApprovalHash ${setApprovalHash}
-  aaveDepositHash ${aaveDepositHash}
-  `)
-
   await operationsRegistry.addOp(OPERATION_NAMES.aave.DEPOSIT_BORROW, [
     {
       hash: wrapEthHash,
