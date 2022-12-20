@@ -412,7 +412,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositOnOpenAmountInWei: ZERO,
             depositOnAdjustAmountInWei: ZERO,
             symbol: tokens.STETH,
-            address: ADDRESSES.main.stETH,
+            address: ADDRESSES.main.STETH,
             precision: 18,
             isEth: false,
           },
@@ -652,7 +652,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositOnOpenAmountInWei: ZERO,
             depositOnAdjustAmountInWei: ZERO,
             symbol: tokens.STETH,
-            address: ADDRESSES.main.stETH,
+            address: ADDRESSES.main.STETH,
             precision: 18,
             isEth: false,
           },
@@ -862,7 +862,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
 
         aaveStEthPriceInEth = await aavePriceOracle
-          .getAssetPrice(addresses.stETH)
+          .getAssetPrice(addresses.STETH)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const userWethReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
@@ -870,7 +870,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           system.common.dsProxy.address,
         )
         const userStEthReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.stETH,
+          ADDRESSES.main.STETH,
           system.common.dsProxy.address,
         )
 
@@ -1082,11 +1082,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
 
         aaveStEthPriceInEth = await aavePriceOracle
-          .getAssetPrice(addresses.stETH)
+          .getAssetPrice(addresses.STETH)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const userStEthReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.stETH,
+          ADDRESSES.main.STETH,
           system.common.dsProxy.address,
         )
         const userUSDCReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
@@ -1300,7 +1300,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
 
         aaveWBTCPriceInEthPriceInEth = await aavePriceOracle
-          .getAssetPrice(addresses.wBTC)
+          .getAssetPrice(addresses.WBTC)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const userWBTCReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(

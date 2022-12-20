@@ -26,7 +26,7 @@ async function main() {
   await balanceOf(ADDRESSES.main.ETH, proxyAddress, options)
 
   const userStEthReserveDataProxy = await aaveDataProvider.getUserReserveData(
-    ADDRESSES.main.stETH,
+    ADDRESSES.main.STETH,
     proxyAddress,
   )
   console.log('userStEthReserveDataProxy:', userStEthReserveDataProxy)

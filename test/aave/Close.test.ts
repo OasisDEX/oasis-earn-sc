@@ -359,7 +359,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             depositOnOpenAmountInWei: ZERO,
             symbol: tokens.STETH,
-            address: ADDRESSES.main.stETH,
+            address: ADDRESSES.main.STETH,
             precision: 18,
             isEth: false,
           },
@@ -435,7 +435,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           },
         )
         const proxyStEthBalance = await balanceOf(
-          ADDRESSES.main.stETH,
+          ADDRESSES.main.STETH,
           system.common.dsProxy.address,
           {
             config,
@@ -726,7 +726,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         const beforeCloseUserStEthReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.stETH,
+          ADDRESSES.main.STETH,
           system.common.dsProxy.address,
         )
 
@@ -741,7 +741,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         const aaveStEthTokenPriceInEthOnOpen = await aavePriceOracle
-          .getAssetPrice(ADDRESSES.main.stETH)
+          .getAssetPrice(ADDRESSES.main.STETH)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const positionAfterOpen = new Position(
@@ -794,7 +794,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
         userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
         userStEthReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.stETH,
+          ADDRESSES.main.STETH,
           system.common.dsProxy.address,
         )
       } else {

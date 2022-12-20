@@ -94,8 +94,11 @@ describe.skip(`Strategy | AAVE | Deposit-Borrow`, async function () {
         {
           collectFeeFrom: 'sourceToken',
           borrowAmount: ZERO,
-          entryToken: ADDRESSES.main.ETH,
-          entryTokenAmount: collateralToken.depositAmountInBaseUnit,
+          entryToken: {
+            symbol: 'ETH',
+            amountInBaseUnit: collateralToken.depositAmountInBaseUnit,
+          },
+
           slippage: slippage,
         },
         {
@@ -125,8 +128,10 @@ describe.skip(`Strategy | AAVE | Deposit-Borrow`, async function () {
         {
           collectFeeFrom: 'sourceToken',
           borrowAmount: amountToWei(1000, 6),
-          entryToken: ADDRESSES.main.ETH,
-          entryTokenAmount: ZERO,
+          entryToken: {
+            symbol: 'ETH',
+            amountInBaseUnit: ZERO,
+          },
           slippage: slippage,
         },
         {

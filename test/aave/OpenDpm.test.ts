@@ -258,7 +258,7 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
           {
             depositAmountInBaseUnit: ZERO,
             symbol: tokens.STETH,
-            address: ADDRESSES.main.stETH,
+            address: ADDRESSES.main.STETH,
             precision: 18,
             isEth: false,
           },
