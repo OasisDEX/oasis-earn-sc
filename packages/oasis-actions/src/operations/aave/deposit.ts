@@ -18,7 +18,8 @@ interface SwapArgs {
 export interface DepositArgs {
   // - either for a swap where the `entryToken` will be exchanged for the `depositToken`
   // - or it will be directly deposited in the protocol
-  entryToken: Address
+  entryTokenAddress: Address
+  entryTokenIsEth: boolean
   // - either used for a swap if `entryToken` is swapped for `depositToken`
   // - or it will be directly deposited in the protocol
   amount: BigNumber
@@ -78,13 +79,14 @@ function getSwapCalls(
 }
 
 export async function deposit({
-  entryToken,
+  entryTokenAddress,
+  entryTokenIsEth,
   depositToken,
   amount,
   depositorAddress,
   swapArgs,
 }: DepositArgs) {
-  const isAssetEth = entryToken === ADDRESSES.main.ETH
+  const isAssetEth = entryTokenIsEth
 
   const tokenTransferCalls = [
     actions.common.wrapEth({
@@ -92,7 +94,7 @@ export async function deposit({
     }),
     actions.common.pullToken({
       amount,
-      asset: entryToken,
+      asset: entryTokenAddress,
       from: depositorAddress,
     }),
   ]
@@ -107,7 +109,7 @@ export async function deposit({
 
   const { calls: swapCalls, isSwapNeeded } = getSwapCalls(
     depositToken,
-    entryToken,
+    entryTokenAddress,
     amount,
     swapArgs,
     ADDRESSES.main.ETH,
