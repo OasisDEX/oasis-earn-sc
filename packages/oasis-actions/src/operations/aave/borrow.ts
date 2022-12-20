@@ -3,9 +3,10 @@ import BigNumber from 'bignumber.js'
 import * as actions from '../../actions'
 import { ADDRESSES } from '../../helpers/addresses'
 import { OPERATION_NAMES } from '../../helpers/constants'
+import { Address } from '../../strategies/types/IPositionRepository'
 
 export interface BorrowArgs {
-  borrowToken: string
+  borrowToken: Address
   amount: BigNumber
   account: string
   user: string

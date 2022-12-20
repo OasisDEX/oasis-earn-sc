@@ -89,7 +89,7 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     let userStEthReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES.main.stETH,
+      ADDRESSES.main.STETH,
       dsProxy.address,
     )
 
@@ -118,7 +118,7 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     const beforeCloseUserStEthReserveData: AAVEReserveData =
-      await aaveDataProvider.getUserReserveData(ADDRESSES.main.stETH, dsProxy.address)
+      await aaveDataProvider.getUserReserveData(ADDRESSES.main.STETH, dsProxy.address)
 
     const positionAfterOpen = new Position(
       {
@@ -179,7 +179,7 @@ task('closePosition', 'Close stETH position on AAVE')
     console.log('txHash', tx.transactionHash)
 
     userStEthReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES.main.stETH,
+      ADDRESSES.main.STETH,
       dsProxy.address,
     )
 

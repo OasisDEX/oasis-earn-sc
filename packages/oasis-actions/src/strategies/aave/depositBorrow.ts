@@ -7,7 +7,8 @@ import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { BorrowArgs } from '../../operations/aave/borrow'
 import { DepositArgs } from '../../operations/aave/deposit'
-import { Address, IPositionTransitionDependencies } from '../types/IPositionRepository'
+import { AAVETokens } from '../../operations/aave/tokens'
+import { IPositionTransitionDependencies } from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
 import { SwapData } from '../types/SwapData'
 
@@ -24,13 +25,11 @@ function checkTokenSupport<S extends string>(
 export async function depositBorrow(
   {
     entryToken,
-    entryTokenAmount,
     slippage,
     borrowAmount,
     collectFeeFrom,
   }: {
-    entryToken?: Address
-    entryTokenAmount?: BigNumber
+    entryToken?: { amountInBaseUnit: BigNumber; symbol: AAVETokens; precision?: number }
     slippage?: BigNumber
     borrowAmount?: BigNumber
     collectFeeFrom: 'sourceToken' | 'targetToken'
@@ -43,11 +42,15 @@ export async function depositBorrow(
   const tokenAddresses = {
     WETH: dependencies.addresses.WETH,
     ETH: dependencies.addresses.ETH,
-    stETH: dependencies.addresses.stETH,
+    STETH: dependencies.addresses.STETH,
     USDC: dependencies.addresses.USDC,
-    wBTC: dependencies.addresses.wBTC,
+    WBTC: dependencies.addresses.WBTC,
     DAI: dependencies.addresses.DAI,
   }
+
+  const entryTokenAmount = entryToken?.amountInBaseUnit || ZERO
+  const entryTokenAddress = (entryToken?.symbol && tokenAddresses[entryToken?.symbol]) || ''
+  const entryTokenIsEth = entryToken?.symbol === 'ETH'
 
   const collateralSymbol = dependencies.currentPosition.collateral.symbol
   const debtSymbol = dependencies.currentPosition.debt.symbol
@@ -67,9 +70,9 @@ export async function depositBorrow(
 
   if (entryToken && entryTokenAmount && slippage && entryTokenAmount.gt(ZERO)) {
     swapData =
-      entryToken !== collateralTokenAddress
+      entryTokenAddress !== collateralTokenAddress
         ? await dependencies.getSwapData(
-            entryToken,
+            entryTokenAddress,
             collateralTokenAddress,
             entryTokenAmount,
             slippage,
@@ -79,7 +82,8 @@ export async function depositBorrow(
     depositArgs = {
       depositorAddress: dependencies.user,
       depositToken: collateralTokenAddress,
-      entryToken: entryToken,
+      entryTokenAddress: entryTokenAddress,
+      entryTokenIsEth,
       amount: entryTokenAmount,
       swapArgs: swapData
         ? {
