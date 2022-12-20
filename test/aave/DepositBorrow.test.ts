@@ -1,8 +1,8 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   ADDRESSES,
-  IPosition,
-  IPositionTransition,
+  // IPosition,
+  // IPositionTransition,
   Position,
   strategies,
 } from '@oasisdex/oasis-actions'
@@ -15,11 +15,11 @@ import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionR
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Contract, ContractReceipt, ethers, Signer } from 'ethers'
+import { Contract, /*ContractReceipt,*/ ethers, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
-import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
-import { AAVEReserveData } from '../../helpers/aave'
+// import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
+// import { AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { GasEstimateHelper, gasEstimateHelper } from '../../helpers/gasEstimation'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
@@ -33,7 +33,7 @@ import { initialiseConfig } from '../fixtures/setup'
 
 // IMPLEMENT THIS TEST
 describe.skip(`Strategy | AAVE | Deposit-Borrow`, async function () {
-  let aaveLendingPool: Contract
+  // let aaveLendingPool: Contract
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
   let config: RuntimeConfig
@@ -42,18 +42,18 @@ describe.skip(`Strategy | AAVE | Deposit-Borrow`, async function () {
 
   before(async function () {
     ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
-    aaveLendingPool = new Contract(
-      ADDRESSES.main.aave.MainnetLendingPool,
-      AAVELendigPoolABI,
-      provider,
-    )
+    // aaveLendingPool = new Contract(
+    //   ADDRESSES.main.aave.MainnetLendingPool,
+    //   AAVELendigPoolABI,
+    //   provider,
+    // )
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
   describe('Uniswap t/x', function () {
     const slippage = new BigNumber(0.1)
 
-    let positionTransition: IPositionTransition
+    // let positionTransition: IPositionTransition
     let txStatus: boolean
     let gasEstimates: GasEstimateHelper
 
@@ -248,11 +248,11 @@ describe.skip(`Strategy | AAVE | Deposit-Borrow`, async function () {
     describe(`test`, function () {
       const depositEthAmount = amountToWei(new BigNumber(10))
       gasEstimates = gasEstimateHelper()
-      let userUsdcReserveData: AAVEReserveData
-      let userWethReserveData: AAVEReserveData
-      let feeRecipientWethBalanceBefore: BigNumber
-      let actualPosition: IPosition
-      let tx: ContractReceipt
+      // let userUsdcReserveData: AAVEReserveData
+      // let userWethReserveData: AAVEReserveData
+      // let feeRecipientWethBalanceBefore: BigNumber
+      // let actualPosition: IPosition
+      // let tx: ContractReceipt
 
       before(async function () {
         const setup = await setupDepositBorrowTest(
@@ -276,12 +276,12 @@ describe.skip(`Strategy | AAVE | Deposit-Borrow`, async function () {
         )
 
         txStatus = setup.txStatus
-        tx = setup.tx
-        positionTransition = setup.positionTransition
-        actualPosition = setup.actualPosition
-        userUsdcReserveData = setup.userCollateralReserveData
-        userWethReserveData = setup.userDebtReserveData
-        feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
+        // tx = setup.tx
+        // positionTransition = setup.positionTransition
+        // actualPosition = setup.actualPosition
+        // userUsdcReserveData = setup.userCollateralReserveData
+        // userWethReserveData = setup.userDebtReserveData
+        // feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
 
         // gasEstimates.save(tx)
       })
