@@ -3,10 +3,11 @@ import BigNumber from 'bignumber.js'
 import { IPosition } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
+import { getZeroSwap } from '../../helpers/swap/getZeroSwap'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { BorrowArgs } from '../../operations/aave/borrow'
-import { DepositArgs } from '../../operations/aave/deposit'
+import { DepositArgs, getIsSwapNeeded } from '../../operations/aave/deposit'
 import { AAVETokens } from '../../operations/aave/tokens'
 import { IPositionTransitionDependencies } from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
@@ -69,19 +70,26 @@ export async function depositBorrow(
   let fee: BigNumber = ZERO
 
   if (entryToken && entryTokenAmount && slippage && entryTokenAmount.gt(ZERO)) {
-    swapData =
-      entryTokenAddress !== collateralTokenAddress
-        ? await dependencies.getSwapData(
-            entryTokenAddress,
-            collateralTokenAddress,
-            entryTokenAmount,
-            slippage,
-          )
-        : undefined
+    swapData = getIsSwapNeeded(
+      entryTokenAddress,
+      collateralTokenAddress,
+      tokenAddresses.ETH,
+      tokenAddresses.WETH,
+    )
+      ? await dependencies.getSwapData(
+          entryTokenAddress,
+          collateralTokenAddress,
+          entryTokenAmount,
+          slippage,
+        )
+      : getZeroSwap(entryTokenAddress, collateralTokenAddress)
     const collectFeeInFromToken = collectFeeFrom === 'sourceToken'
     depositArgs = {
       depositorAddress: dependencies.user,
-      depositToken: collateralTokenAddress,
+      depositToken:
+        collateralTokenAddress.toLowerCase() === tokenAddresses.ETH.toLowerCase()
+          ? tokenAddresses.WETH
+          : collateralTokenAddress,
       entryTokenAddress: entryTokenAddress,
       entryTokenIsEth,
       amount: entryTokenAmount,

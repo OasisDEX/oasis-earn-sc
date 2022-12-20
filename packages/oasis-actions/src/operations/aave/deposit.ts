@@ -23,27 +23,36 @@ export interface DepositArgs {
   // - either used for a swap if `entryToken` is swapped for `depositToken`
   // - or it will be directly deposited in the protocol
   amount: BigNumber
-  depositToken: string
+  depositToken: Address
   // Used to pull tokens from if ERC20 is used in the deposit
-  depositorAddress: string
+  depositorAddress: Address
   swapArgs?: SwapArgs
 }
 
+export function getIsSwapNeeded(
+  entryTokenAddress: Address,
+  depositTokenAddress: Address,
+  ETH: Address,
+  WETH: Address,
+) {
+  const sameTokens = depositTokenAddress.toLowerCase() === entryTokenAddress.toLowerCase()
+  const ethToWeth =
+    entryTokenAddress.toLowerCase() === ETH.toLowerCase() &&
+    depositTokenAddress.toLowerCase() === WETH.toLowerCase()
+
+  return !(sameTokens || ethToWeth)
+}
+
 function getSwapCalls(
-  depositToken: string,
-  entryToken: string,
+  depositTokenAddress: Address,
+  entryTokenAddress: Address,
   amount: BigNumber,
   swapArgs: SwapArgs | undefined,
   ETH: string,
   WETH: string,
 ) {
-  const sameTokens = depositToken.toLowerCase() === entryToken.toLowerCase()
-  const ethToWeth =
-    entryToken.toLowerCase() === ETH.toLowerCase() &&
-    depositToken.toLowerCase() === WETH.toLowerCase()
-
-  const isSwapNeeded = !(sameTokens || ethToWeth)
-  const actualAssetToSwap = entryToken != ETH ? entryToken : WETH
+  const isSwapNeeded = getIsSwapNeeded(entryTokenAddress, depositTokenAddress, ETH, WETH)
+  const actualAssetToSwap = entryTokenAddress != ETH ? entryTokenAddress : WETH
 
   if (
     isSwapNeeded &&
@@ -53,7 +62,7 @@ function getSwapCalls(
       calls: [
         actions.common.swap({
           fromAsset: actualAssetToSwap,
-          toAsset: depositToken,
+          toAsset: depositTokenAddress,
           amount: amount,
           receiveAtLeast: swapArgs.receiveAtLeast,
           fee: swapArgs.fee,
@@ -65,8 +74,8 @@ function getSwapCalls(
     }
   } else {
     const skippedCall = actions.common.swap({
-      fromAsset: entryToken,
-      toAsset: depositToken,
+      fromAsset: entryTokenAddress,
+      toAsset: depositTokenAddress,
       amount: ZERO,
       receiveAtLeast: ZERO,
       fee: 0,
