@@ -82,7 +82,7 @@ export async function depositBorrow(
           entryTokenAmount,
           slippage,
         )
-      : getZeroSwap(entryTokenAddress, collateralTokenAddress)
+      : getZeroSwap(entryToken.symbol, collateralSymbol)
     const collectFeeInFromToken = collectFeeFrom === 'sourceToken'
     depositArgs = {
       depositorAddress: dependencies.user,
