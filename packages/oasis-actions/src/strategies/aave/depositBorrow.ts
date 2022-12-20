@@ -161,11 +161,11 @@ export async function depositBorrow(
         tokenFee: fee,
         collectFeeFrom,
         sourceToken: {
-          symbol: '',
+          symbol: entryToken?.symbol || '',
           precision: TYPICAL_PRECISION,
         },
         targetToken: {
-          symbol: '',
+          symbol: collateralSymbol,
           precision: TYPICAL_PRECISION,
         },
       },
