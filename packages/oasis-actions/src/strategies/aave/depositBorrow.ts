@@ -64,7 +64,7 @@ export async function depositBorrow(
 
   let depositArgs: DepositArgs | undefined
   let borrowArgs: BorrowArgs | undefined
-  let swapData: SwapData | undefined
+  let swapData: SwapData = getZeroSwap(entryToken ? entryToken.symbol : '', collateralSymbol)
   let collateralDelta: BigNumber = ZERO
   let debtDelta: BigNumber = ZERO
   let fee: BigNumber = ZERO
@@ -157,7 +157,7 @@ export async function depositBorrow(
         requiresFlashloan: false,
       },
       swap: {
-        ...swapData!,
+        ...swapData,
         tokenFee: fee,
         collectFeeFrom,
         sourceToken: {
