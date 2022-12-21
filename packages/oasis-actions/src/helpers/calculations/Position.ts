@@ -105,7 +105,7 @@ export interface IPosition extends IBasePosition {
   deposit(amount: BigNumber): IPosition
   borrow(amount: BigNumber): IPosition
   withdraw(amount: BigNumber): IPosition
-  repay(amount: BigNumber): IPosition
+  payback(amount: BigNumber): IPosition
   adjustToTargetRiskRatio: (
     targetRiskRatio: IRiskRatio,
     params: IPositionTransitionParams,
@@ -192,7 +192,7 @@ export class Position implements IPosition {
     )
   }
 
-  public repay(amount: BigNumber): IPosition {
+  public payback(amount: BigNumber): IPosition {
     return this._createTargetPosition(
       amount.negated(),
       ZERO,

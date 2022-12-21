@@ -119,9 +119,12 @@ export async function depositBorrow(
     borrowArgs = {
       account: dependencies.proxy,
       amount: borrowAmount,
-      borrowToken: debtTokenAddress,
+      borrowToken:
+        debtTokenAddress === dependencies.addresses.ETH
+          ? dependencies.addresses.WETH
+          : debtTokenAddress,
       user: dependencies.user,
-      unwrap: debtTokenAddress === dependencies.addresses.WETH,
+      isEthToken: debtTokenAddress === dependencies.addresses.ETH,
     }
     debtDelta = borrowAmount
   } else {

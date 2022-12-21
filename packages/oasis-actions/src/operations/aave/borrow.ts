@@ -10,10 +10,10 @@ export interface BorrowArgs {
   amount: BigNumber
   account: string
   user: string
-  unwrap: boolean
+  isEthToken: boolean
 }
 
-export async function borrow({ borrowToken, amount, account, user, unwrap }: BorrowArgs) {
+export async function borrow({ borrowToken, amount, account, user, isEthToken }: BorrowArgs) {
   const calls = [
     actions.aave.aaveBorrow({
       amount: amount,
@@ -25,12 +25,12 @@ export async function borrow({ borrowToken, amount, account, user, unwrap }: Bor
     }),
     actions.common.sendToken({
       amount: amount,
-      asset: unwrap ? ADDRESSES.main.ETH : borrowToken,
+      asset: isEthToken ? ADDRESSES.main.ETH : borrowToken,
       to: user,
     }),
   ]
 
-  calls[1].skipped = !unwrap
+  calls[1].skipped = !isEthToken
 
   return {
     calls,
