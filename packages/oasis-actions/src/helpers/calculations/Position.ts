@@ -31,7 +31,7 @@ export class PositionBalance implements IPositionBalance {
   }
 }
 
-interface IPositionCategory {
+export interface IPositionCategory {
   liquidationThreshold: BigNumber
   maxLoanToValue: BigNumber
   dustLimit: BigNumber

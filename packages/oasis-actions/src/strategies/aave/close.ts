@@ -9,13 +9,13 @@ import { Position } from '../../helpers/calculations/Position'
 import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { AAVETokens } from '../../operations/aave/tokens'
 import {
   IBasePositionTransitionArgs,
+  IPositionTransition,
   IPositionTransitionDependencies,
   WithLockedCollateral,
-} from '../types/IPositionRepository'
-import { IPositionTransition } from '../types/IPositionTransition'
+} from '../types'
+import { AAVETokens } from '../types/aave'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
 export async function close(
@@ -104,7 +104,6 @@ export async function close(
       debtTokenAddress,
       debtTokenIsEth: args.debtToken.symbol === 'ETH',
       isDPMProxy: dependencies.isDPMProxy,
-      user: dependencies.user,
     },
     dependencies.addresses,
   )

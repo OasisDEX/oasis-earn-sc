@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 
 import * as actions from '../../actions'
 import { MAX_UINT, OPERATION_NAMES, ZERO } from '../../helpers/constants'
-import { IOperation } from '../../strategies/types/IOperation'
+import { IOperation } from '../../strategies/types'
 import { AAVEStrategyAddresses } from './addresses'
 
 export async function paybackWithdraw(args: {
@@ -14,6 +14,7 @@ export async function paybackWithdraw(args: {
   debtTokenIsEth: boolean
   proxy: string
   user: string
+  isDPMProxy: boolean
   addresses: AAVEStrategyAddresses
 }): Promise<IOperation> {
   const pullDebtTokensToProxy = actions.common.pullToken({
@@ -27,6 +28,9 @@ export async function paybackWithdraw(args: {
     delegate: args.addresses.aaveLendingPool,
     sumAmounts: false,
   })
+  const wrapEth = actions.common.wrapEth({
+    amount: args.amountDebtToPaybackInBaseUnit,
+  })
   const paybackDebt = actions.aave.aavePayback({
     asset: args.debtTokenAddress,
     amount: args.amountDebtToPaybackInBaseUnit,
@@ -38,11 +42,6 @@ export async function paybackWithdraw(args: {
     amount: args.amountCollateralToWithdrawInBaseUnit,
     to: args.proxy,
   })
-
-  const wrapEth = actions.common.wrapEth({
-    amount: args.amountDebtToPaybackInBaseUnit,
-  })
-
   const unwrapEth = actions.common.unwrapEth({
     amount: new BigNumber(MAX_UINT),
   })
@@ -51,6 +50,9 @@ export async function paybackWithdraw(args: {
     amount: new BigNumber(MAX_UINT),
     asset: args.collateralIsEth ? args.addresses.ETH : args.collateralTokenAddress,
     to: args.user,
+  })
+  const returnFunds = actions.common.returnFunds({
+    asset: args.collateralIsEth ? args.addresses.ETH : args.collateralTokenAddress,
   })
 
   pullDebtTokensToProxy.skipped =
@@ -61,7 +63,8 @@ export async function paybackWithdraw(args: {
 
   withdrawCollateralFromAAVE.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
   unwrapEth.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !args.collateralIsEth
-  sendTokenToUser.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
+  sendTokenToUser.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !args.isDPMProxy
+  returnFunds.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || args.isDPMProxy
 
   const calls = [
     pullDebtTokensToProxy,
@@ -71,6 +74,7 @@ export async function paybackWithdraw(args: {
     withdrawCollateralFromAAVE,
     unwrapEth,
     sendTokenToUser,
+    returnFunds,
   ]
 
   return { calls: calls, operationName: OPERATION_NAMES.aave.PAYBACK_WITHDRAW }

@@ -1,5 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
+  AAVETokens,
   ADDRESSES,
   IPosition,
   ONE,
@@ -13,7 +14,6 @@ import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOra
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
 import { PositionType } from '@oasisdex/oasis-actions/lib/src/strategies/types/PositionType'
 import { IPositionTransition } from '@oasisdex/oasis-actions/src'
-import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -35,7 +35,7 @@ import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
 import { DeployedSystemInfo, deploySystem } from '../deploySystem'
-import { initialiseConfig } from '../fixtures/setup'
+import { initialiseConfig } from '../fixtures'
 import { expectToBe, TESTING_OFFSET } from '../utils'
 
 describe(`Strategy | AAVE | Adjust Position`, async function () {

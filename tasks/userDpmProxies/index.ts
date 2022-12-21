@@ -19,7 +19,6 @@ task('userDpmProxies', 'Get DPM Accounts created by User')
       accountFactoryAddress,
       signer,
     )
-
     const filter = accountFactory.filters.AccountCreated(null, user, null)
 
     const logs = await accountFactory.queryFilter(filter)

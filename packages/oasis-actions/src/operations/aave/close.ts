@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import * as actions from '../../actions'
 import { ADDRESSES } from '../../helpers/addresses'
 import { MAX_UINT, OPERATION_NAMES } from '../../helpers/constants'
-import { IOperation } from '../../strategies/types/IOperation'
+import { IOperation } from '../../strategies/types'
 import { AAVEStrategyAddresses } from './addresses'
 
 export async function close(
@@ -20,7 +20,6 @@ export async function close(
     debtTokenAddress: string
     debtTokenIsEth: boolean
     isDPMProxy: boolean
-    user: string
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
@@ -79,16 +78,12 @@ export async function close(
     amount: new BigNumber(MAX_UINT),
   })
 
-  const sendCollateralToUser = actions.common.sendToken({
-    amount: new BigNumber(MAX_UINT),
-    asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
-    to: args.user,
+  const returnDebtFunds = actions.common.returnFunds({
+    asset: args.debtTokenIsEth ? ADDRESSES.main.ETH : args.debtTokenAddress,
   })
 
-  const sendDebtToUser = actions.common.sendToken({
-    amount: new BigNumber(MAX_UINT),
-    asset: args.debtTokenIsEth ? ADDRESSES.main.ETH : args.debtTokenAddress,
-    to: args.user,
+  const returnCollateralFunds = actions.common.returnFunds({
+    asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
   })
 
   unwrapEth.skipped = !args.debtTokenIsEth && !args.collateralIsEth
@@ -107,8 +102,8 @@ export async function close(
       paybackInAAVE,
       withdrawDAIFromAAVE,
       unwrapEth,
-      sendCollateralToUser,
-      sendDebtToUser,
+      returnDebtFunds,
+      returnCollateralFunds,
     ],
   })
 

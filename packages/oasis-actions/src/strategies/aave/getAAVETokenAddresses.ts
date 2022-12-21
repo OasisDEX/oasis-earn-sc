@@ -1,6 +1,6 @@
 import { ADDRESSES } from '../../helpers/addresses'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { AAVETokens } from '../../operations/aave/tokens'
+import { AAVETokens } from '../types/aave/tokens'
 import { IPositionTransitionArgs } from '../types/IPositionRepository'
 
 export const mainnetAAVEAddresses = {

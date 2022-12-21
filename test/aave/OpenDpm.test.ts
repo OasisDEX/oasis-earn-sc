@@ -1,5 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
+  AAVETokens,
   ADDRESSES,
   IPosition,
   IPositionTransition,
@@ -10,7 +11,6 @@ import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOra
 import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
 import { PositionType } from '@oasisdex/oasis-actions/lib/src/strategies/types/PositionType'
 import { ONE, ZERO } from '@oasisdex/oasis-actions/src'
-import { AAVETokens } from '@oasisdex/oasis-actions/src/operations/aave/tokens'
 import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionRepository'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
