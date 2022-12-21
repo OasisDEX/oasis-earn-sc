@@ -158,7 +158,7 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
         collateralToken.isEth ? collateralToken.depositAmountInBaseUnit : ZERO,
       )
 
-      const [_status1] = await executeThroughProxy(
+      await executeThroughProxy(
         proxy,
         {
           address: system.common.operationExecutor.address,
