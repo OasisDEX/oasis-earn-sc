@@ -121,9 +121,7 @@ export async function depositBorrow(
     }
 
     // should we show toTokenAmount or minTokenAmount
-    collateralDelta = swapData ? swapData.toTokenAmount : entryTokenAmount
-  } else {
-    console.log('Skipping deposit')
+    collateralDelta = swapData.toTokenAmount.eq(ZERO) ? entryTokenAmount : swapData.toTokenAmount
   }
 
   if (borrowAmount?.gt(ZERO)) {
@@ -138,8 +136,6 @@ export async function depositBorrow(
       isEthToken: debtTokenAddress === dependencies.addresses.ETH,
     }
     debtDelta = borrowAmount
-  } else {
-    console.log('Skipping borrow')
   }
 
   const operation = await operations.aave.depositBorrow(depositArgs, borrowArgs)
