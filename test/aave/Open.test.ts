@@ -268,7 +268,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           {
             depositAmountInBaseUnit: ZERO,
             symbol: tokens.STETH,
-            address: ADDRESSES.main.stETH,
+            address: ADDRESSES.main.STETH,
             precision: 18,
             isEth: false,
           },
@@ -660,7 +660,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
         userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
         userStEthReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.stETH,
+          ADDRESSES.main.STETH,
           system.common.dsProxy.address,
         )
       } else {
@@ -758,12 +758,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             collateralToken,
           },
           {
+            isDPMProxy: false,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy,
             user: config.address,
-            isDPMProxy: false,
           },
         )
 

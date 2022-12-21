@@ -760,6 +760,79 @@ async function addAAVEOperationsToRegistry(args: {
     increasePositionMultipleActions,
   )
 
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.DEPOSIT, [
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEHash,
+      optional: false,
+    },
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.BORROW, [
+    {
+      hash: borromFromAAVEHash,
+      optional: false,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: sendTokenHash,
+      optional: false,
+    },
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.DEPOSIT_BORROW, [
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEHash,
+      optional: false,
+    },
+    {
+      hash: borromFromAAVEHash,
+      optional: false,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: sendTokenHash,
+      optional: false,
+    },
+  ])
+
   const decreasePositionMultipleActions = [
     {
       hash: takeAFlashloanHash,

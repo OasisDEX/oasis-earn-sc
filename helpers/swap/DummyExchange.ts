@@ -139,7 +139,7 @@ export async function loadDummyExchangeFixtures(
     },
     {
       name: 'stETH',
-      address: ADDRESSES.main.stETH,
+      address: ADDRESSES.main.STETH,
       pip: ADDRESSES.main.maker.pipWETH,
       precision: 18,
     },
@@ -163,7 +163,7 @@ export async function loadDummyExchangeFixtures(
     signer,
     ADDRESSES.main.WETH,
     tokens.filter(
-      token => token.address !== ADDRESSES.main.WETH && token.address !== ADDRESSES.main.stETH,
+      token => token.address !== ADDRESSES.main.WETH && token.address !== ADDRESSES.main.STETH,
     ),
     dummyExchangeInstance,
     debug,
@@ -201,7 +201,7 @@ export async function loadDummyExchangeFixtures(
         }
 
         if (dummyExchangeInstance.setPrice) {
-          if (token.address === ADDRESSES.main.stETH) {
+          if (token.address === ADDRESSES.main.STETH) {
             const priceInWeiStEth = amountToWei(ONE).toFixed(0)
             return dummyExchangeInstance.setPrice(token.address, priceInWeiStEth)
           } else {

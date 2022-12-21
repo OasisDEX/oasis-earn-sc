@@ -152,6 +152,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         },
         {
           ...dependencies,
+          isDPMProxy: false,
           currentPosition: beforeTransaction,
           getSwapData: oneInchCallMock(mockMarketPriceOnClose, {
             from: collateralToken.precision,
@@ -361,6 +362,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         },
         {
           ...dependencies,
+          isDPMProxy: false,
           currentPosition: beforeTransaction,
         },
       )
@@ -420,8 +422,8 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           positionType: 'Earn',
         },
         {
-          ...dependencies,
           isDPMProxy: false,
+          ...dependencies,
         },
       )
 

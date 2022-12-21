@@ -689,6 +689,79 @@ export async function deploySystem(config: RuntimeConfig, debug = true, useFallb
     },
   ])
 
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.DEPOSIT_BORROW, [
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveDepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveBorrowHash,
+      optional: false,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: sendTokenHash,
+      optional: false,
+    },
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.BORROW, [
+    {
+      hash: aaveBorrowHash,
+      optional: false,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: sendTokenHash,
+      optional: false,
+    },
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.DEPOSIT, [
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveDepositHash,
+      optional: false,
+    },
+  ])
+
   await operationsRegistry.addOp(OPERATION_NAMES.aave.DECREASE_POSITION, [
     {
       hash: takeFlashLoanHash,

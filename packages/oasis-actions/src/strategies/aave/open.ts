@@ -51,9 +51,9 @@ export async function open(
   const tokenAddresses = {
     WETH: dependencies.addresses.WETH,
     ETH: dependencies.addresses.WETH,
-    STETH: dependencies.addresses.stETH,
+    STETH: dependencies.addresses.STETH,
     USDC: dependencies.addresses.USDC,
-    WBTC: dependencies.addresses.wBTC,
+    WBTC: dependencies.addresses.WBTC,
   }
 
   const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]

@@ -70,8 +70,8 @@ task('createPosition', 'Create stETH position on AAVE')
       DAI: ADDRESSES.main.DAI,
       ETH: ADDRESSES.main.ETH,
       WETH: ADDRESSES.main.WETH,
-      stETH: ADDRESSES.main.stETH,
-      wBTC: ADDRESSES.main.WBTC,
+      STETH: ADDRESSES.main.STETH,
+      WBTC: ADDRESSES.main.WBTC,
       USDC: ADDRESSES.main.USDC,
       chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
       aavePriceOracle: ADDRESSES.main.aavePriceOracle,
@@ -158,12 +158,12 @@ task('createPosition', 'Create stETH position on AAVE')
       dsProxy.address,
     )
     const userStEthReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES.main.stETH,
+      ADDRESSES.main.STETH,
       dsProxy.address,
     )
 
     const proxyStEthBalance = await balanceOf(
-      ADDRESSES.main.stETH,
+      ADDRESSES.main.STETH,
       dsProxy.address,
       {
         config,

@@ -157,12 +157,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           positionType: 'Multiply',
         },
         {
+          isDPMProxy: false,
           addresses,
           provider,
           getSwapData: oneInchCallMock(mockMarketPriceOnOpen),
           proxy,
           user: userAddress,
-          isDPMProxy: false,
         },
       )
 
@@ -239,6 +239,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           collectSwapFeeFrom: isFeeFromDebtToken ? 'targetToken' : 'sourceToken',
         },
         {
+          isDPMProxy: false,
           addresses,
           provider,
           currentPosition: positionAfterOpen,
@@ -358,7 +359,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             depositOnOpenAmountInWei: ZERO,
             symbol: tokens.STETH,
-            address: ADDRESSES.main.stETH,
+            address: ADDRESSES.main.STETH,
             precision: 18,
             isEth: false,
           },
@@ -434,7 +435,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           },
         )
         const proxyStEthBalance = await balanceOf(
-          ADDRESSES.main.stETH,
+          ADDRESSES.main.STETH,
           system.common.dsProxy.address,
           {
             config,
@@ -696,12 +697,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             positionType: 'Multiply',
           },
           {
+            isDPMProxy: false,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address, ['ST_ETH']),
             proxy,
             user: config.address,
-            isDPMProxy: false,
           },
         )
 
@@ -725,7 +726,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         const beforeCloseUserStEthReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.stETH,
+          ADDRESSES.main.STETH,
           system.common.dsProxy.address,
         )
 
@@ -740,7 +741,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         const aaveStEthTokenPriceInEthOnOpen = await aavePriceOracle
-          .getAssetPrice(ADDRESSES.main.stETH)
+          .getAssetPrice(ADDRESSES.main.STETH)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const positionAfterOpen = new Position(
@@ -773,6 +774,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
             user: config.address,
+            isDPMProxy: false,
           },
         )
 
@@ -792,7 +794,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
         userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
         userStEthReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.stETH,
+          ADDRESSES.main.STETH,
           system.common.dsProxy.address,
         )
       } else {
@@ -875,12 +877,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             collateralToken,
           },
           {
+            isDPMProxy: false,
             addresses,
             provider,
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy,
             user: config.address,
-            isDPMProxy: false,
           },
         )
 
@@ -957,6 +959,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
             user: config.address,
+            isDPMProxy: false,
           },
         )
 
