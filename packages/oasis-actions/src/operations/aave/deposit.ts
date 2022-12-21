@@ -13,8 +13,6 @@ interface SwapArgs {
   collectFeeInFromToken: boolean
 }
 
-// TODO: Probably put a generic about the tokens i.e DepositArgs<Tokens> and provide AAVETokens
-// TODO: Take into consideration the precision for the tokens. So indeed might be a good idea for the Tokens generics
 export interface DepositArgs {
   // - either for a swap where the `entryToken` will be exchanged for the `depositToken`
   // - or it will be directly deposited in the protocol
