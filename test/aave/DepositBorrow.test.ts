@@ -184,12 +184,6 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
         ethDepositAmt.toFixed(0),
       )
 
-      console.log(`
-      ${positionTransition.transaction.operationName} ${_status1}
-      ${positionTransition2.transaction.operationName} ${_txStatus}
-      
-      `)
-
       const userCollateralReserveData = await aaveDataProvider.getUserReserveData(
         ADDRESSES.main.WETH,
         proxy,
