@@ -7,24 +7,30 @@ import { Address } from '../../strategies/types/IPositionRepository'
 
 export interface BorrowArgs {
   borrowToken: Address
-  amount: BigNumber
+  amountInBaseUnit: BigNumber
   account: string
   user: string
   isEthToken: boolean
 }
 
-export async function borrow({ borrowToken, amount, account, user, isEthToken }: BorrowArgs) {
+export async function borrow({
+  borrowToken,
+  amountInBaseUnit,
+  account,
+  user,
+  isEthToken,
+}: BorrowArgs) {
   const calls = [
     actions.aave.aaveBorrow({
-      amount: amount,
+      amount: amountInBaseUnit,
       asset: borrowToken,
       to: account,
     }),
     actions.common.unwrapEth({
-      amount: amount,
+      amount: amountInBaseUnit,
     }),
     actions.common.sendToken({
-      amount: amount,
+      amount: amountInBaseUnit,
       asset: isEthToken ? ADDRESSES.main.ETH : borrowToken,
       to: user,
     }),

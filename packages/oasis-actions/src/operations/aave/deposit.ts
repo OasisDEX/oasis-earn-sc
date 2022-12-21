@@ -20,56 +20,40 @@ export interface DepositArgs {
   entryTokenIsEth: boolean
   // - either used for a swap if `entryToken` is swapped for `depositToken`
   // - or it will be directly deposited in the protocol
-  amount: BigNumber
+  amountInBaseUnit: BigNumber
   depositToken: Address
   // Used to pull tokens from if ERC20 is used in the deposit
   depositorAddress: Address
+  isSwapNeeded: boolean
   swapArgs?: SwapArgs
-}
-
-export function getIsSwapNeeded(
-  entryTokenAddress: Address,
-  depositTokenAddress: Address,
-  ETH: Address,
-  WETH: Address,
-) {
-  const sameTokens = depositTokenAddress.toLowerCase() === entryTokenAddress.toLowerCase()
-  const ethToWeth =
-    entryTokenAddress.toLowerCase() === ETH.toLowerCase() &&
-    depositTokenAddress.toLowerCase() === WETH.toLowerCase()
-
-  return !(sameTokens || ethToWeth)
 }
 
 function getSwapCalls(
   depositTokenAddress: Address,
   entryTokenAddress: Address,
-  amount: BigNumber,
+  amountInBaseUnit: BigNumber,
   swapArgs: SwapArgs | undefined,
-  ETH: string,
-  WETH: string,
+  ETHAddress: Address,
+  WETHAddress: Address,
+  isSwapNeeded: boolean,
 ) {
-  const isSwapNeeded = getIsSwapNeeded(entryTokenAddress, depositTokenAddress, ETH, WETH)
-  const actualAssetToSwap = entryTokenAddress != ETH ? entryTokenAddress : WETH
+  const actualAssetToSwap = entryTokenAddress != ETHAddress ? entryTokenAddress : WETHAddress
 
   if (
     isSwapNeeded &&
     isDefined(swapArgs, 'Swap arguments are needed when deposit token is not entry token')
   ) {
-    return {
-      calls: [
-        actions.common.swap({
-          fromAsset: actualAssetToSwap,
-          toAsset: depositTokenAddress,
-          amount: amount,
-          receiveAtLeast: swapArgs.receiveAtLeast,
-          fee: swapArgs.fee,
-          withData: swapArgs.calldata,
-          collectFeeInFromToken: swapArgs.collectFeeInFromToken,
-        }),
-      ],
-      isSwapNeeded,
-    }
+    return [
+      actions.common.swap({
+        fromAsset: actualAssetToSwap,
+        toAsset: depositTokenAddress,
+        amount: amountInBaseUnit,
+        receiveAtLeast: swapArgs.receiveAtLeast,
+        fee: swapArgs.fee,
+        withData: swapArgs.calldata,
+        collectFeeInFromToken: swapArgs.collectFeeInFromToken,
+      }),
+    ]
   } else {
     const skippedCall = actions.common.swap({
       fromAsset: entryTokenAddress,
@@ -81,7 +65,8 @@ function getSwapCalls(
       collectFeeInFromToken: true,
     })
     skippedCall.skipped = true
-    return { calls: [skippedCall], isSwapNeeded }
+
+    return [skippedCall]
   }
 }
 
@@ -89,18 +74,19 @@ export async function deposit({
   entryTokenAddress,
   entryTokenIsEth,
   depositToken,
-  amount,
+  amountInBaseUnit,
   depositorAddress,
   swapArgs,
+  isSwapNeeded,
 }: DepositArgs) {
   const isAssetEth = entryTokenIsEth
 
   const tokenTransferCalls = [
     actions.common.wrapEth({
-      amount,
+      amount: amountInBaseUnit,
     }),
     actions.common.pullToken({
-      amount,
+      amount: amountInBaseUnit,
       asset: entryTokenAddress,
       from: depositorAddress,
     }),
@@ -114,13 +100,14 @@ export async function deposit({
     tokenTransferCalls[0].skipped = true
   }
 
-  const { calls: swapCalls, isSwapNeeded } = getSwapCalls(
+  const swapCalls = getSwapCalls(
     depositToken,
     entryTokenAddress,
-    amount,
+    amountInBaseUnit,
     swapArgs,
     ADDRESSES.main.ETH,
     ADDRESSES.main.WETH,
+    isSwapNeeded,
   )
 
   return {
@@ -133,7 +120,7 @@ export async function deposit({
           delegate: ADDRESSES.main.aave.MainnetLendingPool,
           // Check the explanation about the deposit action.
           // This approval is about the amount that's going to be deposit in the following action
-          amount,
+          amount: amountInBaseUnit,
           sumAmounts: false,
         },
         [0, 0, isSwapNeeded ? 1 : 0, 0],
@@ -147,7 +134,7 @@ export async function deposit({
       actions.aave.aaveDeposit(
         {
           asset: depositToken,
-          amount,
+          amount: amountInBaseUnit,
           sumAmounts: false,
           setAsCollateral: true,
         },

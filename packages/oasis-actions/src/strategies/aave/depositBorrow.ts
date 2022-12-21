@@ -7,11 +7,18 @@ import { getZeroSwap } from '../../helpers/swap/getZeroSwap'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { BorrowArgs } from '../../operations/aave/borrow'
-import { DepositArgs, getIsSwapNeeded } from '../../operations/aave/deposit'
+import { DepositArgs } from '../../operations/aave/deposit'
 import { AAVETokens } from '../../operations/aave/tokens'
-import { IPositionTransitionDependencies } from '../types/IPositionRepository'
+import { Address, IPositionTransitionDependencies } from '../types/IPositionRepository'
 import { IPositionTransition } from '../types/IPositionTransition'
 import { SwapData } from '../types/SwapData'
+
+interface DepositBorrowArgs {
+  entryToken?: { amountInBaseUnit: BigNumber; symbol: AAVETokens; precision?: number }
+  slippage?: BigNumber
+  borrowAmount?: BigNumber
+  collectFeeFrom: 'sourceToken' | 'targetToken'
+}
 
 function checkTokenSupport<S extends string>(
   token: string,
@@ -23,18 +30,22 @@ function checkTokenSupport<S extends string>(
   }
 }
 
+function getIsSwapNeeded(
+  entryTokenAddress: Address,
+  depositTokenAddress: Address,
+  ETHAddress: Address,
+  WETHAddress: Address,
+) {
+  const sameTokens = depositTokenAddress.toLowerCase() === entryTokenAddress.toLowerCase()
+  const ethToWeth =
+    entryTokenAddress.toLowerCase() === ETHAddress.toLowerCase() &&
+    depositTokenAddress.toLowerCase() === WETHAddress.toLowerCase()
+
+  return !(sameTokens || ethToWeth)
+}
+
 export async function depositBorrow(
-  {
-    entryToken,
-    slippage,
-    borrowAmount,
-    collectFeeFrom,
-  }: {
-    entryToken?: { amountInBaseUnit: BigNumber; symbol: AAVETokens; precision?: number }
-    slippage?: BigNumber
-    borrowAmount?: BigNumber
-    collectFeeFrom: 'sourceToken' | 'targetToken'
-  },
+  { entryToken, slippage, borrowAmount, collectFeeFrom }: DepositBorrowArgs,
   dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
 ): Promise<IPositionTransition> {
   const FEE = 20
@@ -70,12 +81,13 @@ export async function depositBorrow(
   let fee: BigNumber = ZERO
 
   if (entryToken && entryTokenAmount && slippage && entryTokenAmount.gt(ZERO)) {
-    swapData = getIsSwapNeeded(
+    const isSwapNeeded = getIsSwapNeeded(
       entryTokenAddress,
       collateralTokenAddress,
       tokenAddresses.ETH,
       tokenAddresses.WETH,
     )
+    swapData = isSwapNeeded
       ? await dependencies.getSwapData(
           entryTokenAddress,
           collateralTokenAddress,
@@ -92,7 +104,8 @@ export async function depositBorrow(
           : collateralTokenAddress,
       entryTokenAddress: entryTokenAddress,
       entryTokenIsEth,
-      amount: entryTokenAmount,
+      amountInBaseUnit: entryTokenAmount,
+      isSwapNeeded,
       swapArgs: swapData
         ? {
             calldata: swapData.exchangeCalldata.toString(),
@@ -118,7 +131,7 @@ export async function depositBorrow(
   if (borrowAmount?.gt(ZERO)) {
     borrowArgs = {
       account: dependencies.proxy,
-      amount: borrowAmount,
+      amountInBaseUnit: borrowAmount,
       borrowToken:
         debtTokenAddress === dependencies.addresses.ETH
           ? dependencies.addresses.WETH
@@ -139,8 +152,6 @@ export async function depositBorrow(
   const finalPosition: IPosition = dependencies.currentPosition
     .deposit(collateralDelta)
     .borrow(debtDelta)
-
-  console.log(JSON.stringify(operation, null, 4))
 
   return {
     transaction: {

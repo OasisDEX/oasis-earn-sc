@@ -32,7 +32,7 @@ import { tokens } from '../constants'
 import { initialiseConfig } from '../fixtures/setup'
 
 // IMPLEMENT THIS TEST
-describe.skip(`Strategy | AAVE | Deposit-Borrow`, async function () {
+describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
   // let aaveLendingPool: Contract
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
@@ -105,7 +105,7 @@ describe.skip(`Strategy | AAVE | Deposit-Borrow`, async function () {
           addresses,
           currentPosition: new Position(
             new PositionBalance({ amount: new BigNumber(0), symbol: debtToken.symbol }),
-            new PositionBalance({ amount: new BigNumber(0), symbol: 'WETH' }),
+            new PositionBalance({ amount: new BigNumber(0), symbol: 'ETH' }),
             new BigNumber(2000),
             {
               liquidationThreshold: ZERO,
@@ -148,9 +148,6 @@ describe.skip(`Strategy | AAVE | Deposit-Borrow`, async function () {
         },
       )
 
-      console.log(JSON.stringify(positionTransition), null, 4)
-      console.log(JSON.stringify(positionTransition2), null, 4)
-
       const feeRecipientBalanceBefore = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
         ADDRESSES.main.feeRecipient,
@@ -161,7 +158,7 @@ describe.skip(`Strategy | AAVE | Deposit-Borrow`, async function () {
         collateralToken.isEth ? collateralToken.depositAmountInBaseUnit : ZERO,
       )
 
-      await executeThroughProxy(
+      const [_status1] = await executeThroughProxy(
         proxy,
         {
           address: system.common.operationExecutor.address,
@@ -186,6 +183,12 @@ describe.skip(`Strategy | AAVE | Deposit-Borrow`, async function () {
         signer,
         ethDepositAmt.toFixed(0),
       )
+
+      console.log(`
+      ${positionTransition.transaction.operationName} ${_status1}
+      ${positionTransition2.transaction.operationName} ${_txStatus}
+      
+      `)
 
       const userCollateralReserveData = await aaveDataProvider.getUserReserveData(
         ADDRESSES.main.WETH,
