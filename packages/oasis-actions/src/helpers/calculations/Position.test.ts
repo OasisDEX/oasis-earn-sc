@@ -222,3 +222,50 @@ describe('Calculate Position Helper', async () => {
     })
   })
 })
+
+describe('Position Mock Tests', () => {
+  const maxDebt = { amount: new BigNumber(80), symbol: 'ETH', precision: 18 }
+  const halfDebt = { amount: new BigNumber(40), symbol: 'ETH', precision: 18 }
+  const collateral = { amount: new BigNumber(200), symbol: 'STETH', precision: 18 }
+  const oraclePrice = new BigNumber(0.5)
+  const positionCategory = {
+    liquidationThreshold: new BigNumber(0.81),
+    maxLoanToValue: new BigNumber(0.8),
+    dustLimit: new BigNumber(0),
+  }
+
+  describe('Max Debt to Borrow', () => {
+    it('Should return 0 if current LTV is max LTV', () => {
+      const position = new Position(maxDebt, collateral, oraclePrice, positionCategory)
+
+      const result = position.maxDebtToBorrow
+
+      expect(result.toString()).to.equal(ZERO.toString())
+    })
+
+    it('Should return exactly value of debt when LTV is half of max LTV', () => {
+      const position = new Position(halfDebt, collateral, oraclePrice, positionCategory)
+
+      const result = position.maxDebtToBorrow
+
+      expect(result.toString()).to.equal(halfDebt.amount.toString())
+    })
+  })
+  describe('Max Collateral to Withdraw', () => {
+    it('Should return 0 if current LTV is max LTV', () => {
+      const position = new Position(maxDebt, collateral, oraclePrice, positionCategory)
+
+      const result = position.maxCollateralToWithdraw
+
+      expect(result.toString()).to.equal(ZERO.toString())
+    })
+  })
+
+  it('Should return exactly halt value of collateral when LTV is half of max LTV', () => {
+    const position = new Position(halfDebt, collateral, oraclePrice, positionCategory)
+
+    const result = position.maxCollateralToWithdraw
+
+    expect(result.toString()).to.equal(collateral.amount.div(2).toString())
+  })
+})
