@@ -733,7 +733,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: true,
     },
     {
-      hash: sendTokenHash,
+      hash: returnFundsActionHash,
       optional: false,
     },
   ])

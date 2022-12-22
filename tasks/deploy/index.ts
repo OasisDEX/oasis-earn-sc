@@ -794,7 +794,7 @@ async function addAAVEOperationsToRegistry(args: {
       optional: true,
     },
     {
-      hash: sendTokenHash,
+      hash: returnFundsHash,
       optional: false,
     },
   ])
