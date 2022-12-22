@@ -102,6 +102,8 @@ export interface IPosition extends IBasePosition {
   riskRatio: IRiskRatio
   healthFactor: BigNumber
   liquidationPrice: BigNumber
+  maxDebtToBorrow: BigNumber
+  maxCollateralToWithdraw: BigNumber
   deposit(amount: BigNumber): IPosition
   borrow(amount: BigNumber): IPosition
   withdraw(amount: BigNumber): IPosition
@@ -141,6 +143,22 @@ export class Position implements IPosition {
         .times(this._oraclePriceForCollateralDebtExchangeRate),
     )
     return new RiskRatio(ltv, RiskRatio.TYPE.LTV)
+  }
+
+  public get maxDebtToBorrow() {
+    const maxLoanToValue = this.category.maxLoanToValue
+    return this.collateral.normalisedAmount
+      .times(this._oraclePriceForCollateralDebtExchangeRate)
+      .times(maxLoanToValue)
+      .minus(this.debt.normalisedAmount)
+  }
+
+  public get maxCollateralToWithdraw() {
+    const maxLoanToValue = this.category.maxLoanToValue
+    const minimumCollateral = this.debt.normalisedAmount.div(
+      maxLoanToValue.times(this._oraclePriceForCollateralDebtExchangeRate),
+    )
+    return this.collateral.amount.minus(minimumCollateral)
   }
 
   public get riskRatio() {

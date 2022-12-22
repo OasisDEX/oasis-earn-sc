@@ -1,9 +1,3 @@
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-
-import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
-import { amountFromWei } from '../../helpers'
-import { Position } from '../../helpers/calculations/Position'
 import { ZERO } from '../../helpers/constants'
 import { getZeroSwap } from '../../helpers/swap/getZeroSwap'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
@@ -28,18 +22,6 @@ export async function paybackWithdraw(
     dependencies.addresses,
   )
 
-  const aavePriceOracle = new ethers.Contract(
-    dependencies.addresses.aavePriceOracle,
-    aavePriceOracleABI,
-    dependencies.provider,
-  )
-
-  const [aaveCollateralTokenPriceInEth] = await Promise.all([
-    aavePriceOracle
-      .getAssetPrice(collateralTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-  ])
-
   const transaction = await operations.aave.paybackWithdraw({
     amountCollateralToWithdrawInBaseUnit: args.amountCollateralToWithdrawInBaseUnit,
     amountDebtToPaybackInBaseUnit: args.amountDebtToPaybackInBaseUnit,
@@ -53,18 +35,9 @@ export async function paybackWithdraw(
     addresses: dependencies.addresses,
   })
 
-  const finalPosition = new Position(
-    {
-      amount: currentPosition.debt.amount.minus(args.amountDebtToPaybackInBaseUnit),
-      symbol: currentPosition.debt.symbol,
-    },
-    {
-      amount: currentPosition.collateral.amount.plus(args.amountCollateralToWithdrawInBaseUnit),
-      symbol: currentPosition.collateral.symbol,
-    },
-    aaveCollateralTokenPriceInEth,
-    currentPosition.category,
-  )
+  const finalPosition = currentPosition
+    .payback(args.amountDebtToPaybackInBaseUnit)
+    .withdraw(args.amountCollateralToWithdrawInBaseUnit)
 
   const flags = {
     requiresFlashloan: false,
