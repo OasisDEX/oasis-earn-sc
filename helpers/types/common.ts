@@ -1,4 +1,5 @@
 import { ethers, providers } from 'ethers'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 export type ValueOf<T> = T[keyof T]
 
@@ -34,6 +35,11 @@ export interface RuntimeConfig {
 export type WithRuntimeConfig = {
   config: RuntimeConfig
 }
+
+export type HardhatRuntimeConfig = {
+  ethers: HardhatRuntimeEnvironment['ethers']
+  network: HardhatRuntimeEnvironment['network']
+} & RuntimeConfig
 
 export type BalanceOptions = Debug & FormatUnit & WithRuntimeConfig
 

@@ -7,36 +7,36 @@ import { amountToWei } from '../../../helpers/utils'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { OpenPositionTypes } from './openPositionTypes'
 
-async function getStEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1]) {
-  const debtToken = { symbol: 'ETH' as const, precision: 18 }
-  const collateralToken = { symbol: 'STETH' as const, precision: 18 }
+async function getEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
+  const debtToken = { symbol: 'USDC' as const, precision: 6 }
+  const collateralToken = { symbol: 'ETH' as const, precision: 18 }
 
   const args: OpenPositionTypes[0] = {
     collateralToken: collateralToken,
     debtToken: debtToken,
     slippage: new BigNumber(0.1),
     depositedByUser: {
-      debtToken: {
-        amountInBaseUnit: amountToWei(new BigNumber(10), debtToken.precision),
+      collateralToken: {
+        amountInBaseUnit: amountToWei(new BigNumber(10), collateralToken.precision),
       },
     },
     multiple: new BigNumber(1.5),
-    positionType: 'Earn',
+    positionType: 'Multiply',
     collectSwapFeeFrom: 'sourceToken',
   }
 
   return await strategies.aave.open(args, dependencies)
 }
 
-export async function createStEthEthEarnAAVEPosition(
+export async function createEthUsdcMultiplyAAVEPosition(
   proxy: string,
   isDPM: boolean,
   dependencies: StrategiesDependencies,
   config: RuntimeConfig,
 ): Promise<PositionDetails> {
-  const strategy: AavePositionStrategy = 'STETH/ETH Earn'
+  const strategy: AavePositionStrategy = 'ETH/USDC Multiply'
 
-  const stEthEthEarnAAVEPosition = await getStEthEthEarnAAVEPosition({
+  const position = await getEthUsdcMultiplyAAVEPosition({
     ...dependencies,
     isDPMProxy: isDPM,
     proxy: proxy,
@@ -49,15 +49,12 @@ export async function createStEthEthEarnAAVEPosition(
     {
       address: dependencies.contracts.operationExecutor.address,
       calldata: dependencies.contracts.operationExecutor.interface.encodeFunctionData('executeOp', [
-        stEthEthEarnAAVEPosition.transaction.calls,
-        stEthEthEarnAAVEPosition.transaction.operationName,
+        position.transaction.calls,
+        position.transaction.operationName,
       ]),
     },
     config.signer,
-    amountToWei(
-      new BigNumber(10),
-      stEthEthEarnAAVEPosition.simulation.position.debt.precision,
-    ).toString(),
+    amountToWei(new BigNumber(10), position.simulation.position.collateral.precision).toString(),
   )
 
   if (!status) {
@@ -69,8 +66,8 @@ export async function createStEthEthEarnAAVEPosition(
     getPosition: async () => {
       return await strategies.aave.view(
         {
-          collateralToken: { symbol: 'STETH' as const, precision: 18 },
-          debtToken: { symbol: 'ETH' as const, precision: 18 },
+          collateralToken: { symbol: 'ETH' as const, precision: 18 },
+          debtToken: { symbol: 'USDC' as const, precision: 6 },
           proxy: proxy,
         },
         {
@@ -82,6 +79,6 @@ export async function createStEthEthEarnAAVEPosition(
         },
       )
     },
-    strategy: 'STETH/ETH Earn',
+    strategy,
   }
 }

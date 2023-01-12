@@ -19,7 +19,7 @@ export async function swapUniswapTokens(
   amountIn: string,
   amountOutMinimum: string,
   recipient: string,
-  { provider, signer }: RuntimeConfig,
+  { provider, signer }: Pick<RuntimeConfig, 'provider' | 'signer'>,
 ) {
   const value = tokenIn === ADDRESSES.main.WETH ? amountIn : 0
 

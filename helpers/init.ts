@@ -1,7 +1,7 @@
 import { providers } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { RuntimeConfig } from './types/common'
+import { HardhatRuntimeConfig, RuntimeConfig } from './types/common'
 
 export default async function init(
   hre?: HardhatRuntimeEnvironment,
@@ -25,6 +25,30 @@ export default async function init(
   }
 }
 
+export async function hardhatInit(
+  hre?: HardhatRuntimeEnvironment,
+  impersonateAccount?: (
+    provider: providers.JsonRpcProvider,
+  ) => Promise<{ signer: providers.JsonRpcSigner; address: string }>,
+): Promise<HardhatRuntimeConfig> {
+  const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
+  const network = hre ? hre.network : (await import('hardhat')).network
+  const provider = ethers.provider
+  let signer = provider.getSigner()
+  let address = await signer.getAddress()
+
+  if (impersonateAccount) {
+    ;({ signer, address } = await impersonateAccount(provider))
+  }
+
+  return {
+    provider,
+    signer,
+    address,
+    ethers,
+    network,
+  }
+}
 const testBlockNumber = Number(process.env.TESTS_BLOCK_NUMBER)
 export async function resetNode(
   provider: providers.JsonRpcProvider,

@@ -14,6 +14,7 @@ import 'solidity-docgen'
 import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
 import './tasks/userDpmProxies'
+import './tasks/createMultiplyPosition'
 
 import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'

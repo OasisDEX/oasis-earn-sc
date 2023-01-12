@@ -1,19 +1,28 @@
 import BigNumber from 'bignumber.js'
 
-import init, { resetNode } from '../../helpers/init'
+import { buildGetTokenFunction } from '../../helpers/aave/'
+import { hardhatInit, resetNode } from '../../helpers/init'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { deploySystem } from '../deploySystem'
-import { createDPMAccount, createStEthEthEarnAAVEPosition } from './factories'
+import {
+  createDPMAccount,
+  createEthUsdcMultiplyAAVEPosition,
+  createStEthEthEarnAAVEPosition,
+  createStEthUsdcMultiplyAAVEPosition,
+  createWbtcUsdcMultiplyAAVEPosition,
+} from './factories'
 import { AavePositionStrategy, StrategiesDependencies, SystemWithAAVEPosition } from './types'
 
 export function getSupportedStrategies(): AavePositionStrategy[] {
-  return ['STETH/ETH Earn', 'WBTC/USDC Multiply']
+  return ['ETH/USDC Multiply', 'STETH/USDC Multiply', 'WBTC/USDC Multiply', 'STETH/ETH Earn']
 }
 
 export async function getSystemWithAAVEPosition(): Promise<SystemWithAAVEPosition> {
-  const config = await init()
+  const config = await hardhatInit()
+
+  const getTokens = buildGetTokenFunction(config)
 
   if (testBlockNumber) {
     await resetNode(config.provider, testBlockNumber)
@@ -34,17 +43,61 @@ export async function getSystemWithAAVEPosition(): Promise<SystemWithAAVEPositio
     getSwapData: oneInchCallMock(new BigNumber(0.9759)),
   }
 
-  const dpmProxy = await createDPMAccount(system.common.accountFactory.address, config)
+  const [dpmProxyForEarnStEthEth] = await createDPMAccount(
+    system.common.accountFactory.address,
+    config,
+  )
+  const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(
+    system.common.accountFactory.address,
+    config,
+  )
+  const [dpmProxyForMultiplyStEthUsdc] = await createDPMAccount(
+    system.common.accountFactory.address,
+    config,
+  )
 
-  if (!dpmProxy) {
+  const [dpmProxyForMultiplyWbtcUsdc] = await createDPMAccount(
+    system.common.accountFactory.address,
+    config,
+  )
+
+  if (
+    !dpmProxyForEarnStEthEth ||
+    !dpmProxyForMultiplyStEthUsdc ||
+    !dpmProxyForMultiplyEthUsdc ||
+    !dpmProxyForMultiplyWbtcUsdc
+  ) {
     throw new Error('Cant create a DPM proxy')
   }
 
   const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition(
-    dpmProxy,
+    dpmProxyForEarnStEthEth,
     true,
     dependecies,
     config,
+  )
+
+  const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition(
+    dpmProxyForMultiplyEthUsdc,
+    true,
+    dependecies,
+    config,
+  )
+
+  const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition(
+    dpmProxyForMultiplyStEthUsdc,
+    true,
+    dependecies,
+    config,
+    getTokens,
+  )
+
+  const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition(
+    dpmProxyForMultiplyWbtcUsdc,
+    true,
+    dependecies,
+    config,
+    getTokens,
   )
 
   const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition(
@@ -61,7 +114,11 @@ export async function getSystemWithAAVEPosition(): Promise<SystemWithAAVEPositio
     strategiesDependencies: dependecies,
     dpmPositions: {
       [stEthEthEarnPosition.strategy]: stEthEthEarnPosition,
+      [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition,
+      [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition,
+      [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon,
     },
     dsProxyPosition: dsProxyStEthEthEarnPosition,
+    getTokens,
   }
 }
