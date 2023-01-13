@@ -170,10 +170,10 @@ export class Position implements IPosition {
   }
 
   public get healthFactor() {
-    return this.collateral.amount
+    return this.collateral.normalisedAmount
       .times(this.category.liquidationThreshold)
       .times(this._oraclePriceForCollateralDebtExchangeRate)
-      .div(this.debt.amount)
+      .div(this.debt.normalisedAmount)
   }
 
   public get liquidationPrice() {
