@@ -63,8 +63,8 @@ export async function paybackWithdraw(args: {
 
   withdrawCollateralFromAAVE.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
   unwrapEth.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !args.collateralIsEth
-  sendTokenToUser.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !args.isDPMProxy
-  returnFunds.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || args.isDPMProxy
+  sendTokenToUser.skipped = true // right now DPM has owner functionality, so it will work.
+  returnFunds.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
 
   const calls = [
     pullDebtTokensToProxy,

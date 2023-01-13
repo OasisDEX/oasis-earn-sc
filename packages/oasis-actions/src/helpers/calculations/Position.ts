@@ -181,43 +181,19 @@ export class Position implements IPosition {
   }
 
   public deposit(amount: BigNumber): IPosition {
-    return this._createTargetPosition(
-      ZERO,
-      amount,
-      this._oraclePriceForCollateralDebtExchangeRate,
-      this.debt.amount,
-      this.collateral.amount,
-    )
+    return this.changeCollateral(amount)
   }
 
   public withdraw(amount: BigNumber): IPosition {
-    return this._createTargetPosition(
-      ZERO,
-      amount.negated(),
-      this._oraclePriceForCollateralDebtExchangeRate,
-      this.debt.amount,
-      this.collateral.amount,
-    )
+    return this.changeCollateral(amount.negated())
   }
 
   public borrow(amount: BigNumber): IPosition {
-    return this._createTargetPosition(
-      amount,
-      ZERO,
-      this._oraclePriceForCollateralDebtExchangeRate,
-      this.debt.amount,
-      this.collateral.amount,
-    )
+    return this.changeDebt(amount)
   }
 
   public payback(amount: BigNumber): IPosition {
-    return this._createTargetPosition(
-      amount.negated(),
-      ZERO,
-      this._oraclePriceForCollateralDebtExchangeRate,
-      this.debt.amount,
-      this.collateral.amount,
-    )
+    return this.changeDebt(amount.negated())
   }
 
   /**
@@ -641,9 +617,35 @@ export class Position implements IPosition {
 
     const newDebt = { ...this.debt, amount: newDebtAmount }
 
-    const newPosition = new Position(newDebt, newCollateral, oraclePrice, this.category)
+    return new Position(newDebt, newCollateral, oraclePrice, this.category)
+  }
 
-    return newPosition
+  private changeDebt(debtDelta: BigNumber): IPosition {
+    const newDebt = new PositionBalance({
+      amount: this.debt.amount.plus(debtDelta),
+      precision: this.debt.precision,
+      symbol: this.debt.symbol,
+    })
+    return new Position(
+      newDebt,
+      this.collateral,
+      this._oraclePriceForCollateralDebtExchangeRate,
+      this.category,
+    )
+  }
+
+  private changeCollateral(collateralDelta: BigNumber): IPosition {
+    const newCollateral = new PositionBalance({
+      precision: this.collateral.precision,
+      symbol: this.collateral.symbol,
+      amount: this.collateral.amount.plus(collateralDelta),
+    })
+    return new Position(
+      this.debt,
+      newCollateral,
+      this._oraclePriceForCollateralDebtExchangeRate,
+      this.category,
+    )
   }
 
   private _calculateFee(amount: BigNumber, fee: BigNumber): BigNumber {

@@ -4,8 +4,9 @@ import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../helpers/deploy'
-import { amountToWei, balanceOf } from '../../helpers/utils'
+import { amountToWei, approve, balanceOf } from '../../helpers/utils'
 import { zero } from '../../scripts/common'
+import { mainnetAddresses } from '../addresses'
 import {
   getSupportedStrategies,
   getSystemWithAAVEPosition,
@@ -21,20 +22,37 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
   describe('Payback debt', () => {
     describe('When position is opened with DSProxy', () => {
       it('Should reduce debt', async () => {
-        const { dsProxyPosition, strategiesDependencies, system, config } = fixture
+        const { dsProxyPosition, strategiesDependencies, system, config, getTokens } = fixture
         const beforeTransactionPosition = await dsProxyPosition.getPosition()
+
+        const amountToPayback = amountToWei(
+          new BigNumber(1),
+          beforeTransactionPosition.debt.precision,
+        )
 
         type PaybackDebtTypes = Parameters<typeof strategies.aave.paybackWithdraw>
         const args: PaybackDebtTypes[0] = {
           debtToken: beforeTransactionPosition.debt,
           collateralToken: beforeTransactionPosition.collateral,
-          amountDebtToPaybackInBaseUnit: amountToWei(
-            new BigNumber(1),
-            beforeTransactionPosition.debt.precision,
-          ),
+          amountDebtToPaybackInBaseUnit: amountToPayback,
           amountCollateralToWithdrawInBaseUnit: zero,
           slippage: new BigNumber(0.1),
         }
+
+        if (
+          beforeTransactionPosition.debt.symbol !== 'ETH' &&
+          beforeTransactionPosition.debt.symbol !== 'WETH'
+        ) {
+          await getTokens(beforeTransactionPosition.debt.symbol, amountToPayback.toString())
+          await approve(
+            beforeTransactionPosition.debt.symbol,
+            dsProxyPosition.proxy,
+            args.amountDebtToPaybackInBaseUnit,
+            config,
+            false,
+          )
+        }
+
         const paybackDebtSimulation = await strategies.aave.paybackWithdraw(args, {
           ...strategiesDependencies,
           isDPMProxy: false,
@@ -73,7 +91,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
     describe('When position is opened with DPM Proxy', async () => {
       supportedStrategies.forEach(strategy => {
         it(`Should reduce debt for ${strategy}`, async function () {
-          const { strategiesDependencies, system, config, dpmPositions } = fixture
+          const { strategiesDependencies, system, config, dpmPositions, getTokens } = fixture
 
           const position = dpmPositions[strategy]
           if (!position) {
@@ -81,14 +99,16 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           }
           const beforeTransactionPosition = await position.getPosition()
 
+          const amountToPayback = amountToWei(
+            new BigNumber(1),
+            beforeTransactionPosition.debt.precision,
+          )
+
           type PaybackDebtTypes = Parameters<typeof strategies.aave.paybackWithdraw>
           const args: PaybackDebtTypes[0] = {
             debtToken: beforeTransactionPosition.debt,
             collateralToken: beforeTransactionPosition.collateral,
-            amountDebtToPaybackInBaseUnit: amountToWei(
-              new BigNumber(1),
-              beforeTransactionPosition.debt.precision,
-            ),
+            amountDebtToPaybackInBaseUnit: amountToPayback,
             amountCollateralToWithdrawInBaseUnit: zero,
             slippage: new BigNumber(0.1),
           }
@@ -98,6 +118,20 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             proxy: position.proxy,
             currentPosition: beforeTransactionPosition,
           })
+
+          if (
+            beforeTransactionPosition.debt.symbol !== 'ETH' &&
+            beforeTransactionPosition.debt.symbol !== 'WETH'
+          ) {
+            await getTokens(beforeTransactionPosition.debt.symbol, amountToPayback.toString())
+            await approve(
+              mainnetAddresses.USDC, // for payback is always USDC or ETH
+              position.proxy,
+              args.amountDebtToPaybackInBaseUnit,
+              config,
+              false,
+            )
+          }
 
           const transactionValue =
             beforeTransactionPosition.debt.symbol === 'ETH'
@@ -160,14 +194,6 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           currentPosition: beforeTransactionPosition,
         })
 
-        const transactionValue =
-          beforeTransactionPosition.collateral.symbol === 'ETH'
-            ? amountToWei(
-                new BigNumber(1),
-                beforeTransactionPosition.collateral.precision,
-              ).toString()
-            : '0'
-
         const [status] = await executeThroughProxy(
           dsProxyPosition.proxy,
           {
@@ -178,7 +204,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             ]),
           },
           config.signer,
-          transactionValue,
+          '0',
         )
 
         const afterTransactionPosition = await dsProxyPosition.getPosition()
@@ -218,7 +244,12 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           const beforeTransactionCollateralBalance = await balanceOf(
             beforeTransactionPosition.collateral.address,
             config.address,
-            { config, isFormatted: true },
+            { config, isFormatted: false },
+          )
+
+          const amountToWithdraw = amountToWei(
+            new BigNumber(1),
+            beforeTransactionPosition.collateral.precision,
           )
 
           type WithdrawParameters = Parameters<typeof strategies.aave.paybackWithdraw>
@@ -226,10 +257,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             debtToken: beforeTransactionPosition.debt,
             collateralToken: beforeTransactionPosition.collateral,
             amountDebtToPaybackInBaseUnit: zero,
-            amountCollateralToWithdrawInBaseUnit: amountToWei(
-              new BigNumber(1),
-              beforeTransactionPosition.collateral.precision,
-            ),
+            amountCollateralToWithdrawInBaseUnit: amountToWithdraw,
             slippage: new BigNumber(0.1),
           }
           const withdrawSimulation = await strategies.aave.paybackWithdraw(args, {
@@ -238,14 +266,6 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             proxy: position.proxy,
             currentPosition: beforeTransactionPosition,
           })
-
-          const transactionValue =
-            beforeTransactionPosition.collateral.symbol === 'ETH'
-              ? amountToWei(
-                  new BigNumber(1),
-                  beforeTransactionPosition.collateral.precision,
-                ).toString()
-              : '0'
 
           const [status] = await executeThroughDPMProxy(
             position.proxy,
@@ -257,7 +277,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
               ]),
             },
             config.signer,
-            transactionValue,
+            '0',
           )
 
           const afterTransactionPosition = await position.getPosition()
@@ -265,7 +285,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           const afterTransactionBalance = await balanceOf(
             beforeTransactionPosition.collateral.address,
             config.address,
-            { config, isFormatted: true },
+            { config, isFormatted: false },
           )
 
           expect(status).to.be.true
@@ -273,8 +293,15 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             afterTransactionPosition.collateral.amount,
             'lt',
             beforeTransactionPosition.collateral.amount,
+            'Amount of collateral after transaction is not less than before transaction',
           )
-          expectToBe(afterTransactionBalance, 'gt', beforeTransactionCollateralBalance)
+
+          expectToBe(
+            afterTransactionBalance,
+            'gt',
+            beforeTransactionCollateralBalance,
+            'Balance of collateral after transaction is not greater than before transaction',
+          )
         })
       })
     })
