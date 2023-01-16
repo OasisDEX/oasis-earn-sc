@@ -101,6 +101,7 @@ export interface IPosition extends IBasePosition {
   minConfigurableRiskRatio: (marketPriceAccountingForSlippage: BigNumber) => IRiskRatio
   riskRatio: IRiskRatio
   healthFactor: BigNumber
+  relativeCollateralPriceMovementUntilLiquidation: BigNumber
   liquidationPrice: BigNumber
   maxDebtToBorrow: BigNumber
   maxCollateralToWithdraw: BigNumber
@@ -170,10 +171,16 @@ export class Position implements IPosition {
   }
 
   public get healthFactor() {
-    return this.collateral.amount
+    return this.collateral.normalisedAmount
       .times(this.category.liquidationThreshold)
       .times(this._oraclePriceForCollateralDebtExchangeRate)
-      .div(this.debt.amount)
+      .div(this.debt.normalisedAmount)
+  }
+
+  // returns the percentage amount (as decimal) that the collateral price would have to
+  // move relative to debt for the position to be at risk of liquidation.
+  public get relativeCollateralPriceMovementUntilLiquidation() {
+    return ONE.minus(ONE.div(this.healthFactor))
   }
 
   public get liquidationPrice() {
