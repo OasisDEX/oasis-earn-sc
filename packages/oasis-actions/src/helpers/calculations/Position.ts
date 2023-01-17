@@ -134,6 +134,14 @@ export class Position implements IPosition {
     this.category = category
   }
 
+  /*
+   * Certain strategies don't require the adjust method but still need to calculateFees in a consistent way.
+   * This functionality is now standardised and can be accessed within strategies via a static method
+   * */
+  public static calculateFee(amount: BigNumber, fee: BigNumber, feeBase: BigNumber): BigNumber {
+    return calculateFeeHelper(amount, fee, feeBase)
+  }
+
   public minConfigurableRiskRatio(marketPriceAccountingForSlippage: BigNumber): IRiskRatio {
     const debtDelta = this.category.dustLimit.minus(this.debt.amount)
 
@@ -656,7 +664,7 @@ export class Position implements IPosition {
   }
 
   private _calculateFee(amount: BigNumber, fee: BigNumber): BigNumber {
-    return amount.times(fee).div(fee.plus(this._feeBase)).abs()
+    return calculateFeeHelper(amount, fee, this._feeBase)
   }
 
   private _normaliseAmount(amount: BigNumber, precision: number): BigNumber {
@@ -666,4 +674,8 @@ export class Position implements IPosition {
   private _denormaliseAmount(amount: BigNumber, precision: number): BigNumber {
     return amount.div(10 ** (TYPICAL_PRECISION - precision))
   }
+}
+
+function calculateFeeHelper(amount: BigNumber, fee: BigNumber, feeBase: BigNumber): BigNumber {
+  return amount.times(fee).div(feeBase).abs().integerValue(BigNumber.ROUND_DOWN)
 }
