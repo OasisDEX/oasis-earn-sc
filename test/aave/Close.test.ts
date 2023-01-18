@@ -626,11 +626,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         const actualUSDCFees = feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore)
-        console.log('actualUSDCFees', actualUSDCFees.toString())
-        console.log(
-          'positionTransition.simulation.swap.tokenFee',
-          positionTransition.simulation.swap.tokenFee.toString(),
-        )
+
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
           new BigNumber(
@@ -667,7 +663,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     })
   })
 
-  describe.skip(`[1inch] Close Position: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
+  describe(`[1inch] Close Position: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.2)
     const depositAmount = amountToWei(new BigNumber(20))
@@ -834,6 +830,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     })
   })
 
+  // Skipped: reverting with REVERT Error(reason="LOP: bad signature")
   describe.skip(`[1inch] Close Position: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.2)
@@ -1131,7 +1128,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           oracle,
           openPositionTransition.simulation.position.category,
         )
-        console.log('Open Position Status:', _openTxStatus)
+
         const positionTransition = await strategies.aave.close(
           {
             collateralToken,
@@ -1151,7 +1148,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           },
         )
 
-        console.log('Closing position...')
         const [_closeTxStatus] = await executeThroughProxy(
           system.common.dsProxy.address,
           {
