@@ -84,8 +84,8 @@ async function buildOperation(
     dependencies.addresses,
   )
 
-  const [aaveFlashloanDaiPriceInEth, aaveCollateralTokenPriceInEth, reserveDataForFlashloan] =
-    await getValuesFromProtocol(collateralTokenAddress, dependencies)
+  const [aaveFlashloanDaiPriceInEth, aaveCollateralTokenPriceInEth, , reserveDataForFlashloan] =
+    await getValuesFromProtocol(collateralTokenAddress, debtTokenAddress, dependencies)
 
   /* Calculate Amount to flashloan */
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
@@ -122,6 +122,7 @@ async function buildOperation(
 
 async function getValuesFromProtocol(
   collateralTokenAddress: string,
+  debtTokenAddress: string,
   dependencies: AAVECloseDependencies,
 ) {
   /* Grabs all the protocol level services we need to resolve values */
@@ -134,6 +135,7 @@ async function getValuesFromProtocol(
     return Promise.all([
       aavePriceOracle.getAssetPrice(ADDRESSES.main.DAI),
       aavePriceOracle.getAssetPrice(collateralTokenAddress),
+      aavePriceOracle.getAssetPrice(debtTokenAddress),
       aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
     ])
   }
@@ -169,22 +171,24 @@ async function generateTransition(
   const currentPosition = dependencies.currentPosition
   const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
 
-  const { collateralTokenAddress } = getAAVETokenAddresses(
+  const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
   )
 
-  const [, aaveCollateralTokenPriceInEth] = await getValuesFromProtocol(
+  const [, aaveCollateralTokenPriceInEth, aaveDebtTokenPriceInEth] = await getValuesFromProtocol(
     collateralTokenAddress,
+    debtTokenAddress,
     dependencies,
   )
   /*
   Final position calculated using actual swap data and the latest market price
  */
+  const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
   const finalPosition = new Position(
     { amount: ZERO, symbol: currentPosition.debt.symbol },
     { amount: ZERO, symbol: currentPosition.collateral.symbol },
-    aaveCollateralTokenPriceInEth,
+    oracle,
     currentPosition.category,
   )
 

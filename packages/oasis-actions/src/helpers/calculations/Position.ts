@@ -491,11 +491,11 @@ export class Position implements IPosition {
     const sourceFee = this._denormaliseAmount(
       normalisedSourceFee,
       debtTokenIsSourceToken ? this.debt.precision : this.collateral.precision,
-    )
+    ).integerValue(BigNumber.ROUND_DOWN)
     const targetFee = this._denormaliseAmount(
       normalisedTargetFee,
       debtTokenIsSourceToken ? this.collateral.precision : this.debt.precision,
-    )
+    ).integerValue(BigNumber.ROUND_DOWN)
 
     const fromTokenPrecision = isIncreasingRisk
       ? targetPosition.debt.precision
@@ -586,7 +586,7 @@ export class Position implements IPosition {
       swap: {
         fromTokenAmount,
         minToTokenAmount,
-        tokenFee: collectFeeFromSourceToken ? sourceFee.integerValue() : targetFee.integerValue(),
+        tokenFee: collectFeeFromSourceToken ? sourceFee : targetFee,
         collectFeeFrom: collectFeeFromSourceToken ? 'sourceToken' : 'targetToken',
         sourceToken: isIncreasingRisk
           ? { symbol: this.debt.symbol, precision: this.debt.precision }
