@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { Optional } from 'utility-types'
 
 import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../constants'
-import { logDebug } from '../index'
+import { calculateFee, logDebug } from '../index'
 import { IRiskRatio, RiskRatio } from './RiskRatio'
 
 interface IPositionBalance {
@@ -132,14 +132,6 @@ export class Position implements IPosition {
     this.collateral = new PositionBalance(collateral)
     this._oraclePriceForCollateralDebtExchangeRate = oraclePrice
     this.category = category
-  }
-
-  /*
-   * Certain strategies don't require the adjust method but still need to calculateFees in a consistent way.
-   * This functionality is now standardised and can be accessed within strategies via a static method
-   * */
-  public static calculateFee(amount: BigNumber, fee: BigNumber, feeBase: BigNumber): BigNumber {
-    return calculateFeeHelper(amount, fee, feeBase)
   }
 
   public minConfigurableRiskRatio(marketPriceAccountingForSlippage: BigNumber): IRiskRatio {
@@ -465,15 +457,15 @@ export class Position implements IPosition {
     if (collectFeeFromSourceToken) {
       normalisedSourceFee = (
         isIncreasingRisk
-          ? this._calculateFee(debtDelta, oazoFee)
-          : this._calculateFee(collateralDelta, oazoFee)
+          ? calculateFee(debtDelta, oazoFee, this._feeBase)
+          : calculateFee(collateralDelta, oazoFee, this._feeBase)
       ).integerValue(BigNumber.ROUND_DOWN)
     }
     if (!collectFeeFromSourceToken) {
       normalisedTargetFee = (
         isIncreasingRisk
-          ? this._calculateFee(collateralDelta, oazoFee)
-          : this._calculateFee(debtDelta, oazoFee)
+          ? calculateFee(collateralDelta, oazoFee, this._feeBase)
+          : calculateFee(debtDelta, oazoFee, this._feeBase)
       ).integerValue(BigNumber.ROUND_DOWN)
     }
 
@@ -663,10 +655,6 @@ export class Position implements IPosition {
     )
   }
 
-  private _calculateFee(amount: BigNumber, fee: BigNumber): BigNumber {
-    return calculateFeeHelper(amount, fee, this._feeBase)
-  }
-
   private _normaliseAmount(amount: BigNumber, precision: number): BigNumber {
     return amount.times(10 ** (TYPICAL_PRECISION - precision))
   }
@@ -674,8 +662,4 @@ export class Position implements IPosition {
   private _denormaliseAmount(amount: BigNumber, precision: number): BigNumber {
     return amount.div(10 ** (TYPICAL_PRECISION - precision))
   }
-}
-
-function calculateFeeHelper(amount: BigNumber, fee: BigNumber, feeBase: BigNumber): BigNumber {
-  return amount.times(fee).div(feeBase).abs().integerValue(BigNumber.ROUND_DOWN)
 }
