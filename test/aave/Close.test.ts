@@ -626,7 +626,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         const actualUSDCFees = feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore)
-
+        console.log('actualUSDCFees', actualUSDCFees.toString())
+        console.log(
+          'positionTransition.simulation.swap.tokenFee',
+          positionTransition.simulation.swap.tokenFee.toString(),
+        )
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
           new BigNumber(

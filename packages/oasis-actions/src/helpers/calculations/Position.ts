@@ -241,6 +241,7 @@ export class Position implements IPosition {
     const { maxLoanToValueFL: _maxLoanToValueFL } = flashloan
     params.collectSwapFeeFrom = params.collectSwapFeeFrom ?? 'sourceToken'
     const collectFeeFromSourceToken = params.collectSwapFeeFrom === 'sourceToken'
+    const collectFeeFromTargetToken = !collectFeeFromSourceToken
 
     /**
      * C_W  Collateral in wallet to top-up or seed position
@@ -461,7 +462,7 @@ export class Position implements IPosition {
           : calculateFee(collateralDelta, oazoFee, this._feeBase)
       ).integerValue(BigNumber.ROUND_DOWN)
     }
-    if (!collectFeeFromSourceToken) {
+    if (collectFeeFromTargetToken) {
       normalisedTargetFee = (
         isIncreasingRisk
           ? calculateFee(collateralDelta, oazoFee, this._feeBase)

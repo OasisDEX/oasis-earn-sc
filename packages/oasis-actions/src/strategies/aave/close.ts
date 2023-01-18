@@ -1,3 +1,4 @@
+import { Provider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -6,7 +7,14 @@ import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json
 import { amountFromWei, amountToWei, calculateFee } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
 import { Position } from '../../helpers/calculations/Position'
-import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
+import {
+  DEFAULT_FEE,
+  FEE_BASE,
+  FLASHLOAN_SAFETY_MARGIN,
+  ONE,
+  TYPICAL_PRECISION,
+  ZERO,
+} from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import {
@@ -24,34 +32,27 @@ export async function close(
 ): Promise<IPositionTransition> {
   const currentPosition = dependencies.currentPosition
 
+  /* Maps from union of token keys to actual address */
   const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
   )
 
-  const aavePriceOracle = new ethers.Contract(
-    dependencies.addresses.aavePriceOracle,
-    aavePriceOracleABI,
+  /* Grabs all the protocol level services we need to resolve values */
+  const { aavePriceOracle, aaveProtocolDataProvider } = getAAVEProtocolServices(
     dependencies.provider,
+    dependencies.addresses,
   )
 
-  const aaveProtocolDataProvider = new ethers.Contract(
-    dependencies.addresses.aaveProtocolDataProvider,
-    aaveProtocolDataProviderABI,
-    dependencies.provider,
-  )
-
-  const FEE = 20
-  const FEE_BASE = 10000
-  const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
+  /* Swap and fee calculations */
   const swapAmountBeforeFees = args.collateralAmountLockedInProtocolInWei
-
-  const fee = calculateFee(swapAmountBeforeFees, new BigNumber(FEE), new BigNumber(FEE_BASE))
-
+  const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
+  const preSwapFee = calculatePreSwapFeeAmount(collectFeeFrom, swapAmountBeforeFees)
   const swapAmountAfterFees = swapAmountBeforeFees
-    .minus(collectFeeFrom === 'sourceToken' ? fee : ZERO)
+    .minus(preSwapFee)
     .integerValue(BigNumber.ROUND_DOWN)
 
+  /* Resolve protocol values and 1inch call data */
   const [
     aaveFlashloanDaiPriceInEth,
     aaveCollateralTokenPriceInEth,
@@ -73,6 +74,7 @@ export async function close(
     aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
   ])
 
+  /* Calculate Amount to flashloan */
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
 
   const ethPerDAI = aaveFlashloanDaiPriceInEth
@@ -91,11 +93,22 @@ export async function close(
 
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
 
+  // We need to calculate a fee from the total locked collateral
+  // Then convert this amount into the debt token
+  const postSwapFee =
+    collectFeeFrom === 'targetToken'
+      ? calculateFee(
+          dependencies.currentPosition.collateral.amount.div(actualMarketPriceWithSlippage),
+          new BigNumber(DEFAULT_FEE),
+          new BigNumber(FEE_BASE),
+        )
+      : ZERO
+
   const operation = await operations.aave.close(
     {
       lockedCollateralAmountInWei: args.collateralAmountLockedInProtocolInWei,
       flashloanAmount: amountToFlashloanInWei,
-      fee: FEE,
+      fee: DEFAULT_FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
       proxy: dependencies.proxy,
@@ -135,7 +148,7 @@ export async function close(
       flags: flags,
       swap: {
         ...swapData,
-        tokenFee: fee,
+        tokenFee: preSwapFee.gt(ZERO) ? preSwapFee : postSwapFee,
         collectFeeFrom: args.collectSwapFeeFrom ?? 'sourceToken',
         sourceToken: {
           symbol: args.collateralToken.symbol,
@@ -152,4 +165,35 @@ export async function close(
       ),
     },
   }
+}
+
+function getAAVEProtocolServices(provider: Provider, addresses: AAVEStrategyAddresses) {
+  const aavePriceOracle = new ethers.Contract(
+    addresses.aavePriceOracle,
+    aavePriceOracleABI,
+    provider,
+  )
+
+  const aaveProtocolDataProvider = new ethers.Contract(
+    addresses.aaveProtocolDataProvider,
+    aaveProtocolDataProviderABI,
+    provider,
+  )
+
+  return {
+    aavePriceOracle,
+    aaveProtocolDataProvider,
+  }
+}
+
+function calculatePreSwapFeeAmount(
+  collectFeeFrom: 'sourceToken' | 'targetToken',
+  swapAmountBeforeFees: BigNumber,
+) {
+  const preSwapFee =
+    collectFeeFrom === 'sourceToken'
+      ? calculateFee(swapAmountBeforeFees, new BigNumber(DEFAULT_FEE), new BigNumber(FEE_BASE))
+      : ZERO
+
+  return preSwapFee
 }
