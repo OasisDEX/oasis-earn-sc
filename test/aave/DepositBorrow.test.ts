@@ -1,25 +1,16 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import {
-  AAVETokens,
-  ADDRESSES,
-  // IPosition,
-  // IPositionTransition,
-  Position,
-  strategies,
-} from '@oasisdex/oasis-actions'
-import aavePriceOracleABI from '@oasisdex/oasis-actions/lib/src/abi/aavePriceOracle.json'
-import { amountFromWei } from '@oasisdex/oasis-actions/lib/src/helpers'
-import { ONE, ZERO } from '@oasisdex/oasis-actions/src'
+import { IPositionTransition } from '@oasisdex/oasis-actions'
+import { AAVETokens, ADDRESSES, ONE, Position, strategies, ZERO } from '@oasisdex/oasis-actions/src'
+import aavePriceOracleABI from '@oasisdex/oasis-actions/src/abi/aavePriceOracle.json'
+import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
 import { PositionBalance } from '@oasisdex/oasis-actions/src/helpers/calculations/Position'
 import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionRepository'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-import { Contract, /*ContractReceipt,*/ ethers, Signer } from 'ethers'
+import { Contract, ethers, Signer } from 'ethers'
 
 import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
-// import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
-// import { AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { GasEstimateHelper, gasEstimateHelper } from '../../helpers/gasEstimation'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
@@ -31,9 +22,8 @@ import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
 import { initialiseConfig } from '../fixtures/setup'
 
-// IMPLEMENT THIS TEST
+// TODO: IMPLEMENT THIS TEST
 describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
-  // let aaveLendingPool: Contract
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
   let config: RuntimeConfig
@@ -42,18 +32,13 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
 
   before(async function () {
     ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
-    // aaveLendingPool = new Contract(
-    //   ADDRESSES.main.aave.MainnetLendingPool,
-    //   AAVELendigPoolABI,
-    //   provider,
-    // )
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
   describe('Uniswap t/x', function () {
     const slippage = new BigNumber(0.1)
 
-    // let positionTransition: IPositionTransition
+    let positionTransition: IPositionTransition
     let txStatus: boolean
     let gasEstimates: GasEstimateHelper
 
@@ -90,15 +75,15 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
       }
 
       const proxy = system.common.dpmProxyAddress
-      const positionTransition = await strategies.aave.depositBorrow(
+
+      /* Used depositBorrow strategy for convenience as simpler to seed a position */
+      const newPositionTransition = await strategies.aave.depositBorrow(
         {
-          collectFeeFrom: 'sourceToken',
           borrowAmount: ZERO,
           entryToken: {
             symbol: 'ETH',
             amountInBaseUnit: collateralToken.depositAmountInBaseUnit,
           },
-
           slippage: slippage,
         },
         {
@@ -124,9 +109,8 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
         },
       )
 
-      const positionTransition2 = await strategies.aave.depositBorrow(
+      const borrowTransition = await strategies.aave.depositBorrow(
         {
-          collectFeeFrom: 'sourceToken',
           borrowAmount: amountToWei(1000, 6),
           entryToken: {
             symbol: 'ETH',
@@ -136,7 +120,7 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
         },
         {
           addresses,
-          currentPosition: positionTransition.simulation.position,
+          currentPosition: newPositionTransition.simulation.position,
           provider,
           getSwapData: oneInchCallMock(mockMarketPrice, {
             from: debtToken.precision,
@@ -163,8 +147,8 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            positionTransition.transaction.calls,
-            positionTransition.transaction.operationName,
+            newPositionTransition.transaction.calls,
+            newPositionTransition.transaction.operationName,
           ]),
         },
         signer,
@@ -176,8 +160,8 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
         {
           address: system.common.operationExecutor.address,
           calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-            positionTransition2.transaction.calls,
-            positionTransition2.transaction.operationName,
+            borrowTransition.transaction.calls,
+            borrowTransition.transaction.operationName,
           ]),
         },
         signer,
@@ -226,12 +210,12 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
           symbol: collateralToken.symbol,
         },
         oracle,
-        positionTransition.simulation.position.category,
+        borrowTransition.simulation.position.category,
       )
 
       return {
         system,
-        positionTransition,
+        positionTransition: borrowTransition,
         feeRecipientBalanceBefore,
         txStatus: _txStatus,
         tx: _tx,
@@ -252,6 +236,10 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
       // let tx: ContractReceipt
 
       before(async function () {
+        /*
+         * TODO: The args for this setup function need to be updated.
+         * Hard to tell what relates to initial position creation and what relates to the deposit/borrow operation
+         */
         const setup = await setupDepositBorrowTest(
           {
             depositAmountInBaseUnit: depositEthAmount,
@@ -273,14 +261,7 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
         )
 
         txStatus = setup.txStatus
-        // tx = setup.tx
-        // positionTransition = setup.positionTransition
-        // actualPosition = setup.actualPosition
-        // userUsdcReserveData = setup.userCollateralReserveData
-        // userWethReserveData = setup.userDebtReserveData
-        // feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
-
-        // gasEstimates.save(tx)
+        positionTransition = setup.positionTransition
       })
 
       it('Tx should pass', function () {
@@ -310,13 +291,14 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
       //   )
       // })
 
+      // TODO: No fee collected in any of current scenarios
       // it('Should collect fee', async function () {
       //   const feeRecipientWethBalanceAfter = await balanceOf(
       //     ADDRESSES.main.WETH,
       //     ADDRESSES.main.feeRecipient,
       //     { config },
       //   )
-
+      //
       //   expectToBeEqual(
       //     new BigNumber(positionTransition.simulation.swap.tokenFee),
       //     feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore),
