@@ -1,4 +1,4 @@
-import { ADDRESSES } from './addresses'
+import { acceptedTokenAddresses, acceptedTokenSymbols } from '../config/acceptedFeeTokensConfig'
 
 type TokenSymbolOrAddress = string
 
@@ -9,7 +9,7 @@ interface Props {
 
 /**
  * Prefers sourceToken over targetToken
- * Accepts args as either a token symbol or eth address
+ * Accepts args as either a token symbol or in address format
  */
 export function acceptedFeeToken({ fromToken, toToken }: Props) {
   if (acceptSourceToken(fromToken)) return 'sourceToken'
@@ -26,13 +26,3 @@ function acceptSourceToken(sourceToken: TokenSymbolOrAddress) {
 function acceptTargetToken(targetToken: TokenSymbolOrAddress) {
   return acceptedTokenSymbols.includes(targetToken) || acceptedTokenAddresses.includes(targetToken)
 }
-
-const acceptedTokenSymbols = ['ETH', 'WETH', 'USDT', 'USDC', 'WBTC', 'DAI']
-const acceptedTokenAddresses = [
-  ADDRESSES.main.ETH,
-  ADDRESSES.main.WETH,
-  ADDRESSES.main.USDT,
-  ADDRESSES.main.USDC,
-  ADDRESSES.main.WBTC,
-  ADDRESSES.main.DAI,
-]

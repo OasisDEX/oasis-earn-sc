@@ -1,5 +1,4 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { IPositionTransition } from '@oasisdex/oasis-actions'
 import { AAVETokens, ADDRESSES, ONE, Position, strategies, ZERO } from '@oasisdex/oasis-actions/src'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
@@ -38,7 +37,7 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
   describe('Uniswap t/x', function () {
     const slippage = new BigNumber(0.1)
 
-    let positionTransition: IPositionTransition
+    // let positionTransition: IPositionTransition
     let txStatus: boolean
     let gasEstimates: GasEstimateHelper
 
@@ -261,7 +260,7 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
         )
 
         txStatus = setup.txStatus
-        positionTransition = setup.positionTransition
+        // positionTransition = setup.positionTransition
       })
 
       it('Tx should pass', function () {
