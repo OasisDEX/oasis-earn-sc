@@ -59,7 +59,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe('On forked chain', () => {
+  describe('[Uniswap]', () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 

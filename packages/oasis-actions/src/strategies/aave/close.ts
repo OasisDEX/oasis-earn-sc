@@ -44,8 +44,10 @@ export async function close(
 
   const FEE = 20
   const FEE_BASE = 10000
-  const collectFeeFrom =
-    acceptedFeeToken(args.collateralToken.symbol, args.debtToken.symbol) || 'sourceToken'
+  const collectFeeFrom = acceptedFeeToken({
+    fromToken: args.collateralToken.symbol,
+    toToken: args.debtToken.symbol,
+  })
   const swapAmountBeforeFees = args.collateralAmountLockedInProtocolInWei
   const fee = calculateFee(swapAmountBeforeFees, FEE, FEE_BASE)
 

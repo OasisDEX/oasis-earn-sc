@@ -51,7 +51,7 @@ export async function adjust(
   const fromTokenAddress = isIncreasingRisk ? debtTokenAddress : collateralTokenAddress
   const toTokenAddress = isIncreasingRisk ? collateralTokenAddress : debtTokenAddress
   const toToken = isIncreasingRisk ? args.collateralToken : args.debtToken
-  const collectFeeFrom = acceptedFeeToken(fromToken.symbol, toToken.symbol)
+  const collectFeeFrom = acceptedFeeToken({ fromToken: fromToken.symbol, toToken: toToken.symbol })
   const estimatedSwapAmount = amountToWei(new BigNumber(1), fromToken.precision)
 
   const aavePriceOracle = new ethers.Contract(

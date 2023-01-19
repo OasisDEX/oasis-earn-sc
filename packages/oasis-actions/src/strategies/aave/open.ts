@@ -157,7 +157,10 @@ export async function open(
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
-  const collectFeeFrom = acceptedFeeToken(args.debtToken.symbol, args.collateralToken.symbol)
+  const collectFeeFrom = acceptedFeeToken({
+    fromToken: args.debtToken.symbol,
+    toToken: args.collateralToken.symbol,
+  })
   const target = currentPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {

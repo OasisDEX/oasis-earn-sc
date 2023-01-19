@@ -31,6 +31,7 @@ import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
+import { acceptedFeeToken } from '../../packages/oasis-actions/src/helpers/acceptedFeeToken'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
@@ -57,7 +58,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe('Uniswap t/x', function () {
+  describe('[Uniswap] Open:', function () {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
 
@@ -82,7 +83,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       },
       positionType: PositionType,
       mockMarketPrice: BigNumber | undefined,
-      isFeeFromDebtToken: boolean,
       userAddress: Address,
       isDPMProxy: boolean,
     ) {
@@ -145,6 +145,11 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         operationExecutor: system.common.operationExecutor.address,
       }
 
+      const isFeeFromDebtToken =
+        acceptedFeeToken({
+          fromToken: debtToken.symbol,
+          toToken: collateralToken.symbol,
+        }) === 'sourceToken'
       const proxy = system.common.dsProxy.address
       const positionTransition = await strategies.aave.open(
         {
@@ -281,7 +286,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           },
           'Earn',
           new BigNumber(0.9759),
-          true,
           userAddress,
           false,
         )
@@ -367,7 +371,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           },
           'Multiply',
           new BigNumber(1300),
-          true,
           userAddress,
           false,
         )
@@ -447,7 +450,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           },
           'Multiply',
           new BigNumber(20032),
-          true,
           userAddress,
           false,
         )
@@ -498,96 +500,9 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         )
       })
     })
-
-    describe(`With ${tokens.WBTC} collateral (take fee from coll) & ${tokens.USDC} debt`, function () {
-      const depositWBTCAmount = new BigNumber(6)
-
-      let userWBTCReserveData: AAVEReserveData
-      let feeRecipientWBTCBalanceBefore: BigNumber
-      let actualPosition: IPosition
-
-      before(async function () {
-        const setup = await setupOpenPositionTest(
-          {
-            depositAmountInBaseUnit: amountToWei(depositWBTCAmount, 8),
-            symbol: tokens.WBTC,
-            address: ADDRESSES.main.WBTC,
-            precision: 8,
-            isEth: false,
-          },
-          {
-            depositAmountInBaseUnit: ZERO,
-            symbol: tokens.USDC,
-            address: ADDRESSES.main.USDC,
-            precision: 6,
-            isEth: false,
-          },
-          'Multiply',
-          new BigNumber(20032),
-          false,
-          userAddress,
-          false,
-        )
-        txStatus = setup.txStatus
-        positionTransition = setup.positionTransition
-        actualPosition = setup.actualPosition
-        userWBTCReserveData = setup.userCollateralReserveData
-        feeRecipientWBTCBalanceBefore = setup.feeRecipientBalanceBefore
-      })
-
-      it('Tx should pass', function () {
-        expect(txStatus).to.be.true
-      })
-
-      it('Should draw debt according to multiple', function () {
-        expect(new BigNumber(actualPosition.debt.amount.toString()).toString()).to.be.oneOf([
-          positionTransition.simulation.position.debt.amount.toFixed(0),
-          positionTransition.simulation.position.debt.amount.minus(ONE).toFixed(0),
-        ])
-      })
-
-      it(`Should deposit all ${tokens.WBTC} tokens to aave`, function () {
-        expectToBe(
-          new BigNumber(userWBTCReserveData.currentATokenBalance.toString()).toFixed(0),
-          'gte',
-          positionTransition.simulation.position.collateral.amount,
-        )
-      })
-
-      it('Should achieve target multiple', function () {
-        expectToBe(
-          positionTransition.simulation.position.riskRatio.multiple,
-          'gte',
-          actualPosition.riskRatio.multiple,
-        )
-      })
-
-      it('Should collect fee', async function () {
-        const feeRecipientWBTCBalanceAfter = await balanceOf(
-          ADDRESSES.main.WBTC,
-          ADDRESSES.main.feeRecipient,
-          { config },
-        )
-
-        // Test for equivalence within slippage adjusted range when taking fee from target token
-        expectToBe(
-          new BigNumber(
-            positionTransition.simulation.swap.tokenFee.div(ONE.minus(slippage)).toString(),
-          ).toFixed(0),
-          'gte',
-          feeRecipientWBTCBalanceAfter.minus(feeRecipientWBTCBalanceBefore),
-        )
-
-        expectToBe(
-          positionTransition.simulation.swap.tokenFee,
-          'lte',
-          feeRecipientWBTCBalanceAfter.minus(feeRecipientWBTCBalanceBefore),
-        )
-      })
-    })
   })
 
-  describe(`[1inch] Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
+  describe(`[1inch] Open: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, function () {
     const depositEthAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
@@ -708,7 +623,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     })
   })
 
-  describe(`[1inch] Increase Multiple: With ${tokens.ETH} collateral & ${tokens.USDC} debt`, function () {
+  describe(`[1inch] Open: With ${tokens.ETH} collateral & ${tokens.USDC} debt`, function () {
     const depositEthAmount = amountToWei(new BigNumber(1))
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)

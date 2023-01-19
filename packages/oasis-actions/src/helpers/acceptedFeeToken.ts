@@ -1,19 +1,19 @@
 import { ADDRESSES } from './addresses'
 
+type TokenSymbolOrAddress = string
+
+interface Props {
+  fromToken: TokenSymbolOrAddress
+  toToken: TokenSymbolOrAddress
+}
+
 /**
  * Prefers sourceToken over targetToken
  * Accepts args as either a token symbol or eth address
- * @param sourceToken
- * @param targetToken
  */
-type TokenSymbolOrAddress = string
-
-export function acceptedFeeToken(
-  sourceToken: TokenSymbolOrAddress,
-  targetToken: TokenSymbolOrAddress,
-) {
-  if (acceptSourceToken(sourceToken)) return 'sourceToken'
-  if (acceptTargetToken(targetToken)) return 'targetToken'
+export function acceptedFeeToken({ fromToken, toToken }: Props) {
+  if (acceptSourceToken(fromToken)) return 'sourceToken'
+  if (acceptTargetToken(toToken)) return 'targetToken'
 
   const fallbackTokenType = 'sourceToken'
   return fallbackTokenType
