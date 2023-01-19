@@ -48,6 +48,7 @@ export async function close(
     fromToken: args.collateralToken.symbol,
     toToken: args.debtToken.symbol,
   })
+
   const swapAmountBeforeFees = args.collateralAmountLockedInProtocolInWei
   const fee = calculateFee(swapAmountBeforeFees, FEE, FEE_BASE)
 
@@ -124,6 +125,15 @@ export async function close(
 
   const flags = { requiresFlashloan: true, isIncreasingRisk: false }
 
+  const postSwapFee =
+    collectFeeFrom === 'targetToken'
+      ? calculateFee(
+          dependencies.currentPosition.collateral.amount.div(actualMarketPriceWithSlippage),
+          FEE,
+          FEE_BASE,
+        )
+      : ZERO
+
   return {
     transaction: {
       calls: operation.calls,
@@ -138,7 +148,7 @@ export async function close(
       flags: flags,
       swap: {
         ...swapData,
-        tokenFee: fee,
+        tokenFee: collectFeeFrom === 'sourceToken' ? fee : postSwapFee,
         collectFeeFrom,
         sourceToken: {
           symbol: args.collateralToken.symbol,
