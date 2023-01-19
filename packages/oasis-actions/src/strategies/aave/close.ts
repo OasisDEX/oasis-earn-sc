@@ -4,6 +4,7 @@ import { ethers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import { amountFromWei, amountToWei, calculateFee } from '../../helpers'
+import { acceptedFeeToken } from '../../helpers/acceptedFeeToken'
 import { ADDRESSES } from '../../helpers/addresses'
 import { Position } from '../../helpers/calculations/Position'
 import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
@@ -43,7 +44,8 @@ export async function close(
 
   const FEE = 20
   const FEE_BASE = 10000
-  const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
+  const collectFeeFrom =
+    acceptedFeeToken(args.collateralToken.symbol, args.debtToken.symbol) || 'sourceToken'
   const swapAmountBeforeFees = args.collateralAmountLockedInProtocolInWei
   const fee = calculateFee(swapAmountBeforeFees, FEE, FEE_BASE)
 
@@ -135,7 +137,7 @@ export async function close(
       swap: {
         ...swapData,
         tokenFee: fee,
-        collectFeeFrom: args.collectSwapFeeFrom ?? 'sourceToken',
+        collectFeeFrom,
         sourceToken: {
           symbol: args.collateralToken.symbol,
           precision: args.collateralToken.precision ?? TYPICAL_PRECISION,

@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import { amountFromWei, amountToWei } from '../../helpers'
+import { acceptedFeeToken } from '../../helpers/acceptedFeeToken'
 import { ADDRESSES } from '../../helpers/addresses'
 import { IBaseSimulatedTransition, IPosition, Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
@@ -50,6 +51,7 @@ export async function adjust(
   const fromTokenAddress = isIncreasingRisk ? debtTokenAddress : collateralTokenAddress
   const toTokenAddress = isIncreasingRisk ? collateralTokenAddress : debtTokenAddress
   const toToken = isIncreasingRisk ? args.collateralToken : args.debtToken
+  const collectFeeFrom = acceptedFeeToken(fromToken.symbol, toToken.symbol)
   const estimatedSwapAmount = amountToWei(new BigNumber(1), fromToken.precision)
 
   const aavePriceOracle = new ethers.Contract(
@@ -113,7 +115,6 @@ export async function adjust(
     currentPosition.category,
   )
 
-  const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
   const quoteMarketPriceExpectedByMaths = isIncreasingRisk
     ? quoteMarketPrice
     : ONE.div(quoteMarketPrice)
