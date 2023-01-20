@@ -15,6 +15,7 @@ import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
 import './tasks/userDpmProxies'
 import './tasks/createMultiplyPosition'
+import './tasks/transferDPM'
 
 import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
