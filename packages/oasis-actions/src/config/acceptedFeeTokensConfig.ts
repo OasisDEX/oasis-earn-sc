@@ -1,12 +1,29 @@
 /* Selection of token symbols and addresses that we're happy to accept as a fee */
 import { ADDRESSES } from '../helpers/addresses'
 
-export const acceptedTokenSymbols = ['ETH', 'WETH', 'USDT', 'USDC', 'WBTC', 'DAI']
-export const acceptedTokenAddresses = [
-  ADDRESSES.main.ETH,
-  ADDRESSES.main.WETH,
-  ADDRESSES.main.USDT,
-  ADDRESSES.main.USDC,
-  ADDRESSES.main.WBTC,
-  ADDRESSES.main.DAI,
+export const acceptedTokens = [
+  {
+    symbol: 'USDC',
+    address: ADDRESSES.main.USDC,
+  },
+  {
+    symbol: 'DAI',
+    address: ADDRESSES.main,
+  },
+  {
+    symbol: 'WETH',
+    address: ADDRESSES.main.WETH,
+  },
+  {
+    symbol: 'ETH',
+    address: ADDRESSES.main.ETH,
+  },
+  {
+    symbol: 'STETH',
+    address: ADDRESSES.main.STETH,
+  },
+  {
+    symbol: 'WBTC',
+    address: ADDRESSES.main.WBTC,
+  },
 ]

@@ -1,4 +1,4 @@
-import { acceptedTokenAddresses, acceptedTokenSymbols } from '../config/acceptedFeeTokensConfig'
+import { acceptedTokens } from '../config/acceptedFeeTokensConfig'
 
 type TokenSymbolOrAddress = string
 
@@ -12,17 +12,19 @@ interface Props {
  * Accepts args as either a token symbol or in address format
  */
 export function acceptedFeeToken({ fromToken, toToken }: Props) {
-  if (acceptSourceToken(fromToken)) return 'sourceToken'
-  if (acceptTargetToken(toToken)) return 'targetToken'
+  const fromTokenAcceptedIndex = acceptedTokens.findIndex(
+    acceptedToken => fromToken === acceptedToken.symbol || fromToken === acceptedToken.address,
+  )
+  const toTokenAcceptedIndex = acceptedTokens.findIndex(
+    acceptedToken => toToken === acceptedToken.symbol || toToken === acceptedToken.address,
+  )
 
-  const fallbackTokenType = 'sourceToken'
-  return fallbackTokenType
-}
+  if (fromTokenAcceptedIndex === -1 && toTokenAcceptedIndex === -1) {
+    console.warn('Both source and target tokens are not in the accepted fee tokens list')
+    const fallbackTokenType = 'sourceToken'
+    return fallbackTokenType
+  }
 
-function acceptSourceToken(sourceToken: TokenSymbolOrAddress) {
-  return acceptedTokenSymbols.includes(sourceToken) || acceptedTokenAddresses.includes(sourceToken)
-}
-
-function acceptTargetToken(targetToken: TokenSymbolOrAddress) {
-  return acceptedTokenSymbols.includes(targetToken) || acceptedTokenAddresses.includes(targetToken)
+  /* Select the token to take the fee from based on priority order */
+  return fromTokenAcceptedIndex < toTokenAcceptedIndex ? 'sourceToken' : 'targetToken'
 }
