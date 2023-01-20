@@ -11,7 +11,7 @@ interface Props {
  * Prefers sourceToken over targetToken
  * Accepts args as either a token symbol or in address format
  */
-export function acceptedFeeToken({ fromToken, toToken }: Props) {
+export function acceptedFeeToken({ fromToken, toToken }: Props): 'sourceToken' | 'targetToken' {
   const fromTokenAcceptedIndex = acceptedTokens.findIndex(
     acceptedToken => fromToken === acceptedToken.symbol || fromToken === acceptedToken.address,
   )
