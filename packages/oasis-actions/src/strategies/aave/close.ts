@@ -50,7 +50,8 @@ export async function close(
   })
 
   const swapAmountBeforeFees = args.collateralAmountLockedInProtocolInWei
-  const fee = calculateFee(swapAmountBeforeFees, FEE, FEE_BASE)
+  const fee =
+    collectFeeFrom === 'sourceToken' ? calculateFee(swapAmountBeforeFees, FEE, FEE_BASE) : ZERO
 
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
     collectFeeFrom === 'sourceToken' ? fee : ZERO,
@@ -148,7 +149,7 @@ export async function close(
       flags: flags,
       swap: {
         ...swapData,
-        tokenFee: collectFeeFrom === 'sourceToken' ? fee : postSwapFee,
+        tokenFee: fee.plus(postSwapFee),
         collectFeeFrom,
         sourceToken: {
           symbol: args.collateralToken.symbol,
