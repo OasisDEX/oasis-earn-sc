@@ -19,6 +19,7 @@ import { deploySystem } from '../deploySystem'
 import { initialiseConfig } from '../fixtures'
 import { expectToBe, expectToBeEqual } from '../utils'
 
+// TODO: This tests are mostly failing. Either we fix them or remove.
 describe(`Strategy | AAVE | Reopen Position`, async () => {
   const depositAmountInWei = amountToWei(new BigNumber(1))
   const multiple = new BigNumber(2)
@@ -89,7 +90,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           multiple,
           debtToken,
           collateralToken,
-          collectSwapFeeFrom: 'sourceToken',
           positionType: 'Earn',
         },
         {
@@ -148,13 +148,11 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           debtToken,
           collateralToken,
           slippage,
-          collectSwapFeeFrom: 'targetToken',
         },
         {
           ...dependencies,
           isDPMProxy: false,
           currentPosition: beforeTransaction,
-          isDPMProxy: false,
           getSwapData: oneInchCallMock(mockMarketPriceOnClose, {
             from: collateralToken.precision,
             to: debtToken.precision,
@@ -213,7 +211,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           multiple,
           debtToken,
           collateralToken,
-          collectSwapFeeFrom: 'sourceToken',
           positionType: 'Earn',
         },
         {
@@ -300,7 +297,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           multiple,
           debtToken,
           collateralToken,
-          collectSwapFeeFrom: 'sourceToken',
           positionType: 'Earn',
         },
         {
@@ -359,7 +355,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           slippage,
           debtToken,
           collateralToken,
-          collectSwapFeeFrom: 'targetToken',
         },
         {
           ...dependencies,
@@ -419,7 +414,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           multiple,
           debtToken,
           collateralToken,
-          collectSwapFeeFrom: 'sourceToken',
           positionType: 'Earn',
         },
         {

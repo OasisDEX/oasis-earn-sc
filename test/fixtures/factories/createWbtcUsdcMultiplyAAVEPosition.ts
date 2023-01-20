@@ -23,7 +23,6 @@ async function getWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1
     },
     multiple: new BigNumber(1.5),
     positionType: 'Multiply',
-    collectSwapFeeFrom: 'sourceToken',
   }
 
   return await strategies.aave.open(args, dependencies)

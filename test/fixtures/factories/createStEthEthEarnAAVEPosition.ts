@@ -22,7 +22,6 @@ async function getStEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1]) {
     },
     multiple: new BigNumber(1.5),
     positionType: 'Earn',
-    collectSwapFeeFrom: 'sourceToken',
   }
 
   return await strategies.aave.open(args, dependencies)

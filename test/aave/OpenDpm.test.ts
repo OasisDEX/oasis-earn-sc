@@ -27,6 +27,7 @@ import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
+import { acceptedFeeToken } from '../../packages/oasis-actions/src/helpers/acceptedFeeToken'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
@@ -71,7 +72,6 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
       },
       positionType: PositionType,
       mockMarketPrice: BigNumber | undefined,
-      isFeeFromDebtToken: boolean,
       userAddress: Address,
       isDPMProxy: boolean,
     ) {
@@ -134,6 +134,11 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
         operationExecutor: system.common.operationExecutor.address,
       }
 
+      const isFeeFromDebtToken =
+        acceptedFeeToken({
+          fromToken: debtToken.symbol,
+          toToken: collateralToken.symbol,
+        }) === 'sourceToken'
       const proxy = system.common.dpmProxyAddress
 
       const positionTransition = await strategies.aave.open(
@@ -271,7 +276,6 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
           },
           'Earn',
           new BigNumber(0.9759),
-          true,
           userAddress,
           true,
         )

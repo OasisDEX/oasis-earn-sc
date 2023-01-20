@@ -1,21 +1,6 @@
-import { ADDRESSES } from '../../helpers/addresses'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { AAVETokens } from '../types/aave/tokens'
 import { IPositionTransitionArgs } from '../types/IPositionRepository'
-
-export const mainnetAAVEAddresses = {
-  DAI: ADDRESSES.main.DAI,
-  ETH: ADDRESSES.main.ETH,
-  WETH: ADDRESSES.main.WETH,
-  STETH: ADDRESSES.main.STETH,
-  WBTC: ADDRESSES.main.WBTC,
-  USDC: ADDRESSES.main.USDC,
-  chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-  aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
-  aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-  aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
-  operationExecutor: ADDRESSES.main.operationExecutor,
-}
 
 export const getAAVETokenAddresses = (
   args: {

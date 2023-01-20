@@ -3,20 +3,21 @@ import { ethers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import { amountFromWei, amountToWei } from '../../helpers'
+import { acceptedFeeToken } from '../../helpers/acceptedFeeToken'
 import { ADDRESSES } from '../../helpers/addresses'
 import { IBaseSimulatedTransition, IPosition, Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { ONE, TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { AAVETokens } from '../types/aave/tokens'
-import { IOperation } from '../types/IOperation'
 import {
+  IOperation,
+  IPositionTransition,
   IPositionTransitionArgs,
   IPositionTransitionDependencies,
-} from '../types/IPositionRepository'
-import { IPositionTransition } from '../types/IPositionTransition'
-import { SwapData } from '../types/SwapData'
+  SwapData,
+} from '../types'
+import { AAVETokens } from '../types/aave'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
 const FEE = 20
@@ -50,6 +51,7 @@ export async function adjust(
   const fromTokenAddress = isIncreasingRisk ? debtTokenAddress : collateralTokenAddress
   const toTokenAddress = isIncreasingRisk ? collateralTokenAddress : debtTokenAddress
   const toToken = isIncreasingRisk ? args.collateralToken : args.debtToken
+  const collectFeeFrom = acceptedFeeToken({ fromToken: fromToken.symbol, toToken: toToken.symbol })
   const estimatedSwapAmount = amountToWei(new BigNumber(1), fromToken.precision)
 
   const aavePriceOracle = new ethers.Contract(
@@ -113,7 +115,6 @@ export async function adjust(
     currentPosition.category,
   )
 
-  const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
   const quoteMarketPriceExpectedByMaths = isIncreasingRisk
     ? quoteMarketPrice
     : ONE.div(quoteMarketPrice)
