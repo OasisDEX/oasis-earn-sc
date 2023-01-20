@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { Optional } from 'utility-types'
 
 import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../constants'
-import { logDebug } from '../index'
+import { calculateFee, logDebug } from '../index'
 import { IRiskRatio, RiskRatio } from './RiskRatio'
 
 interface IPositionBalance {
@@ -241,6 +241,7 @@ export class Position implements IPosition {
     const { maxLoanToValueFL: _maxLoanToValueFL } = flashloan
     params.collectSwapFeeFrom = params.collectSwapFeeFrom ?? 'sourceToken'
     const collectFeeFromSourceToken = params.collectSwapFeeFrom === 'sourceToken'
+    const collectFeeFromTargetToken = !collectFeeFromSourceToken
 
     /**
      * C_W  Collateral in wallet to top-up or seed position
@@ -457,15 +458,15 @@ export class Position implements IPosition {
     if (collectFeeFromSourceToken) {
       normalisedSourceFee = (
         isIncreasingRisk
-          ? this._calculateFee(debtDelta, oazoFee)
-          : this._calculateFee(collateralDelta, oazoFee)
+          ? calculateFee(debtDelta, oazoFee, this._feeBase)
+          : calculateFee(collateralDelta, oazoFee, this._feeBase)
       ).integerValue(BigNumber.ROUND_DOWN)
     }
-    if (!collectFeeFromSourceToken) {
+    if (collectFeeFromTargetToken) {
       normalisedTargetFee = (
         isIncreasingRisk
-          ? this._calculateFee(collateralDelta, oazoFee)
-          : this._calculateFee(debtDelta, oazoFee)
+          ? calculateFee(collateralDelta, oazoFee, this._feeBase)
+          : calculateFee(debtDelta, oazoFee, this._feeBase)
       ).integerValue(BigNumber.ROUND_DOWN)
     }
 
@@ -490,11 +491,11 @@ export class Position implements IPosition {
     const sourceFee = this._denormaliseAmount(
       normalisedSourceFee,
       debtTokenIsSourceToken ? this.debt.precision : this.collateral.precision,
-    )
+    ).integerValue(BigNumber.ROUND_DOWN)
     const targetFee = this._denormaliseAmount(
       normalisedTargetFee,
       debtTokenIsSourceToken ? this.collateral.precision : this.debt.precision,
-    )
+    ).integerValue(BigNumber.ROUND_DOWN)
 
     const fromTokenPrecision = isIncreasingRisk
       ? targetPosition.debt.precision
@@ -585,7 +586,7 @@ export class Position implements IPosition {
       swap: {
         fromTokenAmount,
         minToTokenAmount,
-        tokenFee: collectFeeFromSourceToken ? sourceFee.integerValue() : targetFee.integerValue(),
+        tokenFee: collectFeeFromSourceToken ? sourceFee : targetFee,
         collectFeeFrom: collectFeeFromSourceToken ? 'sourceToken' : 'targetToken',
         sourceToken: isIncreasingRisk
           ? { symbol: this.debt.symbol, precision: this.debt.precision }
@@ -653,10 +654,6 @@ export class Position implements IPosition {
       this._oraclePriceForCollateralDebtExchangeRate,
       this.category,
     )
-  }
-
-  private _calculateFee(amount: BigNumber, fee: BigNumber): BigNumber {
-    return amount.times(fee).div(fee.plus(this._feeBase)).abs()
   }
 
   private _normaliseAmount(amount: BigNumber, precision: number): BigNumber {

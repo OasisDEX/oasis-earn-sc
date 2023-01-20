@@ -156,6 +156,7 @@ export async function adjust(
   let swapData: SwapData
 
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
+
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
     collectFeeFrom === 'sourceToken' ? simulatedPositionTransition.swap.tokenFee : ZERO,
   )
@@ -278,6 +279,7 @@ async function _increaseRisk({
       precision: toToken.precision || TYPICAL_PRECISION,
     },
   }
+
   // Needs to be correct precision. First convert to base 18. Then divide
   const actualSwapBase18FromTokenAmount = amountToWei(
     amountFromWei(swapData.fromTokenAmount, fromToken.precision),
@@ -324,8 +326,8 @@ async function _increaseRisk({
   )
 
   /*
-      Final position calculated using actual swap data and the latest market price
-    */
+    Final position calculated using actual swap data and the latest market price
+  */
   // EG FROM WBTC 8 to USDC 6
   // Convert WBTC fromWei
   // Apply market price
