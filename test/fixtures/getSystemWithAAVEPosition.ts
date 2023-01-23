@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import { buildGetTokenFunction } from '../../helpers/aave/'
-import { hardhatInit, resetNode } from '../../helpers/init'
+import init, { resetNode } from '../../helpers/init'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
@@ -20,9 +20,9 @@ export function getSupportedStrategies(): AavePositionStrategy[] {
 }
 
 export async function getSystemWithAAVEPosition(): Promise<SystemWithAAVEPosition> {
-  const config = await hardhatInit()
+  const config = await init()
 
-  const getTokens = buildGetTokenFunction(config)
+  const getTokens = buildGetTokenFunction(config, await import('hardhat'))
 
   if (testBlockNumber) {
     await resetNode(config.provider, testBlockNumber)
