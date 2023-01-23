@@ -2,7 +2,7 @@ import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/oasis-actions'
 import { task } from 'hardhat/config'
 
 import { buildGetTokenFunction } from '../../helpers/aave'
-import { hardhatInit } from '../../helpers/init'
+import init from '../../helpers/init'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import {
@@ -17,9 +17,9 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
   .addFlag('usefallbackswap', 'Use fallback swap')
   .setAction(async (taskArgs, hre) => {
-    const config = await hardhatInit(hre)
+    const config = await init(hre)
 
-    const getToken = buildGetTokenFunction(config)
+    const getToken = buildGetTokenFunction(config, hre)
 
     const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
 
@@ -96,7 +96,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       getSwapData: swapData,
       user: config.address,
       contracts: {
-        operationExecutor: new config.ethers.Contract(
+        operationExecutor: new hre.ethers.Contract(
           operationExecutorAddress,
           [
             {
