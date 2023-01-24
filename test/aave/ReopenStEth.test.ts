@@ -16,9 +16,10 @@ import { zero } from '../../scripts/common'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { deploySystem } from '../deploySystem'
-import { initialiseConfig } from '../fixtures/setup'
+import { initialiseConfig } from '../fixtures'
 import { expectToBe, expectToBeEqual } from '../utils'
 
+// TODO: This tests are mostly failing. Either we fix them or remove.
 describe(`Strategy | AAVE | Reopen Position`, async () => {
   const depositAmountInWei = amountToWei(new BigNumber(1))
   const multiple = new BigNumber(2)
@@ -89,7 +90,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           multiple,
           debtToken,
           collateralToken,
-          collectSwapFeeFrom: 'sourceToken',
           positionType: 'Earn',
         },
         {
@@ -148,10 +148,10 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           debtToken,
           collateralToken,
           slippage,
-          collectSwapFeeFrom: 'targetToken',
         },
         {
           ...dependencies,
+          isDPMProxy: false,
           currentPosition: beforeTransaction,
           getSwapData: oneInchCallMock(mockMarketPriceOnClose, {
             from: collateralToken.precision,
@@ -211,7 +211,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           multiple,
           debtToken,
           collateralToken,
-          collectSwapFeeFrom: 'sourceToken',
           positionType: 'Earn',
         },
         {
@@ -298,7 +297,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           multiple,
           debtToken,
           collateralToken,
-          collectSwapFeeFrom: 'sourceToken',
           positionType: 'Earn',
         },
         {
@@ -357,10 +355,10 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           slippage,
           debtToken,
           collateralToken,
-          collectSwapFeeFrom: 'targetToken',
         },
         {
           ...dependencies,
+          isDPMProxy: false,
           currentPosition: beforeTransaction,
         },
       )
@@ -416,12 +414,11 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
           multiple,
           debtToken,
           collateralToken,
-          collectSwapFeeFrom: 'sourceToken',
           positionType: 'Earn',
         },
         {
-          ...dependencies,
           isDPMProxy: false,
+          ...dependencies,
         },
       )
 

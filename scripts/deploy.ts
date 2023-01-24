@@ -10,7 +10,7 @@ import {
   CONTRACT_NAMES,
   OPERATION_NAMES,
   ZERO,
-} from '@oasisdex/oasis-actions/src/index'
+} from '@oasisdex/oasis-actions'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'hardhat'
 
@@ -250,7 +250,7 @@ async function main() {
   // SWAP TOKENS
   const response = await swapOneInchTokens(
     ADDRESSES.main.WETH,
-    ADDRESSES.main.stETH,
+    ADDRESSES.main.STETH,
     borrowAmount.toFixed(0),
     proxyAddress,
     '10',
@@ -262,7 +262,7 @@ async function main() {
     [
       {
         fromAsset: ADDRESSES.main.WETH,
-        toAsset: ADDRESSES.main.stETH,
+        toAsset: ADDRESSES.main.STETH,
         amount: borrowAmount.toFixed(0),
         receiveAtLeast: amountToWei(1).toFixed(), // just a number :D
         fee: 0,
@@ -354,7 +354,7 @@ async function main() {
   console.log('DEBUG: Debt ( WETH )')
   await balanceOf(ADDRESSES.main.variableDebtWETH, proxyAddress, options)
   console.log('DEBUG: OWNED ( stETH )')
-  await balanceOf(ADDRESSES.main.stETH, proxyAddress, options)
+  await balanceOf(ADDRESSES.main.STETH, proxyAddress, options)
 }
 
 main().catch(error => {

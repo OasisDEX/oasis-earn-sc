@@ -1,4 +1,5 @@
-import { providers, Signer } from 'ethers'
+import { ethers, providers } from 'ethers'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 export type ValueOf<T> = T[keyof T]
 
@@ -27,13 +28,18 @@ export type FormatUnit = {
 
 export interface RuntimeConfig {
   provider: providers.JsonRpcProvider
-  signer: Signer
+  signer: ethers.Signer
   address: string
 }
 
 export type WithRuntimeConfig = {
   config: RuntimeConfig
 }
+
+export type HardhatRuntimeConfig = {
+  ethers: HardhatRuntimeEnvironment['ethers']
+  network: HardhatRuntimeEnvironment['network']
+} & RuntimeConfig
 
 export type BalanceOptions = Debug & FormatUnit & WithRuntimeConfig
 

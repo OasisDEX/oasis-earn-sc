@@ -1,3 +1,4 @@
+import { JsonRpcProvider } from '@ethersproject/providers'
 import { ADDRESSES, ONE, TEN } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
@@ -181,4 +182,23 @@ export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value)
 
     asDecimal: val.div(base),
   }
+}
+
+export async function getLatestBlock(provider: JsonRpcProvider) {
+  return provider.getBlockNumber()
+}
+
+export async function getRecentBlock({
+  provider,
+  offset,
+  roundToNearest,
+}: {
+  provider: JsonRpcProvider
+  offset: number
+  roundToNearest?: number
+}) {
+  const _roundToNearest = roundToNearest || 1
+  return getLatestBlock(provider)
+    .then(blockNumber => blockNumber - offset)
+    .then(blockNumber => Math.floor(blockNumber / _roundToNearest) * _roundToNearest)
 }

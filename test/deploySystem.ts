@@ -53,7 +53,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   const receipt = await tx.wait()
 
   // eslint-disable-next-line
-  const dpmProxyAddress = receipt.events![1].args!.proxy
+  const dpmProxyAddress: string = receipt.events![1].args!.proxy
 
   await accountGuard.setWhitelist(operationExecutorAddress, true)
 
@@ -281,7 +281,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     operationsRegistryAddress,
     signer,
   )
-  await operationsRegistry.addOp(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
 
   await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_AND_DRAW, [
     {
@@ -689,6 +688,79 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.DEPOSIT_BORROW, [
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveDepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveBorrowHash,
+      optional: false,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsActionHash,
+      optional: false,
+    },
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.BORROW, [
+    {
+      hash: aaveBorrowHash,
+      optional: false,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsActionHash,
+      optional: false,
+    },
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.DEPOSIT, [
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveDepositHash,
+      optional: false,
+    },
+  ])
+
   await operationsRegistry.addOp(OPERATION_NAMES.aave.DECREASE_POSITION, [
     {
       hash: takeFlashLoanHash,
@@ -721,6 +793,41 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     {
       hash: aaveWithdrawHash,
       optional: false,
+    },
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.PAYBACK_WITHDRAW, [
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: true,
+    },
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: aavePaybackHash,
+      optional: true,
+    },
+    {
+      hash: aaveWithdrawHash,
+      optional: true,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: sendTokenHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsActionHash,
+      optional: true,
     },
   ])
 

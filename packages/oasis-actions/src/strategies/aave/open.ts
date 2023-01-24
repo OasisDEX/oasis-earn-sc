@@ -4,13 +4,14 @@ import { ethers, providers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import { amountFromWei, amountToWei } from '../../helpers'
+import { acceptedFeeToken } from '../../helpers/acceptedFeeToken'
 import { ADDRESSES } from '../../helpers/addresses'
 import { Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { AAVETokens } from '../../operations/aave/tokens'
+import { AAVETokens } from '../types/aave/tokens'
 import { IPositionTransition } from '../types/IPositionTransition'
 import { PositionType } from '../types/PositionType'
 import { Address } from '../types/StrategyParams'
@@ -27,7 +28,6 @@ interface OpenPositionArgs {
   positionType: PositionType
   collateralToken: { symbol: AAVETokens; precision?: number }
   debtToken: { symbol: AAVETokens; precision?: number }
-  collectSwapFeeFrom?: 'sourceToken' | 'targetToken'
 }
 
 interface OpenPositionDependencies {
@@ -51,9 +51,9 @@ export async function open(
   const tokenAddresses = {
     WETH: dependencies.addresses.WETH,
     ETH: dependencies.addresses.WETH,
-    STETH: dependencies.addresses.stETH,
+    STETH: dependencies.addresses.STETH,
     USDC: dependencies.addresses.USDC,
-    WBTC: dependencies.addresses.wBTC,
+    WBTC: dependencies.addresses.WBTC,
   }
 
   const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
@@ -156,8 +156,10 @@ export async function open(
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
-  const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
-
+  const collectFeeFrom = acceptedFeeToken({
+    fromToken: args.debtToken.symbol,
+    toToken: args.collateralToken.symbol,
+  })
   const simulatedPositionTransition = currentPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {

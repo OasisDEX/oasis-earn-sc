@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import * as actions from '../../actions'
 import { ADDRESSES } from '../../helpers/addresses'
 import { MAX_UINT, OPERATION_NAMES } from '../../helpers/constants'
-import { IOperation } from '../../strategies/types/IOperation'
+import { IOperation } from '../../strategies/types'
 import { AAVEStrategyAddresses } from './addresses'
 
 export async function close(
@@ -107,5 +107,5 @@ export async function close(
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.common.CUSTOM_OPERATION }
+  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.CLOSE_POSITION }
 }

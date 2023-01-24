@@ -62,4 +62,14 @@ contract AccountImplementation {
       }
     }
   }
+
+  receive() external payable {
+    emit FundsRecived(msg.sender, msg.value);
+  }
+
+  function owner() external view returns (address) {
+    return guard.owners(address(this));
+  }
+
+  event FundsRecived(address sender, uint256 amount);
 }

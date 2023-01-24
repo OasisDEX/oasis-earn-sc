@@ -3,17 +3,16 @@ import { ethers } from 'ethers'
 
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import { amountFromWei, amountToWei } from '../../helpers'
+import { acceptedFeeToken } from '../../helpers/acceptedFeeToken'
 import { ADDRESSES } from '../../helpers/addresses'
 import { IBaseSimulatedTransition, IPosition, Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { ONE, TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { AAVETokens } from '../../operations/aave/tokens'
-import { IOperation } from '../types/IOperation'
-import { IPositionTransition } from '../types/IPositionTransition'
+import { IOperation, IPositionTransition, SwapData } from '../types'
+import { AAVETokens } from '../types/aave'
 import { IPositionTransitionArgs, IPositionTransitionDependencies } from '../types/StrategyParams'
-import { SwapData } from '../types/SwapData'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
 const FEE = 20
@@ -47,6 +46,7 @@ export async function adjust(
   const fromTokenAddress = isIncreasingRisk ? debtTokenAddress : collateralTokenAddress
   const toTokenAddress = isIncreasingRisk ? collateralTokenAddress : debtTokenAddress
   const toToken = isIncreasingRisk ? args.collateralToken : args.debtToken
+  const collectFeeFrom = acceptedFeeToken({ fromToken: fromToken.symbol, toToken: toToken.symbol })
   const estimatedSwapAmount = amountToWei(new BigNumber(1), fromToken.precision)
 
   const aavePriceOracle = new ethers.Contract(
@@ -110,7 +110,6 @@ export async function adjust(
     currentPosition.category,
   )
 
-  const collectFeeFrom = args.collectSwapFeeFrom ?? 'sourceToken'
   const quoteMarketPriceExpectedByMaths = isIncreasingRisk
     ? quoteMarketPrice
     : ONE.div(quoteMarketPrice)
@@ -152,6 +151,7 @@ export async function adjust(
   let swapData: SwapData
 
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
+
   const swapAmountAfterFees = swapAmountBeforeFees.minus(
     collectFeeFrom === 'sourceToken' ? simulatedPositionTransition.swap.tokenFee : ZERO,
   )
@@ -274,6 +274,7 @@ async function _increaseRisk({
       precision: toToken.precision || TYPICAL_PRECISION,
     },
   }
+
   // Needs to be correct precision. First convert to base 18. Then divide
   const actualSwapBase18FromTokenAmount = amountToWei(
     amountFromWei(swapData.fromTokenAmount, fromToken.precision),
@@ -320,8 +321,8 @@ async function _increaseRisk({
   )
 
   /*
-      Final position calculated using actual swap data and the latest market price
-    */
+    Final position calculated using actual swap data and the latest market price
+  */
   // EG FROM WBTC 8 to USDC 6
   // Convert WBTC fromWei
   // Apply market price

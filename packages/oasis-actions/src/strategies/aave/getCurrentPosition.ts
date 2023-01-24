@@ -4,21 +4,20 @@ import { ethers } from 'ethers'
 import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import { amountFromWei } from '../../helpers'
-import { IPosition, Position } from '../../helpers/calculations/Position'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { AAVETokens } from '../../operations/aave/tokens'
+import { AavePosition, AAVETokens } from '../types/aave'
 import { IViewPositionDependencies, IViewPositionParams } from '../types/StrategyParams'
 
 export async function getCurrentPosition(
   { collateralToken, debtToken, proxy }: IViewPositionParams<AAVETokens>,
   { addresses, provider }: IViewPositionDependencies<AAVEStrategyAddresses>,
-): Promise<IPosition> {
+): Promise<AavePosition> {
   const tokenAddresses = {
     WETH: addresses.WETH,
     ETH: addresses.WETH,
-    STETH: addresses.stETH,
+    STETH: addresses.STETH,
     USDC: addresses.USDC,
-    WBTC: addresses.wBTC,
+    WBTC: addresses.WBTC,
   }
 
   const collateralTokenAddress = tokenAddresses[collateralToken.symbol]
@@ -67,16 +66,18 @@ export async function getCurrentPosition(
 
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
-  return new Position(
+  return new AavePosition(
     {
       amount: new BigNumber(userReserveDataForDebtToken.currentVariableDebt.toString()),
       symbol: debtToken.symbol,
       precision: debtToken.precision,
+      address: debtTokenAddress,
     },
     {
       amount: new BigNumber(userReserveDataForCollateral.currentATokenBalance.toString()),
       symbol: collateralToken.symbol,
       precision: collateralToken.precision,
+      address: collateralTokenAddress,
     },
     oracle,
     {
