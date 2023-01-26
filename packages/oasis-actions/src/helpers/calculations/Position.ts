@@ -105,6 +105,7 @@ export interface IPosition extends IBasePosition {
   liquidationPrice: BigNumber
   maxDebtToBorrow: BigNumber
   maxCollateralToWithdraw: BigNumber
+  debtToPaybackAll: BigNumber
   deposit(amount: BigNumber): IPosition
   borrow(amount: BigNumber): IPosition
   withdraw(amount: BigNumber): IPosition
@@ -155,11 +156,20 @@ export class Position implements IPosition {
   }
 
   public get maxCollateralToWithdraw() {
-    const maxLoanToValue = this.category.maxLoanToValue
-    const minimumCollateral = this.debt.normalisedAmount.div(
-      maxLoanToValue.times(this._oraclePriceForCollateralDebtExchangeRate),
+    const approximatelyMinimumCollateral = this.debt.normalisedAmount
+      .dividedBy(this._oraclePriceForCollateralDebtExchangeRate)
+      .dividedBy(this.category.maxLoanToValue)
+      .integerValue()
+
+    return this.collateral.amount.minus(
+      this._denormaliseAmount(approximatelyMinimumCollateral, this.collateral.precision),
     )
-    return this.collateral.amount.minus(minimumCollateral)
+  }
+
+  public get debtToPaybackAll() {
+    const debt = this.debt.amount
+    const offset = new BigNumber(1000)
+    return debt.plus(debt.div(offset).integerValue(BigNumber.ROUND_UP))
   }
 
   public get riskRatio() {

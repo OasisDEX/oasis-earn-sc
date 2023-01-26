@@ -5,22 +5,22 @@ import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/de
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei } from '../../../helpers/utils'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
+import { ETH, MULTIPLE, SLIPPAGE, STETH } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-async function getStEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1]) {
-  const debtToken = { symbol: 'ETH' as const, precision: 18 }
-  const collateralToken = { symbol: 'STETH' as const, precision: 18 }
+const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
 
+async function getStEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1]) {
   const args: OpenPositionTypes[0] = {
-    collateralToken: collateralToken,
-    debtToken: debtToken,
-    slippage: new BigNumber(0.1),
+    collateralToken: STETH,
+    debtToken: ETH,
+    slippage: SLIPPAGE,
     depositedByUser: {
       debtToken: {
-        amountInBaseUnit: amountToWei(new BigNumber(10), debtToken.precision),
+        amountInBaseUnit: transactionAmount,
       },
     },
-    multiple: new BigNumber(1.5),
+    multiple: MULTIPLE,
     positionType: 'Earn',
   }
 
@@ -35,8 +35,14 @@ export async function createStEthEthEarnAAVEPosition(
 ): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'STETH/ETH Earn'
 
+  const getSwapData = dependencies.getSwapData(new BigNumber(0.979), {
+    from: STETH.precision,
+    to: ETH.precision,
+  })
+
   const stEthEthEarnAAVEPosition = await getStEthEthEarnAAVEPosition({
     ...dependencies,
+    getSwapData,
     isDPMProxy: isDPM,
     proxy: proxy,
   })
@@ -53,10 +59,7 @@ export async function createStEthEthEarnAAVEPosition(
       ]),
     },
     config.signer,
-    amountToWei(
-      new BigNumber(10),
-      stEthEthEarnAAVEPosition.simulation.position.debt.precision,
-    ).toString(),
+    transactionAmount.toString(),
   )
 
   if (!status) {
@@ -68,9 +71,9 @@ export async function createStEthEthEarnAAVEPosition(
     getPosition: async () => {
       return await strategies.aave.view(
         {
-          collateralToken: { symbol: 'STETH' as const, precision: 18 },
-          debtToken: { symbol: 'ETH' as const, precision: 18 },
-          proxy: proxy,
+          collateralToken: STETH,
+          debtToken: ETH,
+          proxy,
         },
         {
           addresses: {
@@ -82,5 +85,8 @@ export async function createStEthEthEarnAAVEPosition(
       )
     },
     strategy: 'STETH/ETH Earn',
+    collateralToken: STETH,
+    debtToken: ETH,
+    getSwapData,
   }
 }

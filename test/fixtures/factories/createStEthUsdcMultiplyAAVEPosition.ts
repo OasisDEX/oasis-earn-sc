@@ -4,24 +4,24 @@ import BigNumber from 'bignumber.js'
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, approve } from '../../../helpers/utils'
+import { mainnetAddresses } from '../../addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
+import { MULTIPLE, SLIPPAGE, STETH, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-const debtToken = { symbol: 'USDC' as const, precision: 6 }
-const collateralToken = { symbol: 'STETH' as const, precision: 18 }
-const amountInBaseUnit = amountToWei(new BigNumber(10), collateralToken.precision)
+const amountInBaseUnit = amountToWei(new BigNumber(100), STETH.precision)
 
 async function getStEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
   const args: OpenPositionTypes[0] = {
-    collateralToken: collateralToken,
-    debtToken: debtToken,
-    slippage: new BigNumber(0.1),
+    collateralToken: STETH,
+    debtToken: USDC,
+    slippage: SLIPPAGE,
     depositedByUser: {
       collateralToken: {
         amountInBaseUnit,
       },
     },
-    multiple: new BigNumber(1.5),
+    multiple: MULTIPLE,
     positionType: 'Multiply',
   }
 
@@ -37,15 +37,21 @@ export async function createStEthUsdcMultiplyAAVEPosition(
 ): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'STETH/USDC Multiply'
 
+  const getSwapData = dependencies.getSwapData(new BigNumber(1217.85), {
+    from: USDC.precision,
+    to: STETH.precision,
+  })
+
   const position = await getStEthUsdcMultiplyAAVEPosition({
     ...dependencies,
+    getSwapData,
     isDPMProxy: isDPM,
     proxy: proxy,
   })
 
   await getTokens('STETH', amountInBaseUnit.toString())
 
-  await approve(dependencies.addresses.STETH, proxy, amountInBaseUnit, config, false)
+  await approve(mainnetAddresses.STETH, proxy, amountInBaseUnit, config)
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
@@ -71,8 +77,8 @@ export async function createStEthUsdcMultiplyAAVEPosition(
     getPosition: async () => {
       return await strategies.aave.view(
         {
-          collateralToken,
-          debtToken,
+          collateralToken: STETH,
+          debtToken: USDC,
           proxy: proxy,
         },
         {
@@ -85,5 +91,8 @@ export async function createStEthUsdcMultiplyAAVEPosition(
       )
     },
     strategy,
+    collateralToken: STETH,
+    debtToken: USDC,
+    getSwapData,
   }
 }
