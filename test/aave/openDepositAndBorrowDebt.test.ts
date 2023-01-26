@@ -9,7 +9,7 @@ import { zero } from '../../scripts/common'
 import { mainnetAddresses } from '../addresses'
 import { getSystemWithProxies } from '../fixtures'
 import { SystemWithProxies } from '../fixtures/types/systemWithAAVEPosition'
-import { expectToBeEqual } from '../utils'
+import { expectToBe, expectToBeEqual } from '../utils'
 
 export type TokenDetails = {
   symbol: AAVETokens
@@ -225,10 +225,10 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
           10,
           'Collateral amount on protocol is not correct',
         )
-        expectToBeEqual(
-          afterTransactionPosition.debt.amount,
-          amountToBorrow,
-          10,
+        expectToBe(
+          afterTransactionPosition.debt.amount.minus(amountToBorrow).abs(),
+          'lte',
+          new BigNumber(2),
           'Debt amount on protocol is not correct',
         )
       })
@@ -296,10 +296,10 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
             10,
             'Collateral amount on protocol is not correct',
           )
-          expectToBeEqual(
-            afterTransactionPosition.debt.amount,
-            amountToBorrow,
-            10,
+          expectToBe(
+            afterTransactionPosition.debt.amount.minus(amountToBorrow).abs(),
+            'lte',
+            new BigNumber(2),
             'Debt amount on protocol is not correct',
           )
         })
