@@ -9,16 +9,19 @@ import { zero } from '../../scripts/common'
 import { mainnetAddresses } from '../addresses'
 import {
   getSupportedStrategies,
-  getSystemWithAAVEPosition,
-  SystemWithAAVEPosition,
+  getSystemWithAAVEPositions,
+  SystemWithAAVEPositions,
 } from '../fixtures'
 import { expectToBe, expectToBeEqual } from '../utils'
+
 describe('Strategy | AAVE | Payback/Withdraw', async () => {
-  let fixture: SystemWithAAVEPosition
+  let fixture: SystemWithAAVEPositions
   const supportedStrategies = getSupportedStrategies()
+
   before(async () => {
-    fixture = await loadFixture(getSystemWithAAVEPosition)
+    fixture = await loadFixture(getSystemWithAAVEPositions)
   })
+
   describe('Payback debt', () => {
     describe('When position is opened with DSProxy', () => {
       it('Should reduce debt', async () => {
