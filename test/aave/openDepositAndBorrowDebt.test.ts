@@ -17,7 +17,7 @@ export type TokenDetails = {
   address: string
 }
 
-describe('Strategy | AAVE | Simple Deposit/Borrow', async () => {
+describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
   const ETH: TokenDetails = {
     symbol: 'ETH' as const,
     precision: 18,
@@ -56,16 +56,17 @@ describe('Strategy | AAVE | Simple Deposit/Borrow', async () => {
 
         const amountToDeposit = amountToWei(new BigNumber(1), collateral.precision)
 
-        type DepositBorrowArgs = Parameters<typeof strategies.aave.simpleDepositBorrow>
+        type DepositBorrowArgs = Parameters<typeof strategies.aave.openDepositAndBorrowDebt>
         const args: DepositBorrowArgs[0] = {
           debtToken: debt,
           collateralToken: collateral,
           amountCollateralToDepositInBaseUnit: amountToDeposit,
           amountDebtToBorrowInBaseUnit: zero,
           slippage: new BigNumber(0.1),
+          positionType: 'Borrow',
         }
 
-        const simulation = await strategies.aave.simpleDepositBorrow(args, {
+        const simulation = await strategies.aave.openDepositAndBorrowDebt(args, {
           ...strategiesDependencies,
           isDPMProxy: false,
           proxy: dsProxy,
@@ -118,16 +119,17 @@ describe('Strategy | AAVE | Simple Deposit/Borrow', async () => {
             await approve(collateral.address, proxy.proxy, amountToDeposit, config, false)
           }
 
-          type DepositBorrowArgs = Parameters<typeof strategies.aave.simpleDepositBorrow>
+          type DepositBorrowArgs = Parameters<typeof strategies.aave.openDepositAndBorrowDebt>
           const args: DepositBorrowArgs[0] = {
             debtToken: debt,
             collateralToken: collateral,
             amountCollateralToDepositInBaseUnit: amountToDeposit,
             amountDebtToBorrowInBaseUnit: zero,
             slippage: new BigNumber(0.1),
+            positionType: 'Borrow',
           }
 
-          const simulation = await strategies.aave.simpleDepositBorrow(args, {
+          const simulation = await strategies.aave.openDepositAndBorrowDebt(args, {
             ...strategiesDependencies,
             isDPMProxy: true,
             proxy: proxy.proxy,
@@ -180,16 +182,17 @@ describe('Strategy | AAVE | Simple Deposit/Borrow', async () => {
         const amountToDeposit = amountToWei(new BigNumber(1), collateral.precision)
         const amountToBorrow = amountToWei(new BigNumber(100), debt.precision)
 
-        type DepositBorrowArgs = Parameters<typeof strategies.aave.simpleDepositBorrow>
+        type DepositBorrowArgs = Parameters<typeof strategies.aave.openDepositAndBorrowDebt>
         const args: DepositBorrowArgs[0] = {
           debtToken: debt,
           collateralToken: collateral,
           amountCollateralToDepositInBaseUnit: amountToDeposit,
           amountDebtToBorrowInBaseUnit: amountToBorrow,
           slippage: new BigNumber(0.1),
+          positionType: 'Borrow',
         }
 
-        const simulation = await strategies.aave.simpleDepositBorrow(args, {
+        const simulation = await strategies.aave.openDepositAndBorrowDebt(args, {
           ...strategiesDependencies,
           isDPMProxy: false,
           proxy: dsProxy,
@@ -250,16 +253,17 @@ describe('Strategy | AAVE | Simple Deposit/Borrow', async () => {
             await approve(collateral.address, proxy.proxy, amountToDeposit, config, false)
           }
 
-          type DepositBorrowArgs = Parameters<typeof strategies.aave.simpleDepositBorrow>
+          type DepositBorrowArgs = Parameters<typeof strategies.aave.openDepositAndBorrowDebt>
           const args: DepositBorrowArgs[0] = {
             debtToken: debt,
             collateralToken: collateral,
             amountCollateralToDepositInBaseUnit: amountToDeposit,
             amountDebtToBorrowInBaseUnit: amountToBorrow,
             slippage: new BigNumber(0.1),
+            positionType: 'Borrow',
           }
 
-          const simulation = await strategies.aave.simpleDepositBorrow(args, {
+          const simulation = await strategies.aave.openDepositAndBorrowDebt(args, {
             ...strategiesDependencies,
             isDPMProxy: true,
             proxy: proxy.proxy,

@@ -5,6 +5,7 @@ import { deposit } from './deposit'
 import { depositBorrow } from './depositBorrow'
 import { increaseMultiple } from './increaseMultiple'
 import { open } from './open'
+import { openDepositAndBorrow } from './openDepositAndBorrow'
 import { paybackWithdraw } from './paybackWithdraw'
 
 export {
@@ -15,5 +16,6 @@ export {
   depositBorrow,
   increaseMultiple,
   open,
+  openDepositAndBorrow,
   paybackWithdraw,
 }

@@ -80,6 +80,7 @@ export const OPERATION_NAMES = {
     DECREASE_POSITION: 'DecreaseAAVEPosition',
     DEPOSIT_BORROW: 'AAVEDepositBorrow',
     DEPOSIT: 'AAVEDeposit',
+    OPEN_DEPOSIT_BORROW: 'AAVEOpenDepositBorrow',
     BORROW: 'AAVEBorrow',
     PAYBACK_WITHDRAW: 'AAVEPaybackWithdraw',
   },
