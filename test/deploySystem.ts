@@ -846,7 +846,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       dummyAutomation,
       dummyCommmand,
       exchange: dummyExchange,
-      swap: useFallbackSwap ? uSwap : swap,
+      // TODO: Figure out how to make this work based on the change
+      uSwap,
+      swap,
       swapAction,
       sendToken,
       pullToken,

@@ -1,11 +1,13 @@
 import { ContractNames } from '@oasisdex/oasis-actions'
 import { Signer, utils } from 'ethers'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 export class ServiceRegistry {
   address: string
   signer: Signer
+  ethers: any
 
-  constructor(address: string, signer: Signer) {
+  constructor(address: string, signer: Signer, hre?: HardhatRuntimeEnvironment) {
     this.address = address
     this.signer = signer
   }
@@ -21,6 +23,12 @@ export class ServiceRegistry {
     }
 
     return entryHash
+  }
+
+  async removeEntry(label: ContractNames) {
+    const ethers = (await import('hardhat')).ethers
+    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    await registry.removeNamedService(await this.getEntryHash(label))
   }
 
   async getEntryHash(label: ContractNames): Promise<string> {
