@@ -13,11 +13,7 @@ import {
   createStEthUsdcMultiplyAAVEPosition,
   createWbtcUsdcMultiplyAAVEPosition,
 } from './factories'
-import { AavePositionStrategy, StrategiesDependencies, SystemWithAAVEPosition } from './types'
-
-export function getSupportedStrategies(): AavePositionStrategy[] {
-  return ['ETH/USDC Multiply', 'STETH/USDC Multiply', 'WBTC/USDC Multiply', 'STETH/ETH Earn']
-}
+import { StrategiesDependencies, SystemWithAAVEPosition } from './types'
 
 export async function getSystemWithAAVEPosition(): Promise<SystemWithAAVEPosition> {
   const config = await init()
