@@ -9,10 +9,19 @@ interface ISimulatedTransition extends IBaseSimulatedTransition {
   minConfigurableRiskRatio: IRiskRatio
 }
 
+export type ISimpleSimulatedTransition = Omit<
+  ISimulatedTransition,
+  'swap' | 'minConfigurableRiskRatio'
+>
+
 export interface IPositionTransition {
   transaction: {
     calls: ActionCall[]
     operationName: OperationNames
   }
   simulation: ISimulatedTransition
+}
+
+export type ISimplePositionTransition = Omit<IPositionTransition, 'simulation'> & {
+  simulation: ISimpleSimulatedTransition
 }

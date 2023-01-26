@@ -4,6 +4,16 @@ import { deploySystem } from '../../deploySystem'
 import { AavePositionStrategy, PositionDetails } from './positionDetails'
 import { StrategiesDependencies } from './strategiesDependencies'
 
+export type SystemWithProxies = {
+  config: RuntimeConfig
+  system: Awaited<ReturnType<typeof deploySystem>>['system']
+  registry: Awaited<ReturnType<typeof deploySystem>>['registry']
+  dsProxy: string
+  dpmAccounts: { proxy: string; vaultId: number }[]
+  strategiesDependencies: StrategiesDependencies
+  getTokens: (symbol: AAVETokensToGet, amount: string) => Promise<boolean>
+}
+
 export type SystemWithAAVEPositions = {
   config: RuntimeConfig
   system: Awaited<ReturnType<typeof deploySystem>>['system']
