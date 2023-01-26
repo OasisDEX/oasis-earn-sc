@@ -7,6 +7,7 @@ import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20 } from "../../libs/SafeERC20.sol";
 import { ONE_INCH_AGGREGATOR } from "../../core/constants/Common.sol";
 import { SwapData } from "../../core/types/Common.sol";
+import "hardhat/console.sol";
 
 contract Swap {
   using SafeMath for uint256;
@@ -118,6 +119,7 @@ contract Swap {
     }
 
     uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
+    console.log("DEBUG: FEE", feeToTransfer);
 
     if (fee > 0) {
       IERC20(asset).safeTransfer(feeBeneficiaryAddress, feeToTransfer);
@@ -131,8 +133,12 @@ contract Swap {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
 
     uint256 amountFrom = swapData.amount;
+    console.log("DEBUG: In sWAP");
+
+    console.log("DEBUG: AMOUNT:", swapData.amount);
 
     if (swapData.collectFeeInFromToken) {
+      console.log("DEBUG: Collecting fee from fromToken");
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
 
@@ -148,8 +154,12 @@ contract Swap {
     );
 
     if (!swapData.collectFeeInFromToken) {
+      console.log("DEBUG: Collecting fee from toToken");
       toTokenBalance = _collectFee(swapData.toAsset, toTokenBalance, swapData.fee);
     }
+
+    console.log("DEBUG: amountFrom after fee collection", amountFrom);
+    console.log("DEBUG: toTokenBalance after fee collection", toTokenBalance);
 
     uint256 fromTokenBalance = IERC20(swapData.fromAsset).balanceOf(address(this));
     if (fromTokenBalance > 0) {

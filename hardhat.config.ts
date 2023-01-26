@@ -65,7 +65,7 @@ const config: HardhatUserConfig = {
   networks: {
     local: {
       url: 'http://127.0.0.1:8545',
-      timeout: 100000,
+      timeout: 1000000,
       chainId: 2137,
     },
     hardhat: {

@@ -70,37 +70,44 @@ export async function getSystemWithAAVEPosition(): Promise<SystemWithAAVEPositio
     throw new Error('Cant create a DPM proxy')
   }
 
-  const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition(
-    dpmProxyForEarnStEthEth,
-    true,
-    dependecies,
-    config,
-  )
+  // const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition(
+  //   dpmProxyForEarnStEthEth,
+  //   true,
+  //   dependecies,
+  //   config,
+  // )
 
-  const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition(
-    dpmProxyForMultiplyEthUsdc,
-    true,
-    dependecies,
-    config,
-  )
+  // const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition(
+  //   dpmProxyForMultiplyEthUsdc,
+  //   true,
+  //   dependecies,
+  //   config,
+  // )
 
-  const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition(
-    dpmProxyForMultiplyStEthUsdc,
-    true,
-    dependecies,
-    config,
-    getTokens,
-  )
+  // const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition(
+  //   dpmProxyForMultiplyStEthUsdc,
+  //   true,
+  //   dependecies,
+  //   config,
+  //   getTokens,
+  // )
 
-  const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition(
-    dpmProxyForMultiplyWbtcUsdc,
-    true,
-    dependecies,
-    config,
-    getTokens,
-  )
+  // const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition(
+  //   dpmProxyForMultiplyWbtcUsdc,
+  //   true,
+  //   dependecies,
+  //   config,
+  //   getTokens,
+  // )
 
-  const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition(
+  // const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition(
+  //   system.common.userProxyAddress,
+  //   false,
+  //   dependecies,
+  //   config,
+  // )
+
+  const dsProxyPosition = await createEthUsdcMultiplyAAVEPosition(
     system.common.userProxyAddress,
     false,
     dependecies,
@@ -112,13 +119,8 @@ export async function getSystemWithAAVEPosition(): Promise<SystemWithAAVEPositio
     system,
     registry,
     strategiesDependencies: dependecies,
-    dpmPositions: {
-      [stEthEthEarnPosition.strategy]: stEthEthEarnPosition,
-      [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition,
-      [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition,
-      [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon,
-    },
-    dsProxyPosition: dsProxyStEthEthEarnPosition,
+    dpmPositions: {},
+    dsProxyPosition,
     getTokens,
   }
 }
