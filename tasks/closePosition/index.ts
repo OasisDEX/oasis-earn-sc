@@ -152,6 +152,7 @@ task('closePosition', 'Close stETH position on AAVE')
         proxy: dsProxy.address,
         user: config.address,
         isDPMProxy: false,
+        shouldCloseToCollateral: false,
       },
     )
 
