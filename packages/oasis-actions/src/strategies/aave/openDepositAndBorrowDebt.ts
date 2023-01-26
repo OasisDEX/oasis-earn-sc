@@ -9,13 +9,17 @@ import {
   ISimplePositionTransition,
   WithBorrowDebt,
   WithDepositCollateral,
+  WithPositionType,
 } from '../types'
 import { AAVETokens } from '../types/aave'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 import { getCurrentPosition } from './getCurrentPosition'
 
-export async function simpleDepositBorrow(
-  args: IBasePositionTransitionArgs<AAVETokens> & WithDepositCollateral & WithBorrowDebt,
+export async function openDepositAndBorrowDebt(
+  args: IBasePositionTransitionArgs<AAVETokens> &
+    WithDepositCollateral &
+    WithBorrowDebt &
+    WithPositionType,
   dependencies: IOnlyDepositBorrowOpenPositionTransitionDependencies<AAVEStrategyAddresses>,
 ): Promise<ISimplePositionTransition> {
   const currentPosition = await getCurrentPosition(
@@ -28,28 +32,27 @@ export async function simpleDepositBorrow(
     dependencies.addresses,
   )
 
-  const depositArgs: DepositArgs | undefined = args.amountCollateralToDepositInBaseUnit.gt(ZERO)
-    ? {
-        entryTokenAddress: collateralTokenAddress,
-        entryTokenIsEth: args.collateralToken.symbol === 'ETH',
-        amountInBaseUnit: args.amountCollateralToDepositInBaseUnit,
-        depositToken: collateralTokenAddress,
-        depositorAddress: dependencies.user,
-        isSwapNeeded: false,
-      }
-    : undefined
+  const depositArgs: DepositArgs = {
+    entryTokenAddress: collateralTokenAddress,
+    entryTokenIsEth: args.collateralToken.symbol === 'ETH',
+    amountInBaseUnit: args.amountCollateralToDepositInBaseUnit,
+    depositToken: collateralTokenAddress,
+    depositorAddress: dependencies.user,
+    isSwapNeeded: false,
+  }
 
-  const borrowArgs: BorrowArgs | undefined = args.amountDebtToBorrowInBaseUnit.gt(ZERO)
-    ? {
-        borrowToken: debtTokenAddress,
-        amountInBaseUnit: args.amountDebtToBorrowInBaseUnit,
-        user: dependencies.user,
-        isEthToken: args.debtToken.symbol === 'ETH',
-        account: dependencies.proxy,
-      }
-    : undefined
+  const borrowArgs: BorrowArgs = {
+    borrowToken: debtTokenAddress,
+    amountInBaseUnit: args.amountDebtToBorrowInBaseUnit,
+    user: dependencies.user,
+    isEthToken: args.debtToken.symbol === 'ETH',
+    account: dependencies.proxy,
+  }
 
-  const operation = await operations.aave.depositBorrow(depositArgs, borrowArgs)
+  const operation = await operations.aave.openDepositAndBorrow(depositArgs, borrowArgs, {
+    positionType: args.positionType,
+    protocol: 'AAVE',
+  })
 
   const finalPosition = currentPosition
     .deposit(args.amountCollateralToDepositInBaseUnit)

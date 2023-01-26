@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
+import { PositionType } from './PositionType'
 import { IPosition } from '../helpers/calculations/Position'
 import { SwapData } from './SwapData'
 
@@ -35,6 +36,10 @@ export type WithPaybackDebt = {
 
 export type WithBorrowDebt = {
   amountDebtToBorrowInBaseUnit: BigNumber
+}
+
+export type WithPositionType = {
+  positionType: PositionType
 }
 
 export type WithDepositCollateral = {
