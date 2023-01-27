@@ -1,4 +1,5 @@
 import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/oasis-actions'
+import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
 import { buildGetTokenFunction } from '../../helpers/aave'
@@ -76,7 +77,10 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       accountFactory: '0xF7B75183A2829843dB06266c114297dfbFaeE2b6',
     }
 
-    const swapData = taskArgs.usefallbackswap ? oneInchCallMock() : getOneInchCall(swapAddress)
+    const swapData = taskArgs.usefallbackswap
+      ? (marketPrice: BigNumber, precision: { from: number; to: number }) =>
+          oneInchCallMock(marketPrice, precision)
+      : () => getOneInchCall(swapAddress)
 
     const [proxy1, vaultId1] = await createDPMAccount(mainnetAddresses.accountFactory, config)
     const [proxy2, vaultId2] = await createDPMAccount(mainnetAddresses.accountFactory, config)

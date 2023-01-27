@@ -5,22 +5,22 @@ import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/de
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei } from '../../../helpers/utils'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
+import { ETH, MULTIPLE, SLIPPAGE, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-async function getEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
-  const debtToken = { symbol: 'USDC' as const, precision: 6 }
-  const collateralToken = { symbol: 'ETH' as const, precision: 18 }
+const depositCollateralAmount = amountToWei(new BigNumber(10), ETH.precision)
 
+async function getEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
   const args: OpenPositionTypes[0] = {
-    collateralToken: collateralToken,
-    debtToken: debtToken,
-    slippage: new BigNumber(0.1),
+    collateralToken: ETH,
+    debtToken: USDC,
+    slippage: SLIPPAGE,
     depositedByUser: {
       collateralToken: {
-        amountInBaseUnit: amountToWei(new BigNumber(10), collateralToken.precision),
+        amountInBaseUnit: depositCollateralAmount,
       },
     },
-    multiple: new BigNumber(1.5),
+    multiple: MULTIPLE,
     positionType: 'Multiply',
   }
 
@@ -35,8 +35,14 @@ export async function createEthUsdcMultiplyAAVEPosition(
 ): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'ETH/USDC Multiply'
 
+  const getSwapData = dependencies.getSwapData(new BigNumber(1617.85), {
+    from: USDC.precision,
+    to: ETH.precision,
+  })
+
   const position = await getEthUsdcMultiplyAAVEPosition({
     ...dependencies,
+    getSwapData,
     isDPMProxy: isDPM,
     proxy: proxy,
   })
@@ -53,7 +59,7 @@ export async function createEthUsdcMultiplyAAVEPosition(
       ]),
     },
     config.signer,
-    amountToWei(new BigNumber(10), position.simulation.position.collateral.precision).toString(),
+    depositCollateralAmount.toString(),
   )
 
   if (!status) {
@@ -65,8 +71,8 @@ export async function createEthUsdcMultiplyAAVEPosition(
     getPosition: async () => {
       return await strategies.aave.view(
         {
-          collateralToken: { symbol: 'ETH' as const, precision: 18 },
-          debtToken: { symbol: 'USDC' as const, precision: 6 },
+          collateralToken: ETH,
+          debtToken: USDC,
           proxy: proxy,
         },
         {
@@ -79,5 +85,8 @@ export async function createEthUsdcMultiplyAAVEPosition(
       )
     },
     strategy,
+    collateralToken: ETH,
+    debtToken: USDC,
+    getSwapData,
   }
 }

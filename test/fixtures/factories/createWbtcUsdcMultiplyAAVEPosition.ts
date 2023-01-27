@@ -5,23 +5,22 @@ import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/de
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, approve } from '../../../helpers/utils'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
+import { MULTIPLE, SLIPPAGE, USDC, WBTC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-const debtToken = { symbol: 'USDC' as const, precision: 6 }
-const collateralToken = { symbol: 'WBTC' as const, precision: 8 }
-const amountInBaseUnit = amountToWei(new BigNumber(2), collateralToken.precision)
+const amountInBaseUnit = amountToWei(new BigNumber(10), WBTC.precision)
 
 async function getWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
   const args: OpenPositionTypes[0] = {
-    collateralToken: collateralToken,
-    debtToken: debtToken,
-    slippage: new BigNumber(0.1),
+    collateralToken: WBTC,
+    debtToken: USDC,
+    slippage: SLIPPAGE,
     depositedByUser: {
       collateralToken: {
         amountInBaseUnit,
       },
     },
-    multiple: new BigNumber(1.5),
+    multiple: MULTIPLE,
     positionType: 'Multiply',
   }
 
@@ -37,15 +36,21 @@ export async function createWbtcUsdcMultiplyAAVEPosition(
 ): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'WBTC/USDC Multiply'
 
+  const getSwapData = dependencies.getSwapData(new BigNumber(22842.53), {
+    from: USDC.precision,
+    to: WBTC.precision,
+  })
+
   const position = await getWbtcUsdcMultiplyAAVEPosition({
     ...dependencies,
+    getSwapData,
     isDPMProxy: isDPM,
     proxy: proxy,
   })
 
   await getTokens('WBTC', amountInBaseUnit.toString())
 
-  await approve(dependencies.addresses.WBTC, proxy, amountInBaseUnit, config, false)
+  await approve(WBTC.address, proxy, amountInBaseUnit, config, false)
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
@@ -71,8 +76,8 @@ export async function createWbtcUsdcMultiplyAAVEPosition(
     getPosition: async () => {
       return await strategies.aave.view(
         {
-          collateralToken,
-          debtToken,
+          collateralToken: WBTC,
+          debtToken: USDC,
           proxy: proxy,
         },
         {
@@ -85,5 +90,8 @@ export async function createWbtcUsdcMultiplyAAVEPosition(
       )
     },
     strategy,
+    collateralToken: WBTC,
+    debtToken: USDC,
+    getSwapData,
   }
 }

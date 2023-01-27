@@ -1,5 +1,3 @@
-import BigNumber from 'bignumber.js'
-
 import { buildGetTokenFunction } from '../../helpers/aave/'
 import init, { resetNode } from '../../helpers/init'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
@@ -40,7 +38,7 @@ export async function getSystemWithAAVEPosition(): Promise<SystemWithAAVEPositio
     },
     provider: config.provider,
     user: config.address,
-    getSwapData: oneInchCallMock(new BigNumber(0.9759)),
+    getSwapData: (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
   }
 
   const [dpmProxyForEarnStEthEth] = await createDPMAccount(
