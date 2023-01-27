@@ -1,9 +1,10 @@
-import { ADDRESSES, strategies } from '@oasisdex/oasis-actions/src'
+import { strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, approve, balanceOf } from '../../../helpers/utils'
+import { mainnetAddresses } from '../../addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { MULTIPLE, SLIPPAGE, USDC, WBTC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
@@ -34,7 +35,7 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
   swapAddress,
   dependencies,
   config,
-  getToken,
+  getTokens,
 }: {
   proxy: string
   isDPM: boolean
@@ -42,7 +43,7 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
   swapAddress?: string
   dependencies: StrategiesDependencies
   config: RuntimeConfig
-  getToken: (symbol: 'WBTC', amount: string) => Promise<boolean>
+  getTokens: (symbol: 'WBTC', amount: string) => Promise<boolean>
 }): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'WBTC/USDC Multiply'
 
@@ -62,15 +63,19 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     proxy: proxy,
   })
 
-  await getToken('WBTC', amountInBaseUnit.toString())
+  await getTokens('WBTC', amountInBaseUnit.toString())
 
   await approve(WBTC.address, proxy, amountInBaseUnit, config, false)
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeWalletBalanceBefore = await balanceOf(ADDRESSES.main.USDC, ADDRESSES.main.feeRecipient, {
-    config,
-  })
+  const feeWalletBalanceBefore = await balanceOf(
+    mainnetAddresses.USDC,
+    mainnetAddresses.feeRecipient,
+    {
+      config,
+    },
+  )
 
   const [status] = await proxyFunction(
     proxy,
@@ -89,9 +94,13 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  const feeWalletBalanceAfter = await balanceOf(ADDRESSES.main.USDC, ADDRESSES.main.feeRecipient, {
-    config,
-  })
+  const feeWalletBalanceAfter = await balanceOf(
+    mainnetAddresses.USDC,
+    mainnetAddresses.feeRecipient,
+    {
+      config,
+    },
+  )
 
   return {
     proxy: proxy,

@@ -11,5 +11,5 @@ export type SystemWithAAVEPositions = {
   dpmPositions: Partial<Record<AavePositionStrategy, PositionDetails>>
   dsProxyPosition: PositionDetails
   strategiesDependencies: StrategiesDependencies
-  getToken: (symbol: AAVETokensToGet, amount: string) => Promise<boolean>
+  getTokens: (symbol: AAVETokensToGet, amount: string) => Promise<boolean>
 }

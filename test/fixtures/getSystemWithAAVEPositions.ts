@@ -12,8 +12,7 @@ import {
   createStEthUsdcMultiplyAAVEPosition,
   createWbtcUsdcMultiplyAAVEPosition,
 } from './factories'
-import { AavePositionStrategy, StrategiesDependencies } from './types'
-import { SystemWithAAVEPositions } from './types/systemWithAAVEPositions'
+import { AavePositionStrategy, StrategiesDependencies, SystemWithAAVEPositions } from './types'
 
 export function getSupportedStrategies(): AavePositionStrategy[] {
   return ['ETH/USDC Multiply', 'STETH/USDC Multiply', 'WBTC/USDC Multiply', 'STETH/ETH Earn']
@@ -24,7 +23,7 @@ export const getSystemWithAAVEPositions =
   async (): Promise<SystemWithAAVEPositions> => {
     const config = await init()
 
-    const getToken = buildGetTokenFunction(config, await import('hardhat'))
+    const getTokens = buildGetTokenFunction(config, await import('hardhat'))
 
     if (testBlockNumber) {
       await resetNode(config.provider, testBlockNumber)
@@ -100,7 +99,7 @@ export const getSystemWithAAVEPositions =
       swapAddress,
       dependencies,
       config,
-      getToken,
+      getTokens,
     })
 
     const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
@@ -110,7 +109,7 @@ export const getSystemWithAAVEPositions =
       swapAddress,
       dependencies,
       config,
-      getToken,
+      getTokens,
     })
 
     const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
@@ -134,6 +133,6 @@ export const getSystemWithAAVEPositions =
         [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon,
       },
       dsProxyPosition: dsProxyStEthEthEarnPosition,
-      getToken,
+      getTokens,
     }
   }

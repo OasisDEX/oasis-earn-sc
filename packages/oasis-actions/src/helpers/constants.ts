@@ -81,7 +81,7 @@ export const OPERATION_NAMES = {
     DEPOSIT_BORROW: 'AAVEDepositBorrow',
     DEPOSIT: 'AAVEDeposit',
     BORROW: 'AAVEBorrow',
-    PAYBACK_WITHDRAW: 'AAVEPaybackWithdraw',
+    PAYBACK_WITHDRAW: 'AAVEPaybackWithdraw_2',
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',

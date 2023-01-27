@@ -20,7 +20,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
 
-    const getToken = buildGetTokenFunction(config, hre)
+    const getTokens = buildGetTokenFunction(config, hre)
 
     const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
 
@@ -162,7 +162,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       use1inch: false,
       dependencies,
       config,
-      getToken,
+      getTokens,
     })
 
     console.log(
@@ -175,7 +175,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       use1inch: false,
       dependencies,
       config,
-      getToken,
+      getTokens,
     })
 
     console.log(

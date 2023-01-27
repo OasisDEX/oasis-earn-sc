@@ -19,7 +19,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
   const supportedStrategies = getSupportedStrategies()
 
   before(async () => {
-    fixture = await loadFixture(getSystemWithAAVEPositions)
+    fixture = await loadFixture(getSystemWithAAVEPositions({ use1inch: false }))
   })
 
   describe('Payback debt', () => {

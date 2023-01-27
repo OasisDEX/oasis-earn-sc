@@ -1,4 +1,4 @@
-import { ADDRESSES, strategies } from '@oasisdex/oasis-actions/src'
+import { strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
@@ -35,7 +35,7 @@ export async function createStEthUsdcMultiplyAAVEPosition({
   swapAddress,
   dependencies,
   config,
-  getToken,
+  getTokens,
 }: {
   proxy: string
   isDPM: boolean
@@ -43,7 +43,7 @@ export async function createStEthUsdcMultiplyAAVEPosition({
   swapAddress?: string
   dependencies: StrategiesDependencies
   config: RuntimeConfig
-  getToken: (symbol: 'STETH', amount: string) => Promise<boolean>
+  getTokens: (symbol: 'STETH', amount: string) => Promise<boolean>
 }): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'STETH/USDC Multiply'
 
@@ -63,15 +63,19 @@ export async function createStEthUsdcMultiplyAAVEPosition({
     proxy: proxy,
   })
 
-  await getToken('STETH', amountInBaseUnit.toString())
+  await getTokens('STETH', amountInBaseUnit.toString())
 
   await approve(mainnetAddresses.STETH, proxy, amountInBaseUnit, config)
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeWalletBalanceBefore = await balanceOf(ADDRESSES.main.USDC, ADDRESSES.main.feeRecipient, {
-    config,
-  })
+  const feeWalletBalanceBefore = await balanceOf(
+    mainnetAddresses.USDC,
+    mainnetAddresses.feeRecipient,
+    {
+      config,
+    },
+  )
 
   const [status] = await proxyFunction(
     proxy,
@@ -90,9 +94,13 @@ export async function createStEthUsdcMultiplyAAVEPosition({
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  const feeWalletBalanceAfter = await balanceOf(ADDRESSES.main.USDC, ADDRESSES.main.feeRecipient, {
-    config,
-  })
+  const feeWalletBalanceAfter = await balanceOf(
+    mainnetAddresses.USDC,
+    mainnetAddresses.feeRecipient,
+    {
+      config,
+    },
+  )
 
   return {
     proxy: proxy,
