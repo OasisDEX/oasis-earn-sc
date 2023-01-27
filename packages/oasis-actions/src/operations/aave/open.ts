@@ -3,10 +3,10 @@ import { ethers } from 'ethers'
 
 import * as actions from '../../actions'
 import { OPERATION_NAMES, ZERO } from '../../helpers/constants'
+import { Address } from '../../strategies/types'
 import { IOperation } from '../../strategies/types/IOperation'
 import { PositionType } from '../../strategies/types/PositionType'
 import { Protocol } from '../../strategies/types/Protocol'
-import { Address } from '../../strategies/types/StrategyParams'
 import { AAVEStrategyAddresses } from './addresses'
 
 interface OpenArgs {

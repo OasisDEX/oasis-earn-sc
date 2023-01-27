@@ -191,14 +191,13 @@ export async function getLatestBlock(provider: JsonRpcProvider) {
 export async function getRecentBlock({
   provider,
   offset,
-  roundToNearest,
+  roundToNearest = 1,
 }: {
   provider: JsonRpcProvider
   offset: number
   roundToNearest?: number
 }) {
-  const _roundToNearest = roundToNearest || 1
   return getLatestBlock(provider)
     .then(blockNumber => blockNumber - offset)
-    .then(blockNumber => Math.floor(blockNumber / _roundToNearest) * _roundToNearest)
+    .then(blockNumber => Math.floor(blockNumber / roundToNearest) * roundToNearest)
 }

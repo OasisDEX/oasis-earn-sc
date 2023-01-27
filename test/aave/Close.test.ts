@@ -1,6 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { TYPICAL_PRECISION } from '@oasisdex/oasis-actions'
-import { PositionType } from '@oasisdex/oasis-actions/lib/src/strategies/types'
 import {
   AAVETokens,
   ADDRESSES,
@@ -12,7 +11,7 @@ import {
 } from '@oasisdex/oasis-actions/src'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
-import { Address } from '@oasisdex/oasis-actions/src/strategies/types/StrategyParams'
+import { Address, PositionType } from '@oasisdex/oasis-actions/src/strategies/types'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'

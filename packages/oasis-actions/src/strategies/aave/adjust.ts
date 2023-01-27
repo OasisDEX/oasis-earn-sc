@@ -10,9 +10,14 @@ import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { ONE, TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { IOperation, IPositionTransition, SwapData } from '../types'
+import {
+  IOperation,
+  IPositionTransition,
+  IPositionTransitionArgs,
+  IPositionTransitionDependencies,
+  SwapData,
+} from '../types'
 import { AAVETokens } from '../types/aave'
-import { IPositionTransitionArgs, IPositionTransitionDependencies } from '../types/StrategyParams'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
 const FEE = 20

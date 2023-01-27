@@ -5,8 +5,8 @@ import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import { amountFromWei } from '../../helpers'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
+import { IViewPositionDependencies, IViewPositionParams } from '../types'
 import { AavePosition, AAVETokens } from '../types/aave'
-import { IViewPositionDependencies, IViewPositionParams } from '../types/StrategyParams'
 
 export async function getCurrentPosition(
   { collateralToken, debtToken, proxy }: IViewPositionParams<AAVETokens>,

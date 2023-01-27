@@ -19,13 +19,15 @@ import {
 } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { IOperation, IPositionTransition, SwapData } from '../types'
-import { AAVETokens } from '../types/aave'
 import {
   IBasePositionTransitionArgs,
+  IOperation,
+  IPositionTransition,
   IPositionTransitionDependencies,
+  SwapData,
   WithLockedCollateral,
-} from '../types/StrategyParams'
+} from '../types'
+import { AAVETokens } from '../types/aave'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
 type AAVECloseArgs = IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral
