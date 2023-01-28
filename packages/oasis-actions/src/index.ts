@@ -9,5 +9,11 @@ export * from './helpers/constants'
 export * as operations from './operations'
 export { AAVEStrategyAddresses } from './operations/aave/addresses'
 export * as strategies from './strategies'
-export { IPositionTransition, SwapData } from './strategies/types'
+export {
+  IPositionTransition,
+  ISimplePositionTransition,
+  ISimpleSimulatedTransition,
+  ISimulatedTransition,
+  SwapData,
+} from './strategies/types'
 export { AavePosition, AAVETokens } from './strategies/types/aave'
