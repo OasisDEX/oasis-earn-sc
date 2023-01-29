@@ -45,6 +45,13 @@ export const CONTRACT_NAMES = {
     LENDING_POOL: 'AaveLendingPool',
     WETH_GATEWAY: 'AaveWethGateway',
   },
+  aaveV3: {
+    DEPOSIT: 'AaveDepositV3',
+    WITHDRAW: 'AaveWithdrawV3',
+    BORROW: 'AaveBorrowV3',
+    PAYBACK: 'AavePaybackV3',
+    AAVE_POOL: 'AavePool',
+  },
   maker: {
     DEPOSIT: 'MakerDeposit',
     PAYBACK: 'MakerPayback',

@@ -175,6 +175,31 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     [serviceRegistryAddress],
   )
 
+  //-- AAVE V3 Actions
+  const [depositInAAVEV3Action, actionDepositInAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aaveV3.DEPOSIT,
+    [serviceRegistryAddress],
+  )
+
+  const [borrowInAAVEV3Action, actionAaveV3BorrowAddress] = await deploy(CONTRACT_NAMES.aaveV3.BORROW, [
+    serviceRegistryAddress,
+  ])
+
+  const [withdrawInAAVEV3Action, actionWithdrawFromAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aaveV3.WITHDRAW,
+    [serviceRegistryAddress],
+  )
+
+  const [paybackInAAVEV3Action, actionPaybackFromAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aaveV3.PAYBACK,
+    [serviceRegistryAddress],
+  )
+
+  const [setEModeInAAVEV3Action, setEModeInAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aaveV3.SET_EMODE,
+    [serviceRegistryAddress],
+  )
+
   debug && console.log('4/ Adding contracts to registry')
   //-- Add Token Contract Entries
   await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
@@ -274,6 +299,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   )
   await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
   await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
+
+  await registry.addEntry(CONTRACT_NAMES.aaveV3.AAVE_POOL, ADDRESSES.main.aaveV3.aavePool)
 
   debug && console.log('5/ Adding operations to registry')
   // Add Maker Operations

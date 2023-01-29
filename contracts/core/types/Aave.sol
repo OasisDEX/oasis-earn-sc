@@ -25,3 +25,7 @@ struct PaybackData {
   uint256 amount;
   bool paybackAll;
 }
+
+struct SetEModeData {
+  uint8 categoryId;
+}
