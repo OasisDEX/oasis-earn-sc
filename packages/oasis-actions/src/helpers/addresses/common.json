@@ -1,5 +1,5 @@
 {
-  "main": {
+  "mainnet": {
     "WETH": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
     "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     "STETH": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
@@ -22,5 +22,25 @@
     "operationExecutor": "0x5ab3e51608cea26090445ca89bc91628c8bb99f9",
     "accountFactory": "0xF7B75183A2829843dB06266c114297dfbFaeE2b6",
     "accountGuard": "0xCe91349d2A4577BBd0fC91Fe6019600e047f2847"
+  },
+  "goerli": {
+    "WETH": "0xCCB14936C2E000ED8393A571D15A2672537838Ad",
+    "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    "DAI": "0xBa8DCeD3512925e52FE67b1b5329187589072A55",
+    "WBTC": "0x45AC379F019E48ca5dAC02E54F406F99F5088099",
+    "USDC": "0x65aFADD39029741B3b8f0756952C74678c9cEC93",
+    "USDT": "0x2E8D98fd126a32362F2Bd8aA427E59a1ec63F780",
+    "uniswapRouterV3": "",
+    "uniswapAnchoredView": "",
+    "oneInchAggregator": "",
+    "lender": "",
+    "authorizedCaller": "",
+    "feeRecipient": "0x3e0682Fc5F5693eF2521436aB272CEbad7480Bdd",
+    "proxyRegistry": "0x46759093D8158db8BB555aC7C6F98070c56169ce",
+    "chainlinkEthUsdPriceFeed": "",
+    "aavePriceOracle": "",
+    "operationExecutor": "",
+    "accountFactory": "",
+    "accountGuard": ""
   }
 }

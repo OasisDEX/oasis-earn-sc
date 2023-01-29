@@ -49,7 +49,7 @@ export async function getMarketPrice(
 async function exchangeToToken(provider: JsonRpcProvider, signer: Signer, token: ERC20TokenData) {
   const address = await signer.getAddress()
   await swapUniswapTokens(
-    ADDRESSES.main.WETH,
+    ADDRESSES.mainnet.WETH,
     token.address,
     amountToWei(200).toFixed(0),
     amountToWei(ONE, token.precision).toFixed(0),
@@ -133,26 +133,26 @@ export async function loadDummyExchangeFixtures(
   const tokens = [
     {
       name: 'WETH',
-      address: ADDRESSES.main.WETH,
-      pip: ADDRESSES.main.maker.pipWETH,
+      address: ADDRESSES.mainnet.WETH,
+      pip: ADDRESSES.mainnet.maker.pipWETH,
       precision: 18,
     },
     {
       name: 'stETH',
-      address: ADDRESSES.main.STETH,
-      pip: ADDRESSES.main.maker.pipWETH,
+      address: ADDRESSES.mainnet.STETH,
+      pip: ADDRESSES.mainnet.maker.pipWETH,
       precision: 18,
     },
     {
       name: 'DAI',
-      address: ADDRESSES.main.DAI,
+      address: ADDRESSES.mainnet.DAI,
       pip: undefined,
       precision: 18,
     },
     {
       name: 'LINK',
-      address: ADDRESSES.main.LINK,
-      pip: ADDRESSES.main.maker.pipLINK,
+      address: ADDRESSES.mainnet.LINK,
+      pip: ADDRESSES.mainnet.maker.pipLINK,
       precision: 18,
     },
   ]
@@ -161,9 +161,9 @@ export async function loadDummyExchangeFixtures(
   await addFundsDummyExchange(
     provider,
     signer,
-    ADDRESSES.main.WETH,
+    ADDRESSES.mainnet.WETH,
     tokens.filter(
-      token => token.address !== ADDRESSES.main.WETH && token.address !== ADDRESSES.main.STETH,
+      token => token.address !== ADDRESSES.mainnet.WETH && token.address !== ADDRESSES.mainnet.STETH,
     ),
     dummyExchangeInstance,
     debug,
@@ -189,7 +189,7 @@ export async function loadDummyExchangeFixtures(
     tokens
       .filter(token => !!token.pip)
       .map(async token => {
-        const price = await getMarketPrice(token.address, ADDRESSES.main.DAI, token.precision)
+        const price = await getMarketPrice(token.address, ADDRESSES.mainnet.DAI, token.precision)
         const priceInWei = amountToWei(price).toFixed(0)
 
         if (debug) {
@@ -201,7 +201,7 @@ export async function loadDummyExchangeFixtures(
         }
 
         if (dummyExchangeInstance.setPrice) {
-          if (token.address === ADDRESSES.main.STETH) {
+          if (token.address === ADDRESSES.mainnet.STETH) {
             const priceInWeiStEth = amountToWei(ONE).toFixed(0)
             return dummyExchangeInstance.setPrice(token.address, priceInWeiStEth)
           } else {

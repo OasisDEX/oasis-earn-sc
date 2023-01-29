@@ -24,7 +24,7 @@ import ERC20ABI from '../../abi/IERC20.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { GasEstimateHelper, gasEstimateHelper } from '../../helpers/gasEstimation'
-import { resetNodeToLatestBlock } from '../../helpers/init'
+import { getForkedNetworkName, resetNodeToLatestBlock } from '../../helpers/init'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
@@ -32,6 +32,7 @@ import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
 import { acceptedFeeToken } from '../../packages/oasis-actions/src/helpers/acceptedFeeToken'
+import { getNetworkFromChainId, Network } from '../../scripts/common'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
@@ -46,16 +47,21 @@ describe(`Strategy | AAVE | Open Position`, async function () {
   let config: RuntimeConfig
   let signer: Signer
   let userAddress: Address
-
+  let forkedChainId: number
+  let forkedNetwork: Network
+  
   before(async function () {
-    ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
+    ;({ config, provider, signer, address: userAddress } = await initialiseConfig() )
+
+    forkedChainId = await getForkedNetworkName(provider)
+    forkedNetwork = getNetworkFromChainId(forkedChainId)
 
     aaveLendingPool = new Contract(
-      ADDRESSES.main.aave.MainnetLendingPool,
+      ADDRESSES.mainnet.aave.MainnetLendingPool,
       AAVELendigPoolABI,
       provider,
     )
-    aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
+    aaveDataProvider = new Contract(ADDRESSES.mainnet.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
   describe('[Uniswap] Open:', function () {
@@ -85,7 +91,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       mockMarketPrice: BigNumber | undefined,
       userAddress: Address,
       isDPMProxy: boolean,
-    ) {
+    ) {      
       const { snapshot } = await restoreSnapshot({
         config,
         provider,
@@ -102,7 +108,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       !debtToken.isEth &&
         debtToken.depositAmountInBaseUnit.gt(ZERO) &&
         (await swapUniswapTokens(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           debtToken.address,
           swapETHtoDepositTokens.toFixed(0),
           ONE.toFixed(0),
@@ -113,7 +119,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       !collateralToken.isEth &&
         collateralToken.depositAmountInBaseUnit.gt(ZERO) &&
         (await swapUniswapTokens(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           collateralToken.address,
           swapETHtoDepositTokens.toFixed(0),
           ONE.toFixed(0),
@@ -180,7 +186,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       const feeRecipientBalanceBefore = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES.mainnet.feeRecipient,
         { config },
       )
 
@@ -273,14 +279,14 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           {
             depositAmountInBaseUnit: ZERO,
             symbol: tokens.STETH,
-            address: ADDRESSES.main.STETH,
+            address: ADDRESSES.mainnet.STETH,
             precision: 18,
             isEth: false,
           },
           {
             depositAmountInBaseUnit: depositEthAmount,
             symbol: tokens.ETH,
-            address: ADDRESSES.main.WETH,
+            address: ADDRESSES.mainnet.WETH,
             precision: 18,
             isEth: true,
           },
@@ -329,8 +335,8 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it('Should collect fee', async function () {
         const feeRecipientWethBalanceAfter = await balanceOf(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.WETH,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -358,14 +364,14 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           {
             depositAmountInBaseUnit: amountToWei(depositEthAmount),
             symbol: tokens.ETH,
-            address: ADDRESSES.main.WETH,
+            address: ADDRESSES.mainnet.WETH,
             precision: 18,
             isEth: true,
           },
           {
             depositAmountInBaseUnit: ZERO,
             symbol: tokens.USDC,
-            address: ADDRESSES.main.USDC,
+            address: ADDRESSES.mainnet.USDC,
             precision: 6,
             isEth: false,
           },
@@ -413,8 +419,8 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it('Should collect fee', async function () {
         const feeRecipientUSDCBalanceAfter = await balanceOf(
-          ADDRESSES.main.USDC,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.USDC,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -437,14 +443,14 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           {
             depositAmountInBaseUnit: amountToWei(depositWBTCAmount, 8),
             symbol: tokens.WBTC,
-            address: ADDRESSES.main.WBTC,
+            address: ADDRESSES.mainnet.WBTC,
             precision: 8,
             isEth: false,
           },
           {
             depositAmountInBaseUnit: ZERO,
             symbol: tokens.USDC,
-            address: ADDRESSES.main.USDC,
+            address: ADDRESSES.mainnet.USDC,
             precision: 6,
             isEth: false,
           },
@@ -489,8 +495,8 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
       it('Should collect fee', async function () {
         const feeRecipientUSDCBalanceAfter = await balanceOf(
-          ADDRESSES.main.USDC,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.USDC,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -521,7 +527,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
       if (shouldRun1InchTests) {
         //Reset to the latest block
-        await resetNodeToLatestBlock(provider)
+        await resetNodeToLatestBlock(provider, forkedNetwork)
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
 
@@ -531,8 +537,8 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         }
 
         feeRecipientWethBalanceBefore = await balanceOf(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.WETH,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -575,7 +581,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
         userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
         userStEthReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.STETH,
+          ADDRESSES.mainnet.STETH,
           system.common.dsProxy.address,
         )
       } else {
@@ -604,8 +610,8 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     it('Should collect fee', async function () {
       const feeRecipientWethBalanceAfter = await balanceOf(
-        ADDRESSES.main.WETH,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES.mainnet.WETH,
+        ADDRESSES.mainnet.feeRecipient,
         { config },
       )
 
@@ -644,7 +650,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
       if (shouldRun1InchTests) {
         //Reset to the latest block
-        await resetNodeToLatestBlock(provider)
+        await resetNodeToLatestBlock(provider, forkedNetwork)
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
 
@@ -654,8 +660,8 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         }
 
         feeRecipientUSDCBalanceBefore = await balanceOf(
-          ADDRESSES.main.USDC,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.USDC,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -697,11 +703,11 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         txStatus = _txStatus
 
         userWethReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           system.common.dsProxy.address,
         )
         userUSDCReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.USDC,
+          ADDRESSES.mainnet.USDC,
           system.common.dsProxy.address,
         )
       } else {
@@ -732,8 +738,8 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     it('Should collect fee', async function () {
       const feeRecipientUSDCBalanceAfter = await balanceOf(
-        ADDRESSES.main.USDC,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES.mainnet.USDC,
+        ADDRESSES.mainnet.feeRecipient,
         { config },
       )
 

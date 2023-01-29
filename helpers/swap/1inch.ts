@@ -73,7 +73,7 @@ export async function exchangeFromDAI(
   protocols: string[] = [],
 ): Promise<OneInchSwapResponse> {
   const url = formatOneInchSwapUrl(
-    ADDRESSES.main.DAI,
+    ADDRESSES.mainnet.DAI,
     toTokenAddress,
     amount,
     slippage,
@@ -93,7 +93,7 @@ export async function exchangeToDAI(
 ): Promise<OneInchSwapResponse> {
   const url = formatOneInchSwapUrl(
     fromTokenAddress,
-    ADDRESSES.main.DAI,
+    ADDRESSES.mainnet.DAI,
     amount,
     slippage,
     recepient,

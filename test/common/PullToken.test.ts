@@ -32,15 +32,15 @@ describe('PullToken Action', () => {
 
   beforeEach(async () => {
     await swapUniswapTokens(
-      ADDRESSES.main.WETH,
-      ADDRESSES.main.DAI,
+      ADDRESSES.mainnet.WETH,
+      ADDRESSES.mainnet.DAI,
       amountToWei(ONE).toFixed(0),
       amountToWei(AMOUNT).toFixed(0),
       config.address,
       config,
     )
 
-    await approve(ADDRESSES.main.DAI, pullTokenActionAddress, amountToWei(AMOUNT), config, false)
+    await approve(ADDRESSES.mainnet.DAI, pullTokenActionAddress, amountToWei(AMOUNT), config, false)
   })
 
   afterEach(async () => {
@@ -54,7 +54,7 @@ describe('PullToken Action', () => {
         [
           {
             amount: amountToWei(AMOUNT).toFixed(0),
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES.mainnet.DAI,
             from: config.address,
           },
         ],
@@ -62,7 +62,7 @@ describe('PullToken Action', () => {
       [],
     )
 
-    const balance = await balanceOf(ADDRESSES.main.DAI, pullTokenActionAddress, {
+    const balance = await balanceOf(ADDRESSES.mainnet.DAI, pullTokenActionAddress, {
       config,
       debug: false,
       isFormatted: false,
@@ -78,7 +78,7 @@ describe('PullToken Action', () => {
         [
           {
             amount: amountToWei(AMOUNT.plus(TEN)).toFixed(0),
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES.mainnet.DAI,
             from: config.address,
           },
         ],
@@ -90,7 +90,7 @@ describe('PullToken Action', () => {
 
   it('should fail if the caller does not have enough funds', async () => {
     await approve(
-      ADDRESSES.main.DAI,
+      ADDRESSES.mainnet.DAI,
       pullTokenActionAddress,
       amountToWei(AMOUNT.times(TEN)),
       config,
@@ -102,7 +102,7 @@ describe('PullToken Action', () => {
         [
           {
             amount: amountToWei(AMOUNT.times(TEN_THOUSAND)).toFixed(0),
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES.mainnet.DAI,
             from: config.address,
           },
         ],

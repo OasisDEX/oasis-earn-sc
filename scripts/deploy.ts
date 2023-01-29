@@ -46,14 +46,14 @@ async function main() {
 
   const deploy = await createDeploy(options)
 
-  await balanceOf(ADDRESSES.main.ETH, address, options)
+  await balanceOf(ADDRESSES.mainnet.ETH, address, options)
 
   console.log('DEBUG SWAPPING...')
-  const daiBalance = await balanceOf(ADDRESSES.main.DAI, address, options)
+  const daiBalance = await balanceOf(ADDRESSES.mainnet.DAI, address, options)
   if (new BigNumber(daiBalance).lte(ZERO)) {
     await swapUniswapTokens(
-      ADDRESSES.main.WETH,
-      ADDRESSES.main.DAI,
+      ADDRESSES.mainnet.WETH,
+      ADDRESSES.mainnet.DAI,
       ethers.utils.parseEther('200').toString(),
       ethers.utils.parseEther('0.1').toString(),
       address,
@@ -65,7 +65,7 @@ async function main() {
   // ServiceRegistry SETUP:
   const [, serviceRegistryAddress] = await deploy(CONTRACT_NAMES.common.SERVICE_REGISTRY, [0])
   const registry: ServiceRegistry = new ServiceRegistry(serviceRegistryAddress, signer)
-  registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
+  registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.mainnet.maker.fmm)
 
   // DEPLOYING Operations Registry
   const [, operationsRegistryAddress] = await deploy('OperationsRegistry', [])
@@ -89,7 +89,7 @@ async function main() {
   ])
   const [, flActionAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
-    ADDRESSES.main.DAI,
+    ADDRESSES.mainnet.DAI,
   ])
   const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
     serviceRegistryAddress,
@@ -108,14 +108,14 @@ async function main() {
 
   const [, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
-    ADDRESSES.main.feeRecipient,
+    ADDRESSES.mainnet.feeRecipient,
     0,
     serviceRegistryAddress,
   ])
 
   const [, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
     address,
-    ADDRESSES.main.feeRecipient,
+    ADDRESSES.mainnet.feeRecipient,
     0,
     serviceRegistryAddress,
   ])
@@ -168,14 +168,14 @@ async function main() {
     CONTRACT_NAMES.common.SWAP_ACTION,
     swapActionAddress,
   )
-  await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES.main.maker.jug)
-  await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
-  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
-  await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
-  await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
+  await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES.mainnet.maker.jug)
+  await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.mainnet.aave.MainnetLendingPool)
+  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.mainnet.aave.WETHGateway)
+  await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.mainnet.WETH)
+  await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.mainnet.DAI)
   await registry.addEntry(
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
-    ADDRESSES.main.oneInchAggregator,
+    ADDRESSES.mainnet.oneInchAggregator,
   )
 
   await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
@@ -190,7 +190,7 @@ async function main() {
     [
       {
         amount: depositAmount.toFixed(0),
-        asset: ADDRESSES.main.DAI,
+        asset: ADDRESSES.mainnet.DAI,
         from: address,
       },
     ],
@@ -203,7 +203,7 @@ async function main() {
     [
       {
         amount: flashloanAmount.toFixed(0),
-        asset: ADDRESSES.main.DAI,
+        asset: ADDRESSES.mainnet.DAI,
         from: operationExecutorAddress,
       },
     ],
@@ -216,8 +216,8 @@ async function main() {
     [
       {
         amount: flashloanAmount.plus(depositAmount).toFixed(0),
-        asset: ADDRESSES.main.DAI,
-        delegator: ADDRESSES.main.aave.MainnetLendingPool,
+        asset: ADDRESSES.mainnet.DAI,
+        delegator: ADDRESSES.mainnet.aave.MainnetLendingPool,
       },
     ],
   )
@@ -229,7 +229,7 @@ async function main() {
     [
       {
         amount: flashloanAmount.plus(depositAmount).toFixed(0),
-        asset: ADDRESSES.main.DAI,
+        asset: ADDRESSES.mainnet.DAI,
       },
     ],
   )
@@ -241,7 +241,7 @@ async function main() {
     [
       {
         amount: borrowAmount.toFixed(0),
-        asset: ADDRESSES.main.ETH,
+        asset: ADDRESSES.mainnet.ETH,
         to: proxyAddress,
       },
     ],
@@ -249,8 +249,8 @@ async function main() {
 
   // SWAP TOKENS
   const response = await swapOneInchTokens(
-    ADDRESSES.main.WETH,
-    ADDRESSES.main.STETH,
+    ADDRESSES.mainnet.WETH,
+    ADDRESSES.mainnet.STETH,
     borrowAmount.toFixed(0),
     proxyAddress,
     '10',
@@ -261,8 +261,8 @@ async function main() {
     [calldataTypes.common.Swap],
     [
       {
-        fromAsset: ADDRESSES.main.WETH,
-        toAsset: ADDRESSES.main.STETH,
+        fromAsset: ADDRESSES.mainnet.WETH,
+        toAsset: ADDRESSES.mainnet.STETH,
         amount: borrowAmount.toFixed(0),
         receiveAtLeast: amountToWei(1).toFixed(), // just a number :D
         fee: 0,
@@ -278,7 +278,7 @@ async function main() {
     [calldataTypes.aave.Withdraw],
     [
       {
-        asset: ADDRESSES.main.DAI,
+        asset: ADDRESSES.mainnet.DAI,
         amount: flashloanAmount.toFixed(0),
         to: proxyAddress,
       },
@@ -291,7 +291,7 @@ async function main() {
     [calldataTypes.common.SendToken],
     [
       {
-        asset: ADDRESSES.main.DAI,
+        asset: ADDRESSES.mainnet.DAI,
         to: operationExecutorAddress,
         amount: flashloanAmount.toFixed(0),
       },
@@ -333,7 +333,7 @@ async function main() {
     Array(8).fill(false),
   )
 
-  await approve(ADDRESSES.main.DAI, proxyAddress, depositAmount, config, true)
+  await approve(ADDRESSES.mainnet.DAI, proxyAddress, depositAmount, config, true)
 
   await executeThroughProxy(
     proxyAddress,
@@ -348,13 +348,13 @@ async function main() {
   )
 
   console.log('DEBUG: Deposited ( DAI )')
-  await balanceOf(ADDRESSES.main.aDAI, proxyAddress, options)
+  await balanceOf(ADDRESSES.mainnet.aDAI, proxyAddress, options)
   console.log('DEBUG: Debt ( ETH )')
-  await balanceOf(ADDRESSES.main.ETH, proxyAddress, options)
+  await balanceOf(ADDRESSES.mainnet.ETH, proxyAddress, options)
   console.log('DEBUG: Debt ( WETH )')
-  await balanceOf(ADDRESSES.main.variableDebtWETH, proxyAddress, options)
+  await balanceOf(ADDRESSES.mainnet.variableDebtWETH, proxyAddress, options)
   console.log('DEBUG: OWNED ( stETH )')
-  await balanceOf(ADDRESSES.main.STETH, proxyAddress, options)
+  await balanceOf(ADDRESSES.mainnet.STETH, proxyAddress, options)
 }
 
 main().catch(error => {

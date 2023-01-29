@@ -1,5 +1,5 @@
 {
-  "main": {
+  "mainnet": {
     "maker": {
       "fmm": "0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA",
       "vat": "0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B",
@@ -17,6 +17,11 @@
       "pipWBTC": "0xf185d0682d50819263941e5f4EacC763CC5C6C42",
       "pipWETH": "0x81FE72B5A8d1A857d176C3E7d5Bd2679A9B85763",
       "pipUSDC": "0x77b68899b99b686F415d074278a9a16b336085A0"
+    }
+  },
+  "goerli": {
+    "maker": {
+      "fmm": ""
     }
   }
 }

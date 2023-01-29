@@ -17,7 +17,7 @@ export async function balanceOf(
   let balance = undefined
   const { provider, signer } = options.config
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
-  if (asset === ADDRESSES.main.ETH) {
+  if (asset === ADDRESSES.mainnet.ETH) {
     balance = await provider.getBalance(address)
   } else {
     const ERC20Asset = new ethers.Contract(asset, IERC20_ABI, signer)
@@ -85,7 +85,7 @@ export async function send(
   hre?: HardhatRuntimeEnvironment,
 ) {
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
-  if (to === ADDRESSES.main.ETH) {
+  if (to === ADDRESSES.mainnet.ETH) {
     const tx = await signer?.sendTransaction({
       from: await signer.getAddress(),
       to,

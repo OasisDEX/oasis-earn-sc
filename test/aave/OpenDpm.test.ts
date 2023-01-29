@@ -44,7 +44,7 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
   before(async function () {
     ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
 
-    aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
+    aaveDataProvider = new Contract(ADDRESSES.mainnet.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
   describe('On forked chain', function () {
@@ -91,7 +91,7 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
       !debtToken.isEth &&
         debtToken.depositAmountInBaseUnit.gt(ZERO) &&
         (await swapUniswapTokens(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           debtToken.address,
           swapETHtoDepositTokens.toFixed(0),
           ONE.toFixed(0),
@@ -102,7 +102,7 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
       !collateralToken.isEth &&
         collateralToken.depositAmountInBaseUnit.gt(ZERO) &&
         (await swapUniswapTokens(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           collateralToken.address,
           swapETHtoDepositTokens.toFixed(0),
           ONE.toFixed(0),
@@ -170,7 +170,7 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
 
       const feeRecipientBalanceBefore = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES.mainnet.feeRecipient,
         { config },
       )
 
@@ -263,14 +263,14 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
           {
             depositAmountInBaseUnit: ZERO,
             symbol: tokens.STETH,
-            address: ADDRESSES.main.STETH,
+            address: ADDRESSES.mainnet.STETH,
             precision: 18,
             isEth: false,
           },
           {
             depositAmountInBaseUnit: depositEthAmount,
             symbol: tokens.ETH,
-            address: ADDRESSES.main.WETH,
+            address: ADDRESSES.mainnet.WETH,
             precision: 18,
             isEth: true,
           },
@@ -319,8 +319,8 @@ describe(`Strategy | AAVE | Open Position with DPM wallet`, async function () {
 
       it('Should collect fee', async function () {
         const feeRecipientWethBalanceAfter = await balanceOf(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.WETH,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 

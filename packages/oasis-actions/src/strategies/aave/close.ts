@@ -139,10 +139,10 @@ async function getValuesFromProtocol(
 
   async function getAllAndMemoize() {
     return Promise.all([
-      aavePriceOracle.getAssetPrice(ADDRESSES.main.DAI),
+      aavePriceOracle.getAssetPrice(ADDRESSES.mainnet.DAI),
       aavePriceOracle.getAssetPrice(collateralTokenAddress),
       aavePriceOracle.getAssetPrice(debtTokenAddress),
-      aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
+      aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.mainnet.DAI),
     ])
   }
 

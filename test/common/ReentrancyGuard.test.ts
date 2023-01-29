@@ -49,7 +49,7 @@ describe(`Reentrancy guard test`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
+          joinAddress: ADDRESSES.mainnet.maker.joinETH_A,
         },
         [0],
       ],
@@ -76,7 +76,7 @@ describe(`Reentrancy guard test`, async () => {
     const vault = await getLastVault(provider, signer, system.common.userProxyAddress)
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES.main.maker.cdpManager,
+      ADDRESSES.mainnet.maker.cdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)

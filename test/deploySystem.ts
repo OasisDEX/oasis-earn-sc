@@ -3,12 +3,14 @@ import { ethers } from 'hardhat'
 
 import DSProxyABI from '../abi/ds-proxy.json'
 import { createDeploy } from '../helpers/deploy'
+import { getForkedNetworkName } from '../helpers/init'
 import { getOrCreateProxy } from '../helpers/proxy'
 import { ServiceRegistry } from '../helpers/serviceRegistry'
 import { loadDummyExchangeFixtures } from '../helpers/swap/DummyExchange'
 import { RuntimeConfig, Unbox } from '../helpers/types/common'
 import { logDebug } from '../helpers/utils'
 import { OperationsRegistry } from '../helpers/wrappers/operationsRegistry'
+import { getNetworkFromChainId } from '../scripts/common'
 
 export async function deploySystem(config: RuntimeConfig, debug = false, useFallbackSwap = true) {
   const { provider, signer, address } = config
@@ -20,11 +22,17 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   debug && console.log('Deploying with address:', config.address)
   const deploy = await createDeploy(options)
 
+  const forkedChainId = await getForkedNetworkName(provider)
+  const forkedNetwork = getNetworkFromChainId(forkedChainId)
+  console.log('forkedNetwork', forkedNetwork );
+
   // Setup User
   debug && console.log('1/ Setting up user proxy')
   const proxyAddress = await getOrCreateProxy(signer)
   const dsProxy = new ethers.Contract(proxyAddress, DSProxyABI, provider).connect(signer)
 
+  console.log('PROXY CREATED', proxyAddress);
+  
   // Deploy System Contracts
   debug && console.log('2/ Deploying system contracts')
   const [serviceRegistry, serviceRegistryAddress] = await deploy('ServiceRegistry', [0])
@@ -63,29 +71,32 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
     address,
-    ADDRESSES.main.feeRecipient,
+    ADDRESSES[forkedNetwork].feeRecipient,
     0,
     serviceRegistryAddress,
   ])
 
-  await uSwap.setPool(
-    '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
-    '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    10000,
-  )
+  // TODO - fix for Goerli
+  // await uSwap.setPool(
+  //   '0xae7ab96520de3a18e5e111b5eaab095312d7fe84', //steth mainnet
+  //   '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // weth mainnet
+  //   10000,
+  // )
 
   await uSwap.addFeeTier(20)
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
-    ADDRESSES.main.feeRecipient,
+    ADDRESSES.mainnet.feeRecipient,
     0,
     serviceRegistryAddress,
   ])
 
   await swap.addFeeTier(20)
 
-  await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
+  
+  // await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
+
   const [dummyAutomation] = await deploy('DummyAutomation', [serviceRegistryAddress])
   const [dummyCommmand] = await deploy('DummyCommand', [serviceRegistryAddress])
 
@@ -119,7 +130,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   const [actionFl, actionFlAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
-    ADDRESSES.main.DAI,
+    ADDRESSES.mainnet.DAI,
   ])
 
   const [wrapEth, wrapActionAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
@@ -175,10 +186,30 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     [serviceRegistryAddress],
   )
 
+  //-- AAVEV3 Actions
+  const [depositInAAVEV3Action, actionDepositInAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aaveV3.DEPOSIT,
+    [serviceRegistryAddress],
+  )
+
+  const [borrowInAAVEV3Action, actionAaveV3BorrowAddress] = await deploy(CONTRACT_NAMES.aaveV3.BORROW, [
+    serviceRegistryAddress,
+  ])
+
+  const [withdrawInAAVEV3Action, actionWithdrawFromAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aaveV3.WITHDRAW,
+    [serviceRegistryAddress],
+  )
+
+  const [paybackInAAVEV3Action, actionPaybackFromAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aaveV3.PAYBACK,
+    [serviceRegistryAddress],
+  )
+
   debug && console.log('4/ Adding contracts to registry')
   //-- Add Token Contract Entries
-  await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
-  await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
+  await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.mainnet.DAI)
+  await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.mainnet.WETH)
 
   // add flag to deploy fallbackSwap contract
   await registry.addEntry(CONTRACT_NAMES.common.SWAP, useFallbackSwap ? uSwapAddress : swapAddress)
@@ -207,7 +238,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   await registry.addEntry(
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
-    ADDRESSES.main.oneInchAggregator,
+    ADDRESSES.mainnet.oneInchAggregator,
   )
 
   const swapActionHash = await registry.addEntry(
@@ -226,34 +257,34 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   )
 
   //-- Add Maker Contract Entries
-  await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
-  await registry.addEntry(CONTRACT_NAMES.maker.MCD_VIEW, mcdViewAddress)
-  await registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
-  await registry.addEntry(CONTRACT_NAMES.maker.MCD_MANAGER, ADDRESSES.main.maker.cdpManager)
-  await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES.main.maker.jug)
-  await registry.addEntry(CONTRACT_NAMES.maker.MCD_JOIN_DAI, ADDRESSES.main.maker.joinDAI)
-  const makerOpenVaultHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.OPEN_VAULT,
-    actionOpenVaultAddress,
-  )
-  const makerDepositHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.DEPOSIT,
-    actionDepositAddress,
-  )
-  const makerPaybackHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.PAYBACK,
-    actionPaybackAddress,
-  )
-  const makerWithdrawHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.WITHDRAW,
-    actionWithdrawAddress,
-  )
-  const makerGenerateHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.GENERATE,
-    actionGenerateAddress,
-  )
+  // await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.mainnet.uniswapRouterV3)
+  // await registry.addEntry(CONTRACT_NAMES.maker.MCD_VIEW, mcdViewAddress)
+  // await registry.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.mainnet.maker.fmm)
+  // await registry.addEntry(CONTRACT_NAMES.maker.MCD_MANAGER, ADDRESSES.mainnet.maker.cdpManager)
+  // await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES.mainnet.maker.jug)
+  // await registry.addEntry(CONTRACT_NAMES.maker.MCD_JOIN_DAI, ADDRESSES.mainnet.maker.joinDAI)
+  // const makerOpenVaultHash = await registry.addEntry(
+  //   CONTRACT_NAMES.maker.OPEN_VAULT,
+  //   actionOpenVaultAddress,
+  // )
+  // const makerDepositHash = await registry.addEntry(
+  //   CONTRACT_NAMES.maker.DEPOSIT,
+  //   actionDepositAddress,
+  // )
+  // const makerPaybackHash = await registry.addEntry(
+  //   CONTRACT_NAMES.maker.PAYBACK,
+  //   actionPaybackAddress,
+  // )
+  // const makerWithdrawHash = await registry.addEntry(
+  //   CONTRACT_NAMES.maker.WITHDRAW,
+  //   actionWithdrawAddress,
+  // )
+  // const makerGenerateHash = await registry.addEntry(
+  //   CONTRACT_NAMES.maker.GENERATE,
+  //   actionGenerateAddress,
+  // )
 
-  await registry.addEntry(CONTRACT_NAMES.maker.CDP_ALLOW, cdpAllowAddress)
+  // await registry.addEntry(CONTRACT_NAMES.maker.CDP_ALLOW, cdpAllowAddress)
 
   //-- Add AAVE Contract Entries
   const aaveBorrowHash = await registry.addEntry(
@@ -272,279 +303,301 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.aave.PAYBACK,
     actionPaybackFromAAVEAddress,
   )
-  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
-  await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
+  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.mainnet.aave.WETHGateway)
+  await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.mainnet.aave.MainnetLendingPool)
+  
+  //-- Add AAVEV3 Contract Entries
+  const aaveV3BorrowHash = await registry.addEntry(
+    CONTRACT_NAMES.aaveV3.BORROW,
+    actionAaveV3BorrowAddress,
+  )
+  const aaveV3DepositHash = await registry.addEntry(
+    CONTRACT_NAMES.aaveV3.DEPOSIT,
+    actionDepositInAAVEV3Address,
+  )
+  const aaveV3WithdrawHash = await registry.addEntry(
+    CONTRACT_NAMES.aaveV3.WITHDRAW,
+    actionWithdrawFromAAVEV3Address,
+  )
+  const aaveV3PaybackHash = await registry.addEntry(
+    CONTRACT_NAMES.aaveV3.PAYBACK,
+    actionPaybackFromAAVEV3Address,
+  )
+  await registry.addEntry(CONTRACT_NAMES.aaveV3.AAVE_POOL, ADDRESSES.mainnet.aave.MainnetLendingPool)
 
   debug && console.log('5/ Adding operations to registry')
-  // Add Maker Operations
+
   const operationsRegistry: OperationsRegistry = new OperationsRegistry(
     operationsRegistryAddress,
     signer,
   )
 
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_AND_DRAW, [
-    {
-      hash: makerOpenVaultHash,
-      optional: false,
-    },
-    {
-      hash: pullTokenHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-    {
-      hash: makerGenerateHash,
-      optional: false,
-    },
-  ])
+  // Add Maker Operations
+  {
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_AND_DRAW, [
+  //   {
+  //     hash: makerOpenVaultHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: pullTokenHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerGenerateHash,
+  //     optional: false,
+  //   },
+  // ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE, [
-    {
-      hash: makerOpenVaultHash,
-      optional: false,
-    },
-    {
-      hash: pullTokenHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-    {
-      hash: makerGenerateHash,
-      optional: false,
-    },
-    {
-      hash: makerPaybackHash,
-      optional: false,
-    },
-    {
-      hash: makerWithdrawHash,
-      optional: false,
-    },
-  ])
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.OPEN_DRAW_AND_CLOSE, [
+  //   {
+  //     hash: makerOpenVaultHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: pullTokenHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerGenerateHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerPaybackHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerWithdrawHash,
+  //     optional: false,
+  //   },
+  // ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE, [
-    {
-      hash: makerOpenVaultHash,
-      optional: false,
-    },
-    {
-      hash: pullTokenHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-    {
-      hash: makerGenerateHash,
-      optional: false,
-    },
-    {
-      hash: swapActionHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-  ])
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE, [
+  //   {
+  //     hash: makerOpenVaultHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: pullTokenHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerGenerateHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: swapActionHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  // ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_TOP_UP, [
-    {
-      hash: makerOpenVaultHash,
-      optional: false,
-    },
-    {
-      hash: pullTokenHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-    {
-      hash: pullTokenHash,
-      optional: false,
-    },
-    {
-      hash: makerGenerateHash,
-      optional: false,
-    },
-    {
-      hash: swapActionHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-  ])
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_TOP_UP, [
+  //   {
+  //     hash: makerOpenVaultHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: pullTokenHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: pullTokenHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerGenerateHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: swapActionHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  // ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_COLL_TOP_UP, [
-    {
-      hash: makerOpenVaultHash,
-      optional: false,
-    },
-    {
-      hash: pullTokenHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-    {
-      hash: pullTokenHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-    {
-      hash: makerGenerateHash,
-      optional: false,
-    },
-    {
-      hash: swapActionHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-  ])
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_COLL_TOP_UP, [
+  //   {
+  //     hash: makerOpenVaultHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: pullTokenHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: pullTokenHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerGenerateHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: swapActionHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  // ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP, [
-    {
-      hash: makerOpenVaultHash,
-      optional: false,
-    },
-    {
-      hash: pullTokenHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-    {
-      hash: pullTokenHash,
-      optional: false,
-    },
-    {
-      hash: pullTokenHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-    {
-      hash: makerGenerateHash,
-      optional: false,
-    },
-    {
-      hash: swapActionHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-  ])
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_DAI_AND_COLL_TOP_UP, [
+  //   {
+  //     hash: makerOpenVaultHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: pullTokenHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: pullTokenHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: pullTokenHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerGenerateHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: swapActionHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  // ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN, [
-    {
-      hash: makerOpenVaultHash,
-      optional: false,
-    },
-    {
-      hash: pullTokenHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-    {
-      hash: takeFlashLoanHash,
-      optional: false,
-    },
-    {
-      hash: swapActionHash,
-      optional: false,
-    },
-    {
-      hash: makerDepositHash,
-      optional: false,
-    },
-    {
-      hash: makerGenerateHash,
-      optional: false,
-    },
-    {
-      hash: sendTokenHash,
-      optional: false,
-    },
-  ])
+  // await operationsRegistry.addOp(OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN, [
+  //   {
+  //     hash: makerOpenVaultHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: pullTokenHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: takeFlashLoanHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: swapActionHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerDepositHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: makerGenerateHash,
+  //     optional: false,
+  //   },
+  //   {
+  //     hash: sendTokenHash,
+  //     optional: false,
+  //   },
+  // ])
 
-  await operationsRegistry.addOp(
-    OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP,
-    [
-      {
-        hash: makerOpenVaultHash,
-        optional: false,
-      },
-      {
-        hash: pullTokenHash,
-        optional: false,
-      },
-      {
-        hash: makerDepositHash,
-        optional: false,
-      },
-      {
-        hash: pullTokenHash,
-        optional: false,
-      },
-      {
-        hash: pullTokenHash,
-        optional: false,
-      },
-      {
-        hash: makerDepositHash,
-        optional: false,
-      },
-      {
-        hash: takeFlashLoanHash,
-        optional: false,
-      },
-      {
-        hash: swapActionHash,
-        optional: false,
-      },
-      {
-        hash: makerDepositHash,
-        optional: false,
-      },
-      {
-        hash: makerGenerateHash,
-        optional: false,
-      },
-      {
-        hash: sendTokenHash,
-        optional: false,
-      },
-    ],
-  )
+  // await operationsRegistry.addOp(
+  //   OPERATION_NAMES.maker.INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP,
+  //   [
+  //     {
+  //       hash: makerOpenVaultHash,
+  //       optional: false,
+  //     },
+  //     {
+  //       hash: pullTokenHash,
+  //       optional: false,
+  //     },
+  //     {
+  //       hash: makerDepositHash,
+  //       optional: false,
+  //     },
+  //     {
+  //       hash: pullTokenHash,
+  //       optional: false,
+  //     },
+  //     {
+  //       hash: pullTokenHash,
+  //       optional: false,
+  //     },
+  //     {
+  //       hash: makerDepositHash,
+  //       optional: false,
+  //     },
+  //     {
+  //       hash: takeFlashLoanHash,
+  //       optional: false,
+  //     },
+  //     {
+  //       hash: swapActionHash,
+  //       optional: false,
+  //     },
+  //     {
+  //       hash: makerDepositHash,
+  //       optional: false,
+  //     },
+  //     {
+  //       hash: makerGenerateHash,
+  //       optional: false,
+  //     },
+  //     {
+  //       hash: sendTokenHash,
+  //       optional: false,
+  //     },
+  //   ],
+  // )
 
+  }
   // Add AAVE Operations
   await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
     {
@@ -856,20 +909,26 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       accountFactory,
       dpmProxyAddress,
     },
-    maker: {
-      mcdView,
-      openVault: actionOpenVault,
-      deposit: actionDeposit,
-      payback: actionPayback,
-      withdraw: actionWithdraw,
-      generate: actionGenerate,
-      cdpAllow,
-    },
+    // maker: {
+    //   mcdView,
+    //   openVault: actionOpenVault,
+    //   deposit: actionDeposit,
+    //   payback: actionPayback,
+    //   withdraw: actionWithdraw,
+    //   generate: actionGenerate,
+    //   cdpAllow,
+    // },
     aave: {
       deposit: depositInAAVEAction,
       withdraw: withdrawInAAVEAction,
       borrow: borrowInAAVEAction,
       payback: paybackInAAVEAction,
+    },
+    aaveV3: {
+      deposit: depositInAAVEV3Action,
+      withdraw: withdrawInAAVEV3Action,
+      borrow: borrowInAAVEV3Action,
+      payback: paybackInAAVEV3Action,
     },
   }
 
@@ -891,12 +950,12 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       `Swap Action address: ${deployedContracts.common.swapAction.address}`,
       `Return Funds Action address: ${deployedContracts.common.returnFunds.address}`,
       `Position Created Action address: ${deployedContracts.common.positionCreated.address}`,
-      `MCDView address: ${deployedContracts.maker.mcdView.address}`,
-      `OpenVault Action address: ${deployedContracts.maker.openVault.address}`,
-      `Deposit Action address: ${deployedContracts.maker.deposit.address}`,
-      `Payback Action address: ${deployedContracts.maker.payback.address}`,
-      `Withdraw Action address: ${deployedContracts.maker.withdraw.address}`,
-      `Generate Action address: ${deployedContracts.maker.generate.address}`,
+      // `MCDView address: ${deployedContracts.maker.mcdView.address}`,
+      // `OpenVault Action address: ${deployedContracts.maker.openVault.address}`,
+      // `Deposit Action address: ${deployedContracts.maker.deposit.address}`,
+      // `Payback Action address: ${deployedContracts.maker.payback.address}`,
+      // `Withdraw Action address: ${deployedContracts.maker.withdraw.address}`,
+      // `Generate Action address: ${deployedContracts.maker.generate.address}`,
 
       `AAVE|Borrow Action address: ${deployedContracts.aave.borrow.address}`,
       `AAVE|Deposit Action address: ${deployedContracts.aave.deposit.address}`,

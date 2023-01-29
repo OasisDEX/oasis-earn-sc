@@ -61,7 +61,7 @@ describe('OperationExecutor', () => {
     ])
     const [, takeAFlashloanAddress] = await deploy('TakeFlashloan', [
       serviceRegistryAddress,
-      ADDRESSES.main.DAI,
+      ADDRESSES.mainnet.DAI,
     ])
 
     await ServiceRegistry.addNamedService(
@@ -86,7 +86,7 @@ describe('OperationExecutor', () => {
     )
     await ServiceRegistry.addNamedService(
       getServiceNameHash(CONTRACT_NAMES.aave.LENDING_POOL),
-      ADDRESSES.main.aave.MainnetLendingPool,
+      ADDRESSES.mainnet.aave.MainnetLendingPool,
     )
 
     const bomb = new ethers.utils.Interface(['function fallback() external'])

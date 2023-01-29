@@ -44,8 +44,8 @@ task('verify-earn', 'Verifies Earn Contracts').setAction(async (_: any, hre) => 
     {
       address: SWAP,
       constructorArguments: [
-        ADDRESSES.main.authorizedCaller,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES.mainnet.authorizedCaller,
+        ADDRESSES.mainnet.feeRecipient,
         20,
         SERVICE_REGISTRY,
       ], // Doesn't really matter where we take authorizedCaller and feeRecipient from

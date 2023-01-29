@@ -1,9 +1,16 @@
 {
-  "main": {
+  "mainnet": {
     "aave": {
       "MainnetLendingPool": "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9",
       "WETHGateway": "0xcc9a0B7c43DC2a5F023Bb9b738E45B0Ef6B06E04",
       "DataProvider": "0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d"
+    }
+  },
+  "goerli": {
+    "aaveV3": {
+      "PoolProxyAave": "0x7b5C526B7F8dfdff278b4a3e045083FBA4028790",
+      "ProtocolDataProvider": "0xa41E284482F9923E265832bE59627d91432da76C",
+      "AaveOracle": "0x9F616c65b5298E24e155E4486e114516BC635b63"
     }
   }
 }

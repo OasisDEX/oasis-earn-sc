@@ -41,7 +41,7 @@ describe('SetApproval Action', () => {
         [calldataTypes.common.Approval],
         [
           {
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES.mainnet.DAI,
             delegate: config.address,
             amount: amountToWei(AMOUNT).toFixed(0),
           },
@@ -50,7 +50,7 @@ describe('SetApproval Action', () => {
       [0, 0, 0],
     )
 
-    const DAI = new ethers.Contract(ADDRESSES.main.DAI, IERC20_ABI, config.signer)
+    const DAI = new ethers.Contract(ADDRESSES.mainnet.DAI, IERC20_ABI, config.signer)
 
     const allowance = await DAI.allowance(approvalActionAddress, config.address)
 

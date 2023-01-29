@@ -34,8 +34,8 @@ describe('SendToken Action', () => {
 
   beforeEach(async () => {
     await swapUniswapTokens(
-      ADDRESSES.main.WETH,
-      ADDRESSES.main.DAI,
+      ADDRESSES.mainnet.WETH,
+      ADDRESSES.mainnet.DAI,
       amountToWei(ONE).toFixed(0),
       amountToWei(AMOUNT).toFixed(0),
       config.address,
@@ -48,7 +48,7 @@ describe('SendToken Action', () => {
   })
 
   it('should send tokens to the sender', async () => {
-    const DAI = ADDRESSES.main.DAI
+    const DAI = ADDRESSES.mainnet.DAI
     const balanceOptions: BalanceOptions = { config, debug: false }
     const initialWalletBalance = await balanceOf(DAI, config.address, balanceOptions)
 
@@ -64,7 +64,7 @@ describe('SendToken Action', () => {
         [
           {
             amount: amountToWei(AMOUNT).toFixed(0),
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES.mainnet.DAI,
             to: config.address,
           },
         ],
@@ -82,7 +82,7 @@ describe('SendToken Action', () => {
   it('should send ETH', async () => {
     const aWallet = await config.provider.getSigner(2).getAddress()
 
-    let aWalletEthBalance = await balanceOf(ADDRESSES.main.ETH, aWallet, { config, debug: false })
+    let aWalletEthBalance = await balanceOf(ADDRESSES.mainnet.ETH, aWallet, { config, debug: false })
     expect(aWalletEthBalance.toString()).to.equal(amountToWei(TEN_THOUSAND).toString())
 
     await sendToken.execute(
@@ -91,7 +91,7 @@ describe('SendToken Action', () => {
         [
           {
             amount: amountToWei(ONE).toString(),
-            asset: ADDRESSES.main.ETH,
+            asset: ADDRESSES.mainnet.ETH,
             to: aWallet,
           },
         ],
@@ -104,12 +104,12 @@ describe('SendToken Action', () => {
       },
     )
 
-    aWalletEthBalance = await balanceOf(ADDRESSES.main.ETH, aWallet, { config, debug: false })
+    aWalletEthBalance = await balanceOf(ADDRESSES.mainnet.ETH, aWallet, { config, debug: false })
     expect(aWalletEthBalance.toString()).to.equal(amountToWei(TEN_THOUSAND.plus(ONE)).toString())
   })
 
   it('should fail if it does not have enough ERC20 balance', async () => {
-    const DAI = ADDRESSES.main.DAI
+    const DAI = ADDRESSES.mainnet.DAI
     const balanceOptions: BalanceOptions = { config, debug: false }
 
     await send(sendTokenActionAddress, DAI, AMOUNT_TO_WEI)
@@ -124,7 +124,7 @@ describe('SendToken Action', () => {
         [
           {
             amount: amountToWei(AMOUNT.plus(ONE)).toFixed(0),
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES.mainnet.DAI,
             to: config.address,
           },
         ],

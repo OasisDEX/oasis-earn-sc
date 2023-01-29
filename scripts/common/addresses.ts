@@ -110,7 +110,7 @@ export function coalesceNetwork(network: Network) {
   switch (network) {
     case Network.LOCAL:
     case Network.HARDHAT:
-      return Network.MAINNET
+      return Network.GOERLI  // !! temporary fix to use Goerli addresses for local testing when testing Aave v3 integration on Goerli
     default:
       return network
   }

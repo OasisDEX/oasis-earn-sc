@@ -67,26 +67,26 @@ task('createPosition', 'Create stETH position on AAVE')
     const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
 
     const mainnetAddresses = {
-      DAI: ADDRESSES.main.DAI,
-      ETH: ADDRESSES.main.ETH,
-      WETH: ADDRESSES.main.WETH,
-      STETH: ADDRESSES.main.STETH,
-      WBTC: ADDRESSES.main.WBTC,
-      USDC: ADDRESSES.main.USDC,
-      chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-      aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-      aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
+      DAI: ADDRESSES.mainnet.DAI,
+      ETH: ADDRESSES.mainnet.ETH,
+      WETH: ADDRESSES.mainnet.WETH,
+      STETH: ADDRESSES.mainnet.STETH,
+      WBTC: ADDRESSES.mainnet.WBTC,
+      USDC: ADDRESSES.mainnet.USDC,
+      chainlinkEthUsdPriceFeed: ADDRESSES.mainnet.chainlinkEthUsdPriceFeed,
+      aavePriceOracle: ADDRESSES.mainnet.aavePriceOracle,
+      aaveLendingPool: ADDRESSES.mainnet.aave.MainnetLendingPool,
       operationExecutor: operationExecutorAddress,
-      aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
+      aaveProtocolDataProvider: ADDRESSES.mainnet.aave.DataProvider,
     }
     const aaveLendingPool = new hre.ethers.Contract(
-      ADDRESSES.main.aave.MainnetLendingPool,
+      ADDRESSES.mainnet.aave.MainnetLendingPool,
       AAVELendigPoolABI,
       config.provider,
     )
 
     const aaveDataProvider = new hre.ethers.Contract(
-      ADDRESSES.main.aave.DataProvider,
+      ADDRESSES.mainnet.aave.DataProvider,
       AAVEDataProviderABI,
       config.provider,
     )
@@ -98,7 +98,7 @@ task('createPosition', 'Create stETH position on AAVE')
     )
 
     const userDaiReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES.main.DAI,
+      ADDRESSES.mainnet.DAI,
       dsProxy.address,
     )
 
@@ -158,12 +158,12 @@ task('createPosition', 'Create stETH position on AAVE')
       dsProxy.address,
     )
     const userStEthReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES.main.STETH,
+      ADDRESSES.mainnet.STETH,
       dsProxy.address,
     )
 
     const proxyStEthBalance = await balanceOf(
-      ADDRESSES.main.STETH,
+      ADDRESSES.mainnet.STETH,
       dsProxy.address,
       {
         config,
@@ -173,7 +173,7 @@ task('createPosition', 'Create stETH position on AAVE')
     )
 
     const proxyEthBalance = await balanceOf(
-      ADDRESSES.main.ETH,
+      ADDRESSES.mainnet.ETH,
       dsProxy.address,
       { config, isFormatted: true },
       hre,

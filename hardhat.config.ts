@@ -43,7 +43,7 @@ if (!/^\d+$/.test(blockNumber)) {
   throw new Error(`Provide a valid block number. Provided value is ${blockNumber}`)
 }
 
-console.log(`Forking from block number: ${blockNumber}`)
+// console.log(`Forking from block number: ${blockNumber}`)
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -71,16 +71,16 @@ const config: HardhatUserConfig = {
     hardhat: {
       forking: {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        url: process.env.MAINNET_URL!,
-        blockNumber: parseInt(blockNumber),
+        url: 'https://eth-goerli.alchemyapi.io/v2/BCyrmEpcpKTNwy4m5wLom-zWepvj42s9',
+        // blockNumber: parseInt(blockNumber),
       },
       chainId: 2137,
       mining: {
         auto: true,
       },
-      hardfork: 'london',
+      // hardfork: 'london',
       gas: 'auto',
-      initialBaseFeePerGas: 1000000000,
+      // initialBaseFeePerGas: 1000000000,
       allowUnlimitedContractSize: true,
     },
     goerli: {

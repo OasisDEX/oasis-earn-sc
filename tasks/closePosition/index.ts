@@ -72,12 +72,12 @@ task('closePosition', 'Close stETH position on AAVE')
       operationExecutor: operationExecutorAddress,
     }
     const aaveLendingPool = new hre.ethers.Contract(
-      ADDRESSES.main.aave.MainnetLendingPool,
+      ADDRESSES.mainnet.aave.MainnetLendingPool,
       AAVELendigPoolABI,
       config.provider,
     )
     const aaveDataProvider = new hre.ethers.Contract(
-      ADDRESSES.main.aave.DataProvider,
+      ADDRESSES.mainnet.aave.DataProvider,
       AAVEDataProviderABI,
       config.provider,
     )
@@ -89,13 +89,13 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     let userStEthReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES.main.STETH,
+      ADDRESSES.mainnet.STETH,
       dsProxy.address,
     )
 
     const address = await config.signer.getAddress()
     let balanceEth = await balanceOf(
-      ADDRESSES.main.ETH,
+      ADDRESSES.mainnet.ETH,
       address,
       { config, isFormatted: true },
       hre,
@@ -118,7 +118,7 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     const beforeCloseUserStEthReserveData: AAVEReserveData =
-      await aaveDataProvider.getUserReserveData(ADDRESSES.main.STETH, dsProxy.address)
+      await aaveDataProvider.getUserReserveData(ADDRESSES.mainnet.STETH, dsProxy.address)
 
     const positionAfterOpen = new Position(
       {
@@ -179,11 +179,11 @@ task('closePosition', 'Close stETH position on AAVE')
     console.log('txHash', tx.transactionHash)
 
     userStEthReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES.main.STETH,
+      ADDRESSES.mainnet.STETH,
       dsProxy.address,
     )
 
-    balanceEth = await balanceOf(ADDRESSES.main.ETH, address, { config, isFormatted: true }, hre)
+    balanceEth = await balanceOf(ADDRESSES.mainnet.ETH, address, { config, isFormatted: true }, hre)
 
     console.log('Current stETH Balance: ', userStEthReserveData.currentATokenBalance.toString())
     console.log('Current ETH Balance: ', balanceEth.toString())

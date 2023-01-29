@@ -51,11 +51,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
 
     aaveLendingPool = new Contract(
-      ADDRESSES.main.aave.MainnetLendingPool,
+      ADDRESSES.mainnet.aave.MainnetLendingPool,
       AAVELendigPoolABI,
       provider,
     )
-    aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
+    aaveDataProvider = new Contract(ADDRESSES.mainnet.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
   describe.skip('[Uniswap]', () => {
@@ -106,7 +106,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       !debtToken.isEth &&
         debtToken.depositOnOpenAmountInWei.gt(ZERO) &&
         (await swapUniswapTokens(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           debtToken.address,
           swapETHtoDepositTokens.toFixed(0),
           ONE.toFixed(0),
@@ -117,7 +117,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       !collateralToken.isEth &&
         collateralToken.depositOnOpenAmountInWei.gt(ZERO) &&
         (await swapUniswapTokens(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           collateralToken.address,
           swapETHtoDepositTokens.toFixed(0),
           ONE.toFixed(0),
@@ -266,11 +266,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       const feeRecipientBalanceBeforeClose = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES.mainnet.feeRecipient,
         { config },
       )
 
-      const userEthBalanceBeforeTx = await balanceOf(ADDRESSES.main.ETH, config.address, {
+      const userEthBalanceBeforeTx = await balanceOf(ADDRESSES.mainnet.ETH, config.address, {
         config,
       })
 
@@ -371,14 +371,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             depositOnOpenAmountInWei: ZERO,
             symbol: tokens.STETH,
-            address: ADDRESSES.main.STETH,
+            address: ADDRESSES.mainnet.STETH,
             precision: 18,
             isEth: false,
           },
           {
             depositOnOpenAmountInWei: depositAmount,
             symbol: tokens.ETH,
-            address: ADDRESSES.main.WETH,
+            address: ADDRESSES.mainnet.WETH,
             precision: 18,
             isEth: true,
           },
@@ -415,8 +415,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       it('Should collect fee', async () => {
         const feeRecipientWethBalanceAfter = await balanceOf(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.WETH,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -438,7 +438,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       it('should not be any token left on proxy', async () => {
         const proxyWethBalance = await balanceOf(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           system.common.dsProxy.address,
           {
             config,
@@ -446,14 +446,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           },
         )
         const proxyStEthBalance = await balanceOf(
-          ADDRESSES.main.STETH,
+          ADDRESSES.mainnet.STETH,
           system.common.dsProxy.address,
           {
             config,
             isFormatted: true,
           },
         )
-        const proxyEthBalance = await balanceOf(ADDRESSES.main.ETH, system.common.dsProxy.address, {
+        const proxyEthBalance = await balanceOf(ADDRESSES.mainnet.ETH, system.common.dsProxy.address, {
           config,
           isFormatted: true,
         })
@@ -477,14 +477,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             depositOnOpenAmountInWei: depositEthAmount,
             symbol: tokens.ETH,
-            address: ADDRESSES.main.WETH,
+            address: ADDRESSES.mainnet.WETH,
             precision: 18,
             isEth: true,
           },
           {
             depositOnOpenAmountInWei: ZERO,
             symbol: tokens.USDC,
-            address: ADDRESSES.main.USDC,
+            address: ADDRESSES.mainnet.USDC,
             precision: 6,
             isEth: false,
           },
@@ -521,8 +521,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       it('Should collect fee', async () => {
         const feeRecipientWethBalanceAfter = await balanceOf(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.WETH,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -544,14 +544,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       it('should not be any token left on proxy', async () => {
         const proxyWethBalance = await balanceOf(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           system.common.dsProxy.address,
           {
             config,
           },
         )
         const proxyUSDCBalance = await balanceOf(
-          ADDRESSES.main.USDC,
+          ADDRESSES.mainnet.USDC,
           system.common.dsProxy.address,
           {
             config,
@@ -576,14 +576,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           {
             depositOnOpenAmountInWei: amountToWei(depositWBTCAmount, 8),
             symbol: tokens.WBTC,
-            address: ADDRESSES.main.WBTC,
+            address: ADDRESSES.mainnet.WBTC,
             precision: 8,
             isEth: false,
           },
           {
             depositOnOpenAmountInWei: ZERO,
             symbol: tokens.USDC,
-            address: ADDRESSES.main.USDC,
+            address: ADDRESSES.mainnet.USDC,
             precision: 6,
             isEth: false,
           },
@@ -621,8 +621,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       it('Should collect fee', async () => {
         const feeRecipientWBTCBalanceAfter = await balanceOf(
-          ADDRESSES.main.WBTC,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.WBTC,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -644,14 +644,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       it('should not be any token left on proxy', async () => {
         const proxyWBTCBalance = await balanceOf(
-          ADDRESSES.main.WBTC,
+          ADDRESSES.mainnet.WBTC,
           system.common.dsProxy.address,
           {
             config,
           },
         )
         const proxyUSDCBalance = await balanceOf(
-          ADDRESSES.main.USDC,
+          ADDRESSES.mainnet.USDC,
           system.common.dsProxy.address,
           {
             config,
@@ -731,12 +731,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         openTxStatus = _openTxStatus
 
         const beforeCloseUserWethReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           system.common.dsProxy.address,
         )
 
         const beforeCloseUserStEthReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.STETH,
+          ADDRESSES.mainnet.STETH,
           system.common.dsProxy.address,
         )
 
@@ -751,7 +751,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         const aaveStEthTokenPriceInEthOnOpen = await aavePriceOracle
-          .getAssetPrice(ADDRESSES.main.STETH)
+          .getAssetPrice(ADDRESSES.mainnet.STETH)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const positionAfterOpen = new Position(
@@ -803,7 +803,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
         userAccountData = await aaveLendingPool.getUserAccountData(system.common.dsProxy.address)
         userStEthReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.STETH,
+          ADDRESSES.mainnet.STETH,
           system.common.dsProxy.address,
         )
       } else {
@@ -862,15 +862,15 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         const collateralToken = { symbol: tokens.WBTC, precision: wBTCPrecision }
 
         await swapUniswapTokens(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.WBTC,
+          ADDRESSES.mainnet.WETH,
+          ADDRESSES.mainnet.WBTC,
           amountToWei(new BigNumber(100)).toFixed(0),
           ONE.toFixed(0),
           config.address,
           config,
         )
 
-        const COLL_TOKEN = new ethers.Contract(ADDRESSES.main.WBTC, ERC20ABI, provider)
+        const COLL_TOKEN = new ethers.Contract(ADDRESSES.mainnet.WBTC, ERC20ABI, provider)
         await COLL_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           depositWBTCAmount.toFixed(0),
@@ -912,12 +912,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         openTxStatus = _openTxStatus
 
         const beforeCloseUserWBTCReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.WBTC,
+          ADDRESSES.mainnet.WBTC,
           system.common.dsProxy.address,
         )
 
         const beforeCloseUserUSDCReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.USDC,
+          ADDRESSES.mainnet.USDC,
           system.common.dsProxy.address,
         )
 
@@ -932,10 +932,10 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         const aaveWBTCTokenPriceInEthOnOpen = await aavePriceOracle
-          .getAssetPrice(ADDRESSES.main.WBTC)
+          .getAssetPrice(ADDRESSES.mainnet.WBTC)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
         const aaveUSDCTokenPriceInEthOnOpen = await aavePriceOracle
-          .getAssetPrice(ADDRESSES.main.USDC)
+          .getAssetPrice(ADDRESSES.mainnet.USDC)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const oracle = aaveWBTCTokenPriceInEthOnOpen.div(aaveUSDCTokenPriceInEthOnOpen)
@@ -988,11 +988,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         txStatus = _closeTxStatus
 
         userWBTCReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.WBTC,
+          ADDRESSES.mainnet.WBTC,
           system.common.dsProxy.address,
         )
         userUSDCReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.USDC,
+          ADDRESSES.mainnet.USDC,
           system.common.dsProxy.address,
         )
       } else {
@@ -1086,12 +1086,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         openTxStatus = _openTxStatus
 
         const beforeCloseUserWETHReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           system.common.dsProxy.address,
         )
 
         const beforeCloseUserUSDCReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.USDC,
+          ADDRESSES.mainnet.USDC,
           system.common.dsProxy.address,
         )
 
@@ -1106,10 +1106,10 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
 
         const aaveUSDCTokenPriceInEthOnOpen = await aavePriceOracle
-          .getAssetPrice(ADDRESSES.main.USDC)
+          .getAssetPrice(ADDRESSES.mainnet.USDC)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
         const aaveWETHTokenPriceInEthOnOpen = await aavePriceOracle
-          .getAssetPrice(ADDRESSES.main.WETH)
+          .getAssetPrice(ADDRESSES.mainnet.WETH)
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const oracle = aaveWETHTokenPriceInEthOnOpen.div(aaveUSDCTokenPriceInEthOnOpen)
@@ -1160,11 +1160,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         txStatus = _closeTxStatus
 
         userUSDCReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.USDC,
+          ADDRESSES.mainnet.USDC,
           system.common.dsProxy.address,
         )
         userWETHReserveData = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           system.common.dsProxy.address,
         )
       } else {

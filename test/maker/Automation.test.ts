@@ -44,8 +44,8 @@ describe(`Operations | Maker | Automation Integration`, async () => {
   beforeEach(async function () {
     ;({ config, provider, signer } = await loadFixture(initialiseConfig))
 
-    DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
-    WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
+    DAI = new ethers.Contract(ADDRESSES.mainnet.DAI, ERC20ABI, provider).connect(signer)
+    WETH = new ethers.Contract(ADDRESSES.mainnet.WETH, ERC20ABI, provider).connect(signer)
 
     // When changing block number remember to check vault id that is used for automation
     const testBlockNumberToGetCorrectVaultId = 15695000
@@ -61,7 +61,7 @@ describe(`Operations | Maker | Automation Integration`, async () => {
 
     oraclePrice = await getOraclePrice(provider)
 
-    await system.common.exchange.setPrice(ADDRESSES.main.WETH, amountToWei(marketPrice).toFixed(0))
+    await system.common.exchange.setPrice(ADDRESSES.mainnet.WETH, amountToWei(marketPrice).toFixed(0))
   })
 
   it(`should open vault, deposit ETH, allow Automation Bot & then Run Automation based Operation`, async () => {
@@ -82,7 +82,7 @@ describe(`Operations | Maker | Automation Integration`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
+          joinAddress: ADDRESSES.mainnet.maker.joinETH_A,
         },
         [0],
       ],
@@ -94,7 +94,7 @@ describe(`Operations | Maker | Automation Integration`, async () => {
       [
         {
           from: config.address,
-          asset: ADDRESSES.main.WETH,
+          asset: ADDRESSES.mainnet.WETH,
           amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
         [0, 0, 0],
@@ -106,7 +106,7 @@ describe(`Operations | Maker | Automation Integration`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
+          joinAddress: ADDRESSES.mainnet.maker.joinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -228,7 +228,7 @@ describe(`Operations | Maker | Automation Integration`, async () => {
     expectToBeEqual(info.debt.toFixed(0), autoTestAmount.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES.main.maker.cdpManager,
+      ADDRESSES.mainnet.maker.cdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)

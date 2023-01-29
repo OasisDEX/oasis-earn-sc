@@ -5,6 +5,15 @@ export enum Network {
   LOCAL = 'local',
 }
 
+export const ChainById: { [key: number]: Network } = {
+  1: Network.MAINNET,
+  5: Network.GOERLI,
+}
+
+export function getNetworkFromChainId(chainId: number): Network {
+  return ChainById[chainId]
+}
+
 export function isSupportedNetwork(network: string): network is Network {
   return Object.values<string>(Network).includes(network)
 }

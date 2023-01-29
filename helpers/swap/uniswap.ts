@@ -21,10 +21,10 @@ export async function swapUniswapTokens(
   recipient: string,
   { provider, signer }: Pick<RuntimeConfig, 'provider' | 'signer'>,
 ) {
-  const value = tokenIn === ADDRESSES.main.WETH ? amountIn : 0
+  const value = tokenIn === ADDRESSES.mainnet.WETH ? amountIn : 0
 
   const uniswapV3 = new ethers.Contract(
-    ADDRESSES.main.uniswapRouterV3,
+    ADDRESSES.mainnet.uniswapRouterV3,
     UNISWAP_ROUTER_V3_ABI,
     provider,
   ).connect(signer)

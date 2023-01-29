@@ -31,7 +31,7 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
 
   before(async function () {
     ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
-    aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
+    aaveDataProvider = new Contract(ADDRESSES.mainnet.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
   describe('Uniswap t/x', function () {
@@ -133,7 +133,7 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
 
       const feeRecipientBalanceBefore = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES.mainnet.feeRecipient,
         { config },
       )
 
@@ -168,7 +168,7 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
       )
 
       const userCollateralReserveData = await aaveDataProvider.getUserReserveData(
-        ADDRESSES.main.WETH,
+        ADDRESSES.mainnet.WETH,
         proxy,
       )
 
@@ -243,14 +243,14 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
           {
             depositAmountInBaseUnit: depositEthAmount,
             symbol: tokens.ETH,
-            address: ADDRESSES.main.ETH,
+            address: ADDRESSES.mainnet.ETH,
             precision: 18,
             isEth: true,
           },
           {
             depositAmountInBaseUnit: amountToWei(1000, 6),
             symbol: tokens.USDC,
-            address: ADDRESSES.main.USDC,
+            address: ADDRESSES.mainnet.USDC,
             precision: 6,
             isEth: false,
           },
@@ -293,8 +293,8 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
       // TODO: No fee collected in any of current scenarios
       // it('Should collect fee', async function () {
       //   const feeRecipientWethBalanceAfter = await balanceOf(
-      //     ADDRESSES.main.WETH,
-      //     ADDRESSES.main.feeRecipient,
+      //     ADDRESSES.mainnet.WETH,
+      //     ADDRESSES.mainnet.feeRecipient,
       //     { config },
       //   )
       //

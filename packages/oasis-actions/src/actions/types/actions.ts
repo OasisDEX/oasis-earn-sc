@@ -30,5 +30,11 @@ export const calldataTypes = {
     Borrow: `tuple(address asset, uint256 amount, address to)`,
     Payback: `tuple(address asset, uint256 amount, bool paybackAll)`,
   },
+  aaveV3: {
+    Deposit: `tuple(address asset, uint256 amount, bool sumAmounts, bool setAsCollateral)`,
+    Withdraw: `tuple(address asset, uint256 amount, address to)`,
+    Borrow: `tuple(address asset, uint256 amount, address to)`,
+    Payback: `tuple(address asset, uint256 amount, bool paybackAll)`,
+  },
   paramsMap: `uint8[] paramsMap`,
 } as const

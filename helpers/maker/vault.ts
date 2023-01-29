@@ -13,12 +13,12 @@ export async function getLastVault(
   signer: Signer,
   proxyAddress: string,
 ): Promise<CDPInfo> {
-  const getCdps = new ethers.Contract(ADDRESSES.main.maker.getCdps, GetCDPsABI, provider).connect(
+  const getCdps = new ethers.Contract(ADDRESSES.mainnet.maker.getCdps, GetCDPsABI, provider).connect(
     signer,
   )
 
   const { ids, urns, ilks } = await getCdps.getCdpsAsc(
-    ADDRESSES.main.maker.cdpManager,
+    ADDRESSES.mainnet.maker.cdpManager,
     proxyAddress,
   )
 

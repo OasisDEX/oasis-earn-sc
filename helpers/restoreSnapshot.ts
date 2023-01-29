@@ -1,4 +1,6 @@
 import { providers } from 'ethers'
+import { network } from 'hardhat'
+import { Network } from '../scripts/common'
 
 import { DeployedSystemInfo, deploySystem } from '../test/deploySystem'
 import { resetNode } from './init'
@@ -16,6 +18,7 @@ export async function restoreSnapshot(args: {
   config: RuntimeConfig
   provider: providers.JsonRpcProvider
   blockNumber: number
+  forkedNetwork?: Network
   useFallbackSwap?: boolean
   debug?: boolean
 }): Promise<{ snapshot: Snapshot; config: RuntimeConfig }> {
@@ -23,6 +26,8 @@ export async function restoreSnapshot(args: {
 
   const _blockNumber = blockNumber || testBlockNumber
 
+  const forkedNetwork = args.forkedNetwork || Network.MAINNET
+  
   const cacheKey = `${_blockNumber}|${useFallbackSwap}`
   const snapshot = snapshotCache[cacheKey]
 
@@ -50,9 +55,11 @@ export async function restoreSnapshot(args: {
       console.log('resetting node to:', _blockNumber)
       console.log('deploying system again')
     }
-    await resetNode(provider, _blockNumber)
+    await resetNode(provider, _blockNumber, forkedNetwork)
 
     const system = await deploySystem(config, debug, useFallbackSwap)
+    console.log('SYSTEM DEPLOYED' );
+    
     const snapshotId = await provider.send('evm_snapshot', [])
 
     const snapshot = {

@@ -38,19 +38,19 @@ describe('uSwap', () => {
     const [serviceRegistry] = await deploy('ServiceRegistry', [0])
     registry = new ServiceRegistry(serviceRegistry.address, config.signer)
 
-    await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
+    await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.mainnet.uniswapRouterV3)
     const [_uSwap] = await deploy('uSwap', [
       config.address,
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES.mainnet.feeRecipient,
       FEE,
       serviceRegistry.address,
     ])
     uSwap = _uSwap
 
-    WETH = new ethers.Contract(ADDRESSES.main.WETH, WETH_ABI, config.provider).connect(
+    WETH = new ethers.Contract(ADDRESSES.mainnet.WETH, WETH_ABI, config.provider).connect(
       config.signer,
     )
-    DAI = new ethers.Contract(ADDRESSES.main.DAI, WETH_ABI, config.provider).connect(config.signer)
+    DAI = new ethers.Contract(ADDRESSES.mainnet.DAI, WETH_ABI, config.provider).connect(config.signer)
     await uSwap.setPool(WETH.address, DAI.address, 3000)
     await uSwap.setPool(DAI.address, WETH.address, 3000)
   })
@@ -65,8 +65,8 @@ describe('uSwap', () => {
 
     before(async () => {
       const response = await swapOneInchTokens(
-        ADDRESSES.main.WETH,
-        ADDRESSES.main.DAI,
+        ADDRESSES.mainnet.WETH,
+        ADDRESSES.mainnet.DAI,
         amountInWei.toFixed(0),
         uSwap.address,
         slippage.value.toFixed(),
@@ -77,8 +77,8 @@ describe('uSwap', () => {
       await WETH.deposit({ value: depositAmountWithFeeWei.toFixed(0) })
       await WETH.approve(uSwap.address, depositAmountWithFeeWei.toFixed(0))
       await uSwap.swapTokens([
-        ADDRESSES.main.WETH,
-        ADDRESSES.main.DAI,
+        ADDRESSES.mainnet.WETH,
+        ADDRESSES.mainnet.DAI,
         depositAmountWithFeeWei.toFixed(0),
         receiveAtLeast.toFixed(0),
         FEE,
@@ -94,7 +94,7 @@ describe('uSwap', () => {
     })
 
     it('Pays fee in WETH', async () => {
-      const feeWallet = await balanceOf(WETH.address, ADDRESSES.main.feeRecipient, { config })
+      const feeWallet = await balanceOf(WETH.address, ADDRESSES.mainnet.feeRecipient, { config })
       expectToBeEqual(feeWallet, fee)
     })
   })

@@ -139,8 +139,8 @@ export function prepareMultiplyParameters({
   exchangeData: ExchangeData
 } {
   const exchangeData = {
-    fromTokenAddress: toDAI ? ADDRESSES.main.WETH : ADDRESSES.main.DAI,
-    toTokenAddress: toDAI ? ADDRESSES.main.DAI : ADDRESSES.main.WETH,
+    fromTokenAddress: toDAI ? ADDRESSES.mainnet.WETH : ADDRESSES.mainnet.DAI,
+    toTokenAddress: toDAI ? ADDRESSES.mainnet.DAI : ADDRESSES.mainnet.WETH,
     fromTokenAmount: toDAI
       ? amountToWei(desiredCdpState.toBorrowCollateralAmount).toFixed(0)
       : amountToWei(desiredCdpState.requiredDebt).toFixed(0),

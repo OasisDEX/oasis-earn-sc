@@ -105,7 +105,7 @@ export async function open(
     quoteSwapData,
   ] = await Promise.all([
     aavePriceOracle
-      .getAssetPrice(ADDRESSES.main.DAI)
+      .getAssetPrice(ADDRESSES.mainnet.DAI)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     aavePriceOracle
       .getAssetPrice(debtTokenAddress)
@@ -113,7 +113,7 @@ export async function open(
     aavePriceOracle
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
+    aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.mainnet.DAI),
     dependencies.getSwapData(
       debtTokenAddress,
       collateralTokenAddress,

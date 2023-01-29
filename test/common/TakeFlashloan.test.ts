@@ -49,7 +49,7 @@ describe('TakeFlashloan Action', () => {
       [
         {
           amount: ensureWeiFormat(AMOUNT),
-          asset: ADDRESSES.main.DAI,
+          asset: ADDRESSES.mainnet.DAI,
           to: system.common.operationExecutor.address,
         },
         [0],
@@ -91,7 +91,7 @@ describe('TakeFlashloan Action', () => {
       [
         {
           amount: ensureWeiFormat(AMOUNT.minus(TEN)),
-          asset: ADDRESSES.main.DAI,
+          asset: ADDRESSES.mainnet.DAI,
           to: system.common.operationExecutor.address,
         },
         [0],

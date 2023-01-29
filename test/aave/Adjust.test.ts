@@ -51,12 +51,12 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
 
     aaveLendingPool = new Contract(
-      ADDRESSES.main.aave.MainnetLendingPool,
+      ADDRESSES.mainnet.aave.MainnetLendingPool,
       AAVELendigPoolABI,
       provider,
     )
 
-    aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
+    aaveDataProvider = new Contract(ADDRESSES.mainnet.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
   describe('[Uniswap]', () => {
@@ -110,7 +110,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         (debtToken.depositOnOpenAmountInWei.gt(ZERO) ||
           debtToken.depositOnAdjustAmountInWei.gt(ZERO)) &&
         (await swapUniswapTokens(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           debtToken.address,
           swapETHtoDepositTokens.toFixed(0),
           ONE.toFixed(0),
@@ -122,7 +122,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         (collateralToken.depositOnOpenAmountInWei.gt(ZERO) ||
           collateralToken.depositOnAdjustAmountInWei.gt(ZERO)) &&
         (await swapUniswapTokens(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           collateralToken.address,
           swapETHtoDepositTokens.toFixed(0),
           ONE.toFixed(0),
@@ -301,11 +301,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       }
       const feeRecipientBalanceBeforeAdjust = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES.mainnet.feeRecipient,
         { config },
       )
 
-      const userEthBalanceBeforeTx = await balanceOf(ADDRESSES.main.ETH, config.address, {
+      const userEthBalanceBeforeTx = await balanceOf(ADDRESSES.mainnet.ETH, config.address, {
         config,
       })
 
@@ -407,7 +407,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositOnOpenAmountInWei: ZERO,
             depositOnAdjustAmountInWei: ZERO,
             symbol: tokens.STETH,
-            address: ADDRESSES.main.STETH,
+            address: ADDRESSES.mainnet.STETH,
             precision: 18,
             isEth: false,
           },
@@ -415,7 +415,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositOnOpenAmountInWei: depositAmount,
             depositOnAdjustAmountInWei: depositAmount,
             symbol: tokens.ETH,
-            address: ADDRESSES.main.WETH,
+            address: ADDRESSES.mainnet.WETH,
             precision: 18,
             isEth: true,
           },
@@ -450,8 +450,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
       it('Should collect fee', async () => {
         const feeRecipientWethBalanceAfter = await balanceOf(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.WETH,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -485,7 +485,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositOnOpenAmountInWei: depositAmount,
             depositOnAdjustAmountInWei: depositAmount,
             symbol: tokens.ETH,
-            address: ADDRESSES.main.WETH,
+            address: ADDRESSES.mainnet.WETH,
             precision: 18,
             isEth: true,
           },
@@ -493,7 +493,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositOnOpenAmountInWei: ZERO,
             depositOnAdjustAmountInWei: ZERO,
             symbol: tokens.USDC,
-            address: ADDRESSES.main.USDC,
+            address: ADDRESSES.mainnet.USDC,
             precision: 6,
             isEth: false,
           },
@@ -528,8 +528,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
       it('Should collect fee', async () => {
         const feeRecipientUSDCBalanceAfter = await balanceOf(
-          ADDRESSES.main.USDC,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.USDC,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -563,7 +563,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositOnOpenAmountInWei: amountToWei(depositWBTCAmount, 8),
             depositOnAdjustAmountInWei: amountToWei(depositWBTCAmount, 8),
             symbol: tokens.WBTC,
-            address: ADDRESSES.main.WBTC,
+            address: ADDRESSES.mainnet.WBTC,
             precision: 8,
             isEth: false,
           },
@@ -571,7 +571,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositOnOpenAmountInWei: ZERO,
             depositOnAdjustAmountInWei: ZERO,
             symbol: tokens.USDC,
-            address: ADDRESSES.main.USDC,
+            address: ADDRESSES.mainnet.USDC,
             precision: 6,
             isEth: false,
           },
@@ -606,8 +606,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
       it('Should collect fee', async () => {
         const feeRecipientUSDCBalanceAfter = await balanceOf(
-          ADDRESSES.main.USDC,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.USDC,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -641,7 +641,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositOnOpenAmountInWei: ZERO,
             depositOnAdjustAmountInWei: ZERO,
             symbol: tokens.STETH,
-            address: ADDRESSES.main.STETH,
+            address: ADDRESSES.mainnet.STETH,
             precision: 18,
             isEth: false,
           },
@@ -649,7 +649,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             depositOnOpenAmountInWei: depositAmount,
             depositOnAdjustAmountInWei: ZERO,
             symbol: tokens.ETH,
-            address: ADDRESSES.main.WETH,
+            address: ADDRESSES.mainnet.WETH,
             precision: 18,
             isEth: true,
           },
@@ -692,8 +692,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
       it('Should collect fee', async () => {
         const feeRecipientWethBalanceAfter = await balanceOf(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.WETH,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -745,8 +745,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         }
 
         feeRecipientWethBalanceBefore = await balanceOf(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.WETH,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -822,8 +822,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
 
         feeRecipientWethBalanceBefore = await balanceOf(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.WETH,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -852,11 +852,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const userWethReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           system.common.dsProxy.address,
         )
         const userStEthReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.STETH,
+          ADDRESSES.mainnet.STETH,
           system.common.dsProxy.address,
         )
 
@@ -902,8 +902,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
     it('Should collect fee', async () => {
       const feeRecipientWethBalanceAfter = await balanceOf(
-        ADDRESSES.main.WETH,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES.mainnet.WETH,
+        ADDRESSES.mainnet.feeRecipient,
         { config },
       )
 
@@ -957,8 +957,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         }
 
         feeRecipientUSDCBalanceBefore = await balanceOf(
-          ADDRESSES.main.USDC,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.USDC,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -1033,8 +1033,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
 
         feeRecipientUSDCBalanceBefore = await balanceOf(
-          ADDRESSES.main.USDC,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.USDC,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -1067,11 +1067,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const userWethReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.WETH,
+          ADDRESSES.mainnet.WETH,
           system.common.dsProxy.address,
         )
         const userUSDCReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.USDC,
+          ADDRESSES.mainnet.USDC,
           system.common.dsProxy.address,
         )
 
@@ -1118,8 +1118,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
     it('Should collect fee', async () => {
       const feeRecipientUSDCBalanceAfter = await balanceOf(
-        ADDRESSES.main.USDC,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES.mainnet.USDC,
+        ADDRESSES.mainnet.feeRecipient,
         { config },
       )
 
@@ -1176,15 +1176,15 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         const collateralToken = { symbol: tokens.STETH, precision: stETHPrecision }
 
         await swapUniswapTokens(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.USDC,
+          ADDRESSES.mainnet.WETH,
+          ADDRESSES.mainnet.USDC,
           amountToWei(new BigNumber(100)).toFixed(0),
           ONE.toFixed(0),
           config.address,
           config,
         )
 
-        const DEBT_TOKEN = new ethers.Contract(ADDRESSES.main.USDC, ERC20ABI, provider)
+        const DEBT_TOKEN = new ethers.Contract(ADDRESSES.mainnet.USDC, ERC20ABI, provider)
         await DEBT_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           depositAmount.toFixed(0),
@@ -1257,8 +1257,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
 
         feeRecipientUSDCBalanceBefore = await balanceOf(
-          ADDRESSES.main.USDC,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.USDC,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -1287,11 +1287,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const userStEthReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.STETH,
+          ADDRESSES.mainnet.STETH,
           system.common.dsProxy.address,
         )
         const userUSDCReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.USDC,
+          ADDRESSES.mainnet.USDC,
           system.common.dsProxy.address,
         )
 
@@ -1335,8 +1335,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
     it('Should collect fee', async () => {
       const feeRecipientUSDCBalanceAfter = await balanceOf(
-        ADDRESSES.main.USDC,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES.mainnet.USDC,
+        ADDRESSES.mainnet.feeRecipient,
         { config },
       )
 
@@ -1393,15 +1393,15 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         const collateralToken = { symbol: tokens.WBTC, precision: wBTCPrecision }
 
         await swapUniswapTokens(
-          ADDRESSES.main.WETH,
-          ADDRESSES.main.WBTC,
+          ADDRESSES.mainnet.WETH,
+          ADDRESSES.mainnet.WBTC,
           amountToWei(new BigNumber(100)).toFixed(0),
           ONE.toFixed(0),
           config.address,
           config,
         )
 
-        const COLL_TOKEN = new ethers.Contract(ADDRESSES.main.WBTC, ERC20ABI, provider)
+        const COLL_TOKEN = new ethers.Contract(ADDRESSES.mainnet.WBTC, ERC20ABI, provider)
         await COLL_TOKEN.connect(signer).approve(
           system.common.userProxyAddress,
           depositWBTCAmount.toFixed(0),
@@ -1475,8 +1475,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
 
         feeRecipientUSDCBalanceBefore = await balanceOf(
-          ADDRESSES.main.USDC,
-          ADDRESSES.main.feeRecipient,
+          ADDRESSES.mainnet.USDC,
+          ADDRESSES.mainnet.feeRecipient,
           { config },
         )
 
@@ -1505,11 +1505,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString())))
 
         const userWBTCReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.WBTC,
+          ADDRESSES.mainnet.WBTC,
           system.common.dsProxy.address,
         )
         const userUSDCReserveDataAfterAdjust = await aaveDataProvider.getUserReserveData(
-          ADDRESSES.main.USDC,
+          ADDRESSES.mainnet.USDC,
           system.common.dsProxy.address,
         )
         hre.tracer.enabled = false
@@ -1553,8 +1553,8 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
     it('Should collect fee', async () => {
       const feeRecipientUSDCBalanceAfter = await balanceOf(
-        ADDRESSES.main.USDC,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES.mainnet.USDC,
+        ADDRESSES.mainnet.feeRecipient,
         { config },
       )
 

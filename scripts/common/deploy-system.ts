@@ -110,8 +110,8 @@ export async function deploySystem({
   if (swap.address === ethers.constants.AddressZero) {
     if (logDebug) console.log('Deploying Swap....', serviceRegistry.address)
     swap = await utils.deployContract(ethers.getContractFactory(CONTRACT_NAMES.common.SWAP), [
-      ADDRESSES.main.authorizedCaller,
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES.mainnet.authorizedCaller,
+      ADDRESSES.mainnet.feeRecipient,
       20,
       serviceRegistry.address,
     ])

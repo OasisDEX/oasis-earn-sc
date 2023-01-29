@@ -7,10 +7,10 @@ import DS_PROXY_REGISTRY_ABI from '../abi/ds-proxy-registry.json'
 export async function getOrCreateProxy(signer: Signer, hre?: HardhatRuntimeEnvironment) {
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
   const address = await signer.getAddress()
-
+  
   const dsProxyRegistry = await ethers.getContractAt(
     DS_PROXY_REGISTRY_ABI,
-    ADDRESSES.main.proxyRegistry,
+    ADDRESSES.goerli.proxyRegistry,
     signer,
   )
 

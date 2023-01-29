@@ -43,8 +43,8 @@ describe(`Operations | Maker | Open Position`, async () => {
   beforeEach(async () => {
     ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
 
-    DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
-    WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
+    DAI = new ethers.Contract(ADDRESSES.mainnet.DAI, ERC20ABI, provider).connect(signer)
+    WETH = new ethers.Contract(ADDRESSES.mainnet.WETH, ERC20ABI, provider).connect(signer)
 
     const { snapshot } = await restoreSnapshot({
       config,
@@ -56,7 +56,7 @@ describe(`Operations | Maker | Open Position`, async () => {
     system = snapshot.deployed.system
     registry = snapshot.deployed.registry
 
-    await system.common.exchange.setPrice(ADDRESSES.main.ETH, amountToWei(marketPrice).toFixed(0))
+    await system.common.exchange.setPrice(ADDRESSES.mainnet.ETH, amountToWei(marketPrice).toFixed(0))
   })
 
   let gasEstimates: GasEstimateHelper
@@ -75,7 +75,7 @@ describe(`Operations | Maker | Open Position`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
+          joinAddress: ADDRESSES.mainnet.maker.joinETH_A,
         },
         [0],
       ],
@@ -87,7 +87,7 @@ describe(`Operations | Maker | Open Position`, async () => {
       [
         {
           from: config.address,
-          asset: ADDRESSES.main.WETH,
+          asset: ADDRESSES.mainnet.WETH,
           amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
         [0, 0, 0],
@@ -99,7 +99,7 @@ describe(`Operations | Maker | Open Position`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
+          joinAddress: ADDRESSES.mainnet.maker.joinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -146,7 +146,7 @@ describe(`Operations | Maker | Open Position`, async () => {
     expectToBeEqual(info.debt.toFixed(precision), initialDebt.toFixed(precision))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES.main.maker.cdpManager,
+      ADDRESSES.mainnet.maker.cdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)

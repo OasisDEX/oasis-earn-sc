@@ -62,17 +62,17 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
     const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
 
     const mainnetAddresses = {
-      DAI: ADDRESSES.main.DAI,
-      ETH: ADDRESSES.main.ETH,
-      WETH: ADDRESSES.main.WETH,
-      STETH: ADDRESSES.main.STETH,
-      WBTC: ADDRESSES.main.WBTC,
-      USDC: ADDRESSES.main.USDC,
-      chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-      aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-      aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
+      DAI: ADDRESSES.mainnet.DAI,
+      ETH: ADDRESSES.mainnet.ETH,
+      WETH: ADDRESSES.mainnet.WETH,
+      STETH: ADDRESSES.mainnet.STETH,
+      WBTC: ADDRESSES.mainnet.WBTC,
+      USDC: ADDRESSES.mainnet.USDC,
+      chainlinkEthUsdPriceFeed: ADDRESSES.mainnet.chainlinkEthUsdPriceFeed,
+      aavePriceOracle: ADDRESSES.mainnet.aavePriceOracle,
+      aaveLendingPool: ADDRESSES.mainnet.aave.MainnetLendingPool,
       operationExecutor: operationExecutorAddress,
-      aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
+      aaveProtocolDataProvider: ADDRESSES.mainnet.aave.DataProvider,
       accountFactory: '0xF7B75183A2829843dB06266c114297dfbFaeE2b6',
     }
 

@@ -67,7 +67,7 @@ export async function adjust(
     quoteSwapData,
   ] = await Promise.all([
     aavePriceOracle
-      .getAssetPrice(ADDRESSES.main.DAI)
+      .getAssetPrice(ADDRESSES.mainnet.DAI)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     aavePriceOracle
       .getAssetPrice(debtTokenAddress)

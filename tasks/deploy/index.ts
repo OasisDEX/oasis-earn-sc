@@ -187,7 +187,7 @@ async function deployCommonActions(args: {
   ])
   const [, flActionAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
-    ADDRESSES.main.DAI,
+    ADDRESSES.mainnet.DAI,
   ])
 
   const [, wrapActionAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
@@ -201,7 +201,7 @@ async function deployCommonActions(args: {
 
   const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
     config.address,
-    ADDRESSES.main.feeRecipient,
+    ADDRESSES.mainnet.feeRecipient,
     0, // TODO add different fee tiers
     serviceRegistryAddress,
   ])
@@ -214,7 +214,7 @@ async function deployCommonActions(args: {
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     config.address,
-    ADDRESSES.main.feeRecipient,
+    ADDRESSES.mainnet.feeRecipient,
     0,
     serviceRegistryAddress,
   ])
@@ -260,7 +260,7 @@ async function deployCommonActions(args: {
 //
 //   const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
 //     config.address,
-//     ADDRESSES.main.feeRecipient,
+//     ADDRESSES.mainnet.feeRecipient,
 //     0, // TODO add different fee tiers
 //     serviceRegistryAddress,
 //   ])
@@ -273,7 +273,7 @@ async function deployCommonActions(args: {
 //
 //   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
 //     config.address,
-//     ADDRESSES.main.feeRecipient,
+//     ADDRESSES.mainnet.feeRecipient,
 //     0,
 //     serviceRegistryAddress,
 //   ])
@@ -336,25 +336,25 @@ async function addThirdPartyContractsToRegistry(args: {
   const { registry, debug } = args
   const uniswapRouterHash = await registry.addEntry(
     CONTRACT_NAMES.common.UNISWAP_ROUTER,
-    ADDRESSES.main.uniswapRouterV3,
+    ADDRESSES.mainnet.uniswapRouterV3,
   )
   const flashmintModuleHash = await registry.addEntry(
     CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
-    ADDRESSES.main.maker.fmm,
+    ADDRESSES.mainnet.maker.fmm,
   )
-  const wethHash = await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
-  const daiHash = await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
+  const wethHash = await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.mainnet.WETH)
+  const daiHash = await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.mainnet.DAI)
   const oneInchAggregatorHash = await registry.addEntry(
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
-    ADDRESSES.main.oneInchAggregator,
+    ADDRESSES.mainnet.oneInchAggregator,
   )
   const aaveLendingPoolHash = await registry.addEntry(
     CONTRACT_NAMES.aave.LENDING_POOL,
-    ADDRESSES.main.aave.MainnetLendingPool,
+    ADDRESSES.mainnet.aave.MainnetLendingPool,
   )
   const wethGatewayhash = await registry.addEntry(
     CONTRACT_NAMES.aave.WETH_GATEWAY,
-    ADDRESSES.main.aave.WETHGateway,
+    ADDRESSES.mainnet.aave.WETHGateway,
   )
 
   if (debug) {
