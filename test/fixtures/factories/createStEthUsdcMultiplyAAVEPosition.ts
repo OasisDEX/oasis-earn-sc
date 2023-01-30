@@ -1,9 +1,9 @@
-import { strategies } from '@oasisdex/oasis-actions'
+import { strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
-import { amountToWei, approve } from '../../../helpers/utils'
+import { amountToWei, approve, balanceOf } from '../../../helpers/utils'
 import { mainnetAddresses } from '../../addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { MULTIPLE, SLIPPAGE, STETH, USDC } from './common'
@@ -28,19 +28,33 @@ async function getStEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[
   return await strategies.aave.open(args, dependencies)
 }
 
-export async function createStEthUsdcMultiplyAAVEPosition(
-  proxy: string,
-  isDPM: boolean,
-  dependencies: StrategiesDependencies,
-  config: RuntimeConfig,
-  getTokens: (symbol: 'STETH', amount: string) => Promise<boolean>,
-): Promise<PositionDetails> {
+export async function createStEthUsdcMultiplyAAVEPosition({
+  proxy,
+  isDPM,
+  use1inch,
+  swapAddress,
+  dependencies,
+  config,
+  getTokens,
+}: {
+  proxy: string
+  isDPM: boolean
+  use1inch: boolean
+  swapAddress?: string
+  dependencies: StrategiesDependencies
+  config: RuntimeConfig
+  getTokens: (symbol: 'STETH', amount: string) => Promise<boolean>
+}): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'STETH/USDC Multiply'
 
-  const getSwapData = dependencies.getSwapData(new BigNumber(1217.85), {
-    from: USDC.precision,
-    to: STETH.precision,
-  })
+  if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
+
+  const getSwapData = use1inch
+    ? dependencies.getSwapData(swapAddress)
+    : dependencies.getSwapData(new BigNumber(1217.85), {
+        from: USDC.precision,
+        to: STETH.precision,
+      })
 
   const position = await getStEthUsdcMultiplyAAVEPosition({
     ...dependencies,
@@ -54,6 +68,14 @@ export async function createStEthUsdcMultiplyAAVEPosition(
   await approve(mainnetAddresses.STETH, proxy, amountInBaseUnit, config)
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
+
+  const feeWalletBalanceBefore = await balanceOf(
+    mainnetAddresses.USDC,
+    mainnetAddresses.feeRecipient,
+    {
+      config,
+    },
+  )
 
   const [status] = await proxyFunction(
     proxy,
@@ -71,6 +93,14 @@ export async function createStEthUsdcMultiplyAAVEPosition(
   if (!status) {
     throw new Error(`Creating ${strategy} position failed`)
   }
+
+  const feeWalletBalanceAfter = await balanceOf(
+    mainnetAddresses.USDC,
+    mainnetAddresses.feeRecipient,
+    {
+      config,
+    },
+  )
 
   return {
     proxy: proxy,
@@ -94,5 +124,7 @@ export async function createStEthUsdcMultiplyAAVEPosition(
     collateralToken: STETH,
     debtToken: USDC,
     getSwapData,
+    __openPositionSimulation: position.simulation,
+    __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }
 }

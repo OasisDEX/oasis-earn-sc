@@ -1,16 +1,17 @@
-import { strategies } from '@oasisdex/oasis-actions'
+import { strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
-import { amountToWei, approve } from '../../../helpers/utils'
+import { amountToWei, approve, balanceOf } from '../../../helpers/utils'
+import { mainnetAddresses } from '../../addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { MULTIPLE, SLIPPAGE, USDC, WBTC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
 const amountInBaseUnit = amountToWei(new BigNumber(10), WBTC.precision)
 
-async function getWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
+async function openWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
   const args: OpenPositionTypes[0] = {
     collateralToken: WBTC,
     debtToken: USDC,
@@ -27,21 +28,35 @@ async function getWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1
   return await strategies.aave.open(args, dependencies)
 }
 
-export async function createWbtcUsdcMultiplyAAVEPosition(
-  proxy: string,
-  isDPM: boolean,
-  dependencies: StrategiesDependencies,
-  config: RuntimeConfig,
-  getTokens: (symbol: 'WBTC', amount: string) => Promise<boolean>,
-): Promise<PositionDetails> {
+export async function createWbtcUsdcMultiplyAAVEPosition({
+  proxy,
+  isDPM,
+  use1inch,
+  swapAddress,
+  dependencies,
+  config,
+  getTokens,
+}: {
+  proxy: string
+  isDPM: boolean
+  use1inch: boolean
+  swapAddress?: string
+  dependencies: StrategiesDependencies
+  config: RuntimeConfig
+  getTokens: (symbol: 'WBTC', amount: string) => Promise<boolean>
+}): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'WBTC/USDC Multiply'
 
-  const getSwapData = dependencies.getSwapData(new BigNumber(22842.53), {
-    from: USDC.precision,
-    to: WBTC.precision,
-  })
+  if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
-  const position = await getWbtcUsdcMultiplyAAVEPosition({
+  const getSwapData = use1inch
+    ? dependencies.getSwapData(swapAddress)
+    : dependencies.getSwapData(new BigNumber(22842.53), {
+        from: USDC.precision,
+        to: WBTC.precision,
+      })
+
+  const position = await openWbtcUsdcMultiplyAAVEPosition({
     ...dependencies,
     getSwapData,
     isDPMProxy: isDPM,
@@ -53,6 +68,14 @@ export async function createWbtcUsdcMultiplyAAVEPosition(
   await approve(WBTC.address, proxy, amountInBaseUnit, config, false)
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
+
+  const feeWalletBalanceBefore = await balanceOf(
+    mainnetAddresses.USDC,
+    mainnetAddresses.feeRecipient,
+    {
+      config,
+    },
+  )
 
   const [status] = await proxyFunction(
     proxy,
@@ -70,6 +93,14 @@ export async function createWbtcUsdcMultiplyAAVEPosition(
   if (!status) {
     throw new Error(`Creating ${strategy} position failed`)
   }
+
+  const feeWalletBalanceAfter = await balanceOf(
+    mainnetAddresses.USDC,
+    mainnetAddresses.feeRecipient,
+    {
+      config,
+    },
+  )
 
   return {
     proxy: proxy,
@@ -93,5 +124,7 @@ export async function createWbtcUsdcMultiplyAAVEPosition(
     collateralToken: WBTC,
     debtToken: USDC,
     getSwapData,
+    __openPositionSimulation: position.simulation,
+    __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }
 }

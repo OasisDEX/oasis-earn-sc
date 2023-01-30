@@ -1,4 +1,9 @@
-import { AavePosition, AAVETokens, SwapData } from '@oasisdex/oasis-actions'
+import {
+  AavePosition,
+  AAVETokens,
+  IPositionTransition,
+  SwapData,
+} from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 
 export type AavePositionStrategy =
@@ -25,4 +30,6 @@ export type PositionDetails = {
     amount: BigNumber,
     slippage: BigNumber,
   ) => Promise<SwapData>
+  __openPositionSimulation: IPositionTransition['simulation']
+  __feeWalletBalanceChange: BigNumber
 }

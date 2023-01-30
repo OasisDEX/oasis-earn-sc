@@ -1,6 +1,6 @@
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
+import { IPositionTransitionArgs } from '../types'
 import { AAVETokens } from '../types/aave/tokens'
-import { IPositionTransitionArgs } from '../types/IPositionRepository'
 
 export const getAAVETokenAddresses = (
   args: {

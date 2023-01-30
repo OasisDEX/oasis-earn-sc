@@ -20,7 +20,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
 
-    const getToken = buildGetTokenFunction(config, hre)
+    const getTokens = buildGetTokenFunction(config, hre)
 
     const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
 
@@ -144,36 +144,39 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       },
     }
 
-    const positionDetails1 = await createEthUsdcMultiplyAAVEPosition(
-      proxy1,
-      true,
+    const positionDetails1 = await createEthUsdcMultiplyAAVEPosition({
+      proxy: proxy1,
+      isDPM: true,
+      use1inch: false,
       dependencies,
       config,
-    )
+    })
 
     console.log(
       `Position created: ${positionDetails1.strategy} with proxy: ${positionDetails1.proxy}`,
     )
 
-    const positionDetails2 = await createStEthUsdcMultiplyAAVEPosition(
-      proxy2,
-      true,
+    const positionDetails2 = await createStEthUsdcMultiplyAAVEPosition({
+      proxy: proxy2,
+      isDPM: true,
+      use1inch: false,
       dependencies,
       config,
-      getToken,
-    )
+      getTokens,
+    })
 
     console.log(
       `Position created: ${positionDetails2.strategy} with proxy: ${positionDetails2.proxy}`,
     )
 
-    const positionDetails3 = await createWbtcUsdcMultiplyAAVEPosition(
-      proxy3,
-      true,
+    const positionDetails3 = await createWbtcUsdcMultiplyAAVEPosition({
+      proxy: proxy3,
+      isDPM: true,
+      use1inch: false,
       dependencies,
       config,
-      getToken,
-    )
+      getTokens,
+    })
 
     console.log(
       `Position created: ${positionDetails3.strategy} with proxy: ${positionDetails3.proxy}`,

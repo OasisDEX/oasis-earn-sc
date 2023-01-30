@@ -293,11 +293,13 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       let isFeeFromDebtToken = true
       if (isIncreasingRisk) {
         isFeeFromDebtToken =
-          acceptedFeeToken(debtToken.symbol, collateralToken.symbol) === 'sourceToken'
+          acceptedFeeToken({ fromToken: debtToken.symbol, toToken: collateralToken.symbol }) ===
+          'sourceToken'
       }
       if (isDecreasingRisk) {
         isFeeFromDebtToken =
-          acceptedFeeToken(collateralToken.symbol, debtToken.symbol) === 'targetToken'
+          acceptedFeeToken({ fromToken: collateralToken.symbol, toToken: debtToken.symbol }) ===
+          'targetToken'
       }
       const feeRecipientBalanceBeforeAdjust = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
@@ -1019,7 +1021,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             multiple: adjustToMultiple,
             debtToken,
             collateralToken,
-            collectSwapFeeFrom: 'sourceToken' as const,
           },
           {
             isDPMProxy: false,

@@ -11,8 +11,7 @@ import {
 } from '@oasisdex/oasis-actions/src'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
-import { Address } from '@oasisdex/oasis-actions/src/strategies/types/IPositionRepository'
-import { PositionType } from '@oasisdex/oasis-actions/src/strategies/types/PositionType'
+import { Address, PositionType } from '@oasisdex/oasis-actions/src/strategies/types'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -58,7 +57,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
-  describe.skip('[Uniswap]', () => {
+  describe('[Uniswap]', () => {
     const multiple = new BigNumber(2)
     const slippage = new BigNumber(0.1)
     const blockNumber = 15695000 // Required to marry up with market price
@@ -469,7 +468,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       let userWethReserveData: AAVEReserveData
       let userAccountData: AAVEAccountData
-      let feeRecipientWethBalanceBefore: BigNumber
+      let feeRecipientUSDCBalanceBefore: BigNumber
       let system: DeployedSystemInfo
 
       before(async () => {
@@ -499,7 +498,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         positionTransition = setup.positionTransition
         userWethReserveData = setup.userCollateralReserveData
         userAccountData = setup.userAccountData
-        feeRecipientWethBalanceBefore = setup.feeRecipientBalanceBefore
+        feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
       })
 
       it('Open Tx should pass', () => {
@@ -520,13 +519,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       })
 
       it('Should collect fee', async () => {
-        const feeRecipientWethBalanceAfter = await balanceOf(
-          ADDRESSES.main.WETH,
+        const feeRecipientUSDCBalanceAfter = await balanceOf(
+          ADDRESSES.main.USDC,
           ADDRESSES.main.feeRecipient,
           { config },
         )
 
-        const actualWethFees = feeRecipientWethBalanceAfter.minus(feeRecipientWethBalanceBefore)
+        const actualUSDCFees = feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore)
 
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
@@ -536,10 +535,10 @@ describe(`Strategy | AAVE | Close Position`, async () => {
               .toString(),
           ).toFixed(0),
           'gte',
-          actualWethFees,
+          actualUSDCFees,
         )
 
-        expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualWethFees)
+        expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualUSDCFees)
       })
 
       it('should not be any token left on proxy', async () => {
@@ -568,7 +567,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       let userWethReserveData: AAVEReserveData
       let userAccountData: AAVEAccountData
-      let feeRecipientWBTCBalanceBefore: BigNumber
+      let feeRecipientUSDCBalanceBefore: BigNumber
       let system: DeployedSystemInfo
 
       before(async () => {
@@ -599,7 +598,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         positionTransition = setup.positionTransition
         userWethReserveData = setup.userCollateralReserveData
         userAccountData = setup.userAccountData
-        feeRecipientWBTCBalanceBefore = setup.feeRecipientBalanceBefore
+        feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
       })
 
       it('Open Tx should pass', () => {
@@ -620,13 +619,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       })
 
       it('Should collect fee', async () => {
-        const feeRecipientWBTCBalanceAfter = await balanceOf(
-          ADDRESSES.main.WBTC,
+        const feeRecipientUSDCBalanceAfter = await balanceOf(
+          ADDRESSES.main.USDC,
           ADDRESSES.main.feeRecipient,
           { config },
         )
 
-        const actualWBTCFees = feeRecipientWBTCBalanceAfter.minus(feeRecipientWBTCBalanceBefore)
+        const actualUSDCFees = feeRecipientUSDCBalanceAfter.minus(feeRecipientUSDCBalanceBefore)
 
         // Test for equivalence within slippage adjusted range when taking fee from target token
         expectToBe(
@@ -636,10 +635,10 @@ describe(`Strategy | AAVE | Close Position`, async () => {
               .toString(),
           ).toFixed(0),
           'gte',
-          actualWBTCFees,
+          actualUSDCFees,
         )
 
-        expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualWBTCFees)
+        expectToBe(positionTransition.simulation.swap.tokenFee, 'lte', actualUSDCFees)
       })
 
       it('should not be any token left on proxy', async () => {

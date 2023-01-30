@@ -6,7 +6,7 @@ import {
   Position,
   PositionBalance,
 } from '../../../helpers/calculations/Position'
-import { Address } from '../IPositionRepository'
+import { Address } from '../StrategyParams'
 import { AAVETokens } from './tokens'
 
 interface IAavePositionBalance {
