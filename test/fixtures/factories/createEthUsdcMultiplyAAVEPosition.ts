@@ -1,9 +1,9 @@
-import { strategies } from '@oasisdex/oasis-actions'
+import { ADDRESSES, strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
-import { amountToWei } from '../../../helpers/utils'
+import { amountToWei, balanceOf } from '../../../helpers/utils'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { ETH, MULTIPLE, SLIPPAGE, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
@@ -27,18 +27,31 @@ async function getEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]
   return await strategies.aave.open(args, dependencies)
 }
 
-export async function createEthUsdcMultiplyAAVEPosition(
-  proxy: string,
-  isDPM: boolean,
-  dependencies: StrategiesDependencies,
-  config: RuntimeConfig,
-): Promise<PositionDetails> {
+export async function createEthUsdcMultiplyAAVEPosition({
+  proxy,
+  isDPM,
+  use1inch,
+  swapAddress,
+  dependencies,
+  config,
+}: {
+  proxy: string
+  isDPM: boolean
+  use1inch: boolean
+  swapAddress?: string
+  dependencies: StrategiesDependencies
+  config: RuntimeConfig
+}): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'ETH/USDC Multiply'
 
-  const getSwapData = dependencies.getSwapData(new BigNumber(1617.85), {
-    from: USDC.precision,
-    to: ETH.precision,
-  })
+  if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
+
+  const getSwapData = use1inch
+    ? dependencies.getSwapData(swapAddress)
+    : dependencies.getSwapData(new BigNumber(1617.85), {
+        from: USDC.precision,
+        to: ETH.precision,
+      })
 
   const position = await getEthUsdcMultiplyAAVEPosition({
     ...dependencies,
@@ -48,6 +61,10 @@ export async function createEthUsdcMultiplyAAVEPosition(
   })
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
+
+  const feeWalletBalanceBefore = await balanceOf(ADDRESSES.main.USDC, ADDRESSES.main.feeRecipient, {
+    config,
+  })
 
   const [status] = await proxyFunction(
     proxy,
@@ -65,6 +82,10 @@ export async function createEthUsdcMultiplyAAVEPosition(
   if (!status) {
     throw new Error(`Creating ${strategy} position failed`)
   }
+
+  const feeWalletBalanceAfter = await balanceOf(ADDRESSES.main.USDC, ADDRESSES.main.feeRecipient, {
+    config,
+  })
 
   return {
     proxy: proxy,
@@ -88,5 +109,7 @@ export async function createEthUsdcMultiplyAAVEPosition(
     collateralToken: ETH,
     debtToken: USDC,
     getSwapData,
+    __openPositionSimulation: position.simulation,
+    __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }
 }
