@@ -8,6 +8,7 @@ import { AAVEStrategyAddresses } from './addresses'
 export async function paybackWithdraw(args: {
   amountCollateralToWithdrawInBaseUnit: BigNumber
   amountDebtToPaybackInBaseUnit: BigNumber
+  isPaybackAll: boolean
   collateralTokenAddress: string
   collateralIsEth: boolean
   debtTokenAddress: string
@@ -34,7 +35,13 @@ export async function paybackWithdraw(args: {
   const paybackDebt = actions.aave.aavePayback({
     asset: args.debtTokenAddress,
     amount: args.amountDebtToPaybackInBaseUnit,
-    paybackAll: false,
+    paybackAll: args.isPaybackAll,
+  })
+  const unwrapEthDebt = actions.common.unwrapEth({
+    amount: new BigNumber(MAX_UINT),
+  })
+  const returnLeftFundFromPayback = actions.common.returnFunds({
+    asset: args.debtTokenIsEth ? args.addresses.ETH : args.debtTokenAddress,
   })
 
   const withdrawCollateralFromAAVE = actions.aave.aaveWithdraw({
@@ -46,11 +53,6 @@ export async function paybackWithdraw(args: {
     amount: new BigNumber(MAX_UINT),
   })
 
-  const sendTokenToUser = actions.common.sendToken({
-    amount: new BigNumber(MAX_UINT),
-    asset: args.collateralIsEth ? args.addresses.ETH : args.collateralTokenAddress,
-    to: args.user,
-  })
   const returnFunds = actions.common.returnFunds({
     asset: args.collateralIsEth ? args.addresses.ETH : args.collateralTokenAddress,
   })
@@ -58,22 +60,24 @@ export async function paybackWithdraw(args: {
   pullDebtTokensToProxy.skipped =
     args.amountDebtToPaybackInBaseUnit.lte(ZERO) || args.debtTokenIsEth
   setDebtApprovalOnLendingPool.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
-  paybackDebt.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
   wrapEth.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !args.debtTokenIsEth
+  paybackDebt.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
+  unwrapEthDebt.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO) || !args.debtTokenIsEth
+  returnLeftFundFromPayback.skipped = args.amountDebtToPaybackInBaseUnit.lte(ZERO)
 
   withdrawCollateralFromAAVE.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
   unwrapEth.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !args.collateralIsEth
-  sendTokenToUser.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || !args.isDPMProxy
-  returnFunds.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO) || args.isDPMProxy
+  returnFunds.skipped = args.amountCollateralToWithdrawInBaseUnit.lte(ZERO)
 
   const calls = [
     pullDebtTokensToProxy,
     setDebtApprovalOnLendingPool,
     wrapEth,
     paybackDebt,
+    unwrapEthDebt,
+    returnLeftFundFromPayback,
     withdrawCollateralFromAAVE,
     unwrapEth,
-    sendTokenToUser,
     returnFunds,
   ]
 

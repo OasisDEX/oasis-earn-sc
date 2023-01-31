@@ -814,15 +814,19 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: true,
     },
     {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsActionHash,
+      optional: true,
+    },
+    {
       hash: aaveWithdrawHash,
       optional: true,
     },
     {
       hash: unwrapEthHash,
-      optional: true,
-    },
-    {
-      hash: sendTokenHash,
       optional: true,
     },
     {

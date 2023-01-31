@@ -16,8 +16,6 @@ contract AccountGuard is Ownable {
   mapping(address => address) public owners;
 
   function isWhitelisted(address target) public view returns (bool) {
-    console.log("IS WHITELISTED", target);
-
     return (whitelisted[target] & WHITELISTED_EXECUTE_MASK) > 0;
   }
 

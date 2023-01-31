@@ -2,6 +2,7 @@ import '@nomiclabs/hardhat-ethers'
 
 import { ADDRESSES } from '@oasisdex/oasis-actions'
 import { ethers } from 'hardhat'
+import { Optional } from 'utility-types'
 
 import UNISWAP_ROUTER_V3_ABI from '../../abi/IUniswapRouter.json'
 import { RuntimeConfig } from '../types/common'
@@ -19,7 +20,7 @@ export async function swapUniswapTokens(
   amountIn: string,
   amountOutMinimum: string,
   recipient: string,
-  { provider, signer }: RuntimeConfig,
+  { provider, signer }: Optional<Pick<RuntimeConfig, 'provider' | 'signer' | 'address'>, 'address'>,
 ) {
   const value = tokenIn === ADDRESSES.main.WETH ? amountIn : 0
 

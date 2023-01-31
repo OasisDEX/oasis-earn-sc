@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { Optional } from 'utility-types'
 
 import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../constants'
-import { logDebug } from '../index'
+import { calculateFee, logDebug } from '../index'
 import { IRiskRatio, RiskRatio } from './RiskRatio'
 
 interface IPositionBalance {
@@ -101,9 +101,11 @@ export interface IPosition extends IBasePosition {
   minConfigurableRiskRatio: (marketPriceAccountingForSlippage: BigNumber) => IRiskRatio
   riskRatio: IRiskRatio
   healthFactor: BigNumber
+  relativeCollateralPriceMovementUntilLiquidation: BigNumber
   liquidationPrice: BigNumber
   maxDebtToBorrow: BigNumber
   maxCollateralToWithdraw: BigNumber
+  debtToPaybackAll: BigNumber
   deposit(amount: BigNumber): IPosition
   borrow(amount: BigNumber): IPosition
   withdraw(amount: BigNumber): IPosition
@@ -154,11 +156,20 @@ export class Position implements IPosition {
   }
 
   public get maxCollateralToWithdraw() {
-    const maxLoanToValue = this.category.maxLoanToValue
-    const minimumCollateral = this.debt.normalisedAmount.div(
-      maxLoanToValue.times(this._oraclePriceForCollateralDebtExchangeRate),
+    const approximatelyMinimumCollateral = this.debt.normalisedAmount
+      .dividedBy(this._oraclePriceForCollateralDebtExchangeRate)
+      .dividedBy(this.category.maxLoanToValue)
+      .integerValue()
+
+    return this.collateral.amount.minus(
+      this._denormaliseAmount(approximatelyMinimumCollateral, this.collateral.precision),
     )
-    return this.collateral.amount.minus(minimumCollateral)
+  }
+
+  public get debtToPaybackAll() {
+    const debt = this.debt.amount
+    const offset = new BigNumber(1000)
+    return debt.plus(debt.div(offset).integerValue(BigNumber.ROUND_UP))
   }
 
   public get riskRatio() {
@@ -170,10 +181,16 @@ export class Position implements IPosition {
   }
 
   public get healthFactor() {
-    return this.collateral.amount
+    return this.collateral.normalisedAmount
       .times(this.category.liquidationThreshold)
       .times(this._oraclePriceForCollateralDebtExchangeRate)
-      .div(this.debt.amount)
+      .div(this.debt.normalisedAmount)
+  }
+
+  // returns the percentage amount (as decimal) that the collateral price would have to
+  // move relative to debt for the position to be at risk of liquidation.
+  public get relativeCollateralPriceMovementUntilLiquidation() {
+    return ONE.minus(ONE.div(this.healthFactor))
   }
 
   public get liquidationPrice() {
@@ -181,43 +198,19 @@ export class Position implements IPosition {
   }
 
   public deposit(amount: BigNumber): IPosition {
-    return this._createTargetPosition(
-      ZERO,
-      amount,
-      this._oraclePriceForCollateralDebtExchangeRate,
-      this.debt.amount,
-      this.collateral.amount,
-    )
+    return this.changeCollateral(amount)
   }
 
   public withdraw(amount: BigNumber): IPosition {
-    return this._createTargetPosition(
-      ZERO,
-      amount.negated(),
-      this._oraclePriceForCollateralDebtExchangeRate,
-      this.debt.amount,
-      this.collateral.amount,
-    )
+    return this.changeCollateral(amount.negated())
   }
 
   public borrow(amount: BigNumber): IPosition {
-    return this._createTargetPosition(
-      amount,
-      ZERO,
-      this._oraclePriceForCollateralDebtExchangeRate,
-      this.debt.amount,
-      this.collateral.amount,
-    )
+    return this.changeDebt(amount)
   }
 
   public payback(amount: BigNumber): IPosition {
-    return this._createTargetPosition(
-      amount.negated(),
-      ZERO,
-      this._oraclePriceForCollateralDebtExchangeRate,
-      this.debt.amount,
-      this.collateral.amount,
-    )
+    return this.changeDebt(amount.negated())
   }
 
   /**
@@ -258,6 +251,7 @@ export class Position implements IPosition {
     const { maxLoanToValueFL: _maxLoanToValueFL } = flashloan
     params.collectSwapFeeFrom = params.collectSwapFeeFrom ?? 'sourceToken'
     const collectFeeFromSourceToken = params.collectSwapFeeFrom === 'sourceToken'
+    const collectFeeFromTargetToken = !collectFeeFromSourceToken
 
     /**
      * C_W  Collateral in wallet to top-up or seed position
@@ -474,15 +468,15 @@ export class Position implements IPosition {
     if (collectFeeFromSourceToken) {
       normalisedSourceFee = (
         isIncreasingRisk
-          ? this._calculateFee(debtDelta, oazoFee)
-          : this._calculateFee(collateralDelta, oazoFee)
+          ? calculateFee(debtDelta, oazoFee, this._feeBase)
+          : calculateFee(collateralDelta, oazoFee, this._feeBase)
       ).integerValue(BigNumber.ROUND_DOWN)
     }
-    if (!collectFeeFromSourceToken) {
+    if (collectFeeFromTargetToken) {
       normalisedTargetFee = (
         isIncreasingRisk
-          ? this._calculateFee(collateralDelta, oazoFee)
-          : this._calculateFee(debtDelta, oazoFee)
+          ? calculateFee(collateralDelta, oazoFee, this._feeBase)
+          : calculateFee(debtDelta, oazoFee, this._feeBase)
       ).integerValue(BigNumber.ROUND_DOWN)
     }
 
@@ -507,11 +501,11 @@ export class Position implements IPosition {
     const sourceFee = this._denormaliseAmount(
       normalisedSourceFee,
       debtTokenIsSourceToken ? this.debt.precision : this.collateral.precision,
-    )
+    ).integerValue(BigNumber.ROUND_DOWN)
     const targetFee = this._denormaliseAmount(
       normalisedTargetFee,
       debtTokenIsSourceToken ? this.collateral.precision : this.debt.precision,
-    )
+    ).integerValue(BigNumber.ROUND_DOWN)
 
     const fromTokenPrecision = isIncreasingRisk
       ? targetPosition.debt.precision
@@ -602,7 +596,7 @@ export class Position implements IPosition {
       swap: {
         fromTokenAmount,
         minToTokenAmount,
-        tokenFee: collectFeeFromSourceToken ? sourceFee.integerValue() : targetFee.integerValue(),
+        tokenFee: collectFeeFromSourceToken ? sourceFee : targetFee,
         collectFeeFrom: collectFeeFromSourceToken ? 'sourceToken' : 'targetToken',
         sourceToken: isIncreasingRisk
           ? { symbol: this.debt.symbol, precision: this.debt.precision }
@@ -641,13 +635,35 @@ export class Position implements IPosition {
 
     const newDebt = { ...this.debt, amount: newDebtAmount }
 
-    const newPosition = new Position(newDebt, newCollateral, oraclePrice, this.category)
-
-    return newPosition
+    return new Position(newDebt, newCollateral, oraclePrice, this.category)
   }
 
-  private _calculateFee(amount: BigNumber, fee: BigNumber): BigNumber {
-    return amount.times(fee).div(fee.plus(this._feeBase)).abs()
+  private changeDebt(debtDelta: BigNumber): IPosition {
+    const newDebt = new PositionBalance({
+      amount: this.debt.amount.plus(debtDelta),
+      precision: this.debt.precision,
+      symbol: this.debt.symbol,
+    })
+    return new Position(
+      newDebt,
+      this.collateral,
+      this._oraclePriceForCollateralDebtExchangeRate,
+      this.category,
+    )
+  }
+
+  private changeCollateral(collateralDelta: BigNumber): IPosition {
+    const newCollateral = new PositionBalance({
+      precision: this.collateral.precision,
+      symbol: this.collateral.symbol,
+      amount: this.collateral.amount.plus(collateralDelta),
+    })
+    return new Position(
+      this.debt,
+      newCollateral,
+      this._oraclePriceForCollateralDebtExchangeRate,
+      this.category,
+    )
   }
 
   private _normaliseAmount(amount: BigNumber, precision: number): BigNumber {

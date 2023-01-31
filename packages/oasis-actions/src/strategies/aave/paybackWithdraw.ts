@@ -1,4 +1,6 @@
-import { ZERO } from '../../helpers/constants'
+import BigNumber from 'bignumber.js'
+
+import { MAX_UINT, ZERO } from '../../helpers/constants'
 import { getZeroSwap } from '../../helpers/swap/getZeroSwap'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import {
@@ -11,6 +13,7 @@ import {
 import { AAVETokens } from '../types/aave'
 import * as operations from './../../operations'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
+
 export async function paybackWithdraw(
   args: IBasePositionTransitionArgs<AAVETokens> & WithWithdrawCollateral & WithPaybackDebt,
   dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
@@ -23,8 +26,13 @@ export async function paybackWithdraw(
   )
 
   const transaction = await operations.aave.paybackWithdraw({
-    amountCollateralToWithdrawInBaseUnit: args.amountCollateralToWithdrawInBaseUnit,
+    amountCollateralToWithdrawInBaseUnit: currentPosition.collateral.amount.lte(
+      args.amountCollateralToWithdrawInBaseUnit,
+    )
+      ? new BigNumber(MAX_UINT)
+      : args.amountCollateralToWithdrawInBaseUnit,
     amountDebtToPaybackInBaseUnit: args.amountDebtToPaybackInBaseUnit,
+    isPaybackAll: args.amountDebtToPaybackInBaseUnit.gte(currentPosition.debt.amount),
     collateralTokenAddress: collateralTokenAddress,
     debtTokenAddress: debtTokenAddress,
     collateralIsEth: currentPosition.collateral.symbol === 'ETH',

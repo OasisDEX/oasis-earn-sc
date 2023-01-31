@@ -7,6 +7,7 @@ export const mainnetAddresses = {
   STETH: ADDRESSES.main.STETH,
   WBTC: ADDRESSES.main.WBTC,
   USDC: ADDRESSES.main.USDC,
+  feeRecipient: ADDRESSES.main.feeRecipient,
   chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
   aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
   aavePriceOracle: ADDRESSES.main.aavePriceOracle,

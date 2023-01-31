@@ -1,5 +1,8 @@
 import { BigNumber } from 'bignumber.js'
 
+export const DEFAULT_FEE = 20
+export const FEE_BASE = 10000
+
 export const TYPICAL_PRECISION = 18
 
 export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -78,7 +81,7 @@ export const OPERATION_NAMES = {
     DEPOSIT_BORROW: 'AAVEDepositBorrow',
     DEPOSIT: 'AAVEDeposit',
     BORROW: 'AAVEBorrow',
-    PAYBACK_WITHDRAW: 'AAVEPaybackWithdraw',
+    PAYBACK_WITHDRAW: 'AAVEPaybackWithdraw_2',
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',

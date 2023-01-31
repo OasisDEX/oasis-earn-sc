@@ -1,39 +1,41 @@
-import { ADDRESSES, strategies } from '@oasisdex/oasis-actions/src'
+import { strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
-import { amountToWei, balanceOf } from '../../../helpers/utils'
+import { amountToWei, approve, balanceOf } from '../../../helpers/utils'
+import { mainnetAddresses } from '../../addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
-import { ETH, MULTIPLE, SLIPPAGE, STETH } from './common'
+import { MULTIPLE, SLIPPAGE, USDC, WBTC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
+const amountInBaseUnit = amountToWei(new BigNumber(10), WBTC.precision)
 
-async function openStEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1]) {
+async function openWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
   const args: OpenPositionTypes[0] = {
-    collateralToken: STETH,
-    debtToken: ETH,
+    collateralToken: WBTC,
+    debtToken: USDC,
     slippage: SLIPPAGE,
     depositedByUser: {
-      debtToken: {
-        amountInBaseUnit: transactionAmount,
+      collateralToken: {
+        amountInBaseUnit,
       },
     },
     multiple: MULTIPLE,
-    positionType: 'Earn',
+    positionType: 'Multiply',
   }
 
   return await strategies.aave.open(args, dependencies)
 }
 
-export async function createStEthEthEarnAAVEPosition({
+export async function createWbtcUsdcMultiplyAAVEPosition({
   proxy,
   isDPM,
   use1inch,
   swapAddress,
   dependencies,
   config,
+  getTokens,
 }: {
   proxy: string
   isDPM: boolean
@@ -41,30 +43,39 @@ export async function createStEthEthEarnAAVEPosition({
   swapAddress?: string
   dependencies: StrategiesDependencies
   config: RuntimeConfig
+  getTokens: (symbol: 'WBTC', amount: string) => Promise<boolean>
 }): Promise<PositionDetails> {
-  const strategy: AavePositionStrategy = 'STETH/ETH Earn'
+  const strategy: AavePositionStrategy = 'WBTC/USDC Multiply'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
   const getSwapData = use1inch
     ? dependencies.getSwapData(swapAddress)
-    : dependencies.getSwapData(new BigNumber(0.979), {
-        from: STETH.precision,
-        to: ETH.precision,
+    : dependencies.getSwapData(new BigNumber(22842.53), {
+        from: USDC.precision,
+        to: WBTC.precision,
       })
 
-  const position = await openStEthEthEarnAAVEPosition({
+  const position = await openWbtcUsdcMultiplyAAVEPosition({
     ...dependencies,
     getSwapData,
     isDPMProxy: isDPM,
     proxy: proxy,
   })
 
+  await getTokens('WBTC', amountInBaseUnit.toString())
+
+  await approve(WBTC.address, proxy, amountInBaseUnit, config, false)
+
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeWalletBalanceBefore = await balanceOf(ADDRESSES.main.WETH, ADDRESSES.main.feeRecipient, {
-    config,
-  })
+  const feeWalletBalanceBefore = await balanceOf(
+    mainnetAddresses.USDC,
+    mainnetAddresses.feeRecipient,
+    {
+      config,
+    },
+  )
 
   const [status] = await proxyFunction(
     proxy,
@@ -76,25 +87,29 @@ export async function createStEthEthEarnAAVEPosition({
       ]),
     },
     config.signer,
-    transactionAmount.toString(),
+    '0',
   )
 
   if (!status) {
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  const feeWalletBalanceAfter = await balanceOf(ADDRESSES.main.WETH, ADDRESSES.main.feeRecipient, {
-    config,
-  })
+  const feeWalletBalanceAfter = await balanceOf(
+    mainnetAddresses.USDC,
+    mainnetAddresses.feeRecipient,
+    {
+      config,
+    },
+  )
 
   return {
     proxy: proxy,
     getPosition: async () => {
       return await strategies.aave.view(
         {
-          collateralToken: STETH,
-          debtToken: ETH,
-          proxy,
+          collateralToken: WBTC,
+          debtToken: USDC,
+          proxy: proxy,
         },
         {
           addresses: {
@@ -105,9 +120,9 @@ export async function createStEthEthEarnAAVEPosition({
         },
       )
     },
-    strategy: 'STETH/ETH Earn',
-    collateralToken: STETH,
-    debtToken: ETH,
+    strategy,
+    collateralToken: WBTC,
+    debtToken: USDC,
     getSwapData,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),

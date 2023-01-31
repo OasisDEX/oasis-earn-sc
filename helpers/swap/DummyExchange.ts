@@ -54,7 +54,7 @@ async function exchangeToToken(provider: JsonRpcProvider, signer: Signer, token:
     amountToWei(200).toFixed(0),
     amountToWei(ONE, token.precision).toFixed(0),
     address,
-    { provider, signer, address },
+    { provider, signer },
   )
 }
 

@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 
+import { acceptedFeeToken } from '../../helpers/acceptedFeeToken'
 import { IPosition } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
@@ -15,7 +16,6 @@ interface DepositBorrowArgs {
   entryToken?: { amountInBaseUnit: BigNumber; symbol: AAVETokens; precision?: number }
   slippage?: BigNumber
   borrowAmount?: BigNumber
-  collectFeeFrom: 'sourceToken' | 'targetToken'
 }
 
 function checkTokenSupport<S extends string>(
@@ -43,7 +43,7 @@ function getIsSwapNeeded(
 }
 
 export async function depositBorrow(
-  { entryToken, slippage, borrowAmount, collectFeeFrom }: DepositBorrowArgs,
+  { entryToken, slippage, borrowAmount }: DepositBorrowArgs,
   dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
 ): Promise<IPositionTransition> {
   const FEE = 20
@@ -77,6 +77,7 @@ export async function depositBorrow(
   let collateralDelta: BigNumber = ZERO
   let debtDelta: BigNumber = ZERO
   let fee: BigNumber = ZERO
+  let collectFeeFrom: 'sourceToken' | 'targetToken' = 'sourceToken'
 
   if (entryToken && entryTokenAmount && slippage && entryTokenAmount.gt(ZERO)) {
     const isSwapNeeded = getIsSwapNeeded(
@@ -85,6 +86,11 @@ export async function depositBorrow(
       tokenAddresses.ETH,
       tokenAddresses.WETH,
     )
+    collectFeeFrom = acceptedFeeToken({
+      fromToken: entryToken.symbol,
+      toToken: collateralSymbol,
+    })
+
     swapData = isSwapNeeded
       ? await dependencies.getSwapData(
           entryTokenAddress,
@@ -93,6 +99,7 @@ export async function depositBorrow(
           slippage,
         )
       : getZeroSwap(entryToken.symbol, collateralSymbol)
+
     const collectFeeInFromToken = collectFeeFrom === 'sourceToken'
     depositArgs = {
       depositorAddress: dependencies.user,

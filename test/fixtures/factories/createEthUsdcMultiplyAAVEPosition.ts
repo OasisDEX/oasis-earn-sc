@@ -5,29 +5,29 @@ import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/de
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../../helpers/utils'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
-import { ETH, MULTIPLE, SLIPPAGE, STETH } from './common'
+import { ETH, MULTIPLE, SLIPPAGE, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
+const depositCollateralAmount = amountToWei(new BigNumber(10), ETH.precision)
 
-async function openStEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1]) {
+async function getEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
   const args: OpenPositionTypes[0] = {
-    collateralToken: STETH,
-    debtToken: ETH,
+    collateralToken: ETH,
+    debtToken: USDC,
     slippage: SLIPPAGE,
     depositedByUser: {
-      debtToken: {
-        amountInBaseUnit: transactionAmount,
+      collateralToken: {
+        amountInBaseUnit: depositCollateralAmount,
       },
     },
     multiple: MULTIPLE,
-    positionType: 'Earn',
+    positionType: 'Multiply',
   }
 
   return await strategies.aave.open(args, dependencies)
 }
 
-export async function createStEthEthEarnAAVEPosition({
+export async function createEthUsdcMultiplyAAVEPosition({
   proxy,
   isDPM,
   use1inch,
@@ -42,18 +42,18 @@ export async function createStEthEthEarnAAVEPosition({
   dependencies: StrategiesDependencies
   config: RuntimeConfig
 }): Promise<PositionDetails> {
-  const strategy: AavePositionStrategy = 'STETH/ETH Earn'
+  const strategy: AavePositionStrategy = 'ETH/USDC Multiply'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
   const getSwapData = use1inch
     ? dependencies.getSwapData(swapAddress)
-    : dependencies.getSwapData(new BigNumber(0.979), {
-        from: STETH.precision,
+    : dependencies.getSwapData(new BigNumber(1617.85), {
+        from: USDC.precision,
         to: ETH.precision,
       })
 
-  const position = await openStEthEthEarnAAVEPosition({
+  const position = await getEthUsdcMultiplyAAVEPosition({
     ...dependencies,
     getSwapData,
     isDPMProxy: isDPM,
@@ -62,7 +62,7 @@ export async function createStEthEthEarnAAVEPosition({
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeWalletBalanceBefore = await balanceOf(ADDRESSES.main.WETH, ADDRESSES.main.feeRecipient, {
+  const feeWalletBalanceBefore = await balanceOf(ADDRESSES.main.USDC, ADDRESSES.main.feeRecipient, {
     config,
   })
 
@@ -76,14 +76,14 @@ export async function createStEthEthEarnAAVEPosition({
       ]),
     },
     config.signer,
-    transactionAmount.toString(),
+    depositCollateralAmount.toString(),
   )
 
   if (!status) {
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  const feeWalletBalanceAfter = await balanceOf(ADDRESSES.main.WETH, ADDRESSES.main.feeRecipient, {
+  const feeWalletBalanceAfter = await balanceOf(ADDRESSES.main.USDC, ADDRESSES.main.feeRecipient, {
     config,
   })
 
@@ -92,9 +92,9 @@ export async function createStEthEthEarnAAVEPosition({
     getPosition: async () => {
       return await strategies.aave.view(
         {
-          collateralToken: STETH,
-          debtToken: ETH,
-          proxy,
+          collateralToken: ETH,
+          debtToken: USDC,
+          proxy: proxy,
         },
         {
           addresses: {
@@ -105,9 +105,9 @@ export async function createStEthEthEarnAAVEPosition({
         },
       )
     },
-    strategy: 'STETH/ETH Earn',
-    collateralToken: STETH,
-    debtToken: ETH,
+    strategy,
+    collateralToken: ETH,
+    debtToken: USDC,
     getSwapData,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),

@@ -7,6 +7,8 @@ export type StrategiesDependencies = {
   contracts: { operationExecutor: ethers.Contract }
   provider: ethers.providers.Provider
   getSwapData: (
+    ...args: any[]
+  ) => (
     fromToken: string,
     toToken: string,
     amount: BigNumber,

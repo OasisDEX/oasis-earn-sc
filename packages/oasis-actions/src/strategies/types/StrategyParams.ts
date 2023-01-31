@@ -8,7 +8,6 @@ export interface IBasePositionTransitionArgs<Tokens> {
   slippage: BigNumber
   collateralToken: { symbol: Tokens; precision?: number }
   debtToken: { symbol: Tokens; precision?: number }
-  collectSwapFeeFrom?: 'sourceToken' | 'targetToken'
 }
 
 type WithDeposit = {
