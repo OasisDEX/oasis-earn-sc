@@ -46,11 +46,12 @@ export const CONTRACT_NAMES = {
     WETH_GATEWAY: 'AaveWethGateway',
   },
   aaveV3: {
-    DEPOSIT: 'AaveDepositV3',
-    WITHDRAW: 'AaveWithdrawV3',
-    BORROW: 'AaveBorrowV3',
-    PAYBACK: 'AavePaybackV3',
+    DEPOSIT: 'AaveV3Deposit',
+    WITHDRAW: 'AaveV3Withdraw',
+    BORROW: 'AaveV3Borrow',
+    PAYBACK: 'AaveV3Payback',
     AAVE_POOL: 'AavePool',
+    SET_EMODE: 'AaveV3SetEMode',
   },
   maker: {
     DEPOSIT: 'MakerDeposit',

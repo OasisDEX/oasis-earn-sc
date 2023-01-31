@@ -54,7 +54,7 @@ contract AaveV3Deposit is Executable, UseStore {
     }
 
     store().write(bytes32(actualDepositAmount));
-    emit Action(DEPOSIT_V3_ACTION, bytes(abi.encode(actualDepositAmount)));
+    emit Action(DEPOSIT_V3_ACTION, abi.encode(actualDepositAmount));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (DepositData memory params) {

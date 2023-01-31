@@ -24,12 +24,15 @@ contract AaveV3Withdraw is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     WithdrawData memory withdraw = parseInputs(data);
 
-    uint256 amountWithdrawn = IPoolV3(registry.getRegisteredService(AAVE_POOL))
-      .withdraw(withdraw.asset, withdraw.amount, withdraw.to);
+    uint256 amountWithdrawn = IPoolV3(registry.getRegisteredService(AAVE_POOL)).withdraw(
+      withdraw.asset,
+      withdraw.amount,
+      withdraw.to
+    );
 
     store().write(bytes32(amountWithdrawn));
 
-    emit Action(WITHDRAW_V3_ACTION, bytes(abi.encode(amountWithdrawn)));
+    emit Action(WITHDRAW_V3_ACTION, abi.encode(amountWithdrawn));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (WithdrawData memory params) {

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.15;
 
-import {IPoolAddressesProvider} from "./IPoolAddressesProvider.sol";
-import {DataTypes} from "./DataTypes.sol";
+import { IPoolAddressesProvider } from "./IPoolAddressesProvider.sol";
+import { DataTypes } from "./DataTypes.sol";
 
 interface IPoolV3 {
   /**
@@ -739,5 +739,4 @@ interface IPoolV3 {
    * @return The address of the reserve associated with id
    **/
   function getReserveAddressById(uint16 id) external view returns (address);
-
 }

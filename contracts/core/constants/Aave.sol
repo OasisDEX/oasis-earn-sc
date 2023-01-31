@@ -19,9 +19,8 @@ string constant DEPOSIT_ACTION = "AaveDeposit_3";
 string constant WITHDRAW_ACTION = "AaveWithdraw_3";
 string constant PAYBACK_ACTION = "AavePayback_3";
 
-string constant BORROW_V3_ACTION = "AaveBorrowV3";
-string constant DEPOSIT_V3_ACTION = "AaveDepositV3";
-string constant WITHDRAW_V3_ACTION = "AaveWithdrawV3";
-string constant PAYBACK_V3_ACTION = "AavePaybackV3";
-string constant SETEMODE_V3_ACTION = "AaveSetEModeV3";
-
+string constant BORROW_V3_ACTION = "AaveV3Borrow";
+string constant DEPOSIT_V3_ACTION = "AaveV3Deposit";
+string constant WITHDRAW_V3_ACTION = "AaveV3Withdraw";
+string constant PAYBACK_V3_ACTION = "AaveV3Payback";
+string constant SETEMODE_V3_ACTION = "AaveV3SetEMode";

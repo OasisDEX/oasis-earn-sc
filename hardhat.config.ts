@@ -117,6 +117,7 @@ const config: HardhatUserConfig = {
   },
   typechain: {
     outDir: 'typechain',
+    externalArtifacts: ['abi/external/*.json'],
   },
   docgen: {
     outputDir: './docs',
