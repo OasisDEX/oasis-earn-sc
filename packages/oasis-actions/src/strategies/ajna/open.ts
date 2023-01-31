@@ -45,9 +45,9 @@ export async function open(
   // console.log(apa.e)
   const data = apa.interface.encodeFunctionData('depositAndDraw', [
     args.poolAddress,
-    args.debtAmount,
-    args.collateralAmount,
-    args.price,
+    args.debtAmount.toString(),
+    args.collateralAmount.toString(),
+    args.price.toString(),
   ])
 
   return {

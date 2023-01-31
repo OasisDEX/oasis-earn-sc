@@ -45,8 +45,8 @@ export async function paybackWithdraw(
   // console.log(apa.e)
   const data = apa.interface.encodeFunctionData('repayWithdraw', [
     args.poolAddress,
-    args.debtAmount,
-    args.collateralAmount,
+    args.debtAmount.toString(),
+    args.collateralAmount.toString(),
   ])
 
   return {
