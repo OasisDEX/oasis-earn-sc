@@ -15,4 +15,11 @@ module.exports = {
     'simple-import-sort/exports': 'error',
     '@typescript-eslint/no-explicit-any': 'off',
   },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx", '.d.ts']
+      }
+    }
+  },
 }
