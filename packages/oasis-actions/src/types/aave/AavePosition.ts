@@ -1,11 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { Optional } from 'utility-types'
 
-import {
-  IPositionCategory,
-  Position,
-  PositionBalance,
-} from '../../../helpers/calculations/Position'
+import { IPositionCategory, Position, PositionBalance } from '../../helpers/calculations/Position'
 import { Address } from '../StrategyParams'
 import { AAVETokens } from './tokens'
 

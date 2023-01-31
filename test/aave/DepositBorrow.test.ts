@@ -3,7 +3,7 @@ import { AAVETokens, ADDRESSES, ONE, Position, strategies, ZERO } from '@oasisde
 import aavePriceOracleABI from '@oasisdex/oasis-actions/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
 import { PositionBalance } from '@oasisdex/oasis-actions/src/helpers/calculations/Position'
-import { Address } from '@oasisdex/oasis-actions/src/strategies/types'
+import { Address } from '@oasisdex/oasis-actions/src/types'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
