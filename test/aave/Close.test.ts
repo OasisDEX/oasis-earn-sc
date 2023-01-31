@@ -11,7 +11,7 @@ import {
 } from '@oasisdex/oasis-actions/src'
 import aavePriceOracleABI from '@oasisdex/oasis-actions/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
-import { Address, PositionType } from '@oasisdex/oasis-actions/src/strategies/types'
+import { Address, PositionType } from '@oasisdex/oasis-actions/src/types'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'

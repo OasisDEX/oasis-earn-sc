@@ -9,8 +9,8 @@ import {
   IPositionTransitionDependencies,
   WithPaybackDebt,
   WithWithdrawCollateral,
-} from '../types'
-import { AAVETokens } from '../types/aave'
+} from '../../types'
+import { AAVETokens } from '../../types/aave'
 import * as operations from './../../operations'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 

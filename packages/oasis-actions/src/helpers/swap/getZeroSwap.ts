@@ -1,4 +1,4 @@
-import { SwapData } from '../../strategies/types/SwapData'
+import { SwapData } from '../../types/SwapData'
 import { Swap } from '../calculations/Position'
 import { NULL_ADDRESS, TYPICAL_PRECISION, ZERO } from '../constants'
 

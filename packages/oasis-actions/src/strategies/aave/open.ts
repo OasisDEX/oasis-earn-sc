@@ -11,11 +11,8 @@ import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { Address } from '../types'
-import { AAVETokens } from '../types/aave/tokens'
-import { IPositionTransition } from '../types/IPositionTransition'
-import { PositionType } from '../types/PositionType'
-import { SwapData } from '../types/SwapData'
+import { Address, IPositionTransition, PositionType, SwapData } from '../../types'
+import { AAVETokens } from '../../types/aave'
 import { getCurrentPosition } from './getCurrentPosition'
 
 interface OpenPositionArgs {

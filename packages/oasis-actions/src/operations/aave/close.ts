@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import * as actions from '../../actions'
 import { ADDRESSES } from '../../helpers/addresses'
 import { MAX_UINT, OPERATION_NAMES } from '../../helpers/constants'
-import { IOperation } from '../../strategies/types'
+import { IOperation } from '../../types'
 import { AAVEStrategyAddresses } from './addresses'
 
 export async function close(
