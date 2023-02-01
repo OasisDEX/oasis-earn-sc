@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ONE, OPERATION_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { ONE, OPERATION_NAMES, protocols, strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -33,7 +33,13 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
   let dependencies: Pick<
     Parameters<typeof strategies.aave.open>[1],
-    'proxy' | 'provider' | 'addresses' | 'getSwapData' | 'user'
+    | 'proxy'
+    | 'provider'
+    | 'addresses'
+    | 'getSwapData'
+    | 'getCurrentPosition'
+    | 'getProtocolData'
+    | 'user'
   >
   let operationExecutor: Contract
 
@@ -62,6 +68,8 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       dependencies = {
         addresses,
         provider,
+        getCurrentPosition: strategies.aave.view,
+        getProtocolData: protocols.aave.getOpenProtocolData,
         getSwapData: oneInchCallMock(new BigNumber(0.9759)),
         proxy: system.common.dsProxy.address,
         user: config.address,
@@ -266,6 +274,8 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         dependencies = {
           addresses,
           provider,
+          getCurrentPosition: strategies.aave.view,
+          getProtocolData: protocols.aave.getOpenProtocolData,
           getSwapData: getOneInchCall(system.common.swap.address),
           proxy: system.common.dsProxy.address,
           user: config.address,

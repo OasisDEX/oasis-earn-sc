@@ -1,22 +1,21 @@
 import BigNumber from 'bignumber.js'
-import { ethers, providers } from 'ethers'
+import { providers } from 'ethers'
 
-import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
-import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
-import { amountFromWei, amountToWei } from '../../helpers'
-import { acceptedFeeToken } from '../../helpers/acceptedFeeToken'
-import { ADDRESSES } from '../../helpers/addresses'
-import { Position } from '../../helpers/calculations/Position'
-import { RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
-import * as operations from '../../operations'
-import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { Address } from '../types'
-import { AAVETokens } from '../types/aave/tokens'
-import { IPositionTransition } from '../types/IPositionTransition'
-import { PositionType } from '../types/PositionType'
-import { SwapData } from '../types/SwapData'
-import { getCurrentPosition } from './getCurrentPosition'
+import { amountFromWei, amountToWei } from '../../../helpers'
+import { acceptedFeeToken } from '../../../helpers/acceptedFeeToken'
+import { Position } from '../../../helpers/calculations/Position'
+import { RiskRatio } from '../../../helpers/calculations/RiskRatio'
+import { TYPICAL_PRECISION, ZERO } from '../../../helpers/constants'
+import * as operations from '../../../operations'
+import { AAVEStrategyAddresses } from '../../../operations/aave/addresses'
+import { AAVEV3StrategyAddresses } from '../../../operations/aaveV3/addresses'
+import { AaveOpenProtocolDataArgs } from '../../../protocols/aave/getOpenProtocolData'
+import { Address, IPositionTransition, PositionType, SwapData } from '../../types'
+import { AAVETokens } from '../../types/aave'
+import { getCurrentPosition } from '../getCurrentPosition'
+
+// TODO: Move protocol data to being a dependency
+// TODO: Move get current position to being a dependency
 
 interface OpenPositionArgs {
   depositedByUser?: {
@@ -31,17 +30,25 @@ interface OpenPositionArgs {
 }
 
 interface OpenPositionDependencies {
-  addresses: AAVEStrategyAddresses
+  addresses: AAVEStrategyAddresses | AAVEV3StrategyAddresses
+  proxy: Address
+  user: Address
+  isDPMProxy: boolean
+  /* Services below 👇*/
   provider: providers.Provider
+  protocol: {
+    version: 2 | 3
+    getCurrentPosition: typeof getCurrentPosition
+    getProtocolData: (...args: any[]) => AaveOpenProtocolDataArgs
+  }
+  // getCurrentPosition: typeof getCurrentPosition
+  // getProtocolData: typeof getOpenProtocolData | typeof getOpenV3ProtocolData
   getSwapData: (
     fromToken: string,
     toToken: string,
     amount: BigNumber,
     slippage: BigNumber,
   ) => Promise<SwapData>
-  proxy: Address
-  user: Address
-  isDPMProxy: boolean
 }
 
 export async function open(
@@ -69,7 +76,7 @@ export async function open(
    * It turned out that after opening and then closing a position there might be artifacts
    * Left in a position that make it difficult to re-open it
    */
-  const currentPosition = await getCurrentPosition(
+  const currentPosition = await dependencies.protocol.getCurrentPosition(
     {
       collateralToken: args.collateralToken,
       debtToken: args.debtToken,
@@ -81,46 +88,66 @@ export async function open(
     },
   )
 
-  const aavePriceOracle = new ethers.Contract(
-    dependencies.addresses.aavePriceOracle,
-    aavePriceOracleABI,
-    dependencies.provider,
-  )
+  const protocolData = await dependencies.protocol.getProtocolData({
+    collateralTokenAddress,
+    debtTokenAddress,
+    addresses: dependencies.addresses,
+    provider: dependencies.provider,
+  })
 
-  const aaveProtocolDataProvider = new ethers.Contract(
-    dependencies.addresses.aaveProtocolDataProvider,
-    aaveProtocolDataProviderABI,
-    dependencies.provider,
-  )
+  const {
+    aaveFlashloanDaiPriceInEth,
+    aaveDebtTokenPriceInEth,
+    aaveCollateralTokenPriceInEth,
+    reserveDataForFlashloan,
+  } = protocolData
+  //
+  // const aavePriceOracle = new ethers.Contract(
+  //   dependencies.addresses.aavePriceOracle,
+  //   aavePriceOracleABI,
+  //   dependencies.provider,
+  // )
+  //
+  // const aaveProtocolDataProvider = new ethers.Contract(
+  //   dependencies.addresses.aaveProtocolDataProvider,
+  //   aaveProtocolDataProviderABI,
+  //   dependencies.provider,
+  // )
 
   // Params
   const slippage = args.slippage
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
 
-  const [
-    aaveFlashloanDaiPriceInEth,
-    aaveDebtTokenPriceInEth,
-    aaveCollateralTokenPriceInEth,
-    reserveDataForFlashloan,
-    quoteSwapData,
-  ] = await Promise.all([
-    aavePriceOracle
-      .getAssetPrice(ADDRESSES.main.DAI)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aavePriceOracle
-      .getAssetPrice(debtTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aavePriceOracle
-      .getAssetPrice(collateralTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
-    dependencies.getSwapData(
-      debtTokenAddress,
-      collateralTokenAddress,
-      estimatedSwapAmount,
-      new BigNumber(slippage),
-    ),
-  ])
+  const quoteSwapData = await dependencies.getSwapData(
+    debtTokenAddress,
+    collateralTokenAddress,
+    estimatedSwapAmount,
+    new BigNumber(slippage),
+  )
+  // const [
+  //   aaveFlashloanDaiPriceInEth,
+  //   aaveDebtTokenPriceInEth,
+  //   aaveCollateralTokenPriceInEth,
+  //   reserveDataForFlashloan,
+  //   quoteSwapData,
+  // ] = await Promise.all([
+  //   aavePriceOracle
+  //     .getAssetPrice(ADDRESSES.main.DAI)
+  //     .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+  //   aavePriceOracle
+  //     .getAssetPrice(debtTokenAddress)
+  //     .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+  //   aavePriceOracle
+  //     .getAssetPrice(collateralTokenAddress)
+  //     .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
+  //   aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
+  //   dependencies.getSwapData(
+  //     debtTokenAddress,
+  //     collateralTokenAddress,
+  //     estimatedSwapAmount,
+  //     new BigNumber(slippage),
+  //   ),
+  // ])
 
   const BASE = new BigNumber(10000)
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(BASE)

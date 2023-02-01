@@ -1,4 +1,4 @@
-import { AAVEStrategyAddresses, SwapData } from '@oasisdex/oasis-actions'
+import { AAVEStrategyAddresses, protocols, strategies, SwapData } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -14,5 +14,9 @@ export type StrategiesDependencies = {
     amount: BigNumber,
     slippage: BigNumber,
   ) => Promise<SwapData>
+  getCurrentPosition: typeof strategies.aave.view
+  getProtocolData:
+    | typeof protocols.aave.getOpenProtocolData
+    | typeof protocols.aave.getOpenV3ProtocolData
   user: string
 }

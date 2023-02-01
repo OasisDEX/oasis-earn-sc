@@ -1,4 +1,4 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions/src'
 import { ethers } from 'hardhat'
 
 import DSProxyABI from '../abi/ds-proxy.json'

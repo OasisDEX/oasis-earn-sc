@@ -1,18 +1,20 @@
-import { buildGetTokenFunction } from '../../helpers/aave/'
-import init, { resetNode } from '../../helpers/init'
-import { getOneInchCall } from '../../helpers/swap/OneInchCall'
-import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
-import { mainnetAddresses } from '../addresses'
-import { testBlockNumber } from '../config'
-import { deploySystem } from '../deploySystem'
+import { protocols, strategies } from '@oasisdex/oasis-actions/src'
+
+import { buildGetTokenFunction } from '../../../helpers/aave/'
+import init, { resetNode } from '../../../helpers/init'
+import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
+import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
+import { mainnetAddresses } from '../../addresses'
+import { testBlockNumber } from '../../config'
+import { deploySystem } from '../../deploySystem'
 import {
   createDPMAccount,
   createEthUsdcMultiplyAAVEPosition,
   createStEthEthEarnAAVEPosition,
   createStEthUsdcMultiplyAAVEPosition,
   createWbtcUsdcMultiplyAAVEPosition,
-} from './factories'
-import { AavePositionStrategy, StrategiesDependencies, SystemWithAAVEPositions } from './types'
+} from '../factories'
+import { AavePositionStrategy, StrategiesDependencies, SystemWithAAVEPositions } from '../types'
 
 export function getSupportedStrategies(): AavePositionStrategy[] {
   return ['ETH/USDC Multiply', 'STETH/USDC Multiply', 'WBTC/USDC Multiply', 'STETH/ETH Earn']
@@ -41,6 +43,8 @@ export const getSystemWithAAVEPositions =
       },
       provider: config.provider,
       user: config.address,
+      getCurrentPosition: strategies.aave.view,
+      getProtocolData: protocols.aave.getOpenProtocolData,
       getSwapData: use1inch
         ? swapAddress => getOneInchCall(swapAddress)
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),

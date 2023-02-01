@@ -40,10 +40,11 @@ export interface IPositionTransitionArgs<Tokens>
 
 export type Address = string
 
-export interface IViewPositionParams<Tokens> {
+export interface IViewPositionParams<Tokens, Protocols = void> {
   proxy: string
   collateralToken: { symbol: Tokens; precision?: number }
   debtToken: { symbol: Tokens; precision?: number }
+  protocol?: Protocols
 }
 
 /**

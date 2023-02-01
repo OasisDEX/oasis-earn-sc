@@ -6,6 +6,8 @@ import {
 } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 
+export type AaveV3PositionStrategy = 'WSTETH/ETH Earn'
+
 export type AavePositionStrategy =
   | 'STETH/ETH Earn'
   | 'WBTC/USDC Multiply'

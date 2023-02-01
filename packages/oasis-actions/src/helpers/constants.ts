@@ -91,6 +91,16 @@ export const OPERATION_NAMES = {
     BORROW: 'AAVEBorrow',
     PAYBACK_WITHDRAW: 'AAVEPaybackWithdraw_2',
   },
+  aaveV3: {
+    OPEN_POSITION: 'OpenAAVEV3Position',
+    CLOSE_POSITION: 'CloseAAVEV3Position',
+    INCREASE_POSITION: 'IncreaseAAVEV3Position',
+    DECREASE_POSITION: 'DecreaseAAVEV3Position',
+    DEPOSIT_BORROW: 'AAVEV3DepositBorrow',
+    DEPOSIT: 'AAVEV3Deposit',
+    BORROW: 'AAVEV3Borrow',
+    PAYBACK_WITHDRAW: 'AAVEV3PaybackWithdraw',
+  },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',
     OPEN_DRAW_AND_CLOSE: 'OpenDrawAndClose',
@@ -109,9 +119,10 @@ export const OPERATION_NAMES = {
 
 type ValuesOf<T> = T[keyof T]
 type AAVEOperations = ValuesOf<typeof OPERATION_NAMES['aave']>
+type AAVEV3Operations = ValuesOf<typeof OPERATION_NAMES['aaveV3']>
 type MakerOperations = ValuesOf<typeof OPERATION_NAMES['maker']>
 type CommonOperations = ValuesOf<typeof OPERATION_NAMES['common']>
-export type OperationNames = CommonOperations | AAVEOperations | MakerOperations
+export type OperationNames = CommonOperations | AAVEOperations | AAVEV3Operations | MakerOperations
 
 // If configuring a low LTV, we might not need a flashloan (therefore flashloan == 0), but we still perform
 // the swap because the actions in operation executor pass args to each other referenced via index.

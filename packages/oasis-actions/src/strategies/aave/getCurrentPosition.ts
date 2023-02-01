@@ -5,12 +5,18 @@ import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import { amountFromWei } from '../../helpers'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
+import { AAVEV3StrategyAddresses } from '../../operations/aaveV3/addresses'
 import { IViewPositionDependencies, IViewPositionParams } from '../types'
 import { AavePosition, AAVETokens } from '../types/aave'
 
+export type AAVEGetCurrentPositionArgs = IViewPositionParams<AAVETokens>
+export type AAVEGetCurrentPositionDependencies = IViewPositionDependencies<
+  AAVEStrategyAddresses | AAVEV3StrategyAddresses
+>
+
 export async function getCurrentPosition(
-  { collateralToken, debtToken, proxy }: IViewPositionParams<AAVETokens>,
-  { addresses, provider }: IViewPositionDependencies<AAVEStrategyAddresses>,
+  { collateralToken, debtToken, proxy, protocol }: AAVEGetCurrentPositionArgs,
+  { addresses, provider }: AAVEGetCurrentPositionDependencies,
 ): Promise<AavePosition> {
   const tokenAddresses = {
     WETH: addresses.WETH,
