@@ -90,7 +90,10 @@ task('createBorrowPosition', 'Create borrow position')
       accountFactory: accountFactory,
     }
 
-    const swapData = taskArgs.usefallbackswap ? oneInchCallMock() : getOneInchCall(swapAddress)
+    const swapData = taskArgs.usefallbackswap
+      ? (marketPrice: BigNumber, precision: { from: number; to: number }) =>
+          oneInchCallMock(marketPrice, precision)
+      : () => getOneInchCall(swapAddress)
 
     const [proxy1, vaultId1] = await createDPMAccount(mainnetAddresses.accountFactory, config)
 

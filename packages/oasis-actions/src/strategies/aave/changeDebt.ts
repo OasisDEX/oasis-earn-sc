@@ -1,7 +1,7 @@
 import { ZERO } from '../../helpers/constants'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { IViewPositionDependencies, IViewPositionParams, WithDebtChange } from '../types'
-import { AavePosition, AAVETokens } from '../types/aave'
+import { IViewPositionDependencies, IViewPositionParams, WithDebtChange } from '../../types'
+import { AavePosition, AAVETokens } from '../../types/aave'
 import { getCurrentPosition } from './getCurrentPosition'
 
 export async function changeDebt(

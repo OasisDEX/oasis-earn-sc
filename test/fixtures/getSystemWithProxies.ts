@@ -1,16 +1,18 @@
-import BigNumber from 'bignumber.js'
-
 import { buildGetTokenFunction } from '../../helpers/aave/'
 import init, { resetNode } from '../../helpers/init'
+import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { deploySystem } from '../deploySystem'
 import { createDPMAccount } from './factories'
-import { StrategiesDependencies } from './types'
-import { SystemWithProxies } from './types/systemWithAAVEPosition'
+import { StrategiesDependencies, SystemWithProxies } from './types'
 
-export async function getSystemWithProxies(): Promise<SystemWithProxies> {
+export async function getSystemWithProxies({
+  use1inch,
+}: {
+  use1inch: boolean
+}): Promise<SystemWithProxies> {
   const config = await init()
 
   const getTokens = buildGetTokenFunction(config, await import('hardhat'))
@@ -31,7 +33,9 @@ export async function getSystemWithProxies(): Promise<SystemWithProxies> {
     },
     provider: config.provider,
     user: config.address,
-    getSwapData: oneInchCallMock(new BigNumber(0.9759)),
+    getSwapData: use1inch
+      ? swapAddress => getOneInchCall(swapAddress)
+      : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
   }
 
   async function getDpm(): Promise<{ proxy: string; vaultId: number }> {

@@ -1,6 +1,6 @@
 import * as actions from '../../actions'
 import { OPERATION_NAMES } from '../../helpers/constants'
-import { PositionType, Protocol } from '../../strategies/types'
+import { PositionType, Protocol } from '../../types'
 import { borrow, BorrowArgs } from './borrow'
 import { deposit, DepositArgs } from './deposit'
 

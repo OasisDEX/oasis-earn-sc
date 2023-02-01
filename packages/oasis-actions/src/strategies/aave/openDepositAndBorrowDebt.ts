@@ -10,8 +10,8 @@ import {
   WithBorrowDebt,
   WithDepositCollateral,
   WithPositionType,
-} from '../types'
-import { AAVETokens } from '../types/aave'
+} from '../../types'
+import { AAVETokens } from '../../types/aave'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 import { getCurrentPosition } from './getCurrentPosition'
 

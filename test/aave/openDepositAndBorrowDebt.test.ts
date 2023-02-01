@@ -7,8 +7,7 @@ import { executeThroughDPMProxy, executeThroughProxy } from '../../helpers/deplo
 import { amountToWei, approve } from '../../helpers/utils'
 import { zero } from '../../scripts/common'
 import { mainnetAddresses } from '../addresses'
-import { getSystemWithProxies } from '../fixtures'
-import { SystemWithProxies } from '../fixtures/types/systemWithAAVEPosition'
+import { getSystemWithProxies, SystemWithProxies } from '../fixtures'
 import { expectToBe, expectToBeEqual } from '../utils'
 
 export type TokenDetails = {
@@ -45,7 +44,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
   describe('Deposit collateral', () => {
     let fixture: SystemWithProxies
     before(async () => {
-      fixture = await getSystemWithProxies()
+      fixture = await getSystemWithProxies({ use1inch: false })
     })
     describe('using DS Proxy', () => {
       it('Should deposit collateral without taking debt', async () => {
@@ -170,7 +169,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
   describe('Deposit collateral and borrow debt', () => {
     let fixture: SystemWithProxies
     before(async () => {
-      fixture = await getSystemWithProxies()
+      fixture = await getSystemWithProxies({ use1inch: false })
     })
     describe('using DS Proxy', () => {
       it('Should deposit collateral and borrow debt', async () => {
