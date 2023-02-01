@@ -64,7 +64,9 @@ export async function open(
     tx: {
       to: dependencies.ajnaProxyActions,
       data,
-      value: isDepositingEth ? ethers.utils.formatEther(args.collateralAmount.toString()) : '0',
+      value: isDepositingEth
+        ? ethers.utils.parseEther(args.collateralAmount.toString()).toString()
+        : '0',
     },
   }
 }
