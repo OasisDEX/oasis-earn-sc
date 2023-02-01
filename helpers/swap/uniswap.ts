@@ -1,6 +1,6 @@
 import '@nomiclabs/hardhat-ethers'
 
-import { ADDRESSES } from '@oasisdex/oasis-actions'
+import { ADDRESSES } from '@oasisdex/oasis-actions/src'
 import { ethers } from 'hardhat'
 import { Optional } from 'utility-types'
 

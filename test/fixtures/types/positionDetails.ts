@@ -6,7 +6,7 @@ import {
 } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 
-export type AaveV3PositionStrategy = 'WSTETH/ETH Earn'
+export type AaveV3PositionStrategy = 'ETH/USDC Multiply' | 'WSTETH/ETH Earn'
 
 export type AavePositionStrategy =
   | 'STETH/ETH Earn'
@@ -23,7 +23,7 @@ export type TokenDetails = {
 export type PositionDetails = {
   getPosition: () => Promise<AavePosition>
   proxy: string
-  strategy: AavePositionStrategy
+  strategy: AavePositionStrategy | AaveV3PositionStrategy
   collateralToken: TokenDetails
   debtToken: TokenDetails
   getSwapData: (

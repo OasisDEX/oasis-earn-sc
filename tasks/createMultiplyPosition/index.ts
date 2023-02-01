@@ -1,4 +1,4 @@
-import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, protocols, strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -97,6 +97,11 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
     const dependencies: StrategiesDependencies = {
       addresses: mainnetAddresses,
       provider: config.provider,
+      protocol: {
+        version: 2,
+        getCurrentPosition: strategies.aave.view,
+        getProtocolData: protocols.aave.getOpenProtocolData,
+      },
       getSwapData: swapData,
       user: config.address,
       contracts: {

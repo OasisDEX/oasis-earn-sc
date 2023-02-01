@@ -1,5 +1,5 @@
-import * as aaveV2 from './aave'
-import * as aaveV3 from './aaveV3'
+import * as aaveV2 from './aave/v2'
+import * as aaveV3 from './aave/v3'
 
 export const aave = {
   ...aaveV2,

@@ -157,49 +157,50 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   //-- AAVE Actions
   const [depositInAAVEAction, actionDepositInAAVEAddress] = await deploy(
-    CONTRACT_NAMES.aave.DEPOSIT,
+    CONTRACT_NAMES.aave.v2.DEPOSIT,
     [serviceRegistryAddress],
   )
 
-  const [borrowInAAVEAction, actionAaveBorrowAddress] = await deploy(CONTRACT_NAMES.aave.BORROW, [
-    serviceRegistryAddress,
-  ])
+  const [borrowInAAVEAction, actionAaveBorrowAddress] = await deploy(
+    CONTRACT_NAMES.aave.v2.BORROW,
+    [serviceRegistryAddress],
+  )
 
   const [withdrawInAAVEAction, actionWithdrawFromAAVEAddress] = await deploy(
-    CONTRACT_NAMES.aave.WITHDRAW,
+    CONTRACT_NAMES.aave.v2.WITHDRAW,
     [serviceRegistryAddress],
   )
 
   const [paybackInAAVEAction, actionPaybackFromAAVEAddress] = await deploy(
-    CONTRACT_NAMES.aave.PAYBACK,
+    CONTRACT_NAMES.aave.v2.PAYBACK,
     [serviceRegistryAddress],
   )
 
   //-- AAVE V3 Actions
-  // const [depositInAAVEV3Action, actionDepositInAAVEV3Address] = await deploy(
-  //   CONTRACT_NAMES.aaveV3.DEPOSIT,
-  //   [serviceRegistryAddress],
-  // )
-  //
-  // const [borrowInAAVEV3Action, actionAaveV3BorrowAddress] = await deploy(
-  //   CONTRACT_NAMES.aaveV3.BORROW,
-  //   [serviceRegistryAddress],
-  // )
-  //
-  // const [withdrawInAAVEV3Action, actionWithdrawFromAAVEV3Address] = await deploy(
-  //   CONTRACT_NAMES.aaveV3.WITHDRAW,
-  //   [serviceRegistryAddress],
-  // )
-  //
-  // const [paybackInAAVEV3Action, actionPaybackFromAAVEV3Address] = await deploy(
-  //   CONTRACT_NAMES.aaveV3.PAYBACK,
-  //   [serviceRegistryAddress],
-  // )
-  //
-  // const [setEModeInAAVEV3Action, setEModeInAAVEV3Address] = await deploy(
-  //   CONTRACT_NAMES.aaveV3.SET_EMODE,
-  //   [serviceRegistryAddress],
-  // )
+  const [depositInAAVEV3Action, actionDepositInAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aave.v3.DEPOSIT,
+    [serviceRegistryAddress],
+  )
+
+  const [borrowInAAVEV3Action, actionAaveV3BorrowAddress] = await deploy(
+    CONTRACT_NAMES.aave.v3.BORROW,
+    [serviceRegistryAddress],
+  )
+
+  const [withdrawInAAVEV3Action, actionWithdrawFromAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aave.v3.WITHDRAW,
+    [serviceRegistryAddress],
+  )
+
+  const [paybackInAAVEV3Action, actionPaybackFromAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aave.v3.PAYBACK,
+    [serviceRegistryAddress],
+  )
+
+  const [setEModeInAAVEV3Action, setEModeInAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aave.v3.SET_EMODE,
+    [serviceRegistryAddress],
+  )
 
   debug && console.log('4/ Adding contracts to registry')
   //-- Add Token Contract Entries
@@ -283,25 +284,42 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   //-- Add AAVE Contract Entries
   const aaveBorrowHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.BORROW,
+    CONTRACT_NAMES.aave.v2.BORROW,
     actionAaveBorrowAddress,
   )
   const aaveDepositHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.DEPOSIT,
+    CONTRACT_NAMES.aave.v2.DEPOSIT,
     actionDepositInAAVEAddress,
   )
   const aaveWithdrawHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.WITHDRAW,
+    CONTRACT_NAMES.aave.v2.WITHDRAW,
     actionWithdrawFromAAVEAddress,
   )
   const aavePaybackHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.PAYBACK,
+    CONTRACT_NAMES.aave.v2.PAYBACK,
     actionPaybackFromAAVEAddress,
   )
-  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
-  await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
+  await registry.addEntry(CONTRACT_NAMES.aave.v2.WETH_GATEWAY, ADDRESSES.main.aave.v2.WETHGateway)
+  await registry.addEntry(CONTRACT_NAMES.aave.v2.LENDING_POOL, ADDRESSES.main.aave.v2.LendingPool)
 
-  await registry.addEntry(CONTRACT_NAMES.aaveV3.AAVE_POOL, ADDRESSES.main.aaveV3.AavePool)
+  //-- Add AAVE V3 Contract Entries
+  const aaveV3BorrowHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.BORROW,
+    actionAaveV3BorrowAddress,
+  )
+  const aaveV3DepositHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.DEPOSIT,
+    actionDepositInAAVEV3Address,
+  )
+  const aaveV3WithdrawHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.WITHDRAW,
+    actionWithdrawFromAAVEV3Address,
+  )
+  const aaveV3PaybackHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.PAYBACK,
+    actionPaybackFromAAVEV3Address,
+  )
+  await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, ADDRESSES.main.aave.v3.Pool)
 
   debug && console.log('5/ Adding operations to registry')
   // Add Maker Operations
@@ -574,7 +592,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   )
 
   // Add AAVE Operations
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.OPEN_POSITION, [
     {
       hash: takeFlashLoanHash,
       optional: false,
@@ -621,8 +639,55 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
     { hash: positionCreatedHash, optional: false },
   ])
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v3.OPEN_POSITION, [
+    {
+      hash: takeFlashLoanHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3DepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3BorrowHash,
+      optional: false,
+    },
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3DepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3WithdrawHash,
+      optional: false,
+    },
+    { hash: positionCreatedHash, optional: false },
+  ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.CLOSE_POSITION, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.CLOSE_POSITION, [
     {
       hash: takeFlashLoanHash,
       optional: false,
@@ -669,7 +734,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.INCREASE_POSITION, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.INCREASE_POSITION, [
     {
       hash: takeFlashLoanHash,
       optional: false,
@@ -716,7 +781,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.DEPOSIT_BORROW, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.DEPOSIT_BORROW, [
     {
       hash: wrapEthHash,
       optional: true,
@@ -751,7 +816,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.BORROW, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.BORROW, [
     {
       hash: aaveBorrowHash,
       optional: false,
@@ -766,7 +831,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.DEPOSIT, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.DEPOSIT, [
     {
       hash: wrapEthHash,
       optional: true,
@@ -789,7 +854,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.DECREASE_POSITION, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.DECREASE_POSITION, [
     {
       hash: takeFlashLoanHash,
       optional: false,
@@ -824,7 +889,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.PAYBACK_WITHDRAW, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.PAYBACK_WITHDRAW, [
     {
       hash: pullTokenHash,
       optional: true,

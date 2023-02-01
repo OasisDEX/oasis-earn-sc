@@ -5,7 +5,7 @@ import chai, { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-import AavePoolAbi from '../../abi/external/aaveV3Pool.json'
+import AavePoolAbi from '../../abi/external/aave/v3/pool.json'
 import { createDeploy } from '../../helpers/deploy'
 import init from '../../helpers/init'
 import { ServiceRegistry } from '../../helpers/serviceRegistry'

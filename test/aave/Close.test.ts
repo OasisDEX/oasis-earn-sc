@@ -1,3 +1,4 @@
+import AAVEDataProviderABI from '@abi/external/aave/v2/protocolDataProvider.json'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { TYPICAL_PRECISION } from '@oasisdex/oasis-actions'
 import {
@@ -6,20 +7,20 @@ import {
   IPositionTransition,
   ONE,
   Position,
+  protocols,
   strategies,
   ZERO,
 } from '@oasisdex/oasis-actions/src'
-import aavePriceOracleABI from '@oasisdex/oasis-actions/src/abi/aavePriceOracle.json'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
 import { Address, PositionType } from '@oasisdex/oasis-actions/src/types'
+import aavePriceOracleABI from 'abi/external/aave/v2/aavePriceOracle.json'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers, Signer } from 'ethers'
 import hre from 'hardhat'
 
-import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
-import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
+import AAVELendigPoolABI from '../../abi/external/aave/v2/lendingPool.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
@@ -30,7 +31,7 @@ import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { RuntimeConfig } from '../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../helpers/utils'
-import { acceptedFeeToken } from '../../packages/oasis-actions/src/helpers/acceptedFeeToken'
+import { acceptedFeeToken } from '../../packages/oasis-actions/src/helpers/swap/acceptedFeeToken'
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
 import { tokens } from '../constants'
@@ -166,6 +167,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           isDPMProxy: false,
           addresses,
           provider,
+          protocol: {
+            version: 2,
+            getCurrentPosition: strategies.aave.view,
+            getProtocolData: protocols.aave.getOpenProtocolData,
+          },
           getSwapData: oneInchCallMock(mockMarketPriceOnOpen),
           proxy,
           user: userAddress,
@@ -709,6 +715,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             isDPMProxy: false,
             addresses,
             provider,
+            protocol: {
+              version: 2,
+              getCurrentPosition: strategies.aave.view,
+              getProtocolData: protocols.aave.getOpenProtocolData,
+            },
             getSwapData: getOneInchCall(system.common.swap.address, ['ST_ETH']),
             proxy,
             user: config.address,
@@ -890,6 +901,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             isDPMProxy: false,
             addresses,
             provider,
+            protocol: {
+              version: 2,
+              getCurrentPosition: strategies.aave.view,
+              getProtocolData: protocols.aave.getOpenProtocolData,
+            },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy,
             user: config.address,
@@ -1064,6 +1080,11 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             isDPMProxy: false,
             addresses,
             provider,
+            protocol: {
+              version: 2,
+              getCurrentPosition: strategies.aave.view,
+              getProtocolData: protocols.aave.getOpenProtocolData,
+            },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy,
             user: config.address,

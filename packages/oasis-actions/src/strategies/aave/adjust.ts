@@ -1,15 +1,15 @@
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
+import aavePriceOracleABI from '../../../../../abi/external/aave/v2/priceOracle.json'
 import { amountFromWei, amountToWei } from '../../helpers'
-import { acceptedFeeToken } from '../../helpers/acceptedFeeToken'
 import { ADDRESSES } from '../../helpers/addresses'
 import { IBaseSimulatedTransition, IPosition, Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { ONE, TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
+import { acceptedFeeToken } from '../../helpers/swap/acceptedFeeToken'
 import * as operations from '../../operations'
-import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
+import { AAVEStrategyAddresses } from '../../operations/aave/v2'
 import {
   IOperation,
   IPositionTransition,
@@ -18,7 +18,7 @@ import {
   SwapData,
 } from '../../types'
 import { AAVETokens } from '../../types/aave'
-import { getAAVETokenAddresses } from './getAAVETokenAddresses'
+import { getAaveTokenAddresses } from './getAaveTokenAddresses'
 
 const FEE = 20
 
@@ -26,7 +26,7 @@ export async function adjust(
   args: IPositionTransitionArgs<AAVETokens>,
   dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
 ): Promise<IPositionTransition> {
-  const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
+  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
   )
@@ -55,7 +55,7 @@ export async function adjust(
   const estimatedSwapAmount = amountToWei(new BigNumber(1), fromToken.precision)
 
   const aavePriceOracle = new ethers.Contract(
-    dependencies.addresses.aavePriceOracle,
+    dependencies.addresses.priceOracle,
     aavePriceOracleABI,
     dependencies.provider,
   )

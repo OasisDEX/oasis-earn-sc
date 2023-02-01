@@ -1,7 +1,7 @@
 import { AAVETokensToGet } from '../../../helpers/aave'
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { deploySystem } from '../../deploySystem'
-import { AavePositionStrategy, PositionDetails } from './positionDetails'
+import { AavePositionStrategy, AaveV3PositionStrategy, PositionDetails } from './positionDetails'
 import { StrategiesDependencies } from './strategiesDependencies'
 
 export type SystemWithAAVEPositions = {
@@ -12,4 +12,8 @@ export type SystemWithAAVEPositions = {
   dsProxyPosition: PositionDetails
   strategiesDependencies: StrategiesDependencies
   getTokens: (symbol: AAVETokensToGet, amount: string) => Promise<boolean>
+}
+
+export type SystemWithAAVEV3Positions = SystemWithAAVEPositions & {
+  dpmPositions: Partial<Record<AaveV3PositionStrategy, PositionDetails>>
 }

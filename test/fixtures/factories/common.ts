@@ -23,6 +23,12 @@ export const STETH: TokenDetails = {
   address: mainnetAddresses.STETH,
 }
 
+export const WSTETH: TokenDetails = {
+  symbol: 'WSTETH' as const,
+  precision: 18,
+  address: mainnetAddresses.WSTETH,
+}
+
 export const WBTC: TokenDetails = {
   symbol: 'WBTC' as const,
   precision: 8,

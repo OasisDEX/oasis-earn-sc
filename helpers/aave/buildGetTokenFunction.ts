@@ -1,4 +1,4 @@
-import { AAVETokens } from '@oasisdex/oasis-actions'
+import { AAVETokens } from '@oasisdex/oasis-actions/src'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import erc20abi from '../../abi/external/IERC20.json'

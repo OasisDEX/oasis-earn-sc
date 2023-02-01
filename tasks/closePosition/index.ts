@@ -1,10 +1,10 @@
-import { ADDRESSES, CONTRACT_NAMES, Position, strategies } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, Position, strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
-import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
-import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import DSProxyABI from '../../abi/ds-proxy.json'
+import AAVELendigPoolABI from '../../abi/external/aave/v2/lendingPool.json'
+import AAVEDataProviderABI from '../../abi/external/aave/v2/protocolDataProvider.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init from '../../helpers/init'
@@ -70,14 +70,17 @@ task('closePosition', 'Close stETH position on AAVE')
     const addresses = {
       ...mainnetAddresses,
       operationExecutor: operationExecutorAddress,
+      priceOracle: mainnetAddresses.aave.v2.priceOracle,
+      lendingPool: mainnetAddresses.aave.v2.lendingPool,
+      protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
     }
     const aaveLendingPool = new hre.ethers.Contract(
-      ADDRESSES.main.aave.MainnetLendingPool,
+      ADDRESSES.main.aave.v2.LendingPool,
       AAVELendigPoolABI,
       config.provider,
     )
     const aaveDataProvider = new hre.ethers.Contract(
-      ADDRESSES.main.aave.DataProvider,
+      ADDRESSES.main.aave.v2.ProtocolDataProvider,
       AAVEDataProviderABI,
       config.provider,
     )

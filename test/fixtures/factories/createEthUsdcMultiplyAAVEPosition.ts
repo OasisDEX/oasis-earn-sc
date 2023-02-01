@@ -95,6 +95,7 @@ export async function createEthUsdcMultiplyAAVEPosition({
           collateralToken: ETH,
           debtToken: USDC,
           proxy: proxy,
+          protocolVersion: dependencies.protocol.version,
         },
         {
           addresses: {

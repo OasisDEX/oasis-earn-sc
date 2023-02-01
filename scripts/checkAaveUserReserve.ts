@@ -1,7 +1,7 @@
+import AAVEDataProviderABI from '@abi/external/aave/v2/protocolDataProvider.json'
 import { ADDRESSES } from '@oasisdex/oasis-actions/src'
 import { Contract, ethers } from 'ethers'
 
-import AAVEDataProviderABI from '../abi/aaveDataProvider.json'
 import { balanceOf } from '../helpers/utils'
 
 async function main() {

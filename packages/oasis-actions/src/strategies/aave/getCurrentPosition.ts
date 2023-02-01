@@ -1,68 +1,45 @@
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
 
-import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
-import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
-import { amountFromWei } from '../../helpers'
-import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
+import { AAVEStrategyAddresses } from '../../operations/aave/v2/addresses'
+import { AAVEV3StrategyAddresses } from '../../operations/aave/v3/addresses'
+import { getAaveProtocolData } from '../../protocols/aave/getAaveProtocolData'
 import { IViewPositionDependencies, IViewPositionParams } from '../../types'
 import { AavePosition, AAVETokens } from '../../types/aave'
-import { AAVEV3StrategyAddresses } from '../../operations/aaveV3/addresses'
+import { getAaveTokenAddresses } from './getAaveTokenAddresses'
 
-export type AAVEGetCurrentPositionArgs = IViewPositionParams<AAVETokens>
+export type AAVEGetCurrentPositionArgs = IViewPositionParams<AAVETokens> & {
+  protocolVersion: 2 | 3
+}
 export type AAVEGetCurrentPositionDependencies = IViewPositionDependencies<
   AAVEStrategyAddresses | AAVEV3StrategyAddresses
 >
 
 export async function getCurrentPosition(
-  { collateralToken, debtToken, proxy, protocol }: AAVEGetCurrentPositionArgs,
+  { collateralToken, debtToken, proxy, protocolVersion }: AAVEGetCurrentPositionArgs,
   { addresses, provider }: AAVEGetCurrentPositionDependencies,
 ): Promise<AavePosition> {
-  const tokenAddresses = {
-    WETH: addresses.WETH,
-    ETH: addresses.WETH,
-    STETH: addresses.STETH,
-    USDC: addresses.USDC,
-    WBTC: addresses.WBTC,
-  }
-
-  const collateralTokenAddress = tokenAddresses[collateralToken.symbol]
-  const debtTokenAddress = tokenAddresses[debtToken.symbol]
-
-  if (!collateralTokenAddress)
-    throw new Error('Collateral token not recognised or address missing in dependencies')
-  if (!debtTokenAddress)
-    throw new Error('Debt token not recognised or address missing in dependencies')
-
-  const aaveProtocolDataProvider = new ethers.Contract(
-    addresses.aaveProtocolDataProvider,
-    aaveProtocolDataProviderABI,
-    provider,
+  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
+    {
+      collateralToken,
+      debtToken,
+    },
+    addresses,
   )
 
-  const aavePriceOracle = new ethers.Contract(
-    addresses.aavePriceOracle,
-    aavePriceOracleABI,
-    provider,
-  )
-
-  const [
+  const {
     aaveDebtTokenPriceInEth,
     aaveCollateralTokenPriceInEth,
     userReserveDataForDebtToken,
     userReserveDataForCollateral,
     reserveDataForCollateral,
-  ] = await Promise.all([
-    aavePriceOracle
-      .getAssetPrice(debtTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aavePriceOracle
-      .getAssetPrice(collateralTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aaveProtocolDataProvider.getUserReserveData(debtTokenAddress, proxy),
-    aaveProtocolDataProvider.getUserReserveData(collateralTokenAddress, proxy),
-    aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
-  ])
+  } = await getAaveProtocolData({
+    collateralTokenAddress,
+    debtTokenAddress,
+    addresses,
+    proxy,
+    provider,
+    protocolVersion,
+  })
 
   const BASE = new BigNumber(10000)
   const liquidationThreshold = new BigNumber(

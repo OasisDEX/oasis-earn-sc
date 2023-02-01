@@ -95,6 +95,7 @@ export async function createStEthEthEarnAAVEPosition({
           collateralToken: STETH,
           debtToken: ETH,
           proxy,
+          protocolVersion: dependencies.protocol.version,
         },
         {
           addresses: {

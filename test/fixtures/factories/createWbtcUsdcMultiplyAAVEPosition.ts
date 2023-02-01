@@ -110,6 +110,7 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
           collateralToken: WBTC,
           debtToken: USDC,
           proxy: proxy,
+          protocolVersion: dependencies.protocol.version,
         },
         {
           addresses: {

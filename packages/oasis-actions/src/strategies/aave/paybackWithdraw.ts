@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 
 import { MAX_UINT, ZERO } from '../../helpers/constants'
 import { getZeroSwap } from '../../helpers/swap/getZeroSwap'
-import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
+import { AAVEStrategyAddresses } from '../../operations/aave/v2'
 import {
   IBasePositionTransitionArgs,
   IPositionTransition,
@@ -12,7 +12,7 @@ import {
 } from '../../types'
 import { AAVETokens } from '../../types/aave'
 import * as operations from './../../operations'
-import { getAAVETokenAddresses } from './getAAVETokenAddresses'
+import { getAaveTokenAddresses } from './getAaveTokenAddresses'
 
 export async function paybackWithdraw(
   args: IBasePositionTransitionArgs<AAVETokens> & WithWithdrawCollateral & WithPaybackDebt,
@@ -20,7 +20,7 @@ export async function paybackWithdraw(
 ): Promise<IPositionTransition> {
   const currentPosition = dependencies.currentPosition
 
-  const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
+  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
   )

@@ -110,6 +110,7 @@ export async function createStEthUsdcMultiplyAAVEPosition({
           collateralToken: STETH,
           debtToken: USDC,
           proxy: proxy,
+          protocolVersion: dependencies.protocol.version,
         },
         {
           addresses: {
