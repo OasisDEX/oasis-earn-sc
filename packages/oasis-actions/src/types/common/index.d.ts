@@ -5,7 +5,7 @@ export type Address = string
 export type Tx = {
   to: Address
   data: string
-  value: number
+  value: string
 }
 
 interface AllowanceRequirement {

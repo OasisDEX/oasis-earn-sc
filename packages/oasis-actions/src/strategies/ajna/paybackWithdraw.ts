@@ -12,7 +12,6 @@ interface PaybackWithdrawArgs {
   dpmProxyAddress: Address
   debtAmount: BigNumber
   collateralAmount: BigNumber
-  price: BigNumber
 }
 
 interface Dependencies {
@@ -42,7 +41,6 @@ export async function paybackWithdraw(
   // // uint256 collateralAmount,
   // // uint256 price
 
-  // console.log(apa.e)
   const data = apa.interface.encodeFunctionData('repayWithdraw', [
     args.poolAddress,
     args.debtAmount.toString(),

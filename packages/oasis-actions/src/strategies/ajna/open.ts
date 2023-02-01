@@ -2,8 +2,8 @@ import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
 import { RiskRatio } from '../..'
+import poolERC20Abi from '../../abi/ajna/ajnaPoolERC20.json'
 import ajnaProxyActionsAbi from '../../abi/ajna/ajnaProxyActions.json'
-import poolInfoAbi from '../../abi/ajna/poolInfoUtils.json'
 import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
 
@@ -19,30 +19,25 @@ interface Dependencies {
   poolInfoAddress: Address
   ajnaProxyActions: Address
   provider: ethers.providers.Provider
+  WETH: Address
 }
 
 export async function open(
   args: OpenArgs,
   dependencies: Dependencies,
 ): Promise<Strategy<AjnaPosition>> {
-  const poolInfo = new ethers.Contract(
-    dependencies.poolInfoAddress,
-    poolInfoAbi,
-    dependencies.provider,
-  )
+  const pool = new ethers.Contract(args.poolAddress, poolERC20Abi, dependencies.provider)
+
+  const collateralAddress = await pool.collateralAddress()
+  const quoteTokenAddress = await pool.quoteTokenAddress()
+  const isDepositingEth = collateralAddress.toLowerCase() === dependencies.WETH.toLowerCase()
+
   const apa = new ethers.Contract(
     dependencies.ajnaProxyActions,
     ajnaProxyActionsAbi,
     dependencies.provider,
   )
 
-  // const res = await poolInfo.poolPricesInfo(args.poolAddress)
-  // // IAjnaPool pool,
-  // // uint256 debtAmount,
-  // // uint256 collateralAmount,
-  // // uint256 price
-
-  // console.log(apa.e)
   const data = apa.interface.encodeFunctionData('depositAndDraw', [
     args.poolAddress,
     args.debtAmount.toString(),
@@ -56,8 +51,8 @@ export async function open(
       targetPosition: {
         pool: {
           poolAddress: args.poolAddress,
-          quoteToken: 'Address',
-          collateralToken: 'Address',
+          quoteToken: quoteTokenAddress,
+          collateralToken: collateralAddress,
           rate: new BigNumber(0),
         },
         owner: args.dpmProxyAddress,
@@ -69,7 +64,7 @@ export async function open(
     tx: {
       to: dependencies.ajnaProxyActions,
       data,
-      value: 0,
+      value: isDepositingEth ? ethers.utils.formatEther(args.collateralAmount.toString()) : '0',
     },
   }
 }
