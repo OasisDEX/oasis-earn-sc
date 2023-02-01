@@ -66,7 +66,7 @@ export async function paybackWithdraw(
     tx: {
       to: dependencies.ajnaProxyActions,
       data,
-      value: 0,
+      value: '0',
     },
   }
 }
