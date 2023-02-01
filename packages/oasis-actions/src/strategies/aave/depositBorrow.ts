@@ -9,8 +9,13 @@ import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
 import { BorrowArgs } from '../../operations/aave/borrow'
 import { DepositArgs } from '../../operations/aave/deposit'
-import { Address, IPositionTransition, IPositionTransitionDependencies, SwapData } from '../types'
-import { AAVETokens } from '../types/aave'
+import {
+  Address,
+  IPositionTransition,
+  IPositionTransitionDependencies,
+  SwapData,
+} from '../../types'
+import { AAVETokens } from '../../types/aave'
 
 interface DepositBorrowArgs {
   entryToken?: { amountInBaseUnit: BigNumber; symbol: AAVETokens; precision?: number }

@@ -10,8 +10,8 @@ import * as operations from '../../../operations'
 import { AAVEStrategyAddresses } from '../../../operations/aave/addresses'
 import { AAVEV3StrategyAddresses } from '../../../operations/aaveV3/addresses'
 import { AaveOpenProtocolDataArgs } from '../../../protocols/aave/getOpenProtocolData'
-import { Address, IPositionTransition, PositionType, SwapData } from '../../types'
-import { AAVETokens } from '../../types/aave'
+import { Address, IPositionTransition, PositionType, SwapData } from '../../../types'
+import { AAVETokens } from '../../../types/aave'
 import { getCurrentPosition } from '../getCurrentPosition'
 
 // TODO: Move protocol data to being a dependency

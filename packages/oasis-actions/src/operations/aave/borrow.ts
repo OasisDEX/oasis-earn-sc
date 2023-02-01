@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import * as actions from '../../actions'
 import { ADDRESSES } from '../../helpers/addresses'
 import { OPERATION_NAMES } from '../../helpers/constants'
-import { Address } from '../../strategies/types'
+import { Address } from '../../types'
 
 export interface BorrowArgs {
   borrowToken: Address

@@ -5,9 +5,9 @@ import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
 import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
 import { amountFromWei } from '../../helpers'
 import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
+import { IViewPositionDependencies, IViewPositionParams } from '../../types'
+import { AavePosition, AAVETokens } from '../../types/aave'
 import { AAVEV3StrategyAddresses } from '../../operations/aaveV3/addresses'
-import { IViewPositionDependencies, IViewPositionParams } from '../types'
-import { AavePosition, AAVETokens } from '../types/aave'
 
 export type AAVEGetCurrentPositionArgs = IViewPositionParams<AAVETokens>
 export type AAVEGetCurrentPositionDependencies = IViewPositionDependencies<

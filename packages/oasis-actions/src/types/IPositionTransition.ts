@@ -1,7 +1,7 @@
-import { ActionCall } from '../../actions/types/actionCall'
-import { IBaseSimulatedTransition, Swap } from '../../helpers/calculations/Position'
-import { IRiskRatio } from '../../helpers/calculations/RiskRatio'
-import { OperationNames } from '../../helpers/constants'
+import { IBaseSimulatedTransition, Swap } from '../helpers/calculations/Position'
+import { IRiskRatio } from '../helpers/calculations/RiskRatio'
+import { OperationNames } from '../helpers/constants'
+import { ActionCall } from './actionCall'
 import { SwapData } from './SwapData'
 
 interface ISimulatedTransition extends IBaseSimulatedTransition {

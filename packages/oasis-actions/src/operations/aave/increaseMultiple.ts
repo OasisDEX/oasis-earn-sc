@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 
 import * as actions from '../../actions'
 import { OPERATION_NAMES, ZERO } from '../../helpers/constants'
-import { IOperation } from '../../strategies/types/IOperation'
+import { IOperation } from '../../types'
 import { AAVEStrategyAddresses } from './addresses'
 
 export async function increaseMultiple(

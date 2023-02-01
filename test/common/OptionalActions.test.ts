@@ -1,6 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ActionFactory, calldataTypes, CONTRACT_NAMES } from '@oasisdex/oasis-actions'
-import { ActionCall } from '@oasisdex/oasis-actions/src/actions/types/actionCall'
+import { ActionCall } from '@oasisdex/oasis-actions/src/types'
 import { expect } from 'chai'
 import { ContractReceipt, Signer, utils } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
