@@ -24,6 +24,7 @@ interface OpenArgs {
   borrowAmountInBaseUnit: BigNumber
   collateralTokenAddress: Address
   debtTokenAddress: Address
+  eModeCategoryId: number
   useFlashloan: boolean
   proxy: Address
   user: Address
@@ -38,6 +39,7 @@ export async function openV3({
   borrowAmountInBaseUnit,
   collateralTokenAddress,
   debtTokenAddress,
+  eModeCategoryId,
   proxy,
   user,
   isDPMProxy,
@@ -62,16 +64,20 @@ export async function openV3({
     sumAmounts: false,
   })
 
-  const depositDaiInAAVE = actions.aave.aaveV3Deposit({
+  const depositDaiInAAVE = actions.aave.v3.aaveV3Deposit({
     amount: flashloanAmount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
 
-  const borrowDebtTokensFromAAVE = actions.aave.aaveV3Borrow({
+  const borrowDebtTokensFromAAVE = actions.aave.v3.aaveV3Borrow({
     amount: borrowAmountInBaseUnit,
     asset: debtTokenAddress,
     to: proxy,
+  })
+
+  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
+    categoryId: eModeCategoryId || 0,
   })
 
   const wrapEth = actions.common.wrapEth({
@@ -98,7 +104,7 @@ export async function openV3({
     [0, 0, 3, 0],
   )
 
-  const depositCollateral = actions.aave.aaveV3Deposit(
+  const depositCollateral = actions.aave.v3.aaveV3Deposit(
     {
       asset: collateralTokenAddress,
       amount: deposit.collateralToken.amountInBaseUnit,
@@ -108,7 +114,7 @@ export async function openV3({
     [0, 3, 0, 0],
   )
 
-  const withdrawDAIFromAAVE = actions.aave.aaveV3Withdraw({
+  const withdrawDAIFromAAVE = actions.aave.v3.aaveV3Withdraw({
     asset: addresses.DAI,
     amount: flashloanAmount,
     to: addresses.operationExecutor,
@@ -123,7 +129,7 @@ export async function openV3({
     debtToken: debtTokenAddress,
   })
 
-  // TODO: Redeploy all new OpNames to registry
+  setEModeOnCollateral.skipped = !eModeCategoryId || eModeCategoryId === 0
   pullDebtTokensToProxy.skipped =
     deposit.debtToken.amountInBaseUnit.eq(ZERO) || deposit.debtToken.isEth
   pullCollateralTokensToProxy.skipped =
@@ -136,6 +142,7 @@ export async function openV3({
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
     borrowDebtTokensFromAAVE,
+    setEModeOnCollateral,
     wrapEth,
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnLendingPool,

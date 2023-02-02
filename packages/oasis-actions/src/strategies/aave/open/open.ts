@@ -68,14 +68,10 @@ export async function open(
       getTokenAddresses: getAaveTokenAddresses,
     },
   })
-  const { simulatedPositionTransition, oracle } = await simulatePositionTransition(
-    quoteSwapData,
-    args,
-    dependencies,
-    /*, true*/
-  )
+  const { simulatedPositionTransition, oracle, reserveEModeCategory } =
+    await simulatePositionTransition(quoteSwapData, args, dependencies, true)
 
-  const { swapData, collectFeeFrom, preSwapFee } = await getSwapDataHelper<
+  const { swapData, collectFeeFrom } = await getSwapDataHelper<
     typeof dependencies.addresses,
     AAVETokens
   >({
@@ -95,6 +91,7 @@ export async function open(
     swapData,
     simulatedPositionTransition,
     collectFeeFrom,
+    reserveEModeCategory,
     args,
     dependencies,
   )
@@ -147,12 +144,13 @@ async function simulatePositionTransition(
     provider: dependencies.provider,
     protocolVersion: dependencies.protocol.version,
   })
-
+  console.log('protocolData', protocolData)
   const {
     aaveFlashloanDaiPriceInEth,
     aaveDebtTokenPriceInEth,
     aaveCollateralTokenPriceInEth,
     reserveDataForFlashloan,
+    reserveEModeCategory,
   } = protocolData
 
   const BASE = new BigNumber(10000)
@@ -221,6 +219,7 @@ async function simulatePositionTransition(
       },
     ),
     oracle,
+    reserveEModeCategory,
   }
 }
 
@@ -228,6 +227,7 @@ async function buildOperation(
   swapData: SwapData,
   simulatedPositionTransition: IBaseSimulatedTransition,
   collectFeeFrom: 'sourceToken' | 'targetToken',
+  reserveEModeCategory: number | undefined,
   args: AaveOpenArgs,
   dependencies: AaveOpenDependencies,
 ) {
@@ -268,6 +268,7 @@ async function buildOperation(
       borrowAmountInBaseUnit: borrowAmountInWei,
       collateralTokenAddress,
       debtTokenAddress,
+      eModeCategoryId: reserveEModeCategory || 0,
       useFlashloan: simulatedPositionTransition.flags.requiresFlashloan,
       proxy: dependencies.proxy,
       user: dependencies.user,
@@ -328,6 +329,8 @@ async function generateTransition({
   const depositCollateralAmountInWei =
     args.depositedByUser?.collateralToken?.amountInBaseUnit || ZERO
 
+  console.log('SWAPDATA')
+  console.log('swapData.fromTokenAmount', swapData.fromTokenAmount.toString())
   const actualSwapBase18FromTokenAmount = amountToWei(
     amountFromWei(swapData.fromTokenAmount, args.debtToken.precision),
     TYPICAL_PRECISION,
@@ -340,11 +343,20 @@ async function generateTransition({
   const actualMarketPriceWithSlippage = actualSwapBase18FromTokenAmount.div(
     actualSwapBase18ToTokenAmount,
   )
+  console.log('toAmountWithMaxSlippage', toAmountWithMaxSlippage.toString())
+  console.log('actualSwapBase18FromTokenAmount', actualSwapBase18FromTokenAmount.toString())
+  console.log('actualSwapBase18ToTokenAmount', actualSwapBase18ToTokenAmount.toString())
 
   // EG FROM WBTC 8 to USDC 6
   // Convert WBTC fromWei
   // Apply market price
   // Convert result back to USDC at precision 6
+  console.log('SIMULATED SWAP')
+  console.log(
+    'simulatedPositionTransition.swap.fromTokenAmount',
+    simulatedPositionTransition.swap.fromTokenAmount.toString(),
+  )
+  console.log('actualMarketPriceWithSlippage', actualMarketPriceWithSlippage.toString())
   const collateralAmountAfterSwapInWei = amountToWei(
     amountFromWei(simulatedPositionTransition.swap.fromTokenAmount, args.debtToken.precision).div(
       actualMarketPriceWithSlippage,
@@ -352,13 +364,22 @@ async function generateTransition({
     args.collateralToken.precision,
   ).integerValue(BigNumber.ROUND_DOWN)
 
+  console.log('collateralAmountAfterSwapInWei', collateralAmountAfterSwapInWei.toString())
+  console.log('depositCollateralAmountInWei', depositCollateralAmountInWei.toString())
+  const finalCollateralAmountAsWad = collateralAmountAfterSwapInWei.plus(
+    depositCollateralAmountInWei,
+  )
+  console.log('SIMULATED FINAL POSITION')
+  console.log('oracle', oracle.toString())
+  console.log('finalDebtAmountAsWad', simulatedPositionTransition.position.debt.toString())
+  console.log('finalCollateralAmountAsWad', finalCollateralAmountAsWad.toString())
   /*
     Final position calculated using actual swap data and the latest market price
    */
   const finalPosition = new Position(
     simulatedPositionTransition.position.debt,
     {
-      amount: collateralAmountAfterSwapInWei.plus(depositCollateralAmountInWei),
+      amount: finalCollateralAmountAsWad,
       symbol: simulatedPositionTransition.position.collateral.symbol,
       precision: simulatedPositionTransition.position.collateral.precision,
     },

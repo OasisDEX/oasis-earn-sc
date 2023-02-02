@@ -1,20 +1,20 @@
 import { protocols, strategies } from '@oasisdex/oasis-actions/src'
 
 import { buildGetTokenFunction } from '../../../helpers/aave/'
-import init, { resetNode } from '../../../helpers/init'
+import init, { resetNode, resetNodeToLatestBlock } from '../../../helpers/init'
 import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { mainnetAddresses } from '../../addresses'
-import { testBlockNumber } from '../../config'
+import { testBlockNumberForAaveV3 } from '../../config'
 import { deploySystem } from '../../deploySystem'
-import { createDPMAccount, createEthUsdcMultiplyAAVEPosition } from '../factories'
+import { createDPMAccount } from '../factories'
 import { createWstEthEthEarnAAVEPosition } from '../factories/createWstEthEthEarnAAVEPosition'
 import { StrategiesDependencies } from '../types'
 import { AaveV3PositionStrategy } from '../types/positionDetails'
 import { SystemWithAAVEV3Positions } from '../types/systemWithAAVEPositions'
 
 export function getSupportedAaveV3Strategies(): AaveV3PositionStrategy[] {
-  return ['ETH/USDC Multiply', 'WSTETH/ETH Earn']
+  return [/*'ETH/USDC Multiply',*/ 'WSTETH/ETH Earn']
 }
 
 export const getSystemWithAaveV3Positions =
@@ -23,11 +23,19 @@ export const getSystemWithAaveV3Positions =
     const config = await init()
     const getTokens = buildGetTokenFunction(config, await import('hardhat'))
 
-    if (testBlockNumber) {
-      await resetNode(config.provider, testBlockNumber)
+    const useFallbackSwap = !use1inch
+    if (testBlockNumberForAaveV3 && useFallbackSwap) {
+      await resetNode(config.provider, testBlockNumberForAaveV3)
     }
 
-    const useFallbackSwap = !use1inch
+    if (use1inch) {
+      await resetNodeToLatestBlock(config.provider)
+    }
+
+    if (!testBlockNumberForAaveV3 && useFallbackSwap) {
+      throw 'testBlockNumber is not set'
+    }
+
     const { system, registry } = await deploySystem(config, false, useFallbackSwap)
 
     const dependencies: StrategiesDependencies = {
@@ -50,7 +58,7 @@ export const getSystemWithAaveV3Positions =
         getProtocolData: protocols.aave.getAaveProtocolData,
       },
       getSwapData: use1inch
-        ? swapAddress => getOneInchCall(swapAddress)
+        ? swapAddress => getOneInchCall(swapAddress, [], true)
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
 
@@ -69,14 +77,14 @@ export const getSystemWithAaveV3Positions =
 
     const swapAddress = system.common.swap.address
 
-    const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-    })
+    // const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyEthUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config,
+    // })
 
     const wstethEthEarnPosition = await createWstEthEthEarnAAVEPosition({
       proxy: dpmProxyForEarnWstEthEth,
@@ -87,14 +95,14 @@ export const getSystemWithAaveV3Positions =
       config,
     })
 
-    const dsProxyEthUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-      proxy: system.common.userProxyAddress,
-      isDPM: false,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-    })
+    // const dsProxyEthUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
+    //   proxy: system.common.userProxyAddress,
+    //   isDPM: false,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config,
+    // })
 
     return {
       config,
@@ -102,10 +110,10 @@ export const getSystemWithAaveV3Positions =
       registry,
       strategiesDependencies: dependencies,
       dpmPositions: {
-        [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition,
+        // [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition,
         [wstethEthEarnPosition.strategy]: wstethEthEarnPosition,
       },
-      dsProxyPosition: dsProxyEthUsdcMultiplyPosition,
+      // dsProxyPosition: dsProxyEthUsdcMultiplyPosition,
       getTokens,
     }
   }

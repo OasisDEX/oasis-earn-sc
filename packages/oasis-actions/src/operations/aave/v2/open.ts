@@ -65,13 +65,13 @@ export async function open({
     sumAmounts: false,
   })
 
-  const depositDaiInAAVE = actions.aave.aaveDeposit({
+  const depositDaiInAAVE = actions.aave.v2.aaveDeposit({
     amount: flashloanAmount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
 
-  const borrowDebtTokensFromAAVE = actions.aave.aaveBorrow({
+  const borrowDebtTokensFromAAVE = actions.aave.v2.aaveBorrow({
     amount: borrowAmountInBaseUnit,
     asset: debtTokenAddress,
     to: proxy,
@@ -101,7 +101,7 @@ export async function open({
     [0, 0, 3, 0],
   )
 
-  const depositCollateral = actions.aave.aaveDeposit(
+  const depositCollateral = actions.aave.v2.aaveDeposit(
     {
       asset: collateralTokenAddress,
       amount: deposit.collateralToken.amountInBaseUnit,
@@ -111,7 +111,7 @@ export async function open({
     [0, 3, 0, 0],
   )
 
-  const withdrawDAIFromAAVE = actions.aave.aaveWithdraw({
+  const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw({
     asset: addresses.DAI,
     amount: flashloanAmount,
     to: addresses.operationExecutor,

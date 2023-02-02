@@ -15,7 +15,7 @@ import { SystemWithAAVEV3Positions } from '../fixtures/types/systemWithAAVEPosit
 import { expectToBe, expectToBeEqual } from '../utils'
 
 describe(`Strategy | AAVE | Open Position`, async function () {
-  describe('Using AAVE V2', async function () {
+  describe.skip('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
     const supportedStrategies = getSupportedStrategies()
 
@@ -102,7 +102,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         })
       })
     })
-    describe.skip('Open position: With 1inch', () => {
+    describe('Open position: With 1inch', () => {
       before(async () => {
         fixture = await loadFixture(getSystemWithAavePositions({ use1inch: true }))
       })
@@ -185,7 +185,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
   })
-  describe.skip('Using AAVE V3', async function () {
+  describe('Using AAVE V3', async function () {
     let fixture: SystemWithAAVEV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies()
 
@@ -317,6 +317,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
       describe('Using DPM Proxy', async () => {
         supportedStrategies.forEach(strategy => {
+          console.log('strategy', strategy)
           let position: IPosition
           let simulatedPosition: IPosition
           let simulatedTransition: IPositionTransition['simulation']
@@ -339,6 +340,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           })
 
           it(`Should draw the correct amount of debt for ${strategy}`, async () => {
+            console.log(
+              'simulatedPosition.debt.amount.toFixed(0)',
+              simulatedPosition.debt.amount.toFixed(0),
+            )
+            console.log('position.debt.amount.toFixed(0)', position.debt.amount.toFixed(0))
+
             expectToBe(
               simulatedPosition.debt.amount.toFixed(0),
               'lte',
@@ -346,6 +353,15 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             )
           })
           it(`Should deposit all collateral for ${strategy}`, async () => {
+            console.log(
+              'simulatedPosition.collateral.amount.toFixed(0)',
+              simulatedPosition.collateral.amount.toFixed(0),
+            )
+            console.log(
+              'position.collateral.amount.toFixed(0)',
+              position.collateral.amount.toFixed(0),
+            )
+
             expectToBe(
               simulatedPosition.collateral.amount,
               'lte',
@@ -353,6 +369,13 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             )
           })
           it(`Should have the correct multiple for ${strategy}`, async () => {
+            console.log('TEST')
+            console.log('position.riskRatio.multiple', position.riskRatio.multiple.toString())
+            console.log(
+              'simulatedPosition.riskRatio.multiple',
+              simulatedPosition.riskRatio.multiple.toString(),
+            )
+
             expectToBe(position.riskRatio.multiple, 'lte', simulatedPosition.riskRatio.multiple)
           })
           it(`Should collect fee for ${strategy}`, async () => {

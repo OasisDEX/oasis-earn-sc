@@ -197,7 +197,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     [serviceRegistryAddress],
   )
 
-  const [setEModeInAAVEV3Action, setEModeInAAVEV3Address] = await deploy(
+  const [setEModeInAAVEV3Action, actionSetEModeInAAVEV3Address] = await deploy(
     CONTRACT_NAMES.aave.v3.SET_EMODE,
     [serviceRegistryAddress],
   )
@@ -318,6 +318,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   const aaveV3PaybackHash = await registry.addEntry(
     CONTRACT_NAMES.aave.v3.PAYBACK,
     actionPaybackFromAAVEV3Address,
+  )
+  const aaveV3SetEModeHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.SET_EMODE,
+    actionSetEModeInAAVEV3Address,
   )
   await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, ADDRESSES.main.aave.v3.Pool)
 
@@ -663,6 +667,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     {
       hash: aaveV3BorrowHash,
       optional: false,
+    },
+    {
+      hash: aaveV3SetEModeHash,
+      optional: true,
     },
     {
       hash: wrapEthHash,

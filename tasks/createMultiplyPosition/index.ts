@@ -100,7 +100,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       protocol: {
         version: 2,
         getCurrentPosition: strategies.aave.view,
-        getProtocolData: protocols.aave.getOpenProtocolData,
+        getProtocolData: protocols.aave.getAaveProtocolData,
       },
       getSwapData: swapData,
       user: config.address,

@@ -15,7 +15,7 @@ export interface BorrowArgs {
 
 export async function borrow({ borrowToken, amountInBaseUnit, account, isEthToken }: BorrowArgs) {
   const calls = [
-    actions.aave.aaveBorrow({
+    actions.aave.v2.aaveBorrow({
       amount: amountInBaseUnit,
       asset: borrowToken,
       to: account,

@@ -6,7 +6,7 @@ import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../../helpers/utils'
 import { PositionDetails, StrategiesDependencies } from '../types'
 import { AaveV3PositionStrategy } from '../types/positionDetails'
-import { ETH, MULTIPLE, SLIPPAGE, WSTETH } from './common'
+import { EMODE_MULTIPLE, ETH, SLIPPAGE, WSTETH } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
@@ -21,7 +21,7 @@ async function openWstEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1])
         amountInBaseUnit: transactionAmount,
       },
     },
-    multiple: MULTIPLE,
+    multiple: EMODE_MULTIPLE,
     positionType: 'Earn',
   }
 

@@ -32,7 +32,7 @@ export async function paybackWithdraw(args: {
   const wrapEth = actions.common.wrapEth({
     amount: args.amountDebtToPaybackInBaseUnit,
   })
-  const paybackDebt = actions.aave.aavePayback({
+  const paybackDebt = actions.aave.v2.aavePayback({
     asset: args.debtTokenAddress,
     amount: args.amountDebtToPaybackInBaseUnit,
     paybackAll: args.isPaybackAll,
@@ -44,7 +44,7 @@ export async function paybackWithdraw(args: {
     asset: args.debtTokenIsEth ? args.addresses.ETH : args.debtTokenAddress,
   })
 
-  const withdrawCollateralFromAAVE = actions.aave.aaveWithdraw({
+  const withdrawCollateralFromAAVE = actions.aave.v2.aaveWithdraw({
     asset: args.collateralTokenAddress,
     amount: args.amountCollateralToWithdrawInBaseUnit,
     to: args.proxy,

@@ -170,7 +170,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           protocol: {
             version: 2,
             getCurrentPosition: strategies.aave.view,
-            getProtocolData: protocols.aave.getOpenProtocolData,
+            getProtocolData: protocols.getAaveProtocolData,
           },
           getSwapData: oneInchCallMock(mockMarketPriceOnOpen),
           proxy,
@@ -718,7 +718,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             protocol: {
               version: 2,
               getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getOpenProtocolData,
+              getProtocolData: protocols.getAaveProtocolData,
             },
             getSwapData: getOneInchCall(system.common.swap.address, ['ST_ETH']),
             proxy,
@@ -904,7 +904,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             protocol: {
               version: 2,
               getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getOpenProtocolData,
+              getProtocolData: protocols.getAaveProtocolData,
             },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy,
@@ -1083,7 +1083,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             protocol: {
               version: 2,
               getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getOpenProtocolData,
+              getProtocolData: protocols.getAaveProtocolData,
             },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy,

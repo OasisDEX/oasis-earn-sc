@@ -131,7 +131,7 @@ export async function deposit({
       // it will be ignored.
       // On other note, if mapping is 0, that means that no swap is required
       // therefore the actual deposited value will be used.
-      actions.aave.aaveDeposit(
+      actions.aave.v2.aaveDeposit(
         {
           asset: depositToken,
           amount: amountInBaseUnit,

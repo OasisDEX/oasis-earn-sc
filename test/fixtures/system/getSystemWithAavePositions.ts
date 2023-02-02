@@ -1,7 +1,7 @@
 import { protocols, strategies } from '@oasisdex/oasis-actions/src'
 
 import { buildGetTokenFunction } from '../../../helpers/aave/'
-import init, { resetNode } from '../../../helpers/init'
+import init, { resetNode, resetNodeToLatestBlock } from '../../../helpers/init'
 import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { mainnetAddresses } from '../../addresses'
@@ -26,14 +26,21 @@ export const getSystemWithAavePositions =
     const config = await init()
 
     const getTokens = buildGetTokenFunction(config, await import('hardhat'))
-
-    if (testBlockNumber) {
+    const useFallbackSwap = !use1inch
+    if (testBlockNumber && useFallbackSwap) {
       await resetNode(config.provider, testBlockNumber)
     }
 
-    const useFallbackSwap = !use1inch
+    if (use1inch) {
+      await resetNodeToLatestBlock(config.provider)
+    }
+
+    if (!testBlockNumber && useFallbackSwap) {
+      throw 'testBlockNumber is not set'
+    }
+
     const { system, registry } = await deploySystem(config, false, useFallbackSwap)
-    console.log('useFallbackSwap', useFallbackSwap)
+
     const dependencies: StrategiesDependencies = {
       addresses: {
         ...mainnetAddresses,

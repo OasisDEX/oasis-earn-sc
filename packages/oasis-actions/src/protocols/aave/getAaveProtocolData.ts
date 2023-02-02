@@ -5,6 +5,7 @@ import aaveV2PriceOracleABI from '../../../../../abi/external/aave/v2/priceOracl
 import aaveV2ProtocolDataProviderABI from '../../../../../abi/external/aave/v2/protocolDataProvider.json'
 import aaveV3PriceOracleABI from '../../../../../abi/external/aave/v3/aaveOracle.json'
 import aaveV3ProtocolDataProviderABI from '../../../../../abi/external/aave/v3/aaveProtocolDataProvider.json'
+import aaveV3PoolABI from '../../../../../abi/external/aave/v3/pool.json'
 import { amountFromWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
 import { AAVEStrategyAddresses } from '../../operations/aave/v2'
@@ -32,11 +33,13 @@ export const getAaveProtocolData = async ({
   const hasProxy = !!proxy
 
   let priceOracle
+  let aavePool
   if (isV2 && 'priceOracle' in addresses) {
     priceOracle = new ethers.Contract(addresses.priceOracle, aaveV2PriceOracleABI, provider)
   }
   if (isV3 && 'aaveOracle' in addresses) {
     priceOracle = new ethers.Contract(addresses.aaveOracle, aaveV3PriceOracleABI, provider)
+    aavePool = new ethers.Contract(addresses.pool, aaveV3PoolABI, provider)
   }
 
   let aaveProtocolDataProvider
@@ -53,6 +56,10 @@ export const getAaveProtocolData = async ({
       aaveV3ProtocolDataProviderABI,
       provider,
     )
+  }
+
+  if (isV3 && !aavePool) {
+    throw new Error('Aave pool not found')
   }
 
   if (!priceOracle || !aaveProtocolDataProvider) {
@@ -73,29 +80,37 @@ export const getAaveProtocolData = async ({
     aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
   ]
 
+  if (isV3) {
+    promises.push(aaveProtocolDataProvider.getReserveEModeCategory(collateralTokenAddress))
+  }
+
   if (hasProxy) {
     promises.push(aaveProtocolDataProvider.getUserReserveData(debtTokenAddress, proxy))
     promises.push(aaveProtocolDataProvider.getUserReserveData(collateralTokenAddress, proxy))
   }
 
-  const [
-    aaveFlashloanDaiPriceInEth,
-    aaveDebtTokenPriceInEth,
-    aaveCollateralTokenPriceInEth,
-    reserveDataForFlashloan,
-    reserveDataForCollateral,
-    userReserveDataForDebtToken,
-    userReserveDataForCollateral,
-  ] = await Promise.all(promises)
+  const results = await Promise.all(promises)
 
+  const reserveEModeCategory = isV3 && results[5] ? Number(results[5].toString()) : undefined
+
+  console.log('typeof reserveEModeCategory', typeof reserveEModeCategory)
+  console.log('treserveEModeCategory', reserveEModeCategory)
+  let eModeCategoryData
+  if (isV3 && aavePool && reserveEModeCategory !== 0) {
+    eModeCategoryData = await aavePool.getEModeCategoryData(reserveEModeCategory)
+  }
+  console.log('eModeCategoryData', eModeCategoryData)
+  console.log('typeof reserveEModeCategory', typeof reserveEModeCategory)
   return {
-    aaveFlashloanDaiPriceInEth,
-    aaveDebtTokenPriceInEth,
-    aaveCollateralTokenPriceInEth,
-    reserveDataForFlashloan,
-    reserveDataForCollateral,
-    userReserveDataForDebtToken,
-    userReserveDataForCollateral,
+    aaveFlashloanDaiPriceInEth: results[0] as BigNumber,
+    aaveDebtTokenPriceInEth: results[1] as BigNumber,
+    aaveCollateralTokenPriceInEth: results[2] as BigNumber,
+    reserveDataForFlashloan: results[3],
+    reserveDataForCollateral: results[4],
+    reserveEModeCategory: reserveEModeCategory,
+    userReserveDataForDebtToken: hasProxy ? results[6] : undefined,
+    userReserveDataForCollateral: hasProxy ? results[7] : undefined,
+    eModeCategoryData,
   }
 }
 

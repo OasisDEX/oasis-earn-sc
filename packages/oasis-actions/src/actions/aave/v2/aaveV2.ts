@@ -1,21 +1,21 @@
 import BigNumber from 'bignumber.js'
 
-import { CONTRACT_NAMES } from '../helpers/constants'
-import { calldataTypes } from '../types'
-import { ActionFactory } from './actionFactory'
-import { getActionHash } from './getActionHash'
+import { CONTRACT_NAMES } from '../../../helpers/constants'
+import { calldataTypes } from '../../../types'
+import { ActionFactory } from '../../actionFactory'
+import { getActionHash } from '../../getActionHash'
 
 const createAction = ActionFactory.create
 
-export function aaveV3Deposit(
+export function aaveDeposit(
   args: { asset: string; amount: BigNumber | 0; sumAmounts: boolean; setAsCollateral?: boolean },
   paramsMapping: [asset: number, amount: number, sumAmounts: number, setAsCollateral: number] = [
     0, 0, 0, 0,
   ],
 ) {
   return createAction(
-    getActionHash(CONTRACT_NAMES.aave.v3.DEPOSIT),
-    [calldataTypes.aaveV3.Deposit],
+    getActionHash(CONTRACT_NAMES.aave.v2.DEPOSIT),
+    [calldataTypes.aave.Deposit],
     [
       {
         asset: args.asset,
@@ -28,10 +28,10 @@ export function aaveV3Deposit(
   )
 }
 
-export function aaveV3Borrow(args: { amount: BigNumber; asset: string; to: string }) {
+export function aaveBorrow(args: { amount: BigNumber; asset: string; to: string }) {
   return createAction(
-    getActionHash(CONTRACT_NAMES.aave.v3.BORROW),
-    [calldataTypes.aaveV3.Borrow],
+    getActionHash(CONTRACT_NAMES.aave.v2.BORROW),
+    [calldataTypes.aave.Borrow],
     [
       {
         amount: args.amount.toFixed(0),
@@ -42,10 +42,10 @@ export function aaveV3Borrow(args: { amount: BigNumber; asset: string; to: strin
   )
 }
 
-export function aaveV3Withdraw(args: { amount: BigNumber; asset: string; to: string }) {
+export function aaveWithdraw(args: { amount: BigNumber; asset: string; to: string }) {
   return createAction(
-    getActionHash(CONTRACT_NAMES.aave.v3.WITHDRAW),
-    [calldataTypes.aaveV3.Withdraw],
+    getActionHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
+    [calldataTypes.aave.Withdraw],
     [
       {
         asset: args.asset,
@@ -56,13 +56,13 @@ export function aaveV3Withdraw(args: { amount: BigNumber; asset: string; to: str
   )
 }
 
-export function aaveV3Payback(
+export function aavePayback(
   args: { asset: string; amount: BigNumber; paybackAll: boolean },
   paramsMapping: [asset: number, amount: number, paybackAll: number] = [0, 0, 0],
 ) {
   return createAction(
-    getActionHash(CONTRACT_NAMES.aave.v3.PAYBACK),
-    [calldataTypes.aaveV3.Payback],
+    getActionHash(CONTRACT_NAMES.aave.v2.PAYBACK),
+    [calldataTypes.aave.Payback],
     [
       {
         asset: args.asset,

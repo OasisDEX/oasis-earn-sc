@@ -1,15 +1,15 @@
-import AAVEDataProviderABI from '@abi/external/aave/v2/protocolDataProvider.json'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { AAVETokens, ADDRESSES, ONE, Position, strategies, ZERO } from '@oasisdex/oasis-actions/src'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
 import { PositionBalance } from '@oasisdex/oasis-actions/src/helpers/calculations/Position'
 import { Address } from '@oasisdex/oasis-actions/src/types'
-import aavePriceOracleABI from 'abi/external/aave/v2/aavePriceOracle.json'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers, Signer } from 'ethers'
 
+import aavePriceOracleABI from '../../abi/external/aave/v2/priceOracle.json'
+import AAVEDataProviderABI from '../../abi/external/aave/v2/protocolDataProvider.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { GasEstimateHelper, gasEstimateHelper } from '../../helpers/gasEstimation'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
@@ -31,7 +31,11 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
 
   before(async function () {
     ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
-    aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
+    aaveDataProvider = new Contract(
+      ADDRESSES.main.aave.v2.ProtocolDataProvider,
+      AAVEDataProviderABI,
+      provider,
+    )
   })
 
   describe('Uniswap t/x', function () {
@@ -70,6 +74,9 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
 
       const addresses = {
         ...mainnetAddresses,
+        priceOracle: mainnetAddresses.aave.v2.priceOracle,
+        lendingPool: mainnetAddresses.aave.v2.lendingPool,
+        protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
         operationExecutor: system.common.operationExecutor.address,
       }
 
@@ -178,7 +185,7 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
       )
 
       const aavePriceOracle = new ethers.Contract(
-        addresses.aavePriceOracle,
+        addresses.priceOracle,
         aavePriceOracleABI,
         provider,
       )

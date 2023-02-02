@@ -131,7 +131,7 @@ task('createPosition', 'Create stETH position on AAVE')
         isDPMProxy: false,
         protocol: {
           getCurrentPosition: strategies.aave.view,
-          getProtocolData: protocols.aave.getOpenProtocolData,
+          getProtocolData: protocols.aave.getAaveProtocolData,
           version: 2,
         },
       },

@@ -51,13 +51,13 @@ export async function increaseMultiple(
     sumAmounts: false,
   })
 
-  const depositDaiInAAVE = actions.aave.aaveDeposit({
+  const depositDaiInAAVE = actions.aave.v2.aaveDeposit({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
 
-  const borrowDebtTokensFromAAVE = actions.aave.aaveBorrow({
+  const borrowDebtTokensFromAAVE = actions.aave.v2.aaveBorrow({
     amount: args.borrowAmountInWei,
     asset: args.fromTokenAddress,
     to: args.proxy,
@@ -87,7 +87,7 @@ export async function increaseMultiple(
     [0, 0, 3, 0],
   )
 
-  const depositCollateral = actions.aave.aaveDeposit(
+  const depositCollateral = actions.aave.v2.aaveDeposit(
     {
       asset: args.toTokenAddress,
       amount: args.depositCollateral.amountInWei,
@@ -97,7 +97,7 @@ export async function increaseMultiple(
     [0, 3, 0, 0],
   )
 
-  const withdrawDAIFromAAVE = actions.aave.aaveWithdraw({
+  const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw({
     asset: addresses.DAI,
     amount: args.flashloanAmount,
     to: addresses.operationExecutor,

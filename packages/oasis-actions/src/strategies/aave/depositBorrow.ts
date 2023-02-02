@@ -18,7 +18,11 @@ import {
 import { AAVETokens } from '../../types/aave'
 
 interface DepositBorrowArgs {
-  entryToken?: { amountInBaseUnit: BigNumber; symbol: AAVETokens; precision?: number }
+  entryToken?: {
+    amountInBaseUnit: BigNumber
+    symbol: Exclude<AAVETokens, 'WSTETH'>
+    precision?: number
+  }
   slippage?: BigNumber
   borrowAmount?: BigNumber
 }

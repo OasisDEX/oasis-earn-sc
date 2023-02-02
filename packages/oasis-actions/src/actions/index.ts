@@ -1,9 +1,10 @@
-import * as aaveV2 from './aaveV2'
-import * as aaveV3 from './aaveV3'
 export * as common from './common'
 export * as maker from './maker'
 
+import { aaveV2 } from './aave/v2'
+import { aaveV3 } from './aave/v3'
+
 export const aave = {
-  ...aaveV2,
-  ...aaveV3,
+  v2: aaveV2,
+  v3: aaveV3,
 }

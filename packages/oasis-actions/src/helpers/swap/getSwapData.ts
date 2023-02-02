@@ -40,6 +40,7 @@ export async function getSwapDataHelper<Addresses, Tokens>({
 
   const fromToken = fromTokenIsDebt ? debtTokenAddress : collateralTokenAddress
   const toToken = fromTokenIsDebt ? collateralTokenAddress : debtTokenAddress
+
   const collectFeeFrom = acceptedFeeToken({
     fromToken,
     toToken,

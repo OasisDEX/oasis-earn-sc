@@ -179,7 +179,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           protocol: {
             version: 2,
             getCurrentPosition: strategies.aave.view,
-            getProtocolData: protocols.aave.getOpenProtocolData,
+            getProtocolData: protocols.aave.getAaveProtocolData,
           },
           getSwapData: oneInchCallMock(mockMarketPriceOnOpen, {
             from: debtToken.precision,
@@ -779,7 +779,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             protocol: {
               version: 2,
               getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getOpenProtocolData,
+              getProtocolData: protocols.aave.getAaveProtocolData,
             },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
@@ -997,7 +997,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             protocol: {
               version: 2,
               getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getOpenProtocolData,
+              getProtocolData: protocols.getAaveProtocolData,
             },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
@@ -1225,7 +1225,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             protocol: {
               version: 2,
               getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getOpenProtocolData,
+              getProtocolData: protocols.getAaveProtocolData,
             },
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
@@ -1447,7 +1447,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             protocol: {
               version: 2,
               getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getOpenProtocolData,
+              getProtocolData: protocols.getAaveProtocolData,
             },
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,

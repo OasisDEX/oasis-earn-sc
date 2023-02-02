@@ -30,13 +30,13 @@ export async function close(
     sumAmounts: false,
   })
 
-  const depositDaiInAAVE = actions.aave.aaveDeposit({
+  const depositDaiInAAVE = actions.aave.v2.aaveDeposit({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
 
-  const withdrawCollateralFromAAVE = actions.aave.aaveWithdraw({
+  const withdrawCollateralFromAAVE = actions.aave.v2.aaveWithdraw({
     asset: args.collateralTokenAddress,
     amount: new BigNumber(MAX_UINT),
     to: args.proxy,
@@ -62,13 +62,13 @@ export async function close(
     [0, 0, 3, 0],
   )
 
-  const paybackInAAVE = actions.aave.aavePayback({
+  const paybackInAAVE = actions.aave.v2.aavePayback({
     asset: args.debtTokenAddress,
     amount: new BigNumber(0),
     paybackAll: true,
   })
 
-  const withdrawDAIFromAAVE = actions.aave.aaveWithdraw({
+  const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw({
     asset: addresses.DAI,
     amount: args.flashloanAmount,
     to: addresses.operationExecutor,
