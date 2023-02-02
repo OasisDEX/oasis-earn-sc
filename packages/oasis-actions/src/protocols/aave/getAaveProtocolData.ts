@@ -93,14 +93,11 @@ export const getAaveProtocolData = async ({
 
   const reserveEModeCategory = isV3 && results[5] ? Number(results[5].toString()) : undefined
 
-  console.log('typeof reserveEModeCategory', typeof reserveEModeCategory)
-  console.log('treserveEModeCategory', reserveEModeCategory)
   let eModeCategoryData
   if (isV3 && aavePool && reserveEModeCategory !== 0) {
     eModeCategoryData = await aavePool.getEModeCategoryData(reserveEModeCategory)
   }
-  console.log('eModeCategoryData', eModeCategoryData)
-  console.log('typeof reserveEModeCategory', typeof reserveEModeCategory)
+
   return {
     aaveFlashloanDaiPriceInEth: results[0] as BigNumber,
     aaveDebtTokenPriceInEth: results[1] as BigNumber,

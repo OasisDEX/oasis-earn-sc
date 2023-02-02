@@ -76,10 +76,6 @@ export async function openV3({
     to: proxy,
   })
 
-  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
-    categoryId: eModeCategoryId || 0,
-  })
-
   const wrapEth = actions.common.wrapEth({
     amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
   })
@@ -129,7 +125,6 @@ export async function openV3({
     debtToken: debtTokenAddress,
   })
 
-  setEModeOnCollateral.skipped = !eModeCategoryId || eModeCategoryId === 0
   pullDebtTokensToProxy.skipped =
     deposit.debtToken.amountInBaseUnit.eq(ZERO) || deposit.debtToken.isEth
   pullCollateralTokensToProxy.skipped =
@@ -142,7 +137,6 @@ export async function openV3({
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
     borrowDebtTokensFromAAVE,
-    setEModeOnCollateral,
     wrapEth,
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnLendingPool,
@@ -159,8 +153,14 @@ export async function openV3({
     calls: flashloanCalls,
   })
 
+  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
+    categoryId: eModeCategoryId || 0,
+  })
+
+  setEModeOnCollateral.skipped = !eModeCategoryId || eModeCategoryId === 0
+
   return {
-    calls: [takeAFlashLoan],
+    calls: [takeAFlashLoan, setEModeOnCollateral],
     operationName: OPERATION_NAMES.aave.v3.OPEN_POSITION,
   }
 }
