@@ -14,6 +14,7 @@ import {
   FEE_BASE,
   FLASHLOAN_SAFETY_MARGIN,
   ONE,
+  TEN,
   TYPICAL_PRECISION,
   ZERO,
 } from '../../helpers/constants'
@@ -31,7 +32,9 @@ import { AAVETokens } from '../../types/aave'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
 type AAVECloseArgs = IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral
-type AAVECloseDependencies = IPositionTransitionDependencies<AAVEStrategyAddresses>
+type AAVECloseDependencies = IPositionTransitionDependencies<AAVEStrategyAddresses> & {
+  shouldCloseToCollateral: boolean
+}
 
 export async function close(
   args: AAVECloseArgs,
@@ -43,19 +46,130 @@ export async function close(
   return generateTransition(swapData, collectFeeFrom, preSwapFee, operation, args, dependencies)
 }
 
-async function getSwapData(args: AAVECloseArgs, dependencies: AAVECloseDependencies) {
+function calculateNeededCollateralToPaybackDebt(
+  debtPrice: BigNumber,
+  debtPrecision: number,
+  colPrice: BigNumber,
+  colPrecision: number,
+  debtAmount: BigNumber,
+  fee: BigNumber,
+  slippage: BigNumber,
+) {
+  const paybackAmount = debtPrice.times(debtAmount)
+  const paybackAmountInclFee = paybackAmount.times(ONE.plus(fee))
+  const collateralAmountNeeded = new BigNumber(
+    paybackAmount
+      .plus(paybackAmount.times(fee))
+      .plus(paybackAmountInclFee.times(slippage))
+      .div(colPrice)
+      .times(TEN.pow(colPrecision - debtPrecision)), // This needs to be double checked
+  ).integerValue(BigNumber.ROUND_DOWN)
+  return collateralAmountNeeded
+}
+
+// TODO: Split the logic into 2
+async function getSwapData(
+  { debtToken, collateralToken, slippage, collateralAmountLockedInProtocolInWei }: AAVECloseArgs,
+  dependencies: AAVECloseDependencies,
+) {
+  const { shouldCloseToCollateral, addresses } = dependencies
   const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
-    { debtToken: args.debtToken, collateralToken: args.collateralToken },
-    dependencies.addresses,
+    { debtToken, collateralToken },
+    addresses,
   )
 
-  const swapAmountBeforeFees = args.collateralAmountLockedInProtocolInWei
+  // Since we cannot get the exact amount that will be needed
+  // to cover all debt, there will be left overs of the debt token
+  // which will then have to be transferred back to the user
+  // In order to skip that step we won't add any fee per see but rather
+  // add the fee to the amount needed for the swap, cover all the debt
+  // and the remaining of the debt token will be send to our fee beneficiary address
+  // TODO: Improve the description above
+  if (shouldCloseToCollateral) {
+    let [, colPrice, debtPrice] = (
+      await getValuesFromProtocol(collateralTokenAddress, debtTokenAddress, dependencies)
+    ).map(price => {
+      return new BigNumber(price.toString())
+    })
+    // 1.Use offset amount which will be used in the swapp as well.
+    // the idea is that after the debt is paid, the remaining will be transferred to the beneficiary
+    // Debt is a complex number and interest rate is constantly applied.
+    // We don't want to end up having leftovers of debt transferred to the user
+    // so instead of charging the user a fee, the extra debt amount is transferred to us.
+
+    const fee = new BigNumber(DEFAULT_FEE).div(new BigNumber(FEE_BASE)) // as DECIMAL number
+
+    // 2. Calculated the needed amount of collateral to payback the debt
+    // This value is calculated based on the AAVE protocol oracles.
+    // At the time of writing, their main source are Chainlink oracles.
+    let collateralNeeded = calculateNeededCollateralToPaybackDebt(
+      debtPrice,
+      debtToken.precision!,
+      colPrice,
+      collateralToken.precision!,
+      dependencies.currentPosition.debt.amount,
+      fee,
+      slippage,
+    )
+
+    // 3 Get latest market price
+    // If you check i.e. https://data.chain.link/ethereum/mainnet/stablecoins/usdc-eth ,
+    // there is a deviation threshold value that shows how much the prices on/off chain might differ
+    // When there is a 1inch swap, we use real-time market price. To calculate that,
+    // A preflight request is sent to calculate the existing market price.
+    const preflightSwapData = await dependencies.getSwapData(
+      collateralTokenAddress,
+      debtTokenAddress,
+      collateralNeeded,
+      slippage,
+    )
+
+    debtPrice = new BigNumber(
+      preflightSwapData.fromTokenAmount
+        .div(preflightSwapData.toTokenAmount)
+        .times(TEN.pow(6))
+        .toFixed(0),
+    )
+
+    // 4. Get Swap Data
+    // This is the actual swap data that will be used in the transaction.
+    const swapData = await dependencies.getSwapData(
+      collateralTokenAddress,
+      debtTokenAddress,
+      calculateNeededCollateralToPaybackDebt(
+        debtPrice,
+        debtToken.precision!,
+        colPrice,
+        collateralToken.precision!,
+        dependencies.currentPosition.debt.amount,
+        fee,
+        slippage,
+      ),
+      slippage,
+    )
+
+    return {
+      swapData,
+      collectFeeFrom: acceptedFeeToken({
+        fromToken: collateralTokenAddress,
+        toToken: debtTokenAddress,
+      }), // TODO: This should be marked as optional since we not always collect fee
+      preSwapFee: ZERO,
+    }
+  }
+
+  const swapAmountBeforeFees = collateralAmountLockedInProtocolInWei
+
   const collectFeeFrom = acceptedFeeToken({
     fromToken: collateralTokenAddress,
     toToken: debtTokenAddress,
   })
 
-  const preSwapFee = calculatePreSwapFeeAmount(collectFeeFrom, swapAmountBeforeFees)
+  const preSwapFee =
+    collectFeeFrom === 'sourceToken'
+      ? calculateFee(swapAmountBeforeFees, new BigNumber(DEFAULT_FEE), new BigNumber(FEE_BASE))
+      : ZERO
+
   const swapAmountAfterFees = swapAmountBeforeFees
     .minus(preSwapFee)
     .integerValue(BigNumber.ROUND_DOWN)
@@ -64,19 +178,10 @@ async function getSwapData(args: AAVECloseArgs, dependencies: AAVECloseDependenc
     collateralTokenAddress,
     debtTokenAddress,
     swapAmountAfterFees,
-    args.slippage,
+    slippage,
   )
 
   return { swapData, collectFeeFrom, preSwapFee }
-}
-
-function calculatePreSwapFeeAmount(
-  collectFeeFrom: 'sourceToken' | 'targetToken' | undefined,
-  swapAmountBeforeFees: BigNumber,
-) {
-  return collectFeeFrom === 'sourceToken'
-    ? calculateFee(swapAmountBeforeFees, new BigNumber(DEFAULT_FEE), new BigNumber(FEE_BASE))
-    : ZERO
 }
 
 async function buildOperation(
@@ -110,9 +215,11 @@ async function buildOperation(
     .integerValue(BigNumber.ROUND_DOWN)
 
   const closeArgs = {
-    lockedCollateralAmountInWei: args.collateralAmountLockedInProtocolInWei,
+    lockedCollateralAmountInWei: dependencies.shouldCloseToCollateral
+      ? swapData.fromTokenAmount
+      : args.collateralAmountLockedInProtocolInWei,
     flashloanAmount: amountToFlashloanInWei,
-    fee: DEFAULT_FEE,
+    fee: dependencies.shouldCloseToCollateral ? 0 : DEFAULT_FEE, //TODO - fee should be passed
     swapData: swapData.exchangeCalldata,
     receiveAtLeast: swapData.minToTokenAmount,
     proxy: dependencies.proxy,
@@ -122,7 +229,9 @@ async function buildOperation(
     debtTokenAddress,
     debtTokenIsEth: args.debtToken.symbol === 'ETH',
     isDPMProxy: dependencies.isDPMProxy,
+    shouldCloseToCollateral: dependencies.shouldCloseToCollateral,
   }
+
   return await operations.aave.close(closeArgs, dependencies.addresses)
 }
 
@@ -137,6 +246,7 @@ async function getValuesFromProtocol(
     dependencies.addresses,
   )
 
+  // TODO: Ask James what's the idea behind this function :S
   async function getAllAndMemoize() {
     return Promise.all([
       aavePriceOracle.getAssetPrice(ADDRESSES.main.DAI),

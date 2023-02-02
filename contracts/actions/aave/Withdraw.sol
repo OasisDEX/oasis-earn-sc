@@ -7,6 +7,7 @@ import { OperationStorage } from "../../core/OperationStorage.sol";
 import { ILendingPool } from "../../interfaces/aave/ILendingPool.sol";
 import { WithdrawData } from "../../core/types/Aave.sol";
 import { AAVE_LENDING_POOL, WITHDRAW_ACTION } from "../../core/constants/Aave.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Withdraw | AAVE Action contract
@@ -26,6 +27,7 @@ contract AaveWithdraw is Executable, UseStore {
     uint256 amountWithdrawn = ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL))
       .withdraw(withdraw.asset, withdraw.amount, withdraw.to);
 
+    console.log("AAVE Withdraw", amountWithdrawn);
     store().write(bytes32(amountWithdrawn));
 
     emit Action(WITHDRAW_ACTION, bytes(abi.encode(amountWithdrawn)));

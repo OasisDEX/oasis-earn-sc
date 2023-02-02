@@ -133,12 +133,10 @@ contract Swap {
     IERC20(swapData.fromAsset).safeTransferFrom(msg.sender, address(this), swapData.amount);
 
     uint256 amountFrom = swapData.amount;
-    console.log("DEBUG: In sWAP");
-
-    console.log("DEBUG: AMOUNT:", swapData.amount);
+    console.log("DEBUG: Swap Amount:", swapData.amount);
+    console.log("Debug: Swap minToTokenAmount", swapData.receiveAtLeast);
 
     if (swapData.collectFeeInFromToken) {
-      console.log("DEBUG: Collecting fee from fromToken");
       amountFrom = _collectFee(swapData.fromAsset, swapData.amount, swapData.fee);
     }
 
@@ -154,14 +152,12 @@ contract Swap {
     );
 
     if (!swapData.collectFeeInFromToken) {
-      console.log("DEBUG: Collecting fee from toToken");
       toTokenBalance = _collectFee(swapData.toAsset, toTokenBalance, swapData.fee);
     }
 
-    console.log("DEBUG: amountFrom after fee collection", amountFrom);
-    console.log("DEBUG: toTokenBalance after fee collection", toTokenBalance);
-
     uint256 fromTokenBalance = IERC20(swapData.fromAsset).balanceOf(address(this));
+    console.log("DEBUG: Swap fromTokenBalance:", fromTokenBalance);
+    console.log("DEBUG: Swap toTokenBalance:", toTokenBalance);
     if (fromTokenBalance > 0) {
       IERC20(swapData.fromAsset).safeTransfer(msg.sender, fromTokenBalance);
     }

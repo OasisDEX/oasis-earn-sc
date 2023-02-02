@@ -5,6 +5,7 @@ import { Executable } from "../common/Executable.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { SendTokenData } from "../../core/types/Common.sol";
 import { SEND_TOKEN_ACTION } from "../../core/constants/Common.sol";
+import "hardhat/console.sol";
 
 /**
  * @title SendToken Action contract
@@ -18,13 +19,19 @@ contract SendToken is Executable {
    */
   function execute(bytes calldata data, uint8[] memory) external payable override {
     SendTokenData memory send = parseInputs(data);
+    console.log("Sending funds to:", send.to);
+    console.log("Sending amount:", send.amount);
+    console.log("Assed balance", IERC20(send.asset).balanceOf(address(this)));
 
     if (msg.value > 0) {
       payable(send.to).transfer(send.amount);
     } else {
+      if (send.amount == type(uint256).max) {
+        send.amount = IERC20(send.asset).balanceOf(address(this));
+      }
       IERC20(send.asset).safeTransfer(send.to, send.amount);
     }
-
+    console.log("Sending amount", send.amount);
     emit Action(SEND_TOKEN_ACTION, bytes(abi.encode(send.amount)));
   }
 

@@ -28,8 +28,9 @@ export const getSystemWithAAVEPositions =
     if (testBlockNumber) {
       await resetNode(config.provider, testBlockNumber)
     }
-    const { system, registry } = await deploySystem(config, false, true)
+    const { system, registry } = await deploySystem(config, false, !use1inch)
 
+    console.log('SYSTEM DEPLOYED!')
     const dependencies: StrategiesDependencies = {
       addresses: {
         ...mainnetAddresses,
@@ -63,6 +64,8 @@ export const getSystemWithAAVEPositions =
       config,
     )
 
+    console.log('ALL DPM PROXIES CREATED!')
+
     if (
       !dpmProxyForEarnStEthEth ||
       !dpmProxyForMultiplyStEthUsdc ||
@@ -74,34 +77,35 @@ export const getSystemWithAAVEPositions =
 
     const swapAddress = system.common.swap.address
 
-    const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
-      proxy: dpmProxyForEarnStEthEth,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-    })
+    // const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
+    //   proxy: dpmProxyForEarnStEthEth,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config,
+    // })
 
-    const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-    })
+    // const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyEthUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config,
+    // })
 
-    const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyStEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-      getTokens,
-    })
+    // const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyStEthUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config,
+    //   getTokens,
+    // })
 
+    console.log('OPENING A POSITION')
     const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyWbtcUsdc,
       isDPM: true,
@@ -127,10 +131,10 @@ export const getSystemWithAAVEPositions =
       registry,
       strategiesDependencies: dependencies,
       dpmPositions: {
-        [stEthEthEarnPosition.strategy]: stEthEthEarnPosition,
-        [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition,
-        [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition,
-        [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon,
+        // [stEthEthEarnPosition.strategy]: stEthEthEarnPosition,
+        // [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition,
+        // [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition,
+        // [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon,
       },
       dsProxyPosition: dsProxyStEthEthEarnPosition,
       getTokens,

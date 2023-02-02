@@ -633,11 +633,15 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
     {
       hash: returnFundsActionHash,
-      optional: false,
+      optional: true,
     },
     {
       hash: returnFundsActionHash,
       optional: false,
+    },
+    {
+      hash: sendTokenHash,
+      optional: true,
     },
   ])
 

@@ -24,7 +24,7 @@ async function openWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[
     multiple: MULTIPLE,
     positionType: 'Multiply',
   }
-
+  console.log('LOOKING AT STRAT')
   return await strategies.aave.open(args, dependencies)
 }
 
@@ -46,7 +46,7 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
   getTokens: (symbol: 'WBTC', amount: string) => Promise<boolean>
 }): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'WBTC/USDC Multiply'
-
+  console.log('AM I EVE HERE>')
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
   const getSwapData = use1inch
@@ -65,7 +65,9 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
 
   await getTokens('WBTC', amountInBaseUnit.toString())
 
+  console.log('BEFORE APPROVE')
   await approve(WBTC.address, proxy, amountInBaseUnit, config, false)
+  console.log('AFTER APPROVE')
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
