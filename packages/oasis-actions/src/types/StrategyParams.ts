@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
-import { PositionType } from './PositionType'
 import { IPosition } from '../helpers/calculations/Position'
+import { PositionType } from './PositionType'
 import { SwapData } from './SwapData'
 
 export interface IBasePositionTransitionArgs<Tokens> {
