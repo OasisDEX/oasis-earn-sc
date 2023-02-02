@@ -39,7 +39,7 @@ export async function getPool(
     collateralToken: collateralAddress,
     quoteToken: quoteTokenAddress,
     poolAddress: poolAddress,
-    rate: new BigNumber(interestRateInfo.interestRate.toString()).div(WAD),
+    rate: new BigNumber(interestRateInfo[0].toString()).div(WAD),
   }
 }
 
