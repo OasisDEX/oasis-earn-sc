@@ -20,10 +20,52 @@
         "internalType": "contract IERC20",
         "name": "_ajnaToken",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_WETH",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "proxyAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "protocol",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "positionType",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "collateralToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "debtToken",
+        "type": "address"
+      }
+    ],
+    "name": "CreatePosition",
+    "type": "event"
   },
   {
     "inputs": [],
@@ -113,7 +155,7 @@
     ],
     "name": "depositAndDraw",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -125,7 +167,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "collateralAmount",
         "type": "uint256"
       },
       {
@@ -136,7 +178,7 @@
     ],
     "name": "depositCollateral",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -148,7 +190,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "debtAmount",
         "type": "uint256"
       },
       {
@@ -206,6 +248,34 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "contract IAjnaPool",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "debtAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "collateralAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "name": "openPosition",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "poolInfoUtils",
     "outputs": [
@@ -259,7 +329,7 @@
     ],
     "name": "repayDebt",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {

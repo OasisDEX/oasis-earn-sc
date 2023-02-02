@@ -49,15 +49,18 @@ export interface Pool {
   poolAddress: Address
   quoteToken: Address
   collateralToken: Address
-
+  // annualized rate as a fraction 0.05 = 5%
   rate: BigNumber
 }
 
 export interface AjnaPosition {
   pool: Pool
   owner: Address
-  collateral: BigNumber
-  debt: BigNumber
+  collateralAmount: BigNumber
+  debtAmount: BigNumber
+
+  liquidationPrice: BigNumber
+
   riskRatio: IRiskRatio
 }
 

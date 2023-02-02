@@ -3,9 +3,10 @@ import * as ethers from 'ethers'
 
 import { RiskRatio } from '../..'
 import ajnaProxyActionsAbi from '../../abi/ajna/ajnaProxyActions.json'
-import poolInfoAbi from '../../abi/ajna/poolInfoUtils.json'
+// import poolInfoAbi from '../../abi/ajna/poolInfoUtils.json'
 import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
+import { views } from '../../views'
 
 interface PaybackWithdrawArgs {
   poolAddress: Address
@@ -24,11 +25,17 @@ export async function paybackWithdraw(
   args: PaybackWithdrawArgs,
   dependencies: Dependencies,
 ): Promise<Strategy<AjnaPosition>> {
-  const poolInfo = new ethers.Contract(
-    dependencies.poolInfoAddress,
-    poolInfoAbi,
-    dependencies.provider,
+  const position = await views.ajna.getPosition(
+    {
+      proxy: args.dpmProxyAddress,
+      poolAddress: args.poolAddress,
+    },
+    {
+      poolInfoAddress: dependencies.poolInfoAddress,
+      provider: dependencies.provider,
+    },
   )
+
   const apa = new ethers.Contract(
     dependencies.ajnaProxyActions,
     ajnaProxyActionsAbi,
@@ -57,9 +64,10 @@ export async function paybackWithdraw(
           collateralToken: 'Address',
           rate: new BigNumber(0),
         },
+        liquidationPrice: new BigNumber(0),
         owner: args.dpmProxyAddress,
-        collateral: args.collateralAmount,
-        debt: args.debtAmount,
+        collateralAmount: args.collateralAmount,
+        debtAmount: args.debtAmount,
         riskRatio: new RiskRatio(new BigNumber(0), RiskRatio.TYPE.COL_RATIO),
       },
     },

@@ -2,10 +2,10 @@ import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
 import { RiskRatio } from '../..'
-import poolERC20Abi from '../../abi/ajna/ajnaPoolERC20.json'
 import ajnaProxyActionsAbi from '../../abi/ajna/ajnaProxyActions.json'
 import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
+import { views } from '../../views'
 
 interface OpenArgs {
   poolAddress: Address
@@ -26,11 +26,19 @@ export async function open(
   args: OpenArgs,
   dependencies: Dependencies,
 ): Promise<Strategy<AjnaPosition>> {
-  const pool = new ethers.Contract(args.poolAddress, poolERC20Abi, dependencies.provider)
+  const position = await views.ajna.getPosition(
+    {
+      proxy: args.dpmProxyAddress,
+      poolAddress: args.poolAddress,
+    },
+    {
+      poolInfoAddress: dependencies.poolInfoAddress,
+      provider: dependencies.provider,
+    },
+  )
 
-  const collateralAddress = await pool.collateralAddress()
-  const quoteTokenAddress = await pool.quoteTokenAddress()
-  const isDepositingEth = collateralAddress.toLowerCase() === dependencies.WETH.toLowerCase()
+  const isDepositingEth =
+    position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
   const apa = new ethers.Contract(
     dependencies.ajnaProxyActions,
@@ -38,7 +46,7 @@ export async function open(
     dependencies.provider,
   )
 
-  const data = apa.interface.encodeFunctionData('depositAndDraw', [
+  const data = apa.interface.encodeFunctionData('openPosition', [
     args.poolAddress,
     args.debtAmount.toString(),
     args.collateralAmount.toString(),
@@ -49,15 +57,11 @@ export async function open(
     simulation: {
       swaps: [],
       targetPosition: {
-        pool: {
-          poolAddress: args.poolAddress,
-          quoteToken: quoteTokenAddress,
-          collateralToken: collateralAddress,
-          rate: new BigNumber(0),
-        },
+        pool: position.pool,
+        liquidationPrice: new BigNumber(0),
         owner: args.dpmProxyAddress,
-        collateral: args.collateralAmount,
-        debt: args.debtAmount,
+        collateralAmount: args.collateralAmount,
+        debtAmount: args.debtAmount,
         riskRatio: new RiskRatio(new BigNumber(0), RiskRatio.TYPE.COL_RATIO),
       },
     },
