@@ -4,7 +4,7 @@ import { OperationNames } from '../helpers/constants'
 import { ActionCall } from './actionCall'
 import { SwapData } from './SwapData'
 
-interface ISimulatedTransition extends IBaseSimulatedTransition {
+export interface ISimulatedTransition extends IBaseSimulatedTransition {
   swap: SwapData & Swap
   minConfigurableRiskRatio: IRiskRatio
 }
