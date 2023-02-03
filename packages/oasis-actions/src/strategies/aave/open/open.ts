@@ -1,27 +1,29 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
+import { Unbox } from '../../../../../../helpers/types/common'
 import { amountFromWei, amountToWei } from '../../../helpers'
 import { IBaseSimulatedTransition, Position } from '../../../helpers/calculations/Position'
-import { RiskRatio } from '../../../helpers/calculations/RiskRatio'
+import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
 import { DEFAULT_FEE, TYPICAL_PRECISION, ZERO } from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
 import * as operations from '../../../operations'
 import { AAVEStrategyAddresses } from '../../../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../../../operations/aave/v3'
+import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '../../../protocols/aave/config'
 import { AaveProtocolData, AaveProtocolDataArgs } from '../../../protocols/aave/getAaveProtocolData'
 import { Address, IOperation, IPositionTransition, PositionType, SwapData } from '../../../types'
 import { AAVETokens } from '../../../types/aave'
 import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
-import { getCurrentPosition } from '../getCurrentPosition'
+import { AaveVersion, getCurrentPosition } from '../getCurrentPosition'
 
 interface AaveOpenArgs {
   depositedByUser?: {
     collateralToken?: { amountInBaseUnit: BigNumber }
     debtToken?: { amountInBaseUnit: BigNumber }
   }
-  multiple: BigNumber
+  multiple: IRiskRatio
   slippage: BigNumber
   positionType: PositionType
   collateralToken: { symbol: AAVETokens; precision?: number }
@@ -36,7 +38,7 @@ interface AaveOpenDependencies {
   /* Services below 👇*/
   provider: providers.Provider
   protocol: {
-    version: 2 | 3
+    version: AaveVersion
     getCurrentPosition: typeof getCurrentPosition
     getProtocolData: (args: AaveProtocolDataArgs) => AaveProtocolData
   }
@@ -69,7 +71,7 @@ export async function open(
     },
   })
   const { simulatedPositionTransition, oracle, reserveEModeCategory } =
-    await simulatePositionTransition(quoteSwapData, args, dependencies, true)
+    await simulatePositionTransition(quoteSwapData, args, dependencies /*, true*/)
 
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
     typeof dependencies.addresses,
@@ -124,26 +126,59 @@ async function simulatePositionTransition(
    * It turned out that after opening and then closing a position there might be artifacts
    * Left in a position that make it difficult to re-open it
    */
-  const currentPosition = await dependencies.protocol.getCurrentPosition(
-    {
-      collateralToken: args.collateralToken,
-      debtToken: args.debtToken,
-      proxy: dependencies.proxy,
-      protocolVersion: dependencies.protocol.version,
-    },
-    {
+  let currentPosition: Position | undefined
+  let protocolData: Unbox<AaveProtocolData> | undefined
+  if (
+    dependencies.protocol.version === AaveVersion.v2 &&
+    aaveV2UniqueContractName in dependencies.addresses
+  ) {
+    currentPosition = await dependencies.protocol.getCurrentPosition(
+      {
+        collateralToken: args.collateralToken,
+        debtToken: args.debtToken,
+        proxy: dependencies.proxy,
+      },
+      {
+        addresses: dependencies.addresses,
+        provider: dependencies.provider,
+        protocolVersion: dependencies.protocol.version,
+      },
+    )
+    protocolData = await dependencies.protocol.getProtocolData({
+      collateralTokenAddress,
+      debtTokenAddress,
       addresses: dependencies.addresses,
       provider: dependencies.provider,
-    },
-  )
+      protocolVersion: dependencies.protocol.version,
+    })
+  }
+  if (
+    dependencies.protocol.version === AaveVersion.v3 &&
+    aaveV3UniqueContractName in dependencies.addresses
+  ) {
+    currentPosition = await dependencies.protocol.getCurrentPosition(
+      {
+        collateralToken: args.collateralToken,
+        debtToken: args.debtToken,
+        proxy: dependencies.proxy,
+      },
+      {
+        addresses: dependencies.addresses,
+        provider: dependencies.provider,
+        protocolVersion: dependencies.protocol.version,
+      },
+    )
+    protocolData = await dependencies.protocol.getProtocolData({
+      collateralTokenAddress,
+      debtTokenAddress,
+      addresses: dependencies.addresses,
+      provider: dependencies.provider,
+      protocolVersion: dependencies.protocol.version,
+    })
+  }
 
-  const protocolData = await dependencies.protocol.getProtocolData({
-    collateralTokenAddress,
-    debtTokenAddress,
-    addresses: dependencies.addresses,
-    provider: dependencies.provider,
-    protocolVersion: dependencies.protocol.version,
-  })
+  if (!protocolData) throw new Error('No protocol data found')
+  if (!currentPosition) throw new Error('No current position found')
 
   const {
     aaveFlashloanDaiPriceInEth,
@@ -193,31 +228,28 @@ async function simulatePositionTransition(
   })
 
   return {
-    simulatedPositionTransition: currentPosition.adjustToTargetRiskRatio(
-      new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
-      {
-        fees: {
-          flashLoan: flashloanFee,
-          oazo: new BigNumber(FEE),
-        },
-        prices: {
-          market: quoteMarketPrice,
-          oracle: oracle,
-          oracleFLtoDebtToken: oracleFLtoDebtToken,
-        },
-        slippage: args.slippage,
-        flashloan: {
-          maxLoanToValueFL: maxLoanToValueForFL,
-          tokenSymbol: 'DAI',
-        },
-        depositedByUser: {
-          debtInWei: depositDebtAmountInWei,
-          collateralInWei: depositCollateralAmountInWei,
-        },
-        collectSwapFeeFrom: collectFeeFrom,
-        debug,
+    simulatedPositionTransition: currentPosition.adjustToTargetRiskRatio(multiple, {
+      fees: {
+        flashLoan: flashloanFee,
+        oazo: new BigNumber(FEE),
       },
-    ),
+      prices: {
+        market: quoteMarketPrice,
+        oracle: oracle,
+        oracleFLtoDebtToken: oracleFLtoDebtToken,
+      },
+      slippage: args.slippage,
+      flashloan: {
+        maxLoanToValueFL: maxLoanToValueForFL,
+        tokenSymbol: 'DAI',
+      },
+      depositedByUser: {
+        debtInWei: depositDebtAmountInWei,
+        collateralInWei: depositCollateralAmountInWei,
+      },
+      collectSwapFeeFrom: collectFeeFrom,
+      debug,
+    }),
     oracle,
     reserveEModeCategory,
   }
@@ -243,7 +275,7 @@ async function buildOperation(
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
   const borrowAmountInWei = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
 
-  if (protocolVersion === 3 && 'pool' in dependencies.addresses) {
+  if (protocolVersion === AaveVersion.v3 && 'pool' in dependencies.addresses) {
     const openArgs = {
       deposit: {
         collateralToken: {
@@ -276,7 +308,7 @@ async function buildOperation(
     }
     return await operations.aave.openV3(openArgs)
   }
-  if (protocolVersion === 2 && 'lendingPool' in dependencies.addresses) {
+  if (protocolVersion === AaveVersion.v2 && 'lendingPool' in dependencies.addresses) {
     const openArgs = {
       deposit: {
         collateralToken: {

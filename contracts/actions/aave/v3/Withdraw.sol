@@ -8,7 +8,7 @@ import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 import { WithdrawData } from "../../../core/types/Aave.sol";
 import { AAVE_POOL, WITHDRAW_V3_ACTION } from "../../../core/constants/Aave.sol";
 import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
-import "hardhat/console.sol";
+
 /**
  * @title Withdraw | AAVE V3 Action contract
  * @notice Withdraw collateral from AAVE's lending pool
@@ -29,7 +29,6 @@ contract AaveV3Withdraw is Executable, UseStore {
       withdraw.amount,
       withdraw.to
     );
-    console.log('withdraw(%s, %s, %s)', withdraw.amount);
 
     store().write(bytes32(amountWithdrawn));
 

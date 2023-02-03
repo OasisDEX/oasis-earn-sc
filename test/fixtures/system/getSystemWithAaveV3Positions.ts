@@ -1,4 +1,4 @@
-import { protocols, strategies } from '@oasisdex/oasis-actions/src'
+import { AaveVersion, protocols, strategies } from '@oasisdex/oasis-actions/src'
 
 import { buildGetTokenFunction } from '../../../helpers/aave/'
 import init, { resetNode, resetNodeToLatestBlock } from '../../../helpers/init'
@@ -7,14 +7,21 @@ import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { mainnetAddresses } from '../../addresses'
 import { testBlockNumberForAaveV3 } from '../../config'
 import { deploySystem } from '../../deploySystem'
-import { createDPMAccount } from '../factories'
+import { createDPMAccount, createEthUsdcMultiplyAAVEPosition } from '../factories'
 import { createWstEthEthEarnAAVEPosition } from '../factories/createWstEthEthEarnAAVEPosition'
-import { StrategiesDependencies } from '../types'
 import { AaveV3PositionStrategy } from '../types/positionDetails'
+import { StrategyDependenciesAaveV3 } from '../types/strategiesDependencies'
 import { SystemWithAAVEV3Positions } from '../types/systemWithAAVEPositions'
 
-export function getSupportedAaveV3Strategies(): AaveV3PositionStrategy[] {
-  return [/*'ETH/USDC Multiply',*/ 'WSTETH/ETH Earn']
+export function getSupportedAaveV3Strategies(ciMode?: boolean): Array<{
+  name: AaveV3PositionStrategy
+  /* Test should only be run locally as is flakey */
+  localOnly: boolean
+}> {
+  return [
+    { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy, localOnly: false },
+    { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, localOnly: false },
+  ].filter(s => !ciMode || !s.localOnly)
 }
 
 export const getSystemWithAaveV3Positions =
@@ -38,7 +45,7 @@ export const getSystemWithAaveV3Positions =
 
     const { system, registry } = await deploySystem(config, false, useFallbackSwap)
 
-    const dependencies: StrategiesDependencies = {
+    const dependencies: StrategyDependenciesAaveV3 = {
       addresses: {
         ...mainnetAddresses,
         aaveOracle: mainnetAddresses.aave.v3.aaveOracle,
@@ -53,12 +60,12 @@ export const getSystemWithAaveV3Positions =
       provider: config.provider,
       user: config.address,
       protocol: {
-        version: 3,
+        version: AaveVersion.v3,
         getCurrentPosition: strategies.aave.view,
         getProtocolData: protocols.aave.getAaveProtocolData,
       },
       getSwapData: use1inch
-        ? swapAddress => getOneInchCall(swapAddress, [], true)
+        ? swapAddress => getOneInchCall(swapAddress)
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
 
@@ -77,17 +84,8 @@ export const getSystemWithAaveV3Positions =
 
     const swapAddress = system.common.swap.address
 
-    // const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-    //   proxy: dpmProxyForMultiplyEthUsdc,
-    //   isDPM: true,
-    //   use1inch,
-    //   swapAddress,
-    //   dependencies,
-    //   config,
-    // })
-
-    const wstethEthEarnPosition = await createWstEthEthEarnAAVEPosition({
-      proxy: dpmProxyForEarnWstEthEth,
+    const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
+      proxy: dpmProxyForMultiplyEthUsdc,
       isDPM: true,
       use1inch,
       swapAddress,
@@ -95,14 +93,27 @@ export const getSystemWithAaveV3Positions =
       config,
     })
 
-    // const dsProxyEthUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-    //   proxy: system.common.userProxyAddress,
-    //   isDPM: false,
-    //   use1inch,
-    //   swapAddress,
-    //   dependencies,
-    //   config,
-    // })
+    let wstethEthEarnPosition
+    /* Wsteth lacks sufficient liquidity on uniswap */
+    if (use1inch) {
+      wstethEthEarnPosition = await createWstEthEthEarnAAVEPosition({
+        proxy: dpmProxyForEarnWstEthEth,
+        isDPM: true,
+        use1inch,
+        swapAddress,
+        dependencies,
+        config,
+      })
+    }
+
+    const dsProxyEthUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
+      proxy: system.common.userProxyAddress,
+      isDPM: false,
+      use1inch,
+      swapAddress,
+      dependencies,
+      config,
+    })
 
     return {
       config,
@@ -110,10 +121,14 @@ export const getSystemWithAaveV3Positions =
       registry,
       strategiesDependencies: dependencies,
       dpmPositions: {
-        // [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition,
-        [wstethEthEarnPosition.strategy]: wstethEthEarnPosition,
+        ...(ethUsdcMultiplyPosition
+          ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
+          : {}),
+        ...(wstethEthEarnPosition
+          ? { [wstethEthEarnPosition.strategy]: wstethEthEarnPosition }
+          : {}),
       },
-      // dsProxyPosition: dsProxyEthUsdcMultiplyPosition,
+      dsProxyPosition: dsProxyEthUsdcMultiplyPosition,
       getTokens,
     }
   }

@@ -3,10 +3,9 @@ import BigNumber from 'bignumber.js'
 import { mainnetAddresses } from '../../addresses'
 import { TokenDetails } from '../types/positionDetails'
 
-// export const ONE_PERCENT_SLIPPAGE = new BigNumber(0.01)
-export const SLIPPAGE = new BigNumber(0.05)
+export const SLIPPAGE = new BigNumber(0.25)
 export const MULTIPLE = new BigNumber(1.5)
-export const EMODE_MULTIPLE = new BigNumber(8)
+export const EMODE_MULTIPLE = new BigNumber(6)
 
 export const USDC: TokenDetails = {
   symbol: 'USDC' as const,

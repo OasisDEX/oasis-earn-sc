@@ -1,11 +1,15 @@
-import { ADDRESSES, strategies } from '@oasisdex/oasis-actions/src'
+import { AaveVersion, ADDRESSES, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../../helpers/utils'
+import {
+  aaveV2UniqueContractName,
+  aaveV3UniqueContractName,
+} from '../../../packages/oasis-actions/src/protocols/aave/config'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
-import { ETH, MULTIPLE, SLIPPAGE, USDC } from './common'
+import { ETH, MULTIPLE, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
 const depositCollateralAmount = amountToWei(new BigNumber(10), ETH.precision)
@@ -14,13 +18,13 @@ async function getEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]
   const args: OpenPositionTypes[0] = {
     collateralToken: ETH,
     debtToken: USDC,
-    slippage: SLIPPAGE,
+    slippage: new BigNumber(0.5),
     depositedByUser: {
       collateralToken: {
         amountInBaseUnit: depositCollateralAmount,
       },
     },
-    multiple: MULTIPLE,
+    multiple: new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE),
     positionType: 'Multiply',
   }
 
@@ -87,25 +91,62 @@ export async function createEthUsdcMultiplyAAVEPosition({
     config,
   })
 
-  return {
-    proxy: proxy,
-    getPosition: async () => {
+  let getPosition
+  if (
+    dependencies.protocol.version === AaveVersion.v3 &&
+    aaveV3UniqueContractName in dependencies.addresses
+  ) {
+    const addresses = dependencies.addresses
+    const protocolVersion = dependencies.protocol.version
+
+    getPosition = async () => {
       return await strategies.aave.view(
         {
           collateralToken: ETH,
           debtToken: USDC,
-          proxy: proxy,
-          protocolVersion: dependencies.protocol.version,
+          proxy,
         },
         {
           addresses: {
-            ...dependencies.addresses,
+            ...addresses,
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
+          protocolVersion: protocolVersion,
         },
       )
-    },
+    }
+  }
+  if (
+    dependencies.protocol.version === AaveVersion.v2 &&
+    aaveV2UniqueContractName in dependencies.addresses
+  ) {
+    const addresses = dependencies.addresses
+    const protocolVersion = dependencies.protocol.version
+    getPosition = async () => {
+      return await strategies.aave.view(
+        {
+          collateralToken: ETH,
+          debtToken: USDC,
+          proxy,
+        },
+        {
+          addresses: {
+            ...addresses,
+            operationExecutor: dependencies.contracts.operationExecutor.address,
+          },
+          provider: config.provider,
+          protocolVersion,
+        },
+      )
+    }
+  }
+
+  if (!getPosition) throw new Error('getPosition is not defined')
+
+  return {
+    proxy: proxy,
+    getPosition,
     strategy,
     collateralToken: ETH,
     debtToken: USDC,

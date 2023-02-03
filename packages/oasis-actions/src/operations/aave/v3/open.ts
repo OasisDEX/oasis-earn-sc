@@ -116,7 +116,7 @@ export async function openV3({
     to: addresses.operationExecutor,
   })
 
-  const protocol: Protocol = 'AAVE'
+  const protocol: Protocol = 'AAVE_V3'
 
   const positionCreated = actions.common.positionCreated({
     protocol,

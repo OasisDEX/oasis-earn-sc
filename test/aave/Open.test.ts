@@ -14,10 +14,12 @@ import {
 import { SystemWithAAVEV3Positions } from '../fixtures/types/systemWithAAVEPositions'
 import { expectToBe, expectToBeEqual } from '../utils'
 
+const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 describe(`Strategy | AAVE | Open Position`, async function () {
-  describe.skip('Using AAVE V2', async function () {
+  describe('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
-    const supportedStrategies = getSupportedStrategies()
+
+    const supportedStrategies = getSupportedStrategies(ciOnlyTests)
 
     describe('Open position: With Uniswap', () => {
       before(async () => {
@@ -61,7 +63,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         })
       })
       describe('Using DPM Proxy', async () => {
-        supportedStrategies.forEach(strategy => {
+        supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let simulatedPosition: IPosition
           let simulatedTransition: IPositionTransition['simulation']
@@ -102,7 +104,9 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         })
       })
     })
-    describe('Open position: With 1inch', () => {
+    describe('Open position: With 1inch', function () {
+      this.retries(2)
+
       before(async () => {
         fixture = await loadFixture(getSystemWithAavePositions({ use1inch: true }))
       })
@@ -143,7 +147,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         })
       })
       describe('Using DPM Proxy', async () => {
-        supportedStrategies.forEach(strategy => {
+        supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let simulatedPosition: IPosition
           let simulatedTransition: IPositionTransition['simulation']
@@ -152,6 +156,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           before(async function () {
             const { dpmPositions } = fixture
             const positionDetails = dpmPositions[strategy]
+
             if (!positionDetails) {
               this.skip()
             }
@@ -189,7 +194,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     let fixture: SystemWithAAVEV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies()
 
-    describe.skip('Open position: With Uniswap', () => {
+    describe('Open position: With Uniswap', () => {
       before(async () => {
         fixture = await loadFixture(getSystemWithAaveV3Positions({ use1inch: false }))
       })
@@ -232,45 +237,48 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         })
       })
       describe('Using DPM Proxy', async () => {
-        supportedStrategies.forEach(strategy => {
-          let position: IPosition
-          let simulatedPosition: IPosition
-          let simulatedTransition: IPositionTransition['simulation']
-          let feeWalletBalanceChange: BigNumber
+        const insufficientLiquidityStrategies = ['WSTETH/ETH Earn']
+        supportedStrategies
+          .filter(({ name }) => !insufficientLiquidityStrategies.includes(name))
+          .forEach(({ name: strategy }) => {
+            let position: IPosition
+            let simulatedPosition: IPosition
+            let simulatedTransition: IPositionTransition['simulation']
+            let feeWalletBalanceChange: BigNumber
 
-          before(async function () {
-            const { dpmPositions } = fixture
-            const positionDetails = dpmPositions[strategy]
-            if (!positionDetails) {
-              this.skip()
-            }
-            position = await positionDetails.getPosition()
-            simulatedPosition = positionDetails.__openPositionSimulation.position
-            simulatedTransition = positionDetails.__openPositionSimulation
-            feeWalletBalanceChange = positionDetails.__feeWalletBalanceChange
-          })
+            before(async function () {
+              const { dpmPositions } = fixture
+              const positionDetails = dpmPositions[strategy]
+              if (!positionDetails) {
+                this.skip()
+              }
+              position = await positionDetails.getPosition()
+              simulatedPosition = positionDetails.__openPositionSimulation.position
+              simulatedTransition = positionDetails.__openPositionSimulation
+              feeWalletBalanceChange = positionDetails.__feeWalletBalanceChange
+            })
 
-          it(`Should draw the correct amount of debt for ${strategy}`, async () => {
-            expectToBe(
-              simulatedPosition.debt.amount.toFixed(0),
-              'lte',
-              position.debt.amount.toFixed(0),
-            )
+            it(`Should draw the correct amount of debt for ${strategy}`, async () => {
+              expectToBe(
+                simulatedPosition.debt.amount.toFixed(0),
+                'lte',
+                position.debt.amount.toFixed(0),
+              )
+            })
+            it(`Should deposit all collateral for ${strategy}`, async () => {
+              expectToBe(
+                simulatedPosition.collateral.amount,
+                'lte',
+                position.collateral.amount.toFixed(0),
+              )
+            })
+            it(`Should have the correct multiple for ${strategy}`, async () => {
+              expectToBe(position.riskRatio.multiple, 'lte', simulatedPosition.riskRatio.multiple)
+            })
+            it(`Should collect fee for ${strategy}`, async () => {
+              expectToBeEqual(simulatedTransition.swap.tokenFee, feeWalletBalanceChange)
+            })
           })
-          it(`Should deposit all collateral for ${strategy}`, async () => {
-            expectToBe(
-              simulatedPosition.collateral.amount,
-              'lte',
-              position.collateral.amount.toFixed(0),
-            )
-          })
-          it(`Should have the correct multiple for ${strategy}`, async () => {
-            expectToBe(position.riskRatio.multiple, 'lte', simulatedPosition.riskRatio.multiple)
-          })
-          it(`Should collect fee for ${strategy}`, async () => {
-            expectToBeEqual(simulatedTransition.swap.tokenFee, feeWalletBalanceChange)
-          })
-        })
       })
     })
     describe('Open position: With 1inch', () => {
@@ -278,7 +286,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         fixture = await loadFixture(getSystemWithAaveV3Positions({ use1inch: true }))
       })
 
-      describe.skip('Using DSProxy', () => {
+      describe('Using DSProxy', () => {
         let position: IPosition
         let simulatedPosition: IPosition
         let simulatedTransition: IPositionTransition['simulation']
@@ -315,9 +323,9 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           expectToBeEqual(simulatedTransition.swap.tokenFee, feeWalletBalanceChange)
         })
       })
-      describe('Using DPM Proxy', async () => {
-        supportedStrategies.forEach(strategy => {
-          console.log('strategy', strategy)
+      describe('Using DPM Proxy', function () {
+        this.retries(2)
+        supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let simulatedPosition: IPosition
           let simulatedTransition: IPositionTransition['simulation']
@@ -332,20 +340,10 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             position = await positionDetails.getPosition()
             simulatedPosition = positionDetails.__openPositionSimulation.position
             simulatedTransition = positionDetails.__openPositionSimulation
-            console.log(
-              'positionDetails.__feeWalletBalanceChange',
-              positionDetails.__feeWalletBalanceChange.toString(),
-            )
             feeWalletBalanceChange = positionDetails.__feeWalletBalanceChange
           })
 
           it(`Should draw the correct amount of debt for ${strategy}`, async () => {
-            console.log(
-              'simulatedPosition.debt.amount.toFixed(0)',
-              simulatedPosition.debt.amount.toFixed(0),
-            )
-            console.log('position.debt.amount.toFixed(0)', position.debt.amount.toFixed(0))
-
             expectToBe(
               simulatedPosition.debt.amount.toFixed(0),
               'lte',
@@ -353,15 +351,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             )
           })
           it(`Should deposit all collateral for ${strategy}`, async () => {
-            console.log(
-              'simulatedPosition.collateral.amount.toFixed(0)',
-              simulatedPosition.collateral.amount.toFixed(0),
-            )
-            console.log(
-              'position.collateral.amount.toFixed(0)',
-              position.collateral.amount.toFixed(0),
-            )
-
             expectToBe(
               simulatedPosition.collateral.amount,
               'lte',
@@ -369,13 +358,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             )
           })
           it(`Should have the correct multiple for ${strategy}`, async () => {
-            console.log('TEST')
-            console.log('position.riskRatio.multiple', position.riskRatio.multiple.toString())
-            console.log(
-              'simulatedPosition.riskRatio.multiple',
-              simulatedPosition.riskRatio.multiple.toString(),
-            )
-
             expectToBe(position.riskRatio.multiple, 'lte', simulatedPosition.riskRatio.multiple)
           })
           it(`Should collect fee for ${strategy}`, async () => {

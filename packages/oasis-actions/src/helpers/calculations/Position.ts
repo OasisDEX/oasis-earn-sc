@@ -631,7 +631,6 @@ export class Position implements IPosition {
         this.collateral.precision || TYPICAL_PRECISION,
       ).integerValue(BigNumber.ROUND_DOWN),
     }
-    console.log('oraclePrice', oraclePrice.toString())
 
     const newDebtAmount = this._denormaliseAmount(
       currentDebt.plus(debtDelta),

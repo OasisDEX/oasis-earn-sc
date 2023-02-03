@@ -1,15 +1,20 @@
-import { strategies } from '@oasisdex/oasis-actions/src'
+import { AaveVersion, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, approve, balanceOf } from '../../../helpers/utils'
+import {
+  aaveV2UniqueContractName,
+  aaveV3UniqueContractName,
+} from '../../../packages/oasis-actions/src/protocols/aave/config'
 import { mainnetAddresses } from '../../addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
-import { MULTIPLE, SLIPPAGE, STETH, USDC } from './common'
+import { ETH, MULTIPLE, SLIPPAGE, STETH, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-const amountInBaseUnit = amountToWei(new BigNumber(100), STETH.precision)
+const amountInBaseUnit = amountToWei(new BigNumber(100), USDC.precision)
+const wethToSwapToUSDC = amountToWei(new BigNumber(100), ETH.precision)
 
 async function getStEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
   const args: OpenPositionTypes[0] = {
@@ -17,11 +22,11 @@ async function getStEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[
     debtToken: USDC,
     slippage: SLIPPAGE,
     depositedByUser: {
-      collateralToken: {
+      debtToken: {
         amountInBaseUnit,
       },
     },
-    multiple: MULTIPLE,
+    multiple: new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE),
     positionType: 'Multiply',
   }
 
@@ -43,7 +48,7 @@ export async function createStEthUsdcMultiplyAAVEPosition({
   swapAddress?: string
   dependencies: StrategiesDependencies
   config: RuntimeConfig
-  getTokens: (symbol: 'STETH', amount: string) => Promise<boolean>
+  getTokens: (symbol: 'USDC', amount: BigNumber) => Promise<boolean>
 }): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'STETH/USDC Multiply'
 
@@ -63,9 +68,9 @@ export async function createStEthUsdcMultiplyAAVEPosition({
     proxy: proxy,
   })
 
-  await getTokens('STETH', amountInBaseUnit.toString())
+  await getTokens('USDC', wethToSwapToUSDC)
 
-  await approve(mainnetAddresses.STETH, proxy, amountInBaseUnit, config)
+  await approve(mainnetAddresses.USDC, proxy, amountInBaseUnit, config)
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
@@ -102,25 +107,61 @@ export async function createStEthUsdcMultiplyAAVEPosition({
     },
   )
 
-  return {
-    proxy: proxy,
-    getPosition: async () => {
+  let getPosition
+  if (
+    dependencies.protocol.version === AaveVersion.v3 &&
+    aaveV3UniqueContractName in dependencies.addresses
+  ) {
+    const addresses = dependencies.addresses
+    const protocolVersion = dependencies.protocol.version
+    getPosition = async () => {
       return await strategies.aave.view(
         {
           collateralToken: STETH,
           debtToken: USDC,
-          proxy: proxy,
-          protocolVersion: dependencies.protocol.version,
+          proxy,
         },
         {
           addresses: {
-            ...dependencies.addresses,
+            ...addresses,
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
+          protocolVersion: protocolVersion,
         },
       )
-    },
+    }
+  }
+  if (
+    dependencies.protocol.version === AaveVersion.v2 &&
+    aaveV2UniqueContractName in dependencies.addresses
+  ) {
+    const addresses = dependencies.addresses
+    const protocolVersion = dependencies.protocol.version
+    getPosition = async () => {
+      return await strategies.aave.view(
+        {
+          collateralToken: STETH,
+          debtToken: USDC,
+          proxy,
+        },
+        {
+          addresses: {
+            ...addresses,
+            operationExecutor: dependencies.contracts.operationExecutor.address,
+          },
+          provider: config.provider,
+          protocolVersion,
+        },
+      )
+    }
+  }
+
+  if (!getPosition) throw new Error('getPosition is not defined')
+
+  return {
+    proxy: proxy,
+    getPosition,
     strategy,
     collateralToken: STETH,
     debtToken: USDC,

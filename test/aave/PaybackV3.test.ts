@@ -47,7 +47,7 @@ describe('AAVE | PaybackA3 Action', () => {
     fakePool = await smock.fake<AaveV3Pool>(AavePoolAbi)
     fakePool.repay.returns()
 
-    await registry.addEntry(CONTRACT_NAMES.aaveV3.AAVE_POOL, fakePool.address)
+    await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, fakePool.address)
     await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
 
     const [_paybackV3Action, _paybackV3ActionAddress] = await deploy('AaveV3Payback', [

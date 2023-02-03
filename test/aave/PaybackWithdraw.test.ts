@@ -1,4 +1,4 @@
-import { strategies } from '@oasisdex/oasis-actions'
+import { strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -46,7 +46,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           beforeTransactionPosition.debt.symbol !== 'ETH' &&
           beforeTransactionPosition.debt.symbol !== 'WETH'
         ) {
-          await getTokens(beforeTransactionPosition.debt.symbol, amountToPayback.toString())
+          await getTokens(beforeTransactionPosition.debt.symbol, amountToPayback)
           await approve(
             beforeTransactionPosition.debt.symbol,
             dsProxyPosition.proxy,
@@ -93,7 +93,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
       })
     })
     describe('When position is opened with DPM Proxy', async () => {
-      supportedStrategies.forEach(strategy => {
+      supportedStrategies.forEach(({ name: strategy }) => {
         it(`Should reduce debt for ${strategy}`, async function () {
           const { strategiesDependencies, system, config, dpmPositions, getTokens } = fixture
 
@@ -128,7 +128,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             beforeTransactionPosition.debt.symbol !== 'ETH' &&
             beforeTransactionPosition.debt.symbol !== 'WETH'
           ) {
-            await getTokens(beforeTransactionPosition.debt.symbol, amountToPayback.toString())
+            await getTokens(beforeTransactionPosition.debt.symbol, amountToPayback)
             await approve(
               mainnetAddresses.USDC, // for payback is always USDC or ETH
               position.proxy,
@@ -194,7 +194,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             beforeTransactionPosition.debt.symbol !== 'ETH' &&
             beforeTransactionPosition.debt.symbol !== 'WETH'
           ) {
-            await getTokens(beforeTransactionPosition.debt.symbol, amountToPayback.toString())
+            await getTokens(beforeTransactionPosition.debt.symbol, amountToPayback)
             await approve(
               mainnetAddresses.USDC, // for payback is always USDC or ETH
               position.proxy,
@@ -311,7 +311,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
       })
     })
     describe('When position is opened with DPM Proxy', async () => {
-      supportedStrategies.forEach(strategy => {
+      supportedStrategies.forEach(({ name: strategy }) => {
         it(`Should reduce collateral for ${strategy}`, async function () {
           const { strategiesDependencies, system, config, dpmPositions } = fixture
 
@@ -474,7 +474,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
     })
   })
 
-  describe.only('Close position using Payback and Withdraw', () => {
+  describe('Close position using Payback and Withdraw', () => {
     describe('When position is opened with DSProxy', () => {
       it('Should payback all and withdraw all', async () => {
         const { dsProxyPosition, strategiesDependencies, system, config, getTokens } = fixture
@@ -507,7 +507,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
         ) {
           await getTokens(
             beforeTransactionPosition.debt.symbol,
-            beforeTransactionPosition.debt.amount.toString(),
+            beforeTransactionPosition.debt.amount,
           )
           await approve(
             beforeTransactionPosition.debt.symbol,
@@ -556,7 +556,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
         it(`Should payback all and withdraw all for ${strategy}`, async function () {
           const { strategiesDependencies, system, config, dpmPositions, getTokens } = fixture
 
-          const position = dpmPositions[strategy]
+          const position = dpmPositions[strategy.name]
 
           if (position === undefined) {
             this.skip()
@@ -596,7 +596,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             beforeTransactionPosition.debt.symbol !== 'ETH' &&
             beforeTransactionPosition.debt.symbol !== 'WETH'
           ) {
-            await getTokens(beforeTransactionPosition.debt.symbol, amountToPayback.toString())
+            await getTokens(beforeTransactionPosition.debt.symbol, amountToPayback)
             await approve(
               beforeTransactionPosition.debt.address,
               position.proxy,

@@ -1,7 +1,7 @@
-import AAVEDataProviderABI from '@abi/external/aave/v2/protocolDataProvider.json'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   AAVETokens,
+  AaveVersion,
   ADDRESSES,
   IPosition,
   IPositionTransition,
@@ -9,13 +9,13 @@ import {
   OPERATION_NAMES,
   Position,
   protocols,
+  RiskRatio,
   strategies,
   TYPICAL_PRECISION,
   ZERO,
 } from '@oasisdex/oasis-actions/src'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
 import { PositionType } from '@oasisdex/oasis-actions/src/types/PositionType'
-import aavePriceOracleABI from 'abi/external/aave/v2/aavePriceOracle.json'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -23,6 +23,8 @@ import { Contract, ethers, Signer } from 'ethers'
 import hre from 'hardhat'
 
 import AAVELendigPoolABI from '../../abi/external/aave/v2/lendingPool.json'
+import aavePriceOracleABI from '../../abi/external/aave/v2/priceOracle.json'
+import AAVEDataProviderABI from '../../abi/external/aave/v2/protocolDataProvider.json'
 import ERC20ABI from '../../abi/IERC20.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { resetNodeToLatestBlock } from '../../helpers/init'
@@ -51,17 +53,17 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
   before(async function () {
     ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
 
-    aaveLendingPool = new Contract(
-      ADDRESSES.main.aave.MainnetLendingPool,
-      AAVELendigPoolABI,
+    aaveLendingPool = new Contract(ADDRESSES.main.aave.v2.LendingPool, AAVELendigPoolABI, provider)
+
+    aaveDataProvider = new Contract(
+      ADDRESSES.main.aave.v2.ProtocolDataProvider,
+      AAVEDataProviderABI,
       provider,
     )
-
-    aaveDataProvider = new Contract(ADDRESSES.main.aave.DataProvider, AAVEDataProviderABI, provider)
   })
 
   describe('[Uniswap]', () => {
-    const multiple = new BigNumber(2)
+    const multiple = new RiskRatio(new BigNumber(2), RiskRatio.TYPE.MULITPLE)
     const slippage = new BigNumber(0.1)
 
     let positionTransition: IPositionTransition
@@ -133,6 +135,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
       const addresses = {
         ...mainnetAddresses,
+        priceOracle: mainnetAddresses.aave.v2.priceOracle,
+        lendingPool: mainnetAddresses.aave.v2.lendingPool,
+        protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
         operationExecutor: system.common.operationExecutor.address,
       }
 
@@ -177,7 +182,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           addresses,
           provider,
           protocol: {
-            version: 2,
+            version: AaveVersion.v2,
             getCurrentPosition: strategies.aave.view,
             getProtocolData: protocols.aave.getAaveProtocolData,
           },
@@ -230,7 +235,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       )
 
       const aavePriceOracle = new ethers.Contract(
-        addresses.aavePriceOracle,
+        addresses.priceOracle,
         aavePriceOracleABI,
         provider,
       )
@@ -345,7 +350,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       )
 
       const aavePriceOracleAfterAdjust = new ethers.Contract(
-        addresses.aavePriceOracle,
+        addresses.priceOracle,
         aavePriceOracleABI,
         provider,
       )
@@ -725,7 +730,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
   describe(`[1inch] Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
     const slippage = new BigNumber(0.1)
     const depositAmount = amountToWei(new BigNumber(1))
-    const multiple = new BigNumber(2)
+    const multiple = new RiskRatio(new BigNumber(2), RiskRatio.TYPE.MULITPLE)
     const adjustToMultiple = new BigNumber(3.5)
 
     let aaveStEthPriceInEth: BigNumber
@@ -749,6 +754,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
         const addresses = {
           ...mainnetAddresses,
+          priceOracle: mainnetAddresses.aave.v2.priceOracle,
+          lendingPool: mainnetAddresses.aave.v2.lendingPool,
+          protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
           operationExecutor: system.common.operationExecutor.address,
         }
 
@@ -777,7 +785,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             addresses,
             provider,
             protocol: {
-              version: 2,
+              version: AaveVersion.v2,
               getCurrentPosition: strategies.aave.view,
               getProtocolData: protocols.aave.getAaveProtocolData,
             },
@@ -810,6 +818,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             addresses,
             provider,
+            protocolVersion: AaveVersion.v2,
           },
         )
 
@@ -855,7 +864,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         txStatus = _txStatus
 
         const aavePriceOracle = new ethers.Contract(
-          addresses.aavePriceOracle,
+          addresses.priceOracle,
           aavePriceOracleABI,
           provider,
         )
@@ -940,7 +949,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
   describe(`[1inch] Increase Multiple: With ${tokens.ETH} collateral & ${tokens.USDC} debt`, () => {
     const slippage = new BigNumber(0.1)
     const depositEthAmount = amountToWei(new BigNumber(1))
-    const multiple = new BigNumber(2)
+    const multiple = new RiskRatio(new BigNumber(2), RiskRatio.TYPE.MULITPLE)
     const ethPrecision = TYPICAL_PRECISION
     const USDCPrecision = 6
     const adjustToMultiple = new BigNumber(2.75)
@@ -966,6 +975,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
         const addresses = {
           ...mainnetAddresses,
+          priceOracle: mainnetAddresses.aave.v2.priceOracle,
+          lendingPool: mainnetAddresses.aave.v2.lendingPool,
+          protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
           operationExecutor: system.common.operationExecutor.address,
         }
 
@@ -995,9 +1007,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             addresses,
             provider,
             protocol: {
-              version: 2,
+              version: AaveVersion.v2,
               getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.getAaveProtocolData,
+              getProtocolData: protocols.aave.getAaveProtocolData,
             },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
@@ -1028,6 +1040,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             addresses,
             provider,
+            protocolVersion: AaveVersion.v2,
           },
         )
 
@@ -1070,7 +1083,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         txStatus = _txStatus
 
         const aavePriceOracle = new ethers.Contract(
-          addresses.aavePriceOracle,
+          addresses.priceOracle,
           aavePriceOracleABI,
           provider,
         )
@@ -1162,7 +1175,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     const USDCPrecision = 6
     const stETHPrecision = TYPICAL_PRECISION
     const depositAmount = amountToWei(new BigNumber(100), USDCPrecision)
-    const multiple = new BigNumber(2)
+    const multiple = new RiskRatio(new BigNumber(2), RiskRatio.TYPE.MULITPLE)
     const adjustDownToMultiple = new BigNumber(1.3)
 
     let aaveStEthPriceInEth: BigNumber
@@ -1185,6 +1198,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
         const addresses = {
           ...mainnetAddresses,
+          priceOracle: mainnetAddresses.aave.v2.priceOracle,
+          lendingPool: mainnetAddresses.aave.v2.lendingPool,
+          protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
           operationExecutor: system.common.operationExecutor.address,
         }
 
@@ -1223,9 +1239,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             addresses,
             provider,
             protocol: {
-              version: 2,
+              version: AaveVersion.v2,
               getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.getAaveProtocolData,
+              getProtocolData: protocols.aave.getAaveProtocolData,
             },
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
@@ -1256,6 +1272,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             addresses,
             provider,
+            protocolVersion: AaveVersion.v2,
           },
         )
 
@@ -1299,7 +1316,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         txStatus = _txStatus
         hre.tracer.enabled = false
         const aavePriceOracle = new ethers.Contract(
-          addresses.aavePriceOracle,
+          addresses.priceOracle,
           aavePriceOracleABI,
           provider,
         )
@@ -1384,7 +1401,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     const USDCPrecision = 6
     const wBTCPrecision = 8
     const depositWBTCAmount = amountToWei(new BigNumber(1), wBTCPrecision)
-    const multiple = new BigNumber(2)
+    const multiple = new RiskRatio(new BigNumber(2), RiskRatio.TYPE.MULITPLE)
     const adjustDownToMultiple = new BigNumber(1.3)
 
     let aaveWBTCPriceInEthPriceInEth: BigNumber
@@ -1407,6 +1424,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
         const addresses = {
           ...mainnetAddresses,
+          priceOracle: mainnetAddresses.aave.v2.priceOracle,
+          lendingPool: mainnetAddresses.aave.v2.lendingPool,
+          protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
           operationExecutor: system.common.operationExecutor.address,
         }
 
@@ -1445,9 +1465,9 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             addresses,
             provider,
             protocol: {
-              version: 2,
+              version: AaveVersion.v2,
               getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.getAaveProtocolData,
+              getProtocolData: protocols.aave.getAaveProtocolData,
             },
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
@@ -1479,6 +1499,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           {
             addresses,
             provider,
+            protocolVersion: AaveVersion.v2,
           },
         )
 
@@ -1522,7 +1543,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         txStatus = _txStatus
 
         const aavePriceOracle = new ethers.Contract(
-          addresses.aavePriceOracle,
+          addresses.priceOracle,
           aavePriceOracleABI,
           provider,
         )

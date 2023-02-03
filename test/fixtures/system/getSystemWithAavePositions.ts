@@ -1,4 +1,4 @@
-import { protocols, strategies } from '@oasisdex/oasis-actions/src'
+import { AaveVersion, protocols, strategies } from '@oasisdex/oasis-actions/src'
 
 import { buildGetTokenFunction } from '../../../helpers/aave/'
 import init, { resetNode, resetNodeToLatestBlock } from '../../../helpers/init'
@@ -16,8 +16,16 @@ import {
 } from '../factories'
 import { AavePositionStrategy, StrategiesDependencies, SystemWithAAVEPositions } from '../types'
 
-export function getSupportedStrategies(): AavePositionStrategy[] {
-  return ['ETH/USDC Multiply', 'STETH/USDC Multiply', 'WBTC/USDC Multiply', 'STETH/ETH Earn']
+export function getSupportedStrategies(ciMode?: boolean): Array<{
+  name: AavePositionStrategy
+  localOnly: boolean
+}> {
+  return [
+    { name: 'ETH/USDC Multiply' as AavePositionStrategy, localOnly: false },
+    { name: 'WBTC/USDC Multiply' as AavePositionStrategy, localOnly: false },
+    { name: 'STETH/USDC Multiply' as AavePositionStrategy, localOnly: true },
+    { name: 'STETH/ETH Earn' as AavePositionStrategy, localOnly: true },
+  ].filter(s => !ciMode || !s.localOnly)
 }
 
 export const getSystemWithAavePositions =
@@ -56,7 +64,7 @@ export const getSystemWithAavePositions =
       provider: config.provider,
       user: config.address,
       protocol: {
-        version: 2,
+        version: AaveVersion.v2,
         getCurrentPosition: strategies.aave.view,
         getProtocolData: protocols.aave.getAaveProtocolData,
       },
@@ -100,7 +108,7 @@ export const getSystemWithAavePositions =
       swapAddress,
       dependencies,
       config,
-    })
+    }).catch(e => failQuietly(e, 'STETH/ETH Earn'))
 
     const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyEthUsdc,
@@ -109,7 +117,7 @@ export const getSystemWithAavePositions =
       swapAddress,
       dependencies,
       config,
-    })
+    }).catch(e => failQuietly(e, 'ETH/USDC Multiply'))
 
     const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyStEthUsdc,
@@ -119,7 +127,7 @@ export const getSystemWithAavePositions =
       dependencies,
       config,
       getTokens,
-    })
+    }).catch(e => failQuietly(e, 'STETH/USDC Multiply'))
 
     const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyWbtcUsdc,
@@ -129,7 +137,7 @@ export const getSystemWithAavePositions =
       dependencies,
       config,
       getTokens,
-    })
+    }).catch(e => failQuietly(e, 'WBTC/USDC Multiply'))
 
     const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
       proxy: system.common.userProxyAddress,
@@ -146,12 +154,22 @@ export const getSystemWithAavePositions =
       registry,
       strategiesDependencies: dependencies,
       dpmPositions: {
-        [stEthEthEarnPosition.strategy]: stEthEthEarnPosition,
-        [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition,
-        [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition,
-        [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon,
+        ...(stEthEthEarnPosition ? { [stEthEthEarnPosition.strategy]: stEthEthEarnPosition } : {}),
+        ...(ethUsdcMultiplyPosition
+          ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
+          : {}),
+        ...(stethUsdcMultiplyPosition
+          ? { [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition }
+          : {}),
+        ...(wbtcUsdcMultiplyPositon
+          ? { [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon }
+          : {}),
       },
       dsProxyPosition: dsProxyStEthEthEarnPosition,
       getTokens,
     }
   }
+
+function failQuietly(e: any, ethusdcMultiply: string) {
+  console.log('failed to create', ethusdcMultiply, e)
+}

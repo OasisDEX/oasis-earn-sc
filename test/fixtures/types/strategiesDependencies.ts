@@ -1,6 +1,7 @@
 import {
   AAVEStrategyAddresses,
   AAVEV3StrategyAddresses,
+  AaveVersion,
   protocols,
   strategies,
   SwapData,
@@ -8,12 +9,12 @@ import {
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-export type StrategiesDependencies = {
-  addresses: (AAVEStrategyAddresses | AAVEV3StrategyAddresses) & { accountFactory: string }
+type BaseStrategiesDependencies<Addresses, AaveVersion> = {
+  addresses: Addresses & { accountFactory: string }
   contracts: { operationExecutor: ethers.Contract }
   provider: ethers.providers.Provider
   protocol: {
-    version: 2 | 3
+    version: AaveVersion
     getCurrentPosition: typeof strategies.aave.view
     getProtocolData: typeof protocols.aave.getAaveProtocolData
   }
@@ -27,3 +28,14 @@ export type StrategiesDependencies = {
   ) => Promise<SwapData>
   user: string
 }
+
+export type StrategyDependenciesAaveV2 = BaseStrategiesDependencies<
+  AAVEStrategyAddresses,
+  AaveVersion.v2
+>
+export type StrategyDependenciesAaveV3 = BaseStrategiesDependencies<
+  AAVEV3StrategyAddresses,
+  AaveVersion.v3
+>
+
+export type StrategiesDependencies = StrategyDependenciesAaveV2 | StrategyDependenciesAaveV3

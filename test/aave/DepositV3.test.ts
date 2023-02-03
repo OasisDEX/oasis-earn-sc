@@ -48,7 +48,7 @@ describe('AAVE | DepositV3 Action', () => {
     fakePool = await smock.fake<AaveV3Pool>(AavePoolAbi)
     fakePool.supply.returns()
 
-    await registry.addEntry(CONTRACT_NAMES.aaveV3.AAVE_POOL, fakePool.address)
+    await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, fakePool.address)
     await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
 
     const [_depositV3Action, _depositV3ActionAddress] = await deploy('AaveV3Deposit', [

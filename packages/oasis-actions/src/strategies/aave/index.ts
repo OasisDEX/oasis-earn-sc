@@ -4,6 +4,7 @@ import { depositBorrow } from './depositBorrow'
 import { getCurrentPosition } from './getCurrentPosition'
 import { open } from './open'
 import { paybackWithdraw } from './paybackWithdraw'
+export { AaveVersion } from './getCurrentPosition'
 
 export const aave = {
   open: open,

@@ -1,4 +1,10 @@
-import { ADDRESSES, CONTRACT_NAMES, protocols, strategies } from '@oasisdex/oasis-actions/src'
+import {
+  AaveVersion,
+  ADDRESSES,
+  CONTRACT_NAMES,
+  protocols,
+  strategies,
+} from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -70,10 +76,10 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       WBTC: ADDRESSES.main.WBTC,
       USDC: ADDRESSES.main.USDC,
       chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-      aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-      aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
+      priceOracle: ADDRESSES.main.aave.v2.PriceOracle,
+      lendingPool: ADDRESSES.main.aave.v2.LendingPool,
       operationExecutor: operationExecutorAddress,
-      aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
+      protocolDataProvider: ADDRESSES.main.aave.v2.ProtocolDataProvider,
       accountFactory: '0xF7B75183A2829843dB06266c114297dfbFaeE2b6',
     }
 
@@ -98,7 +104,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       addresses: mainnetAddresses,
       provider: config.provider,
       protocol: {
-        version: 2,
+        version: AaveVersion.v2,
         getCurrentPosition: strategies.aave.view,
         getProtocolData: protocols.aave.getAaveProtocolData,
       },

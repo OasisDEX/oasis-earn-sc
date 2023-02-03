@@ -26,6 +26,11 @@ struct PaybackData {
   bool paybackAll;
 }
 
+/**
+ * CategoryId indicates special categories voted in by AAVE governance
+ * that give special LTVs and thresholds to specific categories/groupings of assets.@author
+ * The first of these was ETH correlated assets with an ID of 1.
+ */
 struct SetEModeData {
   uint8 categoryId;
 }
