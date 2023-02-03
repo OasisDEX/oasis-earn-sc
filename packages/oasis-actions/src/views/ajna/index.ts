@@ -12,7 +12,7 @@ function bucketIndexToPrice(index: number) {
 }
 
 interface Args {
-  proxy: Address
+  proxyAddress: Address
   poolAddress: Address
 }
 
@@ -44,17 +44,22 @@ export async function getPool(
 }
 
 export async function getPosition(
-  { proxy, poolAddress }: Args,
+  { proxyAddress, poolAddress }: Args,
   { poolInfoAddress, provider }: Dependencies,
 ): Promise<AjnaPosition> {
-  const pool = await getPool(poolAddress, provider)
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
 
+  const [pool, borrowerInfo, lup] = await Promise.all([
+    getPool(poolAddress, provider),
+    poolInfo.borrowerInfo(poolAddress, proxyAddress),
+    poolInfo.lup(poolAddress),
+  ])
+
   return {
-    collateralAmount: new BigNumber(0),
-    debtAmount: new BigNumber(0),
+    collateralAmount: new BigNumber(borrowerInfo.collateral_.toString()).div(WAD),
+    debtAmount: new BigNumber(borrowerInfo.debt_.toString()).div(WAD),
     liquidationPrice: new BigNumber(0),
-    owner: proxy,
+    owner: proxyAddress,
     pool,
     riskRatio: new RiskRatio(new BigNumber(0), RiskRatio.TYPE.LTV),
   }

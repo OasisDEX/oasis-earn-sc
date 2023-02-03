@@ -4,14 +4,28 @@ import * as ethers from 'ethers'
 import { RiskRatio } from '../..'
 import ajnaProxyActionsAbi from '../../abi/ajna/ajnaProxyActions.json'
 import { AjnaPosition } from '../../types/ajna'
-import { Strategy } from '../../types/common'
+import { Address, Strategy } from '../../types/common'
 import * as views from '../../views'
-import { Dependencies, DepositBorrowArgs } from './depositBorrow'
 
-type OpenArgs = DepositBorrowArgs
+export interface DepositBorrowArgs {
+  poolAddress: Address
+  dpmProxyAddress: Address
+  quoteAmount: BigNumber
+  quoteTokenPrecision: number
+  collateralAmount: BigNumber
+  collateralTokenPrecision: number
+  price: BigNumber
+}
 
-export async function open(
-  args: OpenArgs,
+export interface Dependencies {
+  poolInfoAddress: Address
+  ajnaProxyActions: Address
+  provider: ethers.providers.Provider
+  WETH: Address
+}
+
+export async function depositBorrow(
+  args: DepositBorrowArgs,
   dependencies: Dependencies,
 ): Promise<Strategy<AjnaPosition>> {
   const position = await views.ajna.getPosition(
@@ -25,21 +39,6 @@ export async function open(
     },
   )
 
-  if (position.collateralAmount.gt(0)) {
-    throw new Error('Position already exists')
-  }
-
-  // const iPosition = new Position(
-  //   { amount: position.debtAmount, precision: args.debtTokenPrecision, symbol: 'NONE' },
-  //   { amount: position.collateralAmount, precision: args.collateralTokenPrecision, symbol: 'NONE' },
-  //   new BigNumber(1),
-  //   {
-  //     dustLimit: new BigNumber(0),
-  //     liquidationThreshold: new BigNumber(100),
-  //     maxLoanToValue: new BigNumber(100),
-  //   },
-  // )
-
   const isDepositingEth =
     position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
@@ -49,7 +48,7 @@ export async function open(
     dependencies.provider,
   )
 
-  const data = apa.interface.encodeFunctionData('openPosition', [
+  const data = apa.interface.encodeFunctionData('depositAndDraw', [
     args.poolAddress,
     ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
     ethers.utils
@@ -65,8 +64,8 @@ export async function open(
         pool: position.pool,
         liquidationPrice: new BigNumber(0),
         owner: args.dpmProxyAddress,
-        collateralAmount: args.collateralAmount,
-        debtAmount: args.quoteAmount,
+        collateralAmount: position.collateralAmount.minus(args.collateralAmount),
+        debtAmount: position.collateralAmount.minus(args.quoteAmount),
         riskRatio: new RiskRatio(new BigNumber(0), RiskRatio.TYPE.COL_RATIO),
       },
     },

@@ -1,5 +1,1 @@
-import * as ajna from './ajna/index'
-
-export const views = {
-  ajna,
-}
+export * as ajna from './ajna/index'

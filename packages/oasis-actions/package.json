@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/oasis-actions",
-  "version": "0.1.12-alpha-ajna-8",
+  "version": "0.1.12-alpha-ajna-10",
   "main": "lib/src/index.js",
   "typings": "lib/src/index.d.ts",
   "scripts": {
@@ -16,6 +16,7 @@
     "bignumber.js": "9.0.1",
     "ethers": "5.6.2",
     "lodash": "^4.17.21",
+    "ramda": "^0.28.0",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {
