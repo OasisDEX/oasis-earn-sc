@@ -10,7 +10,13 @@ export { AAVEV3StrategyAddresses } from './operations/aave/v3/addresses'
 export * as protocols from './protocols'
 export { AaveVersion } from './strategies'
 export * as strategies from './strategies'
-export { IPositionTransition, SwapData } from './types'
+export {
+  IPositionTransition,
+  ISimplePositionTransition,
+  ISimpleSimulatedTransition,
+  ISimulatedTransition,
+  SwapData,
+} from './types'
 export { AavePosition, AAVETokens } from './types/aave'
 export { ActionCall } from './types/actionCall'
 export { calldataTypes } from './types/actions'

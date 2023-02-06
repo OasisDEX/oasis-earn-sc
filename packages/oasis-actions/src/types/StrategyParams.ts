@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
 import { IPosition } from '../helpers/calculations/Position'
+import { PositionType } from './PositionType'
 import { SwapData } from './SwapData'
 
 export interface IBasePositionTransitionArgs<Tokens> {
@@ -33,6 +34,18 @@ export type WithPaybackDebt = {
   amountDebtToPaybackInBaseUnit: BigNumber
 }
 
+export type WithBorrowDebt = {
+  amountDebtToBorrowInBaseUnit: BigNumber
+}
+
+export type WithPositionType = {
+  positionType: PositionType
+}
+
+export type WithDepositCollateral = {
+  amountCollateralToDepositInBaseUnit: BigNumber
+}
+
 export interface IPositionTransitionArgs<Tokens>
   extends IBasePositionTransitionArgs<Tokens>,
     WithDeposit,
@@ -44,6 +57,10 @@ export interface IViewPositionParams<Tokens> {
   proxy: string
   collateralToken: { symbol: Tokens; precision?: number }
   debtToken: { symbol: Tokens; precision?: number }
+}
+
+export type WithDebtChange<Tokens> = {
+  newDebtToken: { symbol: Tokens; precision?: number }
 }
 
 /**
@@ -65,6 +82,16 @@ export interface IPositionTransitionDependencies<Addresses> {
   user: Address
   isDPMProxy: boolean
 }
+
+export type IOpenPositionTransitionDependencies<Addresses> = Omit<
+  IPositionTransitionDependencies<Addresses>,
+  'currentPosition'
+>
+
+export type IOnlyDepositBorrowOpenPositionTransitionDependencies<Addresses> = Omit<
+  IOpenPositionTransitionDependencies<Addresses>,
+  'getSwapData'
+>
 
 export interface IViewPositionDependencies<Addresses> {
   addresses: Addresses

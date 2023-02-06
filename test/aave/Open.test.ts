@@ -16,12 +16,12 @@ import { expectToBe, expectToBeEqual } from '../utils'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 describe(`Strategy | AAVE | Open Position`, async function () {
-  describe('Using AAVE V2', async function () {
+  describe.only('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
 
     const supportedStrategies = getSupportedStrategies(ciOnlyTests)
 
-    describe('Open position: With Uniswap', () => {
+    describe.only('Open position: With Uniswap', () => {
       before(async () => {
         fixture = await loadFixture(getSystemWithAavePositions({ use1inch: false }))
       })
@@ -62,7 +62,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           expectToBeEqual(simulatedTransition.swap.tokenFee, feeWalletBalanceChange)
         })
       })
-      describe('Using DPM Proxy', async () => {
+      describe.only('Using DPM Proxy', async () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let simulatedPosition: IPosition

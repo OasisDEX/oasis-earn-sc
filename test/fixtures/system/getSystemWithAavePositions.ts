@@ -7,13 +7,7 @@ import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { mainnetAddresses } from '../../addresses'
 import { testBlockNumber } from '../../config'
 import { deploySystem } from '../../deploySystem'
-import {
-  createDPMAccount,
-  createEthUsdcMultiplyAAVEPosition,
-  createStEthEthEarnAAVEPosition,
-  createStEthUsdcMultiplyAAVEPosition,
-  createWbtcUsdcMultiplyAAVEPosition,
-} from '../factories'
+import { createDPMAccount, createStEthEthEarnAAVEPosition } from '../factories'
 import { AavePositionStrategy, StrategiesDependencies, SystemWithAAVEPositions } from '../types'
 
 export function getSupportedStrategies(ciMode?: boolean): Array<{
@@ -109,67 +103,69 @@ export const getSystemWithAavePositions =
       dependencies,
       config,
     }).catch(e => failQuietly(e, 'STETH/ETH Earn'))
+    //
+    // const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyEthUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config,
+    // }).catch(e => failQuietly(e, 'ETH/USDC Multiply'))
+    //
+    // const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyStEthUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config,
+    //   getTokens,
+    // }).catch(e => failQuietly(e, 'STETH/USDC Multiply'))
+    //
+    // const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyWbtcUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config,
+    //   getTokens,
+    // }).catch(e => failQuietly(e, 'WBTC/USDC Multiply'))
 
-    const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-    }).catch(e => failQuietly(e, 'ETH/USDC Multiply'))
+    // const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
+    //   proxy: system.common.userProxyAddress,
+    //   isDPM: false,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config,
+    // })
 
-    const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyStEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-      getTokens,
-    }).catch(e => failQuietly(e, 'STETH/USDC Multiply'))
-
-    const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyWbtcUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-      getTokens,
-    }).catch(e => failQuietly(e, 'WBTC/USDC Multiply'))
-
-    const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
-      proxy: system.common.userProxyAddress,
-      isDPM: false,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-    })
+    const dpmPositions = {
+      ...(stEthEthEarnPosition ? { [stEthEthEarnPosition.strategy]: stEthEthEarnPosition } : {}),
+      // ...(ethUsdcMultiplyPosition
+      //   ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
+      //   : {}),
+      // ...(stethUsdcMultiplyPosition
+      //   ? { [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition }
+      //   : {}),
+      // ...(wbtcUsdcMultiplyPositon
+      //   ? { [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon }
+      //   : {}),
+    }
 
     return {
       config,
       system,
       registry,
       strategiesDependencies: dependencies,
-      dpmPositions: {
-        ...(stEthEthEarnPosition ? { [stEthEthEarnPosition.strategy]: stEthEthEarnPosition } : {}),
-        ...(ethUsdcMultiplyPosition
-          ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
-          : {}),
-        ...(stethUsdcMultiplyPosition
-          ? { [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition }
-          : {}),
-        ...(wbtcUsdcMultiplyPositon
-          ? { [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon }
-          : {}),
-      },
-      dsProxyPosition: dsProxyStEthEthEarnPosition,
+      dpmPositions,
+      // dsProxyPosition: dsProxyStEthEthEarnPosition,
       getTokens,
     }
   }
 
-function failQuietly(e: any, ethusdcMultiply: string) {
-  console.log('failed to create', ethusdcMultiply, e)
+function failQuietly(e: any, positionType: string) {
+  console.log('failed to create', positionType, e)
 }

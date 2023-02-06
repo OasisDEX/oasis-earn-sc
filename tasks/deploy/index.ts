@@ -910,6 +910,45 @@ async function addAAVEOperationsToRegistry(args: {
     },
   ])
 
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_DEPOSIT_BORROW, [
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEHash,
+      optional: false,
+    },
+    {
+      hash: borromFromAAVEHash,
+      optional: true,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsHash,
+      optional: true,
+    },
+    {
+      hash: positionCreatedHash,
+      optional: false,
+    },
+  ])
+
   if (debug) {
     console.log('==== ==== ====')
     console.log('ADDING OPERATIONS TO REGISTRY')

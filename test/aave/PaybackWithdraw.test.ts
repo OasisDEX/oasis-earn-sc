@@ -474,7 +474,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
     })
   })
 
-  describe('Close position using Payback and Withdraw', () => {
+  describe.only('Close position using Payback and Withdraw', () => {
     describe('When position is opened with DSProxy', () => {
       it('Should payback all and withdraw all', async () => {
         const { dsProxyPosition, strategiesDependencies, system, config, getTokens } = fixture
@@ -552,11 +552,11 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
       })
     })
     describe('When position is opened with DPM Proxy', () => {
-      supportedStrategies.forEach(strategy => {
+      supportedStrategies.forEach(({ name: strategy }) => {
         it(`Should payback all and withdraw all for ${strategy}`, async function () {
           const { strategiesDependencies, system, config, dpmPositions, getTokens } = fixture
 
-          const position = dpmPositions[strategy.name]
+          const position = dpmPositions[strategy]
 
           if (position === undefined) {
             this.skip()
