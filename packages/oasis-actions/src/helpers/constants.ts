@@ -17,7 +17,7 @@ export const MAX_UINT =
 export const CONTRACT_NAMES = {
   common: {
     PULL_TOKEN: 'PullToken_3',
-    SEND_TOKEN: 'SendToken_3',
+    SEND_TOKEN: 'SendToken_4',
     SET_APPROVAL: 'SetApproval_3',
     TAKE_A_FLASHLOAN: 'TakeFlashloan_3',
     SWAP_ACTION: 'SwapAction_3',
@@ -75,7 +75,7 @@ export type ContractNames = AllValues<typeof CONTRACT_NAMES>
 export const OPERATION_NAMES = {
   aave: {
     OPEN_POSITION: 'OpenAAVEPosition',
-    CLOSE_POSITION: 'CloseAAVEPosition',
+    CLOSE_POSITION: 'CloseAAVEPosition_2',
     INCREASE_POSITION: 'IncreaseAAVEPosition',
     DECREASE_POSITION: 'DecreaseAAVEPosition',
     DEPOSIT_BORROW: 'AAVEDepositBorrow',

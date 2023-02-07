@@ -9,13 +9,12 @@ import {
   createDPMAccount,
   createEthUsdcMultiplyAAVEPosition,
   createStEthEthEarnAAVEPosition,
-  createStEthUsdcMultiplyAAVEPosition,
   createWbtcUsdcMultiplyAAVEPosition,
 } from './factories'
 import { AavePositionStrategy, StrategiesDependencies, SystemWithAAVEPositions } from './types'
 
 export function getSupportedStrategies(): AavePositionStrategy[] {
-  return ['ETH/USDC Multiply', 'STETH/USDC Multiply', 'WBTC/USDC Multiply', 'STETH/ETH Earn']
+  return ['ETH/USDC Multiply', 'WBTC/USDC Multiply', 'STETH/ETH Earn']
 }
 
 export const getSystemWithAAVEPositions =
@@ -28,7 +27,7 @@ export const getSystemWithAAVEPositions =
     if (testBlockNumber) {
       await resetNode(config.provider, testBlockNumber)
     }
-    const { system, registry } = await deploySystem(config, false, true)
+    const { system, registry } = await deploySystem(config, false, !use1inch)
 
     const dependencies: StrategiesDependencies = {
       addresses: {
@@ -54,21 +53,12 @@ export const getSystemWithAAVEPositions =
       system.common.accountFactory.address,
       config,
     )
-    const [dpmProxyForMultiplyStEthUsdc] = await createDPMAccount(
-      system.common.accountFactory.address,
-      config,
-    )
     const [dpmProxyForMultiplyWbtcUsdc] = await createDPMAccount(
       system.common.accountFactory.address,
       config,
     )
 
-    if (
-      !dpmProxyForEarnStEthEth ||
-      !dpmProxyForMultiplyStEthUsdc ||
-      !dpmProxyForMultiplyEthUsdc ||
-      !dpmProxyForMultiplyWbtcUsdc
-    ) {
+    if (!dpmProxyForEarnStEthEth || !dpmProxyForMultiplyEthUsdc || !dpmProxyForMultiplyWbtcUsdc) {
       throw new Error('Cant create a DPM proxy')
     }
 
@@ -90,16 +80,6 @@ export const getSystemWithAAVEPositions =
       swapAddress,
       dependencies,
       config,
-    })
-
-    const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyStEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-      getTokens,
     })
 
     const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
@@ -129,7 +109,6 @@ export const getSystemWithAAVEPositions =
       dpmPositions: {
         [stEthEthEarnPosition.strategy]: stEthEthEarnPosition,
         [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition,
-        [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition,
         [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon,
       },
       dsProxyPosition: dsProxyStEthEthEarnPosition,
