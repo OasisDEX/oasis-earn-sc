@@ -106,18 +106,6 @@ Errors such as the one below will appear when running tests with v2.8.0. Use Har
 InvalidArgumentsError: Errors encountered in param 1: Invalid value "0x0000000000000000000000000000000000000000000000000000000000000003" supplied to : QUANTITY
 ```
 
-If hardhat compains with
-
-```
-var jsonConfig = JSON.stringify(config, (key, value) => {
-                                      ^
-
-TypeError: Do not know how to serialize a BigInt
-```
-
-Then a quickfix is Add `BigInt.prototype.toJSON = function() { return this.toString() }` to `./node_modules/hardhat/internal/context.js`
-
-https://github.com/Tenderly/tenderly-cli/issues/108#issuecomment-1312219787
 
 # Performance optimizations
 

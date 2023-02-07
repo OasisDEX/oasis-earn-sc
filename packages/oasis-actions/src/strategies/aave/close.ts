@@ -26,8 +26,8 @@ import {
   IPositionTransitionDependencies,
   SwapData,
   WithLockedCollateral,
-} from '../types'
-import { AAVETokens } from '../types/aave'
+} from '../../types'
+import { AAVETokens } from '../../types/aave'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
 type AAVECloseArgs = IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral

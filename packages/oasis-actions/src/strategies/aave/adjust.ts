@@ -16,8 +16,8 @@ import {
   IPositionTransitionArgs,
   IPositionTransitionDependencies,
   SwapData,
-} from '../types'
-import { AAVETokens } from '../types/aave'
+} from '../../types'
+import { AAVETokens } from '../../types/aave'
 import { getAAVETokenAddresses } from './getAAVETokenAddresses'
 
 const FEE = 20

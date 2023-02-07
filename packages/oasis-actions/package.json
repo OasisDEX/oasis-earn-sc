@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/oasis-actions",
-  "version": "0.1.12-alpha-ajna-12",
+  "version": "0.1.16",
   "main": "lib/src/index.js",
   "typings": "lib/src/index.d.ts",
   "scripts": {

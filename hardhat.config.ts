@@ -66,7 +66,7 @@ const config: HardhatUserConfig = {
   networks: {
     local: {
       url: 'http://127.0.0.1:8545',
-      timeout: 100000,
+      timeout: 1000000,
       chainId: 2137,
     },
     hardhat: {
@@ -140,6 +140,11 @@ const config: HardhatUserConfig = {
     spacing: 2,
     pretty: false,
   },
+}
+
+// @ts-ignore
+BigInt.prototype.toJSON = function () {
+  return this.toString()
 }
 
 export default config
