@@ -201,13 +201,19 @@ function calculateNeededCollateralToPaybackDebt(
   fee: BigNumber,
   slippage: BigNumber,
 ) {
+  // Depending on the protocol the price  could be anything.
+  // i.e AAVEv3 returns the prices in USD
+  //     AAVEv2 returns the prices in ETH
+  // @paybackAmount - the amount denominated in the protocol base currency ( i.e. AAVEv2 - It will be in ETH, AAVEv3 - USDC)
   const paybackAmount = debtPrice.times(debtAmount)
   const paybackAmountInclFee = paybackAmount.times(ONE.plus(fee))
+  // Same rule applies for @collateralAmountNeeded. @colPrice is either in USDC ( AAVEv3 ) or ETH ( AAVEv2 )
+  // or could be anything eles in the following versions.
   const collateralAmountNeeded = new BigNumber(
     paybackAmount
       .plus(paybackAmount.times(fee))
       .plus(paybackAmountInclFee.times(slippage))
-      .div(colPrice), // This needs to be double checked
+      .div(colPrice),
   ).integerValue(BigNumber.ROUND_DOWN)
   return collateralAmountNeeded.times(TEN.pow(colPrecision - debtPrecision))
 }
