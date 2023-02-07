@@ -1,11 +1,11 @@
+import { createDeploy, DeployFunction } from '@helpers/deploy'
+import { ServiceRegistry } from '@helpers/serviceRegistry'
+import { RuntimeConfig } from '@helpers/types/common'
+import { OperationsRegistry } from '@helpers/wrappers/operationsRegistry'
 import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions/src'
 import { task } from 'hardhat/config'
 
-import { createDeploy, DeployFunction } from '../../helpers/deploy'
 import init from '../../helpers/init'
-import { ServiceRegistry } from '../../helpers/serviceRegistry'
-import { RuntimeConfig } from '../../helpers/types/common'
-import { OperationsRegistry } from '../../helpers/wrappers/operationsRegistry'
 
 task(
   'deploy',
@@ -48,6 +48,11 @@ task(
       borrowFromAAVEAddress,
       withdrawFromAAVEAddress,
       actionPaybackFromAAVEAddress,
+      actionDepositInAAVEV3Address,
+      actionAaveV3BorrowAddress,
+      actionWithdrawFromAAVEV3Address,
+      actionPaybackFromAAVEV3Address,
+      actionSetEModeInAAVEV3Address,
     } = await deployAaveActions({ deploy, serviceRegistryAddress, debug: taskArgs.debug })
 
     const registry: ServiceRegistry = new ServiceRegistry(serviceRegistryAddress, config.signer)
@@ -90,17 +95,31 @@ task(
       debug: taskArgs.debug,
     })
 
-    const { depositInAAVEHash, borromFromAAVEHash, withdrawFromAAVEHash, paybackToAAVEHash } =
-      await addAAVEActionsToRegistry({
-        registry,
-        addresses: {
-          depositInAAVEAddress,
-          borrowFromAAVEAddress,
-          withdrawFromAAVEAddress,
-          actionPaybackFromAAVEAddress,
-        },
-        debug: taskArgs.debug,
-      })
+    const {
+      depositInAAVEHash,
+      borromFromAAVEHash,
+      withdrawFromAAVEHash,
+      paybackToAAVEHash,
+      depositInAAVEV3Hash,
+      borrowFromAAVEV3Hash,
+      withdrawFromAAVEV3Hash,
+      paybackFromAAVEV3Hash,
+      setEModeInAAVEV3Hash,
+    } = await addAAVEActionsToRegistry({
+      registry,
+      addresses: {
+        depositInAAVEAddress,
+        borrowFromAAVEAddress,
+        withdrawFromAAVEAddress,
+        actionPaybackFromAAVEAddress,
+        actionDepositInAAVEV3Address,
+        actionAaveV3BorrowAddress,
+        actionWithdrawFromAAVEV3Address,
+        actionPaybackFromAAVEV3Address,
+        actionSetEModeInAAVEV3Address,
+      },
+      debug: taskArgs.debug,
+    })
 
     await addMakerActionsToRegistry()
 
@@ -118,6 +137,11 @@ task(
         depositInAAVEHash,
         paybackToAAVEHash,
         borromFromAAVEHash,
+        depositInAAVEV3Hash,
+        borrowFromAAVEV3Hash,
+        withdrawFromAAVEV3Hash,
+        paybackFromAAVEV3Hash,
+        setEModeInAAVEV3Hash,
         swapActionHash,
         withdrawFromAAVEHash,
         sendTokenHash,
@@ -153,11 +177,7 @@ async function deployCoreContacts(args: { deploy: DeployFunction; debug: boolean
   ])
 
   const tx = await accountFactory['createAccount()']()
-  const receipt = await tx.wait()
-
-  // eslint-disable-next-line
-  const dpmProxyAddress = receipt.events![1].args!.proxy
-
+  await tx.wait()
   await accountGuard.setWhitelist(operationExecutorAddress, true)
 
   return {
@@ -321,11 +341,37 @@ async function deployAaveActions(args: {
     serviceRegistryAddress,
   ])
 
+  //-- AAVE V3 Actions
+  const [, actionDepositInAAVEV3Address] = await deploy(CONTRACT_NAMES.aave.v3.DEPOSIT, [
+    serviceRegistryAddress,
+  ])
+
+  const [, actionAaveV3BorrowAddress] = await deploy(CONTRACT_NAMES.aave.v3.BORROW, [
+    serviceRegistryAddress,
+  ])
+
+  const [, actionWithdrawFromAAVEV3Address] = await deploy(CONTRACT_NAMES.aave.v3.WITHDRAW, [
+    serviceRegistryAddress,
+  ])
+
+  const [, actionPaybackFromAAVEV3Address] = await deploy(CONTRACT_NAMES.aave.v3.PAYBACK, [
+    serviceRegistryAddress,
+  ])
+
+  const [, actionSetEModeInAAVEV3Address] = await deploy(CONTRACT_NAMES.aave.v3.SET_EMODE, [
+    serviceRegistryAddress,
+  ])
+
   return {
     depositInAAVEAddress,
     borrowFromAAVEAddress,
     withdrawFromAAVEAddress,
     actionPaybackFromAAVEAddress,
+    actionDepositInAAVEV3Address,
+    actionAaveV3BorrowAddress,
+    actionWithdrawFromAAVEV3Address,
+    actionPaybackFromAAVEV3Address,
+    actionSetEModeInAAVEV3Address,
   }
 }
 
@@ -527,6 +573,11 @@ async function addAAVEActionsToRegistry(args: {
     borrowFromAAVEAddress: string
     withdrawFromAAVEAddress: string
     actionPaybackFromAAVEAddress: string
+    actionDepositInAAVEV3Address: string
+    actionAaveV3BorrowAddress: string
+    actionWithdrawFromAAVEV3Address: string
+    actionPaybackFromAAVEV3Address: string
+    actionSetEModeInAAVEV3Address: string
   }
   debug: boolean
 }) {
@@ -548,6 +599,31 @@ async function addAAVEActionsToRegistry(args: {
     addresses.actionPaybackFromAAVEAddress,
   )
 
+  const depositInAAVEV3Hash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.DEPOSIT,
+    addresses.actionDepositInAAVEV3Address,
+  )
+
+  const borrowFromAAVEV3Hash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.BORROW,
+    addresses.actionAaveV3BorrowAddress,
+  )
+
+  const withdrawFromAAVEV3Hash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.WITHDRAW,
+    addresses.actionWithdrawFromAAVEV3Address,
+  )
+
+  const paybackFromAAVEV3Hash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.PAYBACK,
+    addresses.actionPaybackFromAAVEV3Address,
+  )
+
+  const setEModeInAAVEV3Hash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.SET_EMODE,
+    addresses.actionSetEModeInAAVEV3Address,
+  )
+
   if (debug) {
     console.log('==== ==== ====')
     console.log('ADDING AAVE ACTIONS TO REGISTRY')
@@ -563,6 +639,22 @@ async function addAAVEActionsToRegistry(args: {
     console.log(
       `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.v2.PAYBACK} is ${paybackToAAVEHash}`,
     )
+
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.v3.DEPOSIT} is ${depositInAAVEV3Hash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.v3.BORROW} is ${borrowFromAAVEV3Hash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.v3.WITHDRAW} is ${withdrawFromAAVEV3Hash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.v3.PAYBACK} is ${paybackFromAAVEV3Hash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.v3.SET_EMODE} is ${setEModeInAAVEV3Hash}`,
+    )
   }
 
   return {
@@ -570,6 +662,11 @@ async function addAAVEActionsToRegistry(args: {
     borromFromAAVEHash,
     withdrawFromAAVEHash,
     paybackToAAVEHash,
+    depositInAAVEV3Hash,
+    borrowFromAAVEV3Hash,
+    withdrawFromAAVEV3Hash,
+    paybackFromAAVEV3Hash,
+    setEModeInAAVEV3Hash,
   }
 }
 
@@ -586,6 +683,11 @@ async function addAAVEOperationsToRegistry(args: {
     depositInAAVEHash: string
     borromFromAAVEHash: string
     paybackToAAVEHash: string
+    depositInAAVEV3Hash: string
+    borrowFromAAVEV3Hash: string
+    withdrawFromAAVEV3Hash: string
+    paybackFromAAVEV3Hash: string
+    setEModeInAAVEV3Hash: string
     swapActionHash: string
     withdrawFromAAVEHash: string
     sendTokenHash: string
@@ -604,6 +706,10 @@ async function addAAVEOperationsToRegistry(args: {
     depositInAAVEHash,
     borromFromAAVEHash,
     paybackToAAVEHash,
+    depositInAAVEV3Hash,
+    borrowFromAAVEV3Hash,
+    withdrawFromAAVEV3Hash,
+    setEModeInAAVEV3Hash,
     swapActionHash,
     withdrawFromAAVEHash,
     wrapEthHash,
@@ -661,6 +767,58 @@ async function addAAVEOperationsToRegistry(args: {
     { hash: positionCreatedHash, optional: false },
   ]
   await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.OPEN_POSITION, openPositionActions)
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v3.OPEN_POSITION, [
+    {
+      hash: takeAFlashloanHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEV3Hash,
+      optional: false,
+    },
+    {
+      hash: borrowFromAAVEV3Hash,
+      optional: false,
+    },
+    {
+      hash: setEModeInAAVEV3Hash,
+      optional: true,
+    },
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEV3Hash,
+      optional: false,
+    },
+    {
+      hash: withdrawFromAAVEV3Hash,
+      optional: false,
+    },
+    { hash: positionCreatedHash, optional: false },
+  ])
 
   const closePositionActions = [
     {
@@ -910,7 +1068,7 @@ async function addAAVEOperationsToRegistry(args: {
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_DEPOSIT_BORROW, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.OPEN_DEPOSIT_BORROW, [
     {
       hash: wrapEthHash,
       optional: true,
