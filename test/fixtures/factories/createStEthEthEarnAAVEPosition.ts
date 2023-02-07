@@ -1,4 +1,8 @@
 import { AaveVersion, ADDRESSES, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
+import {
+  AaveV2OpenDependencies,
+  AaveV3OpenDependencies,
+} from '@oasisdex/oasis-actions/src/strategies/aave/open/open'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
@@ -28,20 +32,22 @@ async function openStEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1]) 
     positionType: 'Earn',
   }
 
-  if (
-    dependencies.protocol.version === AaveVersion.v2 &&
-    aaveV2UniqueContractName in dependencies.addresses
-  ) {
+  if (isV2(dependencies)) {
     return await strategies.aave.v2.open(args, dependencies)
   }
-  if (
-    dependencies.protocol.version === AaveVersion.v3 &&
-    aaveV3UniqueContractName in dependencies.addresses
-  ) {
+  if (isV3(dependencies)) {
     return await strategies.aave.v3.open(args, dependencies)
   }
 
   throw new Error('Unsupported protocol version')
+}
+
+function isV2(dependencies: OpenPositionTypes[1]): dependencies is AaveV2OpenDependencies {
+  return dependencies.protocol.version === AaveVersion.v2
+}
+
+function isV3(dependencies: OpenPositionTypes[1]): dependencies is AaveV3OpenDependencies {
+  return dependencies.protocol.version === AaveVersion.v3
 }
 
 export async function createStEthEthEarnAAVEPosition({

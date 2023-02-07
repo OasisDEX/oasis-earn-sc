@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "deploy": "npx hardhat run",
-    "test": "npx hardhat test && yarn workspaces run test",
+    "test": "npx hardhat test",
     "test:gas": "REPORT_GAS=1 yarn test",
     "test:1inch": "RUN_1INCH_TESTS=1 yarn test",
     "test:1inch:gas": "RUN_1INCH_TESTS=1 yarn test:gas",

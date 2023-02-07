@@ -1,8 +1,9 @@
+import 'tsconfig-paths/register'
+
 import { default as dotenv } from 'dotenv'
 import { HardhatUserConfig, task } from 'hardhat/config'
 import path from 'path'
 import process from 'process'
-
 dotenv.config({ path: path.join(__dirname, './.env') })
 
 import '@nomiclabs/hardhat-etherscan'

@@ -22,7 +22,7 @@ import { tokens } from '../constants'
 import { initialiseConfig } from '../fixtures/setup'
 
 // TODO: IMPLEMENT THIS TEST
-describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
+describe.only(`Strategy | AAVE | Deposit/Borrow`, async function () {
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
   let config: RuntimeConfig

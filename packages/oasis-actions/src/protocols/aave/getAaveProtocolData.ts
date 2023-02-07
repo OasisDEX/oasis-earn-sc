@@ -3,6 +3,7 @@ import { ethers, providers } from 'ethers'
 
 import aaveV2PriceOracleABI from '../../../../../abi/external/aave/v2/priceOracle.json'
 import aaveV2ProtocolDataProviderABI from '../../../../../abi/external/aave/v2/protocolDataProvider.json'
+import aaveV3ProtocolDataProvider from '../../../../../abi/external/aave/v3/aaveProtocolDataProvider.json'
 import aaveV3PoolABI from '../../../../../abi/external/aave/v3/pool.json'
 import { amountFromWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
@@ -21,6 +22,16 @@ type InternalAaveProtocolData<AaveAddresses> = {
 export type AaveProtocolDataArgs =
   | (InternalAaveProtocolData<AAVEStrategyAddresses> & { protocolVersion: AaveVersion.v2 })
   | (InternalAaveProtocolData<AAVEV3StrategyAddresses> & { protocolVersion: AaveVersion.v3 })
+
+export const getAaveProtocolData = async (args: AaveProtocolDataArgs) => {
+  if (isV2(args)) {
+    return getAaveV2ProtocolData(args)
+  } else if (isV3(args)) {
+    return getAaveV3ProtocolData(args)
+  } else {
+    throw new Error('Invalid Aave version')
+  }
+}
 
 function isV2(
   args: AaveProtocolDataArgs,
@@ -96,7 +107,7 @@ async function getAaveV3ProtocolData({
   const priceOracle = new ethers.Contract(addresses.aaveOracle, aaveV2PriceOracleABI, provider)
   const aaveProtocolDataProvider = new ethers.Contract(
     addresses.aaveProtocolDataProvider,
-    aaveV2ProtocolDataProviderABI,
+    aaveV3ProtocolDataProvider,
     provider,
   )
   const aavePool = new ethers.Contract(addresses.pool, aaveV3PoolABI, provider)
@@ -157,16 +168,6 @@ async function getAaveV3ProtocolData({
     userReserveDataForDebtToken: hasProxy ? results[5] : undefined,
     userReserveDataForCollateral: hasProxy ? results[6] : undefined,
     eModeCategoryData: eModeCategoryData,
-  }
-}
-
-export const getAaveProtocolData = async (args: AaveProtocolDataArgs) => {
-  if (isV2(args)) {
-    return getAaveV2ProtocolData(args)
-  } else if (isV3(args)) {
-    return getAaveV3ProtocolData(args)
-  } else {
-    throw new Error('Invalid Aave version')
   }
 }
 

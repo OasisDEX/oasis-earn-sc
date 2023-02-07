@@ -1,4 +1,8 @@
 import { AaveVersion, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
+import {
+  AaveV2OpenDependencies,
+  AaveV3OpenDependencies,
+} from '@oasisdex/oasis-actions/src/strategies/aave/open/open'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
@@ -12,7 +16,6 @@ import { mainnetAddresses } from '../../addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { ETH, MULTIPLE, SLIPPAGE, USDC, WBTC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
-
 const amountInBaseUnit = amountToWei(new BigNumber(1), WBTC.precision)
 const wethToSwapToWBTC = amountToWei(new BigNumber(100), ETH.precision)
 
@@ -30,20 +33,22 @@ async function openWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[
     positionType: 'Multiply',
   }
 
-  if (
-    dependencies.protocol.version === AaveVersion.v2 &&
-    aaveV2UniqueContractName in dependencies.addresses
-  ) {
+  if (isV2(dependencies)) {
     return await strategies.aave.v2.open(args, dependencies)
   }
-  if (
-    dependencies.protocol.version === AaveVersion.v3 &&
-    aaveV3UniqueContractName in dependencies.addresses
-  ) {
+  if (isV3(dependencies)) {
     return await strategies.aave.v3.open(args, dependencies)
   }
 
   throw new Error('Unsupported protocol version')
+}
+
+function isV2(dependencies: OpenPositionTypes[1]): dependencies is AaveV2OpenDependencies {
+  return dependencies.protocol.version === AaveVersion.v2
+}
+
+function isV3(dependencies: OpenPositionTypes[1]): dependencies is AaveV3OpenDependencies {
+  return dependencies.protocol.version === AaveVersion.v3
 }
 
 export async function createWbtcUsdcMultiplyAAVEPosition({

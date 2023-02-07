@@ -1,10 +1,8 @@
 import BigNumber from 'bignumber.js'
 
-import { Unbox } from '../../../../../helpers/types/common'
 import { AAVEStrategyAddresses } from '../../operations/aave/v2/addresses'
 import { AAVEV3StrategyAddresses } from '../../operations/aave/v3/addresses'
-import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '../../protocols/aave/config'
-import { AaveProtocolData, getAaveProtocolData } from '../../protocols/aave/getAaveProtocolData'
+import { getAaveProtocolData } from '../../protocols/aave/getAaveProtocolData'
 import { IViewPositionDependencies, IViewPositionParams } from '../../types'
 import { AavePosition, AAVETokens } from '../../types/aave'
 import { getAaveTokenAddresses } from './getAaveTokenAddresses'
@@ -27,44 +25,40 @@ export type AaveGetCurrentPositionDependencies =
   | AaveV3GetCurrentPositionDependencies
 
 export async function getCurrentPosition(
-  { collateralToken, debtToken, proxy }: AaveGetCurrentPositionArgs,
-  { addresses, provider, protocolVersion }: AaveGetCurrentPositionDependencies,
+  args: AaveGetCurrentPositionArgs,
+  dependencies: AaveGetCurrentPositionDependencies,
 ): Promise<AavePosition> {
-  const isV2 = protocolVersion === AaveVersion.v2
-  const isV3 = protocolVersion === AaveVersion.v3
+  if (isV2(dependencies)) {
+    return getCurrentPositionAaveV2(args, dependencies)
+  } else if (isV3(dependencies)) {
+    return getCurrentPositionAaveV3(args, dependencies)
+  } else {
+    throw new Error('Invalid Aave version')
+  }
+}
+
+async function getCurrentPositionAaveV2(
+  args: AaveGetCurrentPositionArgs,
+  dependencies: AaveV2GetCurrentPositionDependencies,
+): Promise<AavePosition> {
+  const debtToken = args.debtToken
+  const collateralToken = args.collateralToken
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     {
-      collateralToken,
-      debtToken,
+      collateralToken: collateralToken,
+      debtToken: debtToken,
     },
-    addresses,
+    dependencies.addresses,
   )
 
-  let protocolData: Unbox<AaveProtocolData> | undefined
-  if (isV2 && aaveV2UniqueContractName in addresses) {
-    protocolData = await getAaveProtocolData({
-      collateralTokenAddress,
-      debtTokenAddress,
-      addresses,
-      proxy,
-      provider,
-      protocolVersion,
-    })
-  }
-  if (isV3 && aaveV3UniqueContractName in addresses) {
-    protocolData = await getAaveProtocolData({
-      collateralTokenAddress,
-      debtTokenAddress,
-      addresses,
-      proxy,
-      provider,
-      protocolVersion,
-    })
-  }
-
-  if (!protocolData) {
-    throw new Error('Protocol data not found')
-  }
+  const protocolData = await getAaveProtocolData({
+    collateralTokenAddress,
+    debtTokenAddress,
+    addresses: dependencies.addresses,
+    proxy: args.proxy,
+    provider: dependencies.provider,
+    protocolVersion: dependencies.protocolVersion,
+  })
 
   const {
     reserveDataForCollateral,
@@ -102,4 +96,81 @@ export async function getCurrentPosition(
       liquidationThreshold: liquidationThreshold,
     },
   )
+}
+
+async function getCurrentPositionAaveV3(
+  args: AaveGetCurrentPositionArgs,
+  dependencies: AaveV3GetCurrentPositionDependencies,
+): Promise<AavePosition> {
+  const debtToken = args.debtToken
+  const collateralToken = args.collateralToken
+  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
+    {
+      collateralToken: collateralToken,
+      debtToken: debtToken,
+    },
+    dependencies.addresses,
+  )
+
+  const protocolData = await getAaveProtocolData({
+    collateralTokenAddress,
+    debtTokenAddress,
+    addresses: dependencies.addresses,
+    proxy: args.proxy,
+    provider: dependencies.provider,
+    protocolVersion: dependencies.protocolVersion,
+  })
+
+  const {
+    reserveDataForCollateral,
+    userReserveDataForCollateral,
+    userReserveDataForDebtToken,
+    aaveCollateralTokenPriceInEth,
+    aaveDebtTokenPriceInEth,
+  } = protocolData
+
+  const BASE = new BigNumber(10000)
+  const liquidationThreshold = new BigNumber(
+    reserveDataForCollateral.liquidationThreshold.toString(),
+  ).div(BASE)
+  const maxLoanToValue = new BigNumber(reserveDataForCollateral.ltv.toString()).div(BASE)
+
+  const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+
+  return new AavePosition(
+    {
+      amount: new BigNumber(userReserveDataForDebtToken.currentVariableDebt.toString()),
+      symbol: debtToken.symbol,
+      precision: debtToken.precision,
+      address: debtTokenAddress,
+    },
+    {
+      amount: new BigNumber(userReserveDataForCollateral.currentATokenBalance.toString()),
+      symbol: collateralToken.symbol,
+      precision: collateralToken.precision,
+      address: collateralTokenAddress,
+    },
+    oracle,
+    {
+      dustLimit: new BigNumber(0),
+      maxLoanToValue: maxLoanToValue,
+      liquidationThreshold: liquidationThreshold,
+    },
+  )
+}
+
+function isV2(
+  dependencies: AaveGetCurrentPositionDependencies,
+): dependencies is IViewPositionDependencies<AAVEStrategyAddresses> & {
+  protocolVersion: AaveVersion.v2
+} {
+  return dependencies.protocolVersion === AaveVersion.v2
+}
+
+function isV3(
+  dependencies: AaveGetCurrentPositionDependencies,
+): dependencies is IViewPositionDependencies<AAVEV3StrategyAddresses> & {
+  protocolVersion: AaveVersion.v3
+} {
+  return dependencies.protocolVersion === AaveVersion.v3
 }
