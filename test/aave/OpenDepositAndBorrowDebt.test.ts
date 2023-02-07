@@ -1,8 +1,7 @@
-import { AAVETokens, strategies } from '@oasisdex/oasis-actions'
+import { AAVETokens, AaveVersion, strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 
-// import { loadFixture,  } from 'ethereum-waffle'
 import { executeThroughDPMProxy, executeThroughProxy } from '../../helpers/deploy'
 import { amountToWei, approve } from '../../helpers/utils'
 import { zero } from '../../scripts/common'
@@ -88,7 +87,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
 
         const afterTransactionPosition = await strategies.aave.view(
           { collateralToken: collateral, debtToken: debt, proxy: dsProxy },
-          { ...strategiesDependencies },
+          { ...strategiesDependencies, protocolVersion: AaveVersion.v2 },
         )
 
         expect(status).to.be.true
@@ -114,7 +113,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
           const amountToDeposit = amountToWei(new BigNumber(1), collateral.precision)
 
           if (collateral.symbol !== 'ETH' && collateral.symbol !== 'WETH') {
-            await getTokens(collateral.symbol, amountToDeposit.toString())
+            await getTokens(collateral.symbol, amountToDeposit)
             await approve(collateral.address, proxy.proxy, amountToDeposit, config, false)
           }
 
@@ -151,7 +150,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
 
           const afterTransactionPosition = await strategies.aave.view(
             { collateralToken: collateral, debtToken: debt, proxy: proxy.proxy },
-            { ...strategiesDependencies },
+            { ...strategiesDependencies, protocolVersion: AaveVersion.v2 },
           )
 
           expect(status).to.be.true
@@ -214,7 +213,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
 
         const afterTransactionPosition = await strategies.aave.view(
           { collateralToken: collateral, debtToken: debt, proxy: dsProxy },
-          { ...strategiesDependencies },
+          { ...strategiesDependencies, protocolVersion: AaveVersion.v2 },
         )
 
         expect(status).to.be.true
@@ -248,7 +247,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
           const amountToBorrow = amountToWei(new BigNumber(100), debt.precision)
 
           if (collateral.symbol !== 'ETH' && collateral.symbol !== 'WETH') {
-            await getTokens(collateral.symbol, amountToDeposit.toString())
+            await getTokens(collateral.symbol, amountToDeposit)
             await approve(collateral.address, proxy.proxy, amountToDeposit, config, false)
           }
 
@@ -285,7 +284,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
 
           const afterTransactionPosition = await strategies.aave.view(
             { collateralToken: collateral, debtToken: debt, proxy: proxy.proxy },
-            { ...strategiesDependencies },
+            { ...strategiesDependencies, protocolVersion: AaveVersion.v2 },
           )
 
           expect(status).to.be.true

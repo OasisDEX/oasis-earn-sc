@@ -1,8 +1,8 @@
 import { ZERO } from '../../helpers/constants'
 import * as operations from '../../operations'
-import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { BorrowArgs } from '../../operations/aave/borrow'
-import { DepositArgs } from '../../operations/aave/deposit'
+import { AAVEStrategyAddresses } from '../../operations/aave/v2'
+import { BorrowArgs } from '../../operations/aave/v2/borrow'
+import { DepositArgs } from '../../operations/aave/v2/deposit'
 import {
   IBasePositionTransitionArgs,
   IOnlyDepositBorrowOpenPositionTransitionDependencies,
@@ -12,8 +12,8 @@ import {
   WithPositionType,
 } from '../../types'
 import { AAVETokens } from '../../types/aave'
-import { getAAVETokenAddresses } from './getAAVETokenAddresses'
-import { getCurrentPosition } from './getCurrentPosition'
+import { getAaveTokenAddresses } from './getAaveTokenAddresses'
+import { AaveVersion, getCurrentPosition } from './getCurrentPosition'
 
 export async function openDepositAndBorrowDebt(
   args: IBasePositionTransitionArgs<AAVETokens> &
@@ -24,10 +24,10 @@ export async function openDepositAndBorrowDebt(
 ): Promise<ISimplePositionTransition> {
   const currentPosition = await getCurrentPosition(
     { ...args, proxy: dependencies.proxy },
-    dependencies,
+    { ...dependencies, protocolVersion: AaveVersion.v2 },
   )
 
-  const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
+  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
   )

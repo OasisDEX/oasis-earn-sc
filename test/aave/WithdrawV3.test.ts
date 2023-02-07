@@ -45,7 +45,7 @@ describe('AAVE | WithdrawV3 Action', () => {
     fakePool = await smock.fake<AaveV3Pool>(AavePoolAbi)
     fakePool.withdraw.returns(expectedValues.amount)
 
-    await registry.addEntry(CONTRACT_NAMES.aaveV3.AAVE_POOL, fakePool.address)
+    await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, fakePool.address)
     await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
 
     const [_withdrawV3Action] = await deploy('AaveV3Withdraw', [serviceRegistryAddress])

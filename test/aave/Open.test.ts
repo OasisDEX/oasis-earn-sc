@@ -16,7 +16,7 @@ import { expectToBe, expectToBeEqual } from '../utils'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 describe(`Strategy | AAVE | Open Position`, async function () {
-  describe.only('Using AAVE V2', async function () {
+  describe('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
 
     const supportedStrategies = getSupportedStrategies(ciOnlyTests)

@@ -27,6 +27,6 @@ export async function openDepositAndBorrow(
 
   return {
     calls: [...depositCalls, ...borrowCalls, positionCreatedEvent],
-    operationName: OPERATION_NAMES.aave.OPEN_DEPOSIT_BORROW,
+    operationName: OPERATION_NAMES.aave.v2.OPEN_DEPOSIT_BORROW,
   }
 }

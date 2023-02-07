@@ -15,7 +15,7 @@ const utils = ethers.utils
 chai.use(smock.matchers)
 
 const defaultDebtRateMode = 2
-describe('AAVE | PaybackA3 Action', () => {
+describe('AAVE | PaybackV3 Action', () => {
   let provider: JsonRpcProvider
   let paybackV3Action: Contract
   let paybackV3ActionAddress: string

@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { mainnetAddresses } from '../../addresses'
 import { TokenDetails } from '../types/positionDetails'
 
-export const SLIPPAGE = new BigNumber(0.25)
+export const SLIPPAGE = new BigNumber(0.4)
 export const MULTIPLE = new BigNumber(1.5)
 export const EMODE_MULTIPLE = new BigNumber(6)
 

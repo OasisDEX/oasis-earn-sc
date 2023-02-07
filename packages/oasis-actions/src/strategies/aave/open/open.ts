@@ -71,7 +71,7 @@ export async function open(
     },
   })
   const { simulatedPositionTransition, oracle, reserveEModeCategory } =
-    await simulatePositionTransition(quoteSwapData, args, dependencies, true)
+    await simulatePositionTransition(quoteSwapData, args, dependencies /*, true*/)
 
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
     typeof dependencies.addresses,
