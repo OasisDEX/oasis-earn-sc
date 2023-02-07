@@ -315,10 +315,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.aave.v3.WITHDRAW,
     actionWithdrawFromAAVEV3Address,
   )
-  const aaveV3PaybackHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.v3.PAYBACK,
-    actionPaybackFromAAVEV3Address,
-  )
+  await registry.addEntry(CONTRACT_NAMES.aave.v3.PAYBACK, actionPaybackFromAAVEV3Address)
   const aaveV3SetEModeHash = await registry.addEntry(
     CONTRACT_NAMES.aave.v3.SET_EMODE,
     actionSetEModeInAAVEV3Address,
@@ -1010,10 +1007,19 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       cdpAllow,
     },
     aave: {
-      deposit: depositInAAVEAction,
-      withdraw: withdrawInAAVEAction,
-      borrow: borrowInAAVEAction,
-      payback: paybackInAAVEAction,
+      v2: {
+        deposit: depositInAAVEAction,
+        withdraw: withdrawInAAVEAction,
+        borrow: borrowInAAVEAction,
+        payback: paybackInAAVEAction,
+      },
+      v3: {
+        deposit: depositInAAVEV3Action,
+        withdraw: withdrawInAAVEV3Action,
+        borrow: borrowInAAVEV3Action,
+        payback: paybackInAAVEV3Action,
+        eMode: setEModeInAAVEV3Action,
+      },
     },
   }
 
@@ -1042,9 +1048,16 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       `Withdraw Action address: ${deployedContracts.maker.withdraw.address}`,
       `Generate Action address: ${deployedContracts.maker.generate.address}`,
 
-      `AAVE|Borrow Action address: ${deployedContracts.aave.borrow.address}`,
-      `AAVE|Deposit Action address: ${deployedContracts.aave.deposit.address}`,
-      `AAVE|Withdraw Action address: ${deployedContracts.aave.withdraw.address}`,
+      `AAVE|Deposit Action address: ${deployedContracts.aave.v2.deposit.address}`,
+      `AAVE|Withdraw Action address: ${deployedContracts.aave.v2.withdraw.address}`,
+      `AAVE|Borrow Action address: ${deployedContracts.aave.v2.borrow.address}`,
+      `AAVE|Payback Action address: ${deployedContracts.aave.v2.payback.address}`,
+
+      `AAVE_V3|Deposit Action address: ${deployedContracts.aave.v3.deposit.address}`,
+      `AAVE_V3|Withdraw Action address: ${deployedContracts.aave.v3.withdraw.address}`,
+      `AAVE_V3|Borrow Action address: ${deployedContracts.aave.v3.borrow.address}`,
+      `AAVE_V3|Payback Action address: ${deployedContracts.aave.v3.payback.address}`,
+      `AAVE_V3|eMode Action address: ${deployedContracts.aave.v3.eMode.address}`,
     ])
   }
 

@@ -1,14 +1,14 @@
-import AAVEDataProviderABI from '@abi/external/aave/v2/protocolDataProvider.json'
 import { ADDRESSES } from '@oasisdex/oasis-actions/src'
 import { Contract, ethers } from 'ethers'
 
+import AAVEDataProviderABI from '../abi/external/aave/v2/protocolDataProvider.json'
 import { balanceOf } from '../helpers/utils'
 
 async function main() {
   const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545', 2137)
   const signer = provider.getSigner(0)
   const aaveDataProvider = new Contract(
-    ADDRESSES.main.aave.DataProvider,
+    ADDRESSES.main.aave.v2.ProtocolDataProvider,
     AAVEDataProviderABI,
     provider,
   )

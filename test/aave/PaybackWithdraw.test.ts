@@ -563,18 +563,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           }
           const beforeTransactionPosition = await position.getPosition()
 
-          const collateralAddress = position?.collateralToken.address
-
-          const beforeTransactionCollateralBalance = await balanceOf(
-            collateralAddress,
-            config.address,
-            { config, isFormatted: false },
-          )
-
           const amountToPayback = beforeTransactionPosition.debtToPaybackAll
-
-          const amountToWithdraw =
-            beforeTransactionPosition.payback(amountToPayback).maxCollateralToWithdraw
 
           type WithdrawPayback = Parameters<typeof strategies.aave.v2.paybackWithdraw>
           const args: WithdrawPayback[0] = {
@@ -624,12 +613,6 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           )
 
           const afterTransactionPosition = await position.getPosition()
-
-          const afterTransactionCollateralBalance = await balanceOf(
-            collateralAddress,
-            config.address,
-            { config, isFormatted: false },
-          )
 
           expect(status).to.be.true
           expectToBe(

@@ -22,9 +22,9 @@ export async function swapUniswapTokens(
   hre?: HardhatRuntimeEnvironment,
 ) {
   const value = tokenIn === ADDRESSES.main.WETH ? amountIn : 0
-  const _ethers = hre ? hre.ethers : (await import('hardhat')).ethers
+  const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
 
-  const uniswapV3 = new _ethers.Contract(
+  const uniswapV3 = new ethers.Contract(
     ADDRESSES.main.uniswapRouterV3,
     UNISWAP_ROUTER_V3_ABI,
     provider,
