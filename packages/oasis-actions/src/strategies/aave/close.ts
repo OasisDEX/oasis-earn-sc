@@ -72,11 +72,13 @@ async function getSwapDataToCloseToCollateral(
   ).map(price => {
     return new BigNumber(price.toString())
   })
-  // 1.Use offset amount which will be used in the swapp as well.
-  // the idea is that after the debt is paid, the remaining will be transferred to the beneficiary
+  // 1.Use offset amount which will be used in the swap as well.
+  // The idea is that after the debt is paid, the remaining will be transferred to the beneficiary
   // Debt is a complex number and interest rate is constantly applied.
   // We don't want to end up having leftovers of debt transferred to the user
-  // so instead of charging the user a fee, the extra debt amount is
+  // so instead of charging the user a fee, we add an offset ( equal to the fee ) to the
+  // collateral amount. That way when swapped for the debt token, the remaining debt amount
+  // after paying back the debt, will contain the fee amount itself.
   const fee = new BigNumber(DEFAULT_FEE).div(new BigNumber(FEE_BASE)) // as DECIMAL number
   const debtTokenPrecision = debtToken.precision || TYPICAL_PRECISION
   const collateralTokenPrecision = collateralToken.precision || TYPICAL_PRECISION

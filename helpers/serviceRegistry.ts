@@ -4,7 +4,6 @@ import { Signer, utils } from 'ethers'
 export class ServiceRegistry {
   address: string
   signer: Signer
-  ethers: any
 
   constructor(address: string, signer: Signer) {
     this.address = address
