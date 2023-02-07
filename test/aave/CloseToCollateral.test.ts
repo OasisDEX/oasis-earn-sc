@@ -11,6 +11,9 @@ import { amountFromWei, balanceOf } from '../../helpers/utils'
 import { getSystemWithAAVEPositions, SystemWithAAVEPositions } from '../fixtures'
 import { expectToBeEqual } from '../utils'
 
+const EXPECT_DEBT_BEING_PAID_BACK = 'Expect debt being paid back'
+const EXPECT_FEE_BEING_COLLECTED = 'Expect fee being collected'
+
 describe('Close Position to collateral', () => {
   const slippage = new BigNumber(0.01) // 1%
   let fixture: SystemWithAAVEPositions
@@ -81,7 +84,7 @@ describe('Close Position to collateral', () => {
 
     const USDC_VARIABLE_DEBT = '0x619beb58998eD2278e08620f97007e1116D5D25b'
     const debtBalance = await getBalanceOf(proxy, USDC_VARIABLE_DEBT, 6)
-    expectToBeEqual(debtBalance, ZERO)
+    expectToBeEqual(debtBalance, ZERO, undefined, EXPECT_DEBT_BEING_PAID_BACK)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
       ADDRESSES.main.feeRecipient,
@@ -89,7 +92,8 @@ describe('Close Position to collateral', () => {
       debtToken.precision,
     )
 
-    expect(feeRecipientBalanceAfterTx.gt(feeRecipientBalanceBeforeTx)).to.be.true
+    expect(feeRecipientBalanceAfterTx.gt(feeRecipientBalanceBeforeTx), EXPECT_FEE_BEING_COLLECTED)
+      .to.be.true
   })
 
   it('DPMProxy | Collateral - WBTC ( 8 precision ) | Debt - USDC ( 6 precision )', async () => {
@@ -154,7 +158,12 @@ describe('Close Position to collateral', () => {
       currentPosition.collateral.amount.minus(closeStrategy.simulation.swap.fromTokenAmount),
     )
 
-    expectToBeEqual(expectedBalance, userCollateralBalanceAfterTx)
+    expectToBeEqual(
+      expectedBalance,
+      userCollateralBalanceAfterTx,
+      undefined,
+      EXPECT_DEBT_BEING_PAID_BACK,
+    )
 
     const USDC_VARIABLE_DEBT = '0x619beb58998eD2278e08620f97007e1116D5D25b'
     const debtBalance = await getBalanceOf(proxy, USDC_VARIABLE_DEBT, 6)
@@ -165,7 +174,8 @@ describe('Close Position to collateral', () => {
       addresses[debtToken.symbol],
       debtToken.precision,
     )
-    expect(feeRecipientBalanceAfterTx.gt(feeRecipientBalanceBeforeTx)).to.be.true
+    expect(feeRecipientBalanceAfterTx.gt(feeRecipientBalanceBeforeTx), EXPECT_FEE_BEING_COLLECTED)
+      .to.be.true
   })
 
   it('DSPRoxy | Collateral - STETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
@@ -237,13 +247,20 @@ describe('Close Position to collateral', () => {
 
     // Given the nature of stETH, there is 1 WEI remaining within astETH and cannot be withdrawn
     // thus there is a difference if we compare the two numbers up to the last wei.
-    // Using 17 precision will still give us accurate results.
+    // Using 16 precision will still give us accurate results.
+    // It's 16 and not 17 because if there is the following case:
+    // 1967693420651624420 -> (to 17) 1.96769342065162442
+    // 1967693420651624419 -> (to 17) 1.96769342065162441
+    // So 16 is a safe bet.
     expectToBeEqual(
-      amountFromWei(expectedBalance).toFixed(17),
-      amountFromWei(userCollateralBalanceAfterTx).toFixed(17),
+      amountFromWei(expectedBalance).toFixed(16),
+      amountFromWei(userCollateralBalanceAfterTx).toFixed(16),
+      undefined,
+      EXPECT_DEBT_BEING_PAID_BACK,
     )
 
-    expect(feeRecipientBalanceAfterTx.gt(feeRecipientBalanceBeforeTx)).to.be.true
+    expect(feeRecipientBalanceAfterTx.gt(feeRecipientBalanceBeforeTx), EXPECT_FEE_BEING_COLLECTED)
+      .to.be.true
   })
 
   async function getBalanceOf(user: string, assetAddress: string, precision = 18) {
