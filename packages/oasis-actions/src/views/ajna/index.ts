@@ -7,10 +7,6 @@ import { AjnaPosition } from '../../helpers/ajna'
 import { Pool } from '../../types/ajna'
 import { Address } from '../../types/common'
 
-function bucketIndexToPrice(index: number) {
-  return new BigNumber(1.05).pow(index - 3232)
-}
-
 interface Args {
   proxyAddress: Address
   poolAddress: Address
