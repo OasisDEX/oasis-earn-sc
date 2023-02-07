@@ -4,7 +4,6 @@ import {
   AaveVersion,
   ONE,
   OPERATION_NAMES,
-  protocols,
   RiskRatio,
   strategies,
 } from '@oasisdex/oasis-actions/src'
@@ -39,8 +38,8 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
   let signer: Signer
 
   let dependencies: Pick<
-    Parameters<typeof strategies.aave.open>[1],
-    'proxy' | 'provider' | 'addresses' | 'protocol' | 'getSwapData' | 'user'
+    Parameters<typeof strategies.aave.v2.open>[1],
+    'proxy' | 'provider' | 'addresses' | 'getSwapData' | 'user'
   >
   let addresses: AAVEStrategyAddresses
 
@@ -75,11 +74,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
       dependencies = {
         addresses,
         provider,
-        protocol: {
-          version: AaveVersion.v2,
-          getCurrentPosition: strategies.aave.view,
-          getProtocolData: protocols.aave.getAaveProtocolData,
-        },
         getSwapData: oneInchCallMock(new BigNumber(0.9759)),
         proxy: system.common.dsProxy.address,
         user: config.address,
@@ -87,7 +81,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     })
 
     it('Should open new position', async () => {
-      const beforeTransaction = await strategies.aave.view(
+      const beforeTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
       )
@@ -99,7 +93,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         'Position should be empty at the beginning',
       )
 
-      const openPositionTransition = await strategies.aave.open(
+      const openPositionTransition = await strategies.aave.v2.open(
         {
           depositedByUser: {
             debtToken: { amountInBaseUnit: depositAmountInWei },
@@ -129,7 +123,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         depositAmountInWei.toString(),
       )
 
-      const afterTransaction = await strategies.aave.view(
+      const afterTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
       )
@@ -148,7 +142,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     })
 
     it('Should close opened position', async () => {
-      const beforeTransaction = await strategies.aave.view(
+      const beforeTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
       )
@@ -160,7 +154,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         'Position should exist at the beginning',
       )
       const mockMarketPriceOnClose = ONE.div(new BigNumber(0.9759))
-      const closePositionTransition = await strategies.aave.close(
+      const closePositionTransition = await strategies.aave.v2.close(
         {
           collateralAmountLockedInProtocolInWei: beforeTransaction.collateral.amount,
           debtToken,
@@ -194,7 +188,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       expect(closeTxStatus, 'Transaction should pass.').to.be.true
 
-      const afterTransaction = await strategies.aave.view(
+      const afterTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
       )
@@ -209,7 +203,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     })
 
     it('Should re-open closed position', async () => {
-      const beforeTransaction = await strategies.aave.view(
+      const beforeTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
       )
@@ -221,7 +215,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         'Position could have max 2 wei left if is closed',
       )
 
-      const reopenPositionTransition = await strategies.aave.open(
+      const reopenPositionTransition = await strategies.aave.v2.open(
         {
           depositedByUser: {
             debtToken: { amountInBaseUnit: depositAmountInWei },
@@ -251,7 +245,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         depositAmountInWei.toFixed(0),
       )
 
-      const afterTransaction = await strategies.aave.view(
+      const afterTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
       )
@@ -289,11 +283,6 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         dependencies = {
           addresses,
           provider,
-          protocol: {
-            version: AaveVersion.v2,
-            getCurrentPosition: strategies.aave.view,
-            getProtocolData: protocols.aave.getAaveProtocolData,
-          },
           getSwapData: getOneInchCall(system.common.swap.address),
           proxy: system.common.dsProxy.address,
           user: config.address,
@@ -304,7 +293,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     })
 
     it('Should open new position', async () => {
-      const beforeTransaction = await strategies.aave.view(
+      const beforeTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
       )
@@ -316,7 +305,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         'Position should be empty at the beginning',
       )
 
-      const openPositionTransition = await strategies.aave.open(
+      const openPositionTransition = await strategies.aave.v2.open(
         {
           depositedByUser: {
             debtToken: { amountInBaseUnit: depositAmountInWei },
@@ -346,7 +335,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         depositAmountInWei.toString(),
       )
 
-      const afterTransaction = await strategies.aave.view(
+      const afterTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
       )
@@ -365,7 +354,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     })
 
     it('Should close opened position', async () => {
-      const beforeTransaction = await strategies.aave.view(
+      const beforeTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
       )
@@ -377,7 +366,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         'Position should exist at the beginning',
       )
 
-      const closePositionTransition = await strategies.aave.close(
+      const closePositionTransition = await strategies.aave.v2.close(
         {
           collateralAmountLockedInProtocolInWei: beforeTransaction.collateral.amount,
           slippage,
@@ -407,7 +396,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       expect(closeTxStatus, 'Transaction should pass.').to.be.true
 
-      const afterTransaction = await strategies.aave.view(
+      const afterTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
       )
@@ -422,7 +411,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     })
 
     it('Should re-open closed position', async () => {
-      const beforeTransaction = await strategies.aave.view(
+      const beforeTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
       )
@@ -434,7 +423,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         'Position could have max 2 wei left if is closed',
       )
 
-      const reopenPositionTransition = await strategies.aave.open(
+      const reopenPositionTransition = await strategies.aave.v2.open(
         {
           depositedByUser: {
             debtToken: { amountInBaseUnit: depositAmountInWei },
@@ -464,7 +453,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
         depositAmountInWei.toFixed(0),
       )
 
-      const afterTransaction = await strategies.aave.view(
+      const afterTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
         { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
       )

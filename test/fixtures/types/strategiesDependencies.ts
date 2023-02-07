@@ -9,15 +9,22 @@ import {
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-type BaseStrategiesDependencies<Addresses, AaveVersion> = {
-  addresses: Addresses & { accountFactory: string }
+type AaveV2Protocol = {
+  version: AaveVersion.v2
+  getCurrentPosition: typeof strategies.aave.v2.view
+  getProtocolData: typeof protocols.aave.getAaveProtocolData
+}
+
+type AaveV3Protocol = {
+  version: AaveVersion.v3
+  getCurrentPosition: typeof strategies.aave.v3.view
+  getProtocolData: typeof protocols.aave.getAaveProtocolData
+}
+
+type BaseStrategiesDependencies = {
   contracts: { operationExecutor: ethers.Contract }
   provider: ethers.providers.Provider
-  protocol: {
-    version: AaveVersion
-    getCurrentPosition: typeof strategies.aave.view
-    getProtocolData: typeof protocols.aave.getAaveProtocolData
-  }
+  protocol: AaveV2Protocol | AaveV3Protocol
   getSwapData: (
     ...args: any[]
   ) => (
@@ -29,13 +36,14 @@ type BaseStrategiesDependencies<Addresses, AaveVersion> = {
   user: string
 }
 
-export type StrategyDependenciesAaveV2 = BaseStrategiesDependencies<
-  AAVEStrategyAddresses,
-  AaveVersion.v2
->
-export type StrategyDependenciesAaveV3 = BaseStrategiesDependencies<
-  AAVEV3StrategyAddresses,
-  AaveVersion.v3
->
+export type StrategyDependenciesAaveV2 = Omit<
+  BaseStrategiesDependencies,
+  'addresses' | 'protocol'
+> & { protocol: AaveV2Protocol; addresses: AAVEStrategyAddresses & { accountFactory?: string } }
+
+export type StrategyDependenciesAaveV3 = Omit<
+  BaseStrategiesDependencies,
+  'addresses' | 'protocol'
+> & { protocol: AaveV3Protocol; addresses: AAVEV3StrategyAddresses & { accountFactory?: string } }
 
 export type StrategiesDependencies = StrategyDependenciesAaveV2 | StrategyDependenciesAaveV3

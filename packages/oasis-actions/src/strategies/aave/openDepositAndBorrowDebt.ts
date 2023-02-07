@@ -49,7 +49,7 @@ export async function openDepositAndBorrowDebt(
     account: dependencies.proxy,
   }
 
-  const operation = await operations.aave.openDepositAndBorrow(depositArgs, borrowArgs, {
+  const operation = await operations.aave.v2.openDepositAndBorrow(depositArgs, borrowArgs, {
     positionType: args.positionType,
     protocol: 'AAVE',
   })

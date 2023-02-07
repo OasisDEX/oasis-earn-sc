@@ -54,7 +54,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
 
         const amountToDeposit = amountToWei(new BigNumber(1), collateral.precision)
 
-        type DepositBorrowArgs = Parameters<typeof strategies.aave.openDepositAndBorrowDebt>
+        type DepositBorrowArgs = Parameters<typeof strategies.aave.v2.openDepositAndBorrowDebt>
         const args: DepositBorrowArgs[0] = {
           debtToken: debt,
           collateralToken: collateral,
@@ -64,7 +64,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
           positionType: 'Borrow',
         }
 
-        const simulation = await strategies.aave.openDepositAndBorrowDebt(args, {
+        const simulation = await strategies.aave.v2.openDepositAndBorrowDebt(args, {
           ...strategiesDependencies,
           isDPMProxy: false,
           proxy: dsProxy,
@@ -85,7 +85,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
           transactionValue,
         )
 
-        const afterTransactionPosition = await strategies.aave.view(
+        const afterTransactionPosition = await strategies.aave.v2.view(
           { collateralToken: collateral, debtToken: debt, proxy: dsProxy },
           { ...strategiesDependencies, protocolVersion: AaveVersion.v2 },
         )
@@ -117,7 +117,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
             await approve(collateral.address, proxy.proxy, amountToDeposit, config, false)
           }
 
-          type DepositBorrowArgs = Parameters<typeof strategies.aave.openDepositAndBorrowDebt>
+          type DepositBorrowArgs = Parameters<typeof strategies.aave.v2.openDepositAndBorrowDebt>
           const args: DepositBorrowArgs[0] = {
             debtToken: debt,
             collateralToken: collateral,
@@ -127,7 +127,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
             positionType: 'Borrow',
           }
 
-          const simulation = await strategies.aave.openDepositAndBorrowDebt(args, {
+          const simulation = await strategies.aave.v2.openDepositAndBorrowDebt(args, {
             ...strategiesDependencies,
             isDPMProxy: true,
             proxy: proxy.proxy,
@@ -148,7 +148,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
             transactionValue,
           )
 
-          const afterTransactionPosition = await strategies.aave.view(
+          const afterTransactionPosition = await strategies.aave.v2.view(
             { collateralToken: collateral, debtToken: debt, proxy: proxy.proxy },
             { ...strategiesDependencies, protocolVersion: AaveVersion.v2 },
           )
@@ -180,7 +180,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
         const amountToDeposit = amountToWei(new BigNumber(1), collateral.precision)
         const amountToBorrow = amountToWei(new BigNumber(100), debt.precision)
 
-        type DepositBorrowArgs = Parameters<typeof strategies.aave.openDepositAndBorrowDebt>
+        type DepositBorrowArgs = Parameters<typeof strategies.aave.v2.openDepositAndBorrowDebt>
         const args: DepositBorrowArgs[0] = {
           debtToken: debt,
           collateralToken: collateral,
@@ -190,7 +190,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
           positionType: 'Borrow',
         }
 
-        const simulation = await strategies.aave.openDepositAndBorrowDebt(args, {
+        const simulation = await strategies.aave.v2.openDepositAndBorrowDebt(args, {
           ...strategiesDependencies,
           isDPMProxy: false,
           proxy: dsProxy,
@@ -211,7 +211,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
           transactionValue,
         )
 
-        const afterTransactionPosition = await strategies.aave.view(
+        const afterTransactionPosition = await strategies.aave.v2.view(
           { collateralToken: collateral, debtToken: debt, proxy: dsProxy },
           { ...strategiesDependencies, protocolVersion: AaveVersion.v2 },
         )
@@ -251,7 +251,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
             await approve(collateral.address, proxy.proxy, amountToDeposit, config, false)
           }
 
-          type DepositBorrowArgs = Parameters<typeof strategies.aave.openDepositAndBorrowDebt>
+          type DepositBorrowArgs = Parameters<typeof strategies.aave.v2.openDepositAndBorrowDebt>
           const args: DepositBorrowArgs[0] = {
             debtToken: debt,
             collateralToken: collateral,
@@ -261,7 +261,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
             positionType: 'Borrow',
           }
 
-          const simulation = await strategies.aave.openDepositAndBorrowDebt(args, {
+          const simulation = await strategies.aave.v2.openDepositAndBorrowDebt(args, {
             ...strategiesDependencies,
             isDPMProxy: true,
             proxy: proxy.proxy,
@@ -282,7 +282,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
             transactionValue,
           )
 
-          const afterTransactionPosition = await strategies.aave.view(
+          const afterTransactionPosition = await strategies.aave.v2.view(
             { collateralToken: collateral, debtToken: debt, proxy: proxy.proxy },
             { ...strategiesDependencies, protocolVersion: AaveVersion.v2 },
           )

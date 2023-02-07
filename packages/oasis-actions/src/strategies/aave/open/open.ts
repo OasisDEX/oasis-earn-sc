@@ -5,7 +5,7 @@ import { Unbox } from '../../../../../../helpers/types/common'
 import { amountFromWei, amountToWei } from '../../../helpers'
 import { IBaseSimulatedTransition, Position } from '../../../helpers/calculations/Position'
 import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
-import { DEFAULT_FEE, TYPICAL_PRECISION, ZERO } from '../../../helpers/constants'
+import { DEFAULT_FEE, NO_FEE, TYPICAL_PRECISION, ZERO } from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
 import * as operations from '../../../operations'
@@ -14,11 +14,16 @@ import { AAVEV3StrategyAddresses } from '../../../operations/aave/v3'
 import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '../../../protocols/aave/config'
 import { AaveProtocolData, AaveProtocolDataArgs } from '../../../protocols/aave/getAaveProtocolData'
 import { Address, IOperation, IPositionTransition, PositionType, SwapData } from '../../../types'
-import { AAVETokens } from '../../../types/aave'
+import { AavePosition, AAVETokens } from '../../../types/aave'
 import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
-import { AaveVersion, getCurrentPosition } from '../getCurrentPosition'
+import {
+  AaveGetCurrentPositionArgs,
+  AaveV2GetCurrentPositionDependencies,
+  AaveV3GetCurrentPositionDependencies,
+  AaveVersion,
+} from '../getCurrentPosition'
 
-interface AaveOpenArgs {
+export interface AaveOpenArgs {
   depositedByUser?: {
     collateralToken?: { amountInBaseUnit: BigNumber }
     debtToken?: { amountInBaseUnit: BigNumber }
@@ -30,18 +35,12 @@ interface AaveOpenArgs {
   debtToken: { symbol: AAVETokens; precision?: number }
 }
 
-interface AaveOpenDependencies {
-  addresses: AAVEStrategyAddresses | AAVEV3StrategyAddresses
+export interface AaveBaseOpenDependencies {
   proxy: Address
   user: Address
   isDPMProxy: boolean
   /* Services below 👇*/
   provider: providers.Provider
-  protocol: {
-    version: AaveVersion
-    getCurrentPosition: typeof getCurrentPosition
-    getProtocolData: (args: AaveProtocolDataArgs) => AaveProtocolData
-  }
   getSwapData: (
     fromToken: string,
     toToken: string,
@@ -49,6 +48,32 @@ interface AaveOpenDependencies {
     slippage: BigNumber,
   ) => Promise<SwapData>
 }
+
+export type AaveV2OpenDependencies = AaveBaseOpenDependencies & {
+  addresses: AAVEStrategyAddresses
+  protocol: {
+    version: AaveVersion.v2
+    getCurrentPosition: (
+      args: AaveGetCurrentPositionArgs,
+      deps: AaveV2GetCurrentPositionDependencies,
+    ) => Promise<AavePosition>
+    getProtocolData: (args: AaveProtocolDataArgs) => AaveProtocolData
+  }
+}
+
+export type AaveV3OpenDependencies = AaveBaseOpenDependencies & {
+  addresses: AAVEV3StrategyAddresses
+  protocol: {
+    version: AaveVersion.v3
+    getCurrentPosition: (
+      args: AaveGetCurrentPositionArgs,
+      deps: AaveV3GetCurrentPositionDependencies,
+    ) => Promise<AavePosition>
+    getProtocolData: (args: AaveProtocolDataArgs) => AaveProtocolData
+  }
+}
+
+export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependencies
 
 export async function open(
   args: AaveOpenArgs,
@@ -191,7 +216,6 @@ async function simulatePositionTransition(
   const BASE = new BigNumber(10000)
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(BASE)
 
-  const FEE = 20
   const multiple = args.multiple
 
   const depositDebtAmountInWei = args.depositedByUser?.debtToken?.amountInBaseUnit || ZERO
@@ -231,7 +255,7 @@ async function simulatePositionTransition(
     simulatedPositionTransition: currentPosition.adjustToTargetRiskRatio(multiple, {
       fees: {
         flashLoan: flashloanFee,
-        oazo: new BigNumber(FEE),
+        oazo: args.positionType === 'Earn' ? new BigNumber(NO_FEE) : new BigNumber(DEFAULT_FEE),
       },
       prices: {
         market: quoteMarketPrice,
@@ -288,7 +312,7 @@ async function buildOperation(
         },
       },
       swapArgs: {
-        fee: DEFAULT_FEE,
+        fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
         swapData: swapData.exchangeCalldata,
         swapAmountInBaseUnit: swapAmountBeforeFees,
         collectFeeFrom,
@@ -306,7 +330,7 @@ async function buildOperation(
       user: dependencies.user,
       isDPMProxy: dependencies.isDPMProxy,
     }
-    return await operations.aave.openV3(openArgs)
+    return await operations.aave.v3.open(openArgs)
   }
   if (protocolVersion === AaveVersion.v2 && 'lendingPool' in dependencies.addresses) {
     const openArgs = {
@@ -321,7 +345,7 @@ async function buildOperation(
         },
       },
       swapArgs: {
-        fee: DEFAULT_FEE,
+        fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
         swapData: swapData.exchangeCalldata,
         swapAmountInBaseUnit: swapAmountBeforeFees,
         collectFeeFrom,
@@ -338,7 +362,7 @@ async function buildOperation(
       user: dependencies.user,
       isDPMProxy: dependencies.isDPMProxy,
     }
-    return await operations.aave.open(openArgs)
+    return await operations.aave.v2.open(openArgs)
   }
 }
 

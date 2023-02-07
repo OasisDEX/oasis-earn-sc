@@ -21,7 +21,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     const supportedStrategies = getSupportedStrategies(ciOnlyTests)
 
-    describe.only('Open position: With Uniswap', () => {
+    describe('Open position: With Uniswap', () => {
       before(async () => {
         fixture = await loadFixture(getSystemWithAavePositions({ use1inch: false }))
       })
@@ -62,7 +62,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           expectToBeEqual(simulatedTransition.swap.tokenFee, feeWalletBalanceChange)
         })
       })
-      describe.only('Using DPM Proxy', async () => {
+      describe('Using DPM Proxy', async () => {
         supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let simulatedPosition: IPosition

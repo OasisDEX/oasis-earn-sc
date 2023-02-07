@@ -83,7 +83,7 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
       const proxy = system.common.dpmProxyAddress
 
       /* Used depositBorrow strategy for convenience as simpler to seed a position */
-      const newPositionTransition = await strategies.aave.depositBorrow(
+      const newPositionTransition = await strategies.aave.v2.depositBorrow(
         {
           borrowAmount: ZERO,
           entryToken: {
@@ -115,7 +115,7 @@ describe.only(`Strategy | AAVE | Deposit-Borrow`, async function () {
         },
       )
 
-      const borrowTransition = await strategies.aave.depositBorrow(
+      const borrowTransition = await strategies.aave.v2.depositBorrow(
         {
           borrowAmount: amountToWei(1000, 6),
           entryToken: {

@@ -38,7 +38,7 @@ export async function getSystemWithProxies({
     },
     protocol: {
       version: AaveVersion.v2,
-      getCurrentPosition: strategies.aave.view,
+      getCurrentPosition: strategies.aave.v2.view,
       getProtocolData: protocols.aave.getAaveProtocolData,
     },
     provider: config.provider,

@@ -14,14 +14,21 @@ export enum AaveVersion {
   v3 = 'v3',
 }
 
-export type AAVEGetCurrentPositionArgs = IViewPositionParams<AAVETokens>
-export type AAVEGetCurrentPositionDependencies =
-  | (IViewPositionDependencies<AAVEStrategyAddresses> & { protocolVersion: AaveVersion.v2 })
-  | (IViewPositionDependencies<AAVEV3StrategyAddresses> & { protocolVersion: AaveVersion.v3 })
+export type AaveGetCurrentPositionArgs = IViewPositionParams<AAVETokens>
+export type AaveV2GetCurrentPositionDependencies =
+  IViewPositionDependencies<AAVEStrategyAddresses> & {
+    protocolVersion: AaveVersion.v2
+  }
+export type AaveV3GetCurrentPositionDependencies =
+  IViewPositionDependencies<AAVEV3StrategyAddresses> & { protocolVersion: AaveVersion.v3 }
+
+export type AaveGetCurrentPositionDependencies =
+  | AaveV2GetCurrentPositionDependencies
+  | AaveV3GetCurrentPositionDependencies
 
 export async function getCurrentPosition(
-  { collateralToken, debtToken, proxy }: AAVEGetCurrentPositionArgs,
-  { addresses, provider, protocolVersion }: AAVEGetCurrentPositionDependencies,
+  { collateralToken, debtToken, proxy }: AaveGetCurrentPositionArgs,
+  { addresses, provider, protocolVersion }: AaveGetCurrentPositionDependencies,
 ): Promise<AavePosition> {
   const isV2 = protocolVersion === AaveVersion.v2
   const isV3 = protocolVersion === AaveVersion.v3

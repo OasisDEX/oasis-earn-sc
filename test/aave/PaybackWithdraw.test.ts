@@ -33,7 +33,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           beforeTransactionPosition.debt.precision,
         )
 
-        type PaybackDebtTypes = Parameters<typeof strategies.aave.paybackWithdraw>
+        type PaybackDebtTypes = Parameters<typeof strategies.aave.v2.paybackWithdraw>
         const args: PaybackDebtTypes[0] = {
           debtToken: beforeTransactionPosition.debt,
           collateralToken: beforeTransactionPosition.collateral,
@@ -56,7 +56,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           )
         }
 
-        const paybackDebtSimulation = await strategies.aave.paybackWithdraw(args, {
+        const paybackDebtSimulation = await strategies.aave.v2.paybackWithdraw(args, {
           ...strategiesDependencies,
           getSwapData: dsProxyPosition?.getSwapData,
           isDPMProxy: false,
@@ -108,7 +108,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             beforeTransactionPosition.debt.precision,
           )
 
-          type PaybackDebtTypes = Parameters<typeof strategies.aave.paybackWithdraw>
+          type PaybackDebtTypes = Parameters<typeof strategies.aave.v2.paybackWithdraw>
           const args: PaybackDebtTypes[0] = {
             debtToken: beforeTransactionPosition.debt,
             collateralToken: beforeTransactionPosition.collateral,
@@ -116,7 +116,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             amountCollateralToWithdrawInBaseUnit: zero,
             slippage: new BigNumber(0.1),
           }
-          const paybackDebtSimulation = await strategies.aave.paybackWithdraw(args, {
+          const paybackDebtSimulation = await strategies.aave.v2.paybackWithdraw(args, {
             ...strategiesDependencies,
             getSwapData: position?.getSwapData,
             isDPMProxy: true,
@@ -174,7 +174,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
 
           const amountToPayback = beforeTransactionPosition.debtToPaybackAll
 
-          type PaybackDebtTypes = Parameters<typeof strategies.aave.paybackWithdraw>
+          type PaybackDebtTypes = Parameters<typeof strategies.aave.v2.paybackWithdraw>
           const args: PaybackDebtTypes[0] = {
             debtToken: beforeTransactionPosition.debt,
             collateralToken: beforeTransactionPosition.collateral,
@@ -182,7 +182,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             amountCollateralToWithdrawInBaseUnit: zero,
             slippage: new BigNumber(0.1),
           }
-          const paybackDebtSimulation = await strategies.aave.paybackWithdraw(args, {
+          const paybackDebtSimulation = await strategies.aave.v2.paybackWithdraw(args, {
             ...strategiesDependencies,
             getSwapData: position?.getSwapData,
             isDPMProxy: true,
@@ -255,7 +255,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           { config, isFormatted: false },
         )
 
-        type WithdrawParameters = Parameters<typeof strategies.aave.paybackWithdraw>
+        type WithdrawParameters = Parameters<typeof strategies.aave.v2.paybackWithdraw>
         const args: WithdrawParameters[0] = {
           debtToken: beforeTransactionPosition.debt,
           collateralToken: beforeTransactionPosition.collateral,
@@ -266,7 +266,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           ),
           slippage: new BigNumber(0.1),
         }
-        const withdrawSimulation = await strategies.aave.paybackWithdraw(args, {
+        const withdrawSimulation = await strategies.aave.v2.paybackWithdraw(args, {
           ...strategiesDependencies,
           getSwapData: dsProxyPosition?.getSwapData,
           isDPMProxy: false,
@@ -338,7 +338,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             beforeTransactionPosition.collateral.precision,
           )
 
-          type WithdrawParameters = Parameters<typeof strategies.aave.paybackWithdraw>
+          type WithdrawParameters = Parameters<typeof strategies.aave.v2.paybackWithdraw>
           const args: WithdrawParameters[0] = {
             debtToken: beforeTransactionPosition.debt,
             collateralToken: beforeTransactionPosition.collateral,
@@ -346,7 +346,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             amountCollateralToWithdrawInBaseUnit: amountToWithdraw,
             slippage: new BigNumber(0.1),
           }
-          const withdrawSimulation = await strategies.aave.paybackWithdraw(args, {
+          const withdrawSimulation = await strategies.aave.v2.paybackWithdraw(args, {
             ...strategiesDependencies,
             getSwapData: position?.getSwapData,
             isDPMProxy: true,
@@ -409,7 +409,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
 
           const amountToWithdraw = beforeTransactionPosition.maxCollateralToWithdraw
 
-          type WithdrawParameters = Parameters<typeof strategies.aave.paybackWithdraw>
+          type WithdrawParameters = Parameters<typeof strategies.aave.v2.paybackWithdraw>
           const args: WithdrawParameters[0] = {
             debtToken: beforeTransactionPosition.debt,
             collateralToken: beforeTransactionPosition.collateral,
@@ -417,7 +417,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             amountCollateralToWithdrawInBaseUnit: amountToWithdraw,
             slippage: new BigNumber(0.1),
           }
-          const withdrawSimulation = await strategies.aave.paybackWithdraw(args, {
+          const withdrawSimulation = await strategies.aave.v2.paybackWithdraw(args, {
             ...strategiesDependencies,
             getSwapData: position?.getSwapData,
             isDPMProxy: true,
@@ -485,7 +485,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
         const amountToWithdraw =
           beforeTransactionPosition.payback(amountToPayback).maxCollateralToWithdraw
 
-        type WithdrawPayback = Parameters<typeof strategies.aave.paybackWithdraw>
+        type WithdrawPayback = Parameters<typeof strategies.aave.v2.paybackWithdraw>
         const args: WithdrawPayback[0] = {
           debtToken: beforeTransactionPosition.debt,
           collateralToken: beforeTransactionPosition.collateral,
@@ -493,7 +493,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           amountCollateralToWithdrawInBaseUnit: amountToWithdraw,
           slippage: new BigNumber(0.1),
         }
-        const withdrawPaybackSimulation = await strategies.aave.paybackWithdraw(args, {
+        const withdrawPaybackSimulation = await strategies.aave.v2.paybackWithdraw(args, {
           ...strategiesDependencies,
           getSwapData: dsProxyPosition?.getSwapData,
           isDPMProxy: false,
@@ -576,7 +576,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
           const amountToWithdraw =
             beforeTransactionPosition.payback(amountToPayback).maxCollateralToWithdraw
 
-          type WithdrawPayback = Parameters<typeof strategies.aave.paybackWithdraw>
+          type WithdrawPayback = Parameters<typeof strategies.aave.v2.paybackWithdraw>
           const args: WithdrawPayback[0] = {
             debtToken: beforeTransactionPosition.debt,
             collateralToken: beforeTransactionPosition.collateral,
@@ -584,7 +584,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             amountCollateralToWithdrawInBaseUnit: beforeTransactionPosition.collateral.amount,
             slippage: new BigNumber(0.1),
           }
-          const withdrawPaybackSimulation = await strategies.aave.paybackWithdraw(args, {
+          const withdrawPaybackSimulation = await strategies.aave.v2.paybackWithdraw(args, {
             ...strategiesDependencies,
             getSwapData: position?.getSwapData,
             isDPMProxy: true,
@@ -596,11 +596,12 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             beforeTransactionPosition.debt.symbol !== 'ETH' &&
             beforeTransactionPosition.debt.symbol !== 'WETH'
           ) {
-            await getTokens(beforeTransactionPosition.debt.symbol, amountToPayback)
+            const roundedAmountToPayback = new BigNumber(amountToPayback.toFixed(0))
+            await getTokens(beforeTransactionPosition.debt.symbol, roundedAmountToPayback)
             await approve(
               beforeTransactionPosition.debt.address,
               position.proxy,
-              amountToPayback,
+              roundedAmountToPayback,
               config,
               false,
             )
@@ -628,15 +629,6 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
             collateralAddress,
             config.address,
             { config, isFormatted: false },
-          )
-
-          console.log(
-            `Before Transaction Balance: ${beforeTransactionCollateralBalance.toString()}`,
-          )
-          console.log(`After Transaction Balance: ${afterTransactionCollateralBalance.toString()}`)
-          console.log(`Amount to withdraw: ${amountToWithdraw.toString()}`)
-          console.log(
-            `Position collateral before transaction: ${beforeTransactionPosition.collateral.amount.toString()}`,
           )
 
           expect(status).to.be.true

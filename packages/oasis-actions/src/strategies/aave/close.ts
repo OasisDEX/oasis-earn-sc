@@ -98,7 +98,7 @@ async function buildOperation(
     debtTokenIsEth: args.debtToken.symbol === 'ETH',
     isDPMProxy: dependencies.isDPMProxy,
   }
-  return await operations.aave.close(closeArgs, dependencies.addresses)
+  return await operations.aave.v2.close(closeArgs, dependencies.addresses)
 }
 
 async function generateTransition(

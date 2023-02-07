@@ -154,7 +154,7 @@ export async function depositBorrow(
     debtDelta = borrowAmount
   }
 
-  const operation = await operations.aave.depositBorrow(depositArgs, borrowArgs)
+  const operation = await operations.aave.v2.depositBorrow(depositArgs, borrowArgs)
 
   /*
     Final position calculated using actual swap data and the latest market price

@@ -21,7 +21,7 @@ export function buildGetTokenFunction(
   return async function getTokens(symbol: AAVETokensToGet, amount: BigNumber): Promise<boolean> {
     /* Ensures we always have enough tokens to open a position */
     const BUFFER_FACTOR = 1.1
-    const amountInInWeth = amount.times(BUFFER_FACTOR).toString()
+    const amountInInWeth = amount.times(BUFFER_FACTOR).toFixed(0)
     try {
       const wethAddress = ADDRESSES.main.WETH
       const tokenAddress = tokens[symbol]

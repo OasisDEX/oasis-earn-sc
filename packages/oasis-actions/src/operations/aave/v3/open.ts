@@ -31,7 +31,7 @@ interface OpenArgs {
   isDPMProxy: boolean
 }
 
-export async function openV3({
+export async function open({
   deposit,
   swapArgs,
   addresses,

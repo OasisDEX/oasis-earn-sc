@@ -8,7 +8,6 @@ import {
   ONE,
   OPERATION_NAMES,
   Position,
-  protocols,
   RiskRatio,
   strategies,
   TYPICAL_PRECISION,
@@ -162,7 +161,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
       // Set up the position
       const proxy = system.common.dsProxy.address
-      const openPositionTransition = await strategies.aave.open(
+      const openPositionTransition = await strategies.aave.v2.open(
         {
           depositedByUser: {
             debtToken: { amountInBaseUnit: debtToken.depositOnOpenAmountInWei },
@@ -170,7 +169,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
           slippage,
           multiple,
-          positionType: 'Earn',
+          positionType,
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
           collateralToken: {
             symbol: collateralToken.symbol,
@@ -181,11 +180,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           isDPMProxy: false,
           addresses,
           provider,
-          protocol: {
-            version: AaveVersion.v2,
-            getCurrentPosition: strategies.aave.view,
-            getProtocolData: protocols.aave.getAaveProtocolData,
-          },
           getSwapData: oneInchCallMock(mockMarketPriceOnOpen, {
             from: debtToken.precision,
             to: collateralToken.precision,
@@ -272,12 +266,13 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       // Now adjust the position
       const isIncreasingRisk = adjustToMultiple.gte(positionAfterOpen.riskRatio.multiple)
       const isDecreasingRisk = !isIncreasingRisk
-      const positionTransition = await strategies.aave.adjust(
+      const positionTransition = await strategies.aave.v2.adjust(
         {
           depositedByUser: {
             debtInWei: debtToken.depositOnAdjustAmountInWei,
             collateralInWei: collateralToken.depositOnAdjustAmountInWei,
           },
+          positionType,
           slippage,
           multiple: adjustToMultiple,
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
@@ -747,6 +742,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     before(async function () {
       const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
       if (shouldRun1InchTests) {
+        const positionType = 'Earn'
         await resetNodeToLatestBlock(provider)
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
@@ -769,7 +765,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         const proxy = system.common.dsProxy.address
         const debtToken = { symbol: 'ETH' as const }
         const collateralToken = { symbol: 'STETH' as const }
-        const openPositionTransition = await strategies.aave.open(
+        const openPositionTransition = await strategies.aave.v2.open(
           {
             depositedByUser: {
               debtToken: { amountInBaseUnit: depositAmount },
@@ -778,17 +774,12 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             multiple,
             debtToken: { symbol: tokens.ETH },
             collateralToken: { symbol: tokens.STETH },
-            positionType: 'Earn',
+            positionType,
           },
           {
             isDPMProxy: false,
             addresses,
             provider,
-            protocol: {
-              version: AaveVersion.v2,
-              getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getAaveProtocolData,
-            },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
             user: config.address,
@@ -809,7 +800,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
         openTxStatus = _openTxStatus
 
-        const currentPositionBeforeAdjust = await strategies.aave.view(
+        const currentPositionBeforeAdjust = await strategies.aave.v2.view(
           {
             proxy,
             collateralToken,
@@ -822,12 +813,13 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
         )
 
-        positionTransition = await strategies.aave.adjust(
+        positionTransition = await strategies.aave.v2.adjust(
           {
             depositedByUser: {
               debtInWei: depositAmount,
             },
             slippage,
+            positionType,
             multiple: adjustToMultiple,
             debtToken,
             collateralToken,
@@ -968,6 +960,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     before(async function () {
       const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
       if (shouldRun1InchTests) {
+        const positionType = 'Earn'
         await resetNodeToLatestBlock(provider)
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
@@ -991,7 +984,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         const debtToken = { symbol: 'USDC' as AAVETokens, precision: USDCPrecision }
         const collateralToken = { symbol: 'ETH' as AAVETokens, precision: ethPrecision }
 
-        const openPositionTransition = await strategies.aave.open(
+        const openPositionTransition = await strategies.aave.v2.open(
           {
             depositedByUser: {
               collateralToken: { amountInBaseUnit: depositEthAmount },
@@ -1000,17 +993,12 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             multiple,
             debtToken: { symbol: tokens.USDC, precision: USDCPrecision },
             collateralToken: { symbol: tokens.ETH, precision: ethPrecision },
-            positionType: 'Earn',
+            positionType,
           },
           {
             isDPMProxy: false,
             addresses,
             provider,
-            protocol: {
-              version: AaveVersion.v2,
-              getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getAaveProtocolData,
-            },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy: system.common.dsProxy.address,
             user: config.address,
@@ -1031,7 +1019,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
         openTxStatus = _openTxStatus
 
-        const currentPositionBeforeAdjust = await strategies.aave.view(
+        const currentPositionBeforeAdjust = await strategies.aave.v2.view(
           {
             proxy,
             collateralToken,
@@ -1044,9 +1032,10 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
         )
 
-        positionTransition = await strategies.aave.adjust(
+        positionTransition = await strategies.aave.v2.adjust(
           {
             slippage,
+            positionType,
             multiple: adjustToMultiple,
             debtToken,
             collateralToken,
@@ -1192,6 +1181,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     before(async function () {
       const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
       if (shouldRun1InchTests) {
+        const positionType = 'Earn'
         await resetNodeToLatestBlock(provider)
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
@@ -1223,12 +1213,12 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           depositAmount.toFixed(0),
         )
 
-        const openPositionTransition = await strategies.aave.open(
+        const openPositionTransition = await strategies.aave.v2.open(
           {
             depositedByUser: {
               debtToken: { amountInBaseUnit: depositAmount },
             },
-            positionType: 'Earn',
+            positionType,
             slippage,
             multiple,
             debtToken,
@@ -1238,11 +1228,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             isDPMProxy: false,
             addresses,
             provider,
-            protocol: {
-              version: AaveVersion.v2,
-              getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getAaveProtocolData,
-            },
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
             user: config.address,
@@ -1263,7 +1248,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
         openTxStatus = _openTxStatus
 
-        const currentPositionBeforeAdjust = await strategies.aave.view(
+        const currentPositionBeforeAdjust = await strategies.aave.v2.view(
           {
             proxy,
             collateralToken,
@@ -1277,9 +1262,10 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
 
         hre.tracer.enabled = process.env.TRACE_TX === 'true' || false
-        positionTransition = await strategies.aave.adjust(
+        positionTransition = await strategies.aave.v2.adjust(
           {
             slippage,
+            positionType,
             multiple: adjustDownToMultiple,
             debtToken,
             collateralToken,
@@ -1288,7 +1274,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             isDPMProxy: false,
             addresses,
             provider,
-            getSwapData: getOneInchCall(system.common.swap.address, [], true),
+            getSwapData: getOneInchCall(system.common.swap.address),
             proxy,
             user: config.address,
             currentPosition: currentPositionBeforeAdjust,
@@ -1418,6 +1404,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     before(async function () {
       const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
       if (shouldRun1InchTests) {
+        const positionType = 'Multiply'
         await resetNodeToLatestBlock(provider)
         const { system: _system } = await deploySystem(config, false, false)
         system = _system
@@ -1449,12 +1436,12 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           depositWBTCAmount.toFixed(0),
         )
 
-        const openPositionTransition = await strategies.aave.open(
+        const openPositionTransition = await strategies.aave.v2.open(
           {
             depositedByUser: {
               collateralToken: { amountInBaseUnit: depositWBTCAmount },
             },
-            positionType: 'Multiply',
+            positionType,
             slippage,
             multiple,
             debtToken,
@@ -1464,11 +1451,6 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
             isDPMProxy: false,
             addresses,
             provider,
-            protocol: {
-              version: AaveVersion.v2,
-              getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getAaveProtocolData,
-            },
             getSwapData: getOneInchCall(system.common.swap.address, [], true),
             proxy: system.common.dsProxy.address,
             user: config.address,
@@ -1490,7 +1472,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         )
         openTxStatus = _openTxStatus
 
-        const currentPositionBeforeAdjust = await strategies.aave.view(
+        const currentPositionBeforeAdjust = await strategies.aave.v2.view(
           {
             proxy,
             collateralToken,
@@ -1503,19 +1485,19 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
         )
 
-        positionTransition = await strategies.aave.adjust(
+        positionTransition = await strategies.aave.v2.adjust(
           {
             slippage,
             multiple: adjustDownToMultiple,
             debtToken,
             collateralToken,
-            // collectSwapFeeFrom: 'targetToken',
+            positionType,
           },
           {
             isDPMProxy: false,
             addresses,
             provider,
-            getSwapData: getOneInchCall(system.common.swap.address, [], true),
+            getSwapData: getOneInchCall(system.common.swap.address),
             proxy,
             user: config.address,
             currentPosition: currentPositionBeforeAdjust,

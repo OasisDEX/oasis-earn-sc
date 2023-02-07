@@ -1,12 +1,10 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import {
   AAVETokens,
-  AaveVersion,
   ADDRESSES,
   IPositionTransition,
   ONE,
   Position,
-  protocols,
   RiskRatio,
   strategies,
   TYPICAL_PRECISION,
@@ -156,7 +154,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
       // Set up the position
       const proxy = system.common.dsProxy.address
-      const openPositionTransition = await strategies.aave.open(
+      const openPositionTransition = await strategies.aave.v2.open(
         {
           depositedByUser: {
             debtToken: { amountInBaseUnit: debtToken.depositOnOpenAmountInWei },
@@ -172,11 +170,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           isDPMProxy: false,
           addresses,
           provider,
-          protocol: {
-            version: AaveVersion.v2,
-            getCurrentPosition: strategies.aave.view,
-            getProtocolData: protocols.aave.getAaveProtocolData,
-          },
           getSwapData: oneInchCallMock(mockMarketPriceOnOpen),
           proxy,
           user: userAddress,
@@ -244,7 +237,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       )
 
       // Now close the position
-      const positionTransition = await strategies.aave.close(
+      const positionTransition = await strategies.aave.v2.close(
         {
           slippage,
           collateralAmountLockedInProtocolInWei: positionAfterOpen.collateral.amount,
@@ -709,7 +702,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         const collateralToken = {
           symbol: tokens.STETH,
         }
-        const openPositionTransition = await strategies.aave.open(
+        const openPositionTransition = await strategies.aave.v2.open(
           {
             depositedByUser: {
               debtToken: { amountInBaseUnit: depositAmount },
@@ -724,11 +717,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             isDPMProxy: false,
             addresses,
             provider,
-            protocol: {
-              version: AaveVersion.v2,
-              getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getAaveProtocolData,
-            },
             getSwapData: getOneInchCall(system.common.swap.address, ['ST_ETH']),
             proxy,
             user: config.address,
@@ -788,7 +776,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           openPositionTransition.simulation.position.category,
         )
 
-        const positionTransition = await strategies.aave.close(
+        const positionTransition = await strategies.aave.v2.close(
           {
             collateralToken: { symbol: tokens.STETH },
             debtToken: { symbol: tokens.ETH },
@@ -898,7 +886,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           depositWBTCAmount.toFixed(0),
         )
 
-        const openPositionTransition = await strategies.aave.open(
+        const openPositionTransition = await strategies.aave.v2.open(
           {
             depositedByUser: {
               collateralToken: { amountInBaseUnit: depositWBTCAmount },
@@ -913,11 +901,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             isDPMProxy: false,
             addresses,
             provider,
-            protocol: {
-              version: AaveVersion.v2,
-              getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getAaveProtocolData,
-            },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy,
             user: config.address,
@@ -982,7 +965,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           openPositionTransition.simulation.position.category,
         )
 
-        const positionTransition = await strategies.aave.close(
+        const positionTransition = await strategies.aave.v2.close(
           {
             collateralToken,
             debtToken,
@@ -1063,6 +1046,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     before(async function () {
       const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
       if (shouldRun1InchTests) {
+        const positionType = 'Multiply'
         await resetNodeToLatestBlock(provider)
 
         const { system: _system } = await deploySystem(config, false, false)
@@ -1080,12 +1064,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         const debtToken = { symbol: tokens.USDC, precision: USDCPrecision }
         const collateralToken = { symbol: tokens.ETH, precision: ethPrecision }
 
-        const openPositionTransition = await strategies.aave.open(
+        const openPositionTransition = await strategies.aave.v2.open(
           {
             depositedByUser: {
               collateralToken: { amountInBaseUnit: depositEthAmount },
             },
-            positionType: 'Multiply',
+            positionType,
             slippage,
             multiple,
             debtToken,
@@ -1095,11 +1079,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             isDPMProxy: false,
             addresses,
             provider,
-            protocol: {
-              version: AaveVersion.v2,
-              getCurrentPosition: strategies.aave.view,
-              getProtocolData: protocols.aave.getAaveProtocolData,
-            },
             getSwapData: getOneInchCall(system.common.swap.address),
             proxy,
             user: config.address,
@@ -1162,7 +1141,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           openPositionTransition.simulation.position.category,
         )
 
-        const positionTransition = await strategies.aave.close(
+        const positionTransition = await strategies.aave.v2.close(
           {
             collateralToken,
             debtToken,

@@ -65,7 +65,7 @@ export const getSystemWithAavePositions =
       user: config.address,
       protocol: {
         version: AaveVersion.v2,
-        getCurrentPosition: strategies.aave.view,
+        getCurrentPosition: strategies.aave.v2.view,
         getProtocolData: protocols.aave.getAaveProtocolData,
       },
       getSwapData: use1inch

@@ -6,7 +6,14 @@ import { amountFromWei, amountToWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
 import { IBaseSimulatedTransition, IPosition, Position } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
-import { ONE, TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../helpers/constants'
+import {
+  DEFAULT_FEE,
+  NO_FEE,
+  ONE,
+  TYPICAL_PRECISION,
+  UNUSED_FLASHLOAN_AMOUNT,
+  ZERO,
+} from '../../helpers/constants'
 import { acceptedFeeToken } from '../../helpers/swap/acceptedFeeToken'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/v2'
@@ -15,16 +22,18 @@ import {
   IPositionTransition,
   IPositionTransitionArgs,
   IPositionTransitionDependencies,
+  PositionType,
   SwapData,
 } from '../../types'
 import { AAVETokens } from '../../types/aave'
 import { getAaveTokenAddresses } from './getAaveTokenAddresses'
 
-const FEE = 20
+type AaveAdjustArgs = IPositionTransitionArgs<AAVETokens> & { positionType: PositionType }
+type AaveAdjustDependencies = IPositionTransitionDependencies<AAVEStrategyAddresses>
 
 export async function adjust(
-  args: IPositionTransitionArgs<AAVETokens>,
-  dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
+  args: AaveAdjustArgs,
+  dependencies: AaveAdjustDependencies,
 ): Promise<IPositionTransition> {
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
@@ -118,12 +127,15 @@ export async function adjust(
   const quoteMarketPriceExpectedByMaths = isIncreasingRisk
     ? quoteMarketPrice
     : ONE.div(quoteMarketPrice)
+
+  const isEarnPosition = args.positionType === 'Earn'
   const simulatedPositionTransition = existingPosition.adjustToTargetRiskRatio(
     new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     {
       fees: {
         flashLoan: flashloanFee,
-        oazo: new BigNumber(FEE),
+        oazo:
+          isEarnPosition && isIncreasingRisk ? new BigNumber(NO_FEE) : new BigNumber(DEFAULT_FEE),
       },
       prices: {
         /**
@@ -163,6 +175,7 @@ export async function adjust(
 
   if (isIncreasingRisk) {
     ;({ operation, finalPosition, actualMarketPriceWithSlippage, swapData } = await _increaseRisk({
+      positionType: args.positionType,
       simulatedPositionTransition,
       existingPosition,
       swapAmountAfterFees,
@@ -227,6 +240,7 @@ type BranchReturn = {
 }
 
 interface BranchProps<AAVETokens> {
+  positionType?: PositionType
   simulatedPositionTransition: IBaseSimulatedTransition
   existingPosition: IPosition
   fromTokenAddress: string
@@ -246,6 +260,7 @@ interface BranchProps<AAVETokens> {
 }
 
 async function _increaseRisk({
+  positionType,
   simulatedPositionTransition,
   existingPosition,
   swapAmountBeforeFees,
@@ -298,7 +313,7 @@ async function _increaseRisk({
 
   const flashloanAmount = simulatedPositionTransition.delta?.flashloanAmount || ZERO
 
-  const operation = await operations.aave.increaseMultiple(
+  const operation = await operations.aave.v2.increaseMultiple(
     {
       depositCollateral: {
         amountInWei: depositCollateralAmountInWei || ZERO,
@@ -311,7 +326,7 @@ async function _increaseRisk({
       flashloanAmount: flashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : flashloanAmount,
       useFlashloan,
       borrowAmountInWei: borrowAmountInWei,
-      fee: FEE,
+      fee: positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
       swapAmountInWei: swapAmountBeforeFees,
@@ -417,12 +432,12 @@ async function _decreaseRisk({
    * because it's calculated using Debt Delta which will be negative
    */
   const absFlashloanAmount = (simulatedPositionTransition.delta?.flashloanAmount || ZERO).abs()
-  const operation = await operations.aave.decreaseMultiple(
+  const operation = await operations.aave.v2.decreaseMultiple(
     {
       flashloanAmount: absFlashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : absFlashloanAmount,
       withdrawAmountInWei: withdrawCollateralAmountWei,
       receiveAtLeast: swapData.minToTokenAmount,
-      fee: FEE,
+      fee: DEFAULT_FEE,
       swapData: swapData.exchangeCalldata,
       swapAmountInWei: swapAmountBeforeFees,
       collectFeeFrom,

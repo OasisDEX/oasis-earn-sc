@@ -1,4 +1,4 @@
-import { openV3 } from './open'
+import { open } from './open'
 
 export type { AAVEV3StrategyAddresses } from './addresses'
-export { openV3 }
+export { open }

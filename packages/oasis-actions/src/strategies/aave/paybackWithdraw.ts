@@ -25,7 +25,7 @@ export async function paybackWithdraw(
     dependencies.addresses,
   )
 
-  const transaction = await operations.aave.paybackWithdraw({
+  const transaction = await operations.aave.v2.paybackWithdraw({
     amountCollateralToWithdrawInBaseUnit: currentPosition.collateral.amount.lte(
       args.amountCollateralToWithdrawInBaseUnit,
     )

@@ -28,7 +28,20 @@ async function getEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]
     positionType: 'Multiply',
   }
 
-  return await strategies.aave.open(args, dependencies)
+  if (
+    dependencies.protocol.version === AaveVersion.v2 &&
+    aaveV2UniqueContractName in dependencies.addresses
+  ) {
+    return await strategies.aave.v2.open(args, dependencies)
+  }
+  if (
+    dependencies.protocol.version === AaveVersion.v3 &&
+    aaveV3UniqueContractName in dependencies.addresses
+  ) {
+    return await strategies.aave.v3.open(args, dependencies)
+  }
+
+  throw new Error('Unsupported protocol version')
 }
 
 export async function createEthUsdcMultiplyAAVEPosition({
@@ -100,7 +113,7 @@ export async function createEthUsdcMultiplyAAVEPosition({
     const protocolVersion = dependencies.protocol.version
 
     getPosition = async () => {
-      return await strategies.aave.view(
+      return await strategies.aave.v3.view(
         {
           collateralToken: ETH,
           debtToken: USDC,
@@ -124,7 +137,7 @@ export async function createEthUsdcMultiplyAAVEPosition({
     const addresses = dependencies.addresses
     const protocolVersion = dependencies.protocol.version
     getPosition = async () => {
-      return await strategies.aave.view(
+      return await strategies.aave.v2.view(
         {
           collateralToken: ETH,
           debtToken: USDC,
