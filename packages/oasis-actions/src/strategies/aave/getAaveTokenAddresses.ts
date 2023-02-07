@@ -1,8 +1,7 @@
 import { AAVEStrategyAddresses } from '../../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../../operations/aave/v3'
-import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '../../protocols/aave/config'
 import { IPositionTransitionArgs } from '../../types'
-import { AAVETokens } from '../../types/aave/tokens'
+import { AAVETokens } from '../../types/aave'
 
 const emptyAddress = ''
 
@@ -16,21 +15,13 @@ export const getAaveTokenAddresses = (
   collateralTokenAddress: string
   debtTokenAddress: string
 } => {
-  if (aaveV2UniqueContractName in addresses && args.collateralToken.symbol === 'WSTETH') {
-    throw new Error('WSTETH is not supported on Aave V2')
-  }
-
   const tokenAddresses: Record<AAVETokens, string> = {
     WETH: addresses.WETH,
     ETH: addresses.WETH,
-    WSTETH: emptyAddress,
-    STETH: addresses.STETH,
+    STETH: 'STETH' in addresses ? addresses.STETH : emptyAddress,
+    WSTETH: 'WSTETH' in addresses ? addresses.WSTETH : emptyAddress,
     USDC: addresses.USDC,
     WBTC: addresses.WBTC,
-  }
-  /* Checks for V3 addresses */
-  if (aaveV3UniqueContractName in addresses) {
-    tokenAddresses['WSTETH'] = addresses.WSTETH
   }
 
   const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
