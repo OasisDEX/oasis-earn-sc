@@ -29,7 +29,7 @@ contract AaveV3Payback is Executable, UseStore {
    * @param paramsMap Maps operation storage values by index (index offset by +1) to execute calldata params
    */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
-    PaybackData memory payback = abi.decode(data, (PaybackData));
+    PaybackData memory payback = parseInputs(data);
 
     payback.amount = store().readUint(bytes32(payback.amount), paramsMap[1], address(this));
 
@@ -42,5 +42,9 @@ contract AaveV3Payback is Executable, UseStore {
 
     store().write(bytes32(payback.amount));
     emit Action(PAYBACK_V3_ACTION, abi.encode(payback.amount));
+  }
+
+  function parseInputs(bytes memory _callData) public pure returns (PaybackData memory params) {
+    return abi.decode(_callData, (PaybackData));
   }
 }
