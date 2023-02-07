@@ -27,13 +27,12 @@ export function buildGetTokenFunction(
 ): (symbol: AAVETokensToGet, amount: string) => Promise<boolean> {
   return async function getTokens(symbol: AAVETokensToGet, amount: string): Promise<boolean> {
     const { tokenAddress, whale } = tokensWhales[symbol]
-    const fromSigner = await hre.ethers.getSigner(whale)
 
     await config.signer.sendTransaction({
       from: await config.signer.getAddress(),
       to: whale,
       value: hre.ethers.utils.parseEther('1'),
-      gasLimit: hre.ethers.utils.hexlify(1000000),
+      gasLimit: 1000000,
     })
 
     await hre.network.provider.request({
@@ -41,10 +40,9 @@ export function buildGetTokenFunction(
       params: [whale],
     })
 
+    const fromSigner = await hre.ethers.getSigner(whale)
     const fromTokenContract = new hre.ethers.Contract(tokenAddress, erc20abi, fromSigner)
-
     await fromTokenContract.transfer(config.address, hre.ethers.utils.parseUnits(amount, 'wei'))
-
     return true
   }
 }

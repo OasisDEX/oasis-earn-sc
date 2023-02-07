@@ -20,6 +20,7 @@ export async function close(
     debtTokenAddress: string
     debtTokenIsEth: boolean
     isDPMProxy: boolean
+    shouldCloseToCollateral: boolean
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {
@@ -81,10 +82,18 @@ export async function close(
   const returnDebtFunds = actions.common.returnFunds({
     asset: args.debtTokenIsEth ? ADDRESSES.main.ETH : args.debtTokenAddress,
   })
+  returnDebtFunds.skipped = args.shouldCloseToCollateral
 
   const returnCollateralFunds = actions.common.returnFunds({
     asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
   })
+
+  const sendRemainingDebtFundsToFeeRecipient = actions.common.sendToken({
+    asset: args.debtTokenAddress,
+    to: ADDRESSES.main.feeRecipient,
+    amount: new BigNumber(MAX_UINT),
+  })
+  sendRemainingDebtFundsToFeeRecipient.skipped = !args.shouldCloseToCollateral
 
   unwrapEth.skipped = !args.debtTokenIsEth && !args.collateralIsEth
 
@@ -101,6 +110,7 @@ export async function close(
       setDebtTokenApprovalOnLendingPool,
       paybackInAAVE,
       withdrawDAIFromAAVE,
+      sendRemainingDebtFundsToFeeRecipient,
       unwrapEth,
       returnDebtFunds,
       returnCollateralFunds,

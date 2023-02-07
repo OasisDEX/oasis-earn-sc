@@ -9,7 +9,7 @@ import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '.
 import { MULTIPLE, SLIPPAGE, USDC, WBTC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-const amountInBaseUnit = amountToWei(new BigNumber(10), WBTC.precision)
+const amountInBaseUnit = amountToWei(new BigNumber(1), WBTC.precision)
 
 async function openWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
   const args: OpenPositionTypes[0] = {
