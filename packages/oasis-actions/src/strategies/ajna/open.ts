@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../abi/ajna/ajnaProxyActions.json'
-import { AjnaPosition } from '../../types/ajna'
+import { AjnaPosition } from '../../helpers/ajna'
 import { Address, Strategy } from '../../types/common'
 import * as views from '../../views'
 
@@ -41,17 +41,6 @@ export async function open(
   if (position.collateralAmount.gt(0)) {
     throw new Error('Position already exists')
   }
-
-  // const iPosition = new Position(
-  //   { amount: position.debtAmount, precision: args.debtTokenPrecision, symbol: 'NONE' },
-  //   { amount: position.collateralAmount, precision: args.collateralTokenPrecision, symbol: 'NONE' },
-  //   new BigNumber(1),
-  //   {
-  //     dustLimit: new BigNumber(0),
-  //     liquidationThreshold: new BigNumber(100),
-  //     maxLoanToValue: new BigNumber(100),
-  //   },
-  // )
 
   const isDepositingEth =
     position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()

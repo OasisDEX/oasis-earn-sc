@@ -3,7 +3,8 @@ import { ethers } from 'ethers'
 
 import poolERC20Abi from '../../abi/ajna/ajnaPoolERC20.json'
 import poolInfoAbi from '../../abi/ajna/poolInfoUtils.json'
-import { AjnaPosition, Pool } from '../../types/ajna'
+import { AjnaPosition } from '../../helpers/ajna'
+import { Pool } from '../../types/ajna'
 import { Address } from '../../types/common'
 
 function bucketIndexToPrice(index: number) {

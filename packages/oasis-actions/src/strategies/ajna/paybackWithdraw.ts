@@ -2,8 +2,7 @@ import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../abi/ajna/ajnaProxyActions.json'
-// import poolInfoAbi from '../../abi/ajna/poolInfoUtils.json'
-import { AjnaPosition } from '../../types/ajna'
+import { AjnaPosition } from '../../helpers/ajna'
 import { Address, Strategy } from '../../types/common'
 import { Dependencies } from './open'
 
