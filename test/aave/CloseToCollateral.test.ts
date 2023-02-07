@@ -27,7 +27,7 @@ describe('Close Position to collateral', () => {
     const position = fixture.dpmPositions['ETH/USDC Multiply']
     assert(position, 'Unsupported position')
 
-    const { address: user, provider, signer } = fixture.config
+    const { provider, signer } = fixture.config
     const { proxy, getPosition } = position
     const { addresses } = fixture.strategiesDependencies
     const { collateral: collateralToken, debt: debtToken } = await getPosition()

@@ -1,13 +1,12 @@
 import { ContractNames } from '@oasisdex/oasis-actions'
 import { Signer, utils } from 'ethers'
-import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 export class ServiceRegistry {
   address: string
   signer: Signer
   ethers: any
 
-  constructor(address: string, signer: Signer, hre?: HardhatRuntimeEnvironment) {
+  constructor(address: string, signer: Signer) {
     this.address = address
     this.signer = signer
   }

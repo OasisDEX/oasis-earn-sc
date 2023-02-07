@@ -40,9 +40,10 @@ export async function close(
   args: AAVECloseArgs,
   dependencies: AAVECloseDependencies,
 ): Promise<IPositionTransition> {
-  const getSwapData = (
-    dependencies.shouldCloseToCollateral ? getSwapDataToCloseToCollateral : getSwapDataToCloseToDebt
-  )!
+  const getSwapData = dependencies.shouldCloseToCollateral
+    ? getSwapDataToCloseToCollateral
+    : getSwapDataToCloseToDebt
+
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(args, dependencies)
   const operation = await buildOperation({ ...swapData, collectFeeFrom }, args, dependencies)
 
@@ -77,15 +78,17 @@ async function getSwapDataToCloseToCollateral(
   // We don't want to end up having leftovers of debt transferred to the user
   // so instead of charging the user a fee, the extra debt amount is
   const fee = new BigNumber(DEFAULT_FEE).div(new BigNumber(FEE_BASE)) // as DECIMAL number
+  const debtTokenPrecision = debtToken.precision || TYPICAL_PRECISION
+  const collateralTokenPrecision = collateralToken.precision || TYPICAL_PRECISION
 
   // 2. Calculated the needed amount of collateral to payback the debt
   // This value is calculated based on the AAVE protocol oracles.
   // At the time of writing, their main source are Chainlink oracles.
   const collateralNeeded = calculateNeededCollateralToPaybackDebt(
     debtPrice,
-    debtToken.precision!,
+    debtTokenPrecision,
     colPrice,
-    collateralToken.precision!,
+    collateralTokenPrecision,
     dependencies.currentPosition.debt.amount,
     fee,
     slippage,
@@ -113,14 +116,14 @@ async function getSwapDataToCloseToCollateral(
   debtPrice = new BigNumber(
     debtPricePreflightSwapData.toTokenAmount
       .div(debtPricePreflightSwapData.fromTokenAmount)
-      .times(TEN.pow(debtToken.precision!))
+      .times(TEN.pow(debtTokenPrecision))
       .toFixed(0),
   )
 
   colPrice = new BigNumber(
     colPricePreflightSwapData.toTokenAmount
       .div(colPricePreflightSwapData.fromTokenAmount)
-      .times(TEN.pow(collateralToken.precision!))
+      .times(TEN.pow(collateralTokenPrecision))
       .toFixed(0),
   )
 
@@ -131,9 +134,9 @@ async function getSwapDataToCloseToCollateral(
     debtTokenAddress,
     calculateNeededCollateralToPaybackDebt(
       debtPrice,
-      debtToken.precision!,
+      debtTokenPrecision,
       colPrice,
-      collateralToken.precision!,
+      collateralTokenPrecision,
       dependencies.currentPosition.debt.amount,
       fee,
       slippage,
