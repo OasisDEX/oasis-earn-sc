@@ -1,14 +1,27 @@
 import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
-import { RiskRatio } from '../..'
 import ajnaProxyActionsAbi from '../../abi/ajna/ajnaProxyActions.json'
 import { AjnaPosition } from '../../types/ajna'
-import { Strategy } from '../../types/common'
+import { Address, Strategy } from '../../types/common'
 import * as views from '../../views'
-import { Dependencies, DepositBorrowArgs } from './depositBorrow'
 
-type OpenArgs = DepositBorrowArgs
+export interface OpenArgs {
+  poolAddress: Address
+  dpmProxyAddress: Address
+  quoteAmount: BigNumber
+  quoteTokenPrecision: number
+  collateralAmount: BigNumber
+  collateralTokenPrecision: number
+  price: BigNumber
+}
+
+export interface Dependencies {
+  poolInfoAddress: Address
+  ajnaProxyActions: Address
+  provider: ethers.providers.Provider
+  WETH: Address
+}
 
 export async function open(
   args: OpenArgs,
@@ -58,17 +71,12 @@ export async function open(
     args.price.toString(),
   ])
 
+  const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
+
   return {
     simulation: {
       swaps: [],
-      targetPosition: {
-        pool: position.pool,
-        liquidationPrice: new BigNumber(0),
-        owner: args.dpmProxyAddress,
-        collateralAmount: args.collateralAmount,
-        debtAmount: args.quoteAmount,
-        riskRatio: new RiskRatio(new BigNumber(0), RiskRatio.TYPE.COL_RATIO),
-      },
+      targetPosition,
     },
     tx: {
       to: dependencies.ajnaProxyActions,

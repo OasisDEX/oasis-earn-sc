@@ -1,46 +1,21 @@
-import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
-import { RiskRatio } from '../..'
 import ajnaProxyActionsAbi from '../../abi/ajna/ajnaProxyActions.json'
 import { AjnaPosition } from '../../types/ajna'
-import { Address, Strategy } from '../../types/common'
-import * as views from '../../views'
+import { Strategy } from '../../types/common'
+import { Dependencies, OpenArgs } from './open'
 
-export interface DepositBorrowArgs {
-  poolAddress: Address
-  dpmProxyAddress: Address
-  quoteAmount: BigNumber
-  quoteTokenPrecision: number
-  collateralAmount: BigNumber
-  collateralTokenPrecision: number
-  price: BigNumber
-}
-
-export interface Dependencies {
-  poolInfoAddress: Address
-  ajnaProxyActions: Address
-  provider: ethers.providers.Provider
-  WETH: Address
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface DepositBorrowArgs extends OpenArgs {
+  position: AjnaPosition
 }
 
 export async function depositBorrow(
   args: DepositBorrowArgs,
   dependencies: Dependencies,
 ): Promise<Strategy<AjnaPosition>> {
-  const position = await views.ajna.getPosition(
-    {
-      proxyAddress: args.dpmProxyAddress,
-      poolAddress: args.poolAddress,
-    },
-    {
-      poolInfoAddress: dependencies.poolInfoAddress,
-      provider: dependencies.provider,
-    },
-  )
-
   const isDepositingEth =
-    position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
+    args.position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
   const apa = new ethers.Contract(
     dependencies.ajnaProxyActions,
@@ -57,17 +32,12 @@ export async function depositBorrow(
     args.price.toString(),
   ])
 
+  const targetPosition = args.position.deposit(args.collateralAmount).borrow(args.quoteAmount)
+
   return {
     simulation: {
       swaps: [],
-      targetPosition: {
-        pool: position.pool,
-        liquidationPrice: new BigNumber(0),
-        owner: args.dpmProxyAddress,
-        collateralAmount: position.collateralAmount.minus(args.collateralAmount),
-        debtAmount: position.collateralAmount.minus(args.quoteAmount),
-        riskRatio: new RiskRatio(new BigNumber(0), RiskRatio.TYPE.COL_RATIO),
-      },
+      targetPosition: targetPosition,
     },
     tx: {
       to: dependencies.ajnaProxyActions,

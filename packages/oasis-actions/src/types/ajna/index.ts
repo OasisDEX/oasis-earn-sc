@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 
-import { IRiskRatio } from '../../helpers/calculations/RiskRatio'
+import { IRiskRatio, RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { Address } from '../common'
 
 /*
@@ -49,11 +49,14 @@ export interface Pool {
   poolAddress: Address
   quoteToken: Address
   collateralToken: Address
+
+  lup: BigNumber
+
   // annualized rate as a fraction 0.05 = 5%
   rate: BigNumber
 }
 
-export interface AjnaPosition {
+export interface IAjnaPosition {
   pool: Pool
   owner: Address
   collateralAmount: BigNumber
@@ -62,6 +65,67 @@ export interface AjnaPosition {
   liquidationPrice: BigNumber
 
   riskRatio: IRiskRatio
+
+  deposit(amount: BigNumber): AjnaPosition
+  withdraw(amount: BigNumber): AjnaPosition
+  borrow(amount: BigNumber): AjnaPosition
+  payback(amount: BigNumber): AjnaPosition
+}
+
+export class AjnaPosition implements IAjnaPosition {
+  riskRatio: IRiskRatio
+
+  constructor(
+    public pool: Pool,
+    public owner: Address,
+    public collateralAmount: BigNumber,
+    public debtAmount: BigNumber,
+  ) {
+    this.riskRatio = new RiskRatio(
+      debtAmount.div(collateralAmount.times(pool.lup)),
+      RiskRatio.TYPE.LTV,
+    )
+  }
+
+  get liquidationPrice() {
+    return new BigNumber(0)
+  }
+
+  deposit(collateralAmount: BigNumber) {
+    return new AjnaPosition(
+      this.pool,
+      this.owner,
+      this.collateralAmount.plus(collateralAmount),
+      this.debtAmount,
+    )
+  }
+
+  withdraw(collateralAmount: BigNumber) {
+    return new AjnaPosition(
+      this.pool,
+      this.owner,
+      this.collateralAmount.minus(collateralAmount),
+      this.debtAmount,
+    )
+  }
+
+  borrow(quoteAmount: BigNumber): AjnaPosition {
+    return new AjnaPosition(
+      this.pool,
+      this.owner,
+      this.collateralAmount,
+      this.debtAmount.plus(quoteAmount),
+    )
+  }
+
+  payback(quoteAmount: BigNumber): AjnaPosition {
+    return new AjnaPosition(
+      this.pool,
+      this.owner,
+      this.collateralAmount,
+      this.debtAmount.minus(quoteAmount),
+    )
+  }
 }
 
 export interface AjnaEarn {

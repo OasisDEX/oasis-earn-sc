@@ -1,43 +1,26 @@
 import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
-import { RiskRatio } from '../..'
 import ajnaProxyActionsAbi from '../../abi/ajna/ajnaProxyActions.json'
 // import poolInfoAbi from '../../abi/ajna/poolInfoUtils.json'
 import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
-import * as views from '../../views'
+import { Dependencies } from './open'
 
 interface PaybackWithdrawArgs {
   poolAddress: Address
   dpmProxyAddress: Address
-  debtAmount: BigNumber
-  debtTokenPrecision: number
+  quoteAmount: BigNumber
+  quoteTokenPrecision: number
   collateralAmount: BigNumber
   collateralTokenPrecision: number
-}
-
-interface Dependencies {
-  poolInfoAddress: Address
-  ajnaProxyActions: Address
-  provider: ethers.providers.Provider
+  position: AjnaPosition
 }
 
 export async function paybackWithdraw(
   args: PaybackWithdrawArgs,
   dependencies: Dependencies,
 ): Promise<Strategy<AjnaPosition>> {
-  const position = await views.ajna.getPosition(
-    {
-      proxyAddress: args.dpmProxyAddress,
-      poolAddress: args.poolAddress,
-    },
-    {
-      poolInfoAddress: dependencies.poolInfoAddress,
-      provider: dependencies.provider,
-    },
-  )
-
   const apa = new ethers.Contract(
     dependencies.ajnaProxyActions,
     ajnaProxyActionsAbi,
@@ -46,26 +29,16 @@ export async function paybackWithdraw(
 
   const data = apa.interface.encodeFunctionData('repayWithdraw', [
     args.poolAddress,
-    ethers.utils.parseUnits(args.debtAmount.toString(), args.debtTokenPrecision).toString(),
-    ethers.utils.parseUnits(args.collateralAmount.toString(), args.debtTokenPrecision).toString(),
+    ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
+    ethers.utils.parseUnits(args.collateralAmount.toString(), args.quoteTokenPrecision).toString(),
   ])
+
+  const targetPosition = args.position.payback(args.quoteAmount).withdraw(args.collateralAmount)
 
   return {
     simulation: {
       swaps: [],
-      targetPosition: {
-        pool: {
-          poolAddress: args.poolAddress,
-          quoteToken: 'Address',
-          collateralToken: 'Address',
-          rate: new BigNumber(0),
-        },
-        liquidationPrice: new BigNumber(0),
-        owner: args.dpmProxyAddress,
-        collateralAmount: args.collateralAmount,
-        debtAmount: args.debtAmount,
-        riskRatio: new RiskRatio(new BigNumber(0), RiskRatio.TYPE.COL_RATIO),
-      },
+      targetPosition,
     },
     tx: {
       to: dependencies.ajnaProxyActions,
