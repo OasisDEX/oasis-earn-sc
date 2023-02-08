@@ -791,7 +791,7 @@ async function addAAVEOperationsToRegistry(args: {
 
   await operationsRegistry.addOp(OPERATION_NAMES.aave.v3.OPEN_POSITION, [
     {
-      hash: takeAFlashloanHash, // CORRECT
+      hash: takeAFlashloanHash,
       optional: false,
     },
     {
@@ -803,11 +803,11 @@ async function addAAVEOperationsToRegistry(args: {
       optional: true,
     },
     {
-      hash: setApprovalHash, // CORRECT
+      hash: setApprovalHash,
       optional: false,
     },
     {
-      hash: depositInAAVEV3Hash, // ISSUE IS HERE
+      hash: depositInAAVEV3Hash,
       optional: false,
     },
     {
