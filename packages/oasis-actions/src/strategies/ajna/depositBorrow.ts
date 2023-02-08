@@ -1,8 +1,9 @@
 import * as ethers from 'ethers'
 
-import ajnaProxyActionsAbi from '../../abi/ajna/ajnaProxyActions.json'
-import { AjnaPosition } from '../../helpers/ajna/AjnaPosition'
-import { Strategy } from '../../types/common'
+import ajnaProxyActionsAbi from '@/abi/ajna/ajnaProxyActions.json'
+import { AjnaPosition } from '@/helpers/ajna/AjnaPosition'
+import { Strategy } from '@/types/common'
+
 import { Dependencies, OpenArgs } from './open'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
