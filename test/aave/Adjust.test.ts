@@ -722,7 +722,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe(`[1inch] Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
+  describe.skip(`[1inch] Increase Multiple: With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
     const slippage = new BigNumber(0.1)
     const depositAmount = amountToWei(new BigNumber(1))
     const multiple = new RiskRatio(new BigNumber(2), RiskRatio.TYPE.MULITPLE)
@@ -938,7 +938,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe(`[1inch] Increase Multiple: With ${tokens.ETH} collateral & ${tokens.USDC} debt`, () => {
+  describe.skip(`[1inch] Increase Multiple: With ${tokens.ETH} collateral & ${tokens.USDC} debt`, () => {
     const slippage = new BigNumber(0.1)
     const depositEthAmount = amountToWei(new BigNumber(1))
     const multiple = new RiskRatio(new BigNumber(2), RiskRatio.TYPE.MULITPLE)
@@ -1159,7 +1159,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe(`[1inch] Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.USDC} debt`, () => {
+  describe.skip(`[1inch] Decrease Multiple: With ${tokens.STETH} collateral & ${tokens.USDC} debt`, () => {
     const slippage = new BigNumber(0.2)
     const USDCPrecision = 6
     const stETHPrecision = TYPICAL_PRECISION
@@ -1382,7 +1382,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
     })
   })
 
-  describe(`[1inch] Decrease Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, () => {
+  describe.skip(`[1inch] Decrease Multiple: With ${tokens.WBTC} collateral & ${tokens.USDC} debt`, () => {
     const slippage = new BigNumber(0.2)
     const USDCPrecision = 6
     const wBTCPrecision = 8

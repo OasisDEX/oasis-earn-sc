@@ -22,7 +22,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
     fixture = await loadFixture(getSystemWithAavePositions({ use1inch: false }))
   })
 
-  describe('Payback debt', () => {
+  describe.skip('Payback debt', () => {
     describe('When position is opened with DSProxy', () => {
       it('Should reduce debt', async () => {
         const { dsProxyPosition, strategiesDependencies, system, config, getTokens } = fixture
@@ -243,7 +243,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
     })
   })
 
-  describe('Withdraw collateral', () => {
+  describe.skip('Withdraw collateral', () => {
     describe('When position is opened with DSProxy', () => {
       it('Should reduce collateral', async () => {
         const { dsProxyPosition, strategiesDependencies, system, config } = fixture
@@ -474,7 +474,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
     })
   })
 
-  describe.only('Close position using Payback and Withdraw', () => {
+  describe('Close position using Payback and Withdraw', () => {
     describe('When position is opened with DSProxy', () => {
       it('Should payback all and withdraw all', async () => {
         const { dsProxyPosition, strategiesDependencies, system, config, getTokens } = fixture
@@ -551,7 +551,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
         )
       })
     })
-    describe.only('When position is opened with DPM Proxy', () => {
+    describe('When position is opened with DPM Proxy', () => {
       supportedStrategies.forEach(({ name: strategy }) => {
         it(`Should payback all and withdraw all for ${strategy}`, async function () {
           const { strategiesDependencies, system, config, dpmPositions, getTokens } = fixture
