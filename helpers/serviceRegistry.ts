@@ -23,6 +23,12 @@ export class ServiceRegistry {
     return entryHash
   }
 
+  async removeEntry(label: ContractNames) {
+    const ethers = (await import('hardhat')).ethers
+    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+    await registry.removeNamedService(await this.getEntryHash(label))
+  }
+
   async getEntryHash(label: ContractNames): Promise<string> {
     const ethers = (await import('hardhat')).ethers
     const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)

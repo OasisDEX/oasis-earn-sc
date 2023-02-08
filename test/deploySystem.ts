@@ -100,7 +100,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     serviceRegistryAddress,
   ])
 
-  const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
+  const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [
+    serviceRegistryAddress,
+  ])
   const [, dummyActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_ACTION, [
     serviceRegistryAddress,
   ])
@@ -726,12 +728,16 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: false,
     },
     {
+      hash: sendTokenHash,
+      optional: true,
+    },
+    {
       hash: unwrapEthHash,
       optional: true,
     },
     {
       hash: returnFundsActionHash,
-      optional: false,
+      optional: true,
     },
     {
       hash: returnFundsActionHash,
@@ -983,7 +989,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       dummyAutomation,
       dummyCommmand,
       exchange: dummyExchange,
-      swap: useFallbackSwap ? uSwap : swap,
+      // TODO: Figure out how to make this work based on the change
+      uSwap,
+      swap,
       swapAction,
       sendToken,
       pullToken,
