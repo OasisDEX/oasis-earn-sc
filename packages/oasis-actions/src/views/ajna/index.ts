@@ -58,6 +58,8 @@ export async function getPosition(
     pool,
     proxyAddress,
     new BigNumber(borrowerInfo.collateral_.toString()).div(WAD),
+    18,
     new BigNumber(borrowerInfo.debt_.toString()).div(WAD),
+    18,
   )
 }

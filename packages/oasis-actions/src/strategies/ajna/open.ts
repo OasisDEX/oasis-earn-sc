@@ -45,13 +45,13 @@ export async function open(
   const isDepositingEth =
     position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
-  const apa = new ethers.Contract(
+  const ajnaProxyActions = new ethers.Contract(
     dependencies.ajnaProxyActions,
     ajnaProxyActionsAbi,
     dependencies.provider,
   )
 
-  const data = apa.interface.encodeFunctionData('openPosition', [
+  const data = ajnaProxyActions.interface.encodeFunctionData('openPosition', [
     args.poolAddress,
     ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
     ethers.utils

@@ -6,7 +6,6 @@ import { Strategy } from '@/types/common'
 
 import { Dependencies, OpenArgs } from './open'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface DepositBorrowArgs extends OpenArgs {
   position: AjnaPosition
 }
@@ -44,7 +43,7 @@ export async function depositBorrow(
       to: dependencies.ajnaProxyActions,
       data,
       value: isDepositingEth
-        ? ethers.utils.parseUnits(args.collateralAmount.toString(), 18).toString()
+        ? ethers.utils.parseEther(args.collateralAmount.toString()).toString()
         : '0',
     },
   }

@@ -35,6 +35,9 @@ export async function paybackWithdraw(
 
   const targetPosition = args.position.payback(args.quoteAmount).withdraw(args.collateralAmount)
 
+  const isPayingBackEth =
+    args.position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()
+
   return {
     simulation: {
       swaps: [],
@@ -43,7 +46,9 @@ export async function paybackWithdraw(
     tx: {
       to: dependencies.ajnaProxyActions,
       data,
-      value: '0',
+      value: isPayingBackEth
+        ? ethers.utils.parseEther(args.quoteAmount.toString()).toString()
+        : '0',
     },
   }
 }

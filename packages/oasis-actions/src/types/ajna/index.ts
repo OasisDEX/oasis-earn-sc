@@ -60,8 +60,9 @@ export interface IAjnaPosition {
   pool: Pool
   owner: Address
   collateralAmount: BigNumber
+  collateralPrecision: number
   debtAmount: BigNumber
-
+  debtPrecision: number
   liquidationPrice: BigNumber
 
   riskRatio: IRiskRatio
