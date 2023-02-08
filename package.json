@@ -83,6 +83,7 @@
     "solidity-docgen": "^0.6.0-beta.29",
     "ts-node": "^10.4.0",
     "ts-try": "^0.2.0",
+    "tsconfig-paths": "^4.1.2",
     "typescript": "^4.7.3",
     "utility-types": "^3.10.0",
     "web3": "^1.3.5"

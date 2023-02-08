@@ -27,6 +27,7 @@ task(
       operationsRegistryAddress,
       operationExecutorAddress,
       operationStorageAddress,
+      accountFactoryAddress,
     } = await deployCoreContacts({ deploy, debug: taskArgs.debug })
 
     const {
@@ -64,6 +65,7 @@ task(
         operationExecutorAddress,
         operationStorageAddress,
         operationsRegistryAddress,
+        accountFactoryAddress,
       },
       debug: taskArgs.debug,
     })
@@ -178,6 +180,8 @@ async function deployCoreContacts(args: { deploy: DeployFunction; debug: boolean
 
   const tx = await accountFactory['createAccount()']()
   await tx.wait()
+  console.log('account guard', accountGuard.address)
+  console.log('setting whitelist on ', operationExecutorAddress)
   await accountGuard.setWhitelist(operationExecutorAddress, true)
 
   return {
@@ -432,6 +436,7 @@ async function addCoreContractsToRegistry(args: {
     operationExecutorAddress: string
     operationStorageAddress: string
     operationsRegistryAddress: string
+    accountFactoryAddress: string
   }
   debug: boolean
 }) {
@@ -448,6 +453,10 @@ async function addCoreContractsToRegistry(args: {
     CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
     addresses.operationsRegistryAddress,
   )
+  const accountFactoryHash = await registry.addEntry(
+    CONTRACT_NAMES.common.ACCOUNT_FACTORY,
+    addresses.accountFactoryAddress,
+  )
 
   if (debug) {
     console.log('==== ==== ====')
@@ -460,6 +469,9 @@ async function addCoreContractsToRegistry(args: {
     )
     console.log(
       `Service Registry Hash for contract: ${CONTRACT_NAMES.common.OPERATIONS_REGISTRY} is ${operationsRegistryHash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.common.ACCOUNT_FACTORY} is ${accountFactoryHash}`,
     )
   }
 }

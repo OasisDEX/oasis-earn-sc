@@ -41,6 +41,8 @@ export async function swapUniswapTokens(
     sqrtPriceLimitX96: 0,
   }
 
+  console.log(swapParams)
+
   const uniswapTx = await uniswapV3.exactInputSingle(swapParams, { value, gasLimit: 3000000 })
   await uniswapTx.wait()
 }
