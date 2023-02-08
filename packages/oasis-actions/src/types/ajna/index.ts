@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 
-import { IRiskRatio } from '../../helpers/calculations/RiskRatio'
-import { Address } from '../common'
+import { IRiskRatio } from '@/helpers/calculations'
+import { Address } from '@/types/common'
 
 /*
 AJNA ACRONYM FINDER

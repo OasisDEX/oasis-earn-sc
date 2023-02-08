@@ -1,9 +1,10 @@
 import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
-import ajnaProxyActionsAbi from '../../abi/ajna/ajnaProxyActions.json'
-import { AjnaPosition } from '../../helpers/ajna'
-import { Address, Strategy } from '../../types/common'
+import ajnaProxyActionsAbi from '@/abi/ajna/ajnaProxyActions.json'
+import { AjnaPosition } from '@/helpers/ajna'
+import { Address, Strategy } from '@/types/common'
+
 import { Dependencies } from './open'
 
 interface PaybackWithdrawArgs {
