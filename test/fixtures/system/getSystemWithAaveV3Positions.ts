@@ -28,6 +28,7 @@ export const getSystemWithAaveV3Positions =
   ({ use1inch }: { use1inch: boolean }) =>
   async (): Promise<SystemWithAAVEV3Positions> => {
     const config = await init()
+    // We're using uniswap to get tokens here rather than impersonating a user
     const getTokens = buildGetTokenFunction(config, await import('hardhat'))
 
     const useFallbackSwap = !use1inch

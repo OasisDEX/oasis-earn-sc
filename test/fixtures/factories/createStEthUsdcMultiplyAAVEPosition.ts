@@ -18,7 +18,8 @@ import { ETH, MULTIPLE, SLIPPAGE, STETH, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
 const amountInBaseUnit = amountToWei(new BigNumber(100), USDC.precision)
-const wethToSwapToUSDC = amountToWei(new BigNumber(100), ETH.precision)
+const wethToSwapToUSDCTo = amountToWei(new BigNumber(1), ETH.precision)
+const usdcToSteal = amountToWei(new BigNumber(10000), USDC.precision)
 
 async function getStEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
   const args: OpenPositionTypes[0] = {
@@ -87,7 +88,7 @@ export async function createStEthUsdcMultiplyAAVEPosition({
     proxy: proxy,
   })
 
-  await getTokens('USDC', wethToSwapToUSDC)
+  await getTokens('USDC', use1inch ? wethToSwapToUSDCTo : usdcToSteal)
 
   await approve(mainnetAddresses.USDC, proxy, amountInBaseUnit, config)
 

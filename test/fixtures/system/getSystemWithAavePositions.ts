@@ -1,6 +1,6 @@
 import { AaveVersion, protocols, strategies } from '@oasisdex/oasis-actions/src'
 
-import { buildGetTokenFunction } from '../../../helpers/aave/'
+import { buildGetTokenByImpersonateFunction, buildGetTokenFunction } from '../../../helpers/aave/'
 import init, { resetNode, resetNodeToLatestBlock } from '../../../helpers/init'
 import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
@@ -33,7 +33,11 @@ export const getSystemWithAavePositions =
   async (): Promise<SystemWithAAVEPositions> => {
     const config = await init()
 
-    const getTokens = buildGetTokenFunction(config, await import('hardhat'))
+    // If you update test block numbers you may run into issues where whale addresses
+    // We use impersonation on test block number but with 1inch we use uniswap
+    const getTokens = use1inch
+      ? buildGetTokenFunction(config, await import('hardhat'))
+      : buildGetTokenByImpersonateFunction(config, await import('hardhat'))
     const useFallbackSwap = !use1inch
     if (testBlockNumber && useFallbackSwap) {
       await resetNode(config.provider, testBlockNumber)

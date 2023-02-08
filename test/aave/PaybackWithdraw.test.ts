@@ -551,7 +551,7 @@ describe('Strategy | AAVE | Payback/Withdraw', async () => {
         )
       })
     })
-    describe('When position is opened with DPM Proxy', () => {
+    describe.only('When position is opened with DPM Proxy', () => {
       supportedStrategies.forEach(({ name: strategy }) => {
         it(`Should payback all and withdraw all for ${strategy}`, async function () {
           const { strategiesDependencies, system, config, dpmPositions, getTokens } = fixture

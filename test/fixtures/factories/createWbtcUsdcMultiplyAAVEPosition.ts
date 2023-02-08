@@ -14,10 +14,11 @@ import {
 } from '../../../packages/oasis-actions/src/protocols/aave/config'
 import { mainnetAddresses } from '../../addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
-import { ETH, MULTIPLE, SLIPPAGE, USDC, WBTC } from './common'
+import { MULTIPLE, SLIPPAGE, USDC, WBTC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
+
 const amountInBaseUnit = amountToWei(new BigNumber(1), WBTC.precision)
-const wethToSwapToWBTC = amountToWei(new BigNumber(100), ETH.precision)
+const wBTCtoSteal = amountToWei(new BigNumber(2), WBTC.precision)
 
 async function openWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
   const args: OpenPositionTypes[0] = {
@@ -86,7 +87,7 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     proxy: proxy,
   })
 
-  await getTokens('WBTC', wethToSwapToWBTC)
+  await getTokens('WBTC', wBTCtoSteal)
 
   await approve(WBTC.address, proxy, amountInBaseUnit, config, false)
 
