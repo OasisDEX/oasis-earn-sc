@@ -1,4 +1,3 @@
-import { amountToWei } from '@helpers/utils'
 import { AaveVersion, ADDRESSES, CONTRACT_NAMES, protocols } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
@@ -7,11 +6,8 @@ import init from '../../helpers/init'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { createDPMAccount } from '../../test/fixtures/factories'
-import { ETH } from '../../test/fixtures/factories/common'
 import { createWstEthEthEarnAAVEPosition } from '../../test/fixtures/factories/createWstEthEthEarnAAVEPosition'
 import { StrategyDependenciesAaveV3 } from '../../test/fixtures/types/strategiesDependencies'
-
-const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
 
 task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
   .addOptionalParam<string>('serviceregistry', 'Service Registry address')

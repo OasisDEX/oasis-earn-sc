@@ -9,7 +9,7 @@ import AavePoolAbi from '../../abi/external/aave/v3/pool.json'
 import { createDeploy } from '../../helpers/deploy'
 import init from '../../helpers/init'
 import { ServiceRegistry } from '../../helpers/serviceRegistry'
-import { AaveV3Pool } from '../../typechain/abi/external/AaveV3Pool'
+import { Pool } from '../../typechain'
 
 const utils = ethers.utils
 chai.use(smock.matchers)
@@ -20,7 +20,7 @@ describe('AAVE | PaybackV3 Action', () => {
   let paybackV3Action: Contract
   let paybackV3ActionAddress: string
   let snapshotId: string
-  let fakePool: FakeContract<AaveV3Pool>
+  let fakePool: FakeContract<Pool>
   let tx: any
 
   const expectedValues = {
@@ -44,7 +44,7 @@ describe('AAVE | PaybackV3 Action', () => {
       operationExecutorAddress,
     ])
 
-    fakePool = await smock.fake<AaveV3Pool>(AavePoolAbi)
+    fakePool = await smock.fake<Pool>(AavePoolAbi)
     fakePool.repay.returns()
 
     await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, fakePool.address)
