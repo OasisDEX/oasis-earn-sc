@@ -369,6 +369,7 @@ export class Position implements IPosition {
           )}`,
 
           `Target loan-to-value: ${targetLTV.toString()}`,
+          `Target multiple: ${targetRiskRatio.multiple.toString()}`,
         ],
         'Params: ',
       )
@@ -584,6 +585,9 @@ export class Position implements IPosition {
           `Normalised target position collateral ${targetPosition.collateral.normalisedAmount.toString()}`,
           `Target position debt ${targetPosition.debt.amount.toString()}`,
           `Target position collateral ${targetPosition.collateral.amount.toString()}`,
+          `----`,
+          `Oracle price ${oraclePrice.toString()}`,
+          `New Position Multiple ${targetPosition.riskRatio.multiple}`,
         ],
         'Output: ',
       )

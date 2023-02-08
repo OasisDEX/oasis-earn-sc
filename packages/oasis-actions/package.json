@@ -1,8 +1,8 @@
 {
   "name": "@oasisdex/oasis-actions",
+  "main": "lib/packages/oasis-actions/src/index.js",
+  "typings": "lib/packages/oasis-actions/src/index.d.ts",
   "version": "0.1.17",
-  "main": "lib/src/index.js",
-  "typings": "lib/src/index.d.ts",
   "scripts": {
     "build": "tsc -b",
     "watch": "tsc -b -w",

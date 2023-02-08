@@ -1,10 +1,10 @@
-import { ADDRESSES, CONTRACT_NAMES, strategies } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, protocols, strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { task, types } from 'hardhat/config'
 
-import AAVEDataProviderABI from '../../abi/aaveDataProvider.json'
-import AAVELendigPoolABI from '../../abi/aaveLendingPool.json'
 import DSProxyABI from '../../abi/ds-proxy.json'
+import AAVELendingPoolABI from '../../abi/external/aave/v2/lendingPool.json'
+import AAVEDataProviderABI from '../../abi/external/aave/v2/protocolDataProvider.json'
 import { AAVEAccountData, AAVEReserveData } from '../../helpers/aave'
 import { executeThroughProxy } from '../../helpers/deploy'
 import init from '../../helpers/init'
@@ -12,6 +12,7 @@ import { getOrCreateProxy } from '../../helpers/proxy'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { balanceOf } from '../../helpers/utils'
+import { mainnetAddresses } from '../../test/addresses'
 
 function amountToWei(amount: BigNumber.Value, precision = 18) {
   BigNumber.config({ EXPONENTIAL_AT: 30 })
@@ -66,27 +67,14 @@ task('createPosition', 'Create stETH position on AAVE')
 
     const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
 
-    const mainnetAddresses = {
-      DAI: ADDRESSES.main.DAI,
-      ETH: ADDRESSES.main.ETH,
-      WETH: ADDRESSES.main.WETH,
-      STETH: ADDRESSES.main.STETH,
-      WBTC: ADDRESSES.main.WBTC,
-      USDC: ADDRESSES.main.USDC,
-      chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-      aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-      aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
-      operationExecutor: operationExecutorAddress,
-      aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
-    }
     const aaveLendingPool = new hre.ethers.Contract(
-      ADDRESSES.main.aave.MainnetLendingPool,
-      AAVELendigPoolABI,
+      ADDRESSES.main.aave.v2.LendingPool,
+      AAVELendingPoolABI,
       config.provider,
     )
 
     const aaveDataProvider = new hre.ethers.Contract(
-      ADDRESSES.main.aave.DataProvider,
+      ADDRESSES.main.aave.v2.ProtocolDataProvider,
       AAVEDataProviderABI,
       config.provider,
     )
@@ -115,6 +103,14 @@ task('createPosition', 'Create stETH position on AAVE')
     const collateralToken = { symbol: 'STETH' as const }
     const proxy = dsProxy.address
 
+    const addresses = {
+      ...mainnetAddresses,
+      operationExecutor: operationExecutorAddress,
+      priceOracle: mainnetAddresses.aave.v2.priceOracle,
+      lendingPool: mainnetAddresses.aave.v2.lendingPool,
+      protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
+    }
+
     const positionTransition = await strategies.aave.open(
       {
         depositedByUser: { debtToken: { amountInBaseUnit: depositAmount } },
@@ -125,25 +121,32 @@ task('createPosition', 'Create stETH position on AAVE')
         positionType: 'Earn',
       },
       {
-        addresses: mainnetAddresses,
+        addresses: {
+          ...addresses,
+        },
         provider: config.provider,
         getSwapData: swapData,
         proxy,
         user: config.address,
         isDPMProxy: false,
+        protocol: {
+          getCurrentPosition: strategies.aave.view,
+          getProtocolData: protocols.aave.getAaveProtocolData,
+          version: 2,
+        },
       },
     )
 
     const operationExecutor = await hre.ethers.getContractAt(
       CONTRACT_NAMES.common.OPERATION_EXECUTOR,
-      mainnetAddresses.operationExecutor,
+      addresses.operationExecutor,
       config.signer,
     )
 
     const [txStatus, tx] = await executeThroughProxy(
       dsProxy.address,
       {
-        address: mainnetAddresses.operationExecutor,
+        address: addresses.operationExecutor,
         calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
           positionTransition.transaction.calls,
           positionTransition.transaction.operationName,

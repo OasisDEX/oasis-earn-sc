@@ -5,11 +5,21 @@ export const mainnetAddresses = {
   ETH: ADDRESSES.main.ETH,
   WETH: ADDRESSES.main.WETH,
   STETH: ADDRESSES.main.STETH,
+  WSTETH: ADDRESSES.main.WSTETH,
   WBTC: ADDRESSES.main.WBTC,
   USDC: ADDRESSES.main.USDC,
   feeRecipient: ADDRESSES.main.feeRecipient,
   chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-  aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
-  aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-  aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
+  aave: {
+    v2: {
+      priceOracle: ADDRESSES.main.aave.v2.PriceOracle,
+      lendingPool: ADDRESSES.main.aave.v2.LendingPool,
+      protocolDataProvider: ADDRESSES.main.aave.v2.ProtocolDataProvider,
+    },
+    v3: {
+      aaveOracle: ADDRESSES.main.aave.v3.AaveOracle,
+      pool: ADDRESSES.main.aave.v3.Pool,
+      aaveProtocolDataProvider: ADDRESSES.main.aave.v3.AaveProtocolDataProvider,
+    },
+  },
 }

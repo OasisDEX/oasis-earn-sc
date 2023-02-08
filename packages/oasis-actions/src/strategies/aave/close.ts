@@ -3,10 +3,9 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { memoizeWith } from 'ramda'
 
-import aavePriceOracleABI from '../../abi/aavePriceOracle.json'
-import aaveProtocolDataProviderABI from '../../abi/aaveProtocolDataProvider.json'
+import aavePriceOracleABI from '../../../../../abi/external/aave/v2/priceOracle.json'
+import aaveProtocolDataProviderABI from '../../../../../abi/external/aave/v2/protocolDataProvider.json'
 import { amountFromWei, amountToWei, calculateFee } from '../../helpers'
-import { acceptedFeeToken } from '../../helpers/acceptedFeeToken'
 import { ADDRESSES } from '../../helpers/addresses'
 import { Position } from '../../helpers/calculations/Position'
 import {
@@ -18,8 +17,9 @@ import {
   TYPICAL_PRECISION,
   ZERO,
 } from '../../helpers/constants'
+import { acceptedFeeToken } from '../../helpers/swap/acceptedFeeToken'
 import * as operations from '../../operations'
-import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
+import { AAVEStrategyAddresses } from '../../operations/aave/v2'
 import {
   IBasePositionTransitionArgs,
   IOperation,
@@ -29,16 +29,16 @@ import {
   WithLockedCollateral,
 } from '../../types'
 import { AAVETokens } from '../../types/aave'
-import { getAAVETokenAddresses } from './getAAVETokenAddresses'
+import { getAaveTokenAddresses } from './getAaveTokenAddresses'
 
-type AAVECloseArgs = IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral
-type AAVECloseDependencies = IPositionTransitionDependencies<AAVEStrategyAddresses> & {
+type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral
+type AaveCloseDependencies = IPositionTransitionDependencies<AAVEStrategyAddresses> & {
   shouldCloseToCollateral: boolean
 }
 
 export async function close(
-  args: AAVECloseArgs,
-  dependencies: AAVECloseDependencies,
+  args: AaveCloseArgs,
+  dependencies: AaveCloseDependencies,
 ): Promise<IPositionTransition> {
   const getSwapData = dependencies.shouldCloseToCollateral
     ? getSwapDataToCloseToCollateral
@@ -51,11 +51,11 @@ export async function close(
 }
 
 async function getSwapDataToCloseToCollateral(
-  { debtToken, collateralToken, slippage }: AAVECloseArgs,
-  dependencies: AAVECloseDependencies,
+  { debtToken, collateralToken, slippage }: AaveCloseArgs,
+  dependencies: AaveCloseDependencies,
 ) {
   const { addresses } = dependencies
-  const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
+  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken, collateralToken },
     addresses,
   )
@@ -157,11 +157,11 @@ async function getSwapDataToCloseToCollateral(
 }
 
 async function getSwapDataToCloseToDebt(
-  { debtToken, collateralToken, slippage, collateralAmountLockedInProtocolInWei }: AAVECloseArgs,
-  dependencies: AAVECloseDependencies,
+  { debtToken, collateralToken, slippage, collateralAmountLockedInProtocolInWei }: AaveCloseArgs,
+  dependencies: AaveCloseDependencies,
 ) {
   const { addresses } = dependencies
-  const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
+  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken, collateralToken },
     addresses,
   )
@@ -222,10 +222,10 @@ async function buildOperation(
   swapData: SwapData & {
     collectFeeFrom: 'sourceToken' | 'targetToken'
   },
-  args: AAVECloseArgs,
-  dependencies: AAVECloseDependencies,
+  args: AaveCloseArgs,
+  dependencies: AaveCloseDependencies,
 ): Promise<IOperation> {
-  const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
+  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
   )
@@ -266,50 +266,7 @@ async function buildOperation(
     isDPMProxy: dependencies.isDPMProxy,
     shouldCloseToCollateral: dependencies.shouldCloseToCollateral,
   }
-
-  return await operations.aave.close(closeArgs, dependencies.addresses)
-}
-
-async function getValuesFromProtocol(
-  collateralTokenAddress: string,
-  debtTokenAddress: string,
-  dependencies: AAVECloseDependencies,
-) {
-  /* Grabs all the protocol level services we need to resolve values */
-  const { aavePriceOracle, aaveProtocolDataProvider } = getAAVEProtocolServices(
-    dependencies.provider,
-    dependencies.addresses,
-  )
-
-  async function getAllAndMemoize() {
-    return Promise.all([
-      aavePriceOracle.getAssetPrice(ADDRESSES.main.DAI),
-      aavePriceOracle.getAssetPrice(collateralTokenAddress),
-      aavePriceOracle.getAssetPrice(debtTokenAddress),
-      aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
-    ])
-  }
-
-  return memoizeWith(() => collateralTokenAddress, getAllAndMemoize)()
-}
-
-function getAAVEProtocolServices(provider: Provider, addresses: AAVEStrategyAddresses) {
-  const aavePriceOracle = new ethers.Contract(
-    addresses.aavePriceOracle,
-    aavePriceOracleABI,
-    provider,
-  )
-
-  const aaveProtocolDataProvider = new ethers.Contract(
-    addresses.aaveProtocolDataProvider,
-    aaveProtocolDataProviderABI,
-    provider,
-  )
-
-  return {
-    aavePriceOracle,
-    aaveProtocolDataProvider,
-  }
+  return await operations.aave.v2.close(closeArgs, dependencies.addresses)
 }
 
 async function generateTransition(
@@ -317,11 +274,11 @@ async function generateTransition(
   collectFeeFrom: 'sourceToken' | 'targetToken',
   preSwapFee: BigNumber,
   operation: IOperation,
-  args: AAVECloseArgs,
-  dependencies: AAVECloseDependencies,
+  args: AaveCloseArgs,
+  dependencies: AaveCloseDependencies,
 ) {
   const currentPosition = dependencies.currentPosition
-  const { collateralTokenAddress, debtTokenAddress } = getAAVETokenAddresses(
+  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
   )
@@ -386,5 +343,43 @@ async function generateTransition(
         actualMarketPriceWithSlippage,
       ),
     },
+  }
+}
+
+async function getValuesFromProtocol(
+  collateralTokenAddress: string,
+  debtTokenAddress: string,
+  dependencies: AaveCloseDependencies,
+) {
+  /* Grabs all the protocol level services we need to resolve values */
+  const { aavePriceOracle, aaveProtocolDataProvider } = getAAVEProtocolServices(
+    dependencies.provider,
+    dependencies.addresses,
+  )
+
+  async function getAllAndMemoize() {
+    return Promise.all([
+      aavePriceOracle.getAssetPrice(ADDRESSES.main.DAI),
+      aavePriceOracle.getAssetPrice(collateralTokenAddress),
+      aavePriceOracle.getAssetPrice(debtTokenAddress),
+      aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
+    ])
+  }
+
+  return memoizeWith(() => collateralTokenAddress, getAllAndMemoize)()
+}
+
+function getAAVEProtocolServices(provider: Provider, addresses: AAVEStrategyAddresses) {
+  const aavePriceOracle = new ethers.Contract(addresses.priceOracle, aavePriceOracleABI, provider)
+
+  const aaveProtocolDataProvider = new ethers.Contract(
+    addresses.protocolDataProvider,
+    aaveProtocolDataProviderABI,
+    provider,
+  )
+
+  return {
+    aavePriceOracle,
+    aaveProtocolDataProvider,
   }
 }

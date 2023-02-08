@@ -1,6 +1,12 @@
 import assert from 'node:assert'
 
-import { ADDRESSES, CONTRACT_NAMES, strategies, ZERO } from '@oasisdex/oasis-actions'
+import {
+  AaveVersion,
+  ADDRESSES,
+  CONTRACT_NAMES,
+  strategies,
+  ZERO,
+} from '@oasisdex/oasis-actions/src'
 import { BigNumber } from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -8,7 +14,7 @@ import { loadFixture } from 'ethereum-waffle'
 import { executeThroughDPMProxy, executeThroughProxy } from '../../helpers/deploy'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { amountFromWei, balanceOf } from '../../helpers/utils'
-import { getSystemWithAAVEPositions, SystemWithAAVEPositions } from '../fixtures'
+import { getSystemWithAavePositions, SystemWithAAVEPositions } from '../fixtures'
 import { expectToBeEqual } from '../utils'
 
 const EXPECT_DEBT_BEING_PAID_BACK = 'Expect debt being paid back'
@@ -19,7 +25,7 @@ describe('Close Position to collateral', () => {
   let fixture: SystemWithAAVEPositions
 
   before(async () => {
-    fixture = await loadFixture(getSystemWithAAVEPositions({ use1inch: false }))
+    fixture = await loadFixture(getSystemWithAavePositions({ use1inch: true }))
     // Since we deploy the system without using 1inch, there fore the swap that's
     // assigned is uniswap. In our tests we would like to use the actual swap with 1inch.
     await fixture.registry.removeEntry(CONTRACT_NAMES.common.SWAP)
@@ -35,16 +41,19 @@ describe('Close Position to collateral', () => {
     const { addresses } = fixture.strategiesDependencies
     const { collateral: collateralToken, debt: debtToken } = await getPosition()
 
-    const currentPosition = await strategies.aave.view(
+    if (debtToken.symbol === 'WSTETH') throw new Error('Unsupported debt token')
+    if (collateralToken.symbol === 'WSTETH') throw new Error('Unsupported collateral token')
+
+    const currentPosition = await strategies.aave.v2.view(
       {
         collateralToken,
         debtToken,
         proxy,
       },
-      { addresses, provider },
+      { addresses, provider, protocolVersion: AaveVersion.v2 },
     )
 
-    const closeStrategy = await strategies.aave.close(
+    const closeStrategy = await strategies.aave.v2.close(
       {
         collateralToken,
         debtToken,
@@ -105,16 +114,19 @@ describe('Close Position to collateral', () => {
     const { addresses } = fixture.strategiesDependencies
     const { collateral: collateralToken, debt: debtToken } = await getPosition()
 
-    const currentPosition = await strategies.aave.view(
+    if (debtToken.symbol === 'WSTETH') throw new Error('Unsupported debt token')
+    if (collateralToken.symbol === 'WSTETH') throw new Error('Unsupported collateral token')
+
+    const currentPosition = await strategies.aave.v2.view(
       {
         collateralToken,
         debtToken,
         proxy,
       },
-      { addresses, provider },
+      { addresses, provider, protocolVersion: AaveVersion.v2 },
     )
 
-    const closeStrategy = await strategies.aave.close(
+    const closeStrategy = await strategies.aave.v2.close(
       {
         collateralToken,
         debtToken,
@@ -187,16 +199,16 @@ describe('Close Position to collateral', () => {
     const { addresses } = fixture.strategiesDependencies
     const { collateral: collateralToken, debt: debtToken } = await getPosition()
 
-    const currentPosition = await strategies.aave.view(
+    const currentPosition = await strategies.aave.v2.view(
       {
         collateralToken,
         debtToken,
         proxy,
       },
-      { addresses, provider },
+      { addresses, provider, protocolVersion: AaveVersion.v2 },
     )
 
-    const closeStrategy = await strategies.aave.close(
+    const closeStrategy = await strategies.aave.v2.close(
       {
         collateralToken,
         debtToken,

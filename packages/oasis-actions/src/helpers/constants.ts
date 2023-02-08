@@ -1,5 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 
+export const NO_FEE = 0
 export const DEFAULT_FEE = 20
 export const FEE_BASE = 10000
 
@@ -26,6 +27,7 @@ export const CONTRACT_NAMES = {
     RETURN_FUNDS: 'ReturnFunds_3',
     POSITION_CREATED: 'PositionCreated',
 
+    ACCOUNT_FACTORY: 'AccountFactory',
     OPERATION_EXECUTOR: 'OperationExecutor_2',
     OPERATION_STORAGE: 'OperationStorage_2',
     OPERATIONS_REGISTRY: 'OperationsRegistry_2',
@@ -38,12 +40,22 @@ export const CONTRACT_NAMES = {
     DAI: 'DAI',
   },
   aave: {
-    DEPOSIT: 'AaveDeposit_3',
-    WITHDRAW: 'AaveWithdraw_3',
-    BORROW: 'AaveBorrow_3',
-    PAYBACK: 'AavePayback_3',
-    LENDING_POOL: 'AaveLendingPool',
-    WETH_GATEWAY: 'AaveWethGateway',
+    v2: {
+      DEPOSIT: 'AaveDeposit_3',
+      WITHDRAW: 'AaveWithdraw_3',
+      BORROW: 'AaveBorrow_3',
+      PAYBACK: 'AavePayback_3',
+      LENDING_POOL: 'AaveLendingPool',
+      WETH_GATEWAY: 'AaveWethGateway',
+    },
+    v3: {
+      DEPOSIT: 'AaveV3Deposit',
+      WITHDRAW: 'AaveV3Withdraw',
+      BORROW: 'AaveV3Borrow',
+      PAYBACK: 'AaveV3Payback',
+      AAVE_POOL: 'AavePool',
+      SET_EMODE: 'AaveV3SetEMode',
+    },
   },
   maker: {
     DEPOSIT: 'MakerDeposit',
@@ -74,15 +86,28 @@ export type ContractNames = AllValues<typeof CONTRACT_NAMES>
 
 export const OPERATION_NAMES = {
   aave: {
-    OPEN_POSITION: 'OpenAAVEPosition',
-    CLOSE_POSITION: 'CloseAAVEPosition_2',
-    INCREASE_POSITION: 'IncreaseAAVEPosition',
-    DECREASE_POSITION: 'DecreaseAAVEPosition',
-    DEPOSIT_BORROW: 'AAVEDepositBorrow',
-    DEPOSIT: 'AAVEDeposit',
-    OPEN_DEPOSIT_BORROW: 'AAVEOpenDepositBorrow',
-    BORROW: 'AAVEBorrow',
-    PAYBACK_WITHDRAW: 'AAVEPaybackWithdraw_2',
+    v2: {
+      OPEN_POSITION: 'OpenAAVEPosition',
+      CLOSE_POSITION: 'CloseAAVEPosition_2',
+      INCREASE_POSITION: 'IncreaseAAVEPosition',
+      DECREASE_POSITION: 'DecreaseAAVEPosition',
+      DEPOSIT_BORROW: 'AAVEDepositBorrow',
+      OPEN_DEPOSIT_BORROW: 'AAVEOpenDepositBorrow',
+      DEPOSIT: 'AAVEDeposit',
+      BORROW: 'AAVEBorrow',
+      PAYBACK_WITHDRAW: 'AAVEPaybackWithdraw_2',
+    },
+    v3: {
+      OPEN_POSITION: 'OpenAAVEV3Position',
+      CLOSE_POSITION: 'CloseAAVEV3Position',
+      INCREASE_POSITION: 'IncreaseAAVEV3Position',
+      DECREASE_POSITION: 'DecreaseAAVEV3Position',
+      DEPOSIT_BORROW: 'AAVEV3DepositBorrow',
+      OPEN_DEPOSIT_BORROW: 'AAVEV3OpenDepositBorrow',
+      DEPOSIT: 'AAVEV3Deposit',
+      BORROW: 'AAVEV3Borrow',
+      PAYBACK_WITHDRAW: 'AAVEV3PaybackWithdraw',
+    },
   },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',
@@ -101,10 +126,15 @@ export const OPERATION_NAMES = {
 } as const
 
 type ValuesOf<T> = T[keyof T]
-type AAVEOperations = ValuesOf<typeof OPERATION_NAMES['aave']>
+type AaveV2Operations = ValuesOf<typeof OPERATION_NAMES['aave']['v2']>
+type AaveV3Operations = ValuesOf<typeof OPERATION_NAMES['aave']['v3']>
 type MakerOperations = ValuesOf<typeof OPERATION_NAMES['maker']>
 type CommonOperations = ValuesOf<typeof OPERATION_NAMES['common']>
-export type OperationNames = CommonOperations | AAVEOperations | MakerOperations
+export type OperationNames =
+  | CommonOperations
+  | AaveV2Operations
+  | AaveV3Operations
+  | MakerOperations
 
 // If configuring a low LTV, we might not need a flashloan (therefore flashloan == 0), but we still perform
 // the swap because the actions in operation executor pass args to each other referenced via index.

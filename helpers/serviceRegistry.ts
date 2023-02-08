@@ -1,4 +1,4 @@
-import { ContractNames } from '@oasisdex/oasis-actions'
+import { ContractNames } from '@oasisdex/oasis-actions/src'
 import { Signer, utils } from 'ethers'
 
 export class ServiceRegistry {

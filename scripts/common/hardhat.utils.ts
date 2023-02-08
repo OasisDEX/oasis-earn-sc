@@ -82,19 +82,19 @@ export class HardhatUtils {
         this.addresses.MAKER_WITHDRAW_ACTION,
       ),
       aaveBorrow: await this.getContractAt(
-        CONTRACT_NAMES.aave.BORROW,
+        CONTRACT_NAMES.aave.v2.BORROW,
         this.addresses.AAVE_BORROW_ACTION,
       ),
       aaveDeposit: await this.getContractAt(
-        CONTRACT_NAMES.aave.DEPOSIT,
+        CONTRACT_NAMES.aave.v2.DEPOSIT,
         this.addresses.AAVE_DEPOSIT_ACTION,
       ),
       aaveWithdraw: await this.getContractAt(
-        CONTRACT_NAMES.aave.WITHDRAW,
+        CONTRACT_NAMES.aave.v2.WITHDRAW,
         this.addresses.AAVE_WITHDRAW_ACTION,
       ),
       aavePayback: await this.getContractAt(
-        CONTRACT_NAMES.aave.PAYBACK,
+        CONTRACT_NAMES.aave.v2.PAYBACK,
         this.addresses.AAVE_PAYBACK_ACTION,
       ),
       pullToken: await this.getContractAt(

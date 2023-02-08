@@ -1,15 +1,25 @@
-import { strategies } from '@oasisdex/oasis-actions/src'
+import { AaveVersion, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
+import {
+  AaveV2OpenDependencies,
+  AaveV3OpenDependencies,
+} from '@oasisdex/oasis-actions/src/strategies/aave/open/open'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, approve, balanceOf } from '../../../helpers/utils'
+import {
+  aaveV2UniqueContractName,
+  aaveV3UniqueContractName,
+} from '../../../packages/oasis-actions/src/protocols/aave/config'
 import { mainnetAddresses } from '../../addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
-import { MULTIPLE, SLIPPAGE, USDC, WBTC } from './common'
+import { ETH, MULTIPLE, SLIPPAGE, USDC, WBTC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-const amountInBaseUnit = amountToWei(new BigNumber(1), WBTC.precision)
+const amountInBaseUnit = amountToWei(new BigNumber(0.5), WBTC.precision)
+const wBTCtoSteal = amountToWei(new BigNumber(2), WBTC.precision)
+const WETHtoSwap = amountToWei(new BigNumber(20), ETH.precision)
 
 async function openWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
   const args: OpenPositionTypes[0] = {
@@ -21,11 +31,26 @@ async function openWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[
         amountInBaseUnit,
       },
     },
-    multiple: MULTIPLE,
+    multiple: new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE),
     positionType: 'Multiply',
   }
 
-  return await strategies.aave.open(args, dependencies)
+  if (isV2(dependencies)) {
+    return await strategies.aave.v2.open(args, dependencies)
+  }
+  if (isV3(dependencies)) {
+    return await strategies.aave.v3.open(args, dependencies)
+  }
+
+  throw new Error('Unsupported protocol version')
+}
+
+function isV2(dependencies: OpenPositionTypes[1]): dependencies is AaveV2OpenDependencies {
+  return dependencies.protocol.version === AaveVersion.v2
+}
+
+function isV3(dependencies: OpenPositionTypes[1]): dependencies is AaveV3OpenDependencies {
+  return dependencies.protocol.version === AaveVersion.v3
 }
 
 export async function createWbtcUsdcMultiplyAAVEPosition({
@@ -43,7 +68,7 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
   swapAddress?: string
   dependencies: StrategiesDependencies
   config: RuntimeConfig
-  getTokens: (symbol: 'WBTC', amount: string) => Promise<boolean>
+  getTokens: (symbol: 'WBTC', amount: BigNumber) => Promise<boolean>
 }): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'WBTC/USDC Multiply'
 
@@ -63,7 +88,10 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     proxy: proxy,
   })
 
-  await getTokens('WBTC', amountInBaseUnit.toString())
+  // We're using uniswap to acquire tokens on recent blocks
+  // And impersonation on fixed test blocks
+  const amountToGet = use1inch ? WETHtoSwap : wBTCtoSteal
+  await getTokens('WBTC', amountToGet)
 
   await approve(WBTC.address, proxy, amountInBaseUnit, config, false)
 
@@ -102,24 +130,62 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     },
   )
 
-  return {
-    proxy: proxy,
-    getPosition: async () => {
-      return await strategies.aave.view(
+  let getPosition
+  if (
+    dependencies.protocol.version === AaveVersion.v3 &&
+    aaveV3UniqueContractName in dependencies.addresses
+  ) {
+    const addresses = dependencies.addresses
+    const protocolVersion = dependencies.protocol.version
+
+    getPosition = async () => {
+      return await strategies.aave.v3.view(
         {
           collateralToken: WBTC,
           debtToken: USDC,
-          proxy: proxy,
+          proxy,
         },
         {
           addresses: {
-            ...dependencies.addresses,
+            ...addresses,
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
+          protocolVersion: protocolVersion,
         },
       )
-    },
+    }
+  }
+  if (
+    dependencies.protocol.version === AaveVersion.v2 &&
+    aaveV2UniqueContractName in dependencies.addresses
+  ) {
+    const addresses = dependencies.addresses
+    const protocolVersion = dependencies.protocol.version
+    getPosition = async () => {
+      return await strategies.aave.v2.view(
+        {
+          collateralToken: WBTC,
+          debtToken: USDC,
+          proxy,
+        },
+        {
+          addresses: {
+            ...addresses,
+            operationExecutor: dependencies.contracts.operationExecutor.address,
+          },
+          provider: config.provider,
+          protocolVersion,
+        },
+      )
+    }
+  }
+
+  if (!getPosition) throw new Error('getPosition is not defined')
+
+  return {
+    proxy: proxy,
+    getPosition,
     strategy,
     collateralToken: WBTC,
     debtToken: USDC,

@@ -10,7 +10,7 @@ import {
   CONTRACT_NAMES,
   OPERATION_NAMES,
   ZERO,
-} from '@oasisdex/oasis-actions'
+} from '@oasisdex/oasis-actions/src'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'hardhat'
 
@@ -91,14 +91,14 @@ async function main() {
     serviceRegistryAddress,
     ADDRESSES.main.DAI,
   ])
-  const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.DEPOSIT, [
+  const [, depositInAAVEAddress] = await deploy(CONTRACT_NAMES.aave.v2.DEPOSIT, [
     serviceRegistryAddress,
   ])
-  const [, borrowFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.BORROW, [
+  const [, borrowFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.v2.BORROW, [
     serviceRegistryAddress,
   ])
 
-  const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.WITHDRAW, [
+  const [, withdrawFromAAVEAddress] = await deploy(CONTRACT_NAMES.aave.v2.WITHDRAW, [
     serviceRegistryAddress,
   ])
   const [, operationStorageAddress] = await deploy(CONTRACT_NAMES.common.OPERATION_STORAGE, [
@@ -134,6 +134,8 @@ async function main() {
 
   const [, returnFundsActionAddress] = await deploy(CONTRACT_NAMES.common.RETURN_FUNDS, [])
 
+  const [, positionCreatedAddress] = await deploy(CONTRACT_NAMES.common.POSITION_CREATED, [])
+
   //SETUP REGISTRY ENTRIES:
   console.log('DEBUG SETTING UP REGISTRY ENTRIES...')
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
@@ -153,12 +155,15 @@ async function main() {
     flActionAddress,
   )
   const depositInAAVEHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.DEPOSIT,
+    CONTRACT_NAMES.aave.v2.DEPOSIT,
     depositInAAVEAddress,
   )
-  const aaveBorrowHash = await registry.addEntry(CONTRACT_NAMES.aave.BORROW, borrowFromAAVEAddress)
+  const aaveBorrowHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v2.BORROW,
+    borrowFromAAVEAddress,
+  )
   const withdrawFromAAVEHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.WITHDRAW,
+    CONTRACT_NAMES.aave.v2.WITHDRAW,
     withdrawFromAAVEAddress,
   )
 
@@ -169,8 +174,8 @@ async function main() {
     swapActionAddress,
   )
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES.main.maker.jug)
-  await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
-  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
+  await registry.addEntry(CONTRACT_NAMES.aave.v2.LENDING_POOL, ADDRESSES.main.aave.v2.LendingPool)
+  await registry.addEntry(CONTRACT_NAMES.aave.v2.WETH_GATEWAY, ADDRESSES.main.aave.v2.WETHGateway)
   await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
   await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
   await registry.addEntry(
@@ -178,10 +183,13 @@ async function main() {
     ADDRESSES.main.oneInchAggregator,
   )
 
-  await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
+  const wrapEthHash = await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
   await registry.addEntry(CONTRACT_NAMES.common.UNWRAP_ETH, unwrapActionAddress)
-
   await registry.addEntry(CONTRACT_NAMES.common.RETURN_FUNDS, returnFundsActionAddress)
+  const positionCreatedHash = await registry.addEntry(
+    CONTRACT_NAMES.common.POSITION_CREATED,
+    positionCreatedAddress,
+  )
 
   // PULL TOKEN ACTION
   const pullToken = createAction(
@@ -217,7 +225,7 @@ async function main() {
       {
         amount: flashloanAmount.plus(depositAmount).toFixed(0),
         asset: ADDRESSES.main.DAI,
-        delegator: ADDRESSES.main.aave.MainnetLendingPool,
+        delegator: ADDRESSES.main.aave.v2.LendingPool,
       },
     ],
   )
@@ -318,20 +326,53 @@ async function main() {
       },
     ],
   )
-  await operationsRegistry.addOp(
-    OPERATION_NAMES.aave.OPEN_POSITION,
-    [
-      pullTokenHash,
-      takeAFlashloanHash,
-      setApprovalHash,
-      depositInAAVEHash,
-      aaveBorrowHash,
-      swapActionHash,
-      withdrawFromAAVEHash,
-      sendTokenHash,
-    ],
-    Array(8).fill(false),
-  )
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.OPEN_POSITION, [
+    {
+      hash: takeAFlashloanHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEHash,
+      optional: false,
+    },
+    {
+      hash: aaveBorrowHash,
+      optional: false,
+    },
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: depositInAAVEHash,
+      optional: false,
+    },
+    {
+      hash: withdrawFromAAVEHash,
+      optional: false,
+    },
+    { hash: positionCreatedHash, optional: false },
+  ])
 
   await approve(ADDRESSES.main.DAI, proxyAddress, depositAmount, config, true)
 
@@ -341,7 +382,7 @@ async function main() {
       address: operationExecutorAddress,
       calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
         [pullToken, takeAFlashloan],
-        OPERATION_NAMES.aave.OPEN_POSITION,
+        OPERATION_NAMES.aave.v2.OPEN_POSITION,
       ]),
     },
     signer,

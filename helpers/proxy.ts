@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/oasis-actions'
+import { ADDRESSES } from '@oasisdex/oasis-actions/src'
 import { Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
