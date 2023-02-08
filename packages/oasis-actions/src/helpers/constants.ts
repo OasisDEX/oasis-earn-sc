@@ -27,6 +27,7 @@ export const CONTRACT_NAMES = {
     RETURN_FUNDS: 'ReturnFunds_3',
     POSITION_CREATED: 'PositionCreated',
 
+    ACCOUNT_FACTORY: 'AccountFactory',
     OPERATION_EXECUTOR: 'OperationExecutor_2',
     OPERATION_STORAGE: 'OperationStorage_2',
     OPERATIONS_REGISTRY: 'OperationsRegistry_2',
@@ -102,6 +103,7 @@ export const OPERATION_NAMES = {
       INCREASE_POSITION: 'IncreaseAAVEV3Position',
       DECREASE_POSITION: 'DecreaseAAVEV3Position',
       DEPOSIT_BORROW: 'AAVEV3DepositBorrow',
+      OPEN_DEPOSIT_BORROW: 'AAVEV3OpenDepositBorrow',
       DEPOSIT: 'AAVEV3Deposit',
       BORROW: 'AAVEV3Borrow',
       PAYBACK_WITHDRAW: 'AAVEV3PaybackWithdraw',
