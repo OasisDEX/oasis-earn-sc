@@ -14,6 +14,6 @@
       "@helpers/*": ["./helpers/*"]
     }
   },
-  "include": ["abi/**/*","./helpers", "./scripts", "./test", "packages/*", "typechain/**/*"],
+  "include": ["abi/**/*","./helpers", "./scripts", "./test", "packages/**/*", "typechain/**/*", "tasks/**/*"],
   "files": ["./hardhat.config.ts"]
 }
