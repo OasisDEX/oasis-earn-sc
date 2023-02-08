@@ -205,7 +205,9 @@ async function deployCommonActions(args: {
     console.log('DEPLOYING COMMON CONTRACTS')
   }
   const [, pullTokenActionAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
-  const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
+  const [, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [
+    serviceRegistryAddress,
+  ])
   const [, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
     serviceRegistryAddress,
   ])
