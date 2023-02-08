@@ -104,14 +104,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         })
       })
     })
-    describe.only('Open position: With 1inch', function () {
-      this.retries(2)
-
+    describe('Open position: With 1inch', function () {
       before(async () => {
         fixture = await loadFixture(getSystemWithAavePositions({ use1inch: true }))
       })
 
-      describe.skip('Using DSProxy', () => {
+      describe('Using DSProxy', () => {
         let position: IPosition
         let simulatedPosition: IPosition
         let simulatedTransition: IPositionTransition['simulation']

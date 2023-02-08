@@ -41,6 +41,9 @@ describe('Close Position to collateral', () => {
     const { addresses } = fixture.strategiesDependencies
     const { collateral: collateralToken, debt: debtToken } = await getPosition()
 
+    if (debtToken.symbol === 'WSTETH') throw new Error('Unsupported debt token')
+    if (collateralToken.symbol === 'WSTETH') throw new Error('Unsupported collateral token')
+
     const currentPosition = await strategies.aave.v2.view(
       {
         collateralToken,
@@ -110,6 +113,9 @@ describe('Close Position to collateral', () => {
     const { proxy, getPosition } = position
     const { addresses } = fixture.strategiesDependencies
     const { collateral: collateralToken, debt: debtToken } = await getPosition()
+
+    if (debtToken.symbol === 'WSTETH') throw new Error('Unsupported debt token')
+    if (collateralToken.symbol === 'WSTETH') throw new Error('Unsupported collateral token')
 
     const currentPosition = await strategies.aave.v2.view(
       {
