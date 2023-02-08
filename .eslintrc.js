@@ -18,6 +18,9 @@ module.exports = {
   },
   settings: {
     'import/resolver': {
+      typescript: {
+        project: ['tsconfig.json', 'packages/oasis-actions/tsconfig.json'],
+      },
       node: {
         extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts'],
       },

@@ -6,6 +6,10 @@
     "types": [
       "node"
     ],
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    },
     "esModuleInterop": true,
     "typeRoots": [
       "../node_modules/@types"
