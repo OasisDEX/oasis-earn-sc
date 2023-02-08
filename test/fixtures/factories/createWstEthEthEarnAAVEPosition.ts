@@ -34,9 +34,11 @@ async function openWstEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1])
   }
 
   if (isV2(dependencies)) {
+    console.log('opening v2')
     return await strategies.aave.v2.open(args, dependencies)
   }
   if (isV3(dependencies)) {
+    console.log('opening v3')
     return await strategies.aave.v3.open(args, dependencies)
   }
 

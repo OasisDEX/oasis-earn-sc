@@ -3,21 +3,21 @@ import { AaveVersion, ADDRESSES, CONTRACT_NAMES, protocols } from '@oasisdex/oas
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
-import { buildGetTokenFunction } from '../../helpers/aave'
 import init from '../../helpers/init'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { createDPMAccount } from '../../test/fixtures/factories'
+import { ETH } from '../../test/fixtures/factories/common'
 import { createWstEthEthEarnAAVEPosition } from '../../test/fixtures/factories/createWstEthEthEarnAAVEPosition'
 import { StrategyDependenciesAaveV3 } from '../../test/fixtures/types/strategiesDependencies'
+
+const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
 
 task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
   .addOptionalParam<string>('serviceregistry', 'Service Registry address')
   .addFlag('usefallbackswap', 'Use fallback swap')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
-
-    const getTokens = buildGetTokenFunction(config, hre)
 
     const serviceRegistryAddress = taskArgs.serviceregistry || process.env.SERVICE_REGISTRY_ADDRESS
 
@@ -26,11 +26,6 @@ task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
     if (!serviceRegistryAddress) {
       throw new Error('ServiceRegistry params or SERVICE_REGISTRY_ADDRESS env variable is not set')
     }
-
-    console.log('getting tokens....')
-    await getTokens('WSTETH', amountToWei(1))
-
-    console.log('get tokens done')
 
     const serviceRegistryAbi = [
       {
