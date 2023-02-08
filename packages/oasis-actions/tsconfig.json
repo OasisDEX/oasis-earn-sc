@@ -8,18 +8,19 @@
     ],
     "baseUrl": "./src",
     "paths": {
+      "@/abi/*": ["./abi/*"],
       "@/types/common": ["./types/common"],
       "@/types/ajna": ["./types/ajna"],
       "@/types/aave": ["./types/aave"],
       "@/types": ["./types"],
-      "@/abi/*": ["./abi/*"],
       "@/helpers/calculations": ["./helpers/calculations"],
       "@/helpers/addresses": ["./helpers/addresses"],
-      "@/strategies": ["./strategies"],
-      "@/views": ["./views"],
-      "@/operations": ["./operations"],
+      "@/helpers/ajna": ["./helpers/ajna"],
+      "@/helpers": ["./helpers"],
       "@/actions": ["./actions"],
-      "@/helpers/ajna": ["./helpers/ajna"]
+      "@/operations": ["./operations"],
+      "@/strategies": ["./strategies"],
+      "@/views": ["./views"]
     },
     "esModuleInterop": true,
     "typeRoots": [
