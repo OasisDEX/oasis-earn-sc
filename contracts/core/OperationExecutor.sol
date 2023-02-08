@@ -15,6 +15,7 @@ import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Operation Executor
@@ -80,6 +81,10 @@ contract OperationExecutor is IERC3156FlashBorrower {
       }
       if (!calls[current].skipped) {
         address target = registry.getServiceAddress(calls[current].targetHash);
+        console.log("aggregate");
+        console.log(current);
+        console.log(target);
+        console.logBytes(calls[current].callData);
         target.execute(calls[current].callData);
       }
     }
