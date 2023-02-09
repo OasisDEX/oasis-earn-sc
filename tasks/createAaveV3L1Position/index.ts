@@ -1,9 +1,7 @@
-import { amountToWei } from '@helpers/utils'
 import { AaveVersion, ADDRESSES, CONTRACT_NAMES, protocols } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
-import { buildGetTokenFunction } from '../../helpers/aave'
 import init from '../../helpers/init'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
@@ -17,8 +15,6 @@ task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
 
-    const getTokens = buildGetTokenFunction(config, hre)
-
     const serviceRegistryAddress = taskArgs.serviceregistry || process.env.SERVICE_REGISTRY_ADDRESS
 
     console.log('Using service registry: ', serviceRegistryAddress)
@@ -26,11 +22,6 @@ task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
     if (!serviceRegistryAddress) {
       throw new Error('ServiceRegistry params or SERVICE_REGISTRY_ADDRESS env variable is not set')
     }
-
-    console.log('getting tokens....')
-    await getTokens('WSTETH', amountToWei(1))
-
-    console.log('get tokens done')
 
     const serviceRegistryAbi = [
       {

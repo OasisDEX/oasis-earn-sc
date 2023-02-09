@@ -409,6 +409,11 @@ async function addThirdPartyContractsToRegistry(args: {
     ADDRESSES.main.aave.v2.WETHGateway,
   )
 
+  const v3AavePoolHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.AAVE_POOL,
+    ADDRESSES.main.aave.v3.Pool,
+  )
+
   if (debug) {
     console.log('==== ==== ====')
     console.log('ADDING THIRD PARTY CONTRACTS TO REGISTRY')
@@ -428,6 +433,9 @@ async function addThirdPartyContractsToRegistry(args: {
     )
     console.log(
       `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.v2.WETH_GATEWAY} is ${wethGatewayhash}`,
+    )
+    console.log(
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.v3.AAVE_POOL} is ${v3AavePoolHash}`,
     )
   }
 }
@@ -808,10 +816,6 @@ async function addAAVEOperationsToRegistry(args: {
       optional: false,
     },
     {
-      hash: setEModeInAAVEV3Hash,
-      optional: true,
-    },
-    {
       hash: wrapEthHash,
       optional: true,
     },
@@ -832,6 +836,10 @@ async function addAAVEOperationsToRegistry(args: {
       optional: false,
     },
     { hash: positionCreatedHash, optional: false },
+    {
+      hash: setEModeInAAVEV3Hash,
+      optional: true,
+    },
   ])
 
   const closePositionActions = [
