@@ -81,10 +81,6 @@ contract OperationExecutor is IERC3156FlashBorrower {
       }
       if (!calls[current].skipped) {
         address target = registry.getServiceAddress(calls[current].targetHash);
-        console.log("aggregate");
-        console.log(current);
-        console.log(target);
-        console.logBytes(calls[current].callData);
         target.execute(calls[current].callData);
       }
     }
