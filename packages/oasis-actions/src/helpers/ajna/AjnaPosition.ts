@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 
-import { IRiskRatio, RiskRatio } from '@/helpers/calculations'
-import { IAjnaPosition, Pool } from '@/types/ajna'
-import { Address } from '@/types/common'
+import { IAjnaPosition, Pool } from '../../types/ajna'
+import { Address } from '../../types/common'
+import { IRiskRatio, RiskRatio } from '../calculations'
 
 export class AjnaPosition implements IAjnaPosition {
   riskRatio: IRiskRatio

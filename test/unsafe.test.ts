@@ -1,4 +1,4 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions/src'
 import { takeAFlashLoan } from '@oasisdex/oasis-actions/src/actions/common'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -33,7 +33,7 @@ describe('OperationExecutor', () => {
 
     const calls = [
       {
-        targetHash: getServiceNameHash(CONTRACT_NAMES.aave.LENDING_POOL),
+        targetHash: getServiceNameHash(CONTRACT_NAMES.aave.v2.LENDING_POOL),
         callData: iface.encodeFunctionData('initialize', [suicideBombAddress, bombCall]),
       },
     ]
@@ -85,8 +85,8 @@ describe('OperationExecutor', () => {
       addresses.OPERATIONS_REGISTRY,
     )
     await ServiceRegistry.addNamedService(
-      getServiceNameHash(CONTRACT_NAMES.aave.LENDING_POOL),
-      ADDRESSES.main.aave.MainnetLendingPool,
+      getServiceNameHash(CONTRACT_NAMES.aave.v2.LENDING_POOL),
+      ADDRESSES.main.aave.v2.LendingPool,
     )
 
     const bomb = new ethers.utils.Interface(['function fallback() external'])
@@ -98,7 +98,7 @@ describe('OperationExecutor', () => {
 
     const calls = [
       {
-        targetHash: getServiceNameHash(CONTRACT_NAMES.aave.LENDING_POOL),
+        targetHash: getServiceNameHash(CONTRACT_NAMES.aave.v2.LENDING_POOL),
         callData: iface.encodeFunctionData('initialize', [suicideBombAddress, bombCall]),
         skipped: false,
       },

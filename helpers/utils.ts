@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES, ONE, TEN } from '@oasisdex/oasis-actions'
+import { ADDRESSES, ONE, TEN } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'

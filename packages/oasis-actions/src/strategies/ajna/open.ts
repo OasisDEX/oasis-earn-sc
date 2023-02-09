@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
-import ajnaProxyActionsAbi from '@/abi/ajna/ajnaProxyActions.json'
-import { AjnaPosition } from '@/helpers/ajna'
-import { Address, Strategy } from '@/types/common'
-import * as views from '@/views'
+import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
+import { AjnaPosition } from '../../helpers/ajna'
+import { Address, Strategy } from '../../types/common'
+import * as views from '../../views'
 
 export interface OpenArgs {
   poolAddress: Address

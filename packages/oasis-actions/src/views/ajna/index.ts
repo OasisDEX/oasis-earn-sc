@@ -1,11 +1,11 @@
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import poolERC20Abi from '@/abi/ajna/ajnaPoolERC20.json'
-import poolInfoAbi from '@/abi/ajna/poolInfoUtils.json'
-import { AjnaPosition } from '@/helpers/ajna'
-import { Pool } from '@/types/ajna'
-import { Address } from '@/types/common'
+import poolERC20Abi from '../../../../../abi/external//ajna/ajnaPoolERC20.json'
+import poolInfoAbi from '../../../../../abi/external/ajna/poolInfoUtils.json'
+import { AjnaPosition } from '../../helpers/ajna'
+import { Pool } from '../../types/ajna'
+import { Address } from '../../types/common'
 
 interface Args {
   proxyAddress: Address
@@ -58,8 +58,6 @@ export async function getPosition(
     pool,
     proxyAddress,
     new BigNumber(borrowerInfo.collateral_.toString()).div(WAD),
-    18,
     new BigNumber(borrowerInfo.debt_.toString()).div(WAD),
-    18,
   )
 }

@@ -1,9 +1,17 @@
-import { ADDRESSES, strategies } from '@oasisdex/oasis-actions/src'
+import { AaveVersion, ADDRESSES, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
+import {
+  AaveV2OpenDependencies,
+  AaveV3OpenDependencies,
+} from '@oasisdex/oasis-actions/src/strategies/aave/open/open'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../../helpers/utils'
+import {
+  aaveV2UniqueContractName,
+  aaveV3UniqueContractName,
+} from '../../../packages/oasis-actions/src/protocols/aave/config'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { ETH, MULTIPLE, SLIPPAGE, STETH } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
@@ -20,11 +28,26 @@ async function openStEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1]) 
         amountInBaseUnit: transactionAmount,
       },
     },
-    multiple: MULTIPLE,
+    multiple: new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE),
     positionType: 'Earn',
   }
 
-  return await strategies.aave.open(args, dependencies)
+  if (isV2(dependencies)) {
+    return await strategies.aave.v2.open(args, dependencies)
+  }
+  if (isV3(dependencies)) {
+    return await strategies.aave.v3.open(args, dependencies)
+  }
+
+  throw new Error('Unsupported protocol version')
+}
+
+function isV2(dependencies: OpenPositionTypes[1]): dependencies is AaveV2OpenDependencies {
+  return dependencies.protocol.version === AaveVersion.v2
+}
+
+function isV3(dependencies: OpenPositionTypes[1]): dependencies is AaveV3OpenDependencies {
+  return dependencies.protocol.version === AaveVersion.v3
 }
 
 export async function createStEthEthEarnAAVEPosition({
@@ -87,10 +110,15 @@ export async function createStEthEthEarnAAVEPosition({
     config,
   })
 
-  return {
-    proxy: proxy,
-    getPosition: async () => {
-      return await strategies.aave.view(
+  let getPosition
+  if (
+    dependencies.protocol.version === AaveVersion.v3 &&
+    aaveV3UniqueContractName in dependencies.addresses
+  ) {
+    const addresses = dependencies.addresses
+    const protocolVersion = dependencies.protocol.version
+    getPosition = async () => {
+      return await strategies.aave.v3.view(
         {
           collateralToken: STETH,
           debtToken: ETH,
@@ -98,13 +126,45 @@ export async function createStEthEthEarnAAVEPosition({
         },
         {
           addresses: {
-            ...dependencies.addresses,
+            ...addresses,
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
+          protocolVersion: protocolVersion,
         },
       )
-    },
+    }
+  }
+  if (
+    dependencies.protocol.version === AaveVersion.v2 &&
+    aaveV2UniqueContractName in dependencies.addresses
+  ) {
+    const addresses = dependencies.addresses
+    const protocolVersion = dependencies.protocol.version
+    getPosition = async () => {
+      return await strategies.aave.v2.view(
+        {
+          collateralToken: STETH,
+          debtToken: ETH,
+          proxy,
+        },
+        {
+          addresses: {
+            ...addresses,
+            operationExecutor: dependencies.contracts.operationExecutor.address,
+          },
+          provider: config.provider,
+          protocolVersion,
+        },
+      )
+    }
+  }
+
+  if (!getPosition) throw new Error('getPosition is not defined')
+
+  return {
+    proxy: proxy,
+    getPosition,
     strategy: 'STETH/ETH Earn',
     collateralToken: STETH,
     debtToken: ETH,

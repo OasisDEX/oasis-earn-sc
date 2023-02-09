@@ -1,3 +1,11 @@
+import 'tsconfig-paths/register'
+
+import { default as dotenv } from 'dotenv'
+import { HardhatUserConfig, task } from 'hardhat/config'
+import path from 'path'
+import process from 'process'
+dotenv.config({ path: path.join(__dirname, './.env') })
+
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-gas-reporter'
@@ -5,6 +13,7 @@ import '@typechain/hardhat'
 import 'solidity-coverage'
 import './tasks/deploy'
 import './tasks/createPosition'
+import './tasks/createAaveV3L1Position'
 import './tasks/closePosition'
 import './tasks/proxy'
 import './tasks/verify-earn'
@@ -16,13 +25,6 @@ import 'hardhat-abi-exporter'
 import './tasks/userDpmProxies'
 import './tasks/createMultiplyPosition'
 import './tasks/transferDPM'
-
-import { default as dotenv } from 'dotenv'
-import { HardhatUserConfig, task } from 'hardhat/config'
-import path from 'path'
-import process from 'process'
-
-dotenv.config({ path: path.join(__dirname, './.env') })
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -117,6 +119,7 @@ const config: HardhatUserConfig = {
   },
   typechain: {
     outDir: 'typechain',
+    externalArtifacts: ['abi/external/**/*.json'],
   },
   docgen: {
     outputDir: './docs',

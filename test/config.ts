@@ -1,2 +1,4 @@
-export const testBlockNumber = (process.env.TEST_BLOCK_NUMBER || 15695000) as number
-export const testMarketPrice = (process.env.TEST_MARKET_PRICE || 0.979) as number
+// Do not change test block numbers as they're linked to uniswap liquidity levels
+export const testBlockNumber = 15695000
+export const testBlockNumberForAaveV3 = 16500000
+export const testMarketPrice = 0.979

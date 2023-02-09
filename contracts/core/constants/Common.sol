@@ -19,7 +19,7 @@ bytes32 constant NULL = "";
  * and update TheGraph decoding accordingly
  */
 string constant PULL_TOKEN_ACTION = "PullToken_3";
-string constant SEND_TOKEN_ACTION = "SendToken_3";
+string constant SEND_TOKEN_ACTION = "SendToken_4";
 string constant SET_APPROVAL_ACTION = "SetApproval_3";
 string constant TAKE_FLASH_LOAN_ACTION = "TakeFlashloan_3";
 string constant WRAP_ETH = "WrapEth_3";

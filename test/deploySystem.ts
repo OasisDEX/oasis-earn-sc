@@ -1,4 +1,4 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions/src'
 import { ethers } from 'hardhat'
 
 import DSProxyABI from '../abi/ds-proxy.json'
@@ -100,7 +100,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     serviceRegistryAddress,
   ])
 
-  const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [])
+  const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [
+    serviceRegistryAddress,
+  ])
   const [, dummyActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_ACTION, [
     serviceRegistryAddress,
   ])
@@ -157,21 +159,48 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   //-- AAVE Actions
   const [depositInAAVEAction, actionDepositInAAVEAddress] = await deploy(
-    CONTRACT_NAMES.aave.DEPOSIT,
+    CONTRACT_NAMES.aave.v2.DEPOSIT,
     [serviceRegistryAddress],
   )
 
-  const [borrowInAAVEAction, actionAaveBorrowAddress] = await deploy(CONTRACT_NAMES.aave.BORROW, [
-    serviceRegistryAddress,
-  ])
+  const [borrowInAAVEAction, actionAaveBorrowAddress] = await deploy(
+    CONTRACT_NAMES.aave.v2.BORROW,
+    [serviceRegistryAddress],
+  )
 
   const [withdrawInAAVEAction, actionWithdrawFromAAVEAddress] = await deploy(
-    CONTRACT_NAMES.aave.WITHDRAW,
+    CONTRACT_NAMES.aave.v2.WITHDRAW,
     [serviceRegistryAddress],
   )
 
   const [paybackInAAVEAction, actionPaybackFromAAVEAddress] = await deploy(
-    CONTRACT_NAMES.aave.PAYBACK,
+    CONTRACT_NAMES.aave.v2.PAYBACK,
+    [serviceRegistryAddress],
+  )
+
+  //-- AAVE V3 Actions
+  const [depositInAAVEV3Action, actionDepositInAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aave.v3.DEPOSIT,
+    [serviceRegistryAddress],
+  )
+
+  const [borrowInAAVEV3Action, actionAaveV3BorrowAddress] = await deploy(
+    CONTRACT_NAMES.aave.v3.BORROW,
+    [serviceRegistryAddress],
+  )
+
+  const [withdrawInAAVEV3Action, actionWithdrawFromAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aave.v3.WITHDRAW,
+    [serviceRegistryAddress],
+  )
+
+  const [paybackInAAVEV3Action, actionPaybackFromAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aave.v3.PAYBACK,
+    [serviceRegistryAddress],
+  )
+
+  const [setEModeInAAVEV3Action, actionSetEModeInAAVEV3Address] = await deploy(
+    CONTRACT_NAMES.aave.v3.SET_EMODE,
     [serviceRegistryAddress],
   )
 
@@ -257,23 +286,43 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   //-- Add AAVE Contract Entries
   const aaveBorrowHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.BORROW,
+    CONTRACT_NAMES.aave.v2.BORROW,
     actionAaveBorrowAddress,
   )
   const aaveDepositHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.DEPOSIT,
+    CONTRACT_NAMES.aave.v2.DEPOSIT,
     actionDepositInAAVEAddress,
   )
   const aaveWithdrawHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.WITHDRAW,
+    CONTRACT_NAMES.aave.v2.WITHDRAW,
     actionWithdrawFromAAVEAddress,
   )
   const aavePaybackHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.PAYBACK,
+    CONTRACT_NAMES.aave.v2.PAYBACK,
     actionPaybackFromAAVEAddress,
   )
-  await registry.addEntry(CONTRACT_NAMES.aave.WETH_GATEWAY, ADDRESSES.main.aave.WETHGateway)
-  await registry.addEntry(CONTRACT_NAMES.aave.LENDING_POOL, ADDRESSES.main.aave.MainnetLendingPool)
+  await registry.addEntry(CONTRACT_NAMES.aave.v2.WETH_GATEWAY, ADDRESSES.main.aave.v2.WETHGateway)
+  await registry.addEntry(CONTRACT_NAMES.aave.v2.LENDING_POOL, ADDRESSES.main.aave.v2.LendingPool)
+
+  //-- Add AAVE V3 Contract Entries
+  const aaveV3BorrowHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.BORROW,
+    actionAaveV3BorrowAddress,
+  )
+  const aaveV3DepositHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.DEPOSIT,
+    actionDepositInAAVEV3Address,
+  )
+  const aaveV3WithdrawHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.WITHDRAW,
+    actionWithdrawFromAAVEV3Address,
+  )
+  await registry.addEntry(CONTRACT_NAMES.aave.v3.PAYBACK, actionPaybackFromAAVEV3Address)
+  const aaveV3SetEModeHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.SET_EMODE,
+    actionSetEModeInAAVEV3Address,
+  )
+  await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, ADDRESSES.main.aave.v3.Pool)
 
   debug && console.log('5/ Adding operations to registry')
   // Add Maker Operations
@@ -546,7 +595,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   )
 
   // Add AAVE Operations
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_POSITION, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.OPEN_POSITION, [
     {
       hash: takeFlashLoanHash,
       optional: false,
@@ -593,8 +642,59 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
     { hash: positionCreatedHash, optional: false },
   ])
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v3.OPEN_POSITION, [
+    {
+      hash: takeFlashLoanHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3DepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3BorrowHash,
+      optional: false,
+    },
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3DepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3WithdrawHash,
+      optional: false,
+    },
+    { hash: positionCreatedHash, optional: false },
+    {
+      hash: aaveV3SetEModeHash,
+      optional: true,
+    },
+  ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.CLOSE_POSITION, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.CLOSE_POSITION, [
     {
       hash: takeFlashLoanHash,
       optional: false,
@@ -628,12 +728,16 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: false,
     },
     {
+      hash: sendTokenHash,
+      optional: true,
+    },
+    {
       hash: unwrapEthHash,
       optional: true,
     },
     {
       hash: returnFundsActionHash,
-      optional: false,
+      optional: true,
     },
     {
       hash: returnFundsActionHash,
@@ -641,7 +745,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.INCREASE_POSITION, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.INCREASE_POSITION, [
     {
       hash: takeFlashLoanHash,
       optional: false,
@@ -688,7 +792,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.DEPOSIT_BORROW, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.DEPOSIT_BORROW, [
     {
       hash: wrapEthHash,
       optional: true,
@@ -723,7 +827,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.BORROW, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.BORROW, [
     {
       hash: aaveBorrowHash,
       optional: false,
@@ -738,7 +842,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.DEPOSIT, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.DEPOSIT, [
     {
       hash: wrapEthHash,
       optional: true,
@@ -761,7 +865,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.OPEN_DEPOSIT_BORROW, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.OPEN_DEPOSIT_BORROW, [
     {
       hash: wrapEthHash,
       optional: true,
@@ -800,7 +904,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.DECREASE_POSITION, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.DECREASE_POSITION, [
     {
       hash: takeFlashLoanHash,
       optional: false,
@@ -835,7 +939,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
   ])
 
-  await operationsRegistry.addOp(OPERATION_NAMES.aave.PAYBACK_WITHDRAW, [
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.PAYBACK_WITHDRAW, [
     {
       hash: pullTokenHash,
       optional: true,
@@ -885,7 +989,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       dummyAutomation,
       dummyCommmand,
       exchange: dummyExchange,
-      swap: useFallbackSwap ? uSwap : swap,
+      // TODO: Figure out how to make this work based on the change
+      uSwap,
+      swap,
       swapAction,
       sendToken,
       pullToken,
@@ -909,10 +1015,19 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       cdpAllow,
     },
     aave: {
-      deposit: depositInAAVEAction,
-      withdraw: withdrawInAAVEAction,
-      borrow: borrowInAAVEAction,
-      payback: paybackInAAVEAction,
+      v2: {
+        deposit: depositInAAVEAction,
+        withdraw: withdrawInAAVEAction,
+        borrow: borrowInAAVEAction,
+        payback: paybackInAAVEAction,
+      },
+      v3: {
+        deposit: depositInAAVEV3Action,
+        withdraw: withdrawInAAVEV3Action,
+        borrow: borrowInAAVEV3Action,
+        payback: paybackInAAVEV3Action,
+        eMode: setEModeInAAVEV3Action,
+      },
     },
   }
 
@@ -941,9 +1056,16 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       `Withdraw Action address: ${deployedContracts.maker.withdraw.address}`,
       `Generate Action address: ${deployedContracts.maker.generate.address}`,
 
-      `AAVE|Borrow Action address: ${deployedContracts.aave.borrow.address}`,
-      `AAVE|Deposit Action address: ${deployedContracts.aave.deposit.address}`,
-      `AAVE|Withdraw Action address: ${deployedContracts.aave.withdraw.address}`,
+      `AAVE|Deposit Action address: ${deployedContracts.aave.v2.deposit.address}`,
+      `AAVE|Withdraw Action address: ${deployedContracts.aave.v2.withdraw.address}`,
+      `AAVE|Borrow Action address: ${deployedContracts.aave.v2.borrow.address}`,
+      `AAVE|Payback Action address: ${deployedContracts.aave.v2.payback.address}`,
+
+      `AAVE_V3|Deposit Action address: ${deployedContracts.aave.v3.deposit.address}`,
+      `AAVE_V3|Withdraw Action address: ${deployedContracts.aave.v3.withdraw.address}`,
+      `AAVE_V3|Borrow Action address: ${deployedContracts.aave.v3.borrow.address}`,
+      `AAVE_V3|Payback Action address: ${deployedContracts.aave.v3.payback.address}`,
+      `AAVE_V3|eMode Action address: ${deployedContracts.aave.v3.eMode.address}`,
     ])
   }
 

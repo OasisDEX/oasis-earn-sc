@@ -1,34 +1,25 @@
+
+
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "lib",
-    "rootDir": ".",
+    "rootDirs": [
+      ".",
+      "../../"
+    ],
     "types": [
       "node"
     ],
-    "baseUrl": "./src",
-    "paths": {
-      "@/abi/*": ["./abi/*"],
-      "@/types/common": ["./types/common"],
-      "@/types/ajna": ["./types/ajna"],
-      "@/types/aave": ["./types/aave"],
-      "@/types": ["./types"],
-      "@/helpers/calculations": ["./helpers/calculations"],
-      "@/helpers/addresses": ["./helpers/addresses"],
-      "@/helpers/ajna": ["./helpers/ajna"],
-      "@/helpers": ["./helpers"],
-      "@/actions": ["./actions"],
-      "@/operations": ["./operations"],
-      "@/strategies": ["./strategies"],
-      "@/views": ["./views"]
-    },
     "esModuleInterop": true,
     "typeRoots": [
       "../node_modules/@types"
-    ]
+    ],
+    "resolveJsonModule": true,
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "../../abi/**/*"
   ],
   "exclude": [
     "../../node_modules",
