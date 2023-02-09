@@ -408,8 +408,7 @@ async function addThirdPartyContractsToRegistry(args: {
     CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
     ADDRESSES.main.aave.v2.WETHGateway,
   )
-
-  const v3AavePoolHash = await registry.addEntry(
+  const aaveV3PoolHash = await registry.addEntry(
     CONTRACT_NAMES.aave.v3.AAVE_POOL,
     ADDRESSES.main.aave.v3.Pool,
   )
@@ -435,7 +434,7 @@ async function addThirdPartyContractsToRegistry(args: {
       `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.v2.WETH_GATEWAY} is ${wethGatewayhash}`,
     )
     console.log(
-      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.v3.AAVE_POOL} is ${v3AavePoolHash}`,
+      `Service Registry Hash for contract: ${CONTRACT_NAMES.aave.v3.AAVE_POOL} is ${aaveV3PoolHash}`,
     )
   }
 }
