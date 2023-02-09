@@ -42,6 +42,7 @@ export async function paybackWithdraw(
     simulation: {
       swaps: [],
       targetPosition,
+      position: targetPosition,
     },
     tx: {
       to: dependencies.ajnaProxyActions,

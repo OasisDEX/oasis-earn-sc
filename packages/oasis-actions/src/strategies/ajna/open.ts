@@ -66,6 +66,7 @@ export async function open(
     simulation: {
       swaps: [],
       targetPosition,
+      position: targetPosition,
     },
     tx: {
       to: dependencies.ajnaProxyActions,

@@ -9,7 +9,9 @@ export type Tx = {
 export type Strategy<Position> = {
   simulation: {
     swaps: []
+    // @deprecated - use position
     targetPosition: Position
+    position: Position
   }
   tx: Tx
 }
