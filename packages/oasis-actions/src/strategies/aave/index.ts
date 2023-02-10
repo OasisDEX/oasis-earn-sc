@@ -1,7 +1,7 @@
 import { getAaveProtocolData } from '../../protocols/aave/getAaveProtocolData'
 import { adjust } from './adjust'
 import { changeDebt } from './changeDebt'
-import { close } from './close'
+import { close, AaveCloseArgs, AaveCloseDependencies } from './close'
 import { depositBorrow } from './depositBorrow'
 import {
   AaveGetCurrentPositionArgs,
@@ -33,7 +33,8 @@ export const aave = {
         ...dependencies,
         protocolVersion: AaveVersion.v2,
       }),
-    close: close,
+    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) =>
+      close({ ...args, protocolVersion: AaveVersion.v2 }, dependencies),
     adjust: adjust,
     changeDebt: changeDebt,
     depositBorrow,
@@ -50,6 +51,8 @@ export const aave = {
           getProtocolData: getAaveProtocolData,
         },
       }),
+    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) =>
+      close({ ...args, protocolVersion: AaveVersion.v3 }, dependencies),
     view: (args: AaveGetCurrentPositionArgs, dependencies: AaveV3GetCurrentPositionDependencies) =>
       getCurrentPosition(args, {
         ...dependencies,

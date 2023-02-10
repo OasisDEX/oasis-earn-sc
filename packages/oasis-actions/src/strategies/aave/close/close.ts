@@ -3,11 +3,13 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { memoizeWith } from 'ramda'
 
-import aavePriceOracleABI from '../../../../../abi/external/aave/v2/priceOracle.json'
-import aaveProtocolDataProviderABI from '../../../../../abi/external/aave/v2/protocolDataProvider.json'
-import { amountFromWei, amountToWei, calculateFee } from '../../helpers'
-import { ADDRESSES } from '../../helpers/addresses'
-import { Position } from '../../helpers/calculations/Position'
+import aavePriceOracleABI from '../../../../../../abi/external/aave/v2/priceOracle.json'
+import aaveProtocolDataProviderABI from '../../../../../../abi/external/aave/v2/protocolDataProvider.json'
+import aaveV3PriceOracleABI from '../../../../../../abi/external/aave/v3/aaveOracle.json'
+import aaveV3ProtocolDataProviderABI from '../../../../../../abi/external/aave/v3/aaveProtocolDataProvider.json'
+import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
+import { ADDRESSES } from '../../../helpers/addresses'
+import { Position } from '../../../helpers/calculations/Position'
 import {
   DEFAULT_FEE,
   FEE_BASE,
@@ -16,10 +18,11 @@ import {
   TEN,
   TYPICAL_PRECISION,
   ZERO,
-} from '../../helpers/constants'
-import { acceptedFeeToken } from '../../helpers/swap/acceptedFeeToken'
-import * as operations from '../../operations'
-import { AAVEStrategyAddresses } from '../../operations/aave/v2'
+} from '../../../helpers/constants'
+import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
+import * as operations from '../../../operations'
+import { AAVEStrategyAddresses } from '../../../operations/aave/v2'
+import { AAVEV3StrategyAddresses } from '../../../operations/aave/v3'
 import {
   IBasePositionTransitionArgs,
   IOperation,
@@ -27,20 +30,31 @@ import {
   IPositionTransitionDependencies,
   SwapData,
   WithLockedCollateral,
-} from '../../types'
-import { AAVETokens } from '../../types/aave'
-import { getAaveTokenAddresses } from './getAaveTokenAddresses'
+} from '../../../types'
+import { AAVETokens } from '../../../types/aave'
+import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
+import { AaveVersion } from '../getCurrentPosition'
 
-type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> & WithLockedCollateral
-type AaveCloseDependencies = IPositionTransitionDependencies<AAVEStrategyAddresses> & {
-  shouldCloseToCollateral: boolean
+export type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> &
+  WithLockedCollateral & {
+    shouldCloseToCollateral?: boolean
+  }
+
+type WithVersioning = {
+  protocolVersion: AaveVersion
 }
 
+type AaveCloseArgsWithVersioning = AaveCloseArgs & WithVersioning
+
+export type AaveCloseDependencies =
+  | IPositionTransitionDependencies<AAVEStrategyAddresses>
+  | IPositionTransitionDependencies<AAVEV3StrategyAddresses>
+
 export async function close(
-  args: AaveCloseArgs,
+  args: AaveCloseArgsWithVersioning,
   dependencies: AaveCloseDependencies,
 ): Promise<IPositionTransition> {
-  const getSwapData = dependencies.shouldCloseToCollateral
+  const getSwapData = args.shouldCloseToCollateral
     ? getSwapDataToCloseToCollateral
     : getSwapDataToCloseToDebt
 
@@ -51,7 +65,7 @@ export async function close(
 }
 
 async function getSwapDataToCloseToCollateral(
-  { debtToken, collateralToken, slippage }: AaveCloseArgs,
+  { debtToken, collateralToken, slippage, protocolVersion }: AaveCloseArgsWithVersioning,
   dependencies: AaveCloseDependencies,
 ) {
   const { addresses } = dependencies
@@ -68,7 +82,12 @@ async function getSwapDataToCloseToCollateral(
   // and the remaining of the debt token will be send to our fee beneficiary address
 
   let [, colPrice, debtPrice] = (
-    await getValuesFromProtocol(collateralTokenAddress, debtTokenAddress, dependencies)
+    await getValuesFromProtocol(
+      protocolVersion,
+      collateralTokenAddress,
+      debtTokenAddress,
+      dependencies,
+    )
   ).map(price => {
     return new BigNumber(price.toString())
   })
@@ -222,7 +241,7 @@ async function buildOperation(
   swapData: SwapData & {
     collectFeeFrom: 'sourceToken' | 'targetToken'
   },
-  args: AaveCloseArgs,
+  args: AaveCloseArgsWithVersioning,
   dependencies: AaveCloseDependencies,
 ): Promise<IOperation> {
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
@@ -231,7 +250,12 @@ async function buildOperation(
   )
 
   const [aaveFlashloanDaiPriceInEth, aaveCollateralTokenPriceInEth, , reserveDataForFlashloan] =
-    await getValuesFromProtocol(collateralTokenAddress, debtTokenAddress, dependencies)
+    await getValuesFromProtocol(
+      args.protocolVersion,
+      collateralTokenAddress,
+      debtTokenAddress,
+      dependencies,
+    )
 
   /* Calculate Amount to flashloan */
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
@@ -250,11 +274,11 @@ async function buildOperation(
     .integerValue(BigNumber.ROUND_DOWN)
 
   const closeArgs = {
-    lockedCollateralAmountInWei: dependencies.shouldCloseToCollateral
+    lockedCollateralAmountInWei: args.shouldCloseToCollateral
       ? swapData.fromTokenAmount
       : args.collateralAmountLockedInProtocolInWei,
     flashloanAmount: amountToFlashloanInWei,
-    fee: dependencies.shouldCloseToCollateral ? 0 : DEFAULT_FEE, //TODO - fee should be passed
+    fee: args.shouldCloseToCollateral ? 0 : DEFAULT_FEE, //TODO - fee should be passed
     swapData: swapData.exchangeCalldata,
     receiveAtLeast: swapData.minToTokenAmount,
     proxy: dependencies.proxy,
@@ -264,9 +288,23 @@ async function buildOperation(
     debtTokenAddress,
     debtTokenIsEth: args.debtToken.symbol === 'ETH',
     isDPMProxy: dependencies.isDPMProxy,
-    shouldCloseToCollateral: dependencies.shouldCloseToCollateral,
+    shouldCloseToCollateral: args.shouldCloseToCollateral || false,
   }
-  return await operations.aave.v2.close(closeArgs, dependencies.addresses)
+
+  switch (args.protocolVersion) {
+    case AaveVersion.v2:
+      return await operations.aave.v2.close(
+        closeArgs,
+        dependencies.addresses as AAVEStrategyAddresses,
+      )
+    case AaveVersion.v3:
+      return await operations.aave.v3.close(
+        closeArgs,
+        dependencies.addresses as AAVEV3StrategyAddresses,
+      )
+    default:
+      throw new Error('Unsupported AAVE verison')
+  }
 }
 
 async function generateTransition(
@@ -274,7 +312,7 @@ async function generateTransition(
   collectFeeFrom: 'sourceToken' | 'targetToken',
   preSwapFee: BigNumber,
   operation: IOperation,
-  args: AaveCloseArgs,
+  args: AaveCloseArgsWithVersioning,
   dependencies: AaveCloseDependencies,
 ) {
   const currentPosition = dependencies.currentPosition
@@ -284,6 +322,7 @@ async function generateTransition(
   )
 
   const [, aaveCollateralTokenPriceInEth, aaveDebtTokenPriceInEth] = await getValuesFromProtocol(
+    args.protocolVersion,
     collateralTokenAddress,
     debtTokenAddress,
     dependencies,
@@ -347,12 +386,14 @@ async function generateTransition(
 }
 
 async function getValuesFromProtocol(
+  protocolVersion: AaveVersion,
   collateralTokenAddress: string,
   debtTokenAddress: string,
   dependencies: AaveCloseDependencies,
 ) {
   /* Grabs all the protocol level services we need to resolve values */
   const { aavePriceOracle, aaveProtocolDataProvider } = getAAVEProtocolServices(
+    protocolVersion,
     dependencies.provider,
     dependencies.addresses,
   )
@@ -369,17 +410,39 @@ async function getValuesFromProtocol(
   return memoizeWith(() => collateralTokenAddress, getAllAndMemoize)()
 }
 
-function getAAVEProtocolServices(provider: Provider, addresses: AAVEStrategyAddresses) {
-  const aavePriceOracle = new ethers.Contract(addresses.priceOracle, aavePriceOracleABI, provider)
-
-  const aaveProtocolDataProvider = new ethers.Contract(
-    addresses.protocolDataProvider,
-    aaveProtocolDataProviderABI,
-    provider,
-  )
-
-  return {
-    aavePriceOracle,
-    aaveProtocolDataProvider,
+function getAAVEProtocolServices(
+  protocolVersion: AaveVersion,
+  provider: Provider,
+  addresses: AAVEStrategyAddresses | AAVEV3StrategyAddresses,
+) {
+  switch (protocolVersion) {
+    case AaveVersion.v2:
+      return {
+        aavePriceOracle: new ethers.Contract(
+          (addresses as AAVEStrategyAddresses).priceOracle,
+          aavePriceOracleABI,
+          provider,
+        ),
+        aaveProtocolDataProvider: new ethers.Contract(
+          (addresses as AAVEStrategyAddresses).protocolDataProvider,
+          aaveProtocolDataProviderABI,
+          provider,
+        ),
+      }
+    case AaveVersion.v3:
+      return {
+        aavePriceOracle: new ethers.Contract(
+          (addresses as AAVEV3StrategyAddresses).aaveOracle,
+          aaveV3PriceOracleABI,
+          provider,
+        ),
+        aaveProtocolDataProvider: new ethers.Contract(
+          (addresses as AAVEV3StrategyAddresses).aaveProtocolDataProvider,
+          aaveV3ProtocolDataProviderABI,
+          provider,
+        ),
+      }
+    default:
+      throw new Error('Unsupported AAVE Version')
   }
 }

@@ -112,7 +112,7 @@ export const getSystemWithAavePositions =
       swapAddress,
       dependencies,
       config,
-    }).catch(e => failQuietly(e, 'STETH/ETH Earn'))
+    })
 
     const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyEthUsdc,
@@ -121,7 +121,7 @@ export const getSystemWithAavePositions =
       swapAddress,
       dependencies,
       config,
-    }).catch(e => failQuietly(e, 'ETH/USDC Multiply'))
+    })
 
     const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyStEthUsdc,
@@ -131,7 +131,7 @@ export const getSystemWithAavePositions =
       dependencies,
       config,
       getTokens,
-    }).catch(e => failQuietly(e, 'STETH/USDC Multiply'))
+    })
 
     const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyWbtcUsdc,
@@ -141,7 +141,7 @@ export const getSystemWithAavePositions =
       dependencies,
       config,
       getTokens,
-    }).catch(e => failQuietly(e, 'WBTC/USDC Multiply'))
+    })
 
     const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
       proxy: system.common.userProxyAddress,
@@ -175,7 +175,3 @@ export const getSystemWithAavePositions =
       getTokens,
     }
   }
-
-function failQuietly(e: any, positionType: string) {
-  console.log('failed to create', positionType, e)
-}
