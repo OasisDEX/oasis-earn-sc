@@ -2,7 +2,7 @@
   "name": "@oasisdex/oasis-actions",
   "main": "lib/packages/oasis-actions/src/index.js",
   "typings": "lib/packages/oasis-actions/src/index.d.ts",
-  "version": "0.1.17",
+  "version": "0.2.1-RC.1",
   "scripts": {
     "build": "tsc -b",
     "watch": "tsc -b -w",
@@ -16,6 +16,7 @@
     "bignumber.js": "9.0.1",
     "ethers": "5.6.2",
     "lodash": "^4.17.21",
+    "ramda": "^0.28.0",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {

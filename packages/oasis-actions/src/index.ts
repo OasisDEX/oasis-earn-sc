@@ -20,3 +20,4 @@ export {
 export { AavePosition, AAVETokens } from './types/aave'
 export { ActionCall } from './types/actionCall'
 export { calldataTypes } from './types/actions'
+export * as views from './views'
