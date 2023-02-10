@@ -79,6 +79,7 @@ export async function open(
   args: AaveOpenArgs,
   dependencies: AaveOpenDependencies,
 ): Promise<IPositionTransition> {
+  const fee = args.positionType === 'Earn' ? new BigNumber(NO_FEE) : new BigNumber(DEFAULT_FEE)
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
   const { swapData: quoteSwapData } = await getSwapDataHelper<
     typeof dependencies.addresses,
@@ -87,6 +88,7 @@ export async function open(
     fromTokenIsDebt: true,
     args: {
       ...args,
+      fee,
       swapAmountBeforeFees: estimatedSwapAmount,
     },
     addresses: dependencies.addresses,
@@ -96,7 +98,15 @@ export async function open(
     },
   })
   const { simulatedPositionTransition, oracle, reserveEModeCategory } =
-    await simulatePositionTransition(quoteSwapData, args, dependencies /*, true*/)
+    await simulatePositionTransition(
+      quoteSwapData,
+      {
+        ...args,
+        fee,
+      },
+      dependencies,
+      // true,
+    )
 
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
     typeof dependencies.addresses,
@@ -105,6 +115,7 @@ export async function open(
     fromTokenIsDebt: true,
     args: {
       ...args,
+      fee,
       swapAmountBeforeFees: simulatedPositionTransition.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
@@ -137,7 +148,7 @@ export async function open(
 
 async function simulatePositionTransition(
   quoteSwapData: SwapData,
-  args: AaveOpenArgs,
+  args: AaveOpenArgs & { fee: BigNumber },
   dependencies: AaveOpenDependencies,
   debug?: boolean,
 ) {
@@ -255,7 +266,7 @@ async function simulatePositionTransition(
     simulatedPositionTransition: currentPosition.adjustToTargetRiskRatio(multiple, {
       fees: {
         flashLoan: flashloanFee,
-        oazo: args.positionType === 'Earn' ? new BigNumber(NO_FEE) : new BigNumber(DEFAULT_FEE),
+        oazo: args.fee,
       },
       prices: {
         market: quoteMarketPrice,

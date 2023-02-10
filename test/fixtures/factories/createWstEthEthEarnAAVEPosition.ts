@@ -164,7 +164,7 @@ export async function createWstEthEthEarnAAVEPosition({
   if (!getPosition) throw new Error('getPosition is not defined')
 
   return {
-    proxy: proxy,
+    proxy,
     getPosition,
     strategy: 'WSTETH/ETH Earn',
     collateralToken: WSTETH,
