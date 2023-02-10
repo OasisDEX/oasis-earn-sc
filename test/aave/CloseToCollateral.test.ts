@@ -374,7 +374,7 @@ describe.only('Close AAVEv3 Position to collateral', () => {
   })
 
   it('DPM | Collateral - WSTETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
-    const position = fixture.dpmPositions['WSTETH/ETH Earn']1
+    const position = fixture.dpmPositions['WSTETH/ETH Earn']
     assert(position, 'Unsupported position')
 
     const { address: user, provider, signer } = fixture.config

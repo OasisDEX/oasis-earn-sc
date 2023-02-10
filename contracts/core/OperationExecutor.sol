@@ -15,7 +15,6 @@ import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
-import "hardhat/console.sol";
 
 /**
  * @title Operation Executor
@@ -56,7 +55,6 @@ contract OperationExecutor is IERC3156FlashBorrower {
    * @param operationName The name of the Operation being executed
    */
   function executeOp(Call[] memory calls, string calldata operationName) public payable {
-    console.log("OpName", operationName);
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
     opStorage.lock();
     OperationsRegistry opRegistry = OperationsRegistry(
