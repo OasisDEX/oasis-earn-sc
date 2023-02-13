@@ -684,14 +684,14 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: false,
     },
     {
+      hash: aaveV3SetEModeHash,
+      optional: true,
+    },
+    {
       hash: aaveV3WithdrawHash,
       optional: false,
     },
     { hash: positionCreatedHash, optional: false },
-    {
-      hash: aaveV3SetEModeHash,
-      optional: true,
-    },
   ])
 
   await operationsRegistry.addOp(OPERATION_NAMES.aave.v2.CLOSE_POSITION, [

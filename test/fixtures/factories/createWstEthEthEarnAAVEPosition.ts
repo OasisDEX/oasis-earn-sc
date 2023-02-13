@@ -14,16 +14,19 @@ import {
 } from '../../../packages/oasis-actions/src/protocols/aave/config'
 import { PositionDetails, StrategiesDependencies } from '../types'
 import { AaveV3PositionStrategy } from '../types/positionDetails'
-import { EMODE_MULTIPLE, ETH, SLIPPAGE, WSTETH } from './common'
+import { EMODE_MULTIPLE, ETH, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, WSTETH } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
 
-async function openWstEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1]) {
+async function openWstEthEthEarnAAVEPosition(
+  slippage: BigNumber,
+  dependencies: OpenPositionTypes[1],
+) {
   const args: OpenPositionTypes[0] = {
     collateralToken: WSTETH,
     debtToken: ETH,
-    slippage: SLIPPAGE,
+    slippage,
     depositedByUser: {
       debtToken: {
         amountInBaseUnit: transactionAmount,
@@ -77,12 +80,15 @@ export async function createWstEthEthEarnAAVEPosition({
         to: WSTETH.precision,
       })
 
-  const position = await openWstEthEthEarnAAVEPosition({
-    ...dependencies,
-    getSwapData,
-    isDPMProxy: isDPM,
-    proxy: proxy,
-  })
+  const position = await openWstEthEthEarnAAVEPosition(
+    use1inch ? SLIPPAGE : UNISWAP_TEST_SLIPPAGE,
+    {
+      ...dependencies,
+      getSwapData,
+      isDPMProxy: isDPM,
+      proxy: proxy,
+    },
+  )
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
