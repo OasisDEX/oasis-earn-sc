@@ -361,7 +361,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       }
     }
 
-    describe(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
+    describe.only(`With ${tokens.STETH} collateral & ${tokens.ETH} debt`, () => {
       const depositAmount = amountToWei(new BigNumber(1))
 
       let userStEthReserveData: AAVEReserveData
