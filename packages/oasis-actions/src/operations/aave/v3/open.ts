@@ -131,6 +131,12 @@ export async function open({
     deposit.collateralToken.amountInBaseUnit.eq(ZERO) || deposit.collateralToken.isEth
   wrapEth.skipped = !deposit.debtToken.isEth && !deposit.collateralToken.isEth
 
+  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
+    categoryId: eModeCategoryId || 0,
+  })
+
+  setEModeOnCollateral.skipped = !eModeCategoryId || eModeCategoryId === 0
+
   const flashloanCalls = [
     pullDebtTokensToProxy,
     pullCollateralTokensToProxy,
@@ -141,6 +147,7 @@ export async function open({
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnLendingPool,
     depositCollateral,
+    setEModeOnCollateral,
     withdrawDAIFromAAVE,
     positionCreated,
   ]
@@ -153,14 +160,8 @@ export async function open({
     calls: flashloanCalls,
   })
 
-  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
-    categoryId: eModeCategoryId || 0,
-  })
-
-  setEModeOnCollateral.skipped = !eModeCategoryId || eModeCategoryId === 0
-
   return {
-    calls: [takeAFlashLoan, setEModeOnCollateral],
+    calls: [takeAFlashLoan],
     operationName: OPERATION_NAMES.aave.v3.OPEN_POSITION,
   }
 }

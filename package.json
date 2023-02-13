@@ -7,7 +7,7 @@
   "author": "",
   "license": "ISC",
   "engines": {
-    "node": ">=14.17"
+    "node": ">=16"
   },
   "private": "true",
   "workspaces": [

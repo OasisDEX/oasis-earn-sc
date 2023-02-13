@@ -107,6 +107,7 @@ export interface IPosition extends IBasePosition {
   maxDebtToBorrowWithCurrentCollateral: BigNumber
   maxCollateralToWithdraw: BigNumber
   debtToPaybackAll: BigNumber
+  oraclePriceForCollateralDebtExchangeRate: BigNumber
   deposit(amount: BigNumber): IPosition
   borrow(amount: BigNumber): IPosition
   withdraw(amount: BigNumber): IPosition
@@ -146,6 +147,10 @@ export class Position implements IPosition {
         .times(this._oraclePriceForCollateralDebtExchangeRate),
     )
     return new RiskRatio(ltv, RiskRatio.TYPE.LTV)
+  }
+
+  public get oraclePriceForCollateralDebtExchangeRate() {
+    return this._oraclePriceForCollateralDebtExchangeRate
   }
 
   public get maxDebtToBorrow() {

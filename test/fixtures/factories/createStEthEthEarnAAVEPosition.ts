@@ -13,16 +13,19 @@ import {
   aaveV3UniqueContractName,
 } from '../../../packages/oasis-actions/src/protocols/aave/config'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
-import { ETH, MULTIPLE, SLIPPAGE, STETH } from './common'
+import { ETH, MULTIPLE, STETH, UNISWAP_TEST_SLIPPAGE } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
 
-async function openStEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1]) {
+async function openStEthEthEarnAAVEPosition(
+  slippage: BigNumber,
+  dependencies: OpenPositionTypes[1],
+) {
   const args: OpenPositionTypes[0] = {
     collateralToken: STETH,
     debtToken: ETH,
-    slippage: SLIPPAGE,
+    slippage,
     depositedByUser: {
       debtToken: {
         amountInBaseUnit: transactionAmount,
@@ -76,12 +79,17 @@ export async function createStEthEthEarnAAVEPosition({
         to: ETH.precision,
       })
 
-  const position = await openStEthEthEarnAAVEPosition({
-    ...dependencies,
-    getSwapData,
-    isDPMProxy: isDPM,
-    proxy: proxy,
-  })
+  // Just using high slippage for this pair on 1inch because seems to have issues otherwise
+  const oneInchSlippage = new BigNumber(0.2)
+  const position = await openStEthEthEarnAAVEPosition(
+    use1inch ? oneInchSlippage : UNISWAP_TEST_SLIPPAGE,
+    {
+      ...dependencies,
+      getSwapData,
+      isDPMProxy: isDPM,
+      proxy: proxy,
+    },
+  )
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
