@@ -13,16 +13,19 @@ import {
   aaveV3UniqueContractName,
 } from '../../../packages/oasis-actions/src/protocols/aave/config'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
-import { ETH, MULTIPLE, USDC } from './common'
+import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
 const depositCollateralAmount = amountToWei(new BigNumber(10), ETH.precision)
 
-async function getEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
+async function getEthUsdcMultiplyAAVEPosition(
+  slippage: BigNumber,
+  dependencies: OpenPositionTypes[1],
+) {
   const args: OpenPositionTypes[0] = {
     collateralToken: ETH,
     debtToken: USDC,
-    slippage: new BigNumber(0.5),
+    slippage,
     depositedByUser: {
       collateralToken: {
         amountInBaseUnit: depositCollateralAmount,
@@ -76,12 +79,15 @@ export async function createEthUsdcMultiplyAAVEPosition({
         to: ETH.precision,
       })
 
-  const position = await getEthUsdcMultiplyAAVEPosition({
-    ...dependencies,
-    getSwapData,
-    isDPMProxy: isDPM,
-    proxy: proxy,
-  })
+  const position = await getEthUsdcMultiplyAAVEPosition(
+    use1inch ? SLIPPAGE : UNISWAP_TEST_SLIPPAGE,
+    {
+      ...dependencies,
+      getSwapData,
+      isDPMProxy: isDPM,
+      proxy: proxy,
+    },
+  )
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
