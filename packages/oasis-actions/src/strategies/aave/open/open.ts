@@ -23,6 +23,8 @@ import {
   AaveVersion,
 } from '../getCurrentPosition'
 
+type WithFee = { fee: BigNumber }
+
 export interface AaveOpenArgs {
   depositedByUser?: {
     collateralToken?: { amountInBaseUnit: BigNumber }
@@ -148,7 +150,7 @@ export async function open(
 
 async function simulatePositionTransition(
   quoteSwapData: SwapData,
-  args: AaveOpenArgs & { fee: BigNumber },
+  args: AaveOpenArgs & WithFee,
   dependencies: AaveOpenDependencies,
   debug?: boolean,
 ) {
