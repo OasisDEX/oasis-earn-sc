@@ -322,7 +322,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         })
       })
       describe('Using DPM Proxy', function () {
-        this.retries(2)
         supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let simulatedPosition: IPosition
