@@ -1,7 +1,7 @@
 import { getAaveProtocolData } from '../../protocols/aave/getAaveProtocolData'
 import { adjust } from './adjust'
 import { changeDebt } from './changeDebt'
-import { close } from './close'
+import { AaveCloseArgs, AaveCloseDependencies, close } from './close'
 import { depositBorrow } from './depositBorrow'
 import {
   AaveGetCurrentPositionArgs,
@@ -28,12 +28,16 @@ export const aave = {
           getProtocolData: getAaveProtocolData,
         },
       }),
-    view: (args: AaveGetCurrentPositionArgs, dependencies: AaveV2GetCurrentPositionDependencies) =>
+    view: (
+      args: AaveGetCurrentPositionArgs,
+      dependencies: Omit<AaveV2GetCurrentPositionDependencies, 'protocolVersion'>,
+    ) =>
       getCurrentPosition(args, {
         ...dependencies,
         protocolVersion: AaveVersion.v2,
       }),
-    close: close,
+    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) =>
+      close({ ...args, protocolVersion: AaveVersion.v2 }, dependencies),
     adjust: adjust,
     changeDebt: changeDebt,
     depositBorrow,
@@ -41,7 +45,10 @@ export const aave = {
     openDepositAndBorrowDebt: openDepositAndBorrowDebt,
   },
   v3: {
-    open: (args: AaveOpenArgs, dependencies: Omit<AaveV3OpenDependencies, 'protocol'>) =>
+    open: (
+      args: AaveOpenArgs,
+      dependencies: Omit<AaveV3OpenDependencies, 'protocol' | 'protocolVersion'>,
+    ) =>
       open(args, {
         ...dependencies,
         protocol: {
@@ -50,7 +57,12 @@ export const aave = {
           getProtocolData: getAaveProtocolData,
         },
       }),
-    view: (args: AaveGetCurrentPositionArgs, dependencies: AaveV3GetCurrentPositionDependencies) =>
+    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) =>
+      close({ ...args, protocolVersion: AaveVersion.v3 }, dependencies),
+    view: (
+      args: AaveGetCurrentPositionArgs,
+      dependencies: Omit<AaveV3GetCurrentPositionDependencies, 'protocol' | 'protocolVersion'>,
+    ) =>
       getCurrentPosition(args, {
         ...dependencies,
         protocolVersion: AaveVersion.v3,

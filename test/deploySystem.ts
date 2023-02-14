@@ -317,7 +317,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.aave.v3.WITHDRAW,
     actionWithdrawFromAAVEV3Address,
   )
-  await registry.addEntry(CONTRACT_NAMES.aave.v3.PAYBACK, actionPaybackFromAAVEV3Address)
+  const aaveV3PaybackHash = await registry.addEntry(
+    CONTRACT_NAMES.aave.v3.PAYBACK,
+    actionPaybackFromAAVEV3Address,
+  )
   const aaveV3SetEModeHash = await registry.addEntry(
     CONTRACT_NAMES.aave.v3.SET_EMODE,
     actionSetEModeInAAVEV3Address,
@@ -742,6 +745,61 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     {
       hash: returnFundsActionHash,
       optional: false,
+    },
+  ])
+
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v3.CLOSE_POSITION, [
+    {
+      hash: takeFlashLoanHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3DepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3WithdrawHash,
+      optional: false,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3PaybackHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3WithdrawHash,
+      optional: false,
+    },
+    {
+      hash: sendTokenHash,
+      optional: true,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsActionHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsActionHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3SetEModeHash,
+      optional: true,
     },
   ])
 

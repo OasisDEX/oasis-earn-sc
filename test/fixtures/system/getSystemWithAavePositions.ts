@@ -5,7 +5,6 @@ import init, { resetNode, resetNodeToLatestBlock } from '../../../helpers/init'
 import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { mainnetAddresses } from '../../addresses'
-import { testBlockNumber } from '../../config'
 import { deploySystem } from '../../deploySystem'
 import {
   createDPMAccount,
@@ -28,6 +27,9 @@ export function getSupportedStrategies(ciMode?: boolean): Array<{
   ].filter(s => !ciMode || !s.localOnly)
 }
 
+// Do not change test block numbers as they're linked to uniswap liquidity levels
+export const blockNumberForAAVEV2System = 15695000
+
 export const getSystemWithAavePositions =
   ({ use1inch }: { use1inch: boolean }) =>
   async (): Promise<SystemWithAAVEPositions> => {
@@ -39,15 +41,15 @@ export const getSystemWithAavePositions =
       ? buildGetTokenFunction(config, await import('hardhat'))
       : buildGetTokenByImpersonateFunction(config, await import('hardhat'))
     const useFallbackSwap = !use1inch
-    if (testBlockNumber && useFallbackSwap) {
-      await resetNode(config.provider, testBlockNumber)
+    if (blockNumberForAAVEV2System && useFallbackSwap) {
+      await resetNode(config.provider, blockNumberForAAVEV2System)
     }
 
     if (use1inch) {
       await resetNodeToLatestBlock(config.provider)
     }
 
-    if (!testBlockNumber && useFallbackSwap) {
+    if (!blockNumberForAAVEV2System && useFallbackSwap) {
       throw 'testBlockNumber is not set'
     }
 
@@ -112,7 +114,7 @@ export const getSystemWithAavePositions =
       swapAddress,
       dependencies,
       config,
-    }).catch(e => failQuietly(e, 'STETH/ETH Earn'))
+    })
 
     const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyEthUsdc,
@@ -121,7 +123,7 @@ export const getSystemWithAavePositions =
       swapAddress,
       dependencies,
       config,
-    }).catch(e => failQuietly(e, 'ETH/USDC Multiply'))
+    })
 
     const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyStEthUsdc,
@@ -131,7 +133,7 @@ export const getSystemWithAavePositions =
       dependencies,
       config,
       getTokens,
-    }).catch(e => failQuietly(e, 'STETH/USDC Multiply'))
+    })
 
     const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyWbtcUsdc,
@@ -141,7 +143,7 @@ export const getSystemWithAavePositions =
       dependencies,
       config,
       getTokens,
-    }).catch(e => failQuietly(e, 'WBTC/USDC Multiply'))
+    })
 
     const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
       proxy: system.common.userProxyAddress,
@@ -175,7 +177,3 @@ export const getSystemWithAavePositions =
       getTokens,
     }
   }
-
-function failQuietly(e: any, positionType: string) {
-  console.log('failed to create', positionType, e)
-}

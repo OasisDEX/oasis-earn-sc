@@ -16,7 +16,8 @@ export const USDC: TokenDetails = {
 export const ETH: TokenDetails = {
   symbol: 'ETH' as const,
   precision: 18,
-  address: mainnetAddresses.ETH,
+  /* We use WETH address throughout operations and for fee collection */
+  address: mainnetAddresses.WETH,
 }
 
 export const STETH: TokenDetails = {

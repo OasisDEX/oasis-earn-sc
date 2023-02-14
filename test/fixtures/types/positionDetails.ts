@@ -32,6 +32,7 @@ export type PositionDetails = {
     amount: BigNumber,
     slippage: BigNumber,
   ) => Promise<SwapData>
+  __mockPrice: BigNumber
   __openPositionSimulation: IPositionTransition['simulation']
   __feeWalletBalanceChange: BigNumber
 }
