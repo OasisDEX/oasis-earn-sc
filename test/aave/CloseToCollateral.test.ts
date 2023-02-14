@@ -345,7 +345,6 @@ describe('Close AAVEv3 Position to collateral', () => {
       debtToken.precision,
     )
 
-    console.log('OP NAME', closeStrategy.transaction.operationName)
     await executeThroughDPMProxy(
       proxy,
       {
