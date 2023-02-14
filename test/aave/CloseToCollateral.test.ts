@@ -15,8 +15,8 @@ import { executeThroughDPMProxy, executeThroughProxy } from '../../helpers/deplo
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { amountFromWei, balanceOf } from '../../helpers/utils'
 import { getSystemWithAavePositions, SystemWithAAVEPositions } from '../fixtures'
-import { SystemWithAAVEV3Positions } from '../fixtures/types/systemWithAAVEPositions'
 import { getSystemWithAaveV3Positions } from '../fixtures/system/getSystemWithAaveV3Positions'
+import { SystemWithAAVEV3Positions } from '../fixtures/types/systemWithAAVEPositions'
 import { expectToBeEqual } from '../utils'
 
 const EXPECT_DEBT_BEING_PAID_BACK = 'Expect debt being paid back'

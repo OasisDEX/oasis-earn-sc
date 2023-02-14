@@ -1,5 +1,5 @@
-import { open } from './open'
 import { close } from './close'
+import { open } from './open'
 
 export type { AAVEV3StrategyAddresses } from './addresses'
-export { open, close }
+export { close, open }

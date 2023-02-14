@@ -1,7 +1,7 @@
 import { getAaveProtocolData } from '../../protocols/aave/getAaveProtocolData'
 import { adjust } from './adjust'
 import { changeDebt } from './changeDebt'
-import { close, AaveCloseArgs, AaveCloseDependencies } from './close'
+import { AaveCloseArgs, AaveCloseDependencies, close } from './close'
 import { depositBorrow } from './depositBorrow'
 import {
   AaveGetCurrentPositionArgs,
