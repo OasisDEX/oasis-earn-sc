@@ -22,7 +22,7 @@ import { expectToBeEqual } from '../utils'
 const EXPECT_DEBT_BEING_PAID_BACK = 'Expect debt being paid back'
 const EXPECT_FEE_BEING_COLLECTED = 'Expect fee being collected'
 
-describe.only('Close AAVEv2 Position to collateral', () => {
+describe('Close AAVEv2 Position to collateral', () => {
   const slippage = new BigNumber(0.01) // 1%
   let fixture: SystemWithAAVEPositions
 
