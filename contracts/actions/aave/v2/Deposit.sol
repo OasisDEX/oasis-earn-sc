@@ -9,7 +9,7 @@ import { DepositData } from "../../../core/types/Aave.sol";
 import { SafeMath } from "../../../libs/SafeMath.sol";
 import { SafeERC20, IERC20 } from "../../../libs/SafeERC20.sol";
 import { AAVE_LENDING_POOL, DEPOSIT_ACTION } from "../../../core/constants/Aave.sol";
-import "hardhat/console.sol";
+
 /**
  * @title Deposit | AAVE Action contract
  * @notice Deposits the specified asset as collateral on AAVE's lending pool
@@ -38,8 +38,6 @@ contract AaveDeposit is Executable, UseStore {
     uint256 actualDepositAmount = deposit.sumAmounts
       ? mappedDepositAmount.add(deposit.amount)
       : mappedDepositAmount;
-    console.log('DEPOSIT');
-    console.log('deposit on behalf of address(this)', address(this));
 
     ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).deposit(
       deposit.asset,

@@ -77,9 +77,10 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
+  const mockPrice = new BigNumber(22842.53)
   const getSwapData = use1inch
     ? dependencies.getSwapData(swapAddress)
-    : dependencies.getSwapData(new BigNumber(22842.53), {
+    : dependencies.getSwapData(mockPrice, {
         from: USDC.precision,
         to: WBTC.precision,
       })
@@ -196,6 +197,7 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     collateralToken: WBTC,
     debtToken: USDC,
     getSwapData,
+    __mockPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }

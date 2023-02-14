@@ -8,7 +8,7 @@ import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20 } from "../../libs/SafeERC20.sol";
 import { UNISWAP_ROUTER } from "../../core/constants/Common.sol";
 import { SwapData } from "../../core/types/Common.sol";
-import "hardhat/console.sol";
+
 contract uSwap {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -120,12 +120,9 @@ contract uSwap {
     uint256 receiveAtLeast
   ) internal returns (uint256 balance) {
     ISwapRouter uniswap = ISwapRouter(registry.getRegisteredService(UNISWAP_ROUTER));
-    console.log('_SWAP');
-    IERC20(fromAsset).safeApprove(address(uniswap), amount);
-    console.log('amount', amount);
-    uint24 pool = getPool(fromAsset, toAsset);
 
-    uint fromBalance = IERC20(fromAsset).balanceOf(address(this));
+    IERC20(fromAsset).safeApprove(address(uniswap), amount);
+    uint24 pool = getPool(fromAsset, toAsset);
 
     uniswap.exactInputSingle(
       ISwapRouter.ExactInputSingleParams({
@@ -163,8 +160,7 @@ contract uSwap {
       revert FeeTierDoesNotExist(fee);
     }
     uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
-    console.log('feeToTransfer', feeToTransfer);
-    console.log('asset', asset);
+
     if (fee > 0) {
       IERC20(asset).safeTransfer(feeBeneficiaryAddress, feeToTransfer);
       emit FeePaid(feeBeneficiaryAddress, feeToTransfer, asset);
@@ -231,7 +227,6 @@ contract uSwap {
     }
 
     if (!swapData.collectFeeInFromToken) {
-      console.log('collecting fee in toToken');
       toTokenBalance = _collectFee(swapData.toAsset, toTokenBalance, swapData.fee);
     }
 

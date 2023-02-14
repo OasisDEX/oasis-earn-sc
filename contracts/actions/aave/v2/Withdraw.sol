@@ -25,9 +25,7 @@ contract AaveWithdraw is Executable, UseStore {
 
     uint256 amountWithdrawn = ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL))
       .withdraw(withdraw.asset, withdraw.amount, withdraw.to);
-    console.log('WITHDRAW');
-    console.log('address(this)', address(this));
-    console.log("withdrawn to: %s", withdraw.to);
+
     store().write(bytes32(amountWithdrawn));
 
     emit Action(WITHDRAW_ACTION, bytes(abi.encode(amountWithdrawn)));
