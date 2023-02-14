@@ -1,11 +1,15 @@
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import aavePriceOracleABI from '../../../../../abi/external/aave/v2/priceOracle.json'
-import { amountFromWei, amountToWei } from '../../helpers'
-import { ADDRESSES } from '../../helpers/addresses'
-import { IBaseSimulatedTransition, IPosition, Position } from '../../helpers/calculations/Position'
-import { RiskRatio } from '../../helpers/calculations/RiskRatio'
+import aavePriceOracleABI from '../../../../../../abi/external/aave/v2/priceOracle.json'
+import { amountFromWei, amountToWei } from '../../../helpers'
+import { ADDRESSES } from '../../../helpers/addresses'
+import {
+  IBaseSimulatedTransition,
+  IPosition,
+  Position,
+} from '../../../helpers/calculations/Position'
+import { RiskRatio } from '../../../helpers/calculations/RiskRatio'
 import {
   DEFAULT_FEE,
   NO_FEE,
@@ -13,10 +17,10 @@ import {
   TYPICAL_PRECISION,
   UNUSED_FLASHLOAN_AMOUNT,
   ZERO,
-} from '../../helpers/constants'
-import { acceptedFeeToken } from '../../helpers/swap/acceptedFeeToken'
-import * as operations from '../../operations'
-import { AAVEStrategyAddresses } from '../../operations/aave/v2'
+} from '../../../helpers/constants'
+import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
+import * as operations from '../../../operations'
+import { AAVEStrategyAddresses } from '../../../operations/aave/v2'
 import {
   IOperation,
   IPositionTransition,
@@ -24,12 +28,17 @@ import {
   IPositionTransitionDependencies,
   PositionType,
   SwapData,
-} from '../../types'
-import { AAVETokens } from '../../types/aave'
-import { getAaveTokenAddresses } from './getAaveTokenAddresses'
+} from '../../../types'
+import { AAVETokens } from '../../../types/aave'
+import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
 
 type AaveAdjustArgs = IPositionTransitionArgs<AAVETokens> & { positionType: PositionType }
 type AaveAdjustDependencies = IPositionTransitionDependencies<AAVEStrategyAddresses>
+
+// isAdjustRiskUp()? -> branch off here not later
+//
+// getQuoteSwap stuff
+//
 
 export async function adjust(
   args: AaveAdjustArgs,

@@ -52,7 +52,7 @@ describe('Close AAVEv2 Position to collateral', () => {
         debtToken,
         proxy,
       },
-      { addresses, provider, protocolVersion: AaveVersion.v2 },
+      { addresses, provider },
     )
 
     const closeStrategy = await strategies.aave.v2.close(
