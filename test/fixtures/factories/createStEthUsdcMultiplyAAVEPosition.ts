@@ -77,9 +77,10 @@ export async function createStEthUsdcMultiplyAAVEPosition({
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
+  const mockPrice = new BigNumber(1217.85)
   const getSwapData = use1inch
     ? dependencies.getSwapData(swapAddress)
-    : dependencies.getSwapData(new BigNumber(1217.85), {
+    : dependencies.getSwapData(mockPrice, {
         from: USDC.precision,
         to: STETH.precision,
       })
@@ -139,7 +140,6 @@ export async function createStEthUsdcMultiplyAAVEPosition({
     aaveV3UniqueContractName in dependencies.addresses
   ) {
     const addresses = dependencies.addresses
-    const protocolVersion = dependencies.protocol.version
     getPosition = async () => {
       return await strategies.aave.v3.view(
         {
@@ -153,7 +153,6 @@ export async function createStEthUsdcMultiplyAAVEPosition({
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
-          protocolVersion: protocolVersion,
         },
       )
     }
@@ -163,7 +162,6 @@ export async function createStEthUsdcMultiplyAAVEPosition({
     aaveV2UniqueContractName in dependencies.addresses
   ) {
     const addresses = dependencies.addresses
-    const protocolVersion = dependencies.protocol.version
     getPosition = async () => {
       return await strategies.aave.v2.view(
         {
@@ -177,7 +175,6 @@ export async function createStEthUsdcMultiplyAAVEPosition({
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
-          protocolVersion,
         },
       )
     }
@@ -192,6 +189,7 @@ export async function createStEthUsdcMultiplyAAVEPosition({
     collateralToken: STETH,
     debtToken: USDC,
     getSwapData,
+    __mockPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }

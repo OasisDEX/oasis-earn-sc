@@ -287,7 +287,7 @@ describe('Close AAVEv2 Position to collateral', () => {
   }
 })
 
-describe.only('Close AAVEv3 Position to collateral', () => {
+describe('Close AAVEv3 Position to collateral', () => {
   const slippage = new BigNumber(0.01) // 1%
   let fixture: SystemWithAAVEV3Positions
 

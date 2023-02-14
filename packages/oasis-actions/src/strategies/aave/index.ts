@@ -28,7 +28,10 @@ export const aave = {
           getProtocolData: getAaveProtocolData,
         },
       }),
-    view: (args: AaveGetCurrentPositionArgs, dependencies: AaveV2GetCurrentPositionDependencies) =>
+    view: (
+      args: AaveGetCurrentPositionArgs,
+      dependencies: Omit<AaveV2GetCurrentPositionDependencies, 'protocolVersion'>,
+    ) =>
       getCurrentPosition(args, {
         ...dependencies,
         protocolVersion: AaveVersion.v2,
@@ -42,7 +45,10 @@ export const aave = {
     openDepositAndBorrowDebt: openDepositAndBorrowDebt,
   },
   v3: {
-    open: (args: AaveOpenArgs, dependencies: Omit<AaveV3OpenDependencies, 'protocol'>) =>
+    open: (
+      args: AaveOpenArgs,
+      dependencies: Omit<AaveV3OpenDependencies, 'protocol' | 'protocolVersion'>,
+    ) =>
       open(args, {
         ...dependencies,
         protocol: {
@@ -53,7 +59,10 @@ export const aave = {
       }),
     close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) =>
       close({ ...args, protocolVersion: AaveVersion.v3 }, dependencies),
-    view: (args: AaveGetCurrentPositionArgs, dependencies: AaveV3GetCurrentPositionDependencies) =>
+    view: (
+      args: AaveGetCurrentPositionArgs,
+      dependencies: Omit<AaveV3GetCurrentPositionDependencies, 'protocol' | 'protocolVersion'>,
+    ) =>
       getCurrentPosition(args, {
         ...dependencies,
         protocolVersion: AaveVersion.v3,
