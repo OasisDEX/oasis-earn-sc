@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 
 import { IRiskRatio } from '../../helpers/calculations'
-import { Address } from '../../types/common'
+import { Address, AjnaError } from '../../types/common'
 
 /*
 AJNA ACRONYM FINDER
@@ -51,6 +51,7 @@ export interface Pool {
   collateralToken: Address
 
   lup: BigNumber
+  htp: BigNumber
 
   // annualized rate as a fraction 0.05 = 5%
   rate: BigNumber
@@ -63,6 +64,8 @@ export interface IAjnaPosition {
   debtAmount: BigNumber
 
   liquidationPrice: BigNumber
+  thresholdPrice: BigNumber
+  errors: AjnaError[]
 
   collateralAvailable: BigNumber
   debtAvailable: BigNumber

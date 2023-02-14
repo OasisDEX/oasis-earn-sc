@@ -27,18 +27,22 @@ export async function getPool(
   const pool = new ethers.Contract(poolAddress, poolERC20Abi, provider)
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
 
-  const [collateralAddress, quoteTokenAddress, interestRateInfo, lup] = await Promise.all([
-    pool.collateralAddress(),
-    pool.quoteTokenAddress(),
-    pool.interestRateInfo(),
-    poolInfo.lup(poolAddress),
-  ])
+  const [collateralAddress, quoteTokenAddress, interestRateInfo, lup, htp, poolPrices] =
+    await Promise.all([
+      pool.collateralAddress(),
+      pool.quoteTokenAddress(),
+      pool.interestRateInfo(),
+      poolInfo.lup(poolAddress),
+      poolInfo.htp(poolAddress),
+      poolInfo.poolPricesInfo(poolAddress),
+    ])
 
   return {
     collateralToken: collateralAddress,
     quoteToken: quoteTokenAddress,
     poolAddress: poolAddress,
     lup: new BigNumber(lup.toString()).div(WAD),
+    htp: new BigNumber(htp.toString()).div(WAD),
     rate: new BigNumber(interestRateInfo[0].toString()).div(WAD),
   }
 }
