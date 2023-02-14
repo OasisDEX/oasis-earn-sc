@@ -121,7 +121,7 @@ export async function close(
   })
 
   return {
-    calls: [setEModeOnCollateral, takeAFlashLoan],
+    calls: [takeAFlashLoan, setEModeOnCollateral],
     operationName: OPERATION_NAMES.aave.v3.CLOSE_POSITION,
   }
 }

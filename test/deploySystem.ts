@@ -750,10 +750,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   await operationsRegistry.addOp(OPERATION_NAMES.aave.v3.CLOSE_POSITION, [
     {
-      hash: aaveV3SetEModeHash,
-      optional: true,
-    },
-    {
       hash: takeFlashLoanHash,
       optional: false,
     },
@@ -800,6 +796,10 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     {
       hash: returnFundsActionHash,
       optional: false,
+    },
+    {
+      hash: aaveV3SetEModeHash,
+      optional: true,
     },
   ])
 

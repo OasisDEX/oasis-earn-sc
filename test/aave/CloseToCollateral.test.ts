@@ -440,13 +440,6 @@ describe.only('Close AAVEv3 Position to collateral', () => {
       currentPosition.collateral.amount.minus(closeStrategy.simulation.swap.fromTokenAmount),
     )
 
-    // Given the nature of stETH, there is 1 WEI remaining within astETH and cannot be withdrawn
-    // thus there is a difference if we compare the two numbers up to the last wei.
-    // Using 16 precision will still give us accurate results.
-    // It's 16 and not 17 because if there is the following case:
-    // 1967693420651624420 -> (to 17) 1.96769342065162442
-    // 1967693420651624419 -> (to 17) 1.96769342065162441
-    // So 16 is a safe bet.
     expectToBeEqual(
       amountFromWei(expectedBalance).toFixed(16),
       amountFromWei(userCollateralBalanceAfterTx).toFixed(16),
