@@ -36,6 +36,7 @@ export async function adjustRiskUp({
 }: AdjustRiskUpArgs): Promise<IOperation> {
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
+
   const pullDepositTokensToProxy = actions.common.pullToken({
     asset: depositAddress,
     amount: depositAmount,

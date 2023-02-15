@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import { OperationNames } from '../helpers/constants'
+import { AAVEStrategyAddresses } from '../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../operations/aave/v3'
 import { ActionCall } from './actionCall'
 import { Address } from './StrategyParams'
@@ -12,10 +13,6 @@ export interface IOperation {
 
 export type WithCollateral = {
   collateral: {
-    withdrawal: {
-      /* Amount to withdraw in base unit */
-      amount: BigNumber
-    }
     address: Address
     isEth: boolean
   }
@@ -85,6 +82,10 @@ export type WithProxy = {
     owner: string
     isDPMProxy: boolean
   }
+}
+
+export type WithAaveV2StrategyAddresses = {
+  addresses: AAVEStrategyAddresses
 }
 
 export type WithAaveV3StrategyAddresses = {

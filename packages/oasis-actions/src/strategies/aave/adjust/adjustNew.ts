@@ -175,7 +175,8 @@ async function adjustRiskDown(
   })
 
   // buildOperation
-  const operation = await buildOperation({
+  const operation = await buildOperationV2({
+    adjustRiskUp: false,
     swapData,
     simulatedPositionTransition: simulatedAdjustDown,
     collectFeeFrom,
@@ -370,27 +371,28 @@ export function isV3(
   return dependencies.protocol.version === AaveVersion.v3
 }
 
-type BuildOperationArgs = {
+type BuildOperationV2Args = {
   protocolVersion: AaveVersion
   adjustRiskUp: boolean
   swapData: SwapData
   simulatedPositionTransition: IBaseSimulatedTransition
   collectFeeFrom: 'sourceToken' | 'targetToken'
-  reserveEModeCategory: number | undefined
+  // reserveEModeCategory?: number | undefined
   args: AaveAdjustArgs
   dependencies: AaveAdjustDependencies
 }
 
-async function buildOperation({
-  protocolVersion,
+async function build
+
+async function buildOperationV2({
   adjustRiskUp,
   swapData,
   simulatedPositionTransition,
   collectFeeFrom,
-  reserveEModeCategory,
+  // reserveEModeCategory,
   args,
   dependencies,
-}: BuildOperationArgs) {
+}: BuildOperationV2Args) {
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
@@ -399,181 +401,72 @@ async function buildOperation({
   const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
   const depositDebtAmountInWei = args.depositedByUser?.collateralInWei || ZERO
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
-  const borrowAmountInWei = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
 
   const adjustRiskDown = !adjustRiskUp
-  if (adjustRiskUp) {
-    const adjustArgsV2 = {
-      deposit: {
-        collateralToken: {
-          amountInBaseUnit: depositCollateralAmountInWei,
-          isEth: args.collateralToken.symbol === 'ETH',
-        },
-        debtToken: {
-          amountInBaseUnit: depositDebtAmountInWei,
-          isEth: args.debtToken.symbol === 'ETH',
-        },
-      },
-      swapArgs: {
-        fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
-        swapData: swapData.exchangeCalldata,
-        swapAmountInBaseUnit: swapAmountBeforeFees,
-        collectFeeFrom,
-        receiveAtLeast: swapData.minToTokenAmount,
-      },
-      positionType: args.positionType,
-      addresses: dependencies.addresses,
-      flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
-      borrowAmountInBaseUnit: borrowAmountInWei,
-      collateralTokenAddress,
-      debtTokenAddress,
-      useFlashloan: simulatedPositionTransition.flags.requiresFlashloan,
-      proxy: dependencies.proxy,
-      user: dependencies.user,
+  const adjustRiskArgs = {
+    collateral: {
+      address: collateralTokenAddress,
+      amount: depositCollateralAmountInWei,
+      isEth: args.collateralToken.symbol === 'ETH',
+    },
+    debt: {
+      address: debtTokenAddress,
+      amount: depositDebtAmountInWei,
+      isEth: args.debtToken.symbol === 'ETH',
+    },
+    deposit: {
+      address: '0x0000000',
+      amount: ZERO,
+    },
+    swap: {
+      fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
+      data: swapData.exchangeCalldata,
+      amount: swapAmountBeforeFees,
+      collectFeeFrom,
+      receiveAtLeast: swapData.minToTokenAmount,
+    },
+    flashloan: {
+      amount: simulatedPositionTransition.delta.flashloanAmount,
+    },
+    proxy: {
+      address: dependencies.proxy,
       isDPMProxy: dependencies.isDPMProxy,
+      owner: dependencies.user,
+    },
+    addresses: dependencies.addresses,
+  }
+  if (adjustRiskUp) {
+    const borrowAmount = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
+    const adjustRiskUpArgs = {
+      ...adjustRiskArgs,
+      debt: {
+        ...adjustRiskArgs.debt,
+        borrow: {
+          amount: borrowAmount,
+        },
+      },
     }
-    return await operations.aave.v2.adjust(adjustArgsV2)
+    return await operations.aave.v2.adjustRiskUp(adjustRiskUpArgs)
   }
 
   if (adjustRiskDown) {
+    const withdrawCollateralAmount = simulatedPositionTransition.delta.collateral.abs()
+    const adjustRiskDownArgs = {
+      ...adjustRiskArgs,
+      collateral: {
+        ...adjustRiskArgs.collateral,
+        withdrawal: {
+          amount: withdrawCollateralAmount,
+        },
+      },
+    }
+    return await operations.aave.v2.adjustRiskDown(adjustRiskDownArgs)
   }
 
   throw new Error('No operation could be built')
-  switch (isIncreasingRisk) {
-    case true:
-      const adjustArgsV2 = {
-        deposit: {
-          collateralToken: {
-            amountInBaseUnit: depositCollateralAmountInWei,
-            isEth: args.collateralToken.symbol === 'ETH',
-          },
-          debtToken: {
-            amountInBaseUnit: depositDebtAmountInWei,
-            isEth: args.debtToken.symbol === 'ETH',
-          },
-        },
-        swapArgs: {
-          fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
-          swapData: swapData.exchangeCalldata,
-          swapAmountInBaseUnit: swapAmountBeforeFees,
-          collectFeeFrom,
-          receiveAtLeast: swapData.minToTokenAmount,
-        },
-        positionType: args.positionType,
-        addresses: dependencies.addresses,
-        flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
-        borrowAmountInBaseUnit: borrowAmountInWei,
-        collateralTokenAddress,
-        debtTokenAddress,
-        useFlashloan: simulatedPositionTransition.flags.requiresFlashloan,
-        proxy: dependencies.proxy,
-        user: dependencies.user,
-        isDPMProxy: dependencies.isDPMProxy,
-      }
-      return await operations.aave.v2.adjust(adjustArgsV2)
-    case AaveVersion.v3:
-      const adjustArgsV3 = {
-        deposit: {
-          collateralToken: {
-            amountInBaseUnit: depositCollateralAmountInWei,
-            isEth: args.collateralToken.symbol === 'ETH',
-          },
-          debtToken: {
-            amountInBaseUnit: depositDebtAmountInWei,
-            isEth: args.debtToken.symbol === 'ETH',
-          },
-        },
-        swapArgs: {
-          fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
-          swapData: swapData.exchangeCalldata,
-          swapAmountInBaseUnit: swapAmountBeforeFees,
-          collectFeeFrom,
-          receiveAtLeast: swapData.minToTokenAmount,
-        },
-        positionType: args.positionType,
-        addresses: dependencies.addresses,
-        flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
-        borrowAmountInBaseUnit: borrowAmountInWei,
-        collateralTokenAddress,
-        debtTokenAddress,
-        eModeCategoryId: reserveEModeCategory || 0,
-        useFlashloan: simulatedPositionTransition.flags.requiresFlashloan,
-        proxy: dependencies.proxy,
-        user: dependencies.user,
-        isDPMProxy: dependencies.isDPMProxy,
-      }
-      return await operations.aave.v3.adjust(adjustArgsV3)
-    default:
-      throw new Error('Unsupported AAVE version')
-  }
-  // if (protocolVersion === AaveVersion.v3 && 'pool' in dependencies.addresses) {
-  //   const openArgs = {
-  //     deposit: {
-  //       collateralToken: {
-  //         amountInBaseUnit: depositCollateralAmountInWei,
-  //         isEth: args.collateralToken.symbol === 'ETH',
-  //       },
-  //       debtToken: {
-  //         amountInBaseUnit: depositDebtAmountInWei,
-  //         isEth: args.debtToken.symbol === 'ETH',
-  //       },
-  //     },
-  //     swapArgs: {
-  //       fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
-  //       swapData: swapData.exchangeCalldata,
-  //       swapAmountInBaseUnit: swapAmountBeforeFees,
-  //       collectFeeFrom,
-  //       receiveAtLeast: swapData.minToTokenAmount,
-  //     },
-  //     positionType: args.positionType,
-  //     addresses: dependencies.addresses,
-  //     flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
-  //     borrowAmountInBaseUnit: borrowAmountInWei,
-  //     collateralTokenAddress,
-  //     debtTokenAddress,
-  //     eModeCategoryId: reserveEModeCategory || 0,
-  //     useFlashloan: simulatedPositionTransition.flags.requiresFlashloan,
-  //     proxy: dependencies.proxy,
-  //     user: dependencies.user,
-  //     isDPMProxy: dependencies.isDPMProxy,
-  //   }
-  //   return await operations.aave.v3.open(openArgs)
-  // }
-  // if (protocolVersion === AaveVersion.v2 && 'lendingPool' in dependencies.addresses) {
-  //   const openArgs = {
-  //     deposit: {
-  //       collateralToken: {
-  //         amountInBaseUnit: depositCollateralAmountInWei,
-  //         isEth: args.collateralToken.symbol === 'ETH',
-  //       },
-  //       debtToken: {
-  //         amountInBaseUnit: depositDebtAmountInWei,
-  //         isEth: args.debtToken.symbol === 'ETH',
-  //       },
-  //     },
-  //     swapArgs: {
-  //       fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
-  //       swapData: swapData.exchangeCalldata,
-  //       swapAmountInBaseUnit: swapAmountBeforeFees,
-  //       collectFeeFrom,
-  //       receiveAtLeast: swapData.minToTokenAmount,
-  //     },
-  //     positionType: args.positionType,
-  //     addresses: dependencies.addresses,
-  //     flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
-  //     borrowAmountInBaseUnit: borrowAmountInWei,
-  //     collateralTokenAddress,
-  //     debtTokenAddress,
-  //     useFlashloan: simulatedPositionTransition.flags.requiresFlashloan,
-  //     proxy: dependencies.proxy,
-  //     user: dependencies.user,
-  //     isDPMProxy: dependencies.isDPMProxy,
-  //   }
-  //   return await operations.aave.v2.open(openArgs)
-  // }
 }
 
-async function buildOperationV2(args: BuildOperationArgs) {
+async function buildOperationV2(args: Omit<BuildOperationArgs, 'protocolVersion'>) {
   return buildOperation({
     ...args,
     protocolVersion: AaveVersion.v2,

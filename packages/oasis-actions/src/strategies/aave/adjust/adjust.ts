@@ -441,7 +441,7 @@ async function _decreaseRisk({
    * because it's calculated using Debt Delta which will be negative
    */
   const absFlashloanAmount = (simulatedPositionTransition.delta?.flashloanAmount || ZERO).abs()
-  const operation = await operations.aave.v2.decreaseMultiple(
+  const operation = await operations.aave.v2.adjustRiskDown(
     {
       flashloanAmount: absFlashloanAmount.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : absFlashloanAmount,
       withdrawAmountInWei: withdrawCollateralAmountWei,
