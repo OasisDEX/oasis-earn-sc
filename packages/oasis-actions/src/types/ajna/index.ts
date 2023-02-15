@@ -77,3 +77,15 @@ export interface IAjnaPosition {
   borrow(amount: BigNumber): IAjnaPosition
   payback(amount: BigNumber): IAjnaPosition
 }
+
+export interface IAjnaEarn {
+  pool: Pool
+  owner: Address
+  quoteTokenAmount: BigNumber
+
+  fundsLockedUntil: number
+  earlyWithdrawPenalty: BigNumber
+
+  deposit(amount: BigNumber): IAjnaEarn
+  withdraw(amount: BigNumber): IAjnaEarn
+}

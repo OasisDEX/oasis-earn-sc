@@ -4,6 +4,7 @@ import { ethers } from 'ethers'
 import poolERC20Abi from '../../../../../abi/external//ajna/ajnaPoolERC20.json'
 import poolInfoAbi from '../../../../../abi/external/ajna/poolInfoUtils.json'
 import { AjnaPosition } from '../../helpers/ajna'
+import { AjnaEarn } from '../../helpers/ajna/AjnaEarn'
 import { Pool } from '../../types/ajna'
 import { Address } from '../../types/common'
 
@@ -64,4 +65,15 @@ export async function getPosition(
     new BigNumber(borrowerInfo.collateral_.toString()).div(WAD),
     new BigNumber(borrowerInfo.debt_.toString()).div(WAD),
   )
+}
+
+export async function getEarnPosition(
+  { proxyAddress, poolAddress }: Args,
+  { poolInfoAddress, provider }: Dependencies,
+): Promise<AjnaEarn> {
+  const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
+
+  const [pool] = await Promise.all([getPool(poolAddress, poolInfoAddress, provider)])
+
+  return new AjnaEarn(pool, proxyAddress, new BigNumber(234))
 }
