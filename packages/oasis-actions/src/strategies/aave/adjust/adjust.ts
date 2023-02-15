@@ -322,7 +322,7 @@ async function _increaseRisk({
 
   const flashloanAmount = simulatedPositionTransition.delta?.flashloanAmount || ZERO
 
-  const operation = await operations.aave.v2.increaseMultiple(
+  const operation = await operations.aave.v2.adjustRiskUp(
     {
       depositCollateral: {
         amountInWei: depositCollateralAmountInWei || ZERO,

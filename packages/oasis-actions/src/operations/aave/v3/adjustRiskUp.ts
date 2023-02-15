@@ -2,78 +2,63 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import * as actions from '../../../actions'
-import { OPERATION_NAMES, ZERO } from '../../../helpers/constants'
-import { Address, IOperation } from '../../../types'
-import { AAVEV3StrategyAddresses } from './addresses'
+import { NULL_ADDRESS, OPERATION_NAMES, ZERO } from '../../../helpers/constants'
+import { IOperation } from '../../../types'
+import {
+  WithAaveV3StrategyAddresses,
+  WithCollateral,
+  WithDebtAndBorrow,
+  WithEMode,
+  WithFlashloan,
+  WithOptionalDeposit,
+  WithProxy,
+  WithSwap,
+} from '../../../types/Operations'
 
-interface AdjustRiskUpArgs {
-  collateral: {
-    toDepositInBaseUnit: BigNumber
-    address: Address
-    isEth: boolean
-  }
-  debt: {
-    toDepositInBaseUnit: BigNumber
-    toBorrowInBaseUnit: BigNumber
-    address: Address
-    isEth: boolean
-  }
-  swapArgs: {
-    fee: number
-    swapData: string | number
-    swapAmountInBaseUnit: BigNumber
-    collectFeeFrom: 'sourceToken' | 'targetToken'
-    receiveAtLeast: BigNumber
-  }
-  addresses: AAVEV3StrategyAddresses
-  flashloanAmount: BigNumber
-  eModeCategoryId: number
-  useFlashloan: boolean
-  proxy: Address
-  user: Address
-  isDPMProxy: boolean
-}
+type AdjustRiskUpArgs = WithCollateral &
+  WithDebtAndBorrow &
+  WithOptionalDeposit &
+  WithSwap &
+  WithFlashloan &
+  WithProxy &
+  WithAaveV3StrategyAddresses &
+  WithEMode
 
 export async function adjustRiskUp({
   collateral,
   debt,
-  swapArgs,
-  addresses,
-  flashloanAmount,
-  eModeCategoryId,
+  deposit,
+  swap,
+  flashloan,
   proxy,
-  user,
-  isDPMProxy,
+  addresses,
+  emode,
 }: AdjustRiskUpArgs): Promise<IOperation> {
-  const pullDebtTokensToProxy = actions.common.pullToken({
-    asset: debt.address,
-    amount: debt.toDepositInBaseUnit,
-    from: user,
-  })
-
-  const pullCollateralTokensToProxy = actions.common.pullToken({
-    asset: collateral.address,
-    amount: collateral.toDepositInBaseUnit,
-    from: user,
+  const depositAmount = deposit?.amount || ZERO
+  const depositAddress = deposit?.address || NULL_ADDRESS
+  const pullDepositTokensToProxy = actions.common.pullToken({
+    asset: depositAddress,
+    amount: depositAmount,
+    from: proxy.owner,
   })
 
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
-    amount: flashloanAmount,
+    amount: flashloan.amount,
     asset: addresses.DAI,
     delegate: addresses.pool,
     sumAmounts: false,
   })
 
   const depositDaiInAAVE = actions.aave.v3.aaveV3Deposit({
-    amount: flashloanAmount,
+    amount: flashloan.amount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
 
   const borrowDebtTokensFromAAVE = actions.aave.v3.aaveV3Borrow({
-    amount: debt.toBorrowInBaseUnit,
+    amount: debt.borrow.amount,
     asset: debt.address,
-    to: proxy,
+    to: proxy.address,
   })
 
   const wrapEth = actions.common.wrapEth({
@@ -83,18 +68,19 @@ export async function adjustRiskUp({
   const swapDebtTokensForCollateralTokens = actions.common.swap({
     fromAsset: debt.address,
     toAsset: collateral.address,
-    amount: swapArgs.swapAmountInBaseUnit,
-    receiveAtLeast: swapArgs.receiveAtLeast,
-    fee: swapArgs.fee,
-    withData: swapArgs.swapData,
-    collectFeeInFromToken: swapArgs.collectFeeFrom === 'sourceToken',
+    amount: swap.amount,
+    receiveAtLeast: swap.receiveAtLeast,
+    fee: swap.fee,
+    withData: swap.data,
+    collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
+  const depositIsCollateral = depositAddress === collateral.address
   const setCollateralTokenApprovalOnLendingPool = actions.common.setApproval(
     {
       asset: collateral.address,
       delegate: addresses.pool,
-      amount: collateral.toDepositInBaseUnit,
+      amount: depositIsCollateral ? depositAmount : ZERO,
       sumAmounts: true,
     },
     [0, 0, 3, 0],
@@ -103,7 +89,7 @@ export async function adjustRiskUp({
   const depositCollateral = actions.aave.v3.aaveV3Deposit(
     {
       asset: collateral.address,
-      amount: collateral.toDepositInBaseUnit,
+      amount: depositIsCollateral ? depositAmount : ZERO,
       sumAmounts: true,
       setAsCollateral: true,
     },
@@ -112,23 +98,21 @@ export async function adjustRiskUp({
 
   const withdrawDAIFromAAVE = actions.aave.v3.aaveV3Withdraw({
     asset: addresses.DAI,
-    amount: flashloanAmount,
+    amount: flashloan.amount,
     to: addresses.operationExecutor,
   })
 
-  pullDebtTokensToProxy.skipped = debt.toDepositInBaseUnit.eq(ZERO) || debt.isEth
-  pullCollateralTokensToProxy.skipped = collateral.toDepositInBaseUnit.eq(ZERO) || collateral.isEth
+  pullDepositTokensToProxy.skipped = depositAmount.eq(ZERO) || debt.isEth
   wrapEth.skipped = !debt.isEth && !collateral.isEth
 
   const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
-    categoryId: eModeCategoryId || 0,
+    categoryId: emode.categoryId,
   })
 
-  setEModeOnCollateral.skipped = !eModeCategoryId || eModeCategoryId === 0
+  setEModeOnCollateral.skipped = emode.categoryId === 0
 
   const flashloanCalls = [
-    pullDebtTokensToProxy,
-    pullCollateralTokensToProxy,
+    pullDepositTokensToProxy,
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
     borrowDebtTokensFromAAVE,
@@ -140,8 +124,8 @@ export async function adjustRiskUp({
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
-    isDPMProxy,
-    flashloanAmount: flashloanAmount,
+    isDPMProxy: proxy.isDPMProxy,
+    flashloanAmount: flashloan.amount,
     borrower: addresses.operationExecutor,
     isProxyFlashloan: true,
     calls: flashloanCalls,

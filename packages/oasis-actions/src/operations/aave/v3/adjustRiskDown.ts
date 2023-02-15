@@ -3,74 +3,61 @@ import BigNumber from 'bignumber.js'
 import * as actions from '../../../actions'
 import { ADDRESSES } from '../../../helpers/addresses'
 import { MAX_UINT, OPERATION_NAMES } from '../../../helpers/constants'
-import { Address, IOperation } from '../../../types'
-import { AAVEV3StrategyAddresses } from './addresses'
+import { IOperation } from '../../../types'
+import {
+  WithAaveV3StrategyAddresses,
+  WithCollateralAndWithdrawal,
+  WithDebt,
+  WithEMode,
+  WithFlashloan,
+  WithProxy,
+  WithSwap,
+} from '../../../types/Operations'
 
-interface AdjustRiskDownArgs {
-  collateral: {
-    toDepositInBaseUnit: BigNumber
-    toWithdrawInBaseUnit: BigNumber
-    address: Address
-    isEth: boolean
-  }
-  debt: {
-    toDepositInBaseUnit: BigNumber
-    address: Address
-    isEth: boolean
-  }
-  swapArgs: {
-    fee: number
-    swapData: string | number
-    swapAmountInBaseUnit: BigNumber
-    collectFeeFrom: 'sourceToken' | 'targetToken'
-    receiveAtLeast: BigNumber
-  }
-  addresses: AAVEV3StrategyAddresses
-  flashloanAmount: BigNumber
-  borrowAmountInBaseUnit: BigNumber
-  eModeCategoryId: number
-  useFlashloan: boolean
-  proxy: Address
-  isDPMProxy: boolean
-}
+type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
+  WithDebt &
+  WithSwap &
+  WithFlashloan &
+  WithProxy &
+  WithAaveV3StrategyAddresses &
+  WithEMode
 
 export async function adjustRiskDown({
   collateral,
   debt,
-  swapArgs,
-  addresses,
-  flashloanAmount,
-  eModeCategoryId,
+  swap,
+  flashloan,
   proxy,
-  isDPMProxy,
+  addresses,
+  emode,
 }: AdjustRiskDownArgs): Promise<IOperation> {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
-    amount: flashloanAmount,
+    amount: flashloan.amount,
     asset: addresses.DAI,
     delegate: addresses.pool,
     sumAmounts: false,
   })
 
   const depositDaiInAAVE = actions.aave.v3.aaveV3Deposit({
-    amount: flashloanAmount,
+    amount: flashloan.amount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
 
   const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw({
     asset: collateral.address,
-    amount: collateral.toWithdrawInBaseUnit,
-    to: proxy,
+    amount: collateral.withdrawal.amount,
+    to: proxy.address,
   })
 
   const swapCollateralTokensForDebtTokens = actions.common.swap({
     fromAsset: collateral.address,
     toAsset: debt.address,
-    amount: swapArgs.swapAmountInBaseUnit,
-    receiveAtLeast: swapArgs.receiveAtLeast,
-    fee: swapArgs.fee,
-    withData: swapArgs.swapData,
-    collectFeeInFromToken: swapArgs.collectFeeFrom === 'sourceToken',
+    amount: swap.amount,
+    receiveAtLeast: swap.receiveAtLeast,
+    fee: swap.fee,
+    withData: swap.data,
+    collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
   const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
@@ -94,7 +81,7 @@ export async function adjustRiskDown({
 
   const withdrawDAIFromAAVE = actions.aave.v3.aaveV3Withdraw({
     asset: addresses.DAI,
-    amount: flashloanAmount,
+    amount: flashloan.amount,
     to: addresses.operationExecutor,
   })
 
@@ -111,10 +98,10 @@ export async function adjustRiskDown({
   })
 
   const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
-    categoryId: eModeCategoryId || 0,
+    categoryId: emode.categoryId,
   })
 
-  setEModeOnCollateral.skipped = !eModeCategoryId || eModeCategoryId === 0
+  setEModeOnCollateral.skipped = emode.categoryId === 0
 
   const flashloanCalls = [
     setDaiApprovalOnLendingPool,
@@ -131,8 +118,8 @@ export async function adjustRiskDown({
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
-    isDPMProxy,
-    flashloanAmount: flashloanAmount,
+    isDPMProxy: proxy.isDPMProxy,
+    flashloanAmount: flashloan.amount,
     borrower: addresses.operationExecutor,
     isProxyFlashloan: true,
     calls: flashloanCalls,
