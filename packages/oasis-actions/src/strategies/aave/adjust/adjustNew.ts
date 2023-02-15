@@ -371,6 +371,8 @@ export function isV3(
 }
 
 type BuildOperationArgs = {
+  protocolVersion: AaveVersion
+  adjustRiskUp: boolean
   swapData: SwapData
   simulatedPositionTransition: IBaseSimulatedTransition
   collectFeeFrom: 'sourceToken' | 'targetToken'
@@ -378,7 +380,10 @@ type BuildOperationArgs = {
   args: AaveAdjustArgs
   dependencies: AaveAdjustDependencies
 }
+
 async function buildOperation({
+  protocolVersion,
+  adjustRiskUp,
   swapData,
   simulatedPositionTransition,
   collectFeeFrom,
@@ -386,7 +391,6 @@ async function buildOperation({
   args,
   dependencies,
 }: BuildOperationArgs) {
-  const protocolVersion = dependencies.protocol.version
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
@@ -397,8 +401,46 @@ async function buildOperation({
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
   const borrowAmountInWei = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
 
-  switch (protocolVersion) {
-    case AaveVersion.v2:
+  const adjustRiskDown = !adjustRiskUp
+  if (adjustRiskUp) {
+    const adjustArgsV2 = {
+      deposit: {
+        collateralToken: {
+          amountInBaseUnit: depositCollateralAmountInWei,
+          isEth: args.collateralToken.symbol === 'ETH',
+        },
+        debtToken: {
+          amountInBaseUnit: depositDebtAmountInWei,
+          isEth: args.debtToken.symbol === 'ETH',
+        },
+      },
+      swapArgs: {
+        fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
+        swapData: swapData.exchangeCalldata,
+        swapAmountInBaseUnit: swapAmountBeforeFees,
+        collectFeeFrom,
+        receiveAtLeast: swapData.minToTokenAmount,
+      },
+      positionType: args.positionType,
+      addresses: dependencies.addresses,
+      flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
+      borrowAmountInBaseUnit: borrowAmountInWei,
+      collateralTokenAddress,
+      debtTokenAddress,
+      useFlashloan: simulatedPositionTransition.flags.requiresFlashloan,
+      proxy: dependencies.proxy,
+      user: dependencies.user,
+      isDPMProxy: dependencies.isDPMProxy,
+    }
+    return await operations.aave.v2.adjust(adjustArgsV2)
+  }
+
+  if (adjustRiskDown) {
+  }
+
+  throw new Error('No operation could be built')
+  switch (isIncreasingRisk) {
+    case true:
       const adjustArgsV2 = {
         deposit: {
           collateralToken: {
@@ -529,6 +571,13 @@ async function buildOperation({
   //   }
   //   return await operations.aave.v2.open(openArgs)
   // }
+}
+
+async function buildOperationV2(args: BuildOperationArgs) {
+  return buildOperation({
+    ...args,
+    protocolVersion: AaveVersion.v2,
+  })
 }
 
 type GenerateTransitionArgs = {
