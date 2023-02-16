@@ -78,7 +78,7 @@ export async function open(
         fee,
       },
       dependencies,
-      // true,
+      true,
     )
 
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
@@ -317,6 +317,8 @@ async function buildOperation(
     return await operations.aave.v3.open(openArgs)
   }
   if (protocolVersion === AaveVersion.v2 && 'lendingPool' in dependencies.addresses) {
+    console.log('V2 Build Op')
+    console.log('borrowAmountInWei', borrowAmountInWei.toString())
     const openArgs = {
       deposit: {
         collateralToken: {

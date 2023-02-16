@@ -29,6 +29,7 @@ export function aaveDeposit(
 }
 
 export function aaveBorrow(args: { amount: BigNumber; asset: string; to: string }) {
+  console.log('AAVE_BORROW', args)
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.v2.BORROW),
     [calldataTypes.aave.Borrow],

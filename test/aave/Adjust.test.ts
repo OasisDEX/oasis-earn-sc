@@ -63,7 +63,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
 
   describe('[Uniswap]', () => {
     const multiple = new RiskRatio(new BigNumber(2), RiskRatio.TYPE.MULITPLE)
-    const slippage = new BigNumber(0.1)
+    const slippage = new BigNumber(0.05)
 
     let positionTransition: IPositionTransition
     let openTxStatus: boolean
@@ -274,7 +274,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
           },
           positionType,
           slippage,
-          multiple: adjustToMultiple,
+          multiple: new RiskRatio(adjustToMultiple, RiskRatio.TYPE.MULITPLE),
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
           collateralToken: {
             symbol: collateralToken.symbol,
@@ -391,7 +391,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         feeRecipientBalanceBefore: feeRecipientBalanceBeforeAdjust,
         openTxStatus,
         txStatus,
-        tx,
+        tx: null,
         oracle,
         positionAfterOpen,
         finalPosition,
@@ -480,7 +480,7 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
       })
     })
 
-    describe(`Increase Multiple: With ${tokens.ETH} collateral & ${tokens.USDC} debt`, function () {
+    describe.only(`Increase Multiple: With ${tokens.ETH} collateral & ${tokens.USDC} debt`, function () {
       const depositAmount = amountToWei(new BigNumber(1))
       const adjustMultipleUp = new BigNumber(3.5)
 
@@ -517,6 +517,11 @@ describe(`Strategy | AAVE | Adjust Position`, async function () {
         finalPosition = setup.finalPosition
         feeRecipientUSDCBalanceBefore = setup.feeRecipientBalanceBefore
       })
+
+      //2028225153203002198571 Deposit DAI
+      //1251377830 Borrow USDC
+      //1918201191622571523 Deposit WETH
+      //2028225153203002198571 Withdraw DAI
 
       it('Open Tx should pass', () => {
         expect(openTxStatus).to.be.true

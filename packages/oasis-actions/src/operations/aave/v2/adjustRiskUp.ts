@@ -31,6 +31,7 @@ export async function adjustRiskUp({
   proxy,
   addresses,
 }: AdjustRiskUpArgs): Promise<IOperation> {
+  console.log('ADJUST RISK UP OP V2')
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
 
@@ -61,6 +62,7 @@ export async function adjustRiskUp({
     sumAmounts: false,
   })
 
+  console.log('debt.borrow.amount', debt.borrow.amount)
   const borrowDebtTokensFromAAVE = actions.aave.v2.aaveBorrow({
     amount: debt.borrow.amount,
     asset: debt.address,

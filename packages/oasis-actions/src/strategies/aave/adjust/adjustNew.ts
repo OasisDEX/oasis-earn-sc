@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { providers } from 'ethers'
 
 import { amountFromWei, amountToWei } from '../../../helpers'
 import {
@@ -12,12 +13,13 @@ import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
 import * as operations from '../../../operations'
 import { AAVEStrategyAddresses } from '../../../operations/aave/v2'
+import { AAVEV3StrategyAddresses } from '../../../operations/aave/v3'
 import { AaveProtocolData } from '../../../protocols/aave/getAaveProtocolData'
 import {
+  Address,
   IOperation,
   IPositionTransition,
   IPositionTransitionArgs,
-  IPositionTransitionDependencies,
   PositionType,
   SwapData,
 } from '../../../types'
@@ -29,7 +31,19 @@ import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
 import { AaveVersion } from '../getCurrentPosition'
 
 export type AaveAdjustArgs = IPositionTransitionArgs<AAVETokens> & { positionType: PositionType }
-type AaveAdjustSharedDependencies = IPositionTransitionDependencies<AAVEStrategyAddresses>
+type AaveAdjustSharedDependencies = {
+  provider: providers.Provider
+  currentPosition: IPosition
+  getSwapData: (
+    fromToken: string,
+    toToken: string,
+    amount: BigNumber,
+    slippage: BigNumber,
+  ) => Promise<SwapData>
+  proxy: Address
+  user: Address
+  isDPMProxy: boolean
+}
 export type AaveV2AdjustDependencies = AaveAdjustSharedDependencies &
   WithV2Addresses &
   WithV2Protocol
@@ -42,6 +56,7 @@ export async function adjustNew(
   args: AaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
 ): Promise<IPositionTransition> {
+  console.log('ADJUSTING POSITION')
   if (isRiskIncreasing(dependencies.currentPosition.riskRatio, args.multiple)) {
     return adjustRiskUp(args, dependencies)
   } else {
@@ -103,6 +118,7 @@ async function adjustRiskUp(
 
   // buildOperation
   const operation = await buildOperation({
+    adjustRiskUp: true,
     swapData,
     simulatedPositionTransition: simulatedAdjustUp,
     collectFeeFrom,
@@ -175,7 +191,7 @@ async function adjustRiskDown(
   })
 
   // buildOperation
-  const operation = await buildOperationV2({
+  const operation = await buildOperation({
     adjustRiskUp: false,
     swapData,
     simulatedPositionTransition: simulatedAdjustDown,
@@ -371,27 +387,67 @@ export function isV3(
   return dependencies.protocol.version === AaveVersion.v3
 }
 
-type BuildOperationV2Args = {
-  protocolVersion: AaveVersion
+type BuildOperationArgs = {
   adjustRiskUp: boolean
   swapData: SwapData
   simulatedPositionTransition: IBaseSimulatedTransition
   collectFeeFrom: 'sourceToken' | 'targetToken'
-  // reserveEModeCategory?: number | undefined
+  reserveEModeCategory?: number | undefined
   args: AaveAdjustArgs
   dependencies: AaveAdjustDependencies
 }
+type BuildOperationV2Args = Omit<BuildOperationArgs, 'reserveEModeCategory'> & {
+  addresses: AAVEStrategyAddresses
+}
+type BuildOperationV3Args = BuildOperationArgs & {
+  addresses: AAVEV3StrategyAddresses
+}
 
-async function build
+async function buildOperation({
+  adjustRiskUp,
+  swapData,
+  simulatedPositionTransition,
+  collectFeeFrom,
+  reserveEModeCategory,
+  args,
+  dependencies,
+}: BuildOperationArgs): Promise<IOperation | undefined> {
+  if (isV2(dependencies)) {
+    return buildOperationV2({
+      adjustRiskUp,
+      swapData,
+      simulatedPositionTransition,
+      collectFeeFrom,
+      args,
+      dependencies,
+      addresses: dependencies.addresses,
+    })
+  }
+
+  if (isV3(dependencies)) {
+    return buildOperationV3({
+      adjustRiskUp,
+      swapData,
+      simulatedPositionTransition,
+      collectFeeFrom,
+      reserveEModeCategory,
+      args,
+      dependencies,
+      addresses: dependencies.addresses,
+    })
+  }
+
+  throw new Error('No operation could be built')
+}
 
 async function buildOperationV2({
   adjustRiskUp,
   swapData,
   simulatedPositionTransition,
   collectFeeFrom,
-  // reserveEModeCategory,
   args,
   dependencies,
+  addresses,
 }: BuildOperationV2Args) {
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
@@ -399,7 +455,7 @@ async function buildOperationV2({
   )
 
   const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
-  const depositDebtAmountInWei = args.depositedByUser?.collateralInWei || ZERO
+  const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
 
   const adjustRiskDown = !adjustRiskUp
@@ -433,10 +489,20 @@ async function buildOperationV2({
       isDPMProxy: dependencies.isDPMProxy,
       owner: dependencies.user,
     },
-    addresses: dependencies.addresses,
+    addresses,
   }
+  console.log('ADJUST build op v2')
+
   if (adjustRiskUp) {
     const borrowAmount = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
+    console.log(
+      'borrowAmount',
+      borrowAmount.toString(),
+      'depositDebtAmountInWei',
+      depositDebtAmountInWei.toString(),
+      'simulatedPositionTransition.delta.debt',
+      simulatedPositionTransition.delta.debt.toString(),
+    )
     const adjustRiskUpArgs = {
       ...adjustRiskArgs,
       debt: {
@@ -466,11 +532,90 @@ async function buildOperationV2({
   throw new Error('No operation could be built')
 }
 
-async function buildOperationV2(args: Omit<BuildOperationArgs, 'protocolVersion'>) {
-  return buildOperation({
-    ...args,
-    protocolVersion: AaveVersion.v2,
-  })
+async function buildOperationV3({
+  adjustRiskUp,
+  swapData,
+  simulatedPositionTransition,
+  collectFeeFrom,
+  reserveEModeCategory,
+  args,
+  dependencies,
+  addresses,
+}: BuildOperationV3Args) {
+  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
+    { debtToken: args.debtToken, collateralToken: args.collateralToken },
+    addresses,
+  )
+
+  const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
+  const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
+  const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
+
+  const adjustRiskDown = !adjustRiskUp
+  const adjustRiskArgs = {
+    collateral: {
+      address: collateralTokenAddress,
+      amount: depositCollateralAmountInWei,
+      isEth: args.collateralToken.symbol === 'ETH',
+    },
+    debt: {
+      address: debtTokenAddress,
+      amount: depositDebtAmountInWei,
+      isEth: args.debtToken.symbol === 'ETH',
+    },
+    deposit: {
+      address: '0x0000000',
+      amount: ZERO,
+    },
+    swap: {
+      fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
+      data: swapData.exchangeCalldata,
+      amount: swapAmountBeforeFees,
+      collectFeeFrom,
+      receiveAtLeast: swapData.minToTokenAmount,
+    },
+    flashloan: {
+      amount: simulatedPositionTransition.delta.flashloanAmount,
+    },
+    proxy: {
+      address: dependencies.proxy,
+      isDPMProxy: dependencies.isDPMProxy,
+      owner: dependencies.user,
+    },
+    emode: {
+      categoryId: reserveEModeCategory || 0,
+    },
+    addresses,
+  }
+  if (adjustRiskUp) {
+    const borrowAmount = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
+    const adjustRiskUpArgs = {
+      ...adjustRiskArgs,
+      debt: {
+        ...adjustRiskArgs.debt,
+        borrow: {
+          amount: borrowAmount,
+        },
+      },
+    }
+    return await operations.aave.v3.adjustRiskUp(adjustRiskUpArgs)
+  }
+
+  if (adjustRiskDown) {
+    const withdrawCollateralAmount = simulatedPositionTransition.delta.collateral.abs()
+    const adjustRiskDownArgs = {
+      ...adjustRiskArgs,
+      collateral: {
+        ...adjustRiskArgs.collateral,
+        withdrawal: {
+          amount: withdrawCollateralAmount,
+        },
+      },
+    }
+    return await operations.aave.v3.adjustRiskDown(adjustRiskDownArgs)
+  }
+
+  throw new Error('No operation could be built')
 }
 
 type GenerateTransitionArgs = {
