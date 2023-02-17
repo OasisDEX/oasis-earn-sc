@@ -247,6 +247,7 @@ export class Position implements IPosition {
           `Current position collateral ${this.collateral.amount.toString()}`,
           `Normalised current position debt: ${this.debt.normalisedAmount.toString()}`,
           `Normalised current position collateral ${this.collateral.normalisedAmount.toString()}`,
+          `Multiple: ${this.riskRatio.multiple.toString()}`,
         ],
         'Initial: ',
       )

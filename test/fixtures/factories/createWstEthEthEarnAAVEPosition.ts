@@ -73,9 +73,10 @@ export async function createWstEthEthEarnAAVEPosition({
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
+  const mockPrice = new BigNumber(0.9)
   const getSwapData = use1inch
     ? dependencies.getSwapData(swapAddress)
-    : dependencies.getSwapData(new BigNumber(0.9), {
+    : dependencies.getSwapData(mockPrice, {
         from: ETH.precision,
         to: WSTETH.precision,
       })
@@ -123,7 +124,6 @@ export async function createWstEthEthEarnAAVEPosition({
     aaveV3UniqueContractName in dependencies.addresses
   ) {
     const addresses = dependencies.addresses
-    const protocolVersion = dependencies.protocol.version
     getPosition = async () => {
       return await strategies.aave.v3.view(
         {
@@ -137,7 +137,6 @@ export async function createWstEthEthEarnAAVEPosition({
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
-          protocolVersion: protocolVersion,
         },
       )
     }
@@ -147,7 +146,6 @@ export async function createWstEthEthEarnAAVEPosition({
     aaveV2UniqueContractName in dependencies.addresses
   ) {
     const addresses = dependencies.addresses
-    const protocolVersion = dependencies.protocol.version
     getPosition = async () => {
       return await strategies.aave.v2.view(
         {
@@ -161,7 +159,6 @@ export async function createWstEthEthEarnAAVEPosition({
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
-          protocolVersion,
         },
       )
     }
@@ -176,6 +173,8 @@ export async function createWstEthEthEarnAAVEPosition({
     collateralToken: WSTETH,
     debtToken: ETH,
     getSwapData,
+    __positionType: 'Earn',
+    __mockPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }

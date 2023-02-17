@@ -174,6 +174,7 @@ export async function createStEthEthEarnAAVEPosition({
     collateralToken: STETH,
     debtToken: ETH,
     getSwapData,
+    __positionType: 'Earn',
     __mockPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),

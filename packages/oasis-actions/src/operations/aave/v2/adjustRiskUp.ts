@@ -62,7 +62,6 @@ export async function adjustRiskUp({
     sumAmounts: false,
   })
 
-  console.log('debt.borrow.amount', debt.borrow.amount)
   const borrowDebtTokensFromAAVE = actions.aave.v2.aaveBorrow({
     amount: debt.borrow.amount,
     asset: debt.address,

@@ -46,7 +46,6 @@ export async function open({
   isDPMProxy,
   positionType,
 }: OpenArgs): Promise<IOperation> {
-  console.log('OPEN OPERATION')
   const pullDebtTokensToProxy = actions.common.pullToken({
     asset: debtTokenAddress,
     amount: deposit.debtToken.amountInBaseUnit,
@@ -72,7 +71,6 @@ export async function open({
     sumAmounts: false,
   })
 
-  console.log('borrowAmountInBaseUnit', borrowAmountInBaseUnit.toString())
   const borrowDebtTokensFromAAVE = actions.aave.v2.aaveBorrow({
     amount: borrowAmountInBaseUnit,
     asset: debtTokenAddress,
