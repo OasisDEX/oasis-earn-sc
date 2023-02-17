@@ -20,6 +20,7 @@ import {
   ZERO,
 } from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
+import { feeResolver } from '../../../helpers/swap/feeResolver'
 import * as operations from '../../../operations'
 import { AAVEStrategyAddresses } from '../../../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../../../operations/aave/v3'
@@ -278,7 +279,9 @@ async function buildOperation(
       ? swapData.fromTokenAmount
       : args.collateralAmountLockedInProtocolInWei,
     flashloanAmount: amountToFlashloanInWei,
-    fee: args.shouldCloseToCollateral ? 0 : DEFAULT_FEE, //TODO - fee should be passed
+    fee: args.shouldCloseToCollateral
+      ? 0
+      : feeResolver(args.collateralToken.symbol, args.debtToken.symbol).toNumber(),
     swapData: swapData.exchangeCalldata,
     receiveAtLeast: swapData.minToTokenAmount,
     proxy: dependencies.proxy,
