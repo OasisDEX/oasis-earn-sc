@@ -281,7 +281,7 @@ async function buildOperation(
     flashloanAmount: amountToFlashloanInWei,
     fee: args.shouldCloseToCollateral
       ? 0
-      : feeResolver(args.collateralToken.symbol, args.debtToken.symbol), //TODO - fee should be passed
+      : feeResolver(args.collateralToken.symbol, args.debtToken.symbol),
     swapData: swapData.exchangeCalldata,
     receiveAtLeast: swapData.minToTokenAmount,
     proxy: dependencies.proxy,
