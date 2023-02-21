@@ -353,7 +353,7 @@ async function generateTransition(
     collectFeeFrom === 'targetToken'
       ? calculateFee(
           dependencies.currentPosition.collateral.amount.div(actualMarketPriceWithSlippage),
-          new BigNumber(fee),
+          fee,
           new BigNumber(FEE_BASE),
         )
       : ZERO
