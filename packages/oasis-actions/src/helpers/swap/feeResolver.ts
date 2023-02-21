@@ -9,7 +9,7 @@ export const feeResolver = (
   isIncreasingRisk?: boolean,
   isEarnPosition?: boolean,
 ) => {
-  if (collateralSymbol === 'WSTETH' && debtSymbol === 'ETH') {
+  if (collateralSymbol === 'WSTETH' && debtSymbol === 'ETH' && !isIncreasingRisk) {
     return new BigNumber(HIGH_MULTIPLE_FEE)
   }
   if (isIncreasingRisk && isEarnPosition) {
