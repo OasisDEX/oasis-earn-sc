@@ -21,14 +21,14 @@ import {
 import { StrategiesDependencies } from '../../test/fixtures/types'
 
 task('createMultiplyPosition', 'Create stETH position on AAVE')
-  .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
+  .addOptionalParam<string>('serviceregistry', 'Service Registry address')
   .addFlag('usefallbackswap', 'Use fallback swap')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
 
     const getTokens = buildGetTokenFunction(config, hre)
 
-    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
+    const serviceRegistryAddress = taskArgs.serviceregistry || process.env.SERVICE_REGISTRY_ADDRESS
 
     if (!serviceRegistryAddress) {
       throw new Error('ServiceRegistry params or SERVICE_REGISTRY_ADDRESS env variable is not set')
@@ -66,6 +66,8 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       CONTRACT_NAMES.common.OPERATION_EXECUTOR,
     )
 
+    const accountFactoryAddress = await serviceRegistry.getRegisteredService('AccountFactory')
+
     const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
 
     const mainnetAddresses = {
@@ -80,7 +82,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       lendingPool: ADDRESSES.main.aave.v2.LendingPool,
       operationExecutor: operationExecutorAddress,
       protocolDataProvider: ADDRESSES.main.aave.v2.ProtocolDataProvider,
-      accountFactory: '0xF7B75183A2829843dB06266c114297dfbFaeE2b6',
+      accountFactory: accountFactoryAddress,
     }
 
     const swapData = taskArgs.usefallbackswap

@@ -193,9 +193,13 @@ async function getSwapDataToCloseToDebt(
     toToken: debtTokenAddress,
   })
 
+  const feeToApply = feeResolver(collateralToken.symbol, debtToken.symbol)
+
+  console.log('using new version')
+
   const preSwapFee =
     collectFeeFrom === 'sourceToken'
-      ? calculateFee(swapAmountBeforeFees, new BigNumber(DEFAULT_FEE), new BigNumber(FEE_BASE))
+      ? calculateFee(swapAmountBeforeFees, feeToApply, new BigNumber(FEE_BASE))
       : ZERO
 
   const swapAmountAfterFees = swapAmountBeforeFees
