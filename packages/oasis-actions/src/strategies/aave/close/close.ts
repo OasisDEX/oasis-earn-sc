@@ -20,6 +20,7 @@ import {
   ZERO,
 } from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
+import { feeResolver } from '../../../helpers/swap/feeResolver'
 import * as operations from '../../../operations'
 import { AAVEStrategyAddresses } from '../../../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../../../operations/aave/v3'
@@ -192,9 +193,11 @@ async function getSwapDataToCloseToDebt(
     toToken: debtTokenAddress,
   })
 
+  const fee = feeResolver(collateralToken.symbol, debtToken.symbol)
+
   const preSwapFee =
     collectFeeFrom === 'sourceToken'
-      ? calculateFee(swapAmountBeforeFees, new BigNumber(DEFAULT_FEE), new BigNumber(FEE_BASE))
+      ? calculateFee(swapAmountBeforeFees, fee, new BigNumber(FEE_BASE))
       : ZERO
 
   const swapAmountAfterFees = swapAmountBeforeFees
@@ -278,7 +281,9 @@ async function buildOperation(
       ? swapData.fromTokenAmount
       : args.collateralAmountLockedInProtocolInWei,
     flashloanAmount: amountToFlashloanInWei,
-    fee: args.shouldCloseToCollateral ? 0 : DEFAULT_FEE, //TODO - fee should be passed
+    fee: args.shouldCloseToCollateral
+      ? 0
+      : feeResolver(args.collateralToken.symbol, args.debtToken.symbol).toNumber(),
     swapData: swapData.exchangeCalldata,
     receiveAtLeast: swapData.minToTokenAmount,
     proxy: dependencies.proxy,
@@ -343,11 +348,12 @@ async function generateTransition(
   // We need to calculate a fee from the total locked collateral
   // Then convert this amount into the debt token
   const actualMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.minToTokenAmount)
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
   const postSwapFee =
     collectFeeFrom === 'targetToken'
       ? calculateFee(
           dependencies.currentPosition.collateral.amount.div(actualMarketPriceWithSlippage),
-          new BigNumber(DEFAULT_FEE),
+          fee,
           new BigNumber(FEE_BASE),
         )
       : ZERO

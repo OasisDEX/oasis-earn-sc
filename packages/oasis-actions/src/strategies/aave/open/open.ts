@@ -7,6 +7,7 @@ import { IBaseSimulatedTransition, Position } from '../../../helpers/calculation
 import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
 import { DEFAULT_FEE, NO_FEE, TYPICAL_PRECISION, ZERO } from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
+import { feeResolver } from '../../../helpers/swap/feeResolver'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
 import * as operations from '../../../operations'
 import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '../../../protocols/aave/config'
@@ -52,7 +53,12 @@ export async function open(
   args: AaveOpenArgs,
   dependencies: AaveOpenDependencies,
 ): Promise<IPositionTransition> {
-  const fee = args.positionType === 'Earn' ? new BigNumber(NO_FEE) : new BigNumber(DEFAULT_FEE)
+  const fee = feeResolver(
+    args.collateralToken.symbol,
+    args.debtToken.symbol,
+    true,
+    args.positionType === 'Earn',
+  )
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
   const { swapData: quoteSwapData } = await getSwapDataHelper<
     typeof dependencies.addresses,

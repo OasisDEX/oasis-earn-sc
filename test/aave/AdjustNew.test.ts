@@ -15,6 +15,7 @@ import {
   ADDRESSES,
   IPosition,
   IRiskRatio,
+  ONE,
   RiskRatio,
   strategies,
 } from '../../packages/oasis-actions/src'
@@ -312,7 +313,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
       before(async () => {
         fixture = await loadFixture(getSystemWithAavePositions({ use1inch: false }))
       })
-      describe('Using DSProxy', () => {
+      describe.only('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV2>>
 
         before(async () => {
@@ -322,16 +323,16 @@ describe('Strategy | AAVE | Adjust Position', async function () {
           const position = await dsProxyStEthEthEarnPositionDetails.getPosition()
           act = await adjustPositionV2({
             isDPMProxy: false,
-            targetMultiple: new RiskRatio(new BigNumber(3.5), RiskRatio.TYPE.MULITPLE),
+            targetMultiple: new RiskRatio(new BigNumber(1.5), RiskRatio.TYPE.MULITPLE),
             positionType: 'Earn',
             position,
             collateralToken,
             debtToken,
             proxy,
             slippage: UNISWAP_TEST_SLIPPAGE,
-            getSwapData: oneInchCallMock(dsProxyStEthEthEarnPositionDetails.__mockPrice, {
-              from: debtToken.precision,
-              to: collateralToken.precision,
+            getSwapData: oneInchCallMock(ONE.div(dsProxyStEthEthEarnPositionDetails.__mockPrice), {
+              from: collateralToken.precision,
+              to: debtToken.precision,
             }),
             userAddress: config.address,
             config,

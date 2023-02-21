@@ -145,7 +145,7 @@ async function adjustRiskDown(
   dependencies: AaveAdjustDependencies,
 ): Promise<IPositionTransition> {
   const fee = new BigNumber(DEFAULT_FEE)
-
+  console.log('ADJUST RISK DOWN...')
   // Get quote swap
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.collateralToken.precision)
   const { swapData: quoteSwapData } = await getSwapDataHelper<

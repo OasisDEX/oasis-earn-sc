@@ -38,6 +38,7 @@ export async function depositBorrow(
       swaps: [],
       targetPosition,
       position: targetPosition,
+      errors: [],
     },
     tx: {
       to: dependencies.ajnaProxyActions,

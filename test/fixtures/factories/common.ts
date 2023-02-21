@@ -5,7 +5,7 @@ import { TokenDetails } from '../types/positionDetails'
 
 export const UNISWAP_TEST_SLIPPAGE = new BigNumber(0.25)
 export const SLIPPAGE = new BigNumber(0.05)
-export const MULTIPLE = new BigNumber(1.5)
+export const MULTIPLE = new BigNumber(2)
 export const EMODE_MULTIPLE = new BigNumber(9.5)
 
 export const USDC: TokenDetails = {
