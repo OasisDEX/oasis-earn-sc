@@ -28,15 +28,13 @@ export async function getPool(
   const pool = new ethers.Contract(poolAddress, poolERC20Abi, provider)
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
 
-  const [collateralAddress, quoteTokenAddress, interestRateInfo, lup, htp, poolPrices] =
-    await Promise.all([
-      pool.collateralAddress(),
-      pool.quoteTokenAddress(),
-      pool.interestRateInfo(),
-      poolInfo.lup(poolAddress),
-      poolInfo.htp(poolAddress),
-      poolInfo.poolPricesInfo(poolAddress),
-    ])
+  const [collateralAddress, quoteTokenAddress, interestRateInfo, lup, htp] = await Promise.all([
+    pool.collateralAddress(),
+    pool.quoteTokenAddress(),
+    pool.interestRateInfo(),
+    poolInfo.lup(poolAddress),
+    poolInfo.htp(poolAddress),
+  ])
 
   return {
     collateralToken: collateralAddress,
@@ -71,8 +69,6 @@ export async function getEarnPosition(
   { proxyAddress, poolAddress }: Args,
   { poolInfoAddress, provider }: Dependencies,
 ): Promise<AjnaEarn> {
-  const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
-
   const [pool] = await Promise.all([getPool(poolAddress, poolInfoAddress, provider)])
 
   return new AjnaEarn(pool, proxyAddress, new BigNumber(234))
