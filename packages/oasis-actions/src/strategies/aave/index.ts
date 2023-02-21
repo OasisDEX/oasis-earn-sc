@@ -1,10 +1,6 @@
 import { getAaveProtocolData } from '../../protocols/aave/getAaveProtocolData'
 import { adjust } from './adjust'
-import {
-  AaveAdjustArgs,
-  AaveV2AdjustDependencies,
-  AaveV3AdjustDependencies,
-} from './adjust/adjustNew'
+import { AaveAdjustArgs, AaveV2AdjustDependencies, AaveV3AdjustDependencies } from './adjust/adjust'
 import { changeDebt } from './changeDebt'
 import { AaveCloseArgs, AaveCloseDependencies, close } from './close'
 import { depositBorrow } from './depositBorrow'

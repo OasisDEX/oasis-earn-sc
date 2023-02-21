@@ -17,14 +17,15 @@ export const oneInchCallMock =
     const precisionAdjustedToAmount = amountToWei(
       amountFromWei(amount, precision.from).div(marketPrice),
       precision.to,
-    )
+    ).integerValue(BigNumber.ROUND_DOWN)
 
     if (debug) {
+      console.log('OneInchCallMock')
       console.log('Amount to swap:', amount.toString())
       console.log('Market price:', marketPrice.toString())
       console.log('Precision from:', precision.from)
       console.log('Precision to:', precision.to)
-      console.log('Precision adjusted amount:', precisionAdjustedToAmount.toString())
+      console.log('Received amount:', precisionAdjustedToAmount.toString())
     }
 
     return {

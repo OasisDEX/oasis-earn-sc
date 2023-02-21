@@ -31,7 +31,6 @@ export async function adjustRiskUp({
   proxy,
   addresses,
 }: AdjustRiskUpArgs): Promise<IOperation> {
-  console.log('ADJUST RISK UP OP V2')
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
 

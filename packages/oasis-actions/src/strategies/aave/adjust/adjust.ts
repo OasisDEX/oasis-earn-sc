@@ -8,8 +8,15 @@ import {
   Position,
 } from '../../../helpers/calculations/Position'
 import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
-import { DEFAULT_FEE, NO_FEE, TYPICAL_PRECISION, ZERO } from '../../../helpers/constants'
+import {
+  DEFAULT_FEE,
+  NO_FEE,
+  TYPICAL_PRECISION,
+  UNUSED_FLASHLOAN_AMOUNT,
+  ZERO,
+} from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
+import { feeResolver } from '../../../helpers/swap/feeResolver'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
 import * as operations from '../../../operations'
 import { AAVEStrategyAddresses } from '../../../operations/aave/v2'
@@ -52,7 +59,7 @@ export type AaveV3AdjustDependencies = AaveAdjustSharedDependencies &
   WithV3Protocol
 export type AaveAdjustDependencies = AaveV2AdjustDependencies | AaveV3AdjustDependencies
 
-export async function adjustNew(
+export async function adjust(
   args: AaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
 ): Promise<IPositionTransition> {
@@ -67,9 +74,13 @@ async function adjustRiskUp(
   args: AaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
 ): Promise<IPositionTransition> {
-  // No fee on increasing risk currently for earn
-  const isEarnPosition = args.positionType === 'Earn'
-  const fee = isEarnPosition ? new BigNumber(NO_FEE) : new BigNumber(DEFAULT_FEE)
+  const isAdjustUp = true
+  const fee = feeResolver(
+    args.collateralToken.symbol,
+    args.debtToken.symbol,
+    isAdjustUp,
+    args.positionType === 'Earn',
+  )
 
   // Get quote swap
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
@@ -95,7 +106,14 @@ async function adjustRiskUp(
     simulatedPositionTransition: simulatedAdjustUp,
     oracle,
     reserveEModeCategory,
-  } = await simulatePositionTransition(quoteSwapData, { ...args, fee }, dependencies, true, true)
+  } = await simulatePositionTransition(
+    isAdjustUp,
+    quoteSwapData,
+    { ...args, fee },
+    dependencies,
+    true,
+    // true,
+  )
 
   // Get accurate swap
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
@@ -115,10 +133,9 @@ async function adjustRiskUp(
     },
   })
 
-  console.log('-->>', collectFeeFrom)
   // buildOperation
   const operation = await buildOperation({
-    adjustRiskUp: true,
+    adjustRiskUp: isAdjustUp,
     swapData,
     simulatedPositionTransition: simulatedAdjustUp,
     collectFeeFrom,
@@ -144,15 +161,22 @@ async function adjustRiskDown(
   args: AaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
 ): Promise<IPositionTransition> {
-  const fee = new BigNumber(DEFAULT_FEE)
-  console.log('ADJUST RISK DOWN...')
+  const isAdjustDown = true
+  const isAdjustUp = !isAdjustDown
+  const fee = feeResolver(
+    args.collateralToken.symbol,
+    args.debtToken.symbol,
+    isAdjustUp,
+    args.positionType === 'Earn',
+  )
+
   // Get quote swap
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.collateralToken.precision)
   const { swapData: quoteSwapData } = await getSwapDataHelper<
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: true,
+    fromTokenIsDebt: false,
     args: {
       ...args,
       fee,
@@ -170,7 +194,14 @@ async function adjustRiskDown(
     simulatedPositionTransition: simulatedAdjustDown,
     oracle,
     reserveEModeCategory,
-  } = await simulatePositionTransition(quoteSwapData, { ...args, fee }, dependencies, false)
+  } = await simulatePositionTransition(
+    isAdjustUp,
+    quoteSwapData,
+    { ...args, fee },
+    dependencies,
+    false,
+    // true,
+  )
 
   // Get accurate swap
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
@@ -192,7 +223,7 @@ async function adjustRiskDown(
 
   // buildOperation
   const operation = await buildOperation({
-    adjustRiskUp: false,
+    adjustRiskUp: isAdjustUp,
     swapData,
     simulatedPositionTransition: simulatedAdjustDown,
     collectFeeFrom,
@@ -219,13 +250,13 @@ function isRiskIncreasing(currentMultiple: IRiskRatio, newMultiple: IRiskRatio):
 }
 
 async function simulatePositionTransition(
+  isRiskIncreasing: boolean,
   quoteSwapData: SwapData,
   args: AaveAdjustArgs & WithFee,
   dependencies: AaveAdjustDependencies,
   fromTokenIsDebt: boolean,
   debug?: boolean,
 ) {
-  console.log('quoteSwapData', quoteSwapData)
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
@@ -259,18 +290,11 @@ async function simulatePositionTransition(
   const depositDebtAmountInBaseUnits = args.depositedByUser?.debtInWei || ZERO
   const depositCollateralAmountInBaseUnits = args.depositedByUser?.collateralInWei || ZERO
 
+  const fromToken = fromTokenIsDebt ? args.debtToken : args.collateralToken
+  const toToken = fromTokenIsDebt ? args.collateralToken : args.debtToken
   // Needs to be correct precision. First convert to base 18. Then divide
-  const fromTokenPrecision = fromTokenIsDebt
-    ? args.debtToken.precision
-    : args.collateralToken.precision
-  const toTokenPrecision = fromTokenIsDebt
-    ? args.collateralToken.precision
-    : args.debtToken.precision
-
-  console.log('fromTokenPrecision', fromTokenPrecision)
-  console.log('toTokenPrecision', toTokenPrecision)
-  console.log('quoteSwapData.fromTokenAmount', quoteSwapData.fromTokenAmount.toString())
-  console.log('quoteSwapData.toTokenAmount', quoteSwapData.toTokenAmount.toString())
+  const fromTokenPrecision = fromToken.precision
+  const toTokenPrecision = toToken.precision
 
   const normalisedFromTokenAmount = amountToWei(
     amountFromWei(quoteSwapData.fromTokenAmount, fromTokenPrecision),
@@ -280,14 +304,13 @@ async function simulatePositionTransition(
     amountFromWei(quoteSwapData.toTokenAmount, toTokenPrecision),
     TYPICAL_PRECISION,
   )
-  console.log('normalisedFromTokenAmount', normalisedFromTokenAmount.toString())
-  // const base18ToTokenAmount = amountToWei(
-  //   amountFromWei(quoteSwapData.toTokenAmount, toTokenPrecision),
-  //   TYPICAL_PRECISION,
-  // )
-  console.log('normalisedToTokenAmount', normalisedToTokenAmount.toString())
-  const quoteMarketPrice = normalisedFromTokenAmount.div(normalisedToTokenAmount)
-  console.log('quoteMarketPrice', quoteMarketPrice.toString())
+
+  const quoteMarketPriceWhenAdjustingUp = normalisedFromTokenAmount.div(normalisedToTokenAmount)
+  const quoteMarketPriceWhenAdjustingDown = normalisedToTokenAmount.div(normalisedFromTokenAmount)
+  const quoteMarketPrice = isRiskIncreasing
+    ? quoteMarketPriceWhenAdjustingUp
+    : quoteMarketPriceWhenAdjustingDown
+
   const flashloanFee = new BigNumber(0)
 
   const ethPerDAI = aaveFlashloanDaiPriceInEth
@@ -296,12 +319,9 @@ async function simulatePositionTransition(
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
   const collectFeeFrom = acceptedFeeToken({
-    fromToken: args.debtToken.symbol,
-    toToken: args.collateralToken.symbol,
+    fromToken: fromToken.symbol,
+    toToken: toToken.symbol,
   })
-
-  console.log('collectFeeFrom', collectFeeFrom)
-  console.log('args.fee', args.fee.toString())
 
   return {
     simulatedPositionTransition: currentPosition.adjustToTargetRiskRatio(multiple, {
@@ -483,7 +503,13 @@ async function buildOperationV2({
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
 
   const adjustRiskDown = !adjustRiskUp
-  const fee = args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE
+  // const fee = args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE
+  const fee = feeResolver(
+    args.collateralToken.symbol,
+    args.debtToken.symbol,
+    adjustRiskUp,
+    args.positionType === 'Earn',
+  )
   const adjustRiskArgs = {
     collateral: {
       address: collateralTokenAddress,
@@ -500,14 +526,11 @@ async function buildOperationV2({
       amount: ZERO,
     },
     swap: {
-      fee,
+      fee: fee.toNumber(),
       data: swapData.exchangeCalldata,
       amount: swapAmountBeforeFees,
       collectFeeFrom,
       receiveAtLeast: swapData.minToTokenAmount,
-    },
-    flashloan: {
-      amount: simulatedPositionTransition.delta.flashloanAmount,
     },
     proxy: {
       address: dependencies.proxy,
@@ -516,19 +539,12 @@ async function buildOperationV2({
     },
     addresses,
   }
-  console.log('ADJUST build op v2', fee)
-  console.log('collectFeeFrom', collectFeeFrom)
 
   if (adjustRiskUp) {
     const borrowAmount = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
-    console.log(
-      'borrowAmount',
-      borrowAmount.toString(),
-      'depositDebtAmountInWei',
-      depositDebtAmountInWei.toString(),
-      'simulatedPositionTransition.delta.debt',
-      simulatedPositionTransition.delta.debt.toString(),
-    )
+    const flAmt = simulatedPositionTransition.delta.flashloanAmount
+    const flashloanAmount = flAmt.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : flAmt
+
     const adjustRiskUpArgs = {
       ...adjustRiskArgs,
       debt: {
@@ -537,11 +553,20 @@ async function buildOperationV2({
           amount: borrowAmount,
         },
       },
+      flashloan: {
+        amount: flashloanAmount,
+      },
     }
     return await operations.aave.v2.adjustRiskUp(adjustRiskUpArgs)
   }
 
   if (adjustRiskDown) {
+    /*
+     * The Maths can produce negative amounts for flashloan on decrease
+     * because it's calculated using Debt Delta which will be negative
+     */
+    const flAmtAbs = (simulatedPositionTransition.delta?.flashloanAmount || ZERO).abs()
+    const flashloanAmount = flAmtAbs.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : flAmtAbs
     const withdrawCollateralAmount = simulatedPositionTransition.delta.collateral.abs()
     const adjustRiskDownArgs = {
       ...adjustRiskArgs,
@@ -550,6 +575,9 @@ async function buildOperationV2({
         withdrawal: {
           amount: withdrawCollateralAmount,
         },
+      },
+      flashloan: {
+        amount: flashloanAmount,
       },
     }
     return await operations.aave.v2.adjustRiskDown(adjustRiskDownArgs)
