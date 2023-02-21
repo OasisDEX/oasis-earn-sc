@@ -15,6 +15,7 @@ import {
   ZERO,
 } from '../../helpers/constants'
 import { acceptedFeeToken } from '../../helpers/swap/acceptedFeeToken'
+import { feeResolver } from '../../helpers/swap/feeResolver'
 import * as operations from '../../operations'
 import { AAVEStrategyAddresses } from '../../operations/aave/v2'
 import {
@@ -134,8 +135,12 @@ export async function adjust(
     {
       fees: {
         flashLoan: flashloanFee,
-        oazo:
-          isEarnPosition && isIncreasingRisk ? new BigNumber(NO_FEE) : new BigNumber(DEFAULT_FEE),
+        oazo: feeResolver(
+          args.collateralToken.symbol,
+          args.debtToken.symbol,
+          isIncreasingRisk,
+          isEarnPosition,
+        ),
       },
       prices: {
         /**
