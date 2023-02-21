@@ -82,6 +82,10 @@ export interface IAjnaEarn {
   pool: Pool
   owner: Address
   quoteTokenAmount: BigNumber
+  price: BigNumber
+  priceIndex: BigNumber
+
+  isEarningFees: boolean
 
   fundsLockedUntil: number
   earlyWithdrawPenalty: BigNumber

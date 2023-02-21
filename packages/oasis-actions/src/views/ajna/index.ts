@@ -71,5 +71,6 @@ export async function getEarnPosition(
 ): Promise<AjnaEarn> {
   const [pool] = await Promise.all([getPool(poolAddress, poolInfoAddress, provider)])
 
-  return new AjnaEarn(pool, proxyAddress, new BigNumber(234))
+  //TO DO: we need to know how to fetch the price bucket probably theGraph 
+  return new AjnaEarn(pool, proxyAddress, new BigNumber(234), new BigNumber(2000))
 }
