@@ -2,7 +2,7 @@
   "name": "@oasisdex/oasis-actions",
   "main": "lib/packages/oasis-actions/src/index.js",
   "typings": "lib/packages/oasis-actions/src/index.d.ts",
-  "version": "0.2.6-alpha.0",
+  "version": "0.2.6-alpha.1",
   "scripts": {
     "build": "tsc -b",
     "watch": "tsc -b -w",
@@ -22,5 +22,5 @@
   "devDependencies": {
     "@types/lodash": "^4.14.178"
   },
-  "aaveProtocolVersion": "0.2.6-alpha.1"
+  "aaveProtocolVersion": "0.2.6-alpha.2"
 }
