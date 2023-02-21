@@ -1,8 +1,9 @@
 import BigNumber from 'bignumber.js'
 
 import { IAjnaPosition, Pool } from '../../types/ajna'
-import { Address } from '../../types/common'
+import { Address, AjnaError } from '../../types/common'
 import { IRiskRatio, RiskRatio } from '../calculations'
+import { ZERO } from '../constants'
 
 export class AjnaPosition implements IAjnaPosition {
   riskRatio: IRiskRatio
@@ -15,14 +16,40 @@ export class AjnaPosition implements IAjnaPosition {
     public collateralAmount: BigNumber,
     public debtAmount: BigNumber,
   ) {
-    this.riskRatio = new RiskRatio(
-      debtAmount.div(collateralAmount.times(pool.lup)),
-      RiskRatio.TYPE.LTV,
-    )
+    if (collateralAmount.times(pool.lup).eq(ZERO)) {
+      this.riskRatio = new RiskRatio(ZERO, RiskRatio.TYPE.LTV)
+    } else {
+      this.riskRatio = new RiskRatio(
+        debtAmount.div(collateralAmount.times(pool.lup)),
+        RiskRatio.TYPE.LTV,
+      )
+    }
   }
 
   get liquidationPrice() {
     return new BigNumber(0)
+  }
+
+  get thresholdPrice() {
+    if (this.collateralAmount.eq(0)) {
+      return ZERO
+    }
+    return this.debtAmount.div(this.collateralAmount)
+  }
+
+  get errors(): AjnaError[] {
+    const errors: AjnaError[] = []
+    if (this.thresholdPrice.gt(this.pool.lup)) {
+      errors.push({
+        name: 'undercollateralized',
+        data: {
+          positionRatio: this.riskRatio.loanToValue.toString(),
+          minRatio: '---',
+        },
+      })
+    }
+
+    return errors
   }
 
   deposit(collateralAmount: BigNumber) {
