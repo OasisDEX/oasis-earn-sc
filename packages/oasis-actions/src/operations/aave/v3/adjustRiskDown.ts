@@ -8,7 +8,6 @@ import {
   WithAaveV3StrategyAddresses,
   WithCollateralAndWithdrawal,
   WithDebt,
-  WithEMode,
   WithFlashloan,
   WithProxy,
   WithSwap,
@@ -19,8 +18,7 @@ type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithSwap &
   WithFlashloan &
   WithProxy &
-  WithAaveV3StrategyAddresses &
-  WithEMode
+  WithAaveV3StrategyAddresses
 
 export async function adjustRiskDown({
   collateral,
@@ -29,7 +27,6 @@ export async function adjustRiskDown({
   flashloan,
   proxy,
   addresses,
-  emode,
 }: AdjustRiskDownArgs): Promise<IOperation> {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: flashloan.amount,
