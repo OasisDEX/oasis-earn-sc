@@ -97,12 +97,6 @@ export async function adjustRiskDown({
     asset: collateral.isEth ? ADDRESSES.main.ETH : collateral.address,
   })
 
-  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
-    categoryId: emode.categoryId,
-  })
-
-  setEModeOnCollateral.skipped = emode.categoryId === 0
-
   const flashloanCalls = [
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
@@ -114,7 +108,6 @@ export async function adjustRiskDown({
     unwrapEth,
     returnDebtFunds,
     returnCollateralFunds,
-    setEModeOnCollateral,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({

@@ -148,6 +148,7 @@ async function adjustRiskUp(
 
   // generateTransition
   return await generateTransition({
+    isIncreasingRisk: isAdjustUp,
     swapData,
     operation,
     simulatedPositionTransition: simulatedAdjustUp,
@@ -236,6 +237,7 @@ async function adjustRiskDown(
 
   // generateTransition
   return await generateTransition({
+    isIncreasingRisk: isAdjustUp,
     swapData,
     operation,
     simulatedPositionTransition: simulatedAdjustDown,
@@ -510,6 +512,12 @@ async function buildOperationV2({
     adjustRiskUp,
     args.positionType === 'Earn',
   )
+
+  const hasCollateralDeposit = args.depositedByUser?.collateralInWei?.gt(ZERO)
+  const depositAddress = hasCollateralDeposit ? collateralTokenAddress : debtTokenAddress
+  const depositAmount = hasCollateralDeposit
+    ? args.depositedByUser?.collateralInWei
+    : args.depositedByUser?.debtInWei
   const adjustRiskArgs = {
     collateral: {
       address: collateralTokenAddress,
@@ -522,8 +530,8 @@ async function buildOperationV2({
       isEth: args.debtToken.symbol === 'ETH',
     },
     deposit: {
-      address: '0x0000000',
-      amount: ZERO,
+      address: depositAddress,
+      amount: depositAmount || ZERO,
     },
     swap: {
       fee: fee.toNumber(),
@@ -605,6 +613,11 @@ async function buildOperationV3({
   const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
 
+  const hasCollateralDeposit = args.depositedByUser?.collateralInWei?.gt(ZERO)
+  const depositAddress = hasCollateralDeposit ? collateralTokenAddress : debtTokenAddress
+  const depositAmount = hasCollateralDeposit
+    ? args.depositedByUser?.collateralInWei
+    : args.depositedByUser?.debtInWei
   const adjustRiskDown = !adjustRiskUp
   const adjustRiskArgs = {
     collateral: {
@@ -618,8 +631,8 @@ async function buildOperationV3({
       isEth: args.debtToken.symbol === 'ETH',
     },
     deposit: {
-      address: '0x0000000',
-      amount: ZERO,
+      address: depositAddress,
+      amount: depositAmount || ZERO,
     },
     swap: {
       fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
@@ -629,7 +642,7 @@ async function buildOperationV3({
       receiveAtLeast: swapData.minToTokenAmount,
     },
     flashloan: {
-      amount: simulatedPositionTransition.delta.flashloanAmount,
+      amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
     },
     proxy: {
       address: dependencies.proxy,
@@ -673,6 +686,7 @@ async function buildOperationV3({
 }
 
 type GenerateTransitionArgs = {
+  isIncreasingRisk: boolean
   swapData: SwapData
   operation: IOperation
   simulatedPositionTransition: IBaseSimulatedTransition
@@ -682,49 +696,68 @@ type GenerateTransitionArgs = {
 }
 
 async function generateTransition({
+  isIncreasingRisk,
   swapData,
   operation,
   simulatedPositionTransition,
   oracle,
   args,
 }: GenerateTransitionArgs) {
-  const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
+  const depositCollateralAmountInBaseUnit = args.depositedByUser?.collateralInWei || ZERO
+  const depositDebtAmountInBaseUnit = args.depositedByUser?.debtInWei || ZERO
+  const fromTokenPrecision = isIncreasingRisk
+    ? args.debtToken.precision
+    : args.collateralToken.precision
+  const toTokenPrecision = isIncreasingRisk
+    ? args.collateralToken.precision
+    : args.debtToken.precision
 
   const actualSwapBase18FromTokenAmount = amountToWei(
-    amountFromWei(swapData.fromTokenAmount, args.debtToken.precision),
+    amountFromWei(swapData.fromTokenAmount, fromTokenPrecision),
     TYPICAL_PRECISION,
   )
   const toAmountWithMaxSlippage = swapData.minToTokenAmount
+
   const actualSwapBase18ToTokenAmount = amountToWei(
-    amountFromWei(toAmountWithMaxSlippage, args.collateralToken.precision),
+    amountFromWei(toAmountWithMaxSlippage, toTokenPrecision),
     TYPICAL_PRECISION,
   )
+
   const actualMarketPriceWithSlippage = actualSwapBase18FromTokenAmount.div(
     actualSwapBase18ToTokenAmount,
   )
 
-  // EG FROM WBTC 8 to USDC 6
-  // Convert WBTC fromWei
-  // Apply market price
-  // Convert result back to USDC at precision 6
-  const collateralAmountAfterSwapInWei = amountToWei(
-    amountFromWei(simulatedPositionTransition.swap.fromTokenAmount, args.debtToken.precision).div(
+  const amountAfterSwapInBaseUnit = amountToWei(
+    amountFromWei(simulatedPositionTransition.swap.fromTokenAmount, fromTokenPrecision).div(
       actualMarketPriceWithSlippage,
     ),
-    args.collateralToken.precision,
+    toTokenPrecision,
   ).integerValue(BigNumber.ROUND_DOWN)
 
-  const finalCollateralAmountAsWad = collateralAmountAfterSwapInWei.plus(
-    depositCollateralAmountInWei,
-  )
+  const depositAmt = isIncreasingRisk
+    ? depositDebtAmountInBaseUnit
+    : depositCollateralAmountInBaseUnit
+  const finalAmountInBaseUnit = amountAfterSwapInBaseUnit.plus(depositAmt)
 
   /*
     Final position calculated using actual swap data and the latest market price
    */
+  const debtAmount = isIncreasingRisk
+    ? simulatedPositionTransition.position.debt.amount
+    : finalAmountInBaseUnit
+
+  const collateralAmount = isIncreasingRisk
+    ? finalAmountInBaseUnit
+    : simulatedPositionTransition.position.collateral.amount
+
   const finalPosition = new Position(
-    simulatedPositionTransition.position.debt,
     {
-      amount: finalCollateralAmountAsWad,
+      amount: debtAmount,
+      symbol: simulatedPositionTransition.position.debt.symbol,
+      precision: simulatedPositionTransition.position.debt.precision,
+    },
+    {
+      amount: collateralAmount,
       symbol: simulatedPositionTransition.position.collateral.symbol,
       precision: simulatedPositionTransition.position.collateral.precision,
     },

@@ -747,7 +747,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: false,
     },
   ])
-
   await operationsRegistry.addOp(OPERATION_NAMES.aave.v3.CLOSE_POSITION, [
     {
       hash: takeFlashLoanHash,
@@ -846,6 +845,48 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
     {
       hash: aaveWithdrawHash,
+      optional: false,
+    },
+  ])
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v3.ADJUST_RISK_UP, [
+    {
+      hash: takeFlashLoanHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3DepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3BorrowHash,
+      optional: false,
+    },
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3DepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3WithdrawHash,
       optional: false,
     },
   ])
@@ -993,6 +1034,52 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
     {
       hash: aaveWithdrawHash,
+      optional: false,
+    },
+  ])
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v3.ADJUST_RISK_DOWN, [
+    {
+      hash: takeFlashLoanHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3DepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3WithdrawHash,
+      optional: false,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3PaybackHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3WithdrawHash,
+      optional: false,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: false,
+    },
+    {
+      hash: returnFundsActionHash,
+      optional: false,
+    },
+    {
+      hash: returnFundsActionHash,
       optional: false,
     },
   ])
