@@ -44,8 +44,6 @@ export async function adjustRiskDown({
     sumAmounts: false,
   })
 
-  console.log('Withdraw COLLATERAL from AAVE')
-  console.log('collateral.withdrawal.amount', collateral.withdrawal.amount.toString())
   const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw({
     asset: collateral.address,
     amount: collateral.withdrawal.amount,

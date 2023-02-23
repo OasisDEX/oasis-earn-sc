@@ -8,13 +8,7 @@ import {
   Position,
 } from '../../../helpers/calculations/Position'
 import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
-import {
-  DEFAULT_FEE,
-  NO_FEE,
-  TYPICAL_PRECISION,
-  UNUSED_FLASHLOAN_AMOUNT,
-  ZERO,
-} from '../../../helpers/constants'
+import { TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
 import { feeResolver } from '../../../helpers/swap/feeResolver'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
@@ -505,7 +499,6 @@ async function buildOperationV2({
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
 
   const adjustRiskDown = !adjustRiskUp
-  // const fee = args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE
   const fee = feeResolver(
     args.collateralToken.symbol,
     args.debtToken.symbol,
@@ -619,6 +612,12 @@ async function buildOperationV3({
     ? args.depositedByUser?.collateralInWei
     : args.depositedByUser?.debtInWei
   const adjustRiskDown = !adjustRiskUp
+  const fee = feeResolver(
+    args.collateralToken.symbol,
+    args.debtToken.symbol,
+    adjustRiskUp,
+    args.positionType === 'Earn',
+  )
   const adjustRiskArgs = {
     collateral: {
       address: collateralTokenAddress,
@@ -635,7 +634,7 @@ async function buildOperationV3({
       amount: depositAmount || ZERO,
     },
     swap: {
-      fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
+      fee: fee.toNumber(),
       data: swapData.exchangeCalldata,
       amount: swapAmountBeforeFees,
       collectFeeFrom,

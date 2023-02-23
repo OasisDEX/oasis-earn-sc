@@ -715,7 +715,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             debtToken,
             proxy,
             slippage: SLIPPAGE,
-            getSwapData: oneInchCallMock(dsProxyStEthEthEarnPositionDetails.__mockPrice, {
+            getSwapData: oneInchCallMock(ONE.div(dsProxyStEthEthEarnPositionDetails.__mockPrice), {
               from: collateralToken.precision,
               to: debtToken.precision,
             }),
@@ -724,14 +724,15 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             system,
           })
         })
+
         it('Adjust TX should pass', () => {
           expect(act.txStatus).to.be.true
         })
         it('should payback debt according to multiple', async () => {
           expectToBe(
-            act.adjustedPosition.debt.amount.toString(),
-            'gte',
             act.simulation.position.debt.amount.toString(),
+            'gte',
+            act.adjustedPosition.debt.amount.toString(),
           )
         })
         it('should collect fee', async () => {
