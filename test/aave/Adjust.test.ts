@@ -695,7 +695,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
       before(async () => {
         fixture = await loadFixture(getSystemWithAaveV3Positions({ use1inch: false }))
       })
-      describe.only('Using DSProxy', () => {
+      describe('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV3>>
 
         before(async () => {
@@ -703,9 +703,6 @@ describe('Strategy | AAVE | Adjust Position', async function () {
           const { debtToken, collateralToken, proxy } = dsProxyStEthEthEarnPositionDetails
 
           const position = await dsProxyStEthEthEarnPositionDetails.getPosition()
-          console.log('POSITION BEFORE')
-          console.log('collateral', position.collateral.amount.toString())
-          console.log('debt', position.debt.amount.toString())
           act = await adjustPositionV3({
             isDPMProxy: false,
             targetMultiple: new RiskRatio(new BigNumber(1.3), RiskRatio.TYPE.MULITPLE),

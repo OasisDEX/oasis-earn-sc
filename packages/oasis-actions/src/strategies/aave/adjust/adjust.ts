@@ -2,11 +2,7 @@ import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
 import { amountFromWei, amountToWei } from '../../../helpers'
-import {
-  IBaseSimulatedTransition,
-  IPosition,
-  Position,
-} from '../../../helpers/calculations/Position'
+import { IBaseSimulatedTransition, IPosition } from '../../../helpers/calculations/Position'
 import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
@@ -96,18 +92,14 @@ async function adjustRiskUp(
   })
 
   // SimulateAdjustUp
-  const {
-    simulatedPositionTransition: simulatedAdjustUp,
-    oracle,
-    reserveEModeCategory,
-  } = await simulatePositionTransition(
-    isAdjustUp,
-    quoteSwapData,
-    { ...args, fee },
-    dependencies,
-    true,
-    true,
-  )
+  const { simulatedPositionTransition: simulatedAdjustUp, reserveEModeCategory } =
+    await simulatePositionTransition(
+      isAdjustUp,
+      quoteSwapData,
+      { ...args, fee },
+      dependencies,
+      true,
+    )
 
   // Get accurate swap
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
@@ -147,7 +139,6 @@ async function adjustRiskUp(
     operation,
     simulatedPositionTransition: simulatedAdjustUp,
     args,
-    oracle,
     dependencies,
   })
 }
@@ -185,18 +176,14 @@ async function adjustRiskDown(
   })
 
   // SimulateAdjustDown
-  const {
-    simulatedPositionTransition: simulatedAdjustDown,
-    oracle,
-    reserveEModeCategory,
-  } = await simulatePositionTransition(
-    isAdjustUp,
-    quoteSwapData,
-    { ...args, fee },
-    dependencies,
-    false,
-    true,
-  )
+  const { simulatedPositionTransition: simulatedAdjustDown, reserveEModeCategory } =
+    await simulatePositionTransition(
+      isAdjustUp,
+      quoteSwapData,
+      { ...args, fee },
+      dependencies,
+      false,
+    )
 
   // Get accurate swap
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
@@ -236,7 +223,6 @@ async function adjustRiskDown(
     operation,
     simulatedPositionTransition: simulatedAdjustDown,
     args,
-    oracle,
     dependencies,
   })
 }
@@ -342,7 +328,6 @@ async function simulatePositionTransition(
       collectSwapFeeFrom: collectFeeFrom,
       debug,
     }),
-    oracle,
     reserveEModeCategory,
   }
 }
@@ -689,10 +674,8 @@ type GenerateTransitionArgs = {
   swapData: SwapData
   operation: IOperation
   simulatedPositionTransition: IBaseSimulatedTransition
-  oracle: BigNumber
   args: AaveAdjustArgs
   dependencies: AaveAdjustDependencies
-  debug?: boolean
 }
 
 async function generateTransition({
@@ -700,12 +683,8 @@ async function generateTransition({
   swapData,
   operation,
   simulatedPositionTransition,
-  oracle,
   args,
-  debug,
 }: GenerateTransitionArgs) {
-  const depositCollateralAmountInBaseUnit = args.depositedByUser?.collateralInWei || ZERO
-  const depositDebtAmountInBaseUnit = args.depositedByUser?.debtInWei || ZERO
   const fromTokenPrecision = isIncreasingRisk
     ? args.debtToken.precision
     : args.collateralToken.precision
@@ -728,51 +707,7 @@ async function generateTransition({
     actualSwapBase18ToTokenAmount,
   )
 
-  const amountAfterSwapInBaseUnit = amountToWei(
-    amountFromWei(simulatedPositionTransition.swap.fromTokenAmount, fromTokenPrecision).div(
-      actualMarketPriceWithSlippage,
-    ),
-    toTokenPrecision,
-  ).integerValue(BigNumber.ROUND_DOWN)
-
-  const depositAmt = isIncreasingRisk
-    ? depositDebtAmountInBaseUnit
-    : depositCollateralAmountInBaseUnit
-  const finalAmountInBaseUnit = amountAfterSwapInBaseUnit.plus(depositAmt)
-
-  /*
-    Final position calculated using actual swap data and the latest market price
-   */
-  const debtAmount = isIncreasingRisk
-    ? simulatedPositionTransition.position.debt.amount
-    : finalAmountInBaseUnit
-
-  const collateralAmount = isIncreasingRisk
-    ? finalAmountInBaseUnit
-    : simulatedPositionTransition.position.collateral.amount
-
-  const finalPosition = new Position(
-    {
-      amount: debtAmount,
-      symbol: simulatedPositionTransition.position.debt.symbol,
-      precision: simulatedPositionTransition.position.debt.precision,
-    },
-    {
-      amount: collateralAmount,
-      symbol: simulatedPositionTransition.position.collateral.symbol,
-      precision: simulatedPositionTransition.position.collateral.precision,
-    },
-    oracle,
-    simulatedPositionTransition.position.category,
-  )
-
-  if (debug) {
-    console.log('Final position')
-    console.log('Debt', finalPosition.debt.amount.toString())
-    console.log('Collateral', finalPosition.collateral.amount.toString())
-    console.log('Oracle used', oracle.toString())
-  }
-
+  const finalPosition = simulatedPositionTransition.position
   return {
     transaction: {
       calls: operation.calls,
