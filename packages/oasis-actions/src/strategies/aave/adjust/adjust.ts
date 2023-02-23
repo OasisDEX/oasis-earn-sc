@@ -112,7 +112,7 @@ async function adjustRiskUp(
     { ...args, fee },
     dependencies,
     true,
-    // true,
+    true,
   )
 
   // Get accurate swap
@@ -201,7 +201,7 @@ async function adjustRiskDown(
     { ...args, fee },
     dependencies,
     false,
-    // true,
+    true,
   )
 
   // Get accurate swap
@@ -693,6 +693,7 @@ type GenerateTransitionArgs = {
   oracle: BigNumber
   args: AaveAdjustArgs
   dependencies: AaveAdjustDependencies
+  debug?: boolean
 }
 
 async function generateTransition({
@@ -702,6 +703,7 @@ async function generateTransition({
   simulatedPositionTransition,
   oracle,
   args,
+  debug,
 }: GenerateTransitionArgs) {
   const depositCollateralAmountInBaseUnit = args.depositedByUser?.collateralInWei || ZERO
   const depositDebtAmountInBaseUnit = args.depositedByUser?.debtInWei || ZERO
@@ -764,6 +766,13 @@ async function generateTransition({
     oracle,
     simulatedPositionTransition.position.category,
   )
+
+  if (debug) {
+    console.log('Final position')
+    console.log('Debt', finalPosition.debt.amount.toString())
+    console.log('Collateral', finalPosition.collateral.amount.toString())
+    console.log('Oracle used', oracle.toString())
+  }
 
   return {
     transaction: {

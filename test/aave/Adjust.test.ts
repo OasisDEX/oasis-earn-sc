@@ -703,6 +703,9 @@ describe('Strategy | AAVE | Adjust Position', async function () {
           const { debtToken, collateralToken, proxy } = dsProxyStEthEthEarnPositionDetails
 
           const position = await dsProxyStEthEthEarnPositionDetails.getPosition()
+          console.log('POSITION BEFORE')
+          console.log('collateral', position.collateral.amount.toString())
+          console.log('debt', position.debt.amount.toString())
           act = await adjustPositionV3({
             isDPMProxy: false,
             targetMultiple: new RiskRatio(new BigNumber(1.3), RiskRatio.TYPE.MULITPLE),
@@ -711,7 +714,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             collateralToken,
             debtToken,
             proxy,
-            slippage: UNISWAP_TEST_SLIPPAGE,
+            slippage: SLIPPAGE,
             getSwapData: oneInchCallMock(dsProxyStEthEthEarnPositionDetails.__mockPrice, {
               from: collateralToken.precision,
               to: debtToken.precision,
