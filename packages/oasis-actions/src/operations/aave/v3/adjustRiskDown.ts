@@ -94,6 +94,8 @@ export async function adjustRiskDown({
     asset: collateral.isEth ? ADDRESSES.main.ETH : collateral.address,
   })
 
+  unwrapEth.skipped = !debt.isEth && !collateral.isEth
+
   const flashloanCalls = [
     setDaiApprovalOnLendingPool,
     depositDaiInAAVE,
