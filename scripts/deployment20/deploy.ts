@@ -1,0 +1,438 @@
+// We require the Hardhat Runtime Environment explicitly here. This is optional
+// but useful for running the script in a standalone fashion through `node <script>`.
+//
+// When running the script with `npx hardhat run <script>` you'll find the Hardhat
+// Runtime Environment's members available in the global scope.
+import { ServiceRegistry } from '@helpers/serviceRegistry'
+import { OperationsRegistry } from '@helpers/wrappers/operationsRegistry'
+import { action, ActionFactory, ADDRESSES, calldataTypes, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
+import axios from 'axios'
+import BigNumber from 'bignumber.js'
+import { Contract, ContractFactory, providers, Signer, BigNumber as EthersBN, utils, } from 'ethers'
+import hre from 'hardhat'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import NodeCache from 'node-cache'
+import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
+
+import { EtherscanGasPrice, HardhatUtils, Network } from '../common'
+import _ from 'lodash'
+import { getOrCreateProxy } from '@helpers/proxy'
+import { executeThroughProxy } from '@helpers/deploy'
+import { operationDefinition as aaveV2OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/open'
+
+const prompts = require('prompts');
+
+const configLoader = require('config-json');
+
+configLoader.setBaseDir('./scripts/deployment20/');
+
+export const ChainById: { [key: number]: Network } = {
+  1: Network.MAINNET,
+  5: Network.GOERLI,
+  10: Network.OPT_MAINNET,
+}
+
+const restrictedNetworks = [
+  Network.MAINNET,
+  // Network.LOCAL,
+  Network.GOERLI
+]
+
+const rpcUrls: any = {
+  [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
+  [Network.OPT_MAINNET]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
+  [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
+}
+
+const impersonateAccount = async (account: string) => {
+  await hre.network.provider.request({
+    method: 'hardhat_impersonateAccount',
+    params: [account],
+  });
+};
+
+const stopImpersonatingAccount = async (account: string) => {
+  await hre.network.provider.request({
+    method: 'hardhat_stopImpersonatingAccount',
+    params: [account],
+  });
+};
+
+// HELPERS --------------------------
+abstract class DeployedSystemHelpers {
+  public chainId: number = 0
+  public network: Network = Network.LOCAL
+  public forkedNetwork: Network | undefined = undefined
+  public rpcUrl: string = ''
+  public isRestrictedNetwork: boolean = false
+  public ethers: any = hre.ethers
+  public provider: providers.JsonRpcProvider | undefined = undefined
+  public signer: Signer | undefined = undefined
+  public signerAddress: string = ''
+  public serviceRegistryHelper: ServiceRegistry | undefined = undefined
+
+  async getForkedNetworkChainId(provider: providers.JsonRpcProvider) {
+    try {
+      const metadata = await provider.send('hardhat_metadata', [])
+      return metadata.forkedNetwork.chainId
+    } catch (e) { }
+
+    return 0
+  }
+
+  getNetworkFromChainId(chainId: number): Network {
+    return ChainById[chainId]
+  }
+
+  getRpcUrl(network: Network): string {
+    return rpcUrls[network]
+  }
+  async init() {
+    this.ethers = hre.ethers
+    this.provider = this.ethers.provider
+    this.signer = this.provider!.getSigner(0)
+    this.signerAddress = await this.signer.getAddress()
+    this.isRestrictedNetwork = restrictedNetworks.includes(this.network)
+    this.chainId = await this.getForkedNetworkChainId(this.provider!)
+    this.forkedNetwork = this.getNetworkFromChainId(this.chainId)
+
+    this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
+    console.log('NETWORK/FORKED NETWORK', `${this.network}/${this.forkedNetwork}`);
+
+    return {
+      provider: this.provider!,
+      signer: this.signer!,
+      address: this.signerAddress,
+    }
+  }
+}
+
+// MAIN CLASS ===============================================
+export class DeploymentSystem extends DeployedSystemHelpers {
+  private readonly _cache = new NodeCache()
+
+  public config: any = {}
+  public deployedSystem: any = {}
+  public addresses: any = []
+
+  constructor(public readonly hre: HardhatRuntimeEnvironment) {
+    super()
+    this.network = hre.network.name as Network
+  }
+
+  loadConfig(configFileName?: string) {
+    if (configFileName) {
+      configLoader.load(configFileName);
+      this.config = configLoader.get();
+    } else {
+      // if forked other network then merge configs files
+      if (this.forkedNetwork) {
+        console.log('LOAD COMBINED CONFIGS', this.forkedNetwork);
+        configLoader.load(`${this.forkedNetwork}.conf.json`);
+        const baseConfig = configLoader.get();
+        configLoader.load('local-extend.conf.json')
+        const extendedConfig = configLoader.get();
+
+        this.config = { ...baseConfig, ...extendedConfig }
+        this.config = _.merge(baseConfig, extendedConfig);
+      } else {
+        console.log('LOAD NETWORK CONFIG ONLY');
+
+        // otherwise load just one config file
+        configLoader.load(`${this.network}.conf.json`);
+        this.config = configLoader.get();
+      }
+    }
+  }
+
+  saveConfig() {
+    const configString = JSON.stringify(this.config, null, 2)
+    const { writeFile } = require('fs');
+    writeFile(`./scripts/deployment20/${this.network}.conf.json`, configString, (error: any) => { });
+  }
+
+  async postInstantiation(configItem: any, contract: Contract) {
+    console.log('POST INITIALIZATION', configItem.name);
+  }
+
+  async verifyContract(address: string, constructorArguments: any[]) {
+    try {
+      await hre.run('verify:verify', {
+        address,
+        constructorArguments,
+      })
+    } catch (e: any) {
+      console.log(`DEBUG: Error during verification of ${address}: ${e.message}`)
+    }
+  }
+
+  async postDeployment(configItem: any, contract: Contract, constructorArguments: any) {
+    console.log('POST DEPLOYMENT', configItem.name);
+
+    // SERVICE REGISTRY addition
+    if (configItem.serviceRegistryName) {
+      await this.serviceRegistryHelper!.addEntry(configItem.serviceRegistryName, contract.address)
+    }
+
+    // ETHERSCAN VERIFICATION (only for mainnet and L1 testnets)
+    if (this.network === Network.MAINNET || this.network === Network.GOERLI) {
+      this.verifyContract(contract.address, constructorArguments)
+    }
+  }
+
+  getRegistryEntryHash(name: string) {
+    if (name !== '') {
+      return utils.keccak256(Buffer.from(name))
+      // await this.serviceRegistryHelper!.getEntryHash(name as ContractNames)
+    }
+
+    return ''
+  }
+
+  async instantiateContracts(addressesConfig: any) {
+    for (const configItem of addressesConfig) {
+      console.log('INSTANTIATING ', configItem.name);
+      const contractInstance = await this.ethers.getContractAt(
+        configItem.name,
+        configItem.address,
+      )
+
+      this.deployedSystem[configItem.name] = { contract: contractInstance, config: configItem, hash: this.getRegistryEntryHash(configItem.serviceRegistryName) }
+
+      if (configItem.name === 'ServiceRegistry') {
+        this.serviceRegistryHelper = new ServiceRegistry(configItem.address, this.signer!)
+      }
+
+      await this.postInstantiation(configItem, contractInstance)
+    }
+  }
+
+  async promptBeforeDeployment() {
+    console.log('WARNING: You are deploying to a restricted network. Please make sure you know what you are doing.');
+    const response = await prompts({
+      type: 'text',
+      name: 'value',
+      message: `Please type "${this.network}" to continue`,
+    })
+
+    if (response.value !== this.network) {
+      process.exit(1)
+    }
+  }
+
+  async deployContracts(addressesConfig: any) {
+
+    if (this.isRestrictedNetwork) {
+      await this.promptBeforeDeployment()
+    }
+    for (const configItem of addressesConfig) {
+
+      let constructorParams = []
+
+      if (configItem.constructorArgs?.length !== 0) {
+        constructorParams = configItem.constructorArgs.map((param: any) => {
+          if (typeof (param) === 'string' && param.indexOf('address:') >= 0) {
+            const contractName = (param as string).replace('address:', '')
+            return this.deployedSystem[contractName].contract.address
+          }
+          return param
+        })
+      }
+
+      const contractInstance = await this.deployContract(
+        this.ethers.getContractFactory((configItem.name) as string, this.signer!),
+        constructorParams,
+      )
+
+      if (configItem.name === 'ServiceRegistry') {
+        this.serviceRegistryHelper = new ServiceRegistry(contractInstance.address, this.signer!)
+      }
+      this.deployedSystem[configItem.name] = { contract: contractInstance, config: configItem, hash: this.getRegistryEntryHash(configItem.serviceRegistryName) }
+
+      if (configItem.address !== '') {
+        configItem.history.push(configItem.address)
+      }
+      configItem.address = contractInstance.address
+
+      await this.postDeployment(configItem, contractInstance, constructorParams)
+    }
+  }
+
+  public async deployContract<F extends ContractFactory, C extends Contract>(
+    _factory: F | Promise<F>,
+    params: Parameters<F['deploy']>,
+  ): Promise<C> {
+    const factory = await _factory
+    const deployment = await factory.deploy(...params, await this.getGasSettings())
+    return (await deployment.deployed()) as C
+  }
+
+  public async getGasSettings() {
+    if (this.hre.network.name !== Network.MAINNET) {
+      return {}
+    }
+
+    const { suggestBaseFee } = await this.getGasPrice()
+    const maxPriorityFeePerGas = new BigNumber(2).shiftedBy(9).toFixed(0)
+    const maxFeePerGas = new BigNumber(suggestBaseFee)
+      .shiftedBy(9)
+      .plus(maxPriorityFeePerGas)
+      .toFixed(0)
+    return {
+      maxFeePerGas: EthersBN.from(maxFeePerGas),
+      maxPriorityFeePerGas: EthersBN.from(maxPriorityFeePerGas),
+    }
+  }
+
+  public async getGasPrice(): Promise<EtherscanGasPrice['result']> {
+    const cached = this._cache.get<EtherscanGasPrice['result']>('gasprice')
+    if (cached) {
+      return cached
+    }
+
+    const { data } = await axios.get<EtherscanGasPrice>('https://api.etherscan.io/api', {
+      params: {
+        module: 'gastracker',
+        action: 'gasoracle',
+        apikey: process.env.ETHERSCAN_API_KEY,
+      },
+    })
+    this._cache.set('gasprice', data.result, 10)
+    return data.result
+  }
+
+  async deployCore() {
+    await this.instantiateContracts(this.config.mpa.core.filter((item: any) => item.address !== '' && !item.deploy))
+    await this.deployContracts(this.config.mpa.core.filter((item: any) => item.deploy))
+  }
+
+  async deployActions() {
+    await this.instantiateContracts(this.config.mpa.actions.filter((item: any) => item.address !== '' && !item.deploy))
+    await this.deployContracts(this.config.mpa.actions.filter((item: any) => item.deploy))
+  }
+
+  async deployAll() {
+    await this.deployCore()
+    await this.deployActions()
+  }
+
+  mapAddresses() {
+
+    this.config.external.forEach((item: any) => {
+      this.addresses[item.name] = item.address;
+    });
+  }
+  async setupLocalSystem() {
+
+    const deployedContract = await this.deployContract(
+      this.ethers.getContractFactory('uSwap', this.signer),
+      [
+        this.signerAddress,
+        this.signerAddress, //feeRecipient,
+        0,
+        this.deployedSystem['ServiceRegistry'].contract.address],
+    )
+
+    await deployedContract.setPool(
+      this.addresses.WETH,
+      this.addresses.USDC,
+      10000,
+    )
+
+    await deployedContract.addFeeTier(20)
+
+
+    this.deployedSystem['Swap'] = { contract: deployedContract, config: {}, hash: '' }
+
+    // add flag to deploy fallbackSwap contract
+    // await serviceRegistryHelper!.addEntry(CONTRACT_NAMES.common.SWAP, useFallbackSwap ? uSwapAddress : swapAddress)
+    await this.serviceRegistryHelper!.addEntry('Swap', deployedContract.address)
+
+    this.deployedSystem.AccountGuard.contract.setWhitelist(this.deployedSystem.OperationExecutor.contract.address, true)
+
+    const operationsRegistry: OperationsRegistry = new OperationsRegistry(
+      this.deployedSystem.OperationsRegistry.contract.address,
+      this.signer!,
+    )
+
+    const dsProxyRegistry = await this.ethers.getContractAt(
+      DS_PROXY_REGISTRY_ABI,
+      this.addresses.DsProxyRegistry,
+      this.signer,
+    )
+
+    this.deployedSystem['DsProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
+
+    //-- Add Token Contract Entries
+    // await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
+    await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.common.WETH, this.addresses.WETH)
+    // await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
+    await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, this.addresses.AaveV3Pool)
+    // await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
+    await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, this.addresses.uniswapRouterV3)
+    await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.balancer.BALANCER_VAULT, this.addresses.BalancerVault)
+
+    // Add AAVE Operations
+
+    await operationsRegistry.addOp(
+      aaveV2OpenOp.name,
+      aaveV2OpenOp.actions
+    )
+  }
+
+  // TODO unify resetNode and resetNodeToLatestBlock into one function
+  async resetNode(
+    blockNumber: number,
+  ) {
+    console.log(`\x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
+    await this.provider!.send('hardhat_reset', [
+      {
+        forking: {
+          jsonRpcUrl: this.rpcUrl,
+          blockNumber,
+        },
+      },
+    ])
+  }
+
+  async resetNodeToLatestBlock() {
+    await this.provider!.send('hardhat_reset', [
+      {
+        forking: {
+          jsonRpcUrl: this.rpcUrl,
+        },
+      },
+    ])
+  }
+
+  getSystem() {
+    return {
+      system: this.deployedSystem,
+      registry: this.serviceRegistryHelper!
+    }
+  }
+}
+
+async function main() {
+  const utils = new HardhatUtils(hre) // the hardhat network is coalesced to mainnet
+  const signer = hre.ethers.provider.getSigner(0)
+  const network = hre.network.name || ''
+  console.log(`Deployer address: ${await signer.getAddress()}`)
+  console.log(`Network: ${network}`)
+
+  const ds = new DeploymentSystem(hre) // TODO add forked param and in init get chainId and forked Network + set as attribute
+  await ds.init()
+  ds.loadConfig()
+  ds.mapAddresses()
+  await ds.deployAll()
+  await ds.setupLocalSystem()
+
+  // ds.saveConfig()
+}
+
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
+main().catch(error => {
+  console.error(error)
+  process.exitCode = 1
+})

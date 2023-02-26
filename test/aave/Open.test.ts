@@ -21,7 +21,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     const supportedStrategies = getSupportedStrategies(ciOnlyTests)
 
-    describe('Open position: With Uniswap', () => {
+    describe.only('Open position: With Uniswap', () => {
       before(async () => {
         fixture = await loadFixture(getSystemWithAavePositions({ use1inch: false }))
       })

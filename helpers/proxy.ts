@@ -1,18 +1,10 @@
-import { ADDRESSES } from '@oasisdex/oasis-actions/src'
-import { Signer } from 'ethers'
+import { Contract, Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import DSProxyABI from '../abi/ds-proxy.json'
+import { ethers } from 'ethers'
 
-import DS_PROXY_REGISTRY_ABI from '../abi/ds-proxy-registry.json'
-
-export async function getOrCreateProxy(signer: Signer, hre?: HardhatRuntimeEnvironment) {
-  const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
+export async function getOrCreateProxy(dsProxyRegistry: Contract, signer: Signer) {
   const address = await signer.getAddress()
-
-  const dsProxyRegistry = await ethers.getContractAt(
-    DS_PROXY_REGISTRY_ABI,
-    ADDRESSES.main.proxyRegistry,
-    signer,
-  )
 
   let proxyAddress = await dsProxyRegistry.proxies(address)
 
@@ -21,5 +13,5 @@ export async function getOrCreateProxy(signer: Signer, hre?: HardhatRuntimeEnvir
     proxyAddress = await dsProxyRegistry.proxies(address)
   }
 
-  return proxyAddress
+  return new ethers.Contract(proxyAddress, DSProxyABI, ethers.provider).connect(signer)
 }
