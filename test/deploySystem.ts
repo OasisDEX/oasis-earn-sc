@@ -1072,7 +1072,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
     {
       hash: unwrapEthHash,
-      optional: false,
+      optional: true,
     },
     {
       hash: returnFundsActionHash,
