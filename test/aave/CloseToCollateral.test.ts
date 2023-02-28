@@ -254,13 +254,12 @@ describe('Close AAVEv2 Position to collateral', () => {
     )
     const feeWalletChange = feeRecipientBalanceAfterTx.minus(feeRecipientBalanceBeforeTx)
 
-    // Given the nature of stETH, there is 1 WEI remaining within astETH and cannot be withdrawn
-    // thus there is a difference if we compare the two numbers up to the last wei.
-    // Using 16 precision will still give us accurate results.
-    // It's 16 and not 17 because if there is the following case:
-    // 1967693420651624420 -> (to 17) 1.96769342065162442
-    // 1967693420651624419 -> (to 17) 1.96769342065162441
-    // So 16 is a safe bet.
+    // The precision of the two comparison amounts has been lowered to 8.
+    // This is because in the time between us getting the current position
+    // And executing the transaction, the collateral accrues interest.
+    // When we withdraw the collateral with the MAX_UINT flag we get a different collateral amount
+    // To the amount we had earlier after querying the position
+    // By lowering the sensitivity of the comparison we can avoid this issue
     expectToBeEqual(
       amountFromWei(expectedBalance).toFixed(9),
       amountFromWei(userCollateralBalanceAfterTx).toFixed(9),
@@ -435,7 +434,7 @@ describe('Close AAVEv3 Position to collateral', () => {
     )
     const feeWalletChange = feeRecipientBalanceAfterTx.minus(feeRecipientBalanceBeforeTx)
 
-    // The precision of the two comparison amounts has been lowered.
+    // The precision of the two comparison amounts has been lowered to 8.
     // This is because in the time between us getting the current position
     // And executing the transaction, the collateral accrues interest.
     // When we withdraw the collateral with the MAX_UINT flag we get a different collateral amount
@@ -443,9 +442,9 @@ describe('Close AAVEv3 Position to collateral', () => {
     // By lowering the sensitivity of the comparison we can avoid this issue
     expectToBeEqual(
       // Actual
-      amountFromWei(userCollateralBalanceAfterTx).toFixed(9),
+      amountFromWei(userCollateralBalanceAfterTx).toFixed(8),
       // Expected
-      amountFromWei(expectedBalance).toFixed(9),
+      amountFromWei(expectedBalance).toFixed(8),
       undefined,
       EXPECT_DEBT_BEING_PAID_BACK,
     )
