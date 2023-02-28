@@ -13,3 +13,5 @@ string constant MCD_MANAGER = "McdManager";
 string constant MCD_JUG = "McdJug";
 string constant MCD_JOIN_DAI = "McdJoinDai";
 string constant CDP_ALLOW = "MakerCdpAllow";
+
+string constant MCD_FLASH = "MCD_FLASH";

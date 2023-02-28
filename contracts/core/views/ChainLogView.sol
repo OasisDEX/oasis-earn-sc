@@ -1,8 +1,7 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.15;
 
-import { IChainLog } from "../interfaces/maker/IChainLog.sol";
-
+import { IChainLog } from "../../interfaces/maker/IChainLog.sol";
 /**
  * @title ChainLogView
  * @notice Reads the Chainlog contract to get the address of a service by its name
@@ -22,7 +21,6 @@ contract ChainLogView {
 
   function getServiceAddress(string calldata serviceName) public view returns (address) {
     bytes32 serviceHash = bytes32(abi.encodePacked(serviceName));
-    console.logBytes32(serviceHash);
     return IChainLog(chainlogAddress).getAddress(serviceHash);
   }
 
@@ -33,7 +31,6 @@ contract ChainLogView {
    */
   function getIlkJoinAddressByName(string calldata ilkName) public view returns (address) {
     bytes32 ilkHash = bytes32(abi.encodePacked("MCD_JOIN_", ilkName));
-    console.logBytes32(ilkHash);
     return IChainLog(chainlogAddress).getAddress(ilkHash);
   }
 }

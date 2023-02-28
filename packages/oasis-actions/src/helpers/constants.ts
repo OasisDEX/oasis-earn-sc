@@ -71,6 +71,7 @@ export const CONTRACT_NAMES = {
     MCD_JUG: 'McdJug',
     MCD_JOIN_DAI: 'McdJoinDai',
     CDP_ALLOW: 'CdpAllow',
+    CHAINLOG_VIEW: 'ChainLogView',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',

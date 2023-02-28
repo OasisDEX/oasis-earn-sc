@@ -58,6 +58,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await accountGuard.setWhitelist(operationExecutorAddress, true)
 
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
+  const [chainLogView, chainLogViewAddress] = await deploy(CONTRACT_NAMES.maker.CHAINLOG_VIEW, [ADDRESSES.main.maker.chainlog])
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
 
@@ -122,6 +123,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   const [actionFl, actionFlAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
     ADDRESSES.main.DAI,
+    chainLogViewAddress,
   ])
 
   const [wrapEth, wrapActionAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
