@@ -91,13 +91,6 @@ export async function close(
     asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
   })
 
-  const sendRemainingDebtFundsToFeeRecipient = actions.common.sendToken({
-    asset: args.debtTokenAddress,
-    to: ADDRESSES.main.feeRecipient,
-    amount: new BigNumber(MAX_UINT),
-  })
-  sendRemainingDebtFundsToFeeRecipient.skipped = !args.shouldCloseToCollateral
-
   unwrapEth.skipped = !args.debtTokenIsEth && !args.collateralIsEth
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
@@ -113,7 +106,6 @@ export async function close(
       setDebtTokenApprovalOnLendingPool,
       paybackInAAVE,
       withdrawDAIFromAAVE,
-      sendRemainingDebtFundsToFeeRecipient,
       unwrapEth,
       returnDebtFunds,
       returnCollateralFunds,

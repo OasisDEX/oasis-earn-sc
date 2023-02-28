@@ -30,6 +30,10 @@ export function acceptedFeeToken({ fromToken, toToken }: Props): 'sourceToken' |
     return fallbackTokenType
   }
 
+  if (fromTokenAcceptedIndex === -1) {
+    return 'targetToken'
+  }
+
   /* Select the token to take the fee from based on priority order */
   return fromTokenAcceptedIndex < toTokenAcceptedIndex ? 'sourceToken' : 'targetToken'
 }
