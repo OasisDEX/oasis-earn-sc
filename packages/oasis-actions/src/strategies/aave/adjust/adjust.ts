@@ -40,6 +40,7 @@ type AaveAdjustSharedDependencies = {
   proxy: Address
   user: Address
   isDPMProxy: boolean
+  debug?: boolean
 }
 export type AaveV2AdjustDependencies = AaveAdjustSharedDependencies &
   WithV2Addresses &
@@ -99,6 +100,7 @@ async function adjustRiskUp(
       { ...args, fee },
       dependencies,
       true,
+      dependencies.debug,
     )
 
   // Get accurate swap
