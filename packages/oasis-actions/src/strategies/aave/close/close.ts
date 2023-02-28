@@ -308,7 +308,7 @@ async function buildOperation(
         dependencies.addresses as AAVEV3StrategyAddresses,
       )
     default:
-      throw new Error('Unsupported AAVE verison')
+      throw new Error('Unsupported AAVE version')
   }
 }
 
