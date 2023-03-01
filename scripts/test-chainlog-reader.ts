@@ -21,12 +21,19 @@ async function main() {
   const ethAJoinAddressFromHash = await chainLogView.getIlkJoinAddressByHash(
     '0x4554485f41000000000000000000000000000000000000000000000000000000',
   )
+  const psmPaxJoinAddress = await chainLogView.getIlkJoinAddressByName('PSM_PAX_A')
+  const psmPaxJoinAddressFromHash = await chainLogView.getIlkJoinAddressByHash(
+    '0x50534d2d5041582d410000000000000000000000000000000000000000000000',
+  )
 
   console.log('cdpManagerAddress', cdpManagerAddress)
   console.log('EthAJoinAddress', ethAJoinAddress)
   console.log('EthAJoinAddressFromHash', ethAJoinAddressFromHash)
+  console.log('psmPaxJoinAddress', psmPaxJoinAddress)
+  console.log('psmPaxJoinAddressFromHash', psmPaxJoinAddressFromHash)
 
   expect(ethAJoinAddress).to.equal(ethAJoinAddressFromHash)
+  expect(psmPaxJoinAddress).to.equal(psmPaxJoinAddressFromHash)
 }
 
 main().catch(error => {
