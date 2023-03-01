@@ -20,7 +20,11 @@ contract TakeFlashloan is Executable, ProxyPermission {
   ChainLogView internal immutable chainlogView;
   address internal immutable dai;
 
-  constructor(ServiceRegistry _registry, address _dai, ChainLogView _chainlogView) {
+  constructor(
+    ServiceRegistry _registry,
+    address _dai,
+    ChainLogView _chainlogView
+  ) {
     registry = _registry;
     dai = _dai;
     chainlogView = _chainlogView;
