@@ -58,7 +58,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await accountGuard.setWhitelist(operationExecutorAddress, true)
 
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
-  const [chainLogView, chainLogViewAddress] = await deploy(CONTRACT_NAMES.maker.CHAINLOG_VIEW, [
+  const [, chainLogViewAddress] = await deploy(CONTRACT_NAMES.maker.CHAINLOG_VIEW, [
     ADDRESSES.main.maker.chainlog,
   ])
 
