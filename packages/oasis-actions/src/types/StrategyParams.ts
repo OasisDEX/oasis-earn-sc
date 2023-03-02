@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
-import { IRiskRatio } from '../domain'
-import { IPosition } from '../domain/Position'
+import { IRiskRatio } from '../helpers/calculations'
+import { IPosition } from '../helpers/calculations/Position'
 import { PositionType } from './PositionType'
 import { SwapData } from './SwapData'
 

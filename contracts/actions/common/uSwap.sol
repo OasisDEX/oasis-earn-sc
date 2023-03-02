@@ -8,7 +8,7 @@ import { SafeMath } from "../../libs/SafeMath.sol";
 import { SafeERC20 } from "../../libs/SafeERC20.sol";
 import { UNISWAP_ROUTER } from "../../core/constants/Common.sol";
 import { SwapData } from "../../core/types/Common.sol";
-import "hardhat/console.sol";
+
 contract uSwap {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -138,7 +138,6 @@ contract uSwap {
     );
 
     balance = IERC20(toAsset).balanceOf(address(this));
-    console.log('balance post swap', balance);
 
     if (balance == 0) {
       revert SwapFailed();

@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
-import { IBaseSimulatedTransition, IPosition } from '../../../domain/Position'
-import { IRiskRatio } from '../../../domain/RiskRatio'
 import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
+import { IBaseSimulatedTransition, IPosition } from '../../../helpers/calculations/Position'
+import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
 import {
   FEE_BASE,
   FEE_ESTIMATE_INFLATOR,
@@ -79,11 +79,6 @@ async function adjustRiskUp(
     isAdjustUp,
     args.positionType === 'Earn',
   )
-  console.log('---------')
-  console.log('ADJUST RISK UP')
-  console.log('Debt', args.debtToken.symbol)
-  console.log('Collateral', args.collateralToken.symbol)
-  console.log('fee', fee.toString())
 
   // Get quote swap
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
@@ -734,23 +729,12 @@ async function generateTransition({
     ? simulatedPositionTransition.delta.debt
     : simulatedPositionTransition.delta.collateral
 
-  const tokenFee = shouldCollectFeeFromSourceToken
-    ? calculateFee(sourceTokenAmount, fee, new BigNumber(FEE_BASE))
-    : calculateFee(swapData.toTokenAmount, fee, new BigNumber(FEE_BASE))
-
   const preSwapFee = shouldCollectFeeFromSourceToken
     ? calculateFee(sourceTokenAmount, fee, new BigNumber(FEE_BASE))
     : ZERO
   const postSwapFee = shouldCollectFeeFromSourceToken
     ? ZERO
     : calculateFee(swapData.toTokenAmount, fee, new BigNumber(FEE_BASE))
-
-  console.log('======')
-  console.log('fee', fee.toString())
-  console.log('shouldCollectFeeFromSourceToken', shouldCollectFeeFromSourceToken)
-  console.log('sourceTokenAmount', sourceTokenAmount.toString())
-  console.log('swapData.toTokenAmount', swapData.toTokenAmount.toString())
-  console.log('tokenFee', tokenFee.toString())
 
   return {
     transaction: {

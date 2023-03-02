@@ -1,4 +1,4 @@
-import { Swap } from '../../domain/Position'
+import { Swap } from '../calculations/Position'
 import { SwapData } from '../../types/SwapData'
 import { NULL_ADDRESS, TYPICAL_PRECISION, ZERO } from '../constants'
 

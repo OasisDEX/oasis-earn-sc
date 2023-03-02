@@ -7,9 +7,9 @@ import aavePriceOracleABI from '../../../../../../abi/external/aave/v2/priceOrac
 import aaveProtocolDataProviderABI from '../../../../../../abi/external/aave/v2/protocolDataProvider.json'
 import aaveV3PriceOracleABI from '../../../../../../abi/external/aave/v3/aaveOracle.json'
 import aaveV3ProtocolDataProviderABI from '../../../../../../abi/external/aave/v3/aaveProtocolDataProvider.json'
-import { Position } from '../../../domain/Position'
 import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
 import { ADDRESSES } from '../../../helpers/addresses'
+import { Position } from '../../../helpers/calculations/Position'
 import {
   FEE_BASE,
   FEE_ESTIMATE_INFLATOR,
@@ -381,13 +381,6 @@ async function generateTransition(
   )
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
 
-  console.log('========')
-  console.log('collectFeeFrom', collectFeeFrom)
-  console.log(
-    'dependencies.currentPosition.collateral.amount',
-    dependencies.currentPosition.collateral.amount.toString(),
-  )
-  console.log('expectedMarketPrice', expectedMarketPrice.toString())
   const amountOfTargetTokenPostSwapNormalised = amountFromWei(
     dependencies.currentPosition.collateral.amount,
     args.collateralToken.precision,
@@ -396,19 +389,11 @@ async function generateTransition(
     amountOfTargetTokenPostSwapNormalised,
     args.debtToken.precision,
   )
-  console.log(
-    'amountOfTargetTokenPostSwapNormalised',
-    amountOfTargetTokenPostSwapNormalised.toString(),
-  )
-  console.log('amountOfTargetTokenPostSwap', amountOfTargetTokenPostSwap.toString())
 
   const postSwapFee =
     collectFeeFrom === 'targetToken'
       ? calculateFee(amountOfTargetTokenPostSwap, fee, new BigNumber(FEE_BASE))
       : ZERO
-
-  console.log('preSwapFee', preSwapFee.toString())
-  console.log('postSwapFee', postSwapFee.toString())
 
   return {
     transaction: {

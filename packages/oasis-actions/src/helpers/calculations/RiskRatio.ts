@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-import { ONE } from '../helpers/constants'
+import { ONE } from '../constants'
 
 export interface IRiskRatio {
   loanToValue: BigNumber

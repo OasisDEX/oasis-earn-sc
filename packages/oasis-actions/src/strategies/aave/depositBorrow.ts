@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
-import { IPosition } from '../../domain/Position'
-import { RiskRatio } from '../../domain/RiskRatio'
+import { IPosition } from '../../helpers/calculations/Position'
+import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
 import { acceptedFeeToken } from '../../helpers/swap/acceptedFeeToken'
 import { getZeroSwap } from '../../helpers/swap/getZeroSwap'
