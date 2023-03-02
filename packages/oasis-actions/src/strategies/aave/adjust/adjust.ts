@@ -1,10 +1,15 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
-import { amountFromWei, amountToWei } from '../../../helpers'
-import { IBaseSimulatedTransition, IPosition } from '../../../helpers/calculations/Position'
-import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
-import { TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../../helpers/constants'
+import { IBaseSimulatedTransition, IPosition } from '../../../domain/Position'
+import { IRiskRatio } from '../../../domain/RiskRatio'
+import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
+import {
+  FEE_BASE,
+  TYPICAL_PRECISION,
+  UNUSED_FLASHLOAN_AMOUNT,
+  ZERO,
+} from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
 import { feeResolver } from '../../../helpers/swap/feeResolver'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
@@ -675,6 +680,8 @@ type GenerateTransitionArgs = {
   isIncreasingRisk: boolean
   swapData: SwapData
   operation: IOperation
+  collectFeeFrom: 'sourceToken' | 'targetToken'
+  fee: BigNumber
   simulatedPositionTransition: IBaseSimulatedTransition
   args: AaveAdjustArgs
   dependencies: AaveAdjustDependencies
@@ -684,6 +691,8 @@ async function generateTransition({
   isIncreasingRisk,
   swapData,
   operation,
+  collectFeeFrom,
+  fee,
   simulatedPositionTransition,
   args,
 }: GenerateTransitionArgs) {
@@ -694,22 +703,26 @@ async function generateTransition({
     ? args.collateralToken.precision
     : args.debtToken.precision
 
-  const actualSwapBase18FromTokenAmount = amountToWei(
-    amountFromWei(swapData.fromTokenAmount, fromTokenPrecision),
-    TYPICAL_PRECISION,
-  )
-  const toAmountWithMaxSlippage = swapData.minToTokenAmount
-
-  const actualSwapBase18ToTokenAmount = amountToWei(
-    amountFromWei(toAmountWithMaxSlippage, toTokenPrecision),
-    TYPICAL_PRECISION,
+  const fromTokenAmountNormalised = amountFromWei(swapData.fromTokenAmount, fromTokenPrecision)
+  const toTokenAmountNormalisedWithMaxSlippage = amountFromWei(
+    swapData.minToTokenAmount,
+    toTokenPrecision,
   )
 
-  const actualMarketPriceWithSlippage = actualSwapBase18FromTokenAmount.div(
-    actualSwapBase18ToTokenAmount,
+  const expectedMarketPriceWithSlippage = fromTokenAmountNormalised.div(
+    toTokenAmountNormalisedWithMaxSlippage,
   )
 
   const finalPosition = simulatedPositionTransition.position
+
+  // When collecting fees from the target token (collateral here), we want to calculate the fee
+  // Based on the toTokenAmount NOT minToTokenAmount so that we over estimate the fee where possible
+  // And do not mislead the user
+  const shouldCollectFeeFromSourceToken = collectFeeFrom === 'sourceToken'
+  const tokenFee = shouldCollectFeeFromSourceToken
+    ? calculateFee(simulatedPositionTransition.delta.debt, fee, new BigNumber(FEE_BASE))
+    : calculateFee(swapData.toTokenAmount, fee, new BigNumber(FEE_BASE))
+
   return {
     transaction: {
       calls: operation.calls,
@@ -721,10 +734,12 @@ async function generateTransition({
       swap: {
         ...simulatedPositionTransition.swap,
         ...swapData,
+        collectFeeFrom,
+        tokenFee,
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
-        actualMarketPriceWithSlippage,
+        expectedMarketPriceWithSlippage,
       ),
     },
   }

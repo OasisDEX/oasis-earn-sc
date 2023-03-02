@@ -1,5 +1,5 @@
+import { Swap } from '../../domain/Position'
 import { SwapData } from '../../types/SwapData'
-import { Swap } from '../calculations/Position'
 import { NULL_ADDRESS, TYPICAL_PRECISION, ZERO } from '../constants'
 
 export function getZeroSwap(sourceToken: string, targetToken: string): SwapData & Swap {

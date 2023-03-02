@@ -7,11 +7,12 @@ import aavePriceOracleABI from '../../../../../../abi/external/aave/v2/priceOrac
 import aaveProtocolDataProviderABI from '../../../../../../abi/external/aave/v2/protocolDataProvider.json'
 import aaveV3PriceOracleABI from '../../../../../../abi/external/aave/v3/aaveOracle.json'
 import aaveV3ProtocolDataProviderABI from '../../../../../../abi/external/aave/v3/aaveProtocolDataProvider.json'
+import { Position } from '../../../domain/Position'
 import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
 import { ADDRESSES } from '../../../helpers/addresses'
-import { Position } from '../../../helpers/calculations/Position'
 import {
   FEE_BASE,
+  FEE_ESTIMATE_INFLATOR,
   FLASHLOAN_SAFETY_MARGIN,
   ONE,
   TEN,
@@ -54,6 +55,9 @@ export async function close(
   args: AaveCloseArgsWithVersioning,
   dependencies: AaveCloseDependencies,
 ): Promise<IPositionTransition> {
+  console.log('=====')
+  console.log('COLL:', args.collateralToken.symbol)
+  console.log('DEBT:', args.debtToken.symbol)
   const getSwapData = args.shouldCloseToCollateral
     ? getSwapDataToCloseToCollateral
     : getSwapDataToCloseToDebt
@@ -362,27 +366,49 @@ async function generateTransition(
   // We use the toTokenAmount given it's the most optimistic swap scenario
   // Meaning it corresponds with the largest fee a user can expect to pay
   // Thus, if the swap performs poorly the fee will be less than expected
-  const normalisedFromTokenAmount = amountFromWei(
+  const fromTokenAmountNormalised = amountFromWei(
     swapData.fromTokenAmount,
     args.collateralToken.precision,
   )
-  const normalisedToTokenAmount = amountFromWei(swapData.toTokenAmount, args.debtToken.precision)
-  const normalisedMinToTokenAmount = amountFromWei(
+  const toTokenAmountNormalised = amountFromWei(swapData.toTokenAmount, args.debtToken.precision)
+  const toTokenAmountNormalisedWithMaxSlippage = amountFromWei(
     swapData.minToTokenAmount,
     args.debtToken.precision,
   )
-  const expectedMarketPrice = normalisedFromTokenAmount.div(normalisedToTokenAmount)
-  const expectedMarketPriceWithSlippage = normalisedFromTokenAmount.div(normalisedMinToTokenAmount)
+  const expectedMarketPrice = fromTokenAmountNormalised.div(toTokenAmountNormalised)
+  const expectedMarketPriceWithSlippage = fromTokenAmountNormalised.div(
+    toTokenAmountNormalisedWithMaxSlippage,
+  )
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
+
+  console.log('========')
+  console.log('collectFeeFrom', collectFeeFrom)
+  console.log(
+    'dependencies.currentPosition.collateral.amount',
+    dependencies.currentPosition.collateral.amount.toString(),
+  )
+  console.log('expectedMarketPrice', expectedMarketPrice.toString())
+  const amountOfTargetTokenPostSwapNormalised = amountFromWei(
+    dependencies.currentPosition.collateral.amount,
+    args.collateralToken.precision,
+  ).div(expectedMarketPrice)
+  const amountOfTargetTokenPostSwap = amountToWei(
+    amountOfTargetTokenPostSwapNormalised,
+    args.debtToken.precision,
+  )
+  console.log(
+    'amountOfTargetTokenPostSwapNormalised',
+    amountOfTargetTokenPostSwapNormalised.toString(),
+  )
+  console.log('amountOfTargetTokenPostSwap', amountOfTargetTokenPostSwap.toString())
 
   const postSwapFee =
     collectFeeFrom === 'targetToken'
-      ? calculateFee(
-          dependencies.currentPosition.collateral.amount.div(expectedMarketPrice),
-          fee,
-          new BigNumber(FEE_BASE),
-        )
+      ? calculateFee(amountOfTargetTokenPostSwap, fee, new BigNumber(FEE_BASE))
       : ZERO
+
+  console.log('preSwapFee', preSwapFee.toString())
+  console.log('postSwapFee', postSwapFee.toString())
 
   return {
     transaction: {
@@ -398,7 +424,9 @@ async function generateTransition(
       flags: flags,
       swap: {
         ...swapData,
-        tokenFee: preSwapFee.plus(postSwapFee),
+        tokenFee: preSwapFee.plus(
+          postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
+        ),
         collectFeeFrom,
         sourceToken: {
           symbol: args.collateralToken.symbol,

@@ -2,10 +2,17 @@ import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
 import { Unbox } from '../../../../../../helpers/types/common'
-import { amountFromWei, amountToWei } from '../../../helpers'
-import { IBaseSimulatedTransition, Position } from '../../../helpers/calculations/Position'
-import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
-import { DEFAULT_FEE, NO_FEE, TYPICAL_PRECISION, ZERO } from '../../../helpers/constants'
+import { IBaseSimulatedTransition, Position } from '../../../domain/Position'
+import { IRiskRatio } from '../../../domain/RiskRatio'
+import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
+import {
+  DEFAULT_FEE,
+  FEE_BASE,
+  FEE_ESTIMATE_INFLATOR,
+  NO_FEE,
+  ONE,
+  ZERO,
+} from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
 import { feeResolver } from '../../../helpers/swap/feeResolver'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
@@ -119,8 +126,9 @@ export async function open(
     swapData,
     operation,
     args,
+    collectFeeFrom,
+    fee,
     dependencies,
-    oracle,
     simulatedPositionTransition,
   })
 }
@@ -203,8 +211,7 @@ async function simulatePositionTransition(
     reserveEModeCategory,
   } = protocolData
 
-  const BASE = new BigNumber(10000)
-  const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(BASE)
+  const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
 
   const multiple = args.multiple
 
@@ -212,16 +219,16 @@ async function simulatePositionTransition(
   const depositCollateralAmountInWei =
     args.depositedByUser?.collateralToken?.amountInBaseUnit || ZERO
 
-  // Needs to be correct precision. First convert to base 18. Then divide
-  const base18FromTokenAmount = amountToWei(
-    amountFromWei(quoteSwapData.fromTokenAmount, args.debtToken.precision),
-    TYPICAL_PRECISION,
+  // Needs to be correct precision.
+  const fromTokenAmountNormalised = amountFromWei(
+    quoteSwapData.fromTokenAmount,
+    args.debtToken.precision,
   )
-  const base18ToTokenAmount = amountToWei(
-    amountFromWei(quoteSwapData.toTokenAmount, args.collateralToken.precision),
-    TYPICAL_PRECISION,
+  const toTokenAmountNormalised = amountFromWei(
+    quoteSwapData.toTokenAmount,
+    args.collateralToken.precision,
   )
-  const quoteMarketPrice = base18FromTokenAmount.div(base18ToTokenAmount)
+  const quoteMarketPrice = fromTokenAmountNormalised.div(toTokenAmountNormalised)
   const flashloanFee = new BigNumber(0)
 
   // ETH/DAI
@@ -235,6 +242,8 @@ async function simulatePositionTransition(
 
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+  console.log('QUOTE MARKET PRICE:', quoteMarketPrice.toString())
+  console.log('ORACLE:', oracle.toString())
 
   const collectFeeFrom = acceptedFeeToken({
     fromToken: args.debtToken.symbol,
@@ -359,8 +368,9 @@ async function buildOperation(
 type GenerateTransitionArgs = {
   swapData: SwapData
   operation: IOperation
+  collectFeeFrom: 'sourceToken' | 'targetToken'
+  fee: BigNumber
   simulatedPositionTransition: IBaseSimulatedTransition
-  oracle: BigNumber
   args: AaveOpenArgs
   dependencies: AaveOpenDependencies
 }
@@ -368,54 +378,37 @@ type GenerateTransitionArgs = {
 async function generateTransition({
   swapData,
   operation,
+  collectFeeFrom,
+  fee,
   simulatedPositionTransition,
-  oracle,
   args,
 }: GenerateTransitionArgs) {
-  const depositCollateralAmountInWei =
-    args.depositedByUser?.collateralToken?.amountInBaseUnit || ZERO
-
-  const actualSwapBase18FromTokenAmount = amountToWei(
-    amountFromWei(swapData.fromTokenAmount, args.debtToken.precision),
-    TYPICAL_PRECISION,
+  const fromTokenAmountNormalised = amountFromWei(
+    swapData.fromTokenAmount,
+    args.debtToken.precision,
   )
-  const toAmountWithMaxSlippage = swapData.minToTokenAmount
-  const actualSwapBase18ToTokenAmount = amountToWei(
-    amountFromWei(toAmountWithMaxSlippage, args.collateralToken.precision),
-    TYPICAL_PRECISION,
-  )
-  const actualMarketPriceWithSlippage = actualSwapBase18FromTokenAmount.div(
-    actualSwapBase18ToTokenAmount,
-  )
-
-  // EG FROM WBTC 8 to USDC 6
-  // Convert WBTC fromWei
-  // Apply market price
-  // Convert result back to USDC at precision 6
-  const collateralAmountAfterSwapInWei = amountToWei(
-    amountFromWei(simulatedPositionTransition.swap.fromTokenAmount, args.debtToken.precision).div(
-      actualMarketPriceWithSlippage,
-    ),
+  const toTokenAmountNormalisedWithMaxSlippage = amountFromWei(
+    swapData.minToTokenAmount,
     args.collateralToken.precision,
-  ).integerValue(BigNumber.ROUND_DOWN)
-
-  const finalCollateralAmountAsWad = collateralAmountAfterSwapInWei.plus(
-    depositCollateralAmountInWei,
+  )
+  const expectedMarketPriceWithSlippage = fromTokenAmountNormalised.div(
+    toTokenAmountNormalisedWithMaxSlippage,
   )
 
-  /*
-    Final position calculated using actual swap data and the latest market price
-   */
-  const finalPosition = new Position(
-    simulatedPositionTransition.position.debt,
-    {
-      amount: finalCollateralAmountAsWad,
-      symbol: simulatedPositionTransition.position.collateral.symbol,
-      precision: simulatedPositionTransition.position.collateral.precision,
-    },
-    oracle,
-    simulatedPositionTransition.position.category,
-  )
+  const finalPosition = simulatedPositionTransition.position
+
+  // When collecting fees from the target token (collateral here), we want to calculate the fee
+  // Based on the toTokenAmount NOT minToTokenAmount so that we over estimate the fee where possible
+  // And do not mislead the user
+  const shouldCollectFeeFromSourceToken = collectFeeFrom === 'sourceToken'
+
+  console.log('DEBT DELTA', simulatedPositionTransition.delta.debt.toString())
+  const preSwapFee = shouldCollectFeeFromSourceToken
+    ? calculateFee(simulatedPositionTransition.delta.debt, fee, new BigNumber(FEE_BASE))
+    : ZERO
+  const postSwapFee = shouldCollectFeeFromSourceToken
+    ? ZERO
+    : calculateFee(swapData.toTokenAmount, fee, new BigNumber(FEE_BASE))
 
   return {
     transaction: {
@@ -428,10 +421,14 @@ async function generateTransition({
       swap: {
         ...simulatedPositionTransition.swap,
         ...swapData,
+        collectFeeFrom,
+        tokenFee: preSwapFee.plus(
+          postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
+        ),
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
-        actualMarketPriceWithSlippage,
+        expectedMarketPriceWithSlippage,
       ),
     },
   }

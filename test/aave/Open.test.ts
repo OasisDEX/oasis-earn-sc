@@ -191,6 +191,11 @@ describe(`Strategy | AAVE | Open Position`, async function () {
               expectToBe(position.riskRatio.multiple, 'lte', simulatedPosition.riskRatio.multiple)
             })
             it(`Should collect fee for ${strategy}`, async () => {
+              console.log(
+                'simulatedTransition.swap.tokenFee',
+                simulatedTransition.swap.tokenFee.toString(),
+              )
+              console.log('feeWalletBalanceChange', feeWalletBalanceChange.toString())
               expectToBeEqual(simulatedTransition.swap.tokenFee, feeWalletBalanceChange)
             })
           })

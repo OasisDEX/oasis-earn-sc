@@ -72,7 +72,7 @@ export async function createEthUsdcMultiplyAAVEPosition({
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
-  const mockPrice = new BigNumber(1351)
+  const mockPrice = new BigNumber(1543)
   const getSwapData = use1inch
     ? dependencies.getSwapData(swapAddress)
     : dependencies.getSwapData(mockPrice, {
