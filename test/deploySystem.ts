@@ -784,7 +784,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
     {
       hash: returnFundsActionHash,
-      optional: true,
+      optional: false,
     },
     {
       hash: returnFundsActionHash,

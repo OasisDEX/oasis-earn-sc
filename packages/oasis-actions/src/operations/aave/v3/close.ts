@@ -85,7 +85,6 @@ export async function close(
   const returnDebtFunds = actions.common.returnFunds({
     asset: args.debtTokenIsEth ? ADDRESSES.main.ETH : args.debtTokenAddress,
   })
-  returnDebtFunds.skipped = args.shouldCloseToCollateral
 
   const returnCollateralFunds = actions.common.returnFunds({
     asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
