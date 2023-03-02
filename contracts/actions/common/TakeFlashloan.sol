@@ -6,7 +6,7 @@ import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { IERC3156FlashBorrower } from "../../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "../../interfaces/flashloan/IERC3156FlashLender.sol";
 import { FlashloanData } from "../../core/types/Common.sol";
-import { OPERATION_EXECUTOR, DAI, TAKE_FLASH_LOAN_ACTION } from "../../core/constants/Common.sol";
+import { OPERATION_EXECUTOR, DAI, CHAINLOG_VIEWER, TAKE_FLASH_LOAN_ACTION } from "../../core/constants/Common.sol";
 import { MCD_FLASH } from "../../core/constants/Maker.sol";
 import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
 import { ChainLogView } from "../../core/views/ChainLogView.sol";
@@ -17,13 +17,11 @@ import { ChainLogView } from "../../core/views/ChainLogView.sol";
  */
 contract TakeFlashloan is Executable, ProxyPermission {
   ServiceRegistry internal immutable registry;
-  ChainLogView internal immutable chainlogView;
   address internal immutable dai;
 
-  constructor(ServiceRegistry _registry, address _dai, ChainLogView _chainlogView) {
+  constructor(ServiceRegistry _registry, address _dai) {
     registry = _registry;
     dai = _dai;
-    chainlogView = _chainlogView;
   }
 
   /**
@@ -40,6 +38,8 @@ contract TakeFlashloan is Executable, ProxyPermission {
     if (flData.isProxyFlashloan) {
       givePermission(flData.isDPMProxy, operationExecutorAddress);
     }
+
+    ChainLogView chainlogView = ChainLogView(registry.getRegisteredService(CHAINLOG_VIEWER));
 
     IERC3156FlashLender(chainlogView.getServiceAddress(MCD_FLASH)).flashLoan(
       IERC3156FlashBorrower(operationExecutorAddress),

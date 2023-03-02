@@ -32,6 +32,7 @@ export const CONTRACT_NAMES = {
     OPERATION_EXECUTOR: 'OperationExecutor_2',
     OPERATION_STORAGE: 'OperationStorage_2',
     OPERATIONS_REGISTRY: 'OperationsRegistry_2',
+    CHAINLOG_VIEWER: 'ChainLogView',
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
     SWAP: 'Swap',
     EXCHANGE: 'Exchange',
