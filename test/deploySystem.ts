@@ -78,6 +78,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   )
 
   await uSwap.addFeeTier(20)
+  await uSwap.addFeeTier(7)
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
@@ -87,6 +88,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   ])
 
   await swap.addFeeTier(20)
+  await swap.addFeeTier(7)
 
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
   const [dummyAutomation] = await deploy('DummyAutomation', [serviceRegistryAddress])
@@ -737,23 +739,18 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: false,
     },
     {
-      hash: sendTokenHash,
-      optional: true,
-    },
-    {
       hash: unwrapEthHash,
-      optional: true,
-    },
-    {
-      hash: returnFundsActionHash,
       optional: true,
     },
     {
       hash: returnFundsActionHash,
       optional: false,
     },
+    {
+      hash: returnFundsActionHash,
+      optional: false,
+    },
   ])
-
   await operationsRegistry.addOp(OPERATION_NAMES.aave.v3.CLOSE_POSITION, [
     {
       hash: takeFlashLoanHash,
@@ -788,16 +785,12 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: false,
     },
     {
-      hash: sendTokenHash,
-      optional: true,
-    },
-    {
       hash: unwrapEthHash,
       optional: true,
     },
     {
       hash: returnFundsActionHash,
-      optional: true,
+      optional: false,
     },
     {
       hash: returnFundsActionHash,
@@ -852,6 +845,48 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
     {
       hash: aaveWithdrawHash,
+      optional: false,
+    },
+  ])
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v3.ADJUST_RISK_UP, [
+    {
+      hash: takeFlashLoanHash,
+      optional: false,
+    },
+    {
+      hash: pullTokenHash,
+      optional: true,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3DepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3BorrowHash,
+      optional: false,
+    },
+    {
+      hash: wrapEthHash,
+      optional: true,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3DepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3WithdrawHash,
       optional: false,
     },
   ])
@@ -999,6 +1034,52 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     },
     {
       hash: aaveWithdrawHash,
+      optional: false,
+    },
+  ])
+  await operationsRegistry.addOp(OPERATION_NAMES.aave.v3.ADJUST_RISK_DOWN, [
+    {
+      hash: takeFlashLoanHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3DepositHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3WithdrawHash,
+      optional: false,
+    },
+    {
+      hash: swapActionHash,
+      optional: false,
+    },
+    {
+      hash: setApprovalHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3PaybackHash,
+      optional: false,
+    },
+    {
+      hash: aaveV3WithdrawHash,
+      optional: false,
+    },
+    {
+      hash: unwrapEthHash,
+      optional: true,
+    },
+    {
+      hash: returnFundsActionHash,
+      optional: false,
+    },
+    {
+      hash: returnFundsActionHash,
       optional: false,
     },
   ])

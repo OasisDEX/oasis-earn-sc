@@ -143,7 +143,6 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     aaveV3UniqueContractName in dependencies.addresses
   ) {
     const addresses = dependencies.addresses
-    const protocolVersion = dependencies.protocol.version
 
     getPosition = async () => {
       return await strategies.aave.v3.view(
@@ -158,7 +157,6 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
-          protocolVersion: protocolVersion,
         },
       )
     }
@@ -168,7 +166,6 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     aaveV2UniqueContractName in dependencies.addresses
   ) {
     const addresses = dependencies.addresses
-    const protocolVersion = dependencies.protocol.version
     getPosition = async () => {
       return await strategies.aave.v2.view(
         {
@@ -182,7 +179,6 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
-          protocolVersion,
         },
       )
     }
@@ -197,6 +193,7 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     collateralToken: WBTC,
     debtToken: USDC,
     getSwapData,
+    __positionType: 'Multiply',
     __mockPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),

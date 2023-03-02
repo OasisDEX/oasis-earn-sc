@@ -189,6 +189,7 @@ export async function createStEthUsdcMultiplyAAVEPosition({
     collateralToken: STETH,
     debtToken: USDC,
     getSwapData,
+    __positionType: 'Multiply',
     __mockPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
