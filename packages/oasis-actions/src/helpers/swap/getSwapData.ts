@@ -53,8 +53,8 @@ export async function getSwapDataHelper<Addresses, Tokens>({
     .integerValue(BigNumber.ROUND_DOWN)
 
   const swapData = await services.getSwapData(
-    debtTokenAddress,
-    collateralTokenAddress,
+    fromToken,
+    toToken,
     swapAmountAfterFees,
     args.slippage,
   )

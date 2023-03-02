@@ -173,6 +173,7 @@ export async function createEthUsdcMultiplyAAVEPosition({
     collateralToken: ETH,
     debtToken: USDC,
     getSwapData,
+    __positionType: 'Multiply',
     __mockPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
