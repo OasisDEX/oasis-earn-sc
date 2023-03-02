@@ -75,6 +75,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   )
 
   await uSwap.addFeeTier(20)
+  await uSwap.addFeeTier(7)
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
@@ -84,6 +85,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   ])
 
   await swap.addFeeTier(20)
+  await swap.addFeeTier(7)
 
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
   const [dummyAutomation] = await deploy('DummyAutomation', [serviceRegistryAddress])
@@ -731,16 +733,12 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: false,
     },
     {
-      hash: sendTokenHash,
-      optional: true,
-    },
-    {
       hash: unwrapEthHash,
       optional: true,
     },
     {
       hash: returnFundsActionHash,
-      optional: true,
+      optional: false,
     },
     {
       hash: returnFundsActionHash,
@@ -781,16 +779,12 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: false,
     },
     {
-      hash: sendTokenHash,
-      optional: true,
-    },
-    {
       hash: unwrapEthHash,
       optional: true,
     },
     {
       hash: returnFundsActionHash,
-      optional: true,
+      optional: false,
     },
     {
       hash: returnFundsActionHash,
