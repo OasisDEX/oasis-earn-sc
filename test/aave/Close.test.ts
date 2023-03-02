@@ -346,11 +346,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
               })
             })
 
-            it(`should pass: ${strategy}`, () => {
-              return true
-            })
-
-            it('Should have closed the position', () => {
+            it(`Should have closed the position: ${strategy}`, () => {
               expect(act.closeTxStatus).to.be.true
             })
 
@@ -605,7 +601,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           })
         })
 
-        it('Should have closed the position', () => {
+        it(`Should have closed the position`, () => {
           expect(act.closeTxStatus).to.be.true
         })
 
@@ -696,7 +692,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
               })
             })
 
-            it('Should have closed the position', () => {
+            it(`Should have closed the position: ${strategy}`, () => {
               expect(act.closeTxStatus).to.be.true
             })
 

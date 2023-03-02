@@ -55,9 +55,6 @@ export async function close(
   args: AaveCloseArgsWithVersioning,
   dependencies: AaveCloseDependencies,
 ): Promise<IPositionTransition> {
-  console.log('=====')
-  console.log('COLL:', args.collateralToken.symbol)
-  console.log('DEBT:', args.debtToken.symbol)
   const getSwapData = args.shouldCloseToCollateral
     ? getSwapDataToCloseToCollateral
     : getSwapDataToCloseToDebt
