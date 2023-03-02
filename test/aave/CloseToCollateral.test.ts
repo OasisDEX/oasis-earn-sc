@@ -261,8 +261,8 @@ describe('Close AAVEv2 Position to collateral', () => {
     // To the amount we had earlier after querying the position
     // By lowering the sensitivity of the comparison we can avoid this issue
     expectToBeEqual(
-      amountFromWei(expectedBalance).toFixed(9),
-      amountFromWei(userCollateralBalanceAfterTx).toFixed(9),
+      amountFromWei(expectedBalance).toFixed(8),
+      amountFromWei(userCollateralBalanceAfterTx).toFixed(8),
       undefined,
       EXPECT_DEBT_BEING_PAID_BACK,
     )
