@@ -362,8 +362,17 @@ async function generateTransition(
   // We use the toTokenAmount given it's the most optimistic swap scenario
   // Meaning it corresponds with the largest fee a user can expect to pay
   // Thus, if the swap performs poorly the fee will be less than expected
-  const expectedMarketPrice = swapData.fromTokenAmount.div(swapData.toTokenAmount)
-  const expectedMarketPriceWithSlippage = swapData.fromTokenAmount.div(swapData.toTokenAmount)
+  const normalisedFromTokenAmount = amountFromWei(
+    swapData.fromTokenAmount,
+    args.collateralToken.precision,
+  )
+  const normalisedToTokenAmount = amountFromWei(swapData.toTokenAmount, args.debtToken.precision)
+  const normalisedMinToTokenAmount = amountFromWei(
+    swapData.minToTokenAmount,
+    args.debtToken.precision,
+  )
+  const expectedMarketPrice = normalisedFromTokenAmount.div(normalisedToTokenAmount)
+  const expectedMarketPriceWithSlippage = normalisedFromTokenAmount.div(normalisedMinToTokenAmount)
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
 
   const postSwapFee =
