@@ -89,7 +89,7 @@ export const OPERATION_NAMES = {
   aave: {
     v2: {
       OPEN_POSITION: 'OpenAAVEPosition',
-      CLOSE_POSITION: 'CloseAAVEPosition_2',
+      CLOSE_POSITION: 'CloseAAVEPosition_3',
       INCREASE_POSITION: 'IncreaseAAVEPosition',
       DECREASE_POSITION: 'DecreaseAAVEPosition',
       DEPOSIT_BORROW: 'AAVEDepositBorrow',
@@ -100,7 +100,7 @@ export const OPERATION_NAMES = {
     },
     v3: {
       OPEN_POSITION: 'OpenAAVEV3Position',
-      CLOSE_POSITION: 'CloseAAVEV3Position',
+      CLOSE_POSITION: 'CloseAAVEV3Position_2',
       INCREASE_POSITION: 'IncreaseAAVEV3Position',
       DECREASE_POSITION: 'DecreaseAAVEV3Position',
       DEPOSIT_BORROW: 'AAVEV3DepositBorrow',
