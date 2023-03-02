@@ -58,6 +58,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await accountGuard.setWhitelist(operationExecutorAddress, true)
 
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
+  const [, chainLogViewAddress] = await deploy(CONTRACT_NAMES.maker.CHAINLOG_VIEW, [
+    ADDRESSES.main.maker.chainlog,
+  ])
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
 
@@ -219,6 +222,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
   await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
   await registry.addEntry(CONTRACT_NAMES.common.EXCHANGE, dummyExchangeAddress)
+
+  await registry.addEntry(CONTRACT_NAMES.common.CHAINLOG_VIEWER, chainLogViewAddress)
+
   const takeFlashLoanHash = await registry.addEntry(
     CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
     actionFlAddress,
