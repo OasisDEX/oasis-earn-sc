@@ -5,6 +5,7 @@ import poolERC20Abi from '../../../../../abi/external//ajna/ajnaPoolERC20.json'
 import poolInfoAbi from '../../../../../abi/external/ajna/poolInfoUtils.json'
 import { AjnaPosition } from '../../helpers/ajna'
 import { AjnaEarn } from '../../helpers/ajna/AjnaEarn'
+import { ZERO } from '../../helpers/constants'
 import { Pool } from '../../types/ajna'
 import { Address } from '../../types/common'
 
@@ -13,9 +14,25 @@ interface Args {
   poolAddress: Address
 }
 
+interface EarnData {
+  lps: BigNumber
+  priceIndex: BigNumber | null
+  nftID: string | null
+}
+
+export interface GetEarnData {
+  (proxyAddress: Address): Promise<EarnData>
+}
+
 interface Dependencies {
   poolInfoAddress: Address
   provider: ethers.providers.Provider
+}
+
+interface EarnDependencies {
+  poolInfoAddress: Address
+  provider: ethers.providers.Provider
+  getEarnData: GetEarnData
 }
 
 const WAD = new BigNumber(10).pow(18)
@@ -28,20 +45,45 @@ export async function getPool(
   const pool = new ethers.Contract(poolAddress, poolERC20Abi, provider)
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
 
-  const [collateralAddress, quoteTokenAddress, interestRateInfo, lup, htp] = await Promise.all([
+  const [
+    collateralAddress,
+    quoteTokenAddress,
+    interestRateInfo,
+    poolPricesInfo,
+    momp,
+    poolUtilizationInfo,
+  ] = await Promise.all([
     pool.collateralAddress(),
     pool.quoteTokenAddress(),
     pool.interestRateInfo(),
-    poolInfo.lup(poolAddress),
-    poolInfo.htp(poolAddress),
+    poolInfo.poolPricesInfo(poolAddress),
+    poolInfo.momp(poolAddress).catch(() => ethers.BigNumber.from(0)),
+    poolInfo.poolUtilizationInfo(poolAddress),
   ])
 
   return {
     collateralToken: collateralAddress,
     quoteToken: quoteTokenAddress,
     poolAddress: poolAddress,
-    lup: new BigNumber(lup.toString()).div(WAD),
-    htp: new BigNumber(htp.toString()).div(WAD),
+    lup: new BigNumber(poolPricesInfo.lup_.toString()).div(WAD),
+
+    lowestUtilizedPrice: new BigNumber(poolPricesInfo.lup_.toString()).div(WAD),
+    lowestUtilizedPriceIndex: new BigNumber(poolPricesInfo.lupIndex_.toString()).div(WAD),
+
+    highestPriceBucket: new BigNumber(poolPricesInfo.hpb_.toString()).div(WAD),
+    highestPriceBucketIndex: new BigNumber(poolPricesInfo.hpbIndex_.toString()).div(WAD),
+
+    htp: new BigNumber(poolPricesInfo.htp_.toString()).div(WAD),
+    highestThresholdPrice: new BigNumber(poolPricesInfo.htp_.toString()).div(WAD),
+    highestThresholdPriceIndex: new BigNumber(poolPricesInfo.htpIndex_.toString()).div(WAD),
+
+    mostOptimisticMatchingPrice: new BigNumber(momp.toString()).div(WAD),
+
+    poolMinDebtAmount: new BigNumber(poolUtilizationInfo.poolMinDebtAmount_.toString()),
+    poolCollateralization: new BigNumber(poolUtilizationInfo.poolCollateralization_.toString()),
+    poolActualUtilization: new BigNumber(poolUtilizationInfo.poolActualUtilization_.toString()),
+    poolTargetUtilization: new BigNumber(poolUtilizationInfo.poolTargetUtilization_.toString()),
+
     rate: new BigNumber(interestRateInfo[0].toString()).div(WAD),
   }
 }
@@ -67,10 +109,22 @@ export async function getPosition(
 
 export async function getEarnPosition(
   { proxyAddress, poolAddress }: Args,
-  { poolInfoAddress, provider }: Dependencies,
+  { poolInfoAddress, provider, getEarnData }: EarnDependencies,
 ): Promise<AjnaEarn> {
-  const [pool] = await Promise.all([getPool(poolAddress, poolInfoAddress, provider)])
+  const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
 
-  //TO DO: we need to know how to fetch the price bucket probably theGraph 
-  return new AjnaEarn(pool, proxyAddress, new BigNumber(234), new BigNumber(2000))
+  const [pool, earnData] = await Promise.all([
+    getPool(poolAddress, poolInfoAddress, provider),
+    getEarnData(proxyAddress),
+  ])
+
+  const quoteTokenAmount: BigNumber =
+    earnData.lps.eq(ZERO) || earnData.priceIndex == null
+      ? ZERO
+      : await poolInfo
+          .lpsToQuoteTokens(poolAddress, earnData.lps.toString(), earnData.priceIndex?.toString())
+          .then((quoteTokens: ethers.BigNumberish) => ethers.utils.formatUnits(quoteTokens, 18))
+          .then((res: string) => new BigNumber(res))
+
+  return new AjnaEarn(pool, proxyAddress, quoteTokenAmount, earnData.priceIndex)
 }

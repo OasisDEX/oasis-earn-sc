@@ -6,6 +6,7 @@ import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
 import { AjnaEarn } from '../../../helpers/ajna/AjnaEarn'
 import { Address, Strategy } from '../../../types/common'
 import * as views from '../../../views'
+import { GetEarnData } from '../../../views/ajna'
 
 interface Args {
   poolAddress: Address
@@ -21,6 +22,7 @@ export interface Dependencies {
   ajnaProxyActions: Address
   provider: ethers.providers.Provider
   WETH: Address
+  getEarnData: GetEarnData
 }
 
 export async function open(args: Args, dependencies: Dependencies): Promise<Strategy<AjnaEarn>> {
@@ -30,6 +32,7 @@ export async function open(args: Args, dependencies: Dependencies): Promise<Stra
       poolAddress: args.poolAddress,
     },
     {
+      getEarnData: dependencies.getEarnData,
       poolInfoAddress: dependencies.poolInfoAddress,
       provider: dependencies.provider,
     },

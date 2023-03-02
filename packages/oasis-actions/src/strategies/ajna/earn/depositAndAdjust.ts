@@ -2,10 +2,11 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
-import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
 import { AjnaEarn } from '../../../helpers/ajna/AjnaEarn'
+import { ZERO } from '../../../helpers/constants'
 import { Address, Strategy } from '../../../types/common'
 import * as views from '../../../views'
+import { GetEarnData } from '../../../views/ajna'
 
 interface Args {
   poolAddress: Address
@@ -13,7 +14,7 @@ interface Args {
   quoteAmount: BigNumber
   quoteTokenPrecision: number
   price: BigNumber
-  isStakingNft: boolean
+  position: AjnaEarn
 }
 
 export interface Dependencies {
@@ -21,15 +22,20 @@ export interface Dependencies {
   ajnaProxyActions: Address
   provider: ethers.providers.Provider
   WETH: Address
+  getEarnData: GetEarnData
 }
 
-export async function open(args: Args, dependencies: Dependencies): Promise<Strategy<AjnaEarn>> {
+export async function depositAndAdjust(
+  args: Args,
+  dependencies: Dependencies,
+): Promise<Strategy<AjnaEarn>> {
   const position = await views.ajna.getEarnPosition(
     {
       proxyAddress: args.dpmProxyAddress,
       poolAddress: args.poolAddress,
     },
     {
+      getEarnData: dependencies.getEarnData,
       poolInfoAddress: dependencies.poolInfoAddress,
       provider: dependencies.provider,
     },
@@ -37,6 +43,9 @@ export async function open(args: Args, dependencies: Dependencies): Promise<Stra
 
   const isDepositingEth =
     position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
+  const isPositionStaked = position.stakedNftId !== null
+  const isDepositing = args.quoteAmount.gt(ZERO)
+  const isAdjusting = !args.price.eq(position.price)
 
   const ajnaProxyActions = new ethers.Contract(
     dependencies.ajnaProxyActions,
@@ -44,42 +53,79 @@ export async function open(args: Args, dependencies: Dependencies): Promise<Stra
     dependencies.provider,
   )
 
-  const poolInfo = new ethers.Contract(
-    dependencies.poolInfoAddress,
-    poolInfoAbi,
-    dependencies.provider,
-  )
+  let data: string | null = null
 
-  const priceIndex = await poolInfo
-    .priceToIndex(ethers.utils.parseUnits(args.price.toString(), 18).toString())
-    .then((res: any) => res.toString())
-    .then((res: string) => new BigNumber(res))
+  if (isPositionStaked && isDepositing && isAdjusting) {
+    // supplyAndMoveQuoteNft
+    data = ajnaProxyActions.interface.encodeFunctionData('supplyAndMoveQuoteNft', [
+      args.poolAddress,
+      ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
+      ethers.utils.parseUnits(position.price.toString(), 3).toString(),
+      ethers.utils.parseUnits(args.price.toString(), 3).toString(),
+      args.position.stakedNftId,
+    ])
+  }
 
-  const data = await ajnaProxyActions.interface.encodeFunctionData(
-    args.isStakingNft ? 'supplyQuoteMintNftAndStake' : 'supplyQuote',
-    [
+  if (isPositionStaked && !isDepositing && isAdjusting) {
+    // moveQuoteNft
+    data = ajnaProxyActions.interface.encodeFunctionData('moveQuoteNft', [
+      args.poolAddress,
+      ethers.utils.parseUnits(position.price.toString(), 3).toString(),
+      ethers.utils.parseUnits(args.price.toString(), 3).toString(),
+      args.position.stakedNftId,
+    ])
+  }
+
+  if (isPositionStaked && isDepositing && !isAdjusting) {
+    // supplyQuoteNft
+    data = ajnaProxyActions.interface.encodeFunctionData('supplyQuoteNft', [
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       ethers.utils.parseUnits(args.price.toString(), 3).toString(),
-    ],
-  )
+      args.position.stakedNftId,
+    ])
+  }
 
-  console.log(`
-    PRICE INDEX: ${priceIndex}
-    PRICE ${args.price.toString()}
-  `)
+  if (!isPositionStaked && isDepositing && isAdjusting) {
+    // supplyAndMoveQuote
+    data = ajnaProxyActions.interface.encodeFunctionData('supplyAndMoveQuote', [
+      args.poolAddress,
+      ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
+      ethers.utils.parseUnits(position.price.toString(), 3).toString(),
+      ethers.utils.parseUnits(args.price.toString(), 3).toString(),
+    ])
+  }
+
+  if (!isPositionStaked && !isDepositing && isAdjusting) {
+    // moveQuote
+    data = ajnaProxyActions.interface.encodeFunctionData('moveQuote', [
+      args.poolAddress,
+      ethers.utils.parseUnits(position.price.toString(), 3).toString(),
+      ethers.utils.parseUnits(args.price.toString(), 3).toString(),
+    ])
+  }
+
+  if (!isPositionStaked && isDepositing && !isAdjusting) {
+    // supplyQuote
+    data = ajnaProxyActions.interface.encodeFunctionData('supplyQuote', [
+      args.poolAddress,
+      ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
+      ethers.utils.parseUnits(args.price.toString(), 3).toString(),
+    ])
+  }
+
+  if (data === null) {
+    throw new Error('Data is null')
+  }
+
+  const targetPosition = position.deposit(args.quoteAmount)
 
   return {
     simulation: {
       swaps: [],
       errors: [],
-      targetPosition: new AjnaEarn(
-        position.pool,
-        args.dpmProxyAddress,
-        args.quoteAmount,
-        priceIndex,
-      ),
-      position: new AjnaEarn(position.pool, args.dpmProxyAddress, args.quoteAmount, priceIndex),
+      targetPosition,
+      position: targetPosition,
     },
     tx: {
       to: args.dpmProxyAddress,

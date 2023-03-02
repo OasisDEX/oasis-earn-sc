@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js'
 
 import { IAjnaEarn, Pool } from '../../types/ajna'
 import { Address } from '../../types/common'
+import { ZERO } from '../constants'
 
 function priceIndexToPrice(priceIndex: BigNumber) {
   return new BigNumber(1.05).pow(priceIndex.minus(3232))
@@ -11,18 +12,22 @@ export class AjnaEarn implements IAjnaEarn {
   public earlyWithdrawPenalty: BigNumber = new BigNumber(23)
   public fundsLockedUntil: number
   public price: BigNumber
+  public stakedNftId: string | null = null
 
   constructor(
     public pool: Pool,
     public owner: Address,
     public quoteTokenAmount: BigNumber,
-    public priceIndex: BigNumber,
+    public priceIndex: BigNumber | null,
   ) {
     this.fundsLockedUntil = Date.now() + 5 * 60 * 60 * 1000 // MOCK funds locked until 5h from now
-    this.price = priceIndexToPrice(priceIndex)
+    this.price = priceIndex ? priceIndexToPrice(priceIndex) : ZERO
   }
 
   get isEarningFees() {
+    if (!this.priceIndex) {
+      return false
+    }
     return this.pool.htp.lt(this.price)
   }
 

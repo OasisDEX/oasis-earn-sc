@@ -50,8 +50,25 @@ export interface Pool {
   quoteToken: Address
   collateralToken: Address
 
+  //@deprecated use lowestUtilizedPrice
   lup: BigNumber
+  lowestUtilizedPrice: BigNumber
+  lowestUtilizedPriceIndex: BigNumber
+
+  //@deprecated use highestThresholdPrice
   htp: BigNumber
+  highestThresholdPrice: BigNumber
+  highestThresholdPriceIndex: BigNumber
+
+  highestPriceBucket: BigNumber
+  highestPriceBucketIndex: BigNumber
+
+  mostOptimisticMatchingPrice: BigNumber
+
+  poolMinDebtAmount: BigNumber
+  poolCollateralization: BigNumber
+  poolActualUtilization: BigNumber
+  poolTargetUtilization: BigNumber
 
   // annualized rate as a fraction 0.05 = 5%
   rate: BigNumber
@@ -83,12 +100,14 @@ export interface IAjnaEarn {
   owner: Address
   quoteTokenAmount: BigNumber
   price: BigNumber
-  priceIndex: BigNumber
+  priceIndex: BigNumber | null
 
   isEarningFees: boolean
 
   fundsLockedUntil: number
   earlyWithdrawPenalty: BigNumber
+
+  stakedNftId: string | null
 
   deposit(amount: BigNumber): IAjnaEarn
   withdraw(amount: BigNumber): IAjnaEarn
