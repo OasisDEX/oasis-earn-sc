@@ -58,13 +58,6 @@ export async function open(args: Args, dependencies: Dependencies): Promise<Stra
     .then((res: any) => res.toString())
     .then((res: string) => new BigNumber(res))
 
-  console.log(`
-    PRICE INDEX: ${priceIndex}
-    PRICE ${args.price.toString()}
-    ${args.quoteAmount.toString()}
-    ${ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString()}
-  `)
-
   const data = await ajnaProxyActions.interface.encodeFunctionData(
     args.isStakingNft ? 'supplyQuoteMintNftAndStake' : 'supplyQuote',
     [

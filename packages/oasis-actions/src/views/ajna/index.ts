@@ -68,14 +68,14 @@ export async function getPool(
     lup: new BigNumber(poolPricesInfo.lup_.toString()).div(WAD),
 
     lowestUtilizedPrice: new BigNumber(poolPricesInfo.lup_.toString()).div(WAD),
-    lowestUtilizedPriceIndex: new BigNumber(poolPricesInfo.lupIndex_.toString()).div(WAD),
+    lowestUtilizedPriceIndex: new BigNumber(poolPricesInfo.lupIndex_.toString()),
 
     highestPriceBucket: new BigNumber(poolPricesInfo.hpb_.toString()).div(WAD),
-    highestPriceBucketIndex: new BigNumber(poolPricesInfo.hpbIndex_.toString()).div(WAD),
+    highestPriceBucketIndex: new BigNumber(poolPricesInfo.hpbIndex_.toString()),
 
     htp: new BigNumber(poolPricesInfo.htp_.toString()).div(WAD),
     highestThresholdPrice: new BigNumber(poolPricesInfo.htp_.toString()).div(WAD),
-    highestThresholdPriceIndex: new BigNumber(poolPricesInfo.htpIndex_.toString()).div(WAD),
+    highestThresholdPriceIndex: new BigNumber(poolPricesInfo.htpIndex_.toString()),
 
     mostOptimisticMatchingPrice: new BigNumber(momp.toString()).div(WAD),
 
