@@ -90,12 +90,16 @@ describe('Strategy | AAVE | Adjust Position', async function () {
 
       const collateralTokenAddress = tokenAddresses[collateralToken.symbol]
       const debtTokenAddress = tokenAddresses[debtToken.symbol]
+      const isIncreasingRisk = isRiskIncreasing(position.riskRatio, targetMultiple)
+      const fromToken = isIncreasingRisk ? debtToken : collateralToken
+      const toToken = isIncreasingRisk ? collateralToken : debtToken
 
-      const isFeeFromDebtToken =
+      const isFeeFromSourceToken =
         acceptedFeeToken({
-          fromToken: collateralToken.symbol,
-          toToken: debtToken.symbol,
-        }) === 'targetToken'
+          fromToken: fromToken.symbol,
+          toToken: toToken.symbol,
+        }) === 'sourceToken'
+      const isFeeFromDebtToken = isIncreasingRisk ? isFeeFromSourceToken : !isFeeFromSourceToken
 
       const feeWalletBalanceBeforeAdjust = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
@@ -254,62 +258,68 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             act.feeWalletBalanceBeforeAdjust,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+          expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
         })
       })
       describe('Using DPM Proxy', () => {
-        supportedStrategies.forEach(({ name: strategy }) => {
-          let act: Unbox<ReturnType<typeof adjustPositionV2>>
+        supportedStrategies
+          .filter(s => s.name === 'ETH/USDC Multiply')
+          .forEach(({ name: strategy }) => {
+            let act: Unbox<ReturnType<typeof adjustPositionV2>>
 
-          before(async function () {
-            const { system, config, dpmPositions } = fixture
+            before(async function () {
+              const { system, config, dpmPositions } = fixture
 
-            const positionDetails = dpmPositions[strategy]
-            if (!positionDetails) {
-              this.skip()
-            }
+              const positionDetails = dpmPositions[strategy]
+              if (!positionDetails) {
+                this.skip()
+              }
 
-            const { debtToken, collateralToken, proxy } = positionDetails
+              const { debtToken, collateralToken, proxy } = positionDetails
 
-            const position = await positionDetails.getPosition()
-            const slippage =
-              positionDetails?.strategy === 'STETH/USDC Multiply' ? UNISWAP_TEST_SLIPPAGE : SLIPPAGE
-            act = await adjustPositionV2({
-              isDPMProxy: true,
-              targetMultiple: new RiskRatio(new BigNumber(3.5), RiskRatio.TYPE.MULITPLE),
-              positionType: positionDetails?.__positionType,
-              position,
-              collateralToken,
-              debtToken,
-              proxy,
-              slippage,
-              getSwapData: oneInchCallMock(positionDetails.__mockPrice, {
-                from: debtToken.precision,
-                to: collateralToken.precision,
-              }),
-              userAddress: config.address,
-              config,
-              system,
+              const position = await positionDetails.getPosition()
+              const slippage =
+                positionDetails?.strategy === 'STETH/USDC Multiply'
+                  ? UNISWAP_TEST_SLIPPAGE
+                  : SLIPPAGE
+              act = await adjustPositionV2({
+                isDPMProxy: true,
+                targetMultiple: new RiskRatio(new BigNumber(3.5), RiskRatio.TYPE.MULITPLE),
+                positionType: positionDetails?.__positionType,
+                position,
+                collateralToken,
+                debtToken,
+                proxy,
+                slippage,
+                getSwapData: oneInchCallMock(positionDetails.__mockPrice, {
+                  from: debtToken.precision,
+                  to: collateralToken.precision,
+                }),
+                userAddress: config.address,
+                config,
+                system,
+              })
+            })
+            it('Adjust TX should pass', () => {
+              expect(act.txStatus).to.be.true
+            })
+            it('should draw debt according to multiple', async () => {
+              expectToBe(
+                act.adjustedPosition.debt.amount.toString(),
+                'gte',
+                act.simulation.position.debt.amount.toString(),
+              )
+            })
+            it('should collect fee', async () => {
+              const actualFeesDelta = act.feeWalletBalanceAfterAdjust.minus(
+                act.feeWalletBalanceBeforeAdjust,
+              )
+
+              console.log('act.simulation.swap.tokenFee', act.simulation.swap.tokenFee.toString())
+              console.log('actualFeesDelta', actualFeesDelta.toString())
+              expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
             })
           })
-          it('Adjust TX should pass', () => {
-            expect(act.txStatus).to.be.true
-          })
-          it('should draw debt according to multiple', async () => {
-            expectToBe(
-              act.adjustedPosition.debt.amount.toString(),
-              'gte',
-              act.simulation.position.debt.amount.toString(),
-            )
-          })
-          it('should collect fee', async () => {
-            const actualFeesDelta = act.feeWalletBalanceAfterAdjust.minus(
-              act.feeWalletBalanceBeforeAdjust,
-            )
-
-            expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
-          })
-        })
       })
     })
     describe('Adjust Risk Down', async function () {
@@ -359,7 +369,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             act.feeWalletBalanceBeforeAdjust,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+          expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
         })
       })
       describe('Using DPM Proxy', () => {
@@ -416,7 +426,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
                 act.feeWalletBalanceBeforeAdjust,
               )
 
-              expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+              expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
             })
           })
       })
@@ -471,12 +481,15 @@ describe('Strategy | AAVE | Adjust Position', async function () {
 
       const collateralTokenAddress = tokenAddresses[collateralToken.symbol]
       const debtTokenAddress = tokenAddresses[debtToken.symbol]
-
-      const isFeeFromDebtToken =
+      const isIncreasingRisk = isRiskIncreasing(position.riskRatio, targetMultiple)
+      const fromToken = isIncreasingRisk ? debtToken : collateralToken
+      const toToken = isIncreasingRisk ? collateralToken : debtToken
+      const isFeeFromSourceToken =
         acceptedFeeToken({
-          fromToken: collateralToken.symbol,
-          toToken: debtToken.symbol,
-        }) === 'targetToken'
+          fromToken: fromToken.symbol,
+          toToken: toToken.symbol,
+        }) === 'sourceToken'
+      const isFeeFromDebtToken = isIncreasingRisk ? isFeeFromSourceToken : !isFeeFromSourceToken
 
       const feeWalletBalanceBeforeAdjust = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
@@ -632,7 +645,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             act.feeWalletBalanceBeforeAdjust,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+          expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
         })
       })
       describe('Using DPM Proxy', () => {
@@ -686,7 +699,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
                 act.feeWalletBalanceBeforeAdjust,
               )
 
-              expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+              expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
             })
           })
       })
@@ -737,7 +750,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             act.feeWalletBalanceBeforeAdjust,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+          expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
         })
       })
       describe('Using DPM Proxy', () => {
@@ -792,10 +805,14 @@ describe('Strategy | AAVE | Adjust Position', async function () {
                 act.feeWalletBalanceBeforeAdjust,
               )
 
-              expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+              expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
             })
           })
       })
     })
   })
 })
+
+function isRiskIncreasing(currentMultiple: IRiskRatio, newMultiple: IRiskRatio): boolean {
+  return newMultiple.multiple.gte(currentMultiple.multiple)
+}

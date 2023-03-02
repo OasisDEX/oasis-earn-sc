@@ -6,6 +6,8 @@ import { IRiskRatio } from '../../../domain/RiskRatio'
 import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
 import {
   FEE_BASE,
+  FEE_ESTIMATE_INFLATOR,
+  ONE,
   TYPICAL_PRECISION,
   UNUSED_FLASHLOAN_AMOUNT,
   ZERO,
@@ -77,6 +79,11 @@ async function adjustRiskUp(
     isAdjustUp,
     args.positionType === 'Earn',
   )
+  console.log('---------')
+  console.log('ADJUST RISK UP')
+  console.log('Debt', args.debtToken.symbol)
+  console.log('Collateral', args.collateralToken.symbol)
+  console.log('fee', fee.toString())
 
   // Get quote swap
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
@@ -144,6 +151,8 @@ async function adjustRiskUp(
     isIncreasingRisk: isAdjustUp,
     swapData,
     operation,
+    collectFeeFrom,
+    fee,
     simulatedPositionTransition: simulatedAdjustUp,
     args,
     dependencies,
@@ -228,6 +237,8 @@ async function adjustRiskDown(
     isIncreasingRisk: isAdjustUp,
     swapData,
     operation,
+    collectFeeFrom,
+    fee,
     simulatedPositionTransition: simulatedAdjustDown,
     args,
     dependencies,
@@ -716,12 +727,30 @@ async function generateTransition({
   const finalPosition = simulatedPositionTransition.position
 
   // When collecting fees from the target token (collateral here), we want to calculate the fee
-  // Based on the toTokenAmount NOT minToTokenAmount so that we over estimate the fee where possible
+  // Based on the toTokenAmount NOT minToTokenAmount so that we overestimate the fee where possible
   // And do not mislead the user
   const shouldCollectFeeFromSourceToken = collectFeeFrom === 'sourceToken'
+  const sourceTokenAmount = isIncreasingRisk
+    ? simulatedPositionTransition.delta.debt
+    : simulatedPositionTransition.delta.collateral
+
   const tokenFee = shouldCollectFeeFromSourceToken
-    ? calculateFee(simulatedPositionTransition.delta.debt, fee, new BigNumber(FEE_BASE))
+    ? calculateFee(sourceTokenAmount, fee, new BigNumber(FEE_BASE))
     : calculateFee(swapData.toTokenAmount, fee, new BigNumber(FEE_BASE))
+
+  const preSwapFee = shouldCollectFeeFromSourceToken
+    ? calculateFee(sourceTokenAmount, fee, new BigNumber(FEE_BASE))
+    : ZERO
+  const postSwapFee = shouldCollectFeeFromSourceToken
+    ? ZERO
+    : calculateFee(swapData.toTokenAmount, fee, new BigNumber(FEE_BASE))
+
+  console.log('======')
+  console.log('fee', fee.toString())
+  console.log('shouldCollectFeeFromSourceToken', shouldCollectFeeFromSourceToken)
+  console.log('sourceTokenAmount', sourceTokenAmount.toString())
+  console.log('swapData.toTokenAmount', swapData.toTokenAmount.toString())
+  console.log('tokenFee', tokenFee.toString())
 
   return {
     transaction: {
@@ -735,7 +764,9 @@ async function generateTransition({
         ...simulatedPositionTransition.swap,
         ...swapData,
         collectFeeFrom,
-        tokenFee,
+        tokenFee: preSwapFee.plus(
+          postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
+        ),
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(

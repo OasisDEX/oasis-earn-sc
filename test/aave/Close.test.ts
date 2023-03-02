@@ -374,8 +374,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
               const actualFeesDelta = act.feeWalletBalanceAfterClosing.minus(
                 act.feeWalletBalanceBeforeClosing,
               )
-              console.log('act.simulation.swap.tokenFee', act.simulation.swap.tokenFee.toString())
-              console.log('actualFeesDelta', actualFeesDelta.toString())
 
               expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
             })

@@ -402,7 +402,6 @@ async function generateTransition({
   // And do not mislead the user
   const shouldCollectFeeFromSourceToken = collectFeeFrom === 'sourceToken'
 
-  console.log('DEBT DELTA', simulatedPositionTransition.delta.debt.toString())
   const preSwapFee = shouldCollectFeeFromSourceToken
     ? calculateFee(simulatedPositionTransition.delta.debt, fee, new BigNumber(FEE_BASE))
     : ZERO
