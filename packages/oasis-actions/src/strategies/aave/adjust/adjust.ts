@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
+import { IBaseSimulatedTransition, IPosition } from '../../../domain/Position'
+import { IRiskRatio } from '../../../domain/RiskRatio'
 import { amountFromWei, amountToWei } from '../../../helpers'
-import { IBaseSimulatedTransition, IPosition } from '../../../helpers/calculations/Position'
-import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
 import { feeResolver } from '../../../helpers/swap/feeResolver'

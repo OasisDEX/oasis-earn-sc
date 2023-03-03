@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 
-import { IRiskRatio } from '../../helpers/calculations'
+import { IRiskRatio } from '../../domain'
 import { Address, AjnaError } from '../../types/common'
 
 /*
