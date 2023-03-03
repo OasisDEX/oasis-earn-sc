@@ -1,4 +1,4 @@
-import { CONTRACT_NAMES } from '@oasisdex/oasis-actions'
+import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src'
 import { utils } from 'ethers'
 import { task } from 'hardhat/config'
 

@@ -1,8 +1,8 @@
+import { swapOneInchTokens } from '@helpers/swap/1inch'
+import { amountToWei } from '@helpers/utils'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
-import { swapOneInchTokens } from '../../helpers/swap/1inch'
-import { amountToWei } from '../../helpers/utils'
 import { mainnetAddresses } from '../../test/addresses'
 
 const tokens = {
@@ -11,6 +11,7 @@ const tokens = {
   WBTC: mainnetAddresses.WBTC,
   USDC: mainnetAddresses.USDC,
   DAI: mainnetAddresses.DAI,
+  WSTETH: mainnetAddresses.WSTETH,
 }
 
 task('getTokens', '')

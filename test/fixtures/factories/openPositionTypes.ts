@@ -1,2 +1,5 @@
-import { strategies } from '@oasisdex/oasis-actions'
-export type OpenPositionTypes = Parameters<typeof strategies.aave.open>
+import {
+  AaveOpenArgs,
+  AaveOpenDependencies,
+} from '@oasisdex/oasis-actions/src/strategies/aave/open/open'
+export type OpenPositionTypes = [AaveOpenArgs, AaveOpenDependencies]

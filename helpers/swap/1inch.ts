@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/oasis-actions'
+import { ADDRESSES } from '@oasisdex/oasis-actions/src'
 import axios from 'axios'
 
 import { OneInchSwapResponse } from '../types/common'

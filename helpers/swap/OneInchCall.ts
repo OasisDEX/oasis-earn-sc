@@ -23,18 +23,21 @@ export const getOneInchCall =
       protocols,
     )
 
+    const minToTokenAmount = new BigNumber(response.toTokenAmount)
+      .times(one.minus(slippage))
+      .integerValue(BigNumber.ROUND_DOWN)
+
     if (debug) {
       console.log('1inch: Post call')
       console.log('fromTokenAmount', response?.fromTokenAmount.toString())
       console.log('toTokenAmount', response?.toTokenAmount.toString())
+      console.log('minToTokenAmount', minToTokenAmount.toString())
     }
 
     return {
       toTokenAddress: to,
       fromTokenAddress: from,
-      minToTokenAmount: new BigNumber(response.toTokenAmount)
-        .times(one.minus(slippage))
-        .integerValue(BigNumber.ROUND_DOWN),
+      minToTokenAmount: minToTokenAmount,
       toTokenAmount: new BigNumber(response.toTokenAmount),
       fromTokenAmount: new BigNumber(response.fromTokenAmount),
       exchangeCalldata: response.tx.data,

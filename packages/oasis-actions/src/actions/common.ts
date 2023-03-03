@@ -68,7 +68,10 @@ export function swap(args: {
   )
 }
 
-export function sendToken(args: { asset: string; to: string; amount: BigNumber }) {
+export function sendToken(
+  args: { asset: string; to: string; amount: BigNumber },
+  paramsMapping: [asset: number, to: number, amount: number] = [0, 0, 0],
+) {
   return createAction(
     getActionHash(CONTRACT_NAMES.common.SEND_TOKEN),
     [calldataTypes.common.SendToken],
@@ -78,6 +81,7 @@ export function sendToken(args: { asset: string; to: string; amount: BigNumber }
         to: args.to,
         amount: args.amount.toFixed(0),
       },
+      paramsMapping,
     ],
   )
 }

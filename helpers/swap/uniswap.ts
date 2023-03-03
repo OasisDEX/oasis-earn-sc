@@ -1,7 +1,5 @@
-import '@nomiclabs/hardhat-ethers'
-
-import { ADDRESSES } from '@oasisdex/oasis-actions'
-import { ethers } from 'hardhat'
+import { ADDRESSES } from '@oasisdex/oasis-actions/src'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Optional } from 'utility-types'
 
 import UNISWAP_ROUTER_V3_ABI from '../../abi/IUniswapRouter.json'
@@ -21,8 +19,10 @@ export async function swapUniswapTokens(
   amountOutMinimum: string,
   recipient: string,
   { provider, signer }: Optional<Pick<RuntimeConfig, 'provider' | 'signer' | 'address'>, 'address'>,
+  hre?: HardhatRuntimeEnvironment,
 ) {
   const value = tokenIn === ADDRESSES.main.WETH ? amountIn : 0
+  const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
 
   const uniswapV3 = new ethers.Contract(
     ADDRESSES.main.uniswapRouterV3,

@@ -127,7 +127,7 @@ describe(`Optional Actions`, async () => {
       const operation = await operationsRegistry.getOp(OP_NAME)
 
       expect(operation[0]).to.deep.equal([Action1Hash, Action2Hash, Action3Hash])
-      expect(operation[1]).to.deep.equal([false, false, false])
+      expect(operation[1]).to.deep.equal([true, false, false])
     })
   })
 

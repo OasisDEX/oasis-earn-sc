@@ -104,8 +104,10 @@ export interface IPosition extends IBasePosition {
   relativeCollateralPriceMovementUntilLiquidation: BigNumber
   liquidationPrice: BigNumber
   maxDebtToBorrow: BigNumber
+  maxDebtToBorrowWithCurrentCollateral: BigNumber
   maxCollateralToWithdraw: BigNumber
   debtToPaybackAll: BigNumber
+  oraclePriceForCollateralDebtExchangeRate: BigNumber
   deposit(amount: BigNumber): IPosition
   borrow(amount: BigNumber): IPosition
   withdraw(amount: BigNumber): IPosition
@@ -147,12 +149,23 @@ export class Position implements IPosition {
     return new RiskRatio(ltv, RiskRatio.TYPE.LTV)
   }
 
+  public get oraclePriceForCollateralDebtExchangeRate() {
+    return this._oraclePriceForCollateralDebtExchangeRate
+  }
+
   public get maxDebtToBorrow() {
     const maxLoanToValue = this.category.maxLoanToValue
     return this.collateral.normalisedAmount
       .times(this._oraclePriceForCollateralDebtExchangeRate)
       .times(maxLoanToValue)
       .minus(this.debt.normalisedAmount)
+  }
+
+  public get maxDebtToBorrowWithCurrentCollateral() {
+    const maxLoanToValue = this.category.maxLoanToValue
+    return this.collateral.normalisedAmount
+      .times(this._oraclePriceForCollateralDebtExchangeRate)
+      .times(maxLoanToValue)
   }
 
   public get maxCollateralToWithdraw() {
@@ -234,6 +247,7 @@ export class Position implements IPosition {
           `Current position collateral ${this.collateral.amount.toString()}`,
           `Normalised current position debt: ${this.debt.normalisedAmount.toString()}`,
           `Normalised current position collateral ${this.collateral.normalisedAmount.toString()}`,
+          `Multiple: ${this.riskRatio.multiple.toString()}`,
         ],
         'Initial: ',
       )
@@ -361,6 +375,7 @@ export class Position implements IPosition {
           )}`,
 
           `Target loan-to-value: ${targetLTV.toString()}`,
+          `Target multiple: ${targetRiskRatio.multiple.toString()}`,
         ],
         'Params: ',
       )
@@ -538,12 +553,12 @@ export class Position implements IPosition {
           `Is flashloan required: ${isFlashloanRequired}`,
           `Amount to flashloan: ${amountToFlashloan}`,
           `----`,
-          `Normalised swap or Swapped Amount: ${normalisedSwapOrSwappedAmount.toString()}`,
+          `Normalised unknown X: ${normalisedSwapOrSwappedAmount.toString()}`,
           `Normalised from token amount: ${normalisedFromTokenAmount.toString()}`,
           `Normalised from token amount after fees: ${normalisedFromTokenAmount
             .minus(normalisedSourceFee)
             .toString()}`,
-          `Swap or Swapped Amount: ${swapOrSwappedAmount.toString()}`,
+          `Unknown X: ${swapOrSwappedAmount.toString()}`,
           `From token amount: ${fromTokenAmount.toString()}`,
           `From token amount after fees: ${fromTokenAmountAfterFee.toString()}`,
           `From token: ${
@@ -576,6 +591,9 @@ export class Position implements IPosition {
           `Normalised target position collateral ${targetPosition.collateral.normalisedAmount.toString()}`,
           `Target position debt ${targetPosition.debt.amount.toString()}`,
           `Target position collateral ${targetPosition.collateral.amount.toString()}`,
+          `----`,
+          `Oracle price ${oraclePrice.toString()}`,
+          `New Position Multiple ${targetPosition.riskRatio.multiple}`,
         ],
         'Output: ',
       )

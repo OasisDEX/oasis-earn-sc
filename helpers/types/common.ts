@@ -1,3 +1,4 @@
+import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types'
 import { ethers, providers } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
@@ -37,7 +38,7 @@ export type WithRuntimeConfig = {
 }
 
 export type HardhatRuntimeConfig = {
-  ethers: HardhatRuntimeEnvironment['ethers']
+  ethers: typeof ethers & HardhatEthersHelpers
   network: HardhatRuntimeEnvironment['network']
 } & RuntimeConfig
 

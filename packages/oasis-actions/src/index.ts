@@ -5,9 +5,20 @@ export { IBasePosition, IPosition, Position, Swap } from './helpers/calculations
 export { IRiskRatio, RiskRatio } from './helpers/calculations/RiskRatio'
 export * from './helpers/constants'
 export * as operations from './operations'
-export { AAVEStrategyAddresses } from './operations/aave/addresses'
+export { AAVEStrategyAddresses } from './operations/aave/v2/addresses'
+export { AAVEV3StrategyAddresses } from './operations/aave/v3/addresses'
+export * as protocols from './protocols'
+export { AaveVersion } from './strategies'
 export * as strategies from './strategies'
-export { IPositionTransition, SwapData } from './types'
+export {
+  IPositionTransition,
+  ISimplePositionTransition,
+  ISimpleSimulatedTransition,
+  ISimulatedTransition,
+  SwapData,
+} from './types'
+export * as types from './types'
 export { AavePosition, AAVETokens } from './types/aave'
 export { ActionCall } from './types/actionCall'
 export { calldataTypes } from './types/actions'
+export * as views from './views'
