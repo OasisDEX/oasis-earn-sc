@@ -21,7 +21,7 @@
   ],
   "exclude": [
     "../../node_modules",
-    "./src/helpers/calculations/Position.test.ts"
+    "./src/domain/Position.test.ts"
   ],
   "files": []
 }
