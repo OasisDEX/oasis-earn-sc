@@ -32,6 +32,7 @@ export const CONTRACT_NAMES = {
     OPERATION_EXECUTOR: 'OperationExecutor_2',
     OPERATION_STORAGE: 'OperationStorage_2',
     OPERATIONS_REGISTRY: 'OperationsRegistry_2',
+    CHAINLOG_VIEWER: 'ChainLogView',
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
     SWAP: 'Swap',
     EXCHANGE: 'Exchange',
@@ -71,6 +72,7 @@ export const CONTRACT_NAMES = {
     MCD_JUG: 'McdJug',
     MCD_JOIN_DAI: 'McdJoinDai',
     CDP_ALLOW: 'CdpAllow',
+    CHAINLOG_VIEW: 'ChainLogView',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',
@@ -89,7 +91,7 @@ export const OPERATION_NAMES = {
   aave: {
     v2: {
       OPEN_POSITION: 'OpenAAVEPosition',
-      CLOSE_POSITION: 'CloseAAVEPosition_2',
+      CLOSE_POSITION: 'CloseAAVEPosition_3',
       INCREASE_POSITION: 'IncreaseAAVEPosition',
       DECREASE_POSITION: 'DecreaseAAVEPosition',
       DEPOSIT_BORROW: 'AAVEDepositBorrow',
@@ -100,7 +102,7 @@ export const OPERATION_NAMES = {
     },
     v3: {
       OPEN_POSITION: 'OpenAAVEV3Position',
-      CLOSE_POSITION: 'CloseAAVEV3Position',
+      CLOSE_POSITION: 'CloseAAVEV3Position_2',
       ADJUST_RISK_UP: 'AdjustRiskUpAAVEV3Position',
       ADJUST_RISK_DOWN: 'AdjustRiskDownAAVEV3Position',
       DEPOSIT_BORROW: 'AAVEV3DepositBorrow',

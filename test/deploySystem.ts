@@ -58,6 +58,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await accountGuard.setWhitelist(operationExecutorAddress, true)
 
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
+  const [, chainLogViewAddress] = await deploy(CONTRACT_NAMES.maker.CHAINLOG_VIEW, [
+    ADDRESSES.main.maker.chainlog,
+  ])
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
 
@@ -75,6 +78,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   )
 
   await uSwap.addFeeTier(20)
+  await uSwap.addFeeTier(7)
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
@@ -84,6 +88,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   ])
 
   await swap.addFeeTier(20)
+  await swap.addFeeTier(7)
 
   await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
   const [dummyAutomation] = await deploy('DummyAutomation', [serviceRegistryAddress])
@@ -217,6 +222,9 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
   await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
   await registry.addEntry(CONTRACT_NAMES.common.EXCHANGE, dummyExchangeAddress)
+
+  await registry.addEntry(CONTRACT_NAMES.common.CHAINLOG_VIEWER, chainLogViewAddress)
+
   const takeFlashLoanHash = await registry.addEntry(
     CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
     actionFlAddress,
@@ -731,16 +739,12 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: false,
     },
     {
-      hash: sendTokenHash,
-      optional: true,
-    },
-    {
       hash: unwrapEthHash,
       optional: true,
     },
     {
       hash: returnFundsActionHash,
-      optional: true,
+      optional: false,
     },
     {
       hash: returnFundsActionHash,
@@ -781,16 +785,12 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
       optional: false,
     },
     {
-      hash: sendTokenHash,
-      optional: true,
-    },
-    {
       hash: unwrapEthHash,
       optional: true,
     },
     {
       hash: returnFundsActionHash,
-      optional: true,
+      optional: false,
     },
     {
       hash: returnFundsActionHash,
