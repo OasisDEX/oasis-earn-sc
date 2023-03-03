@@ -1,7 +1,7 @@
 import { Contract, ContractReceipt, Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { removeVersion } from '../scripts/common/utils'
+import { removeVersion } from '../scripts/common'
 import { Debug, WithRuntimeConfig } from './types/common'
 
 type DeployOptions = WithRuntimeConfig & Debug
@@ -60,8 +60,6 @@ export async function executeThroughProxy(
     const result = await tx.wait()
     return [true, result]
   } catch (ex: any) {
-    console.error(ex)
-    console.log(typeof ex)
     let result: Partial<ContractReceipt> = ex
     if (ex?.name === 'ProviderError') {
       result = {

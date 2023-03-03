@@ -1,4 +1,11 @@
-import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/oasis-actions'
+import {
+  AaveVersion,
+  ADDRESSES,
+  CONTRACT_NAMES,
+  protocols,
+  strategies,
+} from '@oasisdex/oasis-actions/src'
+import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
 import { buildGetTokenFunction } from '../../helpers/aave'
@@ -19,7 +26,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
   .setAction(async (taskArgs, hre) => {
     const config = await init(hre)
 
-    const getToken = buildGetTokenFunction(config, hre)
+    const getTokens = buildGetTokenFunction(config, hre)
 
     const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
 
@@ -69,14 +76,17 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       WBTC: ADDRESSES.main.WBTC,
       USDC: ADDRESSES.main.USDC,
       chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-      aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-      aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
+      priceOracle: ADDRESSES.main.aave.v2.PriceOracle,
+      lendingPool: ADDRESSES.main.aave.v2.LendingPool,
       operationExecutor: operationExecutorAddress,
-      aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
+      protocolDataProvider: ADDRESSES.main.aave.v2.ProtocolDataProvider,
       accountFactory: '0xF7B75183A2829843dB06266c114297dfbFaeE2b6',
     }
 
-    const swapData = taskArgs.usefallbackswap ? oneInchCallMock() : getOneInchCall(swapAddress)
+    const swapData = taskArgs.usefallbackswap
+      ? (marketPrice: BigNumber, precision: { from: number; to: number }) =>
+          oneInchCallMock(marketPrice, precision)
+      : () => getOneInchCall(swapAddress)
 
     const [proxy1, vaultId1] = await createDPMAccount(mainnetAddresses.accountFactory, config)
     const [proxy2, vaultId2] = await createDPMAccount(mainnetAddresses.accountFactory, config)
@@ -93,6 +103,11 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
     const dependencies: StrategiesDependencies = {
       addresses: mainnetAddresses,
       provider: config.provider,
+      protocol: {
+        version: AaveVersion.v2,
+        getCurrentPosition: strategies.aave.view,
+        getProtocolData: protocols.aave.getAaveProtocolData,
+      },
       getSwapData: swapData,
       user: config.address,
       contracts: {
@@ -140,36 +155,39 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       },
     }
 
-    const positionDetails1 = await createEthUsdcMultiplyAAVEPosition(
-      proxy1,
-      true,
+    const positionDetails1 = await createEthUsdcMultiplyAAVEPosition({
+      proxy: proxy1,
+      isDPM: true,
+      use1inch: false,
       dependencies,
       config,
-    )
+    })
 
     console.log(
       `Position created: ${positionDetails1.strategy} with proxy: ${positionDetails1.proxy}`,
     )
 
-    const positionDetails2 = await createStEthUsdcMultiplyAAVEPosition(
-      proxy2,
-      true,
+    const positionDetails2 = await createStEthUsdcMultiplyAAVEPosition({
+      proxy: proxy2,
+      isDPM: true,
+      use1inch: false,
       dependencies,
       config,
-      getToken,
-    )
+      getTokens,
+    })
 
     console.log(
       `Position created: ${positionDetails2.strategy} with proxy: ${positionDetails2.proxy}`,
     )
 
-    const positionDetails3 = await createWbtcUsdcMultiplyAAVEPosition(
-      proxy3,
-      true,
+    const positionDetails3 = await createWbtcUsdcMultiplyAAVEPosition({
+      proxy: proxy3,
+      isDPM: true,
+      use1inch: false,
       dependencies,
       config,
-      getToken,
-    )
+      getTokens,
+    })
 
     console.log(
       `Position created: ${positionDetails3.strategy} with proxy: ${positionDetails3.proxy}`,

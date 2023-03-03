@@ -6,7 +6,7 @@ import { ServiceRegistry } from './serviceRegistry'
 import { RuntimeConfig } from './types/common'
 
 type System = { system: DeployedSystemInfo; registry: ServiceRegistry }
-type Snapshot = { id: string; deployed: System }
+export type Snapshot = { id: string; deployed: System }
 
 // Cached values
 const snapshotCache: Record<string, Snapshot | undefined> = {}

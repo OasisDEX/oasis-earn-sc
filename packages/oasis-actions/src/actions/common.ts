@@ -1,10 +1,9 @@
 import BigNumber from 'bignumber.js'
 
 import { CONTRACT_NAMES } from '../helpers/constants'
+import { ActionCall, calldataTypes } from '../types'
 import { ActionFactory } from './actionFactory'
 import { getActionHash } from './getActionHash'
-import { ActionCall } from './types/actionCall'
-import { calldataTypes } from './types/actions'
 
 const createAction = ActionFactory.create
 
@@ -69,7 +68,10 @@ export function swap(args: {
   )
 }
 
-export function sendToken(args: { asset: string; to: string; amount: BigNumber }) {
+export function sendToken(
+  args: { asset: string; to: string; amount: BigNumber },
+  paramsMapping: [asset: number, to: number, amount: number] = [0, 0, 0],
+) {
   return createAction(
     getActionHash(CONTRACT_NAMES.common.SEND_TOKEN),
     [calldataTypes.common.SendToken],
@@ -79,6 +81,7 @@ export function sendToken(args: { asset: string; to: string; amount: BigNumber }
         to: args.to,
         amount: args.amount.toFixed(0),
       },
+      paramsMapping,
     ],
   )
 }

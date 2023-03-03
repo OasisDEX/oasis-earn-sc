@@ -1,7 +1,7 @@
 import { CONTRACT_NAMES } from '../helpers/constants'
+import { calldataTypes } from '../types'
 import { ActionFactory } from './actionFactory'
 import { getActionHash } from './getActionHash'
-import { calldataTypes } from './types/actions'
 
 const createAction = ActionFactory.create
 

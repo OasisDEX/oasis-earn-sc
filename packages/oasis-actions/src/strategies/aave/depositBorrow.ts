@@ -1,19 +1,28 @@
 import BigNumber from 'bignumber.js'
 
-import { acceptedFeeToken } from '../../helpers/acceptedFeeToken'
 import { IPosition } from '../../helpers/calculations/Position'
 import { RiskRatio } from '../../helpers/calculations/RiskRatio'
 import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
+import { acceptedFeeToken } from '../../helpers/swap/acceptedFeeToken'
 import { getZeroSwap } from '../../helpers/swap/getZeroSwap'
 import * as operations from '../../operations'
-import { AAVEStrategyAddresses } from '../../operations/aave/addresses'
-import { BorrowArgs } from '../../operations/aave/borrow'
-import { DepositArgs } from '../../operations/aave/deposit'
-import { Address, IPositionTransition, IPositionTransitionDependencies, SwapData } from '../types'
-import { AAVETokens } from '../types/aave'
+import { AAVEStrategyAddresses } from '../../operations/aave/v2/addresses'
+import { BorrowArgs } from '../../operations/aave/v2/borrow'
+import { DepositArgs } from '../../operations/aave/v2/deposit'
+import {
+  Address,
+  IPositionTransition,
+  IPositionTransitionDependencies,
+  SwapData,
+} from '../../types'
+import { AAVETokens } from '../../types/aave'
 
 interface DepositBorrowArgs {
-  entryToken?: { amountInBaseUnit: BigNumber; symbol: AAVETokens; precision?: number }
+  entryToken?: {
+    amountInBaseUnit: BigNumber
+    symbol: Exclude<AAVETokens, 'WSTETH'>
+    precision?: number
+  }
   slippage?: BigNumber
   borrowAmount?: BigNumber
 }
@@ -145,7 +154,7 @@ export async function depositBorrow(
     debtDelta = borrowAmount
   }
 
-  const operation = await operations.aave.depositBorrow(depositArgs, borrowArgs)
+  const operation = await operations.aave.v2.depositBorrow(depositArgs, borrowArgs)
 
   /*
     Final position calculated using actual swap data and the latest market price

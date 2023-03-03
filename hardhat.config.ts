@@ -1,3 +1,11 @@
+import 'tsconfig-paths/register'
+
+import { default as dotenv } from 'dotenv'
+import { HardhatUserConfig, task } from 'hardhat/config'
+import path from 'path'
+import process from 'process'
+dotenv.config({ path: path.join(__dirname, './.env') })
+
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-gas-reporter'
@@ -5,6 +13,7 @@ import '@typechain/hardhat'
 import 'solidity-coverage'
 import './tasks/deploy'
 import './tasks/createPosition'
+import './tasks/createAaveV3L1Position'
 import './tasks/closePosition'
 import './tasks/proxy'
 import './tasks/verify-earn'
@@ -16,13 +25,7 @@ import 'hardhat-abi-exporter'
 import './tasks/userDpmProxies'
 import './tasks/createMultiplyPosition'
 import './tasks/transferDPM'
-
-import { default as dotenv } from 'dotenv'
-import { HardhatUserConfig, task } from 'hardhat/config'
-import path from 'path'
-import process from 'process'
-
-dotenv.config({ path: path.join(__dirname, './.env') })
+import './tasks/transferAllProxies'
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -65,7 +68,7 @@ const config: HardhatUserConfig = {
   networks: {
     local: {
       url: 'http://127.0.0.1:8545',
-      timeout: 100000,
+      timeout: 1000000,
       chainId: 2137,
     },
     hardhat: {
@@ -117,6 +120,7 @@ const config: HardhatUserConfig = {
   },
   typechain: {
     outDir: 'typechain',
+    externalArtifacts: ['abi/external/**/*.json'],
   },
   docgen: {
     outputDir: './docs',
@@ -139,6 +143,11 @@ const config: HardhatUserConfig = {
     spacing: 2,
     pretty: false,
   },
+}
+
+// @ts-ignore
+BigInt.prototype.toJSON = function () {
+  return this.toString()
 }
 
 export default config

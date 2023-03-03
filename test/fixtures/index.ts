@@ -1,4 +1,8 @@
-export { getSupportedStrategies, getSystemWithAAVEPosition } from './getSystemWithAAVEPosition'
 export * from './oneInchFixtures'
 export * from './setup'
-export { SystemWithAAVEPosition } from './types'
+export {
+  getSupportedStrategies,
+  getSystemWithAavePositions,
+} from './system/getSystemWithAavePositions'
+export * from './system/getSystemWithProxies'
+export * from './types'

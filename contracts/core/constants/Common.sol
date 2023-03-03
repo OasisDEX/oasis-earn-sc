@@ -4,6 +4,7 @@ pragma solidity ^0.8.15;
 string constant OPERATION_STORAGE = "OperationStorage_2";
 string constant OPERATION_EXECUTOR = "OperationExecutor_2";
 string constant OPERATIONS_REGISTRY = "OperationsRegistry_2";
+string constant CHAINLOG_VIEWER = "ChainLogView";
 string constant ONE_INCH_AGGREGATOR = "OneInchAggregator";
 string constant WETH = "WETH";
 string constant DAI = "DAI";
@@ -19,7 +20,7 @@ bytes32 constant NULL = "";
  * and update TheGraph decoding accordingly
  */
 string constant PULL_TOKEN_ACTION = "PullToken_3";
-string constant SEND_TOKEN_ACTION = "SendToken_3";
+string constant SEND_TOKEN_ACTION = "SendToken_4";
 string constant SET_APPROVAL_ACTION = "SetApproval_3";
 string constant TAKE_FLASH_LOAN_ACTION = "TakeFlashloan_3";
 string constant WRAP_ETH = "WrapEth_3";

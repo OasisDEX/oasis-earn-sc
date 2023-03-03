@@ -1,4 +1,5 @@
-import { ADDRESSES, ONE, TEN } from '@oasisdex/oasis-actions'
+import { JsonRpcProvider } from '@ethersproject/providers'
+import { ADDRESSES, ONE, TEN } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
@@ -181,4 +182,22 @@ export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value)
 
     asDecimal: val.div(base),
   }
+}
+
+export async function getLatestBlock(provider: JsonRpcProvider) {
+  return provider.getBlockNumber()
+}
+
+export async function getRecentBlock({
+  provider,
+  offset,
+  roundToNearest = 1,
+}: {
+  provider: JsonRpcProvider
+  offset: number
+  roundToNearest?: number
+}) {
+  return getLatestBlock(provider)
+    .then(blockNumber => blockNumber - offset)
+    .then(blockNumber => Math.floor(blockNumber / roundToNearest) * roundToNearest)
 }

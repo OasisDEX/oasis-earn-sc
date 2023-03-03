@@ -1,7 +1,7 @@
 account_id: ''
 exports:
   local:
-    project_slug: ''
+    project_slug: 'oazoapps/oasis-aave'
     rpc_address: 127.0.0.1:8545
     protocol: ''
     forked_network: Mainnet
@@ -17,4 +17,4 @@ exports:
       istanbul_block: 0
       berlin_block: 0
       london_block: 0
-project_slug: ''
+project_slug: 'oazoapps/oasis-aave'

@@ -1,47 +1,100 @@
-import { strategies } from '@oasisdex/oasis-actions'
+import { AaveVersion, ADDRESSES, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
+import {
+  AaveV2OpenDependencies,
+  AaveV3OpenDependencies,
+} from '@oasisdex/oasis-actions/src/strategies/aave/open/open'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
-import { amountToWei } from '../../../helpers/utils'
+import { amountToWei, balanceOf } from '../../../helpers/utils'
+import {
+  aaveV2UniqueContractName,
+  aaveV3UniqueContractName,
+} from '../../../packages/oasis-actions/src/protocols/aave/config'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
+import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-async function getEthUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
-  const debtToken = { symbol: 'USDC' as const, precision: 6 }
-  const collateralToken = { symbol: 'ETH' as const, precision: 18 }
+const depositCollateralAmount = amountToWei(new BigNumber(10), ETH.precision)
 
+async function getEthUsdcMultiplyAAVEPosition(
+  slippage: BigNumber,
+  dependencies: OpenPositionTypes[1],
+) {
   const args: OpenPositionTypes[0] = {
-    collateralToken: collateralToken,
-    debtToken: debtToken,
-    slippage: new BigNumber(0.1),
+    collateralToken: ETH,
+    debtToken: USDC,
+    slippage,
     depositedByUser: {
       collateralToken: {
-        amountInBaseUnit: amountToWei(new BigNumber(10), collateralToken.precision),
+        amountInBaseUnit: depositCollateralAmount,
       },
     },
-    multiple: new BigNumber(1.5),
+    multiple: new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE),
     positionType: 'Multiply',
   }
 
-  return await strategies.aave.open(args, dependencies)
+  if (isV2(dependencies)) {
+    return await strategies.aave.v2.open(args, dependencies)
+  }
+  if (isV3(dependencies)) {
+    return await strategies.aave.v3.open(args, dependencies)
+  }
+
+  throw new Error('Unsupported protocol version')
 }
 
-export async function createEthUsdcMultiplyAAVEPosition(
-  proxy: string,
-  isDPM: boolean,
-  dependencies: StrategiesDependencies,
-  config: RuntimeConfig,
-): Promise<PositionDetails> {
+function isV2(dependencies: OpenPositionTypes[1]): dependencies is AaveV2OpenDependencies {
+  return dependencies.protocol.version === AaveVersion.v2
+}
+
+function isV3(dependencies: OpenPositionTypes[1]): dependencies is AaveV3OpenDependencies {
+  return dependencies.protocol.version === AaveVersion.v3
+}
+
+export async function createEthUsdcMultiplyAAVEPosition({
+  proxy,
+  isDPM,
+  use1inch,
+  swapAddress,
+  dependencies,
+  config,
+}: {
+  proxy: string
+  isDPM: boolean
+  use1inch: boolean
+  swapAddress?: string
+  dependencies: StrategiesDependencies
+  config: RuntimeConfig
+}): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'ETH/USDC Multiply'
 
-  const position = await getEthUsdcMultiplyAAVEPosition({
-    ...dependencies,
-    isDPMProxy: isDPM,
-    proxy: proxy,
-  })
+  if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
+
+  const mockPrice = new BigNumber(1351)
+  const getSwapData = use1inch
+    ? dependencies.getSwapData(swapAddress)
+    : dependencies.getSwapData(mockPrice, {
+        from: USDC.precision,
+        to: ETH.precision,
+      })
+
+  const position = await getEthUsdcMultiplyAAVEPosition(
+    use1inch ? SLIPPAGE : UNISWAP_TEST_SLIPPAGE,
+    {
+      ...dependencies,
+      getSwapData,
+      isDPMProxy: isDPM,
+      proxy: proxy,
+    },
+  )
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
+
+  const feeWalletBalanceBefore = await balanceOf(ADDRESSES.main.USDC, ADDRESSES.main.feeRecipient, {
+    config,
+  })
 
   const [status] = await proxyFunction(
     proxy,
@@ -53,31 +106,76 @@ export async function createEthUsdcMultiplyAAVEPosition(
       ]),
     },
     config.signer,
-    amountToWei(new BigNumber(10), position.simulation.position.collateral.precision).toString(),
+    depositCollateralAmount.toString(),
   )
 
   if (!status) {
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  return {
-    proxy: proxy,
-    getPosition: async () => {
-      return await strategies.aave.view(
+  const feeWalletBalanceAfter = await balanceOf(ADDRESSES.main.USDC, ADDRESSES.main.feeRecipient, {
+    config,
+  })
+
+  let getPosition
+  if (
+    dependencies.protocol.version === AaveVersion.v3 &&
+    aaveV3UniqueContractName in dependencies.addresses
+  ) {
+    const addresses = dependencies.addresses
+
+    getPosition = async () => {
+      return await strategies.aave.v3.view(
         {
-          collateralToken: { symbol: 'ETH' as const, precision: 18 },
-          debtToken: { symbol: 'USDC' as const, precision: 6 },
-          proxy: proxy,
+          collateralToken: ETH,
+          debtToken: USDC,
+          proxy,
         },
         {
           addresses: {
-            ...dependencies.addresses,
+            ...addresses,
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
         },
       )
-    },
+    }
+  }
+  if (
+    dependencies.protocol.version === AaveVersion.v2 &&
+    aaveV2UniqueContractName in dependencies.addresses
+  ) {
+    const addresses = dependencies.addresses
+    getPosition = async () => {
+      return await strategies.aave.v2.view(
+        {
+          collateralToken: ETH,
+          debtToken: USDC,
+          proxy,
+        },
+        {
+          addresses: {
+            ...addresses,
+            operationExecutor: dependencies.contracts.operationExecutor.address,
+          },
+          provider: config.provider,
+        },
+      )
+    }
+  }
+
+  if (!getPosition) throw new Error('getPosition is not defined')
+
+  return {
+    proxy: proxy,
+    getPosition,
     strategy,
+    collateralToken: ETH,
+    debtToken: USDC,
+    getSwapData,
+    __positionType: 'Multiply',
+    __mockPrice: mockPrice,
+    __openPositionSimulation: position.simulation,
+    __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }
 }
