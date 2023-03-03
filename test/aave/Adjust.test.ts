@@ -39,6 +39,8 @@ import { SystemWithAAVEV3Positions } from '../fixtures/types/systemWithAAVEPosit
 import { expectToBe } from '../utils'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
+const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
+
 describe('Strategy | AAVE | Adjust Position', async function () {
   describe('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
@@ -258,7 +260,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             act.feeWalletBalanceBeforeAdjust,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
+          expectToBe(
+            act.simulation.swap.tokenFee,
+            'gte',
+            actualFeesDelta,
+            EXPECT_LARGER_SIMULATED_FEE,
+          )
         })
       })
       describe('Using DPM Proxy', () => {
@@ -311,7 +318,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
               act.feeWalletBalanceBeforeAdjust,
             )
 
-            expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
+            expectToBe(
+              act.simulation.swap.tokenFee,
+              'gte',
+              actualFeesDelta,
+              EXPECT_LARGER_SIMULATED_FEE,
+            )
           })
         })
       })
@@ -420,7 +432,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
                 act.feeWalletBalanceBeforeAdjust,
               )
 
-              expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
+              expectToBe(
+                act.simulation.swap.tokenFee,
+                'gte',
+                actualFeesDelta,
+                EXPECT_LARGER_SIMULATED_FEE,
+              )
             })
           })
       })
@@ -639,7 +656,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             act.feeWalletBalanceBeforeAdjust,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
+          expectToBe(
+            act.simulation.swap.tokenFee,
+            'gte',
+            actualFeesDelta,
+            EXPECT_LARGER_SIMULATED_FEE,
+          )
         })
       })
       describe('Using DPM Proxy', () => {
@@ -693,7 +715,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
                 act.feeWalletBalanceBeforeAdjust,
               )
 
-              expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
+              expectToBe(
+                act.simulation.swap.tokenFee,
+                'gte',
+                actualFeesDelta,
+                EXPECT_LARGER_SIMULATED_FEE,
+              )
             })
           })
       })
@@ -744,7 +771,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             act.feeWalletBalanceBeforeAdjust,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
+          expectToBe(
+            act.simulation.swap.tokenFee,
+            'gte',
+            actualFeesDelta,
+            EXPECT_LARGER_SIMULATED_FEE,
+          )
         })
       })
       describe('Using DPM Proxy', () => {
@@ -799,7 +831,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
                 act.feeWalletBalanceBeforeAdjust,
               )
 
-              expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
+              expectToBe(
+                act.simulation.swap.tokenFee,
+                'gte',
+                actualFeesDelta,
+                EXPECT_LARGER_SIMULATED_FEE,
+              )
             })
           })
       })

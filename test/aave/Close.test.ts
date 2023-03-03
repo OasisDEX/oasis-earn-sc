@@ -40,6 +40,8 @@ import { SystemWithAAVEV3Positions } from '../fixtures/types/systemWithAAVEPosit
 import { expectToBe, expectToBeEqual } from '../utils'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
+const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
+
 describe(`Strategy | AAVE | Close Position`, async () => {
   describe('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
@@ -280,7 +282,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             act.feeWalletBalanceBeforeClosing,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
+          expectToBe(
+            act.simulation.swap.tokenFee,
+            'gte',
+            actualFeesDelta,
+            EXPECT_LARGER_SIMULATED_FEE,
+          )
         })
 
         it('should not be any token left on proxy', async () => {
@@ -371,7 +378,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
                 act.feeWalletBalanceBeforeClosing,
               )
 
-              expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
+              expectToBe(
+                act.simulation.swap.tokenFee,
+                'gte',
+                actualFeesDelta,
+                EXPECT_LARGER_SIMULATED_FEE,
+              )
             })
 
             it('should not be any token left on proxy', async () => {
@@ -626,7 +638,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             act.feeWalletBalanceBeforeClosing,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
+          expectToBe(
+            act.simulation.swap.tokenFee,
+            'gte',
+            actualFeesDelta,
+            EXPECT_LARGER_SIMULATED_FEE,
+          )
         })
 
         it('should not be any token left on proxy', async () => {
@@ -717,7 +734,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
                 act.feeWalletBalanceBeforeClosing,
               )
 
-              expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
+              expectToBe(
+                act.simulation.swap.tokenFee,
+                'gte',
+                actualFeesDelta,
+                EXPECT_LARGER_SIMULATED_FEE,
+              )
             })
 
             it('should not be any token left on proxy', async () => {
