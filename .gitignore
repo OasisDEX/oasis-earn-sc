@@ -7,7 +7,7 @@ typechain
 yarn-error.log
 tenderly.yaml
 .idea/**/*
-packages/oasis-actions/src/helpers/calculations/credentials.json
+packages/oasis-actions/src/domain/credentials.json
 
 serviceRegistryEntries.txt
 

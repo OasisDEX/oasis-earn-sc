@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
+import { IBaseSimulatedTransition, IPosition } from '../../../domain/Position'
+import { IRiskRatio } from '../../../domain/RiskRatio'
 import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
-import { IBaseSimulatedTransition, IPosition } from '../../../helpers/calculations/Position'
-import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
 import {
   FEE_BASE,
   FEE_ESTIMATE_INFLATOR,
@@ -100,15 +100,14 @@ async function adjustRiskUp(
   })
 
   // SimulateAdjustUp
-  const { simulatedPositionTransition: simulatedAdjustUp, reserveEModeCategory } =
-    await simulatePositionTransition(
-      isAdjustUp,
-      quoteSwapData,
-      { ...args, fee },
-      dependencies,
-      true,
-      dependencies.debug,
-    )
+  const { simulatedPositionTransition: simulatedAdjustUp } = await simulatePositionTransition(
+    isAdjustUp,
+    quoteSwapData,
+    { ...args, fee },
+    dependencies,
+    true,
+    dependencies.debug,
+  )
 
   // Get accurate swap
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
@@ -134,7 +133,6 @@ async function adjustRiskUp(
     swapData,
     simulatedPositionTransition: simulatedAdjustUp,
     collectFeeFrom,
-    reserveEModeCategory,
     args,
     dependencies,
   })
@@ -187,14 +185,13 @@ async function adjustRiskDown(
   })
 
   // SimulateAdjustDown
-  const { simulatedPositionTransition: simulatedAdjustDown, reserveEModeCategory } =
-    await simulatePositionTransition(
-      isAdjustUp,
-      quoteSwapData,
-      { ...args, fee },
-      dependencies,
-      false,
-    )
+  const { simulatedPositionTransition: simulatedAdjustDown } = await simulatePositionTransition(
+    isAdjustUp,
+    quoteSwapData,
+    { ...args, fee },
+    dependencies,
+    false,
+  )
 
   // Get accurate swap
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
@@ -220,7 +217,6 @@ async function adjustRiskDown(
     swapData,
     simulatedPositionTransition: simulatedAdjustDown,
     collectFeeFrom,
-    reserveEModeCategory,
     args,
     dependencies,
   })
@@ -274,7 +270,6 @@ async function simulatePositionTransition(
     aaveDebtTokenPriceInEth,
     aaveCollateralTokenPriceInEth,
     reserveDataForFlashloan,
-    reserveEModeCategory,
   } = protocolData
 
   const BASE = new BigNumber(10000)
@@ -341,7 +336,6 @@ async function simulatePositionTransition(
       collectSwapFeeFrom: collectFeeFrom,
       debug,
     }),
-    reserveEModeCategory,
   }
 }
 
@@ -434,7 +428,7 @@ type BuildOperationArgs = {
   args: AaveAdjustArgs
   dependencies: AaveAdjustDependencies
 }
-type BuildOperationV2Args = Omit<BuildOperationArgs, 'reserveEModeCategory'> & {
+type BuildOperationV2Args = BuildOperationArgs & {
   addresses: AAVEStrategyAddresses
 }
 type BuildOperationV3Args = BuildOperationArgs & {
@@ -446,7 +440,6 @@ async function buildOperation({
   swapData,
   simulatedPositionTransition,
   collectFeeFrom,
-  reserveEModeCategory,
   args,
   dependencies,
 }: BuildOperationArgs): Promise<IOperation | undefined> {
@@ -468,7 +461,6 @@ async function buildOperation({
       swapData,
       simulatedPositionTransition,
       collectFeeFrom,
-      reserveEModeCategory,
       args,
       dependencies,
       addresses: dependencies.addresses,
@@ -590,7 +582,6 @@ async function buildOperationV3({
   swapData,
   simulatedPositionTransition,
   collectFeeFrom,
-  reserveEModeCategory,
   args,
   dependencies,
   addresses,
@@ -645,9 +636,6 @@ async function buildOperationV3({
       address: dependencies.proxy,
       isDPMProxy: dependencies.isDPMProxy,
       owner: dependencies.user,
-    },
-    emode: {
-      categoryId: reserveEModeCategory || 0,
     },
     addresses,
   }

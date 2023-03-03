@@ -7,7 +7,6 @@ import { SendTokenData } from "../../core/types/Common.sol";
 import { UseStore, Read } from "./UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { SEND_TOKEN_ACTION, ETH } from "../../core/constants/Common.sol";
-import "hardhat/console.sol";
 
 /**
  * @title SendToken Action contract

@@ -7,9 +7,9 @@ import aavePriceOracleABI from '../../../../../../abi/external/aave/v2/priceOrac
 import aaveProtocolDataProviderABI from '../../../../../../abi/external/aave/v2/protocolDataProvider.json'
 import aaveV3PriceOracleABI from '../../../../../../abi/external/aave/v3/aaveOracle.json'
 import aaveV3ProtocolDataProviderABI from '../../../../../../abi/external/aave/v3/aaveProtocolDataProvider.json'
+import { Position } from '../../../domain/Position'
 import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
 import { ADDRESSES } from '../../../helpers/addresses'
-import { Position } from '../../../helpers/calculations/Position'
 import {
   FEE_BASE,
   FEE_ESTIMATE_INFLATOR,

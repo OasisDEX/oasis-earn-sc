@@ -2,9 +2,9 @@ import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
 import { Unbox } from '../../../../../../helpers/types/common'
+import { IBaseSimulatedTransition, Position } from '../../../domain/Position'
+import { IRiskRatio } from '../../../domain/RiskRatio'
 import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
-import { IBaseSimulatedTransition, Position } from '../../../helpers/calculations/Position'
-import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
 import {
   DEFAULT_FEE,
   FEE_BASE,
