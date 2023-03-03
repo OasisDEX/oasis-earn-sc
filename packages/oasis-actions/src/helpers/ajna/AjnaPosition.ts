@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 
-import { IRiskRatio, RiskRatio } from '../calculations'
 import { IAjnaPosition, Pool } from '../../types/ajna'
 import { Address, AjnaError } from '../../types/common'
+import { IRiskRatio, RiskRatio } from '../calculations'
 import { ZERO } from '../constants'
 
 export class AjnaPosition implements IAjnaPosition {

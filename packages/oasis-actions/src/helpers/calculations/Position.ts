@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 import { Optional } from 'utility-types'
 
-import { amountFromWei, calculateFee, logDebug } from '../index'
 import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../constants'
+import { amountFromWei, calculateFee, logDebug } from '../index'
 import { IRiskRatio, RiskRatio } from './RiskRatio'
 
 interface IPositionBalance {

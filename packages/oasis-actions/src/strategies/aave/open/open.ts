@@ -2,9 +2,9 @@ import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
 import { Unbox } from '../../../../../../helpers/types/common'
+import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
 import { IBaseSimulatedTransition, Position } from '../../../helpers/calculations/Position'
 import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
-import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
 import {
   DEFAULT_FEE,
   FEE_BASE,
@@ -83,16 +83,15 @@ export async function open(
       getTokenAddresses: getAaveTokenAddresses,
     },
   })
-  const { simulatedPositionTransition, oracle, reserveEModeCategory } =
-    await simulatePositionTransition(
-      quoteSwapData,
-      {
-        ...args,
-        fee,
-      },
-      dependencies,
-      // true,
-    )
+  const { simulatedPositionTransition, reserveEModeCategory } = await simulatePositionTransition(
+    quoteSwapData,
+    {
+      ...args,
+      fee,
+    },
+    dependencies,
+    // true,
+  )
 
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
     typeof dependencies.addresses,
@@ -242,8 +241,6 @@ async function simulatePositionTransition(
 
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
-  console.log('QUOTE MARKET PRICE:', quoteMarketPrice.toString())
-  console.log('ORACLE:', oracle.toString())
 
   const collectFeeFrom = acceptedFeeToken({
     fromToken: args.debtToken.symbol,
@@ -273,7 +270,6 @@ async function simulatePositionTransition(
       collectSwapFeeFrom: collectFeeFrom,
       debug,
     }),
-    oracle,
     reserveEModeCategory,
   }
 }
