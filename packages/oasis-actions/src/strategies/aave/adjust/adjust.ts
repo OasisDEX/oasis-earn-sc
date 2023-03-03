@@ -3,8 +3,15 @@ import { providers } from 'ethers'
 
 import { IBaseSimulatedTransition, IPosition } from '../../../domain/Position'
 import { IRiskRatio } from '../../../domain/RiskRatio'
-import { amountFromWei, amountToWei } from '../../../helpers'
-import { TYPICAL_PRECISION, UNUSED_FLASHLOAN_AMOUNT, ZERO } from '../../../helpers/constants'
+import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
+import {
+  FEE_BASE,
+  FEE_ESTIMATE_INFLATOR,
+  ONE,
+  TYPICAL_PRECISION,
+  UNUSED_FLASHLOAN_AMOUNT,
+  ZERO,
+} from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
 import { feeResolver } from '../../../helpers/swap/feeResolver'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
@@ -137,6 +144,8 @@ async function adjustRiskUp(
     isIncreasingRisk: isAdjustUp,
     swapData,
     operation,
+    collectFeeFrom,
+    fee,
     simulatedPositionTransition: simulatedAdjustUp,
     args,
     dependencies,
@@ -219,6 +228,8 @@ async function adjustRiskDown(
     isIncreasingRisk: isAdjustUp,
     swapData,
     operation,
+    collectFeeFrom,
+    fee,
     simulatedPositionTransition: simulatedAdjustDown,
     args,
     dependencies,
@@ -663,6 +674,8 @@ type GenerateTransitionArgs = {
   isIncreasingRisk: boolean
   swapData: SwapData
   operation: IOperation
+  collectFeeFrom: 'sourceToken' | 'targetToken'
+  fee: BigNumber
   simulatedPositionTransition: IBaseSimulatedTransition
   args: AaveAdjustArgs
   dependencies: AaveAdjustDependencies
@@ -672,6 +685,8 @@ async function generateTransition({
   isIncreasingRisk,
   swapData,
   operation,
+  collectFeeFrom,
+  fee,
   simulatedPositionTransition,
   args,
 }: GenerateTransitionArgs) {
@@ -682,22 +697,33 @@ async function generateTransition({
     ? args.collateralToken.precision
     : args.debtToken.precision
 
-  const actualSwapBase18FromTokenAmount = amountToWei(
-    amountFromWei(swapData.fromTokenAmount, fromTokenPrecision),
-    TYPICAL_PRECISION,
-  )
-  const toAmountWithMaxSlippage = swapData.minToTokenAmount
-
-  const actualSwapBase18ToTokenAmount = amountToWei(
-    amountFromWei(toAmountWithMaxSlippage, toTokenPrecision),
-    TYPICAL_PRECISION,
+  const fromTokenAmountNormalised = amountFromWei(swapData.fromTokenAmount, fromTokenPrecision)
+  const toTokenAmountNormalisedWithMaxSlippage = amountFromWei(
+    swapData.minToTokenAmount,
+    toTokenPrecision,
   )
 
-  const actualMarketPriceWithSlippage = actualSwapBase18FromTokenAmount.div(
-    actualSwapBase18ToTokenAmount,
+  const expectedMarketPriceWithSlippage = fromTokenAmountNormalised.div(
+    toTokenAmountNormalisedWithMaxSlippage,
   )
 
   const finalPosition = simulatedPositionTransition.position
+
+  // When collecting fees from the target token (collateral here), we want to calculate the fee
+  // Based on the toTokenAmount NOT minToTokenAmount so that we overestimate the fee where possible
+  // And do not mislead the user
+  const shouldCollectFeeFromSourceToken = collectFeeFrom === 'sourceToken'
+  const sourceTokenAmount = isIncreasingRisk
+    ? simulatedPositionTransition.delta.debt
+    : simulatedPositionTransition.delta.collateral
+
+  const preSwapFee = shouldCollectFeeFromSourceToken
+    ? calculateFee(sourceTokenAmount, fee, new BigNumber(FEE_BASE))
+    : ZERO
+  const postSwapFee = shouldCollectFeeFromSourceToken
+    ? ZERO
+    : calculateFee(swapData.toTokenAmount, fee, new BigNumber(FEE_BASE))
+
   return {
     transaction: {
       calls: operation.calls,
@@ -709,10 +735,14 @@ async function generateTransition({
       swap: {
         ...simulatedPositionTransition.swap,
         ...swapData,
+        collectFeeFrom,
+        tokenFee: preSwapFee.plus(
+          postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
+        ),
       },
       position: finalPosition,
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
-        actualMarketPriceWithSlippage,
+        expectedMarketPriceWithSlippage,
       ),
     },
   }

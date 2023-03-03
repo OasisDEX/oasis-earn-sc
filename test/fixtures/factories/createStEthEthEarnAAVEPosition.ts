@@ -72,7 +72,7 @@ export async function createStEthEthEarnAAVEPosition({
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
-  const mockPrice = new BigNumber(0.979)
+  const mockPrice = new BigNumber(0.98634)
   const getSwapData = use1inch
     ? dependencies.getSwapData(swapAddress)
     : dependencies.getSwapData(mockPrice, {
