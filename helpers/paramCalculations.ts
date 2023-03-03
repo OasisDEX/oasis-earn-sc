@@ -1,4 +1,4 @@
-import { ADDRESSES, ONE } from '@oasisdex/oasis-actions'
+import { ADDRESSES, ONE } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 
 import { ExchangeData } from './types/common'

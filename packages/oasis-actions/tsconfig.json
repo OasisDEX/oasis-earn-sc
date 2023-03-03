@@ -2,17 +2,22 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "lib",
-    "rootDir": ".",
+    "rootDirs": [
+      ".",
+      "../../"
+    ],
     "types": [
       "node"
     ],
     "esModuleInterop": true,
     "typeRoots": [
       "../node_modules/@types"
-    ]
+    ],
+    "resolveJsonModule": true,
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "../../abi/**/*"
   ],
   "exclude": [
     "../../node_modules",

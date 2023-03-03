@@ -1,48 +1,44 @@
-import { AAVETokens } from '@oasisdex/oasis-actions'
+import { AAVETokens, ADDRESSES, ONE } from '@oasisdex/oasis-actions/src'
+import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import erc20abi from '../../abi/external/IERC20.json'
+import { swapUniswapTokens } from '../../helpers/swap/uniswap'
 import { mainnetAddresses } from '../../test/addresses'
 import { RuntimeConfig } from '../types/common'
 
 export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH'>
-const tokensWhales: Record<AAVETokensToGet, { whale: string; tokenAddress: string }> = {
-  STETH: {
-    tokenAddress: mainnetAddresses.STETH,
-    whale: '0x41318419cfa25396b47a94896ffa2c77c6434040',
-  },
-  WBTC: {
-    tokenAddress: mainnetAddresses.WBTC,
-    whale: '0x051d091b254ecdbbb4eb8e6311b7939829380b27',
-  },
-  USDC: {
-    whale: '0xdea0da1c96f1beb756d61225577ebdeb4bbd364e',
-    tokenAddress: mainnetAddresses.USDC,
-  },
+const tokens: Record<AAVETokensToGet, string> = {
+  STETH: mainnetAddresses.STETH,
+  WBTC: mainnetAddresses.WBTC,
+  USDC: mainnetAddresses.USDC,
+  WSTETH: mainnetAddresses.WSTETH,
 }
 
 export function buildGetTokenFunction(
   config: RuntimeConfig,
   hre: HardhatRuntimeEnvironment,
-): (symbol: AAVETokensToGet, amount: string) => Promise<boolean> {
-  return async function getTokens(symbol: AAVETokensToGet, amount: string): Promise<boolean> {
-    const { tokenAddress, whale } = tokensWhales[symbol]
+): (symbol: AAVETokensToGet, amount: BigNumber) => Promise<boolean> {
+  return async function getTokens(symbol: AAVETokensToGet, amount: BigNumber): Promise<boolean> {
+    /* Ensures we always have enough tokens to open a position */
+    const BUFFER_FACTOR = 1.1
+    const amountInInWeth = amount.times(BUFFER_FACTOR).toFixed(0)
+    try {
+      const wethAddress = ADDRESSES.main.WETH
+      const tokenAddress = tokens[symbol]
 
-    await config.signer.sendTransaction({
-      from: await config.signer.getAddress(),
-      to: whale,
-      value: hre.ethers.utils.parseEther('1'),
-      gasLimit: 1000000,
-    })
+      await swapUniswapTokens(
+        wethAddress,
+        tokenAddress,
+        amountInInWeth,
+        ONE.toFixed(0),
+        config.address,
+        config,
+        hre,
+      )
+    } catch (e: any) {
+      console.log(`Error while swapping ${amountInInWeth} WETH for ${symbol}: ${e.message}`)
+    }
 
-    await hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [whale],
-    })
-
-    const fromSigner = await hre.ethers.getSigner(whale)
-    const fromTokenContract = new hre.ethers.Contract(tokenAddress, erc20abi, fromSigner)
-    await fromTokenContract.transfer(config.address, hre.ethers.utils.parseUnits(amount, 'wei'))
     return true
   }
 }

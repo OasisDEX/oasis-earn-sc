@@ -1,8 +1,8 @@
 {
   "name": "@oasisdex/oasis-actions",
-  "version": "0.1.17",
-  "main": "lib/src/index.js",
-  "typings": "lib/src/index.d.ts",
+  "main": "lib/packages/oasis-actions/src/index.js",
+  "typings": "lib/packages/oasis-actions/src/index.d.ts",
+  "version": "0.2.15",
   "scripts": {
     "build": "tsc -b",
     "watch": "tsc -b -w",
@@ -13,9 +13,10 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "bignumber.js": "9.0.1",
-    "ethers": "5.6.2",
+    "bignumber.js": "^9.0.1",
+    "ethers": "^5.6.2",
     "lodash": "^4.17.21",
+    "ramda": "^0.28.0",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {

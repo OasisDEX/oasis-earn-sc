@@ -1,30 +1,56 @@
-import { ADDRESSES, strategies } from '@oasisdex/oasis-actions/src'
+import { AaveVersion, ADDRESSES, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
+import {
+  AaveV2OpenDependencies,
+  AaveV3OpenDependencies,
+} from '@oasisdex/oasis-actions/src/strategies/aave/open/open'
 import BigNumber from 'bignumber.js'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../../helpers/utils'
+import {
+  aaveV2UniqueContractName,
+  aaveV3UniqueContractName,
+} from '../../../packages/oasis-actions/src/protocols/aave/config'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
-import { ETH, MULTIPLE, SLIPPAGE, STETH } from './common'
+import { ETH, MULTIPLE, STETH, UNISWAP_TEST_SLIPPAGE } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
 
-async function openStEthEthEarnAAVEPosition(dependencies: OpenPositionTypes[1]) {
+async function openStEthEthEarnAAVEPosition(
+  slippage: BigNumber,
+  dependencies: OpenPositionTypes[1],
+) {
   const args: OpenPositionTypes[0] = {
     collateralToken: STETH,
     debtToken: ETH,
-    slippage: SLIPPAGE,
+    slippage,
     depositedByUser: {
       debtToken: {
         amountInBaseUnit: transactionAmount,
       },
     },
-    multiple: MULTIPLE,
+    multiple: new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE),
     positionType: 'Earn',
   }
 
-  return await strategies.aave.open(args, dependencies)
+  if (isV2(dependencies)) {
+    return await strategies.aave.v2.open(args, dependencies)
+  }
+  if (isV3(dependencies)) {
+    return await strategies.aave.v3.open(args, dependencies)
+  }
+
+  throw new Error('Unsupported protocol version')
+}
+
+function isV2(dependencies: OpenPositionTypes[1]): dependencies is AaveV2OpenDependencies {
+  return dependencies.protocol.version === AaveVersion.v2
+}
+
+function isV3(dependencies: OpenPositionTypes[1]): dependencies is AaveV3OpenDependencies {
+  return dependencies.protocol.version === AaveVersion.v3
 }
 
 export async function createStEthEthEarnAAVEPosition({
@@ -46,19 +72,25 @@ export async function createStEthEthEarnAAVEPosition({
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
+  const mockPrice = new BigNumber(0.979)
   const getSwapData = use1inch
     ? dependencies.getSwapData(swapAddress)
-    : dependencies.getSwapData(new BigNumber(0.979), {
+    : dependencies.getSwapData(mockPrice, {
         from: STETH.precision,
         to: ETH.precision,
       })
 
-  const position = await openStEthEthEarnAAVEPosition({
-    ...dependencies,
-    getSwapData,
-    isDPMProxy: isDPM,
-    proxy: proxy,
-  })
+  // Just using high slippage for this pair on 1inch because seems to have issues otherwise
+  const oneInchSlippage = new BigNumber(0.2)
+  const position = await openStEthEthEarnAAVEPosition(
+    use1inch ? oneInchSlippage : UNISWAP_TEST_SLIPPAGE,
+    {
+      ...dependencies,
+      getSwapData,
+      isDPMProxy: isDPM,
+      proxy: proxy,
+    },
+  )
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
@@ -87,10 +119,14 @@ export async function createStEthEthEarnAAVEPosition({
     config,
   })
 
-  return {
-    proxy: proxy,
-    getPosition: async () => {
-      return await strategies.aave.view(
+  let getPosition
+  if (
+    dependencies.protocol.version === AaveVersion.v3 &&
+    aaveV3UniqueContractName in dependencies.addresses
+  ) {
+    const addresses = dependencies.addresses
+    getPosition = async () => {
+      return await strategies.aave.v3.view(
         {
           collateralToken: STETH,
           debtToken: ETH,
@@ -98,17 +134,48 @@ export async function createStEthEthEarnAAVEPosition({
         },
         {
           addresses: {
-            ...dependencies.addresses,
+            ...addresses,
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
         },
       )
-    },
+    }
+  }
+  if (
+    dependencies.protocol.version === AaveVersion.v2 &&
+    aaveV2UniqueContractName in dependencies.addresses
+  ) {
+    const addresses = dependencies.addresses
+    getPosition = async () => {
+      return await strategies.aave.v2.view(
+        {
+          collateralToken: STETH,
+          debtToken: ETH,
+          proxy,
+        },
+        {
+          addresses: {
+            ...addresses,
+            operationExecutor: dependencies.contracts.operationExecutor.address,
+          },
+          provider: config.provider,
+        },
+      )
+    }
+  }
+
+  if (!getPosition) throw new Error('getPosition is not defined')
+
+  return {
+    proxy: proxy,
+    getPosition,
     strategy: 'STETH/ETH Earn',
     collateralToken: STETH,
     debtToken: ETH,
     getSwapData,
+    __positionType: 'Earn',
+    __mockPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }

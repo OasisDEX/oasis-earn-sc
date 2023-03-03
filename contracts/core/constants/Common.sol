@@ -4,6 +4,7 @@ pragma solidity ^0.8.15;
 string constant OPERATION_STORAGE = "OperationStorage_2";
 string constant OPERATION_EXECUTOR = "OperationExecutor_2";
 string constant OPERATIONS_REGISTRY = "OperationsRegistry_2";
+string constant CHAINLOG_VIEWER = "ChainLogView";
 string constant ONE_INCH_AGGREGATOR = "OneInchAggregator";
 string constant WETH = "WETH";
 string constant DAI = "DAI";
