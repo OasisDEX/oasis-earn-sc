@@ -1,3 +1,5 @@
+import { IRiskRatio, Swap } from '../../domain'
+
 export type Address = string
 
 export type Tx = {
@@ -16,13 +18,17 @@ export type Undercollateralized = {
 
 export type AjnaError = Undercollateralized
 
-export type Strategy<Position> = {
+export type Strategy<Position, Error = void> = {
   simulation: {
-    swaps: []
+    swaps: Swap[]
     // @deprecated - use position
     targetPosition: Position
     position: Position
-    errors: AjnaError[]
+    errors?: Error[]
   }
   tx: Tx
+}
+
+export type WithMinRiskRatio = {
+  minRiskRatio: IRiskRatio
 }

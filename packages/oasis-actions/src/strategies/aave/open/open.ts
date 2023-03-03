@@ -1,8 +1,10 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
+import * as ethers from 'ethers'
 
 import { Unbox } from '../../../../../../helpers/types/common'
-import { IBaseSimulatedTransition, Position } from '../../../domain/Position'
+import operationExecutorABI from '../../../../abi/generated/operationExecutor.json'
+import { IBaseSimulatedTransition, IPosition, Position } from '../../../domain/Position'
 import { IRiskRatio } from '../../../domain/RiskRatio'
 import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
 import {
@@ -19,11 +21,12 @@ import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
 import * as operations from '../../../operations'
 import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '../../../protocols/aave/config'
 import { AaveProtocolData } from '../../../protocols/aave/getAaveProtocolData'
-import { Address, IOperation, IPositionTransition, PositionType, SwapData } from '../../../types'
+import { Address, IOperation, PositionType, SwapData } from '../../../types'
 import { AAVETokens } from '../../../types/aave'
 import { WithV2Addresses, WithV3Addresses } from '../../../types/aave/Addresses'
 import { WithFee } from '../../../types/aave/Fee'
 import { WithV2Protocol, WithV3Protocol } from '../../../types/aave/Protocol'
+import { Strategy, WithMinRiskRatio } from '../../../types/common'
 import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
 import { AaveVersion } from '../getCurrentPosition'
 
@@ -59,7 +62,7 @@ export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependenci
 export async function open(
   args: AaveOpenArgs,
   dependencies: AaveOpenDependencies,
-): Promise<IPositionTransition> {
+): Promise<Strategy<IPosition> & WithMinRiskRatio> {
   const fee = feeResolver(
     args.collateralToken.symbol,
     args.debtToken.symbol,
@@ -83,7 +86,7 @@ export async function open(
       getTokenAddresses: getAaveTokenAddresses,
     },
   })
-  const { simulatedPositionTransition, reserveEModeCategory } = await simulatePositionTransition(
+  const { simulatedPositionTransition, reserveEModeCategory } = await simulateStrategy(
     quoteSwapData,
     {
       ...args,
@@ -121,7 +124,7 @@ export async function open(
 
   if (operation === undefined) throw new Error('No operation built. Check your arguments.')
 
-  return await generateTransition({
+  return await generateStrategy({
     swapData,
     operation,
     args,
@@ -132,7 +135,7 @@ export async function open(
   })
 }
 
-async function simulatePositionTransition(
+async function simulateStrategy(
   quoteSwapData: SwapData,
   args: AaveOpenArgs & WithFee,
   dependencies: AaveOpenDependencies,
@@ -361,7 +364,7 @@ async function buildOperation(
   }
 }
 
-type GenerateTransitionArgs = {
+type generateStrategyArgs = {
   swapData: SwapData
   operation: IOperation
   collectFeeFrom: 'sourceToken' | 'targetToken'
@@ -371,14 +374,15 @@ type GenerateTransitionArgs = {
   dependencies: AaveOpenDependencies
 }
 
-async function generateTransition({
+async function generateStrategy({
   swapData,
   operation,
   collectFeeFrom,
   fee,
   simulatedPositionTransition,
   args,
-}: GenerateTransitionArgs) {
+  dependencies,
+}: generateStrategyArgs) {
   const fromTokenAmountNormalised = amountFromWei(
     swapData.fromTokenAmount,
     args.debtToken.precision,
@@ -405,26 +409,73 @@ async function generateTransition({
     ? ZERO
     : calculateFee(swapData.toTokenAmount, fee, new BigNumber(FEE_BASE))
 
+  // Build the t/x
+  const operationExecutor = new ethers.Contract(
+    dependencies.addresses.operationExecutor,
+    operationExecutorABI,
+    dependencies.provider,
+  )
+
+  const to = dependencies.addresses.operationExecutor
+  const data = operationExecutor.interface.encodeFunctionData('executeOp', [
+    operation.calls,
+    operation.operationName,
+  ])
+  const isCollateralDepositEth =
+    args.collateralToken.symbol === 'ETH' &&
+    args.depositedByUser?.collateralToken?.amountInBaseUnit.gt(ZERO)
+  const isDebtDepositEth =
+    args.debtToken.symbol === 'ETH' && args.depositedByUser?.debtToken?.amountInBaseUnit.gt(ZERO)
+  const isDepositingEth = isCollateralDepositEth || isDebtDepositEth
+  const ethCollateralDeposit = isCollateralDepositEth
+    ? args.depositedByUser?.collateralToken?.amountInBaseUnit || ZERO
+    : ZERO
+  const ethDebtTokenDeposit = isDebtDepositEth
+    ? args.depositedByUser?.debtToken?.amountInBaseUnit || ZERO
+    : ZERO
+  const ethDeposit = ethCollateralDeposit.plus(ethDebtTokenDeposit)
+
+  const swap = {
+    ...simulatedPositionTransition.swap,
+    ...swapData,
+    collectFeeFrom,
+    tokenFee: preSwapFee.plus(
+      postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
+    ),
+  }
+
   return {
-    transaction: {
-      calls: operation.calls,
-      operationName: operation.operationName,
-    },
     simulation: {
-      delta: simulatedPositionTransition.delta,
-      flags: simulatedPositionTransition.flags,
-      swap: {
-        ...simulatedPositionTransition.swap,
-        ...swapData,
-        collectFeeFrom,
-        tokenFee: preSwapFee.plus(
-          postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
-        ),
-      },
+      swaps: [swap],
+      targetPosition: finalPosition,
       position: finalPosition,
-      minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
-        expectedMarketPriceWithSlippage,
-      ),
     },
+    tx: {
+      to,
+      data,
+      value: isDepositingEth ? ethers.utils.parseUnits(ethDeposit.toString(), 18).toString() : '0',
+    },
+    // COMPOSE THIS IN TO STRATEGY TYPE
+    minRiskRatio: finalPosition.minConfigurableRiskRatio(expectedMarketPriceWithSlippage),
+    // transaction: {
+    //   calls: operation.calls,
+    //   operationName: operation.operationName,
+    // },
+    // simulation: {
+    // LET'S ASSUME WE DON'T NEED THIS EITHER
+    // delta: simulatedPositionTransition.delta,
+    // LET'S ASSUME WE DON'T NEED THIS
+    // flags: simulatedPositionTransition.flags,
+    // swap: {
+    //   ...simulatedPositionTransition.swap,
+    //   ...swapData,
+    //   collectFeeFrom,
+    //   tokenFee: preSwapFee.plus(
+    //     postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
+    //   ),
+    // },
+    // position: finalPosition,
+
+    // },
   }
 }

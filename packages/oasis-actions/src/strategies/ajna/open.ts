@@ -3,7 +3,7 @@ import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
 import { AjnaPosition } from '../../helpers/ajna'
-import { Address, Strategy } from '../../types/common'
+import { Address, AjnaError, Strategy } from '../../types/common'
 import * as views from '../../views'
 
 export interface OpenArgs {
@@ -26,7 +26,7 @@ export interface Dependencies {
 export async function open(
   args: OpenArgs,
   dependencies: Dependencies,
-): Promise<Strategy<AjnaPosition>> {
+): Promise<Strategy<AjnaPosition, AjnaError>> {
   const position = await views.ajna.getPosition(
     {
       proxyAddress: args.dpmProxyAddress,
