@@ -7,23 +7,18 @@ import { IBaseSimulatedTransition, Position } from '../../../helpers/calculation
 import { IRiskRatio } from '../../../helpers/calculations/RiskRatio'
 import { DEFAULT_FEE, NO_FEE, TYPICAL_PRECISION, ZERO } from '../../../helpers/constants'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
+import { feeResolver } from '../../../helpers/swap/feeResolver'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
 import * as operations from '../../../operations'
-import { AAVEStrategyAddresses } from '../../../operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '../../../operations/aave/v3'
 import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '../../../protocols/aave/config'
-import { AaveProtocolData, AaveProtocolDataArgs } from '../../../protocols/aave/getAaveProtocolData'
+import { AaveProtocolData } from '../../../protocols/aave/getAaveProtocolData'
 import { Address, IOperation, IPositionTransition, PositionType, SwapData } from '../../../types'
-import { AavePosition, AAVETokens } from '../../../types/aave'
+import { AAVETokens } from '../../../types/aave'
+import { WithV2Addresses, WithV3Addresses } from '../../../types/aave/Addresses'
+import { WithFee } from '../../../types/aave/Fee'
+import { WithV2Protocol, WithV3Protocol } from '../../../types/aave/Protocol'
 import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
-import {
-  AaveGetCurrentPositionArgs,
-  AaveV2GetCurrentPositionDependencies,
-  AaveV3GetCurrentPositionDependencies,
-  AaveVersion,
-} from '../getCurrentPosition'
-
-type WithFee = { fee: BigNumber }
+import { AaveVersion } from '../getCurrentPosition'
 
 export interface AaveOpenArgs {
   depositedByUser?: {
@@ -37,7 +32,7 @@ export interface AaveOpenArgs {
   debtToken: { symbol: AAVETokens; precision?: number }
 }
 
-export interface AaveBaseOpenDependencies {
+export interface AaveOpenSharedDependencies {
   proxy: Address
   user: Address
   isDPMProxy: boolean
@@ -50,38 +45,20 @@ export interface AaveBaseOpenDependencies {
     slippage: BigNumber,
   ) => Promise<SwapData>
 }
-
-export type AaveV2OpenDependencies = AaveBaseOpenDependencies & {
-  addresses: AAVEStrategyAddresses
-  protocol: {
-    version: AaveVersion.v2
-    getCurrentPosition: (
-      args: AaveGetCurrentPositionArgs,
-      deps: AaveV2GetCurrentPositionDependencies,
-    ) => Promise<AavePosition>
-    getProtocolData: (args: AaveProtocolDataArgs) => AaveProtocolData
-  }
-}
-
-export type AaveV3OpenDependencies = AaveBaseOpenDependencies & {
-  addresses: AAVEV3StrategyAddresses
-  protocol: {
-    version: AaveVersion.v3
-    getCurrentPosition: (
-      args: AaveGetCurrentPositionArgs,
-      deps: AaveV3GetCurrentPositionDependencies,
-    ) => Promise<AavePosition>
-    getProtocolData: (args: AaveProtocolDataArgs) => AaveProtocolData
-  }
-}
-
+export type AaveV2OpenDependencies = AaveOpenSharedDependencies & WithV2Addresses & WithV2Protocol
+export type AaveV3OpenDependencies = AaveOpenSharedDependencies & WithV3Addresses & WithV3Protocol
 export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependencies
 
 export async function open(
   args: AaveOpenArgs,
   dependencies: AaveOpenDependencies,
 ): Promise<IPositionTransition> {
-  const fee = args.positionType === 'Earn' ? new BigNumber(NO_FEE) : new BigNumber(DEFAULT_FEE)
+  const fee = feeResolver(
+    args.collateralToken.symbol,
+    args.debtToken.symbol,
+    true,
+    args.positionType === 'Earn',
+  )
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
   const { swapData: quoteSwapData } = await getSwapDataHelper<
     typeof dependencies.addresses,

@@ -13,7 +13,8 @@ import {
   createStEthUsdcMultiplyAAVEPosition,
   createWbtcUsdcMultiplyAAVEPosition,
 } from '../factories'
-import { AavePositionStrategy, StrategiesDependencies, SystemWithAAVEPositions } from '../types'
+import { AavePositionStrategy, SystemWithAAVEPositions } from '../types'
+import { StrategyDependenciesAaveV2 } from '../types/strategiesDependencies'
 
 export function getSupportedStrategies(ciMode?: boolean): Array<{
   name: AavePositionStrategy
@@ -55,7 +56,7 @@ export const getSystemWithAavePositions =
 
     const { system, registry } = await deploySystem(config, false, useFallbackSwap)
 
-    const dependencies: StrategiesDependencies = {
+    const dependencies: StrategyDependenciesAaveV2 = {
       addresses: {
         ...mainnetAddresses,
         priceOracle: mainnetAddresses.aave.v2.priceOracle,
