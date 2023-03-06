@@ -59,7 +59,7 @@ export async function open(args: Args, dependencies: Dependencies): Promise<Stra
     .then((res: string) => new BigNumber(res))
 
   const data = await ajnaProxyActions.interface.encodeFunctionData(
-    args.isStakingNft ? 'supplyQuoteMintNftAndStake' : 'supplyQuote',
+    args.isStakingNft ? 'supplyQuoteMintNftAndStake' : 'openEarnPosition',
     [
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
