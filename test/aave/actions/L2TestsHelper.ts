@@ -1,3 +1,5 @@
+import * as optimismSDK from '@eth-optimism/sdk'
+import { TransactionRequest } from '@ethersproject/providers'
 import { createDeploy } from '@helpers/deploy'
 import init from '@helpers/init'
 import { ServiceRegistry } from '@helpers/serviceRegistry'
@@ -101,7 +103,12 @@ export const setApprovalAction = (asset: string, amount: BigNumber, delegate: st
       [0, 0, 0, 0],
     ],
   )
-
+type GasEstimates = {
+  totalCost: BigNumber
+  l1Cost: BigNumber
+  l2Cost: BigNumber
+  l1Gas: BigNumber
+}
 type DeployedContracts = {
   config: RuntimeConfig
   balanceConfig: BalanceOptions
@@ -110,10 +117,12 @@ type DeployedContracts = {
   withdrawActions: ActionCall[]
   borrowActions: ActionCall[]
   paybackActions: ActionCall[]
+  estimateGas: (tx: TransactionRequest) => Promise<GasEstimates>
 }
 
 export const deployedContracts = async (): Promise<DeployedContracts> => {
   const config = await init()
+
   const deploy = await createDeploy({ config })
   const [, serviceRegistryAddress] = await deploy('ServiceRegistry', [0])
   const [opExecutor, operationExecutorAddress] = await deploy('OperationExecutor', [
@@ -222,6 +231,17 @@ export const deployedContracts = async (): Promise<DeployedContracts> => {
     config,
   )
 
+  const estimateGas = async (tx: TransactionRequest): Promise<GasEstimates> => {
+    const provider = optimismSDK.asL2Provider(config.provider)
+
+    return {
+      totalCost: new BigNumber((await provider.estimateTotalGasCost(tx)).toString()),
+      l1Cost: new BigNumber((await provider.estimateL1GasCost(tx)).toString()),
+      l2Cost: new BigNumber((await provider.estimateL2GasCost(tx)).toString()),
+      l1Gas: new BigNumber((await provider.estimateL1Gas(tx)).toString()),
+    }
+  }
+
   return {
     config,
     balanceConfig: {
@@ -234,5 +254,6 @@ export const deployedContracts = async (): Promise<DeployedContracts> => {
     withdrawActions,
     borrowActions,
     paybackActions,
+    estimateGas,
   }
 }
