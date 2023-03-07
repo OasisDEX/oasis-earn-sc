@@ -20,6 +20,7 @@ import './tasks/verify-earn'
 import './tasks/transfer-erc20'
 import './tasks/getTokens'
 import 'solidity-docgen'
+import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
 import './tasks/userDpmProxies'
 import './tasks/createMultiplyPosition'
@@ -96,7 +97,7 @@ const config: HardhatUserConfig = {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       url: process.env.MAINNET_URL!,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      accounts: [process.env.PRIV_KEY_MAINNET!],
+      accounts: [process.env.PRIV_KEY_MAINNET_DEPLOYER!],
       gasPrice: 50000000000,
     },
   },

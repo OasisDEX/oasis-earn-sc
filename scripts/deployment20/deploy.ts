@@ -5,26 +5,25 @@
 // Runtime Environment's members available in the global scope.
 import { ServiceRegistry } from '@helpers/serviceRegistry'
 import { OperationsRegistry } from '@helpers/wrappers/operationsRegistry'
-import { action, ActionFactory, ADDRESSES, calldataTypes, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
+import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src'
+import { operationDefinition as aaveV2OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/open'
+import { operationDefinition as aaveV3OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v3/open'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
-import { Contract, ContractFactory, providers, Signer, BigNumber as EthersBN, utils, } from 'ethers'
+import { BigNumber as EthersBN, Contract, ContractFactory, providers, Signer, utils } from 'ethers'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import NodeCache from 'node-cache'
-import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
-
-import { EtherscanGasPrice, HardhatUtils, Network } from '../common'
 import _ from 'lodash'
-import { getOrCreateProxy } from '@helpers/proxy'
-import { executeThroughProxy } from '@helpers/deploy'
-import { operationDefinition as aaveV2OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/open'
+import NodeCache from 'node-cache'
 
-const prompts = require('prompts');
+import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
+import { EtherscanGasPrice, Network } from '../common'
 
-const configLoader = require('config-json');
+const prompts = require('prompts')
 
-configLoader.setBaseDir('./scripts/deployment20/');
+const configLoader = require('config-json')
+
+configLoader.setBaseDir('./scripts/deployment20/')
 
 export const ChainById: { [key: number]: Network } = {
   1: Network.MAINNET,
@@ -35,7 +34,7 @@ export const ChainById: { [key: number]: Network } = {
 const restrictedNetworks = [
   Network.MAINNET,
   // Network.LOCAL,
-  Network.GOERLI
+  Network.GOERLI,
 ]
 
 const rpcUrls: any = {
@@ -48,34 +47,35 @@ const impersonateAccount = async (account: string) => {
   await hre.network.provider.request({
     method: 'hardhat_impersonateAccount',
     params: [account],
-  });
-};
+  })
+}
 
 const stopImpersonatingAccount = async (account: string) => {
   await hre.network.provider.request({
     method: 'hardhat_stopImpersonatingAccount',
     params: [account],
-  });
-};
+  })
+}
 
 // HELPERS --------------------------
 abstract class DeployedSystemHelpers {
-  public chainId: number = 0
+  public chainId = 0
   public network: Network = Network.LOCAL
   public forkedNetwork: Network | undefined = undefined
-  public rpcUrl: string = ''
-  public isRestrictedNetwork: boolean = false
+  public rpcUrl = ''
+  public isRestrictedNetwork = false
   public ethers: any = hre.ethers
-  public provider: providers.JsonRpcProvider | undefined = undefined
-  public signer: Signer | undefined = undefined
-  public signerAddress: string = ''
-  public serviceRegistryHelper: ServiceRegistry | undefined = undefined
+  public provider: providers.JsonRpcProvider | undefined
+  public signer: Signer | undefined
+  public signerAddress: string | undefined
+  public feeRecipient: string | undefined
+  public serviceRegistryHelper: ServiceRegistry | undefined
 
   async getForkedNetworkChainId(provider: providers.JsonRpcProvider) {
     try {
       const metadata = await provider.send('hardhat_metadata', [])
       return metadata.forkedNetwork.chainId
-    } catch (e) { }
+    } catch (e) {}
 
     return 0
   }
@@ -89,15 +89,16 @@ abstract class DeployedSystemHelpers {
   }
   async init() {
     this.ethers = hre.ethers
-    this.provider = this.ethers.provider
-    this.signer = this.provider!.getSigner(0)
+    this.provider = hre.ethers.provider
+    this.signer = this.provider.getSigner()
+
     this.signerAddress = await this.signer.getAddress()
     this.isRestrictedNetwork = restrictedNetworks.includes(this.network)
     this.chainId = await this.getForkedNetworkChainId(this.provider!)
     this.forkedNetwork = this.getNetworkFromChainId(this.chainId)
 
     this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
-    console.log('NETWORK/FORKED NETWORK', `${this.network}/${this.forkedNetwork}`);
+    console.log('NETWORK/FORKED NETWORK', `${this.network}/${this.forkedNetwork}`)
 
     return {
       provider: this.provider!,
@@ -122,37 +123,37 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   loadConfig(configFileName?: string) {
     if (configFileName) {
-      configLoader.load(configFileName);
-      this.config = configLoader.get();
+      configLoader.load(configFileName)
+      this.config = configLoader.get()
     } else {
       // if forked other network then merge configs files
       if (this.forkedNetwork) {
-        console.log('LOAD COMBINED CONFIGS', this.forkedNetwork);
-        configLoader.load(`${this.forkedNetwork}.conf.json`);
-        const baseConfig = configLoader.get();
+        console.log('LOAD COMBINED CONFIGS', this.forkedNetwork)
+        configLoader.load(`${this.forkedNetwork}.conf.json`)
+        const baseConfig = configLoader.get()
         configLoader.load('local-extend.conf.json')
-        const extendedConfig = configLoader.get();
+        const extendedConfig = configLoader.get()
 
         this.config = { ...baseConfig, ...extendedConfig }
-        this.config = _.merge(baseConfig, extendedConfig);
+        this.config = _.merge(baseConfig, extendedConfig)
       } else {
-        console.log('LOAD NETWORK CONFIG ONLY');
+        console.log('LOAD NETWORK CONFIG ONLY')
 
         // otherwise load just one config file
-        configLoader.load(`${this.network}.conf.json`);
-        this.config = configLoader.get();
+        configLoader.load(`${this.network}.conf.json`)
+        this.config = configLoader.get()
       }
     }
   }
 
   saveConfig() {
     const configString = JSON.stringify(this.config, null, 2)
-    const { writeFile } = require('fs');
-    writeFile(`./scripts/deployment20/${this.network}.conf.json`, configString, (error: any) => { });
+    const { writeFile } = require('fs')
+    writeFile(`./scripts/deployment20/${this.network}.conf.json`, configString, (error: any) => {})
   }
 
   async postInstantiation(configItem: any, contract: Contract) {
-    console.log('POST INITIALIZATION', configItem.name);
+    console.log('POST INITIALIZATION', configItem.name)
   }
 
   async verifyContract(address: string, constructorArguments: any[]) {
@@ -167,7 +168,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async postDeployment(configItem: any, contract: Contract, constructorArguments: any) {
-    console.log('POST DEPLOYMENT', configItem.name);
+    console.log('POST DEPLOYMENT', configItem.name)
 
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
@@ -191,13 +192,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async instantiateContracts(addressesConfig: any) {
     for (const configItem of addressesConfig) {
-      console.log('INSTANTIATING ', configItem.name);
-      const contractInstance = await this.ethers.getContractAt(
-        configItem.name,
-        configItem.address,
-      )
+      console.log('INSTANTIATING ', configItem.name)
+      const contractInstance = await this.ethers.getContractAt(configItem.name, configItem.address)
 
-      this.deployedSystem[configItem.name] = { contract: contractInstance, config: configItem, hash: this.getRegistryEntryHash(configItem.serviceRegistryName) }
+      this.deployedSystem[configItem.name] = {
+        contract: contractInstance,
+        config: configItem,
+        hash: this.getRegistryEntryHash(configItem.serviceRegistryName),
+      }
 
       if (configItem.name === 'ServiceRegistry') {
         this.serviceRegistryHelper = new ServiceRegistry(configItem.address, this.signer!)
@@ -208,7 +210,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async promptBeforeDeployment() {
-    console.log('WARNING: You are deploying to a restricted network. Please make sure you know what you are doing.');
+    console.log(
+      'WARNING: You are deploying to a restricted network. Please make sure you know what you are doing.',
+    )
     const response = await prompts({
       type: 'text',
       name: 'value',
@@ -221,17 +225,15 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async deployContracts(addressesConfig: any) {
-
     if (this.isRestrictedNetwork) {
       await this.promptBeforeDeployment()
     }
     for (const configItem of addressesConfig) {
-
       let constructorParams = []
 
       if (configItem.constructorArgs?.length !== 0) {
         constructorParams = configItem.constructorArgs.map((param: any) => {
-          if (typeof (param) === 'string' && param.indexOf('address:') >= 0) {
+          if (typeof param === 'string' && param.indexOf('address:') >= 0) {
             const contractName = (param as string).replace('address:', '')
             return this.deployedSystem[contractName].contract.address
           }
@@ -240,14 +242,18 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
 
       const contractInstance = await this.deployContract(
-        this.ethers.getContractFactory((configItem.name) as string, this.signer!),
+        this.ethers.getContractFactory(configItem.name as string, this.signer!),
         constructorParams,
       )
 
       if (configItem.name === 'ServiceRegistry') {
         this.serviceRegistryHelper = new ServiceRegistry(contractInstance.address, this.signer!)
       }
-      this.deployedSystem[configItem.name] = { contract: contractInstance, config: configItem, hash: this.getRegistryEntryHash(configItem.serviceRegistryName) }
+      this.deployedSystem[configItem.name] = {
+        contract: contractInstance,
+        config: configItem,
+        hash: this.getRegistryEntryHash(configItem.serviceRegistryName),
+      }
 
       if (configItem.address !== '') {
         configItem.history.push(configItem.address)
@@ -302,12 +308,16 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async deployCore() {
-    await this.instantiateContracts(this.config.mpa.core.filter((item: any) => item.address !== '' && !item.deploy))
+    await this.instantiateContracts(
+      this.config.mpa.core.filter((item: any) => item.address !== '' && !item.deploy),
+    )
     await this.deployContracts(this.config.mpa.core.filter((item: any) => item.deploy))
   }
 
   async deployActions() {
-    await this.instantiateContracts(this.config.mpa.actions.filter((item: any) => item.address !== '' && !item.deploy))
+    await this.instantiateContracts(
+      this.config.mpa.actions.filter((item: any) => item.address !== '' && !item.deploy),
+    )
     await this.deployContracts(this.config.mpa.actions.filter((item: any) => item.deploy))
   }
 
@@ -317,42 +327,44 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   mapAddresses() {
-
     this.config.external.forEach((item: any) => {
-      this.addresses[item.name] = item.address;
-    });
+      this.addresses[item.name] = item.address
+      if (item.name === 'FeeRecipient') {
+        this.feeRecipient = item.address
+      }
+    })
   }
-  async setupLocalSystem() {
+  async setupLocalSystem(useInch?: boolean) {
+    if (!this.signer) throw new Error('No signer set')
+    if (!this.signerAddress) throw new Error('No signer address set')
+    if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
 
-    const deployedContract = await this.deployContract(
-      this.ethers.getContractFactory('uSwap', this.signer),
+    const deploySwapContract = await this.deployContract(
+      this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
       [
         this.signerAddress,
-        this.signerAddress, //feeRecipient,
+        this.feeRecipient || this.signerAddress, // Fallback to signer address if no fee recipient is set
         0,
-        this.deployedSystem['ServiceRegistry'].contract.address],
+        this.deployedSystem['ServiceRegistry'].contract.address,
+      ],
     )
 
-    await deployedContract.setPool(
-      this.addresses.WETH,
-      this.addresses.USDC,
-      10000,
+    !useInch && (await deploySwapContract.setPool(this.addresses.STETH, this.addresses.WETH, 10000))
+
+    await deploySwapContract.addFeeTier(20)
+
+    this.deployedSystem['Swap'] = { contract: deploySwapContract, config: {}, hash: '' }
+
+    await this.serviceRegistryHelper.addEntry('Swap', deploySwapContract.address)
+
+    this.deployedSystem.AccountGuard.contract.setWhitelist(
+      this.deployedSystem.OperationExecutor.contract.address,
+      true,
     )
-
-    await deployedContract.addFeeTier(20)
-
-
-    this.deployedSystem['Swap'] = { contract: deployedContract, config: {}, hash: '' }
-
-    // add flag to deploy fallbackSwap contract
-    // await serviceRegistryHelper!.addEntry(CONTRACT_NAMES.common.SWAP, useFallbackSwap ? uSwapAddress : swapAddress)
-    await this.serviceRegistryHelper!.addEntry('Swap', deployedContract.address)
-
-    this.deployedSystem.AccountGuard.contract.setWhitelist(this.deployedSystem.OperationExecutor.contract.address, true)
 
     const operationsRegistry: OperationsRegistry = new OperationsRegistry(
       this.deployedSystem.OperationsRegistry.contract.address,
-      this.signer!,
+      this.signer,
     )
 
     const dsProxyRegistry = await this.ethers.getContractAt(
@@ -364,26 +376,46 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     this.deployedSystem['DsProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
 
     //-- Add Token Contract Entries
-    // await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
-    await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.common.WETH, this.addresses.WETH)
-    // await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.maker.FLASH_MINT_MODULE, ADDRESSES.main.maker.fmm)
-    await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, this.addresses.AaveV3Pool)
-    // await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
-    await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, this.addresses.uniswapRouterV3)
-    await this.serviceRegistryHelper!.addEntry(CONTRACT_NAMES.balancer.BALANCER_VAULT, this.addresses.BalancerVault)
+    await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.WETH, this.addresses.WETH)
+    await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.DAI, this.addresses.DAI)
+    await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.USDC, this.addresses.USDC)
+
+    await this.serviceRegistryHelper.addEntry(
+      CONTRACT_NAMES.common.UNISWAP_ROUTER,
+      this.addresses.UniswapRouterV3,
+    )
+    await this.serviceRegistryHelper.addEntry(
+      CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
+      this.addresses.OneInchAggregator,
+    )
+    await this.serviceRegistryHelper.addEntry(
+      CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
+      this.addresses.FlashMintModule,
+    )
+    await this.serviceRegistryHelper.addEntry(
+      CONTRACT_NAMES.common.BALANCER_VAULT,
+      this.addresses.BalancerVault,
+    )
+    await this.serviceRegistryHelper.addEntry(
+      CONTRACT_NAMES.aave.v2.LENDING_POOL,
+      this.addresses.AaveV2LendingPool,
+    )
+    await this.serviceRegistryHelper.addEntry(
+      CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
+      this.addresses.WETHGateway,
+    )
+    await this.serviceRegistryHelper.addEntry(
+      CONTRACT_NAMES.aave.v3.AAVE_POOL,
+      this.addresses.AaveV3Pool,
+    )
 
     // Add AAVE Operations
-
-    await operationsRegistry.addOp(
-      aaveV2OpenOp.name,
-      aaveV2OpenOp.actions
-    )
+    await operationsRegistry.addOp(aaveV2OpenOp.name, aaveV2OpenOp.actions)
+    await operationsRegistry.addOp(aaveV3OpenOp.name, aaveV3OpenOp.actions)
   }
 
   // TODO unify resetNode and resetNodeToLatestBlock into one function
-  async resetNode(
-    blockNumber: number,
-  ) {
+  async resetNode(blockNumber: number) {
     console.log(`\x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
     await this.provider!.send('hardhat_reset', [
       {
@@ -408,31 +440,31 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   getSystem() {
     return {
       system: this.deployedSystem,
-      registry: this.serviceRegistryHelper!
+      registry: this.serviceRegistryHelper!,
     }
   }
 }
-
-async function main() {
-  const utils = new HardhatUtils(hre) // the hardhat network is coalesced to mainnet
-  const signer = hre.ethers.provider.getSigner(0)
-  const network = hre.network.name || ''
-  console.log(`Deployer address: ${await signer.getAddress()}`)
-  console.log(`Network: ${network}`)
-
-  const ds = new DeploymentSystem(hre) // TODO add forked param and in init get chainId and forked Network + set as attribute
-  await ds.init()
-  ds.loadConfig()
-  ds.mapAddresses()
-  await ds.deployAll()
-  await ds.setupLocalSystem()
-
-  // ds.saveConfig()
-}
-
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch(error => {
-  console.error(error)
-  process.exitCode = 1
-})
+//
+// async function main() {
+//   const utils = new HardhatUtils(hre) // the hardhat network is coalesced to mainnet
+//   const signer = hre.ethers.provider.getSigner(0)
+//   const network = hre.network.name || ''
+//   console.log(`Deployer address: ${await signer.getAddress()}`)
+//   console.log(`Network: ${network}`)
+//
+//   const ds = new DeploymentSystem(hre) // TODO add forked param and in init get chainId and forked Network + set as attribute
+//   await ds.init()
+//   ds.loadConfig()
+//   ds.mapAddresses()
+//   await ds.deployAll()
+//   await ds.setupLocalSystem()
+//
+//   // ds.saveConfig()
+// }
+//
+// // We recommend this pattern to be able to use async/await everywhere
+// // and properly handle errors.
+// main().catch(error => {
+//   console.error(error)
+//   process.exitCode = 1
+// })

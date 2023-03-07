@@ -35,7 +35,8 @@ interface OpenArgs {
 }
 
 export const operationDefinition = {
-  name: OPERATION_NAMES.aave.v2.OPEN_POSITION, actions: [
+  name: OPERATION_NAMES.aave.v2.OPEN_POSITION,
+  actions: [
     {
       hash: getActionHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
       optional: false,
@@ -81,7 +82,7 @@ export const operationDefinition = {
       optional: false,
     },
     { hash: getActionHash(CONTRACT_NAMES.common.POSITION_CREATED), optional: false },
-  ]
+  ],
 }
 
 export async function open({
@@ -206,8 +207,10 @@ export async function open({
     calls: flashloanCalls,
   })
 
+  console.log('takeAFlashLoan', takeAFlashLoan.targetHash)
+
   return {
     calls: [takeAFlashLoan],
-    operationName: operationDefinition.name
+    operationName: operationDefinition.name,
   }
 }
