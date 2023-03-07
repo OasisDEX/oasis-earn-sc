@@ -1,8 +1,8 @@
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import poolERC20Abi from '../../../../../abi/external//ajna/ajnaPoolERC20.json'
-import poolInfoAbi from '../../../../../abi/external/ajna/poolInfoUtils.json'
+import poolERC20Abi from '../../../src/abi/external/ajna/ajnaPoolERC20.json'
+import poolInfoAbi from '../../../src/abi/external/ajna/poolInfoUtils.json'
 import { AjnaPosition } from '../../helpers/ajna'
 import { AjnaEarn } from '../../helpers/ajna/AjnaEarn'
 import { ZERO } from '../../helpers/constants'
