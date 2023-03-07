@@ -1,4 +1,4 @@
-root: ./docs
+root: ./packages/dupa-contracts/docs
 
 structure:
   readme: ./Readme.md

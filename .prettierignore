@@ -4,4 +4,4 @@ cache
 coverage*
 gasReporterOutput.json
 typechain
-packages/oasis-actions/lib
+packages/dupa-library/lib

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "strict": true,
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+  },
+  "include": [
+    "packages/common/abi/**/*",
+    "../dupa-common/utils",
+    "./packages/dupa-contracts/scripts",
+    "./packages/dupa-library/test", "packages/**/*", "./typechain/**/*",
+    "packages/dupa-contracts/tasks/**/*"
+  ],
+  "files": [
+    "./hardhat.config.ts"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "strict": true,
+    "baseUrl": ".",
+    "types": [
+      "node"
+    ],
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@utils/*": ["./utils/*"],
+      "@dupa-library/*": ["../dupa-library/src/*"],
+      "@dupa-library": ["../dupa-library/src/index.ts"],
+    },
+    "typeRoots": [
+      "../node_modules/@types"
+    ]
+  },
+  "include": [
+    "../dupa-contracts/abi/**/*",
+    "./utils/**/*"
+  ],
+}

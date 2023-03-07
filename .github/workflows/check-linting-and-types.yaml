@@ -19,10 +19,10 @@ jobs:
       - name: Install
         run: yarn --no-progress --non-interactive --frozen-lockfile
 
-      - name: Build @oasisdex/oasis-actions
-        run: yarn workspace @oasisdex/oasis-actions run build
+      - name: Build @oasisdex/dupa-library
+        run: yarn workspace @oasisdex/dupa-library run build
 
-      - name: Compile contracts
+      - name: Compile dupa-contracts
         run: yarn compile
         env:
           BLOCK_NUMBER: 15946543
@@ -41,4 +41,4 @@ jobs:
         run: yarn format
 
       - name: Typecheck
-        run: yarn workspace @oasisdex/oasis-actions run typecheck
+        run: yarn workspace @oasisdex/dupa-library run typecheck

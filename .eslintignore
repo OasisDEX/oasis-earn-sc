@@ -1,7 +1,0 @@
-node_modules
-artifacts
-.eslintrc.js
-update-block-number.ts
-cache
-coverage
-packages/oasis-actions/lib

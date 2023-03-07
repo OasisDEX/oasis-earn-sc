@@ -1,0 +1,13 @@
+{
+  "name": "@oasisdex/dupa-common",
+  "version": "0.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "5.7.2",
+    "@oasisdex/dupa-common": "*"
+  },
+  "devDependencies": {
+    "eslint": "^8.35.0",
+    "@ethersproject/contracts": "^5.7.0"
+  }
+}

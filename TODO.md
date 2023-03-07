@@ -1,0 +1,5 @@
+- Add Lerna Changelog https://github.com/lerna/lerna-changelog
+- Add Husky to perform checks before commit
+- Setup Unit & E2E tests workflows
+- Ensure docs are in sync with GitBook
+- Move update-block-numbers-into-common utils
