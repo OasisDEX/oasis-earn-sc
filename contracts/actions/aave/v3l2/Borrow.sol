@@ -15,11 +15,11 @@ import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
  * @title Borrow | AAVE V3 Action contract
  * @notice Borrows token from AAVE's lending pool
  */
-interface IL2PoolOnlyBorrow {
+interface IL2Pool {
   function borrow(bytes32 args) external;
 }
 
-interface IL2EncoderOnlyBorrow {
+interface IL2Encoder {
   function encodeBorrowParams(
     address,
     uint256,
@@ -39,8 +39,8 @@ contract AaveV3L2Borrow is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     BorrowData memory borrow = parseInputs(data);
 
-    IL2PoolOnlyBorrow(registry.getRegisteredService(AAVE_POOL)).borrow(
-      IL2EncoderOnlyBorrow(registry.getRegisteredService(AAVE_L2_ENCODER)).encodeBorrowParams(
+    IL2Pool(registry.getRegisteredService(AAVE_POOL)).borrow(
+      IL2Encoder(registry.getRegisteredService(AAVE_L2_ENCODER)).encodeBorrowParams(
         borrow.asset,
         borrow.amount,
         2,

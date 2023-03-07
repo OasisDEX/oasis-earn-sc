@@ -181,7 +181,7 @@ const config: HardhatUserConfig = {
     path: './abi/generated',
     runOnCompile: true,
     clear: true,
-    flat: true,
+    flat: false,
     spacing: 2,
     pretty: false,
   },

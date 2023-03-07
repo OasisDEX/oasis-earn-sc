@@ -16,11 +16,11 @@ import { AAVE_POOL, AAVE_L2_ENCODER, PAYBACK_V3_ACTION } from "../../../core/con
  * @title Payback | AAVE V3 Action contract
  * @notice Pays back a specified amount to AAVE's lending pool
  */
-interface IL2PoolOnlyRepay {
+interface IL2Pool {
   function repay(bytes32 args) external returns (uint256);
 }
 
-interface IL2EncoderOnlyRepay {
+interface IL2Encoder {
   function encodeRepayParams(
     address,
     uint256,
@@ -45,8 +45,8 @@ contract AaveV3L2Payback is Executable, UseStore {
 
     payback.amount = store().readUint(bytes32(payback.amount), paramsMap[1], address(this));
 
-    IL2PoolOnlyRepay(registry.getRegisteredService(AAVE_POOL)).repay(
-      IL2EncoderOnlyRepay(registry.getRegisteredService(AAVE_L2_ENCODER)).encodeRepayParams(
+    IL2Pool(registry.getRegisteredService(AAVE_POOL)).repay(
+      IL2Encoder(registry.getRegisteredService(AAVE_L2_ENCODER)).encodeRepayParams(
         payback.asset,
         payback.paybackAll ? type(uint256).max : payback.amount,
         2

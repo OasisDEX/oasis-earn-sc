@@ -13,11 +13,11 @@ import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
  * @title Withdraw | AAVE V3 Action contract
  * @notice Withdraw collateral from AAVE's lending pool
  */
-interface IL2PoolOnlyWithdraw {
+interface IL2Pool {
   function withdraw(bytes32) external;
 }
 
-interface IL2EncoderOnlyWithdraw {
+interface IL2Encoder {
   function encodeWithdrawParams(address, uint256) external view returns (bytes32);
 }
 
@@ -32,8 +32,8 @@ contract AaveV3L2Withdraw is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     WithdrawData memory withdraw = parseInputs(data);
 
-    IL2PoolOnlyWithdraw(registry.getRegisteredService(AAVE_POOL)).withdraw(
-      IL2EncoderOnlyWithdraw(registry.getRegisteredService(AAVE_L2_ENCODER)).encodeWithdrawParams(
+    IL2Pool(registry.getRegisteredService(AAVE_POOL)).withdraw(
+      IL2Encoder(registry.getRegisteredService(AAVE_L2_ENCODER)).encodeWithdrawParams(
         withdraw.asset,
         withdraw.amount
       )

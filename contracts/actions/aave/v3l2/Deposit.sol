@@ -15,17 +15,17 @@ import { AAVE_POOL, AAVE_L2_ENCODER, DEPOSIT_V3_ACTION } from "../../../core/con
  * @notice Deposits the specified asset as collateral on AAVE's lending pool
  */
 
-interface IL2PoolOnlyDeposit {
+interface IL2Pool {
   function supply(bytes32) external;
 
   function setUserUseReserveAsCollateral(bytes32) external;
 }
 
-interface IL2EncoderOnlyDeposit {
+interface IL2Encoder {
   function encodeSupplyParams(
-    address asset,
-    uint256 amount,
-    uint16 referralCode
+    address,
+    uint256,
+    uint16
   ) external view returns (bytes32);
 
   function encodeSetUserUseReserveAsCollateral(address, bool) external view returns (bytes32);
@@ -56,8 +56,8 @@ contract AaveV3L2Deposit is Executable, UseStore {
       ? mappedDepositAmount.add(deposit.amount)
       : mappedDepositAmount;
 
-    IL2PoolOnlyDeposit(registry.getRegisteredService(AAVE_POOL)).supply(
-      IL2EncoderOnlyDeposit(registry.getRegisteredService(AAVE_L2_ENCODER)).encodeSupplyParams(
+    IL2Pool(registry.getRegisteredService(AAVE_POOL)).supply(
+      IL2Encoder(registry.getRegisteredService(AAVE_L2_ENCODER)).encodeSupplyParams(
         deposit.asset,
         actualDepositAmount,
         0
@@ -65,8 +65,8 @@ contract AaveV3L2Deposit is Executable, UseStore {
     );
 
     if (deposit.setAsCollateral) {
-      IL2PoolOnlyDeposit(registry.getRegisteredService(AAVE_POOL)).setUserUseReserveAsCollateral(
-        IL2EncoderOnlyDeposit(registry.getRegisteredService(AAVE_L2_ENCODER))
+      IL2Pool(registry.getRegisteredService(AAVE_POOL)).setUserUseReserveAsCollateral(
+        IL2Encoder(registry.getRegisteredService(AAVE_L2_ENCODER))
           .encodeSetUserUseReserveAsCollateral(deposit.asset, true)
       );
     }
