@@ -37,17 +37,59 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
     console.log(account.address)
   }
 })
+const networkFork = process.env.NETWORK_FORK
 
-const blockNumber = process.env.BLOCK_NUMBER
-if (!blockNumber) {
-  throw new Error(`You must provide a block number.`)
+if (!networkFork && (networkFork == 'Mainnet' || networkFork == 'Optimism')) {
+  throw new Error(`NETWORK_FORK Missing. Specify 'Mainnet' or 'Optimism'`)
 }
 
-if (!/^\d+$/.test(blockNumber)) {
-  throw new Error(`Provide a valid block number. Provided value is ${blockNumber}`)
+let forkConfig: { nodeURL: string; blockNumber: string } | undefined = undefined
+
+if (networkFork == 'Mainnet') {
+  const nodeURL = process.env.MAINNET_URL
+
+  if (!nodeURL) {
+    throw new Error(`You must provide MAINNET_URL value in the .env file`)
+  }
+
+  const blockNumber = process.env.BLOCK_NUMBER
+  if (!blockNumber) {
+    throw new Error(`You must provide a BLOCK_NUMBER value in the .env file.`)
+  }
+
+  forkConfig = {
+    nodeURL,
+    blockNumber,
+  }
 }
 
-console.log(`Forking from block number: ${blockNumber}`)
+if (networkFork == 'Optimism') {
+  const nodeURL = process.env.OPTIMISM_URL
+
+  if (!nodeURL) {
+    throw new Error(`You must provide OPTIMISM_URL value in the .env file`)
+  }
+
+  const blockNumber = process.env.OPTIMISM_BLOCK_NUMBER
+  if (!blockNumber) {
+    throw new Error(`You must provide a OPTIMISM_BLOCK_NUMBER value in the .env file.`)
+  }
+  forkConfig = {
+    nodeURL,
+    blockNumber,
+  }
+}
+
+if (!forkConfig) {
+  throw new Error(`Missing network configuration`)
+}
+
+if (!/^\d+$/.test(forkConfig.blockNumber)) {
+  throw new Error(`Provide a valid block number. Provided value is ${forkConfig.blockNumber}`)
+}
+
+console.log(`Forking on ${networkFork}`)
+console.log(`Forking from block number: ${forkConfig.blockNumber}`)
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -57,6 +99,9 @@ const config: HardhatUserConfig = {
     compilers: [
       {
         version: '0.8.15',
+      },
+      {
+        version: '0.8.17',
       },
     ],
     settings: {
@@ -75,8 +120,8 @@ const config: HardhatUserConfig = {
     hardhat: {
       forking: {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        url: process.env.MAINNET_URL!,
-        blockNumber: parseInt(blockNumber),
+        url: forkConfig.nodeURL,
+        blockNumber: parseInt(forkConfig.blockNumber),
       },
       chainId: 2137,
       mining: {

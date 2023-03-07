@@ -21,7 +21,8 @@ export async function swapUniswapTokens(
   { provider, signer }: Optional<Pick<RuntimeConfig, 'provider' | 'signer' | 'address'>, 'address'>,
   hre?: HardhatRuntimeEnvironment,
 ) {
-  const value = tokenIn === ADDRESSES.main.WETH ? amountIn : 0
+  const value =
+    tokenIn === ADDRESSES.main.WETH || tokenIn === ADDRESSES.optimism.WETH ? amountIn : 0
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
 
   const uniswapV3 = new ethers.Contract(
