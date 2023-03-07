@@ -16,7 +16,8 @@ import {
   createStEthUsdcMultiplyAAVEPosition,
   createWbtcUsdcMultiplyAAVEPosition,
 } from '../factories'
-import { AavePositionStrategy, StrategiesDependencies, SystemWithAAVEPositions } from '../types'
+import { AavePositionStrategy, SystemWithAAVEPositions } from '../types'
+import { StrategyDependenciesAaveV2 } from '../types/strategiesDependencies'
 
 export function getSupportedStrategies(ciMode?: boolean): Array<{
   name: AavePositionStrategy
@@ -29,6 +30,9 @@ export function getSupportedStrategies(ciMode?: boolean): Array<{
     { name: 'STETH/ETH Earn' as AavePositionStrategy, localOnly: true },
   ].filter(s => !ciMode || !s.localOnly)
 }
+
+// Do not change test block numbers as they're linked to uniswap liquidity levels
+export const blockNumberForAAVEV2System = 15695000
 
 export const getSystemWithAavePositions =
   ({ use1inch }: { use1inch: boolean }) =>
@@ -43,15 +47,15 @@ export const getSystemWithAavePositions =
       ? buildGetTokenFunction(config, await import('hardhat'))
       : buildGetTokenByImpersonateFunction(config, await import('hardhat'))
     const useFallbackSwap = !use1inch
-    if (testBlockNumber && useFallbackSwap) {
-      await ds.resetNode(testBlockNumber)
+    if (blockNumberForAAVEV2System && useFallbackSwap) {
+      await ds.resetNode(blockNumberForAAVEV2System)
     }
 
     if (use1inch) {
       await ds.resetNodeToLatestBlock()
     }
 
-    if (!testBlockNumber && useFallbackSwap) {
+    if (!blockNumberForAAVEV2System && useFallbackSwap) {
       throw 'testBlockNumber is not set'
     }
     ds.mapAddresses()
@@ -60,7 +64,7 @@ export const getSystemWithAavePositions =
 
     const { system, registry } = ds.getSystem()
 
-    const dependencies: StrategiesDependencies = {
+    const dependencies: StrategyDependenciesAaveV2 = {
       addresses: {
         ...mainnetAddresses,
         priceOracle: mainnetAddresses.aave.v2.priceOracle,
@@ -118,7 +122,7 @@ export const getSystemWithAavePositions =
       swapAddress,
       dependencies,
       config,
-    }).catch(e => failQuietly(e, 'STETH/ETH Earn'))
+    })
 
     const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyEthUsdc,
@@ -127,7 +131,7 @@ export const getSystemWithAavePositions =
       swapAddress,
       dependencies,
       config,
-    }).catch(e => failQuietly(e, 'ETH/USDC Multiply'))
+    })
 
     const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyStEthUsdc,
@@ -137,7 +141,7 @@ export const getSystemWithAavePositions =
       dependencies,
       config,
       getTokens,
-    }).catch(e => failQuietly(e, 'STETH/USDC Multiply'))
+    })
 
     const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyWbtcUsdc,
@@ -147,7 +151,7 @@ export const getSystemWithAavePositions =
       dependencies,
       config,
       getTokens,
-    }).catch(e => failQuietly(e, 'WBTC/USDC Multiply'))
+    })
 
     const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
       proxy: dsProxy.address,
@@ -181,7 +185,3 @@ export const getSystemWithAavePositions =
       getTokens,
     }
   }
-
-function failQuietly(e: any, positionType: string) {
-  console.log('failed to create', positionType, e)
-}

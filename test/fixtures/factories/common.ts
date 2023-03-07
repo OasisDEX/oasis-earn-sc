@@ -3,9 +3,10 @@ import BigNumber from 'bignumber.js'
 import { mainnetAddresses } from '../../addresses'
 import { TokenDetails } from '../types/positionDetails'
 
-export const SLIPPAGE = new BigNumber(0.4)
-export const MULTIPLE = new BigNumber(1.5)
-export const EMODE_MULTIPLE = new BigNumber(6)
+export const UNISWAP_TEST_SLIPPAGE = new BigNumber(0.25)
+export const SLIPPAGE = new BigNumber(0.05)
+export const MULTIPLE = new BigNumber(2)
+export const EMODE_MULTIPLE = new BigNumber(9.5)
 
 export const USDC: TokenDetails = {
   symbol: 'USDC' as const,
@@ -15,7 +16,8 @@ export const USDC: TokenDetails = {
 export const ETH: TokenDetails = {
   symbol: 'ETH' as const,
   precision: 18,
-  address: mainnetAddresses.ETH,
+  /* We use WETH address throughout operations and for fee collection */
+  address: mainnetAddresses.WETH,
 }
 
 export const STETH: TokenDetails = {

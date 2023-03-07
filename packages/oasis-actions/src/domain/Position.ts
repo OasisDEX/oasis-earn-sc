@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 import { Optional } from 'utility-types'
 
-import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../constants'
-import { calculateFee, logDebug } from '../index'
+import { amountFromWei, calculateFee, logDebug } from '../helpers'
+import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../helpers/constants'
 import { IRiskRatio, RiskRatio } from './RiskRatio'
 
 interface IPositionBalance {
@@ -84,6 +84,7 @@ interface IPositionTransitionParams {
       When decreasing risk / closing we need the inverse of the exchange rate going in the opposite direction (debt -> collateral)
     */
     oracle: BigNumber
+    // Always the amount of collateral you can buy with 1 debt token
     market: BigNumber
     oracleFLtoDebtToken?: BigNumber
   }
@@ -107,6 +108,7 @@ export interface IPosition extends IBasePosition {
   maxDebtToBorrowWithCurrentCollateral: BigNumber
   maxCollateralToWithdraw: BigNumber
   debtToPaybackAll: BigNumber
+  oraclePriceForCollateralDebtExchangeRate: BigNumber
   deposit(amount: BigNumber): IPosition
   borrow(amount: BigNumber): IPosition
   withdraw(amount: BigNumber): IPosition
@@ -136,16 +138,22 @@ export class Position implements IPosition {
     this.category = category
   }
 
+  // 1 unit of debt equals X units of collateral, where X is the market price.
   public minConfigurableRiskRatio(marketPriceAccountingForSlippage: BigNumber): IRiskRatio {
-    const debtDelta = this.category.dustLimit.minus(this.debt.amount)
+    const debtDelta = this.debt.amount.minus(this.category.dustLimit)
 
     const ltv = this.category.dustLimit.div(
-      this._normaliseAmount(debtDelta, this.debt.precision || TYPICAL_PRECISION)
+      amountFromWei(debtDelta, this.debt.precision)
         .div(marketPriceAccountingForSlippage)
-        .plus(this.collateral.normalisedAmount)
+        .plus(amountFromWei(this.collateral.amount, this.collateral.precision))
         .times(this._oraclePriceForCollateralDebtExchangeRate),
     )
+
     return new RiskRatio(ltv, RiskRatio.TYPE.LTV)
+  }
+
+  public get oraclePriceForCollateralDebtExchangeRate() {
+    return this._oraclePriceForCollateralDebtExchangeRate
   }
 
   public get maxDebtToBorrow() {
@@ -242,6 +250,7 @@ export class Position implements IPosition {
           `Current position collateral ${this.collateral.amount.toString()}`,
           `Normalised current position debt: ${this.debt.normalisedAmount.toString()}`,
           `Normalised current position collateral ${this.collateral.normalisedAmount.toString()}`,
+          `Multiple: ${this.riskRatio.multiple.toString()}`,
         ],
         'Initial: ',
       )
@@ -305,6 +314,7 @@ export class Position implements IPosition {
      * */
     const oraclePrice = prices.oracle
     const oraclePriceFLtoDebtToken = prices?.oracleFLtoDebtToken || ONE
+    // Always is in the direction of how many units of collateral does 1 unit of debt buy you
     const marketPrice = prices.market
 
     const marketPriceAdjustedForSlippage = marketPrice.times(
@@ -376,11 +386,11 @@ export class Position implements IPosition {
     }
 
     /**
-     * Swap or swapped amount after fees
+     * Unknown Variable X
      *
      * X = \frac{D_C\cdot P_{MS} - T_{LTV}\cdot C_C\cdot P_O\cdot P_{MS}}{((T_{LTV}\cdot (1 -F_O)\cdot P_O) - (1 +F_F)\cdot P_{MS})}
      * */
-    const normalisedSwapOrSwappedAmount = normalisedCurrentDebt
+    const unknownVarX = normalisedCurrentDebt
       .times(marketPriceAdjustedForSlippage)
       .minus(
         targetLTV
@@ -410,7 +420,7 @@ export class Position implements IPosition {
       .times(oraclePrice)
       .times(this.category.maxLoanToValue)
       .minus(normalisedCurrentDebt)
-      .lt(normalisedSwapOrSwappedAmount)
+      .lt(unknownVarX)
 
     /**
      * Finally, we can compute the deltas in debt & collateral
@@ -422,11 +432,11 @@ export class Position implements IPosition {
      * \Delta C = X \cdot (1 - F_O) / P_{MS}
      * */
     const shouldIncreaseDebtDeltaToAccountForFees = isIncreasingRisk && collectFeeFromSourceToken
-    const debtDeltaPreFlashloanFee = normalisedSwapOrSwappedAmount.div(
+    const debtDeltaPreFlashloanFee = unknownVarX.div(
       shouldIncreaseDebtDeltaToAccountForFees ? ONE.minus(oazoFee.div(this._feeBase)) : ONE,
     )
 
-    const collateralDelta = normalisedSwapOrSwappedAmount
+    const collateralDelta = unknownVarX
       .div(marketPriceAdjustedForSlippage)
       .div(isIncreasingRisk ? ONE : ONE.minus(oazoFee.div(this._feeBase)))
       .integerValue(BigNumber.ROUND_DOWN)
@@ -532,8 +542,8 @@ export class Position implements IPosition {
       normalisedFromTokenAmount.minus(normalisedSourceFee),
       fromTokenPrecision,
     ).integerValue(BigNumber.ROUND_DOWN)
-    const swapOrSwappedAmount = this._denormaliseAmount(
-      normalisedSwapOrSwappedAmount,
+    const unknownVarXNoramlised = this._denormaliseAmount(
+      unknownVarX,
       fromTokenPrecision,
     ).integerValue(BigNumber.ROUND_DOWN)
     const minToTokenAmount = this._denormaliseAmount(
@@ -547,12 +557,12 @@ export class Position implements IPosition {
           `Is flashloan required: ${isFlashloanRequired}`,
           `Amount to flashloan: ${amountToFlashloan}`,
           `----`,
-          `Normalised swap or Swapped Amount: ${normalisedSwapOrSwappedAmount.toString()}`,
+          `Normalised unknown X: ${unknownVarXNoramlised.toString()}`,
           `Normalised from token amount: ${normalisedFromTokenAmount.toString()}`,
           `Normalised from token amount after fees: ${normalisedFromTokenAmount
             .minus(normalisedSourceFee)
             .toString()}`,
-          `Swap or Swapped Amount: ${swapOrSwappedAmount.toString()}`,
+          `Unknown X: ${unknownVarX.toString()}`,
           `From token amount: ${fromTokenAmount.toString()}`,
           `From token amount after fees: ${fromTokenAmountAfterFee.toString()}`,
           `From token: ${

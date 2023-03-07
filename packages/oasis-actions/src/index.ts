@@ -1,8 +1,8 @@
 export * as action from './actions'
 export { ActionFactory } from './actions/actionFactory'
+export { IBasePosition, IPosition, Position, Swap } from './domain/Position'
+export { IRiskRatio, RiskRatio } from './domain/RiskRatio'
 export * from './helpers/addresses'
-export { IBasePosition, IPosition, Position, Swap } from './helpers/calculations/Position'
-export { IRiskRatio, RiskRatio } from './helpers/calculations/RiskRatio'
 export * from './helpers/constants'
 export * as operations from './operations'
 export { AAVEStrategyAddresses } from './operations/aave/v2/addresses'
@@ -17,6 +17,8 @@ export {
   ISimulatedTransition,
   SwapData,
 } from './types'
+export * as types from './types'
 export { AavePosition, AAVETokens } from './types/aave'
 export { ActionCall } from './types/actionCall'
 export { calldataTypes } from './types/actions'
+export * as views from './views'

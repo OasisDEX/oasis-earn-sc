@@ -2,60 +2,64 @@ import BigNumber from 'bignumber.js'
 
 import * as actions from '../../../actions'
 import { OPERATION_NAMES } from '../../../helpers/constants'
-import { IOperation } from '../../../types'
-import { AAVEStrategyAddresses } from './addresses'
+import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '../../../types'
+import {
+  WithAaveV2StrategyAddresses,
+  WithFlashloan,
+  WithOptionalDeposit,
+  WithProxy,
+  WithSwap,
+} from '../../../types/Operations'
 
-export async function decreaseMultiple(
-  args: {
-    flashloanAmount: BigNumber
-    withdrawAmountInWei: BigNumber
-    receiveAtLeast: BigNumber
-    fee: number
-    swapData: string | number
-    swapAmountInWei: BigNumber
-    collectFeeFrom: 'sourceToken' | 'targetToken'
-    fromTokenAddress: string
-    toTokenAddress: string
-    useFlashloan: boolean
-    proxy: string
-    user: string
-    isDPMProxy: boolean
-  },
-  addresses: AAVEStrategyAddresses,
-): Promise<IOperation> {
+type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
+  WithDebt &
+  WithOptionalDeposit &
+  WithSwap &
+  WithFlashloan &
+  WithProxy &
+  WithAaveV2StrategyAddresses
+
+export async function adjustRiskDown({
+  collateral,
+  debt,
+  swap,
+  flashloan,
+  proxy,
+  addresses,
+}: AdjustRiskDownArgs): Promise<IOperation> {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
-    amount: args.flashloanAmount,
+    amount: flashloan.amount,
     asset: addresses.DAI,
     delegate: addresses.lendingPool,
     sumAmounts: false,
   })
 
   const depositDaiInAAVE = actions.aave.v2.aaveDeposit({
-    amount: args.flashloanAmount,
+    amount: flashloan.amount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
 
   const withdrawCollateralFromAAVE = actions.aave.v2.aaveWithdraw({
-    amount: args.withdrawAmountInWei,
-    asset: args.fromTokenAddress,
-    to: args.proxy,
+    amount: collateral.withdrawal.amount,
+    asset: collateral.address,
+    to: proxy.address,
   })
 
   const swapCollateralTokensForDebtTokens = actions.common.swap({
-    fromAsset: args.fromTokenAddress,
-    toAsset: args.toTokenAddress,
-    amount: args.swapAmountInWei,
-    receiveAtLeast: args.receiveAtLeast,
-    fee: args.fee,
-    withData: args.swapData,
-    collectFeeInFromToken: args.collectFeeFrom === 'sourceToken',
+    fromAsset: collateral.address,
+    toAsset: debt.address,
+    amount: swap.amount,
+    receiveAtLeast: swap.receiveAtLeast,
+    fee: swap.fee,
+    withData: swap.data,
+    collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
   const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
     {
       amount: 0,
-      asset: args.toTokenAddress,
+      asset: debt.address,
       delegate: addresses.lendingPool,
       sumAmounts: false,
     },
@@ -64,7 +68,7 @@ export async function decreaseMultiple(
 
   const paybackInAAVE = actions.aave.v2.aavePayback(
     {
-      asset: args.toTokenAddress,
+      asset: debt.address,
       amount: new BigNumber(0),
       paybackAll: false,
     },
@@ -73,7 +77,7 @@ export async function decreaseMultiple(
 
   const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw({
     asset: addresses.DAI,
-    amount: args.flashloanAmount,
+    amount: flashloan.amount,
     to: addresses.operationExecutor,
   })
 
@@ -88,10 +92,10 @@ export async function decreaseMultiple(
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
-    flashloanAmount: args.flashloanAmount,
+    flashloanAmount: flashloan.amount,
     borrower: addresses.operationExecutor,
     isProxyFlashloan: true,
-    isDPMProxy: args.isDPMProxy,
+    isDPMProxy: proxy.isDPMProxy,
     calls: flashloanCalls,
   })
 

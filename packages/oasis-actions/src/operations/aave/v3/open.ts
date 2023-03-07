@@ -75,12 +75,12 @@ export const operationDefinition = {
       hash: getActionHash(CONTRACT_NAMES.aave.v3.DEPOSIT),
       optional: false,
     },
+    { hash: getActionHash(CONTRACT_NAMES.aave.v3.SET_EMODE), optional: true },
     {
       hash: getActionHash(CONTRACT_NAMES.aave.v3.WITHDRAW),
       optional: false,
     },
     { hash: getActionHash(CONTRACT_NAMES.common.POSITION_CREATED), optional: false },
-    { hash: getActionHash(CONTRACT_NAMES.aave.v3.SET_EMODE), optional: true },
   ],
 }
 
@@ -184,6 +184,12 @@ export async function open({
     deposit.collateralToken.amountInBaseUnit.eq(ZERO) || deposit.collateralToken.isEth
   wrapEth.skipped = !deposit.debtToken.isEth && !deposit.collateralToken.isEth
 
+  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
+    categoryId: eModeCategoryId || 0,
+  })
+
+  setEModeOnCollateral.skipped = !eModeCategoryId || eModeCategoryId === 0
+
   const flashloanCalls = [
     pullDebtTokensToProxy,
     pullCollateralTokensToProxy,
@@ -194,6 +200,7 @@ export async function open({
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnLendingPool,
     depositCollateral,
+    setEModeOnCollateral,
     withdrawDAIFromAAVE,
     positionCreated,
   ]
@@ -206,14 +213,8 @@ export async function open({
     calls: flashloanCalls,
   })
 
-  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
-    categoryId: eModeCategoryId || 0,
-  })
-
-  setEModeOnCollateral.skipped = !eModeCategoryId || eModeCategoryId === 0
-
   return {
-    calls: [takeAFlashLoan, setEModeOnCollateral],
+    calls: [takeAFlashLoan],
     operationName: operationDefinition.name,
   }
 }

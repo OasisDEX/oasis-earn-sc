@@ -14,18 +14,21 @@ import {
 } from '../../../packages/oasis-actions/src/protocols/aave/config'
 import { mainnetAddresses } from '../../addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
-import { ETH, MULTIPLE, SLIPPAGE, USDC, WBTC } from './common'
+import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC, WBTC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
 const amountInBaseUnit = amountToWei(new BigNumber(0.5), WBTC.precision)
 const wBTCtoSteal = amountToWei(new BigNumber(2), WBTC.precision)
 const WETHtoSwap = amountToWei(new BigNumber(20), ETH.precision)
 
-async function openWbtcUsdcMultiplyAAVEPosition(dependencies: OpenPositionTypes[1]) {
+async function openWbtcUsdcMultiplyAAVEPosition(
+  slippage: BigNumber,
+  dependencies: OpenPositionTypes[1],
+) {
   const args: OpenPositionTypes[0] = {
     collateralToken: WBTC,
     debtToken: USDC,
-    slippage: SLIPPAGE,
+    slippage,
     depositedByUser: {
       collateralToken: {
         amountInBaseUnit,
@@ -74,19 +77,23 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
+  const mockPrice = new BigNumber(22842.53)
   const getSwapData = use1inch
     ? dependencies.getSwapData(swapAddress)
-    : dependencies.getSwapData(new BigNumber(22842.53), {
+    : dependencies.getSwapData(mockPrice, {
         from: USDC.precision,
         to: WBTC.precision,
       })
 
-  const position = await openWbtcUsdcMultiplyAAVEPosition({
-    ...dependencies,
-    getSwapData,
-    isDPMProxy: isDPM,
-    proxy: proxy,
-  })
+  const position = await openWbtcUsdcMultiplyAAVEPosition(
+    use1inch ? SLIPPAGE : UNISWAP_TEST_SLIPPAGE,
+    {
+      ...dependencies,
+      getSwapData,
+      isDPMProxy: isDPM,
+      proxy: proxy,
+    },
+  )
 
   // We're using uniswap to acquire tokens on recent blocks
   // And impersonation on fixed test blocks
@@ -136,7 +143,6 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     aaveV3UniqueContractName in dependencies.addresses
   ) {
     const addresses = dependencies.addresses
-    const protocolVersion = dependencies.protocol.version
 
     getPosition = async () => {
       return await strategies.aave.v3.view(
@@ -151,7 +157,6 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
-          protocolVersion: protocolVersion,
         },
       )
     }
@@ -161,7 +166,6 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     aaveV2UniqueContractName in dependencies.addresses
   ) {
     const addresses = dependencies.addresses
-    const protocolVersion = dependencies.protocol.version
     getPosition = async () => {
       return await strategies.aave.v2.view(
         {
@@ -175,7 +179,6 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
             operationExecutor: dependencies.contracts.operationExecutor.address,
           },
           provider: config.provider,
-          protocolVersion,
         },
       )
     }
@@ -190,6 +193,8 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     collateralToken: WBTC,
     debtToken: USDC,
     getSwapData,
+    __positionType: 'Multiply',
+    __mockPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }

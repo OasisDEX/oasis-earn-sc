@@ -1,7 +1,8 @@
 import { getAaveProtocolData } from '../../protocols/aave/getAaveProtocolData'
 import { adjust } from './adjust'
+import { AaveAdjustArgs, AaveV2AdjustDependencies, AaveV3AdjustDependencies } from './adjust/adjust'
 import { changeDebt } from './changeDebt'
-import { close } from './close'
+import { AaveCloseArgs, AaveCloseDependencies, close } from './close'
 import { depositBorrow } from './depositBorrow'
 import {
   AaveGetCurrentPositionArgs,
@@ -28,20 +29,35 @@ export const aave = {
           getProtocolData: getAaveProtocolData,
         },
       }),
-    view: (args: AaveGetCurrentPositionArgs, dependencies: AaveV2GetCurrentPositionDependencies) =>
+    view: (
+      args: AaveGetCurrentPositionArgs,
+      dependencies: Omit<AaveV2GetCurrentPositionDependencies, 'protocolVersion'>,
+    ) =>
       getCurrentPosition(args, {
         ...dependencies,
         protocolVersion: AaveVersion.v2,
       }),
-    close: close,
-    adjust: adjust,
-    changeDebt: changeDebt,
+    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) =>
+      close({ ...args, protocolVersion: AaveVersion.v2 }, dependencies),
+    adjust: (args: AaveAdjustArgs, dependencies: Omit<AaveV2AdjustDependencies, 'protocol'>) =>
+      adjust(args, {
+        ...dependencies,
+        protocol: {
+          version: AaveVersion.v2,
+          getCurrentPosition,
+          getProtocolData: getAaveProtocolData,
+        },
+      }),
+    changeDebt,
     depositBorrow,
-    paybackWithdraw: paybackWithdraw,
-    openDepositAndBorrowDebt: openDepositAndBorrowDebt,
+    paybackWithdraw,
+    openDepositAndBorrowDebt,
   },
   v3: {
-    open: (args: AaveOpenArgs, dependencies: Omit<AaveV3OpenDependencies, 'protocol'>) =>
+    open: (
+      args: AaveOpenArgs,
+      dependencies: Omit<AaveV3OpenDependencies, 'protocol' | 'protocolVersion'>,
+    ) =>
       open(args, {
         ...dependencies,
         protocol: {
@@ -50,7 +66,21 @@ export const aave = {
           getProtocolData: getAaveProtocolData,
         },
       }),
-    view: (args: AaveGetCurrentPositionArgs, dependencies: AaveV3GetCurrentPositionDependencies) =>
+    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) =>
+      close({ ...args, protocolVersion: AaveVersion.v3 }, dependencies),
+    adjust: (args: AaveAdjustArgs, dependencies: Omit<AaveV3AdjustDependencies, 'protocol'>) =>
+      adjust(args, {
+        ...dependencies,
+        protocol: {
+          version: AaveVersion.v3,
+          getCurrentPosition,
+          getProtocolData: getAaveProtocolData,
+        },
+      }),
+    view: (
+      args: AaveGetCurrentPositionArgs,
+      dependencies: Omit<AaveV3GetCurrentPositionDependencies, 'protocol' | 'protocolVersion'>,
+    ) =>
       getCurrentPosition(args, {
         ...dependencies,
         protocolVersion: AaveVersion.v3,

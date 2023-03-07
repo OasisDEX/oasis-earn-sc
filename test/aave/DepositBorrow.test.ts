@@ -1,7 +1,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { AAVETokens, ADDRESSES, ONE, Position, strategies, ZERO } from '@oasisdex/oasis-actions/src'
+import { PositionBalance } from '@oasisdex/oasis-actions/src/domain/Position'
 import { amountFromWei } from '@oasisdex/oasis-actions/src/helpers'
-import { PositionBalance } from '@oasisdex/oasis-actions/src/helpers/calculations/Position'
 import { Address } from '@oasisdex/oasis-actions/src/types'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'

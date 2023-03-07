@@ -19,12 +19,14 @@ import './tasks/proxy'
 import './tasks/verify-earn'
 import './tasks/transfer-erc20'
 import './tasks/getTokens'
+import './tasks/readErc20Balance'
 import 'solidity-docgen'
 import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
 import './tasks/userDpmProxies'
 import './tasks/createMultiplyPosition'
 import './tasks/transferDPM'
+import './tasks/transferAllProxies'
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html

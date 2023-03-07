@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
-import { AAVEStrategyAddresses } from '../../operations/aave/v2/addresses'
-import { AAVEV3StrategyAddresses } from '../../operations/aave/v3/addresses'
+import { AAVEStrategyAddresses } from '../../operations/aave/v2'
+import { AAVEV3StrategyAddresses } from '../../operations/aave/v3'
 import { getAaveProtocolData } from '../../protocols/aave/getAaveProtocolData'
 import { IViewPositionDependencies, IViewPositionParams } from '../../types'
 import { AavePosition, AAVETokens } from '../../types/aave'
@@ -127,13 +127,21 @@ async function getCurrentPositionAaveV3(
     userReserveDataForDebtToken,
     aaveCollateralTokenPriceInEth,
     aaveDebtTokenPriceInEth,
+    eModeCategoryData,
   } = protocolData
 
   const BASE = new BigNumber(10000)
-  const liquidationThreshold = new BigNumber(
+  let liquidationThreshold = new BigNumber(
     reserveDataForCollateral.liquidationThreshold.toString(),
   ).div(BASE)
-  const maxLoanToValue = new BigNumber(reserveDataForCollateral.ltv.toString()).div(BASE)
+  let maxLoanToValue = new BigNumber(reserveDataForCollateral.ltv.toString()).div(BASE)
+
+  if (eModeCategoryData !== undefined) {
+    liquidationThreshold = new BigNumber(eModeCategoryData.liquidationThreshold.toString()).div(
+      BASE,
+    )
+    maxLoanToValue = new BigNumber(eModeCategoryData.ltv.toString()).div(BASE)
+  }
 
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
