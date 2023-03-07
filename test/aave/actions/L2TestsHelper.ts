@@ -127,10 +127,10 @@ export const deployedContracts = async (): Promise<DeployedContracts> => {
   const [, operationsRegistryAddress] = await deploy('OperationsRegistry', [])
 
   const [, setApprovalAddress] = await deploy('SetApproval', [serviceRegistryAddress])
-  const [, aaveV3DepositAddress] = await deploy('AaveV3Deposit', [serviceRegistryAddress])
-  const [, aaveV3WithdrawAddress] = await deploy('AaveV3Withdraw', [serviceRegistryAddress])
-  const [, aaveV3BorrowAddress] = await deploy('AaveV3Borrow', [serviceRegistryAddress])
-  const [, aaveV3PaybackAddress] = await deploy('AaveV3Payback', [serviceRegistryAddress])
+  const [, aaveV3L2DepositAddress] = await deploy('AaveV3L2Deposit', [serviceRegistryAddress])
+  const [, aaveV3L2WithdrawAddress] = await deploy('AaveV3L2Withdraw', [serviceRegistryAddress])
+  const [, aaveV3L2BorrowAddress] = await deploy('AaveV3L2Borrow', [serviceRegistryAddress])
+  const [, aaveV3L2PaybackAddress] = await deploy('AaveV3L2Payback', [serviceRegistryAddress])
 
   const registry = new ServiceRegistry(serviceRegistryAddress, config.signer)
   const opRegistry = new OperationsRegistry(operationsRegistryAddress, config.signer)
@@ -141,10 +141,10 @@ export const deployedContracts = async (): Promise<DeployedContracts> => {
   await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, ADDRESSES.optimism.aave.v3.Pool)
   await registry.addEntry(CONTRACT_NAMES.aave.L2_ENCODER, ADDRESSES.optimism.aave.v3.L2Encoder)
   await registry.addEntry(CONTRACT_NAMES.common.SET_APPROVAL, setApprovalAddress)
-  await registry.addEntry(CONTRACT_NAMES.aave.v3.DEPOSIT, aaveV3DepositAddress)
-  await registry.addEntry(CONTRACT_NAMES.aave.v3.WITHDRAW, aaveV3WithdrawAddress)
-  await registry.addEntry(CONTRACT_NAMES.aave.v3.BORROW, aaveV3BorrowAddress)
-  await registry.addEntry(CONTRACT_NAMES.aave.v3.PAYBACK, aaveV3PaybackAddress)
+  await registry.addEntry(CONTRACT_NAMES.aave.v3.DEPOSIT, aaveV3L2DepositAddress)
+  await registry.addEntry(CONTRACT_NAMES.aave.v3.WITHDRAW, aaveV3L2WithdrawAddress)
+  await registry.addEntry(CONTRACT_NAMES.aave.v3.BORROW, aaveV3L2BorrowAddress)
+  await registry.addEntry(CONTRACT_NAMES.aave.v3.PAYBACK, aaveV3L2PaybackAddress)
 
   const depositActions = [
     setApprovalAction(
