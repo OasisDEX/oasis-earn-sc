@@ -140,7 +140,7 @@ export async function withdrawAndAdjust(
       position: targetPosition,
     },
     tx: {
-      to: args.dpmProxyAddress,
+      to: dependencies.ajnaProxyActions,
       data,
       value: isDepositingEth
         ? ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString()

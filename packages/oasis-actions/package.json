@@ -2,7 +2,7 @@
   "name": "@oasisdex/oasis-actions",
   "main": "lib/packages/oasis-actions/src/index.js",
   "typings": "lib/packages/oasis-actions/src/index.d.ts",
-  "version": "0.2.15-ajna-earn-7",
+  "version": "0.2.15-ajna-earn-8",
   "scripts": {
     "build": "tsc -b",
     "watch": "tsc -b -w",
