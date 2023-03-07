@@ -6,7 +6,9 @@
 import { ServiceRegistry } from '@helpers/serviceRegistry'
 import { OperationsRegistry } from '@helpers/wrappers/operationsRegistry'
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src'
+import { operationDefinition as aaveV2CloseOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/close'
 import { operationDefinition as aaveV2OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/open'
+import { operationDefinition as aaveV3CloseOp } from '@oasisdex/oasis-actions/src/operations/aave/v3/close'
 import { operationDefinition as aaveV3OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v3/open'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
@@ -197,6 +199,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async instantiateContracts(addressesConfig: any) {
+    if (!this.signer) throw new Error('Signer not initialized')
     for (const configItem of addressesConfig) {
       console.log('INSTANTIATING ', configItem.name)
       const contractInstance = await this.ethers.getContractAt(configItem.name, configItem.address)
@@ -418,7 +421,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
     // Add AAVE Operations
     await operationsRegistry.addOp(aaveV2OpenOp.name, aaveV2OpenOp.actions)
+    await operationsRegistry.addOp(aaveV2CloseOp.name, aaveV2CloseOp.actions)
     await operationsRegistry.addOp(aaveV3OpenOp.name, aaveV3OpenOp.actions)
+    await operationsRegistry.addOp(aaveV3CloseOp.name, aaveV3CloseOp.actions)
   }
 
   // TODO unify resetNode and resetNodeToLatestBlock into one function
@@ -447,6 +452,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   getSystem() {
+    if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     return {
       system: this.deployedSystem,
       registry: this.serviceRegistryHelper,
