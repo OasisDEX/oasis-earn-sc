@@ -8,7 +8,6 @@ import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
 import { mainnetAddresses } from '../../addresses'
-import { testBlockNumber } from '../../config'
 import {
   createDPMAccount,
   createEthUsdcMultiplyAAVEPosition,
@@ -88,19 +87,10 @@ export const getSystemWithAavePositions =
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
 
-    const [dpmProxyForEarnStEthEth] = await createDPMAccount(system.AccountFactory.contract, config)
-    const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(
-      system.AccountFactory.contract,
-      config,
-    )
-    const [dpmProxyForMultiplyStEthUsdc] = await createDPMAccount(
-      system.AccountFactory.contract,
-      config,
-    )
-    const [dpmProxyForMultiplyWbtcUsdc] = await createDPMAccount(
-      system.AccountFactory.contract,
-      config,
-    )
+    const [dpmProxyForEarnStEthEth] = await createDPMAccount(system.AccountFactory.contract)
+    const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
+    const [dpmProxyForMultiplyStEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
+    const [dpmProxyForMultiplyWbtcUsdc] = await createDPMAccount(system.AccountFactory.contract)
 
     const dsProxy = await getOrCreateProxy(system.DsProxyRegistry.contract, config.signer)
 

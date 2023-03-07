@@ -1,11 +1,7 @@
-import { Contract, ethers } from 'ethers'
-
-import accountFactoryAbi from '../../../abi/account-factory.json'
-import { RuntimeConfig } from '../../../helpers/types/common'
+import { Contract } from 'ethers'
 
 export async function createDPMAccount(
   accountFactory: Contract,
-  { signer }: RuntimeConfig,
 ): Promise<[string | undefined, number | undefined]> {
   const tx = await accountFactory.functions['createAccount()']()
   const receipt = await tx.wait()

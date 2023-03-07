@@ -10,18 +10,17 @@ import { operationDefinition as aaveV2OpenOp } from '@oasisdex/oasis-actions/src
 import { operationDefinition as aaveV3OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v3/open'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
+// @ts-ignore
+import configLoader from 'config-json'
 import { BigNumber as EthersBN, Contract, ContractFactory, providers, Signer, utils } from 'ethers'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import _ from 'lodash'
 import NodeCache from 'node-cache'
+import prompts from 'prompts'
 
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { EtherscanGasPrice, Network } from '../common'
-
-const prompts = require('prompts')
-
-const configLoader = require('config-json')
 
 configLoader.setBaseDir('./scripts/deployment20/')
 
@@ -43,14 +42,14 @@ const rpcUrls: any = {
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
 }
 
-const impersonateAccount = async (account: string) => {
+export const impersonateAccount = async (account: string) => {
   await hre.network.provider.request({
     method: 'hardhat_impersonateAccount',
     params: [account],
   })
 }
 
-const stopImpersonatingAccount = async (account: string) => {
+export const stopImpersonatingAccount = async (account: string) => {
   await hre.network.provider.request({
     method: 'hardhat_stopImpersonatingAccount',
     params: [account],
@@ -75,7 +74,9 @@ abstract class DeployedSystemHelpers {
     try {
       const metadata = await provider.send('hardhat_metadata', [])
       return metadata.forkedNetwork.chainId
-    } catch (e) {}
+    } catch (e) {
+      console.error('error getting forked network chain id', e)
+    }
 
     return 0
   }
@@ -94,15 +95,15 @@ abstract class DeployedSystemHelpers {
 
     this.signerAddress = await this.signer.getAddress()
     this.isRestrictedNetwork = restrictedNetworks.includes(this.network)
-    this.chainId = await this.getForkedNetworkChainId(this.provider!)
+    this.chainId = await this.getForkedNetworkChainId(this.provider)
     this.forkedNetwork = this.getNetworkFromChainId(this.chainId)
 
     this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
     console.log('NETWORK/FORKED NETWORK', `${this.network}/${this.forkedNetwork}`)
 
     return {
-      provider: this.provider!,
-      signer: this.signer!,
+      provider: this.provider,
+      signer: this.signer,
       address: this.signerAddress,
     }
   }
@@ -146,14 +147,18 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  saveConfig() {
+  async saveConfig() {
     const configString = JSON.stringify(this.config, null, 2)
-    const { writeFile } = require('fs')
-    writeFile(`./scripts/deployment20/${this.network}.conf.json`, configString, (error: any) => {})
+    const { writeFile } = await import('fs')
+    writeFile(`./scripts/deployment20/${this.network}.conf.json`, configString, (error: any) => {
+      if (error) {
+        console.log('ERROR: ', error)
+      }
+    })
   }
 
   async postInstantiation(configItem: any, contract: Contract) {
-    console.log('POST INITIALIZATION', configItem.name)
+    console.log('POST INITIALIZATION', configItem.name, contract.address)
   }
 
   async verifyContract(address: string, constructorArguments: any[]) {
@@ -168,11 +173,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async postDeployment(configItem: any, contract: Contract, constructorArguments: any) {
+    if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
     console.log('POST DEPLOYMENT', configItem.name)
 
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
-      await this.serviceRegistryHelper!.addEntry(configItem.serviceRegistryName, contract.address)
+      await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, contract.address)
     }
 
     // ETHERSCAN VERIFICATION (only for mainnet and L1 testnets)
@@ -202,7 +208,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
 
       if (configItem.name === 'ServiceRegistry') {
-        this.serviceRegistryHelper = new ServiceRegistry(configItem.address, this.signer!)
+        this.serviceRegistryHelper = new ServiceRegistry(configItem.address, this.signer)
       }
 
       await this.postInstantiation(configItem, contractInstance)
@@ -225,6 +231,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async deployContracts(addressesConfig: any) {
+    if (!this.signer) throw new Error('Signer not initialized')
     if (this.isRestrictedNetwork) {
       await this.promptBeforeDeployment()
     }
@@ -242,12 +249,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
 
       const contractInstance = await this.deployContract(
-        this.ethers.getContractFactory(configItem.name as string, this.signer!),
+        this.ethers.getContractFactory(configItem.name as string, this.signer),
         constructorParams,
       )
 
       if (configItem.name === 'ServiceRegistry') {
-        this.serviceRegistryHelper = new ServiceRegistry(contractInstance.address, this.signer!)
+        this.serviceRegistryHelper = new ServiceRegistry(contractInstance.address, this.signer)
       }
       this.deployedSystem[configItem.name] = {
         contract: contractInstance,
@@ -416,8 +423,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   // TODO unify resetNode and resetNodeToLatestBlock into one function
   async resetNode(blockNumber: number) {
+    if (!this.provider) throw new Error('No provider set')
     console.log(`\x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
-    await this.provider!.send('hardhat_reset', [
+    await this.provider.send('hardhat_reset', [
       {
         forking: {
           jsonRpcUrl: this.rpcUrl,
@@ -428,7 +436,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async resetNodeToLatestBlock() {
-    await this.provider!.send('hardhat_reset', [
+    if (!this.provider) throw new Error('No provider set')
+    await this.provider.send('hardhat_reset', [
       {
         forking: {
           jsonRpcUrl: this.rpcUrl,
@@ -440,7 +449,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   getSystem() {
     return {
       system: this.deployedSystem,
-      registry: this.serviceRegistryHelper!,
+      registry: this.serviceRegistryHelper,
     }
   }
 }

@@ -79,14 +79,8 @@ export const getSystemWithAaveV3Positions =
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
 
-    const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(
-      system.AccountFactory.contract,
-      config,
-    )
-    const [dpmProxyForEarnWstEthEth] = await createDPMAccount(
-      system.AccountFactory.contract,
-      config,
-    )
+    const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
+    const [dpmProxyForEarnWstEthEth] = await createDPMAccount(system.AccountFactory.contract)
 
     const dsProxy = await getOrCreateProxy(system.DsProxyRegistry.contract, config.signer)
 

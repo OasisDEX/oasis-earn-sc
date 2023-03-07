@@ -1,7 +1,6 @@
-import { Contract, Signer } from 'ethers'
-import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { Contract, ethers, Signer } from 'ethers'
+
 import DSProxyABI from '../abi/ds-proxy.json'
-import { ethers } from 'ethers'
 
 export async function getOrCreateProxy(dsProxyRegistry: Contract, signer: Signer) {
   const address = await signer.getAddress()
@@ -13,5 +12,6 @@ export async function getOrCreateProxy(dsProxyRegistry: Contract, signer: Signer
     proxyAddress = await dsProxyRegistry.proxies(address)
   }
 
-  return new ethers.Contract(proxyAddress, DSProxyABI, ethers.provider).connect(signer)
+  const provider = ethers.getDefaultProvider()
+  return new ethers.Contract(proxyAddress, DSProxyABI, provider).connect(signer)
 }

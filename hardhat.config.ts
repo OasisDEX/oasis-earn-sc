@@ -99,7 +99,7 @@ const config: HardhatUserConfig = {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       url: process.env.MAINNET_URL!,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      accounts: [process.env.PRIV_KEY_MAINNET_DEPLOYER!],
+      accounts: [process.env.PRIV_KEY_MAINNET!],
       gasPrice: 50000000000,
     },
   },
