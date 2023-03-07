@@ -80,16 +80,12 @@ if (networkFork == 'Optimism') {
   }
 }
 
-if (!forkConfig) {
-  throw new Error(`Missing network configuration`)
-}
-
-if (!/^\d+$/.test(forkConfig.blockNumber)) {
+if (forkConfig && !/^\d+$/.test(forkConfig.blockNumber)) {
   throw new Error(`Provide a valid block number. Provided value is ${forkConfig.blockNumber}`)
 }
 
 console.log(`Forking on ${networkFork}`)
-console.log(`Forking from block number: ${forkConfig.blockNumber}`)
+console.log(`Forking from block number: ${forkConfig && forkConfig.blockNumber}`)
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -120,8 +116,8 @@ const config: HardhatUserConfig = {
     hardhat: {
       forking: {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        url: forkConfig.nodeURL,
-        blockNumber: parseInt(forkConfig.blockNumber),
+        url: forkConfig ? forkConfig.nodeURL : 'http:127.0.01:8545',
+        blockNumber: forkConfig ? parseInt(forkConfig.blockNumber) : 0,
       },
       chainId: 2137,
       mining: {
