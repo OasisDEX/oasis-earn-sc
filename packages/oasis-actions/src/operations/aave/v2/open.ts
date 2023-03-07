@@ -207,8 +207,6 @@ export async function open({
     calls: flashloanCalls,
   })
 
-  console.log('takeAFlashLoan', takeAFlashLoan.targetHash)
-
   return {
     calls: [takeAFlashLoan],
     operationName: operationDefinition.name,

@@ -57,6 +57,16 @@
         "constructorArgs": [
           "address:AccountGuard"
         ]
+      },
+      {
+        "name": "ChainLogView",
+        "deploy": true,
+        "address": "",
+        "serviceRegistryName": "ChainLogView",
+        "history": [],
+        "constructorArgs": [
+          "0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F"
+        ]
       }
     ],
     "actions": [
@@ -249,6 +259,10 @@
     {
       "name": "AaveV3Pool",
       "address": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"
+    },
+    {
+      "name": "Chainlog",
+      "address": "0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F"
     }
   ],
   "__external": {
