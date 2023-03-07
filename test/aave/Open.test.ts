@@ -15,6 +15,8 @@ import { SystemWithAAVEV3Positions } from '../fixtures/types/systemWithAAVEPosit
 import { expectToBe, expectToBeEqual } from '../utils'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
+const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
+
 describe(`Strategy | AAVE | Open Position`, async function () {
   describe('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
@@ -148,7 +150,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           expectToBe(position.riskRatio.multiple, 'lte', simulatedPosition.riskRatio.multiple)
         })
         it('Should collect fee', async () => {
-          expectToBeEqual(simulatedTransition.swap.tokenFee, feeWalletBalanceChange)
+          expectToBe(
+            simulatedTransition.swap.tokenFee,
+            'gte',
+            feeWalletBalanceChange,
+            EXPECT_LARGER_SIMULATED_FEE,
+          )
         })
       })
       describe('Using DPM Proxy', async () => {
@@ -191,7 +198,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
               expectToBe(position.riskRatio.multiple, 'lte', simulatedPosition.riskRatio.multiple)
             })
             it(`Should collect fee for ${strategy}`, async () => {
-              expectToBeEqual(simulatedTransition.swap.tokenFee, feeWalletBalanceChange)
+              expectToBe(
+                simulatedTransition.swap.tokenFee,
+                'gte',
+                feeWalletBalanceChange,
+                EXPECT_LARGER_SIMULATED_FEE,
+              )
             })
           })
       })
@@ -235,7 +247,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           expectToBe(position.riskRatio.multiple, 'lte', simulatedPosition.riskRatio.multiple)
         })
         it('Should collect fee', async () => {
-          expectToBeEqual(simulatedTransition.swap.tokenFee, feeWalletBalanceChange)
+          expectToBe(
+            simulatedTransition.swap.tokenFee,
+            'gte',
+            feeWalletBalanceChange,
+            EXPECT_LARGER_SIMULATED_FEE,
+          )
         })
       })
       describe('Using DPM Proxy', function () {
@@ -275,7 +292,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
             expectToBe(position.riskRatio.multiple, 'lte', simulatedPosition.riskRatio.multiple)
           })
           it(`Should collect fee for ${strategy}`, async () => {
-            expectToBeEqual(simulatedTransition.swap.tokenFee, feeWalletBalanceChange)
+            expectToBe(
+              simulatedTransition.swap.tokenFee,
+              'gte',
+              feeWalletBalanceChange,
+              EXPECT_LARGER_SIMULATED_FEE,
+            )
           })
         })
       })

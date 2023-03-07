@@ -7,8 +7,8 @@
     "build": "tsc -b",
     "watch": "tsc -b -w",
     "typecheck": "tsc -p ./tsconfig.json --noEmit",
-    "test": "npx hardhat test src/helpers/calculations/Position.test.ts",
-    "generate:scenarios": "npx ts-node src/helpers/calculations/test-scenarios/generateTestData.ts",
+    "test": "npx hardhat test src/domain/Position.test.ts",
+    "generate:scenarios": "npx ts-node src/domain/test-scenarios/generateTestData.ts",
     "prepublish": "npm run build"
   },
   "license": "Apache-2.0",

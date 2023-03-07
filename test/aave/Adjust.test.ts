@@ -39,6 +39,8 @@ import { SystemWithAAVEV3Positions } from '../fixtures/types/systemWithAAVEPosit
 import { expectToBe } from '../utils'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
+const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
+
 describe('Strategy | AAVE | Adjust Position', async function () {
   describe('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
@@ -90,12 +92,16 @@ describe('Strategy | AAVE | Adjust Position', async function () {
 
       const collateralTokenAddress = tokenAddresses[collateralToken.symbol]
       const debtTokenAddress = tokenAddresses[debtToken.symbol]
+      const isIncreasingRisk = isRiskIncreasing(position.riskRatio, targetMultiple)
+      const fromToken = isIncreasingRisk ? debtToken : collateralToken
+      const toToken = isIncreasingRisk ? collateralToken : debtToken
 
-      const isFeeFromDebtToken =
+      const isFeeFromSourceToken =
         acceptedFeeToken({
-          fromToken: collateralToken.symbol,
-          toToken: debtToken.symbol,
-        }) === 'targetToken'
+          fromToken: fromToken.symbol,
+          toToken: toToken.symbol,
+        }) === 'sourceToken'
+      const isFeeFromDebtToken = isIncreasingRisk ? isFeeFromSourceToken : !isFeeFromSourceToken
 
       const feeWalletBalanceBeforeAdjust = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
@@ -254,7 +260,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             act.feeWalletBalanceBeforeAdjust,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+          expectToBe(
+            act.simulation.swap.tokenFee,
+            'gte',
+            actualFeesDelta,
+            EXPECT_LARGER_SIMULATED_FEE,
+          )
         })
       })
       describe('Using DPM Proxy', () => {
@@ -307,7 +318,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
               act.feeWalletBalanceBeforeAdjust,
             )
 
-            expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+            expectToBe(
+              act.simulation.swap.tokenFee,
+              'gte',
+              actualFeesDelta,
+              EXPECT_LARGER_SIMULATED_FEE,
+            )
           })
         })
       })
@@ -359,7 +375,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             act.feeWalletBalanceBeforeAdjust,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+          expectToBe(act.simulation.swap.tokenFee, 'gte', actualFeesDelta)
         })
       })
       describe('Using DPM Proxy', () => {
@@ -416,7 +432,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
                 act.feeWalletBalanceBeforeAdjust,
               )
 
-              expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+              expectToBe(
+                act.simulation.swap.tokenFee,
+                'gte',
+                actualFeesDelta,
+                EXPECT_LARGER_SIMULATED_FEE,
+              )
             })
           })
       })
@@ -471,12 +492,15 @@ describe('Strategy | AAVE | Adjust Position', async function () {
 
       const collateralTokenAddress = tokenAddresses[collateralToken.symbol]
       const debtTokenAddress = tokenAddresses[debtToken.symbol]
-
-      const isFeeFromDebtToken =
+      const isIncreasingRisk = isRiskIncreasing(position.riskRatio, targetMultiple)
+      const fromToken = isIncreasingRisk ? debtToken : collateralToken
+      const toToken = isIncreasingRisk ? collateralToken : debtToken
+      const isFeeFromSourceToken =
         acceptedFeeToken({
-          fromToken: collateralToken.symbol,
-          toToken: debtToken.symbol,
-        }) === 'targetToken'
+          fromToken: fromToken.symbol,
+          toToken: toToken.symbol,
+        }) === 'sourceToken'
+      const isFeeFromDebtToken = isIncreasingRisk ? isFeeFromSourceToken : !isFeeFromSourceToken
 
       const feeWalletBalanceBeforeAdjust = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
@@ -632,7 +656,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             act.feeWalletBalanceBeforeAdjust,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+          expectToBe(
+            act.simulation.swap.tokenFee,
+            'gte',
+            actualFeesDelta,
+            EXPECT_LARGER_SIMULATED_FEE,
+          )
         })
       })
       describe('Using DPM Proxy', () => {
@@ -686,7 +715,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
                 act.feeWalletBalanceBeforeAdjust,
               )
 
-              expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+              expectToBe(
+                act.simulation.swap.tokenFee,
+                'gte',
+                actualFeesDelta,
+                EXPECT_LARGER_SIMULATED_FEE,
+              )
             })
           })
       })
@@ -737,7 +771,12 @@ describe('Strategy | AAVE | Adjust Position', async function () {
             act.feeWalletBalanceBeforeAdjust,
           )
 
-          expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+          expectToBe(
+            act.simulation.swap.tokenFee,
+            'gte',
+            actualFeesDelta,
+            EXPECT_LARGER_SIMULATED_FEE,
+          )
         })
       })
       describe('Using DPM Proxy', () => {
@@ -792,10 +831,19 @@ describe('Strategy | AAVE | Adjust Position', async function () {
                 act.feeWalletBalanceBeforeAdjust,
               )
 
-              expectToBe(act.simulation.swap.tokenFee, 'lte', actualFeesDelta)
+              expectToBe(
+                act.simulation.swap.tokenFee,
+                'gte',
+                actualFeesDelta,
+                EXPECT_LARGER_SIMULATED_FEE,
+              )
             })
           })
       })
     })
   })
 })
+
+function isRiskIncreasing(currentMultiple: IRiskRatio, newMultiple: IRiskRatio): boolean {
+  return newMultiple.multiple.gte(currentMultiple.multiple)
+}

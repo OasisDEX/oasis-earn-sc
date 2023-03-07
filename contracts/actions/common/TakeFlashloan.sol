@@ -6,9 +6,15 @@ import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { IERC3156FlashBorrower } from "../../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "../../interfaces/flashloan/IERC3156FlashLender.sol";
 import { FlashloanData } from "../../core/types/Common.sol";
-import { OPERATION_EXECUTOR, DAI, TAKE_FLASH_LOAN_ACTION } from "../../core/constants/Common.sol";
-import { FLASH_MINT_MODULE } from "../../core/constants/Maker.sol";
+import {
+  OPERATION_EXECUTOR,
+  DAI,
+  CHAINLOG_VIEWER,
+  TAKE_FLASH_LOAN_ACTION
+} from "../../core/constants/Common.sol";
+import { MCD_FLASH } from "../../core/constants/Maker.sol";
 import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
+import { ChainLogView } from "../../core/views/ChainLogView.sol";
 
 /**
  * @title TakeFlashloan Action contract
@@ -38,7 +44,9 @@ contract TakeFlashloan is Executable, ProxyPermission {
       givePermission(flData.isDPMProxy, operationExecutorAddress);
     }
 
-    IERC3156FlashLender(registry.getRegisteredService(FLASH_MINT_MODULE)).flashLoan(
+    ChainLogView chainlogView = ChainLogView(registry.getRegisteredService(CHAINLOG_VIEWER));
+
+    IERC3156FlashLender(chainlogView.getServiceAddress(MCD_FLASH)).flashLoan(
       IERC3156FlashBorrower(operationExecutorAddress),
       dai,
       flData.amount,

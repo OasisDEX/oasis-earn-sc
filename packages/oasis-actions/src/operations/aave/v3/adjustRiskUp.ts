@@ -8,7 +8,6 @@ import {
   WithAaveV3StrategyAddresses,
   WithCollateral,
   WithDebtAndBorrow,
-  WithEMode,
   WithFlashloan,
   WithOptionalDeposit,
   WithProxy,
@@ -21,8 +20,7 @@ type AdjustRiskUpArgs = WithCollateral &
   WithSwap &
   WithFlashloan &
   WithProxy &
-  WithAaveV3StrategyAddresses &
-  WithEMode
+  WithAaveV3StrategyAddresses
 
 export async function adjustRiskUp({
   collateral,
@@ -32,7 +30,6 @@ export async function adjustRiskUp({
   flashloan,
   proxy,
   addresses,
-  emode,
 }: AdjustRiskUpArgs): Promise<IOperation> {
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
@@ -105,12 +102,6 @@ export async function adjustRiskUp({
 
   pullDepositTokensToProxy.skipped = depositAmount.eq(ZERO) || debt.isEth
   wrapEth.skipped = !debt.isEth && !collateral.isEth
-
-  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
-    categoryId: emode.categoryId,
-  })
-
-  setEModeOnCollateral.skipped = emode.categoryId === 0
 
   const flashloanCalls = [
     pullDepositTokensToProxy,
