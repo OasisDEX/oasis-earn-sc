@@ -6,7 +6,7 @@ import { ContractReceipt, Signer, utils } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 
-import DummyActionABI from '../../abi/generated/contracts/test/DummyAction.sol/DummyAction.json'
+import DummyActionABI from '../../abi/generated/DummyAction.json'
 import { executeThroughProxy } from '../../helpers/deploy'
 import { restoreSnapshot } from '../../helpers/restoreSnapshot'
 import { RuntimeConfig } from '../../helpers/types/common'
