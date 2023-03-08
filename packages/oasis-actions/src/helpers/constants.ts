@@ -41,9 +41,11 @@ export const CONTRACT_NAMES = {
     SWAP: 'Swap',
     EXCHANGE: 'Exchange',
     UNISWAP_ROUTER: 'UniswapRouter',
+    BALANCER_VAULT: 'BalancerVault',
     SERVICE_REGISTRY: 'ServiceRegistry',
     WETH: 'WETH',
     DAI: 'DAI',
+    USDC: 'USDC',
   },
   aave: {
     v2: {

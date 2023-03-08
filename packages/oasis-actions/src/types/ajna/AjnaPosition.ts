@@ -1,9 +1,30 @@
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 
 import { IRiskRatio, RiskRatio } from '../../domain'
-import { IAjnaPosition, Pool } from '../../types/ajna'
-import { Address, AjnaError } from '../../types/common'
-import { ZERO } from '../constants'
+import { ZERO } from '../../helpers/constants'
+import { Address, AjnaError } from '../common'
+import { AjnaPool } from './AjnaPool'
+
+export interface IAjnaPosition {
+  pool: AjnaPool
+  owner: Address
+  collateralAmount: BigNumber
+  debtAmount: BigNumber
+
+  liquidationPrice: BigNumber
+  thresholdPrice: BigNumber
+  errors: AjnaError[]
+
+  collateralAvailable: BigNumber
+  debtAvailable: BigNumber
+
+  riskRatio: IRiskRatio
+
+  deposit(amount: BigNumber): IAjnaPosition
+  withdraw(amount: BigNumber): IAjnaPosition
+  borrow(amount: BigNumber): IAjnaPosition
+  payback(amount: BigNumber): IAjnaPosition
+}
 
 export class AjnaPosition implements IAjnaPosition {
   riskRatio: IRiskRatio
@@ -11,7 +32,7 @@ export class AjnaPosition implements IAjnaPosition {
   debtAvailable: BigNumber = new BigNumber(0)
 
   constructor(
-    public pool: Pool,
+    public pool: AjnaPool,
     public owner: Address,
     public collateralAmount: BigNumber,
     public debtAmount: BigNumber,

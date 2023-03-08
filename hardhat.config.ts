@@ -90,6 +90,9 @@ console.log(`Forking from block number: ${forkConfig && forkConfig.blockNumber}`
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
+const includeMainnet = !!process.env.MAINNET_URL && !!process.env.PRIV_KEY_MAINNET
+const includeGoerli = !!process.env.GOERLI_URL && !!process.env.PRIV_KEY_GOERLI
+
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
@@ -128,21 +131,24 @@ const config: HardhatUserConfig = {
       initialBaseFeePerGas: 1000000000,
       allowUnlimitedContractSize: true,
     },
-    goerli: {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      url: process.env.ALCHEMY_NODE_GOERLI!,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      accounts: [process.env.PRIV_KEY_GOERLI!],
-      // gasPrice: 5000000000,
-      initialBaseFeePerGas: 1000000000,
-    },
-    mainnet: {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      url: process.env.MAINNET_URL!,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      accounts: [process.env.PRIV_KEY_MAINNET!],
-      gasPrice: 50000000000,
-    },
+    ...(includeGoerli
+      ? {
+          goerli: {
+            url: process.env.GOERLI_URL || '',
+            accounts: [process.env.PRIV_KEY_GOERLI || ''],
+            initialBaseFeePerGas: 1000000000,
+          },
+        }
+      : {}),
+    ...(includeMainnet
+      ? {
+          mainnet: {
+            url: process.env.MAINNET_URL || '',
+            accounts: [process.env.PRIV_KEY_MAINNET || ''],
+            gasPrice: 50000000000,
+          },
+        }
+      : {}),
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS === '1',
