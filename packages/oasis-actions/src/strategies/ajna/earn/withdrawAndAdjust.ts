@@ -60,6 +60,7 @@ export async function withdrawAndAdjust(
     dependencies.provider,
   )
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const priceIndex = await poolInfo
     .priceToIndex(ethers.utils.parseUnits(args.price.toString(), 18).toString())
     .then((res: any) => res.toString())

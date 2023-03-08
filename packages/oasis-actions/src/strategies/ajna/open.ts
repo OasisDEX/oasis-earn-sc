@@ -62,8 +62,6 @@ export async function open(
 
   const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
 
-  console.log(JSON.stringify(targetPosition, null, 4))
-
   return {
     simulation: {
       swaps: [],
