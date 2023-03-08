@@ -4,9 +4,15 @@ One should create an `.env` file and add the following variables:
 
 - **ETHERSCAN_API_KEY** - API key used to verify contracts deployed on a blockchain supported by Etherscan
 
-- **MAINNET_URL** - URL to a node that will be used for sync
+- **MAINNET_URL** - URL to a node that will be used for sync on Mainnet
 
-- **BLOCK_NUMBER** - Block number from which the chain will be forked
+- **OPTIMISM_URL** - URL to a node that will be used for sync on Optimism
+
+- **BLOCK_NUMBER** - Block number from which the chain will be forked on Mainnet
+
+- **OPTIMISM_BLOCK_NUMBER** - Block number from which the chain will be forked on Optimism
+
+- **NETWORK_FORK** - `Mainnet` or `Optimism`. Network that will be used for forking.
 
 - **REPORT_GAS** - This will allow gas report when running tests
 
