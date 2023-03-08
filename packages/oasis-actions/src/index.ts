@@ -19,6 +19,7 @@ export {
 } from './types'
 export * from './types'
 export { AavePosition, AAVETokens } from './types/aave'
+export { AjnaPosition, AjnaEarnPosition } from './types/ajna'
 export { ActionCall } from './types/actionCall'
 export { calldataTypes } from './types/actions'
 export * as views from './views'

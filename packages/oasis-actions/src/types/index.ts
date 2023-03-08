@@ -1,7 +1,7 @@
 export * as aave from './aave'
 export * from './actionCall'
 export * from './actions'
-export * from './ajna'
+export * as ajna from './ajna'
 export * as common from './common'
 export * from './IPositionTransition'
 export * from './Operations'
