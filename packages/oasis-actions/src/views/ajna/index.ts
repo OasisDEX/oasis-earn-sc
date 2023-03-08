@@ -4,7 +4,7 @@ import { ethers } from 'ethers'
 import poolERC20Abi from '../../../src/abi/external/ajna/ajnaPoolERC20.json'
 import poolInfoAbi from '../../../src/abi/external/ajna/poolInfoUtils.json'
 import { ZERO } from '../../helpers/constants'
-import { AjnaEarnPosition, AjnaPosition } from '../../types'
+import { AjnaEarnPosition, AjnaPosition } from '../../types/ajna'
 import { AjnaPool } from '../../types/ajna/AjnaPool'
 import { Address } from '../../types/common'
 
