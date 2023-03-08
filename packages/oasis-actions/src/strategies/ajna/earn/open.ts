@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
-import { AjnaEarn } from '../../../helpers/ajna/AjnaEarn'
+import { AjnaEarnPosition } from '../../../types'
 import { Address, Strategy } from '../../../types/common'
 import * as views from '../../../views'
 import { GetEarnData } from '../../../views/ajna'
@@ -25,7 +25,10 @@ export interface Dependencies {
   getEarnData: GetEarnData
 }
 
-export async function open(args: Args, dependencies: Dependencies): Promise<Strategy<AjnaEarn>> {
+export async function open(
+  args: Args,
+  dependencies: Dependencies,
+): Promise<Strategy<AjnaEarnPosition>> {
   const position = await views.ajna.getEarnPosition(
     {
       proxyAddress: args.dpmProxyAddress,
@@ -71,13 +74,18 @@ export async function open(args: Args, dependencies: Dependencies): Promise<Stra
     simulation: {
       swaps: [],
       errors: [],
-      targetPosition: new AjnaEarn(
+      targetPosition: new AjnaEarnPosition(
         position.pool,
         args.dpmProxyAddress,
         args.quoteAmount,
         priceIndex,
       ),
-      position: new AjnaEarn(position.pool, args.dpmProxyAddress, args.quoteAmount, priceIndex),
+      position: new AjnaEarnPosition(
+        position.pool,
+        args.dpmProxyAddress,
+        args.quoteAmount,
+        priceIndex,
+      ),
     },
     tx: {
       to: dependencies.ajnaProxyActions,

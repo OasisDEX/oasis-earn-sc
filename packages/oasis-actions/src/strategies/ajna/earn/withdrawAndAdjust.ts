@@ -3,8 +3,8 @@ import { ethers } from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
-import { AjnaEarn } from '../../../helpers/ajna/AjnaEarn'
 import { ZERO } from '../../../helpers/constants'
+import { AjnaEarnPosition } from '../../../types'
 import { Address, Strategy } from '../../../types/common'
 import * as views from '../../../views'
 import { GetEarnData } from '../../../views/ajna'
@@ -15,7 +15,7 @@ interface Args {
   quoteAmount: BigNumber
   quoteTokenPrecision: number
   price: BigNumber
-  position: AjnaEarn
+  position: AjnaEarnPosition
 }
 
 export interface Dependencies {
@@ -29,7 +29,7 @@ export interface Dependencies {
 export async function withdrawAndAdjust(
   args: Args,
   dependencies: Dependencies,
-): Promise<Strategy<AjnaEarn>> {
+): Promise<Strategy<AjnaEarnPosition>> {
   const position = await views.ajna.getEarnPosition(
     {
       proxyAddress: args.dpmProxyAddress,

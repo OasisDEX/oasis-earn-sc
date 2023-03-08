@@ -1,21 +1,39 @@
 import BigNumber from 'bignumber.js'
 
-import { IAjnaEarn, Pool } from '../../types/ajna'
-import { Address } from '../../types/common'
-import { ZERO } from '../constants'
+import { ZERO } from '../../helpers/constants'
+import { Address } from '../common'
+import { AjnaPool } from './AjnaPool'
 
 function priceIndexToPrice(priceIndex: BigNumber) {
   return new BigNumber(1.05).pow(priceIndex.minus(3232))
 }
 
-export class AjnaEarn implements IAjnaEarn {
+export interface IAjnaEarn {
+  pool: AjnaPool
+  owner: Address
+  quoteTokenAmount: BigNumber
+  price: BigNumber
+  priceIndex: BigNumber | null
+
+  isEarningFees: boolean
+
+  fundsLockedUntil: number
+  earlyWithdrawPenalty: BigNumber
+
+  stakedNftId: string | null
+
+  deposit(amount: BigNumber): IAjnaEarn
+  withdraw(amount: BigNumber): IAjnaEarn
+}
+
+export class AjnaEarnPosition implements IAjnaEarn {
   public earlyWithdrawPenalty: BigNumber = new BigNumber(23)
   public fundsLockedUntil: number
   public price: BigNumber
   public stakedNftId: string | null = null
 
   constructor(
-    public pool: Pool,
+    public pool: AjnaPool,
     public owner: Address,
     public quoteTokenAmount: BigNumber,
     public priceIndex: BigNumber | null,
@@ -32,11 +50,11 @@ export class AjnaEarn implements IAjnaEarn {
   }
 
   moveQuote(newPriceIndex: BigNumber) {
-    return new AjnaEarn(this.pool, this.owner, this.quoteTokenAmount, newPriceIndex)
+    return new AjnaEarnPosition(this.pool, this.owner, this.quoteTokenAmount, newPriceIndex)
   }
 
   deposit(quoteTokenAmount: BigNumber) {
-    return new AjnaEarn(
+    return new AjnaEarnPosition(
       this.pool,
       this.owner,
       this.quoteTokenAmount.plus(quoteTokenAmount),
@@ -45,7 +63,7 @@ export class AjnaEarn implements IAjnaEarn {
   }
 
   withdraw(quoteTokenAmount: BigNumber) {
-    return new AjnaEarn(
+    return new AjnaEarnPosition(
       this.pool,
       this.owner,
       this.quoteTokenAmount.minus(quoteTokenAmount),

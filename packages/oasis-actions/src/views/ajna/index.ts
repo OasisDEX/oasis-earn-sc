@@ -3,10 +3,9 @@ import { ethers } from 'ethers'
 
 import poolERC20Abi from '../../../src/abi/external/ajna/ajnaPoolERC20.json'
 import poolInfoAbi from '../../../src/abi/external/ajna/poolInfoUtils.json'
-import { AjnaPosition } from '../../helpers/ajna'
-import { AjnaEarn } from '../../helpers/ajna/AjnaEarn'
 import { ZERO } from '../../helpers/constants'
-import { Pool } from '../../types/ajna'
+import { AjnaEarnPosition, AjnaPosition } from '../../types'
+import { AjnaPool } from '../../types/ajna/AjnaPool'
 import { Address } from '../../types/common'
 
 interface Args {
@@ -41,7 +40,7 @@ export async function getPool(
   poolAddress: string,
   poolInfoAddress: string,
   provider: ethers.providers.Provider,
-): Promise<Pool> {
+): Promise<AjnaPool> {
   const pool = new ethers.Contract(poolAddress, poolERC20Abi, provider)
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
 
@@ -110,7 +109,7 @@ export async function getPosition(
 export async function getEarnPosition(
   { proxyAddress, poolAddress }: Args,
   { poolInfoAddress, provider, getEarnData }: EarnDependencies,
-): Promise<AjnaEarn> {
+): Promise<AjnaEarnPosition> {
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
 
   const [pool, earnData] = await Promise.all([
@@ -126,5 +125,5 @@ export async function getEarnPosition(
           .then((quoteTokens: ethers.BigNumberish) => ethers.utils.formatUnits(quoteTokens, 18))
           .then((res: string) => new BigNumber(res))
 
-  return new AjnaEarn(pool, proxyAddress, quoteTokenAmount, earnData.priceIndex)
+  return new AjnaEarnPosition(pool, proxyAddress, quoteTokenAmount, earnData.priceIndex)
 }
