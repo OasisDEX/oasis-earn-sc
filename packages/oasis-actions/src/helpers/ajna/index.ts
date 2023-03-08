@@ -1,1 +1,0 @@
-export { AjnaPosition } from './AjnaPosition'

@@ -1,8 +1,3 @@
-import { BigNumber } from 'bignumber.js'
-
-import { IRiskRatio } from '../../domain'
-import { Address, AjnaError } from '../../types/common'
-
 /*
 AJNA ACRONYM FINDER
 
@@ -45,47 +40,5 @@ Note that the TP of a loan is entirely under the control of the borrower.
 If a loan becomes undercollateralized, then it's eligible for liquidation (see 7.0 LIQUIDATIONS).
 */
 
-export interface Pool {
-  poolAddress: Address
-  quoteToken: Address
-  collateralToken: Address
-
-  lup: BigNumber
-  htp: BigNumber
-
-  // annualized rate as a fraction 0.05 = 5%
-  rate: BigNumber
-}
-
-export interface IAjnaPosition {
-  pool: Pool
-  owner: Address
-  collateralAmount: BigNumber
-  debtAmount: BigNumber
-
-  liquidationPrice: BigNumber
-  thresholdPrice: BigNumber
-  errors: AjnaError[]
-
-  collateralAvailable: BigNumber
-  debtAvailable: BigNumber
-
-  riskRatio: IRiskRatio
-
-  deposit(amount: BigNumber): IAjnaPosition
-  withdraw(amount: BigNumber): IAjnaPosition
-  borrow(amount: BigNumber): IAjnaPosition
-  payback(amount: BigNumber): IAjnaPosition
-}
-
-export interface IAjnaEarn {
-  pool: Pool
-  owner: Address
-  quoteTokenAmount: BigNumber
-
-  fundsLockedUntil: number
-  earlyWithdrawPenalty: BigNumber
-
-  deposit(amount: BigNumber): IAjnaEarn
-  withdraw(amount: BigNumber): IAjnaEarn
-}
+export { AjnaEarnPosition } from './AjnaEarnPosition'
+export { AjnaPosition } from './AjnaPosition'
