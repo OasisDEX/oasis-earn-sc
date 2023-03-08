@@ -17,9 +17,8 @@ export {
   ISimulatedTransition,
   SwapData,
 } from './types'
-export * from './types'
 export { AavePosition, AAVETokens } from './types/aave'
-export { AjnaPosition, AjnaEarnPosition } from './types/ajna'
 export { ActionCall } from './types/actionCall'
 export { calldataTypes } from './types/actions'
+export { AjnaEarnPosition, AjnaPosition } from './types/ajna'
 export * as views from './views'
