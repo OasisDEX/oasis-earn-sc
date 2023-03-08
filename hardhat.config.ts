@@ -39,7 +39,7 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
 })
 const networkFork = process.env.NETWORK_FORK
 
-if (!networkFork && (networkFork == 'Mainnet' || networkFork == 'Optimism')) {
+if (!networkFork || !(networkFork == 'Mainnet' || networkFork == 'Optimism')) {
   throw new Error(`NETWORK_FORK Missing. Specify 'Mainnet' or 'Optimism'`)
 }
 
