@@ -128,10 +128,11 @@ export async function adjustRiskUp({
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
-    flashloanAmount: flashloan.amount,
-    borrower: addresses.operationExecutor,
-    isProxyFlashloan: true,
     isDPMProxy: proxy.isDPMProxy,
+    asset: addresses.DAI,
+    flashloanAmount: flashloan.amount,
+    isProxyFlashloan: true,
+    provider: new BigNumber(0),
     calls: flashloanCalls,
   })
 

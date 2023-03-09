@@ -148,10 +148,11 @@ export async function close(
   unwrapEth.skipped = !args.debtTokenIsEth && !args.collateralIsEth
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
-    flashloanAmount: args.flashloanAmount,
-    borrower: addresses.operationExecutor,
-    isProxyFlashloan: true,
     isDPMProxy: args.isDPMProxy,
+    asset: addresses.DAI,
+    flashloanAmount: args.flashloanAmount,
+    isProxyFlashloan: true,
+    provider: new BigNumber(0),
     calls: [
       setDaiApprovalOnLendingPool,
       depositDaiInAAVE,

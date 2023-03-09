@@ -201,9 +201,10 @@ export async function open({
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     isDPMProxy,
+    asset: addresses.DAI,
     flashloanAmount: flashloanAmount,
-    borrower: addresses.operationExecutor,
     isProxyFlashloan: true,
+    provider: new BigNumber(0),
     calls: flashloanCalls,
   })
 
