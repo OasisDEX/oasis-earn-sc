@@ -4,6 +4,8 @@ import { OperationNames } from '../helpers/constants'
 import { AAVEStrategyAddresses } from '../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../operations/aave/v3'
 import { ActionCall } from './actionCall'
+import { FlashloanProvider } from './common'
+import { PositionType } from './PositionType'
 import { Address } from './StrategyParams'
 
 export interface IOperation {
@@ -70,6 +72,7 @@ export type WithSwap = {
 
 export type WithFlashloan = {
   flashloan: {
+    provider: FlashloanProvider
     amount: BigNumber
   }
 }
@@ -81,6 +84,12 @@ export type WithProxy = {
     address: string
     owner: string
     isDPMProxy: boolean
+  }
+}
+
+export type WithPosition = {
+  position: {
+    type: PositionType
   }
 }
 

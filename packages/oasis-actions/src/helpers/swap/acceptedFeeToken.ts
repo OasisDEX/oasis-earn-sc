@@ -3,7 +3,9 @@ import { acceptedTokens } from '../../config/acceptedFeeTokensConfig'
 type TokenSymbolOrAddress = string
 
 interface Props {
+  // Accepts args as either a token symbol or in address format
   fromToken: TokenSymbolOrAddress
+  // Accepts args as either a token symbol or in address format
   toToken: TokenSymbolOrAddress
 }
 
@@ -14,11 +16,12 @@ interface Props {
 export function acceptedFeeToken({ fromToken, toToken }: Props): 'sourceToken' | 'targetToken' {
   const fallbackTokenType = 'sourceToken'
   const fromTokenAcceptedIndex = acceptedTokens.findIndex(
-    acceptedToken => fromToken === acceptedToken.symbol || fromToken === acceptedToken.address,
+    acceptedToken =>
+      fromToken === acceptedToken.symbol || acceptedToken.address.includes(fromToken),
   )
 
   const toTokenAcceptedIndex = acceptedTokens.findIndex(
-    acceptedToken => toToken === acceptedToken.symbol || toToken === acceptedToken.address,
+    acceptedToken => toToken === acceptedToken.symbol || acceptedToken.address.includes(toToken),
   )
 
   const fromTokenNotAccepted = fromTokenAcceptedIndex === -1

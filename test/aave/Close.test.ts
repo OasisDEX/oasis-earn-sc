@@ -23,7 +23,7 @@ import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers } from 'ethers'
 
-import { mainnetAddresses } from '../addresses'
+import { mainnetAddresses } from '../addresses/mainnet'
 import { DeployedSystemInfo } from '../deploySystem'
 import {
   getSupportedStrategies,

@@ -22,7 +22,7 @@ import {
 import { amountFromWei } from '../../packages/oasis-actions/src/helpers'
 import { acceptedFeeToken } from '../../packages/oasis-actions/src/helpers/swap/acceptedFeeToken'
 import { PositionType } from '../../packages/oasis-actions/src/types'
-import { mainnetAddresses } from '../addresses'
+import { mainnetAddresses } from '../addresses/mainnet'
 import { DeployedSystemInfo } from '../deploySystem'
 import {
   getSupportedStrategies,

@@ -28,11 +28,13 @@ export function formatOneInchSwapUrl(
   toToken: string,
   amount: string,
   slippage: string,
-  recepient: string,
+  recipient: string,
   protocols: string[] = defaultExchangeProtocols,
+  chainId = 1,
+  version = 'v4.0',
 ) {
   const protocolsParam = !protocols?.length ? '' : `&protocols=${protocols.join(',')}`
-  return `https://oasis.api.enterprise.1inch.exchange/v4.0/1/swap?fromTokenAddress=${fromToken.toLowerCase()}&toTokenAddress=${toToken}&amount=${amount}&fromAddress=${recepient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`
+  return `https://oasis.api.enterprise.1inch.exchange/${version}/${chainId}/swap?fromTokenAddress=${fromToken.toLowerCase()}&toTokenAddress=${toToken}&amount=${amount}&fromAddress=${recipient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`
 }
 
 export async function exchangeTokens(url: string): Promise<OneInchSwapResponse> {
@@ -52,6 +54,8 @@ export async function swapOneInchTokens(
   recipient: string,
   slippage: string,
   protocols?: string[],
+  chainId = 1,
+  version = 'v4.0',
 ): Promise<OneInchSwapResponse> {
   const url = formatOneInchSwapUrl(
     fromTokenAddress,
@@ -60,6 +64,8 @@ export async function swapOneInchTokens(
     slippage,
     recipient,
     protocols,
+    chainId,
+    version,
   )
 
   return exchangeTokens(url)

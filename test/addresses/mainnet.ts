@@ -19,7 +19,7 @@ export const mainnetAddresses = {
     v3: {
       aaveOracle: ADDRESSES.main.aave.v3.AaveOracle,
       pool: ADDRESSES.main.aave.v3.Pool,
-      aaveProtocolDataProvider: ADDRESSES.main.aave.v3.AaveProtocolDataProvider,
+      poolDataProvider: ADDRESSES.main.aave.v3.PoolDataProvider,
     },
   },
 }

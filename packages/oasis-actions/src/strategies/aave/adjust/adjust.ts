@@ -12,6 +12,7 @@ import {
   UNUSED_FLASHLOAN_AMOUNT,
   ZERO,
 } from '../../../helpers/constants'
+import { resolveFlashloanProvider } from '../../../helpers/flashloan/resolve-provider'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
 import { feeResolver } from '../../../helpers/swap/feeResolver'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
@@ -31,6 +32,7 @@ import { AAVETokens } from '../../../types/aave'
 import { WithV2Addresses, WithV3Addresses } from '../../../types/aave/Addresses'
 import { WithFee } from '../../../types/aave/Fee'
 import { WithV2Protocol, WithV3Protocol } from '../../../types/aave/Protocol'
+import { FlashloanProvider } from '../../../types/common'
 import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
 import { AaveVersion } from '../getCurrentPosition'
 
@@ -546,6 +548,8 @@ async function buildOperationV2({
       },
       flashloan: {
         amount: flashloanAmount,
+        // Aave V2 not on L2
+        provider: FlashloanProvider.DssFlash,
       },
     }
     return await operations.aave.v2.adjustRiskUp(adjustRiskUpArgs)
@@ -569,6 +573,8 @@ async function buildOperationV2({
       },
       flashloan: {
         amount: flashloanAmount,
+        // Aave V2 not on L2
+        provider: FlashloanProvider.DssFlash,
       },
     }
     return await operations.aave.v2.adjustRiskDown(adjustRiskDownArgs)
@@ -607,6 +613,8 @@ async function buildOperationV3({
     adjustRiskUp,
     args.positionType === 'Earn',
   )
+  const flashloanProvider = await resolveFlashloanProvider(dependencies.provider)
+
   const adjustRiskArgs = {
     collateral: {
       address: collateralTokenAddress,
@@ -631,6 +639,7 @@ async function buildOperationV3({
     },
     flashloan: {
       amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
+      provider: flashloanProvider,
     },
     proxy: {
       address: dependencies.proxy,

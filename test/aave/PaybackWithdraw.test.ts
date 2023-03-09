@@ -6,7 +6,7 @@ import { loadFixture } from 'ethereum-waffle'
 import { executeThroughDPMProxy, executeThroughProxy } from '../../helpers/deploy'
 import { amountToWei, approve, balanceOf } from '../../helpers/utils'
 import { zero } from '../../scripts/common'
-import { mainnetAddresses } from '../addresses'
+import { mainnetAddresses } from '../addresses/mainnet'
 import {
   getSupportedStrategies,
   getSystemWithAavePositions,

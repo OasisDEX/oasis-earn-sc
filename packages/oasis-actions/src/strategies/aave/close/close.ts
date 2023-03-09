@@ -479,7 +479,7 @@ function getAAVEProtocolServices(
           provider,
         ),
         aaveProtocolDataProvider: new ethers.Contract(
-          (addresses as AAVEV3StrategyAddresses).aaveProtocolDataProvider,
+          (addresses as AAVEV3StrategyAddresses).poolDataProvider,
           aaveV3ProtocolDataProviderABI,
           provider,
         ),

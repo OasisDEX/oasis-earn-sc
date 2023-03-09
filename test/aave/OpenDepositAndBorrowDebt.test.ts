@@ -5,7 +5,7 @@ import { expect } from 'chai'
 import { executeThroughDPMProxy, executeThroughProxy } from '../../helpers/deploy'
 import { amountToWei, approve } from '../../helpers/utils'
 import { zero } from '../../scripts/common'
-import { mainnetAddresses } from '../addresses'
+import { mainnetAddresses } from '../addresses/mainnet'
 import { getSystemWithProxies, SystemWithProxies } from '../fixtures'
 import { expectToBe, expectToBeEqual } from '../utils'
 

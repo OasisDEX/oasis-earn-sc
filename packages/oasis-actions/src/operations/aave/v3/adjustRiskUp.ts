@@ -120,7 +120,7 @@ export async function adjustRiskUp({
     asset: addresses.DAI,
     flashloanAmount: flashloan.amount,
     isProxyFlashloan: true,
-    provider: new BigNumber(0),
+    provider: new BigNumber(flashloan.provider),
     calls: flashloanCalls,
   })
 

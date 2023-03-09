@@ -10,7 +10,8 @@ import { IAccountImplementation } from "../../interfaces/dpm/IAccountImplementat
 import { IAccountGuard } from "../../interfaces/dpm/IAccountGuard.sol";
 
 contract ProxyPermission {
-  address internal constant FACTORY_ADDRESS = 0x5a15566417e6C1c9546523066500bDDBc53F88C7;
+    address internal constant FACTORY_ADDRESS = 0xc19d0F1E2b38AA283E226Ca4044766A43aA7B02b;
+//  address internal constant FACTORY_ADDRESS = 0x5a15566417e6C1c9546523066500bDDBc53F88C7;
 
   bytes4 public constant ALLOWED_METHOD_HASH = bytes4(keccak256("execute(address,bytes)"));
 
