@@ -11,6 +11,8 @@ import { Address } from '../../types/common'
 interface Args {
   proxyAddress: Address
   poolAddress: Address
+  collateralPrice: BigNumber
+  quotePrice: BigNumber
 }
 
 interface EarnData {
@@ -88,7 +90,7 @@ export async function getPool(
 }
 
 export async function getPosition(
-  { proxyAddress, poolAddress }: Args,
+  { proxyAddress, poolAddress, collateralPrice, quotePrice }: Args,
   { poolInfoAddress, provider }: Dependencies,
 ): Promise<AjnaPosition> {
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
@@ -103,6 +105,8 @@ export async function getPosition(
     proxyAddress,
     new BigNumber(borrowerInfo.collateral_.toString()).div(WAD),
     new BigNumber(borrowerInfo.debt_.toString()).div(WAD),
+    collateralPrice,
+    quotePrice,
   )
 }
 

@@ -31,6 +31,9 @@ export async function depositAndAdjust(
 ): Promise<Strategy<AjnaEarnPosition>> {
   const position = await views.ajna.getEarnPosition(
     {
+      // TODO: replace with real price
+      collateralPrice: ZERO,
+      quotePrice: ZERO,
       proxyAddress: args.dpmProxyAddress,
       poolAddress: args.poolAddress,
     },

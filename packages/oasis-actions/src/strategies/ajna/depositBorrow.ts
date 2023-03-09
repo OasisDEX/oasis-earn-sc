@@ -5,7 +5,7 @@ import { AjnaPosition } from '../../types/ajna'
 import { Strategy } from '../../types/common'
 import { Dependencies, OpenArgs } from './open'
 
-export interface DepositBorrowArgs extends OpenArgs {
+export interface DepositBorrowArgs extends Omit<OpenArgs, 'collateralPrice' | 'quotePrice'> {
   position: AjnaPosition
 }
 

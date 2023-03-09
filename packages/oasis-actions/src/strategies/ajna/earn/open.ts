@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
+import { ZERO } from '../../../helpers/constants'
 import { AjnaEarnPosition } from '../../../types/ajna'
 import { Address, Strategy } from '../../../types/common'
 import * as views from '../../../views'
@@ -31,6 +32,9 @@ export async function open(
 ): Promise<Strategy<AjnaEarnPosition>> {
   const position = await views.ajna.getEarnPosition(
     {
+      // TODO: replace with real price
+      collateralPrice: ZERO,
+      quotePrice: ZERO,
       proxyAddress: args.dpmProxyAddress,
       poolAddress: args.poolAddress,
     },

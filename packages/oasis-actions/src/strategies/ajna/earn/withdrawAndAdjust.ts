@@ -32,6 +32,8 @@ export async function withdrawAndAdjust(
 ): Promise<Strategy<AjnaEarnPosition>> {
   const position = await views.ajna.getEarnPosition(
     {
+      collateralPrice: ZERO,
+      quotePrice: ZERO,
       proxyAddress: args.dpmProxyAddress,
       poolAddress: args.poolAddress,
     },
