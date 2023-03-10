@@ -5,11 +5,11 @@ import chai, { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-import AavePoolAbi from '../../abi/external/aave/v3/pool.json'
-import { createDeploy } from '../../helpers/deploy'
-import init from '../../helpers/init'
-import { ServiceRegistry } from '../../helpers/serviceRegistry'
-import { Pool } from '../../typechain'
+import AavePoolAbi from '../../../abi/external/aave/v3/pool.json'
+import { createDeploy } from '../../../helpers/deploy'
+import init from '../../../helpers/init'
+import { ServiceRegistry } from '../../../helpers/serviceRegistry'
+import { Pool } from '../../../typechain'
 
 const utils = ethers.utils
 chai.use(smock.matchers)

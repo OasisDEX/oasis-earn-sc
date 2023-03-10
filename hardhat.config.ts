@@ -37,26 +37,70 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
     console.log(account.address)
   }
 })
+const networkFork = process.env.NETWORK_FORK
 
-const blockNumber = process.env.BLOCK_NUMBER
-if (!blockNumber) {
-  throw new Error(`You must provide a block number.`)
+if (!networkFork || !(networkFork == 'Mainnet' || networkFork == 'Optimism')) {
+  throw new Error(`NETWORK_FORK Missing. Specify 'Mainnet' or 'Optimism'`)
 }
 
-if (!/^\d+$/.test(blockNumber)) {
-  throw new Error(`Provide a valid block number. Provided value is ${blockNumber}`)
+let forkConfig: { nodeURL: string; blockNumber: string } | undefined = undefined
+
+if (networkFork == 'Mainnet') {
+  const nodeURL = process.env.MAINNET_URL
+
+  if (!nodeURL) {
+    throw new Error(`You must provide MAINNET_URL value in the .env file`)
+  }
+
+  const blockNumber = process.env.BLOCK_NUMBER
+  if (!blockNumber) {
+    throw new Error(`You must provide a BLOCK_NUMBER value in the .env file.`)
+  }
+
+  forkConfig = {
+    nodeURL,
+    blockNumber,
+  }
 }
 
-console.log(`Forking from block number: ${blockNumber}`)
+if (networkFork == 'Optimism') {
+  const nodeURL = process.env.OPTIMISM_URL
+
+  if (!nodeURL) {
+    throw new Error(`You must provide OPTIMISM_URL value in the .env file`)
+  }
+
+  const blockNumber = process.env.OPTIMISM_BLOCK_NUMBER
+  if (!blockNumber) {
+    throw new Error(`You must provide a OPTIMISM_BLOCK_NUMBER value in the .env file.`)
+  }
+  forkConfig = {
+    nodeURL,
+    blockNumber,
+  }
+}
+
+if (forkConfig && !/^\d+$/.test(forkConfig.blockNumber)) {
+  throw new Error(`Provide a valid block number. Provided value is ${forkConfig.blockNumber}`)
+}
+
+console.log(`Forking on ${networkFork}`)
+console.log(`Forking from block number: ${forkConfig && forkConfig.blockNumber}`)
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
+
+const includeMainnet = !!process.env.MAINNET_URL && !!process.env.PRIV_KEY_MAINNET
+const includeGoerli = !!process.env.GOERLI_URL && !!process.env.PRIV_KEY_GOERLI
 
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
         version: '0.8.15',
+      },
+      {
+        version: '0.8.17',
       },
     ],
     settings: {
@@ -75,8 +119,8 @@ const config: HardhatUserConfig = {
     hardhat: {
       forking: {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        url: process.env.MAINNET_URL!,
-        blockNumber: parseInt(blockNumber),
+        url: forkConfig ? forkConfig.nodeURL : 'http:127.0.01:8545',
+        blockNumber: forkConfig ? parseInt(forkConfig.blockNumber) : 0,
       },
       chainId: 2137,
       mining: {
@@ -87,21 +131,24 @@ const config: HardhatUserConfig = {
       initialBaseFeePerGas: 1000000000,
       allowUnlimitedContractSize: true,
     },
-    goerli: {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      url: process.env.ALCHEMY_NODE_GOERLI!,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      accounts: [process.env.PRIV_KEY_GOERLI!],
-      // gasPrice: 5000000000,
-      initialBaseFeePerGas: 1000000000,
-    },
-    mainnet: {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      url: process.env.MAINNET_URL!,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      accounts: [process.env.PRIV_KEY_MAINNET!],
-      gasPrice: 50000000000,
-    },
+    ...(includeGoerli
+      ? {
+          goerli: {
+            url: process.env.GOERLI_URL || '',
+            accounts: [process.env.PRIV_KEY_GOERLI || ''],
+            initialBaseFeePerGas: 1000000000,
+          },
+        }
+      : {}),
+    ...(includeMainnet
+      ? {
+          mainnet: {
+            url: process.env.MAINNET_URL || '',
+            accounts: [process.env.PRIV_KEY_MAINNET || ''],
+            gasPrice: 50000000000,
+          },
+        }
+      : {}),
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS === '1',
@@ -140,7 +187,7 @@ const config: HardhatUserConfig = {
     path: './abi/generated',
     runOnCompile: true,
     clear: true,
-    flat: true,
+    flat: false,
     spacing: 2,
     pretty: false,
   },

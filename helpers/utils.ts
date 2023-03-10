@@ -86,11 +86,11 @@ export async function send(
   hre?: HardhatRuntimeEnvironment,
 ) {
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
-  if (to === ADDRESSES.main.ETH) {
+  if (tokenAddr === ADDRESSES.main.ETH) {
     const tx = await signer?.sendTransaction({
       from: await signer.getAddress(),
       to,
-      value: amount,
+      value: ethers.BigNumber.from(amount),
       gasLimit: 30000000,
     })
     await tx?.wait()
