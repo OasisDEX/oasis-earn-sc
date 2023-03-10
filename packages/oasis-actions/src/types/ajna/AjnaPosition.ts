@@ -3,7 +3,7 @@ import { BigNumber } from 'bignumber.js'
 import { IRiskRatio, RiskRatio } from '../../domain'
 import { ZERO } from '../../helpers/constants'
 import { normalizeValue } from '../../helpers/normalizeValue'
-import { Address, AjnaError } from '../common'
+import { Address, AjnaError, AjnaWarning } from '../common'
 import { AjnaPool } from './AjnaPool'
 
 export interface IAjnaPosition {
@@ -23,6 +23,7 @@ export interface IAjnaPosition {
   maxRiskRatio: IRiskRatio
 
   errors: AjnaError[]
+  warnings: AjnaWarning[]
 
   deposit(amount: BigNumber): IAjnaPosition
   withdraw(amount: BigNumber): IAjnaPosition
@@ -31,6 +32,9 @@ export interface IAjnaPosition {
 }
 
 export class AjnaPosition implements IAjnaPosition {
+  errors: AjnaError[] = []
+  warnings: AjnaWarning[] = []
+
   constructor(
     public pool: AjnaPool,
     public owner: Address,
@@ -81,21 +85,6 @@ export class AjnaPosition implements IAjnaPosition {
     const loanToValue = this.pool.lowestUtilizedPrice.div(this.marketPrice)
 
     return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
-  }
-
-  get errors(): AjnaError[] {
-    const errors: AjnaError[] = []
-    if (this.thresholdPrice.gt(this.pool.lup)) {
-      errors.push({
-        name: 'undercollateralized',
-        data: {
-          positionRatio: this.riskRatio.loanToValue.toString(),
-          minRatio: '---',
-        },
-      })
-    }
-
-    return errors
   }
 
   deposit(collateralAmount: BigNumber) {

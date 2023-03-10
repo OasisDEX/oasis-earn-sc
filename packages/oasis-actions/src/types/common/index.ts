@@ -6,19 +6,15 @@ export type Tx = {
   value: string
 }
 
-export type AjnaErrorUndercollateralized = {
-  name: 'undercollateralized'
+export type AjnaMessage = {
+  name: string
   data: {
-    positionRatio: string
-    minRatio: string
+    [key: string]: string
   }
 }
 
-export type AjnaErrorPaybackAboveDebt = {
-  name: 'payback-above-debt'
-}
-
-export type AjnaError = AjnaErrorUndercollateralized | AjnaErrorPaybackAboveDebt
+export type AjnaError = AjnaMessage
+export type AjnaWarning = AjnaMessage
 
 export type Strategy<Position> = {
   simulation: {
