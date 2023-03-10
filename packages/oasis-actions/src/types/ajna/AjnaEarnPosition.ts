@@ -6,7 +6,7 @@ import { Address, AjnaError, AjnaWarning } from '../common'
 import { AjnaPool } from './AjnaPool'
 
 function priceIndexToPrice(priceIndex: BigNumber) {
-  return new BigNumber(bucketPrices[priceIndex.toNumber()]).shiftedBy(-18).decimalPlaces(2)
+  return new BigNumber(bucketPrices[priceIndex.toNumber()]).shiftedBy(-18)
 }
 
 export interface IAjnaEarn {
