@@ -4,6 +4,7 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import { ServiceRegistry } from '@helpers/serviceRegistry'
+import { RuntimeConfig } from '@helpers/types/common'
 import { OperationsRegistry } from '@helpers/wrappers/operationsRegistry'
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src'
 import { operationDefinition as aaveV2CloseOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/close'
@@ -109,6 +110,14 @@ abstract class DeployedSystemHelpers {
       address: this.signerAddress,
     }
   }
+
+  getRuntimeConfig(): RuntimeConfig {
+    return {
+      provider: this.provider!,
+      signer: this.signer!,
+      address: this.signerAddress!,
+    }
+  }
 }
 
 // MAIN CLASS ===============================================
@@ -117,28 +126,43 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   public config: any = {}
   public deployedSystem: any = {}
-  public addresses: any = []
+  public addresses: any = []  // remove? 
 
   constructor(public readonly hre: HardhatRuntimeEnvironment) {
     super()
     this.network = hre.network.name as Network
   }
 
-  loadConfig(configFileName?: string) {
+  async loadConfig(configFileName?: string) {
     if (configFileName) {
-      configLoader.load(configFileName)
-      this.config = configLoader.get()
+
+      this.config = (await import(`./${configFileName}`)).config
+
+      console.log('LOADED CONFIG', this.config);
+
+      // configLoader.load(configFileName)
+      // this.config = configLoader.get()
     } else {
       // if forked other network then merge configs files
       if (this.forkedNetwork) {
         console.log('LOAD COMBINED CONFIGS', this.forkedNetwork)
-        configLoader.load(`${this.forkedNetwork}.conf.json`)
-        const baseConfig = configLoader.get()
-        configLoader.load('local-extend.conf.json')
-        const extendedConfig = configLoader.get()
+        // configLoader.load(`${this.forkedNetwork}.conf.json`)
+        // const baseConfig = configLoader.get()
+        const baseConfig = (await import(`./${this.forkedNetwork}.conf`)).config
 
-        this.config = { ...baseConfig, ...extendedConfig }
+        console.log('BASE', baseConfig );
+        
+        // configLoader.load('local-extend.conf.json')
+        // const extendedConfig = configLoader.get()
+        const extendedConfig = (await import('./local-extend.conf')).config
+
+
+        console.log('EXTENDED', extendedConfig );
+        
         this.config = _.merge(baseConfig, extendedConfig)
+
+        console.log('COMBINED CONFIG', this.config.mpa.actions );
+        
       } else {
         console.log('LOAD NETWORK CONFIG ONLY')
 
@@ -319,16 +343,16 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async deployCore() {
     await this.instantiateContracts(
-      this.config.mpa.core.filter((item: any) => item.address !== '' && !item.deploy),
+      Object.values(this.config.mpa.core).filter((item: any) => item.address !== '' && !item.deploy),
     )
-    await this.deployContracts(this.config.mpa.core.filter((item: any) => item.deploy))
+    await this.deployContracts(Object.values(this.config.mpa.core).filter((item: any) => item.deploy))
   }
 
   async deployActions() {
     await this.instantiateContracts(
-      this.config.mpa.actions.filter((item: any) => item.address !== '' && !item.deploy),
+      Object.values(this.config.mpa.actions).filter((item: any) => item.address !== '' && !item.deploy),
     )
-    await this.deployContracts(this.config.mpa.actions.filter((item: any) => item.deploy))
+    await this.deployContracts(Object.values(this.config.mpa.actions).filter((item: any) => item.deploy))
   }
 
   async deployAll() {
@@ -336,14 +360,17 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await this.deployActions()
   }
 
-  mapAddresses() {
-    this.config.external.forEach((item: any) => {
-      this.addresses[item.name] = item.address
-      if (item.name === 'FeeRecipient') {
-        this.feeRecipient = item.address
-      }
-    })
-  }
+  // mapAddresses() {
+
+  //   console.log('this.config.external', this.config.external );
+
+  //   this.config.external.forEach((item: any) => {
+  //     this.addresses[item.name] = item.address
+  //     if (item.name === 'FeeRecipient') {
+  //       this.feeRecipient = item.address
+  //     }
+  //   })
+  // }
   async setupLocalSystem(useInch?: boolean) {
     if (!this.signer) throw new Error('No signer set')
     if (!this.signerAddress) throw new Error('No signer address set')
@@ -359,7 +386,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       ],
     )
 
-    !useInch && (await deploySwapContract.setPool(this.addresses.STETH, this.addresses.WETH, 10000))
+    const commonAddresses = this.config.common
+
+    !useInch && (await deploySwapContract.setPool(commonAddresses.STETH.address, commonAddresses.WETH.address, 10000))
 
     await deploySwapContract.addFeeTier(20)
 
@@ -379,45 +408,53 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
     const dsProxyRegistry = await this.ethers.getContractAt(
       DS_PROXY_REGISTRY_ABI,
-      this.addresses.DsProxyRegistry,
+      commonAddresses.DsProxyRegistry.address,
       this.signer,
     )
 
     this.deployedSystem['DsProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
 
     //-- Add Token Contract Entries
-    await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.WETH, this.addresses.WETH)
-    await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.DAI, this.addresses.DAI)
-    await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.USDC, this.addresses.USDC)
 
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.common.UNISWAP_ROUTER,
-      this.addresses.UniswapRouterV3,
-    )
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
-      this.addresses.OneInchAggregator,
-    )
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
-      this.addresses.FlashMintModule,
-    )
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.common.BALANCER_VAULT,
-      this.addresses.BalancerVault,
-    )
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.aave.v2.LENDING_POOL,
-      this.addresses.AaveV2LendingPool,
-    )
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
-      this.addresses.WETHGateway,
-    )
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.aave.v3.AAVE_POOL,
-      this.addresses.AaveV3Pool,
-    )
+    for(let item of Object.values(commonAddresses)) {
+      if("serviceRegistryName" in (item as any)) {
+        console.log('ADDING TO SR', item );
+        await this.serviceRegistryHelper.addEntry((item as any).serviceRegistryName, (item as any).address)
+      }
+    };
+
+    // await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.WETH, this.addresses.WETH)
+    // await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.DAI, this.addresses.DAI)
+    // await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.USDC, this.addresses.USDC)
+
+    // await this.serviceRegistryHelper.addEntry(
+    //   CONTRACT_NAMES.common.UNISWAP_ROUTER,
+    //   this.addresses.UniswapRouterV3,
+    // )
+    // await this.serviceRegistryHelper.addEntry(
+    //   CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
+    //   this.addresses.OneInchAggregator,
+    // )
+    // await this.serviceRegistryHelper.addEntry(
+    //   CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
+    //   this.addresses.FlashMintModule,
+    // )
+    // await this.serviceRegistryHelper.addEntry(
+    //   CONTRACT_NAMES.common.BALANCER_VAULT,
+    //   this.addresses.BalancerVault,
+    // )
+    // await this.serviceRegistryHelper.addEntry(
+    //   CONTRACT_NAMES.aave.v2.LENDING_POOL,
+    //   this.addresses.AaveV2LendingPool,
+    // )
+    // await this.serviceRegistryHelper.addEntry(
+    //   CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
+    //   this.addresses.WETHGateway,
+    // )
+    // await this.serviceRegistryHelper.addEntry(
+    //   CONTRACT_NAMES.aave.v3.AAVE_POOL,
+    //   this.addresses.AaveV3Pool,
+    // )
 
     // Add AAVE Operations
     await operationsRegistry.addOp(aaveV2OpenOp.name, aaveV2OpenOp.actions)
@@ -459,24 +496,24 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 }
-//
+
 // async function main() {
-//   const utils = new HardhatUtils(hre) // the hardhat network is coalesced to mainnet
 //   const signer = hre.ethers.provider.getSigner(0)
 //   const network = hre.network.name || ''
 //   console.log(`Deployer address: ${await signer.getAddress()}`)
 //   console.log(`Network: ${network}`)
-//
+
 //   const ds = new DeploymentSystem(hre) // TODO add forked param and in init get chainId and forked Network + set as attribute
 //   await ds.init()
-//   ds.loadConfig()
-//   ds.mapAddresses()
+//   // await ds.loadConfig('mainnet.conf')
+//   await ds.loadConfig()
+//   // ds.mapAddresses()
 //   await ds.deployAll()
 //   await ds.setupLocalSystem()
-//
+
 //   // ds.saveConfig()
 // }
-//
+
 // // We recommend this pattern to be able to use async/await everywhere
 // // and properly handle errors.
 // main().catch(error => {

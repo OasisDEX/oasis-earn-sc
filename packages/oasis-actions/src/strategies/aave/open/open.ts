@@ -50,10 +50,11 @@ export interface AaveOpenSharedDependencies {
     toToken: string,
     amount: BigNumber,
     slippage: BigNumber,
-  ) => Promise<SwapData>
+  ) => Promise<SwapData>,
+  system: any
 }
-export type AaveV2OpenDependencies = AaveOpenSharedDependencies & WithV2Addresses & WithV2Protocol
-export type AaveV3OpenDependencies = AaveOpenSharedDependencies & WithV3Addresses & WithV3Protocol
+export type AaveV2OpenDependencies = AaveOpenSharedDependencies & WithV2Protocol // delete addresses
+export type AaveV3OpenDependencies = AaveOpenSharedDependencies & WithV3Protocol // delete addresses
 export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependencies
 
 export async function open(
@@ -67,17 +68,14 @@ export async function open(
     args.positionType === 'Earn',
   )
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
-  const { swapData: quoteSwapData } = await getSwapDataHelper<
-    typeof dependencies.addresses,
-    AAVETokens
-  >({
+  const { swapData: quoteSwapData } = await getSwapDataHelper<AAVETokens>({
     fromTokenIsDebt: true,
     args: {
       ...args,
       fee,
       swapAmountBeforeFees: estimatedSwapAmount,
     },
-    addresses: dependencies.addresses,
+    addressesConfig: dependencies.system,
     services: {
       getSwapData: dependencies.getSwapData,
       getTokenAddresses: getAaveTokenAddresses,
@@ -93,17 +91,14 @@ export async function open(
     // true,
   )
 
-  const { swapData, collectFeeFrom } = await getSwapDataHelper<
-    typeof dependencies.addresses,
-    AAVETokens
-  >({
+  const { swapData, collectFeeFrom } = await getSwapDataHelper<AAVETokens>({
     fromTokenIsDebt: true,
     args: {
       ...args,
       fee,
       swapAmountBeforeFees: simulatedPositionTransition.swap.fromTokenAmount,
     },
-    addresses: dependencies.addresses,
+    addressesConfig: dependencies.system,
     services: {
       getSwapData: dependencies.getSwapData,
       getTokenAddresses: getAaveTokenAddresses,
@@ -140,7 +135,7 @@ async function simulatePositionTransition(
 ) {
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
-    dependencies.addresses,
+    dependencies.system,
   )
 
   /**
@@ -151,8 +146,8 @@ async function simulatePositionTransition(
   let currentPosition: Position | undefined
   let protocolData: Unbox<AaveProtocolData> | undefined
   if (
-    dependencies.protocol.version === AaveVersion.v2 &&
-    aaveV2UniqueContractName in dependencies.addresses
+    dependencies.protocol.version === AaveVersion.v2 
+    // && aaveV2UniqueContractName in dependencies.addresses  //remove this assertion
   ) {
     currentPosition = await dependencies.protocol.getCurrentPosition(
       {
@@ -160,23 +155,19 @@ async function simulatePositionTransition(
         debtToken: args.debtToken,
         proxy: dependencies.proxy,
       },
-      {
-        addresses: dependencies.addresses,
-        provider: dependencies.provider,
-        protocolVersion: dependencies.protocol.version,
-      },
+      dependencies.system,
+      dependencies.protocol.version,
+      
     )
     protocolData = await dependencies.protocol.getProtocolData({
       collateralTokenAddress,
       debtTokenAddress,
-      addresses: dependencies.addresses,
-      provider: dependencies.provider,
       protocolVersion: dependencies.protocol.version,
     })
   }
   if (
-    dependencies.protocol.version === AaveVersion.v3 &&
-    aaveV3UniqueContractName in dependencies.addresses
+    dependencies.protocol.version === AaveVersion.v3 
+    // && aaveV3UniqueContractName in dependencies.addresses
   ) {
     currentPosition = await dependencies.protocol.getCurrentPosition(
       {
@@ -184,17 +175,13 @@ async function simulatePositionTransition(
         debtToken: args.debtToken,
         proxy: dependencies.proxy,
       },
-      {
-        addresses: dependencies.addresses,
-        provider: dependencies.provider,
-        protocolVersion: dependencies.protocol.version,
-      },
+      dependencies.system,
+      dependencies.protocol.version,
+      
     )
     protocolData = await dependencies.protocol.getProtocolData({
       collateralTokenAddress,
       debtTokenAddress,
-      addresses: dependencies.addresses,
-      provider: dependencies.provider,
       protocolVersion: dependencies.protocol.version,
     })
   }
@@ -285,7 +272,7 @@ async function buildOperation(
   const protocolVersion = dependencies.protocol.version
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
-    dependencies.addresses,
+    dependencies.system
   )
 
   const depositCollateralAmountInWei =
@@ -294,7 +281,9 @@ async function buildOperation(
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
   const borrowAmountInWei = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
 
-  if (protocolVersion === AaveVersion.v3 && 'pool' in dependencies.addresses) {
+  if (protocolVersion === AaveVersion.v3 
+    // && 'pool' in dependencies.addresses
+  ) {
     const openArgs = {
       deposit: {
         collateralToken: {
@@ -314,7 +303,7 @@ async function buildOperation(
         receiveAtLeast: swapData.minToTokenAmount,
       },
       positionType: args.positionType,
-      addresses: dependencies.addresses,
+      // addresses: dependencies.addresses,
       flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
       borrowAmountInBaseUnit: borrowAmountInWei,
       collateralTokenAddress,
@@ -324,10 +313,13 @@ async function buildOperation(
       proxy: dependencies.proxy,
       user: dependencies.user,
       isDPMProxy: dependencies.isDPMProxy,
+      system,
     }
     return await operations.aave.v3.open(openArgs)
   }
-  if (protocolVersion === AaveVersion.v2 && 'lendingPool' in dependencies.addresses) {
+  if (protocolVersion === AaveVersion.v2
+    //  && 'lendingPool' in dependencies.addresses
+     ) {
     const openArgs = {
       deposit: {
         collateralToken: {
@@ -347,7 +339,7 @@ async function buildOperation(
         receiveAtLeast: swapData.minToTokenAmount,
       },
       positionType: args.positionType,
-      addresses: dependencies.addresses,
+      // addresses: dependencies.addresses,
       flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
       borrowAmountInBaseUnit: borrowAmountInWei,
       collateralTokenAddress,
@@ -356,6 +348,7 @@ async function buildOperation(
       proxy: dependencies.proxy,
       user: dependencies.user,
       isDPMProxy: dependencies.isDPMProxy,
+      system
     }
     return await operations.aave.v2.open(openArgs)
   }

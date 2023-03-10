@@ -7,23 +7,21 @@ import aaveV3ProtocolDataProvider from '../../../../../abi/external/aave/v3/aave
 import aaveV3PoolABI from '../../../../../abi/external/aave/v3/pool.json'
 import { amountFromWei } from '../../helpers'
 import { ADDRESSES } from '../../helpers/addresses'
-import { AAVEStrategyAddresses } from '../../operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '../../operations/aave/v3'
 import { AaveVersion } from '../../strategies'
 
-type InternalAaveProtocolData<AaveAddresses> = {
+type InternalAaveProtocolData = {
   collateralTokenAddress: string
   debtTokenAddress: string
   proxy?: string
-  addresses: AaveAddresses
-  provider: providers.Provider
+  // addresses: AaveAddresses
+  // provider: providers.Provider
 }
 
 export type AaveProtocolDataArgs =
-  | (InternalAaveProtocolData<AAVEStrategyAddresses> & { protocolVersion: AaveVersion.v2 })
-  | (InternalAaveProtocolData<AAVEV3StrategyAddresses> & { protocolVersion: AaveVersion.v3 })
+  | (InternalAaveProtocolData & { protocolVersion: AaveVersion.v2 })
+  | (InternalAaveProtocolData & { protocolVersion: AaveVersion.v3 })
 
-export const getAaveProtocolData = async (args: AaveProtocolDataArgs) => {
+export const getAaveProtocolData = async (args: AaveProtocolDataArgs & { system: any }) => {
   if (isV2(args)) {
     return getAaveV2ProtocolData(args)
   } else if (isV3(args)) {
@@ -35,30 +33,29 @@ export const getAaveProtocolData = async (args: AaveProtocolDataArgs) => {
 
 function isV2(
   args: AaveProtocolDataArgs,
-): args is InternalAaveProtocolData<AAVEStrategyAddresses> & { protocolVersion: AaveVersion.v2 } {
+): args is InternalAaveProtocolData & { protocolVersion: AaveVersion.v2 } {
   return args.protocolVersion === AaveVersion.v2
 }
 
 function isV3(
   args: AaveProtocolDataArgs,
-): args is InternalAaveProtocolData<AAVEV3StrategyAddresses> & {
+): args is InternalAaveProtocolData & {
   protocolVersion: AaveVersion.v3
 } {
   return args.protocolVersion === AaveVersion.v3
 }
 
 async function getAaveV2ProtocolData({
-  addresses,
-  provider,
   debtTokenAddress,
   collateralTokenAddress,
   proxy,
-}: InternalAaveProtocolData<AAVEStrategyAddresses> & { protocolVersion: AaveVersion.v2 }) {
-  const priceOracle = new ethers.Contract(addresses.priceOracle, aaveV2PriceOracleABI, provider)
+  system
+}: InternalAaveProtocolData & { protocolVersion: AaveVersion.v2, system: any }) {
+  const priceOracle = new ethers.Contract(system.config.aave.v2.PriceOracle, aaveV2PriceOracleABI, system.provider)
   const aaveProtocolDataProvider = new ethers.Contract(
-    addresses.protocolDataProvider,
+    system.config.aave.v2.ProtocolDataProvider,
     aaveV2ProtocolDataProviderABI,
-    provider,
+    system.provider,
   )
 
   const hasProxy = !!proxy
@@ -98,19 +95,18 @@ async function getAaveV2ProtocolData({
 }
 
 async function getAaveV3ProtocolData({
-  addresses,
-  provider,
   debtTokenAddress,
   collateralTokenAddress,
   proxy,
-}: InternalAaveProtocolData<AAVEV3StrategyAddresses> & { protocolVersion: AaveVersion.v3 }) {
-  const priceOracle = new ethers.Contract(addresses.aaveOracle, aaveV2PriceOracleABI, provider)
+  system
+}: InternalAaveProtocolData & { protocolVersion: AaveVersion.v3, system: any }) {
+  const priceOracle = new ethers.Contract(system.config.aave.v3.AaveOracle, aaveV2PriceOracleABI, system.provider)
   const aaveProtocolDataProvider = new ethers.Contract(
-    addresses.aaveProtocolDataProvider,
+    system.config.aave.v3.AaveProtocolDataProvider,
     aaveV3ProtocolDataProvider,
-    provider,
+    system.provider,
   )
-  const aavePool = new ethers.Contract(addresses.pool, aaveV3PoolABI, provider)
+  const aavePool = new ethers.Contract(system.config.aave.v3.Pool, aaveV3PoolABI, system.provider)
 
   const hasProxy = !!proxy
 

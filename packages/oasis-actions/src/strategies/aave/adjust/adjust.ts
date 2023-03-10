@@ -403,7 +403,7 @@ async function getProtocolData(
   throw new Error('No protocol data could be found')
 }
 
-export function isV2(
+export function isV2(  //todo: remove - impemented also in getCurrentPosition.ts
   dependencies: AaveAdjustDependencies,
 ): dependencies is AaveV2AdjustDependencies & {
   protocolVersion: AaveVersion.v2
@@ -411,7 +411,7 @@ export function isV2(
   return dependencies.protocol.version === AaveVersion.v2
 }
 
-export function isV3(
+export function isV3( //todo: remove - impemented also in getCurrentPosition.ts
   dependencies: AaveAdjustDependencies,
 ): dependencies is AaveV3AdjustDependencies & {
   protocolVersion: AaveVersion.v3

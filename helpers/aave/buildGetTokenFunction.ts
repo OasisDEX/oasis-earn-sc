@@ -7,17 +7,18 @@ import { mainnetAddresses } from '../../test/addresses'
 import { RuntimeConfig } from '../types/common'
 
 export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH'>
-const tokens: Record<AAVETokensToGet, string> = {
-  STETH: mainnetAddresses.STETH,
-  WBTC: mainnetAddresses.WBTC,
-  USDC: mainnetAddresses.USDC,
-  WSTETH: mainnetAddresses.WSTETH,
-}
 
 export function buildGetTokenFunction(
-  config: RuntimeConfig,
-  hre: HardhatRuntimeEnvironment,
+  system: any
 ): (symbol: AAVETokensToGet, amount: BigNumber) => Promise<boolean> {
+
+  const tokens: Record<AAVETokensToGet, string> = {
+    STETH: system.config.common.STETH.address,
+    WBTC: system.config.common.WBTC.address,
+    USDC: system.config.common.USDC.address,
+    WSTETH: system.config.common.WSTETH.address,
+  }
+
   return async function getTokens(symbol: AAVETokensToGet, amount: BigNumber): Promise<boolean> {
     /* Ensures we always have enough tokens to open a position */
     const BUFFER_FACTOR = 1.1
@@ -26,14 +27,14 @@ export function buildGetTokenFunction(
       const wethAddress = ADDRESSES.main.WETH
       const tokenAddress = tokens[symbol]
 
+      const config: RuntimeConfig = system.getRuntimeConfig()
       await swapUniswapTokens(
         wethAddress,
         tokenAddress,
         amountInInWeth,
         ONE.toFixed(0),
         config.address,
-        config,
-        hre,
+        system
       )
     } catch (e: any) {
       console.log(`Error while swapping ${amountInInWeth} WETH for ${symbol}: ${e.message}`)

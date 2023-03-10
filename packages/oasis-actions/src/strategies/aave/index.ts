@@ -31,12 +31,14 @@ export const aave = {
       }),
     view: (
       args: AaveGetCurrentPositionArgs,
-      dependencies: Omit<AaveV2GetCurrentPositionDependencies, 'protocolVersion'>,
+      system: any
+      // dependencies: Omit<AaveV2GetCurrentPositionDependencies, 'protocolVersion'>, // dependencies simplified to Deployment System
     ) =>
-      getCurrentPosition(args, {
-        ...dependencies,
-        protocolVersion: AaveVersion.v2,
-      }),
+      getCurrentPosition(
+        args,
+        system,
+        AaveVersion.v2,
+      ),
     close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) =>
       close({ ...args, protocolVersion: AaveVersion.v2 }, dependencies),
     adjust: (args: AaveAdjustArgs, dependencies: Omit<AaveV2AdjustDependencies, 'protocol'>) =>
@@ -81,9 +83,9 @@ export const aave = {
       args: AaveGetCurrentPositionArgs,
       dependencies: Omit<AaveV3GetCurrentPositionDependencies, 'protocol' | 'protocolVersion'>,
     ) =>
-      getCurrentPosition(args, {
-        ...dependencies,
-        protocolVersion: AaveVersion.v3,
-      }),
+      getCurrentPosition(args, 
+        system,
+        AaveVersion.v3,
+      ),
   },
 }

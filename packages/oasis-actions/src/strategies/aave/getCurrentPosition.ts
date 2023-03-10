@@ -26,12 +26,14 @@ export type AaveGetCurrentPositionDependencies =
 
 export async function getCurrentPosition(
   args: AaveGetCurrentPositionArgs,
-  dependencies: AaveGetCurrentPositionDependencies,
+  system: any,
+  protocolVersion: AaveVersion.v2 | AaveVersion.v3
+  // dependencies: AaveGetCurrentPositionDependencies,
 ): Promise<AavePosition> {
-  if (isV2(dependencies)) {
-    return getCurrentPositionAaveV2(args, dependencies)
-  } else if (isV3(dependencies)) {
-    return getCurrentPositionAaveV3(args, dependencies)
+  if (isV2(protocolVersion)) {
+    return getCurrentPositionAaveV2(args, protocolVersion, system)
+  } else if (isV3(protocolVersion)) {
+    return getCurrentPositionAaveV3(args, protocolVersion, system)
   } else {
     throw new Error('Invalid Aave version')
   }
@@ -39,7 +41,8 @@ export async function getCurrentPosition(
 
 async function getCurrentPositionAaveV2(
   args: AaveGetCurrentPositionArgs,
-  dependencies: AaveV2GetCurrentPositionDependencies,
+  protocolVersion: AaveVersion.v2 | AaveVersion.v3,
+  system: any
 ): Promise<AavePosition> {
   const debtToken = args.debtToken
   const collateralToken = args.collateralToken
@@ -48,16 +51,15 @@ async function getCurrentPositionAaveV2(
       collateralToken: collateralToken,
       debtToken: debtToken,
     },
-    dependencies.addresses,
+    system,
   )
 
   const protocolData = await getAaveProtocolData({
     collateralTokenAddress,
     debtTokenAddress,
-    addresses: dependencies.addresses,
     proxy: args.proxy,
-    provider: dependencies.provider,
-    protocolVersion: dependencies.protocolVersion,
+    protocolVersion,
+    system,
   })
 
   const {
@@ -100,7 +102,8 @@ async function getCurrentPositionAaveV2(
 
 async function getCurrentPositionAaveV3(
   args: AaveGetCurrentPositionArgs,
-  dependencies: AaveV3GetCurrentPositionDependencies,
+  protocolVersion: AaveVersion.v2 | AaveVersion.v3,
+  system: any
 ): Promise<AavePosition> {
   const debtToken = args.debtToken
   const collateralToken = args.collateralToken
@@ -109,16 +112,15 @@ async function getCurrentPositionAaveV3(
       collateralToken: collateralToken,
       debtToken: debtToken,
     },
-    dependencies.addresses,
+    system
   )
 
   const protocolData = await getAaveProtocolData({
     collateralTokenAddress,
     debtTokenAddress,
-    addresses: dependencies.addresses,
     proxy: args.proxy,
-    provider: dependencies.provider,
-    protocolVersion: dependencies.protocolVersion,
+    protocolVersion,
+    system,
   })
 
   const {
@@ -167,18 +169,10 @@ async function getCurrentPositionAaveV3(
   )
 }
 
-function isV2(
-  dependencies: AaveGetCurrentPositionDependencies,
-): dependencies is IViewPositionDependencies<AAVEStrategyAddresses> & {
-  protocolVersion: AaveVersion.v2
-} {
-  return dependencies.protocolVersion === AaveVersion.v2
+function isV2(protocolVersion: AaveVersion.v2 | AaveVersion.v3 ): boolean {
+  return protocolVersion === AaveVersion.v2
 }
 
-function isV3(
-  dependencies: AaveGetCurrentPositionDependencies,
-): dependencies is IViewPositionDependencies<AAVEV3StrategyAddresses> & {
-  protocolVersion: AaveVersion.v3
-} {
-  return dependencies.protocolVersion === AaveVersion.v3
+function isV3(protocolVersion: AaveVersion.v2 | AaveVersion.v3 ): boolean {
+  return protocolVersion === AaveVersion.v3
 }

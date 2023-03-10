@@ -1,6 +1,4 @@
 import {
-  AAVEStrategyAddresses,
-  AAVEV3StrategyAddresses,
   AaveVersion,
   protocols,
   strategies,
@@ -22,8 +20,7 @@ type AaveV3Protocol = {
 }
 
 type BaseStrategiesDependencies = {
-  contracts: { operationExecutor: ethers.Contract }
-  provider: ethers.providers.Provider
+  provider: ethers.providers.Provider // todo: remove - available in Deployment System 
   protocol: AaveV2Protocol | AaveV3Protocol
   getSwapData: (
     ...args: any[]
@@ -33,17 +30,17 @@ type BaseStrategiesDependencies = {
     amount: BigNumber,
     slippage: BigNumber,
   ) => Promise<SwapData>
-  user: string
+  user: string  // todo: remove - available in Deployment System
 }
 
 export type StrategyDependenciesAaveV2 = Omit<
   BaseStrategiesDependencies,
-  'addresses' | 'protocol'
-> & { protocol: AaveV2Protocol; addresses: AAVEStrategyAddresses & { accountFactory?: string } }
+  'protocol'
+> & { protocol: AaveV2Protocol;  }
 
 export type StrategyDependenciesAaveV3 = Omit<
   BaseStrategiesDependencies,
-  'addresses' | 'protocol'
-> & { protocol: AaveV3Protocol; addresses: AAVEV3StrategyAddresses & { accountFactory?: string } }
+  'protocol'
+> & { protocol: AaveV3Protocol; }
 
 export type StrategiesDependencies = StrategyDependenciesAaveV2 | StrategyDependenciesAaveV3

@@ -12,7 +12,8 @@ export type WithV2Protocol = {
     version: AaveVersion.v2
     getCurrentPosition: (
       args: AaveGetCurrentPositionArgs,
-      deps: AaveV2GetCurrentPositionDependencies,
+      system: any,
+      protocolVersion: AaveVersion.v2,
     ) => Promise<AavePosition>
     getProtocolData: (args: AaveProtocolDataArgs) => AaveProtocolData
   }
@@ -23,7 +24,8 @@ export type WithV3Protocol = {
     version: AaveVersion.v3
     getCurrentPosition: (
       args: AaveGetCurrentPositionArgs,
-      deps: AaveV3GetCurrentPositionDependencies,
+      system: any,
+      protocolVersion: AaveVersion.v3,
     ) => Promise<AavePosition>
     getProtocolData: (args: AaveProtocolDataArgs) => AaveProtocolData
   }

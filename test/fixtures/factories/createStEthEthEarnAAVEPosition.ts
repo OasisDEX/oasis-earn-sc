@@ -35,10 +35,15 @@ async function openStEthEthEarnAAVEPosition(
     positionType: 'Earn',
   }
 
+  console.log('DEPS', dependencies );
+  
   if (isV2(dependencies)) {
+    console.log('IS V2', );
+    
     return await strategies.aave.v2.open(args, dependencies)
   }
   if (isV3(dependencies)) {
+    console.log('IS V3', );
     return await strategies.aave.v3.open(args, dependencies)
   }
 
@@ -59,15 +64,21 @@ export async function createStEthEthEarnAAVEPosition({
   use1inch,
   swapAddress,
   dependencies,
-  config,
+  system
+  // config,
 }: {
   proxy: string
   isDPM: boolean
   use1inch: boolean
-  swapAddress?: string
+  swapAddress?: string // we have it already in dependecies.system - remove
   dependencies: StrategiesDependencies
-  config: RuntimeConfig
+  system: any // Deployment System 2.0
+  // config: RuntimeConfig // we have it already in dependecies.system - remove
 }): Promise<PositionDetails> {
+
+  console.log('SYSTEM', system );
+  
+  const config: RuntimeConfig = system.getRuntimeConfig()
   const strategy: AavePositionStrategy = 'STETH/ETH Earn'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
@@ -89,20 +100,27 @@ export async function createStEthEthEarnAAVEPosition({
       getSwapData,
       isDPMProxy: isDPM,
       proxy: proxy,
+      system
     },
   )
 
+  const {WETH, feeRecipient} = system.config.common
+
+
+  console.log("WETH", WETH)
+  console.log("feeRecipient", feeRecipient)
+
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeWalletBalanceBefore = await balanceOf(ADDRESSES.main.WETH, ADDRESSES.main.feeRecipient, {
+  const feeWalletBalanceBefore = await balanceOf(WETH.address, feeRecipient.address, {
     config,
   })
 
   const [status] = await proxyFunction(
     proxy,
     {
-      address: dependencies.contracts.operationExecutor.address,
-      calldata: dependencies.contracts.operationExecutor.interface.encodeFunctionData('executeOp', [
+      address: system.deployedSystem.operationExecutor.address,
+      calldata: system.deployedSystem.operationExecutor.interface.encodeFunctionData('executeOp', [
         position.transaction.calls,
         position.transaction.operationName,
       ]),
@@ -121,10 +139,9 @@ export async function createStEthEthEarnAAVEPosition({
 
   let getPosition
   if (
-    dependencies.protocol.version === AaveVersion.v3 &&
-    aaveV3UniqueContractName in dependencies.addresses
+    dependencies.protocol.version === AaveVersion.v3
+    // && aaveV3UniqueContractName in dependencies.addresses //remove aaveV3UniqueContractName and this check ? - this is more like an assertion on missing config not a condition 
   ) {
-    const addresses = dependencies.addresses
     getPosition = async () => {
       return await strategies.aave.v3.view(
         {
@@ -132,21 +149,14 @@ export async function createStEthEthEarnAAVEPosition({
           debtToken: ETH,
           proxy,
         },
-        {
-          addresses: {
-            ...addresses,
-            operationExecutor: dependencies.contracts.operationExecutor.address,
-          },
-          provider: config.provider,
-        },
+        system
       )
     }
   }
   if (
-    dependencies.protocol.version === AaveVersion.v2 &&
-    aaveV2UniqueContractName in dependencies.addresses
+    dependencies.protocol.version === AaveVersion.v2 
+    // && aaveV2UniqueContractName in dependencies.addresses //same as above
   ) {
-    const addresses = dependencies.addresses
     getPosition = async () => {
       return await strategies.aave.v2.view(
         {
@@ -154,13 +164,7 @@ export async function createStEthEthEarnAAVEPosition({
           debtToken: ETH,
           proxy,
         },
-        {
-          addresses: {
-            ...addresses,
-            operationExecutor: dependencies.contracts.operationExecutor.address,
-          },
-          provider: config.provider,
-        },
+        system
       )
     }
   }

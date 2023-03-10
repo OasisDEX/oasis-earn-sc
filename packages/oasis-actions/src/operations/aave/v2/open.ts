@@ -23,7 +23,7 @@ interface OpenArgs {
     receiveAtLeast: BigNumber
   }
   positionType: PositionType
-  addresses: AAVEStrategyAddresses
+  // addresses: AAVEStrategyAddresses
   flashloanAmount: BigNumber
   borrowAmountInBaseUnit: BigNumber
   collateralTokenAddress: Address
@@ -32,6 +32,7 @@ interface OpenArgs {
   proxy: Address
   user: Address
   isDPMProxy: boolean
+  system: any
 }
 
 export const operationDefinition = {
@@ -88,7 +89,7 @@ export const operationDefinition = {
 export async function open({
   deposit,
   swapArgs,
-  addresses,
+  // addresses,
   flashloanAmount,
   borrowAmountInBaseUnit,
   collateralTokenAddress,
@@ -97,6 +98,7 @@ export async function open({
   user,
   isDPMProxy,
   positionType,
+  system
 }: OpenArgs): Promise<IOperation> {
   const pullDebtTokensToProxy = actions.common.pullToken({
     asset: debtTokenAddress,
@@ -112,14 +114,14 @@ export async function open({
 
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: flashloanAmount,
-    asset: addresses.DAI,
-    delegate: addresses.lendingPool,
+    asset: system.config.common.DAI.address,
+    delegate: system.config.aave.v2.LendingPool.address,
     sumAmounts: false,
   })
 
   const depositDaiInAAVE = actions.aave.v2.aaveDeposit({
     amount: flashloanAmount,
-    asset: addresses.DAI,
+    asset: system.config.common.DAI.address,
     sumAmounts: false,
   })
 
@@ -146,7 +148,7 @@ export async function open({
   const setCollateralTokenApprovalOnLendingPool = actions.common.setApproval(
     {
       asset: collateralTokenAddress,
-      delegate: addresses.lendingPool,
+      delegate: system.config.aave.v2.LendingPool.address,
       amount: deposit.collateralToken.amountInBaseUnit,
       sumAmounts: true,
     },
@@ -164,9 +166,9 @@ export async function open({
   )
 
   const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw({
-    asset: addresses.DAI,
+    asset: system.config.common.DAI.address,
     amount: flashloanAmount,
-    to: addresses.operationExecutor,
+    to: system.deployedSystem.operationExecutor.address,
   })
 
   const protocol: Protocol = 'AAVE'
@@ -202,7 +204,7 @@ export async function open({
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     isDPMProxy,
     flashloanAmount: flashloanAmount,
-    borrower: addresses.operationExecutor,
+    borrower: system.deployedSystem.operationExecutor.address,
     isProxyFlashloan: true,
     calls: flashloanCalls,
   })

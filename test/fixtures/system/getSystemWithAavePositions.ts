@@ -38,13 +38,14 @@ export const getSystemWithAavePositions =
   async (): Promise<SystemWithAAVEPositions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
-    ds.loadConfig('test-configs/test-aave-v2-mainnet.conf.json')
+    // ds.loadConfig('test-configs/test-aave-v2-mainnet.conf.json')
+    ds.loadConfig()
 
     // If you update test block numbers you may run into issues where whale addresses
     // We use impersonation on test block number but with 1inch we use uniswap
     const getTokens = use1inch
-      ? buildGetTokenFunction(config, await import('hardhat'))
-      : buildGetTokenByImpersonateFunction(config, await import('hardhat'))
+      ? buildGetTokenFunction(ds)
+      : buildGetTokenByImpersonateFunction(config, await import('hardhat')) // todo: refactor the same way as in buildGetTokenFunction
     const useFallbackSwap = !use1inch
     if (blockNumberForAAVEV2System && useFallbackSwap) {
       await ds.resetNode(blockNumberForAAVEV2System)
@@ -57,26 +58,25 @@ export const getSystemWithAavePositions =
     if (!blockNumberForAAVEV2System && useFallbackSwap) {
       throw 'testBlockNumber is not set'
     }
-    ds.mapAddresses()
     await ds.deployAll()
     await ds.setupLocalSystem(use1inch)
 
     const { system, registry } = ds.getSystem()
 
     const dependencies: StrategyDependenciesAaveV2 = {
-      addresses: {
-        ...mainnetAddresses,
-        priceOracle: mainnetAddresses.aave.v2.priceOracle,
-        lendingPool: mainnetAddresses.aave.v2.lendingPool,
-        protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
-        accountFactory: system.AccountFactory.contract.address,
-        operationExecutor: system.OperationExecutor.contract.address,
-      },
-      contracts: {
-        operationExecutor: system.OperationExecutor.contract,
-      },
-      provider: config.provider,
-      user: config.address,
+      // addresses: { // remove - in system
+      //   ...mainnetAddresses,
+      //   priceOracle: mainnetAddresses.aave.v2.priceOracle,
+      //   lendingPool: mainnetAddresses.aave.v2.lendingPool,
+      //   protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
+      //   accountFactory: system.AccountFactory.contract.address,
+      //   operationExecutor: system.OperationExecutor.contract.address,
+      // },
+      // contracts: { // remove - in system
+      //   operationExecutor: system.OperationExecutor.contract,
+      // },
+      provider: config.provider, // remove - in system
+      user: config.address, // remove - in system
       protocol: {
         version: AaveVersion.v2,
         getCurrentPosition: strategies.aave.v2.view,
@@ -105,43 +105,44 @@ export const getSystemWithAavePositions =
 
     const swapAddress = system.Swap.contract.address
 
-    const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
-      proxy: dpmProxyForEarnStEthEth,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-    })
+    // const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
+    //   proxy: dpmProxyForEarnStEthEth,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   system: ds,
+    //   // config,
+    // })
 
-    const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-    })
+    // const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyEthUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config,
+    // })
 
-    const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyStEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-      getTokens,
-    })
+    // const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyStEthUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config,
+    //   getTokens,
+    // })
 
-    const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyWbtcUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-      getTokens,
-    })
+    // const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyWbtcUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config,
+    //   getTokens,
+    // })
 
     const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
       proxy: dsProxy.address,
@@ -149,20 +150,24 @@ export const getSystemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config,
+      system: ds
+      // config,
     })
 
+    // const dpmPositions = {
+    //   ...(stEthEthEarnPosition ? { [stEthEthEarnPosition.strategy]: stEthEthEarnPosition } : {}),
+    //   ...(ethUsdcMultiplyPosition
+    //     ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
+    //     : {}),
+    //   ...(stethUsdcMultiplyPosition
+    //     ? { [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition }
+    //     : {}),
+    //   ...(wbtcUsdcMultiplyPositon
+    //     ? { [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon }
+    //     : {}),
+    // }
     const dpmPositions = {
-      ...(stEthEthEarnPosition ? { [stEthEthEarnPosition.strategy]: stEthEthEarnPosition } : {}),
-      ...(ethUsdcMultiplyPosition
-        ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
-        : {}),
-      ...(stethUsdcMultiplyPosition
-        ? { [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition }
-        : {}),
-      ...(wbtcUsdcMultiplyPositon
-        ? { [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon }
-        : {}),
+     
     }
 
     return {

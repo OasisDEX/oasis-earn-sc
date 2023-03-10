@@ -19,7 +19,6 @@ export type AavePositionStrategy =
 export type TokenDetails = {
   symbol: AAVETokens
   precision: number
-  address: string
 }
 
 export type PositionDetails = {

@@ -12,19 +12,19 @@ type GetSwapDataArgs<Tokens> = {
   fee?: BigNumber
 }
 
-export async function getSwapDataHelper<Addresses, Tokens>({
+export async function getSwapDataHelper<Tokens>({
   fromTokenIsDebt,
   args,
-  addresses,
+  addressesConfig,
   services,
 }: {
   fromTokenIsDebt: boolean
   args: GetSwapDataArgs<Tokens>
-  addresses: Addresses
+  addressesConfig: any //todo fix type
   services: {
     getTokenAddresses: (
       args: Pick<GetSwapDataArgs<Tokens>, 'debtToken' | 'collateralToken'>,
-      addresses: Addresses,
+      addresses: any,
     ) => { collateralTokenAddress: string; debtTokenAddress: string }
     getSwapData: (
       fromToken: string,
@@ -36,7 +36,7 @@ export async function getSwapDataHelper<Addresses, Tokens>({
 }) {
   const { collateralTokenAddress, debtTokenAddress } = services.getTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
-    addresses,
+    addressesConfig,
   )
 
   const fromToken = fromTokenIsDebt ? debtTokenAddress : collateralTokenAddress

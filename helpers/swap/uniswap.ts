@@ -18,18 +18,16 @@ export async function swapUniswapTokens(
   amountIn: string,
   amountOutMinimum: string,
   recipient: string,
-  { provider, signer }: Optional<Pick<RuntimeConfig, 'provider' | 'signer' | 'address'>, 'address'>,
-  hre?: HardhatRuntimeEnvironment,
+  system: any
 ) {
   const value =
-    tokenIn === ADDRESSES.main.WETH || tokenIn === ADDRESSES.optimism.WETH ? amountIn : 0
-  const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
+    tokenIn === system.config.common.WETH.address ? amountIn : 0
 
-  const uniswapV3 = new ethers.Contract(
+  const uniswapV3 = new system.ethers.Contract(
     ADDRESSES.main.uniswapRouterV3,
     UNISWAP_ROUTER_V3_ABI,
-    provider,
-  ).connect(signer)
+    system.provider,
+  ).connect(system.signer)
 
   const swapParams = {
     tokenIn,

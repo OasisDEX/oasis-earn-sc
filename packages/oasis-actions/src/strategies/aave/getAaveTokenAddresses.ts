@@ -10,18 +10,26 @@ export const getAaveTokenAddresses = (
     collateralToken: IPositionTransitionArgs<AAVETokens>['collateralToken']
     debtToken: IPositionTransitionArgs<AAVETokens>['debtToken']
   },
-  addresses: AAVEStrategyAddresses | AAVEV3StrategyAddresses,
+  system: any
+  // addresses: AAVEStrategyAddresses | AAVEV3StrategyAddresses,
 ): {
   collateralTokenAddress: string
   debtTokenAddress: string
 } => {
+
+  console.log('system.config.common', system.config.common );
+  
+  const { WETH, ETH, STETH, WSTETH, USDC, WBTC } = system.config.common
+
+  console.log('WETHHHHH', WETH );
+  
   const tokenAddresses: Record<AAVETokens, string> = {
-    WETH: addresses.WETH,
-    ETH: addresses.WETH,
-    STETH: 'STETH' in addresses ? addresses.STETH : emptyAddress,
-    WSTETH: 'WSTETH' in addresses ? addresses.WSTETH : emptyAddress,
-    USDC: addresses.USDC,
-    WBTC: addresses.WBTC,
+    WETH: WETH.address,
+    ETH: WETH.address,
+    STETH: STETH.address,
+    WSTETH: WSTETH.address,
+    USDC: USDC.address,
+    WBTC: WBTC.address,
   }
 
   const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
