@@ -2,12 +2,11 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
-import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
+// import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
 import { ZERO } from '../../../helpers/constants'
 import { AjnaEarnPosition } from '../../../types/ajna'
 import { Address, Strategy } from '../../../types/common'
-import * as views from '../../../views'
-import { GetEarnData } from '../../../views/ajna'
+import bucketPrices from './buckets.json'
 
 interface Args {
   poolAddress: Address
@@ -23,32 +22,17 @@ export interface Dependencies {
   ajnaProxyActions: Address
   provider: ethers.providers.Provider
   WETH: Address
-  getEarnData: GetEarnData
 }
 
 export async function withdrawAndAdjust(
   args: Args,
   dependencies: Dependencies,
 ): Promise<Strategy<AjnaEarnPosition>> {
-  const position = await views.ajna.getEarnPosition(
-    {
-      collateralPrice: ZERO,
-      quotePrice: ZERO,
-      proxyAddress: args.dpmProxyAddress,
-      poolAddress: args.poolAddress,
-    },
-    {
-      poolInfoAddress: dependencies.poolInfoAddress,
-      provider: dependencies.provider,
-      getEarnData: dependencies.getEarnData,
-    },
-  )
-
   const isDepositingEth =
-    position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
+    args.position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
   const isPositionStaked = args.position.stakedNftId !== null
   const isWithdrawing = args.quoteAmount.gt(ZERO)
-  const isAdjusting = !args.price.eq(position.price)
+  const isAdjusting = !args.price.eq(args.position.price)
 
   const ajnaProxyActions = new ethers.Contract(
     dependencies.ajnaProxyActions,
@@ -56,17 +40,18 @@ export async function withdrawAndAdjust(
     dependencies.provider,
   )
 
-  const poolInfo = new ethers.Contract(
-    dependencies.poolInfoAddress,
-    poolInfoAbi,
-    dependencies.provider,
-  )
+  // const poolInfo = new ethers.Contract(
+  //   dependencies.poolInfoAddress,
+  //   poolInfoAbi,
+  //   dependencies.provider,
+  // )
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const priceIndex = await poolInfo
-    .priceToIndex(ethers.utils.parseUnits(args.price.toString(), 18).toString())
-    .then((res: any) => res.toString())
-    .then((res: string) => new BigNumber(res))
+  const indexToPrice = new BigNumber(bucketPrices[args.position.priceIndex!.toNumber()])
+
+  // const priceToIndex = await poolInfo
+  //   .priceToIndex(args.price.shiftedBy(18).toString())
+  //   .then((res: any) => res.toString())
+  //   .then((res: string) => new BigNumber(res))
 
   let data: string | null = null
 
@@ -75,8 +60,9 @@ export async function withdrawAndAdjust(
     data = ajnaProxyActions.interface.encodeFunctionData('withdrawAndMoveQuoteNft', [
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-      ethers.utils.parseUnits(position.price.toString(), 3).toString(),
-      ethers.utils.parseUnits(args.price.toString(), 3).toString(),
+      indexToPrice.toString(),
+      args.price.shiftedBy(18).toString(),
+
       args.position.stakedNftId,
     ])
   }
@@ -85,8 +71,8 @@ export async function withdrawAndAdjust(
     // moveQuoteNft
     data = ajnaProxyActions.interface.encodeFunctionData('moveQuoteNft', [
       args.poolAddress,
-      ethers.utils.parseUnits(position.price.toString(), 3).toString(),
-      ethers.utils.parseUnits(args.price.toString(), 3).toString(),
+      indexToPrice.toString(),
+      args.price.shiftedBy(18).toString(),
       args.position.stakedNftId,
     ])
   }
@@ -96,7 +82,7 @@ export async function withdrawAndAdjust(
     data = ajnaProxyActions.interface.encodeFunctionData('withdrawQuoteNft', [
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-      ethers.utils.parseUnits(position.price.toString(), 3).toString(),
+      indexToPrice.toString(),
       args.position.stakedNftId,
     ])
   }
@@ -106,8 +92,8 @@ export async function withdrawAndAdjust(
     data = ajnaProxyActions.interface.encodeFunctionData('withdrawAndMoveQuote', [
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-      ethers.utils.parseUnits(position.price.toString(), 3).toString(),
-      ethers.utils.parseUnits(args.price.toString(), 3).toString(),
+      indexToPrice.toString(),
+      args.price.shiftedBy(18).toString(),
     ])
   }
 
@@ -115,8 +101,8 @@ export async function withdrawAndAdjust(
     // moveQuote
     data = ajnaProxyActions.interface.encodeFunctionData('moveQuote', [
       args.poolAddress,
-      ethers.utils.parseUnits(position.price.toString(), 3).toString(),
-      ethers.utils.parseUnits(args.price.toString(), 3).toString(),
+      indexToPrice.toString(),
+      args.price.shiftedBy(18).toString(),
     ])
   }
 
@@ -125,7 +111,7 @@ export async function withdrawAndAdjust(
     data = ajnaProxyActions.interface.encodeFunctionData('withdrawQuote', [
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-      ethers.utils.parseUnits(position.price.toString(), 3).toString(),
+      args.price.shiftedBy(18).toString(),
     ])
   }
 
@@ -133,7 +119,8 @@ export async function withdrawAndAdjust(
     throw new Error('Data is null')
   }
 
-  const targetPosition = position.withdraw(args.quoteAmount)
+  // TODO we need correct targetPosition per each operation, withdraw is hardcoded for all now
+  const targetPosition = args.position.withdraw(args.quoteAmount)
 
   return {
     simulation: {
