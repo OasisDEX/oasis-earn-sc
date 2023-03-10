@@ -6,15 +6,15 @@ export type Tx = {
   value: string
 }
 
-export type Undercollateralized = {
-  name: 'undercollateralized'
+export type AjnaMessage = {
+  name: string
   data: {
-    positionRatio: string
-    minRatio: string
+    [key: string]: string
   }
 }
 
-export type AjnaError = Undercollateralized
+export type AjnaError = AjnaMessage
+export type AjnaWarning = AjnaMessage
 
 export type Strategy<Position> = {
   simulation: {

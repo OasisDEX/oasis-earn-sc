@@ -9,6 +9,8 @@ import * as views from '../../views'
 export interface OpenArgs {
   poolAddress: Address
   dpmProxyAddress: Address
+  collateralPrice: BigNumber
+  quotePrice: BigNumber
   quoteAmount: BigNumber
   quoteTokenPrecision: number
   collateralAmount: BigNumber
@@ -29,6 +31,8 @@ export async function open(
 ): Promise<Strategy<AjnaPosition>> {
   const position = await views.ajna.getPosition(
     {
+      collateralPrice: args.collateralPrice,
+      quotePrice: args.quotePrice,
       proxyAddress: args.dpmProxyAddress,
       poolAddress: args.poolAddress,
     },

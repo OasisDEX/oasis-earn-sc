@@ -2,7 +2,8 @@ import { BigNumber } from 'bignumber.js'
 
 import { IRiskRatio, RiskRatio } from '../../domain'
 import { ZERO } from '../../helpers/constants'
-import { Address, AjnaError } from '../common'
+import { normalizeValue } from '../../helpers/normalizeValue'
+import { Address, AjnaError, AjnaWarning } from '../common'
 import { AjnaPool } from './AjnaPool'
 
 export interface IAjnaPosition {
@@ -11,14 +12,18 @@ export interface IAjnaPosition {
   collateralAmount: BigNumber
   debtAmount: BigNumber
 
+  marketPrice: BigNumber
   liquidationPrice: BigNumber
   thresholdPrice: BigNumber
-  errors: AjnaError[]
 
   collateralAvailable: BigNumber
   debtAvailable: BigNumber
 
   riskRatio: IRiskRatio
+  maxRiskRatio: IRiskRatio
+
+  errors: AjnaError[]
+  warnings: AjnaWarning[]
 
   deposit(amount: BigNumber): IAjnaPosition
   withdraw(amount: BigNumber): IAjnaPosition
@@ -27,50 +32,59 @@ export interface IAjnaPosition {
 }
 
 export class AjnaPosition implements IAjnaPosition {
-  riskRatio: IRiskRatio
-  collateralAvailable: BigNumber = new BigNumber(0)
-  debtAvailable: BigNumber = new BigNumber(0)
+  errors: AjnaError[] = []
+  warnings: AjnaWarning[] = []
 
   constructor(
     public pool: AjnaPool,
     public owner: Address,
     public collateralAmount: BigNumber,
     public debtAmount: BigNumber,
-  ) {
-    if (collateralAmount.times(pool.lup).eq(ZERO)) {
-      this.riskRatio = new RiskRatio(ZERO, RiskRatio.TYPE.LTV)
-    } else {
-      this.riskRatio = new RiskRatio(
-        debtAmount.div(collateralAmount.times(pool.lup)),
-        RiskRatio.TYPE.LTV,
-      )
-    }
-  }
+    public collateralPrice: BigNumber,
+    public quotePrice: BigNumber,
+  ) {}
 
   get liquidationPrice() {
-    return new BigNumber(0)
+    return ZERO
+  }
+
+  get marketPrice() {
+    return this.collateralPrice.div(this.quotePrice)
   }
 
   get thresholdPrice() {
-    if (this.collateralAmount.eq(0)) {
-      return ZERO
-    }
-    return this.debtAmount.div(this.collateralAmount)
+    const thresholdPrice = this.debtAmount.div(this.collateralAmount)
+
+    return normalizeValue(thresholdPrice)
   }
 
-  get errors(): AjnaError[] {
-    const errors: AjnaError[] = []
-    if (this.thresholdPrice.gt(this.pool.lup)) {
-      errors.push({
-        name: 'undercollateralized',
-        data: {
-          positionRatio: this.riskRatio.loanToValue.toString(),
-          minRatio: '---',
-        },
-      })
-    }
+  get collateralAvailable() {
+    const collateralAvailable = this.collateralAmount.minus(
+      this.debtAmount.div(this.marketPrice.times(this.maxRiskRatio.loanToValue)),
+    )
 
-    return errors
+    return normalizeValue(collateralAvailable)
+  }
+
+  get debtAvailable() {
+    const debtAvailable = this.marketPrice
+      .times(this.maxRiskRatio.loanToValue)
+      .times(this.collateralAmount)
+      .minus(this.debtAmount)
+
+    return normalizeValue(debtAvailable)
+  }
+
+  get riskRatio() {
+    const loanToValue = this.thresholdPrice.div(this.marketPrice)
+
+    return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
+  }
+
+  get maxRiskRatio() {
+    const loanToValue = this.pool.lowestUtilizedPrice.div(this.marketPrice)
+
+    return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
   }
 
   deposit(collateralAmount: BigNumber) {
@@ -79,6 +93,8 @@ export class AjnaPosition implements IAjnaPosition {
       this.owner,
       this.collateralAmount.plus(collateralAmount),
       this.debtAmount,
+      this.collateralPrice,
+      this.quotePrice,
     )
   }
 
@@ -88,6 +104,8 @@ export class AjnaPosition implements IAjnaPosition {
       this.owner,
       this.collateralAmount.minus(collateralAmount),
       this.debtAmount,
+      this.collateralPrice,
+      this.quotePrice,
     )
   }
 
@@ -97,6 +115,8 @@ export class AjnaPosition implements IAjnaPosition {
       this.owner,
       this.collateralAmount,
       this.debtAmount.plus(quoteAmount),
+      this.collateralPrice,
+      this.quotePrice,
     )
   }
 
@@ -106,6 +126,8 @@ export class AjnaPosition implements IAjnaPosition {
       this.owner,
       this.collateralAmount,
       this.debtAmount.minus(quoteAmount),
+      this.collateralPrice,
+      this.quotePrice,
     )
   }
 }
