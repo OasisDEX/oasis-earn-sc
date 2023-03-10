@@ -1,11 +1,12 @@
 import BigNumber from 'bignumber.js'
 
 import { ZERO } from '../../helpers/constants'
-import { Address } from '../common'
+import bucketPrices from '../../strategies/ajna/earn/buckets.json'
+import { Address, AjnaError, AjnaWarning } from '../common'
 import { AjnaPool } from './AjnaPool'
 
 function priceIndexToPrice(priceIndex: BigNumber) {
-  return new BigNumber(1.05).pow(priceIndex.minus(3232))
+  return new BigNumber(bucketPrices[priceIndex.toNumber()]).shiftedBy(-18).decimalPlaces(2)
 }
 
 export interface IAjnaEarn {
@@ -69,5 +70,17 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.quoteTokenAmount.minus(quoteTokenAmount),
       this.priceIndex,
     )
+  }
+
+  get errors(): AjnaError[] {
+    const errors: AjnaError[] = []
+
+    return errors
+  }
+
+  get warnings(): AjnaWarning[] {
+    const warnings: AjnaWarning[] = []
+
+    return warnings
   }
 }
