@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
-import { ZERO } from '../../../helpers/constants'
+import { getAjnaEarnActionOutput } from '../../../helpers/ajna'
 import { AjnaEarnPosition } from '../../../types/ajna'
 import { Address, Strategy } from '../../../types/common'
 import * as views from '../../../views'
@@ -16,6 +16,8 @@ interface Args {
   quoteTokenPrecision: number
   price: BigNumber
   isStakingNft: boolean
+  collateralPrice: BigNumber
+  quotePrice: BigNumber
 }
 
 export interface Dependencies {
@@ -30,11 +32,11 @@ export async function open(
   args: Args,
   dependencies: Dependencies,
 ): Promise<Strategy<AjnaEarnPosition>> {
+  const action = 'open'
   const position = await views.ajna.getEarnPosition(
     {
-      // TODO: replace with real price
-      collateralPrice: ZERO,
-      quotePrice: ZERO,
+      collateralPrice: args.collateralPrice,
+      quotePrice: args.quotePrice,
       proxyAddress: args.dpmProxyAddress,
       poolAddress: args.poolAddress,
     },
@@ -44,9 +46,6 @@ export async function open(
       provider: dependencies.provider,
     },
   )
-
-  const isDepositingEth =
-    position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
   const ajnaProxyActions = new ethers.Contract(
     dependencies.ajnaProxyActions,
@@ -61,42 +60,34 @@ export async function open(
   )
 
   const priceIndex = await poolInfo
-    .priceToIndex(ethers.utils.parseUnits(args.price.toString(), 18).toString())
+    .priceToIndex(args.price.shiftedBy(18).toString())
     .then((res: any) => res.toString())
     .then((res: string) => new BigNumber(res))
 
-  const data = await ajnaProxyActions.interface.encodeFunctionData(
+  const data = ajnaProxyActions.interface.encodeFunctionData(
     args.isStakingNft ? 'openEarnPositionNft' : 'openEarnPosition',
     [
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-      ethers.utils.parseUnits(args.price.toString(), 3).toString(),
+      args.price.shiftedBy(18).toString(),
     ],
   )
 
-  return {
-    simulation: {
-      swaps: [],
-      errors: [],
-      targetPosition: new AjnaEarnPosition(
-        position.pool,
-        args.dpmProxyAddress,
-        args.quoteAmount,
-        priceIndex,
-      ),
-      position: new AjnaEarnPosition(
-        position.pool,
-        args.dpmProxyAddress,
-        args.quoteAmount,
-        priceIndex,
-      ),
+  const targetPosition = new AjnaEarnPosition(
+    position.pool,
+    args.dpmProxyAddress,
+    args.quoteAmount,
+    priceIndex,
+  )
+
+  return getAjnaEarnActionOutput({
+    targetPosition,
+    data,
+    dependencies,
+    args: {
+      position: targetPosition,
+      ...args,
     },
-    tx: {
-      to: dependencies.ajnaProxyActions,
-      data,
-      value: isDepositingEth
-        ? ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString()
-        : '0',
-    },
-  }
+    action,
+  })
 }

@@ -1,3 +1,5 @@
+import { ethers } from 'ethers'
+
 export type Address = string
 
 export type Tx = {
@@ -6,15 +8,40 @@ export type Tx = {
   value: string
 }
 
-export type AjnaMessage = {
-  name: string
+export type AjnaErrorUndercollateralized = {
+  name: 'undercollateralized'
   data: {
-    [key: string]: string
+    positionRatio: string
+    minRatio: string
   }
 }
 
-export type AjnaError = AjnaMessage
-export type AjnaWarning = AjnaMessage
+export type AjnaErrorPriceAboveMomp = {
+  name: 'price-above-momp'
+}
+
+export type AjnaErrorWithdrawMoreThanAvailable = {
+  name: 'withdraw-more-than-available'
+  data: {
+    amount: string
+  }
+}
+
+export type AjnaErrorAfterLupIndexBiggerThanHtpIndex = {
+  name: 'after-lup-index-bigger-than-htp-index'
+}
+
+export type AjnaError =
+  | AjnaErrorUndercollateralized
+  | AjnaErrorPriceAboveMomp
+  | AjnaErrorWithdrawMoreThanAvailable
+  | AjnaErrorAfterLupIndexBiggerThanHtpIndex
+
+export type AjnaWarningPriceBelowHtp = {
+  name: 'price-below-htp'
+}
+
+export type AjnaWarning = AjnaWarningPriceBelowHtp
 
 export type Strategy<Position> = {
   simulation: {
@@ -23,6 +50,16 @@ export type Strategy<Position> = {
     targetPosition: Position
     position: Position
     errors: AjnaError[]
+    warnings: AjnaWarning[]
   }
   tx: Tx
 }
+
+export interface AjnaDependencies {
+  poolInfoAddress: Address
+  ajnaProxyActions: Address
+  provider: ethers.providers.Provider
+  WETH: Address
+}
+
+export type AjnaEarnActions = 'open' | 'deposit' | 'withdraw'
