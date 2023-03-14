@@ -60,7 +60,7 @@ export async function open(
   )
 
   const priceIndex = await poolInfo
-    .priceToIndex(ethers.utils.parseUnits(args.price.toString(), 18).toString())
+    .priceToIndex(args.price.shiftedBy(18).toString())
     .then((res: any) => res.toString())
     .then((res: string) => new BigNumber(res))
 
@@ -69,7 +69,7 @@ export async function open(
     [
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-      ethers.utils.parseUnits(args.price.toString(), 3).toString(),
+      args.price.shiftedBy(18).toString(),
     ],
   )
 
