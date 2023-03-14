@@ -72,6 +72,7 @@ export async function open(
       targetPosition,
       position: targetPosition,
       errors: targetPosition.errors,
+      warnings: [],
     },
     tx: {
       to: dependencies.ajnaProxyActions,

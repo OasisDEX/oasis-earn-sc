@@ -3,33 +3,17 @@ import { ethers } from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
+import { AjnaEarnArgs, getAjnaEarnActionOutput } from '../../../helpers/ajna'
 import { ZERO } from '../../../helpers/constants'
 import { AjnaEarnPosition } from '../../../types/ajna'
-import { Address, Strategy } from '../../../types/common'
+import { AjnaDependencies, Strategy } from '../../../types/common'
 import bucketPrices from './buckets.json'
 
-interface Args {
-  poolAddress: Address
-  dpmProxyAddress: Address
-  quoteAmount: BigNumber
-  quoteTokenPrecision: number
-  price: BigNumber
-  position: AjnaEarnPosition
-}
-
-export interface Dependencies {
-  poolInfoAddress: Address
-  ajnaProxyActions: Address
-  provider: ethers.providers.Provider
-  WETH: Address
-}
-
 export async function depositAndAdjust(
-  args: Args,
-  dependencies: Dependencies,
+  args: AjnaEarnArgs,
+  dependencies: AjnaDependencies,
 ): Promise<Strategy<AjnaEarnPosition>> {
-  const isDepositingEth =
-    args.position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
+  const action = 'deposit'
   const isPositionStaked = args.position.stakedNftId !== null
   const isDepositing = args.quoteAmount.gt(ZERO)
   const isAdjusting = !args.price.eq(args.position.price)
@@ -53,7 +37,8 @@ export async function depositAndAdjust(
     .then((res: any) => res.toString())
     .then((res: string) => new BigNumber(res))
 
-  let data: string | null = null
+  let data = ''
+  let targetPosition: AjnaEarnPosition | null = null
 
   if (isPositionStaked && isDepositing && isAdjusting) {
     // supplyAndMoveQuoteNft
@@ -64,6 +49,7 @@ export async function depositAndAdjust(
       args.price.shiftedBy(18).toString(),
       args.position.stakedNftId,
     ])
+    targetPosition = args.position.moveQuote(priceToIndex).deposit(args.quoteAmount)
   }
 
   if (isPositionStaked && !isDepositing && isAdjusting) {
@@ -74,6 +60,7 @@ export async function depositAndAdjust(
       args.price.shiftedBy(18).toString(),
       args.position.stakedNftId,
     ])
+    targetPosition = args.position.moveQuote(priceToIndex)
   }
 
   if (isPositionStaked && isDepositing && !isAdjusting) {
@@ -84,6 +71,7 @@ export async function depositAndAdjust(
       args.price.shiftedBy(18).toString(),
       args.position.stakedNftId,
     ])
+    targetPosition = args.position.deposit(args.quoteAmount)
   }
 
   if (!isPositionStaked && isDepositing && isAdjusting) {
@@ -94,6 +82,7 @@ export async function depositAndAdjust(
       indexToPrice.toString(),
       args.price.shiftedBy(18).toString(),
     ])
+    targetPosition = args.position.moveQuote(priceToIndex).deposit(args.quoteAmount)
   }
 
   if (!isPositionStaked && !isDepositing && isAdjusting) {
@@ -103,6 +92,7 @@ export async function depositAndAdjust(
       indexToPrice.toString(),
       args.price.shiftedBy(18).toString(),
     ])
+    targetPosition = args.position.moveQuote(priceToIndex)
   }
 
   if (!isPositionStaked && isDepositing && !isAdjusting) {
@@ -112,28 +102,10 @@ export async function depositAndAdjust(
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       args.price.shiftedBy(18).toString(),
     ])
+    targetPosition = args.position.deposit(args.quoteAmount)
   }
 
-  if (data === null) {
-    throw new Error('Data is null')
-  }
+  if (!data || !targetPosition) throw new Error('Invalid depositAndAdjust params')
 
-  // TODO we need correct targetPosition per each operation, moveQuote is hardcoded for all now
-  const targetPosition = args.position.moveQuote(priceToIndex)
-
-  return {
-    simulation: {
-      swaps: [],
-      errors: [],
-      targetPosition,
-      position: targetPosition,
-    },
-    tx: {
-      to: dependencies.ajnaProxyActions,
-      data,
-      value: isDepositingEth
-        ? ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString()
-        : '0',
-    },
-  }
+  return getAjnaEarnActionOutput({ targetPosition, data, dependencies, args, action })
 }
