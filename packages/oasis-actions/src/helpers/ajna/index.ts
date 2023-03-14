@@ -57,7 +57,7 @@ export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
       to: dependencies.ajnaProxyActions,
       data,
       value: isDepositingEth
-        ? ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString()
+        ? ethers.utils.parseEther(args.quoteAmount.toString()).toString()
         : '0',
     },
   }
