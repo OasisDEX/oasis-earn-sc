@@ -96,7 +96,8 @@
         "history": [],
         "constructorArgs": [
           "address:ServiceRegistry",
-          "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"
+          "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+          "0xc19d0F1E2b38AA283E226Ca4044766A43aA7B02b"
         ]
       },
       {
