@@ -2,4 +2,6 @@
 - Add Husky to perform checks before commit
 - Setup Unit & E2E tests workflows
 - Ensure docs are in sync with GitBook
-- Move update-block-numbers-into-common utils
+- Move update-block-numbers task into tasks directory
+- Ensure all packages are being formatted and linted correctly
+- Establish file and folder naming conventions: TS & Sol

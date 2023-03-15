@@ -6,7 +6,7 @@ import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { IVault } from "../../interfaces/balancer/IVault.sol";
 import { IERC3156FlashBorrower } from "../../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "../../interfaces/flashloan/IERC3156FlashLender.sol";
-import { IFlashLoanRecipient } from "../../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
+import { IFlashLoanRecipient } from "../../interfaces/flashloan/IFlashLoanRecipient.sol";
 import { FlashloanData, FlashloanProvider } from "../../core/types/Common.sol";
 import {
   OPERATION_EXECUTOR,

@@ -1,3 +1,5 @@
+import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/dupa-library/src'
+
 import {
   AaveBorrow,
   AaveDeposit,
@@ -29,7 +31,6 @@ import { AddressRegistry } from './addresses'
 import { HardhatUtils } from './hardhat.utils'
 import { Network } from './types'
 import { removeVersion } from './utils'
-import { ADDRESSES, CONTRACT_NAMES } from "@oasisdex/dupa-library/src";
 
 export interface DeployedSystem {
   serviceRegistry: ServiceRegistry

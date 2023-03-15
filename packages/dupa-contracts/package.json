@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
+    "dev": "tsc -b && yarn update-block && && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ./.env | cut -d '=' -f2)",
     "compile": "npx hardhat compile",
-    "dev": "tsc -b && yarn update-block && && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ./.env | cut -d '=' -f2)"
+    "format": "prettier --write \"./**/*.{ts,tsx,js,jsx}\" && yarn lint:fix && prettier --write 'packages/dupa-contracts/contracts/**/*.sol'",
+    "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx}\"",
+    "lint:fix": "eslint . --fix --ext .ts",
+    "lint": "eslint . --ext .ts --max-warnings=0 && prettier --list-different 'packages/dupa-contracts/contracts/**/*.sol'"
   },
   "dependencies": {
     "@oasisdex/dupa-common": "*",
@@ -19,6 +23,13 @@
     "@typescript-eslint/parser": "^5.27.1",
     "@typechain/ethers-v5": "^10.1.0",
     "@typechain/hardhat": "^2.3.1",
+    "eslint": "^8.6.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-typescript": "^3.5.3",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-simple-import-sort": "^8.0.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
     "hardhat": "^2.12.6",
     "hardhat-abi-exporter": "^2.2.1",
     "hardhat-contract-sizer": "^2.0.1",

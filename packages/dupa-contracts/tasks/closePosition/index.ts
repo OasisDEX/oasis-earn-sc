@@ -2,9 +2,6 @@ import { ADDRESSES, CONTRACT_NAMES, Position, strategies } from '@oasisdex/dupa-
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
-import DSProxyABI from '../../abi/ds-proxy.json'
-import AAVELendigPoolABI from '../../abi/external/aave/v2/lendingPool.json'
-import AAVEDataProviderABI from '../../abi/external/aave/v2/protocolDataProvider.json'
 import { AAVEAccountData, AAVEReserveData } from '../../../dupa-common/utils/aave'
 import { executeThroughProxy } from '../../../dupa-common/utils/deploy'
 import init from '../../../dupa-common/utils/init'
@@ -13,6 +10,9 @@ import { getOneInchCall } from '../../../dupa-common/utils/swap/OneInchCall'
 import { oneInchCallMock } from '../../../dupa-common/utils/swap/OneInchCallMock'
 import { balanceOf } from '../../../dupa-common/utils/utils'
 import { mainnetAddresses } from '../../../dupa-library/test/addresses'
+import DSProxyABI from '../../abi/ds-proxy.json'
+import AAVELendigPoolABI from '../../abi/external/aave/v2/lendingPool.json'
+import AAVEDataProviderABI from '../../abi/external/aave/v2/protocolDataProvider.json'
 import { one, zero } from '../../scripts/common'
 
 export function amountFromWei(amount: BigNumber.Value, precision = 18) {

@@ -1,8 +1,8 @@
 import { ADDRESSES } from '@oasisdex/dupa-library/src'
 import { Contract, ethers } from 'ethers'
 
-import AAVEDataProviderABI from '../abi/external/aave/v2/protocolDataProvider.json'
 import { balanceOf } from '../../dupa-common/utils/utils'
+import AAVEDataProviderABI from '../abi/external/aave/v2/protocolDataProvider.json'
 
 async function main() {
   const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545', 2137)

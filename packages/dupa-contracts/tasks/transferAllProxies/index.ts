@@ -1,8 +1,8 @@
+import DS_PROXY_REGISTRY_ABI from '@abi/ds-proxy-registry.json'
+import { ADDRESSES } from '@dupa-library'
 import { task } from 'hardhat/config'
 
-import DS_PROXY_REGISTRY_ABI from '@abi/ds-proxy-registry.json'
 import init from '../../../dupa-common/utils/init'
-import { ADDRESSES } from '@dupa-library'
 
 const accountFactoryAddress = '0xF7B75183A2829843dB06266c114297dfbFaeE2b6'
 const accountGuardAddress = '0xCe91349d2A4577BBd0fC91Fe6019600e047f2847'

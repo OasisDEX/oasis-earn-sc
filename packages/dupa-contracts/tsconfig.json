@@ -15,14 +15,7 @@
       "@dupa-library": ["../dupa-library/src/index.ts"]
     }
   },
-  "include": [
-    "packages/common/abi/**/*",
-    "../dupa-common/utils",
-    "./packages/dupa-contracts/scripts",
-    "./packages/dupa-library/test", "packages/**/*", "./typechain/**/*",
-    "packages/dupa-contracts/tasks/**/*"
+  "exclude": [
+    "../../node_modules",
   ],
-  "files": [
-    "./hardhat.config.ts"
-  ]
 }

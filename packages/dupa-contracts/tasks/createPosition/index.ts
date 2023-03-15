@@ -1,7 +1,3 @@
-import { ADDRESSES, CONTRACT_NAMES, protocols, strategies } from '@oasisdex/dupa-library/src'
-import BigNumber from 'bignumber.js'
-import { task, types } from 'hardhat/config'
-
 import DSProxyABI from '@abi/ds-proxy.json'
 import AAVELendingPoolABI from '@abi/external/aave/v2/lendingPool.json'
 import AAVEDataProviderABI from '@abi/external/aave/v2/protocolDataProvider.json'
@@ -12,7 +8,10 @@ import { getOrCreateProxy } from '@oasisdex/dupa-common/utils/proxy'
 import { getOneInchCall } from '@oasisdex/dupa-common/utils/swap/OneInchCall'
 import { oneInchCallMock } from '@oasisdex/dupa-common/utils/swap/OneInchCallMock'
 import { balanceOf } from '@oasisdex/dupa-common/utils/utils'
+import { ADDRESSES, CONTRACT_NAMES, protocols, strategies } from '@oasisdex/dupa-library/src'
 import { mainnetAddresses } from '@oasisdex/dupa-library/test/addresses'
+import BigNumber from 'bignumber.js'
+import { task, types } from 'hardhat/config'
 
 function amountToWei(amount: BigNumber.Value, precision = 18) {
   BigNumber.config({ EXPONENTIAL_AT: 30 })

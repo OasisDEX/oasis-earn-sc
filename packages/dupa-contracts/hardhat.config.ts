@@ -155,7 +155,7 @@ const config: HardhatUserConfig = {
     currency: 'USD',
   },
   paths: {
-    sources: './dupa-contracts',
+    sources: './contracts',
     tests: './test',
     cache: './cache',
     artifacts: './artifacts',
@@ -168,7 +168,7 @@ const config: HardhatUserConfig = {
   },
   typechain: {
     outDir: 'typechain',
-    externalArtifacts: ['abi/external/**/*.json'],
+    externalArtifacts: ['./abi/external/**/*.json'],
   },
   docgen: {
     outputDir: './docs',

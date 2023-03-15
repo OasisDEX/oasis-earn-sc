@@ -1,6 +1,6 @@
 pragma solidity ^0.8.17;
 
-import { IERC20 } from "../../../libs/SafeERC20.sol";
+import { IERC20 } from "../../libs/SafeERC20.sol";
 
 interface IFlashLoanRecipient {
   /**

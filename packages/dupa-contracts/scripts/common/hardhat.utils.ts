@@ -1,5 +1,6 @@
 import '@nomiclabs/hardhat-ethers'
 
+import { CONTRACT_NAMES } from '@oasisdex/dupa-library/src'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 import {
@@ -20,7 +21,6 @@ import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { coalesceNetwork, ETH_ADDRESS, getAddressesFor } from './addresses'
 import { DeployedSystem } from './deploy-system'
 import { EtherscanGasPrice, Network } from './types'
-import { CONTRACT_NAMES } from "@oasisdex/dupa-library/src";
 
 export class HardhatUtils {
   private readonly _cache = new NodeCache()
