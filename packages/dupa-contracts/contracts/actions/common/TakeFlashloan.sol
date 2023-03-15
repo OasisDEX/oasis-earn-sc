@@ -3,18 +3,22 @@ pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
+import { IVault } from "../../interfaces/balancer/IVault.sol";
 import { IERC3156FlashBorrower } from "../../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "../../interfaces/flashloan/IERC3156FlashLender.sol";
-import { FlashloanData } from "../../core/types/Common.sol";
+import { IFlashLoanRecipient } from "../../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
+import { FlashloanData, FlashloanProvider } from "../../core/types/Common.sol";
 import {
   OPERATION_EXECUTOR,
   DAI,
-  CHAINLOG_VIEWER,
-  TAKE_FLASH_LOAN_ACTION
+  TAKE_FLASH_LOAN_ACTION,
+  CHAINLOG_VIEWER
 } from "../../core/constants/Common.sol";
 import { MCD_FLASH } from "../../core/constants/Maker.sol";
-import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
+import { BALANCER_VAULT } from "../../core/constants/Balancer.sol";
 import { ChainLogView } from "../../core/views/ChainLogView.sol";
+import { ProxyPermission } from "../../libs/DS/ProxyPermission.sol";
+import { IERC20 } from "../../libs/SafeERC20.sol";
 
 /**
  * @title TakeFlashloan Action contract
@@ -44,14 +48,31 @@ contract TakeFlashloan is Executable, ProxyPermission {
       givePermission(flData.isDPMProxy, operationExecutorAddress);
     }
 
-    ChainLogView chainlogView = ChainLogView(registry.getRegisteredService(CHAINLOG_VIEWER));
+    if (flData.provider == FlashloanProvider.DssFlash) {
+      ChainLogView chainlogView = ChainLogView(registry.getRegisteredService(CHAINLOG_VIEWER));
 
-    IERC3156FlashLender(chainlogView.getServiceAddress(MCD_FLASH)).flashLoan(
-      IERC3156FlashBorrower(operationExecutorAddress),
-      dai,
-      flData.amount,
-      data
-    );
+      IERC3156FlashLender(chainlogView.getServiceAddress(MCD_FLASH)).flashLoan(
+        IERC3156FlashBorrower(operationExecutorAddress),
+        dai,
+        flData.amount,
+        data
+      );
+    }
+
+    if (flData.provider == FlashloanProvider.Balancer) {
+      IERC20[] memory tokens = new IERC20[](1);
+      uint256[] memory amounts = new uint256[](1);
+
+      tokens[0] = IERC20(flData.asset);
+      amounts[0] = flData.amount;
+
+      IVault(registry.getRegisteredService(BALANCER_VAULT)).flashLoan(
+        IFlashLoanRecipient(operationExecutorAddress),
+        tokens,
+        amounts,
+        data
+      );
+    }
 
     if (flData.isProxyFlashloan) {
       removePermission(flData.isDPMProxy, operationExecutorAddress);

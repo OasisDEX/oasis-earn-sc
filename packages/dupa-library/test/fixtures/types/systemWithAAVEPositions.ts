@@ -8,7 +8,8 @@ import { StrategyDependenciesAaveV2, StrategyDependenciesAaveV3 } from './strate
 
 export type SystemWithAAVEPositions = {
   config: RuntimeConfig
-  system: Awaited<ReturnType<typeof deploySystem>>['system']
+  // TODO: Update Deploy Class to return correct shape for system
+  system: any
   registry: Awaited<ReturnType<typeof deploySystem>>['registry']
   dpmPositions: Partial<Record<AavePositionStrategy, PositionDetails>>
   dsProxyPosition: PositionDetails

@@ -1,5 +1,13 @@
 import { AaveVersion, protocols, strategies } from '@dupa-library/src'
+import { getOrCreateProxy } from '@helpers/proxy'
+import { RuntimeConfig } from '@helpers/types/common'
+import { AaveVersion, protocols, strategies } from '@oasisdex/oasis-actions/src'
+import hre from 'hardhat'
 
+import { buildGetTokenFunction } from '../../../helpers/aave/'
+import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
+import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
+import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
 import { mainnetAddresses } from '../../addresses'
 import { testBlockNumberForAaveV3 } from '../../config'
 import { deploySystem } from '../../deploySystem'
@@ -27,24 +35,31 @@ export function getSupportedAaveV3Strategies(ciMode?: boolean): Array<{
 export const getSystemWithAaveV3Positions =
   ({ use1inch }: { use1inch: boolean }) =>
   async (): Promise<SystemWithAAVEV3Positions> => {
-    const config = await init()
+    const ds = new DeploymentSystem(hre)
+    const config: RuntimeConfig = await ds.init()
+
+    ds.loadConfig('test-configs/test-aave-v3-mainnet.conf.json')
     // We're using uniswap to get tokens here rather than impersonating a user
     const getTokens = buildGetTokenFunction(config, await import('hardhat'))
 
     const useFallbackSwap = !use1inch
     if (testBlockNumberForAaveV3 && useFallbackSwap) {
-      await resetNode(config.provider, testBlockNumberForAaveV3)
+      await ds.resetNode(testBlockNumberForAaveV3)
     }
 
     if (use1inch) {
-      await resetNodeToLatestBlock(config.provider)
+      await ds.resetNodeToLatestBlock()
     }
 
     if (!testBlockNumberForAaveV3 && useFallbackSwap) {
       throw 'testBlockNumber is not set'
     }
 
-    const { system, registry } = await deploySystem(config, false, useFallbackSwap)
+    ds.mapAddresses()
+    await ds.deployAll()
+    await ds.setupLocalSystem(use1inch)
+
+    const { system, registry } = ds.getSystem()
 
     const dependencies: StrategyDependenciesAaveV3 = {
       addresses: {
@@ -52,11 +67,11 @@ export const getSystemWithAaveV3Positions =
         aaveOracle: mainnetAddresses.aave.v3.aaveOracle,
         pool: mainnetAddresses.aave.v3.pool,
         aaveProtocolDataProvider: mainnetAddresses.aave.v3.aaveProtocolDataProvider,
-        accountFactory: system.common.accountFactory.address,
-        operationExecutor: system.common.operationExecutor.address,
+        accountFactory: system.AccountFactory.contract.address,
+        operationExecutor: system.OperationExecutor.contract.address,
       },
       contracts: {
-        operationExecutor: system.common.operationExecutor,
+        operationExecutor: system.OperationExecutor.contract,
       },
       provider: config.provider,
       user: config.address,
@@ -70,20 +85,16 @@ export const getSystemWithAaveV3Positions =
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
 
-    const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(
-      system.common.accountFactory.address,
-      config,
-    )
-    const [dpmProxyForEarnWstEthEth] = await createDPMAccount(
-      system.common.accountFactory.address,
-      config,
-    )
+    const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
+    const [dpmProxyForEarnWstEthEth] = await createDPMAccount(system.AccountFactory.contract)
+
+    const dsProxy = await getOrCreateProxy(system.DsProxyRegistry.contract, config.signer)
 
     if (!dpmProxyForMultiplyEthUsdc || !dpmProxyForEarnWstEthEth) {
       throw new Error('Cant create a DPM proxy')
     }
 
-    const swapAddress = system.common.swap.address
+    const swapAddress = system.Swap.contract.address
 
     const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyEthUsdc,
@@ -108,7 +119,7 @@ export const getSystemWithAaveV3Positions =
     }
 
     const dsProxyEthUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-      proxy: system.common.userProxyAddress,
+      proxy: dsProxy.address,
       isDPM: false,
       use1inch,
       swapAddress,

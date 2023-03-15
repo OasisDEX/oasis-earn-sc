@@ -1,17 +1,12 @@
-import { ethers } from 'ethers'
-
 import { RuntimeConfig } from '../@oasisdex/dupa-common/utils/types/common'
 import accountFactoryAbi from '../@oasisdex/dupa-contracts/abi/account-factory.json'
+import { Contract } from 'ethers'
 
 export async function createDPMAccount(
-  accountFactoryAddress: string,
-  { signer }: RuntimeConfig,
+  accountFactory: Contract,
 ): Promise<[string | undefined, number | undefined]> {
-  const accountFactory = new ethers.Contract(accountFactoryAddress, accountFactoryAbi, signer)
-
   const tx = await accountFactory.functions['createAccount()']()
   const receipt = await tx.wait()
-
   // eslint-disable-next-line
   return [receipt.events![1].args!.proxy, receipt.events![1].args!.vaultId]
 }

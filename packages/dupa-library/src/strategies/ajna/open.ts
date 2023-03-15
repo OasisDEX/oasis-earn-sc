@@ -3,6 +3,7 @@ import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../dupa-contracts/abi/external/ajna/ajnaProxyActions.json'
 import { AjnaPosition } from '../../helpers/ajna'
+import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
 import * as views from '../../views'
 

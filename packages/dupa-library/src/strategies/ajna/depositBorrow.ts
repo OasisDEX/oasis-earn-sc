@@ -1,7 +1,7 @@
 import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../dupa-contracts/abi/external/ajna/ajnaProxyActions.json'
-import { AjnaPosition } from '../../helpers/ajna'
+import { AjnaPosition } from '../../types/ajna'
 import { Strategy } from '../../types/common'
 import { Dependencies, OpenArgs } from './open'
 

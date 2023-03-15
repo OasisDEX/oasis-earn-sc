@@ -62,14 +62,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       getSwapData: any
       slippage: BigNumber
       config: RuntimeConfig
-      system: DeployedSystemInfo
+      system: any
     }) {
       const addresses = {
         ...mainnetAddresses,
         priceOracle: mainnetAddresses.aave.v2.priceOracle,
         lendingPool: mainnetAddresses.aave.v2.lendingPool,
         protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
-        operationExecutor: system.common.operationExecutor.address,
+        operationExecutor: system.OperationExecutor.contract.address,
       }
       const tokenAddresses: Record<AAVETokens, string> = {
         WETH: mainnetAddresses.WETH,
@@ -140,8 +140,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       const [closeTxStatus, closeTx] = await executeThroughProxy(
         proxy,
         {
-          address: system.common.operationExecutor.address,
-          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+          address: system.OperationExecutor.contract.address,
+          calldata: system.OperationExecutor.contract.interface.encodeFunctionData('executeOp', [
             closePosition.transaction.calls,
             closePosition.transaction.operationName,
           ]),
@@ -422,14 +422,14 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       getSwapData: any
       slippage: BigNumber
       config: RuntimeConfig
-      system: DeployedSystemInfo
+      system: any
     }) {
       const addresses = {
         ...mainnetAddresses,
         aaveOracle: mainnetAddresses.aave.v3.aaveOracle,
         pool: mainnetAddresses.aave.v3.pool,
         aaveProtocolDataProvider: mainnetAddresses.aave.v3.aaveProtocolDataProvider,
-        operationExecutor: system.common.operationExecutor.address,
+        operationExecutor: system.OperationExecutor.contract.address,
       }
       const tokenAddresses: Record<AAVETokens, string> = {
         WETH: mainnetAddresses.WETH,
@@ -496,8 +496,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       const [closeTxStatus, closeTx] = await executeThroughProxy(
         proxy,
         {
-          address: system.common.operationExecutor.address,
-          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+          address: system.OperationExecutor.contract.address,
+          calldata: system.OperationExecutor.contract.interface.encodeFunctionData('executeOp', [
             closePosition.transaction.calls,
             closePosition.transaction.operationName,
           ]),

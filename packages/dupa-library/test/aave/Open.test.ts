@@ -107,6 +107,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
   })
+
   describe('Using AAVE V3', async function () {
     let fixture: SystemWithAAVEV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies()

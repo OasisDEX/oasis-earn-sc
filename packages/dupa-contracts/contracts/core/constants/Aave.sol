@@ -5,6 +5,7 @@ string constant AAVE_LENDING_POOL = "AaveLendingPool";
 string constant AAVE_WETH_GATEWAY = "AaveWethGateway";
 
 string constant AAVE_POOL = "AavePool";
+string constant AAVE_L2_ENCODER = "AaveL2Encoder";
 
 /**
  * @dev We do not include patch versions in contract names to allow
