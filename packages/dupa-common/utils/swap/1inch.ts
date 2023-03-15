@@ -1,6 +1,6 @@
+import { ADDRESSES } from '@oasisdex/dupa-library/src'
 import axios from 'axios'
 
-import { ADDRESSES } from '../../../dupa-library'
 import { OneInchSwapResponse } from '../types/common'
 
 const defaultExchangeProtocols = [

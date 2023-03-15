@@ -1,8 +1,8 @@
+import { ADDRESSES } from '@oasisdex/dupa-library/src'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Optional } from 'utility-types'
 
 import UNISWAP_ROUTER_V3_ABI from '../../../dupa-contracts/abi/IUniswapRouter.json'
-import { ADDRESSES } from '../../../dupa-library'
 import { RuntimeConfig } from '../types/common'
 
 /**

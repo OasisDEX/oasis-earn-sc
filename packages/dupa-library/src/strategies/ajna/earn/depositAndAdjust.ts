@@ -1,7 +1,7 @@
+import ajnaProxyActionsAbi from '@oasisdex/dupa-contracts/abi/external/ajna/ajnaProxyActions.json'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
 import { ZERO } from '../../../helpers/constants'
 import { AjnaEarnPosition } from '../../../types/ajna'
 import { Address, Strategy } from '../../../types/common'

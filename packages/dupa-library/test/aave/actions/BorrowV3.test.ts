@@ -1,5 +1,6 @@
 import { FakeContract, smock } from '@defi-wonderland/smock'
-import { calldataTypes, CONTRACT_NAMES } from '@dupa-library/src'
+import { CONTRACT_NAMES } from '@dupa-library'
+import { calldataTypes } from '@dupa-library/types'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { createDeploy } from '@oasisdex/dupa-common/utils/deploy'
 import init from '@oasisdex/dupa-common/utils/init'
@@ -9,15 +10,7 @@ import chai, { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-<<<<<<<< HEAD:packages/dupa-library/test/aave/BorrowV3.test.ts
-import { Pool } from '../../../../typechain'
-========
-import AavePoolAbi from '../../../abi/external/aave/v3/pool.json'
-import { createDeploy } from '../../../helpers/deploy'
-import init from '../../../helpers/init'
-import { ServiceRegistry } from '../../../helpers/serviceRegistry'
-import { Pool } from '../../../typechain'
->>>>>>>> dev:test/aave/actions/BorrowV3.test.ts
+import { Pool } from '../../../../../typechain'
 
 const utils = ethers.utils
 chai.use(smock.matchers)

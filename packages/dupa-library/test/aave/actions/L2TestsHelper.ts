@@ -1,27 +1,19 @@
+import { ActionFactory } from '@dupa-library/actions/actionFactory'
+import { ADDRESSES } from '@dupa-library/helpers/addresses'
+import { CONTRACT_NAMES, FIFTY, HUNDRED, MAX_UINT, ONE } from '@dupa-library/helpers/constants'
+import { ActionCall, calldataTypes } from '@dupa-library/types'
 import * as optimismSDK from '@eth-optimism/sdk'
 import { TransactionRequest } from '@ethersproject/providers'
-import { createDeploy } from '@helpers/deploy'
-import init from '@helpers/init'
-import { ServiceRegistry } from '@helpers/serviceRegistry'
-import { swapUniswapTokens } from '@helpers/swap/uniswap'
-import { BalanceOptions, RuntimeConfig } from '@helpers/types/common'
-import { amountToWei } from '@helpers/utils'
-import { OperationsRegistry } from '@helpers/wrappers/operationsRegistry'
-import {
-  ActionCall,
-  ActionFactory,
-  ADDRESSES,
-  calldataTypes,
-  CONTRACT_NAMES,
-  FIFTY,
-  HUNDRED,
-  MAX_UINT,
-  ONE,
-} from '@oasisdex/oasis-actions'
+import { createDeploy } from '@oasisdex/dupa-common/utils/deploy'
+import init from '@oasisdex/dupa-common/utils/init'
+import { ServiceRegistry } from '@oasisdex/dupa-common/utils/serviceRegistry'
+import { swapUniswapTokens } from '@oasisdex/dupa-common/utils/swap/uniswap'
+import { BalanceOptions, RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
+import { amountToWei } from '@oasisdex/dupa-common/utils/utils'
+import { OperationsRegistry } from '@oasisdex/dupa-common/utils/wrappers/operationsRegistry'
+import { getServiceNameHash } from '@oasisdex/dupa-contracts/scripts/common'
 import BigNumber from 'bignumber.js'
 import { Contract } from 'ethers'
-
-import { getServiceNameHash } from '../../../scripts/common'
 
 const createAction = ActionFactory.create
 

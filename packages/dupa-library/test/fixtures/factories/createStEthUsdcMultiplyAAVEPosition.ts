@@ -1,8 +1,11 @@
-import { AaveVersion, RiskRatio, strategies } from '@dupa-library/src'
+import { AaveVersion, RiskRatio, strategies } from '@dupa-library'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
-} from '@dupa-library/src/strategies/aave/open/open'
+} from '@dupa-library/strategies/aave/open/open'
+import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
+import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
+import { amountToWei, approve, balanceOf } from '@oasisdex/dupa-common/utils/utils'
 import BigNumber from 'bignumber.js'
 
 import {
@@ -10,9 +13,6 @@ import {
   aaveV3UniqueContractName,
 } from '../../../src/protocols/aave/config'
 import { mainnetAddresses } from '../../addresses'
-import { executeThroughDPMProxy, executeThroughProxy } from '../@oasisdex/dupa-common/utils/deploy'
-import { RuntimeConfig } from '../@oasisdex/dupa-common/utils/types/common'
-import { amountToWei, approve, balanceOf } from '../@oasisdex/dupa-common/utils/utils'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { ETH, MULTIPLE, SLIPPAGE, STETH, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'

@@ -1,6 +1,6 @@
-import { balanceOf } from '@helpers/utils'
+import { ADDRESSES, FIFTY, HUNDRED } from '@dupa-library'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { ADDRESSES, FIFTY, HUNDRED } from '@oasisdex/oasis-actions'
+import { balanceOf } from '@oasisdex/dupa-common/utils/utils'
 
 import { expectToBeEqual } from '../../utils'
 import { aDAI, BORROW_OPERATION, deployedContracts, DEPOSIT_OPERATION } from './L2TestsHelper'

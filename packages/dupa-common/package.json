@@ -4,7 +4,7 @@
   "license": "MIT",
   "dependencies": {
     "ethers": "5.7.2",
-    "@oasisdex/dupa-common": "*"
+    "@oasisdex/dupa-library": "*"
   },
   "devDependencies": {
     "eslint": "^8.35.0",

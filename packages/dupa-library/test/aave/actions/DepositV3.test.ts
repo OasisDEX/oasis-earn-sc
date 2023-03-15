@@ -1,5 +1,6 @@
 import { FakeContract, smock } from '@defi-wonderland/smock'
-import { calldataTypes, CONTRACT_NAMES } from '@dupa-library/src'
+import { calldataTypes } from '@dupa-library'
+import { CONTRACT_NAMES } from '@dupa-library/helpers/constants'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { createDeploy } from '@oasisdex/dupa-common/utils/deploy'
 import init from '@oasisdex/dupa-common/utils/init'
@@ -9,28 +10,25 @@ import chai, { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-<<<<<<<< HEAD:packages/dupa-library/test/aave/SetEModeV3.test.ts
-import { Pool } from '../../../../typechain'
-========
-import AavePoolAbi from '../../../abi/external/aave/v3/pool.json'
-import { createDeploy } from '../../../helpers/deploy'
-import init from '../../../helpers/init'
-import { ServiceRegistry } from '../../../helpers/serviceRegistry'
-import { Pool } from '../../../typechain'
->>>>>>>> dev:test/aave/actions/SetEModeV3.test.ts
+import { Pool } from '../../../../../typechain'
 
 const utils = ethers.utils
 chai.use(smock.matchers)
 
-describe('AAVE | SetEModeV3 Action', () => {
+const defaultReferralCodeInAction = 0
+describe('AAVE | DepositV3 Action', () => {
   let provider: JsonRpcProvider
-  let setEModeV3Action: Contract
+  let depositV3Action: Contract
+  let depositV3ActionAddress: string
   let snapshotId: string
   let fakePool: FakeContract<Pool>
   let tx: any
 
   const expectedValues = {
-    categoryId: 1,
+    asset: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    amount: 1000,
+    sumAmounts: false,
+    setAsCollateral: false,
   }
 
   before(async () => {
@@ -49,20 +47,23 @@ describe('AAVE | SetEModeV3 Action', () => {
     ])
 
     fakePool = await smock.fake<Pool>(AavePoolAbi)
-    fakePool.setUserEMode.returns()
+    fakePool.supply.returns()
 
     await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, fakePool.address)
     await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
 
-    const [_setEModeV3Action] = await deploy('AaveV3SetEMode', [serviceRegistryAddress])
-    setEModeV3Action = _setEModeV3Action
+    const [_depositV3Action, _depositV3ActionAddress] = await deploy('AaveV3Deposit', [
+      serviceRegistryAddress,
+    ])
+    depositV3Action = _depositV3Action
+    depositV3ActionAddress = _depositV3ActionAddress
   })
 
   beforeEach(async () => {
     snapshotId = await provider.send('evm_snapshot', [])
 
-    tx = await setEModeV3Action.execute(
-      utils.defaultAbiCoder.encode([calldataTypes.aaveV3.SetEMode], [expectedValues]),
+    tx = await depositV3Action.execute(
+      utils.defaultAbiCoder.encode([calldataTypes.aaveV3.Deposit], [expectedValues]),
       [0, 0],
     )
   })
@@ -71,11 +72,16 @@ describe('AAVE | SetEModeV3 Action', () => {
     await provider.send('evm_revert', [snapshotId])
   })
 
-  it('should call setUserEMode on AAVE V3 Pool with expected params', async () => {
-    expect(fakePool.setUserEMode).to.be.calledWith(expectedValues.categoryId)
+  it('should call deposit on AAVE V3 Pool with expected params', async () => {
+    expect(fakePool.supply).to.be.calledWith(
+      expectedValues.asset,
+      expectedValues.amount,
+      depositV3ActionAddress,
+      defaultReferralCodeInAction,
+    )
   })
-  it('should emit SetEMode V3 Action event', async () => {
-    const expectedActionName = 'AaveV3SetEMode'
+  it('should emit Deposit V3 Action event', async () => {
+    const expectedActionName = 'AaveV3Deposit'
     const expectedEventName = 'Action'
     const abi = ['event Action (string indexed name, bytes returned)']
     const iface = new utils.Interface(abi)
@@ -84,8 +90,26 @@ describe('AAVE | SetEModeV3 Action', () => {
 
     expect(expectedEventName).to.equal(parsedLog.name)
     expect(utils.keccak256(utils.toUtf8Bytes(expectedActionName))).to.equal(parsedLog.args[0].hash)
-    expect(utils.defaultAbiCoder.encode(['uint256'], [expectedValues.categoryId])).to.equal(
+    expect(utils.defaultAbiCoder.encode(['uint256'], [expectedValues.amount])).to.equal(
       parsedLog.args[1],
+    )
+  })
+  it('should call set collateral when flag is passed', async () => {
+    const expectedValues = {
+      asset: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+      amount: 1000,
+      sumAmounts: false,
+      setAsCollateral: true,
+    }
+
+    await depositV3Action.execute(
+      utils.defaultAbiCoder.encode([calldataTypes.aaveV3.Deposit], [expectedValues]),
+      [0, 0],
+    )
+
+    expect(fakePool.setUserUseReserveAsCollateral).to.be.calledWith(
+      expectedValues.asset,
+      expectedValues.setAsCollateral,
     )
   })
 })

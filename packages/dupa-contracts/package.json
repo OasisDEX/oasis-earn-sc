@@ -3,13 +3,35 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "compile": "npx hardhat compile"
+    "compile": "npx hardhat compile",
+    "dev": "tsc -b && yarn update-block && && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ./.env | cut -d '=' -f2)"
   },
   "dependencies": {
     "@oasisdex/dupa-common": "*",
-    "@oasisdex/dupa-library": "*",
+    "@oasisdex/dupa-library": "*"
+  },
+  "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.7",
-    "@nomiclabs/hardhat-waffle": "^2.0.1"
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@tenderly/hardhat-tenderly": "^1.6.1",
+    "@typescript-eslint/eslint-plugin": "^5.27.1",
+    "@typescript-eslint/parser": "^5.27.1",
+    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/hardhat": "^2.3.1",
+    "hardhat": "^2.12.6",
+    "hardhat-abi-exporter": "^2.2.1",
+    "hardhat-contract-sizer": "^2.0.1",
+    "hardhat-gas-reporter": "^1.0.4",
+    "hardhat-log-remover": "^2.0.0",
+    "hardhat-tracer": "^1.1.1",
+    "prettier": "^2.1.2",
+    "prettier-plugin-solidity": "^1.0.0-beta.17",
+    "solhint": "^3.2.2",
+    "solhint-plugin-prettier": "0.0.5",
+    "solidity-coverage": "^0.7.13",
+    "solidity-docgen": "^0.6.0-beta.29",
+    "tsconfig-paths": "^4.1.2",
+    "typechain": "^8.1.0"
   }
 }
