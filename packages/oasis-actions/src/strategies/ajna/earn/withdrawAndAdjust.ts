@@ -14,7 +14,7 @@ export async function withdrawAndAdjust(
   args: AjnaEarnArgs,
   dependencies: AjnaDependencies,
 ): Promise<Strategy<AjnaEarnPosition>> {
-  const action = 'withdraw'
+  const action = 'withdraw-earn'
   const isPositionStaked = args.position.stakedNftId !== null
   const isWithdrawing = args.quoteAmount.gt(ZERO)
   const isAdjusting = !args.price.eq(args.position.price)
@@ -108,5 +108,12 @@ export async function withdrawAndAdjust(
 
   if (!data || !targetPosition) throw new Error('Invalid withdrawAndAdjust params')
 
-  return getAjnaEarnActionOutput({ targetPosition, data, dependencies, args, action })
+  return getAjnaEarnActionOutput({
+    targetPosition,
+    data,
+    dependencies,
+    args,
+    txValue: '0',
+    action,
+  })
 }

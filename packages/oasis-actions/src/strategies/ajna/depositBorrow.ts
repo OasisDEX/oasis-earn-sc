@@ -1,6 +1,7 @@
 import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
+import { prepareAjnaPayload } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
 import { Strategy } from '../../types/common'
 import { Dependencies, OpenArgs } from './open'
@@ -33,20 +34,14 @@ export async function depositBorrow(
 
   const targetPosition = args.position.deposit(args.collateralAmount).borrow(args.quoteAmount)
 
-  return {
-    simulation: {
-      swaps: [],
-      targetPosition,
-      position: targetPosition,
-      errors: [],
-      warnings: [],
-    },
-    tx: {
-      to: dependencies.ajnaProxyActions,
-      data,
-      value: isDepositingEth
-        ? ethers.utils.parseEther(args.collateralAmount.toString()).toString()
-        : '0',
-    },
-  }
+  return prepareAjnaPayload({
+    dependencies,
+    targetPosition,
+    errors: [],
+    warnings: [],
+    data,
+    txValue: isDepositingEth
+      ? ethers.utils.parseEther(args.collateralAmount.toString()).toString()
+      : '0',
+  })
 }

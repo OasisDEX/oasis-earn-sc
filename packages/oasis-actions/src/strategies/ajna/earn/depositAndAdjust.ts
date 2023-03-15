@@ -14,7 +14,9 @@ export async function depositAndAdjust(
   args: AjnaEarnArgs,
   dependencies: AjnaDependencies,
 ): Promise<Strategy<AjnaEarnPosition>> {
-  const action = 'deposit'
+  const action = 'deposit-earn'
+  const isLendingEth =
+    args.position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()
   const isPositionStaked = args.position.stakedNftId !== null
   const isDepositing = args.quoteAmount.gt(ZERO)
   const isAdjusting = !args.price.eq(args.position.price)
@@ -108,5 +110,12 @@ export async function depositAndAdjust(
 
   if (!data || !targetPosition) throw new Error('Invalid depositAndAdjust params')
 
-  return getAjnaEarnActionOutput({ targetPosition, data, dependencies, args, action })
+  return getAjnaEarnActionOutput({
+    targetPosition,
+    data,
+    dependencies,
+    args,
+    txValue: isLendingEth ? ethers.utils.parseEther(args.quoteAmount.toString()).toString() : '0',
+    action,
+  })
 }

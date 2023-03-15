@@ -62,4 +62,4 @@ export interface AjnaDependencies {
   WETH: Address
 }
 
-export type AjnaEarnActions = 'open' | 'deposit' | 'withdraw'
+export type AjnaEarnActions = 'open-earn' | 'deposit-earn' | 'withdraw-earn'

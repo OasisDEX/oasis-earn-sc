@@ -35,11 +35,11 @@ export const getAjnaValidations = ({
 
   // action specific
   switch (action) {
-    case 'open':
-    case 'deposit': {
+    case 'open-earn':
+    case 'deposit-earn': {
       break
     }
-    case 'withdraw': {
+    case 'withdraw-earn': {
       if (position.quoteTokenAmount.lt(quoteAmount)) {
         errors.push({
           name: 'withdraw-more-than-available',

@@ -17,6 +17,7 @@ import {
 export interface AjnaEarnArgs {
   poolAddress: Address
   dpmProxyAddress: Address
+  collateralAmount: BigNumber
   quoteAmount: BigNumber
   quoteTokenPrecision: number
   price: BigNumber
@@ -25,26 +26,19 @@ export interface AjnaEarnArgs {
 
 export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
   dependencies,
-  args,
   targetPosition,
   errors,
   warnings,
   data,
+  txValue,
 }: {
   dependencies: AjnaDependencies
   targetPosition: T
   errors: AjnaError[]
   warnings: AjnaWarning[]
   data: string
-  args: {
-    position: T
-    quoteAmount: BigNumber
-    quoteTokenPrecision: number
-  }
+  txValue: string
 }): Strategy<T> => {
-  const isDepositingEth =
-    args.position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
-
   return {
     simulation: {
       swaps: [],
@@ -56,9 +50,7 @@ export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
     tx: {
       to: dependencies.ajnaProxyActions,
       data,
-      value: isDepositingEth
-        ? ethers.utils.parseEther(args.quoteAmount.toString()).toString()
-        : '0',
+      value: txValue,
     },
   }
 }
@@ -69,18 +61,20 @@ export const getAjnaEarnActionOutput = async ({
   dependencies,
   args,
   action,
+  txValue,
 }: {
   targetPosition: AjnaEarnPosition
   data: string
   dependencies: AjnaDependencies
   args: AjnaEarnArgs
   action: AjnaEarnActions
+  txValue: string
 }) => {
   const pool = new ethers.Contract(args.poolAddress, poolAbi, dependencies.provider)
   const [poolDebt] = await pool.debtInfo()
 
   const afterLupIndex =
-    action === 'withdraw'
+    action === 'withdraw-earn'
       ? await pool.depositIndex(
           new BigNumber(poolDebt.toString()).plus(args.quoteAmount.shiftedBy(18)).toString(),
         )
@@ -97,10 +91,10 @@ export const getAjnaEarnActionOutput = async ({
 
   return prepareAjnaPayload({
     dependencies,
-    args,
     targetPosition,
     errors,
     warnings,
     data,
+    txValue,
   })
 }
