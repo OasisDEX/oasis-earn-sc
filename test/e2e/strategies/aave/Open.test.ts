@@ -6,13 +6,13 @@ import {
   getSupportedStrategies,
   getSystemWithAavePositions,
   SystemWithAAVEPositions,
-} from '../../fixtures'
+} from '../../../fixtures'
 import {
   getSupportedAaveV3Strategies,
   getSystemWithAaveV3Positions,
-} from '../../fixtures/system/getSystemWithAaveV3Positions'
-import { SystemWithAAVEV3Positions } from '../../fixtures/types/systemWithAAVEPositions'
-import { expectToBe, expectToBeEqual } from '../../utils'
+} from '../../../fixtures/system/getSystemWithAaveV3Positions'
+import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
+import { expectToBe, expectToBeEqual } from '../../../utils'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'

@@ -2,7 +2,7 @@ import { balanceOf } from '@helpers/utils'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { HUNDRED, ZERO } from '@oasisdex/oasis-actions'
 
-import { expectToBeEqual } from '../../utils'
+import { expectToBeEqual } from '../../../utils'
 import { aDAI, deployedContracts, DEPOSIT_OPERATION, WITHDRAW_OPERATION } from './L2TestsHelper'
 
 describe('Withdraw Action', () => {

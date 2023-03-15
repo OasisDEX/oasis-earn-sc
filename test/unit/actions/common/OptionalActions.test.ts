@@ -1,4 +1,4 @@
-import DummyActionABI from '@abi/generated/DummyAction.json'
+import DummyActionABI from '@abi/generated/contracts/test/DummyAction.sol/DummyAction.json'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { executeThroughProxy } from '@helpers/deploy'
 import { restoreSnapshot } from '@helpers/restoreSnapshot'

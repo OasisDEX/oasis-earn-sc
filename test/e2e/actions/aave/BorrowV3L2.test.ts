@@ -2,7 +2,7 @@ import { balanceOf } from '@helpers/utils'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { ADDRESSES, FIFTY, HUNDRED } from '@oasisdex/oasis-actions'
 
-import { expectToBeEqual } from '../../utils'
+import { expectToBeEqual } from '../../../utils'
 import { aDAI, BORROW_OPERATION, deployedContracts, DEPOSIT_OPERATION } from './L2TestsHelper'
 
 describe('Borrow Action', () => {

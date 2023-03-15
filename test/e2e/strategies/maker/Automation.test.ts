@@ -22,9 +22,9 @@ import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
-import { DeployedSystemInfo } from '../../deploySystem'
-import { initialiseConfig } from '../../fixtures/setup'
-import { expectToBeEqual } from '../../utils'
+import { DeployedSystemInfo } from '../../../deploySystem'
+import { initialiseConfig } from '../../../fixtures/setup'
+import { expectToBeEqual } from '../../../utils'
 
 const createAction = ActionFactory.create
 

@@ -5,14 +5,14 @@ import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 
-import { zero } from '../../../scripts/common'
-import { mainnetAddresses } from '../../addresses'
+import { zero } from '../../../../scripts/common'
+import { mainnetAddresses } from '../../../addresses'
 import {
   getSupportedStrategies,
   getSystemWithAavePositions,
   SystemWithAAVEPositions,
-} from '../../fixtures'
-import { expectToBe, expectToBeEqual } from '../../utils'
+} from '../../../fixtures'
+import { expectToBe, expectToBeEqual } from '../../../utils'
 
 describe('Strategy | AAVE | Payback/Withdraw', async () => {
   let fixture: SystemWithAAVEPositions

@@ -4,10 +4,10 @@ import { AAVETokens, AaveVersion, strategies } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 
-import { zero } from '../../../scripts/common'
-import { mainnetAddresses } from '../../addresses'
-import { getSystemWithProxies, SystemWithProxies } from '../../fixtures'
-import { expectToBe, expectToBeEqual } from '../../utils'
+import { zero } from '../../../../scripts/common'
+import { mainnetAddresses } from '../../../addresses'
+import { getSystemWithProxies, SystemWithProxies } from '../../../fixtures'
+import { expectToBe, expectToBeEqual } from '../../../utils'
 
 export type TokenDetails = {
   symbol: AAVETokens

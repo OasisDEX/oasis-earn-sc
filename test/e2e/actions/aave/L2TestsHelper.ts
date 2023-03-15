@@ -21,7 +21,7 @@ import {
 import BigNumber from 'bignumber.js'
 import { Contract } from 'ethers'
 
-import { getServiceNameHash } from '../../../scripts/common'
+import { getServiceNameHash } from '../../../../scripts/common'
 
 const createAction = ActionFactory.create
 

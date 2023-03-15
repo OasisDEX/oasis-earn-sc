@@ -20,10 +20,10 @@ import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
-import { testBlockNumber } from '../../config'
-import { DeployedSystemInfo } from '../../deploySystem'
-import { initialiseConfig } from '../../fixtures/setup'
-import { expectToBe, expectToBeEqual } from '../../utils'
+import { testBlockNumber } from '../../../config'
+import { DeployedSystemInfo } from '../../../deploySystem'
+import { initialiseConfig } from '../../../fixtures/setup'
+import { expectToBe, expectToBeEqual } from '../../../utils'
 
 const createAction = ActionFactory.create
 

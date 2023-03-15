@@ -2,7 +2,7 @@ import { balanceOf } from '@helpers/utils'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { ADDRESSES, FIFTY, ZERO } from '@oasisdex/oasis-actions'
 
-import { expectToBeEqual } from '../../utils'
+import { expectToBeEqual } from '../../../utils'
 import {
   BORROW_OPERATION,
   deployedContracts,

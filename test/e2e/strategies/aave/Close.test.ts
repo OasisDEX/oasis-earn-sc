@@ -16,21 +16,21 @@ import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers } from 'ethers'
 
-import { mainnetAddresses } from '../../addresses'
-import { DeployedSystemInfo } from '../../deploySystem'
+import { mainnetAddresses } from '../../../addresses'
+import { DeployedSystemInfo } from '../../../deploySystem'
 import {
   getSupportedStrategies,
   getSystemWithAavePositions,
   SystemWithAAVEPositions,
-} from '../../fixtures'
-import { UNISWAP_TEST_SLIPPAGE } from '../../fixtures/factories/common'
+} from '../../../fixtures'
+import { UNISWAP_TEST_SLIPPAGE } from '../../../fixtures/factories/common'
 import {
   getSupportedAaveV3Strategies,
   getSystemWithAaveV3Positions,
-} from '../../fixtures/system/getSystemWithAaveV3Positions'
-import { TokenDetails } from '../../fixtures/types/positionDetails'
-import { SystemWithAAVEV3Positions } from '../../fixtures/types/systemWithAAVEPositions'
-import { expectToBe, expectToBeEqual } from '../../utils'
+} from '../../../fixtures/system/getSystemWithAaveV3Positions'
+import { TokenDetails } from '../../../fixtures/types/positionDetails'
+import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
+import { expectToBe, expectToBeEqual } from '../../../utils'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'

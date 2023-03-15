@@ -16,10 +16,10 @@ import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers, Signer } from 'ethers'
 
-import { mainnetAddresses } from '../../addresses'
-import { testBlockNumber } from '../../config'
-import { tokens } from '../../constants'
-import { initialiseConfig } from '../../fixtures/setup'
+import { mainnetAddresses } from '../../../addresses'
+import { testBlockNumber } from '../../../config'
+import { tokens } from '../../../constants'
+import { initialiseConfig } from '../../../fixtures/setup'
 
 // TODO: IMPLEMENT THIS TEST
 describe(`Strategy | AAVE | Deposit/Borrow`, async function () {
