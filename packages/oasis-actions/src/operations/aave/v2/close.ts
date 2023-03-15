@@ -1,10 +1,61 @@
 import BigNumber from 'bignumber.js'
 
 import * as actions from '../../../actions'
+import { getActionHash } from '../../../actions/getActionHash'
 import { ADDRESSES } from '../../../helpers/addresses'
-import { MAX_UINT, OPERATION_NAMES } from '../../../helpers/constants'
+import { CONTRACT_NAMES, MAX_UINT, OPERATION_NAMES } from '../../../helpers/constants'
 import { IOperation } from '../../../types'
 import { AAVEStrategyAddresses } from './addresses'
+
+export const operationDefinition = {
+  name: OPERATION_NAMES.aave.v2.CLOSE_POSITION,
+  actions: [
+    {
+      hash: getActionHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
+      optional: false,
+    },
+    {
+      hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
+      optional: false,
+    },
+    {
+      hash: getActionHash(CONTRACT_NAMES.aave.v2.DEPOSIT),
+      optional: false,
+    },
+    {
+      hash: getActionHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
+      optional: false,
+    },
+    {
+      hash: getActionHash(CONTRACT_NAMES.common.SWAP_ACTION),
+      optional: false,
+    },
+    {
+      hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
+      optional: false,
+    },
+    {
+      hash: getActionHash(CONTRACT_NAMES.aave.v2.PAYBACK),
+      optional: false,
+    },
+    {
+      hash: getActionHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
+      optional: false,
+    },
+    {
+      hash: getActionHash(CONTRACT_NAMES.common.UNWRAP_ETH),
+      optional: true,
+    },
+    {
+      hash: getActionHash(CONTRACT_NAMES.common.RETURN_FUNDS),
+      optional: false,
+    },
+    {
+      hash: getActionHash(CONTRACT_NAMES.common.RETURN_FUNDS),
+      optional: false,
+    },
+  ],
+}
 
 export async function close(
   args: {
@@ -109,5 +160,5 @@ export async function close(
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.v2.CLOSE_POSITION }
+  return { calls: [takeAFlashLoan], operationName: operationDefinition.name }
 }
