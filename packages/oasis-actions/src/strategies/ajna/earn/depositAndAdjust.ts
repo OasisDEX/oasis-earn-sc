@@ -4,7 +4,7 @@ import { ethers } from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
-import { AjnaEarnArgs, getAjnaEarnActionOutput } from '../../../helpers/ajna'
+import { AjnaEarnArgs, getAjnaEarnActionOutput, resolveAjnaEthAction } from '../../../helpers/ajna'
 import { ZERO } from '../../../helpers/constants'
 import { AjnaEarnPosition } from '../../../types/ajna'
 import { AjnaDependencies, Strategy } from '../../../types/common'
@@ -115,7 +115,7 @@ export async function depositAndAdjust(
     data,
     dependencies,
     args,
-    txValue: isLendingEth ? ethers.utils.parseEther(args.quoteAmount.toString()).toString() : '0',
+    txValue: resolveAjnaEthAction(isLendingEth, args.quoteAmount),
     action,
   })
 }

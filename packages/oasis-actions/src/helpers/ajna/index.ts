@@ -98,3 +98,6 @@ export const getAjnaEarnActionOutput = async ({
     txValue,
   })
 }
+
+export const resolveAjnaEthAction = (isUsingEth: boolean, amount: BigNumber) =>
+  isUsingEth ? ethers.utils.parseEther(amount.toString()).toString() : '0'

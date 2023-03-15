@@ -1,7 +1,7 @@
 import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
-import { prepareAjnaPayload } from '../../helpers/ajna'
+import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
 import { Strategy } from '../../types/common'
 import { Dependencies, OpenArgs } from './open'
@@ -40,8 +40,6 @@ export async function depositBorrow(
     errors: [],
     warnings: [],
     data,
-    txValue: isDepositingEth
-      ? ethers.utils.parseEther(args.collateralAmount.toString()).toString()
-      : '0',
+    txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
   })
 }

@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
-import { getAjnaEarnActionOutput } from '../../../helpers/ajna'
+import { getAjnaEarnActionOutput, resolveAjnaEthAction } from '../../../helpers/ajna'
 import { AjnaEarnPosition } from '../../../types/ajna'
 import { Address, Strategy } from '../../../types/common'
 import * as views from '../../../views'
@@ -91,7 +91,7 @@ export async function open(
       collateralAmount: new BigNumber(0),
       ...args,
     },
-    txValue: isLendingEth ? ethers.utils.parseEther(args.quoteAmount.toString()).toString() : '0',
+    txValue: resolveAjnaEthAction(isLendingEth, args.quoteAmount),
     action,
   })
 }

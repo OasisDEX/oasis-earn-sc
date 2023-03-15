@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
-import { prepareAjnaPayload } from '../../helpers/ajna'
+import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
 import * as views from '../../views'
@@ -73,8 +73,6 @@ export async function open(
     data,
     errors: [],
     warnings: [],
-    txValue: isDepositingEth
-      ? ethers.utils.parseEther(args.collateralAmount.toString()).toString()
-      : '0',
+    txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
   })
 }
