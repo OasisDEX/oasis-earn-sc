@@ -6,3 +6,5 @@
 - Ensure all packages are being formatted and linted correctly
 - Establish file and folder naming conventions: TS & Sol
 - Add instruction for regnerating domain unit tests scenarios
+- Move ContractNames to dupa-contracts
+- Update name of init() function

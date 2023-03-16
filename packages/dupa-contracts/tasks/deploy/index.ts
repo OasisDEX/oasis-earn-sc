@@ -1,11 +1,11 @@
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dupa-library/src'
 import { task } from 'hardhat/config'
 
-import { createDeploy, DeployFunction } from '../../../dupa-common/utils/deploy'
-import init from '../../../dupa-common/utils/init'
-import { ServiceRegistry } from '../../../dupa-library/test/utils/service-registry'
-import { RuntimeConfig } from '../../../dupa-common/utils/types/common'
-import { OperationsRegistry } from '../../../dupa-common/utils/wrappers/operationsRegistry'
+import { createDeploy, DeployFunction } from '@oasisdex/dupa-common/utils/deploy'
+import init from '@oasisdex/dupa-common/utils/init'
+import { ServiceRegistry } from '@oasisdex/dupa-library/test/utils/service-registry'
+import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
+import { OperationsRegistry } from '@oasisdex/dupa-common/utils/wrappers/operationsRegistry'
+import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from "@oasisdex/dupa-library/src";
 
 task(
   'deploy',

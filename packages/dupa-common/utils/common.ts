@@ -1,13 +1,13 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES, ONE, TEN } from '@oasisdex/dupa-library/src'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { isError, tryF } from 'ts-try'
 
-import CTOKEN_ABI from '../../dupa-contracts/abi/CErc20.json'
 import IERC20_ABI from '../../dupa-contracts/abi/IERC20.json'
 import { BalanceOptions, RuntimeConfig } from './types/common'
+import { ADDRESSES } from "@oasisdex/dupa-library/src/utils/addresses";
+import { TEN } from "../constants";
 
 export async function balanceOf(
   asset: string,
@@ -35,28 +35,6 @@ export async function balanceOf(
   }
 
   return new BigNumber(balance.toString())
-}
-
-export async function balanceOfUnderlying(
-  asset: string,
-  address: string,
-  options: BalanceOptions,
-  hre?: HardhatRuntimeEnvironment,
-): Promise<string> {
-  const { signer } = options.config
-  const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
-  const CERC20Asset = new ethers.Contract(asset, CTOKEN_ABI, signer)
-  const balance = await CERC20Asset.callStatic.balanceOfUnderlying(address)
-  const decimals = options.decimals ? options.decimals : 18
-  const formattedBalance = ethers.utils.formatUnits(balance.toString(), decimals)
-
-  if (options.debug) {
-    console.log(
-      `DEBUG: Account ${address}'s balance for underlying ${asset} is: ${formattedBalance.toString()}`,
-    )
-  }
-
-  return formattedBalance
 }
 
 export async function approve(
@@ -99,42 +77,6 @@ export async function send(
 
     const transferTx = await tokenContract.transfer(to, amount)
     await transferTx.wait()
-  }
-}
-
-type PositionCalculationResult = {
-  ownDepositAmount: BigNumber
-  lendAmount: BigNumber
-  borrowAmount: BigNumber
-  flashloanAmount: BigNumber
-}
-
-// TODO - This needs to be changed based on the new calculations for AAVE
-export function calculatePositionParams(
-  ownDepositAmount: BigNumber,
-  debug?: boolean,
-): PositionCalculationResult {
-  // minCR = 77%  1/ 0.77 = ~1.2987 = 129.87%
-  // ownDeposit = 100k
-  // lendAmount = (ownDeposit / (minCR - 100%)) * minCR
-  // borrowAmount = (ownDeposit / (minCR - 100%)) * 100%
-  const minCR = ONE.div(new BigNumber(0.77))
-  const lendAmount = ownDepositAmount.div(minCR.minus(ONE)).times(minCR).decimalPlaces(18)
-  const borrowAmount = ownDepositAmount.div(minCR.minus(ONE)).times(ONE).decimalPlaces(18)
-  const flashloanAmount = lendAmount.minus(ownDepositAmount).decimalPlaces(18)
-
-  if (debug) {
-    console.log(`DEBUG: User can deposit ${ownDepositAmount.toFixed(6)}`)
-    console.log(`DEBUG: User can lend ${lendAmount.toFixed(6)}`)
-    console.log(`DEBUG: User can borrow ${borrowAmount.toFixed(6)}`)
-    console.log(`DEBUG: User will take ${flashloanAmount.toFixed(6)} of flash loan`)
-  }
-
-  return {
-    ownDepositAmount: amountToWei(ownDepositAmount),
-    lendAmount: amountToWei(lendAmount),
-    borrowAmount: amountToWei(borrowAmount),
-    flashloanAmount: amountToWei(flashloanAmount),
   }
 }
 

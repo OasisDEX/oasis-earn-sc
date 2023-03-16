@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-import { deploySystem } from '../../deploy-system'
+import { deploySystem } from '../../utils/deploy-system'
 import { AAVETokensToGet } from '../@oasisdex/dupa-common/utils/aave'
 import { RuntimeConfig } from '../@oasisdex/dupa-common/utils/types/common'
 import { AavePositionStrategy, AaveV3PositionStrategy, PositionDetails } from './positionDetails'

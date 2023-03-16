@@ -11,7 +11,6 @@ import { IERC3156FlashBorrower } from "../interfaces/flashloan/IERC3156FlashBorr
 import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender.sol";
 import { IFlashLoanRecipient } from "../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
 import { IDSProxy } from "../interfaces/ds/IDSProxy.sol";
-import { IFlashLoanRecipient } from "../interfaces/flashloan/IFlashLoanRecipient.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanData, Call } from "./types/Common.sol";

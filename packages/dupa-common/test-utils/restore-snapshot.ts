@@ -1,6 +1,6 @@
 import { providers } from 'ethers'
 
-import { DeployedSystemInfo, deploySystem } from '@oasisdex/dupa-library/test/deploy-system'
+import { DeployedSystemInfo, deploySystem } from '@oasisdex/dupa-library/test/utils/deploy-system'
 import { resetNode } from '../utils/init'
 import { ServiceRegistry } from '../../dupa-library/test/utils/service-registry'
 import { RuntimeConfig } from '../utils/types/common'

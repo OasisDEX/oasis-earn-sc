@@ -1,5 +1,5 @@
-import { ContractNames } from '@dupa-library'
 import { Signer, utils } from 'ethers'
+import { ContractNames } from "@dupa-library/utils/constants";
 
 export class ServiceRegistry {
   address: string

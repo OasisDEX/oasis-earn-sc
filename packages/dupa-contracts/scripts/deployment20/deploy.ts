@@ -3,9 +3,7 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-import { ServiceRegistry } from '@helpers/serviceRegistry'
-import { OperationsRegistry } from '@helpers/wrappers/operationsRegistry'
-import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src'
+import { CONTRACT_NAMES } from '@oasisdex/oasis-actions'
 import { operationDefinition as aaveV2CloseOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/close'
 import { operationDefinition as aaveV2OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/open'
 import { operationDefinition as aaveV3CloseOp } from '@oasisdex/oasis-actions/src/operations/aave/v3/close'
@@ -23,6 +21,7 @@ import prompts from 'prompts'
 
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { EtherscanGasPrice, Network } from '../common'
+import { OperationsRegistry } from "@oasisdex/dupa-common/utils/wrappers/operationsRegistry";
 
 configLoader.setBaseDir('./scripts/deployment20/')
 

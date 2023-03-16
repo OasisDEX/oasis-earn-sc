@@ -1,4 +1,4 @@
-export * as expect from './expect'
+export { expect } from "./expect";
 
-export { restoreSnapshot } from './restore-snapshot'
-export { gasEstimateHelper, GasEstimateHelper } from './gas-estimation'
+export { restoreSnapshot, Snapshot } from "./restore-snapshot";
+export { gasEstimateHelper, GasEstimateHelper } from "./gas-estimation";

@@ -1,4 +1,4 @@
-import { AavePosition, AAVETokens, IPositionTransition, SwapData } from '@dupa-library/src'
+import { AavePosition, AAVETokens, IPositionTransition, SwapData } from '@dupa-library'
 import BigNumber from 'bignumber.js'
 
 import { PositionType } from '../../../src/types'

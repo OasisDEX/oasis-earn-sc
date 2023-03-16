@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { expect } from 'chai'
+import { expect as chaiExpect } from 'chai'
 import { isError, tryF } from 'ts-try'
 
 export function toBeEqual(
@@ -42,3 +42,32 @@ export async function revert(expression: RegExp, tx: Promise<unknown>) {
     expect('Tx to fail', 'Tx should revert').to.be.eq('Tx succeeded')
   }
 }
+
+class Callable extends Function {
+  constructor() {
+    super()
+    return new Proxy(this, {
+      apply: (target, thisArg, args) => target._call(...args)
+    })
+  }
+
+  _call(...args) {
+    return chaiExpect(args)
+  }
+
+  toBe(...args) {
+    return toBe(...args)
+  }
+
+  toBeEqual(...args) {
+    return toBeEqual(...args)
+  }
+
+  revert(...args) {
+    return revert(...args)
+  }
+}
+
+const expect = new Callable()
+
+export { expect }
