@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
+import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
 import { Dependencies } from './open'
@@ -37,20 +38,12 @@ export async function paybackWithdraw(
   const isPayingBackEth =
     args.position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
-  return {
-    simulation: {
-      swaps: [],
-      targetPosition,
-      position: targetPosition,
-      errors: [],
-      warnings: [],
-    },
-    tx: {
-      to: dependencies.ajnaProxyActions,
-      data,
-      value: isPayingBackEth
-        ? ethers.utils.parseEther(args.quoteAmount.toString()).toString()
-        : '0',
-    },
-  }
+  return prepareAjnaPayload({
+    dependencies,
+    targetPosition,
+    errors: [],
+    warnings: [],
+    data,
+    txValue: resolveAjnaEthAction(isPayingBackEth, args.quoteAmount),
+  })
 }

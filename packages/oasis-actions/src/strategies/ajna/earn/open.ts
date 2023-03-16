@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
-import { getAjnaEarnActionOutput } from '../../../helpers/ajna'
+import { getAjnaEarnActionOutput, resolveAjnaEthAction } from '../../../helpers/ajna'
 import { AjnaEarnPosition } from '../../../types/ajna'
 import { Address, Strategy } from '../../../types/common'
 import * as views from '../../../views'
@@ -32,7 +32,7 @@ export async function open(
   args: Args,
   dependencies: Dependencies,
 ): Promise<Strategy<AjnaEarnPosition>> {
-  const action = 'open'
+  const action = 'open-earn'
   const position = await views.ajna.getEarnPosition(
     {
       collateralPrice: args.collateralPrice,
@@ -46,6 +46,8 @@ export async function open(
       provider: dependencies.provider,
     },
   )
+
+  const isLendingEth = position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
   const ajnaProxyActions = new ethers.Contract(
     dependencies.ajnaProxyActions,
@@ -86,8 +88,10 @@ export async function open(
     dependencies,
     args: {
       position: targetPosition,
+      collateralAmount: new BigNumber(0),
       ...args,
     },
+    txValue: resolveAjnaEthAction(isLendingEth, args.quoteAmount),
     action,
   })
 }

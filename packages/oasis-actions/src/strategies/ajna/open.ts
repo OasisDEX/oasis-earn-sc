@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
+import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
 import * as views from '../../views'
@@ -66,20 +67,12 @@ export async function open(
 
   const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
 
-  return {
-    simulation: {
-      swaps: [],
-      targetPosition,
-      position: targetPosition,
-      errors: targetPosition.errors,
-      warnings: [],
-    },
-    tx: {
-      to: dependencies.ajnaProxyActions,
-      data,
-      value: isDepositingEth
-        ? ethers.utils.parseUnits(args.collateralAmount.toString(), 18).toString()
-        : '0',
-    },
-  }
+  return prepareAjnaPayload({
+    dependencies,
+    targetPosition,
+    data,
+    errors: [],
+    warnings: [],
+    txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
+  })
 }
