@@ -1,35 +1,92 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.15;
+pragma solidity >=0.5.0 <0.6.0;
 
-import "./DSAuth.sol";
-import "./DSNote.sol";
+import { DSAuth } from "./DSAuth.sol";
+import { DSNote } from "./DSNote.sol";
 
-abstract contract DSProxy is DSAuth, DSNote {
+contract DSProxy is DSAuth, DSNote {
   DSProxyCache public cache; // global cache for contracts
 
-  constructor(address _cacheAddr) {
-    require(setCache(_cacheAddr), "Cache not set");
+  constructor(address _cacheAddr) public {
+    setCache(_cacheAddr);
   }
 
-  // solhint-disable-next-line no-empty-blocks
-  receive() external payable {}
+  function() external payable {}
 
   // use the proxy to execute calldata _data on contract _code
   function execute(bytes memory _code, bytes memory _data)
     public
     payable
-    virtual
-    returns (address target, bytes32 response);
+    returns (address target, bytes memory response)
+  {
+    target = cache.read(_code);
+    if (target == address(0)) {
+      // deploy contract & store its address in cache
+      target = cache.write(_code);
+    }
+
+    response = execute(target, _data);
+  }
 
   function execute(address _target, bytes memory _data)
     public
     payable
-    virtual
-    returns (bytes32 response);
+    auth
+    note
+    returns (bytes memory response)
+  {
+    require(_target != address(0), "ds-proxy-target-address-required");
+
+    // call contract in current context
+    assembly {
+      let succeeded := delegatecall(sub(gas, 5000), _target, add(_data, 0x20), mload(_data), 0, 0)
+      let size := returndatasize
+
+      response := mload(0x40)
+      mstore(0x40, add(response, and(add(add(size, 0x20), 0x1f), not(0x1f))))
+      mstore(response, size)
+      returndatacopy(add(response, 0x20), 0, size)
+
+      switch iszero(succeeded)
+      case 1 {
+        // throw if delegatecall failed
+        revert(add(response, 0x20), size)
+      }
+    }
+  }
 
   //set new cache
-  function setCache(address _cacheAddr) public payable virtual returns (bool);
+  function setCache(address _cacheAddr) public payable auth note returns (bool) {
+    require(_cacheAddr != address(0), "ds-proxy-cache-address-required");
+    cache = DSProxyCache(_cacheAddr); // overwrite cache
+    return true;
+  }
+}
+
+contract DSProxyFactory {
+  event Created(address indexed sender, address indexed owner, address proxy, address cache);
+  mapping(address => bool) public isProxy;
+  DSProxyCache public cache;
+
+  constructor() public {
+    cache = new DSProxyCache();
+  }
+
+  // deploys a new proxy instance
+  // sets owner of proxy to caller
+  function build() public returns (address payable proxy) {
+    proxy = build(msg.sender);
+  }
+
+  // deploys a new proxy instance
+  // sets custom owner of proxy
+  function build(address owner) public returns (address payable proxy) {
+    proxy = address(new DSProxy(address(cache)));
+    emit Created(msg.sender, owner, address(proxy), address(cache));
+    DSProxy(proxy).setOwner(owner);
+    isProxy[proxy] = true;
+  }
 }
 
 contract DSProxyCache {
