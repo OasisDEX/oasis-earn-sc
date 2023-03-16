@@ -40,7 +40,7 @@ contract OperationsRegistry {
    * @dev Emitted when a new operation is added or an existing operation is updated
    * @param name The Operation name
    **/
-  event OperationAdded(string indexed name);
+  event OperationAdded(bytes32 indexed name);
 
   /**
    * @notice Adds an Operation's Actions keyed to a an operation name
@@ -48,7 +48,7 @@ contract OperationsRegistry {
    */
   function addOperation(StoredOperation calldata operation) external onlyOwner {
     operations[operation.name] = operation;
-    emit OperationAdded(operation.name);
+    emit OperationAdded(bytes32(abi.encodePacked(operation.name)));
   }
 
   /**

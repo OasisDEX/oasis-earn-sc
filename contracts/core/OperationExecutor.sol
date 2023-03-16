@@ -38,7 +38,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
    * @param name The address initiating the deposit
    * @param calls An array of Action calls the operation must execute
    **/
-  event Operation(string indexed name, Call[] calls);
+  event Operation(bytes32 indexed name, Call[] calls);
 
   constructor(ServiceRegistry _registry) {
     registry = _registry;
@@ -74,7 +74,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
 
     opStorage.clearStorage();
     opStorage.unlock();
-    emit Operation(operationName, calls);
+    emit Operation(bytes32(abi.encodePacked(operationName)), calls);
   }
 
   function aggregate(Call[] memory calls) internal {
