@@ -11,8 +11,7 @@ import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 
 import {
   AAVE_WETH_GATEWAY,
-  AAVE_LENDING_POOL,
-  PAYBACK_ACTION
+  AAVE_LENDING_POOL
 } from "../../../core/constants/Aave.sol";
 
 /**
@@ -44,7 +43,6 @@ contract AavePayback is Executable, UseStore {
     );
 
     store().write(bytes32(payback.amount));
-    emit Action(PAYBACK_ACTION, bytes(abi.encode(payback.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (PaybackData memory params) {

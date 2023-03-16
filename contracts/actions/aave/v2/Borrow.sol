@@ -10,8 +10,7 @@ import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 import { BorrowData } from "../../../core/types/Aave.sol";
 import {
   AAVE_WETH_GATEWAY,
-  AAVE_LENDING_POOL,
-  BORROW_ACTION
+  AAVE_LENDING_POOL
 } from "../../../core/constants/Aave.sol";
 import { IERC20 } from "../../../interfaces/tokens/IERC20.sol";
 
@@ -39,7 +38,6 @@ contract AaveBorrow is Executable, UseStore {
     );
 
     store().write(bytes32(borrow.amount));
-    emit Action(BORROW_ACTION, bytes(abi.encode(borrow.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (BorrowData memory params) {

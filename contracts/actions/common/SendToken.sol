@@ -6,7 +6,7 @@ import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { SendTokenData } from "../../core/types/Common.sol";
 import { UseStore, Read } from "./UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
-import { SEND_TOKEN_ACTION, ETH } from "../../core/constants/Common.sol";
+import { ETH } from "../../core/constants/Common.sol";
 
 /**
  * @title SendToken Action contract
@@ -33,8 +33,6 @@ contract SendToken is Executable, UseStore {
       }
       IERC20(send.asset).safeTransfer(send.to, send.amount);
     }
-
-    emit Action(SEND_TOKEN_ACTION, bytes(abi.encode(send.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (SendTokenData memory params) {

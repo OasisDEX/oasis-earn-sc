@@ -8,7 +8,7 @@ import { IVariableDebtToken } from "../../../interfaces/aave/IVariableDebtToken.
 import { IWETHGateway } from "../../../interfaces/aave/IWETHGateway.sol";
 import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 import { BorrowData } from "../../../core/types/Aave.sol";
-import { AAVE_POOL, AAVE_L2_ENCODER, BORROW_V3_ACTION } from "../../../core/constants/Aave.sol";
+import { AAVE_POOL, AAVE_L2_ENCODER } from "../../../core/constants/Aave.sol";
 import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
 
 /**
@@ -49,7 +49,6 @@ contract AaveV3L2Borrow is Executable, UseStore {
     );
 
     store().write(bytes32(borrow.amount));
-    emit Action(BORROW_V3_ACTION, abi.encode(borrow.amount));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (BorrowData memory params) {

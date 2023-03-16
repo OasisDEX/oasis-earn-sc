@@ -13,7 +13,6 @@ import { SafeMath } from "../../libs/SafeMath.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
 import { GenerateData } from "../../core/types/Maker.sol";
 import {
-  GENERATE_ACTION,
   MCD_MANAGER,
   MCD_JUG,
   MCD_JOIN_DAI
@@ -36,8 +35,6 @@ contract MakerGenerate is Executable, UseStore {
 
     uint256 amountGenerated = _generate(generateData);
     store().write(bytes32(amountGenerated));
-
-    emit Action(GENERATE_ACTION, bytes(abi.encode(amountGenerated)));
   }
 
   function _generate(GenerateData memory data) internal returns (uint256) {

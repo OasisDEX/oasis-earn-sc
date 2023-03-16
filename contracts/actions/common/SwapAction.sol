@@ -10,7 +10,6 @@ import { UseStore, Write } from "../../actions/common/UseStore.sol";
 import { Swap } from "../../swap/Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
-import { SWAP } from "../../core/constants/Common.sol";
 
 /**
  * @title SwapAction Action contract
@@ -36,8 +35,6 @@ contract SwapAction is Executable, UseStore {
     uint256 received = Swap(swapAddress).swapTokens(swap);
 
     store().write(bytes32(received));
-
-    emit Action(SWAP, bytes(abi.encode(received)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (SwapData memory params) {
