@@ -4,11 +4,14 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsc -b && yarn update-block && && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ./.env | cut -d '=' -f2)",
-    "compile": "npx hardhat compile",
+    "compile": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache && npx hardhat compile",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx}\" && yarn lint:fix && prettier --write 'packages/dupa-contracts/contracts/**/*.sol'",
     "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx}\"",
     "lint:fix": "eslint . --fix --ext .ts",
-    "lint": "eslint . --ext .ts --max-warnings=0 && prettier --list-different 'packages/dupa-contracts/contracts/**/*.sol'"
+    "lint": "eslint . --ext .ts --max-warnings=0 && prettier --list-different 'packages/dupa-contracts/contracts/**/*.sol'",
+    "task:deploy:dev": "yarn compile && npx hardhat deploy --network local --debug",
+    "task:position:open": "npx hardhat createPosition --usefallbackswap --network local",
+    "task:position:close": "npx hardhat closePosition --network local"
   },
   "dependencies": {
     "@oasisdex/dupa-common": "*",

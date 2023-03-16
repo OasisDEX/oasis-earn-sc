@@ -6,6 +6,7 @@ coverage
 coverage.json
 packages/dupa-contracts/typechain
 yarn-error.log
+lerna-debug.log
 tenderly.yaml
 .idea/**/*
 packages/dupa-library/src/domain/credentials.json

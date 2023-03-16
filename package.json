@@ -10,16 +10,10 @@
   ],
   "scripts": {
     "dev": "lerna run --scope @oasisdex/dupa-contracts dev",
-    "test": "lerna run test",
-    "compile": "lerna run compile",
-    "format": "lerna run format",
-    "deploy:fallback": "yarn compile && npx hardhat deploy --usefallbackswap --network local --debug",
-    "deploy:1inch": "yarn compile && npx hardhat deploy --network local --debug",
-    "steth": "npx hardhat createPosition --network local",
-    "steth:fallback": "npx hardhat createPosition --usefallbackswap --network local",
-    "close": "npx hardhat closePosition --network local",
-    "close:fallback": "npx hardhat closePosition --usefallbackswap --network local",
-    "update-block": "node packages/dupa-contracts/tasks/update-block-number.ts"
+    "test": "lerna run test --stream",
+    "compile": "lerna run compile --stream",
+    "format": "lerna run format --stream",
+    "deploy:dev": "lerna run deploy:dev"
   },
   "devDependencies": {
     "@eth-optimism/sdk": "^2.0.0",
