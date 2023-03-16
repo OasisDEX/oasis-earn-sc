@@ -1,0 +1,15 @@
+[
+  {
+    "inputs": [],
+    "name": "newGuard",
+    "outputs": [
+      {
+        "internalType": "contract DSGuard",
+        "name": "guard",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

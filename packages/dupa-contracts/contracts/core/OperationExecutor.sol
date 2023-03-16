@@ -4,12 +4,13 @@ pragma solidity ^0.8.15;
 import { ServiceRegistry } from "./ServiceRegistry.sol";
 import { OperationStorage } from "./OperationStorage.sol";
 import { OperationsRegistry } from "./OperationsRegistry.sol";
-import { DSProxy } from "../libs/DS/DSProxy.sol";
 import { ActionAddress } from "../libs/ActionAddress.sol";
 import { TakeFlashloan } from "../actions/common/TakeFlashloan.sol";
 import { Executable } from "../actions/common/Executable.sol";
 import { IERC3156FlashBorrower } from "../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender.sol";
+import { IFlashLoanRecipient } from "../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
+import { IDSProxy } from "../interfaces/ds/IDSProxy.sol";
 import { IFlashLoanRecipient } from "../interfaces/flashloan/IFlashLoanRecipient.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
@@ -108,9 +109,9 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
    * @notice Not to be called directly.
    * @dev Callback handler for use by a flashloan lender contract.
    * If the isProxyFlashloan flag is supplied we reestablish the calling context as the user's proxy (at time of writing DSProxy). Although stored values will
-   * We set the initiator on Operation Storage such that calls originating from other dupa-contracts EG Oasis Automation Bot (see https://github.com/OasisDEX/automation-smartcontracts)
+   * We set the initiator on Operation Storage such that calls originating from other contracts EG Oasis Automation Bot (see https://github.com/OasisDEX/automation-smartcontracts)
    * The initiator address will be used to store values against the original msg.sender.
-   * This protects against the Operation Storage values being polluted by malicious code from untrusted 3rd party dupa-contracts.
+   * This protects against the Operation Storage values being polluted by malicious code from untrusted 3rd party contracts.
 
    * @param initiator Is the address of the contract that initiated the flashloan (EG Operation Executor)
    * @param asset The address of the asset being flash loaned
@@ -194,7 +195,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
   function processFlashloan(FlashloanData memory flData, address initiator) private {
     if (flData.isProxyFlashloan) {
       IERC20(flData.asset).safeTransfer(initiator, flData.amount);
-      DSProxy(payable(initiator)).execute(
+      IDSProxy(payable(initiator)).execute(
         address(this),
         abi.encodeWithSelector(this.callbackAggregate.selector, flData.calls)
       );

@@ -22,7 +22,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   // Setup User
   debug && console.log('1/ Setting up user proxy')
   const proxyAddress = await getOrCreateProxy(signer)
-  const dsProxy = new ethers.Contract(proxyAddress, DSProxyABI, provider).connect(signer)
+  const dsProxy = new ethers.Contract(proxyAddress.address, DSProxyABI, provider).connect(signer)
 
   // Deploy System Contracts
   debug && console.log('2/ Deploying system dupa-contracts')
