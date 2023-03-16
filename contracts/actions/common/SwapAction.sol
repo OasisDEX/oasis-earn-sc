@@ -7,7 +7,7 @@ import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { SwapData } from "../../core/types/Common.sol";
 import { UseStore, Write } from "../../actions/common/UseStore.sol";
-import { Swap } from "./Swap.sol";
+import { Swap } from "../../swap/Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { SWAP } from "../../core/constants/Common.sol";
