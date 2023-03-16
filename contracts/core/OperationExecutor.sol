@@ -74,6 +74,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
 
     opStorage.clearStorage();
     opStorage.unlock();
+    // By packing the string into bytes32 which means the max char length is capped at 64
     emit Operation(bytes32(abi.encodePacked(operationName)), calls);
   }
 

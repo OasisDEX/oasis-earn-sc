@@ -48,6 +48,7 @@ contract OperationsRegistry {
    */
   function addOperation(StoredOperation calldata operation) external onlyOwner {
     operations[operation.name] = operation;
+    // By packing the string into bytes32 which means the max char length is capped at 64
     emit OperationAdded(bytes32(abi.encodePacked(operation.name)));
   }
 
