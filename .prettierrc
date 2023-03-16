@@ -8,6 +8,18 @@
   "proseWrap": "always",
   "overrides": [
     {
+      "files": ["./contracts/libs/DS/DSProxy.sol", "./contracts/libs/DS/DSProxyRegistry.sol"],
+      "options": {
+        "printWidth": 100,
+        "tabWidth": 2,
+        "compiler": "0.5.15",
+        "useTabs": false,
+        "singleQuote": false,
+        "bracketSpacing": true,
+        "explicitTypes": "always"
+      }
+    },
+    {
       "files": "*.sol",
       "options": {
         "printWidth": 100,
@@ -17,7 +29,8 @@
         "singleQuote": false,
         "bracketSpacing": true,
         "explicitTypes": "always"
-      }
+      },
+      "excludeFiles": ["contracts/libs/DS/DSProxy.sol", "contracts/libs/DS/DSProxyRegistry.sol"]
     }
   ]
 }

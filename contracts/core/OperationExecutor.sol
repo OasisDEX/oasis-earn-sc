@@ -4,13 +4,13 @@ pragma solidity ^0.8.15;
 import { ServiceRegistry } from "./ServiceRegistry.sol";
 import { OperationStorage } from "./OperationStorage.sol";
 import { OperationsRegistry } from "./OperationsRegistry.sol";
-import { DSProxy } from "../libs/DS/DSProxy.sol";
 import { ActionAddress } from "../libs/ActionAddress.sol";
 import { TakeFlashloan } from "../actions/common/TakeFlashloan.sol";
 import { Executable } from "../actions/common/Executable.sol";
 import { IERC3156FlashBorrower } from "../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender.sol";
 import { IFlashLoanRecipient } from "../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
+import { IDSProxy } from "../interfaces/ds/IDSProxy.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
@@ -194,7 +194,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
   function processFlashloan(FlashloanData memory flData, address initiator) private {
     if (flData.isProxyFlashloan) {
       IERC20(flData.asset).safeTransfer(initiator, flData.amount);
-      DSProxy(payable(initiator)).execute(
+      IDSProxy(payable(initiator)).execute(
         address(this),
         abi.encodeWithSelector(this.callbackAggregate.selector, flData.calls)
       );
