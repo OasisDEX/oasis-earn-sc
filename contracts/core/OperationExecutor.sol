@@ -176,17 +176,17 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
     if (msg.sender != lender) revert UntrustedLender(msg.sender);
   }
 
-  function checkIfFlashloanedAssetIsTheRequiredOne(
-    address flashloaned,
-    address required
-  ) public pure {
+  function checkIfFlashloanedAssetIsTheRequiredOne(address flashloaned, address required)
+    public
+    pure
+  {
     if (flashloaned != required) revert InconsistentAsset(flashloaned, required);
   }
 
-  function checkIfFlashloanedAmountIsTheRequiredOne(
-    address asset,
-    uint256 requiredAmount
-  ) public view {
+  function checkIfFlashloanedAmountIsTheRequiredOne(address asset, uint256 requiredAmount)
+    public
+    view
+  {
     uint256 assetBalance = IERC20(asset).balanceOf(address(this));
     if (assetBalance < requiredAmount) revert InconsistentAmount(assetBalance, requiredAmount);
   }
