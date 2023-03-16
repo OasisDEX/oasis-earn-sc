@@ -1,8 +1,8 @@
 import { ADDRESSES, FIFTY, HUNDRED } from '@dupa-library'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { balanceOf } from '@oasisdex/dupa-common/utils/utils'
+import { balanceOf } from 'packages/dupa-common/utils/common'
 
-import { expectToBeEqual } from '../../utils'
+import { expectToBeEqual } from '../../../../dupa-common/test-utils/expect'
 import { aDAI, BORROW_OPERATION, deployedContracts, DEPOSIT_OPERATION } from './L2TestsHelper'
 
 describe('Borrow Action', () => {

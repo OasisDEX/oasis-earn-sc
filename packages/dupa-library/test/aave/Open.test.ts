@@ -12,7 +12,7 @@ import {
   getSystemWithAaveV3Positions,
 } from '../fixtures/system/getSystemWithAaveV3Positions'
 import { SystemWithAAVEV3Positions } from '../fixtures/types/systemWithAAVEPositions'
-import { expectToBe, expectToBeEqual } from '../utils'
+import { expectToBe, expectToBeEqual } from '../../../dupa-common/test-utils/expect'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'

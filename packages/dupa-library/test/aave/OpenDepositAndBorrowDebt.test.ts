@@ -1,13 +1,13 @@
 import { AAVETokens, AaveVersion, strategies } from '@dupa-library/src'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
-import { amountToWei, approve } from '@oasisdex/dupa-common/utils/utils'
+import { amountToWei, approve } from 'packages/dupa-common/utils/common'
 import { zero } from '@oasisdex/dupa-contracts/scripts/common'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 
 import { mainnetAddresses } from '../addresses'
 import { getSystemWithProxies, SystemWithProxies } from '../fixtures'
-import { expectToBe, expectToBeEqual } from '../utils'
+import { expectToBe, expectToBeEqual } from '../../../dupa-common/test-utils/expect'
 
 export type TokenDetails = {
   symbol: AAVETokens

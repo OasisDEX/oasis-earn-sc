@@ -6,7 +6,7 @@ import {
 } from '@dupa-library/strategies/aave/open/open'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
 import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
-import { amountToWei, balanceOf } from '@oasisdex/dupa-common/utils/utils'
+import { amountToWei, balanceOf } from 'packages/dupa-common/utils/common'
 import BigNumber from 'bignumber.js'
 
 import {

@@ -11,8 +11,11 @@
   "scripts": {
     "dev": "lerna run --scope @oasisdex/dupa-contracts dev",
     "test": "lerna run test --stream",
+    "test:unit": "lerna run test:unit --stream",
     "compile": "lerna run compile --stream",
+    "build": "lerna run build --stream",
     "format": "lerna run format --stream",
+    "lint": "lerna run lint --stream",
     "deploy:dev": "lerna run deploy:dev"
   },
   "devDependencies": {

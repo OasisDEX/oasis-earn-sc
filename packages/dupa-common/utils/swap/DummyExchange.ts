@@ -8,7 +8,7 @@ import { curry } from 'ramda'
 
 import WETHABI from '../../../dupa-contracts/abi/IWETH.json'
 import { OneInchBaseResponse } from '../types/common'
-import { amountFromWei, amountToWei, balanceOf, send } from '../utils'
+import { amountFromWei, amountToWei, balanceOf, send } from '../common'
 import { swapUniswapTokens } from './uniswap'
 
 export const FEE = 20

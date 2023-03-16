@@ -1,9 +1,9 @@
 import { providers } from 'ethers'
 
-import { DeployedSystemInfo, deploySystem } from '../../dupa-library/test/deploySystem'
-import { resetNode } from './init'
-import { ServiceRegistry } from './serviceRegistry'
-import { RuntimeConfig } from './types/common'
+import { DeployedSystemInfo, deploySystem } from '@oasisdex/dupa-library/test/deploy-system'
+import { resetNode } from '../utils/init'
+import { ServiceRegistry } from '../../dupa-library/test/utils/service-registry'
+import { RuntimeConfig } from '../utils/types/common'
 
 type System = { system: DeployedSystemInfo; registry: ServiceRegistry }
 export type Snapshot = { id: string; deployed: System }

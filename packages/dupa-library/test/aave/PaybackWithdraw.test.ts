@@ -1,6 +1,6 @@
 import { strategies } from '@dupa-library/src'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
-import { amountToWei, approve, balanceOf } from '@oasisdex/dupa-common/utils/utils'
+import { amountToWei, approve, balanceOf } from 'packages/dupa-common/utils/common'
 import { zero } from '@oasisdex/dupa-contracts/scripts/common'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -12,7 +12,7 @@ import {
   getSystemWithAavePositions,
   SystemWithAAVEPositions,
 } from '../fixtures'
-import { expectToBe, expectToBeEqual } from '../utils'
+import { expectToBe, expectToBeEqual } from '../../../dupa-common/test-utils/expect'
 
 describe('Strategy | AAVE | Payback/Withdraw', async () => {
   let fixture: SystemWithAAVEPositions

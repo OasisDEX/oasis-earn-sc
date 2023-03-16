@@ -4,7 +4,7 @@ import { utils } from 'ethers'
 
 import { createDeploy } from '../../dupa-common/utils/deploy'
 import init from '../../dupa-common/utils/init'
-import { ServiceRegistry } from '../../dupa-common/utils/serviceRegistry'
+import { ServiceRegistry } from './utils/service-registry'
 
 describe('Service Registry: Semantic Action Versioning', function () {
   let registry: ServiceRegistry

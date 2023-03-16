@@ -2,7 +2,7 @@ import { ADDRESSES, ONE } from '@oasisdex/dupa-library/src'
 import BigNumber from 'bignumber.js'
 
 import { ExchangeData } from './types/common'
-import { amountToWei, logDebug } from './utils'
+import { amountToWei, logDebug } from './common'
 
 type IncreaseMultipleParams = [BigNumber, BigNumber, BigNumber] & {
   requiredDebt: BigNumber

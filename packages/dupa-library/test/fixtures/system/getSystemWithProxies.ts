@@ -2,7 +2,7 @@ import { AaveVersion, protocols, strategies } from '@dupa-library/src'
 
 import { mainnetAddresses } from '../../addresses'
 import { testBlockNumber } from '../../config'
-import { deploySystem } from '../../deploySystem'
+import { deploySystem } from '../../deploy-system'
 import { buildGetTokenByImpersonateFunction } from '../@oasisdex/dupa-common/utils/aave'
 import init, { resetNode } from '../@oasisdex/dupa-common/utils/init'
 import { getOneInchCall } from '../@oasisdex/dupa-common/utils/swap/OneInchCall'

@@ -1,17 +1,17 @@
 import { ActionCall, ActionFactory, calldataTypes, CONTRACT_NAMES } from '@dupa-library'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
-import { restoreSnapshot } from '@oasisdex/dupa-common/utils/restoreSnapshot'
+import { restoreSnapshot } from '@oasisdex/dupa-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
 import { OperationsRegistry } from '@oasisdex/dupa-common/utils/wrappers/operationsRegistry'
-import DummyActionABI from '@oasisdex/dupa-contracts/abi/generated/DummyAction.json'
+import DummyActionABI from '@oasisdex/dupa-contracts/abi/generated/contracts/test/DummyAction.sol/DummyAction.json'
 import { expect } from 'chai'
 import { ContractReceipt, Signer, utils } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 
 import { testBlockNumber } from '../config'
-import { DeployedSystemInfo } from '../deploySystem'
+import { DeployedSystemInfo } from '../deploy-system'
 import { initialiseConfig } from '../fixtures/setup'
 
 const createAction = ActionFactory.create

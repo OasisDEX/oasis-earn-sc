@@ -9,11 +9,11 @@ import {
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
 import { resetNodeToLatestBlock } from '@oasisdex/dupa-common/utils/init'
-import { restoreSnapshot } from '@oasisdex/dupa-common/utils/restoreSnapshot'
+import { restoreSnapshot } from 'packages/dupa-common/utils/restore-snapshot'
 import { getOneInchCall } from '@oasisdex/dupa-common/utils/swap/OneInchCall'
 import { oneInchCallMock } from '@oasisdex/dupa-common/utils/swap/OneInchCallMock'
 import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
-import { amountToWei } from '@oasisdex/dupa-common/utils/utils'
+import { amountToWei } from 'packages/dupa-common/utils/common'
 import { zero } from '@oasisdex/dupa-contracts/scripts/common'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
@@ -22,9 +22,9 @@ import { Contract, Signer } from 'ethers'
 
 import { mainnetAddresses } from '../addresses'
 import { testBlockNumber } from '../config'
-import { deploySystem } from '../deploySystem'
+import { deploySystem } from '../deploy-system'
 import { initialiseConfig } from '../fixtures'
-import { expectToBe, expectToBeEqual } from '../utils'
+import { expectToBe, expectToBeEqual } from '../../../dupa-common/test-utils/expect'
 
 describe(`Strategy | AAVE | Reopen Position`, async () => {
   const depositAmountInWei = amountToWei(new BigNumber(1))

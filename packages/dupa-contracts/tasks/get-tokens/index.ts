@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
 import { swapOneInchTokens } from '../../../dupa-common/utils/swap/1inch'
-import { amountToWei } from '../../../dupa-common/utils/utils'
+import { amountToWei } from '../../../dupa-common/utils/common'
 import { mainnetAddresses } from '../../../dupa-library/test/addresses'
 
 const tokens = {

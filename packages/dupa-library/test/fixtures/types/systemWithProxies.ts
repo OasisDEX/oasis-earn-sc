@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-import { deploySystem } from '../../deploySystem'
+import { deploySystem } from '../../deploy-system'
 import { AAVETokensToGet } from '../@oasisdex/dupa-common/utils/aave/buildGetTokenByImpersonateFunction'
 import { RuntimeConfig } from '../@oasisdex/dupa-common/utils/types/common'
 import { StrategyDependenciesAaveV2 } from './strategiesDependencies'

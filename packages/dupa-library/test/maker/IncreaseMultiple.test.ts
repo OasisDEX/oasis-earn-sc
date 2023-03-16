@@ -9,17 +9,17 @@ import {
 } from '@dupa-library'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
-import { GasEstimateHelper, gasEstimateHelper } from '@oasisdex/dupa-common/utils/gasEstimation'
+import { GasEstimateHelper, gasEstimateHelper } from 'packages/dupa-common/utils/gas-estimation'
 import { getOraclePrice } from '@oasisdex/dupa-common/utils/maker/oracle'
 import { getLastVault, getVaultInfo } from '@oasisdex/dupa-common/utils/maker/vault'
 import {
   calculateParamsIncreaseMP,
   prepareMultiplyParameters,
-} from '@oasisdex/dupa-common/utils/paramCalculations'
-import { restoreSnapshot } from '@oasisdex/dupa-common/utils/restoreSnapshot'
-import { ServiceRegistry } from '@oasisdex/dupa-common/utils/serviceRegistry'
+} from 'packages/dupa-common/utils/param-calculations'
+import { restoreSnapshot } from 'packages/dupa-common/utils/restore-snapshot'
+import { ServiceRegistry } from 'packages/dupa-common/utils/service-registry'
 import { RuntimeConfig, SwapData } from '@oasisdex/dupa-common/utils/types/common'
-import { amountToWei, ensureWeiFormat } from '@oasisdex/dupa-common/utils/utils'
+import { amountToWei, ensureWeiFormat } from 'packages/dupa-common/utils/common'
 import CDPManagerABI from '@oasisdex/dupa-contracts/abi/dss-cdp-manager.json'
 import ERC20ABI from '@oasisdex/dupa-contracts/abi/IERC20.json'
 import BigNumber from 'bignumber.js'
@@ -28,9 +28,9 @@ import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
 import { testBlockNumber } from '../config'
-import { DeployedSystemInfo } from '../deploySystem'
+import { DeployedSystemInfo } from '../deploy-system'
 import { initialiseConfig } from '../fixtures/setup'
-import { expectToBe, expectToBeEqual } from '../utils'
+import { expectToBe, expectToBeEqual } from '../../../dupa-common/test-utils/expect'
 
 const LENDER_FEE = new BigNumber(0)
 

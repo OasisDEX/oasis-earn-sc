@@ -8,7 +8,7 @@ import { createDeploy, executeThroughProxy } from '../../dupa-common/utils/deplo
 import init from '../../dupa-common/utils/init'
 import { getOrCreateProxy } from '../../dupa-common/utils/proxy'
 import { getAddressesFor, getServiceNameHash, Network } from '../../dupa-contracts/scripts/common'
-import { expectRevert } from './utils'
+import { expectRevert } from '../../dupa-common/test-utils/expect'
 
 const ethers = hre.ethers
 

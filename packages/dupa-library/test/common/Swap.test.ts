@@ -13,7 +13,7 @@ import {
   amountToWei,
   asPercentageValue,
   balanceOf,
-} from '@oasisdex/dupa-common/utils/utils'
+} from 'packages/dupa-common/utils/common'
 import ERC20_ABI from '@oasisdex/dupa-contracts/abi/IERC20.json'
 import WETH_ABI from '@oasisdex/dupa-contracts/abi/IWETH.json'
 import BigNumber from 'bignumber.js'
@@ -21,9 +21,9 @@ import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
-import { DeployedSystemInfo, deploySystem } from '../deploySystem'
+import { DeployedSystemInfo, deploySystem } from '../deploy-system'
 import { initialiseConfig } from '../fixtures/setup'
-import { expectRevert, expectToBe, expectToBeEqual } from '../utils'
+import { expectRevert, expectToBe, expectToBeEqual } from '../../../dupa-common/test-utils/expect'
 
 const ALLOWED_PROTOCOLS = ['UNISWAP_V2', 'UNISWAP_V3']
 export const FEE = 20

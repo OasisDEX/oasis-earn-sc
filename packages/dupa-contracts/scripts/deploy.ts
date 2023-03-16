@@ -18,10 +18,10 @@ import { createDeploy, executeThroughProxy } from '../../dupa-common/utils/deplo
 import init from '../../dupa-common/utils/init'
 // Helper functions
 import { getOrCreateProxy } from '../../dupa-common/utils/proxy'
-import { ServiceRegistry } from '../../dupa-common/utils/serviceRegistry'
+import { ServiceRegistry } from '../../dupa-library/test/utils/service-registry'
 import { swapOneInchTokens } from '../../dupa-common/utils/swap/1inch'
 import { swapUniswapTokens } from '../../dupa-common/utils/swap/uniswap'
-import { amountToWei, approve, balanceOf } from '../../dupa-common/utils/utils'
+import { amountToWei, approve, balanceOf } from '../../dupa-common/utils/common'
 import { OperationsRegistry } from '../../dupa-common/utils/wrappers/operationsRegistry'
 
 const createAction = ActionFactory.create

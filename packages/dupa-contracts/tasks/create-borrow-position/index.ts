@@ -7,7 +7,7 @@ import { executeThroughDPMProxy } from '../../../dupa-common/utils/deploy'
 import init from '../../../dupa-common/utils/init'
 import { getOneInchCall } from '../../../dupa-common/utils/swap/OneInchCall'
 import { oneInchCallMock } from '../../../dupa-common/utils/swap/OneInchCallMock'
-import { amountToWei, approve } from '../../../dupa-common/utils/utils'
+import { amountToWei, approve } from '../../../dupa-common/utils/common'
 import { createDPMAccount } from '../../../dupa-library/test/fixtures/factories'
 import { StrategiesDependencies } from '../../../dupa-library/test/fixtures/types'
 

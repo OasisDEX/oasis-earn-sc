@@ -6,15 +6,15 @@ import { ethers } from 'hardhat'
 
 import { createDeploy } from '../../dupa-common/utils/deploy'
 import init from '../../dupa-common/utils/init'
-import { ServiceRegistry } from '../../dupa-common/utils/serviceRegistry'
+import { ServiceRegistry } from './utils/service-registry'
 import { swapOneInchTokens } from '../../dupa-common/utils/swap/1inch'
 import { calculateFee } from '../../dupa-common/utils/swap/calculateFee'
 import { FEE } from '../../dupa-common/utils/swap/DummyExchange'
 import { RuntimeConfig } from '../../dupa-common/utils/types/common'
-import { amountToWei, asPercentageValue, balanceOf } from '../../dupa-common/utils/utils'
+import { amountToWei, asPercentageValue, balanceOf } from '../../dupa-common/utils/common'
 import WETH_ABI from '../../dupa-contracts/abi/IWETH.json'
 import { swap, uniswapV3Swap, unoswap } from './fixtures/oneInchFixtures'
-import { expectToBe, expectToBeEqual } from './utils'
+import { expectToBe, expectToBeEqual } from '../../dupa-common/test-utils/expect'
 
 describe('uSwap', () => {
   let uSwap: Contract

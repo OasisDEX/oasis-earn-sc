@@ -1,4 +1,4 @@
-import { ContractNames } from '@oasisdex/dupa-library/src'
+import { ContractNames } from '@dupa-library'
 import { Signer, utils } from 'ethers'
 
 export class ServiceRegistry {

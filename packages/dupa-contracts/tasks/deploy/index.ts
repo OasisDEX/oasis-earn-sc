@@ -3,7 +3,7 @@ import { task } from 'hardhat/config'
 
 import { createDeploy, DeployFunction } from '../../../dupa-common/utils/deploy'
 import init from '../../../dupa-common/utils/init'
-import { ServiceRegistry } from '../../../dupa-common/utils/serviceRegistry'
+import { ServiceRegistry } from '../../../dupa-library/test/utils/service-registry'
 import { RuntimeConfig } from '../../../dupa-common/utils/types/common'
 import { OperationsRegistry } from '../../../dupa-common/utils/wrappers/operationsRegistry'
 

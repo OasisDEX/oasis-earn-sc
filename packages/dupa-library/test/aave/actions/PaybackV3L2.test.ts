@@ -1,8 +1,7 @@
 import { ADDRESSES, FIFTY, ZERO } from '@dupa-library'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { balanceOf } from '@oasisdex/dupa-common/utils/utils'
-
-import { expectToBeEqual } from '../../utils'
+import { balanceOf } from '@oasisdex/dupa-common/utils/common'
+import { expect } from '@oasisdex/dupa-common/test-utils'
 import {
   BORROW_OPERATION,
   deployedContracts,
@@ -39,8 +38,8 @@ describe('Payback Action', () => {
       decimals: 6,
     })
 
-    expectToBeEqual(vUsdcBalanceAfterBorrow, FIFTY)
-    expectToBeEqual(usdcBalanceAfterBorrow, usdcBalanceBeforeBorrow.plus(FIFTY))
+    expect.toBeEqual(vUsdcBalanceAfterBorrow, FIFTY)
+    expect.toBeEqual(usdcBalanceAfterBorrow, usdcBalanceBeforeBorrow.plus(FIFTY))
 
     await opExecutor.executeOp(paybackActions, PAYBACK_OPERATION, {
       gasLimit: 4000000,
@@ -55,7 +54,7 @@ describe('Payback Action', () => {
       ...balanceConfig,
       decimals: 6,
     })
-    expectToBeEqual(usdcBalanceAfterPayback, usdcBalanceBeforeBorrow)
-    expectToBeEqual(vUsdcBalanceAfterPayback, ZERO)
+    expect.toBeEqual(usdcBalanceAfterPayback, usdcBalanceBeforeBorrow)
+    expect.toBeEqual(vUsdcBalanceAfterPayback, ZERO)
   })
 })

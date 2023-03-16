@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { isError, tryF } from 'ts-try'
 
-export function expectToBeEqual(
+export function toBeEqual(
   lhs: BigNumber.Value,
   rhs: BigNumber.Value,
   precision?: number,
@@ -16,7 +16,7 @@ export function expectToBeEqual(
   expect(formattedA, message).to.be.eq(formattedB)
 }
 
-export function expectToBe(
+export function toBe(
   lhs: BigNumber.Value,
   comp: 'gt' | 'lt' | 'gte' | 'lte',
   rhs: BigNumber.Value,
@@ -31,7 +31,7 @@ export function expectToBe(
   }
 }
 
-export async function expectRevert(expression: RegExp, tx: Promise<unknown>) {
+export async function revert(expression: RegExp, tx: Promise<unknown>) {
   const result = await tryF(async () => await tx)
   if (isError(result)) {
     expect(
@@ -42,5 +42,3 @@ export async function expectRevert(expression: RegExp, tx: Promise<unknown>) {
     expect('Tx to fail', 'Tx should revert').to.be.eq('Tx succeeded')
   }
 }
-
-export const TESTING_OFFSET = 0.1

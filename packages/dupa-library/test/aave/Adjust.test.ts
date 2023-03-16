@@ -1,7 +1,7 @@
 import { executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
 import { oneInchCallMock } from '@oasisdex/dupa-common/utils/swap/OneInchCallMock'
 import { RuntimeConfig, Unbox } from '@oasisdex/dupa-common/utils/types/common'
-import { balanceOf } from '@oasisdex/dupa-common/utils/utils'
+import { balanceOf } from 'packages/dupa-common/utils/common'
 import AAVELendingPoolABI from '@oasisdex/dupa-contracts/abi/external/aave/v2/lendingPool.json'
 import aavePriceOracleABI from '@oasisdex/dupa-contracts/abi/external/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@oasisdex/dupa-contracts/abi/external/aave/v2/protocolDataProvider.json'
@@ -15,7 +15,7 @@ import { amountFromWei } from '../../src/helpers'
 import { acceptedFeeToken } from '../../src/helpers/swap/acceptedFeeToken'
 import { PositionType } from '../../src/types'
 import { mainnetAddresses } from '../addresses'
-import { DeployedSystemInfo } from '../deploySystem'
+import { DeployedSystemInfo } from '../deploy-system'
 import {
   getSupportedStrategies,
   getSystemWithAavePositions,
@@ -28,7 +28,7 @@ import {
 } from '../fixtures/system/getSystemWithAaveV3Positions'
 import { TokenDetails } from '../fixtures/types/positionDetails'
 import { SystemWithAAVEV3Positions } from '../fixtures/types/systemWithAAVEPositions'
-import { expectToBe } from '../utils'
+import { expectToBe } from '../../../dupa-common/test-utils/expect'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'

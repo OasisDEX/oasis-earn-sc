@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import { testMarketPrice } from '../../../dupa-library/test/config'
-import { amountFromWei, amountToWei } from '../utils'
+import { amountFromWei, amountToWei } from '../common'
 
 export const oneInchCallMock =
   (

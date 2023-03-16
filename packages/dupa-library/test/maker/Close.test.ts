@@ -7,12 +7,12 @@ import {
 } from '@dupa-library'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
-import { GasEstimateHelper, gasEstimateHelper } from '@oasisdex/dupa-common/utils/gasEstimation'
+import { GasEstimateHelper, gasEstimateHelper } from 'packages/dupa-common/utils/gas-estimation'
 import { getLastVault, getVaultInfo } from '@oasisdex/dupa-common/utils/maker/vault'
-import { restoreSnapshot } from '@oasisdex/dupa-common/utils/restoreSnapshot'
-import { ServiceRegistry } from '@oasisdex/dupa-common/utils/serviceRegistry'
+import { restoreSnapshot } from 'packages/dupa-common/utils/restore-snapshot'
+import { ServiceRegistry } from 'packages/dupa-common/utils/service-registry'
 import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
-import { amountToWei, ensureWeiFormat } from '@oasisdex/dupa-common/utils/utils'
+import { amountToWei, ensureWeiFormat } from 'packages/dupa-common/utils/common'
 import CDPManagerABI from '@oasisdex/dupa-contracts/abi/dss-cdp-manager.json'
 import ERC20ABI from '@oasisdex/dupa-contracts/abi/IERC20.json'
 import BigNumber from 'bignumber.js'
@@ -22,9 +22,9 @@ import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
 import { testBlockNumber } from '../config'
-import { DeployedSystemInfo } from '../deploySystem'
+import { DeployedSystemInfo } from '../deploy-system'
 import { initialiseConfig } from '../fixtures/setup'
-import { expectToBeEqual } from '../utils'
+import { expectToBeEqual } from '../../../dupa-common/test-utils/expect'
 
 const createAction = ActionFactory.create
 

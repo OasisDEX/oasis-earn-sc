@@ -8,12 +8,10 @@ import {
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
-import { GasEstimateHelper, gasEstimateHelper } from '@oasisdex/dupa-common/utils/gasEstimation'
+import { restoreSnapshot, GasEstimateHelper, gasEstimateHelper } from '@oasisdex/dupa-common/test-utils'
 import { getLastVault, getVaultInfo } from '@oasisdex/dupa-common/utils/maker/vault'
-import { restoreSnapshot } from '@oasisdex/dupa-common/utils/restoreSnapshot'
-import { ServiceRegistry } from '@oasisdex/dupa-common/utils/serviceRegistry'
 import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
-import { amountToWei, ensureWeiFormat } from '@oasisdex/dupa-common/utils/utils'
+import { amountToWei, ensureWeiFormat } from '@oasisdex/dupa-common/utils/common'
 import CDPManagerABI from '@oasisdex/dupa-contracts/abi/dss-cdp-manager.json'
 import ERC20ABI from '@oasisdex/dupa-contracts/abi/IERC20.json'
 import BigNumber from 'bignumber.js'
@@ -22,9 +20,10 @@ import { Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
 import { testBlockNumber } from '../config'
-import { DeployedSystemInfo } from '../deploySystem'
+import { DeployedSystemInfo } from '../deploy-system'
 import { initialiseConfig } from '../fixtures/setup'
-import { expectToBe, expectToBeEqual } from '../utils'
+import { expect } from '@oasisdex/dupa-common/test-utils'
+import { ServiceRegistry } from "../utils/service-registry";
 
 const createAction = ActionFactory.create
 
@@ -131,6 +130,11 @@ describe.skip(`Operations | Maker | Open Position`, async () => {
     await DAI.approve(system.common.userProxyAddress, ensureWeiFormat(ALLOWANCE))
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const proxyContract = new ethers.Contract(
+      system.common.userProxyAddress
+      CDPManagerABI,
+      provider,
+    ).connect(signer)
     const [_, txReceipt] = await executeThroughProxy(
       system.common.userProxyAddress,
       {
@@ -149,8 +153,8 @@ describe.skip(`Operations | Maker | Open Position`, async () => {
     const info = await getVaultInfo(system.maker.mcdView, vault.id, vault.ilk)
 
     const precision = 18 - 1 // To account for precision loss in Maker Vat
-    expectToBe(info.coll.toFixed(precision), 'gte', initialColl.toFixed(precision))
-    expectToBeEqual(info.debt.toFixed(precision), initialDebt.toFixed(precision))
+    expect.toBe(info.coll.toFixed(precision), 'gte', initialColl.toFixed(precision))
+    expect.toBeEqual(info.debt.toFixed(precision), initialDebt.toFixed(precision))
 
     const cdpManagerContract = new ethers.Contract(
       ADDRESSES.main.maker.cdpManager,
@@ -158,7 +162,7 @@ describe.skip(`Operations | Maker | Open Position`, async () => {
       provider,
     ).connect(signer)
     const vaultOwner = await cdpManagerContract.owns(vault.id)
-    expectToBeEqual(vaultOwner, system.common.userProxyAddress)
+    expect.toBeEqual(vaultOwner, system.common.userProxyAddress)
   })
 
   afterEach(() => {

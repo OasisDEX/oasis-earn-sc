@@ -1,7 +1,7 @@
 import { ADDRESSES } from '@oasisdex/dupa-library/src'
 import { Contract, ethers } from 'ethers'
 
-import { balanceOf } from '../../dupa-common/utils/utils'
+import { balanceOf } from '../../dupa-common/utils/common'
 import AAVEDataProviderABI from '../abi/external/aave/v2/protocolDataProvider.json'
 
 async function main() {

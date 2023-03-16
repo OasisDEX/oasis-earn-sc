@@ -8,16 +8,16 @@ import {
 } from '@dupa-library'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
-import { restoreSnapshot } from '@oasisdex/dupa-common/utils/restoreSnapshot'
-import { ServiceRegistry } from '@oasisdex/dupa-common/utils/serviceRegistry'
+import { restoreSnapshot } from 'packages/dupa-common/utils/restore-snapshot'
+import { ServiceRegistry } from 'packages/dupa-common/utils/service-registry'
 import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
-import { ensureWeiFormat } from '@oasisdex/dupa-common/utils/utils'
+import { ensureWeiFormat } from 'packages/dupa-common/utils/common'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 
 import { testBlockNumber } from '../config'
-import { DeployedSystemInfo } from '../deploySystem'
+import { DeployedSystemInfo } from '../deploy-system'
 import { initialiseConfig } from '../fixtures/setup'
 
 const createAction = ActionFactory.create
