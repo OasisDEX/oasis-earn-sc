@@ -129,5 +129,11 @@ export async function getEarnPosition(
           .then((quoteTokens: ethers.BigNumberish) => ethers.utils.formatUnits(quoteTokens, 18))
           .then((res: string) => new BigNumber(res))
 
-  return new AjnaEarnPosition(pool, proxyAddress, quoteTokenAmount, earnData.priceIndex)
+  return new AjnaEarnPosition(
+    pool,
+    proxyAddress,
+    quoteTokenAmount,
+    earnData.priceIndex,
+    earnData.nftID,
+  )
 }
