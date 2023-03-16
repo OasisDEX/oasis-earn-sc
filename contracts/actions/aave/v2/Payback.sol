@@ -9,10 +9,7 @@ import { IWETHGateway } from "../../../interfaces/aave/IWETHGateway.sol";
 import { PaybackData } from "../../../core/types/Aave.sol";
 import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 
-import {
-  AAVE_WETH_GATEWAY,
-  AAVE_LENDING_POOL
-} from "../../../core/constants/Aave.sol";
+import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL } from "../../../core/constants/Aave.sol";
 
 /**
  * @title Payback | AAVE Action contract

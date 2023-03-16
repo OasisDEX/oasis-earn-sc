@@ -12,11 +12,7 @@ import { IJug } from "../../interfaces/maker/IJug.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
 import { GenerateData } from "../../core/types/Maker.sol";
-import {
-  MCD_MANAGER,
-  MCD_JUG,
-  MCD_JOIN_DAI
-} from "../../core/constants/Maker.sol";
+import { MCD_MANAGER, MCD_JUG, MCD_JOIN_DAI } from "../../core/constants/Maker.sol";
 
 contract MakerGenerate is Executable, UseStore {
   using SafeMath for uint256;
