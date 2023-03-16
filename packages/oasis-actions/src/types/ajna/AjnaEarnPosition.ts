@@ -38,9 +38,11 @@ export class AjnaEarnPosition implements IAjnaEarn {
     public owner: Address,
     public quoteTokenAmount: BigNumber,
     public priceIndex: BigNumber | null,
+    public nftId: string | null = null,
   ) {
     this.fundsLockedUntil = Date.now() + 5 * 60 * 60 * 1000 // MOCK funds locked until 5h from now
     this.price = priceIndex ? priceIndexToPrice(priceIndex) : ZERO
+    this.stakedNftId = nftId
   }
 
   get isEarningFees() {
@@ -51,7 +53,13 @@ export class AjnaEarnPosition implements IAjnaEarn {
   }
 
   moveQuote(newPriceIndex: BigNumber) {
-    return new AjnaEarnPosition(this.pool, this.owner, this.quoteTokenAmount, newPriceIndex)
+    return new AjnaEarnPosition(
+      this.pool,
+      this.owner,
+      this.quoteTokenAmount,
+      newPriceIndex,
+      this.stakedNftId,
+    )
   }
 
   deposit(quoteTokenAmount: BigNumber) {
@@ -60,6 +68,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.owner,
       this.quoteTokenAmount.plus(quoteTokenAmount),
       this.priceIndex,
+      this.stakedNftId,
     )
   }
 
@@ -69,6 +78,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.owner,
       this.quoteTokenAmount.minus(quoteTokenAmount),
       this.priceIndex,
+      this.stakedNftId,
     )
   }
 }
