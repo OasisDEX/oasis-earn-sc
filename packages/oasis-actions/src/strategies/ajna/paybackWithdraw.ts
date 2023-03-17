@@ -30,7 +30,9 @@ export async function paybackWithdraw(
   const data = apa.interface.encodeFunctionData('repayWithdraw', [
     args.poolAddress,
     ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-    ethers.utils.parseUnits(args.collateralAmount.toString(), args.quoteTokenPrecision).toString(),
+    ethers.utils
+      .parseUnits(args.collateralAmount.toString(), args.collateralTokenPrecision)
+      .toString(),
   ])
 
   const targetPosition = args.position.payback(args.quoteAmount).withdraw(args.collateralAmount)
