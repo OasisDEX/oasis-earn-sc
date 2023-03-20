@@ -12,7 +12,9 @@ import { getSystemWithAavePositions, SystemWithAAVEPositions } from '../../../fi
 import { getSystemWithAaveV3Positions } from '../../../fixtures/system/getSystemWithAaveV3Positions'
 import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
 import { expectToBeEqual } from '../../../utils'
+import { Network } from '@helpers/network'
 
+const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_DEBT_BEING_PAID_BACK = 'Expect debt being paid back'
 const EXPECT_FEE_BEING_COLLECTED = 'Expect fee being collected'
 
@@ -285,7 +287,13 @@ describe('Close AAVEv3 Position to collateral', () => {
   let fixture: SystemWithAAVEV3Positions
 
   before(async () => {
-    fixture = await loadFixture(getSystemWithAaveV3Positions({ use1inch: true }))
+    fixture = await loadFixture(
+      getSystemWithAaveV3Positions({
+        use1inch: true,
+        network: networkFork,
+        systemConfigPath: `test-configs/test-aave-v3-${networkFork}.conf.json`,
+      }),
+    )
     // Since we deploy the system without using 1inch, there fore the swap that's
     // assigned is uniswap. In our tests we would like to use the actual swap with 1inch.
     await fixture.registry.removeEntry(CONTRACT_NAMES.common.SWAP)

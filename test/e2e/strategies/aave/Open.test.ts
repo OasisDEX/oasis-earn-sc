@@ -2,19 +2,18 @@ import { Network } from '@helpers/network'
 import { IPosition, IPositionTransition } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
-import process from 'process'
 
 import {
   getSupportedStrategies,
   getSystemWithAavePositions,
   SystemWithAAVEPositions,
-} from '../fixtures'
+} from '../../../fixtures'
 import {
   getSupportedAaveV3Strategies,
   getSystemWithAaveV3Positions,
-} from '../fixtures/system/getSystemWithAaveV3Positions'
-import { SystemWithAAVEV3Positions } from '../fixtures/types/systemWithAAVEPositions'
-import { expectToBe, expectToBeEqual } from '../utils'
+} from '../../../fixtures/system/getSystemWithAaveV3Positions'
+import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
+import { expectToBe, expectToBeEqual } from '../../../utils'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 const networkFork = process.env.NETWORK_FORK as Network
@@ -38,7 +37,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         )
       })
 
-      describe('Using DSProxy', () => {
+      describe.only('Using DSProxy', () => {
         let position: IPosition
         let simulatedPosition: IPosition
         let simulatedTransition: IPositionTransition['simulation']

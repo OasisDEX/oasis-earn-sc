@@ -1,18 +1,18 @@
+import { executeThroughDPMProxy, executeThroughProxy } from '@helpers/deploy'
+import { amountToWei, approve, balanceOf } from '@helpers/utils'
 import { strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 
-import { executeThroughDPMProxy, executeThroughProxy } from '../../helpers/deploy'
-import { amountToWei, approve, balanceOf } from '../../helpers/utils'
-import { zero } from '../../scripts/common'
-import { mainnetAddresses } from '../addresses/mainnet'
+import { zero } from '../../../../scripts/common'
 import {
   getSupportedStrategies,
   getSystemWithAavePositions,
   SystemWithAAVEPositions,
-} from '../fixtures'
-import { expectToBe, expectToBeEqual } from '../utils'
+} from '../../../fixtures'
+import { expectToBe, expectToBeEqual } from '../../../utils'
+import { mainnetAddresses } from '../../../addresses/mainnet'
 
 describe('Strategy | AAVE | Payback/Withdraw', async () => {
   let fixture: SystemWithAAVEPositions

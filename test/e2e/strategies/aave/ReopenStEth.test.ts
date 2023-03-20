@@ -1,7 +1,13 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { executeThroughProxy } from '@helpers/deploy'
+import { resetNodeToLatestBlock } from '@helpers/init'
+import { restoreSnapshot } from '@helpers/restoreSnapshot'
+import { getOneInchCall } from '@helpers/swap/OneInchCall'
+import { oneInchCallMock } from '@helpers/swap/OneInchCallMock'
+import { RuntimeConfig } from '@helpers/types/common'
+import { amountToWei } from '@helpers/utils'
 import {
   AAVEStrategyAddresses,
-  AaveVersion,
   ONE,
   OPERATION_NAMES,
   RiskRatio,
@@ -12,19 +18,12 @@ import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
 
-import { executeThroughProxy } from '../../helpers/deploy'
-import { resetNodeToLatestBlock } from '../../helpers/init'
-import { restoreSnapshot } from '../../helpers/restoreSnapshot'
-import { getOneInchCall } from '../../helpers/swap/OneInchCall'
-import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
-import { RuntimeConfig } from '../../helpers/types/common'
-import { amountToWei } from '../../helpers/utils'
-import { zero } from '../../scripts/common'
-import { mainnetAddresses } from '../addresses/mainnet'
-import { testBlockNumber } from '../config'
-import { deploySystem } from '../deploySystem'
-import { initialiseConfig } from '../fixtures'
-import { expectToBe, expectToBeEqual } from '../utils'
+import { zero } from '../../../../scripts/common'
+import { testBlockNumber } from '../../../config'
+import { deploySystem } from '../../../deploySystem'
+import { initialiseConfig } from '../../../fixtures'
+import { expectToBe, expectToBeEqual } from '../../../utils'
+import { mainnetAddresses } from '../../../addresses/mainnet'
 
 describe(`Strategy | AAVE | Reopen Position`, async () => {
   const depositAmountInWei = amountToWei(new BigNumber(1))
@@ -83,7 +82,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     it('Should open new position', async () => {
       const beforeTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
-        { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
+        { ...dependencies, addresses },
       )
 
       expectToBeEqual(
@@ -125,7 +124,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       const afterTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
-        { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
+        { ...dependencies, addresses },
       )
 
       expect(transactionStatus, 'Transaction should pass.').to.be.true
@@ -144,7 +143,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     it('Should close opened position', async () => {
       const beforeTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
-        { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
+        { ...dependencies, addresses },
       )
 
       expectToBe(
@@ -190,7 +189,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       const afterTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
-        { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
+        { ...dependencies, addresses },
       )
 
       expectToBe(
@@ -205,7 +204,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     it('Should re-open closed position', async () => {
       const beforeTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
-        { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
+        { ...dependencies, addresses },
       )
 
       expectToBe(
@@ -247,7 +246,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       const afterTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
-        { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
+        { ...dependencies, addresses },
       )
 
       expect(transactionStatus, 'Transaction should pass.').to.be.true
@@ -295,7 +294,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     it('Should open new position', async () => {
       const beforeTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
-        { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
+        { ...dependencies, addresses },
       )
 
       expectToBeEqual(
@@ -337,7 +336,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       const afterTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
-        { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
+        { ...dependencies, addresses },
       )
 
       expect(transactionStatus, 'Transaction should pass.').to.be.true
@@ -356,7 +355,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     it('Should close opened position', async () => {
       const beforeTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
-        { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
+        { ...dependencies, addresses },
       )
 
       expectToBe(
@@ -398,7 +397,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       const afterTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
-        { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
+        { ...dependencies, addresses },
       )
 
       expectToBe(
@@ -413,7 +412,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
     it('Should re-open closed position', async () => {
       const beforeTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
-        { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
+        { ...dependencies, addresses },
       )
 
       expectToBe(
@@ -455,7 +454,7 @@ describe(`Strategy | AAVE | Reopen Position`, async () => {
 
       const afterTransaction = await strategies.aave.v2.view(
         { proxy: dependencies.proxy, debtToken, collateralToken },
-        { ...dependencies, addresses, protocolVersion: AaveVersion.v2 },
+        { ...dependencies, addresses },
       )
 
       expect(transactionStatus, 'Transaction should pass.').to.be.true

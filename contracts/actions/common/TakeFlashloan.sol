@@ -12,11 +12,7 @@ import {
   FlashloanWithInitiatorData,
   FlashloanProvider
 } from "../../core/types/Common.sol";
-import {
-  OPERATION_EXECUTOR,
-  DAI,
-  CHAINLOG_VIEWER
-} from "../../core/constants/Common.sol";
+import { OPERATION_EXECUTOR, DAI, CHAINLOG_VIEWER } from "../../core/constants/Common.sol";
 import { MCD_FLASH } from "../../core/constants/Maker.sol";
 import { BALANCER_VAULT } from "../../core/constants/Balancer.sol";
 import { ChainLogView } from "../../core/views/ChainLogView.sol";
@@ -31,7 +27,11 @@ contract TakeFlashloan is Executable, ProxyPermission {
   ServiceRegistry internal immutable registry;
   address internal immutable dai;
 
-  constructor(ServiceRegistry _registry, address _dai, address _dsGuardFactory) ProxyPermission(_dsGuardFactory) {
+  constructor(
+    ServiceRegistry _registry,
+    address _dai,
+    address _dsGuardFactory
+  ) ProxyPermission(_dsGuardFactory) {
     registry = _registry;
     dai = _dai;
   }
