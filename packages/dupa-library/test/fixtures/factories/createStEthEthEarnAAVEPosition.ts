@@ -3,18 +3,15 @@ import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
 } from '@dupa-library/strategies/aave/open/open'
-import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
+import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dupa-common/utils/execute'
 import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
 import { amountToWei, balanceOf } from '@oasisdex/dupa-common/utils/common'
 import BigNumber from 'bignumber.js'
 
-import {
-  aaveV2UniqueContractName,
-  aaveV3UniqueContractName,
-} from '../../../src/protocols/aave/config'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { ETH, MULTIPLE, STETH, UNISWAP_TEST_SLIPPAGE } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
+import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '@dupa-library/protocols/aave'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
 

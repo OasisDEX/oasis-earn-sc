@@ -16,6 +16,8 @@ export function toBeEqual(
   expect(formattedA, message).to.be.eq(formattedB)
 }
 
+type ToBeEqualParams = Parameters<typeof toBeEqual>
+
 export function toBe(
   lhs: BigNumber.Value,
   comp: 'gt' | 'lt' | 'gte' | 'lte',
@@ -31,6 +33,8 @@ export function toBe(
   }
 }
 
+type ToBeParams = Parameters<typeof toBe>
+
 export async function revert(expression: RegExp, tx: Promise<unknown>) {
   const result = await tryF(async () => await tx)
   if (isError(result)) {
@@ -43,27 +47,30 @@ export async function revert(expression: RegExp, tx: Promise<unknown>) {
   }
 }
 
+type RevertParams = Parameters<typeof revert>
+
 class Callable extends Function {
   constructor() {
     super()
     return new Proxy(this, {
-      apply: (target, thisArg, args) => target._call(...args)
+      apply: (target, thisArg, args: [val: any, message?: string | undefined]) =>
+        target._call(...args),
     })
   }
 
-  _call(...args) {
-    return chaiExpect(args)
+  _call(val: any, message?: string | undefined): Chai.Assertion {
+    return chaiExpect(val, message)
   }
 
-  toBe(...args) {
+  toBe(...args: ToBeParams) {
     return toBe(...args)
   }
 
-  toBeEqual(...args) {
+  toBeEqual(...args: ToBeEqualParams) {
     return toBeEqual(...args)
   }
 
-  revert(...args) {
+  revert(...args: RevertParams) {
     return revert(...args)
   }
 }

@@ -1,4 +1,4 @@
-import { acceptedTokens } from '../../config/acceptedFeeTokensConfig'
+import { acceptedTokens } from '@dupa-library/config/acceptedFeeTokensConfig'
 
 type TokenSymbolOrAddress = string
 

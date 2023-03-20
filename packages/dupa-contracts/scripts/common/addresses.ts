@@ -3,7 +3,6 @@ import { constants } from 'ethers'
 import { isSupportedNetwork, Network } from './types'
 
 export const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-export const ONE_INCH_V4_ROUTER = '0x1111111254fb6c44bac0bed2854e76f90643097d'
 
 const startBlocks = {
   [Network.MAINNET]: {
@@ -108,6 +107,8 @@ export type AddressRegistry = typeof addresses['mainnet']
 
 export function coalesceNetwork(network: Network) {
   switch (network) {
+    case Network.OPT_MAINNET:
+      throw new Error('OPT_MAINNET is not supporting yet')
     case Network.LOCAL:
     case Network.HARDHAT:
       return Network.MAINNET

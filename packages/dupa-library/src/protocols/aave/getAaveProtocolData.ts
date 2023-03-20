@@ -1,15 +1,15 @@
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 
-import aaveV2PriceOracleABI from '../../../../dupa-contracts/abi/external/aave/v2/priceOracle.json'
-import aaveV2ProtocolDataProviderABI from '../../../../dupa-contracts/abi/external/aave/v2/protocolDataProvider.json'
-import aaveV3ProtocolDataProvider from '../../../../dupa-contracts/abi/external/aave/v3/aaveProtocolDataProvider.json'
-import aaveV3PoolABI from '../../../../dupa-contracts/abi/external/aave/v3/pool.json'
-import { amountFromWei } from '../../helpers'
-import { ADDRESSES } from '../../helpers/addresses'
+import aaveV2PriceOracleABI from '@oasisdex/dupa-contracts/abi/external/aave/v2/priceOracle.json'
+import aaveV2ProtocolDataProviderABI from '@oasisdex/dupa-contracts/abi/external/aave/v2/protocolDataProvider.json'
+import aaveV3ProtocolDataProvider from '@oasisdex/dupa-contracts/abi/external/aave/v3/aaveProtocolDataProvider.json'
+import aaveV3PoolABI from '@oasisdex/dupa-contracts/abi/external/aave/v3/pool.json'
+import { ADDRESSES } from '../../utils/addresses'
 import { AAVEStrategyAddresses } from '../../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../../operations/aave/v3'
 import { AaveVersion } from '../../strategies'
+import { amountFromWei } from '@oasisdex/dupa-common/utils/common'
 
 type InternalAaveProtocolData<AaveAddresses> = {
   collateralTokenAddress: string

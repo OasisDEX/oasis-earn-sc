@@ -10,7 +10,9 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
+      "@typechain/*": ["./typechain/*"],
       "@abi/*": ["./abi/*"],
+      "@dupa-library/test/*": ["../dupa-library/test/*"],
       "@dupa-library/*": ["../dupa-library/src/*"],
       "@dupa-library": ["../dupa-library/src/index.ts"]
     }

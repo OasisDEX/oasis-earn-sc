@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@dupa-library/helpers/addresses'
+import { ADDRESSES } from '@dupa-library/utils/addresses'
 
 export const mainnetAddresses = {
   DAI: ADDRESSES.main.DAI,

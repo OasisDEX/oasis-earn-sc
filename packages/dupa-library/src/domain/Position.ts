@@ -1,9 +1,11 @@
 import BigNumber from 'bignumber.js'
 import { Optional } from 'utility-types'
 
-import { amountFromWei, calculateFee, logDebug } from '../helpers'
-import { FLASHLOAN_SAFETY_MARGIN, ONE, TYPICAL_PRECISION, ZERO } from '../helpers/constants'
+import { calculateFee } from '../utils'
+import { FLASHLOAN_SAFETY_MARGIN } from '../utils/constants'
 import { IRiskRatio, RiskRatio } from './RiskRatio'
+import { ONE, TYPICAL_PRECISION, ZERO } from '@oasisdex/dupa-common/constants/numbers'
+import { amountFromWei, logDebug } from '@oasisdex/dupa-common/utils/common'
 
 interface IPositionBalance {
   amount: BigNumber
@@ -22,12 +24,12 @@ export class PositionBalance implements IPositionBalance {
     this.symbol = args.symbol
   }
 
-  public toString(): string {
-    return `${this.amount.toFixed(this.precision)} ${this.symbol}`
-  }
-
   public get normalisedAmount() {
     return this.amount.times(10 ** (TYPICAL_PRECISION - this.precision))
+  }
+
+  public toString(): string {
+    return `${this.amount.toFixed(this.precision)} ${this.symbol}`
   }
 }
 
@@ -109,14 +111,18 @@ export interface IPosition extends IBasePosition {
   maxCollateralToWithdraw: BigNumber
   debtToPaybackAll: BigNumber
   oraclePriceForCollateralDebtExchangeRate: BigNumber
-  deposit(amount: BigNumber): IPosition
-  borrow(amount: BigNumber): IPosition
-  withdraw(amount: BigNumber): IPosition
-  payback(amount: BigNumber): IPosition
   adjustToTargetRiskRatio: (
     targetRiskRatio: IRiskRatio,
     params: IPositionTransitionParams,
   ) => IBaseSimulatedTransition
+
+  deposit(amount: BigNumber): IPosition
+
+  borrow(amount: BigNumber): IPosition
+
+  withdraw(amount: BigNumber): IPosition
+
+  payback(amount: BigNumber): IPosition
 }
 
 export class Position implements IPosition {
@@ -124,7 +130,6 @@ export class Position implements IPosition {
   public collateral: PositionBalance
   public category: IPositionCategory
   private _feeBase: BigNumber = new BigNumber(10000)
-  private _oraclePriceForCollateralDebtExchangeRate: BigNumber
 
   constructor(
     debt: Optional<IPositionBalance, 'precision'>,
@@ -138,19 +143,7 @@ export class Position implements IPosition {
     this.category = category
   }
 
-  // 1 unit of debt equals X units of collateral, where X is the market price.
-  public minConfigurableRiskRatio(marketPriceAccountingForSlippage: BigNumber): IRiskRatio {
-    const debtDelta = this.debt.amount.minus(this.category.dustLimit)
-
-    const ltv = this.category.dustLimit.div(
-      amountFromWei(debtDelta, this.debt.precision)
-        .div(marketPriceAccountingForSlippage)
-        .plus(amountFromWei(this.collateral.amount, this.collateral.precision))
-        .times(this._oraclePriceForCollateralDebtExchangeRate),
-    )
-
-    return new RiskRatio(ltv, RiskRatio.TYPE.LTV)
-  }
+  private _oraclePriceForCollateralDebtExchangeRate: BigNumber
 
   public get oraclePriceForCollateralDebtExchangeRate() {
     return this._oraclePriceForCollateralDebtExchangeRate
@@ -203,14 +196,29 @@ export class Position implements IPosition {
       .div(this.debt.normalisedAmount)
   }
 
-  // returns the percentage amount (as decimal) that the collateral price would have to
   // move relative to debt for the position to be at risk of liquidation.
   public get relativeCollateralPriceMovementUntilLiquidation() {
     return ONE.minus(ONE.div(this.healthFactor))
   }
 
+  // returns the percentage amount (as decimal) that the collateral price would have to
+
   public get liquidationPrice() {
     return this.debt.amount.div(this.collateral.amount.times(this.category.liquidationThreshold))
+  }
+
+  // 1 unit of debt equals X units of collateral, where X is the market price.
+  public minConfigurableRiskRatio(marketPriceAccountingForSlippage: BigNumber): IRiskRatio {
+    const debtDelta = this.debt.amount.minus(this.category.dustLimit)
+
+    const ltv = this.category.dustLimit.div(
+      amountFromWei(debtDelta, this.debt.precision)
+        .div(marketPriceAccountingForSlippage)
+        .plus(amountFromWei(this.collateral.amount, this.collateral.precision))
+        .times(this._oraclePriceForCollateralDebtExchangeRate),
+    )
+
+    return new RiskRatio(ltv, RiskRatio.TYPE.LTV)
   }
 
   public deposit(amount: BigNumber): IPosition {

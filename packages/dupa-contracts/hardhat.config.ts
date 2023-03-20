@@ -1,11 +1,5 @@
 import 'tsconfig-paths/register'
 
-import { default as dotenv } from 'dotenv'
-import { HardhatUserConfig, task } from 'hardhat/config'
-import path from 'path'
-import process from 'process'
-dotenv.config({ path: path.join(__dirname, './.env') })
-
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-gas-reporter'
@@ -14,6 +8,11 @@ import 'solidity-coverage'
 import 'solidity-docgen'
 import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
+
+import { default as dotenv } from 'dotenv'
+import { HardhatUserConfig, task } from 'hardhat/config'
+import path from 'path'
+import process from 'process'
 
 // Tasks
 import './tasks/deploy'
@@ -29,6 +28,8 @@ import './tasks/user-dpm-proxies'
 import './tasks/create-multiply-position'
 import './tasks/transfer-dpm'
 import './tasks/transfer-all-proxies'
+
+dotenv.config({ path: path.join(__dirname, './.env') })
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html

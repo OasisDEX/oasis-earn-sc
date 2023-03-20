@@ -1,5 +1,3 @@
-import { RuntimeConfig } from '../@oasisdex/dupa-common/utils/types/common'
-import accountFactoryAbi from '../@oasisdex/dupa-contracts/abi/account-factory.json'
 import { Contract } from 'ethers'
 
 export async function createDPMAccount(

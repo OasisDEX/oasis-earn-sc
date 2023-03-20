@@ -1,9 +1,9 @@
 import { BigNumber } from 'bignumber.js'
 
-import { IRiskRatio, RiskRatio } from '../../domain'
-import { ZERO } from '../../helpers/constants'
+import { IRiskRatio, RiskRatio } from '@dupa-library/domain'
 import { Address, AjnaError } from '../common'
 import { AjnaPool } from './AjnaPool'
+import { ZERO } from '@oasisdex/dupa-common/constants'
 
 export interface IAjnaPosition {
   pool: AjnaPool

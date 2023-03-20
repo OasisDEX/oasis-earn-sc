@@ -8,7 +8,7 @@ import {
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
-import { buildGetTokenFunction } from '../../../dupa-common/utils/aave'
+import { buildGetTokenFunction } from '../../../dupa-library/test/utils/aave'
 import init from '../../../dupa-common/utils/init'
 import { getOneInchCall } from '../../../dupa-common/utils/swap/OneInchCall'
 import { oneInchCallMock } from '../../../dupa-common/utils/swap/OneInchCallMock'

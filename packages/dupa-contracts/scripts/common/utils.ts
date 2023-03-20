@@ -4,9 +4,6 @@ import { BytesLike, Contract, utils } from 'ethers'
 
 import { Network } from './types'
 
-export const zero = new BigNumber(0)
-export const one = new BigNumber(1)
-
 export function toRatio(units: BigNumber.Value) {
   return new BigNumber(units).shiftedBy(4).toNumber()
 }

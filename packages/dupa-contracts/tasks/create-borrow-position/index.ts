@@ -2,7 +2,7 @@ import { AAVETokens, ADDRESSES, CONTRACT_NAMES, strategies } from '@oasisdex/dup
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
-import { AAVETokensToGet, buildGetTokenFunction } from '../../../dupa-common/utils/aave'
+import { AAVETokensToGet, buildGetTokenFunction } from '../../../dupa-library/test/utils/aave'
 import { executeThroughDPMProxy } from '../../../dupa-common/utils/deploy'
 import init from '../../../dupa-common/utils/init'
 import { getOneInchCall } from '../../../dupa-common/utils/swap/OneInchCall'

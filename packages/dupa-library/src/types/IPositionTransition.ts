@@ -1,6 +1,6 @@
 import { IBaseSimulatedTransition, Swap } from '../domain/Position'
 import { IRiskRatio } from '../domain/RiskRatio'
-import { OperationNames } from '../helpers/constants'
+import { OperationNames } from '../utils/constants'
 import { ActionCall } from './actionCall'
 import { SwapData } from './SwapData'
 

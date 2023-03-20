@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 
-import { ZERO } from '../../helpers/constants'
 import { Address } from '../common'
 import { AjnaPool } from './AjnaPool'
+import { ZERO } from '@oasisdex/dupa-common/constants'
 
 function priceIndexToPrice(priceIndex: BigNumber) {
   return new BigNumber(1.05).pow(priceIndex.minus(3232))

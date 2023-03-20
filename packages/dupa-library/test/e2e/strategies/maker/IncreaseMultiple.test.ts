@@ -1,24 +1,32 @@
-import { ActionCall, ActionFactory, calldataTypes, SwapData } from "@dupa-library";
-import { Contract } from "@ethersproject/contracts";
-import BigNumber from "bignumber.js";
-import { JsonRpcProvider } from "@ethersproject/providers";
-import { DeployedSystemInfo } from "@dupa-library/test/utils/deploy-system";
-import { ethers, Signer } from "ethers";
-import { expect, gasEstimateHelper, GasEstimateHelper, restoreSnapshot } from "@oasisdex/dupa-common/test-utils";
-import { ServiceRegistry } from "@dupa-library/test/utils";
-import { RuntimeConfig } from "@oasisdex/dupa-common/utils/types/common";
-import { loadFixture } from "ethereum-waffle";
-import { initialiseConfig } from "@dupa-library/test/fixtures";
-import { ADDRESSES } from "@dupa-library/utils/addresses";
+import { ActionCall, ActionFactory, calldataTypes } from '@dupa-library'
+import { Contract } from '@ethersproject/contracts'
+import BigNumber from 'bignumber.js'
+import { JsonRpcProvider } from '@ethersproject/providers'
+import { DeployedSystemInfo } from '@dupa-library/test/utils/deploy-system'
+import { ethers, Signer } from 'ethers'
+import {
+  expect,
+  gasEstimateHelper,
+  GasEstimateHelper,
+  restoreSnapshot,
+} from '@oasisdex/dupa-common/test-utils'
+import { ServiceRegistry } from '@dupa-library/test/utils'
+import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
+import { loadFixture } from 'ethereum-waffle'
+import { initialiseConfig } from '@dupa-library/test/fixtures'
+import { ADDRESSES } from '@dupa-library/utils/addresses'
 import ERC20ABI from '@oasisdex/dupa-contracts/abi/IERC20.json'
-import { amountToWei, ensureWeiFormat } from "@oasisdex/dupa-common/utils/common";
-import { CONTRACT_NAMES, OPERATION_NAMES } from "@dupa-library/utils/constants";
-import { executeThroughProxy } from "@oasisdex/dupa-common/utils/execute";
+import { amountToWei, ensureWeiFormat } from '@oasisdex/dupa-common/utils/common'
+import { CONTRACT_NAMES, OPERATION_NAMES } from '@dupa-library/utils/constants'
+import { executeThroughProxy } from '@oasisdex/dupa-common/utils/execute'
 import CDPManagerABI from '@oasisdex/dupa-contracts/abi/dss-cdp-manager.json'
-import { getLastVault, getVaultInfo } from "@oasisdex/dupa-common/utils/maker/vault";
-import { testBlockNumber } from "@dupa-library/test/config";
-import { getOraclePrice } from "@oasisdex/dupa-common/utils/maker/oracle";
-import { calculateParamsIncreaseMP, prepareMultiplyParameters } from "@oasisdex/dupa-common/utils/param-calculations";
+import { getLastVault, getVaultInfo } from '@oasisdex/dupa-common/utils/maker/vault'
+import { testBlockNumber } from '@dupa-library/test/config'
+import { getOraclePrice } from '@oasisdex/dupa-common/utils/maker/oracle'
+import {
+  calculateParamsIncreaseMP,
+  prepareMultiplyParameters,
+} from '@oasisdex/dupa-common/utils/param-calculations'
 
 const LENDER_FEE = new BigNumber(0)
 
@@ -182,7 +190,7 @@ describe.skip(`Operations | Maker | Increase Multiple`, async () => {
       .plus(ensureWeiFormat(desiredCdpState.daiTopUp))
       .toFixed(0)
 
-    const swapData: SwapData = {
+    const swapData = {
       fromAsset: exchangeData.fromTokenAddress,
       toAsset: exchangeData.toTokenAddress,
       // Add daiTopup amount to swap
@@ -350,7 +358,7 @@ describe.skip(`Operations | Maker | Increase Multiple`, async () => {
       .plus(ensureWeiFormat(desiredCdpState.daiTopUp))
       .toFixed(0)
 
-    const swapData: SwapData = {
+    const swapData = {
       fromAsset: exchangeData.fromTokenAddress,
       toAsset: exchangeData.toTokenAddress,
       // Add daiTopup amount to swap
@@ -591,7 +599,7 @@ describe.skip(`Operations | Maker | Increase Multiple`, async () => {
       .plus(ensureWeiFormat(desiredCdpState.daiTopUp))
       .toFixed(0)
 
-    const swapData: SwapData = {
+    const swapData = {
       fromAsset: exchangeData.fromTokenAddress,
       toAsset: exchangeData.toTokenAddress,
       // Add daiTopup amount to swap
@@ -810,7 +818,7 @@ describe.skip(`Operations | Maker | Increase Multiple`, async () => {
       .plus(ensureWeiFormat(desiredCdpState.daiTopUp))
       .toFixed(0)
 
-    const swapData: SwapData = {
+    const swapData = {
       fromAsset: exchangeData.fromTokenAddress,
       toAsset: exchangeData.toTokenAddress,
       // Add daiTopup amount to swap
@@ -1007,7 +1015,7 @@ describe.skip(`Operations | Maker | Increase Multiple`, async () => {
       .plus(ensureWeiFormat(desiredCdpState.daiTopUp))
       .toFixed(0)
 
-    const swapData: SwapData = {
+    const swapData = {
       fromAsset: exchangeData.fromTokenAddress,
       toAsset: exchangeData.toTokenAddress,
       // Add daiTopup amount to swap
@@ -1214,7 +1222,7 @@ describe.skip(`Operations | Maker | Increase Multiple`, async () => {
       .plus(ensureWeiFormat(desiredCdpState.daiTopUp))
       .toFixed(0)
 
-    const swapData: SwapData = {
+    const swapData = {
       fromAsset: exchangeData.fromTokenAddress,
       toAsset: exchangeData.toTokenAddress,
       // Add daiTopup amount to swap

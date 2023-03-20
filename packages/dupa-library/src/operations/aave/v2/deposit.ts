@@ -1,10 +1,11 @@
 import BigNumber from 'bignumber.js'
 
-import * as actions from '../../../actions'
-import { ADDRESSES } from '../../../helpers/addresses'
-import { OPERATION_NAMES, ZERO } from '../../../helpers/constants'
-import { isDefined } from '../../../helpers/isDefined'
-import { Address } from '../../../types'
+import * as actions from '@dupa-library/actions'
+import { ADDRESSES } from '@dupa-library/utils/addresses'
+import { OPERATION_NAMES } from '@dupa-library/utils/constants'
+import { isDefined } from '@dupa-library/utils/isDefined'
+import { Address } from '@dupa-library/types'
+import { ZERO } from '@oasisdex/dupa-common/constants'
 
 interface SwapArgs {
   fee: number

@@ -1,5 +1,5 @@
 /* Selection of token symbols and addresses that we're happy to accept as a fee */
-import { ADDRESSES } from '../helpers/addresses'
+import { ADDRESSES } from '../utils/addresses'
 
 export const acceptedTokens = [
   {

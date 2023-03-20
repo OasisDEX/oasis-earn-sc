@@ -1,10 +1,33 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
-import { Unbox } from '../../../../../dupa-common/utils/types/common'
-import { IBaseSimulatedTransition, Position } from '../../../domain/Position'
-import { IRiskRatio } from '../../../domain/RiskRatio'
-import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
+import { IBaseSimulatedTransition, Position } from '@dupa-library/domain/Position'
+import { IRiskRatio } from '@dupa-library/domain/RiskRatio'
+import { calculateFee } from '@dupa-library/utils'
+import { acceptedFeeToken } from '@dupa-library/utils/swap/accepted-fee-token'
+import { feeResolver } from '@dupa-library/utils/swap/fee-resolver'
+import { getSwapDataHelper } from '@dupa-library/utils/swap/get-swap-data'
+import * as operations from '@dupa-library/operations'
+import {
+  aaveV2UniqueContractName,
+  aaveV3UniqueContractName,
+} from '@dupa-library/protocols/aave/config'
+import { AaveProtocolData } from '@dupa-library/protocols/aave/getAaveProtocolData'
+import {
+  Address,
+  IOperation,
+  IPositionTransition,
+  PositionType,
+  SwapData,
+} from '@dupa-library/types'
+import { AAVETokens } from '@dupa-library/types/aave'
+import { WithV2Addresses, WithV3Addresses } from '@dupa-library/types/aave/Addresses'
+import { WithFee } from '@dupa-library/types/aave/Fee'
+import { WithV2Protocol, WithV3Protocol } from '@dupa-library/types/aave/Protocol'
+import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
+import { AaveVersion } from '../getCurrentPosition'
+import { amountFromWei, amountToWei } from '@oasisdex/dupa-common/utils/common'
+import { Unbox } from '@oasisdex/dupa-common/utils/types/common'
 import {
   DEFAULT_FEE,
   FEE_BASE,
@@ -12,20 +35,7 @@ import {
   NO_FEE,
   ONE,
   ZERO,
-} from '../../../helpers/constants'
-import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
-import { feeResolver } from '../../../helpers/swap/feeResolver'
-import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
-import * as operations from '../../../operations'
-import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '../../../protocols/aave/config'
-import { AaveProtocolData } from '../../../protocols/aave/getAaveProtocolData'
-import { Address, IOperation, IPositionTransition, PositionType, SwapData } from '../../../types'
-import { AAVETokens } from '../../../types/aave'
-import { WithV2Addresses, WithV3Addresses } from '../../../types/aave/Addresses'
-import { WithFee } from '../../../types/aave/Fee'
-import { WithV2Protocol, WithV3Protocol } from '../../../types/aave/Protocol'
-import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
-import { AaveVersion } from '../getCurrentPosition'
+} from '@oasisdex/dupa-common/constants'
 
 export interface AaveOpenArgs {
   depositedByUser?: {

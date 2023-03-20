@@ -1,15 +1,15 @@
 import BigNumber from 'bignumber.js'
 
-import * as actions from '../../../actions'
-import { OPERATION_NAMES } from '../../../helpers/constants'
-import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '../../../types'
+import * as actions from '@dupa-library/actions'
+import { OPERATION_NAMES } from '@dupa-library/utils/constants'
+import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '@dupa-library/types'
 import {
   WithAaveV2StrategyAddresses,
   WithFlashloan,
   WithOptionalDeposit,
   WithProxy,
   WithSwap,
-} from '../../../types/Operations'
+} from '@dupa-library/types/Operations'
 
 type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithDebt &

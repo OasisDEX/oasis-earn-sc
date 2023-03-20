@@ -1,6 +1,6 @@
-import * as actions from '../../../actions'
-import { OPERATION_NAMES } from '../../../helpers/constants'
-import { PositionType, Protocol } from '../../../types'
+import * as actions from '@dupa-library/actions'
+import { OPERATION_NAMES } from '@dupa-library/utils/constants'
+import { PositionType, Protocol } from '@dupa-library/types'
 import { borrow, BorrowArgs } from './borrow'
 import { deposit, DepositArgs } from './deposit'
 

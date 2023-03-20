@@ -7,23 +7,15 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { memoizeWith } from 'ramda'
 
-import { Position } from '../../../domain/Position'
-import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
-import { ADDRESSES } from '../../../helpers/addresses'
-import {
-  FEE_BASE,
-  FEE_ESTIMATE_INFLATOR,
-  FLASHLOAN_SAFETY_MARGIN,
-  ONE,
-  TEN,
-  TYPICAL_PRECISION,
-  ZERO,
-} from '../../../helpers/constants'
-import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
-import { feeResolver } from '../../../helpers/swap/feeResolver'
-import * as operations from '../../../operations'
-import { AAVEStrategyAddresses } from '../../../operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '../../../operations/aave/v3'
+import { Position } from '@dupa-library/domain/Position'
+import { calculateFee } from '@dupa-library/utils'
+import { ADDRESSES } from '@dupa-library/utils/addresses'
+import { FLASHLOAN_SAFETY_MARGIN } from '@dupa-library/utils/constants'
+import { acceptedFeeToken } from '@dupa-library/utils/swap/accepted-fee-token'
+import { feeResolver } from '@dupa-library/utils/swap/fee-resolver'
+import * as operations from '@dupa-library/operations'
+import { AAVEStrategyAddresses } from '@dupa-library/operations/aave/v2'
+import { AAVEV3StrategyAddresses } from '@dupa-library/operations/aave/v3'
 import {
   IBasePositionTransitionArgs,
   IOperation,
@@ -31,10 +23,19 @@ import {
   IPositionTransitionDependencies,
   SwapData,
   WithLockedCollateral,
-} from '../../../types'
-import { AAVETokens } from '../../../types/aave'
+} from '@dupa-library/types'
+import { AAVETokens } from '@dupa-library/types/aave'
 import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
 import { AaveVersion } from '../getCurrentPosition'
+import {
+  FEE_BASE,
+  FEE_ESTIMATE_INFLATOR,
+  ONE,
+  TEN,
+  TYPICAL_PRECISION,
+  ZERO,
+} from '@oasisdex/dupa-common/constants'
+import { amountFromWei, amountToWei } from '@oasisdex/dupa-common/utils/common'
 
 export type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> &
   WithLockedCollateral & {

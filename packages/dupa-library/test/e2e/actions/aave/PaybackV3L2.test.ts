@@ -1,4 +1,4 @@
-import { ADDRESSES, FIFTY, ZERO } from '@dupa-library'
+import { ADDRESSES } from '@dupa-library'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { balanceOf } from '@oasisdex/dupa-common/utils/common'
 import { expect } from '@oasisdex/dupa-common/test-utils'
@@ -10,6 +10,7 @@ import {
   PAYBACK_OPERATION,
   vOptUSDC,
 } from './L2TestsHelper'
+import { FIFTY, ZERO } from '@oasisdex/dupa-common/constants'
 
 describe('Payback Action', () => {
   it('should payback borrowed funds from the protocol in total', async () => {

@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
-import { one } from '../../../dupa-contracts/scripts/common'
 import { swapOneInchTokens } from './1inch'
+import { ONE } from '../../constants'
 
 export const getOneInchCall =
   (swapAddress: string, protocols?: string[], debug?: true) =>
@@ -24,7 +24,7 @@ export const getOneInchCall =
     )
 
     const minToTokenAmount = new BigNumber(response.toTokenAmount)
-      .times(one.minus(slippage))
+      .times(ONE.minus(slippage))
       .integerValue(BigNumber.ROUND_DOWN)
 
     if (debug) {

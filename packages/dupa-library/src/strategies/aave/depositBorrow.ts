@@ -1,21 +1,22 @@
 import BigNumber from 'bignumber.js'
 
-import { IPosition } from '../../domain/Position'
-import { RiskRatio } from '../../domain/RiskRatio'
-import { TYPICAL_PRECISION, ZERO } from '../../helpers/constants'
-import { acceptedFeeToken } from '../../helpers/swap/acceptedFeeToken'
-import { getZeroSwap } from '../../helpers/swap/getZeroSwap'
-import * as operations from '../../operations'
-import { AAVEStrategyAddresses } from '../../operations/aave/v2/addresses'
-import { BorrowArgs } from '../../operations/aave/v2/borrow'
-import { DepositArgs } from '../../operations/aave/v2/deposit'
+import { IPosition } from '@dupa-library/domain/Position'
+import { RiskRatio } from '@dupa-library/domain/RiskRatio'
+import { acceptedFeeToken } from '@dupa-library/utils/swap/accepted-fee-token'
+import { getZeroSwap } from '@dupa-library/utils/swap/get-zero-swap'
+import * as operations from '@dupa-library/operations'
+import { AAVEStrategyAddresses } from '@dupa-library/operations/aave/v2/addresses'
+import { BorrowArgs } from '@dupa-library/operations/aave/v2/borrow'
+import { DepositArgs } from '@dupa-library/operations/aave/v2/deposit'
 import {
   Address,
   IPositionTransition,
   IPositionTransitionDependencies,
   SwapData,
-} from '../../types'
-import { AAVETokens } from '../../types/aave'
+} from '@dupa-library/types'
+import { AAVETokens } from '@dupa-library/types/aave'
+import { ZERO } from '@oasisdex/dupa-common/constants'
+import { TYPICAL_PRECISION } from '@oasisdex/dupa-common/constants/numbers'
 
 interface DepositBorrowArgs {
   entryToken?: {

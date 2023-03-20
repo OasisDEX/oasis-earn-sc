@@ -1,7 +1,7 @@
 import { task } from 'hardhat/config'
 
 import init from '../../../dupa-common/utils/init'
-import { getOrCreateProxy } from '../../../dupa-common/utils/proxy'
+import { getOrCreateProxy } from '../../../dupa-common/utils/proxy/proxy'
 
 task('proxy', 'Create a proxy for the current account').setAction(async (taskArgs, hre) => {
   const config = await init(hre)

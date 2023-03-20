@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js'
-
-import { ONE } from '../helpers/constants'
+import { ONE } from '@oasisdex/dupa-common/constants'
 
 export interface IRiskRatio {
   loanToValue: BigNumber
@@ -16,6 +15,7 @@ enum RISK_RATIO_CTOR_TYPE {
 
 export class RiskRatio implements IRiskRatio {
   static TYPE = RISK_RATIO_CTOR_TYPE
+  loanToValue: BigNumber
 
   constructor(input: BigNumber, type: RISK_RATIO_CTOR_TYPE) {
     switch (type) {
@@ -32,8 +32,6 @@ export class RiskRatio implements IRiskRatio {
         throw new Error(`Unrecognized RiskRatio constructor type: ${type}`)
     }
   }
-
-  loanToValue: BigNumber
 
   public get colRatio(): BigNumber {
     return ONE.div(this.loanToValue)

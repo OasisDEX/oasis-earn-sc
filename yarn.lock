@@ -85,10 +85,10 @@
   resolved "https://registry.npmjs.org/@eslint/js/-/js-8.35.0.tgz"
   integrity sha512-JXdzbRiWclLVoD8sNUjR443VVlYqiYmDVT6rGUEIEHU5YJW0gaVZwV2xgM7D4arkvASqD0IlLUVjHiFuxaftRw==
 
-"@eth-optimism/contracts-bedrock@0.13.0":
-  version "0.13.0"
-  resolved "https://registry.npmjs.org/@eth-optimism/contracts-bedrock/-/contracts-bedrock-0.13.0.tgz"
-  integrity sha512-FS7IQJ/6kSOjGvukBA5eaNyd2Y6f3lL/gjw88Znyw/mVPNrbfXY+tKK03WHafsxcGGiF3Otamd2vPfn4AmupWQ==
+"@eth-optimism/contracts-bedrock@0.13.1":
+  version "0.13.1"
+  resolved "https://registry.yarnpkg.com/@eth-optimism/contracts-bedrock/-/contracts-bedrock-0.13.1.tgz#52cd561c9f996d3695a8a6ba8b8996d6f1d893f6"
+  integrity sha512-Jgw8PkV90S0+06AxjI13lULdxO9eHzPvBOTSIxdig8V/EXykJdENGXk83JE3oKBaK5umMcT/44qk73ilxnP7kQ==
   dependencies:
     "@eth-optimism/core-utils" "^0.12.0"
     "@openzeppelin/contracts" "4.7.3"
@@ -127,13 +127,13 @@
     bufio "^1.0.7"
     chai "^4.3.4"
 
-"@eth-optimism/sdk@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/@eth-optimism/sdk/-/sdk-2.0.0.tgz"
-  integrity sha512-Y7jXmrKWjtjW6Uy0h9yuyDID9Tqm4JtaW5ph9GUBbDYTMet3bssetUbRycAZ9YfLqIxf0fBb6QrZIn5ON4gtZw==
+"@eth-optimism/sdk@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@eth-optimism/sdk/-/sdk-2.0.1.tgz#d215adb49033de3db2c37b54f418ae1c55dcf556"
+  integrity sha512-sTgAvtnAda7Se+r0CLptKb0tk18YzJ7XEZB9h3QsCCPYn1DzWnKLHhKdeKcyiHL5JYZ5/dz28fD7U4wF4ch/fQ==
   dependencies:
     "@eth-optimism/contracts" "0.5.40"
-    "@eth-optimism/contracts-bedrock" "0.13.0"
+    "@eth-optimism/contracts-bedrock" "0.13.1"
     "@eth-optimism/core-utils" "0.12.0"
     lodash "^4.17.21"
     merkletreejs "^0.2.27"
@@ -1233,7 +1233,7 @@
 
 "@nomicfoundation/hardhat-network-helpers@^1.0.8":
   version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@nomicfoundation/hardhat-network-helpers/-/hardhat-network-helpers-1.0.8.tgz#e4fe1be93e8a65508c46d73c41fa26c7e9f84931"
+  resolved "https://registry.npmjs.org/@nomicfoundation/hardhat-network-helpers/-/hardhat-network-helpers-1.0.8.tgz"
   integrity sha512-MNqQbzUJZnCMIYvlniC3U+kcavz/PhhQSsY90tbEtUyMj/IQqsLwIRZa4ctjABh3Bz0KCh9OXUZ7Yk/d9hr45Q==
   dependencies:
     ethereumjs-util "^7.1.4"
@@ -2090,15 +2090,10 @@
     "@types/node" "*"
     "@types/responselike" "^1.0.0"
 
-"@types/chai@*":
+"@types/chai@*", "@types/chai@4.3.0":
   version "4.3.0"
   resolved "https://registry.npmjs.org/@types/chai/-/chai-4.3.0.tgz"
   integrity sha512-/ceqdqeRraGolFTcfoXNiqjyQhZzbINDngeoAq9GoHa8PPK1yNzTaxWjA6BFWp5Ua9JpXEMSS4s5i9tS0hOJtw==
-
-"@types/chai@^4.3.0":
-  version "4.3.4"
-  resolved "https://registry.npmjs.org/@types/chai/-/chai-4.3.4.tgz"
-  integrity sha512-KnRanxnpfpjUTqTCXslZSEdLfXExwgNxYPdiO2WGUj8+HDjFi8R3k5RVKPeSCzLjCcshCAtVO2QBbVuAV4kTnw==
 
 "@types/concat-stream@^1.6.0":
   version "1.6.1"
@@ -3838,7 +3833,7 @@ bufferutil@^4.0.1:
   dependencies:
     node-gyp-build "^4.3.0"
 
-bufio@^1.0.7:
+bufio@^1.0.7, bufio@^1.2.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/bufio/-/bufio-1.2.0.tgz"
   integrity sha512-UlFk8z/PwdhYQTXSQQagwGAdtRI83gib2n4uy4rQnenxUM2yQi8lBDzF230BNk+3wAoZDxYRoBwVVUPgHa9MCA==

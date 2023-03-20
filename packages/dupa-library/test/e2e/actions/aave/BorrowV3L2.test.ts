@@ -1,9 +1,10 @@
-import { ADDRESSES, FIFTY, HUNDRED } from '@dupa-library'
+import { ADDRESSES } from '@dupa-library'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { balanceOf } from '@oasisdex/dupa-common/utils/common'
 
 import { aDAI, BORROW_OPERATION, deployedContracts, DEPOSIT_OPERATION } from './L2TestsHelper'
-import { expect } from "@oasisdex/dupa-common/test-utils";
+import { expect } from '@oasisdex/dupa-common/test-utils'
+import { FIFTY, HUNDRED } from '@oasisdex/dupa-common/constants'
 
 describe('Borrow Action', () => {
   it('should borrow funds from the protocol', async () => {

@@ -5,7 +5,7 @@ import {
   protocols,
   strategies,
   SwapData,
-} from '@dupa-library/src'
+} from '@dupa-library'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 

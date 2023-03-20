@@ -1,38 +1,20 @@
-<<<<<<<< HEAD:packages/dupa-library/test/uSwap.test.ts
-import { ADDRESSES, CONTRACT_NAMES, ONE } from '@dupa-library'
-========
-import WETH_ABI from '@abi/IWETH.json'
-import { createDeploy } from '@helpers/deploy'
-import init from '@helpers/init'
-import { ServiceRegistry } from '@helpers/serviceRegistry'
-import { swapOneInchTokens } from '@helpers/swap/1inch'
-import { calculateFee } from '@helpers/swap/calculateFee'
-import { FEE } from '@helpers/swap/DummyExchange'
-import { RuntimeConfig } from '@helpers/types/common'
-import { amountToWei, asPercentageValue, balanceOf } from '@helpers/utils'
-import { ADDRESSES, CONTRACT_NAMES, ONE } from '@oasisdex/oasis-actions'
->>>>>>>> dev:test/unit/swap/uSwap.test.ts
-import BigNumber from 'bignumber.js'
-import { expect } from 'chai'
-import { Contract } from '@ethersproject/contracts'
+import { expect } from '@oasisdex/dupa-common/test-utils'
 import { ethers } from 'hardhat'
-
-<<<<<<<< HEAD:packages/dupa-library/test/uSwap.test.ts
-import { createDeploy } from '../../dupa-common/utils/deploy'
-import init from '../../dupa-common/utils/init'
-import { ServiceRegistry } from './utils/service-registry'
-import { swapOneInchTokens } from '../../dupa-common/utils/swap/1inch'
-import { calculateFee } from '../../dupa-common/utils/swap/calculateFee'
-import { FEE } from '../../dupa-common/utils/swap/DummyExchange'
-import { RuntimeConfig } from '../../dupa-common/utils/types/common'
-import { amountToWei, asPercentageValue, balanceOf } from '../../dupa-common/utils/common'
-import WETH_ABI from '../../dupa-contracts/abi/IWETH.json'
-import { swap, uniswapV3Swap, unoswap } from './fixtures/oneInchFixtures'
-import { expect.toBe, expect.toBeEqual } from '../../dupa-common/test-utils/expect'
-========
-import { swap, uniswapV3Swap, unoswap } from '../../fixtures/oneInchFixtures'
-import { expect.toBe, expect.toBeEqual } from '../../utils'
->>>>>>>> dev:test/unit/swap/uSwap.test.ts
+import { Contract } from 'ethers'
+import init from '@oasisdex/dupa-common/utils/init'
+import { createDeploy } from '@oasisdex/dupa-common/utils/deploy'
+import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
+import { ServiceRegistry } from '@dupa-library/test/utils'
+import { CONTRACT_NAMES } from '@dupa-library/utils/constants'
+import { ADDRESSES } from '@dupa-library/utils/addresses'
+import WETH_ABI from '@oasisdex/dupa-contracts/abi/IWETH.json'
+import { amountToWei, asPercentageValue, balanceOf } from '@oasisdex/dupa-common/utils/common'
+import BigNumber from 'bignumber.js'
+import { calculateFee } from '@oasisdex/dupa-common/utils/swap'
+import { swapOneInchTokens } from '@oasisdex/dupa-common/utils/swap/1inch'
+import { ONE } from '@oasisdex/dupa-common/constants'
+import { swap, uniswapV3Swap, unoswap } from '@dupa-library/test/fixtures'
+import { FEE } from '@dupa-library/test/utils/dummy-exchange'
 
 describe('uSwap', () => {
   let uSwap: Contract

@@ -1,39 +1,18 @@
-<<<<<<<< HEAD:packages/dupa-library/test/common/TakeFlashloan.test.ts
-========
-import { JsonRpcProvider } from '@ethersproject/providers'
-import { executeThroughProxy } from '@helpers/deploy'
-import { restoreSnapshot } from '@helpers/restoreSnapshot'
-import { ServiceRegistry } from '@helpers/serviceRegistry'
-import { RuntimeConfig } from '@helpers/types/common'
-import { ensureWeiFormat } from '@helpers/utils'
->>>>>>>> dev:test/unit/actions/common/TakeFlashloan.test.ts
-import {
-  ActionFactory,
-  ADDRESSES,
-  calldataTypes,
-  CONTRACT_NAMES,
-  OPERATION_NAMES,
-  TEN,
-} from '@dupa-library'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import { executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
-import { restoreSnapshot } from '@oasisdex/dupa-common/utils/restore-snapshot'
-import { ServiceRegistry } from '@oasisdex/dupa-common/utils/service-registry'
+import { ActionFactory, calldataTypes } from '@dupa-library'
+import { expect, restoreSnapshot } from '@oasisdex/dupa-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
-import { ensureWeiFormat } from '@oasisdex/dupa-common/utils/common'
-import BigNumber from 'bignumber.js'
-import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
-
-<<<<<<<< HEAD:packages/dupa-library/test/common/TakeFlashloan.test.ts
-import { testBlockNumber } from '../config'
-import { DeployedSystemInfo } from '../deploy-system'
-import { initialiseConfig } from '../fixtures/setup'
-========
-import { testBlockNumber } from '../../../config'
-import { DeployedSystemInfo } from '../../../deploySystem'
-import { initialiseConfig } from '../../../fixtures/setup'
->>>>>>>> dev:test/unit/actions/common/TakeFlashloan.test.ts
+import { initialiseConfig } from '@dupa-library/test/fixtures'
+import { testBlockNumber } from '@dupa-library/test/config'
+import { ADDRESSES } from '@dupa-library/utils/addresses'
+import BigNumber from 'bignumber.js'
+import { ensureWeiFormat } from '@oasisdex/dupa-common/utils/common'
+import { CONTRACT_NAMES, OPERATION_NAMES } from '@dupa-library/utils/constants'
+import { executeThroughProxy } from '@oasisdex/dupa-common/utils/execute'
+import { TEN } from '@oasisdex/dupa-common/constants'
+import { DeployedSystemInfo } from '@dupa-library/test/utils/deploy-system'
+import { ServiceRegistry } from '@dupa-library/test/utils'
+import { JsonRpcProvider } from '@ethersproject/providers'
 
 const createAction = ActionFactory.create
 

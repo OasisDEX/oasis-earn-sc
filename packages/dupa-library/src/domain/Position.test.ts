@@ -1,11 +1,11 @@
 import BigNumber from 'bignumber.js'
-import { expect } from 'chai'
 
-import { ONE, ZERO } from '../helpers/constants'
+import { ONE, ZERO } from '@oasisdex/dupa-common/constants'
 import { Position } from './Position'
 import { RiskRatio } from './RiskRatio'
 import { testDataSources } from './test-scenarios/generateTestData'
 import { fetchTestScenarios } from './testDataUtils'
+import { expect } from '@oasisdex/dupa-common/test-utils'
 
 type Scenario = {
   name: string

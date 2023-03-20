@@ -3,10 +3,10 @@ import poolInfoAbi from '@oasisdex/dupa-contracts/abi/external/ajna/poolInfoUtil
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import { ZERO } from '../../helpers/constants'
-import { AjnaEarnPosition, AjnaPosition } from '../../types/ajna'
-import { AjnaPool } from '../../types/ajna/AjnaPool'
-import { Address } from '../../types/common'
+import { AjnaEarnPosition, AjnaPosition } from '@dupa-library/types/ajna'
+import { AjnaPool } from '@dupa-library/types/ajna/AjnaPool'
+import { Address } from '@dupa-library/types/common'
+import { ZERO } from '@oasisdex/dupa-common/constants'
 
 interface Args {
   proxyAddress: Address

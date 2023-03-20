@@ -1,4 +1,4 @@
-import { OPERATION_NAMES } from '../../../helpers/constants'
+import { OPERATION_NAMES } from '@dupa-library/utils/constants'
 import { borrow, BorrowArgs } from './borrow'
 import { deposit, DepositArgs } from './deposit'
 

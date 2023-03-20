@@ -1,8 +1,8 @@
-import { HUNDRED } from '@dupa-library'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { balanceOf } from '@oasisdex/dupa-common/utils/common'
-import { expect } from "@oasisdex/dupa-common/test-utils";
+import { expect } from '@oasisdex/dupa-common/test-utils'
 import { aDAI, deployedContracts, DEPOSIT_OPERATION } from './L2TestsHelper'
+import { HUNDRED } from '@oasisdex/dupa-common/constants'
 
 describe('Deposit Action', () => {
   it('should supply funds to the protocol', async () => {

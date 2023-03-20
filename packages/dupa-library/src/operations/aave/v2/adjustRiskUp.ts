@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import * as actions from '../../../actions'
-import { NULL_ADDRESS, OPERATION_NAMES, ZERO } from '../../../helpers/constants'
-import { IOperation } from '../../../types'
+import * as actions from '@dupa-library/actions'
+import { OPERATION_NAMES } from '@dupa-library/utils/constants'
+import { IOperation } from '@dupa-library/types'
 import {
   WithAaveV2StrategyAddresses,
   WithCollateral,
@@ -12,7 +12,8 @@ import {
   WithOptionalDeposit,
   WithProxy,
   WithSwap,
-} from '../../../types/Operations'
+} from '@dupa-library/types/Operations'
+import { NULL_ADDRESS, ZERO } from '@oasisdex/dupa-common/constants'
 
 type AdjustRiskUpArgs = WithCollateral &
   WithDebtAndBorrow &

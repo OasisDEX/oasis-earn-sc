@@ -1,7 +1,8 @@
 import { ActionFactory } from '@dupa-library/actions/actionFactory'
-import { ADDRESSES } from '@dupa-library/helpers/addresses'
-import { CONTRACT_NAMES, FIFTY, HUNDRED, MAX_UINT, ONE } from '@dupa-library/helpers/constants'
+import { ADDRESSES } from '@dupa-library/utils/addresses'
+import { CONTRACT_NAMES } from '@dupa-library/utils/constants'
 import { ActionCall, calldataTypes } from '@dupa-library/types'
+// @ts-ignore
 import * as optimismSDK from '@eth-optimism/sdk'
 import { TransactionRequest } from '@ethersproject/providers'
 import { createDeploy } from '@oasisdex/dupa-common/utils/deploy'
@@ -14,6 +15,7 @@ import { OperationsRegistry } from '@oasisdex/dupa-common/utils/wrappers/operati
 import { getServiceNameHash } from '@oasisdex/dupa-contracts/scripts/common'
 import BigNumber from 'bignumber.js'
 import { Contract } from 'ethers'
+import { FIFTY, HUNDRED, MAX_UINT, ONE } from '@oasisdex/dupa-common/constants'
 
 const createAction = ActionFactory.create
 

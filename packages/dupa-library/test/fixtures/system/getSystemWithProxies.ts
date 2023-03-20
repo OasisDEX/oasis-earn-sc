@@ -1,14 +1,13 @@
-import { AaveVersion, protocols, strategies } from '@dupa-library/src'
-
-import { mainnetAddresses } from '../../addresses'
-import { testBlockNumber } from '../../config'
-import { deploySystem } from '../../utils/deploy-system'
-import { buildGetTokenByImpersonateFunction } from '../@oasisdex/dupa-common/utils/aave'
-import init, { resetNode } from '../@oasisdex/dupa-common/utils/init'
-import { getOneInchCall } from '../@oasisdex/dupa-common/utils/swap/OneInchCall'
-import { oneInchCallMock } from '../@oasisdex/dupa-common/utils/swap/OneInchCallMock'
 import { createDPMAccount } from '../factories'
 import { StrategiesDependencies, SystemWithProxies } from '../types'
+import { mainnetAddresses } from '@dupa-library/test/addresses'
+import { getOneInchCall } from '@oasisdex/dupa-common/utils/swap/OneInchCall'
+import { testBlockNumber } from '@dupa-library/test/config'
+import { oneInchCallMock } from '@oasisdex/dupa-common/utils/swap/OneInchCallMock'
+import { buildGetTokenByImpersonateFunction } from 'test/utils/aave'
+import init, { resetNode } from '@oasisdex/dupa-common/utils/init'
+import { AaveVersion, protocols, strategies } from '@dupa-library'
+import { deploySystem } from '@dupa-library/test/utils'
 
 export async function getSystemWithProxies({
   use1inch,
@@ -49,7 +48,7 @@ export async function getSystemWithProxies({
   }
 
   async function getDpm(): Promise<{ proxy: string; vaultId: number }> {
-    const [proxy, vaultId] = await createDPMAccount(system.common.accountFactory.address, config)
+    const [proxy, vaultId] = await createDPMAccount(system.common.accountFactory)
     if (!proxy || !vaultId) {
       throw new Error('Cant create a DPM proxy')
     }

@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-import { DEFAULT_FEE, FEE_BASE, ZERO } from '../constants'
+import { DEFAULT_FEE, FEE_BASE, ZERO } from '@oasisdex/dupa-common/constants'
 import { calculateFee } from '../index'
 
 export function calculatePreSwapFeeAmount(

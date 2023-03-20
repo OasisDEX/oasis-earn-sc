@@ -3,11 +3,10 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-import { CONTRACT_NAMES } from '@oasisdex/oasis-actions'
-import { operationDefinition as aaveV2CloseOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/close'
-import { operationDefinition as aaveV2OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/open'
-import { operationDefinition as aaveV3CloseOp } from '@oasisdex/oasis-actions/src/operations/aave/v3/close'
-import { operationDefinition as aaveV3OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v3/open'
+import { operationDefinition as aaveV2CloseOp } from '@dupa-library/operations/aave/v2/close'
+import { operationDefinition as aaveV2OpenOp } from '@dupa-library/operations/aave/v2/open'
+import { operationDefinition as aaveV3CloseOp } from '@dupa-library/operations/aave/v3/close'
+import { operationDefinition as aaveV3OpenOp } from '@dupa-library/operations/aave/v3/open'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 // @ts-ignore
@@ -21,7 +20,9 @@ import prompts from 'prompts'
 
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { EtherscanGasPrice, Network } from '../common'
-import { OperationsRegistry } from "@oasisdex/dupa-common/utils/wrappers/operationsRegistry";
+import { OperationsRegistry } from '@oasisdex/dupa-common/utils/wrappers/operationsRegistry'
+import { ServiceRegistry } from '@oasisdex/dupa-library/test/utils'
+import { CONTRACT_NAMES } from '@dupa-library/utils/constants'
 
 configLoader.setBaseDir('./scripts/deployment20/')
 
@@ -112,11 +113,10 @@ abstract class DeployedSystemHelpers {
 
 // MAIN CLASS ===============================================
 export class DeploymentSystem extends DeployedSystemHelpers {
-  private readonly _cache = new NodeCache()
-
   public config: any = {}
   public deployedSystem: any = {}
   public addresses: any = []
+  private readonly _cache = new NodeCache()
 
   constructor(public readonly hre: HardhatRuntimeEnvironment) {
     super()

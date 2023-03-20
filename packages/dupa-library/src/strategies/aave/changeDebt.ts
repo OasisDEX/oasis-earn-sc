@@ -1,8 +1,8 @@
-import { ZERO } from '../../helpers/constants'
-import { AAVEStrategyAddresses } from '../../operations/aave/v2'
-import { IViewPositionDependencies, IViewPositionParams, WithDebtChange } from '../../types'
-import { AavePosition, AAVETokens } from '../../types/aave'
+import { AAVEStrategyAddresses } from '@dupa-library/operations/aave/v2'
+import { IViewPositionDependencies, IViewPositionParams, WithDebtChange } from '@dupa-library/types'
+import { AavePosition, AAVETokens } from '@dupa-library/types/aave'
 import { AaveVersion, getCurrentPosition } from './getCurrentPosition'
+import { ZERO } from '@oasisdex/dupa-common/constants'
 
 export async function changeDebt(
   args: IViewPositionParams<AAVETokens> & WithDebtChange<AAVETokens>,

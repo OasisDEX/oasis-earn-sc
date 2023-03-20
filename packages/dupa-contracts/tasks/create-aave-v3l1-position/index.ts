@@ -2,12 +2,12 @@ import { AaveVersion, ADDRESSES, CONTRACT_NAMES, protocols } from '@oasisdex/dup
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
-import init from '../../../dupa-common/utils/init'
-import { getOneInchCall } from '../../../dupa-common/utils/swap/OneInchCall'
-import { oneInchCallMock } from '../../../dupa-common/utils/swap/OneInchCallMock'
-import { createDPMAccount } from '../../../dupa-library/test/fixtures/factories'
-import { createWstEthEthEarnAAVEPosition } from '../../../dupa-library/test/fixtures/factories/createWstEthEthEarnAAVEPosition'
-import { StrategyDependenciesAaveV3 } from '../../../dupa-library/test/fixtures/types/strategiesDependencies'
+import init from '@oasisdex/dupa-common/utils/init'
+import { getOneInchCall } from '@oasisdex/dupa-common/utils/swap/OneInchCall'
+import { oneInchCallMock } from '@oasisdex/dupa-common/utils/swap/OneInchCallMock'
+import { createDPMAccount } from '@oasisdex/dupa-library/test/fixtures/factories'
+import { createWstEthEthEarnAAVEPosition } from '@oasisdex/dupa-library/test/fixtures/factories/createWstEthEthEarnAAVEPosition'
+import { StrategyDependenciesAaveV3 } from '@oasisdex/dupa-library/test/fixtures/types/strategiesDependencies'
 
 task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
   .addOptionalParam<string>('serviceregistry', 'Service Registry address')
@@ -82,7 +82,7 @@ task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
           oneInchCallMock(marketPrice, precision)
       : () => getOneInchCall(swapAddress)
 
-    const [proxy1, vaultId1] = await createDPMAccount(mainnetAddresses.accountFactory, config)
+    const [proxy1, vaultId1] = await createDPMAccount(mainnetAddresses.accountFactory)
 
     if (proxy1 === undefined) {
       throw new Error(`Can't create DPM accounts`)

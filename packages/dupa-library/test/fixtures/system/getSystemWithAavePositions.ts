@@ -1,16 +1,12 @@
 import { AaveVersion, protocols, strategies } from '@dupa-library'
-import {
-  buildGetTokenByImpersonateFunction,
-  buildGetTokenFunction,
-} from '@oasisdex/dupa-common/utils/aave'
-import { getOrCreateProxy } from '@oasisdex/dupa-common/utils/proxy'
+import { buildGetTokenByImpersonateFunction, buildGetTokenFunction } from 'test/utils/aave'
 import { getOneInchCall } from '@oasisdex/dupa-common/utils/swap/OneInchCall'
 import { oneInchCallMock } from '@oasisdex/dupa-common/utils/swap/OneInchCallMock'
 import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
 import hre from 'hardhat'
 
-import { DeploymentSystem } from '../../../../dupa-contracts/scripts/deployment20/deploy'
-import { mainnetAddresses } from '../../addresses'
+import { DeploymentSystem } from '@oasisdex/dupa-contracts/scripts/deployment20/deploy'
+import { mainnetAddresses } from '@dupa-library/test/addresses'
 import {
   createDPMAccount,
   createEthUsdcMultiplyAAVEPosition,
@@ -20,6 +16,7 @@ import {
 } from '../factories'
 import { AavePositionStrategy, SystemWithAAVEPositions } from '../types'
 import { StrategyDependenciesAaveV2 } from '../types/strategiesDependencies'
+import { getOrCreateProxy } from '@oasisdex/dupa-common/utils/proxy'
 
 export function getSupportedStrategies(ciMode?: boolean): Array<{
   name: AavePositionStrategy

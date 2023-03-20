@@ -1,11 +1,12 @@
 import BigNumber from 'bignumber.js'
 
-import * as actions from '../../../actions'
-import { getActionHash } from '../../../actions/getActionHash'
-import { ADDRESSES } from '../../../helpers/addresses'
-import { CONTRACT_NAMES, MAX_UINT, OPERATION_NAMES } from '../../../helpers/constants'
-import { IOperation } from '../../../types'
+import * as actions from '@dupa-library/actions'
+import { getActionHash } from '@dupa-library/actions/getActionHash'
+import { ADDRESSES } from '@dupa-library/utils/addresses'
+import { CONTRACT_NAMES, OPERATION_NAMES } from '@dupa-library/utils/constants'
+import { IOperation } from '@dupa-library/types'
 import { AAVEV3StrategyAddresses } from './addresses'
+import { MAX_UINT } from '@oasisdex/dupa-common/constants'
 
 export const operationDefinition = {
   name: OPERATION_NAMES.aave.v3.CLOSE_POSITION,

@@ -1,27 +1,18 @@
-<<<<<<<< HEAD:packages/dupa-library/test/unsafe.test.ts
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@dupa-library/src'
-import { takeAFlashLoan } from '@dupa-library/src/actions/dupa-common'
-========
-import { createDeploy, executeThroughProxy } from '@helpers/deploy'
-import init from '@helpers/init'
-import { getOrCreateProxy } from '@helpers/proxy'
-import { ADDRESSES, CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/oasis-actions'
-import { takeAFlashLoan } from '@oasisdex/oasis-actions/lib/packages/oasis-actions/src/actions/common'
->>>>>>>> dev:test/unit/core/unsafe.test.ts
 import BigNumber from 'bignumber.js'
-import { expect } from 'chai'
+import { expect } from '@oasisdex/dupa-common/test-utils'
 import hre from 'hardhat'
-
-<<<<<<<< HEAD:packages/dupa-library/test/unsafe.test.ts
-import { createDeploy, executeThroughProxy } from '../../dupa-common/utils/deploy'
-import init from '../../dupa-common/utils/init'
-import { getOrCreateProxy } from '../../dupa-common/utils/proxy'
-import { getAddressesFor, getServiceNameHash, Network } from '../../dupa-contracts/scripts/common'
-import { expectRevert } from '../../dupa-common/test-utils/expect'
-========
-import { getAddressesFor, getServiceNameHash, Network } from '../../../scripts/common'
-import { expectRevert } from '../../utils'
->>>>>>>> dev:test/unit/core/unsafe.test.ts
+import init from '@oasisdex/dupa-common/utils/init'
+import { createDeploy } from '@oasisdex/dupa-common/utils/deploy'
+import {
+  getAddressesFor,
+  getServiceNameHash,
+  Network,
+} from '@oasisdex/dupa-contracts/scripts/common'
+import { CONTRACT_NAMES, OPERATION_NAMES } from '@dupa-library/utils/constants'
+import { getDsProxyRegistry, getOrCreateProxy } from '@oasisdex/dupa-common/utils/proxy'
+import { ADDRESSES } from '@dupa-library/utils/addresses'
+import { executeThroughProxy } from '@oasisdex/dupa-common/utils/execute'
+import { takeAFlashLoan } from '@dupa-library/actions/common'
 
 const ethers = hre.ethers
 
@@ -55,14 +46,17 @@ describe('OperationExecutor', () => {
       gasLimit: 4000000,
     })
 
-    await expectRevert(/OpExecutor: illegal call/, tx)
+    await expect.revert(/OpExecutor: illegal call/, tx)
   })
 
   it('should hack OpExec through a workaround', async () => {
     const config = await init()
     const deploy = await createDeploy({ config }, hre)
     const addresses = getAddressesFor(Network.MAINNET)
-    const proxyAddress = await getOrCreateProxy(config.signer)
+    const proxyAddress = await getOrCreateProxy(
+      await getDsProxyRegistry(config.signer, ADDRESSES.main.proxyRegistry),
+      config.signer,
+    )
     const [, suicideBombAddress] = await deploy('SuicideBomb', [])
     const [ServiceRegistry, serviceRegistryAddress] = await deploy('ServiceRegistry', [0])
     const [OperationExecutor, opExecAddress] = await deploy('OperationExecutor', [
@@ -118,14 +112,14 @@ describe('OperationExecutor', () => {
     ]
 
     const [success] = await executeThroughProxy(
-      proxyAddress,
+      proxyAddress.address,
       {
         address: opExecAddress,
         calldata: OperationExecutor.interface.encodeFunctionData('executeOp', [
           [
             takeAFlashLoan({
               flashloanAmount: new BigNumber(1),
-              borrower: proxyAddress,
+              borrower: proxyAddress.address,
               isProxyFlashloan: false,
               isDPMProxy: false,
               calls: calls,

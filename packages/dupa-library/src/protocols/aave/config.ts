@@ -1,5 +1,5 @@
-import { AAVEStrategyAddresses } from '../../operations/aave/v2/addresses'
-import { AAVEV3StrategyAddresses } from '../../operations/aave/v3/addresses'
+import { AAVEStrategyAddresses } from '@dupa-library/operations/aave/v2/addresses'
+import { AAVEV3StrategyAddresses } from '@dupa-library/operations/aave/v3/addresses'
 
 type IsAaveV3Key = keyof AAVEV3StrategyAddresses
 type IsAaveV2Key = keyof AAVEStrategyAddresses

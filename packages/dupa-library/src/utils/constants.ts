@@ -1,7 +1,5 @@
 import { BigNumber } from 'bignumber.js'
-import { ONE } from '@oasisdex/dupa-common/constants/numbers'
-
-export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
+import { ONE } from '@oasisdex/dupa-common/constants'
 
 export const CONTRACT_NAMES = {
   common: {

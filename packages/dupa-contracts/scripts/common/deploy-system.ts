@@ -1,36 +1,38 @@
 import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/dupa-library/src'
 
-import {
-  AaveBorrow,
-  AaveDeposit,
-  AavePayback,
-  AaveWithdraw,
-  CdpAllow,
-  MakerDeposit,
-  MakerGenerate,
-  MakerOpenVault,
-  MakerPayback,
-  MakerWithdraw,
-  McdView,
-  OperationExecutor,
-  OperationsRegistry,
-  OperationStorage,
-  PositionCreated,
-  PullToken,
-  ReturnFunds,
-  SendToken,
-  ServiceRegistry,
-  SetApproval,
-  Swap,
-  SwapAction,
-  TakeFlashloan,
-  UnwrapEth,
-  WrapEth,
-} from '../../../../typechain'
 import { AddressRegistry } from './addresses'
 import { HardhatUtils } from './hardhat.utils'
 import { Network } from './types'
 import { removeVersion } from './utils'
+import {
+  OperationExecutor,
+  OperationsRegistry,
+  OperationStorage,
+  ServiceRegistry,
+} from '@typechain/artifacts/contracts/core'
+import {
+  PositionCreated,
+  PullToken,
+  ReturnFunds,
+  SendToken,
+  SetApproval,
+  SwapAction,
+  TakeFlashloan,
+  UnwrapEth,
+  WrapEth,
+} from '@typechain/artifacts/contracts/actions/common'
+import { AaveBorrow } from '@typechain/artifacts/contracts/actions/aave/v2/Borrow.sol'
+import { MakerOpenVault } from '@typechain/artifacts/contracts/actions/maker/OpenVault.sol'
+import { AaveDeposit } from '@typechain/artifacts/contracts/actions/aave/v2/Deposit.sol'
+import { McdView } from '@typechain/artifacts/contracts/core/views'
+import { Swap } from '@typechain/artifacts/contracts/swap'
+import { MakerDeposit } from '@typechain/artifacts/contracts/actions/maker/Deposit.sol'
+import { MakerPayback } from '@typechain/artifacts/contracts/actions/maker/Payback.sol'
+import { AaveWithdraw } from '@typechain/artifacts/contracts/actions/aave/v2/Withdraw.sol'
+import { AavePayback } from '@typechain/artifacts/contracts/actions/aave/v2/Payback.sol'
+import { CdpAllow } from '@typechain/artifacts/contracts/actions/maker'
+import { MakerGenerate } from '@typechain/artifacts/contracts/actions/maker/Generate.sol'
+import { MakerWithdraw } from '@typechain/artifacts/contracts/actions/maker/Withdraw.sol'
 
 export interface DeployedSystem {
   serviceRegistry: ServiceRegistry

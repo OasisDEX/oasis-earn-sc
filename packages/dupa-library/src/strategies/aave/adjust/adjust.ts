@@ -1,24 +1,17 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
-import { IBaseSimulatedTransition, IPosition } from '../../../domain/Position'
-import { IRiskRatio } from '../../../domain/RiskRatio'
-import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
-import {
-  FEE_BASE,
-  FEE_ESTIMATE_INFLATOR,
-  ONE,
-  TYPICAL_PRECISION,
-  UNUSED_FLASHLOAN_AMOUNT,
-  ZERO,
-} from '../../../helpers/constants'
-import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
-import { feeResolver } from '../../../helpers/swap/feeResolver'
-import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
-import * as operations from '../../../operations'
-import { AAVEStrategyAddresses } from '../../../operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '../../../operations/aave/v3'
-import { AaveProtocolData } from '../../../protocols/aave/getAaveProtocolData'
+import { IBaseSimulatedTransition, IPosition } from '@dupa-library/domain/Position'
+import { IRiskRatio } from '@dupa-library/domain/RiskRatio'
+import { calculateFee } from '@dupa-library/utils'
+import { UNUSED_FLASHLOAN_AMOUNT } from '@dupa-library/utils/constants'
+import { acceptedFeeToken } from '@dupa-library/utils/swap/accepted-fee-token'
+import { feeResolver } from '@dupa-library/utils/swap/fee-resolver'
+import { getSwapDataHelper } from '@dupa-library/utils/swap/get-swap-data'
+import * as operations from '@dupa-library/operations'
+import { AAVEStrategyAddresses } from '@dupa-library/operations/aave/v2'
+import { AAVEV3StrategyAddresses } from '@dupa-library/operations/aave/v3'
+import { AaveProtocolData } from '@dupa-library/protocols/aave/getAaveProtocolData'
 import {
   Address,
   IOperation,
@@ -26,13 +19,16 @@ import {
   IPositionTransitionArgs,
   PositionType,
   SwapData,
-} from '../../../types'
-import { AAVETokens } from '../../../types/aave'
-import { WithV2Addresses, WithV3Addresses } from '../../../types/aave/Addresses'
-import { WithFee } from '../../../types/aave/Fee'
-import { WithV2Protocol, WithV3Protocol } from '../../../types/aave/Protocol'
+} from '@dupa-library/types'
+import { AAVETokens } from '@dupa-library/types/aave'
+import { WithV2Addresses, WithV3Addresses } from '@dupa-library/types/aave/Addresses'
+import { WithFee } from '@dupa-library/types/aave/Fee'
+import { WithV2Protocol, WithV3Protocol } from '@dupa-library/types/aave/Protocol'
 import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
 import { AaveVersion } from '../getCurrentPosition'
+import { amountFromWei, amountToWei } from '@oasisdex/dupa-common/utils/common'
+import { ONE, TYPICAL_PRECISION, ZERO } from '@oasisdex/dupa-common/constants/numbers'
+import { FEE_BASE, FEE_ESTIMATE_INFLATOR } from '@oasisdex/dupa-common/constants'
 
 export type AaveAdjustArgs = IPositionTransitionArgs<AAVETokens> & { positionType: PositionType }
 type AaveAdjustSharedDependencies = {

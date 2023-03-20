@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js'
+import { DEFAULT_FEE, FEE_BASE } from '../../constants'
 
-import { FEE, FEE_BASE } from '../../../dupa-library/test/common/Swap.test'
-
-export function calculateFee(amountWei: BigNumber, fee: number = FEE): BigNumber {
+export function calculateFee(amountWei: BigNumber, fee: number = DEFAULT_FEE): BigNumber {
   return amountWei.times(new BigNumber(fee).div(FEE_BASE)).integerValue(BigNumber.ROUND_DOWN)
 }

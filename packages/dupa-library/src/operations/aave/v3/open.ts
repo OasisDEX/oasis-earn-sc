@@ -1,11 +1,12 @@
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import * as actions from '../../../actions'
-import { getActionHash } from '../../../actions/getActionHash'
-import { CONTRACT_NAMES, OPERATION_NAMES, ZERO } from '../../../helpers/constants'
-import { Address, IOperation, PositionType, Protocol } from '../../../types'
+import * as actions from '@dupa-library/actions'
+import { getActionHash } from '@dupa-library/actions/getActionHash'
+import { CONTRACT_NAMES, OPERATION_NAMES } from '@dupa-library/utils/constants'
+import { Address, IOperation, PositionType, Protocol } from '@dupa-library/types'
 import { AAVEV3StrategyAddresses } from './addresses'
+import { ZERO } from '@oasisdex/dupa-common/constants'
 
 interface OpenArgs {
   deposit: {

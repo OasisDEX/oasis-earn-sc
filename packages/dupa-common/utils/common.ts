@@ -4,10 +4,10 @@ import { Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { isError, tryF } from 'ts-try'
 
-import IERC20_ABI from '../../dupa-contracts/abi/IERC20.json'
+import IERC20_ABI from '@oasisdex/dupa-contracts/abi/IERC20.json'
 import { BalanceOptions, RuntimeConfig } from './types/common'
-import { ADDRESSES } from "@oasisdex/dupa-library/src/utils/addresses";
-import { TEN } from "../constants";
+import { ADDRESSES } from '@oasisdex/dupa-library/src/utils/addresses'
+import { TEN, ZERO } from '../constants'
 
 export async function balanceOf(
   asset: string,
@@ -15,17 +15,17 @@ export async function balanceOf(
   options: BalanceOptions,
   hre?: HardhatRuntimeEnvironment,
 ): Promise<BigNumber> {
-  let balance = undefined
+  let balance = ZERO
   const { provider, signer } = options.config
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
   if (asset === ADDRESSES.main.ETH) {
-    balance = await provider.getBalance(address)
+    balance = new BigNumber((await provider.getBalance(address)).toString())
   } else {
     const ERC20Asset = new ethers.Contract(asset, IERC20_ABI, signer)
     balance = await ERC20Asset.balanceOf(address)
   }
 
-  if (options.isFormatted) {
+  if (options.isFormatted && balance) {
     const decimals = options.decimals ? options.decimals : 18
     return new BigNumber(ethers.utils.formatUnits(balance.toString(), decimals))
   }

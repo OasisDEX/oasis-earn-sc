@@ -1,18 +1,18 @@
 import BigNumber from 'bignumber.js'
 
-import { MAX_UINT, ZERO } from '../../helpers/constants'
-import { getZeroSwap } from '../../helpers/swap/getZeroSwap'
-import { AAVEStrategyAddresses } from '../../operations/aave/v2'
+import { getZeroSwap } from '@dupa-library/utils/swap/get-zero-swap'
+import { AAVEStrategyAddresses } from '@dupa-library/operations/aave/v2'
 import {
   IBasePositionTransitionArgs,
   IPositionTransition,
   IPositionTransitionDependencies,
   WithPaybackDebt,
   WithWithdrawCollateral,
-} from '../../types'
-import { AAVETokens } from '../../types/aave'
-import * as operations from './../../operations'
+} from '@dupa-library/types'
+import { AAVETokens } from '@dupa-library/types/aave'
 import { getAaveTokenAddresses } from './getAaveTokenAddresses'
+import * as operations from '@dupa-library/operations'
+import { MAX_UINT, ZERO } from '@oasisdex/dupa-common/constants'
 
 export async function paybackWithdraw(
   args: IBasePositionTransitionArgs<AAVETokens> & WithWithdrawCollateral & WithPaybackDebt,

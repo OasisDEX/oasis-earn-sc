@@ -1,9 +1,10 @@
 import BigNumber from 'bignumber.js'
 
-import * as actions from '../../../actions'
-import { MAX_UINT, OPERATION_NAMES, ZERO } from '../../../helpers/constants'
-import { IOperation } from '../../../types'
+import * as actions from '@dupa-library/actions'
+import { OPERATION_NAMES } from '@dupa-library/utils/constants'
+import { IOperation } from '@dupa-library/types'
 import { AAVEStrategyAddresses } from './addresses'
+import { MAX_UINT, ZERO } from '@oasisdex/dupa-common/constants'
 
 export async function paybackWithdraw(args: {
   amountCollateralToWithdrawInBaseUnit: BigNumber

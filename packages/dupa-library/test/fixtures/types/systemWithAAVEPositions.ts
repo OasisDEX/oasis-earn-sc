@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js'
 
-import { deploySystem } from '../../utils/deploy-system'
-import { AAVETokensToGet } from '../@oasisdex/dupa-common/utils/aave'
-import { RuntimeConfig } from '../@oasisdex/dupa-common/utils/types/common'
 import { AavePositionStrategy, AaveV3PositionStrategy, PositionDetails } from './positionDetails'
 import { StrategyDependenciesAaveV2, StrategyDependenciesAaveV3 } from './strategiesDependencies'
+import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
+import { deploySystem } from '@dupa-library/test/utils'
+import { AAVETokensToGet } from '@dupa-library/test/utils/aave'
 
 export type SystemWithAAVEPositions = {
   config: RuntimeConfig

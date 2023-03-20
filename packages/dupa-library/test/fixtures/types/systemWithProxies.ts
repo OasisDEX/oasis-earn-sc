@@ -1,9 +1,8 @@
 import BigNumber from 'bignumber.js'
-
-import { deploySystem } from '../../utils/deploy-system'
-import { AAVETokensToGet } from '../@oasisdex/dupa-common/utils/aave/buildGetTokenByImpersonateFunction'
-import { RuntimeConfig } from '../@oasisdex/dupa-common/utils/types/common'
 import { StrategyDependenciesAaveV2 } from './strategiesDependencies'
+import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
+import { deploySystem } from '@dupa-library/test/utils'
+import { AAVETokensToGet } from '@dupa-library/test/utils/aave'
 
 export type SystemWithProxies = {
   config: RuntimeConfig

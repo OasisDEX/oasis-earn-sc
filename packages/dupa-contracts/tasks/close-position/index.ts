@@ -2,22 +2,18 @@ import { ADDRESSES, CONTRACT_NAMES, Position, strategies } from '@oasisdex/dupa-
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
-import { AAVEAccountData, AAVEReserveData } from '../../../dupa-common/utils/aave'
-import { executeThroughProxy } from '../../../dupa-common/utils/deploy'
-import init from '../../../dupa-common/utils/init'
-import { getOrCreateProxy } from '../../../dupa-common/utils/proxy'
-import { getOneInchCall } from '../../../dupa-common/utils/swap/OneInchCall'
-import { oneInchCallMock } from '../../../dupa-common/utils/swap/OneInchCallMock'
-import { balanceOf } from '../../../dupa-common/utils/common'
-import { mainnetAddresses } from '../../../dupa-library/test/addresses'
-import DSProxyABI from '../../abi/ds-proxy.json'
-import AAVELendigPoolABI from '../../abi/external/aave/v2/lendingPool.json'
-import AAVEDataProviderABI from '../../abi/external/aave/v2/protocolDataProvider.json'
-import { one, zero } from '../../scripts/common'
-
-export function amountFromWei(amount: BigNumber.Value, precision = 18) {
-  return new BigNumber(amount || 0).div(new BigNumber(10).pow(precision))
-}
+import { AaveAccountData, AAVEReserveData } from '@dupa-library/test/utils/aave'
+import init from '@oasisdex/dupa-common/utils/init'
+import { getOrCreateProxy } from '@oasisdex/dupa-common/utils/proxy/proxy'
+import { getOneInchCall } from '@oasisdex/dupa-common/utils/swap/OneInchCall'
+import { oneInchCallMock } from '@oasisdex/dupa-common/utils/swap/OneInchCallMock'
+import { balanceOf } from '@oasisdex/dupa-common/utils/common'
+import { mainnetAddresses } from '@dupa-library/test/addresses'
+import DSProxyABI from '@abi/ds-proxy.json'
+import AAVELendigPoolABI from '@abi/external/aave/v2/lendingPool.json'
+import AAVEDataProviderABI from '@abi/external/aave/v2/protocolDataProvider.json'
+import { ONE, ZERO } from '@oasisdex/dupa-common/constants'
+import { executeThroughProxy } from '@oasisdex/dupa-common/utils/execute'
 
 task('closePosition', 'Close stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
@@ -116,7 +112,7 @@ task('closePosition', 'Close stETH position on AAVE')
 
     const swapData = taskArgs.usefallbackswap ? oneInchCallMock() : getOneInchCall(swapAddress)
 
-    const beforeCloseUserAccountData: AAVEAccountData = await aaveLendingPool.getUserAccountData(
+    const beforeCloseUserAccountData: AaveAccountData = await aaveLendingPool.getUserAccountData(
       dsProxy.address,
     )
 
@@ -132,11 +128,11 @@ task('closePosition', 'Close stETH position on AAVE')
         amount: new BigNumber(beforeCloseUserStEthReserveData.currentATokenBalance.toString()),
         symbol: 'STETH',
       },
-      one,
+      ONE,
       {
         dustLimit: new BigNumber(0),
-        maxLoanToValue: new BigNumber(beforeCloseUserAccountData.ltv.toString()).plus(one),
-        liquidationThreshold: zero,
+        maxLoanToValue: new BigNumber(beforeCloseUserAccountData.ltv.toString()).plus(ONE),
+        liquidationThreshold: ZERO,
       },
     )
 

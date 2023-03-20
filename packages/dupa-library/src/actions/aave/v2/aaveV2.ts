@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
-import { CONTRACT_NAMES } from '../../../helpers/constants'
-import { calldataTypes } from '../../../types'
+import { CONTRACT_NAMES } from '@dupa-library/utils/constants'
+import { calldataTypes } from '@dupa-library/types'
 import { ActionFactory } from '../../actionFactory'
 import { getActionHash } from '../../getActionHash'
 

@@ -17,7 +17,7 @@ import { ethers } from 'hardhat'
 import { createDeploy, executeThroughProxy } from '../../dupa-common/utils/deploy'
 import init from '../../dupa-common/utils/init'
 // Helper functions
-import { getOrCreateProxy } from '../../dupa-common/utils/proxy'
+import { getOrCreateProxy } from '../../dupa-common/utils/proxy/proxy'
 import { ServiceRegistry } from '../../dupa-library/test/utils/service-registry'
 import { swapOneInchTokens } from '../../dupa-common/utils/swap/1inch'
 import { swapUniswapTokens } from '../../dupa-common/utils/swap/uniswap'

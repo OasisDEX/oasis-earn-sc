@@ -1,6 +1,6 @@
-import { Swap } from '../../domain/Position'
-import { SwapData } from '../../types/SwapData'
-import { NULL_ADDRESS, TYPICAL_PRECISION, ZERO } from '../constants'
+import { Swap } from '@dupa-library/domain/Position'
+import { SwapData } from '@dupa-library/types/SwapData'
+import { NULL_ADDRESS, TYPICAL_PRECISION, ZERO } from '@oasisdex/dupa-common/constants'
 
 export function getZeroSwap(sourceToken: string, targetToken: string): SwapData & Swap {
   return {

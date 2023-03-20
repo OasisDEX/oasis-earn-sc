@@ -3,7 +3,7 @@ import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
 } from '@dupa-library/strategies/aave/open/open'
-import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dupa-common/utils/deploy'
+import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dupa-common/utils/execute'
 import { RuntimeConfig } from '@oasisdex/dupa-common/utils/types/common'
 import { amountToWei, balanceOf } from '@oasisdex/dupa-common/utils/common'
 import BigNumber from 'bignumber.js'
@@ -11,7 +11,7 @@ import BigNumber from 'bignumber.js'
 import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
-} from '../../../src/protocols/aave/config'
+} from '@dupa-library/protocols/aave/config'
 import { PositionDetails, StrategiesDependencies } from '../types'
 import { AaveV3PositionStrategy } from '../types/positionDetails'
 import { EMODE_MULTIPLE, ETH, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, WSTETH } from './common'

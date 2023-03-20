@@ -2,9 +2,9 @@ import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '@oasisdex/dupa-contracts/abi/external/ajna/ajnaProxyActions.json'
-import { AjnaPosition } from '../../types/ajna'
-import { Address, Strategy } from '../../types/common'
-import * as views from '../../views'
+import { AjnaPosition } from '@dupa-library/types/ajna'
+import { Address, Strategy } from '@dupa-library/types/common'
+import * as views from '@dupa-library/views'
 
 export interface OpenArgs {
   poolAddress: Address

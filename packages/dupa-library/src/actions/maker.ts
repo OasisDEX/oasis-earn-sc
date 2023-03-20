@@ -1,4 +1,4 @@
-import { CONTRACT_NAMES } from '../helpers/constants'
+import { CONTRACT_NAMES } from '../utils/constants'
 import { calldataTypes } from '../types'
 import { ActionFactory } from './actionFactory'
 import { getActionHash } from './getActionHash'

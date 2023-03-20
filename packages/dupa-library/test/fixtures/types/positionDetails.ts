@@ -1,7 +1,7 @@
 import { AavePosition, AAVETokens, IPositionTransition, SwapData } from '@dupa-library'
 import BigNumber from 'bignumber.js'
 
-import { PositionType } from '../../../src/types'
+import { PositionType } from '@dupa-library/types'
 
 export type AaveV3PositionStrategy = 'ETH/USDC Multiply' | 'WSTETH/ETH Earn'
 

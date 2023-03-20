@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
 
-import * as actions from '../../../actions'
-import { ADDRESSES } from '../../../helpers/addresses'
-import { MAX_UINT, OPERATION_NAMES } from '../../../helpers/constants'
-import { IOperation } from '../../../types'
+import * as actions from '@dupa-library/actions'
+import { ADDRESSES } from '@dupa-library/utils/addresses'
+import { OPERATION_NAMES } from '@dupa-library/utils/constants'
+import { IOperation } from '@dupa-library/types'
 import {
   WithAaveV3StrategyAddresses,
   WithCollateralAndWithdrawal,
@@ -11,7 +11,8 @@ import {
   WithFlashloan,
   WithProxy,
   WithSwap,
-} from '../../../types/Operations'
+} from '@dupa-library/types/Operations'
+import { MAX_UINT } from '@oasisdex/dupa-common/constants'
 
 type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithDebt &

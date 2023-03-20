@@ -6,9 +6,18 @@
     "outDir": "lib",
     "baseUrl": ".",
     "paths": {
-      "@dupa-library/test/*": ["./test/*"],
-      "@dupa-library/*": ["./src/*"],
-      "@dupa-library": ["./src/index.ts"],
+      "@typechain/*": [
+        "../dupa-contracts/typechain/*"
+      ],
+      "@dupa-library/test/*": [
+        "./test/*"
+      ],
+      "@dupa-library/*": [
+        "./src/*"
+      ],
+      "@dupa-library": [
+        "./src/index.ts"
+      ]
     },
     "types": [
       "node"
@@ -16,13 +25,15 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "allowJs": true,
     "resolveJsonModule": true,
+    "noImplicitAny": false,
     "typeRoots": [
       "../node_modules/@types"
-    ],
+    ]
   },
   "include": [
     "./src/**/*",
     "./test/**/*"
-  ],
+  ]
 }

@@ -1,8 +1,7 @@
-import { ZERO } from '../../helpers/constants'
-import * as operations from '../../operations'
-import { AAVEStrategyAddresses } from '../../operations/aave/v2'
-import { BorrowArgs } from '../../operations/aave/v2/borrow'
-import { DepositArgs } from '../../operations/aave/v2/deposit'
+import * as operations from '@dupa-library/operations'
+import { AAVEStrategyAddresses } from '@dupa-library/operations/aave/v2'
+import { BorrowArgs } from '@dupa-library/operations/aave/v2/borrow'
+import { DepositArgs } from '@dupa-library/operations/aave/v2/deposit'
 import {
   IBasePositionTransitionArgs,
   IOnlyDepositBorrowOpenPositionTransitionDependencies,
@@ -10,10 +9,11 @@ import {
   WithBorrowDebt,
   WithDepositCollateral,
   WithPositionType,
-} from '../../types'
-import { AAVETokens } from '../../types/aave'
+} from '@dupa-library/types'
+import { AAVETokens } from '@dupa-library/types/aave'
 import { getAaveTokenAddresses } from './getAaveTokenAddresses'
 import { AaveVersion, getCurrentPosition } from './getCurrentPosition'
+import { ZERO } from '@oasisdex/dupa-common/constants'
 
 export async function openDepositAndBorrowDebt(
   args: IBasePositionTransitionArgs<AAVETokens> &

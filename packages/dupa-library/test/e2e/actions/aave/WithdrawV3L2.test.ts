@@ -1,9 +1,9 @@
-import { HUNDRED, ZERO } from '@dupa-library/helpers/constants'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { balanceOf } from '@oasisdex/dupa-common/utils/common'
 
-import { expect } from "@oasisdex/dupa-common/test-utils";
+import { expect } from '@oasisdex/dupa-common/test-utils'
 import { aDAI, deployedContracts, DEPOSIT_OPERATION, WITHDRAW_OPERATION } from './L2TestsHelper'
+import { HUNDRED, ZERO } from '@oasisdex/dupa-common/constants'
 
 describe('Withdraw Action', () => {
   // TODO: create a test scenario for specific amount

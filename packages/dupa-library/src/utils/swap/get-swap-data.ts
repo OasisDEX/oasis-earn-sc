@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-import { SwapData } from '../../types'
+import { SwapData } from '@dupa-library/types'
 import { acceptedFeeToken } from './accepted-fee-token'
 import { calculatePreSwapFeeAmount } from './calculate-pre-swap-amount'
 

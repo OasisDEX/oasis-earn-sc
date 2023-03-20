@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
-import { AAVETokens } from '../../types/aave'
-import { DEFAULT_FEE, HIGH_MULTIPLE_FEE, NO_FEE } from '../constants'
+import { AAVETokens } from '@dupa-library/types/aave'
+import { DEFAULT_FEE, HIGH_MULTIPLE_FEE, NO_FEE } from '@oasisdex/dupa-common/constants'
 
 export const feeResolver = (
   collateralSymbol: AAVETokens,

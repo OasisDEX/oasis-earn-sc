@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
 
-import * as actions from '../../../actions'
-import { ADDRESSES } from '../../../helpers/addresses'
-import { OPERATION_NAMES } from '../../../helpers/constants'
-import { Address } from '../../../types'
+import * as actions from '@dupa-library/actions'
+import { ADDRESSES } from '@dupa-library/utils/addresses'
+import { OPERATION_NAMES } from '@dupa-library/utils/constants'
+import { Address } from '@dupa-library/types'
 
 export interface BorrowArgs {
   borrowToken: Address
