@@ -9,11 +9,7 @@ import { IWETHGateway } from "../../../interfaces/aave/IWETHGateway.sol";
 import { PaybackData } from "../../../core/types/Aave.sol";
 import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 
-import {
-  AAVE_WETH_GATEWAY,
-  AAVE_LENDING_POOL,
-  PAYBACK_ACTION
-} from "../../../core/constants/Aave.sol";
+import { AAVE_WETH_GATEWAY, AAVE_LENDING_POOL } from "../../../core/constants/Aave.sol";
 
 /**
  * @title Payback | AAVE Action contract
@@ -44,7 +40,6 @@ contract AavePayback is Executable, UseStore {
     );
 
     store().write(bytes32(payback.amount));
-    emit Action(PAYBACK_ACTION, bytes(abi.encode(payback.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (PaybackData memory params) {

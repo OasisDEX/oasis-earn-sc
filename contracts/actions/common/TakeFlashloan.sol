@@ -15,7 +15,6 @@ import {
 import {
   OPERATION_EXECUTOR,
   DAI,
-  TAKE_FLASH_LOAN_ACTION,
   CHAINLOG_VIEWER
 } from "../../core/constants/Common.sol";
 import { MCD_FLASH } from "../../core/constants/Maker.sol";
@@ -91,8 +90,6 @@ contract TakeFlashloan is Executable, ProxyPermission {
     if (flData.isProxyFlashloan) {
       removePermission(flData.isDPMProxy, operationExecutorAddress);
     }
-
-    emit Action(TAKE_FLASH_LOAN_ACTION, bytes(abi.encode(flData.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (FlashloanData memory params) {

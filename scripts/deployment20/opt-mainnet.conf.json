@@ -7,9 +7,7 @@
         "address": "",
         "serviceRegistryName": "",
         "history": [],
-        "constructorArgs": [
-          0
-        ]
+        "constructorArgs": [0]
       },
       {
         "name": "OperationExecutor",
@@ -17,9 +15,7 @@
         "address": "",
         "serviceRegistryName": "OperationExecutor_2",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "OperationStorage",
@@ -27,10 +23,7 @@
         "address": "",
         "serviceRegistryName": "OperationStorage_2",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry",
-          "address:OperationExecutor"
-        ]
+        "constructorArgs": ["address:ServiceRegistry", "address:OperationExecutor"]
       },
       {
         "name": "OperationsRegistry",
@@ -39,6 +32,22 @@
         "serviceRegistryName": "OperationsRegistry_2",
         "history": [],
         "constructorArgs": []
+      },
+      {
+        "name": "DSProxyFactory",
+        "deploy": true,
+        "address": "",
+        "serviceRegistryName": "DSProxyFactory",
+        "history": [],
+        "constructorArgs": []
+      },
+      {
+        "name": "DSProxyRegistry",
+        "deploy": true,
+        "address": "",
+        "serviceRegistryName": "DSProxyRegistry",
+        "history": [],
+        "constructorArgs": ["address:DSProxyFactory"]
       },
       {
         "name": "AccountGuard",
@@ -54,9 +63,7 @@
         "address": "",
         "serviceRegistryName": "",
         "history": [],
-        "constructorArgs": [
-          "address:AccountGuard"
-        ]
+        "constructorArgs": ["address:AccountGuard"]
       }
     ],
     "actions": [
@@ -74,9 +81,7 @@
         "address": "",
         "serviceRegistryName": "SwapAction_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "TakeFlashloan",
@@ -84,22 +89,7 @@
         "address": "",
         "serviceRegistryName": "TakeFlashloan_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry",
-          "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
-          "0xc19d0F1E2b38AA283E226Ca4044766A43aA7B02b"
-        ]
-      },
-      {
-        "name": "TakeBalancerFlashloan",
-        "deploy": true,
-        "address": "",
-        "serviceRegistryName": "TakeBalancerFlashloan",
-        "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry",
-          "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1"
-        ]
+        "constructorArgs": ["address:ServiceRegistry", "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1"]
       },
       {
         "name": "SetApproval",
@@ -107,9 +97,7 @@
         "address": "",
         "serviceRegistryName": "SetApproval_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "PullToken",
@@ -125,9 +113,7 @@
         "address": "",
         "serviceRegistryName": "SendToken_4",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "WrapEth",
@@ -135,9 +121,7 @@
         "address": "",
         "serviceRegistryName": "WrapEth_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "UnwrapEth",
@@ -145,9 +129,7 @@
         "address": "",
         "serviceRegistryName": "UnwrapEth_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "ReturnFunds",
@@ -163,9 +145,7 @@
         "address": "",
         "serviceRegistryName": "AaveBorrow_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "AaveWithdraw",
@@ -173,9 +153,7 @@
         "address": "",
         "serviceRegistryName": "AaveWithdraw_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "AaveDeposit",
@@ -183,9 +161,7 @@
         "address": "",
         "serviceRegistryName": "AaveDeposit_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "AavePayback",
@@ -193,9 +169,7 @@
         "address": "",
         "serviceRegistryName": "AavePayback_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       }
     ]
   },
@@ -214,43 +188,15 @@
     },
     {
       "name": "uniswapRouterV3",
-      "address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+      "address": "0xE592427A0AEce92De3Edee1F18E0157C05861564"
     },
     {
       "name": "BalancerVault",
       "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
     },
     {
-      "name": "DsProxyRegistry",
-      "address": "0x283cc5c26e53d66ed2ea252d986f094b37e6e895"
-    },
-    {
       "name": "AaveV3Pool",
-      "address": "0x794a61358d6845594f94dc1db02a252b5b4814ad"
+      "address": "0x485083b6c6028B11d644A81d580245D97a918F32"
     }
-  ],
-
-  "__external": {
-    "WETH": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-    "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-    "STETH": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
-    "WSTETH": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
-    "variableDebtWETH": "0xF63B34710400CAd3e044cFfDcAb00a0f32E33eCf",
-    "aDAI": "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-    "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-    "LINK": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
-    "WBTC": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-    "USDC": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-    "USDT": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-    "uniswapRouterV3": "0xe592427a0aece92de3edee1f18e0157c05861564",
-    "uniswapAnchoredView": "0x046728da7cb8272284238bD3e47909823d63A58D",
-    "oneInchAggregator": "0x1111111254fb6c44bac0bed2854e76f90643097d",
-    "lender": "0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA",
-    "authorizedCaller": "0x85f9b7408afE6CEb5E46223451f5d4b832B522dc",
-    "feeRecipient": "0xC7b548AD9Cf38721810246C079b2d8083aba8909",
-    "proxyRegistry": "0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4",
-    "chainlinkEthUsdPriceFeed": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
-    "accountFactory": "0xF7B75183A2829843dB06266c114297dfbFaeE2b6",
-    "accountGuard": "0xCe91349d2A4577BBd0fC91Fe6019600e047f2847"
-  }
+  ]
 }

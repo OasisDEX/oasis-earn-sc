@@ -12,7 +12,7 @@ import { IManager } from "../../interfaces/maker/IManager.sol";
 import { SafeMath } from "../../libs/SafeMath.sol";
 import { PaybackData } from "../../core/types/Maker.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
-import { PAYBACK_ACTION, MCD_MANAGER, MCD_JOIN_DAI } from "../../core/constants/Maker.sol";
+import { MCD_MANAGER, MCD_JOIN_DAI } from "../../core/constants/Maker.sol";
 
 contract MakerPayback is Executable, UseStore {
   using SafeMath for uint256;
@@ -42,7 +42,6 @@ contract MakerPayback is Executable, UseStore {
       : _payback(manager, daiJoin, paybackData);
 
     store().write(bytes32(amountPaidBack));
-    emit Action(PAYBACK_ACTION, bytes(abi.encode(amountPaidBack)));
   }
 
   function _payback(

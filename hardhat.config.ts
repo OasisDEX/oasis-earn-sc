@@ -94,15 +94,19 @@ console.log(`Forking from block number: ${forkConfig && forkConfig.blockNumber}`
 
 const includeMainnet = !!process.env.MAINNET_URL && !!process.env.PRIV_KEY_MAINNET
 const includeGoerli = !!process.env.GOERLI_URL && !!process.env.PRIV_KEY_GOERLI
+const includeOptimism = !!process.env.OPTIMISM_URL && !!process.env.PRIV_KEY_OPTIMISM
 
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: '0.8.15',
+        version: '0.4.24',
       },
       {
-        version: '0.8.17',
+        version: '0.5.17',
+      },
+      {
+        version: '0.8.15',
       },
     ],
     settings: {
@@ -148,6 +152,15 @@ const config: HardhatUserConfig = {
             url: process.env.MAINNET_URL || '',
             accounts: [process.env.PRIV_KEY_MAINNET || ''],
             gasPrice: 50000000000,
+          },
+        }
+      : {}),
+    ...(includeOptimism
+      ? {
+          optimism: {
+            url: process.env.OPTIMISM_URL || '',
+            accounts: [process.env.PRIV_KEY_OPTIMISM || ''],
+            initialBaseFeePerGas: 1000000000,
           },
         }
       : {}),
