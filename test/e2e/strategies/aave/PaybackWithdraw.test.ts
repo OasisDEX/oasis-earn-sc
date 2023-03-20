@@ -6,13 +6,13 @@ import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 
 import { zero } from '../../../../scripts/common'
+import { mainnetAddresses } from '../../../addresses/mainnet'
 import {
   getSupportedStrategies,
   getSystemWithAavePositions,
   SystemWithAAVEPositions,
 } from '../../../fixtures'
 import { expectToBe, expectToBeEqual } from '../../../utils'
-import { mainnetAddresses } from '../../../addresses/mainnet'
 
 describe('Strategy | AAVE | Payback/Withdraw', async () => {
   let fixture: SystemWithAAVEPositions

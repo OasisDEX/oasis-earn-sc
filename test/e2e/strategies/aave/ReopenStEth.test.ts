@@ -19,11 +19,11 @@ import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
 
 import { zero } from '../../../../scripts/common'
+import { mainnetAddresses } from '../../../addresses/mainnet'
 import { testBlockNumber } from '../../../config'
 import { deploySystem } from '../../../deploySystem'
 import { initialiseConfig } from '../../../fixtures'
 import { expectToBe, expectToBeEqual } from '../../../utils'
-import { mainnetAddresses } from '../../../addresses/mainnet'
 
 describe(`Strategy | AAVE | Reopen Position`, async () => {
   const depositAmountInWei = amountToWei(new BigNumber(1))

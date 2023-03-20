@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js'
 import * as actions from '../../../actions'
 import { OPERATION_NAMES } from '../../../helpers/constants'
 import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '../../../types'
+import { FlashloanProvider } from '../../../types/common'
 import {
   WithAaveV2StrategyAddresses,
   WithFlashloan,
@@ -10,7 +11,6 @@ import {
   WithProxy,
   WithSwap,
 } from '../../../types/Operations'
-import { FlashloanProvider } from '../../../types/common'
 
 type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithDebt &

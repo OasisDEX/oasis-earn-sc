@@ -2,6 +2,7 @@ import AAVELendingPoolABI from '@abi/external/aave/v2/lendingPool.json'
 import aavePriceOracleABI from '@abi/external/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@abi/external/aave/v2/protocolDataProvider.json'
 import { executeThroughProxy } from '@helpers/deploy'
+import { Network } from '@helpers/network'
 import { oneInchCallMock } from '@helpers/swap/OneInchCallMock'
 import { RuntimeConfig, Unbox } from '@helpers/types/common'
 import { balanceOf } from '@helpers/utils'
@@ -37,7 +38,6 @@ import {
 import { TokenDetails } from '../../../fixtures/types/positionDetails'
 import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
 import { expectToBe } from '../../../utils'
-import { Network } from '@helpers/network'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 const networkFork = process.env.NETWORK_FORK as Network

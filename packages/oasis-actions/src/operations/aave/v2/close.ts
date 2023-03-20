@@ -5,8 +5,8 @@ import { getActionHash } from '../../../actions/getActionHash'
 import { ADDRESSES } from '../../../helpers/addresses'
 import { CONTRACT_NAMES, MAX_UINT, OPERATION_NAMES } from '../../../helpers/constants'
 import { IOperation } from '../../../types'
-import { AAVEStrategyAddresses } from './addresses'
 import { FlashloanProvider } from '../../../types/common'
+import { AAVEStrategyAddresses } from './addresses'
 
 export const operationDefinition = {
   name: OPERATION_NAMES.aave.v2.CLOSE_POSITION,

@@ -5,6 +5,7 @@ import aaveOracleABI from '@abi/external/aave/v3/aaveOracle.json'
 import AAVEProtocolDataProviderABI from '@abi/external/aave/v3/aaveProtocolDataProvider.json'
 import AAVEPoolABI from '@abi/external/aave/v3/pool.json'
 import { executeThroughProxy } from '@helpers/deploy'
+import { Network } from '@helpers/network'
 import { oneInchCallMock } from '@helpers/swap/OneInchCallMock'
 import { RuntimeConfig, Unbox } from '@helpers/types/common'
 import { balanceOf } from '@helpers/utils'
@@ -23,6 +24,7 @@ import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers } from 'ethers'
 
+import { mainnetAddresses } from '../../../addresses/mainnet'
 import { DeployedSystemInfo } from '../../../deploySystem'
 import {
   getSupportedStrategies,
@@ -37,8 +39,6 @@ import {
 import { TokenDetails } from '../../../fixtures/types/positionDetails'
 import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
 import { expectToBe, expectToBeEqual } from '../../../utils'
-import { mainnetAddresses } from '../../../addresses/mainnet'
-import { Network } from '@helpers/network'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 const networkFork = process.env.NETWORK_FORK as Network

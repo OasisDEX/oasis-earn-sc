@@ -1,6 +1,7 @@
 import assert from 'node:assert'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '@helpers/deploy'
+import { Network } from '@helpers/network'
 import { getOneInchCall } from '@helpers/swap/OneInchCall'
 import { amountFromWei, balanceOf } from '@helpers/utils'
 import { ADDRESSES, CONTRACT_NAMES, strategies, ZERO } from '@oasisdex/oasis-actions'
@@ -12,7 +13,6 @@ import { getSystemWithAavePositions, SystemWithAAVEPositions } from '../../../fi
 import { getSystemWithAaveV3Positions } from '../../../fixtures/system/getSystemWithAaveV3Positions'
 import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
 import { expectToBeEqual } from '../../../utils'
-import { Network } from '@helpers/network'
 
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_DEBT_BEING_PAID_BACK = 'Expect debt being paid back'

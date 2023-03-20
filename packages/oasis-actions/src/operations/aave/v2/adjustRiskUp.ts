@@ -4,6 +4,7 @@ import { ethers } from 'ethers'
 import * as actions from '../../../actions'
 import { NULL_ADDRESS, OPERATION_NAMES, ZERO } from '../../../helpers/constants'
 import { IOperation } from '../../../types'
+import { FlashloanProvider } from '../../../types/common'
 import {
   WithAaveV2StrategyAddresses,
   WithCollateral,
@@ -13,7 +14,6 @@ import {
   WithProxy,
   WithSwap,
 } from '../../../types/Operations'
-import { FlashloanProvider } from '../../../types/common'
 
 type AdjustRiskUpArgs = WithCollateral &
   WithDebtAndBorrow &
