@@ -91,7 +91,7 @@ export function takeAFlashLoan(args: {
   asset: string
   isProxyFlashloan: boolean
   isDPMProxy: boolean
-  provider: BigNumber
+  provider: number
   calls: ActionCall[]
 }) {
   return createAction(
@@ -103,7 +103,7 @@ export function takeAFlashLoan(args: {
         asset: args.asset,
         isProxyFlashloan: args.isProxyFlashloan,
         isDPMProxy: args.isDPMProxy,
-        provider: args.provider.toFixed(0),
+        provider: args.provider,
         calls: args.calls,
       },
     ],

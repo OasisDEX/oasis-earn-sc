@@ -13,11 +13,11 @@ import { IFlashLoanRecipient } from "../interfaces/flashloan/balancer/IFlashLoan
 import { IDSProxy } from "../interfaces/ds/IDSProxy.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
-import { FlashloanData, FlashloanWithInitiatorData, Call } from "./types/Common.sol";
+import { FlashloanData, Call } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 import { BALANCER_VAULT } from "./constants/Balancer.sol";
-
+import "hardhat/console.sol";
 error UntrustedLender(address lender);
 error InconsistentAsset(address flashloaned, address required);
 error InconsistentAmount(uint256 flashloaned, uint256 required);
@@ -107,14 +107,13 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
   }
 
   /**
-     * @notice Not to be called directly.
+       * @notice Not to be called directly.
    * @dev Callback handler for use by a flashloan lender contract.
    * If the isProxyFlashloan flag is supplied we reestablish the calling context as the user's proxy (at time of writing DSProxy). Although stored values will
    * We set the initiator on Operation Storage such that calls originating from other contracts EG Oasis Automation Bot (see https://github.com/OasisDEX/automation-smartcontracts)
    * The initiator address will be used to store values against the original msg.sender.
    * This protects against the Operation Storage values being polluted by malicious code from untrusted 3rd party contracts.
 
-   * @param initiator Is the address of the contract that initiated the flashloan (EG Operation Executor)
    * @param asset The address of the asset being flash loaned
    * @param amount The size of the flash loan
    * @param fee The Fee charged for the loan
@@ -127,8 +126,8 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
     uint256 fee,
     bytes calldata data
   ) external override returns (bytes32) {
+    FlashloanData memory flData = abi.decode(data, (FlashloanData));
     address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
-    FlashloanWithInitiatorData memory flData = abi.decode(data, (FlashloanWithInitiatorData));
 
     checkIfLenderIsTrusted(lender);
     checkIfFlashloanedAssetIsTheRequiredOne(asset, flData.asset);
@@ -154,15 +153,13 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
   ) external override {
     address asset = address(tokens[0]);
     address lender = registry.getRegisteredService(BALANCER_VAULT);
-    FlashloanWithInitiatorData memory flData = abi.decode(data, (FlashloanWithInitiatorData));
+    (FlashloanData memory flData, address initiator) = abi.decode(data, (FlashloanData, address));
 
     checkIfLenderIsTrusted(lender);
     checkIfFlashloanedAssetIsTheRequiredOne(asset, flData.asset);
     checkIfFlashloanedAmountIsTheRequiredOne(asset, flData.amount);
 
-    // Can we just assume that the initiator is the OperationExecutor?
-    // Are there any security consequences because of that assumption?
-    processFlashloan(flData, flData.initiator);
+    processFlashloan(flData, initiator);
 
     uint256 paybackAmount = amounts[0].add(feeAmounts[0]);
 
@@ -193,7 +190,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
     if (assetBalance < requiredAmount) revert InconsistentAmount(assetBalance, requiredAmount);
   }
 
-  function processFlashloan(FlashloanWithInitiatorData memory flData, address initiator) private {
+  function processFlashloan(FlashloanData memory flData, address initiator) private {
     if (flData.isProxyFlashloan) {
       IERC20(flData.asset).safeTransfer(initiator, flData.amount);
       IDSProxy(payable(initiator)).execute(

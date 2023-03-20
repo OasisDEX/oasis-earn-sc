@@ -114,7 +114,7 @@ export async function adjustRiskDown({
     asset: addresses.DAI,
     flashloanAmount: flashloan.amount,
     isProxyFlashloan: true,
-    provider: new BigNumber(flashloan.provider),
+    provider: flashloan.provider,
     calls: flashloanCalls,
   })
 

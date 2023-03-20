@@ -15,16 +15,6 @@ struct FlashloanData {
   Call[] calls;
 }
 
-struct FlashloanWithInitiatorData {
-  address initiator;
-  uint256 amount;
-  address asset;
-  bool isProxyFlashloan;
-  bool isDPMProxy;
-  FlashloanProvider provider;
-  Call[] calls;
-}
-
 struct PullTokenData {
   address asset;
   address from;

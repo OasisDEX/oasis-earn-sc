@@ -7,11 +7,7 @@ import { IVault } from "../../interfaces/balancer/IVault.sol";
 import { IERC3156FlashBorrower } from "../../interfaces/flashloan/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "../../interfaces/flashloan/IERC3156FlashLender.sol";
 import { IFlashLoanRecipient } from "../../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
-import {
-  FlashloanData,
-  FlashloanWithInitiatorData,
-  FlashloanProvider
-} from "../../core/types/Common.sol";
+import { FlashloanData, FlashloanProvider } from "../../core/types/Common.sol";
 import { OPERATION_EXECUTOR, DAI, CHAINLOG_VIEWER } from "../../core/constants/Common.sol";
 import { MCD_FLASH } from "../../core/constants/Maker.sol";
 import { BALANCER_VAULT } from "../../core/constants/Balancer.sol";
@@ -43,18 +39,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
    * @param data Encoded calldata that conforms to the FlashloanData struct
    */
   function execute(bytes calldata data, uint8[] memory) external payable override {
-    FlashloanData memory flDataFromProps = parseInputs(data);
-    // We need to pass the initiator address to the Operation Executor so that it can re-establish the calling context
-    FlashloanWithInitiatorData memory flData = FlashloanWithInitiatorData({
-      amount: flDataFromProps.amount,
-      asset: flDataFromProps.asset,
-      isProxyFlashloan: flDataFromProps.isProxyFlashloan,
-      isDPMProxy: flDataFromProps.isDPMProxy,
-      provider: flDataFromProps.provider,
-      calls: flDataFromProps.calls,
-      initiator: address(this)
-    });
-
+    FlashloanData memory flData = parseInputs(data);
     address operationExecutorAddress = registry.getRegisteredService(OPERATION_EXECUTOR);
 
     if (flData.isProxyFlashloan) {
@@ -68,7 +53,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
         IERC3156FlashBorrower(operationExecutorAddress),
         dai,
         flData.amount,
-        abi.encode(flData)
+        abi.encode(flData, address(this))
       );
     }
 
@@ -83,7 +68,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
         IFlashLoanRecipient(operationExecutorAddress),
         tokens,
         amounts,
-        abi.encode(flData)
+        abi.encode(flData, address(this))
       );
     }
 

@@ -6,6 +6,7 @@ import { ADDRESSES } from '../../../helpers/addresses'
 import { CONTRACT_NAMES, MAX_UINT, OPERATION_NAMES } from '../../../helpers/constants'
 import { IOperation } from '../../../types'
 import { AAVEV3StrategyAddresses } from './addresses'
+import { FlashloanProvider } from '../../../types/common'
 
 export const operationDefinition = {
   name: OPERATION_NAMES.aave.v3.CLOSE_POSITION,
@@ -152,7 +153,7 @@ export async function close(
     asset: addresses.DAI,
     flashloanAmount: args.flashloanAmount,
     isProxyFlashloan: true,
-    provider: new BigNumber(0),
+    provider: FlashloanProvider.DssFlash,
     calls: [
       setDaiApprovalOnLendingPool,
       depositDaiInAAVE,

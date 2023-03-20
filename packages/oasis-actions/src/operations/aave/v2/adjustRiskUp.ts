@@ -13,6 +13,7 @@ import {
   WithProxy,
   WithSwap,
 } from '../../../types/Operations'
+import { FlashloanProvider } from '../../../types/common'
 
 type AdjustRiskUpArgs = WithCollateral &
   WithDebtAndBorrow &
@@ -132,7 +133,7 @@ export async function adjustRiskUp({
     asset: addresses.DAI,
     flashloanAmount: flashloan.amount,
     isProxyFlashloan: true,
-    provider: new BigNumber(0),
+    provider: FlashloanProvider.DssFlash,
     calls: flashloanCalls,
   })
 

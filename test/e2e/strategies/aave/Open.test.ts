@@ -37,7 +37,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         )
       })
 
-      describe.only('Using DSProxy', () => {
+      describe('Using DSProxy', () => {
         let position: IPosition
         let simulatedPosition: IPosition
         let simulatedTransition: IPositionTransition['simulation']

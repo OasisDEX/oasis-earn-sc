@@ -9,6 +9,7 @@ import { IOperation } from '../../../types/Operations'
 import { PositionType } from '../../../types/PositionType'
 import { Protocol } from '../../../types/Protocol'
 import { AAVEStrategyAddresses } from './addresses'
+import { FlashloanProvider } from '../../../types/common'
 
 interface OpenArgs {
   deposit: {
@@ -204,7 +205,7 @@ export async function open({
     asset: addresses.DAI,
     flashloanAmount: flashloanAmount,
     isProxyFlashloan: true,
-    provider: new BigNumber(0),
+    provider: FlashloanProvider.DssFlash,
     calls: flashloanCalls,
   })
 
