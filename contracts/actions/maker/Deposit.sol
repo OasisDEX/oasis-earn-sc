@@ -11,7 +11,6 @@ import { DepositData } from "../../core/types/Maker.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { WETH } from "../../core/constants/Common.sol";
-import { DEPOSIT_ACTION } from "../../core/constants/Maker.sol";
 import { MCD_MANAGER } from "../../core/constants/Maker.sol";
 
 contract MakerDeposit is Executable, UseStore {
@@ -33,8 +32,6 @@ contract MakerDeposit is Executable, UseStore {
 
     uint256 amountDeposited = _deposit(depositData);
     store().write(bytes32(amountDeposited));
-
-    emit Action(DEPOSIT_ACTION, bytes(abi.encode(amountDeposited)));
   }
 
   function _deposit(DepositData memory data) internal returns (uint256) {

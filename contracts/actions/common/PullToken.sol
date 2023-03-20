@@ -4,7 +4,6 @@ pragma solidity ^0.8.15;
 import { Executable } from "../common/Executable.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { PullTokenData } from "../../core/types/Common.sol";
-import { PULL_TOKEN_ACTION } from "../../core/constants/Common.sol";
 import "../../core/types/Common.sol";
 
 /**
@@ -22,8 +21,6 @@ contract PullToken is Executable {
     PullTokenData memory pull = parseInputs(data);
 
     IERC20(pull.asset).safeTransferFrom(pull.from, address(this), pull.amount);
-
-    emit Action(PULL_TOKEN_ACTION, bytes(abi.encode(pull.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (PullTokenData memory params) {
