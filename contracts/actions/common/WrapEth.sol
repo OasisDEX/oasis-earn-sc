@@ -7,10 +7,8 @@ import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { WrapEthData } from "../../core/types/Common.sol";
 import { UseStore, Read } from "../../actions/common/UseStore.sol";
-import { Swap } from "./Swap.sol";
-import { WETH, SWAP } from "../../core/constants/Common.sol";
+import { WETH } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
-import { WRAP_ETH } from "../../core/constants/Common.sol";
 
 /**
  * @title Wraps ETH Action contract
@@ -36,8 +34,6 @@ contract WrapEth is Executable, UseStore {
     }
 
     IWETH(registry.getRegisteredService(WETH)).deposit{ value: wrapData.amount }();
-
-    emit Action(WRAP_ETH, bytes(abi.encode(wrapData.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (WrapEthData memory params) {

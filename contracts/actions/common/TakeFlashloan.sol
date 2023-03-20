@@ -91,8 +91,6 @@ contract TakeFlashloan is Executable, ProxyPermission {
     if (flData.isProxyFlashloan) {
       removePermission(flData.isDPMProxy, operationExecutorAddress);
     }
-
-    emit Action(TAKE_FLASH_LOAN_ACTION, bytes(abi.encode(flData.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (FlashloanData memory params) {

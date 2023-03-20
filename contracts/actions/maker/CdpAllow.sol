@@ -11,7 +11,7 @@ import { CdpAllowData } from "../../core/types/Maker.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { WETH } from "../../core/constants/Common.sol";
-import { CDP_ALLOW, MCD_MANAGER } from "../../core/constants/Maker.sol";
+import { MCD_MANAGER } from "../../core/constants/Maker.sol";
 
 contract CdpAllow is Executable, UseStore {
   using SafeERC20 for IERC20;
@@ -30,8 +30,6 @@ contract CdpAllow is Executable, UseStore {
     IManager manager = IManager(registry.getRegisteredService(MCD_MANAGER));
 
     manager.cdpAllow(cdpAllowData.vaultId, cdpAllowData.userAddress, 1);
-
-    emit Action(CDP_ALLOW, bytes(abi.encode(cdpAllowData.vaultId)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (CdpAllowData memory params) {

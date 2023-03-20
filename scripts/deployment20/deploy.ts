@@ -72,7 +72,7 @@ abstract class DeployedSystemHelpers {
       const metadata = await provider.send('hardhat_metadata', [])
       return metadata.forkedNetwork.chainId
     } catch (e) {
-      console.error('error getting forked network chain id', e)
+      console.log('\x1b[33m[ WARN ] Current network is not a fork! \x1b[0m')
     }
 
     return 0
@@ -96,7 +96,7 @@ abstract class DeployedSystemHelpers {
     this.forkedNetwork = this.getNetworkFromChainId(this.chainId)
 
     this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
-    console.log('NETWORK/FORKED NETWORK', `${this.network}/${this.forkedNetwork}`)
+    console.log('NETWORK / FORKED NETWORK', `${this.network} / ${this.forkedNetwork}`)
 
     return {
       provider: this.provider,
@@ -135,7 +135,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         this.config = { ...baseConfig, ...extendedConfig }
         this.config = _.merge(baseConfig, extendedConfig)
       } else {
-        console.log('LOAD NETWORK CONFIG ONLY')
+        console.log(`LOAD ${this.network} CONFIG ONLY`)
 
         // otherwise load just one config file
         configLoader.load(`${this.network}.conf.json`)
@@ -171,7 +171,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async postDeployment(configItem: any, contract: Contract, constructorArguments: any) {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
-    console.log('POST DEPLOYMENT', configItem.name, contract.address)
+    console.log('POST DEPLOYMENT', configItem.name, configItem.address)
 
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
@@ -215,7 +215,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async promptBeforeDeployment() {
     console.log(
-      'WARNING: You are deploying to a restricted network. Please make sure you know what you are doing.',
+      '\x1b[33m[ WARN ]: You are deploying to a restricted network. Please make sure you know what you are doing.\x1b[0m',
     )
     const response = await prompts({
       type: 'text',
@@ -339,6 +339,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       }
     })
   }
+
   async setupLocalSystem(useInch?: boolean) {
     if (!this.signer) throw new Error('No signer set')
     if (!this.signerAddress) throw new Error('No signer address set')
@@ -460,27 +461,3 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 }
-//
-// async function main() {
-//   const utils = new HardhatUtils(hre) // the hardhat network is coalesced to mainnet
-//   const signer = hre.ethers.provider.getSigner(0)
-//   const network = hre.network.name || ''
-//   console.log(`Deployer address: ${await signer.getAddress()}`)
-//   console.log(`Network: ${network}`)
-//
-//   const ds = new DeploymentSystem(hre) // TODO add forked param and in init get chainId and forked Network + set as attribute
-//   await ds.init()
-//   ds.loadConfig()
-//   ds.mapAddresses()
-//   await ds.deployAll()
-//   await ds.setupLocalSystem()
-//
-//   // ds.saveConfig()
-// }
-//
-// // We recommend this pattern to be able to use async/await everywhere
-// // and properly handle errors.
-// main().catch(error => {
-//   console.error(error)
-//   process.exitCode = 1
-// })
