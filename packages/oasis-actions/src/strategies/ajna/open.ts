@@ -3,8 +3,8 @@ import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '../../../../../abi/external/ajna/poolInfoUtils.json'
-import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
+import { getAjnaPositionErrors } from '../../types/ajna/AjnaPosition'
 import { Address, Strategy } from '../../types/common'
 import * as views from '../../views'
 
@@ -75,12 +75,20 @@ export async function open(
 
   const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
 
-  return prepareAjnaPayload({
-    dependencies,
-    targetPosition,
-    data,
-    errors: [],
-    warnings: [],
-    txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
-  })
+  return {
+    simulation: {
+      swaps: [],
+      targetPosition,
+      position: targetPosition,
+      errors: getAjnaPositionErrors(position),
+      warnings: [],
+    },
+    tx: {
+      to: dependencies.ajnaProxyActions,
+      data,
+      value: isDepositingEth
+        ? ethers.utils.parseUnits(args.collateralAmount.toString(), 18).toString()
+        : '0',
+    },
+  }
 }

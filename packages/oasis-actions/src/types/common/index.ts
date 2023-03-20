@@ -31,11 +31,16 @@ export type AjnaErrorAfterLupIndexBiggerThanHtpIndex = {
   name: 'after-lup-index-bigger-than-htp-index'
 }
 
+export type AjnaErrorDustLimit = {
+  name: 'debt-less-then-dust-limit'
+}
+
 export type AjnaError =
   | AjnaErrorUndercollateralized
   | AjnaErrorPriceAboveMomp
   | AjnaErrorWithdrawMoreThanAvailable
   | AjnaErrorAfterLupIndexBiggerThanHtpIndex
+  | AjnaErrorDustLimit
 
 export type AjnaWarningPriceBelowHtp = {
   name: 'price-below-htp'

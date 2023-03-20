@@ -3,8 +3,9 @@ import { BigNumber } from 'bignumber.js'
 import { IRiskRatio, RiskRatio } from '../../domain'
 import { ZERO } from '../../helpers/constants'
 import { normalizeValue } from '../../helpers/normalizeValue'
-import { Address, AjnaError, AjnaWarning } from '../common'
+import { Address, AjnaError } from '../common'
 import { AjnaPool } from './AjnaPool'
+import { validateDustLimit, validateUndercollateralized } from './validation'
 
 export interface IAjnaPosition {
   pool: AjnaPool
@@ -22,9 +23,6 @@ export interface IAjnaPosition {
   riskRatio: IRiskRatio
   maxRiskRatio: IRiskRatio
 
-  errors: AjnaError[]
-  warnings: AjnaWarning[]
-
   deposit(amount: BigNumber): IAjnaPosition
   withdraw(amount: BigNumber): IAjnaPosition
   borrow(amount: BigNumber): IAjnaPosition
@@ -32,9 +30,6 @@ export interface IAjnaPosition {
 }
 
 export class AjnaPosition implements IAjnaPosition {
-  errors: AjnaError[] = []
-  warnings: AjnaWarning[] = []
-
   constructor(
     public pool: AjnaPool,
     public owner: Address,
@@ -130,4 +125,8 @@ export class AjnaPosition implements IAjnaPosition {
       this.quotePrice,
     )
   }
+}
+
+export function getAjnaPositionErrors(position: AjnaPosition): AjnaError[] {
+  return [...validateDustLimit(position), ...validateUndercollateralized(position)]
 }
