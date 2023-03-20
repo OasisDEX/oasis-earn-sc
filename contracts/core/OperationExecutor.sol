@@ -17,7 +17,7 @@ import { FlashloanData, FlashloanWithInitiatorData, Call } from "./types/Common.
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 import { BALANCER_VAULT } from "./constants/Balancer.sol";
-
+import "hardhat/console.sol";
 error UntrustedLender(address lender);
 error InconsistentAsset(address flashloaned, address required);
 error InconsistentAmount(uint256 flashloaned, uint256 required);
@@ -81,13 +81,18 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
   function aggregate(Call[] memory calls) internal {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
     bool hasActionsToVerify = opStorage.hasActionsToVerify();
-
+    console.log("hasActionsToVerify", hasActionsToVerify);
     for (uint256 current = 0; current < calls.length; current++) {
+      console.log("current", current);
       if (hasActionsToVerify) {
         opStorage.verifyAction(calls[current].targetHash, calls[current].skipped);
+        console.log("verifyAction");
+        console.logBytes32(calls[current].targetHash);
+        console.log(calls[current].skipped);
       }
       if (!calls[current].skipped) {
         address target = registry.getServiceAddress(calls[current].targetHash);
+        console.log("target", target);
         target.execute(calls[current].callData);
       }
     }

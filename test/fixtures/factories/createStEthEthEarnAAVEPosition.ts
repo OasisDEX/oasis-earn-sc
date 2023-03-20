@@ -72,6 +72,11 @@ export async function createStEthEthEarnAAVEPosition({
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
+  const tokens = {
+    ETH: new ETH(dependencies.addresses),
+    STETH,
+  }
+
   const mockPrice = new BigNumber(0.98634)
   const getSwapData = use1inch
     ? dependencies.getSwapData(swapAddress)
@@ -171,8 +176,8 @@ export async function createStEthEthEarnAAVEPosition({
     proxy: proxy,
     getPosition,
     strategy: 'STETH/ETH Earn',
-    collateralToken: STETH,
-    debtToken: ETH,
+    collateralToken: tokens.STETH,
+    debtToken: tokens.ETH,
     getSwapData,
     __positionType: 'Earn',
     __mockPrice: mockPrice,

@@ -1,5 +1,11 @@
 import 'tsconfig-paths/register'
 
+import { ChainIdByNetwork, Network } from '@helpers/network'
+import { default as dotenv } from 'dotenv'
+import { HardhatUserConfig, task } from 'hardhat/config'
+import path from 'path'
+import process from 'process'
+
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-gas-reporter'
@@ -22,12 +28,6 @@ import './tasks/createMultiplyPosition'
 import './tasks/transferDPM'
 import './tasks/transferAllProxies'
 
-import { ChainIdByNetwork, Network } from '@helpers/network'
-import { default as dotenv } from 'dotenv'
-import { HardhatUserConfig, task } from 'hardhat/config'
-import path from 'path'
-import process from 'process'
-
 dotenv.config({ path: path.join(__dirname, './.env') })
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -42,7 +42,7 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
 const networkFork = process.env.NETWORK_FORK as Network | undefined
 
 if (!networkFork || !(networkFork == Network.MAINNET || networkFork == Network.OPT_MAINNET)) {
-  throw new Error(`NETWORK_FORK Missing. Specify 'Mainnet' or 'Optimism'`)
+  throw new Error(`NETWORK_FORK Missing. Specify Network correctly`)
 }
 
 let forkConfig: { nodeURL: string; blockNumber: string } | undefined = undefined

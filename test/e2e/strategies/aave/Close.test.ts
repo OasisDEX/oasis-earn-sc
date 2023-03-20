@@ -23,7 +23,6 @@ import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers } from 'ethers'
 
-import { mainnetAddresses } from '../../../addresses'
 import { DeployedSystemInfo } from '../../../deploySystem'
 import {
   getSupportedStrategies,
@@ -38,8 +37,11 @@ import {
 import { TokenDetails } from '../../../fixtures/types/positionDetails'
 import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
 import { expectToBe, expectToBeEqual } from '../../../utils'
+import { mainnetAddresses } from '../../../addresses/mainnet'
+import { Network } from '@helpers/network'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
+const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
 describe(`Strategy | AAVE | Close Position`, async () => {
@@ -435,7 +437,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         ...mainnetAddresses,
         aaveOracle: mainnetAddresses.aave.v3.aaveOracle,
         pool: mainnetAddresses.aave.v3.pool,
-        aaveProtocolDataProvider: mainnetAddresses.aave.v3.aaveProtocolDataProvider,
+        poolDataProvider: mainnetAddresses.aave.v3.poolDataProvider,
         operationExecutor: system.OperationExecutor.contract.address,
       }
       const tokenAddresses: Record<AAVETokens, string> = {
@@ -468,7 +470,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       const pool = new Contract(ADDRESSES.main.aave.v3.Pool, AAVEPoolABI, provider)
 
       const protocolDataProvider = new Contract(
-        ADDRESSES.main.aave.v3.AaveProtocolDataProvider,
+        ADDRESSES.main.aave.v3.PoolDataProvider,
         AAVEProtocolDataProviderABI,
         provider,
       )
@@ -566,7 +568,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
     describe('Close position: With Uniswap', () => {
       before(async () => {
-        fixture = await loadFixture(getSystemWithAaveV3Positions({ use1inch: false }))
+        fixture = await loadFixture(
+          getSystemWithAaveV3Positions({
+            use1inch: false,
+            network: networkFork,
+            systemConfigPath: `test-configs/test-aave-v3-${networkFork}.conf.json`,
+          }),
+        )
       })
 
       describe('Using DSProxy', () => {

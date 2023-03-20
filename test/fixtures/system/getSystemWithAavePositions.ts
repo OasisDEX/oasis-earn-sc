@@ -8,13 +8,7 @@ import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
 import { mainnetAddresses } from '../../addresses/mainnet'
-import {
-  createDPMAccount,
-  createEthUsdcMultiplyAAVEPosition,
-  createStEthEthEarnAAVEPosition,
-  createStEthUsdcMultiplyAAVEPosition,
-  createWbtcUsdcMultiplyAAVEPosition,
-} from '../factories'
+import { createDPMAccount, createStEthEthEarnAAVEPosition } from '../factories'
 import { AavePositionStrategy, SystemWithAAVEPositions } from '../types'
 import { StrategyDependenciesAaveV2 } from '../types/strategiesDependencies'
 
@@ -118,35 +112,35 @@ export const getSystemWithAavePositions =
       dependencies,
       config: configWithDeployedSystem,
     })
-
-    const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config: configWithDeployedSystem,
-    })
-
-    const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyStEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config: configWithDeployedSystem,
-      getTokens,
-    })
-
-    const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyWbtcUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config: configWithDeployedSystem,
-      getTokens,
-    })
+    //
+    // const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyEthUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config: configWithDeployedSystem,
+    // })
+    //
+    // const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyStEthUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config: configWithDeployedSystem,
+    //   getTokens,
+    // })
+    //
+    // const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyWbtcUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config: configWithDeployedSystem,
+    //   getTokens,
+    // })
 
     const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
       proxy: dsProxy.address,
@@ -158,16 +152,16 @@ export const getSystemWithAavePositions =
     })
 
     const dpmPositions = {
-      ...(stEthEthEarnPosition ? { [stEthEthEarnPosition.strategy]: stEthEthEarnPosition } : {}),
-      ...(ethUsdcMultiplyPosition
-        ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
-        : {}),
-      ...(stethUsdcMultiplyPosition
-        ? { [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition }
-        : {}),
-      ...(wbtcUsdcMultiplyPositon
-        ? { [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon }
-        : {}),
+      // ...(stEthEthEarnPosition ? { [stEthEthEarnPosition.strategy]: stEthEthEarnPosition } : {}),
+      // ...(ethUsdcMultiplyPosition
+      //   ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
+      //   : {}),
+      // ...(stethUsdcMultiplyPosition
+      //   ? { [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition }
+      //   : {}),
+      // ...(wbtcUsdcMultiplyPositon
+      //   ? { [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon }
+      //   : {}),
     }
 
     return {

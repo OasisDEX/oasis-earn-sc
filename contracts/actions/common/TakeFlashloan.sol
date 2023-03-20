@@ -12,12 +12,7 @@ import {
   FlashloanWithInitiatorData,
   FlashloanProvider
 } from "../../core/types/Common.sol";
-import {
-  OPERATION_EXECUTOR,
-  DAI,
-  TAKE_FLASH_LOAN_ACTION,
-  CHAINLOG_VIEWER
-} from "../../core/constants/Common.sol";
+import { OPERATION_EXECUTOR, DAI, CHAINLOG_VIEWER } from "../../core/constants/Common.sol";
 import { MCD_FLASH } from "../../core/constants/Maker.sol";
 import { BALANCER_VAULT } from "../../core/constants/Balancer.sol";
 import { ChainLogView } from "../../core/views/ChainLogView.sol";

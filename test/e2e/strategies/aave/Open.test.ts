@@ -25,7 +25,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     const supportedStrategies = getSupportedStrategies(ciOnlyTests)
 
-    describe('Open position: With Uniswap', function () {
+    describe.only('Open position: With Uniswap', function () {
       before(async function () {
         if (networkFork === Network.OPT_MAINNET) {
           this.skip()
@@ -37,7 +37,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         )
       })
 
-      describe('Using DSProxy', () => {
+      describe.only('Using DSProxy', () => {
         let position: IPosition
         let simulatedPosition: IPosition
         let simulatedTransition: IPositionTransition['simulation']
