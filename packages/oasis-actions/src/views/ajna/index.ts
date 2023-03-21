@@ -80,7 +80,7 @@ export async function getPool(
 
     mostOptimisticMatchingPrice: new BigNumber(momp.toString()).div(WAD),
 
-    poolMinDebtAmount: new BigNumber(poolUtilizationInfo.poolMinDebtAmount_.toString()),
+    poolMinDebtAmount: new BigNumber(poolUtilizationInfo.poolMinDebtAmount_.toString()).div(WAD),
     poolCollateralization: new BigNumber(poolUtilizationInfo.poolCollateralization_.toString()),
     poolActualUtilization: new BigNumber(poolUtilizationInfo.poolActualUtilization_.toString()),
     poolTargetUtilization: new BigNumber(poolUtilizationInfo.poolTargetUtilization_.toString()),

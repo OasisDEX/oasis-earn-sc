@@ -60,16 +60,15 @@ export class AjnaPosition implements IAjnaPosition {
 
   get collateralAvailable() {
     const collateralAvailable = this.collateralAmount.minus(
-      this.debtAmount.div(this.marketPrice.times(this.maxRiskRatio.loanToValue)),
+      this.debtAmount.div(this.pool.lowestUtilizedPrice),
     )
 
     return normalizeValue(collateralAvailable)
   }
 
   get debtAvailable() {
-    const debtAvailable = this.marketPrice
-      .times(this.maxRiskRatio.loanToValue)
-      .times(this.collateralAmount)
+    const debtAvailable = this.collateralAmount
+      .times(this.pool.lowestUtilizedPrice)
       .minus(this.debtAmount)
 
     return normalizeValue(debtAvailable)
