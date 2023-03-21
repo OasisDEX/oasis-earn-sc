@@ -1,213 +1,286 @@
 {
   "mpa": {
-    "core": [
-      {
+    "core": {
+      "ServiceRegistry": {
         "name": "ServiceRegistry",
         "deploy": true,
-        "address": "0x85495222Fd7069B987Ca38C2142732EbBFb7175D",
+        "addresses": "",
         "serviceRegistryName": "",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           0
-        ]
+        ],
+        "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       },
-      {
+      "OperationExecutor": {
         "name": "OperationExecutor",
         "deploy": true,
-        "address": "0x3abBB0D6ad848d64c8956edC9Bf6f18aC22E1485",
+        "addresses": "",
         "serviceRegistryName": "OperationExecutor_2",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:ServiceRegistry"
-        ]
+        ],
+        "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
       },
-      {
+      "OperationStorage": {
         "name": "OperationStorage",
         "deploy": true,
-        "address": "0x4CF4dd3f71B67a7622ac250f8b10d266Dc5aEbcE",
+        "addresses": "",
         "serviceRegistryName": "OperationStorage_2",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:ServiceRegistry",
           "address:OperationExecutor"
-        ]
+        ],
+        "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
       },
-      {
+      "OperationRegistry": {
         "name": "OperationsRegistry",
         "deploy": true,
-        "address": "0x447786d977Ea11Ad0600E193b2d07A06EfB53e5F",
+        "addresses": "",
         "serviceRegistryName": "OperationsRegistry_2",
-        "history": [],
-        "constructorArgs": []
+        "history": [
+          null
+        ],
+        "constructorArgs": [],
+        "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
       },
-      {
+      "AccountGuard": {
         "name": "AccountGuard",
         "deploy": true,
-        "address": "0x245e77E56b1514D77910c9303e4b44dDb44B788c",
+        "addresses": "",
         "serviceRegistryName": "",
-        "history": [],
-        "constructorArgs": []
+        "history": [
+          null
+        ],
+        "constructorArgs": [],
+        "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
       },
-      {
+      "AccountFactory": {
         "name": "AccountFactory",
         "deploy": true,
-        "address": "0xE2b5bDE7e80f89975f7229d78aD9259b2723d11F",
+        "addresses": "",
         "serviceRegistryName": "",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:AccountGuard"
-        ]
+        ],
+        "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6"
       }
-    ],
-    "actions": [
-      {
+    },
+    "actions": {
+      "PositionCreated": {
         "name": "PositionCreated",
         "deploy": true,
-        "address": "0xC6c5Ab5039373b0CBa7d0116d9ba7fb9831C3f42",
+        "addresses": "",
         "serviceRegistryName": "PositionCreated",
-        "history": [],
-        "constructorArgs": []
+        "history": [
+          null
+        ],
+        "constructorArgs": [],
+        "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"
       },
-      {
+      "SwapAction": {
         "name": "SwapAction",
         "deploy": true,
-        "address": "0x46d4674578a2daBbD0CEAB0500c6c7867999db34",
+        "addresses": "",
         "serviceRegistryName": "SwapAction_3",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:ServiceRegistry"
-        ]
+        ],
+        "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"
       },
-      {
+      "TakeFlashloan": {
         "name": "TakeFlashloan",
         "deploy": true,
-        "address": "0xfB12F7170FF298CDed84C793dAb9aBBEcc01E798",
+        "addresses": "",
         "serviceRegistryName": "TakeFlashloan_3",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:ServiceRegistry",
-          "0x6B175474E89094C44Da98b954EedeAC495271d0F"
-        ]
+          "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1"
+        ],
+        "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82"
       },
-      {
+      "SetApproval": {
         "name": "SetApproval",
         "deploy": true,
-        "address": "0xC220Ed128102d888af857d137a54b9B7573A41b2",
+        "addresses": "",
         "serviceRegistryName": "SetApproval_3",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:ServiceRegistry"
-        ]
+        ],
+        "address": "0x0B306BF915C4d645ff596e518fAf3F9669b97016"
       },
-      {
+      "PullToken": {
         "name": "PullToken",
         "deploy": true,
-        "address": "0x12456Fa31e57F91B70629c1196337074c966492a",
+        "addresses": "",
         "serviceRegistryName": "PullToken_3",
-        "history": [],
-        "constructorArgs": []
+        "history": [
+          null
+        ],
+        "constructorArgs": [],
+        "address": "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE"
       },
-      {
+      "SendToken": {
         "name": "SendToken",
         "deploy": true,
-        "address": "0xD5bFeBDce5c91413E41cc7B24C8402c59A344f7c",
+        "addresses": "",
         "serviceRegistryName": "SendToken_4",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:ServiceRegistry"
-        ]
+        ],
+        "address": "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c"
       },
-      {
+      "WrapEth": {
         "name": "WrapEth",
         "deploy": true,
-        "address": "0x38628490c3043E5D0bbB26d5a0a62fC77342e9d5",
+        "addresses": "",
         "serviceRegistryName": "WrapEth_3",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:ServiceRegistry"
-        ]
+        ],
+        "address": "0x59b670e9fA9D0A427751Af201D676719a970857b"
       },
-      {
+      "UnwrapEth": {
         "name": "UnwrapEth",
         "deploy": true,
-        "address": "0xa85EffB2658CFd81e0B1AaD4f2364CdBCd89F3a1",
+        "addresses": "",
         "serviceRegistryName": "UnwrapEth_3",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:ServiceRegistry"
-        ]
+        ],
+        "address": "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44"
       },
-      {
+      "ReturnFunds": {
         "name": "ReturnFunds",
         "deploy": true,
-        "address": "0x64f5219563e28EeBAAd91Ca8D31fa3b36621FD4f",
+        "addresses": "",
         "serviceRegistryName": "ReturnFunds_3",
-        "history": [],
-        "constructorArgs": []
+        "history": [
+          null
+        ],
+        "constructorArgs": [],
+        "address": "0x4A679253410272dd5232B3Ff7cF5dbB88f295319"
       },
-      {
+      "AaveBorrow": {
         "name": "AaveBorrow",
         "deploy": true,
-        "address": "0x6484EB0792c646A4827638Fc1B6F20461418eB00",
+        "addresses": "",
         "serviceRegistryName": "AaveBorrow_3",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:ServiceRegistry"
-        ]
+        ],
+        "address": "0x09635F643e140090A9A8Dcd712eD6285858ceBef"
       },
-      {
+      "AaveWithdraw": {
         "name": "AaveWithdraw",
         "deploy": true,
-        "address": "0xA75E74a5109Ed8221070142D15cEBfFe9642F489",
+        "addresses": "",
         "serviceRegistryName": "AaveWithdraw_3",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:ServiceRegistry"
-        ]
+        ],
+        "address": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933"
       },
-      {
+      "AaveDeposit": {
         "name": "AaveDeposit",
         "deploy": true,
-        "address": "0x840748F7Fd3EA956E5f4c88001da5CC1ABCBc038",
+        "addresses": "",
         "serviceRegistryName": "AaveDeposit_3",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:ServiceRegistry"
-        ]
+        ],
+        "address": "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690"
       },
-      {
+      "AavePayback": {
         "name": "AavePayback",
         "deploy": true,
-        "address": "0x04f1A5b9BD82a5020C49975ceAd160E98d8B77Af",
+        "addresses": "",
         "serviceRegistryName": "AavePayback_3",
-        "history": [],
+        "history": [
+          null
+        ],
         "constructorArgs": [
           "address:ServiceRegistry"
-        ]
+        ],
+        "address": "0x9E545E3C0baAB3E08CdfD552C960A1050f373042"
       }
-    ]
+    }
   },
-  "external": {
-    "WETH": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-    "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-    "STETH": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
-    "WSTETH": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
-    "variableDebtWETH": "0xF63B34710400CAd3e044cFfDcAb00a0f32E33eCf",
-    "aDAI": "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
-    "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-    "LINK": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
-    "WBTC": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-    "USDC": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-    "USDT": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-    "uniswapRouterV3": "0xe592427a0aece92de3edee1f18e0157c05861564",
-    "uniswapAnchoredView": "0x046728da7cb8272284238bD3e47909823d63A58D",
-    "oneInchAggregator": "0x1111111254fb6c44bac0bed2854e76f90643097d",
-    "lender": "0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA",
-    "authorizedCaller": "0x85f9b7408afE6CEb5E46223451f5d4b832B522dc",
-    "feeRecipient": "0xC7b548AD9Cf38721810246C079b2d8083aba8909",
-    "proxyRegistry": "0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4",
-    "chainlinkEthUsdPriceFeed": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
-    "accountFactory": "0xF7B75183A2829843dB06266c114297dfbFaeE2b6",
-    "accountGuard": "0xCe91349d2A4577BBd0fC91Fe6019600e047f2847"
+  "common": {
+    "WETH": {
+      "name": "WETH",
+      "address": "0x4200000000000000000000000000000000000006",
+      "serviceRegistryName": "WETH"
+    },
+    "ETH": {
+      "name": "ETH",
+      "address": "0x4200000000000000000000000000000000000006",
+      "serviceRegistryName": "ETH"
+    },
+    "USDC": {
+      "name": "USDC",
+      "address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+      "serviceRegistryName": "USDC"
+    },
+    "DAI": {
+      "name": "DAI",
+      "address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+      "serviceRegistryName": "DAI"
+    },
+    "UniswapRouterV3": {
+      "name": "UniswapRouterV3",
+      "address": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+      "serviceRegistryName": "UniswapRouterV3"
+    },
+    "BalancerVault": {
+      "name": "BalancerVault",
+      "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+      "serviceRegistryName": "BalancerVault"
+    }
+  },
+  "aave": {
+    "v3": {
+      "AaveOracle": "",
+      "Pool": "0x485083b6c6028B11d644A81d580245D97a918F32",
+      "AaveProtocolDataProvider": ""
+    }
   }
 }
