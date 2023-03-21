@@ -311,16 +311,24 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async deployCore() {
     await this.instantiateContracts(
-      Object.values(this.config.mpa.core).filter((item: any) => item.address !== '' && !item.deploy),
+      Object.values(this.config.mpa.core).filter(
+        (item: any) => item.address !== '' && !item.deploy,
+      ),
     )
-    await this.deployContracts(Object.values(this.config.mpa.core).filter((item: any) => item.deploy))
+    await this.deployContracts(
+      Object.values(this.config.mpa.core).filter((item: any) => item.deploy),
+    )
   }
 
   async deployActions() {
     await this.instantiateContracts(
-      Object.values(this.config.mpa.actions).filter((item: any) => item.address !== '' && !item.deploy),
+      Object.values(this.config.mpa.actions).filter(
+        (item: any) => item.address !== '' && !item.deploy,
+      ),
     )
-    await this.deployContracts(Object.values(this.config.mpa.actions).filter((item: any) => item.deploy))
+    await this.deployContracts(
+      Object.values(this.config.mpa.actions).filter((item: any) => item.deploy),
+    )
   }
 
   async deployAll() {

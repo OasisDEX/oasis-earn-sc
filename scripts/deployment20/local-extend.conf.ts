@@ -1,6 +1,5 @@
 export const config = {
-    mpa: {
-      actions: {
-      }
-    }
-  }
+  mpa: {
+    actions: {},
+  },
+}
