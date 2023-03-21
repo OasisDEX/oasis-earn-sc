@@ -385,10 +385,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.WETH, this.addresses.WETH)
     await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.DAI, this.addresses.DAI)
     await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.USDC, this.addresses.USDC)
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.common.DS_GUARD_FACTORY,
-      this.addresses.DsGuardFactory,
-    )
 
     this.addresses.UniswapRouterV3 &&
       (await this.serviceRegistryHelper.addEntry(
