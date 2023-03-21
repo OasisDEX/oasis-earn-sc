@@ -12,7 +12,7 @@ import aaveV3PoolABI from '../../../../../abi/external/aave/v3/pool.json'
 import aaveV3PriceOracleOptimismABI from '../../../../../abi/external/aave/v3-l2/aaveOracle.json'
 import aaveV3ProtocolDataProviderOptimismABI from '../../../../../abi/external/aave/v3-l2/aaveProtocolDataProvider.json'
 import aaveV3PoolOptimismABI from '../../../../../abi/external/aave/v3-l2/pool.json'
-import { getForkedNetwork, Network } from '../../../../../helpers/network'
+import { getForkedNetwork as coalesceNetwork, Network } from '../../../../../helpers/network'
 import { amountFromWei } from '../../helpers'
 import { AAVEStrategyAddresses } from '../../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../../operations/aave/v3'
@@ -190,7 +190,7 @@ export type AaveProtocolData = ReturnType<typeof getAaveProtocolData>
 
 type AllowedContractNames = 'poolDataProvider' | 'pool' | 'aaveOracle'
 async function getAbiForContract(contractName: AllowedContractNames, provider: providers.Provider) {
-  const network = await getForkedNetwork(provider as providers.JsonRpcProvider)
+  const network = await coalesceNetwork(provider as providers.JsonRpcProvider)
   if (network === Network.GOERLI) throw new Error('Goerli not supported yet')
   return abiByContractName[network][contractName]
 }
