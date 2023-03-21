@@ -4,8 +4,8 @@ pragma solidity ^0.8.15;
 import { Executable } from "../common/Executable.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { ReturnFundsData } from "../../core/types/Common.sol";
-import { RETURN_FUNDS_ACTION, ETH } from "../../core/constants/Common.sol";
 import { IDSProxy } from "../../interfaces/ds/IDSProxy.sol";
+import { ETH } from "../../core/constants/Common.sol";
 
 /**
  * @title ReturnFunds Action contract
@@ -29,7 +29,5 @@ contract ReturnFunds is Executable {
       amount = IERC20(returnData.asset).balanceOf(address(this));
       IERC20(returnData.asset).safeTransfer(owner, amount);
     }
-
-    emit Action(RETURN_FUNDS_ACTION, bytes(abi.encode(amount, returnData.asset)));
   }
 }

@@ -27,7 +27,7 @@ jobs:
         env:
           BLOCK_NUMBER: 15946543
           NETWORK_FORK: 'Mainnet'
-          MAINNET_URL: 'https://mainnet.infura.io/v3/dc90181458b54f00aa581963ab47fdb9'
+          MAINNET_URL: ${{ secrets.MAINNET_URL }}
 
       - name: Lint
         run: yarn lint

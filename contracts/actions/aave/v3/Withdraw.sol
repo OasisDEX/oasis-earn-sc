@@ -6,7 +6,7 @@ import { UseStore, Write } from "../../common/UseStore.sol";
 import { OperationStorage } from "../../../core/OperationStorage.sol";
 import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 import { WithdrawData } from "../../../core/types/Aave.sol";
-import { AAVE_POOL, WITHDRAW_V3_ACTION } from "../../../core/constants/Aave.sol";
+import { AAVE_POOL } from "../../../core/constants/Aave.sol";
 import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
 
 /**
@@ -31,8 +31,6 @@ contract AaveV3Withdraw is Executable, UseStore {
     );
 
     store().write(bytes32(amountWithdrawn));
-
-    emit Action(WITHDRAW_V3_ACTION, abi.encode(amountWithdrawn));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (WithdrawData memory params) {

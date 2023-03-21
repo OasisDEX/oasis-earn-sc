@@ -8,7 +8,7 @@ import { IVariableDebtToken } from "../../../interfaces/aave/IVariableDebtToken.
 import { IWETHGateway } from "../../../interfaces/aave/IWETHGateway.sol";
 import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 import { SetEModeData } from "../../../core/types/Aave.sol";
-import { AAVE_POOL, SETEMODE_V3_ACTION } from "../../../core/constants/Aave.sol";
+import { AAVE_POOL } from "../../../core/constants/Aave.sol";
 import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
 
 /**
@@ -29,8 +29,6 @@ contract AaveV3SetEMode is Executable, UseStore {
     IPoolV3(registry.getRegisteredService(AAVE_POOL)).setUserEMode(emode.categoryId);
 
     store().write(bytes32(uint256(emode.categoryId)));
-
-    emit Action(SETEMODE_V3_ACTION, abi.encode(emode.categoryId));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (SetEModeData memory params) {

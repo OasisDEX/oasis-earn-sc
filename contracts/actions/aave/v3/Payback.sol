@@ -10,7 +10,7 @@ import { PaybackData } from "../../../core/types/Aave.sol";
 import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
 
-import { AAVE_POOL, PAYBACK_V3_ACTION } from "../../../core/constants/Aave.sol";
+import { AAVE_POOL } from "../../../core/constants/Aave.sol";
 
 /**
  * @title Payback | AAVE V3 Action contract
@@ -41,7 +41,6 @@ contract AaveV3Payback is Executable, UseStore {
     );
 
     store().write(bytes32(payback.amount));
-    emit Action(PAYBACK_V3_ACTION, abi.encode(payback.amount));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (PaybackData memory params) {

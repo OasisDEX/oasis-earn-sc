@@ -58,8 +58,6 @@ contract DummyExchange {
       "Exchange / Not enought allowance"
     );
 
-    uint256 balance = IERC20(asset).balanceOf(from);
-
     IERC20(asset).safeTransferFrom(from, address(this), amount);
   }
 

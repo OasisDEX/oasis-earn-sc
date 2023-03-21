@@ -9,7 +9,6 @@ import { UnwrapEthData } from "../../core/types/Common.sol";
 import { UseStore, Read } from "../../actions/common/UseStore.sol";
 import { WETH } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
-import { UNWRAP_ETH } from "../../core/constants/Common.sol";
 
 /**
  * @title Unwrap ETH Action contract
@@ -38,8 +37,6 @@ contract UnwrapEth is Executable, UseStore {
     }
 
     weth.withdraw(unwrapData.amount);
-
-    emit Action(UNWRAP_ETH, bytes(abi.encode(unwrapData.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (UnwrapEthData memory params) {
