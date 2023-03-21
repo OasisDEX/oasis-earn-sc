@@ -310,9 +310,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async deployCore() {
-
-    console.log('DEPLOYING CORE', this.config)
-    console.log('DEPLOYING CORE', this.config.mpa)
     await this.instantiateContracts(
       Object.values(this.config.mpa.core).filter((item: any) => item.address !== '' && !item.deploy),
     )
