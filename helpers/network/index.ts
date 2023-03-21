@@ -18,7 +18,7 @@ export const getNetwork = async (provider: providers.Provider): Promise<Network>
 }
 
 export const getForkedNetwork = async (
-  provider: providers.JsonRpcProvider | providers.Provider,
+  provider: providers.Provider,
 ): Promise<Exclude<Network, Network.LOCAL | Network.HARDHAT>> => {
   const network = await getNetwork(provider)
   if (network === Network.LOCAL) {
