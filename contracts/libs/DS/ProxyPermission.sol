@@ -12,11 +12,11 @@ import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { DS_GUARD_FACTORY } from "../../core/constants/Common.sol";
 
 contract ProxyPermission {
-  ServiceRegistry internal immutable registry;
+  DSGuardFactory internal immutable dsGuardFactory;
   bytes4 public constant ALLOWED_METHOD_HASH = bytes4(keccak256("execute(address,bytes)"));
 
-  constructor(ServiceRegistry serviceRegistry) {
-    registry = serviceRegistry;
+  constructor(address _dsGuardFactory) {
+    dsGuardFactory = DSGuardFactory(_dsGuardFactory);
   }
 
   function givePermission(bool isDPMProxy, address _contractAddr) public {
@@ -32,7 +32,7 @@ contract ProxyPermission {
       address currAuthority = address(DSAuth(address(this)).authority());
       DSGuard guard = DSGuard(currAuthority);
       if (currAuthority == address(0)) {
-        guard = DSGuardFactory(registry.getRegisteredService(DS_GUARD_FACTORY)).newGuard();
+        guard = dsGuardFactory.newGuard();
         DSAuth(address(this)).setAuthority(DSAuthority(address(guard)));
       }
 

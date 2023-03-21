@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
+import { getForkedNetwork } from '../../../../../../helpers/network'
 import { Unbox } from '../../../../../../helpers/types/common'
 import { IBaseSimulatedTransition, Position } from '../../../domain/Position'
 import { IRiskRatio } from '../../../domain/RiskRatio'
@@ -27,7 +28,6 @@ import { WithFee } from '../../../types/aave/Fee'
 import { WithV2Protocol, WithV3Protocol } from '../../../types/aave/Protocol'
 import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
 import { AaveVersion } from '../getCurrentPosition'
-import { getForkedNetwork } from '../../../../../../helpers/network'
 
 export interface AaveOpenArgs {
   depositedByUser?: {

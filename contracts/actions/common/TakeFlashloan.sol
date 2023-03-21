@@ -21,8 +21,14 @@ import { IERC20 } from "../../libs/SafeERC20.sol";
  */
 contract TakeFlashloan is Executable, ProxyPermission {
   address internal immutable dai;
+  ServiceRegistry private immutable registry;
 
-  constructor(ServiceRegistry _registry, address _dai) ProxyPermission(_registry) {
+  constructor(
+    ServiceRegistry _registry,
+    address _dai,
+    address _dsGuardFactory
+  ) ProxyPermission(_dsGuardFactory) {
+    registry = _registry;
     dai = _dai;
   }
 

@@ -7,9 +7,7 @@
         "address": "",
         "serviceRegistryName": "",
         "history": [],
-        "constructorArgs": [
-          0
-        ]
+        "constructorArgs": [0]
       },
       {
         "name": "OperationExecutor",
@@ -17,9 +15,7 @@
         "address": "",
         "serviceRegistryName": "OperationExecutor_2",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "OperationStorage",
@@ -27,10 +23,7 @@
         "address": "",
         "serviceRegistryName": "OperationStorage_2",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry",
-          "address:OperationExecutor"
-        ]
+        "constructorArgs": ["address:ServiceRegistry", "address:OperationExecutor"]
       },
       {
         "name": "OperationsRegistry",
@@ -54,9 +47,7 @@
         "address": "",
         "serviceRegistryName": "",
         "history": [],
-        "constructorArgs": [
-          "address:AccountGuard"
-        ]
+        "constructorArgs": ["address:AccountGuard"]
       },
       {
         "name": "ChainLogView",
@@ -64,9 +55,7 @@
         "address": "",
         "serviceRegistryName": "ChainLogView",
         "history": [],
-        "constructorArgs": [
-          "0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F"
-        ]
+        "constructorArgs": ["0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F"]
       }
     ],
     "actions": [
@@ -84,9 +73,7 @@
         "address": "",
         "serviceRegistryName": "SwapAction_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "TakeFlashloan",
@@ -96,7 +83,8 @@
         "history": [],
         "constructorArgs": [
           "address:ServiceRegistry",
-          "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+          "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+          "0x5a15566417e6C1c9546523066500bDDBc53F88C7"
         ]
       },
       {
@@ -105,9 +93,7 @@
         "address": "",
         "serviceRegistryName": "SetApproval_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "PullToken",
@@ -123,9 +109,7 @@
         "address": "",
         "serviceRegistryName": "SendToken_4",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "WrapEth",
@@ -133,9 +117,7 @@
         "address": "",
         "serviceRegistryName": "WrapEth_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "UnwrapEth",
@@ -143,9 +125,7 @@
         "address": "",
         "serviceRegistryName": "UnwrapEth_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "ReturnFunds",
@@ -161,9 +141,7 @@
         "address": "",
         "serviceRegistryName": "AaveBorrow_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "AaveWithdraw",
@@ -171,9 +149,7 @@
         "address": "",
         "serviceRegistryName": "AaveWithdraw_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "AaveDeposit",
@@ -181,9 +157,7 @@
         "address": "",
         "serviceRegistryName": "AaveDeposit_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       },
       {
         "name": "AavePayback",
@@ -191,9 +165,7 @@
         "address": "",
         "serviceRegistryName": "AavePayback_3",
         "history": [],
-        "constructorArgs": [
-          "address:ServiceRegistry"
-        ]
+        "constructorArgs": ["address:ServiceRegistry"]
       }
     ]
   },
@@ -201,10 +173,6 @@
     {
       "name": "FeeRecipient",
       "address": "0xC7b548AD9Cf38721810246C079b2d8083aba8909"
-    },
-    {
-      "name": "DsGuardFactory",
-      "address": "0x5a15566417e6C1c9546523066500bDDBc53F88C7"
     },
     {
       "name": "DsProxyRegistry",

@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
+import { getForkedNetwork } from '../../../../../../helpers/network'
 import { IBaseSimulatedTransition, IPosition } from '../../../domain/Position'
 import { IRiskRatio } from '../../../domain/RiskRatio'
 import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
@@ -35,7 +36,6 @@ import { WithV2Protocol, WithV3Protocol } from '../../../types/aave/Protocol'
 import { FlashloanProvider } from '../../../types/common'
 import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
 import { AaveVersion } from '../getCurrentPosition'
-import { getForkedNetwork } from '../../../../../../helpers/network'
 
 export type AaveAdjustArgs = IPositionTransitionArgs<AAVETokens> & { positionType: PositionType }
 type AaveAdjustSharedDependencies = {
