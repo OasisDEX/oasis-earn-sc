@@ -20,15 +20,9 @@ import { IERC20 } from "../../libs/SafeERC20.sol";
  * @notice Executes a sequence of Actions after flashloaning funds
  */
 contract TakeFlashloan is Executable, ProxyPermission {
-  ServiceRegistry internal immutable registry;
   address internal immutable dai;
 
-  constructor(
-    ServiceRegistry _registry,
-    address _dai,
-    address _dsGuardFactory
-  ) ProxyPermission(_dsGuardFactory) {
-    registry = _registry;
+  constructor(ServiceRegistry _registry, address _dai) ProxyPermission(_registry) {
     dai = _dai;
   }
 

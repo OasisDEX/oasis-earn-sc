@@ -1,4 +1,4 @@
-import { AaveVersion, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
+import { AaveVersion, ONE, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
@@ -17,7 +17,7 @@ import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '.
 import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-const depositCollateralAmount = amountToWei(new BigNumber(1), ETH.precision)
+const depositCollateralAmount = amountToWei(ONE, ETH.precision)
 
 async function getEthUsdcMultiplyAAVEPosition(
   slippage: BigNumber,

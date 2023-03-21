@@ -96,8 +96,7 @@
         "history": [],
         "constructorArgs": [
           "address:ServiceRegistry",
-          "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-          "0x5a15566417e6C1c9546523066500bDDBc53F88C7"
+          "0x6B175474E89094C44Da98b954EedeAC495271d0F"
         ]
       },
       {
@@ -202,6 +201,10 @@
     {
       "name": "FeeRecipient",
       "address": "0xC7b548AD9Cf38721810246C079b2d8083aba8909"
+    },
+    {
+      "name": "DsGuardFactory",
+      "address": "0x5a15566417e6C1c9546523066500bDDBc53F88C7"
     },
     {
       "name": "DsProxyRegistry",

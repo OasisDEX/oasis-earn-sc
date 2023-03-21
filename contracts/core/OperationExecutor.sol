@@ -17,7 +17,7 @@ import { FlashloanData, Call } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 import { BALANCER_VAULT } from "./constants/Balancer.sol";
-import "hardhat/console.sol";
+
 error UntrustedLender(address lender);
 error InconsistentAsset(address flashloaned, address required);
 error InconsistentAmount(uint256 flashloaned, uint256 required);
@@ -107,7 +107,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
   }
 
   /**
-       * @notice Not to be called directly.
+   * @notice Not to be called directly.
    * @dev Callback handler for use by a flashloan lender contract.
    * If the isProxyFlashloan flag is supplied we reestablish the calling context as the user's proxy (at time of writing DSProxy). Although stored values will
    * We set the initiator on Operation Storage such that calls originating from other contracts EG Oasis Automation Bot (see https://github.com/OasisDEX/automation-smartcontracts)

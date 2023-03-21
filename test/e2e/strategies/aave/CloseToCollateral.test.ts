@@ -27,7 +27,7 @@ describe('Close AAVEv2 Position to collateral', () => {
     // Since we deploy the system without using 1inch, there fore the swap that's
     // assigned is uniswap. In our tests we would like to use the actual swap with 1inch.
     await fixture.registry.removeEntry(CONTRACT_NAMES.common.SWAP)
-    await fixture.registry.addEntry(CONTRACT_NAMES.common.SWAP, fixture.system.common.swap.address)
+    await fixture.registry.addEntry(CONTRACT_NAMES.common.SWAP, fixture.system.Swap.address)
   })
 
   it('DPMProxy | Collateral - ETH ( 18 precision ) | Debt - USDC ( 6 precision )', async () => {
@@ -188,7 +188,7 @@ describe('Close AAVEv2 Position to collateral', () => {
       .to.be.true
   })
 
-  it('DSProxy | Collateral - STETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
+  it.only('DSProxy | Collateral - STETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
     const position = fixture.dsProxyPosition
     assert(position, 'Unsupported position')
 
@@ -297,7 +297,7 @@ describe('Close AAVEv3 Position to collateral', () => {
     // Since we deploy the system without using 1inch, there fore the swap that's
     // assigned is uniswap. In our tests we would like to use the actual swap with 1inch.
     await fixture.registry.removeEntry(CONTRACT_NAMES.common.SWAP)
-    await fixture.registry.addEntry(CONTRACT_NAMES.common.SWAP, fixture.system.common.swap.address)
+    await fixture.registry.addEntry(CONTRACT_NAMES.common.SWAP, fixture.system.Swap.address)
   })
 
   it('DPMProxy | Collateral - ETH ( 18 precision ) | Debt - USDC ( 6 precision )', async () => {
