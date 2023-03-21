@@ -27,6 +27,12 @@ export interface AjnaPool {
   poolActualUtilization: BigNumber
   poolTargetUtilization: BigNumber
 
+  poolSize: BigNumber
+  loansCount: BigNumber
+  maxBorrower: string
+  pendingInflator: BigNumber
+  pendingInterestFactor: BigNumber
+
   // annualized rate as a fraction 0.05 = 5%
   rate: BigNumber
 }

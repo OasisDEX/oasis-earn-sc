@@ -53,6 +53,7 @@ export async function getPool(
     poolPricesInfo,
     momp,
     poolUtilizationInfo,
+    loansInfo,
   ] = await Promise.all([
     pool.collateralAddress(),
     pool.quoteTokenAddress(),
@@ -60,6 +61,7 @@ export async function getPool(
     poolInfo.poolPricesInfo(poolAddress),
     poolInfo.momp(poolAddress).catch(() => ethers.BigNumber.from(0)),
     poolInfo.poolUtilizationInfo(poolAddress),
+    poolInfo.poolLoansInfo(poolAddress),
   ])
 
   return {
@@ -80,10 +82,22 @@ export async function getPool(
 
     mostOptimisticMatchingPrice: new BigNumber(momp.toString()).div(WAD),
 
-    poolMinDebtAmount: new BigNumber(poolUtilizationInfo.poolMinDebtAmount_.toString()),
-    poolCollateralization: new BigNumber(poolUtilizationInfo.poolCollateralization_.toString()),
-    poolActualUtilization: new BigNumber(poolUtilizationInfo.poolActualUtilization_.toString()),
-    poolTargetUtilization: new BigNumber(poolUtilizationInfo.poolTargetUtilization_.toString()),
+    poolMinDebtAmount: new BigNumber(poolUtilizationInfo.poolMinDebtAmount_.toString()).div(WAD),
+    poolCollateralization: new BigNumber(poolUtilizationInfo.poolCollateralization_.toString()).div(
+      WAD,
+    ),
+    poolActualUtilization: new BigNumber(poolUtilizationInfo.poolActualUtilization_.toString()).div(
+      WAD,
+    ),
+    poolTargetUtilization: new BigNumber(poolUtilizationInfo.poolTargetUtilization_.toString()).div(
+      WAD,
+    ),
+
+    poolSize: new BigNumber(loansInfo.loansInfo_.toString()).div(WAD),
+    loansCount: new BigNumber(loansInfo.loansCount_.toString()).div(WAD),
+    maxBorrower: loansInfo.maxBorrower_.toString(),
+    pendingInflator: new BigNumber(loansInfo.pendingInflator_.toString()).div(WAD),
+    pendingInterestFactor: new BigNumber(loansInfo.pendingInterestFactor_.toString()).div(WAD),
 
     rate: new BigNumber(interestRateInfo[0].toString()).div(WAD),
   }
