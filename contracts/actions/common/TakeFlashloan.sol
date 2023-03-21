@@ -8,12 +8,7 @@ import { IERC3156FlashBorrower } from "../../interfaces/flashloan/IERC3156FlashB
 import { IERC3156FlashLender } from "../../interfaces/flashloan/IERC3156FlashLender.sol";
 import { IFlashLoanRecipient } from "../../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
 import { FlashloanData, FlashloanProvider } from "../../core/types/Common.sol";
-import {
-  OPERATION_EXECUTOR,
-  DAI,
-  TAKE_FLASH_LOAN_ACTION,
-  CHAINLOG_VIEWER
-} from "../../core/constants/Common.sol";
+import { OPERATION_EXECUTOR, DAI, CHAINLOG_VIEWER } from "../../core/constants/Common.sol";
 import { MCD_FLASH } from "../../core/constants/Maker.sol";
 import { BALANCER_VAULT } from "../../core/constants/Balancer.sol";
 import { ChainLogView } from "../../core/views/ChainLogView.sol";
@@ -77,8 +72,6 @@ contract TakeFlashloan is Executable, ProxyPermission {
     if (flData.isProxyFlashloan) {
       removePermission(flData.isDPMProxy, operationExecutorAddress);
     }
-
-    emit Action(TAKE_FLASH_LOAN_ACTION, bytes(abi.encode(flData.amount)));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (FlashloanData memory params) {

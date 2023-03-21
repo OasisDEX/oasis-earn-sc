@@ -8,7 +8,7 @@ import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
 import { DepositData } from "../../../core/types/Aave.sol";
 import { SafeMath } from "../../../libs/SafeMath.sol";
 
-import { AAVE_POOL, AAVE_L2_ENCODER, DEPOSIT_V3_ACTION } from "../../../core/constants/Aave.sol";
+import { AAVE_POOL, AAVE_L2_ENCODER } from "../../../core/constants/Aave.sol";
 
 /**
  * @title Deposit | AAVE V3 Action contract
@@ -72,7 +72,6 @@ contract AaveV3L2Deposit is Executable, UseStore {
     }
 
     store().write(bytes32(actualDepositAmount));
-    emit Action(DEPOSIT_V3_ACTION, abi.encode(actualDepositAmount));
   }
 
   function parseInputs(bytes memory _callData) public pure returns (DepositData memory params) {
