@@ -35,6 +35,7 @@ import { WithV2Protocol, WithV3Protocol } from '../../../types/aave/Protocol'
 import { FlashloanProvider } from '../../../types/common'
 import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
 import { AaveVersion } from '../getCurrentPosition'
+import { getForkedNetwork } from '../../../../../../helpers/network'
 
 export type AaveAdjustArgs = IPositionTransitionArgs<AAVETokens> & { positionType: PositionType }
 type AaveAdjustSharedDependencies = {
@@ -613,7 +614,7 @@ async function buildOperationV3({
     adjustRiskUp,
     args.positionType === 'Earn',
   )
-  const flashloanProvider = await resolveFlashloanProvider(dependencies.provider)
+  const flashloanProvider = resolveFlashloanProvider(await getForkedNetwork(dependencies.provider))
 
   const adjustRiskArgs = {
     collateral: {

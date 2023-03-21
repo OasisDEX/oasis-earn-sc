@@ -27,6 +27,7 @@ import { WithFee } from '../../../types/aave/Fee'
 import { WithV2Protocol, WithV3Protocol } from '../../../types/aave/Protocol'
 import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
 import { AaveVersion } from '../getCurrentPosition'
+import { getForkedNetwork } from '../../../../../../helpers/network'
 
 export interface AaveOpenArgs {
   depositedByUser?: {
@@ -305,7 +306,9 @@ async function buildOperation(
   )
 
   if (protocolVersion === AaveVersion.v3 && 'pool' in dependencies.addresses) {
-    const flashloanProvider = await resolveFlashloanProvider(dependencies.provider)
+    const flashloanProvider = resolveFlashloanProvider(
+      await getForkedNetwork(dependencies.provider),
+    )
     const hasCollateralDeposit = args.depositedByUser?.collateralToken?.amountInBaseUnit?.gt(ZERO)
     const depositAddress = hasCollateralDeposit ? collateralTokenAddress : debtTokenAddress
     const depositAmount = hasCollateralDeposit
