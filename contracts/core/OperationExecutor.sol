@@ -81,6 +81,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
   function aggregate(Call[] memory calls) internal {
     OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
     bool hasActionsToVerify = opStorage.hasActionsToVerify();
+
     for (uint256 current = 0; current < calls.length; current++) {
       if (hasActionsToVerify) {
         opStorage.verifyAction(calls[current].targetHash, calls[current].skipped);
@@ -113,7 +114,6 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
    * The initiator address will be used to store values against the original msg.sender.
    * This protects against the Operation Storage values being polluted by malicious code from untrusted 3rd party contracts.
 
-   * @param initiator Is the address of the contract that initiated the flashloan (EG Operation Executor)
    * @param asset The address of the asset being flash loaned
    * @param amount The size of the flash loan
    * @param fee The Fee charged for the loan
@@ -126,8 +126,8 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
     uint256 fee,
     bytes calldata data
   ) external override returns (bytes32) {
-    address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
+    address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
 
     checkIfLenderIsTrusted(lender);
     checkIfFlashloanedAssetIsTheRequiredOne(asset, flData.asset);
@@ -153,15 +153,13 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
   ) external override {
     address asset = address(tokens[0]);
     address lender = registry.getRegisteredService(BALANCER_VAULT);
-    FlashloanData memory flData = abi.decode(data, (FlashloanData));
+    (FlashloanData memory flData, address initiator) = abi.decode(data, (FlashloanData, address));
 
     checkIfLenderIsTrusted(lender);
     checkIfFlashloanedAssetIsTheRequiredOne(asset, flData.asset);
     checkIfFlashloanedAmountIsTheRequiredOne(asset, flData.amount);
 
-    // Can we just assume that the initiator is the OperationExecutor?
-    // Are there any security consequences because of that assumption?
-    processFlashloan(flData, registry.getRegisteredService(OPERATION_EXECUTOR));
+    processFlashloan(flData, initiator);
 
     uint256 paybackAmount = amounts[0].add(feeAmounts[0]);
 

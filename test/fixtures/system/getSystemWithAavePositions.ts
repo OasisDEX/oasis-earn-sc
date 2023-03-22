@@ -7,7 +7,7 @@ import { buildGetTokenByImpersonateFunction, buildGetTokenFunction } from '../..
 import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
-import { mainnetAddresses } from '../../addresses'
+import { mainnetAddresses } from '../../addresses/mainnet'
 import {
   createDPMAccount,
   createEthUsdcMultiplyAAVEPosition,
@@ -103,6 +103,11 @@ export const getSystemWithAavePositions =
       throw new Error('Cant create a DPM proxy')
     }
 
+    const configWithDeployedSystem = {
+      ...config,
+      ds,
+    }
+
     const swapAddress = system.Swap.contract.address
 
     const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
@@ -111,7 +116,7 @@ export const getSystemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config,
+      config: configWithDeployedSystem,
     })
 
     const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
@@ -120,7 +125,7 @@ export const getSystemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config,
+      config: configWithDeployedSystem,
     })
 
     const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
@@ -129,7 +134,7 @@ export const getSystemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config,
+      config: configWithDeployedSystem,
       getTokens,
     })
 
@@ -139,7 +144,7 @@ export const getSystemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config,
+      config: configWithDeployedSystem,
       getTokens,
     })
 
@@ -149,7 +154,7 @@ export const getSystemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config,
+      config: configWithDeployedSystem,
     })
 
     const dpmPositions = {

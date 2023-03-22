@@ -6,6 +6,7 @@ string constant OPERATION_EXECUTOR = "OperationExecutor_2";
 string constant OPERATIONS_REGISTRY = "OperationsRegistry_2";
 string constant CHAINLOG_VIEWER = "ChainLogView";
 string constant ONE_INCH_AGGREGATOR = "OneInchAggregator";
+string constant DS_GUARD_FACTORY = "DSGuardFactory";
 string constant WETH = "WETH";
 string constant DAI = "DAI";
 uint256 constant RAY = 10**27;

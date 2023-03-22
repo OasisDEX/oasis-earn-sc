@@ -5,6 +5,7 @@ import * as actions from '../../../actions'
 import { getActionHash } from '../../../actions/getActionHash'
 import { CONTRACT_NAMES, OPERATION_NAMES, ZERO } from '../../../helpers/constants'
 import { Address } from '../../../types'
+import { FlashloanProvider } from '../../../types/common'
 import { IOperation } from '../../../types/Operations'
 import { PositionType } from '../../../types/PositionType'
 import { Protocol } from '../../../types/Protocol'
@@ -201,9 +202,10 @@ export async function open({
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     isDPMProxy,
+    asset: addresses.DAI,
     flashloanAmount: flashloanAmount,
-    borrower: addresses.operationExecutor,
     isProxyFlashloan: true,
+    provider: FlashloanProvider.DssFlash,
     calls: flashloanCalls,
   })
 

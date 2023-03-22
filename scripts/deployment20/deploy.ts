@@ -3,6 +3,7 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
+import { Network, NetworkByChainId } from '@helpers/network'
 import { ServiceRegistry } from '@helpers/serviceRegistry'
 import { OperationsRegistry } from '@helpers/wrappers/operationsRegistry'
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src'
@@ -22,15 +23,9 @@ import NodeCache from 'node-cache'
 import prompts from 'prompts'
 
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
-import { EtherscanGasPrice, Network } from '../common'
+import { EtherscanGasPrice } from '../common'
 
 configLoader.setBaseDir('./scripts/deployment20/')
-
-export const ChainById: { [key: number]: Network } = {
-  1: Network.MAINNET,
-  5: Network.GOERLI,
-  10: Network.OPT_MAINNET,
-}
 
 const restrictedNetworks = [
   Network.MAINNET,
@@ -84,7 +79,7 @@ abstract class DeployedSystemHelpers {
   }
 
   getNetworkFromChainId(chainId: number): Network {
-    return ChainById[chainId]
+    return NetworkByChainId[chainId]
   }
 
   getRpcUrl(network: Network): string {
@@ -113,11 +108,10 @@ abstract class DeployedSystemHelpers {
 
 // MAIN CLASS ===============================================
 export class DeploymentSystem extends DeployedSystemHelpers {
-  private readonly _cache = new NodeCache()
-
   public config: any = {}
   public deployedSystem: any = {}
   public addresses: any = []
+  private readonly _cache = new NodeCache()
 
   constructor(public readonly hre: HardhatRuntimeEnvironment) {
     super()
@@ -168,7 +162,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async postDeployment(configItem: any, contract: Contract, constructorArguments: any) {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
-    console.log('POST DEPLOYMENT', configItem.name, configItem.address)
+    console.log('POST DEPLOYMENT', configItem.name, contract.address)
 
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
@@ -340,12 +334,13 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.signer) throw new Error('No signer set')
     if (!this.signerAddress) throw new Error('No signer address set')
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
+    if (!this.feeRecipient) throw new Error('No fee recipient set')
 
     const deploySwapContract = await this.deployContract(
       this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
       [
         this.signerAddress,
-        this.feeRecipient || this.signerAddress, // Fallback to signer address if no fee recipient is set
+        this.feeRecipient,
         0,
         this.deployedSystem['ServiceRegistry'].contract.address,
       ],
@@ -382,34 +377,39 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.DAI, this.addresses.DAI)
     await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.USDC, this.addresses.USDC)
 
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.common.UNISWAP_ROUTER,
-      this.addresses.UniswapRouterV3,
-    )
+    this.addresses.UniswapRouterV3 &&
+      (await this.serviceRegistryHelper.addEntry(
+        CONTRACT_NAMES.common.UNISWAP_ROUTER,
+        this.addresses.UniswapRouterV3,
+      ))
     await this.serviceRegistryHelper.addEntry(
       CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
       this.addresses.OneInchAggregator,
     )
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
-      this.addresses.FlashMintModule,
-    )
+    this.addresses.FlashMintModule &&
+      (await this.serviceRegistryHelper.addEntry(
+        CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
+        this.addresses.FlashMintModule,
+      ))
     await this.serviceRegistryHelper.addEntry(
       CONTRACT_NAMES.common.BALANCER_VAULT,
       this.addresses.BalancerVault,
     )
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.aave.v2.LENDING_POOL,
-      this.addresses.AaveV2LendingPool,
-    )
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
-      this.addresses.WETHGateway,
-    )
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.aave.v3.AAVE_POOL,
-      this.addresses.AaveV3Pool,
-    )
+    this.addresses.AaveV2LendingPool &&
+      (await this.serviceRegistryHelper.addEntry(
+        CONTRACT_NAMES.aave.v2.LENDING_POOL,
+        this.addresses.AaveV2LendingPool,
+      ))
+    this.addresses.WETHGateway &&
+      (await this.serviceRegistryHelper.addEntry(
+        CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
+        this.addresses.WETHGateway,
+      ))
+    this.addresses.AaveV3Pool &&
+      (await this.serviceRegistryHelper.addEntry(
+        CONTRACT_NAMES.aave.v3.AAVE_POOL,
+        this.addresses.AaveV3Pool,
+      ))
 
     // Add AAVE Operations
     await operationsRegistry.addOp(aaveV2OpenOp.name, aaveV2OpenOp.actions)

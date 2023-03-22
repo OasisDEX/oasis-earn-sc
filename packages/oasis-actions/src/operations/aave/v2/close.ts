@@ -5,6 +5,7 @@ import { getActionHash } from '../../../actions/getActionHash'
 import { ADDRESSES } from '../../../helpers/addresses'
 import { CONTRACT_NAMES, MAX_UINT, OPERATION_NAMES } from '../../../helpers/constants'
 import { IOperation } from '../../../types'
+import { FlashloanProvider } from '../../../types/common'
 import { AAVEStrategyAddresses } from './addresses'
 
 export const operationDefinition = {
@@ -143,9 +144,10 @@ export async function close(
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     flashloanAmount: args.flashloanAmount,
-    borrower: addresses.operationExecutor,
+    asset: addresses.DAI,
     isProxyFlashloan: true,
     isDPMProxy: args.isDPMProxy,
+    provider: FlashloanProvider.DssFlash,
     calls: [
       setDaiApprovalOnLendingPool,
       depositDaiInAAVE,

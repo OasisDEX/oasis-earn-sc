@@ -38,6 +38,7 @@ export const CONTRACT_NAMES = {
     OPERATIONS_REGISTRY: 'OperationsRegistry_2',
     CHAINLOG_VIEWER: 'ChainLogView',
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
+    DS_GUARD_FACTORY: 'DSGuardFactory',
     SWAP: 'Swap',
     EXCHANGE: 'Exchange',
     UNISWAP_ROUTER: 'UniswapRouter',

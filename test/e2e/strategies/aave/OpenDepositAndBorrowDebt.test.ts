@@ -1,11 +1,11 @@
-import { executeThroughDPMProxy, executeThroughProxy } from '@helpers/deploy'
-import { amountToWei, approve } from '@helpers/utils'
-import { AAVETokens, AaveVersion, strategies } from '@oasisdex/oasis-actions'
+import { AAVETokens, strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 
+import { executeThroughDPMProxy, executeThroughProxy } from '../../../../helpers/deploy'
+import { amountToWei, approve } from '../../../../helpers/utils'
 import { zero } from '../../../../scripts/common'
-import { mainnetAddresses } from '../../../addresses'
+import { mainnetAddresses } from '../../../addresses/mainnet'
 import { getSystemWithProxies, SystemWithProxies } from '../../../fixtures'
 import { expectToBe, expectToBeEqual } from '../../../utils'
 
@@ -87,7 +87,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
 
         const afterTransactionPosition = await strategies.aave.v2.view(
           { collateralToken: collateral, debtToken: debt, proxy: dsProxy },
-          { ...strategiesDependencies, protocolVersion: AaveVersion.v2 },
+          { ...strategiesDependencies },
         )
 
         expect(status).to.be.true
@@ -150,7 +150,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
 
           const afterTransactionPosition = await strategies.aave.v2.view(
             { collateralToken: collateral, debtToken: debt, proxy: proxy.proxy },
-            { ...strategiesDependencies, protocolVersion: AaveVersion.v2 },
+            { ...strategiesDependencies },
           )
 
           expect(status).to.be.true
@@ -213,7 +213,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
 
         const afterTransactionPosition = await strategies.aave.v2.view(
           { collateralToken: collateral, debtToken: debt, proxy: dsProxy },
-          { ...strategiesDependencies, protocolVersion: AaveVersion.v2 },
+          { ...strategiesDependencies },
         )
 
         expect(status).to.be.true
@@ -284,7 +284,7 @@ describe('Strategy | AAVE | Open Deposit and Borrow Debt', async () => {
 
           const afterTransactionPosition = await strategies.aave.v2.view(
             { collateralToken: collateral, debtToken: debt, proxy: proxy.proxy },
-            { ...strategiesDependencies, protocolVersion: AaveVersion.v2 },
+            { ...strategiesDependencies },
           )
 
           expect(status).to.be.true

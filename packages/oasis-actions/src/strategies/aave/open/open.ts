@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
+import { getForkedNetwork } from '../../../../../../helpers/network'
 import { Unbox } from '../../../../../../helpers/types/common'
 import { IBaseSimulatedTransition, Position } from '../../../domain/Position'
 import { IRiskRatio } from '../../../domain/RiskRatio'
@@ -13,6 +14,7 @@ import {
   ONE,
   ZERO,
 } from '../../../helpers/constants'
+import { resolveFlashloanProvider } from '../../../helpers/flashloan/resolve-provider'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
 import { feeResolver } from '../../../helpers/swap/feeResolver'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
@@ -83,6 +85,7 @@ export async function open(
       getTokenAddresses: getAaveTokenAddresses,
     },
   })
+
   const { simulatedPositionTransition, reserveEModeCategory } = await simulatePositionTransition(
     quoteSwapData,
     {
@@ -294,37 +297,68 @@ async function buildOperation(
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
   const borrowAmountInWei = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
 
+  const isIncreasingRisk = true
+  const fee = feeResolver(
+    args.collateralToken.symbol,
+    args.debtToken.symbol,
+    isIncreasingRisk,
+    args.positionType === 'Earn',
+  )
+
   if (protocolVersion === AaveVersion.v3 && 'pool' in dependencies.addresses) {
+    const flashloanProvider = resolveFlashloanProvider(
+      await getForkedNetwork(dependencies.provider),
+    )
+    const hasCollateralDeposit = args.depositedByUser?.collateralToken?.amountInBaseUnit?.gt(ZERO)
+    const depositAddress = hasCollateralDeposit ? collateralTokenAddress : debtTokenAddress
+    const depositAmount = hasCollateralDeposit
+      ? args.depositedByUser?.collateralToken?.amountInBaseUnit
+      : args.depositedByUser?.debtToken?.amountInBaseUnit
+    const borrowAmount = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
+
     const openArgs = {
-      deposit: {
-        collateralToken: {
-          amountInBaseUnit: depositCollateralAmountInWei,
-          isEth: args.collateralToken.symbol === 'ETH',
-        },
-        debtToken: {
-          amountInBaseUnit: depositDebtAmountInWei,
-          isEth: args.debtToken.symbol === 'ETH',
+      collateral: {
+        address: collateralTokenAddress,
+        amount: depositCollateralAmountInWei,
+        isEth: args.collateralToken.symbol === 'ETH',
+      },
+      debt: {
+        address: debtTokenAddress,
+        amount: depositDebtAmountInWei,
+        isEth: args.debtToken.symbol === 'ETH',
+        borrow: {
+          amount: borrowAmount,
         },
       },
-      swapArgs: {
-        fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
-        swapData: swapData.exchangeCalldata,
-        swapAmountInBaseUnit: swapAmountBeforeFees,
+      deposit: {
+        address: depositAddress,
+        amount: depositAmount || ZERO,
+      },
+      swap: {
+        fee: fee.toNumber(),
+        data: swapData.exchangeCalldata,
+        amount: swapAmountBeforeFees,
         collectFeeFrom,
         receiveAtLeast: swapData.minToTokenAmount,
       },
-      positionType: args.positionType,
+      flashloan: {
+        amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
+        provider: flashloanProvider,
+      },
+      position: {
+        type: args.positionType,
+      },
+      emode: {
+        categoryId: reserveEModeCategory || 0,
+      },
+      proxy: {
+        address: dependencies.proxy,
+        isDPMProxy: dependencies.isDPMProxy,
+        owner: dependencies.user,
+      },
       addresses: dependencies.addresses,
-      flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
-      borrowAmountInBaseUnit: borrowAmountInWei,
-      collateralTokenAddress,
-      debtTokenAddress,
-      eModeCategoryId: reserveEModeCategory || 0,
-      useFlashloan: simulatedPositionTransition.flags.requiresFlashloan,
-      proxy: dependencies.proxy,
-      user: dependencies.user,
-      isDPMProxy: dependencies.isDPMProxy,
     }
+
     return await operations.aave.v3.open(openArgs)
   }
   if (protocolVersion === AaveVersion.v2 && 'lendingPool' in dependencies.addresses) {

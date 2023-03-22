@@ -102,3 +102,7 @@ export interface AjnaDependencies {
 }
 
 export type AjnaEarnActions = 'open-earn' | 'deposit-earn' | 'withdraw-earn'
+export enum FlashloanProvider {
+  DssFlash = 0,
+  Balancer = 1,
+}
