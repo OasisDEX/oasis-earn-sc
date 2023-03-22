@@ -7,7 +7,7 @@ import { getAjnaEarnActionOutput, resolveAjnaEthAction } from '../../../helpers/
 import { AjnaEarnPosition } from '../../../types/ajna'
 import { Address, Strategy } from '../../../types/common'
 import * as views from '../../../views'
-import { GetEarnData } from '../../../views/ajna'
+import { GetEarnData, GetPoolData } from '../../../views/ajna'
 
 interface Args {
   poolAddress: Address
@@ -26,6 +26,7 @@ export interface Dependencies {
   provider: ethers.providers.Provider
   WETH: Address
   getEarnData: GetEarnData
+  getPoolData: GetPoolData
 }
 
 export async function open(
@@ -44,6 +45,7 @@ export async function open(
       getEarnData: dependencies.getEarnData,
       poolInfoAddress: dependencies.poolInfoAddress,
       provider: dependencies.provider,
+      getPoolData: dependencies.getPoolData,
     },
   )
 
@@ -80,6 +82,9 @@ export async function open(
     args.dpmProxyAddress,
     args.quoteAmount,
     priceIndex,
+    position.nftId,
+    args.collateralPrice,
+    args.quotePrice,
   )
 
   return getAjnaEarnActionOutput({

@@ -28,5 +28,10 @@ export interface AjnaPool {
   poolTargetUtilization: BigNumber
 
   // annualized rate as a fraction 0.05 = 5%
-  rate: BigNumber
+  interestRate: BigNumber
+  debt: BigNumber
+  depositSize: BigNumber
+  apr30dAverage: BigNumber
+  dailyPercentageRate30dAverage: BigNumber
+  monthlyPercentageRate30dAverage: BigNumber
 }
