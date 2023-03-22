@@ -379,7 +379,7 @@ async function generateTransition(
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
 
   const amountOfTargetTokenPostSwapNormalised = amountFromWei(
-    dependencies.currentPosition.collateral.amount,
+    swapData.toTokenAmount,
     args.collateralToken.precision,
   ).div(expectedMarketPrice)
   const amountOfTargetTokenPostSwap = amountToWei(
