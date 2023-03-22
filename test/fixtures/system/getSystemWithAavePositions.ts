@@ -38,7 +38,7 @@ export const getSystemWithAavePositions =
   async (): Promise<SystemWithAAVEPositions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
-    ds.loadConfig('test-configs/test-aave-v2-mainnet.conf.json')
+    ds.loadConfig('mainnet.conf.ts')
 
     // If you update test block numbers you may run into issues where whale addresses
     // We use impersonation on test block number but with 1inch we use uniswap
@@ -57,12 +57,15 @@ export const getSystemWithAavePositions =
     if (!blockNumberForAAVEV2System && useFallbackSwap) {
       throw 'testBlockNumber is not set'
     }
-    ds.mapAddresses()
+
+    console.log('HERE...0')
     await ds.deployAll()
+    console.log('HERE...A')
     await ds.setupLocalSystem(use1inch)
 
+    console.log('HERE...')
     const { system, registry } = ds.getSystem()
-
+    console.log('HERE...1')
     const dependencies: StrategyDependenciesAaveV2 = {
       addresses: {
         ...mainnetAddresses,
@@ -86,7 +89,7 @@ export const getSystemWithAavePositions =
         ? swapAddress => getOneInchCall(swapAddress, [])
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
-
+    console.log('HERE...2')
     const [dpmProxyForEarnStEthEth] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyStEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
@@ -113,7 +116,7 @@ export const getSystemWithAavePositions =
       dependencies,
       config,
     })
-
+    console.log('HERE...3')
     const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyEthUsdc,
       isDPM: true,
@@ -165,6 +168,7 @@ export const getSystemWithAavePositions =
         : {}),
     }
 
+    console.log('SYSTEM', system)
     return {
       config,
       system,

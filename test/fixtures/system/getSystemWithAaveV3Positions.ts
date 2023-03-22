@@ -32,7 +32,7 @@ export const getSystemWithAaveV3Positions =
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
 
-    ds.loadConfig('test-configs/test-aave-v3-mainnet.conf.json')
+    ds.loadConfig('mainnet.conf.ts')
     // We're using uniswap to get tokens here rather than impersonating a user
     const getTokens = buildGetTokenFunction(config, await import('hardhat'))
 
@@ -49,7 +49,6 @@ export const getSystemWithAaveV3Positions =
       throw 'testBlockNumber is not set'
     }
 
-    ds.mapAddresses()
     await ds.deployAll()
     await ds.setupLocalSystem(use1inch)
 

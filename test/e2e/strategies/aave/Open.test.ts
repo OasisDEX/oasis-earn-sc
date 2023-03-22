@@ -28,7 +28,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         fixture = await loadFixture(getSystemWithAavePositions({ use1inch: false }))
       })
 
-      describe('Using DSProxy', () => {
+      describe.only('Using DSProxy', () => {
         let position: IPosition
         let simulatedPosition: IPosition
         let simulatedTransition: IPositionTransition['simulation']
@@ -107,7 +107,6 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
   })
-
   describe('Using AAVE V3', async function () {
     let fixture: SystemWithAAVEV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies()

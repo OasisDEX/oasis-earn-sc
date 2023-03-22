@@ -113,11 +113,10 @@ abstract class DeployedSystemHelpers {
 
 // MAIN CLASS ===============================================
 export class DeploymentSystem extends DeployedSystemHelpers {
-  private readonly _cache = new NodeCache()
-
   public config: any = {}
   public deployedSystem: any = {}
   public addresses: any = []
+  private readonly _cache = new NodeCache()
 
   constructor(public readonly hre: HardhatRuntimeEnvironment) {
     super()
@@ -341,6 +340,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.signerAddress) throw new Error('No signer address set')
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
 
+    console.log('HERE-I-0')
     const deploySwapContract = await this.deployContract(
       this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
       [
@@ -351,24 +351,26 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       ],
     )
 
+    console.log('HERE-I-00', useInch)
     !useInch && (await deploySwapContract.setPool(this.addresses.STETH, this.addresses.WETH, 10000))
+    !useInch && (await deploySwapContract.addFeeTier(20))
 
-    await deploySwapContract.addFeeTier(20)
-
+    console.log('HERE-I-0A')
     this.deployedSystem['Swap'] = { contract: deploySwapContract, config: {}, hash: '' }
 
     await this.serviceRegistryHelper.addEntry('Swap', deploySwapContract.address)
-
+    console.log('HERE-I-0B')
     this.deployedSystem.AccountGuard.contract.setWhitelist(
       this.deployedSystem.OperationExecutor.contract.address,
       true,
     )
-
+    console.log('HERE-I-0C')
     const operationsRegistry: OperationsRegistry = new OperationsRegistry(
       this.deployedSystem.OperationsRegistry.contract.address,
       this.signer,
     )
 
+    console.log('HERE-I-1')
     const dsProxyRegistry = await this.ethers.getContractAt(
       DS_PROXY_REGISTRY_ABI,
       this.addresses.DsProxyRegistry,
