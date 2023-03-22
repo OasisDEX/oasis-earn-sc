@@ -124,24 +124,16 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     this.network = hre.network.name as Network
   }
 
-  loadConfig(configFileName?: string) {
+  async loadConfig(configFileName?: string) {
     if (configFileName) {
-      configLoader.load(configFileName)
-      this.config = configLoader.get()
+      this.config = (await import(`./${configFileName}`)).config
     } else {
       // if forked other network then merge configs files
       if (this.forkedNetwork) {
-        console.log('LOAD COMBINED CONFIGS', this.forkedNetwork)
-        configLoader.load(`${this.forkedNetwork}.conf.json`)
-        const baseConfig = configLoader.get()
-        configLoader.load('local-extend.conf.json')
-        const extendedConfig = configLoader.get()
-
-        this.config = { ...baseConfig, ...extendedConfig }
+        const baseConfig = (await import(`./${this.forkedNetwork}.conf`)).config
+        const extendedConfig = (await import('./local-extend.conf')).config
         this.config = _.merge(baseConfig, extendedConfig)
       } else {
-        console.log(`LOAD ${this.network} CONFIG ONLY`)
-
         // otherwise load just one config file
         configLoader.load(`${this.network}.conf.json`)
         this.config = configLoader.get()
@@ -319,30 +311,29 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async deployCore() {
     await this.instantiateContracts(
-      this.config.mpa.core.filter((item: any) => item.address !== '' && !item.deploy),
+      Object.values(this.config.mpa.core).filter(
+        (item: any) => item.address !== '' && !item.deploy,
+      ),
     )
-    await this.deployContracts(this.config.mpa.core.filter((item: any) => item.deploy))
+    await this.deployContracts(
+      Object.values(this.config.mpa.core).filter((item: any) => item.deploy),
+    )
   }
 
   async deployActions() {
     await this.instantiateContracts(
-      this.config.mpa.actions.filter((item: any) => item.address !== '' && !item.deploy),
+      Object.values(this.config.mpa.actions).filter(
+        (item: any) => item.address !== '' && !item.deploy,
+      ),
     )
-    await this.deployContracts(this.config.mpa.actions.filter((item: any) => item.deploy))
+    await this.deployContracts(
+      Object.values(this.config.mpa.actions).filter((item: any) => item.deploy),
+    )
   }
 
   async deployAll() {
     await this.deployCore()
     await this.deployActions()
-  }
-
-  mapAddresses() {
-    this.config.external.forEach((item: any) => {
-      this.addresses[item.name] = item.address
-      if (item.name === 'FeeRecipient') {
-        this.feeRecipient = item.address
-      }
-    })
   }
 
   async setupLocalSystem(useInch?: boolean) {
