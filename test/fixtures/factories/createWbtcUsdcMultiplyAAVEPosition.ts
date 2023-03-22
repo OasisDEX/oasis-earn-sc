@@ -17,9 +17,9 @@ import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '.
 import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC, WBTC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-const amountInBaseUnit = amountToWei(new BigNumber(0.5), WBTC.precision)
+const amountInBaseUnit = amountToWei(new BigNumber(0.1), WBTC.precision)
 const wBTCtoSteal = amountToWei(new BigNumber(2), WBTC.precision)
-const WETHtoSwap = amountToWei(new BigNumber(20), ETH.precision)
+const WETHtoSwap = amountToWei(new BigNumber(2), ETH.precision)
 
 async function openWbtcUsdcMultiplyAAVEPosition(
   slippage: BigNumber,
@@ -72,7 +72,7 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
   dependencies: StrategiesDependencies
   config: RuntimeConfig
   getTokens: (symbol: 'WBTC', amount: BigNumber) => Promise<boolean>
-}): Promise<PositionDetails> {
+}): Promise<PositionDetails | null> {
   const strategy: AavePositionStrategy = 'WBTC/USDC Multiply'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
@@ -191,7 +191,7 @@ export async function createWbtcUsdcMultiplyAAVEPosition({
     getPosition,
     strategy,
     collateralToken: WBTC,
-    debtToken: USDC,
+    debtToken: new USDC(dependencies.addresses),
     getSwapData,
     __positionType: 'Multiply',
     __mockPrice: mockPrice,
