@@ -2,9 +2,15 @@ import AAVELendingPoolABI from '@abi/external/aave/v2/lendingPool.json'
 import aavePriceOracleABI from '@abi/external/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@abi/external/aave/v2/protocolDataProvider.json'
 import { executeThroughProxy } from '@helpers/deploy'
+import { Network } from '@helpers/network'
 import { oneInchCallMock } from '@helpers/swap/OneInchCallMock'
 import { RuntimeConfig, Unbox } from '@helpers/types/common'
 import { balanceOf } from '@helpers/utils'
+import BigNumber from 'bignumber.js'
+import { expect } from 'chai'
+import { loadFixture } from 'ethereum-waffle'
+import { Contract, ethers } from 'ethers'
+
 import {
   AAVETokens,
   ADDRESSES,
@@ -13,16 +19,11 @@ import {
   ONE,
   RiskRatio,
   strategies,
-} from '@oasisdex/oasis-actions'
-import { amountFromWei } from '@oasisdex/oasis-actions/lib/packages/oasis-actions/src/helpers'
-import { acceptedFeeToken } from '@oasisdex/oasis-actions/lib/packages/oasis-actions/src/helpers/swap/acceptedFeeToken'
-import { PositionType } from '@oasisdex/oasis-actions/lib/packages/oasis-actions/src/types'
-import BigNumber from 'bignumber.js'
-import { expect } from 'chai'
-import { loadFixture } from 'ethereum-waffle'
-import { Contract, ethers } from 'ethers'
-
-import { mainnetAddresses } from '../../../addresses'
+} from '../../../../packages/oasis-actions/src'
+import { amountFromWei } from '../../../../packages/oasis-actions/src/helpers'
+import { acceptedFeeToken } from '../../../../packages/oasis-actions/src/helpers/swap/acceptedFeeToken'
+import { PositionType } from '../../../../packages/oasis-actions/src/types'
+import { mainnetAddresses } from '../../../addresses/mainnet'
 import { DeployedSystemInfo } from '../../../deploySystem'
 import {
   getSupportedStrategies,
@@ -39,6 +40,7 @@ import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAV
 import { expectToBe } from '../../../utils'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
+const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
 describe('Strategy | AAVE | Adjust Position', async function () {
@@ -215,6 +217,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
         feeWalletBalanceAfterAdjust,
       }
     }
+
     describe('Adjust Risk Up', async function () {
       before(async () => {
         fixture = await loadFixture(getSystemWithAavePositions({ use1inch: false }))
@@ -478,7 +481,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
         ...mainnetAddresses,
         aaveOracle: mainnetAddresses.aave.v3.aaveOracle,
         pool: mainnetAddresses.aave.v3.pool,
-        aaveProtocolDataProvider: mainnetAddresses.aave.v3.aaveProtocolDataProvider,
+        poolDataProvider: mainnetAddresses.aave.v3.poolDataProvider,
         operationExecutor: system.common.operationExecutor.address,
       }
       const tokenAddresses: Record<AAVETokens, string> = {
@@ -514,7 +517,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
       const pool = new Contract(ADDRESSES.main.aave.v3.Pool, AAVELendingPoolABI, provider)
 
       const aaveProtocolDataProvider = new Contract(
-        ADDRESSES.main.aave.v3.AaveProtocolDataProvider,
+        ADDRESSES.main.aave.v3.PoolDataProvider,
         AAVEDataProviderABI,
         provider,
       )
@@ -613,7 +616,13 @@ describe('Strategy | AAVE | Adjust Position', async function () {
 
     describe('Adjust Risk Up', async function () {
       before(async () => {
-        fixture = await loadFixture(getSystemWithAaveV3Positions({ use1inch: false }))
+        fixture = await loadFixture(
+          getSystemWithAaveV3Positions({
+            use1inch: false,
+            network: networkFork,
+            systemConfigPath: `test-configs/test-aave-v3-${networkFork}.conf.json`,
+          }),
+        )
       })
       describe('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV3>>
@@ -727,7 +736,13 @@ describe('Strategy | AAVE | Adjust Position', async function () {
     })
     describe('Adjust Risk Down', async function () {
       before(async () => {
-        fixture = await loadFixture(getSystemWithAaveV3Positions({ use1inch: false }))
+        fixture = await loadFixture(
+          getSystemWithAaveV3Positions({
+            use1inch: false,
+            network: networkFork,
+            systemConfigPath: `test-configs/test-aave-v3-${networkFork}.conf.json`,
+          }),
+        )
       })
       describe('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV3>>

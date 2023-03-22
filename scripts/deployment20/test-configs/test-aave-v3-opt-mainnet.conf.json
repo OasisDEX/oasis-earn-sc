@@ -48,6 +48,14 @@
         "serviceRegistryName": "",
         "history": [],
         "constructorArgs": ["address:AccountGuard"]
+      },
+      {
+        "name": "ChainLogView",
+        "deploy": true,
+        "address": "",
+        "serviceRegistryName": "ChainLogView",
+        "history": [],
+        "constructorArgs": ["0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F"]
       }
     ],
     "actions": [
@@ -75,8 +83,8 @@
         "history": [],
         "constructorArgs": [
           "address:ServiceRegistry",
-          "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-          "0x5a15566417e6C1c9546523066500bDDBc53F88C7"
+          "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+          "0xc19d0F1E2b38AA283E226Ca4044766A43aA7B02b"
         ]
       },
       {
@@ -128,34 +136,42 @@
         "constructorArgs": []
       },
       {
-        "name": "AaveBorrow",
+        "name": "AaveV3Borrow",
         "deploy": true,
         "address": "",
-        "serviceRegistryName": "AaveBorrow_3",
+        "serviceRegistryName": "AaveV3Borrow",
         "history": [],
         "constructorArgs": ["address:ServiceRegistry"]
       },
       {
-        "name": "AaveWithdraw",
+        "name": "AaveV3Withdraw",
         "deploy": true,
         "address": "",
-        "serviceRegistryName": "AaveWithdraw_3",
+        "serviceRegistryName": "AaveV3Withdraw",
         "history": [],
         "constructorArgs": ["address:ServiceRegistry"]
       },
       {
-        "name": "AaveDeposit",
+        "name": "AaveV3Deposit",
         "deploy": true,
         "address": "",
-        "serviceRegistryName": "AaveDeposit_3",
+        "serviceRegistryName": "AaveV3Deposit",
         "history": [],
         "constructorArgs": ["address:ServiceRegistry"]
       },
       {
-        "name": "AavePayback",
+        "name": "AaveV3Payback",
         "deploy": true,
         "address": "",
-        "serviceRegistryName": "AavePayback_3",
+        "serviceRegistryName": "AaveV3Payback",
+        "history": [],
+        "constructorArgs": ["address:ServiceRegistry"]
+      },
+      {
+        "name": "AaveV3SetEMode",
+        "deploy": true,
+        "address": "",
+        "serviceRegistryName": "AaveV3SetEMode",
         "history": [],
         "constructorArgs": ["address:ServiceRegistry"]
       }
@@ -163,52 +179,48 @@
   },
   "external": [
     {
+      "name": "FeeRecipient",
+      "address": "0xC7b548AD9Cf38721810246C079b2d8083aba8909"
+    },
+    {
+      "name": "DsProxyRegistry",
+      "address": "0x283Cc5C26e53D66ed2Ea252D986F094B37E6e895"
+    },
+    {
       "name": "WETH",
-      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+      "address": "0x4200000000000000000000000000000000000006"
+    },
+    {
+      "name": "STETH",
+      "address": "0xFdb794692724153d1488CcdBE0C56c252596735F"
     },
     {
       "name": "USDC",
-      "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      "address": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
     },
     {
       "name": "DAI",
-      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      "address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"
     },
     {
       "name": "UniswapRouterV3",
-      "address": "0xe592427a0aece92de3edee1f18e0157c05861564"
+      "address": "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45"
     },
     {
-      "name": "FlashMintModule",
-      "address": "0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA"
+      "name": "OneInchAggregator",
+      "address": "0x1111111254EEB25477B68fb85Ed929f73A960582"
     },
     {
       "name": "BalancerVault",
       "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
     },
     {
-      "name": "DsProxyRegistry",
-      "address": "0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4"
-    },
-    {
-      "name": "AaveV2LendingPool",
-      "address": "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9"
-    },
-    {
-      "name": "WETHGateway",
-      "address": "0xcc9a0B7c43DC2a5F023Bb9b738E45B0Ef6B06E04"
-    },
-    {
-      "name": "AaveV2PriceOracle",
-      "address": "0xa50ba011c48153de246e5192c8f9258a2ba79ca9"
-    },
-    {
-      "name": "AaveV2ProtocolDataProvider",
-      "address": "0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d"
-    },
-    {
       "name": "AaveV3Pool",
-      "address": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"
+      "address": "0x794a61358D6845594F94dc1DB02A252b5b4814aD"
+    },
+    {
+      "name": "Chainlog",
+      "address": "0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F"
     }
   ],
   "__external": {

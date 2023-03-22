@@ -1,3 +1,4 @@
+import { ChainIdByNetwork, Network } from '@helpers/network'
 import { getOrCreateProxy } from '@helpers/proxy'
 import { RuntimeConfig } from '@helpers/types/common'
 import { AaveVersion, protocols, strategies } from '@oasisdex/oasis-actions/src'
@@ -7,11 +8,11 @@ import { buildGetTokenFunction } from '../../../helpers/aave/'
 import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
-import { mainnetAddresses } from '../../addresses'
-import { testBlockNumberForAaveV3 } from '../../config'
+import { testBlockNumberForAaveOptimismV3, testBlockNumberForAaveV3 } from '../../config'
+import { addressesByNetwork } from '../../test-utils/addresses'
 import { createDPMAccount, createEthUsdcMultiplyAAVEPosition } from '../factories'
 import { createWstEthEthEarnAAVEPosition } from '../factories/createWstEthEthEarnAAVEPosition'
-import { AaveV3PositionStrategy } from '../types/positionDetails'
+import { AaveV3PositionStrategy, PositionDetails } from '../types/positionDetails'
 import { StrategyDependenciesAaveV3 } from '../types/strategiesDependencies'
 import { SystemWithAAVEV3Positions } from '../types/systemWithAAVEPositions'
 
@@ -26,8 +27,24 @@ export function getSupportedAaveV3Strategies(ciMode?: boolean): Array<{
   ].filter(s => !ciMode || !s.localOnly)
 }
 
+const testBlockNumberByNetwork: Record<
+  Exclude<Network, Network.LOCAL | Network.GOERLI | Network.HARDHAT>,
+  number
+> = {
+  [Network.MAINNET]: testBlockNumberForAaveV3,
+  [Network.OPT_MAINNET]: testBlockNumberForAaveOptimismV3,
+}
+
 export const getSystemWithAaveV3Positions =
-  ({ use1inch }: { use1inch: boolean }) =>
+  ({
+    use1inch,
+    network,
+    systemConfigPath,
+  }: {
+    use1inch: boolean
+    network: Network
+    systemConfigPath: string
+  }) =>
   async (): Promise<SystemWithAAVEV3Positions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
@@ -37,8 +54,13 @@ export const getSystemWithAaveV3Positions =
     const getTokens = buildGetTokenFunction(config, await import('hardhat'))
 
     const useFallbackSwap = !use1inch
-    if (testBlockNumberForAaveV3 && useFallbackSwap) {
-      await ds.resetNode(testBlockNumberForAaveV3)
+    const isMainnet = network === Network.MAINNET
+
+    if (network !== Network.MAINNET && network !== Network.OPT_MAINNET)
+      throw new Error('Unsupported network')
+
+    if (testBlockNumberByNetwork[network] && useFallbackSwap) {
+      await ds.resetNode(testBlockNumberByNetwork[network])
     }
 
     if (use1inch) {
@@ -54,12 +76,26 @@ export const getSystemWithAaveV3Positions =
 
     const { system, registry } = ds.getSystem()
 
+    const addresses = addressesByNetwork(network)
+
+    const oneInchVersionMap = {
+      [Network.MAINNET]: 'v4.0' as const,
+      [Network.OPT_MAINNET]: 'v5.0' as const,
+    }
+    const oneInchVersion = oneInchVersionMap[network]
+    if (!oneInchVersion) throw new Error('Unsupported network')
     const dependencies: StrategyDependenciesAaveV3 = {
       addresses: {
-        ...mainnetAddresses,
-        aaveOracle: mainnetAddresses.aave.v3.aaveOracle,
-        pool: mainnetAddresses.aave.v3.pool,
-        aaveProtocolDataProvider: mainnetAddresses.aave.v3.aaveProtocolDataProvider,
+        DAI: addresses.DAI,
+        ETH: addresses.ETH,
+        USDC: addresses.USDC,
+        WETH: addresses.WETH,
+        WSTETH: addresses.WSTETH,
+        WBTC: addresses.WBTC,
+        chainlinkEthUsdPriceFeed: addresses.chainlinkEthUsdPriceFeed,
+        aaveOracle: addresses.aave.v3.aaveOracle,
+        pool: addresses.aave.v3.pool,
+        poolDataProvider: addresses.aave.v3.poolDataProvider,
         accountFactory: system.AccountFactory.contract.address,
         operationExecutor: system.OperationExecutor.contract.address,
       },
@@ -74,7 +110,7 @@ export const getSystemWithAaveV3Positions =
         getProtocolData: protocols.aave.getAaveProtocolData,
       },
       getSwapData: use1inch
-        ? swapAddress => getOneInchCall(swapAddress)
+        ? swapAddress => getOneInchCall(swapAddress, [], ChainIdByNetwork[network], oneInchVersion)
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
 
@@ -87,27 +123,39 @@ export const getSystemWithAaveV3Positions =
       throw new Error('Cant create a DPM proxy')
     }
 
+    const configWithDeployedSystem = {
+      ...config,
+      ds,
+    }
+
     const swapAddress = system.Swap.contract.address
 
-    const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-    })
+    let ethUsdcMultiplyPosition: PositionDetails | undefined
+    //TODO: Remove mainnet flag once DPM is deployed on Optimism
+    /* Re isMainnet: Waiting for DPM deployment on Optimism */
+    if (isMainnet) {
+      ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
+        proxy: dpmProxyForMultiplyEthUsdc,
+        isDPM: true,
+        use1inch,
+        swapAddress,
+        dependencies,
+        config: configWithDeployedSystem,
+      })
+    }
 
-    let wstethEthEarnPosition
-    /* Wsteth lacks sufficient liquidity on uniswap */
-    if (use1inch) {
+    let wstethEthEarnPosition: PositionDetails | undefined
+    /* Re use1inch: Wsteth lacks sufficient liquidity on uniswap */
+    //TODO: Remove mainnet flag once DPM is deployed on Optimism
+    /* Re isMainnet: Waiting for DPM deployment on Optimism */
+    if (use1inch && isMainnet) {
       wstethEthEarnPosition = await createWstEthEthEarnAAVEPosition({
         proxy: dpmProxyForEarnWstEthEth,
         isDPM: true,
         use1inch,
         swapAddress,
         dependencies,
-        config,
+        config: configWithDeployedSystem,
       })
     }
 
@@ -117,7 +165,7 @@ export const getSystemWithAaveV3Positions =
       use1inch,
       swapAddress,
       dependencies,
-      config,
+      config: configWithDeployedSystem,
     })
 
     return {

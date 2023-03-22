@@ -26,7 +26,7 @@ jobs:
         run: yarn compile
         env:
           BLOCK_NUMBER: 15946543
-          NETWORK_FORK: 'Mainnet'
+          NETWORK_FORK: 'mainnet'
           MAINNET_URL: ${{ secrets.MAINNET_URL }}
 
       - name: Lint

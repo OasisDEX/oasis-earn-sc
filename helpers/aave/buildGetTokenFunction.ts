@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
-import { mainnetAddresses } from '../../test/addresses'
+import { mainnetAddresses } from '../../test/addresses/mainnet'
 import { RuntimeConfig } from '../types/common'
 
 export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH'>

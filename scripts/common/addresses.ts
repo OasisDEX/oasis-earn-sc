@@ -1,6 +1,5 @@
+import { isSupportedNetwork, Network } from '@helpers/network'
 import { constants } from 'ethers'
-
-import { isSupportedNetwork, Network } from './types'
 
 export const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 export const ONE_INCH_V4_ROUTER = '0x1111111254fb6c44bac0bed2854e76f90643097d'
