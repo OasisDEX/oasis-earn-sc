@@ -3,7 +3,7 @@ import { amountToWei } from '@helpers/utils'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
-import { mainnetAddresses } from '../../test/addresses'
+import { mainnetAddresses } from '../../test/addresses/mainnet'
 
 const tokens = {
   STETH: mainnetAddresses.STETH,

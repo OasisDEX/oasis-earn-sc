@@ -42,5 +42,3 @@ export async function expectRevert(expression: RegExp, tx: Promise<unknown>) {
     expect('Tx to fail', 'Tx should revert').to.be.eq('Tx succeeded')
   }
 }
-
-export const TESTING_OFFSET = 0.1

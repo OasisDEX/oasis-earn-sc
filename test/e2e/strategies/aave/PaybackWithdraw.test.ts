@@ -1,12 +1,12 @@
 import { executeThroughDPMProxy, executeThroughProxy } from '@helpers/deploy'
 import { amountToWei, approve, balanceOf } from '@helpers/utils'
-import { strategies } from '@oasisdex/oasis-actions'
+import { strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 
 import { zero } from '../../../../scripts/common'
-import { mainnetAddresses } from '../../../addresses'
+import { mainnetAddresses } from '../../../addresses/mainnet'
 import {
   getSupportedStrategies,
   getSystemWithAavePositions,

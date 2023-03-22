@@ -8,11 +8,16 @@ import "./DSAuth.sol";
 import { FlashloanData } from "../../core/types/Common.sol";
 import { IAccountImplementation } from "../../interfaces/dpm/IAccountImplementation.sol";
 import { IAccountGuard } from "../../interfaces/dpm/IAccountGuard.sol";
+import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
+import { DS_GUARD_FACTORY } from "../../core/constants/Common.sol";
 
 contract ProxyPermission {
-  address internal constant FACTORY_ADDRESS = 0x5a15566417e6C1c9546523066500bDDBc53F88C7;
-
+  DSGuardFactory internal immutable dsGuardFactory;
   bytes4 public constant ALLOWED_METHOD_HASH = bytes4(keccak256("execute(address,bytes)"));
+
+  constructor(address _dsGuardFactory) {
+    dsGuardFactory = DSGuardFactory(_dsGuardFactory);
+  }
 
   function givePermission(bool isDPMProxy, address _contractAddr) public {
     if (isDPMProxy) {
@@ -27,7 +32,7 @@ contract ProxyPermission {
       address currAuthority = address(DSAuth(address(this)).authority());
       DSGuard guard = DSGuard(currAuthority);
       if (currAuthority == address(0)) {
-        guard = DSGuardFactory(FACTORY_ADDRESS).newGuard();
+        guard = dsGuardFactory.newGuard();
         DSAuth(address(this)).setAuthority(DSAuthority(address(guard)));
       }
 

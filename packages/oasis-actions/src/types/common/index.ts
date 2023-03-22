@@ -26,3 +26,8 @@ export type Strategy<Position> = {
   }
   tx: Tx
 }
+
+export enum FlashloanProvider {
+  DssFlash = 0,
+  Balancer = 1,
+}

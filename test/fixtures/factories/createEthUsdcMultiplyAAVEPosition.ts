@@ -1,4 +1,4 @@
-import { AaveVersion, ADDRESSES, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
+import { AaveVersion, ONE, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
@@ -12,19 +12,20 @@ import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
 } from '../../../packages/oasis-actions/src/protocols/aave/config'
+import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
-const depositCollateralAmount = amountToWei(new BigNumber(10), ETH.precision)
+const depositCollateralAmount = amountToWei(ONE, ETH.precision)
 
 async function getEthUsdcMultiplyAAVEPosition(
   slippage: BigNumber,
   dependencies: OpenPositionTypes[1],
 ) {
   const args: OpenPositionTypes[0] = {
-    collateralToken: ETH,
-    debtToken: USDC,
+    collateralToken: new ETH(dependencies.addresses),
+    debtToken: new USDC(dependencies.addresses),
     slippage,
     depositedByUser: {
       collateralToken: {
@@ -66,11 +67,16 @@ export async function createEthUsdcMultiplyAAVEPosition({
   use1inch: boolean
   swapAddress?: string
   dependencies: StrategiesDependencies
-  config: RuntimeConfig
+  config: RuntimeConfig & { ds: DeploymentSystem }
 }): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'ETH/USDC Multiply'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
+
+  const tokens = {
+    ETH: new ETH(dependencies.addresses),
+    USDC: new USDC(dependencies.addresses),
+  }
 
   const mockPrice = new BigNumber(1543)
   const getSwapData = use1inch
@@ -92,9 +98,14 @@ export async function createEthUsdcMultiplyAAVEPosition({
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeWalletBalanceBefore = await balanceOf(ADDRESSES.main.USDC, ADDRESSES.main.feeRecipient, {
-    config,
-  })
+  if (!config.ds.feeRecipient) throw new Error('feeRecipient is not set')
+  const feeWalletBalanceBefore = await balanceOf(
+    dependencies.addresses.USDC,
+    config.ds.feeRecipient,
+    {
+      config,
+    },
+  )
 
   const [status] = await proxyFunction(
     proxy,
@@ -113,9 +124,13 @@ export async function createEthUsdcMultiplyAAVEPosition({
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  const feeWalletBalanceAfter = await balanceOf(ADDRESSES.main.USDC, ADDRESSES.main.feeRecipient, {
-    config,
-  })
+  const feeWalletBalanceAfter = await balanceOf(
+    dependencies.addresses.USDC,
+    config.ds.feeRecipient,
+    {
+      config,
+    },
+  )
 
   let getPosition
   if (
@@ -127,8 +142,8 @@ export async function createEthUsdcMultiplyAAVEPosition({
     getPosition = async () => {
       return await strategies.aave.v3.view(
         {
-          collateralToken: ETH,
-          debtToken: USDC,
+          collateralToken: tokens.ETH,
+          debtToken: tokens.USDC,
           proxy,
         },
         {
@@ -149,8 +164,8 @@ export async function createEthUsdcMultiplyAAVEPosition({
     getPosition = async () => {
       return await strategies.aave.v2.view(
         {
-          collateralToken: ETH,
-          debtToken: USDC,
+          collateralToken: tokens.ETH,
+          debtToken: tokens.USDC,
           proxy,
         },
         {
@@ -170,8 +185,8 @@ export async function createEthUsdcMultiplyAAVEPosition({
     proxy: proxy,
     getPosition,
     strategy,
-    collateralToken: ETH,
-    debtToken: USDC,
+    collateralToken: tokens.ETH,
+    debtToken: tokens.USDC,
     getSwapData,
     __positionType: 'Multiply',
     __mockPrice: mockPrice,

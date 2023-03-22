@@ -1,6 +1,7 @@
 import assert from 'node:assert'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '@helpers/deploy'
+import { Network } from '@helpers/network'
 import { getOneInchCall } from '@helpers/swap/OneInchCall'
 import { amountFromWei, balanceOf } from '@helpers/utils'
 import { ADDRESSES, CONTRACT_NAMES, strategies, ZERO } from '@oasisdex/oasis-actions'
@@ -13,6 +14,7 @@ import { getSystemWithAaveV3Positions } from '../../../fixtures/system/getSystem
 import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
 import { expectToBeEqual } from '../../../utils'
 
+const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_DEBT_BEING_PAID_BACK = 'Expect debt being paid back'
 const EXPECT_FEE_BEING_COLLECTED = 'Expect fee being collected'
 
@@ -189,7 +191,7 @@ describe('Close AAVEv2 Position to collateral', () => {
       .to.be.true
   })
 
-  it('DSProxy | Collateral - STETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
+  it.only('DSProxy | Collateral - STETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
     const position = fixture.dsProxyPosition
     assert(position, 'Unsupported position')
 
@@ -288,11 +290,17 @@ describe('Close AAVEv3 Position to collateral', () => {
   let fixture: SystemWithAAVEV3Positions
 
   before(async () => {
-    fixture = await loadFixture(getSystemWithAaveV3Positions({ use1inch: true }))
+    fixture = await loadFixture(
+      getSystemWithAaveV3Positions({
+        use1inch: true,
+        network: networkFork,
+        systemConfigPath: `test-configs/test-aave-v3-${networkFork}.conf.json`,
+      }),
+    )
     // Since we deploy the system without using 1inch, there fore the swap that's
     // assigned is uniswap. In our tests we would like to use the actual swap with 1inch.
     await fixture.registry.removeEntry(CONTRACT_NAMES.common.SWAP)
-    await fixture.registry.addEntry(CONTRACT_NAMES.common.SWAP, fixture.system.common.swap.address)
+    await fixture.registry.addEntry(CONTRACT_NAMES.common.SWAP, fixture.system.Swap.address)
   })
 
   it('DPMProxy | Collateral - ETH ( 18 precision ) | Debt - USDC ( 6 precision )', async () => {

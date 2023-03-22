@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js'
 import * as actions from '../../../actions'
 import { OPERATION_NAMES } from '../../../helpers/constants'
 import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '../../../types'
+import { FlashloanProvider } from '../../../types/common'
 import {
   WithAaveV2StrategyAddresses,
   WithFlashloan,
@@ -92,10 +93,11 @@ export async function adjustRiskDown({
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
-    flashloanAmount: flashloan.amount,
-    borrower: addresses.operationExecutor,
-    isProxyFlashloan: true,
     isDPMProxy: proxy.isDPMProxy,
+    asset: addresses.DAI,
+    flashloanAmount: flashloan.amount,
+    isProxyFlashloan: true,
+    provider: FlashloanProvider.DssFlash,
     calls: flashloanCalls,
   })
 

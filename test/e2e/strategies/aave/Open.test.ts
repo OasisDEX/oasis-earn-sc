@@ -1,4 +1,5 @@
-import { IPosition, IPositionTransition } from '@oasisdex/oasis-actions'
+import { Network } from '@helpers/network'
+import { IPosition, IPositionTransition } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 
@@ -15,6 +16,7 @@ import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAV
 import { expectToBe, expectToBeEqual } from '../../../utils'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
+const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
 describe(`Strategy | AAVE | Open Position`, async function () {
@@ -23,9 +25,16 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     const supportedStrategies = getSupportedStrategies(ciOnlyTests)
 
-    describe('Open position: With Uniswap', () => {
-      before(async () => {
-        fixture = await loadFixture(getSystemWithAavePositions({ use1inch: false }))
+    describe('Open position: With Uniswap', function () {
+      before(async function () {
+        if (networkFork === Network.OPT_MAINNET) {
+          this.skip()
+        }
+        fixture = await loadFixture(
+          getSystemWithAavePositions({
+            use1inch: false,
+          }),
+        )
       })
 
       describe('Using DSProxy', () => {
@@ -107,14 +116,22 @@ describe(`Strategy | AAVE | Open Position`, async function () {
       })
     })
   })
-
   describe('Using AAVE V3', async function () {
     let fixture: SystemWithAAVEV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies()
 
     describe('Open position: With Uniswap', () => {
-      before(async () => {
-        fixture = await loadFixture(getSystemWithAaveV3Positions({ use1inch: false }))
+      before(async function () {
+        if (networkFork === Network.OPT_MAINNET) {
+          this.skip()
+        }
+        fixture = await loadFixture(
+          getSystemWithAaveV3Positions({
+            use1inch: false,
+            network: networkFork,
+            systemConfigPath: `test-configs/test-aave-v3-${networkFork}.conf.json`,
+          }),
+        )
       })
 
       describe('Using DSProxy', () => {
@@ -211,7 +228,13 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     })
     describe('Open position: With 1inch', () => {
       before(async () => {
-        fixture = await loadFixture(getSystemWithAaveV3Positions({ use1inch: true }))
+        fixture = await loadFixture(
+          getSystemWithAaveV3Positions({
+            use1inch: true,
+            network: networkFork,
+            systemConfigPath: `test-configs/test-aave-v3-${networkFork}.conf.json`,
+          }),
+        )
       })
 
       describe('Using DSProxy', () => {

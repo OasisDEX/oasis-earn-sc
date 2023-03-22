@@ -9,5 +9,5 @@ export interface AAVEV3StrategyAddresses {
   chainlinkEthUsdPriceFeed: string
   aaveOracle: string
   pool: string
-  aaveProtocolDataProvider: string
+  poolDataProvider: string
 }

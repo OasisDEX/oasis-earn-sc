@@ -4,6 +4,7 @@ import { ethers } from 'ethers'
 import * as actions from '../../../actions'
 import { NULL_ADDRESS, OPERATION_NAMES, ZERO } from '../../../helpers/constants'
 import { IOperation } from '../../../types'
+import { FlashloanProvider } from '../../../types/common'
 import {
   WithAaveV2StrategyAddresses,
   WithCollateral,
@@ -128,10 +129,11 @@ export async function adjustRiskUp({
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
-    flashloanAmount: flashloan.amount,
-    borrower: addresses.operationExecutor,
-    isProxyFlashloan: true,
     isDPMProxy: proxy.isDPMProxy,
+    asset: addresses.DAI,
+    flashloanAmount: flashloan.amount,
+    isProxyFlashloan: true,
+    provider: FlashloanProvider.DssFlash,
     calls: flashloanCalls,
   })
 
