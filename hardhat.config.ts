@@ -138,7 +138,7 @@ const config: HardhatUserConfig = {
       ? {
           goerli: {
             url: process.env.GOERLI_URL || '',
-            accounts: [process.env.PRIV_KEY_GOERLI || ''],
+            accounts: [process.env.PRIV_KEY_GOERLI || '', process.env.PRIV_KEY_GOERLI_GNOSIS || ''],
             initialBaseFeePerGas: 1000000000,
           },
         }
