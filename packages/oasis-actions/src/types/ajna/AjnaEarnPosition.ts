@@ -62,35 +62,11 @@ export class AjnaEarnPosition implements IAjnaEarn {
   get marketPrice() {
     return this.collateralPrice.div(this.quotePrice)
   }
-
-  getApyPerDays({ amount, days }: { amount?: BigNumber; days: number }) {
-    // converted to numbers because BigNumber doesn't handle power with decimals
-    return amount?.gt(0) && this.pool
-      ? new BigNumber(
-          (amount.toNumber() *
-            Math.E ** (this.pool.dailyPercentageRate30dAverage.toNumber() * (days / 365)) -
-            amount.toNumber()) /
-            amount.toNumber(),
-        )
-      : undefined
-  }
   // TODO here we will need also verify lup change due to quote deposit
-  getFeeWhenBelowLup(quotePrice: BigNumber) {
+  get getFeeWhenBelowLup() {
     return this.price.lt(this.pool.lowestUtilizedPrice)
-      ? this.pool.interestRate.div(365).times(this.quoteTokenAmount).times(quotePrice)
+      ? this.pool.interestRate.div(365).times(this.quoteTokenAmount).times(this.quotePrice)
       : ZERO
-  }
-
-  getBreakEven(openPositionGasFee: BigNumber) {
-    const apy1Day = this.getApyPerDays({ amount: this.quoteTokenAmount, days: 1 })
-    const openPositionFees = this.getFeeWhenBelowLup(this.quotePrice).plus(openPositionGasFee)
-
-    if (!apy1Day || !this.quoteTokenAmount) return undefined
-
-    return (
-      Math.log(this.quoteTokenAmount.plus(openPositionFees).div(this.quoteTokenAmount).toNumber()) /
-      apy1Day.toNumber()
-    )
   }
 
   get apy() {
@@ -118,6 +94,30 @@ export class AjnaEarnPosition implements IAjnaEarn {
 
   getMaxLtv(price?: BigNumber) {
     return price?.div(this.collateralPrice.div(this.quotePrice)) || ZERO
+  }
+
+  getApyPerDays({ amount, days }: { amount?: BigNumber; days: number }) {
+    // converted to numbers because BigNumber doesn't handle power with decimals
+    return amount?.gt(0) && this.pool
+      ? new BigNumber(
+          (amount.toNumber() *
+            Math.E ** (this.pool.dailyPercentageRate30dAverage.toNumber() * (days / 365)) -
+            amount.toNumber()) /
+            amount.toNumber(),
+        )
+      : undefined
+  }
+
+  getBreakEven(openPositionGasFee: BigNumber) {
+    const apy1Day = this.getApyPerDays({ amount: this.quoteTokenAmount, days: 1 })
+    const openPositionFees = this.getFeeWhenBelowLup.plus(openPositionGasFee)
+
+    if (!apy1Day || !this.quoteTokenAmount) return undefined
+
+    return (
+      Math.log(this.quoteTokenAmount.plus(openPositionFees).div(this.quoteTokenAmount).toNumber()) /
+      apy1Day.toNumber()
+    )
   }
 
   moveQuote(newPriceIndex: BigNumber) {
