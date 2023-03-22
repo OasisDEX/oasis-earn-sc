@@ -72,6 +72,26 @@ export class AjnaEarnPosition implements IAjnaEarn {
       : ZERO
   }
 
+  getBreakEven({
+    quotePrice,
+    openPositionGasFee,
+    depositAmount,
+  }: {
+    quotePrice: BigNumber
+    openPositionGasFee: BigNumber
+    depositAmount?: BigNumber
+  }) {
+    const apy1Day = this.getApyPerDays({ amount: depositAmount, days: 1 })
+    const openPositionFees = this.getFeeWhenBelowLup(quotePrice).plus(openPositionGasFee)
+
+    if (!apy1Day || !depositAmount) return undefined
+
+    return (
+      Math.log(depositAmount.plus(openPositionFees).div(depositAmount).toNumber()) /
+      apy1Day.toNumber()
+    )
+  }
+
   moveQuote(newPriceIndex: BigNumber) {
     return new AjnaEarnPosition(
       this.pool,
