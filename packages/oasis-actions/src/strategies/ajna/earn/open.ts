@@ -82,6 +82,9 @@ export async function open(
     args.dpmProxyAddress,
     args.quoteAmount,
     priceIndex,
+    position.nftId,
+    args.collateralPrice,
+    args.quotePrice,
   )
 
   return getAjnaEarnActionOutput({

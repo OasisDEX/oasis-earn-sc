@@ -65,7 +65,7 @@ export async function getPosition(
 }
 
 export async function getEarnPosition(
-  { proxyAddress, poolAddress }: Args,
+  { proxyAddress, poolAddress, quotePrice, collateralPrice }: Args,
   { poolInfoAddress, provider, getEarnData, getPoolData }: EarnDependencies,
 ): Promise<AjnaEarnPosition> {
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
@@ -86,5 +86,7 @@ export async function getEarnPosition(
     quoteTokenAmount,
     earnData.priceIndex,
     earnData.nftID,
+    collateralPrice,
+    quotePrice,
   )
 }

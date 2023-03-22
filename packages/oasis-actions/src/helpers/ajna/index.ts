@@ -22,6 +22,8 @@ export interface AjnaEarnArgs {
   quoteTokenPrecision: number
   price: BigNumber
   position: AjnaEarnPosition
+  collateralPrice: BigNumber
+  quotePrice: BigNumber
 }
 
 export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
