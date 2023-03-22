@@ -7,6 +7,7 @@ import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
 import * as views from '../../views'
+import { GetPoolData } from '../../views/ajna'
 
 export interface OpenArgs {
   poolAddress: Address
@@ -24,6 +25,7 @@ export interface Dependencies {
   ajnaProxyActions: Address
   provider: ethers.providers.Provider
   WETH: Address
+  getPoolData: GetPoolData
 }
 
 export async function open(
@@ -40,6 +42,7 @@ export async function open(
     {
       poolInfoAddress: dependencies.poolInfoAddress,
       provider: dependencies.provider,
+      getPoolData: dependencies.getPoolData,
     },
   )
 

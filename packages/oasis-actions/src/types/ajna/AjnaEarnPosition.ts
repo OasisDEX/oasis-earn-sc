@@ -18,6 +18,8 @@ export interface IAjnaEarn {
 
   isEarningFees: boolean
 
+  getApyPerDays: (params: { amount?: BigNumber; days: number }) => BigNumber | undefined
+
   fundsLockedUntil: number
   earlyWithdrawPenalty: BigNumber
 
@@ -50,6 +52,24 @@ export class AjnaEarnPosition implements IAjnaEarn {
       return false
     }
     return this.pool.htp.lt(this.price)
+  }
+
+  getApyPerDays({ amount, days }: { amount?: BigNumber; days: number }) {
+    // converted to numbers because BigNumber doesn't handle power with decimals
+    return amount?.gt(0) && this.pool
+      ? new BigNumber(
+          (amount.toNumber() *
+            Math.E ** (this.pool.dailyPercentageRate30dAverage.toNumber() * (days / 365)) -
+            amount.toNumber()) /
+            amount.toNumber(),
+        )
+      : undefined
+  }
+  // TODO here we will need also verify lup change due to quote deposit
+  getFeeWhenBelowLup(quotePrice: BigNumber) {
+    return this.price.lt(this.pool.lowestUtilizedPrice)
+      ? this.pool.interestRate.div(365).times(this.quoteTokenAmount).times(quotePrice)
+      : ZERO
   }
 
   moveQuote(newPriceIndex: BigNumber) {

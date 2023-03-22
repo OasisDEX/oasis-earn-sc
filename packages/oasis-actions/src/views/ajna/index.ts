@@ -1,7 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import poolERC20Abi from '../../../src/abi/external/ajna/ajnaPoolERC20.json'
 import poolInfoAbi from '../../../src/abi/external/ajna/poolInfoUtils.json'
 import { ZERO } from '../../helpers/constants'
 import { AjnaEarnPosition, AjnaPosition } from '../../types/ajna'
@@ -25,78 +24,33 @@ export interface GetEarnData {
   (proxyAddress: Address): Promise<EarnData>
 }
 
+export interface GetPoolData {
+  (poolAddress: Address): Promise<AjnaPool>
+}
+
 interface Dependencies {
   poolInfoAddress: Address
   provider: ethers.providers.Provider
+  getPoolData: GetPoolData
 }
 
 interface EarnDependencies {
   poolInfoAddress: Address
   provider: ethers.providers.Provider
   getEarnData: GetEarnData
+  getPoolData: GetPoolData
 }
 
 const WAD = new BigNumber(10).pow(18)
 
-export async function getPool(
-  poolAddress: string,
-  poolInfoAddress: string,
-  provider: ethers.providers.Provider,
-): Promise<AjnaPool> {
-  const pool = new ethers.Contract(poolAddress, poolERC20Abi, provider)
-  const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
-
-  const [
-    collateralAddress,
-    quoteTokenAddress,
-    interestRateInfo,
-    poolPricesInfo,
-    momp,
-    poolUtilizationInfo,
-  ] = await Promise.all([
-    pool.collateralAddress(),
-    pool.quoteTokenAddress(),
-    pool.interestRateInfo(),
-    poolInfo.poolPricesInfo(poolAddress),
-    poolInfo.momp(poolAddress).catch(() => ethers.BigNumber.from(0)),
-    poolInfo.poolUtilizationInfo(poolAddress),
-  ])
-
-  return {
-    collateralToken: collateralAddress,
-    quoteToken: quoteTokenAddress,
-    poolAddress: poolAddress,
-    lup: new BigNumber(poolPricesInfo.lup_.toString()).div(WAD),
-
-    lowestUtilizedPrice: new BigNumber(poolPricesInfo.lup_.toString()).div(WAD),
-    lowestUtilizedPriceIndex: new BigNumber(poolPricesInfo.lupIndex_.toString()),
-
-    highestPriceBucket: new BigNumber(poolPricesInfo.hpb_.toString()).div(WAD),
-    highestPriceBucketIndex: new BigNumber(poolPricesInfo.hpbIndex_.toString()),
-
-    htp: new BigNumber(poolPricesInfo.htp_.toString()).div(WAD),
-    highestThresholdPrice: new BigNumber(poolPricesInfo.htp_.toString()).div(WAD),
-    highestThresholdPriceIndex: new BigNumber(poolPricesInfo.htpIndex_.toString()),
-
-    mostOptimisticMatchingPrice: new BigNumber(momp.toString()).div(WAD),
-
-    poolMinDebtAmount: new BigNumber(poolUtilizationInfo.poolMinDebtAmount_.toString()).div(WAD),
-    poolCollateralization: new BigNumber(poolUtilizationInfo.poolCollateralization_.toString()),
-    poolActualUtilization: new BigNumber(poolUtilizationInfo.poolActualUtilization_.toString()),
-    poolTargetUtilization: new BigNumber(poolUtilizationInfo.poolTargetUtilization_.toString()),
-
-    rate: new BigNumber(interestRateInfo[0].toString()).div(WAD),
-  }
-}
-
 export async function getPosition(
   { proxyAddress, poolAddress, collateralPrice, quotePrice }: Args,
-  { poolInfoAddress, provider }: Dependencies,
+  { poolInfoAddress, provider, getPoolData }: Dependencies,
 ): Promise<AjnaPosition> {
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
 
   const [pool, borrowerInfo] = await Promise.all([
-    getPool(poolAddress, poolInfoAddress, provider),
+    getPoolData(poolAddress),
     poolInfo.borrowerInfo(poolAddress, proxyAddress),
   ])
 
@@ -112,14 +66,11 @@ export async function getPosition(
 
 export async function getEarnPosition(
   { proxyAddress, poolAddress }: Args,
-  { poolInfoAddress, provider, getEarnData }: EarnDependencies,
+  { poolInfoAddress, provider, getEarnData, getPoolData }: EarnDependencies,
 ): Promise<AjnaEarnPosition> {
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
 
-  const [pool, earnData] = await Promise.all([
-    getPool(poolAddress, poolInfoAddress, provider),
-    getEarnData(proxyAddress),
-  ])
+  const [pool, earnData] = await Promise.all([getPoolData(poolAddress), getEarnData(proxyAddress)])
 
   const quoteTokenAmount: BigNumber =
     earnData.lps.eq(ZERO) || earnData.priceIndex == null
