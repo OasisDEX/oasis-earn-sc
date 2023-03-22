@@ -172,7 +172,7 @@ export async function createStEthEthEarnAAVEPosition({
     getPosition,
     strategy: 'STETH/ETH Earn',
     collateralToken: STETH,
-    debtToken: ETH,
+    debtToken: new ETH(dependencies.addresses),
     getSwapData,
     __positionType: 'Earn',
     __mockPrice: mockPrice,

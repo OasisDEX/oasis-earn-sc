@@ -83,7 +83,7 @@ export const getSystemWithAavePositions =
         getProtocolData: protocols.aave.getAaveProtocolData,
       },
       getSwapData: use1inch
-        ? swapAddress => getOneInchCall(swapAddress)
+        ? swapAddress => getOneInchCall(swapAddress, [])
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
 

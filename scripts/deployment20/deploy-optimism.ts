@@ -10,8 +10,7 @@ async function main() {
 
   const ds = new DeploymentSystem(hre) // TODO add forked param and in init get chainId and forked Network + set as attribute
   await ds.init()
-  ds.loadConfig()
-  ds.mapAddresses()
+  await ds.loadConfig()
   await ds.deployAll()
   await ds.saveConfig()
 }
