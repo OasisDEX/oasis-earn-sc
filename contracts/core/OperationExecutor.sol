@@ -17,7 +17,7 @@ import { FlashloanData, Call } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
 import { BALANCER_VAULT } from "./constants/Balancer.sol";
-
+import "hardhat/console.sol";
 error UntrustedLender(address lender);
 error InconsistentAsset(address flashloaned, address required);
 error InconsistentAmount(uint256 flashloaned, uint256 required);

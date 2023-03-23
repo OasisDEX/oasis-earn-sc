@@ -7,7 +7,6 @@ import { buildGetTokenByImpersonateFunction, buildGetTokenFunction } from '../..
 import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
-import { mainnetAddresses } from '../../addresses/mainnet'
 import {
   createDPMAccount,
   createEthUsdcMultiplyAAVEPosition,
@@ -58,20 +57,22 @@ export const getSystemWithAavePositions =
       throw 'testBlockNumber is not set'
     }
 
-    console.log('HERE...0')
     await ds.deployAll()
-    console.log('HERE...A')
     await ds.setupLocalSystem(use1inch)
 
-    console.log('HERE...')
-    const { system, registry } = ds.getSystem()
-    console.log('HERE...1')
+    const { system, registry, config: systemConfig } = ds.getSystem()
     const dependencies: StrategyDependenciesAaveV2 = {
       addresses: {
-        ...mainnetAddresses,
-        priceOracle: mainnetAddresses.aave.v2.priceOracle,
-        lendingPool: mainnetAddresses.aave.v2.lendingPool,
-        protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
+        DAI: systemConfig.common.DAI.address,
+        ETH: systemConfig.common.ETH.address,
+        WETH: systemConfig.common.WETH.address,
+        STETH: systemConfig.common.STETH.address,
+        WBTC: systemConfig.common.WBTC.address,
+        USDC: systemConfig.common.USDC.address,
+        chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkEthUsdPriceFeed.address,
+        priceOracle: systemConfig.aave.v2.PriceOracle.address,
+        lendingPool: systemConfig.aave.v2.LendingPool.address,
+        protocolDataProvider: systemConfig.aave.v2.ProtocolDataProvider.address,
         accountFactory: system.AccountFactory.contract.address,
         operationExecutor: system.OperationExecutor.contract.address,
       },
@@ -112,7 +113,7 @@ export const getSystemWithAavePositions =
     }
 
     const swapAddress = system.Swap.contract.address
-
+    console.log('HERE...3.1')
     const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
       proxy: dpmProxyForEarnStEthEth,
       isDPM: true,
@@ -173,7 +174,6 @@ export const getSystemWithAavePositions =
         : {}),
     }
 
-    console.log('SYSTEM', system)
     return {
       config,
       system,

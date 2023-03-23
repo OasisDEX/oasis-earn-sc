@@ -1,10 +1,14 @@
-export const config = {
+import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/oasis-actions/src'
+
+import { Config } from '../common/config-item'
+
+export const config: Config = {
   mpa: {
     core: {
       ServiceRegistry: {
         name: 'ServiceRegistry',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: '',
         history: [],
         constructorArgs: [0],
@@ -12,7 +16,7 @@ export const config = {
       OperationExecutor: {
         name: 'OperationExecutor',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'OperationExecutor_2',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -20,7 +24,7 @@ export const config = {
       OperationStorage: {
         name: 'OperationStorage',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'OperationStorage_2',
         history: [],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
@@ -28,7 +32,7 @@ export const config = {
       OperationRegistry: {
         name: 'OperationsRegistry',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'OperationsRegistry_2',
         history: [],
         constructorArgs: [],
@@ -36,7 +40,7 @@ export const config = {
       AccountGuard: {
         name: 'AccountGuard',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: '',
         history: [],
         constructorArgs: [],
@@ -44,17 +48,25 @@ export const config = {
       AccountFactory: {
         name: 'AccountFactory',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: '',
         history: [],
         constructorArgs: ['address:AccountGuard'],
+      },
+      ChainLogView: {
+        name: 'ChainLogView',
+        deploy: true,
+        address: '',
+        serviceRegistryName: 'ChainLogView',
+        history: [],
+        constructorArgs: [ADDRESSES.main.maker.chainlog],
       },
     },
     actions: {
       PositionCreated: {
         name: 'PositionCreated',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'PositionCreated',
         history: [],
         constructorArgs: [],
@@ -62,7 +74,7 @@ export const config = {
       SwapAction: {
         name: 'SwapAction',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'SwapAction_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -70,15 +82,19 @@ export const config = {
       TakeFlashloan: {
         name: 'TakeFlashloan',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'TakeFlashloan_3',
         history: [],
-        constructorArgs: ['address:ServiceRegistry', '0x6B175474E89094C44Da98b954EedeAC495271d0F'],
+        constructorArgs: [
+          'address:ServiceRegistry',
+          '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+          '0x5a15566417e6C1c9546523066500bDDBc53F88C7',
+        ],
       },
       SetApproval: {
         name: 'SetApproval',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'SetApproval_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -86,7 +102,7 @@ export const config = {
       PullToken: {
         name: 'PullToken',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'PullToken_3',
         history: [],
         constructorArgs: [],
@@ -94,7 +110,7 @@ export const config = {
       SendToken: {
         name: 'SendToken',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'SendToken_4',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -102,7 +118,7 @@ export const config = {
       WrapEth: {
         name: 'WrapEth',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'WrapEth_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -110,7 +126,7 @@ export const config = {
       UnwrapEth: {
         name: 'UnwrapEth',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'UnwrapEth_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -118,7 +134,7 @@ export const config = {
       ReturnFunds: {
         name: 'ReturnFunds',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'ReturnFunds_3',
         history: [],
         constructorArgs: [],
@@ -126,7 +142,7 @@ export const config = {
       AaveBorrow: {
         name: 'AaveBorrow',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'AaveBorrow_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -134,7 +150,7 @@ export const config = {
       AaveWithdraw: {
         name: 'AaveWithdraw',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'AaveWithdraw_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -142,7 +158,7 @@ export const config = {
       AaveDeposit: {
         name: 'AaveDeposit',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'AaveDeposit_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -150,7 +166,7 @@ export const config = {
       AavePayback: {
         name: 'AavePayback',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'AavePayback_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -160,84 +176,110 @@ export const config = {
   common: {
     WETH: {
       name: 'WETH',
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      serviceRegistryName: 'WETH',
+      address: ADDRESSES.main.WETH,
+      serviceRegistryName: CONTRACT_NAMES.common.WETH,
     },
     ETH: {
       name: 'ETH',
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      serviceRegistryName: 'ETH',
+      address: ADDRESSES.main.ETH,
     },
     STETH: {
       name: 'STETH',
-      address: '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
-      serviceRegistryName: 'STETH',
+      address: ADDRESSES.main.STETH,
+      serviceRegistryName: CONTRACT_NAMES.common.STETH,
     },
     WSTETH: {
       name: 'WSTETH',
-      address: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
-      serviceRegistryName: 'WSTETH',
+      address: ADDRESSES.main.WSTETH,
+      serviceRegistryName: CONTRACT_NAMES.common.WSTETH,
     },
     USDC: {
       name: 'USDC',
-      address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-      serviceRegistryName: 'USDC',
+      address: ADDRESSES.main.USDC,
+      serviceRegistryName: CONTRACT_NAMES.common.USDC,
     },
     DAI: {
       name: 'DAI',
-      address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-      serviceRegistryName: 'DAI',
+      address: ADDRESSES.main.DAI,
+      serviceRegistryName: CONTRACT_NAMES.common.DAI,
     },
     WBTC: {
       name: 'WBTC',
-      address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
-      serviceRegistryName: 'WBTC',
+      address: ADDRESSES.main.WBTC,
+      serviceRegistryName: CONTRACT_NAMES.common.WBTC,
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
-      address: '0xe592427a0aece92de3edee1f18e0157c05861564',
-      serviceRegistryName: 'UniswapRouterV3',
+      address: ADDRESSES.main.uniswapRouterV3,
+      serviceRegistryName: CONTRACT_NAMES.common.UNISWAP_ROUTER,
     },
     FlashMintModule: {
       name: 'FlashMintModule',
-      address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
-      serviceRegistryName: 'FlashMintModule',
+      address: ADDRESSES.main.maker.fmm,
+      serviceRegistryName: CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
     },
     BalancerVault: {
       name: 'BalancerVault',
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      serviceRegistryName: 'BalancerVault',
+      serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
     },
     DsProxyRegistry: {
       name: 'DsProxyRegistry',
-      address: '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4',
-      serviceRegistryName: 'DsProxyRegistry',
+      address: ADDRESSES.main.proxyRegistry,
     },
     OneInchAggregator: {
       name: 'OneInchAggregator',
       address: '0x1111111254fb6c44bac0bed2854e76f90643097d',
-      serviceRegistryName: 'OneInchAggregator',
+      serviceRegistryName: CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     },
-    authorizedCaller: {
-      name: 'authorizedCaller',
+    AuthorizedCaller: {
+      name: 'AuthorizedCaller',
       address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
     },
-    feeRecipient: {
-      name: 'feeRecipient',
+    FeeRecipient: {
+      name: 'FeeRecipient',
       address: '0xC7b548AD9Cf38721810246C079b2d8083aba8909',
+    },
+    ChainlinkEthUsdPriceFeed: {
+      name: 'ChainlinkEthUsdPriceFeed',
+      address: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
     },
   },
   aave: {
     v2: {
-      PriceOracle: '0xa50ba011c48153de246e5192c8f9258a2ba79ca9',
-      lendingPool: '0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9',
-      ProtocolDataProvider: '0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d',
-      WETHGateway: '0xcc9a0B7c43DC2a5F023Bb9b738E45B0Ef6B06E04',
+      PriceOracle: {
+        name: 'PriceOracle',
+        address: '0xa50ba011c48153de246e5192c8f9258a2ba79ca9',
+      },
+      LendingPool: {
+        name: 'LendingPool',
+        address: '0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9',
+        serviceRegistryName: CONTRACT_NAMES.aave.v2.LENDING_POOL,
+      },
+      ProtocolDataProvider: {
+        name: 'ProtocolDataProvider',
+        address: '0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d',
+      },
+      WETHGateway: {
+        name: 'WETHGateway',
+        address: '0xcc9a0B7c43DC2a5F023Bb9b738E45B0Ef6B06E04',
+        serviceRegistryName: CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
+      },
     },
     v3: {
-      AaveOracle: '0x54586bE62E3c3580375aE3723C145253060Ca0C2',
-      Pool: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
-      AaveProtocolDataProvider: '0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3',
+      AaveOracle: {
+        name: 'AaveOracle',
+        address: '0x54586bE62E3c3580375aE3723C145253060Ca0C2',
+      },
+      Pool: {
+        name: 'Pool',
+        address: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
+        serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
+      },
+      AaveProtocolDataProvider: {
+        name: 'AaveProtocolDataProvider',
+        address: '0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3',
+      },
     },
   },
 }

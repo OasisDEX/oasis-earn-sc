@@ -98,14 +98,11 @@ export async function createEthUsdcMultiplyAAVEPosition({
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  if (!config.ds.feeRecipient) throw new Error('feeRecipient is not set')
-  const feeWalletBalanceBefore = await balanceOf(
-    dependencies.addresses.USDC,
-    config.ds.feeRecipient,
-    {
-      config,
-    },
-  )
+  const feeRecipient = config.ds.config?.common.FeeRecipient.address
+  if (!feeRecipient) throw new Error('feeRecipient is not set')
+  const feeWalletBalanceBefore = await balanceOf(dependencies.addresses.USDC, feeRecipient, {
+    config,
+  })
 
   const [status] = await proxyFunction(
     proxy,
@@ -124,13 +121,9 @@ export async function createEthUsdcMultiplyAAVEPosition({
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  const feeWalletBalanceAfter = await balanceOf(
-    dependencies.addresses.USDC,
-    config.ds.feeRecipient,
-    {
-      config,
-    },
-  )
+  const feeWalletBalanceAfter = await balanceOf(dependencies.addresses.USDC, feeRecipient, {
+    config,
+  })
 
   let getPosition
   if (
