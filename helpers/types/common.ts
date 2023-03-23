@@ -50,6 +50,7 @@ export interface OneInchBaseResponse {
 }
 
 export interface OneInchSwapResponse extends OneInchBaseResponse {
+  protocols: any
   tx: {
     from: string
     to: string

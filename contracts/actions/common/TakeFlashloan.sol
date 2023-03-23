@@ -20,10 +20,14 @@ import { IERC20 } from "../../libs/SafeERC20.sol";
  * @notice Executes a sequence of Actions after flashloaning funds
  */
 contract TakeFlashloan is Executable, ProxyPermission {
-  ServiceRegistry internal immutable registry;
   address internal immutable dai;
+  ServiceRegistry private immutable registry;
 
-  constructor(ServiceRegistry _registry, address _dai) {
+  constructor(
+    ServiceRegistry _registry,
+    address _dai,
+    address _dsGuardFactory
+  ) ProxyPermission(_dsGuardFactory) {
     registry = _registry;
     dai = _dai;
   }
@@ -36,7 +40,6 @@ contract TakeFlashloan is Executable, ProxyPermission {
    */
   function execute(bytes calldata data, uint8[] memory) external payable override {
     FlashloanData memory flData = parseInputs(data);
-
     address operationExecutorAddress = registry.getRegisteredService(OPERATION_EXECUTOR);
 
     if (flData.isProxyFlashloan) {
@@ -50,7 +53,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
         IERC3156FlashBorrower(operationExecutorAddress),
         dai,
         flData.amount,
-        data
+        abi.encode(flData, address(this))
       );
     }
 
@@ -65,7 +68,7 @@ contract TakeFlashloan is Executable, ProxyPermission {
         IFlashLoanRecipient(operationExecutorAddress),
         tokens,
         amounts,
-        data
+        abi.encode(flData, address(this))
       );
     }
 

@@ -111,9 +111,10 @@ export async function adjustRiskDown({
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     isDPMProxy: proxy.isDPMProxy,
+    asset: addresses.DAI,
     flashloanAmount: flashloan.amount,
-    borrower: addresses.operationExecutor,
     isProxyFlashloan: true,
+    provider: flashloan.provider,
     calls: flashloanCalls,
   })
 

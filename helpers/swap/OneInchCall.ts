@@ -4,7 +4,13 @@ import { one } from '../../scripts/common'
 import { swapOneInchTokens } from './1inch'
 
 export const getOneInchCall =
-  (swapAddress: string, protocols?: string[], debug?: true) =>
+  (
+    swapAddress: string,
+    protocols?: string[],
+    chainId?: number,
+    version?: 'v4.0' | 'v5.0',
+    debug?: true,
+  ) =>
   async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
     const slippageAsPercentage = slippage.times(100).toString()
     if (debug) {
@@ -13,6 +19,8 @@ export const getOneInchCall =
       console.log('to:', to)
       console.log('amount:', amount.toString())
       console.log('slippage', `${slippageAsPercentage.toString()}%`)
+      console.log('chainId:', chainId || 1)
+      console.log('version:', version || 'v4.0')
     }
     const response = await swapOneInchTokens(
       from,
@@ -21,6 +29,8 @@ export const getOneInchCall =
       swapAddress,
       slippageAsPercentage.toString(),
       protocols,
+      chainId,
+      version,
     )
 
     const minToTokenAmount = new BigNumber(response.toTokenAmount)
@@ -32,6 +42,7 @@ export const getOneInchCall =
       console.log('fromTokenAmount', response?.fromTokenAmount.toString())
       console.log('toTokenAmount', response?.toTokenAmount.toString())
       console.log('minToTokenAmount', minToTokenAmount.toString())
+      console.log('routes', response?.protocols[0])
     }
 
     return {

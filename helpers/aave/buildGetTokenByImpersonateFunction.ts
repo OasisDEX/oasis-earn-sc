@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import erc20abi from '../../abi/external/IERC20.json'
-import { mainnetAddresses } from '../../test/addresses'
+import { mainnetAddresses } from '../../test/addresses/mainnet'
 import { RuntimeConfig } from '../types/common'
 
 export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH'>
