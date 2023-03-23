@@ -46,6 +46,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
     public nftId: string | null = null,
     public collateralPrice: BigNumber,
     public quotePrice: BigNumber,
+    public rewards: BigNumber,
   ) {
     this.fundsLockedUntil = Date.now() + 5 * 60 * 60 * 1000 // MOCK funds locked until 5h from now
     this.price = priceIndex ? priceIndexToPrice(priceIndex) : ZERO
@@ -129,6 +130,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.stakedNftId,
       this.collateralPrice,
       this.quotePrice,
+      this.rewards,
     )
   }
 
@@ -141,6 +143,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.stakedNftId,
       this.collateralPrice,
       this.quotePrice,
+      this.rewards,
     )
   }
 
@@ -153,6 +156,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.stakedNftId,
       this.collateralPrice,
       this.quotePrice,
+      this.rewards,
     )
   }
 }
