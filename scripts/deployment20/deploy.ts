@@ -20,6 +20,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import _ from 'lodash'
 import NodeCache from 'node-cache'
 import prompts from 'prompts'
+import { inspect } from 'util'
 
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { EtherscanGasPrice, Network } from '../common'
@@ -131,24 +132,30 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       // if forked other network then merge configs files
       if (this.forkedNetwork) {
         const baseConfig = (await import(`./${this.forkedNetwork}.conf`)).config
-        const extendedConfig = (await import('./local-extend.conf')).config
+        const extendedConfig = (await import(`./local-extend.conf`)).config
         this.config = _.merge(baseConfig, extendedConfig)
       } else {
         // otherwise load just one config file
-        configLoader.load(`${this.network}.conf.json`)
-        this.config = configLoader.get()
+        this.config = (await import(`./${this.network}.conf`)).config
       }
     }
   }
 
   async saveConfig() {
-    const configString = JSON.stringify(this.config, null, 2)
+    // const configString = JSON.stringify(this.config, null, 2)
     const { writeFile } = await import('fs')
-    writeFile(`./scripts/deployment20/${this.network}.conf.json`, configString, (error: any) => {
-      if (error) {
-        console.log('ERROR: ', error)
-      }
-    })
+
+    const configString = inspect(this.config, { depth: null })
+
+    writeFile(
+      `./scripts/deployment20/${this.network}.conf.ts`,
+      `export const config = ${configString}`,
+      (error: any) => {
+        if (error) {
+          console.log('ERROR: ', error)
+        }
+      },
+    )
   }
 
   async postInstantiation(configItem: any, contract: Contract) {
