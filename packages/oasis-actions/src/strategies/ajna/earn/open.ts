@@ -22,6 +22,7 @@ interface Args {
 
 export interface Dependencies {
   poolInfoAddress: Address
+  rewardsManagerAddress: Address
   ajnaProxyActions: Address
   provider: ethers.providers.Provider
   WETH: Address
@@ -46,6 +47,7 @@ export async function open(
       poolInfoAddress: dependencies.poolInfoAddress,
       provider: dependencies.provider,
       getPoolData: dependencies.getPoolData,
+      rewardsManagerAddress: dependencies.rewardsManagerAddress,
     },
   )
 
@@ -85,6 +87,7 @@ export async function open(
     position.nftId,
     args.collateralPrice,
     args.quotePrice,
+    position.rewards,
   )
 
   return getAjnaEarnActionOutput({

@@ -2,6 +2,7 @@ import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import poolInfoAbi from '../../../src/abi/external/ajna/poolInfoUtils.json'
+import rewardsManagerAbi from '../../../src/abi/external/ajna/rewardsManager.json'
 import { ZERO } from '../../helpers/constants'
 import { AjnaEarnPosition, AjnaPosition } from '../../types/ajna'
 import { AjnaPool } from '../../types/ajna/AjnaPool'
@@ -36,6 +37,7 @@ interface Dependencies {
 
 interface EarnDependencies {
   poolInfoAddress: Address
+  rewardsManagerAddress: Address
   provider: ethers.providers.Provider
   getEarnData: GetEarnData
   getPoolData: GetPoolData
@@ -66,9 +68,10 @@ export async function getPosition(
 
 export async function getEarnPosition(
   { proxyAddress, poolAddress, quotePrice, collateralPrice }: Args,
-  { poolInfoAddress, provider, getEarnData, getPoolData }: EarnDependencies,
+  { poolInfoAddress, rewardsManagerAddress, provider, getEarnData, getPoolData }: EarnDependencies,
 ): Promise<AjnaEarnPosition> {
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
+  const rewardsManager = new ethers.Contract(rewardsManagerAddress, rewardsManagerAbi, provider)
 
   const [pool, earnData] = await Promise.all([getPoolData(poolAddress), getEarnData(proxyAddress)])
 
@@ -80,6 +83,13 @@ export async function getEarnPosition(
           .then((quoteTokens: ethers.BigNumberish) => ethers.utils.formatUnits(quoteTokens, 18))
           .then((res: string) => new BigNumber(res))
 
+  const rewards: BigNumber = earnData.nftID
+    ? await rewardsManager
+        .calculateRewards(earnData.nftID, pool.currentBurnEpoch.toString())
+        .then((reward: ethers.BigNumberish) => ethers.utils.formatUnits(reward, 18))
+        .then((res: ethers.BigNumberish) => new BigNumber(res.toString()))
+    : ZERO
+
   return new AjnaEarnPosition(
     pool,
     proxyAddress,
@@ -88,5 +98,6 @@ export async function getEarnPosition(
     earnData.nftID,
     collateralPrice,
     quotePrice,
+    rewards,
   )
 }

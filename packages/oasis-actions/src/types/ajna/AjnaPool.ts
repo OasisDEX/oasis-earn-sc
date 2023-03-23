@@ -34,4 +34,5 @@ export interface AjnaPool {
   apr30dAverage: BigNumber
   dailyPercentageRate30dAverage: BigNumber
   monthlyPercentageRate30dAverage: BigNumber
+  currentBurnEpoch: BigNumber
 }
