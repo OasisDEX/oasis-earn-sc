@@ -74,7 +74,7 @@ export const getSystemWithAaveV3Positions =
     await ds.deployAll()
     await ds.setupLocalSystem(use1inch)
 
-    const { system, registry } = ds.getSystem()
+    const { system, registry, config: systemConfig } = ds.getSystem()
 
     const addresses = addressesByNetwork(network)
 
@@ -86,16 +86,16 @@ export const getSystemWithAaveV3Positions =
     if (!oneInchVersion) throw new Error('Unsupported network')
     const dependencies: StrategyDependenciesAaveV3 = {
       addresses: {
-        DAI: addresses.DAI,
-        ETH: addresses.ETH,
-        USDC: addresses.USDC,
-        WETH: addresses.WETH,
-        WSTETH: addresses.WSTETH,
-        WBTC: addresses.WBTC,
-        chainlinkEthUsdPriceFeed: addresses.chainlinkEthUsdPriceFeed,
-        aaveOracle: addresses.aave.v3.aaveOracle,
-        pool: addresses.aave.v3.pool,
-        poolDataProvider: addresses.aave.v3.poolDataProvider,
+        DAI: systemConfig.common.DAI.address,
+        ETH: systemConfig.common.ETH.address,
+        USDC: systemConfig.common.USDC.address,
+        WETH: systemConfig.common.WETH.address,
+        WSTETH: systemConfig.common.WSTETH.address,
+        WBTC: systemConfig.common.WBTC.address,
+        chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkEthUsdPriceFeed.address,
+        aaveOracle: systemConfig.aave.v3.AaveOracle.address,
+        pool: systemConfig.aave.v3.Pool.address,
+        poolDataProvider: systemConfig.aave.v3.AaveProtocolDataProvider.address,
         accountFactory: system.AccountFactory.contract.address,
         operationExecutor: system.OperationExecutor.contract.address,
       },
