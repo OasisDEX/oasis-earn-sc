@@ -2,7 +2,6 @@ import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
-import poolInfoAbi from '../../../../../abi/external/ajna/poolInfoUtils.json'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
@@ -50,13 +49,7 @@ export async function open(
     throw new Error('Position already exists')
   }
 
-  const poolInfo = new ethers.Contract(
-    dependencies.poolInfoAddress,
-    poolInfoAbi,
-    dependencies.provider,
-  )
-
-  const lup = await poolInfo.lup(args.poolAddress)
+  const htp = position.pool.highestThresholdPrice.shiftedBy(18)
 
   const isDepositingEth =
     position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
@@ -73,7 +66,7 @@ export async function open(
     ethers.utils
       .parseUnits(args.collateralAmount.toString(), args.collateralTokenPrecision)
       .toString(),
-    lup.toString(),
+    htp.toString(),
   ])
 
   const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
