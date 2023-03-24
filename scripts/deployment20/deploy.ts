@@ -222,7 +222,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         config: configItem,
         hash: this.getRegistryEntryHash(configItem.serviceRegistryName || ''),
       }
+      const isServiceRegistry = configItem.name === 'ServiceRegistry'
       !configItem.serviceRegistryName &&
+        !isServiceRegistry &&
         console.warn(
           'No Service Registry name for: ',
           configItem.name,
@@ -285,7 +287,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         hash: this.getRegistryEntryHash(configItem.serviceRegistryName || ''),
       }
 
+      const isServiceRegistry = configItem.name === 'ServiceRegistry'
       !configItem.serviceRegistryName &&
+        !isServiceRegistry &&
         console.warn(
           'No Service Registry name for: ',
           configItem.name,
@@ -434,7 +438,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           this.config.common.WETH.address,
           10000,
         ))
-      !useInch && (await deploySwapContract.addFeeTier(20))
+
+      await deploySwapContract.addFeeTier(20)
 
       this.deployedSystem['Swap'] = { contract: deploySwapContract, config: {}, hash: '' }
 

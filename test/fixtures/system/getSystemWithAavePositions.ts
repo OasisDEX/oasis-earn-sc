@@ -90,7 +90,7 @@ export const getSystemWithAavePositions =
         ? swapAddress => getOneInchCall(swapAddress, [])
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
-    console.log('HERE...2')
+
     const [dpmProxyForEarnStEthEth] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyStEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
@@ -113,7 +113,7 @@ export const getSystemWithAavePositions =
     }
 
     const swapAddress = system.Swap.contract.address
-    console.log('HERE...3.1')
+
     const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
       proxy: dpmProxyForEarnStEthEth,
       isDPM: true,
@@ -122,7 +122,7 @@ export const getSystemWithAavePositions =
       dependencies,
       config: configWithDeployedSystem,
     })
-    console.log('HERE...3')
+
     const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyEthUsdc,
       isDPM: true,

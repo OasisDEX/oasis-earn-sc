@@ -367,29 +367,19 @@ async function generateTransition(
     swapData.fromTokenAmount,
     args.collateralToken.precision,
   )
-  const toTokenAmountNormalised = amountFromWei(swapData.toTokenAmount, args.debtToken.precision)
   const toTokenAmountNormalisedWithMaxSlippage = amountFromWei(
     swapData.minToTokenAmount,
     args.debtToken.precision,
   )
-  const expectedMarketPrice = fromTokenAmountNormalised.div(toTokenAmountNormalised)
+
   const expectedMarketPriceWithSlippage = fromTokenAmountNormalised.div(
     toTokenAmountNormalisedWithMaxSlippage,
   )
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
 
-  const amountOfTargetTokenPostSwapNormalised = amountFromWei(
-    swapData.toTokenAmount,
-    args.collateralToken.precision,
-  ).div(expectedMarketPrice)
-  const amountOfTargetTokenPostSwap = amountToWei(
-    amountOfTargetTokenPostSwapNormalised,
-    args.debtToken.precision,
-  )
-
   const postSwapFee =
     collectFeeFrom === 'targetToken'
-      ? calculateFee(amountOfTargetTokenPostSwap, fee, new BigNumber(FEE_BASE))
+      ? calculateFee(swapData.toTokenAmount, fee, new BigNumber(FEE_BASE))
       : ZERO
 
   return {
