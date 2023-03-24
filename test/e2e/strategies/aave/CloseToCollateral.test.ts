@@ -294,7 +294,7 @@ describe('Close AAVEv3 Position to collateral', () => {
       getSystemWithAaveV3Positions({
         use1inch: true,
         network: networkFork,
-        systemConfigPath: `test-configs/test-aave-v3-${networkFork}.conf.json`,
+        systemConfigPath: `${networkFork}.conf.ts`,
       }),
     )
     // Since we deploy the system without using 1inch, there fore the swap that's

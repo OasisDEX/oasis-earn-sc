@@ -5,11 +5,10 @@ import { AaveVersion, protocols, strategies } from '@oasisdex/oasis-actions/src'
 import hre from 'hardhat'
 
 import { buildGetTokenFunction } from '../../../helpers/aave/'
-import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
+import { getOneInchCall, optimismLiquidityProviders } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
 import { testBlockNumberForAaveOptimismV3, testBlockNumberForAaveV3 } from '../../config'
-import { addressesByNetwork } from '../../test-utils/addresses'
 import { createDPMAccount, createEthUsdcMultiplyAAVEPosition } from '../factories'
 import { createWstEthEthEarnAAVEPosition } from '../factories/createWstEthEthEarnAAVEPosition'
 import { AaveV3PositionStrategy, PositionDetails } from '../types/positionDetails'
@@ -22,7 +21,7 @@ export function getSupportedAaveV3Strategies(ciMode?: boolean): Array<{
   localOnly: boolean
 }> {
   return [
-    { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy, localOnly: false },
+    // { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy, localOnly: false },
     { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, localOnly: false },
   ].filter(s => !ciMode || !s.localOnly)
 }
@@ -43,18 +42,17 @@ export const getSystemWithAaveV3Positions =
   }: {
     use1inch: boolean
     network: Network
-    systemConfigPath: string
+    systemConfigPath?: string
   }) =>
   async (): Promise<SystemWithAAVEV3Positions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
 
-    ds.loadConfig('mainnet.conf.ts')
+    ds.loadConfig(systemConfigPath)
     // We're using uniswap to get tokens here rather than impersonating a user
     const getTokens = buildGetTokenFunction(config, await import('hardhat'))
 
     const useFallbackSwap = !use1inch
-    const isMainnet = network === Network.MAINNET
 
     if (network !== Network.MAINNET && network !== Network.OPT_MAINNET)
       throw new Error('Unsupported network')
@@ -75,8 +73,6 @@ export const getSystemWithAaveV3Positions =
     await ds.setupLocalSystem(use1inch)
 
     const { system, registry, config: systemConfig } = ds.getSystem()
-
-    const addresses = addressesByNetwork(network)
 
     const oneInchVersionMap = {
       [Network.MAINNET]: 'v4.0' as const,
@@ -110,7 +106,16 @@ export const getSystemWithAaveV3Positions =
         getProtocolData: protocols.aave.getAaveProtocolData,
       },
       getSwapData: use1inch
-        ? swapAddress => getOneInchCall(swapAddress, [], ChainIdByNetwork[network], oneInchVersion)
+        ? swapAddress =>
+            getOneInchCall(
+              swapAddress,
+              // We remove Balancer to avoid re-entrancy errors when also using Balancer FL
+              network === Network.OPT_MAINNET
+                ? optimismLiquidityProviders.filter(l => l !== 'OPTIMISM_BALANCER_V2')
+                : [],
+              ChainIdByNetwork[network],
+              oneInchVersion,
+            )
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
 
@@ -126,29 +131,23 @@ export const getSystemWithAaveV3Positions =
     const configWithDeployedSystem = {
       ...config,
       ds,
+      network,
     }
 
     const swapAddress = system.Swap.contract.address
 
-    let ethUsdcMultiplyPosition: PositionDetails | undefined
-    //TODO: Remove mainnet flag once DPM is deployed on Optimism
-    /* Re isMainnet: Waiting for DPM deployment on Optimism */
-    if (isMainnet) {
-      ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-        proxy: dpmProxyForMultiplyEthUsdc,
-        isDPM: true,
-        use1inch,
-        swapAddress,
-        dependencies,
-        config: configWithDeployedSystem,
-      })
-    }
+    const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
+      proxy: dpmProxyForMultiplyEthUsdc,
+      isDPM: true,
+      use1inch,
+      swapAddress,
+      dependencies,
+      config: configWithDeployedSystem,
+    })
 
     let wstethEthEarnPosition: PositionDetails | undefined
     /* Re use1inch: Wsteth lacks sufficient liquidity on uniswap */
-    //TODO: Remove mainnet flag once DPM is deployed on Optimism
-    /* Re isMainnet: Waiting for DPM deployment on Optimism */
-    if (use1inch && isMainnet) {
+    if (use1inch) {
       wstethEthEarnPosition = await createWstEthEthEarnAAVEPosition({
         proxy: dpmProxyForEarnWstEthEth,
         isDPM: true,

@@ -36,10 +36,15 @@ export const STETH: TokenDetails = {
   address: mainnetAddresses.STETH,
 }
 
-export const WSTETH: TokenDetails = {
-  symbol: 'WSTETH' as const,
-  precision: 18,
-  address: mainnetAddresses.WSTETH,
+export class WSTETH {
+  static symbol = 'WSTETH' as const
+  static precision = 18
+  public symbol = WSTETH.symbol
+  public precision = WSTETH.precision
+  public address: string
+  constructor(public addresses: Record<'WSTETH', string>) {
+    this.address = addresses.WSTETH
+  }
 }
 
 export const WBTC: TokenDetails = {

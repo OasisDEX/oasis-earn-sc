@@ -129,7 +129,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           getSystemWithAaveV3Positions({
             use1inch: false,
             network: networkFork,
-            systemConfigPath: `test-configs/test-aave-v3-${networkFork}.conf.json`,
+            systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
           }),
         )
       })
@@ -232,7 +232,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           getSystemWithAaveV3Positions({
             use1inch: true,
             network: networkFork,
-            systemConfigPath: `test-configs/test-aave-v3-${networkFork}.conf.json`,
+            systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
           }),
         )
       })

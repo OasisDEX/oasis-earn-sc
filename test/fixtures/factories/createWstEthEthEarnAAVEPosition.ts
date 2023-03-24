@@ -1,4 +1,5 @@
-import { AaveVersion, ADDRESSES, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
+import { Network } from '@helpers/network'
+import { AaveVersion, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
@@ -8,13 +9,20 @@ import BigNumber from 'bignumber.js'
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../../helpers/utils'
-import {
-  aaveV2UniqueContractName,
-  aaveV3UniqueContractName,
-} from '../../../packages/oasis-actions/src/protocols/aave/config'
-import { PositionDetails, StrategiesDependencies } from '../types'
+import { aaveV3UniqueContractName } from '../../../packages/oasis-actions/src/protocols/aave/config'
+import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
+import { PositionDetails } from '../types'
 import { AaveV3PositionStrategy } from '../types/positionDetails'
-import { EMODE_MULTIPLE, ETH, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, WSTETH } from './common'
+import { StrategyDependenciesAaveV3 } from '../types/strategiesDependencies'
+import {
+  EMODE_MULTIPLE,
+  ETH,
+  MULTIPLE,
+  SLIPPAGE,
+  UNISWAP_TEST_SLIPPAGE,
+  USDC,
+  WSTETH,
+} from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
@@ -22,6 +30,7 @@ const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
 async function openWstEthEthEarnAAVEPosition(
   slippage: BigNumber,
   dependencies: OpenPositionTypes[1],
+  multiple: BigNumber,
 ) {
   const args: OpenPositionTypes[0] = {
     collateralToken: WSTETH,
@@ -32,7 +41,7 @@ async function openWstEthEthEarnAAVEPosition(
         amountInBaseUnit: transactionAmount,
       },
     },
-    multiple: new RiskRatio(EMODE_MULTIPLE, RiskRatio.TYPE.MULITPLE),
+    multiple: new RiskRatio(multiple, RiskRatio.TYPE.MULITPLE),
     positionType: 'Earn',
   }
 
@@ -66,12 +75,18 @@ export async function createWstEthEthEarnAAVEPosition({
   isDPM: boolean
   use1inch: boolean
   swapAddress?: string
-  dependencies: StrategiesDependencies
-  config: RuntimeConfig
+  dependencies: StrategyDependenciesAaveV3
+  config: RuntimeConfig & { ds: DeploymentSystem; network: Network }
 }): Promise<PositionDetails> {
   const strategy: AaveV3PositionStrategy = 'WSTETH/ETH Earn'
+  const isOptimism = config.network === Network.OPT_MAINNET
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
+
+  const tokens = {
+    WSTETH: new WSTETH(dependencies.addresses),
+    ETH: new USDC(dependencies.addresses),
+  }
 
   const mockPrice = new BigNumber(0.9)
   const getSwapData = use1inch
@@ -89,11 +104,15 @@ export async function createWstEthEthEarnAAVEPosition({
       isDPMProxy: isDPM,
       proxy: proxy,
     },
+    // Emode doesn't appear to be working as expected on Optimism
+    isOptimism ? MULTIPLE : EMODE_MULTIPLE,
   )
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeWalletBalanceBefore = await balanceOf(ADDRESSES.main.WETH, ADDRESSES.main.feeRecipient, {
+  const feeRecipient = config.ds.config?.common.FeeRecipient.address
+  if (!feeRecipient) throw new Error('feeRecipient is not set')
+  const feeWalletBalanceBefore = await balanceOf(dependencies.addresses.ETH, feeRecipient, {
     config,
   })
 
@@ -114,7 +133,7 @@ export async function createWstEthEthEarnAAVEPosition({
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  const feeWalletBalanceAfter = await balanceOf(ADDRESSES.main.WETH, ADDRESSES.main.feeRecipient, {
+  const feeWalletBalanceAfter = await balanceOf(dependencies.addresses.ETH, feeRecipient, {
     config,
   })
 
@@ -141,28 +160,6 @@ export async function createWstEthEthEarnAAVEPosition({
       )
     }
   }
-  if (
-    dependencies.protocol.version === AaveVersion.v2 &&
-    aaveV2UniqueContractName in dependencies.addresses
-  ) {
-    const addresses = dependencies.addresses
-    getPosition = async () => {
-      return await strategies.aave.v2.view(
-        {
-          collateralToken: WSTETH,
-          debtToken: ETH,
-          proxy,
-        },
-        {
-          addresses: {
-            ...addresses,
-            operationExecutor: dependencies.contracts.operationExecutor.address,
-          },
-          provider: config.provider,
-        },
-      )
-    }
-  }
 
   if (!getPosition) throw new Error('getPosition is not defined')
 
@@ -170,8 +167,8 @@ export async function createWstEthEthEarnAAVEPosition({
     proxy,
     getPosition,
     strategy: 'WSTETH/ETH Earn',
-    collateralToken: WSTETH,
-    debtToken: ETH,
+    collateralToken: tokens.WSTETH,
+    debtToken: tokens.ETH,
     getSwapData,
     __positionType: 'Earn',
     __mockPrice: mockPrice,

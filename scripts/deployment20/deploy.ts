@@ -395,12 +395,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async addAaveEntries() {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
-      Object.values(this.config.aave.v2).filter(
+      Object.values(this.config.aave.v2 || {}).filter(
         (item: ConfigItem) => item.address !== '' && item.serviceRegistryName,
       ),
     )
     await this.addRegistryEntries(
-      Object.values(this.config.aave.v3).filter(
+      Object.values(this.config.aave.v3 || {}).filter(
         (item: ConfigItem) => item.address !== '' && item.serviceRegistryName,
       ),
     )
@@ -427,51 +427,47 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     if (!this.config) throw new Error('No config set')
 
-    try {
-      const deploySwapContract = await this.deployContract(
-        this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
-        [
-          this.signerAddress,
-          this.config.common.FeeRecipient.address,
-          0,
-          this.deployedSystem['ServiceRegistry'].contract.address,
-        ],
-      )
+    const deploySwapContract = await this.deployContract(
+      this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
+      [
+        this.signerAddress,
+        this.config.common.FeeRecipient.address,
+        0,
+        this.deployedSystem['ServiceRegistry'].contract.address,
+      ],
+    )
 
-      !useInch &&
-        (await deploySwapContract.setPool(
-          this.config.common.STETH.address,
-          this.config.common.WETH.address,
-          10000,
-        ))
+    !useInch &&
+      (await deploySwapContract.setPool(
+        this.config.common.STETH.address,
+        this.config.common.WETH.address,
+        10000,
+      ))
 
-      await deploySwapContract.addFeeTier(20)
+    await deploySwapContract.addFeeTier(20)
 
-      this.deployedSystem['Swap'] = { contract: deploySwapContract, config: {}, hash: '' }
+    this.deployedSystem['Swap'] = { contract: deploySwapContract, config: {}, hash: '' }
 
-      await this.serviceRegistryHelper.addEntry('Swap', deploySwapContract.address)
+    await this.serviceRegistryHelper.addEntry('Swap', deploySwapContract.address)
 
-      this.deployedSystem.AccountGuard.contract.setWhitelist(
-        this.deployedSystem.OperationExecutor.contract.address,
-        true,
-      )
+    this.deployedSystem.AccountGuard.contract.setWhitelist(
+      this.deployedSystem.OperationExecutor.contract.address,
+      true,
+    )
 
-      const operationsRegistry: OperationsRegistry = new OperationsRegistry(
-        this.deployedSystem.OperationsRegistry.contract.address,
-        this.signer,
-      )
-      const dsProxyRegistry = await this.ethers.getContractAt(
-        DS_PROXY_REGISTRY_ABI,
-        this.config.common.DsProxyRegistry.address,
-        this.signer,
-      )
+    const operationsRegistry: OperationsRegistry = new OperationsRegistry(
+      this.deployedSystem.OperationsRegistry.contract.address,
+      this.signer,
+    )
+    const dsProxyRegistry = await this.ethers.getContractAt(
+      DS_PROXY_REGISTRY_ABI,
+      this.config.common.DsProxyRegistry.address,
+      this.signer,
+    )
 
-      this.deployedSystem['DsProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
+    this.deployedSystem['DsProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
 
-      await this.addAllEntries(operationsRegistry)
-    } catch (e) {
-      throw new Error(`Something went wrong whilst setting up local system: ${e}`)
-    }
+    await this.addAllEntries(operationsRegistry)
   }
 
   // TODO unify resetNode and resetNodeToLatestBlock into one function

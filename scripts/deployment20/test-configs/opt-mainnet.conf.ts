@@ -1,62 +1,70 @@
-import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src'
+import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/oasis-actions'
 
 export const config = {
   mpa: {
     core: {
       ServiceRegistry: {
         name: 'ServiceRegistry',
-        deploy: false,
-        address: '0xf22F17B1D2354B4F4F52e4d164e4eB5e1f0A6Ba6',
+        deploy: true,
+        address: '',
         serviceRegistryName: '',
         history: [],
         constructorArgs: [0],
       },
       OperationExecutor: {
         name: 'OperationExecutor',
-        deploy: false,
-        address: '0x5AB3e51608cEa26090445CA89bc91628C8bB99f9',
+        deploy: true,
+        address: '',
         serviceRegistryName: 'OperationExecutor_2',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
       OperationStorage: {
         name: 'OperationStorage',
-        deploy: false,
-        address: '0xd4FEaf1023CD6998053a1eb02460000980Cc908f',
+        deploy: true,
+        address: '',
         serviceRegistryName: 'OperationStorage_2',
         history: [],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
       },
       OperationRegistry: {
         name: 'OperationsRegistry',
-        deploy: false,
-        address: '0x392ACeBea829373A3eFDc0dA80a16003106d8f6E',
+        deploy: true,
+        address: '',
         serviceRegistryName: 'OperationsRegistry_2',
         history: [],
         constructorArgs: [],
       },
       AccountGuard: {
         name: 'AccountGuard',
-        deploy: false,
-        address: '0x63059cC2533344B65372983D4B6258b2cbbBF0Da',
+        deploy: true,
+        address: '',
         serviceRegistryName: '',
         history: [],
         constructorArgs: [],
       },
       AccountFactory: {
         name: 'AccountFactory',
-        deploy: false,
-        address: '0xE166a06809FD35Cece10df9Cace87BbDB9a48F66',
+        deploy: true,
+        address: '',
         serviceRegistryName: '',
         history: [],
         constructorArgs: ['address:AccountGuard'],
+      },
+      ChainLogView: {
+        name: 'ChainLogView',
+        deploy: true,
+        address: '',
+        serviceRegistryName: 'ChainLogView',
+        history: [],
+        constructorArgs: ['0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F'],
       },
     },
     actions: {
       PositionCreated: {
         name: 'PositionCreated',
         deploy: true,
-        address: '0xE7aA0939F0cFF45162A22751CbE0009c689EA256',
+        address: '',
         serviceRegistryName: 'PositionCreated',
         history: [],
         constructorArgs: [],
@@ -64,7 +72,7 @@ export const config = {
       SwapAction: {
         name: 'SwapAction',
         deploy: true,
-        address: '0x55D4d311Cd9B2dD5693FB51f06DbE50B9Da84D13',
+        address: '',
         serviceRegistryName: 'SwapAction_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -72,15 +80,19 @@ export const config = {
       TakeFlashloan: {
         name: 'TakeFlashloan',
         deploy: true,
-        address: '0x53958191c3077eDe3Ca90Eb840283df063FC1be3',
+        address: '',
         serviceRegistryName: 'TakeFlashloan_3',
         history: [],
-        constructorArgs: ['address:ServiceRegistry', '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1'],
+        constructorArgs: [
+          'address:ServiceRegistry',
+          '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
+          '0xc19d0F1E2b38AA283E226Ca4044766A43aA7B02b',
+        ],
       },
       SetApproval: {
         name: 'SetApproval',
         deploy: true,
-        address: '0x983EFCA0Fd5F9B03f75BbBD41F4BeD3eC20c96d8',
+        address: '',
         serviceRegistryName: 'SetApproval_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -88,7 +100,7 @@ export const config = {
       PullToken: {
         name: 'PullToken',
         deploy: true,
-        address: '0xFAf9D0B7B92e8B281CaF10b42970179B45CA6412',
+        address: '',
         serviceRegistryName: 'PullToken_3',
         history: [],
         constructorArgs: [],
@@ -96,7 +108,7 @@ export const config = {
       SendToken: {
         name: 'SendToken',
         deploy: true,
-        address: '0xeB54C366512c4d59A222A251ea7316568859E08C',
+        address: '',
         serviceRegistryName: 'SendToken_4',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -104,7 +116,7 @@ export const config = {
       WrapEth: {
         name: 'WrapEth',
         deploy: true,
-        address: '0x43C9a445fCf3bc3d1483c0b90DC0346249c0D84C',
+        address: '',
         serviceRegistryName: 'WrapEth_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -112,7 +124,7 @@ export const config = {
       UnwrapEth: {
         name: 'UnwrapEth',
         deploy: true,
-        address: '0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85',
+        address: '',
         serviceRegistryName: 'UnwrapEth_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -120,7 +132,7 @@ export const config = {
       ReturnFunds: {
         name: 'ReturnFunds',
         deploy: true,
-        address: '0xAC0B1652388Ea425884e6b60e2eD30155f43D50b',
+        address: '',
         serviceRegistryName: 'ReturnFunds_3',
         history: [],
         constructorArgs: [],
@@ -128,32 +140,32 @@ export const config = {
       AaveV3Borrow: {
         name: 'AaveV3Borrow',
         deploy: true,
-        address: '0x645325494A37d35cf6baFc82C3e6bcE4473F2685',
-        serviceRegistryName: 'AaveBorrow_3',
+        address: '',
+        serviceRegistryName: 'AaveV3Borrow',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3Withdraw: {
         name: 'AaveV3Withdraw',
         deploy: true,
-        address: '0xb3f0C5E4012aF22359c9Ab233DABd80cD81F5ec5',
-        serviceRegistryName: 'AaveWithdraw_3',
+        address: '',
+        serviceRegistryName: 'AaveV3Withdraw',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3Deposit: {
         name: 'AaveV3Deposit',
         deploy: true,
-        address: '0x2006d4e76A398c78964F7e311BFd7Ccb149EaFE2',
-        serviceRegistryName: 'AaveDeposit_3',
+        address: '',
+        serviceRegistryName: 'AaveV3Deposit',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AaveV3Payback: {
         name: 'AaveV3Payback',
         deploy: true,
-        address: '0xA0Cb87300aB07D00468704cD8f016F8dE47D8E0A',
-        serviceRegistryName: 'AavePayback_3',
+        address: '',
+        serviceRegistryName: 'AaveV3Payback',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
@@ -187,6 +199,14 @@ export const config = {
       address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
       serviceRegistryName: CONTRACT_NAMES.common.DAI,
     },
+    WSTETH: {
+      name: 'WSTETH',
+      address: ADDRESSES.optimism.WSTETH,
+    },
+    WBTC: {
+      name: 'WBTC',
+      address: ADDRESSES.optimism.WBTC,
+    },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xE592427A0AEce92De3Edee1F18E0157C05861564',
@@ -197,11 +217,39 @@ export const config = {
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
       serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
     },
+    FeeRecipient: {
+      name: 'FeeRecipient',
+      address: '0xC7b548AD9Cf38721810246C079b2d8083aba8909',
+    },
+    DsProxyRegistry: {
+      name: 'DsProxyRegistry',
+      address: '0x283Cc5C26e53D66ed2Ea252D986F094B37E6e895',
+    },
+    OneInchAggregator: {
+      name: 'OneInchAggregator',
+      address: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+      serviceRegistryName: CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
+    },
+    ChainlinkEthUsdPriceFeed: {
+      name: 'ChainlinkEthUsdPriceFeed',
+      address: ADDRESSES.optimism.chainlinkEthUsdPriceFeed,
+    },
   },
   aave: {
     v3: {
-      AaveOracle: 'AaveOracle',
-      Pool: '0x485083b6c6028B11d644A81d580245D97a918F32',
+      AaveOracle: {
+        name: 'AaveOracle',
+        address: ADDRESSES.optimism.aave.v3.AaveOracle,
+      },
+      Pool: {
+        name: 'Pool',
+        address: ADDRESSES.optimism.aave.v3.Pool,
+        serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
+      },
+      AaveProtocolDataProvider: {
+        name: 'AaveProtocolDataProvider',
+        address: ADDRESSES.optimism.aave.v3.PoolDataProvider,
+      },
     },
   },
 }
