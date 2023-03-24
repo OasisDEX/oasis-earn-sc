@@ -30,7 +30,7 @@ export async function depositBorrow(
     dependencies.provider,
   )
 
-  const lup = await poolInfo.lup(args.poolAddress)
+  const htp = await poolInfo.htp(args.poolAddress)
 
   const data = apa.interface.encodeFunctionData('depositAndDraw', [
     args.poolAddress,
@@ -38,7 +38,7 @@ export async function depositBorrow(
     ethers.utils
       .parseUnits(args.collateralAmount.toString(), args.collateralTokenPrecision)
       .toString(),
-    lup.toString(),
+    htp.toString(),
   ])
 
   const targetPosition = args.position.deposit(args.collateralAmount).borrow(args.quoteAmount)

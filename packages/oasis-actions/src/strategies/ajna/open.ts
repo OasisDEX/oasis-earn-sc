@@ -56,7 +56,7 @@ export async function open(
     dependencies.provider,
   )
 
-  const lup = await poolInfo.lup(args.poolAddress)
+  const htp = await poolInfo.htp(args.poolAddress)
 
   const isDepositingEth =
     position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
@@ -73,7 +73,7 @@ export async function open(
     ethers.utils
       .parseUnits(args.collateralAmount.toString(), args.collateralTokenPrecision)
       .toString(),
-    lup.toString(),
+    htp.toString(),
   ])
 
   const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
