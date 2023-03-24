@@ -4,7 +4,7 @@ export const config = {
       ServiceRegistry: {
         name: 'ServiceRegistry',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: '',
         history: [],
         constructorArgs: [0],
@@ -12,7 +12,7 @@ export const config = {
       OperationExecutor: {
         name: 'OperationExecutor',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'OperationExecutor_2',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -20,7 +20,7 @@ export const config = {
       OperationStorage: {
         name: 'OperationStorage',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'OperationStorage_2',
         history: [],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
@@ -28,7 +28,7 @@ export const config = {
       OperationRegistry: {
         name: 'OperationsRegistry',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'OperationsRegistry_2',
         history: [],
         constructorArgs: [],
@@ -36,7 +36,7 @@ export const config = {
       AccountGuard: {
         name: 'AccountGuard',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: '',
         history: [],
         constructorArgs: [],
@@ -44,7 +44,7 @@ export const config = {
       AccountFactory: {
         name: 'AccountFactory',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: '',
         history: [],
         constructorArgs: ['address:AccountGuard'],
@@ -54,7 +54,7 @@ export const config = {
       PositionCreated: {
         name: 'PositionCreated',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'PositionCreated',
         history: [],
         constructorArgs: [],
@@ -62,7 +62,7 @@ export const config = {
       SwapAction: {
         name: 'SwapAction',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'SwapAction_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -70,7 +70,7 @@ export const config = {
       TakeFlashloan: {
         name: 'TakeFlashloan',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'TakeFlashloan_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry', '0x6B175474E89094C44Da98b954EedeAC495271d0F'],
@@ -78,7 +78,7 @@ export const config = {
       SetApproval: {
         name: 'SetApproval',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'SetApproval_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -86,7 +86,7 @@ export const config = {
       PullToken: {
         name: 'PullToken',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'PullToken_3',
         history: [],
         constructorArgs: [],
@@ -94,7 +94,7 @@ export const config = {
       SendToken: {
         name: 'SendToken',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'SendToken_4',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -102,7 +102,7 @@ export const config = {
       WrapEth: {
         name: 'WrapEth',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'WrapEth_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -110,7 +110,7 @@ export const config = {
       UnwrapEth: {
         name: 'UnwrapEth',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'UnwrapEth_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -118,7 +118,7 @@ export const config = {
       ReturnFunds: {
         name: 'ReturnFunds',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'ReturnFunds_3',
         history: [],
         constructorArgs: [],
@@ -126,7 +126,7 @@ export const config = {
       AaveBorrow: {
         name: 'AaveBorrow',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'AaveBorrow_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -134,7 +134,7 @@ export const config = {
       AaveWithdraw: {
         name: 'AaveWithdraw',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'AaveWithdraw_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -142,7 +142,7 @@ export const config = {
       AaveDeposit: {
         name: 'AaveDeposit',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'AaveDeposit_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -150,7 +150,7 @@ export const config = {
       AavePayback: {
         name: 'AavePayback',
         deploy: true,
-        addresses: '',
+        address: '',
         serviceRegistryName: 'AavePayback_3',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
