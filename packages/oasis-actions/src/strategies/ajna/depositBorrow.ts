@@ -1,7 +1,6 @@
 import * as ethers from 'ethers'
 
 import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
-import poolInfoAbi from '../../../../../abi/external/ajna/poolInfoUtils.json'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
 import { Strategy } from '../../types/common'
@@ -24,13 +23,7 @@ export async function depositBorrow(
     dependencies.provider,
   )
 
-  const poolInfo = new ethers.Contract(
-    dependencies.poolInfoAddress,
-    poolInfoAbi,
-    dependencies.provider,
-  )
-
-  const htp = await poolInfo.htp(args.poolAddress)
+  const htp = args.position.pool.highestThresholdPrice.shiftedBy(18)
 
   const data = apa.interface.encodeFunctionData('depositAndDraw', [
     args.poolAddress,
