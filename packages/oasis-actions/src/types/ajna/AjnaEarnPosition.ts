@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import { RiskRatio } from '../../domain'
+import { calculateAjnaApyPerDays } from '../../helpers/ajna'
 import { ZERO } from '../../helpers/constants'
 import { normalizeValue } from '../../helpers/normalizeValue'
 import bucketPrices from '../../strategies/ajna/earn/buckets.json'
@@ -98,14 +99,8 @@ export class AjnaEarnPosition implements IAjnaEarn {
   }
 
   getApyPerDays({ amount, days }: { amount?: BigNumber; days: number }) {
-    // converted to numbers because BigNumber doesn't handle power with decimals
     return amount?.gt(0) && this.pool
-      ? new BigNumber(
-          (amount.toNumber() *
-            Math.E ** (this.pool.dailyPercentageRate30dAverage.toNumber() * (days / 365)) -
-            amount.toNumber()) /
-            amount.toNumber(),
-        )
+      ? calculateAjnaApyPerDays(amount, this.pool.dailyPercentageRate30dAverage, days)
       : undefined
   }
 

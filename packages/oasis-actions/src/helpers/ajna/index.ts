@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import poolAbi from '../../../../../abi/external/ajna/ajnaPoolERC20.json'
+import poolAbi from '../../abi/external/ajna/ajnaPoolERC20.json'
 import { getAjnaValidations } from '../../strategies/ajna/earn/validations'
 import { AjnaEarnPosition } from '../../types/ajna'
 import { AjnaPool } from '../../types/ajna/AjnaPool'
@@ -103,3 +103,10 @@ export const getAjnaEarnActionOutput = async ({
 
 export const resolveAjnaEthAction = (isUsingEth: boolean, amount: BigNumber) =>
   isUsingEth ? ethers.utils.parseEther(amount.toString()).toString() : '0'
+
+export const calculateAjnaApyPerDays = (amount: BigNumber, apy: BigNumber, days: number) =>
+  // converted to numbers because BigNumber doesn't handle power with decimals
+  new BigNumber(
+    (amount.toNumber() * Math.E ** (apy.toNumber() * (days / 365)) - amount.toNumber()) /
+      amount.toNumber(),
+  )
