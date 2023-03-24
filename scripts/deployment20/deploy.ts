@@ -136,7 +136,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async saveConfig() {
-    // const configString = JSON.stringify(this.config, null, 2)
     const { writeFile } = await import('fs')
 
     const configString = inspect(this.config, { depth: null })
