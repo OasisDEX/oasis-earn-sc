@@ -211,7 +211,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async addRegistryEntry(configItem: ConfigItem, address: string) {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
-    if (configItem.serviceRegistryName) {
+    if (configItem.serviceRegistryName && configItem.deploy) {
       await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, address)
       await this.postRegistryEntry(configItem, address)
     }
@@ -426,29 +426,37 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.signerAddress) throw new Error('No signer address set')
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     if (!this.config) throw new Error('No config set')
+    const addLocalEntries = this.config.mpa.core['ServiceRegistry'].deploy
 
-    const deploySwapContract = await this.deployContract(
-      this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
-      [
-        this.signerAddress,
-        this.config.common.FeeRecipient.address,
-        0,
-        this.deployedSystem['ServiceRegistry'].contract.address,
-      ],
-    )
+    const deploySwapContract = addLocalEntries
+      ? await this.deployContract(
+          this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
+          [
+            this.signerAddress,
+            this.config.common.FeeRecipient.address,
+            0,
+            this.deployedSystem['ServiceRegistry'].contract.address,
+          ],
+        )
+      : await this.ethers.getContractAt(
+          this.config.mpa.core['Swap'].name,
+          this.config.mpa.core['Swap'].address,
+        )
 
     !useInch &&
+      addLocalEntries &&
       (await deploySwapContract.setPool(
         this.config.common.STETH.address,
         this.config.common.WETH.address,
         10000,
       ))
 
-    await deploySwapContract.addFeeTier(20)
+    addLocalEntries && (await deploySwapContract.addFeeTier(20))
 
     this.deployedSystem['Swap'] = { contract: deploySwapContract, config: {}, hash: '' }
 
-    await this.serviceRegistryHelper.addEntry('Swap', deploySwapContract.address)
+    addLocalEntries &&
+      (await this.serviceRegistryHelper.addEntry('Swap', deploySwapContract.address))
 
     this.deployedSystem.AccountGuard.contract.setWhitelist(
       this.deployedSystem.OperationExecutor.contract.address,

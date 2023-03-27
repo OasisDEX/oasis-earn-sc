@@ -5,6 +5,7 @@ export async function createDPMAccount(
 ): Promise<[string | undefined, number | undefined]> {
   const tx = await accountFactory.functions['createAccount()']()
   const receipt = await tx.wait()
+
   // eslint-disable-next-line
   return [receipt.events![1].args!.proxy, receipt.events![1].args!.vaultId]
 }

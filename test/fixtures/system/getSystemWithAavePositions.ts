@@ -37,7 +37,7 @@ export const getSystemWithAavePositions =
   async (): Promise<SystemWithAAVEPositions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
-    ds.loadConfig('mainnet.conf.ts')
+    ds.loadConfig('test-configs/mainnet.conf.ts')
 
     // If you update test block numbers you may run into issues where whale addresses
     // We use impersonation on test block number but with 1inch we use uniswap
