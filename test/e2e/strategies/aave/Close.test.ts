@@ -572,7 +572,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
           getSystemWithAaveV3Positions({
             use1inch: false,
             network: networkFork,
-            systemConfigPath: `${networkFork}.conf.ts`,
+            systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
           }),
         )
       })
