@@ -1,6 +1,6 @@
 import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/oasis-actions/src'
 
-import { Config } from '../common/config-item'
+import { Config } from '../../common/config-item'
 
 export const config: Config = {
   mpa: {
