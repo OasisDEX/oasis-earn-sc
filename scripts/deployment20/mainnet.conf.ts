@@ -9,7 +9,6 @@ export const config: Config = {
         name: 'ServiceRegistry',
         deploy: false,
         address: '0x9b4Ae7b164d195df9C4Da5d08Be88b2848b2EaDA',
-        serviceRegistryName: '',
         history: [],
         constructorArgs: [0],
       },
@@ -41,7 +40,6 @@ export const config: Config = {
         name: 'AccountGuard',
         deploy: true,
         address: '0xCe91349d2A4577BBd0fC91Fe6019600e047f2847',
-        serviceRegistryName: '',
         history: [],
         constructorArgs: [],
       },
@@ -49,7 +47,6 @@ export const config: Config = {
         name: 'AccountFactory',
         deploy: true,
         address: '0xF7B75183A2829843dB06266c114297dfbFaeE2b6',
-        serviceRegistryName: '',
         history: [],
         constructorArgs: ['address:AccountGuard'],
       },
@@ -66,6 +63,8 @@ export const config: Config = {
         deploy: false,
         address: '0x826E9f2E79cEEA850dF4d4757e0D12115A720D74',
         serviceRegistryName: 'Swap',
+        history: [],
+        constructorArgs: [],
       },
     },
     actions: {
@@ -223,7 +222,6 @@ export const config: Config = {
     WETH: {
       name: 'WETH',
       address: ADDRESSES.main.WETH,
-      deploy: false,
       serviceRegistryName: CONTRACT_NAMES.common.WETH,
     },
     ETH: {
@@ -233,49 +231,41 @@ export const config: Config = {
     STETH: {
       name: 'STETH',
       address: ADDRESSES.main.STETH,
-      deploy: false,
       serviceRegistryName: CONTRACT_NAMES.common.STETH,
     },
     WSTETH: {
       name: 'WSTETH',
       address: ADDRESSES.main.WSTETH,
-      deploy: false,
       serviceRegistryName: CONTRACT_NAMES.common.WSTETH,
     },
     USDC: {
       name: 'USDC',
       address: ADDRESSES.main.USDC,
-      deploy: false,
       serviceRegistryName: CONTRACT_NAMES.common.USDC,
     },
     DAI: {
       name: 'DAI',
       address: ADDRESSES.main.DAI,
-      deploy: false,
       serviceRegistryName: CONTRACT_NAMES.common.DAI,
     },
     WBTC: {
       name: 'WBTC',
       address: ADDRESSES.main.WBTC,
-      deploy: false,
       serviceRegistryName: CONTRACT_NAMES.common.WBTC,
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: ADDRESSES.main.uniswapRouterV3,
-      deploy: false,
       serviceRegistryName: CONTRACT_NAMES.common.UNISWAP_ROUTER,
     },
     FlashMintModule: {
       name: 'FlashMintModule',
       address: ADDRESSES.main.maker.fmm,
-      deploy: false,
       serviceRegistryName: CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
     },
     BalancerVault: {
       name: 'BalancerVault',
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      deploy: false,
       serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
     },
     DsProxyRegistry: {
@@ -285,7 +275,6 @@ export const config: Config = {
     OneInchAggregator: {
       name: 'OneInchAggregator',
       address: '0x1111111254fb6c44bac0bed2854e76f90643097d',
-      deploy: false,
       serviceRegistryName: CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     },
     AuthorizedCaller: {
@@ -310,7 +299,6 @@ export const config: Config = {
       LendingPool: {
         name: 'LendingPool',
         address: '0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9',
-        deploy: false,
         serviceRegistryName: CONTRACT_NAMES.aave.v2.LENDING_POOL,
       },
       ProtocolDataProvider: {
@@ -320,7 +308,6 @@ export const config: Config = {
       WETHGateway: {
         name: 'WETHGateway',
         address: '0xcc9a0B7c43DC2a5F023Bb9b738E45B0Ef6B06E04',
-        deploy: false,
         serviceRegistryName: CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
       },
     },
@@ -332,7 +319,6 @@ export const config: Config = {
       Pool: {
         name: 'Pool',
         address: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
-        deploy: false,
         serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
       },
       AaveProtocolDataProvider: {

@@ -3,17 +3,20 @@ import { Address } from '@oasisdex/oasis-actions/src/types'
 
 export type ConfigItem = {
   name: string
-  deploy?: boolean
-  serviceRegistryName?: ContractNames | ''
+  serviceRegistryName?: ContractNames
   address: Address
-  history?: Address[]
+}
+
+export type SystemConfigItem = ConfigItem & {
+  deploy: boolean
+  history: Address[]
   constructorArgs?: Array<number | string>
 }
 
 export type Config = {
   mpa: {
-    core: Record<string, ConfigItem>
-    actions: Record<string, ConfigItem>
+    core: Record<string, SystemConfigItem>
+    actions: Record<string, SystemConfigItem>
   }
   common: Record<string, ConfigItem>
   aave: {

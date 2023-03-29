@@ -24,7 +24,7 @@ import { inspect } from 'util'
 
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { EtherscanGasPrice } from '../common'
-import { Config, ConfigItem } from '../common/config-item'
+import { Config, ConfigItem, SystemConfigItem } from '../common/config-item'
 
 configLoader.setBaseDir('./scripts/deployment20/')
 
@@ -211,7 +211,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async addRegistryEntry(configItem: ConfigItem, address: string) {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
-    if (configItem.serviceRegistryName && configItem.deploy) {
+    if (configItem.serviceRegistryName) {
       await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, address)
       await this.postRegistryEntry(configItem, address)
     }
@@ -260,7 +260,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async deployContracts(addressesConfig: ConfigItem[]) {
+  async deployContracts(addressesConfig: SystemConfigItem[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     if (this.isRestrictedNetwork) {
       await this.promptBeforeDeployment()
@@ -358,11 +358,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.instantiateContracts(
       Object.values(this.config.mpa.core).filter(
-        (item: ConfigItem) => item.address !== '' && !item.deploy,
+        (item: SystemConfigItem) => item.address !== '' && !item.deploy,
       ),
     )
     await this.deployContracts(
-      Object.values(this.config.mpa.core).filter((item: ConfigItem) => item.deploy),
+      Object.values(this.config.mpa.core).filter((item: SystemConfigItem) => item.deploy),
     )
   }
 
