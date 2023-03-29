@@ -51,7 +51,7 @@ export const config = {
         constructorArgs: ['address:DSProxyFactory'],
       },
       DSGuardFactory: {
-        name: 'DSGuardFatory',
+        name: 'DSGuardFactory',
         deploy: true,
         address: '',
         serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
