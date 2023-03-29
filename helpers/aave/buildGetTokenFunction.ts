@@ -1,11 +1,13 @@
+import { Network } from '@helpers/network'
 import { AAVETokens, ADDRESSES, ONE } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
-import { mainnetAddresses } from '../../test/addresses/mainnet'
+import { addressesByNetwork } from '../../test/test-utils/addresses'
 import { RuntimeConfig } from '../types/common'
 
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH'>
 const tokens: Record<AAVETokensToGet, string> = {
   STETH: mainnetAddresses.STETH,

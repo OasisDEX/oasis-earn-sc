@@ -2,14 +2,14 @@ import BigNumber from 'bignumber.js'
 
 import { AAVETokensToGet } from '../../../helpers/aave'
 import { RuntimeConfig } from '../../../helpers/types/common'
+import { DeployedSystem20Return } from '../../../scripts/common/deploy-system'
 import { deploySystem } from '../../deploySystem'
 import { AavePositionStrategy, AaveV3PositionStrategy, PositionDetails } from './positionDetails'
 import { StrategyDependenciesAaveV2, StrategyDependenciesAaveV3 } from './strategiesDependencies'
 
 export type SystemWithAAVEPositions = {
   config: RuntimeConfig
-  // TODO: Update Deploy Class to return correct shape for system
-  system: any
+  system: DeployedSystem20Return
   registry: Awaited<ReturnType<typeof deploySystem>>['registry']
   dpmPositions: Partial<Record<AavePositionStrategy, PositionDetails>>
   dsProxyPosition: PositionDetails

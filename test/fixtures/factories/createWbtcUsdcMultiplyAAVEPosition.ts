@@ -1,3 +1,4 @@
+import { Network } from '@helpers/network'
 import { AaveVersion, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
 import {
   AaveV2OpenDependencies,
@@ -12,11 +13,12 @@ import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
 } from '../../../packages/oasis-actions/src/protocols/aave/config'
-import { mainnetAddresses } from '../../addresses/mainnet'
+import { addressesByNetwork } from '../../test-utils/addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC, WBTC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 const amountInBaseUnit = amountToWei(new BigNumber(0.1), WBTC.precision)
 const wBTCtoSteal = amountToWei(new BigNumber(2), WBTC.precision)
 const WETHtoSwap = amountToWei(new BigNumber(2), ETH.precision)

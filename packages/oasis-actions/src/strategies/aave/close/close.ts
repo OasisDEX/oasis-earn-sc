@@ -55,18 +55,21 @@ export async function close(
   args: AaveCloseArgsWithVersioning,
   dependencies: AaveCloseDependencies,
 ): Promise<IPositionTransition> {
+  console.log('CLOSING...')
   const getSwapData = args.shouldCloseToCollateral
     ? getSwapDataToCloseToCollateral
     : getSwapDataToCloseToDebt
 
+  console.log('GETTING SWAP...')
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(args, dependencies)
 
+  console.log('BUILD OP...')
   const operation = await buildOperation(
     { ...swapData, collectFeeFrom, preSwapFee },
     args,
     dependencies,
   )
-
+  console.log('GENERATE...')
   return generateTransition(swapData, collectFeeFrom, preSwapFee, operation, args, dependencies)
 }
 

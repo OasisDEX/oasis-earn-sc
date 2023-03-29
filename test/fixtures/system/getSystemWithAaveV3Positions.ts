@@ -115,6 +115,7 @@ export const getSystemWithAaveV3Positions =
                 : [],
               ChainIdByNetwork[network],
               oneInchVersion,
+              true,
             )
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }

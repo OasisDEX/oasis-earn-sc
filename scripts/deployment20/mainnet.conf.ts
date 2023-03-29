@@ -28,7 +28,7 @@ export const config: Config = {
         history: [],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
       },
-      OperationRegistry: {
+      OperationsRegistry: {
         name: 'OperationsRegistry',
         deploy: false,
         address: '0x01871C3cCfeDE29d2b998E7D1BF0eEEBD26d9c49',

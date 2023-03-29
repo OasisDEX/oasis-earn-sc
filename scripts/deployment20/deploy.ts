@@ -24,7 +24,8 @@ import { inspect } from 'util'
 
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { EtherscanGasPrice } from '../common'
-import { Config, ConfigItem, SystemConfigItem } from '../common/config-item'
+import { DeployedSystem20, DeployedSystem20Return } from '../common/deploy-system'
+import { AllowedContractNames, Config, ConfigItem, SystemConfigItem } from '../common/config-item'
 
 configLoader.setBaseDir('./scripts/deployment20/')
 
@@ -111,7 +112,7 @@ abstract class DeployedSystemHelpers {
 // MAIN CLASS ===============================================
 export class DeploymentSystem extends DeployedSystemHelpers {
   public config: Config | undefined
-  public deployedSystem: any = {}
+  public deployedSystem: Partial<DeployedSystem20> = {}
   private readonly _cache = new NodeCache()
 
   constructor(public readonly hre: HardhatRuntimeEnvironment) {
@@ -271,8 +272,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       if (configItem.constructorArgs && configItem.constructorArgs?.length !== 0) {
         constructorParams = configItem.constructorArgs.map((param: any) => {
           if (typeof param === 'string' && param.indexOf('address:') >= 0) {
-            const contractName = (param as string).replace('address:', '')
-            return this.deployedSystem[contractName].contract.address
+            const contractName = (param as string).replace('address:', '') as AllowedContractNames
+            if (!this.deployedSystem[contractName]) {
+              throw new Error(`Contract ${contractName} not deployed`)
+            }
+            return this.deployedSystem[contractName]!.contract.address
           }
           return param
         })
@@ -426,6 +430,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.signerAddress) throw new Error('No signer address set')
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     if (!this.config) throw new Error('No config set')
+    if (
+      !this.deployedSystem['ServiceRegistry'] ||
+      !this.deployedSystem['OperationExecutor'] ||
+      !this.deployedSystem['AccountGuard'] ||
+      !this.deployedSystem['OperationsRegistry']
+    ) {
+      throw new Error('Missing system contracts')
+    }
     const addLocalEntries = this.config.mpa.core['ServiceRegistry'].deploy
 
     const deploySwapContract = addLocalEntries
@@ -503,11 +515,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     ])
   }
 
-  getSystem() {
+  getSystem(): { system: DeployedSystem20Return; registry: ServiceRegistry; config: Config } {
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     if (!this.config) throw new Error('No config set')
     return {
-      system: this.deployedSystem,
+      system: this.deployedSystem as DeployedSystem20Return,
       registry: this.serviceRegistryHelper,
       config: this.config,
     }

@@ -1,4 +1,5 @@
-import { AaveVersion, ADDRESSES, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
+import { Network } from '@helpers/network'
+import { AaveVersion, RiskRatio, strategies } from '@oasisdex/oasis-actions/src'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
@@ -8,16 +9,15 @@ import BigNumber from 'bignumber.js'
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../../helpers/utils'
-import {
-  aaveV2UniqueContractName,
-  aaveV3UniqueContractName,
-} from '../../../packages/oasis-actions/src/protocols/aave/config'
-import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
+import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
+import { addressesByNetwork } from '../../test-utils/addresses'
+import { AavePositionStrategy, PositionDetails } from '../types'
+import { StrategyDependenciesAaveV2 } from '../types/strategiesDependencies'
 import { ETH, MULTIPLE, STETH, UNISWAP_TEST_SLIPPAGE } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
-
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 async function openStEthEthEarnAAVEPosition(
   slippage: BigNumber,
   dependencies: OpenPositionTypes[1],
@@ -65,8 +65,8 @@ export async function createStEthEthEarnAAVEPosition({
   isDPM: boolean
   use1inch: boolean
   swapAddress?: string
-  dependencies: StrategiesDependencies
-  config: RuntimeConfig
+  dependencies: StrategyDependenciesAaveV2
+  config: RuntimeConfig & { ds: DeploymentSystem }
 }): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'STETH/ETH Earn'
 
@@ -94,7 +94,9 @@ export async function createStEthEthEarnAAVEPosition({
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeWalletBalanceBefore = await balanceOf(ADDRESSES.main.WETH, ADDRESSES.main.feeRecipient, {
+  const feeRecipient = config.ds.getSystem().system.FeeRecipient?.contract.address
+  if (!feeRecipient) throw new Error('FeeRecipient is not defined')
+  const feeWalletBalanceBefore = await balanceOf(mainnetAddresses.WETH, feeRecipient, {
     config,
   })
 
@@ -115,54 +117,26 @@ export async function createStEthEthEarnAAVEPosition({
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  const feeWalletBalanceAfter = await balanceOf(ADDRESSES.main.WETH, ADDRESSES.main.feeRecipient, {
+  const feeWalletBalanceAfter = await balanceOf(mainnetAddresses.WETH, feeRecipient, {
     config,
   })
 
-  let getPosition
-  if (
-    dependencies.protocol.version === AaveVersion.v3 &&
-    aaveV3UniqueContractName in dependencies.addresses
-  ) {
-    const addresses = dependencies.addresses
-    getPosition = async () => {
-      return await strategies.aave.v3.view(
-        {
-          collateralToken: STETH,
-          debtToken: ETH,
-          proxy,
+  const addresses = dependencies.addresses
+  const getPosition = async () => {
+    return await strategies.aave.v2.view(
+      {
+        collateralToken: STETH,
+        debtToken: ETH,
+        proxy,
+      },
+      {
+        addresses: {
+          ...addresses,
+          operationExecutor: dependencies.contracts.operationExecutor.address,
         },
-        {
-          addresses: {
-            ...addresses,
-            operationExecutor: dependencies.contracts.operationExecutor.address,
-          },
-          provider: config.provider,
-        },
-      )
-    }
-  }
-  if (
-    dependencies.protocol.version === AaveVersion.v2 &&
-    aaveV2UniqueContractName in dependencies.addresses
-  ) {
-    const addresses = dependencies.addresses
-    getPosition = async () => {
-      return await strategies.aave.v2.view(
-        {
-          collateralToken: STETH,
-          debtToken: ETH,
-          proxy,
-        },
-        {
-          addresses: {
-            ...addresses,
-            operationExecutor: dependencies.contracts.operationExecutor.address,
-          },
-          provider: config.provider,
-        },
-      )
-    }
+        provider: config.provider,
+      },
+    )
   }
 
   if (!getPosition) throw new Error('getPosition is not defined')
@@ -171,7 +145,7 @@ export async function createStEthEthEarnAAVEPosition({
     proxy: proxy,
     getPosition,
     strategy: 'STETH/ETH Earn',
-    collateralToken: STETH,
+    collateralToken: new STETH(dependencies.addresses),
     debtToken: new ETH(dependencies.addresses),
     getSwapData,
     __positionType: 'Earn',

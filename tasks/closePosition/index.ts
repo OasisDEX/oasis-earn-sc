@@ -1,3 +1,4 @@
+import { Network } from '@helpers/network'
 import { ADDRESSES, CONTRACT_NAMES, Position, strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
@@ -13,7 +14,9 @@ import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { balanceOf } from '../../helpers/utils'
 import { one, zero } from '../../scripts/common'
-import { mainnetAddresses } from '../../test/addresses/mainnet'
+import { addressesByNetwork } from '../../test/test-utils/addresses'
+
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 
 export function amountFromWei(amount: BigNumber.Value, precision = 18) {
   return new BigNumber(amount || 0).div(new BigNumber(10).pow(precision))
@@ -70,9 +73,6 @@ task('closePosition', 'Close stETH position on AAVE')
     const addresses = {
       ...mainnetAddresses,
       operationExecutor: operationExecutorAddress,
-      priceOracle: mainnetAddresses.aave.v2.priceOracle,
-      lendingPool: mainnetAddresses.aave.v2.lendingPool,
-      protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
     }
     const aaveLendingPool = new hre.ethers.Contract(
       ADDRESSES.main.aave.v2.LendingPool,

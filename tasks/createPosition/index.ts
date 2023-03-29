@@ -1,3 +1,4 @@
+import { Network } from '@helpers/network'
 import { ADDRESSES, CONTRACT_NAMES, protocols, strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
 import { task, types } from 'hardhat/config'
@@ -12,7 +13,9 @@ import { getOrCreateProxy } from '../../helpers/proxy'
 import { getOneInchCall } from '../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../helpers/swap/OneInchCallMock'
 import { balanceOf } from '../../helpers/utils'
-import { mainnetAddresses } from '../../test/addresses/mainnet'
+import { addressesByNetwork } from '../../test/test-utils/addresses'
+
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 
 function amountToWei(amount: BigNumber.Value, precision = 18) {
   BigNumber.config({ EXPONENTIAL_AT: 30 })

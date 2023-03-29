@@ -9,7 +9,7 @@ import chai, { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-import { Pool } from '../../../../typechain'
+import { Pool } from '../../../../typechain/abi/external/aave/v3/Pool'
 
 const utils = ethers.utils
 chai.use(smock.matchers)

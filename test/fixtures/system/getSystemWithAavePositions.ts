@@ -7,13 +7,7 @@ import { buildGetTokenByImpersonateFunction, buildGetTokenFunction } from '../..
 import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
-import {
-  createDPMAccount,
-  createEthUsdcMultiplyAAVEPosition,
-  createStEthEthEarnAAVEPosition,
-  createStEthUsdcMultiplyAAVEPosition,
-  createWbtcUsdcMultiplyAAVEPosition,
-} from '../factories'
+import { createDPMAccount, createStEthEthEarnAAVEPosition } from '../factories'
 import { AavePositionStrategy, SystemWithAAVEPositions } from '../types'
 import { StrategyDependenciesAaveV2 } from '../types/strategiesDependencies'
 
@@ -114,44 +108,45 @@ export const getSystemWithAavePositions =
 
     const swapAddress = system.Swap.contract.address
 
-    const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
-      proxy: dpmProxyForEarnStEthEth,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config: configWithDeployedSystem,
-    })
+    // const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
+    //   proxy: dpmProxyForEarnStEthEth,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config: configWithDeployedSystem,
+    // })
+    //
+    // const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyEthUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config: configWithDeployedSystem,
+    // })
+    //
+    // const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyStEthUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config: configWithDeployedSystem,
+    //   getTokens,
+    // })
+    //
+    // const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
+    //   proxy: dpmProxyForMultiplyWbtcUsdc,
+    //   isDPM: true,
+    //   use1inch,
+    //   swapAddress,
+    //   dependencies,
+    //   config: configWithDeployedSystem,
+    //   getTokens,
+    // })
 
-    const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config: configWithDeployedSystem,
-    })
-
-    const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyStEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config: configWithDeployedSystem,
-      getTokens,
-    })
-
-    const wbtcUsdcMultiplyPositon = await createWbtcUsdcMultiplyAAVEPosition({
-      proxy: dpmProxyForMultiplyWbtcUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config: configWithDeployedSystem,
-      getTokens,
-    })
-
+    console.log('CREATING DS PROXY STETH:ETH')
     const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
       proxy: dsProxy.address,
       isDPM: false,
@@ -162,16 +157,16 @@ export const getSystemWithAavePositions =
     })
 
     const dpmPositions = {
-      ...(stEthEthEarnPosition ? { [stEthEthEarnPosition.strategy]: stEthEthEarnPosition } : {}),
-      ...(ethUsdcMultiplyPosition
-        ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
-        : {}),
-      ...(stethUsdcMultiplyPosition
-        ? { [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition }
-        : {}),
-      ...(wbtcUsdcMultiplyPositon
-        ? { [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon }
-        : {}),
+      // ...(stEthEthEarnPosition ? { [stEthEthEarnPosition.strategy]: stEthEthEarnPosition } : {}),
+      // ...(ethUsdcMultiplyPosition
+      //   ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
+      //   : {}),
+      // ...(stethUsdcMultiplyPosition
+      //   ? { [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition }
+      //   : {}),
+      // ...(wbtcUsdcMultiplyPositon
+      //   ? { [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon }
+      //   : {}),
     }
 
     return {

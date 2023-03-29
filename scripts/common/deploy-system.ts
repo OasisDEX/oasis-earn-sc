@@ -1,4 +1,7 @@
+import { Network } from '@helpers/network'
+import { ADDRESSES } from '@oasisdex/oasis-actions/src'
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
+import { Contract } from 'ethers'
 
 import {
   AaveBorrow,
@@ -28,9 +31,28 @@ import {
   WrapEth,
 } from '../../typechain'
 import { AddressRegistry } from './addresses'
+import { AllowedContractNames, ConfigItem, CoreContractNames } from './config-item'
 import { HardhatUtils } from './hardhat.utils'
-import { Network } from './types'
 import { removeVersion } from './utils'
+
+export type DeployedSystem20 = Record<
+  AllowedContractNames,
+  {
+    contract: Contract
+    config: ConfigItem | Record<string, unknown>
+    hash: string
+  }
+>
+
+export type DeployedSystem20Return = Partial<DeployedSystem20> &
+  Record<
+    CoreContractNames,
+    {
+      contract: Contract
+      config: ConfigItem | Record<string, unknown>
+      hash: string
+    }
+  >
 
 export interface DeployedSystem {
   serviceRegistry: ServiceRegistry

@@ -1,28 +1,30 @@
+import { Network } from '@helpers/network'
 import { AAVETokens } from '@oasisdex/oasis-actions'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import erc20abi from '../../abi/external/IERC20.json'
-import { mainnetAddresses } from '../../test/addresses/mainnet'
+import { addressesByNetwork } from '../../test/test-utils/addresses'
 import { RuntimeConfig } from '../types/common'
 
 export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH'>
+const mainnetAddressesForTests = addressesByNetwork(Network.MAINNET)
 const tokensWhales: Record<AAVETokensToGet, { whale: string; tokenAddress: string }> = {
   STETH: {
-    tokenAddress: mainnetAddresses.STETH,
+    tokenAddress: mainnetAddressesForTests.STETH,
     whale: '0x41318419cfa25396b47a94896ffa2c77c6434040',
   },
   WBTC: {
-    tokenAddress: mainnetAddresses.WBTC,
+    tokenAddress: mainnetAddressesForTests.WBTC,
     whale: '0x051d091b254ecdbbb4eb8e6311b7939829380b27',
   },
   USDC: {
     whale: '0xdea0da1c96f1beb756d61225577ebdeb4bbd364e',
-    tokenAddress: mainnetAddresses.USDC,
+    tokenAddress: mainnetAddressesForTests.USDC,
   },
   WSTETH: {
     whale: '0xe1f8afc92644bfe77080d7dcb0f936f578e00f53',
-    tokenAddress: mainnetAddresses.WSTETH,
+    tokenAddress: mainnetAddressesForTests.WSTETH,
   },
 }
 

@@ -1,9 +1,12 @@
+import { Network } from '@helpers/network'
 import { swapOneInchTokens } from '@helpers/swap/1inch'
 import { amountToWei } from '@helpers/utils'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
-import { mainnetAddresses } from '../../test/addresses/mainnet'
+import { addressesByNetwork } from '../../test/test-utils/addresses'
+
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 
 const tokens = {
   STETH: mainnetAddresses.STETH,

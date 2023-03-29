@@ -1,15 +1,17 @@
+import { Network } from '@helpers/network'
 import { AaveVersion, protocols, strategies } from '@oasisdex/oasis-actions/src'
 
 import { buildGetTokenByImpersonateFunction } from '../../../helpers/aave'
 import init, { resetNode } from '../../../helpers/init'
 import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
-import { mainnetAddresses } from '../../addresses/mainnet'
 import { testBlockNumber } from '../../config'
 import { deploySystem } from '../../deploySystem'
+import { addressesByNetwork } from '../../test-utils/addresses'
 import { createDPMAccount } from '../factories'
 import { StrategiesDependencies, SystemWithProxies } from '../types'
 
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 export async function getSystemWithProxies({
   use1inch,
 }: {
@@ -27,9 +29,9 @@ export async function getSystemWithProxies({
   const dependencies: StrategiesDependencies = {
     addresses: {
       ...mainnetAddresses,
-      priceOracle: mainnetAddresses.aave.v2.priceOracle,
-      lendingPool: mainnetAddresses.aave.v2.lendingPool,
-      protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
+      priceOracle: mainnetAddresses.priceOracle,
+      lendingPool: mainnetAddresses.lendingPool,
+      protocolDataProvider: mainnetAddresses.protocolDataProvider,
       accountFactory: system.common.accountFactory.address,
       operationExecutor: system.common.operationExecutor.address,
     },
