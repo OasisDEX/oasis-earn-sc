@@ -66,6 +66,8 @@ export async function getPosition(
   )
 }
 
+export type GetPosition = typeof getPosition
+
 export async function getEarnPosition(
   { proxyAddress, poolAddress, quotePrice, collateralPrice }: Args,
   { poolInfoAddress, rewardsManagerAddress, provider, getEarnData, getPoolData }: EarnDependencies,

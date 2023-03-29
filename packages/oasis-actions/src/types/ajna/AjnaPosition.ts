@@ -3,7 +3,7 @@ import { BigNumber } from 'bignumber.js'
 import { IRiskRatio, RiskRatio } from '../../domain'
 import { ONE } from '../../helpers/constants'
 import { normalizeValue } from '../../helpers/normalizeValue'
-import { Address, AjnaError, AjnaWarning } from '../common'
+import { Address, AjnaWarning } from '../common'
 import { AjnaPool } from './AjnaPool'
 
 export interface IAjnaPosition {
@@ -23,7 +23,6 @@ export interface IAjnaPosition {
   riskRatio: IRiskRatio
   maxRiskRatio: IRiskRatio
 
-  errors: AjnaError[]
   warnings: AjnaWarning[]
 
   deposit(amount: BigNumber): IAjnaPosition
@@ -33,7 +32,6 @@ export interface IAjnaPosition {
 }
 
 export class AjnaPosition implements IAjnaPosition {
-  errors: AjnaError[] = []
   warnings: AjnaWarning[] = []
 
   constructor(

@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js'
 
-import { AjnaEarnPosition } from '../../../types/ajna'
+import { AjnaEarnPosition, AjnaPosition } from '../../../types/ajna'
 import { AjnaEarnActions, AjnaError, AjnaWarning } from '../../../types/common'
+import { validateDustLimit, validateLiquidity, validateUndercollateralized } from '../validation'
 
 export const getAjnaValidations = ({
   price,
@@ -64,4 +65,12 @@ export const getAjnaValidations = ({
   }
 
   return { errors, warnings }
+}
+
+function getPositionErrors(position: AjnaPosition, action: AjnaEarnActions): AjnaError[] {
+  return [
+    ...validateDustLimit(position),
+    ...validateUndercollateralized(position),
+    ...(action === 'open-earn' ? validateLiquidity(position, new BigNumber(0)) : []),
+  ]
 }

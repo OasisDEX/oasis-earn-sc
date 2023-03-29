@@ -16,6 +16,10 @@ export type AjnaErrorUndercollateralized = {
   }
 }
 
+export type AjnaErrorDustLimit = {
+  name: 'debt-less-then-dust-limit'
+}
+
 export type AjnaErrorPriceAboveMomp = {
   name: 'price-above-momp'
 }
@@ -27,8 +31,23 @@ export type AjnaErrorWithdrawMoreThanAvailable = {
   }
 }
 
+export type AjnaErrorNotEnoughLiquidity = {
+  name: 'not-enough-liquidity'
+  data: {
+    available: string
+  }
+}
+
 export type AjnaErrorAfterLupIndexBiggerThanHtpIndex = {
   name: 'after-lup-index-bigger-than-htp-index'
+}
+
+export type AjnaErrorOverWithdraw = {
+  name: 'withdrawing-more-then-available'
+}
+
+export type AjnaErrorOverRepay = {
+  name: 'repay-more-then-debt'
 }
 
 export type AjnaError =
@@ -36,6 +55,10 @@ export type AjnaError =
   | AjnaErrorPriceAboveMomp
   | AjnaErrorWithdrawMoreThanAvailable
   | AjnaErrorAfterLupIndexBiggerThanHtpIndex
+  | AjnaErrorDustLimit
+  | AjnaErrorNotEnoughLiquidity
+  | AjnaErrorOverWithdraw
+  | AjnaErrorOverRepay
 
 export type AjnaWarningPriceBelowHtp = {
   name: 'price-below-htp'

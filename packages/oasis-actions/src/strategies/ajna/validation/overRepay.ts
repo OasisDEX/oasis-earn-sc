@@ -1,0 +1,19 @@
+import BigNumber from 'bignumber.js'
+
+import { AjnaPosition } from '../../../types/ajna'
+import { AjnaError } from '../../../types/common'
+
+export function validateOverRepay(
+  positionBefore: AjnaPosition,
+  repayAmount: BigNumber,
+): AjnaError[] {
+  if (repayAmount.gt(positionBefore.debtAmount)) {
+    return [
+      {
+        name: 'repay-more-then-debt',
+      },
+    ]
+  } else {
+    return []
+  }
+}
