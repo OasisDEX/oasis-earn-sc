@@ -184,14 +184,6 @@ export const config = {
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
-      AaveEMode: {
-        name: 'AaveV3SetEMode',
-        deploy: true,
-        address: '0xA0Cb87300aB07D00468704cD8f016F8dE47D8E0A',
-        serviceRegistryName: CONTRACT_NAMES.aave.v3.SET_EMODE,
-        history: [],
-        constructorArgs: ['address:ServiceRegistry'],
-      },
       AaveV3SetEMode: {
         name: 'AaveV3SetEMode',
         deploy: true,
