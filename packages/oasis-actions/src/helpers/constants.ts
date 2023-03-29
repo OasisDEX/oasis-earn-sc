@@ -47,6 +47,9 @@ export const CONTRACT_NAMES = {
     WETH: 'WETH',
     DAI: 'DAI',
     USDC: 'USDC',
+    STETH: 'STETH',
+    WSTETH: 'WSTETH',
+    WBTC: 'WBTC',
   },
   aave: {
     v2: {

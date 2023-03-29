@@ -6,7 +6,6 @@
 import { Network, NetworkByChainId } from '@helpers/network'
 import { ServiceRegistry } from '@helpers/serviceRegistry'
 import { OperationsRegistry } from '@helpers/wrappers/operationsRegistry'
-import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src'
 import { operationDefinition as aaveV2CloseOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/close'
 import { operationDefinition as aaveV2OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/open'
 import { operationDefinition as aaveV3CloseOp } from '@oasisdex/oasis-actions/src/operations/aave/v3/close'
@@ -25,6 +24,7 @@ import { inspect } from 'util'
 
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { EtherscanGasPrice } from '../common'
+import { Config, ConfigItem, SystemConfigItem } from '../common/config-item'
 
 configLoader.setBaseDir('./scripts/deployment20/')
 
@@ -86,6 +86,7 @@ abstract class DeployedSystemHelpers {
   getRpcUrl(network: Network): string {
     return rpcUrls[network]
   }
+
   async init() {
     this.ethers = hre.ethers
     this.provider = hre.ethers.provider
@@ -109,9 +110,8 @@ abstract class DeployedSystemHelpers {
 
 // MAIN CLASS ===============================================
 export class DeploymentSystem extends DeployedSystemHelpers {
-  public config: any = {}
+  public config: Config | undefined
   public deployedSystem: any = {}
-  public addresses: any = []
   private readonly _cache = new NodeCache()
 
   constructor(public readonly hre: HardhatRuntimeEnvironment) {
@@ -151,8 +151,18 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     )
   }
 
-  async postInstantiation(configItem: any, contract: Contract) {
+  async postInstantiation(configItem: ConfigItem, contract: Contract) {
     console.log('POST INITIALIZATION', configItem.name, contract.address)
+  }
+
+  async postRegistryEntry(configItem: ConfigItem, address: string) {
+    if (!configItem.serviceRegistryName) throw new Error('No service registry name provided')
+    console.log(
+      'POST REGISTRY ENTRY',
+      configItem.name,
+      this.getRegistryEntryHash(configItem.serviceRegistryName),
+      address,
+    )
   }
 
   async verifyContract(address: string, constructorArguments: any[]) {
@@ -166,13 +176,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async postDeployment(configItem: any, contract: Contract, constructorArguments: any) {
-    if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
+  async postDeployment(configItem: ConfigItem, contract: Contract, constructorArguments: any) {
     console.log('POST DEPLOYMENT', configItem.name, contract.address)
 
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
-      await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, contract.address)
+      await this.addRegistryEntry(configItem, contract.address)
     }
 
     // ETHERSCAN VERIFICATION (only for mainnet and L1 testnets)
@@ -190,7 +199,25 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     return ''
   }
 
-  async instantiateContracts(addressesConfig: any) {
+  async addRegistryEntries(addressesConfig: ConfigItem[]) {
+    if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
+    for (const configItem of addressesConfig) {
+      if (configItem.serviceRegistryName) {
+        const address = this.deployedSystem[configItem.name]?.contract.address || configItem.address
+        await this.addRegistryEntry(configItem, address)
+      }
+    }
+  }
+
+  async addRegistryEntry(configItem: ConfigItem, address: string) {
+    if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
+    if (configItem.serviceRegistryName) {
+      await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, address)
+      await this.postRegistryEntry(configItem, address)
+    }
+  }
+
+  async instantiateContracts(addressesConfig: ConfigItem[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     for (const configItem of addressesConfig) {
       console.log('INSTANTIATING ', configItem.name)
@@ -199,8 +226,16 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       this.deployedSystem[configItem.name] = {
         contract: contractInstance,
         config: configItem,
-        hash: this.getRegistryEntryHash(configItem.serviceRegistryName),
+        hash: this.getRegistryEntryHash(configItem.serviceRegistryName || ''),
       }
+      const isServiceRegistry = configItem.name === 'ServiceRegistry'
+      !configItem.serviceRegistryName &&
+        !isServiceRegistry &&
+        console.warn(
+          'No Service Registry name for: ',
+          configItem.name,
+          configItem.serviceRegistryName || '',
+        )
 
       if (configItem.name === 'ServiceRegistry') {
         this.serviceRegistryHelper = new ServiceRegistry(configItem.address, this.signer)
@@ -225,7 +260,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async deployContracts(addressesConfig: any) {
+  async deployContracts(addressesConfig: SystemConfigItem[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     if (this.isRestrictedNetwork) {
       await this.promptBeforeDeployment()
@@ -233,7 +268,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     for (const configItem of addressesConfig) {
       let constructorParams = []
 
-      if (configItem.constructorArgs?.length !== 0) {
+      if (configItem.constructorArgs && configItem.constructorArgs?.length !== 0) {
         constructorParams = configItem.constructorArgs.map((param: any) => {
           if (typeof param === 'string' && param.indexOf('address:') >= 0) {
             const contractName = (param as string).replace('address:', '')
@@ -251,13 +286,23 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       if (configItem.name === 'ServiceRegistry') {
         this.serviceRegistryHelper = new ServiceRegistry(contractInstance.address, this.signer)
       }
+
       this.deployedSystem[configItem.name] = {
         contract: contractInstance,
         config: configItem,
-        hash: this.getRegistryEntryHash(configItem.serviceRegistryName),
+        hash: this.getRegistryEntryHash(configItem.serviceRegistryName || ''),
       }
 
-      if (configItem.address !== '') {
+      const isServiceRegistry = configItem.name === 'ServiceRegistry'
+      !configItem.serviceRegistryName &&
+        !isServiceRegistry &&
+        console.warn(
+          'No Service Registry name for: ',
+          configItem.name,
+          configItem.serviceRegistryName || '',
+        )
+
+      if (configItem.history && configItem.address !== '') {
         configItem.history.push(configItem.address)
       }
       configItem.address = contractInstance.address
@@ -310,17 +355,19 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async deployCore() {
+    if (!this.config) throw new Error('No config set')
     await this.instantiateContracts(
       Object.values(this.config.mpa.core).filter(
-        (item: any) => item.address !== '' && !item.deploy,
+        (item: SystemConfigItem) => item.address !== '' && !item.deploy,
       ),
     )
     await this.deployContracts(
-      Object.values(this.config.mpa.core).filter((item: any) => item.deploy),
+      Object.values(this.config.mpa.core).filter((item: SystemConfigItem) => item.deploy),
     )
   }
 
   async deployActions() {
+    if (!this.config) throw new Error('No config set')
     await this.instantiateContracts(
       Object.values(this.config.mpa.actions).filter(
         (item: any) => item.address !== '' && !item.deploy,
@@ -336,29 +383,80 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await this.deployActions()
   }
 
+  async addCommonEntries() {
+    if (!this.config) throw new Error('No config set')
+    await this.addRegistryEntries(
+      Object.values(this.config.common).filter(
+        (item: ConfigItem) => item.address !== '' && item.serviceRegistryName,
+      ),
+    )
+  }
+
+  async addAaveEntries() {
+    if (!this.config) throw new Error('No config set')
+    await this.addRegistryEntries(
+      Object.values(this.config.aave.v2 || {}).filter(
+        (item: ConfigItem) => item.address !== '' && item.serviceRegistryName,
+      ),
+    )
+    await this.addRegistryEntries(
+      Object.values(this.config.aave.v3 || {}).filter(
+        (item: ConfigItem) => item.address !== '' && item.serviceRegistryName,
+      ),
+    )
+  }
+
+  async addOperationEntries(operationsRegistry: OperationsRegistry) {
+    if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
+
+    await operationsRegistry.addOp(aaveV2OpenOp.name, aaveV2OpenOp.actions)
+    await operationsRegistry.addOp(aaveV2CloseOp.name, aaveV2CloseOp.actions)
+    await operationsRegistry.addOp(aaveV3OpenOp.name, aaveV3OpenOp.actions)
+    await operationsRegistry.addOp(aaveV3CloseOp.name, aaveV3CloseOp.actions)
+  }
+
+  async addAllEntries(operationsRegistry: OperationsRegistry) {
+    await this.addCommonEntries()
+    await this.addAaveEntries()
+    await this.addOperationEntries(operationsRegistry)
+  }
+
   async setupLocalSystem(useInch?: boolean) {
     if (!this.signer) throw new Error('No signer set')
     if (!this.signerAddress) throw new Error('No signer address set')
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
-    if (!this.feeRecipient) throw new Error('No fee recipient set')
+    if (!this.config) throw new Error('No config set')
+    const addLocalEntries = this.config.mpa.core['ServiceRegistry'].deploy
 
-    const deploySwapContract = await this.deployContract(
-      this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
-      [
-        this.signerAddress,
-        this.feeRecipient,
-        0,
-        this.deployedSystem['ServiceRegistry'].contract.address,
-      ],
-    )
+    const deploySwapContract = addLocalEntries
+      ? await this.deployContract(
+          this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
+          [
+            this.signerAddress,
+            this.config.common.FeeRecipient.address,
+            0,
+            this.deployedSystem['ServiceRegistry'].contract.address,
+          ],
+        )
+      : await this.ethers.getContractAt(
+          this.config.mpa.core['Swap'].name,
+          this.config.mpa.core['Swap'].address,
+        )
 
-    !useInch && (await deploySwapContract.setPool(this.addresses.STETH, this.addresses.WETH, 10000))
+    !useInch &&
+      addLocalEntries &&
+      (await deploySwapContract.setPool(
+        this.config.common.STETH.address,
+        this.config.common.WETH.address,
+        10000,
+      ))
 
-    await deploySwapContract.addFeeTier(20)
+    addLocalEntries && (await deploySwapContract.addFeeTier(20))
 
     this.deployedSystem['Swap'] = { contract: deploySwapContract, config: {}, hash: '' }
 
-    await this.serviceRegistryHelper.addEntry('Swap', deploySwapContract.address)
+    addLocalEntries &&
+      (await this.serviceRegistryHelper.addEntry('Swap', deploySwapContract.address))
 
     this.deployedSystem.AccountGuard.contract.setWhitelist(
       this.deployedSystem.OperationExecutor.contract.address,
@@ -369,59 +467,15 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       this.deployedSystem.OperationsRegistry.contract.address,
       this.signer,
     )
-
     const dsProxyRegistry = await this.ethers.getContractAt(
       DS_PROXY_REGISTRY_ABI,
-      this.addresses.DsProxyRegistry,
+      this.config.common.DsProxyRegistry.address,
       this.signer,
     )
 
     this.deployedSystem['DsProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
 
-    //-- Add Token Contract Entries
-    await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.WETH, this.addresses.WETH)
-    await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.DAI, this.addresses.DAI)
-    await this.serviceRegistryHelper.addEntry(CONTRACT_NAMES.common.USDC, this.addresses.USDC)
-
-    this.addresses.UniswapRouterV3 &&
-      (await this.serviceRegistryHelper.addEntry(
-        CONTRACT_NAMES.common.UNISWAP_ROUTER,
-        this.addresses.UniswapRouterV3,
-      ))
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
-      this.addresses.OneInchAggregator,
-    )
-    this.addresses.FlashMintModule &&
-      (await this.serviceRegistryHelper.addEntry(
-        CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
-        this.addresses.FlashMintModule,
-      ))
-    await this.serviceRegistryHelper.addEntry(
-      CONTRACT_NAMES.common.BALANCER_VAULT,
-      this.addresses.BalancerVault,
-    )
-    this.addresses.AaveV2LendingPool &&
-      (await this.serviceRegistryHelper.addEntry(
-        CONTRACT_NAMES.aave.v2.LENDING_POOL,
-        this.addresses.AaveV2LendingPool,
-      ))
-    this.addresses.WETHGateway &&
-      (await this.serviceRegistryHelper.addEntry(
-        CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
-        this.addresses.WETHGateway,
-      ))
-    this.addresses.AaveV3Pool &&
-      (await this.serviceRegistryHelper.addEntry(
-        CONTRACT_NAMES.aave.v3.AAVE_POOL,
-        this.addresses.AaveV3Pool,
-      ))
-
-    // Add AAVE Operations
-    await operationsRegistry.addOp(aaveV2OpenOp.name, aaveV2OpenOp.actions)
-    await operationsRegistry.addOp(aaveV2CloseOp.name, aaveV2CloseOp.actions)
-    await operationsRegistry.addOp(aaveV3OpenOp.name, aaveV3OpenOp.actions)
-    await operationsRegistry.addOp(aaveV3CloseOp.name, aaveV3CloseOp.actions)
+    await this.addAllEntries(operationsRegistry)
   }
 
   // TODO unify resetNode and resetNodeToLatestBlock into one function
@@ -451,9 +505,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   getSystem() {
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
+    if (!this.config) throw new Error('No config set')
     return {
       system: this.deployedSystem,
       registry: this.serviceRegistryHelper,
+      config: this.config,
     }
   }
 }
