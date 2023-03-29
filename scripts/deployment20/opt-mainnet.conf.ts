@@ -4,7 +4,7 @@ export const config = {
     core: {
       ServiceRegistry: {
         name: 'ServiceRegistry',
-        deploy: false,
+        deploy: true,
         address: '0xf22F17B1D2354B4F4F52e4d164e4eB5e1f0A6Ba6',
         serviceRegistryName: '',
         history: [],
@@ -12,7 +12,7 @@ export const config = {
       },
       OperationExecutor: {
         name: 'OperationExecutor',
-        deploy: false,
+        deploy: true,
         address: '0x5AB3e51608cEa26090445CA89bc91628C8bB99f9',
         serviceRegistryName: CONTRACT_NAMES.common.OPERATION_EXECUTOR,
         history: [],
@@ -20,23 +20,47 @@ export const config = {
       },
       OperationStorage: {
         name: 'OperationStorage',
-        deploy: false,
+        deploy: true,
         address: '0xd4FEaf1023CD6998053a1eb02460000980Cc908f',
         serviceRegistryName: CONTRACT_NAMES.common.OPERATION_STORAGE,
         history: [],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
       },
-      OperationRegistry: {
+      OperationsRegistry: {
         name: 'OperationsRegistry',
-        deploy: false,
+        deploy: true,
         address: '0x392ACeBea829373A3eFDc0dA80a16003106d8f6E',
         serviceRegistryName: CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
         history: [],
         constructorArgs: [],
       },
+      DSProxyFactory: {
+        name: 'DSProxyFactory',
+        deploy: true,
+        address: '',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
+        history: [],
+        constructorArgs: [],
+      },
+      DSProxyRegistry: {
+        name: 'DSProxyRegistry',
+        deploy: true,
+        address: '',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
+        history: [],
+        constructorArgs: ['address:DSProxyFactory'],
+      },
+      DSGuardFactory: {
+        name: 'DSGuardFatory',
+        deploy: true,
+        address: '',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
+        history: [],
+        constructorArgs: [],
+      },
       AccountGuard: {
         name: 'AccountGuard',
-        deploy: false,
+        deploy: true,
         address: '0x63059cC2533344B65372983D4B6258b2cbbBF0Da',
         serviceRegistryName: CONTRACT_NAMES.common.ACCOUNT_GUARD,
         history: [],
@@ -44,7 +68,7 @@ export const config = {
       },
       AccountFactory: {
         name: 'AccountFactory',
-        deploy: false,
+        deploy: true,
         address: '0xE166a06809FD35Cece10df9Cace87BbDB9a48F66',
         serviceRegistryName: CONTRACT_NAMES.common.ACCOUNT_FACTORY,
         history: [],
@@ -74,7 +98,11 @@ export const config = {
         address: '0x53958191c3077eDe3Ca90Eb840283df063FC1be3',
         serviceRegistryName: CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
         history: [],
-        constructorArgs: ['address:ServiceRegistry', '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1'],
+        constructorArgs: [
+          'address:ServiceRegistry',
+          '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
+          'address:DSGuardFactory',
+        ],
       },
       SetApproval: {
         name: 'SetApproval',
