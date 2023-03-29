@@ -620,7 +620,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
           getSystemWithAaveV3Positions({
             use1inch: false,
             network: networkFork,
-            systemConfigPath: `test-configs/test-aave-v3-${networkFork}.conf.json`,
+            systemConfigPath: `${networkFork}.conf.ts`,
           }),
         )
       })
@@ -740,7 +740,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
           getSystemWithAaveV3Positions({
             use1inch: false,
             network: networkFork,
-            systemConfigPath: `test-configs/test-aave-v3-${networkFork}.conf.json`,
+            systemConfigPath: `${networkFork}.conf.ts`,
           }),
         )
       })
