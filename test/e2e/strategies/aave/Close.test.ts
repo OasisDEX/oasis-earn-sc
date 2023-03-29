@@ -38,7 +38,7 @@ const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
 describe(`Strategy | AAVE | Close Position`, async () => {
-  describe.only('Using AAVE V2', async function () {
+  describe('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
 
     const supportedStrategies = getSupportedStrategies(ciOnlyTests)
@@ -201,7 +201,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         fixture = await loadFixture(getSystemWithAavePositions({ use1inch: false }))
       })
 
-      describe.only('Using DSProxy', () => {
+      describe('Using DSProxy', () => {
         let position: IPosition
         let proxy: string
         let system: DeployedSystem20Return
@@ -494,6 +494,8 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         '0',
       )
 
+      if (!closeTxStatus) throw new Error('Close position failed')
+
       // Get data from AAVE V3
       const protocolDataPromises = [
         protocolDataProvider.getUserReserveData(collateralTokenAddress, proxy),
@@ -759,7 +761,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
       })
 
-      describe.only('Using DSProxy', () => {
+      describe('Using DSProxy', () => {
         let position: IPosition
         let proxy: string
         let system: DeployedSystem20Return
@@ -793,10 +795,9 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             debtToken,
             proxy,
             slippage: UNISWAP_TEST_SLIPPAGE,
-            getSwapData: oneInchCallMock(ONE.div(dsProxyStEthEthEarnPositionDetails.__mockPrice), {
-              from: collateralToken.precision,
-              to: debtToken.precision,
-            }),
+            getSwapData: fixture.strategiesDependencies.getSwapData(
+              fixture.system.Swap.contract.address,
+            ),
             userAddress: config.address,
             config,
             system,
@@ -852,7 +853,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       })
       describe('Using DPM Proxy', async () => {
         supportedStrategies
-          .filter(s => s.name !== 'WSTETH/ETH Earn')
+          // .filter(s => s.name !== 'WSTETH/ETH Earn')
           .forEach(({ name: strategy }) => {
             let position: IPosition
             let system: DeployedSystem20Return
@@ -880,6 +881,9 @@ describe(`Strategy | AAVE | Close Position`, async () => {
               collateralToken = _collateralToken
               position = await positionDetails.getPosition()
               config = _config
+              console.log('POSITION BEFORE CLOSE')
+              console.log('DEBT:', position.debt.toString())
+              console.log('COLL:', position.collateral.toString())
 
               act = await closePositionV3({
                 position,
@@ -889,10 +893,9 @@ describe(`Strategy | AAVE | Close Position`, async () => {
                 proxy,
                 /* Chosen to mirror slippage in fixture */
                 slippage: UNISWAP_TEST_SLIPPAGE,
-                getSwapData: oneInchCallMock(ONE.div(positionDetails.__mockPrice), {
-                  from: collateralToken.precision,
-                  to: debtToken.precision,
-                }),
+                getSwapData: fixture.strategiesDependencies.getSwapData(
+                  fixture.system.Swap.contract.address,
+                ),
                 userAddress: config.address,
                 config,
                 system,

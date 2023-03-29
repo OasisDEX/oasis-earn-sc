@@ -14,15 +14,7 @@ import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
 import { PositionDetails } from '../types'
 import { AaveV3PositionStrategy } from '../types/positionDetails'
 import { StrategyDependenciesAaveV3 } from '../types/strategiesDependencies'
-import {
-  EMODE_MULTIPLE,
-  ETH,
-  MULTIPLE,
-  SLIPPAGE,
-  UNISWAP_TEST_SLIPPAGE,
-  USDC,
-  WSTETH,
-} from './common'
+import { EMODE_MULTIPLE, ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, WSTETH } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
@@ -85,7 +77,7 @@ export async function createWstEthEthEarnAAVEPosition({
 
   const tokens = {
     WSTETH: new WSTETH(dependencies.addresses),
-    ETH: new USDC(dependencies.addresses),
+    ETH: new ETH(dependencies.addresses),
   }
 
   const mockPrice = new BigNumber(0.9)

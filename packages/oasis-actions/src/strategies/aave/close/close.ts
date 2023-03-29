@@ -56,6 +56,8 @@ export async function close(
   dependencies: AaveCloseDependencies,
 ): Promise<IPositionTransition> {
   console.log('CLOSING...')
+  console.log('debt:', args.debtToken.symbol)
+  console.log('coll:', args.collateralToken.symbol)
   const getSwapData = args.shouldCloseToCollateral
     ? getSwapDataToCloseToCollateral
     : getSwapDataToCloseToDebt
@@ -217,6 +219,10 @@ async function getSwapDataToCloseToDebt(
     .minus(preSwapFee)
     .integerValue(BigNumber.ROUND_DOWN)
 
+  console.log('GETTING SWAP DATA')
+  console.log('collateralTokenAddress', collateralTokenAddress)
+  console.log('debtTokenAddress', debtTokenAddress)
+  console.log('swapAmountAfterFees', swapAmountAfterFees.toString())
   const swapData = await dependencies.getSwapData(
     collateralTokenAddress,
     debtTokenAddress,

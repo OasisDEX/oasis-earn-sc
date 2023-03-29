@@ -24,8 +24,8 @@ import { inspect } from 'util'
 
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { EtherscanGasPrice } from '../common'
-import { DeployedSystem20, DeployedSystem20Return } from '../common/deploy-system'
 import { AllowedContractNames, Config, ConfigItem, SystemConfigItem } from '../common/config-item'
+import { DeployedSystem20, DeployedSystem20Return } from '../common/deploy-system'
 
 configLoader.setBaseDir('./scripts/deployment20/')
 
@@ -464,6 +464,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       ))
 
     addLocalEntries && (await deploySwapContract.addFeeTier(20))
+    addLocalEntries && (await deploySwapContract.addFeeTier(7))
 
     this.deployedSystem['Swap'] = { contract: deploySwapContract, config: {}, hash: '' }
 

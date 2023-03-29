@@ -21,7 +21,7 @@ export function getSupportedAaveV3Strategies(ciMode?: boolean): Array<{
   localOnly: boolean
 }> {
   return [
-    { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy, localOnly: false },
+    // { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy, localOnly: false },
     { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, localOnly: false },
   ].filter(s => !ciMode || !s.localOnly)
 }
@@ -123,6 +123,7 @@ export const getSystemWithAaveV3Positions =
     const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForEarnWstEthEth] = await createDPMAccount(system.AccountFactory.contract)
 
+    if (!system.DsProxyRegistry) throw new Error('Cant find DsProxyRegistry')
     const dsProxy = await getOrCreateProxy(system.DsProxyRegistry.contract, config.signer)
 
     if (!dpmProxyForMultiplyEthUsdc || !dpmProxyForEarnWstEthEth) {

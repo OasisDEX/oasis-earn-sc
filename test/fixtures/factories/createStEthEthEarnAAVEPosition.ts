@@ -94,7 +94,7 @@ export async function createStEthEthEarnAAVEPosition({
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeRecipient = config.ds.getSystem().system.FeeRecipient?.contract.address
+  const feeRecipient = config.ds.getSystem().config.common.FeeRecipient.address
   if (!feeRecipient) throw new Error('FeeRecipient is not defined')
   const feeWalletBalanceBefore = await balanceOf(mainnetAddresses.WETH, feeRecipient, {
     config,
