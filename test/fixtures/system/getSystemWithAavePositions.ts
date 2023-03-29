@@ -90,7 +90,8 @@ export const getSystemWithAavePositions =
     const [dpmProxyForMultiplyStEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyWbtcUsdc] = await createDPMAccount(system.AccountFactory.contract)
 
-    const dsProxy = await getOrCreateProxy(system.DsProxyRegistry.contract, config.signer)
+    if (!conf) throw new Error('Cant find ds proxy registry')
+    const dsProxy = await getOrCreateProxy(systemConfig.common.FeeRecipient, config.signer)
 
     if (
       !dpmProxyForEarnStEthEth ||

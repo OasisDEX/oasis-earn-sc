@@ -20,7 +20,7 @@ const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
 describe(`Strategy | AAVE | Open Position`, async function () {
-  describe('Using AAVE V2', async function () {
+  describe.only('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
 
     const supportedStrategies = getSupportedStrategies(ciOnlyTests)

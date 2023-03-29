@@ -30,7 +30,6 @@ export type CoreContractNames =
   | 'OperationExecutor'
   | 'OperationStorage'
   | 'OperationsRegistry'
-  | 'DsProxyRegistry'
   | 'AccountGuard'
   | 'AccountFactory'
   | 'ChainLogView'
