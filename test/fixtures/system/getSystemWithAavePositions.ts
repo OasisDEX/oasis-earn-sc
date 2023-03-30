@@ -96,7 +96,7 @@ export const getSystemWithAavePositions =
     const [dpmProxyForMultiplyStEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyWbtcUsdc] = await createDPMAccount(system.AccountFactory.contract)
 
-    const dsProxy = await getOrCreateProxy(system.DsProxyRegistry.contract, config.signer)
+    const dsProxy = await getOrCreateProxy(system.DSProxyRegistry.contract, config.signer)
 
     if (
       !dpmProxyForEarnStEthEth ||

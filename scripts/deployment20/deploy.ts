@@ -125,7 +125,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     } else {
       // if forked other network then merge configs files
       if (this.forkedNetwork) {
-        console.log('Am I here?')
         const baseConfig = (await import(`./${this.forkedNetwork}.conf`)).config
         const extendedConfig = (await import(`./local-extend.conf`)).config
         this.config = _.merge(baseConfig, extendedConfig)
@@ -458,7 +457,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     !useInch &&
       addLocalEntries &&
       (await deploySwapContract.setPool(
-        this.config.common.WSTETH.address,
+        this.config.common.STETH.address,
         this.config.common.WETH.address,
         10000,
       ))
@@ -477,11 +476,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
     const dsProxyRegistry = await this.ethers.getContractAt(
       DS_PROXY_REGISTRY_ABI,
-      this.config.common.DS_PROXY_REGISTRY.address,
+      this.config.common.DSProxyRegistry.address,
       this.signer,
     )
 
-    this.deployedSystem['DsProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
+    this.deployedSystem['DSProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
 
     await this.addAllEntries()
   }
