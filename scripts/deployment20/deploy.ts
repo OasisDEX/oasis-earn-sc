@@ -125,6 +125,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     } else {
       // if forked other network then merge configs files
       if (this.forkedNetwork) {
+        console.log('Am I here?')
         const baseConfig = (await import(`./${this.forkedNetwork}.conf`)).config
         const extendedConfig = (await import(`./local-extend.conf`)).config
         this.config = _.merge(baseConfig, extendedConfig)
@@ -132,6 +133,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         // otherwise load just one config file
         this.config = (await import(`./${this.network}.conf`)).config
       }
+    }
+  }
+
+  async extendConfig(configFileName?: string) {
+    if (!this.config) {
+      await this.loadConfig(configFileName)
+    } else {
+      this.config = _.merge(this.config, (await import(`./${configFileName}`)).config)
     }
   }
 
@@ -406,19 +415,22 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     )
   }
 
-  async addOperationEntries(operationsRegistry: OperationsRegistry) {
-    if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
-
+  async addOperationEntries() {
+    if (!this.signer) throw new Error('No signer set')
+    const operationsRegistry = new OperationsRegistry(
+      this.deployedSystem.OperationsRegistry.contract.address,
+      this.signer,
+    )
     await operationsRegistry.addOp(aaveV2OpenOp.name, aaveV2OpenOp.actions)
     await operationsRegistry.addOp(aaveV2CloseOp.name, aaveV2CloseOp.actions)
     await operationsRegistry.addOp(aaveV3OpenOp.name, aaveV3OpenOp.actions)
     await operationsRegistry.addOp(aaveV3CloseOp.name, aaveV3CloseOp.actions)
   }
 
-  async addAllEntries(operationsRegistry: OperationsRegistry) {
+  async addAllEntries() {
     await this.addCommonEntries()
     await this.addAaveEntries()
-    await this.addOperationEntries(operationsRegistry)
+    await this.addOperationEntries()
   }
 
   async setupLocalSystem(useInch?: boolean) {
@@ -446,7 +458,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     !useInch &&
       addLocalEntries &&
       (await deploySwapContract.setPool(
-        this.config.common.STETH.address,
+        this.config.common.WSTETH.address,
         this.config.common.WETH.address,
         10000,
       ))
@@ -463,19 +475,15 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       true,
     )
 
-    const operationsRegistry: OperationsRegistry = new OperationsRegistry(
-      this.deployedSystem.OperationsRegistry.contract.address,
-      this.signer,
-    )
     const dsProxyRegistry = await this.ethers.getContractAt(
       DS_PROXY_REGISTRY_ABI,
-      this.config.common.DsProxyRegistry.address,
+      this.config.common.DS_PROXY_REGISTRY.address,
       this.signer,
     )
 
     this.deployedSystem['DsProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
 
-    await this.addAllEntries(operationsRegistry)
+    await this.addAllEntries()
   }
 
   // TODO unify resetNode and resetNodeToLatestBlock into one function

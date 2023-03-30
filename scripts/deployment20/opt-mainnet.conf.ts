@@ -1,4 +1,5 @@
-import { CONTRACT_NAMES } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/oasis-actions'
+
 export const config = {
   mpa: {
     core: {
@@ -73,6 +74,19 @@ export const config = {
         serviceRegistryName: CONTRACT_NAMES.common.ACCOUNT_FACTORY,
         history: [],
         constructorArgs: ['address:AccountGuard'],
+      },
+      Swap: {
+        name: 'Swap',
+        deploy: true,
+        address: '',
+        serviceRegistryName: CONTRACT_NAMES.common.SWAP,
+        history: [],
+        constructorArgs: [
+          '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
+          '0xC7b548AD9Cf38721810246C079b2d8083aba8909',
+          20,
+          'address:ServiceRegistry',
+        ],
       },
     },
     actions: {
@@ -204,6 +218,11 @@ export const config = {
       name: 'ETH',
       address: '0x4200000000000000000000000000000000000006',
     },
+    WSTETH: {
+      name: 'WSTETH',
+      address: '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb',
+      serviceRegistryName: CONTRACT_NAMES.common.WSTETH,
+    },
     USDC: {
       name: 'USDC',
       address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
@@ -213,6 +232,11 @@ export const config = {
       name: 'DAI',
       address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
       serviceRegistryName: CONTRACT_NAMES.common.DAI,
+    },
+    WBTC: {
+      name: 'WBTC',
+      address: '0x68f180fcce6836688e9084f035309e29bf0a2095',
+      serviceRegistryName: CONTRACT_NAMES.common.WBTC,
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
@@ -224,11 +248,39 @@ export const config = {
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
       serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
     },
+    FeeRecipient: {
+      name: 'FeeRecipient',
+      address: '0xC7b548AD9Cf38721810246C079b2d8083aba8909',
+    },
+    AuthorizedCaller: {
+      name: 'AuthorizedCaller',
+      address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
+    },
+    OneInchAggregator: {
+      name: 'OneInchAggregator',
+      address: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+      serviceRegistryName: CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
+    },
+    ChainlinkEthUsdPriceFeed: {
+      name: 'ChainlinkEthUsdPriceFeed',
+      address: ADDRESSES.optimism.chainlinkEthUsdPriceFeed,
+    },
   },
   aave: {
     v3: {
-      AaveOracle: 'AaveOracle',
-      Pool: '0x485083b6c6028B11d644A81d580245D97a918F32',
+      AaveOracle: {
+        name: 'AaveOracle',
+        address: ADDRESSES.optimism.aave.v3.AaveOracle,
+      },
+      Pool: {
+        name: 'Pool',
+        address: ADDRESSES.optimism.aave.v3.Pool,
+        serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
+      },
+      AaveProtocolDataProvider: {
+        name: 'AaveProtocolDataProvider',
+        address: ADDRESSES.optimism.aave.v3.PoolDataProvider,
+      },
     },
   },
 }
