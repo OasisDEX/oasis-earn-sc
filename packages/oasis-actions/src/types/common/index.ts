@@ -11,13 +11,15 @@ export type Tx = {
 export type AjnaErrorUndercollateralized = {
   name: 'undercollateralized'
   data: {
-    positionRatio: string
-    minRatio: string
+    amount: string
   }
 }
 
 export type AjnaErrorDustLimit = {
   name: 'debt-less-then-dust-limit'
+  data: {
+    amount: string
+  }
 }
 
 export type AjnaErrorPriceAboveMomp = {
@@ -34,7 +36,7 @@ export type AjnaErrorWithdrawMoreThanAvailable = {
 export type AjnaErrorNotEnoughLiquidity = {
   name: 'not-enough-liquidity'
   data: {
-    available: string
+    amount: string
   }
 }
 
@@ -44,10 +46,16 @@ export type AjnaErrorAfterLupIndexBiggerThanHtpIndex = {
 
 export type AjnaErrorOverWithdraw = {
   name: 'withdrawing-more-then-available'
+  data: {
+    amount: string
+  }
 }
 
 export type AjnaErrorOverRepay = {
   name: 'repay-more-then-debt'
+  data: {
+    amount: string
+  }
 }
 
 export type AjnaError =

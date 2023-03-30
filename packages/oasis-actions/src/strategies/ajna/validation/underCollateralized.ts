@@ -7,8 +7,7 @@ export function validateUndercollateralized(position: AjnaPosition): AjnaError[]
       {
         name: 'undercollateralized',
         data: {
-          minRatio: '',
-          positionRatio: '',
+          amount: position.collateralAvailable.decimalPlaces(2).toString(),
         },
       },
     ]

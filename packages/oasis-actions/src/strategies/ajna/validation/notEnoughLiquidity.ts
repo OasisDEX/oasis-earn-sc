@@ -22,7 +22,7 @@ export function validateLiquidity(
       {
         name: 'not-enough-liquidity',
         data: {
-          available: availableLiquidity.toString(),
+          amount: availableLiquidity.decimalPlaces(2).toString(),
         },
       },
     ]

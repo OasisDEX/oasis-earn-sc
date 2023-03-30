@@ -11,6 +11,9 @@ export function validateOverRepay(
     return [
       {
         name: 'repay-more-then-debt',
+        data: {
+          amount: positionBefore.debtAmount.decimalPlaces(2).toString(),
+        },
       },
     ]
   } else {

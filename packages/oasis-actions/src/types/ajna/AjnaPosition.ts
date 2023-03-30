@@ -1,8 +1,9 @@
-import { BigNumber } from 'bignumber.js'
+import BigNumber from 'bignumber.js'
 
 import { IRiskRatio, RiskRatio } from '../../domain'
 import { ONE } from '../../helpers/constants'
 import { normalizeValue } from '../../helpers/normalizeValue'
+import { simulatePool } from '../../views/ajna'
 import { Address, AjnaWarning } from '../common'
 import { AjnaPool } from './AjnaPool'
 
@@ -94,10 +95,11 @@ export class AjnaPosition implements IAjnaPosition {
   }
 
   deposit(collateralAmount: BigNumber) {
+    const newCollateralAmount = this.collateralAmount.plus(collateralAmount)
     return new AjnaPosition(
-      this.pool,
+      simulatePool(this.pool, ZERO, this.debtAmount, newCollateralAmount),
       this.owner,
-      this.collateralAmount.plus(collateralAmount),
+      newCollateralAmount,
       this.debtAmount,
       this.collateralPrice,
       this.quotePrice,
@@ -105,10 +107,11 @@ export class AjnaPosition implements IAjnaPosition {
   }
 
   withdraw(collateralAmount: BigNumber) {
+    const newCollateralAmount = this.collateralAmount.minus(collateralAmount)
     return new AjnaPosition(
-      this.pool,
+      simulatePool(this.pool, ZERO, this.debtAmount, newCollateralAmount),
       this.owner,
-      this.collateralAmount.minus(collateralAmount),
+      newCollateralAmount,
       this.debtAmount,
       this.collateralPrice,
       this.quotePrice,
@@ -116,22 +119,24 @@ export class AjnaPosition implements IAjnaPosition {
   }
 
   borrow(quoteAmount: BigNumber): AjnaPosition {
+    const newDebt = this.debtAmount.plus(quoteAmount)
     return new AjnaPosition(
-      this.pool,
+      simulatePool(this.pool, quoteAmount, newDebt, this.collateralAmount),
       this.owner,
       this.collateralAmount,
-      this.debtAmount.plus(quoteAmount),
+      newDebt,
       this.collateralPrice,
       this.quotePrice,
     )
   }
 
   payback(quoteAmount: BigNumber): AjnaPosition {
+    const newDebt = this.debtAmount.minus(quoteAmount)
     return new AjnaPosition(
-      this.pool,
+      simulatePool(this.pool, quoteAmount.negated(), newDebt, this.collateralAmount),
       this.owner,
       this.collateralAmount,
-      this.debtAmount.minus(quoteAmount),
+      newDebt,
       this.collateralPrice,
       this.quotePrice,
     )

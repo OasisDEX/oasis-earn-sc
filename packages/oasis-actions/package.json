@@ -4,7 +4,7 @@
   "typings": "lib/packages/oasis-actions/src/index.d.ts",
   "version": "0.2.16-ajna-earn-25",
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b",  
     "watch": "tsc -b -w",
     "typecheck": "tsc -p ./tsconfig.json --noEmit",
     "test": "npx hardhat test src/domain/Position.test.ts",

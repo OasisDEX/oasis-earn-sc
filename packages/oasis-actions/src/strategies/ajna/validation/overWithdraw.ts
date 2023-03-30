@@ -12,7 +12,7 @@ export function validateOverWithdraw(
       {
         name: 'withdraw-more-than-available',
         data: {
-          amount: '',
+          amount: positionBefore.collateralAvailable.decimalPlaces(2).toString(),
         },
       },
     ]

@@ -45,7 +45,7 @@ export const getAjnaValidations = ({
         errors.push({
           name: 'withdraw-more-than-available',
           data: {
-            amount: position.quoteTokenAmount.decimalPlaces(2).toString(),
+            available: position.quoteTokenAmount.decimalPlaces(2).toString(),
           },
         })
       }
