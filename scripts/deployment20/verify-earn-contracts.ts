@@ -1,5 +1,6 @@
-import { DeploymentSystem } from './deploy'
 import hre from 'hardhat'
+
+import { DeploymentSystem } from './deploy'
 
 async function main() {
   const ds = new DeploymentSystem(hre)
