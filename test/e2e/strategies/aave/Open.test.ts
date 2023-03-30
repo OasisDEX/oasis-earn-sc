@@ -13,9 +13,9 @@ import {
   getSystemWithAaveV3Positions,
 } from '../../../fixtures/system/getSystemWithAaveV3Positions'
 import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
+import { isOptimismByNetwork } from '../../../test-utils/addresses'
 import { expectToBe, expectToBeEqual } from '../../../utils'
 
-const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
@@ -23,16 +23,17 @@ describe(`Strategy | AAVE | Open Position`, async function () {
   describe('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
 
-    const supportedStrategies = getSupportedStrategies(ciOnlyTests)
+    const supportedStrategies = getSupportedStrategies()
 
     describe('Open position: With Uniswap', function () {
       before(async function () {
-        if (networkFork === Network.OPT_MAINNET) {
+        if (isOptimismByNetwork(networkFork)) {
           this.skip()
         }
         fixture = await loadFixture(
           getSystemWithAavePositions({
             use1inch: false,
+            configExtentionPaths: [`./test-configs/uSwap.conf.ts`],
           }),
         )
       })
@@ -117,12 +118,13 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     })
     describe('Open position: With 1inch', function () {
       before(async function () {
-        if (networkFork === Network.OPT_MAINNET) {
+        if (isOptimismByNetwork(networkFork)) {
           this.skip()
         }
         fixture = await loadFixture(
           getSystemWithAavePositions({
             use1inch: true,
+            configExtentionPaths: [`./test-configs/Swap.conf.ts`],
           }),
         )
       })

@@ -17,27 +17,32 @@ import {
 import { AavePositionStrategy, SystemWithAAVEPositions } from '../types'
 import { StrategyDependenciesAaveV2 } from '../types/strategiesDependencies'
 
-export function getSupportedStrategies(ciMode?: boolean): Array<{
+export function getSupportedStrategies(): Array<{
   name: AavePositionStrategy
-  localOnly: boolean
 }> {
   return [
-    { name: 'ETH/USDC Multiply' as AavePositionStrategy, localOnly: false },
-    { name: 'WBTC/USDC Multiply' as AavePositionStrategy, localOnly: false },
-    { name: 'STETH/USDC Multiply' as AavePositionStrategy, localOnly: true },
-    { name: 'STETH/ETH Earn' as AavePositionStrategy, localOnly: true },
-  ].filter(s => !ciMode || !s.localOnly)
+    { name: 'ETH/USDC Multiply' as AavePositionStrategy },
+    { name: 'WBTC/USDC Multiply' as AavePositionStrategy },
+    { name: 'STETH/USDC Multiply' as AavePositionStrategy },
+    { name: 'STETH/ETH Earn' as AavePositionStrategy },
+  ]
 }
 
 // Do not change test block numbers as they're linked to uniswap liquidity levels
 export const blockNumberForAAVEV2System = 15695000
 
 export const getSystemWithAavePositions =
-  ({ use1inch }: { use1inch: boolean }) =>
+  ({ use1inch, configExtentionPaths }: { use1inch: boolean; configExtentionPaths?: string[] }) =>
   async (): Promise<SystemWithAAVEPositions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
-    ds.loadConfig('test-configs/mainnet.conf.ts')
+    const systemConfigPath = './test-configs/mainnet.conf.ts'
+    await ds.loadConfig(systemConfigPath)
+    if (configExtentionPaths) {
+      configExtentionPaths.forEach(async configPath => {
+        await ds.extendConfig(configPath)
+      })
+    }
 
     // If you update test block numbers you may run into issues where whale addresses
     // We use impersonation on test block number but with 1inch we use uniswap
@@ -58,10 +63,24 @@ export const getSystemWithAavePositions =
     }
 
     await ds.deployAll()
-    await ds.setupLocalSystem(use1inch)
+    await ds.addAllEntries()
 
     const dsSystem = ds.getSystem()
     const { system, registry, config: systemConfig } = dsSystem
+    const swapContract = system.uSwap ? system.uSwap.contract : system.Swap.contract
+    const swapAddress = swapContract.address
+
+    !use1inch &&
+      (await swapContract.setPool(
+        systemConfig.common.STETH.address,
+        systemConfig.common.WETH.address,
+        10000,
+      ))
+    await swapContract.addFeeTier(0)
+    await swapContract.addFeeTier(7)
+    await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
+
+    if (!systemConfig.aave.v2) throw new Error('aave v2 is not configured')
     const dependencies: StrategyDependenciesAaveV2 = {
       addresses: {
         DAI: systemConfig.common.DAI.address,
@@ -97,8 +116,7 @@ export const getSystemWithAavePositions =
     const [dpmProxyForMultiplyStEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyWbtcUsdc] = await createDPMAccount(system.AccountFactory.contract)
 
-    if (!system.DsProxyRegistry) throw new Error('Cant find ds proxy registry')
-    const dsProxy = await getOrCreateProxy(system.DsProxyRegistry.contract, config.signer)
+    const dsProxy = await getOrCreateProxy(system.DSProxyRegistry.contract, config.signer)
 
     if (
       !dpmProxyForEarnStEthEth ||
@@ -113,8 +131,6 @@ export const getSystemWithAavePositions =
       ...config,
       ds,
     }
-
-    const swapAddress = system.Swap.contract.address
 
     const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
       proxy: dpmProxyForEarnStEthEth,

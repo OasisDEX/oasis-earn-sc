@@ -2,18 +2,6 @@ import { isSupportedNetwork, Network } from '@helpers/network'
 import { constants } from 'ethers'
 
 export const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-export const ONE_INCH_V4_ROUTER = '0x1111111254fb6c44bac0bed2854e76f90643097d'
-
-const startBlocks = {
-  [Network.MAINNET]: {
-    SERVICE_REGISTRY: 14583409,
-    AUTOMATION_BOT: 14583413,
-  },
-  [Network.GOERLI]: {
-    SERVICE_REGISTRY: 6707330,
-    AUTOMATION_BOT: 6707333,
-  },
-}
 
 const addresses = {
   [Network.MAINNET]: {
@@ -124,16 +112,4 @@ export function getAddressesFor(network: string | Network) {
     )
   }
   return addresses[coalesceNetwork(network)]
-}
-
-export function getStartBlocksFor(network: string | Network) {
-  if (!isSupportedNetwork(network)) {
-    throw new Error(
-      `Unsupported network provided. Received: ${network}. Expected one of: [${Object.values(
-        Network,
-      ).join(', ')}}`,
-    )
-  }
-
-  return startBlocks[coalesceNetwork(network)]
 }

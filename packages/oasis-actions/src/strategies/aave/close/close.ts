@@ -56,23 +56,18 @@ export async function close(
   args: AaveCloseArgsWithVersioning,
   dependencies: AaveCloseDependencies,
 ): Promise<IPositionTransition> {
-  console.log('CLOSING...')
-  console.log('debt:', args.debtToken.symbol)
-  console.log('coll:', args.collateralToken.symbol)
   const getSwapData = args.shouldCloseToCollateral
     ? getSwapDataToCloseToCollateral
     : getSwapDataToCloseToDebt
 
-  console.log('GETTING SWAP...')
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(args, dependencies)
 
-  console.log('BUILD OP...')
   const operation = await buildOperation(
     { ...swapData, collectFeeFrom, preSwapFee },
     args,
     dependencies,
   )
-  console.log('GENERATE...')
+
   return generateTransition(swapData, collectFeeFrom, preSwapFee, operation, args, dependencies)
 }
 
@@ -80,13 +75,12 @@ async function getSwapDataToCloseToCollateral(
   { debtToken, collateralToken, slippage, protocolVersion }: AaveCloseArgsWithVersioning,
   dependencies: AaveCloseDependencies,
 ) {
-  console.log('getSwapDataToCloseToCollateral =>>>')
   const { addresses } = dependencies
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken, collateralToken },
     addresses,
   )
-  console.log('getValuesFromProtocol =>>>')
+
   // Since we cannot get the exact amount that will be needed
   // to cover all debt, there will be left overs of the debt token
   // which will then have to be transferred back to the user
@@ -100,7 +94,7 @@ async function getSwapDataToCloseToCollateral(
   ).map(price => {
     return new BigNumber(price.toString())
   })
-  console.log('HERE after values from protocol')
+
   // 1.Use offset amount which will be used in the swap as well.
   // The idea is that after the debt is paid, the remaining will be transferred to the beneficiary
   // Debt is a complex number and interest rate is constantly applied.
@@ -130,11 +124,9 @@ async function getSwapDataToCloseToCollateral(
   // there is a deviation threshold value that shows how much the prices on/off chain might differ
   // When there is a 1inch swap, we use real-time market price. To calculate that,
   // A preflight request is sent to calculate the existing market price.
-  console.log('getting preflight swap data')
   const debtIsEth = debtTokenAddress === dependencies.addresses.ETH
   const collateralIsEth = collateralTokenAddress === dependencies.addresses.ETH
-  console.log('debtIsEth', debtIsEth)
-  console.log('collateralIsEth', collateralIsEth)
+
   if (debtIsEth) {
     debtPrice = ONE.times(TEN.pow(debtTokenPrecision))
   } else {
@@ -171,8 +163,6 @@ async function getSwapDataToCloseToCollateral(
         .toFixed(0),
     )
   }
-  console.log('debtPrice', debtPrice.toString())
-  console.log('colPrice', colPrice.toString())
 
   // 4. Get Swap Data
   // This is the actual swap data that will be used in the transaction.
@@ -485,20 +475,13 @@ async function getValuesFromProtocol(
   debtTokenAddress: string,
   dependencies: AaveCloseDependencies,
 ) {
-  console.log('PROTOCOL SERVICES')
-  console.log('collateralTokenAddress', collateralTokenAddress)
-  console.log('debtTokenAddress', debtTokenAddress)
-
   /* Grabs all the protocol level services we need to resolve values */
   const { aavePriceOracle, aaveProtocolDataProvider } = getAAVEProtocolServices(
     protocolVersion,
     dependencies.provider,
     dependencies.addresses,
   )
-  console.log('aavePriceOracle:', aavePriceOracle.address)
-  console.log('aaveProtocolDataProvider:', aaveProtocolDataProvider.address)
 
-  console.log('ABOUT TO MEMO', dependencies.addresses.DAI)
   async function getAllAndMemoize() {
     return Promise.all([
       aavePriceOracle.getAssetPrice(dependencies.addresses.DAI),
@@ -531,11 +514,6 @@ function getAAVEProtocolServices(
         ),
       }
     case AaveVersion.v3:
-      console.log('AAVE Oracle: ', (addresses as AAVEV3StrategyAddresses).aaveOracle)
-      console.log(
-        'AAVE poolDataProvider: ',
-        (addresses as AAVEV3StrategyAddresses).poolDataProvider,
-      )
       return {
         aavePriceOracle: new ethers.Contract(
           (addresses as AAVEV3StrategyAddresses).aaveOracle,

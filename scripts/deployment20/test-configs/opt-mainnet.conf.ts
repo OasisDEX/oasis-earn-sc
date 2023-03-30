@@ -1,4 +1,4 @@
-import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/oasis-actions'
+import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/oasis-actions/src'
 
 import { EMPTY_ADDRESS } from '../../../test/constants'
 import { Config } from '../../common/config-item'

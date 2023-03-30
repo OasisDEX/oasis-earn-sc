@@ -15,16 +15,19 @@ export type SystemConfigItem = ConfigItem & {
   constructorArgs?: Array<number | string>
 }
 
-type SwapContractName = 'Swap'
+type SwapContractNames = 'Swap' | 'uSwap'
 export type CoreContractNamesWithoutSwap =
   | 'ServiceRegistry'
   | 'OperationExecutor'
   | 'OperationStorage'
   | 'OperationsRegistry'
+  | 'DSProxyFactory'
+  | 'DSProxyRegistry'
+  | 'DSGuardFactory'
   | 'AccountGuard'
   | 'AccountFactory'
   | 'ChainLogView'
-export type CoreContractNames = CoreContractNamesWithoutSwap | SwapContractName
+export type CoreContractNames = CoreContractNamesWithoutSwap | SwapContractNames
 export type AaveV2ContractNames = 'AaveBorrow' | 'AaveDeposit' | 'AaveWithdraw' | 'AavePayback'
 export type ActionContractNamesWithoutAaveV2 =
   | 'SwapAction'
@@ -53,7 +56,6 @@ type CommonContractNames =
   | 'UniswapRouterV3'
   | 'FlashMintModule'
   | 'BalancerVault'
-  | 'DsProxyRegistry'
   | 'OneInchAggregator'
   | 'AuthorizedCaller'
   | 'FeeRecipient'
@@ -78,7 +80,7 @@ export type DeployedSystemContractNames =
   | ActionContractNames
   | LocalSystemContractNames
 
-type SwapRecord = PartialRecord<SwapContractName, SystemConfigItem>
+type SwapRecord = PartialRecord<SwapContractNames, SystemConfigItem>
 type CoreRecord = Record<CoreContractNamesWithoutSwap, SystemConfigItem>
 type AaveV2ActionsRecord = PartialRecord<AaveV2ContractNames, SystemConfigItem>
 type ActionsRecord = Record<ActionContractNamesWithoutAaveV2, SystemConfigItem>

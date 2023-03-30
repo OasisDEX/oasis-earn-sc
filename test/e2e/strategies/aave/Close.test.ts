@@ -45,7 +45,6 @@ import {
 } from '../../../test-utils/addresses'
 import { expectToBe, expectToBeEqual } from '../../../utils'
 
-const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
@@ -53,7 +52,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   describe('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
 
-    const supportedStrategies = getSupportedStrategies(ciOnlyTests)
+    const supportedStrategies = getSupportedStrategies()
 
     async function closePositionV2({
       isDPMProxy,
@@ -406,7 +405,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
   describe('Using AAVE V3', async function () {
     let fixture: SystemWithAAVEV3Positions
 
-    const supportedStrategies = getSupportedAaveV3Strategies(ciOnlyTests)
+    const supportedStrategies = getSupportedAaveV3Strategies()
 
     type ClosePositionV3Args = {
       isDPMProxy: boolean
@@ -611,14 +610,13 @@ describe(`Strategy | AAVE | Close Position`, async () => {
 
     describe('Close position: With Uniswap', () => {
       before(async function () {
-        if (isOptimismByNetwork(networkFork)) {
-          this.skip()
-        }
+        if (isOptimismByNetwork(networkFork)) this.skip()
         fixture = await loadFixture(
           getSystemWithAaveV3Positions({
             use1inch: false,
             network: networkFork,
             systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
+            configExtentionPaths: [`./test-configs/uSwap.conf.ts`],
           }),
         )
       })
@@ -824,11 +822,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             use1inch: true,
             network: networkFork,
             systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
+            configExtentionPaths: [`./test-configs/swap.conf.ts`],
           }),
         )
       })
 
-      describe.only('Using DSProxy', () => {
+      describe('Using DSProxy', () => {
         let position: IPosition
         let proxy: string
         let dsSystem: DeployedSystem20

@@ -22,7 +22,6 @@ import NodeCache from 'node-cache'
 import prompts from 'prompts'
 import { inspect } from 'util'
 
-import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { EtherscanGasPrice } from '../common'
 import {
   Config,
@@ -430,6 +429,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async addOperationEntries() {
     if (!this.signer) throw new Error('No signer set')
+    if (!this.deployedSystem.OperationsRegistry) throw new Error('No OperationsRegistry deployed')
     const operationsRegistry = new OperationsRegistry(
       this.deployedSystem.OperationsRegistry.contract.address,
       this.signer,
@@ -480,35 +480,16 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
 
     if (deploySwapContract === undefined) throw new Error('No swap contract deployed')
-
-    !useInch &&
-      addLocalEntries &&
-      (await deploySwapContract.setPool(
-        this.config.common.STETH.address,
-        this.config.common.WETH.address,
-        10000,
-      ))
-
-    addLocalEntries && (await deploySwapContract.addFeeTier(20))
-    addLocalEntries && (await deploySwapContract.addFeeTier(7))
-
-    this.deployedSystem['Swap'] = { contract: deploySwapContract, config: {}, hash: '' }
-
-    addLocalEntries &&
-      (await this.serviceRegistryHelper.addEntry('Swap', deploySwapContract.address))
-
-    this.deployedSystem.AccountGuard.contract.setWhitelist(
-      this.deployedSystem.OperationExecutor.contract.address,
-      true,
-    )
-
-    const dsProxyRegistry = await this.ethers.getContractAt(
-      DS_PROXY_REGISTRY_ABI,
-      this.config.common.DSProxyRegistry.address,
-      this.signer,
-    )
-
-    this.deployedSystem['DSProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
+    //
+    // !useInch &&
+    //   addLocalEntries &&
+    //   (await deploySwapContract.setPool(
+    //     this.config.common.STETH.address,
+    //     this.config.common.WETH.address,
+    //     10000,
+    //   ))
+    //
+    //
 
     await this.addAllEntries()
   }

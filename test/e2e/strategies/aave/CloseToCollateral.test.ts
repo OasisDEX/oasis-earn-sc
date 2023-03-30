@@ -27,9 +27,7 @@ describe('Close AAVEv2 Position to collateral', () => {
 
   before(async function () {
     // No AAVE V2 on Optimism
-    if (isOptimismByNetwork(networkFork)) {
-      this.skip()
-    }
+    if (isOptimismByNetwork(networkFork)) this.skip()
     fixture = await loadFixture(getSystemWithAavePositions({ use1inch: true }))
     feeRecipient = fixture.dsSystem.config.common.FeeRecipient.address
     if (!feeRecipient) throw new Error('Fee recipient is not set')
@@ -287,7 +285,7 @@ describe('Close AAVEv2 Position to collateral', () => {
     })
   }
 })
-describe.only('Close AAVEv3 Position to collateral', () => {
+describe('Close AAVEv3 Position to collateral', () => {
   const slippage = new BigNumber(0.01) // 1%
   let fixture: SystemWithAAVEV3Positions
   let feeRecipient: string
@@ -298,6 +296,7 @@ describe.only('Close AAVEv3 Position to collateral', () => {
         use1inch: true,
         network: networkFork,
         systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
+        configExtentionPaths: [`./test-configs/swap.conf.ts`],
       }),
     )
     feeRecipient = fixture.dsSystem.config.common.FeeRecipient.address

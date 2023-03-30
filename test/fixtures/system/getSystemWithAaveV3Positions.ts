@@ -16,15 +16,13 @@ import { AaveV3PositionStrategy, PositionDetails } from '../types/positionDetail
 import { StrategyDependenciesAaveV3 } from '../types/strategiesDependencies'
 import { SystemWithAAVEV3Positions } from '../types/systemWithAAVEPositions'
 
-export function getSupportedAaveV3Strategies(ciMode?: boolean): Array<{
+export function getSupportedAaveV3Strategies(): Array<{
   name: AaveV3PositionStrategy
-  /* Test should only be run locally as is flakey */
-  localOnly: boolean
 }> {
   return [
-    { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy, localOnly: false },
-    { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, localOnly: false },
-  ].filter(s => !ciMode || !s.localOnly)
+    { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy },
+    { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy },
+  ]
 }
 
 const testBlockNumberByNetwork: Record<
@@ -50,7 +48,6 @@ export const getSystemWithAaveV3Positions =
   async (): Promise<SystemWithAAVEV3Positions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
-
     await ds.loadConfig(systemConfigPath)
     if (configExtentionPaths) {
       configExtentionPaths.forEach(async configPath => {
@@ -88,6 +85,7 @@ export const getSystemWithAaveV3Positions =
     const swapAddress = swapContract.address
 
     await swapContract.addFeeTier(0)
+    await swapContract.addFeeTier(7)
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
 
     if (!oneInchVersion) throw new Error('Unsupported network')
@@ -133,8 +131,7 @@ export const getSystemWithAaveV3Positions =
     const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForEarnWstEthEth] = await createDPMAccount(system.AccountFactory.contract)
 
-    if (!system.DsProxyRegistry) throw new Error('Cant find DsProxyRegistry')
-    const dsProxy = await getOrCreateProxy(system.DsProxyRegistry.contract, config.signer)
+    const dsProxy = await getOrCreateProxy(system.DSProxyRegistry.contract, config.signer)
 
     if (!dpmProxyForMultiplyEthUsdc || !dpmProxyForEarnWstEthEth) {
       throw new Error('Cant create a DPM proxy')
