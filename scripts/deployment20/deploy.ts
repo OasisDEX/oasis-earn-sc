@@ -135,6 +135,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
+  async extendConfig(configFileName?: string) {
+    if (!this.config) {
+      await this.loadConfig(configFileName)
+    } else {
+      this.config = _.merge(this.config, (await import(`./${configFileName}`)).config)
+    }
+  }
+
   async saveConfig() {
     const { writeFile } = await import('fs')
 
@@ -406,19 +414,22 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     )
   }
 
-  async addOperationEntries(operationsRegistry: OperationsRegistry) {
-    if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
-
+  async addOperationEntries() {
+    if (!this.signer) throw new Error('No signer set')
+    const operationsRegistry = new OperationsRegistry(
+      this.deployedSystem.OperationsRegistry.contract.address,
+      this.signer,
+    )
     await operationsRegistry.addOp(aaveV2OpenOp.name, aaveV2OpenOp.actions)
     await operationsRegistry.addOp(aaveV2CloseOp.name, aaveV2CloseOp.actions)
     await operationsRegistry.addOp(aaveV3OpenOp.name, aaveV3OpenOp.actions)
     await operationsRegistry.addOp(aaveV3CloseOp.name, aaveV3CloseOp.actions)
   }
 
-  async addAllEntries(operationsRegistry: OperationsRegistry) {
+  async addAllEntries() {
     await this.addCommonEntries()
     await this.addAaveEntries()
-    await this.addOperationEntries(operationsRegistry)
+    await this.addOperationEntries()
   }
 
   async setupLocalSystem(useInch?: boolean) {
@@ -463,19 +474,15 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       true,
     )
 
-    const operationsRegistry: OperationsRegistry = new OperationsRegistry(
-      this.deployedSystem.OperationsRegistry.contract.address,
-      this.signer,
-    )
     const dsProxyRegistry = await this.ethers.getContractAt(
       DS_PROXY_REGISTRY_ABI,
-      this.config.common.DsProxyRegistry.address,
+      this.config.common.DSProxyRegistry.address,
       this.signer,
     )
 
-    this.deployedSystem['DsProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
+    this.deployedSystem['DSProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
 
-    await this.addAllEntries(operationsRegistry)
+    await this.addAllEntries()
   }
 
   // TODO unify resetNode and resetNodeToLatestBlock into one function

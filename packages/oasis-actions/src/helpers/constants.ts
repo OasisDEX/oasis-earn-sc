@@ -31,7 +31,7 @@ export const CONTRACT_NAMES = {
     UNWRAP_ETH: 'UnwrapEth_3',
     RETURN_FUNDS: 'ReturnFunds_3',
     POSITION_CREATED: 'PositionCreated',
-
+    ACCOUNT_GUARD: 'AccountGuard',
     ACCOUNT_FACTORY: 'AccountFactory',
     OPERATION_EXECUTOR: 'OperationExecutor_2',
     OPERATION_STORAGE: 'OperationStorage_2',
@@ -39,6 +39,8 @@ export const CONTRACT_NAMES = {
     CHAINLOG_VIEWER: 'ChainLogView',
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
     DS_GUARD_FACTORY: 'DSGuardFactory',
+    DS_PROXY_REGISTRY: 'DSProxyRegistry',
+    DS_PROXY_FACTORY: 'DSProxyFactory',
     SWAP: 'Swap',
     EXCHANGE: 'Exchange',
     UNISWAP_ROUTER: 'UniswapRouter',
