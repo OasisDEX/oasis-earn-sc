@@ -7,9 +7,9 @@ import aavePriceOracleABI from '../../../../../../abi/external/aave/v2/priceOrac
 import aaveProtocolDataProviderABI from '../../../../../../abi/external/aave/v2/protocolDataProvider.json'
 import aaveV3PriceOracleABI from '../../../../../../abi/external/aave/v3/aaveOracle.json'
 import aaveV3ProtocolDataProviderABI from '../../../../../../abi/external/aave/v3/aaveProtocolDataProvider.json'
+import { getForkedNetwork } from '../../../../../../helpers/network'
 import { Position } from '../../../domain/Position'
 import { amountFromWei, amountToWei, calculateFee } from '../../../helpers'
-import { ADDRESSES } from '../../../helpers/addresses'
 import {
   FEE_BASE,
   FEE_ESTIMATE_INFLATOR,
@@ -19,6 +19,7 @@ import {
   TYPICAL_PRECISION,
   ZERO,
 } from '../../../helpers/constants'
+import { resolveFlashloanProvider } from '../../../helpers/flashloan/resolve-provider'
 import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
 import { feeResolver } from '../../../helpers/swap/feeResolver'
 import * as operations from '../../../operations'
@@ -129,14 +130,14 @@ async function getSwapDataToCloseToCollateral(
   // A preflight request is sent to calculate the existing market price.
   const debtPricePreflightSwapData = await dependencies.getSwapData(
     debtTokenAddress,
-    ADDRESSES.main.ETH,
+    dependencies.addresses.ETH,
     dependencies.currentPosition.debt.amount,
     slippage,
   )
 
   const colPricePreflightSwapData = await dependencies.getSwapData(
     collateralTokenAddress,
-    ADDRESSES.main.ETH,
+    dependencies.addresses.ETH,
     collateralNeeded,
     slippage,
   )
@@ -297,42 +298,73 @@ async function buildOperation(
     .integerValue(BigNumber.ROUND_DOWN)
 
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
+  const lockedCollateralAmountInWei = args.shouldCloseToCollateral
+    ? swapData.fromTokenAmount.plus(swapData.preSwapFee)
+    : args.collateralAmountLockedInProtocolInWei
+  const collectFeeFrom = swapData.collectFeeFrom
+  if (args.protocolVersion === AaveVersion.v2) {
+    const closeArgs = {
+      // In the close to collateral scenario we need to add the preSwapFee amount to the fromTokenAmount
+      // So, that when taking the fee from the source token we are sending the Swap contract
+      // the sum of the fee and the ultimately fromAmount that will be swapped
+      lockedCollateralAmountInWei,
+      flashloanAmount: amountToFlashloanInWei,
+      fee: fee.toNumber(),
+      swapData: swapData.exchangeCalldata,
+      receiveAtLeast: swapData.minToTokenAmount,
+      proxy: dependencies.proxy,
+      collectFeeFrom,
+      collateralTokenAddress,
+      collateralIsEth: args.collateralToken.symbol === 'ETH',
+      debtTokenAddress,
+      debtTokenIsEth: args.debtToken.symbol === 'ETH',
+      isDPMProxy: dependencies.isDPMProxy,
+    }
+    return await operations.aave.v2.close(
+      closeArgs,
+      dependencies.addresses as AAVEStrategyAddresses,
+    )
+  }
+  if (args.protocolVersion === AaveVersion.v3) {
+    const flashloanProvider = resolveFlashloanProvider(
+      await getForkedNetwork(dependencies.provider),
+    )
 
-  const closeArgs = {
-    // In the close to collateral scenario we need to add the preSwapFee amount to the fromTokenAmount
-    // So, that when taking the fee from the source token we are sending the Swap contract
-    // the sum of the fee and the ultimately fromAmount that will be swapped
-    lockedCollateralAmountInWei: args.shouldCloseToCollateral
-      ? swapData.fromTokenAmount.plus(swapData.preSwapFee)
-      : args.collateralAmountLockedInProtocolInWei,
-    flashloanAmount: amountToFlashloanInWei,
-    fee: fee.toNumber(),
-    swapData: swapData.exchangeCalldata,
-    receiveAtLeast: swapData.minToTokenAmount,
-    proxy: dependencies.proxy,
-    collectFeeFrom: swapData.collectFeeFrom,
-    collateralTokenAddress,
-    collateralIsEth: args.collateralToken.symbol === 'ETH',
-    debtTokenAddress,
-    debtTokenIsEth: args.debtToken.symbol === 'ETH',
-    isDPMProxy: dependencies.isDPMProxy,
-    shouldCloseToCollateral: args.shouldCloseToCollateral || false,
+    const closeArgs = {
+      collateral: {
+        address: collateralTokenAddress,
+        isEth: args.collateralToken.symbol === 'ETH',
+      },
+      debt: {
+        address: debtTokenAddress,
+        isEth: args.debtToken.symbol === 'ETH',
+      },
+      swap: {
+        fee: fee.toNumber(),
+        data: swapData.exchangeCalldata,
+        amount: lockedCollateralAmountInWei,
+        collectFeeFrom,
+        receiveAtLeast: swapData.minToTokenAmount,
+      },
+      flashloan: {
+        amount: amountToFlashloanInWei,
+        provider: flashloanProvider,
+      },
+      position: {
+        collateral: lockedCollateralAmountInWei,
+      },
+      proxy: {
+        address: dependencies.proxy,
+        isDPMProxy: dependencies.isDPMProxy,
+        owner: dependencies.user,
+      },
+      addresses: dependencies.addresses as AAVEV3StrategyAddresses,
+    }
+
+    return await operations.aave.v3.close(closeArgs)
   }
 
-  switch (args.protocolVersion) {
-    case AaveVersion.v2:
-      return await operations.aave.v2.close(
-        closeArgs,
-        dependencies.addresses as AAVEStrategyAddresses,
-      )
-    case AaveVersion.v3:
-      return await operations.aave.v3.close(
-        closeArgs,
-        dependencies.addresses as AAVEV3StrategyAddresses,
-      )
-    default:
-      throw new Error('Unsupported AAVE version')
-  }
+  throw new Error('Unsupported AAVE version')
 }
 
 async function generateTransition(
@@ -432,6 +464,10 @@ async function getValuesFromProtocol(
   debtTokenAddress: string,
   dependencies: AaveCloseDependencies,
 ) {
+  console.log('PROTOCOL SERVICES')
+  console.log('collateralTokenAddress', collateralTokenAddress)
+  console.log('debtTokenAddress', debtTokenAddress)
+
   /* Grabs all the protocol level services we need to resolve values */
   const { aavePriceOracle, aaveProtocolDataProvider } = getAAVEProtocolServices(
     protocolVersion,
@@ -441,10 +477,10 @@ async function getValuesFromProtocol(
 
   async function getAllAndMemoize() {
     return Promise.all([
-      aavePriceOracle.getAssetPrice(ADDRESSES.main.DAI),
+      aavePriceOracle.getAssetPrice(dependencies.addresses.DAI),
       aavePriceOracle.getAssetPrice(collateralTokenAddress),
       aavePriceOracle.getAssetPrice(debtTokenAddress),
-      aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
+      aaveProtocolDataProvider.getReserveConfigurationData(dependencies.addresses.DAI),
     ])
   }
 

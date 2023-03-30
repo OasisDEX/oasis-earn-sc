@@ -89,7 +89,8 @@ export type WithProxy = {
 
 export type WithPosition = {
   position: {
-    type: PositionType
+    collateral?: BigNumber
+    type?: PositionType
   }
 }
 

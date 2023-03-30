@@ -830,7 +830,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         )
       })
 
-      describe('Using DSProxy', () => {
+      describe.only('Using DSProxy', () => {
         let position: IPosition
         let proxy: string
         let dsSystem: DeployedSystem20

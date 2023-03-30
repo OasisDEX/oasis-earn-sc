@@ -72,7 +72,6 @@ export async function close(
     debtTokenAddress: string
     debtTokenIsEth: boolean
     isDPMProxy: boolean
-    shouldCloseToCollateral: boolean
   },
   addresses: AAVEStrategyAddresses,
 ): Promise<IOperation> {

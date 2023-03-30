@@ -19,6 +19,8 @@ import { acceptedFeeToken } from '../../../helpers/swap/acceptedFeeToken'
 import { feeResolver } from '../../../helpers/swap/feeResolver'
 import { getSwapDataHelper } from '../../../helpers/swap/getSwapData'
 import * as operations from '../../../operations'
+import { AAVEStrategyAddresses } from '../../../operations/aave/v2'
+import { AAVEV3StrategyAddresses } from '../../../operations/aave/v3'
 import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '../../../protocols/aave/config'
 import { AaveProtocolData } from '../../../protocols/aave/getAaveProtocolData'
 import { Address, IOperation, IPositionTransition, PositionType, SwapData } from '../../../types'
@@ -305,7 +307,7 @@ async function buildOperation(
     args.positionType === 'Earn',
   )
 
-  if (protocolVersion === AaveVersion.v3 && 'pool' in dependencies.addresses) {
+  if (protocolVersion === AaveVersion.v3) {
     const flashloanProvider = resolveFlashloanProvider(
       await getForkedNetwork(dependencies.provider),
     )
@@ -319,12 +321,10 @@ async function buildOperation(
     const openArgs = {
       collateral: {
         address: collateralTokenAddress,
-        amount: depositCollateralAmountInWei,
         isEth: args.collateralToken.symbol === 'ETH',
       },
       debt: {
         address: debtTokenAddress,
-        amount: depositDebtAmountInWei,
         isEth: args.debtToken.symbol === 'ETH',
         borrow: {
           amount: borrowAmount,
@@ -356,12 +356,12 @@ async function buildOperation(
         isDPMProxy: dependencies.isDPMProxy,
         owner: dependencies.user,
       },
-      addresses: dependencies.addresses,
+      addresses: dependencies.addresses as AAVEV3StrategyAddresses,
     }
 
     return await operations.aave.v3.open(openArgs)
   }
-  if (protocolVersion === AaveVersion.v2 && 'lendingPool' in dependencies.addresses) {
+  if (protocolVersion === AaveVersion.v2) {
     const openArgs = {
       deposit: {
         collateralToken: {
@@ -381,7 +381,7 @@ async function buildOperation(
         receiveAtLeast: swapData.minToTokenAmount,
       },
       positionType: args.positionType,
-      addresses: dependencies.addresses,
+      addresses: dependencies.addresses as AAVEStrategyAddresses,
       flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
       borrowAmountInBaseUnit: borrowAmountInWei,
       collateralTokenAddress,
