@@ -1,4 +1,5 @@
 import { Network } from '@helpers/network'
+import { ServiceRegistry as ServiceRegistryClass } from '@helpers/serviceRegistry'
 import { ADDRESSES } from '@oasisdex/oasis-actions/src'
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 import { Contract } from 'ethers'
@@ -31,20 +32,22 @@ import {
   WrapEth,
 } from '../../typechain'
 import { AddressRegistry } from './addresses'
-import { AllowedContractNames, ConfigItem, CoreContractNames } from './config-item'
+import { Config, ConfigItem, CoreContractNames, DeployedSystemContractNames } from './config-item'
 import { HardhatUtils } from './hardhat.utils'
 import { removeVersion } from './utils'
 
-export type DeployedSystem20 = Record<
-  AllowedContractNames,
-  {
-    contract: Contract
-    config: ConfigItem | Record<string, unknown>
-    hash: string
-  }
+export type SystemTemplate20 = Partial<
+  Record<
+    DeployedSystemContractNames,
+    {
+      contract: Contract
+      config: ConfigItem | Record<string, unknown>
+      hash: string
+    }
+  >
 >
 
-export type DeployedSystem20Return = Partial<DeployedSystem20> &
+export type DeployedSystem20Return = SystemTemplate20 &
   Record<
     CoreContractNames,
     {
@@ -54,6 +57,15 @@ export type DeployedSystem20Return = Partial<DeployedSystem20> &
     }
   >
 
+export type DeployedSystem20 = {
+  system: DeployedSystem20Return
+  registry: ServiceRegistryClass
+  config: Config
+}
+
+/**
+ * @deprecated This is the old DeployedSystem interface which is still used by some tests
+ */
 export interface DeployedSystem {
   serviceRegistry: ServiceRegistry
   operationExecutor: OperationExecutor

@@ -8,6 +8,7 @@ export type ConfigItem = {
 }
 
 export type SystemConfigItem = ConfigItem & {
+  name: DeployedSystemContractNames
   deploy: boolean
   history: Address[]
   constructorArgs?: Array<number | string>
@@ -34,7 +35,7 @@ export type CoreContractNames =
   | 'AccountFactory'
   | 'ChainLogView'
   | 'Swap'
-type ActionContractNames =
+export type ActionContractNames =
   | 'SwapAction'
   | 'AaveBorrow'
   | 'AaveDeposit'
@@ -82,3 +83,9 @@ export type AllowedContractNames =
   | ActionContractNames
   | CommonContractNames
   | AaveProtocolContractNames
+
+export type LocalSystemContractNames = 'DsProxyRegistry'
+export type DeployedSystemContractNames =
+  | CoreContractNames
+  | ActionContractNames
+  | LocalSystemContractNames

@@ -72,7 +72,8 @@ export const getSystemWithAaveV3Positions =
     await ds.deployAll()
     await ds.setupLocalSystem(use1inch)
 
-    const { system, registry, config: systemConfig } = ds.getSystem()
+    const dsSystem = ds.getSystem()
+    const { system, registry, config: systemConfig } = dsSystem
 
     const oneInchVersionMap = {
       [Network.MAINNET]: 'v4.0' as const,
@@ -173,6 +174,7 @@ export const getSystemWithAaveV3Positions =
       config,
       system,
       registry,
+      dsSystem,
       strategiesDependencies: dependencies,
       dpmPositions: {
         ...(ethUsdcMultiplyPosition

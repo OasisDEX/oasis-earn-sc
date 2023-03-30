@@ -18,6 +18,7 @@ import { OpenPositionTypes } from './openPositionTypes'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)
+
 async function openStEthEthEarnAAVEPosition(
   slippage: BigNumber,
   dependencies: OpenPositionTypes[1],

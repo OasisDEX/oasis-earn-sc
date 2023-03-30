@@ -12,6 +12,7 @@ import { createDPMAccount } from '../factories'
 import { StrategiesDependencies, SystemWithProxies } from '../types'
 
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)
+
 export async function getSystemWithProxies({
   use1inch,
 }: {

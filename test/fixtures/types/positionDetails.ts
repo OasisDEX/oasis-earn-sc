@@ -16,8 +16,8 @@ export type AavePositionStrategy =
   | 'ETH/USDC Multiply'
   | 'STETH/USDC Multiply'
 
-export type TokenDetails = {
-  symbol: AAVETokens
+export type TokenDetails<T = ''> = {
+  symbol: Exclude<AAVETokens, T>
   precision: number
   address: string
 }

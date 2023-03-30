@@ -60,7 +60,8 @@ export const getSystemWithAavePositions =
     await ds.deployAll()
     await ds.setupLocalSystem(use1inch)
 
-    const { system, registry, config: systemConfig } = ds.getSystem()
+    const dsSystem = ds.getSystem()
+    const { system, registry, config: systemConfig } = dsSystem
     const dependencies: StrategyDependenciesAaveV2 = {
       addresses: {
         DAI: systemConfig.common.DAI.address,
@@ -153,7 +154,6 @@ export const getSystemWithAavePositions =
       getTokens,
     })
 
-    console.log('CREATING DS PROXY STETH:ETH')
     const dsProxyStEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
       proxy: dsProxy.address,
       isDPM: false,
@@ -179,6 +179,7 @@ export const getSystemWithAavePositions =
     return {
       config,
       system,
+      dsSystem,
       registry,
       strategiesDependencies: dependencies,
       dpmPositions,

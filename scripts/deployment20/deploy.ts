@@ -24,8 +24,13 @@ import { inspect } from 'util'
 
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { EtherscanGasPrice } from '../common'
-import { AllowedContractNames, Config, ConfigItem, SystemConfigItem } from '../common/config-item'
-import { DeployedSystem20, DeployedSystem20Return } from '../common/deploy-system'
+import {
+  Config,
+  ConfigItem,
+  DeployedSystemContractNames,
+  SystemConfigItem,
+} from '../common/config-item'
+import { DeployedSystem20, DeployedSystem20Return, SystemTemplate20 } from '../common/deploy-system'
 
 configLoader.setBaseDir('./scripts/deployment20/')
 
@@ -112,7 +117,7 @@ abstract class DeployedSystemHelpers {
 // MAIN CLASS ===============================================
 export class DeploymentSystem extends DeployedSystemHelpers {
   public config: Config | undefined
-  public deployedSystem: Partial<DeployedSystem20> = {}
+  public deployedSystem: SystemTemplate20 = {}
   private readonly _cache = new NodeCache()
 
   constructor(public readonly hre: HardhatRuntimeEnvironment) {
@@ -204,7 +209,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     for (const configItem of addressesConfig) {
       if (configItem.serviceRegistryName) {
-        const address = this.deployedSystem[configItem.name]?.contract.address || configItem.address
+        const address =
+          this.deployedSystem?.[configItem.name as DeployedSystemContractNames]?.contract.address ||
+          configItem.address
         await this.addRegistryEntry(configItem, address)
       }
     }
@@ -218,7 +225,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async instantiateContracts(addressesConfig: ConfigItem[]) {
+  async instantiateContracts(addressesConfig: SystemConfigItem[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     for (const configItem of addressesConfig) {
       console.log('INSTANTIATING ', configItem.name)
@@ -272,7 +279,10 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       if (configItem.constructorArgs && configItem.constructorArgs?.length !== 0) {
         constructorParams = configItem.constructorArgs.map((param: any) => {
           if (typeof param === 'string' && param.indexOf('address:') >= 0) {
-            const contractName = (param as string).replace('address:', '') as AllowedContractNames
+            const contractName = (param as string).replace(
+              'address:',
+              '',
+            ) as DeployedSystemContractNames
             if (!this.deployedSystem[contractName]) {
               throw new Error(`Contract ${contractName} not deployed`)
             }
@@ -516,7 +526,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     ])
   }
 
-  getSystem(): { system: DeployedSystem20Return; registry: ServiceRegistry; config: Config } {
+  getSystem(): DeployedSystem20 {
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     if (!this.config) throw new Error('No config set')
     return {

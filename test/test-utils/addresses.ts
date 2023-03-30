@@ -1,9 +1,38 @@
 import { Network } from '@helpers/network'
 import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
 
+// Type guards
+// export function isMainnetAddresses(
+//   addresses: NetworkAddressesForTests,
+// ): addresses is MainnetAddresses
+// export function isMainnetAddresses(
+//   addresses: NetworkAddressesForTests,
+// ): addresses is OptMainnetAddresses
+//
+// export function isMainnetByTestAddresses(
+//   addresses: NetworkAddressesForTests,
+// ): addresses is MainnetAddresses {
+//   return !!(addresses as MainnetAddresses).lendingPool
+// }
+//
+// export function isOptimismByTestAddresses(
+//   addresses: NetworkAddressesForTests,
+// ): addresses is OptMainnetAddresses {
+//   return (addresses as any)['lendingPool'] === undefined
+// }
+
+export function isMainnetByNetwork(network: Network): network is Network.MAINNET {
+  return network === Network.MAINNET
+}
+export function isOptimismByNetwork(network: Network): network is Network.OPT_MAINNET {
+  return network === Network.OPT_MAINNET
+}
+
 export function addressesByNetwork(network: Network.MAINNET): MainnetAddresses
 export function addressesByNetwork(network: Network.OPT_MAINNET): OptMainnetAddresses
-export function addressesByNetwork(network: Network): NetworkAddressesForTests {
+export function addressesByNetwork(
+  network: Network.MAINNET | Network.OPT_MAINNET,
+): NetworkAddressesForTests | undefined {
   switch (network) {
     case Network.MAINNET:
       return testAddresses[Network.MAINNET]
@@ -44,40 +73,26 @@ const testAddresses = {
     USDC: ADDRESSES.optimism.USDC,
     feeRecipient: ADDRESSES.optimism.feeRecipient,
     chainlinkEthUsdPriceFeed: ADDRESSES.optimism.chainlinkEthUsdPriceFeed,
-    aave: {
-      v3: {
-        aaveOracle: ADDRESSES.optimism.aave.v3.AaveOracle,
-        pool: ADDRESSES.optimism.aave.v3.Pool,
-        poolDataProvider: ADDRESSES.optimism.aave.v3.PoolDataProvider,
-      },
-    },
+    aaveOracle: ADDRESSES.optimism.aave.v3.AaveOracle,
+    pool: ADDRESSES.optimism.aave.v3.Pool,
+    poolDataProvider: ADDRESSES.optimism.aave.v3.PoolDataProvider,
   },
 }
 
-const mainnetAddressesForTests = {
-  DAI: ADDRESSES.main.DAI,
-  ETH: ADDRESSES.main.ETH,
-  WETH: ADDRESSES.main.WETH,
-  STETH: ADDRESSES.main.STETH,
-  WSTETH: ADDRESSES.main.WSTETH,
-  WBTC: ADDRESSES.main.WBTC,
-  USDC: ADDRESSES.main.USDC,
-  feeRecipient: ADDRESSES.main.feeRecipient,
-  chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-  aave: {
-    v2: {
-      priceOracle: ADDRESSES.main.aave.v2.PriceOracle,
-      lendingPool: ADDRESSES.main.aave.v2.LendingPool,
-      protocolDataProvider: ADDRESSES.main.aave.v2.ProtocolDataProvider,
-    },
-    v3: {
-      aaveOracle: ADDRESSES.main.aave.v3.AaveOracle,
-      pool: ADDRESSES.main.aave.v3.Pool,
-      poolDataProvider: ADDRESSES.main.aave.v3.PoolDataProvider,
-    },
-  },
-}
+export type MainnetAddresses = typeof testAddresses[Network.MAINNET]
+export type OptMainnetAddresses = typeof testAddresses[Network.OPT_MAINNET]
+export type NetworkAddressesForTests = MainnetAddresses | OptMainnetAddresses
 
-type MainnetAddresses = typeof testAddresses[Network.MAINNET]
-type OptMainnetAddresses = typeof testAddresses[Network.OPT_MAINNET]
-type NetworkAddressesForTests = MainnetAddresses | OptMainnetAddresses
+// function omitV2AddressesOnMainnet(
+//   addresses: MainnetAddresses & { operationExecutor: string },
+// ): AAVEV3StrategyAddresses {
+//   const { lendingPool, priceOracle, protocolDataProvider, ...rest } = addresses
+//   return rest
+// }
+//
+// function omitV3AddressesOnMainnet(
+//   addresses: MainnetAddresses & { operationExecutor: string },
+// ): AAVEStrategyAddresses {
+//   const { aaveOracle, pool, poolDataProvider, ...rest } = addresses
+//   return rest
+// }
