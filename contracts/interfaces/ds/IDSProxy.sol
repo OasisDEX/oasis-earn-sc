@@ -11,7 +11,11 @@ interface IDSProxy {
 }
 
 interface IDSAuthority {
-  function canCall(address, address, bytes4) external view returns (bool);
+  function canCall(
+    address,
+    address,
+    bytes4
+  ) external view returns (bool);
 }
 
 interface IDSAuth {
@@ -21,11 +25,23 @@ interface IDSAuth {
 }
 
 interface IDSGuard {
-  function canCall(address, address, bytes4) external view returns (bool);
+  function canCall(
+    address,
+    address,
+    bytes4
+  ) external view returns (bool);
 
-  function permit(address, address, bytes32) external;
+  function permit(
+    address,
+    address,
+    bytes32
+  ) external;
 
-  function forbid(address, address, bytes32) external;
+  function forbid(
+    address,
+    address,
+    bytes32
+  ) external;
 }
 
 interface IDSGuardFactory {

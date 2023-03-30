@@ -90,7 +90,11 @@ contract uSwap {
     emit FeeTierRemoved(fee);
   }
 
-  function setPool(address fromToken, address toToken, uint24 pool) public onlyAuthorised {
+  function setPool(
+    address fromToken,
+    address toToken,
+    uint24 pool
+  ) public onlyAuthorised {
     pools[keccak256(abi.encodePacked(fromToken, toToken))] = pool;
     pools[keccak256(abi.encodePacked(toToken, fromToken))] = pool;
   }
