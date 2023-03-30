@@ -487,12 +487,10 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       slippage,
       config,
       dsSystem,
-      network,
       addresses,
       collateralTokenAddress,
       debtTokenAddress,
     }: ClosePositionV3Args & {
-      network: Network
       addresses: AAVEV3StrategyAddresses
       collateralTokenAddress: string
       debtTokenAddress: string

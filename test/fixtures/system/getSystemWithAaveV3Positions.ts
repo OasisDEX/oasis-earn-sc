@@ -9,8 +9,10 @@ import { getOneInchCall, optimismLiquidityProviders } from '../../../helpers/swa
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
 import { testBlockNumberForAaveOptimismV3, testBlockNumberForAaveV3 } from '../../config'
+import { resolveOneInchVersion } from '../../test-utils/one-inch-version'
 import { createDPMAccount, createEthUsdcMultiplyAAVEPosition } from '../factories'
-import { AaveV3PositionStrategy } from '../types/positionDetails'
+import { createWstEthEthEarnAAVEPosition } from '../factories/createWstEthEthEarnAAVEPosition'
+import { AaveV3PositionStrategy, PositionDetails } from '../types/positionDetails'
 import { StrategyDependenciesAaveV3 } from '../types/strategiesDependencies'
 import { SystemWithAAVEV3Positions } from '../types/systemWithAAVEPositions'
 
@@ -20,7 +22,7 @@ export function getSupportedAaveV3Strategies(ciMode?: boolean): Array<{
   localOnly: boolean
 }> {
   return [
-    // { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy, localOnly: false },
+    { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy, localOnly: false },
     { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, localOnly: false },
   ].filter(s => !ciMode || !s.localOnly)
 }
@@ -74,11 +76,7 @@ export const getSystemWithAaveV3Positions =
     const dsSystem = ds.getSystem()
     const { system, registry, config: systemConfig } = dsSystem
 
-    const oneInchVersionMap = {
-      [Network.MAINNET]: 'v4.0' as const,
-      [Network.OPT_MAINNET]: 'v5.0' as const,
-    }
-    const oneInchVersion = oneInchVersionMap[network]
+    const oneInchVersion = resolveOneInchVersion(network)
     if (!oneInchVersion) throw new Error('Unsupported network')
     const dependencies: StrategyDependenciesAaveV3 = {
       addresses: {
@@ -115,7 +113,6 @@ export const getSystemWithAaveV3Positions =
                 : [],
               ChainIdByNetwork[network],
               oneInchVersion,
-              true,
             )
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
@@ -137,28 +134,27 @@ export const getSystemWithAaveV3Positions =
     }
 
     const swapAddress = system.Swap.contract.address
+    const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
+      proxy: dpmProxyForMultiplyEthUsdc,
+      isDPM: true,
+      use1inch,
+      swapAddress,
+      dependencies,
+      config: configWithDeployedSystem,
+    })
 
-    // const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
-    //   proxy: dpmProxyForMultiplyEthUsdc,
-    //   isDPM: true,
-    //   use1inch,
-    //   swapAddress,
-    //   dependencies,
-    //   config: configWithDeployedSystem,
-    // })
-    //
-    // let wstethEthEarnPosition: PositionDetails | undefined
-    // /* Re use1inch: Wsteth lacks sufficient liquidity on uniswap */
-    // if (use1inch) {
-    //   wstethEthEarnPosition = await createWstEthEthEarnAAVEPosition({
-    //     proxy: dpmProxyForEarnWstEthEth,
-    //     isDPM: true,
-    //     use1inch,
-    //     swapAddress,
-    //     dependencies,
-    //     config: configWithDeployedSystem,
-    //   })
-    // }
+    let wstethEthEarnPosition: PositionDetails | undefined
+    /* Re use1inch: Wsteth lacks sufficient liquidity on uniswap */
+    if (use1inch) {
+      wstethEthEarnPosition = await createWstEthEthEarnAAVEPosition({
+        proxy: dpmProxyForEarnWstEthEth,
+        isDPM: true,
+        use1inch,
+        swapAddress,
+        dependencies,
+        config: configWithDeployedSystem,
+      })
+    }
 
     const dsProxyEthUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
       proxy: dsProxy.address,
@@ -176,12 +172,12 @@ export const getSystemWithAaveV3Positions =
       dsSystem,
       strategiesDependencies: dependencies,
       dpmPositions: {
-        // ...(ethUsdcMultiplyPosition
-        //   ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
-        //   : {}),
-        // ...(wstethEthEarnPosition
-        //   ? { [wstethEthEarnPosition.strategy]: wstethEthEarnPosition }
-        //   : {}),
+        ...(ethUsdcMultiplyPosition
+          ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
+          : {}),
+        ...(wstethEthEarnPosition
+          ? { [wstethEthEarnPosition.strategy]: wstethEthEarnPosition }
+          : {}),
       },
       dsProxyPosition: dsProxyEthUsdcMultiplyPosition,
       getTokens,

@@ -187,17 +187,3 @@ export function asPercentageValue(value: BigNumber.Value, base: BigNumber.Value)
 export async function getLatestBlock(provider: JsonRpcProvider) {
   return provider.getBlockNumber()
 }
-
-export async function getRecentBlock({
-  provider,
-  offset,
-  roundToNearest = 1,
-}: {
-  provider: JsonRpcProvider
-  offset: number
-  roundToNearest?: number
-}) {
-  return getLatestBlock(provider)
-    .then(blockNumber => blockNumber - offset)
-    .then(blockNumber => Math.floor(blockNumber / roundToNearest) * roundToNearest)
-}

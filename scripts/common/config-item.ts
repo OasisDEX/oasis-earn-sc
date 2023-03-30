@@ -1,3 +1,4 @@
+import { PartialRecord } from '@helpers/types/common'
 import { ContractNames } from '@oasisdex/oasis-actions/src'
 import { Address } from '@oasisdex/oasis-actions/src/types'
 
@@ -14,19 +15,8 @@ export type SystemConfigItem = ConfigItem & {
   constructorArgs?: Array<number | string>
 }
 
-export type Config = {
-  mpa: {
-    core: Record<CoreContractNames, SystemConfigItem>
-    actions: Record<ActionContractNames, SystemConfigItem>
-  }
-  common: Record<CommonContractNames, ConfigItem>
-  aave: {
-    v2: Record<AaveProtocolContractNamesV2, ConfigItem>
-    v3: Record<AaveProtocolContractNamesV3, ConfigItem>
-  }
-}
-
-export type CoreContractNames =
+type SwapContractName = 'Swap'
+export type CoreContractNamesWithoutSwap =
   | 'ServiceRegistry'
   | 'OperationExecutor'
   | 'OperationStorage'
@@ -34,13 +24,10 @@ export type CoreContractNames =
   | 'AccountGuard'
   | 'AccountFactory'
   | 'ChainLogView'
-  | 'Swap'
-export type ActionContractNames =
+export type CoreContractNames = CoreContractNamesWithoutSwap | SwapContractName
+export type AaveV2ContractNames = 'AaveBorrow' | 'AaveDeposit' | 'AaveWithdraw' | 'AavePayback'
+export type ActionContractNamesWithoutAaveV2 =
   | 'SwapAction'
-  | 'AaveBorrow'
-  | 'AaveDeposit'
-  | 'AaveWithdraw'
-  | 'AavePayback'
   | 'PullToken'
   | 'SendToken'
   | 'SetApproval'
@@ -54,6 +41,7 @@ export type ActionContractNames =
   | 'AaveV3Withdraw'
   | 'AaveV3Payback'
   | 'AaveV3SetEMode'
+export type ActionContractNames = ActionContractNamesWithoutAaveV2 | AaveV2ContractNames
 type CommonContractNames =
   | 'WETH'
   | 'ETH'
@@ -89,3 +77,20 @@ export type DeployedSystemContractNames =
   | CoreContractNames
   | ActionContractNames
   | LocalSystemContractNames
+
+type SwapRecord = PartialRecord<SwapContractName, SystemConfigItem>
+type CoreRecord = Record<CoreContractNamesWithoutSwap, SystemConfigItem>
+type AaveV2ActionsRecord = PartialRecord<AaveV2ContractNames, SystemConfigItem>
+type ActionsRecord = Record<ActionContractNamesWithoutAaveV2, SystemConfigItem>
+
+export type Config = {
+  mpa: {
+    core: SwapRecord & CoreRecord
+    actions: AaveV2ActionsRecord & ActionsRecord
+  }
+  common: Record<CommonContractNames, ConfigItem>
+  aave: {
+    v2?: Record<AaveProtocolContractNamesV2, ConfigItem>
+    v3: Record<AaveProtocolContractNamesV3, ConfigItem>
+  }
+}

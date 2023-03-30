@@ -80,12 +80,13 @@ async function getSwapDataToCloseToCollateral(
   { debtToken, collateralToken, slippage, protocolVersion }: AaveCloseArgsWithVersioning,
   dependencies: AaveCloseDependencies,
 ) {
+  console.log('getSwapDataToCloseToCollateral =>>>')
   const { addresses } = dependencies
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken, collateralToken },
     addresses,
   )
-
+  console.log('getValuesFromProtocol =>>>')
   // Since we cannot get the exact amount that will be needed
   // to cover all debt, there will be left overs of the debt token
   // which will then have to be transferred back to the user
@@ -99,6 +100,7 @@ async function getSwapDataToCloseToCollateral(
   ).map(price => {
     return new BigNumber(price.toString())
   })
+  console.log('HERE after values from protocol')
   // 1.Use offset amount which will be used in the swap as well.
   // The idea is that after the debt is paid, the remaining will be transferred to the beneficiary
   // Debt is a complex number and interest rate is constantly applied.
@@ -128,33 +130,49 @@ async function getSwapDataToCloseToCollateral(
   // there is a deviation threshold value that shows how much the prices on/off chain might differ
   // When there is a 1inch swap, we use real-time market price. To calculate that,
   // A preflight request is sent to calculate the existing market price.
-  const debtPricePreflightSwapData = await dependencies.getSwapData(
-    debtTokenAddress,
-    dependencies.addresses.ETH,
-    dependencies.currentPosition.debt.amount,
-    slippage,
-  )
+  console.log('getting preflight swap data')
+  const debtIsEth = debtTokenAddress === dependencies.addresses.ETH
+  const collateralIsEth = collateralTokenAddress === dependencies.addresses.ETH
+  console.log('debtIsEth', debtIsEth)
+  console.log('collateralIsEth', collateralIsEth)
+  if (debtIsEth) {
+    debtPrice = ONE.times(TEN.pow(debtTokenPrecision))
+  } else {
+    const debtPricePreflightSwapData = await dependencies.getSwapData(
+      debtTokenAddress,
+      dependencies.addresses.ETH,
+      dependencies.currentPosition.debt.amount,
+      slippage,
+    )
+    debtPrice = new BigNumber(
+      debtPricePreflightSwapData.toTokenAmount
+        .div(debtPricePreflightSwapData.fromTokenAmount)
+        .times(TEN.pow(debtTokenPrecision))
+        .toFixed(0),
+    )
+  }
 
-  const colPricePreflightSwapData = await dependencies.getSwapData(
-    collateralTokenAddress,
-    dependencies.addresses.ETH,
-    collateralNeeded,
-    slippage,
-  )
+  if (collateralIsEth) {
+    colPrice = ONE.times(TEN.pow(collateralTokenPrecision))
+  } else {
+    const colPricePreflightSwapData =
+      !collateralIsEth &&
+      (await dependencies.getSwapData(
+        collateralTokenAddress,
+        dependencies.addresses.ETH,
+        collateralNeeded,
+        slippage,
+      ))
 
-  debtPrice = new BigNumber(
-    debtPricePreflightSwapData.toTokenAmount
-      .div(debtPricePreflightSwapData.fromTokenAmount)
-      .times(TEN.pow(debtTokenPrecision))
-      .toFixed(0),
-  )
-
-  colPrice = new BigNumber(
-    colPricePreflightSwapData.toTokenAmount
-      .div(colPricePreflightSwapData.fromTokenAmount)
-      .times(TEN.pow(collateralTokenPrecision))
-      .toFixed(0),
-  )
+    colPrice = new BigNumber(
+      colPricePreflightSwapData.toTokenAmount
+        .div(colPricePreflightSwapData.fromTokenAmount)
+        .times(TEN.pow(collateralTokenPrecision))
+        .toFixed(0),
+    )
+  }
+  console.log('debtPrice', debtPrice.toString())
+  console.log('colPrice', colPrice.toString())
 
   // 4. Get Swap Data
   // This is the actual swap data that will be used in the transaction.
@@ -168,6 +186,7 @@ async function getSwapDataToCloseToCollateral(
     slippage,
   )
 
+  console.log('getting swap data')
   const swapData = await dependencies.getSwapData(
     collateralTokenAddress,
     debtTokenAddress,
@@ -185,6 +204,7 @@ async function getSwapDataToCloseToCollateral(
       ? calculateFee(amountNeededToEnsureRemainingDebtIsRepaid, fee, new BigNumber(FEE_BASE))
       : ZERO
 
+  console.log('returned')
   return {
     swapData,
     collectFeeFrom,
@@ -224,6 +244,7 @@ async function getSwapDataToCloseToDebt(
   console.log('collateralTokenAddress', collateralTokenAddress)
   console.log('debtTokenAddress', debtTokenAddress)
   console.log('swapAmountAfterFees', swapAmountAfterFees.toString())
+  console.log('getSwapData', dependencies.getSwapData)
   const swapData = await dependencies.getSwapData(
     collateralTokenAddress,
     debtTokenAddress,
@@ -474,7 +495,10 @@ async function getValuesFromProtocol(
     dependencies.provider,
     dependencies.addresses,
   )
+  console.log('aavePriceOracle:', aavePriceOracle.address)
+  console.log('aaveProtocolDataProvider:', aaveProtocolDataProvider.address)
 
+  console.log('ABOUT TO MEMO', dependencies.addresses.DAI)
   async function getAllAndMemoize() {
     return Promise.all([
       aavePriceOracle.getAssetPrice(dependencies.addresses.DAI),
@@ -507,6 +531,11 @@ function getAAVEProtocolServices(
         ),
       }
     case AaveVersion.v3:
+      console.log('AAVE Oracle: ', (addresses as AAVEV3StrategyAddresses).aaveOracle)
+      console.log(
+        'AAVE poolDataProvider: ',
+        (addresses as AAVEV3StrategyAddresses).poolDataProvider,
+      )
       return {
         aavePriceOracle: new ethers.Contract(
           (addresses as AAVEV3StrategyAddresses).aaveOracle,

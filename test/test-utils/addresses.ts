@@ -2,25 +2,6 @@ import { Network } from '@helpers/network'
 import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
 
 // Type guards
-// export function isMainnetAddresses(
-//   addresses: NetworkAddressesForTests,
-// ): addresses is MainnetAddresses
-// export function isMainnetAddresses(
-//   addresses: NetworkAddressesForTests,
-// ): addresses is OptMainnetAddresses
-//
-// export function isMainnetByTestAddresses(
-//   addresses: NetworkAddressesForTests,
-// ): addresses is MainnetAddresses {
-//   return !!(addresses as MainnetAddresses).lendingPool
-// }
-//
-// export function isOptimismByTestAddresses(
-//   addresses: NetworkAddressesForTests,
-// ): addresses is OptMainnetAddresses {
-//   return (addresses as any)['lendingPool'] === undefined
-// }
-
 export function isMainnetByNetwork(network: Network): network is Network.MAINNET {
   return network === Network.MAINNET
 }
@@ -82,17 +63,3 @@ const testAddresses = {
 export type MainnetAddresses = typeof testAddresses[Network.MAINNET]
 export type OptMainnetAddresses = typeof testAddresses[Network.OPT_MAINNET]
 export type NetworkAddressesForTests = MainnetAddresses | OptMainnetAddresses
-
-// function omitV2AddressesOnMainnet(
-//   addresses: MainnetAddresses & { operationExecutor: string },
-// ): AAVEV3StrategyAddresses {
-//   const { lendingPool, priceOracle, protocolDataProvider, ...rest } = addresses
-//   return rest
-// }
-//
-// function omitV3AddressesOnMainnet(
-//   addresses: MainnetAddresses & { operationExecutor: string },
-// ): AAVEStrategyAddresses {
-//   const { aaveOracle, pool, poolDataProvider, ...rest } = addresses
-//   return rest
-// }

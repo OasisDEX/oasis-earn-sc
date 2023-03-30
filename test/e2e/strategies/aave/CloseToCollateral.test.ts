@@ -1,10 +1,10 @@
 import assert from 'node:assert'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '@helpers/deploy'
-import { Network } from '@helpers/network'
-import { getOneInchCall } from '@helpers/swap/OneInchCall'
+import { ChainIdByNetwork, Network } from '@helpers/network'
+import { getOneInchCall, optimismLiquidityProviders } from '@helpers/swap/OneInchCall'
 import { amountFromWei, balanceOf } from '@helpers/utils'
-import { ADDRESSES, CONTRACT_NAMES, strategies, ZERO } from '@oasisdex/oasis-actions'
+import { strategies, ZERO } from '@oasisdex/oasis-actions/src'
 import { BigNumber } from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -12,6 +12,8 @@ import { loadFixture } from 'ethereum-waffle'
 import { getSystemWithAavePositions, SystemWithAAVEPositions } from '../../../fixtures'
 import { getSystemWithAaveV3Positions } from '../../../fixtures/system/getSystemWithAaveV3Positions'
 import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
+import { isMainnetByNetwork, isOptimismByNetwork } from '../../../test-utils/addresses'
+import { resolveOneInchVersion } from '../../../test-utils/one-inch-version'
 import { expectToBeEqual } from '../../../utils'
 
 const networkFork = process.env.NETWORK_FORK as Network
@@ -21,16 +23,16 @@ const EXPECT_FEE_BEING_COLLECTED = 'Expect fee being collected'
 describe('Close AAVEv2 Position to collateral', () => {
   const slippage = new BigNumber(0.01) // 1%
   let fixture: SystemWithAAVEPositions
+  let feeRecipient: string
 
-  before(async () => {
+  before(async function () {
+    // No AAVE V2 on Optimism
+    if (isOptimismByNetwork(networkFork)) {
+      this.skip()
+    }
     fixture = await loadFixture(getSystemWithAavePositions({ use1inch: true }))
-    // Since we deploy the system without using 1inch the local system assigned swap contract is uniswap.
-    // In our tests we would like to use the actual swap with 1inch.
-    await fixture.registry.removeEntry(CONTRACT_NAMES.common.SWAP)
-    await fixture.registry.addEntry(
-      CONTRACT_NAMES.common.SWAP,
-      fixture.system.Swap.contract.address,
-    )
+    feeRecipient = fixture.dsSystem.config.common.FeeRecipient.address
+    if (!feeRecipient) throw new Error('Fee recipient is not set')
   })
 
   it('DPMProxy | Collateral - ETH ( 18 precision ) | Debt - USDC ( 6 precision )', async () => {
@@ -74,7 +76,7 @@ describe('Close AAVEv2 Position to collateral', () => {
     )
 
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      feeRecipient,
       addresses[debtToken.symbol],
       debtToken.precision,
     )
@@ -97,7 +99,7 @@ describe('Close AAVEv2 Position to collateral', () => {
     expectToBeEqual(debtBalance, ZERO, undefined, EXPECT_DEBT_BEING_PAID_BACK)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      feeRecipient,
       addresses[debtToken.symbol],
       debtToken.precision,
     )
@@ -147,7 +149,7 @@ describe('Close AAVEv2 Position to collateral', () => {
     )
     const userCollateralBalanceBeforeTx = await getBalanceOf(user, collateralToken.address)
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      feeRecipient,
       addresses[debtToken.symbol],
       debtToken.precision,
     )
@@ -183,7 +185,7 @@ describe('Close AAVEv2 Position to collateral', () => {
     expectToBeEqual(debtBalance, ZERO)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      feeRecipient,
       addresses[debtToken.symbol],
       debtToken.precision,
     )
@@ -191,7 +193,7 @@ describe('Close AAVEv2 Position to collateral', () => {
       .to.be.true
   })
 
-  it.only('DSProxy | Collateral - STETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
+  it('DSProxy | Collateral - STETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
     const position = fixture.dsProxyPosition
     assert(position, 'Unsupported position')
 
@@ -230,7 +232,7 @@ describe('Close AAVEv2 Position to collateral', () => {
 
     const userCollateralBalanceBeforeTx = await getBalanceOf(user, collateralToken.address)
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      feeRecipient,
       addresses['WETH'],
       debtToken.precision,
     )
@@ -250,7 +252,7 @@ describe('Close AAVEv2 Position to collateral', () => {
 
     const userCollateralBalanceAfterTx = await getBalanceOf(user, collateralToken.address)
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      feeRecipient,
       addresses['WETH'],
       debtToken.precision,
     )
@@ -285,22 +287,21 @@ describe('Close AAVEv2 Position to collateral', () => {
     })
   }
 })
-describe('Close AAVEv3 Position to collateral', () => {
+describe.only('Close AAVEv3 Position to collateral', () => {
   const slippage = new BigNumber(0.01) // 1%
   let fixture: SystemWithAAVEV3Positions
+  let feeRecipient: string
 
   before(async () => {
     fixture = await loadFixture(
       getSystemWithAaveV3Positions({
         use1inch: true,
         network: networkFork,
-        systemConfigPath: `${networkFork}.conf.ts`,
+        systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
       }),
     )
-    // Since we deploy the system without using 1inch, there fore the swap that's
-    // assigned is uniswap. In our tests we would like to use the actual swap with 1inch.
-    await fixture.registry.removeEntry(CONTRACT_NAMES.common.SWAP)
-    await fixture.registry.addEntry(CONTRACT_NAMES.common.SWAP, fixture.system.Swap.address)
+    feeRecipient = fixture.dsSystem.config.common.FeeRecipient.address
+    if (!feeRecipient) throw new Error('Fee recipient is not set')
   })
 
   it('DPMProxy | Collateral - ETH ( 18 precision ) | Debt - USDC ( 6 precision )', async () => {
@@ -336,7 +337,15 @@ describe('Close AAVEv3 Position to collateral', () => {
         addresses,
         provider,
         currentPosition,
-        getSwapData: getOneInchCall(fixture.system.Swap.contract.address),
+        getSwapData: getOneInchCall(
+          fixture.system.Swap.contract.address,
+          // We remove Balancer to avoid re-entrancy errors when also using Balancer FL
+          isOptimismByNetwork(networkFork)
+            ? optimismLiquidityProviders.filter(l => l !== 'OPTIMISM_BALANCER_V2')
+            : [],
+          ChainIdByNetwork[networkFork],
+          resolveOneInchVersion(networkFork),
+        ),
         proxy,
         user: fixture.config.address,
         isDPMProxy: true,
@@ -344,7 +353,7 @@ describe('Close AAVEv3 Position to collateral', () => {
     )
 
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      feeRecipient,
       addresses['USDC'],
       debtToken.precision,
     )
@@ -362,12 +371,17 @@ describe('Close AAVEv3 Position to collateral', () => {
       '',
     )
 
-    const USDC_VARIABLE_DEBT = '0x619beb58998eD2278e08620f97007e1116D5D25b'
+    const USDC_VARIABLE_DEBT_OPTIMISM = '0xFCCf3cAbbe80101232d343252614b6A3eE81C989'
+    const USDC_VARIABLE_DEBT_MAINNET = '0x619beb58998eD2278e08620f97007e1116D5D25b'
+    const USDC_VARIABLE_DEBT = isMainnetByNetwork(networkFork)
+      ? USDC_VARIABLE_DEBT_MAINNET
+      : USDC_VARIABLE_DEBT_OPTIMISM
+
     const debtBalance = await getBalanceOf(proxy, USDC_VARIABLE_DEBT, 6)
     expectToBeEqual(debtBalance, ZERO, undefined, EXPECT_DEBT_BEING_PAID_BACK)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      feeRecipient,
       addresses['USDC'],
       debtToken.precision,
     )
@@ -406,7 +420,15 @@ describe('Close AAVEv3 Position to collateral', () => {
         addresses,
         provider,
         currentPosition,
-        getSwapData: getOneInchCall(fixture.system.Swap.contract.address),
+        getSwapData: getOneInchCall(
+          fixture.system.Swap.contract.address,
+          // We remove Balancer to avoid re-entrancy errors when also using Balancer FL
+          isOptimismByNetwork(networkFork)
+            ? optimismLiquidityProviders.filter(l => l !== 'OPTIMISM_BALANCER_V2')
+            : [],
+          ChainIdByNetwork[networkFork],
+          resolveOneInchVersion(networkFork),
+        ),
         proxy,
         user: fixture.config.address,
         isDPMProxy: true,
@@ -415,7 +437,7 @@ describe('Close AAVEv3 Position to collateral', () => {
 
     const userCollateralBalanceBeforeTx = await getBalanceOf(user, collateralToken.address)
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      feeRecipient,
       addresses['WETH'],
       debtToken.precision,
     )
@@ -435,7 +457,7 @@ describe('Close AAVEv3 Position to collateral', () => {
     const userCollateralBalanceAfterTx = await getBalanceOf(user, collateralToken.address)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      feeRecipient,
       addresses['WETH'],
       debtToken.precision,
     )

@@ -450,20 +450,25 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
     const addLocalEntries = this.config.mpa.core['ServiceRegistry'].deploy
 
-    const deploySwapContract = addLocalEntries
-      ? await this.deployContract(
-          this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
-          [
-            this.signerAddress,
-            this.config.common.FeeRecipient.address,
-            0,
-            this.deployedSystem['ServiceRegistry'].contract.address,
-          ],
-        )
-      : await this.ethers.getContractAt(
-          this.config.mpa.core['Swap'].name,
-          this.config.mpa.core['Swap'].address,
-        )
+    let deploySwapContract: Contract | undefined
+    if (addLocalEntries) {
+      deploySwapContract = await this.deployContract(
+        this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
+        [
+          this.signerAddress,
+          this.config.common.FeeRecipient.address,
+          0,
+          this.deployedSystem['ServiceRegistry'].contract.address,
+        ],
+      )
+    } else {
+      const name = this.config.mpa.core?.['Swap']?.name
+      const address = this.config.mpa.core?.['Swap']?.address
+      if (!name || !address) throw new Error('Swap contract must be configured')
+      deploySwapContract = await this.ethers.getContractAt(name, address)
+    }
+
+    if (deploySwapContract === undefined) throw new Error('No swap contract deployed')
 
     !useInch &&
       addLocalEntries &&

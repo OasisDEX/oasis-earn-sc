@@ -1,13 +1,15 @@
 import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/oasis-actions'
 
-export const config = {
+import { EMPTY_ADDRESS } from '../../../test/constants'
+import { Config } from '../../common/config-item'
+
+export const config: Config = {
   mpa: {
     core: {
       ServiceRegistry: {
         name: 'ServiceRegistry',
         deploy: true,
         address: '',
-        serviceRegistryName: '',
         history: [],
         constructorArgs: [0],
       },
@@ -27,7 +29,7 @@ export const config = {
         history: [],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
       },
-      OperationRegistry: {
+      OperationsRegistry: {
         name: 'OperationsRegistry',
         deploy: true,
         address: '',
@@ -39,7 +41,6 @@ export const config = {
         name: 'AccountGuard',
         deploy: true,
         address: '',
-        serviceRegistryName: '',
         history: [],
         constructorArgs: [],
       },
@@ -47,7 +48,6 @@ export const config = {
         name: 'AccountFactory',
         deploy: true,
         address: '',
-        serviceRegistryName: '',
         history: [],
         constructorArgs: ['address:AccountGuard'],
       },
@@ -183,7 +183,6 @@ export const config = {
     WETH: {
       name: 'WETH',
       address: '0x4200000000000000000000000000000000000006',
-      deploy: true,
       serviceRegistryName: CONTRACT_NAMES.common.WETH,
     },
     ETH: {
@@ -193,14 +192,24 @@ export const config = {
     USDC: {
       name: 'USDC',
       address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
-      deploy: true,
       serviceRegistryName: CONTRACT_NAMES.common.USDC,
     },
     DAI: {
       name: 'DAI',
       address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
-      deploy: true,
       serviceRegistryName: CONTRACT_NAMES.common.DAI,
+    },
+    STETH: {
+      name: 'STETH',
+      address: EMPTY_ADDRESS,
+    },
+    FlashMintModule: {
+      name: 'FlashMintModule',
+      address: EMPTY_ADDRESS,
+    },
+    AuthorizedCaller: {
+      name: 'AuthorizedCaller',
+      address: EMPTY_ADDRESS,
     },
     WSTETH: {
       name: 'WSTETH',
@@ -213,13 +222,11 @@ export const config = {
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xE592427A0AEce92De3Edee1F18E0157C05861564',
-      deploy: true,
       serviceRegistryName: CONTRACT_NAMES.common.UNISWAP_ROUTER,
     },
     BalancerVault: {
       name: 'BalancerVault',
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      deploy: true,
       serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
     },
     FeeRecipient: {
@@ -233,7 +240,6 @@ export const config = {
     OneInchAggregator: {
       name: 'OneInchAggregator',
       address: '0x1111111254EEB25477B68fb85Ed929f73A960582',
-      deploy: true,
       serviceRegistryName: CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     },
     ChainlinkEthUsdPriceFeed: {
@@ -250,7 +256,6 @@ export const config = {
       Pool: {
         name: 'Pool',
         address: ADDRESSES.optimism.aave.v3.Pool,
-        deploy: true,
         serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
       },
       AaveProtocolDataProvider: {
