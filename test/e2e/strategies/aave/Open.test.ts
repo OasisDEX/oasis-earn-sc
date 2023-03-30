@@ -212,16 +212,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
 
     describe('Open position: With Uniswap', () => {
       before(async function () {
-        if (networkFork === Network.OPT_MAINNET) {
-          this.skip()
-        }
-        fixture = await loadFixture(
-          getSystemWithAaveV3Positions({
-            use1inch: false,
-            network: networkFork,
-            systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
-          }),
-        )
+        fixture = await getSystemWithAaveV3Positions({
+          use1inch: false,
+          network: networkFork,
+          systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
+          configExtentionPaths: [`./test-configs/uSwap.conf.ts`],
+        })()
       })
 
       describe('Using DSProxy', () => {
@@ -318,13 +314,12 @@ describe(`Strategy | AAVE | Open Position`, async function () {
     })
     describe('Open position: With 1inch', () => {
       before(async () => {
-        fixture = await loadFixture(
-          getSystemWithAaveV3Positions({
-            use1inch: true,
-            network: networkFork,
-            systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
-          }),
-        )
+        fixture = await getSystemWithAaveV3Positions({
+          use1inch: true,
+          network: networkFork,
+          systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
+          configExtentionPaths: [`./test-configs/swap.conf.ts`],
+        })()
       })
 
       describe('Using DSProxy', () => {
