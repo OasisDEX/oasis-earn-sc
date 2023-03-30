@@ -268,8 +268,8 @@ export const config: Config = {
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
       serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
     },
-    DsProxyRegistry: {
-      name: 'DsProxyRegistry',
+    DSProxyRegistry: {
+      name: 'DSProxyRegistry',
       address: ADDRESSES.main.proxyRegistry,
     },
     OneInchAggregator: {

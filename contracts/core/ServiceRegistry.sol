@@ -1,15 +1,29 @@
-//SPDX-License-Identifier: Unlicense
-pragma solidity >=0.8.1;
+// SPDX-License-Identifier: AGPL-3.0-or-later
 
-/**
- * @title Service Registry
- * @notice Stores addresses of deployed contracts
- */
+/// ServiceRegistry.sol
+
+// Copyright (C) 2021-2021 Oazo Apps Limited
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+pragma solidity ^0.8.0;
+
 contract ServiceRegistry {
   uint256 public constant MAX_DELAY = 30 days;
 
   mapping(bytes32 => uint256) public lastExecuted;
   mapping(bytes32 => address) private namedService;
+  mapping(bytes32 => bool) private invalidHashes;
   address public owner;
   uint256 public requiredDelay;
 
@@ -47,9 +61,6 @@ contract ServiceRegistry {
     owner = msg.sender;
   }
 
-  /**
-   * @param newOwner Transfers ownership of the registry to a new address
-   */
   function transferOwnership(address newOwner)
     external
     onlyOwner
@@ -59,9 +70,6 @@ contract ServiceRegistry {
     owner = newOwner;
   }
 
-  /**
-   * @param newDelay Updates the required delay before an change can be confirmed with a follow up t/x
-   */
   function changeRequiredDelay(uint256 newDelay)
     external
     onlyOwner
@@ -72,69 +80,37 @@ contract ServiceRegistry {
     requiredDelay = newDelay;
   }
 
-  /**
-   * @param name Hashes the supplied name
-   * @return Returns the hash of the name
-   */
   function getServiceNameHash(string memory name) external pure returns (bytes32) {
     return keccak256(abi.encodePacked(name));
   }
 
-  /**
-   * @param serviceNameHash The hashed name
-   * @param serviceAddress The address stored for a given name
-   */
   function addNamedService(bytes32 serviceNameHash, address serviceAddress)
     external
     onlyOwner
     validateInput(68)
     delayedExecution
   {
+    require(invalidHashes[serviceNameHash] == false, "registry/service-name-used-before");
     require(namedService[serviceNameHash] == address(0), "registry/service-override");
     namedService[serviceNameHash] = serviceAddress;
+    emit NamedServiceAdded(serviceNameHash, serviceAddress);
   }
 
-  /**
-   * @param serviceNameHash The hashed name
-   * @param serviceAddress The address to update for a given name
-   */
-  function updateNamedService(bytes32 serviceNameHash, address serviceAddress)
-    external
-    onlyOwner
-    validateInput(68)
-    delayedExecution
-  {
-    require(namedService[serviceNameHash] != address(0), "registry/service-does-not-exist");
-    namedService[serviceNameHash] = serviceAddress;
-  }
-
-  /**
-   * @param serviceNameHash The hashed service name to remove
-   */
   function removeNamedService(bytes32 serviceNameHash) external onlyOwner validateInput(36) {
     require(namedService[serviceNameHash] != address(0), "registry/service-does-not-exist");
     namedService[serviceNameHash] = address(0);
+    invalidHashes[serviceNameHash] = true;
     emit NamedServiceRemoved(serviceNameHash);
   }
 
-  /**
-   * @param serviceName Get a service address by its name
-   */
   function getRegisteredService(string memory serviceName) external view returns (address) {
     return namedService[keccak256(abi.encodePacked(serviceName))];
   }
 
-  /**
-   * @param serviceNameHash Get a service address by the hash of its name
-   */
   function getServiceAddress(bytes32 serviceNameHash) external view returns (address) {
     return namedService[serviceNameHash];
   }
 
-  /**
-   * @dev Voids any submitted changes that are yet to be confirmed by a follow-up transaction
-   * @param scheduledExecution Clear any scheduled changes
-   */
   function clearScheduledExecution(bytes32 scheduledExecution)
     external
     onlyOwner
@@ -149,4 +125,5 @@ contract ServiceRegistry {
   event ChangeApplied(bytes32 dataHash, uint256 appliedAt, bytes data);
   event ChangeCancelled(bytes32 dataHash);
   event NamedServiceRemoved(bytes32 nameHash);
+  event NamedServiceAdded(bytes32 nameHash, address service);
 }

@@ -41,7 +41,7 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
 const networkFork = process.env.NETWORK_FORK as Network | undefined
 
 if (!networkFork || !(networkFork == Network.MAINNET || networkFork == Network.OPT_MAINNET)) {
-  throw new Error(`NETWORK_FORK Missing. Specify 'Mainnet' or 'Optimism'`)
+  throw new Error(`NETWORK_FORK Missing. Specify ${Network.MAINNET} or ${Network.OPT_MAINNET}`)
 }
 
 let forkConfig: { nodeURL: string; blockNumber: string } | undefined = undefined

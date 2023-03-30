@@ -39,16 +39,23 @@ export const getSystemWithAaveV3Positions =
     use1inch,
     network,
     systemConfigPath,
+    configExtentionPaths,
   }: {
     use1inch: boolean
     network: Network
     systemConfigPath?: string
+    configExtentionPaths?: string[]
   }) =>
   async (): Promise<SystemWithAAVEV3Positions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
 
-    ds.loadConfig(systemConfigPath)
+    await ds.loadConfig(systemConfigPath)
+    if (configExtentionPaths) {
+      configExtentionPaths.forEach(async configPath => {
+        await ds.extendConfig(configPath)
+      })
+    }
     // We're using uniswap to get tokens here rather than impersonating a user
     const getTokens = buildGetTokenFunction(config, await import('hardhat'))
 
@@ -70,9 +77,15 @@ export const getSystemWithAaveV3Positions =
     }
 
     await ds.deployAll()
-    await ds.setupLocalSystem(use1inch)
+    await ds.addAllEntries()
 
     const { system, registry, config: systemConfig } = ds.getSystem()
+
+    const swapContract = system.uSwap ? system.uSwap.contract : system.Swap.contract
+    const swapAddress = swapContract.address
+
+    await swapContract.addFeeTier(0)
+    await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
 
     const oneInchVersionMap = {
       [Network.MAINNET]: 'v4.0' as const,
@@ -122,7 +135,7 @@ export const getSystemWithAaveV3Positions =
     const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForEarnWstEthEth] = await createDPMAccount(system.AccountFactory.contract)
 
-    const dsProxy = await getOrCreateProxy(system.DsProxyRegistry.contract, config.signer)
+    const dsProxy = await getOrCreateProxy(system.DSProxyRegistry.contract, config.signer)
 
     if (!dpmProxyForMultiplyEthUsdc || !dpmProxyForEarnWstEthEth) {
       throw new Error('Cant create a DPM proxy')
@@ -133,8 +146,6 @@ export const getSystemWithAaveV3Positions =
       ds,
       network,
     }
-
-    const swapAddress = system.Swap.contract.address
 
     const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
       proxy: dpmProxyForMultiplyEthUsdc,
