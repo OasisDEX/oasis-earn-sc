@@ -15,7 +15,6 @@ import BigNumber from 'bignumber.js'
 // @ts-ignore
 import configLoader from 'config-json'
 import { BigNumber as EthersBN, Contract, ContractFactory, providers, Signer, utils } from 'ethers'
-import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import _ from 'lodash'
 import NodeCache from 'node-cache'
@@ -38,30 +37,12 @@ import {
 
 configLoader.setBaseDir('./scripts/deployment20/')
 
-const restrictedNetworks = [
-  Network.MAINNET,
-  // Network.LOCAL,
-  Network.GOERLI,
-]
+const restrictedNetworks = [Network.MAINNET, Network.GOERLI]
 
 const rpcUrls: any = {
   [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
   [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
-}
-
-export const impersonateAccount = async (account: string) => {
-  await hre.network.provider.request({
-    method: 'hardhat_impersonateAccount',
-    params: [account],
-  })
-}
-
-export const stopImpersonatingAccount = async (account: string) => {
-  await hre.network.provider.request({
-    method: 'hardhat_stopImpersonatingAccount',
-    params: [account],
-  })
 }
 
 // HELPERS --------------------------
@@ -71,7 +52,8 @@ abstract class DeployedSystemHelpers {
   public forkedNetwork: Network | undefined = undefined
   public rpcUrl = ''
   public isRestrictedNetwork = false
-  public ethers: any = hre.ethers
+  public hre: HardhatRuntimeEnvironment | undefined
+  public ethers: any
   public provider: providers.JsonRpcProvider | undefined
   public signer: Signer | undefined
   public signerAddress: string | undefined
@@ -97,7 +79,8 @@ abstract class DeployedSystemHelpers {
     return rpcUrls[network]
   }
 
-  async init() {
+  async init(hre: HardhatRuntimeEnvironment) {
+    this.hre = hre
     this.ethers = hre.ethers
     this.provider = hre.ethers.provider
     this.signer = this.provider.getSigner()
@@ -185,7 +168,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async verifyContract(address: string, constructorArguments: any[]) {
     try {
-      await hre.run('verify:verify', {
+      await this.hre.run('verify:verify', {
         address,
         constructorArguments,
       })
@@ -398,11 +381,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.instantiateContracts(
       Object.values(this.config.mpa.actions).filter(
-        (item: any) => item.address !== '' && !item.deploy,
+        (item: SystemConfigItem) => item.address !== '' && !item.deploy,
       ),
     )
     await this.deployContracts(
-      Object.values(this.config.mpa.actions).filter((item: any) => item.deploy),
+      Object.values(this.config.mpa.actions).filter((item: SystemConfigItem) => item.deploy),
     )
   }
 
