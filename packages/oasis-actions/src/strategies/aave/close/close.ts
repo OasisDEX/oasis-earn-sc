@@ -176,7 +176,6 @@ async function getSwapDataToCloseToCollateral(
     slippage,
   )
 
-  console.log('getting swap data')
   const swapData = await dependencies.getSwapData(
     collateralTokenAddress,
     debtTokenAddress,
@@ -194,7 +193,6 @@ async function getSwapDataToCloseToCollateral(
       ? calculateFee(amountNeededToEnsureRemainingDebtIsRepaid, fee, new BigNumber(FEE_BASE))
       : ZERO
 
-  console.log('returned')
   return {
     swapData,
     collectFeeFrom,
@@ -230,11 +228,6 @@ async function getSwapDataToCloseToDebt(
     .minus(preSwapFee)
     .integerValue(BigNumber.ROUND_DOWN)
 
-  console.log('GETTING SWAP DATA')
-  console.log('collateralTokenAddress', collateralTokenAddress)
-  console.log('debtTokenAddress', debtTokenAddress)
-  console.log('swapAmountAfterFees', swapAmountAfterFees.toString())
-  console.log('getSwapData', dependencies.getSwapData)
   const swapData = await dependencies.getSwapData(
     collateralTokenAddress,
     debtTokenAddress,

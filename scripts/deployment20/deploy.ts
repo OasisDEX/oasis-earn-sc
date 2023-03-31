@@ -446,54 +446,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await this.addOperationEntries()
   }
 
-  async setupLocalSystem(useInch?: boolean) {
-    if (!this.signer) throw new Error('No signer set')
-    if (!this.signerAddress) throw new Error('No signer address set')
-    if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
-    if (!this.config) throw new Error('No config set')
-    if (
-      !this.deployedSystem['ServiceRegistry'] ||
-      !this.deployedSystem['OperationExecutor'] ||
-      !this.deployedSystem['AccountGuard'] ||
-      !this.deployedSystem['OperationsRegistry']
-    ) {
-      throw new Error('Missing system contracts')
-    }
-    const addLocalEntries = this.config.mpa.core['ServiceRegistry'].deploy
-
-    let deploySwapContract: Contract | undefined
-    if (addLocalEntries) {
-      deploySwapContract = await this.deployContract(
-        this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
-        [
-          this.signerAddress,
-          this.config.common.FeeRecipient.address,
-          0,
-          this.deployedSystem['ServiceRegistry'].contract.address,
-        ],
-      )
-    } else {
-      const name = this.config.mpa.core?.['Swap']?.name
-      const address = this.config.mpa.core?.['Swap']?.address
-      if (!name || !address) throw new Error('Swap contract must be configured')
-      deploySwapContract = await this.ethers.getContractAt(name, address)
-    }
-
-    if (deploySwapContract === undefined) throw new Error('No swap contract deployed')
-    //
-    // !useInch &&
-    //   addLocalEntries &&
-    //   (await deploySwapContract.setPool(
-    //     this.config.common.STETH.address,
-    //     this.config.common.WETH.address,
-    //     10000,
-    //   ))
-    //
-    //
-
-    await this.addAllEntries()
-  }
-
   // TODO unify resetNode and resetNodeToLatestBlock into one function
   async resetNode(blockNumber: number) {
     if (!this.provider) throw new Error('No provider set')
