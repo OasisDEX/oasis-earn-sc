@@ -8,7 +8,7 @@ async function main() {
   console.log(`Deployer address: ${await signer.getAddress()}`)
   console.log(`Network: ${network}`)
 
-  const ds = new DeploymentSystem(hre) // TODO add forked param and in init get chainId and forked Network + set as attribute
+  const ds = new DeploymentSystem(hre)
   await ds.init()
   await ds.loadConfig()
   await ds.deployAll()
