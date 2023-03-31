@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 
 import { IRiskRatio, RiskRatio } from '../../domain'
-import { ZERO } from '../../helpers/constants'
+import { ONE } from '../../helpers/constants'
 import { normalizeValue } from '../../helpers/normalizeValue'
 import { Address, AjnaError, AjnaWarning } from '../common'
 import { AjnaPool } from './AjnaPool'
@@ -45,7 +45,16 @@ export class AjnaPosition implements IAjnaPosition {
   ) {}
 
   get liquidationPrice() {
-    return ZERO
+    const liquidationPrice = this.pool.mostOptimisticMatchingPrice
+      .times(
+        this.debtAmount
+          .div(this.pool.pendingInflator)
+          .times(this.pool.pendingInflator)
+          .div(this.pool.lowestUtilizedPrice.times(this.collateralAmount)),
+      )
+      .times(ONE.plus(this.pool.interestRate))
+
+    return normalizeValue(liquidationPrice)
   }
 
   get marketPrice() {
