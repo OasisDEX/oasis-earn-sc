@@ -54,8 +54,6 @@ export const getSystemWithAaveV3Positions =
         await ds.extendConfig(configPath)
       })
     }
-    // We're using uniswap to get tokens here rather than impersonating a user
-    const getTokens = buildGetTokenFunction(config, await import('hardhat'))
 
     const useFallbackSwap = !use1inch
 
@@ -127,6 +125,14 @@ export const getSystemWithAaveV3Positions =
             )
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
+
+    // We're using uniswap to get tokens here rather than impersonating a user
+    const getTokens = buildGetTokenFunction(
+      config,
+      await import('hardhat'),
+      network,
+      dependencies.addresses.WETH,
+    )
 
     const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForEarnWstEthEth] = await createDPMAccount(system.AccountFactory.contract)

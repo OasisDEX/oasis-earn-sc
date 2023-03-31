@@ -1,6 +1,8 @@
 import { Network } from '@helpers/network'
 import { ADDRESSES } from '@oasisdex/oasis-actions/src/helpers/addresses'
 
+import { EMPTY_ADDRESS } from '../constants'
+
 // Type guards
 export function isMainnetByNetwork(network: Network): network is Network.MAINNET {
   return network === Network.MAINNET
@@ -49,6 +51,7 @@ const testAddresses = {
     DAI: ADDRESSES.optimism.DAI,
     ETH: ADDRESSES.optimism.ETH,
     WETH: ADDRESSES.optimism.WETH,
+    STETH: EMPTY_ADDRESS,
     WSTETH: ADDRESSES.optimism.WSTETH,
     WBTC: ADDRESSES.optimism.WBTC,
     USDC: ADDRESSES.optimism.USDC,

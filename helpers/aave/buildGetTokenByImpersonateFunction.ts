@@ -28,6 +28,7 @@ const tokensWhales: Record<AAVETokensToGet, { whale: string; tokenAddress: strin
   },
 }
 
+// TODO: Needs to work with different networks eventually
 export function buildGetTokenByImpersonateFunction(
   config: RuntimeConfig,
   hre: HardhatRuntimeEnvironment,

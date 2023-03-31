@@ -1,3 +1,4 @@
+import { Network } from '@helpers/network'
 import { getOrCreateProxy } from '@helpers/proxy'
 import { RuntimeConfig } from '@helpers/types/common'
 import { AaveVersion, protocols, strategies } from '@oasisdex/oasis-actions/src'
@@ -44,11 +45,6 @@ export const getSystemWithAavePositions =
       })
     }
 
-    // If you update test block numbers you may run into issues where whale addresses
-    // We use impersonation on test block number but with 1inch we use uniswap
-    const getTokens = use1inch
-      ? buildGetTokenFunction(config, await import('hardhat'))
-      : buildGetTokenByImpersonateFunction(config, await import('hardhat'))
     const useFallbackSwap = !use1inch
     if (blockNumberForAAVEV2System && useFallbackSwap) {
       await ds.resetNode(blockNumberForAAVEV2System)
@@ -110,6 +106,17 @@ export const getSystemWithAavePositions =
         ? swapAddress => getOneInchCall(swapAddress, [])
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
+
+    // If you update test block numbers you may run into issues where whale addresses
+    // We use impersonation on test block number but with 1inch we use uniswap
+    const getTokens = use1inch
+      ? buildGetTokenFunction(
+          config,
+          await import('hardhat'),
+          Network.MAINNET,
+          dependencies.addresses.WETH,
+        )
+      : buildGetTokenByImpersonateFunction(config, await import('hardhat'))
 
     const [dpmProxyForEarnStEthEth] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
