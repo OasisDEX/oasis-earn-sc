@@ -101,12 +101,30 @@ const config: HardhatUserConfig = {
     compilers: [
       {
         version: '0.4.24',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
       },
       {
         version: '0.5.17',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
       },
       {
         version: '0.8.15',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
       },
     ],
     settings: {
@@ -179,7 +197,10 @@ const config: HardhatUserConfig = {
     timeout: 600000,
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY || '',
+      optimisticEthereum: process.env.OPTIMISM_ETHERSCAN_API_KEY || '',
+    },
   },
   typechain: {
     outDir: 'typechain',
