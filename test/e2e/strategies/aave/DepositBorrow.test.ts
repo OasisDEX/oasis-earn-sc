@@ -3,6 +3,7 @@ import AAVEDataProviderABI from '@abi/external/aave/v2/protocolDataProvider.json
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { executeThroughProxy } from '@helpers/deploy'
 import { GasEstimateHelper, gasEstimateHelper } from '@helpers/gasEstimation'
+import { Network } from '@helpers/network'
 import { restoreSnapshot } from '@helpers/restoreSnapshot'
 import { oneInchCallMock } from '@helpers/swap/OneInchCallMock'
 import { RuntimeConfig } from '@helpers/types/common'
@@ -16,11 +17,12 @@ import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers, Signer } from 'ethers'
 
-import { mainnetAddresses } from '../../../addresses/mainnet'
 import { testBlockNumber } from '../../../config'
 import { tokens } from '../../../constants'
 import { initialiseConfig } from '../../../fixtures'
+import { addressesByNetwork } from '../../../test-utils/addresses'
 
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 // TODO: IMPLEMENT THIS TEST
 describe(`Strategy | AAVE | Deposit/Borrow`, async function () {
   let aaveDataProvider: Contract

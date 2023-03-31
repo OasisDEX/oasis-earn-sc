@@ -23,7 +23,6 @@ import {
 import { amountFromWei } from '../../../../packages/oasis-actions/src/helpers'
 import { acceptedFeeToken } from '../../../../packages/oasis-actions/src/helpers/swap/acceptedFeeToken'
 import { PositionType } from '../../../../packages/oasis-actions/src/types'
-import { mainnetAddresses } from '../../../addresses/mainnet'
 import { DeployedSystemInfo } from '../../../deploySystem'
 import {
   getSupportedStrategies,
@@ -37,9 +36,10 @@ import {
 } from '../../../fixtures/system/getSystemWithAaveV3Positions'
 import { TokenDetails } from '../../../fixtures/types/positionDetails'
 import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
+import { addressesByNetwork } from '../../../test-utils/addresses'
 import { expectToBe } from '../../../utils'
 
-const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
@@ -47,7 +47,7 @@ describe('Strategy | AAVE | Adjust Position', async function () {
   describe('Using AAVE V2', async function () {
     let fixture: SystemWithAAVEPositions
 
-    const supportedStrategies = getSupportedStrategies(ciOnlyTests)
+    const supportedStrategies = getSupportedStrategies()
 
     async function adjustPositionV2({
       isDPMProxy,

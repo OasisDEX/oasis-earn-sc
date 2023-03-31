@@ -9,7 +9,7 @@ import {
   WithCollateral,
   WithDebt,
   WithFlashloan,
-  WithPosition,
+  WithPositionAndLockedCollateral,
   WithProxy,
   WithSwap,
 } from '../../../types'
@@ -19,7 +19,7 @@ type CloseArgs = WithCollateral &
   WithSwap &
   WithFlashloan &
   WithProxy &
-  WithPosition &
+  WithPositionAndLockedCollateral &
   WithAaveV3StrategyAddresses
 
 export const operationDefinition = {
@@ -110,7 +110,7 @@ export async function close({
   const swapCollateralTokensForDebtTokens = actions.common.swap({
     fromAsset: collateral.address,
     toAsset: debt.address,
-    amount: position.collateral || ZERO,
+    amount: position.collateral.amount || ZERO,
     receiveAtLeast: swap.receiveAtLeast,
     fee: swap.fee,
     withData: swap.data,

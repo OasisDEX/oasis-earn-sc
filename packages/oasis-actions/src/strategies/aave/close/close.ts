@@ -30,6 +30,7 @@ import {
   IOperation,
   IPositionTransition,
   IPositionTransitionDependencies,
+  PositionType,
   SwapData,
   WithLockedCollateral,
 } from '../../../types'
@@ -37,8 +38,9 @@ import { AAVETokens } from '../../../types/aave'
 import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
 import { AaveVersion } from '../getCurrentPosition'
 
-export type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> &
-  WithLockedCollateral & {
+export type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> & {
+  positionType: PositionType
+} & WithLockedCollateral & {
     shouldCloseToCollateral?: boolean
   }
 
@@ -355,7 +357,8 @@ async function buildOperation(
         provider: flashloanProvider,
       },
       position: {
-        collateral: lockedCollateralAmountInWei,
+        type: args.positionType,
+        collateral: { amount: lockedCollateralAmountInWei },
       },
       proxy: {
         address: dependencies.proxy,

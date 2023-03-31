@@ -1,4 +1,5 @@
 import { executeThroughDPMProxy, executeThroughProxy } from '@helpers/deploy'
+import { Network } from '@helpers/network'
 import { amountToWei, approve, balanceOf } from '@helpers/utils'
 import { strategies } from '@oasisdex/oasis-actions/src'
 import BigNumber from 'bignumber.js'
@@ -6,14 +7,15 @@ import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 
 import { zero } from '../../../../scripts/common'
-import { mainnetAddresses } from '../../../addresses/mainnet'
 import {
   getSupportedStrategies,
   getSystemWithAavePositions,
   SystemWithAAVEPositions,
 } from '../../../fixtures'
+import { addressesByNetwork } from '../../../test-utils/addresses'
 import { expectToBe, expectToBeEqual } from '../../../utils'
 
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 describe('Strategy | AAVE | Payback/Withdraw', async () => {
   let fixture: SystemWithAAVEPositions
   const supportedStrategies = getSupportedStrategies()

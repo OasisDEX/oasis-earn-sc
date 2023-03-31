@@ -29,7 +29,12 @@ import {
   DeployedSystemContractNames,
   SystemConfigItem,
 } from '../common/config-item'
-import { DeployedSystem20, DeployedSystem20Return, SystemTemplate20 } from '../common/deploy-system'
+import {
+  ContractProps,
+  DeployedSystem20,
+  DeployedSystem20Return,
+  SystemTemplate20,
+} from '../common/deploy-system'
 
 configLoader.setBaseDir('./scripts/deployment20/')
 
@@ -290,10 +295,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
               'address:',
               '',
             ) as DeployedSystemContractNames
-            if (!this.deployedSystem[contractName]) {
+
+            if (!this.deployedSystem[contractName]?.contract.address) {
               throw new Error(`Contract ${contractName} not deployed`)
             }
-            return this.deployedSystem[contractName]!.contract.address
+
+            return (this.deployedSystem[contractName] as ContractProps).contract.address
           }
           return param
         })

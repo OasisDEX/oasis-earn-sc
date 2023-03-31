@@ -61,6 +61,7 @@ describe('Close AAVEv2 Position to collateral', () => {
         slippage,
         collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
+        positionType: position?.__positionType,
       },
       {
         addresses,
@@ -134,6 +135,7 @@ describe('Close AAVEv2 Position to collateral', () => {
         slippage,
         collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
+        positionType: position?.__positionType,
       },
       {
         addresses,
@@ -216,6 +218,7 @@ describe('Close AAVEv2 Position to collateral', () => {
         slippage,
         collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
+        positionType: position?.__positionType,
       },
       {
         addresses,
@@ -331,6 +334,7 @@ describe('Close AAVEv3 Position to collateral', () => {
         slippage,
         collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
+        positionType: position?.__positionType,
       },
       {
         addresses,
@@ -414,6 +418,7 @@ describe('Close AAVEv3 Position to collateral', () => {
         slippage,
         collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
+        positionType: position?.__positionType,
       },
       {
         addresses,

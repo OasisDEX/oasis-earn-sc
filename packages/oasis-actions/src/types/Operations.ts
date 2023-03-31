@@ -89,8 +89,17 @@ export type WithProxy = {
 
 export type WithPosition = {
   position: {
-    collateral?: BigNumber
-    type?: PositionType
+    type: PositionType
+  }
+}
+
+export type WithPositionAndLockedCollateral = WithPosition & {
+  position: WithPosition['position'] & WithLockedCollateral
+}
+
+type WithLockedCollateral = {
+  collateral: {
+    amount: BigNumber
   }
 }
 

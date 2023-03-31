@@ -9,6 +9,7 @@ import { Network } from '@helpers/network'
 import { oneInchCallMock } from '@helpers/swap/OneInchCallMock'
 import { RuntimeConfig, Unbox } from '@helpers/types/common'
 import { balanceOf } from '@helpers/utils'
+import { PositionType } from '@oasisdex/oasis-actions/lib/packages/oasis-actions/src/types'
 import {
   AAVETokens,
   AAVEV3StrategyAddresses,
@@ -65,6 +66,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       slippage,
       config,
       system,
+      positionType,
     }: {
       isDPMProxy: boolean
       position: IPosition
@@ -76,6 +78,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       slippage: BigNumber
       config: RuntimeConfig
       system: DeployedSystem20Return
+      positionType: PositionType
     }) {
       const addresses = {
         ...addressesByNetwork(Network.MAINNET),
@@ -128,6 +131,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             symbol: collateralToken.symbol,
             precision: collateralToken.precision,
           },
+          positionType,
         },
         {
           isDPMProxy,
@@ -253,6 +257,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             userAddress: config.address,
             config,
             system: system,
+            positionType: dsProxyStEthEthEarnPositionDetails.__positionType,
           })
         })
 
@@ -349,6 +354,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
                 userAddress: config.address,
                 config,
                 system,
+                positionType: positionDetails.__positionType,
               })
             })
 
@@ -418,6 +424,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       slippage: BigNumber
       config: RuntimeConfig
       dsSystem: DeployedSystem20
+      positionType: PositionType
     }
 
     async function closePositionV3OnMainnet(
@@ -489,6 +496,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
       addresses,
       collateralTokenAddress,
       debtTokenAddress,
+      positionType,
     }: ClosePositionV3Args & {
       addresses: AAVEV3StrategyAddresses
       collateralTokenAddress: string
@@ -530,6 +538,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             symbol: collateralToken.symbol,
             precision: collateralToken.precision,
           },
+          positionType,
         },
         {
           isDPMProxy,
@@ -665,6 +674,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             config,
             dsSystem,
             network: Network.MAINNET,
+            positionType: dsProxyStEthEthEarnPositionDetails.__positionType,
           })
         })
 
@@ -763,6 +773,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
                 config,
                 dsSystem,
                 network: Network.MAINNET,
+                positionType: positionDetails.__positionType,
               })
             })
 
@@ -871,6 +882,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
               config,
               dsSystem,
               network: Network.MAINNET,
+              positionType: dsProxyStEthEthEarnPositionDetails.__positionType,
             })
           }
           if (isOptimism) {
@@ -888,6 +900,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
               config,
               dsSystem,
               network: Network.OPT_MAINNET,
+              positionType: dsProxyStEthEthEarnPositionDetails.__positionType,
             })
           }
 
@@ -971,9 +984,6 @@ describe(`Strategy | AAVE | Close Position`, async () => {
               collateralToken = _collateralToken
               position = await positionDetails.getPosition()
               config = _config
-              console.log('POSITION BEFORE CLOSE')
-              console.log('DEBT:', position.debt.toString())
-              console.log('COLL:', position.collateral.toString())
 
               const isMainnet = isMainnetByNetwork(networkFork)
               const isOptimism = isOptimismByNetwork(networkFork)
@@ -992,6 +1002,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
                   config,
                   dsSystem,
                   network: Network.MAINNET,
+                  positionType: positionDetails.__positionType,
                 })
               }
               if (isOptimism) {
@@ -1009,6 +1020,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
                   config,
                   dsSystem,
                   network: Network.OPT_MAINNET,
+                  positionType: positionDetails.__positionType,
                 })
               }
 

@@ -1,5 +1,6 @@
 import { Network } from '@helpers/network'
 import { ServiceRegistry as ServiceRegistryClass } from '@helpers/serviceRegistry'
+import { PartialRecord } from '@helpers/types/common'
 import { ADDRESSES } from '@oasisdex/oasis-actions/src'
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 import { Contract } from 'ethers'
@@ -36,26 +37,15 @@ import { Config, ConfigItem, CoreContractNames, DeployedSystemContractNames } fr
 import { HardhatUtils } from './hardhat.utils'
 import { removeVersion } from './utils'
 
-export type SystemTemplate20 = Partial<
-  Record<
-    DeployedSystemContractNames,
-    {
-      contract: Contract
-      config: ConfigItem | Record<string, unknown>
-      hash: string
-    }
-  >
->
+export type ContractProps = {
+  contract: Contract
+  config: ConfigItem | Record<string, unknown>
+  hash: string
+}
 
-export type DeployedSystem20Return = SystemTemplate20 &
-  Record<
-    CoreContractNames,
-    {
-      contract: Contract
-      config: ConfigItem | Record<string, unknown>
-      hash: string
-    }
-  >
+export type SystemTemplate20 = PartialRecord<DeployedSystemContractNames, ContractProps>
+
+export type DeployedSystem20Return = SystemTemplate20 & Record<CoreContractNames, ContractProps>
 
 export type DeployedSystem20 = {
   system: DeployedSystem20Return

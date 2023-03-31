@@ -1,6 +1,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { executeThroughProxy } from '@helpers/deploy'
 import { resetNodeToLatestBlock } from '@helpers/init'
+import { Network } from '@helpers/network'
 import { restoreSnapshot } from '@helpers/restoreSnapshot'
 import { getOneInchCall } from '@helpers/swap/OneInchCall'
 import { oneInchCallMock } from '@helpers/swap/OneInchCallMock'
@@ -19,12 +20,13 @@ import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
 
 import { zero } from '../../../../scripts/common'
-import { mainnetAddresses } from '../../../addresses/mainnet'
 import { testBlockNumber } from '../../../config'
 import { deploySystem } from '../../../deploySystem'
 import { initialiseConfig } from '../../../fixtures'
+import { addressesByNetwork } from '../../../test-utils/addresses'
 import { expectToBe, expectToBeEqual } from '../../../utils'
 
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 describe(`Strategy | AAVE | Reopen Position`, async () => {
   const depositAmountInWei = amountToWei(new BigNumber(1))
   const multiple = new RiskRatio(new BigNumber(2), RiskRatio.TYPE.MULITPLE)
