@@ -129,9 +129,6 @@ async function getAaveV3ProtocolData({
 
   const hasProxy = !!proxy
 
-  console.log('Getting Aave V3 protocol data')
-  console.log('priceOracle', priceOracle.address)
-  console.log('addresses.DAI', addresses.DAI)
   const promises = [
     priceOracle
       .getAssetPrice(addresses.DAI)

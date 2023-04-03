@@ -3,7 +3,11 @@ import { AaveVersion, CONTRACT_NAMES, protocols, strategies } from '@oasisdex/oa
 import { task } from 'hardhat/config'
 
 import init from '../../helpers/init'
-import { getOneInchCall, optimismLiquidityProviders } from '../../helpers/swap/OneInchCall'
+import {
+  getOneInchCall,
+  optimismLiquidityProviders,
+  resolveOneInchVersion,
+} from '../../helpers/swap/OneInchCall'
 import { createDPMAccount, createEthUsdcMultiplyAAVEPosition } from '../../test/fixtures/factories'
 import { createWstEthEthEarnAAVEPosition } from '../../test/fixtures/factories/createWstEthEthEarnAAVEPosition'
 import { StrategyDependenciesAaveV3 } from '../../test/fixtures/types/strategiesDependencies'
@@ -13,7 +17,6 @@ import {
   isOptimismByNetwork,
   NetworkAddressesForTests,
 } from '../../test/test-utils/addresses'
-import { resolveOneInchVersion } from '../../test/test-utils/one-inch-version'
 
 const networkFork = process.env.NETWORK_FORK as Network
 task('createMultiplyPositions', 'Create main token pair multiply positions (AAVE only for now)')

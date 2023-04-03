@@ -96,16 +96,14 @@ export async function createEthUsdcMultiplyAAVEPosition({
       proxy: proxy,
     },
   )
-  console.log('HERE 2>>>>>')
+
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
   if (!feeRecipient) throw new Error('feeRecipient is not set')
-  console.log('HERE>>>>>')
   const feeWalletBalanceBefore = await balanceOf(dependencies.addresses.USDC, feeRecipient, {
     config,
   })
 
-  console.log('executing...')
   const [status] = await proxyFunction(
     proxy,
     {
