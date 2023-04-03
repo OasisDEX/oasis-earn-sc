@@ -9,7 +9,6 @@ import BigNumber from 'bignumber.js'
 import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/deploy'
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../../helpers/utils'
-import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
 import { addressesByNetwork } from '../../test-utils/addresses'
 import { AavePositionStrategy, PositionDetails } from '../types'
 import { StrategyDependenciesAaveV2 } from '../types/strategiesDependencies'
@@ -61,13 +60,15 @@ export async function createStEthEthEarnAAVEPosition({
   swapAddress,
   dependencies,
   config,
+  feeRecipient,
 }: {
   proxy: string
   isDPM: boolean
   use1inch: boolean
   swapAddress?: string
   dependencies: StrategyDependenciesAaveV2
-  config: RuntimeConfig & { ds: DeploymentSystem }
+  config: RuntimeConfig
+  feeRecipient: string
 }): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'STETH/ETH Earn'
 
@@ -95,8 +96,6 @@ export async function createStEthEthEarnAAVEPosition({
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeRecipient = config.ds.getSystem().config.common.FeeRecipient.address
-  if (!feeRecipient) throw new Error('FeeRecipient is not defined')
   const feeWalletBalanceBefore = await balanceOf(mainnetAddresses.WETH, feeRecipient, {
     config,
   })

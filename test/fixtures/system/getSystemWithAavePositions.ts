@@ -36,7 +36,7 @@ export const getSystemWithAavePositions =
   ({ use1inch, configExtentionPaths }: { use1inch: boolean; configExtentionPaths?: string[] }) =>
   async (): Promise<SystemWithAAVEPositions> => {
     const ds = new DeploymentSystem(hre)
-    const config: RuntimeConfig = await ds.init()
+    const config: RuntimeConfig = await ds.init(hre)
     const systemConfigPath = './test-configs/mainnet.conf.ts'
     await ds.loadConfig(systemConfigPath)
     if (configExtentionPaths) {
@@ -75,6 +75,9 @@ export const getSystemWithAavePositions =
     await swapContract.addFeeTier(0)
     await swapContract.addFeeTier(7)
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
+
+    const feeRecipient = ds.config?.common.FeeRecipient.address
+    if (!feeRecipient) throw new Error('feeRecipient is not set')
 
     if (!systemConfig.aave.v2) throw new Error('aave v2 is not configured')
     const dependencies: StrategyDependenciesAaveV2 = {
@@ -146,6 +149,7 @@ export const getSystemWithAavePositions =
       swapAddress,
       dependencies,
       config: configWithDeployedSystem,
+      feeRecipient,
     })
 
     const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
@@ -155,6 +159,7 @@ export const getSystemWithAavePositions =
       swapAddress,
       dependencies,
       config: configWithDeployedSystem,
+      feeRecipient,
     })
 
     const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
@@ -184,6 +189,7 @@ export const getSystemWithAavePositions =
       swapAddress,
       dependencies,
       config: configWithDeployedSystem,
+      feeRecipient,
     })
 
     const dpmPositions = {

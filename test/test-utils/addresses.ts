@@ -30,7 +30,7 @@ export function addressesByNetwork<T extends Network>(network: T): NetworkAddres
 // These addresses are used to map the addresses in the library
 // Into a form expected by our tests
 // TODO: Use addresses from our deploy system should be the source of truth for Addresses
-const testAddresses = {
+export const testAddresses = {
   [Network.MAINNET]: {
     DAI: ADDRESSES.main.DAI,
     ETH: ADDRESSES.main.ETH,

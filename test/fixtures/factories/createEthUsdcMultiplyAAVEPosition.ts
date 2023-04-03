@@ -12,7 +12,6 @@ import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
 } from '../../../packages/oasis-actions/src/protocols/aave/config'
-import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
@@ -61,13 +60,15 @@ export async function createEthUsdcMultiplyAAVEPosition({
   swapAddress,
   dependencies,
   config,
+  feeRecipient,
 }: {
   proxy: string
   isDPM: boolean
   use1inch: boolean
   swapAddress?: string
   dependencies: StrategiesDependencies
-  config: RuntimeConfig & { ds: DeploymentSystem }
+  config: RuntimeConfig
+  feeRecipient: string
 }): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'ETH/USDC Multiply'
 
@@ -95,15 +96,16 @@ export async function createEthUsdcMultiplyAAVEPosition({
       proxy: proxy,
     },
   )
-
+  console.log('HERE 2>>>>>')
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeRecipient = config.ds.config?.common.FeeRecipient.address
   if (!feeRecipient) throw new Error('feeRecipient is not set')
+  console.log('HERE>>>>>')
   const feeWalletBalanceBefore = await balanceOf(dependencies.addresses.USDC, feeRecipient, {
     config,
   })
 
+  console.log('executing...')
   const [status] = await proxyFunction(
     proxy,
     {

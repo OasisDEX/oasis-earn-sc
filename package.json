@@ -25,14 +25,10 @@
     "format:sol": "prettier --write 'contracts/**/*.sol'",
     "compile": "npx hardhat compile",
     "start": "npx hardhat node --network hardhat",
-    "deploy:fallback": "yarn compile && npx hardhat deploy --usefallbackswap --network local --debug",
-    "deploy:1inch": "yarn compile && npx hardhat deploy --network local --debug",
-    "steth": "npx hardhat createPosition --network local",
-    "steth:fallback": "npx hardhat createPosition --usefallbackswap --network local",
-    "close": "npx hardhat closePosition --network local",
-    "close:fallback": "npx hardhat closePosition --usefallbackswap --network local",
-    "update-block": "node update-block-number.ts",
-    "dev": "cd ./packages/oasis-actions/ && tsc -b && cd ../../ && yarn update-block && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ./.env | cut -d '=' -f2)"
+    "deploy:local": "yarn compile && npx hardhat deploy --network local",
+    "dev": "yarn dev:mainnet",
+    "dev:mainnet": "cd ./packages/oasis-actions/ && tsc -b && cd ../../ && node update-block-number.ts && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ./.env | cut -d '=' -f2)",
+    "dev:optimism": "cd ./packages/oasis-actions/ && tsc -b && cd ../../ && node update-block-number.ts && npx hardhat node --max-memory 8192 --fork $(grep OPTIMISM_URL ./.env | cut -d '=' -f2)"
   },
   "devDependencies": {
     "@defi-wonderland/smock": "^2.3.4",

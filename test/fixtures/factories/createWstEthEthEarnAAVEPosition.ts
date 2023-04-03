@@ -10,7 +10,6 @@ import { executeThroughDPMProxy, executeThroughProxy } from '../../../helpers/de
 import { RuntimeConfig } from '../../../helpers/types/common'
 import { amountToWei, balanceOf } from '../../../helpers/utils'
 import { aaveV3UniqueContractName } from '../../../packages/oasis-actions/src/protocols/aave/config'
-import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
 import { PositionDetails } from '../types'
 import { AaveV3PositionStrategy } from '../types/positionDetails'
 import { StrategyDependenciesAaveV3 } from '../types/strategiesDependencies'
@@ -62,13 +61,15 @@ export async function createWstEthEthEarnAAVEPosition({
   swapAddress,
   dependencies,
   config,
+  feeRecipient,
 }: {
   proxy: string
   isDPM: boolean
   use1inch: boolean
   swapAddress?: string
   dependencies: StrategyDependenciesAaveV3
-  config: RuntimeConfig & { ds: DeploymentSystem; network: Network }
+  config: RuntimeConfig & { network: Network }
+  feeRecipient: string
 }): Promise<PositionDetails> {
   const strategy: AaveV3PositionStrategy = 'WSTETH/ETH Earn'
   const isOptimism = config.network === Network.OPTIMISM
@@ -102,8 +103,6 @@ export async function createWstEthEthEarnAAVEPosition({
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeRecipient = config.ds.config?.common.FeeRecipient.address
-  if (!feeRecipient) throw new Error('feeRecipient is not set')
   const feeWalletBalanceBefore = await balanceOf(dependencies.addresses.ETH, feeRecipient, {
     config,
   })

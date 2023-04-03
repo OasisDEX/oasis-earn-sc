@@ -51,7 +51,7 @@ export const getSystemWithAaveV3Positions =
   async (): Promise<SystemWithAAVEV3Positions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init(hre)
-
+    await ds.loadConfig(systemConfigPath)
     if (configExtentionPaths) {
       configExtentionPaths.forEach(async configPath => {
         await ds.extendConfig(configPath)
@@ -88,6 +88,9 @@ export const getSystemWithAaveV3Positions =
     await swapContract.addFeeTier(0)
     await swapContract.addFeeTier(7)
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
+
+    const feeRecipient = ds.config?.common.FeeRecipient.address
+    if (!feeRecipient) throw new Error('feeRecipient is not set')
 
     if (!oneInchVersion) throw new Error('Unsupported network')
     const dependencies: StrategyDependenciesAaveV3 = {
@@ -158,6 +161,7 @@ export const getSystemWithAaveV3Positions =
       swapAddress,
       dependencies,
       config: configWithDeployedSystem,
+      feeRecipient,
     })
 
     let wstethEthEarnPosition: PositionDetails | undefined
@@ -170,6 +174,7 @@ export const getSystemWithAaveV3Positions =
         swapAddress,
         dependencies,
         config: configWithDeployedSystem,
+        feeRecipient,
       })
     }
 
@@ -180,6 +185,7 @@ export const getSystemWithAaveV3Positions =
       swapAddress,
       dependencies,
       config: configWithDeployedSystem,
+      feeRecipient,
     })
 
     return {

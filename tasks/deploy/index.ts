@@ -15,7 +15,7 @@ task('deploy', 'Deploy the system to a local node.').setAction(
      */
     const configByNetwork = {
       [Network.MAINNET]: './test-configs/mainnet.conf.ts',
-      [Network.OPT_MAINNET]: './test-configs/optimism.conf.ts',
+      [Network.OPT_MAINNET]: './test-configs/opt-mainnet.conf.ts',
     }
     if (network === Network.GOERLI) throw new Error('Goerli is not supported yet')
     const configPath = configByNetwork[network]

@@ -159,8 +159,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async postRegistryEntry(configItem: ConfigItem, address: string) {
     if (!configItem.serviceRegistryName) throw new Error('No service registry name provided')
     console.log(
-      'POST REGISTRY ENTRY',
+      'ADDING REGISTRY ENTRY',
       configItem.name,
+      configItem.serviceRegistryName,
       this.getRegistryEntryHash(configItem.serviceRegistryName),
       address,
     )
@@ -203,6 +204,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async addRegistryEntries(addressesConfig: ConfigItem[]) {
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     for (const configItem of addressesConfig) {
+      console.log('ADDING REGISTRY ENTRY', configItem.name, configItem.serviceRegistryName)
       if (configItem.serviceRegistryName) {
         const address =
           this.deployedSystem?.[configItem.name as DeployedSystemContractNames]?.contract.address ||
