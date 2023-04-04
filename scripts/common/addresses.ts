@@ -1,6 +1,8 @@
 import { isSupportedNetwork, Network } from '@helpers/network'
 import { constants } from 'ethers'
 
+import { isOptimismByNetwork } from '../../test/test-utils/addresses'
+
 export const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
 const addresses = {
@@ -98,6 +100,8 @@ export function coalesceNetwork(network: Network) {
     case Network.LOCAL:
     case Network.HARDHAT:
       return Network.MAINNET
+    case Network.OPTIMISM:
+      throw new Error('coalesceNetwork helper does not support optimism')
     default:
       return network
   }
@@ -111,5 +115,10 @@ export function getAddressesFor(network: string | Network) {
       ).join(', ')}}`,
     )
   }
+
+  if (isOptimismByNetwork(network)) {
+    throw new Error('No optimism addresses on `addresses`')
+  }
+
   return addresses[coalesceNetwork(network)]
 }

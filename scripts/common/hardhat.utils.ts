@@ -1,5 +1,6 @@
 import '@nomiclabs/hardhat-ethers'
 
+import { Network } from '@helpers/network'
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
@@ -20,11 +21,11 @@ import { hasPath } from 'ramda'
 import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
 import { coalesceNetwork, ETH_ADDRESS, getAddressesFor } from './addresses'
 import { DeployedSystem } from './deploy-system'
-import { EtherscanGasPrice, Network } from './types'
+import { EtherscanGasPrice } from './types'
 
 export class HardhatUtils {
-  private readonly _cache = new NodeCache()
   public readonly addresses
+  private readonly _cache = new NodeCache()
 
   constructor(public readonly hre: HardhatRuntimeEnvironment, public readonly forked?: Network) {
     this.addresses = getAddressesFor(this.forked || this.hre.network.name)
@@ -251,29 +252,6 @@ export class HardhatUtils {
     await this.stopImpersonatingAccount(exchangeOwnerAddr)
   }
 
-  private async impersonateAccount(account: string) {
-    await this.hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [account],
-    })
-  }
-
-  private async stopImpersonatingAccount(account: string) {
-    await this.hre.network.provider.request({
-      method: 'hardhat_stopImpersonatingAccount',
-      params: [account],
-    })
-  }
-
-  private abiEncodeArgs(deployed: any, contractArgs: any[]) {
-    // not writing abi encoded args if this does not pass
-    if (!contractArgs || !deployed || hasPath(['interface', 'deploy'], deployed)) {
-      return ''
-    }
-    const encoded = utils.defaultAbiCoder.encode(deployed.interface.deploy.inputs, contractArgs)
-    return encoded
-  }
-
   public convertToWeth(tokenAddr: string) {
     return this.isEth(tokenAddr) ? this.addresses.WETH : tokenAddr
   }
@@ -292,10 +270,6 @@ export class HardhatUtils {
       '0x0000000000000000000000000000000000000000000000000000000000000001',
     ])
     await this.hre.ethers.provider.send('evm_mine', [])
-  }
-
-  private isEth(tokenAddr: string) {
-    return tokenAddr.toLowerCase() === ETH_ADDRESS.toLowerCase()
   }
 
   public async getIlkData(ilk: string, opts?: CallOverrides) {
@@ -358,5 +332,32 @@ export class HardhatUtils {
     })
     this._cache.set('gasprice', data.result, 10)
     return data.result
+  }
+
+  private async impersonateAccount(account: string) {
+    await this.hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [account],
+    })
+  }
+
+  private async stopImpersonatingAccount(account: string) {
+    await this.hre.network.provider.request({
+      method: 'hardhat_stopImpersonatingAccount',
+      params: [account],
+    })
+  }
+
+  private abiEncodeArgs(deployed: any, contractArgs: any[]) {
+    // not writing abi encoded args if this does not pass
+    if (!contractArgs || !deployed || hasPath(['interface', 'deploy'], deployed)) {
+      return ''
+    }
+    const encoded = utils.defaultAbiCoder.encode(deployed.interface.deploy.inputs, contractArgs)
+    return encoded
+  }
+
+  private isEth(tokenAddr: string) {
+    return tokenAddr.toLowerCase() === ETH_ADDRESS.toLowerCase()
   }
 }
