@@ -2,7 +2,11 @@ import assert from 'node:assert'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '@helpers/deploy'
 import { ChainIdByNetwork, Network } from '@helpers/network'
-import { getOneInchCall, optimismLiquidityProviders } from '@helpers/swap/OneInchCall'
+import {
+  getOneInchCall,
+  optimismLiquidityProviders,
+  resolveOneInchVersion,
+} from '@helpers/swap/OneInchCall'
 import { amountFromWei, balanceOf } from '@helpers/utils'
 import { strategies, ZERO } from '@oasisdex/oasis-actions/src'
 import { BigNumber } from 'bignumber.js'
@@ -13,7 +17,6 @@ import { getSystemWithAavePositions, SystemWithAAVEPositions } from '../../../fi
 import { getSystemWithAaveV3Positions } from '../../../fixtures/system/getSystemWithAaveV3Positions'
 import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
 import { isMainnetByNetwork, isOptimismByNetwork } from '../../../test-utils/addresses'
-import { resolveOneInchVersion } from '../../../test-utils/one-inch-version'
 import { expectToBeEqual } from '../../../utils'
 
 const networkFork = process.env.NETWORK_FORK as Network

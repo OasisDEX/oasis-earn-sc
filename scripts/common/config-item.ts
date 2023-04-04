@@ -1,4 +1,3 @@
-import { PartialRecord } from '@helpers/types/common'
 import { ContractNames } from '@oasisdex/oasis-actions/src'
 import { Address } from '@oasisdex/oasis-actions/src/types'
 
@@ -16,6 +15,7 @@ export type SystemConfigItem = ConfigItem & {
 }
 
 type SwapContractNames = 'Swap' | 'uSwap'
+type MainnetOnlyCoreContractNames = 'ChainLogView'
 export type CoreContractNamesWithoutSwap =
   | 'ServiceRegistry'
   | 'OperationExecutor'
@@ -26,7 +26,7 @@ export type CoreContractNamesWithoutSwap =
   | 'DSGuardFactory'
   | 'AccountGuard'
   | 'AccountFactory'
-  | 'ChainLogView'
+
 export type CoreContractNames = CoreContractNamesWithoutSwap | SwapContractNames
 export type AaveV2ContractNames = 'AaveBorrow' | 'AaveDeposit' | 'AaveWithdraw' | 'AavePayback'
 export type ActionContractNamesWithoutAaveV2 =
@@ -74,20 +74,17 @@ export type AllowedContractNames =
   | CommonContractNames
   | AaveProtocolContractNames
 
-export type LocalSystemContractNames = 'DsProxyRegistry'
-export type DeployedSystemContractNames =
-  | CoreContractNames
-  | ActionContractNames
-  | LocalSystemContractNames
+export type DeployedSystemContractNames = CoreContractNames | ActionContractNames
 
-type SwapRecord = PartialRecord<SwapContractNames, SystemConfigItem>
+type SwapRecord = Partial<Record<SwapContractNames, SystemConfigItem>>
+type MainnetOnlyCoreRecord = Partial<Record<MainnetOnlyCoreContractNames, SystemConfigItem>>
 type CoreRecord = Record<CoreContractNamesWithoutSwap, SystemConfigItem>
-type AaveV2ActionsRecord = PartialRecord<AaveV2ContractNames, SystemConfigItem>
+type AaveV2ActionsRecord = Partial<Record<AaveV2ContractNames, SystemConfigItem>>
 type ActionsRecord = Record<ActionContractNamesWithoutAaveV2, SystemConfigItem>
 
 export type Config = {
   mpa: {
-    core: SwapRecord & CoreRecord
+    core: SwapRecord & CoreRecord & MainnetOnlyCoreRecord
     actions: AaveV2ActionsRecord & ActionsRecord
   }
   common: Record<CommonContractNames, ConfigItem>

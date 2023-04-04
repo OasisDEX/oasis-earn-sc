@@ -2,10 +2,6 @@ import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types'
 import { ethers, providers } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-export type PartialRecord<K extends keyof any, T> = {
-  [P in K]?: T
-}
-
 export type UnboxPromise<T> = T extends Promise<infer U> ? U : T
 export type UnboxArray<T> = T extends Array<infer U> ? U : T
 export type Unbox<T> = UnboxArray<UnboxPromise<T>>

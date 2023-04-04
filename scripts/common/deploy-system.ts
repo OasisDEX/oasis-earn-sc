@@ -1,6 +1,5 @@
 import { Network } from '@helpers/network'
 import { ServiceRegistry as ServiceRegistryClass } from '@helpers/serviceRegistry'
-import { PartialRecord } from '@helpers/types/common'
 import { ADDRESSES } from '@oasisdex/oasis-actions/src'
 import { CONTRACT_NAMES } from '@oasisdex/oasis-actions/src/helpers/constants'
 import { Contract } from 'ethers'
@@ -43,9 +42,9 @@ export type ContractProps = {
   hash: string
 }
 
-export type SystemTemplate20 = PartialRecord<DeployedSystemContractNames, ContractProps>
+export type SystemTemplate = Partial<Record<DeployedSystemContractNames, ContractProps>>
 
-export type DeployedSystem20Return = SystemTemplate20 & Record<CoreContractNames, ContractProps>
+export type DeployedSystem20Return = SystemTemplate & Record<CoreContractNames, ContractProps>
 
 export type DeployedSystem20 = {
   system: DeployedSystem20Return

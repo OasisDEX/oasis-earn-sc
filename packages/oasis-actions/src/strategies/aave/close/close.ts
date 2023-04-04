@@ -304,7 +304,7 @@ async function buildOperation(
     .integerValue(BigNumber.ROUND_DOWN)
 
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
-  const lockedCollateralAmountInWei = args.shouldCloseToCollateral
+  const collateralAmountToBeSwapped = args.shouldCloseToCollateral
     ? swapData.fromTokenAmount.plus(swapData.preSwapFee)
     : args.collateralAmountLockedInProtocolInWei
   const collectFeeFrom = swapData.collectFeeFrom
@@ -313,7 +313,7 @@ async function buildOperation(
       // In the close to collateral scenario we need to add the preSwapFee amount to the fromTokenAmount
       // So, that when taking the fee from the source token we are sending the Swap contract
       // the sum of the fee and the ultimately fromAmount that will be swapped
-      lockedCollateralAmountInWei,
+      collateralAmountToBeSwapped,
       flashloanAmount: amountToFlashloanInWei,
       fee: fee.toNumber(),
       swapData: swapData.exchangeCalldata,
@@ -348,7 +348,7 @@ async function buildOperation(
       swap: {
         fee: fee.toNumber(),
         data: swapData.exchangeCalldata,
-        amount: lockedCollateralAmountInWei,
+        amount: collateralAmountToBeSwapped,
         collectFeeFrom,
         receiveAtLeast: swapData.minToTokenAmount,
       },
@@ -358,7 +358,7 @@ async function buildOperation(
       },
       position: {
         type: args.positionType,
-        collateral: { amount: lockedCollateralAmountInWei },
+        collateral: { amount: collateralAmountToBeSwapped },
       },
       proxy: {
         address: dependencies.proxy,

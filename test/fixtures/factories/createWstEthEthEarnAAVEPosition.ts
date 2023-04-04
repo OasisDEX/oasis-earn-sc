@@ -71,7 +71,7 @@ export async function createWstEthEthEarnAAVEPosition({
   config: RuntimeConfig & { ds: DeploymentSystem; network: Network }
 }): Promise<PositionDetails> {
   const strategy: AaveV3PositionStrategy = 'WSTETH/ETH Earn'
-  const isOptimism = config.network === Network.OPT_MAINNET
+  const isOptimism = config.network === Network.OPTIMISM
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 

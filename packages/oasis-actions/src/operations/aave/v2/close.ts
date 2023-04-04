@@ -60,7 +60,7 @@ export const operationDefinition = {
 
 export async function close(
   args: {
-    lockedCollateralAmountInWei: BigNumber
+    collateralAmountToBeSwapped: BigNumber
     flashloanAmount: BigNumber
     receiveAtLeast: BigNumber
     fee: number
@@ -97,7 +97,7 @@ export async function close(
   const swapCollateralTokensForDebtTokens = actions.common.swap({
     fromAsset: args.collateralTokenAddress,
     toAsset: args.debtTokenAddress,
-    amount: args.lockedCollateralAmountInWei,
+    amount: args.collateralAmountToBeSwapped,
     receiveAtLeast: args.receiveAtLeast,
     fee: args.fee,
     withData: args.swapData,

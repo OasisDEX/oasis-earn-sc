@@ -7,20 +7,21 @@ import { EMPTY_ADDRESS } from '../constants'
 export function isMainnetByNetwork(network: Network): network is Network.MAINNET {
   return network === Network.MAINNET
 }
-export function isOptimismByNetwork(network: Network): network is Network.OPT_MAINNET {
-  return network === Network.OPT_MAINNET
+export function isOptimismByNetwork(network: Network): network is Network.OPTIMISM {
+  return network === Network.OPTIMISM
 }
 
-export function addressesByNetwork(network: Network.MAINNET): MainnetAddresses
-export function addressesByNetwork(network: Network.OPT_MAINNET): OptMainnetAddresses
-export function addressesByNetwork(
-  network: Network.MAINNET | Network.OPT_MAINNET,
-): NetworkAddressesForTests | undefined {
+type NetworkAddressesForNetwork<T extends Network> = T extends Network.MAINNET
+  ? MainnetAddresses
+  : T extends Network.OPTIMISM
+  ? OptMainnetAddresses
+  : never
+export function addressesByNetwork<T extends Network>(network: T): NetworkAddressesForNetwork<T> {
   switch (network) {
     case Network.MAINNET:
-      return testAddresses[Network.MAINNET]
-    case Network.OPT_MAINNET:
-      return testAddresses[Network.OPT_MAINNET]
+      return testAddresses[Network.MAINNET] as NetworkAddressesForNetwork<T>
+    case Network.OPTIMISM:
+      return testAddresses[Network.OPTIMISM] as NetworkAddressesForNetwork<T>
     default:
       throw new Error(`Network ${network} not supported`)
   }
@@ -47,7 +48,7 @@ const testAddresses = {
     pool: ADDRESSES.main.aave.v3.Pool,
     poolDataProvider: ADDRESSES.main.aave.v3.PoolDataProvider,
   },
-  [Network.OPT_MAINNET]: {
+  [Network.OPTIMISM]: {
     DAI: ADDRESSES.optimism.DAI,
     ETH: ADDRESSES.optimism.ETH,
     WETH: ADDRESSES.optimism.WETH,
@@ -64,5 +65,5 @@ const testAddresses = {
 }
 
 export type MainnetAddresses = typeof testAddresses[Network.MAINNET]
-export type OptMainnetAddresses = typeof testAddresses[Network.OPT_MAINNET]
+export type OptMainnetAddresses = typeof testAddresses[Network.OPTIMISM]
 export type NetworkAddressesForTests = MainnetAddresses | OptMainnetAddresses

@@ -455,7 +455,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
     }
 
     async function closePositionV3OnOptimism(
-      args: ClosePositionV3Args & { network: Network.OPT_MAINNET },
+      args: ClosePositionV3Args & { network: Network.OPTIMISM },
     ) {
       const addresses = {
         ...addressesByNetwork(args.network),
@@ -899,7 +899,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
               userAddress: config.address,
               config,
               dsSystem,
-              network: Network.OPT_MAINNET,
+              network: Network.OPTIMISM,
               positionType: dsProxyStEthEthEarnPositionDetails.__positionType,
             })
           }
@@ -1019,7 +1019,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
                   userAddress: config.address,
                   config,
                   dsSystem,
-                  network: Network.OPT_MAINNET,
+                  network: Network.OPTIMISM,
                   positionType: positionDetails.__positionType,
                 })
               }

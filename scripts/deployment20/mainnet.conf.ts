@@ -36,6 +36,30 @@ export const config: Config = {
         history: [],
         constructorArgs: [],
       },
+      DSProxyFactory: {
+        name: 'DSProxyFactory',
+        deploy: false,
+        address: '0xA26e15C895EFc0616177B7c1e7270A4C7D51C997',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
+        history: [],
+        constructorArgs: [],
+      },
+      DSProxyRegistry: {
+        name: 'DSProxyRegistry',
+        deploy: false,
+        address: '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
+        history: [],
+        constructorArgs: ['address:DSProxyFactory'],
+      },
+      DSGuardFactory: {
+        name: 'DSGuardFactory',
+        deploy: false,
+        address: '0x5a15566417e6C1c9546523066500bDDBc53F88C7',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
+        history: [],
+        constructorArgs: [],
+      },
       AccountGuard: {
         name: 'AccountGuard',
         deploy: true,
@@ -267,10 +291,6 @@ export const config: Config = {
       name: 'BalancerVault',
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
       serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
-    },
-    DSProxyRegistry: {
-      name: 'DSProxyRegistry',
-      address: ADDRESSES.main.proxyRegistry,
     },
     OneInchAggregator: {
       name: 'OneInchAggregator',

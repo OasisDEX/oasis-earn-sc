@@ -33,7 +33,7 @@ import {
   ContractProps,
   DeployedSystem20,
   DeployedSystem20Return,
-  SystemTemplate20,
+  SystemTemplate,
 } from '../common/deploy-system'
 
 configLoader.setBaseDir('./scripts/deployment20/')
@@ -46,7 +46,7 @@ const restrictedNetworks = [
 
 const rpcUrls: any = {
   [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
-  [Network.OPT_MAINNET]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
+  [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
 }
 
@@ -121,7 +121,7 @@ abstract class DeployedSystemHelpers {
 // MAIN CLASS ===============================================
 export class DeploymentSystem extends DeployedSystemHelpers {
   public config: Config | undefined
-  public deployedSystem: SystemTemplate20 = {}
+  public deployedSystem: SystemTemplate = {}
   private readonly _cache = new NodeCache()
 
   constructor(public readonly hre: HardhatRuntimeEnvironment) {

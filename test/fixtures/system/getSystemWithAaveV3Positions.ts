@@ -5,11 +5,14 @@ import { AaveVersion, protocols, strategies } from '@oasisdex/oasis-actions/src'
 import hre from 'hardhat'
 
 import { buildGetTokenFunction } from '../../../helpers/aave/'
-import { getOneInchCall, optimismLiquidityProviders } from '../../../helpers/swap/OneInchCall'
+import {
+  getOneInchCall,
+  optimismLiquidityProviders,
+  resolveOneInchVersion,
+} from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
 import { testBlockNumberForAaveOptimismV3, testBlockNumberForAaveV3 } from '../../config'
-import { resolveOneInchVersion } from '../../test-utils/one-inch-version'
 import { createDPMAccount, createEthUsdcMultiplyAAVEPosition } from '../factories'
 import { createWstEthEthEarnAAVEPosition } from '../factories/createWstEthEthEarnAAVEPosition'
 import { AaveV3PositionStrategy, PositionDetails } from '../types/positionDetails'
@@ -30,7 +33,7 @@ const testBlockNumberByNetwork: Record<
   number
 > = {
   [Network.MAINNET]: testBlockNumberForAaveV3,
-  [Network.OPT_MAINNET]: testBlockNumberForAaveOptimismV3,
+  [Network.OPTIMISM]: testBlockNumberForAaveOptimismV3,
 }
 
 export const getSystemWithAaveV3Positions =
@@ -57,7 +60,7 @@ export const getSystemWithAaveV3Positions =
 
     const useFallbackSwap = !use1inch
 
-    if (network !== Network.MAINNET && network !== Network.OPT_MAINNET)
+    if (network !== Network.MAINNET && network !== Network.OPTIMISM)
       throw new Error('Unsupported network')
 
     if (testBlockNumberByNetwork[network] && useFallbackSwap) {
@@ -117,7 +120,7 @@ export const getSystemWithAaveV3Positions =
             getOneInchCall(
               swapAddress,
               // We remove Balancer to avoid re-entrancy errors when also using Balancer FL
-              network === Network.OPT_MAINNET
+              network === Network.OPTIMISM
                 ? optimismLiquidityProviders.filter(l => l !== 'OPTIMISM_BALANCER_V2')
                 : [],
               ChainIdByNetwork[network],

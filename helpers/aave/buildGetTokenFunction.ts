@@ -4,12 +4,7 @@ import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { swapUniswapTokens } from '../../helpers/swap/uniswap'
-import {
-  addressesByNetwork,
-  isMainnetByNetwork,
-  isOptimismByNetwork,
-  NetworkAddressesForTests,
-} from '../../test/test-utils/addresses'
+import { addressesByNetwork } from '../../test/test-utils/addresses'
 import { RuntimeConfig } from '../types/common'
 
 export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH'>
@@ -17,7 +12,7 @@ export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH'>
 export function buildGetTokenFunction(
   config: RuntimeConfig,
   hre: HardhatRuntimeEnvironment,
-  network: Network.MAINNET | Network.OPT_MAINNET,
+  network: Network.MAINNET | Network.OPTIMISM,
   wethAddress: string,
 ): (symbol: AAVETokensToGet, amount: BigNumber) => Promise<boolean> {
   return async function getTokens(symbol: AAVETokensToGet, amount: BigNumber): Promise<boolean> {
@@ -25,13 +20,7 @@ export function buildGetTokenFunction(
     const BUFFER_FACTOR = 1.1
     const amountInInWeth = amount.times(BUFFER_FACTOR).toFixed(0)
 
-    let addresses: NetworkAddressesForTests | undefined
-    if (isMainnetByNetwork(network)) {
-      addresses = addressesByNetwork(Network.MAINNET)
-    }
-    if (isOptimismByNetwork(network)) {
-      addresses = addressesByNetwork(Network.OPT_MAINNET)
-    }
+    const addresses = addressesByNetwork(network)
 
     if (!addresses) throw new Error('addresses is undefined')
 
