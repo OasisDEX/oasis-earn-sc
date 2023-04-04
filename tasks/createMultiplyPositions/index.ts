@@ -158,7 +158,6 @@ task('createMultiplyPositions', 'Create main token pair multiply positions (AAVE
       },
     }
 
-    console.log('ABOUT TO CREATE')
     const positionDetails1 = await createEthUsdcMultiplyAAVEPosition({
       proxy: proxy1,
       isDPM: true,
