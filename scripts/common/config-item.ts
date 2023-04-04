@@ -27,7 +27,10 @@ export type CoreContractNamesWithoutSwap =
   | 'AccountGuard'
   | 'AccountFactory'
 
-export type CoreContractNames = CoreContractNamesWithoutSwap | SwapContractNames
+export type CoreContractNames =
+  | CoreContractNamesWithoutSwap
+  | SwapContractNames
+  | MainnetOnlyCoreContractNames
 export type AaveV2ContractNames = 'AaveBorrow' | 'AaveDeposit' | 'AaveWithdraw' | 'AavePayback'
 export type ActionContractNamesWithoutAaveV2 =
   | 'SwapAction'
