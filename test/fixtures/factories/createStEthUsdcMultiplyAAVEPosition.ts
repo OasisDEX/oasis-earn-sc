@@ -12,7 +12,7 @@ import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
 } from '../../../packages/oasis-actions/src/protocols/aave/config'
-import { mainnetAddresses } from '../../addresses'
+import { mainnetAddresses } from '../../addresses/mainnet'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { ETH, MULTIPLE, SLIPPAGE, STETH, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
 import { OpenPositionTypes } from './openPositionTypes'

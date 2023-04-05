@@ -4,26 +4,26 @@ import { ADDRESSES } from '../helpers/addresses'
 export const acceptedTokens = [
   {
     symbol: 'USDC',
-    address: ADDRESSES.main.USDC,
+    address: [ADDRESSES.main.USDC, ADDRESSES.optimism.USDC],
   },
   {
     symbol: 'DAI',
-    address: ADDRESSES.main,
+    address: [ADDRESSES.main.DAI, ADDRESSES.optimism.DAI],
   },
   {
     symbol: 'WETH',
-    address: ADDRESSES.main.WETH,
+    address: [ADDRESSES.main.WETH, ADDRESSES.optimism.WETH],
   },
   {
     symbol: 'ETH',
-    address: ADDRESSES.main.ETH,
+    address: [ADDRESSES.main.ETH, ADDRESSES.optimism.ETH],
   },
   {
     symbol: 'STETH',
-    address: ADDRESSES.main.STETH,
+    address: [ADDRESSES.main.STETH],
   },
   {
     symbol: 'WBTC',
-    address: ADDRESSES.main.WBTC,
+    address: [ADDRESSES.main.WBTC, ADDRESSES.optimism.WBTC],
   },
 ]

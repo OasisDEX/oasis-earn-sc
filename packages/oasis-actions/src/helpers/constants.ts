@@ -31,13 +31,16 @@ export const CONTRACT_NAMES = {
     UNWRAP_ETH: 'UnwrapEth_3',
     RETURN_FUNDS: 'ReturnFunds_3',
     POSITION_CREATED: 'PositionCreated',
-
+    ACCOUNT_GUARD: 'AccountGuard',
     ACCOUNT_FACTORY: 'AccountFactory',
     OPERATION_EXECUTOR: 'OperationExecutor_2',
     OPERATION_STORAGE: 'OperationStorage_2',
     OPERATIONS_REGISTRY: 'OperationsRegistry_2',
     CHAINLOG_VIEWER: 'ChainLogView',
     ONE_INCH_AGGREGATOR: 'OneInchAggregator',
+    DS_GUARD_FACTORY: 'DSGuardFactory',
+    DS_PROXY_REGISTRY: 'DSProxyRegistry',
+    DS_PROXY_FACTORY: 'DSProxyFactory',
     SWAP: 'Swap',
     EXCHANGE: 'Exchange',
     UNISWAP_ROUTER: 'UniswapRouter',
@@ -46,6 +49,9 @@ export const CONTRACT_NAMES = {
     WETH: 'WETH',
     DAI: 'DAI',
     USDC: 'USDC',
+    STETH: 'STETH',
+    WSTETH: 'WSTETH',
+    WBTC: 'WBTC',
   },
   aave: {
     v2: {

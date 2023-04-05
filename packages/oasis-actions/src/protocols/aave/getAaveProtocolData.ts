@@ -1,12 +1,19 @@
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 
+// V2 ABIs
 import aaveV2PriceOracleABI from '../../../../../abi/external/aave/v2/priceOracle.json'
 import aaveV2ProtocolDataProviderABI from '../../../../../abi/external/aave/v2/protocolDataProvider.json'
-import aaveV3ProtocolDataProvider from '../../../../../abi/external/aave/v3/aaveProtocolDataProvider.json'
+// V3 ABIs
+import aaveV3PriceOracleABI from '../../../../../abi/external/aave/v3/aaveOracle.json'
+import aaveV3ProtocolDataProviderABI from '../../../../../abi/external/aave/v3/aaveProtocolDataProvider.json'
 import aaveV3PoolABI from '../../../../../abi/external/aave/v3/pool.json'
+// V3 L2 ABIs
+import aaveV3PriceOracleOptimismABI from '../../../../../abi/external/aave/v3-l2/aaveOracle.json'
+import aaveV3ProtocolDataProviderOptimismABI from '../../../../../abi/external/aave/v3-l2/aaveProtocolDataProvider.json'
+import aaveV3PoolOptimismABI from '../../../../../abi/external/aave/v3-l2/pool.json'
+import { getForkedNetwork as coalesceNetwork, Network } from '../../../../../helpers/network'
 import { amountFromWei } from '../../helpers'
-import { ADDRESSES } from '../../helpers/addresses'
 import { AAVEStrategyAddresses } from '../../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../../operations/aave/v3'
 import { AaveVersion } from '../../strategies'
@@ -65,7 +72,7 @@ async function getAaveV2ProtocolData({
 
   const promises = [
     priceOracle
-      .getAssetPrice(ADDRESSES.main.DAI)
+      .getAssetPrice(addresses.DAI)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     priceOracle
       .getAssetPrice(debtTokenAddress)
@@ -73,7 +80,7 @@ async function getAaveV2ProtocolData({
     priceOracle
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
+    aaveProtocolDataProvider.getReserveConfigurationData(addresses.DAI),
     aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
   ]
 
@@ -104,19 +111,27 @@ async function getAaveV3ProtocolData({
   collateralTokenAddress,
   proxy,
 }: InternalAaveProtocolData<AAVEV3StrategyAddresses> & { protocolVersion: AaveVersion.v3 }) {
-  const priceOracle = new ethers.Contract(addresses.aaveOracle, aaveV2PriceOracleABI, provider)
-  const aaveProtocolDataProvider = new ethers.Contract(
-    addresses.aaveProtocolDataProvider,
-    aaveV3ProtocolDataProvider,
+  const priceOracle = new ethers.Contract(
+    addresses.aaveOracle,
+    await getAbiForContract('aaveOracle', provider),
     provider,
   )
-  const aavePool = new ethers.Contract(addresses.pool, aaveV3PoolABI, provider)
+  const aaveProtocolDataProvider = new ethers.Contract(
+    addresses.poolDataProvider,
+    await getAbiForContract('poolDataProvider', provider),
+    provider,
+  )
+  const aavePool = new ethers.Contract(
+    addresses.pool,
+    await getAbiForContract('pool', provider),
+    provider,
+  )
 
   const hasProxy = !!proxy
 
   const promises = [
     priceOracle
-      .getAssetPrice(ADDRESSES.main.DAI)
+      .getAssetPrice(addresses.DAI)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     priceOracle
       .getAssetPrice(debtTokenAddress)
@@ -124,7 +139,7 @@ async function getAaveV3ProtocolData({
     priceOracle
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
+    aaveProtocolDataProvider.getReserveConfigurationData(addresses.DAI),
     aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
   ]
 
@@ -172,3 +187,26 @@ async function getAaveV3ProtocolData({
 }
 
 export type AaveProtocolData = ReturnType<typeof getAaveProtocolData>
+
+type AllowedContractNames = 'poolDataProvider' | 'pool' | 'aaveOracle'
+async function getAbiForContract(contractName: AllowedContractNames, provider: providers.Provider) {
+  const network = await coalesceNetwork(provider as providers.JsonRpcProvider)
+  if (network === Network.GOERLI) throw new Error('Goerli not supported yet')
+  return abiByContractName[network][contractName]
+}
+
+const abiByContractName: Record<
+  Network.MAINNET | Network.OPT_MAINNET,
+  Record<AllowedContractNames, any>
+> = {
+  [Network.MAINNET]: {
+    poolDataProvider: aaveV3ProtocolDataProviderABI,
+    pool: aaveV3PoolABI,
+    aaveOracle: aaveV3PriceOracleABI,
+  },
+  [Network.OPT_MAINNET]: {
+    poolDataProvider: aaveV3ProtocolDataProviderOptimismABI,
+    pool: aaveV3PoolOptimismABI,
+    aaveOracle: aaveV3PriceOracleOptimismABI,
+  },
+}

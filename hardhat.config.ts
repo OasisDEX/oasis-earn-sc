@@ -1,11 +1,4 @@
 import 'tsconfig-paths/register'
-
-import { default as dotenv } from 'dotenv'
-import { HardhatUserConfig, task } from 'hardhat/config'
-import path from 'path'
-import process from 'process'
-dotenv.config({ path: path.join(__dirname, './.env') })
-
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-gas-reporter'
@@ -28,6 +21,14 @@ import './tasks/createMultiplyPosition'
 import './tasks/transferDPM'
 import './tasks/transferAllProxies'
 
+import { ChainIdByNetwork, Network } from '@helpers/network'
+import { default as dotenv } from 'dotenv'
+import { HardhatUserConfig, task } from 'hardhat/config'
+import path from 'path'
+import process from 'process'
+
+dotenv.config({ path: path.join(__dirname, './.env') })
+
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
@@ -37,15 +38,15 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
     console.log(account.address)
   }
 })
-const networkFork = process.env.NETWORK_FORK
+const networkFork = process.env.NETWORK_FORK as Network | undefined
 
-if (!networkFork || !(networkFork == 'Mainnet' || networkFork == 'Optimism')) {
-  throw new Error(`NETWORK_FORK Missing. Specify 'Mainnet' or 'Optimism'`)
+if (!networkFork || !(networkFork == Network.MAINNET || networkFork == Network.OPT_MAINNET)) {
+  throw new Error(`NETWORK_FORK Missing. Specify ${Network.MAINNET} or ${Network.OPT_MAINNET}`)
 }
 
 let forkConfig: { nodeURL: string; blockNumber: string } | undefined = undefined
 
-if (networkFork == 'Mainnet') {
+if (networkFork == Network.MAINNET) {
   const nodeURL = process.env.MAINNET_URL
 
   if (!nodeURL) {
@@ -63,7 +64,7 @@ if (networkFork == 'Mainnet') {
   }
 }
 
-if (networkFork == 'Optimism') {
+if (networkFork == Network.OPT_MAINNET) {
   const nodeURL = process.env.OPTIMISM_URL
 
   if (!nodeURL) {
@@ -71,6 +72,7 @@ if (networkFork == 'Optimism') {
   }
 
   const blockNumber = process.env.OPTIMISM_BLOCK_NUMBER
+
   if (!blockNumber) {
     throw new Error(`You must provide a OPTIMISM_BLOCK_NUMBER value in the .env file.`)
   }
@@ -99,12 +101,30 @@ const config: HardhatUserConfig = {
     compilers: [
       {
         version: '0.4.24',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
       },
       {
         version: '0.5.17',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
       },
       {
         version: '0.8.15',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
       },
     ],
     settings: {
@@ -118,14 +138,15 @@ const config: HardhatUserConfig = {
     local: {
       url: 'http://127.0.0.1:8545',
       timeout: 1000000,
-      chainId: 2137,
+      chainId: ChainIdByNetwork[Network.LOCAL],
     },
     hardhat: {
       forking: {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        url: forkConfig ? forkConfig.nodeURL : 'http:127.0.01:8545',
+        url: forkConfig ? forkConfig.nodeURL : 'http://127.0.0.1:8545',
         blockNumber: forkConfig ? parseInt(forkConfig.blockNumber) : 0,
       },
+      chainId: ChainIdByNetwork[Network.LOCAL],
       mining: {
         auto: true,
       },
@@ -176,7 +197,10 @@ const config: HardhatUserConfig = {
     timeout: 600000,
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY || '',
+      optimisticEthereum: process.env.OPTIMISM_ETHERSCAN_API_KEY || '',
+    },
   },
   typechain: {
     outDir: 'typechain',

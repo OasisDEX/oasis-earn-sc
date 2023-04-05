@@ -8,11 +8,23 @@
   "proseWrap": "always",
   "overrides": [
     {
+      "files": ["./contracts/libs/DS/DSGuard.sol"],
+      "options": {
+        "printWidth": 100,
+        "tabWidth": 2,
+        "compiler": "0.4.24",
+        "useTabs": false,
+        "singleQuote": false,
+        "bracketSpacing": true,
+        "explicitTypes": "always"
+      }
+    },
+    {
       "files": ["./contracts/libs/DS/DSProxy.sol", "./contracts/libs/DS/DSProxyRegistry.sol"],
       "options": {
         "printWidth": 100,
         "tabWidth": 2,
-        "compiler": "0.5.15",
+        "compiler": "0.5.17",
         "useTabs": false,
         "singleQuote": false,
         "bracketSpacing": true,
@@ -30,7 +42,11 @@
         "bracketSpacing": true,
         "explicitTypes": "always"
       },
-      "excludeFiles": ["contracts/libs/DS/DSProxy.sol", "contracts/libs/DS/DSProxyRegistry.sol"]
+      "excludeFiles": [
+        "contracts/libs/DS/DSGuard.sol",
+        "contracts/libs/DS/DSProxy.sol",
+        "contracts/libs/DS/DSProxyRegistry.sol"
+      ]
     }
   ]
 }

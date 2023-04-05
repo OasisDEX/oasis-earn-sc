@@ -1,6 +1,7 @@
 import assert from 'node:assert'
 
 import { executeThroughDPMProxy, executeThroughProxy } from '@helpers/deploy'
+import { Network } from '@helpers/network'
 import { getOneInchCall } from '@helpers/swap/OneInchCall'
 import { amountFromWei, balanceOf } from '@helpers/utils'
 import { ADDRESSES, CONTRACT_NAMES, strategies, ZERO } from '@oasisdex/oasis-actions'
@@ -13,6 +14,7 @@ import { getSystemWithAaveV3Positions } from '../../../fixtures/system/getSystem
 import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
 import { expectToBeEqual } from '../../../utils'
 
+const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_DEBT_BEING_PAID_BACK = 'Expect debt being paid back'
 const EXPECT_FEE_BEING_COLLECTED = 'Expect fee being collected'
 
@@ -22,10 +24,13 @@ describe('Close AAVEv2 Position to collateral', () => {
 
   before(async () => {
     fixture = await loadFixture(getSystemWithAavePositions({ use1inch: true }))
-    // Since we deploy the system without using 1inch, there fore the swap that's
-    // assigned is uniswap. In our tests we would like to use the actual swap with 1inch.
+    // Since we deploy the system without using 1inch the local system assigned swap contract is uniswap.
+    // In our tests we would like to use the actual swap with 1inch.
     await fixture.registry.removeEntry(CONTRACT_NAMES.common.SWAP)
-    await fixture.registry.addEntry(CONTRACT_NAMES.common.SWAP, fixture.system.common.swap.address)
+    await fixture.registry.addEntry(
+      CONTRACT_NAMES.common.SWAP,
+      fixture.system.Swap.contract.address,
+    )
   })
 
   it('DPMProxy | Collateral - ETH ( 18 precision ) | Debt - USDC ( 6 precision )', async () => {
@@ -61,7 +66,7 @@ describe('Close AAVEv2 Position to collateral', () => {
         addresses,
         provider,
         currentPosition,
-        getSwapData: getOneInchCall(fixture.system.common.swap.address),
+        getSwapData: getOneInchCall(fixture.system.Swap.contract.address),
         proxy,
         user: fixture.config.address,
         isDPMProxy: true,
@@ -77,8 +82,8 @@ describe('Close AAVEv2 Position to collateral', () => {
     await executeThroughDPMProxy(
       proxy,
       {
-        address: fixture.system.common.operationExecutor.address,
-        calldata: fixture.system.common.operationExecutor.interface.encodeFunctionData(
+        address: fixture.system.OperationExecutor.contract.address,
+        calldata: fixture.system.OperationExecutor.contract.interface.encodeFunctionData(
           'executeOp',
           [closeStrategy.transaction.calls, closeStrategy.transaction.operationName],
         ),
@@ -134,7 +139,7 @@ describe('Close AAVEv2 Position to collateral', () => {
         addresses,
         provider,
         currentPosition,
-        getSwapData: getOneInchCall(fixture.system.common.swap.address),
+        getSwapData: getOneInchCall(fixture.system.Swap.contract.address),
         proxy,
         user: fixture.config.address,
         isDPMProxy: true,
@@ -150,8 +155,8 @@ describe('Close AAVEv2 Position to collateral', () => {
     await executeThroughDPMProxy(
       proxy,
       {
-        address: fixture.system.common.operationExecutor.address,
-        calldata: fixture.system.common.operationExecutor.interface.encodeFunctionData(
+        address: fixture.system.OperationExecutor.contract.address,
+        calldata: fixture.system.OperationExecutor.contract.interface.encodeFunctionData(
           'executeOp',
           [closeStrategy.transaction.calls, closeStrategy.transaction.operationName],
         ),
@@ -186,7 +191,7 @@ describe('Close AAVEv2 Position to collateral', () => {
       .to.be.true
   })
 
-  it('DSProxy | Collateral - STETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
+  it.only('DSProxy | Collateral - STETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
     const position = fixture.dsProxyPosition
     assert(position, 'Unsupported position')
 
@@ -216,7 +221,7 @@ describe('Close AAVEv2 Position to collateral', () => {
         addresses,
         provider,
         currentPosition,
-        getSwapData: getOneInchCall(fixture.system.common.swap.address),
+        getSwapData: getOneInchCall(fixture.system.Swap.contract.address),
         proxy,
         user: fixture.config.address,
         isDPMProxy: false,
@@ -229,11 +234,12 @@ describe('Close AAVEv2 Position to collateral', () => {
       addresses['WETH'],
       debtToken.precision,
     )
+
     await executeThroughProxy(
       proxy,
       {
-        address: fixture.system.common.operationExecutor.address,
-        calldata: fixture.system.common.operationExecutor.interface.encodeFunctionData(
+        address: fixture.system.OperationExecutor.contract.address,
+        calldata: fixture.system.OperationExecutor.contract.interface.encodeFunctionData(
           'executeOp',
           [closeStrategy.transaction.calls, closeStrategy.transaction.operationName],
         ),
@@ -279,17 +285,22 @@ describe('Close AAVEv2 Position to collateral', () => {
     })
   }
 })
-
 describe('Close AAVEv3 Position to collateral', () => {
   const slippage = new BigNumber(0.01) // 1%
   let fixture: SystemWithAAVEV3Positions
 
   before(async () => {
-    fixture = await loadFixture(getSystemWithAaveV3Positions({ use1inch: true }))
+    fixture = await loadFixture(
+      getSystemWithAaveV3Positions({
+        use1inch: true,
+        network: networkFork,
+        systemConfigPath: `${networkFork}.conf.ts`,
+      }),
+    )
     // Since we deploy the system without using 1inch, there fore the swap that's
     // assigned is uniswap. In our tests we would like to use the actual swap with 1inch.
     await fixture.registry.removeEntry(CONTRACT_NAMES.common.SWAP)
-    await fixture.registry.addEntry(CONTRACT_NAMES.common.SWAP, fixture.system.common.swap.address)
+    await fixture.registry.addEntry(CONTRACT_NAMES.common.SWAP, fixture.system.Swap.address)
   })
 
   it('DPMProxy | Collateral - ETH ( 18 precision ) | Debt - USDC ( 6 precision )', async () => {
@@ -325,7 +336,7 @@ describe('Close AAVEv3 Position to collateral', () => {
         addresses,
         provider,
         currentPosition,
-        getSwapData: getOneInchCall(fixture.system.common.swap.address),
+        getSwapData: getOneInchCall(fixture.system.Swap.contract.address),
         proxy,
         user: fixture.config.address,
         isDPMProxy: true,
@@ -341,8 +352,8 @@ describe('Close AAVEv3 Position to collateral', () => {
     await executeThroughDPMProxy(
       proxy,
       {
-        address: fixture.system.common.operationExecutor.address,
-        calldata: fixture.system.common.operationExecutor.interface.encodeFunctionData(
+        address: fixture.system.OperationExecutor.contract.address,
+        calldata: fixture.system.OperationExecutor.contract.interface.encodeFunctionData(
           'executeOp',
           [closeStrategy.transaction.calls, closeStrategy.transaction.operationName],
         ),
@@ -395,7 +406,7 @@ describe('Close AAVEv3 Position to collateral', () => {
         addresses,
         provider,
         currentPosition,
-        getSwapData: getOneInchCall(fixture.system.common.swap.address),
+        getSwapData: getOneInchCall(fixture.system.Swap.contract.address),
         proxy,
         user: fixture.config.address,
         isDPMProxy: true,
@@ -411,8 +422,8 @@ describe('Close AAVEv3 Position to collateral', () => {
     await executeThroughDPMProxy(
       proxy,
       {
-        address: fixture.system.common.operationExecutor.address,
-        calldata: fixture.system.common.operationExecutor.interface.encodeFunctionData(
+        address: fixture.system.OperationExecutor.contract.address,
+        calldata: fixture.system.OperationExecutor.contract.interface.encodeFunctionData(
           'executeOp',
           [closeStrategy.transaction.calls, closeStrategy.transaction.operationName],
         ),

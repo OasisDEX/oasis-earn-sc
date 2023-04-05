@@ -88,9 +88,10 @@ export function sendToken(
 
 export function takeAFlashLoan(args: {
   flashloanAmount: BigNumber
-  borrower: string
+  asset: string
   isProxyFlashloan: boolean
   isDPMProxy: boolean
+  provider: number
   calls: ActionCall[]
 }) {
   return createAction(
@@ -99,9 +100,10 @@ export function takeAFlashLoan(args: {
     [
       {
         amount: args.flashloanAmount.toFixed(0),
-        borrower: args.borrower,
+        asset: args.asset,
         isProxyFlashloan: args.isProxyFlashloan,
         isDPMProxy: args.isDPMProxy,
+        provider: args.provider,
         calls: args.calls,
       },
     ],

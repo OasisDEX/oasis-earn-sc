@@ -7,7 +7,6 @@ import { buildGetTokenByImpersonateFunction, buildGetTokenFunction } from '../..
 import { getOneInchCall } from '../../../helpers/swap/OneInchCall'
 import { oneInchCallMock } from '../../../helpers/swap/OneInchCallMock'
 import { DeploymentSystem } from '../../../scripts/deployment20/deploy'
-import { mainnetAddresses } from '../../addresses'
 import {
   createDPMAccount,
   createEthUsdcMultiplyAAVEPosition,
@@ -38,7 +37,7 @@ export const getSystemWithAavePositions =
   async (): Promise<SystemWithAAVEPositions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
-    ds.loadConfig('test-configs/test-aave-v2-mainnet.conf.json')
+    ds.loadConfig('test-configs/mainnet.conf.ts')
 
     // If you update test block numbers you may run into issues where whale addresses
     // We use impersonation on test block number but with 1inch we use uniswap
@@ -57,18 +56,23 @@ export const getSystemWithAavePositions =
     if (!blockNumberForAAVEV2System && useFallbackSwap) {
       throw 'testBlockNumber is not set'
     }
-    ds.mapAddresses()
+
     await ds.deployAll()
     await ds.setupLocalSystem(use1inch)
 
-    const { system, registry } = ds.getSystem()
-
+    const { system, registry, config: systemConfig } = ds.getSystem()
     const dependencies: StrategyDependenciesAaveV2 = {
       addresses: {
-        ...mainnetAddresses,
-        priceOracle: mainnetAddresses.aave.v2.priceOracle,
-        lendingPool: mainnetAddresses.aave.v2.lendingPool,
-        protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
+        DAI: systemConfig.common.DAI.address,
+        ETH: systemConfig.common.ETH.address,
+        WETH: systemConfig.common.WETH.address,
+        STETH: systemConfig.common.STETH.address,
+        WBTC: systemConfig.common.WBTC.address,
+        USDC: systemConfig.common.USDC.address,
+        chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkEthUsdPriceFeed.address,
+        priceOracle: systemConfig.aave.v2.PriceOracle.address,
+        lendingPool: systemConfig.aave.v2.LendingPool.address,
+        protocolDataProvider: systemConfig.aave.v2.ProtocolDataProvider.address,
         accountFactory: system.AccountFactory.contract.address,
         operationExecutor: system.OperationExecutor.contract.address,
       },
@@ -83,7 +87,7 @@ export const getSystemWithAavePositions =
         getProtocolData: protocols.aave.getAaveProtocolData,
       },
       getSwapData: use1inch
-        ? swapAddress => getOneInchCall(swapAddress)
+        ? swapAddress => getOneInchCall(swapAddress, [])
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
 
@@ -92,7 +96,7 @@ export const getSystemWithAavePositions =
     const [dpmProxyForMultiplyStEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyWbtcUsdc] = await createDPMAccount(system.AccountFactory.contract)
 
-    const dsProxy = await getOrCreateProxy(system.DsProxyRegistry.contract, config.signer)
+    const dsProxy = await getOrCreateProxy(system.DSProxyRegistry.contract, config.signer)
 
     if (
       !dpmProxyForEarnStEthEth ||
@@ -103,6 +107,11 @@ export const getSystemWithAavePositions =
       throw new Error('Cant create a DPM proxy')
     }
 
+    const configWithDeployedSystem = {
+      ...config,
+      ds,
+    }
+
     const swapAddress = system.Swap.contract.address
 
     const stEthEthEarnPosition = await createStEthEthEarnAAVEPosition({
@@ -111,7 +120,7 @@ export const getSystemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config,
+      config: configWithDeployedSystem,
     })
 
     const ethUsdcMultiplyPosition = await createEthUsdcMultiplyAAVEPosition({
@@ -120,7 +129,7 @@ export const getSystemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config,
+      config: configWithDeployedSystem,
     })
 
     const stethUsdcMultiplyPosition = await createStEthUsdcMultiplyAAVEPosition({
@@ -129,7 +138,7 @@ export const getSystemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config,
+      config: configWithDeployedSystem,
       getTokens,
     })
 
@@ -139,7 +148,7 @@ export const getSystemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config,
+      config: configWithDeployedSystem,
       getTokens,
     })
 
@@ -149,7 +158,7 @@ export const getSystemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config,
+      config: configWithDeployedSystem,
     })
 
     const dpmPositions = {
