@@ -10,6 +10,11 @@ export class ServiceRegistry {
     this.signer = signer
   }
 
+  async getContractInstance() {
+    const ethers = (await import('hardhat')).ethers
+    return await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+  }
+
   async addEntry(label: ContractNames, address: string, debug = false): Promise<string> {
     const ethers = (await import('hardhat')).ethers
     const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
@@ -21,6 +26,25 @@ export class ServiceRegistry {
     }
 
     return entryHash
+  }
+
+  async addEntryCalldata(label: ContractNames, address: string, debug = false): Promise<string> {
+    const ethers = (await import('hardhat')).ethers
+    const entryHash = utils.keccak256(utils.toUtf8Bytes(label))
+    const registry = await ethers.getContractAt('ServiceRegistry', this.address, this.signer)
+
+    const encodedData = registry.interface.encodeFunctionData('addNamedService', [
+      entryHash,
+      address,
+    ])
+
+    if (debug) {
+      console.log(
+        `DEBUG: Calldata for service '${label}' has been prepared for addition with hash: ${entryHash}`,
+      )
+    }
+
+    return encodedData
   }
 
   async removeEntry(label: ContractNames) {

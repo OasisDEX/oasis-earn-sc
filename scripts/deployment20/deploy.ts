@@ -10,11 +10,23 @@ import { operationDefinition as aaveV2CloseOp } from '@oasisdex/oasis-actions/sr
 import { operationDefinition as aaveV2OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v2/open'
 import { operationDefinition as aaveV3CloseOp } from '@oasisdex/oasis-actions/src/operations/aave/v3/close'
 import { operationDefinition as aaveV3OpenOp } from '@oasisdex/oasis-actions/src/operations/aave/v3/open'
+import Safe from '@safe-global/safe-core-sdk'
+import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
+import EthersAdapter from '@safe-global/safe-ethers-lib'
+import SafeServiceClient from '@safe-global/safe-service-client'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 // @ts-ignore
 import configLoader from 'config-json'
-import { BigNumber as EthersBN, Contract, ContractFactory, providers, Signer, utils } from 'ethers'
+import {
+  BigNumber as EthersBN,
+  Contract,
+  ContractFactory,
+  ethers,
+  providers,
+  Signer,
+  utils,
+} from 'ethers'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import _ from 'lodash'
@@ -38,6 +50,12 @@ const rpcUrls: any = {
   [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
   [Network.OPT_MAINNET]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
+}
+
+const gnosisSafeServiceUrl: any = {
+  [Network.MAINNET]: '',
+  [Network.OPT_MAINNET]: '',
+  [Network.GOERLI]: 'https://safe-transaction.goerli.gnosis.io',
 }
 
 export const impersonateAccount = async (account: string) => {
@@ -184,12 +202,56 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async postDeployment(configItem: ConfigItem, contract: Contract, constructorArguments: any) {
-    console.log('POST DEPLOYMENT', configItem.name, contract.address)
+  async postDeployment(configItem: any, contract: Contract, constructorArguments: any) {
+    if (!this.provider) throw new Error('No provider set')
+    if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
+    console.log('POST DEPLOYMENT', configItem.name, configItem.address)
 
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
-      await this.addRegistryEntry(configItem, contract.address)
+      if (gnosisSafeServiceUrl[this.network] !== '') {
+        const signer = this.provider.getSigner(1)
+        const ethAdapter = new EthersAdapter({ ethers, signerOrProvider: signer })
+
+        const safeSdk: Safe = await Safe.create({
+          ethAdapter: ethAdapter,
+          safeAddress: this.config.common.GNOSIS_SAFE.address,
+        })
+
+        const safeService = new SafeServiceClient({
+          txServiceUrl: gnosisSafeServiceUrl[this.network],
+          ethAdapter,
+        })
+
+        const safeInfo = await safeService.getSafeInfo(this.config.common.GNOSIS_SAFE.address)
+
+        const encodedData = await this.serviceRegistryHelper.addEntryCalldata(
+          configItem.serviceRegistryName,
+          contract.address,
+        )
+
+        const safeTransactionData: SafeTransactionDataPartial = {
+          to: this.deployedSystem.ServiceRegistry.contract.address,
+          data: encodedData,
+          value: 0, // !!has to be a number!! Despite the type in SafeTransactionDataPartial. Otherwise proposeTransaction is failing
+          nonce: safeInfo.nonce,
+        }
+        const safeTransaction = await safeSdk.createTransaction({ safeTransactionData })
+        const safeTransactionHash = await safeSdk.getTransactionHash(safeTransaction)
+        const ownerSignature = await safeSdk.signTransactionHash(safeTransactionHash)
+
+        const address = await signer.getAddress()
+
+        await safeService.proposeTransaction({
+          safeAddress: ethers.utils.getAddress(this.config.common.GNOSIS_SAFE.address),
+          safeTransactionData: safeTransaction.data,
+          safeTxHash: safeTransactionHash,
+          senderAddress: ethers.utils.getAddress(address),
+          senderSignature: ownerSignature.data,
+        })
+      } else {
+        await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, contract.address)
+      }
     }
 
     // ETHERSCAN VERIFICATION (only for mainnet and L1 testnets)
@@ -228,7 +290,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async instantiateContracts(addressesConfig: ConfigItem[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     for (const configItem of addressesConfig) {
-      console.log('INSTANTIATING ', configItem.name)
+      console.log('INSTANTIATING ', configItem.name, configItem.address)
       const contractInstance = await this.ethers.getContractAt(configItem.name, configItem.address)
 
       this.deployedSystem[configItem.name] = {
