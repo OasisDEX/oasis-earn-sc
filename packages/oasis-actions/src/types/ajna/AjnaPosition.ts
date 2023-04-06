@@ -14,6 +14,7 @@ export interface IAjnaPosition {
 
   marketPrice: BigNumber
   liquidationPrice: BigNumber
+  liquidationToMarketPrice: BigNumber
   thresholdPrice: BigNumber
 
   collateralAvailable: BigNumber
@@ -59,6 +60,10 @@ export class AjnaPosition implements IAjnaPosition {
 
   get marketPrice() {
     return this.collateralPrice.div(this.quotePrice)
+  }
+
+  get liquidationToMarketPrice() {
+    return this.liquidationPrice.div(this.marketPrice)
   }
 
   get thresholdPrice() {
