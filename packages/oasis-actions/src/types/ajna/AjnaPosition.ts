@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 
 import { IRiskRatio, RiskRatio } from '../../domain'
-import { ZERO } from '../../helpers/constants'
+import { ONE } from '../../helpers/constants'
 import { normalizeValue } from '../../helpers/normalizeValue'
 import { Address, AjnaError, AjnaWarning } from '../common'
 import { AjnaPool } from './AjnaPool'
@@ -14,6 +14,7 @@ export interface IAjnaPosition {
 
   marketPrice: BigNumber
   liquidationPrice: BigNumber
+  liquidationToMarketPrice: BigNumber
   thresholdPrice: BigNumber
 
   collateralAvailable: BigNumber
@@ -45,11 +46,19 @@ export class AjnaPosition implements IAjnaPosition {
   ) {}
 
   get liquidationPrice() {
-    return ZERO
+    const liquidationPrice = this.pool.mostOptimisticMatchingPrice
+      .times(this.debtAmount.div(this.pool.lowestUtilizedPrice.times(this.collateralAmount)))
+      .times(ONE.plus(this.pool.interestRate))
+
+    return normalizeValue(liquidationPrice)
   }
 
   get marketPrice() {
     return this.collateralPrice.div(this.quotePrice)
+  }
+
+  get liquidationToMarketPrice() {
+    return this.liquidationPrice.div(this.marketPrice)
   }
 
   get thresholdPrice() {
