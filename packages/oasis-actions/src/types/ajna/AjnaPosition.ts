@@ -47,12 +47,7 @@ export class AjnaPosition implements IAjnaPosition {
 
   get liquidationPrice() {
     const liquidationPrice = this.pool.mostOptimisticMatchingPrice
-      .times(
-        this.debtAmount
-          .div(this.pool.pendingInflator)
-          .times(this.pool.pendingInflator)
-          .div(this.pool.lowestUtilizedPrice.times(this.collateralAmount)),
-      )
+      .times(this.debtAmount.div(this.pool.lowestUtilizedPrice.times(this.collateralAmount)))
       .times(ONE.plus(this.pool.interestRate))
 
     return normalizeValue(liquidationPrice)
