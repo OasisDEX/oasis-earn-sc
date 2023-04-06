@@ -8,8 +8,15 @@ export type Tx = {
   value: string
 }
 
-export type AjnaErrorUndercollateralized = {
-  name: 'undercollateralized'
+export type AjnaErrorWithdrawUndercollateralized = {
+  name: 'withdraw-undercollateralized'
+  data: {
+    amount: string
+  }
+}
+
+export type AjnaErrorBorrowUndercollateralized = {
+  name: 'borrow-undercollateralized'
   data: {
     amount: string
   }
@@ -59,7 +66,8 @@ export type AjnaErrorOverRepay = {
 }
 
 export type AjnaError =
-  | AjnaErrorUndercollateralized
+  | AjnaErrorWithdrawUndercollateralized
+  | AjnaErrorBorrowUndercollateralized
   | AjnaErrorPriceAboveMomp
   | AjnaErrorWithdrawMoreThanAvailable
   | AjnaErrorAfterLupIndexBiggerThanHtpIndex

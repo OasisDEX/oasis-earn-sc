@@ -1,8 +1,7 @@
 import BigNumber from 'bignumber.js'
 
-import { AjnaEarnPosition, AjnaPosition } from '../../../types/ajna'
+import { AjnaEarnPosition } from '../../../types/ajna'
 import { AjnaEarnActions, AjnaError, AjnaWarning } from '../../../types/common'
-import { validateDustLimit, validateLiquidity, validateUndercollateralized } from '../validation'
 
 export const getAjnaValidations = ({
   price,
@@ -45,7 +44,7 @@ export const getAjnaValidations = ({
         errors.push({
           name: 'withdraw-more-than-available',
           data: {
-            available: position.quoteTokenAmount.decimalPlaces(2).toString(),
+            amount: position.quoteTokenAmount.decimalPlaces(2).toString(),
           },
         })
       }
@@ -65,12 +64,4 @@ export const getAjnaValidations = ({
   }
 
   return { errors, warnings }
-}
-
-function getPositionErrors(position: AjnaPosition, action: AjnaEarnActions): AjnaError[] {
-  return [
-    ...validateDustLimit(position),
-    ...validateUndercollateralized(position),
-    ...(action === 'open-earn' ? validateLiquidity(position, new BigNumber(0)) : []),
-  ]
 }

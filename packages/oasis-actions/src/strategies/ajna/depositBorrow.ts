@@ -5,7 +5,11 @@ import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
 import { Strategy } from '../../types/common'
 import { Dependencies, OpenArgs } from './open'
-import { validateDustLimit, validateLiquidity, validateUndercollateralized } from './validation'
+import {
+  validateBorrowUndercollateralized,
+  validateDustLimit,
+  validateLiquidity,
+} from './validation'
 
 export interface DepositBorrowArgs extends Omit<OpenArgs, 'collateralPrice' | 'quotePrice'> {
   position: AjnaPosition
@@ -39,7 +43,7 @@ export async function depositBorrow(
 
   const errors = [
     ...validateDustLimit(targetPosition),
-    ...validateUndercollateralized(targetPosition),
+    ...validateBorrowUndercollateralized(targetPosition),
     ...validateLiquidity(targetPosition, args.quoteAmount),
   ]
 

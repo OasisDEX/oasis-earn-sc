@@ -2,4 +2,7 @@ export { validateDustLimit } from './dustLimit'
 export { validateLiquidity } from './notEnoughLiquidity'
 export { validateOverRepay } from './overRepay'
 export { validateOverWithdraw } from './overWithdraw'
-export { validateUndercollateralized } from './underCollateralized'
+export {
+  validateBorrowUndercollateralized,
+  validateWithdrawUndercollateralized,
+} from './underCollateralized'

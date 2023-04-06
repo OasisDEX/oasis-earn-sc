@@ -7,7 +7,11 @@ import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
 import * as views from '../../views'
 import { GetPoolData } from '../../views/ajna'
-import { validateDustLimit, validateLiquidity, validateUndercollateralized } from './validation'
+import {
+  validateBorrowUndercollateralized,
+  validateDustLimit,
+  validateLiquidity,
+} from './validation'
 
 export interface OpenArgs {
   poolAddress: Address
@@ -77,7 +81,7 @@ export async function open(
   const errors = [
     ...validateDustLimit(targetPosition),
     ...validateLiquidity(position, args.quoteAmount),
-    ...validateUndercollateralized(targetPosition),
+    ...validateBorrowUndercollateralized(targetPosition),
   ]
 
   return prepareAjnaPayload({

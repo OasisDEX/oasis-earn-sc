@@ -10,7 +10,7 @@ import {
   validateDustLimit,
   validateOverRepay,
   validateOverWithdraw,
-  validateUndercollateralized,
+  validateWithdrawUndercollateralized,
 } from './validation'
 
 interface PaybackWithdrawArgs {
@@ -48,7 +48,7 @@ export async function paybackWithdraw(
 
   const errors = [
     ...validateDustLimit(targetPosition),
-    ...validateUndercollateralized(targetPosition),
+    ...validateWithdrawUndercollateralized(targetPosition),
     ...validateOverWithdraw(args.position, args.collateralAmount),
     ...validateOverRepay(args.position, args.quoteAmount),
   ]
