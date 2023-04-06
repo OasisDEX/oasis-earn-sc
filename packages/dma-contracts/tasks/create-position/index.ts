@@ -1,17 +1,12 @@
-import BigNumber from 'bignumber.js'
 import { task, types } from 'hardhat/config'
-
-function amountToWei(amount: BigNumber.Value, precision = 18) {
-  BigNumber.config({ EXPONENTIAL_AT: 30 })
-  return new BigNumber(amount || 0).times(new BigNumber(10).pow(precision))
-}
 
 task('createPosition', 'Create stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
   .addOptionalParam('deposit', 'ETH deposit', 8, types.float)
   .addOptionalParam('multiply', 'Required multiply', 2, types.float)
   .addFlag('usefallbackswap', 'Use fallback swap')
-  .setAction(async (taskArgs, hre) => {
+  .setAction(async () => {
+    // .setAction(async (taskArgs, hre) => {
     // TODO: Wait for L2 merge
     // const config = await init(hre)
     //

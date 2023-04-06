@@ -1,7 +1,10 @@
 import { CONTRACT_NAMES } from '@oasisdex/dma-library/src/utils/constants'
+import { AaveBorrow } from '@typechain/artifacts/contracts/actions/aave/v2/Borrow.sol'
+import { AaveDeposit } from '@typechain/artifacts/contracts/actions/aave/v2/Deposit.sol'
+import { AavePayback } from '@typechain/artifacts/contracts/actions/aave/v2/Payback.sol'
+import { AaveWithdraw } from '@typechain/artifacts/contracts/actions/aave/v2/Withdraw.sol'
 import hre from 'hardhat'
 
-import { AaveBorrow, AaveDeposit, AavePayback, AaveWithdraw } from '../../../../typechain'
 import { HardhatUtils, removeVersion } from '../common'
 
 // TODO: Make this as core deployment script:
@@ -16,25 +19,25 @@ async function main() {
   const system = await utils.getDefaultSystem()
 
   system.aaveBorrow = (await utils.deployContract(
-    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.aave.BORROW)),
+    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.aave.v2.BORROW)),
     [system.serviceRegistry.address],
   )) as AaveBorrow
   console.log(`aaveBorrow action Deployed: ${system.aaveBorrow.address}`)
 
   system.aaveDeposit = (await utils.deployContract(
-    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.aave.DEPOSIT)),
+    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.aave.v2.DEPOSIT)),
     [system.serviceRegistry.address],
   )) as AaveDeposit
   console.log(`aaveDeposit action Deployed: ${system.aaveDeposit.address}`)
 
   system.aaveWithdraw = (await utils.deployContract(
-    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.aave.WITHDRAW)),
+    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.aave.v2.WITHDRAW)),
     [system.serviceRegistry.address],
   )) as AaveWithdraw
   console.log(`aaveWithdraw action Deployed: ${system.aaveWithdraw.address}`)
 
   system.aavePayback = (await utils.deployContract(
-    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.aave.PAYBACK)),
+    hre.ethers.getContractFactory(removeVersion(CONTRACT_NAMES.aave.v2.PAYBACK)),
     [system.serviceRegistry.address],
   )) as AavePayback
   console.log(`aavePayback action Deployed: ${system.aavePayback.address}`)

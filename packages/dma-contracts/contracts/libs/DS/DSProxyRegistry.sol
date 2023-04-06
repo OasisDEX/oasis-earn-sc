@@ -1,6 +1,6 @@
 pragma solidity >=0.5.0;
 
-import { DSProxy, DSProxyFactory } from "./DSProxy.sol";
+import {DSProxy, DSProxyFactory} from './DSProxy.sol';
 
 // This Registry deploys new proxy instances through DSProxyFactory.build(address) and keeps a registry of owner => proxy
 contract DSProxyRegistry {

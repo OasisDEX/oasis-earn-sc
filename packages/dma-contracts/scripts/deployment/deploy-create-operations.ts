@@ -1,4 +1,4 @@
-import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-library'
+import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-library/src'
 import hre from 'hardhat'
 
 import { getServiceNameHash, HardhatUtils } from '../common'
@@ -17,71 +17,71 @@ async function main() {
   console.log(`Adding ${OPERATION_NAMES.common.CUSTOM_OPERATION} to OperationsRegistry...`)
   await system.operationsRegistry.addOperation(OPERATION_NAMES.common.CUSTOM_OPERATION, [])
 
-  console.log(`Adding ${OPERATION_NAMES.aave.OPEN_POSITION} to OperationsRegistry...`)
+  console.log(`Adding ${OPERATION_NAMES.aave.v2.OPEN_POSITION} to OperationsRegistry...`)
   const openAPositionActions = [
     getServiceNameHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
     getServiceNameHash(CONTRACT_NAMES.common.SET_APPROVAL),
-    getServiceNameHash(CONTRACT_NAMES.aave.DEPOSIT),
-    getServiceNameHash(CONTRACT_NAMES.aave.BORROW),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.DEPOSIT),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.BORROW),
     getServiceNameHash(CONTRACT_NAMES.common.WRAP_ETH),
     getServiceNameHash(CONTRACT_NAMES.common.SWAP_ACTION),
     getServiceNameHash(CONTRACT_NAMES.common.SET_APPROVAL),
-    getServiceNameHash(CONTRACT_NAMES.aave.DEPOSIT),
-    getServiceNameHash(CONTRACT_NAMES.aave.WITHDRAW),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.DEPOSIT),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
   ]
   await system.operationsRegistry.addOperation(
-    OPERATION_NAMES.aave.OPEN_POSITION,
+    OPERATION_NAMES.aave.v2.OPEN_POSITION,
     openAPositionActions,
   )
 
   const closeAPositionActions = [
     getServiceNameHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
     getServiceNameHash(CONTRACT_NAMES.common.SET_APPROVAL),
-    getServiceNameHash(CONTRACT_NAMES.aave.DEPOSIT),
-    getServiceNameHash(CONTRACT_NAMES.aave.WITHDRAW),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.DEPOSIT),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
     getServiceNameHash(CONTRACT_NAMES.common.SWAP_ACTION),
     getServiceNameHash(CONTRACT_NAMES.common.SET_APPROVAL),
-    getServiceNameHash(CONTRACT_NAMES.aave.PAYBACK),
-    getServiceNameHash(CONTRACT_NAMES.aave.WITHDRAW),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.PAYBACK),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
     getServiceNameHash(CONTRACT_NAMES.common.UNWRAP_ETH),
     getServiceNameHash(CONTRACT_NAMES.common.RETURN_FUNDS),
   ]
-  console.log(`Adding ${OPERATION_NAMES.aave.CLOSE_POSITION} to OperationsRegistry...`)
+  console.log(`Adding ${OPERATION_NAMES.aave.v2.CLOSE_POSITION} to OperationsRegistry...`)
   await system.operationsRegistry.addOperation(
-    OPERATION_NAMES.aave.CLOSE_POSITION,
+    OPERATION_NAMES.aave.v2.CLOSE_POSITION,
     closeAPositionActions,
   )
 
   const increaseAPositionActions = [
     getServiceNameHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
     getServiceNameHash(CONTRACT_NAMES.common.SET_APPROVAL),
-    getServiceNameHash(CONTRACT_NAMES.aave.DEPOSIT),
-    getServiceNameHash(CONTRACT_NAMES.aave.BORROW),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.DEPOSIT),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.BORROW),
     getServiceNameHash(CONTRACT_NAMES.common.WRAP_ETH),
     getServiceNameHash(CONTRACT_NAMES.common.SWAP_ACTION),
     getServiceNameHash(CONTRACT_NAMES.common.SET_APPROVAL),
-    getServiceNameHash(CONTRACT_NAMES.aave.DEPOSIT),
-    getServiceNameHash(CONTRACT_NAMES.aave.WITHDRAW),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.DEPOSIT),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
   ]
-  console.log(`Adding ${OPERATION_NAMES.aave.INCREASE_POSITION} to OperationsRegistry...`)
+  console.log(`Adding ${OPERATION_NAMES.aave.v2.INCREASE_POSITION} to OperationsRegistry...`)
   await system.operationsRegistry.addOperation(
-    OPERATION_NAMES.aave.INCREASE_POSITION,
+    OPERATION_NAMES.aave.v2.INCREASE_POSITION,
     increaseAPositionActions,
   )
 
   const decreaseAPositionActions = [
     getServiceNameHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
     getServiceNameHash(CONTRACT_NAMES.common.SET_APPROVAL),
-    getServiceNameHash(CONTRACT_NAMES.aave.DEPOSIT),
-    getServiceNameHash(CONTRACT_NAMES.aave.WITHDRAW),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.DEPOSIT),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
     getServiceNameHash(CONTRACT_NAMES.common.SWAP_ACTION),
     getServiceNameHash(CONTRACT_NAMES.common.SET_APPROVAL),
-    getServiceNameHash(CONTRACT_NAMES.aave.PAYBACK),
-    getServiceNameHash(CONTRACT_NAMES.aave.WITHDRAW),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.PAYBACK),
+    getServiceNameHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
   ]
-  console.log(`Adding ${OPERATION_NAMES.aave.DECREASE_POSITION} to OperationsRegistry...`)
+  console.log(`Adding ${OPERATION_NAMES.aave.v2.DECREASE_POSITION} to OperationsRegistry...`)
   await system.operationsRegistry.addOperation(
-    OPERATION_NAMES.aave.DECREASE_POSITION,
+    OPERATION_NAMES.aave.v2.DECREASE_POSITION,
     decreaseAPositionActions,
   )
 }

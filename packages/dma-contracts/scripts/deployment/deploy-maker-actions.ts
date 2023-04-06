@@ -1,14 +1,12 @@
 import { CONTRACT_NAMES } from '@oasisdex/dma-library/src/utils/constants'
+import { CdpAllow } from '@typechain/artifacts/contracts/actions/maker'
+import { MakerDeposit } from '@typechain/artifacts/contracts/actions/maker/Deposit.sol'
+import { MakerGenerate } from '@typechain/artifacts/contracts/actions/maker/Generate.sol'
+import { MakerOpenVault } from '@typechain/artifacts/contracts/actions/maker/OpenVault.sol'
+import { MakerPayback } from '@typechain/artifacts/contracts/actions/maker/Payback.sol'
+import { MakerWithdraw } from '@typechain/artifacts/contracts/actions/maker/Withdraw.sol'
 import hre from 'hardhat'
 
-import {
-  CdpAllow,
-  MakerDeposit,
-  MakerGenerate,
-  MakerOpenVault,
-  MakerPayback,
-  MakerWithdraw,
-} from '../../../../typechain'
 import { HardhatUtils } from '../common'
 import { getServiceNameHash } from '../common/utils'
 

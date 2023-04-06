@@ -5,10 +5,10 @@
   "scripts": {
     "dev": "tsc -b && yarn update-block && && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ./.env | cut -d '=' -f2)",
     "compile": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache && npx hardhat compile",
-    "format": "prettier --write \"./**/*.{ts,tsx,js,jsx}\" && yarn lint:fix && prettier --write 'packages/dma-contracts/contracts/**/*.sol'",
+    "format": "prettier --write \"./**/*.{ts,tsx,js,jsx}\" && yarn lint:fix && prettier --write 'contracts/**/*.sol'",
     "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx}\"",
     "lint:fix": "eslint . --fix --ext .ts",
-    "lint": "eslint . --ext .ts --max-warnings=0 && prettier --list-different 'packages/dma-contracts/contracts/**/*.sol'",
+    "lint": "eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
     "task:deploy:dev": "yarn compile && npx hardhat deploy --network local --debug",
     "task:position:open": "npx hardhat createPosition --usefallbackswap --network local",
     "task:position:close": "npx hardhat closePosition --network local"
@@ -18,14 +18,15 @@
     "@oasisdex/dma-library": "*"
   },
   "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.2",
-    "@nomiclabs/hardhat-etherscan": "^2.1.7",
-    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
+    "@nomiclabs/hardhat-ethers": "^2.2.2",
+    "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "@nomiclabs/hardhat-waffle": "^2.0.5",
     "@tenderly/hardhat-tenderly": "^1.6.1",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
     "@typechain/ethers-v5": "^10.1.0",
-    "@typechain/hardhat": "^2.3.1",
+    "@typechain/hardhat": "6.1.5",
     "eslint": "^8.6.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-typescript": "^3.5.3",
@@ -33,7 +34,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "hardhat": "^2.12.6",
+    "hardhat": "^2.13.0",
     "hardhat-abi-exporter": "^2.2.1",
     "hardhat-contract-sizer": "^2.0.1",
     "hardhat-gas-reporter": "^1.0.4",
@@ -46,6 +47,6 @@
     "solidity-coverage": "^0.7.13",
     "solidity-docgen": "^0.6.0-beta.29",
     "tsconfig-paths": "^4.1.2",
-    "typechain": "^8.1.0"
+    "typechain": "8.1.1"
   }
 }

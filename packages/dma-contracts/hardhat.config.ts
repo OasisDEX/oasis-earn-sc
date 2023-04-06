@@ -24,7 +24,7 @@ import './tasks/transfer-all-proxies'
 
 import { ChainIdByNetwork, Network } from '@oasisdex/dma-common/utils/network'
 import * as dotenv from 'dotenv'
-import { HardhatUserConfig, task } from 'hardhat/config'
+import { task } from 'hardhat/config'
 import * as path from 'path'
 import * as process from 'process'
 
@@ -97,9 +97,18 @@ const includeMainnet = !!process.env.MAINNET_URL && !!process.env.PRIV_KEY_MAINN
 const includeGoerli = !!process.env.GOERLI_URL && !!process.env.PRIV_KEY_GOERLI
 const includeOptimism = !!process.env.OPTIMISM_URL && !!process.env.PRIV_KEY_OPTIMISM
 
-const config: HardhatUserConfig = {
+const config = {
   solidity: {
     compilers: [
+      {
+        version: '0.4.21',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
+      },
       {
         version: '0.4.24',
         settings: {

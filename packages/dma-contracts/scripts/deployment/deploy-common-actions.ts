@@ -1,6 +1,4 @@
 import { CONTRACT_NAMES } from '@oasisdex/dma-library/src/utils/constants'
-import hre from 'hardhat'
-
 import {
   PositionCreated,
   PullToken,
@@ -11,7 +9,9 @@ import {
   TakeFlashloan,
   UnwrapEth,
   WrapEth,
-} from '../../../../typechain'
+} from '@typechain/artifacts/contracts/actions/common'
+import hre from 'hardhat'
+
 import { HardhatUtils, removeVersion } from '../common'
 
 // TODO: Make this as core deployment script:

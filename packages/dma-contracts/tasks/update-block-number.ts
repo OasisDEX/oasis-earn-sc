@@ -1,7 +1,7 @@
-// @ts-expect-error : dev script
-const fetch = require('node-fetch')
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import fetch from 'node-fetch'
+import path from 'path'
+
 const mainnetInfoUrl = 'https://blockexplorer.one/ajax/eth/mainnet/info'
 const envFile = `${path.join(__dirname)}/.env`
 const envFileBackup = `${path.join(__dirname)}/.env_bak`

@@ -8,7 +8,7 @@
   "proseWrap": "always",
   "overrides": [
     {
-      "files": ["./contracts/libs/DS/DSGuard.sol"],
+      "files": ["packages/dma-contracts/contracts/libs/DS/DSGuard.sol"],
       "options": {
         "printWidth": 100,
         "tabWidth": 2,
@@ -20,7 +20,7 @@
       }
     },
     {
-      "files": ["./contracts/libs/DS/DSProxy.sol", "./contracts/libs/DS/DSProxyRegistry.sol"],
+      "files": ["packages/dma-contracts/contracts/libs/DS/DSProxy.sol", "./contracts/libs/DS/DSProxyRegistry.sol"],
       "options": {
         "printWidth": 100,
         "tabWidth": 2,
@@ -43,9 +43,9 @@
         "explicitTypes": "always"
       },
       "excludeFiles": [
-        "contracts/libs/DS/DSGuard.sol",
-        "contracts/libs/DS/DSProxy.sol",
-        "contracts/libs/DS/DSProxyRegistry.sol"
+        "packages/dma-contracts/contracts/libs/DS/DSGuard.sol",
+        "packages/dma-contracts/contracts/libs/DS/DSProxy.sol",
+        "packages/dma-contracts/contracts/libs/DS/DSProxyRegistry.sol"
       ]
     }
   ]

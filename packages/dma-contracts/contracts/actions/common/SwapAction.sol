@@ -11,7 +11,6 @@ import { Swap } from "../../swap/Swap.sol";
 import { WETH, SWAP } from "../../core/constants/Common.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 
-
 /**
  * @title SwapAction Action contract
  * @notice Call the deployed Swap contract which handles swap execution

@@ -1,7 +1,7 @@
 {
   "name": "@oasisdex/dma-library",
-  "main": "lib/packages/oasis-actions/src/index.js",
-  "typings": "lib/packages/oasis-actions/src/index.d.ts",
+  "main": "lib/src/index.js",
+  "typings": "lib/src/index.d.ts",
   "version": "0.2.16",
   "scripts": {
     "build": "tsc -b",
