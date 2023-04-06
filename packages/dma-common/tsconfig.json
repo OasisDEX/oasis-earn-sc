@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "strict": true,
+    "baseUrl": ".",
+    "types": [
+      "node"
+    ],
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@utils/*": ["./utils/*"],
+    },
+    "typeRoots": [
+      "../node_modules/@types"
+    ]
+  },
+  "include": [
+    "../dma-contracts/abi/**/*",
+    "./utils/**/*"
+  ],
+}

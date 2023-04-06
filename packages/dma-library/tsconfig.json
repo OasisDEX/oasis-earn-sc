@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "strict": true,
+    "outDir": "lib",
+    "baseUrl": ".",
+    "paths": {
+      "@typechain/*": [
+        "../dma-contracts/typechain/*"
+      ],
+      "@dma-library/test/*": [
+        "./test/*"
+      ],
+      "@dma-library/*": [
+        "./src/*"
+      ],
+      "@dma-library": [
+        "./src/index.ts"
+      ]
+    },
+    "types": [
+      "node"
+    ],
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "typeRoots": [
+      "../node_modules/@types"
+    ]
+  },
+  "include": [
+    "./src/**/*",
+    "./test/**/*"
+  ]
+}

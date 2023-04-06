@@ -19,15 +19,15 @@ jobs:
       - name: Install
         run: yarn --no-progress --non-interactive --frozen-lockfile
 
-      - name: Build @oasisdex/dupa-library
-        run: yarn workspace @oasisdex/dupa-library run build
+      - name: Build @oasisdex/dma-library
+        run: yarn workspace @oasisdex/dma-library run build
 
-      - name: Compile dupa-contracts
+      - name: Compile dma-contracts
         run: yarn compile
         env:
           BLOCK_NUMBER: 15946543
-          NETWORK_FORK: 'Mainnet'
-          MAINNET_URL: 'https://mainnet.infura.io/v3/dc90181458b54f00aa581963ab47fdb9'
+          NETWORK_FORK: 'mainnet'
+          MAINNET_URL: ${{ secrets.MAINNET_URL }}
 
       - name: Lint
         run: yarn lint
@@ -36,4 +36,4 @@ jobs:
         run: yarn format
 
       - name: Typecheck
-        run: yarn workspace @oasisdex/dupa-library run typecheck
+        run: yarn workspace @oasisdex/dma-library run typecheck

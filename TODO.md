@@ -1,10 +1,10 @@
 - Add Lerna Changelog https://github.com/lerna/lerna-changelog
 - Add Husky to perform checks before commit
 - Setup Unit & E2E tests workflows
-- Ensure docs are in sync with GitBook
 - Move update-block-numbers task into tasks directory
 - Ensure all packages are being formatted and linted correctly
 - Establish file and folder naming conventions: TS & Sol
 - Add instruction for regnerating domain unit tests scenarios
-- Move ContractNames to dupa-contracts
+- Move ContractNames to dma-contracts
 - Update name of init() function
+- Ensure docs are in sync with GitBook

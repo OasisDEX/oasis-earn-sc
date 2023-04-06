@@ -1,0 +1,1 @@
+export { mainnetAddresses } from './mainnet'

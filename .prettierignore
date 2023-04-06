@@ -4,4 +4,4 @@ cache
 coverage*
 gasReporterOutput.json
 typechain
-packages/dupa-library/lib
+packages/dma-library/lib

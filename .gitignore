@@ -1,20 +1,20 @@
 node_modules
 .env
-packages/dupa-contracts/.env
+packages/dma-contracts/.env
 .env_bak
 coverage
 coverage.json
-packages/dupa-contracts/typechain
+packages/dma-contracts/typechain
 yarn-error.log
 lerna-debug.log
 tenderly.yaml
 .idea/**/*
-packages/dupa-library/src/domain/credentials.json
+packages/dma-library/src/domain/credentials.json
 
 serviceRegistryEntries.txt
 
 #Hardhat files
-packages/dupa-contracts/abi/generated
+packages/dma-contracts/abi/generated
 cache
 artifacts
 
