@@ -19,10 +19,10 @@ jobs:
       - name: Install
         run: yarn --no-progress --non-interactive --frozen-lockfile
 
-      - name: Build @oasisdex/dma-library
-        run: yarn workspace @oasisdex/dma-library run build
+      - name: Build packages
+        run: yarn build
 
-      - name: Compile dma-contracts
+      - name: Compile contracts
         run: yarn compile
         env:
           BLOCK_NUMBER: 15946543
@@ -34,6 +34,3 @@ jobs:
 
       - name: Prettier
         run: yarn format
-
-      - name: Typecheck
-        run: yarn workspace @oasisdex/dma-library run typecheck

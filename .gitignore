@@ -9,9 +9,6 @@ yarn-error.log
 lerna-debug.log
 tenderly.yaml
 .idea/**/*
-packages/dma-library/src/domain/credentials.json
-
-serviceRegistryEntries.txt
 
 #Hardhat files
 packages/dma-contracts/abi/generated
