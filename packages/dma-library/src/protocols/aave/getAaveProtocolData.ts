@@ -1,19 +1,19 @@
+// V2 ABIs
+import aaveV2PriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
+import aaveV2ProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
+// V3 ABIs
+import aaveV3PriceOracleABI from '@oasisdex/abis/external/protocols/aave/v3/aaveOracle.json'
+import aaveV3ProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
+import aaveV3PoolABI from '@oasisdex/abis/external/protocols/aave/v3/pool.json'
+// V3 L2 ABIs
+import aaveV3PriceOracleOptimismABI from '@oasisdex/abis/external/protocols/aave/v3-l2/aaveOracle.json'
+import aaveV3ProtocolDataProviderOptimismABI from '@oasisdex/abis/external/protocols/aave/v3-l2/aaveProtocolDataProvider.json'
+import aaveV3PoolOptimismABI from '@oasisdex/abis/external/protocols/aave/v3-l2/pool.json'
 import { amountFromWei } from '@oasisdex/dma-common/utils/common'
 import { getForkedNetwork as coalesceNetwork, Network } from '@oasisdex/dma-common/utils/network'
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 
-// V2 ABIs
-import aaveV2PriceOracleABI from '@oasisdex/dma-contracts/abi/external/aave/v2/priceOracle.json'
-import aaveV2ProtocolDataProviderABI from '@oasisdex/dma-contracts/abi/external/aave/v2/protocolDataProvider.json'
-// V3 ABIs
-import aaveV3PriceOracleABI from '@oasisdex/dma-contracts/abi/external/aave/v3/aaveOracle.json'
-import aaveV3ProtocolDataProviderABI from '@oasisdex/dma-contracts/abi/external/aave/v3/aaveProtocolDataProvider.json'
-import aaveV3PoolABI from '@oasisdex/dma-contracts/abi/external/aave/v3/pool.json'
-// V3 L2 ABIs
-import aaveV3PriceOracleOptimismABI from '@oasisdex/dma-contracts/abi/external/aave/v3-l2/aaveOracle.json'
-import aaveV3ProtocolDataProviderOptimismABI from '@oasisdex/dma-contracts/abi/external/aave/v3-l2/aaveProtocolDataProvider.json'
-import aaveV3PoolOptimismABI from '@oasisdex/dma-contracts/abi/external/aave/v3-l2/pool.json'
 import { AAVEStrategyAddresses } from '../../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../../operations/aave/v3'
 import { AaveVersion } from '../../strategies'

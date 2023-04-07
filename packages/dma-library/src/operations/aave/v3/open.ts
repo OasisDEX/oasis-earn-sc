@@ -1,9 +1,5 @@
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-
 import * as actions from '@dma-library/actions'
 import { getActionHash } from '@dma-library/actions/getActionHash'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '@dma-library/utils/constants'
 import {
   IOperation,
   Protocol,
@@ -17,7 +13,10 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
-import { NULL_ADDRESS, ZERO } from '@oasisdex/dma-common/constants'
+import { NULL_ADDRESS, OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
 
 type OpenArgs = WithCollateral &
   WithDebtAndBorrow &

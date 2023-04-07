@@ -3,6 +3,7 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
+import { ServiceRegistry } from '@oasisdex/dma-common/utils/types/service-registry'
 import {
   ActionFactory,
   ADDRESSES,
@@ -22,7 +23,6 @@ import { getOrCreateProxy } from '../../dma-common/utils/proxy/proxy'
 import { swapOneInchTokens } from '../../dma-common/utils/swap/1inch'
 import { swapUniswapTokens } from '../../dma-common/utils/swap/uniswap'
 import { OperationsRegistry } from '../../dma-common/utils/wrappers/operationsRegistry'
-import { ServiceRegistry } from '../../dma-library/test/utils/service-registry'
 
 const createAction = ActionFactory.create
 

@@ -1,18 +1,3 @@
-import { Provider } from '@ethersproject/providers'
-import aavePriceOracleABI from '@oasisdex/dma-contracts/abi/external/aave/v2/priceOracle.json'
-import aaveProtocolDataProviderABI from '@oasisdex/dma-contracts/abi/external/aave/v2/protocolDataProvider.json'
-import aaveV3PriceOracleABI from '@oasisdex/dma-contracts/abi/external/aave/v3/aaveOracle.json'
-import aaveV3ProtocolDataProviderABI from '@oasisdex/dma-contracts/abi/external/aave/v3/aaveProtocolDataProvider.json'
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-import { memoizeWith } from 'ramda'
-
-import { Position } from '@dma-library/domain/Position'
-import { calculateFee } from '@dma-library/utils'
-import { ADDRESSES } from '@dma-library/utils/addresses'
-import { FLASHLOAN_SAFETY_MARGIN } from '@dma-library/utils/constants'
-import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
-import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
 import * as operations from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
@@ -25,8 +10,14 @@ import {
   WithLockedCollateral,
 } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
-import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
-import { AaveVersion } from '../getCurrentPosition'
+import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
+import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
+import { Provider } from '@ethersproject/providers'
+import aavePriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
+import aaveProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
+import aaveV3PriceOracleABI from '@oasisdex/abis/external/protocols/aave/v3/aaveOracle.json'
+import aaveV3ProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
+import { ADDRESSES } from '@oasisdex/addresses'
 import {
   FEE_BASE,
   FEE_ESTIMATE_INFLATOR,
@@ -36,6 +27,14 @@ import {
   ZERO,
 } from '@oasisdex/dma-common/constants'
 import { amountFromWei, amountToWei } from '@oasisdex/dma-common/utils/common'
+import { calculateFee } from '@oasisdex/dma-common/utils/swap'
+import { FLASHLOAN_SAFETY_MARGIN, Position } from '@oasisdex/domain/src'
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
+import { memoizeWith } from 'ramda'
+
+import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
+import { AaveVersion } from '../getCurrentPosition'
 
 export type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> &
   WithLockedCollateral & {
@@ -177,7 +176,7 @@ async function getSwapDataToCloseToCollateral(
 
   const preSwapFee =
     collectFeeFrom === 'sourceToken'
-      ? calculateFee(amountNeededToEnsureRemainingDebtIsRepaid, fee, new BigNumber(FEE_BASE))
+      ? calculateFee(amountNeededToEnsureRemainingDebtIsRepaid, fee.toNumber())
       : ZERO
 
   return {
@@ -207,9 +206,7 @@ async function getSwapDataToCloseToDebt(
   const fee = feeResolver(collateralToken.symbol, debtToken.symbol)
 
   const preSwapFee =
-    collectFeeFrom === 'sourceToken'
-      ? calculateFee(swapAmountBeforeFees, fee, new BigNumber(FEE_BASE))
-      : ZERO
+    collectFeeFrom === 'sourceToken' ? calculateFee(swapAmountBeforeFees, fee.toNumber()) : ZERO
 
   const swapAmountAfterFees = swapAmountBeforeFees
     .minus(preSwapFee)
@@ -379,9 +376,7 @@ async function generateTransition(
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
 
   const postSwapFee =
-    collectFeeFrom === 'targetToken'
-      ? calculateFee(swapData.toTokenAmount, fee, new BigNumber(FEE_BASE))
-      : ZERO
+    collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
 
   return {
     transaction: {

@@ -1,21 +1,19 @@
 import { ActionFactory } from '@dma-library/actions/actionFactory'
-import { ADDRESSES } from '@dma-library/utils/addresses'
-import { CONTRACT_NAMES } from '@dma-library/utils/constants'
-import { ActionCall, calldataTypes } from '@dma-library/types'
-// @ts-ignore
+import { ActionCall, calldataTypes } from '@dma-library/types' // @ts-ignore
 import * as optimismSDK from '@eth-optimism/sdk'
 import { TransactionRequest } from '@ethersproject/providers'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { CONTRACT_NAMES, FIFTY, HUNDRED, MAX_UINT, ONE } from '@oasisdex/dma-common/constants'
+import { amountToWei } from '@oasisdex/dma-common/utils/common'
 import { createDeploy } from '@oasisdex/dma-common/utils/deploy'
 import init from '@oasisdex/dma-common/utils/init'
-import { ServiceRegistry } from '@dma-library/test/utils/service-registry'
 import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
 import { BalanceOptions, RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
-import { amountToWei } from '@oasisdex/dma-common/utils/common'
+import { ServiceRegistry } from '@oasisdex/dma-common/utils/types/service-registry'
 import { OperationsRegistry } from '@oasisdex/dma-common/utils/wrappers/operationsRegistry'
 import { getServiceNameHash } from '@oasisdex/dma-contracts/scripts/common'
 import BigNumber from 'bignumber.js'
 import { Contract } from 'ethers'
-import { FIFTY, HUNDRED, MAX_UINT, ONE } from '@oasisdex/dma-common/constants'
 
 const createAction = ActionFactory.create
 

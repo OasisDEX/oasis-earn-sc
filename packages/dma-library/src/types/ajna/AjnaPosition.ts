@@ -1,9 +1,9 @@
+import { ZERO } from '@oasisdex/dma-common/constants'
+import { IRiskRatio, RiskRatio } from '@oasisdex/domain/src'
 import { BigNumber } from 'bignumber.js'
 
-import { IRiskRatio, RiskRatio } from '@dma-library/domain'
 import { Address, AjnaError } from '../common'
 import { AjnaPool } from './AjnaPool'
-import { ZERO } from '@oasisdex/dma-common/constants'
 
 export interface IAjnaPosition {
   pool: AjnaPool

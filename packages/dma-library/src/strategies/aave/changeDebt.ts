@@ -1,8 +1,9 @@
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { IViewPositionDependencies, IViewPositionParams, WithDebtChange } from '@dma-library/types'
 import { AavePosition, AAVETokens } from '@dma-library/types/aave'
-import { AaveVersion, getCurrentPosition } from './getCurrentPosition'
 import { ZERO } from '@oasisdex/dma-common/constants'
+
+import { AaveVersion, getCurrentPosition } from './getCurrentPosition'
 
 export async function changeDebt(
   args: IViewPositionParams<AAVETokens> & WithDebtChange<AAVETokens>,

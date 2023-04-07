@@ -1,8 +1,8 @@
-import { ADDRESSES } from '@oasisdex/dma-library/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Optional } from 'utility-types'
 
-import UNISWAP_ROUTER_V3_ABI from '../../../dma-contracts/abi/IUniswapRouter.json'
+import UNISWAP_ROUTER_V3_ABI from '../../../abis/external/swap/IUniswapRouter.json'
 import { RuntimeConfig } from '../types/common'
 
 /**

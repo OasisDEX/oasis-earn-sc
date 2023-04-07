@@ -10,16 +10,21 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "allowJs": true,
     "resolveJsonModule": true,
+    "noImplicitAny": false,
     "paths": {
-      "@utils/*": ["./utils/*"],
+      "@utils/*": ["./utils/*"]
     },
     "typeRoots": [
-      "../node_modules/@types"
+      "../../node_modules/@types"
     ]
   },
   "include": [
-    "../dma-contracts/abi/**/*",
-    "./utils/**/*"
+    "./utils/**/*",
+    "./test-utils/**/*"
   ],
+  "files": [
+    "./hardhat.config.ts"
+  ]
 }

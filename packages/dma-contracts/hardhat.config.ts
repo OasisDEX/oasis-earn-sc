@@ -28,7 +28,7 @@ import { task } from 'hardhat/config'
 import * as path from 'path'
 import * as process from 'process'
 
-dotenv.config({ path: path.join(__dirname, './.env') })
+dotenv.config({ path: path.join(__dirname, '../../.env') })
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -214,7 +214,15 @@ const config = {
   },
   typechain: {
     outDir: 'typechain',
-    externalArtifacts: ['./abi/external/**/*.json'],
+    externalArtifacts: ['../abis/external/**/*.json'],
+  },
+  abiExporter: {
+    path: '../abis/system',
+    runOnCompile: true,
+    clear: true,
+    flat: false,
+    spacing: 2,
+    pretty: false,
   },
   docgen: {
     outputDir: './docs',
@@ -228,14 +236,6 @@ const config = {
       './libs',
       './test',
     ],
-  },
-  abiExporter: {
-    path: './abi/generated',
-    runOnCompile: true,
-    clear: true,
-    flat: false,
-    spacing: 2,
-    pretty: false,
   },
 }
 

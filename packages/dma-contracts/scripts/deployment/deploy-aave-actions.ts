@@ -1,11 +1,12 @@
-import { CONTRACT_NAMES } from '@oasisdex/dma-library/src/utils/constants'
-import { AaveBorrow } from '@typechain/artifacts/contracts/actions/aave/v2/Borrow.sol'
-import { AaveDeposit } from '@typechain/artifacts/contracts/actions/aave/v2/Deposit.sol'
-import { AavePayback } from '@typechain/artifacts/contracts/actions/aave/v2/Payback.sol'
-import { AaveWithdraw } from '@typechain/artifacts/contracts/actions/aave/v2/Withdraw.sol'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
+import { removeVersion } from '@oasisdex/dma-common/utils/deploy'
+import { AaveBorrow } from '@typechain/dma-contracts/artifacts/contracts/actions/aave/v2/Borrow.sol'
+import { AaveDeposit } from '@typechain/dma-contracts/artifacts/contracts/actions/aave/v2/Deposit.sol'
+import { AavePayback } from '@typechain/dma-contracts/artifacts/contracts/actions/aave/v2/Payback.sol'
+import { AaveWithdraw } from '@typechain/dma-contracts/artifacts/contracts/actions/aave/v2/Withdraw.sol'
 import hre from 'hardhat'
 
-import { HardhatUtils, removeVersion } from '../common'
+import { HardhatUtils } from '../common'
 
 // TODO: Make this as core deployment script:
 // If there is a populated address for the given address, skip deployment

@@ -1,15 +1,16 @@
-import { AAVETokens, ADDRESSES, CONTRACT_NAMES, strategies } from '@oasisdex/dma-library'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
+import { amountToWei, approve } from '@oasisdex/dma-common/utils/common'
+import { executeThroughDPMProxy } from '@oasisdex/dma-common/utils/execute'
+import init from '@oasisdex/dma-common/utils/init'
+import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/OneInchCall'
+import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
+import { AAVETokens, strategies } from '@oasisdex/dma-library/src'
+import { StrategiesDependencies } from '@oasisdex/dma-library/test/fixtures'
+import { createDPMAccount } from '@oasisdex/dma-library/test/fixtures/factories'
+import { AAVETokensToGet, buildGetTokenFunction } from '@oasisdex/dma-library/test/utils/aave'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
-
-import { amountToWei, approve } from '../../../dma-common/utils/common'
-import { executeThroughDPMProxy } from '../../../dma-common/utils/deploy'
-import init from '../../../dma-common/utils/init'
-import { getOneInchCall } from '../../../dma-common/utils/swap/OneInchCall'
-import { oneInchCallMock } from '../../../dma-common/utils/swap/OneInchCallMock'
-import { createDPMAccount } from '../../../dma-library/test/fixtures/factories'
-import { StrategiesDependencies } from '../../../dma-library/test/fixtures/types'
-import { AAVETokensToGet, buildGetTokenFunction } from '../../../dma-library/test/utils/aave'
 
 type CreateBorrowPositionArgs = {
   serviceRegistry: string
@@ -83,10 +84,10 @@ task('createBorrowPosition', 'Create borrow position')
       WBTC: ADDRESSES.main.WBTC,
       USDC: ADDRESSES.main.USDC,
       chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-      aavePriceOracle: ADDRESSES.main.aavePriceOracle,
-      aaveLendingPool: ADDRESSES.main.aave.MainnetLendingPool,
+      aavePriceOracle: ADDRESSES.main.aave.v2.PriceOracle,
+      aaveLendingPool: ADDRESSES.main.aave.v2.LendingPool,
       operationExecutor: operationExecutorAddress,
-      aaveProtocolDataProvider: ADDRESSES.main.aave.DataProvider,
+      aaveProtocolDataProvider: ADDRESSES.main.aave.v2.ProtocolDataProvider,
       accountFactory: accountFactory,
     }
 
@@ -124,7 +125,7 @@ task('createBorrowPosition', 'Create borrow position')
       await approve(collateralAddress, proxy1, new BigNumber(deposit), config, false)
     }
 
-    const simulation = await strategies.aave.openDepositAndBorrowDebt(
+    const simulation = await strategies.aave.v2.openDepositAndBorrowDebt(
       {
         positionType: 'Borrow',
         slippage: new BigNumber(0.1),

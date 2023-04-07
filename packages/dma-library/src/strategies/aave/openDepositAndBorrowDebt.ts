@@ -11,9 +11,10 @@ import {
   WithPositionType,
 } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
+import { ZERO } from '@oasisdex/dma-common/constants'
+
 import { getAaveTokenAddresses } from './getAaveTokenAddresses'
 import { AaveVersion, getCurrentPosition } from './getCurrentPosition'
-import { ZERO } from '@oasisdex/dma-common/constants'
 
 export async function openDepositAndBorrowDebt(
   args: IBasePositionTransitionArgs<AAVETokens> &

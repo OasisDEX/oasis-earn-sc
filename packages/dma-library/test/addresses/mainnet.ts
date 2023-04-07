@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@dma-library/utils/addresses'
+import { ADDRESSES } from '@dma-library/../../../addresses'
 
 export const mainnetAddresses = {
   DAI: ADDRESSES.main.DAI,

@@ -1,3 +1,7 @@
+import { IPositionTransition } from '@dma-library'
+import { expect } from '@oasisdex/dma-common/test-utils'
+import { Network } from '@oasisdex/dma-common/utils/network'
+import { IPosition } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 
@@ -11,9 +15,6 @@ import {
   getSystemWithAaveV3Positions,
 } from '../../../fixtures/system/getSystemWithAaveV3Positions'
 import { SystemWithAAVEV3Positions } from '../../../fixtures/types/systemWithAAVEPositions'
-import { Network } from '@oasisdex/dma-common/utils/network'
-import { IPosition, IPositionTransition } from '@dma-library'
-import { expect } from '@oasisdex/dma-common/test-utils'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 const networkFork = process.env.NETWORK_FORK as Network

@@ -1,10 +1,9 @@
+import { AAVETokens } from '@dma-library'
+import { mainnetAddresses } from '@dma-library/test/addresses'
+import erc20abi from '@oasisdex/abis/external/tokens/IERC20.json'
+import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-
-import erc20abi from '@oasisdex/dma-contracts/abi/external/IERC20.json'
-import { mainnetAddresses } from '@dma-library/test/addresses'
-import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
-import { AAVETokens } from '@dma-library'
 
 export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH'>
 const tokensWhales: Record<AAVETokensToGet, { whale: string; tokenAddress: string }> = {

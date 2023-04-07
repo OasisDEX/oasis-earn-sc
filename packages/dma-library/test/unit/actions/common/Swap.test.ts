@@ -1,30 +1,30 @@
-import ERC20_ABI from '@oasisdex/dma-contracts/abi/IERC20.json'
-import WETH_ABI from '@oasisdex/dma-contracts/abi/IWETH.json'
-import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
-import { ethers } from 'hardhat'
 import { initialiseConfig } from '@dma-library/test/fixtures'
-import { ADDRESSES } from '@dma-library/utils/addresses'
+import { Contract } from '@ethersproject/contracts'
+import { JsonRpcProvider } from '@ethersproject/providers'
+import ERC20_ABI from '@oasisdex/abis/external/tokens/IERC20.json'
+import WETH_ABI from '@oasisdex/abis/external/tokens/IWETH.json'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { FEE_BASE, ONE } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
-import BigNumber from 'bignumber.js'
+import { DeployedSystemInfo, deploySystem } from '@oasisdex/dma-common/test-utils/deploy-system'
+import { FEE } from '@oasisdex/dma-common/test-utils/dummy-exchange'
 import {
   amountFromWei,
   amountToWei,
   asPercentageValue,
   balanceOf,
 } from '@oasisdex/dma-common/utils/common'
-import { Contract } from '@ethersproject/contracts'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import { Signer } from 'ethers'
-import { DeployedSystemInfo, deploySystem } from '@dma-library/test/utils/deploy-system'
+import { calculateFee } from '@oasisdex/dma-common/utils/swap'
 import {
   exchangeFromDAI,
   exchangeToDAI,
   swapOneInchTokens,
 } from '@oasisdex/dma-common/utils/swap/1inch'
-import { calculateFee } from '@oasisdex/dma-common/utils/swap'
-import { FEE_BASE, ONE } from '@oasisdex/dma-common/constants'
 import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
-import { FEE } from '@dma-library/test/utils/dummy-exchange'
+import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
+import BigNumber from 'bignumber.js'
+import { Signer } from 'ethers'
+import { ethers } from 'hardhat'
 
 const ALLOWED_PROTOCOLS = ['UNISWAP_V2', 'UNISWAP_V3']
 

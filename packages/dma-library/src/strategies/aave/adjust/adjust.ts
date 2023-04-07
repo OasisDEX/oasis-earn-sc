@@ -1,5 +1,3 @@
-import { IBaseSimulatedTransition, IPosition } from '@dma-library/domain/Position'
-import { IRiskRatio } from '@dma-library/domain/RiskRatio'
 import * as operations from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
@@ -17,16 +15,21 @@ import { WithV2Addresses, WithV3Addresses } from '@dma-library/types/aave/Addres
 import { WithFee } from '@dma-library/types/aave/Fee'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/Protocol'
 import { FlashloanProvider } from '@dma-library/types/common'
-import { calculateFee } from '@dma-library/utils'
-import { UNUSED_FLASHLOAN_AMOUNT } from '@dma-library/utils/constants'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
 import { getSwapDataHelper } from '@dma-library/utils/swap/get-swap-data'
-import { FEE_BASE, FEE_ESTIMATE_INFLATOR } from '@oasisdex/dma-common/constants'
-import { ONE, TYPICAL_PRECISION, ZERO } from '@oasisdex/dma-common/constants/numbers'
+import { FEE_ESTIMATE_INFLATOR } from '@oasisdex/dma-common/constants'
+import {
+  ONE,
+  TYPICAL_PRECISION,
+  UNUSED_FLASHLOAN_AMOUNT,
+  ZERO,
+} from '@oasisdex/dma-common/constants/numbers'
 import { amountFromWei, amountToWei } from '@oasisdex/dma-common/utils/common'
 import { getForkedNetwork } from '@oasisdex/dma-common/utils/network'
+import { calculateFee } from '@oasisdex/dma-common/utils/swap'
+import { IBaseSimulatedTransition, IPosition, IRiskRatio } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
@@ -724,11 +727,11 @@ async function generateTransition({
     : simulatedPositionTransition.delta.collateral
 
   const preSwapFee = shouldCollectFeeFromSourceToken
-    ? calculateFee(sourceTokenAmount, fee, new BigNumber(FEE_BASE))
+    ? calculateFee(sourceTokenAmount, fee.toNumber())
     : ZERO
   const postSwapFee = shouldCollectFeeFromSourceToken
     ? ZERO
-    : calculateFee(swapData.toTokenAmount, fee, new BigNumber(FEE_BASE))
+    : calculateFee(swapData.toTokenAmount, fee.toNumber())
 
   return {
     transaction: {

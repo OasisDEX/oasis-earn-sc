@@ -1,30 +1,18 @@
 import 'tsconfig-paths/register'
 
 import * as dotenv from 'dotenv'
-import { HardhatUserConfig, task } from 'hardhat/config'
+import { HardhatUserConfig } from 'hardhat/config'
 import * as path from 'path'
 import * as process from 'process'
 
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-gas-reporter'
-import '@typechain/hardhat'
 import 'solidity-coverage'
 import 'solidity-docgen'
 import 'hardhat-tracer'
-import 'hardhat-abi-exporter'
 
-dotenv.config({ path: path.join(__dirname, './.env') })
-
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners()
-
-  for (const account of accounts) {
-    console.log(account.address)
-  }
-})
+dotenv.config({ path: path.join(__dirname, '../../.env') })
 
 const blockNumber = process.env.BLOCK_NUMBER
 if (!blockNumber) {
@@ -104,10 +92,6 @@ const config: HardhatUserConfig = {
   mocha: {
     timeout: 600000,
   },
-  typechain: {
-    outDir: 'typechain',
-    externalArtifacts: ['abi/external/**/*.json'],
-  },
   docgen: {
     outputDir: './docs',
     pages: 'files',
@@ -120,14 +104,6 @@ const config: HardhatUserConfig = {
       './libs',
       './test',
     ],
-  },
-  abiExporter: {
-    path: './abi/generated',
-    runOnCompile: true,
-    clear: true,
-    flat: true,
-    spacing: 2,
-    pretty: false,
   },
 }
 

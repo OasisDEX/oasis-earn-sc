@@ -1,30 +1,29 @@
+import { AAVETokens, strategies } from '@dma-library'
+import { mainnetAddresses } from '@dma-library/test/addresses'
+import { testBlockNumber } from '@dma-library/test/config'
+import { tokens } from '@dma-library/test/constants'
 import { initialiseConfig } from '@dma-library/test/fixtures'
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import BigNumber from 'bignumber.js'
-import AAVEDataProviderABI from '@oasisdex/dma-contracts/abi/external/aave/v2/protocolDataProvider.json'
-import aavePriceOracleABI from '@oasisdex/dma-contracts/abi/external/aave/v2/priceOracle.json'
-
-import { AAVETokens, Position, strategies } from '@dma-library'
-import { ADDRESSES } from '@dma-library/utils/addresses'
-import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import {
-  expect,
-  gasEstimateHelper,
-  GasEstimateHelper,
-  restoreSnapshot,
-} from '@oasisdex/dma-common/test-utils'
-import { ONE, ZERO } from '@oasisdex/dma-common/constants'
-import { amountFromWei, amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { Address } from '@dma-library/types'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
-import { ethers, Signer } from 'ethers'
-import { Address } from '@dma-library/types'
-import { testBlockNumber } from '@dma-library/test/config'
-import { mainnetAddresses } from '@dma-library/test/addresses'
-import { PositionBalance } from '@dma-library/domain'
+import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
+import aavePriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
+import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { ONE, ZERO } from '@oasisdex/dma-common/constants'
+import {
+  expect,
+  GasEstimateHelper,
+  gasEstimateHelper,
+  restoreSnapshot,
+} from '@oasisdex/dma-common/test-utils'
+import { amountFromWei, amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
-import { tokens } from '@dma-library/test/constants'
+import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
+import { Position, PositionBalance } from '@oasisdex/domain/src'
+import BigNumber from 'bignumber.js'
+import { ethers, Signer } from 'ethers'
 
 // TODO: IMPLEMENT THIS TEST
 describe(`Strategy | AAVE | Deposit/Borrow`, async function () {

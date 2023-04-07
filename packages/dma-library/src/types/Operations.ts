@@ -1,6 +1,6 @@
+import { OperationNames } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
 
-import { OperationNames } from '../utils/constants'
 import { AAVEStrategyAddresses } from '../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../operations/aave/v3'
 import { ActionCall } from './actionCall'

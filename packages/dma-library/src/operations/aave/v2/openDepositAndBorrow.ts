@@ -1,6 +1,7 @@
 import * as actions from '@dma-library/actions'
-import { OPERATION_NAMES } from '@dma-library/utils/constants'
 import { PositionType, Protocol } from '@dma-library/types'
+import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
+
 import { borrow, BorrowArgs } from './borrow'
 import { deposit, DepositArgs } from './deposit'
 

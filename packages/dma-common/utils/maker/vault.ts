@@ -1,11 +1,11 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES } from '@oasisdex/dma-library/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import BigNumber from 'bignumber.js'
 import { BigNumber as EthersBN, BigNumberish, Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 import _ from 'lodash'
 
-import GetCDPsABI from '../../../dma-contracts/abi/get-cdps.json'
+import GetCDPsABI from '../../../abis/external/protocols/maker/get-cdps.json'
 import { CDPInfo, VaultInfo } from '../types/maker'
 
 export async function getLastVault(

@@ -1,8 +1,8 @@
 import { providers } from 'ethers'
 
-import { DeployedSystemInfo, deploySystem } from '@oasisdex/dma-library/test/utils/deploy-system'
+import { DeployedSystemInfo, deploySystem } from './deploy-system'
 import { resetNode } from '../utils/init'
-import { ServiceRegistry } from '../../dma-library/test/utils/service-registry'
+import { ServiceRegistry } from '../utils/types/service-registry'
 import { RuntimeConfig } from '../utils/types/common'
 
 type System = { system: DeployedSystemInfo; registry: ServiceRegistry }

@@ -1,27 +1,27 @@
 import { ActionFactory, calldataTypes } from '@dma-library'
+import { testBlockNumber } from '@dma-library/test/config'
+import { initialiseConfig } from '@dma-library/test/fixtures'
+import { ServiceRegistry } from '@dma-library/test/utils'
 import { Contract } from '@ethersproject/contracts'
-import BigNumber from 'bignumber.js'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { DeployedSystemInfo } from '@dma-library/test/utils/deploy-system'
-import { ethers, Signer } from 'ethers'
+import CDPManagerABI from '@oasisdex/abis/external/protocols/maker/dss-cdp-manager.json'
+import ERC20ABI from '@oasisdex/abis/external/tokens/IERC20.json'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import {
   expect,
-  gasEstimateHelper,
   GasEstimateHelper,
+  gasEstimateHelper,
   restoreSnapshot,
 } from '@oasisdex/dma-common/test-utils'
-import { ServiceRegistry } from '@dma-library/test/utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
-import { loadFixture } from 'ethereum-waffle'
-import { initialiseConfig } from '@dma-library/test/fixtures'
-import { ADDRESSES } from '@dma-library/utils/addresses'
-import ERC20ABI from '@oasisdex/dma-contracts/abi/IERC20.json'
+import { DeployedSystemInfo } from '@oasisdex/dma-common/test-utils/deploy-system'
 import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '@dma-library/utils/constants'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import CDPManagerABI from '@oasisdex/dma-contracts/abi/dss-cdp-manager.json'
 import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker/vault'
-import { testBlockNumber } from '@dma-library/test/config'
+import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
+import BigNumber from 'bignumber.js'
+import { loadFixture } from 'ethereum-waffle'
+import { ethers, Signer } from 'ethers'
 
 const createAction = ActionFactory.create
 

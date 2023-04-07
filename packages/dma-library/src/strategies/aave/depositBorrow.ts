@@ -1,9 +1,3 @@
-import BigNumber from 'bignumber.js'
-
-import { IPosition } from '@dma-library/domain/Position'
-import { RiskRatio } from '@dma-library/domain/RiskRatio'
-import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
-import { getZeroSwap } from '@dma-library/utils/swap/get-zero-swap'
 import * as operations from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
 import { BorrowArgs } from '@dma-library/operations/aave/v2/borrow'
@@ -15,8 +9,12 @@ import {
   SwapData,
 } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
+import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
+import { getZeroSwap } from '@dma-library/utils/swap/get-zero-swap'
 import { ZERO } from '@oasisdex/dma-common/constants'
 import { TYPICAL_PRECISION } from '@oasisdex/dma-common/constants/numbers'
+import { IPosition, RiskRatio } from '@oasisdex/domain/src'
+import BigNumber from 'bignumber.js'
 
 interface DepositBorrowArgs {
   entryToken?: {

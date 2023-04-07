@@ -1,17 +1,18 @@
-import { AaveVersion, RiskRatio, strategies } from '@dma-library'
-import {
-  AaveV2OpenDependencies,
-  AaveV3OpenDependencies,
-} from '@dma-library/strategies/aave/open/open'
-import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
-import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
-import BigNumber from 'bignumber.js'
-
+import { AaveVersion, strategies } from '@dma-library'
 import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
 } from '@dma-library/protocols/aave/config'
+import {
+  AaveV2OpenDependencies,
+  AaveV3OpenDependencies,
+} from '@dma-library/strategies/aave/open/open'
+import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
+import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
+import { RiskRatio } from '@oasisdex/domain/src'
+import BigNumber from 'bignumber.js'
+
 import { mainnetAddresses } from '../../addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC, WBTC } from './common'

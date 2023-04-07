@@ -1,17 +1,15 @@
 import { FakeContract, smock } from '@defi-wonderland/smock'
 import { calldataTypes } from '@dma-library'
-import { CONTRACT_NAMES } from '@dma-library/utils/constants'
 import { JsonRpcProvider } from '@ethersproject/providers'
-
+import AavePoolAbi from '@oasisdex/abis/external/protocols/aave/v3/pool.json'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
 import { createDeploy } from '@oasisdex/dma-common/utils/deploy'
 import init from '@oasisdex/dma-common/utils/init'
-import { ServiceRegistry } from '@dma-library/test/utils/service-registry'
-import AavePoolAbi from '@oasisdex/dma-contracts/abi/external/aave/v3/pool.json'
-
+import { ServiceRegistry } from '@oasisdex/dma-common/utils/types/service-registry'
+import { Pool } from '@oasisdex/dma-contracts/typechain/abis/external/protocols/aave/v3/Pool'
 import chai, { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
-import { Pool } from '@oasisdex/dma-contracts/typechain/abi/external/aave/v3/Pool'
 
 const utils = ethers.utils
 chai.use(smock.matchers)

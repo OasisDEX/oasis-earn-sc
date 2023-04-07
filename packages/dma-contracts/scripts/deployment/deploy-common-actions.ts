@@ -1,4 +1,5 @@
-import { CONTRACT_NAMES } from '@oasisdex/dma-library/src/utils/constants'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
+import { removeVersion } from '@oasisdex/dma-common/utils/deploy'
 import {
   PositionCreated,
   PullToken,
@@ -9,10 +10,10 @@ import {
   TakeFlashloan,
   UnwrapEth,
   WrapEth,
-} from '@typechain/artifacts/contracts/actions/common'
+} from '@typechain/dma-contracts/artifacts/contracts/actions/common'
 import hre from 'hardhat'
 
-import { HardhatUtils, removeVersion } from '../common'
+import { HardhatUtils } from '../common'
 
 // TODO: Make this as core deployment script:
 // If there is a populated address for the given address, skip deployment

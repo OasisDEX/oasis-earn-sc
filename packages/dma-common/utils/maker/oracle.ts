@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES } from '@oasisdex/dma-library/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import BigNumber from 'bignumber.js'
 
 export async function getOraclePrice(

@@ -11,13 +11,15 @@
     "baseUrl": ".",
     "paths": {
       "@typechain/*": ["./typechain/*"],
-      "@abi/*": ["./abi/*"],
-      "@dma-library/test/*": ["../dma-library/test/*"],
-      "@dma-library/*": ["../dma-library/src/*"],
-      "@dma-library": ["../dma-library/src/index.ts"]
-    }
+      "@abi/*": ["./abi/*"]
+    },
+    "typeRoots": [
+      "../../node_modules/@types"
+    ]
   },
-  "exclude": [
-    "../../node_modules",
+  "include": [
+    "hardhat.config.ts",
+    "tasks/**/*.ts",
+    "scripts/**/*.ts"
   ],
 }

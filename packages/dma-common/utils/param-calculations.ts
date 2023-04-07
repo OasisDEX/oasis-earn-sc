@@ -1,9 +1,9 @@
+import { ADDRESSES } from '@oasisdex/addresses'
 import BigNumber from 'bignumber.js'
 
-import { ExchangeData } from './types/common'
-import { amountToWei, logDebug } from './common'
 import { ONE } from '../constants'
-import { ADDRESSES } from '@oasisdex/dma-library/src'
+import { amountToWei, logDebug } from './common'
+import { ExchangeData } from './types/common'
 
 type IncreaseMultipleParams = [BigNumber, BigNumber, BigNumber] & {
   requiredDebt: BigNumber

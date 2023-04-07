@@ -1,7 +1,8 @@
-import { ADDRESSES } from '@dma-library'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { balanceOf } from '@oasisdex/dma-common/utils/common'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { FIFTY, ZERO } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
+import { balanceOf } from '@oasisdex/dma-common/utils/common'
 
 import {
   BORROW_OPERATION,
@@ -10,7 +11,6 @@ import {
   PAYBACK_OPERATION,
   vOptUSDC,
 } from './L2TestsHelper'
-import { FIFTY, ZERO } from '@oasisdex/dma-common/constants'
 
 describe('Payback Action', () => {
   it('should payback borrowed funds from the protocol in total', async () => {

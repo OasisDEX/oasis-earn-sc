@@ -1,38 +1,37 @@
-import BigNumber from 'bignumber.js'
-import { expect } from '@oasisdex/dma-common/test-utils'
-import { loadFixture } from 'ethereum-waffle'
-import { Contract, ethers } from 'ethers'
-import AAVELendingPoolABI from '@oasisdex/dma-contracts/abi/external/aave/v2/lendingPool.json'
-import aavePriceOracleABI from '@oasisdex/dma-contracts/abi/external/aave/v2/priceOracle.json'
-import AAVEDataProviderABI from '@oasisdex/dma-contracts/abi/external/aave/v2/protocolDataProvider.json'
-import AAVEPoolABI from '@oasisdex/dma-contracts/abi/external/aave/v3/pool.json'
-import aaveOracleABI from '@oasisdex/dma-contracts/abi/external/aave/v3/aaveOracle.json'
-import AAVEProtocolDataProviderABI from '@oasisdex/dma-contracts/abi/external/aave/v3/aaveProtocolDataProvider.json'
+import { AAVETokens, strategies } from '@dma-library'
+import { mainnetAddresses } from '@dma-library/test/addresses'
 import {
   getSupportedStrategies,
   getSystemWithAavePositions,
   SystemWithAAVEPositions,
 } from '@dma-library/test/fixtures'
 import { UNISWAP_TEST_SLIPPAGE } from '@dma-library/test/fixtures/factories/common'
-
-import { TokenDetails } from '@dma-library/test/fixtures/types/positionDetails'
-import { SystemWithAAVEV3Positions } from '@dma-library/test/fixtures/types/systemWithAAVEPositions'
-
-import { AAVETokens, IPosition, strategies } from '@dma-library'
-import { RuntimeConfig, Unbox } from '@oasisdex/dma-common/utils/types/common'
-import { DeployedSystemInfo } from '@dma-library/test/utils/deploy-system'
-import { mainnetAddresses } from '@dma-library/test/addresses'
-import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
-import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { ONE, ZERO } from '@oasisdex/dma-common/constants'
-import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
-import { ADDRESSES } from '@dma-library/utils/addresses'
-import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
 import {
   getSupportedAaveV3Strategies,
   getSystemWithAaveV3Positions,
 } from '@dma-library/test/fixtures/system/getSystemWithAaveV3Positions'
+import { TokenDetails } from '@dma-library/test/fixtures/types/positionDetails'
+import { SystemWithAAVEV3Positions } from '@dma-library/test/fixtures/types/systemWithAAVEPositions'
+import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
+import AAVELendingPoolABI from '@oasisdex/abis/external/protocols//aave/v2/lendingPool.json'
+import aavePriceOracleABI from '@oasisdex/abis/external/protocols//aave/v2/priceOracle.json'
+import AAVEDataProviderABI from '@oasisdex/abis/external/protocols//aave/v2/protocolDataProvider.json'
+import aaveOracleABI from '@oasisdex/abis/external/protocols//aave/v3/aaveOracle.json'
+import AAVEProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
+import AAVEPoolABI from '@oasisdex/abis/external/protocols/aave/v3/pool.json'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { ONE, ZERO } from '@oasisdex/dma-common/constants'
+import { expect } from '@oasisdex/dma-common/test-utils'
+import { DeployedSystemInfo } from '@oasisdex/dma-common/test-utils/deploy-system'
+import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { Network } from '@oasisdex/dma-common/utils/network'
+import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
+import { RuntimeConfig, Unbox } from '@oasisdex/dma-common/utils/types/common'
+import { IPosition } from '@oasisdex/domain/src'
+import BigNumber from 'bignumber.js'
+import { loadFixture } from 'ethereum-waffle'
+import { Contract, ethers } from 'ethers'
 
 const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 const networkFork = process.env.NETWORK_FORK as Network

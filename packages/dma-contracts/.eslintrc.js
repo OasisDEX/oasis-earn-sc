@@ -9,7 +9,8 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: './tsconfig.json',
-    tsconfigRootDir: './',
+    tsconfigRootDir: __dirname,
+    sourceType: 'module',
   },
   plugins: ['@typescript-eslint', 'simple-import-sort', 'unused-imports'],
   root: true,
@@ -20,11 +21,6 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     'import/no-named-as-default': 'off',
-  },
-  settings: {
-    'import/resolver': {
-      typescript: {},
-    },
   },
   settings: {
     'import/resolver': {

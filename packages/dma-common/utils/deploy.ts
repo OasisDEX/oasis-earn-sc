@@ -1,7 +1,6 @@
 import { Contract } from '@ethersproject/contracts'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { removeVersion } from '../../dma-contracts/scripts/common'
 import { Debug, WithRuntimeConfig } from './types/common'
 
 type DeployOptions = WithRuntimeConfig & Debug
@@ -12,6 +11,7 @@ export async function createDeploy(
   { config, debug }: DeployOptions,
   hre?: HardhatRuntimeEnvironment,
 ): Promise<DeployFunction> {
+  // @ts-ignore
   const ethers = hre?.ethers || (await import('hardhat')).ethers
 
   return async (contractName: string, params: string[] = []): Promise<[Contract, string]> => {
@@ -33,4 +33,9 @@ export async function createDeploy(
 
     return [instance, address]
   }
+}
+
+export function removeVersion(service: string) {
+  const splitArray = service.split('_')
+  return splitArray[0]
 }

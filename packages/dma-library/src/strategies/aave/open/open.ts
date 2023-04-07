@@ -1,12 +1,3 @@
-import BigNumber from 'bignumber.js'
-import { providers } from 'ethers'
-
-import { IBaseSimulatedTransition, Position } from '@dma-library/domain/Position'
-import { IRiskRatio } from '@dma-library/domain/RiskRatio'
-import { calculateFee } from '@dma-library/utils'
-import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
-import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
-import { getSwapDataHelper } from '@dma-library/utils/swap/get-swap-data'
 import * as operations from '@dma-library/operations'
 import {
   aaveV2UniqueContractName,
@@ -24,10 +15,10 @@ import { AAVETokens } from '@dma-library/types/aave'
 import { WithV2Addresses, WithV3Addresses } from '@dma-library/types/aave/Addresses'
 import { WithFee } from '@dma-library/types/aave/Fee'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/Protocol'
-import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
-import { AaveVersion } from '../getCurrentPosition'
-import { amountFromWei, amountToWei } from '@oasisdex/dma-common/utils/common'
-import { Unbox } from '@oasisdex/dma-common/utils/types/common'
+import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
+import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
+import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
+import { getSwapDataHelper } from '@dma-library/utils/swap/get-swap-data'
 import {
   DEFAULT_FEE,
   FEE_BASE,
@@ -36,8 +27,16 @@ import {
   ONE,
   ZERO,
 } from '@oasisdex/dma-common/constants'
-import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
+import { amountFromWei, amountToWei } from '@oasisdex/dma-common/utils/common'
 import { getForkedNetwork } from '@oasisdex/dma-common/utils/network'
+import { calculateFee } from '@oasisdex/dma-common/utils/swap'
+import { Unbox } from '@oasisdex/dma-common/utils/types/common'
+import { IBaseSimulatedTransition, IRiskRatio, Position } from '@oasisdex/domain/src'
+import BigNumber from 'bignumber.js'
+import { providers } from 'ethers'
+
+import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
+import { AaveVersion } from '../getCurrentPosition'
 
 export interface AaveOpenArgs {
   depositedByUser?: {
@@ -443,11 +442,11 @@ async function generateTransition({
   const shouldCollectFeeFromSourceToken = collectFeeFrom === 'sourceToken'
 
   const preSwapFee = shouldCollectFeeFromSourceToken
-    ? calculateFee(simulatedPositionTransition.delta.debt, fee, new BigNumber(FEE_BASE))
+    ? calculateFee(simulatedPositionTransition.delta.debt, fee.toNumber())
     : ZERO
   const postSwapFee = shouldCollectFeeFromSourceToken
     ? ZERO
-    : calculateFee(swapData.toTokenAmount, fee, new BigNumber(FEE_BASE))
+    : calculateFee(swapData.toTokenAmount, fee.toNumber())
 
   return {
     transaction: {

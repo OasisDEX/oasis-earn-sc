@@ -1,15 +1,15 @@
 import { calldataTypes } from '@dma-library'
-import IERC20_ABI from '@oasisdex/dma-contracts/abi/IERC20.json'
+import { testBlockNumber } from '@dma-library/test/config'
+import { initialiseConfig } from '@dma-library/test/fixtures'
+import { Contract } from '@ethersproject/contracts'
+import IERC20_ABI from '@oasisdex/abis/external/tokens/IERC20.json'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { expect, restoreSnapshot } from '@oasisdex/dma-common/test-utils'
+import { amountToWei } from '@oasisdex/dma-common/utils/common'
 import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
+import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
-import { initialiseConfig } from '@dma-library/test/fixtures'
-import { testBlockNumber } from '@dma-library/test/config'
-import { ADDRESSES } from '@dma-library/utils/addresses'
-import BigNumber from 'bignumber.js'
-import { amountToWei } from '@oasisdex/dma-common/utils/common'
-import { Contract } from '@ethersproject/contracts'
 
 describe('SetApproval Action', () => {
   const AMOUNT = new BigNumber(1000)

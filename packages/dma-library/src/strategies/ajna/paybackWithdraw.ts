@@ -1,9 +1,9 @@
+import { AjnaPosition } from '@dma-library/types/ajna'
+import { Address, Strategy } from '@dma-library/types/common'
+import ajnaProxyActionsAbi from '@oasisdex/abis/external/protocols/ajna/ajnaProxyActions.json'
 import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
-import ajnaProxyActionsAbi from '@oasisdex/dma-contracts/abi/external/ajna/ajnaProxyActions.json'
-import { AjnaPosition } from '@dma-library/types/ajna'
-import { Address, Strategy } from '@dma-library/types/common'
 import { Dependencies } from './open'
 
 interface PaybackWithdrawArgs {

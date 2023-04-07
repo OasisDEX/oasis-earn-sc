@@ -7,4 +7,6 @@
 - Add instruction for regnerating domain unit tests scenarios
 - Move ContractNames to dma-contracts
 - Update name of init() function
+- Update README which is well out of date
 - Ensure docs are in sync with GitBook
+- Extract HH config into separate package if poss

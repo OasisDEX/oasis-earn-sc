@@ -1,8 +1,4 @@
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-
 import * as actions from '@dma-library/actions'
-import { OPERATION_NAMES } from '@dma-library/utils/constants'
 import { IOperation } from '@dma-library/types'
 import {
   WithAaveV3StrategyAddresses,
@@ -13,7 +9,9 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types/Operations'
-import { NULL_ADDRESS, ZERO } from '@oasisdex/dma-common/constants'
+import { NULL_ADDRESS, OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
 
 type AdjustRiskUpArgs = WithCollateral &
   WithDebtAndBorrow &

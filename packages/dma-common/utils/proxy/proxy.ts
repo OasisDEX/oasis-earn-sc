@@ -1,6 +1,5 @@
+import DSProxyABI from '@oasisdex/abis//external/libs/DS/ds-proxy.json'
 import { Contract, ethers, Signer } from 'ethers'
-
-import DSProxyABI from '@oasisdex/dma-contracts/abi/ds-proxy.json'
 
 export async function getOrCreateProxy(dsProxyRegistry: Contract, signer: Signer) {
   const address = await signer.getAddress()

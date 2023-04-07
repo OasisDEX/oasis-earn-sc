@@ -1,7 +1,7 @@
-import { CONTRACT_NAMES } from '@oasisdex/dma-library/src/utils/constants'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
 import { constants } from 'ethers'
-import fs from 'fs'
-import hre from 'hardhat'
+import * as fs from 'fs'
+import * as hre from 'hardhat'
 
 import { getServiceNameHash, HardhatUtils } from '../common'
 
@@ -65,16 +65,20 @@ async function main() {
     ),
   )
   entries.push(
-    createEntry(`AaveBorrow action`, CONTRACT_NAMES.aave.BORROW, system.aaveBorrow?.address),
+    createEntry(`AaveBorrow action`, CONTRACT_NAMES.aave.v2.BORROW, system.aaveBorrow?.address),
   )
   entries.push(
-    createEntry(`AaveDeposit action`, CONTRACT_NAMES.aave.DEPOSIT, system.aaveDeposit?.address),
+    createEntry(`AaveDeposit action`, CONTRACT_NAMES.aave.v2.DEPOSIT, system.aaveDeposit?.address),
   )
   entries.push(
-    createEntry(`AaveWithdraw action`, CONTRACT_NAMES.aave.WITHDRAW, system.aaveWithdraw?.address),
+    createEntry(
+      `AaveWithdraw action`,
+      CONTRACT_NAMES.aave.v2.WITHDRAW,
+      system.aaveWithdraw?.address,
+    ),
   )
   entries.push(
-    createEntry(`AavePayback action`, CONTRACT_NAMES.aave.PAYBACK, system.aavePayback?.address),
+    createEntry(`AavePayback action`, CONTRACT_NAMES.aave.v2.PAYBACK, system.aavePayback?.address),
   )
 
   console.log('DEBUG: PRINTING ENTRIES TO CONSOLE')

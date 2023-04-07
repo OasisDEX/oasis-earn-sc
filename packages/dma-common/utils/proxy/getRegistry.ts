@@ -1,6 +1,6 @@
-import { ethers } from 'hardhat'
+import DS_PROXY_REGISTRY_ABI from '@oasisdex/abis/external/libs/DS/ds-proxy-registry.json'
 import { Signer } from 'ethers'
-import DS_PROXY_REGISTRY_ABI from '@oasisdex/dma-contracts/abi/ds-proxy-registry.json'
+import { ethers } from 'hardhat'
 
 export async function getDsProxyRegistry(signer: Signer, registryAddress: string) {
   const dsProxyRegistry = await ethers.getContractAt(DS_PROXY_REGISTRY_ABI, registryAddress, signer)

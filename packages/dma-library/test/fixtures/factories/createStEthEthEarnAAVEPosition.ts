@@ -1,17 +1,19 @@
-import { AaveVersion, ADDRESSES, RiskRatio, strategies } from '@dma-library'
+import { AaveVersion, strategies } from '@dma-library'
+import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '@dma-library/protocols/aave'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
 } from '@dma-library/strategies/aave/open/open'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
-import { amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { RiskRatio } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
 
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { ETH, MULTIPLE, STETH, UNISWAP_TEST_SLIPPAGE } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
-import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '@dma-library/protocols/aave'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
 

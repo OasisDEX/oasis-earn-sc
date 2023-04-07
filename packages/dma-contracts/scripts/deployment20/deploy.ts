@@ -34,7 +34,7 @@ import NodeCache from 'node-cache'
 import prompts from 'prompts'
 import { inspect } from 'util'
 
-import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
+import DS_PROXY_REGISTRY_ABI from '../../../abis/external/libs/DS/ds-proxy-registry.json'
 import { EtherscanGasPrice } from '../common'
 import { Config, ConfigItem, SystemConfigItem } from '../common/config-item'
 

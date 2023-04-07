@@ -1,9 +1,11 @@
+import { ADDRESSES } from '@oasisdex/addresses'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
+import { removeVersion } from '@oasisdex/dma-common/utils/deploy'
 import { Network } from '@oasisdex/dma-common/utils/network'
-import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/dma-library/src'
-import { AaveBorrow } from '@typechain/artifacts/contracts/actions/aave/v2/Borrow.sol'
-import { AaveDeposit } from '@typechain/artifacts/contracts/actions/aave/v2/Deposit.sol'
-import { AavePayback } from '@typechain/artifacts/contracts/actions/aave/v2/Payback.sol'
-import { AaveWithdraw } from '@typechain/artifacts/contracts/actions/aave/v2/Withdraw.sol'
+import { AaveBorrow } from '@typechain/dma-contracts/artifacts/contracts/actions/aave/v2/Borrow.sol'
+import { AaveDeposit } from '@typechain/dma-contracts/artifacts/contracts/actions/aave/v2/Deposit.sol'
+import { AavePayback } from '@typechain/dma-contracts/artifacts/contracts/actions/aave/v2/Payback.sol'
+import { AaveWithdraw } from '@typechain/dma-contracts/artifacts/contracts/actions/aave/v2/Withdraw.sol'
 import {
   PositionCreated,
   PullToken,
@@ -14,25 +16,24 @@ import {
   TakeFlashloan,
   UnwrapEth,
   WrapEth,
-} from '@typechain/artifacts/contracts/actions/common'
-import { CdpAllow } from '@typechain/artifacts/contracts/actions/maker'
-import { MakerDeposit } from '@typechain/artifacts/contracts/actions/maker/Deposit.sol'
-import { MakerGenerate } from '@typechain/artifacts/contracts/actions/maker/Generate.sol'
-import { MakerOpenVault } from '@typechain/artifacts/contracts/actions/maker/OpenVault.sol'
-import { MakerPayback } from '@typechain/artifacts/contracts/actions/maker/Payback.sol'
-import { MakerWithdraw } from '@typechain/artifacts/contracts/actions/maker/Withdraw.sol'
+} from '@typechain/dma-contracts/artifacts/contracts/actions/common'
+import { CdpAllow } from '@typechain/dma-contracts/artifacts/contracts/actions/maker'
+import { MakerDeposit } from '@typechain/dma-contracts/artifacts/contracts/actions/maker/Deposit.sol'
+import { MakerGenerate } from '@typechain/dma-contracts/artifacts/contracts/actions/maker/Generate.sol'
+import { MakerOpenVault } from '@typechain/dma-contracts/artifacts/contracts/actions/maker/OpenVault.sol'
+import { MakerPayback } from '@typechain/dma-contracts/artifacts/contracts/actions/maker/Payback.sol'
+import { MakerWithdraw } from '@typechain/dma-contracts/artifacts/contracts/actions/maker/Withdraw.sol'
 import {
   OperationExecutor,
   OperationsRegistry,
   OperationStorage,
   ServiceRegistry,
-} from '@typechain/artifacts/contracts/core'
-import { McdView } from '@typechain/artifacts/contracts/core/views'
-import { Swap } from '@typechain/artifacts/contracts/swap'
+} from '@typechain/dma-contracts/artifacts/contracts/core'
+import { McdView } from '@typechain/dma-contracts/artifacts/contracts/core/views'
+import { Swap } from '@typechain/dma-contracts/artifacts/contracts/swap'
 
 import { AddressRegistry } from './addresses'
 import { HardhatUtils } from './hardhat.utils'
-import { removeVersion } from './utils'
 
 export interface DeployedSystem {
   serviceRegistry: ServiceRegistry

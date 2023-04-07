@@ -1,6 +1,6 @@
-import { IBaseSimulatedTransition, Swap } from '../domain/Position'
-import { IRiskRatio } from '../domain/RiskRatio'
-import { OperationNames } from '../utils/constants'
+import { OperationNames } from '@oasisdex/dma-common/constants/operation-names'
+import { IBaseSimulatedTransition, IRiskRatio, Swap } from '@oasisdex/domain/src'
+
 import { ActionCall } from './actionCall'
 import { SwapData } from './SwapData'
 

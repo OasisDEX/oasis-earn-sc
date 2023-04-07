@@ -1,12 +1,11 @@
-import poolERC20Abi from '@oasisdex/dma-contracts/abi/external/ajna/ajnaPoolERC20.json'
-import poolInfoAbi from '@oasisdex/dma-contracts/abi/external/ajna/poolInfoUtils.json'
-import { BigNumber } from 'bignumber.js'
-import { ethers } from 'ethers'
-
 import { AjnaEarnPosition, AjnaPosition } from '@dma-library/types/ajna'
 import { AjnaPool } from '@dma-library/types/ajna/AjnaPool'
 import { Address } from '@dma-library/types/common'
+import poolERC20Abi from '@oasisdex/abis/external/protocols/ajna/ajnaPoolERC20.json'
+import poolInfoAbi from '@oasisdex/abis/external/protocols/ajna/poolInfoUtils.json'
 import { ZERO } from '@oasisdex/dma-common/constants'
+import { BigNumber } from 'bignumber.js'
+import { ethers } from 'ethers'
 
 interface Args {
   proxyAddress: Address

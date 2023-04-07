@@ -1,6 +1,6 @@
-import fs from 'fs'
+import * as fs from 'fs'
 import fetch from 'node-fetch'
-import path from 'path'
+import * as path from 'path'
 
 const mainnetInfoUrl = 'https://blockexplorer.one/ajax/eth/mainnet/info'
 const envFile = `${path.join(__dirname)}/.env`

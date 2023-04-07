@@ -1,10 +1,9 @@
+import * as actions from '@dma-library/actions'
+import { IOperation } from '@dma-library/types'
+import { MAX_UINT, OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
 
-import * as actions from '@dma-library/actions'
-import { OPERATION_NAMES } from '@dma-library/utils/constants'
-import { IOperation } from '@dma-library/types'
 import { AAVEStrategyAddresses } from './addresses'
-import { MAX_UINT, ZERO } from '@oasisdex/dma-common/constants'
 
 export async function paybackWithdraw(args: {
   amountCollateralToWithdrawInBaseUnit: BigNumber

@@ -1,8 +1,7 @@
-import DS_PROXY_REGISTRY_ABI from '@abi/ds-proxy-registry.json'
-import { ADDRESSES } from '@dma-library'
+import DS_PROXY_REGISTRY_ABI from '@oasisdex/abis/external/libs/DS/ds-proxy-registry.json'
+import { ADDRESSES } from '@oasisdex/addresses'
+import init from '@oasisdex/dma-common/utils/init'
 import { task } from 'hardhat/config'
-
-import init from '../../../dma-common/utils/init'
 
 const accountFactoryAddress = '0xF7B75183A2829843dB06266c114297dfbFaeE2b6'
 const accountGuardAddress = '0xCe91349d2A4577BBd0fC91Fe6019600e047f2847'
@@ -56,6 +55,7 @@ task('transferProxies', 'Transfer DPM Account to another user')
 
     for (const log of logs) {
       console.log(
+        // @ts-ignore
         `Account ${log.args?.id} was created by ${log.args?.user}. Proxy Address: ${log.args?.proxy}`,
       )
       const dpm = log.args?.proxy

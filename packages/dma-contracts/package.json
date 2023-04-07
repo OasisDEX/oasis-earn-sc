@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsc -b && yarn update-block && && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ./.env | cut -d '=' -f2)",
-    "compile": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache && npx hardhat compile",
+    "compile": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache && npx hardhat compile --verbose",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx}\" && yarn lint:fix && prettier --write 'contracts/**/*.sol'",
     "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx}\"",
     "lint:fix": "eslint . --fix --ext .ts",
@@ -15,6 +15,8 @@
   },
   "dependencies": {
     "@oasisdex/dma-common": "*",
+    "@oasisdex/addresses": "*",
+    "@oasisdex/domain": "*",
     "@oasisdex/dma-library": "*"
   },
   "devDependencies": {
@@ -27,6 +29,7 @@
     "@typescript-eslint/parser": "^5.27.1",
     "@typechain/ethers-v5": "^10.1.0",
     "@typechain/hardhat": "6.1.5",
+    "dotenv": "^16.0.3",
     "eslint": "^8.6.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-typescript": "^3.5.3",
@@ -48,5 +51,8 @@
     "solidity-docgen": "^0.6.0-beta.29",
     "tsconfig-paths": "^4.1.2",
     "typechain": "8.1.1"
-  }
+  },
+  "files": [
+    "tsconfig.json"
+  ]
 }

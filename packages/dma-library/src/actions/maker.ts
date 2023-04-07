@@ -1,4 +1,5 @@
-import { CONTRACT_NAMES } from '../utils/constants'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
+
 import { calldataTypes } from '../types'
 import { ActionFactory } from './actionFactory'
 import { getActionHash } from './getActionHash'

@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/dma-library/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import axios from 'axios'
 
 import { OneInchSwapResponse } from '../types/common'

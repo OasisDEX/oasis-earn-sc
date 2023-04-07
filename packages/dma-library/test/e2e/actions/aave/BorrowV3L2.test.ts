@@ -1,10 +1,10 @@
-import { ADDRESSES } from '@dma-library'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { FIFTY, HUNDRED } from '@oasisdex/dma-common/constants'
+import { expect } from '@oasisdex/dma-common/test-utils'
 import { balanceOf } from '@oasisdex/dma-common/utils/common'
 
 import { aDAI, BORROW_OPERATION, deployedContracts, DEPOSIT_OPERATION } from './L2TestsHelper'
-import { expect } from '@oasisdex/dma-common/test-utils'
-import { FIFTY, HUNDRED } from '@oasisdex/dma-common/constants'
 
 describe('Borrow Action', () => {
   it('should borrow funds from the protocol', async () => {

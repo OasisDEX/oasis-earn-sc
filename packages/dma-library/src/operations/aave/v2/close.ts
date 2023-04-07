@@ -1,13 +1,13 @@
-import BigNumber from 'bignumber.js'
-
 import * as actions from '@dma-library/actions'
 import { getActionHash } from '@dma-library/actions/getActionHash'
-import { ADDRESSES } from '@dma-library/utils/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '@dma-library/utils/constants'
 import { IOperation } from '@dma-library/types'
-import { AAVEStrategyAddresses } from './addresses'
-import { MAX_UINT } from '@oasisdex/dma-common/constants'
 import { FlashloanProvider } from '@dma-library/types/common'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { MAX_UINT, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
+import BigNumber from 'bignumber.js'
+
+import { AAVEStrategyAddresses } from './addresses'
 
 export const operationDefinition = {
   name: OPERATION_NAMES.aave.v2.CLOSE_POSITION,

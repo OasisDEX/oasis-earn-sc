@@ -1,7 +1,7 @@
 import '@nomiclabs/hardhat-ethers'
 
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
 import { Network } from '@oasisdex/dma-common/utils/network'
-import { CONTRACT_NAMES } from '@oasisdex/dma-library/src'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 import {
@@ -18,7 +18,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types/runtime'
 import NodeCache from 'node-cache'
 import { hasPath } from 'ramda'
 
-import DS_PROXY_REGISTRY_ABI from '../../abi/ds-proxy-registry.json'
+import DS_PROXY_REGISTRY_ABI from '../../../abis/external/libs/DS/ds-proxy-registry.json'
 import { coalesceNetwork, ETH_ADDRESS, getAddressesFor } from './addresses'
 import { DeployedSystem } from './deploy-system'
 import { EtherscanGasPrice } from './types'

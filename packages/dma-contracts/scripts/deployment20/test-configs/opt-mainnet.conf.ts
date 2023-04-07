@@ -1,4 +1,5 @@
-import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/dma-library/src'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
 
 export const config = {
   mpa: {

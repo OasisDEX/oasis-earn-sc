@@ -1,11 +1,12 @@
-import { AAVETokens, ADDRESSES } from '@dma-library'
+import { AAVETokens } from '@dma-library'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { ONE } from '@oasisdex/dma-common/constants'
+import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
+import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { mainnetAddresses } from '../../addresses'
-import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
-import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
-import { ONE } from '@oasisdex/dma-common/constants'
 
 export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH'>
 const tokens: Record<AAVETokensToGet, string> = {

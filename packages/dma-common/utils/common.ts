@@ -1,13 +1,13 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
+import IERC20_ABI from '@oasisdex/abis/external/tokens/IERC20.json'
+import { ADDRESSES } from '@oasisdex/addresses'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { isError, tryF } from 'ts-try'
 
-import IERC20_ABI from '@oasisdex/dma-contracts/abi/IERC20.json'
+import { TEN } from '../constants'
 import { BalanceOptions, RuntimeConfig } from './types/common'
-import { ADDRESSES } from '@oasisdex/dma-library/src/utils/addresses'
-import { TEN, ZERO } from '../constants'
 
 export async function balanceOf(
   asset: string,
@@ -15,7 +15,7 @@ export async function balanceOf(
   options: BalanceOptions,
   hre?: HardhatRuntimeEnvironment,
 ): Promise<BigNumber> {
-  let balance = ZERO
+  let balance
   const { provider, signer } = options.config
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
   if (asset === ADDRESSES.main.ETH) {

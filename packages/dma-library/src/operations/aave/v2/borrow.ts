@@ -1,9 +1,8 @@
-import BigNumber from 'bignumber.js'
-
 import * as actions from '@dma-library/actions'
-import { ADDRESSES } from '@dma-library/utils/addresses'
-import { OPERATION_NAMES } from '@dma-library/utils/constants'
 import { Address } from '@dma-library/types'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
+import BigNumber from 'bignumber.js'
 
 export interface BorrowArgs {
   borrowToken: Address

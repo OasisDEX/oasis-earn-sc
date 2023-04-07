@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "strict": true,
+    "outDir": "lib",
+    "baseUrl": ".",
+    "paths": {
+      "@domain/test/*": [
+        "./test/*"
+      ],
+    },
+    "types": [
+      "node"
+    ],
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowJs": false,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "declaration": true,
+    "typeRoots": [
+      "../../node_modules/@types"
+    ]
+  },
+  "include": [
+    "./src/**/*",
+    "./test/**/*"
+  ],
+  "files": [
+    "./hardhat.config.ts",
+  ]
+}

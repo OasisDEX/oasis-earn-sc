@@ -1,6 +1,6 @@
 import { task } from 'hardhat/config'
 
-import erc20abi from '../abi/external/IERC20.json'
+import erc20abi from '../../abis/external/tokens/IERC20.json'
 
 task('transfer-erc20', 'Transfers erc20 funds between two addresses.  Mainnet not supported :(')
   .addParam('from', 'Address of the wallet that we are transferring tokens from.')

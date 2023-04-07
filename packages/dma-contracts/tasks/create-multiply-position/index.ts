@@ -1,24 +1,19 @@
-import {
-  AaveVersion,
-  ADDRESSES,
-  CONTRACT_NAMES,
-  protocols,
-  strategies,
-} from '@oasisdex/dma-library/src'
-import BigNumber from 'bignumber.js'
-import { task } from 'hardhat/config'
-
-import init from '../../../dma-common/utils/init'
-import { getOneInchCall } from '../../../dma-common/utils/swap/OneInchCall'
-import { oneInchCallMock } from '../../../dma-common/utils/swap/OneInchCallMock'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
+import init from '@oasisdex/dma-common/utils/init'
+import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/OneInchCall'
+import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
+import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library/src'
+import { StrategiesDependencies } from '@oasisdex/dma-library/test/fixtures'
 import {
   createDPMAccount,
   createEthUsdcMultiplyAAVEPosition,
   createStEthUsdcMultiplyAAVEPosition,
   createWbtcUsdcMultiplyAAVEPosition,
-} from '../../../dma-library/test/fixtures/factories'
-import { StrategiesDependencies } from '../../../dma-library/test/fixtures/types'
-import { buildGetTokenFunction } from '../../../dma-library/test/utils/aave'
+} from '@oasisdex/dma-library/test/fixtures/factories'
+import { buildGetTokenFunction } from '@oasisdex/dma-library/test/utils/aave'
+import BigNumber from 'bignumber.js'
+import { task } from 'hardhat/config'
 
 task('createMultiplyPosition', 'Create stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
@@ -105,7 +100,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       provider: config.provider,
       protocol: {
         version: AaveVersion.v2,
-        getCurrentPosition: strategies.aave.view,
+        getCurrentPosition: strategies.aave.v2.view,
         getProtocolData: protocols.aave.getAaveProtocolData,
       },
       getSwapData: swapData,

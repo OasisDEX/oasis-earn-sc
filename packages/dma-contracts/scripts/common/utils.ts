@@ -15,11 +15,6 @@ export function getServiceNameHash(service: string) {
   return utils.keccak256(Buffer.from(service))
 }
 
-export function removeVersion(service: string) {
-  const splitArray = service.split('_')
-  return splitArray[0]
-}
-
 export function getEvents(receipt: ContractReceipt, eventAbi: utils.EventFragment) {
   const iface = new utils.Interface([eventAbi])
   const filteredEvents = receipt.logs?.filter(

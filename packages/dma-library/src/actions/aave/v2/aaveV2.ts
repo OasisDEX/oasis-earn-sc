@@ -1,7 +1,7 @@
+import { calldataTypes } from '@dma-library/types'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
 import BigNumber from 'bignumber.js'
 
-import { CONTRACT_NAMES } from '@dma-library/utils/constants'
-import { calldataTypes } from '@dma-library/types'
 import { ActionFactory } from '../../actionFactory'
 import { getActionHash } from '../../getActionHash'
 

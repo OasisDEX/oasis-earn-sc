@@ -1,16 +1,16 @@
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-
 import * as actions from '@dma-library/actions'
 import { getActionHash } from '@dma-library/actions/getActionHash'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '@dma-library/utils/constants'
 import { Address } from '@dma-library/types'
+import { FlashloanProvider } from '@dma-library/types/common'
 import { IOperation } from '@dma-library/types/Operations'
 import { PositionType } from '@dma-library/types/PositionType'
 import { Protocol } from '@dma-library/types/Protocol'
+import { OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
+
 import { AAVEStrategyAddresses } from './addresses'
-import { ZERO } from '@oasisdex/dma-common/constants'
-import { FlashloanProvider } from '@dma-library/types/common'
 
 interface OpenArgs {
   deposit: {

@@ -1,6 +1,6 @@
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
 import BigNumber from 'bignumber.js'
 
-import { CONTRACT_NAMES } from '../utils/constants'
 import { ActionCall, calldataTypes } from '../types'
 import { ActionFactory } from './actionFactory'
 import { getActionHash } from './getActionHash'

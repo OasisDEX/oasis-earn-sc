@@ -1,6 +1,6 @@
-import { Swap } from '@dma-library/domain/Position'
 import { SwapData } from '@dma-library/types/SwapData'
 import { NULL_ADDRESS, TYPICAL_PRECISION, ZERO } from '@oasisdex/dma-common/constants'
+import { Swap } from '@oasisdex/domain/src'
 
 export function getZeroSwap(sourceToken: string, targetToken: string): SwapData & Swap {
   return {

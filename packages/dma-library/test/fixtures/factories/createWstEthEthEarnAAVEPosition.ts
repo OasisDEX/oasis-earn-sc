@@ -1,14 +1,17 @@
-import { AaveVersion, RiskRatio, strategies } from '@dma-library'
+import { AaveVersion, strategies } from '@dma-library'
+import { aaveV3UniqueContractName } from '@dma-library/protocols/aave/config'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
 } from '@dma-library/strategies/aave/open/open'
-import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
 import { amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
+import { Network } from '@oasisdex/dma-common/utils/network'
+import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
+import { DeploymentSystem } from '@oasisdex/dma-contracts/scripts/deployment20/deploy'
+import { RiskRatio } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
 
-import { aaveV3UniqueContractName } from '@dma-library/protocols/aave/config'
 import { PositionDetails } from '../types'
 import { AaveV3PositionStrategy } from '../types/positionDetails'
 import { StrategyDependenciesAaveV3 } from '../types/strategiesDependencies'
@@ -22,8 +25,6 @@ import {
   WSTETH,
 } from './common'
 import { OpenPositionTypes } from './openPositionTypes'
-import { DeploymentSystem } from '@oasisdex/dma-contracts/scripts/deployment20/deploy'
-import { Network } from '@oasisdex/dma-common/utils/network'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
 

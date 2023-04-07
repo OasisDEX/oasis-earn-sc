@@ -1,8 +1,6 @@
-import BigNumber from 'bignumber.js'
-
 import * as actions from '@dma-library/actions'
-import { OPERATION_NAMES } from '@dma-library/utils/constants'
 import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '@dma-library/types'
+import { FlashloanProvider } from '@dma-library/types/common'
 import {
   WithAaveV2StrategyAddresses,
   WithFlashloan,
@@ -10,7 +8,8 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types/Operations'
-import { FlashloanProvider } from '@dma-library/types/common'
+import { OPERATION_NAMES } from '@oasisdex/dma-common/constants/operation-names'
+import BigNumber from 'bignumber.js'
 
 type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithDebt &

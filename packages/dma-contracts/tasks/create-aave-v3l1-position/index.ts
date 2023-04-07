@@ -1,7 +1,9 @@
+import { ADDRESSES } from '@oasisdex/addresses'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
 import init from '@oasisdex/dma-common/utils/init'
 import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/OneInchCall'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
-import { AaveVersion, ADDRESSES, CONTRACT_NAMES, protocols } from '@oasisdex/dma-library/src'
+import { AaveVersion, protocols } from '@oasisdex/dma-library/src'
 import { createDPMAccount } from '@oasisdex/dma-library/test/fixtures/factories'
 import { createWstEthEthEarnAAVEPosition } from '@oasisdex/dma-library/test/fixtures/factories/createWstEthEthEarnAAVEPosition'
 import { StrategyDependenciesAaveV3 } from '@oasisdex/dma-library/test/fixtures/types/strategiesDependencies'
@@ -72,7 +74,7 @@ task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
       aaveOracle: ADDRESSES.main.aave.v3.AaveOracle,
       pool: ADDRESSES.main.aave.v3.Pool,
       operationExecutor: operationExecutorAddress,
-      aaveProtocolDataProvider: ADDRESSES.main.aave.v3.AaveProtocolDataProvider,
+      poolDataProvider: ADDRESSES.main.aave.v3.PoolDataProvider,
       accountFactory: accountFactoryAddress,
     }
 

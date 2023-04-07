@@ -1,5 +1,5 @@
-import { ContractNames } from '@dma-library'
-import { Address } from '@dma-library/types'
+import { ContractNames } from '@oasisdex/dma-common/constants'
+import { Address } from '@oasisdex/dma-library/src/types'
 
 export type ConfigItem = {
   name: string

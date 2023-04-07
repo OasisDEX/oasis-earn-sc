@@ -1,11 +1,9 @@
-import BigNumber from 'bignumber.js'
-
 import * as actions from '@dma-library/actions'
-import { ADDRESSES } from '@dma-library/utils/addresses'
-import { OPERATION_NAMES } from '@dma-library/utils/constants'
-import { isDefined } from '@dma-library/utils/isDefined'
 import { Address } from '@dma-library/types'
-import { ZERO } from '@oasisdex/dma-common/constants'
+import { isDefined } from '@dma-library/utils/isDefined'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
+import BigNumber from 'bignumber.js'
 
 interface SwapArgs {
   fee: number

@@ -1,7 +1,7 @@
 import { task } from 'hardhat/config'
 
+import erc20abi from '../../../abis/external/tokens/IERC20.json'
 import { amountFromWei } from '../../../dma-common/utils/common'
-import erc20abi from '../../abi/external/IERC20.json'
 
 task('read-erc20-balance', 'Reads the balance of an erc-20 for an account, in wei')
   .addParam('account', 'Address for which we are checking the balance.')
