@@ -26,3 +26,5 @@ lib
 !.yarn/versions
 .pnp.*
 dist
+typechain/
+abi/
