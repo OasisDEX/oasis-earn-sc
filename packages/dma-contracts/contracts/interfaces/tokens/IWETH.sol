@@ -13,11 +13,7 @@ interface IWETH {
 
   function transfer(address, uint256) external returns (bool);
 
-  function transferFrom(
-    address,
-    address,
-    uint256
-  ) external returns (bool);
+  function transferFrom(address, address, uint256) external returns (bool);
 
   function deposit() external payable;
 

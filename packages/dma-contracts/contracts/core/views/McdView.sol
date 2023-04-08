@@ -48,6 +48,6 @@ contract McdView is DSMath {
 
     if (debt == 0) return 0;
 
-    return rdiv(wmul(collateral, price), debt) / (10**18);
+    return rdiv(wmul(collateral, price), debt) / (10 ** 18);
   }
 }

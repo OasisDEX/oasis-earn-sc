@@ -20,12 +20,7 @@ interface IL2Pool {
 }
 
 interface IL2Encoder {
-  function encodeBorrowParams(
-    address,
-    uint256,
-    uint256,
-    uint16
-  ) external view returns (bytes32);
+  function encodeBorrowParams(address, uint256, uint256, uint16) external view returns (bytes32);
 }
 
 contract AaveV3L2Borrow is Executable, UseStore {

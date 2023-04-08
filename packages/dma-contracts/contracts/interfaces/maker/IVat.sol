@@ -24,28 +24,11 @@ abstract contract IVat {
 
   function dai(address) public view virtual returns (uint256);
 
-  function frob(
-    bytes32,
-    address,
-    address,
-    address,
-    int256,
-    int256
-  ) public virtual;
+  function frob(bytes32, address, address, address, int256, int256) public virtual;
 
   function hope(address) public virtual;
 
-  function move(
-    address,
-    address,
-    uint256
-  ) public virtual;
+  function move(address, address, uint256) public virtual;
 
-  function fork(
-    bytes32,
-    address,
-    address,
-    int256,
-    int256
-  ) public virtual;
+  function fork(bytes32, address, address, int256, int256) public virtual;
 }

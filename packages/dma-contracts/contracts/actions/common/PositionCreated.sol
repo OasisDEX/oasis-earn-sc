@@ -43,11 +43,9 @@ contract PositionCreated is Executable {
     );
   }
 
-  function parseInputs(bytes memory _callData)
-    public
-    pure
-    returns (PositionCreatedData memory params)
-  {
+  function parseInputs(
+    bytes memory _callData
+  ) public pure returns (PositionCreatedData memory params) {
     return abi.decode(_callData, (PositionCreatedData));
   }
 }

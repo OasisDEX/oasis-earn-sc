@@ -56,11 +56,7 @@ contract AccountGuard is Ownable {
     factory = msg.sender;
   }
 
-  function permit(
-    address caller,
-    address target,
-    bool allowance
-  ) external {
+  function permit(address caller, address target, bool allowance) external {
     require(allowed[msg.sender][target] || msg.sender == factory, "account-guard/no-permit");
     if (msg.sender == factory) {
       owners[target] = caller;

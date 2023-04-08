@@ -7,11 +7,7 @@ abstract contract IGem {
 
   function transfer(address, uint256) public virtual returns (bool);
 
-  function transferFrom(
-    address,
-    address,
-    uint256
-  ) public virtual returns (bool);
+  function transferFrom(address, address, uint256) public virtual returns (bool);
 
   function deposit() public payable virtual;
 

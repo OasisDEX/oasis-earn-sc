@@ -9,7 +9,7 @@ string constant ONE_INCH_AGGREGATOR = "OneInchAggregator";
 string constant DS_GUARD_FACTORY = "DSGuardFactory";
 string constant WETH = "WETH";
 string constant DAI = "DAI";
-uint256 constant RAY = 10**27;
+uint256 constant RAY = 10 ** 27;
 bytes32 constant NULL = "";
 
 /**

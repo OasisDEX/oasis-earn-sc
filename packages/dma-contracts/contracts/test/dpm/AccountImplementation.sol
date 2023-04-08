@@ -25,22 +25,19 @@ contract AccountImplementation {
     guard = _guard;
   }
 
-  function send(address _target, bytes calldata _data)
-    external
-    payable
-    authAndWhitelisted(_target, false)
-  {
+  function send(
+    address _target,
+    bytes calldata _data
+  ) external payable authAndWhitelisted(_target, false) {
     (bool status, ) = (_target).call{ value: msg.value }(_data);
     require(status, "account-guard/call-failed");
   }
 
   /* code do not compile with calldata */
-  function execute(address _target, bytes memory _data)
-    external
-    payable
-    authAndWhitelisted(_target, true)
-    returns (bytes32)
-  {
+  function execute(
+    address _target,
+    bytes memory _data
+  ) external payable authAndWhitelisted(_target, true) returns (bytes32) {
     // call contract in current context
     assembly {
       let succeeded := delegatecall(

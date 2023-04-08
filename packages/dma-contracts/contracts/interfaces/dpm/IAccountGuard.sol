@@ -2,9 +2,5 @@
 pragma solidity >=0.8.15;
 
 interface IAccountGuard {
-  function permit(
-    address caller,
-    address target,
-    bool allowance
-  ) external;
+  function permit(address caller, address target, bool allowance) external;
 }

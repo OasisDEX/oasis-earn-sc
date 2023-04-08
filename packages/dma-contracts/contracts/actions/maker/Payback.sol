@@ -108,12 +108,7 @@ contract MakerPayback is Executable, UseStore {
     return uint256(art);
   }
 
-  function joinDai(
-    address usr,
-    IDaiJoin daiJoin,
-    address urn,
-    uint256 amount
-  ) public {
+  function joinDai(address usr, IDaiJoin daiJoin, address urn, uint256 amount) public {
     IERC20 dai = IERC20(daiJoin.dai());
 
     dai.safeTransferFrom(usr, address(this), amount);

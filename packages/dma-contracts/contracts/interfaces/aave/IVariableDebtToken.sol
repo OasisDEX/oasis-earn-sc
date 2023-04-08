@@ -64,9 +64,5 @@ interface IVariableDebtToken is IScaledBalanceToken {
    * @param user The user which debt is burnt
    * @param index The variable debt index of the reserve
    **/
-  function burn(
-    address user,
-    uint256 amount,
-    uint256 index
-  ) external;
+  function burn(address user, uint256 amount, uint256 index) external;
 }

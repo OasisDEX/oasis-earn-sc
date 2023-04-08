@@ -7,11 +7,7 @@ import { IVat } from "./IVat.sol";
 abstract contract IManager {
   function last(address) public virtual returns (uint256);
 
-  function cdpCan(
-    address,
-    uint256,
-    address
-  ) public view virtual returns (uint256);
+  function cdpCan(address, uint256, address) public view virtual returns (uint256);
 
   function ilks(uint256) public view virtual returns (bytes32);
 
@@ -25,38 +21,17 @@ abstract contract IManager {
 
   function give(uint256, address) public virtual;
 
-  function cdpAllow(
-    uint256,
-    address,
-    uint256
-  ) public virtual;
+  function cdpAllow(uint256, address, uint256) public virtual;
 
   function urnAllow(address, uint256) public virtual;
 
-  function frob(
-    uint256,
-    int256,
-    int256
-  ) public virtual;
+  function frob(uint256, int256, int256) public virtual;
 
-  function flux(
-    uint256,
-    address,
-    uint256
-  ) public virtual;
+  function flux(uint256, address, uint256) public virtual;
 
-  function move(
-    uint256,
-    address,
-    uint256
-  ) public virtual;
+  function move(uint256, address, uint256) public virtual;
 
-  function exit(
-    address,
-    uint256,
-    address,
-    uint256
-  ) public virtual;
+  function exit(address, uint256, address, uint256) public virtual;
 
   function quit(uint256, address) public virtual;
 

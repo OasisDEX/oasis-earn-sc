@@ -48,11 +48,7 @@ contract DummyExchange {
     precisions[token] = _precision;
   }
 
-  function _transferIn(
-    address from,
-    address asset,
-    uint256 amount
-  ) internal {
+  function _transferIn(address from, address asset, uint256 amount) internal {
     require(
       IERC20(asset).allowance(from, address(this)) >= amount,
       "Exchange / Not enought allowance"
@@ -61,11 +57,7 @@ contract DummyExchange {
     IERC20(asset).safeTransferFrom(from, address(this), amount);
   }
 
-  function _transferOut(
-    address asset,
-    address to,
-    uint256 amount
-  ) internal {
+  function _transferOut(address asset, address to, uint256 amount) internal {
     IERC20(asset).safeTransfer(to, amount);
     emit SlippageSaved(amount, amount);
   }
@@ -78,18 +70,12 @@ contract DummyExchange {
   }
 
   // uses the same interface as default Exchange contract
-  function swapDaiForToken(
-    address asset,
-    uint256 amount,
-    uint256,
-    address,
-    bytes calldata
-  ) public {
+  function swapDaiForToken(address asset, uint256 amount, uint256, address, bytes calldata) public {
     uint8 precision = precisions[asset];
 
     amount = _collectFee(DAI_ADDRESS, amount);
 
-    uint256 amountOut = (mul(amount, 10**18) / prices[asset]) / (10**(18 - precision));
+    uint256 amountOut = (mul(amount, 10 ** 18) / prices[asset]) / (10 ** (18 - precision));
 
     _transferIn(msg.sender, DAI_ADDRESS, amount);
     emit AssetSwap(DAI_ADDRESS, asset, amount, amountOut);
@@ -97,30 +83,19 @@ contract DummyExchange {
     _transferOut(asset, msg.sender, amountOut);
   }
 
-  function swapTokenForToken(
-    address assetFrom,
-    address assetTo,
-    uint256 amount,
-    uint256
-  ) public {
+  function swapTokenForToken(address assetFrom, address assetTo, uint256 amount, uint256) public {
     uint8 precision = precisions[assetFrom];
     // amount = _collectFee(DAI_ADDRESS, amount);
-    uint256 amountOut = (mul(amount, 10**18) / prices[assetTo]) / (10**(18 - precision));
+    uint256 amountOut = (mul(amount, 10 ** 18) / prices[assetTo]) / (10 ** (18 - precision));
     _transferIn(msg.sender, assetFrom, amount);
     _transferOut(assetTo, msg.sender, amountOut);
     emit AssetSwap(assetFrom, assetTo, amount, amountOut);
   }
 
   // uses the same interface as default Exchange contract
-  function swapTokenForDai(
-    address asset,
-    uint256 amount,
-    uint256,
-    address,
-    bytes calldata
-  ) public {
+  function swapTokenForDai(address asset, uint256 amount, uint256, address, bytes calldata) public {
     uint8 precision = precisions[asset];
-    uint256 amountOut = mul(mul(amount, 10**(18 - precision)), prices[asset]) / 10**18;
+    uint256 amountOut = mul(mul(amount, 10 ** (18 - precision)), prices[asset]) / 10 ** 18;
     amountOut = _collectFee(DAI_ADDRESS, amountOut);
 
     _transferIn(msg.sender, asset, amount);

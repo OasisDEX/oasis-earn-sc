@@ -22,11 +22,7 @@ interface IL2Pool {
 }
 
 interface IL2Encoder {
-  function encodeSupplyParams(
-    address,
-    uint256,
-    uint16
-  ) external view returns (bytes32);
+  function encodeSupplyParams(address, uint256, uint16) external view returns (bytes32);
 
   function encodeSetUserUseReserveAsCollateral(address, bool) external view returns (bytes32);
 }

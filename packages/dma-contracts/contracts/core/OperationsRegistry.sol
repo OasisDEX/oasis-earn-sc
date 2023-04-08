@@ -57,11 +57,9 @@ contract OperationsRegistry {
    * @param name The name of the Operation
    * @return actions Returns an array of Actions and array for optionality of coresponding Actions
    */
-  function getOperation(string memory name)
-    external
-    view
-    returns (bytes32[] memory actions, bool[] memory optional)
-  {
+  function getOperation(
+    string memory name
+  ) external view returns (bytes32[] memory actions, bool[] memory optional) {
     if (keccak256(bytes(operations[name].name)) == keccak256(bytes(""))) {
       revert("Operation doesn't exist");
     }
