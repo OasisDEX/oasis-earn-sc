@@ -1,4 +1,4 @@
-name: Check linting & types
+name: Lint
 
 on: [ push ]
 
@@ -11,7 +11,9 @@ jobs:
       - name: Cache YARN dependencies
         uses: actions/cache@v3
         with:
-          path: node_modules
+          path: |
+            ~/.cache/yarn
+            node_modules
           key: ${{ runner.OS }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.OS }}-yarn-cache-
