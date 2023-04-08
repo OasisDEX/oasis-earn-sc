@@ -11,7 +11,16 @@
     "baseUrl": ".",
     "paths": {
       "@typechain/*": ["./typechain/*"],
-      "@abi/*": ["./abi/*"]
+      "@abi/*": ["./abi/*"],
+      "@dma-library/test/*": [
+        "../dma-library/test/*"
+      ],
+      "@dma-library/*": [
+        "../dma-library/src/*"
+      ],
+      "@dma-library": [
+        "../dma-library/src/index.ts"
+      ],
     },
     "typeRoots": [
       "../../node_modules/@types"
