@@ -10,7 +10,7 @@ export function validateOverRepay(
   if (repayAmount.gt(positionBefore.debtAmount)) {
     return [
       {
-        name: 'repay-more-then-debt',
+        name: 'payback-amount-exceeds-debt-token-balance',
         data: {
           amount: positionBefore.debtAmount.decimalPlaces(2).toString(),
         },

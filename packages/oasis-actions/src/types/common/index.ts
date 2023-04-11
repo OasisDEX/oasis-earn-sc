@@ -59,7 +59,7 @@ export type AjnaErrorOverWithdraw = {
 }
 
 export type AjnaErrorOverRepay = {
-  name: 'repay-more-then-debt'
+  name: 'payback-amount-exceeds-debt-token-balance'
   data: {
     amount: string
   }
