@@ -1,11 +1,8 @@
+- Import and expose addresses directly from the deployment configs file in dma-contracts/scripts/deployment20
 - Add Lerna Changelog https://github.com/lerna/lerna-changelog
 - Add Husky to perform checks before commit
 - Setup Unit & E2E tests workflows
-- Move update-block-numbers task into tasks directory
-- Ensure all packages are being formatted and linted correctly
-- Establish file and folder naming conventions: TS & Sol
-- Add instruction for regnerating domain unit tests scenarios
-- Move ContractNames to dma-contracts
+- Add instruction for regenerating domain unit tests scenarios
 - Update name of init() function
 - Update README which is well out of date
 - Ensure docs are in sync with GitBook

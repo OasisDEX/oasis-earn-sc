@@ -257,30 +257,25 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
     const slippage = new BigNumber(0.1)
 
     before(async function () {
-      const shouldRun1InchTests = process.env.RUN_1INCH_TESTS === '1'
-      if (shouldRun1InchTests) {
-        await resetNodeToLatestBlock(provider)
-        const { system } = await deploySystem(config, false, false)
+      await resetNodeToLatestBlock(provider)
+      const { system } = await deploySystem(config, false, false)
 
-        addresses = {
-          ...mainnetAddresses,
-          priceOracle: mainnetAddresses.aave.v2.priceOracle,
-          lendingPool: mainnetAddresses.aave.v2.lendingPool,
-          protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
-          operationExecutor: system.common.operationExecutor.address,
-        }
+      addresses = {
+        ...mainnetAddresses,
+        priceOracle: mainnetAddresses.aave.v2.priceOracle,
+        lendingPool: mainnetAddresses.aave.v2.lendingPool,
+        protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
+        operationExecutor: system.common.operationExecutor.address,
+      }
 
-        operationExecutor = system.common.operationExecutor
+      operationExecutor = system.common.operationExecutor
 
-        dependencies = {
-          addresses,
-          provider,
-          getSwapData: getOneInchCall(system.common.swap.address),
-          proxy: system.common.dsProxy.address,
-          user: config.address,
-        }
-      } else {
-        this.skip()
+      dependencies = {
+        addresses,
+        provider,
+        getSwapData: getOneInchCall(system.common.swap.address),
+        proxy: system.common.dsProxy.address,
+        user: config.address,
       }
     })
 
