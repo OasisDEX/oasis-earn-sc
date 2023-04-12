@@ -2,22 +2,43 @@
 
 One should populate an `.env` file according to the .env.template file.
 
+# Local development
+Running a local node & deploying the system to a locally running node
+
+1. Running a local node 
+```shell
+yarn dev
+```
+
+2. (Not working) Deploying the system to your local node
+```shell
+yarn deploy dev
+```
+
 # Deploying system
 
-TODO: Add new instructions 
-
-# Local development
-Running a node & deploying the system to a locally running node
-
 TODO: Add new instructions
-
 
 # Running tests
 
-TODO: Add new instructions
-
+1. Run all tests in the monorepo
 ```shell
-yarn run test
+yarn test
+```
+
+2. Run all unit tests in the monorepo
+```shell
+yarn test:unit
+```
+
+3. Run all e2e tests in the monorepo
+```shell
+yarn test:e2e
+```
+
+4. Run a specific test in the repo (example)
+```shell
+yarn hardhat test <path-to-test>
 ```
 
 # Performance optimizations

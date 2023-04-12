@@ -4,9 +4,9 @@
   "typings": "lib/src/index.d.ts",
   "version": "0.2.16",
   "scripts": {
-    "build": "rm -rf ./lib && tsc -b",
-    "watch": "tsc -b -w",
-    "lint": "tsc -p ./tsconfig.json --noEmit",
+    "build": "rm -rf ./lib && npx tsc -b",
+    "watch": "npx tsc -b -w",
+    "lint": "npx tsc -p ./tsconfig.json --noEmit",
     "prepublish": "npm run build"
   },
   "license": "Apache-2.0",
@@ -16,6 +16,7 @@
     "@oasisdex/dma-common": "*",
     "@oasisdex/dma-contracts": "*",
     "@oasisdex/domain": "*",
+    "@types/ramda": "^0.28.24",
     "bignumber.js": "^9.0.1",
     "ethers": "5.7.2",
     "ramda": "^0.28.0",
@@ -28,8 +29,8 @@
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "@types/sinon-chai": "3.2.9",
     "@types/chai": "4.3.0",
+    "@types/sinon-chai": "3.2.9",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
     "bufio": "^1.2.0",
@@ -46,7 +47,8 @@
     "hardhat-tenderly": "^1.0.1",
     "hardhat-tracer": "^2.1.2",
     "mocha": "^10.1.0",
-    "tsconfig-paths": "^4.1.2"
+    "tsconfig-paths": "^4.1.2",
+    "typescript": "^5.0.4"
   },
   "files": [
     "/src",

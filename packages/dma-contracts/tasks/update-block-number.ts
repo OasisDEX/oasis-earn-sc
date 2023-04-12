@@ -3,8 +3,8 @@ import fetch from 'node-fetch'
 import * as path from 'path'
 
 const mainnetInfoUrl = 'https://blockexplorer.one/ajax/eth/mainnet/info'
-const envFile = `${path.join(__dirname)}/.env`
-const envFileBackup = `${path.join(__dirname)}/.env_bak`
+const envFile = path.join(__dirname, '../../../.env')
+const envFileBackup = path.join(__dirname, '../../../.env_bak')
 const newLine = '\n'
 const blockNumberOffset = -10
 

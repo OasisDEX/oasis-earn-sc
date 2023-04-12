@@ -5,9 +5,9 @@
   "typings": "lib/src/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -b",
-    "watch": "tsc -b -w",
-    "lint": "tsc -p ./tsconfig.json --noEmit",
+    "build": "npx tsc -b",
+    "watch": "npx tsc -b -w",
+    "lint": "npx tsc -p ./tsconfig.json --noEmit",
     "test": "npm run test:unit",
     "test:unit": "npx hardhat test ./test/Position.test.ts",
     "prepublish": "npm run build"
@@ -20,7 +20,9 @@
     "@google-cloud/local-auth": "2.1.1",
     "@typechain/hardhat": "6.1.5",
     "@types/chai": "4.3.0",
+    "@types/mocha": "^10.0.1",
     "googleapis": "107",
-    "mocha": "^10.1.0"
+    "mocha": "^10.1.0",
+    "typescript": "^5.0.4"
   }
 }

@@ -24,7 +24,7 @@ import {
   calculateParamsIncreaseMP,
   prepareMultiplyParameters,
 } from '@oasisdex/dma-common/utils/param-calculations'
-import { ActionCall, ActionFactory, calldataTypes } from '@oasisdex/dma-library'
+import { ActionCall, ActionFactory, calldataTypes } from '@oasisdex/dma-library/src'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { ethers, Signer } from 'ethers'

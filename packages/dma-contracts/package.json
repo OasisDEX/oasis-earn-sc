@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "tsc -b && yarn update-block && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ../../.env | cut -d '=' -f2)",
+    "dev": "npx ts-node tasks/update-block-number.ts && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ../../.env | cut -d '=' -f2)",
     "compile": "yarn clean && npx hardhat compile",
     "clean": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx}\" && yarn lint:fix && prettier --write 'contracts/**/*.sol'",
@@ -22,9 +22,16 @@
     "@oasisdex/addresses": "*",
     "@oasisdex/dma-common": "*",
     "@oasisdex/dma-library": "*",
-    "@oasisdex/domain": "*"
+    "@oasisdex/domain": "*",
+    "@openzeppelin/contracts": "4.7.3",
+    "@safe-global/safe-core-sdk": "^3.3.2",
+    "@safe-global/safe-core-sdk-types": "^1.9.0",
+    "@safe-global/safe-ethers-adapters": "^0.1.0-alpha.16",
+    "@safe-global/safe-ethers-lib": "^1.9.2",
+    "@safe-global/safe-service-client": "^2.0.0"
   },
   "devDependencies": {
+
     "@ethereumjs/tx": "3.5.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
