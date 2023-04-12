@@ -3568,11 +3568,6 @@ concat-stream@^1.5.1, concat-stream@^1.6.0, concat-stream@^1.6.2:
     readable-stream "^2.2.2"
     typedarray "^0.0.6"
 
-config-json@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/config-json/-/config-json-1.0.0.tgz#0d7bc78d0a41f78d05f5c859e3cce66a3c0cf202"
-  integrity sha512-BQLfKY2rmGq2Flc1cKuLUEFv+Y89EWoTs25J/SELFT/QGguIr7dQsCKe3cKzbofWH0QudD5LIn+YWk6L6EO9NA==
-
 content-disposition@0.5.4:
   version "0.5.4"
   resolved "https://registry.yarnpkg.com/content-disposition/-/content-disposition-0.5.4.tgz#8b82b4efac82512a02bb0b1dcec9d2c5e8eb5bfe"

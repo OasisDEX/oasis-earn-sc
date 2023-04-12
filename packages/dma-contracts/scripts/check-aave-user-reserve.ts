@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { Contract, ethers } from 'ethers'
 
 import AAVEDataProviderABI from '../../abis/external/protocols/aave/v2/protocolDataProvider.json'

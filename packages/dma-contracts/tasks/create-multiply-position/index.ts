@@ -5,7 +5,7 @@ import {
   wbtcUsdcMultiplyAavePosition,
 } from '@dma-contracts/test/fixtures/factories'
 import { buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
 import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
 import init from '@oasisdex/dma-common/utils/init'

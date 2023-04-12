@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "npx ts-node tasks/update-block-number.ts && yarn hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ../../.env | cut -d '=' -f2)",
+    "dev": "npx ts-node scripts/update-block-number.ts && yarn hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ../../.env | cut -d '=' -f2)",
     "compile": "yarn clean && yarn hardhat compile",
     "clean": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx}\" && yarn lint:fix && prettier --write 'contracts/**/*.sol'",
@@ -12,16 +12,14 @@
     "lint": "eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
     "test": "yarn test:unit && yarn:test:e2e",
     "test:e2e": "yarn clean && yarn hardhat test --grep E2E",
-    "test:unit": "yarn clean && yarn hardhat test --grep Unit",
-    "task:deploy:dev": "yarn compile && yarn hardhat deploy --network local --debug",
-    "task:position:open": "yarn hardhat createPosition --usefallbackswap --network local",
-    "task:position:close": "yarn hardhat closePosition --network local"
+    "test:unit": "yarn clean && yarn hardhat test --grep Unit"
   },
   "dependencies": {
     "@oasisdex/abis": "*",
     "@oasisdex/addresses": "*",
     "@oasisdex/dma-common": "*",
     "@oasisdex/dma-library": "*",
+    "@oasisdex/dma-deployments": "*",
     "@oasisdex/domain": "*",
     "@openzeppelin/contracts": "4.7.3",
     "@safe-global/safe-core-sdk": "^3.3.2",
@@ -31,7 +29,6 @@
     "@safe-global/safe-service-client": "^2.0.0"
   },
   "devDependencies": {
-
     "@ethereumjs/tx": "3.5.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@nomiclabs/hardhat-ethers": "^2.2.2",

@@ -8,7 +8,7 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types/operations'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { MAX_UINT, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
 

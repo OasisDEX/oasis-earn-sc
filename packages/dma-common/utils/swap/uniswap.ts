@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Optional } from 'utility-types'
 

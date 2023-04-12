@@ -1,7 +1,7 @@
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { OPERATION_NAMES, TEN } from '@oasisdex/dma-common/constants'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
 import { expect, restoreSnapshot } from '@oasisdex/dma-common/test-utils'

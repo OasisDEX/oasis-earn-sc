@@ -17,7 +17,7 @@ import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/proto
 import aaveOracleABI from '@oasisdex/abis/external/protocols/aave/v3/aaveOracle.json'
 import AAVEProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
 import AAVEPoolABI from '@oasisdex/abis/external/protocols/aave/v3/pool.json'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { DeployedSystemInfo } from '@oasisdex/dma-common/test-utils/deploy-system'
@@ -565,7 +565,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
           systemWithAaveV3Positions({
             use1inch: false,
             network: networkFork,
-            systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
+            systemConfigPath: `./test/${networkFork}.conf.ts`,
           }),
         )
       })

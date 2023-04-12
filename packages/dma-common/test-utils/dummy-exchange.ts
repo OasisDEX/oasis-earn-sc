@@ -1,6 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import WETHABI from '@oasisdex/abis/external/tokens/IWETH.json'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import BigNumber from 'bignumber.js'
 import { Contract, ethers, Signer } from 'ethers'
 import fetch from 'node-fetch'

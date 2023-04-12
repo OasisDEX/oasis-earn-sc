@@ -1,10 +1,7 @@
-import {
-  getAddressesFor,
-  getServiceNameHash,
-} from '@dma-contracts/scripts/../../../../dma-common/utils/common'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
+import { getServiceNameHash } from '@oasisdex/dma-common/utils/common'
 import { createDeploy } from '@oasisdex/dma-common/utils/deploy'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import init from '@oasisdex/dma-common/utils/init'

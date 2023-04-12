@@ -1,5 +1,5 @@
 export * from './addresses'
-export * from './balances'
+export * from './balance'
 export * from './create2'
 export * from './etherscan'
 export * from './hardhat.utils'

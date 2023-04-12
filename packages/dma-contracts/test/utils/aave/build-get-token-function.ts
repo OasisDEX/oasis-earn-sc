@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { ONE } from '@oasisdex/dma-common/constants'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'

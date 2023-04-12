@@ -1,13 +1,13 @@
 import { ContractNames } from 'constants'
 import { Address } from 'types/address'
 
-export type ConfigItem = {
+export type DeploymentConfig = {
   name: string
   serviceRegistryName?: ContractNames
   address: Address
 }
 
-export type SystemConfigItem = ConfigItem & {
+export type SystemConfigItem = DeploymentConfig & {
   deploy: boolean
   history: Address[]
   constructorArgs?: Array<number | string>
@@ -18,9 +18,9 @@ export type Config = {
     core: Record<string, SystemConfigItem>
     actions: Record<string, SystemConfigItem>
   }
-  common: Record<string, ConfigItem>
+  common: Record<string, DeploymentConfig>
   aave: {
-    v2: Record<string, ConfigItem>
-    v3: Record<string, ConfigItem>
+    v2: Record<string, DeploymentConfig>
+    v3: Record<string, DeploymentConfig>
   }
 }

@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'

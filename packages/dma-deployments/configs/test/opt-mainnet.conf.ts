@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
 
 export const config = {

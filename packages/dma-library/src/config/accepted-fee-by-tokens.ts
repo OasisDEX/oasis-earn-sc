@@ -1,5 +1,5 @@
 /* Selection of token symbols and addresses that we're happy to accept as a fee */
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 
 export const acceptedTokens = [
   {

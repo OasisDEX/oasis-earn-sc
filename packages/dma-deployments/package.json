@@ -1,0 +1,8 @@
+{
+  "name": "@oasisdex/dma-deployments",
+  "version": "1.0.0",
+  "dependencies": {
+    "@oasisdex/abis": "*",
+    "@oasisdex/dma-library": "*"
+  }
+}

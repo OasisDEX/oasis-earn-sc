@@ -24,6 +24,7 @@
         "../dma-library/src/*"
       ],
       "@utils/*": ["../dma-common/utils/*"]
+
     },
     "typeRoots": [
       "../../node_modules/@types"

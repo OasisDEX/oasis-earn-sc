@@ -1,5 +1,5 @@
 import DS_PROXY_REGISTRY_ABI from '@oasisdex/abis/external/libs/DS/ds-proxy-registry.json'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import init from '@oasisdex/dma-common/utils/init'
 import { task } from 'hardhat/config'
 

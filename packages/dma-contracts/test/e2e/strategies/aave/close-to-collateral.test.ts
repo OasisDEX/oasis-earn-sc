@@ -4,7 +4,7 @@ import { SystemWithAavePositions, systemWithAavePositions } from '@dma-contracts
 import { systemWithAaveV3Positions } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { CONTRACT_NAMES, ZERO } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'

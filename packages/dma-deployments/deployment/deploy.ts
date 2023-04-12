@@ -4,8 +4,9 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import DS_PROXY_REGISTRY_ABI from '@oasisdex/abis/external/libs/DS/ds-proxy-registry.json'
+import { ServiceRegistry } from '@oasisdex/dma-common/types/service-registry'
 import { Network, NetworkByChainId } from '@oasisdex/dma-common/utils/network'
-import { OperationsRegistry, ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
+import { OperationsRegistry } from '@oasisdex/dma-common/utils/wrappers/operationsRegistry'
 import { operationDefinition as aaveV2CloseOp } from '@oasisdex/dma-library/src/operations/aave/v2/close'
 import { operationDefinition as aaveV2OpenOp } from '@oasisdex/dma-library/src/operations/aave/v2/open'
 import { operationDefinition as aaveV3CloseOp } from '@oasisdex/dma-library/src/operations/aave/v3/close'
@@ -14,8 +15,6 @@ import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
 import SafeServiceClient from '@safe-global/safe-service-client'
-import { EtherscanGasPrice } from '@utils/common'
-import { Config, ConfigItem, SystemConfigItem } from '@utils/common/config-item'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 import {
@@ -34,6 +33,9 @@ import NodeCache from 'node-cache'
 import * as path from 'path'
 import prompts from 'prompts'
 import { inspect } from 'util'
+
+import { Config, DeploymentConfig, SystemConfigItem } from '../types/deployment-config'
+import { EtherscanGasPrice } from '@oasisdex/dma-common/utils/common'
 
 const restrictedNetworks = [
   Network.MAINNET,
@@ -163,17 +165,17 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   getConfigPath(localPath: string) {
-    const baseDirectory = '../../../deployments'
+    const baseDirectory = '../configs'
     const configPath = path.join(baseDirectory, localPath)
-    console.log('USING CONFIG', configPath)
+    console.log('USING CONFIG', localPath)
     return configPath
   }
 
-  async postInstantiation(configItem: ConfigItem, contract: Contract) {
+  async postInstantiation(configItem: DeploymentConfig, contract: Contract) {
     console.log('POST INITIALIZATION', configItem.name, contract.address)
   }
 
-  async postRegistryEntry(configItem: ConfigItem, address: string) {
+  async postRegistryEntry(configItem: DeploymentConfig, address: string) {
     if (!configItem.serviceRegistryName) throw new Error('No service registry name provided')
     console.log(
       'POST REGISTRY ENTRY',
@@ -264,7 +266,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     return ''
   }
 
-  async addRegistryEntries(addressesConfig: ConfigItem[]) {
+  async addRegistryEntries(addressesConfig: DeploymentConfig[]) {
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     for (const configItem of addressesConfig) {
       if (configItem.serviceRegistryName) {
@@ -274,7 +276,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async addRegistryEntry(configItem: ConfigItem, address: string) {
+  async addRegistryEntry(configItem: DeploymentConfig, address: string) {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
     if (configItem.serviceRegistryName) {
       await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, address)
@@ -282,7 +284,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async instantiateContracts(addressesConfig: ConfigItem[]) {
+  async instantiateContracts(addressesConfig: DeploymentConfig[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     for (const configItem of addressesConfig) {
       console.log('INSTANTIATING ', configItem.name, configItem.address)
@@ -452,7 +454,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
       Object.values(this.config.common).filter(
-        (item: ConfigItem) => item.address !== '' && item.serviceRegistryName,
+        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
       ),
     )
   }
@@ -461,12 +463,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
       Object.values(this.config.aave.v2 || {}).filter(
-        (item: ConfigItem) => item.address !== '' && item.serviceRegistryName,
+        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
       ),
     )
     await this.addRegistryEntries(
       Object.values(this.config.aave.v3 || {}).filter(
-        (item: ConfigItem) => item.address !== '' && item.serviceRegistryName,
+        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
       ),
     )
   }

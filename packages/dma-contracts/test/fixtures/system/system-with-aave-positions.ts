@@ -1,4 +1,3 @@
-import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import {
   buildGetTokenByImpersonateFunction,
   buildGetTokenFunction,
@@ -6,7 +5,9 @@ import {
 import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
-import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
+import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/OneInchCall'
+import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
+import { DeploymentSystem } from '@oasisdex/dma-deployments/deployment/deploy'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library/src'
 import hre from 'hardhat'
 
@@ -39,7 +40,7 @@ export const systemWithAavePositions =
   async (): Promise<SystemWithAavePositions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
-    ds.loadConfig('test-configs/mainnet.conf.ts')
+    ds.loadConfig('test/mainnet.conf.ts')
 
     // If you update test block numbers you may run into issues where whale addresses
     // We use impersonation on test block number but with 1inch we use uniswap

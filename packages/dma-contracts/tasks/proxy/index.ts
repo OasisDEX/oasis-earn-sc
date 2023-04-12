@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import init from '@oasisdex/dma-common/utils/init'
 import { getDsProxyRegistry } from '@oasisdex/dma-common/utils/proxy'
 import { task } from 'hardhat/config'

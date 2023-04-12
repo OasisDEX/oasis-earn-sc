@@ -7,7 +7,7 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import aavePriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
 import {
   expect,

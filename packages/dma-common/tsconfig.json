@@ -23,6 +23,7 @@
   "include": [
     "./utils/**/*",
     "./test-utils/**/*",
+    "./types",
     "./hardhat.config.ts"
   ],
   "files": [

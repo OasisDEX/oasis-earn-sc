@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import BigNumber from 'bignumber.js'
 
 import { ONE } from '../constants'

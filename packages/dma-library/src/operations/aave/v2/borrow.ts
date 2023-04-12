@@ -1,5 +1,5 @@
 import * as actions from '@dma-library/actions'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import { Address } from '@oasisdex/dma-common/types/address'
 import BigNumber from 'bignumber.js'

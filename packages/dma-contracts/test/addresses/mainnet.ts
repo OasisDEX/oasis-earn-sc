@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 
 export const mainnetAddresses = {
   DAI: ADDRESSES.main.DAI,
