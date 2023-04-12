@@ -5,8 +5,7 @@
 // Runtime Environment's members available in the global scope.
 import DS_PROXY_REGISTRY_ABI from '@oasisdex/abis/external/libs/DS/ds-proxy-registry.json'
 import { Network, NetworkByChainId } from '@oasisdex/dma-common/utils/network'
-import { OperationsRegistry } from '@oasisdex/dma-common/utils/wrappers/operations-registry'
-import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers/service-registry'
+import { OperationsRegistry, ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
 import { operationDefinition as aaveV2CloseOp } from '@oasisdex/dma-library/src/operations/aave/v2/close'
 import { operationDefinition as aaveV2OpenOp } from '@oasisdex/dma-library/src/operations/aave/v2/open'
 import { operationDefinition as aaveV3CloseOp } from '@oasisdex/dma-library/src/operations/aave/v3/close'
@@ -15,10 +14,10 @@ import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
 import SafeServiceClient from '@safe-global/safe-service-client'
+import { EtherscanGasPrice } from '@utils/common'
+import { Config, ConfigItem, SystemConfigItem } from '@utils/common/config-item'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
-// @ts-ignore
-import configLoader from 'config-json'
 import {
   BigNumber as EthersBN,
   Contract,
@@ -32,13 +31,9 @@ import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import _ from 'lodash'
 import NodeCache from 'node-cache'
+import * as path from 'path'
 import prompts from 'prompts'
 import { inspect } from 'util'
-
-import { EtherscanGasPrice } from '../../../dma-common/utils/common'
-import { Config, ConfigItem, SystemConfigItem } from '../../../dma-common/utils/common/config-item'
-
-configLoader.setBaseDir('./scripts/deployment20/')
 
 const restrictedNetworks = [
   Network.MAINNET,
@@ -126,16 +121,16 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async loadConfig(configFileName?: string) {
     if (configFileName) {
-      this.config = (await import(`./${configFileName}`)).config
+      this.config = (await import(this.getConfigPath(`./${configFileName}`))).config
     } else {
       // if forked other network then merge configs files
       if (this.forkedNetwork) {
-        const baseConfig = (await import(`./${this.forkedNetwork}.conf`)).config
-        const extendedConfig = (await import(`./local-extend.conf`)).config
+        const baseConfig = (await import(this.getConfigPath(`./${this.forkedNetwork}.conf`))).config
+        const extendedConfig = (await import(this.getConfigPath(`./local-extend.conf`))).config
         this.config = _.merge(baseConfig, extendedConfig)
       } else {
         // otherwise load just one config file
-        this.config = (await import(`./${this.network}.conf`)).config
+        this.config = (await import(this.getConfigPath(`./${this.network}.conf`))).config
       }
     }
   }
@@ -144,7 +139,10 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) {
       await this.loadConfig(configFileName)
     } else {
-      this.config = _.merge(this.config, (await import(`./${configFileName}`)).config)
+      this.config = _.merge(
+        this.config,
+        (await import(this.getConfigPath(`./${configFileName}`))).config,
+      )
     }
   }
 
@@ -154,7 +152,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     const configString = inspect(this.config, { depth: null })
 
     writeFile(
-      `./scripts/deployment20/${this.network}.conf.ts`,
+      this.getConfigPath(`./${this.network}.conf.ts`),
       `export const config = ${configString}`,
       (error: any) => {
         if (error) {
@@ -162,6 +160,13 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         }
       },
     )
+  }
+
+  getConfigPath(localPath: string) {
+    const baseDirectory = '../../../deployments'
+    const configPath = path.join(baseDirectory, localPath)
+    console.log('USING CONFIG', configPath)
+    return configPath
   }
 
   async postInstantiation(configItem: ConfigItem, contract: Contract) {

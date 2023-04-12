@@ -6,3 +6,5 @@
 - Update name of init() function
 - Ensure docs are in sync with GitBook
 - Extract HH config into separate package if poss
+- Perhaps move Deploy scripts into separate package
+- Perhaps move typechain into separate package to solve circular dependency issue
