@@ -18,6 +18,9 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-yarn-cache-
 
+      - name: Clear Yarn cache
+        run: yarn cache clean
+
       - name: Install
         run: yarn --no-progress --non-interactive --frozen-lockfile
 
