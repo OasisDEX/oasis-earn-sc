@@ -19,7 +19,6 @@ describe('AAVE | WithdrawV3 Action | Unit', () => {
   let withdrawV3Action: Contract
   let snapshotId: string
   let fakePool: FakeContract<Pool>
-  let tx: any
 
   const expectedValues = {
     asset: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -55,7 +54,7 @@ describe('AAVE | WithdrawV3 Action | Unit', () => {
   beforeEach(async () => {
     snapshotId = await provider.send('evm_snapshot', [])
 
-    tx = await withdrawV3Action.execute(
+    await withdrawV3Action.execute(
       utils.defaultAbiCoder.encode([calldataTypes.aaveV3.Withdraw], [expectedValues]),
       [0, 0],
     )

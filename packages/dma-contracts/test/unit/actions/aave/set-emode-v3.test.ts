@@ -19,7 +19,6 @@ describe('AAVE | SetEModeV3 Action | Unit', () => {
   let setEModeV3Action: Contract
   let snapshotId: string
   let fakePool: FakeContract<Pool>
-  let tx: any
 
   const expectedValues = {
     categoryId: 1,
@@ -53,7 +52,7 @@ describe('AAVE | SetEModeV3 Action | Unit', () => {
   beforeEach(async () => {
     snapshotId = await provider.send('evm_snapshot', [])
 
-    tx = await setEModeV3Action.execute(
+    await setEModeV3Action.execute(
       utils.defaultAbiCoder.encode([calldataTypes.aaveV3.SetEMode], [expectedValues]),
       [0, 0],
     )
