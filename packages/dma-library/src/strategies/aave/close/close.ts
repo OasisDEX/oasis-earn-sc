@@ -4,8 +4,8 @@ import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import {
   IBasePositionTransitionArgs,
   IOperation,
-  IPositionTransition,
   IPositionTransitionDependencies,
+  PositionTransition,
   SwapData,
   WithLockedCollateral,
 } from '@dma-library/types'
@@ -33,8 +33,8 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { memoizeWith } from 'ramda'
 
-import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
-import { AaveVersion } from '../getCurrentPosition'
+import { getAaveTokenAddresses } from '../get-aave-token-addresses'
+import { AaveVersion } from '../get-current-position'
 
 export type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> &
   WithLockedCollateral & {
@@ -54,7 +54,7 @@ export type AaveCloseDependencies =
 export async function close(
   args: AaveCloseArgsWithVersioning,
   dependencies: AaveCloseDependencies,
-): Promise<IPositionTransition> {
+): Promise<PositionTransition> {
   const getSwapData = args.shouldCloseToCollateral
     ? getSwapDataToCloseToCollateral
     : getSwapDataToCloseToDebt

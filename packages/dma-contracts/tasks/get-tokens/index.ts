@@ -1,6 +1,6 @@
+import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import { amountToWei } from '@oasisdex/dma-common/utils/common'
 import { swapOneInchTokens } from '@oasisdex/dma-common/utils/swap/1inch'
-import { mainnetAddresses } from '@oasisdex/dma-library/test/addresses'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 

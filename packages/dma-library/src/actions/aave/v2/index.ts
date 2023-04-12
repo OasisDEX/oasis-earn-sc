@@ -1,1 +1,1 @@
-export * as aaveV2 from './aaveV2'
+export * as aaveV2 from './aave-v2'

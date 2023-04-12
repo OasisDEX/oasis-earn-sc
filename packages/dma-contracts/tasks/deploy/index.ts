@@ -1,10 +1,10 @@
 import { ADDRESSES } from '@oasisdex/addresses'
 import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
+import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
+import { ServiceRegistry } from '@oasisdex/dma-common/types/service-registry'
 import { createDeploy, DeployFunction } from '@oasisdex/dma-common/utils/deploy'
 import init from '@oasisdex/dma-common/utils/init'
-import { RuntimeConfig } from '@oasisdex/dma-common/utils/types/common'
-import { ServiceRegistry } from '@oasisdex/dma-common/utils/types/service-registry'
 import { OperationsRegistry } from '@oasisdex/dma-common/utils/wrappers/operationsRegistry'
 import { task } from 'hardhat/config'
 

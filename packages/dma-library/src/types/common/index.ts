@@ -1,4 +1,4 @@
-export type Address = string
+import { Address } from '@oasisdex/dma-common/types/address'
 
 export type Tx = {
   to: Address

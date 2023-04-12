@@ -7,7 +7,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { isError, tryF } from 'ts-try'
 
 import { TEN } from '../constants'
-import { BalanceOptions, RuntimeConfig } from './types/common'
+import { BalanceOptions, RuntimeConfig } from '../types/common'
 
 export async function balanceOf(
   asset: string,

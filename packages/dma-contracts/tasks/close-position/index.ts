@@ -1,3 +1,5 @@
+import { mainnetAddresses } from '@dma-contracts/test/addresses'
+import { AaveAccountData, AaveReserveData } from '@dma-contracts/test/utils/aave'
 import DSProxyABI from '@oasisdex/abis/external/libs/DS/ds-proxy.json'
 import AAVELendigPoolABI from '@oasisdex/abis/external/protocols/aave/v2/lendingPool.json'
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
@@ -7,12 +9,11 @@ import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
 import { balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import init from '@oasisdex/dma-common/utils/init'
+import { getDsProxyRegistry } from '@oasisdex/dma-common/utils/proxy'
 import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy/proxy'
 import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/OneInchCall'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
 import { strategies } from '@oasisdex/dma-library/src'
-import { mainnetAddresses } from '@oasisdex/dma-library/test/addresses'
-import { AaveAccountData, AAVEReserveData } from '@oasisdex/dma-library/test/utils/aave'
 import { Position } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
@@ -83,13 +84,16 @@ task('closePosition', 'Close stETH position on AAVE')
       config.provider,
     )
 
-    const proxyAddress = await getOrCreateProxy(config.signer)
-
-    const dsProxy = new hre.ethers.Contract(proxyAddress, DSProxyABI, config.provider).connect(
+    const proxy = await getOrCreateProxy(
+      await getDsProxyRegistry(config.signer, ADDRESSES.main.proxyRegistry, hre),
       config.signer,
     )
 
-    let userStEthReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
+    const dsProxy = new hre.ethers.Contract(proxy.address, DSProxyABI, config.provider).connect(
+      config.signer,
+    )
+
+    let userStEthReserveData: AaveReserveData = await aaveDataProvider.getUserReserveData(
       ADDRESSES.main.STETH,
       dsProxy.address,
     )
@@ -110,7 +114,7 @@ task('closePosition', 'Close stETH position on AAVE')
     )
     const slippage = new BigNumber(0.1)
 
-    console.log(`Proxy Address for account: ${proxyAddress}`)
+    console.log(`Proxy Address for account: ${proxy.address}`)
 
     const swapData = taskArgs.usefallbackswap ? oneInchCallMock() : getOneInchCall(swapAddress)
 
@@ -118,7 +122,7 @@ task('closePosition', 'Close stETH position on AAVE')
       dsProxy.address,
     )
 
-    const beforeCloseUserStEthReserveData: AAVEReserveData =
+    const beforeCloseUserStEthReserveData: AaveReserveData =
       await aaveDataProvider.getUserReserveData(ADDRESSES.main.STETH, dsProxy.address)
 
     const positionAfterOpen = new Position(

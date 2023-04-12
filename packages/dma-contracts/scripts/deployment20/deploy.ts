@@ -3,13 +3,14 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
+import DS_PROXY_REGISTRY_ABI from '@oasisdex/abis/external/libs/DS/ds-proxy-registry.json'
+import { ServiceRegistry } from '@oasisdex/dma-common/types/service-registry'
 import { Network, NetworkByChainId } from '@oasisdex/dma-common/utils/network'
 import { OperationsRegistry } from '@oasisdex/dma-common/utils/wrappers/operationsRegistry'
 import { operationDefinition as aaveV2CloseOp } from '@oasisdex/dma-library/src/operations/aave/v2/close'
 import { operationDefinition as aaveV2OpenOp } from '@oasisdex/dma-library/src/operations/aave/v2/open'
 import { operationDefinition as aaveV3CloseOp } from '@oasisdex/dma-library/src/operations/aave/v3/close'
 import { operationDefinition as aaveV3OpenOp } from '@oasisdex/dma-library/src/operations/aave/v3/open'
-import { ServiceRegistry } from '@oasisdex/dma-library/test/utils'
 import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
@@ -34,7 +35,6 @@ import NodeCache from 'node-cache'
 import prompts from 'prompts'
 import { inspect } from 'util'
 
-import DS_PROXY_REGISTRY_ABI from '../../../abis/external/libs/DS/ds-proxy-registry.json'
 import { EtherscanGasPrice } from '../common'
 import { Config, ConfigItem, SystemConfigItem } from '../common/config-item'
 

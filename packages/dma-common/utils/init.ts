@@ -1,7 +1,7 @@
 import { providers } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { RuntimeConfig } from './types/common'
+import { RuntimeConfig } from '../types/common'
 
 export default async function init(
   hre?: HardhatRuntimeEnvironment,

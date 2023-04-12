@@ -11,23 +11,27 @@
     "baseUrl": ".",
     "paths": {
       "@typechain/*": ["./typechain/*"],
-      "@abi/*": ["./abi/*"],
-      "@dma-library/test/*": [
-        "../dma-library/test/*"
+      "@dma-contracts/test/*": [
+        "./test/*"
+      ],
+      "@dma-contracts/scripts/*": [
+        "./scripts/*"
+      ],
+      "@dma-contracts/*": [
+        "./*"
       ],
       "@dma-library/*": [
         "../dma-library/src/*"
-      ],
-      "@dma-library": [
-        "../dma-library/src/index.ts"
-      ],
+      ]
     },
     "typeRoots": [
       "../../node_modules/@types"
     ]
   },
   "include": [
-    "hardhat.config.ts",
+    "./bootstrap-env.ts",
+    "./hardhat.config.ts",
+    "test/**/*.ts",
     "tasks/**/*.ts",
     "scripts/**/*.ts"
   ],

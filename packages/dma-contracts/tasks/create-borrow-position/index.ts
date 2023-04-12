@@ -1,16 +1,19 @@
+import { AAVETokensToGet, buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
+import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
 import { amountToWei, approve } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy } from '@oasisdex/dma-common/utils/execute'
 import init from '@oasisdex/dma-common/utils/init'
+import { getAccountFactory } from '@oasisdex/dma-common/utils/proxy/get-account-factory'
 import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/OneInchCall'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
-import { AAVETokens, strategies } from '@oasisdex/dma-library/src'
-import { StrategiesDependencies } from '@oasisdex/dma-library/test/fixtures'
-import { createDPMAccount } from '@oasisdex/dma-library/test/fixtures/factories'
-import { AAVETokensToGet, buildGetTokenFunction } from '@oasisdex/dma-library/test/utils/aave'
+import { AAVETokens, AaveVersion, strategies } from '@oasisdex/dma-library/src'
+import { getAaveProtocolData } from '@oasisdex/dma-library/src/protocols/aave/get-aave-protocol-data'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
+
+import { StrategyDependenciesAaveV2 } from '../../test/fixtures/types/strategies-dependencies'
 
 type CreateBorrowPositionArgs = {
   serviceRegistry: string
@@ -22,7 +25,11 @@ type CreateBorrowPositionArgs = {
   usefallbackswap: boolean
 }
 
-const precisionMap: Record<AAVETokens, number> = {
+type OmitAAVETokens<T extends AAVETokens, K extends keyof any> = T extends K ? never : T
+
+type AAVETokensWithoutWSTETH = OmitAAVETokens<AAVETokens, 'WSTETH'>
+
+const precisionMap: Record<AAVETokensWithoutWSTETH, number> = {
   STETH: 18,
   WBTC: 8,
   USDC: 6,
@@ -84,10 +91,10 @@ task('createBorrowPosition', 'Create borrow position')
       WBTC: ADDRESSES.main.WBTC,
       USDC: ADDRESSES.main.USDC,
       chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-      aavePriceOracle: ADDRESSES.main.aave.v2.PriceOracle,
-      aaveLendingPool: ADDRESSES.main.aave.v2.LendingPool,
+      priceOracle: ADDRESSES.main.aave.v2.PriceOracle,
+      lendingPool: ADDRESSES.main.aave.v2.LendingPool,
       operationExecutor: operationExecutorAddress,
-      aaveProtocolDataProvider: ADDRESSES.main.aave.v2.ProtocolDataProvider,
+      protocolDataProvider: ADDRESSES.main.aave.v2.ProtocolDataProvider,
       accountFactory: accountFactory,
     }
 
@@ -96,7 +103,9 @@ task('createBorrowPosition', 'Create borrow position')
           oneInchCallMock(marketPrice, precision)
       : () => getOneInchCall(swapAddress)
 
-    const [proxy1, vaultId1] = await createDPMAccount(mainnetAddresses.accountFactory, config)
+    const [proxy1, vaultId1] = await createDPMAccount(
+      await getAccountFactory(config.signer, mainnetAddresses.accountFactory),
+    )
 
     if (proxy1 === undefined) {
       throw new Error(`Can't create DPM accounts`)
@@ -104,7 +113,7 @@ task('createBorrowPosition', 'Create borrow position')
 
     console.log(`DPM Created: ${proxy1}. VaultId: ${vaultId1}`)
 
-    const dependencies: StrategiesDependencies = {
+    const dependencies: StrategyDependenciesAaveV2 = {
       addresses: mainnetAddresses,
       provider: config.provider,
       getSwapData: swapData,
@@ -116,12 +125,18 @@ task('createBorrowPosition', 'Create borrow position')
           config.signer,
         ),
       },
+      protocol: {
+        version: AaveVersion.v2,
+        getCurrentPosition: strategies.aave.v2.view,
+        getProtocolData: getAaveProtocolData,
+      },
     }
 
+    if (collateral === 'WSTETH' || debt === 'WSTETH') throw new Error('WSTETH is not supported yet')
     const collateralAddress = mainnetAddresses[collateral]
 
     if (collateral !== 'ETH') {
-      await getToken(collateral, deposit.toString())
+      await getToken(collateral, new BigNumber(deposit))
       await approve(collateralAddress, proxy1, new BigNumber(deposit), config, false)
     }
 

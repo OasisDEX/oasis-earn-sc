@@ -1,7 +1,7 @@
 import { Contract } from '@ethersproject/contracts'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { Debug, WithRuntimeConfig } from './types/common'
+import { Debug, WithRuntimeConfig } from '../types/common'
 
 type DeployOptions = WithRuntimeConfig & Debug
 

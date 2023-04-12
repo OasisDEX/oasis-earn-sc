@@ -22,7 +22,8 @@
   },
   "include": [
     "./utils/**/*",
-    "./test-utils/**/*"
+    "./test-utils/**/*",
+    "./hardhat.config.ts"
   ],
   "files": [
     "./hardhat.config.ts"

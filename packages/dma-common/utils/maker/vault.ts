@@ -6,7 +6,7 @@ import { ethers } from 'hardhat'
 import _ from 'lodash'
 
 import GetCDPsABI from '../../../abis/external/protocols/maker/get-cdps.json'
-import { CDPInfo, VaultInfo } from '../types/maker'
+import { CDPInfo, VaultInfo } from '../../types/maker'
 
 export async function getLastVault(
   provider: JsonRpcProvider,

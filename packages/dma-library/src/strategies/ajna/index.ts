@@ -1,7 +1,7 @@
-import { depositBorrow } from './depositBorrow'
+import { depositBorrow } from './deposit-borrow'
 import { earn } from './earn'
 import { open } from './open'
-import { paybackWithdraw } from './paybackWithdraw'
+import { paybackWithdraw } from './payback-withdraw'
 
 export const ajna = {
   borrow: {

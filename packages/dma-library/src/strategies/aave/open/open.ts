@@ -3,18 +3,12 @@ import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
 } from '@dma-library/protocols/aave/config'
-import { AaveProtocolData } from '@dma-library/protocols/aave/getAaveProtocolData'
-import {
-  Address,
-  IOperation,
-  IPositionTransition,
-  PositionType,
-  SwapData,
-} from '@dma-library/types'
+import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
+import { IOperation, PositionTransition, PositionType, SwapData } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
-import { WithV2Addresses, WithV3Addresses } from '@dma-library/types/aave/Addresses'
-import { WithFee } from '@dma-library/types/aave/Fee'
-import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/Protocol'
+import { WithV2Addresses, WithV3Addresses } from '@dma-library/types/aave/addresses'
+import { WithFee } from '@dma-library/types/aave/fee'
+import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
@@ -27,16 +21,17 @@ import {
   ONE,
   ZERO,
 } from '@oasisdex/dma-common/constants'
+import { Address } from '@oasisdex/dma-common/types/address'
+import { Unbox } from '@oasisdex/dma-common/types/common'
 import { amountFromWei, amountToWei } from '@oasisdex/dma-common/utils/common'
 import { getForkedNetwork } from '@oasisdex/dma-common/utils/network'
 import { calculateFee } from '@oasisdex/dma-common/utils/swap'
-import { Unbox } from '@oasisdex/dma-common/utils/types/common'
 import { IBaseSimulatedTransition, IRiskRatio, Position } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
-import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
-import { AaveVersion } from '../getCurrentPosition'
+import { getAaveTokenAddresses } from '../get-aave-token-addresses'
+import { AaveVersion } from '../get-current-position'
 
 export interface AaveOpenArgs {
   depositedByUser?: {
@@ -70,7 +65,7 @@ export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependenci
 export async function open(
   args: AaveOpenArgs,
   dependencies: AaveOpenDependencies,
-): Promise<IPositionTransition> {
+): Promise<PositionTransition> {
   const fee = feeResolver(
     args.collateralToken.symbol,
     args.debtToken.symbol,

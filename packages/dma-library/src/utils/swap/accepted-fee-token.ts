@@ -1,4 +1,4 @@
-import { acceptedTokens } from '@dma-library/config/acceptedFeeTokensConfig'
+import { acceptedTokens } from '@dma-library/config/accepted-fee-by-tokens'
 
 type TokenSymbolOrAddress = string
 

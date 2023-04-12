@@ -1,9 +1,9 @@
 import { providers } from 'ethers'
 
-import { DeployedSystemInfo, deploySystem } from './deploy-system'
+import { RuntimeConfig } from '../types/common'
+import { ServiceRegistry } from '../types/service-registry'
 import { resetNode } from '../utils/init'
-import { ServiceRegistry } from '../utils/types/service-registry'
-import { RuntimeConfig } from '../utils/types/common'
+import { DeployedSystemInfo, deploySystem } from './deploy-system'
 
 type System = { system: DeployedSystemInfo; registry: ServiceRegistry }
 export type Snapshot = { id: string; deployed: System }

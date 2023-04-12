@@ -1,5 +1,5 @@
 import * as actions from '@dma-library/actions'
-import { getActionHash } from '@dma-library/actions/getActionHash'
+import { getActionHash } from '@dma-library/actions/get-action-hash'
 import { IOperation } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'
 import { ADDRESSES } from '@oasisdex/addresses'

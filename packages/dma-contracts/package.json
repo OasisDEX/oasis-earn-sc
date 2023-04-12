@@ -4,31 +4,36 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsc -b && yarn update-block && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ./.env | cut -d '=' -f2)",
-    "compile": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache && npx hardhat compile --verbose",
+    "compile": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache && npx hardhat compile",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx}\" && yarn lint:fix && prettier --write 'contracts/**/*.sol'",
     "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx}\"",
     "lint:fix": "eslint . --fix --ext .ts",
     "lint": "eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
+    "test": "npm run test:unit",
+    "test:unit": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache && npx hardhat test --grep Unit",
     "task:deploy:dev": "yarn compile && npx hardhat deploy --network local --debug",
     "task:position:open": "npx hardhat createPosition --usefallbackswap --network local",
     "task:position:close": "npx hardhat closePosition --network local"
   },
   "dependencies": {
-    "@oasisdex/dma-common": "*",
+    "@oasisdex/abis": "*",
     "@oasisdex/addresses": "*",
-    "@oasisdex/domain": "*",
-    "@oasisdex/dma-library": "*"
+    "@oasisdex/dma-common": "*",
+    "@oasisdex/dma-library": "*",
+    "@oasisdex/domain": "*"
   },
   "devDependencies": {
+    "@ethereumjs/tx": "3.5.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "@nomiclabs/hardhat-waffle": "^2.0.5",
     "@tenderly/hardhat-tenderly": "^1.6.1",
-    "@typescript-eslint/eslint-plugin": "^5.27.1",
-    "@typescript-eslint/parser": "^5.27.1",
     "@typechain/ethers-v5": "^10.1.0",
     "@typechain/hardhat": "6.1.5",
+    "@types/glob": "^8.1.0",
+    "@typescript-eslint/eslint-plugin": "^5.27.1",
+    "@typescript-eslint/parser": "^5.27.1",
     "dotenv": "^16.0.3",
     "eslint": "^8.6.0",
     "eslint-config-prettier": "^8.3.0",
@@ -50,7 +55,8 @@
     "solidity-coverage": "^0.7.13",
     "solidity-docgen": "^0.6.0-beta.29",
     "tsconfig-paths": "^4.1.2",
-    "typechain": "8.1.1"
+    "typechain": "8.1.1",
+    "typescript": "^5.0.4"
   },
   "files": [
     "tsconfig.json"

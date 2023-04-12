@@ -1,3 +1,4 @@
+import './bootstrap-env'
 import 'tsconfig-paths/register'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
@@ -23,22 +24,8 @@ import './tasks/transfer-dpm'
 import './tasks/transfer-all-proxies'
 
 import { ChainIdByNetwork, Network } from '@oasisdex/dma-common/utils/network'
-import * as dotenv from 'dotenv'
-import { task } from 'hardhat/config'
-import * as path from 'path'
 import * as process from 'process'
 
-dotenv.config({ path: path.join(__dirname, '../../.env') })
-
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners()
-
-  for (const account of accounts) {
-    console.log(account.address)
-  }
-})
 const networkFork = process.env.NETWORK_FORK as Network | undefined
 
 if (!networkFork || !(networkFork == Network.MAINNET || networkFork == Network.OPT_MAINNET)) {

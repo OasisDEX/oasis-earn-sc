@@ -3,26 +3,21 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-import { ServiceRegistry } from '@oasisdex/dma-common/utils/types/service-registry'
-import {
-  ActionFactory,
-  ADDRESSES,
-  calldataTypes,
-  CONTRACT_NAMES,
-  OPERATION_NAMES,
-  ZERO,
-} from '@oasisdex/dma-library/src'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { CONTRACT_NAMES, OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
+import { ServiceRegistry } from '@oasisdex/dma-common/types/service-registry'
+import { createDeploy } from '@oasisdex/dma-common/utils/deploy'
+import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
+import init from '@oasisdex/dma-common/utils/init'
+import { getDsProxyRegistry, getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
+import { swapOneInchTokens } from '@oasisdex/dma-common/utils/swap/1inch'
+import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
+import { OperationsRegistry } from '@oasisdex/dma-common/utils/wrappers/operationsRegistry'
+import { ActionFactory, calldataTypes } from '@oasisdex/dma-library/src'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'hardhat'
 
 import { amountToWei, approve, balanceOf } from '../../dma-common/utils/common'
-import { createDeploy, executeThroughProxy } from '../../dma-common/utils/deploy'
-import init from '../../dma-common/utils/init'
-// Helper functions
-import { getOrCreateProxy } from '../../dma-common/utils/proxy/proxy'
-import { swapOneInchTokens } from '../../dma-common/utils/swap/1inch'
-import { swapUniswapTokens } from '../../dma-common/utils/swap/uniswap'
-import { OperationsRegistry } from '../../dma-common/utils/wrappers/operationsRegistry'
 
 const createAction = ActionFactory.create
 
@@ -34,10 +29,12 @@ const borrowAmount = amountToWei(new BigNumber(5))
 async function main() {
   const config = await init()
   const { signer, address } = config
-  const proxyAddress = await getOrCreateProxy(signer)
-
+  const proxy = await getOrCreateProxy(
+    await getDsProxyRegistry(config.signer, ADDRESSES.main.proxyRegistry),
+    config.signer,
+  )
   console.log(`DEBUG: Wallet Address: ${address}`)
-  console.log(`DEBUG: Proxy Address: ${proxyAddress}`)
+  console.log(`DEBUG: Proxy Address: ${proxy.address}`)
 
   const options = {
     debug: true,
@@ -250,7 +247,7 @@ async function main() {
       {
         amount: borrowAmount.toFixed(0),
         asset: ADDRESSES.main.ETH,
-        to: proxyAddress,
+        to: proxy.address,
       },
     ],
   )
@@ -260,7 +257,7 @@ async function main() {
     ADDRESSES.main.WETH,
     ADDRESSES.main.STETH,
     borrowAmount.toFixed(0),
-    proxyAddress,
+    proxy.address,
     '10',
   )
 
@@ -288,7 +285,7 @@ async function main() {
       {
         asset: ADDRESSES.main.DAI,
         amount: flashloanAmount.toFixed(0),
-        to: proxyAddress,
+        to: proxy.address,
       },
     ],
   )
@@ -374,10 +371,10 @@ async function main() {
     { hash: positionCreatedHash, optional: false },
   ])
 
-  await approve(ADDRESSES.main.DAI, proxyAddress, depositAmount, config, true)
+  await approve(ADDRESSES.main.DAI, proxy.address, depositAmount, config, true)
 
   await executeThroughProxy(
-    proxyAddress,
+    proxy.address,
     {
       address: operationExecutorAddress,
       calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
@@ -389,13 +386,13 @@ async function main() {
   )
 
   console.log('DEBUG: Deposited ( DAI )')
-  await balanceOf(ADDRESSES.main.aDAI, proxyAddress, options)
+  await balanceOf(ADDRESSES.main.aDAI, proxy.address, options)
   console.log('DEBUG: Debt ( ETH )')
-  await balanceOf(ADDRESSES.main.ETH, proxyAddress, options)
+  await balanceOf(ADDRESSES.main.ETH, proxy.address, options)
   console.log('DEBUG: Debt ( WETH )')
-  await balanceOf(ADDRESSES.main.variableDebtWETH, proxyAddress, options)
+  await balanceOf(ADDRESSES.main.variableDebtWETH, proxy.address, options)
   console.log('DEBUG: OWNED ( stETH )')
-  await balanceOf(ADDRESSES.main.STETH, proxyAddress, options)
+  await balanceOf(ADDRESSES.main.STETH, proxy.address, options)
 }
 
 main().catch(error => {

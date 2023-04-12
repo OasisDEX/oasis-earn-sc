@@ -3,7 +3,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Optional } from 'utility-types'
 
 import UNISWAP_ROUTER_V3_ABI from '../../../abis/external/swap/IUniswapRouter.json'
-import { RuntimeConfig } from '../types/common'
+import { RuntimeConfig } from '../../types/common'
 
 /**
  * tokenIn: string - asset address

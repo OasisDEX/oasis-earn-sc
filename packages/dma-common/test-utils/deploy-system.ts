@@ -1,11 +1,12 @@
-import { RuntimeConfig, Unbox } from '../utils/types/common'
-import { getDsProxyRegistry, getOrCreateProxy } from '../utils/proxy'
-import { OPERATION_NAMES } from '../constants/operation-names'
+import { ADDRESSES } from '@oasisdex/addresses'
+
 import { CONTRACT_NAMES } from '../constants/contract-names'
-import { ServiceRegistry } from '../utils/types/service-registry'
+import { OPERATION_NAMES } from '../constants/operation-names'
+import { RuntimeConfig, Unbox } from '../types/common'
+import { ServiceRegistry } from '../types/service-registry'
 import { logDebug } from '../utils/common'
 import { createDeploy } from '../utils/deploy'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { getDsProxyRegistry, getOrCreateProxy } from '../utils/proxy'
 import { OperationsRegistry } from '../utils/wrappers/operationsRegistry'
 import { loadDummyExchangeFixtures } from './dummy-exchange'
 

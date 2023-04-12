@@ -1,17 +1,18 @@
+import { StrategiesDependencies } from '@dma-contracts/test/fixtures'
+import {
+  ethUsdcMultiplyAavePosition,
+  stethUsdcMultiplyAavePosition,
+  wbtcUsdcMultiplyAavePosition,
+} from '@dma-contracts/test/fixtures/factories'
+import { buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
+import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
 import init from '@oasisdex/dma-common/utils/init'
+import { getAccountFactory } from '@oasisdex/dma-common/utils/proxy/get-account-factory'
 import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/OneInchCall'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library/src'
-import { StrategiesDependencies } from '@oasisdex/dma-library/test/fixtures'
-import {
-  createDPMAccount,
-  createEthUsdcMultiplyAAVEPosition,
-  createStEthUsdcMultiplyAAVEPosition,
-  createWbtcUsdcMultiplyAAVEPosition,
-} from '@oasisdex/dma-library/test/fixtures/factories'
-import { buildGetTokenFunction } from '@oasisdex/dma-library/test/utils/aave'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -83,9 +84,15 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
           oneInchCallMock(marketPrice, precision)
       : () => getOneInchCall(swapAddress)
 
-    const [proxy1, vaultId1] = await createDPMAccount(mainnetAddresses.accountFactory, config)
-    const [proxy2, vaultId2] = await createDPMAccount(mainnetAddresses.accountFactory, config)
-    const [proxy3, vaultId3] = await createDPMAccount(mainnetAddresses.accountFactory, config)
+    const [proxy1, vaultId1] = await createDPMAccount(
+      await getAccountFactory(config.signer, mainnetAddresses.accountFactory),
+    )
+    const [proxy2, vaultId2] = await createDPMAccount(
+      await getAccountFactory(config.signer, mainnetAddresses.accountFactory),
+    )
+    const [proxy3, vaultId3] = await createDPMAccount(
+      await getAccountFactory(config.signer, mainnetAddresses.accountFactory),
+    )
 
     if (proxy1 === undefined || proxy2 === undefined || proxy3 === undefined) {
       throw new Error(`Can't create DPM accounts`)
@@ -150,19 +157,20 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       },
     }
 
-    const positionDetails1 = await createEthUsdcMultiplyAAVEPosition({
+    const positionDetails1 = await ethUsdcMultiplyAavePosition({
       proxy: proxy1,
       isDPM: true,
       use1inch: false,
       dependencies,
       config,
+      feeRecipient: ADDRESSES.main.feeRecipient,
     })
 
     console.log(
       `Position created: ${positionDetails1.strategy} with proxy: ${positionDetails1.proxy}`,
     )
 
-    const positionDetails2 = await createStEthUsdcMultiplyAAVEPosition({
+    const positionDetails2 = await stethUsdcMultiplyAavePosition({
       proxy: proxy2,
       isDPM: true,
       use1inch: false,
@@ -175,7 +183,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       `Position created: ${positionDetails2.strategy} with proxy: ${positionDetails2.proxy}`,
     )
 
-    const positionDetails3 = await createWbtcUsdcMultiplyAAVEPosition({
+    const positionDetails3 = await wbtcUsdcMultiplyAavePosition({
       proxy: proxy3,
       isDPM: true,
       use1inch: false,
@@ -183,6 +191,8 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       config,
       getTokens,
     })
+
+    if (!positionDetails3) throw new Error('WBTC USDC Multiply Position details are undefined')
 
     console.log(
       `Position created: ${positionDetails3.strategy} with proxy: ${positionDetails3.proxy}`,

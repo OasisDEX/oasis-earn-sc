@@ -9,9 +9,6 @@
       "@typechain/*": [
         "../dma-contracts/typechain/*"
       ],
-      "@dma-library/test/*": [
-        "./test/*"
-      ],
       "@dma-library/*": [
         "./src/*"
       ],
@@ -33,7 +30,7 @@
     ]
   },
   "include": [
+    "./hardhat.config.ts",
     "./src/**/*",
-    "./test/**/*"
   ]
 }

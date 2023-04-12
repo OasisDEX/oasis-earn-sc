@@ -5,6 +5,13 @@ export const testDataSources = {
   LTV_min: 'Test_Scenarios_LTV_min!A1:J15',
 }
 
-Object.values(testDataSources).forEach(range => {
-  generateTestScenarios(range)
+async function main() {
+  Object.values(testDataSources).forEach(range => {
+    generateTestScenarios(range)
+  })
+}
+
+main().catch(error => {
+  console.error(error)
+  process.exitCode = 1
 })

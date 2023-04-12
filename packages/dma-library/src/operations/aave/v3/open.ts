@@ -1,5 +1,5 @@
 import * as actions from '@dma-library/actions'
-import { getActionHash } from '@dma-library/actions/getActionHash'
+import { getActionHash } from '@dma-library/actions/get-action-hash'
 import {
   IOperation,
   Protocol,

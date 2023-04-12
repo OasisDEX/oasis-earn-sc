@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/dma-library/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { task } from 'hardhat/config'
 
 import { getAddressesFor } from '../../scripts/common/addresses'

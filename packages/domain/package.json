@@ -9,7 +9,7 @@
     "watch": "tsc -b -w",
     "lint": "tsc -p ./tsconfig.json --noEmit",
     "test": "npm run test:unit",
-    "test:unit": "npx hardhat test ../domain/tests/Position.test.ts",
+    "test:unit": "npx hardhat test ./test/Position.test.ts",
     "prepublish": "npm run build"
   },
   "dependencies": {
@@ -20,6 +20,7 @@
     "@google-cloud/local-auth": "2.1.1",
     "@typechain/hardhat": "6.1.5",
     "@types/chai": "4.3.0",
-    "googleapis": "107"
+    "googleapis": "107",
+    "mocha": "^10.1.0"
   }
 }

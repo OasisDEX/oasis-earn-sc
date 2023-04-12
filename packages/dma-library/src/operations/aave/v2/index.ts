@@ -1,12 +1,12 @@
-import { adjustRiskDown } from './adjustRiskDown'
-import { adjustRiskUp } from './adjustRiskUp'
+import { adjustRiskDown } from './adjust-risk-down'
+import { adjustRiskUp } from './adjust-risk-up'
 import { borrow } from './borrow'
 import { close } from './close'
 import { deposit } from './deposit'
-import { depositBorrow } from './depositBorrow'
+import { depositBorrow } from './deposit-borrow'
 import { open } from './open'
-import { openDepositAndBorrow } from './openDepositAndBorrow'
-import { paybackWithdraw } from './paybackWithdraw'
+import { openDepositAndBorrow } from './open-deposit-and-borrow'
+import { paybackWithdraw } from './payback-withdraw'
 
 export type { AAVEStrategyAddresses } from './addresses'
 export {

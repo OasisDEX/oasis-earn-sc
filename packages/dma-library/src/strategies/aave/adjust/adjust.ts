@@ -1,19 +1,18 @@
 import * as operations from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
-import { AaveProtocolData } from '@dma-library/protocols/aave/getAaveProtocolData'
+import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
 import {
-  Address,
   IOperation,
-  IPositionTransition,
   IPositionTransitionArgs,
+  PositionTransition,
   PositionType,
   SwapData,
 } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
-import { WithV2Addresses, WithV3Addresses } from '@dma-library/types/aave/Addresses'
-import { WithFee } from '@dma-library/types/aave/Fee'
-import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/Protocol'
+import { WithV2Addresses, WithV3Addresses } from '@dma-library/types/aave/addresses'
+import { WithFee } from '@dma-library/types/aave/fee'
+import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import { FlashloanProvider } from '@dma-library/types/common'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
@@ -26,6 +25,7 @@ import {
   UNUSED_FLASHLOAN_AMOUNT,
   ZERO,
 } from '@oasisdex/dma-common/constants/numbers'
+import { Address } from '@oasisdex/dma-common/types/address'
 import { amountFromWei, amountToWei } from '@oasisdex/dma-common/utils/common'
 import { getForkedNetwork } from '@oasisdex/dma-common/utils/network'
 import { calculateFee } from '@oasisdex/dma-common/utils/swap'
@@ -33,8 +33,8 @@ import { IBaseSimulatedTransition, IPosition, IRiskRatio } from '@oasisdex/domai
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
-import { getAaveTokenAddresses } from '../getAaveTokenAddresses'
-import { AaveVersion } from '../getCurrentPosition'
+import { getAaveTokenAddresses } from '../get-aave-token-addresses'
+import { AaveVersion } from '../get-current-position'
 
 export type AaveAdjustArgs = IPositionTransitionArgs<AAVETokens> & { positionType: PositionType }
 type AaveAdjustSharedDependencies = {
@@ -62,7 +62,7 @@ export type AaveAdjustDependencies = AaveV2AdjustDependencies | AaveV3AdjustDepe
 export async function adjust(
   args: AaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
-): Promise<IPositionTransition> {
+): Promise<PositionTransition> {
   if (isRiskIncreasing(dependencies.currentPosition.riskRatio, args.multiple)) {
     return adjustRiskUp(args, dependencies)
   } else {
@@ -73,7 +73,7 @@ export async function adjust(
 async function adjustRiskUp(
   args: AaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
-): Promise<IPositionTransition> {
+): Promise<PositionTransition> {
   const isAdjustUp = true
   const fee = feeResolver(
     args.collateralToken.symbol,
@@ -157,7 +157,7 @@ async function adjustRiskUp(
 async function adjustRiskDown(
   args: AaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
-): Promise<IPositionTransition> {
+): Promise<PositionTransition> {
   const isAdjustDown = true
   const isAdjustUp = !isAdjustDown
   const fee = feeResolver(

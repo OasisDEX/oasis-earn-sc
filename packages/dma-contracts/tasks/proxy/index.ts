@@ -1,11 +1,16 @@
+import { ADDRESSES } from '@oasisdex/addresses'
+import init from '@oasisdex/dma-common/utils/init'
+import { getDsProxyRegistry } from '@oasisdex/dma-common/utils/proxy'
 import { task } from 'hardhat/config'
 
-import init from '../../../dma-common/utils/init'
 import { getOrCreateProxy } from '../../../dma-common/utils/proxy/proxy'
 
 task('proxy', 'Create a proxy for the current account').setAction(async (taskArgs, hre) => {
   const config = await init(hre)
-  const proxyAddress = await getOrCreateProxy(config.signer)
+  const proxy = await getOrCreateProxy(
+    await getDsProxyRegistry(config.signer, ADDRESSES.main.proxyRegistry, hre),
+    config.signer,
+  )
 
-  console.log(`Proxy Address for account: ${proxyAddress}`)
+  console.log(`Proxy Address for account: ${proxy.address}`)
 })

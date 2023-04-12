@@ -7,7 +7,6 @@ import BigNumber from 'bignumber.js'
 import {
   BaseContract,
   BigNumber as EthersBN,
-  CallOverrides,
   constants,
   Contract,
   ethers,
@@ -16,7 +15,6 @@ import {
 } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types/runtime'
 import NodeCache from 'node-cache'
-import { hasPath } from 'ramda'
 
 import DS_PROXY_REGISTRY_ABI from '../../../abis/external/libs/DS/ds-proxy-registry.json'
 import { coalesceNetwork, ETH_ADDRESS, getAddressesFor } from './addresses'
@@ -164,17 +162,6 @@ export class HardhatUtils {
     return (await deployment.deployed()) as C
   }
 
-  public mpaServiceRegistry() {
-    return {
-      jug: this.addresses.MCD_JUG,
-      manager: this.addresses.CDP_MANAGER,
-      multiplyProxyActions: this.addresses.MULTIPLY_PROXY_ACTIONS,
-      lender: this.addresses.MCD_FLASH,
-      feeRecepient: '0x79d7176aE8F93A04bC73b9BC710d4b44f9e362Ce',
-      exchange: '0xb5eB8cB6cED6b6f8E13bcD502fb489Db4a726C7B',
-    }
-  }
-
   public async getOrCreateProxy(address: string, signer: Signer) {
     const proxyRegistry = await this.hre.ethers.getContractAt(
       DS_PROXY_REGISTRY_ABI,
@@ -216,88 +203,12 @@ export class HardhatUtils {
     await signer.sendTransaction(txObj)
   }
 
-  public async impersonate(user: string): Promise<Signer> {
-    await this.impersonateAccount(user)
-    const newSigner = await this.hre.ethers.getSigner(user)
-    return newSigner
-  }
-
-  public async timeTravel(timeIncrease: number) {
-    await this.hre.network.provider.request({
-      method: 'evm_increaseTime',
-      params: [timeIncrease],
-    })
-  }
-
   public async balanceOf(tokenAddr: string, addr: string) {
     const tokenContract = await this.hre.ethers.getContractAt('IERC20', tokenAddr)
 
     return tokenAddr.toLowerCase() === ETH_ADDRESS.toLowerCase()
       ? await this.hre.ethers.provider.getBalance(addr)
       : await tokenContract.balanceOf(addr)
-  }
-
-  public async setNewExchangeWrapper(acc: Signer, newAddr: string) {
-    const exchangeOwnerAddr = '0xBc841B0dE0b93205e912CFBBd1D0c160A1ec6F00' // TODO:
-    await this.sendEther(acc, exchangeOwnerAddr, '1')
-    await this.impersonateAccount(exchangeOwnerAddr)
-
-    const signer = this.hre.ethers.provider.getSigner(exchangeOwnerAddr)
-
-    const registryInstance = await this.hre.ethers.getContractFactory('SaverExchangeRegistry')
-    const registry = registryInstance.attach('0x25dd3F51e0C3c3Ff164DDC02A8E4D65Bb9cBB12D')
-    const registryByOwner = registry.connect(signer)
-
-    await registryByOwner.addWrapper(newAddr, { gasLimit: 300000 })
-    await this.stopImpersonatingAccount(exchangeOwnerAddr)
-  }
-
-  public convertToWeth(tokenAddr: string) {
-    return this.isEth(tokenAddr) ? this.addresses.WETH : tokenAddr
-  }
-
-  public async setBudInOSM(osmAddress: string, budAddress: string) {
-    const BUD_MAPPING_STORAGE_SLOT = 5
-    const toHash = utils.defaultAbiCoder.encode(
-      ['address', 'uint'],
-      [budAddress, BUD_MAPPING_STORAGE_SLOT],
-    )
-    const valueSlot = utils.keccak256(toHash).replace(/0x0/g, '0x')
-
-    await this.hre.ethers.provider.send('hardhat_setStorageAt', [
-      osmAddress,
-      valueSlot,
-      '0x0000000000000000000000000000000000000000000000000000000000000001',
-    ])
-    await this.hre.ethers.provider.send('evm_mine', [])
-  }
-
-  public async getIlkData(ilk: string, opts?: CallOverrides) {
-    if (!opts) {
-      opts = {}
-    }
-
-    const ilkRegistry = new this.hre.ethers.Contract(
-      this.addresses.ILK_REGISTRY,
-      [
-        'function join(bytes32) view returns (address)',
-        'function gem(bytes32) view returns (address)',
-        'function dec(bytes32) view returns (uint256)',
-      ],
-      this.hre.ethers.provider,
-    )
-
-    const [gem, gemJoin, ilkDecimals] = await Promise.all([
-      ilkRegistry.gem(ilk, opts),
-      ilkRegistry.join(ilk, opts),
-      ilkRegistry.dec(ilk, opts),
-    ])
-
-    return {
-      gem,
-      gemJoin,
-      ilkDecimals: ilkDecimals.toNumber() as number,
-    }
   }
 
   public async getGasSettings() {
@@ -332,32 +243,5 @@ export class HardhatUtils {
     })
     this._cache.set('gasprice', data.result, 10)
     return data.result
-  }
-
-  private async impersonateAccount(account: string) {
-    await this.hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [account],
-    })
-  }
-
-  private async stopImpersonatingAccount(account: string) {
-    await this.hre.network.provider.request({
-      method: 'hardhat_stopImpersonatingAccount',
-      params: [account],
-    })
-  }
-
-  private abiEncodeArgs(deployed: any, contractArgs: any[]) {
-    // not writing abi encoded args if this does not pass
-    if (!contractArgs || !deployed || hasPath(['interface', 'deploy'], deployed)) {
-      return ''
-    }
-    const encoded = utils.defaultAbiCoder.encode(deployed.interface.deploy.inputs, contractArgs)
-    return encoded
-  }
-
-  private isEth(tokenAddr: string) {
-    return tokenAddr.toLowerCase() === ETH_ADDRESS.toLowerCase()
   }
 }

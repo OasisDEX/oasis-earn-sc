@@ -1,4 +1,4 @@
-import { CONTRACT_NAMES } from '@oasisdex/dma-library/src'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
 import { utils } from 'ethers'
 import { task } from 'hardhat/config'
 
@@ -120,35 +120,35 @@ task('get-hashes', 'get Addresses hashes').setAction(async (_: any, hre) => {
     returnFundsAction,
   )
 
-  const aaveBorrowAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.BORROW))
+  const aaveBorrowAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.v2.BORROW))
   console.log(
     'AAVE_BORROW_ACTION',
     AAVE_BORROW_ACTION,
-    CONTRACT_NAMES.aave.BORROW,
+    CONTRACT_NAMES.aave.v2.BORROW,
     aaveBorrowAction,
   )
 
-  const aaveDepositAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.DEPOSIT))
+  const aaveDepositAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.v2.DEPOSIT))
   console.log(
     'AAVE_DEPOSIT_ACTION',
     AAVE_DEPOSIT_ACTION,
-    CONTRACT_NAMES.aave.DEPOSIT,
+    CONTRACT_NAMES.aave.v2.DEPOSIT,
     aaveDepositAction,
   )
 
-  const aaveWithdrawAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.WITHDRAW))
+  const aaveWithdrawAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.v2.WITHDRAW))
   console.log(
     'AAVE_WITHDRAW_ACTION',
     AAVE_WITHDRAW_ACTION,
-    CONTRACT_NAMES.aave.WITHDRAW,
+    CONTRACT_NAMES.aave.v2.WITHDRAW,
     aaveWithdrawAction,
   )
 
-  const aavePaybackAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.PAYBACK))
+  const aavePaybackAction = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.aave.v2.PAYBACK))
   console.log(
     'AAVE_PAYBACK_ACTION',
     AAVE_PAYBACK_ACTION,
-    CONTRACT_NAMES.aave.PAYBACK,
+    CONTRACT_NAMES.aave.v2.PAYBACK,
     aavePaybackAction,
   )
 })

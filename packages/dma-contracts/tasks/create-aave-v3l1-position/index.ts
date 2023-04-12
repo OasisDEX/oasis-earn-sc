@@ -1,12 +1,13 @@
+import { wstethEthEarnAavePosition } from '@dma-contracts/test/fixtures/factories/wsteth-eth-earn-aave-position'
+import { StrategyDependenciesAaveV3 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
 import { ADDRESSES } from '@oasisdex/addresses'
-import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
+import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
 import init from '@oasisdex/dma-common/utils/init'
+import { getAccountFactory } from '@oasisdex/dma-common/utils/proxy/get-account-factory'
 import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/OneInchCall'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
 import { AaveVersion, protocols } from '@oasisdex/dma-library/src'
-import { createDPMAccount } from '@oasisdex/dma-library/test/fixtures/factories'
-import { createWstEthEthEarnAAVEPosition } from '@oasisdex/dma-library/test/fixtures/factories/createWstEthEthEarnAAVEPosition'
-import { StrategyDependenciesAaveV3 } from '@oasisdex/dma-library/test/fixtures/types/strategiesDependencies'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -83,7 +84,9 @@ task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
           oneInchCallMock(marketPrice, precision)
       : () => getOneInchCall(swapAddress)
 
-    const [proxy1, vaultId1] = await createDPMAccount(mainnetAddresses.accountFactory)
+    const [proxy1, vaultId1] = await createDPMAccount(
+      await getAccountFactory(config.signer, mainnetAddresses.accountFactory, hre),
+    )
 
     if (proxy1 === undefined) {
       throw new Error(`Can't create DPM accounts`)
@@ -148,12 +151,13 @@ task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
       },
     }
 
-    const positionDetails1 = await createWstEthEthEarnAAVEPosition({
+    const positionDetails1 = await wstethEthEarnAavePosition({
       proxy: proxy1,
       isDPM: true,
       use1inch: !taskArgs.usefallbackswap,
       dependencies,
       config,
+      feeRecipient: ADDRESSES.main.feeRecipient,
       swapAddress,
     })
 

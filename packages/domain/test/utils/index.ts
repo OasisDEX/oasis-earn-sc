@@ -72,7 +72,7 @@ export function mapRowsToScenarios<S>(rows: string[][]): S[] {
 }
 
 function generateFilepathForRange(range: string) {
-  return path.join(__dirname, `test-scenarios/${range}.json`)
+  return path.join(__dirname, `../scenarios/${range}.json`)
 }
 
 export async function generateTestScenarios(range: string) {

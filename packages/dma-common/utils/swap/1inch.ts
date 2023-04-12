@@ -1,7 +1,7 @@
 import { ADDRESSES } from '@oasisdex/addresses'
 import axios from 'axios'
 
-import { OneInchSwapResponse } from '../types/common'
+import { OneInchSwapResponse } from '../../types/common'
 
 const defaultExchangeProtocols = [
   'UNISWAP_V3',
