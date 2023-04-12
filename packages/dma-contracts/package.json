@@ -4,13 +4,15 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsc -b && yarn update-block && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ./.env | cut -d '=' -f2)",
-    "compile": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache && npx hardhat compile",
+    "compile": "yarn clean && npx hardhat compile",
+    "clean": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx}\" && yarn lint:fix && prettier --write 'contracts/**/*.sol'",
     "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx}\"",
     "lint:fix": "eslint . --fix --ext .ts",
     "lint": "eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
-    "test": "npm run test:unit",
-    "test:unit": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache && npx hardhat test --grep Unit",
+    "test": "yarn test:unit && yarn:test:e2e",
+    "test:e2e": "yarn clean && npx hardhat test --grep E2E",
+    "test:unit": "yarn clean && npx hardhat test --grep Unit",
     "task:deploy:dev": "yarn compile && npx hardhat deploy --network local --debug",
     "task:position:open": "npx hardhat createPosition --usefallbackswap --network local",
     "task:position:close": "npx hardhat closePosition --network local"
