@@ -1,6 +1,21 @@
-# Runtime Environment Variables
+# Environment Variables
 
 One should populate an `.env` file according to the .env.template file.
+
+# Setup
+
+1. Install dependencies
+```shell
+yarn
+```
+2. Build packages
+```shell
+yarn build
+```
+3. Compile contracts
+```shell
+yarn compile
+```
 
 # Local development
 Running a local node & deploying the system to a locally running node
@@ -14,10 +29,6 @@ yarn dev
 ```shell
 yarn deploy dev
 ```
-
-# Deploying system
-
-TODO: Add new instructions
 
 # Running tests
 

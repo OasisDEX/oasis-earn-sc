@@ -2,8 +2,7 @@
 - Add Lerna Changelog https://github.com/lerna/lerna-changelog
 - Add Husky to perform checks before commit
 - Setup Unit & E2E tests workflows
-- Add instruction for regenerating domain unit tests scenarios
+- Add instructions for regenerating domain unit tests scenarios
 - Update name of init() function
-- Update README which is well out of date
 - Ensure docs are in sync with GitBook
 - Extract HH config into separate package if poss
