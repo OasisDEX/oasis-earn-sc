@@ -6,6 +6,7 @@ import { DeploymentConfig, SystemKeys } from '@oasisdex/dma-deployments/types/de
 import { Network } from '@oasisdex/dma-common/utils/network'
 
 type DeployedNetworks = Network.MAINNET | Network.OPT_MAINNET | Network.GOERLI
+// TODO: Make address entries type safe after https://github.com/OasisDEX/oasis-earn-sc/pull/249/files is merged
 export type Addresses = Record<DeployedNetworks, Record<SystemKeys, any>>
 
 export const ADDRESSES: Addresses = {

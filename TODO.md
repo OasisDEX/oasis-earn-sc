@@ -4,7 +4,7 @@
 - Setup Unit & E2E tests workflows
 - Add instructions for regenerating domain unit tests scenarios
 - Update name of init() function
-- Ensure docs are in sync with GitBook
+- Ensure docs are in sync with GitBook (determine if still relevant)
 - Extract HH config into separate package if poss
 - Perhaps move Deploy scripts into separate package
 - Perhaps move typechain into separate package to solve circular dependency issue
