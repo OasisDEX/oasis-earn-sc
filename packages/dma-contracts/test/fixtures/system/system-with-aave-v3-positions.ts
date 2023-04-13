@@ -5,9 +5,9 @@ import { ChainIdByNetwork, Network } from '@oasisdex/dma-common/utils/network'
 import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
 import {
   getOneInchCall,
+  oneInchCallMock,
   optimismLiquidityProviders,
-} from '@oasisdex/dma-common/utils/swap/OneInchCall'
-import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
+} from '@oasisdex/dma-common/utils/swap'
 import { DeploymentSystem } from '@oasisdex/dma-deployments/deployment/deploy'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library/src'
 import hre from 'hardhat'

@@ -252,6 +252,10 @@ export const config: SystemConfig = {
       address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
       serviceRegistryName: CONTRACT_NAMES.common.WBTC,
     },
+    LINK: {
+      name: 'LINK',
+      address: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
+    },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xe592427a0aece92de3edee1f18e0157c05861564',
@@ -342,6 +346,14 @@ export const config: SystemConfig = {
     JoinDAI: {
       name: 'JoinDAI',
       address: '0x9759A6Ac90977b93B58547b4A71c78317f391A28',
+    },
+    PipWETH: {
+      name: 'PipWETH',
+      address: '0x81FE72B5A8d1A857d176C3E7d5Bd2679A9B85763',
+    },
+    PipLINK: {
+      name: 'PipLINK',
+      address: '0x9B0C694C6939b5EA9584e9b61C7815E8d97D9cC7',
     },
   },
 }

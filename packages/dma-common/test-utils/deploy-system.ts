@@ -1,4 +1,5 @@
 import { ADDRESSES } from '@oasisdex/addresses/src'
+import { Network } from '@utils/network'
 import { OperationsRegistry, ServiceRegistry } from '@utils/wrappers'
 
 import { CONTRACT_NAMES } from '../constants/contract-names'
@@ -213,8 +214,8 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   debug && console.log('4/ Adding contracts to registry')
   //-- Add Token Contract Entries
-  await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
-  await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
+  await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES[Network.MAINNET].common.DAI)
+  await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES[Network.MAINNET].common.WETH)
 
   // add flag to deploy fallbackSwap contract
   await registry.addEntry(CONTRACT_NAMES.common.SWAP, useFallbackSwap ? uSwapAddress : swapAddress)
@@ -317,8 +318,14 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.aave.v2.PAYBACK,
     actionPaybackFromAAVEAddress,
   )
-  await registry.addEntry(CONTRACT_NAMES.aave.v2.WETH_GATEWAY, ADDRESSES.main.aave.v2.WETHGateway)
-  await registry.addEntry(CONTRACT_NAMES.aave.v2.LENDING_POOL, ADDRESSES.main.aave.v2.LendingPool)
+  await registry.addEntry(
+    CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
+    ADDRESSES[Network.MAINNET].common.aave.v2.WETHGateway,
+  )
+  await registry.addEntry(
+    CONTRACT_NAMES.aave.v2.LENDING_POOL,
+    ADDRESSES[Network.MAINNET].common.aave.v2.LendingPool,
+  )
 
   //-- Add AAVE V3 Contract Entries
   const aaveV3BorrowHash = await registry.addEntry(

@@ -5,8 +5,7 @@ import {
 import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
-import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/OneInchCall'
-import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
+import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import { DeploymentSystem } from '@oasisdex/dma-deployments/deployment/deploy'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library/src'
 import hre from 'hardhat'
@@ -64,6 +63,7 @@ export const systemWithAavePositions =
     await ds.setupLocalSystem(use1inch)
 
     const { system, registry, config: systemConfig } = ds.getSystem()
+    if (!systemConfig.aave.v2) throw new Error('aave v2 not deployed')
     const dependencies: StrategyDependenciesAaveV2 = {
       addresses: {
         DAI: systemConfig.common.DAI.address,
