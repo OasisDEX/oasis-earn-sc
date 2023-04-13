@@ -1,6 +1,5 @@
 import { ADDRESSES } from '@oasisdex/addresses'
-import { OperationsRegistry } from '@utils/wrappers/operations-registry'
-import { ServiceRegistry } from '@utils/wrappers/service-registry'
+import { OperationsRegistry, ServiceRegistry } from '@utils/wrappers'
 
 import { CONTRACT_NAMES } from '../constants/contract-names'
 import { OPERATION_NAMES } from '../constants/operation-names'

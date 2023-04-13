@@ -5,12 +5,12 @@
   "typings": "lib/src/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "npx tsc -b",
-    "watch": "npx tsc -b -w",
-    "lint": "npx tsc -p ./tsconfig.json --noEmit",
-    "test": "npm run test:unit",
-    "test:unit": "npx hardhat test test/position.test.ts",
-    "prepublish": "npm run build"
+    "build": "yarn tsc -b",
+    "watch": "yarn tsc -b -w",
+    "lint": "yarn tsc -p ./tsconfig.json --noEmit",
+    "test": "yarn run test:unit",
+    "test:unit": "yarn hardhat test test/position.test.ts",
+    "prepublish": "yarn run build"
   },
   "dependencies": {
     "@oasisdex/dma-common": "*",
