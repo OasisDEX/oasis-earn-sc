@@ -5,6 +5,7 @@ import { FlashloanProvider } from '@dma-library/types/common'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { MAX_UINT, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
 import { AAVEV3StrategyAddresses } from './addresses'
@@ -140,11 +141,13 @@ export async function close(
   })
 
   const returnDebtFunds = actions.common.returnFunds({
-    asset: args.debtTokenIsEth ? ADDRESSES.main.ETH : args.debtTokenAddress,
+    asset: args.debtTokenIsEth ? ADDRESSES[Network.MAINNET].common.ETH : args.debtTokenAddress,
   })
 
   const returnCollateralFunds = actions.common.returnFunds({
-    asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
+    asset: args.collateralIsEth
+      ? ADDRESSES[Network.MAINNET].common.ETH
+      : args.collateralTokenAddress,
   })
 
   unwrapEth.skipped = !args.debtTokenIsEth && !args.collateralIsEth

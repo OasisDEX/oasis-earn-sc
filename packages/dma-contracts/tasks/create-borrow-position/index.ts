@@ -7,8 +7,9 @@ import { executeThroughDPMProxy } from '@oasisdex/dma-common/utils/execute'
 import init from '@oasisdex/dma-common/utils/init'
 import { getAccountFactory } from '@oasisdex/dma-common/utils/proxy/get-account-factory'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { AAVETokens, AaveVersion, strategies } from '@oasisdex/dma-library/src'
-import { getAaveProtocolData } from '@oasisdex/dma-library/src/protocols/aave/get-aave-protocol-data'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { AAVETokens, AaveVersion, strategies } from '@oasisdex/dma-library'
+import { getAaveProtocolData } from '@oasisdex/dma-library/protocols/aave/get-aave-protocol-data'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -83,17 +84,17 @@ task('createBorrowPosition', 'Create borrow position')
     )
 
     const mainnetAddresses = {
-      DAI: ADDRESSES.main.DAI,
-      ETH: ADDRESSES.main.ETH,
-      WETH: ADDRESSES.main.WETH,
-      STETH: ADDRESSES.main.STETH,
-      WBTC: ADDRESSES.main.WBTC,
-      USDC: ADDRESSES.main.USDC,
-      chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-      priceOracle: ADDRESSES.main.aave.v2.PriceOracle,
-      lendingPool: ADDRESSES.main.aave.v2.LendingPool,
+      DAI: ADDRESSES[Network.MAINNET].common.DAI,
+      ETH: ADDRESSES[Network.MAINNET].common.ETH,
+      WETH: ADDRESSES[Network.MAINNET].common.WETH,
+      STETH: ADDRESSES[Network.MAINNET].common.STETH,
+      WBTC: ADDRESSES[Network.MAINNET].common.WBTC,
+      USDC: ADDRESSES[Network.MAINNET].common.USDC,
+      chainlinkEthUsdPriceFeed: ADDRESSES[Network.MAINNET].common.ChainlinkEthUsdPriceFeed,
+      priceOracle: ADDRESSES[Network.MAINNET].aave.v2.PriceOracle,
+      lendingPool: ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
       operationExecutor: operationExecutorAddress,
-      protocolDataProvider: ADDRESSES.main.aave.v2.ProtocolDataProvider,
+      protocolDataProvider: ADDRESSES[Network.MAINNET].aave.v2.ProtocolDataProvider,
       accountFactory: accountFactory,
     }
 

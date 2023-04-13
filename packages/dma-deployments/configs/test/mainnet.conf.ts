@@ -1,9 +1,7 @@
-import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
+import { SystemConfig } from '../../types/deployment-config'
 
-import { Config } from '../../../../dma-common/utils/common/config-item'
-
-export const config: Config = {
+export const config: SystemConfig = {
   mpa: {
     core: {
       ServiceRegistry: {
@@ -55,9 +53,9 @@ export const config: Config = {
         name: 'ChainLogView',
         deploy: true,
         address: '0x4B323Eb2ece7fc1D81F1819c26A7cBD29975f75f',
-        serviceRegistryName: 'ChainLogView',
+        serviceRegistryName: CONTRACT_NAMES.maker.CHAINLOG_VIEW,
         history: [],
-        constructorArgs: [ADDRESSES.main.maker.chainlog],
+        constructorArgs: ['0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F'],
       },
       Swap: {
         name: 'Swap',
@@ -222,47 +220,46 @@ export const config: Config = {
   common: {
     WETH: {
       name: 'WETH',
-      address: ADDRESSES.main.WETH,
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       serviceRegistryName: CONTRACT_NAMES.common.WETH,
     },
     ETH: {
       name: 'ETH',
-      address: ADDRESSES.main.ETH,
+      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     },
     STETH: {
       name: 'STETH',
-      address: ADDRESSES.main.STETH,
+      address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
       serviceRegistryName: CONTRACT_NAMES.common.STETH,
     },
     WSTETH: {
       name: 'WSTETH',
-      address: ADDRESSES.main.WSTETH,
+      address: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
       serviceRegistryName: CONTRACT_NAMES.common.WSTETH,
     },
     USDC: {
       name: 'USDC',
-      address: ADDRESSES.main.USDC,
+      address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       serviceRegistryName: CONTRACT_NAMES.common.USDC,
     },
     DAI: {
       name: 'DAI',
-      address: ADDRESSES.main.DAI,
+      address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       serviceRegistryName: CONTRACT_NAMES.common.DAI,
     },
     WBTC: {
       name: 'WBTC',
-      address: ADDRESSES.main.WBTC,
+      address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
       serviceRegistryName: CONTRACT_NAMES.common.WBTC,
+    },
+    LINK: {
+      name: 'LINK',
+      address: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
-      address: ADDRESSES.main.uniswapRouterV3,
+      address: '0xe592427a0aece92de3edee1f18e0157c05861564',
       serviceRegistryName: CONTRACT_NAMES.common.UNISWAP_ROUTER,
-    },
-    FlashMintModule: {
-      name: 'FlashMintModule',
-      address: ADDRESSES.main.maker.fmm,
-      serviceRegistryName: CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
     },
     BalancerVault: {
       name: 'BalancerVault',
@@ -271,7 +268,7 @@ export const config: Config = {
     },
     DSProxyRegistry: {
       name: 'DSProxyRegistry',
-      address: ADDRESSES.main.proxyRegistry,
+      address: '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4',
     },
     OneInchAggregator: {
       name: 'OneInchAggregator',
@@ -328,4 +325,5 @@ export const config: Config = {
       },
     },
   },
+  maker: {},
 }

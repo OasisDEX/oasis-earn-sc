@@ -20,10 +20,11 @@ import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountFromWei, amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { AAVETokens, strategies } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network' // TODO: IMPLEMENT THIS TEST
+import { AAVETokens, strategies } from '@oasisdex/dma-library'
 import { Position, PositionBalance } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
-import { ethers, Signer } from 'ethers' // TODO: IMPLEMENT THIS TEST
+import { ethers, Signer } from 'ethers'
 
 // TODO: IMPLEMENT THIS TEST
 describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
@@ -36,7 +37,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
   before(async function () {
     ;({ config, provider, signer, address: userAddress } = await loadFixture(initialiseConfig))
     aaveDataProvider = new Contract(
-      ADDRESSES.main.aave.v2.ProtocolDataProvider,
+      ADDRESSES[Network.MAINNET].aave.v2.ProtocolDataProvider,
       AAVEDataProviderABI,
       provider,
     )
@@ -143,7 +144,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
 
       const feeRecipientBalanceBefore = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES[Network.MAINNET].common.FeeRecipient,
         { config },
       )
 
@@ -178,7 +179,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
       )
 
       const userCollateralReserveData = await aaveDataProvider.getUserReserveData(
-        ADDRESSES.main.WETH,
+        ADDRESSES[Network.MAINNET].common.WETH,
         proxy,
       )
 
@@ -248,14 +249,14 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
           {
             depositAmountInBaseUnit: depositEthAmount,
             symbol: tokens.ETH,
-            address: ADDRESSES.main.ETH,
+            address: ADDRESSES[Network.MAINNET].common.ETH,
             precision: 18,
             isEth: true,
           },
           {
             depositAmountInBaseUnit: amountToWei(1000, 6),
             symbol: tokens.USDC,
-            address: ADDRESSES.main.USDC,
+            address: ADDRESSES[Network.MAINNET].common.USDC,
             precision: 6,
             isEth: false,
           },

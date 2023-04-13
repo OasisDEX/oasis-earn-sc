@@ -1,18 +1,6 @@
-import { isSupportedNetwork, Network } from '@utils/network'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { constants } from 'ethers'
-
-export const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-
-const startBlocks = {
-  [Network.MAINNET]: {
-    SERVICE_REGISTRY: 14583409,
-    AUTOMATION_BOT: 14583413,
-  },
-  [Network.GOERLI]: {
-    SERVICE_REGISTRY: 6707330,
-    AUTOMATION_BOT: 6707333,
-  },
-}
+import { isSupportedNetwork } from 'utils/network'
 
 const addresses = {
   [Network.MAINNET]: {
@@ -102,8 +90,6 @@ const addresses = {
   },
 }
 
-export type AddressRegistry = (typeof addresses)['mainnet']
-
 export function coalesceNetwork(network: Network) {
   switch (network) {
     case Network.OPT_MAINNET:
@@ -116,7 +102,7 @@ export function coalesceNetwork(network: Network) {
   }
 }
 
-export function getAddressesFor(network: string | Network) {
+export function getAddressesFor(network: Network) {
   if (!isSupportedNetwork(network)) {
     throw new Error(
       `Unsupported network provided. Received: ${network}. Expected one of: [${Object.values(
@@ -125,16 +111,4 @@ export function getAddressesFor(network: string | Network) {
     )
   }
   return addresses[coalesceNetwork(network)]
-}
-
-export function getStartBlocksFor(network: string | Network) {
-  if (!isSupportedNetwork(network)) {
-    throw new Error(
-      `Unsupported network provided. Received: ${network}. Expected one of: [${Object.values(
-        Network,
-      ).join(', ')}}`,
-    )
-  }
-
-  return startBlocks[coalesceNetwork(network)]
 }

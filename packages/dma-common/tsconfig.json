@@ -14,15 +14,18 @@
     "resolveJsonModule": true,
     "noImplicitAny": false,
     "paths": {
-      "@utils/*": ["./utils/*"]
+      "utils/*": ["./utils/*"],
+      "@oasisdex/addresses": ["../addresses/src/index.ts"],
     },
     "typeRoots": [
       "../../node_modules/@types"
     ]
   },
   "include": [
+    "../addresses/src/**/*",
     "./utils/**/*",
     "./test-utils/**/*",
+    "./types",
     "./hardhat.config.ts"
   ],
   "files": [

@@ -21,22 +21,17 @@
   },
   "devDependencies": {
     "@types/prompts": "^2.4.2",
+    "lerna": "^6.6.1",
     "ts-node": "^10.9.1",
     "ts-try": "^0.2.0"
   },
   "dependencies": {
     "bignumber.js": "^9.0.1",
     "chalk": "^4.1.1",
-    "config-json": "^1.0.0",
-    "lodash": "^4.17.21",
-    "node-cache": "^5.1.2",
-    "prompts": "^2.4.2",
+    "prettier": "^2.1.2",
     "ramda": "^0.28.0"
   },
   "resolutions": {
     "hardhat/**/@ethereumjs/tx": "3.5.0"
-  },
-  "files": [
-    "packages/dma-contracts/tsconfig.json"
-  ]
+  }
 }

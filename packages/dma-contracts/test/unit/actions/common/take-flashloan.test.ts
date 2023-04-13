@@ -10,7 +10,8 @@ import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers/service-registry'
-import { ActionFactory, calldataTypes } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ActionFactory, calldataTypes } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 
@@ -43,7 +44,7 @@ describe('TakeFlashloan Action', () => {
       [
         {
           amount: ensureWeiFormat(AMOUNT),
-          asset: ADDRESSES.main.DAI,
+          asset: ADDRESSES[Network.MAINNET].common.DAI,
           to: system.common.operationExecutor.address,
         },
         [0],
@@ -85,7 +86,7 @@ describe('TakeFlashloan Action', () => {
       [
         {
           amount: ensureWeiFormat(AMOUNT.minus(TEN)),
-          asset: ADDRESSES.main.DAI,
+          asset: ADDRESSES[Network.MAINNET].common.DAI,
           to: system.common.operationExecutor.address,
         },
         [0],

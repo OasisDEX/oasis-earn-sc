@@ -1,4 +1,5 @@
-import { Network } from '@oasisdex/dma-common/utils/network'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+
 import { FlashloanProvider } from '../../types/common'
 
 export function resolveFlashloanProvider(network: Network): FlashloanProvider {

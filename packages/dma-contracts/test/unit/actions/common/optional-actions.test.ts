@@ -8,7 +8,7 @@ import { DeployedSystemInfo } from '@oasisdex/dma-common/test-utils/deploy-syste
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { OperationsRegistry } from '@oasisdex/dma-common/utils/wrappers/operations-registry'
-import { ActionCall, ActionFactory, calldataTypes } from '@oasisdex/dma-library/src'
+import { ActionCall, ActionFactory, calldataTypes } from '@oasisdex/dma-library'
 import { expect } from 'chai'
 import { ContractReceipt, Signer, utils } from 'ethers'
 import { Interface } from 'ethers/lib/utils'

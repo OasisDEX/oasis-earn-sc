@@ -3,6 +3,7 @@ import { isDefined } from '@dma-library/utils/is-defined'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
 import { Address } from '@oasisdex/dma-common/types/address'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
 interface SwapArgs {
@@ -104,8 +105,8 @@ export async function deposit({
     entryTokenAddress,
     amountInBaseUnit,
     swapArgs,
-    ADDRESSES.main.ETH,
-    ADDRESSES.main.WETH,
+    ADDRESSES[Network.MAINNET].common.ETH,
+    ADDRESSES[Network.MAINNET].common.WETH,
     isSwapNeeded,
   )
 
@@ -116,7 +117,7 @@ export async function deposit({
       actions.common.setApproval(
         {
           asset: depositToken,
-          delegate: ADDRESSES.main.aave.v2.LendingPool,
+          delegate: ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
           // Check the explanation about the deposit action.
           // This approval is about the amount that's going to be deposit in the following action
           amount: amountInBaseUnit,

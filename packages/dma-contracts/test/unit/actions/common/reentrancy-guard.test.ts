@@ -10,7 +10,8 @@ import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { getLastVault } from '@oasisdex/dma-common/utils/maker/vault'
 import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers/service-registry'
-import { ActionFactory, calldataTypes } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ActionFactory, calldataTypes } from '@oasisdex/dma-library'
 import { loadFixture } from 'ethereum-waffle'
 import { Signer } from 'ethers'
 import { ethers } from 'hardhat'
@@ -42,7 +43,7 @@ describe(`Reentrancy guard test | Unit`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
         },
         [0],
       ],
@@ -69,7 +70,7 @@ describe(`Reentrancy guard test | Unit`, async () => {
     const vault = await getLastVault(provider, signer, system.common.userProxyAddress)
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES.main.maker.cdpManager,
+      ADDRESSES[Network.MAINNET].maker.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)

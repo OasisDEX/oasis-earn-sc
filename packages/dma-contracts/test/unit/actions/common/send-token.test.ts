@@ -7,13 +7,14 @@ import { expect, restoreSnapshot, Snapshot } from '@oasisdex/dma-common/test-uti
 import { BalanceOptions, RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, balanceOf, send } from '@oasisdex/dma-common/utils/common'
 import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
-import { calldataTypes } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { calldataTypes } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
 
 describe('SendToken Action | Unit', () => {
-  const DAI = ADDRESSES.main.DAI
+  const DAI = ADDRESSES[Network.MAINNET].common.DAI
   const AMOUNT = new BigNumber(1000)
   const AMOUNT_TO_WEI = amountToWei(AMOUNT).toFixed(0)
 
@@ -38,8 +39,8 @@ describe('SendToken Action | Unit', () => {
 
   beforeEach(async () => {
     await swapUniswapTokens(
-      ADDRESSES.main.WETH,
-      ADDRESSES.main.DAI,
+      ADDRESSES[Network.MAINNET].common.WETH,
+      ADDRESSES[Network.MAINNET].common.DAI,
       amountToWei(ONE).toFixed(0),
       amountToWei(AMOUNT).toFixed(0),
       config.address,
@@ -66,7 +67,7 @@ describe('SendToken Action | Unit', () => {
         [
           {
             amount: amountToWei(AMOUNT).toFixed(0),
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES[Network.MAINNET].common.DAI,
             to: config.address,
           },
         ],
@@ -84,7 +85,11 @@ describe('SendToken Action | Unit', () => {
   it('should send ETH', async () => {
     const aWallet = await config.provider.getSigner(2).getAddress()
 
-    let aWalletEthBalance = await balanceOf(ADDRESSES.main.ETH, aWallet, balanceOptions)
+    let aWalletEthBalance = await balanceOf(
+      ADDRESSES[Network.MAINNET].common.ETH,
+      aWallet,
+      balanceOptions,
+    )
     expect(aWalletEthBalance.toString()).to.equal(amountToWei(TEN_THOUSAND).toString())
 
     await sendToken.execute(
@@ -93,7 +98,7 @@ describe('SendToken Action | Unit', () => {
         [
           {
             amount: amountToWei(ONE).toString(),
-            asset: ADDRESSES.main.ETH,
+            asset: ADDRESSES[Network.MAINNET].common.ETH,
             to: aWallet,
           },
         ],
@@ -106,7 +111,11 @@ describe('SendToken Action | Unit', () => {
       },
     )
 
-    aWalletEthBalance = await balanceOf(ADDRESSES.main.ETH, aWallet, balanceOptions)
+    aWalletEthBalance = await balanceOf(
+      ADDRESSES[Network.MAINNET].common.ETH,
+      aWallet,
+      balanceOptions,
+    )
     expect(aWalletEthBalance.toString()).to.equal(amountToWei(TEN_THOUSAND.plus(ONE)).toString())
   })
 
@@ -122,7 +131,7 @@ describe('SendToken Action | Unit', () => {
         [
           {
             amount: amountToWei(AMOUNT.plus(ONE)).toFixed(0),
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES[Network.MAINNET].common.DAI,
             to: config.address,
           },
         ],
@@ -149,7 +158,7 @@ describe('SendToken Action | Unit', () => {
         [
           {
             amount: MAX_UINT,
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES[Network.MAINNET].common.DAI,
             to: aWallet,
           },
         ],

@@ -6,6 +6,7 @@ import { createDeploy, DeployFunction } from '@oasisdex/dma-common/utils/deploy'
 import init from '@oasisdex/dma-common/utils/init'
 import { OperationsRegistry } from '@oasisdex/dma-common/utils/wrappers/operations-registry'
 import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers/service-registry'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { task } from 'hardhat/config'
 
 task(
@@ -214,7 +215,7 @@ async function deployCommonActions(args: {
   ])
   const [, flActionAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
-    ADDRESSES.main.DAI,
+    ADDRESSES[Network.MAINNET].common.DAI,
   ])
 
   const [, wrapActionAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
@@ -228,7 +229,7 @@ async function deployCommonActions(args: {
 
   const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
     config.address,
-    ADDRESSES.main.feeRecipient,
+    ADDRESSES[Network.MAINNET].common.FeeRecipient,
     0, // TODO add different fee tiers
     serviceRegistryAddress,
   ])
@@ -241,7 +242,7 @@ async function deployCommonActions(args: {
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     config.address,
-    ADDRESSES.main.feeRecipient,
+    ADDRESSES[Network.MAINNET].common.FeeRecipient,
     0,
     serviceRegistryAddress,
   ])
@@ -287,7 +288,7 @@ async function deployCommonActions(args: {
 //
 //   const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
 //     config.address,
-//     ADDRESSES.main.feeRecipient,
+//     ADDRESSES[Network.MAINNET].feeRecipient,
 //     0, // TODO add different fee tiers
 //     serviceRegistryAddress,
 //   ])
@@ -300,7 +301,7 @@ async function deployCommonActions(args: {
 //
 //   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.dma-common.SWAP, [
 //     config.address,
-//     ADDRESSES.main.feeRecipient,
+//     ADDRESSES[Network.MAINNET].feeRecipient,
 //     0,
 //     serviceRegistryAddress,
 //   ])
@@ -389,29 +390,35 @@ async function addThirdPartyContractsToRegistry(args: {
   const { registry, debug } = args
   const uniswapRouterHash = await registry.addEntry(
     CONTRACT_NAMES.common.UNISWAP_ROUTER,
-    ADDRESSES.main.uniswapRouterV3,
+    ADDRESSES[Network.MAINNET].common.UniswapRouterV3,
   )
   const flashmintModuleHash = await registry.addEntry(
     CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
-    ADDRESSES.main.maker.fmm,
+    ADDRESSES[Network.MAINNET].maker.FlashMintModule,
   )
-  const wethHash = await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES.main.WETH)
-  const daiHash = await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES.main.DAI)
+  const wethHash = await registry.addEntry(
+    CONTRACT_NAMES.common.WETH,
+    ADDRESSES[Network.MAINNET].common.WETH,
+  )
+  const daiHash = await registry.addEntry(
+    CONTRACT_NAMES.common.DAI,
+    ADDRESSES[Network.MAINNET].common.DAI,
+  )
   const oneInchAggregatorHash = await registry.addEntry(
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
-    ADDRESSES.main.oneInchAggregator,
+    ADDRESSES[Network.MAINNET].common.OneInchAggregator,
   )
   const aaveLendingPoolHash = await registry.addEntry(
     CONTRACT_NAMES.aave.v2.LENDING_POOL,
-    ADDRESSES.main.aave.v2.LendingPool,
+    ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
   )
   const wethGatewayhash = await registry.addEntry(
     CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
-    ADDRESSES.main.aave.v2.WETHGateway,
+    ADDRESSES[Network.MAINNET].aave.v2.WETHGateway,
   )
   const aaveV3PoolHash = await registry.addEntry(
     CONTRACT_NAMES.aave.v3.AAVE_POOL,
-    ADDRESSES.main.aave.v3.Pool,
+    ADDRESSES[Network.MAINNET].aave.v3.Pool,
   )
 
   if (debug) {

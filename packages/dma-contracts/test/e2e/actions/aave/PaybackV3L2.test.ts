@@ -3,6 +3,7 @@ import { ADDRESSES } from '@oasisdex/addresses'
 import { FIFTY, ZERO } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { balanceOf } from '@oasisdex/dma-common/utils/common'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 
 import {
   BORROW_OPERATION,
@@ -21,19 +22,27 @@ describe('Payback Action | E2E', () => {
       gasLimit: 4000000,
     })
 
-    const usdcBalanceBeforeBorrow = await balanceOf(ADDRESSES.optimism.USDC, opExecutor.address, {
-      ...balanceConfig,
-      decimals: 6,
-    })
+    const usdcBalanceBeforeBorrow = await balanceOf(
+      ADDRESSES[Network.OPT_MAINNET].common.USDC,
+      opExecutor.address,
+      {
+        ...balanceConfig,
+        decimals: 6,
+      },
+    )
 
     await opExecutor.executeOp(borrowActions, BORROW_OPERATION, {
       gasLimit: 4000000,
     })
 
-    const usdcBalanceAfterBorrow = await balanceOf(ADDRESSES.optimism.USDC, opExecutor.address, {
-      ...balanceConfig,
-      decimals: 6,
-    })
+    const usdcBalanceAfterBorrow = await balanceOf(
+      ADDRESSES[Network.OPT_MAINNET].common.USDC,
+      opExecutor.address,
+      {
+        ...balanceConfig,
+        decimals: 6,
+      },
+    )
 
     const vUsdcBalanceAfterBorrow = await balanceOf(vOptUSDC, opExecutor.address, {
       ...balanceConfig,
@@ -47,10 +56,14 @@ describe('Payback Action | E2E', () => {
       gasLimit: 4000000,
     })
 
-    const usdcBalanceAfterPayback = await balanceOf(ADDRESSES.optimism.USDC, opExecutor.address, {
-      ...balanceConfig,
-      decimals: 6,
-    })
+    const usdcBalanceAfterPayback = await balanceOf(
+      ADDRESSES[Network.OPT_MAINNET].common.USDC,
+      opExecutor.address,
+      {
+        ...balanceConfig,
+        decimals: 6,
+      },
+    )
 
     const vUsdcBalanceAfterPayback = await balanceOf(vOptUSDC, opExecutor.address, {
       ...balanceConfig,

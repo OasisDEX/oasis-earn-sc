@@ -1,37 +1,29 @@
 {
   "name": "@oasisdex/dma-contracts",
   "version": "1.0.0",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
-    "dev": "npx ts-node tasks/update-block-number.ts && npx hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ../../.env | cut -d '=' -f2)",
-    "compile": "yarn clean && npx hardhat compile",
+    "dev": "yarn ts-node scripts/update-block-number.ts && yarn hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ../../.env | cut -d '=' -f2)",
+    "compile": "yarn clean && yarn hardhat compile",
     "clean": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx}\" && yarn lint:fix && prettier --write 'contracts/**/*.sol'",
     "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx}\"",
-    "lint:fix": "eslint . --fix --ext .ts",
-    "lint": "eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
+    "lint:fix": "yarn eslint . --fix --ext .ts",
+    "lint": "yarn eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
     "test": "yarn test:unit && yarn:test:e2e",
-    "test:e2e": "yarn clean && npx hardhat test --grep E2E",
-    "test:unit": "yarn clean && npx hardhat test --grep Unit",
-    "task:deploy:dev": "yarn compile && npx hardhat deploy --network local --debug",
-    "task:position:open": "npx hardhat createPosition --usefallbackswap --network local",
-    "task:position:close": "npx hardhat closePosition --network local"
+    "test:e2e": "yarn clean && yarn hardhat test --grep E2E",
+    "test:unit": "yarn clean && yarn hardhat test --grep Unit"
   },
   "dependencies": {
     "@oasisdex/abis": "*",
     "@oasisdex/addresses": "*",
     "@oasisdex/dma-common": "*",
     "@oasisdex/dma-library": "*",
+    "@oasisdex/dma-deployments": "*",
     "@oasisdex/domain": "*",
-    "@openzeppelin/contracts": "4.7.3",
-    "@safe-global/safe-core-sdk": "^3.3.2",
-    "@safe-global/safe-core-sdk-types": "^1.9.0",
-    "@safe-global/safe-ethers-adapters": "^0.1.0-alpha.16",
-    "@safe-global/safe-ethers-lib": "^1.9.2",
-    "@safe-global/safe-service-client": "^2.0.0"
+    "@openzeppelin/contracts": "4.7.3"
   },
   "devDependencies": {
-
     "@ethereumjs/tx": "3.5.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
@@ -57,7 +49,6 @@
     "hardhat-gas-reporter": "^1.0.4",
     "hardhat-log-remover": "^2.0.0",
     "hardhat-tracer": "^1.1.1",
-    "prettier": "^2.1.2",
     "prettier-plugin-solidity": "^1.0.0-beta.17",
     "solhint": "^3.2.2",
     "solhint-plugin-prettier": "0.0.5",

@@ -40,10 +40,10 @@ export const OPERATION_NAMES = {
 } as const
 
 type ValuesOf<T> = T[keyof T]
-type AaveV2Operations = ValuesOf<typeof OPERATION_NAMES['aave']['v2']>
-type AaveV3Operations = ValuesOf<typeof OPERATION_NAMES['aave']['v3']>
-type MakerOperations = ValuesOf<typeof OPERATION_NAMES['maker']>
-type CommonOperations = ValuesOf<typeof OPERATION_NAMES['common']>
+type AaveV2Operations = ValuesOf<(typeof OPERATION_NAMES)['aave']['v2']>
+type AaveV3Operations = ValuesOf<(typeof OPERATION_NAMES)['aave']['v3']>
+type MakerOperations = ValuesOf<(typeof OPERATION_NAMES)['maker']>
+type CommonOperations = ValuesOf<(typeof OPERATION_NAMES)['common']>
 export type OperationNames =
   | CommonOperations
   | AaveV2Operations

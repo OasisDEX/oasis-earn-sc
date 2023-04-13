@@ -13,6 +13,7 @@ import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { getOraclePrice } from '@oasisdex/dma-common/utils/maker/oracle'
 import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker/vault'
 import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers/service-registry'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { ActionCall, ActionFactory, calldataTypes } from '@oasisdex/dma-library/src'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
@@ -42,8 +43,12 @@ describe.skip(`Operations | Maker | Automation Integration | E2E`, async () => {
   beforeEach(async function () {
     ;({ config, provider, signer } = await loadFixture(initialiseConfig))
 
-    DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
-    WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
+    DAI = new ethers.Contract(ADDRESSES[Network.MAINNET].common.DAI, ERC20ABI, provider).connect(
+      signer,
+    )
+    WETH = new ethers.Contract(ADDRESSES[Network.MAINNET].common.WETH, ERC20ABI, provider).connect(
+      signer,
+    )
 
     // When changing block number remember to check vault id that is used for automation
     const testBlockNumberToGetCorrectVaultId = 15695000
@@ -59,7 +64,10 @@ describe.skip(`Operations | Maker | Automation Integration | E2E`, async () => {
 
     oraclePrice = await getOraclePrice(provider)
 
-    await system.common.exchange.setPrice(ADDRESSES.main.WETH, amountToWei(marketPrice).toFixed(0))
+    await system.common.exchange.setPrice(
+      ADDRESSES[Network.MAINNET].common.WETH,
+      amountToWei(marketPrice).toFixed(0),
+    )
   })
 
   it(`should open vault, deposit ETH, allow Automation Bot & then Run Automation based Operation`, async () => {
@@ -80,7 +88,7 @@ describe.skip(`Operations | Maker | Automation Integration | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
         },
         [0],
       ],
@@ -92,7 +100,7 @@ describe.skip(`Operations | Maker | Automation Integration | E2E`, async () => {
       [
         {
           from: config.address,
-          asset: ADDRESSES.main.WETH,
+          asset: ADDRESSES[Network.MAINNET].common.WETH,
           amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
         [0, 0, 0],
@@ -104,7 +112,7 @@ describe.skip(`Operations | Maker | Automation Integration | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -226,7 +234,7 @@ describe.skip(`Operations | Maker | Automation Integration | E2E`, async () => {
     expect.toBeEqual(info.debt.toFixed(0), autoTestAmount.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES.main.maker.cdpManager,
+      ADDRESSES[Network.MAINNET].maker.cdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)

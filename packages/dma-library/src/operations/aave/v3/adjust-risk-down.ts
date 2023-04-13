@@ -10,6 +10,7 @@ import {
 } from '@dma-library/types/operations'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { MAX_UINT, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
 type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
@@ -86,11 +87,11 @@ export async function adjustRiskDown({
   })
 
   const returnDebtFunds = actions.common.returnFunds({
-    asset: debt.isEth ? ADDRESSES.main.ETH : debt.address,
+    asset: debt.isEth ? ADDRESSES[Network.MAINNET].common.ETH : debt.address,
   })
 
   const returnCollateralFunds = actions.common.returnFunds({
-    asset: collateral.isEth ? ADDRESSES.main.ETH : collateral.address,
+    asset: collateral.isEth ? ADDRESSES[Network.MAINNET].common.ETH : collateral.address,
   })
 
   unwrapEth.skipped = !debt.isEth && !collateral.isEth

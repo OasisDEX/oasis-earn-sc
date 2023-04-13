@@ -2,7 +2,7 @@ import { ONE } from '@oasisdex/dma-common/constants'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { AaveVersion, strategies } from '@oasisdex/dma-library/src'
+import { AaveVersion, strategies } from '@oasisdex/dma-library'
 import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,

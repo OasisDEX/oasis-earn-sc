@@ -13,7 +13,7 @@ import { getDsProxyRegistry } from '@oasisdex/dma-common/utils/proxy'
 import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy/proxy'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/one-inch-call'
-import { strategies } from '@oasisdex/dma-library/src'
+import { strategies } from '@oasisdex/dma-library'
 import { Position } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
@@ -74,18 +74,18 @@ task('closePosition', 'Close stETH position on AAVE')
       protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
     }
     const aaveLendingPool = new hre.ethers.Contract(
-      ADDRESSES.main.aave.v2.LendingPool,
+      ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
       AAVELendigPoolABI,
       config.provider,
     )
     const aaveDataProvider = new hre.ethers.Contract(
-      ADDRESSES.main.aave.v2.ProtocolDataProvider,
+      ADDRESSES[Network.MAINNET].aave.v2.ProtocolDataProvider,
       AAVEDataProviderABI,
       config.provider,
     )
 
     const proxy = await getOrCreateProxy(
-      await getDsProxyRegistry(config.signer, ADDRESSES.main.proxyRegistry, hre),
+      await getDsProxyRegistry(config.signer, ADDRESSES[Network.MAINNET].proxyRegistry, hre),
       config.signer,
     )
 
@@ -94,13 +94,13 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     let userStEthReserveData: AaveReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES.main.STETH,
+      ADDRESSES[Network.MAINNET].STETH,
       dsProxy.address,
     )
 
     const address = await config.signer.getAddress()
     let balanceEth = await balanceOf(
-      ADDRESSES.main.ETH,
+      ADDRESSES[Network.MAINNET].ETH,
       address,
       { config, isFormatted: true },
       hre,
@@ -123,7 +123,7 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     const beforeCloseUserStEthReserveData: AaveReserveData =
-      await aaveDataProvider.getUserReserveData(ADDRESSES.main.STETH, dsProxy.address)
+      await aaveDataProvider.getUserReserveData(ADDRESSES[Network.MAINNET].STETH, dsProxy.address)
 
     const positionAfterOpen = new Position(
       {
@@ -184,11 +184,16 @@ task('closePosition', 'Close stETH position on AAVE')
     console.log('txHash', tx.transactionHash)
 
     userStEthReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES.main.STETH,
+      ADDRESSES[Network.MAINNET].STETH,
       dsProxy.address,
     )
 
-    balanceEth = await balanceOf(ADDRESSES.main.ETH, address, { config, isFormatted: true }, hre)
+    balanceEth = await balanceOf(
+      ADDRESSES[Network.MAINNET].ETH,
+      address,
+      { config, isFormatted: true },
+      hre,
+    )
 
     console.log('Current stETH Balance: ', userStEthReserveData.currentATokenBalance.toString())
     console.log('Current ETH Balance: ', balanceEth.toString())

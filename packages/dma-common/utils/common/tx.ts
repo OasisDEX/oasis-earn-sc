@@ -1,9 +1,10 @@
 import IERC20_ABI from '@oasisdex/abis/external/tokens/IERC20.json'
 import { ADDRESSES } from '@oasisdex/addresses'
-import { amountFromWei } from '@utils/common/precision'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { amountFromWei } from 'utils/common/precision'
 
 import { RuntimeConfig } from '../../types/common'
 
@@ -34,7 +35,7 @@ export async function send(
   hre?: HardhatRuntimeEnvironment,
 ) {
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
-  if (tokenAddr === ADDRESSES.main.ETH) {
+  if (tokenAddr === ADDRESSES[Network.MAINNET].common.ETH) {
     const tx = await signer?.sendTransaction({
       from: await signer.getAddress(),
       to,

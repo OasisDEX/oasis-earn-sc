@@ -1,6 +1,6 @@
 import { expect } from '@oasisdex/dma-common/test-utils'
-import { Network } from '@oasisdex/dma-common/utils/network'
-import { PositionTransition } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { PositionTransition } from '@oasisdex/dma-library'
 import { IPosition } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
@@ -216,8 +216,8 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         fixture = await systemWithAaveV3Positions({
           use1inch: false,
           network: networkFork,
-          systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
-          configExtentionPaths: [`./test-configs/uSwap.conf.ts`],
+          systemConfigPath: `./test/${networkFork}.conf.ts`,
+          configExtentionPaths: [`./test/uSwap.conf.ts`],
         })()
       })
 
@@ -318,8 +318,8 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         fixture = await systemWithAaveV3Positions({
           use1inch: true,
           network: networkFork,
-          systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
-          configExtentionPaths: [`./test-configs/swap.conf.ts`],
+          systemConfigPath: `./test/${networkFork}.conf.ts`,
+          configExtentionPaths: [`./test/swap.conf.ts`],
         })()
       })
 

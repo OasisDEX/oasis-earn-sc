@@ -124,14 +124,14 @@ async function getSwapDataToCloseToCollateral(
   // A preflight request is sent to calculate the existing market price.
   const debtPricePreflightSwapData = await dependencies.getSwapData(
     debtTokenAddress,
-    ADDRESSES.main.ETH,
+    ADDRESSES.mainnet.common.ETH,
     dependencies.currentPosition.debt.amount,
     slippage,
   )
 
   const colPricePreflightSwapData = await dependencies.getSwapData(
     collateralTokenAddress,
-    ADDRESSES.main.ETH,
+    ADDRESSES.mainnet.common.ETH,
     collateralNeeded,
     slippage,
   )
@@ -428,10 +428,10 @@ async function getValuesFromProtocol(
 
   async function getAllAndMemoize() {
     return Promise.all([
-      aavePriceOracle.getAssetPrice(ADDRESSES.main.DAI),
+      aavePriceOracle.getAssetPrice(ADDRESSES.mainnet.common.DAI),
       aavePriceOracle.getAssetPrice(collateralTokenAddress),
       aavePriceOracle.getAssetPrice(debtTokenAddress),
-      aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.main.DAI),
+      aaveProtocolDataProvider.getReserveConfigurationData(ADDRESSES.mainnet.common.DAI),
     ])
   }
 

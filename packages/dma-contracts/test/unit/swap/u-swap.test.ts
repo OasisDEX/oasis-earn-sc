@@ -11,7 +11,8 @@ import { createDeploy } from '@oasisdex/dma-common/utils/deploy'
 import init from '@oasisdex/dma-common/utils/init'
 import { calculateFee } from '@oasisdex/dma-common/utils/swap'
 import { swapOneInchTokens } from '@oasisdex/dma-common/utils/swap/1inch'
-import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers/service-registry'
+import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
@@ -38,19 +39,28 @@ describe('uSwap | Unit', () => {
     const [serviceRegistry] = await deploy('ServiceRegistry', [0])
     registry = new ServiceRegistry(serviceRegistry.address, config.signer)
 
-    await registry.addEntry(CONTRACT_NAMES.common.UNISWAP_ROUTER, ADDRESSES.main.uniswapRouterV3)
+    await registry.addEntry(
+      CONTRACT_NAMES.common.UNISWAP_ROUTER,
+      ADDRESSES[Network.MAINNET].common.uniswapRouterV3,
+    )
     const [_uSwap] = await deploy('uSwap', [
       config.address,
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES[Network.MAINNET].common.common.FeeRecipient,
       FEE,
       serviceRegistry.address,
     ])
     uSwap = _uSwap
 
-    WETH = new ethers.Contract(ADDRESSES.main.WETH, WETH_ABI, config.provider).connect(
-      config.signer,
-    )
-    DAI = new ethers.Contract(ADDRESSES.main.DAI, WETH_ABI, config.provider).connect(config.signer)
+    WETH = new ethers.Contract(
+      ADDRESSES[Network.MAINNET].common.WETH,
+      WETH_ABI,
+      config.provider,
+    ).connect(config.signer)
+    DAI = new ethers.Contract(
+      ADDRESSES[Network.MAINNET].common.DAI,
+      WETH_ABI,
+      config.provider,
+    ).connect(config.signer)
     await uSwap.setPool(WETH.address, DAI.address, 3000)
     await uSwap.setPool(DAI.address, WETH.address, 3000)
   })
@@ -65,8 +75,8 @@ describe('uSwap | Unit', () => {
 
     before(async () => {
       const response = await swapOneInchTokens(
-        ADDRESSES.main.WETH,
-        ADDRESSES.main.DAI,
+        ADDRESSES[Network.MAINNET].common.WETH,
+        ADDRESSES[Network.MAINNET].common.DAI,
         amountInWei.toFixed(0),
         uSwap.address,
         slippage.value.toFixed(),
@@ -77,8 +87,8 @@ describe('uSwap | Unit', () => {
       await WETH.deposit({ value: depositAmountWithFeeWei.toFixed(0) })
       await WETH.approve(uSwap.address, depositAmountWithFeeWei.toFixed(0))
       await uSwap.swapTokens([
-        ADDRESSES.main.WETH,
-        ADDRESSES.main.DAI,
+        ADDRESSES[Network.MAINNET].common.WETH,
+        ADDRESSES[Network.MAINNET].common.DAI,
         depositAmountWithFeeWei.toFixed(0),
         receiveAtLeast.toFixed(0),
         FEE,
@@ -94,7 +104,11 @@ describe('uSwap | Unit', () => {
     })
 
     it('Pays fee in WETH', async () => {
-      const feeWallet = await balanceOf(WETH.address, ADDRESSES.main.feeRecipient, { config })
+      const feeWallet = await balanceOf(
+        WETH.address,
+        ADDRESSES[Network.MAINNET].common.FeeRecipient,
+        { config },
+      )
       expect.toBeEqual(feeWallet, fee)
     })
   })

@@ -9,7 +9,7 @@
     "watch": "yarn tsc -b -w",
     "lint": "yarn tsc -p ./tsconfig.json --noEmit",
     "test": "yarn run test:unit",
-    "test:unit": "yarn hardhat test test/position.test.ts",
+    "test:unit": "yarn hardhat test ./test/position.test.ts",
     "prepublish": "yarn run build"
   },
   "dependencies": {

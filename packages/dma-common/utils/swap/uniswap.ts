@@ -1,8 +1,9 @@
+import UNISWAP_ROUTER_V3_ABI from '@oasisdex/abis/external/swap/IUniswapRouter.json'
 import { ADDRESSES } from '@oasisdex/addresses'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Optional } from 'utility-types'
 
-import UNISWAP_ROUTER_V3_ABI from '../../../abis/external/swap/IUniswapRouter.json'
 import { RuntimeConfig } from '../../types/common'
 
 /**
@@ -22,11 +23,14 @@ export async function swapUniswapTokens(
   hre?: HardhatRuntimeEnvironment,
 ) {
   const value =
-    tokenIn === ADDRESSES.main.WETH || tokenIn === ADDRESSES.optimism.WETH ? amountIn : 0
+    tokenIn === ADDRESSES[Network.MAINNET].common.WETH ||
+    tokenIn === ADDRESSES[Network.OPT_MAINNET].common.WETH
+      ? amountIn
+      : 0
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
 
   const uniswapV3 = new ethers.Contract(
-    ADDRESSES.main.uniswapRouterV3,
+    ADDRESSES[Network.MAINNET].common.UniswapRouterV3,
     UNISWAP_ROUTER_V3_ABI,
     provider,
   ).connect(signer)

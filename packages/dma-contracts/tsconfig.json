@@ -23,7 +23,10 @@
       "@dma-library/*": [
         "../dma-library/src/*"
       ],
-      "@utils/*": ["../dma-common/utils/*"]
+      "utils/*": ["../dma-common/utils/*"],
+      "@oasisdex/addresses": ["../addresses/src/index.ts"],
+      "@oasisdex/dma-library/*": ["../dma-library/src/*"],
+      "@oasisdex/dma-library": ["../dma-library/src/index.ts"],
     },
     "typeRoots": [
       "../../node_modules/@types"
@@ -36,8 +39,4 @@
     "tasks/**/*.ts",
     "scripts/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "../../node_modules",
-  ]
 }

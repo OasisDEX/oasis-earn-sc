@@ -10,6 +10,7 @@ module.exports = {
   parserOptions: {
     project: './tsconfig.json',
     tsconfigRootDir: __dirname,
+    sourceType: 'module',
   },
   plugins: ['@typescript-eslint', 'simple-import-sort', 'unused-imports'],
   root: true,
@@ -23,12 +24,7 @@ module.exports = {
   },
   settings: {
     'import/resolver': {
-      typescript: {
-        project: ['tsconfig.json'],
-      },
-      node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts'],
-      },
+      typescript: {},
     },
   },
 }

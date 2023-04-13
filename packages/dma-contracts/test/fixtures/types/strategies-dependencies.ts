@@ -5,7 +5,7 @@ import {
   protocols,
   strategies,
   SwapData,
-} from '@oasisdex/dma-library/src'
+} from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 

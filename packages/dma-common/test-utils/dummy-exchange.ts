@@ -1,6 +1,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import WETHABI from '@oasisdex/abis/external/tokens/IWETH.json'
 import { ADDRESSES } from '@oasisdex/addresses'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { Contract, ethers, Signer } from 'ethers'
 import fetch from 'node-fetch'
@@ -49,7 +50,7 @@ export async function getMarketPrice(
 async function exchangeToToken(provider: JsonRpcProvider, signer: Signer, token: ERC20TokenData) {
   const address = await signer.getAddress()
   await swapUniswapTokens(
-    ADDRESSES.main.WETH,
+    ADDRESSES[Network.MAINNET].common.WETH,
     token.address,
     amountToWei(200).toFixed(0),
     amountToWei(ONE, token.precision).toFixed(0),
@@ -133,26 +134,26 @@ export async function loadDummyExchangeFixtures(
   const tokens = [
     {
       name: 'WETH',
-      address: ADDRESSES.main.WETH,
-      pip: ADDRESSES.main.maker.pipWETH,
+      address: ADDRESSES[Network.MAINNET].common.WETH,
+      pip: ADDRESSES[Network.MAINNET].maker.PipWETH,
       precision: 18,
     },
     {
       name: 'stETH',
-      address: ADDRESSES.main.STETH,
-      pip: ADDRESSES.main.maker.pipWETH,
+      address: ADDRESSES[Network.MAINNET].common.STETH,
+      pip: ADDRESSES[Network.MAINNET].maker.PipWETH,
       precision: 18,
     },
     {
       name: 'DAI',
-      address: ADDRESSES.main.DAI,
+      address: ADDRESSES[Network.MAINNET].common.DAI,
       pip: undefined,
       precision: 18,
     },
     {
       name: 'LINK',
-      address: ADDRESSES.main.LINK,
-      pip: ADDRESSES.main.maker.pipLINK,
+      address: ADDRESSES[Network.MAINNET].common.LINK,
+      pip: ADDRESSES[Network.MAINNET].maker.PipLINK,
       precision: 18,
     },
   ]
@@ -161,9 +162,11 @@ export async function loadDummyExchangeFixtures(
   await addFundsDummyExchange(
     provider,
     signer,
-    ADDRESSES.main.WETH,
+    ADDRESSES[Network.MAINNET].common.WETH,
     tokens.filter(
-      token => token.address !== ADDRESSES.main.WETH && token.address !== ADDRESSES.main.STETH,
+      token =>
+        token.address !== ADDRESSES[Network.MAINNET].common.WETH &&
+        token.address !== ADDRESSES[Network.MAINNET].common.STETH,
     ),
     dummyExchangeInstance,
     debug,
@@ -189,7 +192,11 @@ export async function loadDummyExchangeFixtures(
     tokens
       .filter(token => !!token.pip)
       .map(async token => {
-        const price = await getMarketPrice(token.address, ADDRESSES.main.DAI, token.precision)
+        const price = await getMarketPrice(
+          token.address,
+          ADDRESSES[Network.MAINNET].common.DAI,
+          token.precision,
+        )
         const priceInWei = amountToWei(price).toFixed(0)
 
         if (debug) {
@@ -201,7 +208,7 @@ export async function loadDummyExchangeFixtures(
         }
 
         if (dummyExchangeInstance.setPrice) {
-          if (token.address === ADDRESSES.main.STETH) {
+          if (token.address === ADDRESSES[Network.MAINNET].common.STETH) {
             const priceInWeiStEth = amountToWei(ONE).toFixed(0)
             return dummyExchangeInstance.setPrice(token.address, priceInWeiStEth)
           } else {

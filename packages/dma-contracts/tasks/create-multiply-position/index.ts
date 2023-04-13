@@ -11,7 +11,8 @@ import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-acc
 import init from '@oasisdex/dma-common/utils/init'
 import { getAccountFactory } from '@oasisdex/dma-common/utils/proxy/get-account-factory'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -64,17 +65,17 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
     const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
 
     const mainnetAddresses = {
-      DAI: ADDRESSES.main.DAI,
-      ETH: ADDRESSES.main.ETH,
-      WETH: ADDRESSES.main.WETH,
-      STETH: ADDRESSES.main.STETH,
-      WBTC: ADDRESSES.main.WBTC,
-      USDC: ADDRESSES.main.USDC,
-      chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-      priceOracle: ADDRESSES.main.aave.v2.PriceOracle,
-      lendingPool: ADDRESSES.main.aave.v2.LendingPool,
+      DAI: ADDRESSES[Network.MAINNET].common.DAI,
+      ETH: ADDRESSES[Network.MAINNET].common.ETH,
+      WETH: ADDRESSES[Network.MAINNET].common.WETH,
+      STETH: ADDRESSES[Network.MAINNET].common.STETH,
+      WBTC: ADDRESSES[Network.MAINNET].common.WBTC,
+      USDC: ADDRESSES[Network.MAINNET].common.USDC,
+      chainlinkEthUsdPriceFeed: ADDRESSES[Network.MAINNET].common.ChainlinkEthUsdPriceFeed,
+      priceOracle: ADDRESSES[Network.MAINNET].aave.v2.PriceOracle,
+      lendingPool: ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
       operationExecutor: operationExecutorAddress,
-      protocolDataProvider: ADDRESSES.main.aave.v2.ProtocolDataProvider,
+      protocolDataProvider: ADDRESSES[Network.MAINNET].aave.v2.ProtocolDataProvider,
       accountFactory: '0xF7B75183A2829843dB06266c114297dfbFaeE2b6',
     }
 
@@ -162,7 +163,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
       use1inch: false,
       dependencies,
       config,
-      feeRecipient: ADDRESSES.main.feeRecipient,
+      feeRecipient: ADDRESSES[Network.MAINNET].common.FeeRecipient,
     })
 
     console.log(

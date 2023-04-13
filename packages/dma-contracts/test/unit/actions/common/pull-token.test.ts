@@ -7,7 +7,8 @@ import { restoreSnapshot } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
-import { calldataTypes } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { calldataTypes } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
@@ -33,15 +34,21 @@ describe('PullToken Action | Unit', () => {
 
   beforeEach(async () => {
     await swapUniswapTokens(
-      ADDRESSES.main.WETH,
-      ADDRESSES.main.DAI,
+      ADDRESSES[Network.MAINNET].common.WETH,
+      ADDRESSES[Network.MAINNET].common.DAI,
       amountToWei(ONE).toFixed(0),
       amountToWei(AMOUNT).toFixed(0),
       config.address,
       config,
     )
 
-    await approve(ADDRESSES.main.DAI, pullTokenActionAddress, amountToWei(AMOUNT), config, false)
+    await approve(
+      ADDRESSES[Network.MAINNET].common.DAI,
+      pullTokenActionAddress,
+      amountToWei(AMOUNT),
+      config,
+      false,
+    )
   })
 
   afterEach(async () => {
@@ -55,7 +62,7 @@ describe('PullToken Action | Unit', () => {
         [
           {
             amount: amountToWei(AMOUNT).toFixed(0),
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES[Network.MAINNET].common.DAI,
             from: config.address,
           },
         ],
@@ -63,7 +70,7 @@ describe('PullToken Action | Unit', () => {
       [],
     )
 
-    const balance = await balanceOf(ADDRESSES.main.DAI, pullTokenActionAddress, {
+    const balance = await balanceOf(ADDRESSES[Network.MAINNET].common.DAI, pullTokenActionAddress, {
       config,
       debug: false,
       isFormatted: false,
@@ -79,7 +86,7 @@ describe('PullToken Action | Unit', () => {
         [
           {
             amount: amountToWei(AMOUNT.plus(TEN)).toFixed(0),
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES[Network.MAINNET].common.DAI,
             from: config.address,
           },
         ],
@@ -91,7 +98,7 @@ describe('PullToken Action | Unit', () => {
 
   it('should fail if the caller does not have enough funds', async () => {
     await approve(
-      ADDRESSES.main.DAI,
+      ADDRESSES[Network.MAINNET].common.DAI,
       pullTokenActionAddress,
       amountToWei(AMOUNT.times(TEN)),
       config,
@@ -103,7 +110,7 @@ describe('PullToken Action | Unit', () => {
         [
           {
             amount: amountToWei(AMOUNT.times(TEN_THOUSAND)).toFixed(0),
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES[Network.MAINNET].common.DAI,
             from: config.address,
           },
         ],

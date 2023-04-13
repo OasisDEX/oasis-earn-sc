@@ -6,7 +6,8 @@ import { ADDRESSES } from '@oasisdex/addresses'
 import { expect, restoreSnapshot } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei } from '@oasisdex/dma-common/utils/common'
-import { calldataTypes } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { calldataTypes } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
@@ -40,7 +41,7 @@ describe('SetApproval Action', () => {
         [calldataTypes.common.Approval],
         [
           {
-            asset: ADDRESSES.main.DAI,
+            asset: ADDRESSES[Network.MAINNET].common.DAI,
             delegate: config.address,
             amount: amountToWei(AMOUNT).toFixed(0),
           },
@@ -49,7 +50,11 @@ describe('SetApproval Action', () => {
       [0, 0, 0],
     )
 
-    const DAI = new ethers.Contract(ADDRESSES.main.DAI, IERC20_ABI, config.signer)
+    const DAI = new ethers.Contract(
+      ADDRESSES[Network.MAINNET].common.DAI,
+      IERC20_ABI,
+      config.signer,
+    )
 
     const allowance = await DAI.allowance(approvalActionAddress, config.address)
 

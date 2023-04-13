@@ -1,4 +1,5 @@
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { utils } from 'ethers'
 import { task } from 'hardhat/config'
 
@@ -24,7 +25,7 @@ task('get-hashes', 'get Addresses hashes').setAction(async (_: any, hre) => {
     AAVE_WITHDRAW_ACTION,
     AAVE_PAYBACK_ACTION,
     POSITION_CREATED_ACTION,
-  } = await getAddressesFor(network)
+  } = await getAddressesFor(network as Network)
 
   const opExecutorHash = utils.keccak256(
     utils.toUtf8Bytes(CONTRACT_NAMES.common.OPERATION_EXECUTOR),

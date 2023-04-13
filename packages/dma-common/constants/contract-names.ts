@@ -1,3 +1,4 @@
+// Service Registry Entry Names
 export const CONTRACT_NAMES = {
   common: {
     PULL_TOKEN: 'PullToken_3',

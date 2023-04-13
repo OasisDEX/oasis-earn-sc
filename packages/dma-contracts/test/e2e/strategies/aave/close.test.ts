@@ -24,9 +24,9 @@ import { DeployedSystemInfo } from '@oasisdex/dma-common/test-utils/deploy-syste
 import { RuntimeConfig, Unbox } from '@oasisdex/dma-common/types/common'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { Network } from '@oasisdex/dma-common/utils/network'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { AAVETokens, strategies } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { AAVETokens, strategies } from '@oasisdex/dma-library'
 import { acceptedFeeToken } from '@oasisdex/dma-library/src/utils/swap/accepted-fee-token'
 import { IPosition } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
@@ -93,7 +93,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
 
       const feeWalletBalanceBeforeClosing = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES[Network.MAINNET].common.FeeRecipient,
         { config },
       )
 
@@ -101,19 +101,19 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
       const signer = config.signer
 
       const lendingPool = new Contract(
-        ADDRESSES.main.aave.v2.LendingPool,
+        ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
         AAVELendingPoolABI,
         provider,
       )
 
       const protocolDataProvider = new Contract(
-        ADDRESSES.main.aave.v2.ProtocolDataProvider,
+        ADDRESSES[Network.MAINNET].aave.v2.ProtocolDataProvider,
         AAVEDataProviderABI,
         provider,
       )
 
       const priceOracle = new ethers.Contract(
-        ADDRESSES.main.aave.v2.PriceOracle,
+        ADDRESSES[Network.MAINNET].aave.v2.PriceOracle,
         aavePriceOracleABI,
         provider,
       )
@@ -168,7 +168,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
 
       const feeWalletBalanceAfterClosing = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES[Network.MAINNET].common.FeeRecipient,
         { config },
       )
 
@@ -453,23 +453,23 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
 
       const feeWalletBalanceBeforeClosing = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES[Network.MAINNET].common.FeeRecipient,
         { config },
       )
 
       const provider = config.provider
       const signer = config.signer
 
-      const pool = new Contract(ADDRESSES.main.aave.v3.Pool, AAVEPoolABI, provider)
+      const pool = new Contract(ADDRESSES[Network.MAINNET].aave.v3.Pool, AAVEPoolABI, provider)
 
       const protocolDataProvider = new Contract(
-        ADDRESSES.main.aave.v3.PoolDataProvider,
+        ADDRESSES[Network.MAINNET].aave.v3.PoolDataProvider,
         AAVEProtocolDataProviderABI,
         provider,
       )
 
       const priceOracle = new ethers.Contract(
-        ADDRESSES.main.aave.v3.AaveOracle,
+        ADDRESSES[Network.MAINNET].aave.v3.AaveOracle,
         aaveOracleABI,
         provider,
       )
@@ -524,7 +524,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
 
       const feeWalletBalanceAfterClosing = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES[Network.MAINNET].common.FeeRecipient,
         { config },
       )
 
@@ -565,7 +565,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
           systemWithAaveV3Positions({
             use1inch: false,
             network: networkFork,
-            systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
+            systemConfigPath: `./test/${networkFork}.conf.ts`,
           }),
         )
       })

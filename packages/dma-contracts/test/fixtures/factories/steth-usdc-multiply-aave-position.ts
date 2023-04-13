@@ -2,7 +2,7 @@ import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { AaveVersion, strategies } from '@oasisdex/dma-library/src'
+import { AaveVersion, strategies } from '@oasisdex/dma-library'
 import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
@@ -104,7 +104,7 @@ export async function stethUsdcMultiplyAavePosition({
 
   const feeWalletBalanceBefore = await balanceOf(
     mainnetAddresses.USDC,
-    mainnetAddresses.feeRecipient,
+    mainnetAddresses.common.FeeRecipient,
     {
       config,
     },
@@ -129,7 +129,7 @@ export async function stethUsdcMultiplyAavePosition({
 
   const feeWalletBalanceAfter = await balanceOf(
     mainnetAddresses.USDC,
-    mainnetAddresses.feeRecipient,
+    mainnetAddresses.common.FeeRecipient,
     {
       config,
     },

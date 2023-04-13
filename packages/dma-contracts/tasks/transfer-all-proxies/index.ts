@@ -1,6 +1,7 @@
 import DS_PROXY_REGISTRY_ABI from '@oasisdex/abis/external/libs/DS/ds-proxy-registry.json'
 import { ADDRESSES } from '@oasisdex/addresses'
 import init from '@oasisdex/dma-common/utils/init'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { task } from 'hardhat/config'
 
 const accountFactoryAddress = '0xF7B75183A2829843dB06266c114297dfbFaeE2b6'
@@ -25,7 +26,7 @@ task('transferProxies', 'Transfer DPM Account to another user')
 
     const dsProxyRegistry = await hre.ethers.getContractAt(
       DS_PROXY_REGISTRY_ABI,
-      ADDRESSES.main.proxyRegistry,
+      ADDRESSES[Network.MAINNET].common.ProxyRegistry,
       signer,
     )
 

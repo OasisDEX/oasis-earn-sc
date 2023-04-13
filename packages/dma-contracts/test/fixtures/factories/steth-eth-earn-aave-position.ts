@@ -2,7 +2,7 @@ import { ADDRESSES } from '@oasisdex/addresses'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { AaveVersion, strategies } from '@oasisdex/dma-library/src'
+import { AaveVersion, strategies } from '@oasisdex/dma-library'
 import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
@@ -96,9 +96,13 @@ export async function stethEthEarnAavePosition({
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeWalletBalanceBefore = await balanceOf(ADDRESSES.main.WETH, ADDRESSES.main.feeRecipient, {
-    config,
-  })
+  const feeWalletBalanceBefore = await balanceOf(
+    ADDRESSES[Network.MAINNET].WETH,
+    ADDRESSES[Network.MAINNET].common.FeeRecipient,
+    {
+      config,
+    },
+  )
 
   const [status] = await proxyFunction(
     proxy,
@@ -117,9 +121,13 @@ export async function stethEthEarnAavePosition({
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  const feeWalletBalanceAfter = await balanceOf(ADDRESSES.main.WETH, ADDRESSES.main.feeRecipient, {
-    config,
-  })
+  const feeWalletBalanceAfter = await balanceOf(
+    ADDRESSES[Network.MAINNET].WETH,
+    ADDRESSES[Network.MAINNET].common.FeeRecipient,
+    {
+      config,
+    },
+  )
 
   let getPosition
   if (

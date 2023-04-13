@@ -1,12 +1,5 @@
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { providers } from 'ethers'
-
-export enum Network {
-  MAINNET = 'mainnet',
-  GOERLI = 'goerli',
-  HARDHAT = 'hardhat',
-  OPT_MAINNET = 'opt-mainnet',
-  LOCAL = 'local',
-}
 
 export function isSupportedNetwork(network: string): network is Network {
   return Object.values<string>(Network).includes(network)

@@ -2,6 +2,7 @@ import * as actions from '@dma-library/actions'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import { Address } from '@oasisdex/dma-common/types/address'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
 export interface BorrowArgs {
@@ -23,7 +24,7 @@ export async function borrow({ borrowToken, amountInBaseUnit, account, isEthToke
       amount: amountInBaseUnit,
     }),
     actions.common.returnFunds({
-      asset: isEthToken ? ADDRESSES.main.ETH : borrowToken,
+      asset: isEthToken ? ADDRESSES[Network.MAINNET].common.ETH : borrowToken,
     }),
   ]
 

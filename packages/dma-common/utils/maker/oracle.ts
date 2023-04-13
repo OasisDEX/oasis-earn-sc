@@ -1,10 +1,11 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ADDRESSES } from '@oasisdex/addresses'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
 export async function getOraclePrice(
   provider: JsonRpcProvider,
-  pipAddress = ADDRESSES.main.maker.pipWETH,
+  pipAddress = ADDRESSES[Network.MAINNET].maker.pipWETH,
 ): Promise<BigNumber> {
   const storageHexToBigNumber = (uint256: string) => {
     const matches = uint256.match(/^0x(\w+)$/)

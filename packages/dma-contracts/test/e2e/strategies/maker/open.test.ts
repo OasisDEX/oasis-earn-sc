@@ -18,7 +18,8 @@ import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker/vault'
 import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers/service-registry'
-import { ActionFactory, calldataTypes } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ActionFactory, calldataTypes } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { ethers, Signer } from 'ethers'
@@ -47,8 +48,12 @@ describe.skip(`Operations | Maker | Open Position | E2E`, async () => {
   beforeEach(async () => {
     ;({ config, provider, signer, address } = await loadFixture(initialiseConfig))
 
-    DAI = new ethers.Contract(ADDRESSES.main.DAI, ERC20ABI, provider).connect(signer)
-    WETH = new ethers.Contract(ADDRESSES.main.WETH, ERC20ABI, provider).connect(signer)
+    DAI = new ethers.Contract(ADDRESSES[Network.MAINNET].common.DAI, ERC20ABI, provider).connect(
+      signer,
+    )
+    WETH = new ethers.Contract(ADDRESSES[Network.MAINNET].common.WETH, ERC20ABI, provider).connect(
+      signer,
+    )
 
     const { snapshot } = await restoreSnapshot({
       config,
@@ -60,7 +65,10 @@ describe.skip(`Operations | Maker | Open Position | E2E`, async () => {
     system = snapshot.deployed.system
     registry = snapshot.deployed.registry
 
-    await system.common.exchange.setPrice(ADDRESSES.main.ETH, amountToWei(marketPrice).toFixed(0))
+    await system.common.exchange.setPrice(
+      ADDRESSES[Network.MAINNET].common.ETH,
+      amountToWei(marketPrice).toFixed(0),
+    )
   })
 
   let gasEstimates: GasEstimateHelper
@@ -79,7 +87,7 @@ describe.skip(`Operations | Maker | Open Position | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
         },
         [0],
       ],
@@ -91,7 +99,7 @@ describe.skip(`Operations | Maker | Open Position | E2E`, async () => {
       [
         {
           from: config.address,
-          asset: ADDRESSES.main.WETH,
+          asset: ADDRESSES[Network.MAINNET].common.WETH,
           amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
         [0, 0, 0],
@@ -103,7 +111,7 @@ describe.skip(`Operations | Maker | Open Position | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES.main.maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -149,7 +157,7 @@ describe.skip(`Operations | Maker | Open Position | E2E`, async () => {
     expect.toBeEqual(info.debt.toFixed(precision), initialDebt.toFixed(precision))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES.main.maker.cdpManager,
+      ADDRESSES[Network.MAINNET].maker.cdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)

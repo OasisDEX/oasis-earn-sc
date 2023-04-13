@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
-import { swapOneInchTokens } from './1inch'
 import { ONE } from '../../constants'
+import { swapOneInchTokens } from './1inch'
 
 export const getOneInchCall =
   (

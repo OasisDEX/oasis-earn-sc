@@ -10,7 +10,8 @@ import aaveV3PriceOracleOptimismABI from '@oasisdex/abis/external/protocols/aave
 import aaveV3ProtocolDataProviderOptimismABI from '@oasisdex/abis/external/protocols/aave/v3-l2/aaveProtocolDataProvider.json'
 import aaveV3PoolOptimismABI from '@oasisdex/abis/external/protocols/aave/v3-l2/pool.json'
 import { amountFromWei } from '@oasisdex/dma-common/utils/common'
-import { getForkedNetwork as coalesceNetwork, Network } from '@oasisdex/dma-common/utils/network'
+import { getForkedNetwork as coalesceNetwork } from '@oasisdex/dma-common/utils/network'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 

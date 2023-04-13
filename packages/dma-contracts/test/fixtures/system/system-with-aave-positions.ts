@@ -1,4 +1,3 @@
-import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import {
   buildGetTokenByImpersonateFunction,
   buildGetTokenFunction,
@@ -7,7 +6,8 @@ import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-acc
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library/src'
+import { DeploymentSystem } from '@oasisdex/dma-deployments/deployment/deploy'
+import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
 import hre from 'hardhat'
 
 import {
@@ -39,7 +39,7 @@ export const systemWithAavePositions =
   async (): Promise<SystemWithAavePositions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
-    ds.loadConfig('test-configs/mainnet.conf.ts')
+    ds.loadConfig('test/mainnet.conf.ts')
 
     // If you update test block numbers you may run into issues where whale addresses
     // We use impersonation on test block number but with 1inch we use uniswap
@@ -63,6 +63,7 @@ export const systemWithAavePositions =
     await ds.setupLocalSystem(use1inch)
 
     const { system, registry, config: systemConfig } = ds.getSystem()
+    if (!systemConfig.aave.v2) throw new Error('aave v2 not deployed')
     const dependencies: StrategyDependenciesAaveV2 = {
       addresses: {
         DAI: systemConfig.common.DAI.address,
