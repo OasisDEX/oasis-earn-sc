@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import { IRiskRatio, RiskRatio } from '../../domain'
-import { ONE } from '../../helpers/constants'
+import { ONE, ZERO } from '../../helpers/constants'
 import { normalizeValue } from '../../helpers/normalizeValue'
 import { simulatePool } from '../../views/ajna'
 import { Address, AjnaWarning } from '../common'

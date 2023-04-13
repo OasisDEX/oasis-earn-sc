@@ -48,9 +48,9 @@ export async function paybackWithdraw(
 
   const errors = [
     ...validateDustLimit(targetPosition),
-    ...validateWithdrawUndercollateralized(targetPosition),
+    ...validateWithdrawUndercollateralized(targetPosition, args.position),
     ...validateOverWithdraw(args.position, args.collateralAmount),
-    ...validateOverRepay(args.position, args.quoteAmount),
+    // ...validateOverRepay(args.position, args.quoteAmount),
   ]
 
   return prepareAjnaPayload({

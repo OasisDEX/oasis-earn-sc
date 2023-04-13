@@ -81,7 +81,7 @@ export async function open(
   const errors = [
     ...validateDustLimit(targetPosition),
     ...validateLiquidity(position, args.quoteAmount),
-    ...validateBorrowUndercollateralized(targetPosition),
+    ...validateBorrowUndercollateralized(targetPosition, position),
   ]
 
   return prepareAjnaPayload({

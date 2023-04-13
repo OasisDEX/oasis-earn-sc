@@ -7,7 +7,7 @@ export function validateDustLimit(position: AjnaPosition): AjnaError[] {
       {
         name: 'debt-less-then-dust-limit',
         data: {
-          amount: position.pool.poolMinDebtAmount.toString(),
+          amount: position.pool.poolMinDebtAmount.decimalPlaces(2).toString(),
         },
       },
     ]
