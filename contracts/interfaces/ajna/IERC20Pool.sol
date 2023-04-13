@@ -2,14 +2,16 @@
 pragma solidity ^0.8.9;
 
 interface IAjnaPool {
-    function collateralScale() external pure returns (uint256);
 
-    function quoteTokenScale() external pure returns (uint256);
-
-    /***********************************/
-    /*** Borrower External Functions ***/
-    /***********************************/
-
+    /**
+     *  @notice Called by borrowers to add collateral to the pool and/or borrow quote from the pool.
+     *  @dev    Can be called by borrowers with either 0 amountToBorrow_ or 0 collateralToPledge_, if borrower only wants to take a single action. 
+     *          Call with 0 amountToBorrow_, and non-0 limitIndex_ to restamp loan's neutral price.
+     *  @param  borrowerAddress_    The borrower to whom collateral was pledged, and/or debt was drawn for.
+     *  @param  amountToBorrow_     The amount of quote tokens to borrow.
+     *  @param  limitIndex_         Lower bound of LUP change (if any) that the borrower will tolerate from a creating or modifying position.
+     *  @param  collateralToPledge_ The amount of collateral to be added to the pool.
+     */
     function drawDebt(
         address borrowerAddress_,
         uint256 amountToBorrow_,
@@ -17,62 +19,23 @@ interface IAjnaPool {
         uint256 collateralToPledge_
     ) external;
 
+    /**
+     *  @notice Called by borrowers to repay borrowed quote to the pool, and/or pull collateral form the pool.
+     *  @dev    Can be called by borrowers with either 0 maxQuoteTokenAmountToRepay_ or 0 collateralAmountToPull_, if borrower only wants to take a single action. 
+     *  @param  borrowerAddress_            The borrower whose loan is being interacted with.
+     *  @param  maxQuoteTokenAmountToRepay_ The amount of quote tokens to repay.
+     *  @param  collateralAmountToPull_     The amount of collateral to be puled from the pool.
+     *  @param  recipient_                  The address to receive amount of pulled collateral.
+     *  @param  limitIndex_                 Ensures LUP has not moved far from state when borrower pulls collateral.
+     */
     function repayDebt(
         address borrowerAddress_,
         uint256 maxQuoteTokenAmountToRepay_,
-        uint256 collateralAmountToPull_
+        uint256 collateralAmountToPull_,
+        address recipient_,
+        uint256 limitIndex_
     ) external;
 
-    /*********************************/
-    /*** Lender External Functions ***/
-    /*********************************/
-
-    function addCollateral(
-        uint256 collateralAmountToAdd_,
-        uint256 index_
-    ) external returns (uint256 bucketLPs_);
-
-    function addQuoteToken(
-        uint256 collateralAmountToAdd_,
-        uint256 index_
-    ) external returns (uint256 bucketLPs_);
-
-    function removeCollateral(
-        uint256 maxAmount_,
-        uint256 index_
-    ) external returns (uint256 collateralAmount_, uint256 lpAmount_);
-
-    function removeQuoteToken(
-        uint256 maxAmount_,
-        uint256 index_
-    ) external returns (uint256 collateralAmount_, uint256 lpAmount_);
-
-    /**
-     *  @notice Returns the address of the pool's collateral token
-     */
-    function collateralAddress() external pure returns (address);
-
-    /**
-     *  @notice Returns the address of the pools quote token
-     */
-    function quoteTokenAddress() external pure returns (address);
-
-    function lenderInfo(
-        uint256 index_,
-        address lender_
-    ) external view returns (uint256, uint256);
-
-    function approveLpOwnership(
-        address allowedNewOwner,
-        uint256 index,
-        uint256 amount
-    ) external;
-
-    function currentBurnEpoch() external view returns (uint256);
-
-    function moveQuoteToken(
-        uint256 maxAmount,
-        uint256 fromIndex,
-        uint256 toIndex
-    ) external returns (uint256 lpbAmountFrom, uint256 lpbAmountTo);
+    function collateralScale() external view returns (uint256);
+    function quoteTokenScale() external view returns (uint256);
 }
