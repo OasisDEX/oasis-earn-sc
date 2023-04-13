@@ -6,6 +6,12 @@ import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
 import { Dependencies } from './open'
+import {
+  validateDustLimit,
+  // validateOverRepay,
+  validateOverWithdraw,
+  validateWithdrawUndercollateralized,
+} from './validation'
 
 interface PaybackWithdrawArgs {
   poolAddress: Address
@@ -40,10 +46,17 @@ export async function paybackWithdraw(
   const isPayingBackEth =
     args.position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
+  const errors = [
+    ...validateDustLimit(targetPosition),
+    ...validateWithdrawUndercollateralized(targetPosition, args.position),
+    ...validateOverWithdraw(args.position, args.collateralAmount),
+    // ...validateOverRepay(args.position, args.quoteAmount),
+  ]
+
   return prepareAjnaPayload({
     dependencies,
     targetPosition,
-    errors: [],
+    errors,
     warnings: [],
     data,
     txValue: resolveAjnaEthAction(isPayingBackEth, args.quoteAmount),

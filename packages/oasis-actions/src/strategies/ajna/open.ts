@@ -7,6 +7,11 @@ import { AjnaPosition } from '../../types/ajna'
 import { Address, Strategy } from '../../types/common'
 import * as views from '../../views'
 import { GetPoolData } from '../../views/ajna'
+import {
+  validateBorrowUndercollateralized,
+  validateDustLimit,
+  validateLiquidity,
+} from './validation'
 
 export interface OpenArgs {
   poolAddress: Address
@@ -25,13 +30,15 @@ export interface Dependencies {
   provider: ethers.providers.Provider
   WETH: Address
   getPoolData: GetPoolData
+  getPosition?: typeof views.ajna.getPosition
 }
 
 export async function open(
   args: OpenArgs,
   dependencies: Dependencies,
 ): Promise<Strategy<AjnaPosition>> {
-  const position = await views.ajna.getPosition(
+  const getPosition = dependencies.getPosition ? dependencies.getPosition : views.ajna.getPosition
+  const position = await getPosition(
     {
       collateralPrice: args.collateralPrice,
       quotePrice: args.quotePrice,
@@ -71,11 +78,17 @@ export async function open(
 
   const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
 
+  const errors = [
+    ...validateDustLimit(targetPosition),
+    ...validateLiquidity(position, args.quoteAmount),
+    ...validateBorrowUndercollateralized(targetPosition, position),
+  ]
+
   return prepareAjnaPayload({
     dependencies,
     targetPosition,
     data,
-    errors: [],
+    errors,
     warnings: [],
     txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
   })

@@ -2,6 +2,14 @@ import BigNumber from 'bignumber.js'
 
 import { Address } from '../common'
 
+export interface Bucket {
+  price: BigNumber
+  index: BigNumber
+  quoteTokens: BigNumber
+  collateral: BigNumber
+  bucketLPs: BigNumber
+}
+
 export interface AjnaPool {
   poolAddress: Address
   quoteToken: Address
@@ -35,5 +43,5 @@ export interface AjnaPool {
   dailyPercentageRate30dAverage: BigNumber
   monthlyPercentageRate30dAverage: BigNumber
   currentBurnEpoch: BigNumber
-  pendingInflator: BigNumber
+  buckets: Bucket[]
 }
