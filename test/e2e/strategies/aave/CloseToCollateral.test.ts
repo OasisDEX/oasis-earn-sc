@@ -191,7 +191,7 @@ describe('Close AAVEv2 Position to collateral', () => {
       .to.be.true
   })
 
-  it.only('DSProxy | Collateral - STETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
+  it('DSProxy | Collateral - STETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
     const position = fixture.dsProxyPosition
     assert(position, 'Unsupported position')
 
