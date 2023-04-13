@@ -4,16 +4,16 @@ pragma solidity ^0.8.15;
 import { Executable } from "../common/Executable.sol";
 import { Write, UseStore } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
-import { DepositBorrowData } from "../../core/types/Ajna.sol";
+import { RepayWithdrawData } from "../../core/types/Ajna.sol";
 import { AJNA_POOL_UTILS_INFO } from "../../core/constants/Ajna.sol";
 import { IAjnaPool } from "../../interfaces/ajna/IERC20Pool.sol";
 import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol";
 
 /**
- * @title Borrow | Ajna Action contract
- * @notice Borrows quoite token from Ajna pool
+ * @title AjnaRepayWithdraw | Ajna Action contract
+ * @notice Repays quotetokens and withdraws collateral from Ajna pool
  */
-contract AjnaDepositBorrow is Executable, UseStore {
+contract AjnaRepayWithdraw is Executable, UseStore {
   using Write for OperationStorage;
 
   constructor(address _registry) UseStore(_registry) {}
@@ -22,18 +22,18 @@ contract AjnaDepositBorrow is Executable, UseStore {
    * @param data Encoded calldata that conforms to the BorrowData struct
    */
   function execute(bytes calldata data, uint8[] memory) external payable override {
-    DepositBorrowData memory args = parseInputs(data);
+    RepayWithdrawData memory args = parseInputs(data);
     IAjnaPool pool = IAjnaPool(args.pool);
     IAjnaPoolUtilsInfo poolUtilsInfo = IAjnaPoolUtilsInfo(registry.getRegisteredService(AJNA_POOL_UTILS_INFO));
 
     uint256 index = poolUtilsInfo.priceToIndex(args.price);
 
-    pool.drawDebt(address(this), args.borrowAmount * pool.quoteTokenScale(), index, args.borrowAmount * pool.collateralScale());
-    store().write(bytes32(args.depositAmount));
-    store().write(bytes32(args.borrowAmount));
+    pool.repayDebt(address(this), args.repayAmount * pool.quoteTokenScale(), args.withdrawAmount * pool.collateralScale(), address(this), index);
+    store().write(bytes32(args.repayAmount));
+    store().write(bytes32(args.withdrawAmount));
   }
 
-  function parseInputs(bytes memory _callData) public pure returns (DepositBorrowData memory params) {
-    return abi.decode(_callData, (DepositBorrowData));
+  function parseInputs(bytes memory _callData) public pure returns (RepayWithdrawData memory params) {
+    return abi.decode(_callData, (RepayWithdrawData));
   }
 }

@@ -10,7 +10,7 @@ struct DepositBorrowData {
 
 struct RepayWithdrawData {
   address pool;
-  uint256 depositAmount;
-  uint256 borrowAmount;
+  uint256 withdrawAmount;
+  uint256 repayAmount;
   uint256 price;
 }

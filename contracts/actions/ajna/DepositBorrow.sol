@@ -10,8 +10,8 @@ import { IAjnaPool } from "../../interfaces/ajna/IERC20Pool.sol";
 import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol";
 
 /**
- * @title Borrow | Ajna Action contract
- * @notice Borrows quoite token from Ajna pool
+ * @title DepositBorrow | Ajna Action contract
+ * @notice Deposits collateral and borrows quoite token from Ajna pool
  */
 contract AjnaDepositBorrow is Executable, UseStore {
   using Write for OperationStorage;
