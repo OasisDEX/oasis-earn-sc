@@ -104,8 +104,8 @@ export async function deposit({
     entryTokenAddress,
     amountInBaseUnit,
     swapArgs,
-    ADDRESSES.main.ETH,
-    ADDRESSES.main.WETH,
+    ADDRESSES.mainnet.common.ETH,
+    ADDRESSES.mainnet.common.WETH,
     isSwapNeeded,
   )
 
@@ -116,7 +116,7 @@ export async function deposit({
       actions.common.setApproval(
         {
           asset: depositToken,
-          delegate: ADDRESSES.main.aave.v2.LendingPool,
+          delegate: ADDRESSES.mainnet.aave.v2.LendingPool,
           // Check the explanation about the deposit action.
           // This approval is about the amount that's going to be deposit in the following action
           amount: amountInBaseUnit,

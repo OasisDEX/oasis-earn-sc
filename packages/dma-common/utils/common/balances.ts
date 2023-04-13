@@ -1,5 +1,5 @@
 import IERC20_ABI from '@oasisdex/abis/external/tokens/IERC20.json'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/addresses/src'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
@@ -14,7 +14,7 @@ export async function balanceOf(
   let balance
   const { provider, signer } = options.config
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
-  if (asset === ADDRESSES.main.ETH) {
+  if (asset === ADDRESSES.mainnet.common.ETH) {
     balance = new BigNumber((await provider.getBalance(address)).toString())
   } else {
     const ERC20Asset = new ethers.Contract(asset, IERC20_ABI, signer)

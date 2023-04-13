@@ -1,5 +1,5 @@
 export * from './addresses'
-export * from './balance'
+export * from './balances'
 export * from './create2'
 export * from './etherscan'
 export * from './log-debug'

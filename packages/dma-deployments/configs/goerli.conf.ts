@@ -1,11 +1,14 @@
-export const config = {
+import { SystemConfig } from '../types/deployment-config'
+import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
+import { constants } from 'ethers'
+
+export const config: SystemConfig = {
   mpa: {
     core: {
       ServiceRegistry: {
         name: 'ServiceRegistry',
         deploy: false,
         address: '0x73024Ec24c03904A4b5FBfa249B410891C12407b',
-        serviceRegistryName: '',
         history: [],
         constructorArgs: [0],
       },
@@ -37,7 +40,6 @@ export const config = {
         name: 'AccountGuard',
         deploy: false,
         address: '',
-        serviceRegistryName: '',
         history: [],
         constructorArgs: [],
       },
@@ -45,7 +47,6 @@ export const config = {
         name: 'AccountFactory',
         deploy: false,
         address: '',
-        serviceRegistryName: '',
         history: [],
         constructorArgs: ['address:AccountGuard'],
       },
@@ -165,83 +166,87 @@ export const config = {
     WETH: {
       name: 'WETH',
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      serviceRegistryName: 'WETH',
+      serviceRegistryName: CONTRACT_NAMES.common.WETH,
     },
     ETH: {
       name: 'ETH',
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      serviceRegistryName: 'ETH',
     },
     STETH: {
       name: 'STETH',
       address: '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
-      serviceRegistryName: 'STETH',
+      serviceRegistryName: CONTRACT_NAMES.common.STETH,
     },
     WSTETH: {
       name: 'WSTETH',
       address: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
-      serviceRegistryName: 'WSTETH',
+      serviceRegistryName: CONTRACT_NAMES.common.WSTETH,
     },
     USDC: {
       name: 'USDC',
       address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-      serviceRegistryName: 'USDC',
+      serviceRegistryName: CONTRACT_NAMES.common.USDC,
     },
     DAI: {
       name: 'DAI',
       address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-      serviceRegistryName: 'DAI',
+      serviceRegistryName: CONTRACT_NAMES.common.DAI,
     },
     WBTC: {
       name: 'WBTC',
       address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
-      serviceRegistryName: 'WBTC',
+      serviceRegistryName: CONTRACT_NAMES.common.WBTC,
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xe592427a0aece92de3edee1f18e0157c05861564',
-      serviceRegistryName: 'UniswapRouterV3',
-    },
-    FlashMintModule: {
-      name: 'FlashMintModule',
-      address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
-      serviceRegistryName: 'FlashMintModule',
+      serviceRegistryName: CONTRACT_NAMES.common.UNISWAP_ROUTER,
     },
     BalancerVault: {
       name: 'BalancerVault',
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      serviceRegistryName: 'BalancerVault',
+      serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
     },
-    DsProxyRegistry: {
+    DSProxyRegistry: {
       name: 'DsProxyRegistry',
       address: '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4',
-      serviceRegistryName: 'DsProxyRegistry',
     },
     OneInchAggregator: {
       name: 'OneInchAggregator',
       address: '0x1111111254fb6c44bac0bed2854e76f90643097d',
-      serviceRegistryName: 'OneInchAggregator',
+      serviceRegistryName: CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     },
     authorizedCaller: {
       name: 'authorizedCaller',
       address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
     },
-    feeRecipient: {
+    FeeRecipient: {
       name: 'feeRecipient',
       address: '0xC7b548AD9Cf38721810246C079b2d8083aba8909',
     },
   },
   aave: {
-    v2: {
-      PriceOracle: '0xa50ba011c48153de246e5192c8f9258a2ba79ca9',
-      lendingPool: '0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9',
-      ProtocolDataProvider: '0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d',
-      WETHGateway: '0xcc9a0B7c43DC2a5F023Bb9b738E45B0Ef6B06E04',
-    },
     v3: {
-      AaveOracle: '0x54586bE62E3c3580375aE3723C145253060Ca0C2',
-      Pool: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
-      AaveProtocolDataProvider: '0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3',
+      AaveOracle: {
+        name: 'AaveOracle',
+        address: constants.AddressZero,
+      },
+      Pool: {
+        name: 'Pool',
+        address: constants.AddressZero,
+        serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
+      },
+      AaveProtocolDataProvider: {
+        name: 'AaveProtocolDataProvider',
+        address: constants.AddressZero,
+      },
+    },
+  },
+  maker: {
+    FlashMintModule: {
+      name: 'FlashMintModule',
+      address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
+      serviceRegistryName: CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
     },
   },
 }

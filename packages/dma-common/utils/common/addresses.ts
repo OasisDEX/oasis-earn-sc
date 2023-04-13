@@ -1,8 +1,6 @@
 import { isSupportedNetwork, Network } from '@utils/network'
 import { constants } from 'ethers'
 
-export const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-
 const startBlocks = {
   [Network.MAINNET]: {
     SERVICE_REGISTRY: 14583409,

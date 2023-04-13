@@ -134,11 +134,11 @@ export async function close(
 
   // Also covers the return of dust amount funds to the user - in the close to collateral scenario
   const returnDebtFunds = actions.common.returnFunds({
-    asset: args.debtTokenIsEth ? ADDRESSES.main.ETH : args.debtTokenAddress,
+    asset: args.debtTokenIsEth ? ADDRESSES.mainnet.common.ETH : args.debtTokenAddress,
   })
 
   const returnCollateralFunds = actions.common.returnFunds({
-    asset: args.collateralIsEth ? ADDRESSES.main.ETH : args.collateralTokenAddress,
+    asset: args.collateralIsEth ? ADDRESSES.mainnet.common.ETH : args.collateralTokenAddress,
   })
 
   unwrapEth.skipped = !args.debtTokenIsEth && !args.collateralIsEth

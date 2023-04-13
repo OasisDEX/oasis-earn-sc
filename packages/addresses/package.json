@@ -11,6 +11,7 @@
     "prepublish": "npm run build"
   },
   "dependencies": {
+    "@oasisdex/dma-common": "*",
     "@oasisdex/dma-deployments": "*"
   }
 }

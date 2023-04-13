@@ -1,11 +1,12 @@
-export const config = {
+import { SystemConfig } from '../types/deployment-config'
+
+export const config: SystemConfig = {
   mpa: {
     core: {
       ServiceRegistry: {
         name: 'ServiceRegistry',
         deploy: false,
         address: '0x063E4242CD7C2421f67e21D7297c74bbDFEF7b0E',
-        serviceRegistryName: '',
         history: ['0xf22F17B1D2354B4F4F52e4d164e4eB5e1f0A6Ba6'],
         constructorArgs: [0],
       },
@@ -281,4 +282,5 @@ export const config = {
       },
     },
   },
+  maker: {},
 }

@@ -23,7 +23,7 @@ export async function borrow({ borrowToken, amountInBaseUnit, account, isEthToke
       amount: amountInBaseUnit,
     }),
     actions.common.returnFunds({
-      asset: isEthToken ? ADDRESSES.main.ETH : borrowToken,
+      asset: isEthToken ? ADDRESSES.mainnet.common.ETH : borrowToken,
     }),
   ]
 

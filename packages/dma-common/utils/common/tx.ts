@@ -34,7 +34,7 @@ export async function send(
   hre?: HardhatRuntimeEnvironment,
 ) {
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
-  if (tokenAddr === ADDRESSES.main.ETH) {
+  if (tokenAddr === ADDRESSES.mainnet.common.ETH) {
     const tx = await signer?.sendTransaction({
       from: await signer.getAddress(),
       to,

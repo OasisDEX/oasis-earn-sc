@@ -21,5 +21,6 @@
     "./configs/**/*",
     "./deployment/**/*",
     "./types",
+    "../dma-contracts/hardhat.config.ts"
   ],
 }

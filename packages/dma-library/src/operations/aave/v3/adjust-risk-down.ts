@@ -86,11 +86,11 @@ export async function adjustRiskDown({
   })
 
   const returnDebtFunds = actions.common.returnFunds({
-    asset: debt.isEth ? ADDRESSES.main.ETH : debt.address,
+    asset: debt.isEth ? ADDRESSES.mainnet.common.ETH : debt.address,
   })
 
   const returnCollateralFunds = actions.common.returnFunds({
-    asset: collateral.isEth ? ADDRESSES.main.ETH : collateral.address,
+    asset: collateral.isEth ? ADDRESSES.mainnet.common.ETH : collateral.address,
   })
 
   unwrapEth.skipped = !debt.isEth && !collateral.isEth

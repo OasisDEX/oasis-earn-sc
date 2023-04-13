@@ -33,14 +33,10 @@ import * as path from 'path'
 import prompts from 'prompts'
 import { inspect } from 'util'
 
-import { Config, DeploymentConfig, SystemConfigItem } from '../types/deployment-config'
+import { DeploymentConfig, SystemConfig, SystemConfigItem } from '../types/deployment-config'
 import { EtherscanGasPrice } from '@oasisdex/dma-common/utils/common'
 
-const restrictedNetworks = [
-  Network.MAINNET,
-  // Network.LOCAL,
-  Network.GOERLI,
-]
+const restrictedNetworks = [Network.MAINNET, Network.OPT_MAINNET, Network.GOERLI]
 
 const rpcUrls: any = {
   [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
@@ -111,7 +107,7 @@ abstract class DeployedSystemHelpers {
 
 // MAIN CLASS ===============================================
 export class DeploymentSystem extends DeployedSystemHelpers {
-  public config: Config | undefined
+  public config: SystemConfig | undefined
   public deployedSystem: any = {}
   private readonly _cache = new NodeCache()
 
@@ -472,6 +468,15 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     )
   }
 
+  async addMakerEntries() {
+    if (!this.config) throw new Error('No config set')
+    await this.addRegistryEntries(
+      Object.values(this.config.maker).filter(
+        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+      ),
+    )
+  }
+
   async addOperationEntries() {
     if (!this.signer) throw new Error('No signer set')
     const operationsRegistry = new OperationsRegistry(
@@ -487,6 +492,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async addAllEntries() {
     await this.addCommonEntries()
     await this.addAaveEntries()
+    await this.addMakerEntries()
     await this.addOperationEntries()
   }
 
