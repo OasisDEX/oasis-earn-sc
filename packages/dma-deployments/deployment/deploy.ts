@@ -47,6 +47,7 @@ const rpcUrls: any = {
 
 const gnosisSafeServiceUrl: any = {
   [Network.MAINNET]: '',
+  [Network.HARDHAT]: '',
   [Network.OPT_MAINNET]: '',
   [Network.GOERLI]: 'https://safe-transaction.goerli.gnosis.io',
   [Network.HARDHAT]: '',
