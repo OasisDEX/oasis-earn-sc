@@ -8,7 +8,7 @@ import { Address, Strategy } from '../../types/common'
 import { Dependencies } from './open'
 import {
   validateDustLimit,
-  validateOverRepay,
+  // validateOverRepay,
   validateOverWithdraw,
   validateWithdrawUndercollateralized,
 } from './validation'
