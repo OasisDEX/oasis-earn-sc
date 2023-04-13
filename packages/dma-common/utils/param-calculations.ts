@@ -1,4 +1,5 @@
-import { ADDRESSES } from '@oasisdex/addresses/src'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
 import { ONE } from '../constants'
@@ -140,8 +141,12 @@ export function prepareMultiplyParameters({
   exchangeData: ExchangeData
 } {
   const exchangeData = {
-    fromTokenAddress: toDAI ? ADDRESSES.main.WETH : ADDRESSES.main.DAI,
-    toTokenAddress: toDAI ? ADDRESSES.main.DAI : ADDRESSES.main.WETH,
+    fromTokenAddress: toDAI
+      ? ADDRESSES[Network.MAINNET].common.WETH
+      : ADDRESSES[Network.MAINNET].common.DAI,
+    toTokenAddress: toDAI
+      ? ADDRESSES[Network.MAINNET].common.DAI
+      : ADDRESSES[Network.MAINNET].common.WETH,
     fromTokenAmount: toDAI
       ? amountToWei(desiredCdpState.toBorrowCollateralAmount).toFixed(0)
       : amountToWei(desiredCdpState.requiredDebt).toFixed(0),

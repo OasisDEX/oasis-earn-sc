@@ -4,14 +4,14 @@ import { SystemWithAavePositions, systemWithAavePositions } from '@dma-contracts
 import { systemWithAaveV3Positions } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { ADDRESSES } from '@oasisdex/addresses/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES, ZERO } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { Network } from '@oasisdex/dma-common/utils/network'
 import { getOneInchCall } from '@oasisdex/dma-common/utils/swap'
-import { strategies } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { strategies } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 
 const networkFork = process.env.NETWORK_FORK as Network
@@ -74,7 +74,7 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
     )
 
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES[Network.MAINNET].common.FeeRecipient,
       addresses[debtToken.symbol],
       debtToken.precision,
     )
@@ -97,7 +97,7 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
     expect.toBeEqual(debtBalance, ZERO, undefined, EXPECT_DEBT_BEING_PAID_BACK)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES[Network.MAINNET].common.FeeRecipient,
       addresses[debtToken.symbol],
       debtToken.precision,
     )
@@ -147,7 +147,7 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
     )
     const userCollateralBalanceBeforeTx = await getBalanceOf(user, collateralToken.address)
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES[Network.MAINNET].common.FeeRecipient,
       addresses[debtToken.symbol],
       debtToken.precision,
     )
@@ -183,7 +183,7 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
     expect.toBeEqual(debtBalance, ZERO)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES[Network.MAINNET].common.FeeRecipient,
       addresses[debtToken.symbol],
       debtToken.precision,
     )
@@ -230,7 +230,7 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
 
     const userCollateralBalanceBeforeTx = await getBalanceOf(user, collateralToken.address)
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES[Network.MAINNET].common.FeeRecipient,
       addresses['WETH'],
       debtToken.precision,
     )
@@ -250,7 +250,7 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
 
     const userCollateralBalanceAfterTx = await getBalanceOf(user, collateralToken.address)
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES[Network.MAINNET].common.FeeRecipient,
       addresses['WETH'],
       debtToken.precision,
     )
@@ -345,7 +345,7 @@ describe('Close AAVEv3 Position to collateral', () => {
     )
 
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES[Network.MAINNET].common.FeeRecipient,
       addresses['USDC'],
       debtToken.precision,
     )
@@ -368,7 +368,7 @@ describe('Close AAVEv3 Position to collateral', () => {
     expect.toBeEqual(debtBalance, ZERO, undefined, EXPECT_DEBT_BEING_PAID_BACK)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES[Network.MAINNET].common.FeeRecipient,
       addresses['USDC'],
       debtToken.precision,
     )
@@ -416,7 +416,7 @@ describe('Close AAVEv3 Position to collateral', () => {
 
     const userCollateralBalanceBeforeTx = await getBalanceOf(user, collateralToken.address)
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES[Network.MAINNET].common.FeeRecipient,
       addresses['WETH'],
       debtToken.precision,
     )
@@ -436,7 +436,7 @@ describe('Close AAVEv3 Position to collateral', () => {
     const userCollateralBalanceAfterTx = await getBalanceOf(user, collateralToken.address)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES.main.feeRecipient,
+      ADDRESSES[Network.MAINNET].common.FeeRecipient,
       addresses['WETH'],
       debtToken.precision,
     )

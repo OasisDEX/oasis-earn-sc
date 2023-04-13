@@ -1,5 +1,5 @@
-import { ADDRESSES } from '@oasisdex/addresses/src'
-import { Network } from '@oasisdex/dma-common/utils/network'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 
 export const mainnetAddresses = {
   DAI: ADDRESSES[Network.MAINNET].common.DAI,

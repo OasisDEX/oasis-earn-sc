@@ -13,14 +13,22 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "noImplicitAny": false,
+    "skipLibCheck": true,
     "typeRoots": [
       "../../node_modules/@types"
-    ]
+    ],
+    "paths": {
+      "@dma-library/*": [
+        "../dma-library/src/*"
+      ],
+      "utils/*": ["../dma-common/utils/*"],
+      "@oasisdex/addresses": ["../addresses/src/index.ts"]
+    }
   },
   "include": [
     "./configs/**/*",
     "./deployment/**/*",
     "./types",
-    "../dma-contracts/hardhat.config.ts"
+    "./hardhat.config.ts"
   ],
 }

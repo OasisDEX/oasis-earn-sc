@@ -3,7 +3,7 @@ import { config as optimismConfig } from '@oasisdex/dma-deployments/configs/opti
 import { config as goerliConfig } from '@oasisdex/dma-deployments/configs/goerli.conf'
 
 import { DeploymentConfig, SystemKeys } from '@oasisdex/dma-deployments/types/deployment-config'
-import { Network } from '@oasisdex/dma-common/utils/network'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 
 type DeployedNetworks = Network.MAINNET | Network.OPT_MAINNET | Network.GOERLI
 // TODO: Make address entries type safe after https://github.com/OasisDEX/oasis-earn-sc/pull/249/files is merged

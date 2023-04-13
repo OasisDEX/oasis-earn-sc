@@ -1,12 +1,12 @@
-import { ADDRESSES } from '@oasisdex/addresses/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
-import { getServiceNameHash } from '@oasisdex/dma-common/utils/common'
+import { getAddressesFor, getServiceNameHash } from '@oasisdex/dma-common/utils/common'
 import { createDeploy } from '@oasisdex/dma-common/utils/deploy'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import init from '@oasisdex/dma-common/utils/init'
-import { Network } from '@oasisdex/dma-common/utils/network'
 import { getDsProxyRegistry, getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { takeAFlashLoan } from '@oasisdex/dma-library/src/actions/common'
 import { FlashloanProvider } from '@oasisdex/dma-library/src/types/common'
 import BigNumber from 'bignumber.js'
@@ -52,7 +52,7 @@ describe('OperationExecutor', () => {
     const deploy = await createDeploy({ config }, hre)
     const addresses = getAddressesFor(Network.MAINNET)
     const proxyAddress = await getOrCreateProxy(
-      await getDsProxyRegistry(config.signer, ADDRESSES.main.proxyRegistry),
+      await getDsProxyRegistry(config.signer, ADDRESSES[Network.MAINNET].common.ProxyRegistry),
       config.signer,
     )
     const [, suicideBombAddress] = await deploy('SuicideBomb', [])
@@ -66,7 +66,7 @@ describe('OperationExecutor', () => {
     ])
     const [, takeAFlashloanAddress] = await deploy('TakeFlashloan', [
       serviceRegistryAddress,
-      ADDRESSES.main.DAI,
+      ADDRESSES[Network.MAINNET].common.DAI,
     ])
 
     await ServiceRegistry.addNamedService(
@@ -91,7 +91,7 @@ describe('OperationExecutor', () => {
     )
     await ServiceRegistry.addNamedService(
       getServiceNameHash(CONTRACT_NAMES.aave.v2.LENDING_POOL),
-      ADDRESSES.main.aave.v2.LendingPool,
+      ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
     )
 
     const bomb = new ethers.utils.Interface(['function fallback() external'])
@@ -117,7 +117,7 @@ describe('OperationExecutor', () => {
           [
             takeAFlashLoan({
               flashloanAmount: new BigNumber(1),
-              asset: ADDRESSES.main.DAI,
+              asset: ADDRESSES[Network.MAINNET].common.DAI,
               isProxyFlashloan: false,
               isDPMProxy: false,
               calls: calls,

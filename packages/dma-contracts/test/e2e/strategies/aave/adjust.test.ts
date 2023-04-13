@@ -15,16 +15,16 @@ import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import AAVELendingPoolABI from '@oasisdex/abis/external/protocols/aave/v2/lendingPool.json'
 import aavePriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
-import { ADDRESSES } from '@oasisdex/addresses/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { DeployedSystemInfo } from '@oasisdex/dma-common/test-utils/deploy-system'
 import { RuntimeConfig, Unbox } from '@oasisdex/dma-common/types/common'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { Network } from '@oasisdex/dma-common/utils/network'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { AAVETokens, strategies } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { AAVETokens, strategies } from '@oasisdex/dma-library'
 import { PositionType } from '@oasisdex/dma-library/src/types'
 import { acceptedFeeToken } from '@oasisdex/dma-library/src/utils/swap'
 import { IPosition, IRiskRatio, RiskRatio } from '@oasisdex/domain'
@@ -99,7 +99,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
 
       const feeWalletBalanceBeforeAdjust = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES[Network.MAINNET].common.FeeRecipient,
         { config },
       )
 
@@ -107,19 +107,19 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       const signer = config.signer
 
       const lendingPool = new Contract(
-        ADDRESSES.main.aave.v2.LendingPool,
+        ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
         AAVELendingPoolABI,
         provider,
       )
 
       const protocolDataProvider = new Contract(
-        ADDRESSES.main.aave.v2.ProtocolDataProvider,
+        ADDRESSES[Network.MAINNET].aave.v2.ProtocolDataProvider,
         AAVEDataProviderABI,
         provider,
       )
 
       const priceOracle = new ethers.Contract(
-        ADDRESSES.main.aave.v2.PriceOracle,
+        ADDRESSES[Network.MAINNET].aave.v2.PriceOracle,
         aavePriceOracleABI,
         provider,
       )
@@ -175,7 +175,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
 
       const feeWalletBalanceAfterAdjust = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES[Network.MAINNET].common.FeeRecipient,
         { config },
       )
 
@@ -499,23 +499,27 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
 
       const feeWalletBalanceBeforeAdjust = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES[Network.MAINNET].common.FeeRecipient,
         { config },
       )
 
       const provider = config.provider
       const signer = config.signer
 
-      const pool = new Contract(ADDRESSES.main.aave.v3.Pool, AAVELendingPoolABI, provider)
+      const pool = new Contract(
+        ADDRESSES[Network.MAINNET].aave.v3.Pool,
+        AAVELendingPoolABI,
+        provider,
+      )
 
       const aaveProtocolDataProvider = new Contract(
-        ADDRESSES.main.aave.v3.PoolDataProvider,
+        ADDRESSES[Network.MAINNET].aave.v3.PoolDataProvider,
         AAVEDataProviderABI,
         provider,
       )
 
       const aaveOracle = new ethers.Contract(
-        ADDRESSES.main.aave.v3.AaveOracle,
+        ADDRESSES[Network.MAINNET].aave.v3.AaveOracle,
         aavePriceOracleABI,
         provider,
       )
@@ -571,7 +575,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
 
       const feeWalletBalanceAfterAdjust = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES.main.feeRecipient,
+        ADDRESSES[Network.MAINNET].common.FeeRecipient,
         { config },
       )
 

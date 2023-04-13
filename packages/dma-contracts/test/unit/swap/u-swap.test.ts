@@ -1,6 +1,6 @@
 import { swap, uniswapV3Swap, unoswap } from '@dma-contracts/test/fixtures'
 import WETH_ABI from '@oasisdex/abis/external/tokens/IWETH.json'
-import { ADDRESSES } from '@oasisdex/addresses/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES, ONE } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { asPercentageValue } from '@oasisdex/dma-common/test-utils/as-percentage'
@@ -12,7 +12,7 @@ import init from '@oasisdex/dma-common/utils/init'
 import { calculateFee } from '@oasisdex/dma-common/utils/swap'
 import { swapOneInchTokens } from '@oasisdex/dma-common/utils/swap/1inch'
 import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
-import { Network } from '@utils/network'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
@@ -45,7 +45,7 @@ describe('uSwap | Unit', () => {
     )
     const [_uSwap] = await deploy('uSwap', [
       config.address,
-      ADDRESSES[Network.MAINNET].common.feeRecipient,
+      ADDRESSES[Network.MAINNET].common.common.FeeRecipient,
       FEE,
       serviceRegistry.address,
     ])

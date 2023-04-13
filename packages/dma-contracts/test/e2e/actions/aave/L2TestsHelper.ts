@@ -1,6 +1,6 @@
 import * as optimismSDK from '@eth-optimism/sdk'
 import { TransactionRequest } from '@ethersproject/providers'
-import { ADDRESSES } from '@oasisdex/addresses/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES, FIFTY, HUNDRED, MAX_UINT, ONE } from '@oasisdex/dma-common/constants'
 import { BalanceOptions, RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, getServiceNameHash } from '@oasisdex/dma-common/utils/common'
@@ -8,9 +8,9 @@ import { createDeploy } from '@oasisdex/dma-common/utils/deploy'
 import init from '@oasisdex/dma-common/utils/init'
 import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
 import { OperationsRegistry, ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { ActionFactory } from '@oasisdex/dma-library/src/actions/action-factory'
 import { ActionCall, calldataTypes } from '@oasisdex/dma-library/src/types' // @ts-ignore
-import { Network } from '@utils/network'
 import BigNumber from 'bignumber.js'
 import { Contract } from 'ethers'
 

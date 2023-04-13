@@ -51,13 +51,13 @@ task('createPosition', 'Create stETH position on AAVE')
     // const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
     //
     // const aaveLendingPool = new hre.ethers.Contract(
-    //   ADDRESSES.main.aave.v2.LendingPool,
+    //   ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
     //   AAVELendingPoolABI,
     //   config.provider,
     // )
     //
     // const aaveDataProvider = new hre.ethers.Contract(
-    //   ADDRESSES.main.aave.v2.ProtocolDataProvider,
+    //   ADDRESSES[Network.MAINNET].aave.v2.ProtocolDataProvider,
     //   AAVEDataProviderABI,
     //   config.provider,
     // )
@@ -71,7 +71,7 @@ task('createPosition', 'Create stETH position on AAVE')
     // ).connect(config.signer)
     //
     // const userDaiReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
-    //   ADDRESSES.main.DAI,
+    //   ADDRESSES[Network.MAINNET].DAI,
     //   dsProxy.address,
     // )
     //
@@ -146,12 +146,12 @@ task('createPosition', 'Create stETH position on AAVE')
     //   dsProxy.address,
     // )
     // const userStEthReserveData: AAVEReserveData = await aaveDataProvider.getUserReserveData(
-    //   ADDRESSES.main.STETH,
+    //   ADDRESSES[Network.MAINNET].STETH,
     //   dsProxy.address,
     // )
     //
     // const proxyStEthBalance = await balanceOf(
-    //   ADDRESSES.main.STETH,
+    //   ADDRESSES[Network.MAINNET].STETH,
     //   dsProxy.address,
     //   {
     //     config,
@@ -161,7 +161,7 @@ task('createPosition', 'Create stETH position on AAVE')
     // )
     //
     // const proxyEthBalance = await balanceOf(
-    //   ADDRESSES.main.ETH,
+    //   ADDRESSES[Network.MAINNET].ETH,
     //   dsProxy.address,
     //   { config, isFormatted: true },
     //   hre,

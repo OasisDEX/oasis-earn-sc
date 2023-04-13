@@ -8,9 +8,9 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types/operations'
-import { ADDRESSES } from '@oasisdex/addresses/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { MAX_UINT, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
-import { Network } from '@utils/network'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
 type AdjustRiskDownArgs = WithCollateralAndWithdrawal &

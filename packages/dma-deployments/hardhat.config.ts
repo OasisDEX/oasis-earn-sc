@@ -8,20 +8,6 @@ import 'solidity-coverage'
 import 'solidity-docgen'
 import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
-// Tasks
-import './tasks/deploy'
-import './tasks/create-position'
-import './tasks/create-aave-v3l1-position'
-import './tasks/close-position'
-import './tasks/proxy'
-import './tasks/verify-earn'
-import './tasks/transfer-erc20'
-import './tasks/get-tokens'
-import './tasks/read-erc20-balance'
-import './tasks/user-dpm-proxies'
-import './tasks/create-multiply-position'
-import './tasks/transfer-dpm'
-import './tasks/transfer-all-proxies'
 
 import { ChainIdByNetwork } from '@oasisdex/dma-common/utils/network'
 import { Network } from '@oasisdex/dma-deployments/types/network'
@@ -185,12 +171,6 @@ const config = {
     enabled: process.env.REPORT_GAS === '1',
     currency: 'USD',
   },
-  paths: {
-    sources: './contracts',
-    tests: './test',
-    cache: './cache',
-    artifacts: './artifacts',
-  },
   mocha: {
     timeout: 600000,
   },
@@ -199,31 +179,6 @@ const config = {
       mainnet: process.env.ETHERSCAN_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISM_ETHERSCAN_API_KEY || '',
     },
-  },
-  typechain: {
-    outDir: 'typechain',
-    externalArtifacts: ['../abis/external/**/*.json'],
-  },
-  abiExporter: {
-    path: '../abis/system',
-    runOnCompile: true,
-    clear: true,
-    flat: false,
-    spacing: 2,
-    pretty: false,
-  },
-  docgen: {
-    outputDir: './docs',
-    pages: 'files',
-    exclude: [
-      './actions/maker',
-      './core/constants',
-      './core/types',
-      './core/views',
-      './interfaces',
-      './libs',
-      './test',
-    ],
   },
 }
 

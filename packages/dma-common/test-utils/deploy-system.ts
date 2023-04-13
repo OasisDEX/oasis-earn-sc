@@ -1,13 +1,13 @@
-import { ADDRESSES } from '@oasisdex/addresses/src'
-import { Network } from '@utils/network'
-import { OperationsRegistry, ServiceRegistry } from '@utils/wrappers'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { logDebug } from 'utils/common'
+import { createDeploy } from 'utils/deploy'
+import { getDsProxyRegistry, getOrCreateProxy } from 'utils/proxy'
+import { OperationsRegistry, ServiceRegistry } from 'utils/wrappers'
 
 import { CONTRACT_NAMES } from '../constants/contract-names'
 import { OPERATION_NAMES } from '../constants/operation-names'
 import { RuntimeConfig, Unbox } from '../types/common'
-import { logDebug } from '../utils/common'
-import { createDeploy } from '../utils/deploy'
-import { getDsProxyRegistry, getOrCreateProxy } from '../utils/proxy'
 import { loadDummyExchangeFixtures } from './dummy-exchange'
 
 export async function deploySystem(config: RuntimeConfig, debug = false, useFallbackSwap = true) {

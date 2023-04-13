@@ -5,7 +5,7 @@ import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-acc
 import { deploySystem } from '@oasisdex/dma-common/test-utils/deploy-system'
 import init, { resetNode } from '@oasisdex/dma-common/utils/init'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library/src'
+import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
 
 import { StrategiesDependencies, SystemWithProxies } from '../types'
 

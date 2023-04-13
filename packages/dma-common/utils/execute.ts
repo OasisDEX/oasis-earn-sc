@@ -1,6 +1,6 @@
 // TODO: CHECK IF I CAN REUSE ACTION CALL and rename things
-import { ContractReceipt, Signer } from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { ContractReceipt, Signer } from 'ethers'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 type Target = {
   address: string

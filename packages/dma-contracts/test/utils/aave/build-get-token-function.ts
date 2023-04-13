@@ -1,8 +1,9 @@
-import { ADDRESSES } from '@oasisdex/addresses/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE } from '@oasisdex/dma-common/constants'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
-import { AAVETokens } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { AAVETokens } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
@@ -25,7 +26,7 @@ export function buildGetTokenFunction(
     const BUFFER_FACTOR = 1.1
     const amountInInWeth = amount.times(BUFFER_FACTOR).toFixed(0)
     try {
-      const wethAddress = ADDRESSES.main.WETH
+      const wethAddress = ADDRESSES[Network.MAINNET].common.WETH
       const tokenAddress = tokens[symbol]
 
       await swapUniswapTokens(

@@ -1,7 +1,6 @@
-import BigNumber from 'bignumber.js'
-
 import { AAVETokens } from '@dma-library/types/aave'
 import { DEFAULT_FEE, HIGH_MULTIPLE_FEE, NO_FEE } from '@oasisdex/dma-common/constants'
+import BigNumber from 'bignumber.js'
 
 export const feeResolver = (
   collateralSymbol: AAVETokens,

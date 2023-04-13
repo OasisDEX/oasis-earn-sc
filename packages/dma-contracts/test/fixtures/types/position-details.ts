@@ -1,4 +1,4 @@
-import { AavePosition, AAVETokens, PositionTransition, SwapData } from '@oasisdex/dma-library/src'
+import { AavePosition, AAVETokens, PositionTransition, SwapData } from '@oasisdex/dma-library'
 import { PositionType } from '@oasisdex/dma-library/src/types'
 import BigNumber from 'bignumber.js'
 

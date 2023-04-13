@@ -1,8 +1,8 @@
 import * as actions from '@dma-library/actions'
-import { ADDRESSES } from '@oasisdex/addresses/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import { Address } from '@oasisdex/dma-common/types/address'
-import { Network } from '@utils/network'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
 export interface BorrowArgs {

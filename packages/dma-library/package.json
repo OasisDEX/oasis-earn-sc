@@ -4,10 +4,11 @@
   "typings": "lib/src/index.d.ts",
   "version": "0.2.16",
   "scripts": {
-    "build": "rm -rf ./lib && npx tsc -b",
-    "watch": "npx tsc -b -w",
-    "lint": "npx tsc -p ./tsconfig.json --noEmit",
-    "prepublish": "npm run build"
+    "build": "rm -rf ./lib && yarn tsc -b",
+    "watch": "yarn tsc -b -w",
+    "lint:fix": "yarn eslint . --fix --ext .ts",
+    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc -p ./tsconfig.json --noEmit",
+    "prepublish": "yarn build"
   },
   "license": "Apache-2.0",
   "dependencies": {

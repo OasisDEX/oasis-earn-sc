@@ -8,10 +8,9 @@
     "build": "yarn tsc -b",
     "watch": "yarn tsc -b -w",
     "lint": "yarn tsc -p ./tsconfig.json --noEmit",
-    "prepublish": "npm run build"
+    "prepublish": "yarn build"
   },
   "dependencies": {
-    "@oasisdex/dma-common": "*",
     "@oasisdex/dma-deployments": "*"
   }
 }

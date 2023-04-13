@@ -9,7 +9,8 @@
       "@domain/test/*": [
         "./test/*"
       ],
-      "@utils/*": ["../dma-common/utils/*"]
+      "utils/*": ["../dma-common/utils/*"],
+      "@oasisdex/addresses": ["../addresses/src/index.ts"]
     },
     "types": [
       "node"

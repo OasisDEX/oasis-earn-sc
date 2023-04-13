@@ -17,7 +17,7 @@ import aavePriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceO
 import aaveProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
 import aaveV3PriceOracleABI from '@oasisdex/abis/external/protocols/aave/v3/aaveOracle.json'
 import aaveV3ProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
-import { ADDRESSES } from '@oasisdex/addresses/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import {
   FEE_BASE,
   FEE_ESTIMATE_INFLATOR,

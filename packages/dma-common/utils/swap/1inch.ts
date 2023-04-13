@@ -1,5 +1,5 @@
-import { ADDRESSES } from '@oasisdex/addresses/src'
-import { Network } from '@utils/network'
+import { ADDRESSES } from '@oasisdex/addresses'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import axios from 'axios'
 
 import { OneInchSwapResponse } from '../../types/common'

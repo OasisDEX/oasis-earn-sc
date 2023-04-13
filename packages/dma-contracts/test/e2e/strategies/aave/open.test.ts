@@ -1,6 +1,6 @@
 import { expect } from '@oasisdex/dma-common/test-utils'
-import { Network } from '@oasisdex/dma-common/utils/network'
-import { PositionTransition } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { PositionTransition } from '@oasisdex/dma-library'
 import { IPosition } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'

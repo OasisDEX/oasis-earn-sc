@@ -2,8 +2,8 @@ import { Address } from '@oasisdex/dma-common/types/address'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { Network } from '@oasisdex/dma-common/utils/network'
-import { AaveVersion, strategies } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { AaveVersion, strategies } from '@oasisdex/dma-library'
 import { aaveV3UniqueContractName } from '@oasisdex/dma-library/src/protocols/aave/config'
 import {
   AaveV2OpenDependencies,

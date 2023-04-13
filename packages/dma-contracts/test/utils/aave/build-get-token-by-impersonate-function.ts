@@ -1,7 +1,7 @@
 import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import erc20abi from '@oasisdex/abis/external/tokens/IERC20.json'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { AAVETokens } from '@oasisdex/dma-library/src'
+import { AAVETokens } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 

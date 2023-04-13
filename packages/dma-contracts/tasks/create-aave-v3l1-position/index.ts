@@ -1,12 +1,13 @@
 import { wstethEthEarnAavePosition } from '@dma-contracts/test/fixtures/factories/wsteth-eth-earn-aave-position'
 import { StrategyDependenciesAaveV3 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
-import { ADDRESSES } from '@oasisdex/addresses/src'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
 import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
 import init from '@oasisdex/dma-common/utils/init'
 import { getAccountFactory } from '@oasisdex/dma-common/utils/proxy/get-account-factory'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { AaveVersion, protocols } from '@oasisdex/dma-library/src'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { AaveVersion, protocols } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -63,18 +64,18 @@ task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
     const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
 
     const mainnetAddresses = {
-      DAI: ADDRESSES.main.DAI,
-      ETH: ADDRESSES.main.ETH,
-      WETH: ADDRESSES.main.WETH,
-      STETH: ADDRESSES.main.STETH,
-      WSTETH: ADDRESSES.main.WSTETH,
-      WBTC: ADDRESSES.main.WBTC,
-      USDC: ADDRESSES.main.USDC,
-      chainlinkEthUsdPriceFeed: ADDRESSES.main.chainlinkEthUsdPriceFeed,
-      aaveOracle: ADDRESSES.main.aave.v3.AaveOracle,
-      pool: ADDRESSES.main.aave.v3.Pool,
+      DAI: ADDRESSES[Network.MAINNET].common.DAI,
+      ETH: ADDRESSES[Network.MAINNET].common.ETH,
+      WETH: ADDRESSES[Network.MAINNET].common.WETH,
+      STETH: ADDRESSES[Network.MAINNET].common.STETH,
+      WSTETH: ADDRESSES[Network.MAINNET].common.WSTETH,
+      WBTC: ADDRESSES[Network.MAINNET].common.WBTC,
+      USDC: ADDRESSES[Network.MAINNET].common.USDC,
+      chainlinkEthUsdPriceFeed: ADDRESSES[Network.MAINNET].common.ChainlinkEthUsdPriceFeed,
+      aaveOracle: ADDRESSES[Network.MAINNET].aave.v3.AaveOracle,
+      pool: ADDRESSES[Network.MAINNET].aave.v3.Pool,
       operationExecutor: operationExecutorAddress,
-      poolDataProvider: ADDRESSES.main.aave.v3.PoolDataProvider,
+      poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.PoolDataProvider,
       accountFactory: accountFactoryAddress,
     }
 
@@ -156,7 +157,7 @@ task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
       use1inch: !taskArgs.usefallbackswap,
       dependencies,
       config,
-      feeRecipient: ADDRESSES.main.feeRecipient,
+      feeRecipient: ADDRESSES[Network.MAINNET].common.FeeRecipient,
       swapAddress,
     })
 
