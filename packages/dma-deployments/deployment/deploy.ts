@@ -4,9 +4,8 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import DS_PROXY_REGISTRY_ABI from '@oasisdex/abis/external/libs/DS/ds-proxy-registry.json'
-import { ServiceRegistry } from '@oasisdex/dma-common/types/service-registry'
 import { Network, NetworkByChainId } from '@oasisdex/dma-common/utils/network'
-import { OperationsRegistry } from '@oasisdex/dma-common/utils/wrappers/operationsRegistry'
+import { OperationsRegistry, ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
 import { operationDefinition as aaveV2CloseOp } from '@oasisdex/dma-library/src/operations/aave/v2/close'
 import { operationDefinition as aaveV2OpenOp } from '@oasisdex/dma-library/src/operations/aave/v2/open'
 import { operationDefinition as aaveV3CloseOp } from '@oasisdex/dma-library/src/operations/aave/v3/close'
