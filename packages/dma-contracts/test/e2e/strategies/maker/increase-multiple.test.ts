@@ -15,7 +15,6 @@ import {
 } from '@oasisdex/dma-common/test-utils'
 import { DeployedSystemInfo } from '@oasisdex/dma-common/test-utils/deploy-system'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { ServiceRegistry } from '@oasisdex/dma-common/types/service-registry'
 import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { getOraclePrice } from '@oasisdex/dma-common/utils/maker/oracle'
@@ -25,6 +24,7 @@ import {
   prepareMultiplyParameters,
 } from '@oasisdex/dma-common/utils/param-calculations'
 import { ActionCall, ActionFactory, calldataTypes } from '@oasisdex/dma-library/src'
+import { ServiceRegistry } from '@utils/wrappers/service-registry'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { ethers, Signer } from 'ethers'

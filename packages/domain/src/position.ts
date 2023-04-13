@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { Optional } from 'utility-types'
 
-import { IRiskRatio, RiskRatio } from './RiskRatio'
+import { IRiskRatio, RiskRatio } from './risk-ratio'
 import { ONE, TYPICAL_PRECISION, ZERO } from '@oasisdex/dma-common/constants/numbers'
 import { amountFromWei, logDebug } from '@oasisdex/dma-common/utils/common'
 import { calculateFee } from './utils'

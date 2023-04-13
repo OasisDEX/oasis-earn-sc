@@ -5,19 +5,18 @@
 // Runtime Environment's members available in the global scope.
 import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
-import { ServiceRegistry } from '@oasisdex/dma-common/types/service-registry'
+import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { createDeploy } from '@oasisdex/dma-common/utils/deploy'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import init from '@oasisdex/dma-common/utils/init'
 import { getDsProxyRegistry, getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
 import { swapOneInchTokens } from '@oasisdex/dma-common/utils/swap/1inch'
 import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
-import { OperationsRegistry } from '@oasisdex/dma-common/utils/wrappers/operationsRegistry'
+import { OperationsRegistry } from '@oasisdex/dma-common/utils/wrappers/operations-registry'
+import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers/service-registry'
 import { ActionFactory, calldataTypes } from '@oasisdex/dma-library/src'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'hardhat'
-
-import { amountToWei, approve, balanceOf } from '../../dma-common/utils/common'
 
 const createAction = ActionFactory.create
 

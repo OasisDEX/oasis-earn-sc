@@ -6,15 +6,11 @@ import WETH_ABI from '@oasisdex/abis/external/tokens/IWETH.json'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { FEE_BASE, ONE } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
+import { asPercentageValue } from '@oasisdex/dma-common/test-utils/as-percentage'
 import { DeployedSystemInfo, deploySystem } from '@oasisdex/dma-common/test-utils/deploy-system'
 import { FEE } from '@oasisdex/dma-common/test-utils/dummy-exchange'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import {
-  amountFromWei,
-  amountToWei,
-  asPercentageValue,
-  balanceOf,
-} from '@oasisdex/dma-common/utils/common'
+import { amountFromWei, amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { calculateFee } from '@oasisdex/dma-common/utils/swap'
 import {
   exchangeFromDAI,

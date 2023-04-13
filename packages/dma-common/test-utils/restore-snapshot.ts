@@ -1,7 +1,7 @@
+import { ServiceRegistry } from '@utils/wrappers/service-registry'
 import { providers } from 'ethers'
 
 import { RuntimeConfig } from '../types/common'
-import { ServiceRegistry } from '../types/service-registry'
 import { resetNode } from '../utils/init'
 import { DeployedSystemInfo, deploySystem } from './deploy-system'
 

@@ -1,4 +1,4 @@
-import { Network } from '@oasisdex/dma-common/utils/network'
+import { Network } from '@utils/network'
 
 export function etherscanAPIUrl(network: string) {
   return network === Network.MAINNET

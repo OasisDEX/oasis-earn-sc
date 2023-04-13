@@ -14,7 +14,8 @@
       ],
       "@dma-library": [
         "./src/index.ts"
-      ]
+      ],
+      "@utils/*": ["../dma-common/utils/*"]
     },
     "types": [
       "node"

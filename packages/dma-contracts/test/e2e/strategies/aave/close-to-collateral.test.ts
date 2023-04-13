@@ -10,7 +10,7 @@ import { expect } from '@oasisdex/dma-common/test-utils'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { Network } from '@oasisdex/dma-common/utils/network'
-import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/OneInchCall'
+import { getOneInchCall } from '@oasisdex/dma-common/utils/swap'
 import { strategies } from '@oasisdex/dma-library/src'
 import BigNumber from 'bignumber.js'
 

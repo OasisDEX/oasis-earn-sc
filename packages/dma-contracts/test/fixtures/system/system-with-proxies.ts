@@ -4,8 +4,7 @@ import { buildGetTokenByImpersonateFunction } from '@dma-contracts/test/utils/aa
 import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
 import { deploySystem } from '@oasisdex/dma-common/test-utils/deploy-system'
 import init, { resetNode } from '@oasisdex/dma-common/utils/init'
-import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/OneInchCall'
-import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
+import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library/src'
 
 import { StrategiesDependencies, SystemWithProxies } from '../types'

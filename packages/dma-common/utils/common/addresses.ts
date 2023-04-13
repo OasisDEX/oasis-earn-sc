@@ -1,4 +1,4 @@
-import { isSupportedNetwork, Network } from '@oasisdex/dma-common/utils/network'
+import { isSupportedNetwork, Network } from '@utils/network'
 import { constants } from 'ethers'
 
 export const ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'

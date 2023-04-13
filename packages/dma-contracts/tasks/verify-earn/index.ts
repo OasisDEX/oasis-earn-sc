@@ -1,7 +1,7 @@
 import { ADDRESSES } from '@oasisdex/addresses'
 import { task } from 'hardhat/config'
 
-import { getAddressesFor } from '../../scripts/common/addresses'
+import { getAddressesFor } from '../../../dma-common/utils/common/addresses'
 
 task('verify-earn', 'Verifies Earn Contracts').setAction(async (_: any, hre) => {
   const { name: network } = hre.network

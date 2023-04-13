@@ -1,4 +1,7 @@
-import { getAddressesFor, getServiceNameHash } from '@dma-contracts/scripts/common'
+import {
+  getAddressesFor,
+  getServiceNameHash,
+} from '@dma-contracts/scripts/../../../../dma-common/utils/common'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'

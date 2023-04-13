@@ -1,5 +1,5 @@
 import { ContractReceipt } from '@ethersproject/contracts'
-import { Network } from '@oasisdex/dma-common/utils/network'
+import { Network } from '@utils/network'
 import { BigNumber } from 'bignumber.js'
 import { BytesLike, Contract, utils } from 'ethers'
 

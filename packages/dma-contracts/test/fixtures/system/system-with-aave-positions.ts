@@ -1,4 +1,4 @@
-import { DeploymentSystem } from '@dma-contracts/scripts/deployment20/deploy'
+import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import {
   buildGetTokenByImpersonateFunction,
   buildGetTokenFunction,
@@ -6,8 +6,7 @@ import {
 import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
-import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/OneInchCall'
-import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap/OneInchCallMock'
+import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library/src'
 import hre from 'hardhat'
 

@@ -9,7 +9,7 @@
     "watch": "npx tsc -b -w",
     "lint": "npx tsc -p ./tsconfig.json --noEmit",
     "test": "npm run test:unit",
-    "test:unit": "npx hardhat test ./test/Position.test.ts",
+    "test:unit": "npx hardhat test test/position.test.ts",
     "prepublish": "npm run build"
   },
   "dependencies": {

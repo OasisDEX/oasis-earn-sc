@@ -2,7 +2,7 @@ import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
 import { utils } from 'ethers'
 import { task } from 'hardhat/config'
 
-import { getAddressesFor } from '../../scripts/common/addresses'
+import { getAddressesFor } from '../../../dma-common/utils/common/addresses'
 
 task('get-hashes', 'get Addresses hashes').setAction(async (_: any, hre) => {
   const { name: network } = hre.network

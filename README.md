@@ -52,6 +52,11 @@ yarn test:e2e
 yarn hardhat test <path-to-test>
 ```
 
+# Naming conventions
+
+TS files and all folders are named using kebab-case
+Solidity files (interfaces, contracts etc) are named using Pascal case
+
 # Performance optimizations
 
 For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the

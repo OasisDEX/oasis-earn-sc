@@ -9,6 +9,7 @@
       "@domain/test/*": [
         "./test/*"
       ],
+      "@utils/*": ["../dma-common/utils/*"]
     },
     "types": [
       "node"

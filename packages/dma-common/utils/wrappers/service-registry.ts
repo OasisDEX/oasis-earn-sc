@@ -1,6 +1,6 @@
 import { Signer, utils } from 'ethers'
 
-import { ContractNames } from '../constants/contract-names'
+import { ContractNames } from '../../constants/contract-names'
 
 export class ServiceRegistry {
   address: string

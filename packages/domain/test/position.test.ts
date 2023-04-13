@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
-import { Position } from '../src/Position'
-import { RiskRatio } from '../src/RiskRatio'
+import { Position } from '../src/position'
+import { RiskRatio } from '../src/risk-ratio'
 import { testDataSources } from './scenarios/generateTestData'
 import { fetchTestScenarios } from './utils'
 import { expect } from '@oasisdex/dma-common/test-utils'
