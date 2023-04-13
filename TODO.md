@@ -9,3 +9,4 @@
 - Perhaps move Deploy scripts into separate package
 - Perhaps move typechain into separate package to solve circular dependency issue
 - Unify Node reset methods on DeploymentSystem class
+- Remove Ramda if possible
