@@ -26,7 +26,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
 
     const supportedStrategies = getSupportedStrategies(ciOnlyTests)
 
-    describe.only('Open position: With Uniswap', function () {
+    describe('Open position: With Uniswap', function () {
       before(async function () {
         if (networkFork === Network.OPT_MAINNET) {
           this.skip()

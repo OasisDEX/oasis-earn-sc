@@ -5,6 +5,7 @@ import { FlashloanProvider } from '@dma-library/types/common'
 import { ADDRESSES } from '@oasisdex/addresses/src'
 import { MAX_UINT, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
+import { Network } from '@utils/network'
 import BigNumber from 'bignumber.js'
 
 import { AAVEStrategyAddresses } from './addresses'
@@ -134,11 +135,13 @@ export async function close(
 
   // Also covers the return of dust amount funds to the user - in the close to collateral scenario
   const returnDebtFunds = actions.common.returnFunds({
-    asset: args.debtTokenIsEth ? ADDRESSES.mainnet.common.ETH : args.debtTokenAddress,
+    asset: args.debtTokenIsEth ? ADDRESSES[Network.MAINNET].common.ETH : args.debtTokenAddress,
   })
 
   const returnCollateralFunds = actions.common.returnFunds({
-    asset: args.collateralIsEth ? ADDRESSES.mainnet.common.ETH : args.collateralTokenAddress,
+    asset: args.collateralIsEth
+      ? ADDRESSES[Network.MAINNET].common.ETH
+      : args.collateralTokenAddress,
   })
 
   unwrapEth.skipped = !args.debtTokenIsEth && !args.collateralIsEth

@@ -1,4 +1,5 @@
 import { ADDRESSES } from '@oasisdex/addresses/src'
+import { Network } from '@utils/network'
 import axios from 'axios'
 
 import { OneInchSwapResponse } from '../../types/common'
@@ -79,7 +80,7 @@ export async function exchangeFromDAI(
   protocols: string[] = [],
 ): Promise<OneInchSwapResponse> {
   const url = formatOneInchSwapUrl(
-    ADDRESSES.mainnet.common.DAI,
+    ADDRESSES[Network.MAINNET].common.DAI,
     toTokenAddress,
     amount,
     slippage,
@@ -99,7 +100,7 @@ export async function exchangeToDAI(
 ): Promise<OneInchSwapResponse> {
   const url = formatOneInchSwapUrl(
     fromTokenAddress,
-    ADDRESSES.mainnet.common.DAI,
+    ADDRESSES[Network.MAINNET].common.DAI,
     amount,
     slippage,
     recepient,

@@ -62,14 +62,14 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
   const [, chainLogViewAddress] = await deploy(CONTRACT_NAMES.maker.CHAINLOG_VIEW, [
-    ADDRESSES.mainnet.maker.Chainlog,
+    ADDRESSES[Network.MAINNET].maker.Chainlog,
   ])
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
 
   const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
     address,
-    ADDRESSES.mainnet.common.FeeRecipient,
+    ADDRESSES[Network.MAINNET].common.FeeRecipient,
     0,
     serviceRegistryAddress,
   ])
@@ -85,7 +85,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
-    ADDRESSES.mainnet.common.feeRecipient,
+    ADDRESSES[Network.MAINNET].common.feeRecipient,
     0,
     serviceRegistryAddress,
   ])
@@ -129,7 +129,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   const [actionFl, actionFlAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
-    ADDRESSES.mainnet.common.DAI,
+    ADDRESSES[Network.MAINNET].common.DAI,
   ])
 
   const [wrapEth, wrapActionAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
@@ -247,7 +247,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   await registry.addEntry(
     CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
-    ADDRESSES.mainnet.common.OneInchAggregator,
+    ADDRESSES[Network.MAINNET].common.OneInchAggregator,
   )
 
   const swapActionHash = await registry.addEntry(
@@ -268,16 +268,22 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   //-- Add Maker Contract Entries
   await registry.addEntry(
     CONTRACT_NAMES.common.UNISWAP_ROUTER,
-    ADDRESSES.mainnet.common.UniswapRouterV3,
+    ADDRESSES[Network.MAINNET].common.UniswapRouterV3,
   )
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_VIEW, mcdViewAddress)
   await registry.addEntry(
     CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
-    ADDRESSES.mainnet.maker.FlashMintModule,
+    ADDRESSES[Network.MAINNET].maker.FlashMintModule,
   )
-  await registry.addEntry(CONTRACT_NAMES.maker.MCD_MANAGER, ADDRESSES.mainnet.maker.CdpManager)
-  await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES.mainnet.maker.Jug)
-  await registry.addEntry(CONTRACT_NAMES.maker.MCD_JOIN_DAI, ADDRESSES.mainnet.maker.JoinDAI)
+  await registry.addEntry(
+    CONTRACT_NAMES.maker.MCD_MANAGER,
+    ADDRESSES[Network.MAINNET].maker.CdpManager,
+  )
+  await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES[Network.MAINNET].maker.Jug)
+  await registry.addEntry(
+    CONTRACT_NAMES.maker.MCD_JOIN_DAI,
+    ADDRESSES[Network.MAINNET].maker.JoinDAI,
+  )
   const makerOpenVaultHash = await registry.addEntry(
     CONTRACT_NAMES.maker.OPEN_VAULT,
     actionOpenVaultAddress,
@@ -348,7 +354,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.aave.v3.SET_EMODE,
     actionSetEModeInAAVEV3Address,
   )
-  await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, ADDRESSES.mainnet.aave.v3.Pool)
+  await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, ADDRESSES[Network.MAINNET].aave.v3.Pool)
 
   debug && console.log('5/ Adding operations to registry')
   // Add Maker Operations
