@@ -112,23 +112,16 @@ export async function depositAndAdjust(
     targetPosition = args.position.deposit(args.quoteAmount)
   }
 
-  if (!isPositionStaked && isDepositing && isReopening && shouldStakeNft) {
-    // reopen position with nft
-    data = ajnaProxyActions.interface.encodeFunctionData('supplyQuoteMintNftAndStake', [
-      args.poolAddress,
-      ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-      args.price.shiftedBy(18).toString(),
-    ])
-    targetPosition = args.position.reopen(args.quoteAmount, priceToIndex)
-  }
-
-  if (!isPositionStaked && isDepositing && isReopening && !shouldStakeNft) {
-    // reopen position without nft
-    data = ajnaProxyActions.interface.encodeFunctionData('supplyQuote', [
-      args.poolAddress,
-      ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-      args.price.shiftedBy(18).toString(),
-    ])
+  if (!isPositionStaked && isDepositing && isReopening) {
+    // reopen position
+    data = ajnaProxyActions.interface.encodeFunctionData(
+      shouldStakeNft ? 'supplyQuoteMintNftAndStake' : 'supplyQuote',
+      [
+        args.poolAddress,
+        ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
+        args.price.shiftedBy(18).toString(),
+      ],
+    )
     targetPosition = args.position.reopen(args.quoteAmount, priceToIndex)
   }
 
