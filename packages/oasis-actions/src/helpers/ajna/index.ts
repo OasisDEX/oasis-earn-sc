@@ -24,6 +24,7 @@ export interface AjnaEarnArgs {
   position: AjnaEarnPosition
   collateralPrice: BigNumber
   quotePrice: BigNumber
+  isStakingNft?: boolean
 }
 
 export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
@@ -85,6 +86,7 @@ export const getAjnaEarnActionOutput = async ({
   const { errors, warnings } = getAjnaValidations({
     price: args.price,
     quoteAmount: args.quoteAmount,
+    quoteTokenPrecision: args.quoteTokenPrecision,
     position: args.position,
     simulation: targetPosition,
     afterLupIndex,

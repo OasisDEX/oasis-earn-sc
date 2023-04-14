@@ -18,6 +18,7 @@ export async function withdrawAndAdjust(
   const isPositionStaked = args.position.stakedNftId !== null
   const isWithdrawing = args.quoteAmount.gt(ZERO)
   const isAdjusting = !args.price.eq(args.position.price)
+  const isWithdrawingAll = args.position.quoteTokenAmount.lte(args.quoteAmount)
 
   const ajnaProxyActions = new ethers.Contract(
     dependencies.ajnaProxyActions,
@@ -41,7 +42,7 @@ export async function withdrawAndAdjust(
   let data = ''
   let targetPosition: AjnaEarnPosition | null = null
 
-  if (isPositionStaked && isWithdrawing && isAdjusting) {
+  if (isPositionStaked && isWithdrawing && isAdjusting && !isWithdrawingAll) {
     // withdrawAndMoveQuoteNft
     data = ajnaProxyActions.interface.encodeFunctionData('withdrawAndMoveQuoteNft', [
       args.poolAddress,
@@ -53,7 +54,7 @@ export async function withdrawAndAdjust(
     targetPosition = args.position.withdraw(args.quoteAmount).moveQuote(priceToIndex)
   }
 
-  if (isPositionStaked && !isWithdrawing && isAdjusting) {
+  if (isPositionStaked && !isWithdrawing && isAdjusting && !isWithdrawingAll) {
     // moveQuoteNft
     data = ajnaProxyActions.interface.encodeFunctionData('moveQuoteNft', [
       args.poolAddress,
@@ -64,7 +65,7 @@ export async function withdrawAndAdjust(
     targetPosition = args.position.moveQuote(priceToIndex)
   }
 
-  if (isPositionStaked && isWithdrawing && !isAdjusting) {
+  if (isPositionStaked && isWithdrawing && !isAdjusting && !isWithdrawingAll) {
     // withdrawQuoteNft
     data = ajnaProxyActions.interface.encodeFunctionData('withdrawQuoteNft', [
       args.poolAddress,
@@ -75,7 +76,7 @@ export async function withdrawAndAdjust(
     targetPosition = args.position.withdraw(args.quoteAmount)
   }
 
-  if (!isPositionStaked && isWithdrawing && isAdjusting) {
+  if (!isPositionStaked && isWithdrawing && isAdjusting && !isWithdrawingAll) {
     // withdrawAndMoveQuote
     data = ajnaProxyActions.interface.encodeFunctionData('withdrawAndMoveQuote', [
       args.poolAddress,
@@ -86,7 +87,7 @@ export async function withdrawAndAdjust(
     targetPosition = args.position.withdraw(args.quoteAmount).moveQuote(priceToIndex)
   }
 
-  if (!isPositionStaked && !isWithdrawing && isAdjusting) {
+  if (!isPositionStaked && !isWithdrawing && isAdjusting && !isWithdrawingAll) {
     // moveQuote
     data = ajnaProxyActions.interface.encodeFunctionData('moveQuote', [
       args.poolAddress,
@@ -96,7 +97,7 @@ export async function withdrawAndAdjust(
     targetPosition = args.position.moveQuote(priceToIndex)
   }
 
-  if (!isPositionStaked && isWithdrawing && !isAdjusting) {
+  if (!isPositionStaked && isWithdrawing && !isAdjusting && !isWithdrawingAll) {
     // withdrawQuote
     data = ajnaProxyActions.interface.encodeFunctionData('withdrawQuote', [
       args.poolAddress,
@@ -104,6 +105,26 @@ export async function withdrawAndAdjust(
       args.price.shiftedBy(18).toString(),
     ])
     targetPosition = args.position.withdraw(args.quoteAmount)
+  }
+
+  if (!isPositionStaked && isWithdrawingAll) {
+    // withdraw all without nft
+    data = ajnaProxyActions.interface.encodeFunctionData('withdrawQuote', [
+      args.poolAddress,
+      ethers.constants.MaxUint256,
+      args.position.price.shiftedBy(18).toString(),
+    ])
+    targetPosition = args.position.close()
+  }
+
+  if (isPositionStaked && isWithdrawingAll) {
+    // withdraw all with nft
+    data = ajnaProxyActions.interface.encodeFunctionData('unstakeNftAndWithdrawQuote', [
+      args.poolAddress,
+      indexToPrice.toString(),
+      args.position.stakedNftId,
+    ])
+    targetPosition = args.position.close()
   }
 
   if (!data || !targetPosition) throw new Error('Invalid withdrawAndAdjust params')

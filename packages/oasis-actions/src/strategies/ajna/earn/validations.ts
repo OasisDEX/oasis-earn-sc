@@ -6,12 +6,14 @@ import { AjnaEarnActions, AjnaError, AjnaWarning } from '../../../types/common'
 export const getAjnaValidations = ({
   price,
   quoteAmount,
+  quoteTokenPrecision,
   position,
   afterLupIndex,
   action,
 }: {
   price: BigNumber
   quoteAmount: BigNumber
+  quoteTokenPrecision: number
   position: AjnaEarnPosition
   simulation: AjnaEarnPosition
   afterLupIndex?: BigNumber
@@ -40,7 +42,11 @@ export const getAjnaValidations = ({
       break
     }
     case 'withdraw-earn': {
-      if (position.quoteTokenAmount.lt(quoteAmount)) {
+      if (
+        position.quoteTokenAmount
+          .decimalPlaces(quoteTokenPrecision, BigNumber.ROUND_UP)
+          .lt(quoteAmount)
+      ) {
         errors.push({
           name: 'withdraw-more-than-available',
           data: {
