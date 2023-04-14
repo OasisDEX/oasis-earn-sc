@@ -31,6 +31,7 @@ export interface IAjnaEarn {
 
   deposit(amount: BigNumber): IAjnaEarn
   withdraw(amount: BigNumber): IAjnaEarn
+  close(): IAjnaEarn
 }
 
 export class AjnaEarnPosition implements IAjnaEarn {
@@ -152,6 +153,32 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       this.rewards,
+    )
+  }
+
+  reopen(quoteTokenAmount: BigNumber, priceIndex: BigNumber) {
+    return new AjnaEarnPosition(
+      this.pool,
+      this.owner,
+      quoteTokenAmount,
+      priceIndex,
+      this.stakedNftId,
+      this.collateralPrice,
+      this.quotePrice,
+      this.rewards,
+    )
+  }
+
+  close() {
+    return new AjnaEarnPosition(
+      this.pool,
+      this.owner,
+      ZERO,
+      null,
+      null,
+      this.collateralPrice,
+      this.quotePrice,
+      ZERO,
     )
   }
 }
