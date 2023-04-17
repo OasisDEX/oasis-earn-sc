@@ -82,14 +82,6 @@ export const config: Config = {
         history: [],
         constructorArgs: [ADDRESSES.main.maker.chainlog],
       },
-      Swap: {
-        name: 'Swap',
-        deploy: false,
-        address: '0x826E9f2E79cEEA850dF4d4757e0D12115A720D74',
-        serviceRegistryName: 'Swap',
-        history: [],
-        constructorArgs: [],
-      },
     },
     actions: {
       PositionCreated: {

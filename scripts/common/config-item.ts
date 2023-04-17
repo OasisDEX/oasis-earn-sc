@@ -2,21 +2,21 @@ import { ContractNames } from '@oasisdex/oasis-actions/src'
 import { Address } from '@oasisdex/oasis-actions/src/types'
 
 export type ConfigItem = {
-  name: AllowedContractNames
+  name: Contracts
   serviceRegistryName?: ContractNames
   address: Address
 }
 
 export type SystemConfigItem = ConfigItem & {
-  name: DeployedSystemContractNames
+  name: DeployedSystemContracts
   deploy: boolean
   history: Address[]
   constructorArgs?: Array<number | string>
 }
 
-type SwapContractNames = 'Swap' | 'uSwap'
-type MainnetOnlyCoreContractNames = 'ChainLogView'
-export type CoreContractNamesWithoutSwap =
+type SwapContract = 'Swap' | 'uSwap'
+type CoreMainnet = 'ChainLogView'
+export type CoreContracts =
   | 'ServiceRegistry'
   | 'OperationExecutor'
   | 'OperationStorage'
@@ -27,12 +27,16 @@ export type CoreContractNamesWithoutSwap =
   | 'AccountGuard'
   | 'AccountFactory'
 
-export type CoreContractNames =
-  | CoreContractNamesWithoutSwap
-  | SwapContractNames
-  | MainnetOnlyCoreContractNames
-export type AaveV2ContractNames = 'AaveBorrow' | 'AaveDeposit' | 'AaveWithdraw' | 'AavePayback'
-export type ActionContractNamesWithoutAaveV2 =
+export type AaveV2Actions = 'AaveBorrow' | 'AaveDeposit' | 'AaveWithdraw' | `AavePayback`
+
+export type AaveV3Actions =
+  | `AaveV3Borrow`
+  | `AaveV3Deposit`
+  | `AaveV3Withdraw`
+  | `AaveV3Payback`
+  | `AaveV3SetEMode`
+
+export type CoreActions =
   | 'SwapAction'
   | 'PullToken'
   | 'SendToken'
@@ -42,13 +46,10 @@ export type ActionContractNamesWithoutAaveV2 =
   | 'TakeFlashloan'
   | 'ReturnFunds'
   | 'PositionCreated'
-  | 'AaveV3Borrow'
-  | 'AaveV3Deposit'
-  | 'AaveV3Withdraw'
-  | 'AaveV3Payback'
-  | 'AaveV3SetEMode'
-export type ActionContractNames = ActionContractNamesWithoutAaveV2 | AaveV2ContractNames
-type CommonContractNames =
+
+export type Actions = CoreActions | AaveV3Actions
+
+type Common =
   | 'WETH'
   | 'ETH'
   | 'STETH'
@@ -63,36 +64,36 @@ type CommonContractNames =
   | 'AuthorizedCaller'
   | 'FeeRecipient'
   | 'ChainlinkEthUsdPriceFeed'
-type AaveProtocolContractNamesV2 =
-  | 'PriceOracle'
-  | 'LendingPool'
-  | 'ProtocolDataProvider'
-  | 'WETHGateway'
-type AaveProtocolContractNamesV3 = 'AaveOracle' | 'Pool' | 'AaveProtocolDataProvider'
-type AaveProtocolContractNames = AaveProtocolContractNamesV2 | AaveProtocolContractNamesV3
 
-export type AllowedContractNames =
-  | CoreContractNames
-  | ActionContractNames
-  | CommonContractNames
-  | AaveProtocolContractNames
+type AaveV2Protocol = 'PriceOracle' | 'LendingPool' | 'ProtocolDataProvider' | 'WETHGateway'
+type AaveV3Protocol = 'AaveOracle' | 'Pool' | 'AaveProtocolDataProvider'
 
-export type DeployedSystemContractNames = CoreContractNames | ActionContractNames
+export type Contracts =
+  | CoreContracts
+  | SwapContract
+  | CoreMainnet
+  | Actions
+  | Common
+  | AaveV2Protocol
+  | AaveV3Protocol
 
-type SwapRecord = Partial<Record<SwapContractNames, SystemConfigItem>>
-type MainnetOnlyCoreRecord = Partial<Record<MainnetOnlyCoreContractNames, SystemConfigItem>>
-type CoreRecord = Record<CoreContractNamesWithoutSwap, SystemConfigItem>
-type AaveV2ActionsRecord = Partial<Record<AaveV2ContractNames, SystemConfigItem>>
-type ActionsRecord = Record<ActionContractNamesWithoutAaveV2, SystemConfigItem>
+export type DeployedSystemContracts = CoreContracts | SwapContract | CoreMainnet | Actions
+
+type SwapRecord = Partial<Record<SwapContract, SystemConfigItem>>
+type CoreMainnetRecord = Partial<Record<CoreMainnet, SystemConfigItem>>
+type CoreRecord = Record<CoreContracts, SystemConfigItem>
+
+type AaveV2ActionsRecord = Partial<Record<AaveV2Actions, SystemConfigItem>>
+type ActionsRecord = Record<Actions, SystemConfigItem>
 
 export type Config = {
   mpa: {
-    core: SwapRecord & CoreRecord & MainnetOnlyCoreRecord
-    actions: AaveV2ActionsRecord & ActionsRecord
+    core: CoreRecord & CoreMainnetRecord & SwapRecord
+    actions: ActionsRecord & AaveV2ActionsRecord
   }
-  common: Record<CommonContractNames, ConfigItem>
+  common: Record<Common, ConfigItem>
   aave: {
-    v2?: Record<AaveProtocolContractNamesV2, ConfigItem>
-    v3: Record<AaveProtocolContractNamesV3, ConfigItem>
+    v2?: Record<AaveV2Protocol, ConfigItem>
+    v3: Record<AaveV3Protocol, ConfigItem>
   }
 }
