@@ -57,8 +57,8 @@ contract OperationStorageColdHash {
   // TODO: Since we are using `abi.encodePacked` a better appraoch will be to
   // add addresses. Initial impl had it like that but it requires more work on the library
   // since we don't have the addresses there but we have the target hashes.
-  function pushAction(bytes32 actionHash) external {
-    actions = abi.encodePacked(actions, actionHash);
+  function pushAction(bytes memory actionHash) external {
+    actions = actionHash;
   }
 
   /**
@@ -105,7 +105,8 @@ contract OperationStorageColdHash {
    */
   function clearStorage() external {
     delete actions;
-    for (uint256 i = 0; i < valuesHolders.length; i++) {
+    uint256 lengthh = valuesHolders.length;
+    for (uint256 i = 0; i < lengthh; i++) {
       delete returnValues[valuesHolders[i]];
     }
     delete valuesHolders;

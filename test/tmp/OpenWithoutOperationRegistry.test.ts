@@ -1,20 +1,22 @@
-import { DeployFunction, executeThroughProxy } from '@helpers/deploy'
-import { createDeploy } from '@helpers/deploy'
+import { createDeploy, DeployFunction, executeThroughProxy } from '@helpers/deploy'
 import init from '@helpers/init'
 import { getOrCreateProxy } from '@helpers/proxy'
 import { ServiceRegistry } from '@helpers/serviceRegistry'
-import { ActionCall, ActionFactory } from '@oasisdex/oasis-actions'
-import hre from 'hardhat'
-import { calculateOperationHash } from '@oasisdex/oasis-actions/src/operations/helpers'
-import { OperationsRegistry } from '@helpers/wrappers/operationsRegistry'
 import { RuntimeConfig } from '@helpers/types/common'
+import { OperationsRegistry } from '@helpers/wrappers/operationsRegistry'
+import { ActionCall, ActionFactory } from '@oasisdex/oasis-actions'
+import { calculateOperationHash } from '@oasisdex/oasis-actions/src/operations/helpers'
+import { FlashloanProvider } from '@oasisdex/oasis-actions/src/types/common'
+import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
-import { getServiceNameHash } from '../../scripts/common'
+import hre from 'hardhat'
 
+import * as actions from '../../packages/oasis-actions/src/actions'
+import { getServiceNameHash } from '../../scripts/common'
 const ethers = hre.ethers
 const createAction = ActionFactory.create
 
-describe('OperationExecutor', async function () {
+describe.only('OperationExecutor', async function () {
   let config: RuntimeConfig
   let signer: Signer
   let proxyAddress: string
@@ -55,6 +57,7 @@ describe('OperationExecutor', async function () {
   })
 
   it('should execute operation without externally stored operation hash', async () => {
+    hre.tracer.enabled = false
     const [operationExecutor] = await deploy('OperationExecutorHotHash', [serviceRegistry.address])
     const [, operationStorageAddress] = await deploy('OperationStorageHotHash', [
       serviceRegistry.address,
@@ -75,19 +78,30 @@ describe('OperationExecutor', async function () {
       dummyAction,
     ]
 
+    const takeAFlashLoan = actions.common.takeAFlashLoan({
+      flashloanAmount: new BigNumber(10000),
+      asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+      isProxyFlashloan: true,
+      isDPMProxy: true,
+      provider: FlashloanProvider.DssFlash,
+      calls,
+    })
+
+    hre.tracer.enabled = true
     await executeThroughProxy(
       proxyAddress,
       {
         address: operationExecutor.address,
         calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
-          calls,
-          calculateOperationHash(calls),
+          takeAFlashLoan,
+          calculateOperationHash([takeAFlashLoan, ...calls]),
         ]),
       },
       signer,
       '10',
       hre,
     )
+    hre.tracer.enabled = false
   })
 
   it('should execute operation with externally stored operation hash', async () => {
@@ -125,7 +139,43 @@ describe('OperationExecutor', async function () {
       hre,
     )
   })
+  it.only('should execute operation with externally stored operation hash - calldata', async () => {
+    const [operationExecutor] = await deploy('OperationExecutorColdHashCalldata', [
+      serviceRegistry.address,
+    ])
+    const [operationStorage] = await deploy('OperationStorageColdHash', [
+      serviceRegistry.address,
+      operationExecutor.address,
+    ])
+    const [operationsRegistry] = await deploy('OperationsRegistryColdHash')
 
+    const calls = [
+      dummyAction,
+      dummyAction,
+      dummyAction,
+      dummyAction,
+      dummyAction,
+      dummyAction,
+      dummyAction,
+      dummyAction,
+      dummyAction,
+    ]
+
+    await serviceRegistry.addEntry('OperationStorage_2', operationStorage.address)
+    await serviceRegistry.addEntry('OperationsRegistry_2', operationsRegistry.address)
+    await operationsRegistry.addOperation(calculateOperationHash(calls))
+
+    await executeThroughProxy(
+      proxyAddress,
+      {
+        address: operationExecutor.address,
+        calldata: operationExecutor.interface.encodeFunctionData('executeOp', [calls]),
+      },
+      signer,
+      '10',
+      hre,
+    )
+  })
   it('should execute operation with externally stored operation', async () => {
     const [operationExecutor] = await deploy('OperationExecutor', [serviceRegistry.address])
     const [operationStorage] = await deploy('OperationStorage', [
