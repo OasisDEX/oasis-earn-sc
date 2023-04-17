@@ -38,17 +38,7 @@ library StorageSlot {
 }
 
 interface IOperationStorage {
-  function lock() external;
-
-  function unlock() external;
-
-  function actions() external returns (bytes memory);
-
-  function pushAction(bytes32) external;
-
   function setInitiator(address) external;
-
-  function clearStorage() external;
 }
 
 /**

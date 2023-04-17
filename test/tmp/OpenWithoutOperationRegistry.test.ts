@@ -90,7 +90,7 @@ describe('OperationExecutor', async function () {
     )
   })
 
-  it.only('should execute operation with externally stored operation hash', async () => {
+  it('should execute operation with externally stored operation hash', async () => {
     const [operationExecutor] = await deploy('OperationExecutorColdHash', [serviceRegistry.address])
     const [operationStorage] = await deploy('OperationStorageColdHash', [
       serviceRegistry.address,
@@ -179,6 +179,44 @@ describe('OperationExecutor', async function () {
           calls,
           'DummyOperation',
         ]),
+      },
+      signer,
+      '10',
+      hre,
+    )
+  })
+
+  it.only('should execute operation with local storage', async () => {
+    const [operationExecutor] = await deploy('OperationExecutorStorageSlot', [
+      serviceRegistry.address,
+    ])
+    const [operationStorage] = await deploy('OperationStorageColdHash', [
+      serviceRegistry.address,
+      operationExecutor.address,
+    ])
+    const [operationsRegistry] = await deploy('OperationsRegistryColdHash')
+    await serviceRegistry.addEntry('OperationsRegistry_2', operationsRegistry.address)
+    await serviceRegistry.addEntry('OperationStorage_2', operationStorage.address)
+
+    const calls = [
+      dummyAction,
+      dummyAction,
+      dummyAction,
+      dummyAction,
+      dummyAction,
+      dummyAction,
+      dummyAction,
+      dummyAction,
+      dummyAction,
+    ]
+
+    await operationsRegistry.addOperation(calculateOperationHash(calls))
+
+    await executeThroughProxy(
+      proxyAddress,
+      {
+        address: operationExecutor.address,
+        calldata: operationExecutor.interface.encodeFunctionData('executeOp', [calls]),
       },
       signer,
       '10',
