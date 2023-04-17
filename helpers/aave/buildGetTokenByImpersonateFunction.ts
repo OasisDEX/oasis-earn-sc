@@ -62,6 +62,7 @@ export function buildGetTokenByImpersonateFunction(
     if (isOptimismByNetwork(network)) {
       throw new Error('Not implemented for Optimism')
     }
+
     const { tokenAddress, whale } = tokensWhales[network][symbol]
     const fromSigner = await hre.ethers.getSigner(whale)
 

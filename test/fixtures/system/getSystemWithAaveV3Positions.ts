@@ -41,19 +41,19 @@ export const getSystemWithAaveV3Positions =
     use1inch,
     network,
     systemConfigPath,
-    configExtentionPaths,
+    configExtentionsPaths,
   }: {
     use1inch: boolean
     network: Network
     systemConfigPath?: string
-    configExtentionPaths?: string[]
+    configExtentionsPaths?: string[]
   }) =>
   async (): Promise<SystemWithAAVEV3Positions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
     await ds.loadConfig(systemConfigPath)
-    if (configExtentionPaths) {
-      configExtentionPaths.forEach(async configPath => {
+    if (configExtentionsPaths) {
+      configExtentionsPaths.forEach(async configPath => {
         await ds.extendConfig(configPath)
       })
     }

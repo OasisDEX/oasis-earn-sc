@@ -302,7 +302,7 @@ describe('Close AAVEv3 Position to collateral', () => {
         use1inch: true,
         network: networkFork,
         systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
-        configExtentionPaths: [`./test-configs/swap.conf.ts`],
+        configExtentionsPaths: [`./test-configs/swap.conf.ts`],
       }),
     )
     feeRecipient = fixture.dsSystem.config.common.FeeRecipient.address

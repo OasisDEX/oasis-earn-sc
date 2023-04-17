@@ -213,7 +213,12 @@ describe(`Strategy | AAVE | Close Position`, async () => {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
         }
-        fixture = await loadFixture(getSystemWithAavePositions({ use1inch: false }))
+        fixture = await loadFixture(
+          getSystemWithAavePositions({
+            use1inch: false,
+            configExtentionsPaths: [`./test-configs/uSwap.conf.ts`],
+          }),
+        )
       })
 
       describe('Using DSProxy', () => {
@@ -625,7 +630,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             use1inch: false,
             network: networkFork,
             systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
-            configExtentionPaths: [`./test-configs/uSwap.conf.ts`],
+            configExtentionsPaths: [`./test-configs/uSwap.conf.ts`],
           }),
         )
       })
@@ -833,7 +838,7 @@ describe(`Strategy | AAVE | Close Position`, async () => {
             use1inch: true,
             network: networkFork,
             systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
-            configExtentionPaths: [`./test-configs/swap.conf.ts`],
+            configExtentionsPaths: [`./test-configs/swap.conf.ts`],
           }),
         )
       })

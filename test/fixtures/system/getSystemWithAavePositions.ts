@@ -33,14 +33,14 @@ export function getSupportedStrategies(): Array<{
 export const blockNumberForAAVEV2System = 15695000
 
 export const getSystemWithAavePositions =
-  ({ use1inch, configExtentionPaths }: { use1inch: boolean; configExtentionPaths?: string[] }) =>
+  ({ use1inch, configExtentionsPaths }: { use1inch: boolean; configExtentionsPaths?: string[] }) =>
   async (): Promise<SystemWithAAVEPositions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
     const systemConfigPath = './test-configs/mainnet.conf.ts'
     await ds.loadConfig(systemConfigPath)
-    if (configExtentionPaths) {
-      configExtentionPaths.forEach(async configPath => {
+    if (configExtentionsPaths) {
+      configExtentionsPaths.forEach(async configPath => {
         await ds.extendConfig(configPath)
       })
     }
@@ -116,7 +116,7 @@ export const getSystemWithAavePositions =
           Network.MAINNET,
           dependencies.addresses.WETH,
         )
-      : buildGetTokenByImpersonateFunction(config, await import('hardhat'))
+      : buildGetTokenByImpersonateFunction(config, await import('hardhat'), Network.MAINNET)
 
     const [dpmProxyForEarnStEthEth] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)

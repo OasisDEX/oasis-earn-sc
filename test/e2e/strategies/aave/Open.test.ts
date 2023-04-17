@@ -33,7 +33,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         fixture = await loadFixture(
           getSystemWithAavePositions({
             use1inch: false,
-            configExtentionPaths: [`./test-configs/uSwap.conf.ts`],
+            configExtentionsPaths: [`./test-configs/uSwap.conf.ts`],
           }),
         )
       })
@@ -124,7 +124,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
         fixture = await loadFixture(
           getSystemWithAavePositions({
             use1inch: true,
-            configExtentionPaths: [`./test-configs/Swap.conf.ts`],
+            configExtentionsPaths: [`./test-configs/Swap.conf.ts`],
           }),
         )
       })
@@ -218,7 +218,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           use1inch: false,
           network: networkFork,
           systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
-          configExtentionPaths: [`./test-configs/uSwap.conf.ts`],
+          configExtentionsPaths: [`./test-configs/uSwap.conf.ts`],
         })()
       })
 
@@ -320,7 +320,7 @@ describe(`Strategy | AAVE | Open Position`, async function () {
           use1inch: true,
           network: networkFork,
           systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
-          configExtentionPaths: [`./test-configs/swap.conf.ts`],
+          configExtentionsPaths: [`./test-configs/swap.conf.ts`],
         })()
       })
 
