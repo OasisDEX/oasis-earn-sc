@@ -80,7 +80,24 @@ export type AjnaWarningPriceBelowHtp = {
   name: 'price-below-htp'
 }
 
-export type AjnaWarning = AjnaWarningPriceBelowHtp
+type AjnaWarningGenerateCloseToMaxLtv = {
+  name: 'generate-close-to-max-ltv'
+  data: {
+    amount: string
+  }
+}
+
+type AjnaWarningWithdrawCloseToMaxLtv = {
+  name: 'withdraw-close-to-max-ltv'
+  data: {
+    amount: string
+  }
+}
+
+export type AjnaWarning =
+  | AjnaWarningPriceBelowHtp
+  | AjnaWarningGenerateCloseToMaxLtv
+  | AjnaWarningWithdrawCloseToMaxLtv
 
 export type Strategy<Position> = {
   simulation: {
