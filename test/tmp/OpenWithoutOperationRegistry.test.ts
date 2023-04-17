@@ -57,7 +57,6 @@ describe.only('OperationExecutor', async function () {
   })
 
   it('should execute operation without externally stored operation hash', async () => {
-    hre.tracer.enabled = false
     const [operationExecutor] = await deploy('OperationExecutorHotHash', [serviceRegistry.address])
     const [, operationStorageAddress] = await deploy('OperationStorageHotHash', [
       serviceRegistry.address,
@@ -101,7 +100,6 @@ describe.only('OperationExecutor', async function () {
       '10',
       hre,
     )
-    hre.tracer.enabled = false
   })
 
   it('should execute operation with externally stored operation hash', async () => {
@@ -163,13 +161,23 @@ describe.only('OperationExecutor', async function () {
 
     await serviceRegistry.addEntry('OperationStorage_2', operationStorage.address)
     await serviceRegistry.addEntry('OperationsRegistry_2', operationsRegistry.address)
-    await operationsRegistry.addOperation(calculateOperationHash(calls))
 
+    const takeAFlashLoan = actions.common.takeAFlashLoan({
+      flashloanAmount: new BigNumber(10000),
+      asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+      isProxyFlashloan: true,
+      isDPMProxy: true,
+      provider: FlashloanProvider.DssFlash,
+      calls,
+    })
+    await operationsRegistry.addOperation(calculateOperationHash([takeAFlashLoan, ...calls]))
     await executeThroughProxy(
       proxyAddress,
       {
         address: operationExecutor.address,
-        calldata: operationExecutor.interface.encodeFunctionData('executeOp', [calls]),
+        calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
+          [takeAFlashLoan, ...calls],
+        ]),
       },
       signer,
       '10',
