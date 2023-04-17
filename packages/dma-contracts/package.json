@@ -10,7 +10,7 @@
     "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx}\"",
     "lint:fix": "yarn eslint . --fix --ext .ts",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
-    "test": "yarn test:unit && yarn:test:e2e",
+    "test": "yarn test:unit && yarn test:e2e",
     "test:e2e": "yarn clean && yarn hardhat test --grep E2E",
     "test:unit": "yarn clean && yarn hardhat test --grep Unit"
   },
@@ -18,10 +18,11 @@
     "@oasisdex/abis": "*",
     "@oasisdex/addresses": "*",
     "@oasisdex/dma-common": "*",
-    "@oasisdex/dma-library": "*",
     "@oasisdex/dma-deployments": "*",
+    "@oasisdex/dma-library": "*",
     "@oasisdex/domain": "*",
-    "@openzeppelin/contracts": "4.7.3"
+    "@openzeppelin/contracts": "4.7.3",
+    "glob": "^10.1.0"
   },
   "devDependencies": {
     "@ethereumjs/tx": "3.5.0",
@@ -30,8 +31,8 @@
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "@nomiclabs/hardhat-waffle": "^2.0.5",
     "@tenderly/hardhat-tenderly": "^1.6.1",
-    "@typechain/ethers-v5": "^10.1.0",
-    "@typechain/hardhat": "6.1.5",
+    "@typechain/ethers-v5": "^10.2.0",
+    "@typechain/hardhat": "^6.1.5",
     "@types/glob": "^8.1.0",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
@@ -55,7 +56,7 @@
     "solidity-coverage": "^0.7.13",
     "solidity-docgen": "^0.6.0-beta.29",
     "tsconfig-paths": "^4.1.2",
-    "typechain": "8.1.1",
+    "typechain": "^8.1.1",
     "typescript": "^5.0.4"
   },
   "files": [

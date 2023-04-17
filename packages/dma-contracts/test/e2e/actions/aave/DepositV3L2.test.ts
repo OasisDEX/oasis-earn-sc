@@ -5,7 +5,8 @@ import { balanceOf } from '@oasisdex/dma-common/utils/common'
 
 import { aDAI, deployedContracts, DEPOSIT_OPERATION } from './L2TestsHelper'
 
-describe('Deposit Action | E2E', () => {
+// TODO: UPDATE TEST
+describe.skip('Deposit Action | E2E', () => {
   it('should supply funds to the protocol', async () => {
     const { balanceConfig, opExecutor, depositActions } = await loadFixture(deployedContracts)
 

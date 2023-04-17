@@ -35,6 +35,30 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: [],
       },
+      DSProxyFactory: {
+        name: 'DSProxyFactory',
+        deploy: false,
+        address: '0xA26e15C895EFc0616177B7c1e7270A4C7D51C997',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
+        history: [],
+        constructorArgs: [],
+      },
+      DSProxyRegistry: {
+        name: 'DSProxyRegistry',
+        deploy: false,
+        address: '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
+        history: [],
+        constructorArgs: ['address:DSProxyFactory'],
+      },
+      DSGuardFactory: {
+        name: 'DSGuardFactory',
+        deploy: false,
+        address: '0x5a15566417e6C1c9546523066500bDDBc53F88C7',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
+        history: [],
+        constructorArgs: [],
+      },
       AccountGuard: {
         name: 'AccountGuard',
         deploy: true,
@@ -266,10 +290,6 @@ export const config: SystemConfig = {
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
       serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
     },
-    DSProxyRegistry: {
-      name: 'DSProxyRegistry',
-      address: '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4',
-    },
     OneInchAggregator: {
       name: 'OneInchAggregator',
       address: '0x1111111254fb6c44bac0bed2854e76f90643097d',
@@ -325,5 +345,35 @@ export const config: SystemConfig = {
       },
     },
   },
-  maker: {},
+  maker: {
+    FlashMintModule: {
+      name: 'FlashMintModule',
+      address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
+      serviceRegistryName: CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
+    },
+    Chainlog: {
+      name: 'Chainlog',
+      address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
+    },
+    CdpManager: {
+      name: 'CdpManager',
+      address: '0x5ef30b9986345249bc32d8928B7ee64DE9435E39',
+    },
+    Jug: {
+      name: 'Jug',
+      address: '0x19c0976f590D67707E62397C87829d896Dc0f1F1',
+    },
+    JoinDAI: {
+      name: 'JoinDAI',
+      address: '0x9759A6Ac90977b93B58547b4A71c78317f391A28',
+    },
+    PipWETH: {
+      name: 'PipWETH',
+      address: '0x81FE72B5A8d1A857d176C3E7d5Bd2679A9B85763',
+    },
+    PipLINK: {
+      name: 'PipLINK',
+      address: '0x9B0C694C6939b5EA9584e9b61C7815E8d97D9cC7',
+    },
+  },
 }

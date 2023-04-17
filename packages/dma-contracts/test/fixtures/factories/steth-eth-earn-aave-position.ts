@@ -2,6 +2,7 @@ import { ADDRESSES } from '@oasisdex/addresses'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AaveVersion, strategies } from '@oasisdex/dma-library'
 import {
   aaveV2UniqueContractName,
@@ -97,7 +98,7 @@ export async function stethEthEarnAavePosition({
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
   const feeWalletBalanceBefore = await balanceOf(
-    ADDRESSES[Network.MAINNET].WETH,
+    ADDRESSES[Network.MAINNET].common.WETH,
     ADDRESSES[Network.MAINNET].common.FeeRecipient,
     {
       config,
@@ -122,7 +123,7 @@ export async function stethEthEarnAavePosition({
   }
 
   const feeWalletBalanceAfter = await balanceOf(
-    ADDRESSES[Network.MAINNET].WETH,
+    ADDRESSES[Network.MAINNET].common.WETH,
     ADDRESSES[Network.MAINNET].common.FeeRecipient,
     {
       config,

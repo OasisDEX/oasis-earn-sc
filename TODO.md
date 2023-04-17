@@ -1,6 +1,7 @@
 - Import and expose addresses directly from the deployment configs file in dma-contracts/scripts/deployment20
 - Add Lerna Changelog https://github.com/lerna/lerna-changelog
 - Add Husky to perform checks before commit
+- Update the many skipped tests
 - Setup Unit & E2E tests workflows
 - Add instructions for regenerating domain unit tests scenarios
 - Update name of init() function

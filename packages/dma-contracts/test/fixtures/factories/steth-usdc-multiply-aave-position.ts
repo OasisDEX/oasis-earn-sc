@@ -104,7 +104,7 @@ export async function stethUsdcMultiplyAavePosition({
 
   const feeWalletBalanceBefore = await balanceOf(
     mainnetAddresses.USDC,
-    mainnetAddresses.common.FeeRecipient,
+    mainnetAddresses.feeRecipient,
     {
       config,
     },
@@ -129,7 +129,7 @@ export async function stethUsdcMultiplyAavePosition({
 
   const feeWalletBalanceAfter = await balanceOf(
     mainnetAddresses.USDC,
-    mainnetAddresses.common.FeeRecipient,
+    mainnetAddresses.feeRecipient,
     {
       config,
     },

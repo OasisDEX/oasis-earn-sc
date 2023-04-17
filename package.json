@@ -13,6 +13,7 @@
     "test": "lerna run test --stream",
     "test:e2e": "lerna run test:e2e --stream",
     "test:unit": "lerna run test:unit --stream",
+    "clean": "lerna run clean --stream",
     "compile": "lerna run compile --stream",
     "build": "lerna run build --stream",
     "format": "lerna run format --stream",

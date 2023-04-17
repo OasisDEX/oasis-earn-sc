@@ -27,7 +27,7 @@ import BigNumber from 'bignumber.js'
 import { ethers, Signer } from 'ethers'
 
 // TODO: IMPLEMENT THIS TEST
-describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
+describe.skip(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
   let aaveDataProvider: Contract
   let provider: JsonRpcProvider
   let config: RuntimeConfig

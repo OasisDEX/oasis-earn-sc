@@ -3,7 +3,6 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-import DS_PROXY_REGISTRY_ABI from '@oasisdex/abis/external/libs/DS/ds-proxy-registry.json'
 import { NetworkByChainId } from '@oasisdex/dma-common/utils/network'
 import { OperationsRegistry, ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
 import { operationDefinition as aaveV2CloseOp } from '@oasisdex/dma-library/src/operations/aave/v2/close'
@@ -539,14 +538,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       this.deployedSystem.OperationExecutor.contract.address,
       true,
     )
-
-    const dsProxyRegistry = await this.ethers.getContractAt(
-      DS_PROXY_REGISTRY_ABI,
-      this.config.common.DSProxyRegistry.address,
-      this.signer,
-    )
-
-    this.deployedSystem['DSProxyRegistry'] = { contract: dsProxyRegistry, config: {}, hash: '' }
 
     await this.addAllEntries()
   }

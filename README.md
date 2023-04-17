@@ -49,7 +49,7 @@ yarn test:e2e
 
 4. Run a specific test in the repo (example)
 ```shell
-yarn hardhat test <path-to-test>
+yarn clean & yarn hardhat test <path-to-test>
 ```
 
 # Naming conventions
