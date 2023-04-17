@@ -3,13 +3,15 @@ import { createDeploy } from '@helpers/deploy'
 import init from '@helpers/init'
 import { getOrCreateProxy } from '@helpers/proxy'
 import { ServiceRegistry } from '@helpers/serviceRegistry'
-import { ActionCall, ActionFactory } from '@oasisdex/oasis-actions'
+import { ActionCall, ActionFactory, TEN_THOUSAND } from '@oasisdex/oasis-actions'
 import hre from 'hardhat'
 import { calculateOperationHash } from '@oasisdex/oasis-actions/src/operations/helpers'
 import { OperationsRegistry } from '@helpers/wrappers/operationsRegistry'
 import { RuntimeConfig } from '@helpers/types/common'
 import { Signer } from 'ethers'
 import { getServiceNameHash } from '../../scripts/common'
+import * as actions from '../../packages/oasis-actions/src/actions'
+import { FlashloanProvider } from '@oasisdex/oasis-actions/src/types/common'
 
 const ethers = hre.ethers
 const createAction = ActionFactory.create
@@ -194,9 +196,32 @@ describe('OperationExecutor', async function () {
       serviceRegistry.address,
       operationExecutor.address,
     ])
+    const [takeAFlashloanAction] = await deploy('TakeFlashloan', [
+      serviceRegistry.address,
+      '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+      '0x5a15566417e6C1c9546523066500bDDBc53F88C7',
+    ])
+    const [sendTokenAction] = await deploy('SendToken', [serviceRegistry.address])
+    const [chainLogView] = await deploy('ChainLogView', [
+      '0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F',
+    ])
     const [operationsRegistry] = await deploy('OperationsRegistryColdHash')
+    await serviceRegistry.addEntry('OperationExecutor_2', operationExecutor.address)
     await serviceRegistry.addEntry('OperationsRegistry_2', operationsRegistry.address)
     await serviceRegistry.addEntry('OperationStorage_2', operationStorage.address)
+    await serviceRegistry.addEntry(
+      'McdFlashMintModule',
+      '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
+    )
+    await serviceRegistry.addEntry('ChainLogView', chainLogView.address)
+    await serviceRegistry.addEntry('TakeFlashloan_3', takeAFlashloanAction.address)
+    await serviceRegistry.addEntry('SendToken_4', sendTokenAction.address)
+
+    const sendToken = actions.common.sendToken({
+      asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+      amount: TEN_THOUSAND,
+      to: operationExecutor.address,
+    })
 
     const calls = [
       dummyAction,
@@ -208,15 +233,29 @@ describe('OperationExecutor', async function () {
       dummyAction,
       dummyAction,
       dummyAction,
+      sendToken,
     ]
 
-    await operationsRegistry.addOperation(calculateOperationHash(calls))
+    const takeAFlashLoan = actions.common.takeAFlashLoan({
+      flashloanAmount: TEN_THOUSAND,
+      asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+      isProxyFlashloan: true,
+      isDPMProxy: false,
+      provider: FlashloanProvider.DssFlash,
+      calls,
+    })
+
+    await operationsRegistry.addOperation(
+      calculateOperationHash([dummyAction, takeAFlashLoan, ...calls]),
+    )
 
     await executeThroughProxy(
       proxyAddress,
       {
         address: operationExecutor.address,
-        calldata: operationExecutor.interface.encodeFunctionData('executeOp', [calls]),
+        calldata: operationExecutor.interface.encodeFunctionData('executeOp', [
+          [dummyAction, takeAFlashLoan],
+        ]),
       },
       signer,
       '10',

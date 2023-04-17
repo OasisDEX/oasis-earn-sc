@@ -72,7 +72,6 @@ contract OperationExecutorStorageSlot is IERC3156FlashBorrower, IFlashLoanRecipi
     txStorage.actions = "";
     aggregate(calls);
     bytes32 opHash = keccak256(txStorage.actions);
-    // THIS IS PART OF THE CHANGE
     require(opRegistry.isWhitelisted(opHash), "inconsistent-execution");
     txStorage.actions = "";
     // By packing the string into bytes32 which means the max char length is capped at 64
@@ -81,13 +80,11 @@ contract OperationExecutorStorageSlot is IERC3156FlashBorrower, IFlashLoanRecipi
 
   function aggregate(Call[] memory calls) internal {
     StorageSlot.TransactionStorage storage txStorage = StorageSlot.getTransactionStorage();
-
     for (uint256 current = 0; current < calls.length; current++) {
       bytes32 targetHash = calls[current].targetHash;
       address target = registry.getServiceAddress(targetHash);
-      target.execute(calls[current].callData);
-      // THIS IS PART OF THE CHANGE
       txStorage.actions = abi.encodePacked(txStorage.actions, targetHash);
+      target.execute(calls[current].callData);
     }
   }
 
@@ -126,7 +123,6 @@ contract OperationExecutorStorageSlot is IERC3156FlashBorrower, IFlashLoanRecipi
   ) external override returns (bytes32) {
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
     address lender = registry.getRegisteredService(FLASH_MINT_MODULE);
-
     checkIfLenderIsTrusted(lender);
     checkIfFlashloanedAssetIsTheRequiredOne(asset, flData.asset);
     checkIfFlashloanedAmountIsTheRequiredOne(asset, flData.amount);
@@ -138,7 +134,6 @@ contract OperationExecutorStorageSlot is IERC3156FlashBorrower, IFlashLoanRecipi
       IERC20(asset).balanceOf(address(this)) >= paybackAmount,
       "Insufficient funds for payback"
     );
-
     IERC20(asset).safeApprove(lender, paybackAmount);
     return keccak256("ERC3156FlashBorrower.onFlashLoan");
   }
