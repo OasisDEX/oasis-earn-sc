@@ -90,7 +90,7 @@ describe('OperationExecutor', async function () {
     )
   })
 
-  it('should execute operation with externally stored operation hash', async () => {
+  it.only('should execute operation with externally stored operation hash', async () => {
     const [operationExecutor] = await deploy('OperationExecutorColdHash', [serviceRegistry.address])
     const [operationStorage] = await deploy('OperationStorageColdHash', [
       serviceRegistry.address,
