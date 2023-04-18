@@ -20,10 +20,24 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     'import/no-named-as-default': 'off',
-  },
-  settings: {
-    'import/resolver': {
-      typescript: {},
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"],
+        "moduleDirectory": ["node_modules", "src"],
+        "customResolver": {
+          "typescript": {
+            "alwaysTryTypes": true
+          }
+        }
+      }
     },
-  },
+    settings: {
+      'import/resolver': {
+        typescript: {},
+        "node": {
+          "moduleDirectory": ["node_modules", "src"]
+        }
+      },
+    }
+  }
 }
