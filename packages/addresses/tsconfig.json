@@ -12,6 +12,8 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowJs": true,
+    // Generate d.ts files
+    "declaration": true,
     "resolveJsonModule": true,
     "noImplicitAny": false,
     "typeRoots": [
