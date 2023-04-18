@@ -10,6 +10,7 @@ import {
   validateDustLimit,
   validateLiquidity,
 } from './validation'
+import { validateGenerateCloseToMaxLtv } from './validation/closeToMaxLtv'
 
 export interface DepositBorrowArgs extends Omit<OpenArgs, 'collateralPrice' | 'quotePrice'> {
   position: AjnaPosition
@@ -47,11 +48,13 @@ export async function depositBorrow(
     ...validateLiquidity(targetPosition, args.quoteAmount),
   ]
 
+  const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, args.position)]
+
   return prepareAjnaPayload({
     dependencies,
     targetPosition,
     errors,
-    warnings: [],
+    warnings,
     data,
     txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
   })

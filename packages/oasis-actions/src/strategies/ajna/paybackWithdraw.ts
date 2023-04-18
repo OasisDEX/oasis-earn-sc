@@ -12,6 +12,7 @@ import {
   validateOverWithdraw,
   validateWithdrawUndercollateralized,
 } from './validation'
+import { validateWithdrawCloseToMaxLtv } from './validation/closeToMaxLtv'
 
 interface PaybackWithdrawArgs {
   poolAddress: Address
@@ -53,11 +54,13 @@ export async function paybackWithdraw(
     // ...validateOverRepay(args.position, args.quoteAmount),
   ]
 
+  const warnings = [...validateWithdrawCloseToMaxLtv(targetPosition, args.position)]
+
   return prepareAjnaPayload({
     dependencies,
     targetPosition,
     errors,
-    warnings: [],
+    warnings,
     data,
     txValue: resolveAjnaEthAction(isPayingBackEth, args.quoteAmount),
   })
