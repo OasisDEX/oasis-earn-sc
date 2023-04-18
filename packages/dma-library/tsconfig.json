@@ -16,9 +16,6 @@
         "./src/index.ts"
       ],
       "utils/*": ["../dma-common/utils/*"],
-      "@oasisdex/addresses": ["../addresses/src/index.ts"],
-      "@oasisdex/domain/*": ["../domain/src/*"],
-      "@oasisdex/domain": ["../domain/src/index.ts"]
     },
     "types": [
       "node"
@@ -26,6 +23,8 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
+    // Generate d.ts files
+    "declaration": true,
     "allowJs": true,
     "resolveJsonModule": true,
     "noImplicitAny": false,

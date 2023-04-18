@@ -12,10 +12,15 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowJs": true,
+    // Generate d.ts files
+    "declaration": true,
     "resolveJsonModule": true,
     "noImplicitAny": false,
     "typeRoots": [
       "../../node_modules/@types"
     ]
   },
+  "include": [
+    "./src/**/*",
+  ]
 }
