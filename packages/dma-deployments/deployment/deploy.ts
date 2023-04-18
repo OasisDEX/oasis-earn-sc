@@ -5,10 +5,6 @@
 // Runtime Environment's members available in the global scope.
 import { NetworkByChainId } from '@oasisdex/dma-common/utils/network'
 import { OperationsRegistry, ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
-import { operationDefinition as aaveV2CloseOp } from '@oasisdex/dma-library/src/operations/aave/v2/close'
-import { operationDefinition as aaveV2OpenOp } from '@oasisdex/dma-library/src/operations/aave/v2/open'
-import { operationDefinition as aaveV3CloseOp } from '@oasisdex/dma-library/src/operations/aave/v3/close'
-import { operationDefinition as aaveV3OpenOp } from '@oasisdex/dma-library/src/operations/aave/v3/open'
 import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
@@ -484,6 +480,15 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       this.deployedSystem.OperationsRegistry.contract.address,
       this.signer,
     )
+
+    // Dynamic imports avoids circular dependencies between packages
+    const aaveV2OpenOp = (await import('@dma-library/operations/aave/v2/open')).operationDefinition
+    const aaveV2CloseOp = (await import('@dma-library/operations/aave/v2/close'))
+      .operationDefinition
+    const aaveV3OpenOp = (await import('@dma-library/operations/aave/v3/close')).operationDefinition
+    const aaveV3CloseOp = (await import('@dma-library/operations/aave/v3/close'))
+      .operationDefinition
+
     await operationsRegistry.addOp(aaveV2OpenOp.name, aaveV2OpenOp.actions)
     await operationsRegistry.addOp(aaveV2CloseOp.name, aaveV2CloseOp.actions)
     await operationsRegistry.addOp(aaveV3OpenOp.name, aaveV3OpenOp.actions)

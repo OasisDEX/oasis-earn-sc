@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "@oasisdex/abis": "*",
-    "@oasisdex/dma-library": "*",
     "node-cache": "^5.1.2",
     "prompts": "^2.4.2",
     "@safe-global/safe-core-sdk": "^3.3.2",

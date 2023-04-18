@@ -15,7 +15,9 @@
       "@dma-library": [
         "./src/index.ts"
       ],
-      "utils/*": ["../dma-common/utils/*"],
+      "utils/*": [
+        "../dma-common/utils/*"
+      ],
     },
     "types": [
       "node"
@@ -34,6 +36,6 @@
   },
   "include": [
     "./hardhat.config.ts",
-    "./src/**/*",
-  ]
+    "./src/**/*"
+  ],
 }
