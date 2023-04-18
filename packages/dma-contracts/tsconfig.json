@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "strict": true,
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@typechain/*": ["./typechain/*"],
+      "@dma-contracts/test/*": [
+        "./test/*"
+      ],
+      "@dma-contracts/scripts/*": [
+        "./scripts/*"
+      ],
+      "@dma-contracts/*": [
+        "./*"
+      ],
+      "@dma-library/*": [
+        "../dma-library/src/*"
+      ],
+      "@oasisdex/addresses": ["../addresses/src/index.ts"],
+      "@oasisdex/dma-library/*": ["../dma-library/src/*"],
+      "@oasisdex/dma-library": ["../dma-library/src/index.ts"],
+      "@oasisdex/dma-common/utils/*": ["../dma-common/utils/*"],
+      "utils/*": ["../dma-common/utils/*"]
+    },
+    "typeRoots": [
+      "../../node_modules/@types"
+    ]
+  },
+  "include": [
+    "./bootstrap-env.ts",
+    "./hardhat.config.ts",
+    "test/**/*.ts",
+    "tasks/**/*.ts",
+    "scripts/**/*.ts"
+  ],
+}

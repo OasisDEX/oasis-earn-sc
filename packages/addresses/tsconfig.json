@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "strict": true,
+    "outDir": "lib",
+    "baseUrl": ".",
+    "types": [
+      "node"
+    ],
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "typeRoots": [
+      "../../node_modules/@types"
+    ]
+  },
+}

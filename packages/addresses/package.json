@@ -1,0 +1,16 @@
+{
+  "name": "@oasisdex/addresses",
+  "version": "1.0.0",
+  "main": "lib/src/index.js",
+  "typings": "lib/src/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn tsc -b",
+    "watch": "yarn tsc -b -w",
+    "lint": "yarn tsc -p ./tsconfig.json --noEmit",
+    "prepublish": "yarn build"
+  },
+  "dependencies": {
+    "@oasisdex/dma-deployments": "*"
+  }
+}

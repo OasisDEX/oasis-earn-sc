@@ -1,0 +1,30 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lendingPool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "interestRateMode",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "referralCode",
+        "type": "uint16"
+      }
+    ],
+    "name": "borrowETH",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

@@ -1,4 +1,4 @@
-root: ./docs
+root: ./packages/dma-contracts/docs
 
 structure:
   readme: ./Readme.md

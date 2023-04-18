@@ -1,0 +1,26 @@
+{
+  "name": "@oasisdex/dma-common",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "lint:fix": "yarn eslint . --fix --ext .ts",
+    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc -p ./tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@oasisdex/addresses": "*",
+    "@oasisdex/abis": "*",
+    "@oasisdex/dma-deployments": "*",
+    "ethers": "5.7.2"
+  },
+  "devDependencies": {
+    "@ethersproject/contracts": "^5.7.0",
+    "eslint": "^8.35.0",
+    "tsconfig-paths": "^4.1.2"
+  },
+  "files": [
+    "/test-utils",
+    "/utils",
+    "/constants",
+    "tsconfig.json"
+  ]
+}
