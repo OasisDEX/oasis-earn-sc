@@ -112,3 +112,14 @@ export const calculateAjnaApyPerDays = (amount: BigNumber, apy: BigNumber, days:
     .times(new BigNumber(Math.E ** apy.times(days).div(365).toNumber()))
     .minus(amount)
     .div(amount)
+
+// The origination fee is calculated as the greatest of the current annualized
+// borrower interest rate divided by 52 (one week of interest) or 5 bps multiplied by the loan’s new
+// debt.
+export const getAjnaBorrowOriginationFee = ({
+  interestRate,
+  quoteAmount,
+}: {
+  interestRate: BigNumber
+  quoteAmount: BigNumber
+}) => BigNumber.max(interestRate.div(52), new BigNumber(0.0005)).times(quoteAmount)

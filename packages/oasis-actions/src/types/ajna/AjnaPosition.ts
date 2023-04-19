@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 
 import { IRiskRatio, RiskRatio } from '../../domain'
+import { getAjnaBorrowOriginationFee } from '../../helpers/ajna'
 import { ONE, ZERO } from '../../helpers/constants'
 import { normalizeValue } from '../../helpers/normalizeValue'
 import { simulatePool } from '../../views/ajna'
@@ -26,6 +27,7 @@ export interface IAjnaPosition {
 
   warnings: AjnaWarning[]
 
+  originationFee(amount: BigNumber): BigNumber
   deposit(amount: BigNumber): IAjnaPosition
   withdraw(amount: BigNumber): IAjnaPosition
   borrow(amount: BigNumber): IAjnaPosition
@@ -94,6 +96,13 @@ export class AjnaPosition implements IAjnaPosition {
     return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
   }
 
+  originationFee(quoteAmount: BigNumber) {
+    return getAjnaBorrowOriginationFee({
+      interestRate: this.pool.interestRate,
+      quoteAmount,
+    })
+  }
+
   deposit(collateralAmount: BigNumber) {
     const newCollateralAmount = this.collateralAmount.plus(collateralAmount)
     return new AjnaPosition(
@@ -119,7 +128,8 @@ export class AjnaPosition implements IAjnaPosition {
   }
 
   borrow(quoteAmount: BigNumber): AjnaPosition {
-    const newDebt = this.debtAmount.plus(quoteAmount)
+    const originationFee = this.originationFee(quoteAmount)
+    const newDebt = this.debtAmount.plus(quoteAmount).plus(originationFee)
     return new AjnaPosition(
       simulatePool(this.pool, quoteAmount, newDebt, this.collateralAmount),
       this.owner,
