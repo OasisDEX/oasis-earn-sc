@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { BigNumber, Signer } from "ethers";
 import hre, { ethers } from "hardhat";
 
-import { MILLION } from "../scripts/common";
+import { bn } from "../scripts/common";
 import {
   deployApa,
   deployGuard,
@@ -22,7 +22,7 @@ import { WETH as WETHContract } from "../typechain-types/contracts";
 const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
 
-describe.only("AjnaProxyActions", function () {
+describe("AjnaProxyActions", function () {
   async function deploy() {
     await hre.network.provider.request({
       method: "hardhat_reset",
@@ -137,7 +137,7 @@ describe.only("AjnaProxyActions", function () {
         poolContractWeth,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("1", 18),
+        bn.eighteen.ONE,
         ethers.utils.parseUnits("11821.273", 18),
         weth,
         true
@@ -150,7 +150,7 @@ describe.only("AjnaProxyActions", function () {
       console.table(balancesCollateralBefore);
       console.table(balancesCollateralAfter);
       expect(balancesCollateralAfter.borrower).to.be.equal(
-        balancesCollateralBefore.borrower.sub(ethers.utils.parseUnits("1", 18)).sub(gas)
+        balancesCollateralBefore.borrower.sub(bn.eighteen.ONE).sub(gas)
       );
     });
     it("should depositCollateral and withdrawCollateral", async () => {
@@ -159,13 +159,13 @@ describe.only("AjnaProxyActions", function () {
         borrower: await hre.ethers.provider.getBalance(borrower.address),
         pool: await hre.ethers.provider.getBalance(poolContractWeth.address),
       };
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
       const gas = await depositCollateral(
         ajnaProxyActionsContract,
         poolContractWeth,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("1", 18),
+        bn.eighteen.ONE,
         price,
         weth,
         true
@@ -177,7 +177,7 @@ describe.only("AjnaProxyActions", function () {
         weth,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("1", 18)
+        bn.eighteen.ONE
       );
 
       const balancesCollateralAfter = {
@@ -199,7 +199,7 @@ describe.only("AjnaProxyActions", function () {
         borrower: await hre.ethers.provider.getBalance(borrower.address),
         pool: await hre.ethers.provider.getBalance(poolContractWeth.address),
       };
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
 
       const gas = await depositAndDrawDebt(
         ajnaProxyActionsContract,
@@ -208,8 +208,8 @@ describe.only("AjnaProxyActions", function () {
         weth,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("100", 6),
-        ethers.utils.parseUnits("10", 18),
+        bn.six.HUNDRED,
+        bn.eighteen.TEN,
         true
       );
 
@@ -222,9 +222,9 @@ describe.only("AjnaProxyActions", function () {
         pool: await hre.ethers.provider.getBalance(poolContractWeth.address),
       };
 
-      expect(balancesQuoteAfter.borrower).to.be.eq(balancesQuoteBefore.borrower.add(ethers.utils.parseUnits("100", 6)));
+      expect(balancesQuoteAfter.borrower).to.be.eq(balancesQuoteBefore.borrower.add(bn.six.HUNDRED));
       expect(balancesCollateralAfter.borrower).to.be.equal(
-        balancesCollateralBefore.borrower.sub(ethers.utils.parseUnits("10", 18)).sub(gas)
+        balancesCollateralBefore.borrower.sub(bn.eighteen.TEN).sub(gas)
       );
     });
 
@@ -239,7 +239,7 @@ describe.only("AjnaProxyActions", function () {
         borrower: await hre.ethers.provider.getBalance(borrower.address),
         pool: await hre.ethers.provider.getBalance(poolContractWeth.address),
       };
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
 
       const gas = await depositAndDrawDebt(
         ajnaProxyActionsContract,
@@ -248,8 +248,8 @@ describe.only("AjnaProxyActions", function () {
         weth,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("100", 6),
-        ethers.utils.parseUnits("10", 18),
+        bn.six.HUNDRED,
+        bn.eighteen.TEN,
         true
       );
 
@@ -276,7 +276,7 @@ describe.only("AjnaProxyActions", function () {
 
       expect(balancesQuoteAfter.borrower).to.be.lt(balancesQuoteBefore.borrower);
       expect(balancesCollateralAfter.borrower).to.be.equal(
-        balancesCollateralBefore.borrower.sub(ethers.utils.parseUnits("10", 18)).sub(gas).sub(gas2)
+        balancesCollateralBefore.borrower.sub(bn.eighteen.TEN).sub(gas).sub(gas2)
       );
       expect(borrowerInfo.debt_).to.be.eq(0);
     });
@@ -293,7 +293,7 @@ describe.only("AjnaProxyActions", function () {
         borrower: await hre.ethers.provider.getBalance(borrower.address),
         pool: await hre.ethers.provider.getBalance(poolContractWeth.address),
       };
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
       const gas = await depositAndDrawDebt(
         ajnaProxyActionsContract,
         poolContractWeth,
@@ -301,8 +301,8 @@ describe.only("AjnaProxyActions", function () {
         weth,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("1000", 6),
-        ethers.utils.parseUnits("10", 18),
+        bn.six.THOUSAND,
+        bn.eighteen.TEN,
         true
       );
       const balancesQuoteAfterDraw = {
@@ -323,9 +323,7 @@ describe.only("AjnaProxyActions", function () {
       };
 
       expect(balancesQuoteAfter.borrower).to.be.lt(balancesQuoteBefore.borrower);
-      expect(balancesQuoteBefore.borrower).to.be.eq(
-        balancesQuoteAfterDraw.borrower.sub(ethers.utils.parseUnits("1000", 6))
-      );
+      expect(balancesQuoteBefore.borrower).to.be.eq(balancesQuoteAfterDraw.borrower.sub(bn.six.THOUSAND));
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(gas).sub(gas2));
     });
 
@@ -342,13 +340,13 @@ describe.only("AjnaProxyActions", function () {
         pool: await hre.ethers.provider.getBalance(poolContractWeth.address),
       };
 
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
       const gas1 = await depositCollateral(
         ajnaProxyActionsContract,
         poolContractWeth,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("10", 18),
+        bn.eighteen.TEN,
         price,
         weth,
         true
@@ -358,7 +356,7 @@ describe.only("AjnaProxyActions", function () {
         poolContractWeth,
         borrowerProxy,
         borrower,
-        ethers.utils.parseUnits("100", 6),
+        bn.six.HUNDRED,
         price
       );
 
@@ -371,9 +369,9 @@ describe.only("AjnaProxyActions", function () {
         pool: await hre.ethers.provider.getBalance(poolContractWeth.address),
       };
       expect(balancesCollateralAfter.borrower).to.be.eq(
-        balancesCollateralBefore.borrower.sub(ethers.utils.parseUnits("10", 18)).sub(gas1).sub(gas2)
+        balancesCollateralBefore.borrower.sub(bn.eighteen.TEN).sub(gas1).sub(gas2)
       );
-      expect(balancesQuoteAfter.borrower).to.be.eq(balancesQuoteBefore.borrower.add(ethers.utils.parseUnits("100", 6)));
+      expect(balancesQuoteAfter.borrower).to.be.eq(balancesQuoteBefore.borrower.add(bn.six.HUNDRED));
     });
   });
   describe("DPM - borrower - AjnaProxyActions", function () {
@@ -388,8 +386,8 @@ describe.only("AjnaProxyActions", function () {
         poolContract,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("1", 8),
-        ethers.utils.parseUnits("16821.273", 18),
+        bn.eight.ONE,
+        bn.eighteen.TEST_PRICE_3,
         wbtc
       );
       const balancesCollateralAfter = {
@@ -397,9 +395,7 @@ describe.only("AjnaProxyActions", function () {
         pool: await wbtc.balanceOf(poolContract.address),
       };
 
-      expect(balancesCollateralAfter.borrower).to.be.equal(
-        balancesCollateralBefore.borrower.sub(ethers.utils.parseUnits("1", 8))
-      );
+      expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.ONE));
     });
     it("should depositCollateral and withdrawCollateral", async () => {
       const { wbtc, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower } = await loadFixture(deploy);
@@ -407,25 +403,18 @@ describe.only("AjnaProxyActions", function () {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
       await depositCollateral(
         ajnaProxyActionsContract,
         poolContract,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("1", 8),
+        bn.eight.ONE,
         price,
         wbtc
       );
 
-      await withdrawCollateral(
-        ajnaProxyActionsContract,
-        poolContract,
-        wbtc,
-        borrower,
-        borrowerProxy,
-        ethers.utils.parseUnits("1", 8)
-      );
+      await withdrawCollateral(ajnaProxyActionsContract, poolContract, wbtc, borrower, borrowerProxy, bn.eight.ONE);
 
       const balancesCollateralAfter = {
         borrower: await wbtc.balanceOf(borrower.address),
@@ -444,7 +433,7 @@ describe.only("AjnaProxyActions", function () {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
 
       await depositAndDrawDebt(
         ajnaProxyActionsContract,
@@ -453,8 +442,8 @@ describe.only("AjnaProxyActions", function () {
         wbtc,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("100", 6),
-        ethers.utils.parseUnits("10", 8)
+        bn.six.HUNDRED,
+        bn.eight.TEN
       );
 
       const balancesQuoteAfter = {
@@ -466,10 +455,8 @@ describe.only("AjnaProxyActions", function () {
         pool: await wbtc.balanceOf(poolContract.address),
       };
 
-      expect(balancesQuoteAfter.borrower).to.be.eq(balancesQuoteBefore.borrower.add(ethers.utils.parseUnits("100", 6)));
-      expect(balancesCollateralAfter.borrower).to.be.equal(
-        balancesCollateralBefore.borrower.sub(ethers.utils.parseUnits("10", 8))
-      );
+      expect(balancesQuoteAfter.borrower).to.be.eq(balancesQuoteBefore.borrower.add(bn.six.HUNDRED));
+      expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.TEN));
     });
 
     it("should openAndDraw and repayDebt", async () => {
@@ -483,7 +470,7 @@ describe.only("AjnaProxyActions", function () {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
 
       await depositAndDrawDebt(
         ajnaProxyActionsContract,
@@ -492,8 +479,8 @@ describe.only("AjnaProxyActions", function () {
         wbtc,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("100", 6),
-        ethers.utils.parseUnits("10", 8)
+        bn.six.HUNDRED,
+        bn.eight.TEN
       );
 
       let borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
@@ -511,9 +498,7 @@ describe.only("AjnaProxyActions", function () {
       borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrower.address);
 
       expect(balancesQuoteAfter.borrower).to.be.lt(balancesQuoteBefore.borrower);
-      expect(balancesCollateralAfter.borrower).to.be.equal(
-        balancesCollateralBefore.borrower.sub(ethers.utils.parseUnits("10", 8))
-      );
+      expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.TEN));
       expect(borrowerInfo.debt_).to.be.eq(0);
     });
 
@@ -527,7 +512,7 @@ describe.only("AjnaProxyActions", function () {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
       await depositAndDrawDebt(
         ajnaProxyActionsContract,
         poolContract,
@@ -535,8 +520,8 @@ describe.only("AjnaProxyActions", function () {
         wbtc,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("1000", 6),
-        ethers.utils.parseUnits("10", 8)
+        bn.six.THOUSAND,
+        bn.eight.TEN
       );
       await depositAndDrawDebt(
         ajnaProxyActionsContract,
@@ -545,8 +530,8 @@ describe.only("AjnaProxyActions", function () {
         wbtc,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("1000", 6),
-        ethers.utils.parseUnits("10", 8)
+        bn.six.THOUSAND,
+        bn.eight.TEN
       );
       const balancesQuoteAfterDraw = {
         borrower: await usdc.balanceOf(borrower.address),
@@ -566,9 +551,7 @@ describe.only("AjnaProxyActions", function () {
       };
 
       expect(balancesQuoteAfter.borrower).to.be.lt(balancesQuoteBefore.borrower);
-      expect(balancesQuoteBefore.borrower).to.be.eq(
-        balancesQuoteAfterDraw.borrower.sub(ethers.utils.parseUnits("2000", 6))
-      );
+      expect(balancesQuoteBefore.borrower).to.be.eq(balancesQuoteAfterDraw.borrower.sub(bn.six.THOUSAND.mul(2)));
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower);
     });
 
@@ -583,25 +566,18 @@ describe.only("AjnaProxyActions", function () {
         pool: await wbtc.balanceOf(poolContract.address),
       };
 
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
       await depositCollateral(
         ajnaProxyActionsContract,
         poolContract,
         borrower,
         borrowerProxy,
-        ethers.utils.parseUnits("10", 8),
+        bn.eight.TEN,
         price,
         wbtc
       );
 
-      await drawDebt(
-        ajnaProxyActionsContract,
-        poolContract,
-        borrowerProxy,
-        borrower,
-        ethers.utils.parseUnits("100", 6),
-        price
-      );
+      await drawDebt(ajnaProxyActionsContract, poolContract, borrowerProxy, borrower, bn.six.HUNDRED, price);
 
       const balancesQuoteAfter = {
         borrower: await usdc.balanceOf(borrower.address),
@@ -611,10 +587,8 @@ describe.only("AjnaProxyActions", function () {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
-      expect(balancesCollateralAfter.borrower).to.be.eq(
-        balancesCollateralBefore.borrower.sub(ethers.utils.parseUnits("10", 8))
-      );
-      expect(balancesQuoteAfter.borrower).to.be.eq(balancesQuoteBefore.borrower.add(ethers.utils.parseUnits("100", 6)));
+      expect(balancesCollateralAfter.borrower).to.be.eq(balancesCollateralBefore.borrower.sub(bn.eight.TEN));
+      expect(balancesQuoteAfter.borrower).to.be.eq(balancesQuoteBefore.borrower.add(bn.six.HUNDRED));
     });
   });
   describe("DPM - lender - AjnaProxyActions", function () {
@@ -627,17 +601,9 @@ describe.only("AjnaProxyActions", function () {
         pool: await usdc.balanceOf(poolContract.address),
       };
 
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
       const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
-      await supplyQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        ethers.utils.parseUnits("1000", 6),
-        price
-      );
+      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, bn.six.THOUSAND, price);
 
       const balancesQuoteAfter = {
         lender: await usdc.balanceOf(lender.address),
@@ -645,8 +611,8 @@ describe.only("AjnaProxyActions", function () {
       };
       const { lpBalance_ } = await poolContract.lenderInfo(index, lenderProxy.address);
       const depositedQuoteAmount = await poolInfoContract.lpsToQuoteTokens(poolContract.address, lpBalance_, index);
-      expect(depositedQuoteAmount).to.be.equal(ethers.utils.parseUnits("1000", 18));
-      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(ethers.utils.parseUnits("1000", 6)));
+      expect(depositedQuoteAmount).to.be.equal(bn.eighteen.THOUSAND);
+      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.THOUSAND));
     });
     it("should supplyQuote --> moveQuote", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
@@ -657,7 +623,7 @@ describe.only("AjnaProxyActions", function () {
         pool: await usdc.balanceOf(poolContract.address),
       };
 
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
       const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
       await supplyQuote(
         ajnaProxyActionsContract,
@@ -665,7 +631,7 @@ describe.only("AjnaProxyActions", function () {
         usdc,
         lender,
         lenderProxy,
-        ethers.utils.parseUnits("100000", 6),
+        bn.six.HUNDRED_THOUSAND,
         price
       );
       await moveQuote(
@@ -675,7 +641,7 @@ describe.only("AjnaProxyActions", function () {
         lender,
         lenderProxy,
         price,
-        price.add(ethers.utils.parseUnits("1000", 18))
+        price.add(bn.eighteen.THOUSAND)
       );
 
       const balancesQuoteAfter = {
@@ -689,19 +655,15 @@ describe.only("AjnaProxyActions", function () {
         index
       );
       expect(depositedQuoteAmount).to.be.equal(0);
-      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(
-        price.add(ethers.utils.parseUnits("1000", 18))
-      );
+      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
       const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
       const newDepositedQuoteAmount = await poolInfoContract.lpsToQuoteTokens(
         poolContract.address,
         newBalance.lpBalance_,
         newIndex
       );
-      expect(newDepositedQuoteAmount).to.be.equal(ethers.utils.parseUnits("100000", 18));
-      expect(balancesQuoteAfter.lender).to.be.equal(
-        balancesQuoteBefore.lender.sub(ethers.utils.parseUnits("100000", 6))
-      );
+      expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.HUNDRED_THOUSAND);
+      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.HUNDRED_THOUSAND));
     });
     it("should supplyAndMoveQuote", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
@@ -712,7 +674,7 @@ describe.only("AjnaProxyActions", function () {
         pool: await usdc.balanceOf(poolContract.address),
       };
 
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
       const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
       await supplyQuote(
         ajnaProxyActionsContract,
@@ -720,7 +682,7 @@ describe.only("AjnaProxyActions", function () {
         usdc,
         lender,
         lenderProxy,
-        ethers.utils.parseUnits("100000", 6),
+        bn.six.HUNDRED_THOUSAND,
         price
       );
       await supplyAndMoveQuote(
@@ -729,9 +691,9 @@ describe.only("AjnaProxyActions", function () {
         usdc,
         lender,
         lenderProxy,
-        ethers.utils.parseUnits("100000", 6),
+        bn.six.HUNDRED_THOUSAND,
         price,
-        price.add(ethers.utils.parseUnits("1000", 18))
+        price.add(bn.eighteen.THOUSAND)
       );
 
       const balancesQuoteAfter = {
@@ -745,19 +707,15 @@ describe.only("AjnaProxyActions", function () {
         index
       );
       expect(depositedQuoteAmount).to.be.equal(0);
-      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(
-        price.add(ethers.utils.parseUnits("1000", 18))
-      );
+      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
       const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
       const newDepositedQuoteAmount = await poolInfoContract.lpsToQuoteTokens(
         poolContract.address,
         newBalance.lpBalance_,
         newIndex
       );
-      expect(newDepositedQuoteAmount).to.be.equal(ethers.utils.parseUnits("200000", 18));
-      expect(balancesQuoteAfter.lender).to.be.equal(
-        balancesQuoteBefore.lender.sub(ethers.utils.parseUnits("200000", 6))
-      );
+      expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.HUNDRED_THOUSAND.mul(2));
+      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.HUNDRED_THOUSAND.mul(2)));
     });
     it("should withdrawAndMoveQuote", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
@@ -768,10 +726,10 @@ describe.only("AjnaProxyActions", function () {
         pool: await usdc.balanceOf(poolContract.address),
       };
 
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const price = bn.eighteen.TEST_PRICE_3;
       const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
-      const lendAmount = ethers.utils.parseUnits("100000", 6);
-      const withdrawAmount = ethers.utils.parseUnits("10000", 6);
+      const lendAmount = bn.six.HUNDRED_THOUSAND;
+      const withdrawAmount = bn.six.TEN_THOUSAND;
       await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
       await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
       await withdrawAndMoveQuote(
@@ -782,7 +740,7 @@ describe.only("AjnaProxyActions", function () {
         lenderProxy,
         withdrawAmount,
         price,
-        price.add(ethers.utils.parseUnits("1000", 18))
+        price.add(bn.eighteen.THOUSAND)
       );
 
       const balancesQuoteAfter = {
@@ -796,16 +754,14 @@ describe.only("AjnaProxyActions", function () {
         index
       );
       expect(depositedQuoteAmount).to.be.equal(0);
-      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(
-        price.add(ethers.utils.parseUnits("1000", 18))
-      );
+      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
       const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
       const newDepositedQuoteAmount = await poolInfoContract.lpsToQuoteTokens(
         poolContract.address,
         newBalance.lpBalance_,
         newIndex
       );
-      expect(newDepositedQuoteAmount).to.be.equal(ethers.utils.parseUnits("90000", 18));
+      expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.TEN_THOUSAND.mul(9));
       expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(lendAmount).add(withdrawAmount));
     });
     it("should supplyQuote and withdrawQuote", async () => {
@@ -815,9 +771,9 @@ describe.only("AjnaProxyActions", function () {
         pool: await usdc.balanceOf(poolContract.address),
       };
 
-      const price = ethers.utils.parseUnits("16821.273", 18);
-      const lendAmount = ethers.utils.parseUnits("1000", 6);
-      const withdrawAmount = ethers.utils.parseUnits("2000", 6);
+      const price = bn.eighteen.TEST_PRICE_3;
+      const lendAmount = bn.six.THOUSAND;
+      const withdrawAmount = bn.six.THOUSAND.mul(2);
 
       await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
       // increase the time of the next block
@@ -838,10 +794,10 @@ describe.only("AjnaProxyActions", function () {
         lender: await usdc.balanceOf(lender.address),
         pool: await usdc.balanceOf(poolContract.address),
       };
-      const lendAmount = ethers.utils.parseUnits("10000000", 6);
-      const borrowAmount = ethers.utils.parseUnits("10000000", 6);
-      const depositAmount = ethers.utils.parseUnits("100000", 8);
-      const price = ethers.utils.parseUnits("16821.273", 18);
+      const lendAmount = bn.six.MILLION;
+      const borrowAmount = bn.six.MILLION;
+      const depositAmount = bn.eight.HUNDRED_THOUSAND;
+      const price = bn.eighteen.TEST_PRICE_3;
 
       await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
       // increase the time of the next block
@@ -894,19 +850,11 @@ describe.only("AjnaProxyActions", function () {
         ajnaRewardsClaimerContract,
       } = await loadFixture(deploy);
 
-      const price = ethers.utils.parseUnits("46776653369145271678115", 0);
-      const lendAmount = ethers.utils.parseUnits("1000000000", 6);
-      const borrowAmount = ethers.utils.parseUnits("10000", 6);
+      const price = bn.eighteen.TEST_PRICE_4;
+      const lendAmount = bn.six.MILLION;
+      const borrowAmount = bn.six.TEN_THOUSAND;
 
-      await supplyQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        ethers.utils.parseUnits("1000000000", 6),
-        price
-      );
+      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, bn.six.MILLION, price);
       await mintAndStakeNft(ajnaProxyActionsContract, poolContract, lenderProxy, lender, price);
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -926,7 +874,7 @@ describe.only("AjnaProxyActions", function () {
         borrower,
         borrowerProxy,
         borrowAmount,
-        ethers.utils.parseUnits("10", 8)
+        bn.eight.TEN
       );
 
       await depositAndDrawDebt(
@@ -937,7 +885,7 @@ describe.only("AjnaProxyActions", function () {
         borrower,
         borrowerProxy,
         borrowAmount,
-        ethers.utils.parseUnits("10", 8)
+        bn.eight.TEN
       );
 
       await hre.network.provider.send("evm_increaseTime", ["0x11C60"]);
@@ -985,19 +933,11 @@ describe.only("AjnaProxyActions", function () {
         ajnaRewardsClaimerContract,
       } = await loadFixture(deploy);
 
-      const price = ethers.utils.parseUnits("46776653369145271678115", 0);
-      const lendAmount = ethers.utils.parseUnits("1000000000", 6);
-      const borrowAmount = ethers.utils.parseUnits("10000", 6);
+      const price = bn.eighteen.TEST_PRICE_4;
+      const lendAmount = bn.six.MILLION;
+      const borrowAmount = bn.six.TEN_THOUSAND;
 
-      await supplyQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        ethers.utils.parseUnits("1000000000", 6),
-        price
-      );
+      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, bn.six.MILLION, price);
       await mintAndStakeNft(ajnaProxyActionsContract, poolContract, lenderProxy, lender, price);
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -1017,7 +957,7 @@ describe.only("AjnaProxyActions", function () {
         borrower,
         borrowerProxy,
         borrowAmount,
-        ethers.utils.parseUnits("10", 8)
+        bn.eight.TEN
       );
 
       await depositAndDrawDebt(
@@ -1028,7 +968,7 @@ describe.only("AjnaProxyActions", function () {
         borrower,
         borrowerProxy,
         borrowAmount,
-        ethers.utils.parseUnits("10", 8)
+        bn.eight.TEN
       );
 
       await hre.network.provider.send("evm_increaseTime", ["0x11C60"]);
@@ -1068,19 +1008,11 @@ describe.only("AjnaProxyActions", function () {
         ajnaRewardsClaimerContract,
       } = await loadFixture(deploy);
 
-      const price = ethers.utils.parseUnits("46776653369145271678115", 0);
-      const lendAmount = ethers.utils.parseUnits("1000000000", 6);
-      const borrowAmount = ethers.utils.parseUnits("10000", 6);
+      const price = bn.eighteen.TEST_PRICE_4;
+      const lendAmount = bn.six.MILLION;
+      const borrowAmount = bn.six.TEN_THOUSAND;
 
-      await supplyQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        ethers.utils.parseUnits("1000000000", 6),
-        price
-      );
+      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, bn.six.MILLION, price);
       await mintAndStakeNft(ajnaProxyActionsContract, poolContract, lenderProxy, lender, price);
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -1100,7 +1032,7 @@ describe.only("AjnaProxyActions", function () {
         borrower,
         borrowerProxy,
         borrowAmount,
-        ethers.utils.parseUnits("10", 8)
+        bn.eight.TEN
       );
 
       await depositAndDrawDebt(
@@ -1111,7 +1043,7 @@ describe.only("AjnaProxyActions", function () {
         borrower,
         borrowerProxy,
         borrowAmount,
-        ethers.utils.parseUnits("10", 8)
+        bn.eight.TEN
       );
 
       await hre.network.provider.send("evm_increaseTime", ["0x11C60"]);
@@ -1137,8 +1069,8 @@ describe.only("AjnaProxyActions", function () {
     it("should supplyQuoteMintNftAndStake - open with NFT", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
-      const price = ethers.utils.parseUnits("93863.654", 18);
-      const lendAmount = ethers.utils.parseUnits("1000000000", 6);
+      const price = bn.eighteen.TEST_PRICE_1;
+      const lendAmount = bn.six.MILLION;
 
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -1153,9 +1085,9 @@ describe.only("AjnaProxyActions", function () {
     it("should supplyQuoteMintNftAndStake --> supplyAndMoveQuoteNft", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
-      const price = ethers.utils.parseUnits("93863.654", 18);
-      const newPrice = ethers.utils.parseUnits("99863.654", 18);
-      const lendAmount = ethers.utils.parseUnits("1000000000", 6);
+      const price = bn.eighteen.TEST_PRICE_1;
+      const newPrice = bn.eighteen.TEST_PRICE_2;
+      const lendAmount = bn.six.MILLION;
 
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -1182,9 +1114,9 @@ describe.only("AjnaProxyActions", function () {
     it("should supplyQuoteMintNftAndStake --> withdrawAndMoveQuoteNft", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
-      const price = ethers.utils.parseUnits("93863.654", 18);
-      const newPrice = ethers.utils.parseUnits("99863.654", 18);
-      const lendAmount = ethers.utils.parseUnits("1000000000", 6);
+      const price = bn.eighteen.TEST_PRICE_1;
+      const newPrice = bn.eighteen.TEST_PRICE_2;
+      const lendAmount = bn.six.MILLION;
 
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -1211,8 +1143,8 @@ describe.only("AjnaProxyActions", function () {
     it("should supplyQuoteMintNftAndStake --> supplyQuoteNft", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
-      const price = ethers.utils.parseUnits("93863.654", 18);
-      const lendAmount = ethers.utils.parseUnits("1000000000", 6);
+      const price = bn.eighteen.TEST_PRICE_1;
+      const lendAmount = bn.six.MILLION;
 
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -1229,8 +1161,8 @@ describe.only("AjnaProxyActions", function () {
     it("should supplyQuoteMintNftAndStake --> withdrawQuoteNft", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
-      const price = ethers.utils.parseUnits("93863.654", 18);
-      const lendAmount = ethers.utils.parseUnits("1000000000", 6);
+      const price = bn.eighteen.TEST_PRICE_1;
+      const lendAmount = bn.six.MILLION;
 
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -1256,9 +1188,9 @@ describe.only("AjnaProxyActions", function () {
     it("should supplyQuoteMintNftAndStake --> moveQuoteNft ", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
-      const price = ethers.utils.parseUnits("93863.654", 18);
-      const newPrice = ethers.utils.parseUnits("99863.654", 18);
-      const lendAmount = ethers.utils.parseUnits("1000000000", 6);
+      const price = bn.eighteen.TEST_PRICE_1;
+      const newPrice = bn.eighteen.TEST_PRICE_2;
+      const lendAmount = bn.six.MILLION;
 
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -1275,8 +1207,8 @@ describe.only("AjnaProxyActions", function () {
     it("should supplyQuoteMintNftAndStake --> unstakeNftAndWithdrawQuote - close ", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
-      const price = ethers.utils.parseUnits("93863.654", 18);
-      const lendAmount = ethers.utils.parseUnits("1000000000", 6);
+      const price = bn.eighteen.TEST_PRICE_1;
+      const lendAmount = bn.six.MILLION;
 
       await supplyQuoteMintNftAndStake(
         ajnaProxyActionsContract,
@@ -1308,7 +1240,7 @@ async function withdrawQuote(
     amountToWithdraw,
     price,
   ]);
-  await usdc.connect(lender).approve(lenderProxy.address, MILLION);
+  await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
     .connect(lender)
     .execute(ajnaProxyActionsContract.address, encodedWithdrawQuoteData, {
@@ -1333,7 +1265,7 @@ async function supplyQuote(
     amountToSupply,
     price,
   ]);
-  await usdc.connect(lender).approve(lenderProxy.address, MILLION);
+  await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const tx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, encodedSupplyQuoteData, {
     gasLimit: 3000000,
   });
@@ -1355,7 +1287,7 @@ async function moveQuote(
     price,
     newPrice,
   ]);
-  await usdc.connect(lender).approve(lenderProxy.address, MILLION);
+  await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
     .connect(lender)
     .execute(ajnaProxyActionsContract.address, encodedWithdrawQuoteData, {
@@ -1381,7 +1313,7 @@ async function supplyAndMoveQuote(
     price,
     newPrice,
   ]);
-  await usdc.connect(lender).approve(lenderProxy.address, MILLION);
+  await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
     .connect(lender)
     .execute(ajnaProxyActionsContract.address, encodedWithdrawQuoteData, {
@@ -1407,7 +1339,7 @@ async function withdrawAndMoveQuote(
     oldPrice,
     newPrice,
   ]);
-  await usdc.connect(lender).approve(lenderProxy.address, MILLION);
+  await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
     .connect(lender)
     .execute(ajnaProxyActionsContract.address, encodedWithdrawQuoteData, {
@@ -1433,7 +1365,7 @@ async function supplyQuoteNft(
     price,
     tokenId,
   ]);
-  await usdc.connect(lender).approve(lenderProxy.address, MILLION);
+  await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
     .connect(lender)
     .execute(ajnaProxyActionsContract.address, encodedWithdrawQuoteData, {
@@ -1459,7 +1391,7 @@ async function withdrawQuoteNft(
     price,
     tokenId,
   ]);
-  await usdc.connect(lender).approve(lenderProxy.address, MILLION);
+  await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
     .connect(lender)
     .execute(ajnaProxyActionsContract.address, encodedWithdrawQuoteData, {
@@ -1483,7 +1415,7 @@ async function unstakeNftAndWithdrawQuote(
     price,
     tokenId,
   ]);
-  await usdc.connect(lender).approve(lenderProxy.address, MILLION);
+  await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, encodedData, {
     gasLimit: 3000000,
   });
@@ -1526,7 +1458,7 @@ async function withdrawCollateral(
     poolContract.address,
     amountToWithdraw,
   ]);
-  const approvalTx = await wbtc.connect(borrower).approve(borrowerProxy.address, MILLION);
+  const approvalTx = await wbtc.connect(borrower).approve(borrowerProxy.address, bn.eighteen.MILLION);
   const receiptApproval = await approvalTx.wait();
   const withdrawCollateralTx = await borrowerProxy
     .connect(borrower)
@@ -1556,7 +1488,7 @@ async function depositCollateral(
     amountToDeposit,
     price,
   ]);
-  const approvalTx = await collateralToken.connect(borrower).approve(borrowerProxy.address, MILLION);
+  const approvalTx = await collateralToken.connect(borrower).approve(borrowerProxy.address, bn.eighteen.MILLION);
   const addCollateralTx = await borrowerProxy
     .connect(borrower)
     .execute(ajnaProxyActionsContract.address, encodedAddCollateralData, {
@@ -1581,7 +1513,7 @@ async function repayAndClose(
   const encodedRepayData = ajnaProxyActionsContract.interface.encodeFunctionData("repayAndClose", [
     poolContract.address,
   ]);
-  const approvalTx = await usdc.connect(borrower).approve(borrowerProxy.address, MILLION);
+  const approvalTx = await usdc.connect(borrower).approve(borrowerProxy.address, bn.eighteen.MILLION);
   const approvalTxReceipt = await approvalTx.wait();
   const repayTx = await borrowerProxy.connect(borrower).execute(ajnaProxyActionsContract.address, encodedRepayData, {
     gasLimit: 3000000,
@@ -1676,7 +1608,7 @@ async function supplyAndMoveQuoteNft(
     newPrice,
     tokenId,
   ]);
-  await debt.connect(lender).approve(poolContract.address, MILLION);
+  await debt.connect(lender).approve(poolContract.address, bn.eighteen.MILLION);
   const mintNftTx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, mintNftData, {
     gasLimit: 3000000,
   });
@@ -1702,7 +1634,7 @@ async function withdrawAndMoveQuoteNft(
     newPrice,
     tokenId,
   ]);
-  await debt.connect(lender).approve(poolContract.address, MILLION);
+  await debt.connect(lender).approve(poolContract.address, bn.eighteen.MILLION);
   const mintNftTx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, mintNftData, {
     gasLimit: 3000000,
   });
@@ -1733,7 +1665,7 @@ async function repayDebt(
       borrowerInfo.debt_.mul(105).div(100).div(quoteScale),
     ]);
   }
-  const approvalTx = await usdc.connect(borrower).approve(borrowerProxy.address, MILLION);
+  const approvalTx = await usdc.connect(borrower).approve(borrowerProxy.address, bn.eighteen.MILLION);
   const receiptApproval = await approvalTx.wait();
   const repayTx = await borrowerProxy.connect(borrower).execute(ajnaProxyActionsContract.address, encodedRepayData, {
     gasLimit: 3000000,
@@ -1764,7 +1696,7 @@ async function depositAndDrawDebt(
     price,
   ]);
   if (!isWeth) {
-    await collateralToken.connect(borrower).approve(borrowerProxy.address, MILLION);
+    await collateralToken.connect(borrower).approve(borrowerProxy.address, bn.eighteen.MILLION);
   }
   const tx2 = await borrowerProxy.connect(borrower).execute(ajnaProxyActionsContract.address, encodedAOpenAndDrawData, {
     gasLimit: 3000000,
@@ -1777,16 +1709,12 @@ async function depositAndDrawDebt(
 }
 
 async function provideLiquidity(usdc: DSToken, poolContract: ERC20Pool, poolContractWeth: ERC20Pool, lender: Signer) {
-  await usdc.connect(lender).approve(poolContract.address, MILLION);
-  await usdc.connect(lender).approve(poolContractWeth.address, MILLION);
+  await usdc.connect(lender).approve(poolContract.address, bn.eighteen.MILLION);
+  await usdc.connect(lender).approve(poolContractWeth.address, bn.eighteen.MILLION);
   const blockNumber = await ethers.provider.getBlockNumber();
   const timestamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
-  const tx = await poolContract
-    .connect(lender)
-    .addQuoteToken(ethers.utils.parseUnits("10000000", 18), 2000, timestamp + 100000);
-  const tx2 = await poolContractWeth
-    .connect(lender)
-    .addQuoteToken(ethers.utils.parseUnits("10000000", 18), 2000, timestamp + 100000);
+  const tx = await poolContract.connect(lender).addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000);
+  const tx2 = await poolContractWeth.connect(lender).addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000);
   await tx.wait();
   await tx2.wait();
 }
