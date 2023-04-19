@@ -1,5 +1,5 @@
 import { AAVETokensToGet } from '@dma-contracts/test/utils/aave'
-import { deploySystem } from '@oasisdex/dma-common/test-utils/deploy-system'
+import { deploySystem } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import BigNumber from 'bignumber.js'
 

@@ -3,7 +3,7 @@ import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import poolERC20Abi from '@oasisdex/abis/external/protocols/ajna/ajnaPoolERC20.json'
 import poolInfoAbi from '@oasisdex/abis/external/protocols/ajna/poolInfoUtils.json'
 import { ZERO } from '@oasisdex/dma-common/constants'
-import { Address } from '@oasisdex/dma-common/types/address'
+import { Address } from '@oasisdex/dma-deployments/types/address'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 

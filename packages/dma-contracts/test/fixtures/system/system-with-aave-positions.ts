@@ -2,7 +2,7 @@ import {
   buildGetTokenByImpersonateFunction,
   buildGetTokenFunction,
 } from '@dma-contracts/test/utils/aave'
-import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
+import { createDPMAccount } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'

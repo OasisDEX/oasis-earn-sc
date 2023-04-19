@@ -1,9 +1,8 @@
+import init, { resetNode } from '@dma-common/utils/init'
 import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { buildGetTokenByImpersonateFunction } from '@dma-contracts/test/utils/aave'
-import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
-import { deploySystem } from '@oasisdex/dma-common/test-utils/deploy-system'
-import init, { resetNode } from '@oasisdex/dma-common/utils/init'
+import { createDPMAccount, deploySystem } from '@oasisdex/dma-common/test-utils'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
 

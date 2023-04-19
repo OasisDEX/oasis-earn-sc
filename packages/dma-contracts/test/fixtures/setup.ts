@@ -1,4 +1,4 @@
-import init from '@oasisdex/dma-common/utils/init'
+import init from '@dma-common/utils/init'
 
 export async function initialiseConfig() {
   const config = await init()

@@ -1,7 +1,7 @@
 import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE } from '@oasisdex/dma-common/constants'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
+import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AAVETokens } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'

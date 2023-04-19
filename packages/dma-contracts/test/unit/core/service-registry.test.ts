@@ -1,8 +1,8 @@
+import { createDeploy } from '@dma-common/utils/deploy'
+import init from '@dma-common/utils/init'
 import { ContractNames } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
-import { createDeploy } from '@oasisdex/dma-common/utils/deploy'
-import init from '@oasisdex/dma-common/utils/init'
-import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers/service-registry'
+import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
 import { utils } from 'ethers'
 
 describe('Service Registry: Semantic Action Versioning | Unit', function () {

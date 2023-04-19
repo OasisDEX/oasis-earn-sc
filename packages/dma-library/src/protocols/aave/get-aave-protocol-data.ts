@@ -1,4 +1,7 @@
 // V2 ABIs
+import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
+import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
+import { AaveVersion } from '@dma-library/strategies'
 import aaveV2PriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
 import aaveV2ProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
 // V3 ABIs
@@ -10,14 +13,10 @@ import aaveV3PriceOracleOptimismABI from '@oasisdex/abis/external/protocols/aave
 import aaveV3ProtocolDataProviderOptimismABI from '@oasisdex/abis/external/protocols/aave/v3-l2/aaveProtocolDataProvider.json'
 import aaveV3PoolOptimismABI from '@oasisdex/abis/external/protocols/aave/v3-l2/pool.json'
 import { amountFromWei } from '@oasisdex/dma-common/utils/common'
-import { getForkedNetwork as coalesceNetwork } from '@oasisdex/dma-common/utils/network'
 import { Network } from '@oasisdex/dma-deployments/types/network'
+import { getForkedNetwork as coalesceNetwork } from '@oasisdex/dma-deployments/utils/network'
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
-
-import { AAVEStrategyAddresses } from '../../operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '../../operations/aave/v3'
-import { AaveVersion } from '../../strategies'
 
 type InternalAaveProtocolData<AaveAddresses> = {
   collateralTokenAddress: string

@@ -1,3 +1,4 @@
+import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import {
   getSupportedStrategies,
@@ -7,7 +8,6 @@ import {
 import { ZERO } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
-import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { strategies } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'

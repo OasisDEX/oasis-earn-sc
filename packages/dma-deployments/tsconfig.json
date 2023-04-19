@@ -18,11 +18,9 @@
       "../../node_modules/@types"
     ],
     "paths": {
-      "@dma-library/*": [
-        "../dma-library/src/*"
-      ],
-      "utils/*": ["../dma-common/utils/*"],
-      "@oasisdex/addresses": ["../addresses/src/index.ts"]
+      "@dma-deployments/utils/*": ["./utils/*"],
+      "@dma-deployments/types/*": ["./types/*"],
+      "@dma-deployments/constants/*": ["./constants/*"],
     }
   },
   "include": [

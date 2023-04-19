@@ -1,3 +1,4 @@
+import { executeThroughProxy } from '@dma-common/utils/execute'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
 import { Contract } from '@ethersproject/contracts'
@@ -7,18 +8,17 @@ import ERC20ABI from '@oasisdex/abis/external/tokens/IERC20.json'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import {
+  DeployedSystemInfo,
   expect,
   GasEstimateHelper,
   gasEstimateHelper,
   restoreSnapshot,
 } from '@oasisdex/dma-common/test-utils'
-import { DeployedSystemInfo } from '@oasisdex/dma-common/test-utils/deploy-system'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
-import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker/vault'
-import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers/service-registry'
 import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
 import { ActionFactory, calldataTypes } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'

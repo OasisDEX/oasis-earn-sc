@@ -5,7 +5,7 @@ import { expect } from '@oasisdex/dma-common/test-utils'
 import { balanceOf } from '@oasisdex/dma-common/utils/common'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 
-import { aDAI, BORROW_OPERATION, deployedContracts, DEPOSIT_OPERATION } from './L2TestsHelper'
+import { aDAI, BORROW_OPERATION, deployedContracts, DEPOSIT_OPERATION } from './l2-tests-helper'
 
 // TODO: UPDATE TEST
 describe.skip('Borrow Action | E2E', () => {

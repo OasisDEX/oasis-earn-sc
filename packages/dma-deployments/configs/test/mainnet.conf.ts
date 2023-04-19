@@ -1,5 +1,5 @@
-import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
-import { SystemConfig } from '../../types/deployment-config'
+import { CONTRACT_NAMES } from '@dma-deployments/constants/contract-names'
+import { SystemConfig } from '@dma-deployments/types/deployment-config'
 
 export const config: SystemConfig = {
   mpa: {

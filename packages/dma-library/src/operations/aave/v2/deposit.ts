@@ -2,7 +2,7 @@ import * as actions from '@dma-library/actions'
 import { isDefined } from '@dma-library/utils/is-defined'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
-import { Address } from '@oasisdex/dma-common/types/address'
+import { Address } from '@oasisdex/dma-deployments/types/address'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 

@@ -1,12 +1,11 @@
 import * as actions from '@dma-library/actions'
-import { getActionHash } from '@dma-library/actions/get-action-hash'
 import { FlashloanProvider } from '@dma-library/types/common'
 import { IOperation } from '@dma-library/types/operations'
 import { PositionType } from '@dma-library/types/position-type'
 import { Protocol } from '@dma-library/types/protocol'
-import { OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
-import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
+import { ZERO } from '@oasisdex/dma-common/constants'
 import { Address } from '@oasisdex/dma-common/types/address'
+import { aaveOpenV2OperationDefinition } from '@oasisdex/dma-deployments/operation-definitions'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -34,57 +33,6 @@ interface OpenArgs {
   proxy: Address
   user: Address
   isDPMProxy: boolean
-}
-
-export const operationDefinition = {
-  name: OPERATION_NAMES.aave.v2.OPEN_POSITION,
-  actions: [
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.PULL_TOKEN),
-      optional: true,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.PULL_TOKEN),
-      optional: true,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v2.DEPOSIT),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v2.BORROW),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.WRAP_ETH),
-      optional: true,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.SWAP_ACTION),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v2.DEPOSIT),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
-      optional: false,
-    },
-    { hash: getActionHash(CONTRACT_NAMES.common.POSITION_CREATED), optional: false },
-  ],
 }
 
 export async function open({
@@ -212,6 +160,6 @@ export async function open({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: operationDefinition.name,
+    operationName: aaveOpenV2OperationDefinition.name,
   }
 }

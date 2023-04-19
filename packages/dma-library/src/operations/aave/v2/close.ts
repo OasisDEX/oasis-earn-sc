@@ -1,64 +1,13 @@
 import * as actions from '@dma-library/actions'
-import { getActionHash } from '@dma-library/actions/get-action-hash'
 import { IOperation } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'
 import { ADDRESSES } from '@oasisdex/addresses'
-import { MAX_UINT, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
-import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
+import { MAX_UINT } from '@oasisdex/dma-common/constants'
+import { aaveCloseV2OperationDefinition } from '@oasisdex/dma-deployments/operation-definitions'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
 import { AAVEStrategyAddresses } from './addresses'
-
-export const operationDefinition = {
-  name: OPERATION_NAMES.aave.v2.CLOSE_POSITION,
-  actions: [
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v2.DEPOSIT),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.SWAP_ACTION),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v2.PAYBACK),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.UNWRAP_ETH),
-      optional: true,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.RETURN_FUNDS),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.RETURN_FUNDS),
-      optional: false,
-    },
-  ],
-}
 
 export async function close(
   args: {
@@ -166,5 +115,5 @@ export async function close(
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: operationDefinition.name }
+  return { calls: [takeAFlashLoan], operationName: aaveCloseV2OperationDefinition.name }
 }
