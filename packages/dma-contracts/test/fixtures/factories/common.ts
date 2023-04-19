@@ -1,4 +1,4 @@
-import { addressesByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
+import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 

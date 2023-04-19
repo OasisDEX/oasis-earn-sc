@@ -9,12 +9,12 @@ import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/proto
 import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
 import {
+  addressesByNetwork,
   expect,
   GasEstimateHelper,
   gasEstimateHelper,
   restoreSnapshot,
 } from '@oasisdex/dma-common/test-utils'
-import { addressesByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountFromWei, amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'

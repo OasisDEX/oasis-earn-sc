@@ -85,7 +85,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
     address,
-    ADDRESSES[Network.MAINNET].common.feeRecipient,
+    ADDRESSES[Network.MAINNET].common.FeeRecipient,
     0,
     serviceRegistryAddress,
   ])
@@ -324,13 +324,15 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     CONTRACT_NAMES.aave.v2.PAYBACK,
     actionPaybackFromAAVEAddress,
   )
+
+  if (!ADDRESSES[Network.MAINNET].aave.v2) throw new Error('Missing AAVE V2 addresses on mainnet')
   await registry.addEntry(
     CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
-    ADDRESSES[Network.MAINNET].common.aave.v2.WETHGateway,
+    ADDRESSES[Network.MAINNET].aave.v2.WETHGateway,
   )
   await registry.addEntry(
     CONTRACT_NAMES.aave.v2.LENDING_POOL,
-    ADDRESSES[Network.MAINNET].common.aave.v2.LendingPool,
+    ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
   )
 
   //-- Add AAVE V3 Contract Entries

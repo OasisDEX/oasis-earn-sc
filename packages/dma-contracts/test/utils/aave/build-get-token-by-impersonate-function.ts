@@ -1,5 +1,5 @@
 import erc20abi from '@oasisdex/abis/external/tokens/IERC20.json'
-import { addressesByNetwork, isOptimismByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
+import { addressesByNetwork, isOptimismByNetwork } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AAVETokens } from '@oasisdex/dma-library'

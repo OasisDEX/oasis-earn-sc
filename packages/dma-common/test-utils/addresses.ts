@@ -29,6 +29,7 @@ export function addressesByNetwork<T extends Network>(network: T): NetworkAddres
 // These addresses are used to map the addresses in the library
 // Into a form expected by our tests
 // TODO: Use addresses from our deploy system should be the source of truth for Addresses
+if (!ADDRESSES[Network.MAINNET].aave.v2) throw new Error('Missing aave v2 addresses for mainnet')
 const testAddresses = {
   [Network.MAINNET]: {
     DAI: ADDRESSES[Network.MAINNET].common.DAI,
@@ -45,7 +46,7 @@ const testAddresses = {
     protocolDataProvider: ADDRESSES[Network.MAINNET].aave.v2.ProtocolDataProvider,
     aaveOracle: ADDRESSES[Network.MAINNET].aave.v3.AaveOracle,
     pool: ADDRESSES[Network.MAINNET].aave.v3.Pool,
-    poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.PoolDataProvider,
+    poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.AaveProtocolDataProvider,
   },
   [Network.OPTIMISM]: {
     DAI: ADDRESSES[Network.OPTIMISM].common.DAI,
@@ -59,7 +60,7 @@ const testAddresses = {
     chainlinkEthUsdPriceFeed: ADDRESSES[Network.OPTIMISM].common.ChainlinkEthUsdPriceFeed,
     aaveOracle: ADDRESSES[Network.OPTIMISM].aave.v3.AaveOracle,
     pool: ADDRESSES[Network.OPTIMISM].aave.v3.Pool,
-    poolDataProvider: ADDRESSES[Network.OPTIMISM].aave.v3.PoolDataProvider,
+    poolDataProvider: ADDRESSES[Network.OPTIMISM].aave.v3.AaveProtocolDataProvider,
   },
 }
 

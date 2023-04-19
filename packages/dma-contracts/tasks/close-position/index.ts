@@ -4,7 +4,7 @@ import AAVELendingPoolABI from '@oasisdex/abis/external/protocols/aave/v2/lendin
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
-import { addressesByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
+import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
 import { balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import init from '@oasisdex/dma-common/utils/init'
@@ -87,7 +87,11 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     const proxy = await getOrCreateProxy(
-      await getDsProxyRegistry(config.signer, ADDRESSES[Network.MAINNET].common.ProxyRegistry, hre),
+      await getDsProxyRegistry(
+        config.signer,
+        ADDRESSES[Network.MAINNET].mpa.core.DSProxyRegistry,
+        hre,
+      ),
       config.signer,
     )
 

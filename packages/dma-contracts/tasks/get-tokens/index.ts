@@ -1,13 +1,9 @@
-import { Network } from '@helpers/network'
-import { swapOneInchTokens } from '@helpers/swap/1inch'
-import { amountToWei } from '@helpers/utils'
-import { mainnetAddresses } from '@dma-contracts/test/addresses'
+import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
 import { amountToWei } from '@oasisdex/dma-common/utils/common'
 import { swapOneInchTokens } from '@oasisdex/dma-common/utils/swap'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
-
-import { addressesByNetwork } from '../../test/test-utils/addresses'
 
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 

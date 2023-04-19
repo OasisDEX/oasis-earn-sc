@@ -5,8 +5,7 @@ import { systemWithAaveV3Positions } from '@dma-contracts/test/fixtures/system/s
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { ZERO } from '@oasisdex/dma-common/constants'
-import { expect } from '@oasisdex/dma-common/test-utils'
-import { isMainnetByNetwork, isOptimismByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
+import { expect, isMainnetByNetwork, isOptimismByNetwork } from '@oasisdex/dma-common/test-utils'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import {

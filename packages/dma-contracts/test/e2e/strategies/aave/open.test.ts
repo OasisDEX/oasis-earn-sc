@@ -8,8 +8,7 @@ import {
   systemWithAaveV3Positions,
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
-import { expect } from '@oasisdex/dma-common/test-utils'
-import { isOptimismByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
+import { expect, isOptimismByNetwork } from '@oasisdex/dma-common/test-utils'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { PositionTransition } from '@oasisdex/dma-library'
 import { IPosition } from '@oasisdex/domain'

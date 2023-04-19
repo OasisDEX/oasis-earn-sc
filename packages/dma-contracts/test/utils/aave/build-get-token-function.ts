@@ -1,5 +1,5 @@
 import { ONE } from '@oasisdex/dma-common/constants'
-import { addressesByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
+import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap'
 import { Network } from '@oasisdex/dma-deployments/types/network'

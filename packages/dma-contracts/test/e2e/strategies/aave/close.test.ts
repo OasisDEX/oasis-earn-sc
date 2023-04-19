@@ -19,12 +19,12 @@ import aaveOracleABI from '@oasisdex/abis/external/protocols/aave/v3/aaveOracle.
 import AAVEProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
 import AAVEPoolABI from '@oasisdex/abis/external/protocols/aave/v3/pool.json'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
-import { expect } from '@oasisdex/dma-common/test-utils'
 import {
   addressesByNetwork,
+  expect,
   isMainnetByNetwork,
   isOptimismByNetwork,
-} from '@oasisdex/dma-common/test-utils/addresses'
+} from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig, Unbox } from '@oasisdex/dma-common/types/common'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'

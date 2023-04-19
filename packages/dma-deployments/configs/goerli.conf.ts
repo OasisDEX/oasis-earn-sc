@@ -324,6 +324,10 @@ export const config: SystemConfig = {
       name: 'CdpManager',
       address: constants.AddressZero,
     },
+    GetCdps: {
+      name: 'CdpManager',
+      address: constants.AddressZero,
+    },
     Jug: {
       name: 'Jug',
       address: constants.AddressZero,

@@ -10,6 +10,7 @@ import {
   Contracts,
   CoreContracts,
   DeploymentConfig,
+  MakerProtocol,
   SystemKeys,
 } from '@oasisdex/dma-deployments/types/deployment-config'
 import { Network } from '@oasisdex/dma-deployments/types/network'
@@ -27,15 +28,34 @@ enum AaveKeys {
   V3 = 'v3',
 }
 
-export type Addresses = Record<
-  DeployedNetworks,
-  | Record<SystemKeys.MPA, Record<MpaKeys.CORE, Record<CoreContracts, Address>>>
-  | Record<SystemKeys.MPA, Record<MpaKeys.ACTIONS, Record<Actions, Address>>>
-  | Record<SystemKeys.COMMON, Record<Common, Address>>
-  | Record<SystemKeys.AAVE, Record<AaveKeys.V2, Record<AaveV2Protocol, Address>> | undefined>
-  | Record<SystemKeys.AAVE, Record<AaveKeys.V3, Record<AaveV3Protocol, Address>>>
->
+type DefaultDeployment = {
+  [SystemKeys.MPA]: {
+    [MpaKeys.CORE]: Record<CoreContracts, Address>
+    [MpaKeys.ACTIONS]: Record<Actions, Address>
+  }
+  [SystemKeys.COMMON]: Record<Common, Address>
+  [SystemKeys.AAVE]: {
+    [AaveKeys.V3]: Record<AaveV3Protocol, Address>
+  }
+  [SystemKeys.MAKER]: Record<MakerProtocol, Address>
+}
 
+type AaveDeployment = {
+  [SystemKeys.AAVE]: {
+    [AaveKeys.V2]: Record<AaveV2Protocol, Address>
+    [AaveKeys.V3]: Record<AaveV3Protocol, Address>
+  }
+}
+
+type MainnetDeployment = Omit<DefaultDeployment, SystemKeys.AAVE> & AaveDeployment
+
+export type Addresses = {
+  [Network.MAINNET]: MainnetDeployment
+  [Network.OPTIMISM]: DefaultDeployment
+  [Network.GOERLI]: DefaultDeployment
+}
+
+if (!mainnetConfig.aave.v2) throw new Error('Missing aave v2 config on mainnet')
 export const ADDRESSES: Addresses = {
   [Network.MAINNET]: {
     mpa: {
@@ -51,7 +71,7 @@ export const ADDRESSES: Addresses = {
     },
     aave: {
       v2: {
-        ...(mainnetConfig.aave.v2 ? extractAddressesFromConfig(mainnetConfig.aave.v2) : {}),
+        ...extractAddressesFromConfig(mainnetConfig.aave.v2),
       },
       v3: {
         ...extractAddressesFromConfig(mainnetConfig.aave.v3),

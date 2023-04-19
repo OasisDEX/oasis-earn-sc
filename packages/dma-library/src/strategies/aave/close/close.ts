@@ -30,8 +30,8 @@ import {
   ZERO,
 } from '@oasisdex/dma-common/constants'
 import { amountFromWei, amountToWei } from '@oasisdex/dma-common/utils/common'
-import { getForkedNetwork } from '@oasisdex/dma-common/utils/network'
 import { calculateFee } from '@oasisdex/dma-common/utils/swap'
+import { getForkedNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { FLASHLOAN_SAFETY_MARGIN, Position } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'

@@ -73,6 +73,7 @@ export type MakerProtocol =
   | 'FlashMintModule'
   | 'Chainlog'
   | 'CdpManager'
+  | 'GetCdps'
   | 'Jug'
   | 'JoinDAI'
   | 'PipWETH'

@@ -3,7 +3,7 @@ import {
   PositionDetails,
   StrategyDependenciesAaveV2,
 } from '@dma-contracts/test/fixtures/types'
-import { addressesByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
+import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
 import { Address } from '@oasisdex/dma-common/types/address'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'

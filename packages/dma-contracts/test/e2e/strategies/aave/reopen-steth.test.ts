@@ -4,8 +4,12 @@ import { testBlockNumber } from '@dma-contracts/test/config'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ONE, OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
-import { deploySystem, expect, restoreSnapshot } from '@oasisdex/dma-common/test-utils'
-import { addressesByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
+import {
+  addressesByNetwork,
+  deploySystem,
+  expect,
+  restoreSnapshot,
+} from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei } from '@oasisdex/dma-common/utils/common'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'

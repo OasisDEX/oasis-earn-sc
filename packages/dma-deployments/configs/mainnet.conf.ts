@@ -364,6 +364,10 @@ export const config: SystemConfig = {
       name: 'CdpManager',
       address: '0x5ef30b9986345249bc32d8928B7ee64DE9435E39',
     },
+    GetCdps: {
+      name: 'GetCdps',
+      address: '0x36a724Bd100c39f0Ea4D3A20F7097eE01A8Ff573',
+    },
     Jug: {
       name: 'Jug',
       address: '0x19c0976f590D67707E62397C87829d896Dc0f1F1',
