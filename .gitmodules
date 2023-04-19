@@ -1,9 +1,0 @@
-[submodule "libs/prb-math"]
-	path = libs/prb-math
-	url = https://github.com/paulrberg/prb-math
-[submodule "libs/base64"]
-	path = libs/base64
-	url = https://github.com/Brechtpd/base64
-[submodule "libs/clones-with-immutable-args"]
-	path = libs/clones-with-immutable-args
-	url = https://github.com/wighawag/clones-with-immutable-args.git
