@@ -65,10 +65,10 @@ export class AjnaEarnPosition implements IAjnaEarn {
   get marketPrice() {
     return this.collateralPrice.div(this.quotePrice)
   }
-  // TODO here we will need also verify lup change due to quote deposit
+
   get getFeeWhenBelowLup() {
     return this.price.lt(this.pool.lowestUtilizedPrice)
-      ? this.pool.interestRate.div(365).times(this.quoteTokenAmount).times(this.quotePrice)
+      ? this.pool.interestRate.div(365).times(this.quoteTokenAmount)
       : ZERO
   }
 
@@ -107,7 +107,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
 
   getBreakEven(openPositionGasFee: BigNumber) {
     const apy1Day = this.getApyPerDays({ amount: this.quoteTokenAmount, days: 1 })
-    const openPositionFees = this.getFeeWhenBelowLup.plus(openPositionGasFee)
+    const openPositionFees = this.getFeeWhenBelowLup.times(this.quotePrice).plus(openPositionGasFee)
 
     if (!apy1Day || !this.quoteTokenAmount) return undefined
 
