@@ -1,4 +1,4 @@
-import { Address } from '@oasisdex/dma-common/types/address'
+import { Address } from '@oasisdex/dma-deployments/types/address'
 import { IPositionCategory, Position, PositionBalance } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
 import { Optional } from 'utility-types'

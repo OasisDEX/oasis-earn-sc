@@ -1,8 +1,13 @@
-import { StrategyDependenciesAaveV2 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
+import {
+  AavePositionStrategy,
+  PositionDetails,
+  StrategyDependenciesAaveV2,
+} from '@dma-contracts/test/fixtures/types'
 import { addressesByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
 import { Address } from '@oasisdex/dma-common/types/address'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AaveVersion, strategies } from '@oasisdex/dma-library'
 import {
@@ -11,9 +16,7 @@ import {
 } from '@oasisdex/dma-library/strategies/aave/open/open'
 import { RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
-import { executeThroughDPMProxy, executeThroughProxy } from 'utils/execute'
 
-import { AavePositionStrategy, PositionDetails } from '../types'
 import { ETH, MULTIPLE, STETH, UNISWAP_TEST_SLIPPAGE } from './common'
 import { OpenPositionTypes } from './open-position-types'
 

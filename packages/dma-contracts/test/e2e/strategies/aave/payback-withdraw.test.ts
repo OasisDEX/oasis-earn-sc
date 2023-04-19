@@ -6,12 +6,12 @@ import {
 import { ZERO } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { addressesByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
+import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { strategies } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
-import { amountToWei, approve, balanceOf } from 'utils/common'
-import { executeThroughDPMProxy, executeThroughProxy } from 'utils/execute'
 
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 // TODO: UPDATE TEST

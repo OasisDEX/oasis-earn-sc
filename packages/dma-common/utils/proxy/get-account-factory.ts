@@ -1,8 +1,7 @@
 import DPM_ACCOUNT_FACTORY_ABI from '@oasisdex/abis/external/libs/DPM/account-factory.json'
+import { Address } from '@oasisdex/dma-deployments/types/address'
 import { Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-
-import { Address } from '../../types/address'
 
 export async function getAccountFactory(
   signer: Signer,

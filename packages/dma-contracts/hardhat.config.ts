@@ -23,9 +23,10 @@ import './tasks/create-multiply-position'
 import './tasks/transfer-dpm'
 import './tasks/transfer-all-proxies'
 
-import { ChainIdByNetwork } from '@oasisdex/dma-common/utils/network'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import * as process from 'process'
+
+import { ChainIdByNetwork } from '../dma-deployments/utils/network'
 
 const networkFork = process.env.NETWORK_FORK as Network | undefined
 

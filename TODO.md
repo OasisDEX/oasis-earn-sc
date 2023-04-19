@@ -4,7 +4,7 @@
 - Update the many skipped tests
 - Setup Unit & E2E tests workflows
 - Add instructions for regenerating domain unit tests scenarios
-- Update name of init() function
+- Update name of index() function
 - Ensure docs are in sync with GitBook (determine if still relevant)
 - Extract HH config into separate package if poss
 - Perhaps move Deploy scripts into separate package

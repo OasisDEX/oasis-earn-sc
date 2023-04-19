@@ -1,3 +1,4 @@
+import { executeThroughProxy } from '@dma-common/utils/execute'
 import { EMPTY_ADDRESS } from '@dma-contracts/test/constants'
 import {
   getSupportedStrategies,
@@ -26,7 +27,6 @@ import {
 } from '@oasisdex/dma-common/test-utils/addresses'
 import { RuntimeConfig, Unbox } from '@oasisdex/dma-common/types/common'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
-import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import { DeployedSystem, System } from '@oasisdex/dma-deployments/types/deployed-system'
 import { Network } from '@oasisdex/dma-deployments/types/network'

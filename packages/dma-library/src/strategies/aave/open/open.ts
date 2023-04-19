@@ -5,6 +5,8 @@ import {
   aaveV3UniqueContractName,
 } from '@dma-library/protocols/aave/config'
 import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
+import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import { AaveVersion } from '@dma-library/strategies/aave/get-current-position'
 import { IOperation, PositionTransition, PositionType, SwapData } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
 import { WithV2Addresses, WithV3Addresses } from '@dma-library/types/aave/addresses'
@@ -22,17 +24,14 @@ import {
   ONE,
   ZERO,
 } from '@oasisdex/dma-common/constants'
-import { Address } from '@oasisdex/dma-common/types/address'
 import { Unbox } from '@oasisdex/dma-common/types/common'
 import { amountFromWei, amountToWei } from '@oasisdex/dma-common/utils/common'
-import { getForkedNetwork } from '@oasisdex/dma-common/utils/network'
 import { calculateFee } from '@oasisdex/dma-common/utils/swap'
+import { Address } from '@oasisdex/dma-deployments/types/address'
+import { getForkedNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { IBaseSimulatedTransition, IRiskRatio, Position } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
-
-import { getAaveTokenAddresses } from '../get-aave-token-addresses'
-import { AaveVersion } from '../get-current-position'
 
 export interface AaveOpenArgs {
   depositedByUser?: {

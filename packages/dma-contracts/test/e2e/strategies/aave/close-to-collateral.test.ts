@@ -9,13 +9,13 @@ import { expect } from '@oasisdex/dma-common/test-utils'
 import { isMainnetByNetwork, isOptimismByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { ChainIdByNetwork } from '@oasisdex/dma-common/utils/network'
 import {
   getOneInchCall,
   optimismLiquidityProviders,
   resolveOneInchVersion,
 } from '@oasisdex/dma-common/utils/swap'
 import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ChainIdByNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { strategies } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 

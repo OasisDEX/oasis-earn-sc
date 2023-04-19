@@ -10,7 +10,7 @@ import { curry } from 'ramda'
 import { ONE } from '../constants'
 import { OneInchBaseResponse } from '../types/common'
 import { amountFromWei, amountToWei, balanceOf, send } from '../utils/common'
-import { swapUniswapTokens } from '../utils/swap/uniswap'
+import { swapUniswapTokens } from '../utils/swap'
 
 export const FEE = 20
 export const FEE_BASE = 10000

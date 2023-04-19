@@ -1,10 +1,6 @@
-import { ADDRESSES, CONTRACT_NAMES } from '@oasisdex/oasis-actions/src'
-
-import { EMPTY_ADDRESS } from '../../../test/constants'
-import { Config } from '../../common/config-item'
-
-import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
-import { SystemConfig } from '../../types/deployment-config'
+import { SystemConfig } from '@dma-deployments/types/deployment-config'
+import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants'
+import { constants } from 'ethers'
 
 export const config: SystemConfig = {
   mpa: {
@@ -214,6 +210,10 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    GnosisSafe: {
+      name: 'GnosisSafe',
+      address: constants.AddressZero,
+    },
     WETH: {
       name: 'WETH',
       address: '0x4200000000000000000000000000000000000006',
@@ -240,16 +240,16 @@ export const config: SystemConfig = {
     },
     STETH: {
       name: 'STETH',
-      address: EMPTY_ADDRESS,
-    },
-    FlashMintModule: {
-      name: 'FlashMintModule',
-      address: EMPTY_ADDRESS,
+      address: constants.AddressZero,
     },
     WBTC: {
       name: 'WBTC',
       address: '0x68f180fcce6836688e9084f035309e29bf0a2095',
       serviceRegistryName: 'WBTC',
+    },
+    LINK: {
+      name: 'LINK',
+      address: constants.AddressZero,
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
@@ -296,5 +296,34 @@ export const config: SystemConfig = {
       },
     },
   },
-  maker: {},
+  maker: {
+    FlashMintModule: {
+      name: 'FlashMintModule',
+      address: constants.AddressZero,
+    },
+    Chainlog: {
+      name: 'Chainlog',
+      address: constants.AddressZero,
+    },
+    CdpManager: {
+      name: 'CdpManager',
+      address: constants.AddressZero,
+    },
+    Jug: {
+      name: 'Jug',
+      address: constants.AddressZero,
+    },
+    JoinDAI: {
+      name: 'JoinDAI',
+      address: constants.AddressZero,
+    },
+    PipWETH: {
+      name: 'PipWETH',
+      address: constants.AddressZero,
+    },
+    PipLINK: {
+      name: 'PipLINK',
+      address: constants.AddressZero,
+    },
+  },
 }

@@ -23,11 +23,14 @@
       "@dma-library/*": [
         "../dma-library/src/*"
       ],
-      "@oasisdex/addresses": ["../addresses/src/index.ts"],
+      /* Aliases used internally by referenced packages */
       "@oasisdex/dma-library/*": ["../dma-library/src/*"],
       "@oasisdex/dma-library": ["../dma-library/src/index.ts"],
-      "@oasisdex/dma-common/utils/*": ["../dma-common/utils/*"],
-      "utils/*": ["../dma-common/utils/*"]
+      "@dma-common/utils/*": ["../dma-common/utils/*"],
+      "@dma-common/types/*": ["../dma-common/types/*"],
+      "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
+      "@dma-deployments/types/*": ["../dma-deployments/types/*"],
+      "@dma-deployments/constants/*": ["../dma-deployments/constants/*"]
     },
     "typeRoots": [
       "../../node_modules/@types"

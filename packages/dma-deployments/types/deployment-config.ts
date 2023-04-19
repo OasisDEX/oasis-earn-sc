@@ -1,5 +1,5 @@
-import { ContractNames } from '@oasisdex/dma-common/constants'
-import { Address } from '@oasisdex/dma-common/types/address'
+import { ContractNames } from '@dma-deployments/constants/contract-names'
+import { Address } from '@dma-deployments/types/address'
 
 export type DeploymentConfig = {
   name: Contracts

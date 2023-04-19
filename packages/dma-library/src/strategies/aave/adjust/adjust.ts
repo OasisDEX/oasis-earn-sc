@@ -2,6 +2,8 @@ import * as operations from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
+import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import { AaveVersion } from '@dma-library/strategies/aave/get-current-position'
 import {
   IOperation,
   IPositionTransitionArgs,
@@ -18,23 +20,20 @@ import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-p
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
 import { getSwapDataHelper } from '@dma-library/utils/swap/get-swap-data'
-import { FEE_ESTIMATE_INFLATOR } from '@oasisdex/dma-common/constants'
 import {
+  FEE_ESTIMATE_INFLATOR,
   ONE,
   TYPICAL_PRECISION,
   UNUSED_FLASHLOAN_AMOUNT,
   ZERO,
-} from '@oasisdex/dma-common/constants/numbers'
-import { Address } from '@oasisdex/dma-common/types/address'
+} from '@oasisdex/dma-common/constants'
 import { amountFromWei, amountToWei } from '@oasisdex/dma-common/utils/common'
-import { getForkedNetwork } from '@oasisdex/dma-common/utils/network'
 import { calculateFee } from '@oasisdex/dma-common/utils/swap'
+import { Address } from '@oasisdex/dma-deployments/types/address'
+import { getForkedNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { IBaseSimulatedTransition, IPosition, IRiskRatio } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
-
-import { getAaveTokenAddresses } from '../get-aave-token-addresses'
-import { AaveVersion } from '../get-current-position'
 
 export type AaveAdjustArgs = IPositionTransitionArgs<AAVETokens> & { positionType: PositionType }
 type AaveAdjustSharedDependencies = {

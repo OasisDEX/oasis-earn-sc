@@ -1,7 +1,6 @@
+import { createDeploy } from '@dma-common/utils/deploy'
+import init from '@dma-common/utils/init'
 import { expect } from 'chai'
-
-import { createDeploy } from '../../dma-common/utils/deploy'
-import init from '../../dma-common/utils/init'
 
 async function main() {
   const config = await init()

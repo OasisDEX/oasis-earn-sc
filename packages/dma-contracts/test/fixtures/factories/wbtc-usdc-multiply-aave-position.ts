@@ -1,4 +1,5 @@
 import { addressesByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
+import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'

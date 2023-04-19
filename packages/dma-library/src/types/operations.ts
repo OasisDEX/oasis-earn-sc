@@ -1,5 +1,5 @@
 import { OperationNames } from '@oasisdex/dma-common/constants'
-import { Address } from '@oasisdex/dma-common/types/address'
+import { Address } from '@oasisdex/dma-deployments/types/address'
 import BigNumber from 'bignumber.js'
 
 import { AAVEStrategyAddresses } from '../operations/aave/v2'

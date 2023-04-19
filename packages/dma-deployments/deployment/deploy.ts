@@ -3,12 +3,28 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-import { NetworkByChainId } from '@oasisdex/dma-common/utils/network'
-import { OperationsRegistry, ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
-import { operationDefinition as aaveV2CloseOp } from '@oasisdex/dma-library/src/operations/aave/v2/close'
-import { operationDefinition as aaveV2OpenOp } from '@oasisdex/dma-library/src/operations/aave/v2/open'
-import { operationDefinition as aaveV3CloseOp } from '@oasisdex/dma-library/src/operations/aave/v3/close'
-import { operationDefinition as aaveV3OpenOp } from '@oasisdex/dma-library/src/operations/aave/v3/open'
+import {
+  aaveCloseV2OperationDefinition,
+  aaveCloseV3OperationDefinition,
+  aaveOpenV2OperationDefinition,
+  aaveOpenV3OperationDefinition,
+} from '@dma-deployments/operation-definitions'
+import {
+  ContractProps,
+  DeployedSystem,
+  System,
+  SystemTemplate,
+} from '@dma-deployments/types/deployed-system'
+import {
+  DeployedSystemContracts,
+  DeploymentConfig,
+  SystemConfig,
+  SystemConfigItem,
+} from '@dma-deployments/types/deployment-config'
+import { EtherscanGasPrice } from '@dma-deployments/types/etherscan'
+import { Network } from '@dma-deployments/types/network'
+import { NetworkByChainId } from '@dma-deployments/utils/network'
+import { OperationsRegistry, ServiceRegistry } from '@dma-deployments/utils/wrappers'
 import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
@@ -31,16 +47,6 @@ import NodeCache from 'node-cache'
 import * as path from 'path'
 import prompts from 'prompts'
 import { inspect } from 'util'
-
-import {
-  DeployedSystemContracts,
-  DeploymentConfig,
-  SystemConfig,
-  SystemConfigItem,
-} from '../types/deployment-config'
-import { EtherscanGasPrice } from '@oasisdex/dma-common/utils/common'
-import { Network } from '../types/network'
-import { ContractProps, DeployedSystem, System, SystemTemplate } from '../types/deployed-system'
 
 const restrictedNetworks = [Network.MAINNET, Network.OPTIMISM, Network.GOERLI]
 
@@ -503,10 +509,23 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       this.deployedSystem.OperationsRegistry.contract.address,
       this.signer,
     )
-    await operationsRegistry.addOp(aaveV2OpenOp.name, aaveV2OpenOp.actions)
-    await operationsRegistry.addOp(aaveV2CloseOp.name, aaveV2CloseOp.actions)
-    await operationsRegistry.addOp(aaveV3OpenOp.name, aaveV3OpenOp.actions)
-    await operationsRegistry.addOp(aaveV3CloseOp.name, aaveV3CloseOp.actions)
+
+    await operationsRegistry.addOp(
+      aaveOpenV2OperationDefinition.name,
+      aaveOpenV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveCloseV2OperationDefinition.name,
+      aaveCloseV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveOpenV3OperationDefinition.name,
+      aaveOpenV3OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveCloseV3OperationDefinition.name,
+      aaveCloseV3OperationDefinition.actions,
+    )
   }
 
   async addAllEntries() {

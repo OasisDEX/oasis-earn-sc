@@ -1,5 +1,4 @@
 import * as actions from '@dma-library/actions'
-import { getActionHash } from '@dma-library/actions/get-action-hash'
 import {
   IOperation,
   WithAaveV3StrategyAddresses,
@@ -10,8 +9,8 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
-import { MAX_UINT, OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
-import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
+import { MAX_UINT, ZERO } from '@oasisdex/dma-common/constants'
+import { aaveCloseV3OperationDefinition } from '@oasisdex/dma-deployments/operation-definitions'
 import BigNumber from 'bignumber.js'
 
 type CloseArgs = WithCollateral &
@@ -21,60 +20,6 @@ type CloseArgs = WithCollateral &
   WithProxy &
   WithPositionAndLockedCollateral &
   WithAaveV3StrategyAddresses
-
-export const operationDefinition = {
-  name: OPERATION_NAMES.aave.v3.CLOSE_POSITION,
-  actions: [
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v3.DEPOSIT),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v3.WITHDRAW),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.SWAP_ACTION),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v3.PAYBACK),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v3.WITHDRAW),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.UNWRAP_ETH),
-      optional: true,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.RETURN_FUNDS),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.RETURN_FUNDS),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.aave.v3.SET_EMODE),
-      optional: false,
-    },
-  ],
-}
 
 export async function close({
   collateral,
@@ -175,6 +120,6 @@ export async function close({
 
   return {
     calls: [takeAFlashLoan, setEModeOnCollateral],
-    operationName: operationDefinition.name,
+    operationName: aaveCloseV3OperationDefinition.name,
   }
 }

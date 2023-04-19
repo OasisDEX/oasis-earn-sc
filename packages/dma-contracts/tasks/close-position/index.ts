@@ -1,16 +1,16 @@
 import { AaveAccountData, AaveReserveData } from '@dma-contracts/test/utils/aave'
 import DSProxyABI from '@oasisdex/abis/external/libs/DS/ds-proxy.json'
-import AAVELendigPoolABI from '@oasisdex/abis/external/protocols/aave/v2/lendingPool.json'
+import AAVELendingPoolABI from '@oasisdex/abis/external/protocols/aave/v2/lendingPool.json'
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
-import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
 import { addressesByNetwork } from '@oasisdex/dma-common/test-utils/addresses'
 import { balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import init from '@oasisdex/dma-common/utils/init'
 import { getDsProxyRegistry, getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
+import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants/contract-names'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { strategies } from '@oasisdex/dma-library'
 import { Position } from '@oasisdex/domain'
@@ -77,7 +77,7 @@ task('closePosition', 'Close stETH position on AAVE')
     }
     const aaveLendingPool = new hre.ethers.Contract(
       ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
-      AAVELendigPoolABI,
+      AAVELendingPoolABI,
       config.provider,
     )
     const aaveDataProvider = new hre.ethers.Contract(

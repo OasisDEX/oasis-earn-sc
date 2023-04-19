@@ -1,4 +1,4 @@
-import { SystemConfig } from '../types/deployment-config'
+import { SystemConfig } from '@dma-deployments/types/deployment-config'
 import { constants } from 'ethers'
 
 export const config: SystemConfig = {

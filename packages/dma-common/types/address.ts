@@ -1,3 +1,1 @@
-import { Address } from '@oasisdex/dma-deployments/types/address'
-
-export { Address }
+export { Address } from '@oasisdex/dma-deployments/types/address'

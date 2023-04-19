@@ -1,25 +1,32 @@
+import {
+  testBlockNumberForAaveOptimismV3,
+  testBlockNumberForAaveV3,
+} from '@dma-contracts/test/config'
+import {
+  ethUsdcMultiplyAavePosition,
+  wstethEthEarnAavePosition,
+} from '@dma-contracts/test/fixtures/factories'
+import {
+  AaveV3PositionStrategy,
+  PositionDetails,
+  StrategyDependenciesAaveV3,
+  SystemWithAAVEV3Positions,
+} from '@dma-contracts/test/fixtures/types'
 import { buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
-import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
+import { createDPMAccount } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { ChainIdByNetwork } from '@oasisdex/dma-common/utils/network'
 import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
-import { DeploymentSystem } from '@oasisdex/dma-deployments/deployment/deploy'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
-import hre from 'hardhat'
 import {
   getOneInchCall,
   oneInchCallMock,
   optimismLiquidityProviders,
   resolveOneInchVersion,
-} from 'utils/swap'
-
-import { testBlockNumberForAaveOptimismV3, testBlockNumberForAaveV3 } from '../../config'
-import { ethUsdcMultiplyAavePosition } from '../factories'
-import { wstethEthEarnAavePosition } from '../factories/wsteth-eth-earn-aave-position'
-import { AaveV3PositionStrategy, PositionDetails } from '../types/position-details'
-import { StrategyDependenciesAaveV3 } from '../types/strategies-dependencies'
-import { SystemWithAAVEV3Positions } from '../types/system-with-aave-positions'
+} from '@oasisdex/dma-common/utils/swap'
+import { DeploymentSystem } from '@oasisdex/dma-deployments/deployment/deploy'
+import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ChainIdByNetwork } from '@oasisdex/dma-deployments/utils/network'
+import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
+import hre from 'hardhat'
 
 export function getSupportedAaveV3Strategies(): Array<{
   name: AaveV3PositionStrategy
