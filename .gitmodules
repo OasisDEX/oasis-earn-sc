@@ -1,6 +1,3 @@
-[submodule "libs/openzeppelin-contracts"]
-	path = libs/openzeppelin-contracts
-	url = https://github.com/openzeppelin/openzeppelin-contracts
 [submodule "libs/prb-math"]
 	path = libs/prb-math
 	url = https://github.com/paulrberg/prb-math
