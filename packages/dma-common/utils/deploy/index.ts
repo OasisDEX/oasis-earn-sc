@@ -1,7 +1,6 @@
+import { Debug, WithRuntimeConfig } from '@dma-common/types/common'
 import { Contract } from '@ethersproject/contracts'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-
-import { Debug, WithRuntimeConfig } from '../types/common'
 
 type DeployOptions = WithRuntimeConfig & Debug
 

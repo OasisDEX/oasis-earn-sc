@@ -1,7 +1,7 @@
+import init from '@dma-common/utils/init'
 import { task } from 'hardhat/config'
 
 import accountFactoryAbi from '../../../abis/external/libs/DPM/account-factory.json'
-import init from '../../../dma-common/utils/init'
 
 const accountFactoryAddress = '0xA7d3eE7cF44a45f8f47efdF648fb9eB08bcfF465'
 task('userDpmProxies', 'Get DPM Accounts created by User')

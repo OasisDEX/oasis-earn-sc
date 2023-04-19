@@ -1,6 +1,6 @@
 import { CONTRACT_NAMES } from '@dma-deployments/constants/contract-names'
 import { OPERATION_NAMES } from '@dma-deployments/constants/operation-names'
-import { getActionHash } from '@dma-deployments/utils/get-action-hash'
+import { getActionHash } from '@dma-deployments/utils/action-hash'
 
 export const aaveOpenV2OperationDefinition = {
   name: OPERATION_NAMES.aave.v2.OPEN_POSITION,

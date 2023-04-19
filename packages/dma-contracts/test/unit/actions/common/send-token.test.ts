@@ -6,7 +6,7 @@ import { MAX_UINT, ONE, TEN_THOUSAND, ZERO } from '@oasisdex/dma-common/constant
 import { expect, restoreSnapshot, Snapshot } from '@oasisdex/dma-common/test-utils'
 import { BalanceOptions, RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, balanceOf, send } from '@oasisdex/dma-common/utils/common'
-import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
+import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { calldataTypes } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'

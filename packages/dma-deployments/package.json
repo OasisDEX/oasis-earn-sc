@@ -11,7 +11,7 @@
     "./constants/": "./constants/",
     "./operation-definitions": "./operation-definitions/index.ts",
     "./types/*": "./types/*.ts",
-    "./utils/": "./utils/"
+    "./utils/*": "./utils/*/index.ts"
   },
   "dependencies": {
     "@oasisdex/abis": "*",

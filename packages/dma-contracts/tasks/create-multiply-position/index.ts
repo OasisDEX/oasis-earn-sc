@@ -1,3 +1,4 @@
+import index from '@dma-common/utils/init'
 import { StrategiesDependencies } from '@dma-contracts/test/fixtures'
 import {
   ethUsdcMultiplyAavePosition,
@@ -7,9 +8,8 @@ import {
 import { buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
-import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
-import init from '@oasisdex/dma-common/utils/init'
-import { getAccountFactory } from '@oasisdex/dma-common/utils/proxy/get-account-factory'
+import { createDPMAccount } from '@oasisdex/dma-common/test-utils'
+import { getAccountFactory } from '@oasisdex/dma-common/utils/proxy'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
@@ -20,7 +20,7 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
   .addFlag('usefallbackswap', 'Use fallback swap')
   .setAction(async (taskArgs, hre) => {
-    const config = await init(hre)
+    const config = await index(hre)
 
     const getTokens = buildGetTokenFunction(config, hre)
 

@@ -1,8 +1,8 @@
+import { resetNode } from '@dma-common/utils/init'
 import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
 import { providers } from 'ethers'
 
 import { RuntimeConfig } from '../types/common'
-import { resetNode } from '../utils/init'
 import { DeployedSystemInfo, deploySystem } from './deploy-system'
 
 type System = { system: DeployedSystemInfo; registry: ServiceRegistry }

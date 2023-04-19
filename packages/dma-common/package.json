@@ -8,12 +8,9 @@
   },
   "exports": {
     "./constants": "./constants/index.ts",
-    "./constants/": "./constants/",
-    "./test-utils/": "./test-utils/",
     "./test-utils": "./test-utils/index.ts",
     "./types/": "./types/",
-    "./utils/*": "./utils/*.ts",
-    "./utils/": "./utils/"
+    "./utils/*": "./utils/*/index.ts"
   },
   "dependencies": {
     "@oasisdex/addresses": "*",

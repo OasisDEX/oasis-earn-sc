@@ -1,5 +1,5 @@
 import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants/contract-names'
-import { getActionHash } from '@oasisdex/dma-deployments/utils/get-action-hash'
+import { getActionHash } from '@oasisdex/dma-deployments/utils/action-hash'
 
 import { calldataTypes } from '../types'
 import { ActionFactory } from './action-factory'

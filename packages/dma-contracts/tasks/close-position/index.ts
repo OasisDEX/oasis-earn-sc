@@ -1,3 +1,5 @@
+import { executeThroughProxy } from '@dma-common/utils/execute'
+import init from '@dma-common/utils/init'
 import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import { AaveAccountData, AaveReserveData } from '@dma-contracts/test/utils/aave'
 import DSProxyABI from '@oasisdex/abis/external/libs/DS/ds-proxy.json'
@@ -6,13 +8,10 @@ import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/proto
 import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
 import { balanceOf } from '@oasisdex/dma-common/utils/common'
-import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import init from '@oasisdex/dma-common/utils/init'
-import { getDsProxyRegistry } from '@oasisdex/dma-common/utils/proxy'
-import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy/proxy'
-import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { getOneInchCall } from '@oasisdex/dma-common/utils/swap/one-inch-call'
+import { getDsProxyRegistry, getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
+import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants/contract-names'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { strategies } from '@oasisdex/dma-library'
 import { Position } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
@@ -85,7 +84,7 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     const proxy = await getOrCreateProxy(
-      await getDsProxyRegistry(config.signer, ADDRESSES[Network.MAINNET].proxyRegistry, hre),
+      await getDsProxyRegistry(config.signer, ADDRESSES[Network.MAINNET].common.ProxyRegistry, hre),
       config.signer,
     )
 
@@ -94,13 +93,13 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     let userStEthReserveData: AaveReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES[Network.MAINNET].STETH,
+      ADDRESSES[Network.MAINNET].common.STETH,
       dsProxy.address,
     )
 
     const address = await config.signer.getAddress()
     let balanceEth = await balanceOf(
-      ADDRESSES[Network.MAINNET].ETH,
+      ADDRESSES[Network.MAINNET].common.ETH,
       address,
       { config, isFormatted: true },
       hre,
@@ -123,7 +122,10 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     const beforeCloseUserStEthReserveData: AaveReserveData =
-      await aaveDataProvider.getUserReserveData(ADDRESSES[Network.MAINNET].STETH, dsProxy.address)
+      await aaveDataProvider.getUserReserveData(
+        ADDRESSES[Network.MAINNET].common.STETH,
+        dsProxy.address,
+      )
 
     const positionAfterOpen = new Position(
       {
@@ -184,12 +186,12 @@ task('closePosition', 'Close stETH position on AAVE')
     console.log('txHash', tx.transactionHash)
 
     userStEthReserveData = await aaveDataProvider.getUserReserveData(
-      ADDRESSES[Network.MAINNET].STETH,
+      ADDRESSES[Network.MAINNET].common.STETH,
       dsProxy.address,
     )
 
     balanceEth = await balanceOf(
-      ADDRESSES[Network.MAINNET].ETH,
+      ADDRESSES[Network.MAINNET].common.ETH,
       address,
       { config, isFormatted: true },
       hre,

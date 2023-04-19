@@ -1,7 +1,7 @@
+import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
-import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AaveVersion, strategies } from '@oasisdex/dma-library'
 import {

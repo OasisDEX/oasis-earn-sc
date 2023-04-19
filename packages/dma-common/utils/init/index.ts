@@ -1,9 +1,8 @@
+import { RuntimeConfig } from '@dma-common/types/common'
 import { providers } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { RuntimeConfig } from '../types/common'
-
-export default async function init(
+export default async function index(
   hre?: HardhatRuntimeEnvironment,
   impersonateAccount?: (
     provider: providers.JsonRpcProvider,

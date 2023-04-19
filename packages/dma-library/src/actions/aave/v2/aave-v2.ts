@@ -1,7 +1,7 @@
 import { ActionFactory } from '@dma-library/actions/action-factory'
 import { calldataTypes } from '@dma-library/types'
 import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants/contract-names'
-import { getActionHash } from '@oasisdex/dma-deployments/utils/get-action-hash'
+import { getActionHash } from '@oasisdex/dma-deployments/utils/action-hash'
 import BigNumber from 'bignumber.js'
 
 const createAction = ActionFactory.create

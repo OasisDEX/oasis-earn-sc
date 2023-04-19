@@ -20,13 +20,13 @@ import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-p
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
 import { getSwapDataHelper } from '@dma-library/utils/swap/get-swap-data'
-import { FEE_ESTIMATE_INFLATOR } from '@oasisdex/dma-common/constants'
 import {
+  FEE_ESTIMATE_INFLATOR,
   ONE,
   TYPICAL_PRECISION,
   UNUSED_FLASHLOAN_AMOUNT,
   ZERO,
-} from '@oasisdex/dma-common/constants/numbers'
+} from '@oasisdex/dma-common/constants'
 import { amountFromWei, amountToWei } from '@oasisdex/dma-common/utils/common'
 import { calculateFee } from '@oasisdex/dma-common/utils/swap'
 import { Address } from '@oasisdex/dma-deployments/types/address'

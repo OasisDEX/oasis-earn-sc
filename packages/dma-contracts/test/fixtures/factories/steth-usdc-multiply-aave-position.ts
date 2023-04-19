@@ -1,7 +1,7 @@
+import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
-import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { AaveVersion, strategies } from '@oasisdex/dma-library'
 import {
   aaveV2UniqueContractName,
