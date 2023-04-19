@@ -6,7 +6,6 @@ import CDPManagerABI from '@oasisdex/abis/external/protocols/maker/dss-cdp-manag
 import ERC20ABI from '@oasisdex/abis/external/tokens/IERC20.json'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
-import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants/contract-names'
 import {
   expect,
   GasEstimateHelper,
@@ -14,21 +13,23 @@ import {
   restoreSnapshot,
 } from '@oasisdex/dma-common/test-utils'
 import { DeployedSystemInfo } from '@oasisdex/dma-common/test-utils/deploy-system'
+import {
+  calculateParamsIncreaseMP,
+  prepareMultiplyParameters,
+} from '@oasisdex/dma-common/test-utils/param-calculations'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { getOraclePrice } from '@oasisdex/dma-common/utils/maker/oracle'
 import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker/vault'
-import {
-  calculateParamsIncreaseMP,
-  prepareMultiplyParameters,
-} from '@oasisdex/dma-common/utils/param-calculations'
-import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
+import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants/contract-names'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { ActionCall, ActionFactory, calldataTypes } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { ethers, Signer } from 'ethers'
+
+import { ServiceRegistry } from '../../../../../dma-deployments/utils/wrappers'
 
 const LENDER_FEE = new BigNumber(0)
 

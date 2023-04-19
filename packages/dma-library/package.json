@@ -15,6 +15,7 @@
     "@oasisdex/abis": "*",
     "@oasisdex/addresses": "*",
     "@oasisdex/dma-common": "*",
+    "@oasisdex/dma-deployments": "*",
     "@oasisdex/dma-contracts": "*",
     "@oasisdex/domain": "*",
     "@types/ramda": "^0.28.24",

@@ -9,9 +9,9 @@ import 'solidity-docgen'
 import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
 
-import { ChainIdByNetwork } from '@oasisdex/dma-common/utils/network'
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ChainIdByNetwork } from '@dma-deployments/utils/network'
 import * as process from 'process'
+import { Network } from 'types/network'
 
 const networkFork = process.env.NETWORK_FORK as Network | undefined
 

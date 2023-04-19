@@ -7,12 +7,13 @@ import { amountToWei, getServiceNameHash } from '@oasisdex/dma-common/utils/comm
 import { createDeploy } from '@oasisdex/dma-common/utils/deploy'
 import init from '@oasisdex/dma-common/utils/init'
 import { swapUniswapTokens } from '@oasisdex/dma-common/utils/swap/uniswap'
-import { OperationsRegistry, ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { ActionFactory } from '@oasisdex/dma-library/src/actions/action-factory'
 import { ActionCall, calldataTypes } from '@oasisdex/dma-library/src/types' // @ts-ignore
 import BigNumber from 'bignumber.js'
 import { Contract } from 'ethers'
+
+import { OperationsRegistry, ServiceRegistry } from '../../../../../dma-deployments/utils/wrappers'
 
 const createAction = ActionFactory.create
 

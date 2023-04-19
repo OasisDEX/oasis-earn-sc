@@ -1,12 +1,12 @@
+import { logDebug } from '@dma-common/utils/common'
+import { createDeploy } from '@dma-common/utils/deploy'
+import { getDsProxyRegistry, getOrCreateProxy } from '@dma-common/utils/proxy'
 import { ADDRESSES } from '@oasisdex/addresses'
+import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants/contract-names'
+import { OPERATION_NAMES } from '@oasisdex/dma-deployments/constants/operation-names'
 import { Network } from '@oasisdex/dma-deployments/types/network'
-import { logDebug } from 'utils/common'
-import { createDeploy } from 'utils/deploy'
-import { getDsProxyRegistry, getOrCreateProxy } from 'utils/proxy'
-import { OperationsRegistry, ServiceRegistry } from 'utils/wrappers'
+import { OperationsRegistry, ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
 
-import { CONTRACT_NAMES } from '../constants/contract-names'
-import { OPERATION_NAMES } from '../constants/operation-names'
 import { RuntimeConfig, Unbox } from '../types/common'
 import { loadDummyExchangeFixtures } from './dummy-exchange'
 

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 
-import { OneInchQuoteResponse, OneInchSwapResponse } from './types'
+import { OneInchQuoteResponse, OneInchSwapResponse } from '../../types/one-inch'
 
 const API_ENDPOINT = `https://oasis.api.enterprise.1inch.exchange/v4.0/1`
 const ONE_INCH_PROTOCOLS = ['UNISWAP_V3', 'PMM4', 'UNISWAP_V2', 'SUSHI', 'CURVE', 'PSM']

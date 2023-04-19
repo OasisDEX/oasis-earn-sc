@@ -1,4 +1,4 @@
-import { Address } from '@oasisdex/dma-common/types/address'
+import { Address } from '@oasisdex/dma-deployments/types/address'
 import { IPosition, IRiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'

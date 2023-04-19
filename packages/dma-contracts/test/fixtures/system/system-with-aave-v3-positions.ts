@@ -1,7 +1,6 @@
 import { buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
 import { createDPMAccount } from '@oasisdex/dma-common/test-utils/create-dpm-account'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { ChainIdByNetwork } from '@oasisdex/dma-common/utils/network'
 import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
 import {
   getOneInchCall,
@@ -13,6 +12,7 @@ import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
 import hre from 'hardhat'
 
+import { ChainIdByNetwork } from '../../../../dma-deployments/utils/network'
 import { testBlockNumberForAaveOptimismV3, testBlockNumberForAaveV3 } from '../../config'
 import { ethUsdcMultiplyAavePosition } from '../factories'
 import { wstethEthEarnAavePosition } from '../factories/wsteth-eth-earn-aave-position'

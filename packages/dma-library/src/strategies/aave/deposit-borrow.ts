@@ -8,7 +8,7 @@ import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { getZeroSwap } from '@dma-library/utils/swap/get-zero-swap'
 import { ZERO } from '@oasisdex/dma-common/constants'
 import { TYPICAL_PRECISION } from '@oasisdex/dma-common/constants/numbers'
-import { Address } from '@oasisdex/dma-common/types/address'
+import { Address } from '@oasisdex/dma-deployments/types/address'
 import { IPosition, RiskRatio } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
 

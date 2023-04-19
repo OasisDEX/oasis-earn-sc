@@ -1,12 +1,11 @@
+import { RuntimeConfig } from '@dma-common/types/common'
+import { amountFromWei } from '@dma-common/utils/common/precision'
 import IERC20_ABI from '@oasisdex/abis/external/tokens/IERC20.json'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { amountFromWei } from 'utils/common/precision'
-
-import { RuntimeConfig } from '../../types/common'
 
 export async function approve(
   asset: string,

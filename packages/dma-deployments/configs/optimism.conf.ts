@@ -1,4 +1,4 @@
-import { SystemConfig } from '../types/deployment-config'
+import { SystemConfig } from '@dma-deployments/types/deployment-config'
 
 export const config: SystemConfig = {
   mpa: {

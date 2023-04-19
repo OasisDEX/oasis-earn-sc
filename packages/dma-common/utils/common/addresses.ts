@@ -1,6 +1,6 @@
 import { Network } from '@oasisdex/dma-deployments/types/network'
+import { isSupportedNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { constants } from 'ethers'
-import { isSupportedNetwork } from 'utils/network'
 
 const addresses = {
   [Network.MAINNET]: {

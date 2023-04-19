@@ -3,8 +3,15 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-import { NetworkByChainId } from '@oasisdex/dma-common/utils/network'
-import { OperationsRegistry, ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
+import {
+  DeploymentConfig,
+  SystemConfig,
+  SystemConfigItem,
+} from '@dma-deployments/types/deployment-config'
+import { EtherscanGasPrice } from '@dma-deployments/types/etherscan'
+import { Network } from '@dma-deployments/types/network'
+import { NetworkByChainId } from '@dma-deployments/utils/network'
+import { OperationsRegistry, ServiceRegistry } from '@dma-deployments/utils/wrappers'
 import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
@@ -28,9 +35,12 @@ import * as path from 'path'
 import prompts from 'prompts'
 import { inspect } from 'util'
 
-import { DeploymentConfig, SystemConfig, SystemConfigItem } from '../types/deployment-config'
-import { EtherscanGasPrice } from '@oasisdex/dma-common/utils/common'
-import { Network } from '../types/network'
+import {
+  aaveCloseV3OperationDefinition,
+  aaveOpenV2OperationDefinition,
+  aaveOpenV3OperationDefinition,
+} from '../operation-definitions'
+import { aaveCloseV2OperationDefinition } from '../operation-definitions/aave/v2/close'
 
 const restrictedNetworks = [Network.MAINNET, Network.OPT_MAINNET, Network.GOERLI]
 
@@ -481,18 +491,22 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       this.signer,
     )
 
-    // Dynamic imports avoids circular dependencies between packages
-    const aaveV2OpenOp = (await import('@dma-library/operations/aave/v2/open')).operationDefinition
-    const aaveV2CloseOp = (await import('@dma-library/operations/aave/v2/close'))
-      .operationDefinition
-    const aaveV3OpenOp = (await import('@dma-library/operations/aave/v3/close')).operationDefinition
-    const aaveV3CloseOp = (await import('@dma-library/operations/aave/v3/close'))
-      .operationDefinition
-
-    await operationsRegistry.addOp(aaveV2OpenOp.name, aaveV2OpenOp.actions)
-    await operationsRegistry.addOp(aaveV2CloseOp.name, aaveV2CloseOp.actions)
-    await operationsRegistry.addOp(aaveV3OpenOp.name, aaveV3OpenOp.actions)
-    await operationsRegistry.addOp(aaveV3CloseOp.name, aaveV3CloseOp.actions)
+    await operationsRegistry.addOp(
+      aaveOpenV2OperationDefinition.name,
+      aaveOpenV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveCloseV2OperationDefinition.name,
+      aaveCloseV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveOpenV3OperationDefinition.name,
+      aaveOpenV3OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveCloseV3OperationDefinition.name,
+      aaveCloseV3OperationDefinition.actions,
+    )
   }
 
   async addAllEntries() {

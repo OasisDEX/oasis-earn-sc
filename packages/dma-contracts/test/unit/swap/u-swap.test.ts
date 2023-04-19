@@ -11,11 +11,12 @@ import { createDeploy } from '@oasisdex/dma-common/utils/deploy'
 import init from '@oasisdex/dma-common/utils/init'
 import { calculateFee } from '@oasisdex/dma-common/utils/swap'
 import { swapOneInchTokens } from '@oasisdex/dma-common/utils/swap/1inch'
-import { ServiceRegistry } from '@oasisdex/dma-common/utils/wrappers'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
+
+import { ServiceRegistry } from '../../../../dma-deployments/utils/wrappers'
 
 // TODO: Update broken test
 describe.skip('uSwap | Unit', () => {

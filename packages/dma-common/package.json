@@ -6,6 +6,15 @@
     "lint:fix": "yarn eslint . --fix --ext .ts",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc -p ./tsconfig.json --noEmit"
   },
+  "exports": {
+    "./constants": "./constants/index.ts",
+    "./constants/": "./constants/",
+    "./test-utils/": "./test-utils/",
+    "./test-utils": "./test-utils/index.ts",
+    "./types/": "./types/",
+    "./utils/*": "./utils/*.ts",
+    "./utils/": "./utils/"
+  },
   "dependencies": {
     "@oasisdex/addresses": "*",
     "@oasisdex/abis": "*",

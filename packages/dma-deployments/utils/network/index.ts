@@ -1,4 +1,4 @@
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { Network } from '@dma-deployments/types/network'
 import { providers } from 'ethers'
 
 export function isSupportedNetwork(network: string): network is Network {

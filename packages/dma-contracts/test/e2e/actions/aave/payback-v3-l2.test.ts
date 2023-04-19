@@ -11,7 +11,7 @@ import {
   DEPOSIT_OPERATION,
   PAYBACK_OPERATION,
   vOptUSDC,
-} from './L2TestsHelper'
+} from './l2-tests-helper'
 
 // TODO: UPDATE TEST
 describe.skip('Payback Action | E2E', () => {

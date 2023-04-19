@@ -10,7 +10,13 @@
         "./test/*"
       ],
       "utils/*": ["../dma-common/utils/*"],
-      "@oasisdex/addresses": ["../addresses/src/index.ts"]
+      "@oasisdex/addresses": ["../addresses/src/index.ts"],
+      /* Aliases used internally by referenced packages */
+      "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
+      "@dma-deployments/types/*": ["../dma-deployments/types/*"],
+      "@dma-deployments/constants/*": ["../dma-deployments/constants/*"],
+      "@dma-common/utils/*": ["../dma-common/utils/*"],
+      "@dma-common/types/*": ["../dma-common/types/*"],
     },
     "types": [
       "node"

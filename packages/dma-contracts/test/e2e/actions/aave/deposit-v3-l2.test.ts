@@ -3,7 +3,7 @@ import { HUNDRED } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { balanceOf } from '@oasisdex/dma-common/utils/common'
 
-import { aDAI, deployedContracts, DEPOSIT_OPERATION } from './L2TestsHelper'
+import { aDAI, deployedContracts, DEPOSIT_OPERATION } from './l2-tests-helper'
 
 // TODO: UPDATE TEST
 describe.skip('Deposit Action | E2E', () => {
