@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.14;
 
-import { Clone }           from 'lib/clones-with-immutable-args/src/Clone.sol';
+import { Clone }           from '../../libs/clones-with-immutable-args/src/Clone.sol';
 import { ReentrancyGuard } from '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import { Multicall }       from '@openzeppelin/contracts/utils/Multicall.sol';
 import { SafeERC20 }       from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";

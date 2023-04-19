@@ -3,7 +3,7 @@
 pragma solidity 0.8.14;
 
 import { Strings } from '@openzeppelin/contracts/utils/Strings.sol';
-import { Base64 }  from 'lib/base64/base64.sol';
+import { Base64 }  from '../../../libs/base64/base64.sol';
 
 /**
     @title  Position NFT SVG library

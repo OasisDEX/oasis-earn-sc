@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.14;
 
-import { ClonesWithImmutableArgs } from 'lib/clones-with-immutable-args/src/ClonesWithImmutableArgs.sol';
+import { ClonesWithImmutableArgs } from '../libs/clones-with-immutable-args/src/ClonesWithImmutableArgs.sol';
 import { IERC165 }                 from '@openzeppelin/contracts/utils/introspection/IERC165.sol';
 
 import { IERC721PoolFactory }    from './interfaces/pool/erc721/IERC721PoolFactory.sol';

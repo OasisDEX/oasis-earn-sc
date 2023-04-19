@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.14;
 
-import { ClonesWithImmutableArgs } from 'libs/clones-with-immutable-args/src/ClonesWithImmutableArgs.sol';
+import { ClonesWithImmutableArgs } from '../libs/clones-with-immutable-args/src/ClonesWithImmutableArgs.sol';
 
 import { IERC20PoolFactory }     from './interfaces/pool/erc20/IERC20PoolFactory.sol';
 import { IPoolFactory }          from './interfaces/pool/IPoolFactory.sol';

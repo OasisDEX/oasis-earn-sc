@@ -794,7 +794,7 @@ describe("AjnaProxyActions", function () {
     });
   });
   describe("DPM - lender - AjnaProxyActions - NFT", function () {
-    it.only("should claim multiple rewards from multiple proxies - same owner - called by the owner", async () => {
+    it("should claim multiple rewards from multiple proxies - same owner - called by the owner", async () => {
       const {
         wbtc,
         lenderProxy,
