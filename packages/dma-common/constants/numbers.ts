@@ -16,3 +16,5 @@ export const TYPICAL_PRECISION = 18
 // 1inch however errors out when trying to swap 0 amount, so we swap some small amount instead.
 // This is that amount.
 export const UNUSED_FLASHLOAN_AMOUNT = ONE
+
+export const WAD = new BigNumber(10).pow(18)

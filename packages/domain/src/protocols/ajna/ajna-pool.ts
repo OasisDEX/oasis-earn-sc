@@ -1,5 +1,6 @@
-import { Address } from '@oasisdex/dma-common/types/address'
 import BigNumber from 'bignumber.js'
+
+import { Address } from '@oasisdex/dma-common/types/address'
 
 export interface Bucket {
   price: BigNumber

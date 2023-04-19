@@ -3,6 +3,7 @@ import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import poolERC20Abi from '@oasisdex/abis/external/protocols/ajna/ajnaPoolERC20.json'
 import poolInfoAbi from '@oasisdex/abis/external/protocols/ajna/poolInfoUtils.json'
 import { ZERO } from '@oasisdex/dma-common/constants'
+import { WAD } from '@oasisdex/dma-common/constants/numbers'
 import { Address } from '@oasisdex/dma-common/types/address'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -32,8 +33,6 @@ interface EarnDependencies {
   provider: ethers.providers.Provider
   getEarnData: GetEarnData
 }
-
-const WAD = new BigNumber(10).pow(18)
 
 export async function getPool(
   poolAddress: string,

@@ -31,6 +31,6 @@
     "./test/**/*"
   ],
   "files": [
-    "./hardhat.config.ts",
+    "./hardhat.config.ts", "src/protocols/ajna/strategy.ts", "src/protocols/ajna/ajna-dependencies.ts", ".src/protocols/ajna/ajna-earn-actions.ts,
   ]
 }

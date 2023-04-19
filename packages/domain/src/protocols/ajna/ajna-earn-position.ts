@@ -1,12 +1,12 @@
-import { ZERO } from '@oasisdex/dma-common/constants'
-import { Address } from '@oasisdex/dma-common/types/address'
-import { RiskRatio } from '@oasisdex/domain'
-import { bucketPrices } from '@oasisdex/domain/protocols/ajna'
-import { calculateAjnaApyPerDays } from '@oasisdex/domain/protocols/ajna/earn'
 import BigNumber from 'bignumber.js'
-import { normalizeValue } from 'utils/common'
 
+import { RiskRatio } from '@oasisdex/domain'
+import { ZERO } from '@oasisdex/dma-common/constants'
+import { normalizeValue } from '@oasisdex/dma-common/utils/common'
+import bucketPrices from './buckets.json'
+import { Address } from '@oasisdex/dma-common/types/address'
 import { AjnaPool } from './ajna-pool'
+import { calculateAjnaApyPerDays } from './earn'
 
 function priceIndexToPrice(priceIndex: BigNumber) {
   return new BigNumber(bucketPrices[priceIndex.toNumber()]).shiftedBy(-18)
