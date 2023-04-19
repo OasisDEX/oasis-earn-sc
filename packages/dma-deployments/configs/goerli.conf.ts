@@ -301,16 +301,16 @@ export const config: SystemConfig = {
     v3: {
       AaveOracle: {
         name: 'AaveOracle',
-        address: ethers.constants.AddressZero,
+        address: constants.AddressZero,
       },
       Pool: {
         name: 'Pool',
-        address: ethers.constants.AddressZero,
+        address: constants.AddressZero,
         serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
       },
       AaveProtocolDataProvider: {
         name: 'AaveProtocolDataProvider',
-        address: ethers.constants.AddressZero,
+        address: constants.AddressZero,
       },
     },
   },
