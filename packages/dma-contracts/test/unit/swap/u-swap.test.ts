@@ -4,8 +4,7 @@ import { swap, uniswapV3Swap, unoswap } from '@dma-contracts/test/fixtures'
 import WETH_ABI from '@oasisdex/abis/external/tokens/IWETH.json'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES, ONE } from '@oasisdex/dma-common/constants'
-import { asPercentageValue, expect } from '@oasisdex/dma-common/test-utils'
-import { FEE } from '@oasisdex/dma-common/test-utils/dummy-exchange'
+import { asPercentageValue, expect, FEE } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { calculateFee, swapOneInchTokens } from '@oasisdex/dma-common/utils/swap'
@@ -40,11 +39,11 @@ describe.skip('uSwap | Unit', () => {
 
     await registry.addEntry(
       CONTRACT_NAMES.common.UNISWAP_ROUTER,
-      ADDRESSES[Network.MAINNET].common.uniswapRouterV3,
+      ADDRESSES[Network.MAINNET].common.UniswapRouterV3,
     )
     const [_uSwap] = await deploy('uSwap', [
       config.address,
-      ADDRESSES[Network.MAINNET].common.common.FeeRecipient,
+      ADDRESSES[Network.MAINNET].common.FeeRecipient,
       FEE,
       serviceRegistry.address,
     ])

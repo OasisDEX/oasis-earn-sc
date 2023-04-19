@@ -16,7 +16,7 @@ import {
 } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
-import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker/vault'
+import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker'
 import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants/contract-names'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
@@ -88,7 +88,7 @@ describe.skip(`Operations | Maker | Close Position | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
         },
         [0],
       ],
@@ -112,7 +112,7 @@ describe.skip(`Operations | Maker | Close Position | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -142,7 +142,7 @@ describe.skip(`Operations | Maker | Close Position | E2E`, async () => {
         {
           vaultId: 0,
           userAddress: address,
-          daiJoin: ADDRESSES[Network.MAINNET].maker.joinDAI,
+          daiJoin: ADDRESSES[Network.MAINNET].maker.JoinDAI,
           amount: ensureWeiFormat(paybackDai),
           paybackAll: paybackAll,
         },
@@ -160,7 +160,7 @@ describe.skip(`Operations | Maker | Close Position | E2E`, async () => {
         {
           vaultId: 0,
           userAddress: address,
-          joinAddr: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddr: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           amount: ensureWeiFormat(initialColl),
         },
         [1, 0, 0, 0],
@@ -200,7 +200,7 @@ describe.skip(`Operations | Maker | Close Position | E2E`, async () => {
     expect(info.debt.toFixed(precision)).to.equal(expectedDebt.toFixed(precision))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.cdpManager,
+      ADDRESSES[Network.MAINNET].maker.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)

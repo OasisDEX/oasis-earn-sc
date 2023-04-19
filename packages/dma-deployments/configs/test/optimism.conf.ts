@@ -233,6 +233,10 @@ export const config: SystemConfig = {
       address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
       serviceRegistryName: 'USDC',
     },
+    USDT: {
+      name: 'USDT',
+      address: constants.AddressZero,
+    },
     DAI: {
       name: 'DAI',
       address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
@@ -319,6 +323,10 @@ export const config: SystemConfig = {
     },
     JoinDAI: {
       name: 'JoinDAI',
+      address: constants.AddressZero,
+    },
+    JoinETH_A: {
+      name: 'JoinETH_A',
       address: constants.AddressZero,
     },
     PipWETH: {

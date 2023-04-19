@@ -56,6 +56,7 @@ export type Common =
   | 'WSTETH'
   | 'DAI'
   | 'USDC'
+  | 'USDT'
   | 'WBTC'
   | 'LINK'
   | 'UniswapRouterV3'
@@ -76,6 +77,7 @@ export type MakerProtocol =
   | 'GetCdps'
   | 'Jug'
   | 'JoinDAI'
+  | 'JoinETH_A'
   | 'PipWETH'
   | 'PipLINK'
 

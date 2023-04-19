@@ -10,6 +10,7 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
+      /* Internal package aliases */
       "@typechain/*": ["./typechain/*"],
       "@dma-contracts/test/*": [
         "./test/*"
@@ -29,7 +30,8 @@
       "@dma-common/types/*": ["../dma-common/types/*"],
       "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
       "@dma-deployments/types/*": ["../dma-deployments/types/*"],
-      "@dma-deployments/constants/*": ["../dma-deployments/constants/*"]
+      "@dma-deployments/constants/*": ["../dma-deployments/constants/*"],
+      "@dma-deployments/operation-definitions": ["../dma-deployments/operation-definitions/index.ts"]
     },
     "typeRoots": [
       "../../node_modules/@types"

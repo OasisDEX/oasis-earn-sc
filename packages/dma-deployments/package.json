@@ -10,6 +10,7 @@
     "./constants/*": "./constants/*.ts",
     "./constants/": "./constants/",
     "./operation-definitions": "./operation-definitions/index.ts",
+    "./deployment/*": "./deployment/*.ts",
     "./types/*": "./types/*.ts",
     "./utils/*": "./utils/*/index.ts"
   },
