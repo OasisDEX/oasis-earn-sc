@@ -1,9 +1,9 @@
-import hre from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ethers } from "hardhat";
-import { HardhatUtils } from "../scripts/common/hardhat.utils";
 import { BigNumber } from "ethers";
+import hre, { ethers } from "hardhat";
+
+import { HardhatUtils } from "../scripts/common/hardhat.utils";
 
 const AJNA = "0x347fcea8b4fd1a46e2c0db8f79e22d293c2f8513";
 const USDC = "0x6Fb5ef893d44F4f88026430d82d4ef269543cB23";
@@ -11,7 +11,7 @@ const WBTC = "0x7ccF0411c7932B99FC3704d68575250F032e3bB7";
 const WBTC_USDC_POOL = "0x0BDE5e31af1a88113158Fb577cB3C61Df9843afE";
 const utils = new HardhatUtils(hre);
 let hash = "";
-const usePredeployed: boolean = false;
+const usePredeployed = false;
 
 describe("Pool direct test", function () {
   async function deploy() {
@@ -28,7 +28,7 @@ describe("Pool direct test", function () {
     });
     const [deployer, lender, borrower] = await hre.ethers.getSigners();
 
-    let addresses: { [key: string]: string } = {};
+    const addresses: { [key: string]: string } = {};
 
     addresses.deployerAddress = await deployer.getAddress();
     addresses.lenderAddress = await lender.getAddress();
@@ -166,11 +166,11 @@ describe("Pool direct test", function () {
     it("direct AJNA interaction - borrow tokens", async () => {
       const { lender, borrower, usdc, poolContract, wbtc, poolInfoContract } = await loadFixture(deploy);
 
-      let balancesQuoteBefore = {
+      const balancesQuoteBefore = {
         lender: await usdc.balanceOf(lender.address),
         pool: await usdc.balanceOf(poolContract.address),
       };
-      let balancesCollateralBefore = {
+      const balancesCollateralBefore = {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
@@ -187,11 +187,11 @@ describe("Pool direct test", function () {
         .drawDebt(borrower.address, ethers.utils.parseUnits("100", 18), 5000, ethers.utils.parseUnits("1", 18));
       await tx2.wait();
 
-      let balancesQuoteAfter = {
+      const balancesQuoteAfter = {
         lender: await usdc.balanceOf(lender.address),
         pool: await usdc.balanceOf(poolContract.address),
       };
-      let balancesCollateralAfter = {
+      const balancesCollateralAfter = {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
@@ -220,12 +220,12 @@ describe("Pool direct test", function () {
       const price = ethers.utils.parseUnits("16821.27311214", 8);
       // chainlink price is 8 decimals, we need 18
       const bucketIndex = await poolInfoContract.priceToIndex(price.mul(ethers.utils.parseUnits("1", 10)));
-      let balancesQuoteBefore = {
+      const balancesQuoteBefore = {
         lender: await usdc.balanceOf(lender.address),
         borrower: await usdc.balanceOf(borrower.address),
         pool: await usdc.balanceOf(poolContract.address),
       };
-      let balancesCollateralBefore = {
+      const balancesCollateralBefore = {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
@@ -255,12 +255,12 @@ describe("Pool direct test", function () {
         );
       await repayTx.wait();
 
-      let balancesQuoteAfter = {
+      const balancesQuoteAfter = {
         lender: await usdc.balanceOf(lender.address),
         borrower: await usdc.balanceOf(borrower.address),
         pool: await usdc.balanceOf(poolContract.address),
       };
-      let balancesCollateralAfter = {
+      const balancesCollateralAfter = {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
@@ -284,12 +284,12 @@ describe("Pool direct test", function () {
       // chainlink price is 8 decimals, we need 18
       const bucketIndex = await poolInfoContract.priceToIndex(price.mul(ethers.utils.parseUnits("1", 10)));
 
-      let balancesQuoteBefore = {
+      const balancesQuoteBefore = {
         lender: await usdc.balanceOf(lender.address),
         borrower: await usdc.balanceOf(borrower.address),
         pool: await usdc.balanceOf(poolContract.address),
       };
-      let balancesCollateralBefore = {
+      const balancesCollateralBefore = {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
@@ -319,12 +319,12 @@ describe("Pool direct test", function () {
         );
       await repayTx.wait();
 
-      let balancesQuoteAfter = {
+      const balancesQuoteAfter = {
         lender: await usdc.balanceOf(lender.address),
         borrower: await usdc.balanceOf(borrower.address),
         pool: await usdc.balanceOf(poolContract.address),
       };
-      let balancesCollateralAfter = {
+      const balancesCollateralAfter = {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };

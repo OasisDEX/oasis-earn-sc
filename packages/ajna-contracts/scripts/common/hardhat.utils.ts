@@ -1,11 +1,12 @@
 import "@nomiclabs/hardhat-ethers";
 
-import { Token, WETH } from "@typechain";
 import { EventFragment } from "@ethersproject/abi";
 import { FactoryOptions } from "@nomiclabs/hardhat-ethers/types";
 import { BigNumber, constants, Contract, ContractReceipt, Signer } from "ethers";
 import { ethers } from "hardhat";
 import { HardhatRuntimeEnvironment, Network } from "hardhat/types/runtime";
+
+import { Token, WETH } from "../../typechain-types";
 
 export class HardhatUtils {
   constructor(public readonly hre: HardhatRuntimeEnvironment, public readonly forked?: Network) {}

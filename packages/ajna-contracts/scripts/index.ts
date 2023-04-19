@@ -1,2 +1,2 @@
 export * from "./common";
-export * from "./prepare-env"
+export * from "./prepare-env";

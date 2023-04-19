@@ -1,9 +1,9 @@
-import hre from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ethers } from "hardhat";
-import { HardhatUtils } from "../scripts/common/hardhat.utils";
 import { BigNumber } from "ethers";
+import hre, { ethers } from "hardhat";
+
+import { HardhatUtils } from "../scripts/common/hardhat.utils";
 import { AjnaPoc, IERC20 } from "../typechain-types";
 
 const AJNA = "0x347fcea8b4fd1a46e2c0db8f79e22d293c2f8513";
@@ -12,7 +12,7 @@ const WBTC = "0x7ccF0411c7932B99FC3704d68575250F032e3bB7";
 const WBTC_USDC_POOL = "0x0BDE5e31af1a88113158Fb577cB3C61Df9843afE";
 const utils = new HardhatUtils(hre);
 let hash = "";
-const usePredeployed: boolean = false;
+const usePredeployed = false;
 
 let otherSupplier: AjnaPoc;
 
@@ -20,17 +20,9 @@ let WBTCToken: IERC20;
 let USDCToken: IERC20;
 
 async function sendLotsOfMoney(target: string) {
-  await utils.setTokenBalance(
-    target,
-    WBTC,
-    BigNumber.from("1000000000000000000").mul(1000)
-  );
+  await utils.setTokenBalance(target, WBTC, BigNumber.from("1000000000000000000").mul(1000));
 
-  await utils.setTokenBalance(
-    target,
-    USDC,
-    BigNumber.from("1000000000000000000").mul(1000)
-  );
+  await utils.setTokenBalance(target, USDC, BigNumber.from("1000000000000000000").mul(1000));
 }
 
 describe.skip("Pool test", function () {
@@ -74,19 +66,16 @@ describe.skip("Pool test", function () {
 
     console.log("libraries deployed");
 
-    const ERC20PoolFactory = await ethers.getContractFactory(
-      "ERC20PoolFactory",
-      {
-        libraries: {
-          PoolCommons: poolInstance.address,
-          Auctions: auctionsInstance.address,
-          LenderActions: actionsInstance.address,
-          BorrowerActions: borrowerActionsInstance.address,
-        },
-      }
-    );
+    const ERC20PoolFactory = await ethers.getContractFactory("ERC20PoolFactory", {
+      libraries: {
+        PoolCommons: poolInstance.address,
+        Auctions: auctionsInstance.address,
+        LenderActions: actionsInstance.address,
+        BorrowerActions: borrowerActionsInstance.address,
+      },
+    });
 
-    let poolAddress: string = "";
+    let poolAddress = "";
     if (usePredeployed == false) {
       console.log("deploying pool factory");
       const erc20PoolFactory = await ERC20PoolFactory.deploy(AJNA, {
@@ -116,9 +105,7 @@ describe.skip("Pool test", function () {
     });
     const ajnaPoc = await AjnaPoc.deploy(WBTC, USDC, poolAddress);
     const x = await ajnaPoc.deployed();
-    otherSupplier = await (
-      await AjnaPoc.deploy(WBTC, USDC, poolAddress)
-    ).deployed();
+    otherSupplier = await (await AjnaPoc.deploy(WBTC, USDC, poolAddress)).deployed();
 
     console.log("ajnaPoc deployed");
 
@@ -133,20 +120,12 @@ describe.skip("Pool test", function () {
     //convertPriceToIndex is oversimplified for now, return 0 index for 0 price and last index for any other price
     //so as far as I understand this two lines should add liquidity one for almost free and second at absurd price
     // so I expect borrowing under 10000000000 should work and borrowing over 10000000000 should fail
-    await otherSupplier.supplyQuote(
-      ethers.utils.parseUnits("1000", 18),
-      2000000,
-      {
-        gasLimit: 5000000,
-      }
-    );
-    await otherSupplier.supplyQuote(
-      ethers.utils.parseUnits("1000", 18),
-      200000,
-      {
-        gasLimit: 5000000,
-      }
-    );
+    await otherSupplier.supplyQuote(ethers.utils.parseUnits("1000", 18), 2000000, {
+      gasLimit: 5000000,
+    });
+    await otherSupplier.supplyQuote(ethers.utils.parseUnits("1000", 18), 200000, {
+      gasLimit: 5000000,
+    });
     console.log("supplying liquidity done");
 
     return {
@@ -166,18 +145,12 @@ describe.skip("Pool test", function () {
 
       const balanceBefore = await WBTCToken.balanceOf(ajnaPoc.address);
 
-      const tx = await ajnaPoc.depositCollateral(
-        ethers.utils.parseUnits("1", 18),
-        5000,
-        { gasLimit: 5000000 }
-      );
+      const tx = await ajnaPoc.depositCollateral(ethers.utils.parseUnits("1", 18), 5000, { gasLimit: 5000000 });
       await tx.wait();
 
-      let balanceAfter = await WBTCToken.balanceOf(ajnaPoc.address);
+      const balanceAfter = await WBTCToken.balanceOf(ajnaPoc.address);
 
-      expect(balanceBefore.sub(balanceAfter).toNumber()).to.be.eq(
-        ethers.utils.parseUnits("1", 8)
-      );
+      expect(balanceBefore.sub(balanceAfter).toNumber()).to.be.eq(ethers.utils.parseUnits("1", 8));
     });
 
     it("should not revert while opening", async () => {
@@ -194,12 +167,10 @@ describe.skip("Pool test", function () {
       await tx.wait();
       const recept = tx.wait();
 
-      let balanceAfter = await WBTCToken.balanceOf(ajnaPoc.address);
+      const balanceAfter = await WBTCToken.balanceOf(ajnaPoc.address);
       const balanceQuoteAfter = await USDCToken.balanceOf(ajnaPoc.address);
       expect(balanceBefore.sub(balanceAfter).toNumber()).to.be.eq(1000000000);
-      expect(balanceQuoteAfter.sub(balanceQuoteBefore).toNumber()).to.be.eq(
-        100000000
-      );
+      expect(balanceQuoteAfter.sub(balanceQuoteBefore).toNumber()).to.be.eq(100000000);
     });
   });
 

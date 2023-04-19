@@ -1,14 +1,8 @@
-import {
-  AjnaProxyActions,
-  ERC20Pool,
-  IAccountImplementation,
-  PoolInfoUtils,
-  Token,
-  WETH,
-} from "@ajna-contracts/typechain-types";
 import { strategies, views } from "@oasisdex/oasis-actions";
 import { BigNumber as BN } from "bignumber.js";
 import { BigNumber, Contract, ethers, providers, Signer } from "ethers";
+
+import { AjnaProxyActions, ERC20Pool, IAccountImplementation, PoolInfoUtils, Token, WETH } from "../../typechain-types";
 
 function createOpenOrDeposit(fnName: "open" | "depositBorrow") {
   return async function (

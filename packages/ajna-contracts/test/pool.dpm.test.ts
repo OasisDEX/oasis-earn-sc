@@ -1,30 +1,23 @@
-import {
-  deployTokens,
-  deployLibraries,
-  deployGuard,
-  deployPoolFactory,
-  deployPool,
-  deployRewardsContracts,
-  deployApa,
-} from "../scripts/common/deployment.utils";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { BigNumber, Signer } from "ethers";
 import hre, { ethers } from "hardhat";
 
-import { HardhatUtils } from "../scripts/common/hardhat.utils";
-import {
-  AjnaProxyActions,
-  DSToken,
-  ERC20Pool,
-  IAccountImplementation,
-  PoolInfoUtils,
-  ServiceRegistry,
-} from "../typechain-types";
-import { ERC20 } from "../typechain-types/@openzeppelin/contracts/token/ERC20/";
-import { WETH } from "../typechain-types/contracts";
-import { createDPMProxy } from "../scripts/prepare-env";
 import { MILLION } from "../scripts/common";
+import {
+  deployApa,
+  deployGuard,
+  deployLibraries,
+  deployPool,
+  deployPoolFactory,
+  deployRewardsContracts,
+  deployTokens,
+} from "../scripts/common/deployment.utils";
+import { HardhatUtils } from "../scripts/common/hardhat.utils";
+import { createDPMProxy } from "../scripts/prepare-env";
+import { AjnaProxyActions, DSToken, ERC20Pool, IAccountImplementation, PoolInfoUtils } from "../typechain-types";
+import { ERC20 } from "../typechain-types/@openzeppelin/contracts/token/ERC20/";
+import { WETH as WETHContract } from "../typechain-types/contracts";
 
 const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
@@ -45,10 +38,6 @@ describe.only("AjnaProxyActions", function () {
     const [deployer, lender, borrower, bidder] = await hre.ethers.getSigners();
 
     const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address);
-    const USDC = usdc.address;
-    const WBTC = wbtc.address;
-    const AJNA = ajna.address;
-    const WETH = weth.address;
 
     const { poolCommons, auctionsInstance, actionsInstance, borrowerActionsInstance, positionNFTSVGInstance } =
       await deployLibraries();
@@ -63,8 +52,8 @@ describe.only("AjnaProxyActions", function () {
       ajna.address
     );
     const [poolContract, poolContractWeth] = await Promise.all([
-      deployPool(erc20PoolFactory, WBTC, USDC),
-      deployPool(erc20PoolFactory, WETH, USDC),
+      deployPool(erc20PoolFactory, wbtc.address, usdc.address),
+      deployPool(erc20PoolFactory, weth.address, usdc.address),
     ]);
     const { rewardsManagerContract, positionManagerContract } = await deployRewardsContracts(
       positionNFTSVGInstance,
@@ -394,7 +383,7 @@ describe.only("AjnaProxyActions", function () {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
-      const gas = await depositCollateral(
+      await depositCollateral(
         ajnaProxyActionsContract,
         poolContract,
         borrower,
@@ -529,8 +518,7 @@ describe.only("AjnaProxyActions", function () {
     });
 
     it("should openAndDraw and repayAndClose", async () => {
-      const { wbtc, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, usdc, poolInfoContract } =
-        await loadFixture(deploy);
+      const { wbtc, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, usdc } = await loadFixture(deploy);
       const balancesQuoteBefore = {
         borrower: await usdc.balanceOf(borrower.address),
         pool: await usdc.balanceOf(poolContract.address),
@@ -907,7 +895,6 @@ describe.only("AjnaProxyActions", function () {
       } = await loadFixture(deploy);
 
       const price = ethers.utils.parseUnits("46776653369145271678115", 0);
-      const newPrice = ethers.utils.parseUnits("99863.654", 18);
       const lendAmount = ethers.utils.parseUnits("1000000000", 6);
       const borrowAmount = ethers.utils.parseUnits("10000", 6);
 
@@ -999,7 +986,6 @@ describe.only("AjnaProxyActions", function () {
       } = await loadFixture(deploy);
 
       const price = ethers.utils.parseUnits("46776653369145271678115", 0);
-      const newPrice = ethers.utils.parseUnits("99863.654", 18);
       const lendAmount = ethers.utils.parseUnits("1000000000", 6);
       const borrowAmount = ethers.utils.parseUnits("10000", 6);
 
@@ -1069,7 +1055,6 @@ describe.only("AjnaProxyActions", function () {
       const {
         wbtc,
         lenderProxy,
-        lenderProxy2,
         poolContract,
         ajnaProxyActionsContract,
         lender,
@@ -1084,7 +1069,6 @@ describe.only("AjnaProxyActions", function () {
       } = await loadFixture(deploy);
 
       const price = ethers.utils.parseUnits("46776653369145271678115", 0);
-      const newPrice = ethers.utils.parseUnits("99863.654", 18);
       const lendAmount = ethers.utils.parseUnits("1000000000", 6);
       const borrowAmount = ethers.utils.parseUnits("10000", 6);
 
@@ -1228,7 +1212,6 @@ describe.only("AjnaProxyActions", function () {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
       const price = ethers.utils.parseUnits("93863.654", 18);
-      const newPrice = ethers.utils.parseUnits("99863.654", 18);
       const lendAmount = ethers.utils.parseUnits("1000000000", 6);
 
       await supplyQuoteMintNftAndStake(
@@ -1247,7 +1230,6 @@ describe.only("AjnaProxyActions", function () {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
       const price = ethers.utils.parseUnits("93863.654", 18);
-      const newPrice = ethers.utils.parseUnits("99863.654", 18);
       const lendAmount = ethers.utils.parseUnits("1000000000", 6);
 
       await supplyQuoteMintNftAndStake(
@@ -1294,7 +1276,6 @@ describe.only("AjnaProxyActions", function () {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
       const price = ethers.utils.parseUnits("93863.654", 18);
-      const newPrice = ethers.utils.parseUnits("99863.654", 18);
       const lendAmount = ethers.utils.parseUnits("1000000000", 6);
 
       await supplyQuoteMintNftAndStake(
@@ -1567,7 +1548,7 @@ async function depositCollateral(
   borrowerProxy: IAccountImplementation,
   amountToDeposit: BigNumber,
   price: BigNumber,
-  collateralToken: DSToken | WETH,
+  collateralToken: DSToken | WETHContract,
   isWeth = false
 ) {
   const encodedAddCollateralData = ajnaProxyActionsContract.interface.encodeFunctionData("depositCollateral", [
@@ -1628,23 +1609,6 @@ async function mintAndStakeNft(
     gasLimit: 3000000,
   });
   const receipt = await mintNftTx.wait();
-  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
-}
-async function claimRewardsAndSendToOwner(
-  ajnaProxyActionsContract: AjnaProxyActions,
-  poolContract: ERC20Pool,
-  lenderProxy: IAccountImplementation,
-  lender: Signer,
-  tokenIds: number[]
-) {
-  const txData = ajnaProxyActionsContract.interface.encodeFunctionData("claimRewardsAndSendToOwner", [
-    poolContract.address,
-    tokenIds,
-  ]);
-  const tx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, txData, {
-    gasLimit: 3000000,
-  });
-  const receipt = await tx.wait();
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 
@@ -1786,7 +1750,7 @@ async function depositAndDrawDebt(
   ajnaProxyActionsContract: AjnaProxyActions,
   poolContract: ERC20Pool,
   price: BigNumber,
-  collateralToken: DSToken | WETH,
+  collateralToken: DSToken | WETHContract,
   borrower: Signer,
   borrowerProxy: IAccountImplementation,
   amountToDraw: BigNumber,
@@ -1825,10 +1789,4 @@ async function provideLiquidity(usdc: DSToken, poolContract: ERC20Pool, poolCont
     .addQuoteToken(ethers.utils.parseUnits("10000000", 18), 2000, timestamp + 100000);
   await tx.wait();
   await tx2.wait();
-}
-
-async function deployServiceRegistry() {
-  const serviceRegistryContract = await utils.deployContract<ServiceRegistry>("ServiceRegistry", [0]);
-
-  return { serviceRegistryContract };
 }

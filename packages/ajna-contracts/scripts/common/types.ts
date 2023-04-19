@@ -1,5 +1,6 @@
-import { IAccountImplementation } from "@ajna-contracts/typechain-types";
 import { Signer } from "ethers";
+
+import { IAccountImplementation } from "../../typechain-types";
 
 export interface User {
   signer: Signer;

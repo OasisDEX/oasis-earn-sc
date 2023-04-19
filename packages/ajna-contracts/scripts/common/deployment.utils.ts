@@ -1,3 +1,6 @@
+import { Contract, Signer } from "ethers";
+import hre, { ethers } from "hardhat";
+
 import {
   AccountFactory,
   AccountGuard,
@@ -17,11 +20,7 @@ import {
   ServiceRegistry,
   Token,
   WETH,
-  // eslint-disable-next-line import/no-unresolved
-} from "@ajna-contracts/typechain-types";
-import { Contract, Signer } from "ethers";
-import hre, { ethers } from "hardhat";
-
+} from "../../typechain-types";
 import { HardhatUtils } from "./hardhat.utils";
 const utils = new HardhatUtils(hre);
 
