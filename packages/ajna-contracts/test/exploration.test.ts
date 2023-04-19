@@ -2,9 +2,8 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
-import { prepareEnv } from "../scripts/deploy";
 
-import * as oasisActions from "@oasisdex/oasis-actions";
+import { prepareEnv } from "../scripts/prepare-env";
 
 type DeployEnv = Awaited<ReturnType<typeof prepareEnv>>;
 
@@ -18,64 +17,64 @@ describe("Exploration", function () {
       await env.provideLiquidity(
         env.pools.wbtcUsdcPool,
         BigNumber.from(30000),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("15000", 18)) // price with 18 decimals
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("15000", 18)) // price with 18 decimals
       );
       await env.provideLiquidity(
         env.pools.wbtcUsdcPool,
         BigNumber.from(20000),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("14000", 18)) // price with 18 decimals
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("14000", 18)) // price with 18 decimals
       );
       await env.provideLiquidity(
         env.pools.wbtcUsdcPool,
         BigNumber.from(10000),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("10000", 18)) // price with 18 decimals
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("10000", 18)) // price with 18 decimals
       );
       await env.moveLiquidity(
         env.pools.wbtcUsdcPool,
         BigNumber.from(10000),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("10000", 18)),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("12000", 18)) // price with 18 decimals
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("10000", 18)),
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("12000", 18)) // price with 18 decimals
       );
       await env.provideLiquidity(
         env.pools.wbtcUsdcPool,
         BigNumber.from(1000),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("500000", 18)) // price with 18 decimals
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("500000", 18)) // price with 18 decimals
       );
 
       await env.provideLiquidity(
         env.pools.wbtcUsdcPool,
         BigNumber.from(55_100),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("17000", 18)) // price with 18 decimals
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("17000", 18)) // price with 18 decimals
       );
       await env.provideLiquidity(
         env.pools.wbtcUsdcPool,
         BigNumber.from(30000),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("16000", 18)) // price with 18 decimals
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("16000", 18)) // price with 18 decimals
       );
       await env.provideLiquidity(
         env.pools.wbtcUsdcPool,
         BigNumber.from(50000),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("20000", 18)) // price with 18 decimals
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("20000", 18)) // price with 18 decimals
       );
       await env.provideLiquidity(
         env.pools.wethUsdcPool,
         BigNumber.from(500000),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("2000", 18)) // price with 18 decimals
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("2000", 18)) // price with 18 decimals
       );
       await env.provideLiquidity(
         env.pools.wethUsdcPool,
         BigNumber.from(500000),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("2100", 18)) // price with 18 decimals
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("2100", 18)) // price with 18 decimals
       );
       await env.provideLiquidity(
         env.pools.wethUsdcPool,
         BigNumber.from(100000),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("1900", 18)) // price with 18 decimals
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("1900", 18)) // price with 18 decimals
       );
       await env.removeLiquidity(
         env.pools.wbtcUsdcPool,
         BigNumber.from(100),
-        await env.apa.convertPriceToIndex(ethers.utils.parseUnits("20000", 18)) // price with 18 decimals
+        await env.ajnaProxyActionsContract.convertPriceToIndex(ethers.utils.parseUnits("20000", 18)) // price with 18 decimals
       );
       // ugly code to emit all staking events
       const lender = env.users[0].signer;

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "es2019",
     "module": "commonjs",
     "strict": true,
     "declaration": true,
@@ -10,7 +10,7 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@typechain/*": ["./typechain/*"],
+      "@typechain/*": ["./typechain-types/*"],
       "@ajna-contracts/test/*": [
         "./test/*"
       ],
