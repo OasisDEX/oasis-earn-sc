@@ -2,8 +2,8 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import fs from "fs";
 import "hardhat-preprocessor";
-import "hardhat-docgen"
-import 'hardhat-tracer'
+import "hardhat-docgen";
+import "hardhat-tracer";
 require("dotenv").config();
 
 function getRemappings() {
@@ -11,7 +11,7 @@ function getRemappings() {
     .readFileSync("remappings.txt", "utf8")
     .split("\n")
     .filter(Boolean)
-    .map((line) => line.trim().split("="));
+    .map(line => line.trim().split("="));
 }
 function createHardhatNetwork(network: string, node: string | undefined, key: string | undefined, gasPrice: number) {
   if (!node || !key) {
@@ -68,7 +68,7 @@ const config: HardhatUserConfig = {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
   preprocess: {
-    eachLine: (hre) => ({
+    eachLine: hre => ({
       transform: (line: string) => {
         if (line.match(/^\s*import /i)) {
           getRemappings().forEach(([find, replace]) => {
@@ -82,10 +82,10 @@ const config: HardhatUserConfig = {
     }),
   },
   docgen: {
-    path: './docs',
+    path: "./docs",
     clear: true,
     runOnCompile: false,
-  }
+  },
 };
 
 export default config;

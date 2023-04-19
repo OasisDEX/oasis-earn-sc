@@ -1,5 +1,5 @@
 {
-  "name": "ajna-contracts",
+  "name": "@oasisdex/ajna-contracts",
   "version": "0.0.1",
   "license": "Apache-2.0",
   "files": [
@@ -64,5 +64,8 @@
   },
   "bugs": {
     "url": "https://github.com/OasisDEX/oasis-earn-sc/issues"
+  },
+  "dependencies": {
+    "hardhat": "2.12.2"
   }
 }
