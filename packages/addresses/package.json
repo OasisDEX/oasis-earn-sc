@@ -4,6 +4,9 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "build": "rm -rf ./lib && tsc --declaration && webpack",
     "watch": "yarn tsc -b -w",
@@ -13,7 +16,6 @@
   "dependencies": {
     "@oasisdex/dma-deployments": "*"
   },
-  "sideEffects": false,
   "devDependencies": {
     "@babel/core": "^7.21.4",
     "@babel/preset-env": "^7.21.4",

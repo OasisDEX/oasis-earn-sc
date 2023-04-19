@@ -5,6 +5,9 @@ module.exports = {
   output: {
     filename: 'index.js',
     path: path.resolve(__dirname, 'lib'),
+    library: {
+      type: 'module',
+    },
   },
   resolve: {
     extensions: ['.webpack.js', '.web.js', '.ts', '.js'],
@@ -25,5 +28,8 @@ module.exports = {
         '../dma-deployments/constants/contract-names.ts',
       ),
     },
+  },
+  experiments: {
+    outputModule: true,
   },
 }
