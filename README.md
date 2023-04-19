@@ -1,117 +1,73 @@
-# Runtime Environment Variables
+# Environment Variables
 
-One should create an `.env` file and add the following variables:
+One should populate an `.env` file according to the .env.template file.
 
-- **ETHERSCAN_API_KEY** - API key used to verify contracts deployed on a blockchain supported by Etherscan
+# Setup
 
-- **MAINNET_URL** - URL to a node that will be used for sync on Mainnet
-
-- **OPTIMISM_URL** - URL to a node that will be used for sync on Optimism
-
-- **BLOCK_NUMBER** - Block number from which the chain will be forked on Mainnet
-
-- **OPTIMISM_BLOCK_NUMBER** - Block number from which the chain will be forked on Optimism
-
-- **NETWORK_FORK** - `Mainnet` or `Optimism`. Network that will be used for forking.
-
-- **REPORT_GAS** - This will allow gas report when running tests
-
-# Deploying system
-
-Checkout the project locally.
-In a shell prompt run the following command:
+1. Install dependencies
 
 ```shell
-npx hardhat node
+yarn
 ```
 
-That will run a node for you a separate process that will be waiting to accept new calls.
-
-In a separate shell prompt run the following command:
+2. Build packages
 
 ```shell
-npx hardhat deploy
+yarn build
 ```
 
-That will deploy all necessary contracts to use for AAVE.
-For now this task supports only deploying core & AAVE related contracts.
-
-In order to print the addresses out, one should provide the `--debug` flag
+3. Compile contracts
 
 ```shell
-npx hardhat deploy --debug
+yarn compile
 ```
 
-That will output the deployed contract name and the corresponding address
+# Local development
 
-# Running a node & deploying the system to a locally running node
+Running a local node & deploying the system to a locally running node
 
-1. Running a node is as simple as writing in a shell prompt:
+1. Running a local node
 
 ```shell
-npx hardhat node --max-memory 8192 --fork <MAINNET_URL>
+yarn dev
 ```
 
-2. Deploying the system against the node you've spun up
+2. (Not working) Deploying the system to your local node
 
-`yarn deploy:fallback` 
-
-or 
-
-`yarn deploy:1inch` // if you want to use 1inch as exchange
-
+```shell
+yarn deploy dev
+```
 
 # Running tests
 
-Running the project tests could be done either by calling
+1. Run all tests in the monorepo
 
 ```shell
-npx hardhat test
+yarn test
 ```
 
-in the shell prompt or:
+2. Run all unit tests in the monorepo
 
 ```shell
-yarn run test
+yarn test:unit
 ```
 
-# Etherscan verification
-
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's
-supported by Etherscan, such as Ropsten.
-
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the
-details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key
-of the account which will send the deployment transaction. With a valid .env file in place, first
-deploy your contract:
+3. Run all e2e tests in the monorepo
 
 ```shell
-hardhat run --network ropsten scripts/sample-script.ts
+yarn test:e2e
 ```
 
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this
-command:
+4. Run a specific test in the repo (example)
 
 ```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
+yarn clean & yarn hardhat test <path-to-test>
 ```
 
-# Debugging with Tenderly
+# Naming conventions
 
-Tenderly export only works with Hardhat v2.8.0. More recently versions will result in errors such as the one below
-
-```shell
-Errors encountered in param 1: Storage slot argument must have a length of 66 ("0x" + 32 bytes), but '0x0' has a length of 3
-```
-
-However, tests will fail with Hardhat v2.8.0 because of how HardHat's JsonRpcProvider implementation.
-See https://github.com/NomicFoundation/hardhat/issues/1700.
-Errors such as the one below will appear when running tests with v2.8.0. Use Hardhat v2.9.5 when running tests.
-
-```shell
-InvalidArgumentsError: Errors encountered in param 1: Invalid value "0x0000000000000000000000000000000000000000000000000000000000000003" supplied to : QUANTITY
-```
-
+TS files and all folders are named using kebab-case, Solidity files (interfaces, contracts etc) are
+named using Pascal case
 
 # Performance optimizations
 

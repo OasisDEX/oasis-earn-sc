@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "strict": true,
+    "baseUrl": ".",
+    "types": [
+      "node"
+    ],
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "typeRoots": [
+      "../../node_modules/@types"
+    ],
+    "paths": {
+      "@dma-deployments/utils/*": ["./utils/*"],
+      "@dma-deployments/types/*": ["./types/*"],
+      "@dma-deployments/constants/*": ["./constants/*"],
+    }
+  },
+  "include": [
+    "./configs/**/*",
+    "./deployment/**/*",
+    "./types",
+    "./hardhat.config.ts"
+  ],
+}
