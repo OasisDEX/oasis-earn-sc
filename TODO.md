@@ -29,4 +29,4 @@
 - Merge/remove utilities that relate to addresses in dma-common (utils and test-utils)
 - Rationalise to a single calculateFee util
 - Rationalise to a single amountToWei util
-- Address cyclical dependencies between library and contracts package (re Operation Definitions)
+- Resolve VM Exception while processing transaction: reverted with reason string '5' when setting up fixtures

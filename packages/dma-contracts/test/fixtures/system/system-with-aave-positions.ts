@@ -40,7 +40,7 @@ export const systemWithAavePositions =
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
     await ds.loadConfig('test/mainnet.conf.ts')
-    const systemConfigPath = './test-configs/mainnet.conf.ts'
+    const systemConfigPath = 'test/mainnet.conf.ts'
     await ds.loadConfig(systemConfigPath)
     if (configExtensionPaths) {
       configExtensionPaths.forEach(async configPath => {

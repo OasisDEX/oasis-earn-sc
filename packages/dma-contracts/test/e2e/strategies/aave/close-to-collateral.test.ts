@@ -22,8 +22,7 @@ const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_DEBT_BEING_PAID_BACK = 'Expect debt being paid back'
 const EXPECT_FEE_BEING_COLLECTED = 'Expect fee being collected'
 
-// TODO: update test
-describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
+describe('Close AAVEv2 Position to collateral | E2E', () => {
   const slippage = new BigNumber(0.01) // 1%
   let fixture: SystemWithAavePositions
   let feeRecipient: string

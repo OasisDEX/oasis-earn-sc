@@ -16,6 +16,7 @@
         "./src/index.ts"
       ],
       /* Aliases used internally by referenced packages */
+      "@dma-common/constants": ["../dma-common/constants"],
       "@dma-common/utils/*": ["../dma-common/utils/*"],
       "@dma-common/types/*": ["../dma-common/types/*"],
       "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],

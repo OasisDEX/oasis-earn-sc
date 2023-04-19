@@ -26,6 +26,7 @@
       "@dma-library/*": ["../dma-library/src/*"],
       "@oasisdex/dma-library/*": ["../dma-library/src/*"],
       "@oasisdex/dma-library": ["../dma-library/src/index.ts"],
+      "@dma-common/constants": ["../dma-common/constants/index.ts"],
       "@dma-common/utils/*": ["../dma-common/utils/*"],
       "@dma-common/types/*": ["../dma-common/types/*"],
       "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],

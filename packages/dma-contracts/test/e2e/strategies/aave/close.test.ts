@@ -208,7 +208,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
         fixture = await loadFixture(
           systemWithAavePositions({
             use1inch: false,
-            configExtensionPaths: [`./test-configs/uSwap.conf.ts`],
+            configExtensionPaths: [`./test/uSwap.conf.ts`],
           }),
         )
       })
@@ -829,8 +829,8 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
           systemWithAaveV3Positions({
             use1inch: true,
             network: networkFork,
-            systemConfigPath: `./test-configs/${networkFork}.conf.ts`,
-            configExtensionPaths: [`./test-configs/swap.conf.ts`],
+            systemConfigPath: `./test/${networkFork}.conf.ts`,
+            configExtensionPaths: [`./test/swap.conf.ts`],
           }),
         )
       })

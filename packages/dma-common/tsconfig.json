@@ -14,6 +14,7 @@
     "resolveJsonModule": true,
     "noImplicitAny": false,
     "paths": {
+      "@dma-common/constants": ["./constants/index.ts"],
       "@dma-common/utils/*": ["./utils/*"],
       "@dma-common/types/*": ["./types/*"],
       "@oasisdex/addresses": ["../addresses/src/index.ts"],
@@ -28,6 +29,7 @@
   },
   "include": [
     "../addresses/src/**/*",
+    "./constants/**/*",
     "./utils/**/*",
     "./test-utils/**/*",
     "./types",
