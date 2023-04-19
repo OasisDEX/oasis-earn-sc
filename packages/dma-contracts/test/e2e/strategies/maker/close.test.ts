@@ -17,7 +17,7 @@ import {
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
 import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker'
-import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants/contract-names'
+import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
 import { ActionFactory, calldataTypes } from '@oasisdex/dma-library'

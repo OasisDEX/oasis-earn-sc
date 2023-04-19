@@ -7,8 +7,7 @@
   },
   "exports": {
     "./configs/*": "./configs/*.ts",
-    "./constants/*": "./constants/*.ts",
-    "./constants/": "./constants/",
+    "./constants": "./constants/index.ts",
     "./operation-definitions": "./operation-definitions/index.ts",
     "./deployment/*": "./deployment/*.ts",
     "./types/*": "./types/*.ts",

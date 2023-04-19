@@ -8,7 +8,7 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types/operations'
-import { OPERATION_NAMES } from '@oasisdex/dma-deployments/constants/operation-names'
+import { OPERATION_NAMES } from '@oasisdex/dma-deployments/constants'
 import BigNumber from 'bignumber.js'
 
 type AdjustRiskDownArgs = WithCollateralAndWithdrawal &

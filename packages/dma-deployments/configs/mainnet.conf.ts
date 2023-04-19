@@ -1,6 +1,6 @@
-import { CONTRACT_NAMES } from '@dma-deployments/constants/contract-names'
-import { SystemConfig } from '@dma-deployments/types/deployment-config'
-import { constants } from 'ethers'
+import { CONTRACT_NAMES } from "@dma-deployments/constants";
+import { SystemConfig } from "@dma-deployments/types/deployment-config";
+import { constants } from "ethers";
 
 export const config: SystemConfig = {
   mpa: {

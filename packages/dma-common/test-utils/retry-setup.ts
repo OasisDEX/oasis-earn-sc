@@ -10,5 +10,5 @@ export async function retrySetup<T>(setup: () => Promise<T>): Promise<T | undefi
       keepTrying = true
       MAX_RETRIES--
     }
-  } while (keepTrying)
+  } while (keepTrying && MAX_RETRIES > 0)
 }

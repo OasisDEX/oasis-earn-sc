@@ -131,7 +131,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async loadConfig(configFileName?: string) {
     if (configFileName) {
-      this.config = (await import(this.getConfigPath(`./${configFileName}`))).config
+      try {
+        this.config = (await import(this.getConfigPath(`./${configFileName}`))).config
+      } catch (e) {
+        console.log('\x1b[33m[ WARN ] Config file not found! \x1b[0m', e)
+      }
     } else {
       // if forked other network then merge configs files
       if (this.forkedNetwork) {

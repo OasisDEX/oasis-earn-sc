@@ -222,7 +222,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
     let fixture: SystemWithAAVEV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies()
 
-    describe('Open position: With Uniswap', () => {
+    describe('Open position: With Uniswap', function () {
       before(async function () {
         /*
          * Often fails when creating the position with the following error
