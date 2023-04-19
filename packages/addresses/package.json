@@ -5,12 +5,17 @@
   "typings": "lib/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "rm -rf ./lib && yarn tsc -b",
+    "build": "rm -rf ./lib && webpack",
     "watch": "yarn tsc -b -w",
     "lint": "yarn tsc -p ./tsconfig.json --noEmit",
     "prepublish": "yarn build"
   },
   "dependencies": {
     "@oasisdex/dma-deployments": "*"
+  },
+  "devDependencies": {
+    "ts-loader": "^9.4.2",
+    "webpack": "^5.79.0",
+    "webpack-cli": "^5.0.1"
   }
 }
