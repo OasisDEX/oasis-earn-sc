@@ -122,4 +122,9 @@ export const getAjnaBorrowOriginationFee = ({
 }: {
   interestRate: BigNumber
   quoteAmount: BigNumber
-}) => BigNumber.max(interestRate.div(52), new BigNumber(0.0005)).times(quoteAmount)
+}) => {
+  const weeklyInterestRate = interestRate.div(52)
+  const fiveBasisPoints = new BigNumber(0.0005)
+
+  return BigNumber.max(weeklyInterestRate, fiveBasisPoints).times(quoteAmount)
+}
