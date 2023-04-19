@@ -1,6 +1,6 @@
-import { CONTRACT_NAMES } from "@dma-deployments/constants";
-import { SystemConfig } from "@dma-deployments/types/deployment-config";
-import { constants } from "ethers";
+import { CONTRACT_NAMES } from '@dma-deployments/constants'
+import { SystemConfig } from '@dma-deployments/types/deployment-config'
+import { constants } from 'ethers'
 
 export const config: SystemConfig = {
   mpa: {
@@ -301,16 +301,16 @@ export const config: SystemConfig = {
     v3: {
       AaveOracle: {
         name: 'AaveOracle',
-        address: constants.AddressZero,
+        address: ethers.constants.AddressZero,
       },
       Pool: {
         name: 'Pool',
-        address: constants.AddressZero,
+        address: ethers.constants.AddressZero,
         serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
       },
       AaveProtocolDataProvider: {
         name: 'AaveProtocolDataProvider',
-        address: constants.AddressZero,
+        address: ethers.constants.AddressZero,
       },
     },
   },
