@@ -31,6 +31,6 @@ export const bn = {
     TEST_PRICE_1: ethers.utils.parseUnits("93863.654", 18),
     TEST_PRICE_2: ethers.utils.parseUnits("99863.654", 18),
     TEST_PRICE_3: ethers.utils.parseUnits("16821.273", 18),
-    TEST_PRICE_4: ethers.utils.parseUnits("46776653369145271678115", 0)
+    TEST_PRICE_4: ethers.utils.parseUnits("46776653369145271678115", 0),
   },
 };
