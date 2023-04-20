@@ -65,6 +65,12 @@ describe("Pool direct test", function () {
       });
       hash = await erc20PoolFactory.ERC20_NON_SUBSET_HASH();
 
+      (
+        await erc20PoolFactory.deployPool(WBTC, USDC, "50000000000000000", {
+          gasLimit: 10000000,
+        })
+      ).wait();
+
       poolAddress = await erc20PoolFactory.deployedPools(hash, WBTC, USDC);
     } else {
       poolAddress = WBTC_USDC_POOL;
@@ -143,7 +149,7 @@ describe("Pool direct test", function () {
         .addQuoteToken(ethers.utils.parseUnits("10000", 18), 2000, timestamp + 1000000);
       await tx.wait();
       await hre.network.provider.send("evm_increaseTime", ["0x8AC7230489E80000"]);
-      await poolContract.connect(lender).removeQuoteToken(ethers.utils.parseUnits("10000", 18), 2000);
+      await (await poolContract.connect(lender).removeQuoteToken(ethers.utils.parseUnits("10000", 18), 2000)).wait();
 
       const balancesAfter = {
         lender: (await usdc.balanceOf(lender.address)).toString(),
@@ -227,9 +233,11 @@ describe("Pool direct test", function () {
       await lendTx.wait();
 
       // borrow 100 USDC and add 1 WBTC as collateral
-      await poolContract
-        .connect(borrower)
-        .drawDebt(borrower.address, ethers.utils.parseUnits("100", 18), bucketIndex, ethers.utils.parseUnits("1", 18));
+      await (
+        await poolContract
+          .connect(borrower)
+          .drawDebt(borrower.address, ethers.utils.parseUnits("100", 18), bucketIndex, ethers.utils.parseUnits("1", 18))
+      ).wait();
       // console.log(borrowTxRes.logs)
       const borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrower.address);
 
@@ -289,9 +297,11 @@ describe("Pool direct test", function () {
       await lendTx.wait();
 
       // borrow 100 USDC and add 1 WBTC as collateral
-      await poolContract
-        .connect(borrower)
-        .drawDebt(borrower.address, ethers.utils.parseUnits("100", 18), bucketIndex, ethers.utils.parseUnits("1", 18));
+      await (
+        await poolContract
+          .connect(borrower)
+          .drawDebt(borrower.address, ethers.utils.parseUnits("100", 18), bucketIndex, ethers.utils.parseUnits("1", 18))
+      ).wait();
       // console.log(borrowTxRes.logs)
       const borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrower.address);
 

@@ -1,32 +1,10 @@
-import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-import fs from "fs";
 import "hardhat-preprocessor";
 import "hardhat-docgen";
 import "hardhat-tracer";
-require("dotenv").config();
+import "./bootstrap-env";
 
-function getRemappings() {
-  return fs
-    .readFileSync("remappings.txt", "utf8")
-    .split("\n")
-    .filter(Boolean)
-    .map(line => line.trim().split("="));
-}
-function createHardhatNetwork(network: string, node: string | undefined, key: string | undefined, gasPrice: number) {
-  if (!node || !key) {
-    return null;
-  }
-
-  return [
-    network,
-    {
-      url: node,
-      accounts: [key],
-      gasPrice,
-    },
-  ];
-}
+import { HardhatUserConfig } from "hardhat/config";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -48,9 +26,9 @@ const config: HardhatUserConfig = {
       chainId: 2137,
     },
     goerli: {
-      url: process.env.ALCHEMY_NODE_GOERLI,
+      url: process.env.GOERLI_URL,
       gasPrice: 250000000000,
-      accounts: [process.env.PRIVATE_KEY!],
+      accounts: [process.env.PRIV_KEY_GOERLI as string],
     },
     hardhat: {
       chainId: 2137,
@@ -66,20 +44,6 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
-  },
-  preprocess: {
-    eachLine: hre => ({
-      transform: (line: string) => {
-        if (line.match(/^\s*import /i)) {
-          getRemappings().forEach(([find, replace]) => {
-            if (line.match(find)) {
-              line = line.replace(find, replace);
-            }
-          });
-        }
-        return line;
-      },
-    }),
   },
   docgen: {
     path: "./docs",
