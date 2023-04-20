@@ -28,13 +28,14 @@ import { ChainIdByNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
 import hre from 'hardhat'
 
-export function getSupportedAaveV3Strategies(): Array<{
+export function getSupportedAaveV3Strategies(network?: Network): Array<{
   name: AaveV3PositionStrategy
+  allowedNetworks?: Network[]
 }> {
   return [
     { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy },
-    { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy },
-  ]
+    { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, allowedNetworks: [Network.MAINNET] },
+  ].filter(s => (network ? !s.allowedNetworks || s.allowedNetworks.includes(network) : true))
 }
 
 const testBlockNumberByNetwork: Record<
@@ -165,8 +166,12 @@ export const systemWithAaveV3Positions =
     })
 
     let wstethEthEarnPosition: PositionDetails | undefined
-    /* Re use1inch: Wsteth lacks sufficient liquidity on uniswap */
-    if (use1inch) {
+    /*
+      Re use1inch: Wsteth lacks sufficient liquidity on uniswap
+      Re network: wsteth supply cap on optimism reached for now 20/04/23
+      TODO: See if wstETH optimism supply cap can be increased
+    */
+    if (use1inch && network !== Network.OPTIMISM) {
       wstethEthEarnPosition = await wstethEthEarnAavePosition({
         proxy: dpmProxyForEarnWstEthEth,
         isDPM: true,

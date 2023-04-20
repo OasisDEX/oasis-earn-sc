@@ -12,11 +12,11 @@ import {
 import { RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 
-import { PositionDetails } from '../types'
+import { AaveV3PositionStrategy, PositionDetails, StrategyDependenciesAaveV3 } from '../types'
 import { EMODE_MULTIPLE, ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, WSTETH } from './common'
 import { OpenPositionTypes } from './open-position-types'
 
-const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
+const transactionAmount = amountToWei(new BigNumber(1), ETH.precision)
 
 async function openWstEthEthEarnAAVEPosition(
   slippage: BigNumber,

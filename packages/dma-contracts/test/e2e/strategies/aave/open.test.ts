@@ -220,7 +220,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
   })
   describe('Using AAVE V3', async function () {
     let fixture: SystemWithAAVEV3Positions
-    const supportedStrategies = getSupportedAaveV3Strategies()
+    const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
 
     describe('Open position: With Uniswap', function () {
       before(async function () {
@@ -273,7 +273,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         it('Should have the correct multiple', async () => {
           expect.toBe(position.riskRatio.multiple, 'lte', simulatedPosition.riskRatio.multiple)
         })
-        it.skip('Should collect fee', async () => {
+        it('Should collect fee', async () => {
           expect.toBe(
             simulatedTransition.swap.tokenFee,
             'gte',
@@ -321,7 +321,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
             it(`Should have the correct multiple for ${strategy}`, async () => {
               expect.toBe(position.riskRatio.multiple, 'lte', simulatedPosition.riskRatio.multiple)
             })
-            it.skip(`Should collect fee for ${strategy}`, async () => {
+            it(`Should collect fee for ${strategy}`, async () => {
               expect.toBe(
                 simulatedTransition.swap.tokenFee,
                 'gte',

@@ -1,5 +1,5 @@
 import erc20abi from '@oasisdex/abis/external/tokens/IERC20.json'
-import { addressesByNetwork, isOptimismByNetwork } from '@oasisdex/dma-common/test-utils'
+import { addressesByNetwork, isMainnetByNetwork } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AAVETokens } from '@oasisdex/dma-library'
@@ -55,11 +55,11 @@ const tokensWhales: {
 export function buildGetTokenByImpersonateFunction(
   config: RuntimeConfig,
   hre: HardhatRuntimeEnvironment,
-  network: Network.MAINNET | Network.OPTIMISM,
+  network: Network,
 ): (symbol: AAVETokensToGet, amount: BigNumber) => Promise<boolean> {
   return async function getTokens(symbol: AAVETokensToGet, amount: BigNumber): Promise<boolean> {
-    if (isOptimismByNetwork(network)) {
-      throw new Error('Not implemented for Optimism')
+    if (!isMainnetByNetwork(network)) {
+      throw new Error('Not implemented for this network yet')
     }
 
     const { tokenAddress, whale } = tokensWhales[network][symbol]

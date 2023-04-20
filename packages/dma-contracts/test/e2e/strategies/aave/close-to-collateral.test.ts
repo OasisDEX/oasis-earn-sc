@@ -1,9 +1,11 @@
 import assert from 'node:assert'
 
 import { SystemWithAavePositions, systemWithAavePositions } from '@dma-contracts/test/fixtures'
-import { systemWithAaveV3Positions } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
+import {
+  getSupportedAaveV3Strategies,
+  systemWithAaveV3Positions,
+} from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { ZERO } from '@oasisdex/dma-common/constants'
 import { expect, isMainnetByNetwork, isOptimismByNetwork } from '@oasisdex/dma-common/test-utils'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
@@ -17,6 +19,7 @@ import { Network } from '@oasisdex/dma-deployments/types/network'
 import { ChainIdByNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { strategies } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
+import { loadFixture } from 'ethereum-waffle'
 
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_DEBT_BEING_PAID_BACK = 'Expect debt being paid back'
@@ -296,7 +299,9 @@ describe('Close AAVEv3 Position to collateral', () => {
   let fixture: SystemWithAAVEV3Positions
   let feeRecipient: string
 
-  before(async () => {
+  const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
+
+  before(async function () {
     fixture = await loadFixture(
       systemWithAaveV3Positions({
         use1inch: true,
@@ -309,8 +314,16 @@ describe('Close AAVEv3 Position to collateral', () => {
     if (!feeRecipient) throw new Error('Fee recipient is not set')
   })
 
-  it('DPMProxy | Collateral - ETH ( 18 precision ) | Debt - USDC ( 6 precision )', async () => {
-    const position = fixture.dpmPositions['ETH/USDC Multiply']
+  it('DPMProxy | Collateral - ETH ( 18 precision ) | Debt - USDC ( 6 precision )', async function () {
+    const strategyName = 'ETH/USDC Multiply'
+    const position = fixture.dpmPositions[strategyName]
+    if (!supportedStrategies.find(s => s.name === strategyName)) {
+      /*
+       * If the strategy is not supported based on network then just skip
+       * Rather than fail
+       */
+      this.skip()
+    }
     assert(position, 'Unsupported position')
 
     const { provider, signer } = fixture.config
@@ -396,8 +409,16 @@ describe('Close AAVEv3 Position to collateral', () => {
       .to.be.true
   })
 
-  it('DPM | Collateral - WSTETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
-    const position = fixture.dpmPositions['WSTETH/ETH Earn']
+  it('DPM | Collateral - WSTETH ( 18 precision ) | Debt - ETH ( 18 precision )', async function () {
+    const strategyName = 'WSTETH/ETH Earn'
+    const position = fixture.dpmPositions[strategyName]
+    if (!supportedStrategies.find(s => s.name === strategyName)) {
+      /*
+       * If the strategy is not supported based on network then just skip
+       * Rather than fail
+       */
+      this.skip()
+    }
     assert(position, 'Unsupported position')
 
     const { address: user, provider, signer } = fixture.config

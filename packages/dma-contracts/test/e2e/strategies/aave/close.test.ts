@@ -408,7 +408,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
   describe('Using AAVE V3', async function () {
     let fixture: SystemWithAAVEV3Positions
 
-    const supportedStrategies = getSupportedAaveV3Strategies()
+    const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
 
     type ClosePositionV3Args = {
       isDPMProxy: boolean
