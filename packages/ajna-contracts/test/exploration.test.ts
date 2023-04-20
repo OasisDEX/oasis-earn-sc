@@ -1,9 +1,8 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { prepareEnv } from "@oasisdex/ajna-contracts/scripts";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
-
-import { prepareEnv } from "../scripts/prepare-env";
 
 type DeployEnv = Awaited<ReturnType<typeof prepareEnv>>;
 

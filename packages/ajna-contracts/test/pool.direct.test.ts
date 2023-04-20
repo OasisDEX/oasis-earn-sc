@@ -1,9 +1,8 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { HardhatUtils } from "@oasisdex/ajna-contracts/scripts";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import hre, { ethers } from "hardhat";
-
-import { HardhatUtils } from "../scripts/common/hardhat.utils";
 
 const AJNA = "0x347fcea8b4fd1a46e2c0db8f79e22d293c2f8513";
 const USDC = "0x6Fb5ef893d44F4f88026430d82d4ef269543cB23";

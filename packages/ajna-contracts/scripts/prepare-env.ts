@@ -1,19 +1,26 @@
+import {
+  DAY,
+  deploy,
+  depositCollateralAndDrawQuote,
+  HardhatUtils,
+  openPosition,
+  provideLiquidity,
+  User,
+  WEEK,
+  withdrawCollateralAndRepayQuote,
+  YEAR,
+} from "@oasisdex/ajna-contracts/scripts";
+import {
+  AccountFactory,
+  ERC20Pool,
+  IAccountImplementation,
+  Token,
+  WETH,
+} from "@oasisdex/ajna-contracts/scripts/typechain-types";
 import { BigNumber, Signer } from "ethers";
 import hre, { ethers } from "hardhat";
 // @ts-ignore
 import ploty_ from "plotly";
-
-import { AccountFactory, ERC20Pool, IAccountImplementation, Token, WETH } from "../typechain-types";
-import {
-  depositCollateralAndDrawQuote,
-  openPosition,
-  provideLiquidity,
-  withdrawCollateralAndRepayQuote,
-} from "./common/ajna-library-helpers.utils";
-import { DAY, WEEK, YEAR } from "./common/constants.utils";
-import { deploy } from "./common/deployment.utils";
-import { HardhatUtils } from "./common/hardhat.utils";
-import { User } from "./common/types";
 
 const plotly =
   process.env.PLOTY_KEY && process.env.PLOTY_USER ? ploty_(process.env.PLOTY_USER, process.env.PLOTY_KEY) : undefined;

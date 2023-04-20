@@ -1,9 +1,4 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { expect } from "chai";
-import { BigNumber, Signer } from "ethers";
-import hre, { ethers } from "hardhat";
-
-import { bn } from "../scripts/common";
 import {
   deployApa,
   deployGuard,
@@ -12,10 +7,21 @@ import {
   deployPoolFactory,
   deployRewardsContracts,
   deployTokens,
-} from "../scripts/common/deployment.utils";
+} from "@oasisdex/ajna-contracts/scripts";
+import {
+  AjnaProxyActions,
+  DSToken,
+  ERC20Pool,
+  IAccountImplementation,
+  PoolInfoUtils,
+} from "@oasisdex/ajna-contracts/typechain-types";
+import { expect } from "chai";
+import { BigNumber, Signer } from "ethers";
+import hre, { ethers } from "hardhat";
+
+import { bn } from "../scripts/common";
 import { HardhatUtils } from "../scripts/common/hardhat.utils";
 import { createDPMProxy } from "../scripts/prepare-env";
-import { AjnaProxyActions, DSToken, ERC20Pool, IAccountImplementation, PoolInfoUtils } from "../typechain-types";
 import { ERC20 } from "../typechain-types/@openzeppelin/contracts/token/ERC20/";
 import { WETH as WETHContract } from "../typechain-types/contracts";
 
