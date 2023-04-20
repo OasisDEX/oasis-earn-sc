@@ -45,7 +45,7 @@ export async function depositBorrow(
   const errors = [
     ...validateDustLimit(targetPosition),
     ...validateBorrowUndercollateralized(targetPosition, args.position),
-    ...validateLiquidity(targetPosition, args.quoteAmount),
+    ...validateLiquidity(args.position, args.quoteAmount),
   ]
 
   const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, args.position)]

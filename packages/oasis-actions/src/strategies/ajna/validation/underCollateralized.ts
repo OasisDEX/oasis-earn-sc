@@ -10,7 +10,7 @@ export function validateBorrowUndercollateralized(
       {
         name: 'borrow-undercollateralized',
         data: {
-          amount: positionBefore.debtAvailable.decimalPlaces(2).toString(),
+          amount: positionBefore.debtAvailable().decimalPlaces(2).toString(),
         },
       },
     ]
