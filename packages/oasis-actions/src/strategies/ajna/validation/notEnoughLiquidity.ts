@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 
+import { negativeToZero } from '../../../helpers/negativeToZero'
 import { AjnaPosition } from '../../../types/ajna'
 import { AjnaPool } from '../../../types/ajna/AjnaPool'
 import { AjnaError } from '../../../types/common'
@@ -22,7 +23,7 @@ export function validateLiquidity(
       {
         name: 'not-enough-liquidity',
         data: {
-          amount: availableLiquidity.decimalPlaces(2).toString(),
+          amount: negativeToZero(availableLiquidity).decimalPlaces(2).toString(),
         },
       },
     ]
