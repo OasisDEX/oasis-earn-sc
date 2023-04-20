@@ -1,6 +1,6 @@
-import { depositAndAdjust } from './deposit-and-adjust'
+import { depositAndAdjust } from './depositAndAdjust'
 import { open } from './open'
-import { withdrawAndAdjust } from './withdraw-and-adjust'
+import { withdrawAndAdjust } from './withdrawAndAdjust'
 
 export const earn = {
   open,

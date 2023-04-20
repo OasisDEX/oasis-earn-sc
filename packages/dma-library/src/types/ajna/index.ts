@@ -40,5 +40,5 @@ Note that the TP of a loan is entirely under the control of the borrower.
 If a loan becomes undercollateralized, then it's eligible for liquidation (see 7.0 LIQUIDATIONS).
 */
 
-export { AjnaEarnPosition } from './ajna-earn-position'
-export { AjnaPosition } from './ajna-position'
+export { AjnaEarnPosition } from './AjnaEarnPosition'
+export { AjnaPosition } from './AjnaPosition'

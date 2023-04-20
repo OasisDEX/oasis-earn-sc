@@ -1,11 +1,17 @@
-import { AjnaPosition } from '@dma-library/types/ajna'
-import { Strategy } from '@dma-library/types/common'
-import ajnaProxyActionsAbi from '@oasisdex/abis/external/protocols/ajna/ajnaProxyActions.json'
-import { Address } from '@oasisdex/dma-deployments/types/address'
 import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
+import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
+import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
+import { AjnaPosition } from '../../types/ajna'
+import { Address, Strategy } from '../../types/common'
 import { Dependencies } from './open'
+import {
+  validateDustLimit,
+  // validateOverRepay,
+  validateOverWithdraw,
+  validateWithdrawUndercollateralized,
+} from './validation'
 
 interface PaybackWithdrawArgs {
   poolAddress: Address
@@ -30,7 +36,9 @@ export async function paybackWithdraw(
   const data = apa.interface.encodeFunctionData('repayWithdraw', [
     args.poolAddress,
     ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-    ethers.utils.parseUnits(args.collateralAmount.toString(), args.quoteTokenPrecision).toString(),
+    ethers.utils
+      .parseUnits(args.collateralAmount.toString(), args.collateralTokenPrecision)
+      .toString(),
   ])
 
   const targetPosition = args.position.payback(args.quoteAmount).withdraw(args.collateralAmount)
@@ -38,19 +46,19 @@ export async function paybackWithdraw(
   const isPayingBackEth =
     args.position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
-  return {
-    simulation: {
-      swaps: [],
-      targetPosition,
-      position: targetPosition,
-      errors: [],
-    },
-    tx: {
-      to: dependencies.ajnaProxyActions,
-      data,
-      value: isPayingBackEth
-        ? ethers.utils.parseEther(args.quoteAmount.toString()).toString()
-        : '0',
-    },
-  }
+  const errors = [
+    ...validateDustLimit(targetPosition),
+    ...validateWithdrawUndercollateralized(targetPosition, args.position),
+    ...validateOverWithdraw(args.position, args.collateralAmount),
+    // ...validateOverRepay(args.position, args.quoteAmount),
+  ]
+
+  return prepareAjnaPayload({
+    dependencies,
+    targetPosition,
+    errors,
+    warnings: [],
+    data,
+    txValue: resolveAjnaEthAction(isPayingBackEth, args.quoteAmount),
+  })
 }
