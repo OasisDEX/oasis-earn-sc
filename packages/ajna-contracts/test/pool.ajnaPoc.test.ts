@@ -44,7 +44,6 @@ describe.skip("Pool test", function () {
 
     await sendLotsOfMoney(ownerAddress);
 
-    const ajna = await ethers.getContractAt("DSToken", AJNA);
     const usdc = await ethers.getContractAt("DSToken", USDC);
     const wbtc = await ethers.getContractAt("DSToken", WBTC);
 
@@ -83,11 +82,6 @@ describe.skip("Pool test", function () {
       });
       hash = await erc20PoolFactory.ERC20_NON_SUBSET_HASH();
       console.log("searching pool");
-      const pool = (
-        await erc20PoolFactory.deployPool(WBTC, USDC, "50000000000000000", {
-          gasLimit: 10000000,
-        })
-      ).wait();
 
       poolAddress = await erc20PoolFactory.deployedPools(hash, WBTC, USDC);
       console.log("address used", poolAddress);
@@ -165,7 +159,6 @@ describe.skip("Pool test", function () {
         { gasLimit: 5000000 }
       );
       await tx.wait();
-      const recept = tx.wait();
 
       const balanceAfter = await WBTCToken.balanceOf(ajnaPoc.address);
       const balanceQuoteAfter = await USDCToken.balanceOf(ajnaPoc.address);
