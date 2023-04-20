@@ -29,8 +29,9 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
           this.skip()
         }
         /*
-         * Often fails when creating the position with the following error
+         * Intermittently fails when creating the position with the following error
          * VM Exception while processing transaction: reverted with reason string '5'
+         * That's why we use retrySetup to avoid flakiness
          */
         const _fixture = await retrySetup(
           systemWithAavePositions({
@@ -126,8 +127,9 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
           this.skip()
         }
         /*
-         * Often fails when creating the position with the following error
+         * Intermittently fails when creating the position with the following error
          * VM Exception while processing transaction: reverted with reason string '5'
+         * That's why we use retrySetup to avoid flakiness
          */
         const _fixture = await retrySetup(
           systemWithAavePositions({
@@ -225,8 +227,9 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
     describe('Open position: With Uniswap', function () {
       before(async function () {
         /*
-         * Often fails when creating the position with the following error
+         * Intermittently fails when creating the position with the following error
          * VM Exception while processing transaction: reverted with reason string '5'
+         * That's why we use retrySetup to avoid flakiness
          */
         const _fixture = await retrySetup(
           systemWithAaveV3Positions({
@@ -335,8 +338,9 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
     describe('Open position: With 1inch', () => {
       before(async () => {
         /*
-         * Often fails when creating the position with the following error
+         * Intermittently fails when creating the position with the following error
          * VM Exception while processing transaction: reverted with reason string '5'
+         * That's why we use retrySetup to avoid flakiness
          */
         const _fixture = await retrySetup(
           systemWithAaveV3Positions({

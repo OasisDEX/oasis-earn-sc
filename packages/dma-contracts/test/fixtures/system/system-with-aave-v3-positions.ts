@@ -34,6 +34,7 @@ export function getSupportedAaveV3Strategies(network?: Network): Array<{
 }> {
   return [
     { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy },
+    // TODO: Monitor if wstETH optimism increase supply cap or update test to modify storage
     { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, allowedNetworks: [Network.MAINNET] },
   ].filter(s => (network ? !s.allowedNetworks || s.allowedNetworks.includes(network) : true))
 }
@@ -169,7 +170,7 @@ export const systemWithAaveV3Positions =
     /*
       Re use1inch: Wsteth lacks sufficient liquidity on uniswap
       Re network: wsteth supply cap on optimism reached for now 20/04/23
-      TODO: See if wstETH optimism supply cap can be increased
+      TODO: Monitor if wstETH optimism increase supply cap or update test to modify storage
     */
     if (use1inch && network !== Network.OPTIMISM) {
       wstethEthEarnPosition = await wstethEthEarnAavePosition({

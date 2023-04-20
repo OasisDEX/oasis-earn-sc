@@ -30,4 +30,4 @@
 - Rationalise to a single calculateFee util
 - Rationalise to a single amountToWei util
 - Resolve VM Exception while processing transaction: reverted with reason string '5' when setting up fixtures
-- Check if wstETH optimism supply cap has been increased - see wstETH fixture
+- TODO: Monitor if wstETH optimism increase supply cap or update test to modify storage
