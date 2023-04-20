@@ -43,7 +43,7 @@ jobs:
         uses: actions/setup-node@v1
         if: contains(steps.changed-files.outputs.all_changed_and_modified_files, matrix.package)
         with:
-          node-version: "12.x"
+          node-version: "16.x"
 
       # Modify the `if` condition to check for changes in either `dma-contracts` or `dma-library` for the `dma-contracts` matrix entry
       - name: Install dependencies & build packages & compile contracts
@@ -91,7 +91,7 @@ jobs:
         uses: actions/setup-node@v1
         if: contains(steps.changed-files.outputs.all_changed_and_modified_files, matrix.package)
         with:
-          node-version: "12.x"
+          node-version: "16.x"
 
       # Modify the `if` condition to check for changes in either `dma-contracts` or `dma-library` for the `dma-contracts` matrix entry
       - name: Install dependencies & build packages & compile contracts
