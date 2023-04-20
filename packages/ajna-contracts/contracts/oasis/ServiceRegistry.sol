@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 pragma solidity ^0.8.0;
-import{console} from "hardhat/console.sol";
+
 contract ServiceRegistry {
     uint256 public constant MAX_DELAY = 30 days;
 
@@ -42,10 +42,7 @@ contract ServiceRegistry {
             lastExecuted[operationHash] = block.timestamp;
             emit ChangeScheduled(operationHash, block.timestamp + reqDelay, msg.data);
         } else {
-            require(
-                block.timestamp - reqDelay > lastExecuted[operationHash],
-                "registry/delay-too-small"
-            );
+            require(block.timestamp - reqDelay > lastExecuted[operationHash], "registry/delay-too-small");
             emit ChangeApplied(operationHash, block.timestamp, msg.data);
             _;
             lastExecuted[operationHash] = 0;
@@ -64,15 +61,11 @@ contract ServiceRegistry {
         owner = msg.sender;
     }
 
-    function transferOwnership(
-        address newOwner
-    ) external onlyOwner validateInput(36) delayedExecution {
+    function transferOwnership(address newOwner) external onlyOwner validateInput(36) delayedExecution {
         owner = newOwner;
     }
 
-    function changeRequiredDelay(
-        uint256 newDelay
-    ) external onlyOwner validateInput(36) delayedExecution {
+    function changeRequiredDelay(uint256 newDelay) external onlyOwner validateInput(36) delayedExecution {
         require(newDelay <= MAX_DELAY, "registry/invalid-delay");
         requiredDelay = newDelay;
     }
@@ -85,7 +78,6 @@ contract ServiceRegistry {
         bytes32 serviceNameHash,
         address serviceAddress
     ) external onlyOwner validateInput(68) delayedExecution {
-        console.logBytes32( serviceNameHash);
         require(invalidHashes[serviceNameHash] == false, "registry/service-name-used-before");
         require(namedService[serviceNameHash] == address(0), "registry/service-override");
         namedService[serviceNameHash] = serviceAddress;
@@ -100,7 +92,6 @@ contract ServiceRegistry {
     }
 
     function getRegisteredService(string memory serviceName) external view returns (address) {
-        console.logBytes32( keccak256(abi.encodePacked(serviceName)));
         return namedService[keccak256(abi.encodePacked(serviceName))];
     }
 
@@ -108,9 +99,7 @@ contract ServiceRegistry {
         return namedService[serviceNameHash];
     }
 
-    function clearScheduledExecution(
-        bytes32 scheduledExecution
-    ) external onlyOwner validateInput(36) {
+    function clearScheduledExecution(bytes32 scheduledExecution) external onlyOwner validateInput(36) {
         require(lastExecuted[scheduledExecution] > 0, "registry/execution-not-scheduled");
         lastExecuted[scheduledExecution] = 0;
         emit ChangeCancelled(scheduledExecution);

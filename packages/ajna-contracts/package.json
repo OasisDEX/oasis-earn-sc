@@ -57,6 +57,8 @@
     "plotly": "^1.0.6",
     "prettier-plugin-solidity": "^1.1.2",
     "ramda": "^0.28.0",
+    "solhint": "^3.4.1",
+    "solhint-plugin-prettier": "^0.0.5",
     "solidity-coverage": "^0.8.0",
     "ts-node": ">=8.0.0",
     "typechain": "^8.1.0",
