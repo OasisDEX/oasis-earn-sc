@@ -1,0 +1,110 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      force_run_tests:
+        description: 'Force run tests (true/false)'
+        required: false
+        default: 'false'
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        package: ["dma-contracts", "domain"]
+    steps:
+      - name: Check out github repository
+        id: github-checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v11
+
+      - name: Cache node modules
+        id: cache-node-modules
+        uses: actions/cache@v2
+        if: contains(steps.changed-files.outputs.all_changed_and_modified_files, matrix.package)
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install node
+        id: install-node
+        uses: actions/setup-node@v1
+        if: contains(steps.changed-files.outputs.all_changed_and_modified_files, matrix.package)
+        with:
+          node-version: "12.x"
+
+      # Modify the `if` condition to check for changes in either `dma-contracts` or `dma-library` for the `dma-contracts` matrix entry
+      - name: Install dependencies & build packages & compile contracts
+        id: install-dependencies
+        if: (github.event.inputs.force_run_tests == 'true') || (matrix.package == 'dma-contracts' && (contains(steps.changed-files.outputs.all_changed_and_modified_files, 'dma-contracts') || contains(steps.changed-files.outputs.all_changed_and_modified_files, 'dma-library'))) || (matrix.package == 'domain' && contains(steps.changed-files.outputs.all_changed_and_modified_files, matrix.package))
+        run: yarn ; yarn build ; yarn compile
+        env:
+          BLOCK_NUMBER: 15946543
+          NETWORK_FORK: 'mainnet'
+          MAINNET_URL: ${{ secrets.MAINNET_URL }}
+
+      # Modify the `if` condition to check for changes in either `dma-contracts` or `dma-library` for the `dma-contracts` matrix entry
+      - name: Run unit tests
+        id: unit-test
+        if: (github.event.inputs.force_run_tests == 'true') || (matrix.package == 'dma-contracts' && (contains(steps.changed-files.outputs.all_changed_and_modified_files, 'dma-contracts') || contains(steps.changed-files.outputs.all_changed_and_modified_files, 'dma-library'))) || (matrix.package == 'domain' && contains(steps.changed-files.outputs.all_changed_and_modified_files, matrix.package))
+        run: lerna exec --scope @oasisdex/${{ matrix.package }} -- yarn test:unit
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        package: ["dma-contracts", "domain"]
+    steps:
+      - name: Check out github repository
+        id: github-checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v11
+
+      - name: Cache node modules
+        id: cache-node-modules
+        uses: actions/cache@v2
+        if: contains(steps.changed-files.outputs.all_changed_and_modified_files, matrix.package)
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install node
+        id: install-node
+        uses: actions/setup-node@v1
+        if: contains(steps.changed-files.outputs.all_changed_and_modified_files, matrix.package)
+        with:
+          node-version: "12.x"
+
+      # Modify the `if` condition to check for changes in either `dma-contracts` or `dma-library` for the `dma-contracts` matrix entry
+      - name: Install dependencies & build packages & compile contracts
+        id: install-dependencies
+        if: (github.event.inputs.force_run_tests == 'true') || (matrix.package == 'dma-contracts' && (contains(steps.changed-files.outputs.all_changed_and_modified_files, 'dma-contracts') || contains(steps.changed-files.outputs.all_changed_and_modified_files, 'dma-library'))) || (matrix.package == 'domain' && contains(steps.changed-files.outputs.all_changed_and_modified_files, matrix.package))
+        run: yarn ; yarn build ; yarn compile
+        env:
+          BLOCK_NUMBER: 15946543
+          NETWORK_FORK: 'mainnet'
+          MAINNET_URL: ${{ secrets.MAINNET_URL }}
+
+      - name: Run e2e tests
+        id: e2e-test
+        #        if: contains(steps.changed-files.outputs.all_changed_and_modified_files, matrix.package)
+        if: (github.event.inputs.force_run_tests == 'true') || (matrix.package == 'dma-contracts' && (contains(steps.changed-files.outputs.all_changed_and_modified_files, 'dma-contracts') || contains(steps.changed-files.outputs.all_changed_and_modified_files, 'dma-library'))) || (matrix.package == 'domain' && contains(steps.changed-files.outputs.all_changed_and_modified_files, matrix.package))
+        run: lerna exec --scope @oasisdex/${{ matrix.package }} -- yarn test:e2e
