@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "strict": true,
+    "outDir": "lib",
+    "baseUrl": ".",
+    "paths": {
+      "@typechain/*": [
+        "../dma-contracts/typechain/*"
+      ],
+      "@dma-library/*": [
+        "./src/*"
+      ],
+      "@dma-library": [
+        "./src/index.ts"
+      ],
+      /* Aliases used internally by referenced packages */
+      "@dma-common/constants": ["../dma-common/constants"],
+      "@dma-common/utils/*": ["../dma-common/utils/*"],
+      "@dma-common/types/*": ["../dma-common/types/*"],
+      "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
+      "@dma-deployments/types/*": ["../dma-deployments/types/*"],
+      "@dma-deployments/constants": ["../dma-deployments/constants/index.ts"]
+    },
+    "types": [
+      "node"
+    ],
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    // Generate d.ts files
+    "declaration": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "typeRoots": [
+      "../../node_modules/@types"
+    ]
+  },
+  "include": [
+    "./hardhat.config.ts",
+    "./src/**/*"
+  ],
+}

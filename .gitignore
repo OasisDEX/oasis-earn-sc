@@ -1,18 +1,17 @@
 node_modules
 .env
+packages/*/.env
 .env_bak
 coverage
 coverage.json
-typechain
+packages/dma-contracts/typechain
 yarn-error.log
+lerna-debug.log
 tenderly.yaml
 .idea/**/*
-packages/oasis-actions/src/domain/credentials.json
-
-serviceRegistryEntries.txt
 
 #Hardhat files
-abi/generated
+packages/dma-contracts/abi/generated
 cache
 artifacts
 
@@ -27,3 +26,5 @@ lib
 !.yarn/versions
 .pnp.*
 dist
+typechain/
+abi/
