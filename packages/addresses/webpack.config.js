@@ -9,9 +9,6 @@ module.exports = {
       type: 'module',
     },
   },
-  resolve: {
-    extensions: ['.webpack.js', '.web.js', '.ts', '.js'],
-  },
   module: {
     rules: [
       {
@@ -22,10 +19,11 @@ module.exports = {
     ],
   },
   resolve: {
+    extensions: ['.ts', '.js'],
     alias: {
-      '@dma-deployments/constants/contract-names': path.resolve(
+      '@dma-deployments/constants': path.resolve(
         __dirname,
-        '../dma-deployments/constants/contract-names.ts',
+        '../dma-deployments/constants/index.ts',
       ),
     },
   },
