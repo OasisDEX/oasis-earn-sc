@@ -1,4 +1,4 @@
-export { AavePositionStrategy, PositionDetails } from './position-details'
-export { StrategiesDependencies } from './strategies-dependencies'
-export { SystemWithAavePositions } from './system-with-aave-positions'
-export { SystemWithProxies } from './system-with-proxies'
+export * from './position-details'
+export * from './strategies-dependencies'
+export * from './system-with-aave-positions'
+export * from './system-with-proxies'

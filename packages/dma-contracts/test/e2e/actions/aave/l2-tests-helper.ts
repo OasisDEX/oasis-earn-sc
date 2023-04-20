@@ -140,11 +140,11 @@ export const deployedContracts = async (): Promise<DeployedContracts> => {
   await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
   await registry.addEntry(
     CONTRACT_NAMES.aave.v3.AAVE_POOL,
-    ADDRESSES[Network.OPT_MAINNET].aave.v3.Pool,
+    ADDRESSES[Network.OPTIMISM].aave.v3.Pool,
   )
   await registry.addEntry(
     CONTRACT_NAMES.aave.L2_ENCODER,
-    ADDRESSES[Network.OPT_MAINNET].aave.v3.L2Encoder,
+    ADDRESSES[Network.OPTIMISM].aave.v3.L2Encoder,
   )
   await registry.addEntry(CONTRACT_NAMES.common.SET_APPROVAL, setApprovalAddress)
   await registry.addEntry(CONTRACT_NAMES.aave.v3.DEPOSIT, aaveV3L2DepositAddress)
@@ -154,16 +154,16 @@ export const deployedContracts = async (): Promise<DeployedContracts> => {
 
   const depositActions = [
     setApprovalAction(
-      ADDRESSES[Network.OPT_MAINNET].common.DAI,
+      ADDRESSES[Network.OPTIMISM].common.DAI,
       amountToWei(HUNDRED),
-      ADDRESSES[Network.OPT_MAINNET].aave.v3.Pool,
+      ADDRESSES[Network.OPTIMISM].aave.v3.Pool,
     ),
-    depositAction(ADDRESSES[Network.OPT_MAINNET].common.DAI, amountToWei(HUNDRED)),
+    depositAction(ADDRESSES[Network.OPTIMISM].common.DAI, amountToWei(HUNDRED)),
   ]
 
   const withdrawActions = [
     withdrawAction(
-      ADDRESSES[Network.OPT_MAINNET].common.DAI,
+      ADDRESSES[Network.OPTIMISM].common.DAI,
       new BigNumber(MAX_UINT),
       operationExecutorAddress,
     ),
@@ -171,7 +171,7 @@ export const deployedContracts = async (): Promise<DeployedContracts> => {
 
   const borrowActions = [
     borrowAction(
-      ADDRESSES[Network.OPT_MAINNET].common.USDC,
+      ADDRESSES[Network.OPTIMISM].common.USDC,
       amountToWei(FIFTY, 6),
       operationExecutorAddress,
     ),
@@ -179,15 +179,11 @@ export const deployedContracts = async (): Promise<DeployedContracts> => {
 
   const paybackActions = [
     setApprovalAction(
-      ADDRESSES[Network.OPT_MAINNET].common.USDC,
+      ADDRESSES[Network.OPTIMISM].common.USDC,
       amountToWei(FIFTY.plus(ONE), 6),
-      ADDRESSES[Network.OPT_MAINNET].aave.v3.Pool,
+      ADDRESSES[Network.OPTIMISM].aave.v3.Pool,
     ),
-    paybackAction(
-      ADDRESSES[Network.OPT_MAINNET].common.USDC,
-      amountToWei(FIFTY.plus(ONE), 6),
-      true,
-    ),
+    paybackAction(ADDRESSES[Network.OPTIMISM].common.USDC, amountToWei(FIFTY.plus(ONE), 6), true),
   ]
 
   await opRegistry.addOp(
@@ -223,8 +219,8 @@ export const deployedContracts = async (): Promise<DeployedContracts> => {
   )
 
   await swapUniswapTokens(
-    ADDRESSES[Network.OPT_MAINNET].common.WETH,
-    ADDRESSES[Network.OPT_MAINNET].common.DAI,
+    ADDRESSES[Network.OPTIMISM].common.WETH,
+    ADDRESSES[Network.OPTIMISM].common.DAI,
     amountToWei(ONE).toFixed(0),
     amountToWei(HUNDRED).toFixed(0),
     operationExecutorAddress,
@@ -232,8 +228,8 @@ export const deployedContracts = async (): Promise<DeployedContracts> => {
   )
 
   await swapUniswapTokens(
-    ADDRESSES[Network.OPT_MAINNET].common.WETH,
-    ADDRESSES[Network.OPT_MAINNET].common.USDC,
+    ADDRESSES[Network.OPTIMISM].common.WETH,
+    ADDRESSES[Network.OPTIMISM].common.USDC,
     amountToWei(ONE).toFixed(0),
     amountToWei(HUNDRED, 6).toFixed(0),
     operationExecutorAddress,

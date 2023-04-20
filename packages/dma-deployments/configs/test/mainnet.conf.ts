@@ -1,5 +1,6 @@
-import { CONTRACT_NAMES } from '@dma-deployments/constants/contract-names'
-import { SystemConfig } from '@dma-deployments/types/deployment-config'
+import { CONTRACT_NAMES } from "@dma-deployments/constants";
+import { SystemConfig } from "@dma-deployments/types/deployment-config";
+import { constants } from "ethers";
 
 export const config: SystemConfig = {
   mpa: {
@@ -15,7 +16,7 @@ export const config: SystemConfig = {
         name: 'OperationExecutor',
         deploy: true,
         address: '0xc1cd3654ab3b37e0bc26bafb5ae4c096892d0b0c',
-        serviceRegistryName: 'OperationExecutor_2',
+        serviceRegistryName: CONTRACT_NAMES.common.OPERATION_EXECUTOR,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
@@ -23,15 +24,15 @@ export const config: SystemConfig = {
         name: 'OperationStorage',
         deploy: true,
         address: '0x66081bcDb3760f1Bf765B4D9800d0a059BBec73F',
-        serviceRegistryName: 'OperationStorage_2',
+        serviceRegistryName: CONTRACT_NAMES.common.OPERATION_STORAGE,
         history: [],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
       },
-      OperationRegistry: {
+      OperationsRegistry: {
         name: 'OperationsRegistry',
         deploy: true,
         address: '0x01871C3cCfeDE29d2b998E7D1BF0eEEBD26d9c49',
-        serviceRegistryName: 'OperationsRegistry_2',
+        serviceRegistryName: CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
         history: [],
         constructorArgs: [],
       },
@@ -80,14 +81,6 @@ export const config: SystemConfig = {
         serviceRegistryName: CONTRACT_NAMES.maker.CHAINLOG_VIEW,
         history: [],
         constructorArgs: ['0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F'],
-      },
-      Swap: {
-        name: 'Swap',
-        deploy: false,
-        address: '0x826E9f2E79cEEA850dF4d4757e0D12115A720D74',
-        serviceRegistryName: 'Swap',
-        history: [],
-        constructorArgs: [],
       },
     },
     actions: {
@@ -242,6 +235,10 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    GnosisSafe: {
+      name: 'GnosisSafe',
+      address: constants.AddressZero,
+    },
     WETH: {
       name: 'WETH',
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -265,6 +262,10 @@ export const config: SystemConfig = {
       name: 'USDC',
       address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       serviceRegistryName: CONTRACT_NAMES.common.USDC,
+    },
+    USDT: {
+      name: 'USDT',
+      address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     },
     DAI: {
       name: 'DAI',
@@ -359,6 +360,10 @@ export const config: SystemConfig = {
       name: 'CdpManager',
       address: '0x5ef30b9986345249bc32d8928B7ee64DE9435E39',
     },
+    GetCdps: {
+      name: 'GetCdps',
+      address: '0x36a724Bd100c39f0Ea4D3A20F7097eE01A8Ff573',
+    },
     Jug: {
       name: 'Jug',
       address: '0x19c0976f590D67707E62397C87829d896Dc0f1F1',
@@ -366,6 +371,10 @@ export const config: SystemConfig = {
     JoinDAI: {
       name: 'JoinDAI',
       address: '0x9759A6Ac90977b93B58547b4A71c78317f391A28',
+    },
+    JoinETH_A: {
+      name: 'JoinETH_A',
+      address: '0x2F0b23f53734252Bda2277357e97e1517d6B042A',
     },
     PipWETH: {
       name: 'PipWETH',

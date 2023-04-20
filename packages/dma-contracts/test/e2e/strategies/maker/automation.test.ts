@@ -9,8 +9,7 @@ import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import { DeployedSystemInfo, expect, restoreSnapshot } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
-import { getOraclePrice } from '@oasisdex/dma-common/utils/maker/oracle'
-import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker/vault'
+import { getLastVault, getOraclePrice, getVaultInfo } from '@oasisdex/dma-common/utils/maker'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
 import { ActionCall, ActionFactory, calldataTypes } from '@oasisdex/dma-library/src'
@@ -87,7 +86,7 @@ describe.skip(`Operations | Maker | Automation Integration | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
         },
         [0],
       ],
@@ -111,7 +110,7 @@ describe.skip(`Operations | Maker | Automation Integration | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -233,7 +232,7 @@ describe.skip(`Operations | Maker | Automation Integration | E2E`, async () => {
     expect.toBeEqual(info.debt.toFixed(0), autoTestAmount.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.cdpManager,
+      ADDRESSES[Network.MAINNET].maker.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)

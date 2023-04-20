@@ -1,5 +1,6 @@
-import { CONTRACT_NAMES } from '@dma-deployments/constants/contract-names'
 import { SystemConfig } from '@dma-deployments/types/deployment-config'
+import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants'
+import { constants } from 'ethers'
 
 export const config: SystemConfig = {
   mpa: {
@@ -209,6 +210,10 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    GnosisSafe: {
+      name: 'GnosisSafe',
+      address: constants.AddressZero,
+    },
     WETH: {
       name: 'WETH',
       address: '0x4200000000000000000000000000000000000006',
@@ -228,15 +233,27 @@ export const config: SystemConfig = {
       address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
       serviceRegistryName: 'USDC',
     },
+    USDT: {
+      name: 'USDT',
+      address: constants.AddressZero,
+    },
     DAI: {
       name: 'DAI',
       address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
       serviceRegistryName: 'DAI',
     },
+    STETH: {
+      name: 'STETH',
+      address: constants.AddressZero,
+    },
     WBTC: {
       name: 'WBTC',
       address: '0x68f180fcce6836688e9084f035309e29bf0a2095',
       serviceRegistryName: 'WBTC',
+    },
+    LINK: {
+      name: 'LINK',
+      address: constants.AddressZero,
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
@@ -283,5 +300,42 @@ export const config: SystemConfig = {
       },
     },
   },
-  maker: {},
+  maker: {
+    FlashMintModule: {
+      name: 'FlashMintModule',
+      address: constants.AddressZero,
+    },
+    Chainlog: {
+      name: 'Chainlog',
+      address: constants.AddressZero,
+    },
+    CdpManager: {
+      name: 'CdpManager',
+      address: constants.AddressZero,
+    },
+    GetCdps: {
+      name: 'CdpManager',
+      address: constants.AddressZero,
+    },
+    Jug: {
+      name: 'Jug',
+      address: constants.AddressZero,
+    },
+    JoinDAI: {
+      name: 'JoinDAI',
+      address: constants.AddressZero,
+    },
+    JoinETH_A: {
+      name: 'JoinETH_A',
+      address: constants.AddressZero,
+    },
+    PipWETH: {
+      name: 'PipWETH',
+      address: constants.AddressZero,
+    },
+    PipLINK: {
+      name: 'PipLINK',
+      address: constants.AddressZero,
+    },
+  },
 }

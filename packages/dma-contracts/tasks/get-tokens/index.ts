@@ -1,8 +1,11 @@
-import { mainnetAddresses } from '@dma-contracts/test/addresses'
+import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
 import { amountToWei } from '@oasisdex/dma-common/utils/common'
 import { swapOneInchTokens } from '@oasisdex/dma-common/utils/swap'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
+
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 
 const tokens = {
   STETH: mainnetAddresses.STETH,

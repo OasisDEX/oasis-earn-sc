@@ -92,8 +92,8 @@ const addresses = {
 
 export function coalesceNetwork(network: Network) {
   switch (network) {
-    case Network.OPT_MAINNET:
-      throw new Error('OPT_MAINNET is not supporting yet')
+    case Network.OPTIMISM:
+      throw new Error('OPTIMISM is not supporting yet')
     case Network.LOCAL:
     case Network.HARDHAT:
       return Network.MAINNET

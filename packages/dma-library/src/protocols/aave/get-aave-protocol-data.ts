@@ -196,7 +196,7 @@ async function getAbiForContract(contractName: AllowedContractNames, provider: p
 }
 
 const abiByContractName: Record<
-  Network.MAINNET | Network.OPT_MAINNET,
+  Network.MAINNET | Network.OPTIMISM,
   Record<AllowedContractNames, any>
 > = {
   [Network.MAINNET]: {
@@ -204,7 +204,7 @@ const abiByContractName: Record<
     pool: aaveV3PoolABI,
     aaveOracle: aaveV3PriceOracleABI,
   },
-  [Network.OPT_MAINNET]: {
+  [Network.OPTIMISM]: {
     poolDataProvider: aaveV3ProtocolDataProviderOptimismABI,
     pool: aaveV3PoolOptimismABI,
     aaveOracle: aaveV3PriceOracleOptimismABI,

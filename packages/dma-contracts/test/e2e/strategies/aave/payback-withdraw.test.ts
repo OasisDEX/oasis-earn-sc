@@ -1,17 +1,18 @@
-import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
-import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,
   systemWithAavePositions,
 } from '@dma-contracts/test/fixtures'
 import { ZERO } from '@oasisdex/dma-common/constants'
-import { expect } from '@oasisdex/dma-common/test-utils'
+import { addressesByNetwork, expect } from '@oasisdex/dma-common/test-utils'
 import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { strategies } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 // TODO: UPDATE TEST
 describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
   let fixture: SystemWithAavePositions
@@ -71,8 +72,8 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
         const [status] = await executeThroughProxy(
           dsProxyPosition.proxy,
           {
-            address: system.common.operationExecutor.address,
-            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+            address: system.OperationExecutor.contract.address,
+            calldata: system.OperationExecutor.contract.interface.encodeFunctionData('executeOp', [
               paybackDebtSimulation.transaction.calls,
               paybackDebtSimulation.transaction.operationName,
             ]),
@@ -101,6 +102,7 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
             this.skip()
           }
           const beforeTransactionPosition = await position.getPosition()
+          if (!beforeTransactionPosition) throw new Error('Position not found')
 
           const amountToPayback = amountToWei(
             new BigNumber(1),
@@ -143,11 +145,14 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
           const [status] = await executeThroughDPMProxy(
             position.proxy,
             {
-              address: system.common.operationExecutor.address,
-              calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-                paybackDebtSimulation.transaction.calls,
-                paybackDebtSimulation.transaction.operationName,
-              ]),
+              address: system.OperationExecutor.contract.address,
+              calldata: system.OperationExecutor.contract.interface.encodeFunctionData(
+                'executeOp',
+                [
+                  paybackDebtSimulation.transaction.calls,
+                  paybackDebtSimulation.transaction.operationName,
+                ],
+              ),
             },
             config.signer,
             transactionValue,
@@ -209,11 +214,14 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
           const [status] = await executeThroughDPMProxy(
             position.proxy,
             {
-              address: system.common.operationExecutor.address,
-              calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-                paybackDebtSimulation.transaction.calls,
-                paybackDebtSimulation.transaction.operationName,
-              ]),
+              address: system.OperationExecutor.contract.address,
+              calldata: system.OperationExecutor.contract.interface.encodeFunctionData(
+                'executeOp',
+                [
+                  paybackDebtSimulation.transaction.calls,
+                  paybackDebtSimulation.transaction.operationName,
+                ],
+              ),
             },
             config.signer,
             transactionValue,
@@ -276,8 +284,8 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
         const [status] = await executeThroughProxy(
           dsProxyPosition.proxy,
           {
-            address: system.common.operationExecutor.address,
-            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+            address: system.OperationExecutor.contract.address,
+            calldata: system.OperationExecutor.contract.interface.encodeFunctionData('executeOp', [
               withdrawSimulation.transaction.calls,
               withdrawSimulation.transaction.operationName,
             ]),
@@ -321,6 +329,7 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
             this.skip()
           }
           const beforeTransactionPosition = await position.getPosition()
+          if (!beforeTransactionPosition) throw new Error('Position is not opened')
 
           const collateralAddress =
             beforeTransactionPosition.collateral.symbol === 'ETH'
@@ -356,11 +365,14 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
           const [status] = await executeThroughDPMProxy(
             position.proxy,
             {
-              address: system.common.operationExecutor.address,
-              calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-                withdrawSimulation.transaction.calls,
-                withdrawSimulation.transaction.operationName,
-              ]),
+              address: system.OperationExecutor.contract.address,
+              calldata: system.OperationExecutor.contract.interface.encodeFunctionData(
+                'executeOp',
+                [
+                  withdrawSimulation.transaction.calls,
+                  withdrawSimulation.transaction.operationName,
+                ],
+              ),
             },
             config.signer,
             '0',
@@ -427,17 +439,21 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
           const [status] = await executeThroughDPMProxy(
             position.proxy,
             {
-              address: system.common.operationExecutor.address,
-              calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-                withdrawSimulation.transaction.calls,
-                withdrawSimulation.transaction.operationName,
-              ]),
+              address: system.OperationExecutor.contract.address,
+              calldata: system.OperationExecutor.contract.interface.encodeFunctionData(
+                'executeOp',
+                [
+                  withdrawSimulation.transaction.calls,
+                  withdrawSimulation.transaction.operationName,
+                ],
+              ),
             },
             config.signer,
             '0',
           )
 
           const afterTransactionPosition = await position.getPosition()
+          if (!afterTransactionPosition) throw new Error('Position is not found')
 
           const afterTransactionBalance = await balanceOf(
             position?.collateralToken.address,
@@ -523,8 +539,8 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
         const [status] = await executeThroughProxy(
           dsProxyPosition.proxy,
           {
-            address: system.common.operationExecutor.address,
-            calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+            address: system.OperationExecutor.contract.address,
+            calldata: system.OperationExecutor.contract.interface.encodeFunctionData('executeOp', [
               withdrawPaybackSimulation.transaction.calls,
               withdrawPaybackSimulation.transaction.operationName,
             ]),
@@ -601,17 +617,21 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
           const [status] = await executeThroughDPMProxy(
             position.proxy,
             {
-              address: system.common.operationExecutor.address,
-              calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-                withdrawPaybackSimulation.transaction.calls,
-                withdrawPaybackSimulation.transaction.operationName,
-              ]),
+              address: system.OperationExecutor.contract.address,
+              calldata: system.OperationExecutor.contract.interface.encodeFunctionData(
+                'executeOp',
+                [
+                  withdrawPaybackSimulation.transaction.calls,
+                  withdrawPaybackSimulation.transaction.operationName,
+                ],
+              ),
             },
             config.signer,
             transactionValue,
           )
 
           const afterTransactionPosition = await position.getPosition()
+          if (!afterTransactionPosition) throw new Error('Position is undefined')
 
           expect(status).to.be.true
           expect.toBe(

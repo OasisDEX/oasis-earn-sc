@@ -1,9 +1,9 @@
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { FIFTY, HUNDRED } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { balanceOf } from '@oasisdex/dma-common/utils/common'
 import { Network } from '@oasisdex/dma-deployments/types/network'
+import { loadFixture } from 'ethereum-waffle'
 
 import { aDAI, BORROW_OPERATION, deployedContracts, DEPOSIT_OPERATION } from './l2-tests-helper'
 
@@ -24,7 +24,7 @@ describe.skip('Borrow Action | E2E', () => {
     expect.toBeEqual(balanceAfterDeposit, balanceBeforeDeposit.plus(HUNDRED))
 
     const balanceBeforeBorrow = await balanceOf(
-      ADDRESSES[Network.OPT_MAINNET].common.USDC,
+      ADDRESSES[Network.OPTIMISM].common.USDC,
       opExecutor.address,
       {
         ...balanceConfig,
@@ -37,7 +37,7 @@ describe.skip('Borrow Action | E2E', () => {
     })
 
     const balanceAfterBorrow = await balanceOf(
-      ADDRESSES[Network.OPT_MAINNET].common.USDC,
+      ADDRESSES[Network.OPTIMISM].common.USDC,
       opExecutor.address,
       {
         ...balanceConfig,

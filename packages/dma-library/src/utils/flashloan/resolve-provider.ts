@@ -7,7 +7,7 @@ export function resolveFlashloanProvider(network: Network): FlashloanProvider {
     case Network.MAINNET:
     case Network.GOERLI:
       return FlashloanProvider.DssFlash
-    case Network.OPT_MAINNET:
+    case Network.OPTIMISM:
       return FlashloanProvider.Balancer
     default:
       throw new Error(`Unsupported network ${network}`)

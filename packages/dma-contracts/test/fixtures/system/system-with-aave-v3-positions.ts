@@ -1,3 +1,17 @@
+import {
+  testBlockNumberForAaveOptimismV3,
+  testBlockNumberForAaveV3,
+} from '@dma-contracts/test/config'
+import {
+  ethUsdcMultiplyAavePosition,
+  wstethEthEarnAavePosition,
+} from '@dma-contracts/test/fixtures/factories'
+import {
+  AaveV3PositionStrategy,
+  PositionDetails,
+  StrategyDependenciesAaveV3,
+  SystemWithAAVEV3Positions,
+} from '@dma-contracts/test/fixtures/types'
 import { buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
 import { createDPMAccount } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
@@ -6,6 +20,7 @@ import {
   getOneInchCall,
   oneInchCallMock,
   optimismLiquidityProviders,
+  resolveOneInchVersion,
 } from '@oasisdex/dma-common/utils/swap'
 import { DeploymentSystem } from '@oasisdex/dma-deployments/deployment/deploy'
 import { Network } from '@oasisdex/dma-deployments/types/network'
@@ -13,22 +28,15 @@ import { ChainIdByNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
 import hre from 'hardhat'
 
-import { testBlockNumberForAaveOptimismV3, testBlockNumberForAaveV3 } from '../../config'
-import { ethUsdcMultiplyAavePosition } from '../factories'
-import { wstethEthEarnAavePosition } from '../factories/wsteth-eth-earn-aave-position'
-import { AaveV3PositionStrategy, PositionDetails } from '../types/position-details'
-import { StrategyDependenciesAaveV3 } from '../types/strategies-dependencies'
-import { SystemWithAAVEV3Positions } from '../types/system-with-aave-positions'
-
-export function getSupportedAaveV3Strategies(ciMode?: boolean): Array<{
+export function getSupportedAaveV3Strategies(network?: Network): Array<{
   name: AaveV3PositionStrategy
-  /* Test should only be run locally as is flakey */
-  localOnly: boolean
+  allowedNetworks?: Network[]
 }> {
   return [
-    { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy, localOnly: false },
-    { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, localOnly: false },
-  ].filter(s => !ciMode || !s.localOnly)
+    { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy },
+    // TODO: Monitor if wstETH optimism increase supply cap or update test to modify storage
+    { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, allowedNetworks: [Network.MAINNET] },
+  ].filter(s => (network ? !s.allowedNetworks || s.allowedNetworks.includes(network) : true))
 }
 
 const testBlockNumberByNetwork: Record<
@@ -36,7 +44,7 @@ const testBlockNumberByNetwork: Record<
   number
 > = {
   [Network.MAINNET]: testBlockNumberForAaveV3,
-  [Network.OPT_MAINNET]: testBlockNumberForAaveOptimismV3,
+  [Network.OPTIMISM]: testBlockNumberForAaveOptimismV3,
 }
 
 export const systemWithAaveV3Positions =
@@ -44,29 +52,26 @@ export const systemWithAaveV3Positions =
     use1inch,
     network,
     systemConfigPath,
-    configExtentionPaths,
+    configExtensionPaths,
   }: {
     use1inch: boolean
     network: Network
     systemConfigPath?: string
-    configExtentionPaths?: string[]
+    configExtensionPaths?: string[]
   }) =>
   async (): Promise<SystemWithAAVEV3Positions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
-
     await ds.loadConfig(systemConfigPath)
-    if (configExtentionPaths) {
-      configExtentionPaths.forEach(async configPath => {
+    if (configExtensionPaths) {
+      configExtensionPaths.forEach(async configPath => {
         await ds.extendConfig(configPath)
       })
     }
-    // We're using uniswap to get tokens here rather than impersonating a user
-    const getTokens = buildGetTokenFunction(config, await import('hardhat'))
 
     const useFallbackSwap = !use1inch
 
-    if (network !== Network.MAINNET && network !== Network.OPT_MAINNET)
+    if (network !== Network.MAINNET && network !== Network.OPTIMISM)
       throw new Error('Unsupported network')
 
     if (testBlockNumberByNetwork[network] && useFallbackSwap) {
@@ -84,19 +89,17 @@ export const systemWithAaveV3Positions =
     await ds.deployAll()
     await ds.addAllEntries()
 
-    const { system, registry, config: systemConfig } = ds.getSystem()
+    const dsSystem = ds.getSystem()
+    const { system, registry, config: systemConfig } = dsSystem
 
+    const oneInchVersion = resolveOneInchVersion(network)
     const swapContract = system.uSwap ? system.uSwap.contract : system.Swap.contract
     const swapAddress = swapContract.address
 
     await swapContract.addFeeTier(0)
+    await swapContract.addFeeTier(7)
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
 
-    const oneInchVersionMap = {
-      [Network.MAINNET]: 'v4.0' as const,
-      [Network.OPT_MAINNET]: 'v5.0' as const,
-    }
-    const oneInchVersion = oneInchVersionMap[network]
     if (!oneInchVersion) throw new Error('Unsupported network')
     const dependencies: StrategyDependenciesAaveV3 = {
       addresses: {
@@ -128,7 +131,7 @@ export const systemWithAaveV3Positions =
             getOneInchCall(
               swapAddress,
               // We remove Balancer to avoid re-entrancy errors when also using Balancer FL
-              network === Network.OPT_MAINNET
+              network === Network.OPTIMISM
                 ? optimismLiquidityProviders.filter(l => l !== 'OPTIMISM_BALANCER_V2')
                 : [],
               ChainIdByNetwork[network],
@@ -136,6 +139,13 @@ export const systemWithAaveV3Positions =
             )
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
+
+    const getTokens = buildGetTokenFunction(
+      config,
+      await import('hardhat'),
+      network,
+      dependencies.addresses.WETH,
+    )
 
     const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForEarnWstEthEth] = await createDPMAccount(system.AccountFactory.contract)
@@ -157,8 +167,12 @@ export const systemWithAaveV3Positions =
     })
 
     let wstethEthEarnPosition: PositionDetails | undefined
-    /* Re use1inch: Wsteth lacks sufficient liquidity on uniswap */
-    if (use1inch) {
+    /*
+      Re use1inch: Wsteth lacks sufficient liquidity on uniswap
+      Re network: wsteth supply cap on optimism reached for now 20/04/23
+      TODO: Monitor if wstETH optimism increase supply cap or update test to modify storage
+    */
+    if (use1inch && network !== Network.OPTIMISM) {
       wstethEthEarnPosition = await wstethEthEarnAavePosition({
         proxy: dpmProxyForEarnWstEthEth,
         isDPM: true,
@@ -184,6 +198,7 @@ export const systemWithAaveV3Positions =
       config,
       system,
       registry,
+      dsSystem,
       strategiesDependencies: dependencies,
       dpmPositions: {
         ...(ethUsdcMultiplyPosition

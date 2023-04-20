@@ -1,11 +1,13 @@
-import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
+import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AaveVersion, strategies } from '@oasisdex/dma-library'
 import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
-} from '@oasisdex/dma-library/src/protocols/aave/config'
+} from '@oasisdex/dma-library/protocols/aave'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
@@ -13,11 +15,11 @@ import {
 import { RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 
-import { mainnetAddresses } from '../../addresses'
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
 import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC, WBTC } from './common'
 import { OpenPositionTypes } from './open-position-types'
 
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 const amountInBaseUnit = amountToWei(new BigNumber(0.1), WBTC.precision)
 const wBTCtoSteal = amountToWei(new BigNumber(2), WBTC.precision)
 const WETHtoSwap = amountToWei(new BigNumber(2), ETH.precision)

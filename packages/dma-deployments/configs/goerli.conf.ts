@@ -1,6 +1,6 @@
-import { CONTRACT_NAMES } from '@dma-deployments/constants/contract-names'
-import { SystemConfig } from '@dma-deployments/types/deployment-config'
-import { constants } from 'ethers'
+import { CONTRACT_NAMES } from "@dma-deployments/constants";
+import { SystemConfig } from "@dma-deployments/types/deployment-config";
+import { constants } from "ethers";
 
 export const config: SystemConfig = {
   mpa: {
@@ -28,11 +28,35 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
       },
-      OperationRegistry: {
+      OperationsRegistry: {
         name: 'OperationsRegistry',
         deploy: false,
         address: '',
         serviceRegistryName: 'OperationsRegistry_2',
+        history: [],
+        constructorArgs: [],
+      },
+      DSProxyFactory: {
+        name: 'DSProxyFactory',
+        deploy: false,
+        address: constants.AddressZero,
+        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
+        history: [],
+        constructorArgs: [],
+      },
+      DSProxyRegistry: {
+        name: 'DSProxyRegistry',
+        deploy: false,
+        address: constants.AddressZero,
+        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
+        history: [],
+        constructorArgs: ['address:DSProxyFactory'],
+      },
+      DSGuardFactory: {
+        name: 'DSGuardFactory',
+        deploy: false,
+        address: constants.AddressZero,
+        serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
         history: [],
         constructorArgs: [],
       },
@@ -156,10 +180,50 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
+      AaveV3Borrow: {
+        name: 'AaveV3Borrow',
+        deploy: false,
+        address: '0x18ca8bE41D32727383bC0F98705f7662ed0B7E28',
+        serviceRegistryName: 'AaveV3Borrow',
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      AaveV3Withdraw: {
+        name: 'AaveV3Withdraw',
+        deploy: false,
+        address: '',
+        serviceRegistryName: 'AaveV3Withdraw',
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      AaveV3Deposit: {
+        name: 'AaveV3Deposit',
+        deploy: false,
+        address: '0x852c56859840487DcED2aF501fC06f7462C4f2a8',
+        serviceRegistryName: 'AaveV3Deposit',
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      AaveV3Payback: {
+        name: 'AaveV3Payback',
+        deploy: false,
+        address: '0xdB736d13CE851Ee81ac2109DF37EBAb8Ce525C42',
+        serviceRegistryName: 'AaveV3Payback',
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      AaveV3SetEMode: {
+        name: 'AaveV3SetEMode',
+        deploy: false,
+        address: '0xd4DB3799DEe98Fe752d952Ba6F84Bb99Af829920',
+        serviceRegistryName: 'AaveV3SetEMode',
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
     },
   },
   common: {
-    GNOSIS_SAFE: {
+    GnosisSafe: {
       name: 'GnosisSafe',
       address: '0x41A92d82D70005B55070dB7138b21d7c28F27CC0',
     },
@@ -187,6 +251,10 @@ export const config: SystemConfig = {
       address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       serviceRegistryName: CONTRACT_NAMES.common.USDC,
     },
+    USDT: {
+      name: 'USDT',
+      address: constants.AddressZero,
+    },
     DAI: {
       name: 'DAI',
       address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -196,6 +264,10 @@ export const config: SystemConfig = {
       name: 'WBTC',
       address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
       serviceRegistryName: CONTRACT_NAMES.common.WBTC,
+    },
+    LINK: {
+      name: 'WBTC',
+      address: constants.AddressZero,
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
@@ -207,22 +279,22 @@ export const config: SystemConfig = {
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
       serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
     },
-    DSProxyRegistry: {
-      name: 'DsProxyRegistry',
-      address: '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4',
-    },
     OneInchAggregator: {
       name: 'OneInchAggregator',
       address: '0x1111111254fb6c44bac0bed2854e76f90643097d',
       serviceRegistryName: CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     },
-    authorizedCaller: {
-      name: 'authorizedCaller',
+    AuthorizedCaller: {
+      name: 'AuthorizedCaller',
       address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
     },
     FeeRecipient: {
-      name: 'feeRecipient',
+      name: 'FeeRecipient',
       address: '0xC7b548AD9Cf38721810246C079b2d8083aba8909',
+    },
+    ChainlinkEthUsdPriceFeed: {
+      name: 'ChainlinkEthUsdPriceFeed',
+      address: constants.AddressZero,
     },
   },
   aave: {
@@ -247,6 +319,38 @@ export const config: SystemConfig = {
       name: 'FlashMintModule',
       address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
       serviceRegistryName: CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
+    },
+    Chainlog: {
+      name: 'Chainlog',
+      address: constants.AddressZero,
+    },
+    CdpManager: {
+      name: 'CdpManager',
+      address: constants.AddressZero,
+    },
+    GetCdps: {
+      name: 'CdpManager',
+      address: constants.AddressZero,
+    },
+    Jug: {
+      name: 'Jug',
+      address: constants.AddressZero,
+    },
+    JoinDAI: {
+      name: 'JoinDAI',
+      address: constants.AddressZero,
+    },
+    JoinETH_A: {
+      name: 'JoinETH_A',
+      address: constants.AddressZero,
+    },
+    PipWETH: {
+      name: 'PipWETH',
+      address: constants.AddressZero,
+    },
+    PipLINK: {
+      name: 'PipLINK',
+      address: constants.AddressZero,
     },
   },
 }

@@ -1,6 +1,6 @@
 # Environment Variables
 
-One should populate an `.env` file according to the .env.template file.
+Copy and populate an `.env` file according to the .env.template file.
 
 # Setup
 

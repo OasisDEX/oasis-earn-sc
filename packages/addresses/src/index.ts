@@ -2,21 +2,68 @@ import { config as mainnetConfig } from '@oasisdex/dma-deployments/configs/mainn
 import { config as optimismConfig } from '@oasisdex/dma-deployments/configs/optimism.conf'
 import { config as goerliConfig } from '@oasisdex/dma-deployments/configs/goerli.conf'
 
-import { DeploymentConfig, SystemKeys } from '@oasisdex/dma-deployments/types/deployment-config'
+import {
+  AaveV2Protocol,
+  AaveV3Protocol,
+  Actions,
+  Common,
+  Contracts,
+  CoreContracts,
+  DeploymentConfig,
+  MakerProtocol,
+  SystemKeys,
+} from '@oasisdex/dma-deployments/types/deployment-config'
 import { Network } from '@oasisdex/dma-deployments/types/network'
+import { Address } from '@oasisdex/dma-common/types/address'
 
-type DeployedNetworks = Network.MAINNET | Network.OPT_MAINNET | Network.GOERLI
-// TODO: Make address entries type safe after https://github.com/OasisDEX/oasis-earn-sc/pull/249/files is merged
-export type Addresses = Record<DeployedNetworks, Record<SystemKeys, any>>
+type DeployedNetworks = Network.MAINNET | Network.OPTIMISM | Network.GOERLI
 
+enum MpaKeys {
+  CORE = 'core',
+  ACTIONS = 'actions',
+}
+
+enum AaveKeys {
+  V2 = 'v2',
+  V3 = 'v3',
+}
+
+type DefaultDeployment = {
+  [SystemKeys.MPA]: {
+    [MpaKeys.CORE]: Record<CoreContracts, Address>
+    [MpaKeys.ACTIONS]: Record<Actions, Address>
+  }
+  [SystemKeys.COMMON]: Record<Common, Address>
+  [SystemKeys.AAVE]: {
+    [AaveKeys.V3]: Record<AaveV3Protocol, Address>
+  }
+  [SystemKeys.MAKER]: Record<MakerProtocol, Address>
+}
+
+type AaveDeployment = {
+  [SystemKeys.AAVE]: {
+    [AaveKeys.V2]: Record<AaveV2Protocol, Address>
+    [AaveKeys.V3]: Record<AaveV3Protocol, Address>
+  }
+}
+
+type MainnetDeployment = Omit<DefaultDeployment, SystemKeys.AAVE> & AaveDeployment
+
+export type Addresses = {
+  [Network.MAINNET]: MainnetDeployment
+  [Network.OPTIMISM]: DefaultDeployment
+  [Network.GOERLI]: DefaultDeployment
+}
+
+if (!mainnetConfig.aave.v2) throw new Error('Missing aave v2 config on mainnet')
 export const ADDRESSES: Addresses = {
   [Network.MAINNET]: {
     mpa: {
       core: {
-        ...extractAddressesFromConfig(mainnetConfig.mpa.core),
+        ...extractAddressesFromConfig<CoreContracts>(mainnetConfig.mpa.core),
       },
       actions: {
-        ...extractAddressesFromConfig(mainnetConfig.mpa.actions),
+        ...extractAddressesFromConfig<Actions>(mainnetConfig.mpa.actions),
       },
     },
     common: {
@@ -24,7 +71,7 @@ export const ADDRESSES: Addresses = {
     },
     aave: {
       v2: {
-        ...(mainnetConfig.aave.v2 ? extractAddressesFromConfig(mainnetConfig.aave.v2) : {}),
+        ...extractAddressesFromConfig(mainnetConfig.aave.v2),
       },
       v3: {
         ...extractAddressesFromConfig(mainnetConfig.aave.v3),
@@ -34,13 +81,13 @@ export const ADDRESSES: Addresses = {
       ...extractAddressesFromConfig(mainnetConfig.maker),
     },
   },
-  [Network.OPT_MAINNET]: {
+  [Network.OPTIMISM]: {
     mpa: {
       core: {
-        ...extractAddressesFromConfig(optimismConfig.mpa.core),
+        ...extractAddressesFromConfig<CoreContracts>(optimismConfig.mpa.core),
       },
       actions: {
-        ...extractAddressesFromConfig(optimismConfig.mpa.actions),
+        ...extractAddressesFromConfig<Actions>(optimismConfig.mpa.actions),
       },
     },
     common: {
@@ -58,10 +105,10 @@ export const ADDRESSES: Addresses = {
   [Network.GOERLI]: {
     mpa: {
       core: {
-        ...extractAddressesFromConfig(goerliConfig.mpa.core),
+        ...extractAddressesFromConfig<CoreContracts>(goerliConfig.mpa.core),
       },
       actions: {
-        ...extractAddressesFromConfig(goerliConfig.mpa.actions),
+        ...extractAddressesFromConfig<Actions>(goerliConfig.mpa.actions),
       },
     },
     common: {
@@ -78,13 +125,15 @@ export const ADDRESSES: Addresses = {
   },
 }
 
-function extractAddressesFromConfig(
-  config: Record<string, DeploymentConfig>,
-): Record<string, string> {
-  return Object.values(config).reduce((acc, item) => {
-    if (item.address) {
-      acc[item.name] = item.address
+type ExtractAddressesFromConfig<T extends Contracts> = Record<T, DeploymentConfig>
+
+function extractAddressesFromConfig<T extends Contracts>(
+  config: ExtractAddressesFromConfig<T>,
+): Record<T, Address> {
+  return Object.values(config).reduce((acc: Record<T, Address>, item) => {
+    if ((item as DeploymentConfig).address) {
+      acc[(item as DeploymentConfig).name] = (item as DeploymentConfig).address
     }
     return acc
-  }, {})
+  }, {} as Record<T, Address>)
 }
