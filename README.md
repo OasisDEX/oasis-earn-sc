@@ -69,7 +69,7 @@ yarn clean & yarn hardhat test <path-to-test>
 - TS files and all folders are named using kebab-case
 - -Solidity files (interfaces, contracts etc) are named using Pascal case
 
-# Hardhat Tasks
+# Hardhat tasks
 
 1. Create multiply positions on a network of your choosing
 
