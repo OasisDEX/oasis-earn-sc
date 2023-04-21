@@ -1,4 +1,4 @@
-# @oasisdex/ajna-contracts
+# @oasisdex/dma-contracts
 
 ## RUN BEFORE USING DMA-CONTRACTS
 You need to create a symlink, to include `ajna-contracts` in `dma-contracts` for proper solc compilation.
