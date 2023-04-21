@@ -1,5 +1,7 @@
+import { negativeToZero } from '@dma-common/utils/common'
 import { Address } from '@dma-deployments/types/address'
 import { getAjnaValidations } from '@dma-library/strategies/ajna/earn/validations'
+import { getPoolLiquidity } from '@dma-library/strategies/ajna/validation/notEnoughLiquidity'
 import { AjnaEarnPosition } from '@dma-library/types/ajna'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import {
@@ -10,6 +12,7 @@ import {
   Strategy,
 } from '@dma-library/types/common'
 import poolAbi from '@oasisdex/abis/external/protocols/ajna/ajnaPoolERC20.json'
+import { ZERO } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -126,4 +129,162 @@ export const getAjnaBorrowOriginationFee = ({
   const fiveBasisPoints = new BigNumber(0.0005)
 
   return BigNumber.max(weeklyInterestRate, fiveBasisPoints).times(quoteAmount)
+}
+
+function getSimulationPoolOutput(
+  positionCollateral: BigNumber,
+  positionDebt: BigNumber,
+  debtChange: BigNumber,
+  pool: AjnaPool,
+  newLup: BigNumber,
+  newLupIndex: BigNumber,
+) {
+  const thresholdPrice = !positionCollateral.eq(0)
+    ? positionDebt.dividedBy(positionCollateral)
+    : ZERO
+
+  const newHtp = thresholdPrice.gt(pool.htp) ? thresholdPrice : pool.htp
+
+  return {
+    ...pool,
+    lup: newLup,
+    lowestUtilizedPrice: newLup,
+    lowestUtilizedPriceIndex: newLupIndex,
+    htp: newHtp,
+    highestThresholdPrice: newHtp,
+    // TODO this is old index, we need to map newHtp to index
+    highestThresholdPriceIndex: pool.highestThresholdPriceIndex,
+
+    debt: pool.debt.plus(debtChange),
+  }
+}
+
+function getMaxGenerate(
+  pool: AjnaPool,
+  positionDebt: BigNumber,
+  positionCollateral: BigNumber,
+  maxDebt: BigNumber = ZERO,
+): BigNumber {
+  const { lowestUtilizedPrice, highestThresholdPrice } = pool
+
+  if (lowestUtilizedPrice.lt(highestThresholdPrice)) {
+    return maxDebt
+  }
+
+  const initialMaxDebt = positionCollateral.times(pool.lowestUtilizedPrice).minus(positionDebt)
+
+  const bucketsAboveLup = pool.buckets
+    .filter(bucket => bucket.index.lte(pool.lowestUtilizedPriceIndex))
+    .sort((a, b) => a.index.minus(b.index).toNumber())
+
+  const liquidityAvailableInLupBucket = bucketsAboveLup
+    .reduce((acc, curr) => acc.plus(curr.quoteTokens), ZERO)
+    .minus(pool.debt)
+
+  if (initialMaxDebt.lte(liquidityAvailableInLupBucket)) {
+    return initialMaxDebt.plus(maxDebt)
+  }
+
+  const sortedBuckets = pool.buckets
+    .filter(bucket => bucket.index.lt(pool.highestThresholdPriceIndex))
+    .sort((a, b) => a.index.minus(b.index).toNumber())
+
+  const lupBucketArrayIndex = sortedBuckets.findIndex(bucket =>
+    bucket.index.isEqualTo(pool.lowestUtilizedPriceIndex),
+  )
+
+  const bucketBelowLup = sortedBuckets[lupBucketArrayIndex + 1]
+
+  if (!bucketBelowLup) {
+    return maxDebt.plus(liquidityAvailableInLupBucket)
+  }
+
+  const newPool = getSimulationPoolOutput(
+    positionCollateral,
+    positionDebt,
+    liquidityAvailableInLupBucket,
+    pool,
+    bucketBelowLup.price,
+    bucketBelowLup.index,
+  )
+
+  return getMaxGenerate(
+    newPool,
+    positionDebt.plus(liquidityAvailableInLupBucket),
+    positionCollateral,
+    liquidityAvailableInLupBucket.plus(maxDebt),
+  )
+}
+
+export function calculateMaxGenerate(
+  pool: AjnaPool,
+  positionDebt: BigNumber,
+  collateralAmount: BigNumber,
+) {
+  const maxDebtWithoutFee = getMaxGenerate(pool, positionDebt, collateralAmount)
+
+  const originationFee = getAjnaBorrowOriginationFee({
+    interestRate: pool.interestRate,
+    quoteAmount: maxDebtWithoutFee,
+  })
+
+  const poolLiquidity = getPoolLiquidity(pool)
+  const poolLiquidityWithFee = poolLiquidity.minus(originationFee)
+  const maxDebtWithFee = maxDebtWithoutFee.minus(originationFee)
+
+  if (poolLiquidityWithFee.lt(maxDebtWithFee)) {
+    return negativeToZero(poolLiquidityWithFee)
+  }
+
+  return negativeToZero(maxDebtWithFee)
+}
+
+export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumber, BigNumber] {
+  const sortedBuckets = pool.buckets
+    .filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
+    .sort((a, b) => a.index.minus(b.index).toNumber())
+  const availablePoolLiquidity = getPoolLiquidity(pool)
+
+  let remainingDebt = pool.debt.plus(debtChange)
+  let newLup = sortedBuckets[0] ? sortedBuckets[0].price : pool.lowestUtilizedPrice
+  let newLupIndex = sortedBuckets[0] ? sortedBuckets[0].index : pool.lowestUtilizedPriceIndex
+
+  if (remainingDebt.gt(availablePoolLiquidity)) {
+    newLup = sortedBuckets[sortedBuckets.length - 1].price
+    newLupIndex = sortedBuckets[sortedBuckets.length - 1].index
+    remainingDebt = ZERO
+
+    return [newLup, newLupIndex]
+  }
+
+  sortedBuckets.forEach(bucket => {
+    if (remainingDebt.gt(bucket.quoteTokens)) {
+      remainingDebt = remainingDebt.minus(bucket.quoteTokens)
+    } else {
+      if (remainingDebt.gt(0)) {
+        newLup = bucket.price
+        newLupIndex = bucket.index
+        remainingDebt = ZERO
+      }
+    }
+  })
+  return [newLup, newLupIndex]
+}
+
+export function simulatePool(
+  pool: AjnaPool,
+  debtChange: BigNumber,
+  positionDebt: BigNumber,
+  positionCollateral: BigNumber,
+): AjnaPool {
+  const [newLup, newLupIndex] = calculateNewLup(pool, debtChange)
+
+  return getSimulationPoolOutput(
+    positionCollateral,
+    positionDebt,
+    debtChange,
+    pool,
+    newLup,
+    newLupIndex,
+  )
 }
