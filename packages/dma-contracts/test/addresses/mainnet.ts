@@ -20,7 +20,7 @@ export const mainnetAddresses = {
     v3: {
       aaveOracle: ADDRESSES[Network.MAINNET].aave.v3.AaveOracle,
       pool: ADDRESSES[Network.MAINNET].aave.v3.Pool,
-      poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.PoolDataProvider,
+      poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.AaveProtocolDataProvider,
     },
   },
 }
