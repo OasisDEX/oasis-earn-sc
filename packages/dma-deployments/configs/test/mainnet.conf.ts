@@ -1,6 +1,6 @@
-import { CONTRACT_NAMES } from "@dma-deployments/constants";
-import { SystemConfig } from "@dma-deployments/types/deployment-config";
-import { constants } from "ethers";
+import { CONTRACT_NAMES } from '@dma-deployments/constants'
+import { SystemConfig } from '@dma-deployments/types/deployment-config'
+import { constants } from 'ethers'
 
 export const config: SystemConfig = {
   mpa: {
@@ -33,30 +33,6 @@ export const config: SystemConfig = {
         deploy: true,
         address: '0x01871C3cCfeDE29d2b998E7D1BF0eEEBD26d9c49',
         serviceRegistryName: CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
-        history: [],
-        constructorArgs: [],
-      },
-      DSProxyFactory: {
-        name: 'DSProxyFactory',
-        deploy: false,
-        address: '0xA26e15C895EFc0616177B7c1e7270A4C7D51C997',
-        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
-        history: [],
-        constructorArgs: [],
-      },
-      DSProxyRegistry: {
-        name: 'DSProxyRegistry',
-        deploy: false,
-        address: '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4',
-        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
-        history: [],
-        constructorArgs: ['address:DSProxyFactory'],
-      },
-      DSGuardFactory: {
-        name: 'DSGuardFactory',
-        deploy: false,
-        address: '0x5a15566417e6C1c9546523066500bDDBc53F88C7',
-        serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
         history: [],
         constructorArgs: [],
       },
