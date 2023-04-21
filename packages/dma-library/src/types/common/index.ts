@@ -1,5 +1,7 @@
 import { Address } from '@oasisdex/dma-deployments/types/address'
 
+export { Optional } from '@oasisdex/dma-common/types/optional'
+
 export type Tx = {
   to: Address
   data: string

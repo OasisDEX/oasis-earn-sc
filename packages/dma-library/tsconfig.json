@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "module": "commonjs",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "composite": true,
     "strict": true,
-    "outDir": "lib",
+    "outDir": "lib/esm",
     "baseUrl": ".",
     "paths": {
       "@typechain/*": [
@@ -11,9 +13,6 @@
       ],
       "@dma-library/*": [
         "./src/*"
-      ],
-      "@dma-library": [
-        "./src/index.ts"
       ],
       /* Aliases used internally by referenced packages */
       "@dma-common/constants": ["../dma-common/constants"],
@@ -44,4 +43,8 @@
     "./hardhat.config.ts",
     "./src/**/*"
   ],
+  "exclude": ["node_modules", "../dma-deployments", "../dma-common"],
+  "references": [
+    { "path": "./tsconfig.cjs.json" }
+  ]
 }

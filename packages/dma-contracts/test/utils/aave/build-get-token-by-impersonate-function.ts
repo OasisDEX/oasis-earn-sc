@@ -1,11 +1,12 @@
-import erc20abi from '@oasisdex/abis/external/tokens/IERC20.json'
-import { addressesByNetwork, isMainnetByNetwork } from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { AAVETokens } from '@oasisdex/dma-library'
-import BigNumber from 'bignumber.js'
-import { constants } from 'ethers'
-import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import erc20abi from "@oasisdex/abis/external/tokens/IERC20.json";
+import { addressesByNetwork } from "@oasisdex/dma-common/test-utils";
+import { RuntimeConfig } from "@oasisdex/dma-common/types/common";
+import { Network } from "@oasisdex/dma-deployments/types/network";
+import { AAVETokens } from "@oasisdex/dma-library";
+import BigNumber from "bignumber.js";
+import { constants } from "ethers";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { isMainnetByNetwork } from "@oasisdex/dma-common/utils/common";
 
 export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH'>
 const mainnetAddressesForTests = addressesByNetwork(Network.MAINNET)

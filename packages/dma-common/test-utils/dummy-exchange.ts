@@ -1,3 +1,9 @@
+import { ONE } from '@dma-common/constants'
+import { OneInchBaseResponse } from '@dma-common/types/common'
+import { balanceOf } from '@dma-common/utils/balances'
+import { amountFromWei, amountToWei } from '@dma-common/utils/common'
+import { swapUniswapTokens } from '@dma-common/utils/swap'
+import { send } from '@dma-common/utils/tx'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import WETHABI from '@oasisdex/abis/external/tokens/IWETH.json'
 import { ADDRESSES } from '@oasisdex/addresses'
@@ -6,11 +12,6 @@ import BigNumber from 'bignumber.js'
 import { Contract, ethers, Signer } from 'ethers'
 import fetch from 'node-fetch'
 import { curry } from 'ramda'
-
-import { ONE } from '../constants'
-import { OneInchBaseResponse } from '../types/common'
-import { amountFromWei, amountToWei, balanceOf, send } from '../utils/common'
-import { swapUniswapTokens } from '../utils/swap'
 
 export const FEE = 20
 export const FEE_BASE = 10000

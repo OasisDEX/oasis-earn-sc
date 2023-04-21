@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "outDir": "lib/cjs",
+    "composite": true
+  },
+  "exclude": [
+    "node_modules",
+    "../dma-deployments",
+    "../dma-common"
+  ],
+  "include": [
+    "./hardhat.config.ts",
+    "./src/**/*"
+  ]
+}

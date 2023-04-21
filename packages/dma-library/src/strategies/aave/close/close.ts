@@ -1,4 +1,4 @@
-import { AaveVersion } from '@dma-library'
+import { AaveVersion } from '@dma-library/index'
 import * as operations from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'

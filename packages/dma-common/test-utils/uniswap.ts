@@ -1,10 +1,9 @@
+import { RuntimeConfig } from '@dma-common/types/common'
+import { Optional } from '@dma-common/types/optional'
+import { Network } from '@dma-deployments/types/network'
 import UNISWAP_ROUTER_V3_ABI from '@oasisdex/abis/external/swap/IUniswapRouter.json'
 import { ADDRESSES } from '@oasisdex/addresses'
-import { Network } from '@oasisdex/dma-deployments/types/network'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { Optional } from 'utility-types'
-
-import { RuntimeConfig } from '../../types/common'
 
 /**
  * tokenIn: string - asset address
