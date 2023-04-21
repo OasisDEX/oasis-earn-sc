@@ -38,7 +38,7 @@ export const systemWithAavePositions =
   ({ use1inch, configExtensionPaths }: { use1inch: boolean; configExtensionPaths?: string[] }) =>
   async (): Promise<SystemWithAavePositions> => {
     const ds = new DeploymentSystem(hre)
-    const config: RuntimeConfig = await ds.init()
+    const config: RuntimeConfig = await ds.init(hre)
     await ds.loadConfig('test/mainnet.conf.ts')
     const systemConfigPath = 'test/mainnet.conf.ts'
     await ds.loadConfig(systemConfigPath)

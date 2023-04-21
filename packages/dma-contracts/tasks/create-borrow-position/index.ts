@@ -51,7 +51,12 @@ task('createBorrowPosition', 'Create borrow position')
   .setAction(async (taskArgs: CreateBorrowPositionArgs, hre) => {
     const config = await init(hre)
 
-    const getToken = buildGetTokenFunction(config, hre)
+    const getToken = buildGetTokenFunction(
+      config,
+      hre,
+      Network.MAINNET,
+      ADDRESSES[Network.MAINNET].common.WETH,
+    )
 
     let { serviceRegistry, accountFactory } = taskArgs
     const { debt, collateral, deposit, borrow } = taskArgs

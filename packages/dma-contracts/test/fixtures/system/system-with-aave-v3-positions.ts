@@ -61,7 +61,7 @@ export const systemWithAaveV3Positions =
   }) =>
   async (): Promise<SystemWithAAVEV3Positions> => {
     const ds = new DeploymentSystem(hre)
-    const config: RuntimeConfig = await ds.init()
+    const config: RuntimeConfig = await ds.init(hre)
     await ds.loadConfig(systemConfigPath)
     if (configExtensionPaths) {
       configExtensionPaths.forEach(async configPath => {

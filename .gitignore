@@ -9,6 +9,7 @@ yarn-error.log
 lerna-debug.log
 tenderly.yaml
 .idea/**/*
+.DS_Store
 
 #Hardhat files
 packages/dma-contracts/abi/generated

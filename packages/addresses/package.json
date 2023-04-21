@@ -1,16 +1,28 @@
 {
   "name": "@oasisdex/addresses",
   "version": "1.0.0",
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "main": "lib/cjs/src/index.js",
+  "module": "lib/esm/src/index.js",
+  "typings": "lib/cjs/src/index.d.ts",
   "license": "MIT",
+  "files": [
+    "lib"
+  ],
   "scripts": {
-    "build": "rm -rf ./lib && yarn tsc -b",
+    "build": "rm -rf ./lib && tsc --build && webpack",
+    "build:old": "rm -rf ./old && tsc -b",
     "watch": "yarn tsc -b -w",
     "lint": "yarn tsc -p ./tsconfig.json --noEmit",
     "prepublish": "yarn build"
   },
   "dependencies": {
     "@oasisdex/dma-deployments": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.21.4",
+    "@babel/preset-env": "^7.21.4",
+    "ts-loader": "^9.4.2",
+    "webpack": "^5.79.0",
+    "webpack-cli": "^5.0.1"
   }
 }
