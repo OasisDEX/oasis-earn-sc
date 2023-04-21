@@ -30,7 +30,7 @@ const updateNumber = () => {
       console.log('😊 Found block height:', blockHeight)
       const envFileContents = fs.readFileSync(envFile, 'utf8')
       const envFileContentLines = envFileContents.split(newLine)
-      const filteredEnvFileContentLines = envFileContentLines.map(line =>
+      const filteredEnvFileContentLines = envFileContentLines.map((line: string) =>
         line.startsWith('BLOCK_NUMBER') ? `BLOCK_NUMBER=${blockHeight + blockNumberOffset}` : line,
       )
       try {

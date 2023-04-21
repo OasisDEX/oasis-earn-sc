@@ -40,7 +40,6 @@ import {
   Signer,
   utils,
 } from 'ethers'
-import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import _ from 'lodash'
 import NodeCache from 'node-cache'
@@ -59,6 +58,7 @@ const rpcUrls: any = {
 const gnosisSafeServiceUrl: any = {
   [Network.MAINNET]: '',
   [Network.HARDHAT]: '',
+  [Network.LOCAL]: '',
   [Network.OPTIMISM]: '',
   [Network.GOERLI]: 'https://safe-transaction.goerli.gnosis.io',
   [Network.HARDHAT]: '',
@@ -71,7 +71,8 @@ abstract class DeployedSystemHelpers {
   public forkedNetwork: Network | undefined = undefined
   public rpcUrl = ''
   public isRestrictedNetwork = false
-  public ethers: any = hre.ethers
+  public hre: HardhatRuntimeEnvironment | undefined
+  public ethers: any
   public provider: providers.JsonRpcProvider | undefined
   public signer: Signer | undefined
   public signerAddress: string | undefined
@@ -97,7 +98,8 @@ abstract class DeployedSystemHelpers {
     return rpcUrls[network]
   }
 
-  async init() {
+  async init(hre: HardhatRuntimeEnvironment) {
+    this.hre = hre
     this.ethers = hre.ethers
     this.provider = hre.ethers.provider
     this.signer = this.provider.getSigner()
@@ -190,8 +192,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async postRegistryEntry(configItem: DeploymentConfig, address: string) {
     if (!configItem.serviceRegistryName) throw new Error('No service registry name provided')
     console.log(
-      'POST REGISTRY ENTRY',
+      'REGISTRY ENTRY ADDED',
       configItem.name,
+      configItem.serviceRegistryName,
       this.getRegistryEntryHash(configItem.serviceRegistryName),
       address,
     )
@@ -199,7 +202,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async verifyContract(address: string, constructorArguments: any[]) {
     try {
-      await hre.run('verify:verify', {
+      await this.hre.run('verify:verify', {
         address,
         constructorArguments,
       })
@@ -461,11 +464,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.instantiateContracts(
       Object.values(this.config.mpa.actions).filter(
-        (item: any) => item.address !== '' && !item.deploy,
+        (item: SystemConfigItem) => item.address !== '' && !item.deploy,
       ),
     )
     await this.deployContracts(
-      Object.values(this.config.mpa.actions).filter((item: any) => item.deploy),
+      Object.values(this.config.mpa.actions).filter((item: SystemConfigItem) => item.deploy),
     )
   }
 

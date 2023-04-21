@@ -1,3 +1,4 @@
+import { isOptimismByNetwork } from '@dma-common/test-utils'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { isSupportedNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { constants } from 'ethers'
@@ -92,11 +93,11 @@ const addresses = {
 
 export function coalesceNetwork(network: Network) {
   switch (network) {
-    case Network.OPTIMISM:
-      throw new Error('OPTIMISM is not supporting yet')
     case Network.LOCAL:
     case Network.HARDHAT:
       return Network.MAINNET
+    case Network.OPTIMISM:
+      throw new Error('coalesceNetwork helper does not support optimism')
     default:
       return network
   }
@@ -110,5 +111,10 @@ export function getAddressesFor(network: Network) {
       ).join(', ')}}`,
     )
   }
+
+  if (isOptimismByNetwork(network)) {
+    throw new Error('No optimism addresses on `addresses`')
+  }
+
   return addresses[coalesceNetwork(network)]
 }

@@ -16,6 +16,8 @@
     "paths": {
       "@dma-common/constants": ["./constants/index.ts"],
       "@dma-common/utils/*": ["./utils/*"],
+      "@dma-common/test-utils": ["./test-utils/index.ts"],
+      "@dma-common/test-utils/*": ["./test-utils/*"],
       "@dma-common/types/*": ["./types/*"],
       /* Aliases used internally by referenced packages */
       "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],

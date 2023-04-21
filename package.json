@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "dev": "lerna run --scope @oasisdex/dma-contracts dev",
+    "deploy:dev": "lerna run deploy:dev",
     "test": "lerna run test --stream",
     "test:e2e": "lerna run test:e2e --stream",
     "test:unit": "lerna run test:unit --stream",
@@ -17,8 +18,7 @@
     "compile": "lerna run compile --stream",
     "build": "lerna run build --stream",
     "format": "lerna run format --stream",
-    "lint": "lerna run lint --stream",
-    "deploy:dev": "lerna run deploy:dev"
+    "lint": "lerna run lint --stream"
   },
   "devDependencies": {
     "@types/prompts": "^2.4.2",
