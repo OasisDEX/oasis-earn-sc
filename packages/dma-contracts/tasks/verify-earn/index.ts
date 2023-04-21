@@ -1,7 +1,7 @@
 import { ADDRESSES } from '@oasisdex/addresses'
+import { getAddressesFor } from '@oasisdex/dma-common/utils/common'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { task } from 'hardhat/config'
-
-import { getAddressesFor } from '../../../dma-common/utils/common/addresses'
 
 task('verify-earn', 'Verifies Earn Contracts').setAction(async (_: any, hre) => {
   const { name: network } = hre.network
@@ -26,7 +26,7 @@ task('verify-earn', 'Verifies Earn Contracts').setAction(async (_: any, hre) => 
     AAVE_PAYBACK_ACTION,
     POSITION_CREATED_ACTION,
     DAI,
-  } = await getAddressesFor(network)
+  } = await getAddressesFor(network as Network)
 
   const contracts = [
     {
@@ -44,8 +44,8 @@ task('verify-earn', 'Verifies Earn Contracts').setAction(async (_: any, hre) => 
     {
       address: SWAP,
       constructorArguments: [
-        ADDRESSES[Network.MAINNET].authorizedCaller,
-        ADDRESSES[Network.MAINNET].feeRecipient,
+        ADDRESSES[Network.MAINNET].common.AuthorizedCaller,
+        ADDRESSES[Network.MAINNET].common.FeeRecipient,
         20,
         SERVICE_REGISTRY,
       ], // Doesn't really matter where we take authorizedCaller and feeRecipient from

@@ -1,14 +1,16 @@
 {
   "name": "@oasisdex/addresses",
   "version": "1.0.0",
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "main": "lib/cjs/src/index.js",
+  "module": "lib/esm/src/index.js",
+  "typings": "lib/cjs/src/index.d.ts",
   "license": "MIT",
   "files": [
     "lib"
   ],
   "scripts": {
-    "build": "rm -rf ./lib && tsc --declaration && webpack",
+    "build": "rm -rf ./lib && tsc --build && webpack",
+    "build:old": "rm -rf ./old && tsc -b",
     "watch": "yarn tsc -b -w",
     "lint": "yarn tsc -p ./tsconfig.json --noEmit",
     "prepublish": "yarn build"

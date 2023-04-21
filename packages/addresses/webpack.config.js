@@ -4,7 +4,7 @@ module.exports = {
   entry: './src/index.ts',
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, 'lib'),
+    path: path.resolve(__dirname, 'lib', 'esm'),
     library: {
       type: 'module',
     },
@@ -12,8 +12,16 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts?$/,
-        use: ['ts-loader'],
+        test: /\.ts$/,
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              configFile: 'tsconfig.json',
+              transpileOnly: true, // Add this line
+            },
+          },
+        ],
         exclude: /node_modules/,
       },
     ],

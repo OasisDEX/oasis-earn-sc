@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "module": "es2020",
+    "module": "ESNext",
     "moduleResolution": "node",
+    "composite": true,
     "strict": true,
-    "outDir": "lib",
+    "outDir": "lib/esm",
     "baseUrl": ".",
     "types": ["node"],
     "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "allowJs": true,
     // Generate d.ts files
@@ -22,5 +24,9 @@
       "@dma-deployments/constants": ["../dma-deployments/constants/index.ts"]
     }
   },
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "../dma-deployments"],
+  "references": [
+    { "path": "./tsconfig.cjs.json" }
+  ]
 }
