@@ -9,7 +9,7 @@ async function main() {
   console.log(`Network: ${network}`)
 
   const ds = new DeploymentSystem(hre) // TODO add forked param and in init get chainId and forked Network + set as attribute
-  await ds.init()
+  await ds.init(hre)
   await ds.loadConfig('goerli.conf.ts')
   await ds.deployCore()
   // await ds.saveConfig()
