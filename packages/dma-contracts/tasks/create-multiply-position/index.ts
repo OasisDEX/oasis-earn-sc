@@ -1,34 +1,44 @@
-import index from '@dma-common/utils/init'
-import { StrategiesDependencies } from '@dma-contracts/test/fixtures'
 import {
   ethUsdcMultiplyAavePosition,
-  stethUsdcMultiplyAavePosition,
-  wbtcUsdcMultiplyAavePosition,
+  wstethEthEarnAavePosition,
 } from '@dma-contracts/test/fixtures/factories'
-import { buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { StrategyDependenciesAaveV3 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
+import { Network } from '@dma-deployments/types/network'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
-import { createDPMAccount } from '@oasisdex/dma-common/test-utils'
-import { getAccountFactory } from '@oasisdex/dma-common/utils/proxy'
-import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import {
+  addressesByNetwork,
+  createDPMAccount,
+  isMainnetByNetwork,
+  isOptimismByNetwork,
+  NetworkAddressesForTests,
+} from '@oasisdex/dma-common/test-utils'
+import init from '@oasisdex/dma-common/utils/init'
+import {
+  getOneInchCall,
+  optimismLiquidityProviders,
+  resolveOneInchVersion,
+} from '@oasisdex/dma-common/utils/swap'
+import { ChainIdByNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
-import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
-task('createMultiplyPosition', 'Create stETH position on AAVE')
-  .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
-  .addFlag('usefallbackswap', 'Use fallback swap')
-  .setAction(async (taskArgs, hre) => {
-    const config = await index(hre)
+const networkFork = process.env.NETWORK_FORK as Network
+task('createMultiplyPositions', 'Create main token pair multiply positions (AAVE only for now)')
+  .addOptionalParam<string>('serviceregistry', 'Service Registry address')
+  .addOptionalParam<string>('accountfactory', 'Account Factory address')
+  .setAction(async (taskArgs: { serviceregistry: string; accountfactory: string }, hre) => {
+    const config = await init(hre)
 
-    const getTokens = buildGetTokenFunction(config, hre)
+    if (!(isMainnetByNetwork(networkFork) || isOptimismByNetwork(networkFork)))
+      throw new Error('Unsupported network fork')
 
-    const serviceRegistryAddress = taskArgs.serviceRegistry || process.env.SERVICE_REGISTRY_ADDRESS
+    const serviceRegistryAddress = taskArgs.serviceregistry || process.env.SERVICE_REGISTRY_ADDRESS
+    const accountFactoryAddress = taskArgs.accountfactory || process.env.ACCOUNT_FACTORY_ADDRESS
 
-    if (!serviceRegistryAddress) {
+    if (!serviceRegistryAddress)
       throw new Error('ServiceRegistry params or SERVICE_REGISTRY_ADDRESS env variable is not set')
-    }
+    if (!accountFactoryAddress)
+      throw new Error('AccountFactory params or ACCOUNT_FACTORY_ADDRESS env variable is not set')
 
     const serviceRegistryAbi = [
       {
@@ -64,50 +74,44 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
 
     const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
 
-    const mainnetAddresses = {
-      DAI: ADDRESSES[Network.MAINNET].common.DAI,
-      ETH: ADDRESSES[Network.MAINNET].common.ETH,
-      WETH: ADDRESSES[Network.MAINNET].common.WETH,
-      STETH: ADDRESSES[Network.MAINNET].common.STETH,
-      WBTC: ADDRESSES[Network.MAINNET].common.WBTC,
-      USDC: ADDRESSES[Network.MAINNET].common.USDC,
-      chainlinkEthUsdPriceFeed: ADDRESSES[Network.MAINNET].common.ChainlinkEthUsdPriceFeed,
-      priceOracle: ADDRESSES[Network.MAINNET].aave.v2.PriceOracle,
-      lendingPool: ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
+    const addresses = addressesByNetwork(networkFork)
+    if (!addresses) throw new Error(`Can't find addresses for network ${networkFork}`)
+    const addressesWithExecutor: NetworkAddressesForTests & { operationExecutor: string } = {
+      ...addresses,
       operationExecutor: operationExecutorAddress,
-      protocolDataProvider: ADDRESSES[Network.MAINNET].aave.v2.ProtocolDataProvider,
-      accountFactory: '0xF7B75183A2829843dB06266c114297dfbFaeE2b6',
     }
-
-    const swapData = taskArgs.usefallbackswap
-      ? (marketPrice: BigNumber, precision: { from: number; to: number }) =>
-          oneInchCallMock(marketPrice, precision)
-      : () => getOneInchCall(swapAddress)
-
-    const [proxy1, vaultId1] = await createDPMAccount(
-      await getAccountFactory(config.signer, mainnetAddresses.accountFactory),
+    const oneInchVersion = resolveOneInchVersion(networkFork)
+    const swapData = () =>
+      getOneInchCall(
+        swapAddress,
+        // We remove Balancer to avoid re-entrancy errors when also using Balancer FL
+        isOptimismByNetwork(networkFork)
+          ? optimismLiquidityProviders.filter(l => l !== 'OPTIMISM_BALANCER_V2')
+          : [],
+        ChainIdByNetwork[networkFork],
+        oneInchVersion,
+      )
+    const accountFactoryContract = await hre.ethers.getContractAt(
+      'AccountFactory',
+      accountFactoryAddress,
     )
-    const [proxy2, vaultId2] = await createDPMAccount(
-      await getAccountFactory(config.signer, mainnetAddresses.accountFactory),
-    )
-    const [proxy3, vaultId3] = await createDPMAccount(
-      await getAccountFactory(config.signer, mainnetAddresses.accountFactory),
-    )
 
-    if (proxy1 === undefined || proxy2 === undefined || proxy3 === undefined) {
+    const [proxy1, vaultId1] = await createDPMAccount(accountFactoryContract)
+    const [proxy2, vaultId2] = await createDPMAccount(accountFactoryContract)
+
+    if (proxy1 === undefined || proxy2 === undefined) {
       throw new Error(`Can't create DPM accounts`)
     }
 
     console.log(`DPM Created: ${proxy1}. VaultId: ${vaultId1}`)
     console.log(`DPM Created: ${proxy2}. VaultId: ${vaultId2}`)
-    console.log(`DPM Created: ${proxy3}. VaultId: ${vaultId3}`)
 
-    const dependencies: StrategiesDependencies = {
-      addresses: mainnetAddresses,
+    const dependencies: StrategyDependenciesAaveV3 = {
+      addresses: addressesWithExecutor,
       provider: config.provider,
       protocol: {
-        version: AaveVersion.v2,
-        getCurrentPosition: strategies.aave.v2.view,
+        version: AaveVersion.v3,
+        getCurrentPosition: strategies.aave.v3.view,
         getProtocolData: protocols.aave.getAaveProtocolData,
       },
       getSwapData: swapData,
@@ -160,41 +164,31 @@ task('createMultiplyPosition', 'Create stETH position on AAVE')
     const positionDetails1 = await ethUsdcMultiplyAavePosition({
       proxy: proxy1,
       isDPM: true,
-      use1inch: false,
+      use1inch: true,
+      swapAddress,
       dependencies,
       config,
-      feeRecipient: ADDRESSES[Network.MAINNET].common.FeeRecipient,
+      feeRecipient: addressesWithExecutor.feeRecipient,
     })
 
     console.log(
       `Position created: ${positionDetails1.strategy} with proxy: ${positionDetails1.proxy}`,
     )
 
-    const positionDetails2 = await stethUsdcMultiplyAavePosition({
+    // TODO: Skipped for now because supply cap is in place on optimism
+    if (isOptimismByNetwork(networkFork)) return
+
+    const positionDetails2 = await wstethEthEarnAavePosition({
       proxy: proxy2,
       isDPM: true,
-      use1inch: false,
+      use1inch: true,
+      swapAddress,
       dependencies,
-      config,
-      getTokens,
+      config: { ...config, network: networkFork },
+      feeRecipient: addressesWithExecutor.feeRecipient,
     })
 
     console.log(
       `Position created: ${positionDetails2.strategy} with proxy: ${positionDetails2.proxy}`,
-    )
-
-    const positionDetails3 = await wbtcUsdcMultiplyAavePosition({
-      proxy: proxy3,
-      isDPM: true,
-      use1inch: false,
-      dependencies,
-      config,
-      getTokens,
-    })
-
-    if (!positionDetails3) throw new Error('WBTC USDC Multiply Position details are undefined')
-
-    console.log(
-      `Position created: ${positionDetails3.strategy} with proxy: ${positionDetails3.proxy}`,
     )
   })

@@ -16,6 +16,8 @@
       "@dma-common/constants": ["../dma-common/constants/index.ts"],
       "@dma-common/utils/*": ["../dma-common/utils/*"],
       "@dma-common/types/*": ["../dma-common/types/*"],
+      "@dma-common/test-utils": ["../dma-common/test-utils/index.ts"],
+      "@dma-common/test-utils/*": ["../dma-common/test-utils/*"]
     },
     "types": [
       "node"

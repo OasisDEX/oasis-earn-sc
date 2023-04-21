@@ -1,7 +1,7 @@
+import { ONE } from '@dma-common/constants'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
-import { ONE } from '../../constants'
 import { swapOneInchTokens } from './1inch'
 
 type OneInchVersion = 'v4.0' | 'v5.0'
