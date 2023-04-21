@@ -1,7 +1,10 @@
+import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
-import { mainnetAddresses } from '../../addresses/mainnet'
 import { TokenDetails } from '../types/position-details'
+
+const mainnetAddressesForTests = addressesByNetwork(Network.MAINNET)
 
 export const UNISWAP_TEST_SLIPPAGE = new BigNumber(0.25)
 export const SLIPPAGE = new BigNumber(0.05)
@@ -30,10 +33,15 @@ export class ETH {
   }
 }
 
-export const STETH: TokenDetails = {
-  symbol: 'STETH' as const,
-  precision: 18,
-  address: mainnetAddresses.STETH,
+export class STETH {
+  static symbol = 'STETH' as const
+  static precision = 18
+  public symbol = STETH.symbol
+  public precision = STETH.precision
+  public address: string
+  constructor(public addresses: Record<'STETH', string>) {
+    this.address = addresses.STETH
+  }
 }
 
 export class WSTETH {
@@ -50,5 +58,5 @@ export class WSTETH {
 export const WBTC: TokenDetails = {
   symbol: 'WBTC' as const,
   precision: 8,
-  address: mainnetAddresses.WBTC,
+  address: mainnetAddressesForTests.WBTC,
 }

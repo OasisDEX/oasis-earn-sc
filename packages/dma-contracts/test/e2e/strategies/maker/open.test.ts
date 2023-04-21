@@ -16,7 +16,7 @@ import {
 } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
-import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker/vault'
+import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
 import { ActionFactory, calldataTypes } from '@oasisdex/dma-library'
@@ -87,7 +87,7 @@ describe.skip(`Operations | Maker | Open Position | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
         },
         [0],
       ],
@@ -111,7 +111,7 @@ describe.skip(`Operations | Maker | Open Position | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -157,7 +157,7 @@ describe.skip(`Operations | Maker | Open Position | E2E`, async () => {
     expect.toBeEqual(info.debt.toFixed(precision), initialDebt.toFixed(precision))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.cdpManager,
+      ADDRESSES[Network.MAINNET].maker.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)

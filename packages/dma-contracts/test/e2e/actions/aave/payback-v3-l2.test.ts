@@ -1,9 +1,9 @@
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { FIFTY, ZERO } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { balanceOf } from '@oasisdex/dma-common/utils/common'
 import { Network } from '@oasisdex/dma-deployments/types/network'
+import { loadFixture } from 'ethereum-waffle'
 
 import {
   BORROW_OPERATION,
@@ -24,7 +24,7 @@ describe.skip('Payback Action | E2E', () => {
     })
 
     const usdcBalanceBeforeBorrow = await balanceOf(
-      ADDRESSES[Network.OPT_MAINNET].common.USDC,
+      ADDRESSES[Network.OPTIMISM].common.USDC,
       opExecutor.address,
       {
         ...balanceConfig,
@@ -37,7 +37,7 @@ describe.skip('Payback Action | E2E', () => {
     })
 
     const usdcBalanceAfterBorrow = await balanceOf(
-      ADDRESSES[Network.OPT_MAINNET].common.USDC,
+      ADDRESSES[Network.OPTIMISM].common.USDC,
       opExecutor.address,
       {
         ...balanceConfig,
@@ -58,7 +58,7 @@ describe.skip('Payback Action | E2E', () => {
     })
 
     const usdcBalanceAfterPayback = await balanceOf(
-      ADDRESSES[Network.OPT_MAINNET].common.USDC,
+      ADDRESSES[Network.OPTIMISM].common.USDC,
       opExecutor.address,
       {
         ...balanceConfig,

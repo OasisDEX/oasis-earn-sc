@@ -1,7 +1,26 @@
+import { ONE } from '@dma-common/constants'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
-import { ONE } from '../../constants'
 import { swapOneInchTokens } from './1inch'
+
+type OneInchVersion = 'v4.0' | 'v5.0'
+export const oneInchVersionMap: Record<
+  Exclude<Network, Network.LOCAL | Network.HARDHAT | Network.GOERLI>,
+  OneInchVersion
+> = {
+  [Network.MAINNET]: 'v4.0',
+  [Network.OPTIMISM]: 'v5.0',
+}
+
+export function resolveOneInchVersion(network: Network): OneInchVersion {
+  if (network !== Network.MAINNET && network !== Network.OPTIMISM)
+    throw new Error('Unsupported network')
+
+  const version = oneInchVersionMap[network]
+  if (!version) throw new Error('Unsupported network')
+  return version
+}
 
 export const getOneInchCall =
   (

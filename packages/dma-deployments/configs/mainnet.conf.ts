@@ -1,5 +1,6 @@
-import { CONTRACT_NAMES } from '@dma-deployments/constants/contract-names'
+import { CONTRACT_NAMES } from '@dma-deployments/constants'
 import { SystemConfig } from '@dma-deployments/types/deployment-config'
+import { constants } from 'ethers'
 
 export const config: SystemConfig = {
   mpa: {
@@ -27,11 +28,35 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
       },
-      OperationRegistry: {
+      OperationsRegistry: {
         name: 'OperationsRegistry',
         deploy: false,
         address: '0x01871C3cCfeDE29d2b998E7D1BF0eEEBD26d9c49',
         serviceRegistryName: 'OperationsRegistry_2',
+        history: [],
+        constructorArgs: [],
+      },
+      DSProxyFactory: {
+        name: 'DSProxyFactory',
+        deploy: false,
+        address: '0xA26e15C895EFc0616177B7c1e7270A4C7D51C997',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
+        history: [],
+        constructorArgs: [],
+      },
+      DSProxyRegistry: {
+        name: 'DSProxyRegistry',
+        deploy: false,
+        address: '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
+        history: [],
+        constructorArgs: ['address:DSProxyFactory'],
+      },
+      DSGuardFactory: {
+        name: 'DSGuardFactory',
+        deploy: false,
+        address: '0x5a15566417e6C1c9546523066500bDDBc53F88C7',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
         history: [],
         constructorArgs: [],
       },
@@ -218,6 +243,10 @@ export const config: SystemConfig = {
     },
   },
   common: {
+    GnosisSafe: {
+      name: 'GnosisSafe',
+      address: constants.AddressZero,
+    },
     WETH: {
       name: 'WETH',
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -242,6 +271,10 @@ export const config: SystemConfig = {
       address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       serviceRegistryName: CONTRACT_NAMES.common.USDC,
     },
+    USDT: {
+      name: 'USDT',
+      address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    },
     DAI: {
       name: 'DAI',
       address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -265,10 +298,6 @@ export const config: SystemConfig = {
       name: 'BalancerVault',
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
       serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
-    },
-    DSProxyRegistry: {
-      name: 'DSProxyRegistry',
-      address: '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4',
     },
     OneInchAggregator: {
       name: 'OneInchAggregator',
@@ -339,6 +368,10 @@ export const config: SystemConfig = {
       name: 'CdpManager',
       address: '0x5ef30b9986345249bc32d8928B7ee64DE9435E39',
     },
+    GetCdps: {
+      name: 'GetCdps',
+      address: '0x36a724Bd100c39f0Ea4D3A20F7097eE01A8Ff573',
+    },
     Jug: {
       name: 'Jug',
       address: '0x19c0976f590D67707E62397C87829d896Dc0f1F1',
@@ -346,6 +379,10 @@ export const config: SystemConfig = {
     JoinDAI: {
       name: 'JoinDAI',
       address: '0x9759A6Ac90977b93B58547b4A71c78317f391A28',
+    },
+    JoinETH_A: {
+      name: 'JoinETH_A',
+      address: '0x2F0b23f53734252Bda2277357e97e1517d6B042A',
     },
     PipWETH: {
       name: 'PipWETH',

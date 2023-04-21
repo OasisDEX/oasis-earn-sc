@@ -1,12 +1,10 @@
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
-import { mainnetAddresses } from '@dma-contracts/test/addresses'
+import { StrategyDependenciesAaveV2 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
+import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AaveVersion, strategies } from '@oasisdex/dma-library'
-import {
-  aaveV2UniqueContractName,
-  aaveV3UniqueContractName,
-} from '@oasisdex/dma-library/src/protocols/aave/config'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
@@ -14,9 +12,11 @@ import {
 import { RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 
-import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
+import { AavePositionStrategy, PositionDetails } from '../types'
 import { ETH, MULTIPLE, SLIPPAGE, STETH, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
 import { OpenPositionTypes } from './open-position-types'
+
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 
 const amountInBaseUnit = amountToWei(new BigNumber(100), USDC.precision)
 const wethToSwapToUSDCTo = amountToWei(new BigNumber(1), ETH.precision)
@@ -70,14 +70,17 @@ export async function stethUsdcMultiplyAavePosition({
   isDPM: boolean
   use1inch: boolean
   swapAddress?: string
-  dependencies: StrategiesDependencies
+  dependencies: StrategyDependenciesAaveV2
   config: RuntimeConfig
   getTokens: (symbol: 'USDC', amount: BigNumber) => Promise<boolean>
 }): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'STETH/USDC Multiply'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
-
+  const tokens = {
+    STETH: new STETH(dependencies.addresses),
+    USDC: new USDC(dependencies.addresses),
+  }
   const mockPrice = new BigNumber(1217.85)
   const getSwapData = use1inch
     ? dependencies.getSwapData(swapAddress)
@@ -135,50 +138,22 @@ export async function stethUsdcMultiplyAavePosition({
     },
   )
 
-  let getPosition
-  if (
-    dependencies.protocol.version === AaveVersion.v3 &&
-    aaveV3UniqueContractName in dependencies.addresses
-  ) {
-    const addresses = dependencies.addresses
-    getPosition = async () => {
-      return await strategies.aave.v3.view(
-        {
-          collateralToken: STETH,
-          debtToken: USDC,
-          proxy,
+  const addresses = dependencies.addresses
+  const getPosition = async () => {
+    return await strategies.aave.v2.view(
+      {
+        collateralToken: STETH,
+        debtToken: USDC,
+        proxy,
+      },
+      {
+        addresses: {
+          ...addresses,
+          operationExecutor: dependencies.contracts.operationExecutor.address,
         },
-        {
-          addresses: {
-            ...addresses,
-            operationExecutor: dependencies.contracts.operationExecutor.address,
-          },
-          provider: config.provider,
-        },
-      )
-    }
-  }
-  if (
-    dependencies.protocol.version === AaveVersion.v2 &&
-    aaveV2UniqueContractName in dependencies.addresses
-  ) {
-    const addresses = dependencies.addresses
-    getPosition = async () => {
-      return await strategies.aave.v2.view(
-        {
-          collateralToken: STETH,
-          debtToken: USDC,
-          proxy,
-        },
-        {
-          addresses: {
-            ...addresses,
-            operationExecutor: dependencies.contracts.operationExecutor.address,
-          },
-          provider: config.provider,
-        },
-      )
-    }
+        provider: config.provider,
+      },
+    )
   }
 
   if (!getPosition) throw new Error('getPosition is not defined')
@@ -187,8 +162,8 @@ export async function stethUsdcMultiplyAavePosition({
     proxy: proxy,
     getPosition,
     strategy,
-    collateralToken: STETH,
-    debtToken: new USDC(dependencies.addresses),
+    collateralToken: tokens.STETH,
+    debtToken: tokens.USDC,
     getSwapData,
     __positionType: 'Multiply',
     __mockPrice: mockPrice,

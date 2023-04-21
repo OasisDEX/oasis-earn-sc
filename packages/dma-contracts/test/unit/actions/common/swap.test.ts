@@ -5,9 +5,13 @@ import ERC20_ABI from '@oasisdex/abis/external/tokens/IERC20.json'
 import WETH_ABI from '@oasisdex/abis/external/tokens/IWETH.json'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { FEE_BASE, ONE } from '@oasisdex/dma-common/constants'
-import { asPercentageValue, expect } from '@oasisdex/dma-common/test-utils'
-import { DeployedSystemInfo, deploySystem } from '@oasisdex/dma-common/test-utils/deploy-system'
-import { FEE } from '@oasisdex/dma-common/test-utils/dummy-exchange'
+import {
+  asPercentageValue,
+  DeployedSystemInfo,
+  deploySystem,
+  expect,
+  FEE,
+} from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountFromWei, amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import {

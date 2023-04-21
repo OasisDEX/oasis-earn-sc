@@ -1,2 +1,2 @@
-export { CONTRACT_NAMES } from './contract-names'
-export { OPERATION_NAMES } from './operation-names'
+export * from './contract-names'
+export * from './operation-names'

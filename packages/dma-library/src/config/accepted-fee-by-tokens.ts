@@ -5,19 +5,19 @@ import { Network } from '@oasisdex/dma-deployments/types/network'
 export const acceptedTokens = [
   {
     symbol: 'USDC',
-    address: [ADDRESSES.mainnet.common.USDC, ADDRESSES[Network.OPT_MAINNET].common.USDC],
+    address: [ADDRESSES.mainnet.common.USDC, ADDRESSES[Network.OPTIMISM].common.USDC],
   },
   {
     symbol: 'DAI',
-    address: [ADDRESSES.mainnet.common.DAI, ADDRESSES[Network.OPT_MAINNET].common.DAI],
+    address: [ADDRESSES.mainnet.common.DAI, ADDRESSES[Network.OPTIMISM].common.DAI],
   },
   {
     symbol: 'WETH',
-    address: [ADDRESSES.mainnet.common.WETH, ADDRESSES[Network.OPT_MAINNET].common.WETH],
+    address: [ADDRESSES.mainnet.common.WETH, ADDRESSES[Network.OPTIMISM].common.WETH],
   },
   {
     symbol: 'ETH',
-    address: [ADDRESSES.mainnet.common.ETH, ADDRESSES[Network.OPT_MAINNET].common.ETH],
+    address: [ADDRESSES.mainnet.common.ETH, ADDRESSES[Network.OPTIMISM].common.ETH],
   },
   {
     symbol: 'STETH',
@@ -25,6 +25,6 @@ export const acceptedTokens = [
   },
   {
     symbol: 'WBTC',
-    address: [ADDRESSES.mainnet.common.WBTC, ADDRESSES[Network.OPT_MAINNET].common.WBTC],
+    address: [ADDRESSES.mainnet.common.WBTC, ADDRESSES[Network.OPTIMISM].common.WBTC],
   },
 ]

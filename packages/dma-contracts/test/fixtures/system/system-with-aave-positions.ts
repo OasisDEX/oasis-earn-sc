@@ -7,6 +7,7 @@ import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import { DeploymentSystem } from '@oasisdex/dma-deployments/deployment/deploy'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
 import hre from 'hardhat'
 
@@ -19,33 +20,34 @@ import {
 import { AavePositionStrategy, SystemWithAavePositions } from '../types'
 import { StrategyDependenciesAaveV2 } from '../types/strategies-dependencies'
 
-export function getSupportedStrategies(ciMode?: boolean): Array<{
+export function getSupportedStrategies(): Array<{
   name: AavePositionStrategy
-  localOnly: boolean
 }> {
   return [
-    { name: 'ETH/USDC Multiply' as AavePositionStrategy, localOnly: false },
-    { name: 'WBTC/USDC Multiply' as AavePositionStrategy, localOnly: false },
-    { name: 'STETH/USDC Multiply' as AavePositionStrategy, localOnly: true },
-    { name: 'STETH/ETH Earn' as AavePositionStrategy, localOnly: true },
-  ].filter(s => !ciMode || !s.localOnly)
+    { name: 'ETH/USDC Multiply' as AavePositionStrategy },
+    { name: 'WBTC/USDC Multiply' as AavePositionStrategy },
+    { name: 'STETH/USDC Multiply' as AavePositionStrategy },
+    { name: 'STETH/ETH Earn' as AavePositionStrategy },
+  ]
 }
 
 // Do not change test block numbers as they're linked to uniswap liquidity levels
 export const blockNumberForAAVEV2System = 15695000
 
 export const systemWithAavePositions =
-  ({ use1inch }: { use1inch: boolean }) =>
+  ({ use1inch, configExtensionPaths }: { use1inch: boolean; configExtensionPaths?: string[] }) =>
   async (): Promise<SystemWithAavePositions> => {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
     await ds.loadConfig('test/mainnet.conf.ts')
+    const systemConfigPath = 'test/mainnet.conf.ts'
+    await ds.loadConfig(systemConfigPath)
+    if (configExtensionPaths) {
+      configExtensionPaths.forEach(async configPath => {
+        await ds.extendConfig(configPath)
+      })
+    }
 
-    // If you update test block numbers you may run into issues where whale addresses
-    // We use impersonation on test block number but with 1inch we use uniswap
-    const getTokens = use1inch
-      ? buildGetTokenFunction(config, await import('hardhat'))
-      : buildGetTokenByImpersonateFunction(config, await import('hardhat'))
     const useFallbackSwap = !use1inch
     if (blockNumberForAAVEV2System && useFallbackSwap) {
       await ds.resetNode(blockNumberForAAVEV2System)
@@ -60,10 +62,25 @@ export const systemWithAavePositions =
     }
 
     await ds.deployAll()
-    await ds.setupLocalSystem(use1inch)
+    await ds.addAllEntries()
 
-    const { system, registry, config: systemConfig } = ds.getSystem()
+    const dsSystem = ds.getSystem()
+    const { system, registry, config: systemConfig } = dsSystem
+    const swapContract = system.uSwap ? system.uSwap.contract : system.Swap.contract
+    const swapAddress = swapContract.address
+
     if (!systemConfig.aave.v2) throw new Error('aave v2 not deployed')
+    !use1inch &&
+      (await swapContract.setPool(
+        systemConfig.common.STETH.address,
+        systemConfig.common.WETH.address,
+        10000,
+      ))
+    await swapContract.addFeeTier(0)
+    await swapContract.addFeeTier(7)
+    await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
+
+    if (!systemConfig.aave.v2) throw new Error('aave v2 is not configured')
     const dependencies: StrategyDependenciesAaveV2 = {
       addresses: {
         DAI: systemConfig.common.DAI.address,
@@ -94,6 +111,17 @@ export const systemWithAavePositions =
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
 
+    // If you update test block numbers you may run into issues where whale addresses
+    // We use impersonation on test block number but with 1inch we use uniswap
+    const getTokens = use1inch
+      ? buildGetTokenFunction(
+          config,
+          await import('hardhat'),
+          Network.MAINNET,
+          dependencies.addresses.WETH,
+        )
+      : buildGetTokenByImpersonateFunction(config, await import('hardhat'), Network.MAINNET)
+
     const [dpmProxyForEarnStEthEth] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyStEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
@@ -110,13 +138,6 @@ export const systemWithAavePositions =
       throw new Error('Cant create a DPM proxy')
     }
 
-    const configWithDeployedSystem = {
-      ...config,
-      ds,
-    }
-
-    const swapAddress = system.Swap.contract.address
-
     const stEthEthEarnPosition = await stethEthEarnAavePosition({
       proxy: dpmProxyForEarnStEthEth,
       isDPM: true,
@@ -124,6 +145,7 @@ export const systemWithAavePositions =
       swapAddress,
       dependencies,
       config,
+      feeRecipient: systemConfig.common.FeeRecipient.address,
     })
 
     const ethUsdcMultiplyPosition = await ethUsdcMultiplyAavePosition({
@@ -142,7 +164,7 @@ export const systemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config: configWithDeployedSystem,
+      config,
       getTokens,
     })
 
@@ -152,7 +174,7 @@ export const systemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config: configWithDeployedSystem,
+      config,
       getTokens,
     })
 
@@ -162,7 +184,8 @@ export const systemWithAavePositions =
       use1inch,
       swapAddress,
       dependencies,
-      config: configWithDeployedSystem,
+      config,
+      feeRecipient: systemConfig.common.FeeRecipient.address,
     })
 
     const dpmPositions = {
@@ -181,6 +204,7 @@ export const systemWithAavePositions =
     return {
       config,
       system,
+      dsSystem,
       registry,
       strategiesDependencies: dependencies,
       dpmPositions,

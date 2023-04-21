@@ -20,7 +20,8 @@
     "paths": {
       "@dma-deployments/utils/*": ["./utils/*"],
       "@dma-deployments/types/*": ["./types/*"],
-      "@dma-deployments/constants/*": ["./constants/*"],
+      "@dma-deployments/constants": ["./constants/index.ts"],
+      "@dma-deployments/operation-definitions": ["./operation-definitions/index.ts"]
     }
   },
   "include": [

@@ -18,9 +18,8 @@ import {
 } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
-import { getOraclePrice } from '@oasisdex/dma-common/utils/maker/oracle'
-import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker/vault'
-import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants/contract-names'
+import { getLastVault, getOraclePrice, getVaultInfo } from '@oasisdex/dma-common/utils/maker'
+import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
 import { ActionCall, ActionFactory, calldataTypes } from '@oasisdex/dma-library'
@@ -147,7 +146,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
         },
         [0],
       ],
@@ -171,7 +170,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -223,7 +222,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(collateralToDeposit),
         },
@@ -268,7 +267,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
     expect.toBeEqual(info.debt.toFixed(0), expectedDebt.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.cdpManager,
+      ADDRESSES[Network.MAINNET].maker.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)
@@ -327,7 +326,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
         },
         [0],
       ],
@@ -351,7 +350,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -389,7 +388,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(desiredCdpState.toBorrowCollateralAmount),
         },
@@ -472,7 +471,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
     expect.toBeEqual(info.debt.toFixed(0), expectedDebt.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.cdpManager,
+      ADDRESSES[Network.MAINNET].maker.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)
@@ -530,7 +529,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
         },
         [0],
       ],
@@ -554,7 +553,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: new BigNumber(ensureWeiFormat(initialColl)).toFixed(0),
         },
@@ -580,7 +579,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: new BigNumber(ensureWeiFormat(collTopUp)).toFixed(0),
         },
@@ -630,7 +629,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(collateralToDeposit),
         },
@@ -677,7 +676,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
     expect.toBeEqual(info.debt.toFixed(0), expectedDebt.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.cdpManager,
+      ADDRESSES[Network.MAINNET].maker.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)
@@ -736,7 +735,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
         },
         [0],
       ],
@@ -760,7 +759,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -799,7 +798,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(desiredCdpState.collTopUp),
         },
@@ -850,7 +849,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(collateralToDeposit),
         },
@@ -900,7 +899,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
     expect.toBeEqual(info.debt.toFixed(0), expectedDebt.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.cdpManager,
+      ADDRESSES[Network.MAINNET].maker.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)
@@ -959,7 +958,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
         },
         [0],
       ],
@@ -983,7 +982,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -1048,7 +1047,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(collateralToDeposit),
         },
@@ -1094,7 +1093,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
     expect.toBeEqual(info.debt.toFixed(0), expectedDebt.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.cdpManager,
+      ADDRESSES[Network.MAINNET].maker.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)
@@ -1153,7 +1152,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
         },
         [0],
       ],
@@ -1177,7 +1176,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -1216,7 +1215,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(collTopUp),
         },
@@ -1253,7 +1252,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(desiredCdpState.toBorrowCollateralAmount),
         },
@@ -1339,7 +1338,7 @@ describe.skip(`Operations | Maker | Increase Multiple | E2E`, async () => {
     expect.toBeEqual(info.debt.toFixed(0), expectedDebt.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.cdpManager,
+      ADDRESSES[Network.MAINNET].maker.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)

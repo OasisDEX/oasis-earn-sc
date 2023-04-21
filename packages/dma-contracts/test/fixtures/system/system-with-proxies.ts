@@ -1,12 +1,14 @@
-import init, { resetNode } from '@dma-common/utils/init'
-import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { buildGetTokenByImpersonateFunction } from '@dma-contracts/test/utils/aave'
-import { createDPMAccount, deploySystem } from '@oasisdex/dma-common/test-utils'
+import { addressesByNetwork, createDPMAccount, deploySystem } from '@oasisdex/dma-common/test-utils'
+import init, { resetNode } from '@oasisdex/dma-common/utils/init'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
 
 import { StrategiesDependencies, SystemWithProxies } from '../types'
+
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 
 export async function systemWithProxies({
   use1inch,
@@ -15,7 +17,11 @@ export async function systemWithProxies({
 }): Promise<SystemWithProxies> {
   const config = await init()
 
-  const getTokens = buildGetTokenByImpersonateFunction(config, await import('hardhat'))
+  const getTokens = buildGetTokenByImpersonateFunction(
+    config,
+    await import('hardhat'),
+    Network.MAINNET,
+  )
 
   if (testBlockNumber) {
     await resetNode(config.provider, testBlockNumber)
@@ -25,9 +31,9 @@ export async function systemWithProxies({
   const dependencies: StrategiesDependencies = {
     addresses: {
       ...mainnetAddresses,
-      priceOracle: mainnetAddresses.aave.v2.priceOracle,
-      lendingPool: mainnetAddresses.aave.v2.lendingPool,
-      protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
+      priceOracle: mainnetAddresses.priceOracle,
+      lendingPool: mainnetAddresses.lendingPool,
+      protocolDataProvider: mainnetAddresses.protocolDataProvider,
       accountFactory: system.common.accountFactory.address,
       operationExecutor: system.common.operationExecutor.address,
     },

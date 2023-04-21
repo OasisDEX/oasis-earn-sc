@@ -2,6 +2,6 @@ export enum Network {
   MAINNET = 'mainnet',
   GOERLI = 'goerli',
   HARDHAT = 'hardhat',
-  OPT_MAINNET = 'opt-mainnet',
+  OPTIMISM = 'optimism',
   LOCAL = 'local',
 }

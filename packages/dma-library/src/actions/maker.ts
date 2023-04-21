@@ -1,7 +1,7 @@
-import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants/contract-names'
+import { calldataTypes } from '@dma-library/types'
+import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants'
 import { getActionHash } from '@oasisdex/dma-deployments/utils/action-hash'
 
-import { calldataTypes } from '../types'
 import { ActionFactory } from './action-factory'
 
 const createAction = ActionFactory.create

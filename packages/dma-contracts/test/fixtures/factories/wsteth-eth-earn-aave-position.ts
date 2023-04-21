@@ -12,21 +12,11 @@ import {
 import { RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 
-import { PositionDetails } from '../types'
-import { AaveV3PositionStrategy } from '../types/position-details'
-import { StrategyDependenciesAaveV3 } from '../types/strategies-dependencies'
-import {
-  EMODE_MULTIPLE,
-  ETH,
-  MULTIPLE,
-  SLIPPAGE,
-  UNISWAP_TEST_SLIPPAGE,
-  USDC,
-  WSTETH,
-} from './common'
+import { AaveV3PositionStrategy, PositionDetails, StrategyDependenciesAaveV3 } from '../types'
+import { EMODE_MULTIPLE, ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, WSTETH } from './common'
 import { OpenPositionTypes } from './open-position-types'
 
-const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
+const transactionAmount = amountToWei(new BigNumber(1), ETH.precision)
 
 async function openWstEthEthEarnAAVEPosition(
   slippage: BigNumber,
@@ -82,13 +72,13 @@ export async function wstethEthEarnAavePosition({
   feeRecipient: Address
 }): Promise<PositionDetails> {
   const strategy: AaveV3PositionStrategy = 'WSTETH/ETH Earn'
-  const isOptimism = config.network === Network.OPT_MAINNET
+  const isOptimism = config.network === Network.OPTIMISM
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
 
   const tokens = {
     WSTETH: new WSTETH(dependencies.addresses),
-    ETH: new USDC(dependencies.addresses),
+    ETH: new ETH(dependencies.addresses),
   }
 
   const mockPrice = new BigNumber(0.9)

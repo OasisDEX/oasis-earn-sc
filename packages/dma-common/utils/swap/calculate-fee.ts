@@ -1,7 +1,10 @@
+import { DEFAULT_FEE, FEE_BASE } from '@dma-common/constants'
 import BigNumber from 'bignumber.js'
 
-import { DEFAULT_FEE, FEE_BASE } from '../../constants'
-
 export function calculateFee(amountWei: BigNumber, fee: number = DEFAULT_FEE): BigNumber {
-  return amountWei.times(new BigNumber(fee).div(FEE_BASE)).integerValue(BigNumber.ROUND_DOWN)
+  return amountWei
+    .times(fee)
+    .div(new BigNumber(fee).plus(FEE_BASE))
+    .abs()
+    .integerValue(BigNumber.ROUND_DOWN)
 }
