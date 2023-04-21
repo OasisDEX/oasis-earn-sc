@@ -1,4 +1,4 @@
-import { OperationNames } from '@oasisdex/dma-deployments/constants/operation-names'
+import { OperationNames } from '@oasisdex/dma-deployments/constants'
 import { IBaseSimulatedTransition, IRiskRatio, Swap } from '@oasisdex/domain/src'
 
 import { ActionCall } from './action-call'

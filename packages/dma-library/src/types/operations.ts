@@ -93,6 +93,16 @@ export type WithPosition = {
   }
 }
 
+export type WithPositionAndLockedCollateral = WithPosition & {
+  position: WithPosition['position'] & WithLockedCollateral
+}
+
+type WithLockedCollateral = {
+  collateral: {
+    amount: BigNumber
+  }
+}
+
 export type WithAaveV2StrategyAddresses = {
   addresses: AAVEStrategyAddresses
 }

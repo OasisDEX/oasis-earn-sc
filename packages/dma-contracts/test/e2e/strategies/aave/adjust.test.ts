@@ -1,5 +1,3 @@
-import { executeThroughProxy } from '@dma-common/utils/execute'
-import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,
@@ -12,25 +10,27 @@ import {
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { TokenDetails } from '@dma-contracts/test/fixtures/types/position-details'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
+import { PositionType } from '@dma-library/types'
 import AAVELendingPoolABI from '@oasisdex/abis/external/protocols/aave/v2/lendingPool.json'
 import aavePriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE } from '@oasisdex/dma-common/constants'
-import { DeployedSystemInfo, expect } from '@oasisdex/dma-common/test-utils'
+import { addressesByNetwork, expect } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig, Unbox } from '@oasisdex/dma-common/types/common'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
+import { DeployedSystem } from '@oasisdex/dma-deployments/types/deployed-system'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AAVETokens, strategies } from '@oasisdex/dma-library'
-import { PositionType } from '@oasisdex/dma-library/src/types'
 import { acceptedFeeToken } from '@oasisdex/dma-library/src/utils/swap'
 import { IPosition, IRiskRatio, RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
+import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers } from 'ethers'
 
-const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
@@ -39,7 +39,7 @@ describe.skip('Strategy | AAVE | Adjust Position | E2E', async function () {
   describe('Using AAVE V2', async function () {
     let fixture: SystemWithAavePositions
 
-    const supportedStrategies = getSupportedStrategies(ciOnlyTests)
+    const supportedStrategies = getSupportedStrategies()
 
     async function adjustPositionV2({
       isDPMProxy,
@@ -66,14 +66,11 @@ describe.skip('Strategy | AAVE | Adjust Position | E2E', async function () {
       slippage: BigNumber
       positionType: PositionType
       config: RuntimeConfig
-      system: DeployedSystemInfo
+      system: DeployedSystem
     }) {
       const addresses = {
         ...mainnetAddresses,
-        priceOracle: mainnetAddresses.aave.v2.priceOracle,
-        lendingPool: mainnetAddresses.aave.v2.lendingPool,
-        protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
-        operationExecutor: system.common.operationExecutor.address,
+        operationExecutor: system.OperationExecutor.contract.address,
       }
       const tokenAddresses: Record<AAVETokens, string> = {
         WETH: mainnetAddresses.WETH,
@@ -149,8 +146,8 @@ describe.skip('Strategy | AAVE | Adjust Position | E2E', async function () {
       const [txStatus, tx] = await executeThroughProxy(
         proxy,
         {
-          address: system.common.operationExecutor.address,
-          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+          address: system.OperationExecutor.contract.address,
+          calldata: system.OperationExecutor.contract.interface.encodeFunctionData('executeOp', [
             strategy.transaction.calls,
             strategy.transaction.operationName,
           ]),
@@ -440,7 +437,7 @@ describe.skip('Strategy | AAVE | Adjust Position | E2E', async function () {
   })
   describe('Using AAVE V3', async function () {
     let fixture: SystemWithAAVEV3Positions
-    const supportedStrategies = getSupportedAaveV3Strategies(ciOnlyTests)
+    const supportedStrategies = getSupportedAaveV3Strategies()
 
     async function adjustPositionV3({
       isDPMProxy,
@@ -467,14 +464,11 @@ describe.skip('Strategy | AAVE | Adjust Position | E2E', async function () {
       slippage: BigNumber
       positionType: PositionType
       config: RuntimeConfig
-      system: DeployedSystemInfo
+      system: DeployedSystem
     }) {
       const addresses = {
         ...mainnetAddresses,
-        aaveOracle: mainnetAddresses.aave.v3.aaveOracle,
-        pool: mainnetAddresses.aave.v3.pool,
-        poolDataProvider: mainnetAddresses.aave.v3.poolDataProvider,
-        operationExecutor: system.common.operationExecutor.address,
+        operationExecutor: system.OperationExecutor.contract.address,
       }
       const tokenAddresses: Record<AAVETokens, string> = {
         WETH: mainnetAddresses.WETH,
@@ -549,8 +543,8 @@ describe.skip('Strategy | AAVE | Adjust Position | E2E', async function () {
       const [txStatus, tx] = await executeThroughProxy(
         proxy,
         {
-          address: system.common.operationExecutor.address,
-          calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
+          address: system.OperationExecutor.contract.address,
+          calldata: system.OperationExecutor.contract.interface.encodeFunctionData('executeOp', [
             strategy.transaction.calls,
             strategy.transaction.operationName,
           ]),

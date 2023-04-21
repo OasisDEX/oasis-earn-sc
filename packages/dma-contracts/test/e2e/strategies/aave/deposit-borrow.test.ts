@@ -1,16 +1,15 @@
 import { executeThroughProxy } from '@dma-common/utils/execute'
-import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { tokens } from '@dma-contracts/test/constants'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import aavePriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
 import {
+  addressesByNetwork,
   expect,
   GasEstimateHelper,
   gasEstimateHelper,
@@ -24,8 +23,10 @@ import { Network } from '@oasisdex/dma-deployments/types/network' // TODO: IMPLE
 import { AAVETokens, strategies } from '@oasisdex/dma-library'
 import { Position, PositionBalance } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
+import { loadFixture } from 'ethereum-waffle'
 import { ethers, Signer } from 'ethers'
 
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 // TODO: IMPLEMENT THIS TEST
 describe.skip(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
   let aaveDataProvider: Contract
@@ -78,9 +79,6 @@ describe.skip(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
 
       const addresses = {
         ...mainnetAddresses,
-        priceOracle: mainnetAddresses.aave.v2.priceOracle,
-        lendingPool: mainnetAddresses.aave.v2.lendingPool,
-        protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
         operationExecutor: system.common.operationExecutor.address,
       }
 

@@ -4,6 +4,19 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import {
+  aaveCloseV2OperationDefinition,
+  aaveCloseV3OperationDefinition,
+  aaveOpenV2OperationDefinition,
+  aaveOpenV3OperationDefinition,
+} from '@dma-deployments/operation-definitions'
+import {
+  ContractProps,
+  DeployedSystem,
+  System,
+  SystemTemplate,
+} from '@dma-deployments/types/deployed-system'
+import {
+  DeployedSystemContracts,
   DeploymentConfig,
   SystemConfig,
   SystemConfigItem,
@@ -35,25 +48,18 @@ import * as path from 'path'
 import prompts from 'prompts'
 import { inspect } from 'util'
 
-import {
-  aaveCloseV3OperationDefinition,
-  aaveOpenV2OperationDefinition,
-  aaveOpenV3OperationDefinition,
-} from '../operation-definitions'
-import { aaveCloseV2OperationDefinition } from '../operation-definitions/aave/v2/close'
-
-const restrictedNetworks = [Network.MAINNET, Network.OPT_MAINNET, Network.GOERLI]
+const restrictedNetworks = [Network.MAINNET, Network.OPTIMISM, Network.GOERLI]
 
 const rpcUrls: any = {
   [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
-  [Network.OPT_MAINNET]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
+  [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
 }
 
 const gnosisSafeServiceUrl: any = {
   [Network.MAINNET]: '',
   [Network.HARDHAT]: '',
-  [Network.OPT_MAINNET]: '',
+  [Network.OPTIMISM]: '',
   [Network.GOERLI]: 'https://safe-transaction.goerli.gnosis.io',
   [Network.HARDHAT]: '',
 }
@@ -115,7 +121,7 @@ abstract class DeployedSystemHelpers {
 // MAIN CLASS ===============================================
 export class DeploymentSystem extends DeployedSystemHelpers {
   public config: SystemConfig | undefined
-  public deployedSystem: any = {}
+  public deployedSystem: SystemTemplate = {}
   private readonly _cache = new NodeCache()
 
   constructor(public readonly hre: HardhatRuntimeEnvironment) {
@@ -125,7 +131,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async loadConfig(configFileName?: string) {
     if (configFileName) {
-      this.config = (await import(this.getConfigPath(`./${configFileName}`))).config
+      try {
+        this.config = (await import(this.getConfigPath(`./${configFileName}`))).config
+      } catch (e) {
+        console.log('\x1b[33m[ WARN ] Config file not found! \x1b[0m', e)
+      }
     } else {
       // if forked other network then merge configs files
       if (this.forkedNetwork) {
@@ -212,7 +222,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
         const safeSdk: Safe = await Safe.create({
           ethAdapter: ethAdapter,
-          safeAddress: this.config.common.GNOSIS_SAFE.address,
+          safeAddress: this.config.common.GnosisSafe.address,
         })
 
         const safeService = new SafeServiceClient({
@@ -220,13 +230,15 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           ethAdapter,
         })
 
-        const safeInfo = await safeService.getSafeInfo(this.config.common.GNOSIS_SAFE.address)
+        const safeInfo = await safeService.getSafeInfo(this.config.common.GnosisSafe.address)
 
         const encodedData = await this.serviceRegistryHelper.addEntryCalldata(
           configItem.serviceRegistryName,
           contract.address,
         )
 
+        if (this.deployedSystem.ServiceRegistry === undefined)
+          throw new Error('No ServiceRegistry deployed')
         const safeTransactionData: Omit<SafeTransactionDataPartial, 'value'> & { value: number } = {
           to: this.deployedSystem.ServiceRegistry.contract.address,
           data: encodedData,
@@ -242,7 +254,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
         const address = await signer.getAddress()
 
         await safeService.proposeTransaction({
-          safeAddress: ethers.utils.getAddress(this.config.common.GNOSIS_SAFE.address),
+          safeAddress: ethers.utils.getAddress(this.config.common.GnosisSafe.address),
           safeTransactionData: safeTransaction.data,
           safeTxHash: safeTransactionHash,
           senderAddress: ethers.utils.getAddress(address),
@@ -272,7 +284,9 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     for (const configItem of addressesConfig) {
       if (configItem.serviceRegistryName) {
-        const address = this.deployedSystem[configItem.name]?.contract.address || configItem.address
+        const address =
+          this.deployedSystem?.[configItem.name as DeployedSystemContracts]?.contract.address ||
+          configItem.address
         await this.addRegistryEntry(configItem, address)
       }
     }
@@ -286,7 +300,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async instantiateContracts(addressesConfig: DeploymentConfig[]) {
+  async instantiateContracts(addressesConfig: SystemConfigItem[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     for (const configItem of addressesConfig) {
       console.log('INSTANTIATING ', configItem.name, configItem.address)
@@ -340,8 +354,16 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       if (configItem.constructorArgs && configItem.constructorArgs?.length !== 0) {
         constructorParams = configItem.constructorArgs.map((param: string | number) => {
           if (typeof param === 'string' && param.indexOf('address:') >= 0) {
-            const contractName = (param as string).replace('address:', '')
-            return this.deployedSystem[contractName].contract.address
+            const contractName = (param as string).replace(
+              'address:',
+              '',
+            ) as DeployedSystemContracts
+
+            if (!this.deployedSystem[contractName]?.contract.address) {
+              throw new Error(`Contract ${contractName} not deployed`)
+            }
+
+            return (this.deployedSystem[contractName] as ContractProps).contract.address
           }
           return param
         })
@@ -486,6 +508,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async addOperationEntries() {
     if (!this.signer) throw new Error('No signer set')
+    if (!this.deployedSystem.OperationsRegistry) throw new Error('No OperationsRegistry deployed')
     const operationsRegistry = new OperationsRegistry(
       this.deployedSystem.OperationsRegistry.contract.address,
       this.signer,
@@ -516,51 +539,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await this.addOperationEntries()
   }
 
-  async setupLocalSystem(useInch?: boolean) {
-    if (!this.signer) throw new Error('No signer set')
-    if (!this.signerAddress) throw new Error('No signer address set')
-    if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
-    if (!this.config) throw new Error('No config set')
-    const addLocalEntries = this.config.mpa.core['ServiceRegistry'].deploy
-
-    const deploySwapContract = addLocalEntries
-      ? await this.deployContract(
-          this.ethers.getContractFactory(useInch ? 'Swap' : 'uSwap', this.signer),
-          [
-            this.signerAddress,
-            this.config.common.FeeRecipient.address,
-            0,
-            this.deployedSystem['ServiceRegistry'].contract.address,
-          ],
-        )
-      : await this.ethers.getContractAt(
-          this.config.mpa.core['Swap'].name,
-          this.config.mpa.core['Swap'].address,
-        )
-
-    !useInch &&
-      addLocalEntries &&
-      (await deploySwapContract.setPool(
-        this.config.common.STETH.address,
-        this.config.common.WETH.address,
-        10000,
-      ))
-
-    addLocalEntries && (await deploySwapContract.addFeeTier(20))
-
-    this.deployedSystem['Swap'] = { contract: deploySwapContract, config: {}, hash: '' }
-
-    addLocalEntries &&
-      (await this.serviceRegistryHelper.addEntry('Swap', deploySwapContract.address))
-
-    this.deployedSystem.AccountGuard.contract.setWhitelist(
-      this.deployedSystem.OperationExecutor.contract.address,
-      true,
-    )
-
-    await this.addAllEntries()
-  }
-
   // TODO unify resetNode and resetNodeToLatestBlock into one function
   async resetNode(blockNumber: number) {
     if (!this.provider) throw new Error('No provider set')
@@ -586,11 +564,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     ])
   }
 
-  getSystem() {
+  getSystem(): System {
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     if (!this.config) throw new Error('No config set')
     return {
-      system: this.deployedSystem,
+      system: this.deployedSystem as DeployedSystem,
       registry: this.serviceRegistryHelper,
       config: this.config,
     }

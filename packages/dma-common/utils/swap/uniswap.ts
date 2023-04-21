@@ -24,7 +24,7 @@ export async function swapUniswapTokens(
 ) {
   const value =
     tokenIn === ADDRESSES[Network.MAINNET].common.WETH ||
-    tokenIn === ADDRESSES[Network.OPT_MAINNET].common.WETH
+    tokenIn === ADDRESSES[Network.OPTIMISM].common.WETH
       ? amountIn
       : 0
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers

@@ -1,37 +1,41 @@
 import assert from 'node:assert'
 
-import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { SystemWithAavePositions, systemWithAavePositions } from '@dma-contracts/test/fixtures'
-import { systemWithAaveV3Positions } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
+import {
+  getSupportedAaveV3Strategies,
+  systemWithAaveV3Positions,
+} from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { ADDRESSES } from '@oasisdex/addresses'
-import { CONTRACT_NAMES, ZERO } from '@oasisdex/dma-common/constants'
-import { expect } from '@oasisdex/dma-common/test-utils'
+import { ZERO } from '@oasisdex/dma-common/constants'
+import { expect, isMainnetByNetwork, isOptimismByNetwork } from '@oasisdex/dma-common/test-utils'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
-import { getOneInchCall } from '@oasisdex/dma-common/utils/swap'
+import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
+import {
+  getOneInchCall,
+  optimismLiquidityProviders,
+  resolveOneInchVersion,
+} from '@oasisdex/dma-common/utils/swap'
 import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ChainIdByNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { strategies } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
+import { loadFixture } from 'ethereum-waffle'
 
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_DEBT_BEING_PAID_BACK = 'Expect debt being paid back'
 const EXPECT_FEE_BEING_COLLECTED = 'Expect fee being collected'
 
-// TODO: update test
-describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
+describe('Close AAVEv2 Position to collateral | E2E', () => {
   const slippage = new BigNumber(0.01) // 1%
   let fixture: SystemWithAavePositions
+  let feeRecipient: string
 
-  before(async () => {
+  before(async function () {
+    // No AAVE V2 on Optimism
+    if (isOptimismByNetwork(networkFork)) this.skip()
     fixture = await loadFixture(systemWithAavePositions({ use1inch: true }))
-    // Since we deploy the system without using 1inch the local system assigned swap contract is uniswap.
-    // In our tests we would like to use the actual swap with 1inch.
-    await fixture.registry.removeEntry(CONTRACT_NAMES.common.SWAP)
-    await fixture.registry.addEntry(
-      CONTRACT_NAMES.common.SWAP,
-      fixture.system.Swap.contract.address,
-    )
+    feeRecipient = fixture.dsSystem.config.common.FeeRecipient.address
+    if (!feeRecipient) throw new Error('Fee recipient is not set')
   })
 
   it('DPMProxy | Collateral - ETH ( 18 precision ) | Debt - USDC ( 6 precision )', async () => {
@@ -62,6 +66,7 @@ describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
         slippage,
         collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
+        positionType: position?.__positionType,
       },
       {
         addresses,
@@ -75,7 +80,7 @@ describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
     )
 
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES[Network.MAINNET].common.FeeRecipient,
+      feeRecipient,
       addresses[debtToken.symbol],
       debtToken.precision,
     )
@@ -98,7 +103,7 @@ describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
     expect.toBeEqual(debtBalance, ZERO, undefined, EXPECT_DEBT_BEING_PAID_BACK)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES[Network.MAINNET].common.FeeRecipient,
+      feeRecipient,
       addresses[debtToken.symbol],
       debtToken.precision,
     )
@@ -135,6 +140,7 @@ describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
         slippage,
         collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
+        positionType: position?.__positionType,
       },
       {
         addresses,
@@ -148,7 +154,7 @@ describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
     )
     const userCollateralBalanceBeforeTx = await getBalanceOf(user, collateralToken.address)
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES[Network.MAINNET].common.FeeRecipient,
+      feeRecipient,
       addresses[debtToken.symbol],
       debtToken.precision,
     )
@@ -184,7 +190,7 @@ describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
     expect.toBeEqual(debtBalance, ZERO)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES[Network.MAINNET].common.FeeRecipient,
+      feeRecipient,
       addresses[debtToken.symbol],
       debtToken.precision,
     )
@@ -217,6 +223,7 @@ describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
         slippage,
         collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
+        positionType: position?.__positionType,
       },
       {
         addresses,
@@ -231,7 +238,7 @@ describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
 
     const userCollateralBalanceBeforeTx = await getBalanceOf(user, collateralToken.address)
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES[Network.MAINNET].common.FeeRecipient,
+      feeRecipient,
       addresses['WETH'],
       debtToken.precision,
     )
@@ -251,7 +258,7 @@ describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
 
     const userCollateralBalanceAfterTx = await getBalanceOf(user, collateralToken.address)
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES[Network.MAINNET].common.FeeRecipient,
+      feeRecipient,
       addresses['WETH'],
       debtToken.precision,
     )
@@ -290,23 +297,33 @@ describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
 describe('Close AAVEv3 Position to collateral', () => {
   const slippage = new BigNumber(0.01) // 1%
   let fixture: SystemWithAAVEV3Positions
+  let feeRecipient: string
 
-  before(async () => {
+  const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
+
+  before(async function () {
     fixture = await loadFixture(
       systemWithAaveV3Positions({
         use1inch: true,
         network: networkFork,
-        systemConfigPath: `${networkFork}.conf.ts`,
+        systemConfigPath: `./test/${networkFork}.conf.ts`,
+        configExtensionPaths: [`./test/swap.conf.ts`],
       }),
     )
-    // Since we deploy the system without using 1inch, there fore the swap that's
-    // assigned is uniswap. In our tests we would like to use the actual swap with 1inch.
-    await fixture.registry.removeEntry(CONTRACT_NAMES.common.SWAP)
-    await fixture.registry.addEntry(CONTRACT_NAMES.common.SWAP, fixture.system.common.swap.address)
+    feeRecipient = fixture.dsSystem.config.common.FeeRecipient.address
+    if (!feeRecipient) throw new Error('Fee recipient is not set')
   })
 
-  it('DPMProxy | Collateral - ETH ( 18 precision ) | Debt - USDC ( 6 precision )', async () => {
-    const position = fixture.dpmPositions['ETH/USDC Multiply']
+  it('DPMProxy | Collateral - ETH ( 18 precision ) | Debt - USDC ( 6 precision )', async function () {
+    const strategyName = 'ETH/USDC Multiply'
+    const position = fixture.dpmPositions[strategyName]
+    if (!supportedStrategies.find(s => s.name === strategyName)) {
+      /*
+       * If the strategy is not supported based on network then just skip
+       * Rather than fail
+       */
+      this.skip()
+    }
     assert(position, 'Unsupported position')
 
     const { provider, signer } = fixture.config
@@ -333,12 +350,21 @@ describe('Close AAVEv3 Position to collateral', () => {
         slippage,
         collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
+        positionType: position?.__positionType,
       },
       {
         addresses,
         provider,
         currentPosition,
-        getSwapData: getOneInchCall(fixture.system.Swap.contract.address),
+        getSwapData: getOneInchCall(
+          fixture.system.Swap.contract.address,
+          // We remove Balancer to avoid re-entrancy errors when also using Balancer FL
+          isOptimismByNetwork(networkFork)
+            ? optimismLiquidityProviders.filter(l => l !== 'OPTIMISM_BALANCER_V2')
+            : [],
+          ChainIdByNetwork[networkFork],
+          resolveOneInchVersion(networkFork),
+        ),
         proxy,
         user: fixture.config.address,
         isDPMProxy: true,
@@ -346,7 +372,7 @@ describe('Close AAVEv3 Position to collateral', () => {
     )
 
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES[Network.MAINNET].common.FeeRecipient,
+      feeRecipient,
       addresses['USDC'],
       debtToken.precision,
     )
@@ -364,12 +390,17 @@ describe('Close AAVEv3 Position to collateral', () => {
       '',
     )
 
-    const USDC_VARIABLE_DEBT = '0x619beb58998eD2278e08620f97007e1116D5D25b'
+    const USDC_VARIABLE_DEBT_OPTIMISM = '0xFCCf3cAbbe80101232d343252614b6A3eE81C989'
+    const USDC_VARIABLE_DEBT_MAINNET = '0x619beb58998eD2278e08620f97007e1116D5D25b'
+    const USDC_VARIABLE_DEBT = isMainnetByNetwork(networkFork)
+      ? USDC_VARIABLE_DEBT_MAINNET
+      : USDC_VARIABLE_DEBT_OPTIMISM
+
     const debtBalance = await getBalanceOf(proxy, USDC_VARIABLE_DEBT, 6)
     expect.toBeEqual(debtBalance, ZERO, undefined, EXPECT_DEBT_BEING_PAID_BACK)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES[Network.MAINNET].common.FeeRecipient,
+      feeRecipient,
       addresses['USDC'],
       debtToken.precision,
     )
@@ -378,8 +409,16 @@ describe('Close AAVEv3 Position to collateral', () => {
       .to.be.true
   })
 
-  it('DPM | Collateral - WSTETH ( 18 precision ) | Debt - ETH ( 18 precision )', async () => {
-    const position = fixture.dpmPositions['WSTETH/ETH Earn']
+  it('DPM | Collateral - WSTETH ( 18 precision ) | Debt - ETH ( 18 precision )', async function () {
+    const strategyName = 'WSTETH/ETH Earn'
+    const position = fixture.dpmPositions[strategyName]
+    if (!supportedStrategies.find(s => s.name === strategyName)) {
+      /*
+       * If the strategy is not supported based on network then just skip
+       * Rather than fail
+       */
+      this.skip()
+    }
     assert(position, 'Unsupported position')
 
     const { address: user, provider, signer } = fixture.config
@@ -403,12 +442,21 @@ describe('Close AAVEv3 Position to collateral', () => {
         slippage,
         collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
+        positionType: position?.__positionType,
       },
       {
         addresses,
         provider,
         currentPosition,
-        getSwapData: getOneInchCall(fixture.system.Swap.contract.address),
+        getSwapData: getOneInchCall(
+          fixture.system.Swap.contract.address,
+          // We remove Balancer to avoid re-entrancy errors when also using Balancer FL
+          isOptimismByNetwork(networkFork)
+            ? optimismLiquidityProviders.filter(l => l !== 'OPTIMISM_BALANCER_V2')
+            : [],
+          ChainIdByNetwork[networkFork],
+          resolveOneInchVersion(networkFork),
+        ),
         proxy,
         user: fixture.config.address,
         isDPMProxy: true,
@@ -417,7 +465,7 @@ describe('Close AAVEv3 Position to collateral', () => {
 
     const userCollateralBalanceBeforeTx = await getBalanceOf(user, collateralToken.address)
     const feeRecipientBalanceBeforeTx = await getBalanceOf(
-      ADDRESSES[Network.MAINNET].common.FeeRecipient,
+      feeRecipient,
       addresses['WETH'],
       debtToken.precision,
     )
@@ -437,7 +485,7 @@ describe('Close AAVEv3 Position to collateral', () => {
     const userCollateralBalanceAfterTx = await getBalanceOf(user, collateralToken.address)
 
     const feeRecipientBalanceAfterTx = await getBalanceOf(
-      ADDRESSES[Network.MAINNET].common.FeeRecipient,
+      feeRecipient,
       addresses['WETH'],
       debtToken.precision,
     )

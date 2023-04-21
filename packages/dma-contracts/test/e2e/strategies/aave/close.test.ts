@@ -1,5 +1,5 @@
 import { executeThroughProxy } from '@dma-common/utils/execute'
-import { mainnetAddresses } from '@dma-contracts/test/addresses'
+import { EMPTY_ADDRESS } from '@dma-contracts/test/constants'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,
@@ -18,30 +18,34 @@ import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/proto
 import aaveOracleABI from '@oasisdex/abis/external/protocols/aave/v3/aaveOracle.json'
 import AAVEProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
 import AAVEPoolABI from '@oasisdex/abis/external/protocols/aave/v3/pool.json'
-import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
-import { DeployedSystemInfo, expect } from '@oasisdex/dma-common/test-utils'
+import {
+  addressesByNetwork,
+  expect,
+  isMainnetByNetwork,
+  isOptimismByNetwork,
+} from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig, Unbox } from '@oasisdex/dma-common/types/common'
 import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
+import { DeployedSystem, System } from '@oasisdex/dma-deployments/types/deployed-system'
 import { Network } from '@oasisdex/dma-deployments/types/network'
-import { AAVETokens, strategies } from '@oasisdex/dma-library'
+import { AAVETokens, AAVEV3StrategyAddresses, strategies } from '@oasisdex/dma-library'
 import { acceptedFeeToken } from '@oasisdex/dma-library/src/utils/swap/accepted-fee-token'
+import { PositionType } from '@oasisdex/dma-library/types'
 import { IPosition } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers } from 'ethers'
 
-const ciOnlyTests = process.env.RUN_ONLY_CI_TESTS === '1'
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
-// TODO: UPDATE TEST
-describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
+describe(`Strategy | AAVE | Close Position | E2E`, async () => {
   describe('Using AAVE V2', async function () {
     let fixture: SystemWithAavePositions
 
-    const supportedStrategies = getSupportedStrategies(ciOnlyTests)
+    const supportedStrategies = getSupportedStrategies()
 
     async function closePositionV2({
       isDPMProxy,
@@ -54,6 +58,7 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
       slippage,
       config,
       system,
+      positionType,
     }: {
       isDPMProxy: boolean
       position: IPosition
@@ -64,22 +69,21 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
       getSwapData: any
       slippage: BigNumber
       config: RuntimeConfig
-      system: any
+      system: DeployedSystem
+      positionType: PositionType
     }) {
       const addresses = {
-        ...mainnetAddresses,
-        priceOracle: mainnetAddresses.aave.v2.priceOracle,
-        lendingPool: mainnetAddresses.aave.v2.lendingPool,
-        protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
+        ...addressesByNetwork(Network.MAINNET),
         operationExecutor: system.OperationExecutor.contract.address,
       }
+
       const tokenAddresses: Record<AAVETokens, string> = {
-        WETH: mainnetAddresses.WETH,
-        ETH: mainnetAddresses.WETH,
-        STETH: mainnetAddresses.STETH,
-        WSTETH: mainnetAddresses.WSTETH,
-        USDC: mainnetAddresses.USDC,
-        WBTC: mainnetAddresses.WBTC,
+        WETH: addresses.WETH,
+        ETH: addresses.WETH,
+        STETH: addresses.STETH,
+        WSTETH: addresses.WSTETH,
+        USDC: addresses.USDC,
+        WBTC: addresses.WBTC,
       }
 
       const collateralTokenAddress = tokenAddresses[collateralToken.symbol]
@@ -93,30 +97,22 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
 
       const feeWalletBalanceBeforeClosing = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES[Network.MAINNET].common.FeeRecipient,
+        addresses.feeRecipient,
         { config },
       )
 
       const provider = config.provider
       const signer = config.signer
 
-      const lendingPool = new Contract(
-        ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
-        AAVELendingPoolABI,
-        provider,
-      )
+      const lendingPool = new Contract(addresses.lendingPool, AAVELendingPoolABI, provider)
 
       const protocolDataProvider = new Contract(
-        ADDRESSES[Network.MAINNET].aave.v2.ProtocolDataProvider,
+        addresses.protocolDataProvider,
         AAVEDataProviderABI,
         provider,
       )
 
-      const priceOracle = new ethers.Contract(
-        ADDRESSES[Network.MAINNET].aave.v2.PriceOracle,
-        aavePriceOracleABI,
-        provider,
-      )
+      const priceOracle = new ethers.Contract(addresses.priceOracle, aavePriceOracleABI, provider)
 
       const closePosition = await strategies.aave.v2.close(
         {
@@ -127,6 +123,7 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
             symbol: collateralToken.symbol,
             precision: collateralToken.precision,
           },
+          positionType,
         },
         {
           isDPMProxy,
@@ -168,7 +165,7 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
 
       const feeWalletBalanceAfterClosing = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES[Network.MAINNET].common.FeeRecipient,
+        addresses.feeRecipient,
         { config },
       )
 
@@ -204,14 +201,22 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
     }
 
     describe('Close position: With Uniswap', () => {
-      before(async () => {
-        fixture = await loadFixture(systemWithAavePositions({ use1inch: false }))
+      before(async function () {
+        if (isOptimismByNetwork(networkFork)) {
+          this.skip()
+        }
+        fixture = await loadFixture(
+          systemWithAavePositions({
+            use1inch: false,
+            configExtensionPaths: [`./test/uSwap.conf.ts`],
+          }),
+        )
       })
 
       describe('Using DSProxy', () => {
         let position: IPosition
         let proxy: string
-        let system: any
+        let system: DeployedSystem
         let debtToken: TokenDetails
         let collateralToken: TokenDetails
         let config: RuntimeConfig
@@ -248,7 +253,8 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
             }),
             userAddress: config.address,
             config,
-            system,
+            system: system,
+            positionType: dsProxyStEthEthEarnPositionDetails.__positionType,
           })
         })
 
@@ -304,7 +310,7 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
           .filter(s => s.name !== 'STETH/USDC Multiply')
           .forEach(({ name: strategy }) => {
             let position: IPosition
-            let system: DeployedSystemInfo
+            let system: DeployedSystem
             let proxy: string
             let debtToken: TokenDetails
             let collateralToken: TokenDetails
@@ -345,6 +351,7 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
                 userAddress: config.address,
                 config,
                 system,
+                positionType: positionDetails.__positionType,
               })
             })
 
@@ -401,7 +408,76 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
   describe('Using AAVE V3', async function () {
     let fixture: SystemWithAAVEV3Positions
 
-    const supportedStrategies = getSupportedAaveV3Strategies(ciOnlyTests)
+    const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
+
+    type ClosePositionV3Args = {
+      isDPMProxy: boolean
+      position: IPosition
+      collateralToken: TokenDetails
+      debtToken: TokenDetails
+      proxy: string
+      userAddress: string
+      getSwapData: any
+      slippage: BigNumber
+      config: RuntimeConfig
+      dsSystem: System
+      positionType: PositionType
+    }
+
+    async function closePositionV3OnMainnet(
+      args: ClosePositionV3Args & { network: Network.MAINNET },
+    ) {
+      const addresses = {
+        ...addressesByNetwork(args.network),
+        operationExecutor: args.dsSystem.system.OperationExecutor.contract.address,
+      }
+
+      // So, we need addresses to be narrowed and passed to an inner function that does logic
+      const tokenAddresses: Record<AAVETokens, string> = {
+        WETH: addresses.WETH,
+        ETH: addresses.WETH,
+        STETH: addresses.STETH,
+        WSTETH: addresses.WSTETH,
+        USDC: addresses.USDC,
+        WBTC: addresses.WBTC,
+      }
+      const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
+      const debtTokenAddress = tokenAddresses[args.debtToken.symbol]
+      return closePositionV3({
+        ...args,
+        addresses,
+        collateralTokenAddress,
+        debtTokenAddress,
+      })
+    }
+
+    async function closePositionV3OnOptimism(
+      args: ClosePositionV3Args & { network: Network.OPTIMISM },
+    ) {
+      const addresses = {
+        ...addressesByNetwork(args.network),
+        operationExecutor: args.dsSystem.system.OperationExecutor.contract.address,
+      }
+
+      // So, we need addresses to be narrowed and passed to an inner function that does logic
+      const tokenAddresses: Record<AAVETokens, string> = {
+        WETH: addresses.WETH,
+        ETH: addresses.WETH,
+        WSTETH: addresses.WSTETH,
+        USDC: addresses.USDC,
+        WBTC: addresses.WBTC,
+        STETH: EMPTY_ADDRESS,
+      }
+      const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
+      const debtTokenAddress = tokenAddresses[args.debtToken.symbol]
+
+      return closePositionV3({
+        ...args,
+        addresses,
+        collateralTokenAddress,
+        debtTokenAddress,
+      })
+    }
 
     async function closePositionV3({
       isDPMProxy,
@@ -413,66 +489,42 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
       getSwapData,
       slippage,
       config,
-      system,
-    }: {
-      isDPMProxy: boolean
-      position: IPosition
-      collateralToken: TokenDetails
-      debtToken: TokenDetails
-      proxy: string
-      userAddress: string
-      getSwapData: any
-      slippage: BigNumber
-      config: RuntimeConfig
-      system: any
+      dsSystem,
+      addresses,
+      collateralTokenAddress,
+      debtTokenAddress,
+      positionType,
+    }: ClosePositionV3Args & {
+      addresses: AAVEV3StrategyAddresses
+      collateralTokenAddress: string
+      debtTokenAddress: string
     }) {
-      const addresses = {
-        ...mainnetAddresses,
-        aaveOracle: mainnetAddresses.aave.v3.aaveOracle,
-        pool: mainnetAddresses.aave.v3.pool,
-        poolDataProvider: mainnetAddresses.aave.v3.poolDataProvider,
-        operationExecutor: system.OperationExecutor.contract.address,
-      }
-      const tokenAddresses: Record<AAVETokens, string> = {
-        WETH: mainnetAddresses.WETH,
-        ETH: mainnetAddresses.WETH,
-        STETH: mainnetAddresses.STETH,
-        WSTETH: mainnetAddresses.WSTETH,
-        USDC: mainnetAddresses.USDC,
-        WBTC: mainnetAddresses.WBTC,
-      }
-
-      const collateralTokenAddress = tokenAddresses[collateralToken.symbol]
-      const debtTokenAddress = tokenAddresses[debtToken.symbol]
-
       const isFeeFromDebtToken =
         acceptedFeeToken({
           fromToken: collateralToken.symbol,
           toToken: debtToken.symbol,
         }) === 'targetToken'
 
+      const feeRecipient = dsSystem.config.common.FeeRecipient.address
+      if (!feeRecipient) throw new Error('Fee recipient is not set')
       const feeWalletBalanceBeforeClosing = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES[Network.MAINNET].common.FeeRecipient,
+        feeRecipient,
         { config },
       )
 
       const provider = config.provider
       const signer = config.signer
 
-      const pool = new Contract(ADDRESSES[Network.MAINNET].aave.v3.Pool, AAVEPoolABI, provider)
+      const pool = new Contract(addresses.pool, AAVEPoolABI, provider)
 
       const protocolDataProvider = new Contract(
-        ADDRESSES[Network.MAINNET].aave.v3.PoolDataProvider,
+        addresses.poolDataProvider,
         AAVEProtocolDataProviderABI,
         provider,
       )
 
-      const priceOracle = new ethers.Contract(
-        ADDRESSES[Network.MAINNET].aave.v3.AaveOracle,
-        aaveOracleABI,
-        provider,
-      )
+      const priceOracle = new ethers.Contract(addresses.aaveOracle, aaveOracleABI, provider)
 
       const closePosition = await strategies.aave.v3.close(
         {
@@ -483,6 +535,7 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
             symbol: collateralToken.symbol,
             precision: collateralToken.precision,
           },
+          positionType,
         },
         {
           isDPMProxy,
@@ -498,15 +551,17 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
       const [closeTxStatus, closeTx] = await executeThroughProxy(
         proxy,
         {
-          address: system.OperationExecutor.contract.address,
-          calldata: system.OperationExecutor.contract.interface.encodeFunctionData('executeOp', [
-            closePosition.transaction.calls,
-            closePosition.transaction.operationName,
-          ]),
+          address: dsSystem.system.OperationExecutor.contract.address,
+          calldata: dsSystem.system.OperationExecutor.contract.interface.encodeFunctionData(
+            'executeOp',
+            [closePosition.transaction.calls, closePosition.transaction.operationName],
+          ),
         },
         signer,
         '0',
       )
+
+      if (!closeTxStatus) throw new Error('Close position failed')
 
       // Get data from AAVE V3
       const protocolDataPromises = [
@@ -524,7 +579,7 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
 
       const feeWalletBalanceAfterClosing = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES[Network.MAINNET].common.FeeRecipient,
+        feeRecipient,
         { config },
       )
 
@@ -560,12 +615,14 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
     }
 
     describe('Close position: With Uniswap', () => {
-      before(async () => {
+      before(async function () {
+        if (isOptimismByNetwork(networkFork)) this.skip()
         fixture = await loadFixture(
           systemWithAaveV3Positions({
             use1inch: false,
             network: networkFork,
             systemConfigPath: `./test/${networkFork}.conf.ts`,
+            configExtensionPaths: [`./test/uSwap.conf.ts`],
           }),
         )
       })
@@ -573,7 +630,7 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
       describe('Using DSProxy', () => {
         let position: IPosition
         let proxy: string
-        let system: any
+        let dsSystem: System
         let debtToken: TokenDetails
         let collateralToken: TokenDetails
         let config: RuntimeConfig
@@ -582,22 +639,24 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
         before(async () => {
           const {
             config: _config,
-            system: _system,
+            dsSystem: _dsSystem,
             dsProxyPosition: dsProxyStEthEthEarnPositionDetails,
           } = fixture
+
           const {
             debtToken: _debtToken,
             collateralToken: _collateralToken,
             proxy: _proxy,
           } = dsProxyStEthEthEarnPositionDetails
-          system = _system
+          dsSystem = _dsSystem
           config = _config
           proxy = _proxy
           debtToken = _debtToken
           collateralToken = _collateralToken
           position = await dsProxyStEthEthEarnPositionDetails.getPosition()
 
-          act = await closePositionV3({
+          // Uniswap V3 Close tests only available on Mainnet for now
+          act = await closePositionV3OnMainnet({
             isDPMProxy: false,
             position,
             collateralToken,
@@ -610,7 +669,9 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
             }),
             userAddress: config.address,
             config,
-            system,
+            dsSystem,
+            network: Network.MAINNET,
+            positionType: dsProxyStEthEthEarnPositionDetails.__positionType,
           })
         })
 
@@ -666,7 +727,7 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
           .filter(s => s.name !== 'WSTETH/ETH Earn')
           .forEach(({ name: strategy }) => {
             let position: IPosition
-            let system: DeployedSystemInfo
+            let dsSystem: System
             let proxy: string
             let debtToken: TokenDetails
             let collateralToken: TokenDetails
@@ -674,7 +735,7 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
             let act: Unbox<ReturnType<typeof closePositionV3>>
 
             before(async function () {
-              const { dpmPositions, config: _config, system: _system } = fixture
+              const { dpmPositions, config: _config, dsSystem: _dsSystem } = fixture
               const positionDetails = dpmPositions[strategy]
               if (!positionDetails) {
                 console.log(`No position for ${strategy} strategy`)
@@ -685,14 +746,15 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
                 collateralToken: _collateralToken,
                 proxy: _proxy,
               } = positionDetails
-              system = _system
+              dsSystem = _dsSystem
               proxy = _proxy
               debtToken = _debtToken
               collateralToken = _collateralToken
               position = await positionDetails.getPosition()
               config = _config
 
-              act = await closePositionV3({
+              // Uniswap V3 Close tests only available on Mainnet for now
+              act = await closePositionV3OnMainnet({
                 position,
                 isDPMProxy: true,
                 collateralToken,
@@ -706,7 +768,9 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
                 }),
                 userAddress: config.address,
                 config,
-                system,
+                dsSystem,
+                network: Network.MAINNET,
+                positionType: positionDetails.__positionType,
               })
             })
 
@@ -757,6 +821,254 @@ describe.skip(`Strategy | AAVE | Close Position | E2E`, async () => {
               expect.toBeEqual(proxyCollateralBalance, ZERO)
             })
           })
+      })
+    })
+    describe('Close position: With 1inch', () => {
+      before(async () => {
+        fixture = await loadFixture(
+          systemWithAaveV3Positions({
+            use1inch: true,
+            network: networkFork,
+            systemConfigPath: `./test/${networkFork}.conf.ts`,
+            configExtensionPaths: [`./test/swap.conf.ts`],
+          }),
+        )
+      })
+
+      describe('Using DSProxy', () => {
+        let position: IPosition
+        let proxy: string
+        let dsSystem: System
+        let debtToken: TokenDetails
+        let collateralToken: TokenDetails
+        let config: RuntimeConfig
+        let act: Unbox<ReturnType<typeof closePositionV3>>
+
+        before(async () => {
+          const {
+            config: _config,
+            dsSystem: _dsSystem,
+            dsProxyPosition: dsProxyStEthEthEarnPositionDetails,
+          } = fixture
+          const {
+            debtToken: _debtToken,
+            collateralToken: _collateralToken,
+            proxy: _proxy,
+          } = dsProxyStEthEthEarnPositionDetails
+          dsSystem = _dsSystem
+          config = _config
+          proxy = _proxy
+          debtToken = _debtToken
+          collateralToken = _collateralToken
+          position = await dsProxyStEthEthEarnPositionDetails.getPosition()
+
+          const isMainnet = isMainnetByNetwork(networkFork)
+          const isOptimism = isOptimismByNetwork(networkFork)
+          if (isMainnet) {
+            act = await closePositionV3OnMainnet({
+              isDPMProxy: false,
+              position,
+              collateralToken,
+              debtToken,
+              proxy,
+              slippage: UNISWAP_TEST_SLIPPAGE,
+              getSwapData: fixture.strategiesDependencies.getSwapData(
+                fixture.system.Swap.contract.address,
+              ),
+              userAddress: config.address,
+              config,
+              dsSystem,
+              network: Network.MAINNET,
+              positionType: dsProxyStEthEthEarnPositionDetails.__positionType,
+            })
+          }
+          if (isOptimism) {
+            act = await closePositionV3OnOptimism({
+              isDPMProxy: false,
+              position,
+              collateralToken,
+              debtToken,
+              proxy,
+              slippage: UNISWAP_TEST_SLIPPAGE,
+              getSwapData: fixture.strategiesDependencies.getSwapData(
+                fixture.system.Swap.contract.address,
+              ),
+              userAddress: config.address,
+              config,
+              dsSystem,
+              network: Network.OPTIMISM,
+              positionType: dsProxyStEthEthEarnPositionDetails.__positionType,
+            })
+          }
+
+          if (!isMainnet && !isOptimism) throw new Error('Unsupported network')
+        })
+
+        it(`Should have closed the position`, () => {
+          expect(act.closeTxStatus).to.be.true
+        })
+
+        it('Should payback all debt', () => {
+          expect.toBeEqual(
+            new BigNumber(act.protocolData.userAccountData.totalDebtBase.toString()),
+            ZERO,
+          )
+        })
+
+        it(`Should withdraw all collateral tokens from aave`, () => {
+          //due to quirks of how stEth works there might be 1 wei left in aave
+          expect.toBe(
+            new BigNumber(act.protocolData.collateral.currentATokenBalance.toString()),
+            'lte',
+            ONE,
+          )
+        })
+
+        it('Should collect fee', async () => {
+          const actualFeesDelta = act.feeWalletBalanceAfterClosing.minus(
+            act.feeWalletBalanceBeforeClosing,
+          )
+
+          expect.toBe(
+            act.simulation.swap.tokenFee,
+            'gte',
+            actualFeesDelta,
+            EXPECT_LARGER_SIMULATED_FEE,
+          )
+        })
+
+        it('should not be any token left on proxy', async () => {
+          const proxyDebtBalance = await balanceOf(act.debtTokenAddress, proxy, {
+            config,
+            isFormatted: true,
+          })
+          const proxyCollateralBalance = await balanceOf(act.collateralTokenAddress, proxy, {
+            config,
+            isFormatted: true,
+          })
+
+          expect.toBeEqual(proxyDebtBalance, ZERO)
+          expect.toBeEqual(proxyCollateralBalance, ZERO)
+        })
+      })
+      describe('Using DPM Proxy', async () => {
+        supportedStrategies.forEach(({ name: strategy }) => {
+          let position: IPosition
+          let dsSystem: System
+          let proxy: string
+          let debtToken: TokenDetails
+          let collateralToken: TokenDetails
+          let config: RuntimeConfig
+          let act: Unbox<ReturnType<typeof closePositionV3>>
+
+          before(async function () {
+            const { dpmPositions, config: _config, dsSystem: _dsSystem } = fixture
+            const positionDetails = dpmPositions[strategy]
+            if (!positionDetails) {
+              console.log(`No position for ${strategy} strategy`)
+              this.skip()
+            }
+            const {
+              debtToken: _debtToken,
+              collateralToken: _collateralToken,
+              proxy: _proxy,
+            } = positionDetails
+            dsSystem = _dsSystem
+            proxy = _proxy
+            debtToken = _debtToken
+            collateralToken = _collateralToken
+            position = await positionDetails.getPosition()
+            config = _config
+
+            const isMainnet = isMainnetByNetwork(networkFork)
+            const isOptimism = isOptimismByNetwork(networkFork)
+            if (isMainnet) {
+              act = await closePositionV3OnMainnet({
+                isDPMProxy: true,
+                position,
+                collateralToken,
+                debtToken,
+                proxy,
+                slippage: UNISWAP_TEST_SLIPPAGE,
+                getSwapData: fixture.strategiesDependencies.getSwapData(
+                  fixture.system.Swap.contract.address,
+                ),
+                userAddress: config.address,
+                config,
+                dsSystem,
+                network: Network.MAINNET,
+                positionType: positionDetails.__positionType,
+              })
+            }
+            if (isOptimism) {
+              act = await closePositionV3OnOptimism({
+                isDPMProxy: true,
+                position,
+                collateralToken,
+                debtToken,
+                proxy,
+                slippage: UNISWAP_TEST_SLIPPAGE,
+                getSwapData: fixture.strategiesDependencies.getSwapData(
+                  fixture.system.Swap.contract.address,
+                ),
+                userAddress: config.address,
+                config,
+                dsSystem,
+                network: Network.OPTIMISM,
+                positionType: positionDetails.__positionType,
+              })
+            }
+
+            if (!isMainnet && !isOptimism) throw new Error('Unsupported network')
+          })
+
+          it(`Should have closed the position: ${strategy}`, () => {
+            expect(act.closeTxStatus).to.be.true
+          })
+
+          it('Should payback all debt', () => {
+            expect.toBeEqual(
+              new BigNumber(act.protocolData.userAccountData.totalDebtBase.toString()),
+              ZERO,
+            )
+          })
+
+          it(`Should withdraw all collateral tokens from aave`, () => {
+            //due to quirks of how stEth works there might be 1 wei left in aave
+            expect.toBe(
+              new BigNumber(act.protocolData.collateral.currentATokenBalance.toString()),
+              'lte',
+              ONE,
+            )
+          })
+
+          it('Should collect fee', async () => {
+            const actualFeesDelta = act.feeWalletBalanceAfterClosing.minus(
+              act.feeWalletBalanceBeforeClosing,
+            )
+
+            expect.toBe(
+              act.simulation.swap.tokenFee,
+              'gte',
+              actualFeesDelta,
+              EXPECT_LARGER_SIMULATED_FEE,
+            )
+          })
+
+          it('should not be any token left on proxy', async () => {
+            const proxyDebtBalance = await balanceOf(act.debtTokenAddress, proxy, {
+              config,
+              isFormatted: true,
+            })
+            const proxyCollateralBalance = await balanceOf(act.collateralTokenAddress, proxy, {
+              config,
+              isFormatted: true,
+            })
+
+            expect.toBeEqual(proxyDebtBalance, ZERO)
+            expect.toBeEqual(proxyCollateralBalance, ZERO)
+          })
+        })
       })
     })
   })

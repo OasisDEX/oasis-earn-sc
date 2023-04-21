@@ -26,6 +26,7 @@ export async function executeThroughProxy(
     const result = await tx.wait()
     return [true, result]
   } catch (ex: any) {
+    console.error(`\x1b[91m[ ERROR ] ${ex} \x1b[0m`)
     let result: Partial<ContractReceipt> = ex
     if (ex?.name === 'ProviderError') {
       result = {
@@ -56,8 +57,7 @@ export async function executeThroughDPMProxy(
     const result = await tx.wait()
     return [true, result]
   } catch (ex: any) {
-    console.error(ex)
-    console.log(typeof ex)
+    console.error(`\x1b[91m[ ERROR ] ${ex} \x1b[0m`)
     let result: Partial<ContractReceipt> = ex
     if (ex?.name === 'ProviderError') {
       result = {

@@ -1,21 +1,27 @@
-import { executeThroughProxy } from '@dma-common/utils/execute'
-import init from '@dma-common/utils/init'
-import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import { AaveAccountData, AaveReserveData } from '@dma-contracts/test/utils/aave'
 import DSProxyABI from '@oasisdex/abis/external/libs/DS/ds-proxy.json'
-import AAVELendigPoolABI from '@oasisdex/abis/external/protocols/aave/v2/lendingPool.json'
+import AAVELendingPoolABI from '@oasisdex/abis/external/protocols/aave/v2/lendingPool.json'
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
+import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
 import { balanceOf } from '@oasisdex/dma-common/utils/common'
+import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
+import init from '@oasisdex/dma-common/utils/init'
 import { getDsProxyRegistry, getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants/contract-names'
+import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { strategies } from '@oasisdex/dma-library'
-import { Position } from '@oasisdex/domain/src'
+import { Position } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
+
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
+
+export function amountFromWei(amount: BigNumber.Value, precision = 18) {
+  return new BigNumber(amount || 0).div(new BigNumber(10).pow(precision))
+}
 
 task('closePosition', 'Close stETH position on AAVE')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
@@ -68,13 +74,10 @@ task('closePosition', 'Close stETH position on AAVE')
     const addresses = {
       ...mainnetAddresses,
       operationExecutor: operationExecutorAddress,
-      priceOracle: mainnetAddresses.aave.v2.priceOracle,
-      lendingPool: mainnetAddresses.aave.v2.lendingPool,
-      protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
     }
     const aaveLendingPool = new hre.ethers.Contract(
       ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
-      AAVELendigPoolABI,
+      AAVELendingPoolABI,
       config.provider,
     )
     const aaveDataProvider = new hre.ethers.Contract(
@@ -84,7 +87,11 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     const proxy = await getOrCreateProxy(
-      await getDsProxyRegistry(config.signer, ADDRESSES[Network.MAINNET].common.ProxyRegistry, hre),
+      await getDsProxyRegistry(
+        config.signer,
+        ADDRESSES[Network.MAINNET].mpa.core.DSProxyRegistry,
+        hre,
+      ),
       config.signer,
     )
 
@@ -150,6 +157,7 @@ task('closePosition', 'Close stETH position on AAVE')
         slippage,
         debtToken: { symbol: 'ETH' },
         collateralToken: { symbol: 'STETH' },
+        positionType: 'Earn',
       },
       {
         addresses: addresses,

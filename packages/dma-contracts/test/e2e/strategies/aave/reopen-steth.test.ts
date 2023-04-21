@@ -1,21 +1,26 @@
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { resetNodeToLatestBlock } from '@dma-common/utils/init'
-import { mainnetAddresses } from '@dma-contracts/test/addresses'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
-import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ONE, OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
-import { deploySystem, expect, restoreSnapshot } from '@oasisdex/dma-common/test-utils'
+import {
+  addressesByNetwork,
+  deploySystem,
+  expect,
+  restoreSnapshot,
+} from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei } from '@oasisdex/dma-common/utils/common'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
+import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AAVEStrategyAddresses, strategies } from '@oasisdex/dma-library'
 import { RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
-import { Signer } from 'ethers'
+import { Contract, Signer } from 'ethers'
 
+const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
   const depositAmountInWei = amountToWei(new BigNumber(1))
   const multiple = new RiskRatio(new BigNumber(2), RiskRatio.TYPE.MULITPLE)
@@ -53,9 +58,6 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
 
       addresses = {
         ...mainnetAddresses,
-        priceOracle: mainnetAddresses.aave.v2.priceOracle,
-        lendingPool: mainnetAddresses.aave.v2.lendingPool,
-        protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
         operationExecutor: system.common.operationExecutor.address,
       }
 
@@ -150,6 +152,7 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
           debtToken,
           collateralToken,
           slippage,
+          positionType: 'Earn',
         },
         {
           ...dependencies,
@@ -260,9 +263,6 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
 
       addresses = {
         ...mainnetAddresses,
-        priceOracle: mainnetAddresses.aave.v2.priceOracle,
-        lendingPool: mainnetAddresses.aave.v2.lendingPool,
-        protocolDataProvider: mainnetAddresses.aave.v2.protocolDataProvider,
         operationExecutor: system.common.operationExecutor.address,
       }
 
@@ -357,6 +357,7 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
           slippage,
           debtToken,
           collateralToken,
+          positionType: 'Earn',
         },
         {
           ...dependencies,
