@@ -1,4 +1,4 @@
-# Environment Variables
+# Environment variables
 
 Copy and populate an `.env` file according to the .env.template file.
 
@@ -32,10 +32,10 @@ Running a local node & deploying the system to a locally running node
 yarn dev
 ```
 
-2. (Not working) Deploying the system to your local node
+2. Deploying the system to your local node
 
 ```shell
-yarn deploy dev
+yarn deploy:dev
 ```
 
 # Running tests
@@ -66,11 +66,15 @@ yarn clean & yarn hardhat test <path-to-test>
 
 # Naming conventions
 
-TS files and all folders are named using kebab-case, Solidity files (interfaces, contracts etc) are
-named using Pascal case
+- TS files and all folders are named using kebab-case
+- -Solidity files (interfaces, contracts etc) are named using Pascal case
 
-# Performance optimizations
+# Hardhat Tasks
 
-For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the
-environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see
-[the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
+1. Create multiply positions on a network of your choosing
+
+```shell
+cd packages/dma-contracts && yarn hardhat createMultiplyPositions --serviceregistry <service-registry-address> --accountfactory <account-factory-address> --network <insert-network>
+```
+cd packages/dma-contracts && yarn hardhat createMultiplyPositions --serviceregistry 0xc0c5618f0F3Fa66b496F2940f373DC366d765BAe --accountfactory 0x97fd63D049089cd70D9D139ccf9338c81372DE68 --network local
+

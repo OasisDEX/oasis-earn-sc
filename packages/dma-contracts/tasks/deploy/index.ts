@@ -1,7 +1,7 @@
-import { getForkedNetwork as getUnderlyingNetwork, Network } from '@helpers/network'
+import { Network } from '@dma-deployments/types/network'
+import { DeploymentSystem } from '@oasisdex/dma-deployments/deployment/deploy'
+import { getForkedNetwork as getUnderlyingNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { task } from 'hardhat/config'
-
-import { DeploymentSystem } from '../../scripts/deployment20/deploy'
 
 task('deploy', 'Deploy the system to a local node.').setAction(
   async (taskArgs: { configExtensionPath: string }, hre) => {
@@ -14,14 +14,14 @@ task('deploy', 'Deploy the system to a local node.').setAction(
      * redeploy the service registry allowing for a full system deployment
      */
     const configByNetwork = {
-      [Network.MAINNET]: './test-configs/mainnet.conf.ts',
-      [Network.OPT_MAINNET]: './test-configs/opt-mainnet.conf.ts',
+      [Network.MAINNET]: './test/mainnet.conf.ts',
+      [Network.OPTIMISM]: './test/optimism.conf.ts',
     }
     if (network === Network.GOERLI) throw new Error('Goerli is not supported yet')
     const configPath = configByNetwork[network]
     await ds.loadConfig(configPath)
 
-    const swapConfigPath = './test-configs/swap.conf.ts'
+    const swapConfigPath = './test/swap.conf.ts'
     await ds.extendConfig(swapConfigPath)
 
     await ds.deployAll()
