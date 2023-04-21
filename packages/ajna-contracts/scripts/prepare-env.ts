@@ -119,6 +119,7 @@ export async function prepareEnv() {
       poolPricesInfo,
       poolReservesInfo,
       poolUtilizationInfo,
+      erc20PoolFactory,
       balances: {
         lender: {
           eth: await lender.getBalance(),
@@ -302,6 +303,7 @@ export async function prepareEnv() {
       WEEK,
       YEAR,
     },
+    erc20PoolFactory,
     getLenderInfo,
     timeTravel,
     getBucketInfo,

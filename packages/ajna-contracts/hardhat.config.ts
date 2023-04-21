@@ -25,10 +25,6 @@ const config: HardhatUserConfig = {
       timeout: 100000,
       chainId: 2137,
     },
-    goerli: {
-      url: process.env.MAINNET_URL,
-      gasPrice: 250000000000,
-    },
     hardhat: {
       chainId: 2137,
       mining: {
