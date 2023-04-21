@@ -18,7 +18,7 @@ export type AjnaErrorBorrowUndercollateralized = {
 export type AjnaErrorDustLimit = {
   name: 'debt-less-then-dust-limit'
   data: {
-    amount: string
+    minDebtAmount: string
   }
 }
 

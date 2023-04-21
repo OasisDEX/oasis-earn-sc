@@ -1,10 +1,10 @@
 import { Address } from '@dma-deployments/types/address'
+import { calculateMaxGenerate, simulatePool } from '@dma-library/protocols/ajna'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
-import { normalizeValue } from '@oasisdex/dma-common/utils/common'
+import { negativeToZero, normalizeValue } from '@oasisdex/dma-common/utils/common'
 import { IRiskRatio, RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 
-import { simulatePool } from '../../views/ajna'
 import { AjnaWarning } from '../common'
 import { AjnaPool } from './ajna-pool'
 
@@ -20,7 +20,7 @@ export interface IAjnaPosition {
   thresholdPrice: BigNumber
 
   collateralAvailable: BigNumber
-  debtAvailable: BigNumber
+  debtAvailable(collateralAmount: BigNumber): BigNumber
 
   riskRatio: IRiskRatio
   maxRiskRatio: IRiskRatio
@@ -72,15 +72,15 @@ export class AjnaPosition implements IAjnaPosition {
       this.debtAmount.div(this.pool.lowestUtilizedPrice),
     )
 
-    return normalizeValue(collateralAvailable)
+    return negativeToZero(normalizeValue(collateralAvailable))
   }
 
-  get debtAvailable() {
-    const debtAvailable = this.collateralAmount
-      .times(this.pool.lowestUtilizedPrice)
-      .minus(this.debtAmount)
-
-    return normalizeValue(debtAvailable)
+  debtAvailable(collateralAmount?: BigNumber) {
+    return calculateMaxGenerate(
+      this.pool,
+      this.debtAmount,
+      collateralAmount || this.collateralAmount,
+    )
   }
 
   get riskRatio() {
@@ -96,7 +96,7 @@ export class AjnaPosition implements IAjnaPosition {
   }
 
   deposit(collateralAmount: BigNumber) {
-    const newCollateralAmount = this.collateralAmount.plus(collateralAmount)
+    const newCollateralAmount = negativeToZero(this.collateralAmount.plus(collateralAmount))
     return new AjnaPosition(
       simulatePool(this.pool, ZERO, this.debtAmount, newCollateralAmount),
       this.owner,
@@ -108,7 +108,7 @@ export class AjnaPosition implements IAjnaPosition {
   }
 
   withdraw(collateralAmount: BigNumber) {
-    const newCollateralAmount = this.collateralAmount.minus(collateralAmount)
+    const newCollateralAmount = negativeToZero(this.collateralAmount.minus(collateralAmount))
     return new AjnaPosition(
       simulatePool(this.pool, ZERO, this.debtAmount, newCollateralAmount),
       this.owner,
@@ -120,7 +120,7 @@ export class AjnaPosition implements IAjnaPosition {
   }
 
   borrow(quoteAmount: BigNumber): AjnaPosition {
-    const newDebt = this.debtAmount.plus(quoteAmount)
+    const newDebt = negativeToZero(this.debtAmount.plus(quoteAmount))
     return new AjnaPosition(
       simulatePool(this.pool, quoteAmount, newDebt, this.collateralAmount),
       this.owner,
@@ -132,7 +132,7 @@ export class AjnaPosition implements IAjnaPosition {
   }
 
   payback(quoteAmount: BigNumber): AjnaPosition {
-    const newDebt = this.debtAmount.minus(quoteAmount)
+    const newDebt = negativeToZero(this.debtAmount.minus(quoteAmount))
     return new AjnaPosition(
       simulatePool(this.pool, quoteAmount.negated(), newDebt, this.collateralAmount),
       this.owner,

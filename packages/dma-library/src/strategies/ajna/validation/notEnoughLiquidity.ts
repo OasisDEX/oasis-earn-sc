@@ -1,8 +1,8 @@
+import { negativeToZero } from '@dma-common/utils/common'
 import { AjnaPosition } from '@dma-library/types/ajna'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import { AjnaError } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
-
 
 export function getPoolLiquidity(pool: AjnaPool): BigNumber {
   const liquidityAboveHtp = pool.buckets
@@ -22,7 +22,7 @@ export function validateLiquidity(
       {
         name: 'not-enough-liquidity',
         data: {
-          amount: availableLiquidity.decimalPlaces(2).toString(),
+          amount: negativeToZero(availableLiquidity).decimalPlaces(2).toString(),
         },
       },
     ]
