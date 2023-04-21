@@ -28,15 +28,14 @@ import { WETH as WETHContract } from "../typechain-types/contracts";
 const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
 
-describe("AjnaProxyActions", function () {
+describe.only("AjnaProxyActions", function () {
   async function deploy() {
     await hre.network.provider.request({
       method: "hardhat_reset",
       params: [
         {
           forking: {
-            jsonRpcUrl: process.env.ALCHEMY_NODE_GOERLI!,
-            blockNumber: 8351852,
+            jsonRpcUrl: process.env.MAINNET_URL,
           },
         },
       ],

@@ -27,17 +27,17 @@ async function sendLotsOfMoney(target: string) {
 
 describe.skip("Pool test", function () {
   async function deploy() {
-    await hre.network.provider.request({
-      method: "hardhat_reset",
-      params: [
-        {
-          forking: {
-            jsonRpcUrl: process.env.ALCHEMY_NODE_GOERLI!,
-            blockNumber: 8145848,
-          },
-        },
-      ],
-    });
+    // await hre.network.provider.request({
+    //   method: "hardhat_reset",
+    //   params: [
+    //     {
+    //       forking: {
+    //         jsonRpcUrl: process.env.ALCHEMY_NODE_GOERLI!,
+    //         blockNumber: 8145848,
+    //       },
+    //     },
+    //   ],
+    // });
     const [owner, otherAccount] = await hre.ethers.getSigners();
     const ownerAddress = await owner.getAddress();
     console.log("owner address", ownerAddress);
