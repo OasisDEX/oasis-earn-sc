@@ -1,6 +1,5 @@
+import { Address } from '@dma-common/types/address'
 import BigNumber from 'bignumber.js'
-
-import { Address } from '../common'
 
 export interface Bucket {
   price: BigNumber

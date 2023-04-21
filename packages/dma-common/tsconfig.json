@@ -32,5 +32,5 @@
     "./test-utils/**/*",
     "./types",
     "./hardhat.config.ts"
-  ],
+, "../dma-library/src/utils/ajna"  ],
 }

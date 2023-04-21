@@ -1,10 +1,11 @@
+import { Address } from '@dma-deployments/types/address'
+import { ONE, ZERO } from '@oasisdex/dma-common/constants'
+import { normalizeValue } from '@oasisdex/dma-common/utils/common'
+import { IRiskRatio, RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 
-import { IRiskRatio, RiskRatio } from '../../domain'
-import { ONE, ZERO } from '../../helpers/constants'
-import { normalizeValue } from '../../helpers/normalizeValue'
 import { simulatePool } from '../../views/ajna'
-import { Address, AjnaWarning } from '../common'
+import { AjnaWarning } from '../common'
 import { AjnaPool } from './ajna-pool'
 
 export interface IAjnaPosition {

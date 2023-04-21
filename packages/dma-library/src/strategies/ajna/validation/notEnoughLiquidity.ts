@@ -1,8 +1,8 @@
+import { AjnaPosition } from '@dma-library/types/ajna'
+import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
+import { AjnaError } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
 
-import { AjnaPosition } from '../../../types/ajna'
-import { AjnaPool } from '../../../types/ajna/ajna-pool'
-import { AjnaError } from '../../../types/common'
 
 export function getPoolLiquidity(pool: AjnaPool): BigNumber {
   const liquidityAboveHtp = pool.buckets

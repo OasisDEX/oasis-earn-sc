@@ -1,10 +1,11 @@
+import { Address } from '@dma-deployments/types/address'
+import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import ajnaProxyActionsAbi from '@oasisdex/abis/external/protocols/ajna/ajnaProxyActions.json'
 import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
-import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
-import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
-import { Address, Strategy } from '../../types/common'
+import { Strategy } from '../../types/common'
 import { Dependencies } from './open'
 import {
   validateDustLimit,
@@ -12,6 +13,7 @@ import {
   validateOverWithdraw,
   validateWithdrawUndercollateralized,
 } from './validation'
+import { validateWithdrawCloseToMaxLtv } from './validation/closeToMaxLtv'
 
 interface PaybackWithdrawArgs {
   poolAddress: Address
@@ -53,11 +55,13 @@ export async function paybackWithdraw(
     // ...validateOverRepay(args.position, args.quoteAmount),
   ]
 
+  const warnings = [...validateWithdrawCloseToMaxLtv(targetPosition, args.position)]
+
   return prepareAjnaPayload({
     dependencies,
     targetPosition,
     errors,
-    warnings: [],
+    warnings,
     data,
     txValue: resolveAjnaEthAction(isPayingBackEth, args.quoteAmount),
   })

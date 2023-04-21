@@ -1,11 +1,12 @@
+import { Address } from '@dma-deployments/types/address'
+import { getAjnaEarnActionOutput, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import ajnaProxyActionsAbi from '@oasisdex/abis/external/protocols/ajna/ajnaProxyActions.json'
+import poolInfoAbi from '@oasisdex/abis/external/protocols/ajna/poolInfoUtils.json'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
-import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
-import { getAjnaEarnActionOutput, resolveAjnaEthAction } from '../../../helpers/ajna'
 import { AjnaEarnPosition } from '../../../types/ajna'
-import { Address, Strategy } from '../../../types/common'
+import { Strategy } from '../../../types/common'
 import * as views from '../../../views'
 import { GetEarnData, GetPoolData } from '../../../views/ajna'
 

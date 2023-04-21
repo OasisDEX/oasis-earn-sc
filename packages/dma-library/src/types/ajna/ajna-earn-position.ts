@@ -1,11 +1,11 @@
+import { normalizeValue } from '@dma-common/utils/common'
+import { Address } from '@dma-deployments/types/address'
+import { calculateAjnaApyPerDays } from '@dma-library/protocols/ajna'
+import { ZERO } from '@oasisdex/dma-common/constants'
+import { RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 
-import { RiskRatio } from '../../domain'
-import { calculateAjnaApyPerDays } from '../../helpers/ajna'
-import { ZERO } from '../../helpers/constants'
-import { normalizeValue } from '../../helpers/normalizeValue'
 import bucketPrices from '../../strategies/ajna/earn/buckets.json'
-import { Address } from '../common'
 import { AjnaPool } from './ajna-pool'
 
 function priceIndexToPrice(priceIndex: BigNumber) {

@@ -1,12 +1,12 @@
+import { Address } from '@dma-common/types/address'
+import poolInfoAbi from '@oasisdex/abis/external/protocols/ajna/poolInfoUtils.json'
+import rewardsManagerAbi from '@oasisdex/abis/external/protocols/ajna/rewardsManager.json'
+import { ZERO } from '@oasisdex/dma-common/constants'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import poolInfoAbi from '../../../src/abi/external/ajna/poolInfoUtils.json'
-import rewardsManagerAbi from '../../../src/abi/external/ajna/rewardsManager.json'
-import { ZERO } from '../../helpers/constants'
 import { AjnaEarnPosition, AjnaPosition } from '../../types/ajna'
 import { AjnaPool } from '../../types/ajna/ajna-pool'
-import { Address } from '../../types/common'
 
 interface Args {
   proxyAddress: Address

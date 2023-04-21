@@ -1,7 +1,7 @@
+import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import ajnaProxyActionsAbi from '@oasisdex/abis/external/protocols/ajna/ajnaProxyActions.json'
 import * as ethers from 'ethers'
 
-import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
-import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
 import { Strategy } from '../../types/common'
 import { Dependencies, OpenArgs } from './open'
@@ -10,6 +10,7 @@ import {
   validateDustLimit,
   validateLiquidity,
 } from './validation'
+import { validateGenerateCloseToMaxLtv } from './validation/closeToMaxLtv'
 
 export interface DepositBorrowArgs extends Omit<OpenArgs, 'collateralPrice' | 'quotePrice'> {
   position: AjnaPosition
@@ -47,11 +48,13 @@ export async function depositBorrow(
     ...validateLiquidity(targetPosition, args.quoteAmount),
   ]
 
+  const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, args.position)]
+
   return prepareAjnaPayload({
     dependencies,
     targetPosition,
     errors,
-    warnings: [],
+    warnings,
     data,
     txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
   })

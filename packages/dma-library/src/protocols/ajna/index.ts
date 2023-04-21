@@ -1,18 +1,17 @@
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-
-import poolAbi from '../../abi/external/ajna/ajnaPoolERC20.json'
-import { getAjnaValidations } from '../../strategies/ajna/earn/validations'
-import { AjnaEarnPosition } from '../../types/ajna'
-import { AjnaPool } from '../../types/ajna/AjnaPool'
+import { Address } from '@dma-deployments/types/address'
+import { getAjnaValidations } from '@dma-library/strategies/ajna/earn/validations'
+import { AjnaEarnPosition } from '@dma-library/types/ajna'
+import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import {
-  Address,
   AjnaDependencies,
   AjnaEarnActions,
   AjnaError,
   AjnaWarning,
   Strategy,
-} from '../../types/common'
+} from '@dma-library/types/common'
+import poolAbi from '@oasisdex/abis/external/protocols/ajna/ajnaPoolERC20.json'
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
 
 export interface AjnaEarnArgs {
   poolAddress: Address
@@ -112,3 +111,19 @@ export const calculateAjnaApyPerDays = (amount: BigNumber, apy: BigNumber, days:
     .times(new BigNumber(Math.E ** apy.times(days).div(365).toNumber()))
     .minus(amount)
     .div(amount)
+
+// The origination fee is calculated as the greatest of the current annualized
+// borrower interest rate divided by 52 (one week of interest) or 5 bps multiplied by the loan’s new
+// debt.
+export const getAjnaBorrowOriginationFee = ({
+  interestRate,
+  quoteAmount,
+}: {
+  interestRate: BigNumber
+  quoteAmount: BigNumber
+}) => {
+  const weeklyInterestRate = interestRate.div(52)
+  const fiveBasisPoints = new BigNumber(0.0005)
+
+  return BigNumber.max(weeklyInterestRate, fiveBasisPoints).times(quoteAmount)
+}

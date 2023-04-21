@@ -1,10 +1,11 @@
+import { Address } from '@dma-deployments/types/address'
+import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import ajnaProxyActionsAbi from '@oasisdex/abis/external/protocols/ajna/ajnaProxyActions.json'
 import BigNumber from 'bignumber.js'
 import * as ethers from 'ethers'
 
-import ajnaProxyActionsAbi from '../../../../../abi/external/ajna/ajnaProxyActions.json'
-import { prepareAjnaPayload, resolveAjnaEthAction } from '../../helpers/ajna'
 import { AjnaPosition } from '../../types/ajna'
-import { Address, Strategy } from '../../types/common'
+import { Strategy } from '../../types/common'
 import * as views from '../../views'
 import { GetPoolData } from '../../views/ajna'
 import {

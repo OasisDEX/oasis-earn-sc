@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import {
+  AjnaEarnArgs,
+  getAjnaEarnActionOutput,
+  resolveAjnaEthAction,
+} from '@dma-library/protocols/ajna'
+import ajnaProxyActionsAbi from '@oasisdex/abis/external/protocols/ajna/ajnaProxyActions.json'
+import poolInfoAbi from '@oasisdex/abis/external/protocols/ajna/poolInfoUtils.json'
+import { ZERO } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import ajnaProxyActionsAbi from '../../../../../../abi/external/ajna/ajnaProxyActions.json'
-import poolInfoAbi from '../../../../../../abi/external/ajna/poolInfoUtils.json'
-import { AjnaEarnArgs, getAjnaEarnActionOutput, resolveAjnaEthAction } from '../../../helpers/ajna'
-import { ZERO } from '../../../helpers/constants'
 import { AjnaEarnPosition } from '../../../types/ajna'
 import { AjnaDependencies, Strategy } from '../../../types/common'
 import bucketPrices from './buckets.json'
