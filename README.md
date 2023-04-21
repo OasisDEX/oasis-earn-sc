@@ -76,5 +76,3 @@ yarn clean & yarn hardhat test <path-to-test>
 ```shell
 cd packages/dma-contracts && yarn hardhat createMultiplyPositions --serviceregistry <service-registry-address> --accountfactory <account-factory-address> --network <insert-network>
 ```
-cd packages/dma-contracts && yarn hardhat createMultiplyPositions --serviceregistry 0xc0c5618f0F3Fa66b496F2940f373DC366d765BAe --accountfactory 0x97fd63D049089cd70D9D139ccf9338c81372DE68 --network local
-
