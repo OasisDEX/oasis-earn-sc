@@ -247,48 +247,6 @@ export const config: SystemConfig = {
       name: 'GnosisSafe',
       address: constants.AddressZero,
     },
-    WETH: {
-      name: 'WETH',
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      serviceRegistryName: CONTRACT_NAMES.common.WETH,
-    },
-    ETH: {
-      name: 'ETH',
-      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-    },
-    STETH: {
-      name: 'STETH',
-      address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
-      serviceRegistryName: CONTRACT_NAMES.common.STETH,
-    },
-    WSTETH: {
-      name: 'WSTETH',
-      address: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
-      serviceRegistryName: CONTRACT_NAMES.common.WSTETH,
-    },
-    USDC: {
-      name: 'USDC',
-      address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-      serviceRegistryName: CONTRACT_NAMES.common.USDC,
-    },
-    USDT: {
-      name: 'USDT',
-      address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-    },
-    DAI: {
-      name: 'DAI',
-      address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-      serviceRegistryName: CONTRACT_NAMES.common.DAI,
-    },
-    WBTC: {
-      name: 'WBTC',
-      address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-      serviceRegistryName: CONTRACT_NAMES.common.WBTC,
-    },
-    LINK: {
-      name: 'LINK',
-      address: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
-    },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xe592427a0aece92de3edee1f18e0157c05861564',
@@ -312,10 +270,168 @@ export const config: SystemConfig = {
       name: 'FeeRecipient',
       address: '0xC7b548AD9Cf38721810246C079b2d8083aba8909',
     },
-    ChainlinkEthUsdPriceFeed: {
-      name: 'ChainlinkEthUsdPriceFeed',
+    MerkleRedeemer: {
+      name: 'MerkleRedeemer',
+      address: '0xd9fabf81Ed15ea71FBAd0C1f77529a4755a38054',
+    },
+    DssCharter: {
+      name: 'DssCharter',
+      address: '0x0000123',
+    },
+    DssProxyActions: {
+      name: 'DssProxyActions',
+      address: '0x82ecD135Dce65Fbc6DbdD0e4237E0AF93FFD5038',
+    },
+    DssProxyActionsCharter: {
+      name: 'DssProxyActionsCharter',
+      address: '0x0000',
+    },
+    DssMultiplyProxyActions: {
+      name: 'DssMultiplyProxyActions',
+      address: '0x2a49eae5cca3f050ebec729cf90cc910fadaf7a2',
+    },
+    DssCropper: {
+      name: 'DssCropper',
+      address: '0x8377CD01a5834a6EaD3b7efb482f678f2092b77e',
+    },
+    DssProxyActionsCropjoin: {
+      name: 'DssProxyActionsCropjoin',
+      address: '0xa2f69F8B9B341CFE9BfBb3aaB5fe116C89C95bAF',
+    },
+    DssProxyActionsDsr: {
+      name: 'DssProxyActionsDsr',
+      address: '0x07ee93aEEa0a36FfF2A9B95dd22Bd6049EE54f26',
+    },
+    Otc: {
+      name: 'Otc',
+      address: '0x794e6e91555438aFc3ccF1c5076A74F42133d08D',
+    },
+    OtcSupportMethods: {
+      name: 'OtcSupportMethods',
+      address: '0x9b3f075b12513afe56ca2ed838613b7395f57839',
+    },
+    ServiceRegistry: {
+      name: 'ServiceRegistry',
+      address: '0x9b4Ae7b164d195df9C4Da5d08Be88b2848b2EaDA',
+    },
+    GuniProxyActions: {
+      name: 'GuniProxyActions',
+      address: '0xed3a954c0adfc8e3f85d92729c051ff320648e30',
+    },
+    GuniResolver: {
+      name: 'GuniResolver',
+      address: '0x0317650Af6f184344D7368AC8bB0bEbA5EDB214a',
+    },
+    GuniRouter: {
+      name: 'GuniRouter',
+      address: '0x14E6D67F824C3a7b4329d3228807f8654294e4bd',
+    },
+    CdpRegistry: {
+      name: 'CdpRegistry',
+      address: '0xBe0274664Ca7A68d6b5dF826FB3CcB7c620bADF3',
+    },
+    DefaultExchange: {
+      name: 'DefaultExchange',
+      address: '0xb5eB8cB6cED6b6f8E13bcD502fb489Db4a726C7B',
+    },
+    NoFeesExchange: {
+      name: 'NoFeesExchange',
+      address: '0x99e4484dac819aa74b347208752306615213d324',
+    },
+    LowerFeesExchange: {
+      name: 'LowerFeesExchange',
+      address: '0xf22f17b1d2354b4f4f52e4d164e4eb5e1f0a6ba6',
+    },
+    LidoCrvLiquidityFarmingReward: {
+      name: 'LidoCrvLiquidityFarmingReward',
+      address: '0x99ac10631f69c753ddb595d074422a0922d9056b',
+    },
+    ChainlinkPriceOracle_USDCUSD: {
+      name: 'ChainlinkPriceOracle_USDCUSD',
+      address: '0x99ac10631f69c753ddb595d074422a0922d9056b',
+    },
+    ChainlinkPriceOracle_ETHUSD: {
+      name: 'ChainlinkPriceOracle_ETHUSD',
       address: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
     },
+    AAVE: { name: 'AAVE', address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9' },
+    ADAI: { name: 'ADAI', address: '0x028171bCA77440897B824Ca71D1c56caC55b68A3' },
+    BAL: { name: 'BAL', address: '0xba100000625a3754423978a60c9317c58a424e3D' },
+    BAT: { name: 'BAT', address: '0x0D8775F648430679A709E98d2b0Cb6250d2887EF' },
+    COMP: { name: 'COMP', address: '0xc00e94Cb662C3520282E6f5717214004A7f26888' },
+    CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: '0x06325440D014e39736583c165C2963BA99fAf14E' },
+    DAI: {
+      name: 'DAI',
+      address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+      serviceRegistryName: CONTRACT_NAMES.common.DAI,
+    },
+    ETH: { name: 'ETH', address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' },
+    GNO: { name: 'GNO', address: '0x6810e776880C02933D47DB1b9fc05908e5386b96' },
+    GUNIV3DAIUSDC1: {
+      name: 'GUNIV3DAIUSDC1',
+      address: '0xAbDDAfB225e10B90D798bB8A886238Fb835e2053',
+    },
+    GUNIV3DAIUSDC2: {
+      name: 'GUNIV3DAIUSDC2',
+      address: '0x50379f632ca68D36E50cfBC8F78fe16bd1499d1e',
+    },
+    GUSD: { name: 'GUSD', address: '0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd' },
+    KNC: { name: 'KNC', address: '0xdd974D5C2e2928deA5F71b9825b8b646686BD200' },
+    LDO: { name: 'LDO', address: '0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32' },
+    LINK: { name: 'LINK', address: '0x514910771AF9Ca656af840dff83E8264EcF986CA' },
+    LRC: { name: 'LRC', address: '0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD' },
+    MANA: { name: 'MANA', address: '0x0F5D2fB29fb7d3CFeE444a200298f468908cC942' },
+    MATIC: { name: 'MATIC', address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0' },
+    PAX: { name: 'PAX', address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1' },
+    PAXUSD: { name: 'PAXUSD', address: '0x8E870D67F660D95d5be530380D0eC0bd388289E1' },
+    RENBTC: { name: 'RENBTC', address: '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D' },
+    RETH: { name: 'RETH', address: '0xae78736cd615f374d3085123a210448e74fc6393' },
+    RWA001: { name: 'RWA001', address: '0x10b2aA5D77Aa6484886d8e244f0686aB319a270d' },
+    RWA002: { name: 'RWA002', address: '0xAAA760c2027817169D7C8DB0DC61A2fb4c19AC23' },
+    RWA003: { name: 'RWA003', address: '0x07F0A80aD7AeB7BfB7f139EA71B3C8f7E17156B9' },
+    RWA004: { name: 'RWA004', address: '0x873F2101047A62F84456E3B2B13df2287925D3F9' },
+    RWA005: { name: 'RWA005', address: '0x6DB236515E90fC831D146f5829407746EDdc5296' },
+    RWA006: { name: 'RWA006', address: '0x4EE03cfBF6E784c462839f5954d60f7C2B60b113' },
+    STETH: {
+      name: 'STETH',
+      address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
+      serviceRegistryName: CONTRACT_NAMES.common.STETH,
+    },
+    TUSD: { name: 'TUSD', address: '0x0000000000085d4780B73119b644AE5ecd22b376' },
+    UNI: { name: 'UNI', address: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984' },
+    UNIV2AAVEETH: { name: 'UNIV2AAVEETH', address: '0xDFC14d2Af169B0D36C4EFF567Ada9b2E0CAE044f' },
+    UNIV2DAIETH: { name: 'UNIV2DAIETH', address: '0xA478c2975Ab1Ea89e8196811F51A7B7Ade33eB11' },
+    UNIV2DAIUSDC: { name: 'UNIV2DAIUSDC', address: '0xAE461cA67B15dc8dc81CE7615e0320dA1A9aB8D5' },
+    UNIV2DAIUSDT: { name: 'UNIV2DAIUSDT', address: '0xB20bd5D04BE54f870D5C0d3cA85d82b34B836405' },
+    UNIV2ETHUSDT: { name: 'UNIV2ETHUSDT', address: '0x0d4a11d5EEaaC28EC3F61d100daF4d40471f1852' },
+    UNIV2LINKETH: { name: 'UNIV2LINKETH', address: '0xa2107FA5B38d9bbd2C461D6EDf11B11A50F6b974' },
+    UNIV2UNIETH: { name: 'UNIV2UNIETH', address: '0xd3d2E2692501A5c9Ca623199D38826e513033a17' },
+    UNIV2USDCETH: { name: 'UNIV2USDCETH', address: '0xB4e16d0168e52d35CaCD2c6185b44281Ec28C9Dc' },
+    UNIV2WBTCDAI: { name: 'UNIV2WBTCDAI', address: '0x231B7589426Ffe1b75405526fC32aC09D44364c4' },
+    UNIV2WBTCETH: { name: 'UNIV2WBTCETH', address: '0xBb2b8038a1640196FbE3e38816F3e67Cba72D940' },
+    USDC: {
+      name: 'USDC',
+      address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+      serviceRegistryName: CONTRACT_NAMES.common.USDC,
+    },
+    USDT: { name: 'USDT', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7' },
+    WBTC: {
+      name: 'WBTC',
+      address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+      serviceRegistryName: CONTRACT_NAMES.common.WBTC,
+    },
+    WETH: {
+      name: 'WETH',
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+      serviceRegistryName: CONTRACT_NAMES.common.WETH,
+    },
+    WSTETH: {
+      name: 'WSTETH',
+      address: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
+      serviceRegistryName: CONTRACT_NAMES.common.WSTETH,
+    },
+    YFI: { name: 'YFI', address: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e' },
+    ZRX: { name: 'ZRX', address: '0xE41d2489571d322189246DaFA5ebDe1F4699F498' },
   },
   aave: {
     v2: {
@@ -376,6 +492,30 @@ export const config: SystemConfig = {
       name: 'Jug',
       address: '0x19c0976f590D67707E62397C87829d896Dc0f1F1',
     },
+    Pot: {
+      name: 'Pot',
+      address: '0x19c0976f590D67707E62397C87829d896Dc0f1F1',
+    },
+    End: {
+      name: 'End',
+      address: '0xBB856d1742fD182a90239D7AE85706C2FE4e5922',
+    },
+    Spot: {
+      name: 'Spot',
+      address: '0x65C79fcB50Ca1594B025960e539eD7A9a6D434A3',
+    },
+    Dog: {
+      name: 'Dog',
+      address: '0x135954d155898D42C90D2a57824C690e0c7BEf1B',
+    },
+    Vat: {
+      name: 'Vat',
+      address: '0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B',
+    },
+    McdGov: {
+      name: 'McdGov',
+      address: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
+    },
     JoinDAI: {
       name: 'JoinDAI',
       address: '0x9759A6Ac90977b93B58547b4A71c78317f391A28',
@@ -391,6 +531,46 @@ export const config: SystemConfig = {
     PipLINK: {
       name: 'PipLINK',
       address: '0x9B0C694C6939b5EA9584e9b61C7815E8d97D9cC7',
+    },
+  },
+  automation: {
+    AutomationBot: {
+      name: 'AutomationBot',
+      address: '0x6E87a7A0A03E51A741075fDf4D1FCce39a4Df01b',
+    },
+    AutomationBotV2: {
+      name: 'AutomationBotV2',
+      address: '0x8061c24823094E51e57A4a5cF8bEd3CCf09d316F',
+    },
+    AutomationBotAggregator: {
+      name: 'AutomationBotAggregator',
+      address: '0x5f1d184204775fBB351C4b2C61a2fD4aAbd3fB76',
+    },
+  },
+  ajna: {
+    AjnaPoolInfo: {
+      name: 'AjnaPoolInfo',
+      address: '0xD2D5e508C82EFc205cAFA4Ad969a4395Babce026',
+    },
+    AjnaProxyActions: {
+      name: 'AjnaProxyActions',
+      address: '0x2b639Cc84e1Ad3aA92D4Ee7d2755A6ABEf300D72',
+    },
+    AjnaPoolPairs_WBTCUSDC: {
+      name: 'AjnaPoolPairs_WBTCUSDC',
+      address: '0xa11a3BCeaD7f27a19dAaaf59BC0484f8440e93fe',
+    },
+    AjnaPoolPairs_ETHUSDC: {
+      name: 'AjnaPoolPairs_ETHUSDC',
+      address: '0x0c9Bc4EFD40cCD0B6c6372CFa8b8562A940185C1',
+    },
+    AjnaRewardsManager: {
+      name: 'AjnaRewardsManager',
+      address: '0xEd6890d748e62ddbb3f80e7256Deeb2fBb853476',
+    },
+    AjnaRewardsClaimer: {
+      name: 'AjnaRewardsClaimer',
+      address: '0xEd6890d748e62ddbb3f80e7256Deeb2fBb853476',
     },
   },
 }

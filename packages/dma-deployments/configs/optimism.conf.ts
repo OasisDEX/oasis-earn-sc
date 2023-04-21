@@ -213,47 +213,6 @@ export const config: SystemConfig = {
       name: 'GnosisSafe',
       address: constants.AddressZero,
     },
-    WETH: {
-      name: 'WETH',
-      address: '0x4200000000000000000000000000000000000006',
-      serviceRegistryName: 'WETH',
-    },
-    ETH: {
-      name: 'ETH',
-      address: '0x4200000000000000000000000000000000000006',
-    },
-    WSTETH: {
-      name: 'WSTETH',
-      address: '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb',
-      serviceRegistryName: 'WSTETH',
-    },
-    STETH: {
-      name: 'STETH',
-      address: constants.AddressZero,
-    },
-    USDC: {
-      name: 'USDC',
-      address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
-      serviceRegistryName: 'USDC',
-    },
-    USDT: {
-      name: 'USDT',
-      address: constants.AddressZero,
-    },
-    DAI: {
-      name: 'DAI',
-      address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
-      serviceRegistryName: 'DAI',
-    },
-    WBTC: {
-      name: 'WBTC',
-      address: '0x68f180fcce6836688e9084f035309e29bf0a2095',
-      serviceRegistryName: 'WBTC',
-    },
-    LINK: {
-      name: 'LINK',
-      address: constants.AddressZero,
-    },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xE592427A0AEce92De3Edee1F18E0157C05861564',
@@ -277,10 +236,164 @@ export const config: SystemConfig = {
       address: '0x1111111254EEB25477B68fb85Ed929f73A960582',
       serviceRegistryName: 'OneInchAggregator',
     },
-    ChainlinkEthUsdPriceFeed: {
-      name: 'ChainlinkEthUsdPriceFeed',
+    MerkleRedeemer: {
+      name: 'MerkleRedeemer',
+      address: constants.AddressZero,
+    },
+    DssCharter: {
+      name: 'DssCharter',
+      address: constants.AddressZero,
+    },
+    DssProxyActions: {
+      name: 'DssProxyActions',
+      address: constants.AddressZero,
+    },
+    DssProxyActionsCharter: {
+      name: 'DssProxyActionsCharter',
+      address: constants.AddressZero,
+    },
+    DssMultiplyProxyActions: {
+      name: 'DssMultiplyProxyActions',
+      address: constants.AddressZero,
+    },
+    DssCropper: {
+      name: 'DssCropper',
+      address: constants.AddressZero,
+    },
+    DssProxyActionsCropjoin: {
+      name: 'DssProxyActionsCropjoin',
+      address: constants.AddressZero,
+    },
+    DssProxyActionsDsr: {
+      name: 'DssProxyActionsDsr',
+      address: constants.AddressZero,
+    },
+    Otc: {
+      name: 'Otc',
+      address: constants.AddressZero,
+    },
+    OtcSupportMethods: {
+      name: 'OtcSupportMethods',
+      address: constants.AddressZero,
+    },
+    ServiceRegistry: {
+      name: 'ServiceRegistry',
+      address: constants.AddressZero,
+    },
+    GuniProxyActions: {
+      name: 'GuniProxyActions',
+      address: constants.AddressZero,
+    },
+    GuniResolver: {
+      name: 'GuniResolver',
+      address: constants.AddressZero,
+    },
+    GuniRouter: {
+      name: 'GuniRouter',
+      address: constants.AddressZero,
+    },
+    CdpRegistry: {
+      name: 'CdpRegistry',
+      address: constants.AddressZero,
+    },
+    DefaultExchange: {
+      name: 'DefaultExchange',
+      address: constants.AddressZero,
+    },
+    NoFeesExchange: {
+      name: 'NoFeesExchange',
+      address: constants.AddressZero,
+    },
+    LowerFeesExchange: {
+      name: 'LowerFeesExchange',
+      address: constants.AddressZero,
+    },
+    LidoCrvLiquidityFarmingReward: {
+      name: 'LidoCrvLiquidityFarmingReward',
+      address: constants.AddressZero,
+    },
+    ChainlinkPriceOracle_USDCUSD: {
+      name: 'ChainlinkPriceOracle_USDCUSD',
+      address: constants.AddressZero,
+    },
+    ChainlinkPriceOracle_ETHUSD: {
+      name: 'ChainlinkPriceOracle_ETHUSD',
       address: '0x13e3ee699d1909e989722e753853ae30b17e08c5',
     },
+    ADAI: { name: 'ADAI', address: constants.AddressZero },
+    AAVE: { name: 'AAVE', address: constants.AddressZero },
+    BAL: { name: 'BAL', address: constants.AddressZero },
+    BAT: { name: 'BAT', address: constants.AddressZero },
+    COMP: { name: 'COMP', address: constants.AddressZero },
+    CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: constants.AddressZero },
+    DAI: {
+      name: 'DAI',
+      address: constants.AddressZero,
+      serviceRegistryName: 'DAI',
+    },
+    ETH: { name: 'ETH', address: constants.AddressZero },
+    GNO: { name: 'GNO', address: constants.AddressZero },
+    GUNIV3DAIUSDC1: {
+      name: 'GUNIV3DAIUSDC1',
+      address: constants.AddressZero,
+    },
+    GUNIV3DAIUSDC2: {
+      name: 'GUNIV3DAIUSDC2',
+      address: constants.AddressZero,
+    },
+    GUSD: { name: 'GUSD', address: constants.AddressZero },
+    KNC: { name: 'KNC', address: constants.AddressZero },
+    LDO: { name: 'LDO', address: constants.AddressZero },
+    LINK: { name: 'LINK', address: constants.AddressZero },
+    LRC: { name: 'LRC', address: constants.AddressZero },
+    MANA: { name: 'MANA', address: constants.AddressZero },
+    MATIC: { name: 'MATIC', address: constants.AddressZero },
+    PAX: { name: 'PAX', address: constants.AddressZero },
+    PAXUSD: { name: 'PAXUSD', address: constants.AddressZero },
+    RENBTC: { name: 'RENBTC', address: constants.AddressZero },
+    RETH: { name: 'RETH', address: constants.AddressZero },
+    RWA001: { name: 'RWA001', address: constants.AddressZero },
+    RWA002: { name: 'RWA002', address: constants.AddressZero },
+    RWA003: { name: 'RWA003', address: constants.AddressZero },
+    RWA004: { name: 'RWA004', address: constants.AddressZero },
+    RWA005: { name: 'RWA005', address: constants.AddressZero },
+    RWA006: { name: 'RWA006', address: constants.AddressZero },
+    STETH: { name: 'STETH', address: constants.AddressZero },
+    TUSD: { name: 'TUSD', address: constants.AddressZero },
+    UNI: { name: 'UNI', address: constants.AddressZero },
+    UNIV2AAVEETH: { name: 'UNIV2AAVEETH', address: constants.AddressZero },
+    UNIV2DAIETH: { name: 'UNIV2DAIETH', address: constants.AddressZero },
+    UNIV2DAIUSDC: { name: 'UNIV2DAIUSDC', address: constants.AddressZero },
+    UNIV2DAIUSDT: { name: 'UNIV2DAIUSDT', address: constants.AddressZero },
+    UNIV2ETHUSDT: { name: 'UNIV2ETHUSDT', address: constants.AddressZero },
+    UNIV2LINKETH: { name: 'UNIV2LINKETH', address: constants.AddressZero },
+    UNIV2UNIETH: { name: 'UNIV2UNIETH', address: constants.AddressZero },
+    UNIV2USDCETH: { name: 'UNIV2USDCETH', address: constants.AddressZero },
+    UNIV2WBTCDAI: { name: 'UNIV2WBTCDAI', address: constants.AddressZero },
+    UNIV2WBTCETH: { name: 'UNIV2WBTCETH', address: constants.AddressZero },
+    USDC: {
+      name: 'USDC',
+      address: constants.AddressZero,
+      serviceRegistryName: 'USDC',
+    },
+    USDT: { name: 'USDT', address: constants.AddressZero },
+    WBTC: {
+      name: 'WBTC',
+      address: constants.AddressZero,
+      serviceRegistryName: 'WBTC',
+    },
+    WETH: {
+      name: 'WETH',
+      address: constants.AddressZero,
+      serviceRegistryName: 'WETH',
+    },
+    WSTETH: {
+      name: 'WSTETH',
+      address: constants.AddressZero,
+      serviceRegistryName: 'WSTETH',
+    },
+    YFI: { name: 'YFI', address: constants.AddressZero },
+    ZRX: { name: 'ZRX', address: constants.AddressZero },
   },
   aave: {
     v3: {
@@ -320,6 +433,30 @@ export const config: SystemConfig = {
       name: 'Jug',
       address: constants.AddressZero,
     },
+    Pot: {
+      name: 'Pot',
+      address: constants.AddressZero,
+    },
+    End: {
+      name: 'End',
+      address: constants.AddressZero,
+    },
+    Spot: {
+      name: 'Spot',
+      address: constants.AddressZero,
+    },
+    Dog: {
+      name: 'Dog',
+      address: constants.AddressZero,
+    },
+    Vat: {
+      name: 'Vat',
+      address: constants.AddressZero,
+    },
+    McdGov: {
+      name: 'McdGov',
+      address: constants.AddressZero,
+    },
     JoinDAI: {
       name: 'JoinDAI',
       address: constants.AddressZero,
@@ -334,6 +471,46 @@ export const config: SystemConfig = {
     },
     PipLINK: {
       name: 'PipLINK',
+      address: constants.AddressZero,
+    },
+  },
+  automation: {
+    AutomationBot: {
+      name: 'AutomationBot',
+      address: constants.AddressZero,
+    },
+    AutomationBotV2: {
+      name: 'AutomationBotV2',
+      address: constants.AddressZero,
+    },
+    AutomationBotAggregator: {
+      name: 'AutomationBotAggregator',
+      address: constants.AddressZero,
+    },
+  },
+  ajna: {
+    AjnaPoolInfo: {
+      name: 'AjnaPoolInfo',
+      address: constants.AddressZero,
+    },
+    AjnaProxyActions: {
+      name: 'AjnaProxyActions',
+      address: constants.AddressZero,
+    },
+    AjnaPoolPairs_WBTCUSDC: {
+      name: 'AjnaPoolPairs_WBTCUSDC',
+      address: constants.AddressZero,
+    },
+    AjnaPoolPairs_ETHUSDC: {
+      name: 'AjnaPoolPairs_ETHUSDC',
+      address: constants.AddressZero,
+    },
+    AjnaRewardsManager: {
+      name: 'AjnaRewardsManager',
+      address: constants.AddressZero,
+    },
+    AjnaRewardsClaimer: {
+      name: 'AjnaRewardsClaimer',
       address: constants.AddressZero,
     },
   },

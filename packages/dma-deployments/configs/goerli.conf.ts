@@ -74,6 +74,12 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: ['address:AccountGuard'],
       },
+      Swap: {
+        name: 'Swap',
+        address: '',
+        deploy: false,
+        history: [],
+      },
     },
     actions: {
       PositionCreated: {
@@ -227,48 +233,6 @@ export const config: SystemConfig = {
       name: 'GnosisSafe',
       address: '0x41A92d82D70005B55070dB7138b21d7c28F27CC0',
     },
-    WETH: {
-      name: 'WETH',
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      serviceRegistryName: CONTRACT_NAMES.common.WETH,
-    },
-    ETH: {
-      name: 'ETH',
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    },
-    STETH: {
-      name: 'STETH',
-      address: '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
-      serviceRegistryName: CONTRACT_NAMES.common.STETH,
-    },
-    WSTETH: {
-      name: 'WSTETH',
-      address: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
-      serviceRegistryName: CONTRACT_NAMES.common.WSTETH,
-    },
-    USDC: {
-      name: 'USDC',
-      address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-      serviceRegistryName: CONTRACT_NAMES.common.USDC,
-    },
-    USDT: {
-      name: 'USDT',
-      address: constants.AddressZero,
-    },
-    DAI: {
-      name: 'DAI',
-      address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-      serviceRegistryName: CONTRACT_NAMES.common.DAI,
-    },
-    WBTC: {
-      name: 'WBTC',
-      address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
-      serviceRegistryName: CONTRACT_NAMES.common.WBTC,
-    },
-    LINK: {
-      name: 'WBTC',
-      address: constants.AddressZero,
-    },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xe592427a0aece92de3edee1f18e0157c05861564',
@@ -292,10 +256,164 @@ export const config: SystemConfig = {
       name: 'FeeRecipient',
       address: '0xC7b548AD9Cf38721810246C079b2d8083aba8909',
     },
-    ChainlinkEthUsdPriceFeed: {
-      name: 'ChainlinkEthUsdPriceFeed',
+    MerkleRedeemer: {
+      name: 'MerkleRedeemer',
       address: constants.AddressZero,
     },
+    DssCharter: {
+      name: 'DssCharter',
+      address: constants.AddressZero,
+    },
+    DssProxyActions: {
+      name: 'DssProxyActions',
+      address: constants.AddressZero,
+    },
+    DssProxyActionsCharter: {
+      name: 'DssProxyActionsCharter',
+      address: constants.AddressZero,
+    },
+    DssMultiplyProxyActions: {
+      name: 'DssMultiplyProxyActions',
+      address: constants.AddressZero,
+    },
+    DssCropper: {
+      name: 'DssCropper',
+      address: constants.AddressZero,
+    },
+    DssProxyActionsCropjoin: {
+      name: 'DssProxyActionsCropjoin',
+      address: constants.AddressZero,
+    },
+    DssProxyActionsDsr: {
+      name: 'DssProxyActionsDsr',
+      address: constants.AddressZero,
+    },
+    Otc: {
+      name: 'Otc',
+      address: constants.AddressZero,
+    },
+    OtcSupportMethods: {
+      name: 'OtcSupportMethods',
+      address: constants.AddressZero,
+    },
+    ServiceRegistry: {
+      name: 'ServiceRegistry',
+      address: constants.AddressZero,
+    },
+    GuniProxyActions: {
+      name: 'GuniProxyActions',
+      address: constants.AddressZero,
+    },
+    GuniResolver: {
+      name: 'GuniResolver',
+      address: constants.AddressZero,
+    },
+    GuniRouter: {
+      name: 'GuniRouter',
+      address: constants.AddressZero,
+    },
+    CdpRegistry: {
+      name: 'CdpRegistry',
+      address: constants.AddressZero,
+    },
+    DefaultExchange: {
+      name: 'DefaultExchange',
+      address: constants.AddressZero,
+    },
+    NoFeesExchange: {
+      name: 'NoFeesExchange',
+      address: constants.AddressZero,
+    },
+    LowerFeesExchange: {
+      name: 'LowerFeesExchange',
+      address: constants.AddressZero,
+    },
+    LidoCrvLiquidityFarmingReward: {
+      name: 'LidoCrvLiquidityFarmingReward',
+      address: constants.AddressZero,
+    },
+    ChainlinkPriceOracle_USDCUSD: {
+      name: 'ChainlinkPriceOracle_USDCUSD',
+      address: constants.AddressZero,
+    },
+    ChainlinkPriceOracle_ETHUSD: {
+      name: 'ChainlinkPriceOracle_ETHUSD',
+      address: constants.AddressZero,
+    },
+    ADAI: { name: 'ADAI', address: constants.AddressZero },
+    AAVE: { name: 'AAVE', address: '0x251661BB7C6869165eF35810E5e1D25Ed57be2Fe' },
+    BAL: { name: 'BAL', address: '0x8c6e73CA229AB3933426aDb5cc829c1E4928551d' },
+    BAT: { name: 'BAT', address: '0x75645f86e90a1169e697707C813419977ea26779' },
+    COMP: { name: 'COMP', address: '0x8032dce0b793C21B8F7B648C01224c3b557271ED' },
+    CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: constants.AddressZero },
+    DAI: {
+      name: 'DAI',
+      address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+      serviceRegistryName: 'DAI',
+    },
+    ETH: { name: 'ETH', address: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6' },
+    GNO: { name: 'GNO', address: '0x86Bc432064d7F933184909975a384C7E4c9d0977' },
+    GUNIV3DAIUSDC1: {
+      name: 'GUNIV3DAIUSDC1',
+      address: constants.AddressZero,
+    },
+    GUNIV3DAIUSDC2: {
+      name: 'GUNIV3DAIUSDC2',
+      address: constants.AddressZero,
+    },
+    GUSD: { name: 'GUSD', address: '0x67aeF79654D8F6CF44FdC08949c308a4F6b3c45B' },
+    KNC: { name: 'KNC', address: '0x9A58801cf901486Df9323bcE83A7684915DBAE54' },
+    LDO: { name: 'LDO', address: constants.AddressZero },
+    LINK: { name: 'LINK', address: '0x4724A967A4F7E42474Be58AbdF64bF38603422FF' },
+    LRC: { name: 'LRC', address: '0xe32aC5b19051728421A8F4A8a5757D0e127a14F6' },
+    MANA: { name: 'MANA', address: '0x347fceA8b4fD1a46e2c0DB8F79e22d293c2F8513' },
+    MATIC: { name: 'MATIC', address: '0x5B3b6CF665Cc7B4552F4347623a2A9E00600CBB5' },
+    PAX: { name: 'PAX', address: '0x4547863912Fe2d17D3827704138957a8317E8dCD' },
+    PAXUSD: { name: 'PAXUSD', address: '0x4547863912Fe2d17D3827704138957a8317E8dCD' },
+    RENBTC: { name: 'RENBTC', address: '0x30d0A215aef6DadA4771a2b30a59B842f969EfD4' },
+    RETH: { name: 'RETH', address: '0x62bc478ffc429161115a6e4090f819ce5c50a5d9' },
+    RWA001: { name: 'RWA001', address: '0xeb7C7DE82c3b05BD4059f11aE8f43dD7f1595bce' },
+    RWA002: { name: 'RWA002', address: '0x09fE0aE289553010D6EcBdFF98cc9C08030dE3b8' },
+    RWA003: { name: 'RWA003', address: '0x5cf15Cc2710aFc0EaBBD7e045f84F9556B204331' },
+    RWA004: { name: 'RWA004', address: '0xA7fbA77c4d18e12d1F385E2dcFfb377c9dBD91d2' },
+    RWA005: { name: 'RWA005', address: '0x650d168fC94B79Bb16898CAae773B0Ce1097Cc3F' },
+    RWA006: { name: 'RWA006', address: '0xf754FD6611852eE94AC0614c51B8692cAE9fEe9F' },
+    STETH: { name: 'STETH', address: '0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F' },
+    TUSD: { name: 'TUSD', address: '0xe0B3D300E2e09c1Fd01252287dDbC70A7730ffB0' },
+    UNI: { name: 'UNI', address: '0x82D98aA89E391c6759012df39ccDA0d9d6b24143' },
+    UNIV2AAVEETH: { name: 'UNIV2AAVEETH', address: '0xaF2CC6F46d1d0AB30dd45F59B562394c3E21e6f3' },
+    UNIV2DAIETH: { name: 'UNIV2DAIETH', address: '0x5dD9dec52a16d4d1Df10a66ac71d4731c9Dad984' },
+    UNIV2DAIUSDC: { name: 'UNIV2DAIUSDC', address: '0x260719B2ef507A86116FC24341ff0994F2097D42' },
+    UNIV2DAIUSDT: { name: 'UNIV2DAIUSDT', address: '0xBF2C9aBbEC9755A0b6144051E19c6AD4e6fd6D71' },
+    UNIV2ETHUSDT: { name: 'UNIV2ETHUSDT', address: '0xfcB32e1C4A4F1C820c9304B5CFfEDfB91aE2321C' },
+    UNIV2LINKETH: { name: 'UNIV2LINKETH', address: '0x3361fB8f923D1Aa1A45B2d2eD4B8bdF313a3dA0c' },
+    UNIV2UNIETH: { name: 'UNIV2UNIETH', address: '0xB80A38E50B2990Ac83e46Fe16631fFBb94F2780b' },
+    UNIV2USDCETH: { name: 'UNIV2USDCETH', address: '0xD90313b3E43D9a922c71d26a0fBCa75A01Bb3Aeb' },
+    UNIV2WBTCDAI: { name: 'UNIV2WBTCDAI', address: '0x3f78Bd3980c49611E5FA885f25Ca3a5fCbf0d7A0' },
+    UNIV2WBTCETH: { name: 'UNIV2WBTCETH', address: '0x7883a92ac3e914F3400e8AE6a2FF05E6BA4Bd403' },
+    USDC: {
+      name: 'USDC',
+      address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+      serviceRegistryName: 'USDC',
+    },
+    USDT: { name: 'USDT', address: '0x5858f25cc225525A7494f76d90A6549749b3030B' },
+    WBTC: {
+      name: 'WBTC',
+      address: '0x68f180fcce6836688e9084f035309e29bf0a2095',
+      serviceRegistryName: 'WBTC',
+    },
+    WETH: {
+      name: 'WETH',
+      address: '0x4200000000000000000000000000000000000006',
+      serviceRegistryName: 'WETH',
+    },
+    WSTETH: {
+      name: 'WSTETH',
+      address: '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb',
+      serviceRegistryName: 'WSTETH',
+    },
+    YFI: { name: 'YFI', address: '0xd9510EF268F8273C9b7514F0bfFe18Fe1EFC0d43' },
+    ZRX: { name: 'ZRX', address: '0x96E0C18524789ED3e62CD9F56aAEc7cEAC78725a' },
   },
   aave: {
     v3: {
@@ -336,6 +454,30 @@ export const config: SystemConfig = {
       name: 'Jug',
       address: constants.AddressZero,
     },
+    Pot: {
+      name: 'Pot',
+      address: constants.AddressZero,
+    },
+    End: {
+      name: 'End',
+      address: constants.AddressZero,
+    },
+    Spot: {
+      name: 'Spot',
+      address: constants.AddressZero,
+    },
+    Dog: {
+      name: 'Dog',
+      address: constants.AddressZero,
+    },
+    Vat: {
+      name: 'Vat',
+      address: constants.AddressZero,
+    },
+    McdGov: {
+      name: 'McdGov',
+      address: constants.AddressZero,
+    },
     JoinDAI: {
       name: 'JoinDAI',
       address: constants.AddressZero,
@@ -350,6 +492,46 @@ export const config: SystemConfig = {
     },
     PipLINK: {
       name: 'PipLINK',
+      address: constants.AddressZero,
+    },
+  },
+  automation: {
+    AutomationBot: {
+      name: 'AutomationBot',
+      address: constants.AddressZero,
+    },
+    AutomationBotV2: {
+      name: 'AutomationBotV2',
+      address: constants.AddressZero,
+    },
+    AutomationBotAggregator: {
+      name: 'AutomationBotAggregator',
+      address: constants.AddressZero,
+    },
+  },
+  ajna: {
+    AjnaPoolInfo: {
+      name: 'AjnaPoolInfo',
+      address: constants.AddressZero,
+    },
+    AjnaProxyActions: {
+      name: 'AjnaProxyActions',
+      address: constants.AddressZero,
+    },
+    AjnaPoolPairs_WBTCUSDC: {
+      name: 'AjnaPoolPairs_WBTCUSDC',
+      address: constants.AddressZero,
+    },
+    AjnaPoolPairs_ETHUSDC: {
+      name: 'AjnaPoolPairs_ETHUSDC',
+      address: constants.AddressZero,
+    },
+    AjnaRewardsManager: {
+      name: 'AjnaRewardsManager',
+      address: constants.AddressZero,
+    },
+    AjnaRewardsClaimer: {
+      name: 'AjnaRewardsClaimer',
       address: constants.AddressZero,
     },
   },

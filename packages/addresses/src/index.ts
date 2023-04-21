@@ -6,6 +6,8 @@ import {
   AaveV2Protocol,
   AaveV3Protocol,
   Actions,
+  AjnaProtocol,
+  AutomationProtocol,
   Common,
   Contracts,
   CoreContracts,
@@ -38,6 +40,8 @@ type DefaultDeployment = {
     [AaveKeys.V3]: Record<AaveV3Protocol, Address>
   }
   [SystemKeys.MAKER]: Record<MakerProtocol, Address>
+  [SystemKeys.AUTOMATION]: Record<AutomationProtocol, Address>
+  [SystemKeys.AJNA]: Record<AjnaProtocol, Address>
 }
 
 type AaveDeployment = {
@@ -80,6 +84,12 @@ export const ADDRESSES: Addresses = {
     maker: {
       ...extractAddressesFromConfig(mainnetConfig.maker),
     },
+    automation: {
+      ...extractAddressesFromConfig(mainnetConfig.automation),
+    },
+    ajna: {
+      ...extractAddressesFromConfig(mainnetConfig.ajna),
+    },
   },
   [Network.OPTIMISM]: {
     mpa: {
@@ -100,6 +110,12 @@ export const ADDRESSES: Addresses = {
     },
     maker: {
       ...extractAddressesFromConfig(optimismConfig.maker),
+    },
+    automation: {
+      ...extractAddressesFromConfig(optimismConfig.automation),
+    },
+    ajna: {
+      ...extractAddressesFromConfig(mainnetConfig.ajna),
     },
   },
   [Network.GOERLI]: {
@@ -122,8 +138,16 @@ export const ADDRESSES: Addresses = {
     maker: {
       ...extractAddressesFromConfig(goerliConfig.maker),
     },
+    automation: {
+      ...extractAddressesFromConfig(goerliConfig.automation),
+    },
+    ajna: {
+      ...extractAddressesFromConfig(mainnetConfig.ajna),
+    },
   },
 }
+
+export { SystemKeys, DefaultDeployment }
 
 type ExtractAddressesFromConfig<T extends Contracts> = Record<T, DeploymentConfig>
 
