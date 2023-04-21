@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import { IPoolBorrowerActions }       from './commons/IPoolBorrowerActions.sol';
 import { IPoolLenderActions }         from './commons/IPoolLenderActions.sol';

@@ -1,0 +1,27 @@
+[
+  {
+    "inputs": [],
+    "name": "AlreadyClaimed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EpochNotAvailable",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ExchangeRateUpdateTooLate",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MoveStakedLiquidityInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotOwnerOfDeposit",
+    "type": "error"
+  }
+]

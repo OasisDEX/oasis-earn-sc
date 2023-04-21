@@ -1,0 +1,30 @@
+[
+  {
+    "inputs": [],
+    "name": "DeployWithZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PoolAlreadyExists",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PoolInterestRateInvalid",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "pool_",
+        "type": "address"
+      }
+    ],
+    "name": "PoolCreated",
+    "type": "event"
+  }
+]

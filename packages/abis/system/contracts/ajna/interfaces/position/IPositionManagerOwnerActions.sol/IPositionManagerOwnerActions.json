@@ -1,0 +1,158 @@
+[
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "pool",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IPositionManagerOwnerActions.BurnParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "burn",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "indexes",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct IPositionManagerOwnerActions.MemorializePositionsParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "memorializePositions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "recipient",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "pool",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "poolSubsetHash",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct IPositionManagerOwnerActions.MintParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "mint",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "pool",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "fromIndex",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "toIndex",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IPositionManagerOwnerActions.MoveLiquidityParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "moveLiquidity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "pool",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "indexes",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct IPositionManagerOwnerActions.RedeemPositionsParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "reedemPositions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

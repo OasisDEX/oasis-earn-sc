@@ -26,7 +26,7 @@ const plotly =
   process.env.PLOTY_KEY && process.env.PLOTY_USER ? ploty_(process.env.PLOTY_USER, process.env.PLOTY_KEY) : undefined;
 
 const utils = new HardhatUtils(hre);
-
+export const ajnaHre = hre;
 export async function createDPMProxy(dmpFactory: AccountFactory, owner: Signer) {
   const accountTx = await dmpFactory.connect(owner)["createAccount()"]();
   const factoryReceipt = await accountTx.wait();

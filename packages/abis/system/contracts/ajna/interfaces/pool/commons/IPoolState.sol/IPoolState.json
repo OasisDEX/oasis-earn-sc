@@ -1,0 +1,496 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "transferor",
+        "type": "address"
+      }
+    ],
+    "name": "approvedTransferors",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      }
+    ],
+    "name": "auctionInfo",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "kicker",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "bondFactor",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "bondSize",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "kickTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "kickPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "neutralPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "head",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "next",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "prev",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "alreadyTaken",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      }
+    ],
+    "name": "borrowerInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "t0Debt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "collateral",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "t0Np",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "bucketInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "lpAccumulator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "availableCollateral",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "bankruptcyTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "bucketDeposit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "bucketScale",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "burnEventEpoch_",
+        "type": "uint256"
+      }
+    ],
+    "name": "burnInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "currentBurnEpoch",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "debtInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "debt_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "accruedDebt_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "debtInAuction_",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "emasInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "debtColEma",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lupt0DebtEma",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "debtEma",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "depositEma",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "inflatorInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "inflatorSnapshot",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastUpdate",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "interestRateInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "interestRate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "interestRateUpdate",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "kicker",
+        "type": "address"
+      }
+    ],
+    "name": "kickerInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "claimable",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "locked",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "lp",
+        "type": "address"
+      }
+    ],
+    "name": "lenderInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "lpBalance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastQuoteDeposit",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "loanId",
+        "type": "uint256"
+      }
+    ],
+    "name": "loanInfo",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "thresholdPrice",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "loansInfo",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "maxBorrower",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxThresholdPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "noOfLoans",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "lpAllowance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "allowance_",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pledgedCollateral",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "reservesInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "liquidationBondEscrowed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "reserveAuctionUnclaimed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "reserveAuctionKicked",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalInterestEarned",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalAuctionsInPool",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalT0Debt",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalT0DebtInAuction",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
