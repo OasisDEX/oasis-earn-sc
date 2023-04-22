@@ -1,7 +1,7 @@
 import init from '@dma-common/utils/init'
-import { ADDRESSES } from '@dma-contracts/../addresses/lib'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
+import { ADDRESSES } from '@oasisdex/addresses'
 import { deployPool, prepareEnv } from '@oasisdex/ajna-contracts/scripts'
 import { expect } from 'chai'
 
