@@ -75,7 +75,7 @@ task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
       aaveOracle: ADDRESSES[Network.MAINNET].aave.v3.AaveOracle,
       pool: ADDRESSES[Network.MAINNET].aave.v3.Pool,
       operationExecutor: operationExecutorAddress,
-      poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.PoolDataProvider,
+      poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.AaveProtocolDataProvider,
       accountFactory: accountFactoryAddress,
     }
 
