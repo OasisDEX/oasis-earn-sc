@@ -14,12 +14,12 @@
     "test": "npx hardhat test",
     "build": "npx hardhat compile",
     "clean": "rm -rf artifacts cache typechain",
-    "lint:fix": "./node_modules/.bin/solhint --fix -f table contracts/*.sol contracts/**/*.sol && ./node_modules/.bin/eslint --fix test/**/*.ts scripts/**/*.ts",
-    "lint:contracts": "./node_modules/.bin/solhint -f table contracts/*.sol contracts/**/*.sol",
+    "lint:fix": "./node_modules/.bin/solhint --fix -f table contracts/**/*.sol && ./node_modules/.bin/eslint --fix test/**/*.ts scripts/**/*.ts",
+    "lint:contracts": "./node_modules/.bin/solhint -f table contracts/**/*.sol",
     "lint:typescript": "./node_modules/.bin/eslint test/**/*.ts scripts/**/*.ts",
     "lint": "yarn lint:contracts && yarn lint:typescript",
-    "format:fix": "./node_modules/.bin/prettier --write contracts/*.sol contracts/**/*.sol test/**/*.ts scripts/**/*.ts",
-    "format": "./node_modules/.bin/prettier --check contracts/*.sol contracts/**/*.sol test/**/*.ts"
+    "format:fix": "prettier --write contracts/**/*.sol test/**/*.ts scripts/**/*.ts",
+    "format": "prettier --check contracts/**/*.sol test/**/*.ts"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",

@@ -2,12 +2,7 @@
 
 pragma solidity 0.8.15;
 
-import {
-    IERC721Token,
-    IPoolErrors,
-    IPoolLenderActions,
-    IPoolLiquidationActions
-}                           from './interfaces/pool/IPool.sol';
+import { IERC721Token, IPoolErrors, IPoolLenderActions, IPoolLiquidationActions } from "./interfaces/pool/IPool.sol";
 import {
     BucketTakeResult,
     DrawDebtResult,
@@ -15,31 +10,28 @@ import {
     SettleParams,
     SettleResult,
     TakeResult
-}                           from './interfaces/pool/commons/IPoolInternals.sol';
-import { PoolState }        from './interfaces/pool/commons/IPoolState.sol';
+} from "./interfaces/pool/commons/IPoolInternals.sol";
+import { PoolState } from "./interfaces/pool/commons/IPoolState.sol";
 
 import {
     IERC721Pool,
     IERC721PoolBorrowerActions,
     IERC721PoolImmutables,
     IERC721PoolLenderActions
-}                               from './interfaces/pool/erc721/IERC721Pool.sol';
-import { IERC721Taker }         from './interfaces/pool/erc721/IERC721Taker.sol';
+} from "./interfaces/pool/erc721/IERC721Pool.sol";
+import { IERC721Taker } from "./interfaces/pool/erc721/IERC721Taker.sol";
 
-import { FlashloanablePool } from './base/FlashloanablePool.sol';
+import { FlashloanablePool } from "./base/FlashloanablePool.sol";
 
-import { 
-    _revertIfAuctionClearable,
-    _revertOnExpiry 
-}                               from './libraries/helpers/RevertsHelper.sol';
+import { _revertIfAuctionClearable, _revertOnExpiry } from "./libraries/helpers/RevertsHelper.sol";
 
-import { Maths }    from './libraries/internal/Maths.sol';
-import { Deposits } from './libraries/internal/Deposits.sol';
-import { Loans }    from './libraries/internal/Loans.sol';
+import { Maths } from "./libraries/internal/Maths.sol";
+import { Deposits } from "./libraries/internal/Deposits.sol";
+import { Loans } from "./libraries/internal/Loans.sol";
 
-import { Auctions }        from './libraries/external/Auctions.sol';
-import { LenderActions }   from './libraries/external/LenderActions.sol';
-import { BorrowerActions } from './libraries/external/BorrowerActions.sol';
+import { Auctions } from "./libraries/external/Auctions.sol";
+import { LenderActions } from "./libraries/external/LenderActions.sol";
+import { BorrowerActions } from "./libraries/external/BorrowerActions.sol";
 
 /**
  *  @title  ERC721 Pool contract
@@ -56,47 +48,45 @@ import { BorrowerActions } from './libraries/external/BorrowerActions.sol';
  *  @dev    Calls logic from external PoolCommons, LenderActions, BorrowerActions and Auctions libraries.
  */
 contract ERC721Pool is FlashloanablePool, IERC721Pool {
-
     /*****************/
     /*** Constants ***/
     /*****************/
 
     // immutable args offset
-    uint256 internal constant SUBSET   = 93;
+    uint256 internal constant SUBSET = 93;
 
     /***********************/
     /*** State Variables ***/
     /***********************/
 
-    mapping(uint256 => bool)      public tokenIdsAllowed;  // set of tokenIds that can be used for a given NFT Subset type pool
+    mapping(uint256 => bool) public tokenIdsAllowed; // set of tokenIds that can be used for a given NFT Subset type pool
     mapping(address => uint256[]) public borrowerTokenIds; // borrower address => array of tokenIds pledged by borrower
-    uint256[]                     public bucketTokenIds;   // array of tokenIds added in pool buckets
+    uint256[] public bucketTokenIds; // array of tokenIds added in pool buckets
 
     /****************************/
     /*** Initialize Functions ***/
     /****************************/
 
     /// @inheritdoc IERC721Pool
-    function initialize(
-        uint256[] memory tokenIds_,
-        uint256 rate_
-    ) external override {
+    function initialize(uint256[] memory tokenIds_, uint256 rate_) external override {
         if (isPoolInitialized) revert AlreadyInitialized();
 
-        inflatorState.inflator       = uint208(1e18);
+        inflatorState.inflator = uint208(1e18);
         inflatorState.inflatorUpdate = uint48(block.timestamp);
 
-        interestState.interestRate       = uint208(rate_);
+        interestState.interestRate = uint208(rate_);
         interestState.interestRateUpdate = uint48(block.timestamp);
 
         uint256 noOfTokens = tokenIds_.length;
 
         if (noOfTokens != 0) {
             // add subset of tokenIds allowed in the pool
-            for (uint256 id = 0; id < noOfTokens;) {
+            for (uint256 id = 0; id < noOfTokens; ) {
                 tokenIdsAllowed[tokenIds_[id]] = true;
 
-                unchecked { ++id; }
+                unchecked {
+                    ++id;
+                }
             }
         }
 
@@ -160,8 +150,8 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         );
 
         // update pool interest rate state
-        poolState.debt       = result.poolDebt;
-        poolState.t0Debt     = result.t0PoolDebt;
+        poolState.debt = result.poolDebt;
+        poolState.t0Debt = result.t0PoolDebt;
         poolState.collateral = result.poolCollateral;
         _updateInterestState(poolState, result.newLup);
 
@@ -232,8 +222,8 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         );
 
         // update pool interest rate state
-        poolState.debt       = result.poolDebt;
-        poolState.t0Debt     = result.t0PoolDebt;
+        poolState.debt = result.poolDebt;
+        poolState.t0Debt = result.t0PoolDebt;
         poolState.collateral = result.poolCollateral;
         _updateInterestState(poolState, result.newLup);
 
@@ -275,12 +265,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         _revertOnExpiry(expiry_);
         PoolState memory poolState = _accruePoolInterest();
 
-        bucketLPs_ = LenderActions.addCollateral(
-            buckets,
-            deposits,
-            Maths.wad(tokenIdsToAdd_.length),
-            index_
-        );
+        bucketLPs_ = LenderActions.addCollateral(buckets, deposits, Maths.wad(tokenIdsToAdd_.length), index_);
 
         emit AddCollateralNFT(msg.sender, index_, tokenIdsToAdd_, bucketLPs_);
 
@@ -308,10 +293,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         PoolState memory poolState = _accruePoolInterest();
         uint256 collateralAmount = Maths.wad(noOfNFTsToRemove_);
 
-        (
-            collateralMerged_,
-            bucketLPs_
-        ) = LenderActions.mergeOrRemoveCollateral(
+        (collateralMerged_, bucketLPs_) = LenderActions.mergeOrRemoveCollateral(
             buckets,
             deposits,
             removalIndexes_,
@@ -328,7 +310,6 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
             // Total collateral in buckets meets the requested removal amount, noOfNFTsToRemove_
             _transferFromPoolToAddress(msg.sender, bucketTokenIds, noOfNFTsToRemove_);
         }
-
     }
 
     /**
@@ -347,12 +328,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         PoolState memory poolState = _accruePoolInterest();
 
         collateralAmount_ = Maths.wad(noOfNFTsToRemove_);
-        lpAmount_ = LenderActions.removeCollateral(
-            buckets,
-            deposits,
-            collateralAmount_,
-            index_
-        );
+        lpAmount_ = LenderActions.removeCollateral(buckets, deposits, collateralAmount_, index_);
 
         emit RemoveCollateral(msg.sender, index_, noOfNFTsToRemove_, lpAmount_);
 
@@ -373,39 +349,28 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
      *          - decrement poolBalances.t0DebtInAuction accumulator
      *          - decrement poolBalances.pledgedCollateral accumulator
      */
-    function settle(
-        address borrowerAddress_,
-        uint256 maxDepth_
-    ) external nonReentrant override {
+    function settle(address borrowerAddress_, uint256 maxDepth_) external override nonReentrant {
         PoolState memory poolState = _accruePoolInterest();
 
         uint256 assets = Maths.wmul(poolBalances.t0Debt, poolState.inflator) + _getNormalizedPoolQuoteTokenBalance();
 
         uint256 liabilities = Deposits.treeSum(deposits) + auctions.totalBondEscrowed + reserveAuction.unclaimed;
 
-        SettleParams memory params = SettleParams(
-            {
-                borrower:    borrowerAddress_,
-                reserves:    (assets > liabilities) ? (assets-liabilities) : 0,
-                inflator:    poolState.inflator,
-                bucketDepth: maxDepth_,
-                poolType:    poolState.poolType
-            }
-        );
+        SettleParams memory params = SettleParams({
+            borrower: borrowerAddress_,
+            reserves: (assets > liabilities) ? (assets - liabilities) : 0,
+            inflator: poolState.inflator,
+            bucketDepth: maxDepth_,
+            poolType: poolState.poolType
+        });
 
-        SettleResult memory result = Auctions.settlePoolDebt(
-            auctions,
-            buckets,
-            deposits,
-            loans,
-            params
-        );
+        SettleResult memory result = Auctions.settlePoolDebt(auctions, buckets, deposits, loans, params);
 
         if (result.collateralSettled > 0) _rebalanceTokens(params.borrower, result.collateralRemaining);
 
         // update pool balances state
-        poolBalances.t0Debt            -= result.t0DebtSettled;
-        poolBalances.t0DebtInAuction   -= result.t0DebtSettled;
+        poolBalances.t0Debt -= result.t0DebtSettled;
+        poolBalances.t0DebtInAuction -= result.t0DebtSettled;
         poolBalances.pledgedCollateral -= result.collateralSettled;
 
         // adjust t0Debt2ToCollateral ratio
@@ -417,8 +382,8 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         );
 
         // update pool interest rate state
-        poolState.debt       -= Maths.wmul(result.t0DebtSettled, poolState.inflator);
-        poolState.t0Debt     -= result.t0DebtSettled;
+        poolState.debt -= Maths.wmul(result.t0DebtSettled, poolState.inflator);
+        poolState.t0Debt -= result.t0DebtSettled;
         poolState.collateral -= result.collateralSettled;
         _updateInterestState(poolState, _lup(poolState.debt));
     }
@@ -431,9 +396,9 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
      *          - decrement poolBalances.pledgedCollateral accumulator
      */
     function take(
-        address        borrowerAddress_,
-        uint256        collateral_,
-        address        callee_,
+        address borrowerAddress_,
+        uint256 collateral_,
+        address callee_,
         bytes calldata data_
     ) external override nonReentrant {
         PoolState memory poolState = _accruePoolInterest();
@@ -454,7 +419,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         t0DebtInAuction += result.t0DebtPenalty;
         t0DebtInAuction -= result.t0DebtInAuctionChange;
 
-        poolBalances.t0Debt          = result.t0PoolDebt;
+        poolBalances.t0Debt = result.t0PoolDebt;
         poolBalances.t0DebtInAuction = t0DebtInAuction;
 
         // the total collateral taken from borrower pledged collateral (collateral taken plus collateral compensated if auction settled)
@@ -470,8 +435,8 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         );
 
         // update pool interest rate state
-        poolState.debt       =  result.poolDebt;
-        poolState.t0Debt     =  result.t0PoolDebt;
+        poolState.debt = result.poolDebt;
+        poolState.t0Debt = result.t0PoolDebt;
         poolState.collateral -= collateralSettled;
         _updateInterestState(poolState, result.newLup);
 
@@ -487,7 +452,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         if (data_.length != 0) {
             IERC721Taker(callee_).atomicSwapCallback(
                 tokensTaken,
-                totalQuoteTokenAmount  / _getArgUint256(QUOTE_SCALE),
+                totalQuoteTokenAmount / _getArgUint256(QUOTE_SCALE),
                 data_
             );
         }
@@ -508,12 +473,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
      *          - decrement poolBalances.t0DebtInAuction accumulator
      *          - decrement poolBalances.pledgedCollateral accumulator
      */
-    function bucketTake(
-        address borrowerAddress_,
-        bool    depositTake_,
-        uint256 index_
-    ) external override nonReentrant {
-
+    function bucketTake(address borrowerAddress_, bool depositTake_, uint256 index_) external override nonReentrant {
         PoolState memory poolState = _accruePoolInterest();
 
         BucketTakeResult memory result = Auctions.bucketTake(
@@ -533,7 +493,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         t0DebtInAuction += result.t0DebtPenalty;
         t0DebtInAuction -= result.t0DebtInAuctionChange;
 
-        poolBalances.t0Debt          = result.t0PoolDebt;
+        poolBalances.t0Debt = result.t0PoolDebt;
         poolBalances.t0DebtInAuction = t0DebtInAuction;
 
         // the total collateral taken from borrower pledged collateral (collateral taken plus collateral compensated if auction settled)
@@ -549,8 +509,8 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         );
 
         // update pool interest rate state
-        poolState.debt       = result.poolDebt;
-        poolState.t0Debt     = result.t0PoolDebt;
+        poolState.debt = result.poolDebt;
+        poolState.t0Debt = result.t0PoolDebt;
         poolState.collateral -= collateralSettled;
         _updateInterestState(poolState, result.newLup);
 
@@ -570,22 +530,23 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
      *  @param  borrowerAddress_    Address of borrower.
      *  @param  borrowerCollateral_ Current borrower collateral to be rebalanced.
      */
-    function _rebalanceTokens(
-        address borrowerAddress_,
-        uint256 borrowerCollateral_
-    ) internal {
+    function _rebalanceTokens(address borrowerAddress_, uint256 borrowerCollateral_) internal {
         // rebalance borrower's collateral, transfer difference to floor collateral from borrower to pool claimable array
         uint256[] storage borrowerTokens = borrowerTokenIds[borrowerAddress_];
 
-        uint256 noOfTokensPledged    = borrowerTokens.length;
-        uint256 noOfTokensToTransfer = borrowerCollateral_ != 0 ? noOfTokensPledged - borrowerCollateral_ / 1e18 : noOfTokensPledged;
+        uint256 noOfTokensPledged = borrowerTokens.length;
+        uint256 noOfTokensToTransfer = borrowerCollateral_ != 0
+            ? noOfTokensPledged - borrowerCollateral_ / 1e18
+            : noOfTokensPledged;
 
-        for (uint256 i = 0; i < noOfTokensToTransfer;) {
+        for (uint256 i = 0; i < noOfTokensToTransfer; ) {
             uint256 tokenId = borrowerTokens[--noOfTokensPledged]; // start with moving the last token pledged by borrower
-            borrowerTokens.pop();                                  // remove token id from borrower
-            bucketTokenIds.push(tokenId);                          // add token id to pool claimable tokens
+            borrowerTokens.pop(); // remove token id from borrower
+            bucketTokenIds.push(tokenId); // add token id to pool claimable tokens
 
-            unchecked { ++i; }
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -595,20 +556,19 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
      *  @param  poolTokens_ Array in pool that tracks NFT ids (could be tracking NFTs pledged by borrower or NFTs added by a lender in a specific bucket).
      *  @param  tokenIds_   Array of NFT token ids to transfer from msg.sender to pool.
      */
-    function _transferFromSenderToPool(
-        uint256[] storage poolTokens_,
-        uint256[] calldata tokenIds_
-    ) internal {
-        bool subset   = _getArgUint256(SUBSET) != 0;
+    function _transferFromSenderToPool(uint256[] storage poolTokens_, uint256[] calldata tokenIds_) internal {
+        bool subset = _getArgUint256(SUBSET) != 0;
 
-        for (uint256 i = 0; i < tokenIds_.length;) {
+        for (uint256 i = 0; i < tokenIds_.length; ) {
             uint256 tokenId = tokenIds_[i];
             if (subset && !tokenIdsAllowed[tokenId]) revert OnlySubset();
             poolTokens_.push(tokenId);
 
             _transferNFT(msg.sender, address(this), tokenId);
 
-            unchecked { ++i; }
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -629,7 +589,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
 
         uint256 noOfNFTsInPool = poolTokens_.length;
 
-        for (uint256 i = 0; i < amountToRemove_;) {
+        for (uint256 i = 0; i < amountToRemove_; ) {
             uint256 tokenId = poolTokens_[--noOfNFTsInPool]; // start with transferring the last token added in bucket
             poolTokens_.pop();
 
@@ -637,7 +597,9 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
 
             tokensTransferred[i] = tokenId;
 
-            unchecked { ++i; }
+            unchecked {
+                ++i;
+            }
         }
 
         return tokensTransferred;
@@ -654,5 +616,4 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         // slither-disable-next-line calls-loop
         IERC721Token(_getArgAddress(COLLATERAL_ADDRESS)).transferFrom(from_, to_, tokenId_);
     }
-
 }

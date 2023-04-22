@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity  ^0.8.4;
+pragma solidity ^0.8.4;
 
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
@@ -39,19 +39,10 @@ contract AccountGuard is Ownable {
         address callTarget,
         bool asDelegateCall
     ) external view returns (bool, bool) {
-        return (
-            allowed[operator][proxy],
-            asDelegateCall
-                ? isWhitelisted(callTarget)
-                : isWhitelistedSend(callTarget)
-        );
+        return (allowed[operator][proxy], asDelegateCall ? isWhitelisted(callTarget) : isWhitelistedSend(callTarget));
     }
 
-    function canCall(address target, address operator)
-        external
-        view
-        returns (bool)
-    {
+    function canCall(address target, address operator) external view returns (bool) {
         return owners[target] == operator || allowed[operator][target];
     }
 
@@ -60,15 +51,8 @@ contract AccountGuard is Ownable {
         factory = msg.sender;
     }
 
-    function permit(
-        address caller,
-        address target,
-        bool allowance
-    ) external {
-        require(
-            allowed[msg.sender][target] || msg.sender == factory,
-            "account-guard/no-permit"
-        );
+    function permit(address caller, address target, bool allowance) external {
+        require(allowed[msg.sender][target] || msg.sender == factory, "account-guard/no-permit");
         if (msg.sender == factory) {
             owners[target] = caller;
             allowed[target][target] = true;
@@ -93,11 +77,7 @@ contract AccountGuard is Ownable {
         emit ProxyOwnershipTransferred(newOwner, msg.sender, target);
     }
 
-    event ProxyOwnershipTransferred(
-        address indexed newOwner,
-        address indexed oldAddress,
-        address indexed proxy
-    );
+    event ProxyOwnershipTransferred(address indexed newOwner, address indexed oldAddress, address indexed proxy);
     event PermissionGranted(address indexed caller, address indexed proxy);
     event PermissionRevoked(address indexed caller, address indexed proxy);
 }

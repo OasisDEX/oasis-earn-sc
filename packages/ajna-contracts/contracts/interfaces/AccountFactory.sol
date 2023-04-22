@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity  ^0.8.4;
+pragma solidity ^0.8.4;
 
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
-import {AccountGuard} from "./AccountGuard.sol";
-import {AccountImplementation} from "./AccountImplementation.sol";
-import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
+import { AccountGuard } from "./AccountGuard.sol";
+import { AccountImplementation } from "./AccountImplementation.sol";
+import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract AccountFactory {
     address public immutable proxyTemplate;
@@ -35,9 +35,5 @@ contract AccountFactory {
         return clone;
     }
 
-    event AccountCreated(
-        address indexed proxy,
-        address indexed user,
-        uint256 indexed vaultId
-    );
+    event AccountCreated(address indexed proxy, address indexed user, uint256 indexed vaultId);
 }

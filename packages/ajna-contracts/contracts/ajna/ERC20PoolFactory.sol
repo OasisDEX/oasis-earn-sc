@@ -2,14 +2,14 @@
 
 pragma solidity 0.8.15;
 
-import { ClonesWithImmutableArgs } from './libs/clones-with-immutable-args/src/ClonesWithImmutableArgs.sol';
+import { ClonesWithImmutableArgs } from "./libs/clones-with-immutable-args/src/ClonesWithImmutableArgs.sol";
 
-import { IERC20PoolFactory }     from './interfaces/pool/erc20/IERC20PoolFactory.sol';
-import { IPoolFactory }          from './interfaces/pool/IPoolFactory.sol';
-import { IERC20Token, PoolType } from './interfaces/pool/IPool.sol';
+import { IERC20PoolFactory } from "./interfaces/pool/erc20/IERC20PoolFactory.sol";
+import { IPoolFactory } from "./interfaces/pool/IPoolFactory.sol";
+import { IERC20Token, PoolType } from "./interfaces/pool/IPool.sol";
 
-import { ERC20Pool }    from './ERC20Pool.sol';
-import { PoolDeployer } from './base/PoolDeployer.sol';
+import { ERC20Pool } from "./ERC20Pool.sol";
+import { PoolDeployer } from "./base/PoolDeployer.sol";
 
 /**
  *  @title  ERC20 Pool Factory
@@ -18,7 +18,6 @@ import { PoolDeployer } from './base/PoolDeployer.sol';
  *  @dev    Reverts if pool is already created or if params to deploy new pool are invalid.
  */
 contract ERC20PoolFactory is PoolDeployer, IERC20PoolFactory {
-
     using ClonesWithImmutableArgs for address;
 
     ERC20Pool public implementation;
@@ -48,9 +47,12 @@ contract ERC20PoolFactory is PoolDeployer, IERC20PoolFactory {
      *          - PoolCreated
      */
     function deployPool(
-        address collateral_, address quote_, uint256 interestRate_
+        address collateral_,
+        address quote_,
+        uint256 interestRate_
     ) external canDeploy(collateral_, quote_, interestRate_) returns (address pool_) {
-        if (deployedPools[ERC20_NON_SUBSET_HASH][collateral_][quote_] != address(0)) revert IPoolFactory.PoolAlreadyExists();
+        if (deployedPools[ERC20_NON_SUBSET_HASH][collateral_][quote_] != address(0))
+            revert IPoolFactory.PoolAlreadyExists();
 
         uint256 quoteTokenScale = 10 ** (18 - IERC20Token(quote_).decimals());
         uint256 collateralScale = 10 ** (18 - IERC20Token(collateral_).decimals());
