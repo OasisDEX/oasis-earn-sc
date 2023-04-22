@@ -4,7 +4,7 @@
   "typings": "lib/src/index.d.ts",
   "version": "0.2.16",
   "scripts": {
-    "build": "rm -rf ./lib && yarn tsc -b --verbose",
+    "build": "rm -rf ./lib && yarn tsc -b",
     "watch": "yarn tsc -b -w",
     "lint:fix": "yarn eslint . --fix --ext .ts",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc -p ./tsconfig.json --noEmit",
