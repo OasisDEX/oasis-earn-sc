@@ -12,7 +12,7 @@
   "scripts": {
     "init:modules": "git submodule update --init",
     "test": "npx hardhat test",
-    "build": "npx hardhat compile --show-stack-traces --verbose",
+    "compile": "npx hardhat compile --show-stack-traces --verbose",
     "clean": "rm -rf artifacts cache typechain",
     "lint:fix": "./node_modules/.bin/solhint --fix -f table contracts/**/*.sol && ./node_modules/.bin/eslint --fix test/**/*.ts scripts/**/*.ts",
     "lint:contracts": "./node_modules/.bin/solhint -f table contracts/**/*.sol",
