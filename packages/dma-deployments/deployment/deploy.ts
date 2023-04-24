@@ -98,10 +98,10 @@ abstract class DeployedSystemHelpers {
     return rpcUrls[network]
   }
 
-  async init(hre: HardhatRuntimeEnvironment) {
-    this.hre = hre
-    this.ethers = hre.ethers
-    this.provider = hre.ethers.provider
+  async init() {
+    if (!this.hre) throw new Error('HardhatRuntimeEnvironment is not defined!')
+    this.ethers = this.hre.ethers
+    this.provider = this.hre.ethers.provider
     this.signer = this.provider.getSigner()
 
     this.signerAddress = await this.signer.getAddress()
@@ -128,6 +128,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   constructor(public readonly hre: HardhatRuntimeEnvironment) {
     super()
+    this.hre = hre
     this.network = hre.network.name as Network
   }
 
@@ -192,8 +193,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async postRegistryEntry(configItem: DeploymentConfig, address: string) {
     if (!configItem.serviceRegistryName) throw new Error('No service registry name provided')
     console.log(
-      'REGISTRY ENTRY ADDED',
-      configItem.name,
+      'REGISTRY ENTRY',
       configItem.serviceRegistryName,
       this.getRegistryEntryHash(configItem.serviceRegistryName),
       address,
