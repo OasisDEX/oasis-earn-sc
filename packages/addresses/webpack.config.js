@@ -4,7 +4,7 @@ module.exports = {
   entry: './src/index.ts',
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, 'lib', 'esm'),
+    path: path.resolve(__dirname, 'lib'),
     library: {
       type: 'module',
     },

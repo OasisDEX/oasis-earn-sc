@@ -1,16 +1,21 @@
 {
   "name": "@oasisdex/addresses",
   "version": "1.0.0",
-  "main": "lib/cjs/src/index.js",
-  "module": "lib/esm/src/index.js",
-  "typings": "lib/cjs/src/index.d.ts",
+  "main": "lib/index.js",
+  "typings": "cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "require": "./cjs/index.js"
+    }
+  },
   "license": "MIT",
   "files": [
-    "lib"
+    "lib",
+    "cjs"
   ],
   "scripts": {
-    "build": "rm -rf ./lib && tsc --build && webpack",
-    "build:old": "rm -rf ./old && tsc -b",
+    "build": "rm -rf ./lib && rm -rf ./cjs && tsc --build && webpack",
     "watch": "yarn tsc -b -w",
     "lint": "yarn tsc -p ./tsconfig.json --noEmit",
     "prepublish": "yarn build"
