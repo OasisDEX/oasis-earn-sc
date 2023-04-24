@@ -56,7 +56,7 @@ type MainnetDeployment = Omit<DefaultDeployment, SystemKeys.AAVE> & AaveDeployme
 export type Addresses = {
   [Network.MAINNET]: MainnetDeployment
   [Network.OPTIMISM]: DefaultDeployment
-  [Network.GOERLI]: DefaultDeployment
+  [Network.GOERLI]: MainnetDeployment
 }
 
 if (!mainnetConfig.aave.v2) throw new Error('Missing aave v2 config on mainnet')
@@ -131,6 +131,9 @@ export const ADDRESSES: Addresses = {
       ...extractAddressesFromConfig(goerliConfig.common),
     },
     aave: {
+      v2: {
+        ...extractAddressesFromConfig(goerliConfig.aave.v2!),
+      },
       v3: {
         ...extractAddressesFromConfig(goerliConfig.aave.v3),
       },

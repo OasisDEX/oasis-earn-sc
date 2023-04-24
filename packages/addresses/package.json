@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "build": "rm -rf ./lib && rm -rf ./cjs && tsc --build && webpack",
-    "watch": "yarn tsc -b -w",
+    "watch": "yarn tsc -b -w && webpack --watch",
     "lint": "yarn tsc -p ./tsconfig.json --noEmit",
     "prepublish": "yarn build"
   },

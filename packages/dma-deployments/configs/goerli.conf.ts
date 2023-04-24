@@ -15,7 +15,7 @@ export const config: SystemConfig = {
       OperationExecutor: {
         name: 'OperationExecutor',
         deploy: true,
-        address: '',
+        address: '0xA946f00b58a934824215C1D91346AebbD8702FD4',
         serviceRegistryName: 'OperationExecutor_2',
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -39,7 +39,7 @@ export const config: SystemConfig = {
       DSProxyFactory: {
         name: 'DSProxyFactory',
         deploy: false,
-        address: constants.AddressZero,
+        address: '0x84eFB9c18059394172D0d69A3E58B03320001871',
         serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
         history: [],
         constructorArgs: [],
@@ -47,7 +47,7 @@ export const config: SystemConfig = {
       DSProxyRegistry: {
         name: 'DSProxyRegistry',
         deploy: false,
-        address: constants.AddressZero,
+        address: '0x46759093D8158db8BB555aC7C6F98070c56169ce',
         serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
         history: [],
         constructorArgs: ['address:DSProxyFactory'],
@@ -63,14 +63,14 @@ export const config: SystemConfig = {
       AccountGuard: {
         name: 'AccountGuard',
         deploy: false,
-        address: '',
+        address: '0x9319710C25cdaDDD1766F0bDE40F1A4034C17c7e',
         history: [],
         constructorArgs: [],
       },
       AccountFactory: {
         name: 'AccountFactory',
         deploy: false,
-        address: '',
+        address: '0x53958191c3077eDe3Ca90Eb840283df063FC1be3',
         history: [],
         constructorArgs: ['address:AccountGuard'],
       },
@@ -258,23 +258,23 @@ export const config: SystemConfig = {
     },
     MerkleRedeemer: {
       name: 'MerkleRedeemer',
-      address: constants.AddressZero,
+      address: '0x23440aC6c8a10EA89132da74B705CBc6D99a805b',
     },
     DssCharter: {
       name: 'DssCharter',
-      address: constants.AddressZero,
+      address: '0x7ea0d7ea31C544a472b55D19112e016Ba6708288',
     },
     DssProxyActions: {
       name: 'DssProxyActions',
-      address: constants.AddressZero,
+      address: '0x4023f89983Ece35e227c49806aFc13Bc0248d178',
     },
     DssProxyActionsCharter: {
       name: 'DssProxyActionsCharter',
-      address: constants.AddressZero,
+      address: '0xfFb896D7BEf704DF73abc9A2EBf295CE236c5919',
     },
     DssMultiplyProxyActions: {
       name: 'DssMultiplyProxyActions',
-      address: constants.AddressZero,
+      address: '0xc9628adc0a9f95D1d912C5C19aaBFF85E420a853',
     },
     DssCropper: {
       name: 'DssCropper',
@@ -286,7 +286,7 @@ export const config: SystemConfig = {
     },
     DssProxyActionsDsr: {
       name: 'DssProxyActionsDsr',
-      address: constants.AddressZero,
+      address: '0x15679CdbDb284fe07Eff3809150126697c6e3Dd6',
     },
     Otc: {
       name: 'Otc',
@@ -314,19 +314,19 @@ export const config: SystemConfig = {
     },
     CdpRegistry: {
       name: 'CdpRegistry',
-      address: constants.AddressZero,
+      address: '0x0636E6878703E30aB11Ba13A68C6124d9d252e6B',
     },
     DefaultExchange: {
       name: 'DefaultExchange',
-      address: constants.AddressZero,
-    },
-    NoFeesExchange: {
-      name: 'NoFeesExchange',
-      address: constants.AddressZero,
+      address: '0x2b0b4c5c58fe3CF8863c4948887099A09b84A69c',
     },
     LowerFeesExchange: {
       name: 'LowerFeesExchange',
-      address: constants.AddressZero,
+      address: '0x2b0b4c5c58fe3CF8863c4948887099A09b84A69c',
+    },
+    NoFeesExchange: {
+      name: 'NoFeesExchange',
+      address: '0x2b0b4c5c58fe3CF8863c4948887099A09b84A69c',
     },
     LidoCrvLiquidityFarmingReward: {
       name: 'LidoCrvLiquidityFarmingReward',
@@ -334,11 +334,11 @@ export const config: SystemConfig = {
     },
     ChainlinkPriceOracle_USDCUSD: {
       name: 'ChainlinkPriceOracle_USDCUSD',
-      address: constants.AddressZero,
+      address: '0xAb5c49580294Aff77670F839ea425f5b78ab3Ae7',
     },
     ChainlinkPriceOracle_ETHUSD: {
       name: 'ChainlinkPriceOracle_ETHUSD',
-      address: constants.AddressZero,
+      address: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e',
     },
     ADAI: { name: 'ADAI', address: constants.AddressZero },
     AAVE: { name: 'AAVE', address: '0x251661BB7C6869165eF35810E5e1D25Ed57be2Fe' },
@@ -399,7 +399,7 @@ export const config: SystemConfig = {
     USDT: { name: 'USDT', address: '0x5858f25cc225525A7494f76d90A6549749b3030B' },
     WBTC: {
       name: 'WBTC',
-      address: '0x68f180fcce6836688e9084f035309e29bf0a2095',
+      address: '0x7ccF0411c7932B99FC3704d68575250F032e3bB7',
       serviceRegistryName: 'WBTC',
     },
     WETH: {
@@ -409,26 +409,46 @@ export const config: SystemConfig = {
     },
     WSTETH: {
       name: 'WSTETH',
-      address: '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb',
+      address: '0x6320cD32aA674d2898A68ec82e869385Fc5f7E2f',
       serviceRegistryName: 'WSTETH',
     },
     YFI: { name: 'YFI', address: '0xd9510EF268F8273C9b7514F0bfFe18Fe1EFC0d43' },
     ZRX: { name: 'ZRX', address: '0x96E0C18524789ED3e62CD9F56aAEc7cEAC78725a' },
   },
   aave: {
+    v2: {
+      PriceOracle: {
+        name: 'PriceOracle',
+        address: '0xc1c6f3b788FE7F4bB896a2Fad65F5a8c0Ad509C9',
+      },
+      LendingPool: {
+        name: 'LendingPool',
+        address: '0x4bd5643ac6f66a5237E18bfA7d47cF22f1c9F210',
+        serviceRegistryName: CONTRACT_NAMES.aave.v2.LENDING_POOL,
+      },
+      ProtocolDataProvider: {
+        name: 'ProtocolDataProvider',
+        address: '0x927F584d4321C1dCcBf5e2902368124b02419a1E',
+      },
+      WETHGateway: {
+        name: 'WETHGateway',
+        address: constants.AddressZero,
+        serviceRegistryName: CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
+      },
+    },
     v3: {
       AaveOracle: {
         name: 'AaveOracle',
-        address: constants.AddressZero,
+        address: '0x9F616c65b5298E24e155E4486e114516BC635b63',
       },
       Pool: {
         name: 'Pool',
-        address: constants.AddressZero,
+        address: '0x6060Cf73C79098D32c9b936F4B26283427f1BFAd',
         serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
       },
       AaveProtocolDataProvider: {
         name: 'AaveProtocolDataProvider',
-        address: constants.AddressZero,
+        address: '0xa41E284482F9923E265832bE59627d91432da76C',
       },
     },
   },
@@ -444,10 +464,10 @@ export const config: SystemConfig = {
     },
     CdpManager: {
       name: 'CdpManager',
-      address: constants.AddressZero,
+      address: '0xdcBf58c9640A7bd0e062f8092d70fb981Bb52032',
     },
     GetCdps: {
-      name: 'CdpManager',
+      name: 'GetCdps',
       address: constants.AddressZero,
     },
     Jug: {
@@ -472,7 +492,7 @@ export const config: SystemConfig = {
     },
     Vat: {
       name: 'Vat',
-      address: constants.AddressZero,
+      address: '0xB966002DDAa2Baf48369f5015329750019736031',
     },
     McdGov: {
       name: 'McdGov',
@@ -498,41 +518,41 @@ export const config: SystemConfig = {
   automation: {
     AutomationBot: {
       name: 'AutomationBot',
-      address: constants.AddressZero,
+      address: '0xabDB63B4b3BA9f960CF942800a6982F88e9b1A6b',
     },
     AutomationBotV2: {
       name: 'AutomationBotV2',
-      address: constants.AddressZero,
+      address: '0x0',
     },
     AutomationBotAggregator: {
       name: 'AutomationBotAggregator',
-      address: constants.AddressZero,
+      address: '0xeb3c922A805FAEEac8f311E1AdF34fBC518099ab',
     },
   },
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: constants.AddressZero,
+      address: '0xEa36b2a4703182d07df9DdEe46BF97f9979F0cCf',
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: constants.AddressZero,
+      address: '0xE27E4fAdE5d3A2Bf6D76D0a20d437314d9da6139',
     },
     AjnaPoolPairs_WBTCUSDC: {
       name: 'AjnaPoolPairs_WBTCUSDC',
-      address: constants.AddressZero,
+      address: '0x17e5a1A6450d4fB32fFFc329ca92db55293db10e',
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
-      address: constants.AddressZero,
+      address: '0xe1200AEfd60559D494d4419E17419571eF8fC1Eb',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
-      address: constants.AddressZero,
+      address: '0xEd6890d748e62ddbb3f80e7256Deeb2fBb853476',
     },
     AjnaRewardsClaimer: {
       name: 'AjnaRewardsClaimer',
-      address: constants.AddressZero,
+      address: '0xEd6890d748e62ddbb3f80e7256Deeb2fBb853476',
     },
   },
 }
