@@ -1,6 +1,5 @@
-import { CONTRACT_NAMES } from '@dma-deployments/constants'
+import { ADDRESS_ZERO, CONTRACT_NAMES } from '@dma-deployments/constants'
 import { SystemConfig } from '@dma-deployments/types/deployment-config'
-import { constants } from 'ethers'
 
 export const config: SystemConfig = {
   mpa: {
@@ -39,7 +38,7 @@ export const config: SystemConfig = {
       DSProxyFactory: {
         name: 'DSProxyFactory',
         deploy: false,
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
         serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
         history: [],
         constructorArgs: [],
@@ -47,7 +46,7 @@ export const config: SystemConfig = {
       DSProxyRegistry: {
         name: 'DSProxyRegistry',
         deploy: false,
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
         serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
         history: [],
         constructorArgs: ['address:DSProxyFactory'],
@@ -55,7 +54,7 @@ export const config: SystemConfig = {
       DSGuardFactory: {
         name: 'DSGuardFactory',
         deploy: false,
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
         serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
         history: [],
         constructorArgs: [],
@@ -253,7 +252,7 @@ export const config: SystemConfig = {
     },
     USDT: {
       name: 'USDT',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     DAI: {
       name: 'DAI',
@@ -267,7 +266,7 @@ export const config: SystemConfig = {
     },
     LINK: {
       name: 'WBTC',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
@@ -294,23 +293,23 @@ export const config: SystemConfig = {
     },
     ChainlinkEthUsdPriceFeed: {
       name: 'ChainlinkEthUsdPriceFeed',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
   },
   aave: {
     v3: {
       AaveOracle: {
         name: 'AaveOracle',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
       },
       Pool: {
         name: 'Pool',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
         serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
       },
       AaveProtocolDataProvider: {
         name: 'AaveProtocolDataProvider',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
       },
     },
   },
@@ -322,35 +321,35 @@ export const config: SystemConfig = {
     },
     Chainlog: {
       name: 'Chainlog',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     CdpManager: {
       name: 'CdpManager',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     GetCdps: {
       name: 'CdpManager',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     Jug: {
       name: 'Jug',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     JoinDAI: {
       name: 'JoinDAI',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     JoinETH_A: {
       name: 'JoinETH_A',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     PipWETH: {
       name: 'PipWETH',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     PipLINK: {
       name: 'PipLINK',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
   },
 }

@@ -1,6 +1,5 @@
-import { CONTRACT_NAMES } from '@dma-deployments/constants'
+import { ADDRESS_ZERO, CONTRACT_NAMES } from '@dma-deployments/constants'
 import { SystemConfig } from '@dma-deployments/types/deployment-config'
-import { constants } from 'ethers'
 
 export const config: SystemConfig = {
   mpa: {
@@ -245,7 +244,7 @@ export const config: SystemConfig = {
   common: {
     GnosisSafe: {
       name: 'GnosisSafe',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     WETH: {
       name: 'WETH',

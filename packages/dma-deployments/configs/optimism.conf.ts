@@ -1,5 +1,5 @@
+import { ADDRESS_ZERO } from '@dma-deployments/constants'
 import { SystemConfig } from '@dma-deployments/types/deployment-config'
-import { constants } from 'ethers'
 
 export const config: SystemConfig = {
   mpa: {
@@ -211,7 +211,7 @@ export const config: SystemConfig = {
   common: {
     GnosisSafe: {
       name: 'GnosisSafe',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     WETH: {
       name: 'WETH',
@@ -229,7 +229,7 @@ export const config: SystemConfig = {
     },
     STETH: {
       name: 'STETH',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     USDC: {
       name: 'USDC',
@@ -238,7 +238,7 @@ export const config: SystemConfig = {
     },
     USDT: {
       name: 'USDT',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     DAI: {
       name: 'DAI',
@@ -252,7 +252,7 @@ export const config: SystemConfig = {
     },
     LINK: {
       name: 'LINK',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
@@ -306,39 +306,39 @@ export const config: SystemConfig = {
   maker: {
     FlashMintModule: {
       name: 'FlashMintModule',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     Chainlog: {
       name: 'Chainlog',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     CdpManager: {
       name: 'CdpManager',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     GetCdps: {
       name: 'CdpManager',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     Jug: {
       name: 'Jug',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     JoinDAI: {
       name: 'JoinDAI',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     JoinETH_A: {
       name: 'JoinETH_A',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     PipWETH: {
       name: 'PipWETH',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     PipLINK: {
       name: 'PipLINK',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
   },
 }
