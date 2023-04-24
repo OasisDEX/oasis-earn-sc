@@ -150,6 +150,61 @@ export type MakerProtocol =
   | 'PipWETH'
   | 'PipLINK'
 
+export type MakerProtocolJoins =
+  | 'MCD_JOIN_DAI'
+  | 'MCD_JOIN_ETH_A'
+  | 'MCD_JOIN_ETH_B'
+  | 'MCD_JOIN_ETH_C'
+  | 'MCD_JOIN_BAT_A'
+  | 'MCD_JOIN_USDC_A'
+  | 'MCD_JOIN_USDC_B'
+  | 'MCD_JOIN_PSM_USDC_A'
+  | 'MCD_JOIN_TUSD_A'
+  | 'MCD_JOIN_WBTC_A'
+  | 'MCD_JOIN_WBTC_B'
+  | 'MCD_JOIN_WBTC_C'
+  | 'MCD_JOIN_ZRX_A'
+  | 'MCD_JOIN_KNC_A'
+  | 'MCD_JOIN_MANA_A'
+  | 'MCD_JOIN_USDT_A'
+  | 'MCD_JOIN_PAXUSD_A'
+  | 'MCD_JOIN_PSM_PAX_A'
+  | 'MCD_JOIN_COMP_A'
+  | 'MCD_JOIN_LRC_A'
+  | 'MCD_JOIN_LINK_A'
+  | 'MCD_JOIN_BAL_A'
+  | 'MCD_JOIN_YFI_A'
+  | 'MCD_JOIN_GUSD_A'
+  | 'MCD_JOIN_PSM_GUSD_A'
+  | 'MCD_JOIN_UNI_A'
+  | 'MCD_JOIN_RENBTC_A'
+  | 'MCD_JOIN_AAVE_A'
+  | 'MCD_JOIN_MATIC_A'
+  | 'MCD_JOIN_WSTETH_A'
+  | 'MCD_JOIN_WSTETH_B'
+  | 'MCD_JOIN_DIRECT_AAVEV2_DAI'
+  | 'MCD_JOIN_GUNIV3DAIUSDC1_A'
+  | 'MCD_JOIN_GUNIV3DAIUSDC2_A'
+  | 'MCD_JOIN_CRVV1ETHSTETH_A'
+  | 'MCD_JOIN_UNIV2DAIETH_A'
+  | 'MCD_JOIN_UNIV2WBTCETH_A'
+  | 'MCD_JOIN_UNIV2USDCETH_A'
+  | 'MCD_JOIN_UNIV2DAIUSDC_A'
+  | 'MCD_JOIN_UNIV2ETHUSDT_A'
+  | 'MCD_JOIN_UNIV2LINKETH_A'
+  | 'MCD_JOIN_UNIV2UNIETH_A'
+  | 'MCD_JOIN_UNIV2WBTCDAI_A'
+  | 'MCD_JOIN_UNIV2AAVEETH_A'
+  | 'MCD_JOIN_UNIV2DAIUSDT_A'
+  | 'MCD_JOIN_RWA001_A'
+  | 'MCD_JOIN_RWA002_A'
+  | 'MCD_JOIN_RWA003_A'
+  | 'MCD_JOIN_RWA004_A'
+  | 'MCD_JOIN_RWA005_A'
+  | 'MCD_JOIN_RWA006_A'
+  | 'MCD_JOIN_RETH_A'
+  | 'MCD_JOIN_GNO_A'
+
 export type AutomationProtocol = 'AutomationBot' | 'AutomationBotV2' | 'AutomationBotAggregator'
 export type AjnaProtocol =
   | 'AjnaPoolInfo'
@@ -169,6 +224,7 @@ export type Contracts =
   | AaveV2Protocol
   | AaveV3Protocol
   | MakerProtocol
+  | MakerProtocolJoins
   | AutomationProtocol
   | AjnaProtocol
 
@@ -205,7 +261,10 @@ export type SystemConfig = {
     v2?: Record<AaveV2Protocol, DeploymentConfig>
     v3: Record<AaveV3Protocol, DeploymentConfig>
   }
-  maker: Record<MakerProtocol, DeploymentConfig>
+  maker: {
+    common: Record<MakerProtocol, DeploymentConfig>
+    joins: Record<MakerProtocolJoins, DeploymentConfig>
+  }
   automation: Record<AutomationProtocol, DeploymentConfig>
   ajna: Record<AjnaProtocol, DeploymentConfig>
 }

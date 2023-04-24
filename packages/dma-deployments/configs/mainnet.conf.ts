@@ -471,66 +471,279 @@ export const config: SystemConfig = {
     },
   },
   maker: {
-    FlashMintModule: {
-      name: 'FlashMintModule',
-      address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
-      serviceRegistryName: CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
+    common: {
+      FlashMintModule: {
+        name: 'FlashMintModule',
+        address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
+        serviceRegistryName: CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
+      },
+      Chainlog: {
+        name: 'Chainlog',
+        address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
+      },
+      CdpManager: {
+        name: 'CdpManager',
+        address: '0x5ef30b9986345249bc32d8928B7ee64DE9435E39',
+      },
+      GetCdps: {
+        name: 'GetCdps',
+        address: '0x36a724Bd100c39f0Ea4D3A20F7097eE01A8Ff573',
+      },
+      Jug: {
+        name: 'Jug',
+        address: '0x19c0976f590D67707E62397C87829d896Dc0f1F1',
+      },
+      Pot: {
+        name: 'Pot',
+        address: '0x19c0976f590D67707E62397C87829d896Dc0f1F1',
+      },
+      End: {
+        name: 'End',
+        address: '0xBB856d1742fD182a90239D7AE85706C2FE4e5922',
+      },
+      Spot: {
+        name: 'Spot',
+        address: '0x65C79fcB50Ca1594B025960e539eD7A9a6D434A3',
+      },
+      Dog: {
+        name: 'Dog',
+        address: '0x135954d155898D42C90D2a57824C690e0c7BEf1B',
+      },
+      Vat: {
+        name: 'Vat',
+        address: '0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B',
+      },
+      McdGov: {
+        name: 'McdGov',
+        address: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
+      },
+      JoinDAI: {
+        name: 'JoinDAI',
+        address: '0x9759A6Ac90977b93B58547b4A71c78317f391A28',
+      },
+      JoinETH_A: {
+        name: 'JoinETH_A',
+        address: '0x2F0b23f53734252Bda2277357e97e1517d6B042A',
+      },
+      PipWETH: {
+        name: 'PipWETH',
+        address: '0x81FE72B5A8d1A857d176C3E7d5Bd2679A9B85763',
+      },
+      PipLINK: {
+        name: 'PipLINK',
+        address: '0x9B0C694C6939b5EA9584e9b61C7815E8d97D9cC7',
+      },
     },
-    Chainlog: {
-      name: 'Chainlog',
-      address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
-    },
-    CdpManager: {
-      name: 'CdpManager',
-      address: '0x5ef30b9986345249bc32d8928B7ee64DE9435E39',
-    },
-    GetCdps: {
-      name: 'GetCdps',
-      address: '0x36a724Bd100c39f0Ea4D3A20F7097eE01A8Ff573',
-    },
-    Jug: {
-      name: 'Jug',
-      address: '0x19c0976f590D67707E62397C87829d896Dc0f1F1',
-    },
-    Pot: {
-      name: 'Pot',
-      address: '0x19c0976f590D67707E62397C87829d896Dc0f1F1',
-    },
-    End: {
-      name: 'End',
-      address: '0xBB856d1742fD182a90239D7AE85706C2FE4e5922',
-    },
-    Spot: {
-      name: 'Spot',
-      address: '0x65C79fcB50Ca1594B025960e539eD7A9a6D434A3',
-    },
-    Dog: {
-      name: 'Dog',
-      address: '0x135954d155898D42C90D2a57824C690e0c7BEf1B',
-    },
-    Vat: {
-      name: 'Vat',
-      address: '0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B',
-    },
-    McdGov: {
-      name: 'McdGov',
-      address: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
-    },
-    JoinDAI: {
-      name: 'JoinDAI',
-      address: '0x9759A6Ac90977b93B58547b4A71c78317f391A28',
-    },
-    JoinETH_A: {
-      name: 'JoinETH_A',
-      address: '0x2F0b23f53734252Bda2277357e97e1517d6B042A',
-    },
-    PipWETH: {
-      name: 'PipWETH',
-      address: '0x81FE72B5A8d1A857d176C3E7d5Bd2679A9B85763',
-    },
-    PipLINK: {
-      name: 'PipLINK',
-      address: '0x9B0C694C6939b5EA9584e9b61C7815E8d97D9cC7',
+    joins: {
+      MCD_JOIN_DAI: { name: 'MCD_JOIN_DAI', address: '0x9759A6Ac90977b93B58547b4A71c78317f391A28' },
+      MCD_JOIN_ETH_A: {
+        name: 'MCD_JOIN_ETH_A',
+        address: '0x2F0b23f53734252Bda2277357e97e1517d6B042A',
+      },
+      MCD_JOIN_ETH_B: {
+        name: 'MCD_JOIN_ETH_B',
+        address: '0x08638eF1A205bE6762A8b935F5da9b700Cf7322c',
+      },
+      MCD_JOIN_ETH_C: {
+        name: 'MCD_JOIN_ETH_C',
+        address: '0xF04a5cC80B1E94C69B48f5ee68a08CD2F09A7c3E',
+      },
+      MCD_JOIN_BAT_A: {
+        name: 'MCD_JOIN_BAT_A',
+        address: '0x3D0B1912B66114d4096F48A8CEe3A56C231772cA',
+      },
+      MCD_JOIN_USDC_A: {
+        name: 'MCD_JOIN_USDC_A',
+        address: '0xA191e578a6736167326d05c119CE0c90849E84B7',
+      },
+      MCD_JOIN_USDC_B: {
+        name: 'MCD_JOIN_USDC_B',
+        address: '0x2600004fd1585f7270756DDc88aD9cfA10dD0428',
+      },
+      MCD_JOIN_PSM_USDC_A: {
+        name: 'MCD_JOIN_PSM_USDC_A',
+        address: '0x0A59649758aa4d66E25f08Dd01271e891fe52199',
+      },
+      MCD_JOIN_WBTC_A: {
+        name: 'MCD_JOIN_WBTC_A',
+        address: '0xBF72Da2Bd84c5170618Fbe5914B0ECA9638d5eb5',
+      },
+      MCD_JOIN_WBTC_B: {
+        name: 'MCD_JOIN_WBTC_B',
+        address: '0xfA8c996e158B80D77FbD0082BB437556A65B96E0',
+      },
+      MCD_JOIN_WBTC_C: {
+        name: 'MCD_JOIN_WBTC_C',
+        address: '0x7f62f9592b823331E012D3c5DdF2A7714CfB9de2',
+      },
+      MCD_JOIN_TUSD_A: {
+        name: 'MCD_JOIN_TUSD_A',
+        address: '0x4454aF7C8bb9463203b66C816220D41ED7837f44',
+      },
+      MCD_JOIN_ZRX_A: {
+        name: 'MCD_JOIN_ZRX_A',
+        address: '0xc7e8Cd72BDEe38865b4F5615956eF47ce1a7e5D0',
+      },
+      MCD_JOIN_KNC_A: {
+        name: 'MCD_JOIN_KNC_A',
+        address: '0x475F1a89C1ED844A08E8f6C50A00228b5E59E4A9',
+      },
+      MCD_JOIN_MANA_A: {
+        name: 'MCD_JOIN_MANA_A',
+        address: '0xA6EA3b9C04b8a38Ff5e224E7c3D6937ca44C0ef9',
+      },
+      MCD_JOIN_USDT_A: {
+        name: 'MCD_JOIN_USDT_A',
+        address: '0x0Ac6A1D74E84C2dF9063bDDc31699FF2a2BB22A2',
+      },
+      MCD_JOIN_PAXUSD_A: {
+        name: 'MCD_JOIN_PAXUSD_A',
+        address: '0x7e62B7E279DFC78DEB656E34D6a435cC08a44666',
+      },
+      MCD_JOIN_PSM_PAX_A: {
+        name: 'MCD_JOIN_PSM_PAX_A',
+        address: '0x7bbd8cA5e413bCa521C2c80D8d1908616894Cf21',
+      },
+      MCD_JOIN_COMP_A: {
+        name: 'MCD_JOIN_COMP_A',
+        address: '0xBEa7cDfB4b49EC154Ae1c0D731E4DC773A3265aA',
+      },
+      MCD_JOIN_LRC_A: {
+        name: 'MCD_JOIN_LRC_A',
+        address: '0x6C186404A7A238D3d6027C0299D1822c1cf5d8f1',
+      },
+      MCD_JOIN_LINK_A: {
+        name: 'MCD_JOIN_LINK_A',
+        address: '0xdFccAf8fDbD2F4805C174f856a317765B49E4a50',
+      },
+      MCD_JOIN_BAL_A: {
+        name: 'MCD_JOIN_BAL_A',
+        address: '0x4a03Aa7fb3973d8f0221B466EefB53D0aC195f55',
+      },
+      MCD_JOIN_YFI_A: {
+        name: 'MCD_JOIN_YFI_A',
+        address: '0x3ff33d9162aD47660083D7DC4bC02Fb231c81677',
+      },
+      MCD_JOIN_GUSD_A: {
+        name: 'MCD_JOIN_GUSD_A',
+        address: '0xe29A14bcDeA40d83675aa43B72dF07f649738C8b',
+      },
+      MCD_JOIN_PSM_GUSD_A: {
+        name: 'MCD_JOIN_PSM_GUSD_A',
+        address: '0x79A0FA989fb7ADf1F8e80C93ee605Ebb94F7c6A5',
+      },
+      MCD_JOIN_UNI_A: {
+        name: 'MCD_JOIN_UNI_A',
+        address: '0x3BC3A58b4FC1CbE7e98bB4aB7c99535e8bA9b8F1',
+      },
+      MCD_JOIN_RENBTC_A: {
+        name: 'MCD_JOIN_RENBTC_A',
+        address: '0xFD5608515A47C37afbA68960c1916b79af9491D0',
+      },
+      MCD_JOIN_AAVE_A: {
+        name: 'MCD_JOIN_AAVE_A',
+        address: '0x24e459F61cEAa7b1cE70Dbaea938940A7c5aD46e',
+      },
+      MCD_JOIN_MATIC_A: {
+        name: 'MCD_JOIN_MATIC_A',
+        address: '0x885f16e177d45fC9e7C87e1DA9fd47A9cfcE8E13',
+      },
+      MCD_JOIN_WSTETH_A: {
+        name: 'MCD_JOIN_WSTETH_A',
+        address: '0x10CD5fbe1b404B7E19Ef964B63939907bdaf42E2',
+      },
+      MCD_JOIN_WSTETH_B: {
+        name: 'MCD_JOIN_WSTETH_B',
+        address: '0x248cCBf4864221fC0E840F29BB042ad5bFC89B5c',
+      },
+      MCD_JOIN_DIRECT_AAVEV2_DAI: {
+        name: 'MCD_JOIN_DIRECT_AAVEV2_DAI',
+        address: '0xa13C0c8eB109F5A13c6c90FC26AFb23bEB3Fb04a',
+      },
+      MCD_JOIN_UNIV2DAIETH_A: {
+        name: 'MCD_JOIN_UNIV2DAIETH_A',
+        address: '0x2502F65D77cA13f183850b5f9272270454094A08',
+      },
+      MCD_JOIN_UNIV2WBTCETH_A: {
+        name: 'MCD_JOIN_UNIV2WBTCETH_A',
+        address: '0xDc26C9b7a8fe4F5dF648E314eC3E6Dc3694e6Dd2',
+      },
+      MCD_JOIN_UNIV2USDCETH_A: {
+        name: 'MCD_JOIN_UNIV2USDCETH_A',
+        address: '0x03Ae53B33FeeAc1222C3f372f32D37Ba95f0F099',
+      },
+      MCD_JOIN_UNIV2DAIUSDC_A: {
+        name: 'MCD_JOIN_UNIV2DAIUSDC_A',
+        address: '0xA81598667AC561986b70ae11bBE2dd5348ed4327',
+      },
+      MCD_JOIN_UNIV2ETHUSDT_A: {
+        name: 'MCD_JOIN_UNIV2ETHUSDT_A',
+        address: '0x4aAD139a88D2dd5e7410b408593208523a3a891d',
+      },
+      MCD_JOIN_UNIV2LINKETH_A: {
+        name: 'MCD_JOIN_UNIV2LINKETH_A',
+        address: '0xDae88bDe1FB38cF39B6A02b595930A3449e593A6',
+      },
+      MCD_JOIN_UNIV2UNIETH_A: {
+        name: 'MCD_JOIN_UNIV2UNIETH_A',
+        address: '0xf11a98339FE1CdE648e8D1463310CE3ccC3d7cC1',
+      },
+      MCD_JOIN_UNIV2WBTCDAI_A: {
+        name: 'MCD_JOIN_UNIV2WBTCDAI_A',
+        address: '0xD40798267795Cbf3aeEA8E9F8DCbdBA9b5281fcC',
+      },
+      MCD_JOIN_UNIV2AAVEETH_A: {
+        name: 'MCD_JOIN_UNIV2AAVEETH_A',
+        address: '0x42AFd448Df7d96291551f1eFE1A590101afB1DfF',
+      },
+      MCD_JOIN_UNIV2DAIUSDT_A: {
+        name: 'MCD_JOIN_UNIV2DAIUSDT_A',
+        address: '0xAf034D882169328CAf43b823a4083dABC7EEE0F4',
+      },
+      MCD_JOIN_GUNIV3DAIUSDC1_A: {
+        name: 'MCD_JOIN_GUNIV3DAIUSDC1_A',
+        address: '0xbFD445A97e7459b0eBb34cfbd3245750Dba4d7a4',
+      },
+      MCD_JOIN_GUNIV3DAIUSDC2_A: {
+        name: 'MCD_JOIN_GUNIV3DAIUSDC2_A',
+        address: '0xA7e4dDde3cBcEf122851A7C8F7A55f23c0Daf335',
+      },
+      MCD_JOIN_CRVV1ETHSTETH_A: {
+        name: 'MCD_JOIN_CRVV1ETHSTETH_A',
+        address: '0x82D8bfDB61404C796385f251654F6d7e92092b5D',
+      },
+      MCD_JOIN_RWA001_A: {
+        name: 'MCD_JOIN_RWA001_A',
+        address: '0x476b81c12Dc71EDfad1F64B9E07CaA60F4b156E2',
+      },
+      MCD_JOIN_RWA002_A: {
+        name: 'MCD_JOIN_RWA002_A',
+        address: '0xe72C7e90bc26c11d45dBeE736F0acf57fC5B7152',
+      },
+      MCD_JOIN_RWA003_A: {
+        name: 'MCD_JOIN_RWA003_A',
+        address: '0x1Fe789BBac5b141bdD795A3Bc5E12Af29dDB4b86',
+      },
+      MCD_JOIN_RWA004_A: {
+        name: 'MCD_JOIN_RWA004_A',
+        address: '0xD50a8e9369140539D1c2D113c4dC1e659c6242eB',
+      },
+      MCD_JOIN_RWA005_A: {
+        name: 'MCD_JOIN_RWA005_A',
+        address: '0xA4fD373b93aD8e054970A3d6cd4Fd4C31D08192e',
+      },
+      MCD_JOIN_RWA006_A: {
+        name: 'MCD_JOIN_RWA006_A',
+        address: '0x5E11E34b6745FeBa9449Ae53c185413d6EdC66BE',
+      },
+      MCD_JOIN_RETH_A: {
+        name: 'MCD_JOIN_RETH_A',
+        address: '0xc6424e862f1462281b0a5fac078e4b63006bdebf',
+      },
+      MCD_JOIN_GNO_A: {
+        name: 'MCD_JOIN_GNO_A',
+        address: '0x7bD3f01e24E0f0838788bC8f573CEA43A80CaBB5',
+      },
     },
   },
   automation: {

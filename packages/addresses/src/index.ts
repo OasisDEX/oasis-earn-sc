@@ -13,6 +13,7 @@ import {
   CoreContracts,
   DeploymentConfig,
   MakerProtocol,
+  MakerProtocolJoins,
   SystemKeys,
 } from '@oasisdex/dma-deployments/types/deployment-config'
 import { Network } from '@oasisdex/dma-deployments/types/network'
@@ -39,7 +40,10 @@ type DefaultDeployment = {
   [SystemKeys.AAVE]: {
     [AaveKeys.V3]: Record<AaveV3Protocol, Address>
   }
-  [SystemKeys.MAKER]: Record<MakerProtocol, Address>
+  [SystemKeys.MAKER]: {
+    common: Record<MakerProtocol, Address>
+    joins: Record<MakerProtocolJoins, Address>
+  }
   [SystemKeys.AUTOMATION]: Record<AutomationProtocol, Address>
   [SystemKeys.AJNA]: Record<AjnaProtocol, Address>
 }
@@ -82,7 +86,12 @@ export const ADDRESSES: Addresses = {
       },
     },
     maker: {
-      ...extractAddressesFromConfig(mainnetConfig.maker),
+      common: {
+        ...extractAddressesFromConfig(mainnetConfig.maker.common),
+      },
+      joins: {
+        ...extractAddressesFromConfig(mainnetConfig.maker.joins),
+      },
     },
     automation: {
       ...extractAddressesFromConfig(mainnetConfig.automation),
@@ -109,7 +118,12 @@ export const ADDRESSES: Addresses = {
       },
     },
     maker: {
-      ...extractAddressesFromConfig(optimismConfig.maker),
+      common: {
+        ...extractAddressesFromConfig(optimismConfig.maker.common),
+      },
+      joins: {
+        ...extractAddressesFromConfig(optimismConfig.maker.joins),
+      },
     },
     automation: {
       ...extractAddressesFromConfig(optimismConfig.automation),
@@ -139,7 +153,12 @@ export const ADDRESSES: Addresses = {
       },
     },
     maker: {
-      ...extractAddressesFromConfig(goerliConfig.maker),
+      common: {
+        ...extractAddressesFromConfig(goerliConfig.maker.common),
+      },
+      joins: {
+        ...extractAddressesFromConfig(goerliConfig.maker.joins),
+      },
     },
     automation: {
       ...extractAddressesFromConfig(goerliConfig.automation),

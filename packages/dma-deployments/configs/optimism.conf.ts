@@ -413,65 +413,281 @@ export const config: SystemConfig = {
     },
   },
   maker: {
-    FlashMintModule: {
-      name: 'FlashMintModule',
-      address: constants.AddressZero,
+    common: {
+      FlashMintModule: {
+        name: 'FlashMintModule',
+        address: constants.AddressZero,
+      },
+      Chainlog: {
+        name: 'Chainlog',
+        address: constants.AddressZero,
+      },
+      CdpManager: {
+        name: 'CdpManager',
+        address: constants.AddressZero,
+      },
+      GetCdps: {
+        name: 'GetCdps',
+        address: constants.AddressZero,
+      },
+      Jug: {
+        name: 'Jug',
+        address: constants.AddressZero,
+      },
+      Pot: {
+        name: 'Pot',
+        address: constants.AddressZero,
+      },
+      End: {
+        name: 'End',
+        address: constants.AddressZero,
+      },
+      Spot: {
+        name: 'Spot',
+        address: constants.AddressZero,
+      },
+      Dog: {
+        name: 'Dog',
+        address: constants.AddressZero,
+      },
+      Vat: {
+        name: 'Vat',
+        address: constants.AddressZero,
+      },
+      McdGov: {
+        name: 'McdGov',
+        address: constants.AddressZero,
+      },
+      JoinDAI: {
+        name: 'JoinDAI',
+        address: constants.AddressZero,
+      },
+      JoinETH_A: {
+        name: 'JoinETH_A',
+        address: constants.AddressZero,
+      },
+      PipWETH: {
+        name: 'PipWETH',
+        address: constants.AddressZero,
+      },
+      PipLINK: {
+        name: 'PipLINK',
+        address: constants.AddressZero,
+      },
     },
-    Chainlog: {
-      name: 'Chainlog',
-      address: constants.AddressZero,
-    },
-    CdpManager: {
-      name: 'CdpManager',
-      address: constants.AddressZero,
-    },
-    GetCdps: {
-      name: 'GetCdps',
-      address: constants.AddressZero,
-    },
-    Jug: {
-      name: 'Jug',
-      address: constants.AddressZero,
-    },
-    Pot: {
-      name: 'Pot',
-      address: constants.AddressZero,
-    },
-    End: {
-      name: 'End',
-      address: constants.AddressZero,
-    },
-    Spot: {
-      name: 'Spot',
-      address: constants.AddressZero,
-    },
-    Dog: {
-      name: 'Dog',
-      address: constants.AddressZero,
-    },
-    Vat: {
-      name: 'Vat',
-      address: constants.AddressZero,
-    },
-    McdGov: {
-      name: 'McdGov',
-      address: constants.AddressZero,
-    },
-    JoinDAI: {
-      name: 'JoinDAI',
-      address: constants.AddressZero,
-    },
-    JoinETH_A: {
-      name: 'JoinETH_A',
-      address: constants.AddressZero,
-    },
-    PipWETH: {
-      name: 'PipWETH',
-      address: constants.AddressZero,
-    },
-    PipLINK: {
-      name: 'PipLINK',
-      address: constants.AddressZero,
+    joins: {
+      MCD_JOIN_DAI: {
+        name: 'MCD_JOIN_DAI',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_ETH_A: {
+        name: 'MCD_JOIN_ETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_ETH_B: {
+        name: 'MCD_JOIN_ETH_B',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_ETH_C: {
+        name: 'MCD_JOIN_ETH_C',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_BAT_A: {
+        name: 'MCD_JOIN_BAT_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_USDC_A: {
+        name: 'MCD_JOIN_USDC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_USDC_B: {
+        name: 'MCD_JOIN_USDC_B',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_PSM_USDC_A: {
+        name: 'MCD_JOIN_PSM_USDC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_TUSD_A: {
+        name: 'MCD_JOIN_TUSD_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_WBTC_A: {
+        name: 'MCD_JOIN_WBTC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_WBTC_B: {
+        name: 'MCD_JOIN_WBTC_B',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_WBTC_C: {
+        name: 'MCD_JOIN_WBTC_C',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_ZRX_A: {
+        name: 'MCD_JOIN_ZRX_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_KNC_A: {
+        name: 'MCD_JOIN_KNC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_MANA_A: {
+        name: 'MCD_JOIN_MANA_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_USDT_A: {
+        name: 'MCD_JOIN_USDT_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_PAXUSD_A: {
+        name: 'MCD_JOIN_PAXUSD_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_PSM_PAX_A: {
+        name: 'MCD_JOIN_PSM_PAX_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_COMP_A: {
+        name: 'MCD_JOIN_COMP_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_LRC_A: {
+        name: 'MCD_JOIN_LRC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_LINK_A: {
+        name: 'MCD_JOIN_LINK_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_BAL_A: {
+        name: 'MCD_JOIN_BAL_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_YFI_A: {
+        name: 'MCD_JOIN_YFI_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_GUSD_A: {
+        name: 'MCD_JOIN_GUSD_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_PSM_GUSD_A: {
+        name: 'MCD_JOIN_PSM_GUSD_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNI_A: {
+        name: 'MCD_JOIN_UNI_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RENBTC_A: {
+        name: 'MCD_JOIN_RENBTC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_AAVE_A: {
+        name: 'MCD_JOIN_AAVE_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_MATIC_A: {
+        name: 'MCD_JOIN_MATIC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_WSTETH_A: {
+        name: 'MCD_JOIN_WSTETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_WSTETH_B: {
+        name: 'MCD_JOIN_WSTETH_B',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2DAIETH_A: {
+        name: 'MCD_JOIN_UNIV2DAIETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2WBTCETH_A: {
+        name: 'MCD_JOIN_UNIV2WBTCETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2USDCETH_A: {
+        name: 'MCD_JOIN_UNIV2USDCETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2DAIUSDC_A: {
+        name: 'MCD_JOIN_UNIV2DAIUSDC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2ETHUSDT_A: {
+        name: 'MCD_JOIN_UNIV2ETHUSDT_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2LINKETH_A: {
+        name: 'MCD_JOIN_UNIV2LINKETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2UNIETH_A: {
+        name: 'MCD_JOIN_UNIV2UNIETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2WBTCDAI_A: {
+        name: 'MCD_JOIN_UNIV2WBTCDAI_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2AAVEETH_A: {
+        name: 'MCD_JOIN_UNIV2AAVEETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2DAIUSDT_A: {
+        name: 'MCD_JOIN_UNIV2DAIUSDT_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RWA001_A: {
+        name: 'MCD_JOIN_RWA001_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RWA002_A: {
+        name: 'MCD_JOIN_RWA002_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RWA003_A: {
+        name: 'MCD_JOIN_RWA003_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RWA004_A: {
+        name: 'MCD_JOIN_RWA004_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RWA005_A: {
+        name: 'MCD_JOIN_RWA005_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RWA006_A: {
+        name: 'MCD_JOIN_RWA006_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RETH_A: {
+        name: 'MCD_JOIN_RETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_GNO_A: {
+        name: 'MCD_JOIN_GNO_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_DIRECT_AAVEV2_DAI: {
+        name: 'MCD_JOIN_DIRECT_AAVEV2_DAI',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_GUNIV3DAIUSDC1_A: {
+        name: 'MCD_JOIN_GUNIV3DAIUSDC1_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_GUNIV3DAIUSDC2_A: {
+        name: 'MCD_JOIN_GUNIV3DAIUSDC2_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_CRVV1ETHSTETH_A: {
+        name: 'MCD_JOIN_CRVV1ETHSTETH_A',
+        address: constants.AddressZero,
+      },
     },
   },
   automation: {
