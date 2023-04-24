@@ -28,7 +28,7 @@ contract AjnaDepositBorrow is Executable, UseStore {
 
     uint256 index = poolUtilsInfo.priceToIndex(args.price);
 
-    pool.drawDebt(address(this), args.borrowAmount * pool.quoteTokenScale(), index, args.borrowAmount * pool.collateralScale());
+    pool.drawDebt(address(this), args.borrowAmount * pool.quoteTokenScale(), index, args.depositAmount * pool.collateralScale());
     store().write(bytes32(args.depositAmount));
     store().write(bytes32(args.borrowAmount));
   }
