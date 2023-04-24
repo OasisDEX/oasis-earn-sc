@@ -144,10 +144,13 @@ type ExtractAddressesFromConfig<T extends Contracts> = Record<T, DeploymentConfi
 function extractAddressesFromConfig<T extends Contracts>(
   config: ExtractAddressesFromConfig<T>,
 ): Record<T, Address> {
-  return Object.values(config).reduce<Record<T, Address>>((acc, item: DeploymentConfig) => {
-    if (item.address) {
-      acc[item.name as T] = item.address
-    }
-    return acc
-  }, {} as Record<T, Address>)
+  return (Object.values(config) as DeploymentConfig[]).reduce<Record<T, Address>>(
+    (acc: Record<T, Address>, item: DeploymentConfig) => {
+      if (item.address) {
+        acc[item.name as T] = item.address
+      }
+      return acc
+    },
+    {} as Record<T, Address>,
+  )
 }
