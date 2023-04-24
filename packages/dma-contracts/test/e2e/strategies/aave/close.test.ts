@@ -19,20 +19,20 @@ import aaveOracleABI from '@oasisdex/abis/external/protocols/aave/v3/aaveOracle.
 import AAVEProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
 import AAVEPoolABI from '@oasisdex/abis/external/protocols/aave/v3/pool.json'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
+import { addressesByNetwork, expect } from '@oasisdex/dma-common/test-utils'
+import { RuntimeConfig, Unbox } from '@oasisdex/dma-common/types/common'
+import { balanceOf } from '@oasisdex/dma-common/utils/balances'
 import {
-  addressesByNetwork,
-  expect,
+  amountFromWei,
   isMainnetByNetwork,
   isOptimismByNetwork,
-} from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig, Unbox } from '@oasisdex/dma-common/types/common'
-import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
+} from '@oasisdex/dma-common/utils/common'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import { DeployedSystem, System } from '@oasisdex/dma-deployments/types/deployed-system'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AAVETokens, AAVEV3StrategyAddresses, strategies } from '@oasisdex/dma-library'
-import { acceptedFeeToken } from '@oasisdex/dma-library/src/utils/swap/accepted-fee-token'
-import { PositionType } from '@oasisdex/dma-library/types'
+import { PositionType } from '@oasisdex/dma-library/lib/cjs/types'
+import { acceptedFeeToken } from '@oasisdex/dma-library/lib/cjs/utils/swap'
 import { IPosition } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'

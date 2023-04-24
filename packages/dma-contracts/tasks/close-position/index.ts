@@ -5,7 +5,7 @@ import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/proto
 import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
 import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
-import { balanceOf } from '@oasisdex/dma-common/utils/common'
+import { balanceOf } from '@oasisdex/dma-common/utils/balances'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import init from '@oasisdex/dma-common/utils/init'
 import { getDsProxyRegistry, getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'

@@ -22,10 +22,6 @@
         "./*"
       ],
       /* Aliases used internally by referenced packages */
-      "@dma-library": ["../dma-library/src/index.ts"],
-      "@dma-library/*": ["../dma-library/src/*"],
-      "@oasisdex/dma-library/*": ["../dma-library/src/*"],
-      "@oasisdex/dma-library": ["../dma-library/src/index.ts"],
       "@dma-common/constants": ["../dma-common/constants/index.ts"],
       "@dma-common/utils/*": ["../dma-common/utils/*"],
       "@dma-common/types/*": ["../dma-common/types/*"],

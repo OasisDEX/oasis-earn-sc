@@ -1,13 +1,14 @@
 const path = require('path')
+const TerserPlugin = require('terser-webpack-plugin')
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
+
 module.exports = {
   mode: 'production',
   entry: './src/index.ts',
   output: {
-    filename: 'index.js',
-    path: path.resolve(__dirname, 'lib'),
-    library: {
-      type: 'module',
-    },
+    path: path.resolve(__dirname, 'lib', 'esm'),
+    filename: 'index.min.js',
+    libraryTarget: 'module',
   },
   module: {
     rules: [
@@ -17,7 +18,7 @@ module.exports = {
           {
             loader: 'ts-loader',
             options: {
-              configFile: 'tsconfig.json',
+              configFile: path.resolve(__dirname, './tsconfig.esm.json'),
               transpileOnly: true, // Add this line
             },
           },
@@ -28,12 +29,23 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.js'],
-    alias: {
-      '@dma-deployments/constants': path.resolve(
-        __dirname,
-        '../dma-deployments/constants/index.ts',
-      ),
-    },
+    plugins: [
+      new TsconfigPathsPlugin({
+        configFile: 'tsconfig.esm.json',
+      }),
+    ],
+  },
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          format: {
+            comments: false,
+          },
+        },
+        extractComments: false,
+      }),
+    ],
   },
   experiments: {
     outputModule: true,

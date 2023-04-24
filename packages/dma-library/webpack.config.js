@@ -1,20 +1,21 @@
 const path = require('path')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 module.exports = {
   mode: 'production',
   entry: './src/index.ts',
   output: {
-    filename: 'index.js',
-    path: path.resolve(__dirname, 'lib'),
-    library: {
-      type: 'module',
-    },
+    path: path.resolve(__dirname, 'lib', 'esm'),
+    filename: 'index.min.js',
+    libraryTarget: 'module',
   },
   externals: {
     undici: 'commonjs undici',
   },
-  plugins: [new NodePolyfillPlugin()],
+  plugins: [new NodePolyfillPlugin() /*new BundleAnalyzerPlugin()*/],
   module: {
     rules: [
       {
@@ -23,7 +24,7 @@ module.exports = {
           {
             loader: 'ts-loader',
             options: {
-              configFile: path.resolve(__dirname, './tsconfig.json'),
+              configFile: path.resolve(__dirname, './tsconfig.esm.json'),
               transpileOnly: true, // Add this line
             },
           },
@@ -34,24 +35,18 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.js'],
-    alias: {
-      '@typechain': path.resolve(__dirname, '../dma-contracts/typechain'),
-      '@dma-library': path.resolve(__dirname, './src'),
-      '@dma-common/constants': path.resolve(__dirname, '../dma-common/constants'),
-      '@dma-common/utils': path.resolve(__dirname, '../dma-common/utils'),
-      '@dma-common/types': path.resolve(__dirname, '../dma-common/types'),
-      '@dma-common/test-utils': path.resolve(__dirname, '../dma-common/test-utils'),
-      '@dma-deployments/utils': path.resolve(__dirname, '../dma-deployments/utils'),
-      '@dma-deployments/types': path.resolve(__dirname, '../dma-deployments/types'),
-      '@dma-deployments/constants': path.resolve(__dirname, '../dma-deployments/constants'),
-    },
+    plugins: [
+      new TsconfigPathsPlugin({
+        configFile: 'tsconfig.esm.json',
+      }),
+    ],
     fallback: {
       path: require.resolve('path-browserify'),
       vm: require.resolve('vm-browserify'),
       os: require.resolve('os-browserify/browser'),
       stream: require.resolve('stream-browserify'),
       crypto: require.resolve('crypto-browserify'),
-      assert: require.resolve('assert/'),
+      assert: false,
       http: require.resolve('stream-http'),
       https: require.resolve('https-browserify'),
       util: require.resolve('util/'),
@@ -65,6 +60,18 @@ module.exports = {
       module: false,
       diagnostics_channel: false,
     },
+  },
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          format: {
+            comments: false,
+          },
+        },
+        extractComments: false,
+      }),
+    ],
   },
   experiments: {
     outputModule: true,

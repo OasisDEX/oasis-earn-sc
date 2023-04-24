@@ -10,7 +10,6 @@ import {
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { TokenDetails } from '@dma-contracts/test/fixtures/types/position-details'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
-import { PositionType } from '@dma-library/types'
 import AAVELendingPoolABI from '@oasisdex/abis/external/protocols/aave/v2/lendingPool.json'
 import aavePriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
@@ -18,12 +17,14 @@ import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE } from '@oasisdex/dma-common/constants'
 import { addressesByNetwork, expect } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig, Unbox } from '@oasisdex/dma-common/types/common'
-import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { balanceOf } from '@oasisdex/dma-common/utils/balances'
+import { amountFromWei } from '@oasisdex/dma-common/utils/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import { DeployedSystem } from '@oasisdex/dma-deployments/types/deployed-system'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AAVETokens, strategies } from '@oasisdex/dma-library'
+import { PositionType } from '@oasisdex/dma-library/src/types'
 import { acceptedFeeToken } from '@oasisdex/dma-library/src/utils/swap'
 import { IPosition, IRiskRatio, RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
@@ -81,8 +82,8 @@ describe.skip('Strategy | AAVE | Adjust Position | E2E', async function () {
         WBTC: mainnetAddresses.WBTC,
       }
 
-      const collateralTokenAddress = tokenAddresses[collateralToken.symbol]
-      const debtTokenAddress = tokenAddresses[debtToken.symbol]
+      const collateralTokenAddress = tokenAddresses[collateralToken.symbol as AAVETokens]
+      const debtTokenAddress = tokenAddresses[debtToken.symbol as AAVETokens]
       const isIncreasingRisk = isRiskIncreasing(position.riskRatio, targetMultiple)
       const fromToken = isIncreasingRisk ? debtToken : collateralToken
       const toToken = isIncreasingRisk ? collateralToken : debtToken
@@ -479,8 +480,8 @@ describe.skip('Strategy | AAVE | Adjust Position | E2E', async function () {
         WBTC: mainnetAddresses.WBTC,
       }
 
-      const collateralTokenAddress = tokenAddresses[collateralToken.symbol]
-      const debtTokenAddress = tokenAddresses[debtToken.symbol]
+      const collateralTokenAddress = tokenAddresses[collateralToken.symbol as AAVETokens]
+      const debtTokenAddress = tokenAddresses[debtToken.symbol as AAVETokens]
       const isIncreasingRisk = isRiskIncreasing(position.riskRatio, targetMultiple)
       const fromToken = isIncreasingRisk ? debtToken : collateralToken
       const toToken = isIncreasingRisk ? collateralToken : debtToken
@@ -507,7 +508,7 @@ describe.skip('Strategy | AAVE | Adjust Position | E2E', async function () {
       )
 
       const aaveProtocolDataProvider = new Contract(
-        ADDRESSES[Network.MAINNET].aave.v3.PoolDataProvider,
+        ADDRESSES[Network.MAINNET].aave.v3.AaveProtocolDataProvider,
         AAVEDataProviderABI,
         provider,
       )

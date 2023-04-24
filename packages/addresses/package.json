@@ -1,23 +1,17 @@
 {
   "name": "@oasisdex/addresses",
   "version": "1.0.0",
-  "main": "lib/index.js",
-  "typings": "cjs/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./lib/index.js",
-      "require": "./cjs/index.js"
-    }
-  },
+  "main": "lib/cjs/index.js",
+  "module": "lib/esm/index.min.js",
+  "typings": "lib/esm/index.d.ts",
   "license": "MIT",
-  "files": [
-    "lib",
-    "cjs"
-  ],
   "scripts": {
-    "build": "rm -rf ./lib && rm -rf ./cjs && tsc --build && webpack",
+    "build": "yarn clean && yarn build:esm && yarn build:cjs",
+    "build:esm": "yarn tsc -p tsconfig.esm.json && webpack",
+    "build:cjs": "yarn tsc -p tsconfig.cjs.json",
+    "clean": "rm -rf ./lib",
     "watch": "yarn tsc -b -w",
-    "lint": "yarn tsc -p ./tsconfig.json --noEmit",
+    "lint": "yarn tsc -p tsconfig.base.json --noEmit",
     "prepublish": "yarn build"
   },
   "dependencies": {
@@ -26,6 +20,8 @@
   "devDependencies": {
     "@babel/core": "^7.21.4",
     "@babel/preset-env": "^7.21.4",
+    "terser-webpack-plugin": "^5.3.7",
+    "tsconfig-paths-webpack-plugin": "^4.0.1",
     "ts-loader": "^9.4.2",
     "webpack": "^5.79.0",
     "webpack-cli": "^5.0.1"

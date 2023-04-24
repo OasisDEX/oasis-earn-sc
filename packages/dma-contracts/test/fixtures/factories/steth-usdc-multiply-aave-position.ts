@@ -2,13 +2,15 @@ import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/e
 import { StrategyDependenciesAaveV2 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
 import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { balanceOf } from '@oasisdex/dma-common/utils/balances'
+import { amountToWei } from '@oasisdex/dma-common/utils/common'
+import { approve } from '@oasisdex/dma-common/utils/tx'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AaveVersion, strategies } from '@oasisdex/dma-library'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
-} from '@oasisdex/dma-library/src/strategies/aave/open/open'
+} from '@oasisdex/dma-library/lib/cjs/strategies/aave/open/open'
 import { RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 
