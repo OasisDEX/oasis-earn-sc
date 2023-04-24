@@ -298,6 +298,10 @@ export const config: SystemConfig = {
         name: 'AaveProtocolDataProvider',
         address: '0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654',
       },
+      L2Encoder: {
+        name: 'L2Encoder',
+        address: '0x9abADECD08572e0eA5aF4d47A9C7984a5AA503dC',
+      },
     },
   },
   maker: {

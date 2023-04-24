@@ -1,5 +1,5 @@
-import { ContractNames } from "@dma-deployments/constants";
-import { Address } from "@dma-deployments/types/address";
+import { ContractNames } from '@dma-deployments/constants'
+import { Address } from '@dma-deployments/types/address'
 
 export type DeploymentConfig = {
   name: Contracts
@@ -69,6 +69,7 @@ export type Common =
 
 export type AaveV2Protocol = 'PriceOracle' | 'LendingPool' | 'ProtocolDataProvider' | 'WETHGateway'
 export type AaveV3Protocol = 'AaveOracle' | 'Pool' | 'AaveProtocolDataProvider'
+export type AaveV3ProtocolOptimism = 'L2Encoder'
 
 export type MakerProtocol =
   | 'FlashMintModule'
@@ -90,6 +91,7 @@ export type Contracts =
   | Common
   | AaveV2Protocol
   | AaveV3Protocol
+  | AaveV3ProtocolOptimism
   | MakerProtocol
 
 export type DeployedSystemContracts =
@@ -121,9 +123,8 @@ export type SystemConfig = {
   common: Record<Common, DeploymentConfig>
   aave: {
     v2?: Record<AaveV2Protocol, DeploymentConfig>
-    v3: Record<AaveV3Protocol, DeploymentConfig>
+    v3: Record<AaveV3Protocol, DeploymentConfig> &
+      Partial<Record<AaveV3ProtocolOptimism, DeploymentConfig>>
   }
   maker: Record<MakerProtocol, DeploymentConfig>
 }
-
-// export type SystemKeys = keyof SystemConfig

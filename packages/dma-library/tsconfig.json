@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "module": "ESNext",
+    "module": "esnext",
     "moduleResolution": "node",
-    "composite": true,
     "strict": true,
-    "outDir": "lib/esm",
+    "outDir": "lib",
     "baseUrl": ".",
     "paths": {
       "@typechain/*": [
@@ -40,11 +39,7 @@
     ]
   },
   "include": [
-    "./hardhat.config.ts",
     "./src/**/*"
   ],
   "exclude": ["node_modules", "../dma-deployments", "../dma-common"],
-  "references": [
-    { "path": "./tsconfig.cjs.json" }
-  ]
 }

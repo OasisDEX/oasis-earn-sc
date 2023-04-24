@@ -5,6 +5,7 @@ import { config as goerliConfig } from '@oasisdex/dma-deployments/configs/goerli
 import {
   AaveV2Protocol,
   AaveV3Protocol,
+  AaveV3ProtocolOptimism,
   Actions,
   Common,
   Contracts,
@@ -47,15 +48,23 @@ type AaveDeployment = {
   }
 }
 
+type OptimismAaveDeployment = {
+  [SystemKeys.AAVE]: {
+    [AaveKeys.V3]: Record<AaveV3Protocol | AaveV3ProtocolOptimism, Address>
+  }
+}
+
 type MainnetDeployment = Omit<DefaultDeployment, SystemKeys.AAVE> & AaveDeployment
+type OptimismDeployment = Omit<DefaultDeployment, SystemKeys.AAVE> & OptimismAaveDeployment
 
 export type Addresses = {
   [Network.MAINNET]: MainnetDeployment
-  [Network.OPTIMISM]: DefaultDeployment
+  [Network.OPTIMISM]: OptimismDeployment
   [Network.GOERLI]: DefaultDeployment
 }
 
 if (!mainnetConfig.aave.v2) throw new Error('Missing aave v2 config on mainnet')
+if (!optimismConfig.aave.v3.L2Encoder) throw new Error('Missing L2Encoder config on optimism')
 export const ADDRESSES: Addresses = {
   [Network.MAINNET]: {
     mpa: {
@@ -74,7 +83,7 @@ export const ADDRESSES: Addresses = {
         ...extractAddressesFromConfig(mainnetConfig.aave.v2),
       },
       v3: {
-        ...extractAddressesFromConfig(mainnetConfig.aave.v3),
+        ...extractAddressesFromConfig<AaveV3Protocol>(mainnetConfig.aave.v3),
       },
     },
     maker: {
@@ -95,7 +104,12 @@ export const ADDRESSES: Addresses = {
     },
     aave: {
       v3: {
-        ...extractAddressesFromConfig(optimismConfig.aave.v3),
+        ...extractAddressesFromConfig<AaveV3Protocol | AaveV3ProtocolOptimism>(
+          optimismConfig.aave.v3 as Record<
+            AaveV3Protocol | AaveV3ProtocolOptimism,
+            DeploymentConfig
+          >,
+        ),
       },
     },
     maker: {
@@ -116,7 +130,7 @@ export const ADDRESSES: Addresses = {
     },
     aave: {
       v3: {
-        ...extractAddressesFromConfig(goerliConfig.aave.v3),
+        ...extractAddressesFromConfig<AaveV3Protocol>(goerliConfig.aave.v3),
       },
     },
     maker: {
