@@ -16,14 +16,5 @@
   },
   "dependencies": {
     "@oasisdex/dma-deployments": "*"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.21.4",
-    "@babel/preset-env": "^7.21.4",
-    "terser-webpack-plugin": "^5.3.7",
-    "tsconfig-paths-webpack-plugin": "^4.0.1",
-    "ts-loader": "^9.4.2",
-    "webpack": "^5.79.0",
-    "webpack-cli": "^5.0.1"
   }
 }

@@ -15,13 +15,7 @@
   "dependencies": {
     "@oasisdex/addresses": "*",
     "@oasisdex/abis": "*",
-    "@oasisdex/dma-deployments": "*",
-    "ethers": "5.7.2"
-  },
-  "devDependencies": {
-    "@ethersproject/contracts": "^5.7.0",
-    "eslint": "^8.35.0",
-    "tsconfig-paths": "^4.1.2"
+    "@oasisdex/dma-deployments": "*"
   },
   "files": [
     "/test-utils",
