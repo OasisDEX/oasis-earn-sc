@@ -6,18 +6,21 @@ import {
   AccountGuard,
   AjnaProxyActions,
   AjnaRewardClaimer,
-  Auctions,
   BorrowerActions,
   ERC20Pool,
   ERC20PoolFactory,
   ERC721PoolFactory,
+  KickerActions,
   LenderActions,
+  LPActions,
   PoolCommons,
   PoolInfoUtils,
   PositionManager,
   PositionNFTSVG,
   RewardsManager,
   ServiceRegistry,
+  SettlerActions,
+  TakerActions,
   Token,
   WETH,
 } from "../../typechain-types";
@@ -25,18 +28,26 @@ import { HardhatUtils } from "./hardhat.utils";
 const utils = new HardhatUtils(hre);
 
 export async function deployLibraries() {
-  const auctionsInstance = await utils.deployContract<Auctions>("Auctions", []);
-  const actionsInstance = await utils.deployContract<LenderActions>("LenderActions", []);
-  const poolCommons = await utils.deployContract<PoolCommons>("PoolCommons", []);
   const borrowerActionsInstance = await utils.deployContract<BorrowerActions>("BorrowerActions", []);
-  const positionNFTSVGInstance = await utils.deployContract<PositionNFTSVG>("PositionNFTSVG", []);
+  const kickerActionsInstance = await utils.deployContract<KickerActions>("KickerActions", []);
+  const actionsInstance = await utils.deployContract<LenderActions>("LenderActions", []);
+  const settlerActionsInstance = await utils.deployContract<SettlerActions>("SettlerActions", []);
+  const takerActionsInstance = await utils.deployContract<TakerActions>("TakerActions", []);
+  const lpActionsInstance = await utils.deployContract<LPActions>("LPActions", []);
+  const poolCommons = await utils.deployContract<PoolCommons>("PoolCommons", []);
+  const lenderActionsInstance = await utils.deployContract<LenderActions>("LenderActions", []);
 
+  const positionNFTSVGInstance = await utils.deployContract<PositionNFTSVG>("PositionNFTSVG", []);
   return {
     poolCommons,
-    auctionsInstance,
     actionsInstance,
     borrowerActionsInstance,
     positionNFTSVGInstance,
+    kickerActionsInstance,
+    settlerActionsInstance,
+    takerActionsInstance,
+    lpActionsInstance,
+    lenderActionsInstance,
   };
 }
 
@@ -130,27 +141,35 @@ export async function deployGuard() {
 
 export async function deployPoolFactory(
   poolInstance: Contract,
-  auctionsInstance: Contract,
-  actionsInstance: Contract,
   borrowerActionsInstance: Contract,
+  kickerActionsInstance: KickerActions,
+  settlerActionsInstance: SettlerActions,
+  takerActionsInstance: TakerActions,
+  lpActionsInstance: LPActions,
+  lenderActionsInstance: LenderActions,
   reward: string
 ) {
   const erc20PoolFactory = await utils.deployContract<ERC20PoolFactory>("ERC20PoolFactory", [reward], {
     libraries: {
-      PoolCommons: poolInstance.address,
-
-      Auctions: auctionsInstance.address,
-      LenderActions: actionsInstance.address,
       BorrowerActions: borrowerActionsInstance.address,
+      KickerActions: kickerActionsInstance.address,
+      LPActions: lpActionsInstance.address,
+      LenderActions: lenderActionsInstance.address,
+      PoolCommons: poolInstance.address,
+      SettlerActions: settlerActionsInstance.address,
+      TakerActions: takerActionsInstance.address,
     },
   });
 
   const erc721PoolFactory = await utils.deployContract<ERC721PoolFactory>("ERC721PoolFactory", [reward], {
     libraries: {
-      PoolCommons: poolInstance.address,
-      Auctions: auctionsInstance.address,
-      LenderActions: actionsInstance.address,
+      KickerActions: kickerActionsInstance.address,
+      LPActions: lpActionsInstance.address,
+      SettlerActions: settlerActionsInstance.address,
+      TakerActions: takerActionsInstance.address,
       BorrowerActions: borrowerActionsInstance.address,
+      LenderActions: lenderActionsInstance.address,
+      PoolCommons: poolInstance.address,
     },
   });
 
@@ -170,15 +189,27 @@ export async function deployPool(erc20PoolFactory: ERC20PoolFactory, collateral:
 export async function deploy() {
   const [deployer] = await ethers.getSigners();
   const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address);
-  const { poolCommons, auctionsInstance, actionsInstance, borrowerActionsInstance, positionNFTSVGInstance } =
-    await deployLibraries();
+  const {
+    poolCommons,
+    actionsInstance,
+    borrowerActionsInstance,
+    positionNFTSVGInstance,
+    kickerActionsInstance,
+    settlerActionsInstance,
+    takerActionsInstance,
+    lpActionsInstance,
+    lenderActionsInstance,
+  } = await deployLibraries();
 
   const { dmpFactory, guardDeployerSigner, dmpGuardContract } = await deployGuard();
   const { erc20PoolFactory, erc721PoolFactory } = await deployPoolFactory(
     poolCommons,
-    auctionsInstance,
-    actionsInstance,
     borrowerActionsInstance,
+    kickerActionsInstance,
+    settlerActionsInstance,
+    takerActionsInstance,
+    lpActionsInstance,
+    lenderActionsInstance,
     ajna.address
   );
 

@@ -100,7 +100,7 @@ contract AjnaProxyActions {
             .RedeemPositionsParams(tokenId, address(pool), indexes);
         address[] memory addresses = new address[](1);
         addresses[0] = address(positionManager);
-        ERC20Pool(pool).approveLpTransferors(addresses);
+        ERC20Pool(pool).approveLPTransferors(addresses);
         positionManager.reedemPositions(redeemParams);
     }
 
@@ -627,6 +627,6 @@ contract AjnaProxyActions {
         uint256 index = convertPriceToIndex(price);
 
         (uint256 lpCount, ) = pool.lenderInfo(index, address(this));
-        quoteAmount = poolInfoUtils.lpsToQuoteTokens(address(pool), lpCount, index);
+        quoteAmount = poolInfoUtils.lpToQuoteTokens(address(pool), lpCount, index);
     }
 }

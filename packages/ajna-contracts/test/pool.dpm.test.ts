@@ -44,16 +44,27 @@ describe.only("AjnaProxyActions", function () {
 
     const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address);
 
-    const { poolCommons, auctionsInstance, actionsInstance, borrowerActionsInstance, positionNFTSVGInstance } =
-      await deployLibraries();
+    const {
+      poolCommons,
+      borrowerActionsInstance,
+      positionNFTSVGInstance,
+      kickerActionsInstance,
+      settlerActionsInstance,
+      takerActionsInstance,
+      lpActionsInstance,
+      lenderActionsInstance,
+    } = await deployLibraries();
 
     const { dmpGuardContract, guardDeployerSigner, dmpFactory } = await deployGuard();
 
     const { erc20PoolFactory, erc721PoolFactory } = await deployPoolFactory(
       poolCommons,
-      auctionsInstance,
-      actionsInstance,
       borrowerActionsInstance,
+      kickerActionsInstance,
+      settlerActionsInstance,
+      takerActionsInstance,
+      lpActionsInstance,
+      lenderActionsInstance,
       ajna.address
     );
     const [poolContract, poolContractWeth] = await Promise.all([
@@ -615,7 +626,7 @@ describe.only("AjnaProxyActions", function () {
         pool: await usdc.balanceOf(poolContract.address),
       };
       const { lpBalance_ } = await poolContract.lenderInfo(index, lenderProxy.address);
-      const depositedQuoteAmount = await poolInfoContract.lpsToQuoteTokens(poolContract.address, lpBalance_, index);
+      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(poolContract.address, lpBalance_, index);
       expect(depositedQuoteAmount).to.be.equal(bn.eighteen.THOUSAND);
       expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.THOUSAND));
     });
@@ -654,7 +665,7 @@ describe.only("AjnaProxyActions", function () {
         pool: await usdc.balanceOf(poolContract.address),
       };
       const oldBalance = await poolContract.lenderInfo(index, lenderProxy.address);
-      const depositedQuoteAmount = await poolInfoContract.lpsToQuoteTokens(
+      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
         poolContract.address,
         oldBalance.lpBalance_,
         index
@@ -662,7 +673,7 @@ describe.only("AjnaProxyActions", function () {
       expect(depositedQuoteAmount).to.be.equal(0);
       const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
       const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
-      const newDepositedQuoteAmount = await poolInfoContract.lpsToQuoteTokens(
+      const newDepositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
         poolContract.address,
         newBalance.lpBalance_,
         newIndex
@@ -706,7 +717,7 @@ describe.only("AjnaProxyActions", function () {
         pool: await usdc.balanceOf(poolContract.address),
       };
       const oldBalance = await poolContract.lenderInfo(index, lenderProxy.address);
-      const depositedQuoteAmount = await poolInfoContract.lpsToQuoteTokens(
+      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
         poolContract.address,
         oldBalance.lpBalance_,
         index
@@ -714,7 +725,7 @@ describe.only("AjnaProxyActions", function () {
       expect(depositedQuoteAmount).to.be.equal(0);
       const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
       const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
-      const newDepositedQuoteAmount = await poolInfoContract.lpsToQuoteTokens(
+      const newDepositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
         poolContract.address,
         newBalance.lpBalance_,
         newIndex
@@ -753,7 +764,7 @@ describe.only("AjnaProxyActions", function () {
         pool: await usdc.balanceOf(poolContract.address),
       };
       const oldBalance = await poolContract.lenderInfo(index, lenderProxy.address);
-      const depositedQuoteAmount = await poolInfoContract.lpsToQuoteTokens(
+      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
         poolContract.address,
         oldBalance.lpBalance_,
         index
@@ -761,7 +772,7 @@ describe.only("AjnaProxyActions", function () {
       expect(depositedQuoteAmount).to.be.equal(0);
       const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
       const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
-      const newDepositedQuoteAmount = await poolInfoContract.lpsToQuoteTokens(
+      const newDepositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
         poolContract.address,
         newBalance.lpBalance_,
         newIndex
@@ -897,7 +908,7 @@ describe.only("AjnaProxyActions", function () {
 
       await repayDebt(ajnaProxyActionsContract, poolContract, usdc, borrower, borrowerProxy, poolInfoContract);
 
-      await poolContract.connect(bidder).startClaimableReserveAuction();
+      await poolContract.connect(bidder).kickReserveAuction();
 
       await hre.network.provider.send("evm_increaseTime", ["0x15180"]);
 
@@ -980,7 +991,7 @@ describe.only("AjnaProxyActions", function () {
 
       await repayDebt(ajnaProxyActionsContract, poolContract, usdc, borrower, borrowerProxy, poolInfoContract);
 
-      await poolContract.connect(bidder).startClaimableReserveAuction();
+      await poolContract.connect(bidder).kickReserveAuction();
 
       await hre.network.provider.send("evm_increaseTime", ["0x15180"]);
 
@@ -1055,7 +1066,7 @@ describe.only("AjnaProxyActions", function () {
 
       await repayDebt(ajnaProxyActionsContract, poolContract, usdc, borrower, borrowerProxy, poolInfoContract);
 
-      await poolContract.connect(bidder).startClaimableReserveAuction();
+      await poolContract.connect(bidder).kickReserveAuction();
 
       await hre.network.provider.send("evm_increaseTime", ["0x15180"]);
 
