@@ -1,3 +1,4 @@
+import { ADDRESSES } from '@addresses'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,
@@ -13,7 +14,6 @@ import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/sy
 import AAVELendingPoolABI from '@oasisdex/abis/external/protocols/aave/v2/lendingPool.json'
 import aavePriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
-import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE } from '@oasisdex/dma-common/constants'
 import { addressesByNetwork, expect } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig, Unbox } from '@oasisdex/dma-common/types/common'

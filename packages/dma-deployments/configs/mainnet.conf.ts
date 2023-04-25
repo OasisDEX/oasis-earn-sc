@@ -1,7 +1,7 @@
-import { ADDRESS_ZERO, CONTRACT_NAMES } from '@dma-deployments/constants'
-import { SystemConfig } from '@dma-deployments/types/deployment-config'
+import { ADDRESS_ZERO, CONTRACT_NAMES } from '../constants'
+import { SystemConfig } from '../types/deployment-config'
 
-export const config: SystemConfig = {
+export const mainnetConfig: SystemConfig = {
   mpa: {
     core: {
       ServiceRegistry: {

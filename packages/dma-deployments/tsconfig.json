@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "module": "commonjs",
+    "module": "CommonJS",
     "strict": true,
     "baseUrl": ".",
     "types": [
@@ -18,6 +18,7 @@
       "../../node_modules/@types"
     ],
     "paths": {
+      "@dma-deployments/configs": ["./configs/index.ts"],
       "@dma-deployments/utils/*": ["./utils/*"],
       "@dma-deployments/types/*": ["./types/*"],
       "@dma-deployments/constants": ["./constants/index.ts"],
@@ -25,9 +26,13 @@
     }
   },
   "include": [
-    "./configs/**/*",
-    "./deployment/**/*",
-    "./types",
-    "./hardhat.config.ts"
+    "addresses/index.ts",
+    "configs/**/*",
+    "constants/**/*",
+    "deployment/**/*",
+    "types",
+    "hardhat.config.ts",
+    "utils/**/*",
+    "operation-definitions/**/*",
   ],
 }

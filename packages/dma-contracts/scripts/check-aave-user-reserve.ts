@@ -1,9 +1,8 @@
+import AAVEDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
+import { balanceOf } from '@dma-common/utils/balances'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { Contract, ethers } from 'ethers'
-
-import AAVEDataProviderABI from '../../abis/external/protocols/aave/v2/protocolDataProvider.json'
-import { balanceOf } from '../../dma-common/utils/common'
 
 async function main() {
   const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545', 2137)

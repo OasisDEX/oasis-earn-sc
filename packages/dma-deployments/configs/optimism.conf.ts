@@ -1,7 +1,7 @@
-import { ADDRESS_ZERO } from '@dma-deployments/constants'
-import { SystemConfig } from '@dma-deployments/types/deployment-config'
+import { ADDRESS_ZERO } from '../constants'
+import { SystemConfig } from '../types/deployment-config'
 
-export const config: SystemConfig = {
+export const optimismConfig: SystemConfig = {
   mpa: {
     core: {
       ServiceRegistry: {

@@ -6,7 +6,7 @@ module.exports = {
   mode: 'production',
   entry: './src/index.ts',
   output: {
-    path: path.resolve(__dirname, 'lib', 'esm'),
+    path: path.resolve(__dirname, 'lib'),
     filename: 'index.min.js',
     libraryTarget: 'module',
   },
@@ -18,7 +18,7 @@ module.exports = {
           {
             loader: 'ts-loader',
             options: {
-              configFile: path.resolve(__dirname, './tsconfig.esm.json'),
+              configFile: path.resolve(__dirname, './tsconfig.json'),
               transpileOnly: true, // Add this line
             },
           },
@@ -31,7 +31,7 @@ module.exports = {
     extensions: ['.ts', '.js'],
     plugins: [
       new TsconfigPathsPlugin({
-        configFile: 'tsconfig.esm.json',
+        configFile: 'tsconfig.json',
       }),
     ],
   },

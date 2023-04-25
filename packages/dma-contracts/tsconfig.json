@@ -12,6 +12,8 @@
     "paths": {
       /* Internal package aliases */
       "@typechain/*": ["./typechain/*"],
+      "@addresses": ["../addresses/src/index.ts"],
+      "@abis/*": ["../abis/*"],
       "@dma-contracts/test/*": [
         "./test/*"
       ],

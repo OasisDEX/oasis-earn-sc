@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@oasisdex/abis": "*",
-    "@oasisdex/addresses": "*",
     "@oasisdex/dma-common": "*",
     "@oasisdex/dma-deployments": "*",
     "@oasisdex/dma-library": "*",
