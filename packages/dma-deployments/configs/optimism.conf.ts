@@ -396,6 +396,24 @@ export const optimismConfig: SystemConfig = {
     ZRX: { name: 'ZRX', address: ADDRESS_ZERO },
   },
   aave: {
+    v2: {
+      PriceOracle: {
+        name: 'PriceOracle',
+        address: ADDRESS_ZERO,
+      },
+      LendingPool: {
+        name: 'LendingPool',
+        address: ADDRESS_ZERO,
+      },
+      ProtocolDataProvider: {
+        name: 'ProtocolDataProvider',
+        address: ADDRESS_ZERO,
+      },
+      WETHGateway: {
+        name: 'WETHGateway',
+        address: ADDRESS_ZERO,
+      },
+    },
     v3: {
       AaveOracle: {
         name: 'AaveOracle',
