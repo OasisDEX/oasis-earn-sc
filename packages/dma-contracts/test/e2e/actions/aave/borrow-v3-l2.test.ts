@@ -1,7 +1,7 @@
-import { ADDRESSES } from '@oasisdex/addresses'
 import { FIFTY, HUNDRED } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { balanceOf } from '@oasisdex/dma-common/utils/common'
+import { ADDRESSES } from '@oasisdex/dma-deployments'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { loadFixture } from 'ethereum-waffle'
 

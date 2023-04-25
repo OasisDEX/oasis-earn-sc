@@ -1,4 +1,3 @@
-import { ADDRESSES } from '@addresses'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,
@@ -21,6 +20,7 @@ import { balanceOf } from '@oasisdex/dma-common/utils/balances'
 import { amountFromWei } from '@oasisdex/dma-common/utils/common'
 import { executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
+import { ADDRESSES } from '@oasisdex/dma-deployments'
 import { DeployedSystem } from '@oasisdex/dma-deployments/types/deployed-system'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AAVETokens, strategies } from '@oasisdex/dma-library'

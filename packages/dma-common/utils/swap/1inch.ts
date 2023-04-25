@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/dma-deployments'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import axios from 'axios'
 

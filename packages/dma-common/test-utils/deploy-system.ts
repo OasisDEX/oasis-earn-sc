@@ -1,7 +1,7 @@
 import { logDebug } from '@dma-common/utils/common'
 import { createDeploy } from '@dma-common/utils/deploy'
 import { getDsProxyRegistry, getOrCreateProxy } from '@dma-common/utils/proxy'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/dma-deployments'
 import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-deployments/constants'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { OperationsRegistry, ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'

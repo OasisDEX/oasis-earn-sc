@@ -6,7 +6,6 @@ import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import aavePriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
-import { ADDRESSES } from '@oasisdex/addresses'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
 import {
   addressesByNetwork,
@@ -18,6 +17,7 @@ import {
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountFromWei, amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
+import { ADDRESSES } from '@oasisdex/dma-deployments'
 import { Address } from '@oasisdex/dma-deployments/types/address'
 import { Network } from '@oasisdex/dma-deployments/types/network' // TODO: IMPLEMENT THIS TEST
 import { AAVETokens, strategies } from '@oasisdex/dma-library'
