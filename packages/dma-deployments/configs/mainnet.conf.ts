@@ -467,6 +467,10 @@ export const mainnetConfig: SystemConfig = {
         name: 'AavePoolDataProvider',
         address: '0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3',
       },
+      L2Encoder: {
+        name: 'L2Encoder',
+        address: ADDRESS_ZERO,
+      },
     },
   },
   maker: {

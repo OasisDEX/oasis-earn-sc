@@ -277,11 +277,11 @@ export const goerliConfig: SystemConfig = {
     },
     DssCropper: {
       name: 'DssCropper',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     DssProxyActionsCropjoin: {
       name: 'DssProxyActionsCropjoin',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     DssProxyActionsDsr: {
       name: 'DssProxyActionsDsr',
@@ -289,27 +289,27 @@ export const goerliConfig: SystemConfig = {
     },
     Otc: {
       name: 'Otc',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     OtcSupportMethods: {
       name: 'OtcSupportMethods',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     ServiceRegistry: {
       name: 'ServiceRegistry',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     GuniProxyActions: {
       name: 'GuniProxyActions',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     GuniResolver: {
       name: 'GuniResolver',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     GuniRouter: {
       name: 'GuniRouter',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     CdpRegistry: {
       name: 'CdpRegistry',
@@ -329,7 +329,7 @@ export const goerliConfig: SystemConfig = {
     },
     LidoCrvLiquidityFarmingReward: {
       name: 'LidoCrvLiquidityFarmingReward',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     ChainlinkPriceOracle_USDCUSD: {
       name: 'ChainlinkPriceOracle_USDCUSD',
@@ -339,12 +339,12 @@ export const goerliConfig: SystemConfig = {
       name: 'ChainlinkPriceOracle_ETHUSD',
       address: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e',
     },
-    ADAI: { name: 'ADAI', address: constants.AddressZero },
+    ADAI: { name: 'ADAI', address: ADDRESS_ZERO },
     AAVE: { name: 'AAVE', address: '0x251661BB7C6869165eF35810E5e1D25Ed57be2Fe' },
     BAL: { name: 'BAL', address: '0x8c6e73CA229AB3933426aDb5cc829c1E4928551d' },
     BAT: { name: 'BAT', address: '0x75645f86e90a1169e697707C813419977ea26779' },
     COMP: { name: 'COMP', address: '0x8032dce0b793C21B8F7B648C01224c3b557271ED' },
-    CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: constants.AddressZero },
+    CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },
     DAI: {
       name: 'DAI',
       address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
@@ -354,15 +354,15 @@ export const goerliConfig: SystemConfig = {
     GNO: { name: 'GNO', address: '0x86Bc432064d7F933184909975a384C7E4c9d0977' },
     GUNIV3DAIUSDC1: {
       name: 'GUNIV3DAIUSDC1',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     GUNIV3DAIUSDC2: {
       name: 'GUNIV3DAIUSDC2',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     GUSD: { name: 'GUSD', address: '0x67aeF79654D8F6CF44FdC08949c308a4F6b3c45B' },
     KNC: { name: 'KNC', address: '0x9A58801cf901486Df9323bcE83A7684915DBAE54' },
-    LDO: { name: 'LDO', address: constants.AddressZero },
+    LDO: { name: 'LDO', address: ADDRESS_ZERO },
     LINK: { name: 'LINK', address: '0x4724A967A4F7E42474Be58AbdF64bF38603422FF' },
     LRC: { name: 'LRC', address: '0xe32aC5b19051728421A8F4A8a5757D0e127a14F6' },
     MANA: { name: 'MANA', address: '0x347fceA8b4fD1a46e2c0DB8F79e22d293c2F8513' },
@@ -431,7 +431,7 @@ export const goerliConfig: SystemConfig = {
       },
       WETHGateway: {
         name: 'WETHGateway',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
         serviceRegistryName: CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
       },
     },
@@ -449,6 +449,10 @@ export const goerliConfig: SystemConfig = {
         name: 'AavePoolDataProvider',
         address: '0xa41E284482F9923E265832bE59627d91432da76C',
       },
+      L2Encoder: {
+        name: 'L2Encoder',
+        address: ADDRESS_ZERO,
+      },
     },
   },
   maker: {
@@ -460,7 +464,7 @@ export const goerliConfig: SystemConfig = {
       },
       Chainlog: {
         name: 'Chainlog',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
       },
       CdpManager: {
         name: 'CdpManager',
@@ -698,19 +702,19 @@ export const goerliConfig: SystemConfig = {
       },
       MCD_JOIN_DIRECT_AAVEV2_DAI: {
         name: 'MCD_JOIN_DIRECT_AAVEV2_DAI',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
       },
       MCD_JOIN_GUNIV3DAIUSDC1_A: {
         name: 'MCD_JOIN_GUNIV3DAIUSDC1_A',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
       },
       MCD_JOIN_GUNIV3DAIUSDC2_A: {
         name: 'MCD_JOIN_GUNIV3DAIUSDC2_A',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
       },
       MCD_JOIN_CRVV1ETHSTETH_A: {
         name: 'MCD_JOIN_CRVV1ETHSTETH_A',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
       },
     },
     pips: {
@@ -876,23 +880,23 @@ export const goerliConfig: SystemConfig = {
       },
       PIP_WETH: {
         name: 'PIP_WETH',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
       },
       PIP_ADAI: {
         name: 'PIP_ADAI',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
       },
       PIP_GUNIV3DAIUSDC1: {
         name: 'PIP_GUNIV3DAIUSDC1',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
       },
       PIP_GUNIV3DAIUSDC2: {
         name: 'PIP_GUNIV3DAIUSDC2',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
       },
       PIP_CRVV1ETHSTETH: {
         name: 'PIP_CRVV1ETHSTETH',
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
       },
     },
   },

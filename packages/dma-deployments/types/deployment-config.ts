@@ -131,7 +131,7 @@ export type Common =
   | 'ChainlinkPriceOracle_ETHUSD'
 
 export type AaveV2Protocol = 'PriceOracle' | 'LendingPool' | 'ProtocolDataProvider' | 'WETHGateway'
-export type AaveV3Protocol = 'AaveOracle' | 'Pool' | 'AavePoolDataProvider'
+export type AaveV3Protocol = 'AaveOracle' | 'Pool' | 'AavePoolDataProvider' | 'L2Encoder'
 
 export type MakerProtocol =
   | 'FlashMintModule'
@@ -266,7 +266,6 @@ export type Contracts =
   | Common
   | AaveV2Protocol
   | AaveV3Protocol
-  | AaveV3ProtocolOptimism
   | MakerProtocol
   | MakerProtocolJoins
   | MakerProtocolPips
@@ -303,9 +302,8 @@ export type SystemConfig = {
   }
   common: Record<Common, DeploymentConfig>
   aave: {
-    v2?: Record<AaveV2Protocol, DeploymentConfig>
-    v3: Record<AaveV3Protocol, DeploymentConfig> &
-      Partial<Record<AaveV3ProtocolOptimism, DeploymentConfig>>
+    v2: Record<AaveV2Protocol, DeploymentConfig>
+    v3: Record<AaveV3Protocol, DeploymentConfig>
   }
   maker: {
     common: Record<MakerProtocol, DeploymentConfig>
