@@ -9,7 +9,7 @@
     "build": "yarn clean && yarn tsc -p tsconfig.json && webpack",
     "clean": "rm -rf ./lib",
     "watch": "yarn tsc -b -w",
-    "lint": "yarn tsc -p tsconfig.json --noEmit",
+    "lint": "yarn tsc -p tsconfig.json",
     "prepublish": "yarn build"
   },
   "devDependencies": {

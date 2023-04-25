@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js'
 
 export async function getOraclePrice(
   provider: JsonRpcProvider,
-  pipAddress = ADDRESSES[Network.MAINNET].maker.PipWETH,
+  pipAddress = ADDRESSES[Network.MAINNET].maker.pips.PIP_WETH,
 ): Promise<BigNumber> {
   const storageHexToBigNumber = (uint256: string) => {
     const matches = uint256.match(/^0x(\w+)$/)

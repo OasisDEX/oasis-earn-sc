@@ -15,13 +15,13 @@ export async function getLastVault(
   proxyAddress: string,
 ): Promise<CDPInfo> {
   const getCdps = new ethers.Contract(
-    ADDRESSES[Network.MAINNET].maker.GetCdps,
+    ADDRESSES[Network.MAINNET].maker.common.GetCdps,
     GetCDPsABI,
     provider,
   ).connect(signer)
 
   const { ids, urns, ilks } = await getCdps.getCdpsAsc(
-    ADDRESSES[Network.MAINNET].maker.CdpManager,
+    ADDRESSES[Network.MAINNET].maker.common.CdpManager,
     proxyAddress,
   )
 
