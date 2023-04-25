@@ -9,7 +9,7 @@ async function main() {
   console.log(`Network: ${network}`)
 
   const ds = new DeploymentSystem(hre)
-  await ds.init(hre)
+  await ds.init()
   await ds.loadConfig()
   await ds.deployAll()
   await ds.saveConfig()

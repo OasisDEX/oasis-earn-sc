@@ -33,7 +33,12 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
   before(async function () {
     // No AAVE V2 on Optimism
     if (isOptimismByNetwork(networkFork)) this.skip()
-    fixture = await loadFixture(systemWithAavePositions({ use1inch: true }))
+    fixture = await loadFixture(
+      systemWithAavePositions({
+        use1inch: true,
+        configExtensionPaths: [`./test/swap.conf.ts`],
+      }),
+    )
     feeRecipient = fixture.dsSystem.config.common.FeeRecipient.address
     if (!feeRecipient) throw new Error('Fee recipient is not set')
   })
