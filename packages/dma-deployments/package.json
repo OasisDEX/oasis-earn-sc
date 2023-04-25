@@ -2,8 +2,8 @@
   "name": "@oasisdex/dma-deployments",
   "version": "1.0.0",
   "license": "Apache-2.0",
-  "main": "./configs/index.ts",
-  "types": "./configs/index.ts",
+  "main": "./addresses/index.ts",
+  "types": "./addresses/index.ts",
   "scripts": {
     "lint": "yarn tsc -p ./tsconfig.json --noEmit"
   },

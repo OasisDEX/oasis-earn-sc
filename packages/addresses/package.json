@@ -12,7 +12,7 @@
     "lint": "yarn tsc -p tsconfig.json --noEmit",
     "prepublish": "yarn build"
   },
-  "dependencies": {
+  "devDependencies": {
     "@oasisdex/dma-deployments": "*"
   },
   "files": [
