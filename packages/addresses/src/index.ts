@@ -1,6 +1,4 @@
-import { config as mainnetConfig } from '@oasisdex/dma-deployments/configs/mainnet.conf'
-import { config as optimismConfig } from '@oasisdex/dma-deployments/configs/optimism.conf'
-import { config as goerliConfig } from '@oasisdex/dma-deployments/configs/goerli.conf'
+import { goerliConfig, mainnetConfig, optimismConfig } from '@oasisdex/dma-deployments'
 
 import {
   AaveV2Protocol,
@@ -16,8 +14,6 @@ import {
 } from '@oasisdex/dma-deployments/types/deployment-config'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { Address } from '@oasisdex/dma-common/types/address'
-
-type DeployedNetworks = Network.MAINNET | Network.OPTIMISM | Network.GOERLI
 
 enum MpaKeys {
   CORE = 'core',

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "module": "commonjs",
+    "module": "CommonJS",
     "strict": true,
     "baseUrl": ".",
     "types": [
@@ -25,9 +25,12 @@
     }
   },
   "include": [
-    "./configs/**/*",
-    "./deployment/**/*",
-    "./types",
-    "./hardhat.config.ts"
+    "configs/**/*",
+    "constants/**/*",
+    "deployment/**/*",
+    "types",
+    "hardhat.config.ts",
+    "utils/**/*",
+    "operation-definitions/**/*",
   ],
 }
