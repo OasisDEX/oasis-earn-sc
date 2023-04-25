@@ -317,8 +317,8 @@ export const config: SystemConfig = {
       address: ADDRESS_ZERO,
     },
     GetCdps: {
-      name: 'CdpManager',
-      address: ADDRESS_ZERO,
+      name: 'GetCdps',
+      address: constants.AddressZero,
     },
     Jug: {
       name: 'Jug',

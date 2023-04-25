@@ -61,7 +61,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
   const [, chainLogViewAddress] = await deploy(CONTRACT_NAMES.maker.CHAINLOG_VIEW, [
-    ADDRESSES[Network.MAINNET].maker.Chainlog,
+    ADDRESSES[Network.MAINNET].maker.common.Chainlog,
   ])
 
   const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
@@ -272,16 +272,16 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await registry.addEntry(CONTRACT_NAMES.maker.MCD_VIEW, mcdViewAddress)
   await registry.addEntry(
     CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
-    ADDRESSES[Network.MAINNET].maker.FlashMintModule,
+    ADDRESSES[Network.MAINNET].maker.common.FlashMintModule,
   )
   await registry.addEntry(
     CONTRACT_NAMES.maker.MCD_MANAGER,
-    ADDRESSES[Network.MAINNET].maker.CdpManager,
+    ADDRESSES[Network.MAINNET].maker.common.CdpManager,
   )
-  await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES[Network.MAINNET].maker.Jug)
+  await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES[Network.MAINNET].maker.common.Jug)
   await registry.addEntry(
     CONTRACT_NAMES.maker.MCD_JOIN_DAI,
-    ADDRESSES[Network.MAINNET].maker.JoinDAI,
+    ADDRESSES[Network.MAINNET].maker.joins.MCD_JOIN_DAI,
   )
   const makerOpenVaultHash = await registry.addEntry(
     CONTRACT_NAMES.maker.OPEN_VAULT,

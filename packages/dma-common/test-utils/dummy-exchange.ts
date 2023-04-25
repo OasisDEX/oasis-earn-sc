@@ -136,13 +136,13 @@ export async function loadDummyExchangeFixtures(
     {
       name: 'WETH',
       address: ADDRESSES[Network.MAINNET].common.WETH,
-      pip: ADDRESSES[Network.MAINNET].maker.PipWETH,
+      pip: ADDRESSES[Network.MAINNET].maker.pips.PIP_ETH,
       precision: 18,
     },
     {
       name: 'stETH',
       address: ADDRESSES[Network.MAINNET].common.STETH,
-      pip: ADDRESSES[Network.MAINNET].maker.PipWETH,
+      pip: ADDRESSES[Network.MAINNET].maker.pips.PIP_WETH,
       precision: 18,
     },
     {
@@ -154,7 +154,7 @@ export async function loadDummyExchangeFixtures(
     {
       name: 'LINK',
       address: ADDRESSES[Network.MAINNET].common.LINK,
-      pip: ADDRESSES[Network.MAINNET].maker.PipLINK,
+      pip: ADDRESSES[Network.MAINNET].maker.pips.PIP_LINK,
       precision: 18,
     },
   ]

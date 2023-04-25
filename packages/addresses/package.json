@@ -1,9 +1,9 @@
 {
   "name": "@oasisdex/addresses",
   "version": "1.0.0",
-  "main": "lib/index.min.js",
+  "main": "src/index.ts",
   "module": "lib/index.min.js",
-  "typings": "lib/index.d.ts",
+  "typings": "src/index.ts",
   "license": "MIT",
   "scripts": {
     "build": "yarn clean && yarn tsc -p tsconfig.json && webpack",

@@ -213,47 +213,6 @@ export const optimismConfig: SystemConfig = {
       name: 'GnosisSafe',
       address: ADDRESS_ZERO,
     },
-    WETH: {
-      name: 'WETH',
-      address: '0x4200000000000000000000000000000000000006',
-      serviceRegistryName: 'WETH',
-    },
-    ETH: {
-      name: 'ETH',
-      address: '0x4200000000000000000000000000000000000006',
-    },
-    WSTETH: {
-      name: 'WSTETH',
-      address: '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb',
-      serviceRegistryName: 'WSTETH',
-    },
-    STETH: {
-      name: 'STETH',
-      address: ADDRESS_ZERO,
-    },
-    USDC: {
-      name: 'USDC',
-      address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
-      serviceRegistryName: 'USDC',
-    },
-    USDT: {
-      name: 'USDT',
-      address: ADDRESS_ZERO,
-    },
-    DAI: {
-      name: 'DAI',
-      address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
-      serviceRegistryName: 'DAI',
-    },
-    WBTC: {
-      name: 'WBTC',
-      address: '0x68f180fcce6836688e9084f035309e29bf0a2095',
-      serviceRegistryName: 'WBTC',
-    },
-    LINK: {
-      name: 'LINK',
-      address: ADDRESS_ZERO,
-    },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xE592427A0AEce92De3Edee1F18E0157C05861564',
@@ -277,10 +236,164 @@ export const optimismConfig: SystemConfig = {
       address: '0x1111111254EEB25477B68fb85Ed929f73A960582',
       serviceRegistryName: 'OneInchAggregator',
     },
-    ChainlinkEthUsdPriceFeed: {
-      name: 'ChainlinkEthUsdPriceFeed',
+    MerkleRedeemer: {
+      name: 'MerkleRedeemer',
+      address: constants.AddressZero,
+    },
+    DssCharter: {
+      name: 'DssCharter',
+      address: constants.AddressZero,
+    },
+    DssProxyActions: {
+      name: 'DssProxyActions',
+      address: constants.AddressZero,
+    },
+    DssProxyActionsCharter: {
+      name: 'DssProxyActionsCharter',
+      address: constants.AddressZero,
+    },
+    DssMultiplyProxyActions: {
+      name: 'DssMultiplyProxyActions',
+      address: constants.AddressZero,
+    },
+    DssCropper: {
+      name: 'DssCropper',
+      address: constants.AddressZero,
+    },
+    DssProxyActionsCropjoin: {
+      name: 'DssProxyActionsCropjoin',
+      address: constants.AddressZero,
+    },
+    DssProxyActionsDsr: {
+      name: 'DssProxyActionsDsr',
+      address: constants.AddressZero,
+    },
+    Otc: {
+      name: 'Otc',
+      address: constants.AddressZero,
+    },
+    OtcSupportMethods: {
+      name: 'OtcSupportMethods',
+      address: constants.AddressZero,
+    },
+    ServiceRegistry: {
+      name: 'ServiceRegistry',
+      address: constants.AddressZero,
+    },
+    GuniProxyActions: {
+      name: 'GuniProxyActions',
+      address: constants.AddressZero,
+    },
+    GuniResolver: {
+      name: 'GuniResolver',
+      address: constants.AddressZero,
+    },
+    GuniRouter: {
+      name: 'GuniRouter',
+      address: constants.AddressZero,
+    },
+    CdpRegistry: {
+      name: 'CdpRegistry',
+      address: constants.AddressZero,
+    },
+    DefaultExchange: {
+      name: 'DefaultExchange',
+      address: constants.AddressZero,
+    },
+    NoFeesExchange: {
+      name: 'NoFeesExchange',
+      address: constants.AddressZero,
+    },
+    LowerFeesExchange: {
+      name: 'LowerFeesExchange',
+      address: constants.AddressZero,
+    },
+    LidoCrvLiquidityFarmingReward: {
+      name: 'LidoCrvLiquidityFarmingReward',
+      address: constants.AddressZero,
+    },
+    ChainlinkPriceOracle_USDCUSD: {
+      name: 'ChainlinkPriceOracle_USDCUSD',
+      address: constants.AddressZero,
+    },
+    ChainlinkPriceOracle_ETHUSD: {
+      name: 'ChainlinkPriceOracle_ETHUSD',
       address: '0x13e3ee699d1909e989722e753853ae30b17e08c5',
     },
+    ADAI: { name: 'ADAI', address: constants.AddressZero },
+    AAVE: { name: 'AAVE', address: constants.AddressZero },
+    BAL: { name: 'BAL', address: constants.AddressZero },
+    BAT: { name: 'BAT', address: constants.AddressZero },
+    COMP: { name: 'COMP', address: constants.AddressZero },
+    CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: constants.AddressZero },
+    DAI: {
+      name: 'DAI',
+      address: constants.AddressZero,
+      serviceRegistryName: 'DAI',
+    },
+    ETH: { name: 'ETH', address: constants.AddressZero },
+    GNO: { name: 'GNO', address: constants.AddressZero },
+    GUNIV3DAIUSDC1: {
+      name: 'GUNIV3DAIUSDC1',
+      address: constants.AddressZero,
+    },
+    GUNIV3DAIUSDC2: {
+      name: 'GUNIV3DAIUSDC2',
+      address: constants.AddressZero,
+    },
+    GUSD: { name: 'GUSD', address: constants.AddressZero },
+    KNC: { name: 'KNC', address: constants.AddressZero },
+    LDO: { name: 'LDO', address: constants.AddressZero },
+    LINK: { name: 'LINK', address: constants.AddressZero },
+    LRC: { name: 'LRC', address: constants.AddressZero },
+    MANA: { name: 'MANA', address: constants.AddressZero },
+    MATIC: { name: 'MATIC', address: constants.AddressZero },
+    PAX: { name: 'PAX', address: constants.AddressZero },
+    PAXUSD: { name: 'PAXUSD', address: constants.AddressZero },
+    RENBTC: { name: 'RENBTC', address: constants.AddressZero },
+    RETH: { name: 'RETH', address: constants.AddressZero },
+    RWA001: { name: 'RWA001', address: constants.AddressZero },
+    RWA002: { name: 'RWA002', address: constants.AddressZero },
+    RWA003: { name: 'RWA003', address: constants.AddressZero },
+    RWA004: { name: 'RWA004', address: constants.AddressZero },
+    RWA005: { name: 'RWA005', address: constants.AddressZero },
+    RWA006: { name: 'RWA006', address: constants.AddressZero },
+    STETH: { name: 'STETH', address: constants.AddressZero },
+    TUSD: { name: 'TUSD', address: constants.AddressZero },
+    UNI: { name: 'UNI', address: constants.AddressZero },
+    UNIV2AAVEETH: { name: 'UNIV2AAVEETH', address: constants.AddressZero },
+    UNIV2DAIETH: { name: 'UNIV2DAIETH', address: constants.AddressZero },
+    UNIV2DAIUSDC: { name: 'UNIV2DAIUSDC', address: constants.AddressZero },
+    UNIV2DAIUSDT: { name: 'UNIV2DAIUSDT', address: constants.AddressZero },
+    UNIV2ETHUSDT: { name: 'UNIV2ETHUSDT', address: constants.AddressZero },
+    UNIV2LINKETH: { name: 'UNIV2LINKETH', address: constants.AddressZero },
+    UNIV2UNIETH: { name: 'UNIV2UNIETH', address: constants.AddressZero },
+    UNIV2USDCETH: { name: 'UNIV2USDCETH', address: constants.AddressZero },
+    UNIV2WBTCDAI: { name: 'UNIV2WBTCDAI', address: constants.AddressZero },
+    UNIV2WBTCETH: { name: 'UNIV2WBTCETH', address: constants.AddressZero },
+    USDC: {
+      name: 'USDC',
+      address: constants.AddressZero,
+      serviceRegistryName: 'USDC',
+    },
+    USDT: { name: 'USDT', address: constants.AddressZero },
+    WBTC: {
+      name: 'WBTC',
+      address: constants.AddressZero,
+      serviceRegistryName: 'WBTC',
+    },
+    WETH: {
+      name: 'WETH',
+      address: constants.AddressZero,
+      serviceRegistryName: 'WETH',
+    },
+    WSTETH: {
+      name: 'WSTETH',
+      address: constants.AddressZero,
+      serviceRegistryName: 'WSTETH',
+    },
+    YFI: { name: 'YFI', address: constants.AddressZero },
+    ZRX: { name: 'ZRX', address: constants.AddressZero },
   },
   aave: {
     v3: {
@@ -293,8 +406,8 @@ export const optimismConfig: SystemConfig = {
         address: '0x794a61358D6845594F94dc1DB02A252b5b4814aD',
         serviceRegistryName: 'AavePool',
       },
-      AaveProtocolDataProvider: {
-        name: 'AaveProtocolDataProvider',
+      AavePoolDataProvider: {
+        name: 'AavePoolDataProvider',
         address: '0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654',
       },
       L2Encoder: {
@@ -304,41 +417,487 @@ export const optimismConfig: SystemConfig = {
     },
   },
   maker: {
-    FlashMintModule: {
-      name: 'FlashMintModule',
-      address: ADDRESS_ZERO,
+    common: {
+      FlashMintModule: {
+        name: 'FlashMintModule',
+        address: constants.AddressZero,
+      },
+      Chainlog: {
+        name: 'Chainlog',
+        address: constants.AddressZero,
+      },
+      CdpManager: {
+        name: 'CdpManager',
+        address: constants.AddressZero,
+      },
+      GetCdps: {
+        name: 'GetCdps',
+        address: constants.AddressZero,
+      },
+      Jug: {
+        name: 'Jug',
+        address: constants.AddressZero,
+      },
+      Pot: {
+        name: 'Pot',
+        address: constants.AddressZero,
+      },
+      End: {
+        name: 'End',
+        address: constants.AddressZero,
+      },
+      Spot: {
+        name: 'Spot',
+        address: constants.AddressZero,
+      },
+      Dog: {
+        name: 'Dog',
+        address: constants.AddressZero,
+      },
+      Vat: {
+        name: 'Vat',
+        address: constants.AddressZero,
+      },
+      McdGov: {
+        name: 'McdGov',
+        address: constants.AddressZero,
+      },
     },
-    Chainlog: {
-      name: 'Chainlog',
-      address: ADDRESS_ZERO,
+    joins: {
+      MCD_JOIN_DAI: {
+        name: 'MCD_JOIN_DAI',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_ETH_A: {
+        name: 'MCD_JOIN_ETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_ETH_B: {
+        name: 'MCD_JOIN_ETH_B',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_ETH_C: {
+        name: 'MCD_JOIN_ETH_C',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_BAT_A: {
+        name: 'MCD_JOIN_BAT_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_USDC_A: {
+        name: 'MCD_JOIN_USDC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_USDC_B: {
+        name: 'MCD_JOIN_USDC_B',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_PSM_USDC_A: {
+        name: 'MCD_JOIN_PSM_USDC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_TUSD_A: {
+        name: 'MCD_JOIN_TUSD_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_WBTC_A: {
+        name: 'MCD_JOIN_WBTC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_WBTC_B: {
+        name: 'MCD_JOIN_WBTC_B',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_WBTC_C: {
+        name: 'MCD_JOIN_WBTC_C',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_ZRX_A: {
+        name: 'MCD_JOIN_ZRX_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_KNC_A: {
+        name: 'MCD_JOIN_KNC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_MANA_A: {
+        name: 'MCD_JOIN_MANA_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_USDT_A: {
+        name: 'MCD_JOIN_USDT_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_PAXUSD_A: {
+        name: 'MCD_JOIN_PAXUSD_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_PSM_PAX_A: {
+        name: 'MCD_JOIN_PSM_PAX_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_COMP_A: {
+        name: 'MCD_JOIN_COMP_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_LRC_A: {
+        name: 'MCD_JOIN_LRC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_LINK_A: {
+        name: 'MCD_JOIN_LINK_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_BAL_A: {
+        name: 'MCD_JOIN_BAL_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_YFI_A: {
+        name: 'MCD_JOIN_YFI_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_GUSD_A: {
+        name: 'MCD_JOIN_GUSD_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_PSM_GUSD_A: {
+        name: 'MCD_JOIN_PSM_GUSD_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNI_A: {
+        name: 'MCD_JOIN_UNI_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RENBTC_A: {
+        name: 'MCD_JOIN_RENBTC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_AAVE_A: {
+        name: 'MCD_JOIN_AAVE_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_MATIC_A: {
+        name: 'MCD_JOIN_MATIC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_WSTETH_A: {
+        name: 'MCD_JOIN_WSTETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_WSTETH_B: {
+        name: 'MCD_JOIN_WSTETH_B',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2DAIETH_A: {
+        name: 'MCD_JOIN_UNIV2DAIETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2WBTCETH_A: {
+        name: 'MCD_JOIN_UNIV2WBTCETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2USDCETH_A: {
+        name: 'MCD_JOIN_UNIV2USDCETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2DAIUSDC_A: {
+        name: 'MCD_JOIN_UNIV2DAIUSDC_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2ETHUSDT_A: {
+        name: 'MCD_JOIN_UNIV2ETHUSDT_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2LINKETH_A: {
+        name: 'MCD_JOIN_UNIV2LINKETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2UNIETH_A: {
+        name: 'MCD_JOIN_UNIV2UNIETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2WBTCDAI_A: {
+        name: 'MCD_JOIN_UNIV2WBTCDAI_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2AAVEETH_A: {
+        name: 'MCD_JOIN_UNIV2AAVEETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_UNIV2DAIUSDT_A: {
+        name: 'MCD_JOIN_UNIV2DAIUSDT_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RWA001_A: {
+        name: 'MCD_JOIN_RWA001_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RWA002_A: {
+        name: 'MCD_JOIN_RWA002_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RWA003_A: {
+        name: 'MCD_JOIN_RWA003_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RWA004_A: {
+        name: 'MCD_JOIN_RWA004_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RWA005_A: {
+        name: 'MCD_JOIN_RWA005_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RWA006_A: {
+        name: 'MCD_JOIN_RWA006_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_RETH_A: {
+        name: 'MCD_JOIN_RETH_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_GNO_A: {
+        name: 'MCD_JOIN_GNO_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_DIRECT_AAVEV2_DAI: {
+        name: 'MCD_JOIN_DIRECT_AAVEV2_DAI',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_GUNIV3DAIUSDC1_A: {
+        name: 'MCD_JOIN_GUNIV3DAIUSDC1_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_GUNIV3DAIUSDC2_A: {
+        name: 'MCD_JOIN_GUNIV3DAIUSDC2_A',
+        address: constants.AddressZero,
+      },
+      MCD_JOIN_CRVV1ETHSTETH_A: {
+        name: 'MCD_JOIN_CRVV1ETHSTETH_A',
+        address: constants.AddressZero,
+      },
     },
-    CdpManager: {
-      name: 'CdpManager',
-      address: ADDRESS_ZERO,
+    pips: {
+      PIP_ETH: {
+        name: 'PIP_ETH',
+        address: constants.AddressZero,
+      },
+      PIP_BAT: {
+        name: 'PIP_BAT',
+        address: constants.AddressZero,
+      },
+      PIP_USDC: {
+        name: 'PIP_USDC',
+        address: constants.AddressZero,
+      },
+      PIP_WBTC: {
+        name: 'PIP_WBTC',
+        address: constants.AddressZero,
+      },
+      PIP_TUSD: {
+        name: 'PIP_TUSD',
+        address: constants.AddressZero,
+      },
+      PIP_ZRX: {
+        name: 'PIP_ZRX',
+        address: constants.AddressZero,
+      },
+      PIP_KNC: {
+        name: 'PIP_KNC',
+        address: constants.AddressZero,
+      },
+      PIP_MANA: {
+        name: 'PIP_MANA',
+        address: constants.AddressZero,
+      },
+      PIP_USDT: {
+        name: 'PIP_USDT',
+        address: constants.AddressZero,
+      },
+      PIP_PAXUSD: {
+        name: 'PIP_PAXUSD',
+        address: constants.AddressZero,
+      },
+      PIP_PAX: {
+        name: 'PIP_PAX',
+        address: constants.AddressZero,
+      },
+      PIP_COMP: {
+        name: 'PIP_COMP',
+        address: constants.AddressZero,
+      },
+      PIP_LRC: {
+        name: 'PIP_LRC',
+        address: constants.AddressZero,
+      },
+      PIP_LINK: {
+        name: 'PIP_LINK',
+        address: constants.AddressZero,
+      },
+      PIP_BAL: {
+        name: 'PIP_BAL',
+        address: constants.AddressZero,
+      },
+      PIP_YFI: {
+        name: 'PIP_YFI',
+        address: constants.AddressZero,
+      },
+      PIP_GUSD: {
+        name: 'PIP_GUSD',
+        address: constants.AddressZero,
+      },
+      PIP_UNI: {
+        name: 'PIP_UNI',
+        address: constants.AddressZero,
+      },
+      PIP_RENBTC: {
+        name: 'PIP_RENBTC',
+        address: constants.AddressZero,
+      },
+      PIP_AAVE: {
+        name: 'PIP_AAVE',
+        address: constants.AddressZero,
+      },
+      PIP_MATIC: {
+        name: 'PIP_MATIC',
+        address: constants.AddressZero,
+      },
+      PIP_WSTETH: {
+        name: 'PIP_WSTETH',
+        address: constants.AddressZero,
+      },
+      PIP_ADAI: {
+        name: 'PIP_ADAI',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2DAIETH: {
+        name: 'PIP_UNIV2DAIETH',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2WBTCETH: {
+        name: 'PIP_UNIV2WBTCETH',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2USDCETH: {
+        name: 'PIP_UNIV2USDCETH',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2DAIUSDC: {
+        name: 'PIP_UNIV2DAIUSDC',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2ETHUSDT: {
+        name: 'PIP_UNIV2ETHUSDT',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2LINKETH: {
+        name: 'PIP_UNIV2LINKETH',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2UNIETH: {
+        name: 'PIP_UNIV2UNIETH',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2WBTCDAI: {
+        name: 'PIP_UNIV2WBTCDAI',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2AAVEETH: {
+        name: 'PIP_UNIV2AAVEETH',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2DAIUSDT: {
+        name: 'PIP_UNIV2DAIUSDT',
+        address: constants.AddressZero,
+      },
+      PIP_GUNIV3DAIUSDC1: {
+        name: 'PIP_GUNIV3DAIUSDC1',
+        address: constants.AddressZero,
+      },
+      PIP_GUNIV3DAIUSDC2: {
+        name: 'PIP_GUNIV3DAIUSDC2',
+        address: constants.AddressZero,
+      },
+      PIP_CRVV1ETHSTETH: {
+        name: 'PIP_CRVV1ETHSTETH',
+        address: constants.AddressZero,
+      },
+      PIP_RWA001: {
+        name: 'PIP_RWA001',
+        address: constants.AddressZero,
+      },
+      PIP_RWA002: {
+        name: 'PIP_RWA002',
+        address: constants.AddressZero,
+      },
+      PIP_RWA003: {
+        name: 'PIP_RWA003',
+        address: constants.AddressZero,
+      },
+      PIP_RWA004: {
+        name: 'PIP_RWA004',
+        address: constants.AddressZero,
+      },
+      PIP_RWA005: {
+        name: 'PIP_RWA005',
+        address: constants.AddressZero,
+      },
+      PIP_RWA006: {
+        name: 'PIP_RWA006',
+        address: constants.AddressZero,
+      },
+      PIP_RETH: {
+        name: 'PIP_RETH',
+        address: constants.AddressZero,
+      },
+      PIP_GNO: {
+        name: 'PIP_GNO',
+        address: constants.AddressZero,
+      },
+      PIP_WETH: {
+        name: 'PIP_WETH',
+        address: constants.AddressZero,
+      },
     },
-    GetCdps: {
-      name: 'CdpManager',
-      address: ADDRESS_ZERO,
+  },
+  automation: {
+    AutomationBot: {
+      name: 'AutomationBot',
+      address: constants.AddressZero,
     },
-    Jug: {
-      name: 'Jug',
-      address: ADDRESS_ZERO,
+    AutomationBotV2: {
+      name: 'AutomationBotV2',
+      address: constants.AddressZero,
     },
-    JoinDAI: {
-      name: 'JoinDAI',
-      address: ADDRESS_ZERO,
+    AutomationBotAggregator: {
+      name: 'AutomationBotAggregator',
+      address: constants.AddressZero,
     },
-    JoinETH_A: {
-      name: 'JoinETH_A',
-      address: ADDRESS_ZERO,
+  },
+  ajna: {
+    AjnaPoolInfo: {
+      name: 'AjnaPoolInfo',
+      address: constants.AddressZero,
     },
-    PipWETH: {
-      name: 'PipWETH',
-      address: ADDRESS_ZERO,
+    AjnaProxyActions: {
+      name: 'AjnaProxyActions',
+      address: constants.AddressZero,
     },
-    PipLINK: {
-      name: 'PipLINK',
-      address: ADDRESS_ZERO,
+    AjnaPoolPairs_WBTCUSDC: {
+      name: 'AjnaPoolPairs_WBTCUSDC',
+      address: constants.AddressZero,
+    },
+    AjnaPoolPairs_ETHUSDC: {
+      name: 'AjnaPoolPairs_ETHUSDC',
+      address: constants.AddressZero,
+    },
+    AjnaRewardsManager: {
+      name: 'AjnaRewardsManager',
+      address: constants.AddressZero,
+    },
+    AjnaRewardsClaimer: {
+      name: 'AjnaRewardsClaimer',
+      address: constants.AddressZero,
     },
   },
 }
