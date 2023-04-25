@@ -14,6 +14,7 @@ import {
   DeploymentConfig,
   MakerProtocol,
   MakerProtocolJoins,
+  MakerProtocolPips,
   SystemKeys,
 } from '@oasisdex/dma-deployments/types/deployment-config'
 import { Network } from '@oasisdex/dma-deployments/types/network'
@@ -43,6 +44,7 @@ type DefaultDeployment = {
   [SystemKeys.MAKER]: {
     common: Record<MakerProtocol, Address>
     joins: Record<MakerProtocolJoins, Address>
+    pips: Record<MakerProtocolPips, Address>
   }
   [SystemKeys.AUTOMATION]: Record<AutomationProtocol, Address>
   [SystemKeys.AJNA]: Record<AjnaProtocol, Address>
@@ -92,6 +94,9 @@ export const ADDRESSES: Addresses = {
       joins: {
         ...extractAddressesFromConfig(mainnetConfig.maker.joins),
       },
+      pips: {
+        ...extractAddressesFromConfig(mainnetConfig.maker.pips),
+      },
     },
     automation: {
       ...extractAddressesFromConfig(mainnetConfig.automation),
@@ -123,6 +128,9 @@ export const ADDRESSES: Addresses = {
       },
       joins: {
         ...extractAddressesFromConfig(optimismConfig.maker.joins),
+      },
+      pips: {
+        ...extractAddressesFromConfig(optimismConfig.maker.pips),
       },
     },
     automation: {
@@ -158,6 +166,9 @@ export const ADDRESSES: Addresses = {
       },
       joins: {
         ...extractAddressesFromConfig(goerliConfig.maker.joins),
+      },
+      pips: {
+        ...extractAddressesFromConfig(goerliConfig.maker.pips),
       },
     },
     automation: {

@@ -365,7 +365,7 @@ export const config: SystemConfig = {
       address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       serviceRegistryName: CONTRACT_NAMES.common.DAI,
     },
-    ETH: { name: 'ETH', address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' },
+    ETH: { name: 'ETH', address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' },
     GNO: { name: 'GNO', address: '0x6810e776880C02933D47DB1b9fc05908e5386b96' },
     GUNIV3DAIUSDC1: {
       name: 'GUNIV3DAIUSDC1',
@@ -464,8 +464,8 @@ export const config: SystemConfig = {
         address: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
         serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
       },
-      AaveProtocolDataProvider: {
-        name: 'AaveProtocolDataProvider',
+      AavePoolDataProvider: {
+        name: 'AavePoolDataProvider',
         address: '0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3',
       },
     },
@@ -495,7 +495,7 @@ export const config: SystemConfig = {
       },
       Pot: {
         name: 'Pot',
-        address: '0x19c0976f590D67707E62397C87829d896Dc0f1F1',
+        address: '0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7',
       },
       End: {
         name: 'End',
@@ -516,22 +516,6 @@ export const config: SystemConfig = {
       McdGov: {
         name: 'McdGov',
         address: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
-      },
-      JoinDAI: {
-        name: 'JoinDAI',
-        address: '0x9759A6Ac90977b93B58547b4A71c78317f391A28',
-      },
-      JoinETH_A: {
-        name: 'JoinETH_A',
-        address: '0x2F0b23f53734252Bda2277357e97e1517d6B042A',
-      },
-      PipWETH: {
-        name: 'PipWETH',
-        address: '0x81FE72B5A8d1A857d176C3E7d5Bd2679A9B85763',
-      },
-      PipLINK: {
-        name: 'PipLINK',
-        address: '0x9B0C694C6939b5EA9584e9b61C7815E8d97D9cC7',
       },
     },
     joins: {
@@ -743,6 +727,188 @@ export const config: SystemConfig = {
       MCD_JOIN_GNO_A: {
         name: 'MCD_JOIN_GNO_A',
         address: '0x7bD3f01e24E0f0838788bC8f573CEA43A80CaBB5',
+      },
+    },
+    pips: {
+      PIP_ETH: {
+        name: 'PIP_ETH',
+        address: '0x81FE72B5A8d1A857d176C3E7d5Bd2679A9B85763',
+      },
+      PIP_BAT: {
+        name: 'PIP_BAT',
+        address: '0xB4eb54AF9Cc7882DF0121d26c5b97E802915ABe6',
+      },
+      PIP_USDC: {
+        name: 'PIP_USDC',
+        address: '0x77b68899b99b686F415d074278a9a16b336085A0',
+      },
+      PIP_WBTC: {
+        name: 'PIP_WBTC',
+        address: '0xf185d0682d50819263941e5f4EacC763CC5C6C42',
+      },
+      PIP_TUSD: {
+        name: 'PIP_TUSD',
+        address: '0xeE13831ca96d191B688A670D47173694ba98f1e5',
+      },
+      PIP_ZRX: {
+        name: 'PIP_ZRX',
+        address: '0x7382c066801E7Acb2299aC8562847B9883f5CD3c',
+      },
+      PIP_KNC: {
+        name: 'PIP_KNC',
+        address: '0xf36B79BD4C0904A5F350F1e4f776B81208c13069',
+      },
+      PIP_MANA: {
+        name: 'PIP_MANA',
+        address: '0x8067259EA630601f319FccE477977E55C6078C13',
+      },
+      PIP_USDT: {
+        name: 'PIP_USDT',
+        address: '0x7a5918670B0C390aD25f7beE908c1ACc2d314A3C',
+      },
+      PIP_PAXUSD: {
+        name: 'PIP_PAXUSD',
+        address: '0x043B963E1B2214eC90046167Ea29C2c8bDD7c0eC',
+      },
+      PIP_PAX: {
+        name: 'PIP_PAX',
+        address: '0x043B963E1B2214eC90046167Ea29C2c8bDD7c0eC',
+      },
+      PIP_COMP: {
+        name: 'PIP_COMP',
+        address: '0xBED0879953E633135a48a157718Aa791AC0108E4',
+      },
+      PIP_LRC: {
+        name: 'PIP_LRC',
+        address: '0x9eb923339c24c40Bef2f4AF4961742AA7C23EF3a',
+      },
+      PIP_LINK: {
+        name: 'PIP_LINK',
+        address: '0x9B0C694C6939b5EA9584e9b61C7815E8d97D9cC7',
+      },
+      PIP_BAL: {
+        name: 'PIP_BAL',
+        address: '0x3ff860c0F28D69F392543A16A397D0dAe85D16dE',
+      },
+      PIP_YFI: {
+        name: 'PIP_YFI',
+        address: '0x5F122465bCf86F45922036970Be6DD7F58820214',
+      },
+      PIP_GUSD: {
+        name: 'PIP_GUSD',
+        address: '0xf45Ae69CcA1b9B043dAE2C83A5B65Bc605BEc5F5',
+      },
+      PIP_UNI: {
+        name: 'PIP_UNI',
+        address: '0xf363c7e351C96b910b92b45d34190650df4aE8e7',
+      },
+      PIP_RENBTC: {
+        name: 'PIP_RENBTC',
+        address: '0xf185d0682d50819263941e5f4EacC763CC5C6C42',
+      },
+      PIP_AAVE: {
+        name: 'PIP_AAVE',
+        address: '0x8Df8f06DC2dE0434db40dcBb32a82A104218754c',
+      },
+      PIP_MATIC: {
+        name: 'PIP_MATIC',
+        address: '0x8874964279302e6d4e523Fb1789981C39a1034Ba',
+      },
+      PIP_WSTETH: {
+        name: 'PIP_WSTETH',
+        address: '0xFe7a2aC0B945f12089aEEB6eCebf4F384D9f043F',
+      },
+      PIP_ADAI: {
+        name: 'PIP_ADAI',
+        address: '0x6A858592fC4cBdf432Fc9A1Bc8A0422B99330bdF',
+      },
+      PIP_UNIV2DAIETH: {
+        name: 'PIP_UNIV2DAIETH',
+        address: '0xFc8137E1a45BAF0030563EC4F0F851bd36a85b7D',
+      },
+      PIP_UNIV2WBTCETH: {
+        name: 'PIP_UNIV2WBTCETH',
+        address: '0x8400D2EDb8B97f780356Ef602b1BdBc082c2aD07',
+      },
+      PIP_UNIV2USDCETH: {
+        name: 'PIP_UNIV2USDCETH',
+        address: '0xf751f24DD9cfAd885984D1bA68860F558D21E52A',
+      },
+      PIP_UNIV2DAIUSDC: {
+        name: 'PIP_UNIV2DAIUSDC',
+        address: '0x25D03C2C928ADE19ff9f4FFECc07d991d0df054B',
+      },
+      PIP_UNIV2ETHUSDT: {
+        name: 'PIP_UNIV2ETHUSDT',
+        address: '0x5f6dD5B421B8d92c59dC6D907C9271b1DBFE3016',
+      },
+      PIP_UNIV2LINKETH: {
+        name: 'PIP_UNIV2LINKETH',
+        address: '0xd7d31e62AE5bfC3bfaa24Eda33e8c32D31a1746F',
+      },
+      PIP_UNIV2UNIETH: {
+        name: 'PIP_UNIV2UNIETH',
+        address: '0x8462A88f50122782Cc96108F476deDB12248f931',
+      },
+      PIP_UNIV2WBTCDAI: {
+        name: 'PIP_UNIV2WBTCDAI',
+        address: '0x5bB72127a196392cf4aC00Cf57aB278394d24e55',
+      },
+      PIP_UNIV2AAVEETH: {
+        name: 'PIP_UNIV2AAVEETH',
+        address: '0x32d8416e8538Ac36272c44b0cd962cD7E0198489',
+      },
+      PIP_UNIV2DAIUSDT: {
+        name: 'PIP_UNIV2DAIUSDT',
+        address: '0x9A1CD705dc7ac64B50777BcEcA3529E58B1292F1',
+      },
+      PIP_GUNIV3DAIUSDC1: {
+        name: 'PIP_GUNIV3DAIUSDC1',
+        address: '0x7F6d78CC0040c87943a0e0c140De3F77a273bd58',
+      },
+      PIP_GUNIV3DAIUSDC2: {
+        name: 'PIP_GUNIV3DAIUSDC2',
+        address: '0xcCBa43231aC6eceBd1278B90c3a44711a00F4e93',
+      },
+      PIP_CRVV1ETHSTETH: {
+        name: 'PIP_CRVV1ETHSTETH',
+        address: '0xEa508F82728927454bd3ce853171b0e2705880D4',
+      },
+      PIP_RWA001: {
+        name: 'PIP_RWA001',
+        address: '0x76A9f30B45F4ebFD60Ce8a1c6e963b1605f7cB6d',
+      },
+      PIP_RWA002: {
+        name: 'PIP_RWA002',
+        address: '0xd2473237E20Bd52F8E7cE0FD79403A6a82fbAEC8',
+      },
+      PIP_RWA003: {
+        name: 'PIP_RWA003',
+        address: '0xDeF7E88447F7D129420FC881B2a854ABB52B73B8',
+      },
+      PIP_RWA004: {
+        name: 'PIP_RWA004',
+        address: '0x5eEE1F3d14850332A75324514CcbD2DBC8Bbc566',
+      },
+      PIP_RWA005: {
+        name: 'PIP_RWA005',
+        address: '0x8E6039C558738eb136833aB50271ae065c700d2B',
+      },
+      PIP_RWA006: {
+        name: 'PIP_RWA006',
+        address: '0xB8AeCF04Fdf22Ef6C0c6b6536896e1F2870C41D3',
+      },
+      PIP_RETH: {
+        name: 'PIP_RETH',
+        address: '0xee7f0b350aa119b3d05dc733a4621a81972f7d47',
+      },
+      PIP_GNO: {
+        name: 'PIP_GNO',
+        address: '0xd800ca44fFABecd159c7889c3bf64a217361AEc8',
+      },
+      PIP_WETH: {
+        name: 'PIP_WETH',
+        address: '0x81FE72B5A8d1A857d176C3E7d5Bd2679A9B85763',
       },
     },
   },

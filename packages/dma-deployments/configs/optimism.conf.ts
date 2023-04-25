@@ -406,8 +406,8 @@ export const config: SystemConfig = {
         address: '0x794a61358D6845594F94dc1DB02A252b5b4814aD',
         serviceRegistryName: 'AavePool',
       },
-      AaveProtocolDataProvider: {
-        name: 'AaveProtocolDataProvider',
+      AavePoolDataProvider: {
+        name: 'AavePoolDataProvider',
         address: '0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654',
       },
     },
@@ -456,22 +456,6 @@ export const config: SystemConfig = {
       },
       McdGov: {
         name: 'McdGov',
-        address: constants.AddressZero,
-      },
-      JoinDAI: {
-        name: 'JoinDAI',
-        address: constants.AddressZero,
-      },
-      JoinETH_A: {
-        name: 'JoinETH_A',
-        address: constants.AddressZero,
-      },
-      PipWETH: {
-        name: 'PipWETH',
-        address: constants.AddressZero,
-      },
-      PipLINK: {
-        name: 'PipLINK',
         address: constants.AddressZero,
       },
     },
@@ -686,6 +670,188 @@ export const config: SystemConfig = {
       },
       MCD_JOIN_CRVV1ETHSTETH_A: {
         name: 'MCD_JOIN_CRVV1ETHSTETH_A',
+        address: constants.AddressZero,
+      },
+    },
+    pips: {
+      PIP_ETH: {
+        name: 'PIP_ETH',
+        address: constants.AddressZero,
+      },
+      PIP_BAT: {
+        name: 'PIP_BAT',
+        address: constants.AddressZero,
+      },
+      PIP_USDC: {
+        name: 'PIP_USDC',
+        address: constants.AddressZero,
+      },
+      PIP_WBTC: {
+        name: 'PIP_WBTC',
+        address: constants.AddressZero,
+      },
+      PIP_TUSD: {
+        name: 'PIP_TUSD',
+        address: constants.AddressZero,
+      },
+      PIP_ZRX: {
+        name: 'PIP_ZRX',
+        address: constants.AddressZero,
+      },
+      PIP_KNC: {
+        name: 'PIP_KNC',
+        address: constants.AddressZero,
+      },
+      PIP_MANA: {
+        name: 'PIP_MANA',
+        address: constants.AddressZero,
+      },
+      PIP_USDT: {
+        name: 'PIP_USDT',
+        address: constants.AddressZero,
+      },
+      PIP_PAXUSD: {
+        name: 'PIP_PAXUSD',
+        address: constants.AddressZero,
+      },
+      PIP_PAX: {
+        name: 'PIP_PAX',
+        address: constants.AddressZero,
+      },
+      PIP_COMP: {
+        name: 'PIP_COMP',
+        address: constants.AddressZero,
+      },
+      PIP_LRC: {
+        name: 'PIP_LRC',
+        address: constants.AddressZero,
+      },
+      PIP_LINK: {
+        name: 'PIP_LINK',
+        address: constants.AddressZero,
+      },
+      PIP_BAL: {
+        name: 'PIP_BAL',
+        address: constants.AddressZero,
+      },
+      PIP_YFI: {
+        name: 'PIP_YFI',
+        address: constants.AddressZero,
+      },
+      PIP_GUSD: {
+        name: 'PIP_GUSD',
+        address: constants.AddressZero,
+      },
+      PIP_UNI: {
+        name: 'PIP_UNI',
+        address: constants.AddressZero,
+      },
+      PIP_RENBTC: {
+        name: 'PIP_RENBTC',
+        address: constants.AddressZero,
+      },
+      PIP_AAVE: {
+        name: 'PIP_AAVE',
+        address: constants.AddressZero,
+      },
+      PIP_MATIC: {
+        name: 'PIP_MATIC',
+        address: constants.AddressZero,
+      },
+      PIP_WSTETH: {
+        name: 'PIP_WSTETH',
+        address: constants.AddressZero,
+      },
+      PIP_ADAI: {
+        name: 'PIP_ADAI',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2DAIETH: {
+        name: 'PIP_UNIV2DAIETH',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2WBTCETH: {
+        name: 'PIP_UNIV2WBTCETH',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2USDCETH: {
+        name: 'PIP_UNIV2USDCETH',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2DAIUSDC: {
+        name: 'PIP_UNIV2DAIUSDC',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2ETHUSDT: {
+        name: 'PIP_UNIV2ETHUSDT',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2LINKETH: {
+        name: 'PIP_UNIV2LINKETH',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2UNIETH: {
+        name: 'PIP_UNIV2UNIETH',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2WBTCDAI: {
+        name: 'PIP_UNIV2WBTCDAI',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2AAVEETH: {
+        name: 'PIP_UNIV2AAVEETH',
+        address: constants.AddressZero,
+      },
+      PIP_UNIV2DAIUSDT: {
+        name: 'PIP_UNIV2DAIUSDT',
+        address: constants.AddressZero,
+      },
+      PIP_GUNIV3DAIUSDC1: {
+        name: 'PIP_GUNIV3DAIUSDC1',
+        address: constants.AddressZero,
+      },
+      PIP_GUNIV3DAIUSDC2: {
+        name: 'PIP_GUNIV3DAIUSDC2',
+        address: constants.AddressZero,
+      },
+      PIP_CRVV1ETHSTETH: {
+        name: 'PIP_CRVV1ETHSTETH',
+        address: constants.AddressZero,
+      },
+      PIP_RWA001: {
+        name: 'PIP_RWA001',
+        address: constants.AddressZero,
+      },
+      PIP_RWA002: {
+        name: 'PIP_RWA002',
+        address: constants.AddressZero,
+      },
+      PIP_RWA003: {
+        name: 'PIP_RWA003',
+        address: constants.AddressZero,
+      },
+      PIP_RWA004: {
+        name: 'PIP_RWA004',
+        address: constants.AddressZero,
+      },
+      PIP_RWA005: {
+        name: 'PIP_RWA005',
+        address: constants.AddressZero,
+      },
+      PIP_RWA006: {
+        name: 'PIP_RWA006',
+        address: constants.AddressZero,
+      },
+      PIP_RETH: {
+        name: 'PIP_RETH',
+        address: constants.AddressZero,
+      },
+      PIP_GNO: {
+        name: 'PIP_GNO',
+        address: constants.AddressZero,
+      },
+      PIP_WETH: {
+        name: 'PIP_WETH',
         address: constants.AddressZero,
       },
     },

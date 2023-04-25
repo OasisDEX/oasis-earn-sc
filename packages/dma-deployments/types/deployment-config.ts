@@ -131,7 +131,7 @@ export type Common =
   | 'ChainlinkPriceOracle_ETHUSD'
 
 export type AaveV2Protocol = 'PriceOracle' | 'LendingPool' | 'ProtocolDataProvider' | 'WETHGateway'
-export type AaveV3Protocol = 'AaveOracle' | 'Pool' | 'AaveProtocolDataProvider'
+export type AaveV3Protocol = 'AaveOracle' | 'Pool' | 'AavePoolDataProvider'
 
 export type MakerProtocol =
   | 'FlashMintModule'
@@ -145,10 +145,6 @@ export type MakerProtocol =
   | 'Dog'
   | 'Vat'
   | 'McdGov'
-  | 'JoinDAI'
-  | 'JoinETH_A'
-  | 'PipWETH'
-  | 'PipLINK'
 
 export type MakerProtocolJoins =
   | 'MCD_JOIN_DAI'
@@ -205,6 +201,53 @@ export type MakerProtocolJoins =
   | 'MCD_JOIN_RETH_A'
   | 'MCD_JOIN_GNO_A'
 
+export type MakerProtocolPips =
+  | 'PIP_ETH'
+  | 'PIP_BAT'
+  | 'PIP_USDC'
+  | 'PIP_WBTC'
+  | 'PIP_TUSD'
+  | 'PIP_WETH'
+  | 'PIP_ZRX'
+  | 'PIP_KNC'
+  | 'PIP_MANA'
+  | 'PIP_USDT'
+  | 'PIP_PAXUSD'
+  | 'PIP_PAX'
+  | 'PIP_COMP'
+  | 'PIP_LRC'
+  | 'PIP_LINK'
+  | 'PIP_BAL'
+  | 'PIP_YFI'
+  | 'PIP_GUSD'
+  | 'PIP_UNI'
+  | 'PIP_RENBTC'
+  | 'PIP_AAVE'
+  | 'PIP_MATIC'
+  | 'PIP_WSTETH'
+  | 'PIP_ADAI'
+  | 'PIP_UNIV2DAIETH'
+  | 'PIP_UNIV2WBTCETH'
+  | 'PIP_UNIV2USDCETH'
+  | 'PIP_UNIV2DAIUSDC'
+  | 'PIP_UNIV2ETHUSDT'
+  | 'PIP_UNIV2LINKETH'
+  | 'PIP_UNIV2UNIETH'
+  | 'PIP_UNIV2WBTCDAI'
+  | 'PIP_UNIV2AAVEETH'
+  | 'PIP_UNIV2DAIUSDT'
+  | 'PIP_GUNIV3DAIUSDC1'
+  | 'PIP_GUNIV3DAIUSDC2'
+  | 'PIP_CRVV1ETHSTETH'
+  | 'PIP_RWA001'
+  | 'PIP_RWA002'
+  | 'PIP_RWA003'
+  | 'PIP_RWA004'
+  | 'PIP_RWA005'
+  | 'PIP_RWA006'
+  | 'PIP_RETH'
+  | 'PIP_GNO'
+
 export type AutomationProtocol = 'AutomationBot' | 'AutomationBotV2' | 'AutomationBotAggregator'
 export type AjnaProtocol =
   | 'AjnaPoolInfo'
@@ -225,6 +268,7 @@ export type Contracts =
   | AaveV3Protocol
   | MakerProtocol
   | MakerProtocolJoins
+  | MakerProtocolPips
   | AutomationProtocol
   | AjnaProtocol
 
@@ -264,6 +308,7 @@ export type SystemConfig = {
   maker: {
     common: Record<MakerProtocol, DeploymentConfig>
     joins: Record<MakerProtocolJoins, DeploymentConfig>
+    pips: Record<MakerProtocolPips, DeploymentConfig>
   }
   automation: Record<AutomationProtocol, DeploymentConfig>
   ajna: Record<AjnaProtocol, DeploymentConfig>

@@ -393,7 +393,7 @@ export const config: SystemConfig = {
     UNIV2WBTCETH: { name: 'UNIV2WBTCETH', address: '0x7883a92ac3e914F3400e8AE6a2FF05E6BA4Bd403' },
     USDC: {
       name: 'USDC',
-      address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+      address: '0x6Fb5ef893d44F4f88026430d82d4ef269543cB23',
       serviceRegistryName: 'USDC',
     },
     USDT: { name: 'USDT', address: '0x5858f25cc225525A7494f76d90A6549749b3030B' },
@@ -404,7 +404,7 @@ export const config: SystemConfig = {
     },
     WETH: {
       name: 'WETH',
-      address: '0x4200000000000000000000000000000000000006',
+      address: '0xCCB14936C2E000ED8393A571D15A2672537838Ad',
       serviceRegistryName: 'WETH',
     },
     WSTETH: {
@@ -446,8 +446,8 @@ export const config: SystemConfig = {
         address: '0x6060Cf73C79098D32c9b936F4B26283427f1BFAd',
         serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
       },
-      AaveProtocolDataProvider: {
-        name: 'AaveProtocolDataProvider',
+      AavePoolDataProvider: {
+        name: 'AavePoolDataProvider',
         address: '0xa41E284482F9923E265832bE59627d91432da76C',
       },
     },
@@ -469,27 +469,27 @@ export const config: SystemConfig = {
       },
       GetCdps: {
         name: 'GetCdps',
-        address: constants.AddressZero,
+        address: '0x7843fd599F5382328DeBB45255deB3E2e0DEC876',
       },
       Jug: {
         name: 'Jug',
-        address: constants.AddressZero,
+        address: '0xC90C99FE9B5d5207A03b9F28A6E8A19C0e558916',
       },
       Pot: {
         name: 'Pot',
-        address: constants.AddressZero,
+        address: '0x50672F0a14B40051B65958818a7AcA3D54Bd81Af',
       },
       End: {
         name: 'End',
-        address: constants.AddressZero,
+        address: '0xDb1d3edb80d3faA1B7257Ab4018A609E327FA50D',
       },
       Spot: {
         name: 'Spot',
-        address: constants.AddressZero,
+        address: '0xACe2A9106ec175bd56ec05C9E38FE1FDa8a1d758',
       },
       Dog: {
         name: 'Dog',
-        address: constants.AddressZero,
+        address: '0x5cf85A37Dbd28A239698B4F9aA9a03D55C04F292',
       },
       Vat: {
         name: 'Vat',
@@ -497,23 +497,7 @@ export const config: SystemConfig = {
       },
       McdGov: {
         name: 'McdGov',
-        address: constants.AddressZero,
-      },
-      JoinDAI: {
-        name: 'JoinDAI',
-        address: constants.AddressZero,
-      },
-      JoinETH_A: {
-        name: 'JoinETH_A',
-        address: constants.AddressZero,
-      },
-      PipWETH: {
-        name: 'PipWETH',
-        address: constants.AddressZero,
-      },
-      PipLINK: {
-        name: 'PipLINK',
-        address: constants.AddressZero,
+        address: '0xc5E4eaB513A7CD12b2335e8a0D57273e13D499f7',
       },
     },
     joins: {
@@ -727,6 +711,188 @@ export const config: SystemConfig = {
       },
       MCD_JOIN_CRVV1ETHSTETH_A: {
         name: 'MCD_JOIN_CRVV1ETHSTETH_A',
+        address: constants.AddressZero,
+      },
+    },
+    pips: {
+      PIP_ETH: {
+        name: 'PIP_ETH',
+        address: '0x94588e35fF4d2E99ffb8D5095F35d1E37d6dDf12',
+      },
+      PIP_BAT: {
+        name: 'PIP_BAT',
+        address: '0x2BA78cb27044edCb715b03685D4bf74261170a70',
+      },
+      PIP_USDC: {
+        name: 'PIP_USDC',
+        address: '0x838212865E2c2f4F7226fCc0A3EFc3EB139eC661',
+      },
+      PIP_TUSD: {
+        name: 'PIP_TUSD',
+        address: '0x0ce19eA2C568890e63083652f205554C927a0caa',
+      },
+      PIP_WBTC: {
+        name: 'PIP_WBTC',
+        address: '0xE7de200a3a29E9049E378b52BD36701A0Ce68C3b',
+      },
+      PIP_ZRX: {
+        name: 'PIP_ZRX',
+        address: '0xe9245D25F3265E9A36DcCDC72B0B5dE1eeACD4cD',
+      },
+      PIP_KNC: {
+        name: 'PIP_KNC',
+        address: '0xCB772363E2DEc06942edbc5E697F4A9114B5989c',
+      },
+      PIP_MANA: {
+        name: 'PIP_MANA',
+        address: '0x001eDD66a5Cc9268159Cf24F3dC0AdcE456AAAAb',
+      },
+      PIP_USDT: {
+        name: 'PIP_USDT',
+        address: '0x1fA3B8DAeE1BCEe33990f66F1a99993daD14D855',
+      },
+      PIP_PAXUSD: {
+        name: 'PIP_PAXUSD',
+        address: '0xdF8474337c9D3f66C0b71d31C7D3596E4F517457',
+      },
+      PIP_PAX: {
+        name: 'PIP_PAX',
+        address: '0xdF8474337c9D3f66C0b71d31C7D3596E4F517457',
+      },
+      PIP_COMP: {
+        name: 'PIP_COMP',
+        address: '0xc3d677a5451cAFED13f748d822418098593D3599',
+      },
+      PIP_LRC: {
+        name: 'PIP_LRC',
+        address: '0x5AD3A560BB125d00db8E94915232BA8f6166967C',
+      },
+      PIP_LINK: {
+        name: 'PIP_LINK',
+        address: '0x75B4e743772D25a7998F4230cb016ddCF2c52629',
+      },
+      PIP_BAL: {
+        name: 'PIP_BAL',
+        address: '0xF15993A5C5BE496b8e1c9657Fd2233b579Cd3Bc6',
+      },
+      PIP_YFI: {
+        name: 'PIP_YFI',
+        address: '0xAafF0066D05cEe0D6a38b4dac77e73d9E0a5Cf46',
+      },
+      PIP_GUSD: {
+        name: 'PIP_GUSD',
+        address: '0x57A00620Ba1f5f81F20565ce72df4Ad695B389d7',
+      },
+      PIP_UNI: {
+        name: 'PIP_UNI',
+        address: '0xf1a5b808fbA8fF80982dACe88020d4a80c91aFe6',
+      },
+      PIP_RENBTC: {
+        name: 'PIP_RENBTC',
+        address: '0xE7de200a3a29E9049E378b52BD36701A0Ce68C3b',
+      },
+      PIP_AAVE: {
+        name: 'PIP_AAVE',
+        address: '0xC26E53eF1F71481DE53bfb77875Ffb3aCf4d91f0',
+      },
+      PIP_MATIC: {
+        name: 'PIP_MATIC',
+        address: '0xDe112F61b823e776B3439f2F39AfF41f57993045',
+      },
+      PIP_WSTETH: {
+        name: 'PIP_WSTETH',
+        address: '0x323eac5246d5BcB33d66e260E882fC9bF4B6bf41',
+      },
+      PIP_UNIV2DAIETH: {
+        name: 'PIP_UNIV2DAIETH',
+        address: '0x044c9aeD56369aA3f696c898AEd0C38dC53c6C3D',
+      },
+      PIP_UNIV2WBTCETH: {
+        name: 'PIP_UNIV2WBTCETH',
+        address: '0xD375daC26f7eF991878136b387ca959b9ac1DDaF',
+      },
+      PIP_UNIV2USDCETH: {
+        name: 'PIP_UNIV2USDCETH',
+        address: '0x54ADcaB9B99b1B548764dAB637db751eC66835F0',
+      },
+      PIP_UNIV2DAIUSDC: {
+        name: 'PIP_UNIV2DAIUSDC',
+        address: '0xEf22289E240cFcCCdCD2B98fdefF167da10f452d',
+      },
+      PIP_UNIV2ETHUSDT: {
+        name: 'PIP_UNIV2ETHUSDT',
+        address: '0x974f7f4dC6D91f144c87cc03749c98f85F997bc7',
+      },
+      PIP_UNIV2LINKETH: {
+        name: 'PIP_UNIV2LINKETH',
+        address: '0x11C884B3FEE1494A666Bb20b6F6144387beAf4A6',
+      },
+      PIP_UNIV2UNIETH: {
+        name: 'PIP_UNIV2UNIETH',
+        address: '0xB18BC24e52C23A77225E7cf088756581EE257Ad8',
+      },
+      PIP_UNIV2WBTCDAI: {
+        name: 'PIP_UNIV2WBTCDAI',
+        address: '0x916fc346910fd25867c81874f7F982a1FB69aac7',
+      },
+      PIP_UNIV2AAVEETH: {
+        name: 'PIP_UNIV2AAVEETH',
+        address: '0xFADF05B56E4b211877248cF11C0847e7F8924e10',
+      },
+      PIP_UNIV2DAIUSDT: {
+        name: 'PIP_UNIV2DAIUSDT',
+        address: '0x2fc2706C61Fba5b941381e8838bC646908845db6',
+      },
+      PIP_RWA001: {
+        name: 'PIP_RWA001',
+        address: '0x95282c2cDE88b93F784E2485f885580275551387',
+      },
+      PIP_RWA002: {
+        name: 'PIP_RWA002',
+        address: '0xF1E8E72AE116193A9fA551beC1cda965147b31DA',
+      },
+      PIP_RWA003: {
+        name: 'PIP_RWA003',
+        address: '0x27E599C9D69e02477f5ffF4c8E4E42B97777eE52',
+      },
+      PIP_RWA004: {
+        name: 'PIP_RWA004',
+        address: '0x3C191d5a74800A99D8747fdffAea42F60f7d3Bff',
+      },
+      PIP_RWA005: {
+        name: 'PIP_RWA005',
+        address: '0xa6A7f2408949cAbD13f254F8e77ad5C9896725aB',
+      },
+      PIP_RWA006: {
+        name: 'PIP_RWA006',
+        address: '0xA410A66313F943d022b79f2943C9A37CefdE2371',
+      },
+      PIP_RETH: {
+        name: 'PIP_RETH',
+        address: '0x27a25935d8b0006a97e11caddc2b3bf3a6721c13',
+      },
+      PIP_GNO: {
+        name: 'PIP_GNO',
+        address: '0xf15221A159A4e7ba01E0d6e72111F0Ddff8Fa8Da',
+      },
+      PIP_WETH: {
+        name: 'PIP_WETH',
+        address: constants.AddressZero,
+      },
+      PIP_ADAI: {
+        name: 'PIP_ADAI',
+        address: constants.AddressZero,
+      },
+      PIP_GUNIV3DAIUSDC1: {
+        name: 'PIP_GUNIV3DAIUSDC1',
+        address: constants.AddressZero,
+      },
+      PIP_GUNIV3DAIUSDC2: {
+        name: 'PIP_GUNIV3DAIUSDC2',
+        address: constants.AddressZero,
+      },
+      PIP_CRVV1ETHSTETH: {
+        name: 'PIP_CRVV1ETHSTETH',
         address: constants.AddressZero,
       },
     },
