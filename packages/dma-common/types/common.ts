@@ -1,5 +1,4 @@
 import { ethers, providers } from 'ethers'
-// import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 export type UnboxPromise<T> = T extends Promise<infer U> ? U : T
 export type UnboxArray<T> = T extends Array<infer U> ? U : T
@@ -33,13 +32,6 @@ export interface RuntimeConfig {
 export type WithRuntimeConfig = {
   config: RuntimeConfig
 }
-
-export type HardhatRuntimeConfig = {
-  // ethers: typeof ethers & HardhatEthersHelpers
-  ethers: any
-  // network: HardhatRuntimeEnvironment['network']
-  network: any
-} & RuntimeConfig
 
 export type BalanceOptions = Debug & FormatUnit & WithRuntimeConfig
 
