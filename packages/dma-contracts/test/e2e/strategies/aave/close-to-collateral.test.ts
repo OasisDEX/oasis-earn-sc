@@ -7,8 +7,13 @@ import {
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
 import { ZERO } from '@oasisdex/dma-common/constants'
-import { expect, isMainnetByNetwork, isOptimismByNetwork } from '@oasisdex/dma-common/test-utils'
-import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { expect } from '@oasisdex/dma-common/test-utils'
+import { balanceOf } from '@oasisdex/dma-common/utils/balances'
+import {
+  amountFromWei,
+  isMainnetByNetwork,
+  isOptimismByNetwork,
+} from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
 import {
   getOneInchCall,

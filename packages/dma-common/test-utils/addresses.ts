@@ -2,14 +2,6 @@ import { ADDRESSES } from '@oasisdex/addresses'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { constants } from 'ethers'
 
-// Type guards
-export function isMainnetByNetwork(network: Network): network is Network.MAINNET {
-  return network === Network.MAINNET
-}
-export function isOptimismByNetwork(network: Network): network is Network.OPTIMISM {
-  return network === Network.OPTIMISM
-}
-
 type NetworkAddressesForNetwork<T extends Network> = T extends Network.MAINNET
   ? MainnetAddresses
   : T extends Network.OPTIMISM

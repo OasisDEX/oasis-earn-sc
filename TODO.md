@@ -31,3 +31,4 @@
 - Rationalise to a single amountToWei util
 - Resolve VM Exception while processing transaction: reverted with reason string '5' when setting up fixtures
 - TODO: Monitor if wstETH optimism increase supply cap or update test to modify storage
+- Calculate price impact in the library

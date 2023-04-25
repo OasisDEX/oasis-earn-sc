@@ -1,19 +1,19 @@
+import { approve } from '@dma-common/utils/tx'
+import { StrategyDependenciesAaveV2 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
 import { AAVETokensToGet, buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
 import { ADDRESSES } from '@oasisdex/addresses'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
 import { createDPMAccount } from '@oasisdex/dma-common/test-utils'
-import { amountToWei, approve } from '@oasisdex/dma-common/utils/common'
+import { amountToWei } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy } from '@oasisdex/dma-common/utils/execute'
 import init from '@oasisdex/dma-common/utils/init'
 import { getAccountFactory } from '@oasisdex/dma-common/utils/proxy'
 import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { AAVETokens, AaveVersion, strategies } from '@oasisdex/dma-library'
-import { getAaveProtocolData } from '@oasisdex/dma-library/protocols/aave/get-aave-protocol-data'
+import { getAaveProtocolData } from '@oasisdex/dma-library/src/protocols/aave/get-aave-protocol-data'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
-
-import { StrategyDependenciesAaveV2 } from '../../test/fixtures/types/strategies-dependencies'
 
 type CreateBorrowPositionArgs = {
   serviceRegistry: string

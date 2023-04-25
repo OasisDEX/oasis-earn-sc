@@ -1,4 +1,4 @@
-import { AAVEStrategyAddresses, AAVEV3StrategyAddresses } from '@dma-library'
+import { AAVEStrategyAddresses, AAVEV3StrategyAddresses } from '@dma-library/index'
 import * as operations from '@dma-library/operations'
 import {
   aaveV2UniqueContractName,

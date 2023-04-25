@@ -1,7 +1,6 @@
+import { TEN } from '@dma-common/constants'
 import BigNumber from 'bignumber.js'
 import { isError, tryF } from 'ts-try'
-
-import { TEN } from '../../constants'
 
 export function amountToWei(amount: BigNumber.Value, precision = 18) {
   BigNumber.config({ EXPONENTIAL_AT: 30 })

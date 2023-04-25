@@ -1,10 +1,9 @@
-import { config as mainnetConfig } from '@oasisdex/dma-deployments/configs/mainnet.conf'
-import { config as optimismConfig } from '@oasisdex/dma-deployments/configs/optimism.conf'
-import { config as goerliConfig } from '@oasisdex/dma-deployments/configs/goerli.conf'
+import { goerliConfig, mainnetConfig, optimismConfig } from '@oasisdex/dma-deployments'
 
 import {
   AaveV2Protocol,
   AaveV3Protocol,
+  AaveV3ProtocolOptimism,
   Actions,
   AjnaProtocol,
   AutomationProtocol,
@@ -19,8 +18,6 @@ import {
 } from '@oasisdex/dma-deployments/types/deployment-config'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { Address } from '@oasisdex/dma-common/types/address'
-
-type DeployedNetworks = Network.MAINNET | Network.OPTIMISM | Network.GOERLI
 
 enum MpaKeys {
   CORE = 'core',
@@ -57,15 +54,23 @@ type AaveDeployment = {
   }
 }
 
+type OptimismAaveDeployment = {
+  [SystemKeys.AAVE]: {
+    [AaveKeys.V3]: Record<AaveV3Protocol | AaveV3ProtocolOptimism, Address>
+  }
+}
+
 type MainnetDeployment = Omit<DefaultDeployment, SystemKeys.AAVE> & AaveDeployment
+type OptimismDeployment = Omit<DefaultDeployment, SystemKeys.AAVE> & OptimismAaveDeployment
 
 export type Addresses = {
   [Network.MAINNET]: MainnetDeployment
-  [Network.OPTIMISM]: DefaultDeployment
-  [Network.GOERLI]: MainnetDeployment
+  [Network.OPTIMISM]: OptimismDeployment
+  [Network.GOERLI]: DefaultDeployment
 }
 
 if (!mainnetConfig.aave.v2) throw new Error('Missing aave v2 config on mainnet')
+if (!optimismConfig.aave.v3.L2Encoder) throw new Error('Missing L2Encoder config on optimism')
 export const ADDRESSES: Addresses = {
   [Network.MAINNET]: {
     mpa: {
@@ -84,7 +89,7 @@ export const ADDRESSES: Addresses = {
         ...extractAddressesFromConfig(mainnetConfig.aave.v2),
       },
       v3: {
-        ...extractAddressesFromConfig(mainnetConfig.aave.v3),
+        ...extractAddressesFromConfig<AaveV3Protocol>(mainnetConfig.aave.v3),
       },
     },
     maker: {
@@ -119,7 +124,12 @@ export const ADDRESSES: Addresses = {
     },
     aave: {
       v3: {
-        ...extractAddressesFromConfig(optimismConfig.aave.v3),
+        ...extractAddressesFromConfig<AaveV3Protocol | AaveV3ProtocolOptimism>(
+          optimismConfig.aave.v3 as Record<
+            AaveV3Protocol | AaveV3ProtocolOptimism,
+            DeploymentConfig
+          >,
+        ),
       },
     },
     maker: {
@@ -157,7 +167,7 @@ export const ADDRESSES: Addresses = {
         ...extractAddressesFromConfig(goerliConfig.aave.v2!),
       },
       v3: {
-        ...extractAddressesFromConfig(goerliConfig.aave.v3),
+        ...extractAddressesFromConfig<AaveV3Protocol>(goerliConfig.aave.v3),
       },
     },
     maker: {
@@ -187,10 +197,13 @@ type ExtractAddressesFromConfig<T extends Contracts> = Record<T, DeploymentConfi
 function extractAddressesFromConfig<T extends Contracts>(
   config: ExtractAddressesFromConfig<T>,
 ): Record<T, Address> {
-  return Object.values(config).reduce((acc: Record<T, Address>, item) => {
-    if ((item as DeploymentConfig).address) {
-      acc[(item as DeploymentConfig).name] = (item as DeploymentConfig).address
-    }
-    return acc
-  }, {} as Record<T, Address>)
+  return (Object.values(config) as DeploymentConfig[]).reduce<Record<T, Address>>(
+    (acc: Record<T, Address>, item: DeploymentConfig) => {
+      if (item.address) {
+        acc[item.name as T] = item.address
+      }
+      return acc
+    },
+    {} as Record<T, Address>,
+  )
 }

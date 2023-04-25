@@ -1,4 +1,4 @@
-import { AaveVersion } from '@dma-library'
+import { AaveVersion } from '@dma-library/index'
 import * as operations from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
@@ -35,7 +35,6 @@ import { getForkedNetwork } from '@oasisdex/dma-deployments/utils/network'
 import { FLASHLOAN_SAFETY_MARGIN, Position } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
-import { memoizeWith } from 'ramda'
 
 export type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> & {
   positionType: PositionType
@@ -473,6 +472,7 @@ async function getValuesFromProtocol(
     dependencies.addresses,
   )
 
+  // TODO: Add memoization
   async function getAllAndMemoize() {
     return Promise.all([
       aavePriceOracle.getAssetPrice(dependencies.addresses.DAI),
@@ -482,7 +482,7 @@ async function getValuesFromProtocol(
     ])
   }
 
-  return memoizeWith(() => collateralTokenAddress, getAllAndMemoize)()
+  return getAllAndMemoize()
 }
 
 function getAAVEProtocolServices(

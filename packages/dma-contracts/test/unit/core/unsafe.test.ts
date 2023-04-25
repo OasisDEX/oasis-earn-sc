@@ -7,8 +7,8 @@ import { expect } from '@oasisdex/dma-common/test-utils'
 import { getAddressesFor, getServiceNameHash } from '@oasisdex/dma-common/utils/common'
 import { getDsProxyRegistry, getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
 import { Network } from '@oasisdex/dma-deployments/types/network'
-import { takeAFlashLoan } from '@oasisdex/dma-library/src/actions/common'
-import { FlashloanProvider } from '@oasisdex/dma-library/src/types/common'
+import { takeAFlashLoan } from '@oasisdex/dma-library/lib/cjs/actions/common'
+import { FlashloanProvider } from '@oasisdex/dma-library/lib/cjs/types/common'
 import BigNumber from 'bignumber.js'
 import hre from 'hardhat'
 
@@ -52,7 +52,7 @@ describe('OperationExecutor', () => {
     const deploy = await createDeploy({ config }, hre)
     const addresses = getAddressesFor(Network.MAINNET)
     const proxyAddress = await getOrCreateProxy(
-      await getDsProxyRegistry(config.signer, ADDRESSES[Network.MAINNET].common.ProxyRegistry),
+      await getDsProxyRegistry(config.signer, ADDRESSES[Network.MAINNET].mpa.core.DSProxyRegistry),
       config.signer,
     )
     const [, suicideBombAddress] = await deploy('SuicideBomb', [])

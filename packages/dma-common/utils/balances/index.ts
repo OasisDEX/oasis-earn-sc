@@ -1,7 +1,7 @@
 import { BalanceOptions } from '@dma-common/types/common'
+import { Network } from '@dma-deployments/types/network'
 import IERC20_ABI from '@oasisdex/abis/external/tokens/IERC20.json'
 import { ADDRESSES } from '@oasisdex/addresses'
-import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 

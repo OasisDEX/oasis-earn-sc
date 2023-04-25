@@ -1,8 +1,7 @@
-import { CONTRACT_NAMES } from '@dma-deployments/constants'
-import { SystemConfig } from '@dma-deployments/types/deployment-config'
-import { constants } from 'ethers'
+import { ADDRESS_ZERO, CONTRACT_NAMES } from '../constants'
+import { SystemConfig } from '../types/deployment-config'
 
-export const config: SystemConfig = {
+export const goerliConfig: SystemConfig = {
   mpa: {
     core: {
       ServiceRegistry: {
@@ -55,7 +54,7 @@ export const config: SystemConfig = {
       DSGuardFactory: {
         name: 'DSGuardFactory',
         deploy: false,
-        address: constants.AddressZero,
+        address: ADDRESS_ZERO,
         serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
         history: [],
         constructorArgs: [],

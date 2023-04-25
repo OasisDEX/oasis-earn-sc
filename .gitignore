@@ -10,6 +10,7 @@ lerna-debug.log
 tenderly.yaml
 .idea/**/*
 .DS_Store
+tsconfig.tsbuildinfo
 
 #Hardhat files
 packages/dma-contracts/abi/generated

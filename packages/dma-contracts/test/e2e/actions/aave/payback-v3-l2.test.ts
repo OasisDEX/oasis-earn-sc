@@ -1,7 +1,7 @@
 import { ADDRESSES } from '@oasisdex/addresses'
 import { FIFTY, ZERO } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
-import { balanceOf } from '@oasisdex/dma-common/utils/common'
+import { balanceOf } from '@oasisdex/dma-common/utils/balances'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { loadFixture } from 'ethereum-waffle'
 
@@ -11,7 +11,7 @@ import {
   DEPOSIT_OPERATION,
   PAYBACK_OPERATION,
   vOptUSDC,
-} from './l2-tests-helper'
+} from './l2-tests-helper' // TODO: UPDATE TEST
 
 // TODO: UPDATE TEST
 describe.skip('Payback Action | E2E', () => {

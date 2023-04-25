@@ -1,7 +1,7 @@
-import { SystemConfig } from '@dma-deployments/types/deployment-config'
-import { constants } from 'ethers'
+import { ADDRESS_ZERO } from '../constants'
+import { SystemConfig } from '../types/deployment-config'
 
-export const config: SystemConfig = {
+export const optimismConfig: SystemConfig = {
   mpa: {
     core: {
       ServiceRegistry: {
@@ -211,7 +211,7 @@ export const config: SystemConfig = {
   common: {
     GnosisSafe: {
       name: 'GnosisSafe',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
@@ -409,6 +409,10 @@ export const config: SystemConfig = {
       AavePoolDataProvider: {
         name: 'AavePoolDataProvider',
         address: '0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654',
+      },
+      L2Encoder: {
+        name: 'L2Encoder',
+        address: '0x9abADECD08572e0eA5aF4d47A9C7984a5AA503dC',
       },
     },
   },

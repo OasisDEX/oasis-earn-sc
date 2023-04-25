@@ -1,13 +1,14 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "moduleResolution": "node",
-    "strict": true,
+    "module": "ES2020",
+    "outDir": "lib/esm",
     "baseUrl": ".",
     "paths": {
       "@typechain/*": [
         "../dma-contracts/typechain/*"
       ],
+      "@dma-library/types": ["./src/types"],
       "@dma-library/*": [
         "./src/*"
       ],
@@ -19,24 +20,6 @@
       "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
       "@dma-deployments/types/*": ["../dma-deployments/types/*"],
       "@dma-deployments/constants": ["../dma-deployments/constants/index.ts"]
-    },
-    "types": [
-      "node"
-    ],
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "noImplicitAny": false,
-    "typeRoots": [
-      "../../node_modules/@types"
-    ]
-  },
-  "include": [
-    "./src/**/*"
-  ],
-  "exclude": ["node_modules", "../dma-deployments", "../dma-common"]
+    }
+  }
 }

@@ -266,6 +266,7 @@ export type Contracts =
   | Common
   | AaveV2Protocol
   | AaveV3Protocol
+  | AaveV3ProtocolOptimism
   | MakerProtocol
   | MakerProtocolJoins
   | MakerProtocolPips
@@ -303,7 +304,8 @@ export type SystemConfig = {
   common: Record<Common, DeploymentConfig>
   aave: {
     v2?: Record<AaveV2Protocol, DeploymentConfig>
-    v3: Record<AaveV3Protocol, DeploymentConfig>
+    v3: Record<AaveV3Protocol, DeploymentConfig> &
+      Partial<Record<AaveV3ProtocolOptimism, DeploymentConfig>>
   }
   maker: {
     common: Record<MakerProtocol, DeploymentConfig>
@@ -313,5 +315,3 @@ export type SystemConfig = {
   automation: Record<AutomationProtocol, DeploymentConfig>
   ajna: Record<AjnaProtocol, DeploymentConfig>
 }
-
-// export type SystemKeys = keyof SystemConfig

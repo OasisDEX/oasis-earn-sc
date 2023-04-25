@@ -1,16 +1,17 @@
+import { balanceOf } from '@dma-common/utils/balances'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { ONE } from '@oasisdex/dma-common/constants'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
+import { amountToWei } from '@oasisdex/dma-common/utils/common'
 import { AaveVersion, strategies } from '@oasisdex/dma-library'
 import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
-} from '@oasisdex/dma-library/src/protocols/aave'
+} from '@oasisdex/dma-library/lib/cjs/protocols/aave'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
-} from '@oasisdex/dma-library/src/strategies/aave/open/open'
+} from '@oasisdex/dma-library/lib/cjs/strategies/aave/open/open'
 import { RiskRatio } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 

@@ -1,8 +1,7 @@
-import { CONTRACT_NAMES } from '@dma-deployments/constants'
-import { SystemConfig } from '@dma-deployments/types/deployment-config'
-import { constants } from 'ethers'
+import { ADDRESS_ZERO, CONTRACT_NAMES } from '../constants'
+import { SystemConfig } from '../types/deployment-config'
 
-export const config: SystemConfig = {
+export const mainnetConfig: SystemConfig = {
   mpa: {
     core: {
       ServiceRegistry: {
@@ -245,7 +244,7 @@ export const config: SystemConfig = {
   common: {
     GnosisSafe: {
       name: 'GnosisSafe',
-      address: constants.AddressZero,
+      address: ADDRESS_ZERO,
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',

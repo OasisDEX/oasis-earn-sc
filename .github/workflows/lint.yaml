@@ -8,6 +8,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Clear Yarn cache
+        run: yarn cache clean
+
       - name: Cache Yarn dependencies
         uses: actions/cache@v3
         with:
@@ -17,9 +20,6 @@ jobs:
           key: ${{ runner.OS }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}-v2
           restore-keys: |
             ${{ runner.OS }}-yarn-cache-
-
-      - name: Clear Yarn cache
-        run: yarn cache clean
 
       - name: Install
         run: yarn --no-progress --non-interactive --frozen-lockfile

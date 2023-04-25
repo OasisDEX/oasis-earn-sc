@@ -1,4 +1,4 @@
-export const config = {
+export const localExtendConfig = {
   mpa: {
     actions: {},
   },
