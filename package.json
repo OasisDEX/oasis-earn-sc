@@ -21,8 +21,7 @@
     "build": "lerna run build --stream",
     "format": "lerna run format --stream",
     "lint": "lerna run lint --stream",
-    "bundle:addresses": "lerna run --scope @oasisdex/addresses build",
-    "bundle:dma-deployments": "lerna run --scope @oasisdex/dma-deployments build"
+    "build:addresses": "lerna run --scope @oasisdex/build-configs build:addresses"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",

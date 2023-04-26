@@ -1,5 +1,5 @@
 {
-  "name": "build-configs",
+  "name": "@oasisdex/build-configs",
   "version": "0.0.1",
   "description": "Build configs holder.",
   "author": "Marcin Ciarka <marcin@oazoapps.com>",
