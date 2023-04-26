@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "outDir": "build/dist",
+    "module": "esnext",
+    "target": "es2017",
+    "lib": ["dom", "es2018", "esnext"],
+    "sourceMap": true,
+    "allowJs": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+    "paths": {
+      "server/*": ["server/*"]
+    },
+    "noEmit": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true
+  },
+  "include": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx", "runtimeConfig.js", "next-i18next.config.js"],
+  "exclude": ["node_modules", "types", "coverage"]
+}

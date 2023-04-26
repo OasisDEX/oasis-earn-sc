@@ -1,0 +1,8 @@
+node_modules
+.vscode
+package.json
+**/dist/**
+.next/
+types
+i18next.d.ts
+.yalc
