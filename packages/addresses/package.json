@@ -1,19 +1,18 @@
 {
   "name": "@oasisdex/addresses",
   "version": "1.0.0",
-  "main": "src/index.ts",
-  "module": "lib/index.min.js",
-  "typings": "src/index.ts",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "yarn clean && yarn tsc -p tsconfig.json && webpack",
+    "build": "yarn clean && yarn tsc -p tsconfig.json",
     "clean": "rm -rf ./lib",
     "watch": "yarn tsc -b -w",
     "lint": "yarn tsc -p tsconfig.json",
     "prepublish": "yarn build"
   },
-  "devDependencies": {
-    "@oasisdex/dma-deployments": "*"
+  "dependencies": {
+    "@oasisdex/dma-deployments": "1.0.0"
   },
   "files": [
     "lib"

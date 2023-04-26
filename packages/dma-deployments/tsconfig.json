@@ -4,6 +4,7 @@
     "module": "CommonJS",
     "strict": true,
     "baseUrl": ".",
+    "outDir": "lib",
     "types": [
       "node"
     ],
@@ -33,6 +34,6 @@
     "types",
     "hardhat.config.ts",
     "utils/**/*",
-    "operation-definitions/**/*",
-  ],
+    "operation-definitions/**/*"
+  ]
 }

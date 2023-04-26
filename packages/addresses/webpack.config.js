@@ -8,7 +8,6 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'lib'),
     filename: 'index.min.js',
-    libraryTarget: 'module',
   },
   module: {
     rules: [
@@ -19,7 +18,7 @@ module.exports = {
             loader: 'ts-loader',
             options: {
               configFile: path.resolve(__dirname, './tsconfig.json'),
-              transpileOnly: true, // Add this line
+              transpileOnly: true,
             },
           },
         ],
