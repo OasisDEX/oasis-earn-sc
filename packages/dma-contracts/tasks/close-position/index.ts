@@ -2,7 +2,7 @@ import { AaveAccountData, AaveReserveData } from '@dma-contracts/test/utils/aave
 import DSProxyABI from '@oasisdex/abis/external/libs/DS/ds-proxy.json'
 import AAVELendingPoolABI from '@oasisdex/abis/external/protocols/aave/v2/lendingPool.json'
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
 import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
 import { balanceOf } from '@oasisdex/dma-common/utils/balances'

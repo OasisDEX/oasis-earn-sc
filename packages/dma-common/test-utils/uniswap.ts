@@ -2,7 +2,7 @@ import { RuntimeConfig } from '@dma-common/types/common'
 import { Optional } from '@dma-common/types/optional'
 import { Network } from '@dma-deployments/types/network'
 import UNISWAP_ROUTER_V3_ABI from '@oasisdex/abis/external/swap/IUniswapRouter.json'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 /**

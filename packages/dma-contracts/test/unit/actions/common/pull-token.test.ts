@@ -1,7 +1,7 @@
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
 import { Contract } from '@ethersproject/contracts'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { ONE, TEN, TEN_THOUSAND } from '@oasisdex/dma-common/constants'
 import { restoreSnapshot } from '@oasisdex/dma-common/test-utils'
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'

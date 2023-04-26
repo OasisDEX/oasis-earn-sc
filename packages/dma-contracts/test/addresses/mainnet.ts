@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 
 export const mainnetAddresses = {

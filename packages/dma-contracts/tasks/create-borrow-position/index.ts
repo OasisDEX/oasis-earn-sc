@@ -1,7 +1,7 @@
 import { approve } from '@dma-common/utils/tx'
 import { StrategyDependenciesAaveV2 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
 import { AAVETokensToGet, buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
 import { createDPMAccount } from '@oasisdex/dma-common/test-utils'
 import { amountToWei } from '@oasisdex/dma-common/utils/common'

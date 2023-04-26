@@ -5,7 +5,7 @@ import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import CDPManagerABI from '@oasisdex/abis/external/protocols/maker/dss-cdp-manager.json'
 import ERC20ABI from '@oasisdex/abis/external/tokens/IERC20.json'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import {
   calculateParamsIncreaseMP,

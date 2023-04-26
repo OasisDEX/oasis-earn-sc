@@ -1,7 +1,7 @@
 import { createDeploy } from '@dma-common/utils/deploy'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import init from '@dma-common/utils/init'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import { expect } from '@oasisdex/dma-common/test-utils'
 import { getAddressesFor, getServiceNameHash } from '@oasisdex/dma-common/utils/common'

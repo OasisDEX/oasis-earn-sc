@@ -6,7 +6,7 @@ import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import aavePriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { ONE, ZERO } from '@oasisdex/dma-common/constants'
 import {
   addressesByNetwork,

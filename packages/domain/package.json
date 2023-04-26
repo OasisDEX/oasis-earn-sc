@@ -13,7 +13,6 @@
     "prepublish": "yarn run build"
   },
   "dependencies": {
-    "@oasisdex/addresses": "*",
     "@oasisdex/dma-common": "*"
   },
   "devDependencies": {

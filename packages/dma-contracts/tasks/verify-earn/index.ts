@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { getAddressesFor } from '@oasisdex/dma-common/utils/common'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { task } from 'hardhat/config'

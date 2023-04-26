@@ -3,7 +3,7 @@ import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import ERC20_ABI from '@oasisdex/abis/external/tokens/IERC20.json'
 import WETH_ABI from '@oasisdex/abis/external/tokens/IWETH.json'
-import { ADDRESSES } from '@oasisdex/addresses'
+import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { FEE_BASE, ONE } from '@oasisdex/dma-common/constants'
 import {
   asPercentageValue,
