@@ -84,7 +84,7 @@ export async function getEarnPosition(
     earnData.lps.eq(ZERO) || earnData.priceIndex == null
       ? ZERO
       : await poolInfo
-          .lpsToQuoteTokens(poolAddress, earnData.lps.toString(), earnData.priceIndex?.toString())
+          .lpToQuoteTokens(poolAddress, earnData.lps.toString(), earnData.priceIndex?.toString())
           .then((quoteTokens: ethers.BigNumberish) => ethers.utils.formatUnits(quoteTokens, 18))
           .then((res: string) => new BigNumber(res))
 
@@ -140,13 +140,71 @@ export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumb
   return [newLup, newLupIndex]
 }
 
-export function simulatePool(
+function getMaxGenerate(
   pool: AjnaPool,
-  debtChange: BigNumber,
   positionDebt: BigNumber,
   positionCollateral: BigNumber,
-): AjnaPool {
-  const [newLup, newLupIndex] = calculateNewLup(pool, debtChange)
+  maxDebt: BigNumber = ZERO,
+): BigNumber {
+  const { lowestUtilizedPrice, highestThresholdPrice } = pool
+
+  if (lowestUtilizedPrice.lt(highestThresholdPrice)) {
+    return maxDebt
+  }
+
+  const initialMaxDebt = positionCollateral.times(pool.lowestUtilizedPrice).minus(positionDebt)
+
+  const bucketsAboveLup = pool.buckets
+    .filter(bucket => bucket.index.lte(pool.lowestUtilizedPriceIndex))
+    .sort((a, b) => a.index.minus(b.index).toNumber())
+
+  const liquidityAvailableInLupBucket = bucketsAboveLup
+    .reduce((acc, curr) => acc.plus(curr.quoteTokens), ZERO)
+    .minus(pool.debt)
+
+  if (initialMaxDebt.lte(liquidityAvailableInLupBucket)) {
+    return initialMaxDebt.plus(maxDebt)
+  }
+
+  const sortedBuckets = pool.buckets
+    .filter(bucket => bucket.index.lt(pool.highestThresholdPriceIndex))
+    .sort((a, b) => a.index.minus(b.index).toNumber())
+
+  const lupBucketArrayIndex = sortedBuckets.findIndex(bucket =>
+    bucket.index.isEqualTo(pool.lowestUtilizedPriceIndex),
+  )
+
+  const bucketBelowLup = sortedBuckets[lupBucketArrayIndex + 1]
+
+  if (!bucketBelowLup) {
+    return maxDebt.plus(liquidityAvailableInLupBucket)
+  }
+
+  const newPool = getSimulationPoolOutput(
+    positionCollateral,
+    positionDebt,
+    liquidityAvailableInLupBucket,
+    pool,
+    bucketBelowLup.price,
+    bucketBelowLup.index,
+  )
+
+  return getMaxGenerate(
+    newPool,
+    positionDebt.plus(liquidityAvailableInLupBucket),
+    positionCollateral,
+    liquidityAvailableInLupBucket.plus(maxDebt),
+  )
+}
+
+function getSimulationPoolOutput(
+  positionCollateral: BigNumber,
+  positionDebt: BigNumber,
+  debtChange: BigNumber,
+  pool: AjnaPool,
+  newLup: BigNumber,
+  newLupIndex: BigNumber,
+) {
   const thresholdPrice = !positionCollateral.eq(0)
     ? positionDebt.dividedBy(positionCollateral)
     : ZERO
@@ -167,15 +225,31 @@ export function simulatePool(
   }
 }
 
+export function simulatePool(
+  pool: AjnaPool,
+  debtChange: BigNumber,
+  positionDebt: BigNumber,
+  positionCollateral: BigNumber,
+): AjnaPool {
+  const [newLup, newLupIndex] = calculateNewLup(pool, debtChange)
+
+  return getSimulationPoolOutput(
+    positionCollateral,
+    positionDebt,
+    debtChange,
+    pool,
+    newLup,
+    newLupIndex,
+  )
+}
+
 export function calculateMaxGenerate(
   pool: AjnaPool,
   positionDebt: BigNumber,
   collateralAmount: BigNumber,
 ) {
-  const initialMaxDebt = collateralAmount.times(pool.lowestUtilizedPrice).minus(positionDebt)
+  const maxDebtWithoutFee = getMaxGenerate(pool, positionDebt, collateralAmount)
 
-  const [newLup] = calculateNewLup(pool, initialMaxDebt)
-  const maxDebtWithoutFee = collateralAmount.times(newLup).minus(positionDebt)
   const originationFee = getAjnaBorrowOriginationFee({
     interestRate: pool.interestRate,
     quoteAmount: maxDebtWithoutFee,
