@@ -5,7 +5,6 @@ import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import CDPManagerABI from '@oasisdex/abis/external/protocols/maker/dss-cdp-manager.json'
 import ERC20ABI from '@oasisdex/abis/external/tokens/IERC20.json'
-import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
 import {
   DeployedSystemInfo,
@@ -17,6 +16,7 @@ import {
 import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
 import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker'
+import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
 import { ActionFactory, calldataTypes } from '@oasisdex/dma-library'
