@@ -7,7 +7,7 @@
     "dev:mainnet": "yarn ts-node scripts/update-block-number.ts && yarn hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ../../.env | cut -d '=' -f2)",
     "dev:optimism": "yarn ts-node scripts/update-block-number.ts && yarn hardhat node --max-memory 8192 --fork $(grep OPTIMISM_URL ../../.env | cut -d '=' -f2)",
     "deploy:dev": "yarn compile && yarn hardhat deploy --network local",
-    "compile": "yarn clean && yarn hardhat compile",
+    "compile": "yarn clean && yarn hardhat compile --show-stack-traces --verbose",
     "clean": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx}\" && yarn lint:fix && prettier --write 'contracts/**/*.sol'",
     "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx}\"",

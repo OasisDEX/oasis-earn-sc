@@ -133,6 +133,7 @@ const config = {
       },
     },
   },
+
   networks: {
     local: {
       url: 'http://127.0.0.1:8545',
@@ -187,7 +188,7 @@ const config = {
     currency: 'USD',
   },
   paths: {
-    sources: './contracts',
+    sources: `./contracts`,
     tests: './test',
     cache: './cache',
     artifacts: './artifacts',
