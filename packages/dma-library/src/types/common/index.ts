@@ -1,4 +1,5 @@
 import { Address } from '@oasisdex/dma-deployments/types/address'
+import BigNumber from 'bignumber.js'
 
 export type Tx = {
   to: Address
@@ -16,6 +17,8 @@ export type Undercollateralized = {
 
 export type AjnaError = Undercollateralized
 
+type Delta = { debt: BigNumber; collateral: BigNumber; flashloanAmount: BigNumber }
+
 export type Strategy<Position> = {
   simulation: {
     swaps: []
@@ -23,6 +26,7 @@ export type Strategy<Position> = {
     targetPosition: Position
     position: Position
     errors: AjnaError[]
+    delta?: Delta
   }
   tx: Tx
 }

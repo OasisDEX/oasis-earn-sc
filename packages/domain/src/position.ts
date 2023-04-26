@@ -125,22 +125,33 @@ export interface IPosition extends IBasePosition {
   payback(amount: BigNumber): IPosition
 }
 
-export class Position implements IPosition {
+enum Protocol {
+  AAVE = 'AAVE',
+  AJNA = 'AJNA'
+}
+
+export class Position<T extends {} = {}> implements IPosition {
   public debt: PositionBalance
   public collateral: PositionBalance
   public category: IPositionCategory
   private _feeBase: BigNumber = new BigNumber(10000)
+  public protocol: Protocol
+  public protocolPosition: T | undefined
 
   constructor(
     debt: Optional<IPositionBalance, 'precision'>,
     collateral: Optional<IPositionBalance, 'precision'>,
     oraclePrice: BigNumber,
     category: IPositionCategory,
+    protocol: Protocol = Protocol.AAVE,
+    protocolPosition: T | undefined= undefined
   ) {
     this.debt = new PositionBalance(debt)
     this.collateral = new PositionBalance(collateral)
     this._oraclePriceForCollateralDebtExchangeRate = oraclePrice
     this.category = category
+    this.protocol = protocol
+    this.protocolPosition = protocolPosition
   }
 
   private _oraclePriceForCollateralDebtExchangeRate: BigNumber
