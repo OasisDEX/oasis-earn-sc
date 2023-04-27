@@ -1,6 +1,9 @@
-import { depositAndAdjust } from './deposit-and-adjust'
+import bucketPrices_ from './buckets.json'
+import { depositAndAdjust } from './deposit-adjust'
 import { open } from './open'
-import { withdrawAndAdjust } from './withdraw-and-adjust'
+import { withdrawAndAdjust } from './withdraw-adjust'
+
+export const bucketPrices = bucketPrices_
 
 export const earn = {
   open,
