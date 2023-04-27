@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 
+import { formatCryptoBalance } from '../../../helpers/formatCryptoBalance'
 import { negativeToZero } from '../../../helpers/negativeToZero'
 import { AjnaPosition } from '../../../types/ajna'
 import { AjnaPool } from '../../../types/ajna/AjnaPool'
@@ -23,7 +24,7 @@ export function validateLiquidity(
       {
         name: 'not-enough-liquidity',
         data: {
-          amount: negativeToZero(availableLiquidity).decimalPlaces(2).toString(),
+          amount: formatCryptoBalance(negativeToZero(availableLiquidity)),
         },
       },
     ]
