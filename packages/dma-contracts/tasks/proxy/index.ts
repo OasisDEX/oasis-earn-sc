@@ -1,6 +1,6 @@
 import init from '@dma-common/utils/init'
-import { ADDRESSES } from '@oasisdex/addresses'
 import { getDsProxyRegistry, getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
+import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
 import { Network } from '@oasisdex/dma-deployments/types/network'
 import { task } from 'hardhat/config'
 

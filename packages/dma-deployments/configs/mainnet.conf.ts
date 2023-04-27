@@ -932,23 +932,23 @@ export const mainnetConfig: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0xD2D5e508C82EFc205cAFA4Ad969a4395Babce026',
+      address: '0x1F9F7732ff409FC0AbcAAea94634A7b41F445299',
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x2b639Cc84e1Ad3aA92D4Ee7d2755A6ABEf300D72',
+      address: '0xD28618E87b17B6f78a79edca8Fb0591E89453165',
     },
     AjnaPoolPairs_WBTCUSDC: {
       name: 'AjnaPoolPairs_WBTCUSDC',
-      address: '0xa11a3BCeaD7f27a19dAaaf59BC0484f8440e93fe',
+      address: '0xc2b64ca87090fe79786a8773009d7fb1288d3db1',
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
-      address: '0x0c9Bc4EFD40cCD0B6c6372CFa8b8562A940185C1',
+      address: '0x3ae0ea990cb38487d7a698c68b7b520a3d57c018',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
-      address: '0xEd6890d748e62ddbb3f80e7256Deeb2fBb853476',
+      address: '0xaF9bc1F09fe561CbD00018fC352507fD23cD46E2',
     },
     AjnaRewardsClaimer: {
       name: 'AjnaRewardsClaimer',
