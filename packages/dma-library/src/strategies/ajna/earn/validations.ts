@@ -1,3 +1,4 @@
+import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
 import BigNumber from 'bignumber.js'
 
 import { AjnaEarnPosition } from '../../../types/ajna'
@@ -50,7 +51,7 @@ export const getAjnaValidations = ({
         errors.push({
           name: 'withdraw-more-than-available',
           data: {
-            amount: position.quoteTokenAmount.decimalPlaces(2).toString(),
+            amount: formatCryptoBalance(position.quoteTokenAmount),
           },
         })
       }
