@@ -81,7 +81,7 @@ export async function getEarnPosition(
     earnData.lps.eq(ZERO) || earnData.priceIndex == null
       ? ZERO
       : await poolInfo
-          .lpsToQuoteTokens(poolAddress, earnData.lps.toString(), earnData.priceIndex?.toString())
+          .lpToQuoteTokens(poolAddress, earnData.lps.toString(), earnData.priceIndex?.toString())
           .then((quoteTokens: ethers.BigNumberish) => ethers.utils.formatUnits(quoteTokens, 18))
           .then((res: string) => new BigNumber(res))
 
