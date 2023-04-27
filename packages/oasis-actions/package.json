@@ -2,9 +2,9 @@
   "name": "@oasisdex/oasis-actions",
   "main": "lib/packages/oasis-actions/src/index.js",
   "typings": "lib/packages/oasis-actions/src/index.d.ts",
-  "version": "0.2.16-ajna-earn-33",
+  "version": "0.2.16-ajna-earn-35",
   "scripts": {
-    "build": "tsc -b",  
+    "build": "tsc -b",
     "watch": "tsc -b -w",
     "typecheck": "tsc -p ./tsconfig.json --noEmit",
     "test": "npx hardhat test src/domain/Position.test.ts",
@@ -20,6 +20,6 @@
     "utility-types": "^3.10.0"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.178"
+    "@types/lodash": "^4.14.194"
   }
 }

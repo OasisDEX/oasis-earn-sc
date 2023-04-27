@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 export type Address = string
@@ -99,6 +100,8 @@ export type AjnaWarning =
   | AjnaWarningGenerateCloseToMaxLtv
   | AjnaWarningWithdrawCloseToMaxLtv
 
+type Delta = { debt: BigNumber; collateral: BigNumber; flashloanAmount: BigNumber }
+
 export type Strategy<Position> = {
   simulation: {
     swaps: []
@@ -107,6 +110,7 @@ export type Strategy<Position> = {
     position: Position
     errors: AjnaError[]
     warnings: AjnaWarning[]
+    delta?: Delta
   }
   tx: Tx
 }
