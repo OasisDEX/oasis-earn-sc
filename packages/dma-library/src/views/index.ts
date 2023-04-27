@@ -1,1 +1,2 @@
-export * as ajna from './ajna/index'
+import * as ajna from './ajna/index'
+export { ajna }

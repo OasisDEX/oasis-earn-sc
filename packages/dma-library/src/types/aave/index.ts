@@ -1,2 +1,2 @@
 export { AavePosition } from './aave-position'
-export { AAVETokens } from './tokens'
+export type { AAVETokens } from './tokens'

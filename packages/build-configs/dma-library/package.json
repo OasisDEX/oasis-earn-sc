@@ -8,9 +8,6 @@
   "targets": {
     "main": {
       "optimize": true
-    },
-    "module": {
-      "optimize": true
     }
   },
   "files": [
@@ -19,6 +16,6 @@
   "scripts": {
     "build:dma-library": "yarn clean && yarn build:dma-library:bundle",
     "clean": "rm -rf ./lib",
-    "build:dma-library:bundle": "npx parcel build ../../dma-library/src/index.ts --dist-dir ./lib"
+    "build:dma-library:bundle": "npx parcel build ../../dma-library/src/index.ts --no-cache --dist-dir ./lib --log-level verbose"
   }
 }

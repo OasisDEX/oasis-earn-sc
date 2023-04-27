@@ -1,15 +1,12 @@
 {
   "name": "@oasisdex/addresses",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.cjs.js",
   "license": "MIT",
   "targets": {
     "main": {
-      "optimize": true
-    },
-    "module": {
       "optimize": true
     }
   },

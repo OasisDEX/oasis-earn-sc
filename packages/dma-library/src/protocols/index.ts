@@ -1,1 +1,2 @@
-export * as aave from './aave/get-aave-protocol-data'
+import * as aave from './aave/get-aave-protocol-data'
+export { aave }

@@ -98,6 +98,7 @@
     "@dma-library/utils": "./packages/dma-library/src/utils/",
     "@dma-library/views": "./packages/dma-library/src/views/",
     "@dma-library/operations": "./packages/dma-library/src/operations/",
+    "@dma-library/index": "./packages/dma-library/src/index.ts",
     "dma-library/protocols": "./packages/dma-library/src/protocols/",
     "@dma-library/protocols/aave/config": "./packages/dma-library/src/protocols/aave/config/",
     "@dma-library/config": "./packages/dma-library/src/config/"

@@ -1,25 +1,26 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "es2019",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "strict": true,
     "baseUrl": ".",
+    "types": ["node"],
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "typeRoots": ["../../node_modules/@types"],
     "paths": {
-      "@typechain/*": [
-        "../dma-contracts/typechain/*"
-      ],
-      "@dma-library/strategies": [
-        "./src/strategies/index.ts"
-      ],
-      "@dma-library/types": [
-        "./src/types/index.ts"
-      ],
-      "@dma-library/actions/action-factory": [
-        "./src/actions/action-factory.ts"
-      ],
-      "@dma-library/*": [
-        "./src/*"
-      ],
+      "@typechain/*": ["../dma-contracts/typechain/*"],
+      "@dma-library/strategies": ["./src/strategies/index.ts"],
+      "@dma-library/types": ["./src/types/index.ts"],
+      "@dma-library/actions/action-factory": ["./src/actions/action-factory.ts"],
+      "@dma-library/*": ["./src/*"],
       "@dma-common/constants": ["../dma-common/constants"],
       "@dma-common/utils/*": ["../dma-common/utils/*"],
       "@dma-common/types/*": ["../dma-common/types/*"],
@@ -28,24 +29,8 @@
       "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
       "@dma-deployments/types/*": ["../dma-deployments/types/*"],
       "@dma-deployments/constants": ["../dma-deployments/constants/index.ts"]
-    },
-    "types": [
-      "node"
-    ],
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "noImplicitAny": false,
-    "typeRoots": [
-      "../../node_modules/@types"
-    ]
+    }
   },
-  "include": [
-    "./src/**/*"
-  ],
+  "include": ["./src/**/*"],
   "exclude": ["node_modules", "../dma-deployments", "../dma-common"]
 }
