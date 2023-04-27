@@ -1,3 +1,4 @@
+import { formatCryptoBalance } from '../../../helpers/formatCryptoBalance'
 import { AjnaPosition } from '../../../types/ajna'
 import { AjnaError } from '../../../types/common'
 
@@ -10,7 +11,7 @@ export function validateBorrowUndercollateralized(
       {
         name: 'borrow-undercollateralized',
         data: {
-          amount: positionBefore.debtAvailable().decimalPlaces(2).toString(),
+          amount: formatCryptoBalance(positionBefore.debtAvailable()),
         },
       },
     ]
@@ -27,7 +28,7 @@ export function validateWithdrawUndercollateralized(
       {
         name: 'withdraw-undercollateralized',
         data: {
-          amount: positionBefore.collateralAvailable.decimalPlaces(2).toString(),
+          amount: formatCryptoBalance(positionBefore.collateralAvailable),
         },
       },
     ]

@@ -1,3 +1,4 @@
+import { formatCryptoBalance } from '../../../helpers/formatCryptoBalance'
 import { AjnaPosition } from '../../../types/ajna'
 import { AjnaError } from '../../../types/common'
 
@@ -7,7 +8,7 @@ export function validateDustLimit(position: AjnaPosition): AjnaError[] {
       {
         name: 'debt-less-then-dust-limit',
         data: {
-          minDebtAmount: position.pool.poolMinDebtAmount.decimalPlaces(2).toString(),
+          minDebtAmount: formatCryptoBalance(position.pool.poolMinDebtAmount),
         },
       },
     ]

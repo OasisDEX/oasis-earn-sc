@@ -1,3 +1,4 @@
+import { formatCryptoBalance } from '../../../helpers/formatCryptoBalance'
 import { AjnaPosition } from '../../../types/ajna'
 import { AjnaWarning } from '../../../types/common'
 
@@ -12,7 +13,7 @@ export function validateGenerateCloseToMaxLtv(
       {
         name: 'generate-close-to-max-ltv',
         data: {
-          amount: position.debtAmount.minus(positionBefore.debtAmount).decimalPlaces(2).toString(),
+          amount: formatCryptoBalance(position.debtAmount.minus(positionBefore.debtAmount)),
         },
       },
     ]
@@ -29,11 +30,9 @@ export function validateWithdrawCloseToMaxLtv(
       {
         name: 'withdraw-close-to-max-ltv',
         data: {
-          amount: position.collateralAmount
-            .minus(positionBefore.collateralAmount)
-            .decimalPlaces(5)
-            .abs()
-            .toString(),
+          amount: formatCryptoBalance(
+            position.collateralAmount.minus(positionBefore.collateralAmount).abs(),
+          ),
         },
       },
     ]
