@@ -1,14 +1,9 @@
 {
-  "name": "@oasisdex/dma-library",
-  "main": "lib/cjs/index.js",
-  "module": "lib/esm/index.min.js",
-  "typings": "lib/esm/index.d.ts",
+  "name": "dma-library",
   "version": "0.2.16",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "scripts": {
-    "build": "yarn clean && yarn build:esm && yarn build:cjs",
-    "build:esm": "yarn tsc -p tsconfig.esm.json && webpack",
-    "build:cjs": "yarn tsc -p tsconfig.cjs.json && yarn tscpaths -p tsconfig.cjs.json -s src -o lib/cjs",
-    "clean": "rm -rf ./lib",
     "watch": "yarn tsc -b -w",
     "lint:fix": "yarn eslint . --fix --ext .ts",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc -p tsconfig.json --noEmit",
@@ -19,12 +14,8 @@
     "@oasisdex/abis": "*",
     "@oasisdex/dma-common": "*",
     "@oasisdex/dma-deployments": "*",
-    "@oasisdex/domain": "*"
-  },
-  "devDependencies": {
-    "node-polyfill-webpack-plugin": "^2.0.1",
-    "stream-browserify": "^3.0.0",
-    "vm-browserify": "^1.1.2",
-    "web-streams-polyfill": "^3.2.1"
+    "@oasisdex/domain": "*",
+    "bignumber.js": "^9.0.1",
+    "ethers": "5.7.2"
   }
 }

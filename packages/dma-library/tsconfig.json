@@ -8,6 +8,15 @@
       "@typechain/*": [
         "../dma-contracts/typechain/*"
       ],
+      "@dma-library/strategies": [
+        "./src/strategies/index.ts"
+      ],
+      "@dma-library/types": [
+        "./src/types/index.ts"
+      ],
+      "@dma-library/actions/action-factory": [
+        "./src/actions/action-factory.ts"
+      ],
       "@dma-library/*": [
         "./src/*"
       ],

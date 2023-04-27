@@ -20,8 +20,7 @@
     "compile": "lerna run compile --stream",
     "build": "lerna run build --stream",
     "format": "lerna run format --stream",
-    "lint": "lerna run lint --stream",
-    "build:addresses": "lerna run --scope @oasisdex/build-configs build:addresses"
+    "lint": "lerna run lint --stream"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
@@ -90,7 +89,18 @@
   },
   "alias": {
     "@oasisdex/dma-deployments": "./packages/dma-deployments/",
-    "@dma-deployments/types/network": "./packages/dma-deployments/types/network"
+    "@dma-deployments/types/network": "./packages/dma-deployments/types/network",
+    "@dma-deployments/constants": "./packages/dma-deployments/constants",
+    "@dma-deployments/utils": "./packages/dma-deployments/utils",
+    "@dma-library/types": "./packages/dma-library/src/types",
+    "@dma-library/actions": "./packages/dma-library/src/actions/",
+    "@dma-library/strategies": "./packages/dma-library/src/strategies/",
+    "@dma-library/utils": "./packages/dma-library/src/utils/",
+    "@dma-library/views": "./packages/dma-library/src/views/",
+    "@dma-library/operations": "./packages/dma-library/src/operations/",
+    "dma-library/protocols": "./packages/dma-library/src/protocols/",
+    "@dma-library/protocols/aave/config": "./packages/dma-library/src/protocols/aave/config/",
+    "@dma-library/config": "./packages/dma-library/src/config/"
   },
   "resolutions": {
     "hardhat/**/@ethereumjs/tx": "3.5.0"

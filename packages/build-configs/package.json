@@ -9,6 +9,8 @@
     "parcel": "^2.8.3"
   },
   "scripts": {
+    "build": "yarn build:addresses && yarn build:dma-library",
+    "build:dma-library": "yarn --cwd ./dma-library build:dma-library",
     "build:addresses": "yarn --cwd ./addresses build:addresses",
     "link:addresses": "yarn --cwd ./addresses link",
     "unlink:addresses": "yarn --cwd ./addresses unlink"
