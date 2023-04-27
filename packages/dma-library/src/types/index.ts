@@ -1,14 +1,114 @@
-import * as aave from './aave'
-import * as ajna from './ajna'
-import * as common from './common'
+import type { AAVETokens } from './aave'
+import { AavePosition } from './aave'
+import type { ActionCall } from './action-call'
+import { calldataTypes } from './actions'
+import { AjnaEarnPosition, AjnaPosition } from './ajna'
+import type {
+  AjnaError,
+  FlashloanProvider,
+  Optional,
+  Strategy,
+  Tx,
+  Undercollateralized,
+} from './common'
+import type {
+  IOperation,
+  WithAaveV2StrategyAddresses,
+  WithAaveV3StrategyAddresses,
+  WithBorrowing,
+  WithCollateral,
+  WithCollateralAndWithdrawal,
+  WithDebt,
+  WithDebtAndBorrow,
+  WithDeposit,
+  WithEMode,
+  WithFlashloan,
+  WithOptionalDeposit,
+  WithOptionalFlashloan,
+  WithPosition,
+  WithPositionAndLockedCollateral,
+  WithProxy,
+  WithSwap,
+  WithWithdrawal,
+} from './operations'
+import type {
+  ISimplePositionTransition,
+  ISimpleSimulatedTransition,
+  ISimulatedTransition,
+  PositionTransition,
+} from './position-transition'
+import type { PositionType } from './position-type'
+import type { Protocol } from './protocol'
+import type {
+  IBasePositionTransitionArgs,
+  IOnlyDepositBorrowOpenPositionTransitionDependencies,
+  IOpenPositionTransitionDependencies,
+  IPositionTransitionArgs,
+  IPositionTransitionDependencies,
+  IViewPositionDependencies,
+  IViewPositionParams,
+  WithBorrowDebt,
+  WithDebtChange,
+  WithDepositCollateral,
+  WithLockedCollateral,
+  WithPaybackDebt,
+  WithPositionType,
+  WithWithdrawCollateral,
+} from './strategy-params'
+import type { SwapData } from './swap-data'
 
-export * from './action-call'
-export * from './actions'
-export * from './operations'
-export * from './position-transition'
-export * from './position-type'
-export * from './protocol'
-export * from './strategy-params'
-export * from './swap-data'
+export type { AjnaError, FlashloanProvider, Optional, Strategy, Tx, Undercollateralized }
+export { AjnaEarnPosition, AjnaPosition }
 
-export { aave, ajna, common }
+export type { AAVETokens }
+export { AavePosition }
+
+export type { ActionCall }
+export { calldataTypes }
+
+export type {
+  IOperation,
+  WithAaveV2StrategyAddresses,
+  WithAaveV3StrategyAddresses,
+  WithBorrowing,
+  WithCollateral,
+  WithCollateralAndWithdrawal,
+  WithDebt,
+  WithDebtAndBorrow,
+  WithDeposit,
+  WithEMode,
+  WithFlashloan,
+  WithOptionalDeposit,
+  WithOptionalFlashloan,
+  WithPosition,
+  WithPositionAndLockedCollateral,
+  WithProxy,
+  WithSwap,
+  WithWithdrawal,
+}
+
+export type {
+  ISimplePositionTransition,
+  ISimpleSimulatedTransition,
+  ISimulatedTransition,
+  PositionTransition,
+}
+export type { PositionType }
+export type { Protocol }
+export type {
+  IBasePositionTransitionArgs,
+  IOnlyDepositBorrowOpenPositionTransitionDependencies,
+  IOpenPositionTransitionDependencies,
+  IPositionTransitionArgs,
+  IPositionTransitionDependencies,
+  IViewPositionDependencies,
+  IViewPositionParams,
+  WithBorrowDebt,
+  WithDebtChange,
+  WithDepositCollateral,
+  WithLockedCollateral,
+  WithPaybackDebt,
+  WithPositionType,
+  WithWithdrawCollateral,
+}
+export type { SwapData }

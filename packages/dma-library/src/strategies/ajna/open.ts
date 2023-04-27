@@ -1,10 +1,10 @@
+import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
+import { Address } from '@dma-deployments/types/address'
 import { AjnaPosition } from '@dma-library/types/ajna'
 import { Strategy } from '@dma-library/types/common'
-import * as views from '@dma-library/views'
-import ajnaProxyActionsAbi from '@oasisdex/abis/external/protocols/ajna/ajnaProxyActions.json'
-import { Address } from '@oasisdex/dma-deployments/types/address'
+import { views } from '@dma-library/views'
 import BigNumber from 'bignumber.js'
-import * as ethers from 'ethers'
+import { ethers } from 'ethers'
 
 export interface OpenArgs {
   poolAddress: Address

@@ -1,10 +1,10 @@
 import { SystemWithProxies, systemWithProxies } from '@dma-contracts/test/fixtures'
+import { Network } from '@dma-deployments/types/network'
+import { AAVETokens, strategies } from '@dma-library'
 import { ZERO } from '@oasisdex/dma-common/constants'
 import { addressesByNetwork, expect } from '@oasisdex/dma-common/test-utils'
 import { amountToWei, approve } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { AAVETokens, strategies } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)

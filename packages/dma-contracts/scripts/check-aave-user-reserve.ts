@@ -1,7 +1,7 @@
 import AAVEDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
 import { balanceOf } from '@dma-common/utils/balances'
-import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
 import { Contract, ethers } from 'ethers'
 
 async function main() {

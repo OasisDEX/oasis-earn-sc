@@ -1,11 +1,38 @@
-import { aaveV2 } from './aave/v2'
-import { aaveV3 } from './aave/v3'
-import * as common from './common'
-import * as maker from './maker'
+import { v2, v3 } from './aave'
+import {
+  positionCreated,
+  pullToken,
+  returnFunds,
+  sendToken,
+  setApproval,
+  swap,
+  takeAFlashLoan,
+  unwrapEth,
+  wrapEth,
+} from './common'
+import { openVault } from './maker'
 
-export const aave = {
-  v2: aaveV2,
-  v3: aaveV3,
+const common = {
+  pullToken,
+  sendToken,
+  setApproval,
+  swap,
+  returnFunds,
+  positionCreated,
+  wrapEth,
+  unwrapEth,
+  takeAFlashLoan,
 }
 
-export { common, maker }
+const maker = {
+  openVault,
+}
+
+const aave = {
+  v2,
+  v3,
+}
+
+const actions = { aave, common, maker }
+
+export { actions }

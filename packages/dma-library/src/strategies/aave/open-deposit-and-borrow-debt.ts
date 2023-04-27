@@ -1,4 +1,5 @@
-import * as operations from '@dma-library/operations'
+import { ZERO } from '@dma-common/constants'
+import { operations } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { BorrowArgs } from '@dma-library/operations/aave/v2/borrow'
 import { DepositArgs } from '@dma-library/operations/aave/v2/deposit'
@@ -11,7 +12,6 @@ import {
   WithPositionType,
 } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
-import { ZERO } from '@oasisdex/dma-common/constants'
 
 import { getAaveTokenAddresses } from './get-aave-token-addresses'
 import { AaveVersion, getCurrentPosition } from './get-current-position'

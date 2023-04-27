@@ -1,3 +1,12 @@
+import { createDPMAccount } from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
+import { getOrCreateProxy } from '@dma-common/utils/proxy'
+import {
+  getOneInchCall,
+  oneInchCallMock,
+  optimismLiquidityProviders,
+  resolveOneInchVersion,
+} from '@dma-common/utils/swap'
 import {
   testBlockNumberForAaveOptimismV3,
   testBlockNumberForAaveV3,
@@ -13,19 +22,10 @@ import {
   SystemWithAAVEV3Positions,
 } from '@dma-contracts/test/fixtures/types'
 import { buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
-import { createDPMAccount } from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
-import {
-  getOneInchCall,
-  oneInchCallMock,
-  optimismLiquidityProviders,
-  resolveOneInchVersion,
-} from '@oasisdex/dma-common/utils/swap'
-import { DeploymentSystem } from '@oasisdex/dma-deployments/deployment/deploy'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { ChainIdByNetwork } from '@oasisdex/dma-deployments/utils/network'
-import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
+import { DeploymentSystem } from '@dma-deployments/deployment/deploy'
+import { Network } from '@dma-deployments/types/network'
+import { ChainIdByNetwork } from '@dma-deployments/utils/network'
+import { AaveVersion, protocols, strategies } from '@dma-library'
 import hre from 'hardhat'
 
 export function getSupportedAaveV3Strategies(network?: Network): Array<{

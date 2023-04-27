@@ -1,5 +1,5 @@
-import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
 import { constants } from 'ethers'
 
 type NetworkAddressesForNetwork<T extends Network> = T extends Network.MAINNET

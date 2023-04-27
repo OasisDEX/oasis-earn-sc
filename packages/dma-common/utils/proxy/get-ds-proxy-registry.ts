@@ -1,4 +1,4 @@
-import DS_PROXY_REGISTRY_ABI from '@oasisdex/abis/external/libs/DS/ds-proxy-registry.json'
+import DS_PROXY_REGISTRY_ABI from '@abis/external/libs/DS/ds-proxy-registry.json'
 import { Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 

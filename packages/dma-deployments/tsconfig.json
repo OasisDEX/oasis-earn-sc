@@ -18,7 +18,8 @@
       "@dma-deployments/utils/*": ["./utils/*"],
       "@dma-deployments/types/*": ["./types/*"],
       "@dma-deployments/constants": ["./constants/index.ts"],
-      "@dma-deployments/operation-definitions": ["./operation-definitions/index.ts"]
+      "@dma-deployments/operation-definitions": ["./operation-definitions/index.ts"],
+      "@dma-deployments/operation-definitions": ["../dma-deployments/operation-definitions/index.ts"]
     }
   },
   "include": [

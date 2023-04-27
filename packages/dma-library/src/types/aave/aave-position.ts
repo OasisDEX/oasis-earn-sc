@@ -1,6 +1,6 @@
+import { Address } from '@dma-deployments/types/address'
 import { Optional } from '@dma-library/types/common'
-import { Address } from '@oasisdex/dma-deployments/types/address'
-import { IPositionCategory, Position, PositionBalance } from '@oasisdex/domain/src'
+import { IPositionCategory, Position, PositionBalance } from '@domain'
 import BigNumber from 'bignumber.js'
 
 import { AAVETokens } from './tokens'

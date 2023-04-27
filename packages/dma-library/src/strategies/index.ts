@@ -1,2 +1,8 @@
-export { aave, AaveVersion } from './aave'
-export { ajna } from './ajna'
+import { aave } from './aave'
+import { ajna } from './ajna'
+
+export { AaveVersion } from './aave'
+export const strategies = {
+  aave,
+  ajna,
+}

@@ -1,11 +1,11 @@
 import BigNumber from 'bignumber.js'
 
 import { IRiskRatio, RiskRatio } from './risk-ratio'
-import { ONE, TYPICAL_PRECISION, ZERO } from '@oasisdex/dma-common/constants'
-import { amountFromWei, logDebug } from '@oasisdex/dma-common/utils/common'
+import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { amountFromWei, logDebug } from '@dma-common/utils/common'
 import { calculateFee } from './utils'
 import { FLASHLOAN_SAFETY_MARGIN } from './constants'
-import { Optional } from '@oasisdex/dma-common/types/optional'
+import { Optional } from '@dma-common/types/optional'
 
 interface IPositionBalance {
   amount: BigNumber

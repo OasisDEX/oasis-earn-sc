@@ -1,6 +1,6 @@
-import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
-import { getAddressesFor } from '@oasisdex/dma-common/utils/common/addresses'
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { CONTRACT_NAMES } from '@dma-common/constants'
+import { getAddressesFor } from '@dma-common/utils/common/addresses'
+import { Network } from '@dma-deployments/types/network'
 import { utils } from 'ethers'
 import { task } from 'hardhat/config'
 

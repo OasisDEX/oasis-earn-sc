@@ -2,13 +2,13 @@
   "name": "@oasisdex/dma-deployments",
   "version": "1.0.0",
   "license": "Apache-2.0",
+  "private": true,
   "main": "./addresses/index.ts",
   "types": "./addresses/index.ts",
   "scripts": {
     "lint": "yarn tsc -p ./tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@oasisdex/abis": "*",
     "node-cache": "^5.1.2",
     "prompts": "^2.4.2",
     "@safe-global/safe-core-sdk": "^3.3.2",

@@ -1,8 +1,10 @@
+import ERC20_ABI from '@abis/external/tokens/IERC20.json'
+import WETH_ABI from '@abis/external/tokens/IWETH.json'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import ERC20_ABI from '@oasisdex/abis/external/tokens/IERC20.json'
-import WETH_ABI from '@oasisdex/abis/external/tokens/IWETH.json'
 import { FEE_BASE, ONE } from '@oasisdex/dma-common/constants'
 import {
   asPercentageValue,
@@ -20,8 +22,6 @@ import {
   swapOneInchTokens,
   swapUniswapTokens,
 } from '@oasisdex/dma-common/utils/swap'
-import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
-import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import { ethers } from 'hardhat'

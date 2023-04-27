@@ -1,4 +1,4 @@
-import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
+import { OPERATION_NAMES } from '@dma-common/constants'
 
 import { borrow, BorrowArgs } from './borrow'
 import { deposit, DepositArgs } from './deposit'

@@ -1,7 +1,10 @@
-import * as aaveV2 from './aave/v2'
-import * as aaveV3 from './aave/v3'
+import { v2, v3 } from './aave'
 
-export const aave = {
-  v2: aaveV2,
-  v3: aaveV3,
+const aave = {
+  v2,
+  v3,
+}
+
+export const operations = {
+  aave,
 }

@@ -1,6 +1,6 @@
-import * as actions from '@dma-library/actions'
+import { MAX_UINT, OPERATION_NAMES, ZERO } from '@dma-common/constants'
+import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
-import { MAX_UINT, OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
 
 import { AAVEStrategyAddresses } from './addresses'

@@ -1,11 +1,10 @@
+import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
+import { ZERO } from '@dma-common/constants'
+import { Address } from '@dma-deployments/types/address'
 import { AjnaEarnPosition } from '@dma-library/types/ajna'
 import { Strategy } from '@dma-library/types/common'
-import * as views from '@dma-library/views'
+import { views } from '@dma-library/views'
 import { GetEarnData } from '@dma-library/views/ajna'
-import ajnaProxyActionsAbi from '@oasisdex/abis/external/protocols/ajna/ajnaProxyActions.json'
-import poolInfoAbi from '@oasisdex/abis/external/protocols/ajna/poolInfoUtils.json'
-import { ZERO } from '@oasisdex/dma-common/constants'
-import { Address } from '@oasisdex/dma-deployments/types/address'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -54,17 +53,16 @@ export async function withdrawAndAdjust(
     dependencies.provider,
   )
 
-  const poolInfo = new ethers.Contract(
-    dependencies.poolInfoAddress,
-    poolInfoAbi,
-    dependencies.provider,
-  )
+  // const poolInfo = new ethers.Contract(
+  //   dependencies.poolInfoAddress,
+  //   poolInfoAbi,
+  //   dependencies.provider,
+  // )
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const priceIndex = await poolInfo
-    .priceToIndex(ethers.utils.parseUnits(args.price.toString(), 18).toString())
-    .then((res: any) => res.toString())
-    .then((res: string) => new BigNumber(res))
+  // const priceIndex = await poolInfo
+  //   .priceToIndex(ethers.utils.parseUnits(args.price.toString(), 18).toString())
+  //   .then((res: any) => res.toString())
+  //   .then((res: string) => new BigNumber(res))
 
   let data: string | null = null
 

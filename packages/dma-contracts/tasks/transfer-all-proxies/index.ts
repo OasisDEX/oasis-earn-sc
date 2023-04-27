@@ -1,7 +1,7 @@
+import DS_PROXY_REGISTRY_ABI from '@abis/external/libs/DS/ds-proxy-registry.json'
 import init from '@dma-common/utils/init'
-import DS_PROXY_REGISTRY_ABI from '@oasisdex/abis/external/libs/DS/ds-proxy-registry.json'
-import { ADDRESSES } from '@oasisdex/dma-deployments/addresses'
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
 import { task } from 'hardhat/config'
 
 const accountFactoryAddress = '0xF7B75183A2829843dB06266c114297dfbFaeE2b6'

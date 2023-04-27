@@ -1,5 +1,20 @@
+import aavePriceOracleABI from '@abis/external/protocols/aave/v2/priceOracle.json'
+import aaveProtocolDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
+import aaveV3PriceOracleABI from '@abis/external/protocols/aave/v3/aaveOracle.json'
+import aaveV3ProtocolDataProviderABI from '@abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
+import {
+  FEE_BASE,
+  FEE_ESTIMATE_INFLATOR,
+  ONE,
+  TEN,
+  TYPICAL_PRECISION,
+  ZERO,
+} from '@dma-common/constants'
+import { amountFromWei, amountToWei } from '@dma-common/utils/common'
+import { calculateFee } from '@dma-common/utils/swap'
+import { getForkedNetwork } from '@dma-deployments/utils/network'
 import { AaveVersion } from '@dma-library/index'
-import * as operations from '@dma-library/operations'
+import { operations } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
@@ -16,23 +31,8 @@ import { AAVETokens } from '@dma-library/types/aave'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
+import { FLASHLOAN_SAFETY_MARGIN, Position } from '@domain'
 import { Provider } from '@ethersproject/providers'
-import aavePriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
-import aaveProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
-import aaveV3PriceOracleABI from '@oasisdex/abis/external/protocols/aave/v3/aaveOracle.json'
-import aaveV3ProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
-import {
-  FEE_BASE,
-  FEE_ESTIMATE_INFLATOR,
-  ONE,
-  TEN,
-  TYPICAL_PRECISION,
-  ZERO,
-} from '@oasisdex/dma-common/constants'
-import { amountFromWei, amountToWei } from '@oasisdex/dma-common/utils/common'
-import { calculateFee } from '@oasisdex/dma-common/utils/swap'
-import { getForkedNetwork } from '@oasisdex/dma-deployments/utils/network'
-import { FLASHLOAN_SAFETY_MARGIN, Position } from '@oasisdex/domain'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 

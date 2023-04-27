@@ -1,1 +1,1 @@
-export type { Address } from '@oasisdex/dma-deployments/types/address'
+export type { Address } from '@dma-deployments/types/address'

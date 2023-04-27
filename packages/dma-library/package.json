@@ -1,20 +1,15 @@
 {
-  "name": "dma-library",
+  "name": "@oasisdex/dma-library-internal",
   "version": "0.2.16",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "private": true,
   "scripts": {
-    "watch": "yarn tsc -b -w",
     "lint:fix": "yarn eslint . --fix --ext .ts",
-    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc -p tsconfig.json --noEmit",
-    "prepublish": "yarn build"
+    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc -p tsconfig.json --noEmit"
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@oasisdex/abis": "*",
-    "@oasisdex/dma-common": "*",
-    "@oasisdex/dma-deployments": "*",
-    "@oasisdex/domain": "*",
     "bignumber.js": "^9.0.1",
     "ethers": "5.7.2"
   }

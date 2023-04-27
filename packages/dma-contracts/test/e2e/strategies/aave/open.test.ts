@@ -1,3 +1,4 @@
+import { expect, isOptimismByNetwork, retrySetup } from '@dma-common/test-utils'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,
@@ -8,10 +9,9 @@ import {
   systemWithAaveV3Positions,
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
-import { expect, isOptimismByNetwork, retrySetup } from '@oasisdex/dma-common/test-utils'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { PositionTransition } from '@oasisdex/dma-library'
-import { IPosition } from '@oasisdex/domain'
+import { Network } from '@dma-deployments/types/network'
+import { PositionTransition } from '@dma-library'
+import { IPosition } from '@domain'
 import BigNumber from 'bignumber.js'
 
 const networkFork = process.env.NETWORK_FORK as Network

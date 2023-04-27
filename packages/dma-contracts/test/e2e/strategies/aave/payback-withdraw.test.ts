@@ -3,12 +3,12 @@ import {
   SystemWithAavePositions,
   systemWithAavePositions,
 } from '@dma-contracts/test/fixtures'
+import { Network } from '@dma-deployments/types/network'
+import { strategies } from '@dma-library'
 import { ZERO } from '@oasisdex/dma-common/constants'
 import { addressesByNetwork, expect } from '@oasisdex/dma-common/test-utils'
 import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { strategies } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 

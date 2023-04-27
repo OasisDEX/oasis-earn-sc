@@ -1,6 +1,10 @@
+export { actions } from './actions'
 export { ActionFactory } from './actions/action-factory'
+export { operations } from './operations'
 export type { AAVEStrategyAddresses } from './operations/aave/v2/addresses'
 export type { AAVEV3StrategyAddresses } from './operations/aave/v3/addresses'
+export { protocols } from './protocols'
+export { strategies } from './strategies'
 export { AaveVersion } from './strategies'
 export type {
   ISimplePositionTransition,
@@ -14,10 +18,3 @@ export { AavePosition } from './types/aave'
 export type { ActionCall } from './types/action-call'
 export { calldataTypes } from './types/actions'
 export { AjnaEarnPosition, AjnaPosition } from './types/ajna'
-
-import * as action from './actions'
-import * as operations from './operations'
-import * as protocols from './protocols'
-import * as strategies from './strategies'
-import * as views from './views'
-export { action, operations, protocols, strategies, views }

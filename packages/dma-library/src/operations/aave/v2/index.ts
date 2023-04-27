@@ -9,7 +9,7 @@ import { openDepositAndBorrow } from './open-deposit-and-borrow'
 import { paybackWithdraw } from './payback-withdraw'
 
 export type { AAVEStrategyAddresses } from './addresses'
-export {
+export const v2 = {
   adjustRiskDown,
   adjustRiskUp,
   borrow,

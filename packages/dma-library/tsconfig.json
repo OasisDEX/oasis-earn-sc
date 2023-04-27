@@ -11,11 +11,13 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "emitDeclarationOnly": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
     "typeRoots": ["../../node_modules/@types"],
     "paths": {
+      "@abis/external/*": ["../abis/external/*"],
+      "@abis/system/*": ["../abis/system/*"],
+      "@domain": ["../domain/src/index.ts"],
       "@typechain/*": ["../dma-contracts/typechain/*"],
       "@dma-library/strategies": ["./src/strategies/index.ts"],
       "@dma-library/types": ["./src/types/index.ts"],
@@ -26,11 +28,11 @@
       "@dma-common/types/*": ["../dma-common/types/*"],
       "@dma-common/test-utils": ["../dma-common/test-utils/index.ts"],
       "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
-      "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
-      "@dma-deployments/types/*": ["../dma-deployments/types/*"],
-      "@dma-deployments/constants": ["../dma-deployments/constants/index.ts"]
+      "@dma-deployments/*": ["../dma-deployments/*"],
+      "@dma-deployments/addresses": ["../dma-deployments/addresses/index.ts"],
+      "@dma-deployments/operation-definitions": ["../dma-deployments/operation-definitions/index.ts"]
     }
   },
-  "include": ["./src/**/*"],
-  "exclude": ["node_modules", "../dma-deployments", "../dma-common"]
+  "include": ["./src", "../domain/src", "../dma-deployments", "../dma-common", "../abis/**/*"],
+  "exclude": ["node_modules"]
 }

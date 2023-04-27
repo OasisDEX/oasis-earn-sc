@@ -15,8 +15,7 @@
         "compiler": "0.4.24",
         "useTabs": false,
         "singleQuote": false,
-        "bracketSpacing": true,
-        "explicitTypes": "always"
+        "bracketSpacing": true
       }
     },
     {
@@ -27,8 +26,7 @@
         "compiler": "0.5.17",
         "useTabs": false,
         "singleQuote": false,
-        "bracketSpacing": true,
-        "explicitTypes": "always"
+        "bracketSpacing": true
       }
     },
     {
@@ -39,8 +37,7 @@
         "compiler": "0.8.15",
         "useTabs": false,
         "singleQuote": false,
-        "bracketSpacing": true,
-        "explicitTypes": "always"
+        "bracketSpacing": true
       },
       "excludeFiles": [
         "packages/dma-contracts/contracts/libs/DS/DSGuard.sol",

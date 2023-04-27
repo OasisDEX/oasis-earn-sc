@@ -1,5 +1,18 @@
+import {
+  DEFAULT_FEE,
+  FEE_BASE,
+  FEE_ESTIMATE_INFLATOR,
+  NO_FEE,
+  ONE,
+  ZERO,
+} from '@dma-common/constants'
+import { Unbox } from '@dma-common/types/common'
+import { amountFromWei, amountToWei } from '@dma-common/utils/common'
+import { calculateFee } from '@dma-common/utils/swap'
+import { Address } from '@dma-deployments/types/address'
+import { getForkedNetwork } from '@dma-deployments/utils/network'
 import { AAVEStrategyAddresses, AAVEV3StrategyAddresses } from '@dma-library/index'
-import * as operations from '@dma-library/operations'
+import { operations } from '@dma-library/operations'
 import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
@@ -16,20 +29,7 @@ import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-p
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
 import { getSwapDataHelper } from '@dma-library/utils/swap/get-swap-data'
-import {
-  DEFAULT_FEE,
-  FEE_BASE,
-  FEE_ESTIMATE_INFLATOR,
-  NO_FEE,
-  ONE,
-  ZERO,
-} from '@oasisdex/dma-common/constants'
-import { Unbox } from '@oasisdex/dma-common/types/common'
-import { amountFromWei, amountToWei } from '@oasisdex/dma-common/utils/common'
-import { calculateFee } from '@oasisdex/dma-common/utils/swap'
-import { Address } from '@oasisdex/dma-deployments/types/address'
-import { getForkedNetwork } from '@oasisdex/dma-deployments/utils/network'
-import { IBaseSimulatedTransition, IRiskRatio, Position } from '@oasisdex/domain/src'
+import { IBaseSimulatedTransition, IRiskRatio, Position } from '@domain'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 

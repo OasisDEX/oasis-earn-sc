@@ -1,6 +1,6 @@
-import { ZERO } from '@oasisdex/dma-common/constants'
-import { Address } from '@oasisdex/dma-deployments/types/address'
-import { IRiskRatio, RiskRatio } from '@oasisdex/domain/src'
+import { ZERO } from '@dma-common/constants'
+import { Address } from '@dma-deployments/types/address'
+import { IRiskRatio, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
 
 import { AjnaError } from '../common'

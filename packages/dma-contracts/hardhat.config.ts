@@ -23,7 +23,7 @@ import './tasks/create-multiply-position'
 import './tasks/transfer-dpm'
 import './tasks/transfer-all-proxies'
 
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { Network } from '@dma-deployments/types/network'
 import * as process from 'process'
 
 import { ChainIdByNetwork } from '../dma-deployments/utils/network'

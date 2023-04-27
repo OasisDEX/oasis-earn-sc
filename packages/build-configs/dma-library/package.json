@@ -3,7 +3,7 @@
   "version": "0.2.16",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
-  "main": "lib/index.cjs.js",
+  "main": "lib/index.js",
   "license": "MIT",
   "targets": {
     "main": {
@@ -16,6 +16,10 @@
   "scripts": {
     "build:dma-library": "yarn clean && yarn build:dma-library:bundle",
     "clean": "rm -rf ./lib",
-    "build:dma-library:bundle": "npx parcel build ../../dma-library/src/index.ts --no-cache --dist-dir ./lib --log-level verbose"
+    "build:dma-library:bundle": "npx parcel build ../../dma-library/src/index.ts --dist-dir ./lib --no-source-maps"
+  },
+  "dependencies": {
+    "bignumber.js": "^9.0.1",
+    "ethers": "5.7.2"
   }
 }
