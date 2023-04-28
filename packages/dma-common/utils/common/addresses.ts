@@ -1,7 +1,14 @@
-import { isOptimismByNetwork } from '@dma-common/test-utils'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { isSupportedNetwork } from '@oasisdex/dma-deployments/utils/network'
+import { Network } from '@dma-deployments/types/network'
+import { isSupportedNetwork } from '@dma-deployments/utils/network'
 import { constants } from 'ethers'
+
+// Type guards
+export function isMainnetByNetwork(network: Network): network is Network.MAINNET {
+  return network === Network.MAINNET
+}
+export function isOptimismByNetwork(network: Network): network is Network.OPTIMISM {
+  return network === Network.OPTIMISM
+}
 
 const addresses = {
   [Network.MAINNET]: {

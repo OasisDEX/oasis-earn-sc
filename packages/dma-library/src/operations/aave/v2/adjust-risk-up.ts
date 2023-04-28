@@ -1,4 +1,5 @@
-import * as actions from '@dma-library/actions'
+import { NULL_ADDRESS, OPERATION_NAMES, ZERO } from '@dma-common/constants'
+import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'
 import {
@@ -10,7 +11,6 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types/operations'
-import { NULL_ADDRESS, OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 

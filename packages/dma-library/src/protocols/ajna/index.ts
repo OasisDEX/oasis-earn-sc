@@ -1,3 +1,5 @@
+import poolAbi from '@abis/external/protocols/ajna/ajnaPoolERC20.json'
+import { ZERO } from '@dma-common/constants'
 import { negativeToZero } from '@dma-common/utils/common'
 import { Address } from '@dma-deployments/types/address'
 import { getAjnaValidations } from '@dma-library/strategies/ajna/earn/validations'
@@ -11,8 +13,6 @@ import {
   AjnaWarning,
   Strategy,
 } from '@dma-library/types/common'
-import poolAbi from '@oasisdex/abis/external/protocols/ajna/ajnaPoolERC20.json'
-import { ZERO } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 

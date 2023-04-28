@@ -1,6 +1,6 @@
-import { HUNDRED, ZERO } from '@oasisdex/dma-common/constants'
-import { expect } from '@oasisdex/dma-common/test-utils'
-import { balanceOf } from '@oasisdex/dma-common/utils/common'
+import { HUNDRED, ZERO } from '@dma-common/constants'
+import { expect } from '@dma-common/test-utils'
+import { balanceOf } from '@dma-common/utils/common'
 import { loadFixture } from 'ethereum-waffle'
 
 import { aDAI, deployedContracts, DEPOSIT_OPERATION, WITHDRAW_OPERATION } from './l2-tests-helper'

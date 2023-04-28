@@ -1,9 +1,10 @@
-import * as actions from '@dma-library/actions'
+import { OPERATION_NAMES, ZERO } from '@dma-common/constants'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Address } from '@dma-deployments/types/address'
+import { Network } from '@dma-deployments/types/network'
+import { actions } from '@dma-library/actions'
+import { ActionCall } from '@dma-library/types'
 import { isDefined } from '@dma-library/utils/is-defined'
-import { ADDRESSES } from '@oasisdex/addresses'
-import { OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
-import { Address } from '@oasisdex/dma-deployments/types/address'
-import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
 interface SwapArgs {
@@ -81,7 +82,8 @@ export async function deposit({
 }: DepositArgs) {
   const isAssetEth = entryTokenIsEth
 
-  const tokenTransferCalls = [
+  // Import ActionCall as it assists type generation
+  const tokenTransferCalls: ActionCall[] = [
     actions.common.wrapEth({
       amount: amountInBaseUnit,
     }),

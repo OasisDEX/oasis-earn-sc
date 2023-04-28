@@ -503,7 +503,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async addMakerEntries() {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
-      Object.values(this.config.maker).filter(
+      Object.values(this.config.maker.common).filter(
         (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
       ),
     )

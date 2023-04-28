@@ -1,4 +1,5 @@
-import * as operations from '@dma-library/operations'
+import { MAX_UINT, ZERO } from '@dma-common/constants'
+import { operations } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import {
   IBasePositionTransitionArgs,
@@ -9,7 +10,6 @@ import {
 } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
 import { getZeroSwap } from '@dma-library/utils/swap/get-zero-swap'
-import { MAX_UINT, ZERO } from '@oasisdex/dma-common/constants'
 import BigNumber from 'bignumber.js'
 
 import { getAaveTokenAddresses } from './get-aave-token-addresses'

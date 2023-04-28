@@ -1,4 +1,3 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import {
   deployApa,
   deployGuard,
@@ -7,7 +6,8 @@ import {
   deployPoolFactory,
   deployRewardsContracts,
   deployTokens,
-} from "@oasisdex/ajna-contracts/scripts";
+} from "@ajna-contracts/scripts";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import {
   AjnaProxyActions,
   DSToken,

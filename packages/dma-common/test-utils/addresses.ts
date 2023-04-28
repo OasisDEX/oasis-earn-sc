@@ -1,14 +1,6 @@
-import { ADDRESSES } from '@oasisdex/addresses'
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
 import { constants } from 'ethers'
-
-// Type guards
-export function isMainnetByNetwork(network: Network): network is Network.MAINNET {
-  return network === Network.MAINNET
-}
-export function isOptimismByNetwork(network: Network): network is Network.OPTIMISM {
-  return network === Network.OPTIMISM
-}
 
 type NetworkAddressesForNetwork<T extends Network> = T extends Network.MAINNET
   ? MainnetAddresses
@@ -40,13 +32,13 @@ const testAddresses = {
     WBTC: ADDRESSES[Network.MAINNET].common.WBTC,
     USDC: ADDRESSES[Network.MAINNET].common.USDC,
     feeRecipient: ADDRESSES[Network.MAINNET].common.FeeRecipient,
-    chainlinkEthUsdPriceFeed: ADDRESSES[Network.MAINNET].common.ChainlinkEthUsdPriceFeed,
+    chainlinkEthUsdPriceFeed: ADDRESSES[Network.MAINNET].common.ChainlinkPriceOracle_ETHUSD,
     priceOracle: ADDRESSES[Network.MAINNET].aave.v2.PriceOracle,
     lendingPool: ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
     protocolDataProvider: ADDRESSES[Network.MAINNET].aave.v2.ProtocolDataProvider,
     aaveOracle: ADDRESSES[Network.MAINNET].aave.v3.AaveOracle,
     pool: ADDRESSES[Network.MAINNET].aave.v3.Pool,
-    poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.AaveProtocolDataProvider,
+    poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.AavePoolDataProvider,
   },
   [Network.OPTIMISM]: {
     DAI: ADDRESSES[Network.OPTIMISM].common.DAI,
@@ -57,10 +49,10 @@ const testAddresses = {
     WBTC: ADDRESSES[Network.OPTIMISM].common.WBTC,
     USDC: ADDRESSES[Network.OPTIMISM].common.USDC,
     feeRecipient: ADDRESSES[Network.OPTIMISM].common.FeeRecipient,
-    chainlinkEthUsdPriceFeed: ADDRESSES[Network.OPTIMISM].common.ChainlinkEthUsdPriceFeed,
+    chainlinkEthUsdPriceFeed: ADDRESSES[Network.OPTIMISM].common.ChainlinkPriceOracle_ETHUSD,
     aaveOracle: ADDRESSES[Network.OPTIMISM].aave.v3.AaveOracle,
     pool: ADDRESSES[Network.OPTIMISM].aave.v3.Pool,
-    poolDataProvider: ADDRESSES[Network.OPTIMISM].aave.v3.AaveProtocolDataProvider,
+    poolDataProvider: ADDRESSES[Network.OPTIMISM].aave.v3.AavePoolDataProvider,
   },
 }
 

@@ -1,5 +1,5 @@
 import { resetNode } from '@dma-common/utils/init'
-import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
+import { ServiceRegistry } from '@dma-deployments/utils/wrappers'
 import { providers } from 'ethers'
 
 import { RuntimeConfig } from '../types/common'
