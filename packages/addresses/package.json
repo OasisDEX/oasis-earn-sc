@@ -1,0 +1,20 @@
+{
+  "name": "@oasisdex/addresses",
+  "version": "0.0.8",
+  "typings": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
+  "main": "lib/index.js",
+  "license": "MIT",
+  "targets": {
+    "main": {
+      "optimize": true
+    }
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "yarn clean && npx parcel build ../dma-deployments/addresses/index.ts --dist-dir ./lib --no-source-maps",
+    "clean": "rm -rf lib"
+  }
+}

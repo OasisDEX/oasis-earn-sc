@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
+import poolInfoAbi from '@abis/external/protocols/ajna/poolInfoUtils.json'
+import { ZERO } from '@dma-common/constants'
 import { AjnaEarnArgs, getAjnaEarnActionOutput } from '@dma-library/protocols/ajna'
-import ajnaProxyActionsAbi from '@oasisdex/abis/external/protocols/ajna/ajnaProxyActions.json'
-import poolInfoAbi from '@oasisdex/abis/external/protocols/ajna/poolInfoUtils.json'
-import { ZERO } from '@oasisdex/dma-common/constants'
+import { AjnaEarnPosition } from '@dma-library/types/ajna'
+import { AjnaDependencies, Strategy } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import { AjnaEarnPosition } from '../../../types/ajna'
-import { AjnaDependencies, Strategy } from '../../../types/common'
 import bucketPrices from './buckets.json'
 
 export async function withdrawAndAdjust(

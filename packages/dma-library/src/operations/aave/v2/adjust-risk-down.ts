@@ -1,4 +1,5 @@
-import * as actions from '@dma-library/actions'
+import { OPERATION_NAMES } from '@dma-deployments/constants'
+import { actions } from '@dma-library/actions'
 import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'
 import {
@@ -8,7 +9,6 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types/operations'
-import { OPERATION_NAMES } from '@oasisdex/dma-deployments/constants'
 import BigNumber from 'bignumber.js'
 
 type AdjustRiskDownArgs = WithCollateralAndWithdrawal &

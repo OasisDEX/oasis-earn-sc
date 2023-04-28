@@ -1,8 +1,9 @@
-import * as actions from '@dma-library/actions'
-import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
-import { Address } from '@oasisdex/dma-common/types/address'
-import { ADDRESSES } from '@oasisdex/dma-deployments'
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { OPERATION_NAMES } from '@dma-common/constants'
+import { Address } from '@dma-common/types/address'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
+import { actions } from '@dma-library/actions'
+import { ActionCall } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 export interface BorrowArgs {
@@ -14,7 +15,8 @@ export interface BorrowArgs {
 }
 
 export async function borrow({ borrowToken, amountInBaseUnit, account, isEthToken }: BorrowArgs) {
-  const calls = [
+  // Import ActionCall as it assists type generation
+  const calls: ActionCall[] = [
     actions.aave.v2.aaveBorrow({
       amount: amountInBaseUnit,
       asset: borrowToken,

@@ -1,42 +1,54 @@
 {
+  "extends": "../../tsconfig.options.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "moduleResolution": "node",
-    "strict": true,
-    "baseUrl": ".",
+    "outDir": "./lib",
+    "typeRoots": [
+      "../../node_modules/@types"
+    ],
     "paths": {
-      "@typechain/*": [
-        "../dma-contracts/typechain/*"
-      ],
-      "@dma-library/*": [
-        "./src/*"
-      ],
+      "@abis/external/*": ["../abis/external/*"],
+      "@abis/system/*": ["../abis/system/*"],
+      "@typechain/*": ["../dma-contracts/typechain/*"],
+      "@dma-library/strategies": ["./src/strategies/index.ts"],
+      "@dma-library/types": ["./src/types/index.ts"],
+      "@dma-library/actions/action-factory": ["./src/actions/action-factory.ts"],
+      "@dma-library/*": ["./src/*"],
       "@dma-common/constants": ["../dma-common/constants"],
       "@dma-common/utils/*": ["../dma-common/utils/*"],
+      "@dma-common/types": ["../dma-common/types/index.ts"],
       "@dma-common/types/*": ["../dma-common/types/*"],
       "@dma-common/test-utils": ["../dma-common/test-utils/index.ts"],
       "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
-      "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
-      "@dma-deployments/types/*": ["../dma-deployments/types/*"],
-      "@dma-deployments/constants": ["../dma-deployments/constants/index.ts"]
+      "@dma-deployments/*": ["../dma-deployments/*"],
+      "@dma-deployments/addresses": ["../dma-deployments/addresses/index.ts"],
+      "@dma-deployments/operation-definitions": ["../dma-deployments/operation-definitions/index.ts"],
+      "@domain": ["../domain/src/index.ts"]
     },
-    "types": [
-      "node"
-    ],
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "noImplicitAny": false,
-    "typeRoots": [
-      "../../node_modules/@types"
-    ]
   },
-  "include": [
-    "./src/**/*"
+  "references": [
+    {
+      "path": "../abis"
+    },
+    {
+      "path": "../dma-common"
+    },
+    {
+      "path": "../dma-contracts"
+    },
+    {
+      "path": "../dma-deployments"
+    },
+    {
+      "path": "../domain"
+    }
   ],
-  "exclude": ["node_modules", "../dma-deployments", "../dma-common"]
+  "include": [
+    "./src",
+    "./src/strategies/ajna/earn/buckets.json",
+    "../abis/**/*",
+    "../dma-common/**/*",
+    "../dma-contracts/**/*",
+    "../dma-deployments/**/*",
+    "../domain/**/*"
+  ]
 }

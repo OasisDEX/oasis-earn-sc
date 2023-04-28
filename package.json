@@ -20,8 +20,7 @@
     "compile": "lerna run compile --stream",
     "build": "lerna run build --stream",
     "format": "lerna run format --stream",
-    "lint": "lerna run lint --stream",
-    "build:addresses": "lerna run --scope @oasisdex/build-configs build:addresses"
+    "lint": "lerna run lint --stream"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
@@ -64,6 +63,7 @@
     "hardhat-tracer": "^2.1.2",
     "lerna": "^6.6.1",
     "mocha": "^10.1.0",
+    "parcel": "2.8.3",
     "prettier-plugin-solidity": "^1.0.0-beta.17",
     "solhint": "^3.2.2",
     "solhint-plugin-prettier": "0.0.5",
@@ -71,10 +71,8 @@
     "solidity-docgen": "^0.6.0-beta.29",
     "ts-loader": "^9.4.2",
     "ts-node": "^10.9.1",
-    "ts-try": "^0.2.0",
     "tsconfig-paths": "^4.1.2",
     "tsconfig-paths-webpack-plugin": "^4.0.1",
-    "tscpaths": "^0.0.9",
     "typechain": "^8.1.1",
     "typescript": "^5.0.4",
     "webpack": "^5.79.0",
@@ -89,8 +87,28 @@
     "ramda": "^0.28.0"
   },
   "alias": {
-    "@oasisdex/dma-deployments": "./packages/dma-deployments/",
-    "@dma-deployments/types/network": "./packages/dma-deployments/types/network"
+    "@abis/external": "./packages/abis/external/",
+    "@abis/system": "./packages/abis/system/",
+    "@dma-common/constants": "./packages/dma-common/constants",
+    "@dma-common/types/optional": "./packages/dma-common/types/optional",
+    "@dma-common/utils": "./packages/dma-common/utils/",
+    "@dma-common/utils/common": "./packages/dma-common/utils/common",
+    "@dma-deployments/addresses": "./packages/dma-deployments/addresses",
+    "@dma-deployments/operation-definitions": "./packages/dma-deployments/operation-definitions",
+    "@dma-deployments/types": "./packages/dma-deployments/types",
+    "@dma-deployments/constants": "./packages/dma-deployments/constants",
+    "@dma-deployments/utils": "./packages/dma-deployments/utils",
+    "@dma-library/types": "./packages/dma-library/src/types",
+    "@dma-library/actions": "./packages/dma-library/src/actions/",
+    "@dma-library/strategies": "./packages/dma-library/src/strategies/",
+    "@dma-library/utils": "./packages/dma-library/src/utils/",
+    "@dma-library/views": "./packages/dma-library/src/views/",
+    "@dma-library/operations": "./packages/dma-library/src/operations/",
+    "@dma-library/index": "./packages/dma-library/src/index.ts",
+    "@dma-library/protocols": "./packages/dma-library/src/protocols/",
+    "@dma-library/protocols/aave/config": "./packages/dma-library/src/protocols/aave/config/",
+    "@dma-library/config": "./packages/dma-library/src/config/",
+    "@domain": "./packages/domain/src/index.ts"
   },
   "resolutions": {
     "hardhat/**/@ethereumjs/tx": "3.5.0"

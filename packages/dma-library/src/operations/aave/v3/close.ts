@@ -1,4 +1,6 @@
-import * as actions from '@dma-library/actions'
+import { MAX_UINT, ZERO } from '@dma-common/constants'
+import { aaveCloseV3OperationDefinition } from '@dma-deployments/operation-definitions'
+import { actions } from '@dma-library/actions'
 import {
   IOperation,
   WithAaveV3StrategyAddresses,
@@ -9,8 +11,6 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
-import { MAX_UINT, ZERO } from '@oasisdex/dma-common/constants'
-import { aaveCloseV3OperationDefinition } from '@oasisdex/dma-deployments/operation-definitions'
 import BigNumber from 'bignumber.js'
 
 type CloseArgs = WithCollateral &

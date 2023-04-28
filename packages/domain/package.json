@@ -1,19 +1,19 @@
 {
   "name": "@oasisdex/domain",
   "version": "1.0.0",
-  "main": "lib/src/index.js",
-  "typings": "lib/src/index.d.ts",
+  "main": "src/index.ts",
+  "types": "lib/index.d.ts",
+  "private": true,
   "license": "MIT",
   "scripts": {
-    "build": "yarn tsc -b",
-    "watch": "yarn tsc -b -w",
-    "lint": "yarn tsc -p ./tsconfig.json --noEmit",
+    "build": "yarn tsc --build ./tsconfig.json && yarn lint:fix",
+    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
+    "lint:fix": "yarn eslint . --fix --ext .ts",
     "test": "yarn run test:unit",
-    "test:unit": "npx hardhat test ./test/position.test.ts",
-    "prepublish": "yarn run build"
+    "test:unit": "npx hardhat test ./test/position.test.ts"
   },
   "dependencies": {
-    "@oasisdex/dma-common": "*"
+    "bignumber.js": "^9.0.1"
   },
   "devDependencies": {
     "@google-cloud/local-auth": "2.1.1",

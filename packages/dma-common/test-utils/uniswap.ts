@@ -1,8 +1,8 @@
+import UNISWAP_ROUTER_V3_ABI from '@abis/external/swap/IUniswapRouter.json'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { Optional } from '@dma-common/types/optional'
+import { ADDRESSES } from '@dma-deployments/addresses'
 import { Network } from '@dma-deployments/types/network'
-import UNISWAP_ROUTER_V3_ABI from '@oasisdex/abis/external/swap/IUniswapRouter.json'
-import { ADDRESSES } from '@oasisdex/dma-deployments'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 /**

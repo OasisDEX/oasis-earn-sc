@@ -1,5 +1,6 @@
+import { ServiceRegistry } from '@dma-deployments/utils/wrappers'
 import { Contract } from 'ethers'
-import { ServiceRegistry } from 'utils/wrappers'
+
 import { DeployedSystemContracts, DeploymentConfig, SystemConfig } from './deployment-config'
 
 export type ContractProps = {

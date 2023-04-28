@@ -1,5 +1,5 @@
-import { AavePosition, AAVETokens, PositionTransition, SwapData } from '@oasisdex/dma-library'
-import { PositionType } from '@oasisdex/dma-library/src/types'
+import { AavePosition, AAVETokens, PositionTransition, SwapData } from '@dma-library'
+import { PositionType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 export type AaveV3PositionStrategy = 'ETH/USDC Multiply' | 'WSTETH/ETH Earn'

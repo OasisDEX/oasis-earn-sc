@@ -1,6 +1,6 @@
-import { getAddressesFor } from '@oasisdex/dma-common/utils/common'
-import { ADDRESSES } from '@oasisdex/dma-deployments'
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { getAddressesFor } from '@dma-common/utils/common'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
 import { task } from 'hardhat/config'
 
 task('verify-earn', 'Verifies Earn Contracts').setAction(async (_: any, hre) => {

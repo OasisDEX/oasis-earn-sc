@@ -1,4 +1,5 @@
 node_modules
 lib
 .eslintrc.js
-.webpack.config.js
+*.d.ts
+*.d.ts.map

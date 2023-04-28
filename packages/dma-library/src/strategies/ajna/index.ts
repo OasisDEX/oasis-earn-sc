@@ -1,9 +1,19 @@
-import { depositBorrow } from './depositBorrow'
+import { depositBorrow } from './deposit-borrow'
 import { earn } from './earn'
 import { open } from './open'
-import { paybackWithdraw } from './paybackWithdraw'
+import { paybackWithdraw } from './payback-withdraw'
 
-export const ajna = {
+export const ajna: {
+  borrow: {
+    open: typeof open
+    paybackWithdraw: typeof paybackWithdraw
+    depositBorrow: typeof depositBorrow
+  }
+  open: typeof open
+  paybackWithdraw: typeof paybackWithdraw
+  depositBorrow: typeof depositBorrow
+  earn: typeof earn
+} = {
   borrow: {
     open,
     paybackWithdraw,

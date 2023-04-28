@@ -1,26 +1,27 @@
-import { executeThroughProxy } from '@dma-common/utils/execute'
-import { testBlockNumber } from '@dma-contracts/test/config'
-import { initialiseConfig } from '@dma-contracts/test/fixtures'
-import { Contract } from '@ethersproject/contracts'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import CDPManagerABI from '@oasisdex/abis/external/protocols/maker/dss-cdp-manager.json'
-import ERC20ABI from '@oasisdex/abis/external/tokens/IERC20.json'
-import { OPERATION_NAMES } from '@oasisdex/dma-common/constants'
+import CDPManagerABI from '@abis/external/protocols/maker/dss-cdp-manager.json'
+import ERC20ABI from '@abis/external/tokens/IERC20.json'
+import { OPERATION_NAMES } from '@dma-common/constants'
 import {
   DeployedSystemInfo,
+  ensureWeiFormat,
   expect,
   GasEstimateHelper,
   gasEstimateHelper,
   restoreSnapshot,
-} from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
-import { getLastVault, getVaultInfo } from '@oasisdex/dma-common/utils/maker'
-import { ADDRESSES } from '@oasisdex/dma-deployments'
-import { CONTRACT_NAMES } from '@oasisdex/dma-deployments/constants'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
-import { ActionFactory, calldataTypes } from '@oasisdex/dma-library'
+} from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
+import { amountToWei } from '@dma-common/utils/common'
+import { executeThroughProxy } from '@dma-common/utils/execute'
+import { getLastVault, getVaultInfo } from '@dma-common/utils/maker'
+import { testBlockNumber } from '@dma-contracts/test/config'
+import { initialiseConfig } from '@dma-contracts/test/fixtures'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { CONTRACT_NAMES } from '@dma-deployments/constants'
+import { Network } from '@dma-deployments/types/network'
+import { ServiceRegistry } from '@dma-deployments/utils/wrappers'
+import { ActionFactory, calldataTypes } from '@dma-library'
+import { Contract } from '@ethersproject/contracts'
+import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { ethers, Signer } from 'ethers'
@@ -88,7 +89,7 @@ describe.skip(`Operations | Maker | Close Position | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.joins.MCD_JOIN_ETH_A,
         },
         [0],
       ],
@@ -112,7 +113,7 @@ describe.skip(`Operations | Maker | Close Position | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.joins.MCD_JOIN_ETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -142,7 +143,7 @@ describe.skip(`Operations | Maker | Close Position | E2E`, async () => {
         {
           vaultId: 0,
           userAddress: address,
-          daiJoin: ADDRESSES[Network.MAINNET].maker.JoinDAI,
+          daiJoin: ADDRESSES[Network.MAINNET].maker.joins.MCD_JOIN_DAI,
           amount: ensureWeiFormat(paybackDai),
           paybackAll: paybackAll,
         },
@@ -160,7 +161,7 @@ describe.skip(`Operations | Maker | Close Position | E2E`, async () => {
         {
           vaultId: 0,
           userAddress: address,
-          joinAddr: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
+          joinAddr: ADDRESSES[Network.MAINNET].maker.joins.MCD_JOIN_ETH_A,
           amount: ensureWeiFormat(initialColl),
         },
         [1, 0, 0, 0],
@@ -200,7 +201,7 @@ describe.skip(`Operations | Maker | Close Position | E2E`, async () => {
     expect(info.debt.toFixed(precision)).to.equal(expectedDebt.toFixed(precision))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.CdpManager,
+      ADDRESSES[Network.MAINNET].maker.common.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)
