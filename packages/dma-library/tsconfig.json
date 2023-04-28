@@ -32,6 +32,9 @@
       "path": "../dma-common"
     },
     {
+      "path": "../dma-contracts"
+    },
+    {
       "path": "../dma-deployments"
     },
     {
@@ -39,6 +42,11 @@
     }
   ],
   "include": [
-    "./src"
+    "./src",
+    "../abis/**/*",
+    "../dma-common/**/*",
+    "../dma-contracts/**/*",
+    "../dma-deployments/**/*",
+    "../domain/**/*"
   ]
 }

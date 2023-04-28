@@ -3,6 +3,7 @@ import { ADDRESSES } from '@dma-deployments/addresses'
 import { Address } from '@dma-deployments/types/address'
 import { Network } from '@dma-deployments/types/network'
 import { actions } from '@dma-library/actions'
+import { ActionCall } from '@dma-library/types'
 import { isDefined } from '@dma-library/utils/is-defined'
 import BigNumber from 'bignumber.js'
 
@@ -81,7 +82,8 @@ export async function deposit({
 }: DepositArgs) {
   const isAssetEth = entryTokenIsEth
 
-  const tokenTransferCalls = [
+  // Import ActionCall as it assists type generation
+  const tokenTransferCalls: ActionCall[] = [
     actions.common.wrapEth({
       amount: amountInBaseUnit,
     }),

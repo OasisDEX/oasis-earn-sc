@@ -1,17 +1,32 @@
 {
-  "name": "@oasisdex/dma-library-internal",
+  "name": "@oasisdex/dma-library",
   "version": "0.2.16",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "private": true,
+  "typings": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
+  "main": "lib/index.js",
+  "targets": {
+    "main": {
+      "optimize": true
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "yarn tsc --build ./tsconfig.json && yarn lint:fix",
+    "build": "npx parcel build ./src/index.ts --dist-dir ./lib --no-source-maps",
+    "clean": "rm -rf lib",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
-    "lint:fix": "yarn eslint . --fix --ext .ts"
+    "lint:fix": "yarn eslint . --fix --ext .ts",
+    "linked": "yarn link",
+    "unlinked": "yarn unlink"
   },
   "license": "Apache-2.0",
   "dependencies": {
     "bignumber.js": "^9.0.1",
     "ethers": "5.7.2"
+  },
+  "devDependencies": {
+    "parcel": "2.8.3",
+    "typescript": ">=3.0.0"
   }
 }

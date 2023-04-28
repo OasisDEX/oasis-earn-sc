@@ -1,7 +1,6 @@
 import { ONE } from '@dma-common/constants'
-import { addressesByNetwork } from '@dma-common/test-utils'
+import { addressesByNetwork, swapUniswapTokens } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
-import { swapUniswapTokens } from '@dma-common/utils/swap'
 import { Network } from '@dma-deployments/types/network'
 import { AAVETokens } from '@dma-library'
 import BigNumber from 'bignumber.js'

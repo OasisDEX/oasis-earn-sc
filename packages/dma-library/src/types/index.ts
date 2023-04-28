@@ -1,6 +1,6 @@
 import type { AAVETokens } from './aave'
 import { AavePosition } from './aave'
-import type { ActionCall } from './action-call'
+import { ActionCall } from './action-call'
 import { calldataTypes } from './actions'
 import { AjnaEarnPosition, AjnaPosition } from './ajna'
 import type {
@@ -63,7 +63,7 @@ export { AjnaEarnPosition, AjnaPosition }
 export type { AAVETokens }
 export { AavePosition }
 
-export type { ActionCall }
+export { ActionCall }
 export { calldataTypes }
 
 export type {
