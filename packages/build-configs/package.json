@@ -5,9 +5,6 @@
   "author": "Marcin Ciarka <marcin@oazoapps.com>",
   "homepage": "https://github.com/OasisDEX/oasis-earn-sc#readme",
   "license": "ISC",
-  "devDependencies": {
-    "parcel": "2.8.3"
-  },
   "scripts": {
     "build": "yarn build:addresses && yarn build:dma-library",
     "build:dma-library": "yarn --cwd ./dma-library build",
