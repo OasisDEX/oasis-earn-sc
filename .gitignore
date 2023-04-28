@@ -10,18 +10,22 @@ lerna-debug.log
 tenderly.yaml
 .idea/**/*
 .DS_Store
-*.tsbuildinfo
-.parcel-cache
-*.d.ts
-*.d.ts.map
 
 #Hardhat files
 packages/dma-contracts/abi/generated
 cache
 artifacts
 
+# Build outputs
 lib
-cjs
+*.d.ts
+*.d.ts.map
+packages/dma-common/*.d.ts
+packages/dma-common/*.d.ts.map
+packages/dma-deployments/*.d.ts
+packages/dma-deployments/*.d.ts.map
+*.tsbuildinfo
+.parcel-cache
 
 # yarn
 .yarn/*

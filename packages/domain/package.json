@@ -6,7 +6,8 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "build": "yarn tsc --build ./tsconfig.json && yarn lint:fix",
+    "build": "yarn tsc --build && yarn lint:fix",
+    "clean": "rm -rf lib && rm -f tsconfig.tsbuildinfo",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
     "lint:fix": "yarn eslint . --fix --ext .ts",
     "test": "yarn run test:unit",
@@ -18,5 +19,8 @@
   "devDependencies": {
     "@google-cloud/local-auth": "2.1.1",
     "googleapis": "107"
+  },
+  "nx": {
+    "implicitDependencies": ["@oasisdex/dma-common"]
   }
 }

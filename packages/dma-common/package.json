@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "build": "yarn tsc --build",
+    "clean": "rm -f tsconfig.tsbuildinfo && find ./ -name \"*.d.ts\" -delete && find ./ -name \"*.d.ts.map\" -delete ",
     "lint:fix": "yarn eslint . --fix --ext .ts",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build"
   },
@@ -27,5 +28,8 @@
     "/test-utils",
     "/utils",
     "/constants"
-  ]
+  ],
+  "nx": {
+    "implicitDependencies": ["@oasisdex/dma-deployments"]
+  }
 }

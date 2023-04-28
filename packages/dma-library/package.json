@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "build": "npx parcel build ./src/index.ts --dist-dir ./lib --no-source-maps",
-    "clean": "rm -rf lib",
+    "clean": "rm -rf lib && rm -f tsconfig.lint.tsbuildinfo",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
     "lint:fix": "yarn eslint . --fix --ext .ts",
     "linked": "yarn link",
@@ -24,5 +24,8 @@
   "dependencies": {
     "bignumber.js": "^9.0.1",
     "ethers": "5.7.2"
+  },
+  "nx": {
+    "implicitDependencies": ["@oasisdex/domain"]
   }
 }
