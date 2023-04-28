@@ -24,16 +24,25 @@ contract AjnaDepositBorrow is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     DepositBorrowData memory args = parseInputs(data);
     IAjnaPool pool = IAjnaPool(args.pool);
-    IAjnaPoolUtilsInfo poolUtilsInfo = IAjnaPoolUtilsInfo(registry.getRegisteredService(AJNA_POOL_UTILS_INFO));
+    IAjnaPoolUtilsInfo poolUtilsInfo = IAjnaPoolUtilsInfo(
+      registry.getRegisteredService(AJNA_POOL_UTILS_INFO)
+    );
 
     uint256 index = poolUtilsInfo.priceToIndex(args.price);
 
-    pool.drawDebt(address(this), args.borrowAmount * pool.quoteTokenScale(), index, args.depositAmount * pool.collateralScale());
+    pool.drawDebt(
+      address(this),
+      args.borrowAmount * pool.quoteTokenScale(),
+      index,
+      args.depositAmount * pool.collateralScale()
+    );
     store().write(bytes32(args.depositAmount));
     store().write(bytes32(args.borrowAmount));
   }
 
-  function parseInputs(bytes memory _callData) public pure returns (DepositBorrowData memory params) {
+  function parseInputs(
+    bytes memory _callData
+  ) public pure returns (DepositBorrowData memory params) {
     return abi.decode(_callData, (DepositBorrowData));
   }
 }

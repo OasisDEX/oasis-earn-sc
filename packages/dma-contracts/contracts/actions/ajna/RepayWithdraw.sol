@@ -24,16 +24,26 @@ contract AjnaRepayWithdraw is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     RepayWithdrawData memory args = parseInputs(data);
     IAjnaPool pool = IAjnaPool(args.pool);
-    IAjnaPoolUtilsInfo poolUtilsInfo = IAjnaPoolUtilsInfo(registry.getRegisteredService(AJNA_POOL_UTILS_INFO));
+    IAjnaPoolUtilsInfo poolUtilsInfo = IAjnaPoolUtilsInfo(
+      registry.getRegisteredService(AJNA_POOL_UTILS_INFO)
+    );
 
     uint256 index = poolUtilsInfo.priceToIndex(args.price);
 
-    pool.repayDebt(address(this), args.repayAmount * pool.quoteTokenScale(), args.withdrawAmount * pool.collateralScale(), address(this), index);
+    pool.repayDebt(
+      address(this),
+      args.repayAmount * pool.quoteTokenScale(),
+      args.withdrawAmount * pool.collateralScale(),
+      address(this),
+      index
+    );
     store().write(bytes32(args.repayAmount));
     store().write(bytes32(args.withdrawAmount));
   }
 
-  function parseInputs(bytes memory _callData) public pure returns (RepayWithdrawData memory params) {
+  function parseInputs(
+    bytes memory _callData
+  ) public pure returns (RepayWithdrawData memory params) {
     return abi.decode(_callData, (RepayWithdrawData));
   }
 }
