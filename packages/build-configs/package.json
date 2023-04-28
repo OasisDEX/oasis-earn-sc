@@ -1,0 +1,16 @@
+{
+  "name": "@oasisdex/build-configs",
+  "version": "0.0.1",
+  "description": "Build configs holder.",
+  "author": "Marcin Ciarka <marcin@oazoapps.com>",
+  "homepage": "https://github.com/OasisDEX/oasis-earn-sc#readme",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.8.3"
+  },
+  "scripts": {
+    "build:addresses": "yarn --cwd ./addresses build:addresses",
+    "link:addresses": "yarn --cwd ./addresses link",
+    "unlink:addresses": "yarn --cwd ./addresses unlink"
+  }
+}

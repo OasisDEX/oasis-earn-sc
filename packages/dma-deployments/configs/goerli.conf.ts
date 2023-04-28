@@ -917,23 +917,23 @@ export const goerliConfig: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0xEa36b2a4703182d07df9DdEe46BF97f9979F0cCf',
+      address: '0x1F9F7732ff409FC0AbcAAea94634A7b41F445299',
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0xE27E4fAdE5d3A2Bf6D76D0a20d437314d9da6139',
+      address: '0xD28618E87b17B6f78a79edca8Fb0591E89453165',
     },
     AjnaPoolPairs_WBTCUSDC: {
       name: 'AjnaPoolPairs_WBTCUSDC',
-      address: '0x17e5a1A6450d4fB32fFFc329ca92db55293db10e',
+      address: '0xc2b64ca87090fe79786a8773009d7fb1288d3db1',
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
-      address: '0xe1200AEfd60559D494d4419E17419571eF8fC1Eb',
+      address: '0x3ae0ea990cb38487d7a698c68b7b520a3d57c018',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
-      address: '0xEd6890d748e62ddbb3f80e7256Deeb2fBb853476',
+      address: '0xaF9bc1F09fe561CbD00018fC352507fD23cD46E2',
     },
     AjnaRewardsClaimer: {
       name: 'AjnaRewardsClaimer',
