@@ -10,8 +10,8 @@
   },
   "scripts": {
     "build": "yarn build:addresses && yarn build:dma-library",
-    "build:dma-library": "yarn --cwd ./dma-library build:dma-library",
-    "build:addresses": "yarn --cwd ./addresses build:addresses",
+    "build:dma-library": "yarn --cwd ./dma-library build",
+    "build:addresses": "yarn --cwd ./addresses build",
     "link:all": "yarn link:dma-library && yarn link:addresses",
     "unlink:all": "yarn unlink:dma-library && yarn unlink:addresses",
     "link:dma-library": "yarn --cwd ./dma-library link",

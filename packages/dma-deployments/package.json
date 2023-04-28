@@ -6,7 +6,10 @@
   "main": "./addresses/index.ts",
   "types": "./addresses/index.ts",
   "scripts": {
-    "lint": "yarn tsc -p ./tsconfig.json --noEmit"
+    "build": "yarn tsc --build ./tsconfig.json && yarn lint:fix",
+    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.json",
+    "lint:fix": "yarn eslint . --fix --ext .ts",
+    "lint": "yarn tsc --build"
   },
   "dependencies": {
     "node-cache": "^5.1.2",

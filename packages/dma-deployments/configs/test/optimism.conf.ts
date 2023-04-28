@@ -1,4 +1,4 @@
-import { ADDRESS_ZERO, CONTRACT_NAMES } from '@dma-deployments/constants'
+import { ADDRESS_ZERO } from '@dma-deployments/constants'
 import { SystemConfig } from '@dma-deployments/types/deployment-config'
 
 export const config: SystemConfig = {

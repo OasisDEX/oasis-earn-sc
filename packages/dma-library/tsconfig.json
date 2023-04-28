@@ -1,23 +1,13 @@
 {
+  "extends": "../../tsconfig.options.json",
   "compilerOptions": {
-    "target": "es2019",
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "strict": true,
-    "baseUrl": ".",
-    "types": ["node"],
-    "forceConsistentCasingInFileNames": true,
-    "esModuleInterop": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "declaration": true,
-    "noImplicitAny": false,
-    "skipLibCheck": true,
-    "typeRoots": ["../../node_modules/@types"],
+    "outDir": "./lib",
+    "typeRoots": [
+      "../../node_modules/@types"
+    ],
     "paths": {
       "@abis/external/*": ["../abis/external/*"],
       "@abis/system/*": ["../abis/system/*"],
-      "@domain": ["../domain/src/index.ts"],
       "@typechain/*": ["../dma-contracts/typechain/*"],
       "@dma-library/strategies": ["./src/strategies/index.ts"],
       "@dma-library/types": ["./src/types/index.ts"],
@@ -30,9 +20,25 @@
       "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
       "@dma-deployments/*": ["../dma-deployments/*"],
       "@dma-deployments/addresses": ["../dma-deployments/addresses/index.ts"],
-      "@dma-deployments/operation-definitions": ["../dma-deployments/operation-definitions/index.ts"]
-    }
+      "@dma-deployments/operation-definitions": ["../dma-deployments/operation-definitions/index.ts"],
+      "@domain": ["../domain/src/index.ts"]
+    },
   },
-  "include": ["./src", "../domain/src", "../dma-deployments", "../dma-common", "../abis/**/*"],
-  "exclude": ["node_modules"]
+  "references": [
+    {
+      "path": "../abis"
+    },
+    {
+      "path": "../dma-common"
+    },
+    {
+      "path": "../dma-deployments"
+    },
+    {
+      "path": "../domain"
+    }
+  ],
+  "include": [
+    "./src"
+  ]
 }

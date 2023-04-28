@@ -1,6 +1,7 @@
+import type { Optional } from '@dma-common/types/optional'
 import { Address } from '@dma-deployments/types/address'
 
-export { Optional } from '@dma-common/types/optional'
+export { Optional }
 
 export type Tx = {
   to: Address

@@ -1,14 +1,6 @@
 {
+  "extends": "../../tsconfig.options.json",
   "compilerOptions": {
-    "target": "es2019",
-    "module": "commonjs",
-    "strict": true,
-    "declaration": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "Node",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "baseUrl": ".",
     "paths": {
       "@typechain/*": ["./typechain/*"],
       "@abis/*": ["../abis/*"],
@@ -35,13 +27,10 @@
     ]
   },
   "include": [
+    "./test",
+    "./tasks",
+    "./scripts",
     "./bootstrap-env.ts",
-    "./hardhat.config.ts",
-    "test/**/*.ts",
-    "tasks/**/*.ts",
-    "scripts/**/*.ts",
-    "../dma-common/**/*",
-    "../dma-deployments/**/*",
-    "../dma-library/**/*",
+    "./hardhat.config.ts"
   ],
 }

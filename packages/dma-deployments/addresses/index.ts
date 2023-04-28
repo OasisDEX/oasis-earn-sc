@@ -146,7 +146,7 @@ export const ADDRESSES: Addresses = {
     },
     aave: {
       v2: {
-        ...extractAddressesFromConfig(goerliConfig.aave.v2!),
+        ...extractAddressesFromConfig(goerliConfig.aave.v2),
       },
       v3: {
         ...extractAddressesFromConfig(goerliConfig.aave.v3),

@@ -14,9 +14,9 @@
     "lib"
   ],
   "scripts": {
-    "build:dma-library": "yarn clean && yarn build:dma-library:bundle",
+    "build": "yarn clean && yarn bundle",
     "clean": "rm -rf ./lib",
-    "build:dma-library:bundle": "npx parcel build ../../dma-library/src/index.ts --dist-dir ./lib --no-source-maps"
+    "bundle": "npx parcel build ../../dma-library/src/index.ts --dist-dir ./lib --no-source-maps"
   },
   "dependencies": {
     "bignumber.js": "^9.0.1",

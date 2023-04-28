@@ -4,8 +4,9 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "build": "yarn tsc --build",
     "lint:fix": "yarn eslint . --fix --ext .ts",
-    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc -p ./tsconfig.json --noEmit"
+    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build"
   },
   "exports": {
     "./constants": "./constants/index.ts",
@@ -26,6 +27,6 @@
     "/test-utils",
     "/utils",
     "/constants",
-    "tsconfig.json"
+    "tsconfig.old.json"
   ]
 }
