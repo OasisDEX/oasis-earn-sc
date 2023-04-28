@@ -1,6 +1,10 @@
 {
     "cSpell.words": [
         "Ajna",
+        "oasisdex",
         "Undercollateralized"
+    ],
+    "eslint.workingDirectories": [
+        { "mode": "auto" }
     ]
 }

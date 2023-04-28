@@ -33,7 +33,6 @@ contract AccountImplementation {
     require(status, "account-guard/call-failed");
   }
 
-  /* code do not compile with calldata */
   function execute(
     address _target,
     bytes memory _data

@@ -1,0 +1,25 @@
+{
+	"printWidth": 120,
+	"tabWidth": 2,
+	"semi": true,
+	"singleQuote": false,
+	"arrowParens": "avoid",
+	"proseWrap": "always",
+	"overrides": [
+		{
+			"files": "*.sol",
+
+			"options": {
+				"printWidth": 120,
+				"tabWidth": 4,
+				"compiler": "0.8.13",
+				"useTabs": false,
+				"singleQuote": false,
+				"bracketSpacing": true,
+				"explicitTypes": "always",
+				"plugins": ["prettier-plugin-solidity"]
+			}
+		},
+		{ "files": "*.json", "options": { "tabWidth": 2 } }
+	]
+}
