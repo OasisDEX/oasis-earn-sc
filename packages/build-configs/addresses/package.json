@@ -14,8 +14,8 @@
     "lib"
   ],
   "scripts": {
-    "build:addresses": "yarn clean && yarn build:addresses:bundle",
+    "build": "yarn clean && yarn bundle",
     "clean": "rm -rf ./lib",
-    "build:addresses:bundle": "npx parcel build ../../dma-deployments/addresses/index.ts --dist-dir ./lib"
+    "bundle": "npx parcel build ../../dma-deployments/addresses/index.ts --dist-dir ./lib"
   }
 }

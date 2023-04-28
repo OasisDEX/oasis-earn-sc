@@ -2,11 +2,13 @@
   "name": "@oasisdex/domain",
   "version": "1.0.0",
   "main": "src/index.ts",
-  "types": "src/index.ts",
+  "types": "lib/index.d.ts",
   "private": true,
   "license": "MIT",
   "scripts": {
-    "lint": "yarn tsc -p ./tsconfig.json --noEmit",
+    "build": "yarn tsc --build ./tsconfig.json && yarn lint:fix",
+    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
+    "lint:fix": "yarn eslint . --fix --ext .ts",
     "test": "yarn run test:unit",
     "test:unit": "npx hardhat test ./test/position.test.ts"
   },

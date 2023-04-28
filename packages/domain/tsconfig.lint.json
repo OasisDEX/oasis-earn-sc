@@ -2,10 +2,11 @@
   "extends": "../../tsconfig.options.json",
   "compilerOptions": {
     "outDir": "./lib",
-    "rootDir": "./src",
     "typeRoots": [
       "../../node_modules/@types"
     ],
+    "emitDeclarationOnly": false,
+    "noEmit": true,
     "paths": {
       "@abis/external/*": ["../abis/external/*"],
       "@abis/system/*": ["../abis/system/*"],
@@ -35,6 +36,8 @@
     }
   ],
   "include": [
-    "./src"
-  ],
+    "./src",
+    "./test",
+    "./hardhat.config.ts"
+  ]
 }

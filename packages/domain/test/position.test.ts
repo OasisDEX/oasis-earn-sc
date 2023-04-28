@@ -1,11 +1,11 @@
+import { ONE, ZERO } from '@dma-common/constants'
+import { expect } from '@dma-common/test-utils'
 import BigNumber from 'bignumber.js'
 
-import { ONE, ZERO } from '@dma-common/constants'
 import { Position } from '../src/position'
 import { RiskRatio } from '../src/risk-ratio'
 import { testDataSources } from './scenarios/generateTestData'
 import { fetchTestScenarios } from './utils'
-import { expect } from '@dma-common/test-utils'
 
 type Scenario = {
   name: string

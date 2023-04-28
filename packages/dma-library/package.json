@@ -5,8 +5,9 @@
   "types": "./src/index.ts",
   "private": true,
   "scripts": {
-    "lint:fix": "yarn eslint . --fix --ext .ts",
-    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc -p tsconfig.json --noEmit"
+    "build": "yarn tsc --build ./tsconfig.json && yarn lint:fix",
+    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
+    "lint:fix": "yarn eslint . --fix --ext .ts"
   },
   "license": "Apache-2.0",
   "dependencies": {

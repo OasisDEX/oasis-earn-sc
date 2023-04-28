@@ -1,18 +1,9 @@
 {
+  "extends": "../../tsconfig.options.json",
   "compilerOptions": {
-    "target": "es2019",
-    "module": "commonjs",
-    "strict": true,
-    "baseUrl": ".",
-    "types": [
-      "node"
+    "typeRoots": [
+      "../../node_modules/@types"
     ],
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "noImplicitAny": false,
     "paths": {
       "@abis/external/*": ["../abis/external/*"],
       "@abis/system/*": ["../abis/system/*"],
@@ -27,17 +18,20 @@
       "@dma-deployments/constants": ["../dma-deployments/constants/index.ts"],
       "@dma-deployments/operation-definitions": ["../dma-deployments/operation-definitions/index.ts"]
     },
-    "typeRoots": [
-      "../../node_modules/@types"
-    ]
   },
-  "include": [
-    "../addresses/src/**/*",
-    "./constants/**/*",
-    "./utils/**/*",
-    "./test-utils/**/*",
-    "./types",
-    "./hardhat.config.ts",
-    "../dma-deployments/**/*",
+  "references": [
+    {
+      "path": "../abis"
+    },
+    {
+      "path": "../dma-deployments"
+    }
   ],
+  "include": [
+    "./constants",
+    "./utils",
+    "./test-utils",
+    "./types",
+    "./hardhat.config.ts"
+  ]
 }

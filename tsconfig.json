@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.options.json",
+  "references": [
+    {
+      "path": "packages/abis"
+    },
+    {
+      "path": "packages/dma-common"
+    },
+    {
+      "path": "packages/dma-contracts"
+    },
+    {
+      "path": "packages/dma-deployments"
+    },
+    {
+      "path": "packages/dma-library"
+    },
+    {
+      "path": "packages/domain"
+    }
+  ]
+}
