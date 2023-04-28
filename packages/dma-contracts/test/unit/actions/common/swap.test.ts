@@ -5,18 +5,17 @@ import {
   asPercentageValue,
   DeployedSystemInfo,
   deploySystem,
-  expect,
-  FEE,
-} from '@dma-common/test-utils'
-import { RuntimeConfig } from '@dma-common/types/common'
-import { amountFromWei, amountToWei, balanceOf } from '@dma-common/utils/common'
-import {
-  calculateFee,
   exchangeFromDAI,
   exchangeToDAI,
+  expect,
+  FEE,
   swapOneInchTokens,
   swapUniswapTokens,
-} from '@dma-common/utils/swap'
+} from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
+import { balanceOf } from '@dma-common/utils/balances'
+import { amountFromWei, amountToWei } from '@dma-common/utils/common'
+import { calculateFee } from '@dma-common/utils/swap'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
 import { ADDRESSES } from '@dma-deployments/addresses'
 import { Network } from '@dma-deployments/types/network'

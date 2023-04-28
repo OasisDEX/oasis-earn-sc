@@ -1,23 +1,96 @@
-import type { Optional } from '@dma-common/types/optional'
+import { Tx } from '@dma-common/types'
 import { Address } from '@dma-deployments/types/address'
+import { ethers } from 'ethers'
 
-export { Optional }
-
-export type Tx = {
-  to: Address
-  data: string
-  value: string
-}
-
-export type Undercollateralized = {
-  name: 'undercollateralized'
+export type AjnaErrorWithdrawUndercollateralized = {
+  name: 'withdraw-undercollateralized'
   data: {
-    positionRatio: string
-    minRatio: string
+    amount: string
+  }
+}
+export type AjnaErrorBorrowUndercollateralized = {
+  name: 'borrow-undercollateralized'
+  data: {
+    amount: string
   }
 }
 
-export type AjnaError = Undercollateralized
+export type AjnaErrorDustLimit = {
+  name: 'debt-less-then-dust-limit'
+  data: {
+    minDebtAmount: string
+  }
+}
+
+export type AjnaErrorPriceAboveMomp = {
+  name: 'price-above-momp'
+}
+
+export type AjnaErrorWithdrawMoreThanAvailable = {
+  name: 'withdraw-more-than-available'
+  data: {
+    amount: string
+  }
+}
+
+export type AjnaErrorNotEnoughLiquidity = {
+  name: 'not-enough-liquidity'
+  data: {
+    amount: string
+  }
+}
+
+export type AjnaErrorAfterLupIndexBiggerThanHtpIndex = {
+  name: 'after-lup-index-bigger-than-htp-index'
+}
+
+export type AjnaErrorOverWithdraw = {
+  name: 'withdrawing-more-then-available'
+  data: {
+    amount: string
+  }
+}
+
+export type AjnaErrorOverRepay = {
+  name: 'payback-amount-exceeds-debt-token-balance'
+  data: {
+    amount: string
+  }
+}
+
+export type AjnaError =
+  | AjnaErrorWithdrawUndercollateralized
+  | AjnaErrorBorrowUndercollateralized
+  | AjnaErrorPriceAboveMomp
+  | AjnaErrorWithdrawMoreThanAvailable
+  | AjnaErrorAfterLupIndexBiggerThanHtpIndex
+  | AjnaErrorDustLimit
+  | AjnaErrorNotEnoughLiquidity
+  | AjnaErrorOverWithdraw
+  | AjnaErrorOverRepay
+
+export type AjnaWarningPriceBelowHtp = {
+  name: 'price-below-htp'
+}
+
+type AjnaWarningGenerateCloseToMaxLtv = {
+  name: 'generate-close-to-max-ltv'
+  data: {
+    amount: string
+  }
+}
+
+type AjnaWarningWithdrawCloseToMaxLtv = {
+  name: 'withdraw-close-to-max-ltv'
+  data: {
+    amount: string
+  }
+}
+
+export type AjnaWarning =
+  | AjnaWarningPriceBelowHtp
+  | AjnaWarningGenerateCloseToMaxLtv
+  | AjnaWarningWithdrawCloseToMaxLtv
 
 export type Strategy<Position> = {
   simulation: {
@@ -26,9 +99,19 @@ export type Strategy<Position> = {
     targetPosition: Position
     position: Position
     errors: AjnaError[]
+    warnings: AjnaWarning[]
   }
   tx: Tx
 }
+
+export interface AjnaDependencies {
+  poolInfoAddress: Address
+  ajnaProxyActions: Address
+  provider: ethers.providers.Provider
+  WETH: Address
+}
+
+export type AjnaEarnActions = 'open-earn' | 'deposit-earn' | 'withdraw-earn'
 
 export enum FlashloanProvider {
   DssFlash = 0,

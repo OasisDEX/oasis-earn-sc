@@ -3,14 +3,7 @@ import { AavePosition } from './aave'
 import { ActionCall } from './action-call'
 import { calldataTypes } from './actions'
 import { AjnaEarnPosition, AjnaPosition } from './ajna'
-import type {
-  AjnaError,
-  FlashloanProvider,
-  Optional,
-  Strategy,
-  Tx,
-  Undercollateralized,
-} from './common'
+import type { AjnaError, FlashloanProvider, Strategy } from './common'
 import type {
   IOperation,
   WithAaveV2StrategyAddresses,
@@ -57,7 +50,7 @@ import type {
 } from './strategy-params'
 import type { SwapData } from './swap-data'
 
-export type { AjnaError, FlashloanProvider, Optional, Strategy, Tx, Undercollateralized }
+export type { AjnaError, FlashloanProvider, Strategy }
 export { AjnaEarnPosition, AjnaPosition }
 
 export type { AAVETokens }

@@ -1,11 +1,18 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import { Address } from '@dma-deployments/types/address'
+import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { AjnaPosition } from '@dma-library/types/ajna'
 import { Strategy } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
-import * as ethers from 'ethers'
+import { ethers } from 'ethers'
 
 import { Dependencies } from './open'
+import {
+  validateDustLimit,
+  validateOverWithdraw,
+  validateWithdrawUndercollateralized,
+} from './validation'
+import { validateWithdrawCloseToMaxLtv } from './validation/closeToMaxLtv'
 
 interface PaybackWithdrawArgs {
   poolAddress: Address
@@ -30,7 +37,9 @@ export async function paybackWithdraw(
   const data = apa.interface.encodeFunctionData('repayWithdraw', [
     args.poolAddress,
     ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-    ethers.utils.parseUnits(args.collateralAmount.toString(), args.quoteTokenPrecision).toString(),
+    ethers.utils
+      .parseUnits(args.collateralAmount.toString(), args.collateralTokenPrecision)
+      .toString(),
   ])
 
   const targetPosition = args.position.payback(args.quoteAmount).withdraw(args.collateralAmount)
@@ -38,19 +47,21 @@ export async function paybackWithdraw(
   const isPayingBackEth =
     args.position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
-  return {
-    simulation: {
-      swaps: [],
-      targetPosition,
-      position: targetPosition,
-      errors: [],
-    },
-    tx: {
-      to: dependencies.ajnaProxyActions,
-      data,
-      value: isPayingBackEth
-        ? ethers.utils.parseEther(args.quoteAmount.toString()).toString()
-        : '0',
-    },
-  }
+  const errors = [
+    ...validateDustLimit(targetPosition),
+    ...validateWithdrawUndercollateralized(targetPosition, args.position),
+    ...validateOverWithdraw(args.position, args.collateralAmount),
+    // ...validateOverRepay(args.position, args.quoteAmount),
+  ]
+
+  const warnings = [...validateWithdrawCloseToMaxLtv(targetPosition, args.position)]
+
+  return prepareAjnaPayload({
+    dependencies,
+    targetPosition,
+    errors,
+    warnings,
+    data,
+    txValue: resolveAjnaEthAction(isPayingBackEth, args.quoteAmount),
+  })
 }

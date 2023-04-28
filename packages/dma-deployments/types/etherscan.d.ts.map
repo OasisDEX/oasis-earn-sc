@@ -1,0 +1,1 @@
+{"version":3,"file":"etherscan.d.ts","sourceRoot":"","sources":["etherscan.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,iBAAiB;IAChC,MAAM,EAAE;QACN,SAAS,EAAE,MAAM,CAAA;QACjB,YAAY,EAAE,MAAM,CAAA;QACpB,eAAe,EAAE,MAAM,CAAA;QACvB,YAAY,EAAE,MAAM,CAAA;QACpB,cAAc,EAAE,MAAM,CAAA;KACvB,CAAA;CACF"}

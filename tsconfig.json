@@ -5,6 +5,9 @@
       "path": "packages/abis"
     },
     {
+      "path": "packages/ajna-contracts"
+    },
+    {
       "path": "packages/dma-common"
     },
     {

@@ -1,6 +1,14 @@
 import { Address } from '@dma-deployments/types/address'
 import BigNumber from 'bignumber.js'
 
+export interface Bucket {
+  price: BigNumber
+  index: BigNumber
+  quoteTokens: BigNumber
+  collateral: BigNumber
+  bucketLPs: BigNumber
+}
+
 export interface AjnaPool {
   poolAddress: Address
   quoteToken: Address
@@ -27,5 +35,12 @@ export interface AjnaPool {
   poolTargetUtilization: BigNumber
 
   // annualized rate as a fraction 0.05 = 5%
-  rate: BigNumber
+  interestRate: BigNumber
+  debt: BigNumber
+  depositSize: BigNumber
+  apr30dAverage: BigNumber
+  dailyPercentageRate30dAverage: BigNumber
+  monthlyPercentageRate30dAverage: BigNumber
+  currentBurnEpoch: BigNumber
+  buckets: Bucket[]
 }

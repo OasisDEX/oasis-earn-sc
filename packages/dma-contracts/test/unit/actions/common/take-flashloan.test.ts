@@ -1,7 +1,11 @@
 import { OPERATION_NAMES, TEN } from '@dma-common/constants'
-import { DeployedSystemInfo, expect, restoreSnapshot } from '@dma-common/test-utils'
+import {
+  DeployedSystemInfo,
+  ensureWeiFormat,
+  expect,
+  restoreSnapshot,
+} from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
-import { ensureWeiFormat } from '@dma-common/utils/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'

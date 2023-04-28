@@ -1,5 +1,5 @@
+import { Optional } from '@dma-common/types/optional'
 import { Address } from '@dma-deployments/types/address'
-import { Optional } from '@dma-library/types/common'
 import { IPositionCategory, Position, PositionBalance } from '@domain'
 import BigNumber from 'bignumber.js'
 

@@ -1,10 +1,11 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '@abis/external/protocols/ajna/poolInfoUtils.json'
 import { Address } from '@dma-deployments/types/address'
+import { getAjnaEarnActionOutput, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { AjnaEarnPosition } from '@dma-library/types/ajna'
 import { Strategy } from '@dma-library/types/common'
 import { views } from '@dma-library/views'
-import { GetEarnData } from '@dma-library/views/ajna'
+import { GetEarnData, GetPoolData } from '@dma-library/views/ajna'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -15,22 +16,29 @@ interface Args {
   quoteTokenPrecision: number
   price: BigNumber
   isStakingNft: boolean
+  collateralPrice: BigNumber
+  quotePrice: BigNumber
 }
 
 export interface Dependencies {
   poolInfoAddress: Address
+  rewardsManagerAddress: Address
   ajnaProxyActions: Address
   provider: ethers.providers.Provider
   WETH: Address
   getEarnData: GetEarnData
+  getPoolData: GetPoolData
 }
 
 export async function open(
   args: Args,
   dependencies: Dependencies,
 ): Promise<Strategy<AjnaEarnPosition>> {
+  const action = 'open-earn'
   const position = await views.ajna.getEarnPosition(
     {
+      collateralPrice: args.collateralPrice,
+      quotePrice: args.quotePrice,
       proxyAddress: args.dpmProxyAddress,
       poolAddress: args.poolAddress,
     },
@@ -38,11 +46,12 @@ export async function open(
       getEarnData: dependencies.getEarnData,
       poolInfoAddress: dependencies.poolInfoAddress,
       provider: dependencies.provider,
+      getPoolData: dependencies.getPoolData,
+      rewardsManagerAddress: dependencies.rewardsManagerAddress,
     },
   )
 
-  const isDepositingEth =
-    position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
+  const isLendingEth = position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
   const ajnaProxyActions = new ethers.Contract(
     dependencies.ajnaProxyActions,
@@ -57,42 +66,40 @@ export async function open(
   )
 
   const priceIndex = await poolInfo
-    .priceToIndex(ethers.utils.parseUnits(args.price.toString(), 18).toString())
+    .priceToIndex(args.price.shiftedBy(18).toString())
     .then((res: any) => res.toString())
     .then((res: string) => new BigNumber(res))
 
-  const data = await ajnaProxyActions.interface.encodeFunctionData(
+  const data = ajnaProxyActions.interface.encodeFunctionData(
     args.isStakingNft ? 'openEarnPositionNft' : 'openEarnPosition',
     [
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-      ethers.utils.parseUnits(args.price.toString(), 3).toString(),
+      args.price.shiftedBy(18).toString(),
     ],
   )
 
-  return {
-    simulation: {
-      swaps: [],
-      errors: [],
-      targetPosition: new AjnaEarnPosition(
-        position.pool,
-        args.dpmProxyAddress,
-        args.quoteAmount,
-        priceIndex,
-      ),
-      position: new AjnaEarnPosition(
-        position.pool,
-        args.dpmProxyAddress,
-        args.quoteAmount,
-        priceIndex,
-      ),
+  const targetPosition = new AjnaEarnPosition(
+    position.pool,
+    args.dpmProxyAddress,
+    args.quoteAmount,
+    priceIndex,
+    position.nftId,
+    args.collateralPrice,
+    args.quotePrice,
+    position.rewards,
+  )
+
+  return getAjnaEarnActionOutput({
+    targetPosition,
+    data,
+    dependencies,
+    args: {
+      position: targetPosition,
+      collateralAmount: new BigNumber(0),
+      ...args,
     },
-    tx: {
-      to: dependencies.ajnaProxyActions,
-      data,
-      value: isDepositingEth
-        ? ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString()
-        : '0',
-    },
-  }
+    txValue: resolveAjnaEthAction(isLendingEth, args.quoteAmount),
+    action,
+  })
 }

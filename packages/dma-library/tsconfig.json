@@ -15,6 +15,7 @@
       "@dma-library/*": ["./src/*"],
       "@dma-common/constants": ["../dma-common/constants"],
       "@dma-common/utils/*": ["../dma-common/utils/*"],
+      "@dma-common/types": ["../dma-common/types/index.ts"],
       "@dma-common/types/*": ["../dma-common/types/*"],
       "@dma-common/test-utils": ["../dma-common/test-utils/index.ts"],
       "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
@@ -43,6 +44,7 @@
   ],
   "include": [
     "./src",
+    "./src/strategies/ajna/earn/buckets.json",
     "../abis/**/*",
     "../dma-common/**/*",
     "../dma-contracts/**/*",

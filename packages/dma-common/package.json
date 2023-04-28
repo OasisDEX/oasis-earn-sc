@@ -26,7 +26,6 @@
   "files": [
     "/test-utils",
     "/utils",
-    "/constants",
-    "tsconfig.old.json"
+    "/constants"
   ]
 }

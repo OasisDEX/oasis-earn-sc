@@ -10,7 +10,7 @@
     }
   },
   "files": [
-    "dist"
+    "lib"
   ],
   "scripts": {
     "build": "npx parcel build ./src/index.ts --dist-dir ./lib --no-source-maps",
@@ -24,9 +24,5 @@
   "dependencies": {
     "bignumber.js": "^9.0.1",
     "ethers": "5.7.2"
-  },
-  "devDependencies": {
-    "parcel": "2.8.3",
-    "typescript": ">=3.0.0"
   }
 }
