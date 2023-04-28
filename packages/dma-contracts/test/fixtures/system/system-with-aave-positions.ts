@@ -1,7 +1,6 @@
-import { createDPMAccount } from '@dma-common/test-utils'
+import { createDPMAccount, getOneInchCall, oneInchCallMock } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
-import { getOneInchCall, oneInchCallMock } from '@dma-common/utils/swap'
 import {
   buildGetTokenByImpersonateFunction,
   buildGetTokenFunction,
@@ -88,7 +87,7 @@ export const systemWithAavePositions =
         STETH: systemConfig.common.STETH.address,
         WBTC: systemConfig.common.WBTC.address,
         USDC: systemConfig.common.USDC.address,
-        chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkEthUsdPriceFeed.address,
+        chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkPriceOracle_ETHUSD.address,
         priceOracle: systemConfig.aave.v2.PriceOracle.address,
         lendingPool: systemConfig.aave.v2.LendingPool.address,
         protocolDataProvider: systemConfig.aave.v2.ProtocolDataProvider.address,

@@ -1,12 +1,12 @@
-import { createDPMAccount } from '@dma-common/test-utils'
-import { RuntimeConfig } from '@dma-common/types/common'
-import { getOrCreateProxy } from '@dma-common/utils/proxy'
 import {
+  createDPMAccount,
   getOneInchCall,
   oneInchCallMock,
   optimismLiquidityProviders,
   resolveOneInchVersion,
-} from '@dma-common/utils/swap'
+} from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
+import { getOrCreateProxy } from '@dma-common/utils/proxy'
 import {
   testBlockNumberForAaveOptimismV3,
   testBlockNumberForAaveV3,
@@ -61,7 +61,7 @@ export const systemWithAaveV3Positions =
   }) =>
   async (): Promise<SystemWithAAVEV3Positions> => {
     const ds = new DeploymentSystem(hre)
-    const config: RuntimeConfig = await ds.init(hre)
+    const config: RuntimeConfig = await ds.init()
     await ds.loadConfig(systemConfigPath)
     if (configExtensionPaths) {
       configExtensionPaths.forEach(async configPath => {
@@ -109,10 +109,10 @@ export const systemWithAaveV3Positions =
         WETH: systemConfig.common.WETH.address,
         WSTETH: systemConfig.common.WSTETH.address,
         WBTC: systemConfig.common.WBTC.address,
-        chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkEthUsdPriceFeed.address,
+        chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkPriceOracle_ETHUSD.address,
         aaveOracle: systemConfig.aave.v3.AaveOracle.address,
         pool: systemConfig.aave.v3.Pool.address,
-        poolDataProvider: systemConfig.aave.v3.AaveProtocolDataProvider.address,
+        poolDataProvider: systemConfig.aave.v3.AavePoolDataProvider.address,
         accountFactory: system.AccountFactory.contract.address,
         operationExecutor: system.OperationExecutor.contract.address,
       },

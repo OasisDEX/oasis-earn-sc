@@ -6,7 +6,7 @@ import { task } from 'hardhat/config'
 task('deploy', 'Deploy the system to a local node.').setAction(
   async (taskArgs: { configExtensionPath: string }, hre) => {
     const ds = new DeploymentSystem(hre)
-    await ds.init(hre)
+    await ds.init()
     const network = await getUnderlyingNetwork(hre.ethers.provider)
 
     /**

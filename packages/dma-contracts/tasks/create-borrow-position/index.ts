@@ -1,17 +1,15 @@
 import { CONTRACT_NAMES } from '@dma-common/constants'
-import { createDPMAccount } from '@dma-common/test-utils'
+import { createDPMAccount, getOneInchCall, oneInchCallMock } from '@dma-common/test-utils'
 import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
 import init from '@dma-common/utils/init'
 import { getAccountFactory } from '@dma-common/utils/proxy'
-import { getOneInchCall, oneInchCallMock } from '@dma-common/utils/swap'
 import { approve } from '@dma-common/utils/tx'
 import { StrategyDependenciesAaveV2 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
 import { AAVETokensToGet, buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
 import { ADDRESSES } from '@dma-deployments/addresses'
 import { Network } from '@dma-deployments/types/network'
-import { AAVETokens, AaveVersion, strategies } from '@dma-library'
-import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
+import { AAVETokens, AaveVersion, protocols, strategies } from '@dma-library'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -95,7 +93,7 @@ task('createBorrowPosition', 'Create borrow position')
       STETH: ADDRESSES[Network.MAINNET].common.STETH,
       WBTC: ADDRESSES[Network.MAINNET].common.WBTC,
       USDC: ADDRESSES[Network.MAINNET].common.USDC,
-      chainlinkEthUsdPriceFeed: ADDRESSES[Network.MAINNET].common.ChainlinkEthUsdPriceFeed,
+      chainlinkEthUsdPriceFeed: ADDRESSES[Network.MAINNET].common.ChainlinkPriceOracle_ETHUSD,
       priceOracle: ADDRESSES[Network.MAINNET].aave.v2.PriceOracle,
       lendingPool: ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
       operationExecutor: operationExecutorAddress,
@@ -133,7 +131,7 @@ task('createBorrowPosition', 'Create borrow position')
       protocol: {
         version: AaveVersion.v2,
         getCurrentPosition: strategies.aave.v2.view,
-        getProtocolData: getAaveProtocolData,
+        getProtocolData: protocols.aave.getAaveProtocolData,
       },
     }
 

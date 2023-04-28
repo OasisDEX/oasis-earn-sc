@@ -1,6 +1,11 @@
-import { addressesByNetwork, createDPMAccount, deploySystem } from '@dma-common/test-utils'
+import {
+  addressesByNetwork,
+  createDPMAccount,
+  deploySystem,
+  getOneInchCall,
+  oneInchCallMock,
+} from '@dma-common/test-utils'
 import init, { resetNode } from '@dma-common/utils/init'
-import { getOneInchCall, oneInchCallMock } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { buildGetTokenByImpersonateFunction } from '@dma-contracts/test/utils/aave'
 import { Network } from '@dma-deployments/types/network'

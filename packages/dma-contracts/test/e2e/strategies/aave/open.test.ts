@@ -1,4 +1,5 @@
-import { expect, isOptimismByNetwork, retrySetup } from '@dma-common/test-utils'
+import { expect, retrySetup } from '@dma-common/test-utils'
+import { isOptimismByNetwork } from '@dma-common/utils/common'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,

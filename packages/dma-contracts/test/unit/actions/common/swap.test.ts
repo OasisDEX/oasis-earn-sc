@@ -1,27 +1,27 @@
 import ERC20_ABI from '@abis/external/tokens/IERC20.json'
 import WETH_ABI from '@abis/external/tokens/IWETH.json'
-import { initialiseConfig } from '@dma-contracts/test/fixtures'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
-import { Contract } from '@ethersproject/contracts'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import { FEE_BASE, ONE } from '@oasisdex/dma-common/constants'
+import { FEE_BASE, ONE } from '@dma-common/constants'
 import {
   asPercentageValue,
   DeployedSystemInfo,
   deploySystem,
   expect,
   FEE,
-} from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { amountFromWei, amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
+} from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
+import { amountFromWei, amountToWei, balanceOf } from '@dma-common/utils/common'
 import {
   calculateFee,
   exchangeFromDAI,
   exchangeToDAI,
   swapOneInchTokens,
   swapUniswapTokens,
-} from '@oasisdex/dma-common/utils/swap'
+} from '@dma-common/utils/swap'
+import { initialiseConfig } from '@dma-contracts/test/fixtures'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
+import { Contract } from '@ethersproject/contracts'
+import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import { ethers } from 'hardhat'

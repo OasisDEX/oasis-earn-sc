@@ -1,5 +1,17 @@
 import aavePriceOracleABI from '@abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
+import { ONE, ZERO } from '@dma-common/constants'
+import {
+  addressesByNetwork,
+  expect,
+  GasEstimateHelper,
+  gasEstimateHelper,
+  oneInchCallMock,
+  restoreSnapshot,
+} from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
+import { balanceOf } from '@dma-common/utils/balances'
+import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { tokens } from '@dma-contracts/test/constants'
@@ -11,17 +23,6 @@ import { AAVETokens, strategies } from '@dma-library'
 import { Position, PositionBalance } from '@domain'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ONE, ZERO } from '@oasisdex/dma-common/constants'
-import {
-  addressesByNetwork,
-  expect,
-  GasEstimateHelper,
-  gasEstimateHelper,
-  restoreSnapshot,
-} from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { amountFromWei, amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
-import { oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { ethers, Signer } from 'ethers'

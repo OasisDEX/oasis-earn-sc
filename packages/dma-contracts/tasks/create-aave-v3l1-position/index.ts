@@ -1,8 +1,7 @@
 import { CONTRACT_NAMES } from '@dma-common/constants'
-import { createDPMAccount } from '@dma-common/test-utils'
+import { createDPMAccount, getOneInchCall, oneInchCallMock } from '@dma-common/test-utils'
 import init from '@dma-common/utils/init'
 import { getAccountFactory } from '@dma-common/utils/proxy'
-import { getOneInchCall, oneInchCallMock } from '@dma-common/utils/swap'
 import { wstethEthEarnAavePosition } from '@dma-contracts/test/fixtures/factories/wsteth-eth-earn-aave-position'
 import { StrategyDependenciesAaveV3 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
 import { ADDRESSES } from '@dma-deployments/addresses'
@@ -71,11 +70,11 @@ task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
       WSTETH: ADDRESSES[Network.MAINNET].common.WSTETH,
       WBTC: ADDRESSES[Network.MAINNET].common.WBTC,
       USDC: ADDRESSES[Network.MAINNET].common.USDC,
-      chainlinkEthUsdPriceFeed: ADDRESSES[Network.MAINNET].common.ChainlinkEthUsdPriceFeed,
+      chainlinkEthUsdPriceFeed: ADDRESSES[Network.MAINNET].common.ChainlinkPriceOracle_ETHUSD,
       aaveOracle: ADDRESSES[Network.MAINNET].aave.v3.AaveOracle,
       pool: ADDRESSES[Network.MAINNET].aave.v3.Pool,
       operationExecutor: operationExecutorAddress,
-      poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.AaveProtocolDataProvider,
+      poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.AavePoolDataProvider,
       accountFactory: accountFactoryAddress,
     }
 
