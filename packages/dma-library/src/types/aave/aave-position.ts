@@ -1,4 +1,4 @@
-import { Optional } from '@dma-library/types/common'
+import { Optional } from '@dma-common/types/optional'
 import { Address } from '@oasisdex/dma-deployments/types/address'
 import { IPositionCategory, Position, PositionBalance } from '@oasisdex/domain/src'
 import BigNumber from 'bignumber.js'
