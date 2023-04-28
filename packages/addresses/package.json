@@ -14,8 +14,10 @@
     "lib"
   ],
   "scripts": {
-    "build": "yarn clean && yarn bundle",
-    "clean": "rm -rf ./lib",
-    "bundle": "npx parcel build ../../dma-deployments/addresses/index.ts --dist-dir ./lib"
+    "build": "yarn clean && npx parcel build ../dma-deployments/addresses/index.ts --dist-dir ./lib",
+    "clean": "rm -rf lib"
+  },
+  "devDependencies": {
+    "parcel": "2.8.3"
   }
 }

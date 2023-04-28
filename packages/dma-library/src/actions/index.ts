@@ -1,4 +1,14 @@
-import { v2, v3 } from './aave'
+import {
+  aaveBorrow,
+  aaveDeposit,
+  aavePayback,
+  aaveV3Borrow,
+  aaveV3Deposit,
+  aaveV3Payback,
+  aaveV3SetEMode,
+  aaveV3Withdraw,
+  aaveWithdraw,
+} from './aave'
 import {
   positionCreated,
   pullToken,
@@ -11,6 +21,22 @@ import {
   wrapEth,
 } from './common'
 import { openVault } from './maker'
+
+const aave = {
+  v2: {
+    aaveBorrow,
+    aaveDeposit,
+    aavePayback,
+    aaveWithdraw,
+  },
+  v3: {
+    aaveV3Borrow,
+    aaveV3Deposit,
+    aaveV3Payback,
+    aaveV3Withdraw,
+    aaveV3SetEMode,
+  },
+}
 
 const common = {
   pullToken,
@@ -26,11 +52,6 @@ const common = {
 
 const maker = {
   openVault,
-}
-
-const aave = {
-  v2,
-  v3,
 }
 
 const actions = { aave, common, maker }

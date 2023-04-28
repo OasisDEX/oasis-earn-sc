@@ -1,9 +1,9 @@
 {
-  "name": "@oasisdex/dma-library-internal",
+  "name": "@oasisdex/dma-library",
   "version": "0.2.16",
-  "typings": "dist/index.d.ts",
-  "types": "dist/index.d.ts",
-  "main": "dist/index.js",
+  "typings": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
+  "main": "lib/index.js",
   "targets": {
     "main": {
       "optimize": true
@@ -13,9 +13,12 @@
     "dist"
   ],
   "scripts": {
-    "bundle": "npx parcel build ./src/index.ts --dist-dir ./dist --no-source-maps",
+    "build": "npx parcel build ./src/index.ts --dist-dir ./lib --no-source-maps",
+    "clean": "rm -rf lib",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
-    "lint:fix": "yarn eslint . --fix --ext .ts"
+    "lint:fix": "yarn eslint . --fix --ext .ts",
+    "linked": "yarn link",
+    "unlinked": "yarn unlink"
   },
   "license": "Apache-2.0",
   "dependencies": {
@@ -23,8 +26,6 @@
     "ethers": "5.7.2"
   },
   "devDependencies": {
-    "@parcel/transformer-typescript-tsc": "^2.8.3",
-    "@parcel/validator-typescript": "^2.8.3",
     "parcel": "2.8.3",
     "typescript": ">=3.0.0"
   }

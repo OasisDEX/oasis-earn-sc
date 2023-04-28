@@ -1,17 +1,18 @@
 import { CONTRACT_NAMES } from '@dma-deployments/constants'
 import { getActionHash } from '@dma-deployments/utils/action-hash'
 import { ActionFactory } from '@dma-library/actions/action-factory'
-import { calldataTypes } from '@dma-library/types'
+import { ActionCall, calldataTypes } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 const createAction = ActionFactory.create
 
+// Import ActionCall as it assists type generation
 export function aaveV3Deposit(
   args: { asset: string; amount: BigNumber | 0; sumAmounts: boolean; setAsCollateral?: boolean },
   paramsMapping: [asset: number, amount: number, sumAmounts: number, setAsCollateral: number] = [
     0, 0, 0, 0,
   ],
-) {
+): ActionCall {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.v3.DEPOSIT),
     [calldataTypes.aaveV3.Deposit],
@@ -27,7 +28,8 @@ export function aaveV3Deposit(
   )
 }
 
-export function aaveV3Borrow(args: { amount: BigNumber; asset: string; to: string }) {
+// Import ActionCall as it assists type generation
+export function aaveV3Borrow(args: { amount: BigNumber; asset: string; to: string }): ActionCall {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.v3.BORROW),
     [calldataTypes.aaveV3.Borrow],
@@ -41,7 +43,8 @@ export function aaveV3Borrow(args: { amount: BigNumber; asset: string; to: strin
   )
 }
 
-export function aaveV3Withdraw(args: { amount: BigNumber; asset: string; to: string }) {
+// Import ActionCall as it assists type generation
+export function aaveV3Withdraw(args: { amount: BigNumber; asset: string; to: string }): ActionCall {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.v3.WITHDRAW),
     [calldataTypes.aaveV3.Withdraw],
@@ -55,10 +58,11 @@ export function aaveV3Withdraw(args: { amount: BigNumber; asset: string; to: str
   )
 }
 
+// Import ActionCall as it assists type generation
 export function aaveV3Payback(
   args: { asset: string; amount: BigNumber; paybackAll: boolean },
   paramsMapping: [asset: number, amount: number, paybackAll: number] = [0, 0, 0],
-) {
+): ActionCall {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.v3.PAYBACK),
     [calldataTypes.aaveV3.Payback],
@@ -73,7 +77,8 @@ export function aaveV3Payback(
   )
 }
 
-export function aaveV3SetEMode(args: { categoryId: number }) {
+// Import ActionCall as it assists type generation
+export function aaveV3SetEMode(args: { categoryId: number }): ActionCall {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.v3.SET_EMODE),
     [calldataTypes.aaveV3.SetEMode],

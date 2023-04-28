@@ -1,7 +1,7 @@
 import { CONTRACT_NAMES } from '@dma-deployments/constants'
 import { getActionHash } from '@dma-deployments/utils/action-hash'
 import { ActionFactory } from '@dma-library/actions/action-factory'
-import { calldataTypes } from '@dma-library/types'
+import { ActionCall, calldataTypes } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 const createAction = ActionFactory.create
@@ -11,7 +11,8 @@ export function aaveDeposit(
   paramsMapping: [asset: number, amount: number, sumAmounts: number, setAsCollateral: number] = [
     0, 0, 0, 0,
   ],
-) {
+  // Import ActionCall as it assists type generation
+): ActionCall {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.v2.DEPOSIT),
     [calldataTypes.aave.Deposit],
@@ -27,7 +28,8 @@ export function aaveDeposit(
   )
 }
 
-export function aaveBorrow(args: { amount: BigNumber; asset: string; to: string }) {
+// Import ActionCall as it assists type generation
+export function aaveBorrow(args: { amount: BigNumber; asset: string; to: string }): ActionCall {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.v2.BORROW),
     [calldataTypes.aave.Borrow],
@@ -41,7 +43,8 @@ export function aaveBorrow(args: { amount: BigNumber; asset: string; to: string 
   )
 }
 
-export function aaveWithdraw(args: { amount: BigNumber; asset: string; to: string }) {
+// Import ActionCall as it assists type generation
+export function aaveWithdraw(args: { amount: BigNumber; asset: string; to: string }): ActionCall {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.v2.WITHDRAW),
     [calldataTypes.aave.Withdraw],
@@ -55,10 +58,11 @@ export function aaveWithdraw(args: { amount: BigNumber; asset: string; to: strin
   )
 }
 
+// Import ActionCall as it assists type generation
 export function aavePayback(
   args: { asset: string; amount: BigNumber; paybackAll: boolean },
   paramsMapping: [asset: number, amount: number, paybackAll: number] = [0, 0, 0],
-) {
+): ActionCall {
   return createAction(
     getActionHash(CONTRACT_NAMES.aave.v2.PAYBACK),
     [calldataTypes.aave.Payback],

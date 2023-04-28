@@ -1,3 +1,5 @@
+import { AavePosition, PositionTransition } from '@dma-library/types'
+
 import { getAaveProtocolData } from '../../protocols/aave/get-aave-protocol-data'
 import { adjust } from './adjust'
 import { AaveAdjustArgs, AaveV2AdjustDependencies, AaveV3AdjustDependencies } from './adjust/adjust'
@@ -20,7 +22,10 @@ export { AaveVersion } from './get-current-position'
 
 export const aave = {
   v2: {
-    open: (args: AaveOpenArgs, dependencies: Omit<AaveV2OpenDependencies, 'protocol'>) =>
+    open: (
+      args: AaveOpenArgs,
+      dependencies: Omit<AaveV2OpenDependencies, 'protocol'>,
+    ): Promise<PositionTransition> =>
       open(args, {
         ...dependencies,
         protocol: {
@@ -32,14 +37,20 @@ export const aave = {
     view: (
       args: AaveGetCurrentPositionArgs,
       dependencies: Omit<AaveV2GetCurrentPositionDependencies, 'protocolVersion'>,
-    ) =>
+    ): Promise<AavePosition> =>
       getCurrentPosition(args, {
         ...dependencies,
         protocolVersion: AaveVersion.v2,
       }),
-    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) =>
+    close: (
+      args: AaveCloseArgs,
+      dependencies: AaveCloseDependencies,
+    ): Promise<PositionTransition> =>
       close({ ...args, protocolVersion: AaveVersion.v2 }, dependencies),
-    adjust: (args: AaveAdjustArgs, dependencies: Omit<AaveV2AdjustDependencies, 'protocol'>) =>
+    adjust: (
+      args: AaveAdjustArgs,
+      dependencies: Omit<AaveV2AdjustDependencies, 'protocol'>,
+    ): Promise<PositionTransition> =>
       adjust(args, {
         ...dependencies,
         protocol: {

@@ -1,6 +1,6 @@
 import { OPERATION_NAMES } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import { PositionType, Protocol } from '@dma-library/types'
+import { ActionCall, PositionType, Protocol } from '@dma-library/types'
 
 import { borrow, BorrowArgs } from './borrow'
 import { deposit, DepositArgs } from './deposit'
@@ -29,5 +29,9 @@ export async function openDepositAndBorrow(
   return {
     calls: [...depositCalls, ...borrowCalls, positionCreatedEvent],
     operationName: OPERATION_NAMES.aave.v2.OPEN_DEPOSIT_BORROW,
+  } as {
+    // Import ActionCall as it assists type generation
+    calls: ActionCall[]
+    operationName: typeof OPERATION_NAMES.aave.v2.OPEN_DEPOSIT_BORROW
   }
 }

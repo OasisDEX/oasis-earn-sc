@@ -6,4 +6,4 @@ import { open } from './open'
 
 export type { AAVEV3StrategyAddresses }
 
-export const v3 = { adjustRiskDown, adjustRiskUp, close, open }
+export { adjustRiskDown, adjustRiskUp, close, open }
