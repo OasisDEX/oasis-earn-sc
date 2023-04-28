@@ -9,14 +9,14 @@ import {
   WEEK,
   withdrawCollateralAndRepayQuote,
   YEAR,
-} from "@oasisdex/ajna-contracts/scripts";
+} from "@ajna-contracts/scripts";
 import {
   AccountFactory,
   ERC20Pool,
   IAccountImplementation,
   Token,
   WETH,
-} from "@oasisdex/ajna-contracts/scripts/typechain-types";
+} from "@ajna-contracts/scripts/typechain-types";
 import { BigNumber, Signer } from "ethers";
 import hre, { ethers } from "hardhat";
 // @ts-ignore

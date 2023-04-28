@@ -1,18 +1,23 @@
+import CDPManagerABI from '@abis/external/protocols/maker/dss-cdp-manager.json'
+import ERC20ABI from '@abis/external/tokens/IERC20.json'
+import { CONTRACT_NAMES, OPERATION_NAMES } from '@dma-common/constants'
+import {
+  DeployedSystemInfo,
+  ensureWeiFormat,
+  expect,
+  restoreSnapshot,
+} from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
+import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
+import { getLastVault, getOraclePrice, getVaultInfo } from '@dma-common/utils/maker'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
+import { ServiceRegistry } from '@dma-deployments/utils/wrappers'
+import { ActionCall, ActionFactory, calldataTypes } from '@dma-library'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import CDPManagerABI from '@oasisdex/abis/external/protocols/maker/dss-cdp-manager.json'
-import ERC20ABI from '@oasisdex/abis/external/tokens/IERC20.json'
-import { ADDRESSES } from '@oasisdex/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
-import { DeployedSystemInfo, expect, restoreSnapshot } from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { amountToWei, ensureWeiFormat } from '@oasisdex/dma-common/utils/common'
-import { getLastVault, getOraclePrice, getVaultInfo } from '@oasisdex/dma-common/utils/maker'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
-import { ActionCall, ActionFactory, calldataTypes } from '@oasisdex/dma-library/src'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { ethers, Signer } from 'ethers'
@@ -86,7 +91,7 @@ describe.skip(`Operations | Maker | Automation Integration | E2E`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.joins.MCD_JOIN_ETH_A,
         },
         [0],
       ],
@@ -110,7 +115,7 @@ describe.skip(`Operations | Maker | Automation Integration | E2E`, async () => {
       [calldataTypes.maker.Deposit, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.JoinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.joins.MCD_JOIN_ETH_A,
           vaultId: 0,
           amount: ensureWeiFormat(initialColl),
         },
@@ -232,7 +237,7 @@ describe.skip(`Operations | Maker | Automation Integration | E2E`, async () => {
     expect.toBeEqual(info.debt.toFixed(0), autoTestAmount.toFixed(0))
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.CdpManager,
+      ADDRESSES[Network.MAINNET].maker.common.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)

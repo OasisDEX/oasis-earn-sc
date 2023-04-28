@@ -25,6 +25,7 @@ import {
   WETH,
 } from "../../typechain-types";
 import { HardhatUtils } from "./hardhat.utils";
+
 const utils = new HardhatUtils(hre);
 
 export async function deployLibraries() {
@@ -191,7 +192,7 @@ export async function deploy() {
   const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address);
   const {
     poolCommons,
-    actionsInstance,
+    /*actionsInstance,*/
     borrowerActionsInstance,
     positionNFTSVGInstance,
     kickerActionsInstance,

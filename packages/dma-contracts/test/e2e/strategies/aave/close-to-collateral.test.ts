@@ -1,23 +1,24 @@
 import assert from 'node:assert'
 
+import { ZERO } from '@dma-common/constants'
+import {
+  expect,
+  getOneInchCall,
+  optimismLiquidityProviders,
+  resolveOneInchVersion,
+} from '@dma-common/test-utils'
+import { balanceOf } from '@dma-common/utils/balances'
+import { amountFromWei, isMainnetByNetwork, isOptimismByNetwork } from '@dma-common/utils/common'
+import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { SystemWithAavePositions, systemWithAavePositions } from '@dma-contracts/test/fixtures'
 import {
   getSupportedAaveV3Strategies,
   systemWithAaveV3Positions,
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
-import { ZERO } from '@oasisdex/dma-common/constants'
-import { expect, isMainnetByNetwork, isOptimismByNetwork } from '@oasisdex/dma-common/test-utils'
-import { amountFromWei, balanceOf } from '@oasisdex/dma-common/utils/common'
-import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import {
-  getOneInchCall,
-  optimismLiquidityProviders,
-  resolveOneInchVersion,
-} from '@oasisdex/dma-common/utils/swap'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { ChainIdByNetwork } from '@oasisdex/dma-deployments/utils/network'
-import { strategies } from '@oasisdex/dma-library'
+import { Network } from '@dma-deployments/types/network'
+import { ChainIdByNetwork } from '@dma-deployments/utils/network'
+import { strategies } from '@dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 

@@ -1,7 +1,7 @@
-import { Address } from '@oasisdex/dma-deployments/types/address'
-import { IPositionCategory, Position, PositionBalance } from '@oasisdex/domain/src'
+import { Optional } from '@dma-common/types/optional'
+import { Address } from '@dma-deployments/types/address'
+import { IPositionCategory, Position, PositionBalance } from '@domain'
 import BigNumber from 'bignumber.js'
-import { Optional } from 'utility-types'
 
 import { AAVETokens } from './tokens'
 

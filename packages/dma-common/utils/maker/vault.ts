@@ -1,7 +1,7 @@
+import GetCDPsABI from '@abis/external/protocols/maker/get-cdps.json'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import GetCDPsABI from '@oasisdex/abis/external/protocols/maker/get-cdps.json'
-import { ADDRESSES } from '@oasisdex/addresses'
-import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { BigNumber as EthersBN, BigNumberish, Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
@@ -15,13 +15,13 @@ export async function getLastVault(
   proxyAddress: string,
 ): Promise<CDPInfo> {
   const getCdps = new ethers.Contract(
-    ADDRESSES[Network.MAINNET].maker.GetCdps,
+    ADDRESSES[Network.MAINNET].maker.common.GetCdps,
     GetCDPsABI,
     provider,
   ).connect(signer)
 
   const { ids, urns, ilks } = await getCdps.getCdpsAsc(
-    ADDRESSES[Network.MAINNET].maker.CdpManager,
+    ADDRESSES[Network.MAINNET].maker.common.CdpManager,
     proxyAddress,
   )
 

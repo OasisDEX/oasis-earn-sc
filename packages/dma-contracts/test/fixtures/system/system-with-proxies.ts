@@ -1,10 +1,15 @@
+import {
+  addressesByNetwork,
+  createDPMAccount,
+  deploySystem,
+  getOneInchCall,
+  oneInchCallMock,
+} from '@dma-common/test-utils'
+import init, { resetNode } from '@dma-common/utils/init'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { buildGetTokenByImpersonateFunction } from '@dma-contracts/test/utils/aave'
-import { addressesByNetwork, createDPMAccount, deploySystem } from '@oasisdex/dma-common/test-utils'
-import init, { resetNode } from '@oasisdex/dma-common/utils/init'
-import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
+import { Network } from '@dma-deployments/types/network'
+import { AaveVersion, protocols, strategies } from '@dma-library'
 
 import { StrategiesDependencies, SystemWithProxies } from '../types'
 

@@ -1,6 +1,3 @@
-import {
-  AaveOpenArgs,
-  AaveOpenDependencies,
-} from '@oasisdex/dma-library/src/strategies/aave/open/open'
+import { AaveOpenArgs, AaveOpenDependencies } from '@dma-library/strategies/aave/open/open'
 
 export type OpenPositionTypes = [AaveOpenArgs, AaveOpenDependencies]

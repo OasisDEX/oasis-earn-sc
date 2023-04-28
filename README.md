@@ -10,13 +10,19 @@ Copy and populate an `.env` file according to the .env.template file.
 yarn
 ```
 
-2. Build packages
+2. Clean packages
+
+```shell
+yarn clean
+```
+
+3. Build packages
 
 ```shell
 yarn build
 ```
 
-3. Compile contracts
+4. Compile contracts
 
 ```shell
 yarn compile

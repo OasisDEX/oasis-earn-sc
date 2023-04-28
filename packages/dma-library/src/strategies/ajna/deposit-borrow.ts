@@ -1,9 +1,9 @@
+import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import ajnaProxyActionsAbi from '@oasisdex/abis/external/protocols/ajna/ajnaProxyActions.json'
-import * as ethers from 'ethers'
+import { AjnaPosition } from '@dma-library/types/ajna'
+import { Strategy } from '@dma-library/types/common'
+import { ethers } from 'ethers'
 
-import { AjnaPosition } from '../../types/ajna'
-import { Strategy } from '../../types/common'
 import { Dependencies, OpenArgs } from './open'
 import {
   validateBorrowUndercollateralized,

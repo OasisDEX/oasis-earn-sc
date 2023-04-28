@@ -1,16 +1,16 @@
+import CDPManagerABI from '@abis/external/protocols/maker/dss-cdp-manager.json'
+import { CONTRACT_NAMES, OPERATION_NAMES } from '@dma-common/constants'
+import { DeployedSystemInfo, expect, restoreSnapshot } from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
+import { getLastVault } from '@dma-common/utils/maker'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
+import { ServiceRegistry } from '@dma-deployments/utils/wrappers'
+import { ActionFactory, calldataTypes } from '@dma-library'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import CDPManagerABI from '@oasisdex/abis/external/protocols/maker/dss-cdp-manager.json'
-import { ADDRESSES } from '@oasisdex/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
-import { DeployedSystemInfo, expect, restoreSnapshot } from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { getLastVault } from '@oasisdex/dma-common/utils/maker'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { ServiceRegistry } from '@oasisdex/dma-deployments/utils/wrappers'
-import { ActionFactory, calldataTypes } from '@oasisdex/dma-library'
 import { loadFixture } from 'ethereum-waffle'
 import { Signer } from 'ethers'
 import { ethers } from 'hardhat'
@@ -43,7 +43,7 @@ describe.skip(`Reentrancy guard test | Unit`, async () => {
       [calldataTypes.maker.Open, calldataTypes.paramsMap],
       [
         {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joinETH_A,
+          joinAddress: ADDRESSES[Network.MAINNET].maker.joins.MCD_JOIN_ETH_A,
         },
         [0],
       ],
@@ -52,8 +52,7 @@ describe.skip(`Reentrancy guard test | Unit`, async () => {
     // LOCK OperationStorage before operation execution
     await system.common.operationStorage.lock()
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [success, _] = await executeThroughProxy(
+    const [success] = await executeThroughProxy(
       system.common.userProxyAddress,
       {
         address: system.common.operationExecutor.address,
@@ -70,7 +69,7 @@ describe.skip(`Reentrancy guard test | Unit`, async () => {
     const vault = await getLastVault(provider, signer, system.common.userProxyAddress)
 
     const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.CdpManager,
+      ADDRESSES[Network.MAINNET].maker.common.CdpManager,
       CDPManagerABI,
       provider,
     ).connect(signer)

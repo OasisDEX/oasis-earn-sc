@@ -1,7 +1,7 @@
+import { deploySystem } from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
 import { AAVETokensToGet } from '@dma-contracts/test/utils/aave'
-import { deploySystem } from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { DeployedSystem, System } from '@oasisdex/dma-deployments/types/deployed-system'
+import { DeployedSystem, System } from '@dma-deployments/types/deployed-system'
 import BigNumber from 'bignumber.js'
 
 import { AavePositionStrategy, AaveV3PositionStrategy, PositionDetails } from './position-details'

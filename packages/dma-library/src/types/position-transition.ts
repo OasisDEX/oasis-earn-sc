@@ -1,5 +1,5 @@
-import { OperationNames } from '@oasisdex/dma-deployments/constants'
-import { IBaseSimulatedTransition, IRiskRatio, Swap } from '@oasisdex/domain/src'
+import { OperationNames } from '@dma-deployments/constants'
+import { IBaseSimulatedTransition, IRiskRatio, Swap } from '@domain'
 
 import { ActionCall } from './action-call'
 import { SwapData } from './swap-data'
