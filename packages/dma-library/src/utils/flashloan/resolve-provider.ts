@@ -1,4 +1,4 @@
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { Network } from '@dma-deployments/types/network'
 
 import { FlashloanProvider } from '../../types/common'
 

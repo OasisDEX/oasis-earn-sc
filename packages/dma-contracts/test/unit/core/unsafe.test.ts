@@ -1,14 +1,14 @@
+import { CONTRACT_NAMES, OPERATION_NAMES } from '@dma-common/constants'
+import { expect } from '@dma-common/test-utils'
+import { getAddressesFor, getServiceNameHash } from '@dma-common/utils/common'
 import { createDeploy } from '@dma-common/utils/deploy'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import init from '@dma-common/utils/init'
-import { ADDRESSES } from '@oasisdex/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '@oasisdex/dma-common/constants'
-import { expect } from '@oasisdex/dma-common/test-utils'
-import { getAddressesFor, getServiceNameHash } from '@oasisdex/dma-common/utils/common'
-import { getDsProxyRegistry, getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { takeAFlashLoan } from '@oasisdex/dma-library/src/actions/common'
-import { FlashloanProvider } from '@oasisdex/dma-library/src/types/common'
+import { getDsProxyRegistry, getOrCreateProxy } from '@dma-common/utils/proxy'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
+import { takeAFlashLoan } from '@dma-library/actions/common'
+import { FlashloanProvider } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
 import hre from 'hardhat'
 
@@ -52,7 +52,7 @@ describe('OperationExecutor', () => {
     const deploy = await createDeploy({ config }, hre)
     const addresses = getAddressesFor(Network.MAINNET)
     const proxyAddress = await getOrCreateProxy(
-      await getDsProxyRegistry(config.signer, ADDRESSES[Network.MAINNET].common.ProxyRegistry),
+      await getDsProxyRegistry(config.signer, ADDRESSES[Network.MAINNET].mpa.core.DSProxyRegistry),
       config.signer,
     )
     const [, suicideBombAddress] = await deploy('SuicideBomb', [])

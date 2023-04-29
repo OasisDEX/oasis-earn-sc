@@ -3,4 +3,4 @@ export * from './common'
 export * from './maker'
 //TODO: type conflict with one inch types
 // export * from './one-inch'
-export * from './tx'
+export { Tx } from './tx'

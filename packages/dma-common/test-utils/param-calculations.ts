@@ -1,6 +1,6 @@
 import { amountToWei, logDebug } from '@dma-common/utils/common'
-import { ADDRESSES } from '@oasisdex/addresses'
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
 import { ONE } from '../constants'

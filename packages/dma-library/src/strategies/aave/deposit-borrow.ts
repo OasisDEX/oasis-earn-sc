@@ -1,4 +1,6 @@
-import * as operations from '@dma-library/operations'
+import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { Address } from '@dma-deployments/types/address'
+import { operations } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
 import { BorrowArgs } from '@dma-library/operations/aave/v2/borrow'
 import { DepositArgs } from '@dma-library/operations/aave/v2/deposit'
@@ -6,9 +8,7 @@ import { IPositionTransitionDependencies, PositionTransition, SwapData } from '@
 import { AAVETokens } from '@dma-library/types/aave'
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { getZeroSwap } from '@dma-library/utils/swap/get-zero-swap'
-import { TYPICAL_PRECISION, ZERO } from '@oasisdex/dma-common/constants'
-import { Address } from '@oasisdex/dma-deployments/types/address'
-import { IPosition, RiskRatio } from '@oasisdex/domain'
+import { IPosition, RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 
 interface DepositBorrowArgs {

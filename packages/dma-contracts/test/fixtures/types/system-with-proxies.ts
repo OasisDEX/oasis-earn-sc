@@ -1,6 +1,6 @@
+import { deploySystem } from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
 import { AAVETokensToGet } from '@dma-contracts/test/utils/aave'
-import { deploySystem } from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
 import BigNumber from 'bignumber.js'
 
 import { StrategyDependenciesAaveV2 } from './strategies-dependencies'

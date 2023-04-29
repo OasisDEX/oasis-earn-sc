@@ -1,5 +1,5 @@
+import { HardhatUtils } from "@ajna-contracts/scripts";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { HardhatUtils } from "@oasisdex/ajna-contracts/scripts";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import hre, { ethers } from "hardhat";

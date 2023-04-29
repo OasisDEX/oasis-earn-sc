@@ -1,20 +1,20 @@
 // V2 ABIs
+import aaveV2PriceOracleABI from '@abis/external/protocols/aave/v2/priceOracle.json'
+import aaveV2ProtocolDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
+// V3 ABIs
+import aaveV3PriceOracleABI from '@abis/external/protocols/aave/v3/aaveOracle.json'
+import aaveV3ProtocolDataProviderABI from '@abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
+import aaveV3PoolABI from '@abis/external/protocols/aave/v3/pool.json'
+// V3 L2 ABIs
+import aaveV3PriceOracleOptimismABI from '@abis/external/protocols/aave/v3-l2/aaveOracle.json'
+import aaveV3ProtocolDataProviderOptimismABI from '@abis/external/protocols/aave/v3-l2/aaveProtocolDataProvider.json'
+import aaveV3PoolOptimismABI from '@abis/external/protocols/aave/v3-l2/pool.json'
+import { amountFromWei } from '@dma-common/utils/common'
+import { Network } from '@dma-deployments/types/network'
+import { getForkedNetwork as coalesceNetwork } from '@dma-deployments/utils/network'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { AaveVersion } from '@dma-library/strategies'
-import aaveV2PriceOracleABI from '@oasisdex/abis/external/protocols/aave/v2/priceOracle.json'
-import aaveV2ProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v2/protocolDataProvider.json'
-// V3 ABIs
-import aaveV3PriceOracleABI from '@oasisdex/abis/external/protocols/aave/v3/aaveOracle.json'
-import aaveV3ProtocolDataProviderABI from '@oasisdex/abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
-import aaveV3PoolABI from '@oasisdex/abis/external/protocols/aave/v3/pool.json'
-// V3 L2 ABIs
-import aaveV3PriceOracleOptimismABI from '@oasisdex/abis/external/protocols/aave/v3-l2/aaveOracle.json'
-import aaveV3ProtocolDataProviderOptimismABI from '@oasisdex/abis/external/protocols/aave/v3-l2/aaveProtocolDataProvider.json'
-import aaveV3PoolOptimismABI from '@oasisdex/abis/external/protocols/aave/v3-l2/pool.json'
-import { amountFromWei } from '@oasisdex/dma-common/utils/common'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { getForkedNetwork as coalesceNetwork } from '@oasisdex/dma-deployments/utils/network'
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 

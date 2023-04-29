@@ -1,11 +1,11 @@
+import { ONE, ZERO } from '@dma-common/constants'
+import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { Address } from '@dma-deployments/types/address'
 import { calculateMaxGenerate, simulatePool } from '@dma-library/protocols/ajna'
-import { ONE, ZERO } from '@oasisdex/dma-common/constants'
-import { negativeToZero, normalizeValue } from '@oasisdex/dma-common/utils/common'
-import { IRiskRatio, RiskRatio } from '@oasisdex/domain'
-import BigNumber from 'bignumber.js'
+import { AjnaWarning } from '@dma-library/types/common'
+import { IRiskRatio, RiskRatio } from '@domain'
+import { BigNumber } from 'bignumber.js'
 
-import { AjnaWarning } from '../common'
 import { AjnaPool } from './ajna-pool'
 
 export interface IAjnaPosition {
@@ -20,12 +20,11 @@ export interface IAjnaPosition {
   thresholdPrice: BigNumber
 
   collateralAvailable: BigNumber
-  debtAvailable(collateralAmount: BigNumber): BigNumber
-
   riskRatio: IRiskRatio
   maxRiskRatio: IRiskRatio
-
   warnings: AjnaWarning[]
+
+  debtAvailable(collateralAmount: BigNumber): BigNumber
 
   deposit(amount: BigNumber): IAjnaPosition
   withdraw(amount: BigNumber): IAjnaPosition
@@ -75,14 +74,6 @@ export class AjnaPosition implements IAjnaPosition {
     return negativeToZero(normalizeValue(collateralAvailable))
   }
 
-  debtAvailable(collateralAmount?: BigNumber) {
-    return calculateMaxGenerate(
-      this.pool,
-      this.debtAmount,
-      collateralAmount || this.collateralAmount,
-    )
-  }
-
   get riskRatio() {
     const loanToValue = this.thresholdPrice.div(this.marketPrice)
 
@@ -93,6 +84,14 @@ export class AjnaPosition implements IAjnaPosition {
     const loanToValue = this.pool.lowestUtilizedPrice.div(this.marketPrice)
 
     return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
+  }
+
+  debtAvailable(collateralAmount?: BigNumber) {
+    return calculateMaxGenerate(
+      this.pool,
+      this.debtAmount,
+      collateralAmount || this.collateralAmount,
+    )
   }
 
   deposit(collateralAmount: BigNumber) {

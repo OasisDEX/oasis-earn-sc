@@ -1,8 +1,8 @@
-import { ADDRESSES } from '@oasisdex/addresses'
-import { FIFTY, HUNDRED } from '@oasisdex/dma-common/constants'
-import { expect } from '@oasisdex/dma-common/test-utils'
-import { balanceOf } from '@oasisdex/dma-common/utils/common'
-import { Network } from '@oasisdex/dma-deployments/types/network'
+import { FIFTY, HUNDRED } from '@dma-common/constants'
+import { expect } from '@dma-common/test-utils'
+import { balanceOf } from '@dma-common/utils/common'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
 import { loadFixture } from 'ethereum-waffle'
 
 import { aDAI, BORROW_OPERATION, deployedContracts, DEPOSIT_OPERATION } from './l2-tests-helper'

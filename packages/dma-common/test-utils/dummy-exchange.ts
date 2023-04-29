@@ -1,16 +1,17 @@
+import WETHABI from '@abis/external/tokens/IWETH.json'
+import { ONE } from '@dma-common/constants'
+import { swapUniswapTokens } from '@dma-common/test-utils/uniswap'
+import { OneInchBaseResponse } from '@dma-common/types/common'
+import { balanceOf } from '@dma-common/utils/balances'
+import { amountFromWei, amountToWei } from '@dma-common/utils/common'
+import { send } from '@dma-common/utils/tx'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import WETHABI from '@oasisdex/abis/external/tokens/IWETH.json'
-import { ADDRESSES } from '@oasisdex/addresses'
-import { Network } from '@oasisdex/dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { Contract, ethers, Signer } from 'ethers'
 import fetch from 'node-fetch'
 import { curry } from 'ramda'
-
-import { ONE } from '../constants'
-import { OneInchBaseResponse } from '../types/common'
-import { amountFromWei, amountToWei, balanceOf, send } from '../utils/common'
-import { swapUniswapTokens } from '../utils/swap'
 
 export const FEE = 20
 export const FEE_BASE = 10000
@@ -135,13 +136,13 @@ export async function loadDummyExchangeFixtures(
     {
       name: 'WETH',
       address: ADDRESSES[Network.MAINNET].common.WETH,
-      pip: ADDRESSES[Network.MAINNET].maker.PipWETH,
+      pip: ADDRESSES[Network.MAINNET].maker.pips.PIP_ETH,
       precision: 18,
     },
     {
       name: 'stETH',
       address: ADDRESSES[Network.MAINNET].common.STETH,
-      pip: ADDRESSES[Network.MAINNET].maker.PipWETH,
+      pip: ADDRESSES[Network.MAINNET].maker.pips.PIP_WETH,
       precision: 18,
     },
     {
@@ -153,7 +154,7 @@ export async function loadDummyExchangeFixtures(
     {
       name: 'LINK',
       address: ADDRESSES[Network.MAINNET].common.LINK,
-      pip: ADDRESSES[Network.MAINNET].maker.PipLINK,
+      pip: ADDRESSES[Network.MAINNET].maker.pips.PIP_LINK,
       precision: 18,
     },
   ]

@@ -1,18 +1,17 @@
-import { addressesByNetwork } from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { amountToWei, approve, balanceOf } from '@oasisdex/dma-common/utils/common'
-import { executeThroughDPMProxy, executeThroughProxy } from '@oasisdex/dma-common/utils/execute'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { AaveVersion, strategies } from '@oasisdex/dma-library'
-import {
-  aaveV2UniqueContractName,
-  aaveV3UniqueContractName,
-} from '@oasisdex/dma-library/protocols/aave'
+import { addressesByNetwork } from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
+import { balanceOf } from '@dma-common/utils/balances'
+import { amountToWei } from '@dma-common/utils/common'
+import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
+import { approve } from '@dma-common/utils/tx'
+import { Network } from '@dma-deployments/types/network'
+import { AaveVersion, strategies } from '@dma-library'
+import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '@dma-library/protocols/aave'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
-} from '@oasisdex/dma-library/src/strategies/aave/open/open'
-import { RiskRatio } from '@oasisdex/domain'
+} from '@dma-library/strategies/aave/open/open'
+import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 
 import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'

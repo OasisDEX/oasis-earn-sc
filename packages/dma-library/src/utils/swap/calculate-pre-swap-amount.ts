@@ -1,5 +1,5 @@
-import { DEFAULT_FEE, ZERO } from '@oasisdex/dma-common/constants'
-import { calculateFee } from '@oasisdex/dma-common/utils/swap'
+import { DEFAULT_FEE, ZERO } from '@dma-common/constants'
+import { calculateFee } from '@dma-common/utils/swap'
 import BigNumber from 'bignumber.js'
 
 export function calculatePreSwapFeeAmount(

@@ -1,27 +1,26 @@
-import { initialiseConfig } from '@dma-contracts/test/fixtures'
-import { Contract } from '@ethersproject/contracts'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import ERC20_ABI from '@oasisdex/abis/external/tokens/IERC20.json'
-import WETH_ABI from '@oasisdex/abis/external/tokens/IWETH.json'
-import { ADDRESSES } from '@oasisdex/addresses'
-import { FEE_BASE, ONE } from '@oasisdex/dma-common/constants'
+import ERC20_ABI from '@abis/external/tokens/IERC20.json'
+import WETH_ABI from '@abis/external/tokens/IWETH.json'
+import { FEE_BASE, ONE } from '@dma-common/constants'
 import {
   asPercentageValue,
   DeployedSystemInfo,
   deploySystem,
-  expect,
-  FEE,
-} from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { amountFromWei, amountToWei, balanceOf } from '@oasisdex/dma-common/utils/common'
-import {
-  calculateFee,
   exchangeFromDAI,
   exchangeToDAI,
+  expect,
+  FEE,
   swapOneInchTokens,
   swapUniswapTokens,
-} from '@oasisdex/dma-common/utils/swap'
-import { Network } from '@oasisdex/dma-deployments/types/network'
+} from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
+import { balanceOf } from '@dma-common/utils/balances'
+import { amountFromWei, amountToWei } from '@dma-common/utils/common'
+import { calculateFee } from '@dma-common/utils/swap'
+import { initialiseConfig } from '@dma-contracts/test/fixtures'
+import { ADDRESSES } from '@dma-deployments/addresses'
+import { Network } from '@dma-deployments/types/network'
+import { Contract } from '@ethersproject/contracts'
+import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import { ethers } from 'hardhat'

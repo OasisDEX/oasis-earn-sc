@@ -1,5 +1,5 @@
+import { ONE } from '@dma-common/constants'
 import BigNumber from 'bignumber.js'
-import { ONE } from '@oasisdex/dma-common/constants'
 
 export interface IRiskRatio {
   loanToValue: BigNumber
