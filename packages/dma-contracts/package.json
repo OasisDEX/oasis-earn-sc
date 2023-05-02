@@ -11,7 +11,7 @@
     "compile": "npx hardhat compile",
     "clean": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx}\" && yarn lint:fix && prettier --write 'contracts/**/*.sol'",
-    "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx}\"",
+    "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx}\" && prettier --check 'contracts/**/*.sol'",
     "lint:fix": "yarn eslint . --fix --ext .ts",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
     "test": "yarn test:unit && yarn test:e2e",

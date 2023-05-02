@@ -45,4 +45,4 @@ jobs:
         run: yarn lint
 
       - name: Prettier
-        run: yarn format
+        run: yarn format:check
