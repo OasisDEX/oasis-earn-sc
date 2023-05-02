@@ -6,7 +6,8 @@
       "@dma-library": ["../dma-library/src/index.ts"],
       "@dma-library/*": ["../dma-library/src/*"],
       "utils/*": ["../dma-common/utils/*"],
-      "@ajna-contracts/scripts/*": ["../ajna-contracts/scripts/*"],
+      "@ajna-contracts/scripts": ["./scripts/index.ts"],
+      "@ajna-contracts/scripts/*": ["./scripts/*"],
       "@dma-deployments/addresses": ["../dma-deployments/addresses/index.ts"]
     },
     "typeRoots": [
