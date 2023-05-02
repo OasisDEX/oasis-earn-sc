@@ -22,6 +22,11 @@
     "format": "prettier --write contracts/**/*.sol test/**/*.ts scripts/**/*.ts",
     "format:check": "prettier --check contracts/**/*.sol test/**/*.ts"
   },
+  "dependencies": {
+    "decimal.js": "^10.4.3",
+    "evm-bn": "^1.1.2",
+    "mathjs": "^9.4.4"
+  },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",
     "@ethersproject/providers": "^5.4.7",
