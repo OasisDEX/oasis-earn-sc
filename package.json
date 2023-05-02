@@ -17,7 +17,7 @@
     "test:e2e": "lerna run test:e2e --stream",
     "test:unit": "lerna run test:unit --stream",
     "clean": "rm -rf .parcel-cache && lerna run clean --stream",
-    "compile": "lerna run compile --stream",
+    "compile": "npx ts-node symlink-contracts.ts && lerna run compile --stream",
     "build": "lerna run build --stream",
     "format": "lerna run format --stream",
     "lint": "lerna run lint --stream"
@@ -89,6 +89,7 @@
   "alias": {
     "@abis/external": "./packages/abis/external/",
     "@abis/system": "./packages/abis/system/",
+    "@ajna-contracts/scripts": "./packages/ajna-contracts/scripts",
     "@dma-common/constants": "./packages/dma-common/constants",
     "@dma-common/types/optional": "./packages/dma-common/types/optional",
     "@dma-common/utils": "./packages/dma-common/utils/",

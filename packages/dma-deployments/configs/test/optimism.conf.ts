@@ -6,14 +6,14 @@ export const config: SystemConfig = {
     core: {
       ServiceRegistry: {
         name: 'ServiceRegistry',
-        deploy: false,
+        deploy: true,
         address: '0x063E4242CD7C2421f67e21D7297c74bbDFEF7b0E',
         history: ['0xf22F17B1D2354B4F4F52e4d164e4eB5e1f0A6Ba6'],
         constructorArgs: [0],
       },
       OperationExecutor: {
         name: 'OperationExecutor',
-        deploy: false,
+        deploy: true,
         address: '0xFDFf46fF5752CE2A4CAbAAf5a2cFF3744E1D09de',
         serviceRegistryName: 'OperationExecutor_2',
         history: ['0x5AB3e51608cEa26090445CA89bc91628C8bB99f9'],
@@ -21,7 +21,7 @@ export const config: SystemConfig = {
       },
       OperationStorage: {
         name: 'OperationStorage',
-        deploy: false,
+        deploy: true,
         address: '0x6d3af85e27686FfF7686b2FAe174b0a7d8c95e16',
         serviceRegistryName: 'OperationStorage_2',
         history: ['0xd4FEaf1023CD6998053a1eb02460000980Cc908f'],
@@ -29,7 +29,7 @@ export const config: SystemConfig = {
       },
       OperationsRegistry: {
         name: 'OperationsRegistry',
-        deploy: false,
+        deploy: true,
         address: '0x3Dd262181BA245184a903CD8B77E23417f815669',
         serviceRegistryName: 'OperationsRegistry_2',
         history: ['0x392ACeBea829373A3eFDc0dA80a16003106d8f6E'],
@@ -37,7 +37,7 @@ export const config: SystemConfig = {
       },
       DSProxyFactory: {
         name: 'DSProxyFactory',
-        deploy: false,
+        deploy: true,
         address: '0x93dFeCd48491eCc6F6EC82B0fEE1Cba9eF9C941A',
         serviceRegistryName: 'DSProxyFactory',
         history: [],
@@ -45,7 +45,7 @@ export const config: SystemConfig = {
       },
       DSProxyRegistry: {
         name: 'DSProxyRegistry',
-        deploy: false,
+        deploy: true,
         address: '0x4EcDc277484D71A3BD15f36C858aEc2C56803869',
         serviceRegistryName: 'DSProxyRegistry',
         history: [],
@@ -53,7 +53,7 @@ export const config: SystemConfig = {
       },
       DSGuardFactory: {
         name: 'DSGuardFactory',
-        deploy: false,
+        deploy: true,
         address: '0x7bBe5f9C95E2994C420B3Af063e74e5F87b2A3B5',
         serviceRegistryName: 'DSGuardFactory',
         history: [],
@@ -61,7 +61,7 @@ export const config: SystemConfig = {
       },
       AccountGuard: {
         name: 'AccountGuard',
-        deploy: false,
+        deploy: true,
         address: '0x916411367fC2f0dc828790eA03CF317eC74E24E4',
         serviceRegistryName: 'AccountGuard',
         history: ['0x63059cC2533344B65372983D4B6258b2cbbBF0Da'],
@@ -69,7 +69,7 @@ export const config: SystemConfig = {
       },
       AccountFactory: {
         name: 'AccountFactory',
-        deploy: false,
+        deploy: true,
         address: '0xaaf64927BaFe68E389DE3627AA6b52D81bdA2323',
         serviceRegistryName: 'AccountFactory',
         history: ['0xE166a06809FD35Cece10df9Cace87BbDB9a48F66'],

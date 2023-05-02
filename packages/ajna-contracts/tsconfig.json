@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.options.json",
   "compilerOptions": {
     "paths": {
-      "@typechain/*": ["./typechain-types/*"],
+      "@ajna-contracts/typechain": ["./typechain-types/index.ts"],
+      "@ajna-contracts/typechain/*": ["./typechain-types/*"],
       "@dma-library": ["../dma-library/src/index.ts"],
       "@dma-library/*": ["../dma-library/src/*"],
       "utils/*": ["../dma-common/utils/*"],
@@ -14,5 +15,5 @@
       "../../node_modules/@types"
     ]
   },
-  "include": ["./bootstrap-env.ts", "./hardhat.config.ts", "test/**/*.ts", "tasks/**/*.ts", "scripts/**/*.ts"]
+  "include": ["./bootstrap-env.ts", "./hardhat.config.ts", "./test", "./tasks", "./scripts/**/*.ts"]
 }
