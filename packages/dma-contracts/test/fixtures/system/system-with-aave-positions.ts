@@ -5,6 +5,7 @@ import {
   buildGetTokenByImpersonateFunction,
   buildGetTokenFunction,
 } from '@dma-contracts/test/utils/aave'
+import { createPositionWithRetries } from '@dma-contracts/test/utils/aave/create-position-with-retries'
 import { DeploymentSystem } from '@dma-deployments/deployment/deploy'
 import { Network } from '@dma-deployments/types/network'
 import { AaveVersion, protocols, strategies } from '@dma-library'
@@ -136,55 +137,81 @@ export const systemWithAavePositions =
       throw new Error('Cant create a DPM proxy')
     }
 
-    const stEthEthEarnPosition = await stethEthEarnAavePosition({
-      proxy: dpmProxyForEarnStEthEth,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-      feeRecipient: systemConfig.common.FeeRecipient.address,
-    })
+    /*
+     * We need to advance blocks to make sure that the position is opened as expected
+     * Skipping ahead on blocks avoids an out by 1 error when determining balances
+     * Using the getNormalizedIncome method.
+     * See https://github.com/aave/protocol-v2/blob/ce53c4a8c8620125063168620eba0a8a92854eb8/contracts/protocol/libraries/logic/ReserveLogic.sol#LL57C1-L57C1
+     */
+    const stEthEthEarnPosition = await createPositionWithRetries(
+      hre.ethers,
+      stethEthEarnAavePosition,
+      {
+        proxy: dpmProxyForEarnStEthEth,
+        isDPM: true,
+        use1inch,
+        swapAddress,
+        dependencies,
+        config,
+        feeRecipient: systemConfig.common.FeeRecipient.address,
+      },
+    )
 
-    const ethUsdcMultiplyPosition = await ethUsdcMultiplyAavePosition({
-      proxy: dpmProxyForMultiplyEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-      feeRecipient: systemConfig.common.FeeRecipient.address,
-    })
+    const ethUsdcMultiplyPosition = await createPositionWithRetries(
+      hre.ethers,
+      ethUsdcMultiplyAavePosition,
+      {
+        proxy: dpmProxyForMultiplyEthUsdc,
+        isDPM: true,
+        use1inch,
+        swapAddress,
+        dependencies,
+        config,
+        feeRecipient: systemConfig.common.FeeRecipient.address,
+      },
+    )
 
-    const stethUsdcMultiplyPosition = await stethUsdcMultiplyAavePosition({
-      proxy: dpmProxyForMultiplyStEthUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-      getTokens,
-    })
+    const stethUsdcMultiplyPosition = await createPositionWithRetries(
+      hre.ethers,
+      await stethUsdcMultiplyAavePosition,
+      {
+        proxy: dpmProxyForMultiplyStEthUsdc,
+        isDPM: true,
+        use1inch,
+        swapAddress,
+        dependencies,
+        config,
+        getTokens,
+      },
+    )
 
-    const wbtcUsdcMultiplyPositon = await wbtcUsdcMultiplyAavePosition({
-      proxy: dpmProxyForMultiplyWbtcUsdc,
-      isDPM: true,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-      getTokens,
-    })
+    const wbtcUsdcMultiplyPosition = await createPositionWithRetries(
+      hre.ethers,
+      wbtcUsdcMultiplyAavePosition,
+      {
+        proxy: dpmProxyForMultiplyWbtcUsdc,
+        isDPM: true,
+        use1inch,
+        swapAddress,
+        dependencies,
+        config,
+        getTokens,
+      },
+    )
 
-    const dsProxyStEthEthEarnPosition = await stethEthEarnAavePosition({
-      proxy: dsProxy.address,
-      isDPM: false,
-      use1inch,
-      swapAddress,
-      dependencies,
-      config,
-      feeRecipient: systemConfig.common.FeeRecipient.address,
-    })
+    const dsProxyStEthEthEarnPosition = await createPositionWithRetries(
+      hre.ethers,
+      stethEthEarnAavePosition,
+      {
+        proxy: dsProxy.address,
+        isDPM: false,
+        use1inch,
+        swapAddress,
+        dependencies,
+        config,
+        feeRecipient: systemConfig.common.FeeRecipient.address,
+      },
+    )
 
     const dpmPositions = {
       ...(stEthEthEarnPosition ? { [stEthEthEarnPosition.strategy]: stEthEthEarnPosition } : {}),
@@ -194,8 +221,8 @@ export const systemWithAavePositions =
       ...(stethUsdcMultiplyPosition
         ? { [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition }
         : {}),
-      ...(wbtcUsdcMultiplyPositon
-        ? { [wbtcUsdcMultiplyPositon.strategy]: wbtcUsdcMultiplyPositon }
+      ...(wbtcUsdcMultiplyPosition
+        ? { [wbtcUsdcMultiplyPosition.strategy]: wbtcUsdcMultiplyPosition }
         : {}),
     }
 

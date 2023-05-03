@@ -2,7 +2,7 @@ import AAVELendingPoolABI from '@abis/external/protocols/aave/v2/lendingPool.jso
 import aavePriceOracleABI from '@abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
 import { ONE } from '@dma-common/constants'
-import { addressesByNetwork, expect, oneInchCallMock, retrySetup } from '@dma-common/test-utils'
+import { addressesByNetwork, expect, oneInchCallMock } from '@dma-common/test-utils'
 import { RuntimeConfig, Unbox } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, isOptimismByNetwork } from '@dma-common/utils/common'
@@ -216,12 +216,12 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
          * VM Exception while processing transaction: reverted with reason string '5'
          * That's why we use retrySetup to avoid flakiness
          */
-        const _fixture = await retrySetup(
+        const _fixture = await (
           systemWithAavePositions({
             use1inch: false,
             configExtensionPaths: [`test/uSwap.conf.ts`],
-          }),
-        )
+          })
+        )()
         if (!_fixture) throw new Error('Failed to load fixture')
         fixture = _fixture
       })
