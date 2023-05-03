@@ -2,10 +2,10 @@ import AAVELendingPoolABI from '@abis/external/protocols/aave/v2/lendingPool.jso
 import aavePriceOracleABI from '@abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
 import { ONE } from '@dma-common/constants'
-import { addressesByNetwork, expect, oneInchCallMock } from '@dma-common/test-utils'
+import { addressesByNetwork, expect, oneInchCallMock, retrySetup } from '@dma-common/test-utils'
 import { RuntimeConfig, Unbox } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
-import { amountFromWei } from '@dma-common/utils/common'
+import { amountFromWei, isOptimismByNetwork } from '@dma-common/utils/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import {
   getSupportedStrategies,
@@ -34,8 +34,7 @@ const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
-// TODO: update test
-describe.skip('Strategy | AAVE | Adjust Position | E2E', async function () {
+describe('Strategy | AAVE | Adjust Position | E2E', async function () {
   describe('Using AAVE V2', async function () {
     let fixture: SystemWithAavePositions
 
@@ -208,10 +207,25 @@ describe.skip('Strategy | AAVE | Adjust Position | E2E', async function () {
     }
 
     describe('Adjust Risk Up', async function () {
-      before(async () => {
-        fixture = await loadFixture(systemWithAavePositions({ use1inch: false }))
+      before(async function () {
+        if (isOptimismByNetwork(networkFork)) {
+          this.skip()
+        }
+        /*
+         * Intermittently fails when creating the position with the following error
+         * VM Exception while processing transaction: reverted with reason string '5'
+         * That's why we use retrySetup to avoid flakiness
+         */
+        const _fixture = await retrySetup(
+          systemWithAavePositions({
+            use1inch: false,
+            configExtensionPaths: [`test/uSwap.conf.ts`],
+          }),
+        )
+        if (!_fixture) throw new Error('Failed to load fixture')
+        fixture = _fixture
       })
-      describe('Using DSProxy', () => {
+      describe.only('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV2>>
 
         before(async () => {

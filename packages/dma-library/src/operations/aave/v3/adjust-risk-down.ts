@@ -1,5 +1,6 @@
-import { MAX_UINT, OPERATION_NAMES } from '@dma-common/constants'
+import { MAX_UINT } from '@dma-common/constants'
 import { ADDRESSES } from '@dma-deployments/addresses'
+import { aaveAdjustDownV3OperationDefinition } from '@dma-deployments/operation-definitions'
 import { Network } from '@dma-deployments/types/network'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
@@ -120,6 +121,6 @@ export async function adjustRiskDown({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: OPERATION_NAMES.aave.v3.ADJUST_RISK_DOWN,
+    operationName: aaveAdjustDownV3OperationDefinition.name,
   }
 }
