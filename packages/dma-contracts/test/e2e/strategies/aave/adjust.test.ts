@@ -2,11 +2,18 @@ import AAVELendingPoolABI from '@abis/external/protocols/aave/v2/lendingPool.jso
 import aavePriceOracleABI from '@abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
 import { ONE } from '@dma-common/constants'
-import { addressesByNetwork, expect, oneInchCallMock } from '@dma-common/test-utils'
+import {
+  addressesByNetwork,
+  advanceBlocks,
+  advanceTime,
+  expect,
+  oneInchCallMock,
+} from '@dma-common/test-utils'
 import { RuntimeConfig, Unbox } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, isOptimismByNetwork } from '@dma-common/utils/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
+import { BLOCKS_TO_ADVANCE, TIME_TO_ADVANCE } from '@dma-contracts/test/config'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,
@@ -29,13 +36,14 @@ import { IPosition, IRiskRatio, RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers } from 'ethers'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
 describe('Strategy | AAVE | Adjust Position | E2E', async function () {
-  describe('Using AAVE V2', async function () {
+  describe.only('Using AAVE V2', async function () {
     let fixture: SystemWithAavePositions
 
     const supportedStrategies = getSupportedStrategies()
@@ -53,6 +61,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       positionType,
       config,
       system,
+      hre,
     }: {
       isDPMProxy: boolean
       targetMultiple: IRiskRatio
@@ -66,7 +75,12 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       positionType: PositionType
       config: RuntimeConfig
       system: DeployedSystem
+      hre: HardhatRuntimeEnvironment
     }) {
+      // Advance blocks and time before retrying
+      await advanceBlocks(hre.ethers, BLOCKS_TO_ADVANCE)
+      await advanceTime(hre.ethers, TIME_TO_ADVANCE)
+
       const addresses = {
         ...mainnetAddresses,
         operationExecutor: system.OperationExecutor.contract.address,
@@ -206,22 +220,17 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       }
     }
 
-    describe.only('Adjust Risk Up', async function () {
+    describe('Adjust Risk Up: using uniswap', async function () {
       before(async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
         }
-        /*
-         * Intermittently fails when creating the position with the following error
-         * VM Exception while processing transaction: reverted with reason string '5'
-         * That's why we use retrySetup to avoid flakiness
-         */
-        const _fixture = await (
+        const _fixture = await loadFixture(
           systemWithAavePositions({
             use1inch: false,
             configExtensionPaths: [`test/uSwap.conf.ts`],
-          })
-        )()
+          }),
+        )
         if (!_fixture) throw new Error('Failed to load fixture')
         fixture = _fixture
       })
@@ -229,7 +238,12 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         let act: Unbox<ReturnType<typeof adjustPositionV2>>
 
         before(async () => {
-          const { config, system, dsProxyPosition: dsProxyStEthEthEarnPositionDetails } = fixture
+          const {
+            hre,
+            config,
+            system,
+            dsProxyPosition: dsProxyStEthEthEarnPositionDetails,
+          } = fixture
           const { debtToken, collateralToken, proxy } = dsProxyStEthEthEarnPositionDetails
 
           const position = await dsProxyStEthEthEarnPositionDetails.getPosition()
@@ -249,6 +263,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             userAddress: config.address,
             config,
             system,
+            hre,
           })
         })
         it('Adjust TX should pass', () => {
@@ -279,7 +294,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           let act: Unbox<ReturnType<typeof adjustPositionV2>>
 
           before(async function () {
-            const { system, config, dpmPositions } = fixture
+            const { hre, system, config, dpmPositions } = fixture
 
             const positionDetails = dpmPositions[strategy]
             if (!positionDetails) {
@@ -307,6 +322,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
               userAddress: config.address,
               config,
               system,
+              hre,
             })
           })
           it('Adjust TX should pass', () => {
@@ -334,15 +350,31 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         })
       })
     })
-    describe('Adjust Risk Down', async function () {
-      before(async () => {
-        fixture = await loadFixture(systemWithAavePositions({ use1inch: false }))
+    // No available liquidity on uniswap for some pairs when reducing risk so using 1inch
+    describe.only('Adjust Risk Down: using 1inch', async function () {
+      before(async function () {
+        if (isOptimismByNetwork(networkFork)) {
+          this.skip()
+        }
+        const _fixture = await loadFixture(
+          systemWithAavePositions({
+            use1inch: true,
+            configExtensionPaths: [`test/swap.conf.ts`],
+          }),
+        )
+        if (!_fixture) throw new Error('Failed to load fixture')
+        fixture = _fixture
       })
       describe('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV2>>
 
         before(async () => {
-          const { config, system, dsProxyPosition: dsProxyStEthEthEarnPositionDetails } = fixture
+          const {
+            hre,
+            config,
+            system,
+            dsProxyPosition: dsProxyStEthEthEarnPositionDetails,
+          } = fixture
           const { debtToken, collateralToken, proxy } = dsProxyStEthEthEarnPositionDetails
 
           const position = await dsProxyStEthEthEarnPositionDetails.getPosition()
@@ -355,13 +387,25 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             debtToken,
             proxy,
             slippage: UNISWAP_TEST_SLIPPAGE,
-            getSwapData: oneInchCallMock(ONE.div(dsProxyStEthEthEarnPositionDetails.__mockPrice), {
-              from: collateralToken.precision,
-              to: debtToken.precision,
-            }),
+            getSwapData: fixture.strategiesDependencies.getSwapData(
+              fixture.system.Swap.contract.address,
+            ),
+            // getSwapData: use1inch
+            //   ? swapAddress =>
+            //       getOneInchCall(
+            //         swapAddress,
+            //         // We remove Balancer to avoid re-entrancy errors when also using Balancer FL
+            //         network === Network.OPTIMISM
+            //           ? optimismLiquidityProviders.filter(l => l !== 'OPTIMISM_BALANCER_V2')
+            //           : [],
+            //         ChainIdByNetwork[network],
+            //         oneInchVersion,
+            //       )
+            //   : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
             userAddress: config.address,
             config,
             system,
+            hre,
           })
         })
         it('Adjust TX should pass', () => {
@@ -391,7 +435,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             let act: Unbox<ReturnType<typeof adjustPositionV2>>
 
             before(async function () {
-              const { system, config, dpmPositions } = fixture
+              const { hre, system, config, dpmPositions } = fixture
 
               const positionDetails = dpmPositions[strategy]
               if (!positionDetails) {
@@ -412,13 +456,17 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
                 debtToken,
                 proxy,
                 slippage,
-                getSwapData: oneInchCallMock(ONE.div(positionDetails.__mockPrice), {
-                  from: collateralToken.precision,
-                  to: debtToken.precision,
-                }),
+                getSwapData: fixture.strategiesDependencies.getSwapData(
+                  fixture.system.Swap.contract.address,
+                ),
+                // getSwapData: oneInchCallMock(ONE.div(positionDetails.__mockPrice), {
+                //   from: collateralToken.precision,
+                //   to: debtToken.precision,
+                // }),
                 userAddress: config.address,
                 config,
                 system,
+                hre,
               })
             })
             it('Adjust TX should pass', () => {
@@ -466,6 +514,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       positionType,
       config,
       system,
+      hre,
     }: {
       isDPMProxy: boolean
       targetMultiple: IRiskRatio
@@ -479,6 +528,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       positionType: PositionType
       config: RuntimeConfig
       system: DeployedSystem
+      hre: HardhatRuntimeEnvironment
     }) {
       const addresses = {
         ...mainnetAddresses,
@@ -565,6 +615,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         },
         signer,
         '0',
+        hre,
       )
 
       // Get data from AAVE
@@ -632,7 +683,12 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         let act: Unbox<ReturnType<typeof adjustPositionV3>>
 
         before(async () => {
-          const { config, system, dsProxyPosition: dsProxyStEthEthEarnPositionDetails } = fixture
+          const {
+            hre,
+            config,
+            system,
+            dsProxyPosition: dsProxyStEthEthEarnPositionDetails,
+          } = fixture
           const { debtToken, collateralToken, proxy } = dsProxyStEthEthEarnPositionDetails
 
           const position = await dsProxyStEthEthEarnPositionDetails.getPosition()
@@ -652,6 +708,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             userAddress: config.address,
             config,
             system,
+            hre,
           })
         })
         it('Adjust TX should pass', () => {
@@ -684,7 +741,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             let act: Unbox<ReturnType<typeof adjustPositionV3>>
 
             before(async function () {
-              const { system, config, dpmPositions } = fixture
+              const { hre, system, config, dpmPositions } = fixture
 
               const positionDetails = dpmPositions[strategy]
               if (!positionDetails) {
@@ -711,6 +768,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
                 userAddress: config.address,
                 config,
                 system,
+                hre,
               })
             })
             it('Adjust TX should pass', () => {
@@ -752,7 +810,12 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         let act: Unbox<ReturnType<typeof adjustPositionV3>>
 
         before(async () => {
-          const { config, system, dsProxyPosition: dsProxyStEthEthEarnPositionDetails } = fixture
+          const {
+            hre,
+            config,
+            system,
+            dsProxyPosition: dsProxyStEthEthEarnPositionDetails,
+          } = fixture
           const { debtToken, collateralToken, proxy } = dsProxyStEthEthEarnPositionDetails
 
           const position = await dsProxyStEthEthEarnPositionDetails.getPosition()
@@ -772,6 +835,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             userAddress: config.address,
             config,
             system,
+            hre,
           })
         })
 
@@ -805,7 +869,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             let act: Unbox<ReturnType<typeof adjustPositionV3>>
 
             before(async function () {
-              const { system, config, dpmPositions } = fixture
+              const { hre, system, config, dpmPositions } = fixture
 
               const positionDetails = dpmPositions[strategy]
               if (!positionDetails) {
@@ -833,6 +897,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
                 userAddress: config.address,
                 config,
                 system,
+                hre,
               })
             })
             it('Adjust TX should pass', () => {

@@ -1,10 +1,9 @@
 import { advanceBlocks, advanceTime } from '@dma-common/test-utils'
+import { BLOCKS_TO_ADVANCE, TIME_TO_ADVANCE } from '@dma-contracts/test/config'
 import { PositionDetails } from '@dma-contracts/test/fixtures'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const POSITION_RETRIES = 3
-const BLOCKS_TO_ADVANCE = 5
-const TIME_TO_ADVANCE = 60
 
 export async function createPositionWithRetries<A, P extends PositionDetails | null>(
   ethers: HardhatRuntimeEnvironment['ethers'],

@@ -228,6 +228,7 @@ export const systemWithAavePositions =
 
     return {
       config,
+      hre,
       system,
       dsSystem,
       registry,

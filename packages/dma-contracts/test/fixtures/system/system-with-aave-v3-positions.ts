@@ -196,6 +196,7 @@ export const systemWithAaveV3Positions =
 
     return {
       config,
+      hre,
       system,
       registry,
       dsSystem,
