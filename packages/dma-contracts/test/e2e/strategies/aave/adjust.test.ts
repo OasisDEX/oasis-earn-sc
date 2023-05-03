@@ -2,12 +2,11 @@ import AAVELendingPoolABI from '@abis/external/protocols/aave/v2/lendingPool.jso
 import aavePriceOracleABI from '@abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
 import { ONE } from '@dma-common/constants'
-import { addressesByNetwork, expect } from '@dma-common/test-utils'
+import { addressesByNetwork, expect, oneInchCallMock } from '@dma-common/test-utils'
 import { RuntimeConfig, Unbox } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei } from '@dma-common/utils/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
-import { oneInchCallMock } from '@dma-common/utils/swap'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,
