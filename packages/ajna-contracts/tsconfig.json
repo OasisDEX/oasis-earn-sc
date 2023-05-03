@@ -15,5 +15,16 @@
       "../../node_modules/@types"
     ]
   },
+  "references": [
+    {
+      "path": "../dma-common",
+    },
+    {
+      "path": "../dma-library",
+    },
+    {
+      "path": "../dma-deployments",
+    }
+  ],
   "include": ["./bootstrap-env.ts", "./hardhat.config.ts", "./test", "./tasks", "./scripts/**/*.ts"]
 }

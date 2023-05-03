@@ -28,9 +28,27 @@
       "../../node_modules/@types"
     ]
   },
+  "references": [
+    {
+      "path": "../abis",
+    },
+    {
+      "path": "../domain",
+    },
+    {
+      "path": "../dma-common",
+    },
+    {
+      "path": "../dma-library",
+    },
+    {
+      "path": "../dma-deployments",
+    },
+    {
+      "path": "../ajna-contracts",
+    }
+  ],
   "include": [
-    "../ajna-contracts/scripts",
-    "../dma-deployments",
     "./test",
     "./tasks",
     "./scripts",
