@@ -206,7 +206,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       }
     }
 
-    describe('Adjust Risk Up', async function () {
+    describe.only('Adjust Risk Up', async function () {
       before(async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
@@ -225,7 +225,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         if (!_fixture) throw new Error('Failed to load fixture')
         fixture = _fixture
       })
-      describe.only('Using DSProxy', () => {
+      describe('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV2>>
 
         before(async () => {
