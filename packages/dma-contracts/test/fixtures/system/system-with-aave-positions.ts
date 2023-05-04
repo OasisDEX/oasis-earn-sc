@@ -138,9 +138,9 @@ export const systemWithAavePositions =
     }
 
     /*
-     * We need to advance blocks to make sure that the position is opened as expected
-     * Skipping ahead on blocks avoids an out by 1 error when determining balances
-     * Using the getNormalizedIncome method.
+     * When block timestamps are close together in testing
+     * The timestamp difference between when the reserve liquidity index was last updated can be very small
+     * In turn this can lead to precision issues in the linear interest calculation that gives out by 1 errors
      * See https://github.com/aave/protocol-v2/blob/ce53c4a8c8620125063168620eba0a8a92854eb8/contracts/protocol/libraries/logic/ReserveLogic.sol#LL57C1-L57C1
      */
     const stEthEthEarnPosition = await createPositionWithRetries(
