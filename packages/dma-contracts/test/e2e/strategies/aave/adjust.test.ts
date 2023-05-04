@@ -10,9 +10,10 @@ import {
 } from '@dma-common/test-utils'
 import { RuntimeConfig, Unbox } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
-import { amountFromWei, isOptimismByNetwork } from '@dma-common/utils/common'
+import { amountFromWei, isMainnetByNetwork, isOptimismByNetwork } from '@dma-common/utils/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { BLOCKS_TO_ADVANCE, TIME_TO_ADVANCE } from '@dma-contracts/test/config'
+import { EMPTY_ADDRESS } from '@dma-contracts/test/constants'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,
@@ -28,7 +29,7 @@ import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/sy
 import { ADDRESSES } from '@dma-deployments/addresses'
 import { DeployedSystem } from '@dma-deployments/types/deployed-system'
 import { Network } from '@dma-deployments/types/network'
-import { AAVETokens, strategies } from '@dma-library'
+import { AAVETokens, AAVEV3StrategyAddresses, strategies } from '@dma-library'
 import { PositionType } from '@dma-library/types'
 import { acceptedFeeToken } from '@dma-library/utils/swap'
 import { IPosition, IRiskRatio, RiskRatio } from '@domain'
@@ -219,7 +220,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       }
     }
 
-    describe('Adjust Risk Up: using uniswap', async function () {
+    describe('Adjust Risk Up: using Uniswap', async function () {
       before(async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
@@ -486,7 +487,78 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
   })
   describe('Using AAVE V3', async function () {
     let fixture: SystemWithAAVEV3Positions
-    const supportedStrategies = getSupportedAaveV3Strategies()
+    const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
+
+    type AdjustPositionV3Args = {
+      isDPMProxy: boolean
+      targetMultiple: IRiskRatio
+      position: IPosition
+      collateralToken: TokenDetails
+      debtToken: TokenDetails
+      proxy: string
+      userAddress: string
+      getSwapData: any
+      slippage: BigNumber
+      config: RuntimeConfig
+      positionType: PositionType
+      system: DeployedSystem
+      hre: HardhatRuntimeEnvironment
+    }
+
+    async function adjustPositionV3OnMainnet(
+      args: AdjustPositionV3Args & { network: Network.MAINNET },
+    ) {
+      const addresses = {
+        ...addressesByNetwork(args.network),
+        operationExecutor: args.system.OperationExecutor.contract.address,
+      }
+
+      // So, we need addresses to be narrowed and passed to an inner function that does logic
+      const tokenAddresses: Record<AAVETokens, string> = {
+        WETH: addresses.WETH,
+        ETH: addresses.WETH,
+        STETH: addresses.STETH,
+        WSTETH: addresses.WSTETH,
+        USDC: addresses.USDC,
+        WBTC: addresses.WBTC,
+      }
+      const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
+      const debtTokenAddress = tokenAddresses[args.debtToken.symbol]
+      return adjustPositionV3({
+        ...args,
+        addresses,
+        collateralTokenAddress,
+        debtTokenAddress,
+      })
+    }
+
+    async function adjustPositionV3OnOptimism(
+      args: AdjustPositionV3Args & { network: Network.OPTIMISM },
+    ) {
+      const addresses = {
+        ...addressesByNetwork(args.network),
+        operationExecutor: args.system.OperationExecutor.contract.address,
+      }
+
+      // So, we need addresses to be narrowed and passed to an inner function that does logic
+      const tokenAddresses: Record<AAVETokens, string> = {
+        WETH: addresses.WETH,
+        ETH: addresses.WETH,
+        WSTETH: addresses.WSTETH,
+        USDC: addresses.USDC,
+        WBTC: addresses.WBTC,
+        STETH: EMPTY_ADDRESS,
+      }
+      const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
+      const debtTokenAddress = tokenAddresses[args.debtToken.symbol]
+
+      return adjustPositionV3({
+        ...args,
+        addresses,
+        collateralTokenAddress,
+        debtTokenAddress,
+      })
+    }
 
     async function adjustPositionV3({
       isDPMProxy,
@@ -502,20 +574,10 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       config,
       system,
       hre,
-    }: {
-      isDPMProxy: boolean
-      targetMultiple: IRiskRatio
-      position: IPosition
-      collateralToken: TokenDetails
-      debtToken: TokenDetails
-      proxy: string
-      userAddress: string
-      getSwapData: any
-      slippage: BigNumber
-      positionType: PositionType
-      config: RuntimeConfig
-      system: DeployedSystem
-      hre: HardhatRuntimeEnvironment
+    }: AdjustPositionV3Args & {
+      addresses: AAVEV3StrategyAddresses
+      collateralTokenAddress: string
+      debtTokenAddress: string
     }) {
       const addresses = {
         ...mainnetAddresses,
@@ -656,13 +718,14 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       }
     }
 
-    describe('Adjust Risk Up', async function () {
+    // No available liquidity on uniswap for some pairs on optimism
+    describe('Adjust Risk Up: using 1inch', async function () {
       before(async () => {
         const _fixture = await systemWithAaveV3Positions({
-          use1inch: false,
+          use1inch: true,
           network: networkFork,
           systemConfigPath: `test/${networkFork}.conf.ts`,
-          configExtensionPaths: [`test/uSwap.conf.ts`],
+          configExtensionPaths: [`test/swap.conf.ts`],
         })()
 
         if (!_fixture) throw new Error('Failed to load fixture')
@@ -681,24 +744,39 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           const { debtToken, collateralToken, proxy } = dsProxyStEthEthEarnPositionDetails
 
           const position = await dsProxyStEthEthEarnPositionDetails.getPosition()
-          act = await adjustPositionV3({
+          const isMainnet = isMainnetByNetwork(networkFork)
+          const isOptimism = isOptimismByNetwork(networkFork)
+          const sharedArgs = {
             isDPMProxy: false,
             targetMultiple: new RiskRatio(new BigNumber(3.5), RiskRatio.TYPE.MULITPLE),
-            positionType: 'Earn',
+            positionType: dsProxyStEthEthEarnPositionDetails.__positionType,
             position,
             collateralToken,
             debtToken,
             proxy,
             slippage: UNISWAP_TEST_SLIPPAGE,
-            getSwapData: oneInchCallMock(dsProxyStEthEthEarnPositionDetails.__mockPrice, {
-              from: debtToken.precision,
-              to: collateralToken.precision,
-            }),
+            getSwapData: fixture.strategiesDependencies.getSwapData(
+              fixture.system.Swap.contract.address,
+            ),
             userAddress: config.address,
             config,
             system,
             hre,
-          })
+          }
+          if (isMainnet) {
+            act = await adjustPositionV3OnMainnet({
+              ...sharedArgs,
+              network: Network.MAINNET,
+            })
+          }
+          if (isOptimism) {
+            act = await adjustPositionV3OnOptimism({
+              ...sharedArgs,
+              network: Network.OPTIMISM,
+            })
+          }
+
+          if (!isMainnet && !isOptimism) throw new Error('Unsupported network')
         })
         it('Adjust TX should pass', () => {
           expect(act.txStatus).to.be.true
@@ -740,8 +818,9 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
               const { debtToken, collateralToken, proxy } = positionDetails
 
               const position = await positionDetails.getPosition()
-              const slippage = UNISWAP_TEST_SLIPPAGE
-              act = await adjustPositionV3({
+              const isMainnet = isMainnetByNetwork(networkFork)
+              const isOptimism = isOptimismByNetwork(networkFork)
+              const sharedArgs = {
                 isDPMProxy: true,
                 targetMultiple: new RiskRatio(new BigNumber(3.5), RiskRatio.TYPE.MULITPLE),
                 positionType: positionDetails?.__positionType,
@@ -749,16 +828,29 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
                 collateralToken,
                 debtToken,
                 proxy,
-                slippage,
-                getSwapData: oneInchCallMock(positionDetails.__mockPrice, {
-                  from: debtToken.precision,
-                  to: collateralToken.precision,
-                }),
+                slippage: UNISWAP_TEST_SLIPPAGE,
+                getSwapData: fixture.strategiesDependencies.getSwapData(
+                  fixture.system.Swap.contract.address,
+                ),
                 userAddress: config.address,
                 config,
                 system,
                 hre,
-              })
+              }
+              if (isMainnet) {
+                act = await adjustPositionV3OnMainnet({
+                  ...sharedArgs,
+                  network: Network.MAINNET,
+                })
+              }
+              if (isOptimism) {
+                act = await adjustPositionV3OnOptimism({
+                  ...sharedArgs,
+                  network: Network.OPTIMISM,
+                })
+              }
+
+              if (!isMainnet && !isOptimism) throw new Error('Unsupported network')
             })
             it('Adjust TX should pass', () => {
               expect(act.txStatus).to.be.true
@@ -785,8 +877,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           })
       })
     })
-    // No available liquidity on uniswap for some pairs when reducing risk so using 1inch
-    describe('Adjust Risk Down', async function () {
+    describe('Adjust Risk Down: using 1inch', async function () {
       before(async () => {
         const _fixture = await systemWithAaveV3Positions({
           use1inch: true,
@@ -811,15 +902,18 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           const { debtToken, collateralToken, proxy } = dsProxyStEthEthEarnPositionDetails
 
           const position = await dsProxyStEthEthEarnPositionDetails.getPosition()
-          act = await adjustPositionV3({
+
+          const isMainnet = isMainnetByNetwork(networkFork)
+          const isOptimism = isOptimismByNetwork(networkFork)
+          const sharedArgs = {
             isDPMProxy: false,
             targetMultiple: new RiskRatio(new BigNumber(1.3), RiskRatio.TYPE.MULITPLE),
-            positionType: 'Earn',
+            positionType: dsProxyStEthEthEarnPositionDetails.__positionType,
             position,
             collateralToken,
             debtToken,
             proxy,
-            slippage: SLIPPAGE,
+            slippage: UNISWAP_TEST_SLIPPAGE,
             getSwapData: fixture.strategiesDependencies.getSwapData(
               fixture.system.Swap.contract.address,
             ),
@@ -827,7 +921,21 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             config,
             system,
             hre,
-          })
+          }
+          if (isMainnet) {
+            act = await adjustPositionV3OnMainnet({
+              ...sharedArgs,
+              network: Network.MAINNET,
+            })
+          }
+          if (isOptimism) {
+            act = await adjustPositionV3OnOptimism({
+              ...sharedArgs,
+              network: Network.OPTIMISM,
+            })
+          }
+
+          if (!isMainnet && !isOptimism) throw new Error('Unsupported network')
         })
 
         it('Adjust TX should pass', () => {
@@ -872,7 +980,9 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
               const position = await positionDetails.getPosition()
               const slippage = SLIPPAGE
 
-              act = await adjustPositionV3({
+              const isMainnet = isMainnetByNetwork(networkFork)
+              const isOptimism = isOptimismByNetwork(networkFork)
+              const sharedArgs = {
                 isDPMProxy: true,
                 targetMultiple: new RiskRatio(new BigNumber(1.3), RiskRatio.TYPE.MULITPLE),
                 positionType: positionDetails?.__positionType,
@@ -888,7 +998,21 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
                 config,
                 system,
                 hre,
-              })
+              }
+              if (isMainnet) {
+                act = await adjustPositionV3OnMainnet({
+                  ...sharedArgs,
+                  network: Network.MAINNET,
+                })
+              }
+              if (isOptimism) {
+                act = await adjustPositionV3OnOptimism({
+                  ...sharedArgs,
+                  network: Network.OPTIMISM,
+                })
+              }
+
+              if (!isMainnet && !isOptimism) throw new Error('Unsupported network')
             })
             it('Adjust TX should pass', () => {
               expect(act.txStatus).to.be.true
