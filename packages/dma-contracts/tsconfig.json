@@ -4,7 +4,7 @@
     "paths": {
       "@typechain/*": ["./typechain/*"],
       "@abis/*": ["../abis/*"],
-      "@ajna-contracts/scripts/*": ["../ajna-contracts/scripts/*"],
+      "@ajna-contracts/scripts": ["../ajna-contracts/scripts/index.ts"],
       "@ajna-contracts/scripts/*": ["../ajna-contracts/scripts/*"],
       "@dma-contracts/test/*": ["./test/*"],
       "@dma-contracts/scripts/*": ["./scripts/*"],
@@ -28,6 +28,26 @@
       "../../node_modules/@types"
     ]
   },
+  "references": [
+    {
+      "path": "../abis",
+    },
+    {
+      "path": "../domain",
+    },
+    {
+      "path": "../dma-common",
+    },
+    {
+      "path": "../dma-library",
+    },
+    {
+      "path": "../dma-deployments",
+    },
+    {
+      "path": "../ajna-contracts",
+    }
+  ],
   "include": [
     "./test",
     "./tasks",

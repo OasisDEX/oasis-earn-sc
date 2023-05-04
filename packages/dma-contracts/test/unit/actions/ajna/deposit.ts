@@ -2,14 +2,16 @@ import { deployPool, prepareEnv } from '@ajna-contracts/scripts'
 import init from '@dma-common/utils/init'
 import { ADDRESSES } from '@dma-deployments/addresses'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { expect } from 'chai'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 describe('AJNA | POC | Unit', () => {
   let provider: JsonRpcProvider
   let snapshotId: string
+  let hre: HardhatRuntimeEnvironment
   before(async () => {
     const config = await init()
+    hre = (config as any).hre
     provider = config.provider
   })
 
@@ -22,7 +24,7 @@ describe('AJNA | POC | Unit', () => {
   })
 
   it('should work', async () => {
-    const env = await loadFixture(prepareEnv)
+    const env = await prepareEnv(hre)
     await deployPool(
       env.erc20PoolFactory,
       ADDRESSES.mainnet.common.WETH,

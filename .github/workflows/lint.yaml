@@ -44,5 +44,5 @@ jobs:
       - name: Lint
         run: yarn lint
 
-      - name: Prettier
-        run: yarn format
+      - name: Format
+        run: yarn format:check

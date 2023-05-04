@@ -10,15 +10,10 @@ import {
   withdrawCollateralAndRepayQuote,
   YEAR,
 } from "@ajna-contracts/scripts";
-import {
-  AccountFactory,
-  ERC20Pool,
-  IAccountImplementation,
-  Token,
-  WETH,
-} from "@ajna-contracts/scripts/typechain-types";
+import { AccountFactory, ERC20Pool, IAccountImplementation, Token, WETH } from "@ajna-contracts/typechain";
 import { BigNumber, Signer } from "ethers";
-import hre, { ethers } from "hardhat";
+import hre from "hardhat";
+import { HardhatRuntimeEnvironment } from "hardhat/types/runtime";
 // @ts-ignore
 import ploty_ from "plotly";
 
@@ -36,7 +31,9 @@ export async function createDPMProxy(dmpFactory: AccountFactory, owner: Signer) 
   return dpmProxy;
 }
 
-export async function prepareEnv() {
+export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
+  const hre = _hre ? _hre : await import("hardhat");
+  const ethers = hre.ethers;
   const signers = await ethers.getSigners();
   const [deployer, lender, borrower] = signers;
 

@@ -9,8 +9,7 @@
     "build": "yarn tsc --build && yarn lint:fix",
     "clean": "rm -f tsconfig.tsbuildinfo && find ./ -name \"*.d.ts\" -delete && find ./ -name \"*.d.ts.map\" -delete",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.json",
-    "lint:fix": "yarn eslint . --fix --ext .ts",
-    "lint": "yarn tsc --build"
+    "lint:fix": "yarn eslint . --fix --ext .ts"
   },
   "dependencies": {
     "node-cache": "^5.1.2",
