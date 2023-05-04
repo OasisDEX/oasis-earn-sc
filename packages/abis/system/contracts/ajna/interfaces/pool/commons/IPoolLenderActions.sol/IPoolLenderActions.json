@@ -1,0 +1,140 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "expiry_",
+        "type": "uint256"
+      }
+    ],
+    "name": "addQuoteToken",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "bucketLP_",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "maxAmount_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fromIndex_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "toIndex_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "expiry_",
+        "type": "uint256"
+      }
+    ],
+    "name": "moveQuoteToken",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "fromBucketLP_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "toBucketLP_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "movedAmount_",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "maxAmount_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index_",
+        "type": "uint256"
+      }
+    ],
+    "name": "removeCollateral",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "removedAmount_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "redeemedLP_",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "maxAmount_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index_",
+        "type": "uint256"
+      }
+    ],
+    "name": "removeQuoteToken",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "removedAmount_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "redeemedLP_",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "updateInterest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

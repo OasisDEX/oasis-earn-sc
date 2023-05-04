@@ -3,12 +3,14 @@ import { providers } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 export default async function index(
-  hre?: HardhatRuntimeEnvironment,
-  impersonateAccount?: (
-    provider: providers.JsonRpcProvider,
-  ) => Promise<{ signer: providers.JsonRpcSigner; address: string }>,
-): Promise<RuntimeConfig> {
-  const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
+  _hre?: HardhatRuntimeEnvironment,
+  impersonateAccount?: (provider: providers.JsonRpcProvider) => Promise<{
+    signer: providers.JsonRpcSigner
+    address: string
+  }>,
+): Promise<RuntimeConfig & { hre: HardhatRuntimeEnvironment }> {
+  const hre = _hre || (await import('hardhat'))
+  const ethers = hre.ethers
   const provider = ethers.provider
   let signer = provider.getSigner()
   let address = await signer.getAddress()
@@ -21,6 +23,7 @@ export default async function index(
     provider,
     signer,
     address,
+    hre,
   }
 }
 

@@ -1,8 +1,9 @@
+import "./bootstrap-env";
+import "tsconfig-paths/register";
 import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-preprocessor";
 import "hardhat-docgen";
 import "hardhat-tracer";
-import "./bootstrap-env";
 
 import { HardhatUserConfig } from "hardhat/config";
 
