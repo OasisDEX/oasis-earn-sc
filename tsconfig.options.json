@@ -17,6 +17,5 @@
     "incremental": true,
     "noEmitOnError": true,
     "skipLibCheck": true
-  },
-  "exclude": ["node_modules"]
+  }
 }

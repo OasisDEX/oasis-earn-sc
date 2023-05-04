@@ -2,6 +2,7 @@
   "name": "@oasisdex/ajna-contracts",
   "version": "0.0.1",
   "license": "Apache-2.0",
+  "private": true,
   "files": [
     "tsconfig.json"
   ],
@@ -18,8 +19,13 @@
     "lint:contracts": "./node_modules/.bin/solhint -f table contracts/**/*.sol",
     "lint:typescript": "./node_modules/.bin/eslint test/**/*.ts scripts/**/*.ts",
     "lint": "yarn lint:contracts && yarn lint:typescript",
-    "format:fix": "prettier --write contracts/**/*.sol test/**/*.ts scripts/**/*.ts",
-    "format": "prettier --check contracts/**/*.sol test/**/*.ts"
+    "format": "prettier --write contracts/**/*.sol test/**/*.ts scripts/**/*.ts",
+    "format:check": "prettier --check contracts/**/*.sol test/**/*.ts"
+  },
+  "dependencies": {
+    "decimal.js": "^10.4.3",
+    "evm-bn": "^1.1.2",
+    "mathjs": "^9.4.4"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",

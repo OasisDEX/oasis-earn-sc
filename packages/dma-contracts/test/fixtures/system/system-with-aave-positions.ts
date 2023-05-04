@@ -41,9 +41,9 @@ export const systemWithAavePositions =
     const systemConfigPath = 'test/mainnet.conf.ts'
     await ds.loadConfig(systemConfigPath)
     if (configExtensionPaths) {
-      configExtensionPaths.forEach(async configPath => {
+      for (const configPath of configExtensionPaths) {
         await ds.extendConfig(configPath)
-      })
+      }
     }
 
     const useFallbackSwap = !use1inch

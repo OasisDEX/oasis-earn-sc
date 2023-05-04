@@ -1,0 +1,9 @@
+[
+  {
+    "inputs": [],
+    "name": "stampLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
