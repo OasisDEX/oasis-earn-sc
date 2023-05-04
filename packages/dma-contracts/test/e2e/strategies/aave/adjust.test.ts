@@ -1,7 +1,6 @@
 import AAVELendingPoolABI from '@abis/external/protocols/aave/v2/lendingPool.json'
 import aavePriceOracleABI from '@abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
-import { ONE } from '@dma-common/constants'
 import {
   addressesByNetwork,
   advanceBlocks,
@@ -43,7 +42,7 @@ const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
 describe('Strategy | AAVE | Adjust Position | E2E', async function () {
-  describe.only('Using AAVE V2', async function () {
+  describe('Using AAVE V2', async function () {
     let fixture: SystemWithAavePositions
 
     const supportedStrategies = getSupportedStrategies()
@@ -351,7 +350,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       })
     })
     // No available liquidity on uniswap for some pairs when reducing risk so using 1inch
-    describe.only('Adjust Risk Down: using 1inch', async function () {
+    describe('Adjust Risk Down: using 1inch', async function () {
       before(async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
@@ -390,18 +389,6 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             getSwapData: fixture.strategiesDependencies.getSwapData(
               fixture.system.Swap.contract.address,
             ),
-            // getSwapData: use1inch
-            //   ? swapAddress =>
-            //       getOneInchCall(
-            //         swapAddress,
-            //         // We remove Balancer to avoid re-entrancy errors when also using Balancer FL
-            //         network === Network.OPTIMISM
-            //           ? optimismLiquidityProviders.filter(l => l !== 'OPTIMISM_BALANCER_V2')
-            //           : [],
-            //         ChainIdByNetwork[network],
-            //         oneInchVersion,
-            //       )
-            //   : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
             userAddress: config.address,
             config,
             system,
@@ -671,13 +658,15 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
 
     describe('Adjust Risk Up', async function () {
       before(async () => {
-        fixture = await loadFixture(
-          systemWithAaveV3Positions({
-            use1inch: false,
-            network: networkFork,
-            systemConfigPath: `${networkFork}.conf.ts`,
-          }),
-        )
+        const _fixture = await systemWithAaveV3Positions({
+          use1inch: false,
+          network: networkFork,
+          systemConfigPath: `test/${networkFork}.conf.ts`,
+          configExtensionPaths: [`test/uSwap.conf.ts`],
+        })()
+
+        if (!_fixture) throw new Error('Failed to load fixture')
+        fixture = _fixture
       })
       describe('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV3>>
@@ -796,15 +785,18 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           })
       })
     })
+    // No available liquidity on uniswap for some pairs when reducing risk so using 1inch
     describe('Adjust Risk Down', async function () {
       before(async () => {
-        fixture = await loadFixture(
-          systemWithAaveV3Positions({
-            use1inch: false,
-            network: networkFork,
-            systemConfigPath: `${networkFork}.conf.ts`,
-          }),
-        )
+        const _fixture = await systemWithAaveV3Positions({
+          use1inch: true,
+          network: networkFork,
+          systemConfigPath: `test/${networkFork}.conf.ts`,
+          configExtensionPaths: [`test/swap.conf.ts`],
+        })()
+
+        if (!_fixture) throw new Error('Failed to load fixture')
+        fixture = _fixture
       })
       describe('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV3>>
@@ -828,10 +820,9 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             debtToken,
             proxy,
             slippage: SLIPPAGE,
-            getSwapData: oneInchCallMock(ONE.div(dsProxyStEthEthEarnPositionDetails.__mockPrice), {
-              from: collateralToken.precision,
-              to: debtToken.precision,
-            }),
+            getSwapData: fixture.strategiesDependencies.getSwapData(
+              fixture.system.Swap.contract.address,
+            ),
             userAddress: config.address,
             config,
             system,
@@ -890,10 +881,9 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
                 debtToken,
                 proxy,
                 slippage,
-                getSwapData: oneInchCallMock(ONE.div(positionDetails.__mockPrice), {
-                  from: collateralToken.precision,
-                  to: debtToken.precision,
-                }),
+                getSwapData: fixture.strategiesDependencies.getSwapData(
+                  fixture.system.Swap.contract.address,
+                ),
                 userAddress: config.address,
                 config,
                 system,

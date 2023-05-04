@@ -139,6 +139,7 @@ export const systemWithAavePositions =
 
     /*
      * We need to advance blocks to make sure that the position is opened as expected
+     * HH mining block but not advancing timestamp sufficiently was causing calculation issues.
      * Skipping ahead on blocks avoids an out by 1 error when determining balances
      * Using the getNormalizedIncome method.
      * See https://github.com/aave/protocol-v2/blob/ce53c4a8c8620125063168620eba0a8a92854eb8/contracts/protocol/libraries/logic/ReserveLogic.sol#LL57C1-L57C1
