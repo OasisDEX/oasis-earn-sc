@@ -3,7 +3,8 @@ import { adjustRiskDown } from './adjust-risk-down'
 import { adjustRiskUp } from './adjust-risk-up'
 import { close } from './close'
 import { open } from './open'
+import { paybackWithdraw } from './payback-withdraw'
 
 export type { AAVEV3StrategyAddresses }
 
-export { adjustRiskDown, adjustRiskUp, close, open }
+export { adjustRiskDown, adjustRiskUp, close, open, paybackWithdraw }

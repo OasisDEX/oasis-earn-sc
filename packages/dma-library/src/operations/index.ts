@@ -14,6 +14,7 @@ import {
   adjustRiskUp as adjustRiskUpV3,
   close as closeV3,
   open as openV3,
+  paybackWithdraw as paybackWithdrawV3,
 } from './aave/v3'
 
 const aave = {
@@ -33,6 +34,7 @@ const aave = {
     adjustRiskUp: adjustRiskUpV3,
     close: closeV3,
     open: openV3,
+    paybackWithdraw: paybackWithdrawV3,
   },
 }
 
