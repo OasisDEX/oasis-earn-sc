@@ -125,7 +125,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
           wbtc: await wbtc.balanceOf(lender.address),
         },
         borrower: {
-          eth: await lender.getBalance(),
+          eth: await borrower.getBalance(),
           usdc: await usdc.balanceOf(borrower.address),
           wbtc: await wbtc.balanceOf(borrower.address),
         },
