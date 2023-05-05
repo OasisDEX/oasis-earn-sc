@@ -1,4 +1,5 @@
-import { MAX_UINT, OPERATION_NAMES, ZERO } from '@dma-common/constants'
+import { MAX_UINT, ZERO } from '@dma-common/constants'
+import { aavePaybackWithdrawV2OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
@@ -80,5 +81,5 @@ export async function paybackWithdraw(args: {
     returnFunds,
   ]
 
-  return { calls: calls, operationName: OPERATION_NAMES.aave.v2.PAYBACK_WITHDRAW }
+  return { calls: calls, operationName: aavePaybackWithdrawV2OperationDefinition.name }
 }

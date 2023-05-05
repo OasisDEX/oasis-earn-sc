@@ -19,9 +19,11 @@ export type AavePaybackWithdrawArgs = WithAaveTransitionArgs &
   WithWithdrawCollateral &
   WithPaybackDebt
 
+export type AaveV2PaybackWithdrawDependencies = WithAaveV2StrategyDependencies & WithV2Protocol
+export type AaveV3PaybackWithdrawDependencies = WithAaveV3StrategyDependencies & WithV3Protocol
 type AavePaybackWithdrawDependencies =
-  | (WithAaveV2StrategyDependencies & WithV2Protocol)
-  | (WithAaveV3StrategyDependencies & WithV3Protocol)
+  | AaveV2PaybackWithdrawDependencies
+  | AaveV3PaybackWithdrawDependencies
 
 export async function paybackWithdraw(
   args: AavePaybackWithdrawArgs,
@@ -79,21 +81,20 @@ async function buildOperation(
   }
 
   const paybackWithdrawOperation = {
-    [AaveVersion.v3]: operations.aave.v3.paybackWithdraw,
-    [AaveVersion.v2]: operations.aave.v2.paybackWithdraw,
+    [AaveVersion.v3]: () =>
+      operations.aave.v3.paybackWithdraw({
+        ...sharedArgs,
+        addresses: dependencies.addresses as AAVEV3StrategyAddresses,
+      }),
+    [AaveVersion.v2]: () =>
+      operations.aave.v2.paybackWithdraw({
+        ...sharedArgs,
+        addresses: dependencies.addresses as AAVEStrategyAddresses,
+      }),
   }
 
   if (paybackWithdrawOperation[protocolVersion]) {
-    return await operations.aave.v3.paybackWithdraw({
-      ...sharedArgs,
-      addresses: dependencies.addresses as AAVEV3StrategyAddresses,
-    })
-  }
-  if (paybackWithdrawOperation[protocolVersion]) {
-    return await operations.aave.v2.paybackWithdraw({
-      ...sharedArgs,
-      addresses: dependencies.addresses as AAVEStrategyAddresses,
-    })
+    return await paybackWithdrawOperation[protocolVersion]()
   }
 
   throw new Error('Invalid protocol version')

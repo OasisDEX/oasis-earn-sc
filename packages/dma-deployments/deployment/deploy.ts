@@ -12,6 +12,8 @@ import {
   aaveCloseV3OperationDefinition,
   aaveOpenV2OperationDefinition,
   aaveOpenV3OperationDefinition,
+  aavePaybackWithdrawV2OperationDefinition,
+  aavePaybackWithdrawV3OperationDefinition,
 } from '@dma-deployments/operation-definitions'
 import {
   ContractProps,
@@ -555,6 +557,16 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await operationsRegistry.addOp(
       aaveAdjustUpV3OperationDefinition.name,
       aaveAdjustUpV3OperationDefinition.actions,
+    )
+
+    await operationsRegistry.addOp(
+      aavePaybackWithdrawV2OperationDefinition.name,
+      aavePaybackWithdrawV2OperationDefinition.actions,
+    )
+
+    await operationsRegistry.addOp(
+      aavePaybackWithdrawV3OperationDefinition.name,
+      aavePaybackWithdrawV3OperationDefinition.actions,
     )
   }
 

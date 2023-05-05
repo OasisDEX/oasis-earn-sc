@@ -1,6 +1,7 @@
+import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
 import { AavePosition, PositionTransition } from '@dma-library/types'
+import { IStrategy } from '@dma-library/types/position-transition'
 
-import { getAaveProtocolData } from '../../protocols/aave/get-aave-protocol-data'
 import { adjust } from './adjust'
 import { AaveAdjustArgs, AaveV2AdjustDependencies, AaveV3AdjustDependencies } from './adjust/adjust'
 import { changeDebt } from './change-debt'
@@ -16,7 +17,11 @@ import {
 import { open } from './open'
 import { AaveOpenArgs, AaveV2OpenDependencies, AaveV3OpenDependencies } from './open/open'
 import { openDepositAndBorrowDebt } from './open-deposit-and-borrow-debt'
-import { paybackWithdraw } from './payback-withdraw'
+import {
+  AavePaybackWithdrawArgs,
+  AaveV2PaybackWithdrawDependencies,
+  paybackWithdraw,
+} from './payback-withdraw'
 
 export { AaveVersion } from './get-current-position'
 
@@ -61,7 +66,19 @@ export const aave = {
       }),
     changeDebt,
     depositBorrow,
-    paybackWithdraw,
+    // paybackWithdraw,
+    paybackWithdraw: (
+      args: AavePaybackWithdrawArgs,
+      dependencies: AaveV2PaybackWithdrawDependencies,
+    ): Promise<IStrategy> =>
+      paybackWithdraw(args, {
+        ...dependencies,
+        protocol: {
+          version: AaveVersion.v2,
+          getCurrentPosition,
+          getProtocolData: getAaveProtocolData,
+        },
+      }),
     openDepositAndBorrowDebt,
   },
   v3: {

@@ -1,7 +1,7 @@
 import { ZERO } from '@dma-common/constants'
 import { addressesByNetwork, expect } from '@dma-common/test-utils'
 import { balanceOf } from '@dma-common/utils/balances'
-import { amountToWei } from '@dma-common/utils/common'
+import { amountToWei, isOptimismByNetwork } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { approve } from '@dma-common/utils/tx'
 import {
@@ -12,19 +12,27 @@ import {
 import { Network } from '@dma-deployments/types/network'
 import { strategies } from '@dma-library'
 import BigNumber from 'bignumber.js'
-import { loadFixture } from 'ethereum-waffle'
 
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)
-// TODO: UPDATE TEST
-describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
+const networkFork = process.env.NETWORK_FORK as Network
+
+describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
   let fixture: SystemWithAavePositions
   const supportedStrategies = getSupportedStrategies()
 
-  before(async () => {
-    fixture = await loadFixture(systemWithAavePositions({ use1inch: false }))
+  before(async function () {
+    if (isOptimismByNetwork(networkFork)) {
+      this.skip()
+    }
+    const _fixture = await systemWithAavePositions({
+      use1inch: false,
+      configExtensionPaths: [`test/uSwap.conf.ts`],
+    })()
+    if (!_fixture) throw new Error('Failed to load fixture')
+    fixture = _fixture
   })
 
-  describe.skip('Payback debt', () => {
+  describe('Payback debt', () => {
     describe('When position is opened with DSProxy', () => {
       it('Should reduce debt', async () => {
         const { dsProxyPosition, strategiesDependencies, system, config, getTokens } = fixture
@@ -60,8 +68,6 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
 
         const paybackDebtSimulation = await strategies.aave.v2.paybackWithdraw(args, {
           ...strategiesDependencies,
-          getSwapData: dsProxyPosition?.getSwapData,
-          isDPMProxy: false,
           proxy: dsProxyPosition.proxy,
           currentPosition: beforeTransactionPosition,
         })
@@ -121,8 +127,6 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
           }
           const paybackDebtSimulation = await strategies.aave.v2.paybackWithdraw(args, {
             ...strategiesDependencies,
-            getSwapData: position?.getSwapData,
-            isDPMProxy: true,
             proxy: position.proxy,
             currentPosition: beforeTransactionPosition,
           })
@@ -190,8 +194,6 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
           }
           const paybackDebtSimulation = await strategies.aave.v2.paybackWithdraw(args, {
             ...strategiesDependencies,
-            getSwapData: position?.getSwapData,
-            isDPMProxy: true,
             proxy: position.proxy,
             currentPosition: beforeTransactionPosition,
           })
@@ -277,8 +279,6 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
         }
         const withdrawSimulation = await strategies.aave.v2.paybackWithdraw(args, {
           ...strategiesDependencies,
-          getSwapData: dsProxyPosition?.getSwapData,
-          isDPMProxy: false,
           proxy: dsProxyPosition.proxy,
           currentPosition: beforeTransactionPosition,
         })
@@ -358,8 +358,6 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
           }
           const withdrawSimulation = await strategies.aave.v2.paybackWithdraw(args, {
             ...strategiesDependencies,
-            getSwapData: position?.getSwapData,
-            isDPMProxy: true,
             proxy: position.proxy,
             currentPosition: beforeTransactionPosition,
           })
@@ -432,8 +430,6 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
           }
           const withdrawSimulation = await strategies.aave.v2.paybackWithdraw(args, {
             ...strategiesDependencies,
-            getSwapData: position?.getSwapData,
-            isDPMProxy: true,
             proxy: position.proxy,
             currentPosition: beforeTransactionPosition,
           })
@@ -491,7 +487,7 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
     })
   })
 
-  describe('Close position using Payback and Withdraw', () => {
+  describe.skip('Close position using Payback and Withdraw', () => {
     describe('When position is opened with DSProxy', () => {
       it('Should payback all and withdraw all', async () => {
         const { dsProxyPosition, strategiesDependencies, system, config, getTokens } = fixture
@@ -512,8 +508,6 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
         }
         const withdrawPaybackSimulation = await strategies.aave.v2.paybackWithdraw(args, {
           ...strategiesDependencies,
-          getSwapData: dsProxyPosition?.getSwapData,
-          isDPMProxy: false,
           proxy: dsProxyPosition.proxy,
           currentPosition: beforeTransactionPosition,
         })
@@ -592,8 +586,6 @@ describe.skip('Strategy | AAVE | Payback/Withdraw | E2E', async () => {
           }
           const withdrawPaybackSimulation = await strategies.aave.v2.paybackWithdraw(args, {
             ...strategiesDependencies,
-            getSwapData: position?.getSwapData,
-            isDPMProxy: true,
             proxy: position.proxy,
             currentPosition: beforeTransactionPosition,
           })
