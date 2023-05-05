@@ -45,7 +45,7 @@ export interface IBasePosition {
   category: IPositionCategory
 }
 
-type Delta = { debt: BigNumber; collateral: BigNumber; flashloanAmount: BigNumber }
+export type Delta = { debt: BigNumber; collateral: BigNumber; flashloanAmount: BigNumber }
 export type Swap = {
   fromTokenAmount: BigNumber
   minToTokenAmount: BigNumber

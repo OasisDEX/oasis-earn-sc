@@ -16,7 +16,6 @@ export async function paybackWithdraw(args: {
   debtTokenIsEth: boolean
   proxy: string
   user: string
-  isDPMProxy: boolean
   addresses: AAVEV3StrategyAddresses
 }): Promise<IOperation> {
   const pullDebtTokensToProxy = actions.common.pullToken({

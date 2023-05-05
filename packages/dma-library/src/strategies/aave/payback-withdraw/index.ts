@@ -3,32 +3,30 @@ import { operations } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { AaveVersion } from '@dma-library/strategies'
-import {
-  IBasePositionTransitionArgs,
-  IOperation,
-  IPositionTransitionDependencies,
-  PositionTransition,
-  WithPaybackDebt,
-  WithWithdrawCollateral,
-} from '@dma-library/types'
-import { AAVETokens } from '@dma-library/types/aave'
+import { IOperation, WithPaybackDebt, WithWithdrawCollateral } from '@dma-library/types'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
-import { getZeroSwap } from '@dma-library/utils/swap/get-zero-swap'
+import { IStrategy } from '@dma-library/types/position-transition'
+import {
+  WithAaveTransitionArgs,
+  WithAaveV2StrategyDependencies,
+  WithAaveV3StrategyDependencies,
+} from '@dma-library/types/strategy-params'
 import BigNumber from 'bignumber.js'
 
 import { getAaveTokenAddresses } from '../get-aave-token-addresses'
 
-type AavePaybackWithdrawArgs = IBasePositionTransitionArgs<AAVETokens> &
+export type AavePaybackWithdrawArgs = WithAaveTransitionArgs &
   WithWithdrawCollateral &
   WithPaybackDebt
+
 type AavePaybackWithdrawDependencies =
-  | (IPositionTransitionDependencies<AAVEStrategyAddresses> & WithV2Protocol)
-  | (IPositionTransitionDependencies<AAVEV3StrategyAddresses> & WithV3Protocol)
+  | (WithAaveV2StrategyDependencies & WithV2Protocol)
+  | (WithAaveV3StrategyDependencies & WithV3Protocol)
 
 export async function paybackWithdraw(
   args: AavePaybackWithdrawArgs,
   dependencies: AavePaybackWithdrawDependencies,
-): Promise<PositionTransition> {
+): Promise<IStrategy> {
   const currentPosition = dependencies.currentPosition
 
   const operation = await buildOperation(args, dependencies)
@@ -36,11 +34,6 @@ export async function paybackWithdraw(
   const finalPosition = currentPosition
     .payback(args.amountDebtToPaybackInBaseUnit)
     .withdraw(args.amountCollateralToWithdrawInBaseUnit)
-
-  const flags = {
-    requiresFlashloan: false,
-    isIncreasingRisk: currentPosition.riskRatio.loanToValue.lt(finalPosition.riskRatio.loanToValue),
-  }
 
   return {
     transaction: operation,
@@ -52,10 +45,7 @@ export async function paybackWithdraw(
         ),
         flashloanAmount: ZERO,
       },
-      swap: getZeroSwap(args.collateralToken.symbol, args.debtToken.symbol),
-      flags: flags,
       position: finalPosition,
-      minConfigurableRiskRatio: finalPosition.riskRatio, // TODO: Change to min risk ratio
     },
   }
 }
@@ -86,7 +76,6 @@ async function buildOperation(
     debtTokenIsEth: currentPosition.debt.symbol === 'ETH',
     proxy: dependencies.proxy,
     user: dependencies.user,
-    isDPMProxy: dependencies.isDPMProxy,
   }
 
   const paybackWithdrawOperation = {
