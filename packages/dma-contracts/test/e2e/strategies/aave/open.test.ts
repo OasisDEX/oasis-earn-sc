@@ -37,7 +37,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         const _fixture = await retrySetup(
           systemWithAavePositions({
             use1inch: false,
-            configExtensionPaths: [`./test/uSwap.conf.ts`],
+            configExtensionPaths: [`test/uSwap.conf.ts`],
           }),
         )
         if (!_fixture) throw new Error('Failed to load fixture')
@@ -135,7 +135,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         const _fixture = await retrySetup(
           systemWithAavePositions({
             use1inch: true,
-            configExtensionPaths: [`./test/swap.conf.ts`],
+            configExtensionPaths: [`test/swap.conf.ts`],
           }),
         )
         if (!_fixture) throw new Error('Failed to load fixture')
@@ -347,8 +347,8 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
           systemWithAaveV3Positions({
             use1inch: true,
             network: networkFork,
-            systemConfigPath: `./test/${networkFork}.conf.ts`,
-            configExtensionPaths: [`./test/swap.conf.ts`],
+            systemConfigPath: `test/${networkFork}.conf.ts`,
+            configExtensionPaths: [`test/swap.conf.ts`],
           }),
         )
         if (!_fixture) throw new Error('Failed to load fixture')

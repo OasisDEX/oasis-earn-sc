@@ -1,2 +1,2 @@
 export * from "./common";
-export * from "./prepare-env";
+export { createDPMProxy, prepareEnv } from "./prepare-env";

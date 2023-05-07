@@ -1,0 +1,53 @@
+[
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "collateralTokenSymbol",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "quoteTokenSymbol",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "pool",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "indexes",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct PositionNFTSVG.ConstructTokenURIParams",
+        "name": "params_",
+        "type": "tuple"
+      }
+    ],
+    "name": "constructTokenURI",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  }
+]

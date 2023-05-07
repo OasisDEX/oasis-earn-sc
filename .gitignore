@@ -38,3 +38,6 @@ packages/dma-deployments/*.d.ts.map
 dist
 typechain/
 abi/
+packages/dma-contracts/contracts/chainlink
+packages/dma-contracts/contracts/tokens
+packages/dma-contracts/contracts/ajna

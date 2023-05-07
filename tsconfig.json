@@ -5,10 +5,10 @@
       "path": "packages/abis"
     },
     {
-      "path": "packages/ajna-contracts"
+      "path": "packages/dma-common"
     },
     {
-      "path": "packages/dma-common"
+      "path": "packages/ajna-contracts"
     },
     {
       "path": "packages/dma-contracts"
@@ -22,5 +22,6 @@
     {
       "path": "packages/domain"
     }
-  ]
+  ],
+  "exclude": ["node_modules"]
 }
