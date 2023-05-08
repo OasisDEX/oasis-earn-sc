@@ -31,7 +31,7 @@ import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-p
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
 import { getSwapDataHelper } from '@dma-library/utils/swap/get-swap-data'
-import { IBaseSimulatedTransition, IPosition, IRiskRatio } from '@domain'
+import { IBaseSimulatedTransition, IPosition, IRiskRatio, Position } from '@domain'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
@@ -423,7 +423,7 @@ export function isV3(
 type BuildOperationArgs = {
   adjustRiskUp: boolean
   swapData: SwapData
-  simulatedPositionTransition: IBaseSimulatedTransition
+  simulatedPositionTransition: IBaseSimulatedTransition<Position>
   collectFeeFrom: 'sourceToken' | 'targetToken'
   reserveEModeCategory?: number | undefined
   args: AaveAdjustArgs
@@ -684,7 +684,7 @@ type GenerateTransitionArgs = {
   operation: IOperation
   collectFeeFrom: 'sourceToken' | 'targetToken'
   fee: BigNumber
-  simulatedPositionTransition: IBaseSimulatedTransition
+  simulatedPositionTransition: IBaseSimulatedTransition<IPosition>
   args: AaveAdjustArgs
   dependencies: AaveAdjustDependencies
 }
