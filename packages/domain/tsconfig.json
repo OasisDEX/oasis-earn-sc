@@ -1,41 +1,40 @@
 {
+  "extends": "../../tsconfig.options.json",
   "compilerOptions": {
-    "target": "es2019",
-    "module": "commonjs",
-    "strict": true,
-    "outDir": "lib",
-    "baseUrl": ".",
+    "outDir": "./lib",
+    "rootDir": "./src",
+    "typeRoots": [
+      "../../node_modules/@types"
+    ],
     "paths": {
-      "@domain/test/*": [
-        "./test/*"
-      ],
-      /* Aliases used internally by referenced packages */
-      "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
-      "@dma-deployments/types/*": ["../dma-deployments/types/*"],
-      "@dma-deployments/constants": ["../dma-deployments/constants/index.ts"],
+      "@abis/external/*": ["../abis/external/*"],
+      "@abis/system/*": ["../abis/system/*"],
       "@dma-common/constants": ["../dma-common/constants/index.ts"],
       "@dma-common/utils/*": ["../dma-common/utils/*"],
       "@dma-common/types/*": ["../dma-common/types/*"],
       "@dma-common/test-utils": ["../dma-common/test-utils/index.ts"],
-      "@dma-common/test-utils/*": ["../dma-common/test-utils/*"]
+      "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
+      "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
+      "@dma-deployments/types/*": ["../dma-deployments/types/*"],
+      "@dma-deployments/constants": ["../dma-deployments/constants/index.ts"],
+      "@dma-deployments/addresses": ["../dma-deployments/addresses/index.ts"],
+      "@domain/test/*": [
+        "./test/*"
+      ]
     },
-    "types": [
-      "node"
-    ],
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "allowJs": false,
-    "resolveJsonModule": true,
-    "noImplicitAny": false,
-    "declaration": true,
-    "typeRoots": [
-      "../../node_modules/@types"
-    ]
   },
+  "references": [
+    {
+      "path": "../abis"
+    },
+    {
+      "path": "../dma-common"
+    },
+    {
+      "path": "../dma-deployments"
+    }
+  ],
   "include": [
-    "./src/**/*",
-    "./test/**/*",
-    "./hardhat.config.ts"
+    "./src"
   ],
 }

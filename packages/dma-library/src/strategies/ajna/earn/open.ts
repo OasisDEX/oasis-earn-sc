@@ -1,14 +1,13 @@
+import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
+import poolInfoAbi from '@abis/external/protocols/ajna/poolInfoUtils.json'
 import { Address } from '@dma-deployments/types/address'
 import { getAjnaEarnActionOutput, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import ajnaProxyActionsAbi from '@oasisdex/abis/external/protocols/ajna/ajnaProxyActions.json'
-import poolInfoAbi from '@oasisdex/abis/external/protocols/ajna/poolInfoUtils.json'
+import { AjnaEarnPosition } from '@dma-library/types/ajna'
+import { Strategy } from '@dma-library/types/common'
+import { views } from '@dma-library/views'
+import { GetEarnData, GetPoolData } from '@dma-library/views/ajna'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
-
-import { AjnaEarnPosition } from '../../../types/ajna'
-import { Strategy } from '../../../types/common'
-import * as views from '../../../views'
-import { GetEarnData, GetPoolData } from '../../../views/ajna'
 
 interface Args {
   poolAddress: Address

@@ -1,6 +1,6 @@
 import { createDeploy } from '@dma-common/utils/deploy'
 import init from '@dma-common/utils/init'
-import { calldataTypes } from '@oasisdex/dma-library'
+import { calldataTypes } from '@dma-library'
 import { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'

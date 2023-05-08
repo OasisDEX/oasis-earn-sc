@@ -1,29 +1,26 @@
 {
   "name": "@oasisdex/domain",
   "version": "1.0.0",
-  "main": "lib/src/index.js",
-  "typings": "lib/src/index.d.ts",
+  "main": "src/index.ts",
+  "types": "lib/index.d.ts",
+  "private": true,
   "license": "MIT",
   "scripts": {
-    "build": "yarn tsc -b",
-    "watch": "yarn tsc -b -w",
-    "lint": "yarn tsc -p ./tsconfig.json --noEmit",
+    "build": "yarn tsc --build && yarn lint:fix",
+    "clean": "rm -rf lib && rm -f tsconfig.tsbuildinfo",
+    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
+    "lint:fix": "yarn eslint . --fix --ext .ts",
     "test": "yarn run test:unit",
-    "test:unit": "yarn hardhat test ./test/position.test.ts",
-    "prepublish": "yarn run build"
+    "test:unit": "npx hardhat test ./test/position.test.ts"
   },
   "dependencies": {
-    "@oasisdex/addresses": "*",
-    "@oasisdex/dma-common": "*",
-    "ethers": "5.7.2"
+    "bignumber.js": "^9.0.1"
   },
   "devDependencies": {
     "@google-cloud/local-auth": "2.1.1",
-    "@typechain/hardhat": "6.1.5",
-    "@types/chai": "4.3.0",
-    "@types/mocha": "^10.0.1",
-    "googleapis": "107",
-    "mocha": "^10.1.0",
-    "typescript": "^5.0.4"
+    "googleapis": "107"
+  },
+  "nx": {
+    "implicitDependencies": ["@oasisdex/dma-common"]
   }
 }

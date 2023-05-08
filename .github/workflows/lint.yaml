@@ -11,7 +11,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18.12.1
-          
+
+      - name: Clear Yarn cache
+        run: yarn cache clean
+
       - name: Cache Yarn dependencies
         uses: actions/cache@v3
         with:
@@ -41,5 +44,5 @@ jobs:
       - name: Lint
         run: yarn lint
 
-      - name: Prettier
-        run: yarn format
+      - name: Format
+        run: yarn format:check

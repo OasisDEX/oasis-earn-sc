@@ -1,4 +1,5 @@
-import { Address, Tx } from '@oasisdex/dma-common/types'
+import { Tx } from '@dma-common/types'
+import { Address } from '@dma-deployments/types/address'
 import { ethers } from 'ethers'
 
 export type AjnaErrorWithdrawUndercollateralized = {
@@ -7,7 +8,6 @@ export type AjnaErrorWithdrawUndercollateralized = {
     amount: string
   }
 }
-
 export type AjnaErrorBorrowUndercollateralized = {
   name: 'borrow-undercollateralized'
   data: {

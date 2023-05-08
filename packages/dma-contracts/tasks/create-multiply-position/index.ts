@@ -1,25 +1,25 @@
-import {
-  ethUsdcMultiplyAavePosition,
-  wstethEthEarnAavePosition,
-} from '@dma-contracts/test/fixtures/factories'
-import { StrategyDependenciesAaveV3 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
-import { Network } from '@dma-deployments/types/network'
-import { CONTRACT_NAMES } from '@oasisdex/dma-common/constants'
+import { CONTRACT_NAMES } from '@dma-common/constants'
 import {
   addressesByNetwork,
   createDPMAccount,
   isMainnetByNetwork,
   isOptimismByNetwork,
   NetworkAddressesForTests,
-} from '@oasisdex/dma-common/test-utils'
-import init from '@oasisdex/dma-common/utils/init'
+} from '@dma-common/test-utils'
+import init from '@dma-common/utils/init'
 import {
   getOneInchCall,
   optimismLiquidityProviders,
   resolveOneInchVersion,
-} from '@oasisdex/dma-common/utils/swap'
-import { ChainIdByNetwork } from '@oasisdex/dma-deployments/utils/network'
-import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
+} from '@dma-common/utils/swap'
+import {
+  ethUsdcMultiplyAavePosition,
+  wstethEthEarnAavePosition,
+} from '@dma-contracts/test/fixtures/factories'
+import { StrategyDependenciesAaveV3 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
+import { Network } from '@dma-deployments/types/network'
+import { ChainIdByNetwork } from '@dma-deployments/utils/network'
+import { AaveVersion, protocols, strategies } from '@dma-library'
 import { task } from 'hardhat/config'
 
 const networkFork = process.env.NETWORK_FORK as Network

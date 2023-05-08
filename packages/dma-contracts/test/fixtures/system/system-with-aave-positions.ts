@@ -1,14 +1,13 @@
+import { createDPMAccount, getOneInchCall, oneInchCallMock } from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
+import { getOrCreateProxy } from '@dma-common/utils/proxy'
 import {
   buildGetTokenByImpersonateFunction,
   buildGetTokenFunction,
 } from '@dma-contracts/test/utils/aave'
-import { createDPMAccount } from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { getOrCreateProxy } from '@oasisdex/dma-common/utils/proxy'
-import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { DeploymentSystem } from '@oasisdex/dma-deployments/deployment/deploy'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { AaveVersion, protocols, strategies } from '@oasisdex/dma-library'
+import { DeploymentSystem } from '@dma-deployments/deployment/deploy'
+import { Network } from '@dma-deployments/types/network'
+import { AaveVersion, protocols, strategies } from '@dma-library'
 import hre from 'hardhat'
 
 import {
@@ -42,9 +41,9 @@ export const systemWithAavePositions =
     const systemConfigPath = 'test/mainnet.conf.ts'
     await ds.loadConfig(systemConfigPath)
     if (configExtensionPaths) {
-      configExtensionPaths.forEach(async configPath => {
+      for (const configPath of configExtensionPaths) {
         await ds.extendConfig(configPath)
-      })
+      }
     }
 
     const useFallbackSwap = !use1inch
@@ -88,7 +87,7 @@ export const systemWithAavePositions =
         STETH: systemConfig.common.STETH.address,
         WBTC: systemConfig.common.WBTC.address,
         USDC: systemConfig.common.USDC.address,
-        chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkEthUsdPriceFeed.address,
+        chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkPriceOracle_ETHUSD.address,
         priceOracle: systemConfig.aave.v2.PriceOracle.address,
         lendingPool: systemConfig.aave.v2.LendingPool.address,
         protocolDataProvider: systemConfig.aave.v2.ProtocolDataProvider.address,

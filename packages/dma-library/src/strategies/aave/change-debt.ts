@@ -1,7 +1,7 @@
+import { ZERO } from '@dma-common/constants'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { IViewPositionDependencies, IViewPositionParams, WithDebtChange } from '@dma-library/types'
 import { AavePosition, AAVETokens } from '@dma-library/types/aave'
-import { ZERO } from '@oasisdex/dma-common/constants'
 
 import { AaveVersion, getCurrentPosition } from './get-current-position'
 

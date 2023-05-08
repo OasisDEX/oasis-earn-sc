@@ -2,26 +2,23 @@
   "name": "@oasisdex/dma-deployments",
   "version": "1.0.0",
   "license": "Apache-2.0",
+  "private": true,
+  "main": "./addresses/index.ts",
+  "types": "./addresses/index.ts",
   "scripts": {
-    "lint": "yarn tsc -p ./tsconfig.json --noEmit"
-  },
-  "exports": {
-    "./configs/*": "./configs/*.ts",
-    "./constants": "./constants/index.ts",
-    "./operation-definitions": "./operation-definitions/index.ts",
-    "./deployment/*": "./deployment/*.ts",
-    "./types/*": "./types/*.ts",
-    "./utils/*": "./utils/*/index.ts"
+    "build": "yarn tsc --build && yarn lint:fix",
+    "clean": "rm -f tsconfig.tsbuildinfo && find ./ -name \"*.d.ts\" -delete && find ./ -name \"*.d.ts.map\" -delete",
+    "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.json",
+    "lint:fix": "yarn eslint . --fix --ext .ts"
   },
   "dependencies": {
-    "@oasisdex/abis": "*",
-    "ethers": "5.7.2",
     "node-cache": "^5.1.2",
     "prompts": "^2.4.2",
     "@safe-global/safe-core-sdk": "^3.3.2",
     "@safe-global/safe-core-sdk-types": "^1.9.0",
     "@safe-global/safe-ethers-adapters": "^0.1.0-alpha.16",
     "@safe-global/safe-ethers-lib": "^1.9.2",
-    "@safe-global/safe-service-client": "^2.0.0"
+    "@safe-global/safe-service-client": "^2.0.0",
+    "ethers": "5.7.2"
   }
 }

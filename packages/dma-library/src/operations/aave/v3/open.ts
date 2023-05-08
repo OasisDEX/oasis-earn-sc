@@ -1,4 +1,6 @@
-import * as actions from '@dma-library/actions'
+import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
+import { aaveOpenV3OperationDefinition } from '@dma-deployments/operation-definitions'
+import { actions } from '@dma-library/actions'
 import {
   IOperation,
   Protocol,
@@ -12,8 +14,6 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
-import { NULL_ADDRESS, ZERO } from '@oasisdex/dma-common/constants'
-import { aaveOpenV3OperationDefinition } from '@oasisdex/dma-deployments/operation-definitions'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 

@@ -1,50 +1,58 @@
 {
+  "extends": "../../tsconfig.options.json",
   "compilerOptions": {
-    "target": "es2019",
-    "module": "commonjs",
-    "strict": true,
-    "declaration": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "Node",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "baseUrl": ".",
     "paths": {
-      /* Internal package aliases */
       "@typechain/*": ["./typechain/*"],
-      "@dma-contracts/test/*": [
-        "./test/*"
-      ],
-      "@dma-contracts/scripts/*": [
-        "./scripts/*"
-      ],
-      "@dma-contracts/*": [
-        "./*"
-      ],
-      /* Aliases used internally by referenced packages */
+      "@abis/*": ["../abis/*"],
+      "@ajna-contracts/scripts": ["../ajna-contracts/scripts/index.ts"],
+      "@ajna-contracts/scripts/*": ["../ajna-contracts/scripts/*"],
+      "@dma-contracts/test/*": ["./test/*"],
+      "@dma-contracts/scripts/*": ["./scripts/*"],
+      "@dma-contracts/*": ["./*"],
       "@dma-library": ["../dma-library/src/index.ts"],
       "@dma-library/*": ["../dma-library/src/*"],
-      "@oasisdex/dma-library/*": ["../dma-library/src/*"],
-      "@oasisdex/dma-library": ["../dma-library/src/index.ts"],
       "@dma-common/constants": ["../dma-common/constants/index.ts"],
       "@dma-common/utils/*": ["../dma-common/utils/*"],
       "@dma-common/types/*": ["../dma-common/types/*"],
       "@dma-common/test-utils": ["../dma-common/test-utils/index.ts"],
       "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
+      "@dma-deployments/addresses": ["../dma-deployments/addresses/index.ts"],
       "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
       "@dma-deployments/types/*": ["../dma-deployments/types/*"],
+      "@dma-deployments/deployment/*": ["../dma-deployments/deployment/*"],
       "@dma-deployments/constants": ["../dma-deployments/constants/index.ts"],
-      "@dma-deployments/operation-definitions": ["../dma-deployments/operation-definitions/index.ts"]
+      "@dma-deployments/operation-definitions": ["../dma-deployments/operation-definitions/index.ts"],
+      "@domain": ["../domain/src/index.ts"]
     },
     "typeRoots": [
       "../../node_modules/@types"
     ]
   },
+  "references": [
+    {
+      "path": "../abis",
+    },
+    {
+      "path": "../domain",
+    },
+    {
+      "path": "../dma-common",
+    },
+    {
+      "path": "../dma-library",
+    },
+    {
+      "path": "../dma-deployments",
+    },
+    {
+      "path": "../ajna-contracts",
+    }
+  ],
   "include": [
+    "./test",
+    "./tasks",
+    "./scripts",
     "./bootstrap-env.ts",
-    "./hardhat.config.ts",
-    "test/**/*.ts",
-    "tasks/**/*.ts",
-    "scripts/**/*.ts"
+    "./hardhat.config.ts"
   ],
 }

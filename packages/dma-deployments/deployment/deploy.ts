@@ -153,13 +153,15 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async extendConfig(configFileName?: string) {
-    if (!this.config) {
-      await this.loadConfig(configFileName)
-    } else {
-      this.config = _.merge(
-        this.config,
-        (await import(this.getConfigPath(`./${configFileName}`))).config,
-      )
+    try {
+      if (!this.config) {
+        await this.loadConfig(configFileName)
+      } else {
+        const configToMerge = (await import(this.getConfigPath(`./${configFileName}`))).config
+        this.config = _.merge(this.config, configToMerge)
+      }
+    } catch (e) {
+      console.error('Could not extend config', e)
     }
   }
 
@@ -270,7 +272,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
     // ETHERSCAN VERIFICATION (only for mainnet and L1 testnets)
     if (this.network === Network.MAINNET || this.network === Network.GOERLI) {
-      this.verifyContract(contract.address, constructorArguments)
+      await this.verifyContract(contract.address, constructorArguments)
     }
   }
 
@@ -503,7 +505,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async addMakerEntries() {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
-      Object.values(this.config.maker).filter(
+      Object.values(this.config.maker.common).filter(
         (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
       ),
     )

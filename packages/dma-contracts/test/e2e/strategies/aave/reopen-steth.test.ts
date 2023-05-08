@@ -1,21 +1,22 @@
-import { executeThroughProxy } from '@dma-common/utils/execute'
-import { resetNodeToLatestBlock } from '@dma-common/utils/init'
-import { testBlockNumber } from '@dma-contracts/test/config'
-import { initialiseConfig } from '@dma-contracts/test/fixtures'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import { ONE, OPERATION_NAMES, ZERO } from '@oasisdex/dma-common/constants'
+import { ONE, OPERATION_NAMES, ZERO } from '@dma-common/constants'
 import {
   addressesByNetwork,
   deploySystem,
   expect,
+  getOneInchCall,
+  oneInchCallMock,
   restoreSnapshot,
-} from '@oasisdex/dma-common/test-utils'
-import { RuntimeConfig } from '@oasisdex/dma-common/types/common'
-import { amountToWei } from '@oasisdex/dma-common/utils/common'
-import { getOneInchCall, oneInchCallMock } from '@oasisdex/dma-common/utils/swap'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { AAVEStrategyAddresses, strategies } from '@oasisdex/dma-library'
-import { RiskRatio } from '@oasisdex/domain'
+} from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
+import { amountToWei } from '@dma-common/utils/common'
+import { executeThroughProxy } from '@dma-common/utils/execute'
+import { resetNodeToLatestBlock } from '@dma-common/utils/init'
+import { testBlockNumber } from '@dma-contracts/test/config'
+import { initialiseConfig } from '@dma-contracts/test/fixtures'
+import { Network } from '@dma-deployments/types/network'
+import { AAVEStrategyAddresses, strategies } from '@dma-library'
+import { RiskRatio } from '@domain'
+import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'

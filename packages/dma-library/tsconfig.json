@@ -1,47 +1,49 @@
 {
+  "extends": "../../tsconfig.options.json",
   "compilerOptions": {
-    "target": "es2019",
-    "module": "commonjs",
-    "strict": true,
-    "outDir": "lib",
-    "baseUrl": ".",
+    "outDir": "./lib",
+    "typeRoots": [
+      "../../node_modules/@types"
+    ],
     "paths": {
-      "@typechain/*": [
-        "../dma-contracts/typechain/*"
-      ],
-      "@dma-library/*": [
-        "./src/*"
-      ],
-      "@dma-library": [
-        "./src/index.ts"
-      ],
-      /* Aliases used internally by referenced packages */
+      "@abis/external/*": ["../abis/external/*"],
+      "@abis/system/*": ["../abis/system/*"],
+      "@typechain/*": ["../dma-contracts/typechain/*"],
+      "@dma-library/strategies": ["./src/strategies/index.ts"],
+      "@dma-library/types": ["./src/types/index.ts"],
+      "@dma-library/actions/action-factory": ["./src/actions/action-factory.ts"],
+      "@dma-library/*": ["./src/*"],
       "@dma-common/constants": ["../dma-common/constants"],
       "@dma-common/utils/*": ["../dma-common/utils/*"],
+      "@dma-common/types": ["../dma-common/types/index.ts"],
       "@dma-common/types/*": ["../dma-common/types/*"],
       "@dma-common/test-utils": ["../dma-common/test-utils/index.ts"],
       "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
-      "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
-      "@dma-deployments/types/*": ["../dma-deployments/types/*"],
-      "@dma-deployments/constants": ["../dma-deployments/constants/index.ts"]
+      "@dma-deployments/*": ["../dma-deployments/*"],
+      "@dma-deployments/addresses": ["../dma-deployments/addresses/index.ts"],
+      "@dma-deployments/operation-definitions": ["../dma-deployments/operation-definitions/index.ts"],
+      "@domain": ["../domain/src/index.ts"]
     },
-    "types": [
-      "node"
-    ],
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    // Generate d.ts files
-    "declaration": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "noImplicitAny": false,
-    "typeRoots": [
-      "../../node_modules/@types"
-    ]
   },
-  "include": [
-    "./hardhat.config.ts",
-    "./src/**/*"
+  "references": [
+    {
+      "path": "../abis"
+    },
+    {
+      "path": "../dma-common"
+    },
+    {
+      "path": "../dma-contracts"
+    },
+    {
+      "path": "../dma-deployments"
+    },
+    {
+      "path": "../domain"
+    }
   ],
+  "include": [
+    "./src",
+    "./src/strategies/ajna/earn/buckets.json"
+  ]
 }

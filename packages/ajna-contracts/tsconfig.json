@@ -1,23 +1,30 @@
 {
+  "extends": "../../tsconfig.options.json",
   "compilerOptions": {
-    "target": "es2019",
-    "module": "commonjs",
-    "strict": true,
-    "declaration": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "Node",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "baseUrl": ".",
     "paths": {
-      "@typechain/*": ["./typechain-types/*"],
+      "@ajna-contracts/typechain": ["./typechain-types/index.ts"],
+      "@ajna-contracts/typechain/*": ["./typechain-types/*"],
+      "@dma-library": ["../dma-library/src/index.ts"],
       "@dma-library/*": ["../dma-library/src/*"],
       "utils/*": ["../dma-common/utils/*"],
-      "@oasisdex/addresses": ["../addresses/src/index.ts"],
-      "@oasisdex/dma-library/*": ["../dma-library/src/*"],
-      "@oasisdex/dma-library": ["../dma-library/src/index.ts"]
+      "@ajna-contracts/scripts": ["./scripts/index.ts"],
+      "@ajna-contracts/scripts/*": ["./scripts/*"],
+      "@dma-deployments/addresses": ["../dma-deployments/addresses/index.ts"]
     },
-    "typeRoots": ["../../node_modules/@types"]
+    "typeRoots": [
+      "../../node_modules/@types"
+    ]
   },
-  "include": ["./bootstrap-env.ts", "./hardhat.config.ts", "test/**/*.ts", "tasks/**/*.ts", "scripts/**/*.ts"]
+  "references": [
+    {
+      "path": "../dma-common",
+    },
+    {
+      "path": "../dma-library",
+    },
+    {
+      "path": "../dma-deployments",
+    }
+  ],
+  "include": ["./bootstrap-env.ts", "./hardhat.config.ts", "./test", "./tasks", "./scripts/**/*.ts"]
 }

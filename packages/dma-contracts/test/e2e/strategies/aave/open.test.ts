@@ -1,3 +1,5 @@
+import { expect, retrySetup } from '@dma-common/test-utils'
+import { isOptimismByNetwork } from '@dma-common/utils/common'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,
@@ -8,10 +10,9 @@ import {
   systemWithAaveV3Positions,
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
-import { expect, isOptimismByNetwork, retrySetup } from '@oasisdex/dma-common/test-utils'
-import { Network } from '@oasisdex/dma-deployments/types/network'
-import { PositionTransition } from '@oasisdex/dma-library'
-import { IPosition } from '@oasisdex/domain'
+import { Network } from '@dma-deployments/types/network'
+import { PositionTransition } from '@dma-library'
+import { IPosition } from '@domain'
 import BigNumber from 'bignumber.js'
 
 const networkFork = process.env.NETWORK_FORK as Network
@@ -36,7 +37,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         const _fixture = await retrySetup(
           systemWithAavePositions({
             use1inch: false,
-            configExtensionPaths: [`./test/uSwap.conf.ts`],
+            configExtensionPaths: [`test/uSwap.conf.ts`],
           }),
         )
         if (!_fixture) throw new Error('Failed to load fixture')
@@ -134,7 +135,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         const _fixture = await retrySetup(
           systemWithAavePositions({
             use1inch: true,
-            configExtensionPaths: [`./test/swap.conf.ts`],
+            configExtensionPaths: [`test/swap.conf.ts`],
           }),
         )
         if (!_fixture) throw new Error('Failed to load fixture')
@@ -346,8 +347,8 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
           systemWithAaveV3Positions({
             use1inch: true,
             network: networkFork,
-            systemConfigPath: `./test/${networkFork}.conf.ts`,
-            configExtensionPaths: [`./test/swap.conf.ts`],
+            systemConfigPath: `test/${networkFork}.conf.ts`,
+            configExtensionPaths: [`test/swap.conf.ts`],
           }),
         )
         if (!_fixture) throw new Error('Failed to load fixture')
