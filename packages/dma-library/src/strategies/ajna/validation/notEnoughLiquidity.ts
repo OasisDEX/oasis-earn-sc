@@ -1,4 +1,5 @@
 import { negativeToZero } from '@dma-common/utils/common'
+import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
 import { AjnaPosition } from '@dma-library/types/ajna'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import { AjnaError } from '@dma-library/types/common'
@@ -22,7 +23,7 @@ export function validateLiquidity(
       {
         name: 'not-enough-liquidity',
         data: {
-          amount: negativeToZero(availableLiquidity).decimalPlaces(2).toString(),
+          amount: formatCryptoBalance(negativeToZero(availableLiquidity)),
         },
       },
     ]
