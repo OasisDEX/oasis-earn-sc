@@ -6,6 +6,7 @@ export {
 } from './addresses'
 export { buildBytecode, buildCreate2Address, saltToHex } from './create2'
 export { etherscanAPIUrl } from './etherscan'
+export * from './formaters'
 export { logDebug } from './log-debug'
 export * from './negative-to-zero'
 export * from './normalize-value'
