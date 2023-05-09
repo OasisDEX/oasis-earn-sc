@@ -66,6 +66,8 @@ export async function open({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
+  const swapValueIndex = shouldSkippWrapEth ? 1 : 2
+
   const setCollateralTokenApprovalOnPool = actions.common.setApproval(
     {
       asset: collateral.address,
@@ -73,7 +75,7 @@ export async function open({
       amount: depositAmount,
       sumAmounts: true,
     },
-    [0, 0, shouldSkippWrapEth ? 1 : 2, 0],
+    [0, 0, swapValueIndex, 0],
   )
 
   const depositBorrow = actions.ajna.ajnaDepositBorrow(
@@ -84,7 +86,7 @@ export async function open({
       sumDepositAmounts: true,
       price,
     },
-    [0, shouldSkippWrapEth ? 1 : 2, 0, 0, 0],
+    [0, swapValueIndex, 0, 0, 0],
   )
 
   const protocol: Protocol = 'Ajna'
