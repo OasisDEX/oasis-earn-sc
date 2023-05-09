@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/dma-library",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -27,6 +27,8 @@
     "ethers": "5.7.2"
   },
   "nx": {
-    "implicitDependencies": ["@oasisdex/domain"]
+    "implicitDependencies": [
+      "@oasisdex/domain"
+    ]
   }
 }
