@@ -36,8 +36,6 @@ export const OPERATION_NAMES = {
   },
   ajna: {
     OPEN_MULTIPLY_POSITION: 'AjnaOpenMultiplyPosition',
-    DEPOSIT: 'AjnaDeposit',
-    BORROW: 'AjnaBorrow',
     ADJUST_RISK_UP: 'AjnaAdjustRiskUp',
     ADJUST_RISK_DOWN: 'AjnaAdjustRiskDown',
     DEPOSIT_BORROW: 'AjnaDepositBorrow',
