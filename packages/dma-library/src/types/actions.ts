@@ -37,10 +37,9 @@ export const calldataTypes = {
     Withdraw: `tuple(address asset, uint256 amount, address to)`,
     SetEMode: `tuple(uint8 categoryId)`,
   },
-  // TODO it's not final calldata for ajna
   ajna: {
-    DepositBorrow: `tuple(address pool, uint256 depositAmount, uint256 borrowAmount, uint256 price)`,
-    RepayWithdraw: `tuple(address pool, uint256 withdrawAmount, uint256 repayAmount, uint256 price)`,
+    DepositBorrow: `tuple(address pool, uint256 depositAmount, uint256 borrowAmount, bool sumDepositAmounts, uint256 price)`,
+    RepayWithdraw: `tuple(address pool, uint256 withdrawAmount, uint256 repayAmount, bool paybackAll, bool withdrawAll, uint256 price)`,
   },
   paramsMap: `uint8[] paramsMap`,
 } as const

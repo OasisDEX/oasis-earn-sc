@@ -12,18 +12,16 @@ export function ajnaDepositBorrow(
     pool: string
     depositAmount: BigNumber
     borrowAmount?: BigNumber
-    sumAmounts: boolean
+    sumDepositAmounts: boolean
     price: BigNumber
-    setAsCollateral?: boolean
   },
   paramsMapping: [
     pool: number,
     depositAmount: number,
     borrowAmount: number,
-    sumAmounts: number,
+    sumDepositAmounts: number,
     price: number,
-    setAsCollateral: number,
-  ] = [0, 0, 0, 0, 0, 0],
+  ] = [0, 0, 0, 0, 0],
 ) {
   return createAction(
     getActionHash(CONTRACT_NAMES.ajna.DEPOSIT_BORROW),
@@ -33,9 +31,8 @@ export function ajnaDepositBorrow(
         pool: args.pool,
         depositAmount: args.depositAmount.toFixed(0),
         borrowAmount: args.borrowAmount?.toFixed(0) || ZERO,
-        sumAmounts: args.sumAmounts,
+        sumDepositAmounts: args.sumDepositAmounts,
         price: args.price,
-        setAsCollateral: args.setAsCollateral === undefined ? true : args.setAsCollateral,
       },
       paramsMapping,
     ],
@@ -48,8 +45,8 @@ export function ajnaPaybackWithdraw(
     paybackAmount?: BigNumber
     withdrawAmount?: BigNumber
     paybackAll?: boolean
+    withdrawAll?: boolean
     price: BigNumber
-    to: string
   },
   paramsMapping: [
     pool: number,
@@ -57,7 +54,8 @@ export function ajnaPaybackWithdraw(
     withdrawAmount: number,
     price: number,
     paybackAll: number,
-  ] = [0, 0, 0, 0, 0],
+    withdrawAll: number,
+  ] = [0, 0, 0, 0, 0, 0],
 ) {
   return createAction(
     getActionHash(CONTRACT_NAMES.ajna.REPAY_WITHDRAW),
@@ -68,8 +66,8 @@ export function ajnaPaybackWithdraw(
         paybackAmount: args.paybackAmount?.toFixed(0) || ZERO,
         withdrawAmount: args.withdrawAmount?.toFixed(0) || ZERO,
         paybackAll: !!args.paybackAll,
+        withdrawAll: !!args.withdrawAll,
         price: args.price,
-        to: args.to,
       },
       paramsMapping,
     ],

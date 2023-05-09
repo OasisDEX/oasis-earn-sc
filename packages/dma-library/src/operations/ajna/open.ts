@@ -1,3 +1,5 @@
+import { ZERO } from '@dma-common/constants'
+import { ajnaOpenOperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import {
   IOperation,
@@ -12,8 +14,7 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
-import { NULL_ADDRESS, ZERO } from '@oasisdex/dma-common/constants'
-import { ajnaOpenOperationDefinition } from '@oasisdex/dma-deployments/operation-definitions'
+import { FlashloanProvider } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -39,41 +40,21 @@ export async function open({
   price,
 }: OpenArgs): Promise<IOperation> {
   const depositAmount = deposit?.amount || ZERO
-  const depositAddress = deposit?.address || NULL_ADDRESS
-
-  const isDepositingCollateral = deposit?.address === collateral.address
-  const isDepositingDebtTokens = deposit?.address === debt.address
-
-  const pullDebtTokensToProxy = actions.common.pullToken({
-    asset: debt.address,
-    amount: isDepositingDebtTokens ? depositAmount : ZERO,
-    from: proxy.owner,
-  })
 
   const pullCollateralTokensToProxy = actions.common.pullToken({
     asset: collateral.address,
-    amount: isDepositingCollateral ? depositAmount : ZERO,
+    amount: depositAmount,
     from: proxy.owner,
-  })
-
-  const setDebtTokenApprovalOnLendingPool = actions.common.setApproval({
-    amount: flashloan.amount,
-    asset: debt.address,
-    delegate: addresses.pool,
-    sumAmounts: false,
-  })
-
-  const depositBorrow = actions.ajna.ajnaDepositBorrow({
-    pool: addresses.pool,
-    depositAmount: flashloan.amount,
-    sumAmounts: false,
-    borrowAmount: debt.borrow.amount,
-    price,
   })
 
   const wrapEth = actions.common.wrapEth({
     amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
   })
+
+  const hasAmountToDeposit = depositAmount.gt(ZERO)
+  pullCollateralTokensToProxy.skipped = !hasAmountToDeposit || collateral.isEth
+  const shouldSkippWrapEth = !collateral.isEth
+  wrapEth.skipped = shouldSkippWrapEth
 
   const swapDebtTokensForCollateralTokens = actions.common.swap({
     fromAsset: debt.address,
@@ -85,34 +66,26 @@ export async function open({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const depositIsCollateral = depositAddress === collateral.address
-  const setCollateralTokenApprovalOnLendingPool = actions.common.setApproval(
+  const setCollateralTokenApprovalOnPool = actions.common.setApproval(
     {
       asset: collateral.address,
       delegate: addresses.pool,
-      amount: depositIsCollateral ? depositAmount : ZERO,
+      amount: depositAmount,
       sumAmounts: true,
     },
-    [0, 0, 3, 0],
+    [0, 0, shouldSkippWrapEth ? 1 : 2, 0],
   )
 
-  const depositCollateral = actions.ajna.ajnaDepositBorrow(
+  const depositBorrow = actions.ajna.ajnaDepositBorrow(
     {
       pool: addresses.pool,
-      depositAmount: flashloan.amount,
-      sumAmounts: true,
-      setAsCollateral: true,
+      depositAmount,
+      borrowAmount: debt.borrow.amount,
+      sumDepositAmounts: true,
       price,
     },
-    [0, 3, 0, 0, 0, 0],
+    [0, shouldSkippWrapEth ? 1 : 2, 0, 0, 0],
   )
-
-  const withdrawFlashLoan = actions.ajna.ajnaPaybackWithdraw({
-    pool: addresses.pool,
-    withdrawAmount: flashloan.amount,
-    to: addresses.operationExecutor,
-    price,
-  })
 
   const protocol: Protocol = 'Ajna'
 
@@ -123,22 +96,12 @@ export async function open({
     debtToken: debt.address,
   })
 
-  const hasAmountToDeposit = depositAmount.gt(ZERO)
-  pullDebtTokensToProxy.skipped = isDepositingCollateral || !hasAmountToDeposit || debt.isEth
-  pullCollateralTokensToProxy.skipped =
-    isDepositingDebtTokens || !hasAmountToDeposit || collateral.isEth
-  wrapEth.skipped = !debt.isEth && !collateral.isEth
-
   const flashloanCalls = [
-    pullDebtTokensToProxy,
     pullCollateralTokensToProxy,
-    setDebtTokenApprovalOnLendingPool,
-    depositBorrow,
     wrapEth,
     swapDebtTokensForCollateralTokens,
-    setCollateralTokenApprovalOnLendingPool,
-    depositCollateral,
-    withdrawFlashLoan,
+    setCollateralTokenApprovalOnPool,
+    depositBorrow,
     positionCreated,
   ]
 
@@ -147,7 +110,7 @@ export async function open({
     asset: debt.address,
     flashloanAmount: flashloan.amount,
     isProxyFlashloan: true,
-    provider: flashloan.provider,
+    provider: FlashloanProvider.Balancer,
     calls: flashloanCalls,
   })
 

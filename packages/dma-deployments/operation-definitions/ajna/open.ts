@@ -13,18 +13,6 @@ export const ajnaOpenOperationDefinition = {
       optional: true,
     },
     {
-      hash: getActionHash(CONTRACT_NAMES.common.PULL_TOKEN),
-      optional: true,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.ajna.DEPOSIT_BORROW),
-      optional: false,
-    },
-    {
       hash: getActionHash(CONTRACT_NAMES.common.WRAP_ETH),
       optional: true,
     },
@@ -38,10 +26,6 @@ export const ajnaOpenOperationDefinition = {
     },
     {
       hash: getActionHash(CONTRACT_NAMES.ajna.DEPOSIT_BORROW),
-      optional: false,
-    },
-    {
-      hash: getActionHash(CONTRACT_NAMES.ajna.REPAY_WITHDRAW),
       optional: false,
     },
     { hash: getActionHash(CONTRACT_NAMES.common.POSITION_CREATED), optional: false },
