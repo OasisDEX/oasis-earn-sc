@@ -1,7 +1,7 @@
 import erc20abi from '@abis/external/tokens/IERC20.json'
 import { addressesByNetwork } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
-import { isMainnetByNetwork } from '@dma-common/utils/common'
+import { isMainnetByNetwork, isOptimismByNetwork } from '@dma-common/utils/common'
 import { Network } from '@dma-deployments/types/network'
 import { AAVETokens } from '@dma-library'
 import BigNumber from 'bignumber.js'
@@ -40,15 +40,17 @@ const tokensWhales: {
     },
     WBTC: {
       tokenAddress: optimismAddressesForTests.WBTC,
-      whale: constants.AddressZero,
+      // ~3 WBTC as of Block number 97219392
+      whale: '0x2ccef4910318c71b619f2303f2243bca305578e4',
     },
     USDC: {
       tokenAddress: optimismAddressesForTests.USDC,
-      whale: constants.AddressZero,
+      whale: '0xb589969d38ce76d3d7aa319de7133bc9755fd840',
     },
     WSTETH: {
       tokenAddress: optimismAddressesForTests.WSTETH,
-      whale: constants.AddressZero,
+      // ~872 WSTETH as of Block number 97219392
+      whale: '0x766854992bd5363ebeeff0113f5a5795796befab',
     },
   },
 }
@@ -59,7 +61,7 @@ export function buildGetTokenByImpersonateFunction(
   network: Network,
 ): (symbol: AAVETokensToGet, amount: BigNumber) => Promise<boolean> {
   return async function getTokens(symbol: AAVETokensToGet, amount: BigNumber): Promise<boolean> {
-    if (!isMainnetByNetwork(network)) {
+    if (!(isMainnetByNetwork(network) || isOptimismByNetwork(network))) {
       throw new Error('Not implemented for this network yet')
     }
 

@@ -3,8 +3,12 @@ import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
-import { AaveVersion, strategies } from '@dma-library'
-import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '@dma-library/protocols/aave'
+import {
+  AAVEStrategyAddresses,
+  AAVEV3StrategyAddresses,
+  AaveVersion,
+  strategies,
+} from '@dma-library'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
@@ -126,12 +130,10 @@ export async function ethUsdcMultiplyAavePosition({
   })
 
   let getPosition
-  if (
-    dependencies.protocol.version === AaveVersion.v3 &&
-    aaveV3UniqueContractName in dependencies.addresses
-  ) {
-    const addresses = dependencies.addresses
-
+  type AccountFactory = { accountFactory?: string | undefined }
+  if (dependencies.protocol.version === AaveVersion.v3) {
+    console.log('GETTING POSITION V3')
+    const addresses = dependencies.addresses as AAVEV3StrategyAddresses & AccountFactory
     getPosition = async () => {
       return await strategies.aave.v3.view(
         {
@@ -149,11 +151,8 @@ export async function ethUsdcMultiplyAavePosition({
       )
     }
   }
-  if (
-    dependencies.protocol.version === AaveVersion.v2 &&
-    aaveV2UniqueContractName in dependencies.addresses
-  ) {
-    const addresses = dependencies.addresses
+  if (dependencies.protocol.version === AaveVersion.v2) {
+    const addresses = dependencies.addresses as AAVEStrategyAddresses & AccountFactory
     getPosition = async () => {
       return await strategies.aave.v2.view(
         {

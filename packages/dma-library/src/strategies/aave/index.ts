@@ -20,6 +20,7 @@ import { openDepositAndBorrowDebt } from './open-deposit-and-borrow-debt'
 import {
   AavePaybackWithdrawArgs,
   AaveV2PaybackWithdrawDependencies,
+  AaveV3PaybackWithdrawDependencies,
   paybackWithdraw,
 } from './payback-withdraw'
 
@@ -66,7 +67,6 @@ export const aave = {
       }),
     changeDebt,
     depositBorrow,
-    // paybackWithdraw,
     paybackWithdraw: (
       args: AavePaybackWithdrawArgs,
       dependencies: AaveV2PaybackWithdrawDependencies,
@@ -98,6 +98,18 @@ export const aave = {
       close({ ...args, protocolVersion: AaveVersion.v3 }, dependencies),
     adjust: (args: AaveAdjustArgs, dependencies: Omit<AaveV3AdjustDependencies, 'protocol'>) =>
       adjust(args, {
+        ...dependencies,
+        protocol: {
+          version: AaveVersion.v3,
+          getCurrentPosition,
+          getProtocolData: getAaveProtocolData,
+        },
+      }),
+    paybackWithdraw: (
+      args: AavePaybackWithdrawArgs,
+      dependencies: AaveV3PaybackWithdrawDependencies,
+    ): Promise<IStrategy> =>
+      paybackWithdraw(args, {
         ...dependencies,
         protocol: {
           version: AaveVersion.v3,

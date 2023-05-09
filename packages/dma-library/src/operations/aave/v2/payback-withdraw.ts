@@ -29,12 +29,14 @@ export async function paybackWithdraw(args: {
     delegate: args.addresses.lendingPool,
     sumAmounts: false,
   })
+  // TODO: this is not needed if the debt token is ETH
+  // Left in for now to avoid redeploying operation
   const wrapEth = actions.common.wrapEth({
     amount: args.amountDebtToPaybackInBaseUnit,
   })
   const paybackDebt = actions.aave.v2.aavePayback({
     asset: args.debtTokenAddress,
-    amount: args.amountDebtToPaybackInBaseUnit,
+    amount: args.isPaybackAll ? ZERO : args.amountDebtToPaybackInBaseUnit,
     paybackAll: args.isPaybackAll,
   })
   const unwrapEthDebt = actions.common.unwrapEth({

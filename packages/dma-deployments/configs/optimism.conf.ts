@@ -328,7 +328,7 @@ export const optimismConfig: SystemConfig = {
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },
     DAI: {
       name: 'DAI',
-      address: ADDRESS_ZERO,
+      address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
       serviceRegistryName: 'DAI',
     },
     ETH: { name: 'ETH', address: ADDRESS_ZERO },
@@ -373,23 +373,23 @@ export const optimismConfig: SystemConfig = {
     UNIV2WBTCETH: { name: 'UNIV2WBTCETH', address: ADDRESS_ZERO },
     USDC: {
       name: 'USDC',
-      address: ADDRESS_ZERO,
+      address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
       serviceRegistryName: 'USDC',
     },
     USDT: { name: 'USDT', address: ADDRESS_ZERO },
     WBTC: {
       name: 'WBTC',
-      address: ADDRESS_ZERO,
+      address: '0x68f180fcce6836688e9084f035309e29bf0a2095',
       serviceRegistryName: 'WBTC',
     },
     WETH: {
       name: 'WETH',
-      address: ADDRESS_ZERO,
+      address: '0x4200000000000000000000000000000000000006',
       serviceRegistryName: 'WETH',
     },
     WSTETH: {
       name: 'WSTETH',
-      address: ADDRESS_ZERO,
+      address: '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb',
       serviceRegistryName: 'WSTETH',
     },
     YFI: { name: 'YFI', address: ADDRESS_ZERO },
