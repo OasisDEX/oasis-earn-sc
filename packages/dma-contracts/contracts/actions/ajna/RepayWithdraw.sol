@@ -2,12 +2,13 @@
 pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
-import { Write, UseStore } from "../common/UseStore.sol";
+import { Write, UseStore, Read } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { RepayWithdrawData } from "../../core/types/Ajna.sol";
 import { AJNA_POOL_UTILS_INFO } from "../../core/constants/Ajna.sol";
 import { IAjnaPool } from "../../interfaces/ajna/IERC20Pool.sol";
 import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol";
+import { SafeMath } from "../../libs/SafeMath.sol";
 
 /**
  * @title AjnaRepayWithdraw | Ajna Action contract
@@ -15,28 +16,42 @@ import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol
  */
 contract AjnaRepayWithdraw is Executable, UseStore {
   using Write for OperationStorage;
+  using Read for OperationStorage;
+  using SafeMath for uint256;
 
   constructor(address _registry) UseStore(_registry) {}
 
   /**
    * @param data Encoded calldata that conforms to the BorrowData struct
    */
-  function execute(bytes calldata data, uint8[] memory) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     RepayWithdrawData memory args = parseInputs(data);
     IAjnaPool pool = IAjnaPool(args.pool);
     IAjnaPoolUtilsInfo poolUtilsInfo = IAjnaPoolUtilsInfo(
       registry.getRegisteredService(AJNA_POOL_UTILS_INFO)
     );
 
+    args.withdrawAmount = store().readUint(bytes32(args.withdrawAmount), paramsMap[1], address(this));
+    args.repayAmount = store().readUint(bytes32(args.repayAmount), paramsMap[2], address(this));
+
     uint256 index = poolUtilsInfo.priceToIndex(args.price);
 
-    pool.repayDebt(
-      address(this),
-      args.repayAmount * pool.quoteTokenScale(),
-      args.withdrawAmount * pool.collateralScale(),
-      address(this),
-      index
-    );
+    (uint256 debt,uint256 collateral, ) = poolUtilsInfo.borrowerInfo(address(pool), address(this));
+    uint256 quoteTokenScale = pool.quoteTokenScale();
+    uint256 collateralScale = pool.collateralScale();
+
+    if (args.paybackAll) {
+      uint256 amountDebt = ((debt / quoteTokenScale) + 1);
+      args.repayAmount = amountDebt;
+    }
+
+    if (args.withdrawAll) {
+      uint256 amountCollateral = collateral / collateralScale;
+      args.withdrawAmount = amountCollateral;
+    }
+
+    pool.repayDebt(address(this), args.repayAmount * quoteTokenScale, args.withdrawAmount * collateralScale, address(this), index);
+    
     store().write(bytes32(args.repayAmount));
     store().write(bytes32(args.withdrawAmount));
   }

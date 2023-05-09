@@ -2,12 +2,13 @@
 pragma solidity ^0.8.15;
 
 import { Executable } from "../common/Executable.sol";
-import { Write, UseStore } from "../common/UseStore.sol";
+import { Write, UseStore, Read } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { DepositBorrowData } from "../../core/types/Ajna.sol";
 import { AJNA_POOL_UTILS_INFO } from "../../core/constants/Ajna.sol";
 import { IAjnaPool } from "../../interfaces/ajna/IERC20Pool.sol";
 import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol";
+import { SafeMath } from "../../libs/SafeMath.sol";
 
 /**
  * @title DepositBorrow | Ajna Action contract
@@ -15,27 +16,40 @@ import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol
  */
 contract AjnaDepositBorrow is Executable, UseStore {
   using Write for OperationStorage;
+  using Read for OperationStorage;
+  using SafeMath for uint256;
 
   constructor(address _registry) UseStore(_registry) {}
 
   /**
    * @param data Encoded calldata that conforms to the BorrowData struct
    */
-  function execute(bytes calldata data, uint8[] memory) external payable override {
+  function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositBorrowData memory args = parseInputs(data);
     IAjnaPool pool = IAjnaPool(args.pool);
     IAjnaPoolUtilsInfo poolUtilsInfo = IAjnaPoolUtilsInfo(
       registry.getRegisteredService(AJNA_POOL_UTILS_INFO)
     );
 
+    uint256 mappedDepositAmount = store().readUint(
+      bytes32(args.depositAmount),
+      paramsMap[1],
+      address(this)
+    );
+
+    uint256 mappedBorrowAmount = store().readUint(
+      bytes32(args.borrowAmount),
+      paramsMap[2],
+      address(this)
+    );
+
+    uint256 actualDepositAmount = args.sumDepositAmounts
+      ? mappedDepositAmount.add(args.depositAmount)
+      : mappedDepositAmount;
+
     uint256 index = poolUtilsInfo.priceToIndex(args.price);
 
-    pool.drawDebt(
-      address(this),
-      args.borrowAmount * pool.quoteTokenScale(),
-      index,
-      args.depositAmount * pool.collateralScale()
-    );
+    pool.drawDebt(address(this), mappedBorrowAmount * pool.quoteTokenScale(), index, actualDepositAmount * pool.collateralScale());
     store().write(bytes32(args.depositAmount));
     store().write(bytes32(args.borrowAmount));
   }

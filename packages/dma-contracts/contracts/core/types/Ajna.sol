@@ -5,6 +5,7 @@ struct DepositBorrowData {
   address pool;
   uint256 depositAmount;
   uint256 borrowAmount;
+  bool sumDepositAmounts;
   uint256 price;
 }
 
@@ -12,5 +13,7 @@ struct RepayWithdrawData {
   address pool;
   uint256 withdrawAmount;
   uint256 repayAmount;
+  bool paybackAll;
+  bool withdrawAll;
   uint256 price;
 }

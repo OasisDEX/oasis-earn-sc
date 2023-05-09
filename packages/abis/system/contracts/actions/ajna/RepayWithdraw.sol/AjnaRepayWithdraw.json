@@ -19,7 +19,7 @@
       },
       {
         "internalType": "uint8[]",
-        "name": "",
+        "name": "paramsMap",
         "type": "uint8[]"
       }
     ],
@@ -54,6 +54,16 @@
             "internalType": "uint256",
             "name": "repayAmount",
             "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "paybackAll",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "withdrawAll",
+            "type": "bool"
           },
           {
             "internalType": "uint256",
