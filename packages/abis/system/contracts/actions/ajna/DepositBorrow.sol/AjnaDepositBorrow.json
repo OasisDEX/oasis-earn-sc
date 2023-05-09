@@ -19,7 +19,7 @@
       },
       {
         "internalType": "uint8[]",
-        "name": "",
+        "name": "paramsMap",
         "type": "uint8[]"
       }
     ],
@@ -54,6 +54,11 @@
             "internalType": "uint256",
             "name": "borrowAmount",
             "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "sumDepositAmounts",
+            "type": "bool"
           },
           {
             "internalType": "uint256",
