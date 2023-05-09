@@ -1,4 +1,3 @@
-// TODO to be adjusted
 export interface AjnaStrategyAddresses {
   DAI: string
   ETH: string
@@ -8,7 +7,5 @@ export interface AjnaStrategyAddresses {
   WBTC: string
   operationExecutor: string
   chainlinkEthUsdPriceFeed: string
-  aaveOracle: string
   pool: string
-  poolDataProvider: string
 }

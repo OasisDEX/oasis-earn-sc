@@ -7,28 +7,23 @@ import BigNumber from 'bignumber.js'
 
 const createAction = ActionFactory.create
 
-// TODO it's depends on contract interface and we will need to adjust it
 export function ajnaDepositBorrow(
   args: {
-    depositAsset: string
-    borrowAsset: string
-    depositAmount: BigNumber | 0
-    borrowAmount?: BigNumber | 0
-    to: string
+    pool: string
+    depositAmount: BigNumber
+    borrowAmount?: BigNumber
     sumAmounts: boolean
     price: BigNumber
     setAsCollateral?: boolean
   },
   paramsMapping: [
-    depositAsset: number,
-    borrowAsset: number,
+    pool: number,
     depositAmount: number,
     borrowAmount: number,
-    to: number,
     sumAmounts: number,
     price: number,
     setAsCollateral: number,
-  ] = [0, 0, 0, 0, 0, 0, 0, 0],
+  ] = [0, 0, 0, 0, 0, 0],
 ) {
   return createAction(
     getActionHash(CONTRACT_NAMES.ajna.DEPOSIT_BORROW),
@@ -47,25 +42,34 @@ export function ajnaDepositBorrow(
   )
 }
 
-// TODO it's not even touched for now in terms of interfaces
 export function ajnaPaybackWithdraw(
   args: {
-    withdrawAsset: string
-    withdrawAmount: BigNumber
+    pool: string
     paybackAmount?: BigNumber
+    withdrawAmount?: BigNumber
     paybackAll?: boolean
+    price: BigNumber
     to: string
   },
-  paramsMapping: [asset: number, amount: number, paybackAll: number] = [0, 0, 0],
+  paramsMapping: [
+    pool: number,
+    paybackAmount: number,
+    withdrawAmount: number,
+    price: number,
+    paybackAll: number,
+  ] = [0, 0, 0, 0, 0],
 ) {
   return createAction(
     getActionHash(CONTRACT_NAMES.ajna.REPAY_WITHDRAW),
     [calldataTypes.ajna.RepayWithdraw],
     [
       {
-        asset: args.asset,
-        amount: args.amount.toFixed(0),
-        paybackAll: args.paybackAll === undefined ? false : args.paybackAll,
+        pool: args.pool,
+        paybackAmount: args.paybackAmount?.toFixed(0) || ZERO,
+        withdrawAmount: args.withdrawAmount?.toFixed(0) || ZERO,
+        paybackAll: !!args.paybackAll,
+        price: args.price,
+        to: args.to,
       },
       paramsMapping,
     ],

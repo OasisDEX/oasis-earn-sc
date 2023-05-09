@@ -1,7 +1,8 @@
-import * as actions from '@dma-library/actions'
+import { actions } from '@dma-library/actions'
 import {
   IOperation,
   Protocol,
+  WithAjnaBucketPrice,
   WithAjnaStrategyAddresses,
   WithCollateral,
   WithDebtAndBorrow,
@@ -23,9 +24,9 @@ type OpenArgs = WithCollateral &
   WithFlashloan &
   WithProxy &
   WithPosition &
-  WithAjnaStrategyAddresses
+  WithAjnaStrategyAddresses &
+  WithAjnaBucketPrice
 
-// TODO we will need here price param as well
 export async function open({
   collateral,
   debt,
@@ -35,6 +36,7 @@ export async function open({
   proxy,
   position,
   addresses,
+  price,
 }: OpenArgs): Promise<IOperation> {
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
@@ -54,21 +56,19 @@ export async function open({
     from: proxy.owner,
   })
 
-  const setDaiApprovalOnLendingPool = actions.common.setApproval({
+  const setDebtTokenApprovalOnLendingPool = actions.common.setApproval({
     amount: flashloan.amount,
-    asset: addresses.DAI,
+    asset: debt.address,
     delegate: addresses.pool,
     sumAmounts: false,
   })
 
   const depositBorrow = actions.ajna.ajnaDepositBorrow({
+    pool: addresses.pool,
     depositAmount: flashloan.amount,
-    depositAsset: addresses.DAI,
     sumAmounts: false,
-    borrowAsset: debt.address,
     borrowAmount: debt.borrow.amount,
-    to: proxy.address,
-    price: ZERO, // TODO we need to use correct value here
+    price,
   })
 
   const wrapEth = actions.common.wrapEth({
@@ -98,21 +98,20 @@ export async function open({
 
   const depositCollateral = actions.ajna.ajnaDepositBorrow(
     {
-      depositAsset: addresses.DAI,
+      pool: addresses.pool,
       depositAmount: flashloan.amount,
       sumAmounts: true,
       setAsCollateral: true,
-      borrowAsset: debt.address,
-      to: proxy.address,
-      price: ZERO, // TODO we need to use correct value here
+      price,
     },
-    [0, 3, 0, 0, 0, 0, 0, 0], // TODO it's for sure off right now
+    [0, 3, 0, 0, 0, 0],
   )
 
-  const withdrawDai = actions.ajna.ajnaPaybackWithdraw({
+  const withdrawFlashLoan = actions.ajna.ajnaPaybackWithdraw({
+    pool: addresses.pool,
     withdrawAmount: flashloan.amount,
-    withdrawAsset: addresses.DAI,
-    to: proxy.address,
+    to: addresses.operationExecutor,
+    price,
   })
 
   const protocol: Protocol = 'Ajna'
@@ -133,19 +132,19 @@ export async function open({
   const flashloanCalls = [
     pullDebtTokensToProxy,
     pullCollateralTokensToProxy,
-    setDaiApprovalOnLendingPool,
+    setDebtTokenApprovalOnLendingPool,
     depositBorrow,
     wrapEth,
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnLendingPool,
     depositCollateral,
-    withdrawDai,
+    withdrawFlashLoan,
     positionCreated,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
     isDPMProxy: proxy.isDPMProxy,
-    asset: addresses.DAI,
+    asset: debt.address,
     flashloanAmount: flashloan.amount,
     isProxyFlashloan: true,
     provider: flashloan.provider,

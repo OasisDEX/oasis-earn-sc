@@ -125,3 +125,7 @@ export type WithEMode = {
     categoryId: number
   }
 }
+
+export type WithAjnaBucketPrice = {
+  price: BigNumber
+}
