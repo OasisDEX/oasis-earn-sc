@@ -28,15 +28,19 @@ import { ChainIdByNetwork } from '@dma-deployments/utils/network'
 import { AaveVersion, protocols, strategies } from '@dma-library'
 import hre from 'hardhat'
 
-export function getSupportedAaveV3Strategies(network?: Network): Array<{
+type SupportedV3Strategies = Array<{
   name: AaveV3PositionStrategy
-  allowedNetworks?: Network[]
-}> {
-  return [
-    { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy },
-    // TODO: Monitor if wstETH optimism increase supply cap or update test to modify storage
-    { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, allowedNetworks: [Network.MAINNET] },
-  ].filter(s => (network ? !s.allowedNetworks || s.allowedNetworks.includes(network) : true))
+  allowedNetworks?: Array<Network | null>
+}>
+
+export function getSupportedAaveV3Strategies(network?: Network): SupportedV3Strategies {
+  return (
+    [
+      { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy },
+      // TODO: Monitor if wstETH optimism & mainnet increase supply cap or update test to modify storage
+      { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, allowedNetworks: [] },
+    ] as SupportedV3Strategies
+  ).filter(s => (network ? !s.allowedNetworks || s.allowedNetworks.includes(network) : true))
 }
 
 const testBlockNumberByNetwork: Record<
@@ -47,19 +51,18 @@ const testBlockNumberByNetwork: Record<
   [Network.OPTIMISM]: testBlockNumberForAaveOptimismV3,
 }
 
-export const systemWithAaveV3Positions =
-  ({
-    use1inch,
-    network,
-    systemConfigPath,
-    configExtensionPaths,
-  }: {
-    use1inch: boolean
-    network: Network
-    systemConfigPath?: string
-    configExtensionPaths?: string[]
-  }) =>
-  async (): Promise<SystemWithAAVEV3Positions> => {
+export const systemWithAaveV3Positions = ({
+  use1inch,
+  network,
+  systemConfigPath,
+  configExtensionPaths,
+}: {
+  use1inch: boolean
+  network: Network
+  systemConfigPath?: string
+  configExtensionPaths?: string[]
+}) =>
+  async function fixture(): Promise<SystemWithAAVEV3Positions> {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init()
     await ds.loadConfig(systemConfigPath)
@@ -170,9 +173,9 @@ export const systemWithAaveV3Positions =
     /*
       Re use1inch: Wsteth lacks sufficient liquidity on uniswap
       Re network: wsteth supply cap on optimism reached for now 20/04/23
-      TODO: Monitor if wstETH optimism increase supply cap or update test to modify storage
+      TODO: Monitor if wstETH optimism & mainnet increase supply cap or update test to modify storage
     */
-    if (use1inch && network !== Network.OPTIMISM) {
+    if (use1inch && network !== Network.OPTIMISM && network !== Network.MAINNET) {
       wstethEthEarnPosition = await wstethEthEarnAavePosition({
         proxy: dpmProxyForEarnWstEthEth,
         isDPM: true,
@@ -196,6 +199,7 @@ export const systemWithAaveV3Positions =
 
     return {
       config,
+      hre,
       system,
       registry,
       dsSystem,

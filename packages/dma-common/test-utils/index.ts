@@ -1,5 +1,7 @@
 export * from './1inch'
 export * from './addresses'
+export * from './advance-blocks'
+export * from './advance-time'
 export * from './as-percentage'
 export * from './create-dpm-account'
 export * from './deploy-system'

@@ -1,4 +1,4 @@
-import { OPERATION_NAMES } from '@dma-deployments/constants'
+import { aaveAdjustDownV2OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'
@@ -100,5 +100,5 @@ export async function adjustRiskDown({
     calls: flashloanCalls,
   })
 
-  return { calls: [takeAFlashLoan], operationName: OPERATION_NAMES.aave.v2.DECREASE_POSITION }
+  return { calls: [takeAFlashLoan], operationName: aaveAdjustDownV2OperationDefinition.name }
 }

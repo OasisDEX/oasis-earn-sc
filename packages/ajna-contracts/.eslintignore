@@ -1,6 +1,5 @@
 node_modules
 .eslintrc.js
-typechain
 contracts/**/*.ts
 typechain-types
 cache

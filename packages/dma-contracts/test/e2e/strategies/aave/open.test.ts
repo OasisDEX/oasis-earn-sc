@@ -1,4 +1,4 @@
-import { expect, retrySetup } from '@dma-common/test-utils'
+import { expect } from '@dma-common/test-utils'
 import { isOptimismByNetwork } from '@dma-common/utils/common'
 import {
   getSupportedStrategies,
@@ -13,6 +13,7 @@ import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/sy
 import { Network } from '@dma-deployments/types/network'
 import { PositionTransition } from '@dma-library'
 import { IPosition } from '@domain'
+import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import BigNumber from 'bignumber.js'
 
 const networkFork = process.env.NETWORK_FORK as Network
@@ -29,17 +30,10 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
         }
-        /*
-         * Intermittently fails when creating the position with the following error
-         * VM Exception while processing transaction: reverted with reason string '5'
-         * That's why we use retrySetup to avoid flakiness
-         */
-        const _fixture = await retrySetup(
-          systemWithAavePositions({
-            use1inch: false,
-            configExtensionPaths: [`test/uSwap.conf.ts`],
-          }),
-        )
+        const _fixture = await systemWithAavePositions({
+          use1inch: false,
+          configExtensionPaths: [`test/uSwap.conf.ts`],
+        })()
         if (!_fixture) throw new Error('Failed to load fixture')
         fixture = _fixture
       })
@@ -127,17 +121,11 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
         }
-        /*
-         * Intermittently fails when creating the position with the following error
-         * VM Exception while processing transaction: reverted with reason string '5'
-         * That's why we use retrySetup to avoid flakiness
-         */
-        const _fixture = await retrySetup(
-          systemWithAavePositions({
-            use1inch: true,
-            configExtensionPaths: [`test/swap.conf.ts`],
-          }),
-        )
+        const _fixture = await systemWithAavePositions({
+          use1inch: true,
+          configExtensionPaths: [`test/swap.conf.ts`],
+        })()
+
         if (!_fixture) throw new Error('Failed to load fixture')
         fixture = _fixture
       })
@@ -222,26 +210,20 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
     })
   })
   describe('Using AAVE V3', async function () {
-    let fixture: SystemWithAAVEV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
 
     describe('Open position: With Uniswap', function () {
+      let env: SystemWithAAVEV3Positions
+      const fixture = systemWithAaveV3Positions({
+        use1inch: false,
+        network: networkFork,
+        systemConfigPath: `test/${networkFork}.conf.ts`,
+        configExtensionPaths: [`test/uSwap.conf.ts`],
+      })
       before(async function () {
-        /*
-         * Intermittently fails when creating the position with the following error
-         * VM Exception while processing transaction: reverted with reason string '5'
-         * That's why we use retrySetup to avoid flakiness
-         */
-        const _fixture = await retrySetup(
-          systemWithAaveV3Positions({
-            use1inch: false,
-            network: networkFork,
-            systemConfigPath: `test/${networkFork}.conf.ts`,
-            configExtensionPaths: [`test/uSwap.conf.ts`],
-          }),
-        )
-        if (!_fixture) throw new Error('Failed to load fixture')
-        fixture = _fixture
+        const _env = await loadFixture(fixture)
+        if (!_env) throw new Error('Failed to set up system')
+        env = _env
       })
 
       describe('Using DSProxy', () => {
@@ -251,7 +233,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         let feeWalletBalanceChange: BigNumber
 
         before(async () => {
-          const { dsProxyPosition: dsProxyEthUsdcMultiplyPositionDetails } = fixture
+          const { dsProxyPosition: dsProxyEthUsdcMultiplyPositionDetails } = env
 
           position = await dsProxyEthUsdcMultiplyPositionDetails.getPosition()
           simulatedPosition =
@@ -297,7 +279,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
             let feeWalletBalanceChange: BigNumber
 
             before(async function () {
-              const { dpmPositions } = fixture
+              const { dpmPositions } = env
               const positionDetails = dpmPositions[strategy]
               if (!positionDetails) {
                 this.skip()
@@ -337,22 +319,17 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
       })
     })
     describe('Open position: With 1inch', () => {
-      before(async () => {
-        /*
-         * Intermittently fails when creating the position with the following error
-         * VM Exception while processing transaction: reverted with reason string '5'
-         * That's why we use retrySetup to avoid flakiness
-         */
-        const _fixture = await retrySetup(
-          systemWithAaveV3Positions({
-            use1inch: true,
-            network: networkFork,
-            systemConfigPath: `test/${networkFork}.conf.ts`,
-            configExtensionPaths: [`test/swap.conf.ts`],
-          }),
-        )
-        if (!_fixture) throw new Error('Failed to load fixture')
-        fixture = _fixture
+      let env: SystemWithAAVEV3Positions
+      const fixture = systemWithAaveV3Positions({
+        use1inch: true,
+        network: networkFork,
+        systemConfigPath: `test/${networkFork}.conf.ts`,
+        configExtensionPaths: [`test/swap.conf.ts`],
+      })
+      before(async function () {
+        const _env = await loadFixture(fixture)
+        if (!_env) throw new Error('Failed to set up system')
+        env = _env
       })
 
       describe('Using DSProxy', () => {
@@ -362,7 +339,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         let feeWalletBalanceChange: BigNumber
 
         before(async () => {
-          const { dsProxyPosition: dsProxyEthUsdcMultiplyPositionDetails } = fixture
+          const { dsProxyPosition: dsProxyEthUsdcMultiplyPositionDetails } = env
 
           position = await dsProxyEthUsdcMultiplyPositionDetails.getPosition()
           simulatedPosition =
@@ -405,7 +382,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
           let feeWalletBalanceChange: BigNumber
 
           before(async function () {
-            const { dpmPositions } = fixture
+            const { dpmPositions } = env
             const positionDetails = dpmPositions[strategy]
             if (!positionDetails) {
               this.skip()

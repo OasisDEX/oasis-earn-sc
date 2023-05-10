@@ -131,7 +131,6 @@ export async function ethUsdcMultiplyAavePosition({
     aaveV3UniqueContractName in dependencies.addresses
   ) {
     const addresses = dependencies.addresses
-
     getPosition = async () => {
       return await strategies.aave.v3.view(
         {

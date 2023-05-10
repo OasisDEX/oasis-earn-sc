@@ -1,4 +1,5 @@
-import { NULL_ADDRESS, OPERATION_NAMES, ZERO } from '@dma-common/constants'
+import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
+import { aaveAdjustUpV2OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'
@@ -138,6 +139,6 @@ export async function adjustRiskUp({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: OPERATION_NAMES.aave.v2.INCREASE_POSITION,
+    operationName: aaveAdjustUpV2OperationDefinition.name,
   }
 }

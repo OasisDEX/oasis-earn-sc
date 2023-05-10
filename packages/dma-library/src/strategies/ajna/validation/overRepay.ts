@@ -1,3 +1,4 @@
+import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
 import BigNumber from 'bignumber.js'
 
 import { AjnaPosition } from '../../../types/ajna'
@@ -12,7 +13,7 @@ export function validateOverRepay(
       {
         name: 'payback-amount-exceeds-debt-token-balance',
         data: {
-          amount: positionBefore.debtAmount.decimalPlaces(2).toString(),
+          amount: formatCryptoBalance(positionBefore.debtAmount),
         },
       },
     ]
