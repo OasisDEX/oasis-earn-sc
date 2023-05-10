@@ -1,3 +1,5 @@
+import { CONTRACT_NAMES } from '@dma-deployments/constants'
+
 export const config = {
   mpa: {
     core: {
@@ -5,7 +7,7 @@ export const config = {
         name: 'Swap',
         deploy: true,
         address: '',
-        serviceRegistryName: 'Swap',
+        serviceRegistryName: CONTRACT_NAMES.common.SWAP,
         history: [],
         constructorArgs: [
           '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // HH wallet
