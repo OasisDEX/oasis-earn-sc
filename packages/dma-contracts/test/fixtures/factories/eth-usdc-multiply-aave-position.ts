@@ -132,7 +132,6 @@ export async function ethUsdcMultiplyAavePosition({
   let getPosition
   type AccountFactory = { accountFactory?: string | undefined }
   if (dependencies.protocol.version === AaveVersion.v3) {
-    console.log('GETTING POSITION V3')
     const addresses = dependencies.addresses as AAVEV3StrategyAddresses & AccountFactory
     getPosition = async () => {
       return await strategies.aave.v3.view(

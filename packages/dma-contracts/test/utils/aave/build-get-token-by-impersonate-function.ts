@@ -45,7 +45,7 @@ const tokensWhales: {
     },
     USDC: {
       tokenAddress: optimismAddressesForTests.USDC,
-      whale: '0xb589969d38ce76d3d7aa319de7133bc9755fd840',
+      whale: '0xd165164cbAb65004Da73C596712687C16b981274',
     },
     WSTETH: {
       tokenAddress: optimismAddressesForTests.WSTETH,
@@ -64,8 +64,8 @@ export function buildGetTokenByImpersonateFunction(
     if (!(isMainnetByNetwork(network) || isOptimismByNetwork(network))) {
       throw new Error('Not implemented for this network yet')
     }
-
     const { tokenAddress, whale } = tokensWhales[network][symbol]
+
     const fromSigner = await hre.ethers.getSigner(whale)
 
     await config.signer.sendTransaction({

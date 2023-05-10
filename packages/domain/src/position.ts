@@ -178,7 +178,6 @@ export class Position implements IPosition {
   public get debtToPaybackAll() {
     const debt = this.debt.amount
     const offset = new BigNumber(1000)
-    // return debt.integerValue(BigNumber.ROUND_UP)
     return debt.plus(debt.div(offset).integerValue(BigNumber.ROUND_UP))
   }
 

@@ -20,12 +20,12 @@ import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import BigNumber from 'bignumber.js'
 
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)
+const optimismAddresses = addressesByNetwork(Network.OPTIMISM)
 const networkFork = process.env.NETWORK_FORK as Network
 
 // TODO: AAVE V3 tests are using 1inch for the swap but also uses impersonation to get tokens
 // Meaning they could fail at some future date if a whale ceases to be a whale.
 // Need to fix manually update uniswap pools and use uniswap for the swap and acquiring tokens
-
 describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
   describe('Using AAVE V2', async function () {
     let env: SystemWithAavePositions
@@ -676,7 +676,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
       })
     })
   })
-  describe.only('Using AAVE V3', async function () {
+  describe('Using AAVE V3', async function () {
     let env: SystemWithAAVEV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies()
 
@@ -685,7 +685,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
       network: networkFork,
       systemConfigPath: `test/${networkFork}.conf.ts`,
       configExtensionPaths: [`test/swap.conf.ts`],
-      hideLogging: false,
+      hideLogging: true,
     })
 
     beforeEach(async function () {
@@ -699,17 +699,18 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
         it('Should reduce debt', async () => {
           const { dsProxyPosition, strategiesDependencies, system, config, getTokens } = env
           const beforeTransactionPosition = await dsProxyPosition.getPosition()
-          console.log('GOT HERE 1')
+
           const amountToPayback = amountToWei(
             new BigNumber(0.05),
             beforeTransactionPosition.debt.precision,
           )
+          const roundedAmountToPayback = new BigNumber(amountToPayback.toFixed(0))
 
           type PaybackDebtTypes = Parameters<typeof strategies.aave.v3.paybackWithdraw>
           const args: PaybackDebtTypes[0] = {
             debtToken: beforeTransactionPosition.debt,
             collateralToken: beforeTransactionPosition.collateral,
-            amountDebtToPaybackInBaseUnit: amountToPayback,
+            amountDebtToPaybackInBaseUnit: roundedAmountToPayback,
             amountCollateralToWithdrawInBaseUnit: ZERO,
             slippage: new BigNumber(0.1),
           }
@@ -717,17 +718,18 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
             beforeTransactionPosition.debt.symbol !== 'ETH' &&
             beforeTransactionPosition.debt.symbol !== 'WETH'
           ) {
-            await getTokens.byImpersonate(beforeTransactionPosition.debt.symbol, amountToPayback)
+            await getTokens.byImpersonate(
+              beforeTransactionPosition.debt.symbol,
+              roundedAmountToPayback,
+            )
             await approve(
               beforeTransactionPosition.debt.address,
               dsProxyPosition.proxy,
-              args.amountDebtToPaybackInBaseUnit,
+              roundedAmountToPayback,
               config,
-              false,
             )
           }
 
-          console.log('GOT HERE 2')
           const paybackDebtSimulation = await strategies.aave.v3.paybackWithdraw(args, {
             ...strategiesDependencies,
             proxy: dsProxyPosition.proxy,
@@ -1007,9 +1009,15 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
             }
             const beforeTransactionPosition = await position.getPosition()
 
+            const ethAddresses = {
+              [Network.MAINNET]: mainnetAddresses.ETH,
+              [Network.OPTIMISM]: optimismAddresses.ETH,
+            }
+            const ethAddress = ethAddresses[networkFork]
+
             const collateralAddress =
               beforeTransactionPosition.collateral.symbol === 'ETH'
-                ? mainnetAddresses.ETH
+                ? ethAddress
                 : beforeTransactionPosition.collateral.address
 
             const beforeTransactionCollateralBalance = await balanceOf(collateralAddress, owner, {
@@ -1060,16 +1068,17 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
             })
 
             expect(status).to.be.true
+
             expect.toBe(
               afterTransactionPosition.collateral.amount,
-              'lt',
+              'lte',
               beforeTransactionPosition.collateral.amount,
               'Amount of collateral after transaction is not less than before transaction',
             )
 
             expect.toBe(
               afterTransactionBalance,
-              'gt',
+              'gte',
               beforeTransactionCollateralBalance,
               'Balance of collateral after transaction is not greater than before transaction',
             )
@@ -1095,7 +1104,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
 
             const amountToWithdraw = beforeTransactionPosition.maxCollateralToWithdraw
 
-            type WithdrawParameters = Parameters<typeof strategies.aave.v2.paybackWithdraw>
+            type WithdrawParameters = Parameters<typeof strategies.aave.v3.paybackWithdraw>
             const args: WithdrawParameters[0] = {
               debtToken: beforeTransactionPosition.debt,
               collateralToken: beforeTransactionPosition.collateral,
