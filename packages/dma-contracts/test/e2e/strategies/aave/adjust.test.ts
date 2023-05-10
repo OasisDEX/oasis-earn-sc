@@ -447,10 +447,6 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
                 getSwapData: fixture.strategiesDependencies.getSwapData(
                   fixture.system.Swap.contract.address,
                 ),
-                // getSwapData: oneInchCallMock(ONE.div(positionDetails.__mockPrice), {
-                //   from: collateralToken.precision,
-                //   to: debtToken.precision,
-                // }),
                 userAddress: config.address,
                 config,
                 system,

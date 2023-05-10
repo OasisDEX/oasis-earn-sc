@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/dma-library",
-  "version": "0.2.16",
+  "version": "0.3.1",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -18,7 +18,8 @@
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
     "lint:fix": "yarn eslint . --fix --ext .ts",
     "linked": "yarn link",
-    "unlinked": "yarn unlink"
+    "unlinked": "yarn unlink",
+    "prepublish": "yarn build"
   },
   "license": "Apache-2.0",
   "dependencies": {
@@ -26,6 +27,8 @@
     "ethers": "5.7.2"
   },
   "nx": {
-    "implicitDependencies": ["@oasisdex/domain"]
+    "implicitDependencies": [
+      "@oasisdex/domain"
+    ]
   }
 }

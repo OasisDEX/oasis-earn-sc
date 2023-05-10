@@ -21,7 +21,8 @@
     "build": "lerna run build --stream",
     "format": "lerna run format --stream",
     "format:check": "lerna run format:check --stream",
-    "lint": "lerna run lint --stream"
+    "lint": "lerna run lint --stream",
+    "publish:all": "npx lerna publish --no-private"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
