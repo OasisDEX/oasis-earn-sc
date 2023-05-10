@@ -1,4 +1,4 @@
-import { ADDRESS_ZERO } from '../constants'
+import { ADDRESS_ZERO, CONTRACT_NAMES } from '../constants'
 import { SystemConfig } from '../types/deployment-config'
 
 export const optimismConfig: SystemConfig = {
@@ -15,7 +15,7 @@ export const optimismConfig: SystemConfig = {
         name: 'OperationExecutor',
         deploy: false,
         address: '0xFDFf46fF5752CE2A4CAbAAf5a2cFF3744E1D09de',
-        serviceRegistryName: 'OperationExecutor_2',
+        serviceRegistryName: CONTRACT_NAMES.common.OPERATION_EXECUTOR,
         history: ['0x5AB3e51608cEa26090445CA89bc91628C8bB99f9'],
         constructorArgs: ['address:ServiceRegistry'],
       },
@@ -23,7 +23,7 @@ export const optimismConfig: SystemConfig = {
         name: 'OperationStorage',
         deploy: false,
         address: '0x6d3af85e27686FfF7686b2FAe174b0a7d8c95e16',
-        serviceRegistryName: 'OperationStorage_2',
+        serviceRegistryName: CONTRACT_NAMES.common.OPERATION_STORAGE,
         history: ['0xd4FEaf1023CD6998053a1eb02460000980Cc908f'],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
       },
@@ -31,7 +31,7 @@ export const optimismConfig: SystemConfig = {
         name: 'OperationsRegistry',
         deploy: false,
         address: '0x3Dd262181BA245184a903CD8B77E23417f815669',
-        serviceRegistryName: 'OperationsRegistry_2',
+        serviceRegistryName: CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
         history: ['0x392ACeBea829373A3eFDc0dA80a16003106d8f6E'],
         constructorArgs: [],
       },
@@ -39,7 +39,7 @@ export const optimismConfig: SystemConfig = {
         name: 'DSProxyFactory',
         deploy: false,
         address: '0x93dFeCd48491eCc6F6EC82B0fEE1Cba9eF9C941A',
-        serviceRegistryName: 'DSProxyFactory',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
         history: [],
         constructorArgs: [],
       },
@@ -47,7 +47,7 @@ export const optimismConfig: SystemConfig = {
         name: 'DSProxyRegistry',
         deploy: false,
         address: '0x4EcDc277484D71A3BD15f36C858aEc2C56803869',
-        serviceRegistryName: 'DSProxyRegistry',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
         history: [],
         constructorArgs: ['address:DSProxyFactory'],
       },
@@ -55,7 +55,7 @@ export const optimismConfig: SystemConfig = {
         name: 'DSGuardFactory',
         deploy: false,
         address: '0x7bBe5f9C95E2994C420B3Af063e74e5F87b2A3B5',
-        serviceRegistryName: 'DSGuardFactory',
+        serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
         history: [],
         constructorArgs: [],
       },
@@ -63,7 +63,7 @@ export const optimismConfig: SystemConfig = {
         name: 'AccountGuard',
         deploy: false,
         address: '0x916411367fC2f0dc828790eA03CF317eC74E24E4',
-        serviceRegistryName: 'AccountGuard',
+        serviceRegistryName: CONTRACT_NAMES.common.ACCOUNT_GUARD,
         history: ['0x63059cC2533344B65372983D4B6258b2cbbBF0Da'],
         constructorArgs: [],
       },
@@ -71,7 +71,7 @@ export const optimismConfig: SystemConfig = {
         name: 'AccountFactory',
         deploy: false,
         address: '0xaaf64927BaFe68E389DE3627AA6b52D81bdA2323',
-        serviceRegistryName: 'AccountFactory',
+        serviceRegistryName: CONTRACT_NAMES.common.ACCOUNT_FACTORY,
         history: ['0xE166a06809FD35Cece10df9Cace87BbDB9a48F66'],
         constructorArgs: ['address:AccountGuard'],
       },
@@ -79,7 +79,7 @@ export const optimismConfig: SystemConfig = {
         name: 'Swap',
         deploy: false,
         address: '0x4De3CA09e803969408f83F453416b3e2D70C12Fe',
-        serviceRegistryName: 'Swap',
+        serviceRegistryName: CONTRACT_NAMES.common.SWAP,
         history: [],
         constructorArgs: [
           '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
@@ -216,12 +216,12 @@ export const optimismConfig: SystemConfig = {
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xE592427A0AEce92De3Edee1F18E0157C05861564',
-      serviceRegistryName: 'UniswapRouter',
+      serviceRegistryName: CONTRACT_NAMES.common.UNISWAP_ROUTER,
     },
     BalancerVault: {
       name: 'BalancerVault',
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      serviceRegistryName: 'BalancerVault',
+      serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
     },
     FeeRecipient: {
       name: 'FeeRecipient',
@@ -234,7 +234,7 @@ export const optimismConfig: SystemConfig = {
     OneInchAggregator: {
       name: 'OneInchAggregator',
       address: '0x1111111254EEB25477B68fb85Ed929f73A960582',
-      serviceRegistryName: 'OneInchAggregator',
+      serviceRegistryName: CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
     },
     MerkleRedeemer: {
       name: 'MerkleRedeemer',
@@ -328,8 +328,8 @@ export const optimismConfig: SystemConfig = {
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },
     DAI: {
       name: 'DAI',
-      address: ADDRESS_ZERO,
-      serviceRegistryName: 'DAI',
+      address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+      serviceRegistryName: CONTRACT_NAMES.common.DAI,
     },
     ETH: { name: 'ETH', address: ADDRESS_ZERO },
     GNO: { name: 'GNO', address: ADDRESS_ZERO },
@@ -373,24 +373,24 @@ export const optimismConfig: SystemConfig = {
     UNIV2WBTCETH: { name: 'UNIV2WBTCETH', address: ADDRESS_ZERO },
     USDC: {
       name: 'USDC',
-      address: ADDRESS_ZERO,
-      serviceRegistryName: 'USDC',
+      address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+      serviceRegistryName: CONTRACT_NAMES.common.USDC,
     },
     USDT: { name: 'USDT', address: ADDRESS_ZERO },
     WBTC: {
       name: 'WBTC',
-      address: ADDRESS_ZERO,
-      serviceRegistryName: 'WBTC',
+      address: '0x68f180fcce6836688e9084f035309e29bf0a2095',
+      serviceRegistryName: CONTRACT_NAMES.common.WBTC,
     },
     WETH: {
       name: 'WETH',
-      address: ADDRESS_ZERO,
-      serviceRegistryName: 'WETH',
+      address: '0x4200000000000000000000000000000000000006',
+      serviceRegistryName: CONTRACT_NAMES.common.WETH,
     },
     WSTETH: {
       name: 'WSTETH',
-      address: ADDRESS_ZERO,
-      serviceRegistryName: 'WSTETH',
+      address: '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb',
+      serviceRegistryName: CONTRACT_NAMES.common.WSTETH,
     },
     YFI: { name: 'YFI', address: ADDRESS_ZERO },
     ZRX: { name: 'ZRX', address: ADDRESS_ZERO },
@@ -422,7 +422,7 @@ export const optimismConfig: SystemConfig = {
       Pool: {
         name: 'Pool',
         address: '0x794a61358D6845594F94dc1DB02A252b5b4814aD',
-        serviceRegistryName: 'AavePool',
+        serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
       },
       AavePoolDataProvider: {
         name: 'AavePoolDataProvider',
