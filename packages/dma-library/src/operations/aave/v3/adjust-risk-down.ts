@@ -1,7 +1,5 @@
 import { MAX_UINT } from '@dma-common/constants'
-import { ADDRESSES } from '@dma-deployments/addresses'
 import { aaveAdjustDownV3OperationDefinition } from '@dma-deployments/operation-definitions'
-import { Network } from '@dma-deployments/types/network'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import {
@@ -88,11 +86,11 @@ export async function adjustRiskDown({
   })
 
   const returnDebtFunds = actions.common.returnFunds({
-    asset: debt.isEth ? ADDRESSES[Network.MAINNET].common.ETH : debt.address,
+    asset: debt.isEth ? addresses.ETH : debt.address,
   })
 
   const returnCollateralFunds = actions.common.returnFunds({
-    asset: collateral.isEth ? ADDRESSES[Network.MAINNET].common.ETH : collateral.address,
+    asset: collateral.isEth ? addresses.ETH : collateral.address,
   })
 
   unwrapEth.skipped = !debt.isEth && !collateral.isEth

@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/addresses",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -15,9 +15,12 @@
   ],
   "scripts": {
     "build": "yarn clean && npx parcel build ../dma-deployments/addresses/index.ts --dist-dir ./lib --no-source-maps",
-    "clean": "rm -rf lib"
+    "clean": "rm -rf lib",
+    "prepublish": "yarn build"
   },
   "nx": {
-    "implicitDependencies": ["@oasisdex/dma-deployments"]
+    "implicitDependencies": [
+      "@oasisdex/dma-deployments"
+    ]
   }
 }

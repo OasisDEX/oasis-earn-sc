@@ -31,15 +31,19 @@ import { ChainIdByNetwork } from '@dma-deployments/utils/network'
 import { AaveVersion, protocols, strategies } from '@dma-library'
 import hre from 'hardhat'
 
-export function getSupportedAaveV3Strategies(network?: Network): Array<{
+type SupportedV3Strategies = Array<{
   name: AaveV3PositionStrategy
-  allowedNetworks?: Network[]
-}> {
-  return [
-    { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy },
-    // TODO: Monitor if wstETH optimism increase supply cap or update test to modify storage
-    { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, allowedNetworks: [Network.MAINNET] },
-  ].filter(s => (network ? !s.allowedNetworks || s.allowedNetworks.includes(network) : true))
+  allowedNetworks?: Array<Network | null>
+}>
+
+export function getSupportedAaveV3Strategies(network?: Network): SupportedV3Strategies {
+  return (
+    [
+      { name: 'ETH/USDC Multiply' as AaveV3PositionStrategy },
+      // TODO: Monitor if wstETH optimism & mainnet increase supply cap or update test to modify storage
+      { name: 'WSTETH/ETH Earn' as AaveV3PositionStrategy, allowedNetworks: [] },
+    ] as SupportedV3Strategies
+  ).filter(s => (network ? !s.allowedNetworks || s.allowedNetworks.includes(network) : true))
 }
 
 const testBlockNumberByNetwork: Record<
@@ -162,7 +166,7 @@ export const systemWithAaveV3Positions = ({
     if (!dpmProxyForMultiplyEthUsdc || !dpmProxyForEarnWstEthEth) {
       throw new Error('Cant create a DPM proxy')
     }
-    console.log('Setting up fixtures...')
+
     const ethUsdcMultiplyPosition = await ethUsdcMultiplyAavePosition({
       proxy: dpmProxyForMultiplyEthUsdc,
       isDPM: true,
@@ -172,14 +176,14 @@ export const systemWithAaveV3Positions = ({
       config,
       feeRecipient: systemConfig.common.FeeRecipient.address,
     })
-    console.log('Position created...')
+
     let wstethEthEarnPosition: PositionDetails | undefined
     /*
       Re use1inch: Wsteth lacks sufficient liquidity on uniswap
       Re network: wsteth supply cap on optimism reached for now 20/04/23
-      TODO: Monitor if wstETH optimism increase supply cap or update test to modify storage
+      TODO: Monitor if wstETH optimism & mainnet increase supply cap or update test to modify storage
     */
-    if (use1inch && network !== Network.OPTIMISM) {
+    if (use1inch && network !== Network.OPTIMISM && network !== Network.MAINNET) {
       wstethEthEarnPosition = await wstethEthEarnAavePosition({
         proxy: dpmProxyForEarnWstEthEth,
         isDPM: true,

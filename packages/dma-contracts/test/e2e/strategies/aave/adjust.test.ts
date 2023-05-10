@@ -27,7 +27,8 @@ import {
 import { TokenDetails } from '@dma-contracts/test/fixtures/types/position-details'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
 import { ADDRESSES } from '@dma-deployments/addresses'
-import { DeployedSystem } from '@dma-deployments/types/deployed-system'
+import { ADDRESS_ZERO } from '@dma-deployments/constants'
+import { DeployedSystem, System } from '@dma-deployments/types/deployed-system'
 import { Network } from '@dma-deployments/types/network'
 import { AAVETokens, AAVEV3StrategyAddresses, strategies } from '@dma-library'
 import { PositionType } from '@dma-library/types'
@@ -447,10 +448,6 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
                 getSwapData: fixture.strategiesDependencies.getSwapData(
                   fixture.system.Swap.contract.address,
                 ),
-                // getSwapData: oneInchCallMock(ONE.div(positionDetails.__mockPrice), {
-                //   from: collateralToken.precision,
-                //   to: debtToken.precision,
-                // }),
                 userAddress: config.address,
                 config,
                 system,
@@ -486,7 +483,6 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
     })
   })
   describe('Using AAVE V3', async function () {
-    let fixture: SystemWithAAVEV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
 
     type AdjustPositionV3Args = {
@@ -501,7 +497,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       slippage: BigNumber
       config: RuntimeConfig
       positionType: PositionType
-      system: DeployedSystem
+      dsSystem: System
       hre: HardhatRuntimeEnvironment
     }
 
@@ -510,7 +506,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
     ) {
       const addresses = {
         ...addressesByNetwork(args.network),
-        operationExecutor: args.system.OperationExecutor.contract.address,
+        operationExecutor: args.dsSystem.system.OperationExecutor.contract.address,
       }
 
       // So, we need addresses to be narrowed and passed to an inner function that does logic
@@ -537,7 +533,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
     ) {
       const addresses = {
         ...addressesByNetwork(args.network),
-        operationExecutor: args.system.OperationExecutor.contract.address,
+        operationExecutor: args.dsSystem.system.OperationExecutor.contract.address,
       }
 
       // So, we need addresses to be narrowed and passed to an inner function that does logic
@@ -569,10 +565,11 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       proxy,
       userAddress,
       getSwapData,
+      addresses: addressesByNetwork,
       slippage,
       positionType,
       config,
-      system,
+      dsSystem,
       hre,
     }: AdjustPositionV3Args & {
       addresses: AAVEV3StrategyAddresses
@@ -580,16 +577,16 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       debtTokenAddress: string
     }) {
       const addresses = {
-        ...mainnetAddresses,
-        operationExecutor: system.OperationExecutor.contract.address,
+        ...addressesByNetwork,
+        operationExecutor: dsSystem.system.OperationExecutor.contract.address,
       }
       const tokenAddresses: Record<AAVETokens, string> = {
-        WETH: mainnetAddresses.WETH,
-        ETH: mainnetAddresses.WETH,
-        STETH: mainnetAddresses.STETH,
-        WSTETH: mainnetAddresses.WSTETH,
-        USDC: mainnetAddresses.USDC,
-        WBTC: mainnetAddresses.WBTC,
+        WETH: addresses.WETH,
+        ETH: addresses.WETH,
+        STETH: ADDRESS_ZERO,
+        WSTETH: addresses.WSTETH,
+        USDC: addresses.USDC,
+        WBTC: addresses.WBTC,
       }
 
       const collateralTokenAddress = tokenAddresses[collateralToken.symbol as AAVETokens]
@@ -604,32 +601,26 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         }) === 'sourceToken'
       const isFeeFromDebtToken = isIncreasingRisk ? isFeeFromSourceToken : !isFeeFromSourceToken
 
+      const feeRecipient = dsSystem.config.common.FeeRecipient.address
+      if (!feeRecipient) throw new Error('Fee recipient is not set')
       const feeWalletBalanceBeforeAdjust = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES[Network.MAINNET].common.FeeRecipient,
+        feeRecipient,
         { config },
       )
 
       const provider = config.provider
       const signer = config.signer
 
-      const pool = new Contract(
-        ADDRESSES[Network.MAINNET].aave.v3.Pool,
-        AAVELendingPoolABI,
-        provider,
-      )
+      const pool = new Contract(addresses.pool, AAVELendingPoolABI, provider)
 
       const aaveProtocolDataProvider = new Contract(
-        ADDRESSES[Network.MAINNET].aave.v3.AavePoolDataProvider,
+        addresses.poolDataProvider,
         AAVEDataProviderABI,
         provider,
       )
 
-      const aaveOracle = new ethers.Contract(
-        ADDRESSES[Network.MAINNET].aave.v3.AaveOracle,
-        aavePriceOracleABI,
-        provider,
-      )
+      const aaveOracle = new ethers.Contract(addresses.aaveOracle, aavePriceOracleABI, provider)
 
       const strategy = await strategies.aave.v3.adjust(
         {
@@ -656,16 +647,18 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       const [txStatus, tx] = await executeThroughProxy(
         proxy,
         {
-          address: system.OperationExecutor.contract.address,
-          calldata: system.OperationExecutor.contract.interface.encodeFunctionData('executeOp', [
-            strategy.transaction.calls,
-            strategy.transaction.operationName,
-          ]),
+          address: dsSystem.system.OperationExecutor.contract.address,
+          calldata: dsSystem.system.OperationExecutor.contract.interface.encodeFunctionData(
+            'executeOp',
+            [strategy.transaction.calls, strategy.transaction.operationName],
+          ),
         },
         signer,
         '0',
         hre,
       )
+
+      if (!txStatus) throw new Error('Transaction failed')
 
       // Get data from AAVE
       const protocolDataPromises = [
@@ -683,7 +676,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
 
       const feeWalletBalanceAfterAdjust = await balanceOf(
         isFeeFromDebtToken ? debtToken.address : collateralToken.address,
-        ADDRESSES[Network.MAINNET].common.FeeRecipient,
+        feeRecipient,
         { config },
       )
 
@@ -720,27 +713,23 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
 
     // No available liquidity on uniswap for some pairs on optimism
     describe('Adjust Risk Up: using 1inch', async function () {
-      before(async () => {
-        const _fixture = await systemWithAaveV3Positions({
-          use1inch: true,
-          network: networkFork,
-          systemConfigPath: `test/${networkFork}.conf.ts`,
-          configExtensionPaths: [`test/swap.conf.ts`],
-        })()
-
-        if (!_fixture) throw new Error('Failed to load fixture')
-        fixture = _fixture
+      let env: SystemWithAAVEV3Positions
+      const fixture = systemWithAaveV3Positions({
+        use1inch: true,
+        network: networkFork,
+        systemConfigPath: `test/${networkFork}.conf.ts`,
+        configExtensionPaths: [`test/swap.conf.ts`],
       })
+      before(async function () {
+        const _env = await loadFixture(fixture)
+        if (!_env) throw new Error('Failed to set up system')
+        env = _env
+      })
+
       describe('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV3>>
-
         before(async () => {
-          const {
-            hre,
-            config,
-            system,
-            dsProxyPosition: dsProxyStEthEthEarnPositionDetails,
-          } = fixture
+          const { hre, config, dsSystem, dsProxyPosition: dsProxyStEthEthEarnPositionDetails } = env
           const { debtToken, collateralToken, proxy } = dsProxyStEthEthEarnPositionDetails
 
           const position = await dsProxyStEthEthEarnPositionDetails.getPosition()
@@ -755,12 +744,10 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             debtToken,
             proxy,
             slippage: UNISWAP_TEST_SLIPPAGE,
-            getSwapData: fixture.strategiesDependencies.getSwapData(
-              fixture.system.Swap.contract.address,
-            ),
+            getSwapData: env.strategiesDependencies.getSwapData(env.system.Swap.contract.address),
             userAddress: config.address,
             config,
-            system,
+            dsSystem,
             hre,
           }
           if (isMainnet) {
@@ -808,7 +795,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             let act: Unbox<ReturnType<typeof adjustPositionV3>>
 
             before(async function () {
-              const { hre, system, config, dpmPositions } = fixture
+              const { hre, dsSystem, config, dpmPositions } = env
 
               const positionDetails = dpmPositions[strategy]
               if (!positionDetails) {
@@ -829,12 +816,12 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
                 debtToken,
                 proxy,
                 slippage: UNISWAP_TEST_SLIPPAGE,
-                getSwapData: fixture.strategiesDependencies.getSwapData(
-                  fixture.system.Swap.contract.address,
+                getSwapData: env.strategiesDependencies.getSwapData(
+                  env.system.Swap.contract.address,
                 ),
                 userAddress: config.address,
                 config,
-                system,
+                dsSystem,
                 hre,
               }
               if (isMainnet) {
@@ -878,27 +865,23 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       })
     })
     describe('Adjust Risk Down: using 1inch', async function () {
-      before(async () => {
-        const _fixture = await systemWithAaveV3Positions({
-          use1inch: true,
-          network: networkFork,
-          systemConfigPath: `test/${networkFork}.conf.ts`,
-          configExtensionPaths: [`test/swap.conf.ts`],
-        })()
-
-        if (!_fixture) throw new Error('Failed to load fixture')
-        fixture = _fixture
+      let env: SystemWithAAVEV3Positions
+      const fixture = systemWithAaveV3Positions({
+        use1inch: true,
+        network: networkFork,
+        systemConfigPath: `test/${networkFork}.conf.ts`,
+        configExtensionPaths: [`test/swap.conf.ts`],
+      })
+      before(async function () {
+        const _env = await loadFixture(fixture)
+        if (!_env) throw new Error('Failed to set up system')
+        env = _env
       })
       describe('Using DSProxy', () => {
         let act: Unbox<ReturnType<typeof adjustPositionV3>>
 
         before(async () => {
-          const {
-            hre,
-            config,
-            system,
-            dsProxyPosition: dsProxyStEthEthEarnPositionDetails,
-          } = fixture
+          const { hre, config, dsSystem, dsProxyPosition: dsProxyStEthEthEarnPositionDetails } = env
           const { debtToken, collateralToken, proxy } = dsProxyStEthEthEarnPositionDetails
 
           const position = await dsProxyStEthEthEarnPositionDetails.getPosition()
@@ -914,12 +897,10 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             debtToken,
             proxy,
             slippage: UNISWAP_TEST_SLIPPAGE,
-            getSwapData: fixture.strategiesDependencies.getSwapData(
-              fixture.system.Swap.contract.address,
-            ),
+            getSwapData: env.strategiesDependencies.getSwapData(env.system.Swap.contract.address),
             userAddress: config.address,
             config,
-            system,
+            dsSystem,
             hre,
           }
           if (isMainnet) {
@@ -968,7 +949,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
             let act: Unbox<ReturnType<typeof adjustPositionV3>>
 
             before(async function () {
-              const { hre, system, config, dpmPositions } = fixture
+              const { hre, dsSystem, config, dpmPositions } = env
 
               const positionDetails = dpmPositions[strategy]
               if (!positionDetails) {
@@ -991,12 +972,12 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
                 debtToken,
                 proxy,
                 slippage,
-                getSwapData: fixture.strategiesDependencies.getSwapData(
-                  fixture.system.Swap.contract.address,
+                getSwapData: env.strategiesDependencies.getSwapData(
+                  env.system.Swap.contract.address,
                 ),
                 userAddress: config.address,
                 config,
-                system,
+                dsSystem,
                 hre,
               }
               if (isMainnet) {
