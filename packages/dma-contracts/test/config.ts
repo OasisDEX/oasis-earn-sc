@@ -2,4 +2,6 @@
 export const testBlockNumber = 15695000
 export const testBlockNumberForAaveV3 = 16597880
 export const testBlockNumberForAaveOptimismV3 = 79811107
-export const testMarketPrice = 0.979
+
+export const BLOCKS_TO_ADVANCE = 5
+export const TIME_TO_ADVANCE = 60

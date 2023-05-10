@@ -3,12 +3,14 @@ import { RuntimeConfig } from '@dma-common/types/common'
 import { AAVETokensToGet } from '@dma-contracts/test/utils/aave'
 import { DeployedSystem, System } from '@dma-deployments/types/deployed-system'
 import BigNumber from 'bignumber.js'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { AavePositionStrategy, AaveV3PositionStrategy, PositionDetails } from './position-details'
 import { StrategyDependenciesAaveV2, StrategyDependenciesAaveV3 } from './strategies-dependencies'
 
 export type SystemWithAavePositions = {
   config: RuntimeConfig
+  hre: HardhatRuntimeEnvironment
   /** @deprecated Use dsSystem instead */
   system: DeployedSystem
   dsSystem: System
