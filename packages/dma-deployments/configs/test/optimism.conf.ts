@@ -331,7 +331,7 @@ export const config: SystemConfig = {
       address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
       serviceRegistryName: CONTRACT_NAMES.common.DAI,
     },
-    ETH: { name: 'ETH', address: ADDRESS_ZERO },
+    ETH: { name: 'ETH', address: '0x4200000000000000000000000000000000000006' },
     GNO: { name: 'GNO', address: ADDRESS_ZERO },
     GUNIV3DAIUSDC1: {
       name: 'GUNIV3DAIUSDC1',
