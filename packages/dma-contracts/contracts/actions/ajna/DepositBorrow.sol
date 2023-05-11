@@ -8,7 +8,6 @@ import { DepositBorrowData } from "../../core/types/Ajna.sol";
 import { AJNA_POOL_UTILS_INFO } from "../../core/constants/Ajna.sol";
 import { IAjnaPool } from "../../interfaces/ajna/IERC20Pool.sol";
 import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol";
-import { SafeMath } from "../../libs/SafeMath.sol";
 
 /**
  * @title DepositBorrow | Ajna Action contract
@@ -17,9 +16,11 @@ import { SafeMath } from "../../libs/SafeMath.sol";
 contract AjnaDepositBorrow is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
-  using SafeMath for uint256;
+  IAjnaPoolUtilsInfo immutable public poolUtilsInfo;
 
-  constructor(address _registry) UseStore(_registry) {}
+  constructor(address poolUtilsInfoAddress, address _registry) UseStore(_registry) {
+    poolUtilsInfo = IAjnaPoolUtilsInfo(poolUtilsInfoAddress);
+  }
 
   /**
    * @param data Encoded calldata that conforms to the BorrowData struct
@@ -27,7 +28,6 @@ contract AjnaDepositBorrow is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositBorrowData memory args = parseInputs(data);
     IAjnaPool pool = IAjnaPool(args.pool);
-    IAjnaPoolUtilsInfo poolUtilsInfo = IAjnaPoolUtilsInfo(registry.getRegisteredService(AJNA_POOL_UTILS_INFO));
 
     uint256 mappedDepositAmount = store().readUint(
       bytes32(args.depositAmount),
@@ -42,7 +42,7 @@ contract AjnaDepositBorrow is Executable, UseStore {
     );
 
     uint256 actualDepositAmount = args.sumDepositAmounts
-      ? mappedDepositAmount.add(args.depositAmount)
+      ? mappedDepositAmount + args.depositAmount
       : mappedDepositAmount;
 
     uint256 index = poolUtilsInfo.priceToIndex(args.price);
