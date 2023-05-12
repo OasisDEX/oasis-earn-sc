@@ -18,7 +18,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 const ethers = hre.ethers
 const createAction = ActionFactory.create
 
-describe.only('AJNA | POC | Unit', () => {
+describe.only('Strategy | AJNA | Open | E2E', () => {
   let provider: JsonRpcProvider
   let snapshotId: string
   let hre: HardhatRuntimeEnvironment
@@ -48,21 +48,7 @@ describe.only('AJNA | POC | Unit', () => {
     const [, serviceRegistryAddress] = await deploy('ServiceRegistry', [0])
     serviceRegistry = new ServiceRegistry(serviceRegistryAddress, signer)
 
-    const [, dummyActionAddress] = await deploy('DummyAction', [serviceRegistryAddress])
-
-    const ajnaDepositBorrow = await deploy('AjnaDepositBorrow', [
-      env.poolInfo.address,
-      serviceRegistryAddress,
-    ])
-
-    const ajnaRepayWithdraw = await deploy('AjnaRepayWithdraw', [
-      env.poolInfo.address,
-      serviceRegistryAddress,
-    ])
-
-    await serviceRegistry.addEntry('DummyAction', dummyActionAddress)
-    await serviceRegistry.addEntry('AjnaDepositBorrow', ajnaDepositBorrow[1])
-    await serviceRegistry.addEntry('AjnaRepayWithdraw', ajnaRepayWithdraw[1])
+    await addAcctions(deploy, serviceRegistryAddress, env, serviceRegistry)
 
     operationExecutor = (await deploy('OperationExecutor', [serviceRegistry.address]))[0]
 
@@ -141,3 +127,24 @@ describe.only('AJNA | POC | Unit', () => {
     expect(true).to.be.eq(true)
   })
 })
+async function addAcctions(
+  deploy: DeployFunction,
+  serviceRegistryAddress: string,
+  env: any,
+  serviceRegistry: ServiceRegistry,
+) {
+  const [, dummyActionAddress] = await deploy('DummyAction', [serviceRegistryAddress])
+  const ajnaDepositBorrow = await deploy('AjnaDepositBorrow', [
+    env.poolInfo.address,
+    serviceRegistryAddress,
+  ])
+
+  const ajnaRepayWithdraw = await deploy('AjnaRepayWithdraw', [
+    env.poolInfo.address,
+    serviceRegistryAddress,
+  ])
+
+  await serviceRegistry.addEntry('DummyAction', dummyActionAddress)
+  await serviceRegistry.addEntry('AjnaDepositBorrow', ajnaDepositBorrow[1])
+  await serviceRegistry.addEntry('AjnaRepayWithdraw', ajnaRepayWithdraw[1])
+}

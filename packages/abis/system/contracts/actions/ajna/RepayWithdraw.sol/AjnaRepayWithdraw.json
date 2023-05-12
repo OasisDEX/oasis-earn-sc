@@ -3,6 +3,11 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "poolUtilsInfoAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_registry",
         "type": "address"
       }
@@ -77,6 +82,19 @@
       }
     ],
     "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "poolUtilsInfo",
+    "outputs": [
+      {
+        "internalType": "contract IAjnaPoolUtilsInfo",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]
