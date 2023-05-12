@@ -77,8 +77,24 @@ describe.only('AJNA | POC | Unit', () => {
       name: 'DUMMY_NAME',
     } as StoredOperationStruct
 
+    const ajnaMultiplyOperation = {
+      actions: [
+        getServiceNameHash('TakeFlashloan_3'),
+        getServiceNameHash('PullToken_3'),
+        getServiceNameHash('SetApproval_3'),
+        getServiceNameHash('AjnaDepositBorrow'),
+        getServiceNameHash('WrapEth_3'),
+        getServiceNameHash('SwapAction_3'),
+        getServiceNameHash('SetApproval_3'),
+        getServiceNameHash('PositionCreated'),
+      ],
+      optional: [false, true, false, true, false, false, false, false],
+      name: 'AjnaOpenMultiply',
+    } as StoredOperationStruct
+
     const operationRegistry = (await deploy('OperationsRegistry', []))[0] as OperationsRegistry
     await operationRegistry.addOperation(operation)
+    await operationRegistry.addOperation(ajnaMultiplyOperation)
     await serviceRegistry.addEntry('OperationStorage_2', operationStorageAddress)
     await serviceRegistry.addEntry('OperationsRegistry_2', operationRegistry.address)
   })
