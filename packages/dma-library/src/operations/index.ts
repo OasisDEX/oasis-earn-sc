@@ -15,6 +15,7 @@ import {
   close as closeV3,
   open as openV3,
 } from './aave/v3'
+import { open as openAjna } from './ajna'
 
 const aave = {
   v2: {
@@ -36,6 +37,11 @@ const aave = {
   },
 }
 
+const ajna = {
+  open: openAjna,
+}
+
 export const operations = {
   aave,
+  ajna,
 }

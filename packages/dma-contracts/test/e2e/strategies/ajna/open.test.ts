@@ -1,4 +1,4 @@
-import { deployPool, prepareEnv } from '@ajna-contracts/scripts'
+import { prepareEnv } from '@ajna-contracts/scripts'
 import init from '@dma-common/utils/init'
 import { getServiceNameHash } from '@dma-contracts/../dma-common/utils/common'
 import { createDeploy, DeployFunction } from '@dma-contracts/../dma-common/utils/deploy'
@@ -68,14 +68,13 @@ describe.only('Strategy | AJNA | Open | E2E', () => {
       actions: [
         getServiceNameHash('TakeFlashloan_3'),
         getServiceNameHash('PullToken_3'),
-        getServiceNameHash('SetApproval_3'),
-        getServiceNameHash('AjnaDepositBorrow'),
         getServiceNameHash('WrapEth_3'),
         getServiceNameHash('SwapAction_3'),
         getServiceNameHash('SetApproval_3'),
+        getServiceNameHash('AjnaDepositBorrow'),
         getServiceNameHash('PositionCreated'),
       ],
-      optional: [false, true, false, true, false, false, false, false],
+      optional: [false, false, true, false, false, false, false],
       name: 'AjnaOpenMultiply',
     } as StoredOperationStruct
 
@@ -84,7 +83,6 @@ describe.only('Strategy | AJNA | Open | E2E', () => {
         getServiceNameHash('PullToken_3'),
         getServiceNameHash('SetApproval_3'),
         getServiceNameHash('AjnaDepositBorrow'),
-        // getServiceNameHash('PositionCreated'),
       ],
       optional: [false, false, false, false],
       name: 'AjnaOpenBorrow',
@@ -107,12 +105,6 @@ describe.only('Strategy | AJNA | Open | E2E', () => {
   })
 
   it('should work - ajna open borrow', async () => {
-    await deployPool(
-      env.erc20PoolFactory,
-      ADDRESSES.mainnet.common.WETH,
-      ADDRESSES.mainnet.common.USDC,
-    )
-
     const calls = [
       createAction(
         getServiceNameHash('PullToken_3'),
@@ -121,7 +113,7 @@ describe.only('Strategy | AJNA | Open | E2E', () => {
           {
             from: await signer.getAddress(),
             asset: ADDRESSES[Network.MAINNET].common.WBTC,
-            amount: '1000',
+            amount: '100000000',
           },
           [0, 0, 0],
         ],
