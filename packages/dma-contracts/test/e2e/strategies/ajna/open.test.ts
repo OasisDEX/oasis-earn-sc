@@ -4,6 +4,7 @@ import { getServiceNameHash } from '@dma-contracts/../dma-common/utils/common'
 import { createDeploy, DeployFunction } from '@dma-contracts/../dma-common/utils/deploy'
 import { executeThroughProxy } from '@dma-contracts/../dma-common/utils/execute'
 import { getOrCreateProxy } from '@dma-contracts/../dma-common/utils/proxy'
+import { Network } from '@dma-contracts/../dma-deployments/types/network'
 import { ServiceRegistry } from '@dma-contracts/../dma-deployments/utils/wrappers'
 import { ADDRESSES } from '@dma-deployments/addresses'
 import { JsonRpcProvider } from '@ethersproject/providers'
@@ -41,7 +42,7 @@ describe.only('Strategy | AJNA | Open | E2E', () => {
     proxyAddress = (
       await getOrCreateProxy(
         await ethers.getContractAt('DSProxyRegistry', '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4'),
-        signer,
+        env.borrower,
       )
     ).address
 
@@ -78,9 +79,21 @@ describe.only('Strategy | AJNA | Open | E2E', () => {
       name: 'AjnaOpenMultiply',
     } as StoredOperationStruct
 
+    const ajnaOpenBorrow = {
+      actions: [
+        getServiceNameHash('PullToken_3'),
+        getServiceNameHash('SetApproval_3'),
+        getServiceNameHash('AjnaDepositBorrow'),
+        // getServiceNameHash('PositionCreated'),
+      ],
+      optional: [false, false, false, false],
+      name: 'AjnaOpenBorrow',
+    } as StoredOperationStruct
+
     const operationRegistry = (await deploy('OperationsRegistry', []))[0] as OperationsRegistry
     await operationRegistry.addOperation(operation)
     await operationRegistry.addOperation(ajnaMultiplyOperation)
+    await operationRegistry.addOperation(ajnaOpenBorrow)
     await serviceRegistry.addEntry('OperationStorage_2', operationStorageAddress)
     await serviceRegistry.addEntry('OperationsRegistry_2', operationRegistry.address)
   })
@@ -93,33 +106,69 @@ describe.only('Strategy | AJNA | Open | E2E', () => {
     await provider.send('evm_revert', [snapshotId])
   })
 
-  it('should work', async () => {
+  it('should work - ajna open borrow', async () => {
     await deployPool(
       env.erc20PoolFactory,
       ADDRESSES.mainnet.common.WETH,
       ADDRESSES.mainnet.common.USDC,
     )
+
     const calls = [
       createAction(
-        getServiceNameHash('DummyAction'),
-        ['tuple(address to)', 'uint8[] paramsMap'],
+        getServiceNameHash('PullToken_3'),
+        ['tuple(address asset, address from, uint256 amount)', 'uint8[] paramsMap'],
         [
           {
-            to: proxyAddress,
+            from: await signer.getAddress(),
+            asset: ADDRESSES[Network.MAINNET].common.WBTC,
+            amount: '1000',
           },
-          [0],
+          [0, 0, 0],
+        ],
+      ),
+      createAction(
+        getServiceNameHash('SetApproval_3'),
+        [
+          'tuple(address asset, address delegate, uint256 amount, bool sumAmounts)',
+          'uint8[] paramsMap',
+        ],
+        [
+          {
+            asset: ADDRESSES[Network.MAINNET].common.WBTC,
+            delegate: env.poolContract.address,
+            amount: '1000000000000000000',
+            sumAmounts: false,
+          },
+          [0, 0, 0],
+        ],
+      ),
+      createAction(
+        getServiceNameHash('AjnaOpenBorrow'),
+        [
+          'tuple(address pool, uint256 depositAmount, uint256 borrowAmount, bool sumDepositAmounts, uint256 price)',
+          'uint8[] paramsMap',
+        ],
+        [
+          {
+            pool: env.poolContract.address,
+            depositAmount: '1000000000000000000',
+            borrowAmount: '1000000000000000000',
+            sumDepositAmounts: false,
+            price: '1000000000000000000',
+          },
+          [0, 0, 0],
         ],
       ),
     ]
-
-    const opName = 'DUMMY_NAME'
+    await env.wbtc.connect(env.borrower).approve(env.poolContract.address, '1000000000000000000')
+    const opName = 'AjnaOpenBorrow'
     await executeThroughProxy(
       proxyAddress,
       {
         address: operationExecutor.address,
         calldata: operationExecutor.interface.encodeFunctionData('executeOp', [calls, opName]),
       },
-      signer,
+      env.borrower,
       '10',
       hre,
     )
@@ -143,8 +192,11 @@ async function addAcctions(
     env.poolInfo.address,
     serviceRegistryAddress,
   ])
-
+  const pullToken = await deploy('PullToken', [])
+  const setApproval = await deploy('SetApproval', [serviceRegistryAddress])
   await serviceRegistry.addEntry('DummyAction', dummyActionAddress)
   await serviceRegistry.addEntry('AjnaDepositBorrow', ajnaDepositBorrow[1])
   await serviceRegistry.addEntry('AjnaRepayWithdraw', ajnaRepayWithdraw[1])
+  await serviceRegistry.addEntry('PullToken_3', pullToken[1])
+  await serviceRegistry.addEntry('SetApproval_3', setApproval[1])
 }
