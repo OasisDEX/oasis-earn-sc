@@ -1,6 +1,5 @@
-import { MAX_UINT, OPERATION_NAMES } from '@dma-common/constants'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
+import { MAX_UINT } from '@dma-common/constants'
+import { aaveAdjustDownV3OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import {
@@ -87,11 +86,11 @@ export async function adjustRiskDown({
   })
 
   const returnDebtFunds = actions.common.returnFunds({
-    asset: debt.isEth ? ADDRESSES[Network.MAINNET].common.ETH : debt.address,
+    asset: debt.isEth ? addresses.ETH : debt.address,
   })
 
   const returnCollateralFunds = actions.common.returnFunds({
-    asset: collateral.isEth ? ADDRESSES[Network.MAINNET].common.ETH : collateral.address,
+    asset: collateral.isEth ? addresses.ETH : collateral.address,
   })
 
   unwrapEth.skipped = !debt.isEth && !collateral.isEth
@@ -120,6 +119,6 @@ export async function adjustRiskDown({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: OPERATION_NAMES.aave.v3.ADJUST_RISK_DOWN,
+    operationName: aaveAdjustDownV3OperationDefinition.name,
   }
 }

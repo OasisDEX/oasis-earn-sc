@@ -4,6 +4,10 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import {
+  aaveAdjustDownV2OperationDefinition,
+  aaveAdjustDownV3OperationDefinition,
+  aaveAdjustUpV2OperationDefinition,
+  aaveAdjustUpV3OperationDefinition,
   aaveCloseV2OperationDefinition,
   aaveCloseV3OperationDefinition,
   aaveOpenV2OperationDefinition,
@@ -534,6 +538,23 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await operationsRegistry.addOp(
       aaveCloseV3OperationDefinition.name,
       aaveCloseV3OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveAdjustDownV2OperationDefinition.name,
+      aaveAdjustDownV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveAdjustUpV2OperationDefinition.name,
+      aaveAdjustUpV2OperationDefinition.actions,
+    )
+
+    await operationsRegistry.addOp(
+      aaveAdjustDownV3OperationDefinition.name,
+      aaveAdjustDownV3OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveAdjustUpV3OperationDefinition.name,
+      aaveAdjustUpV3OperationDefinition.actions,
     )
   }
 
