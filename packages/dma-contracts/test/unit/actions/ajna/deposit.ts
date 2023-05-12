@@ -34,6 +34,7 @@ describe.only('AJNA | POC | Unit', () => {
     hre = (config as any).hre
     provider = config.provider
     env = await prepareEnv(hre)
+
     signer = config.signer
     deploy = await createDeploy({ config, debug: true })
 
@@ -48,7 +49,20 @@ describe.only('AJNA | POC | Unit', () => {
     serviceRegistry = new ServiceRegistry(serviceRegistryAddress, signer)
 
     const [, dummyActionAddress] = await deploy('DummyAction', [serviceRegistryAddress])
+
+    const ajnaDepositBorrow = await deploy('AjnaDepositBorrow', [
+      env.poolInfo.address,
+      serviceRegistryAddress,
+    ])
+
+    const ajnaRepayWithdraw = await deploy('AjnaRepayWithdraw', [
+      env.poolInfo.address,
+      serviceRegistryAddress,
+    ])
+
     await serviceRegistry.addEntry('DummyAction', dummyActionAddress)
+    await serviceRegistry.addEntry('AjnaDepositBorrow', ajnaDepositBorrow[1])
+    await serviceRegistry.addEntry('AjnaRepayWithdraw', ajnaRepayWithdraw[1])
 
     operationExecutor = (await deploy('OperationExecutor', [serviceRegistry.address]))[0]
 
