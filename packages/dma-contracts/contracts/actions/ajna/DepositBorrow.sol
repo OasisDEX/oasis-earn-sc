@@ -16,7 +16,7 @@ import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol
 contract AjnaDepositBorrow is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
-  IAjnaPoolUtilsInfo immutable public poolUtilsInfo;
+  IAjnaPoolUtilsInfo public immutable poolUtilsInfo;
 
   constructor(address poolUtilsInfoAddress, address _registry) UseStore(_registry) {
     poolUtilsInfo = IAjnaPoolUtilsInfo(poolUtilsInfoAddress);
@@ -47,12 +47,19 @@ contract AjnaDepositBorrow is Executable, UseStore {
 
     uint256 index = poolUtilsInfo.priceToIndex(args.price);
 
-    pool.drawDebt(address(this), mappedBorrowAmount * pool.quoteTokenScale(), index, actualDepositAmount * pool.collateralScale());
+    pool.drawDebt(
+      address(this),
+      mappedBorrowAmount * pool.quoteTokenScale(),
+      index,
+      actualDepositAmount * pool.collateralScale()
+    );
     store().write(bytes32(args.depositAmount));
     store().write(bytes32(args.borrowAmount));
   }
 
-  function parseInputs(bytes memory _callData) public pure returns (DepositBorrowData memory params) {
+  function parseInputs(
+    bytes memory _callData
+  ) public pure returns (DepositBorrowData memory params) {
     return abi.decode(_callData, (DepositBorrowData));
   }
 }

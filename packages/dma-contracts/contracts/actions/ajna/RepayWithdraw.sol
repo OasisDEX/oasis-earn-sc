@@ -16,7 +16,7 @@ import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol
 contract AjnaRepayWithdraw is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
-  IAjnaPoolUtilsInfo immutable public poolUtilsInfo;
+  IAjnaPoolUtilsInfo public immutable poolUtilsInfo;
 
   constructor(address poolUtilsInfoAddress, address _registry) UseStore(_registry) {
     poolUtilsInfo = IAjnaPoolUtilsInfo(poolUtilsInfoAddress);
@@ -29,12 +29,16 @@ contract AjnaRepayWithdraw is Executable, UseStore {
     RepayWithdrawData memory args = parseInputs(data);
     IAjnaPool pool = IAjnaPool(args.pool);
 
-    args.withdrawAmount = store().readUint(bytes32(args.withdrawAmount), paramsMap[1], address(this));
+    args.withdrawAmount = store().readUint(
+      bytes32(args.withdrawAmount),
+      paramsMap[1],
+      address(this)
+    );
     args.repayAmount = store().readUint(bytes32(args.repayAmount), paramsMap[2], address(this));
 
     uint256 index = poolUtilsInfo.priceToIndex(args.price);
 
-    (uint256 debt,uint256 collateral, ) = poolUtilsInfo.borrowerInfo(address(pool), address(this));
+    (uint256 debt, uint256 collateral, ) = poolUtilsInfo.borrowerInfo(address(pool), address(this));
     uint256 quoteTokenScale = pool.quoteTokenScale();
     uint256 collateralScale = pool.collateralScale();
 
@@ -48,13 +52,21 @@ contract AjnaRepayWithdraw is Executable, UseStore {
       args.withdrawAmount = amountCollateral;
     }
 
-    pool.repayDebt(address(this), args.repayAmount * quoteTokenScale, args.withdrawAmount * collateralScale, address(this), index);
-    
+    pool.repayDebt(
+      address(this),
+      args.repayAmount * quoteTokenScale,
+      args.withdrawAmount * collateralScale,
+      address(this),
+      index
+    );
+
     store().write(bytes32(args.repayAmount));
     store().write(bytes32(args.withdrawAmount));
   }
 
-  function parseInputs(bytes memory _callData) public pure returns (RepayWithdrawData memory params) {
+  function parseInputs(
+    bytes memory _callData
+  ) public pure returns (RepayWithdrawData memory params) {
     return abi.decode(_callData, (RepayWithdrawData));
   }
 }
