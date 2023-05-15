@@ -16,13 +16,18 @@ import { AAVETokens } from '@dma-library/types/aave'
 import { getAaveTokenAddresses } from './get-aave-token-addresses'
 import { AaveVersion, getCurrentPosition } from './get-current-position'
 
-export async function openDepositAndBorrowDebt(
+export type AaveV2OpenDepositAndBorrowDebt = (
   args: IBasePositionTransitionArgs<AAVETokens> &
     WithDepositCollateral &
     WithBorrowDebt &
     WithPositionType,
   dependencies: IOnlyDepositBorrowOpenPositionTransitionDependencies<AAVEStrategyAddresses>,
-): Promise<ISimplePositionTransition> {
+) => Promise<ISimplePositionTransition>
+
+export const openDepositAndBorrowDebt: AaveV2OpenDepositAndBorrowDebt = async (
+  args,
+  dependencies,
+) => {
   const currentPosition = await getCurrentPosition(
     { ...args, proxy: dependencies.proxy },
     { ...dependencies, protocolVersion: AaveVersion.v2 },

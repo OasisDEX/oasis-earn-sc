@@ -1,7 +1,11 @@
 import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { Address } from '@dma-deployments/types/address'
-import { calculateMaxGenerate, simulatePool } from '@dma-library/protocols/ajna'
+import {
+  calculateMaxGenerate,
+  getAjnaBorrowOriginationFee,
+  simulatePool,
+} from '@dma-library/protocols/ajna'
 import { AjnaWarning } from '@dma-library/types/common'
 import { IRiskRatio, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
@@ -25,7 +29,7 @@ export interface IAjnaPosition {
   warnings: AjnaWarning[]
 
   debtAvailable(collateralAmount: BigNumber): BigNumber
-
+  originationFee(amount: BigNumber): BigNumber
   deposit(amount: BigNumber): IAjnaPosition
   withdraw(amount: BigNumber): IAjnaPosition
   borrow(amount: BigNumber): IAjnaPosition
@@ -92,6 +96,13 @@ export class AjnaPosition implements IAjnaPosition {
       this.debtAmount,
       collateralAmount || this.collateralAmount,
     )
+  }
+
+  originationFee(quoteAmount: BigNumber) {
+    return getAjnaBorrowOriginationFee({
+      interestRate: this.pool.interestRate,
+      quoteAmount,
+    })
   }
 
   deposit(collateralAmount: BigNumber) {

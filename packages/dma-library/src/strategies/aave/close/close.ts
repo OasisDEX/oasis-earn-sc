@@ -13,10 +13,10 @@ import {
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { getForkedNetwork } from '@dma-deployments/utils/network'
-import { AaveVersion } from '@dma-library/index'
 import { operations } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
+import { AaveVersion } from '@dma-library/strategies/aave'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
 import {
   IBasePositionTransitionArgs,

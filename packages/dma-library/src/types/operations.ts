@@ -1,6 +1,6 @@
 import { OperationNames } from '@dma-common/constants'
 import { Address } from '@dma-deployments/types/address'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 
 import { AAVEStrategyAddresses } from '../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../operations/aave/v3'

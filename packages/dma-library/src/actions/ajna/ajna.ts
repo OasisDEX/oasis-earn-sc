@@ -2,12 +2,12 @@ import { ZERO } from '@dma-common/constants'
 import { CONTRACT_NAMES } from '@dma-deployments/constants'
 import { getActionHash } from '@dma-deployments/utils/action-hash'
 import { ActionFactory } from '@dma-library/actions/action-factory'
-import { calldataTypes } from '@dma-library/types'
+import { ActionCall, calldataTypes } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 const createAction = ActionFactory.create
 
-export function ajnaDepositBorrow(
+export type AjnaDepositBorrowAction = (
   args: {
     pool: string
     depositAmount: BigNumber
@@ -21,8 +21,13 @@ export function ajnaDepositBorrow(
     borrowAmount: number,
     sumDepositAmounts: number,
     price: number,
-  ] = [0, 0, 0, 0, 0],
-) {
+  ],
+) => ActionCall
+
+export const ajnaDepositBorrow: AjnaDepositBorrowAction = (
+  args,
+  paramsMapping = [0, 0, 0, 0, 0],
+) => {
   return createAction(
     getActionHash(CONTRACT_NAMES.ajna.DEPOSIT_BORROW),
     [calldataTypes.ajna.DepositBorrow],
@@ -39,7 +44,7 @@ export function ajnaDepositBorrow(
   )
 }
 
-export function ajnaPaybackWithdraw(
+export type AjnaPaybackWithdrawAction = (
   args: {
     pool: string
     paybackAmount?: BigNumber
@@ -55,8 +60,13 @@ export function ajnaPaybackWithdraw(
     price: number,
     paybackAll: number,
     withdrawAll: number,
-  ] = [0, 0, 0, 0, 0, 0],
-) {
+  ],
+) => ActionCall
+
+export const ajnaPaybackWithdraw: AjnaPaybackWithdrawAction = (
+  args,
+  paramsMapping = [0, 0, 0, 0, 0, 0],
+) => {
   return createAction(
     getActionHash(CONTRACT_NAMES.ajna.REPAY_WITHDRAW),
     [calldataTypes.ajna.RepayWithdraw],

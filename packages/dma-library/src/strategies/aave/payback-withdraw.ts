@@ -14,10 +14,12 @@ import BigNumber from 'bignumber.js'
 
 import { getAaveTokenAddresses } from './get-aave-token-addresses'
 
-export async function paybackWithdraw(
+export type AaveV2PaybackWithdraw = (
   args: IBasePositionTransitionArgs<AAVETokens> & WithWithdrawCollateral & WithPaybackDebt,
   dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
-): Promise<PositionTransition> {
+) => Promise<PositionTransition>
+
+export const paybackWithdraw: AaveV2PaybackWithdraw = async (args, dependencies) => {
   const currentPosition = dependencies.currentPosition
 
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(

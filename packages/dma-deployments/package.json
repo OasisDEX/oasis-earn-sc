@@ -19,6 +19,6 @@
     "@safe-global/safe-ethers-adapters": "^0.1.0-alpha.16",
     "@safe-global/safe-ethers-lib": "^1.9.2",
     "@safe-global/safe-service-client": "^2.0.0",
-    "ethers": "5.7.2"
+    "ethers": "5.6.2"
   }
 }

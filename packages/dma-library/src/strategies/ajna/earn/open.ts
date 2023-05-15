@@ -31,10 +31,12 @@ export interface Dependencies {
   getPoolData: GetPoolData
 }
 
-export async function open(
+export type AjnaOpenEarnStrategy = (
   args: Args,
   dependencies: Dependencies,
-): Promise<Strategy<AjnaEarnPosition>> {
+) => Promise<Strategy<AjnaEarnPosition>>
+
+export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
   const action = 'open-earn'
   const position = await views.ajna.getEarnPosition(
     {
