@@ -1,6 +1,6 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '@abis/external/protocols/ajna/poolInfoUtils.json'
-import { Address } from '@dma-deployments/types/address'
+import { Address } from '@deploy-configurations/types/address'
 import { getAjnaEarnActionOutput, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { AjnaEarnPosition } from '@dma-library/types/ajna'
 import { Strategy } from '@dma-library/types/common'

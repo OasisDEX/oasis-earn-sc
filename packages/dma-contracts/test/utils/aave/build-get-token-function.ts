@@ -1,7 +1,7 @@
+import { Network } from '@deploy-configurations/types/network'
 import { ONE } from '@dma-common/constants'
 import { addressesByNetwork, swapUniswapTokens } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
-import { Network } from '@dma-deployments/types/network'
 import { AAVETokens } from '@dma-library'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'

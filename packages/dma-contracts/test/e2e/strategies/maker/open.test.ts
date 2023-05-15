@@ -1,5 +1,8 @@
 import CDPManagerABI from '@abis/external/protocols/maker/dss-cdp-manager.json'
 import ERC20ABI from '@abis/external/tokens/IERC20.json'
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Network } from '@deploy-configurations/types/network'
+import { ServiceRegistry } from '@deploy-configurations/utils/wrappers'
 import { CONTRACT_NAMES, OPERATION_NAMES } from '@dma-common/constants'
 import {
   DeployedSystemInfo,
@@ -15,9 +18,6 @@ import { executeThroughProxy } from '@dma-common/utils/execute'
 import { getLastVault, getVaultInfo } from '@dma-common/utils/maker'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
-import { ServiceRegistry } from '@dma-deployments/utils/wrappers'
 import { ActionFactory, calldataTypes } from '@dma-library'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'

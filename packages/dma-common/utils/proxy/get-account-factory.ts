@@ -1,5 +1,5 @@
 import DPM_ACCOUNT_FACTORY_ABI from '@abis/external/libs/DPM/account-factory.json'
-import { Address } from '@dma-deployments/types/address'
+import { Address } from '@deploy-configurations/types/address'
 import { Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 

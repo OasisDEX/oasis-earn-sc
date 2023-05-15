@@ -1,5 +1,5 @@
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Network } from '@deploy-configurations/types/network'
 
 export const mainnetAddresses = {
   DAI: ADDRESSES[Network.MAINNET].common.DAI,

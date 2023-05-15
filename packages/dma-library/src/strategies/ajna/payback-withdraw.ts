@@ -1,5 +1,5 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
-import { Address } from '@dma-deployments/types/address'
+import { Address } from '@deploy-configurations/types/address'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { AjnaPosition } from '@dma-library/types/ajna'
 import { Strategy } from '@dma-library/types/common'

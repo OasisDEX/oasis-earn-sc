@@ -1,6 +1,6 @@
+import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { normalizeValue } from '@dma-common/utils/common'
-import { Address } from '@dma-deployments/types/address'
 import { calculateAjnaApyPerDays } from '@dma-library/protocols/ajna'
 import bucketPrices from '@dma-library/strategies/ajna/earn/buckets.json'
 import { RiskRatio } from '@domain'

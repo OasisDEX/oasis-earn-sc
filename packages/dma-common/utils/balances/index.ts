@@ -1,7 +1,7 @@
 import IERC20_ABI from '@abis/external/tokens/IERC20.json'
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Network } from '@deploy-configurations/types/network'
 import { BalanceOptions } from '@dma-common/types/common'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 

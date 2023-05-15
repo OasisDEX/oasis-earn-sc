@@ -1,4 +1,4 @@
-import { Address } from '@dma-deployments/types/address'
+import { Address } from '@deploy-configurations/types/address'
 import { IPosition, IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'

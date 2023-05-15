@@ -1,6 +1,6 @@
+import { Address } from '@deploy-configurations/types/address'
 import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
-import { Address } from '@dma-deployments/types/address'
 import { calculateMaxGenerate, simulatePool } from '@dma-library/protocols/ajna'
 import { AjnaWarning } from '@dma-library/types/common'
 import { IRiskRatio, RiskRatio } from '@domain'

@@ -1,3 +1,4 @@
+import { Network } from '@deploy-configurations/types/network'
 import {
   addressesByNetwork,
   createDPMAccount,
@@ -8,7 +9,6 @@ import {
 import init, { resetNode } from '@dma-common/utils/init'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { buildGetTokenByImpersonateFunction } from '@dma-contracts/test/utils/aave'
-import { Network } from '@dma-deployments/types/network'
 import { AaveVersion, protocols, strategies } from '@dma-library'
 
 import { StrategiesDependencies, SystemWithProxies } from '../types'
