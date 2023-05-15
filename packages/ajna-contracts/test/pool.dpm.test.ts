@@ -1268,7 +1268,7 @@ describe.only("AjnaProxyActions", function () {
 
       expect(balanceAfter.sub(balanceBefore).toString()).to.be.equal(bn.eight.ONE.toString());
     });
-    it.only("should supplyQuote --> claimCollateral - after auction ", async () => {
+    it("should supplyQuote --> claimCollateral - after auction ", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, wbtc } = await loadFixture(deploy);
 
       const price = bn.eighteen.TEST_PRICE_1;
