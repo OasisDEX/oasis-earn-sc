@@ -176,7 +176,11 @@ export async function deployPoolFactory(
 
   return { erc20PoolFactory, erc721PoolFactory };
 }
-export async function deployPool(erc20PoolFactory: ERC20PoolFactory, collateral: string, quote: string) {
+export async function deployPool(
+  erc20PoolFactory: ERC20PoolFactory,
+  collateral: string,
+  quote: string
+): Promise<ERC20Pool> {
   const hash = await erc20PoolFactory.ERC20_NON_SUBSET_HASH();
 
   await erc20PoolFactory.deployPool(collateral, quote, "50000000000000000", {
@@ -185,7 +189,7 @@ export async function deployPool(erc20PoolFactory: ERC20PoolFactory, collateral:
 
   const poolAddress = await erc20PoolFactory.deployedPools(hash, collateral, quote);
 
-  return await utils.getContract<ERC20Pool>("ERC20Pool", poolAddress);
+  return (await utils.getContract<ERC20Pool>("ERC20Pool", poolAddress)) as ERC20Pool;
 }
 export async function deploy() {
   const [deployer] = await ethers.getSigners();
