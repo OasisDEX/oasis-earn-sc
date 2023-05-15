@@ -179,16 +179,24 @@ async function addAcctions(
     env.poolInfo.address,
     serviceRegistryAddress,
   ])
-
   const ajnaRepayWithdraw = await deploy('AjnaRepayWithdraw', [
     env.poolInfo.address,
     serviceRegistryAddress,
   ])
+  const takeFlashloan = await deploy('TakeFlashloan_3', [serviceRegistryAddress])
+  const wrapEth = await deploy('WrapEth', [])
+  const swapAction = await deploy('SwapAction_3', [serviceRegistryAddress])
+  const positionCreated = await deploy('PositionCreated', [serviceRegistryAddress])
   const pullToken = await deploy('PullToken', [])
   const setApproval = await deploy('SetApproval', [serviceRegistryAddress])
+
   await serviceRegistry.addEntry('DummyAction', dummyActionAddress)
   await serviceRegistry.addEntry('AjnaDepositBorrow', ajnaDepositBorrow[1])
   await serviceRegistry.addEntry('AjnaRepayWithdraw', ajnaRepayWithdraw[1])
   await serviceRegistry.addEntry('PullToken_3', pullToken[1])
   await serviceRegistry.addEntry('SetApproval_3', setApproval[1])
+  await serviceRegistry.addEntry('TakeFlashloan_3', takeFlashloan[1])
+  await serviceRegistry.addEntry('WrapEth_3', wrapEth[1])
+  await serviceRegistry.addEntry('Swap', swapAction[1])
+  await serviceRegistry.addEntry('PositionCreated', positionCreated[1])
 }
