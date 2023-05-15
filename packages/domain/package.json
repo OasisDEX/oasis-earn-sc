@@ -14,7 +14,7 @@
     "test:unit": "npx hardhat test ./test/position.test.ts"
   },
   "dependencies": {
-    "bignumber.js": "^9.0.1"
+    "bignumber.js": "9.0.1"
   },
   "devDependencies": {
     "@google-cloud/local-auth": "2.1.1",

@@ -48,14 +48,14 @@ export const OPERATION_NAMES = {
 } as const
 
 type ValuesOf<T> = T[keyof T]
-type AaveV2Operations = ValuesOf<(typeof OPERATION_NAMES)['aave']['v2']>
-type AaveV3Operations = ValuesOf<(typeof OPERATION_NAMES)['aave']['v3']>
-type MakerOperations = ValuesOf<(typeof OPERATION_NAMES)['maker']>
-type AjnaOperations = ValuesOf<(typeof OPERATION_NAMES)['ajna']>
-type CommonOperations = ValuesOf<(typeof OPERATION_NAMES)['common']>
+type AaveV2OperationsNames = ValuesOf<(typeof OPERATION_NAMES)['aave']['v2']>
+type AaveV3OperationsNames = ValuesOf<(typeof OPERATION_NAMES)['aave']['v3']>
+type MakerOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['maker']>
+type AjnaOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['ajna']>
+type CommonOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['common']>
 export type OperationNames =
-  | CommonOperations
-  | AaveV2Operations
-  | AaveV3Operations
-  | MakerOperations
-  | AjnaOperations
+  | CommonOperationsNames
+  | AaveV2OperationsNames
+  | AaveV3OperationsNames
+  | MakerOperationsNames
+  | AjnaOperationsNames
