@@ -13,6 +13,7 @@ interface Args {
   poolAddress: Address
   dpmProxyAddress: Address
   quoteAmount: BigNumber
+  collateralAmount: BigNumber
   quoteTokenPrecision: number
   price: BigNumber
   isStakingNft: boolean
@@ -83,6 +84,7 @@ export async function open(
     position.pool,
     args.dpmProxyAddress,
     args.quoteAmount,
+    args.collateralAmount,
     priceIndex,
     position.nftId,
     args.collateralPrice,
@@ -96,7 +98,6 @@ export async function open(
     dependencies,
     args: {
       position: targetPosition,
-      collateralAmount: new BigNumber(0),
       ...args,
     },
     txValue: resolveAjnaEthAction(isLendingEth, args.quoteAmount),
