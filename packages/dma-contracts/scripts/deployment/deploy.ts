@@ -186,7 +186,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   getConfigPath(localPath: string) {
-    const baseDirectory = '../configs'
+    const baseDirectory = '../../../deploy-configurations/configs'
     const configPath = path.join(baseDirectory, localPath)
     console.log('USING CONFIG', localPath)
     return configPath

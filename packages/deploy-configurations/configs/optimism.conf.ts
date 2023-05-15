@@ -1,7 +1,7 @@
 import { ADDRESS_ZERO, CONTRACT_NAMES } from '../constants'
 import { SystemConfig } from '../types/deployment-config'
 
-export const optimismConfig: SystemConfig = {
+export const config: SystemConfig = {
   mpa: {
     core: {
       ServiceRegistry: {
