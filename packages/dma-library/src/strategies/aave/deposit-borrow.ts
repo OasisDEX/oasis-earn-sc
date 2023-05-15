@@ -45,10 +45,15 @@ function getIsSwapNeeded(
   return !(sameTokens || ethToWeth)
 }
 
-export async function depositBorrow(
+export type AaveV2DepositBorrow = (
   { entryToken, slippage, borrowAmount }: DepositBorrowArgs,
   dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
-): Promise<PositionTransition> {
+) => Promise<PositionTransition>
+
+export const depositBorrow: AaveV2DepositBorrow = async (
+  { entryToken, slippage, borrowAmount },
+  dependencies,
+) => {
   const FEE = 20
   const FEE_BASE = 10000
 

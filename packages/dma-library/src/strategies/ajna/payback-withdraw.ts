@@ -24,10 +24,12 @@ interface PaybackWithdrawArgs {
   position: AjnaPosition
 }
 
-export async function paybackWithdraw(
+export type AjnaPaybackWithdrawStrategy = (
   args: PaybackWithdrawArgs,
   dependencies: Dependencies,
-): Promise<Strategy<AjnaPosition>> {
+) => Promise<Strategy<AjnaPosition>>
+
+export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, dependencies) => {
   const apa = new ethers.Contract(
     dependencies.ajnaProxyActions,
     ajnaProxyActionsAbi,

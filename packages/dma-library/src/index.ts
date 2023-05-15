@@ -3,7 +3,7 @@ export { ActionFactory } from './actions/action-factory'
 export { operations } from './operations'
 export type { AAVEStrategyAddresses } from './operations/aave/v2/addresses'
 export type { AAVEV3StrategyAddresses } from './operations/aave/v3/addresses'
-export { protocols } from './protocols'
+export { calculateAjnaApyPerDays, protocols } from './protocols'
 export { strategies } from './strategies'
 export { AaveVersion } from './strategies'
 export type {

@@ -2,8 +2,8 @@ import type { AAVEV3StrategyAddresses } from './addresses'
 import { adjustRiskDown } from './adjust-risk-down'
 import { adjustRiskUp } from './adjust-risk-up'
 import { close } from './close'
-import { open } from './open'
+import { open as aaveV3Open } from './open'
 
 export type { AAVEV3StrategyAddresses }
 
-export { adjustRiskDown, adjustRiskUp, close, open }
+export const aaveV3Operations = { adjustRiskDown, adjustRiskUp, close, open: aaveV3Open }

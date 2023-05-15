@@ -34,10 +34,12 @@ export interface Dependencies {
   getPosition?: typeof views.ajna.getPosition
 }
 
-export async function open(
+export type AjnaOpenBorrowStrategy = (
   args: OpenArgs,
   dependencies: Dependencies,
-): Promise<Strategy<AjnaPosition>> {
+) => Promise<Strategy<AjnaPosition>>
+
+export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
   const getPosition = dependencies.getPosition ? dependencies.getPosition : views.ajna.getPosition
   const position = await getPosition(
     {

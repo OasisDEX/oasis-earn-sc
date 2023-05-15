@@ -13,6 +13,7 @@ interface Args {
   poolAddress: Address
   dpmProxyAddress: Address
   quoteAmount: BigNumber
+  collateralAmount: BigNumber
   quoteTokenPrecision: number
   price: BigNumber
   isStakingNft: boolean
@@ -30,10 +31,12 @@ export interface Dependencies {
   getPoolData: GetPoolData
 }
 
-export async function open(
+export type AjnaOpenEarnStrategy = (
   args: Args,
   dependencies: Dependencies,
-): Promise<Strategy<AjnaEarnPosition>> {
+) => Promise<Strategy<AjnaEarnPosition>>
+
+export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
   const action = 'open-earn'
   const position = await views.ajna.getEarnPosition(
     {
@@ -83,6 +86,7 @@ export async function open(
     position.pool,
     args.dpmProxyAddress,
     args.quoteAmount,
+    args.collateralAmount,
     priceIndex,
     position.nftId,
     args.collateralPrice,
@@ -96,7 +100,6 @@ export async function open(
     dependencies,
     args: {
       position: targetPosition,
-      collateralAmount: new BigNumber(0),
       ...args,
     },
     txValue: resolveAjnaEthAction(isLendingEth, args.quoteAmount),

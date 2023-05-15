@@ -1,29 +1,30 @@
-import { depositBorrow } from './deposit-borrow'
-import { earn } from './earn'
-import { open } from './open'
-import { paybackWithdraw } from './payback-withdraw'
+import { AjnaDepositBorrowStrategy, depositBorrow } from './deposit-borrow'
+import { AjnaDepositAndAdjustStrategy, depositAndAdjust } from './earn/deposit-adjust'
+import { AjnaOpenEarnStrategy, open as openEarn } from './earn/open'
+import { AjnaWithdrawAndAdjustStrategy, withdrawAndAdjust } from './earn/withdraw-adjust'
+import { AjnaOpenBorrowStrategy, open as openBorrow } from './open'
+import { AjnaPaybackWithdrawStrategy, paybackWithdraw } from './payback-withdraw'
 
 export const ajna: {
   borrow: {
-    open: typeof open
-    paybackWithdraw: typeof paybackWithdraw
-    depositBorrow: typeof depositBorrow
+    open: AjnaOpenBorrowStrategy
+    paybackWithdraw: AjnaPaybackWithdrawStrategy
+    depositBorrow: AjnaDepositBorrowStrategy
   }
-  open: typeof open
-  paybackWithdraw: typeof paybackWithdraw
-  depositBorrow: typeof depositBorrow
-  earn: typeof earn
+  earn: {
+    open: AjnaOpenEarnStrategy
+    depositAndAdjust: AjnaDepositAndAdjustStrategy
+    withdrawAndAdjust: AjnaWithdrawAndAdjustStrategy
+  }
 } = {
   borrow: {
-    open,
+    open: openBorrow,
     paybackWithdraw,
     depositBorrow,
   },
-  // @deprecated: use borrow.open
-  open,
-  // @deprecated: use borrow.paybackWithdraw
-  paybackWithdraw,
-  // @deprecated: use borrow.depositBorrow
-  depositBorrow,
-  earn,
+  earn: {
+    open: openEarn,
+    depositAndAdjust,
+    withdrawAndAdjust,
+  },
 }
