@@ -1,5 +1,5 @@
+import { Address } from '@deploy-configurations/types/address'
 import { Tx } from '@dma-common/types'
-import { Address } from '@dma-deployments/types/address'
 import { ethers } from 'ethers'
 
 export type AjnaErrorWithdrawUndercollateralized = {

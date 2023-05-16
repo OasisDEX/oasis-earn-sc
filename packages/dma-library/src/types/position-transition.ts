@@ -1,4 +1,4 @@
-import { OperationNames } from '@dma-deployments/constants'
+import { OperationNames } from '@deploy-configurations/constants'
 import { IBaseSimulatedTransition, IPosition, IRiskRatio, Swap } from '@domain'
 import { Delta } from '@domain/position'
 

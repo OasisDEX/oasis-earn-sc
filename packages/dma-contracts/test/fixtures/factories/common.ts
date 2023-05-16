@@ -1,5 +1,5 @@
+import { Network } from '@deploy-configurations/types/network'
 import { addressesByNetwork } from '@dma-common/test-utils'
-import { Network } from '@dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 
 import { TokenDetails } from '../types/position-details'

@@ -1,8 +1,8 @@
+import { ServiceRegistry } from '@deploy-configurations/utils/wrappers'
 import { ContractNames } from '@dma-common/constants'
 import { expect } from '@dma-common/test-utils'
 import { createDeploy } from '@dma-common/utils/deploy'
 import init from '@dma-common/utils/init'
-import { ServiceRegistry } from '@dma-deployments/utils/wrappers'
 import { utils } from 'ethers'
 
 describe('Service Registry: Semantic Action Versioning | Unit', function () {

@@ -15,7 +15,7 @@ export {
   UNUSED_FLASHLOAN_AMOUNT,
   ZERO,
 } from './numbers'
-import type { OperationNames } from '@dma-deployments/constants'
+import type { OperationNames } from '@deploy-configurations/constants'
 
 export { OperationNames }
-export { OPERATION_NAMES } from '@dma-deployments/constants'
+export { OPERATION_NAMES } from '@deploy-configurations/constants'

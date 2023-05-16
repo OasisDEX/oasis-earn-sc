@@ -1,3 +1,4 @@
+import { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { addressesByNetwork, expect } from '@dma-common/test-utils'
 import { balanceOf } from '@dma-common/utils/balances'
@@ -14,7 +15,6 @@ import {
   getSupportedAaveV3Strategies,
   systemWithAaveV3Positions,
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
-import { Network } from '@dma-deployments/types/network'
 import { strategies } from '@dma-library'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import BigNumber from 'bignumber.js'
@@ -72,7 +72,6 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
             beforeTransactionPosition.debt.symbol !== 'WETH'
           ) {
             await getTokens.byImpersonate(beforeTransactionPosition.debt.symbol, amountToPayback)
-            console.log('SYM before approve V2:', beforeTransactionPosition.debt.symbol)
             await approve(
               beforeTransactionPosition.debt.address,
               dsProxyPosition.proxy,

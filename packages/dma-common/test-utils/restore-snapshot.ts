@@ -1,5 +1,5 @@
+import { ServiceRegistry } from '@deploy-configurations/utils/wrappers'
 import { resetNode } from '@dma-common/utils/init'
-import { ServiceRegistry } from '@dma-deployments/utils/wrappers'
 import { providers } from 'ethers'
 
 import { RuntimeConfig } from '../types/common'

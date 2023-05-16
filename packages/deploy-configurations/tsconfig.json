@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.options.json",
+  "compilerOptions": {
+    "typeRoots": [
+      "../../node_modules/@types"
+    ],
+    "paths": {
+      "@deploy-configurations/configs": ["./configs/index.ts"],
+      "@deploy-configurations/utils/*": ["./utils/*"],
+      "@deploy-configurations/types/*": ["./types/*"],
+      "@deploy-configurations/constants": ["./constants/index.ts"],
+      "@deploy-configurations/operation-definitions": ["./operation-definitions/index.ts"]
+    },
+  },
+  "include": [
+    "./addresses",
+    "./configs",
+    "./constants",
+    "./operation-definitions",
+    "./types",
+    "./utils",
+    "./hardhat.config.ts",
+    "./bootstrap-env.ts"
+  ]
+}

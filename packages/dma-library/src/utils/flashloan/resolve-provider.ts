@@ -1,4 +1,4 @@
-import { Network } from '@dma-deployments/types/network'
+import { Network } from '@deploy-configurations/types/network'
 
 import { FlashloanProvider } from '../../types/common'
 

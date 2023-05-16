@@ -1,7 +1,7 @@
+import { DeployedSystem, System } from '@deploy-configurations/types/deployed-system'
 import { deploySystem } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { AAVETokensToGet } from '@dma-contracts/test/utils/aave'
-import { DeployedSystem, System } from '@dma-deployments/types/deployed-system'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
