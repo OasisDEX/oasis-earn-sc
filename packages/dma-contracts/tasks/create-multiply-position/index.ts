@@ -1,3 +1,5 @@
+import { Network } from '@deploy-configurations/types/network'
+import { ChainIdByNetwork } from '@deploy-configurations/utils/network'
 import { CONTRACT_NAMES } from '@dma-common/constants'
 import {
   addressesByNetwork,
@@ -17,8 +19,6 @@ import {
   wstethEthEarnAavePosition,
 } from '@dma-contracts/test/fixtures/factories'
 import { StrategyDependenciesAaveV3 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
-import { Network } from '@dma-deployments/types/network'
-import { ChainIdByNetwork } from '@dma-deployments/utils/network'
 import { AaveVersion, protocols, strategies } from '@dma-library'
 import { task } from 'hardhat/config'
 

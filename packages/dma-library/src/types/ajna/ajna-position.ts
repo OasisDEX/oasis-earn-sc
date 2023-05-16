@@ -1,6 +1,6 @@
+import { Address } from '@deploy-configurations/types/address'
 import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
-import { Address } from '@dma-deployments/types/address'
 import {
   calculateMaxGenerate,
   getAjnaBorrowOriginationFee,
@@ -29,10 +29,15 @@ export interface IAjnaPosition {
   warnings: AjnaWarning[]
 
   debtAvailable(collateralAmount: BigNumber): BigNumber
+
   originationFee(amount: BigNumber): BigNumber
+
   deposit(amount: BigNumber): IAjnaPosition
+
   withdraw(amount: BigNumber): IAjnaPosition
+
   borrow(amount: BigNumber): IAjnaPosition
+
   payback(amount: BigNumber): IAjnaPosition
 }
 

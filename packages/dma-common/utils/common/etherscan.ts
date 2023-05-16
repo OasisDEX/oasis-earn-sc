@@ -1,4 +1,4 @@
-import { Network } from '@dma-deployments/types/network'
+import { Network } from '@deploy-configurations/types/network'
 
 export function etherscanAPIUrl(network: string) {
   return network === Network.MAINNET

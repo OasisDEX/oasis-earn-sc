@@ -1,7 +1,7 @@
 import poolInfoAbi from '@abis/external/protocols/ajna/poolInfoUtils.json'
 import rewardsManagerAbi from '@abis/external/protocols/ajna/rewardsManager.json'
+import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
-import { Address } from '@dma-deployments/types/address'
 import { AjnaEarnPosition, AjnaPosition } from '@dma-library/types/ajna'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import { BigNumber } from 'bignumber.js'

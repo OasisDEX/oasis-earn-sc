@@ -1,6 +1,6 @@
+import { aaveOpenV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { ZERO } from '@dma-common/constants'
 import { Address } from '@dma-common/types/address'
-import { aaveOpenV2OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { FlashloanProvider } from '@dma-library/types/common'
 import { IOperation } from '@dma-library/types/operations'

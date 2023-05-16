@@ -1,5 +1,5 @@
+import { ajnaOpenOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { ZERO } from '@dma-common/constants'
-import { ajnaOpenOperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import {
   IOperation,

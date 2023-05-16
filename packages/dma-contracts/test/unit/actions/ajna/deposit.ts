@@ -1,6 +1,6 @@
 import { deployPool, prepareEnv } from '@ajna-contracts/scripts'
+import { ADDRESSES } from '@deploy-configurations/addresses'
 import init from '@dma-common/utils/init'
-import { ADDRESSES } from '@dma-deployments/addresses'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { expect } from 'chai'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'

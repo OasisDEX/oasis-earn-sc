@@ -1,4 +1,4 @@
-import { OperationNames } from '@dma-deployments/constants'
+import { OperationNames } from '@deploy-configurations/constants'
 import { IBaseSimulatedTransition, IRiskRatio, Swap } from '@domain'
 
 import { ActionCall } from './action-call'

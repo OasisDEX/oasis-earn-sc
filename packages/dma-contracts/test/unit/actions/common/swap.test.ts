@@ -1,5 +1,7 @@
 import ERC20_ABI from '@abis/external/tokens/IERC20.json'
 import WETH_ABI from '@abis/external/tokens/IWETH.json'
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Network } from '@deploy-configurations/types/network'
 import { FEE_BASE, ONE } from '@dma-common/constants'
 import {
   asPercentageValue,
@@ -17,8 +19,6 @@ import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'

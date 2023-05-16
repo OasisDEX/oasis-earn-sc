@@ -1,6 +1,10 @@
 import AAVELendingPoolABI from '@abis/external/protocols/aave/v2/lendingPool.json'
 import aavePriceOracleABI from '@abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { ADDRESS_ZERO } from '@deploy-configurations/constants'
+import { DeployedSystem, System } from '@deploy-configurations/types/deployed-system'
+import { Network } from '@deploy-configurations/types/network'
 import {
   addressesByNetwork,
   advanceBlocks,
@@ -26,10 +30,6 @@ import {
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { TokenDetails } from '@dma-contracts/test/fixtures/types/position-details'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { ADDRESS_ZERO } from '@dma-deployments/constants'
-import { DeployedSystem, System } from '@dma-deployments/types/deployed-system'
-import { Network } from '@dma-deployments/types/network'
 import { AAVETokens, AAVEV3StrategyAddresses, strategies } from '@dma-library'
 import { PositionType } from '@dma-library/types'
 import { acceptedFeeToken } from '@dma-library/utils/swap'

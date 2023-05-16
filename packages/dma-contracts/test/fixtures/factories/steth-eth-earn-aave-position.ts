@@ -1,3 +1,4 @@
+import { Network } from '@deploy-configurations/types/network'
 import { addressesByNetwork } from '@dma-common/test-utils'
 import { Address } from '@dma-common/types/address'
 import { RuntimeConfig } from '@dma-common/types/common'
@@ -9,7 +10,6 @@ import {
   PositionDetails,
   StrategyDependenciesAaveV2,
 } from '@dma-contracts/test/fixtures/types'
-import { Network } from '@dma-deployments/types/network'
 import { AaveVersion, strategies } from '@dma-library'
 import {
   AaveV2OpenDependencies,

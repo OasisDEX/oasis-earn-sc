@@ -1,5 +1,5 @@
+import { Address } from '@deploy-configurations/types/address'
 import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { Address } from '@dma-deployments/types/address'
 import { operations } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
 import { BorrowArgs } from '@dma-library/operations/aave/v2/borrow'
