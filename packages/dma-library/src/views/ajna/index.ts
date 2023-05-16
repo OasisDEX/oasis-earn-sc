@@ -84,6 +84,18 @@ export async function getEarnPosition(
           .then((quoteTokens: ethers.BigNumberish) => ethers.utils.formatUnits(quoteTokens, 18))
           .then((res: string) => new BigNumber(res))
 
+  // We assume that there won't be a mix of quote tokens and collateral tokens to withdraw at the same time
+  // hence we convert all lps to collateral and when bucket won't contain any quoteTokens but only collateral
+  // we can utilize this value to show how much user will be able to withdraw
+  // (it's basically needed for case when there were some liquidations of borrow positions in lender bucket)
+  const collateralTokenAmount: BigNumber =
+    !earnData.lps.isZero() && quoteTokenAmount.isZero()
+      ? await poolInfo
+          .lpToCollateral(poolAddress, earnData.lps.toString(), earnData.priceIndex?.toString())
+          .then((quoteTokens: ethers.BigNumberish) => ethers.utils.formatUnits(quoteTokens, 18))
+          .then((res: string) => new BigNumber(res))
+      : ZERO
+
   const rewards: BigNumber = earnData.nftID
     ? await rewardsManager
         .calculateRewards(earnData.nftID, pool.currentBurnEpoch.toString())
@@ -95,6 +107,7 @@ export async function getEarnPosition(
     pool,
     proxyAddress,
     quoteTokenAmount,
+    collateralTokenAmount,
     earnData.priceIndex,
     earnData.nftID,
     collateralPrice,

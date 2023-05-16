@@ -10,6 +10,12 @@ import {
   aaveWithdraw,
 } from './aave'
 import {
+  ajnaDepositBorrow,
+  AjnaDepositBorrowAction,
+  ajnaPaybackWithdraw,
+  AjnaPaybackWithdrawAction,
+} from './ajna'
+import {
   positionCreated,
   pullToken,
   returnFunds,
@@ -54,6 +60,14 @@ const maker = {
   openVault,
 }
 
-const actions = { aave, common, maker }
+const ajna: {
+  ajnaPaybackWithdraw: AjnaPaybackWithdrawAction
+  ajnaDepositBorrow: AjnaDepositBorrowAction
+} = {
+  ajnaPaybackWithdraw,
+  ajnaDepositBorrow,
+}
+
+const actions = { aave, ajna, common, maker }
 
 export { actions }

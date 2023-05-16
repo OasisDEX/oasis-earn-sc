@@ -1,9 +1,10 @@
 import { OperationNames } from '@dma-common/constants'
 import { Address } from '@dma-deployments/types/address'
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 
 import { AAVEStrategyAddresses } from '../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../operations/aave/v3'
+import { AjnaStrategyAddresses } from '../operations/ajna'
 import { ActionCall } from './action-call'
 import { FlashloanProvider } from './common'
 import { PositionType } from './position-type'
@@ -111,6 +112,10 @@ export type WithAaveV3StrategyAddresses = {
   addresses: AAVEV3StrategyAddresses
 }
 
+export type WithAjnaStrategyAddresses = {
+  addresses: AjnaStrategyAddresses
+}
+
 export type WithEMode = {
   /*
    * Categories are voted on by the community and categorised as an integer
@@ -119,4 +124,8 @@ export type WithEMode = {
   emode: {
     categoryId: number
   }
+}
+
+export type WithAjnaBucketPrice = {
+  price: BigNumber
 }

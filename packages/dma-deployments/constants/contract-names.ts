@@ -66,6 +66,10 @@ export const CONTRACT_NAMES = {
     CDP_ALLOW: 'CdpAllow',
     CHAINLOG_VIEW: 'ChainLogView',
   },
+  ajna: {
+    DEPOSIT_BORROW: 'AjnaDepositBorrow',
+    REPAY_WITHDRAW: 'AjnaRepayWithdraw',
+  },
   test: {
     DUMMY_ACTION: 'DummyAction',
     DUMMY_OPTIONAL_ACTION: 'DummyOptionalAction',

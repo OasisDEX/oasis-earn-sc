@@ -16,6 +16,7 @@ export interface IAjnaEarn {
   pool: AjnaPool
   owner: Address
   quoteTokenAmount: BigNumber
+  collateralTokenAmount: BigNumber
   price: BigNumber
   priceIndex: BigNumber | null
   marketPrice: BigNumber
@@ -44,6 +45,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
     public pool: AjnaPool,
     public owner: Address,
     public quoteTokenAmount: BigNumber,
+    public collateralTokenAmount: BigNumber,
     public priceIndex: BigNumber | null,
     public nftId: string | null = null,
     public collateralPrice: BigNumber,
@@ -53,6 +55,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
     this.fundsLockedUntil = Date.now() + 5 * 60 * 60 * 1000 // MOCK funds locked until 5h from now
     this.price = priceIndex ? priceIndexToPrice(priceIndex) : ZERO
     this.stakedNftId = nftId
+    this.collateralTokenAmount = collateralTokenAmount
   }
 
   get isEarningFees() {
@@ -122,6 +125,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.pool,
       this.owner,
       this.quoteTokenAmount,
+      this.collateralTokenAmount,
       newPriceIndex,
       this.stakedNftId,
       this.collateralPrice,
@@ -135,6 +139,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.pool,
       this.owner,
       this.quoteTokenAmount.plus(quoteTokenAmount),
+      this.collateralTokenAmount,
       this.priceIndex,
       this.stakedNftId,
       this.collateralPrice,
@@ -148,6 +153,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.pool,
       this.owner,
       this.quoteTokenAmount.minus(quoteTokenAmount),
+      this.collateralTokenAmount,
       this.priceIndex,
       this.stakedNftId,
       this.collateralPrice,
@@ -161,6 +167,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.pool,
       this.owner,
       quoteTokenAmount,
+      this.collateralTokenAmount,
       priceIndex,
       this.stakedNftId,
       this.collateralPrice,
@@ -173,6 +180,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
     return new AjnaEarnPosition(
       this.pool,
       this.owner,
+      ZERO,
       ZERO,
       null,
       null,

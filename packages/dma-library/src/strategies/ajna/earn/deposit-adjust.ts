@@ -14,10 +14,12 @@ import { ethers } from 'ethers'
 
 import bucketPrices from './buckets.json'
 
-export async function depositAndAdjust(
+export type AjnaDepositAndAdjustStrategy = (
   args: AjnaEarnArgs,
   dependencies: AjnaDependencies,
-): Promise<Strategy<AjnaEarnPosition>> {
+) => Promise<Strategy<AjnaEarnPosition>>
+
+export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, dependencies) => {
   const action = 'deposit-earn'
   const isLendingEth =
     args.position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()

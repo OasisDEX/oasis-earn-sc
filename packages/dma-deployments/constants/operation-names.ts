@@ -34,18 +34,28 @@ export const OPERATION_NAMES = {
     INCREASE_MULTIPLE_WITH_FLASHLOAN_AND_DAI_AND_COLL_TOP_UP:
       'IncreaseMultipleWithFlashloanWithDaiAndCollTopup',
   },
+  ajna: {
+    OPEN_MULTIPLY_POSITION: 'AjnaOpenMultiplyPosition',
+    ADJUST_RISK_UP: 'AjnaAdjustRiskUp',
+    ADJUST_RISK_DOWN: 'AjnaAdjustRiskDown',
+    DEPOSIT_BORROW: 'AjnaDepositBorrow',
+    PAYBACK_WITHDRAW: 'AjnaPaybackWithdraw',
+    CLOSE_POSITION: 'AjnaClosePosition',
+  },
   common: {
     CUSTOM_OPERATION: 'CustomOperation',
   },
 } as const
 
 type ValuesOf<T> = T[keyof T]
-type AaveV2Operations = ValuesOf<(typeof OPERATION_NAMES)['aave']['v2']>
-type AaveV3Operations = ValuesOf<(typeof OPERATION_NAMES)['aave']['v3']>
-type MakerOperations = ValuesOf<(typeof OPERATION_NAMES)['maker']>
-type CommonOperations = ValuesOf<(typeof OPERATION_NAMES)['common']>
+type AaveV2OperationsNames = ValuesOf<(typeof OPERATION_NAMES)['aave']['v2']>
+type AaveV3OperationsNames = ValuesOf<(typeof OPERATION_NAMES)['aave']['v3']>
+type MakerOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['maker']>
+type AjnaOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['ajna']>
+type CommonOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['common']>
 export type OperationNames =
-  | CommonOperations
-  | AaveV2Operations
-  | AaveV3Operations
-  | MakerOperations
+  | CommonOperationsNames
+  | AaveV2OperationsNames
+  | AaveV3OperationsNames
+  | MakerOperationsNames
+  | AjnaOperationsNames

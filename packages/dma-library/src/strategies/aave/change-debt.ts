@@ -5,10 +5,12 @@ import { AavePosition, AAVETokens } from '@dma-library/types/aave'
 
 import { AaveVersion, getCurrentPosition } from './get-current-position'
 
-export async function changeDebt(
+export type AaveV2ChangeDebt = (
   args: IViewPositionParams<AAVETokens> & WithDebtChange<AAVETokens>,
   { addresses, provider }: IViewPositionDependencies<AAVEStrategyAddresses>,
-): Promise<AavePosition> {
+) => Promise<AavePosition>
+
+export const changeDebt: AaveV2ChangeDebt = async (args, { addresses, provider }) => {
   const currentPosition = await getCurrentPosition(args, {
     addresses,
     provider,

@@ -25,10 +25,22 @@ type AavePaybackWithdrawDependencies =
   | AaveV2PaybackWithdrawDependencies
   | AaveV3PaybackWithdrawDependencies
 
-export async function paybackWithdraw(
+export type AaveV2PaybackWithdraw = (
+  args: AavePaybackWithdrawArgs,
+  dependencies: Omit<AaveV2PaybackWithdrawDependencies, 'protocol'>,
+) => Promise<IStrategy>
+
+export type AaveV3PaybackWithdraw = (
+  args: AavePaybackWithdrawArgs,
+  dependencies: Omit<AaveV3PaybackWithdrawDependencies, 'protocol'>,
+) => Promise<IStrategy>
+
+export type AavePaybackWithdraw = (
   args: AavePaybackWithdrawArgs,
   dependencies: AavePaybackWithdrawDependencies,
-): Promise<IStrategy> {
+) => Promise<IStrategy>
+
+export const paybackWithdraw: AavePaybackWithdraw = async (args, dependencies) => {
   const currentPosition = dependencies.currentPosition
 
   const operation = await buildOperation(args, dependencies)
