@@ -1,5 +1,5 @@
+import { aaveAdjustDownV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { MAX_UINT } from '@dma-common/constants'
-import { aaveAdjustDownV3OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import {

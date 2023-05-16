@@ -1,7 +1,7 @@
 import poolAbi from '@abis/external/protocols/ajna/ajnaPoolERC20.json'
+import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { negativeToZero } from '@dma-common/utils/common'
-import { Address } from '@dma-deployments/types/address'
 import { getAjnaValidations } from '@dma-library/strategies/ajna/earn/validations'
 import { getPoolLiquidity } from '@dma-library/strategies/ajna/validation/notEnoughLiquidity'
 import { AjnaEarnPosition } from '@dma-library/types/ajna'

@@ -1,3 +1,5 @@
+import { Network } from '@deploy-configurations/types/network'
+import { ChainIdByNetwork } from '@deploy-configurations/utils/network'
 import {
   createDPMAccount,
   getOneInchCall,
@@ -7,6 +9,7 @@ import {
 } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
+import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import {
   testBlockNumberForAaveOptimismV3,
   testBlockNumberForAaveV3,
@@ -22,9 +25,6 @@ import {
   SystemWithAAVEV3Positions,
 } from '@dma-contracts/test/fixtures/types'
 import { buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
-import { DeploymentSystem } from '@dma-deployments/deployment/deploy'
-import { Network } from '@dma-deployments/types/network'
-import { ChainIdByNetwork } from '@dma-deployments/utils/network'
 import { AaveVersion, protocols, strategies } from '@dma-library'
 import hre from 'hardhat'
 

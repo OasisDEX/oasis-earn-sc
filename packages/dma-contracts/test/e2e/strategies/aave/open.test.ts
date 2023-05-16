@@ -1,3 +1,4 @@
+import { Network } from '@deploy-configurations/types/network'
 import { expect } from '@dma-common/test-utils'
 import { isOptimismByNetwork } from '@dma-common/utils/common'
 import {
@@ -10,7 +11,6 @@ import {
   systemWithAaveV3Positions,
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
 import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
-import { Network } from '@dma-deployments/types/network'
 import { PositionTransition } from '@dma-library'
 import { IPosition } from '@domain'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'

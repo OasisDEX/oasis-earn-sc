@@ -1,3 +1,4 @@
+import { Network } from '@deploy-configurations/types/network'
 import { ONE, OPERATION_NAMES, ZERO } from '@dma-common/constants'
 import {
   addressesByNetwork,
@@ -13,7 +14,6 @@ import { executeThroughProxy } from '@dma-common/utils/execute'
 import { resetNodeToLatestBlock } from '@dma-common/utils/init'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
-import { Network } from '@dma-deployments/types/network'
 import { AAVEStrategyAddresses, strategies } from '@dma-library'
 import { RiskRatio } from '@domain'
 import { JsonRpcProvider } from '@ethersproject/providers'

@@ -14,7 +14,7 @@
       "path": "packages/dma-contracts"
     },
     {
-      "path": "packages/dma-deployments"
+      "path": "packages/deploy-configurations"
     },
     {
       "path": "packages/dma-library"

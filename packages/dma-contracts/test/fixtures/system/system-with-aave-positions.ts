@@ -1,13 +1,13 @@
+import { Network } from '@deploy-configurations/types/network'
 import { createDPMAccount, getOneInchCall, oneInchCallMock } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
+import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import {
   buildGetTokenByImpersonateFunction,
   buildGetTokenFunction,
 } from '@dma-contracts/test/utils/aave'
 import { createPositionWithRetries } from '@dma-contracts/test/utils/aave/create-position-with-retries'
-import { DeploymentSystem } from '@dma-deployments/deployment/deploy'
-import { Network } from '@dma-deployments/types/network'
 import { AaveVersion, protocols, strategies } from '@dma-library'
 import hre from 'hardhat'
 

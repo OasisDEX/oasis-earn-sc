@@ -1,5 +1,5 @@
-import { CONTRACT_NAMES } from '@dma-deployments/constants'
-import { getActionHash } from '@dma-deployments/utils/action-hash'
+import { CONTRACT_NAMES } from '@deploy-configurations/constants'
+import { getActionHash } from '@deploy-configurations/utils/action-hash'
 import { ActionCall, calldataTypes } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 

@@ -1,6 +1,6 @@
-import { DeploymentSystem } from '@dma-deployments/deployment/deploy'
-import { Network } from '@dma-deployments/types/network'
-import { getForkedNetwork as getUnderlyingNetwork } from '@dma-deployments/utils/network'
+import { Network } from '@deploy-configurations/types/network'
+import { getForkedNetwork as getUnderlyingNetwork } from '@deploy-configurations/utils/network'
+import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import { task } from 'hardhat/config'
 
 task('deploy', 'Deploy the system to a local node.').setAction(

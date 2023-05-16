@@ -12,11 +12,11 @@
       "@dma-common/test-utils": ["./test-utils/index.ts"],
       "@dma-common/test-utils/*": ["./test-utils/*"],
       "@dma-common/types/*": ["./types/*"],
-      "@dma-deployments/addresses": ["../dma-deployments/addresses/index.ts"],
-      "@dma-deployments/utils/*": ["../dma-deployments/utils/*"],
-      "@dma-deployments/types/*": ["../dma-deployments/types/*"],
-      "@dma-deployments/constants": ["../dma-deployments/constants/index.ts"],
-      "@dma-deployments/operation-definitions": ["../dma-deployments/operation-definitions/index.ts"]
+      "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
+      "@deploy-configurations/utils/*": ["../deploy-configurations/utils/*"],
+      "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
+      "@deploy-configurations/constants": ["../deploy-configurations/constants/index.ts"],
+      "@deploy-configurations/operation-definitions": ["../deploy-configurations/operation-definitions/index.ts"]
     },
   },
   "references": [
@@ -24,7 +24,7 @@
       "path": "../abis"
     },
     {
-      "path": "../dma-deployments"
+      "path": "../deploy-configurations"
     }
   ],
   "include": [

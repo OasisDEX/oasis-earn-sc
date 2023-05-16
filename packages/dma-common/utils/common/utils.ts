@@ -1,4 +1,4 @@
-import { Network } from '@dma-deployments/types/network'
+import { Network } from '@deploy-configurations/types/network'
 import { ContractReceipt } from '@ethersproject/contracts'
 import { BigNumber } from 'bignumber.js'
 import { BytesLike, Contract, utils } from 'ethers'
