@@ -1,6 +1,6 @@
 /* Selection of token symbols and addresses that we're happy to accept as a fee */
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Network } from '@deploy-configurations/types/network'
 
 export const acceptedTokens = [
   {

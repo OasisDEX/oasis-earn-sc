@@ -1,8 +1,8 @@
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Network } from '@deploy-configurations/types/network'
 import { ONE } from '@dma-common/constants'
 import { OneInchSwapResponse } from '@dma-common/types/common'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 

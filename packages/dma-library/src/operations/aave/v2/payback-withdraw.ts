@@ -1,5 +1,5 @@
+import { aavePaybackWithdrawV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { MAX_UINT, ZERO } from '@dma-common/constants'
-import { aavePaybackWithdrawV2OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import BigNumber from 'bignumber.js'

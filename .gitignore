@@ -22,8 +22,8 @@ lib
 *.d.ts.map
 packages/dma-common/*.d.ts
 packages/dma-common/*.d.ts.map
-packages/dma-deployments/*.d.ts
-packages/dma-deployments/*.d.ts.map
+packages/deploy-configurations/*.d.ts
+packages/deploy-configurations/*.d.ts.map
 *.tsbuildinfo
 .parcel-cache
 

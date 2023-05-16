@@ -1,5 +1,5 @@
+import { aaveAdjustUpV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
-import { aaveAdjustUpV2OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'

@@ -1,5 +1,5 @@
+import { aaveCloseV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { MAX_UINT, ZERO } from '@dma-common/constants'
-import { aaveCloseV3OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import {
   IOperation,

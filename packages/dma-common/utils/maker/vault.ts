@@ -1,6 +1,6 @@
 import GetCDPsABI from '@abis/external/protocols/maker/get-cdps.json'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Network } from '@deploy-configurations/types/network'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { BigNumber as EthersBN, BigNumberish, Contract, Signer } from 'ethers'

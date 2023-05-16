@@ -1,5 +1,8 @@
 import aavePriceOracleABI from '@abis/external/protocols/aave/v2/priceOracle.json'
 import AAVEDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Address } from '@deploy-configurations/types/address'
+import { Network } from '@deploy-configurations/types/network' // TODO: IMPLEMENT THIS TEST
 import { ONE, ZERO } from '@dma-common/constants'
 import {
   addressesByNetwork,
@@ -16,9 +19,6 @@ import { executeThroughProxy } from '@dma-common/utils/execute'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { tokens } from '@dma-contracts/test/constants'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Address } from '@dma-deployments/types/address'
-import { Network } from '@dma-deployments/types/network' // TODO: IMPLEMENT THIS TEST
 import { AAVETokens, strategies } from '@dma-library'
 import { Position, PositionBalance } from '@domain'
 import { Contract } from '@ethersproject/contracts'

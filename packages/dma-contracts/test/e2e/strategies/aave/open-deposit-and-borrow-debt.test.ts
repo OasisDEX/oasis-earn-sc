@@ -1,10 +1,10 @@
+import { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { addressesByNetwork, expect } from '@dma-common/test-utils'
 import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { approve } from '@dma-common/utils/tx'
 import { SystemWithProxies, systemWithProxies } from '@dma-contracts/test/fixtures'
-import { Network } from '@dma-deployments/types/network'
 import { AAVETokens, strategies } from '@dma-library'
 import BigNumber from 'bignumber.js'
 

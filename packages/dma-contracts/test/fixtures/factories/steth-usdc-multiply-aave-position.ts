@@ -1,3 +1,4 @@
+import { Network } from '@deploy-configurations/types/network'
 import { addressesByNetwork } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
@@ -5,7 +6,6 @@ import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { approve } from '@dma-common/utils/tx'
 import { StrategyDependenciesAaveV2 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
-import { Network } from '@dma-deployments/types/network'
 import { AaveVersion, strategies } from '@dma-library'
 import {
   AaveV2OpenDependencies,

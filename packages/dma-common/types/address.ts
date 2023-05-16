@@ -1,1 +1,1 @@
-export type { Address } from '@dma-deployments/types/address'
+export type { Address } from '@deploy-configurations/types/address'

@@ -1,4 +1,4 @@
-import { aaveAdjustDownV2OperationDefinition } from '@dma-deployments/operation-definitions'
+import { aaveAdjustDownV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'

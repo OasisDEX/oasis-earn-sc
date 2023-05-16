@@ -1,5 +1,5 @@
+import { aavePaybackWithdrawV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { MAX_UINT, ZERO } from '@dma-common/constants'
-import { aavePaybackWithdrawV3OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3/addresses'
 import { IOperation } from '@dma-library/types'
