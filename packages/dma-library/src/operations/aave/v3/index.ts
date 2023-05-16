@@ -7,6 +7,14 @@ import { paybackWithdraw } from './payback-withdraw'
 
 export type { AAVEV3StrategyAddresses }
 
+export type AaveV3Operations = {
+  adjustRiskDown: any
+  adjustRiskUp: any
+  close: any
+  open: any
+  paybackWithdraw: any
+}
+
 export const aaveV3Operations = {
   adjustRiskDown,
   adjustRiskUp,
