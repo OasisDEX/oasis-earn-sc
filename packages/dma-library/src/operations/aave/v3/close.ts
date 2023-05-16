@@ -21,7 +21,7 @@ type CloseArgs = WithCollateral &
   WithPositionAndLockedCollateral &
   WithAaveV3StrategyAddresses
 
-export async function close({
+export type AaveV3CloseOperation = ({
   collateral,
   debt,
   swap,
@@ -29,7 +29,17 @@ export async function close({
   proxy,
   position,
   addresses,
-}: CloseArgs): Promise<IOperation> {
+}: CloseArgs) => Promise<IOperation>
+
+export const close: AaveV3CloseOperation = async ({
+  collateral,
+  debt,
+  swap,
+  flashloan,
+  proxy,
+  position,
+  addresses,
+}) => {
   const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
     categoryId: 0,
   })

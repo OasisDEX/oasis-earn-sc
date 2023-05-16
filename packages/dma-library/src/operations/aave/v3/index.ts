@@ -1,18 +1,18 @@
 import type { AAVEV3StrategyAddresses } from './addresses'
-import { adjustRiskDown } from './adjust-risk-down'
-import { adjustRiskUp } from './adjust-risk-up'
-import { close } from './close'
-import { open as aaveV3Open } from './open'
-import { paybackWithdraw } from './payback-withdraw'
+import { AaveV3AdjustDownOperation, adjustRiskDown } from './adjust-risk-down'
+import { AaveV3AdjustUpOperation, adjustRiskUp } from './adjust-risk-up'
+import { AaveV3CloseOperation, close } from './close'
+import { AaveV3OpenOperation, open as aaveV3Open } from './open'
+import { AaveV3PaybackWithdrawOperation, paybackWithdraw } from './payback-withdraw'
 
 export type { AAVEV3StrategyAddresses }
 
 export type AaveV3Operations = {
-  adjustRiskDown: any
-  adjustRiskUp: any
-  close: any
-  open: any
-  paybackWithdraw: any
+  adjustRiskDown: AaveV3AdjustDownOperation
+  adjustRiskUp: AaveV3AdjustUpOperation
+  close: AaveV3CloseOperation
+  open: AaveV3OpenOperation
+  paybackWithdraw: AaveV3PaybackWithdrawOperation
 }
 
 export const aaveV3Operations = {

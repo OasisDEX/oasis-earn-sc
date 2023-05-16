@@ -27,7 +27,7 @@ type OpenArgs = WithCollateral &
   WithEMode &
   WithAaveV3StrategyAddresses
 
-export async function open({
+export type AaveV3OpenOperation = ({
   collateral,
   debt,
   deposit,
@@ -37,7 +37,19 @@ export async function open({
   position,
   emode,
   addresses,
-}: OpenArgs): Promise<IOperation> {
+}: OpenArgs) => Promise<IOperation>
+
+export const open: AaveV3OpenOperation = async ({
+  collateral,
+  debt,
+  deposit,
+  swap,
+  flashloan,
+  proxy,
+  position,
+  emode,
+  addresses,
+}) => {
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
 

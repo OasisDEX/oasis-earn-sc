@@ -5,7 +5,7 @@ import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3/address
 import { IOperation } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
-export async function paybackWithdraw(args: {
+type PaybackWithdrawArgs = {
   amountCollateralToWithdrawInBaseUnit: BigNumber
   amountDebtToPaybackInBaseUnit: BigNumber
   isPaybackAll: boolean
@@ -16,7 +16,11 @@ export async function paybackWithdraw(args: {
   proxy: string
   user: string
   addresses: AAVEV3StrategyAddresses
-}): Promise<IOperation> {
+}
+
+export type AaveV3PaybackWithdrawOperation = (args: PaybackWithdrawArgs) => Promise<IOperation>
+
+export const paybackWithdraw: AaveV3PaybackWithdrawOperation = async args => {
   const pullDebtTokensToProxy = actions.common.pullToken({
     asset: args.debtTokenAddress,
     amount: args.amountDebtToPaybackInBaseUnit,

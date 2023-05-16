@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js'
 
 import { AAVEStrategyAddresses } from './addresses'
 
-export async function paybackWithdraw(args: {
+type PaybackWithdrawArgs = {
   amountCollateralToWithdrawInBaseUnit: BigNumber
   amountDebtToPaybackInBaseUnit: BigNumber
   isPaybackAll: boolean
@@ -17,7 +17,11 @@ export async function paybackWithdraw(args: {
   proxy: string
   user: string
   addresses: AAVEStrategyAddresses
-}): Promise<IOperation> {
+}
+
+export type AaveV2PaybackWithdrawOperation = (args: PaybackWithdrawArgs) => Promise<IOperation>
+
+export const paybackWithdraw: AaveV2PaybackWithdrawOperation = async args => {
   const pullDebtTokensToProxy = actions.common.pullToken({
     asset: args.debtTokenAddress,
     amount: args.amountDebtToPaybackInBaseUnit,

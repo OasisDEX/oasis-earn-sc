@@ -1,13 +1,17 @@
 import { OPERATION_NAMES } from '@dma-common/constants'
-import { ActionCall } from '@dma-library/types'
+import { ActionCall, IOperation } from '@dma-library/types'
 
 import { borrow, BorrowArgs } from './borrow'
 import { deposit, DepositArgs } from './deposit'
 
-export async function depositBorrow(
+type AaveV2DepositBorrowArgs = [
   depositArgs: DepositArgs | undefined,
   borrowArgs: BorrowArgs | undefined,
-) {
+]
+
+export type AaveV2DepositBorrowOperation = (...args: AaveV2DepositBorrowArgs) => Promise<IOperation>
+
+export const depositBorrow: AaveV2DepositBorrowOperation = async (depositArgs, borrowArgs) => {
   if (depositArgs && borrowArgs) {
     return {
       calls: [...(await deposit(depositArgs)).calls, ...(await borrow(borrowArgs)).calls],

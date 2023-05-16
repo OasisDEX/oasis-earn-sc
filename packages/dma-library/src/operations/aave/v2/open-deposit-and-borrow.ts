@@ -1,15 +1,25 @@
 import { OPERATION_NAMES } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import { ActionCall, PositionType, Protocol } from '@dma-library/types'
+import { ActionCall, IOperation, PositionType, Protocol } from '@dma-library/types'
 
 import { borrow, BorrowArgs } from './borrow'
 import { deposit, DepositArgs } from './deposit'
 
-export async function openDepositAndBorrow(
+type AaveV2OpenDepositBorrowArgs = [
   depositArgs: DepositArgs,
   borrowArgs: BorrowArgs,
-  { protocol, positionType }: { protocol: Protocol; positionType: PositionType },
-) {
+  metaArgs: { protocol: Protocol; positionType: PositionType },
+]
+
+export type AaveV2OpenDepositBorrowOperation = (
+  ...args: AaveV2OpenDepositBorrowArgs
+) => Promise<IOperation>
+
+export const openDepositAndBorrow: AaveV2OpenDepositBorrowOperation = async (
+  depositArgs,
+  borrowArgs,
+  { protocol, positionType },
+) => {
   const positionCreatedEvent = actions.common.positionCreated({
     protocol,
     positionType,

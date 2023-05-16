@@ -9,23 +9,27 @@ import BigNumber from 'bignumber.js'
 
 import { AAVEStrategyAddresses } from './addresses'
 
-export async function close(
-  args: {
-    collateralAmountToBeSwapped: BigNumber
-    flashloanAmount: BigNumber
-    receiveAtLeast: BigNumber
-    fee: number
-    swapData: string | number
-    proxy: string
-    collectFeeFrom: 'sourceToken' | 'targetToken'
-    collateralTokenAddress: string
-    collateralIsEth: boolean
-    debtTokenAddress: string
-    debtTokenIsEth: boolean
-    isDPMProxy: boolean
-  },
+type CloseArgs = {
+  collateralAmountToBeSwapped: BigNumber
+  flashloanAmount: BigNumber
+  receiveAtLeast: BigNumber
+  fee: number
+  swapData: string | number
+  proxy: string
+  collectFeeFrom: 'sourceToken' | 'targetToken'
+  collateralTokenAddress: string
+  collateralIsEth: boolean
+  debtTokenAddress: string
+  debtTokenIsEth: boolean
+  isDPMProxy: boolean
+}
+
+export type AaveV2CloseOperation = (
+  args: CloseArgs,
   addresses: AAVEStrategyAddresses,
-): Promise<IOperation> {
+) => Promise<IOperation>
+
+export const close: AaveV2CloseOperation = async (args, addresses) => {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: args.flashloanAmount,
     asset: addresses.DAI,
