@@ -47,8 +47,15 @@ contract AjnaProxyActions {
      * @param name The address initiating the deposit
      **/
     event ProxyActionsOperation(bytes32 indexed name);
-    //  emit Operation(bytes32(abi.encodePacked(operationName)), calls);
 
+    /**
+     * @dev Emitted when a new position is created
+     * @param proxyAddress The address of the newly created position proxy contract
+     * @param protocol The name of the protocol associated with the position
+     * @param positionType The type of position being created (e.g. long or short)
+     * @param collateralToken The address of the collateral token being used for the position
+     * @param debtToken The address of the debt token being used for the position
+     **/
     event CreatePosition(
         address indexed proxyAddress,
         string protocol,
