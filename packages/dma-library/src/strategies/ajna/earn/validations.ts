@@ -39,7 +39,8 @@ export const getAjnaValidations = ({
   // action specific
   switch (action) {
     case 'open-earn':
-    case 'deposit-earn': {
+    case 'deposit-earn':
+    case 'claim-earn': {
       break
     }
     case 'withdraw-earn': {

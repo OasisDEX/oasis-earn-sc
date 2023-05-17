@@ -921,7 +921,7 @@ export const config: SystemConfig = {
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0xD28618E87b17B6f78a79edca8Fb0591E89453165',
+      address: '0xeE83e98a6734cd59347066F8adDba8B304DA4905',
     },
     AjnaPoolPairs_WBTCUSDC: {
       name: 'AjnaPoolPairs_WBTCUSDC',
@@ -937,7 +937,7 @@ export const config: SystemConfig = {
     },
     AjnaRewardsClaimer: {
       name: 'AjnaRewardsClaimer',
-      address: '0xEd6890d748e62ddbb3f80e7256Deeb2fBb853476',
+      address: '0xFb6EdFC7ADc67645423c233332efD6E6804e72F5',
     },
   },
 }

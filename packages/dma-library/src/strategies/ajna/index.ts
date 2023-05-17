@@ -1,4 +1,5 @@
 import { AjnaDepositBorrowStrategy, depositBorrow } from './deposit-borrow'
+import { AjnaClaimCollateralStrategy, claimCollateral } from './earn/claim-collateral'
 import { AjnaDepositAndAdjustStrategy, depositAndAdjust } from './earn/deposit-adjust'
 import { AjnaOpenEarnStrategy, open as openEarn } from './earn/open'
 import { AjnaWithdrawAndAdjustStrategy, withdrawAndAdjust } from './earn/withdraw-adjust'
@@ -15,6 +16,7 @@ export const ajna: {
     open: AjnaOpenEarnStrategy
     depositAndAdjust: AjnaDepositAndAdjustStrategy
     withdrawAndAdjust: AjnaWithdrawAndAdjustStrategy
+    claimCollateral: AjnaClaimCollateralStrategy
   }
 } = {
   borrow: {
@@ -26,5 +28,6 @@ export const ajna: {
     open: openEarn,
     depositAndAdjust,
     withdrawAndAdjust,
+    claimCollateral,
   },
 }
