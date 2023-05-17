@@ -171,11 +171,10 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
   async saveConfig() {
     const { writeFile } = await import('fs')
-
     const configString = inspect(this.config, { depth: null })
 
     writeFile(
-      this.getConfigPath(`./${this.network}.conf.ts`),
+      `./../deploy-configurations/configs/${this.network}.conf.ts`,
       `export const config = ${configString}`,
       (error: any) => {
         if (error) {
@@ -547,7 +546,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       aaveAdjustUpV2OperationDefinition.name,
       aaveAdjustUpV2OperationDefinition.actions,
     )
-
     await operationsRegistry.addOp(
       aaveAdjustDownV3OperationDefinition.name,
       aaveAdjustDownV3OperationDefinition.actions,
