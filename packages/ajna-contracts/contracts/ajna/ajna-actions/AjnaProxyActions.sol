@@ -44,7 +44,7 @@ contract AjnaProxyActions {
 
     /**
      * @dev Emitted once an Operation has completed execution
-     * @param name The address initiating the deposit
+     * @param name Name of the operation
      **/
     event ProxyActionsOperation(bytes32 indexed name);
 
