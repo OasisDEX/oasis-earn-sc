@@ -141,23 +141,6 @@ contract AjnaProxyActions {
         ERC721(address(positionManager)).approve(address(rewardsManager), tokenId);
     }
 
-    /**
-     *  @notice Move LP from one bucket to another while momorialized in NFT and staked NFT
-     *  @param  oldPrice      Old price of the momorialized bucket
-     *  @param  newPrice      New price of the momorialized bucket
-     *  @param  tokenId       Nft ID
-     */
-    function moveStakedLiquidity(uint256 oldPrice, uint256 newPrice, uint256 tokenId) internal {
-        uint256 oldIndex = convertPriceToIndex(oldPrice);
-        uint256 newIndex = convertPriceToIndex(newPrice);
-        uint256[] memory oldIndexes = new uint256[](1);
-        oldIndexes[0] = oldIndex;
-        uint256[] memory newIndexes = new uint256[](1);
-        newIndexes[0] = newIndex;
-
-        rewardsManager.moveStakedLiquidity(tokenId, oldIndexes, newIndexes, block.timestamp + 1);
-    }
-
     // BORROWER ACTIONS
 
     /**
@@ -553,10 +536,11 @@ contract AjnaProxyActions {
      *  @param  newPrice     Index of the bucket to move to.
      *  @param  tokenId      ID of the NFT to modify
      */
-    function moveQuoteNft(ERC20Pool, uint256 oldPrice, uint256 newPrice, uint256 tokenId) public payable {
-        moveStakedLiquidity(oldPrice, newPrice, tokenId);
+    function moveQuoteNft(ERC20Pool pool, uint256 oldPrice, uint256 newPrice, uint256 tokenId) public payable {
+        rewardsManager.unstake(tokenId);
+        moveLiquidity(oldPrice, newPrice, tokenId, address(pool));
+        rewardsManager.stake(tokenId);
     }
-
     /**
      *  @notice Claim staking rewards
      *  @param  pool         Address of the Ajana Pool.
