@@ -17,6 +17,7 @@ import {
 import { Network } from '@deploy-configurations/types/network'
 
 import { goerliConfig, mainnetConfig, optimismConfig } from '../configs'
+import { ADDRESS_ZERO as zeroAddress } from '../constants/address-zero'
 
 enum MpaKeys {
   CORE = 'core',
@@ -171,6 +172,8 @@ export const ADDRESSES: Addresses = {
     },
   },
 }
+
+export const ADDRESS_ZERO = zeroAddress
 
 type ExtractAddressesFromConfig<T extends Contracts> = Record<T, DeploymentConfig>
 

@@ -314,7 +314,7 @@ export const config: SystemConfig = {
     },
     ChainlinkPriceOracle_USDCUSD: {
       name: 'ChainlinkPriceOracle_USDCUSD',
-      address: ADDRESS_ZERO,
+      address: '0x16a9fa2fda030272ce99b29cf780dfa30361e0f3',
     },
     ChainlinkPriceOracle_ETHUSD: {
       name: 'ChainlinkPriceOracle_ETHUSD',
