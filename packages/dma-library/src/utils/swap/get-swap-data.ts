@@ -2,7 +2,7 @@ import { SwapData } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 import { acceptedFeeToken } from './accepted-fee-token'
-import { calculatePreSwapFeeAmount } from './calculate-pre-swap-amount'
+import { calculatePreSwapFeeAmount } from './calculate-swap-fee-amount'
 
 type GetSwapDataArgs<Tokens> = {
   swapAmountBeforeFees: BigNumber

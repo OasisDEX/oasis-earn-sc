@@ -74,12 +74,10 @@ async function adjustRiskUp(
   dependencies: AaveAdjustDependencies,
 ): Promise<PositionTransition> {
   const isAdjustUp = true
-  const fee = feeResolver(
-    args.collateralToken.symbol,
-    args.debtToken.symbol,
-    isAdjustUp,
-    args.positionType === 'Earn',
-  )
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    isIncreasingRisk: isAdjustUp,
+    isEarnPosition: args.positionType === 'Earn',
+  })
 
   // Get quote swap
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
@@ -159,12 +157,10 @@ async function adjustRiskDown(
 ): Promise<PositionTransition> {
   const isAdjustDown = true
   const isAdjustUp = !isAdjustDown
-  const fee = feeResolver(
-    args.collateralToken.symbol,
-    args.debtToken.symbol,
-    isAdjustUp,
-    args.positionType === 'Earn',
-  )
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    isIncreasingRisk: isAdjustUp,
+    isEarnPosition: args.positionType === 'Earn',
+  })
 
   // Get quote swap
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.collateralToken.precision)
@@ -490,12 +486,10 @@ async function buildOperationV2({
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
 
   const adjustRiskDown = !adjustRiskUp
-  const fee = feeResolver(
-    args.collateralToken.symbol,
-    args.debtToken.symbol,
-    adjustRiskUp,
-    args.positionType === 'Earn',
-  )
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    isIncreasingRisk: adjustRiskUp,
+    isEarnPosition: args.positionType === 'Earn',
+  })
 
   const hasCollateralDeposit = args.depositedByUser?.collateralInWei?.gt(ZERO)
   const depositAddress = hasCollateralDeposit ? collateralTokenAddress : debtTokenAddress
@@ -606,12 +600,10 @@ async function buildOperationV3({
     ? args.depositedByUser?.collateralInWei
     : args.depositedByUser?.debtInWei
   const adjustRiskDown = !adjustRiskUp
-  const fee = feeResolver(
-    args.collateralToken.symbol,
-    args.debtToken.symbol,
-    adjustRiskUp,
-    args.positionType === 'Earn',
-  )
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    isIncreasingRisk: adjustRiskUp,
+    isEarnPosition: args.positionType === 'Earn',
+  })
   const flashloanProvider = resolveFlashloanProvider(await getForkedNetwork(dependencies.provider))
 
   const adjustRiskArgs = {

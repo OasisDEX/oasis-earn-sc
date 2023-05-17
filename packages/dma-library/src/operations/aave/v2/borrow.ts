@@ -1,32 +1,18 @@
-import { ADDRESSES } from '@deploy-configurations/addresses'
-import { Network } from '@deploy-configurations/types/network'
-import { OPERATION_NAMES } from '@dma-common/constants'
-import { Address } from '@dma-common/types/address'
+import { aaveDepositBorrowV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { actions } from '@dma-library/actions'
+import { BorrowArgs } from '@dma-library/operations/aave/common/borrow-args'
+import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
 import { ActionCall, IOperation } from '@dma-library/types'
-import BigNumber from 'bignumber.js'
 
-export interface BorrowArgs {
-  borrowToken: Address
-  amountInBaseUnit: BigNumber
-  account: string
-  user: string
-  isEthToken: boolean
-}
+export type BorrowV2Operation = (
+  args: BorrowArgs,
+  addresses: AAVEStrategyAddresses,
+) => Promise<IOperation>
 
-export type BorrowV2Operation = ({
-  borrowToken,
-  amountInBaseUnit,
-  account,
-  isEthToken,
-}: BorrowArgs) => Promise<IOperation>
-
-export const borrow: BorrowV2Operation = async ({
-  borrowToken,
-  amountInBaseUnit,
-  account,
-  isEthToken,
-}) => {
+export const borrow: BorrowV2Operation = async (
+  { borrowToken, amountInBaseUnit, account, isEthToken },
+  addresses,
+) => {
   // Import ActionCall as it assists type generation
   const calls: ActionCall[] = [
     actions.aave.v2.aaveBorrow({
@@ -38,7 +24,7 @@ export const borrow: BorrowV2Operation = async ({
       amount: amountInBaseUnit,
     }),
     actions.common.returnFunds({
-      asset: isEthToken ? ADDRESSES[Network.MAINNET].common.ETH : borrowToken,
+      asset: isEthToken ? addresses.ETH : borrowToken,
     }),
   ]
 
@@ -46,6 +32,6 @@ export const borrow: BorrowV2Operation = async ({
 
   return {
     calls,
-    operationName: OPERATION_NAMES.aave.v2.BORROW,
+    operationName: aaveDepositBorrowV2OperationDefinition.name,
   }
 }

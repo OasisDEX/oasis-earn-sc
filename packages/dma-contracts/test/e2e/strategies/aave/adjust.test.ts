@@ -5,6 +5,7 @@ import { ADDRESSES } from '@deploy-configurations/addresses'
 import { ADDRESS_ZERO } from '@deploy-configurations/constants'
 import { DeployedSystem, System } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
+import { EMPTY_ADDRESS } from '@dma-common/constants'
 import {
   addressesByNetwork,
   advanceBlocks,
@@ -17,7 +18,6 @@ import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, isMainnetByNetwork, isOptimismByNetwork } from '@dma-common/utils/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { BLOCKS_TO_ADVANCE, TIME_TO_ADVANCE } from '@dma-contracts/test/config'
-import { EMPTY_ADDRESS } from '@dma-contracts/test/constants'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,

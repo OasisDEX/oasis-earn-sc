@@ -16,9 +16,14 @@ export interface IBasePositionTransitionArgs<Tokens> {
   debtToken: { symbol: Tokens; precision?: number }
 }
 
+export type WithAaveEntryToken = {
+  entryToken: { symbol: AAVETokens; precision?: number }
+}
+
 export type WithAaveTransitionArgs = {
   collateralToken: { symbol: AAVETokens; precision?: number }
   debtToken: { symbol: AAVETokens; precision?: number }
+  entryToken?: { symbol: AAVETokens; precision?: number }
 } & WithSlippage
 
 type WithSlippage = {
@@ -105,6 +110,17 @@ export type WithAaveV2StrategyDependencies = {
 export type WithAaveV3StrategyDependencies = {
   addresses: AAVEV3StrategyAddresses
 } & SharedStrategyDependencies
+
+export type WithSwap = {
+  getSwapData: (
+    fromToken: string,
+    toToken: string,
+    amount: BigNumber,
+    slippage: BigNumber,
+  ) => Promise<SwapData>
+}
+
+export type WithOptionalSwap = Partial<WithSwap>
 
 export type IOpenPositionTransitionDependencies<Addresses> = Omit<
   IPositionTransitionDependencies<Addresses>,

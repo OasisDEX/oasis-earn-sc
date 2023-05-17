@@ -8,8 +8,11 @@ import {
   aaveAdjustDownV3OperationDefinition,
   aaveAdjustUpV2OperationDefinition,
   aaveAdjustUpV3OperationDefinition,
+  aaveBorrowV3OperationDefinition,
   aaveCloseV2OperationDefinition,
   aaveCloseV3OperationDefinition,
+  aaveDepositBorrowV3OperationDefinition,
+  aaveDepositV3OperationDefinition,
   aaveOpenV2OperationDefinition,
   aaveOpenV3OperationDefinition,
   aavePaybackWithdrawV2OperationDefinition,
@@ -531,6 +534,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       this.signer,
     )
 
+    // AAVE V2
     await operationsRegistry.addOp(
       aaveOpenV2OperationDefinition.name,
       aaveOpenV2OperationDefinition.actions,
@@ -540,6 +544,20 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       aaveCloseV2OperationDefinition.actions,
     )
     await operationsRegistry.addOp(
+      aaveAdjustDownV2OperationDefinition.name,
+      aaveAdjustDownV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveAdjustUpV2OperationDefinition.name,
+      aaveAdjustUpV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aavePaybackWithdrawV2OperationDefinition.name,
+      aavePaybackWithdrawV2OperationDefinition.actions,
+    )
+
+    // AAVE V3
+    await operationsRegistry.addOp(
       aaveOpenV3OperationDefinition.name,
       aaveOpenV3OperationDefinition.actions,
     )
@@ -548,15 +566,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       aaveCloseV3OperationDefinition.actions,
     )
     await operationsRegistry.addOp(
-      aaveAdjustDownV2OperationDefinition.name,
-      aaveAdjustDownV2OperationDefinition.actions,
-    )
-    await operationsRegistry.addOp(
-      aaveAdjustUpV2OperationDefinition.name,
-      aaveAdjustUpV2OperationDefinition.actions,
-    )
-
-    await operationsRegistry.addOp(
       aaveAdjustDownV3OperationDefinition.name,
       aaveAdjustDownV3OperationDefinition.actions,
     )
@@ -564,15 +573,21 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       aaveAdjustUpV3OperationDefinition.name,
       aaveAdjustUpV3OperationDefinition.actions,
     )
-
-    await operationsRegistry.addOp(
-      aavePaybackWithdrawV2OperationDefinition.name,
-      aavePaybackWithdrawV2OperationDefinition.actions,
-    )
-
     await operationsRegistry.addOp(
       aavePaybackWithdrawV3OperationDefinition.name,
       aavePaybackWithdrawV3OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveDepositBorrowV3OperationDefinition.name,
+      aaveDepositBorrowV3OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveDepositV3OperationDefinition.name,
+      aaveDepositV3OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveBorrowV3OperationDefinition.name,
+      aaveBorrowV3OperationDefinition.actions,
     )
   }
 

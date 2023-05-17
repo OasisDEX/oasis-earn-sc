@@ -66,12 +66,10 @@ export async function open(
   args: AaveOpenArgs,
   dependencies: AaveOpenDependencies,
 ): Promise<PositionTransition> {
-  const fee = feeResolver(
-    args.collateralToken.symbol,
-    args.debtToken.symbol,
-    true,
-    args.positionType === 'Earn',
-  )
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    isIncreasingRisk: true,
+    isEarnPosition: args.positionType === 'Earn',
+  })
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
   const { swapData: quoteSwapData } = await getSwapDataHelper<
     typeof dependencies.addresses,
@@ -302,12 +300,10 @@ async function buildOperation(
   const borrowAmountInWei = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
 
   const isIncreasingRisk = true
-  const fee = feeResolver(
-    args.collateralToken.symbol,
-    args.debtToken.symbol,
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk,
-    args.positionType === 'Earn',
-  )
+    isEarnPosition: args.positionType === 'Earn',
+  })
 
   if (protocolVersion === AaveVersion.v3) {
     const flashloanProvider = resolveFlashloanProvider(

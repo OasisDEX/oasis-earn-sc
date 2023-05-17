@@ -3,15 +3,21 @@ import { AAVETokens } from '@dma-library/types/aave'
 import BigNumber from 'bignumber.js'
 
 export const feeResolver = (
-  collateralSymbol: AAVETokens,
-  debtSymbol: AAVETokens,
-  isIncreasingRisk?: boolean,
-  isEarnPosition?: boolean,
+  fromToken: AAVETokens,
+  toToken: AAVETokens,
+  flags: {
+    isIncreasingRisk?: boolean
+    isEarnPosition?: boolean
+    isEntrySwap?: boolean
+  },
 ) => {
-  if (collateralSymbol === 'WSTETH' && debtSymbol === 'ETH' && !isIncreasingRisk) {
+  if (flags.isEntrySwap) {
+    return new BigNumber(DEFAULT_FEE)
+  }
+  if (fromToken === 'WSTETH' && toToken === 'ETH' && !flags.isIncreasingRisk) {
     return new BigNumber(HIGH_MULTIPLE_FEE)
   }
-  if (isIncreasingRisk && isEarnPosition) {
+  if (flags.isIncreasingRisk && flags.isEarnPosition) {
     return new BigNumber(NO_FEE)
   }
   return new BigNumber(DEFAULT_FEE)
