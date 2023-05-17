@@ -183,10 +183,14 @@ async function addAcctions(
     env.poolInfo.address,
     serviceRegistryAddress,
   ])
-  const takeFlashloan = await deploy('TakeFlashloan_3', [serviceRegistryAddress])
-  const wrapEth = await deploy('WrapEth', [])
+  const takeFlashloan = await deploy('TakeFlashloan_3', [
+    serviceRegistryAddress,
+    '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+    '0x5a15566417e6C1c9546523066500bDDBc53F88C7',
+  ])
+  const wrapEth = await deploy('WrapEth', [serviceRegistryAddress])
   const swapAction = await deploy('SwapAction_3', [serviceRegistryAddress])
-  const positionCreated = await deploy('PositionCreated', [serviceRegistryAddress])
+  const positionCreated = await deploy('PositionCreated', [])
   const pullToken = await deploy('PullToken', [])
   const setApproval = await deploy('SetApproval', [serviceRegistryAddress])
 
