@@ -52,7 +52,7 @@ contract AjnaProxyActions {
      * @dev Emitted when a new position is created
      * @param proxyAddress The address of the newly created position proxy contract
      * @param protocol The name of the protocol associated with the position
-     * @param positionType The type of position being created (e.g. long or short)
+     * @param positionType The type of position being created (e.g. borrow or earn)
      * @param collateralToken The address of the collateral token being used for the position
      * @param debtToken The address of the debt token being used for the position
      **/
