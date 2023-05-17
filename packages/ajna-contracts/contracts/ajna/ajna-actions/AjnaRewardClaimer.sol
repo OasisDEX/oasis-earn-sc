@@ -3,7 +3,6 @@ pragma solidity 0.8.15;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-
 import { RewardsManager } from "../RewardsManager.sol";
 import { IAccountImplementation } from "../../interfaces/dpm/IAccountImplementation.sol";
 import { IAccountGuard } from "../../interfaces/dpm/IAccountGuard.sol";
@@ -25,6 +24,14 @@ contract AjnaRewardClaimer {
     address public immutable self;
     address public immutable owner;
     address public ajnaProxyActions;
+
+    /**
+     * @dev Emitted once an Operation has completed execution
+     * @param name Name of the operation
+     **/
+    event ProxyActionsOperation(bytes32 indexed name);
+
+    event AjnaRewardClaimed(address indexed proxy, address indexed pool, uint256 indexed tokenId);
 
     constructor(RewardsManager _rewardsManager, IERC20 _ajnaToken, IServiceRegistry _serviceRegistry) {
         rewardsManager = _rewardsManager;
@@ -70,7 +77,9 @@ contract AjnaRewardClaimer {
             );
             IAccountImplementation(proxy).execute(ajnaProxyActions, rewardsManagerCalldata);
             ajnaToken.transfer(proxyOwner, ajnaToken.balanceOf(self));
+            emit AjnaRewardClaimed(proxy, pool, tokenIds[i]);
         }
+        emit ProxyActionsOperation("AjnaRewardClaimed");
     }
 
     function _revertOnlyNotDelegate() private view {
