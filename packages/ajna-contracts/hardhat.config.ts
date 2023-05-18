@@ -27,7 +27,7 @@ const config: HardhatUserConfig = {
       chainId: 2137,
     },
     goerli: {
-      url: process.env.ALCHEMY_NODE_GOERLI,
+      url: process.env.GOERLI_URL,
       gasPrice: 25000000000,
       accounts: [process.env.PRIV_KEY_GOERLI as string],
     },
