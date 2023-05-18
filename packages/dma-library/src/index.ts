@@ -10,7 +10,7 @@ export type {
   ISimplePositionTransition,
   ISimpleSimulatedTransition,
   ISimulatedTransition,
-  Strategies,
+  PositionTransition,
   SwapData,
 } from './types'
 export type { AAVETokens } from './types/aave'

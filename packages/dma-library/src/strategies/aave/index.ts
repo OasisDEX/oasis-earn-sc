@@ -1,5 +1,5 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
-import { AavePosition, Strategies } from '@dma-library/types'
+import { AavePosition, PositionTransition } from '@dma-library/types'
 
 import {
   AaveAdjustArgs,
@@ -33,16 +33,16 @@ export const aave: {
     open: (
       args: AaveOpenArgs,
       dependencies: Omit<AaveV2OpenDependencies, 'protocol'>,
-    ) => Promise<Strategies>
+    ) => Promise<PositionTransition>
     view: (
       args: AaveGetCurrentPositionArgs,
       dependencies: Omit<AaveV2GetCurrentPositionDependencies, 'protocolVersion'>,
     ) => Promise<AavePosition>
-    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) => Promise<Strategies>
+    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) => Promise<PositionTransition>
     adjust: (
       args: AaveAdjustArgs,
       dependencies: Omit<AaveV2AdjustDependencies, 'protocol'>,
-    ) => Promise<Strategies>
+    ) => Promise<PositionTransition>
     changeDebt: AaveV2ChangeDebt
     depositBorrow: AaveV2DepositBorrow
     paybackWithdraw: AaveV2PaybackWithdraw
@@ -52,12 +52,12 @@ export const aave: {
     open: (
       args: AaveOpenArgs,
       dependencies: Omit<AaveV3OpenDependencies, 'protocol' | 'protocolVersion'>,
-    ) => Promise<Strategies>
-    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) => Promise<Strategies>
+    ) => Promise<PositionTransition>
+    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) => Promise<PositionTransition>
     adjust: (
       args: AaveAdjustArgs,
       dependencies: Omit<AaveV3AdjustDependencies, 'protocol'>,
-    ) => Promise<Strategies>
+    ) => Promise<PositionTransition>
     view: (
       args: AaveGetCurrentPositionArgs,
       dependencies: Omit<AaveV3GetCurrentPositionDependencies, 'protocol' | 'protocolVersion'>,

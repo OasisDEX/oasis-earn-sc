@@ -32,7 +32,7 @@ import type {
   ISimplePositionTransition,
   ISimpleSimulatedTransition,
   ISimulatedTransition,
-  Strategies,
+  PositionTransition,
 } from './strategies'
 import type {
   IBasePositionTransitionArgs,
@@ -88,7 +88,7 @@ export type {
   ISimplePositionTransition,
   ISimpleSimulatedTransition,
   ISimulatedTransition,
-  Strategies,
+  PositionTransition,
 }
 export type { PositionType }
 export type { Protocol }
