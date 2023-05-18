@@ -5,19 +5,19 @@ import BigNumber from 'bignumber.js'
 export const feeResolver = (
   fromToken: AAVETokens,
   toToken: AAVETokens,
-  flags: {
+  flags?: {
     isIncreasingRisk?: boolean
     isEarnPosition?: boolean
     isEntrySwap?: boolean
   },
 ) => {
-  if (flags.isEntrySwap) {
+  if (flags?.isEntrySwap) {
     return new BigNumber(DEFAULT_FEE)
   }
-  if (fromToken === 'WSTETH' && toToken === 'ETH' && !flags.isIncreasingRisk) {
+  if (fromToken === 'WSTETH' && toToken === 'ETH' && !flags?.isIncreasingRisk) {
     return new BigNumber(HIGH_MULTIPLE_FEE)
   }
-  if (flags.isIncreasingRisk && flags.isEarnPosition) {
+  if (flags?.isIncreasingRisk && flags.isEarnPosition) {
     return new BigNumber(NO_FEE)
   }
   return new BigNumber(DEFAULT_FEE)

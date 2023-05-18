@@ -4,11 +4,10 @@ import { operations } from '@dma-library/operations'
 import { BorrowArgs, DepositArgs } from '@dma-library/operations/aave/common'
 import { isAaveV2Addresses, isAaveV3Addresses } from '@dma-library/protocols/aave/config'
 import { AaveVersion } from '@dma-library/strategies'
-import { getAaveTokenAddress } from '@dma-library/strategies/aave/get-aave-token-addresses'
 import {
-  AaveV2PaybackWithdrawDependencies,
-  AaveV3PaybackWithdrawDependencies,
-} from '@dma-library/strategies/aave/payback-withdraw'
+  getAaveTokenAddress,
+  getAaveTokenAddresses,
+} from '@dma-library/strategies/aave/get-aave-token-addresses'
 import {
   AAVETokens,
   IOperation,
@@ -25,7 +24,7 @@ import {
   WithAaveV3StrategyDependencies,
   WithOptionalSwap,
 } from '@dma-library/types/strategy-params'
-import { feeResolver } from '@dma-library/utils/swap'
+import { feeResolver, getSwapDataHelper } from '@dma-library/utils/swap'
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { calculateSwapFeeAmount } from '@dma-library/utils/swap/calculate-swap-fee-amount'
 import { IPosition } from '@domain'
@@ -66,12 +65,12 @@ type IDepositBorrowStrategy = IStrategy & {
 
 export type AaveV2DepositBorrow = (
   args: AaveDepositBorrowArgs,
-  dependencies: Omit<AaveV2PaybackWithdrawDependencies, 'protocol'>,
+  dependencies: Omit<AaveV2DepositBorrowDependencies, 'protocol'>,
 ) => Promise<IDepositBorrowStrategy>
 
 export type AaveV3DepositBorrow = (
   args: AaveDepositBorrowArgs,
-  dependencies: Omit<AaveV3PaybackWithdrawDependencies, 'protocol'>,
+  dependencies: Omit<AaveV3DepositBorrowDependencies, 'protocol'>,
 ) => Promise<IDepositBorrowStrategy>
 
 export type AaveDepositBorrow = (
@@ -231,17 +230,25 @@ async function buildDepositArgs(
   if (isSwapNeeded) {
     if (!dependencies.getSwapData) throw new Error('Swap data is required for swap to be performed')
 
-    const swapData = await dependencies.getSwapData(
-      entryTokenAddress,
-      collateralTokenAddress,
-      entryTokenAmount,
-      slippage,
-    )
-
     const collectFeeInFromToken = collectFeeFrom === 'sourceToken'
 
     const fee = feeResolver(entryToken.symbol, collateralSymbol, {
       isEntrySwap: true,
+    })
+    const { swapData } = await getSwapDataHelper<typeof dependencies.addresses, AAVETokens>({
+      fromTokenIsDebt: true,
+      args: {
+        debtToken: entryToken,
+        collateralToken: collateralToken,
+        slippage,
+        fee,
+        swapAmountBeforeFees: entryTokenAmount,
+      },
+      addresses: dependencies.addresses,
+      services: {
+        getSwapData: dependencies.getSwapData,
+        getTokenAddresses: getAaveTokenAddresses,
+      },
     })
 
     const swapArgs = {
