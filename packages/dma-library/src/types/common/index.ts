@@ -22,10 +22,6 @@ export type AjnaErrorDustLimit = {
   }
 }
 
-export type AjnaErrorPriceAboveMomp = {
-  name: 'price-above-momp'
-}
-
 export type AjnaErrorWithdrawMoreThanAvailable = {
   name: 'withdraw-more-than-available'
   data: {
@@ -61,7 +57,6 @@ export type AjnaErrorOverRepay = {
 export type AjnaError =
   | AjnaErrorWithdrawUndercollateralized
   | AjnaErrorBorrowUndercollateralized
-  | AjnaErrorPriceAboveMomp
   | AjnaErrorWithdrawMoreThanAvailable
   | AjnaErrorAfterLupIndexBiggerThanHtpIndex
   | AjnaErrorDustLimit
@@ -71,6 +66,10 @@ export type AjnaError =
 
 export type AjnaWarningPriceBelowHtp = {
   name: 'price-below-htp'
+}
+
+export type AjnaWarningPriceAboveMomp = {
+  name: 'price-above-momp'
 }
 
 type AjnaWarningGenerateCloseToMaxLtv = {
@@ -91,6 +90,7 @@ export type AjnaWarning =
   | AjnaWarningPriceBelowHtp
   | AjnaWarningGenerateCloseToMaxLtv
   | AjnaWarningWithdrawCloseToMaxLtv
+  | AjnaWarningPriceAboveMomp
 
 export type Strategy<Position> = {
   simulation: {

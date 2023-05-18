@@ -25,7 +25,7 @@ export const getAjnaEarnValidations = ({
 
   // common
   if (price.gt(position.pool.mostOptimisticMatchingPrice)) {
-    errors.push({
+    warnings.push({
       name: 'price-above-momp',
     })
   }
