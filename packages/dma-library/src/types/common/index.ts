@@ -111,7 +111,7 @@ export interface AjnaDependencies {
   WETH: Address
 }
 
-export type AjnaEarnActions = 'open-earn' | 'deposit-earn' | 'withdraw-earn'
+export type AjnaEarnActions = 'open-earn' | 'deposit-earn' | 'withdraw-earn' | 'claim-earn'
 
 export enum FlashloanProvider {
   DssFlash = 0,

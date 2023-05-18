@@ -43,4 +43,5 @@ export interface AjnaPool {
   monthlyPercentageRate30dAverage: BigNumber
   currentBurnEpoch: BigNumber
   buckets: Bucket[]
+  pendingInflator: BigNumber
 }

@@ -168,7 +168,7 @@ export const ADDRESSES: Addresses = {
       ...extractAddressesFromConfig(goerliConfig.automation),
     },
     ajna: {
-      ...extractAddressesFromConfig(mainnetConfig.ajna),
+      ...extractAddressesFromConfig(goerliConfig.ajna),
     },
   },
 }
