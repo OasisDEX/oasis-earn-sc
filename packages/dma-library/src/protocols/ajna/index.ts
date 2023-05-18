@@ -2,7 +2,7 @@ import poolAbi from '@abis/external/protocols/ajna/ajnaPoolERC20.json'
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { negativeToZero } from '@dma-common/utils/common'
-import { getAjnaValidations } from '@dma-library/strategies/ajna/earn/validations'
+import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
 import { getPoolLiquidity } from '@dma-library/strategies/ajna/validation/notEnoughLiquidity'
 import { AjnaEarnPosition } from '@dma-library/types/ajna'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
@@ -85,7 +85,7 @@ export const getAjnaEarnActionOutput = async ({
         )
       : undefined
 
-  const { errors, warnings } = getAjnaValidations({
+  const { errors, warnings } = getAjnaEarnValidations({
     price: args.price,
     quoteAmount: args.quoteAmount,
     quoteTokenPrecision: args.quoteTokenPrecision,

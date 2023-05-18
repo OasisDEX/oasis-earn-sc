@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { AjnaEarnPosition } from '../../../types/ajna'
 import { AjnaEarnActions, AjnaError, AjnaWarning } from '../../../types/common'
 
-export const getAjnaValidations = ({
+export const getAjnaEarnValidations = ({
   price,
   quoteAmount,
   quoteTokenPrecision,
@@ -30,7 +30,7 @@ export const getAjnaValidations = ({
     })
   }
 
-  if (price.lt(position.pool.highestThresholdPrice)) {
+  if (price.lt(position.pool.highestThresholdPrice) && position.collateralTokenAmount.isZero()) {
     warnings.push({
       name: 'price-below-htp',
     })
