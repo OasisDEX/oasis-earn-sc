@@ -1,4 +1,4 @@
-import { AavePosition, AAVETokens, PositionTransition, SwapData } from '@dma-library'
+import { AavePosition, AAVETokens, Strategies, SwapData } from '@dma-library'
 import { PositionType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
@@ -30,6 +30,6 @@ export type PositionDetails = {
   ) => Promise<SwapData>
   __positionType: PositionType
   __mockPrice: BigNumber
-  __openPositionSimulation: PositionTransition['simulation']
+  __openPositionSimulation: Strategies['simulation']
   __feeWalletBalanceChange: BigNumber
 }

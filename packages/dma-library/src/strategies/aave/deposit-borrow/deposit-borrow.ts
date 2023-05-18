@@ -1,36 +1,22 @@
 import { Address } from '@deploy-configurations/types/address'
 import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { operations } from '@dma-library/operations'
-import { BorrowArgs, DepositArgs } from '@dma-library/operations/aave/common'
-import { isAaveV2Addresses, isAaveV3Addresses } from '@dma-library/protocols/aave/config'
-import { AaveVersion } from '@dma-library/strategies'
-import { getAaveTokenAddress } from '@dma-library/strategies/aave/get-aave-token-addresses'
-import {
-  AAVETokens,
-  IOperation,
-  SwapData,
-  WithBorrowDebt,
-  WithDepositCollateral,
-} from '@dma-library/types'
-import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
-import { IStrategy, WithOptionalSwapSimulation } from '@dma-library/types/position-transition'
-import {
-  WithAaveEntryToken,
-  WithAaveTransitionArgs,
-  WithAaveV2StrategyDependencies,
-  WithAaveV3StrategyDependencies,
-  WithOptionalSwap,
-} from '@dma-library/types/strategy-params'
-import { feeResolver, getSwapDataHelper } from '@dma-library/utils/swap'
-import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
-import { calculateSwapFeeAmount } from '@dma-library/utils/swap/calculate-swap-fee-amount'
+import { CollectFeeFrom } from '@dma-common/types'
+import * as AddressesUtils from '@dma-common/utils/addresses'
+import { BorrowArgs, DepositArgs, operations } from '@dma-library/operations'
+import * as AaveProtocolUtils from '@dma-library/protocols/aave'
+import { AaveVersion, getAaveTokenAddress } from '@dma-library/strategies'
+import { AAVETokens, IOperation, SwapData } from '@dma-library/types'
+import * as AaveProtocol from '@dma-library/types/aave/protocol'
+import * as Strategies from '@dma-library/types/strategies'
+import * as StrategyParams from '@dma-library/types/strategy-params'
+import * as SwapUtils from '@dma-library/utils/swap'
 import { IPosition } from '@domain'
 import BigNumber from 'bignumber.js'
 
-export type AaveDepositBorrowArgs = WithAaveTransitionArgs &
-  WithAaveEntryToken &
-  WithDepositCollateral &
-  WithBorrowDebt
+export type AaveDepositBorrowArgs = StrategyParams.WithAaveStrategyArgs &
+  StrategyParams.WithAaveEntryToken &
+  StrategyParams.WithDepositCollateral &
+  StrategyParams.WithBorrowDebt
 
 function getIsSwapNeeded(
   entryTokenAddress: Address,
@@ -38,26 +24,26 @@ function getIsSwapNeeded(
   ETHAddress: Address,
   WETHAddress: Address,
 ) {
-  const sameTokens = depositTokenAddress.toLowerCase() === entryTokenAddress.toLowerCase()
+  const sameTokens = AddressesUtils.areAddressesEqual(depositTokenAddress, entryTokenAddress)
   const ethToWeth =
-    entryTokenAddress.toLowerCase() === ETHAddress.toLowerCase() &&
-    depositTokenAddress.toLowerCase() === WETHAddress.toLowerCase()
+    AddressesUtils.areAddressesEqual(entryTokenAddress, ETHAddress) &&
+    AddressesUtils.areAddressesEqual(depositTokenAddress, WETHAddress)
 
   return !(sameTokens || ethToWeth)
 }
 
-export type AaveV2DepositBorrowDependencies = WithAaveV2StrategyDependencies &
-  WithV2Protocol &
-  WithOptionalSwap
-export type AaveV3DepositBorrowDependencies = WithAaveV3StrategyDependencies &
-  WithV3Protocol &
-  WithOptionalSwap
+export type AaveV2DepositBorrowDependencies = StrategyParams.WithAaveV2StrategyDependencies &
+  AaveProtocol.WithV2Protocol &
+  StrategyParams.WithOptionalSwap
+export type AaveV3DepositBorrowDependencies = StrategyParams.WithAaveV3StrategyDependencies &
+  AaveProtocol.WithV3Protocol &
+  StrategyParams.WithOptionalSwap
 type AaveDepositBorrowDependencies =
   | AaveV2DepositBorrowDependencies
   | AaveV3DepositBorrowDependencies
 
-type IDepositBorrowStrategy = IStrategy & {
-  simulation: IStrategy['simulation'] & WithOptionalSwapSimulation
+type IDepositBorrowStrategy = Strategies.IStrategy & {
+  simulation: Strategies.IStrategy['simulation'] & Strategies.WithOptionalSwapSimulation
 }
 
 export type AaveV2DepositBorrow = (
@@ -112,17 +98,8 @@ export const depositBorrow: AaveDepositBorrow = async (args, dependencies) => {
     .deposit(deposit.collateralDelta)
     .borrow(borrow.debtDelta)
 
-  const transaction = {
-    calls: operation.calls,
-    operationName: operation.operationName,
-  }
-  const simulation = {
-    delta: {
-      debt: borrow.debtDelta,
-      collateral: deposit.collateralDelta,
-    },
-    position: finalPosition,
-  }
+  const transaction = buildTransaction(operation)
+  const simulation = buildSimulation(borrow.debtDelta, deposit.collateralDelta, finalPosition)
 
   if (isSwapNeeded) {
     if (!deposit.swap) {
@@ -130,25 +107,10 @@ export const depositBorrow: AaveDepositBorrow = async (args, dependencies) => {
     }
 
     return {
-      transaction: {
-        calls: operation.calls,
-        operationName: operation.operationName,
-      },
+      transaction,
       simulation: {
         ...simulation,
-        swap: {
-          ...deposit.swap.data,
-          tokenFee: deposit.swap.fee,
-          collectFeeFrom,
-          sourceToken: {
-            symbol: entryToken?.symbol || '',
-            precision: TYPICAL_PRECISION,
-          },
-          targetToken: {
-            symbol: collateralToken.symbol,
-            precision: TYPICAL_PRECISION,
-          },
-        },
+        swap: buildSwap(deposit.swap, entryToken, collateralToken, collectFeeFrom),
       },
     }
   }
@@ -166,10 +128,16 @@ async function buildOperation(
 ): Promise<IOperation> {
   const protocolVersion = dependencies.protocol.version
 
-  if (protocolVersion === AaveVersion.v3 && isAaveV3Addresses(dependencies.addresses)) {
+  if (
+    protocolVersion === AaveVersion.v3 &&
+    AaveProtocolUtils.isAaveV3Addresses(dependencies.addresses)
+  ) {
     return await operations.aave.v3.depositBorrow(depositArgs, borrowArgs, dependencies.addresses)
   }
-  if (protocolVersion === AaveVersion.v2 && isAaveV2Addresses(dependencies.addresses)) {
+  if (
+    protocolVersion === AaveVersion.v2 &&
+    AaveProtocolUtils.isAaveV2Addresses(dependencies.addresses)
+  ) {
     return await operations.aave.v2.depositBorrow(depositArgs, borrowArgs, dependencies.addresses)
   }
 
@@ -207,9 +175,9 @@ async function buildDepositArgs(
     dependencies.addresses.ETH,
     dependencies.addresses.WETH,
   )
-  const collectFeeFrom = acceptedFeeToken({
-    fromToken: entryToken.symbol,
-    toToken: collateralSymbol,
+  const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
+    fromTokenSymbol: entryToken.symbol,
+    toTokenSymbol: collateralSymbol,
   })
 
   const depositArgs = {
@@ -228,11 +196,14 @@ async function buildDepositArgs(
     if (!dependencies.getSwapData) throw new Error('Swap data is required for swap to be performed')
 
     const collectFeeInFromToken = collectFeeFrom === 'sourceToken'
-    const fee = feeResolver(entryToken.symbol, collateralSymbol, {
+    const fee = SwapUtils.feeResolver(entryToken.symbol, collateralSymbol, {
       isEntrySwap: true,
     })
 
-    const { swapData } = await getSwapDataHelper<typeof dependencies.addresses, AAVETokens>({
+    const { swapData } = await SwapUtils.getSwapDataHelper<
+      typeof dependencies.addresses,
+      AAVETokens
+    >({
       args: {
         fromToken: entryToken,
         toToken: collateralToken,
@@ -258,7 +229,7 @@ async function buildDepositArgs(
     const collateralDelta = swapData.minToTokenAmount
 
     // Estimated fee collected from Swap
-    const swapFee = calculateSwapFeeAmount(
+    const swapFee = SwapUtils.calculateSwapFeeAmount(
       collectFeeFrom,
       entryTokenAmount,
       swapData.toTokenAmount,
@@ -319,4 +290,50 @@ async function buildBorrowArgs(
   const debtDelta = borrowAmount
 
   return { args: borrowArgs, debtDelta }
+}
+
+function buildSwap(
+  swap: {
+    data: SwapData
+    fee: BigNumber
+    collectFeeFrom: 'sourceToken' | 'targetToken'
+  },
+  entryToken: { symbol: AAVETokens },
+  collateralToken: { symbol: AAVETokens },
+  collectFeeFrom: CollectFeeFrom,
+) {
+  return {
+    ...swap.data,
+    tokenFee: swap.fee,
+    collectFeeFrom,
+    sourceToken: {
+      symbol: entryToken?.symbol || '',
+      precision: TYPICAL_PRECISION,
+    },
+    targetToken: {
+      symbol: collateralToken.symbol,
+      precision: TYPICAL_PRECISION,
+    },
+  }
+}
+
+function buildTransaction(operation: IOperation) {
+  return {
+    calls: operation.calls,
+    operationName: operation.operationName,
+  }
+}
+
+function buildSimulation(
+  debtDelta: BigNumber,
+  collateralDelta: BigNumber,
+  finalPosition: IPosition,
+) {
+  return {
+    delta: {
+      debt: debtDelta,
+      collateral: collateralDelta,
+    },
+    position: finalPosition,
+  }
 }

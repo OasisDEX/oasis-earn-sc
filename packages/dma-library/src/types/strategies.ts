@@ -33,7 +33,7 @@ export type ISimpleSimulatedTransition = Omit<
 >
 
 /** @deprecated use IStrategy instead */
-export interface PositionTransition {
+export interface Strategies {
   transaction: {
     calls: ActionCall[]
     operationName: OperationNames
@@ -42,7 +42,7 @@ export interface PositionTransition {
 }
 
 /** @deprecated use ISimulation instead */
-export type ISimplePositionTransition = Omit<PositionTransition, 'simulation'> & {
+export type ISimplePositionTransition = Omit<Strategies, 'simulation'> & {
   simulation: ISimpleSimulatedTransition
 }
 

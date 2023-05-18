@@ -23,7 +23,7 @@ import {
   getAaveTokenAddresses,
 } from '@dma-library/strategies/aave/get-aave-token-addresses'
 import { AaveVersion } from '@dma-library/strategies/aave/get-current-position'
-import { IOperation, PositionTransition, PositionType, SwapData } from '@dma-library/types'
+import { IOperation, PositionType, Strategies, SwapData } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
 import { WithV2Addresses, WithV3Addresses } from '@dma-library/types/aave/addresses'
 import { WithFee } from '@dma-library/types/aave/fee'
@@ -68,7 +68,7 @@ export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependenci
 export async function open(
   args: AaveOpenArgs,
   dependencies: AaveOpenDependencies,
-): Promise<PositionTransition> {
+): Promise<Strategies> {
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk: true,
     isEarnPosition: args.positionType === 'Earn',

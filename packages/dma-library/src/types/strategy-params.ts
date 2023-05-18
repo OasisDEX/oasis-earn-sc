@@ -9,7 +9,7 @@ import { providers } from 'ethers'
 import { PositionType } from './position-type'
 import { SwapData } from './swap-data'
 
-/** @deprecated use WithAaveTransitionArgs instead */
+/** @deprecated use WithAaveStrategyArgs instead */
 export interface IBasePositionTransitionArgs<Tokens> {
   slippage: BigNumber
   collateralToken: { symbol: Tokens; precision?: number }
@@ -20,7 +20,7 @@ export type WithAaveEntryToken = {
   entryToken: { symbol: AAVETokens; precision?: number }
 }
 
-export type WithAaveTransitionArgs = {
+export type WithAaveStrategyArgs = {
   collateralToken: { symbol: AAVETokens; precision?: number }
   debtToken: { symbol: AAVETokens; precision?: number }
   entryToken?: { symbol: AAVETokens; precision?: number }

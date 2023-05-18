@@ -22,8 +22,8 @@ import {
   IBasePositionTransitionArgs,
   IOperation,
   IPositionTransitionDependencies,
-  PositionTransition,
   PositionType,
+  Strategies,
   SwapData,
   WithLockedCollateral,
 } from '@dma-library/types'
@@ -55,7 +55,7 @@ export type AaveCloseDependencies =
 export async function close(
   args: AaveCloseArgsWithVersioning,
   dependencies: AaveCloseDependencies,
-): Promise<PositionTransition> {
+): Promise<Strategies> {
   const getSwapData = args.shouldCloseToCollateral
     ? getSwapDataToCloseToCollateral
     : getSwapDataToCloseToDebt

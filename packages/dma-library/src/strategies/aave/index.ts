@@ -1,5 +1,5 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
-import { AavePosition, PositionTransition } from '@dma-library/types'
+import { AavePosition, Strategies } from '@dma-library/types'
 
 import {
   AaveAdjustArgs,
@@ -25,6 +25,7 @@ import {
 } from './open-deposit-and-borrow-debt'
 import { AaveV2PaybackWithdraw, AaveV3PaybackWithdraw, paybackWithdraw } from './payback-withdraw'
 
+export { getAaveTokenAddress } from './get-aave-token-addresses'
 export { AaveVersion } from './get-current-position'
 
 export const aave: {
@@ -32,16 +33,16 @@ export const aave: {
     open: (
       args: AaveOpenArgs,
       dependencies: Omit<AaveV2OpenDependencies, 'protocol'>,
-    ) => Promise<PositionTransition>
+    ) => Promise<Strategies>
     view: (
       args: AaveGetCurrentPositionArgs,
       dependencies: Omit<AaveV2GetCurrentPositionDependencies, 'protocolVersion'>,
     ) => Promise<AavePosition>
-    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) => Promise<PositionTransition>
+    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) => Promise<Strategies>
     adjust: (
       args: AaveAdjustArgs,
       dependencies: Omit<AaveV2AdjustDependencies, 'protocol'>,
-    ) => Promise<PositionTransition>
+    ) => Promise<Strategies>
     changeDebt: AaveV2ChangeDebt
     depositBorrow: AaveV2DepositBorrow
     paybackWithdraw: AaveV2PaybackWithdraw
@@ -51,12 +52,12 @@ export const aave: {
     open: (
       args: AaveOpenArgs,
       dependencies: Omit<AaveV3OpenDependencies, 'protocol' | 'protocolVersion'>,
-    ) => Promise<PositionTransition>
-    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) => Promise<PositionTransition>
+    ) => Promise<Strategies>
+    close: (args: AaveCloseArgs, dependencies: AaveCloseDependencies) => Promise<Strategies>
     adjust: (
       args: AaveAdjustArgs,
       dependencies: Omit<AaveV3AdjustDependencies, 'protocol'>,
-    ) => Promise<PositionTransition>
+    ) => Promise<Strategies>
     view: (
       args: AaveGetCurrentPositionArgs,
       dependencies: Omit<AaveV3GetCurrentPositionDependencies, 'protocol' | 'protocolVersion'>,

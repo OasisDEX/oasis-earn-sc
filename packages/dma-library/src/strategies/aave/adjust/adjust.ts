@@ -21,8 +21,8 @@ import { AaveVersion } from '@dma-library/strategies/aave/get-current-position'
 import {
   IOperation,
   IPositionTransitionArgs,
-  PositionTransition,
   PositionType,
+  Strategies,
   SwapData,
 } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
@@ -64,7 +64,7 @@ export type AaveAdjustDependencies = AaveV2AdjustDependencies | AaveV3AdjustDepe
 export async function adjust(
   args: AaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
-): Promise<PositionTransition> {
+): Promise<Strategies> {
   if (isRiskIncreasing(dependencies.currentPosition.riskRatio, args.multiple)) {
     return adjustRiskUp(args, dependencies)
   } else {
@@ -75,7 +75,7 @@ export async function adjust(
 async function adjustRiskUp(
   args: AaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
-): Promise<PositionTransition> {
+): Promise<Strategies> {
   const isAdjustUp = true
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk: isAdjustUp,
@@ -159,7 +159,7 @@ async function adjustRiskUp(
 async function adjustRiskDown(
   args: AaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
-): Promise<PositionTransition> {
+): Promise<Strategies> {
   const isAdjustDown = true
   const isAdjustUp = !isAdjustDown
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {

@@ -2,7 +2,7 @@ import { EMPTY_ADDRESS } from '@dma-common/constants'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { AAVETokens } from '@dma-library/types/aave'
-import { WithAaveTransitionArgs } from '@dma-library/types/strategy-params'
+import { WithAaveStrategyArgs } from '@dma-library/types/strategy-params'
 
 export const getAaveTokenAddress = (
   token: { symbol: AAVETokens },
@@ -26,8 +26,8 @@ export const getAaveTokenAddress = (
 /** @deprecated use getAaveTokenAddress instead */
 export const getAaveTokenAddresses = (
   args: {
-    collateralToken: WithAaveTransitionArgs['collateralToken']
-    debtToken: WithAaveTransitionArgs['debtToken']
+    collateralToken: WithAaveStrategyArgs['collateralToken']
+    debtToken: WithAaveStrategyArgs['debtToken']
   },
   addresses: AAVEStrategyAddresses | AAVEV3StrategyAddresses,
 ): {

@@ -26,14 +26,14 @@ import type {
   WithSwap,
   WithWithdrawal,
 } from './operations'
+import type { PositionType } from './position-type'
+import type { Protocol } from './protocol'
 import type {
   ISimplePositionTransition,
   ISimpleSimulatedTransition,
   ISimulatedTransition,
-  PositionTransition,
-} from './position-transition'
-import type { PositionType } from './position-type'
-import type { Protocol } from './protocol'
+  Strategies,
+} from './strategies'
 import type {
   IBasePositionTransitionArgs,
   IOnlyDepositBorrowOpenPositionTransitionDependencies,
@@ -88,7 +88,7 @@ export type {
   ISimplePositionTransition,
   ISimpleSimulatedTransition,
   ISimulatedTransition,
-  PositionTransition,
+  Strategies,
 }
 export type { PositionType }
 export type { Protocol }
