@@ -4,10 +4,7 @@ import { operations } from '@dma-library/operations'
 import { BorrowArgs, DepositArgs } from '@dma-library/operations/aave/common'
 import { isAaveV2Addresses, isAaveV3Addresses } from '@dma-library/protocols/aave/config'
 import { AaveVersion } from '@dma-library/strategies'
-import {
-  getAaveTokenAddress,
-  getAaveTokenAddresses,
-} from '@dma-library/strategies/aave/get-aave-token-addresses'
+import { getAaveTokenAddress } from '@dma-library/strategies/aave/get-aave-token-addresses'
 import {
   AAVETokens,
   IOperation,
@@ -231,15 +228,14 @@ async function buildDepositArgs(
     if (!dependencies.getSwapData) throw new Error('Swap data is required for swap to be performed')
 
     const collectFeeInFromToken = collectFeeFrom === 'sourceToken'
-
     const fee = feeResolver(entryToken.symbol, collateralSymbol, {
       isEntrySwap: true,
     })
+
     const { swapData } = await getSwapDataHelper<typeof dependencies.addresses, AAVETokens>({
-      fromTokenIsDebt: true,
       args: {
-        debtToken: entryToken,
-        collateralToken: collateralToken,
+        fromToken: entryToken,
+        toToken: collateralToken,
         slippage,
         fee,
         swapAmountBeforeFees: entryTokenAmount,
@@ -247,7 +243,7 @@ async function buildDepositArgs(
       addresses: dependencies.addresses,
       services: {
         getSwapData: dependencies.getSwapData,
-        getTokenAddresses: getAaveTokenAddresses,
+        getTokenAddress: getAaveTokenAddress,
       },
     })
 

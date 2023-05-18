@@ -18,7 +18,10 @@ import {
   aaveV3UniqueContractName,
 } from '@dma-library/protocols/aave/config'
 import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
-import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import {
+  getAaveTokenAddress,
+  getAaveTokenAddresses,
+} from '@dma-library/strategies/aave/get-aave-token-addresses'
 import { AaveVersion } from '@dma-library/strategies/aave/get-current-position'
 import { IOperation, PositionTransition, PositionType, SwapData } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
@@ -75,16 +78,17 @@ export async function open(
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: true,
     args: {
-      ...args,
+      fromToken: args.debtToken,
+      toToken: args.collateralToken,
+      slippage: args.slippage,
       fee,
       swapAmountBeforeFees: estimatedSwapAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddresses: getAaveTokenAddresses,
+      getTokenAddress: getAaveTokenAddress,
     },
   })
 
@@ -102,16 +106,17 @@ export async function open(
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: true,
     args: {
-      ...args,
+      fromToken: args.debtToken,
+      toToken: args.collateralToken,
+      slippage: args.slippage,
       fee,
       swapAmountBeforeFees: simulatedPositionTransition.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddresses: getAaveTokenAddresses,
+      getTokenAddress: getAaveTokenAddress,
     },
   })
 

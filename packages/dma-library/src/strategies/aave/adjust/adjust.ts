@@ -13,7 +13,10 @@ import { operations } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
-import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import {
+  getAaveTokenAddress,
+  getAaveTokenAddresses,
+} from '@dma-library/strategies/aave/get-aave-token-addresses'
 import { AaveVersion } from '@dma-library/strategies/aave/get-current-position'
 import {
   IOperation,
@@ -85,16 +88,17 @@ async function adjustRiskUp(
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: true,
     args: {
-      ...args,
+      fromToken: args.debtToken,
+      toToken: args.collateralToken,
+      slippage: args.slippage,
       fee,
       swapAmountBeforeFees: estimatedSwapAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddresses: getAaveTokenAddresses,
+      getTokenAddress: getAaveTokenAddress,
     },
   })
 
@@ -113,16 +117,17 @@ async function adjustRiskUp(
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: true,
     args: {
-      ...args,
+      fromToken: args.debtToken,
+      toToken: args.collateralToken,
+      slippage: args.slippage,
       fee,
       swapAmountBeforeFees: simulatedAdjustUp.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddresses: getAaveTokenAddresses,
+      getTokenAddress: getAaveTokenAddress,
     },
   })
 
@@ -168,16 +173,17 @@ async function adjustRiskDown(
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: false,
     args: {
-      ...args,
+      fromToken: args.collateralToken,
+      toToken: args.debtToken,
+      slippage: args.slippage,
       fee,
       swapAmountBeforeFees: estimatedSwapAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddresses: getAaveTokenAddresses,
+      getTokenAddress: getAaveTokenAddress,
     },
   })
 
@@ -195,16 +201,17 @@ async function adjustRiskDown(
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: false,
     args: {
-      ...args,
+      fromToken: args.collateralToken,
+      toToken: args.debtToken,
+      slippage: args.slippage,
       fee,
       swapAmountBeforeFees: simulatedAdjustDown.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddresses: getAaveTokenAddresses,
+      getTokenAddress: getAaveTokenAddress,
     },
   })
 

@@ -1,50 +1,41 @@
+import { Address } from '@deploy-configurations/types/address'
 import { SwapData } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
-import { acceptedFeeToken } from './accepted-fee-token'
+import { acceptedFeeTokenByAddress } from './accepted-fee-token'
 import { calculatePreSwapFeeAmount } from './calculate-swap-fee-amount'
 
 type GetSwapDataArgs<Tokens> = {
   swapAmountBeforeFees: BigNumber
-  debtToken: { symbol: Tokens; precision?: number }
-  collateralToken: { symbol: Tokens; precision?: number }
+  fromToken: { symbol: Tokens; precision?: number }
+  toToken: { symbol: Tokens; precision?: number }
   slippage: BigNumber
   fee?: BigNumber
 }
 
 export async function getSwapDataHelper<Addresses, Tokens>({
-  fromTokenIsDebt,
   args,
   addresses,
   services,
 }: {
-  fromTokenIsDebt: boolean
   args: GetSwapDataArgs<Tokens>
   addresses: Addresses
   services: {
-    getTokenAddresses: (
-      args: Pick<GetSwapDataArgs<Tokens>, 'debtToken' | 'collateralToken'>,
-      addresses: Addresses,
-    ) => { collateralTokenAddress: string; debtTokenAddress: string }
+    getTokenAddress: (token: { symbol: Tokens }, addresses: Addresses) => Address
     getSwapData: (
-      fromToken: string,
-      toToken: string,
+      fromTokenAddress: string,
+      toTokenAddress: string,
       amount: BigNumber,
       slippage: BigNumber,
     ) => Promise<SwapData>
   }
 }) {
-  const { collateralTokenAddress, debtTokenAddress } = services.getTokenAddresses(
-    { debtToken: args.debtToken, collateralToken: args.collateralToken },
-    addresses,
-  )
+  const fromTokenAddress = services.getTokenAddress(args.fromToken, addresses)
+  const toTokenAddress = services.getTokenAddress(args.toToken, addresses)
 
-  const fromToken = fromTokenIsDebt ? debtTokenAddress : collateralTokenAddress
-  const toToken = fromTokenIsDebt ? collateralTokenAddress : debtTokenAddress
-
-  const collectFeeFrom = acceptedFeeToken({
-    fromToken,
-    toToken,
+  const collectFeeFrom = acceptedFeeTokenByAddress({
+    fromTokenAddress,
+    toTokenAddress,
   })
 
   const preSwapFee = calculatePreSwapFeeAmount(collectFeeFrom, args.swapAmountBeforeFees, args?.fee)
@@ -53,8 +44,8 @@ export async function getSwapDataHelper<Addresses, Tokens>({
     .integerValue(BigNumber.ROUND_DOWN)
 
   const swapData = await services.getSwapData(
-    fromToken,
-    toToken,
+    fromTokenAddress,
+    toTokenAddress,
     swapAmountAfterFees,
     args.slippage,
   )

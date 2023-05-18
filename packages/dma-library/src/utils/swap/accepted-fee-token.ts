@@ -1,4 +1,35 @@
+import { Address } from '@deploy-configurations/types/address'
 import { acceptedTokens } from '@dma-library/config/accepted-fee-by-tokens'
+
+type TokensByAddress = {
+  fromTokenAddress: Address
+  toTokenAddress: Address
+}
+
+export function acceptedFeeTokenByAddress({
+  fromTokenAddress,
+  toTokenAddress,
+}: TokensByAddress): 'sourceToken' | 'targetToken' {
+  return acceptedFeeToken({
+    fromToken: fromTokenAddress,
+    toToken: toTokenAddress,
+  })
+}
+
+type TokensBySymbol = {
+  fromTokenSymbol: string
+  toTokenSymbol: string
+}
+
+export function acceptedFeeTokenBySymbol({
+  fromTokenSymbol,
+  toTokenSymbol,
+}: TokensBySymbol): 'sourceToken' | 'targetToken' {
+  return acceptedFeeToken({
+    fromToken: fromTokenSymbol,
+    toToken: toTokenSymbol,
+  })
+}
 
 type TokenSymbolOrAddress = string
 
@@ -10,6 +41,7 @@ interface Props {
 }
 
 /**
+ * @deprecated Use acceptedFeeTokenByAddress or acceptedFeeTokenBySymbol instead
  * Prefers sourceToken over targetToken
  * Accepts args as either a token symbol or in address format
  */
