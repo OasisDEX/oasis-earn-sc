@@ -31,7 +31,7 @@ export async function createDPMProxy(dmpFactory: AccountFactory, owner: Signer) 
   return dpmProxy;
 }
 
-export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
+export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens = false) {
   const hre = _hre ? _hre : await import("hardhat");
   const ethers = hre.ethers;
   const signers = await ethers.getSigners();
@@ -52,12 +52,12 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
     pools,
     positionManagerContract,
     rewardsManagerContract,
-  } = await deploy();
+  } = await deploy(mainnetTokens);
 
   await Promise.all([
-    ...signers.map(signer => utils.sendLotsOfMoney(signer.address, usdc)),
-    ...signers.map(signer => utils.sendLotsOfMoney(signer.address, wbtc)),
-    ...signers.map(signer => utils.sendLotsOfMoney(signer.address, weth)),
+    ...signers.map(signer => utils.sendLotsOfMoney(signer.address, usdc, mainnetTokens)),
+    ...signers.map(signer => utils.sendLotsOfMoney(signer.address, wbtc, mainnetTokens)),
+    ...signers.map(signer => utils.sendLotsOfMoney(signer.address, weth, mainnetTokens)),
   ]);
 
   const dmpProxies = await Promise.all(signers.map(signer => createDPMProxy(dmpFactory, signer)));

@@ -34,7 +34,7 @@ describe.only('Strategy | AJNA | Open | E2E', () => {
     const config = await init()
     hre = (config as any).hre
     provider = config.provider
-    env = await prepareEnv(hre)
+    env = await prepareEnv(hre, true)
 
     signer = config.signer
     deploy = await createDeploy({ config, debug: true })

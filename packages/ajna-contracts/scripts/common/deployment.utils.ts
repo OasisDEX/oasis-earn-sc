@@ -1,3 +1,4 @@
+import { ADDRESSES } from "@oasisdex/oasis-actions";
 import { Contract, Signer } from "ethers";
 import hre, { ethers } from "hardhat";
 
@@ -52,12 +53,22 @@ export async function deployLibraries() {
   };
 }
 
-export async function deployTokens(receiver: string) {
-  const usdc = await utils.deployContract<Token>("Token", ["USDC", "USDC", receiver, 6]);
-  const wbtc = await utils.deployContract<Token>("Token", ["WBTC", "WBTC", receiver, 8]);
+export async function deployTokens(receiver: string, mainnetTokens: boolean) {
+  const usdc = mainnetTokens
+    ? await utils.getContract<Token>("ERC20", ADDRESSES.main.USDC)
+    : await utils.deployContract<Token>("Token", ["USDC", "USDC", receiver, 6]);
+  const wbtc = mainnetTokens
+    ? await utils.getContract<Token>("ERC20", ADDRESSES.main.WBTC)
+    : await utils.deployContract<Token>("Token", ["WBTC", "WBTC", receiver, 8]);
   const ajna = await utils.deployContract<Token>("Token", ["AJNA", "AJNA", receiver, 18]);
-  const weth = await utils.deployContract<WETH>("WETH", []);
-
+  const weth = mainnetTokens
+    ? await utils.getContract<WETH>("WETH", ADDRESSES.main.WETH)
+    : await utils.deployContract<WETH>("WETH", []);
+  console.log("usdc", usdc.address);
+  console.log("wbtc", wbtc.address);
+  console.log("ajna", ajna.address);
+  console.log("weth", weth.address);
+  console.log("mainnet tokens:", mainnetTokens);
   return { usdc, wbtc, ajna, weth };
 }
 
@@ -187,9 +198,9 @@ export async function deployPool(erc20PoolFactory: ERC20PoolFactory, collateral:
 
   return await utils.getContract<ERC20Pool>("ERC20Pool", poolAddress);
 }
-export async function deploy() {
+export async function deploy(mainnetTokens = false) {
   const [deployer] = await ethers.getSigners();
-  const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address);
+  const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address, mainnetTokens);
   const {
     poolCommons,
     /*actionsInstance,*/

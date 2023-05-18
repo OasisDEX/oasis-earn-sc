@@ -22,8 +22,12 @@ export class HardhatUtils {
       })) || []
     );
   }
-  public async sendLotsOfMoney(target: string, token: Token | WETH) {
-    await token.mint(target, BigNumber.from("1000000000000000000").mul(1000));
+  public async sendLotsOfMoney(target: string, token: Token | WETH, mainnet = false) {
+    if (mainnet) {
+      await this.setTokenBalance(target, token.address, BigNumber.from("1000000000000000000").mul(1000));
+    } else {
+      await token.mint(target, BigNumber.from("1000000000000000000").mul(1000));
+    }
   }
   public async deployContract<T extends Contract>(
     contractName: string,
