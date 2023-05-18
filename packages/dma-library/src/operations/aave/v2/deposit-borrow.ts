@@ -1,5 +1,4 @@
 import { aaveDepositBorrowV2OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { OPERATION_NAMES } from '@dma-common/constants'
 import { BorrowArgs, DepositArgs } from '@dma-library/operations/aave/common'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
 import { ActionCall, IOperation } from '@dma-library/types'
@@ -30,7 +29,7 @@ export const depositBorrow: AaveV2DepositBorrowOperation = async (
     } as {
       // Import ActionCall as it assists type generation
       calls: ActionCall[]
-      operationName: typeof OPERATION_NAMES.aave.v2.DEPOSIT_BORROW
+      operationName: typeof aaveDepositBorrowV2OperationDefinition.name
     }
   }
   if (depositArgs) {

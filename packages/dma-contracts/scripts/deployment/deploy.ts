@@ -8,10 +8,13 @@ import {
   aaveAdjustDownV3OperationDefinition,
   aaveAdjustUpV2OperationDefinition,
   aaveAdjustUpV3OperationDefinition,
+  aaveBorrowV2OperationDefinition,
   aaveBorrowV3OperationDefinition,
   aaveCloseV2OperationDefinition,
   aaveCloseV3OperationDefinition,
+  aaveDepositBorrowV2OperationDefinition,
   aaveDepositBorrowV3OperationDefinition,
+  aaveDepositV2OperationDefinition,
   aaveDepositV3OperationDefinition,
   aaveOpenV2OperationDefinition,
   aaveOpenV3OperationDefinition,
@@ -554,6 +557,18 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await operationsRegistry.addOp(
       aavePaybackWithdrawV2OperationDefinition.name,
       aavePaybackWithdrawV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveDepositV2OperationDefinition.name,
+      aaveDepositV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveBorrowV2OperationDefinition.name,
+      aaveBorrowV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveDepositBorrowV2OperationDefinition.name,
+      aaveDepositBorrowV2OperationDefinition.actions,
     )
 
     // AAVE V3

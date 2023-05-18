@@ -1,4 +1,4 @@
-import { aaveDepositBorrowV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { aaveBorrowV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { BorrowArgs } from '@dma-library/operations/aave/common/borrow-args'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
@@ -32,6 +32,6 @@ export const borrow: BorrowV2Operation = async (
 
   return {
     calls,
-    operationName: aaveDepositBorrowV2OperationDefinition.name,
+    operationName: aaveBorrowV2OperationDefinition.name,
   }
 }
