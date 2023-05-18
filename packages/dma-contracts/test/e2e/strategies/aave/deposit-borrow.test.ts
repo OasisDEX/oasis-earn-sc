@@ -2,7 +2,7 @@ import { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { expect } from '@dma-common/test-utils'
 import { balanceOf } from '@dma-common/utils/balances'
-import { amountToWei } from '@dma-common/utils/common'
+import { amountToWei, isOptimismByNetwork } from '@dma-common/utils/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { approve } from '@dma-common/utils/tx/index'
 import {
@@ -34,6 +34,10 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
     })
 
     beforeEach(async function () {
+      if (isOptimismByNetwork(networkFork)) {
+        this.skip()
+      }
+
       const _env = await loadFixture(systemFixture)
       if (!_env) throw new Error('Failed to setup system')
       env = _env
@@ -521,7 +525,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
             if (!beforeTransactionPosition) throw new Error('Position not found')
 
             const entryToken = new USDC(strategiesDependencies.addresses)
-            // Depositing 500 USDC as entry token which will be swapped to Coll tokendd and then deposited
+            // Depositing 500 USDC as entry token which will be swapped to Coll token and then deposited
             const amountToDeposit = amountToWei(new BigNumber(500), entryToken.precision)
             const roundedAmountToDeposit = new BigNumber(amountToDeposit.toFixed(0))
 
