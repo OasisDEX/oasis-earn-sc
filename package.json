@@ -101,6 +101,7 @@
     "@deploy-configurations/types": "./packages/deploy-configurations/types",
     "@deploy-configurations/constants": "./packages/deploy-configurations/constants",
     "@deploy-configurations/utils": "./packages/deploy-configurations/utils",
+    "@deploy-configurations/configs": "./packages/deploy-configurations/configs",
     "@dma-library/types": "./packages/dma-library/src/types",
     "@dma-library/actions": "./packages/dma-library/src/actions/",
     "@dma-library/strategies": "./packages/dma-library/src/strategies/",

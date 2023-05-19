@@ -157,6 +157,7 @@ export const oneInchVersionMap: Record<
 > = {
   [Network.MAINNET]: 'v4.0',
   [Network.OPTIMISM]: 'v5.0',
+  [Network.ARBITRUM]: 'v5.0',
 }
 
 export function resolveOneInchVersion(network: Network): OneInchVersion {
