@@ -305,11 +305,11 @@ export const config: SystemConfig = {
     },
     ChainlinkPriceOracle_USDCUSD: {
       name: 'ChainlinkPriceOracle_USDCUSD',
-      address: ADDRESS_ZERO,
+      address: '0x50834f3163758fcc1df9973b6e91f0f0f0434ad3',
     },
     ChainlinkPriceOracle_ETHUSD: {
       name: 'ChainlinkPriceOracle_ETHUSD',
-      address: ADDRESS_ZERO,
+      address: '0x639fe6ab55c921f74e7fac1ee960c0b6293ba612',
     },
     ADAI: { name: 'ADAI', address: ADDRESS_ZERO },
     AAVE: { name: 'AAVE', address: ADDRESS_ZERO },
