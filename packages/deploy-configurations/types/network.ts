@@ -3,5 +3,6 @@ export enum Network {
   GOERLI = 'goerli',
   HARDHAT = 'hardhat',
   OPTIMISM = 'optimism',
+  ARBITRUM = 'arbitrum',
   LOCAL = 'local',
 }
