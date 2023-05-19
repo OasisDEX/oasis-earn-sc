@@ -322,7 +322,7 @@ export const config: SystemConfig = {
       address: ADDRESS_ZERO,
       serviceRegistryName: CONTRACT_NAMES.common.DAI,
     },
-    ETH: { name: 'ETH', address: ADDRESS_ZERO },
+    ETH: { name: 'ETH', address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1' },
     GNO: { name: 'GNO', address: ADDRESS_ZERO },
     GUNIV3DAIUSDC1: {
       name: 'GUNIV3DAIUSDC1',
@@ -364,7 +364,7 @@ export const config: SystemConfig = {
     UNIV2WBTCETH: { name: 'UNIV2WBTCETH', address: ADDRESS_ZERO },
     USDC: {
       name: 'USDC',
-      address: ADDRESS_ZERO,
+      address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
       serviceRegistryName: CONTRACT_NAMES.common.USDC,
     },
     USDT: { name: 'USDT', address: ADDRESS_ZERO },
@@ -375,7 +375,7 @@ export const config: SystemConfig = {
     },
     WETH: {
       name: 'WETH',
-      address: ADDRESS_ZERO,
+      address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
       serviceRegistryName: CONTRACT_NAMES.common.WETH,
     },
     WSTETH: {

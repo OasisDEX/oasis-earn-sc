@@ -1,3 +1,10 @@
+import {
+  arbitrumConfig,
+  goerliConfig,
+  mainnetConfig,
+  optimismConfig,
+} from '@deploy-configurations/configs'
+import { ADDRESS_ZERO as zeroAddress } from '@deploy-configurations/constants'
 import { Address } from '@deploy-configurations/types/address'
 import {
   AaveV2Protocol,
@@ -16,9 +23,6 @@ import {
   SystemKeys,
 } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
-
-import { arbitrumConfig, goerliConfig, mainnetConfig, optimismConfig } from '../configs'
-import { ADDRESS_ZERO as zeroAddress } from '../constants/address-zero'
 
 enum MpaKeys {
   CORE = 'core',
