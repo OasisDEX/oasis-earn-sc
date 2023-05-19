@@ -77,6 +77,16 @@ export class AjnaEarnPosition implements IAjnaEarn {
   }
 
   get apy() {
+    if (!this.isEarningFees) {
+      return {
+        per1d: ZERO,
+        per7d: ZERO,
+        per30d: ZERO,
+        per90d: ZERO,
+        per365d: ZERO,
+      }
+    }
+
     return {
       per1d: this.getApyPerDays({ amount: this.quoteTokenAmount, days: 1 }),
       per7d: this.getApyPerDays({ amount: this.quoteTokenAmount, days: 7 }),
@@ -110,10 +120,12 @@ export class AjnaEarnPosition implements IAjnaEarn {
   }
 
   getBreakEven(openPositionGasFee: BigNumber) {
-    const apy1Day = this.getApyPerDays({ amount: this.quoteTokenAmount, days: 1 })
+    const apy1Day = this.isEarningFees
+      ? this.getApyPerDays({ amount: this.quoteTokenAmount, days: 1 })
+      : ZERO
     const openPositionFees = this.getFeeWhenBelowLup.plus(openPositionGasFee)
 
-    if (!apy1Day || !this.quoteTokenAmount) return undefined
+    if (!apy1Day || apy1Day.isZero() || !this.quoteTokenAmount) return undefined
 
     return (
       Math.log(this.quoteTokenAmount.plus(openPositionFees).div(this.quoteTokenAmount).toNumber()) /
