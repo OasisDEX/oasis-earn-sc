@@ -322,7 +322,7 @@ export const config: SystemConfig = {
       address: ADDRESS_ZERO,
       serviceRegistryName: CONTRACT_NAMES.common.DAI,
     },
-    ETH: { name: 'ETH', address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1' },
+    ETH: { name: 'ETH', address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' },
     GNO: { name: 'GNO', address: ADDRESS_ZERO },
     GUNIV3DAIUSDC1: {
       name: 'GUNIV3DAIUSDC1',
@@ -370,17 +370,17 @@ export const config: SystemConfig = {
     USDT: { name: 'USDT', address: ADDRESS_ZERO },
     WBTC: {
       name: 'WBTC',
-      address: ADDRESS_ZERO,
+      address: '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
       serviceRegistryName: CONTRACT_NAMES.common.WBTC,
     },
     WETH: {
       name: 'WETH',
-      address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
       serviceRegistryName: CONTRACT_NAMES.common.WETH,
     },
     WSTETH: {
       name: 'WSTETH',
-      address: ADDRESS_ZERO,
+      address: '0x5979D7b546E38E414F7E9822514be443A4800529',
       serviceRegistryName: CONTRACT_NAMES.common.WSTETH,
     },
     YFI: { name: 'YFI', address: ADDRESS_ZERO },
