@@ -1,4 +1,5 @@
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
+
 import { CONTRACT_NAMES } from '../constants'
 
 export const config: SystemConfig = {
