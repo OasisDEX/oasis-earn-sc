@@ -1,5 +1,5 @@
-import { aaveV2Operations } from './aave/v2'
-import { aaveV3Operations } from './aave/v3'
+import { AaveV2Operations, aaveV2Operations } from './aave/v2'
+import { AaveV3Operations, aaveV3Operations } from './aave/v3'
 import { AjnaOperations, ajnaOperations } from './ajna'
 
 const aave = {
@@ -9,7 +9,10 @@ const aave = {
 
 const ajna = ajnaOperations
 
-export const operations: { ajna: AjnaOperations; aave: any } = {
+export const operations: {
+  ajna: AjnaOperations
+  aave: { v2: AaveV2Operations; v3: AaveV3Operations }
+} = {
   aave,
   ajna,
 }

@@ -375,14 +375,8 @@ export const config = {
       address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       serviceRegistryName: CONTRACT_NAMES.common.DAI,
     },
-    ETH: {
-      name: 'ETH',
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    },
-    GNO: {
-      name: 'GNO',
-      address: '0x6810e776880C02933D47DB1b9fc05908e5386b96',
-    },
+    ETH: { name: 'ETH', address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' },
+    GNO: { name: 'GNO', address: '0x6810e776880C02933D47DB1b9fc05908e5386b96' },
     GUNIV3DAIUSDC1: {
       name: 'GUNIV3DAIUSDC1',
       address: '0xAbDDAfB225e10B90D798bB8A886238Fb835e2053',

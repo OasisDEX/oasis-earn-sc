@@ -22,7 +22,7 @@ type AdjustRiskUpArgs = WithCollateral &
   WithProxy &
   WithAaveV3StrategyAddresses
 
-export async function adjustRiskUp({
+export type AaveV3AdjustUpOperation = ({
   collateral,
   debt,
   deposit,
@@ -30,7 +30,17 @@ export async function adjustRiskUp({
   flashloan,
   proxy,
   addresses,
-}: AdjustRiskUpArgs): Promise<IOperation> {
+}: AdjustRiskUpArgs) => Promise<IOperation>
+
+export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
+  collateral,
+  debt,
+  deposit,
+  swap,
+  flashloan,
+  proxy,
+  addresses,
+}) => {
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
 

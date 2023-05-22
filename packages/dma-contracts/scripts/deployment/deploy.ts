@@ -12,6 +12,8 @@ import {
   aaveCloseV3OperationDefinition,
   aaveOpenV2OperationDefinition,
   aaveOpenV3OperationDefinition,
+  aavePaybackWithdrawV2OperationDefinition,
+  aavePaybackWithdrawV3OperationDefinition,
 } from '@deploy-configurations/operation-definitions'
 import {
   ContractProps,
@@ -83,6 +85,7 @@ abstract class DeployedSystemHelpers {
   public signerAddress: string | undefined
   public feeRecipient: string | undefined
   public serviceRegistryHelper: ServiceRegistry | undefined
+  public hideLogging = false
 
   async getForkedNetworkChainId(provider: providers.JsonRpcProvider) {
     try {
@@ -103,8 +106,13 @@ abstract class DeployedSystemHelpers {
     return rpcUrls[network]
   }
 
-  async init() {
+  log(...args: any[]) {
+    !this.hideLogging && console.log(...args)
+  }
+
+  async init(hideLogging = false) {
     if (!this.hre) throw new Error('HardhatRuntimeEnvironment is not defined!')
+    this.hideLogging = hideLogging
     this.ethers = this.hre.ethers
     this.provider = this.hre.ethers.provider
     this.signer = this.provider.getSigner()
@@ -115,7 +123,7 @@ abstract class DeployedSystemHelpers {
     this.forkedNetwork = this.getNetworkFromChainId(this.chainId)
 
     this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
-    console.log('NETWORK / FORKED NETWORK', `${this.network} / ${this.forkedNetwork}`)
+    this.log('NETWORK / FORKED NETWORK', `${this.network} / ${this.forkedNetwork}`)
 
     return {
       provider: this.provider,
@@ -217,17 +225,17 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   getConfigPath(localPath: string) {
     const baseDirectory = '../../../deploy-configurations/configs'
     const configPath = path.join(baseDirectory, localPath)
-    console.log('USING CONFIG', localPath)
+    this.log('USING CONFIG', localPath)
     return configPath
   }
 
   async postInstantiation(configItem: DeploymentConfig, contract: Contract) {
-    console.log('POST INITIALIZATION', configItem.name, contract.address)
+    this.log('POST INITIALIZATION', configItem.name, contract.address)
   }
 
   async postRegistryEntry(configItem: DeploymentConfig, address: string) {
     if (!configItem.serviceRegistryName) throw new Error('No service registry name provided')
-    console.log(
+    this.log(
       'REGISTRY ENTRY',
       configItem.serviceRegistryName,
       this.getRegistryEntryHash(configItem.serviceRegistryName),
@@ -250,7 +258,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.provider) throw new Error('No provider set')
     if (!this.config) throw new Error('No config set')
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
-    console.log('POST DEPLOYMENT', configItem.name, configItem.address)
+    this.log('POST DEPLOYMENT', configItem.name, configItem.address)
 
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
@@ -341,7 +349,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async instantiateContracts(addressesConfig: SystemConfigItem[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     for (const configItem of addressesConfig) {
-      console.log('INSTANTIATING ', configItem.name, configItem.address)
+      this.log('INSTANTIATING ', configItem.name, configItem.address)
       const contractInstance = await this.ethers.getContractAt(configItem.name, configItem.address)
 
       this.deployedSystem[configItem.name] = {
@@ -352,7 +360,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       const isServiceRegistry = configItem.name === 'ServiceRegistry'
       !configItem.serviceRegistryName &&
         !isServiceRegistry &&
-        console.warn(
+        this.log(
           'No Service Registry name for: ',
           configItem.name,
           configItem.serviceRegistryName || '',
@@ -425,7 +433,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       const isServiceRegistry = configItem.name === 'ServiceRegistry'
       !configItem.serviceRegistryName &&
         !isServiceRegistry &&
-        console.warn(
+        this.log(
           'No Service Registry name for: ',
           configItem.name,
           configItem.serviceRegistryName || '',
@@ -584,6 +592,16 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       aaveAdjustUpV3OperationDefinition.name,
       aaveAdjustUpV3OperationDefinition.actions,
     )
+
+    await operationsRegistry.addOp(
+      aavePaybackWithdrawV2OperationDefinition.name,
+      aavePaybackWithdrawV2OperationDefinition.actions,
+    )
+
+    await operationsRegistry.addOp(
+      aavePaybackWithdrawV3OperationDefinition.name,
+      aavePaybackWithdrawV3OperationDefinition.actions,
+    )
   }
 
   async addAllEntries() {
@@ -596,7 +614,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   // TODO unify resetNode and resetNodeToLatestBlock into one function
   async resetNode(blockNumber: number) {
     if (!this.provider) throw new Error('No provider set')
-    console.log(`\x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
+    this.log(`\x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
     await this.provider.send('hardhat_reset', [
       {
         forking: {

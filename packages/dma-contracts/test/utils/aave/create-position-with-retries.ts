@@ -21,10 +21,11 @@ export async function createPositionWithRetries<A, P extends PositionDetails | n
     try {
       const position = await positionCreationFunction(args)
       position &&
-        console.info(
-          `${position.strategy} Position created after ${attempt + 1} attempt${
+        attempt + 1 > 1 &&
+        console.log(
+          `\x1b[90m${position.strategy} Position created after ${attempt + 1} attempt${
             attempt + 1 > 1 ? 's' : ''
-          }`,
+          }\x1b[0m`,
         )
       return position
     } catch (error) {
