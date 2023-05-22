@@ -29,6 +29,7 @@ import { EtherscanGasPrice } from '@deploy-configurations/types/etherscan'
 import { Network } from '@deploy-configurations/types/network'
 import { NetworkByChainId } from '@deploy-configurations/utils/network/index'
 import { OperationsRegistry, ServiceRegistry } from '@deploy-configurations/utils/wrappers/index'
+import { CONTRACT_NAMES } from '@dma-contracts/../deploy-configurations/constants'
 import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
@@ -169,13 +170,42 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
+  findPath = (obj, target, parentPath) => {
+    for (const key in obj) {
+      const path = `${parentPath}.${key}`
+      if (typeof obj[key] === 'string' && obj[key] === target) {
+        return path
+      }
+      if (typeof obj[key] === 'object') {
+        const result = this.findPath(obj[key], target, path)
+        if (result) {
+          return result
+        }
+      }
+    }
+    return null
+  }
+
+  findStringPath = target => {
+    const rootPath = 'CONTRACT_NAMES'
+    return this.findPath(CONTRACT_NAMES, target, rootPath)
+  }
+
+  replaceServiceRegistryName(inputString, transformFunction) {
+    return inputString.replace(/(serviceRegistryName:\s')([^']*)(')/g, function (match, p1, p2) {
+      const newValue = transformFunction(p2)
+      return 'serviceRegistryName: ' + newValue
+    })
+  }
+
   async saveConfig() {
     const { writeFile } = await import('fs')
-    const configString = inspect(this.config, { depth: null })
+    let configString = inspect(this.config, { depth: null })
+    configString = this.replaceServiceRegistryName(configString, this.findStringPath)
 
     writeFile(
       `./../deploy-configurations/configs/${this.network}.conf.ts`,
-      `export const config = ${configString}`,
+      `import { CONTRACT_NAMES } from '../constants'\n\nexport const config = ${configString} \n`,
       (error: any) => {
         if (error) {
           console.log('ERROR: ', error)
