@@ -1,10 +1,9 @@
-import { aavePaybackWithdrawV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { aavePaybackWithdrawV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3/addresses'
 import { IOperation } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
-
-import { AAVEStrategyAddresses } from './addresses'
 
 export async function paybackWithdraw(args: {
   amountCollateralToWithdrawInBaseUnit: BigNumber
@@ -16,7 +15,7 @@ export async function paybackWithdraw(args: {
   debtTokenIsEth: boolean
   proxy: string
   user: string
-  addresses: AAVEStrategyAddresses
+  addresses: AAVEV3StrategyAddresses
 }): Promise<IOperation> {
   const pullDebtTokensToProxy = actions.common.pullToken({
     asset: args.debtTokenAddress,
@@ -26,17 +25,15 @@ export async function paybackWithdraw(args: {
   const setDebtApprovalOnLendingPool = actions.common.setApproval({
     amount: args.amountDebtToPaybackInBaseUnit,
     asset: args.debtTokenAddress,
-    delegate: args.addresses.lendingPool,
+    delegate: args.addresses.pool,
     sumAmounts: false,
   })
-  // TODO: this is not needed if the debt token is ETH
-  // Left in for now to avoid redeploying operation
   const wrapEth = actions.common.wrapEth({
     amount: args.amountDebtToPaybackInBaseUnit,
   })
-  const paybackDebt = actions.aave.v2.aavePayback({
+  const paybackDebt = actions.aave.v3.aaveV3Payback({
     asset: args.debtTokenAddress,
-    amount: args.isPaybackAll ? ZERO : args.amountDebtToPaybackInBaseUnit,
+    amount: args.amountDebtToPaybackInBaseUnit,
     paybackAll: args.isPaybackAll,
   })
   const unwrapEthDebt = actions.common.unwrapEth({
@@ -46,7 +43,7 @@ export async function paybackWithdraw(args: {
     asset: args.debtTokenIsEth ? args.addresses.ETH : args.debtTokenAddress,
   })
 
-  const withdrawCollateralFromAAVE = actions.aave.v2.aaveWithdraw({
+  const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw({
     asset: args.collateralTokenAddress,
     amount: args.amountCollateralToWithdrawInBaseUnit,
     to: args.proxy,
@@ -83,5 +80,5 @@ export async function paybackWithdraw(args: {
     returnFunds,
   ]
 
-  return { calls: calls, operationName: aavePaybackWithdrawV2OperationDefinition.name }
+  return { calls: calls, operationName: aavePaybackWithdrawV3OperationDefinition.name }
 }
