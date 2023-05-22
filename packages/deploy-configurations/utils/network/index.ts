@@ -50,6 +50,7 @@ export const ChainIdByNetwork: Record<Network, number> = {
   [Network.MAINNET]: 1,
   [Network.GOERLI]: 5,
   [Network.OPTIMISM]: 10,
+  [Network.ARBITRUM]: 42161,
   [Network.LOCAL]: 2137,
   [Network.HARDHAT]: 2137,
 }

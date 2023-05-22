@@ -1,3 +1,10 @@
+import {
+  arbitrumConfig,
+  goerliConfig,
+  mainnetConfig,
+  optimismConfig,
+} from '@deploy-configurations/configs'
+import { ADDRESS_ZERO as zeroAddress } from '@deploy-configurations/constants'
 import { Address } from '@deploy-configurations/types/address'
 import {
   AaveV2Protocol,
@@ -12,11 +19,10 @@ import {
   MakerProtocol,
   MakerProtocolJoins,
   MakerProtocolPips,
+  SystemConfig,
   SystemKeys,
 } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
-
-import { goerliConfig, mainnetConfig, optimismConfig } from '../configs'
 
 enum MpaKeys {
   CORE = 'core',
@@ -50,127 +56,63 @@ type DefaultDeployment = {
 export type Addresses = {
   [Network.MAINNET]: DefaultDeployment
   [Network.OPTIMISM]: DefaultDeployment
+  [Network.ARBITRUM]: DefaultDeployment
   [Network.GOERLI]: DefaultDeployment
 }
 
 if (!mainnetConfig.aave.v2) throw new Error('Missing aave v2 config on mainnet')
 if (!optimismConfig.aave.v3.L2Encoder) throw new Error('Missing L2Encoder config on optimism')
+
+const createAddressesStructure = (
+  networkConfig: SystemConfig,
+  ajnaConfig?: SystemConfig,
+): DefaultDeployment => ({
+  mpa: {
+    core: {
+      ...extractAddressesFromConfig<CoreContracts>(networkConfig.mpa.core),
+    },
+    actions: {
+      ...extractAddressesFromConfig<Actions>(networkConfig.mpa.actions),
+    },
+  },
+  common: {
+    ...extractAddressesFromConfig(networkConfig.common),
+  },
+  aave: {
+    v2: {
+      ...extractAddressesFromConfig(networkConfig.aave.v2),
+    },
+    v3: {
+      ...extractAddressesFromConfig(networkConfig.aave.v3),
+    },
+  },
+  maker: {
+    common: {
+      ...extractAddressesFromConfig(networkConfig.maker.common),
+    },
+    joins: {
+      ...extractAddressesFromConfig(networkConfig.maker.joins),
+    },
+    pips: {
+      ...extractAddressesFromConfig(networkConfig.maker.pips),
+    },
+  },
+  automation: {
+    ...extractAddressesFromConfig(networkConfig.automation),
+  },
+  ajna: {
+    ...extractAddressesFromConfig(ajnaConfig?.ajna || networkConfig.ajna),
+  },
+})
+
 export const ADDRESSES: Addresses = {
-  [Network.MAINNET]: {
-    mpa: {
-      core: {
-        ...extractAddressesFromConfig<CoreContracts>(mainnetConfig.mpa.core),
-      },
-      actions: {
-        ...extractAddressesFromConfig<Actions>(mainnetConfig.mpa.actions),
-      },
-    },
-    common: {
-      ...extractAddressesFromConfig(mainnetConfig.common),
-    },
-    aave: {
-      v2: {
-        ...extractAddressesFromConfig(mainnetConfig.aave.v2),
-      },
-      v3: {
-        ...extractAddressesFromConfig(mainnetConfig.aave.v3),
-      },
-    },
-    maker: {
-      common: {
-        ...extractAddressesFromConfig(mainnetConfig.maker.common),
-      },
-      joins: {
-        ...extractAddressesFromConfig(mainnetConfig.maker.joins),
-      },
-      pips: {
-        ...extractAddressesFromConfig(mainnetConfig.maker.pips),
-      },
-    },
-    automation: {
-      ...extractAddressesFromConfig(mainnetConfig.automation),
-    },
-    ajna: {
-      ...extractAddressesFromConfig(mainnetConfig.ajna),
-    },
-  },
-  [Network.OPTIMISM]: {
-    mpa: {
-      core: {
-        ...extractAddressesFromConfig<CoreContracts>(optimismConfig.mpa.core),
-      },
-      actions: {
-        ...extractAddressesFromConfig<Actions>(optimismConfig.mpa.actions),
-      },
-    },
-    common: {
-      ...extractAddressesFromConfig(optimismConfig.common),
-    },
-    aave: {
-      v2: {
-        ...extractAddressesFromConfig(optimismConfig.aave.v2),
-      },
-      v3: {
-        ...extractAddressesFromConfig(optimismConfig.aave.v3),
-      },
-    },
-    maker: {
-      common: {
-        ...extractAddressesFromConfig(optimismConfig.maker.common),
-      },
-      joins: {
-        ...extractAddressesFromConfig(optimismConfig.maker.joins),
-      },
-      pips: {
-        ...extractAddressesFromConfig(optimismConfig.maker.pips),
-      },
-    },
-    automation: {
-      ...extractAddressesFromConfig(optimismConfig.automation),
-    },
-    ajna: {
-      ...extractAddressesFromConfig(mainnetConfig.ajna),
-    },
-  },
-  [Network.GOERLI]: {
-    mpa: {
-      core: {
-        ...extractAddressesFromConfig<CoreContracts>(goerliConfig.mpa.core),
-      },
-      actions: {
-        ...extractAddressesFromConfig<Actions>(goerliConfig.mpa.actions),
-      },
-    },
-    common: {
-      ...extractAddressesFromConfig(goerliConfig.common),
-    },
-    aave: {
-      v2: {
-        ...extractAddressesFromConfig(goerliConfig.aave.v2),
-      },
-      v3: {
-        ...extractAddressesFromConfig(goerliConfig.aave.v3),
-      },
-    },
-    maker: {
-      common: {
-        ...extractAddressesFromConfig(goerliConfig.maker.common),
-      },
-      joins: {
-        ...extractAddressesFromConfig(goerliConfig.maker.joins),
-      },
-      pips: {
-        ...extractAddressesFromConfig(goerliConfig.maker.pips),
-      },
-    },
-    automation: {
-      ...extractAddressesFromConfig(goerliConfig.automation),
-    },
-    ajna: {
-      ...extractAddressesFromConfig(mainnetConfig.ajna),
-    },
-  },
+  [Network.MAINNET]: createAddressesStructure(mainnetConfig),
+  [Network.OPTIMISM]: createAddressesStructure(optimismConfig),
+  [Network.GOERLI]: createAddressesStructure(goerliConfig, goerliConfig),
+  [Network.ARBITRUM]: createAddressesStructure(arbitrumConfig, mainnetConfig),
 }
+
+export const ADDRESS_ZERO = zeroAddress
 
 type ExtractAddressesFromConfig<T extends Contracts> = Record<T, DeploymentConfig>
 

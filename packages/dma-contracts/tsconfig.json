@@ -16,43 +16,38 @@
       "@dma-common/types/*": ["../dma-common/types/*"],
       "@dma-common/test-utils": ["../dma-common/test-utils/index.ts"],
       "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
+      "@deploy-configurations/configs": ["../deploy-configurations/configs"],
       "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
       "@deploy-configurations/utils/*": ["../deploy-configurations/utils/*"],
       "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
       "@deploy-configurations/deployment/*": ["../deploy-configurations/deployment/*"],
       "@deploy-configurations/constants": ["../deploy-configurations/constants/index.ts"],
-      "@deploy-configurations/operation-definitions": ["../deploy-configurations/operation-definitions/index.ts"],
+      "@deploy-configurations/operation-definitions": [
+        "../deploy-configurations/operation-definitions/index.ts"
+      ],
       "@domain": ["../domain/src/index.ts"]
     },
-    "typeRoots": [
-      "../../node_modules/@types"
-    ]
+    "typeRoots": ["../../node_modules/@types"]
   },
   "references": [
     {
-      "path": "../abis",
+      "path": "../abis"
     },
     {
-      "path": "../domain",
+      "path": "../domain"
     },
     {
-      "path": "../dma-common",
+      "path": "../dma-common"
     },
     {
-      "path": "../dma-library",
+      "path": "../dma-library"
     },
     {
-      "path": "../deploy-configurations",
+      "path": "../deploy-configurations"
     },
     {
-      "path": "../ajna-contracts",
+      "path": "../ajna-contracts"
     }
   ],
-  "include": [
-    "./test",
-    "./tasks",
-    "./scripts",
-    "./bootstrap-env.ts",
-    "./hardhat.config.ts"
-  ],
+  "include": ["./test", "./tasks", "./scripts", "./bootstrap-env.ts", "./hardhat.config.ts"]
 }

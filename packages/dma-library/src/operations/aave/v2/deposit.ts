@@ -1,7 +1,5 @@
-import { ADDRESSES } from '@deploy-configurations/addresses'
 import { aaveDepositV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Address } from '@deploy-configurations/types/address'
-import { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { DepositArgs } from '@dma-library/operations/aave/common'
@@ -109,7 +107,7 @@ export const deposit: AaveV2DepositOperation = async (
       actions.common.setApproval(
         {
           asset: depositToken,
-          delegate: ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
+          delegate: addresses.lendingPool,
           // Check the explanation about the deposit action.
           // This approval is about the amount that's going to be deposit in the following action
           amount: amountInBaseUnit,

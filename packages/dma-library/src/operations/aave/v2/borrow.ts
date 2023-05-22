@@ -1,6 +1,6 @@
 import { aaveBorrowV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { actions } from '@dma-library/actions'
-import { BorrowArgs } from '@dma-library/operations/aave/common/borrow-args'
+import { BorrowArgs } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
 import { ActionCall, IOperation } from '@dma-library/types'
 
