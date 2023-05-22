@@ -7,7 +7,7 @@ import BigNumber from 'bignumber.js'
 
 export function getPoolLiquidity(pool: AjnaPool): BigNumber {
   const liquidityAboveHtp = pool.buckets
-    .filter(bucket => bucket.index.lt(pool.highestThresholdPriceIndex))
+    .filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
     .reduce((acc, bucket) => acc.plus(bucket.quoteTokens), new BigNumber(0))
 
   return liquidityAboveHtp.minus(pool.debt)
