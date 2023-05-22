@@ -1,6 +1,7 @@
+import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { CONTRACT_NAMES } from '../constants'
 
-export const config = {
+export const config: SystemConfig = {
   mpa: {
     core: {
       ServiceRegistry: {
