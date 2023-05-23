@@ -16,10 +16,12 @@ export interface DepositBorrowArgs extends Omit<OpenArgs, 'collateralPrice' | 'q
   position: AjnaPosition
 }
 
-export async function depositBorrow(
+export type AjnaDepositBorrowStrategy = (
   args: DepositBorrowArgs,
   dependencies: Dependencies,
-): Promise<Strategy<AjnaPosition>> {
+) => Promise<Strategy<AjnaPosition>>
+
+export const depositBorrow: AjnaDepositBorrowStrategy = async (args, dependencies) => {
   const isDepositingEth =
     args.position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
 

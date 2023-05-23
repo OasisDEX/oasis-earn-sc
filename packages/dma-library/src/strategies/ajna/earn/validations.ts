@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { AjnaEarnPosition } from '../../../types/ajna'
 import { AjnaEarnActions, AjnaError, AjnaWarning } from '../../../types/common'
 
-export const getAjnaValidations = ({
+export const getAjnaEarnValidations = ({
   price,
   quoteAmount,
   quoteTokenPrecision,
@@ -25,12 +25,12 @@ export const getAjnaValidations = ({
 
   // common
   if (price.gt(position.pool.mostOptimisticMatchingPrice)) {
-    errors.push({
+    warnings.push({
       name: 'price-above-momp',
     })
   }
 
-  if (price.lt(position.pool.highestThresholdPrice)) {
+  if (price.lt(position.pool.highestThresholdPrice) && position.collateralTokenAmount.isZero()) {
     warnings.push({
       name: 'price-below-htp',
     })
@@ -39,7 +39,8 @@ export const getAjnaValidations = ({
   // action specific
   switch (action) {
     case 'open-earn':
-    case 'deposit-earn': {
+    case 'deposit-earn':
+    case 'claim-earn': {
       break
     }
     case 'withdraw-earn': {

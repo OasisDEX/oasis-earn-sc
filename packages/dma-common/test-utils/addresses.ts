@@ -1,5 +1,5 @@
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Network } from '@deploy-configurations/types/network'
 import { constants } from 'ethers'
 
 type NetworkAddressesForNetwork<T extends Network> = T extends Network.MAINNET

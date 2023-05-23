@@ -1,6 +1,6 @@
+import { aaveOpenV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { ZERO } from '@dma-common/constants'
 import { Address } from '@dma-common/types/address'
-import { aaveOpenV2OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { FlashloanProvider } from '@dma-library/types/common'
 import { IOperation } from '@dma-library/types/operations'
@@ -35,7 +35,7 @@ interface OpenArgs {
   isDPMProxy: boolean
 }
 
-export async function open({
+export type AaveV2OpenOperation = ({
   deposit,
   swapArgs,
   addresses,
@@ -47,7 +47,21 @@ export async function open({
   user,
   isDPMProxy,
   positionType,
-}: OpenArgs): Promise<IOperation> {
+}: OpenArgs) => Promise<IOperation>
+
+export const open: AaveV2OpenOperation = async ({
+  deposit,
+  swapArgs,
+  addresses,
+  flashloanAmount,
+  borrowAmountInBaseUnit,
+  collateralTokenAddress,
+  debtTokenAddress,
+  proxy,
+  user,
+  isDPMProxy,
+  positionType,
+}) => {
   const pullDebtTokensToProxy = actions.common.pullToken({
     asset: debtTokenAddress,
     amount: deposit.debtToken.amountInBaseUnit,

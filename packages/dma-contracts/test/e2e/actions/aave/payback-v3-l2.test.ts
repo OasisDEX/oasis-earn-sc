@@ -1,8 +1,8 @@
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Network } from '@deploy-configurations/types/network'
 import { FIFTY, ZERO } from '@dma-common/constants'
 import { expect } from '@dma-common/test-utils'
 import { balanceOf } from '@dma-common/utils/balances'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
 import { loadFixture } from 'ethereum-waffle'
 
 import {

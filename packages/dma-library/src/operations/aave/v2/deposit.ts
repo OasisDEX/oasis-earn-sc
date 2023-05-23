@@ -1,9 +1,9 @@
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Address } from '@deploy-configurations/types/address'
+import { Network } from '@deploy-configurations/types/network'
 import { OPERATION_NAMES, ZERO } from '@dma-common/constants'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Address } from '@dma-deployments/types/address'
-import { Network } from '@dma-deployments/types/network'
 import { actions } from '@dma-library/actions'
-import { ActionCall } from '@dma-library/types'
+import { ActionCall, IOperation } from '@dma-library/types'
 import { isDefined } from '@dma-library/utils/is-defined'
 import BigNumber from 'bignumber.js'
 
@@ -28,6 +28,16 @@ export interface DepositArgs {
   isSwapNeeded: boolean
   swapArgs?: SwapArgs
 }
+
+export type AaveV2DepositOperation = ({
+  entryTokenAddress,
+  entryTokenIsEth,
+  depositToken,
+  amountInBaseUnit,
+  depositorAddress,
+  swapArgs,
+  isSwapNeeded,
+}: DepositArgs) => Promise<IOperation>
 
 function getSwapCalls(
   depositTokenAddress: Address,
@@ -71,7 +81,7 @@ function getSwapCalls(
   }
 }
 
-export async function deposit({
+export const deposit: AaveV2DepositOperation = async ({
   entryTokenAddress,
   entryTokenIsEth,
   depositToken,
@@ -79,7 +89,7 @@ export async function deposit({
   depositorAddress,
   swapArgs,
   isSwapNeeded,
-}: DepositArgs) {
+}) => {
   const isAssetEth = entryTokenIsEth
 
   // Import ActionCall as it assists type generation

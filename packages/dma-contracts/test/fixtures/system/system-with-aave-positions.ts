@@ -1,13 +1,13 @@
+import { Network } from '@deploy-configurations/types/network'
 import { createDPMAccount, getOneInchCall, oneInchCallMock } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
+import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import {
   buildGetTokenByImpersonateFunction,
   buildGetTokenFunction,
 } from '@dma-contracts/test/utils/aave'
 import { createPositionWithRetries } from '@dma-contracts/test/utils/aave/create-position-with-retries'
-import { DeploymentSystem } from '@dma-deployments/deployment/deploy'
-import { Network } from '@dma-deployments/types/network'
 import { AaveVersion, protocols, strategies } from '@dma-library'
 import hre from 'hardhat'
 
@@ -34,11 +34,18 @@ export function getSupportedStrategies(): Array<{
 // Do not change test block numbers as they're linked to uniswap liquidity levels
 export const blockNumberForAAVEV2System = 15695000
 
-export const systemWithAavePositions =
-  ({ use1inch, configExtensionPaths }: { use1inch: boolean; configExtensionPaths?: string[] }) =>
-  async (): Promise<SystemWithAavePositions> => {
+export const systemWithAavePositions = ({
+  use1inch,
+  hideLogging,
+  configExtensionPaths,
+}: {
+  use1inch: boolean
+  hideLogging?: boolean
+  configExtensionPaths?: string[]
+}) =>
+  async function fixture(): Promise<SystemWithAavePositions> {
     const ds = new DeploymentSystem(hre)
-    const config: RuntimeConfig = await ds.init()
+    const config: RuntimeConfig = await ds.init(hideLogging)
     const systemConfigPath = 'test/mainnet.conf.ts'
     await ds.loadConfig(systemConfigPath)
     if (configExtensionPaths) {
@@ -110,16 +117,20 @@ export const systemWithAavePositions =
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
 
-    // If you update test block numbers you may run into issues where whale addresses
-    // We use impersonation on test block number but with 1inch we use uniswap
-    const getTokens = use1inch
-      ? buildGetTokenFunction(
-          config,
-          await import('hardhat'),
-          Network.MAINNET,
-          dependencies.addresses.WETH,
-        )
-      : buildGetTokenByImpersonateFunction(config, await import('hardhat'), Network.MAINNET)
+    const getTokens = {
+      byImpersonate: buildGetTokenByImpersonateFunction(
+        config,
+        await import('hardhat'),
+        Network.MAINNET,
+      ),
+      byUniswap: buildGetTokenFunction(
+        config,
+        await import('hardhat'),
+        Network.MAINNET,
+        dependencies.addresses.WETH,
+      ),
+    }
+    const preferredGetTokenFn = use1inch ? getTokens.byUniswap : getTokens.byImpersonate
 
     const [dpmProxyForEarnStEthEth] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
@@ -181,7 +192,7 @@ export const systemWithAavePositions =
         swapAddress,
         dependencies,
         config,
-        getTokens,
+        getTokens: preferredGetTokenFn,
       },
     )
 
@@ -195,7 +206,7 @@ export const systemWithAavePositions =
         swapAddress,
         dependencies,
         config,
-        getTokens,
+        getTokens: preferredGetTokenFn,
       },
     )
 

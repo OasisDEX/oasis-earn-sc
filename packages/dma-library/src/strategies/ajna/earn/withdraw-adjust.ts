@@ -10,10 +10,12 @@ import { ethers } from 'ethers'
 
 import bucketPrices from './buckets.json'
 
-export async function withdrawAndAdjust(
+export type AjnaWithdrawAndAdjustStrategy = (
   args: AjnaEarnArgs,
   dependencies: AjnaDependencies,
-): Promise<Strategy<AjnaEarnPosition>> {
+) => Promise<Strategy<AjnaEarnPosition>>
+
+export const withdrawAndAdjust: AjnaWithdrawAndAdjustStrategy = async (args, dependencies) => {
   const action = 'withdraw-earn'
   const isPositionStaked = args.position.stakedNftId !== null
   const isWithdrawing = args.quoteAmount.gt(ZERO)

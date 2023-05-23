@@ -1,4 +1,7 @@
-import { Address } from '@dma-deployments/types/address'
+import { Address } from '@deploy-configurations/types/address'
+import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
+import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
+import { AAVETokens } from '@dma-library/types/aave'
 import { IPosition, IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
@@ -6,10 +9,20 @@ import { providers } from 'ethers'
 import { PositionType } from './position-type'
 import { SwapData } from './swap-data'
 
+/** @deprecated use WithAaveTransitionArgs instead */
 export interface IBasePositionTransitionArgs<Tokens> {
   slippage: BigNumber
   collateralToken: { symbol: Tokens; precision?: number }
   debtToken: { symbol: Tokens; precision?: number }
+}
+
+export type WithAaveTransitionArgs = {
+  collateralToken: { symbol: AAVETokens; precision?: number }
+  debtToken: { symbol: AAVETokens; precision?: number }
+} & WithSlippage
+
+type WithSlippage = {
+  slippage: BigNumber
 }
 
 type WithDeposit = {
@@ -47,6 +60,7 @@ export type WithDepositCollateral = {
   amountCollateralToDepositInBaseUnit: BigNumber
 }
 
+/** @deprecated compose strategy args instead */
 export interface IPositionTransitionArgs<Tokens>
   extends IBasePositionTransitionArgs<Tokens>,
     WithDeposit,
@@ -62,11 +76,7 @@ export type WithDebtChange<Tokens> = {
   newDebtToken: { symbol: Tokens; precision?: number }
 }
 
-/**
- * We've add current Position into all strategy dependencies
- * It turned out that after opening and then closing a position there might be artifacts
- * Left in a position that make it difficult to re-open it
- */
+/** @deprecated See SharedStrategyDependencies and create your own */
 export interface IPositionTransitionDependencies<Addresses> {
   addresses: Addresses
   provider: providers.Provider
@@ -81,6 +91,20 @@ export interface IPositionTransitionDependencies<Addresses> {
   user: Address
   isDPMProxy: boolean
 }
+
+type SharedStrategyDependencies = {
+  provider: providers.Provider
+  currentPosition: IPosition
+  proxy: Address
+  user: Address
+}
+export type WithAaveV2StrategyDependencies = {
+  addresses: AAVEStrategyAddresses
+} & SharedStrategyDependencies
+
+export type WithAaveV3StrategyDependencies = {
+  addresses: AAVEV3StrategyAddresses
+} & SharedStrategyDependencies
 
 export type IOpenPositionTransitionDependencies<Addresses> = Omit<
   IPositionTransitionDependencies<Addresses>,

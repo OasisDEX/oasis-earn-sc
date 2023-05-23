@@ -1,5 +1,5 @@
+import { ajnaOpenOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { ZERO } from '@dma-common/constants'
-import { ajnaOpenOperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import {
   IOperation,
@@ -28,7 +28,7 @@ type OpenArgs = WithCollateral &
   WithAjnaStrategyAddresses &
   WithAjnaBucketPrice
 
-export async function open({
+export type AjnaOpenOperation = ({
   collateral,
   debt,
   deposit,
@@ -38,7 +38,19 @@ export async function open({
   position,
   addresses,
   price,
-}: OpenArgs): Promise<IOperation> {
+}: OpenArgs) => Promise<IOperation>
+
+export const open: AjnaOpenOperation = async ({
+  collateral,
+  debt,
+  deposit,
+  swap,
+  flashloan,
+  proxy,
+  position,
+  addresses,
+  price,
+}) => {
   const depositAmount = deposit?.amount || ZERO
 
   const pullCollateralTokensToProxy = actions.common.pullToken({

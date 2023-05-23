@@ -1,5 +1,5 @@
+import { Address } from '@deploy-configurations/types/address'
 import { Tx } from '@dma-common/types'
-import { Address } from '@dma-deployments/types/address'
 import { ethers } from 'ethers'
 
 export type AjnaErrorWithdrawUndercollateralized = {
@@ -20,10 +20,6 @@ export type AjnaErrorDustLimit = {
   data: {
     minDebtAmount: string
   }
-}
-
-export type AjnaErrorPriceAboveMomp = {
-  name: 'price-above-momp'
 }
 
 export type AjnaErrorWithdrawMoreThanAvailable = {
@@ -61,7 +57,6 @@ export type AjnaErrorOverRepay = {
 export type AjnaError =
   | AjnaErrorWithdrawUndercollateralized
   | AjnaErrorBorrowUndercollateralized
-  | AjnaErrorPriceAboveMomp
   | AjnaErrorWithdrawMoreThanAvailable
   | AjnaErrorAfterLupIndexBiggerThanHtpIndex
   | AjnaErrorDustLimit
@@ -71,6 +66,10 @@ export type AjnaError =
 
 export type AjnaWarningPriceBelowHtp = {
   name: 'price-below-htp'
+}
+
+export type AjnaWarningPriceAboveMomp = {
+  name: 'price-above-momp'
 }
 
 type AjnaWarningGenerateCloseToMaxLtv = {
@@ -91,6 +90,7 @@ export type AjnaWarning =
   | AjnaWarningPriceBelowHtp
   | AjnaWarningGenerateCloseToMaxLtv
   | AjnaWarningWithdrawCloseToMaxLtv
+  | AjnaWarningPriceAboveMomp
 
 export type Strategy<Position> = {
   simulation: {
@@ -111,7 +111,7 @@ export interface AjnaDependencies {
   WETH: Address
 }
 
-export type AjnaEarnActions = 'open-earn' | 'deposit-earn' | 'withdraw-earn'
+export type AjnaEarnActions = 'open-earn' | 'deposit-earn' | 'withdraw-earn' | 'claim-earn'
 
 export enum FlashloanProvider {
   DssFlash = 0,

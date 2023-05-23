@@ -1,3 +1,5 @@
+import { Network } from '@deploy-configurations/types/network'
+import { ChainIdByNetwork } from '@deploy-configurations/utils/network'
 import {
   createDPMAccount,
   getOneInchCall,
@@ -7,6 +9,7 @@ import {
 } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
+import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import {
   testBlockNumberForAaveOptimismV3,
   testBlockNumberForAaveV3,
@@ -21,10 +24,10 @@ import {
   StrategyDependenciesAaveV3,
   SystemWithAAVEV3Positions,
 } from '@dma-contracts/test/fixtures/types'
-import { buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
-import { DeploymentSystem } from '@dma-deployments/deployment/deploy'
-import { Network } from '@dma-deployments/types/network'
-import { ChainIdByNetwork } from '@dma-deployments/utils/network'
+import {
+  buildGetTokenByImpersonateFunction,
+  buildGetTokenFunction,
+} from '@dma-contracts/test/utils/aave'
 import { AaveVersion, protocols, strategies } from '@dma-library'
 import hre from 'hardhat'
 
@@ -54,17 +57,19 @@ const testBlockNumberByNetwork: Record<
 export const systemWithAaveV3Positions = ({
   use1inch,
   network,
+  hideLogging,
   systemConfigPath,
   configExtensionPaths,
 }: {
   use1inch: boolean
   network: Network
+  hideLogging?: boolean
   systemConfigPath?: string
   configExtensionPaths?: string[]
 }) =>
   async function fixture(): Promise<SystemWithAAVEV3Positions> {
     const ds = new DeploymentSystem(hre)
-    const config: RuntimeConfig = await ds.init()
+    const config: RuntimeConfig = await ds.init(hideLogging)
     await ds.loadConfig(systemConfigPath)
     if (configExtensionPaths) {
       configExtensionPaths.forEach(async configPath => {
@@ -143,12 +148,15 @@ export const systemWithAaveV3Positions = ({
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
 
-    const getTokens = buildGetTokenFunction(
-      config,
-      await import('hardhat'),
-      network,
-      dependencies.addresses.WETH,
-    )
+    const getTokens = {
+      byImpersonate: buildGetTokenByImpersonateFunction(config, await import('hardhat'), network),
+      byUniswap: buildGetTokenFunction(
+        config,
+        await import('hardhat'),
+        network,
+        dependencies.addresses.WETH,
+      ),
+    }
 
     const [dpmProxyForMultiplyEthUsdc] = await createDPMAccount(system.AccountFactory.contract)
     const [dpmProxyForEarnWstEthEth] = await createDPMAccount(system.AccountFactory.contract)

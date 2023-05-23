@@ -1,11 +1,12 @@
-import { MAX_UINT, OPERATION_NAMES, ZERO } from '@dma-common/constants'
+import { aavePaybackWithdrawV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 import { AAVEStrategyAddresses } from './addresses'
 
-export async function paybackWithdraw(args: {
+type PaybackWithdrawArgs = {
   amountCollateralToWithdrawInBaseUnit: BigNumber
   amountDebtToPaybackInBaseUnit: BigNumber
   isPaybackAll: boolean
@@ -15,9 +16,12 @@ export async function paybackWithdraw(args: {
   debtTokenIsEth: boolean
   proxy: string
   user: string
-  isDPMProxy: boolean
   addresses: AAVEStrategyAddresses
-}): Promise<IOperation> {
+}
+
+export type AaveV2PaybackWithdrawOperation = (args: PaybackWithdrawArgs) => Promise<IOperation>
+
+export const paybackWithdraw: AaveV2PaybackWithdrawOperation = async args => {
   const pullDebtTokensToProxy = actions.common.pullToken({
     asset: args.debtTokenAddress,
     amount: args.amountDebtToPaybackInBaseUnit,
@@ -29,12 +33,14 @@ export async function paybackWithdraw(args: {
     delegate: args.addresses.lendingPool,
     sumAmounts: false,
   })
+  // TODO: this is not needed if the debt token is ETH
+  // Left in for now to avoid redeploying operation
   const wrapEth = actions.common.wrapEth({
     amount: args.amountDebtToPaybackInBaseUnit,
   })
   const paybackDebt = actions.aave.v2.aavePayback({
     asset: args.debtTokenAddress,
-    amount: args.amountDebtToPaybackInBaseUnit,
+    amount: args.isPaybackAll ? ZERO : args.amountDebtToPaybackInBaseUnit,
     paybackAll: args.isPaybackAll,
   })
   const unwrapEthDebt = actions.common.unwrapEth({
@@ -81,5 +87,5 @@ export async function paybackWithdraw(args: {
     returnFunds,
   ]
 
-  return { calls: calls, operationName: OPERATION_NAMES.aave.v2.PAYBACK_WITHDRAW }
+  return { calls: calls, operationName: aavePaybackWithdrawV2OperationDefinition.name }
 }

@@ -1,6 +1,6 @@
+import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { normalizeValue } from '@dma-common/utils/common'
-import { Address } from '@dma-deployments/types/address'
 import { calculateAjnaApyPerDays } from '@dma-library/protocols/ajna'
 import bucketPrices from '@dma-library/strategies/ajna/earn/buckets.json'
 import { RiskRatio } from '@domain'
@@ -16,6 +16,7 @@ export interface IAjnaEarn {
   pool: AjnaPool
   owner: Address
   quoteTokenAmount: BigNumber
+  collateralTokenAmount: BigNumber
   price: BigNumber
   priceIndex: BigNumber | null
   marketPrice: BigNumber
@@ -31,6 +32,7 @@ export interface IAjnaEarn {
 
   deposit(amount: BigNumber): IAjnaEarn
   withdraw(amount: BigNumber): IAjnaEarn
+  claimCollateral(): IAjnaEarn
   close(): IAjnaEarn
 }
 
@@ -44,6 +46,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
     public pool: AjnaPool,
     public owner: Address,
     public quoteTokenAmount: BigNumber,
+    public collateralTokenAmount: BigNumber,
     public priceIndex: BigNumber | null,
     public nftId: string | null = null,
     public collateralPrice: BigNumber,
@@ -53,6 +56,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
     this.fundsLockedUntil = Date.now() + 5 * 60 * 60 * 1000 // MOCK funds locked until 5h from now
     this.price = priceIndex ? priceIndexToPrice(priceIndex) : ZERO
     this.stakedNftId = nftId
+    this.collateralTokenAmount = collateralTokenAmount
   }
 
   get isEarningFees() {
@@ -73,6 +77,16 @@ export class AjnaEarnPosition implements IAjnaEarn {
   }
 
   get apy() {
+    if (!this.isEarningFees) {
+      return {
+        per1d: ZERO,
+        per7d: ZERO,
+        per30d: ZERO,
+        per90d: ZERO,
+        per365d: ZERO,
+      }
+    }
+
     return {
       per1d: this.getApyPerDays({ amount: this.quoteTokenAmount, days: 1 }),
       per7d: this.getApyPerDays({ amount: this.quoteTokenAmount, days: 7 }),
@@ -100,16 +114,18 @@ export class AjnaEarnPosition implements IAjnaEarn {
   }
 
   getApyPerDays({ amount, days }: { amount?: BigNumber; days: number }) {
-    return amount?.gt(0) && this.pool
+    return amount?.gt(0) && this.pool.dailyPercentageRate30dAverage.gt(0)
       ? calculateAjnaApyPerDays(amount, this.pool.dailyPercentageRate30dAverage, days)
       : undefined
   }
 
   getBreakEven(openPositionGasFee: BigNumber) {
-    const apy1Day = this.getApyPerDays({ amount: this.quoteTokenAmount, days: 1 })
+    const apy1Day = this.isEarningFees
+      ? this.getApyPerDays({ amount: this.quoteTokenAmount, days: 1 })
+      : ZERO
     const openPositionFees = this.getFeeWhenBelowLup.plus(openPositionGasFee)
 
-    if (!apy1Day || !this.quoteTokenAmount) return undefined
+    if (!apy1Day || apy1Day.isZero() || !this.quoteTokenAmount) return undefined
 
     return (
       Math.log(this.quoteTokenAmount.plus(openPositionFees).div(this.quoteTokenAmount).toNumber()) /
@@ -122,6 +138,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.pool,
       this.owner,
       this.quoteTokenAmount,
+      this.collateralTokenAmount,
       newPriceIndex,
       this.stakedNftId,
       this.collateralPrice,
@@ -135,6 +152,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.pool,
       this.owner,
       this.quoteTokenAmount.plus(quoteTokenAmount),
+      this.collateralTokenAmount,
       this.priceIndex,
       this.stakedNftId,
       this.collateralPrice,
@@ -148,6 +166,21 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.pool,
       this.owner,
       this.quoteTokenAmount.minus(quoteTokenAmount),
+      this.collateralTokenAmount,
+      this.priceIndex,
+      this.stakedNftId,
+      this.collateralPrice,
+      this.quotePrice,
+      this.rewards,
+    )
+  }
+
+  claimCollateral() {
+    return new AjnaEarnPosition(
+      this.pool,
+      this.owner,
+      this.quoteTokenAmount,
+      ZERO,
       this.priceIndex,
       this.stakedNftId,
       this.collateralPrice,
@@ -161,6 +194,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.pool,
       this.owner,
       quoteTokenAmount,
+      this.collateralTokenAmount,
       priceIndex,
       this.stakedNftId,
       this.collateralPrice,
@@ -173,6 +207,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
     return new AjnaEarnPosition(
       this.pool,
       this.owner,
+      ZERO,
       ZERO,
       null,
       null,

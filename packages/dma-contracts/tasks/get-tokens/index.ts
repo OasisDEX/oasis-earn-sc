@@ -1,7 +1,7 @@
+import { Network } from '@deploy-configurations/types/network'
 import { addressesByNetwork } from '@dma-common/test-utils'
 import { amountToWei } from '@dma-common/utils/common'
 import { swapOneInchTokens } from '@dma-common/utils/swap'
-import { Network } from '@dma-deployments/types/network'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 

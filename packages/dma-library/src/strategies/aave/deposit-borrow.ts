@@ -1,5 +1,5 @@
+import { Address } from '@deploy-configurations/types/address'
 import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { Address } from '@dma-deployments/types/address'
 import { operations } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
 import { BorrowArgs } from '@dma-library/operations/aave/v2/borrow'
@@ -45,10 +45,15 @@ function getIsSwapNeeded(
   return !(sameTokens || ethToWeth)
 }
 
-export async function depositBorrow(
+export type AaveV2DepositBorrow = (
   { entryToken, slippage, borrowAmount }: DepositBorrowArgs,
   dependencies: IPositionTransitionDependencies<AAVEStrategyAddresses>,
-): Promise<PositionTransition> {
+) => Promise<PositionTransition>
+
+export const depositBorrow: AaveV2DepositBorrow = async (
+  { entryToken, slippage, borrowAmount },
+  dependencies,
+) => {
   const FEE = 20
   const FEE_BASE = 10000
 

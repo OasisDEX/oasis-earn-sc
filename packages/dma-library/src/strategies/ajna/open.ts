@@ -1,5 +1,5 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
-import { Address } from '@dma-deployments/types/address'
+import { Address } from '@deploy-configurations/types/address'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { AjnaPosition } from '@dma-library/types/ajna'
 import { Strategy } from '@dma-library/types/common'
@@ -34,10 +34,12 @@ export interface Dependencies {
   getPosition?: typeof views.ajna.getPosition
 }
 
-export async function open(
+export type AjnaOpenBorrowStrategy = (
   args: OpenArgs,
   dependencies: Dependencies,
-): Promise<Strategy<AjnaPosition>> {
+) => Promise<Strategy<AjnaPosition>>
+
+export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
   const getPosition = dependencies.getPosition ? dependencies.getPosition : views.ajna.getPosition
   const position = await getPosition(
     {

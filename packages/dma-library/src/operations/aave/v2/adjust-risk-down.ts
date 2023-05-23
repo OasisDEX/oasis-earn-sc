@@ -1,4 +1,4 @@
-import { aaveAdjustDownV2OperationDefinition } from '@dma-deployments/operation-definitions'
+import { aaveAdjustDownV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'
@@ -19,14 +19,23 @@ type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithProxy &
   WithAaveV2StrategyAddresses
 
-export async function adjustRiskDown({
+export type AaveV2AdjustDownOperation = ({
   collateral,
   debt,
   swap,
   flashloan,
   proxy,
   addresses,
-}: AdjustRiskDownArgs): Promise<IOperation> {
+}: AdjustRiskDownArgs) => Promise<IOperation>
+
+export const adjustRiskDown: AaveV2AdjustDownOperation = async ({
+  collateral,
+  debt,
+  swap,
+  flashloan,
+  proxy,
+  addresses,
+}) => {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: flashloan.amount,
     asset: addresses.DAI,

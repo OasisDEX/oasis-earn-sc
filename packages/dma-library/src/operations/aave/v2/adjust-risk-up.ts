@@ -1,5 +1,5 @@
+import { aaveAdjustUpV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
-import { aaveAdjustUpV2OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'
@@ -23,7 +23,7 @@ type AdjustRiskUpArgs = WithCollateral &
   WithProxy &
   WithAaveV2StrategyAddresses
 
-export async function adjustRiskUp({
+export type AaveV2AdjustUpOperation = ({
   collateral,
   debt,
   deposit,
@@ -31,7 +31,17 @@ export async function adjustRiskUp({
   flashloan,
   proxy,
   addresses,
-}: AdjustRiskUpArgs): Promise<IOperation> {
+}: AdjustRiskUpArgs) => Promise<IOperation>
+
+export const adjustRiskUp: AaveV2AdjustUpOperation = async ({
+  collateral,
+  debt,
+  deposit,
+  swap,
+  flashloan,
+  proxy,
+  addresses,
+}) => {
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
 

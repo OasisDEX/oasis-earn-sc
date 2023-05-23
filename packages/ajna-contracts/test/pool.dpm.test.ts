@@ -1,3 +1,4 @@
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import {
   deployApa,
   deployGuard,
@@ -6,8 +7,7 @@ import {
   deployPoolFactory,
   deployRewardsContracts,
   deployTokens,
-} from "@ajna-contracts/scripts";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+} from "@oasisdex/ajna-contracts/scripts/common/deployment.utils";
 import {
   AjnaProxyActions,
   DSToken,
@@ -1239,6 +1239,56 @@ describe.only("AjnaProxyActions", function () {
       await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
       await unstakeNftAndWithdrawQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, price, 1);
     });
+    it("should supplyQuoteMintNftAndStake --> unstakeNftAndClaimCollateral - after auction ", async () => {
+      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, wbtc } = await loadFixture(deploy);
+
+      const price = bn.eighteen.TEST_PRICE_1;
+      const lendAmount = bn.six.MILLION;
+
+      await supplyQuoteMintNftAndStake(
+        ajnaProxyActionsContract,
+        poolContract,
+        lenderProxy,
+        lender,
+        lendAmount,
+        price,
+        usdc
+      );
+
+      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
+      await wbtc.approve(poolContract.address, bn.eighteen.ONE);
+      // add one BTC to the pool
+      await poolContract.addCollateral(bn.eighteen.ONE, index, Date.now() + 100);
+
+      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
+
+      const balanceBefore = await wbtc.balanceOf(lender.address);
+      await unstakeNftAndClaimCollateral(ajnaProxyActionsContract, poolContract, lender, lenderProxy, price, 1);
+      const balanceAfter = await wbtc.balanceOf(lender.address);
+
+      expect(balanceAfter.sub(balanceBefore).toString()).to.be.equal(bn.eight.ONE.toString());
+    });
+    it("should supplyQuote --> claimCollateral - after auction ", async () => {
+      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, wbtc } = await loadFixture(deploy);
+
+      const price = bn.eighteen.TEST_PRICE_1;
+      const lendAmount = bn.six.MILLION;
+
+      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
+
+      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
+      await wbtc.approve(poolContract.address, bn.eighteen.ONE);
+      // add one BTC to the pool
+      await poolContract.addCollateral(bn.eighteen.ONE, index, Date.now() + 100);
+
+      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
+
+      const balanceBefore = await wbtc.balanceOf(lender.address);
+      await removeCollateral(ajnaProxyActionsContract, poolContract, lender, lenderProxy, price);
+      const balanceAfter = await wbtc.balanceOf(lender.address);
+
+      expect(balanceAfter.sub(balanceBefore).toString()).to.be.equal(bn.eight.ONE.toString());
+    });
   });
 });
 
@@ -1437,6 +1487,44 @@ async function unstakeNftAndWithdrawQuote(
   });
   const receipt = await txWithdraw.wait();
   console.log("gas used unstakeNftAndWithdrawQuote", receipt.gasUsed.toString());
+  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
+}
+async function unstakeNftAndClaimCollateral(
+  ajnaProxyActionsContract: AjnaProxyActions,
+  poolContract: ERC20Pool,
+  lender: Signer,
+  lenderProxy: IAccountImplementation,
+  price: BigNumber,
+  tokenId: number
+) {
+  const encodedData = ajnaProxyActionsContract.interface.encodeFunctionData("unstakeNftAndClaimCollateral", [
+    poolContract.address,
+    price,
+    tokenId,
+  ]);
+  const txWithdraw = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, encodedData, {
+    gasLimit: 3000000,
+  });
+  const receipt = await txWithdraw.wait();
+  console.log("gas used unstakeNftAndClaimCollateral", receipt.gasUsed.toString());
+  return receipt.gasUsed.mul(receipt.effectiveGasPrice);
+}
+async function removeCollateral(
+  ajnaProxyActionsContract: AjnaProxyActions,
+  poolContract: ERC20Pool,
+  lender: Signer,
+  lenderProxy: IAccountImplementation,
+  price: BigNumber
+) {
+  const encodedData = ajnaProxyActionsContract.interface.encodeFunctionData("removeCollateral", [
+    poolContract.address,
+    price,
+  ]);
+  const txWithdraw = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, encodedData, {
+    gasLimit: 3000000,
+  });
+  const receipt = await txWithdraw.wait();
+  console.log("gas used unstakeNftAndClaimCollateral", receipt.gasUsed.toString());
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function drawDebt(

@@ -1,2 +1,10 @@
 export { AjnaStrategyAddresses } from './addresses'
-export { open } from './open'
+import { AjnaOpenOperation, open as ajnaOpen } from './open'
+
+export type AjnaOperations = {
+  open: AjnaOpenOperation
+}
+
+export const ajnaOperations: AjnaOperations = {
+  open: ajnaOpen,
+}

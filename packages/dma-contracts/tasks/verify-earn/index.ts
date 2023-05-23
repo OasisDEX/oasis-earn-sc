@@ -1,6 +1,6 @@
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Network } from '@deploy-configurations/types/network'
 import { getAddressesFor } from '@dma-common/utils/common'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
 import { task } from 'hardhat/config'
 
 task('verify-earn', 'Verifies Earn Contracts').setAction(async (_: any, hre) => {

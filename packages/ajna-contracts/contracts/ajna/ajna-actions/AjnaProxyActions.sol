@@ -603,6 +603,31 @@ contract AjnaProxyActions {
         withdrawQuote(pool, type(uint256).max, price);
     }
 
+    /**
+     * @notice Unstakes NFT and withdraws quote token and reclaims collateral from liquidated bucket
+     * @param  pool         Address of the Ajana Pool.
+     * @param  price        Price of the bucket to redeem.
+     * @param  tokenId      ID of the NFT to unstake
+     */
+    function unstakeNftAndClaimCollateral(ERC20Pool pool, uint256 price, uint256 tokenId) public {
+        unstakeNftAndRedeem(tokenId, pool, price, true);
+        removeCollateral(pool, price);
+    }
+
+    /**
+     * @notice Reclaims collateral from liquidated bucket
+     * @param  pool         Address of the Ajana Pool.
+     * @param  price        Price of the bucket to redeem.
+     */
+    function removeCollateral(ERC20Pool pool, uint256 price) public {
+        address collateralToken = pool.collateralAddress();
+        uint256 index = convertPriceToIndex(price);
+        uint256 balanceBefore = IERC20(collateralToken).balanceOf(address(this));
+        pool.removeCollateral(type(uint256).max, index);
+        uint256 withdrawnBalance = IERC20(collateralToken).balanceOf(address(this)) - balanceBefore;
+        _send(collateralToken, withdrawnBalance);
+    }
+
     // VIEW FUNCTIONS
     /**
      * @notice  Converts price to index

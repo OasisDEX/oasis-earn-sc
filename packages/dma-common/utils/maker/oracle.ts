@@ -1,5 +1,5 @@
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Network } from '@deploy-configurations/types/network'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 

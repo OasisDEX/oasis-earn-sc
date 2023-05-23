@@ -1,5 +1,5 @@
-import { Network } from '@dma-deployments/types/network'
-import { isSupportedNetwork } from '@dma-deployments/utils/network'
+import { Network } from '@deploy-configurations/types/network'
+import { isSupportedNetwork } from '@deploy-configurations/utils/network'
 import { constants } from 'ethers'
 
 // Type guards

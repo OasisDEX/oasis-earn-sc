@@ -1,5 +1,5 @@
+import { aaveCloseV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { MAX_UINT, ZERO } from '@dma-common/constants'
-import { aaveCloseV3OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import {
   IOperation,
@@ -21,7 +21,7 @@ type CloseArgs = WithCollateral &
   WithPositionAndLockedCollateral &
   WithAaveV3StrategyAddresses
 
-export async function close({
+export type AaveV3CloseOperation = ({
   collateral,
   debt,
   swap,
@@ -29,7 +29,17 @@ export async function close({
   proxy,
   position,
   addresses,
-}: CloseArgs): Promise<IOperation> {
+}: CloseArgs) => Promise<IOperation>
+
+export const close: AaveV3CloseOperation = async ({
+  collateral,
+  debt,
+  swap,
+  flashloan,
+  proxy,
+  position,
+  addresses,
+}) => {
   const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
     categoryId: 0,
   })

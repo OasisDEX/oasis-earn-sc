@@ -21,10 +21,11 @@
       "@dma-common/types/*": ["../dma-common/types/*"],
       "@dma-common/test-utils": ["../dma-common/test-utils/index.ts"],
       "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
-      "@dma-deployments/*": ["../dma-deployments/*"],
-      "@dma-deployments/addresses": ["../dma-deployments/addresses/index.ts"],
-      "@dma-deployments/operation-definitions": ["../dma-deployments/operation-definitions/index.ts"],
-      "@domain": ["../domain/src/index.ts"]
+      "@domain": ["../domain/src/index.ts"],
+      "@domain/*": ["../domain/src/*"],
+      "@deploy-configurations/*": ["../deploy-configurations/*"],
+      "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
+      "@deploy-configurations/operation-definitions": ["../deploy-configurations/operation-definitions/index.ts"],
     }
   },
   "references": [
@@ -35,7 +36,7 @@
       "path": "../dma-common"
     },
     {
-      "path": "../dma-deployments"
+      "path": "../deploy-configurations"
     },
     {
       "path": "../domain"

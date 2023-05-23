@@ -1,5 +1,5 @@
+import { aaveAdjustDownV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { MAX_UINT } from '@dma-common/constants'
-import { aaveAdjustDownV3OperationDefinition } from '@dma-deployments/operation-definitions'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import {
@@ -19,14 +19,23 @@ type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithProxy &
   WithAaveV3StrategyAddresses
 
-export async function adjustRiskDown({
+export type AaveV3AdjustDownOperation = ({
   collateral,
   debt,
   swap,
   flashloan,
   proxy,
   addresses,
-}: AdjustRiskDownArgs): Promise<IOperation> {
+}: AdjustRiskDownArgs) => Promise<IOperation>
+
+export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
+  collateral,
+  debt,
+  swap,
+  flashloan,
+  proxy,
+  addresses,
+}) => {
   const setDaiApprovalOnLendingPool = actions.common.setApproval({
     amount: flashloan.amount,
     asset: addresses.DAI,

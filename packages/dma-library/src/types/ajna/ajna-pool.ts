@@ -1,4 +1,4 @@
-import { Address } from '@dma-deployments/types/address'
+import { Address } from '@deploy-configurations/types/address'
 import BigNumber from 'bignumber.js'
 
 export interface Bucket {
@@ -43,4 +43,5 @@ export interface AjnaPool {
   monthlyPercentageRate30dAverage: BigNumber
   currentBurnEpoch: BigNumber
   buckets: Bucket[]
+  pendingInflator: BigNumber
 }

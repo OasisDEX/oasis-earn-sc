@@ -1,9 +1,9 @@
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { Network } from '@deploy-configurations/types/network'
 import { OPERATION_NAMES } from '@dma-common/constants'
 import { Address } from '@dma-common/types/address'
-import { ADDRESSES } from '@dma-deployments/addresses'
-import { Network } from '@dma-deployments/types/network'
 import { actions } from '@dma-library/actions'
-import { ActionCall } from '@dma-library/types'
+import { ActionCall, IOperation } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 export interface BorrowArgs {
@@ -14,7 +14,19 @@ export interface BorrowArgs {
   isEthToken: boolean
 }
 
-export async function borrow({ borrowToken, amountInBaseUnit, account, isEthToken }: BorrowArgs) {
+export type BorrowV2Operation = ({
+  borrowToken,
+  amountInBaseUnit,
+  account,
+  isEthToken,
+}: BorrowArgs) => Promise<IOperation>
+
+export const borrow: BorrowV2Operation = async ({
+  borrowToken,
+  amountInBaseUnit,
+  account,
+  isEthToken,
+}) => {
   // Import ActionCall as it assists type generation
   const calls: ActionCall[] = [
     actions.aave.v2.aaveBorrow({
