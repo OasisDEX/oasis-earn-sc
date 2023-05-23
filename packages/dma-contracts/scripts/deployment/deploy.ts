@@ -213,7 +213,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
     writeFile(
       `./../deploy-configurations/configs/${this.network}.conf.ts`,
-      `import { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { CONTRACT_NAMES } from '../constants'\n\nexport const config: SystemConfig = ${configString} \n`,
+      `import { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { CONTRACT_NAMES } from '@deploy-configurations/constants'\n\nexport const config: SystemConfig = ${configString} \n`,
       (error: any) => {
         if (error) {
           console.log('ERROR: ', error)
