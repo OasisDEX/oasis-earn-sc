@@ -11,14 +11,10 @@ interface IPositionBalance {
   symbol: string
 }
 
-// TODO: Add comments for these functions
-
-export function normaliseAmount(amount: BigNumber, precision: number): BigNumber {
-  return amount.times(10 ** (TYPICAL_PRECISION - precision))
-}
-
-export function denormaliseAmount(amount: BigNumber, precision: number): BigNumber {
-  return amount.div(10 ** (TYPICAL_PRECISION - precision))
+export interface IPositionV2 {
+  debt: IPositionBalance
+  collateral: IPositionBalance
+  riskRatio: IRiskRatio
 }
 
 export class PositionBalance implements IPositionBalance {
@@ -41,12 +37,14 @@ export class PositionBalance implements IPositionBalance {
   }
 }
 
+/** @deprecated Not applicable to all protocols */
 export interface IPositionCategory {
   liquidationThreshold: BigNumber
   maxLoanToValue: BigNumber
   dustLimit: BigNumber
 }
 
+/** @deprecated In favour of IPositionV2 */
 export interface IBasePosition {
   collateral: PositionBalance
   debt: PositionBalance
@@ -72,7 +70,8 @@ export interface IBaseSimulatedTransition {
 }
 
 // TODO: consider multi-collateral positions
-interface IPositionTransitionParams {
+
+export interface IPositionTransitionParams {
   // Where Wei is the smallest unit of the token
   depositedByUser?: {
     collateralInWei?: BigNumber
@@ -108,6 +107,7 @@ interface IPositionTransitionParams {
   useFlashloanSafetyMargin?: boolean
 }
 
+/** @deprecated Not applicable to all protocols. Please use IPositionV2 */
 export interface IPosition extends IBasePosition {
   minConfigurableRiskRatio: (marketPriceAccountingForSlippage: BigNumber) => IRiskRatio
   riskRatio: IRiskRatio

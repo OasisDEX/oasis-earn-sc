@@ -5,6 +5,7 @@ import { Delta } from '@domain/position'
 import { ActionCall } from './action-call'
 import { SwapData } from './swap-data'
 
+/** @deprecated use ISimulationV2 instead */
 export interface ISimulation {
   position: IPosition
   delta: Delta
