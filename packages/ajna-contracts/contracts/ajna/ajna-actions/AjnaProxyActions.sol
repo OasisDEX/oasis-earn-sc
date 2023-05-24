@@ -42,6 +42,20 @@ contract AjnaProxyActions {
         GUARD = _GUARD;
     }
 
+    /**
+     * @dev Emitted once an Operation has completed execution
+     * @param name Name of the operation
+     **/
+    event ProxyActionsOperation(bytes32 indexed name);
+
+    /**
+     * @dev Emitted when a new position is created
+     * @param proxyAddress The address of the newly created position proxy contract
+     * @param protocol The name of the protocol associated with the position
+     * @param positionType The type of position being created (e.g. borrow or earn)
+     * @param collateralToken The address of the collateral token being used for the position
+     * @param debtToken The address of the debt token being used for the position
+     **/
     event CreatePosition(
         address indexed proxyAddress,
         string protocol,
@@ -142,20 +156,65 @@ contract AjnaProxyActions {
     }
 
     /**
-     *  @notice Move LP from one bucket to another while momorialized in NFT and staked NFT
-     *  @param  oldPrice      Old price of the momorialized bucket
-     *  @param  newPrice      New price of the momorialized bucket
-     *  @param  tokenId       Nft ID
+     *  @notice Called internally to add an amount of credit at a specified price bucket.
+     *  @param  pool         Address of the Ajana Pool.
+     *  @param  amount       The maximum amount of quote token to be moved by a lender.
+     *  @param  price        The price the bucket to which the quote tokens will be added.
+     *  @dev price of uint (10**decimals) collateral token in debt token (10**decimals) with 3 decimal points for instance
+     *  @dev 1WBTC = 16,990.23 USDC   translates to: 16990230
      */
-    function moveStakedLiquidity(uint256 oldPrice, uint256 newPrice, uint256 tokenId) internal {
-        uint256 oldIndex = convertPriceToIndex(oldPrice);
-        uint256 newIndex = convertPriceToIndex(newPrice);
-        uint256[] memory oldIndexes = new uint256[](1);
-        oldIndexes[0] = oldIndex;
-        uint256[] memory newIndexes = new uint256[](1);
-        newIndexes[0] = newIndex;
+    function supplyQuoteInternal(ERC20Pool pool, uint256 amount, uint256 price) internal {
+        address debtToken = pool.quoteTokenAddress();
+        _pull(debtToken, amount);
+        uint256 index = convertPriceToIndex(price);
+        IERC20(debtToken).approve(address(pool), amount);
+        pool.addQuoteToken(amount * pool.quoteTokenScale(), index, block.timestamp + 1);
+    }
 
-        rewardsManager.moveStakedLiquidity(tokenId, oldIndexes, newIndexes, block.timestamp + 1);
+    /**
+     *  @notice Called internally to move max amount of credit from a specified price bucket to another specified price bucket.
+     *  @param  pool         Address of the Ajana Pool.
+     *  @param  oldPrice        The price of the bucket  from which the quote tokens will be removed.
+     *  @param  newPrice     The price of the bucket to which the quote tokens will be added.
+     */
+    function moveQuoteInternal(ERC20Pool pool, uint256 oldPrice, uint256 newPrice) internal {
+        uint256 oldIndex = convertPriceToIndex(oldPrice);
+        pool.moveQuoteToken(type(uint256).max, oldIndex, convertPriceToIndex(newPrice), block.timestamp + 1);
+    }
+
+    /**
+     *  @notice Called internally to remove an amount of credit at a specified price bucket.
+     *  @param  pool         Address of the Ajana Pool.
+     *  @param  amount       The maximum amount of quote token to be moved by a lender.
+     *  @param  price        The price the bucket to which the quote tokens will be added.
+     *  @dev price of uint (10**decimals) collateral token in debt token (10**decimals) with 3 decimal points for instance
+     *  @dev 1WBTC = 16,990.23 USDC   translates to: 16990230
+     */
+    function withdrawQuoteInternal(ERC20Pool pool, uint256 amount, uint256 price) internal {
+        address debtToken = pool.quoteTokenAddress();
+        uint256 index = convertPriceToIndex(price);
+        uint256 balanceBefore = IERC20(debtToken).balanceOf(address(this));
+        if (amount == type(uint256).max) {
+            pool.removeQuoteToken(type(uint256).max, index);
+        } else {
+            pool.removeQuoteToken((amount * pool.quoteTokenScale()), index);
+        }
+        uint256 withdrawnBalance = IERC20(debtToken).balanceOf(address(this)) - balanceBefore;
+        _send(debtToken, withdrawnBalance);
+    }
+
+    /**
+     * @notice Reclaims collateral from liquidated bucket
+     * @param  pool         Address of the Ajana Pool.
+     * @param  price        Price of the bucket to redeem.
+     */
+    function removeCollateralInternal(ERC20Pool pool, uint256 price) internal {
+        address collateralToken = pool.collateralAddress();
+        uint256 index = convertPriceToIndex(price);
+        uint256 balanceBefore = IERC20(collateralToken).balanceOf(address(this));
+        pool.removeCollateral(type(uint256).max, index);
+        uint256 withdrawnBalance = IERC20(collateralToken).balanceOf(address(this)) - balanceBefore;
+        _send(collateralToken, withdrawnBalance);
     }
 
     // BORROWER ACTIONS
@@ -227,21 +286,19 @@ contract AjnaProxyActions {
         uint256 collateralAmount,
         uint256 price
     ) public payable {
-        address collateralToken = pool.collateralAddress();
-        address debtToken = pool.quoteTokenAddress();
-
-        _pull(collateralToken, collateralAmount);
-
-        IERC20(collateralToken).approve(address(pool), collateralAmount);
-
-        uint256 index = convertPriceToIndex(price);
-        pool.drawDebt(
-            address(this),
-            debtAmount * pool.quoteTokenScale(),
-            index,
-            collateralAmount * pool.collateralScale()
-        );
-        _send(debtToken, debtAmount);
+        if (collateralAmount > 0) {
+            depositCollateral(pool, collateralAmount, price);
+        }
+        if (debtAmount > 0) {
+            drawDebt(pool, debtAmount, price);
+        }
+        if (debtAmount > 0 && collateralAmount > 0) {
+            emit ProxyActionsOperation("AjnaDepositBorrow");
+        } else if (debtAmount > 0) {
+            emit ProxyActionsOperation("AjnaBorrow");
+        } else if (collateralAmount > 0) {
+            emit ProxyActionsOperation("AjnaDeposit");
+        }
     }
 
     /**
@@ -263,7 +320,7 @@ contract AjnaProxyActions {
      *  @param  price          Price of the bucket
      */
     function openEarnPosition(ERC20Pool pool, uint256 depositAmount, uint256 price) public payable {
-        supplyQuote(pool, depositAmount, price);
+        supplyQuoteInternal(pool, depositAmount, price);
         emit CreatePosition(address(this), "Ajna", "Earn", pool.collateralAddress(), pool.quoteTokenAddress());
     }
 
@@ -290,6 +347,13 @@ contract AjnaProxyActions {
         }
         if (collateralAmount > 0) {
             withdrawCollateral(pool, collateralAmount);
+        }
+        if (debtAmount > 0 && collateralAmount > 0) {
+            emit ProxyActionsOperation("AjnaRepayWithdraw");
+        } else if (debtAmount > 0) {
+            emit ProxyActionsOperation("AjnaRepay");
+        } else if (collateralAmount > 0) {
+            emit ProxyActionsOperation("AjnaWithdraw");
         }
     }
 
@@ -325,11 +389,8 @@ contract AjnaProxyActions {
      *  @dev 1WBTC = 16,990.23 USDC   translates to: 16990230
      */
     function supplyQuote(ERC20Pool pool, uint256 amount, uint256 price) public payable {
-        address debtToken = pool.quoteTokenAddress();
-        _pull(debtToken, amount);
-        uint256 index = convertPriceToIndex(price);
-        IERC20(debtToken).approve(address(pool), amount);
-        pool.addQuoteToken(amount * pool.quoteTokenScale(), index, block.timestamp + 1);
+        supplyQuoteInternal(pool, amount, price);
+        emit ProxyActionsOperation("AjnaSupplyQuote");
     }
 
     /**
@@ -356,16 +417,8 @@ contract AjnaProxyActions {
      *  @dev 1WBTC = 16,990.23 USDC   translates to: 16990230
      */
     function withdrawQuote(ERC20Pool pool, uint256 amount, uint256 price) public {
-        address debtToken = pool.quoteTokenAddress();
-        uint256 index = convertPriceToIndex(price);
-        uint256 balanceBefore = IERC20(debtToken).balanceOf(address(this));
-        if (amount == type(uint256).max) {
-            pool.removeQuoteToken(type(uint256).max, index);
-        } else {
-            pool.removeQuoteToken((amount * pool.quoteTokenScale()), index);
-        }
-        uint256 withdrawnBalance = IERC20(debtToken).balanceOf(address(this)) - balanceBefore;
-        _send(debtToken, withdrawnBalance);
+        withdrawQuoteInternal(pool, amount, price);
+        emit ProxyActionsOperation("AjnaWithdrawQuote");
     }
 
     /**
@@ -392,8 +445,8 @@ contract AjnaProxyActions {
      *  @param  newPrice     The price of the bucket to which the quote tokens will be added.
      */
     function moveQuote(ERC20Pool pool, uint256 oldPrice, uint256 newPrice) public {
-        uint256 oldIndex = convertPriceToIndex(oldPrice);
-        pool.moveQuoteToken(type(uint256).max, oldIndex, convertPriceToIndex(newPrice), block.timestamp + 1);
+        moveQuoteInternal(pool, oldPrice, newPrice);
+        emit ProxyActionsOperation("AjnaMoveQuote");
     }
 
     /**
@@ -410,8 +463,9 @@ contract AjnaProxyActions {
         uint256 oldPrice,
         uint256 newPrice
     ) public payable {
-        supplyQuote(pool, amountToAdd, newPrice);
-        moveQuote(pool, oldPrice, newPrice);
+        supplyQuoteInternal(pool, amountToAdd, newPrice);
+        moveQuoteInternal(pool, oldPrice, newPrice);
+        emit ProxyActionsOperation("AjnaSupplyAndMoveQuote");
     }
 
     /**
@@ -423,8 +477,9 @@ contract AjnaProxyActions {
      *  @param  newPrice        The price of the bucket to which the quote tokens will be added.
      */
     function withdrawAndMoveQuote(ERC20Pool pool, uint256 amountToWithdraw, uint256 oldPrice, uint256 newPrice) public {
-        withdrawQuote(pool, amountToWithdraw, oldPrice);
-        moveQuote(pool, oldPrice, newPrice);
+        withdrawQuoteInternal(pool, amountToWithdraw, oldPrice);
+        moveQuoteInternal(pool, oldPrice, newPrice);
+        emit ProxyActionsOperation("AjnaWithdrawAndMoveQuote");
     }
 
     // REWARDS
@@ -455,13 +510,14 @@ contract AjnaProxyActions {
         uint256 amount,
         uint256 price
     ) public payable returns (uint256 tokenId) {
-        supplyQuote(pool, amount, price);
+        supplyQuoteInternal(pool, amount, price);
 
         tokenId = mintNft(pool);
 
         memorializeLiquidity(price, tokenId, pool);
 
         rewardsManager.stake(tokenId);
+        emit ProxyActionsOperation("AjnaSupplyQuoteMintNftAndStake");
     }
 
     /**
@@ -482,10 +538,11 @@ contract AjnaProxyActions {
         rewardsManager.unstake(tokenId);
 
         moveLiquidity(oldPrice, newPrice, tokenId, address(pool));
-        supplyQuote(pool, amountToAdd, newPrice);
+        supplyQuoteInternal(pool, amountToAdd, newPrice);
         memorializeLiquidity(newPrice, tokenId, pool);
 
         rewardsManager.stake(tokenId);
+        emit ProxyActionsOperation("AjnaSupplyAndMoveQuoteNft");
     }
 
     /**
@@ -498,10 +555,11 @@ contract AjnaProxyActions {
     function supplyQuoteNft(ERC20Pool pool, uint256 amountToAdd, uint256 price, uint256 tokenId) public payable {
         rewardsManager.unstake(tokenId);
 
-        supplyQuote(pool, amountToAdd, price);
+        supplyQuoteInternal(pool, amountToAdd, price);
         memorializeLiquidity(price, tokenId, pool);
 
         rewardsManager.stake(tokenId);
+        emit ProxyActionsOperation("AjnaSupplyQuoteNft");
     }
 
     /**
@@ -523,10 +581,11 @@ contract AjnaProxyActions {
 
         moveLiquidity(oldPrice, newPrice, tokenId, address(pool));
         redeemPosition(newPrice, tokenId, address(pool));
-        withdrawQuote(pool, amountToWithdraw, newPrice);
+        withdrawQuoteInternal(pool, amountToWithdraw, newPrice);
         memorializeLiquidity(newPrice, tokenId, pool);
 
         rewardsManager.stake(tokenId);
+        emit ProxyActionsOperation("AjnaWithdrawAndMoveQuoteNft");
     }
 
     /**
@@ -540,10 +599,11 @@ contract AjnaProxyActions {
         rewardsManager.unstake(tokenId);
 
         redeemPosition(price, tokenId, address(pool));
-        withdrawQuote(pool, amountToWithdraw, price);
+        withdrawQuoteInternal(pool, amountToWithdraw, price);
         memorializeLiquidity(price, tokenId, pool);
 
         rewardsManager.stake(tokenId);
+        emit ProxyActionsOperation("AjnaWithdrawQuoteNft");
     }
 
     /**
@@ -553,8 +613,11 @@ contract AjnaProxyActions {
      *  @param  newPrice     Index of the bucket to move to.
      *  @param  tokenId      ID of the NFT to modify
      */
-    function moveQuoteNft(ERC20Pool, uint256 oldPrice, uint256 newPrice, uint256 tokenId) public payable {
-        moveStakedLiquidity(oldPrice, newPrice, tokenId);
+    function moveQuoteNft(ERC20Pool pool, uint256 oldPrice, uint256 newPrice, uint256 tokenId) public payable {
+        rewardsManager.unstake(tokenId);
+        moveLiquidity(oldPrice, newPrice, tokenId, address(pool));
+        rewardsManager.stake(tokenId);
+        emit ProxyActionsOperation("AjnaMoveQuoteNft");
     }
 
     /**
@@ -600,7 +663,8 @@ contract AjnaProxyActions {
      */
     function unstakeNftAndWithdrawQuote(ERC20Pool pool, uint256 price, uint256 tokenId) public {
         unstakeNftAndRedeem(tokenId, pool, price, true);
-        withdrawQuote(pool, type(uint256).max, price);
+        withdrawQuoteInternal(pool, type(uint256).max, price);
+        emit ProxyActionsOperation("AjnaUnstakeNftAndWithdrawQuote");
     }
 
     /**
@@ -611,7 +675,8 @@ contract AjnaProxyActions {
      */
     function unstakeNftAndClaimCollateral(ERC20Pool pool, uint256 price, uint256 tokenId) public {
         unstakeNftAndRedeem(tokenId, pool, price, true);
-        removeCollateral(pool, price);
+        removeCollateralInternal(pool, price);
+        emit ProxyActionsOperation("AjnaUnstakeNftAndClaimCollateral");
     }
 
     /**
@@ -620,12 +685,8 @@ contract AjnaProxyActions {
      * @param  price        Price of the bucket to redeem.
      */
     function removeCollateral(ERC20Pool pool, uint256 price) public {
-        address collateralToken = pool.collateralAddress();
-        uint256 index = convertPriceToIndex(price);
-        uint256 balanceBefore = IERC20(collateralToken).balanceOf(address(this));
-        pool.removeCollateral(type(uint256).max, index);
-        uint256 withdrawnBalance = IERC20(collateralToken).balanceOf(address(this)) - balanceBefore;
-        _send(collateralToken, withdrawnBalance);
+        removeCollateralInternal(pool, price);
+        emit ProxyActionsOperation("AjnaRemoveCollateral");
     }
 
     // VIEW FUNCTIONS
