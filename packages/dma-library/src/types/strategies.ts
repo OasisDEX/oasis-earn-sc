@@ -22,7 +22,7 @@ export type WithMinConfigurableRiskRatio = {
 }
 
 /** @deprecated use ISimulation instead */
-export interface ISimulatedTransition extends IBaseSimulatedTransition {
+export type ISimulatedTransition = IBaseSimulatedTransition & {
   swap: SwapData & Swap
   minConfigurableRiskRatio: IRiskRatio
 }

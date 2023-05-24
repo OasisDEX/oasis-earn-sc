@@ -19,7 +19,7 @@
       "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
       "@deploy-configurations/constants": ["../deploy-configurations/constants/index.ts"],
       "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
-      "@domain/src/*": ["./src/*"],
+      "@domain/*": ["./src/*"],
       "@domain/test/*": [
         "./test/*"
       ]

@@ -1,15 +1,10 @@
 import { FEE_BASE, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { calculateFee } from '@dma-common/utils/swap'
-import { denormaliseAmount, normaliseAmount } from '@domain/src/utils'
+import { denormaliseAmount, normaliseAmount } from '@domain/utils'
 import BigNumber from 'bignumber.js'
 
-import { Delta, IPosition, IPositionV2 } from './position'
-import { IRiskRatio } from './risk-ratio'
-
-// TODO:
-// 1. Remove flashloan from calcs [DONE]
-// 2. Create use case specific flashloan calculations [DONE]
-// 3. Wrap with adjustToLTV and adjustToCollateralisationRatio
+import { createRiskRatio, Delta, IPositionV2, Swap } from './position'
+import { IRiskRatio, RISK_RATIO_CTOR_TYPE, RiskRatio } from './risk-ratio'
 
 interface AdjustToParams {
   toDeposit: {
@@ -40,23 +35,45 @@ interface AdjustToParams {
 }
 
 export interface ISimulationV2 {
-  position: IPosition
+  position: IPositionV2
   delta: Delta
+}
+
+export type WithFlags = { flags: { requiresFlashloan: boolean; isIncreasingRisk: boolean } }
+
+export type WithSwap = {
+  swap: Swap
 }
 
 export function adjustToLTV(
   position: IPositionV2,
-  targetRiskRatio: IRiskRatio,
+  targetLTV: RiskRatio,
   params: AdjustToParams,
-): ISimulationV2 {}
+): ISimulationV2 & WithSwap & WithFlags {
+  if (targetLTV.type !== RISK_RATIO_CTOR_TYPE.LTV) {
+    throw new Error('Invalid RiskRatio type')
+  }
 
-export function adjustToCollateralisationRatio() {}
+  return adjustToTargetRiskRatio(position, targetLTV, params)
+}
+
+export function adjustToCollateralisationRatio(
+  position: IPositionV2,
+  targetCollRatio: RiskRatio,
+  params: AdjustToParams,
+): ISimulationV2 & WithSwap & WithFlags {
+  if (targetCollRatio.type !== RISK_RATIO_CTOR_TYPE.COL_RATIO) {
+    throw new Error('Invalid RiskRatio type')
+  }
+
+  return adjustToTargetRiskRatio(position, targetCollRatio, params)
+}
 
 export function adjustToTargetRiskRatio(
   position: IPositionV2,
   targetRiskRatio: IRiskRatio,
   params: AdjustToParams,
-): ISimulationV2 {
+): ISimulationV2 & WithSwap & WithFlags {
   const targetLTV = targetRiskRatio.loanToValue
 
   let isIncreasingRisk = false
@@ -67,7 +84,6 @@ export function adjustToTargetRiskRatio(
   const { toDeposit, fees, prices, slippage } = params
   const { collectSwapFeeFrom = 'sourceToken', isFlashloanRequired = true } = params.options || {}
   const collectFeeFromSourceToken = collectSwapFeeFrom === 'sourceToken'
-  const collectFeeFromTargetToken = !collectFeeFromSourceToken
 
   /**
    * C_W  Collateral in wallet to top-up or seed position
@@ -181,97 +197,131 @@ export function adjustToTargetRiskRatio(
     .times(ONE.plus(isFlashloanRequired ? flashloanFee : ZERO))
     .integerValue(BigNumber.ROUND_DOWN)
 
-  /*
-   * Account for fees being collected from either
-   * The sourceToken or targetToken in the swap
-   */
-  let normalisedSourceFee = ZERO
-  let normalisedTargetFee = ZERO
-  const debtTokenIsSourceToken = isIncreasingRisk
-
-  if (collectFeeFromSourceToken) {
-    normalisedSourceFee = (
-      isIncreasingRisk
-        ? calculateFee(debtDelta, oazoFee.toNumber())
-        : calculateFee(collateralDelta, oazoFee.toNumber())
-    ).integerValue(BigNumber.ROUND_DOWN)
-  }
-  if (collectFeeFromTargetToken) {
-    normalisedTargetFee = (
-      isIncreasingRisk
-        ? calculateFee(collateralDelta, oazoFee.toNumber())
-        : calculateFee(debtDelta, oazoFee.toNumber())
-    ).integerValue(BigNumber.ROUND_DOWN)
-  }
-
-  let normalisedFromTokenAmount
-  let normalisedMinToTokenAmount
-  if (isIncreasingRisk) {
-    normalisedFromTokenAmount = debtDelta
-    normalisedMinToTokenAmount = collateralDelta
-  } else {
-    normalisedFromTokenAmount = collateralDelta.abs()
-    normalisedMinToTokenAmount = debtDelta.abs()
-  }
-
-  const sourceFee = denormaliseAmount(
-    normalisedSourceFee,
-    debtTokenIsSourceToken ? position.debt.precision : position.collateral.precision,
-  ).integerValue(BigNumber.ROUND_DOWN)
-  const targetFee = denormaliseAmount(
-    normalisedTargetFee,
-    debtTokenIsSourceToken ? position.collateral.precision : position.debt.precision,
-  ).integerValue(BigNumber.ROUND_DOWN)
-
-  const fromTokenPrecision = isIncreasingRisk
-    ? position.debt.precision
-    : position.collateral.precision
-
-  const toTokenPrecision = isIncreasingRisk
-    ? position.collateral.precision
-    : position.debt.precision
-
-  const fromTokenAmount = denormaliseAmount(
-    normalisedFromTokenAmount,
-    fromTokenPrecision,
-  ).integerValue(BigNumber.ROUND_DOWN)
-
-  const minToTokenAmount = denormaliseAmount(
-    normalisedMinToTokenAmount,
-    toTokenPrecision,
-  ).integerValue(BigNumber.ROUND_DOWN)
-
   return {
-    debtDelta,
-    collateralDelta,
-    oraclePrice,
-    normalisedCurrentDebt,
-    normalisedCurrentCollateral,
-    delta: {
-      debt: denormaliseAmount(debtDelta, position.debt.precision).integerValue(
-        BigNumber.ROUND_DOWN,
-      ),
-      collateral: denormaliseAmount(collateralDelta, position.collateral.precision).integerValue(
-        BigNumber.ROUND_DOWN,
-      ),
-    },
-    swap: {
-      fromTokenAmount,
-      minToTokenAmount,
-      tokenFee: collectFeeFromSourceToken ? sourceFee : targetFee,
-      collectFeeFrom: collectFeeFromSourceToken
-        ? ('sourceToken' as const)
-        : ('targetToken' as const),
-      sourceToken: isIncreasingRisk
-        ? { symbol: position.debt.symbol, precision: position.debt.precision }
-        : { symbol: position.collateral.symbol, precision: position.collateral.precision },
-      targetToken: isIncreasingRisk
-        ? { symbol: position.collateral.symbol, precision: position.collateral.precision }
-        : { symbol: position.debt.symbol, precision: position.debt.precision },
-    },
+    position: buildAdjustPosition(position, debtDelta, collateralDelta, oraclePrice),
+    delta: calculateDeltas(position, debtDelta, collateralDelta),
+    swap: buildSwapSimulation(position, debtDelta, collateralDelta, oazoFee, {
+      isIncreasingRisk,
+      collectSwapFeeFrom,
+    }),
     flags: {
       requiresFlashloan: isFlashloanRequired,
       isIncreasingRisk,
     },
   }
+}
+
+function buildAdjustPosition(
+  position: IPositionV2,
+  debtDelta: BigNumber,
+  collateralDelta: BigNumber,
+  oraclePrice: BigNumber,
+): IPositionV2 {
+  const nextDebt = {
+    ...position.debt,
+    amount: position.debt.amount.plus(debtDelta),
+  }
+  const nextCollateral = {
+    ...position.collateral,
+    amount: position.collateral.amount.plus(collateralDelta),
+  }
+  return {
+    debt: nextDebt,
+    collateral: nextCollateral,
+    riskRatio: createRiskRatio(nextDebt, nextCollateral, oraclePrice),
+  }
+}
+
+function calculateDeltas(position: IPositionV2, debtDelta, collateralDelta) {
+  return {
+    debt: denormaliseAmount(debtDelta, position.debt.precision).integerValue(BigNumber.ROUND_DOWN),
+    collateral: denormaliseAmount(collateralDelta, position.collateral.precision).integerValue(
+      BigNumber.ROUND_DOWN,
+    ),
+  }
+}
+
+function buildSwapSimulation(
+  position: IPositionV2,
+  debtDelta: BigNumber,
+  collateralDelta: BigNumber,
+  oazoFee: BigNumber,
+  options: {
+    isIncreasingRisk: boolean
+    collectSwapFeeFrom: 'sourceToken' | 'targetToken'
+  },
+) {
+  const { isIncreasingRisk, collectSwapFeeFrom } = options
+
+  const normalisedFromTokenAmount = isIncreasingRisk ? debtDelta : collateralDelta.abs()
+  const normalisedMinToTokenAmount = isIncreasingRisk ? collateralDelta : debtDelta.abs()
+
+  const fromToken = isIncreasingRisk ? position.debt : position.collateral
+  const toToken = isIncreasingRisk ? position.collateral : position.debt
+
+  const fromTokenAmount = denormaliseAmount(
+    normalisedFromTokenAmount,
+    fromToken.precision,
+  ).integerValue(BigNumber.ROUND_DOWN)
+
+  const minToTokenAmount = denormaliseAmount(
+    normalisedMinToTokenAmount,
+    toToken.precision,
+  ).integerValue(BigNumber.ROUND_DOWN)
+
+  return {
+    fromTokenAmount,
+    minToTokenAmount,
+    tokenFee: determineFee(
+      isIncreasingRisk,
+      debtDelta,
+      collateralDelta,
+      oazoFee,
+      fromToken,
+      toToken,
+      collectSwapFeeFrom,
+    ),
+    collectFeeFrom: collectSwapFeeFrom,
+    sourceToken: isIncreasingRisk
+      ? { symbol: position.debt.symbol, precision: position.debt.precision }
+      : { symbol: position.collateral.symbol, precision: position.collateral.precision },
+    targetToken: isIncreasingRisk
+      ? { symbol: position.collateral.symbol, precision: position.collateral.precision }
+      : { symbol: position.debt.symbol, precision: position.debt.precision },
+  }
+}
+
+function determineFee(
+  isIncreasingRisk: boolean,
+  debtDelta,
+  collateralDelta,
+  oazoFee,
+  fromToken,
+  toToken,
+  collectSwapFeeFrom,
+) {
+  /*
+   * Account for fees being collected from either
+   * The sourceToken or targetToken in the swap
+   */
+  const collectFeeFromSourceToken = collectSwapFeeFrom === 'sourceToken'
+
+  const normalisedSourceFee = (
+    isIncreasingRisk
+      ? calculateFee(debtDelta, oazoFee.toNumber())
+      : calculateFee(collateralDelta, oazoFee.toNumber())
+  ).integerValue(BigNumber.ROUND_DOWN)
+  const normalisedTargetFee = (
+    isIncreasingRisk
+      ? calculateFee(collateralDelta, oazoFee.toNumber())
+      : calculateFee(debtDelta, oazoFee.toNumber())
+  ).integerValue(BigNumber.ROUND_DOWN)
+  const sourceFee = denormaliseAmount(normalisedSourceFee, fromToken.precision).integerValue(
+    BigNumber.ROUND_DOWN,
+  )
+  const targetFee = denormaliseAmount(normalisedTargetFee, toToken.precision).integerValue(
+    BigNumber.ROUND_DOWN,
+  )
+
+  return collectFeeFromSourceToken ? sourceFee : targetFee
 }
