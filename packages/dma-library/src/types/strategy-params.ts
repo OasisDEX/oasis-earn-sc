@@ -9,16 +9,21 @@ import { providers } from 'ethers'
 import { PositionType } from './position-type'
 import { SwapData } from './swap-data'
 
-/** @deprecated use WithAaveTransitionArgs instead */
+/** @deprecated use WithAaveStrategyArgs instead */
 export interface IBasePositionTransitionArgs<Tokens> {
   slippage: BigNumber
   collateralToken: { symbol: Tokens; precision?: number }
   debtToken: { symbol: Tokens; precision?: number }
 }
 
-export type WithAaveTransitionArgs = {
+export type WithAaveEntryToken = {
+  entryToken: { symbol: AAVETokens; precision?: number }
+}
+
+export type WithAaveStrategyArgs = {
   collateralToken: { symbol: AAVETokens; precision?: number }
   debtToken: { symbol: AAVETokens; precision?: number }
+  entryToken?: { symbol: AAVETokens; precision?: number }
 } & WithSlippage
 
 type WithSlippage = {
@@ -105,6 +110,17 @@ export type WithAaveV2StrategyDependencies = {
 export type WithAaveV3StrategyDependencies = {
   addresses: AAVEV3StrategyAddresses
 } & SharedStrategyDependencies
+
+export type WithSwap = {
+  getSwapData: (
+    fromToken: string,
+    toToken: string,
+    amount: BigNumber,
+    slippage: BigNumber,
+  ) => Promise<SwapData>
+}
+
+export type WithOptionalSwap = Partial<WithSwap>
 
 export type IOpenPositionTransitionDependencies<Addresses> = Omit<
   IPositionTransitionDependencies<Addresses>,
