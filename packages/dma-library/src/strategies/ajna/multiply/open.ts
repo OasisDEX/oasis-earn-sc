@@ -16,7 +16,7 @@ export interface OpenMultiplyArgs {
   quoteTokenPrecision: number
   collateralAmount: BigNumber
   collateralTokenPrecision: number
-  multiple: IRiskRatio
+  riskRatio: IRiskRatio
 }
 
 export interface Dependencies {
@@ -59,9 +59,9 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   const positionAfterDeposit = position.deposit(args.collateralAmount)
 
   const quoteAmount = (
-    args.multiple.loanToValue.isZero()
+    args.riskRatio.loanToValue.isZero()
       ? positionAfterDeposit.minRiskRatio.loanToValue.decimalPlaces(2, BigNumber.ROUND_UP)
-      : args.multiple.loanToValue
+      : args.riskRatio.loanToValue
   ).times(args.collateralAmount.times(args.collateralPrice))
 
   const targetPosition = positionAfterDeposit.borrow(quoteAmount)
