@@ -13,7 +13,6 @@ export interface OpenMultiplyArgs {
   dpmProxyAddress: Address
   collateralPrice: BigNumber
   quotePrice: BigNumber
-  quoteAmount: BigNumber
   quoteTokenPrecision: number
   collateralAmount: BigNumber
   collateralTokenPrecision: number
@@ -57,7 +56,15 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   const isDepositingEth =
     position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
-  const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
+  const positionAfterDeposit = position.deposit(args.collateralAmount)
+
+  const quoteAmount = (
+    args.multiple.loanToValue.isZero()
+      ? positionAfterDeposit.minRiskRatio.loanToValue.decimalPlaces(2, BigNumber.ROUND_UP)
+      : args.multiple.loanToValue
+  ).times(args.collateralAmount.times(args.collateralPrice))
+
+  const targetPosition = positionAfterDeposit.borrow(quoteAmount)
 
   return prepareAjnaPayload({
     dependencies,
