@@ -115,15 +115,3 @@ export async function getEarnPosition(
     rewards,
   )
 }
-
-export const getAjnaBuyingPower = ({
-  collateralAmount,
-  collateralPrice,
-  debtAmount,
-  quotePrice,
-  maxRiskRatio,
-}: AjnaPosition) =>
-  collateralAmount
-    .times(collateralPrice)
-    .times(maxRiskRatio.loanToValue)
-    .minus(debtAmount.times(quotePrice))

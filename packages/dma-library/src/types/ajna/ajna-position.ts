@@ -27,6 +27,7 @@ export interface IAjnaPosition {
   riskRatio: IRiskRatio
   maxRiskRatio: IRiskRatio
   minRiskRatio: IRiskRatio
+  buyingPower: BigNumber
   warnings: AjnaWarning[]
 
   debtAvailable(collateralAmount: BigNumber): BigNumber
@@ -105,6 +106,13 @@ export class AjnaPosition implements IAjnaPosition {
     )
 
     return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
+  }
+
+  get buyingPower() {
+    return this.collateralAmount
+      .times(this.collateralPrice)
+      .times(this.maxRiskRatio.loanToValue)
+      .minus(this.debtAmount.times(this.quotePrice))
   }
 
   debtAvailable(collateralAmount?: BigNumber) {
