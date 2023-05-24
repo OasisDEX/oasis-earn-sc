@@ -1,20 +1,21 @@
-import { aaveDepositBorrowV2OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { BorrowArgs, DepositArgs } from '@dma-library/operations/aave/common'
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
+import { aaveDepositBorrowV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { DepositArgs } from '@dma-library/operations/aave/common'
+import { BorrowArgs } from '@dma-library/operations/aave/common/borrow-args'
+import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3/addresses'
 import { ActionCall, IOperation } from '@dma-library/types'
 
 import { borrow } from './borrow'
 import { deposit } from './deposit'
 
-type AaveV2DepositBorrowArgs = [
+type AaveV3DepositBorrowArgs = [
   depositArgs: DepositArgs | undefined,
   borrowArgs: BorrowArgs | undefined,
-  addresses: AAVEStrategyAddresses,
+  addresses: AAVEV3StrategyAddresses,
 ]
 
-export type AaveV2DepositBorrowOperation = (...args: AaveV2DepositBorrowArgs) => Promise<IOperation>
+export type AaveV3DepositBorrowOperation = (...args: AaveV3DepositBorrowArgs) => Promise<IOperation>
 
-export const depositBorrow: AaveV2DepositBorrowOperation = async (
+export const depositBorrow: AaveV3DepositBorrowOperation = async (
   depositArgs,
   borrowArgs,
   addresses,
@@ -25,11 +26,11 @@ export const depositBorrow: AaveV2DepositBorrowOperation = async (
         ...(await deposit(depositArgs, addresses)).calls,
         ...(await borrow(borrowArgs, addresses)).calls,
       ],
-      operationName: aaveDepositBorrowV2OperationDefinition.name,
+      operationName: aaveDepositBorrowV3OperationDefinition.name,
     } as {
       // Import ActionCall as it assists type generation
       calls: ActionCall[]
-      operationName: typeof aaveDepositBorrowV2OperationDefinition.name
+      operationName: typeof aaveDepositBorrowV3OperationDefinition.name
     }
   }
   if (depositArgs) {

@@ -15,6 +15,8 @@ export type WithSwapSimulation = {
   swap: SwapData & Swap
 }
 
+export type WithOptionalSwapSimulation = Partial<WithSwapSimulation>
+
 export type WithMinConfigurableRiskRatio = {
   minConfigurableRiskRatio: IRiskRatio
 }

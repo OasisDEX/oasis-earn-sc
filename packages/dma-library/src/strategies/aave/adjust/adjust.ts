@@ -13,7 +13,10 @@ import { operations } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
-import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import {
+  getAaveTokenAddress,
+  getAaveTokenAddresses,
+} from '@dma-library/strategies/aave/get-aave-token-addresses'
 import { AaveVersion } from '@dma-library/strategies/aave/get-current-position'
 import {
   IOperation,
@@ -74,12 +77,10 @@ async function adjustRiskUp(
   dependencies: AaveAdjustDependencies,
 ): Promise<PositionTransition> {
   const isAdjustUp = true
-  const fee = feeResolver(
-    args.collateralToken.symbol,
-    args.debtToken.symbol,
-    isAdjustUp,
-    args.positionType === 'Earn',
-  )
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    isIncreasingRisk: isAdjustUp,
+    isEarnPosition: args.positionType === 'Earn',
+  })
 
   // Get quote swap
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
@@ -87,16 +88,17 @@ async function adjustRiskUp(
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: true,
     args: {
-      ...args,
+      fromToken: args.debtToken,
+      toToken: args.collateralToken,
+      slippage: args.slippage,
       fee,
       swapAmountBeforeFees: estimatedSwapAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddresses: getAaveTokenAddresses,
+      getTokenAddress: getAaveTokenAddress,
     },
   })
 
@@ -115,16 +117,17 @@ async function adjustRiskUp(
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: true,
     args: {
-      ...args,
+      fromToken: args.debtToken,
+      toToken: args.collateralToken,
+      slippage: args.slippage,
       fee,
       swapAmountBeforeFees: simulatedAdjustUp.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddresses: getAaveTokenAddresses,
+      getTokenAddress: getAaveTokenAddress,
     },
   })
 
@@ -159,12 +162,10 @@ async function adjustRiskDown(
 ): Promise<PositionTransition> {
   const isAdjustDown = true
   const isAdjustUp = !isAdjustDown
-  const fee = feeResolver(
-    args.collateralToken.symbol,
-    args.debtToken.symbol,
-    isAdjustUp,
-    args.positionType === 'Earn',
-  )
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    isIncreasingRisk: isAdjustUp,
+    isEarnPosition: args.positionType === 'Earn',
+  })
 
   // Get quote swap
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.collateralToken.precision)
@@ -172,16 +173,17 @@ async function adjustRiskDown(
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: false,
     args: {
-      ...args,
+      fromToken: args.collateralToken,
+      toToken: args.debtToken,
+      slippage: args.slippage,
       fee,
       swapAmountBeforeFees: estimatedSwapAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddresses: getAaveTokenAddresses,
+      getTokenAddress: getAaveTokenAddress,
     },
   })
 
@@ -199,16 +201,17 @@ async function adjustRiskDown(
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: false,
     args: {
-      ...args,
+      fromToken: args.collateralToken,
+      toToken: args.debtToken,
+      slippage: args.slippage,
       fee,
       swapAmountBeforeFees: simulatedAdjustDown.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddresses: getAaveTokenAddresses,
+      getTokenAddress: getAaveTokenAddress,
     },
   })
 
@@ -490,12 +493,10 @@ async function buildOperationV2({
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
 
   const adjustRiskDown = !adjustRiskUp
-  const fee = feeResolver(
-    args.collateralToken.symbol,
-    args.debtToken.symbol,
-    adjustRiskUp,
-    args.positionType === 'Earn',
-  )
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    isIncreasingRisk: adjustRiskUp,
+    isEarnPosition: args.positionType === 'Earn',
+  })
 
   const hasCollateralDeposit = args.depositedByUser?.collateralInWei?.gt(ZERO)
   const depositAddress = hasCollateralDeposit ? collateralTokenAddress : debtTokenAddress
@@ -606,12 +607,10 @@ async function buildOperationV3({
     ? args.depositedByUser?.collateralInWei
     : args.depositedByUser?.debtInWei
   const adjustRiskDown = !adjustRiskUp
-  const fee = feeResolver(
-    args.collateralToken.symbol,
-    args.debtToken.symbol,
-    adjustRiskUp,
-    args.positionType === 'Earn',
-  )
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    isIncreasingRisk: adjustRiskUp,
+    isEarnPosition: args.positionType === 'Earn',
+  })
   const flashloanProvider = resolveFlashloanProvider(await getForkedNetwork(dependencies.provider))
 
   const adjustRiskArgs = {

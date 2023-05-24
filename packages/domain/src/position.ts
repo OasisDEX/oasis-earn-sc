@@ -51,7 +51,9 @@ export interface IBasePosition {
   category: IPositionCategory
 }
 
-export type Delta = { debt: BigNumber; collateral: BigNumber; flashloanAmount: BigNumber }
+export type Delta = { debt: BigNumber; collateral: BigNumber }
+type WithFlashloanDelta = { flashloanAmount: BigNumber }
+
 export type Swap = {
   fromTokenAmount: BigNumber
   minToTokenAmount: BigNumber
@@ -64,7 +66,7 @@ type Flags = { requiresFlashloan: boolean; isIncreasingRisk: boolean }
 
 export interface IBaseSimulatedTransition {
   position: IPosition
-  delta: Delta
+  delta: Delta & WithFlashloanDelta
   swap: Swap
   flags: Flags
 }

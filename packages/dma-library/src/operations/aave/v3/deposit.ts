@@ -1,17 +1,17 @@
-import { aaveDepositV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { aaveDepositV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { DepositArgs } from '@dma-library/operations/aave/common'
 import { DepositSwapArgs } from '@dma-library/operations/aave/common/deposit-args'
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
+import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3/addresses'
 import { ActionCall, IOperation } from '@dma-library/types'
 import { isDefined } from '@dma-library/utils/is-defined'
 import BigNumber from 'bignumber.js'
 
-export type AaveV2DepositOperation = (
+export type AaveV3DepositOperation = (
   args: DepositArgs,
-  addresses: AAVEStrategyAddresses,
+  addresses: AAVEV3StrategyAddresses,
 ) => Promise<IOperation>
 
 function getSwapCalls(
@@ -56,7 +56,7 @@ function getSwapCalls(
   }
 }
 
-export const deposit: AaveV2DepositOperation = async (
+export const deposit: AaveV3DepositOperation = async (
   {
     entryTokenAddress,
     entryTokenIsEth,
@@ -107,7 +107,7 @@ export const deposit: AaveV2DepositOperation = async (
       actions.common.setApproval(
         {
           asset: depositToken,
-          delegate: addresses.lendingPool,
+          delegate: addresses.pool,
           // Check the explanation about the deposit action.
           // This approval is about the amount that's going to be deposit in the following action
           amount: amountInBaseUnit,
@@ -121,7 +121,7 @@ export const deposit: AaveV2DepositOperation = async (
       // it will be ignored.
       // On other note, if mapping is 0, that means that no swap is required
       // therefore the actual deposited value will be used.
-      actions.aave.v2.aaveDeposit(
+      actions.aave.v3.aaveV3Deposit(
         {
           asset: depositToken,
           amount: amountInBaseUnit,
@@ -131,6 +131,6 @@ export const deposit: AaveV2DepositOperation = async (
         [0, isSwapNeeded ? 1 : 0, 0, 0],
       ),
     ],
-    operationName: aaveDepositV2OperationDefinition.name,
+    operationName: aaveDepositV3OperationDefinition.name,
   }
 }

@@ -1,36 +1,41 @@
-import { AAVEStrategyAddresses } from '../../operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '../../operations/aave/v3'
-import { IPositionTransitionArgs } from '../../types'
-import { AAVETokens } from '../../types/aave'
+import { EMPTY_ADDRESS } from '@dma-common/constants'
+import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
+import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
+import { AAVETokens } from '@dma-library/types/aave'
+import { WithAaveStrategyArgs } from '@dma-library/types/strategy-params'
 
-const emptyAddress = ''
+export const getAaveTokenAddress = (
+  token: { symbol: AAVETokens },
+  addresses: AAVEStrategyAddresses | AAVEV3StrategyAddresses,
+) => {
+  const tokenAddresses: Record<AAVETokens, string> = {
+    WETH: addresses.WETH,
+    ETH: addresses.WETH,
+    STETH: 'STETH' in addresses ? addresses.STETH : EMPTY_ADDRESS,
+    WSTETH: 'WSTETH' in addresses ? addresses.WSTETH : EMPTY_ADDRESS,
+    USDC: addresses.USDC,
+    WBTC: addresses.WBTC,
+  }
+  const tokenAddress = tokenAddresses[token.symbol]
 
+  if (!tokenAddress) throw new Error('Token not recognised or address missing in dependencies')
+
+  return tokenAddress
+}
+
+/** @deprecated use getAaveTokenAddress instead */
 export const getAaveTokenAddresses = (
   args: {
-    collateralToken: IPositionTransitionArgs<AAVETokens>['collateralToken']
-    debtToken: IPositionTransitionArgs<AAVETokens>['debtToken']
+    collateralToken: WithAaveStrategyArgs['collateralToken']
+    debtToken: WithAaveStrategyArgs['debtToken']
   },
   addresses: AAVEStrategyAddresses | AAVEV3StrategyAddresses,
 ): {
   collateralTokenAddress: string
   debtTokenAddress: string
 } => {
-  const tokenAddresses: Record<AAVETokens, string> = {
-    WETH: addresses.WETH,
-    ETH: addresses.WETH,
-    STETH: 'STETH' in addresses ? addresses.STETH : emptyAddress,
-    WSTETH: 'WSTETH' in addresses ? addresses.WSTETH : emptyAddress,
-    USDC: addresses.USDC,
-    WBTC: addresses.WBTC,
-  }
-
-  const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
-  const debtTokenAddress = tokenAddresses[args.debtToken.symbol]
-
-  if (!collateralTokenAddress)
-    throw new Error('Collateral token not recognised or address missing in dependencies')
-  if (!debtTokenAddress)
-    throw new Error('Debt token not recognised or address missing in dependencies')
+  const collateralTokenAddress = getAaveTokenAddress(args.collateralToken, addresses)
+  const debtTokenAddress = getAaveTokenAddress(args.debtToken, addresses)
 
   return { collateralTokenAddress, debtTokenAddress }
 }
