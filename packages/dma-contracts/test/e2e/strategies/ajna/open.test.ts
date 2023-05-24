@@ -15,6 +15,7 @@ import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { strategies } from '@oasisdex/dma-library'
 
 const ethers = hre.ethers
 const createAction = ActionFactory.create
@@ -105,6 +106,7 @@ describe.only('Strategy | AJNA | Open | E2E', () => {
   })
 
   it('should work - ajna open borrow', async () => {
+    strategies.ajna
     const calls = [
       createAction(
         getServiceNameHash('PullToken_3'),
@@ -154,7 +156,7 @@ describe.only('Strategy | AJNA | Open | E2E', () => {
     ]
     await env.wbtc.connect(env.borrower).approve(env.poolContract.address, '1000000000000000000')
     const opName = 'AjnaOpenBorrow'
-    await executeThroughProxy(
+    const tx = await executeThroughProxy(
       proxyAddress,
       {
         address: operationExecutor.address,
@@ -165,6 +167,7 @@ describe.only('Strategy | AJNA | Open | E2E', () => {
       hre,
     )
 
+    console.log(tx)
     expect(true).to.be.eq(true)
   })
 })

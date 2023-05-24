@@ -22,7 +22,6 @@ export interface OpenMultiplyArgs {
 
 export interface Dependencies {
   poolInfoAddress: Address
-  ajnaProxyActions: Address
   provider: ethers.providers.Provider
   WETH: Address
   getPoolData: GetPoolData
