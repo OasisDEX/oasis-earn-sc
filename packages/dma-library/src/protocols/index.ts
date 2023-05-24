@@ -1,5 +1,10 @@
-import type { AaveProtocolData, AaveProtocolDataArgs } from './aave/get-aave-protocol-data'
-import { getAaveProtocolData } from './aave/get-aave-protocol-data'
+import {
+  AaveProtocolData,
+  AaveProtocolDataArgs,
+  getAaveProtocolData,
+  isAaveV2Addresses,
+  isAaveV3Addresses,
+} from './aave'
 import { calculateAjnaApyPerDays } from './ajna'
 
 const aave: {
@@ -13,4 +18,5 @@ export const protocols = {
   aave,
 }
 
+export { isAaveV2Addresses, isAaveV3Addresses }
 export { calculateAjnaApyPerDays }

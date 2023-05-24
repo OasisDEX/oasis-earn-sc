@@ -4,15 +4,7 @@ export type UnboxPromise<T> = T extends Promise<infer U> ? U : T
 export type UnboxArray<T> = T extends Array<infer U> ? U : T
 export type Unbox<T> = UnboxArray<UnboxPromise<T>>
 
-export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
-  k: infer I,
-) => void
-  ? I
-  : never
-
-export type NestedKeys<T extends object> = UnionToIntersection<T[keyof T]>
-
-export type AllValues<T> = { [K in keyof T]: T[K] extends object ? AllValues<T[K]> : T[K] }[keyof T]
+export type CollectFeeFrom = 'sourceToken' | 'targetToken'
 
 export type Debug = {
   debug?: boolean

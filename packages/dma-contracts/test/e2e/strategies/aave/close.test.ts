@@ -6,13 +6,12 @@ import AAVEProtocolDataProviderABI from '@abis/external/protocols/aave/v3/aavePr
 import AAVEPoolABI from '@abis/external/protocols/aave/v3/pool.json'
 import { DeployedSystem, System } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
-import { ONE, ZERO } from '@dma-common/constants'
+import { EMPTY_ADDRESS, ONE, ZERO } from '@dma-common/constants'
 import { addressesByNetwork, expect, oneInchCallMock } from '@dma-common/test-utils'
 import { RuntimeConfig, Unbox } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, isMainnetByNetwork, isOptimismByNetwork } from '@dma-common/utils/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
-import { EMPTY_ADDRESS } from '@dma-contracts/test/constants'
 import {
   getSupportedStrategies,
   SystemWithAavePositions,
