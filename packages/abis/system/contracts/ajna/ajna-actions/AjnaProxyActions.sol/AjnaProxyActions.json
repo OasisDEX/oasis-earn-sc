@@ -78,6 +78,19 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "name",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ProxyActionsOperation",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "ARC",
     "outputs": [
@@ -315,7 +328,7 @@
     "inputs": [
       {
         "internalType": "contract ERC20Pool",
-        "name": "",
+        "name": "pool",
         "type": "address"
       },
       {
