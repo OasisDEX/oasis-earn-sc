@@ -25,6 +25,7 @@
       "@deploy-configurations/operation-definitions": [
         "../deploy-configurations/operation-definitions/index.ts"
       ],
+      "@domain/*": ["../domain/src/*"],
       "@domain": ["../domain/src/index.ts"]
     },
     "typeRoots": ["../../node_modules/@types"]

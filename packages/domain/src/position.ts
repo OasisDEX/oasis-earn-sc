@@ -2,7 +2,8 @@ import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { Optional } from '@dma-common/types/optional'
 import { amountFromWei } from '@dma-common/utils/common'
 import { adjustToTargetRiskRatio, WithFlags } from '@domain/adjust-position'
-import { normaliseAmount } from '@domain/utils'
+import { transientCollateralFlashloan } from '@domain/flashloans'
+import { denormaliseAmount, normaliseAmount } from '@domain/utils'
 import BigNumber from 'bignumber.js'
 
 import { IRiskRatio, RiskRatio } from './risk-ratio'
@@ -54,7 +55,7 @@ export interface IBasePosition {
 }
 
 export type Delta = { debt: BigNumber; collateral: BigNumber }
-type WithFlashloanDelta = { flashloanAmount: BigNumber }
+export type WithFlashloanDelta = { flashloanAmount: BigNumber }
 
 export type Swap = {
   fromTokenAmount: BigNumber
@@ -270,20 +271,36 @@ export class Position implements IPosition {
     }
     const simulatedAdjust = adjustToTargetRiskRatio(this, targetRiskRatio, mappedParams)
 
-    return {
+    // Duplicated here as temporary solution whilst we progressively make this class legacy
+    const currentCollateral = this.collateral.amount.plus(mappedParams.toDeposit.collateral)
+    const currentDebt = this.debt.amount.minus(mappedParams.toDeposit.debt)
+
+    // Assumes we're using DAI as FL token for now
+    const daiFlashloanPrecision = TYPICAL_PRECISION
+
+    const out = {
       ...simulatedAdjust,
       position: this._createTargetPosition(
         simulatedAdjust.delta.debt,
         simulatedAdjust.delta.collateral,
         params.prices.oracle,
-        this.debt.amount,
-        this.collateral.amount,
+        currentDebt,
+        currentCollateral,
       ),
       delta: {
         ...simulatedAdjust.delta,
-        flashloanAmount: ZERO,
+        flashloanAmount: transientCollateralFlashloan(
+          mappedParams.fees.flashLoan,
+          mappedParams.prices.oracleFLtoDebtToken || ONE,
+          simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtInWei || ZERO),
+          daiFlashloanPrecision,
+          this.debt.precision,
+          mappedParams.flashloan.maxLoanToValueFL,
+        ),
       },
     }
+
+    return out
   }
 
   private _createTargetPosition(
@@ -296,18 +313,10 @@ export class Position implements IPosition {
     const newCollateralAmount = currentCollateral.plus(collateralDelta)
     const newCollateral = {
       ...this.collateral,
-      amount: this._denormaliseAmount(
-        newCollateralAmount,
-        this.collateral.precision || TYPICAL_PRECISION,
-      ).integerValue(BigNumber.ROUND_DOWN),
+      amount: newCollateralAmount,
     }
 
-    const newDebtAmount = this._denormaliseAmount(
-      currentDebt.plus(debtDelta),
-      this.debt.precision || TYPICAL_PRECISION,
-    ).integerValue(BigNumber.ROUND_DOWN)
-
-    const newDebt = { ...this.debt, amount: newDebtAmount }
+    const newDebt = { ...this.debt, amount: currentDebt.plus(debtDelta) }
 
     return new Position(newDebt, newCollateral, oraclePrice, this.category)
   }
@@ -339,46 +348,9 @@ export class Position implements IPosition {
       this.category,
     )
   }
-  //
-  // private _createTargetPosition (
-  //   debtDelta: BigNumber,
-  //   collateralDelta: BigNumber,
-  //   oraclePrice: BigNumber,
-  //   currentDebt: BigNumber,
-  //   debt: {
-  //     precision: number
-  //     amount: BigNumber
-  //   },
-  //   collateral: {
-  //     precision: number
-  //     amount: BigNumber
-  //   },
-  // ): IPosition {
-  //   const newCollateralAmount = collateral.amount.plus(collateralDelta)
-  //   const newCollateral = {
-  //     ...this.collateral,
-  //     amount: legacyDenormaliseAmount(
-  //       newCollateralAmount,
-  //       collateral.precision || TYPICAL_PRECISION,
-  //     ).integerValue(BigNumber.ROUND_DOWN),
-  //   }
-  //
-  //   const newDebtAmount = this._denormaliseAmount(
-  //     currentDebt.plus(debtDelta),
-  //     this.debt.precision || TYPICAL_PRECISION,
-  //   ).integerValue(BigNumber.ROUND_DOWN)
-  //
-  //   const newDebt = { ...this.debt, amount: newDebtAmount }
-  //
-  //   return new Position(newDebt, newCollateral, oraclePrice, this.category)
-  // }
-
-  private _normaliseAmount(amount: BigNumber, precision: number): BigNumber {
-    return amount.times(10 ** (TYPICAL_PRECISION - precision))
-  }
 
   private _denormaliseAmount(amount: BigNumber, precision: number): BigNumber {
-    return amount.div(10 ** (TYPICAL_PRECISION - precision))
+    return denormaliseAmount(amount, precision)
   }
 }
 

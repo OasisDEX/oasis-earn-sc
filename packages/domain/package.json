@@ -2,7 +2,7 @@
   "name": "@oasisdex/domain",
   "version": "1.0.0",
   "main": "src/index.ts",
-  "types": "lib/index.d.ts",
+  "types": "src/index.ts",
   "private": true,
   "license": "MIT",
   "scripts": {

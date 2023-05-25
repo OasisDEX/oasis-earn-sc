@@ -146,7 +146,6 @@ async function simulatePositionTransition(
   quoteSwapData: SwapData,
   args: AaveOpenArgs & WithFee,
   dependencies: AaveOpenDependencies,
-  debug?: boolean,
 ) {
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
@@ -257,29 +256,30 @@ async function simulatePositionTransition(
     toToken: args.collateralToken.symbol,
   })
 
+  const simulation = currentPosition.adjustToTargetRiskRatio(multiple, {
+    fees: {
+      flashLoan: flashloanFee,
+      oazo: args.fee,
+    },
+    prices: {
+      market: quoteMarketPrice,
+      oracle: oracle,
+      oracleFLtoDebtToken: oracleFLtoDebtToken,
+    },
+    slippage: args.slippage,
+    flashloan: {
+      maxLoanToValueFL: maxLoanToValueForFL,
+      tokenSymbol: 'DAI',
+    },
+    depositedByUser: {
+      debtInWei: depositDebtAmountInWei,
+      collateralInWei: depositCollateralAmountInWei,
+    },
+    collectSwapFeeFrom: collectFeeFrom,
+  })
+
   return {
-    simulatedPositionTransition: currentPosition.adjustToTargetRiskRatio(multiple, {
-      fees: {
-        flashLoan: flashloanFee,
-        oazo: args.fee,
-      },
-      prices: {
-        market: quoteMarketPrice,
-        oracle: oracle,
-        oracleFLtoDebtToken: oracleFLtoDebtToken,
-      },
-      slippage: args.slippage,
-      flashloan: {
-        maxLoanToValueFL: maxLoanToValueForFL,
-        tokenSymbol: 'DAI',
-      },
-      depositedByUser: {
-        debtInWei: depositDebtAmountInWei,
-        collateralInWei: depositCollateralAmountInWei,
-      },
-      collectSwapFeeFrom: collectFeeFrom,
-      debug,
-    }),
+    simulatedPositionTransition: simulation,
     reserveEModeCategory,
   }
 }
