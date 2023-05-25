@@ -198,7 +198,7 @@ export function adjustToTargetRiskRatio(
     .integerValue(BigNumber.ROUND_DOWN)
 
   return {
-    position: buildAdjustPosition(position, debtDelta, collateralDelta, oraclePrice),
+    position: buildAdjustedPosition(position, debtDelta, collateralDelta, oraclePrice),
     delta: calculateDeltas(position, debtDelta, collateralDelta),
     swap: buildSwapSimulation(position, debtDelta, collateralDelta, oazoFee, {
       isIncreasingRisk,
@@ -211,7 +211,7 @@ export function adjustToTargetRiskRatio(
   }
 }
 
-function buildAdjustPosition(
+function buildAdjustedPosition(
   position: IPositionV2,
   debtDelta: BigNumber,
   collateralDelta: BigNumber,

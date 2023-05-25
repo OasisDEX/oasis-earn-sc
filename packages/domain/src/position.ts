@@ -1,7 +1,7 @@
 import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { Optional } from '@dma-common/types/optional'
 import { amountFromWei } from '@dma-common/utils/common'
-import { WithFlags } from '@domain/adjust-position'
+import { adjustToTargetRiskRatio, WithFlags } from '@domain/adjust-position'
 import { normaliseAmount } from '@domain/utils'
 import BigNumber from 'bignumber.js'
 
@@ -139,7 +139,6 @@ export class Position implements IPosition {
   public debt: PositionBalance
   public collateral: PositionBalance
   public category: IPositionCategory
-  private _feeBase: BigNumber = new BigNumber(10000)
 
   constructor(
     debt: Optional<IPositionBalance, 'precision'>,
@@ -248,6 +247,7 @@ export class Position implements IPosition {
   }
 
   /**
+   * @deprecated pending updated IPositionV2 refactor with protocol specific Position classes
    * Calculates the target (or desired) state of a position
    * We must convert all values to the same 18 decimal precision to ensure the maths works as expected
    *
@@ -260,20 +260,29 @@ export class Position implements IPosition {
     targetRiskRatio: IRiskRatio,
     params: IPositionTransitionParams,
   ): IBaseSimulatedTransition {
-    const adjustResults = this.adjustToTargetRiskRatio(this, targetRiskRatio, params)
+    /** Temporary solution whilst we progressively make this class legacy */
+    const mappedParams = {
+      ...params,
+      toDeposit: {
+        collateral: params.depositedByUser?.collateralInWei || ZERO,
+        debt: params.depositedByUser?.debtInWei || ZERO,
+      },
+    }
+    const simulatedAdjust = adjustToTargetRiskRatio(this, targetRiskRatio, mappedParams)
 
-    const targetPosition = this._createTargetPosition(
-      adjustResults.debtDelta,
-      adjustResults.collateralDelta,
-      adjustResults.oraclePrice,
-      adjustResults.normalisedCurrentDebt,
-      adjustResults.normalisedCurrentCollateral,
-    )
     return {
-      position: targetPosition,
-      delta: adjustResults.delta,
-      swap: adjustResults.swap,
-      flags: adjustResults.flags,
+      ...simulatedAdjust,
+      position: this._createTargetPosition(
+        simulatedAdjust.delta.debt,
+        simulatedAdjust.delta.collateral,
+        params.prices.oracle,
+        this.debt.amount,
+        this.collateral.amount,
+      ),
+      delta: {
+        ...simulatedAdjust.delta,
+        flashloanAmount: ZERO,
+      },
     }
   }
 
@@ -330,6 +339,39 @@ export class Position implements IPosition {
       this.category,
     )
   }
+  //
+  // private _createTargetPosition (
+  //   debtDelta: BigNumber,
+  //   collateralDelta: BigNumber,
+  //   oraclePrice: BigNumber,
+  //   currentDebt: BigNumber,
+  //   debt: {
+  //     precision: number
+  //     amount: BigNumber
+  //   },
+  //   collateral: {
+  //     precision: number
+  //     amount: BigNumber
+  //   },
+  // ): IPosition {
+  //   const newCollateralAmount = collateral.amount.plus(collateralDelta)
+  //   const newCollateral = {
+  //     ...this.collateral,
+  //     amount: legacyDenormaliseAmount(
+  //       newCollateralAmount,
+  //       collateral.precision || TYPICAL_PRECISION,
+  //     ).integerValue(BigNumber.ROUND_DOWN),
+  //   }
+  //
+  //   const newDebtAmount = this._denormaliseAmount(
+  //     currentDebt.plus(debtDelta),
+  //     this.debt.precision || TYPICAL_PRECISION,
+  //   ).integerValue(BigNumber.ROUND_DOWN)
+  //
+  //   const newDebt = { ...this.debt, amount: newDebtAmount }
+  //
+  //   return new Position(newDebt, newCollateral, oraclePrice, this.category)
+  // }
 
   private _normaliseAmount(amount: BigNumber, precision: number): BigNumber {
     return amount.times(10 ** (TYPICAL_PRECISION - precision))
@@ -351,30 +393,4 @@ export const createRiskRatio = (
   )
 
   return new RiskRatio(ltv.isNaN() || !ltv.isFinite() ? ZERO : ltv, RiskRatio.TYPE.LTV)
-}
-
-export const createTargetPosition = (
-  debtDelta: BigNumber,
-  collateralDelta: BigNumber,
-  oraclePrice: BigNumber,
-  currentDebt: BigNumber,
-  currentCollateral: BigNumber,
-): IPositionV2 => {
-  const newCollateralAmount = currentCollateral.plus(collateralDelta)
-  const newCollateral = {
-    ...this.collateral,
-    amount: this._denormaliseAmount(
-      newCollateralAmount,
-      this.collateral.precision || TYPICAL_PRECISION,
-    ).integerValue(BigNumber.ROUND_DOWN),
-  }
-
-  const newDebtAmount = this._denormaliseAmount(
-    currentDebt.plus(debtDelta),
-    this.debt.precision || TYPICAL_PRECISION,
-  ).integerValue(BigNumber.ROUND_DOWN)
-
-  const newDebt = { ...this.debt, amount: newDebtAmount }
-
-  return new Position(newDebt, newCollateral, oraclePrice, this.category)
 }
