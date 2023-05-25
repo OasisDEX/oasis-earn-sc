@@ -7,12 +7,14 @@ export function validateBorrowUndercollateralized(
   position: AjnaPosition,
   positionBefore: AjnaPosition,
 ): AjnaError[] {
-  if (position.thresholdPrice.gt(position.pool.lowestUtilizedPrice)) {
+  const maxDebt = positionBefore.debtAvailable(position.collateralAmount)
+
+  if (position.debtAmount.gt(maxDebt.plus(positionBefore.debtAmount))) {
     return [
       {
         name: 'borrow-undercollateralized',
         data: {
-          amount: formatCryptoBalance(positionBefore.debtAvailable()),
+          amount: formatCryptoBalance(maxDebt),
         },
       },
     ]

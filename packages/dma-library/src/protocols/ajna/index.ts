@@ -186,7 +186,7 @@ function getMaxGenerate(
   }
 
   const sortedBuckets = pool.buckets
-    .filter(bucket => bucket.index.lt(pool.highestThresholdPriceIndex))
+    .filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
     .sort((a, b) => a.index.minus(b.index).toNumber())
 
   const lupBucketArrayIndex = sortedBuckets.findIndex(bucket =>
