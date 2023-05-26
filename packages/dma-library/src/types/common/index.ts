@@ -95,13 +95,18 @@ export type AjnaWarning =
 export type Strategy<Position> = {
   simulation: {
     swaps: []
-    // @deprecated - use position
+    /** @deprecated - use position */
     targetPosition: Position
     position: Position
+  }
+  tx: Tx
+}
+
+export type AjnaStrategy<Position> = Strategy<Position> & {
+  simulation: Strategy<Position>['simulation'] & {
     errors: AjnaError[]
     warnings: AjnaWarning[]
   }
-  tx: Tx
 }
 
 export interface AjnaDependencies {
@@ -109,6 +114,10 @@ export interface AjnaDependencies {
   ajnaProxyActions: Address
   provider: ethers.providers.Provider
   WETH: Address
+}
+
+export type AjnaDMADependencies = Omit<AjnaDependencies, 'ajnaProxyActions'> & {
+  operationExecutor: Address
 }
 
 export type AjnaEarnActions = 'open-earn' | 'deposit-earn' | 'withdraw-earn' | 'claim-earn'

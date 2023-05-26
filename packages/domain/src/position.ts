@@ -4,6 +4,7 @@ import { amountFromWei } from '@dma-common/utils/common'
 import { adjustToTargetRiskRatio, WithFlags } from '@domain/adjust-position'
 import { transientCollateralFlashloan } from '@domain/flashloans'
 import { denormaliseAmount, normaliseAmount } from '@domain/utils'
+import { determineRiskDirection } from '@domain/utils/risk-direction'
 import BigNumber from 'bignumber.js'
 
 import { IRiskRatio, RiskRatio } from './risk-ratio'
@@ -278,7 +279,7 @@ export class Position implements IPosition {
     // Assumes we're using DAI as FL token for now
     const daiFlashloanPrecision = TYPICAL_PRECISION
 
-    const out = {
+    return {
       ...simulatedAdjust,
       position: this._createTargetPosition(
         simulatedAdjust.delta.debt,
@@ -298,9 +299,15 @@ export class Position implements IPosition {
           mappedParams.flashloan.maxLoanToValueFL,
         ),
       },
+      flags: {
+        // TODO: Flashloan is always required on adjust (multiply) currently
+        requiresFlashloan: true,
+        isIncreasingRisk: determineRiskDirection(
+          targetRiskRatio.loanToValue,
+          this.riskRatio.loanToValue,
+        ),
+      },
     }
-
-    return out
   }
 
   private _createTargetPosition(

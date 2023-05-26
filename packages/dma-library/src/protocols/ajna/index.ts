@@ -8,10 +8,11 @@ import { AjnaEarnPosition } from '@dma-library/types/ajna'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import {
   AjnaDependencies,
+  AjnaDMADependencies,
   AjnaEarnActions,
   AjnaError,
+  AjnaStrategy,
   AjnaWarning,
-  Strategy,
 } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -29,6 +30,37 @@ export interface AjnaEarnArgs {
   isStakingNft?: boolean
 }
 
+export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
+  dependencies,
+  targetPosition,
+  errors,
+  warnings,
+  data,
+  txValue,
+}: {
+  dependencies: AjnaDMADependencies
+  targetPosition: T
+  errors: AjnaError[]
+  warnings: AjnaWarning[]
+  data: string
+  txValue: string
+}): AjnaStrategy<T> => {
+  return {
+    simulation: {
+      swaps: [],
+      errors,
+      warnings,
+      targetPosition,
+      position: targetPosition,
+    },
+    tx: {
+      to: dependencies.operationExecutor,
+      data,
+      value: txValue,
+    },
+  }
+}
+
 export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
   dependencies,
   targetPosition,
@@ -43,7 +75,7 @@ export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
   warnings: AjnaWarning[]
   data: string
   txValue: string
-}): Strategy<T> => {
+}): AjnaStrategy<T> => {
   return {
     simulation: {
       swaps: [],

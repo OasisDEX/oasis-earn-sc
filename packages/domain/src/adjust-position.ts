@@ -1,6 +1,7 @@
 import { FEE_BASE, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { calculateFee } from '@dma-common/utils/swap'
 import { denormaliseAmount, normaliseAmount } from '@domain/utils'
+import { determineRiskDirection } from '@domain/utils/risk-direction'
 import BigNumber from 'bignumber.js'
 
 import { createRiskRatio, Delta, IPositionV2, Swap } from './position'
@@ -49,7 +50,7 @@ export function adjustToLTV(
   position: IPositionV2,
   targetLTV: RiskRatio,
   params: AdjustToParams,
-): ISimulationV2 & WithSwap & WithFlags {
+): ISimulationV2 & WithSwap {
   if (targetLTV.type !== RISK_RATIO_CTOR_TYPE.LTV) {
     throw new Error('Invalid RiskRatio type')
   }
@@ -61,7 +62,7 @@ export function adjustToCollateralisationRatio(
   position: IPositionV2,
   targetCollRatio: RiskRatio,
   params: AdjustToParams,
-): ISimulationV2 & WithSwap & WithFlags {
+): ISimulationV2 & WithSwap {
   if (targetCollRatio.type !== RISK_RATIO_CTOR_TYPE.COL_RATIO) {
     throw new Error('Invalid RiskRatio type')
   }
@@ -73,13 +74,10 @@ export function adjustToTargetRiskRatio(
   position: IPositionV2,
   targetRiskRatio: IRiskRatio,
   params: AdjustToParams,
-): ISimulationV2 & WithSwap & WithFlags {
+): ISimulationV2 & WithSwap {
   const targetLTV = targetRiskRatio.loanToValue
 
-  let isIncreasingRisk = false
-  if (targetLTV.gt(position.riskRatio.loanToValue)) {
-    isIncreasingRisk = true
-  }
+  const riskIsIncreasing = determineRiskDirection(targetLTV, position.riskRatio.loanToValue)
 
   const { toDeposit, fees, prices, slippage } = params
   const { collectSwapFeeFrom = 'sourceToken', isFlashloanRequired = true } = params.options || {}
@@ -136,7 +134,7 @@ export function adjustToTargetRiskRatio(
   const marketPrice = prices.market
 
   const marketPriceAdjustedForSlippage = marketPrice.times(
-    isIncreasingRisk ? ONE.plus(slippage) : ONE.minus(slippage),
+    riskIsIncreasing ? ONE.plus(slippage) : ONE.minus(slippage),
   )
 
   /**
@@ -183,14 +181,14 @@ export function adjustToTargetRiskRatio(
    * ΔC  Collateral delta
    * \Delta C = X \cdot (1 - F_O) / P_{MS}
    * */
-  const shouldIncreaseDebtDeltaToAccountForFees = isIncreasingRisk && collectFeeFromSourceToken
+  const shouldIncreaseDebtDeltaToAccountForFees = riskIsIncreasing && collectFeeFromSourceToken
   const debtDeltaPreFlashloanFee = unknownVarX.div(
     shouldIncreaseDebtDeltaToAccountForFees ? ONE.minus(oazoFee.div(FEE_BASE)) : ONE,
   )
 
   const collateralDelta = unknownVarX
     .div(marketPriceAdjustedForSlippage)
-    .div(isIncreasingRisk ? ONE : ONE.minus(oazoFee.div(FEE_BASE)))
+    .div(riskIsIncreasing ? ONE : ONE.minus(oazoFee.div(FEE_BASE)))
     .integerValue(BigNumber.ROUND_DOWN)
 
   const debtDelta = debtDeltaPreFlashloanFee
@@ -208,13 +206,9 @@ export function adjustToTargetRiskRatio(
     ),
     delta: calculateDeltas(position, debtDelta, collateralDelta),
     swap: buildSwapSimulation(position, debtDelta, collateralDelta, oazoFee, {
-      isIncreasingRisk,
+      isIncreasingRisk: riskIsIncreasing,
       collectSwapFeeFrom,
     }),
-    flags: {
-      requiresFlashloan: isFlashloanRequired,
-      isIncreasingRisk,
-    },
   }
 }
 

@@ -1,5 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
-import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { AjnaPosition } from '@dma-library/types/ajna'
 import { Strategy } from '@dma-library/types/common'
 import { views } from '@dma-library/views'
@@ -22,6 +22,7 @@ export interface OpenMultiplyArgs {
 export interface Dependencies {
   poolInfoAddress: Address
   provider: ethers.providers.Provider
+  operationExecutor: Address
   WETH: Address
   getPoolData: GetPoolData
   getPosition?: typeof views.ajna.getPosition
@@ -31,6 +32,17 @@ export type AjnaOpenMultiplyStrategy = (
   args: OpenMultiplyArgs,
   dependencies: Dependencies,
 ) => Promise<Strategy<AjnaPosition>>
+
+// Steps
+// - Get position
+// - Check if position exists
+// - Get oraclePrice from Chainlink // Think protocol directory
+// - Calculate target position
+// - Pull in SwapDataHelper
+// - Map target position to AjnaPosition
+// - Encode data for payload
+// - We don't need flags for this one so let's ignore them
+// - We can use swaps? If we agree on a type for Swap
 
 export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies) => {
   const getPosition = dependencies.getPosition ? dependencies.getPosition : views.ajna.getPosition
@@ -65,7 +77,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
 
   const targetPosition = positionAfterDeposit.borrow(quoteAmount)
 
-  return prepareAjnaPayload({
+  return prepareAjnaDMAPayload({
     dependencies,
     targetPosition,
     data: '',
