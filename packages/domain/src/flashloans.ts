@@ -45,4 +45,6 @@ export const transientCollateralFlashloan: TransientCollateralFlashloan = (
 }
 
 /** For example, flashloaning USDC to open an ETH/USDC position on Ajna */
-export const debtToCollateralSwapFlashloan = () => {}
+export const debtToCollateralSwapFlashloan = () => {
+  throw new Error('Not implemented')
+}

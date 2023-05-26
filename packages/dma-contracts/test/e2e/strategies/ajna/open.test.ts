@@ -8,6 +8,7 @@ import init from '@oasisdex/dma-common/utils/init'
 import { getServiceNameHash } from '@oasisdex/dma-contracts/../dma-common/utils/common'
 import { createDeploy, DeployFunction } from '@oasisdex/dma-contracts/../dma-common/utils/deploy'
 import { executeThroughProxy } from '@oasisdex/dma-contracts/../dma-common/utils/execute'
+import { strategies } from '@oasisdex/dma-library'
 import { ActionFactory } from '@oasisdex/oasis-actions'
 import { StoredOperationStruct } from '@typechain/dma-contracts/artifacts/contracts/core/OperationsRegistry'
 import { OperationsRegistry } from '@typechain/index'
@@ -15,7 +16,6 @@ import { expect } from 'chai'
 import { Contract, Signer } from 'ethers'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { strategies } from '@oasisdex/dma-library'
 
 const ethers = hre.ethers
 const createAction = ActionFactory.create

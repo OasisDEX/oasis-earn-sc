@@ -27,7 +27,6 @@ export interface IAjnaPosition {
   riskRatio: IRiskRatio
   maxRiskRatio: IRiskRatio
   minRiskRatio: IRiskRatio
-  buyingPower: BigNumber
   warnings: AjnaWarning[]
 
   borrowRate: BigNumber
@@ -110,11 +109,6 @@ export class AjnaPosition implements IAjnaPosition {
   }
 
   get netValue(): BigNumber {
-    // TODO: implement
-    return ZERO
-  }
-
-  get buyingPower(): BigNumber {
     // TODO: implement
     return ZERO
   }
