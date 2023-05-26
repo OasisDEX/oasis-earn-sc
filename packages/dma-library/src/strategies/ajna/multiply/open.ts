@@ -1,9 +1,11 @@
 import { Address } from '@deploy-configurations/types/address'
+import { ZERO } from '@dma-common/constants'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { AjnaPosition } from '@dma-library/types/ajna'
 import { Strategy } from '@dma-library/types/common'
 import { views } from '@dma-library/views'
 import { GetPoolData } from '@dma-library/views/ajna'
+import { adjustToTargetRiskRatio } from '@domain/adjust-position'
 import { IRiskRatio } from '@domain/risk-ratio'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -16,6 +18,7 @@ export interface OpenMultiplyArgs {
   quoteTokenPrecision: number
   collateralAmount: BigNumber
   collateralTokenPrecision: number
+  slippage: BigNumber
   riskRatio: IRiskRatio
 }
 
@@ -34,10 +37,10 @@ export type AjnaOpenMultiplyStrategy = (
 ) => Promise<Strategy<AjnaPosition>>
 
 // Steps
-// - Get position
-// - Check if position exists
+// - Get position [ DONE ]
+// - Check if position exists [ DONE ]
 // - Get oraclePrice from Chainlink // Think protocol directory
-// - Calculate target position
+// - Calculate target position [ DONE ]
 // - Pull in SwapDataHelper
 // - Map target position to AjnaPosition
 // - Encode data for payload
@@ -63,6 +66,47 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   if (position.collateralAmount.gt(0)) {
     throw new Error('Position already exists')
   }
+
+  const positionAdjustArgs = {
+    toDeposit: {
+      collateral: args.collateralAmount,
+      /** Not relevant for Ajna */
+      debt: ZERO,
+    },
+    fees: {
+      oazo: ZERO, // Resolve fees
+      flashLoan: ZERO, // Resolve FL fees
+    },
+    prices: {
+      oracle: ZERO,
+      market: ZERO, // Get quote market price from 1inch use previous step deposit delta for next market price
+    },
+    slippage: args.slippage,
+    options: {
+      collectSwapFeeFrom: 'sourceToken' as const, // Actually determine this
+    },
+  }
+
+  // TODO: Refactor AjnaPosition to extend IPositionV2 (eventually)
+  const mappedPosition = {
+    debt: {
+      amount: position.debtAmount,
+      symbol: position.pool.quoteToken,
+      precision: args.quoteTokenPrecision,
+    },
+    collateral: {
+      amount: position.collateralAmount,
+      symbol: position.pool.collateralToken,
+      precision: args.collateralTokenPrecision,
+    },
+    riskRatio: position.riskRatio,
+  }
+
+  const simulatedAdjustment = adjustToTargetRiskRatio(
+    mappedPosition,
+    args.riskRatio,
+    positionAdjustArgs,
+  )
 
   const isDepositingEth =
     position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()

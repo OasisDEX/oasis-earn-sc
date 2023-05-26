@@ -5,7 +5,7 @@ import { determineRiskDirection } from '@domain/utils/risk-direction'
 import BigNumber from 'bignumber.js'
 
 import { createRiskRatio, Delta, IPositionV2, Swap } from './position'
-import { IRiskRatio, RISK_RATIO_CTOR_TYPE, RiskRatio } from './risk-ratio'
+import { IRiskRatio } from './risk-ratio'
 
 interface AdjustToParams {
   toDeposit: {
@@ -29,9 +29,9 @@ interface AdjustToParams {
   slippage: BigNumber
   /** For AAVE this would be ETH. For Maker it would be DAI (although strictly speaking USD) */
   options?: {
+    /** Not actively used yet */
     isFlashloanRequired?: boolean
     collectSwapFeeFrom?: 'sourceToken' | 'targetToken'
-    debug?: boolean
   }
 }
 
@@ -44,30 +44,6 @@ export type WithFlags = { flags: { requiresFlashloan: boolean; isIncreasingRisk:
 
 export type WithSwap = {
   swap: Swap
-}
-
-export function adjustToLTV(
-  position: IPositionV2,
-  targetLTV: RiskRatio,
-  params: AdjustToParams,
-): ISimulationV2 & WithSwap {
-  if (targetLTV.type !== RISK_RATIO_CTOR_TYPE.LTV) {
-    throw new Error('Invalid RiskRatio type')
-  }
-
-  return adjustToTargetRiskRatio(position, targetLTV, params)
-}
-
-export function adjustToCollateralisationRatio(
-  position: IPositionV2,
-  targetCollRatio: RiskRatio,
-  params: AdjustToParams,
-): ISimulationV2 & WithSwap {
-  if (targetCollRatio.type !== RISK_RATIO_CTOR_TYPE.COL_RATIO) {
-    throw new Error('Invalid RiskRatio type')
-  }
-
-  return adjustToTargetRiskRatio(position, targetCollRatio, params)
 }
 
 export function adjustToTargetRiskRatio(
