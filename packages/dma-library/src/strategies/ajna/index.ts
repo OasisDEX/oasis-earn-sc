@@ -3,6 +3,7 @@ import { AjnaClaimCollateralStrategy, claimCollateral } from './earn/claim-colla
 import { AjnaDepositAndAdjustStrategy, depositAndAdjust } from './earn/deposit-adjust'
 import { AjnaOpenEarnStrategy, open as openEarn } from './earn/open'
 import { AjnaWithdrawAndAdjustStrategy, withdrawAndAdjust } from './earn/withdraw-adjust'
+import { adjustMultiply, AjnaAdjustRiskStrategy } from './multiply/adjust'
 import { AjnaOpenMultiplyStrategy, openMultiply } from './multiply/open'
 import { AjnaOpenBorrowStrategy, open as openBorrow } from './open'
 import { AjnaPaybackWithdrawStrategy, paybackWithdraw } from './payback-withdraw'
@@ -21,6 +22,7 @@ export const ajna: {
   }
   multiply: {
     open: AjnaOpenMultiplyStrategy
+    adjust: AjnaAdjustRiskStrategy
   }
 } = {
   borrow: {
@@ -36,5 +38,6 @@ export const ajna: {
   },
   multiply: {
     open: openMultiply,
+    adjust: adjustMultiply,
   },
 }
