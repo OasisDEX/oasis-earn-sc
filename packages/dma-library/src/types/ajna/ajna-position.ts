@@ -177,4 +177,15 @@ export class AjnaPosition implements IAjnaPosition {
       this.quotePrice,
     )
   }
+
+  close(): AjnaPosition {
+    return new AjnaPosition(
+      simulatePool(this.pool, this.debtAmount.negated(), ZERO, this.collateralAmount.negated()),
+      this.owner,
+      ZERO,
+      ZERO,
+      this.collateralPrice,
+      this.quotePrice,
+    )
+  }
 }
