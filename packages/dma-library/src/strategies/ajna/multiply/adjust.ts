@@ -53,6 +53,7 @@ const adjustRiskUp: AjnaAdjustRiskStrategy = async (args, dependencies) => {
     data: '',
     errors: [],
     warnings: [],
+    // TODO instead of zero we will need data from swap
     txValue: resolveAjnaEthAction(isDepositingEth, ZERO),
   })
 }
@@ -76,6 +77,7 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
     data: '',
     errors: [],
     warnings: [],
+    // TODO instead of zero we will need data from swap
     txValue: resolveAjnaEthAction(isWithdrawingEth, ZERO),
   })
 }
