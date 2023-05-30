@@ -1,3 +1,4 @@
+import operationExecutorAbi from '@abis/system/contracts/core/OperationExecutor.sol/OperationExecutor.json'
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses/index'
@@ -7,7 +8,6 @@ import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { GetOraclePrice } from '@dma-library/protocols/ajna/get-oracle-price'
-import { getTokenAddress } from '@dma-library/strategies/aave/get-aave-token-addresses'
 import { FlashloanProvider, IOperation, PositionType, SwapData } from '@dma-library/types'
 import { AjnaPosition } from '@dma-library/types/ajna'
 import { Strategy } from '@dma-library/types/common'
@@ -66,14 +66,14 @@ export type AjnaOpenMultiplyStrategy = (
   dependencies: Dependencies,
 ) => Promise<Strategy<AjnaPosition>>
 
-// Steps
+// Steps:
 // - Get position [ DONE ]
 // - Check if position exists [ DONE ]
 // - Get oraclePrice from Chainlink // Think protocol directory
 // - Calculate target position [ DONE ]
 // - Pull in SwapDataHelper [ DONE ]
-// - Map target position to AjnaPosition
-// - Encode data for payload
+// - Map target position to AjnaPosition [ DONE ]
+// - Encode data for payload [ DONE ]
 // - We don't need flags for this one so let's ignore them
 // - We can use swaps? If we agree on a type for Swap
 
@@ -119,7 +119,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   return prepareAjnaDMAPayload({
     dependencies,
     targetPosition,
-    data: encodeOperation(operation),
+    data: encodeOperation(operation, dependencies),
     errors: [],
     warnings: [],
     txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
@@ -285,7 +285,6 @@ async function getSwapData(
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddress: getTokenAddress,
     },
   })
 
@@ -363,12 +362,19 @@ async function buildOperation(
       operationExecutor: dependencies.operationExecutor,
       pool: args.poolAddress,
     },
-    // TODO: See if needs to be shifted. Check precision from chainlink
     price: oraclePrice,
   }
   return await operations.ajna.open(openMultiplyArgs)
 }
 
-function encodeOperation(operation: IOperation): string {
-  return ''
+function encodeOperation(operation: IOperation, dependencies: Dependencies): string {
+  const operationExecutor = new ethers.Contract(
+    dependencies.operationExecutor,
+    operationExecutorAbi,
+    dependencies.provider,
+  )
+  return operationExecutor.interface.encodeFunctionData('executeOp', [
+    operation.calls,
+    operation.operationName,
+  ])
 }
