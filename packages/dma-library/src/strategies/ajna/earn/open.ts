@@ -1,39 +1,20 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import poolInfoAbi from '@abis/external/protocols/ajna/poolInfoUtils.json'
-import { Address } from '@deploy-configurations/types/address'
+import { ZERO } from '@dma-common/constants'
 import { getAjnaEarnActionOutput, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { AjnaEarnPosition } from '@dma-library/types/ajna'
-import { Strategy } from '@dma-library/types/common'
+import {
+  AjnaEarnPosition,
+  AjnaOpenEarnDependencies,
+  AjnaOpenEarnPayload,
+  Strategy,
+} from '@dma-library/types/ajna'
 import { views } from '@dma-library/views'
-import { GetEarnData, GetPoolData } from '@dma-library/views/ajna'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-interface Args {
-  poolAddress: Address
-  dpmProxyAddress: Address
-  quoteAmount: BigNumber
-  collateralAmount: BigNumber
-  quoteTokenPrecision: number
-  price: BigNumber
-  isStakingNft: boolean
-  collateralPrice: BigNumber
-  quotePrice: BigNumber
-}
-
-export interface Dependencies {
-  poolInfoAddress: Address
-  rewardsManagerAddress: Address
-  ajnaProxyActions: Address
-  provider: ethers.providers.Provider
-  WETH: Address
-  getEarnData: GetEarnData
-  getPoolData: GetPoolData
-}
-
 export type AjnaOpenEarnStrategy = (
-  args: Args,
-  dependencies: Dependencies,
+  args: AjnaOpenEarnPayload,
+  dependencies: AjnaOpenEarnDependencies,
 ) => Promise<Strategy<AjnaEarnPosition>>
 
 export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
@@ -86,7 +67,7 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
     position.pool,
     args.dpmProxyAddress,
     args.quoteAmount,
-    args.collateralAmount,
+    ZERO,
     priceIndex,
     position.nftId,
     args.collateralPrice,
@@ -100,6 +81,7 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
     dependencies,
     args: {
       position: targetPosition,
+      collateralAmount: ZERO,
       ...args,
     },
     txValue: resolveAjnaEthAction(isLendingEth, args.quoteAmount),

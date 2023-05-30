@@ -6,7 +6,7 @@ import {
   getAjnaBorrowOriginationFee,
   simulatePool,
 } from '@dma-library/protocols/ajna'
-import { AjnaWarning } from '@dma-library/types/common'
+import { AjnaWarning } from '@dma-library/types/ajna'
 import { IRiskRatio, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
 

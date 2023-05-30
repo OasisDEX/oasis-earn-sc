@@ -1,8 +1,7 @@
 import { negativeToZero } from '@dma-common/utils/common'
 import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
-import { AjnaPosition } from '@dma-library/types/ajna'
+import { AjnaError, AjnaPosition } from '@dma-library/types/ajna'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
-import { AjnaError } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
 
 export function getPoolLiquidity(pool: AjnaPool): BigNumber {

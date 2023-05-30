@@ -1,37 +1,12 @@
-import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { AjnaPosition, Strategy } from '@dma-library/types'
+import { AjnaCommonDependencies, AjnaPosition, Strategy } from '@dma-library/types'
+import { AjnaMultiplyPayload } from '@dma-library/types/ajna'
 import { isRiskIncreasing } from '@dma-library/utils/swap'
-import { views } from '@dma-library/views'
-import { GetPoolData } from '@dma-library/views/ajna'
-import { IRiskRatio } from '@domain'
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-
-interface AjnaAdjustRiskArgs {
-  poolAddress: Address
-  dpmProxyAddress: Address
-  collateralPrice: BigNumber
-  quotePrice: BigNumber
-  quoteTokenPrecision: number
-  collateralTokenPrecision: number
-  riskRatio: IRiskRatio
-  position: AjnaPosition
-}
-
-interface AjnaAdjustDependencies {
-  poolInfoAddress: Address
-  ajnaProxyActions: Address
-  provider: ethers.providers.Provider
-  WETH: Address
-  getPoolData: GetPoolData
-  getPosition?: typeof views.ajna.getPosition
-}
 
 export type AjnaAdjustRiskStrategy = (
-  args: AjnaAdjustRiskArgs,
-  dependencies: AjnaAdjustDependencies,
+  args: AjnaMultiplyPayload,
+  dependencies: AjnaCommonDependencies,
 ) => Promise<Strategy<AjnaPosition>>
 
 const adjustRiskUp: AjnaAdjustRiskStrategy = async (args, dependencies) => {
@@ -83,8 +58,8 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
 }
 
 export const adjustMultiply: AjnaAdjustRiskStrategy = (
-  args: AjnaAdjustRiskArgs,
-  dependencies: AjnaAdjustDependencies,
+  args: AjnaMultiplyPayload,
+  dependencies: AjnaCommonDependencies,
 ) => {
   if (isRiskIncreasing(args.position.riskRatio, args.riskRatio)) {
     return adjustRiskUp(args, dependencies)
