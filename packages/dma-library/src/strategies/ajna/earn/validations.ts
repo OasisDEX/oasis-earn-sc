@@ -1,8 +1,6 @@
 import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
+import { AjnaEarnActions, AjnaEarnPosition, AjnaError, AjnaWarning } from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
-
-import { AjnaEarnPosition } from '../../../types/ajna'
-import { AjnaEarnActions, AjnaError, AjnaWarning } from '../../../types/common'
 
 export const getAjnaEarnValidations = ({
   price,

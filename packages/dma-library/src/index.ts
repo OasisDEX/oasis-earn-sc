@@ -17,6 +17,15 @@ export type { AAVETokens } from './types/aave'
 export { AavePosition } from './types/aave'
 export type { ActionCall } from './types/action-call'
 export { calldataTypes } from './types/actions'
+export type {
+  AjnaBorrowPayload,
+  AjnaCommonDependencies,
+  AjnaCommonPayload,
+  AjnaMultiplyPayload,
+  AjnaOpenEarnDependencies,
+  AjnaOpenEarnPayload,
+  AjnaOpenMultiplyPayload,
+} from './types/ajna'
 export { AjnaEarnPosition, AjnaPosition } from './types/ajna'
 export { views } from './views'
 export type { IRiskRatio } from '@domain'

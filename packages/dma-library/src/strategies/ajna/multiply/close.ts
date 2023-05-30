@@ -1,34 +1,11 @@
-import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { AjnaPosition, Strategy } from '@dma-library/types'
-import { views } from '@dma-library/views'
-import { GetPoolData } from '@dma-library/views/ajna'
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-
-interface AjnaCloseArgs {
-  poolAddress: Address
-  dpmProxyAddress: Address
-  collateralPrice: BigNumber
-  quotePrice: BigNumber
-  quoteTokenPrecision: number
-  collateralTokenPrecision: number
-  position: AjnaPosition
-}
-
-interface AjnaAdjustDependencies {
-  poolInfoAddress: Address
-  ajnaProxyActions: Address
-  provider: ethers.providers.Provider
-  WETH: Address
-  getPoolData: GetPoolData
-  getPosition?: typeof views.ajna.getPosition
-}
+import { AjnaCommonDependencies, AjnaPosition, Strategy } from '@dma-library/types'
+import { AjnaMultiplyPayload } from '@dma-library/types/ajna'
 
 export type AjnaCloseStrategy = (
-  args: AjnaCloseArgs,
-  dependencies: AjnaAdjustDependencies,
+  args: AjnaMultiplyPayload,
+  dependencies: AjnaCommonDependencies,
 ) => Promise<Strategy<AjnaPosition>>
 
 export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
