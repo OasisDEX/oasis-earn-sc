@@ -1,5 +1,5 @@
 import { Tx } from '@dma-common/types'
-import { AjnaError, AjnaWarning } from '@dma-library/types/ajna'
+import { AjnaError, AjnaNotice, AjnaSuccess, AjnaWarning } from '@dma-library/types/ajna'
 
 export type Strategy<Position> = {
   simulation: {
@@ -9,6 +9,8 @@ export type Strategy<Position> = {
     position: Position
     errors: AjnaError[]
     warnings: AjnaWarning[]
+    notices: AjnaNotice[]
+    successes: AjnaSuccess[]
   }
   tx: Tx
 }

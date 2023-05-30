@@ -4,6 +4,7 @@ export type AjnaErrorWithdrawUndercollateralized = {
     amount: string
   }
 }
+
 export type AjnaErrorBorrowUndercollateralized = {
   name: 'borrow-undercollateralized'
   data: {
@@ -60,10 +61,6 @@ export type AjnaError =
   | AjnaErrorOverWithdraw
   | AjnaErrorOverRepay
 
-export type AjnaWarningPriceBelowHtp = {
-  name: 'price-below-htp'
-}
-
 export type AjnaWarningPriceAboveMomp = {
   name: 'price-above-momp'
 }
@@ -83,7 +80,25 @@ type AjnaWarningWithdrawCloseToMaxLtv = {
 }
 
 export type AjnaWarning =
-  | AjnaWarningPriceBelowHtp
   | AjnaWarningGenerateCloseToMaxLtv
   | AjnaWarningWithdrawCloseToMaxLtv
   | AjnaWarningPriceAboveMomp
+
+export type AjnaNoticePriceBelowHtp = {
+  name: 'price-below-htp'
+}
+
+export type AjnaNotice = AjnaNoticePriceBelowHtp
+
+export type AjnaSuccessPriceBetweenHtpAndLup = {
+  name: 'price-between-htp-and-lup'
+}
+
+export type AjnaSuccessPriceBetweenLupAndMomp = {
+  name: 'price-between-lup-and-momp'
+  data: {
+    lup: string
+  }
+}
+
+export type AjnaSuccess = AjnaSuccessPriceBetweenHtpAndLup | AjnaSuccessPriceBetweenLupAndMomp
