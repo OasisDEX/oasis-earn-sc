@@ -2,8 +2,19 @@ import type { AAVETokens } from './aave'
 import { AavePosition } from './aave'
 import { ActionCall } from './action-call'
 import { calldataTypes } from './actions'
-import { AjnaEarnPosition, AjnaPosition } from './ajna'
-import type { AjnaError, FlashloanProvider, Strategy } from './common'
+import type { AjnaError, Strategy } from './ajna'
+import {
+  AjnaBorrowPayload,
+  AjnaCommonDependencies,
+  AjnaCommonPayload,
+  AjnaEarnPosition,
+  AjnaMultiplyPayload,
+  AjnaOpenEarnDependencies,
+  AjnaOpenEarnPayload,
+  AjnaOpenMultiplyPayload,
+  AjnaPosition,
+} from './ajna'
+import type { FlashloanProvider } from './common'
 import type {
   IOperation,
   WithAaveV2StrategyAddresses,
@@ -26,14 +37,14 @@ import type {
   WithSwap,
   WithWithdrawal,
 } from './operations'
+import type { PositionType } from './position-type'
+import type { Protocol } from './protocol'
 import type {
   ISimplePositionTransition,
   ISimpleSimulatedTransition,
   ISimulatedTransition,
   PositionTransition,
-} from './position-transition'
-import type { PositionType } from './position-type'
-import type { Protocol } from './protocol'
+} from './strategies'
 import type {
   IBasePositionTransitionArgs,
   IOnlyDepositBorrowOpenPositionTransitionDependencies,
@@ -54,6 +65,16 @@ import type { SwapData } from './swap-data'
 
 export type { AjnaError, FlashloanProvider, Strategy }
 export { AjnaEarnPosition, AjnaPosition }
+
+export type {
+  AjnaBorrowPayload,
+  AjnaCommonDependencies,
+  AjnaCommonPayload,
+  AjnaMultiplyPayload,
+  AjnaOpenEarnDependencies,
+  AjnaOpenEarnPayload,
+  AjnaOpenMultiplyPayload,
+}
 
 export type { AAVETokens }
 export { AavePosition }

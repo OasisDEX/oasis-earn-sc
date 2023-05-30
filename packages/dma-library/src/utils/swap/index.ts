@@ -1,5 +1,14 @@
-export { acceptedFeeToken } from './accepted-fee-token'
-export { calculatePreSwapFeeAmount } from './calculate-pre-swap-amount'
+export {
+  acceptedFeeToken,
+  acceptedFeeTokenByAddress,
+  acceptedFeeTokenBySymbol,
+} from './accepted-fee-token'
+export {
+  calculatePostSwapFeeAmount,
+  calculatePreSwapFeeAmount,
+  calculateSwapFeeAmount,
+} from './calculate-swap-fee-amount'
 export { feeResolver } from './fee-resolver'
 export { getSwapDataHelper } from './get-swap-data'
 export { getZeroSwap } from './get-zero-swap'
+export { isRiskIncreasing } from './is-risk-increasing'

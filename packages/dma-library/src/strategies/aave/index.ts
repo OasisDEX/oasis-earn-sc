@@ -1,15 +1,15 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
-import {
-  AaveV2PaybackWithdraw,
-  AaveV3PaybackWithdraw,
-} from '@dma-library/strategies/aave/payback-withdraw/payback-withdraw'
 import { AavePosition, PositionTransition } from '@dma-library/types'
 
-import { adjust } from './adjust'
-import { AaveAdjustArgs, AaveV2AdjustDependencies, AaveV3AdjustDependencies } from './adjust/adjust'
+import {
+  AaveAdjustArgs,
+  AaveV2AdjustDependencies,
+  AaveV3AdjustDependencies,
+  adjust,
+} from './adjust'
 import { AaveV2ChangeDebt, changeDebt } from './change-debt'
 import { AaveCloseArgs, AaveCloseDependencies, close } from './close'
-import { AaveV2DepositBorrow, depositBorrow } from './deposit-borrow'
+import { AaveV2DepositBorrow, AaveV3DepositBorrow, depositBorrow } from './deposit-borrow'
 import {
   AaveGetCurrentPositionArgs,
   AaveV2GetCurrentPositionDependencies,
@@ -23,8 +23,9 @@ import {
   AaveV2OpenDepositAndBorrowDebt,
   openDepositAndBorrowDebt,
 } from './open-deposit-and-borrow-debt'
-import { paybackWithdraw } from './payback-withdraw'
+import { AaveV2PaybackWithdraw, AaveV3PaybackWithdraw, paybackWithdraw } from './payback-withdraw'
 
+export { getAaveTokenAddress } from './get-aave-token-addresses'
 export { AaveVersion } from './get-current-position'
 
 export const aave: {
@@ -61,6 +62,7 @@ export const aave: {
       args: AaveGetCurrentPositionArgs,
       dependencies: Omit<AaveV3GetCurrentPositionDependencies, 'protocol' | 'protocolVersion'>,
     ) => Promise<AavePosition>
+    depositBorrow: AaveV3DepositBorrow
     paybackWithdraw: AaveV3PaybackWithdraw
   }
 } = {
@@ -91,7 +93,15 @@ export const aave: {
         },
       }),
     changeDebt,
-    depositBorrow,
+    depositBorrow: (args, dependencies) =>
+      depositBorrow(args, {
+        ...dependencies,
+        protocol: {
+          version: AaveVersion.v2,
+          getCurrentPosition,
+          getProtocolData: getAaveProtocolData,
+        },
+      }),
     paybackWithdraw: (args, dependencies) =>
       paybackWithdraw(args, {
         ...dependencies,
@@ -117,6 +127,15 @@ export const aave: {
       close({ ...args, protocolVersion: AaveVersion.v3 }, dependencies),
     adjust: (args, dependencies) =>
       adjust(args, {
+        ...dependencies,
+        protocol: {
+          version: AaveVersion.v3,
+          getCurrentPosition,
+          getProtocolData: getAaveProtocolData,
+        },
+      }),
+    depositBorrow: (args, dependencies) =>
+      depositBorrow(args, {
         ...dependencies,
         protocol: {
           version: AaveVersion.v3,

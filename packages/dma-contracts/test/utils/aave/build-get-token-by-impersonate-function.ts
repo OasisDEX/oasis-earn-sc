@@ -18,7 +18,7 @@ const tokensWhales: {
   [Network.MAINNET]: {
     STETH: {
       tokenAddress: mainnetAddressesForTests.STETH,
-      whale: '0x41318419cfa25396b47a94896ffa2c77c6434040',
+      whale: '0x6555e1CC97d3cbA6eAddebBCD7Ca51d75771e0B8',
     },
     WBTC: {
       tokenAddress: mainnetAddressesForTests.WBTC,

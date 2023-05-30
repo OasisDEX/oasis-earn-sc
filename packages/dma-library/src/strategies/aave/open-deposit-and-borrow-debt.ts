@@ -1,8 +1,7 @@
 import { ZERO } from '@dma-common/constants'
 import { operations } from '@dma-library/operations'
+import { BorrowArgs, DepositArgs } from '@dma-library/operations/aave/common'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
-import { BorrowArgs } from '@dma-library/operations/aave/v2/borrow'
-import { DepositArgs } from '@dma-library/operations/aave/v2/deposit'
 import {
   IBasePositionTransitionArgs,
   IOnlyDepositBorrowOpenPositionTransitionDependencies,
@@ -55,10 +54,15 @@ export const openDepositAndBorrowDebt: AaveV2OpenDepositAndBorrowDebt = async (
     account: dependencies.proxy,
   }
 
-  const operation = await operations.aave.v2.openDepositAndBorrow(depositArgs, borrowArgs, {
-    positionType: args.positionType,
-    protocol: 'AAVE',
-  })
+  const operation = await operations.aave.v2.openDepositAndBorrow(
+    depositArgs,
+    borrowArgs,
+    {
+      positionType: args.positionType,
+      protocol: 'AAVE',
+    },
+    dependencies.addresses,
+  )
 
   const finalPosition = currentPosition
     .deposit(args.amountCollateralToDepositInBaseUnit)
