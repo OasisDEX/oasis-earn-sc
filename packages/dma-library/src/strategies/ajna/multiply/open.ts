@@ -1,27 +1,35 @@
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
+import { areAddressesEqual } from '@dma-common/utils/addresses/index'
 import { amountToWei } from '@dma-common/utils/common'
+import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
+import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { getAaveTokenAddress } from '@dma-library/strategies'
+import { GetOraclePrice } from '@dma-library/protocols/ajna/get-oracle-price'
+import { getTokenAddress } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import { FlashloanProvider, IOperation, PositionType, SwapData } from '@dma-library/types'
 import { AjnaPosition } from '@dma-library/types/ajna'
 import { Strategy } from '@dma-library/types/common'
 import * as SwapUtils from '@dma-library/utils/swap'
-import { feeResolver } from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import { GetPoolData } from '@dma-library/views/ajna'
 import * as Domain from '@domain/adjust-position'
+import { debtToCollateralSwapFlashloan } from '@domain/flashloans'
 import { IRiskRatio } from '@domain/risk-ratio'
 import * as DomainUtils from '@domain/utils'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 export interface OpenMultiplyArgs {
+  user: Address
   poolAddress: Address
   dpmProxyAddress: Address
   collateralPrice: BigNumber
+  quoteTokenSymbol: string
   quotePrice: BigNumber
   quoteTokenPrecision: number
+  collateralTokenSymbol: string
   collateralAmount: BigNumber
   collateralTokenPrecision: number
   slippage: BigNumber
@@ -33,8 +41,24 @@ export interface Dependencies {
   provider: ethers.providers.Provider
   operationExecutor: Address
   WETH: Address
+  priceFeedAddress: Address
   getPoolData: GetPoolData
-  getPosition?: typeof views.ajna.getPosition
+  getPosition: typeof views.ajna.getPosition
+  // TODO: Decide whether this is a seed oracle price or simply the oracle price
+  getOraclePrice: GetOraclePrice
+  addresses: {
+    DAI: Address
+    ETH: Address
+    WSTETH: Address
+    USDC: Address
+    WBTC: Address
+  }
+  getSwapData: (
+    fromToken: string,
+    toToken: string,
+    amount: BigNumber,
+    slippage: BigNumber,
+  ) => Promise<SwapData>
 }
 
 export type AjnaOpenMultiplyStrategy = (
@@ -47,33 +71,55 @@ export type AjnaOpenMultiplyStrategy = (
 // - Check if position exists [ DONE ]
 // - Get oraclePrice from Chainlink // Think protocol directory
 // - Calculate target position [ DONE ]
-// - Pull in SwapDataHelper
+// - Pull in SwapDataHelper [ DONE ]
 // - Map target position to AjnaPosition
 // - Encode data for payload
 // - We don't need flags for this one so let's ignore them
 // - We can use swaps? If we agree on a type for Swap
 
+const positionType: PositionType = 'Multiply'
+
 export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies) => {
   const position = await getPosition(args, dependencies)
-  const simulatedAdjustment = await simulateAdjustment(args, dependencies, position)
+  const riskIsIncreasing = verifyRiskDirection(args, position)
+  const oraclePrice = args.collateralPrice.div(args.quotePrice)
+  const simulatedAdjustment = await simulateAdjustment(
+    args,
+    dependencies,
+    position,
+    riskIsIncreasing,
+    oraclePrice,
+  )
+  const swapData = await getSwapData(
+    args,
+    dependencies,
+    position,
+    simulatedAdjustment,
+    riskIsIncreasing,
+  )
+  const operation = await buildOperation(
+    args,
+    dependencies,
+    position,
+    simulatedAdjustment,
+    swapData,
+    riskIsIncreasing,
+    oraclePrice,
+  )
+  const targetPosition = new AjnaPosition(
+    position.pool,
+    args.dpmProxyAddress,
+    simulatedAdjustment.position.debt.amount,
+    simulatedAdjustment.position.collateral.amount,
+    args.collateralPrice,
+    args.quotePrice,
+  )
 
-  const isDepositingEth =
-    position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
-
-  const positionAfterDeposit = position.deposit(args.collateralAmount)
-
-  const quoteAmount = (
-    args.riskRatio.loanToValue.isZero()
-      ? positionAfterDeposit.minRiskRatio.loanToValue.decimalPlaces(2, BigNumber.ROUND_UP)
-      : args.riskRatio.loanToValue
-  ).times(args.collateralAmount.times(args.collateralPrice))
-
-  const targetPosition = positionAfterDeposit.borrow(quoteAmount)
-
+  const isDepositingEth = areAddressesEqual(position.pool.collateralToken, dependencies.WETH)
   return prepareAjnaDMAPayload({
     dependencies,
     targetPosition,
-    data: '',
+    data: encodeOperation(operation),
     errors: [],
     warnings: [],
     txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
@@ -103,11 +149,7 @@ async function getPosition(args: OpenMultiplyArgs, dependencies: Dependencies) {
   return position
 }
 
-async function simulateAdjustment(
-  args: OpenMultiplyArgs,
-  dependencies: Dependencies,
-  position: AjnaPosition,
-) {
+function verifyRiskDirection(args: OpenMultiplyArgs, position: AjnaPosition): true {
   const riskIsIncreasing = DomainUtils.determineRiskDirection(
     args.riskRatio.loanToValue,
     position.riskRatio.loanToValue,
@@ -116,19 +158,31 @@ async function simulateAdjustment(
     throw new Error('Risk must increase on openMultiply')
   }
 
+  return riskIsIncreasing
+}
+
+async function simulateAdjustment(
+  args: OpenMultiplyArgs,
+  dependencies: Dependencies,
+  position: AjnaPosition,
+  riskIsIncreasing: true,
+  oraclePrice: BigNumber,
+) {
   const quoteSwapAmount = amountToWei(new BigNumber(1), args.quoteTokenPrecision)
-  const fee = feeResolver(position.pool.collateralToken, position.pool.quoteToken, {
+  const fromToken = buildFromToken(args, position)
+  const toToken = buildToToken(args, position)
+  const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
     // Strategy is called open multiply (not open earn)
-    isEarnPosition: false,
+    isEarnPosition: positionType === 'Earn',
   })
-  const { swapData: quoteSwapData } = await SwapUtils.getSwapDataHelper<
+  const { swapData: preFlightSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     string
   >({
     args: {
-      fromToken: { symbol: position.pool.quoteToken, precision: args.quoteTokenPrecision },
-      toToken: { symbol: position.pool.collateralToken, precision: args.collateralTokenPrecision },
+      fromToken,
+      toToken,
       slippage: args.slippage,
       fee,
       swapAmountBeforeFees: quoteSwapAmount,
@@ -136,9 +190,18 @@ async function simulateAdjustment(
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddress: getAaveTokenAddress,
     },
   })
+  const preFlightMarketPrice = DomainUtils.normaliseAmount(
+    preFlightSwapData.fromTokenAmount,
+    args.quoteTokenPrecision,
+  ).div(DomainUtils.normaliseAmount(preFlightSwapData.toTokenAmount, args.collateralTokenPrecision))
+
+  const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
+    fromTokenSymbol: fromToken.symbol,
+    toTokenSymbol: toToken.symbol,
+  })
+
   const positionAdjustArgs = {
     toDeposit: {
       collateral: args.collateralAmount,
@@ -150,14 +213,13 @@ async function simulateAdjustment(
       flashLoan: BALANCER_FEE,
     },
     prices: {
-      // Use Chainlink seed value for oracle
-      oracle: ZERO,
-      // Get quote market price from 1inch
-      market: ZERO, // Get quote market price from 1inch use previous step deposit delta for next market price
+      oracle: oraclePrice,
+      // Get pre-flight market price from 1inch
+      market: preFlightMarketPrice,
     },
     slippage: args.slippage,
     options: {
-      collectSwapFeeFrom: 'sourceToken' as const, // Actually determine this
+      collectSwapFeeFrom: collectFeeFrom,
     },
   }
 
@@ -165,16 +227,148 @@ async function simulateAdjustment(
   const mappedPosition = {
     debt: {
       amount: position.debtAmount,
-      symbol: position.pool.quoteToken,
+      symbol: fromToken.symbol,
       precision: args.quoteTokenPrecision,
     },
     collateral: {
       amount: position.collateralAmount,
-      symbol: position.pool.collateralToken,
+      symbol: toToken.symbol,
       precision: args.collateralTokenPrecision,
     },
     riskRatio: position.riskRatio,
   }
 
   return Domain.adjustToTargetRiskRatio(mappedPosition, args.riskRatio, positionAdjustArgs)
+}
+
+function buildFromToken(args: OpenMultiplyArgs, position: AjnaPosition) {
+  return {
+    symbol: args.quoteTokenSymbol.toUpperCase(),
+    address: position.pool.quoteToken,
+    args: args.quoteTokenPrecision,
+  }
+}
+
+function buildToToken(args: OpenMultiplyArgs, position: AjnaPosition) {
+  return {
+    symbol: args.collateralTokenSymbol.toUpperCase(),
+    address: position.pool.collateralToken,
+    args: args.collateralTokenPrecision,
+  }
+}
+
+async function getSwapData(
+  args: OpenMultiplyArgs,
+  dependencies: Dependencies,
+  position: AjnaPosition,
+  simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
+  riskIsIncreasing: true,
+) {
+  const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
+  const fee = SwapUtils.feeResolver(
+    simulatedAdjust.position.collateral.symbol,
+    simulatedAdjust.position.debt.symbol,
+    {
+      isIncreasingRisk: riskIsIncreasing,
+      // Strategy is called open multiply (not open earn)
+      isEarnPosition: positionType === 'Earn',
+    },
+  )
+  const { swapData } = await SwapUtils.getSwapDataHelper<typeof dependencies.addresses, string>({
+    args: {
+      fromToken: buildFromToken(args, position),
+      toToken: buildToToken(args, position),
+      slippage: args.slippage,
+      fee,
+      swapAmountBeforeFees: swapAmountBeforeFees,
+    },
+    addresses: dependencies.addresses,
+    services: {
+      getSwapData: dependencies.getSwapData,
+      getTokenAddress: getTokenAddress,
+    },
+  })
+
+  return swapData
+}
+
+async function buildOperation(
+  args: OpenMultiplyArgs,
+  dependencies: Dependencies,
+  position: AjnaPosition,
+  simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
+  swapData: SwapData,
+  riskIsIncreasing: true,
+  oraclePrice: BigNumber,
+) {
+  /** Not relevant for Ajna */
+  const debtTokensDeposited = ZERO
+  const borrowAmount = simulatedAdjust.delta.debt.minus(debtTokensDeposited)
+  const fee = SwapUtils.feeResolver(
+    simulatedAdjust.position.collateral.symbol,
+    simulatedAdjust.position.debt.symbol,
+    {
+      isIncreasingRisk: riskIsIncreasing,
+      // Strategy is called open multiply (not open earn)
+      isEarnPosition: positionType === 'Earn',
+    },
+  )
+  const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
+  const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
+    fromTokenSymbol: simulatedAdjust.position.debt.symbol,
+    toTokenSymbol: simulatedAdjust.position.collateral.symbol,
+  })
+
+  const openMultiplyArgs = {
+    debt: {
+      address: position.pool.quoteToken,
+      isEth: areSymbolsEqual(simulatedAdjust.position.debt.symbol, 'ETH'),
+      borrow: {
+        amount: borrowAmount,
+      },
+    },
+    collateral: {
+      address: position.pool.collateralToken,
+      isEth: areSymbolsEqual(simulatedAdjust.position.collateral.symbol, 'ETH'),
+    },
+    deposit: {
+      // Always collateral only as deposit on Ajna
+      address: position.pool.collateralToken,
+      amount: args.collateralAmount,
+    },
+    swap: {
+      fee: fee.toNumber(),
+      data: swapData.exchangeCalldata,
+      amount: swapAmountBeforeFees,
+      collectFeeFrom,
+      receiveAtLeast: swapData.minToTokenAmount,
+    },
+    flashloan: {
+      amount: debtToCollateralSwapFlashloan(swapAmountBeforeFees),
+      // Always balancer on Ajna for now
+      provider: FlashloanProvider.Balancer,
+    },
+    position: {
+      type: positionType,
+    },
+    proxy: {
+      address: args.dpmProxyAddress,
+      // Ajna is always DPM
+      isDPMProxy: true,
+      owner: args.user,
+    },
+    addresses: {
+      ...dependencies.addresses,
+      WETH: dependencies.WETH,
+      operationExecutor: dependencies.operationExecutor,
+      pool: args.poolAddress,
+    },
+    // TODO: See if needs to be shifted. Check precision from chainlink
+    price: oraclePrice,
+  }
+  return await operations.ajna.open(openMultiplyArgs)
+}
+
+function encodeOperation(operation: IOperation): string {
+  return ''
 }

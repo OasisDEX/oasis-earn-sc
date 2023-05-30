@@ -17,6 +17,8 @@ import {
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
+export { getOraclePrice } from './get-oracle-price'
+
 export interface AjnaEarnArgs {
   poolAddress: Address
   dpmProxyAddress: Address

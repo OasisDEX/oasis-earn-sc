@@ -23,7 +23,7 @@ export const getAaveTokenAddress = (
   return tokenAddress
 }
 
-/** @deprecated use getAaveTokenAddress instead */
+/** @deprecated use getTokenAddress instead */
 export const getAaveTokenAddresses = (
   args: {
     collateralToken: WithAaveStrategyArgs['collateralToken']

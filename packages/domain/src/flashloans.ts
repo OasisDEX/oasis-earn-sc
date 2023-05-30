@@ -45,6 +45,9 @@ export const transientCollateralFlashloan: TransientCollateralFlashloan = (
 }
 
 /** For example, flashloaning USDC to open an ETH/USDC position on Ajna */
-export const debtToCollateralSwapFlashloan = () => {
-  throw new Error('Not implemented')
+export const debtToCollateralSwapFlashloan = (swapAmountBeforeSwapFeeIsApplied: BigNumber) => {
+  // We do not need to inflate this value to account for the flashloan fee because
+  // This is already factored into the debt (or quote token) deltas produced
+  // by the adjustPosition domain logic
+  return swapAmountBeforeSwapFeeIsApplied
 }

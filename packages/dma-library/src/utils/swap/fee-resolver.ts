@@ -1,7 +1,7 @@
 import { DEFAULT_FEE, HIGH_MULTIPLE_FEE, NO_FEE } from '@dma-common/constants'
 import BigNumber from 'bignumber.js'
 
-export const feeResolver = <T>(
+export const feeResolver = <T = string>(
   fromToken: T,
   toToken: T,
   flags?: {

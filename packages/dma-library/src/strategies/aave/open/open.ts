@@ -13,10 +13,7 @@ import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { AAVEStrategyAddresses, AAVEV3StrategyAddresses } from '@dma-library/index'
 import { operations } from '@dma-library/operations'
-import {
-  aaveV2UniqueContractName,
-  aaveV3UniqueContractName,
-} from '@dma-library/protocols/aave/config'
+import { isAaveV2Addresses, isAaveV3Addresses } from '@dma-library/protocols/aave/config'
 import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
 import {
   getAaveTokenAddress,
@@ -161,7 +158,7 @@ async function simulatePositionTransition(
   let protocolData: Unbox<AaveProtocolData> | undefined
   if (
     dependencies.protocol.version === AaveVersion.v2 &&
-    aaveV2UniqueContractName in dependencies.addresses
+    isAaveV2Addresses(dependencies.addresses)
   ) {
     currentPosition = await dependencies.protocol.getCurrentPosition(
       {
@@ -185,7 +182,7 @@ async function simulatePositionTransition(
   }
   if (
     dependencies.protocol.version === AaveVersion.v3 &&
-    aaveV3UniqueContractName in dependencies.addresses
+    isAaveV3Addresses(dependencies.addresses)
   ) {
     currentPosition = await dependencies.protocol.getCurrentPosition(
       {
