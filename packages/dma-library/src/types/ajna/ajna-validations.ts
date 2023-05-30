@@ -90,8 +90,15 @@ export type AjnaNoticePriceBelowHtp = {
 
 export type AjnaNotice = AjnaNoticePriceBelowHtp
 
-export type AjnaSuccessPriceInYieldZone = {
-  name: 'price-in-yield-zone'
+export type AjnaSuccessPriceBetweenHtpAndLup = {
+  name: 'price-between-htp-and-lup'
 }
 
-export type AjnaSuccess = AjnaSuccessPriceInYieldZone
+export type AjnaSuccessPriceBetweenLupAndMomp = {
+  name: 'price-between-lup-and-momp'
+  data: {
+    lup: string
+  }
+}
+
+export type AjnaSuccess = AjnaSuccessPriceBetweenHtpAndLup | AjnaSuccessPriceBetweenLupAndMomp

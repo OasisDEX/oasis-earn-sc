@@ -31,24 +31,36 @@ export const getAjnaEarnValidations = ({
   const successes: AjnaSuccess[] = []
 
   // common
-  if (price.gt(position.pool.mostOptimisticMatchingPrice)) {
-    warnings.push({
-      name: 'price-above-momp',
-    })
-  }
-
-  if (price.lt(position.pool.highestThresholdPrice) && position.collateralTokenAmount.isZero()) {
+  if (price.lt(position.pool.highestThresholdPrice)) {
     notices.push({
       name: 'price-below-htp',
     })
   }
 
   if (
-    price.gt(position.pool.highestThresholdPrice) &&
+    price.gte(position.pool.highestThresholdPrice) &&
+    price.lt(position.pool.lowestUtilizedPrice)
+  ) {
+    successes.push({
+      name: 'price-between-htp-and-lup',
+    })
+  }
+
+  if (
+    price.gte(position.pool.lowestUtilizedPrice) &&
     price.lt(position.pool.mostOptimisticMatchingPrice)
   ) {
     successes.push({
-      name: 'price-in-yield-zone',
+      name: 'price-between-lup-and-momp',
+      data: {
+        lup: formatCryptoBalance(position.pool.lowestUtilizedPrice),
+      },
+    })
+  }
+
+  if (price.gt(position.pool.mostOptimisticMatchingPrice)) {
+    warnings.push({
+      name: 'price-above-momp',
     })
   }
 
