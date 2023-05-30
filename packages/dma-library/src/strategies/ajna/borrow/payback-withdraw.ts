@@ -54,6 +54,8 @@ export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, depende
     targetPosition,
     errors,
     warnings,
+    notices: [],
+    successes: [],
     data,
     txValue: resolveAjnaEthAction(isPayingBackEth, args.quoteAmount),
   })

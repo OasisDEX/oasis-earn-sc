@@ -8,6 +8,8 @@ import {
   AjnaEarnActions,
   AjnaEarnPosition,
   AjnaError,
+  AjnaNotice,
+  AjnaSuccess,
   AjnaWarning,
   Strategy,
 } from '@dma-library/types/ajna'
@@ -21,6 +23,8 @@ export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
   targetPosition,
   errors,
   warnings,
+  notices,
+  successes,
   data,
   txValue,
 }: {
@@ -28,6 +32,8 @@ export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
   targetPosition: T
   errors: AjnaError[]
   warnings: AjnaWarning[]
+  notices: AjnaNotice[]
+  successes: AjnaSuccess[]
   data: string
   txValue: string
 }): Strategy<T> => {
@@ -36,6 +42,8 @@ export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
       swaps: [],
       errors,
       warnings,
+      notices,
+      successes,
       targetPosition,
       position: targetPosition,
     },
@@ -72,7 +80,7 @@ export const getAjnaEarnActionOutput = async ({
         )
       : undefined
 
-  const { errors, warnings } = getAjnaEarnValidations({
+  const { errors, warnings, notices, successes } = getAjnaEarnValidations({
     price: args.price,
     quoteAmount: args.quoteAmount,
     quoteTokenPrecision: args.quoteTokenPrecision,
@@ -87,6 +95,8 @@ export const getAjnaEarnActionOutput = async ({
     targetPosition,
     errors,
     warnings,
+    notices,
+    successes,
     data,
     txValue,
   })

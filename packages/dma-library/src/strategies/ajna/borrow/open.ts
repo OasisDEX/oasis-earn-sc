@@ -69,6 +69,8 @@ export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
     targetPosition,
     data,
     errors,
+    notices: [],
+    successes: [],
     warnings: [],
     txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
   })

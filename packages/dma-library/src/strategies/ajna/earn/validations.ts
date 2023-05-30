@@ -1,5 +1,12 @@
 import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
-import { AjnaEarnActions, AjnaEarnPosition, AjnaError, AjnaWarning } from '@dma-library/types/ajna'
+import {
+  AjnaEarnActions,
+  AjnaEarnPosition,
+  AjnaError,
+  AjnaNotice,
+  AjnaSuccess,
+  AjnaWarning,
+} from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
 
 export const getAjnaEarnValidations = ({
@@ -20,6 +27,8 @@ export const getAjnaEarnValidations = ({
 }) => {
   const errors: AjnaError[] = []
   const warnings: AjnaWarning[] = []
+  const notices: AjnaNotice[] = []
+  const successes: AjnaSuccess[] = []
 
   // common
   if (price.gt(position.pool.mostOptimisticMatchingPrice)) {
@@ -29,8 +38,17 @@ export const getAjnaEarnValidations = ({
   }
 
   if (price.lt(position.pool.highestThresholdPrice) && position.collateralTokenAmount.isZero()) {
-    warnings.push({
+    notices.push({
       name: 'price-below-htp',
+    })
+  }
+
+  if (
+    price.gt(position.pool.highestThresholdPrice) &&
+    price.lt(position.pool.mostOptimisticMatchingPrice)
+  ) {
+    successes.push({
+      name: 'price-in-yield-zone',
     })
   }
 
@@ -69,5 +87,5 @@ export const getAjnaEarnValidations = ({
       break
   }
 
-  return { errors, warnings }
+  return { errors, warnings, notices, successes }
 }

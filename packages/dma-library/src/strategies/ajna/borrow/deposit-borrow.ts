@@ -56,6 +56,8 @@ export const depositBorrow: AjnaDepositBorrowStrategy = async (args, dependencie
     targetPosition,
     errors,
     warnings,
+    notices: [],
+    successes: [],
     data,
     txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
   })

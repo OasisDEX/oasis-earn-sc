@@ -21,7 +21,10 @@ export type {
   AjnaErrorOverWithdraw,
   AjnaErrorWithdrawMoreThanAvailable,
   AjnaErrorWithdrawUndercollateralized,
+  AjnaNotice,
+  AjnaNoticePriceBelowHtp,
+  AjnaSuccess,
+  AjnaSuccessPriceInYieldZone,
   AjnaWarning,
   AjnaWarningPriceAboveMomp,
-  AjnaWarningPriceBelowHtp,
 } from './ajna-validations'
