@@ -83,6 +83,8 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
     asset: collateral.isEth ? addresses.ETH : collateral.address,
   })
 
+  unwrapEth.skipped = !debt.isEth && !collateral.isEth
+
   const flashloanCalls = [
     setDebtTokenApprovalOnPool,
     paybackWithdraw,
