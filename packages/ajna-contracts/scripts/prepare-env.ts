@@ -21,6 +21,51 @@ const plotly =
   process.env.PLOTY_KEY && process.env.PLOTY_USER ? ploty_(process.env.PLOTY_USER, process.env.PLOTY_KEY) : undefined;
 
 const utils = new HardhatUtils(hre);
+
+interface Bucket {
+  price: BigNumber;
+  index: BigNumber;
+  quoteTokens: BigNumber;
+  collateral: BigNumber;
+  bucketLPs: BigNumber;
+}
+interface AjnaPool {
+  poolAddress: string;
+  quoteToken: string;
+  collateralToken: string;
+
+  //@deprecated use lowestUtilizedPrice
+  lup: BigNumber;
+  lowestUtilizedPrice: BigNumber;
+  lowestUtilizedPriceIndex: BigNumber;
+
+  //@deprecated use highestThresholdPrice
+  htp: BigNumber;
+  highestThresholdPrice: BigNumber;
+  highestThresholdPriceIndex: BigNumber;
+
+  highestPriceBucket: BigNumber;
+  highestPriceBucketIndex: BigNumber;
+
+  mostOptimisticMatchingPrice: BigNumber;
+
+  poolMinDebtAmount: BigNumber;
+  poolCollateralization: BigNumber;
+  poolActualUtilization: BigNumber;
+  poolTargetUtilization: BigNumber;
+
+  // annualized rate as a fraction 0.05 = 5%
+  interestRate: BigNumber;
+  debt: BigNumber;
+  depositSize: BigNumber;
+  apr30dAverage: BigNumber;
+  dailyPercentageRate30dAverage: BigNumber;
+  monthlyPercentageRate30dAverage: BigNumber;
+  currentBurnEpoch: BigNumber;
+  buckets: Bucket[];
+  pendingInflator: BigNumber;
+}
+
 export const ajnaHre = hre;
 export async function createDPMProxy(dmpFactory: AccountFactory, owner: Signer) {
   const accountTx = await dmpFactory.connect(owner)["createAccount()"]();
@@ -54,6 +99,11 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
     rewardsManagerContract,
   } = await deploy();
 
+  const poolByAddress = Object.entries(pools).reduce(
+    (acc, [, pool]) => ({ ...acc, [pool.address]: pool }),
+    {} as Record<string, ERC20Pool>
+  );
+
   await Promise.all([
     ...signers.map(signer => utils.sendLotsOfMoney(signer.address, usdc)),
     ...signers.map(signer => utils.sendLotsOfMoney(signer.address, wbtc)),
@@ -85,6 +135,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
     const hpb = await poolInfoContract.hpb(pool.address);
     const hpbIndex = await poolInfoContract.hpbIndex(pool.address);
     const htp = await poolInfoContract.htp(pool.address);
+    const htpIndex = await poolInfoContract.priceToIndex(htp);
     let momp = BigNumber.from(0);
     try {
       momp = await poolInfoContract.momp(pool.address);
@@ -104,6 +155,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
       hpb,
       hpbIndex,
       htp,
+      htpIndex,
       lenderInterestMargin,
       lup,
       lupIndex,
@@ -159,6 +211,58 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
     const tx = await pool.connect(user.signer).removeQuoteToken(amountWei, bucketIndex);
     await tx.wait();
   }
+
+  async function getPoolData(poolAddress: string): Promise<AjnaPool> {
+    const buckets = await getAllBucketsInfo(poolAddress);
+    const pool = poolByAddress[poolAddress];
+    const params = await getParams(pool);
+
+    return {
+      poolAddress: pool.address,
+      quoteToken: await pool.quoteTokenAddress(),
+      collateralToken: await pool.collateralAddress(),
+
+      //@deprecated use lowestUtilizedPrice
+      lup: params.lup,
+      lowestUtilizedPrice: params.lup,
+      lowestUtilizedPriceIndex: params.lupIndex,
+
+      //@deprecated use highestThresholdPrice
+      htp: params.htp,
+      highestThresholdPrice: params.htp,
+      highestThresholdPriceIndex: params.htpIndex,
+
+      highestPriceBucket: params.hpb,
+      highestPriceBucketIndex: params.hpbIndex,
+
+      mostOptimisticMatchingPrice: params.momp,
+
+      poolMinDebtAmount: params.poolUtilizationInfo.poolMinDebtAmount_,
+      poolCollateralization: params.poolUtilizationInfo.poolCollateralization_,
+      poolActualUtilization: params.poolUtilizationInfo.poolActualUtilization_,
+      poolTargetUtilization: params.poolUtilizationInfo.poolTargetUtilization_,
+
+      // annualized rate as a fraction 0.05 = 5%
+      interestRate: params.poolLoansInfo.pendingInflator_,
+      debt: BigNumber.from(0),
+      depositSize: BigNumber.from(0),
+      apr30dAverage: BigNumber.from(0),
+      dailyPercentageRate30dAverage: BigNumber.from(0),
+      monthlyPercentageRate30dAverage: BigNumber.from(0),
+      currentBurnEpoch: BigNumber.from(0),
+      buckets: Object.entries(buckets).map(([index, bucket]) => {
+        return {
+          price: bucket.price_,
+          index: BigNumber.from(index),
+          quoteTokens: bucket.quoteTokens_,
+          collateral: bucket.collateral_,
+          bucketLPs: bucket.bucketLP_,
+        };
+      }),
+      pendingInflator: BigNumber.from(0),
+    };
+  }
+
   async function getBucketInfo(index: BigNumber, poolAddress: string = pools.wbtcUsdcPool.address.toLowerCase()) {
     const bucketInfo = await poolInfoContract.bucketInfo(poolAddress, index);
 
@@ -328,6 +432,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
     getBorrowerInfo,
     printBuckets,
     printAddresses,
+    getPoolData,
     pools,
     positionManagerContract,
     rewardsManagerContract,
