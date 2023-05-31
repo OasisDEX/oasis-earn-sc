@@ -10,7 +10,7 @@ import {
   getSupportedAaveV3Strategies,
   systemWithAaveV3Positions,
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
-import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
+import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/env'
 import { ISimulatedTransition } from '@dma-library'
 import { IPosition } from '@domain'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'

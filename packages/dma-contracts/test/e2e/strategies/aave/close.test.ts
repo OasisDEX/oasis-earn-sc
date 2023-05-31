@@ -22,8 +22,8 @@ import {
   getSupportedAaveV3Strategies,
   systemWithAaveV3Positions,
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
+import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/env'
 import { TokenDetails } from '@dma-contracts/test/fixtures/types/position-details'
-import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/system-with-aave-positions'
 import { AAVETokens, AAVEV3StrategyAddresses, strategies } from '@dma-library'
 import { PositionType } from '@dma-library/types'
 import { acceptedFeeToken } from '@dma-library/utils/swap'

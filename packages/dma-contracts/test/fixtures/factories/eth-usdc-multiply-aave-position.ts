@@ -16,7 +16,7 @@ import {
 import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
+import { AavePositionDetails, AavePositionStrategy, StrategiesDependenciesAave } from '../types'
 import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
 import { OpenPositionTypes } from './open-position-types'
 
@@ -70,10 +70,10 @@ export async function ethUsdcMultiplyAavePosition({
   isDPM: boolean
   use1inch: boolean
   swapAddress?: string
-  dependencies: StrategiesDependencies
+  dependencies: StrategiesDependenciesAave
   config: RuntimeConfig
   feeRecipient: string
-}): Promise<PositionDetails> {
+}): Promise<AavePositionDetails> {
   const strategy: AavePositionStrategy = 'ETH/USDC Multiply'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
@@ -175,6 +175,7 @@ export async function ethUsdcMultiplyAavePosition({
   return {
     proxy: proxy,
     getPosition,
+    variant: strategy,
     strategy,
     collateralToken: tokens.ETH,
     debtToken: tokens.USDC,

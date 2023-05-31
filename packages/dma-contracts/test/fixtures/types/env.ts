@@ -6,10 +6,11 @@ import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import {
+  AavePositionDetails,
   AavePositionStrategy,
   AaveV3PositionStrategy,
+  AjnaPositionDetails,
   AjnaPositions,
-  PositionDetails,
 } from './position-details'
 import {
   StrategyDependenciesAaveV2,
@@ -23,15 +24,12 @@ type Env = {
   dsSystem: System
 }
 
-export type SystemWithAavePositions = {
-  config: RuntimeConfig
-  hre: HardhatRuntimeEnvironment
+export type SystemWithAavePositions = Env & {
   /** @deprecated Use dsSystem instead */
   system: DeployedSystem
-  dsSystem: System
   registry: Awaited<ReturnType<typeof deploySystem>>['registry']
-  dpmPositions: Partial<Record<AavePositionStrategy, PositionDetails>>
-  dsProxyPosition: PositionDetails
+  dpmPositions: Partial<Record<AavePositionStrategy, AavePositionDetails>>
+  dsProxyPosition: AavePositionDetails
   strategiesDependencies: StrategyDependenciesAaveV2
   getTokens: {
     byImpersonate: GetTokenFn
@@ -42,15 +40,15 @@ export type SystemWithAavePositions = {
 export type GetTokenFn = (symbol: AAVETokensToGet, amount: BigNumber) => Promise<boolean>
 
 export type SystemWithAAVEV3Positions = Omit<
-  SystemWithAavePositions,
+  SystemWithAAVEPositions,
   'strategiesDependencies' | 'dpmPositions'
 > & {
   strategiesDependencies: StrategyDependenciesAaveV3
-  dpmPositions: Partial<Record<AaveV3PositionStrategy, PositionDetails>>
+  dpmPositions: Partial<Record<AaveV3PositionStrategy, AavePositionDetails>>
 }
 
 export type EnvWithAjnaPositions = Env & {
-  positions: Record<AjnaPositions, PositionDetails>
+  positions: Record<AjnaPositions, AjnaPositionDetails>
   dependencies: StrategyDependenciesAjna
   utils: {
     sendLotsOfMoney: GetTokenFn

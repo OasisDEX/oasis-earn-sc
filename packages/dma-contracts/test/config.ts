@@ -6,7 +6,7 @@ export const testBlockNumberForAaveV3 = 16597880
 export const testBlockNumberForAaveOptimismV3 = 79811107
 
 // AJNA
-// TODO: Confirm block values
+// TODO: Set block values
 export const testBlockNumbersForAjna = {
   [Network.MAINNET]: 15695000,
   [Network.OPTIMISM]: 79811107,

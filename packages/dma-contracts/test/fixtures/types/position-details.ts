@@ -1,4 +1,4 @@
-import { AavePosition, AAVETokens, PositionTransition, SwapData } from '@dma-library'
+import { AavePosition, AAVETokens, AjnaPosition, PositionTransition, SwapData } from '@dma-library'
 import { PositionType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
@@ -12,17 +12,21 @@ export type AavePositionStrategy =
   | 'ETH/USDC Multiply'
   | 'STETH/USDC Multiply'
 
+export type PositionVariants = AaveV3PositionStrategy | AavePositionStrategy | AjnaPositions
+
 export type TokenDetails = {
   symbol: AAVETokens
   precision: number
   address: string
 }
 
-export type PositionDetails = {
-  getPosition: () => Promise<AavePosition>
+type PositionDetails = {
   proxy: string
-  strategy: AavePositionStrategy | AaveV3PositionStrategy
+  variant: PositionVariants
+  /** @deprecated use variant instead */
+  strategy: PositionVariants
   collateralToken: TokenDetails
+  /** debtToken === quoteToken on Ajna */
   debtToken: TokenDetails
   getSwapData: (
     fromToken: string,
@@ -34,4 +38,12 @@ export type PositionDetails = {
   __mockPrice: BigNumber
   __openPositionSimulation: PositionTransition['simulation']
   __feeWalletBalanceChange: BigNumber
+}
+
+export type AavePositionDetails = PositionDetails & {
+  getPosition: () => Promise<AavePosition>
+}
+
+export type AjnaPositionDetails = PositionDetails & {
+  getPosition: () => Promise<AjnaPosition>
 }

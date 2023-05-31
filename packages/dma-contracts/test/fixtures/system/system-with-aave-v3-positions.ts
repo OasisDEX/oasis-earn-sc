@@ -19,8 +19,8 @@ import {
   wstethEthEarnAavePosition,
 } from '@dma-contracts/test/fixtures/factories'
 import {
+  AavePositionDetails,
   AaveV3PositionStrategy,
-  PositionDetails,
   StrategyDependenciesAaveV3,
   SystemWithAAVEV3Positions,
 } from '@dma-contracts/test/fixtures/types'
@@ -47,7 +47,7 @@ export function getSupportedAaveV3Strategies(network?: Network): SupportedV3Stra
 }
 
 const testBlockNumberByNetwork: Record<
-  Exclude<Network, Network.LOCAL | Network.GOERLI | Network.HARDHAT>,
+  Exclude<Network, Network.LOCAL | Network.GOERLI | Network.ARBITRUM | Network.HARDHAT>,
   number
 > = {
   [Network.MAINNET]: testBlockNumberForAaveV3,
@@ -177,7 +177,7 @@ export const systemWithAaveV3Positions = ({
       feeRecipient: systemConfig.common.FeeRecipient.address,
     })
 
-    let wstethEthEarnPosition: PositionDetails | undefined
+    let wstethEthEarnPosition: AavePositionDetails | undefined
     /*
       Re use1inch: Wsteth lacks sufficient liquidity on uniswap
       Re network: wsteth supply cap on optimism reached for now 20/04/23

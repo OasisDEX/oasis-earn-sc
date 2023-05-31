@@ -6,10 +6,10 @@ import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import { testBlockNumbersForAjna } from '@dma-contracts/test/config'
 import { ajnaFactories } from '@dma-contracts/test/fixtures/factories/ajna'
 import {
+  AjnaPositionDetails,
   AjnaPositions,
   EnvWithAjnaPositions,
   GetTokenFn,
-  PositionDetails,
   StrategyDependenciesAjna,
 } from '@dma-contracts/test/fixtures/types'
 import { buildGetTokenByImpersonateFunction } from '@dma-contracts/test/utils/aave'
@@ -41,6 +41,10 @@ export const envWithAjnaPositions = ({
   configExtensionPaths: string[]
 }) =>
   async function fixture(): Promise<EnvWithAjnaPositions> {
+    // Probably need to prepare AJNA contracts here too
+    // -> prepareEnv stuff goes 'ere
+    // -> pool setup stuff goes 'ere
+
     const { ds, config } = await setupDeploymentSystemHelper(
       systemConfigPath,
       configExtensionPaths,
@@ -162,7 +166,7 @@ function gatherUtils(config: RuntimeConfig, hre: HardhatRuntimeEnvironment, netw
 }
 
 async function createAjnaPositions(proxies: string[], supportedPositions: SupportedAjnaPositions) {
-  const positions = {}
+  const positions: Partial<Record<AjnaPositions, AjnaPositionDetails>> = {}
   for (const [idx, position] of supportedPositions.entries()) {
     const factory = ajnaFactories[position.name]
     const proxy = proxies[idx]
@@ -176,74 +180,7 @@ async function createAjnaPositions(proxies: string[], supportedPositions: Suppor
     })
   }
 
-  return positions as Record<AjnaPositions, PositionDetails>
-
-  // console.log(result) // <-- Will be the final result
-  // const positions = supportedPositions.reduce(({ name }, idx) => {
-  //   const proxy = proxies[idx]
-  //
-  //   const factory = ajnaFactories[name]
-  //   if (!factory) throw new Error(`Unsupported position ${name}`)
-  //
-  //   const positionDetails = await factory({
-  //     proxy,
-  //     // proxy,
-  //     // isDPM,
-  //     // use1inch,
-  //     // swapAddress,
-  //     // dependencies,
-  //     // config,
-  //     // feeRecipient: systemConfig.common.FeeRecipient.address,
-  //   })
-  //
-  //   return positionDetails
-  // }, {} as Record<AjnaPositions, PositionDetails>)
-
-  // const data = await array.reduce(async (accumP, current, index) => {
-  //   const accum = await accumP;
-  // }, Promise.resolve(…));
-  //
-  // // { name: 'ETH-USDC-Multiply', details: {} },
-  //
-  // return positions
-
-  // const ethUsdcMultiplyPosition = await ethUsdcMultiplyAavePosition({
-  //   proxy: dpmProxyForMultiplyEthUsdc,
-  //   isDPM: true,
-  //   use1inch,
-  //   swapAddress,
-  //   dependencies,
-  //   config,
-  //   feeRecipient: systemConfig.common.FeeRecipient.address,
-  // })
-  //
-  // let wstethEthEarnPosition: PositionDetails | undefined
-  // /*
-  //   Re use1inch: Wsteth lacks sufficient liquidity on uniswap
-  //   Re network: wsteth supply cap on optimism reached for now 20/04/23
-  //   TODO: Monitor if wstETH optimism & mainnet increase supply cap or update test to modify storage
-  // */
-  // if (use1inch && network !== Network.OPTIMISM && network !== Network.MAINNET) {
-  //   wstethEthEarnPosition = await wstethEthEarnAavePosition({
-  //     proxy: dpmProxyForEarnWstEthEth,
-  //     isDPM: true,
-  //     use1inch,
-  //     swapAddress,
-  //     dependencies,
-  //     config,
-  //     feeRecipient: systemConfig.common.FeeRecipient.address,
-  //   })
-  // }
-  //
-  // const dsProxyEthUsdcMultiplyPosition = await ethUsdcMultiplyAavePosition({
-  //   proxy: dsProxy.address,
-  //   isDPM: false,
-  //   use1inch,
-  //   swapAddress,
-  //   dependencies,
-  //   config,
-  //   feeRecipient: systemConfig.common.FeeRecipient.address,
-  // })
+  return positions as Record<AjnaPositions, AjnaPositionDetails>
 }
 
 function buildEnv(
@@ -251,7 +188,7 @@ function buildEnv(
   hre: HardhatRuntimeEnvironment,
   dsSystem: System,
   dependencies: StrategyDependenciesAjna,
-  positions: Record<AjnaPositions, PositionDetails>,
+  positions: Record<AjnaPositions, AjnaPositionDetails>,
   utils: {
     sendLotsOfMoney: GetTokenFn
   },
