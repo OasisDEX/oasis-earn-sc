@@ -1,10 +1,13 @@
 export { AjnaStrategyAddresses } from './addresses'
-import { AjnaOpenOperation, open as ajnaOpen } from './open'
+import { adjustRiskUp, AjnaAdjustRiskUpOperation } from './adjust-risk-up'
+import { AjnaOpenOperation, open } from './open'
 
 export type AjnaOperations = {
   open: AjnaOpenOperation
+  adjustRiskUp: AjnaAdjustRiskUpOperation
 }
 
 export const ajnaOperations: AjnaOperations = {
-  open: ajnaOpen,
+  open,
+  adjustRiskUp,
 }
