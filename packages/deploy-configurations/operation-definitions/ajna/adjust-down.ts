@@ -9,11 +9,11 @@ export const ajnaAdjustDownOperationDefinition = {
       optional: false,
     },
     {
-      hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
+      hash: getActionHash(CONTRACT_NAMES.common.SWAP_ACTION),
       optional: false,
     },
     {
-      hash: getActionHash(CONTRACT_NAMES.common.SWAP_ACTION),
+      hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
       optional: false,
     },
     {
