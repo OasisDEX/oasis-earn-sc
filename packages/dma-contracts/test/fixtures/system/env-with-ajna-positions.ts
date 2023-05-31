@@ -13,7 +13,6 @@ import {
   StrategyDependenciesAjna,
 } from '@dma-contracts/test/fixtures/types'
 import { buildGetTokenByImpersonateFunction } from '@dma-contracts/test/utils/aave'
-import { AaveVersion, protocols, strategies } from '@dma-library'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
@@ -112,32 +111,23 @@ async function configureSwapContract(dsSystem: System) {
 
 function buildDependencies(dsSystem: System, config: RuntimeConfig) {
   const { config: systemConfig, system } = dsSystem
+  // TODO: Finish setting up strategy dependencies
   const dependencies: StrategyDependenciesAjna = {
+    provider: config.provider,
+    getSwapData: (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
+    user: config.address,
+    poolInfoAddress: undefined,
+    operationExecutor: system.OperationExecutor.contract.address,
+    WETH: systemConfig.common.WETH.address,
+    getPoolData: undefined,
+    getPosition: undefined,
     addresses: {
       DAI: systemConfig.common.DAI.address,
       ETH: systemConfig.common.ETH.address,
       USDC: systemConfig.common.USDC.address,
-      WETH: systemConfig.common.WETH.address,
       WSTETH: systemConfig.common.WSTETH.address,
       WBTC: systemConfig.common.WBTC.address,
-      chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkPriceOracle_ETHUSD.address,
-      aaveOracle: systemConfig.aave.v3.AaveOracle.address,
-      pool: systemConfig.aave.v3.Pool.address,
-      poolDataProvider: systemConfig.aave.v3.AavePoolDataProvider.address,
-      accountFactory: system.AccountFactory.contract.address,
-      operationExecutor: system.OperationExecutor.contract.address,
     },
-    contracts: {
-      operationExecutor: system.OperationExecutor.contract,
-    },
-    provider: config.provider,
-    user: config.address,
-    protocol: {
-      version: AaveVersion.v3,
-      getCurrentPosition: strategies.aave.v3.view,
-      getProtocolData: protocols.aave.getAaveProtocolData,
-    },
-    getSwapData: (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
   }
   return dependencies
 }
