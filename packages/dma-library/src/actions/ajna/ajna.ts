@@ -53,7 +53,7 @@ export type AjnaPaybackWithdrawAction = (
     withdrawAll?: boolean
     price: BigNumber
   },
-  paramsMapping: [
+  paramsMapping?: [
     pool: number,
     paybackAmount: number,
     withdrawAmount: number,
