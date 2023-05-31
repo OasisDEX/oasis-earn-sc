@@ -1,4 +1,4 @@
-import { ONE, ZERO } from '@dma-common/constants'
+import { ONE } from '@dma-common/constants'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
@@ -25,6 +25,8 @@ interface EthUsdcMultiplyAjnaPosition {
   positionVariant: PositionVariants
 
   ({
+    collateralPrice,
+    quotePrice,
     proxy,
     pool,
     swapAddress,
@@ -32,6 +34,8 @@ interface EthUsdcMultiplyAjnaPosition {
     config,
     feeRecipient,
   }: {
+    collateralPrice: BigNumber
+    quotePrice: BigNumber
     proxy: string
     pool: AjnaPool
     swapAddress?: string
@@ -42,6 +46,8 @@ interface EthUsdcMultiplyAjnaPosition {
 }
 
 const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
+  collateralPrice,
+  quotePrice,
   proxy,
   pool,
   dependencies,
@@ -52,11 +58,18 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
   const mockMarketPrice = new BigNumber(1543)
 
   const tokens = configureTokens(dependencies)
-  const getSwapDataFn = configureSwapDataFn(dependencies)
-  const payload = await getEthUsdcMultiplyAjnaPositionPayload(pool, tokens, proxy, {
-    ...dependencies,
-    getSwapData: getSwapDataFn,
-  })
+  const getSwapDataFn = configureSwapDataFn(dependencies, tokens, mockMarketPrice)
+  const payload = await getEthUsdcMultiplyAjnaPositionPayload(
+    collateralPrice,
+    quotePrice,
+    pool,
+    tokens,
+    proxy,
+    {
+      ...dependencies,
+      getSwapData: getSwapDataFn,
+    },
+  )
   const { feesCollected } = await executeTx(
     payload,
     dependencies,
@@ -90,16 +103,20 @@ function configureTokens(dependencies: StrategyDependenciesAjna) {
   }
 }
 
-function configureSwapDataFn(dependencies: StrategyDependenciesAjna) {
-  const mockPrice = new BigNumber(1543)
-  // TODO: update to for position
-  return dependencies.getSwapData(mockPrice, {
-    from: USDC.precision,
-    to: ETH.precision,
+function configureSwapDataFn(
+  dependencies: StrategyDependenciesAjna,
+  tokens: ReturnType<typeof configureTokens>,
+  mockMarketPrice: BigNumber,
+) {
+  return dependencies.getSwapData(mockMarketPrice, {
+    from: tokens.USDC.precision,
+    to: tokens.ETH.precision,
   })
 }
 
 async function getEthUsdcMultiplyAjnaPositionPayload(
+  collateralPrice: BigNumber,
+  quotePrice: BigNumber,
   pool: AjnaPool,
   tokens: ReturnType<typeof configureTokens>,
   proxy: string,
@@ -115,8 +132,8 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
     user: dependencies.user,
     poolAddress: pool.poolAddress,
     dpmProxyAddress: proxy,
-    collateralPrice: ZERO,
-    quotePrice: ZERO,
+    collateralPrice,
+    quotePrice,
     quoteTokenSymbol: tokens.USDC.symbol,
     collateralTokenSymbol: tokens.ETH.symbol,
     quoteTokenPrecision: tokens.USDC.precision,
