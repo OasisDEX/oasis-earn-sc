@@ -37,10 +37,11 @@ export type SystemWithAavePositions = Env & {
   }
 }
 
+// TODO: Uncouple from AAVE
 export type GetTokenFn = (symbol: AAVETokensToGet, amount: BigNumber) => Promise<boolean>
 
 export type SystemWithAAVEV3Positions = Omit<
-  SystemWithAAVEPositions,
+  SystemWithAavePositions,
   'strategiesDependencies' | 'dpmPositions'
 > & {
   strategiesDependencies: StrategyDependenciesAaveV3

@@ -1,8 +1,11 @@
-import { AjnaPositions, PositionDetails } from '@dma-contracts/test/fixtures'
+import { AjnaPositionDetails, AjnaPositions } from '@dma-contracts/test/fixtures'
 
 import { ethUsdcMultiplyAjnaPosition } from './eth-usdc-multiply'
 
 // TODO: type up args
-export const ajnaFactories: Record<AjnaPositions, (...args: any[]) => Promise<PositionDetails>> = {
-  [ethUsdcMultiplyAjnaPosition.positionName]: ethUsdcMultiplyAjnaPosition,
+export const ajnaFactories: Record<
+  AjnaPositions,
+  (...args: any[]) => Promise<AjnaPositionDetails>
+> = {
+  [ethUsdcMultiplyAjnaPosition.positionVariant]: ethUsdcMultiplyAjnaPosition,
 }

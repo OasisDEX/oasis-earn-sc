@@ -5,6 +5,11 @@ import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { approve } from '@dma-common/utils/tx'
+import {
+  AavePositionDetails,
+  AavePositionStrategy,
+  StrategyDependenciesAave,
+} from '@dma-contracts/test/fixtures/types'
 import { AaveVersion, strategies } from '@dma-library'
 import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '@dma-library/protocols/aave'
 import {
@@ -14,9 +19,8 @@ import {
 import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
+import { OpenPositionTypes } from './aave/open-position-types'
 import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC, WBTC } from './common'
-import { OpenPositionTypes } from './open-position-types'
 
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 const amountInBaseUnit = amountToWei(new BigNumber(0.1), WBTC.precision)
@@ -71,10 +75,10 @@ export async function wbtcUsdcMultiplyAavePosition({
   isDPM: boolean
   use1inch: boolean
   swapAddress?: string
-  dependencies: StrategiesDependencies
+  dependencies: StrategyDependenciesAave
   config: RuntimeConfig
   getTokens: (symbol: 'WBTC', amount: BigNumber) => Promise<boolean>
-}): Promise<PositionDetails | null> {
+}): Promise<AavePositionDetails | null> {
   const strategy: AavePositionStrategy = 'WBTC/USDC Multiply'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
@@ -192,12 +196,15 @@ export async function wbtcUsdcMultiplyAavePosition({
     proxy: proxy,
     getPosition,
     strategy,
+    variant: strategy,
     collateralToken: WBTC,
     debtToken: new USDC(dependencies.addresses),
     getSwapData,
     __positionType: 'Multiply',
     __mockPrice: mockPrice,
+    __mockMarketPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
+    __feesCollected: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }
 }

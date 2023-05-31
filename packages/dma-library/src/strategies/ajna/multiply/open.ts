@@ -7,10 +7,9 @@ import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { GetOraclePrice } from '@dma-library/protocols/ajna/get-oracle-price'
 import { FlashloanProvider, IOperation, PositionType, SwapData } from '@dma-library/types'
 import { AjnaPosition } from '@dma-library/types/ajna'
-import { Strategy } from '@dma-library/types/common'
+import { AjnaStrategy } from '@dma-library/types/common'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import { GetPoolData } from '@dma-library/views/ajna'
@@ -36,16 +35,13 @@ export interface OpenMultiplyArgs {
   riskRatio: IRiskRatio
 }
 
-export interface Dependencies {
+export interface OpenMultiplyDependencies {
   poolInfoAddress: Address
   provider: ethers.providers.Provider
   operationExecutor: Address
   WETH: Address
-  priceFeedAddress: Address
   getPoolData: GetPoolData
   getPosition: typeof views.ajna.getPosition
-  // TODO: Decide whether this is a seed oracle price or simply the oracle price
-  getOraclePrice: GetOraclePrice
   addresses: {
     DAI: Address
     ETH: Address
@@ -63,19 +59,8 @@ export interface Dependencies {
 
 export type AjnaOpenMultiplyStrategy = (
   args: OpenMultiplyArgs,
-  dependencies: Dependencies,
-) => Promise<Strategy<AjnaPosition>>
-
-// Steps:
-// - Get position [ DONE ]
-// - Check if position exists [ DONE ]
-// - Get oraclePrice from Chainlink // Think protocol directory
-// - Calculate target position [ DONE ]
-// - Pull in SwapDataHelper [ DONE ]
-// - Map target position to AjnaPosition [ DONE ]
-// - Encode data for payload [ DONE ]
-// - We don't need flags for this one so let's ignore them
-// - We can use swaps? If we agree on a type for Swap
+  dependencies: OpenMultiplyDependencies,
+) => Promise<AjnaStrategy<AjnaPosition>>
 
 const positionType: PositionType = 'Multiply'
 
@@ -126,7 +111,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   })
 }
 
-async function getPosition(args: OpenMultiplyArgs, dependencies: Dependencies) {
+async function getPosition(args: OpenMultiplyArgs, dependencies: OpenMultiplyDependencies) {
   const getPosition = dependencies.getPosition ? dependencies.getPosition : views.ajna.getPosition
   const position = await getPosition(
     {
@@ -163,7 +148,7 @@ function verifyRiskDirection(args: OpenMultiplyArgs, position: AjnaPosition): tr
 
 async function simulateAdjustment(
   args: OpenMultiplyArgs,
-  dependencies: Dependencies,
+  dependencies: OpenMultiplyDependencies,
   position: AjnaPosition,
   riskIsIncreasing: true,
   oraclePrice: BigNumber,
@@ -259,7 +244,7 @@ function buildToToken(args: OpenMultiplyArgs, position: AjnaPosition) {
 
 async function getSwapData(
   args: OpenMultiplyArgs,
-  dependencies: Dependencies,
+  dependencies: OpenMultiplyDependencies,
   position: AjnaPosition,
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   riskIsIncreasing: true,
@@ -293,7 +278,7 @@ async function getSwapData(
 
 async function buildOperation(
   args: OpenMultiplyArgs,
-  dependencies: Dependencies,
+  dependencies: OpenMultiplyDependencies,
   position: AjnaPosition,
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   swapData: SwapData,
@@ -367,7 +352,7 @@ async function buildOperation(
   return await operations.ajna.open(openMultiplyArgs)
 }
 
-function encodeOperation(operation: IOperation, dependencies: Dependencies): string {
+function encodeOperation(operation: IOperation, dependencies: OpenMultiplyDependencies): string {
   const operationExecutor = new ethers.Contract(
     dependencies.operationExecutor,
     operationExecutorAbi,

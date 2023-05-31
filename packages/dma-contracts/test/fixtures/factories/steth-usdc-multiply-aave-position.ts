@@ -5,6 +5,7 @@ import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { approve } from '@dma-common/utils/tx'
+import { AavePositionDetails, AavePositionStrategy } from '@dma-contracts/test/fixtures/types'
 import { StrategyDependenciesAaveV2 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
 import { AaveVersion, strategies } from '@dma-library'
 import {
@@ -14,9 +15,8 @@ import {
 import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { AavePositionStrategy, PositionDetails } from '../types'
+import { OpenPositionTypes } from './aave/open-position-types'
 import { ETH, MULTIPLE, SLIPPAGE, STETH, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
-import { OpenPositionTypes } from './open-position-types'
 
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 
@@ -75,7 +75,7 @@ export async function stethUsdcMultiplyAavePosition({
   dependencies: StrategyDependenciesAaveV2
   config: RuntimeConfig
   getTokens: (symbol: 'USDC', amount: BigNumber) => Promise<boolean>
-}): Promise<PositionDetails> {
+}): Promise<AavePositionDetails> {
   const strategy: AavePositionStrategy = 'STETH/USDC Multiply'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
@@ -164,12 +164,15 @@ export async function stethUsdcMultiplyAavePosition({
     proxy: proxy,
     getPosition,
     strategy,
+    variant: strategy,
     collateralToken: tokens.STETH,
     debtToken: tokens.USDC,
     getSwapData,
     __positionType: 'Multiply',
     __mockPrice: mockPrice,
+    __mockMarketPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
+    __feesCollected: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }
 }

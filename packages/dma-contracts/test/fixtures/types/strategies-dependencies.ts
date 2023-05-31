@@ -6,6 +6,7 @@ import {
   strategies,
   SwapData,
 } from '@dma-library'
+import { OpenMultiplyDependencies } from '@dma-library/strategies/ajna/multiply/open'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -21,8 +22,7 @@ export type AaveV3Protocol = {
   getProtocolData: typeof protocols.aave.getAaveProtocolData
 }
 
-type BaseStrategiesDependencies = {
-  contracts: { operationExecutor: ethers.Contract }
+type StrategyDependencies = {
   provider: ethers.providers.Provider
   getSwapData: (
     ...args: any[]
@@ -35,16 +35,25 @@ type BaseStrategiesDependencies = {
   user: string
 }
 
-export type StrategyDependenciesAjna = {}
+export type StrategyDependenciesAjna = StrategyDependencies & {
+  poolInfoAddress: OpenMultiplyDependencies['poolInfoAddress']
+  operationExecutor: OpenMultiplyDependencies['operationExecutor']
+  WETH: OpenMultiplyDependencies['WETH']
+  getPoolData: OpenMultiplyDependencies['getPoolData']
+  getPosition: OpenMultiplyDependencies['getPosition']
+  addresses: OpenMultiplyDependencies['addresses']
+}
 
-export type StrategyDependenciesAaveV2 = BaseStrategiesDependencies & {
+export type StrategyDependenciesAaveV2 = StrategyDependencies & {
+  contracts: { operationExecutor: ethers.Contract }
   protocol: AaveV2Protocol
   addresses: AAVEStrategyAddresses & { accountFactory?: string }
 }
 
-export type StrategyDependenciesAaveV3 = BaseStrategiesDependencies & {
+export type StrategyDependenciesAaveV3 = StrategyDependencies & {
+  contracts: { operationExecutor: ethers.Contract }
   protocol: AaveV3Protocol
   addresses: AAVEV3StrategyAddresses & { accountFactory?: string }
 }
 
-export type StrategiesDependenciesAave = StrategyDependenciesAaveV2 | StrategyDependenciesAaveV3
+export type StrategyDependenciesAave = StrategyDependenciesAaveV2 | StrategyDependenciesAaveV3

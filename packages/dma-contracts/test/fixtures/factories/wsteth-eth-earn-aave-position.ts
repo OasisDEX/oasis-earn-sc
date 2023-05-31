@@ -4,6 +4,11 @@ import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
+import {
+  AavePositionDetails,
+  AaveV3PositionStrategy,
+  StrategyDependenciesAaveV3,
+} from '@dma-contracts/test/fixtures/types'
 import { AaveVersion, strategies } from '@dma-library'
 import { aaveV3UniqueContractName } from '@dma-library/protocols/aave'
 import {
@@ -13,9 +18,8 @@ import {
 import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { AaveV3PositionStrategy, PositionDetails, StrategyDependenciesAaveV3 } from '../types'
+import { OpenPositionTypes } from './aave/open-position-types'
 import { EMODE_MULTIPLE, ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, WSTETH } from './common'
-import { OpenPositionTypes } from './open-position-types'
 
 const transactionAmount = amountToWei(new BigNumber(1), ETH.precision)
 
@@ -71,7 +75,7 @@ export async function wstethEthEarnAavePosition({
   dependencies: StrategyDependenciesAaveV3
   config: RuntimeConfig & { network?: Network }
   feeRecipient: Address
-}): Promise<PositionDetails> {
+}): Promise<AavePositionDetails> {
   const strategy: AaveV3PositionStrategy = 'WSTETH/ETH Earn'
   const isOptimism = config.network === Network.OPTIMISM
 
@@ -160,12 +164,15 @@ export async function wstethEthEarnAavePosition({
     proxy,
     getPosition,
     strategy: 'WSTETH/ETH Earn',
+    variant: strategy,
     collateralToken: tokens.WSTETH,
     debtToken: tokens.ETH,
     getSwapData,
     __positionType: 'Earn',
     __mockPrice: mockPrice,
+    __mockMarketPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
+    __feesCollected: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }
 }

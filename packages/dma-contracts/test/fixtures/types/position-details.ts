@@ -1,5 +1,6 @@
 import { AavePosition, AAVETokens, AjnaPosition, PositionTransition, SwapData } from '@dma-library'
-import { PositionType } from '@dma-library/types'
+import { OpenMultiplyDependencies } from '@dma-library/strategies/ajna/multiply/open'
+import { PositionType, Strategy } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 export type AjnaPositions = 'ETH/USDC Multiply'
@@ -35,15 +36,20 @@ type PositionDetails = {
     slippage: BigNumber,
   ) => Promise<SwapData>
   __positionType: PositionType
-  __mockPrice: BigNumber
-  __openPositionSimulation: PositionTransition['simulation']
+  /** @deprecated use __feesCollected instead */
   __feeWalletBalanceChange: BigNumber
+  __feesCollected: BigNumber
+  /** @deprecated use __mockMarketPrice instead */
+  __mockPrice: BigNumber
+  __mockMarketPrice: BigNumber
 }
 
 export type AavePositionDetails = PositionDetails & {
   getPosition: () => Promise<AavePosition>
+  __openPositionSimulation: PositionTransition['simulation']
 }
 
 export type AjnaPositionDetails = PositionDetails & {
-  getPosition: () => Promise<AjnaPosition>
+  getPosition: OpenMultiplyDependencies['getPosition']
+  __openPositionSimulation: Strategy<AjnaPosition>['simulation']
 }

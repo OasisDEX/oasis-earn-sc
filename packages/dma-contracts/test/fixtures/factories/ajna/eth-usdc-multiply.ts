@@ -1,192 +1,194 @@
-import { ONE } from '@dma-common/constants'
+import { ONE, ZERO } from '@dma-common/constants'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
-import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
+import { executeThroughDPMProxy } from '@dma-common/utils/execute'
 import {
-  AAVEStrategyAddresses,
-  AAVEV3StrategyAddresses,
-  AaveVersion,
-  strategies,
-} from '@dma-library'
+  AjnaPositionDetails,
+  PositionVariants,
+  StrategyDependenciesAjna,
+} from '@dma-contracts/test/fixtures'
 import {
-  AaveV2OpenDependencies,
-  AaveV3OpenDependencies,
-} from '@dma-library/strategies/aave/open/open'
-import { RiskRatio } from '@domain'
+  ETH,
+  MULTIPLE,
+  UNISWAP_TEST_SLIPPAGE,
+  USDC,
+} from '@dma-contracts/test/fixtures/factories/common'
+import { AjnaPosition, RiskRatio, strategies } from '@dma-library'
+import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
+import { AjnaStrategy } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
 
-import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
-import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
-import { OpenPositionTypes } from './open-position-types'
-import { AjnaPositions } from '@dma-contracts/test/fixtures'
+import { OpenMultiplyPositionTypes } from './open-position-types'
 
-const depositCollateralAmount = amountToWei(ONE, ETH.precision)
+interface EthUsdcMultiplyAjnaPosition {
+  positionVariant: PositionVariants
 
-async function getEthUsdcMultiplyAjnaPositionPayload(
-  slippage: BigNumber,
-  dependencies: OpenPositionTypes[1],
-) {
-  const args: OpenPositionTypes[0] = {
-    collateralToken: new ETH(dependencies.addresses),
-    debtToken: new USDC(dependencies.addresses),
-    slippage,
-    depositedByUser: {
-      collateralToken: {
-        amountInBaseUnit: depositCollateralAmount,
-      },
-    },
-    multiple: new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE),
-    positionType: 'Multiply',
-  }
-
-  if (isV2(dependencies)) {
-    return await strategies.aave.v2.open(args, dependencies)
-  }
-  if (isV3(dependencies)) {
-    return await strategies.aave.v3.open(args, dependencies)
-  }
-
-  throw new Error('Unsupported protocol version')
+  ({
+    proxy,
+    pool,
+    swapAddress,
+    dependencies,
+    config,
+    feeRecipient,
+  }: {
+    proxy: string
+    pool: AjnaPool
+    swapAddress?: string
+    dependencies: StrategyDependenciesAjna
+    config: RuntimeConfig
+    feeRecipient: string
+  }): Promise<AjnaPositionDetails>
 }
 
-function isV2(dependencies: OpenPositionTypes[1]): dependencies is AaveV2OpenDependencies {
-  return dependencies.protocol.version === AaveVersion.v2
-}
-
-function isV3(dependencies: OpenPositionTypes[1]): dependencies is AaveV3OpenDependencies {
-  return dependencies.protocol.version === AaveVersion.v3
-}
-
-const ethUsdcMultiplyAjnaPosition = async ({
+const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
   proxy,
-  isDPM,
-  use1inch,
-  swapAddress,
+  pool,
   dependencies,
   config,
   feeRecipient,
-}: {
-  proxy: string
-  isDPM: boolean
-  use1inch: boolean
-  swapAddress?: string
-  dependencies: StrategiesDependencies
-  config: RuntimeConfig
-  feeRecipient: string
-}): Promise<PositionDetails> => {
-  const strategy: AavePositionStrategy = 'ETH/USDC Multiply'
-
-  if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
-
-  const tokens = {
-    ETH: new ETH(dependencies.addresses),
-    USDC: new USDC(dependencies.addresses),
-  }
-
-  const mockPrice = new BigNumber(1543)
-  const getSwapData = use1inch
-    ? dependencies.getSwapData(swapAddress)
-    : dependencies.getSwapData(mockPrice, {
-        from: USDC.precision,
-        to: ETH.precision,
-      })
-
-  const position = await getEthUsdcMultiplyAjnaPositionPayload(
-    use1inch ? SLIPPAGE : UNISWAP_TEST_SLIPPAGE,
-    {
-      ...dependencies,
-      getSwapData,
-      isDPMProxy: isDPM,
-      proxy: proxy,
-    },
-  )
-
-  const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
-
+}) => {
   if (!feeRecipient) throw new Error('feeRecipient is not set')
-  const feeWalletBalanceBefore = await balanceOf(dependencies.addresses.USDC, feeRecipient, {
-    config,
-  })
+  const mockMarketPrice = new BigNumber(1543)
 
-  const [status] = await proxyFunction(
+  const tokens = configureTokens(dependencies)
+  const getSwapDataFn = configureSwapDataFn(dependencies)
+  const payload = await getEthUsdcMultiplyAjnaPositionPayload(pool, tokens, proxy, {
+    ...dependencies,
+    getSwapData: getSwapDataFn,
+  })
+  const { feesCollected } = await executeTx(
+    payload,
+    dependencies,
+    feeRecipient,
+    config,
     proxy,
-    {
-      address: dependencies.contracts.operationExecutor.address,
-      calldata: dependencies.contracts.operationExecutor.interface.encodeFunctionData('executeOp', [
-        position.transaction.calls,
-        position.transaction.operationName,
-      ]),
-    },
-    config.signer,
-    depositCollateralAmount.toString(),
+    ethUsdcMultiplyAjnaPosition.positionVariant,
   )
 
-  if (!status) {
-    throw new Error(`Creating ${strategy} position failed`)
+  return buildPositionDetails(
+    proxy,
+    dependencies,
+    tokens,
+    getSwapDataFn,
+    payload,
+    feesCollected,
+    mockMarketPrice,
+  )
+}
+
+ethUsdcMultiplyAjnaPosition.positionVariant = 'ETH/USDC Multiply'
+
+function configureTokens(dependencies: StrategyDependenciesAjna) {
+  const addresses = {
+    ...dependencies.addresses,
+    WETH: dependencies.WETH,
   }
-
-  const feeWalletBalanceAfter = await balanceOf(dependencies.addresses.USDC, feeRecipient, {
-    config,
-  })
-
-  let getPosition
-  type AccountFactory = { accountFactory?: string | undefined }
-  if (dependencies.protocol.version === AaveVersion.v3) {
-    const addresses = dependencies.addresses as AAVEV3StrategyAddresses & AccountFactory
-    getPosition = async () => {
-      return await strategies.aave.v3.view(
-        {
-          collateralToken: tokens.ETH,
-          debtToken: tokens.USDC,
-          proxy,
-        },
-        {
-          addresses: {
-            ...addresses,
-            operationExecutor: dependencies.contracts.operationExecutor.address,
-          },
-          provider: config.provider,
-        },
-      )
-    }
-  }
-  if (dependencies.protocol.version === AaveVersion.v2) {
-    const addresses = dependencies.addresses as AAVEStrategyAddresses & AccountFactory
-    getPosition = async () => {
-      return await strategies.aave.v2.view(
-        {
-          collateralToken: tokens.ETH,
-          debtToken: tokens.USDC,
-          proxy,
-        },
-        {
-          addresses: {
-            ...addresses,
-            operationExecutor: dependencies.contracts.operationExecutor.address,
-          },
-          provider: config.provider,
-        },
-      )
-    }
-  }
-
-  if (!getPosition) throw new Error('getPosition is not defined')
-
   return {
-    proxy: proxy,
-    getPosition,
-    strategy,
-    collateralToken: tokens.ETH,
-    debtToken: tokens.USDC,
-    getSwapData,
-    __positionType: 'Multiply',
-    __mockPrice: mockPrice,
-    __openPositionSimulation: position.simulation,
-    __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
+    ETH: new ETH(addresses),
+    USDC: new USDC(addresses),
   }
 }
 
-ethUsdcMultiplyAjnaPosition.positionName = 'ETH/USDC Multiply' as AjnaPositions
+function configureSwapDataFn(dependencies: StrategyDependenciesAjna) {
+  const mockPrice = new BigNumber(1543)
+  // TODO: update to for position
+  return dependencies.getSwapData(mockPrice, {
+    from: USDC.precision,
+    to: ETH.precision,
+  })
+}
+
+async function getEthUsdcMultiplyAjnaPositionPayload(
+  pool: AjnaPool,
+  tokens: ReturnType<typeof configureTokens>,
+  proxy: string,
+  dependencies: Omit<StrategyDependenciesAjna, 'getSwapData'> & {
+    getSwapData: AjnaPositionDetails['getSwapData']
+  },
+) {
+  const collateralAmount = amountToWei(ONE, ETH.precision)
+  const slippage = UNISWAP_TEST_SLIPPAGE
+  const riskRatio = new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE)
+
+  const args: OpenMultiplyPositionTypes[0] = {
+    user: dependencies.user,
+    poolAddress: pool.poolAddress,
+    dpmProxyAddress: proxy,
+    collateralPrice: ZERO,
+    quotePrice: ZERO,
+    quoteTokenSymbol: tokens.USDC.symbol,
+    collateralTokenSymbol: tokens.ETH.symbol,
+    quoteTokenPrecision: tokens.USDC.precision,
+    collateralTokenPrecision: tokens.ETH.precision,
+
+    // TODO: Confirm expected form (18 decimals or not?)
+    collateralAmount,
+    slippage,
+    riskRatio,
+  }
+
+  return await strategies.ajna.multiply.open(args, dependencies)
+}
+
+async function executeTx(
+  payload: AjnaStrategy<AjnaPosition>,
+  dependencies: StrategyDependenciesAjna,
+  feeRecipient: string,
+  config: RuntimeConfig,
+  proxy: string,
+  positionVariant: PositionVariants,
+) {
+  const feeBalanceBefore = await balanceOf(dependencies.addresses.USDC, feeRecipient, {
+    config,
+  })
+
+  const [status] = await executeThroughDPMProxy(
+    proxy,
+    {
+      address: payload.tx.to,
+      calldata: payload.tx.data,
+    },
+    config.signer,
+    payload.tx.value,
+  )
+
+  if (!status) {
+    throw new Error(`Creating ${positionVariant} position failed`)
+  }
+
+  const feeBalanceAfter = await balanceOf(dependencies.addresses.USDC, feeRecipient, {
+    config,
+  })
+  const feesCollected = feeBalanceAfter.minus(feeBalanceBefore)
+
+  return { feesCollected }
+}
+
+function buildPositionDetails(
+  proxy: string,
+  dependencies: StrategyDependenciesAjna,
+  tokens: ReturnType<typeof configureTokens>,
+  getSwapDataFn: AjnaPositionDetails['getSwapData'],
+  payload: AjnaStrategy<AjnaPosition>,
+  feesCollected: BigNumber,
+  mockMarketPrice: BigNumber,
+) {
+  return {
+    proxy: proxy,
+    getPosition: dependencies.getPosition,
+    variant: ethUsdcMultiplyAjnaPosition.positionVariant,
+    strategy: ethUsdcMultiplyAjnaPosition.positionVariant,
+    collateralToken: tokens.ETH,
+    debtToken: tokens.USDC,
+    getSwapData: getSwapDataFn,
+    __positionType: 'Multiply' as const,
+    __mockPrice: mockMarketPrice,
+    __mockMarketPrice: mockMarketPrice,
+    __openPositionSimulation: payload.simulation,
+    __feeWalletBalanceChange: feesCollected,
+    __feesCollected: feesCollected,
+  }
+}
 
 export { ethUsdcMultiplyAjnaPosition }
