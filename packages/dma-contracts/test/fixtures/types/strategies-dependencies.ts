@@ -24,7 +24,6 @@ export type AaveV3Protocol = {
 type BaseStrategiesDependencies = {
   contracts: { operationExecutor: ethers.Contract }
   provider: ethers.providers.Provider
-  protocol: AaveV2Protocol | AaveV3Protocol
   getSwapData: (
     ...args: any[]
   ) => (
@@ -36,14 +35,16 @@ type BaseStrategiesDependencies = {
   user: string
 }
 
-export type StrategyDependenciesAaveV2 = Omit<
-  BaseStrategiesDependencies,
-  'addresses' | 'protocol'
-> & { protocol: AaveV2Protocol; addresses: AAVEStrategyAddresses & { accountFactory?: string } }
+export type StrategyDependenciesAjna = {}
 
-export type StrategyDependenciesAaveV3 = Omit<
-  BaseStrategiesDependencies,
-  'addresses' | 'protocol'
-> & { protocol: AaveV3Protocol; addresses: AAVEV3StrategyAddresses & { accountFactory?: string } }
+export type StrategyDependenciesAaveV2 = BaseStrategiesDependencies & {
+  protocol: AaveV2Protocol
+  addresses: AAVEStrategyAddresses & { accountFactory?: string }
+}
 
-export type StrategiesDependencies = StrategyDependenciesAaveV2 | StrategyDependenciesAaveV3
+export type StrategyDependenciesAaveV3 = BaseStrategiesDependencies & {
+  protocol: AaveV3Protocol
+  addresses: AAVEV3StrategyAddresses & { accountFactory?: string }
+}
+
+export type StrategiesDependenciesAave = StrategyDependenciesAaveV2 | StrategyDependenciesAaveV3

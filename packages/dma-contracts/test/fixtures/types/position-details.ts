@@ -2,6 +2,8 @@ import { AavePosition, AAVETokens, PositionTransition, SwapData } from '@dma-lib
 import { PositionType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
+export type AjnaPositions = 'ETH/USDC Multiply'
+
 export type AaveV3PositionStrategy = 'ETH/USDC Multiply' | 'WSTETH/ETH Earn'
 
 export type AavePositionStrategy =

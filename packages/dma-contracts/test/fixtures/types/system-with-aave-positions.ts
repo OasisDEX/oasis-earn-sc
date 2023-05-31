@@ -5,8 +5,23 @@ import { AAVETokensToGet } from '@dma-contracts/test/utils/aave'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { AavePositionStrategy, AaveV3PositionStrategy, PositionDetails } from './position-details'
-import { StrategyDependenciesAaveV2, StrategyDependenciesAaveV3 } from './strategies-dependencies'
+import {
+  AavePositionStrategy,
+  AaveV3PositionStrategy,
+  AjnaPositions,
+  PositionDetails,
+} from './position-details'
+import {
+  StrategyDependenciesAaveV2,
+  StrategyDependenciesAaveV3,
+  StrategyDependenciesAjna,
+} from './strategies-dependencies'
+
+type Env = {
+  config: RuntimeConfig
+  hre: HardhatRuntimeEnvironment
+  dsSystem: System
+}
 
 export type SystemWithAavePositions = {
   config: RuntimeConfig
@@ -14,7 +29,6 @@ export type SystemWithAavePositions = {
   /** @deprecated Use dsSystem instead */
   system: DeployedSystem
   dsSystem: System
-  /** @deprecated Use dsSystem instead */
   registry: Awaited<ReturnType<typeof deploySystem>>['registry']
   dpmPositions: Partial<Record<AavePositionStrategy, PositionDetails>>
   dsProxyPosition: PositionDetails
@@ -25,7 +39,7 @@ export type SystemWithAavePositions = {
   }
 }
 
-type GetTokenFn = (symbol: AAVETokensToGet, amount: BigNumber) => Promise<boolean>
+export type GetTokenFn = (symbol: AAVETokensToGet, amount: BigNumber) => Promise<boolean>
 
 export type SystemWithAAVEV3Positions = Omit<
   SystemWithAavePositions,
@@ -33,4 +47,12 @@ export type SystemWithAAVEV3Positions = Omit<
 > & {
   strategiesDependencies: StrategyDependenciesAaveV3
   dpmPositions: Partial<Record<AaveV3PositionStrategy, PositionDetails>>
+}
+
+export type EnvWithAjnaPositions = Env & {
+  positions: Record<AjnaPositions, PositionDetails>
+  dependencies: StrategyDependenciesAjna
+  utils: {
+    sendLotsOfMoney: GetTokenFn
+  }
 }

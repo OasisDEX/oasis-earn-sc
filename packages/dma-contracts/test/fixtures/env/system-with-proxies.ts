@@ -11,7 +11,7 @@ import { testBlockNumber } from '@dma-contracts/test/config'
 import { buildGetTokenByImpersonateFunction } from '@dma-contracts/test/utils/aave'
 import { AaveVersion, protocols, strategies } from '@dma-library'
 
-import { StrategiesDependencies, SystemWithProxies } from '../types'
+import { StrategiesDependenciesAave, SystemWithProxies } from '../types'
 
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 
@@ -33,7 +33,7 @@ export async function systemWithProxies({
   }
   const { system, registry } = await deploySystem(config, false, true)
 
-  const dependencies: StrategiesDependencies = {
+  const dependencies: StrategiesDependenciesAave = {
     addresses: {
       ...mainnetAddresses,
       priceOracle: mainnetAddresses.priceOracle,
