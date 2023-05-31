@@ -931,6 +931,30 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_ETHUSDC',
       address: '0x3ae0ea990cb38487d7a698c68b7b520a3d57c018',
     },
+    AjnaPoolPairs_WSTETHDAI: {
+      name: 'AjnaPoolPairs_WSTETHDAI',
+      address: '0xD308d6BF3673B12b81ff429ABb48826E5CF04f80',
+    },
+    AjnaPoolPairs_RETHDAI: {
+      name: 'AjnaPoolPairs_RETHDAI',
+      address: '0xD54326b7a64df61Dc0EDEfE92c0442Ed2eE82e6c',
+    },
+    AjnaPoolPairs_WBTCDAI: {
+      name: 'AjnaPoolPairs_WBTCDAI',
+      address: '0x97Db8269916f1b6027631969E6c096f4Ffd37cdD',
+    },
+    AjnaPoolPairs_USDCWETH: {
+      name: 'AjnaPoolPairs_USDCWETH',
+      address: '0xE3efD887308d6C29B5F9BF44957d8bD145a21bD5',
+    },
+    AjnaPoolPairs_USDCWBTC: {
+      name: 'AjnaPoolPairs_USDCWBTC',
+      address: '0x20D07529a9E1686773BA45eade1fbD3AA9F31aea',
+    },
+    AjnaPoolPairs_USDCDAI: {
+      name: 'AjnaPoolPairs_USDCDAI',
+      address: '0x7ed4194a16919dc5070457A2a22B9abFd9352E85',
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: '0xaF9bc1F09fe561CbD00018fC352507fD23cD46E2',
