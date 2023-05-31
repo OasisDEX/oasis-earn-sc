@@ -41,13 +41,6 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
   addresses,
   price,
 }) => {
-  const setDebtTokenApprovalOnPool = actions.common.setApproval({
-    asset: debt.address,
-    delegate: addresses.pool,
-    amount: flashloan.amount,
-    sumAmounts: false,
-  })
-
   const swapCollateralTokensForDebtTokens = actions.common.swap({
     fromAsset: collateral.address,
     toAsset: debt.address,
@@ -58,6 +51,16 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
+  const setDebtTokenApprovalOnPool = actions.common.setApproval(
+    {
+      asset: debt.address,
+      delegate: addresses.pool,
+      amount: flashloan.amount,
+      sumAmounts: false,
+    },
+    [0, 0, 1, 0],
+  )
+
   const paybackWithdraw = actions.ajna.ajnaPaybackWithdraw(
     {
       pool: addresses.pool,
@@ -65,7 +68,7 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
       paybackAmount: flashloan.amount,
       price,
     },
-    [0, 2, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0],
   )
 
   const unwrapEth = actions.common.unwrapEth({
