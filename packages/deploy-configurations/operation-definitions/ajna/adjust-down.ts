@@ -13,11 +13,11 @@ export const ajnaAdjustDownOperationDefinition = {
       optional: false,
     },
     {
-      hash: getActionHash(CONTRACT_NAMES.ajna.REPAY_WITHDRAW),
+      hash: getActionHash(CONTRACT_NAMES.common.SWAP_ACTION),
       optional: false,
     },
     {
-      hash: getActionHash(CONTRACT_NAMES.common.SWAP_ACTION),
+      hash: getActionHash(CONTRACT_NAMES.ajna.REPAY_WITHDRAW),
       optional: false,
     },
     {
