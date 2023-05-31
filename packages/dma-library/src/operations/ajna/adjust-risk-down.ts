@@ -1,5 +1,5 @@
 import { ajnaAdjustDownOperationDefinition } from '@deploy-configurations/operation-definitions/ajna/adjust-down'
-import { MAX_UINT } from '@dma-common/constants'
+import { MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import {
   IOperation,
@@ -55,7 +55,7 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
     {
       asset: debt.address,
       delegate: addresses.pool,
-      amount: flashloan.amount,
+      amount: ZERO,
       sumAmounts: false,
     },
     [0, 0, 1, 0],
@@ -64,8 +64,8 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
   const paybackWithdraw = actions.ajna.ajnaPaybackWithdraw(
     {
       pool: addresses.pool,
+      paybackAmount: ZERO,
       withdrawAmount: collateral.withdrawal.amount,
-      paybackAmount: flashloan.amount,
       price,
     },
     [0, 1, 0, 0, 0, 0],
