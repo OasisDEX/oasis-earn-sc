@@ -55,6 +55,7 @@ export type Tokens =
   | 'ADAI'
   | 'BAL'
   | 'BAT'
+  | 'CBETH'
   | 'COMP'
   | 'CRVV1ETHSTETH'
   | 'DAI'

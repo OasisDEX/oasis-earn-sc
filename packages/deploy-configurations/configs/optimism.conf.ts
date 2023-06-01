@@ -325,6 +325,7 @@ export const config: SystemConfig = {
     BAL: { name: 'BAL', address: ADDRESS_ZERO },
     BAT: { name: 'BAT', address: ADDRESS_ZERO },
     COMP: { name: 'COMP', address: ADDRESS_ZERO },
+    CBETH: { name: 'CBETH', address: ADDRESS_ZERO },
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },
     DAI: {
       name: 'DAI',
