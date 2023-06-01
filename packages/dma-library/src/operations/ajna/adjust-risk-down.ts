@@ -64,16 +64,18 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
   const paybackWithdraw = actions.ajna.ajnaPaybackWithdraw(
     {
       pool: addresses.pool,
-      paybackAmount: ZERO,
       withdrawAmount: collateral.withdrawal.amount,
+      paybackAmount: ZERO,
       price,
     },
-    [0, 1, 0, 0, 0, 0],
+    [0, 0, 1, 0, 0, 0],
   )
 
   const unwrapEth = actions.common.unwrapEth({
     amount: new BigNumber(MAX_UINT),
   })
+
+  unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
   const returnDebtFunds = actions.common.returnFunds({
     asset: debt.isEth ? addresses.ETH : debt.address,
@@ -82,8 +84,6 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
   const returnCollateralFunds = actions.common.returnFunds({
     asset: collateral.isEth ? addresses.ETH : collateral.address,
   })
-
-  unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
   const flashloanCalls = [
     setDebtTokenApprovalOnPool,
