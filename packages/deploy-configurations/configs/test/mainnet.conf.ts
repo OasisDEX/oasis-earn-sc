@@ -357,6 +357,7 @@ export const config: SystemConfig = {
     ADAI: { name: 'ADAI', address: '0x028171bCA77440897B824Ca71D1c56caC55b68A3' },
     BAL: { name: 'BAL', address: '0xba100000625a3754423978a60c9317c58a424e3D' },
     BAT: { name: 'BAT', address: '0x0D8775F648430679A709E98d2b0Cb6250d2887EF' },
+    CBETH: { name: 'CBETH', address: '0xbe9895146f7af43049ca1c1ae358b0541ea49704' },
     COMP: { name: 'COMP', address: '0xc00e94Cb662C3520282E6f5717214004A7f26888' },
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: '0x06325440D014e39736583c165C2963BA99fAf14E' },
     DAI: {
