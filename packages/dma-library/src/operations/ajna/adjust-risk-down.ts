@@ -90,8 +90,6 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
     paybackWithdraw,
     swapCollateralTokensForDebtTokens,
     unwrapEth,
-    returnDebtFunds,
-    returnCollateralFunds,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
@@ -104,7 +102,7 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
   })
 
   return {
-    calls: [takeAFlashLoan],
+    calls: [takeAFlashLoan, returnDebtFunds, returnCollateralFunds],
     operationName: ajnaAdjustDownOperationDefinition.name,
   }
 }
