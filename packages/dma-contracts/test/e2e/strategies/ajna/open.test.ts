@@ -51,7 +51,7 @@ describe('Strategy | AJNA | Open Multiply | E2E', () => {
           {
             poolInfoAddress: ajnaSystem.poolInfo.address,
             provider: env.config.provider,
-            getPoolData: undefined,
+            getPoolData: env.dependencies.getPoolData,
           },
         )
         simulation = positionDetails.__openPositionSimulation

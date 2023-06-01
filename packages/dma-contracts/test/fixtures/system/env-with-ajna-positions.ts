@@ -175,7 +175,7 @@ async function createAjnaPositions(
 
     positions[position.name] = await factory({
       proxy,
-      pools: ajnaSystem.pools,
+      ajnaSystem,
       dependencies: dependencies,
       config: config,
       feeRecipient: dsSystem.config.common.FeeRecipient.address,
@@ -205,7 +205,7 @@ function buildEnv(
 
 function mapGetPoolDataFunction(ajnaSystem: AjnaSystem) {
   return async (poolAddress: string): Promise<AjnaPool> => {
-    const pool = await ajnaSystem.getPoolData(poolAddress)
+    const pool = await ajnaSystem.getPoolData(poolAddress.toLowerCase())
     return mapAjnaPoolDataTypes(poolAddress, pool)
   }
 }

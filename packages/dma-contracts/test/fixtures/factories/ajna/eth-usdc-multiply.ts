@@ -27,14 +27,14 @@ export interface EthUsdcMultiplyAjnaPosition {
 
   ({
     proxy,
-    pools,
     dependencies,
+    ajnaSystem,
     config,
     feeRecipient,
   }: {
     proxy: string
-    pools: AjnaSystem['pools']
     dependencies: StrategyDependenciesAjna
+    ajnaSystem: AjnaSystem
     config: RuntimeConfig
     feeRecipient: string
   }): Promise<AjnaPositionDetails>
@@ -42,14 +42,29 @@ export interface EthUsdcMultiplyAjnaPosition {
 
 const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
   proxy,
-  pools,
   dependencies,
+  ajnaSystem,
   config,
   feeRecipient,
 }) => {
   if (!feeRecipient) throw new Error('feeRecipient is not set')
-  const pool = pools.wethUsdcPool
+  const pool = ajnaSystem.pools.wethUsdcPool
   if (!pool) throw new Error('wethUsdcPool is not set')
+
+  // Find some way to supplyQuote
+  // Precision: ONE = 1 ETH
+  // await ajnaSystem.provideLiquidity(
+  //   pool,
+  //   new EBigNumber(ONE.toString()),
+  //   new EBigNumber(ONE.toString()),
+  // )
+  // await ajnaSystem.ajnaProxyActionsContract.supplyQuote(pool.address, bn.eighteen.ONE, 2000000, {
+  //   gasLimit: 5000000,
+  // })
+  // const index = await ajnaProxyActionsContract.convertPriceToIndex(price)
+  // await wbtc.approve(poolContract.address, bn.eighteen.ONE)
+  // // add one BTC to the pool
+  // await poolContract.addCollateral(bn.eighteen.ONE, index, Date.now() + 100)
 
   const ajnaPool = await dependencies.getPoolData(pool.address)
 
