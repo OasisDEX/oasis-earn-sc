@@ -24,8 +24,10 @@ export class HardhatUtils {
   }
   public async sendLotsOfMoney(target: string, token: Token | WETH, mainnet = false) {
     if (mainnet) {
+      console.log("sendLotsOfMoney - setTokenBalance", target);
       await this.setTokenBalance(target, token.address, BigNumber.from("1000000000000000000").mul(1000));
     } else {
+      console.log("sendLotsOfMoney - mint", target);
       await token.mint(target, BigNumber.from("1000000000000000000").mul(1000));
     }
   }
