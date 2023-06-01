@@ -348,7 +348,7 @@ export const config: SystemConfig = {
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },
     DAI: {
       name: 'DAI',
-      address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+      address: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
       serviceRegistryName: 'DAI',
     },
     ETH: { name: 'ETH', address: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6' },
