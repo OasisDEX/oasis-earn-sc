@@ -34,21 +34,22 @@ describe('Strategy | AJNA | Open Multiply | E2E', () => {
       let feesCollected: BigNumber
 
       before(async function () {
-        const { positions } = env
+        const { positions, ajnaSystem } = env
         const positionDetails = positions[variant]
         if (!positionDetails) {
           throw new Error('Position not found')
         }
+
         position = await positionDetails.getPosition(
           {
-            proxyAddress: '',
-            poolAddress: '',
-            collateralPrice: ZERO,
-            quotePrice: ZERO,
+            proxyAddress: positionDetails.proxy,
+            poolAddress: positionDetails.pool.poolAddress,
+            collateralPrice: positionDetails.__collateralPrice,
+            quotePrice: positionDetails.__quotePrice,
           },
           {
-            poolInfoAddress: '',
-            provider: undefined,
+            poolInfoAddress: ajnaSystem.poolInfo.address,
+            provider: env.config.provider,
             getPoolData: undefined,
           },
         )

@@ -5,6 +5,7 @@ import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
 import {
   AjnaPositionDetails,
+  AjnaSystem,
   PositionVariants,
   StrategyDependenciesAjna,
 } from '@dma-contracts/test/fixtures'
@@ -21,24 +22,18 @@ import BigNumber from 'bignumber.js'
 
 import { OpenMultiplyPositionTypes } from './open-position-types'
 
-interface EthUsdcMultiplyAjnaPosition {
-  positionVariant: PositionVariants
+export interface EthUsdcMultiplyAjnaPosition {
+  positionVariant: 'ETH/USDC Multiply'
 
   ({
-    collateralPrice,
-    quotePrice,
     proxy,
-    pool,
-    swapAddress,
+    pools,
     dependencies,
     config,
     feeRecipient,
   }: {
-    collateralPrice: BigNumber
-    quotePrice: BigNumber
     proxy: string
-    pool: AjnaPool
-    swapAddress?: string
+    pools: AjnaSystem['pools']
     dependencies: StrategyDependenciesAjna
     config: RuntimeConfig
     feeRecipient: string
@@ -46,23 +41,30 @@ interface EthUsdcMultiplyAjnaPosition {
 }
 
 const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
-  collateralPrice,
-  quotePrice,
   proxy,
-  pool,
+  pools,
   dependencies,
   config,
   feeRecipient,
 }) => {
   if (!feeRecipient) throw new Error('feeRecipient is not set')
-  const mockMarketPrice = new BigNumber(1543)
+  const pool = pools.wethUsdcPool
+  if (!pool) throw new Error('wethUsdcPool is not set')
 
+  const ajnaPool = await dependencies.getPoolData(pool.address)
+
+  // Mocked price info
+  const mockMarketPrice = new BigNumber(1543)
+  const collateralPrice = new BigNumber(1543)
+  const quotePrice = new BigNumber(1)
+
+  await addLiquidityToPool(ajnaPool)
   const tokens = configureTokens(dependencies)
   const getSwapDataFn = configureSwapDataFn(dependencies, tokens, mockMarketPrice)
   const payload = await getEthUsdcMultiplyAjnaPositionPayload(
     collateralPrice,
     quotePrice,
-    pool,
+    ajnaPool,
     tokens,
     proxy,
     {
@@ -85,12 +87,22 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
     tokens,
     getSwapDataFn,
     payload,
+    ajnaPool,
     feesCollected,
     mockMarketPrice,
+    collateralPrice,
+    quotePrice,
   )
 }
 
-ethUsdcMultiplyAjnaPosition.positionVariant = 'ETH/USDC Multiply'
+ethUsdcMultiplyAjnaPosition.positionVariant = 'ETH/USDC Multiply' as const
+
+async function addLiquidityToPool(pool: AjnaPool) {
+  // const amount = amountToWei(ONE, ETH.precision)
+  // const tx = await pool.addLiquidity(amount, { value: amount })
+  // await tx.wait()
+  // Perform pool setup
+}
 
 function configureTokens(dependencies: StrategyDependenciesAjna) {
   const addresses = {
@@ -188,8 +200,11 @@ function buildPositionDetails(
   tokens: ReturnType<typeof configureTokens>,
   getSwapDataFn: AjnaPositionDetails['getSwapData'],
   payload: AjnaStrategy<AjnaPosition>,
+  pool: AjnaPool,
   feesCollected: BigNumber,
   mockMarketPrice: BigNumber,
+  collateralPrice: BigNumber,
+  quotePrice: BigNumber,
 ) {
   return {
     proxy: proxy,
@@ -199,9 +214,12 @@ function buildPositionDetails(
     collateralToken: tokens.ETH,
     debtToken: tokens.USDC,
     getSwapData: getSwapDataFn,
+    pool,
     __positionType: 'Multiply' as const,
     __mockPrice: mockMarketPrice,
     __mockMarketPrice: mockMarketPrice,
+    __collateralPrice: collateralPrice,
+    __quotePrice: quotePrice,
     __openPositionSimulation: payload.simulation,
     __feeWalletBalanceChange: feesCollected,
     __feesCollected: feesCollected,

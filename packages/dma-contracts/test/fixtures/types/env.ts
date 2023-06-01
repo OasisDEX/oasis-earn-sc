@@ -1,6 +1,7 @@
+import { prepareEnv } from '@ajna-contracts/scripts'
 import { DeployedSystem, System } from '@deploy-configurations/types/deployed-system'
 import { deploySystem } from '@dma-common/test-utils'
-import { RuntimeConfig } from '@dma-common/types/common'
+import { RuntimeConfig, Unbox } from '@dma-common/types/common'
 import { AAVETokensToGet } from '@dma-contracts/test/utils/aave'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
@@ -21,10 +22,17 @@ import {
 type Env = {
   config: RuntimeConfig
   hre: HardhatRuntimeEnvironment
+}
+
+type DmaEnv = Env & {
   dsSystem: System
 }
 
-export type SystemWithAavePositions = Env & {
+type AjnaEnv = Env & {
+  ajnaSystem: Unbox<ReturnType<typeof prepareEnv>>
+}
+
+export type SystemWithAavePositions = DmaEnv & {
   /** @deprecated Use dsSystem instead */
   system: DeployedSystem
   registry: Awaited<ReturnType<typeof deploySystem>>['registry']
@@ -48,10 +56,10 @@ export type SystemWithAAVEV3Positions = Omit<
   dpmPositions: Partial<Record<AaveV3PositionStrategy, AavePositionDetails>>
 }
 
-export type EnvWithAjnaPositions = Env & {
-  positions: Record<AjnaPositions, AjnaPositionDetails>
-  dependencies: StrategyDependenciesAjna
-  utils: {
-    sendLotsOfMoney: GetTokenFn
+export type EnvWithAjnaPositions = AjnaEnv &
+  DmaEnv & {
+    positions: Record<AjnaPositions, AjnaPositionDetails>
+    dependencies: StrategyDependenciesAjna
   }
-}
+
+export type AjnaSystem = Unbox<ReturnType<typeof prepareEnv>>

@@ -1,3 +1,4 @@
+import { prepareEnv as prepareAjnaEnv } from '@ajna-contracts/scripts'
 import { System } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
 import { createDPMAccount, oneInchCallMock } from '@dma-common/test-utils'
@@ -8,11 +9,11 @@ import { ajnaFactories } from '@dma-contracts/test/fixtures/factories/ajna'
 import {
   AjnaPositionDetails,
   AjnaPositions,
+  AjnaSystem,
   EnvWithAjnaPositions,
-  GetTokenFn,
   StrategyDependenciesAjna,
 } from '@dma-contracts/test/fixtures/types'
-import { buildGetTokenByImpersonateFunction } from '@dma-contracts/test/utils/aave'
+import { views } from '@dma-library'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
@@ -40,11 +41,8 @@ export const envWithAjnaPositions = ({
   configExtensionPaths: string[]
 }) =>
   async function fixture(): Promise<EnvWithAjnaPositions> {
-    // Probably need to prepare AJNA contracts here too
-    // -> prepareEnv stuff goes 'ere
-    // -> pool setup stuff goes 'ere
-
-    const { ds, config } = await setupDeploymentSystemHelper(
+    const ajnaSystem = await prepareAjnaEnv(hre)
+    const { ds, config } = await setupDmaDeploymentSystemHelper(
       systemConfigPath,
       configExtensionPaths,
       hideLogging,
@@ -52,16 +50,22 @@ export const envWithAjnaPositions = ({
     await resetNode(ds, network)
     const dsSystem = await deploySystem(ds)
     await configureSwapContract(dsSystem)
-    const dependencies = await buildDependencies(dsSystem, config)
+    const dependencies = await buildDependencies(dsSystem, ajnaSystem, config)
     const supportedPositions = getSupportedAjnaPositions(network)
     const proxies = await createProxies(dsSystem, supportedPositions.length)
-    const utils = gatherUtils(config, hre, network)
-    const positions = await createAjnaPositions(proxies, supportedPositions)
+    const positions = await createAjnaPositions(
+      proxies,
+      supportedPositions,
+      dependencies,
+      dsSystem,
+      ajnaSystem,
+      config,
+    )
 
-    return buildEnv(config, hre, dsSystem, dependencies, positions, utils)
+    return buildEnv(config, hre, dsSystem, ajnaSystem, dependencies, positions)
   }
 
-async function setupDeploymentSystemHelper(
+async function setupDmaDeploymentSystemHelper(
   systemConfigPath?: string,
   configExtensionPaths?: string[],
   hideLogging?: boolean,
@@ -106,21 +110,22 @@ async function configureSwapContract(dsSystem: System) {
     true,
   )
 
+  // Not necessary unless using 1inch to complete the swap
   return swapContract.address
 }
 
-function buildDependencies(dsSystem: System, config: RuntimeConfig) {
+function buildDependencies(dsSystem: System, ajnaSystem: AjnaSystem, config: RuntimeConfig) {
   const { config: systemConfig, system } = dsSystem
-  // TODO: Finish setting up strategy dependencies
+
   const dependencies: StrategyDependenciesAjna = {
     provider: config.provider,
     getSwapData: (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     user: config.address,
-    poolInfoAddress: undefined,
+    poolInfoAddress: ajnaSystem.poolInfo.address,
     operationExecutor: system.OperationExecutor.contract.address,
     WETH: systemConfig.common.WETH.address,
     getPoolData: undefined,
-    getPosition: undefined,
+    getPosition: views.ajna.getPosition,
     addresses: {
       DAI: systemConfig.common.DAI.address,
       ETH: systemConfig.common.ETH.address,
@@ -149,13 +154,14 @@ async function createProxies(dsSystem: System, count: number) {
   return proxies.filter((proxy): proxy is string => proxy !== undefined)
 }
 
-function gatherUtils(config: RuntimeConfig, hre: HardhatRuntimeEnvironment, network: Network) {
-  return {
-    sendLotsOfMoney: buildGetTokenByImpersonateFunction(config, hre, network),
-  }
-}
-
-async function createAjnaPositions(proxies: string[], supportedPositions: SupportedAjnaPositions) {
+async function createAjnaPositions(
+  proxies: string[],
+  supportedPositions: SupportedAjnaPositions,
+  dependencies: StrategyDependenciesAjna,
+  dsSystem: System,
+  ajnaSystem: AjnaSystem,
+  config: RuntimeConfig,
+) {
   const positions: Partial<Record<AjnaPositions, AjnaPositionDetails>> = {}
   for (const [idx, position] of supportedPositions.entries()) {
     const factory = ajnaFactories[position.name]
@@ -167,6 +173,10 @@ async function createAjnaPositions(proxies: string[], supportedPositions: Suppor
 
     positions[position.name] = await factory({
       proxy,
+      pools: ajnaSystem.pools,
+      dependencies: dependencies,
+      config: config,
+      feeRecipient: dsSystem.config.common.FeeRecipient.address,
     })
   }
 
@@ -177,18 +187,16 @@ function buildEnv(
   config: RuntimeConfig,
   hre: HardhatRuntimeEnvironment,
   dsSystem: System,
+  ajnaSystem: AjnaSystem,
   dependencies: StrategyDependenciesAjna,
   positions: Record<AjnaPositions, AjnaPositionDetails>,
-  utils: {
-    sendLotsOfMoney: GetTokenFn
-  },
 ): EnvWithAjnaPositions {
   return {
     config,
     hre,
+    ajnaSystem,
     dsSystem,
     dependencies: dependencies,
     positions,
-    utils,
   }
 }
