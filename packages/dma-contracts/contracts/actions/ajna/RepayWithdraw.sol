@@ -22,6 +22,7 @@ contract AjnaRepayWithdraw is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
   IAjnaPoolUtilsInfo public immutable poolUtilsInfo;
+  IERC20PoolFactory public immutable erc20PoolFactory;
 
   constructor(address _registry) UseStore(_registry) {
     poolUtilsInfo = IAjnaPoolUtilsInfo(registry.getRegisteredService(AJNA_POOL_UTILS_INFO));
@@ -33,12 +34,10 @@ contract AjnaRepayWithdraw is Executable, UseStore {
    */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     RepayWithdrawData memory args = parseInputs(data);
-    IAjnaPool pool = erc20PoolFactory.deployedPools(
-      ERC20_NON_SUBSET_HASH,
-      args.collateralToken,
-      args.quoteToken
+    IAjnaPool pool = IAjnaPool(
+      erc20PoolFactory.deployedPools(ERC20_NON_SUBSET_HASH, args.collateralToken, args.quoteToken)
     );
-    require(pool != address(0), "AjnaRepayWithdraw: Pool not found");
+    require(address(pool) != address(0), "AjnaDepositBorrow: Pool not found");
 
     args.withdrawAmount = store().readUint(
       bytes32(args.withdrawAmount),

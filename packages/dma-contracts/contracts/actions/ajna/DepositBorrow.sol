@@ -34,12 +34,10 @@ contract AjnaDepositBorrow is Executable, UseStore {
    */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositBorrowData memory args = parseInputs(data);
-    IAjnaPool pool = erc20PoolFactory.deployedPools(
-      ERC20_NON_SUBSET_HASH,
-      args.collateralToken,
-      args.quoteToken
+    IAjnaPool pool = IAjnaPool(
+      erc20PoolFactory.deployedPools(ERC20_NON_SUBSET_HASH, args.collateralToken, args.quoteToken)
     );
-    require(pool != address(0), "AjnaDepositBorrow: Pool not found");
+    require(address(pool) != address(0), "AjnaDepositBorrow: Pool not found");
 
     uint256 mappedDepositAmount = store().readUint(
       bytes32(args.depositAmount),
