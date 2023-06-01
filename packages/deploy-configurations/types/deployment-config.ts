@@ -254,6 +254,12 @@ export type AjnaProtocol =
   | 'AjnaProxyActions'
   | 'AjnaPoolPairs_WBTCUSDC'
   | 'AjnaPoolPairs_ETHUSDC'
+  | 'AjnaPoolPairs_WSTETHDAI'
+  | 'AjnaPoolPairs_RETHDAI'
+  | 'AjnaPoolPairs_WBTCDAI'
+  | 'AjnaPoolPairs_USDCWETH'
+  | 'AjnaPoolPairs_USDCWBTC'
+  | 'AjnaPoolPairs_USDCDAI'
   | 'AjnaRewardsManager'
   | 'AjnaRewardsClaimer'
 
