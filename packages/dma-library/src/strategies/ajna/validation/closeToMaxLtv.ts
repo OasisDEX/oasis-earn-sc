@@ -1,7 +1,5 @@
 import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
-
-import { AjnaPosition } from '../../../types/ajna'
-import { AjnaWarning } from '../../../types/common'
+import { AjnaPosition, AjnaWarning } from '@dma-library/types/ajna'
 
 const MAX_LTV_OFFSET = 0.05
 

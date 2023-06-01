@@ -1,46 +1,39 @@
 import poolAbi from '@abis/external/protocols/ajna/ajnaPoolERC20.json'
-import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { negativeToZero } from '@dma-common/utils/common'
 import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
 import { getPoolLiquidity } from '@dma-library/strategies/ajna/validation/notEnoughLiquidity'
-import { AjnaEarnPosition } from '@dma-library/types/ajna'
-import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import {
-  AjnaDependencies,
+  AjnaCommonDependencies,
   AjnaEarnActions,
+  AjnaEarnPosition,
   AjnaError,
+  AjnaNotice,
+  AjnaSuccess,
   AjnaWarning,
   Strategy,
-} from '@dma-library/types/common'
+} from '@dma-library/types/ajna'
+import { AjnaEarnPayload } from '@dma-library/types/ajna/ajna-dependencies'
+import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
-
-export interface AjnaEarnArgs {
-  poolAddress: Address
-  dpmProxyAddress: Address
-  collateralAmount: BigNumber
-  quoteAmount: BigNumber
-  quoteTokenPrecision: number
-  price: BigNumber
-  position: AjnaEarnPosition
-  collateralPrice: BigNumber
-  quotePrice: BigNumber
-  isStakingNft?: boolean
-}
 
 export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
   dependencies,
   targetPosition,
   errors,
   warnings,
+  notices,
+  successes,
   data,
   txValue,
 }: {
-  dependencies: AjnaDependencies
+  dependencies: AjnaCommonDependencies
   targetPosition: T
   errors: AjnaError[]
   warnings: AjnaWarning[]
+  notices: AjnaNotice[]
+  successes: AjnaSuccess[]
   data: string
   txValue: string
 }): Strategy<T> => {
@@ -49,6 +42,8 @@ export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
       swaps: [],
       errors,
       warnings,
+      notices,
+      successes,
       targetPosition,
       position: targetPosition,
     },
@@ -70,8 +65,8 @@ export const getAjnaEarnActionOutput = async ({
 }: {
   targetPosition: AjnaEarnPosition
   data: string
-  dependencies: AjnaDependencies
-  args: AjnaEarnArgs
+  dependencies: AjnaCommonDependencies
+  args: AjnaEarnPayload
   action: AjnaEarnActions
   txValue: string
 }) => {
@@ -85,7 +80,7 @@ export const getAjnaEarnActionOutput = async ({
         )
       : undefined
 
-  const { errors, warnings } = getAjnaEarnValidations({
+  const { errors, warnings, notices, successes } = getAjnaEarnValidations({
     price: args.price,
     quoteAmount: args.quoteAmount,
     quoteTokenPrecision: args.quoteTokenPrecision,
@@ -100,6 +95,8 @@ export const getAjnaEarnActionOutput = async ({
     targetPosition,
     errors,
     warnings,
+    notices,
+    successes,
     data,
     txValue,
   })
@@ -186,7 +183,7 @@ function getMaxGenerate(
   }
 
   const sortedBuckets = pool.buckets
-    .filter(bucket => bucket.index.lt(pool.highestThresholdPriceIndex))
+    .filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
     .sort((a, b) => a.index.minus(b.index).toNumber())
 
   const lupBucketArrayIndex = sortedBuckets.findIndex(bucket =>

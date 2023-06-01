@@ -1,14 +1,17 @@
 import { OPERATION_NAMES } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { BorrowArgs, DepositArgs } from '@dma-library/operations/aave/common'
+import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
 import { ActionCall, IOperation, PositionType, Protocol } from '@dma-library/types'
 
-import { borrow, BorrowArgs } from './borrow'
-import { deposit, DepositArgs } from './deposit'
+import { borrow } from './borrow'
+import { deposit } from './deposit'
 
 type AaveV2OpenDepositBorrowArgs = [
   depositArgs: DepositArgs,
   borrowArgs: BorrowArgs,
   metaArgs: { protocol: Protocol; positionType: PositionType },
+  addresses: AAVEStrategyAddresses,
 ]
 
 export type AaveV2OpenDepositBorrowOperation = (
@@ -19,6 +22,7 @@ export const openDepositAndBorrow: AaveV2OpenDepositBorrowOperation = async (
   depositArgs,
   borrowArgs,
   { protocol, positionType },
+  addresses,
 ) => {
   const positionCreatedEvent = actions.common.positionCreated({
     protocol,
@@ -27,8 +31,8 @@ export const openDepositAndBorrow: AaveV2OpenDepositBorrowOperation = async (
     debtToken: borrowArgs.borrowToken,
   })
 
-  const depositCalls = (await deposit(depositArgs)).calls
-  const borrowCalls = (await borrow(borrowArgs)).calls
+  const depositCalls = (await deposit(depositArgs, addresses)).calls
+  const borrowCalls = (await borrow(borrowArgs, addresses)).calls
 
   if (borrowArgs.amountInBaseUnit.isZero()) {
     borrowCalls.forEach(call => {

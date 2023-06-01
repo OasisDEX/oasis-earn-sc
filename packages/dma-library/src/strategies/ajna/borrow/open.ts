@@ -1,46 +1,23 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
-import { Address } from '@deploy-configurations/types/address'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { AjnaPosition } from '@dma-library/types/ajna'
-import { Strategy } from '@dma-library/types/common'
+import { AjnaCommonDependencies, AjnaPosition, Strategy } from '@dma-library/types/ajna'
+import { AjnaOpenBorrowPayload } from '@dma-library/types/ajna/ajna-dependencies'
 import { views } from '@dma-library/views'
-import { GetPoolData } from '@dma-library/views/ajna'
-import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import {
   validateBorrowUndercollateralized,
   validateDustLimit,
   validateLiquidity,
-} from './validation'
-
-export interface OpenArgs {
-  poolAddress: Address
-  dpmProxyAddress: Address
-  collateralPrice: BigNumber
-  quotePrice: BigNumber
-  quoteAmount: BigNumber
-  quoteTokenPrecision: number
-  collateralAmount: BigNumber
-  collateralTokenPrecision: number
-}
-
-export interface Dependencies {
-  poolInfoAddress: Address
-  ajnaProxyActions: Address
-  provider: ethers.providers.Provider
-  WETH: Address
-  getPoolData: GetPoolData
-  getPosition?: typeof views.ajna.getPosition
-}
+} from '../validation'
 
 export type AjnaOpenBorrowStrategy = (
-  args: OpenArgs,
-  dependencies: Dependencies,
+  args: AjnaOpenBorrowPayload,
+  dependencies: AjnaCommonDependencies,
 ) => Promise<Strategy<AjnaPosition>>
 
 export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
-  const getPosition = dependencies.getPosition ? dependencies.getPosition : views.ajna.getPosition
+  const getPosition = views.ajna.getPosition
   const position = await getPosition(
     {
       collateralPrice: args.collateralPrice,
@@ -92,6 +69,8 @@ export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
     targetPosition,
     data,
     errors,
+    notices: [],
+    successes: [],
     warnings: [],
     txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
   })

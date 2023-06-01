@@ -5,7 +5,8 @@ import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { approve } from '@dma-common/utils/tx'
 import { SystemWithProxies, systemWithProxies } from '@dma-contracts/test/fixtures'
-import { AAVETokens, strategies } from '@dma-library'
+import { strategies } from '@dma-library'
+import { AAVETokens } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)

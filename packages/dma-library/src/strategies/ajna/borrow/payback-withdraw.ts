@@ -1,32 +1,23 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
-import { Address } from '@deploy-configurations/types/address'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { AjnaPosition } from '@dma-library/types/ajna'
-import { Strategy } from '@dma-library/types/common'
-import BigNumber from 'bignumber.js'
+import {
+  AjnaBorrowPayload,
+  AjnaCommonDependencies,
+  AjnaPosition,
+  Strategy,
+} from '@dma-library/types/ajna'
 import { ethers } from 'ethers'
 
-import { Dependencies } from './open'
 import {
   validateDustLimit,
   validateOverWithdraw,
   validateWithdrawUndercollateralized,
-} from './validation'
-import { validateWithdrawCloseToMaxLtv } from './validation/closeToMaxLtv'
-
-interface PaybackWithdrawArgs {
-  poolAddress: Address
-  dpmProxyAddress: Address
-  quoteAmount: BigNumber
-  quoteTokenPrecision: number
-  collateralAmount: BigNumber
-  collateralTokenPrecision: number
-  position: AjnaPosition
-}
+} from '../validation'
+import { validateWithdrawCloseToMaxLtv } from '../validation/closeToMaxLtv'
 
 export type AjnaPaybackWithdrawStrategy = (
-  args: PaybackWithdrawArgs,
-  dependencies: Dependencies,
+  args: AjnaBorrowPayload,
+  dependencies: AjnaCommonDependencies,
 ) => Promise<Strategy<AjnaPosition>>
 
 export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, dependencies) => {
@@ -63,6 +54,8 @@ export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, depende
     targetPosition,
     errors,
     warnings,
+    notices: [],
+    successes: [],
     data,
     txValue: resolveAjnaEthAction(isPayingBackEth, args.quoteAmount),
   })

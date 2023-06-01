@@ -1,8 +1,13 @@
 import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
+import {
+  AjnaEarnActions,
+  AjnaEarnPosition,
+  AjnaError,
+  AjnaNotice,
+  AjnaSuccess,
+  AjnaWarning,
+} from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
-
-import { AjnaEarnPosition } from '../../../types/ajna'
-import { AjnaEarnActions, AjnaError, AjnaWarning } from '../../../types/common'
 
 export const getAjnaEarnValidations = ({
   price,
@@ -22,17 +27,40 @@ export const getAjnaEarnValidations = ({
 }) => {
   const errors: AjnaError[] = []
   const warnings: AjnaWarning[] = []
+  const notices: AjnaNotice[] = []
+  const successes: AjnaSuccess[] = []
 
   // common
-  if (price.gt(position.pool.mostOptimisticMatchingPrice)) {
-    warnings.push({
-      name: 'price-above-momp',
+  if (price.lt(position.pool.highestThresholdPrice)) {
+    notices.push({
+      name: 'price-below-htp',
     })
   }
 
-  if (price.lt(position.pool.highestThresholdPrice) && position.collateralTokenAmount.isZero()) {
+  if (
+    price.gte(position.pool.highestThresholdPrice) &&
+    price.lt(position.pool.lowestUtilizedPrice)
+  ) {
+    successes.push({
+      name: 'price-between-htp-and-lup',
+    })
+  }
+
+  if (
+    price.gte(position.pool.lowestUtilizedPrice) &&
+    price.lt(position.pool.mostOptimisticMatchingPrice)
+  ) {
+    successes.push({
+      name: 'price-between-lup-and-momp',
+      data: {
+        lup: formatCryptoBalance(position.pool.lowestUtilizedPrice),
+      },
+    })
+  }
+
+  if (price.gt(position.pool.mostOptimisticMatchingPrice)) {
     warnings.push({
-      name: 'price-below-htp',
+      name: 'price-above-momp',
     })
   }
 
@@ -71,5 +99,5 @@ export const getAjnaEarnValidations = ({
       break
   }
 
-  return { errors, warnings }
+  return { errors, warnings, notices, successes }
 }

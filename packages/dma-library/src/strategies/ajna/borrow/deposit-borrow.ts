@@ -1,24 +1,23 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { AjnaPosition } from '@dma-library/types/ajna'
-import { Strategy } from '@dma-library/types/common'
+import {
+  AjnaBorrowPayload,
+  AjnaCommonDependencies,
+  AjnaPosition,
+  Strategy,
+} from '@dma-library/types/ajna'
 import { ethers } from 'ethers'
 
-import { Dependencies, OpenArgs } from './open'
 import {
   validateBorrowUndercollateralized,
   validateDustLimit,
   validateLiquidity,
-} from './validation'
-import { validateGenerateCloseToMaxLtv } from './validation/closeToMaxLtv'
-
-export interface DepositBorrowArgs extends Omit<OpenArgs, 'collateralPrice' | 'quotePrice'> {
-  position: AjnaPosition
-}
+} from '../validation'
+import { validateGenerateCloseToMaxLtv } from '../validation/closeToMaxLtv'
 
 export type AjnaDepositBorrowStrategy = (
-  args: DepositBorrowArgs,
-  dependencies: Dependencies,
+  args: AjnaBorrowPayload,
+  dependencies: AjnaCommonDependencies,
 ) => Promise<Strategy<AjnaPosition>>
 
 export const depositBorrow: AjnaDepositBorrowStrategy = async (args, dependencies) => {
@@ -57,6 +56,8 @@ export const depositBorrow: AjnaDepositBorrowStrategy = async (args, dependencie
     targetPosition,
     errors,
     warnings,
+    notices: [],
+    successes: [],
     data,
     txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
   })

@@ -325,6 +325,7 @@ export const config: SystemConfig = {
     BAL: { name: 'BAL', address: ADDRESS_ZERO },
     BAT: { name: 'BAT', address: ADDRESS_ZERO },
     COMP: { name: 'COMP', address: ADDRESS_ZERO },
+    CBETH: { name: 'CBETH', address: ADDRESS_ZERO },
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },
     DAI: {
       name: 'DAI',
@@ -907,6 +908,30 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_WSTETHDAI: {
+      name: 'AjnaPoolPairs_WSTETHDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_RETHDAI: {
+      name: 'AjnaPoolPairs_RETHDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_WBTCDAI: {
+      name: 'AjnaPoolPairs_WBTCDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_USDCWETH: {
+      name: 'AjnaPoolPairs_USDCWETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_USDCWBTC: {
+      name: 'AjnaPoolPairs_USDCWBTC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_USDCDAI: {
+      name: 'AjnaPoolPairs_USDCDAI',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

@@ -18,7 +18,10 @@ import {
   aaveV3UniqueContractName,
 } from '@dma-library/protocols/aave/config'
 import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
-import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import {
+  getAaveTokenAddress,
+  getAaveTokenAddresses,
+} from '@dma-library/strategies/aave/get-aave-token-addresses'
 import { AaveVersion } from '@dma-library/strategies/aave/get-current-position'
 import { IOperation, PositionTransition, PositionType, SwapData } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
@@ -66,27 +69,26 @@ export async function open(
   args: AaveOpenArgs,
   dependencies: AaveOpenDependencies,
 ): Promise<PositionTransition> {
-  const fee = feeResolver(
-    args.collateralToken.symbol,
-    args.debtToken.symbol,
-    true,
-    args.positionType === 'Earn',
-  )
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    isIncreasingRisk: true,
+    isEarnPosition: args.positionType === 'Earn',
+  })
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
   const { swapData: quoteSwapData } = await getSwapDataHelper<
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: true,
     args: {
-      ...args,
+      fromToken: args.debtToken,
+      toToken: args.collateralToken,
+      slippage: args.slippage,
       fee,
       swapAmountBeforeFees: estimatedSwapAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddresses: getAaveTokenAddresses,
+      getTokenAddress: getAaveTokenAddress,
     },
   })
 
@@ -104,16 +106,17 @@ export async function open(
     typeof dependencies.addresses,
     AAVETokens
   >({
-    fromTokenIsDebt: true,
     args: {
-      ...args,
+      fromToken: args.debtToken,
+      toToken: args.collateralToken,
+      slippage: args.slippage,
       fee,
       swapAmountBeforeFees: simulatedPositionTransition.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
-      getTokenAddresses: getAaveTokenAddresses,
+      getTokenAddress: getAaveTokenAddress,
     },
   })
 
@@ -302,12 +305,10 @@ async function buildOperation(
   const borrowAmountInWei = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
 
   const isIncreasingRisk = true
-  const fee = feeResolver(
-    args.collateralToken.symbol,
-    args.debtToken.symbol,
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk,
-    args.positionType === 'Earn',
-  )
+    isEarnPosition: args.positionType === 'Earn',
+  })
 
   if (protocolVersion === AaveVersion.v3) {
     const flashloanProvider = resolveFlashloanProvider(
