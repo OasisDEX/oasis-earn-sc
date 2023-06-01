@@ -8,8 +8,14 @@ import {
   aaveAdjustDownV3OperationDefinition,
   aaveAdjustUpV2OperationDefinition,
   aaveAdjustUpV3OperationDefinition,
+  aaveBorrowV2OperationDefinition,
+  aaveBorrowV3OperationDefinition,
   aaveCloseV2OperationDefinition,
   aaveCloseV3OperationDefinition,
+  aaveDepositBorrowV2OperationDefinition,
+  aaveDepositBorrowV3OperationDefinition,
+  aaveDepositV2OperationDefinition,
+  aaveDepositV3OperationDefinition,
   aaveOpenV2OperationDefinition,
   aaveOpenV3OperationDefinition,
   aavePaybackWithdrawV2OperationDefinition,
@@ -31,6 +37,7 @@ import { EtherscanGasPrice } from '@deploy-configurations/types/etherscan'
 import { Network } from '@deploy-configurations/types/network'
 import { NetworkByChainId } from '@deploy-configurations/utils/network/index'
 import { OperationsRegistry, ServiceRegistry } from '@deploy-configurations/utils/wrappers/index'
+import { CONTRACT_NAMES } from '@dma-contracts/../deploy-configurations/constants'
 import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
@@ -177,14 +184,42 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
+  findPath = (obj, target, parentPath) => {
+    for (const key in obj) {
+      const path = `${parentPath}.${key}`
+      if (typeof obj[key] === 'string' && obj[key] === target) {
+        return path
+      }
+      if (typeof obj[key] === 'object') {
+        const result = this.findPath(obj[key], target, path)
+        if (result) {
+          return result
+        }
+      }
+    }
+    return null
+  }
+
+  findStringPath = target => {
+    const rootPath = 'CONTRACT_NAMES'
+    return this.findPath(CONTRACT_NAMES, target, rootPath)
+  }
+
+  replaceServiceRegistryName(inputString, transformFunction) {
+    return inputString.replace(/(serviceRegistryName:\s')([^']*)(')/g, function (match, p1, p2) {
+      const newValue = transformFunction(p2)
+      return 'serviceRegistryName: ' + newValue
+    })
+  }
+
   async saveConfig() {
     const { writeFile } = await import('fs')
-
-    const configString = inspect(this.config, { depth: null })
+    let configString = inspect(this.config, { depth: null })
+    configString = this.replaceServiceRegistryName(configString, this.findStringPath)
 
     writeFile(
-      this.getConfigPath(`./${this.network}.conf.ts`),
-      `export const config = ${configString}`,
+      `./../deploy-configurations/configs/${this.network}.conf.ts`,
+      `import { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { CONTRACT_NAMES } from '@deploy-configurations/constants'\n\nexport const config: SystemConfig = ${configString} \n`,
       (error: any) => {
         if (error) {
           console.log('ERROR: ', error)
@@ -531,6 +566,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       this.signer,
     )
 
+    // AAVE V2
     await operationsRegistry.addOp(
       aaveOpenV2OperationDefinition.name,
       aaveOpenV2OperationDefinition.actions,
@@ -540,6 +576,32 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       aaveCloseV2OperationDefinition.actions,
     )
     await operationsRegistry.addOp(
+      aaveAdjustDownV2OperationDefinition.name,
+      aaveAdjustDownV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveAdjustUpV2OperationDefinition.name,
+      aaveAdjustUpV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aavePaybackWithdrawV2OperationDefinition.name,
+      aavePaybackWithdrawV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveDepositV2OperationDefinition.name,
+      aaveDepositV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveBorrowV2OperationDefinition.name,
+      aaveBorrowV2OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveDepositBorrowV2OperationDefinition.name,
+      aaveDepositBorrowV2OperationDefinition.actions,
+    )
+
+    // AAVE V3
+    await operationsRegistry.addOp(
       aaveOpenV3OperationDefinition.name,
       aaveOpenV3OperationDefinition.actions,
     )
@@ -548,15 +610,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       aaveCloseV3OperationDefinition.actions,
     )
     await operationsRegistry.addOp(
-      aaveAdjustDownV2OperationDefinition.name,
-      aaveAdjustDownV2OperationDefinition.actions,
-    )
-    await operationsRegistry.addOp(
-      aaveAdjustUpV2OperationDefinition.name,
-      aaveAdjustUpV2OperationDefinition.actions,
-    )
-
-    await operationsRegistry.addOp(
       aaveAdjustDownV3OperationDefinition.name,
       aaveAdjustDownV3OperationDefinition.actions,
     )
@@ -564,15 +617,21 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       aaveAdjustUpV3OperationDefinition.name,
       aaveAdjustUpV3OperationDefinition.actions,
     )
-
-    await operationsRegistry.addOp(
-      aavePaybackWithdrawV2OperationDefinition.name,
-      aavePaybackWithdrawV2OperationDefinition.actions,
-    )
-
     await operationsRegistry.addOp(
       aavePaybackWithdrawV3OperationDefinition.name,
       aavePaybackWithdrawV3OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveDepositBorrowV3OperationDefinition.name,
+      aaveDepositBorrowV3OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveDepositV3OperationDefinition.name,
+      aaveDepositV3OperationDefinition.actions,
+    )
+    await operationsRegistry.addOp(
+      aaveBorrowV3OperationDefinition.name,
+      aaveBorrowV3OperationDefinition.actions,
     )
   }
 

@@ -1,49 +1,24 @@
-import { ADDRESSES } from '@deploy-configurations/addresses'
+import { aaveDepositV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Address } from '@deploy-configurations/types/address'
-import { Network } from '@deploy-configurations/types/network'
-import { OPERATION_NAMES, ZERO } from '@dma-common/constants'
+import { ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { DepositArgs } from '@dma-library/operations/aave/common'
+import { DepositSwapArgs } from '@dma-library/operations/aave/common/deposit-args'
+import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
 import { ActionCall, IOperation } from '@dma-library/types'
 import { isDefined } from '@dma-library/utils/is-defined'
 import BigNumber from 'bignumber.js'
 
-interface SwapArgs {
-  fee: number
-  receiveAtLeast: BigNumber
-  calldata: string
-  collectFeeInFromToken: boolean
-}
-
-export interface DepositArgs {
-  // - either for a swap where the `entryToken` will be exchanged for the `depositToken`
-  // - or it will be directly deposited in the protocol
-  entryTokenAddress: Address
-  entryTokenIsEth: boolean
-  // - either used for a swap if `entryToken` is swapped for `depositToken`
-  // - or it will be directly deposited in the protocol
-  amountInBaseUnit: BigNumber
-  depositToken: Address
-  // Used to pull tokens from if ERC20 is used in the deposit
-  depositorAddress: Address
-  isSwapNeeded: boolean
-  swapArgs?: SwapArgs
-}
-
-export type AaveV2DepositOperation = ({
-  entryTokenAddress,
-  entryTokenIsEth,
-  depositToken,
-  amountInBaseUnit,
-  depositorAddress,
-  swapArgs,
-  isSwapNeeded,
-}: DepositArgs) => Promise<IOperation>
+export type AaveV2DepositOperation = (
+  args: DepositArgs,
+  addresses: AAVEStrategyAddresses,
+) => Promise<IOperation>
 
 function getSwapCalls(
   depositTokenAddress: Address,
   entryTokenAddress: Address,
   amountInBaseUnit: BigNumber,
-  swapArgs: SwapArgs | undefined,
+  swapArgs: DepositSwapArgs | undefined,
   ETHAddress: Address,
   WETHAddress: Address,
   isSwapNeeded: boolean,
@@ -81,15 +56,18 @@ function getSwapCalls(
   }
 }
 
-export const deposit: AaveV2DepositOperation = async ({
-  entryTokenAddress,
-  entryTokenIsEth,
-  depositToken,
-  amountInBaseUnit,
-  depositorAddress,
-  swapArgs,
-  isSwapNeeded,
-}) => {
+export const deposit: AaveV2DepositOperation = async (
+  {
+    entryTokenAddress,
+    entryTokenIsEth,
+    depositToken,
+    amountInBaseUnit,
+    depositorAddress,
+    swapArgs,
+    isSwapNeeded,
+  },
+  addresses,
+) => {
   const isAssetEth = entryTokenIsEth
 
   // Import ActionCall as it assists type generation
@@ -117,8 +95,8 @@ export const deposit: AaveV2DepositOperation = async ({
     entryTokenAddress,
     amountInBaseUnit,
     swapArgs,
-    ADDRESSES[Network.MAINNET].common.ETH,
-    ADDRESSES[Network.MAINNET].common.WETH,
+    addresses.ETH,
+    addresses.WETH,
     isSwapNeeded,
   )
 
@@ -129,7 +107,7 @@ export const deposit: AaveV2DepositOperation = async ({
       actions.common.setApproval(
         {
           asset: depositToken,
-          delegate: ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
+          delegate: addresses.lendingPool,
           // Check the explanation about the deposit action.
           // This approval is about the amount that's going to be deposit in the following action
           amount: amountInBaseUnit,
@@ -153,6 +131,6 @@ export const deposit: AaveV2DepositOperation = async ({
         [0, isSwapNeeded ? 1 : 0, 0, 0],
       ),
     ],
-    operationName: OPERATION_NAMES.aave.v2.DEPOSIT,
+    operationName: aaveDepositV2OperationDefinition.name,
   }
 }

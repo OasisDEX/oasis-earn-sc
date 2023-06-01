@@ -47,19 +47,19 @@ export const ajnaDepositBorrow: AjnaDepositBorrowAction = (
 export type AjnaPaybackWithdrawAction = (
   args: {
     pool: string
-    paybackAmount?: BigNumber
     withdrawAmount?: BigNumber
+    paybackAmount?: BigNumber
     paybackAll?: boolean
     withdrawAll?: boolean
     price: BigNumber
   },
-  paramsMapping: [
+  paramsMapping?: [
     pool: number,
-    paybackAmount: number,
     withdrawAmount: number,
-    price: number,
+    paybackAmount: number,
     paybackAll: number,
     withdrawAll: number,
+    price: number,
   ],
 ) => ActionCall
 
@@ -73,8 +73,8 @@ export const ajnaPaybackWithdraw: AjnaPaybackWithdrawAction = (
     [
       {
         pool: args.pool,
-        paybackAmount: args.paybackAmount?.toFixed(0) || ZERO,
         withdrawAmount: args.withdrawAmount?.toFixed(0) || ZERO,
+        paybackAmount: args.paybackAmount?.toFixed(0) || ZERO,
         paybackAll: !!args.paybackAll,
         withdrawAll: !!args.withdrawAll,
         price: args.price,

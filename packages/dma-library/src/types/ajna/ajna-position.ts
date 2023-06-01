@@ -6,7 +6,7 @@ import {
   getAjnaBorrowOriginationFee,
   simulatePool,
 } from '@dma-library/protocols/ajna'
-import { AjnaWarning } from '@dma-library/types/common'
+import { AjnaWarning } from '@dma-library/types/ajna'
 import { IRiskRatio, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
 
@@ -26,6 +26,8 @@ export interface IAjnaPosition {
   collateralAvailable: BigNumber
   riskRatio: IRiskRatio
   maxRiskRatio: IRiskRatio
+  minRiskRatio: IRiskRatio
+  buyingPower: BigNumber
   warnings: AjnaWarning[]
 
   debtAvailable(collateralAmount: BigNumber): BigNumber
@@ -95,8 +97,22 @@ export class AjnaPosition implements IAjnaPosition {
 
   get maxRiskRatio() {
     const loanToValue = this.pool.lowestUtilizedPrice.div(this.marketPrice)
+    return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
+  }
+
+  get minRiskRatio() {
+    const loanToValue = this.pool.poolMinDebtAmount.div(
+      this.collateralAmount.times(this.collateralPrice),
+    )
 
     return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
+  }
+
+  get buyingPower() {
+    return this.collateralAmount
+      .times(this.collateralPrice)
+      .times(this.maxRiskRatio.loanToValue)
+      .minus(this.debtAmount.times(this.quotePrice))
   }
 
   debtAvailable(collateralAmount?: BigNumber) {
@@ -157,6 +173,17 @@ export class AjnaPosition implements IAjnaPosition {
       this.owner,
       this.collateralAmount,
       newDebt,
+      this.collateralPrice,
+      this.quotePrice,
+    )
+  }
+
+  close(): AjnaPosition {
+    return new AjnaPosition(
+      simulatePool(this.pool, this.debtAmount.negated(), ZERO, this.collateralAmount.negated()),
+      this.owner,
+      ZERO,
+      ZERO,
       this.collateralPrice,
       this.quotePrice,
     )

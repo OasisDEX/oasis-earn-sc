@@ -357,6 +357,7 @@ export const config: SystemConfig = {
     ADAI: { name: 'ADAI', address: '0x028171bCA77440897B824Ca71D1c56caC55b68A3' },
     BAL: { name: 'BAL', address: '0xba100000625a3754423978a60c9317c58a424e3D' },
     BAT: { name: 'BAT', address: '0x0D8775F648430679A709E98d2b0Cb6250d2887EF' },
+    CBETH: { name: 'CBETH', address: '0xbe9895146f7af43049ca1c1ae358b0541ea49704' },
     COMP: { name: 'COMP', address: '0xc00e94Cb662C3520282E6f5717214004A7f26888' },
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: '0x06325440D014e39736583c165C2963BA99fAf14E' },
     DAI: {
@@ -945,6 +946,30 @@ export const config: SystemConfig = {
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
       address: '0x0c9Bc4EFD40cCD0B6c6372CFa8b8562A940185C1',
+    },
+    AjnaPoolPairs_WSTETHDAI: {
+      name: 'AjnaPoolPairs_WSTETHDAI',
+      address: '0x2549f77Bf6ca28963426709844B1DdFb8197876A',
+    },
+    AjnaPoolPairs_RETHDAI: {
+      name: 'AjnaPoolPairs_RETHDAI',
+      address: '0xeCf773a0535F46DD3Cd8728EE263eEEaBCa16A8e',
+    },
+    AjnaPoolPairs_WBTCDAI: {
+      name: 'AjnaPoolPairs_WBTCDAI',
+      address: '0xfa3F2cfC67C32C53601d52A9dEC31b2c2f0db3E2',
+    },
+    AjnaPoolPairs_USDCWETH: {
+      name: 'AjnaPoolPairs_USDCWETH',
+      address: '0xE3efD887308d6C29B5F9BF44957d8bD145a21bD5',
+    },
+    AjnaPoolPairs_USDCWBTC: {
+      name: 'AjnaPoolPairs_USDCWBTC',
+      address: '0x20D07529a9E1686773BA45eade1fbD3AA9F31aea',
+    },
+    AjnaPoolPairs_USDCDAI: {
+      name: 'AjnaPoolPairs_USDCDAI',
+      address: '0x7ed4194a16919dc5070457A2a22B9abFd9352E85',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
