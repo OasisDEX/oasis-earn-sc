@@ -1,4 +1,4 @@
-import { ajnaAdjustDownOperationDefinition } from '@deploy-configurations/operation-definitions/ajna/adjust-down'
+import { ajnaAdjustDownOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import {

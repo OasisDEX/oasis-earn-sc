@@ -19,5 +19,6 @@ export { aaveOpenV3OperationDefinition } from './aave/v3/open'
 export { aavePaybackWithdrawV3OperationDefinition } from './aave/v3/payback-withdraw'
 
 // AJNA
+export { ajnaAdjustDownOperationDefinition } from './ajna/adjust-down'
 export { ajnaAdjustUpOperationDefinition } from './ajna/adjust-up'
 export { ajnaOpenOperationDefinition } from './ajna/open'
