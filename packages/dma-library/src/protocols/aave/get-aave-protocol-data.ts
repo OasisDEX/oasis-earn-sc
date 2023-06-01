@@ -7,7 +7,7 @@ import { amountFromWei } from '@dma-common/utils/common'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { AaveVersion } from '@dma-library/strategies'
-import { getAbiForContract } from '@dma-library/utils/abis/get-abi-for-contraxt'
+import { getAbiForContract } from '@dma-library/utils/abis/get-abi-for-contract'
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 

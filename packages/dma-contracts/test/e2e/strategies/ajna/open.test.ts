@@ -24,6 +24,7 @@ describe('Strategy | AJNA | Open Multiply | E2E', () => {
   })
   before(async function () {
     env = await loadFixture(fixture)
+    if (!env) throw new Error('Env not setup')
   })
 
   describe('Open multiply positions', function () {

@@ -4,13 +4,12 @@ import aaveV3PoolABI from '@abis/external/protocols/aave/v3/pool.json'
 import aaveV3PriceOracleOptimismABI from '@abis/external/protocols/aave/v3-l2/aaveOracle.json'
 import aaveV3ProtocolDataProviderOptimismABI from '@abis/external/protocols/aave/v3-l2/aaveProtocolDataProvider.json'
 import aaveV3PoolOptimismABI from '@abis/external/protocols/aave/v3-l2/pool.json'
-import chainLinkV3AggregatorABI from '@abis/external/protocols/chainlink/aggregatorV3Interface.json'
 import { Network } from '@deploy-configurations/types/network'
 import { getForkedNetwork as coalesceNetwork } from '@deploy-configurations/utils/network/index'
 import { ContractInterface } from '@ethersproject/contracts'
 import { providers } from 'ethers'
 
-type AllowedContractNames = 'poolDataProvider' | 'pool' | 'aaveOracle' | 'chainLinkOracle'
+type AllowedContractNames = 'poolDataProvider' | 'pool' | 'aaveOracle'
 
 export async function getAbiForContract(
   contractName: AllowedContractNames,
@@ -29,12 +28,10 @@ const abiByContractName: Record<
     poolDataProvider: aaveV3ProtocolDataProviderABI,
     pool: aaveV3PoolABI,
     aaveOracle: aaveV3PriceOracleABI,
-    chainLinkOracle: chainLinkV3AggregatorABI,
   },
   [Network.OPTIMISM]: {
     poolDataProvider: aaveV3ProtocolDataProviderOptimismABI,
     pool: aaveV3PoolOptimismABI,
     aaveOracle: aaveV3PriceOracleOptimismABI,
-    chainLinkOracle: chainLinkV3AggregatorABI,
   },
 }
