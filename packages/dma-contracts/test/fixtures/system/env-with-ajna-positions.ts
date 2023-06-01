@@ -13,7 +13,9 @@ import {
   EnvWithAjnaPositions,
   StrategyDependenciesAjna,
 } from '@dma-contracts/test/fixtures/types'
+import { mapAjnaPoolDataTypes } from '@dma-contracts/test/utils/ajna/map-ajna-pool-type'
 import { views } from '@dma-library'
+import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
@@ -124,7 +126,7 @@ function buildDependencies(dsSystem: System, ajnaSystem: AjnaSystem, config: Run
     poolInfoAddress: ajnaSystem.poolInfo.address,
     operationExecutor: system.OperationExecutor.contract.address,
     WETH: systemConfig.common.WETH.address,
-    getPoolData: undefined,
+    getPoolData: mapGetPoolDataFunction(ajnaSystem),
     getPosition: views.ajna.getPosition,
     addresses: {
       DAI: systemConfig.common.DAI.address,
@@ -198,5 +200,12 @@ function buildEnv(
     dsSystem,
     dependencies: dependencies,
     positions,
+  }
+}
+
+function mapGetPoolDataFunction(ajnaSystem: AjnaSystem) {
+  return async (poolAddress: string): Promise<AjnaPool> => {
+    const pool = await ajnaSystem.getPoolData(poolAddress)
+    return mapAjnaPoolDataTypes(poolAddress, pool)
   }
 }
