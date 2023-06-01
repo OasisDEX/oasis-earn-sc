@@ -933,15 +933,15 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_WSTETHDAI: {
       name: 'AjnaPoolPairs_WSTETHDAI',
-      address: '0xD308d6BF3673B12b81ff429ABb48826E5CF04f80',
+      address: '0x2549f77Bf6ca28963426709844B1DdFb8197876A',
     },
     AjnaPoolPairs_RETHDAI: {
       name: 'AjnaPoolPairs_RETHDAI',
-      address: '0xD54326b7a64df61Dc0EDEfE92c0442Ed2eE82e6c',
+      address: '0xeCf773a0535F46DD3Cd8728EE263eEEaBCa16A8e',
     },
     AjnaPoolPairs_WBTCDAI: {
       name: 'AjnaPoolPairs_WBTCDAI',
-      address: '0x97Db8269916f1b6027631969E6c096f4Ffd37cdD',
+      address: '0xfa3F2cfC67C32C53601d52A9dEC31b2c2f0db3E2',
     },
     AjnaPoolPairs_USDCWETH: {
       name: 'AjnaPoolPairs_USDCWETH',
