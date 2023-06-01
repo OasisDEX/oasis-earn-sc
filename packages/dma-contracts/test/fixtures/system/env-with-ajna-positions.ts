@@ -51,7 +51,7 @@ export const envWithAjnaPositions = ({
     )
     await resetNode(ds, network)
     const dsSystem = await deploySystem(ds)
-    const swapAddress = await configureSwapContract(dsSystem)
+    await configureSwapContract(dsSystem)
     const dependencies = await buildDependencies(dsSystem, config)
     const supportedPositions = getSupportedAjnaPositions(network)
     const proxies = await createProxies(dsSystem, supportedPositions.length)
