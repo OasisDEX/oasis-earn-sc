@@ -9,14 +9,16 @@ const createAction = ActionFactory.create
 
 export type AjnaDepositBorrowAction = (
   args: {
-    pool: string
+    quoteToken: string
+    collateralToken: string
     depositAmount: BigNumber
     borrowAmount?: BigNumber
     sumDepositAmounts: boolean
     price: BigNumber
   },
   paramsMapping: [
-    pool: number,
+    quoteToken: number,
+    collateralToken: number,
     depositAmount: number,
     borrowAmount: number,
     sumDepositAmounts: number,
@@ -26,14 +28,15 @@ export type AjnaDepositBorrowAction = (
 
 export const ajnaDepositBorrow: AjnaDepositBorrowAction = (
   args,
-  paramsMapping = [0, 0, 0, 0, 0],
+  paramsMapping = [0, 0, 0, 0, 0, 0],
 ) => {
   return createAction(
     getActionHash(CONTRACT_NAMES.ajna.DEPOSIT_BORROW),
     [calldataTypes.ajna.DepositBorrow],
     [
       {
-        pool: args.pool,
+        quoteToken: args.quoteToken,
+        collateralToken: args.collateralToken,
         depositAmount: args.depositAmount.toFixed(0),
         borrowAmount: args.borrowAmount?.toFixed(0) || ZERO,
         sumDepositAmounts: args.sumDepositAmounts,
@@ -46,7 +49,8 @@ export const ajnaDepositBorrow: AjnaDepositBorrowAction = (
 
 export type AjnaPaybackWithdrawAction = (
   args: {
-    pool: string
+    quoteToken: string
+    collateralToken: string
     withdrawAmount?: BigNumber
     paybackAmount?: BigNumber
     paybackAll?: boolean
@@ -54,7 +58,8 @@ export type AjnaPaybackWithdrawAction = (
     price: BigNumber
   },
   paramsMapping?: [
-    pool: number,
+    quoteToken: number,
+    collateralToken: number,
     withdrawAmount: number,
     paybackAmount: number,
     paybackAll: number,
@@ -65,14 +70,15 @@ export type AjnaPaybackWithdrawAction = (
 
 export const ajnaPaybackWithdraw: AjnaPaybackWithdrawAction = (
   args,
-  paramsMapping = [0, 0, 0, 0, 0, 0],
+  paramsMapping = [0, 0, 0, 0, 0, 0, 0],
 ) => {
   return createAction(
     getActionHash(CONTRACT_NAMES.ajna.REPAY_WITHDRAW),
     [calldataTypes.ajna.RepayWithdraw],
     [
       {
-        pool: args.pool,
+        quoteToken: args.quoteToken,
+        collateralToken: args.collateralToken,
         withdrawAmount: args.withdrawAmount?.toFixed(0) || ZERO,
         paybackAmount: args.paybackAmount?.toFixed(0) || ZERO,
         paybackAll: !!args.paybackAll,
