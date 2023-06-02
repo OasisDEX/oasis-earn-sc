@@ -105,14 +105,25 @@ export async function deployApa(
   poolInstance: PoolCommons,
   rewardsManager: RewardsManager,
   positionManager: PositionManager,
-  dmpGuardContract: Contract,
-  guardDeployerSigner: Signer,
+  dpmGuardContract: Contract,
+  guardOwnerAddress: string,
   weth: WETH,
-  ajna: Token
+  ajna: Token,
+  signerAddress : string,
+  isMainnet: boolean = false
 ) {
   const { serviceRegistryContract } = await deployServiceRegistry();
   const hash = await serviceRegistryContract.getServiceNameHash("DPM_GUARD");
-  await serviceRegistryContract.addNamedService(hash, dmpGuardContract.address);
+  const result = await serviceRegistryContract.addNamedService(hash, dpmGuardContract.address);
+
+  utils.traceTransaction("addNamedService", {
+    address: await serviceRegistryContract.owner(),
+    data: result.data,
+    from: signerAddress,
+    to: serviceRegistryContract.address,
+    nonce: result.nonce,
+  });
+
   const poolInfoContract = await utils.deployContract<PoolInfoUtils>("PoolInfoUtils", [], {
     libraries: {
       PoolCommons: poolInstance.address,
@@ -132,23 +143,42 @@ export async function deployApa(
     ajna.address,
     weth.address,
     arc.address,
-    dmpGuardContract.address,
+    dpmGuardContract.address,
   ]);
 
   await arc.initializeAjnaProxyActions(ajnaProxyActionsContract.address);
 
-  await dmpGuardContract.connect(guardDeployerSigner).setWhitelist(ajnaProxyActionsContract.address, true);
+  if(!isMainnet) {
+    await dpmGuardContract.connect(guardOwnerAddress).setWhitelist(ajnaProxyActionsContract.address, true);
+  }else{
+    console.log("Simulating transaction, whitelisting AjnaProxyActions contract")
+    await utils.hre.ethers.provider.send("tenderly_simulateTransaction",
+     [{
+        from: guardOwnerAddress,
+        to: dpmGuardContract.address,
+        data: dpmGuardContract.interface.encodeFunctionData("setWhitelist", [ajnaProxyActionsContract.address, true]),
+     }]);
+     console.log("Done");
+  }
 
   return { ajnaProxyActionsContract, poolInfo: poolInfoContract, poolInfoContract, ajnaRewardsClaimerContract: arc };
 }
-export async function deployGuard() {
-  const dmpGuardContract = await utils.deployContract<AccountGuard>("AccountGuard", []);
-  const dmpFactory = await utils.deployContract<AccountFactory>("AccountFactory", [dmpGuardContract.address]);
+export async function deployGuard(isMainnet: boolean = false) {
+  let dpmGuardContract: AccountGuard;
+  let guardDeployerAddress: string;
+  let dpmFactory: AccountFactory;  
 
-  const [guardDeployerAddress] = await hre.ethers.getSigners();
-  const guardDeployerSigner = await utils.impersonate(guardDeployerAddress.address);
+  if(isMainnet) {
+    dpmGuardContract = await utils.getContract<AccountGuard>("AccountGuard", ADDRESSES.main.accountGuard);
+    dpmFactory = await utils.getContract<AccountFactory>("AccountFactory", ADDRESSES.main.accountFactory);
+    guardDeployerAddress = await dpmGuardContract.owner();
+  } else {
+    dpmGuardContract = await utils.deployContract<AccountGuard>("AccountGuard", []);
+    dpmFactory = await utils.deployContract<AccountFactory>("AccountFactory", [dpmGuardContract.address]);
+    [guardDeployerAddress] = await (await hre.ethers.getSigners())[0].getAddress();  
+  }
 
-  return { dmpGuardContract, guardDeployerSigner, dmpFactory };
+  return { dpmGuardContract, guardDeployerAddress, dpmFactory };
 }
 
 export async function deployPoolFactory(
@@ -217,7 +247,7 @@ export async function deploy(mainnetTokens = false) {
     lenderActionsInstance,
   } = await deployLibraries();
 
-  const { dmpFactory, guardDeployerSigner, dmpGuardContract } = await deployGuard();
+  const { dpmFactory, guardDeployerAddress, dpmGuardContract } = await deployGuard(mainnetTokens);
   const { erc20PoolFactory, erc721PoolFactory } = await deployPoolFactory(
     poolCommons,
     borrowerActionsInstance,
@@ -240,10 +270,12 @@ export async function deploy(mainnetTokens = false) {
     poolCommons,
     rewardsManagerContract,
     positionManagerContract,
-    dmpGuardContract,
-    guardDeployerSigner,
+    dpmGuardContract,
+    guardDeployerAddress,
     weth,
-    ajna
+    ajna,
+    await deployer.getAddress(),
+    false
   );
   const pools = {
     wbtcUsdcPool: await deployPool(erc20PoolFactory, wbtc.address, usdc.address),
@@ -261,9 +293,9 @@ export async function deploy(mainnetTokens = false) {
     wbtc,
     weth,
     ajna,
-    dmpFactory,
-    guardDeployerSigner,
-    dmpGuardContract,
+    dpmFactory,
+    guardDeployerAddress,
+    dpmGuardContract,
     pools,
   };
 }

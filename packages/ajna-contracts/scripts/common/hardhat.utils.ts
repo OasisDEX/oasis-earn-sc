@@ -8,7 +8,31 @@ import { HardhatRuntimeEnvironment, Network } from "hardhat/types/runtime";
 
 import { Token, WETH } from "../../typechain-types";
 
+type TraceData = {
+  address: string;
+  data: string;
+  from: string;
+  to: string;
+  nonce: number;
+}
+type TraceItem = TraceData & {
+  operationName: string;
+}
+const trace : TraceItem[] = [];
+
 export class HardhatUtils {
+
+
+  traceTransaction(operationName : string,result: TraceData) {
+    trace.push({
+      operationName,
+      address: result.address,
+      data: result.data,
+      from: result.from,
+      to: result.to,
+      nonce: result.nonce,
+    });
+  }
   constructor(public readonly hre: HardhatRuntimeEnvironment, public readonly forked?: Network) {}
   public getEvents(receipt: ContractReceipt, eventAbi: EventFragment) {
     const iface = new this.hre.ethers.utils.Interface([eventAbi]);
@@ -38,7 +62,14 @@ export class HardhatUtils {
   ): Promise<T> {
     const factory = await ethers.getContractFactory(contractName, signerOrOptions);
     const contract = (await factory.deploy(...args)) as T;
-    await contract.deployed();
+    const receipt = await contract.deployTransaction.wait();
+    this.traceTransaction(contractName, {
+      address: contract.address,
+      data: contract.deployTransaction.data,
+      from: receipt.from,
+      to: receipt.to,
+      nonce: contract.deployTransaction.nonce,
+    })
     return contract;
   }
   public async getContract<T extends Contract>(contractName: string, contractAddress: string): Promise<T> {
