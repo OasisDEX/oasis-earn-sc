@@ -5,9 +5,14 @@ import { Executable } from "../common/Executable.sol";
 import { Write, UseStore, Read } from "../common/UseStore.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 import { DepositBorrowData } from "../../core/types/Ajna.sol";
-import { AJNA_POOL_UTILS_INFO } from "../../core/constants/Ajna.sol";
+import {
+  AJNA_POOL_UTILS_INFO,
+  ERC20_POOL_FACTORY,
+  ERC20_NON_SUBSET_HASH
+} from "../../core/constants/Ajna.sol";
 import { IAjnaPool } from "../../interfaces/ajna/IERC20Pool.sol";
 import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol";
+import { IERC20PoolFactory } from "../../interfaces/ajna/IERC20PoolFactory.sol";
 
 /**
  * @title DepositBorrow | Ajna Action contract
@@ -17,9 +22,11 @@ contract AjnaDepositBorrow is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
   IAjnaPoolUtilsInfo public immutable poolUtilsInfo;
+  IERC20PoolFactory public immutable erc20PoolFactory;
 
-  constructor(address poolUtilsInfoAddress, address _registry) UseStore(_registry) {
-    poolUtilsInfo = IAjnaPoolUtilsInfo(poolUtilsInfoAddress);
+  constructor(address _registry) UseStore(_registry) {
+    poolUtilsInfo = IAjnaPoolUtilsInfo(registry.getRegisteredService(AJNA_POOL_UTILS_INFO));
+    erc20PoolFactory = IERC20PoolFactory(registry.getRegisteredService(ERC20_POOL_FACTORY));
   }
 
   /**
@@ -27,7 +34,10 @@ contract AjnaDepositBorrow is Executable, UseStore {
    */
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     DepositBorrowData memory args = parseInputs(data);
-    IAjnaPool pool = IAjnaPool(args.pool);
+    IAjnaPool pool = IAjnaPool(
+      erc20PoolFactory.deployedPools(ERC20_NON_SUBSET_HASH, args.collateralToken, args.quoteToken)
+    );
+    require(address(pool) != address(0), "AjnaDepositBorrow: Pool not found");
 
     uint256 mappedDepositAmount = store().readUint(
       bytes32(args.depositAmount),

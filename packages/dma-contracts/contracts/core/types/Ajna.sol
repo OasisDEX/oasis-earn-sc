@@ -2,7 +2,8 @@
 pragma solidity ^0.8.15;
 
 struct DepositBorrowData {
-  address pool;
+  address quoteToken;
+  address collateralToken;
   uint256 depositAmount;
   uint256 borrowAmount;
   bool sumDepositAmounts;
@@ -10,7 +11,8 @@ struct DepositBorrowData {
 }
 
 struct RepayWithdrawData {
-  address pool;
+  address quoteToken;
+  address collateralToken;
   uint256 withdrawAmount;
   uint256 repayAmount;
   bool paybackAll;
