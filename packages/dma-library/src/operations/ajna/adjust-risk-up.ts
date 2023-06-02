@@ -87,13 +87,14 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
 
   const depositBorrow = actions.ajna.ajnaDepositBorrow(
     {
-      pool: addresses.pool,
+      quoteToken: debt.address,
+      collateralToken: collateral.address,
       depositAmount,
       borrowAmount: debt.borrow.amount,
       sumDepositAmounts: true,
       price,
     },
-    [0, swapValueIndex, 0, 0, 0],
+    [0, 0, swapValueIndex, 0, 0, 0],
   )
 
   const flashloanCalls = [
