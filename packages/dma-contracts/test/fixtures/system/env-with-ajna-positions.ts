@@ -50,7 +50,7 @@ export const envWithAjnaPositions = ({
       hideLogging,
     )
     await resetNode(ds, network)
-    const ajnaSystem = await prepareAjnaEnv(hre)
+    const ajnaSystem = await prepareAjnaEnv(hre, true)
     const dmaSystem = await deploySystem(ds)
     await configureSwapContract(dmaSystem)
     const dependencies = await buildDependencies(dmaSystem, ajnaSystem, config)

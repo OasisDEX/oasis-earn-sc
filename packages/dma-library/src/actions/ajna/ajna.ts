@@ -37,7 +37,7 @@ export const ajnaDepositBorrow: AjnaDepositBorrowAction = (
         depositAmount: args.depositAmount.toFixed(0),
         borrowAmount: args.borrowAmount?.toFixed(0) || ZERO,
         sumDepositAmounts: args.sumDepositAmounts,
-        price: args.price,
+        price: args.price.toFixed(0),
       },
       paramsMapping,
     ],
