@@ -135,8 +135,13 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
     const hpb = await poolInfoContract.hpb(pool.address);
     const hpbIndex = await poolInfoContract.hpbIndex(pool.address);
     const htp = await poolInfoContract.htp(pool.address);
-    const htpIndex = await poolInfoContract.priceToIndex(htp);
     let momp = BigNumber.from(0);
+    let htpIndex = BigNumber.from(0);
+    try {
+      htpIndex = await poolInfoContract.priceToIndex(htp);
+    } catch (e) {
+      console.error("htp not found", e);
+    }
     try {
       momp = await poolInfoContract.momp(pool.address);
     } catch (e) {
@@ -204,7 +209,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
   );
   async function provideLiquidity_(pool: ERC20Pool, amount: BigNumber, bucketIndex: BigNumber, user: User = users[1]) {
     await provideLiquidity(usdc, user.signer, pool, amount, bucketIndex, getExpiryTimestamp);
-    bucketsRepo[pool.address.toLowerCase()].add(bucketIndex.toNumber());
+    bucketsRepo[pool.address].add(bucketIndex.toNumber());
   }
   async function removeLiquidity_(pool: ERC20Pool, amount: BigNumber, bucketIndex: BigNumber, user: User = users[1]) {
     const amountWei = ethers.utils.parseUnits(amount.toString(), 18);

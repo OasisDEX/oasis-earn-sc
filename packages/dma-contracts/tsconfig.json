@@ -4,6 +4,7 @@
     "paths": {
       "@typechain/*": ["./typechain/*"],
       "@abis/*": ["../abis/*"],
+      "@ajna-contracts/*": ["../ajna-contracts/*"],
       "@ajna-contracts/scripts": ["../ajna-contracts/scripts/index.ts"],
       "@ajna-contracts/scripts/*": ["../ajna-contracts/scripts/*"],
       "@dma-contracts/test/*": ["./test/*"],

@@ -91,6 +91,7 @@
   "alias": {
     "@abis/external": "./packages/abis/external/",
     "@abis/system": "./packages/abis/system/",
+    "@ajna-contracts/typechain-types": "./packages/ajna-contracts/typechain-types",
     "@ajna-contracts/scripts": "./packages/ajna-contracts/scripts",
     "@dma-common/constants": "./packages/dma-common/constants",
     "@dma-common/types/optional": "./packages/dma-common/types/optional",

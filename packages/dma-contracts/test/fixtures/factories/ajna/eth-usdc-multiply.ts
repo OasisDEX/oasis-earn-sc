@@ -20,6 +20,7 @@ import { AjnaPosition, RiskRatio, strategies } from '@dma-library'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import { AjnaStrategy } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
 
 import { OpenMultiplyPositionTypes } from './open-position-types'
 
@@ -52,22 +53,8 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
   const pool = ajnaSystem.pools.wethUsdcPool
   if (!pool) throw new Error('wethUsdcPool is not set')
 
-  // Find some way to supplyQuote
-  // Precision: ONE = 1 ETH
-  // await ajnaSystem.provideLiquidity(
-  //   pool,
-  //   new EBigNumber(ONE.toString()),
-  //   new EBigNumber(ONE.toString()),
-  // )
-  // await ajnaSystem.ajnaProxyActionsContract.supplyQuote(pool.address, bn.eighteen.ONE, 2000000, {
-  //   gasLimit: 5000000,
-  // })
-  // const index = await ajnaProxyActionsContract.convertPriceToIndex(price)
-  // await wbtc.approve(poolContract.address, bn.eighteen.ONE)
-  // // add one BTC to the pool
-  // await poolContract.addCollateral(bn.eighteen.ONE, index, Date.now() + 100)
-
   await addLiquidityToPool(ajnaSystem, pool)
+  // await addBorrowerToPool(ajnaSystem, pool) // Ensures values like htp etc can be calculated
 
   const ajnaPool = await dependencies.getPoolData(pool.address)
 
@@ -115,10 +102,24 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
 ethUsdcMultiplyAjnaPosition.positionVariant = 'ETH/USDC Multiply' as const
 
 async function addLiquidityToPool(ajnaSystem: AjnaSystem, pool: ERC20Pool) {
-  // const amount = amountToWei(ONE, ETH.precision)
-  // const tx = await pool.addLiquidity(amount, { value: amount })
-  // await tx.wait()
-  // Perform pool setup
+  const buckets = [
+    {
+      amount: ethers.BigNumber.from(10),
+      index: ethers.BigNumber.from(1),
+    },
+    {
+      amount: ethers.BigNumber.from(10),
+      index: ethers.BigNumber.from(2),
+    },
+    {
+      amount: ethers.BigNumber.from(10),
+      index: ethers.BigNumber.from(3),
+    },
+  ]
+
+  for (const bucket of buckets) {
+    await ajnaSystem.provideLiquidity(pool, bucket.amount, bucket.index)
+  }
 }
 
 function configureTokens(dependencies: StrategyDependenciesAjna) {
