@@ -49,7 +49,8 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
   })
 
   const paybackWithdraw = actions.ajna.ajnaPaybackWithdraw({
-    pool: addresses.pool,
+    quoteToken: debt.address,
+    collateralToken: collateral.address,
     withdrawAmount: ZERO,
     paybackAmount: ZERO,
     withdrawAll: true,
