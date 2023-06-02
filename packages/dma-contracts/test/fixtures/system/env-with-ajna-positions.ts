@@ -43,36 +43,38 @@ export const envWithAjnaPositions = ({
   configExtensionPaths: string[]
 }) =>
   async function fixture(): Promise<EnvWithAjnaPositions> {
-    const ajnaSystem = await prepareAjnaEnv(hre)
     const { ds, config } = await setupDmaDeploymentSystemHelper(
+      hre,
       systemConfigPath,
       configExtensionPaths,
       hideLogging,
     )
     await resetNode(ds, network)
-    const dsSystem = await deploySystem(ds)
-    await configureSwapContract(dsSystem)
-    const dependencies = await buildDependencies(dsSystem, ajnaSystem, config)
+    const ajnaSystem = await prepareAjnaEnv(hre)
+    const dmaSystem = await deploySystem(ds)
+    await configureSwapContract(dmaSystem)
+    const dependencies = await buildDependencies(dmaSystem, ajnaSystem, config)
     const supportedPositions = getSupportedAjnaPositions(network)
-    const proxies = await createProxies(dsSystem, supportedPositions.length)
+    const proxies = await createProxies(dmaSystem, supportedPositions.length)
     const positions = await createAjnaPositions(
       proxies,
       supportedPositions,
       dependencies,
-      dsSystem,
+      dmaSystem,
       ajnaSystem,
       config,
     )
 
-    return buildEnv(config, hre, dsSystem, ajnaSystem, dependencies, positions)
+    return buildEnv(config, hre, dmaSystem, ajnaSystem, dependencies, positions)
   }
 
 async function setupDmaDeploymentSystemHelper(
+  _hre: HardhatRuntimeEnvironment,
   systemConfigPath?: string,
   configExtensionPaths?: string[],
   hideLogging?: boolean,
 ) {
-  const ds = new DeploymentSystem(hre)
+  const ds = new DeploymentSystem(_hre)
   const config: RuntimeConfig = await ds.init(hideLogging)
   await ds.loadConfig(systemConfigPath)
   if (configExtensionPaths) {
@@ -205,7 +207,7 @@ function buildEnv(
 
 function mapGetPoolDataFunction(ajnaSystem: AjnaSystem) {
   return async (poolAddress: string): Promise<AjnaPool> => {
-    const pool = await ajnaSystem.getPoolData(poolAddress.toLowerCase())
+    const pool = await ajnaSystem.getPoolData(poolAddress)
     return mapAjnaPoolDataTypes(poolAddress, pool)
   }
 }

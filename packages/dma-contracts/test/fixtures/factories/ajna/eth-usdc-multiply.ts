@@ -1,3 +1,4 @@
+import { ERC20Pool } from '@ajna-contracts/typechain-types'
 import { ONE } from '@dma-common/constants'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
@@ -66,6 +67,8 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
   // // add one BTC to the pool
   // await poolContract.addCollateral(bn.eighteen.ONE, index, Date.now() + 100)
 
+  await addLiquidityToPool(ajnaSystem, pool)
+
   const ajnaPool = await dependencies.getPoolData(pool.address)
 
   // Mocked price info
@@ -73,7 +76,6 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
   const collateralPrice = new BigNumber(1543)
   const quotePrice = new BigNumber(1)
 
-  await addLiquidityToPool(ajnaPool)
   const tokens = configureTokens(dependencies)
   const getSwapDataFn = configureSwapDataFn(dependencies, tokens, mockMarketPrice)
   const payload = await getEthUsdcMultiplyAjnaPositionPayload(
@@ -112,7 +114,7 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
 
 ethUsdcMultiplyAjnaPosition.positionVariant = 'ETH/USDC Multiply' as const
 
-async function addLiquidityToPool(pool: AjnaPool) {
+async function addLiquidityToPool(ajnaSystem: AjnaSystem, pool: ERC20Pool) {
   // const amount = amountToWei(ONE, ETH.precision)
   // const tx = await pool.addLiquidity(amount, { value: amount })
   // await tx.wait()

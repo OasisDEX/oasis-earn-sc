@@ -259,6 +259,7 @@ export async function deploy(mainnetTokens = false, hre: HardhatRuntimeEnvironme
     ajna,
     hre
   );
+
   const pools = {
     wbtcUsdcPool: await deployPool(erc20PoolFactory, wbtc.address, usdc.address, hre),
     wethUsdcPool: await deployPool(erc20PoolFactory, weth.address, usdc.address, hre),

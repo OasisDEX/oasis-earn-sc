@@ -198,7 +198,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
   const bucketsRepo: Record<string, Set<number>> = Object.values(pools).reduce(
     (acc, pool) => ({
       ...acc,
-      [pool.address.toLowerCase()]: new Set<number>(),
+      [pool.address]: new Set<number>(),
     }),
     {}
   );
