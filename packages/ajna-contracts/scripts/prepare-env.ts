@@ -97,7 +97,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
     pools,
     positionManagerContract,
     rewardsManagerContract,
-  } = await deploy(mainnetTokens);
+  } = await deploy(mainnetTokens, hre);
 
   const poolByAddress = Object.entries(pools).reduce(
     (acc, [, pool]) => ({ ...acc, [pool.address]: pool }),
