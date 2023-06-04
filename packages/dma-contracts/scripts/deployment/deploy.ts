@@ -20,6 +20,7 @@ import {
   aaveOpenV3OperationDefinition,
   aavePaybackWithdrawV2OperationDefinition,
   aavePaybackWithdrawV3OperationDefinition,
+  ajnaOpenOperationDefinition,
 } from '@deploy-configurations/operation-definitions'
 import {
   ContractProps,
@@ -603,6 +604,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await operationsRegistry.addOp(
       aaveBorrowV3OperationDefinition.name,
       aaveBorrowV3OperationDefinition.actions,
+    )
+
+    // AJNA
+    await operationsRegistry.addOp(
+      ajnaOpenOperationDefinition.name,
+      ajnaOpenOperationDefinition.actions,
     )
   }
 

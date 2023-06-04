@@ -2,7 +2,6 @@ import { ERC20Pool } from '@ajna-contracts/typechain-types'
 import { ONE } from '@dma-common/constants'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
-import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
 import {
   AjnaPositionDetails,
@@ -154,7 +153,7 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
     getSwapData: AjnaPositionDetails['getSwapData']
   },
 ) {
-  const collateralAmount = amountToWei(ONE, ETH.precision)
+  const collateralAmount = ONE
   const slippage = UNISWAP_TEST_SLIPPAGE
   const riskRatio = new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE)
 
