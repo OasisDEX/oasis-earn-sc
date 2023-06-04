@@ -105,7 +105,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
   );
 
   await Promise.all([
-    ...signers.map(signer => utils.sendLotsOfMoney(signer.address, usdc, mainnetTokens)),
+    ...(mainnetTokens ? [] : signers.map(signer => utils.sendLotsOfMoney(signer.address, usdc, mainnetTokens))),
     ...signers.map(signer => utils.sendLotsOfMoney(signer.address, wbtc, mainnetTokens)),
     ...signers.map(signer => utils.sendLotsOfMoney(signer.address, weth, mainnetTokens)),
   ]);
