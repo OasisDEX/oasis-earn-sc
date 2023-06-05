@@ -4,6 +4,7 @@ import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import {
   calculateMaxGenerate,
   getAjnaBorrowOriginationFee,
+  getAjnaLiquidationPrice,
   simulatePool,
 } from '@dma-library/protocols/ajna'
 import { AjnaWarning } from '@dma-library/types/ajna'
@@ -20,7 +21,9 @@ export interface IAjnaPosition {
 
   marketPrice: BigNumber
   liquidationPrice: BigNumber
+  shortLiquidationPrice: BigNumber
   liquidationToMarketPrice: BigNumber
+  shortLiquidationToMarketPrice: BigNumber
   thresholdPrice: BigNumber
 
   collateralAvailable: BigNumber
@@ -56,15 +59,19 @@ export class AjnaPosition implements IAjnaPosition {
   ) {}
 
   get liquidationPrice() {
-    const liquidationPrice = this.pool.mostOptimisticMatchingPrice
-      .times(
-        this.debtAmount
-          .times(this.pool.pendingInflator)
-          .div(this.pool.lowestUtilizedPrice.times(this.collateralAmount)),
-      )
-      .times(ONE.plus(this.pool.interestRate))
+    return getAjnaLiquidationPrice({
+      pool: this.pool,
+      debtAmount: this.debtAmount,
+      collateralAmount: this.collateralAmount,
+    })
+  }
 
-    return normalizeValue(liquidationPrice)
+  get shortLiquidationPrice() {
+    return getAjnaLiquidationPrice({
+      pool: this.pool,
+      debtAmount: this.collateralAmount,
+      collateralAmount: this.debtAmount,
+    })
   }
 
   get marketPrice() {
@@ -73,6 +80,10 @@ export class AjnaPosition implements IAjnaPosition {
 
   get liquidationToMarketPrice() {
     return this.liquidationPrice.div(this.marketPrice)
+  }
+
+  get shortLiquidationToMarketPrice() {
+    return this.shortLiquidationPrice.div(ONE.div(this.marketPrice))
   }
 
   get thresholdPrice() {
