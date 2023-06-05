@@ -54,7 +54,7 @@ export const envWithAjnaPositions = ({
     )
     await resetNode(ds, network)
     const ajnaSystem = await prepareAjnaEnv(hre, true)
-    const dmaSystem = await deploySystem(ds)
+    const dmaSystem = await deploySystem(ds, ajnaSystem)
     await configureSwapContract(dmaSystem)
     const dependencies = await buildDependencies(dmaSystem, ajnaSystem, config)
     await getQuoteTokenForPoolSetup(ajnaSystem.users, config, hre, network, dependencies)
@@ -130,11 +130,32 @@ async function resetNode(ds, network) {
   }
 }
 
-async function deploySystem(ds: DeploymentSystem) {
-  await ds.deployAll()
-  await ds.addAllEntries()
+async function deploySystem(ds: DeploymentSystem, ajnaSystem: AjnaSystem) {
+  await ds.deployCore()
+  const _ds = updateDmaConfigWithLocalAjnaDeploy(ds, ajnaSystem)
+  await _ds.deployActions()
+  await _ds.addAllEntries()
 
-  return ds.getSystem() as System
+  return _ds.getSystem() as System
+}
+
+function updateDmaConfigWithLocalAjnaDeploy(ds: DeploymentSystem, ajnaSystem: AjnaSystem) {
+  const ajnaPoolInfoUtilsAddress = ajnaSystem.poolInfo.address
+
+  const newServiceRegistryAddress = ds.deployedSystem.ServiceRegistry?.contract.address
+  if (!newServiceRegistryAddress) throw new Error('No service registry')
+  if (!ds.config) throw new Error('No config')
+  ds.config.ajna.AjnaPoolInfo.address = ajnaPoolInfoUtilsAddress
+  ds.config.mpa.actions.AjnaDepositBorrow.constructorArgs = [
+    ajnaPoolInfoUtilsAddress,
+    newServiceRegistryAddress,
+  ]
+  ds.config.mpa.actions.AjnaRepayWithdraw.constructorArgs = [
+    ajnaPoolInfoUtilsAddress,
+    newServiceRegistryAddress,
+  ]
+
+  return ds
 }
 
 async function configureSwapContract(dsSystem: System) {

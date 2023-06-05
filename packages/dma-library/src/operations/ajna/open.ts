@@ -65,8 +65,8 @@ export const open: AjnaOpenOperation = async ({
 
   const hasAmountToDeposit = depositAmount.gt(ZERO)
   pullCollateralTokensToProxy.skipped = !hasAmountToDeposit || collateral.isEth
-  const shouldSkippWrapEth = !collateral.isEth
-  wrapEth.skipped = shouldSkippWrapEth
+  const shouldSkipWrapEth = !collateral.isEth
+  wrapEth.skipped = shouldSkipWrapEth
 
   const swapDebtTokensForCollateralTokens = actions.common.swap({
     fromAsset: debt.address,
@@ -78,8 +78,6 @@ export const open: AjnaOpenOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const swapValueIndex = shouldSkippWrapEth ? 1 : 2
-
   const setCollateralTokenApprovalOnPool = actions.common.setApproval(
     {
       asset: collateral.address,
@@ -87,7 +85,7 @@ export const open: AjnaOpenOperation = async ({
       amount: depositAmount,
       sumAmounts: true,
     },
-    [0, 0, swapValueIndex, 0],
+    [0, 0, 1, 0],
   )
 
   const depositBorrow = actions.ajna.ajnaDepositBorrow(
@@ -98,7 +96,7 @@ export const open: AjnaOpenOperation = async ({
       sumDepositAmounts: true,
       price,
     },
-    [0, swapValueIndex, 0, 0, 0],
+    [0, 1, 0, 0, 0],
   )
 
   const protocol: Protocol = 'Ajna'

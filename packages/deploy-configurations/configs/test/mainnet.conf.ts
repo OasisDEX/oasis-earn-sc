@@ -239,6 +239,22 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
+      AjnaDepositBorrow: {
+        name: 'AjnaDepositBorrow',
+        deploy: true,
+        address: '',
+        serviceRegistryName: CONTRACT_NAMES.ajna.DEPOSIT_BORROW,
+        history: [],
+        constructorArgs: ['0x', 'address:ServiceRegistry'],
+      },
+      AjnaRepayWithdraw: {
+        name: 'AjnaRepayWithdraw',
+        deploy: true,
+        address: '',
+        serviceRegistryName: CONTRACT_NAMES.ajna.REPAY_WITHDRAW,
+        history: [],
+        constructorArgs: ['0x', 'address:ServiceRegistry'],
+      },
     },
   },
   common: {

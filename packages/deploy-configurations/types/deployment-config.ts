@@ -37,6 +37,8 @@ export type AaveV3Actions =
   | `AaveV3Payback`
   | `AaveV3SetEMode`
 
+export type AjnaContracts = 'AjnaDepositBorrow' | 'AjnaRepayWithdraw'
+
 export type CoreActions =
   | 'SwapAction'
   | 'PullToken'
@@ -48,7 +50,7 @@ export type CoreActions =
   | 'ReturnFunds'
   | 'PositionCreated'
 
-export type Actions = CoreActions | AaveV3Actions
+export type Actions = CoreActions | AaveV3Actions | AjnaContracts
 
 export type Tokens =
   | 'AAVE'
