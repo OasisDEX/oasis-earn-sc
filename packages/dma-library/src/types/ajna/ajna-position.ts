@@ -1,9 +1,10 @@
 import { Address } from '@deploy-configurations/types/address'
-import { ONE, ZERO } from '@dma-common/constants'
+import { ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import {
   calculateMaxGenerate,
   getAjnaBorrowOriginationFee,
+  getAjnaLiquidationPrice,
   simulatePool,
 } from '@dma-library/protocols/ajna'
 import { AjnaWarning } from '@dma-library/types/ajna'
@@ -56,15 +57,11 @@ export class AjnaPosition implements IAjnaPosition {
   ) {}
 
   get liquidationPrice() {
-    const liquidationPrice = this.pool.mostOptimisticMatchingPrice
-      .times(
-        this.debtAmount
-          .times(this.pool.pendingInflator)
-          .div(this.pool.lowestUtilizedPrice.times(this.collateralAmount)),
-      )
-      .times(ONE.plus(this.pool.interestRate))
-
-    return normalizeValue(liquidationPrice)
+    return getAjnaLiquidationPrice({
+      pool: this.pool,
+      debtAmount: this.debtAmount,
+      collateralAmount: this.collateralAmount,
+    })
   }
 
   get marketPrice() {
