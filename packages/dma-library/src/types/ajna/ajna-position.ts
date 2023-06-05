@@ -1,5 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
-import { ONE, ZERO } from '@dma-common/constants'
+import { ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import {
   calculateMaxGenerate,
@@ -21,9 +21,7 @@ export interface IAjnaPosition {
 
   marketPrice: BigNumber
   liquidationPrice: BigNumber
-  shortLiquidationPrice: BigNumber
   liquidationToMarketPrice: BigNumber
-  shortLiquidationToMarketPrice: BigNumber
   thresholdPrice: BigNumber
 
   collateralAvailable: BigNumber
@@ -66,24 +64,12 @@ export class AjnaPosition implements IAjnaPosition {
     })
   }
 
-  get shortLiquidationPrice() {
-    return getAjnaLiquidationPrice({
-      pool: this.pool,
-      debtAmount: this.collateralAmount,
-      collateralAmount: this.debtAmount,
-    })
-  }
-
   get marketPrice() {
     return this.collateralPrice.div(this.quotePrice)
   }
 
   get liquidationToMarketPrice() {
     return this.liquidationPrice.div(this.marketPrice)
-  }
-
-  get shortLiquidationToMarketPrice() {
-    return this.shortLiquidationPrice.div(ONE.div(this.marketPrice))
   }
 
   get thresholdPrice() {
