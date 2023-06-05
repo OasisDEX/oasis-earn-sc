@@ -1,8 +1,8 @@
 import operationExecutorAbi from '@abis/system/contracts/core/OperationExecutor.sol/OperationExecutor.json'
 import { Address } from '@deploy-configurations/types/address'
-import { ZERO } from '@dma-common/constants'
+import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses/index'
-import { amountToWei } from '@dma-common/utils/common'
+import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
@@ -107,7 +107,10 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     data: encodeOperation(operation, dependencies),
     errors: [],
     warnings: [],
-    txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
+    txValue: resolveAjnaEthAction(
+      isDepositingEth,
+      amountFromWei(args.collateralAmount, TYPICAL_PRECISION),
+    ),
   })
 }
 

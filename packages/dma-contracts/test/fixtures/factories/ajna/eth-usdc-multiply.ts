@@ -2,6 +2,7 @@ import { ERC20Pool } from '@ajna-contracts/typechain-types'
 import { ONE } from '@dma-common/constants'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
+import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
 import {
   AjnaPositionDetails,
@@ -53,7 +54,6 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
   if (!pool) throw new Error('wethUsdcPool is not set')
 
   await addLiquidityToPool(ajnaSystem, pool)
-  // await addBorrowerToPool(ajnaSystem, pool) // Ensures values like htp etc can be calculated
 
   const ajnaPool = await dependencies.getPoolData(pool.address)
 
@@ -104,15 +104,15 @@ async function addLiquidityToPool(ajnaSystem: AjnaSystem, pool: ERC20Pool) {
   const buckets = [
     {
       amount: ethers.BigNumber.from(10),
-      index: ethers.BigNumber.from(1),
+      index: ethers.BigNumber.from(1000),
     },
     {
       amount: ethers.BigNumber.from(10),
-      index: ethers.BigNumber.from(2),
+      index: ethers.BigNumber.from(1001),
     },
     {
       amount: ethers.BigNumber.from(10),
-      index: ethers.BigNumber.from(3),
+      index: ethers.BigNumber.from(1002),
     },
   ]
 
@@ -153,7 +153,7 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
     getSwapData: AjnaPositionDetails['getSwapData']
   },
 ) {
-  const collateralAmount = ONE
+  const collateralAmount = amountToWei(ONE, tokens.ETH.precision)
   const slippage = UNISWAP_TEST_SLIPPAGE
   const riskRatio = new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE)
 

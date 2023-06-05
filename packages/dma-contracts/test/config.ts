@@ -8,7 +8,7 @@ export const testBlockNumberForAaveOptimismV3 = 79811107
 // AJNA
 // TODO: Set block values
 export const testBlockNumbersForAjna = {
-  [Network.MAINNET]: 15695000,
+  [Network.MAINNET]: 16597880,
   [Network.OPTIMISM]: 79811107,
 }
 

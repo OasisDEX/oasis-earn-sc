@@ -1,11 +1,14 @@
 import { prepareEnv as prepareAjnaEnv } from '@ajna-contracts/scripts'
 import { System } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
-import { createDPMAccount, oneInchCallMock } from '@dma-common/test-utils'
+import { ONE, TEN } from '@dma-common/constants'
+import { createDPMAccount, oneInchCallMock, swapUniswapTokens } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
+import { amountToWei } from '@dma-common/utils/common'
 import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import { testBlockNumbersForAjna } from '@dma-contracts/test/config'
 import { ajnaFactories } from '@dma-contracts/test/fixtures/factories/ajna'
+import { USDC } from '@dma-contracts/test/fixtures/factories/common'
 import {
   AjnaPositionDetails,
   AjnaPositions,
@@ -54,6 +57,7 @@ export const envWithAjnaPositions = ({
     const dmaSystem = await deploySystem(ds)
     await configureSwapContract(dmaSystem)
     const dependencies = await buildDependencies(dmaSystem, ajnaSystem, config)
+    await getQuoteTokenForPoolSetup(ajnaSystem.users, config, hre, network, dependencies)
     const supportedPositions = getSupportedAjnaPositions(network)
     const proxies = await createProxies(dmaSystem, supportedPositions.length)
     const positions = await createAjnaPositions(
@@ -67,6 +71,39 @@ export const envWithAjnaPositions = ({
 
     return buildEnv(config, hre, dmaSystem, ajnaSystem, dependencies, positions)
   }
+
+function checkIfSupportedNetwork(network: Network): network is Network.MAINNET | Network.OPTIMISM {
+  if (network !== Network.MAINNET && network !== Network.OPTIMISM)
+    throw new Error('Unsupported network')
+
+  return true
+}
+
+/** Some tokens cannot be acquired via the storage manipulation, so we to use a swap */
+async function getQuoteTokenForPoolSetup(
+  users: AjnaSystem['users'],
+  config: RuntimeConfig,
+  _hre: HardhatRuntimeEnvironment,
+  network: Network,
+  dependencies: StrategyDependenciesAjna,
+) {
+  if (!checkIfSupportedNetwork(network)) return
+
+  const usdc = new USDC(dependencies.addresses)
+
+  const lender = users[1]
+  const lenderAddress = await lender.signer.getAddress()
+  await swapUniswapTokens(
+    dependencies.WETH,
+    usdc.address,
+    amountToWei(TEN).toFixed(0),
+    amountToWei(ONE, usdc.precision).toFixed(0),
+    lenderAddress,
+    config,
+    hre,
+    network,
+  )
+}
 
 async function setupDmaDeploymentSystemHelper(
   _hre: HardhatRuntimeEnvironment,
@@ -87,9 +124,7 @@ async function setupDmaDeploymentSystemHelper(
 }
 
 async function resetNode(ds, network) {
-  if (network !== Network.MAINNET && network !== Network.OPTIMISM)
-    throw new Error('Unsupported network')
-
+  if (!checkIfSupportedNetwork(network)) return
   if (testBlockNumbersForAjna[network]) {
     await ds.resetNode(testBlockNumbersForAjna[network])
   }
