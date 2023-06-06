@@ -20,3 +20,5 @@ export const protocols = {
 
 export { isAaveV2Addresses, isAaveV3Addresses }
 export { calculateAjnaApyPerDays }
+
+export { getAjnaLiquidationPrice } from './ajna/index'

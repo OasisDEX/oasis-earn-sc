@@ -1,6 +1,6 @@
 import poolAbi from '@abis/external/protocols/ajna/ajnaPoolERC20.json'
-import { ZERO } from '@dma-common/constants'
-import { negativeToZero } from '@dma-common/utils/common'
+import { ONE, ZERO } from '@dma-common/constants'
+import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
 import { getPoolLiquidity } from '@dma-library/strategies/ajna/validation/notEnoughLiquidity'
 import {
@@ -285,3 +285,22 @@ export function simulatePool(
     newLupIndex,
   )
 }
+
+export const getAjnaLiquidationPrice = ({
+  pool,
+  debtAmount,
+  collateralAmount,
+}: {
+  pool: AjnaPool
+  debtAmount: BigNumber
+  collateralAmount: BigNumber
+}) =>
+  normalizeValue(
+    pool.mostOptimisticMatchingPrice
+      .times(
+        debtAmount
+          .times(pool.pendingInflator)
+          .div(pool.lowestUtilizedPrice.times(collateralAmount)),
+      )
+      .times(ONE.plus(pool.interestRate)),
+  )
