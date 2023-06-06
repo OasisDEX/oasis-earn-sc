@@ -8,6 +8,7 @@ import { DepositBorrowData } from "../../core/types/Ajna.sol";
 import { AJNA_POOL_UTILS_INFO } from "../../core/constants/Ajna.sol";
 import { IAjnaPool } from "../../interfaces/ajna/IERC20Pool.sol";
 import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol";
+import "hardhat/console.sol";
 
 /**
  * @title DepositBorrow | Ajna Action contract
@@ -46,6 +47,10 @@ contract AjnaDepositBorrow is Executable, UseStore {
       : mappedDepositAmount;
 
     uint256 index = poolUtilsInfo.priceToIndex(args.price);
+    console.log("LIMIT INDEX");
+    console.log(index);
+    console.log("BORROW AMOUNT");
+    console.log(mappedBorrowAmount);
 
     pool.drawDebt(
       address(this),

@@ -101,17 +101,26 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
 ethUsdcMultiplyAjnaPosition.positionVariant = 'ETH/USDC Multiply' as const
 
 async function addLiquidityToPool(ajnaSystem: AjnaSystem, pool: ERC20Pool) {
+  /**
+   * When collateral price is increased it will decrease the index
+   * determined via pool utils priceToIndex. A decreasing bucket price means that index
+   * is a Fenwick Index
+   *
+   * Equally, here, when providing liquidity, the lower the index the better the price
+   * Indicating these are also Fenwick indexes
+   * */
   const buckets = [
     {
-      amount: ethers.BigNumber.from(10),
+      amount: ethers.BigNumber.from(1000),
+      // Lower meaning better price offered
       index: ethers.BigNumber.from(1000),
     },
     {
-      amount: ethers.BigNumber.from(10),
+      amount: ethers.BigNumber.from(1000),
       index: ethers.BigNumber.from(1001),
     },
     {
-      amount: ethers.BigNumber.from(10),
+      amount: ethers.BigNumber.from(1000),
       index: ethers.BigNumber.from(1002),
     },
   ]

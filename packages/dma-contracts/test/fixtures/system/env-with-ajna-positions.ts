@@ -96,7 +96,7 @@ async function getQuoteTokenForPoolSetup(
   await swapUniswapTokens(
     dependencies.WETH,
     usdc.address,
-    amountToWei(TEN).toFixed(0),
+    amountToWei(TEN.times(TEN)).toFixed(0),
     amountToWei(ONE, usdc.precision).toFixed(0),
     lenderAddress,
     config,
