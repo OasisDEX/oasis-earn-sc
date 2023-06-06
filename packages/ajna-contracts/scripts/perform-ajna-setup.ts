@@ -1,18 +1,15 @@
-import { HardhatUtils, prepareEnv } from "@ajna-contracts/scripts";
+import { prepareEnv } from "@ajna-contracts/scripts";
 import hre from "hardhat";
-const utils = new HardhatUtils(hre);
 
 async function main() {
   const sender = "0xb42C980EdB30BDDA2febF0C4Bee7136303e4A68c";
   const ethers = hre.ethers;
-
-
-  await  ethers.provider.send("tenderly_addBalance", [
+  await ethers.provider.send("tenderly_addBalance", [
     [sender],
     //amount in wei will be added for all wallets
     ethers.utils.hexValue(ethers.utils.parseUnits("1000", "ether").toHexString()),
   ]);
-  const result = await prepareEnv(utils, true);
+  const result = await prepareEnv(hre, true);
   console.log(result);
 }
 

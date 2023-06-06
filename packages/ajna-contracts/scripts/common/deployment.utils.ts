@@ -109,8 +109,8 @@ export async function deployApa(
   guardOwnerAddress: string,
   weth: WETH,
   ajna: Token,
-  signerAddress : string,
-  isMainnet: boolean = false
+  signerAddress: string,
+  isMainnet = false
 ) {
   const { serviceRegistryContract } = await deployServiceRegistry();
   const hash = await serviceRegistryContract.getServiceNameHash("DPM_GUARD");
