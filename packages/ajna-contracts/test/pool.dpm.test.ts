@@ -55,7 +55,7 @@ describe.only("AjnaProxyActions", function () {
       lenderActionsInstance,
     } = await deployLibraries();
 
-    const { dmpGuardContract, guardDeployerSigner, dmpFactory } = await deployGuard();
+    const { dpmGuardContract, guardDeployerAddress, dpmFactory } = await deployGuard();
 
     const { erc20PoolFactory, erc721PoolFactory } = await deployPoolFactory(
       poolCommons,
@@ -81,18 +81,19 @@ describe.only("AjnaProxyActions", function () {
       poolCommons,
       rewardsManagerContract,
       positionManagerContract,
-      dmpGuardContract,
-      guardDeployerSigner,
+      dpmGuardContract,
+      guardDeployerAddress,
       weth,
-      ajna
+      ajna,
+      deployer.address
     );
 
-    await dmpGuardContract.connect(guardDeployerSigner).setWhitelist(ajnaProxyActionsContract.address, true);
-    await dmpGuardContract.connect(guardDeployerSigner).setWhitelist(rewardsManagerContract.address, true);
-    await dmpGuardContract.connect(guardDeployerSigner).setWhitelistSend(rewardsManagerContract.address, true);
-    const borrowerProxy = await createDPMProxy(dmpFactory, borrower);
-    const lenderProxy = await createDPMProxy(dmpFactory, lender);
-    const lenderProxy2 = await createDPMProxy(dmpFactory, lender);
+    await dpmGuardContract.connect(guardDeployerAddress).setWhitelist(ajnaProxyActionsContract.address, true);
+    await dpmGuardContract.connect(guardDeployerAddress).setWhitelist(rewardsManagerContract.address, true);
+    await dpmGuardContract.connect(guardDeployerAddress).setWhitelistSend(rewardsManagerContract.address, true);
+    const borrowerProxy = await createDPMProxy(dpmFactory, borrower);
+    const lenderProxy = await createDPMProxy(dpmFactory, lender);
+    const lenderProxy2 = await createDPMProxy(dpmFactory, lender);
 
     addresses.deployerAddress = await deployer.getAddress();
     addresses.lenderAddress = await lender.getAddress();
@@ -134,7 +135,7 @@ describe.only("AjnaProxyActions", function () {
       ajna,
       poolContractWeth,
       weth,
-      dmpGuardContract,
+      dpmGuardContract,
       ajnaRewardsClaimerContract,
     };
   }

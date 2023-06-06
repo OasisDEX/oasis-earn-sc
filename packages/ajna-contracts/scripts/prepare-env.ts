@@ -22,10 +22,10 @@ const plotly =
 
 const utils = new HardhatUtils(hre);
 export const ajnaHre = hre;
-export async function createDPMProxy(dmpFactory: AccountFactory, owner: Signer) {
-  const accountTx = await dmpFactory.connect(owner)["createAccount()"]();
+export async function createDPMProxy(dpmFactory: AccountFactory, owner: Signer) {
+  const accountTx = await dpmFactory.connect(owner)["createAccount()"]();
   const factoryReceipt = await accountTx.wait();
-  const [AccountCreatedEvent] = utils.getEvents(factoryReceipt, dmpFactory.interface.getEvent("AccountCreated"));
+  const [AccountCreatedEvent] = utils.getEvents(factoryReceipt, dpmFactory.interface.getEvent("AccountCreated"));
   const proxyAddress = AccountCreatedEvent.args.proxy.toString();
   const dpmProxy = utils.getContract<IAccountImplementation>("IAccountImplementation", proxyAddress);
   return dpmProxy;
@@ -39,14 +39,13 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
 
   const {
     erc20PoolFactory,
-    erc721PoolFactory,
     ajnaProxyActionsContract,
     poolInfoContract,
     usdc,
     wbtc,
     weth,
     ajna,
-    dmpFactory,
+    dpmFactory,
     guardDeployerSigner,
     dmpGuardContract,
     pools,
@@ -60,7 +59,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
     ...signers.map(signer => utils.sendLotsOfMoney(signer.address, weth, mainnetTokens)),
   ]);
 
-  const dmpProxies = await Promise.all(signers.map(signer => createDPMProxy(dmpFactory, signer)));
+  const dmpProxies = await Promise.all(signers.map(signer => createDPMProxy(dpmFactory, signer)));
   const users: User[] = signers.map((signer, index) => ({
     signer,
     proxy: dmpProxies[index],
@@ -277,7 +276,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
       wbtcUsdcPool: pools.wbtcUsdcPool.address,
       wethUsdcPool: pools.wethUsdcPool.address,
       poolInfoContract: poolInfoContract.address,
-      dmpFactory: dmpFactory.address,
+      dpmFactory: dpmFactory.address,
       dmpGuardContract: dmpGuardContract.address,
       "lender - signer[1]": lender.address,
       lenderProxy: lenderProxy.address,
@@ -309,7 +308,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
     lender,
     borrower,
     deployer,
-    dmpFactory,
+    dpmFactory,
     dmpGuardContract,
     guardDeployerSigner,
     borrowerProxy,

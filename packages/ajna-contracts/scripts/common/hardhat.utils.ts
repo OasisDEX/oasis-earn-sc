@@ -8,11 +8,13 @@ import { HardhatRuntimeEnvironment, Network } from "hardhat/types/runtime";
 
 import { Token, WETH } from "../../typechain-types";
 
-type TraceData = {
-  address: string;
+type BasicSimulationData = {
   data: string;
   from: string;
   to: string;
+}
+type TraceData = BasicSimulationData & {
+  address: string;
   nonce: number;
 }
 type TraceItem = TraceData & {
@@ -55,6 +57,15 @@ export class HardhatUtils {
       await token.mint(target, BigNumber.from("1000000000000000000").mul(1000));
     }
   }
+
+  public async performSimulation(data : BasicSimulationData) {
+    await this.hre.ethers.provider.send("tenderly_simulateTransaction", [{
+      data: data.data,
+      from: data.from,
+      to: data.to,
+    }]);
+  };
+
   public async deployContract<T extends Contract>(
     contractName: string,
     args: any[],

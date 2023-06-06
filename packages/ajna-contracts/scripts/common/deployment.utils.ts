@@ -53,7 +53,7 @@ export async function deployLibraries() {
   };
 }
 
-export async function deployTokens(receiver: string, mainnetTokens: boolean) {
+export async function deployTokens(receiver: string, mainnetTokens: boolean = false) {
   const usdc = mainnetTokens
     ? await utils.getContract<Token>("ERC20", ADDRESSES.main.USDC)
     : await utils.deployContract<Token>("Token", ["USDC", "USDC", receiver, 6]);
@@ -152,12 +152,13 @@ export async function deployApa(
     await dpmGuardContract.connect(guardOwnerAddress).setWhitelist(ajnaProxyActionsContract.address, true);
   }else{
     console.log("Simulating transaction, whitelisting AjnaProxyActions contract")
-    await utils.hre.ethers.provider.send("tenderly_simulateTransaction",
-     [{
+    await utils.performSimulation(
+      {
         from: guardOwnerAddress,
         to: dpmGuardContract.address,
         data: dpmGuardContract.interface.encodeFunctionData("setWhitelist", [ajnaProxyActionsContract.address, true]),
-     }]);
+     }
+    );
      console.log("Done");
   }
 
