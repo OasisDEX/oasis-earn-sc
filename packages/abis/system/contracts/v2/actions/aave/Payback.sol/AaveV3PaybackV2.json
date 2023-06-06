@@ -1,0 +1,67 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_aavePool",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "paramsMap",
+        "type": "uint8[]"
+      }
+    ],
+    "name": "execute",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "_callData",
+        "type": "bytes"
+      }
+    ],
+    "name": "parseInputs",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "asset",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "paybackAll",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct PaybackData",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  }
+]
