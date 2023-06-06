@@ -3,7 +3,7 @@ import { Optional } from '@dma-common/types/optional'
 import { amountFromWei } from '@dma-common/utils/common'
 import { adjustToTargetRiskRatio, WithFlags } from '@domain/adjust-position'
 import { transientCollateralFlashloan } from '@domain/flashloans'
-import { denormaliseAmount, normaliseAmount } from '@domain/utils'
+import { revertToTokenSpecificPrecision, standardiseAmountTo18Decimals } from '@domain/utils'
 import { determineRiskDirection } from '@domain/utils/risk-direction'
 import BigNumber from 'bignumber.js'
 
@@ -357,7 +357,7 @@ export class Position implements IPosition {
   }
 
   private _denormaliseAmount(amount: BigNumber, precision: number): BigNumber {
-    return denormaliseAmount(amount, precision)
+    return revertToTokenSpecificPrecision(amount, precision)
   }
 }
 
@@ -367,8 +367,8 @@ export const createRiskRatio = (
   /** Oracle price of 1 Collateral Token in Debt Tokens  */
   oraclePrice: BigNumber,
 ) => {
-  const ltv = normaliseAmount(debt.amount, debt.precision).div(
-    normaliseAmount(collateral.amount, collateral.precision).times(oraclePrice),
+  const ltv = standardiseAmountTo18Decimals(debt.amount, debt.precision).div(
+    standardiseAmountTo18Decimals(collateral.amount, collateral.precision).times(oraclePrice),
   )
 
   return new RiskRatio(ltv.isNaN() || !ltv.isFinite() ? ZERO : ltv, RiskRatio.TYPE.LTV)

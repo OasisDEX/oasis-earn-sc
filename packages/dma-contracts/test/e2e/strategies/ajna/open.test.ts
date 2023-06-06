@@ -55,6 +55,7 @@ describe('Strategy | AJNA | Open Multiply | E2E', () => {
           },
         )
         simulation = positionDetails.__openPositionSimulation
+        simulatedPosition = simulation.position
         feesCollected = positionDetails.__feesCollected
       })
 
@@ -70,6 +71,9 @@ describe('Strategy | AJNA | Open Multiply | E2E', () => {
       })
       it(`Should have the correct multiple for ${variant}`, async () => {
         expect.toBe(position.riskRatio.multiple, 'lte', simulatedPosition.riskRatio.multiple)
+      })
+      it(`Should not have anything left on the proxy for ${variant}`, async () => {
+        expect.toBeEqual(false, true)
       })
       it(`Should collect fee for ${variant}`, async () => {
         // const simulatedFee = simulation.swaps[0].tokenFee || ZERO

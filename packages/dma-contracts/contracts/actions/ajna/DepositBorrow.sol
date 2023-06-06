@@ -47,10 +47,6 @@ contract AjnaDepositBorrow is Executable, UseStore {
       : mappedDepositAmount;
 
     uint256 index = poolUtilsInfo.priceToIndex(args.price);
-    console.log("LIMIT INDEX");
-    console.log(index);
-    console.log("BORROW AMOUNT");
-    console.log(mappedBorrowAmount);
 
     pool.drawDebt(
       address(this),

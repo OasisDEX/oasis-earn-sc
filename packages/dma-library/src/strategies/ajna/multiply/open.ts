@@ -1,6 +1,6 @@
 import operationExecutorAbi from '@abis/system/contracts/core/OperationExecutor.sol/OperationExecutor.json'
 import { Address } from '@deploy-configurations/types/address'
-import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses/index'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
@@ -29,7 +29,8 @@ export interface OpenMultiplyArgs {
   quotePrice: BigNumber
   quoteTokenPrecision: number
   collateralTokenSymbol: string
-  collateralAmount: BigNumber
+  // $ indicates amount is at max precision for the token EG 1 USDC -> 1e6 or 1 ETH -> 1e18
+  collateralAmount$: BigNumber
   collateralTokenPrecision: number
   slippage: BigNumber
   riskRatio: IRiskRatio
@@ -94,8 +95,14 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   const targetPosition = new AjnaPosition(
     position.pool,
     args.dpmProxyAddress,
-    simulatedAdjustment.position.debt.amount,
-    simulatedAdjustment.position.collateral.amount,
+    amountFromWei(
+      simulatedAdjustment.position.collateral.amount,
+      simulatedAdjustment.position.collateral.precision,
+    ),
+    amountFromWei(
+      simulatedAdjustment.position.debt.amount,
+      simulatedAdjustment.position.debt.precision,
+    ),
     args.collateralPrice,
     args.quotePrice,
   )
@@ -109,7 +116,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     warnings: [],
     txValue: resolveAjnaEthAction(
       isDepositingEth,
-      amountFromWei(args.collateralAmount, TYPICAL_PRECISION),
+      amountFromWei(args.collateralAmount$, TYPICAL_PRECISION),
     ),
   })
 }
@@ -156,7 +163,7 @@ async function simulateAdjustment(
   riskIsIncreasing: true,
   oraclePrice: BigNumber,
 ) {
-  const quoteSwapAmount = amountToWei(new BigNumber(1), args.quoteTokenPrecision)
+  const preFlightSwapAmount = amountToWei(ONE, args.quoteTokenPrecision)
   const fromToken = buildFromToken(args, position)
   const toToken = buildToToken(args, position)
   const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
@@ -173,17 +180,22 @@ async function simulateAdjustment(
       toToken,
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: quoteSwapAmount,
+      swapAmountBeforeFees: preFlightSwapAmount,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
     },
   })
-  const preFlightMarketPrice = DomainUtils.normaliseAmount(
+  const preFlightMarketPrice = DomainUtils.standardiseAmountTo18Decimals(
     preFlightSwapData.fromTokenAmount,
     args.quoteTokenPrecision,
-  ).div(DomainUtils.normaliseAmount(preFlightSwapData.toTokenAmount, args.collateralTokenPrecision))
+  ).div(
+    DomainUtils.standardiseAmountTo18Decimals(
+      preFlightSwapData.toTokenAmount,
+      args.collateralTokenPrecision,
+    ),
+  )
 
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: fromToken.symbol,
@@ -192,7 +204,7 @@ async function simulateAdjustment(
 
   const positionAdjustArgs = {
     toDeposit: {
-      collateral: args.collateralAmount,
+      collateral: args.collateralAmount$,
       /** Not relevant for Ajna */
       debt: ZERO,
     },
@@ -321,7 +333,7 @@ async function buildOperation(
     deposit: {
       // Always collateral only as deposit on Ajna
       address: position.pool.collateralToken,
-      amount: args.collateralAmount,
+      amount: args.collateralAmount$,
     },
     swap: {
       fee: fee.toNumber(),

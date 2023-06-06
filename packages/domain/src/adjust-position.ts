@@ -1,6 +1,6 @@
 import { FEE_BASE, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { calculateFee } from '@dma-common/utils/swap'
-import { denormaliseAmount, normaliseAmount } from '@domain/utils'
+import { revertToTokenSpecificPrecision, standardiseAmountTo18Decimals } from '@domain/utils'
 import { determineRiskDirection } from '@domain/utils/risk-direction'
 import BigNumber from 'bignumber.js'
 
@@ -63,11 +63,11 @@ export function adjustToTargetRiskRatio(
    * C_W  Collateral in wallet to top-up or seed position
    * D_W  Debt token in wallet to top-up or seed position
    * */
-  const collateralDepositedByUser = normaliseAmount(
+  const collateralDepositedByUser = standardiseAmountTo18Decimals(
     toDeposit.collateral || ZERO,
     position.collateral.precision || TYPICAL_PRECISION,
   )
-  const debtTokensDepositedByUser = normaliseAmount(
+  const debtTokensDepositedByUser = standardiseAmountTo18Decimals(
     toDeposit?.debt || ZERO,
     position.debt.precision || TYPICAL_PRECISION,
   )
@@ -81,13 +81,16 @@ export function adjustToTargetRiskRatio(
    * D_C  Current debt
    * */
   const normalisedCurrentCollateral = (
-    normaliseAmount(
+    standardiseAmountTo18Decimals(
       position.collateral.amount,
       position.collateral.precision || TYPICAL_PRECISION,
     ) || ZERO
   ).plus(collateralDepositedByUser)
   const normalisedCurrentDebt = (
-    normaliseAmount(position.debt.amount, position.debt.precision || TYPICAL_PRECISION) || ZERO
+    standardiseAmountTo18Decimals(
+      position.debt.amount,
+      position.debt.precision || TYPICAL_PRECISION,
+    ) || ZERO
   ).minus(debtTokensDepositedByUser)
 
   /**
@@ -162,14 +165,17 @@ export function adjustToTargetRiskRatio(
     shouldIncreaseDebtDeltaToAccountForFees ? ONE.minus(oazoFee.div(FEE_BASE)) : ONE,
   )
 
-  const collateralDelta = unknownVarX
-    .div(marketPriceAdjustedForSlippage)
-    .div(riskIsIncreasing ? ONE : ONE.minus(oazoFee.div(FEE_BASE)))
-    .integerValue(BigNumber.ROUND_DOWN)
+  const collateralDelta = revertToTokenSpecificPrecision(
+    unknownVarX
+      .div(marketPriceAdjustedForSlippage)
+      .div(riskIsIncreasing ? ONE : ONE.minus(oazoFee.div(FEE_BASE))),
+    position.collateral.precision,
+  ).integerValue(BigNumber.ROUND_DOWN)
 
-  const debtDelta = debtDeltaPreFlashloanFee
-    .times(ONE.plus(isFlashloanRequired ? flashloanFee : ZERO))
-    .integerValue(BigNumber.ROUND_DOWN)
+  const debtDelta = revertToTokenSpecificPrecision(
+    debtDeltaPreFlashloanFee.times(ONE.plus(isFlashloanRequired ? flashloanFee : ZERO)),
+    position.debt.precision,
+  ).integerValue(BigNumber.ROUND_DOWN)
 
   return {
     position: buildAdjustedPosition(
@@ -180,7 +186,10 @@ export function adjustToTargetRiskRatio(
       normalisedCurrentCollateral,
       oraclePrice,
     ),
-    delta: calculateDeltas(position, debtDelta, collateralDelta),
+    delta: {
+      debt: debtDelta,
+      collateral: collateralDelta,
+    },
     swap: buildSwapSimulation(position, debtDelta, collateralDelta, oazoFee, {
       isIncreasingRisk: riskIsIncreasing,
       collectSwapFeeFrom,
@@ -211,15 +220,6 @@ function buildAdjustedPosition(
   }
 }
 
-function calculateDeltas(position: IPositionV2, debtDelta, collateralDelta) {
-  return {
-    debt: denormaliseAmount(debtDelta, position.debt.precision).integerValue(BigNumber.ROUND_DOWN),
-    collateral: denormaliseAmount(collateralDelta, position.collateral.precision).integerValue(
-      BigNumber.ROUND_DOWN,
-    ),
-  }
-}
-
 function buildSwapSimulation(
   position: IPositionV2,
   debtDelta: BigNumber,
@@ -232,21 +232,11 @@ function buildSwapSimulation(
 ) {
   const { isIncreasingRisk, collectSwapFeeFrom } = options
 
-  const normalisedFromTokenAmount = isIncreasingRisk ? debtDelta : collateralDelta.abs()
-  const normalisedMinToTokenAmount = isIncreasingRisk ? collateralDelta : debtDelta.abs()
+  const fromTokenAmount = isIncreasingRisk ? debtDelta : collateralDelta.abs()
+  const minToTokenAmount = isIncreasingRisk ? collateralDelta : debtDelta.abs()
 
   const fromToken = isIncreasingRisk ? position.debt : position.collateral
   const toToken = isIncreasingRisk ? position.collateral : position.debt
-
-  const fromTokenAmount = denormaliseAmount(
-    normalisedFromTokenAmount,
-    fromToken.precision,
-  ).integerValue(BigNumber.ROUND_DOWN)
-
-  const minToTokenAmount = denormaliseAmount(
-    normalisedMinToTokenAmount,
-    toToken.precision,
-  ).integerValue(BigNumber.ROUND_DOWN)
 
   return {
     fromTokenAmount,
@@ -295,12 +285,14 @@ function determineFee(
       ? calculateFee(collateralDelta, oazoFee.toNumber())
       : calculateFee(debtDelta, oazoFee.toNumber())
   ).integerValue(BigNumber.ROUND_DOWN)
-  const sourceFee = denormaliseAmount(normalisedSourceFee, fromToken.precision).integerValue(
-    BigNumber.ROUND_DOWN,
-  )
-  const targetFee = denormaliseAmount(normalisedTargetFee, toToken.precision).integerValue(
-    BigNumber.ROUND_DOWN,
-  )
+  const sourceFee = revertToTokenSpecificPrecision(
+    normalisedSourceFee,
+    fromToken.precision,
+  ).integerValue(BigNumber.ROUND_DOWN)
+  const targetFee = revertToTokenSpecificPrecision(
+    normalisedTargetFee,
+    toToken.precision,
+  ).integerValue(BigNumber.ROUND_DOWN)
 
   return collectFeeFromSourceToken ? sourceFee : targetFee
 }

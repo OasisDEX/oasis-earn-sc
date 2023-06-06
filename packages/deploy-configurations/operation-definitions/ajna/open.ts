@@ -28,6 +28,10 @@ export const ajnaOpenOperationDefinition = {
       hash: getActionHash(CONTRACT_NAMES.ajna.DEPOSIT_BORROW),
       optional: false,
     },
+    {
+      hash: getActionHash(CONTRACT_NAMES.common.SEND_TOKEN),
+      optional: false,
+    },
     { hash: getActionHash(CONTRACT_NAMES.common.POSITION_CREATED), optional: false },
   ],
 }

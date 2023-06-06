@@ -99,6 +99,13 @@ export const open: AjnaOpenOperation = async ({
     [0, 1, 0, 0, 0],
   )
 
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken({
+    asset: debt.address,
+    to: addresses.operationExecutor,
+    // Plus fee?
+    amount: flashloan.amount,
+  })
+
   const protocol: Protocol = 'Ajna'
 
   const positionCreated = actions.common.positionCreated({
@@ -114,6 +121,7 @@ export const open: AjnaOpenOperation = async ({
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnPool,
     depositBorrow,
+    sendQuoteTokenToOpExecutor,
     positionCreated,
   ]
 

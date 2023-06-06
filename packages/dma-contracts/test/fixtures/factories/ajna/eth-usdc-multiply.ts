@@ -58,8 +58,8 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
   const ajnaPool = await dependencies.getPoolData(pool.address)
 
   // Mocked price info
-  const mockMarketPrice = new BigNumber(1200) // 1 ETH = 1200 USDC
-  const collateralPrice = new BigNumber(1200) // 1 ETH = 1200 USD
+  const mockMarketPrice = new BigNumber(1543) // 1 ETH = 1543 USDC
+  const collateralPrice = new BigNumber(1543) // 1 ETH = 1543 USD
   const quotePrice = new BigNumber(1) // 1 USDC = 1 USD
 
   const tokens = configureTokens(dependencies)
@@ -162,7 +162,8 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
     getSwapData: AjnaPositionDetails['getSwapData']
   },
 ) {
-  const collateralAmount = amountToWei(ONE, tokens.ETH.precision)
+  // $ indicates amount is at max precision for the token EG 1 USDC -> 1e6 or 1 ETH -> 1e18
+  const collateralAmount$ = amountToWei(ONE, tokens.ETH.precision)
   const slippage = UNISWAP_TEST_SLIPPAGE
   const riskRatio = new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE)
 
@@ -177,8 +178,7 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
     quoteTokenPrecision: tokens.USDC.precision,
     collateralTokenPrecision: tokens.ETH.precision,
 
-    // TODO: Confirm expected form (18 decimals or not?)
-    collateralAmount,
+    collateralAmount$,
     slippage,
     riskRatio,
   }
