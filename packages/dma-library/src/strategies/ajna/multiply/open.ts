@@ -350,7 +350,8 @@ async function buildOperation(
       operationExecutor: dependencies.operationExecutor,
       pool: args.poolAddress,
     },
-    price: oraclePrice,
+    // Prices must be in 18 decimal precision
+    price: amountToWei(oraclePrice, TYPICAL_PRECISION),
   }
   return await operations.ajna.open(openMultiplyArgs)
 }

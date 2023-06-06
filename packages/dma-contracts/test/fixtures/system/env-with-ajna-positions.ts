@@ -100,7 +100,7 @@ async function getQuoteTokenForPoolSetup(
     amountToWei(ONE, usdc.precision).toFixed(0),
     lenderAddress,
     config,
-    hre,
+    _hre,
     network,
   )
 }
