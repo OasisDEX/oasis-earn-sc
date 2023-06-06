@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity 0.8.18;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -10,7 +10,7 @@ import { ERC20Pool } from "../ERC20Pool.sol";
 import { RewardsManager } from "../RewardsManager.sol";
 import { PositionManager } from "../PositionManager.sol";
 import { IPositionManagerOwnerActions } from "../interfaces/position/IPositionManagerOwnerActions.sol";
-import { IRewardsManagerOwnerActions } from "../interfaces/rewards/IRewardsManagerOwnerActions.sol";
+import { IRewardsManager } from "../interfaces/rewards/IRewardsManager.sol";
 
 import { IAccountGuard } from "../../interfaces/dpm/IAccountGuard.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
@@ -18,7 +18,7 @@ import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 contract AjnaProxyActions {
     PoolInfoUtils public immutable poolInfoUtils;
     IPositionManagerOwnerActions public immutable positionManager;
-    IRewardsManagerOwnerActions public immutable rewardsManager;
+    IRewardsManager public immutable rewardsManager;
     IERC20 public immutable ajnaToken;
     address public immutable WETH;
     address public immutable ARC;
@@ -87,13 +87,7 @@ contract AjnaProxyActions {
      *  @return  tokenId  - id of the minted NFT
      */
     function mintNft(ERC20Pool pool) internal returns (uint256 tokenId) {
-        IPositionManagerOwnerActions.MintParams memory mintParams = IPositionManagerOwnerActions.MintParams(
-            address(this),
-            address(pool),
-            keccak256("ERC20_NON_SUBSET_HASH")
-        );
-        // currently won't work in the context of DSProxy or DPM account as they need to accept ERC721 transfers first
-        tokenId = positionManager.mint(mintParams);
+        tokenId = positionManager.mint(address(pool), address(this), keccak256("ERC20_NON_SUBSET_HASH"));
         if (!IAccountGuard(GUARD).canCall(address(this), ARC)) {
             IAccountGuard(GUARD).permit(ARC, address(this), true);
         }
@@ -110,12 +104,10 @@ contract AjnaProxyActions {
         uint256 index = convertPriceToIndex(price);
         uint256[] memory indexes = new uint256[](1);
         indexes[0] = index;
-        IPositionManagerOwnerActions.RedeemPositionsParams memory redeemParams = IPositionManagerOwnerActions
-            .RedeemPositionsParams(tokenId, address(pool), indexes);
         address[] memory addresses = new address[](1);
         addresses[0] = address(positionManager);
         ERC20Pool(pool).approveLPTransferors(addresses);
-        positionManager.reedemPositions(redeemParams);
+        positionManager.redeemPositions(address(pool), tokenId, indexes);
     }
 
     /**
@@ -132,9 +124,9 @@ contract AjnaProxyActions {
         uint256[] memory lpCounts = new uint256[](1);
         lpCounts[0] = lpCount;
         ERC20Pool(pool).increaseLPAllowance(address(positionManager), indexes, lpCounts);
-        IPositionManagerOwnerActions.MemorializePositionsParams memory memorializeParams = IPositionManagerOwnerActions
-            .MemorializePositionsParams(tokenId, indexes);
-        positionManager.memorializePositions(memorializeParams);
+        // IPositionManagerOwnerActions.MemorializePositionsParams memory memorializeParams = IPositionManagerOwnerActions
+        //     .MemorializePositionsParams(tokenId, indexes);
+        positionManager.memorializePositions(address(pool), tokenId, indexes);
         ERC721(address(positionManager)).approve(address(rewardsManager), tokenId);
     }
 
@@ -149,9 +141,7 @@ contract AjnaProxyActions {
         uint256 oldIndex = convertPriceToIndex(oldPrice);
         uint256 newIndex = convertPriceToIndex(newPrice);
 
-        IPositionManagerOwnerActions.MoveLiquidityParams memory moveParams = IPositionManagerOwnerActions
-            .MoveLiquidityParams(tokenId, pool, oldIndex, newIndex, block.timestamp + 1);
-        positionManager.moveLiquidity(moveParams);
+        positionManager.moveLiquidity(pool, tokenId, oldIndex, newIndex, block.timestamp + 1);
         ERC721(address(positionManager)).approve(address(rewardsManager), tokenId);
     }
 
@@ -626,7 +616,9 @@ contract AjnaProxyActions {
      *  @param  tokenId    TokenId to claim rewards for
      */
     function claimRewardsAndSendToOwner(ERC20Pool pool, uint256 tokenId) public {
-        rewardsManager.claimRewards(tokenId, ERC20Pool(pool).currentBurnEpoch());
+        uint256 currentEpoch = ERC20Pool(pool).currentBurnEpoch();
+        uint256 minAmount = rewardsManager.calculateRewards(tokenId, currentEpoch);
+        rewardsManager.claimRewards(tokenId, currentEpoch, minAmount);
         ajnaToken.transfer(msg.sender, ajnaToken.balanceOf(address(this)));
     }
 
@@ -643,12 +635,7 @@ contract AjnaProxyActions {
         redeemPosition(price, tokenId, address(pool));
 
         if (burn) {
-            IPositionManagerOwnerActions.BurnParams memory burnParams = IPositionManagerOwnerActions.BurnParams(
-                tokenId,
-                address(pool)
-            );
-
-            positionManager.burn(burnParams);
+            positionManager.burn(address(pool), tokenId);
             if (IAccountGuard(GUARD).canCall(address(this), ARC)) {
                 IAccountGuard(GUARD).permit(ARC, address(this), false);
             }
