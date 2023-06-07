@@ -233,7 +233,6 @@ function buildPositionDetails(
 ) {
   return {
     proxy: proxy,
-    getPosition: dependencies.getPosition,
     variant: ethUsdcMultiplyAjnaPosition.positionVariant,
     strategy: ethUsdcMultiplyAjnaPosition.positionVariant,
     collateralToken: tokens.ETH,

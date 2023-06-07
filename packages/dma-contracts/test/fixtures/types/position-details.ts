@@ -1,5 +1,4 @@
 import { AavePosition, AAVETokens, AjnaPosition, PositionTransition, SwapData } from '@dma-library'
-import { OpenMultiplyDependencies } from '@dma-library/strategies/ajna/multiply/open'
 import { PositionType, Strategy } from '@dma-library/types'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import BigNumber from 'bignumber.js'
@@ -51,7 +50,6 @@ export type AavePositionDetails = PositionDetails & {
 }
 
 export type AjnaPositionDetails = PositionDetails & {
-  getPosition: OpenMultiplyDependencies['getPosition']
   pool: AjnaPool
   __openPositionSimulation: Strategy<AjnaPosition>['simulation']
   __collateralPrice: BigNumber
