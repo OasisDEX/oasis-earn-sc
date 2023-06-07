@@ -3,6 +3,7 @@ import { FEE_BASE, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
+  FlashloanProvider,
   IOperation,
   Protocol,
   WithAjnaBucketPrice,
@@ -15,7 +16,6 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
-import { FlashloanProvider } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
