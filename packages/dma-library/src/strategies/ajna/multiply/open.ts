@@ -16,8 +16,7 @@ import {
 import { AjnaCommonDMADependencies, AjnaPosition, AjnaStrategy } from '@dma-library/types/ajna'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
-import * as Domain from '@domain/adjust-position'
-import { debtToCollateralSwapFlashloan } from '@domain/flashloans'
+import * as Domain from '@domain'
 import * as DomainUtils from '@domain/utils'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -309,7 +308,7 @@ async function buildOperation(
       receiveAtLeast: swapData.minToTokenAmount,
     },
     flashloan: {
-      amount: debtToCollateralSwapFlashloan(swapAmountBeforeFees),
+      amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
       // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
     },
