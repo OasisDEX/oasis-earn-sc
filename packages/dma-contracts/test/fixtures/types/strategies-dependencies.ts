@@ -6,7 +6,7 @@ import {
   strategies,
   SwapData,
 } from '@dma-library'
-import { OpenMultiplyDependencies } from '@dma-library/strategies/ajna/multiply/open'
+import { AjnaCommonDMADependencies } from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -36,12 +36,11 @@ type StrategyDependencies = {
 }
 
 export type StrategyDependenciesAjna = StrategyDependencies & {
-  poolInfoAddress: OpenMultiplyDependencies['poolInfoAddress']
-  operationExecutor: OpenMultiplyDependencies['operationExecutor']
-  WETH: OpenMultiplyDependencies['WETH']
-  getPoolData: OpenMultiplyDependencies['getPoolData']
-  getPosition: OpenMultiplyDependencies['getPosition']
-  addresses: OpenMultiplyDependencies['addresses']
+  poolInfoAddress: AjnaCommonDMADependencies['poolInfoAddress']
+  operationExecutor: AjnaCommonDMADependencies['operationExecutor']
+  WETH: AjnaCommonDMADependencies['WETH']
+  getPoolData: AjnaCommonDMADependencies['getPoolData']
+  addresses: AjnaCommonDMADependencies['addresses']
 }
 
 export type StrategyDependenciesAaveV2 = StrategyDependencies & {

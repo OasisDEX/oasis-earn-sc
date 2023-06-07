@@ -510,7 +510,6 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     )
   }
 
-  // How do we handle a scenario where a contract has not been deployed yet EG PoolsUtils?
   async deployActions() {
     if (!this.config) throw new Error('No config set')
     await this.instantiateContracts(

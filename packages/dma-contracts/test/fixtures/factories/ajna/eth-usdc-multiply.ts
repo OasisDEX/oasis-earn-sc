@@ -161,7 +161,7 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
     getSwapData: AjnaPositionDetails['getSwapData']
   },
 ) {
-  // $ indicates amount is at max precision for the token EG 1 USDC -> 1e6 or 1 ETH -> 1e18
+  // Amount is at max precision for the token EG 1 USDC -> 1e6 or 1 ETH -> 1e18
   const collateralAmount = amountToWei(ONE, tokens.ETH.precision)
   const slippage = UNISWAP_TEST_SLIPPAGE
   const riskRatio = new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE)

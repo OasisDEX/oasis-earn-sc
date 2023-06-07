@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import { getAjnaEarnActionOutput } from '@dma-library/protocols/ajna'
-import { AjnaCommonDependencies, AjnaEarnPosition, Strategy } from '@dma-library/types/ajna'
+import { AjnaCommonDependencies, AjnaEarnPosition, AjnaStrategy } from '@dma-library/types/ajna'
 import { AjnaEarnPayload } from '@dma-library/types/ajna/ajna-dependencies'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -11,7 +11,7 @@ import bucketPrices from './buckets.json'
 export type AjnaClaimCollateralStrategy = (
   args: AjnaEarnPayload,
   dependencies: AjnaCommonDependencies,
-) => Promise<Strategy<AjnaEarnPosition>>
+) => Promise<AjnaStrategy<AjnaEarnPosition>>
 
 export const claimCollateral: AjnaClaimCollateralStrategy = async (args, dependencies) => {
   const action = 'claim-earn'

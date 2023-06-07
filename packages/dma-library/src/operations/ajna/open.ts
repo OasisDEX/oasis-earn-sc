@@ -79,6 +79,8 @@ export const open: AjnaOpenOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
+  // We do not need to dynamically calculate index here
+  // Because not all actions store values in OpStorage
   const setCollateralTokenApprovalOnPool = actions.common.setApproval(
     {
       asset: collateral.address,
