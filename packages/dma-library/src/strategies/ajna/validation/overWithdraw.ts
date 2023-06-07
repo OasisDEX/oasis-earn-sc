@@ -1,8 +1,6 @@
 import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
+import { AjnaError, AjnaPosition } from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
-
-import { AjnaPosition } from '../../../types/ajna'
-import { AjnaError } from '../../../types/common'
 
 export function validateOverWithdraw(
   position: AjnaPosition,

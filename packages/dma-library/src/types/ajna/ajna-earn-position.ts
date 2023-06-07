@@ -217,3 +217,5 @@ export class AjnaEarnPosition implements IAjnaEarn {
     )
   }
 }
+
+export type AjnaEarnActions = 'open-earn' | 'deposit-earn' | 'withdraw-earn' | 'claim-earn'

@@ -38,8 +38,8 @@ export const calldataTypes = {
     SetEMode: `tuple(uint8 categoryId)`,
   },
   ajna: {
-    DepositBorrow: `tuple(address pool, uint256 depositAmount, uint256 borrowAmount, bool sumDepositAmounts, uint256 price)`,
-    RepayWithdraw: `tuple(address pool, uint256 withdrawAmount, uint256 repayAmount, bool paybackAll, bool withdrawAll, uint256 price)`,
+    DepositBorrow: `tuple(address quoteToken, address collateralToken, uint256 depositAmount, uint256 borrowAmount, bool sumDepositAmounts, uint256 price)`,
+    RepayWithdraw: `tuple(address quoteToken, address collateralToken, uint256 withdrawAmount, uint256 repayAmount, bool paybackAll, bool withdrawAll, uint256 price)`,
   },
   paramsMap: `uint8[] paramsMap`,
 } as const

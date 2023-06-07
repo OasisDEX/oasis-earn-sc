@@ -69,6 +69,8 @@ export const CONTRACT_NAMES = {
   ajna: {
     DEPOSIT_BORROW: 'AjnaDepositBorrow',
     REPAY_WITHDRAW: 'AjnaRepayWithdraw',
+    ERC20_POOL_FACTORY: 'ERC20PoolFactory',
+    AJNA_POOL_UTILS_INFO: 'AjnaPoolUtilsInfo',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',

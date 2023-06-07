@@ -1,12 +1,13 @@
 import { Address } from '@deploy-configurations/types/address'
-import { ONE, ZERO } from '@dma-common/constants'
+import { ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import {
   calculateMaxGenerate,
   getAjnaBorrowOriginationFee,
+  getAjnaLiquidationPrice,
   simulatePool,
 } from '@dma-library/protocols/ajna'
-import { AjnaWarning } from '@dma-library/types/common'
+import { AjnaWarning } from '@dma-library/types/ajna'
 import { IRiskRatio, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
 
@@ -59,15 +60,11 @@ export class AjnaPosition implements IAjnaPosition {
   ) {}
 
   get liquidationPrice() {
-    const liquidationPrice = this.pool.mostOptimisticMatchingPrice
-      .times(
-        this.debtAmount
-          .times(this.pool.pendingInflator)
-          .div(this.pool.lowestUtilizedPrice.times(this.collateralAmount)),
-      )
-      .times(ONE.plus(this.pool.interestRate))
-
-    return normalizeValue(liquidationPrice)
+    return getAjnaLiquidationPrice({
+      pool: this.pool,
+      debtAmount: this.debtAmount,
+      collateralAmount: this.collateralAmount,
+    })
   }
 
   get marketPrice() {
@@ -186,6 +183,17 @@ export class AjnaPosition implements IAjnaPosition {
       this.owner,
       this.collateralAmount,
       newDebt,
+      this.collateralPrice,
+      this.quotePrice,
+    )
+  }
+
+  close(): AjnaPosition {
+    return new AjnaPosition(
+      simulatePool(this.pool, this.debtAmount.negated(), ZERO, this.collateralAmount.negated()),
+      this.owner,
+      ZERO,
+      ZERO,
       this.collateralPrice,
       this.quotePrice,
     )

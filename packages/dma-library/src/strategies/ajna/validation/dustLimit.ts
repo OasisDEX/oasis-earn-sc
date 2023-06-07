@@ -1,7 +1,5 @@
 import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
-
-import { AjnaPosition } from '../../../types/ajna'
-import { AjnaError } from '../../../types/common'
+import { AjnaError, AjnaPosition } from '@dma-library/types/ajna'
 
 export function validateDustLimit(position: AjnaPosition): AjnaError[] {
   if (position.debtAmount.lt(position.pool.poolMinDebtAmount) && position.debtAmount.gt(0)) {
