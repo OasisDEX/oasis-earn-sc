@@ -117,15 +117,6 @@ const config = {
         },
       },
       {
-        version: '0.8.15',
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1000,
-          },
-        },
-      },
-      {
         version: '0.8.18',
         settings: {
           optimizer: {
@@ -134,6 +125,16 @@ const config = {
           },
         },
       },
+      {
+        version: '0.8.15',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000,
+          },
+        },
+      },
+
     ],
     settings: {
       optimizer: {

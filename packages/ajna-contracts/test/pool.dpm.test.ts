@@ -1103,7 +1103,7 @@ describe.only("AjnaProxyActions", function () {
         usdc
       );
     });
-    it.skip("should supplyQuoteMintNftAndStake --> supplyAndMoveQuoteNft", async () => {
+    it("should supplyQuoteMintNftAndStake --> supplyAndMoveQuoteNft", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
       const price = bn.eighteen.TEST_PRICE_1;
@@ -1132,7 +1132,7 @@ describe.only("AjnaProxyActions", function () {
         1
       );
     });
-    it.skip("should supplyQuoteMintNftAndStake --> withdrawAndMoveQuoteNft", async () => {
+    it("should supplyQuoteMintNftAndStake --> withdrawAndMoveQuoteNft", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
       const price = bn.eighteen.TEST_PRICE_1;
@@ -1179,7 +1179,7 @@ describe.only("AjnaProxyActions", function () {
       await usdc.connect(lender).approve(lenderProxy.address, lendAmount);
       await supplyQuoteNft(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price, 1);
     });
-    it.skip("should supplyQuoteMintNftAndStake --> withdrawQuoteNft", async () => {
+    it("should supplyQuoteMintNftAndStake --> withdrawQuoteNft", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
       const price = bn.eighteen.TEST_PRICE_1;
@@ -1207,7 +1207,7 @@ describe.only("AjnaProxyActions", function () {
         1
       );
     });
-    it.skip("should supplyQuoteMintNftAndStake --> moveQuoteNft ", async () => {
+    it("should supplyQuoteMintNftAndStake --> moveQuoteNft ", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
 
       const price = bn.eighteen.TEST_PRICE_1;

@@ -5,12 +5,12 @@ pragma solidity 0.8.18;
 import { ClonesWithImmutableArgs } from "./libs/clones-with-immutable-args/src/ClonesWithImmutableArgs.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-import { IERC721PoolFactory } from './interfaces/pool/erc721/IERC721PoolFactory.sol';
-import { IPoolFactory }       from './interfaces/pool/IPoolFactory.sol';
-import { PoolType }           from './interfaces/pool/IPool.sol';
+import { IERC721PoolFactory } from "./interfaces/pool/erc721/IERC721PoolFactory.sol";
+import { IPoolFactory } from "./interfaces/pool/IPoolFactory.sol";
+import { PoolType } from "./interfaces/pool/IPool.sol";
 
-import { ERC721Pool }   from './ERC721Pool.sol';
-import { PoolDeployer } from './base/PoolDeployer.sol';
+import { ERC721Pool } from "./ERC721Pool.sol";
+import { PoolDeployer } from "./base/PoolDeployer.sol";
 
 /**
  *  @title  ERC721 Pool Factory
@@ -20,7 +20,6 @@ import { PoolDeployer } from './base/PoolDeployer.sol';
  *  @dev    Reverts if pool is already created or if params to deploy new pool are invalid.
  */
 contract ERC721PoolFactory is PoolDeployer, IERC721PoolFactory {
-
     using ClonesWithImmutableArgs for address;
 
     /// @dev `ERC721` clonable pool contract used to deploy the new pool.
@@ -53,7 +52,10 @@ contract ERC721PoolFactory is PoolDeployer, IERC721PoolFactory {
      *  @dev    - `PoolCreated`
      */
     function deployPool(
-        address collateral_, address quote_, uint256[] memory tokenIds_, uint256 interestRate_
+        address collateral_,
+        address quote_,
+        uint256[] memory tokenIds_,
+        uint256 interestRate_
     ) external canDeploy(collateral_, quote_, interestRate_) returns (address pool_) {
         bytes32 subsetHash = getNFTSubsetHash(tokenIds_);
 
@@ -135,5 +137,4 @@ contract ERC721PoolFactory is PoolDeployer, IERC721PoolFactory {
             }
         }
     }
-
 }
