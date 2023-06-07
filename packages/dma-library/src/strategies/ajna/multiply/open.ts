@@ -109,6 +109,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
 
   const isDepositingEth = areAddressesEqual(position.pool.collateralToken, dependencies.WETH)
   return prepareAjnaDMAPayload({
+    swaps: [swapData],
     dependencies,
     targetPosition,
     data: encodeOperation(operation, dependencies),
@@ -274,7 +275,10 @@ async function getSwapData(
       isEarnPosition: positionType === 'Earn',
     },
   )
-  const { swapData } = await SwapUtils.getSwapDataHelper<typeof dependencies.addresses, string>({
+  const { swapData, collectFeeFrom, preSwapFee } = await SwapUtils.getSwapDataHelper<
+    typeof dependencies.addresses,
+    string
+  >({
     args: {
       fromToken: buildFromToken(args, position),
       toToken: buildToToken(args, position),
@@ -288,7 +292,7 @@ async function getSwapData(
     },
   })
 
-  return swapData
+  return { ...swapData, collectFeeFrom, preSwapFee }
 }
 
 async function buildOperation(

@@ -1,5 +1,6 @@
 import { Address } from '@deploy-configurations/types/address'
 import { Tx } from '@dma-common/types'
+import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 export type AjnaErrorWithdrawUndercollateralized = {
@@ -92,9 +93,20 @@ export type AjnaWarning =
   | AjnaWarningWithdrawCloseToMaxLtv
   | AjnaWarningPriceAboveMomp
 
+export interface Swap {
+  fromTokenAddress: Address
+  toTokenAddress: Address
+  fromTokenAmount: BigNumber
+  toTokenAmount: BigNumber
+  minToTokenAmount: BigNumber
+  exchangeCalldata: string | number
+  collectFeeFrom: Address
+  fee: BigNumber
+}
+
 export type Strategy<Position> = {
   simulation: {
-    swaps: []
+    swaps: Swap[]
     /** @deprecated - use position */
     targetPosition: Position
     position: Position
