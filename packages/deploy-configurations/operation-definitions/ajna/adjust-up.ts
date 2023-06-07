@@ -1,31 +1,34 @@
-import { CONTRACT_NAMES, OPERATION_NAMES } from '@deploy-configurations/constants'
+import { loadContractNames, OPERATION_NAMES } from '@deploy-configurations/constants'
+import { Network } from '@deploy-configurations/types/network'
 import { getActionHash } from '@deploy-configurations/utils/action-hash'
+
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 export const ajnaAdjustUpOperationDefinition = {
   name: OPERATION_NAMES.ajna.ADJUST_RISK_UP,
   actions: [
     {
-      hash: getActionHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
+      hash: getActionHash(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN),
       optional: false,
     },
     {
-      hash: getActionHash(CONTRACT_NAMES.common.PULL_TOKEN),
+      hash: getActionHash(SERVICE_REGISTRY_NAMES.common.PULL_TOKEN),
       optional: true,
     },
     {
-      hash: getActionHash(CONTRACT_NAMES.common.WRAP_ETH),
+      hash: getActionHash(SERVICE_REGISTRY_NAMES.common.WRAP_ETH),
       optional: true,
     },
     {
-      hash: getActionHash(CONTRACT_NAMES.common.SWAP_ACTION),
+      hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SWAP_ACTION),
       optional: false,
     },
     {
-      hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
+      hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SET_APPROVAL),
       optional: false,
     },
     {
-      hash: getActionHash(CONTRACT_NAMES.ajna.DEPOSIT_BORROW),
+      hash: getActionHash(SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW),
       optional: false,
     },
   ],

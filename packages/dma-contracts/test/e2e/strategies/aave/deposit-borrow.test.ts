@@ -31,6 +31,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
       use1inch: true,
       configExtensionPaths: [`test/swap.conf.ts`],
       hideLogging: true,
+      network: networkFork,
     })
 
     beforeEach(async function () {
@@ -84,6 +85,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
             ),
             proxy: dsProxyPosition.proxy,
             currentPosition: beforeTransactionPosition,
+            network: networkFork,
           })
 
           const transactionValue =
@@ -160,6 +162,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
               getSwapData: env.strategiesDependencies.getSwapData(env.system.Swap.contract.address),
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             const transactionValue = '0'
@@ -236,6 +239,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
             ),
             proxy: dsProxyPosition.proxy,
             currentPosition: beforeTransactionPosition,
+            network: networkFork,
           })
 
           const transactionValue = '0'
@@ -302,6 +306,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
               ),
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             const transactionValue = '0'
@@ -398,6 +403,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
             getSwapData: env.strategiesDependencies.getSwapData(env.system.Swap.contract.address),
             proxy: dsProxyPosition.proxy,
             currentPosition: beforeTransactionPosition,
+            network: networkFork,
           })
 
           const transactionValue =
@@ -468,6 +474,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
               getSwapData: env.strategiesDependencies.getSwapData(env.system.Swap.contract.address),
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             const transactionValue =
@@ -552,6 +559,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
               getSwapData: env.strategiesDependencies.getSwapData(env.system.Swap.contract.address),
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             const transactionValue = '0'
@@ -626,6 +634,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
             getSwapData: env.strategiesDependencies.getSwapData(env.system.Swap.contract.address),
             proxy: dsProxyPosition.proxy,
             currentPosition: beforeTransactionPosition,
+            network: networkFork,
           })
 
           const transactionValue = '0'
@@ -690,6 +699,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
               getSwapData: env.strategiesDependencies.getSwapData(env.system.Swap.contract.address),
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             const transactionValue = '0'

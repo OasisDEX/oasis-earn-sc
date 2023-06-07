@@ -1,5 +1,5 @@
 // Service Registry Entry Names
-export const CONTRACT_NAMES = {
+export const SERVICE_REGISTRY_NAMES = {
   common: {
     PULL_TOKEN: 'PullToken_3',
     SEND_TOKEN: 'SendToken_4',
@@ -81,4 +81,4 @@ export const CONTRACT_NAMES = {
 
 export type AllValues<T> = { [K in keyof T]: T[K] extends object ? AllValues<T[K]> : T[K] }[keyof T]
 
-export type ContractNames = AllValues<typeof CONTRACT_NAMES>
+export type ContractNames = AllValues<typeof SERVICE_REGISTRY_NAMES>

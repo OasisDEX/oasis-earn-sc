@@ -1,6 +1,6 @@
 import { ADDRESSES } from '@deploy-configurations/addresses'
 import { Network } from '@deploy-configurations/types/network'
-import { CONTRACT_NAMES } from '@dma-common/constants'
+import { SERVICE_REGISTRY_NAMES } from '@dma-common/constants'
 import { createDPMAccount, getOneInchCall, oneInchCallMock } from '@dma-common/test-utils'
 import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
@@ -73,7 +73,7 @@ task('createBorrowPosition', 'Create borrow position')
     )
 
     const operationExecutorAddress = await serviceRegistryContract.getRegisteredService(
-      CONTRACT_NAMES.common.OPERATION_EXECUTOR,
+      SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
     )
 
     const operationExecutorContract = await hre.ethers.getContractAt(
@@ -83,7 +83,7 @@ task('createBorrowPosition', 'Create borrow position')
     )
 
     const swapAddress = await serviceRegistryContract.getRegisteredService(
-      CONTRACT_NAMES.common.SWAP,
+      SERVICE_REGISTRY_NAMES.common.SWAP,
     )
 
     const mainnetAddresses = {

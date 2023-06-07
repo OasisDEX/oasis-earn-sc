@@ -321,6 +321,7 @@ async function buildOperation(
       debtTokenAddress,
       debtTokenIsEth: args.debtToken.symbol === 'ETH',
       isDPMProxy: dependencies.isDPMProxy,
+      network: dependencies.network,
     }
     return await operations.aave.v2.close(
       closeArgs,
@@ -362,6 +363,7 @@ async function buildOperation(
         owner: dependencies.user,
       },
       addresses: dependencies.addresses as AAVEV3StrategyAddresses,
+      network: dependencies.network,
     }
 
     return await operations.aave.v3.close(closeArgs)

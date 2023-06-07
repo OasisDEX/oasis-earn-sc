@@ -1,5 +1,9 @@
-import { ADDRESS_ZERO, CONTRACT_NAMES } from '../constants'
+import { Network } from '@deploy-configurations/types/network'
+
+import { ADDRESS_ZERO, loadContractNames } from '../constants'
 import { SystemConfig } from '../types/deployment-config'
+
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.GOERLI)
 
 export const config: SystemConfig = {
   mpa: {
@@ -39,7 +43,7 @@ export const config: SystemConfig = {
         name: 'DSProxyFactory',
         deploy: false,
         address: '0x84eFB9c18059394172D0d69A3E58B03320001871',
-        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_FACTORY,
         history: [],
         constructorArgs: [],
       },
@@ -47,7 +51,7 @@ export const config: SystemConfig = {
         name: 'DSProxyRegistry',
         deploy: false,
         address: '0x46759093D8158db8BB555aC7C6F98070c56169ce',
-        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_REGISTRY,
         history: [],
         constructorArgs: ['address:DSProxyFactory'],
       },
@@ -55,7 +59,7 @@ export const config: SystemConfig = {
         name: 'DSGuardFactory',
         deploy: false,
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_GUARD_FACTORY,
         history: [],
         constructorArgs: [],
       },
@@ -235,17 +239,17 @@ export const config: SystemConfig = {
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xe592427a0aece92de3edee1f18e0157c05861564',
-      serviceRegistryName: CONTRACT_NAMES.common.UNISWAP_ROUTER,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.UNISWAP_ROUTER,
     },
     BalancerVault: {
       name: 'BalancerVault',
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.BALANCER_VAULT,
     },
     OneInchAggregator: {
       name: 'OneInchAggregator',
       address: '0x1111111254fb6c44bac0bed2854e76f90643097d',
-      serviceRegistryName: CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
     },
     AuthorizedCaller: {
       name: 'AuthorizedCaller',
@@ -424,7 +428,7 @@ export const config: SystemConfig = {
       LendingPool: {
         name: 'LendingPool',
         address: '0x4bd5643ac6f66a5237E18bfA7d47cF22f1c9F210',
-        serviceRegistryName: CONTRACT_NAMES.aave.v2.LENDING_POOL,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.LENDING_POOL,
       },
       ProtocolDataProvider: {
         name: 'ProtocolDataProvider',
@@ -433,7 +437,7 @@ export const config: SystemConfig = {
       WETHGateway: {
         name: 'WETHGateway',
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.WETH_GATEWAY,
       },
     },
     v3: {
@@ -444,7 +448,7 @@ export const config: SystemConfig = {
       Pool: {
         name: 'Pool',
         address: '0x6060Cf73C79098D32c9b936F4B26283427f1BFAd',
-        serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
       },
       AavePoolDataProvider: {
         name: 'AavePoolDataProvider',
@@ -461,7 +465,7 @@ export const config: SystemConfig = {
       FlashMintModule: {
         name: 'FlashMintModule',
         address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
-        serviceRegistryName: CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.FLASH_MINT_MODULE,
       },
       Chainlog: {
         name: 'Chainlog',
