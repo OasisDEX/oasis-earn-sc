@@ -6,7 +6,7 @@ import {
   envWithAjnaPositions,
   getSupportedAjnaPositions,
 } from '@dma-contracts/test/fixtures/system/env-with-ajna-positions'
-import { AjnaPosition } from '@dma-library'
+import { AjnaPosition, views } from '@dma-library'
 import { Strategy } from '@dma-library/types'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import BigNumber from 'bignumber.js'
@@ -41,7 +41,7 @@ describe('Strategy | AJNA | Open Multiply | E2E', () => {
           throw new Error('Position not found')
         }
 
-        position = await positionDetails.getPosition(
+        position = await views.ajna.getPosition(
           {
             proxyAddress: positionDetails.proxy,
             poolAddress: positionDetails.pool.poolAddress,

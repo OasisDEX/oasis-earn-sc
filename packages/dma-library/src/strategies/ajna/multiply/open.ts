@@ -1,5 +1,4 @@
 import operationExecutorAbi from '@abis/system/contracts/core/OperationExecutor.sol/OperationExecutor.json'
-import { Address } from '@deploy-configurations/types/address'
 import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses/index'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
@@ -7,60 +6,24 @@ import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { FlashloanProvider, IOperation, PositionType, SwapData } from '@dma-library/types'
-import { AjnaPosition } from '@dma-library/types/ajna'
-import { AjnaStrategy } from '@dma-library/types/common'
+import {
+  AjnaOpenMultiplyPayload,
+  FlashloanProvider,
+  IOperation,
+  PositionType,
+  SwapData,
+} from '@dma-library/types'
+import { AjnaCommonDMADependencies, AjnaPosition, AjnaStrategy } from '@dma-library/types/ajna'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
-import { GetPoolData } from '@dma-library/views/ajna'
-import * as Domain from '@domain/adjust-position'
-import { debtToCollateralSwapFlashloan } from '@domain/flashloans'
-import { IRiskRatio } from '@domain/risk-ratio'
+import * as Domain from '@domain'
 import * as DomainUtils from '@domain/utils'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-export interface OpenMultiplyArgs {
-  user: Address
-  poolAddress: Address
-  dpmProxyAddress: Address
-  collateralPrice: BigNumber
-  quoteTokenSymbol: string
-  quotePrice: BigNumber
-  quoteTokenPrecision: number
-  collateralTokenSymbol: string
-  // $ indicates amount is at max precision for the token EG 1 USDC -> 1e6 or 1 ETH -> 1e18
-  collateralAmount$: BigNumber
-  collateralTokenPrecision: number
-  slippage: BigNumber
-  riskRatio: IRiskRatio
-}
-
-export interface OpenMultiplyDependencies {
-  poolInfoAddress: Address
-  provider: ethers.providers.Provider
-  operationExecutor: Address
-  WETH: Address
-  getPoolData: GetPoolData
-  getPosition: typeof views.ajna.getPosition
-  addresses: {
-    DAI: Address
-    ETH: Address
-    WSTETH: Address
-    USDC: Address
-    WBTC: Address
-  }
-  getSwapData: (
-    fromToken: string,
-    toToken: string,
-    amount: BigNumber,
-    slippage: BigNumber,
-  ) => Promise<SwapData>
-}
-
 export type AjnaOpenMultiplyStrategy = (
-  args: OpenMultiplyArgs,
-  dependencies: OpenMultiplyDependencies,
+  args: AjnaOpenMultiplyPayload,
+  dependencies: AjnaCommonDMADependencies,
 ) => Promise<AjnaStrategy<AjnaPosition>>
 
 const positionType: PositionType = 'Multiply'
@@ -115,15 +78,17 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     data: encodeOperation(operation, dependencies),
     errors: [],
     warnings: [],
+    success: [],
+    notices: [],
     txValue: resolveAjnaEthAction(
       isDepositingEth,
-      amountFromWei(args.collateralAmount$, TYPICAL_PRECISION),
+      amountFromWei(args.collateralAmount, TYPICAL_PRECISION),
     ),
   })
 }
 
-async function getPosition(args: OpenMultiplyArgs, dependencies: OpenMultiplyDependencies) {
-  const getPosition = dependencies.getPosition ? dependencies.getPosition : views.ajna.getPosition
+async function getPosition(args: AjnaOpenMultiplyPayload, dependencies: AjnaCommonDMADependencies) {
+  const getPosition = views.ajna.getPosition
   const position = await getPosition(
     {
       collateralPrice: args.collateralPrice,
@@ -145,7 +110,7 @@ async function getPosition(args: OpenMultiplyArgs, dependencies: OpenMultiplyDep
   return position
 }
 
-function verifyRiskDirection(args: OpenMultiplyArgs, position: AjnaPosition): true {
+function verifyRiskDirection(args: AjnaOpenMultiplyPayload, position: AjnaPosition): true {
   const riskIsIncreasing = DomainUtils.determineRiskDirection(
     args.riskRatio.loanToValue,
     position.riskRatio.loanToValue,
@@ -158,8 +123,8 @@ function verifyRiskDirection(args: OpenMultiplyArgs, position: AjnaPosition): tr
 }
 
 async function simulateAdjustment(
-  args: OpenMultiplyArgs,
-  dependencies: OpenMultiplyDependencies,
+  args: AjnaOpenMultiplyPayload,
+  dependencies: AjnaCommonDMADependencies,
   position: AjnaPosition,
   riskIsIncreasing: true,
   oraclePrice: BigNumber,
@@ -205,7 +170,7 @@ async function simulateAdjustment(
 
   const positionAdjustArgs = {
     toDeposit: {
-      collateral: args.collateralAmount$,
+      collateral: args.collateralAmount,
       /** Not relevant for Ajna */
       debt: ZERO,
     },
@@ -242,7 +207,7 @@ async function simulateAdjustment(
   return Domain.adjustToTargetRiskRatio(mappedPosition, args.riskRatio, positionAdjustArgs)
 }
 
-function buildFromToken(args: OpenMultiplyArgs, position: AjnaPosition) {
+function buildFromToken(args: AjnaOpenMultiplyPayload, position: AjnaPosition) {
   return {
     symbol: args.quoteTokenSymbol.toUpperCase(),
     address: position.pool.quoteToken,
@@ -250,7 +215,7 @@ function buildFromToken(args: OpenMultiplyArgs, position: AjnaPosition) {
   }
 }
 
-function buildToToken(args: OpenMultiplyArgs, position: AjnaPosition) {
+function buildToToken(args: AjnaOpenMultiplyPayload, position: AjnaPosition) {
   return {
     symbol: args.collateralTokenSymbol.toUpperCase(),
     address: position.pool.collateralToken,
@@ -259,8 +224,8 @@ function buildToToken(args: OpenMultiplyArgs, position: AjnaPosition) {
 }
 
 async function getSwapData(
-  args: OpenMultiplyArgs,
-  dependencies: OpenMultiplyDependencies,
+  args: AjnaOpenMultiplyPayload,
+  dependencies: AjnaCommonDMADependencies,
   position: AjnaPosition,
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   riskIsIncreasing: true,
@@ -296,8 +261,8 @@ async function getSwapData(
 }
 
 async function buildOperation(
-  args: OpenMultiplyArgs,
-  dependencies: OpenMultiplyDependencies,
+  args: AjnaOpenMultiplyPayload,
+  dependencies: AjnaCommonDMADependencies,
   position: AjnaPosition,
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   swapData: SwapData,
@@ -337,7 +302,7 @@ async function buildOperation(
     deposit: {
       // Always collateral only as deposit on Ajna
       address: position.pool.collateralToken,
-      amount: args.collateralAmount$,
+      amount: args.collateralAmount,
     },
     swap: {
       fee: fee.toNumber(),
@@ -347,7 +312,7 @@ async function buildOperation(
       receiveAtLeast: swapData.minToTokenAmount,
     },
     flashloan: {
-      amount: debtToCollateralSwapFlashloan(swapAmountBeforeFees),
+      amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
       // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
     },
@@ -372,7 +337,7 @@ async function buildOperation(
   return await operations.ajna.open(openMultiplyArgs)
 }
 
-function encodeOperation(operation: IOperation, dependencies: OpenMultiplyDependencies): string {
+function encodeOperation(operation: IOperation, dependencies: AjnaCommonDMADependencies): string {
   const operationExecutor = new ethers.Contract(
     dependencies.operationExecutor,
     operationExecutorAbi,

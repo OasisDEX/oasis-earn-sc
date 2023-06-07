@@ -1,20 +1,23 @@
 import poolAbi from '@abis/external/protocols/ajna/ajnaPoolERC20.json'
 import { Address } from '@deploy-configurations/types/address'
-import { ZERO } from '@dma-common/constants'
-import { negativeToZero } from '@dma-common/utils/common'
+import { ONE, ZERO } from '@dma-common/constants'
+import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
 import { getPoolLiquidity } from '@dma-library/strategies/ajna/validation/notEnoughLiquidity'
 import { SwapData } from '@dma-library/types'
-import { AjnaEarnPosition } from '@dma-library/types/ajna'
-import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import {
-  AjnaDependencies,
-  AjnaDMADependencies,
+  AjnaCommonDependencies,
+  AjnaCommonDMADependencies,
   AjnaEarnActions,
+  AjnaEarnPayload,
+  AjnaEarnPosition,
   AjnaError,
+  AjnaNotice,
+  AjnaPool,
   AjnaStrategy,
+  AjnaSuccess,
   AjnaWarning,
-} from '@dma-library/types/common'
+} from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -40,10 +43,12 @@ export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
   txValue,
   swaps,
 }: {
-  dependencies: AjnaDMADependencies
+  dependencies: AjnaCommonDMADependencies
   targetPosition: T
   errors: AjnaError[]
   warnings: AjnaWarning[]
+  notices: AjnaNotice[]
+  success: AjnaSuccess[]
   data: string
   txValue: string
   swaps: (SwapData & { collectFeeFrom: 'sourceToken' | 'targetToken'; preSwapFee: BigNumber })[]
@@ -62,6 +67,8 @@ export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
       })),
       errors,
       warnings,
+      notices: [],
+      successes: [],
       targetPosition,
       position: targetPosition,
     },
@@ -78,13 +85,17 @@ export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
   targetPosition,
   errors,
   warnings,
+  notices,
+  successes,
   data,
   txValue,
 }: {
-  dependencies: AjnaDependencies
+  dependencies: AjnaCommonDependencies
   targetPosition: T
   errors: AjnaError[]
   warnings: AjnaWarning[]
+  notices: AjnaNotice[]
+  successes: AjnaSuccess[]
   data: string
   txValue: string
 }): AjnaStrategy<T> => {
@@ -93,6 +104,8 @@ export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
       swaps: [],
       errors,
       warnings,
+      notices,
+      successes,
       targetPosition,
       position: targetPosition,
     },
@@ -114,8 +127,8 @@ export const getAjnaEarnActionOutput = async ({
 }: {
   targetPosition: AjnaEarnPosition
   data: string
-  dependencies: AjnaDependencies
-  args: AjnaEarnArgs
+  dependencies: AjnaCommonDependencies
+  args: AjnaEarnPayload
   action: AjnaEarnActions
   txValue: string
 }) => {
@@ -129,7 +142,7 @@ export const getAjnaEarnActionOutput = async ({
         )
       : undefined
 
-  const { errors, warnings } = getAjnaEarnValidations({
+  const { errors, warnings, notices, successes } = getAjnaEarnValidations({
     price: args.price,
     quoteAmount: args.quoteAmount,
     quoteTokenPrecision: args.quoteTokenPrecision,
@@ -144,6 +157,8 @@ export const getAjnaEarnActionOutput = async ({
     targetPosition,
     errors,
     warnings,
+    notices,
+    successes,
     data,
     txValue,
   })
@@ -230,7 +245,7 @@ function getMaxGenerate(
   }
 
   const sortedBuckets = pool.buckets
-    .filter(bucket => bucket.index.lt(pool.highestThresholdPriceIndex))
+    .filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
     .sort((a, b) => a.index.minus(b.index).toNumber())
 
   const lupBucketArrayIndex = sortedBuckets.findIndex(bucket =>
@@ -332,3 +347,22 @@ export function simulatePool(
     newLupIndex,
   )
 }
+
+export const getAjnaLiquidationPrice = ({
+  pool,
+  debtAmount,
+  collateralAmount,
+}: {
+  pool: AjnaPool
+  debtAmount: BigNumber
+  collateralAmount: BigNumber
+}) =>
+  normalizeValue(
+    pool.mostOptimisticMatchingPrice
+      .times(
+        debtAmount
+          .times(pool.pendingInflator)
+          .div(pool.lowestUtilizedPrice.times(collateralAmount)),
+      )
+      .times(ONE.plus(pool.interestRate)),
+  )

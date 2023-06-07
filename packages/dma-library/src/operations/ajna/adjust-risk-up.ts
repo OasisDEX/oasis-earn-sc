@@ -1,17 +1,14 @@
-import { ajnaOpenOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { FEE_BASE, ZERO } from '@dma-common/constants'
+import { ajnaAdjustUpOperationDefinition } from '@deploy-configurations/operation-definitions'
+import { ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   IOperation,
-  Protocol,
   WithAjnaBucketPrice,
   WithAjnaStrategyAddresses,
   WithCollateral,
   WithDebtAndBorrow,
   WithFlashloan,
   WithOptionalDeposit,
-  WithPosition,
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
@@ -19,36 +16,33 @@ import { FlashloanProvider } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-type OpenArgs = WithCollateral &
+type AjnaAdjustRiskUpArgs = WithCollateral &
   WithDebtAndBorrow &
   WithOptionalDeposit &
   WithSwap &
   WithFlashloan &
   WithProxy &
-  WithPosition &
   WithAjnaStrategyAddresses &
   WithAjnaBucketPrice
 
-export type AjnaOpenOperation = ({
+export type AjnaAdjustRiskUpOperation = ({
   collateral,
   debt,
   deposit,
   swap,
   flashloan,
   proxy,
-  position,
   addresses,
   price,
-}: OpenArgs) => Promise<IOperation>
+}: AjnaAdjustRiskUpArgs) => Promise<IOperation>
 
-export const open: AjnaOpenOperation = async ({
+export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
   collateral,
   debt,
   deposit,
   swap,
   flashloan,
   proxy,
-  position,
   addresses,
   price,
 }) => {
@@ -66,8 +60,8 @@ export const open: AjnaOpenOperation = async ({
 
   const hasAmountToDeposit = depositAmount.gt(ZERO)
   pullCollateralTokensToProxy.skipped = !hasAmountToDeposit || collateral.isEth
-  const shouldSkipWrapEth = !collateral.isEth
-  wrapEth.skipped = shouldSkipWrapEth
+  const shouldSkippWrapEth = !collateral.isEth
+  wrapEth.skipped = shouldSkippWrapEth
 
   const swapDebtTokensForCollateralTokens = actions.common.swap({
     fromAsset: debt.address,
@@ -79,8 +73,8 @@ export const open: AjnaOpenOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  // We do not need to dynamically calculate index here
-  // Because not all actions store values in OpStorage
+  const swapValueIndex = shouldSkippWrapEth ? 1 : 2
+
   const setCollateralTokenApprovalOnPool = actions.common.setApproval(
     {
       asset: collateral.address,
@@ -88,7 +82,7 @@ export const open: AjnaOpenOperation = async ({
       amount: depositAmount,
       sumAmounts: true,
     },
-    [0, 0, 1, 0],
+    [0, 0, swapValueIndex, 0],
   )
 
   const depositBorrow = actions.ajna.ajnaDepositBorrow(
@@ -100,23 +94,8 @@ export const open: AjnaOpenOperation = async ({
       sumDepositAmounts: true,
       price,
     },
-    [0, 0, 1, 0, 0, 0],
+    [0, 0, swapValueIndex, 0, 0, 0],
   )
-
-  const sendQuoteTokenToOpExecutor = actions.common.sendToken({
-    asset: debt.address,
-    to: addresses.operationExecutor,
-    amount: flashloan.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.amount)),
-  })
-
-  const protocol: Protocol = 'Ajna'
-
-  const positionCreated = actions.common.positionCreated({
-    protocol,
-    positionType: position.type,
-    collateralToken: collateral.address,
-    debtToken: debt.address,
-  })
 
   const flashloanCalls = [
     pullCollateralTokensToProxy,
@@ -124,8 +103,6 @@ export const open: AjnaOpenOperation = async ({
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnPool,
     depositBorrow,
-    sendQuoteTokenToOpExecutor,
-    positionCreated,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
@@ -139,6 +116,6 @@ export const open: AjnaOpenOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: ajnaOpenOperationDefinition.name,
+    operationName: ajnaAdjustUpOperationDefinition.name,
   }
 }

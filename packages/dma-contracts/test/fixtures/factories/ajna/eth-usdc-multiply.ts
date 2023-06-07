@@ -17,8 +17,7 @@ import {
   USDC,
 } from '@dma-contracts/test/fixtures/factories/common'
 import { AjnaPosition, RiskRatio, strategies } from '@dma-library'
-import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
-import { AjnaStrategy } from '@dma-library/types/common'
+import { AjnaPool, AjnaStrategy } from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -162,8 +161,8 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
     getSwapData: AjnaPositionDetails['getSwapData']
   },
 ) {
-  // $ indicates amount is at max precision for the token EG 1 USDC -> 1e6 or 1 ETH -> 1e18
-  const collateralAmount$ = amountToWei(ONE, tokens.ETH.precision)
+  // Amount is at max precision for the token EG 1 USDC -> 1e6 or 1 ETH -> 1e18
+  const collateralAmount = amountToWei(ONE, tokens.ETH.precision)
   const slippage = UNISWAP_TEST_SLIPPAGE
   const riskRatio = new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE)
 
@@ -178,7 +177,7 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
     quoteTokenPrecision: tokens.USDC.precision,
     collateralTokenPrecision: tokens.ETH.precision,
 
-    collateralAmount$,
+    collateralAmount,
     slippage,
     riskRatio,
   }
@@ -234,7 +233,6 @@ function buildPositionDetails(
 ) {
   return {
     proxy: proxy,
-    getPosition: dependencies.getPosition,
     variant: ethUsdcMultiplyAjnaPosition.positionVariant,
     strategy: ethUsdcMultiplyAjnaPosition.positionVariant,
     collateralToken: tokens.ETH,

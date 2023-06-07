@@ -2,8 +2,19 @@ import type { AAVETokens } from './aave'
 import { AavePosition } from './aave'
 import { ActionCall } from './action-call'
 import { calldataTypes } from './actions'
-import { AjnaEarnPosition, AjnaPosition } from './ajna'
-import type { AjnaError, Strategy } from './common'
+import type { AjnaError } from './ajna'
+import {
+  AjnaBorrowPayload,
+  AjnaCommonDependencies,
+  AjnaCommonPayload,
+  AjnaEarnPosition,
+  AjnaMultiplyPayload,
+  AjnaOpenEarnDependencies,
+  AjnaOpenEarnPayload,
+  AjnaOpenMultiplyPayload,
+  AjnaPosition,
+} from './ajna'
+import type { Strategy } from './common'
 import { FlashloanProvider } from './common'
 import type {
   IOperation,
@@ -56,6 +67,16 @@ import type { SwapData } from './swap-data'
 export { FlashloanProvider }
 export type { AjnaError, Strategy }
 export { AjnaEarnPosition, AjnaPosition }
+
+export type {
+  AjnaBorrowPayload,
+  AjnaCommonDependencies,
+  AjnaCommonPayload,
+  AjnaMultiplyPayload,
+  AjnaOpenEarnDependencies,
+  AjnaOpenEarnPayload,
+  AjnaOpenMultiplyPayload,
+}
 
 export type { AAVETokens }
 export { AavePosition }

@@ -57,6 +57,7 @@ export type Tokens =
   | 'ADAI'
   | 'BAL'
   | 'BAT'
+  | 'CBETH'
   | 'COMP'
   | 'CRVV1ETHSTETH'
   | 'DAI'
@@ -256,8 +257,15 @@ export type AjnaProtocol =
   | 'AjnaProxyActions'
   | 'AjnaPoolPairs_WBTCUSDC'
   | 'AjnaPoolPairs_ETHUSDC'
+  | 'AjnaPoolPairs_WSTETHDAI'
+  | 'AjnaPoolPairs_RETHDAI'
+  | 'AjnaPoolPairs_WBTCDAI'
+  | 'AjnaPoolPairs_USDCWETH'
+  | 'AjnaPoolPairs_USDCWBTC'
+  | 'AjnaPoolPairs_USDCDAI'
   | 'AjnaRewardsManager'
   | 'AjnaRewardsClaimer'
+  | 'ERC20PoolFactory'
 
 export type Contracts =
   | CoreContracts

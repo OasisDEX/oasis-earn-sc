@@ -1,6 +1,4 @@
-import {
-  OpenMultiplyArgs,
-  OpenMultiplyDependencies,
-} from '@dma-library/strategies/ajna/multiply/open'
+import { AjnaOpenMultiplyPayload } from '@dma-library'
+import { AjnaCommonDMADependencies } from '@dma-library/types/ajna'
 
-export type OpenMultiplyPositionTypes = [OpenMultiplyArgs, OpenMultiplyDependencies]
+export type OpenMultiplyPositionTypes = [AjnaOpenMultiplyPayload, AjnaCommonDMADependencies]
