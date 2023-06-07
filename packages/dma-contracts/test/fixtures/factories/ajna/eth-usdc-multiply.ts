@@ -7,15 +7,13 @@ import { executeThroughDPMProxy } from '@dma-common/utils/execute'
 import {
   AjnaPositionDetails,
   AjnaSystem,
-  PositionVariants,
-  StrategyDependenciesAjna,
-} from '@dma-contracts/test/fixtures'
-import {
   ETH,
   MULTIPLE,
+  PositionVariants,
+  StrategyDependenciesAjna,
   UNISWAP_TEST_SLIPPAGE,
   USDC,
-} from '@dma-contracts/test/fixtures/factories/common'
+} from '@dma-contracts/test/fixtures'
 import { AjnaPosition, RiskRatio, strategies } from '@dma-library'
 import { AjnaPool, AjnaStrategy } from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'

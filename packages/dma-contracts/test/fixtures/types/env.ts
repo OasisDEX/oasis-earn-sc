@@ -32,7 +32,7 @@ type AjnaEnv = Env & {
   ajnaSystem: Unbox<ReturnType<typeof prepareEnv>>
 }
 
-export type SystemWithAavePositions = DmaEnv & {
+export type EnvWithAavePositions = DmaEnv & {
   /** @deprecated Use dsSystem instead */
   system: DeployedSystem
   registry: Awaited<ReturnType<typeof deploySystem>>['registry']
@@ -48,8 +48,8 @@ export type SystemWithAavePositions = DmaEnv & {
 // TODO: Uncouple from AAVE
 export type GetTokenFn = (symbol: AAVETokensToGet, amount: BigNumber) => Promise<boolean>
 
-export type SystemWithAAVEV3Positions = Omit<
-  SystemWithAavePositions,
+export type EnvWithAaveV3Positions = Omit<
+  EnvWithAavePositions,
   'strategiesDependencies' | 'dpmPositions'
 > & {
   strategiesDependencies: StrategyDependenciesAaveV3

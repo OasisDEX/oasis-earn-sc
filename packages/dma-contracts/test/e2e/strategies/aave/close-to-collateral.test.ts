@@ -12,12 +12,13 @@ import {
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, isMainnetByNetwork, isOptimismByNetwork } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
-import { SystemWithAavePositions, systemWithAavePositions } from '@dma-contracts/test/fixtures'
 import {
+  EnvWithAavePositions,
+  envWithAavePositions,
+  EnvWithAaveV3Positions,
+  envWithAaveV3Positions,
   getSupportedAaveV3Strategies,
-  systemWithAaveV3Positions,
-} from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
-import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/env'
+} from '@dma-contracts/test/fixtures'
 import { strategies } from '@dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
@@ -28,14 +29,14 @@ const EXPECT_FEE_BEING_COLLECTED = 'Expect fee being collected'
 
 describe('Close AAVEv2 Position to collateral | E2E', () => {
   const slippage = new BigNumber(0.01) // 1%
-  let fixture: SystemWithAavePositions
+  let fixture: EnvWithAavePositions
   let feeRecipient: string
 
   before(async function () {
     // No AAVE V2 on Optimism
     if (isOptimismByNetwork(networkFork)) this.skip()
     fixture = await loadFixture(
-      systemWithAavePositions({
+      envWithAavePositions({
         use1inch: true,
         configExtensionPaths: [`./test/swap.conf.ts`],
       }),
@@ -302,14 +303,14 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
 
 describe('Close AAVEv3 Position to collateral', () => {
   const slippage = new BigNumber(0.01) // 1%
-  let fixture: SystemWithAAVEV3Positions
+  let fixture: EnvWithAaveV3Positions
   let feeRecipient: string
 
   const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
 
   before(async function () {
     fixture = await loadFixture(
-      systemWithAaveV3Positions({
+      envWithAaveV3Positions({
         use1inch: true,
         network: networkFork,
         systemConfigPath: `./test/${networkFork}.conf.ts`,

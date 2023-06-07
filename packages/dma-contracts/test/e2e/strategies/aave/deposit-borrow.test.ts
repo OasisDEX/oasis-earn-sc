@@ -6,16 +6,14 @@ import { amountToWei, isOptimismByNetwork } from '@dma-common/utils/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { approve } from '@dma-common/utils/tx/index'
 import {
-  getSupportedStrategies,
-  SystemWithAavePositions,
-  systemWithAavePositions,
-  SystemWithAAVEV3Positions,
-} from '@dma-contracts/test/fixtures'
-import { USDC } from '@dma-contracts/test/fixtures/factories/common'
-import {
+  EnvWithAavePositions,
+  envWithAavePositions,
+  EnvWithAaveV3Positions,
+  envWithAaveV3Positions,
   getSupportedAaveV3Strategies,
-  systemWithAaveV3Positions,
-} from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
+  getSupportedStrategies,
+  USDC,
+} from '@dma-contracts/test/fixtures'
 import { strategies } from '@dma-library'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
@@ -24,10 +22,10 @@ const networkFork = process.env.NETWORK_FORK as Network
 
 describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
   describe('Using AAVE V2', async function () {
-    let env: SystemWithAavePositions
+    let env: EnvWithAavePositions
     const supportedStrategies = getSupportedStrategies()
 
-    const systemFixture = systemWithAavePositions({
+    const systemFixture = envWithAavePositions({
       use1inch: true,
       configExtensionPaths: [`test/swap.conf.ts`],
       hideLogging: true,
@@ -346,10 +344,10 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
     })
   })
   describe('Using AAVE V3', async function () {
-    let env: SystemWithAAVEV3Positions
+    let env: EnvWithAaveV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies()
 
-    const systemFixture = systemWithAaveV3Positions({
+    const systemFixture = envWithAaveV3Positions({
       use1inch: true,
       network: networkFork,
       systemConfigPath: `test/${networkFork}.conf.ts`,
@@ -358,9 +356,8 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
     })
 
     beforeEach(async function () {
-      const _env = await loadFixture(systemFixture)
-      if (!_env) throw new Error('Failed to setup system')
-      env = _env
+      env = await loadFixture(systemFixture)
+      if (!env) throw new Error('Failed to setup system')
     })
 
     describe('Deposit collateral', () => {

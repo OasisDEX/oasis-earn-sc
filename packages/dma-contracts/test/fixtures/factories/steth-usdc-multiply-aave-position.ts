@@ -5,8 +5,11 @@ import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { approve } from '@dma-common/utils/tx'
-import { AavePositionDetails, AavePositionStrategy } from '@dma-contracts/test/fixtures/types'
-import { StrategyDependenciesAaveV2 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
+import {
+  AavePositionDetails,
+  AavePositionStrategy,
+  StrategyDependenciesAaveV2,
+} from '@dma-contracts/test/fixtures'
 import { AaveVersion, strategies } from '@dma-library'
 import {
   AaveV2OpenDependencies,

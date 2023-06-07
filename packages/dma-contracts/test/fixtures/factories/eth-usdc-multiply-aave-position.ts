@@ -7,7 +7,7 @@ import {
   AavePositionDetails,
   AavePositionStrategy,
   StrategyDependenciesAave,
-} from '@dma-contracts/test/fixtures/types'
+} from '@dma-contracts/test/fixtures'
 import {
   AAVEStrategyAddresses,
   AAVEV3StrategyAddresses,

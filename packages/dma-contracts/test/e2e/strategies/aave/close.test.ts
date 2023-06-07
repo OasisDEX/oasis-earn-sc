@@ -13,17 +13,15 @@ import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, isMainnetByNetwork, isOptimismByNetwork } from '@dma-common/utils/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import {
-  getSupportedStrategies,
-  SystemWithAavePositions,
-  systemWithAavePositions,
-} from '@dma-contracts/test/fixtures'
-import { UNISWAP_TEST_SLIPPAGE } from '@dma-contracts/test/fixtures/factories/common'
-import {
+  EnvWithAavePositions,
+  envWithAavePositions,
+  EnvWithAaveV3Positions,
+  envWithAaveV3Positions,
   getSupportedAaveV3Strategies,
-  systemWithAaveV3Positions,
-} from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
-import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/env'
-import { TokenDetails } from '@dma-contracts/test/fixtures/types/position-details'
+  getSupportedStrategies,
+  TokenDetails,
+  UNISWAP_TEST_SLIPPAGE,
+} from '@dma-contracts/test/fixtures'
 import { AAVETokens, AAVEV3StrategyAddresses, strategies } from '@dma-library'
 import { PositionType } from '@dma-library/types'
 import { acceptedFeeToken } from '@dma-library/utils/swap'
@@ -37,7 +35,7 @@ const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the us
 
 describe(`Strategy | AAVE | Close Position | E2E`, async () => {
   describe('Using AAVE V2', async function () {
-    let fixture: SystemWithAavePositions
+    let fixture: EnvWithAavePositions
 
     const supportedStrategies = getSupportedStrategies()
 
@@ -200,7 +198,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
           this.skip()
         }
         fixture = await loadFixture(
-          systemWithAavePositions({
+          envWithAavePositions({
             use1inch: false,
             configExtensionPaths: [`test/uSwap.conf.ts`],
           }),
@@ -400,7 +398,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
     })
   })
   describe('Using AAVE V3', async function () {
-    let fixture: SystemWithAAVEV3Positions
+    let fixture: EnvWithAaveV3Positions
 
     const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
 
@@ -612,7 +610,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
       before(async function () {
         if (isOptimismByNetwork(networkFork)) this.skip()
         fixture = await loadFixture(
-          systemWithAaveV3Positions({
+          envWithAaveV3Positions({
             use1inch: false,
             network: networkFork,
             systemConfigPath: `test/${networkFork}.conf.ts`,
@@ -820,7 +818,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
     describe('Close position: With 1inch', () => {
       before(async () => {
         fixture = await loadFixture(
-          systemWithAaveV3Positions({
+          envWithAaveV3Positions({
             use1inch: true,
             network: networkFork,
             systemConfigPath: `test/${networkFork}.conf.ts`,

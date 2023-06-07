@@ -2,15 +2,13 @@ import { Network } from '@deploy-configurations/types/network'
 import { expect } from '@dma-common/test-utils'
 import { isOptimismByNetwork } from '@dma-common/utils/common'
 import {
-  getSupportedStrategies,
-  SystemWithAavePositions,
-  systemWithAavePositions,
-} from '@dma-contracts/test/fixtures'
-import {
+  EnvWithAavePositions,
+  envWithAavePositions,
+  EnvWithAaveV3Positions,
+  envWithAaveV3Positions,
   getSupportedAaveV3Strategies,
-  systemWithAaveV3Positions,
-} from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
-import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/env'
+  getSupportedStrategies,
+} from '@dma-contracts/test/fixtures'
 import { ISimulatedTransition } from '@dma-library'
 import { IPosition } from '@domain'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
@@ -21,7 +19,7 @@ const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the us
 
 describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
   describe('Using AAVE V2', async function () {
-    let fixture: SystemWithAavePositions
+    let fixture: EnvWithAavePositions
 
     const supportedStrategies = getSupportedStrategies()
 
@@ -30,12 +28,11 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
         }
-        const _fixture = await systemWithAavePositions({
+        fixture = await envWithAavePositions({
           use1inch: false,
           configExtensionPaths: [`test/uSwap.conf.ts`],
         })()
-        if (!_fixture) throw new Error('Failed to load fixture')
-        fixture = _fixture
+        if (!fixture) throw new Error('Failed to load fixture')
       })
 
       describe('Using DSProxy', function () {
@@ -121,7 +118,7 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
         }
-        const _fixture = await systemWithAavePositions({
+        const _fixture = await envWithAavePositions({
           use1inch: true,
           configExtensionPaths: [`test/swap.conf.ts`],
         })()
@@ -213,8 +210,8 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
     const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
 
     describe('Open position: With Uniswap', function () {
-      let env: SystemWithAAVEV3Positions
-      const fixture = systemWithAaveV3Positions({
+      let env: EnvWithAaveV3Positions
+      const fixture = envWithAaveV3Positions({
         use1inch: false,
         network: networkFork,
         systemConfigPath: `test/${networkFork}.conf.ts`,
@@ -319,8 +316,8 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
       })
     })
     describe('Open position: With 1inch', () => {
-      let env: SystemWithAAVEV3Positions
-      const fixture = systemWithAaveV3Positions({
+      let env: EnvWithAaveV3Positions
+      const fixture = envWithAaveV3Positions({
         use1inch: true,
         network: networkFork,
         systemConfigPath: `test/${networkFork}.conf.ts`,

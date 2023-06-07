@@ -1,11 +1,11 @@
 import { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { expect } from '@dma-common/test-utils'
-import { EnvWithAjnaPositions } from '@dma-contracts/test/fixtures'
 import {
+  EnvWithAjnaPositions,
   envWithAjnaPositions,
   getSupportedAjnaPositions,
-} from '@dma-contracts/test/fixtures/system/env-with-ajna-positions'
+} from '@dma-contracts/test/fixtures'
 import { AjnaPosition, views } from '@dma-library'
 import { Strategy } from '@dma-library/types'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'

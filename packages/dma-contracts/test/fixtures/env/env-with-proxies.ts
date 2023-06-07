@@ -15,7 +15,7 @@ import { StrategyDependenciesAave, SystemWithProxies } from '../types'
 
 const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 
-export async function systemWithProxies({
+export async function envWithProxies({
   use1inch,
 }: {
   use1inch: boolean

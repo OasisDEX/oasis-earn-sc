@@ -8,7 +8,7 @@ import {
   AavePositionDetails,
   AaveV3PositionStrategy,
   StrategyDependenciesAaveV3,
-} from '@dma-contracts/test/fixtures/types'
+} from '@dma-contracts/test/fixtures'
 import { AaveVersion, strategies } from '@dma-library'
 import { aaveV3UniqueContractName } from '@dma-library/protocols/aave'
 import {

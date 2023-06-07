@@ -15,15 +15,13 @@ import {
   testBlockNumberForAaveV3,
 } from '@dma-contracts/test/config'
 import {
-  ethUsdcMultiplyAavePosition,
-  wstethEthEarnAavePosition,
-} from '@dma-contracts/test/fixtures/factories'
-import {
   AavePositionDetails,
   AaveV3PositionStrategy,
+  EnvWithAaveV3Positions,
+  ethUsdcMultiplyAavePosition,
   StrategyDependenciesAaveV3,
-  SystemWithAAVEV3Positions,
-} from '@dma-contracts/test/fixtures/types'
+  wstethEthEarnAavePosition,
+} from '@dma-contracts/test/fixtures'
 import {
   buildGetTokenByImpersonateFunction,
   buildGetTokenFunction,
@@ -54,7 +52,7 @@ const testBlockNumberByNetwork: Record<
   [Network.OPTIMISM]: testBlockNumberForAaveOptimismV3,
 }
 
-export const systemWithAaveV3Positions = ({
+export const envWithAaveV3Positions = ({
   use1inch,
   network,
   hideLogging,
@@ -67,7 +65,7 @@ export const systemWithAaveV3Positions = ({
   systemConfigPath?: string
   configExtensionPaths?: string[]
 }) =>
-  async function fixture(): Promise<SystemWithAAVEV3Positions> {
+  async function fixture(): Promise<EnvWithAaveV3Positions> {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init(hideLogging)
     await ds.loadConfig(systemConfigPath)

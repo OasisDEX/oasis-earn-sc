@@ -4,7 +4,7 @@ import { addressesByNetwork, expect } from '@dma-common/test-utils'
 import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { approve } from '@dma-common/utils/tx'
-import { SystemWithProxies, systemWithProxies } from '@dma-contracts/test/fixtures'
+import { envWithProxies, SystemWithProxies } from '@dma-contracts/test/fixtures'
 import { strategies } from '@dma-library'
 import { AAVETokens } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
@@ -45,7 +45,7 @@ describe.skip('Strategy | AAVE | Open Deposit and Borrow Debt | E2E', async () =
   describe('Deposit collateral', () => {
     let fixture: SystemWithProxies
     before(async () => {
-      fixture = await systemWithProxies({ use1inch: false })
+      fixture = await envWithProxies({ use1inch: false })
     })
     describe('using DS Proxy', () => {
       it('Should deposit collateral without taking debt', async () => {
@@ -170,7 +170,7 @@ describe.skip('Strategy | AAVE | Open Deposit and Borrow Debt | E2E', async () =
   describe('Deposit collateral and borrow debt', () => {
     let fixture: SystemWithProxies
     before(async () => {
-      fixture = await systemWithProxies({ use1inch: false })
+      fixture = await envWithProxies({ use1inch: false })
     })
     describe('using DS Proxy', () => {
       it('Should deposit collateral and borrow debt', async () => {

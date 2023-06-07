@@ -19,17 +19,16 @@ import { amountFromWei, isMainnetByNetwork, isOptimismByNetwork } from '@dma-com
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { BLOCKS_TO_ADVANCE, TIME_TO_ADVANCE } from '@dma-contracts/test/config'
 import {
-  getSupportedStrategies,
-  SystemWithAavePositions,
-  systemWithAavePositions,
-} from '@dma-contracts/test/fixtures'
-import { SLIPPAGE, UNISWAP_TEST_SLIPPAGE } from '@dma-contracts/test/fixtures/factories/common'
-import {
+  EnvWithAavePositions,
+  envWithAavePositions,
+  EnvWithAaveV3Positions,
+  envWithAaveV3Positions,
   getSupportedAaveV3Strategies,
-  systemWithAaveV3Positions,
-} from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
-import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/env'
-import { TokenDetails } from '@dma-contracts/test/fixtures/types/position-details'
+  getSupportedStrategies,
+  SLIPPAGE,
+  TokenDetails,
+  UNISWAP_TEST_SLIPPAGE,
+} from '@dma-contracts/test/fixtures'
 import { AAVETokens, AAVEV3StrategyAddresses, strategies } from '@dma-library'
 import { PositionType } from '@dma-library/types'
 import { acceptedFeeToken } from '@dma-library/utils/swap'
@@ -45,7 +44,7 @@ const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the us
 
 describe('Strategy | AAVE | Adjust Position | E2E', async function () {
   describe('Using AAVE V2', async function () {
-    let fixture: SystemWithAavePositions
+    let fixture: EnvWithAavePositions
 
     const supportedStrategies = getSupportedStrategies()
 
@@ -227,7 +226,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           this.skip()
         }
         const _fixture = await loadFixture(
-          systemWithAavePositions({
+          envWithAavePositions({
             use1inch: false,
             configExtensionPaths: [`test/uSwap.conf.ts`],
           }),
@@ -358,7 +357,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           this.skip()
         }
         const _fixture = await loadFixture(
-          systemWithAavePositions({
+          envWithAavePositions({
             use1inch: true,
             configExtensionPaths: [`test/swap.conf.ts`],
           }),
@@ -713,17 +712,16 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
 
     // No available liquidity on uniswap for some pairs on optimism
     describe('Adjust Risk Up: using 1inch', async function () {
-      let env: SystemWithAAVEV3Positions
-      const fixture = systemWithAaveV3Positions({
+      let env: EnvWithAaveV3Positions
+      const fixture = envWithAaveV3Positions({
         use1inch: true,
         network: networkFork,
         systemConfigPath: `test/${networkFork}.conf.ts`,
         configExtensionPaths: [`test/swap.conf.ts`],
       })
       before(async function () {
-        const _env = await loadFixture(fixture)
-        if (!_env) throw new Error('Failed to set up system')
-        env = _env
+        env = await loadFixture(fixture)
+        if (!env) throw new Error('Failed to set up system')
       })
 
       describe('Using DSProxy', () => {
@@ -865,8 +863,8 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       })
     })
     describe('Adjust Risk Down: using 1inch', async function () {
-      let env: SystemWithAAVEV3Positions
-      const fixture = systemWithAaveV3Positions({
+      let env: EnvWithAaveV3Positions
+      const fixture = envWithAaveV3Positions({
         use1inch: true,
         network: networkFork,
         systemConfigPath: `test/${networkFork}.conf.ts`,

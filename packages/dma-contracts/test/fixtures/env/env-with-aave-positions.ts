@@ -17,7 +17,7 @@ import {
   stethUsdcMultiplyAavePosition,
   wbtcUsdcMultiplyAavePosition,
 } from '../factories'
-import { AavePositionStrategy, SystemWithAavePositions } from '../types'
+import { AavePositionStrategy, EnvWithAavePositions } from '../types'
 import { StrategyDependenciesAaveV2 } from '../types/strategies-dependencies'
 
 export function getSupportedStrategies(): Array<{
@@ -34,7 +34,7 @@ export function getSupportedStrategies(): Array<{
 // Do not change test block numbers as they're linked to uniswap liquidity levels
 export const blockNumberForAAVEV2System = 15695000
 
-export const systemWithAavePositions = ({
+export const envWithAavePositions = ({
   use1inch,
   hideLogging,
   configExtensionPaths,
@@ -43,7 +43,7 @@ export const systemWithAavePositions = ({
   hideLogging?: boolean
   configExtensionPaths?: string[]
 }) =>
-  async function fixture(): Promise<SystemWithAavePositions> {
+  async function fixture(): Promise<EnvWithAavePositions> {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init(hideLogging)
     const systemConfigPath = 'test/mainnet.conf.ts'

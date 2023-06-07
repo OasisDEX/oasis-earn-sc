@@ -6,15 +6,13 @@ import { amountToWei, isOptimismByNetwork } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { approve } from '@dma-common/utils/tx'
 import {
-  getSupportedStrategies,
-  SystemWithAavePositions,
-  systemWithAavePositions,
-  SystemWithAAVEV3Positions,
-} from '@dma-contracts/test/fixtures'
-import {
+  EnvWithAavePositions,
+  envWithAavePositions,
+  EnvWithAaveV3Positions,
+  envWithAaveV3Positions,
   getSupportedAaveV3Strategies,
-  systemWithAaveV3Positions,
-} from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
+  getSupportedStrategies,
+} from '@dma-contracts/test/fixtures'
 import { strategies } from '@dma-library'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import BigNumber from 'bignumber.js'
@@ -28,10 +26,10 @@ const networkFork = process.env.NETWORK_FORK as Network
 // Need to fix manually update uniswap pools and use uniswap for the swap and acquiring tokens
 describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
   describe('Using AAVE V2', async function () {
-    let env: SystemWithAavePositions
+    let env: EnvWithAavePositions
     const supportedStrategies = getSupportedStrategies()
 
-    const systemFixture = systemWithAavePositions({
+    const systemFixture = envWithAavePositions({
       use1inch: false,
       hideLogging: true,
       configExtensionPaths: [`test/uSwap.conf.ts`],
@@ -42,9 +40,8 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
         this.skip()
       }
 
-      const _env = await loadFixture(systemFixture)
-      if (!_env) throw new Error('Failed to setup system')
-      env = _env
+      env = await loadFixture(systemFixture)
+      if (!env) throw new Error('Failed to setup system')
     })
 
     describe('Payback debt', () => {
@@ -676,10 +673,10 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
     })
   })
   describe('Using AAVE V3', async function () {
-    let env: SystemWithAAVEV3Positions
+    let env: EnvWithAaveV3Positions
     const supportedStrategies = getSupportedAaveV3Strategies()
 
-    const systemFixture = systemWithAaveV3Positions({
+    const systemFixture = envWithAaveV3Positions({
       use1inch: true,
       network: networkFork,
       systemConfigPath: `test/${networkFork}.conf.ts`,

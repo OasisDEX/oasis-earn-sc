@@ -7,18 +7,18 @@ import { RuntimeConfig } from '@dma-common/types/common'
 import { amountToWei } from '@dma-common/utils/common'
 import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import { testBlockNumbersForAjna } from '@dma-contracts/test/config'
-import { ajnaFactories } from '@dma-contracts/test/fixtures/factories/ajna'
-import { USDC } from '@dma-contracts/test/fixtures/factories/common'
 import {
+  ajnaFactories,
   AjnaPositionDetails,
   AjnaPositions,
   AjnaSystem,
   EnvWithAjnaPositions,
   StrategyDependenciesAjna,
-} from '@dma-contracts/test/fixtures/types'
+  USDC,
+} from '@dma-contracts/test/fixtures'
 import { mapAjnaPoolDataTypes } from '@dma-contracts/test/utils/ajna/map-ajna-pool-type'
 import { views } from '@dma-library'
-import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
+import { AjnaPool } from '@dma-library/types/ajna'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
