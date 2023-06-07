@@ -245,7 +245,7 @@ export const config: SystemConfig = {
         address: '',
         serviceRegistryName: CONTRACT_NAMES.ajna.DEPOSIT_BORROW,
         history: [],
-        constructorArgs: ['0x', 'address:ServiceRegistry'],
+        constructorArgs: ['0x0000000000000000000000000000000000000000', 'address:ServiceRegistry'],
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
@@ -253,7 +253,7 @@ export const config: SystemConfig = {
         address: '',
         serviceRegistryName: CONTRACT_NAMES.ajna.REPAY_WITHDRAW,
         history: [],
-        constructorArgs: ['0x', 'address:ServiceRegistry'],
+        constructorArgs: ['0x0000000000000000000000000000000000000000', 'address:ServiceRegistry'],
       },
     },
   },

@@ -11,12 +11,7 @@ import { createPositionWithRetries } from '@dma-contracts/test/utils/aave/create
 import { AaveVersion, protocols, strategies } from '@dma-library'
 import hre from 'hardhat'
 
-import {
-  ethUsdcMultiplyAavePosition,
-  stethEthEarnAavePosition,
-  stethUsdcMultiplyAavePosition,
-  wbtcUsdcMultiplyAavePosition,
-} from '../factories'
+import { stethEthEarnAavePosition } from '../factories'
 import { AavePositionStrategy, SystemWithAavePositions } from '../types'
 import { StrategyDependenciesAaveV2 } from '../types/strategies-dependencies'
 
@@ -154,61 +149,61 @@ export const systemWithAavePositions = ({
      * In turn this can lead to precision issues in the linear interest calculation that gives out by 1 errors
      * See https://github.com/aave/protocol-v2/blob/ce53c4a8c8620125063168620eba0a8a92854eb8/contracts/protocol/libraries/logic/ReserveLogic.sol#LL57C1-L57C1
      */
-    const stEthEthEarnPosition = await createPositionWithRetries(
-      hre.ethers,
-      stethEthEarnAavePosition,
-      {
-        proxy: dpmProxyForEarnStEthEth,
-        isDPM: true,
-        use1inch,
-        swapAddress,
-        dependencies,
-        config,
-        feeRecipient: systemConfig.common.FeeRecipient.address,
-      },
-    )
-
-    const ethUsdcMultiplyPosition = await createPositionWithRetries(
-      hre.ethers,
-      ethUsdcMultiplyAavePosition,
-      {
-        proxy: dpmProxyForMultiplyEthUsdc,
-        isDPM: true,
-        use1inch,
-        swapAddress,
-        dependencies,
-        config,
-        feeRecipient: systemConfig.common.FeeRecipient.address,
-      },
-    )
-
-    const stethUsdcMultiplyPosition = await createPositionWithRetries(
-      hre.ethers,
-      await stethUsdcMultiplyAavePosition,
-      {
-        proxy: dpmProxyForMultiplyStEthUsdc,
-        isDPM: true,
-        use1inch,
-        swapAddress,
-        dependencies,
-        config,
-        getTokens: preferredGetTokenFn,
-      },
-    )
-
-    const wbtcUsdcMultiplyPosition = await createPositionWithRetries(
-      hre.ethers,
-      wbtcUsdcMultiplyAavePosition,
-      {
-        proxy: dpmProxyForMultiplyWbtcUsdc,
-        isDPM: true,
-        use1inch,
-        swapAddress,
-        dependencies,
-        config,
-        getTokens: preferredGetTokenFn,
-      },
-    )
+    // const stEthEthEarnPosition = await createPositionWithRetries(
+    //   hre.ethers,
+    //   stethEthEarnAavePosition,
+    //   {
+    //     proxy: dpmProxyForEarnStEthEth,
+    //     isDPM: true,
+    //     use1inch,
+    //     swapAddress,
+    //     dependencies,
+    //     config,
+    //     feeRecipient: systemConfig.common.FeeRecipient.address,
+    //   },
+    // )
+    //
+    // const ethUsdcMultiplyPosition = await createPositionWithRetries(
+    //   hre.ethers,
+    //   ethUsdcMultiplyAavePosition,
+    //   {
+    //     proxy: dpmProxyForMultiplyEthUsdc,
+    //     isDPM: true,
+    //     use1inch,
+    //     swapAddress,
+    //     dependencies,
+    //     config,
+    //     feeRecipient: systemConfig.common.FeeRecipient.address,
+    //   },
+    // )
+    //
+    // const stethUsdcMultiplyPosition = await createPositionWithRetries(
+    //   hre.ethers,
+    //   await stethUsdcMultiplyAavePosition,
+    //   {
+    //     proxy: dpmProxyForMultiplyStEthUsdc,
+    //     isDPM: true,
+    //     use1inch,
+    //     swapAddress,
+    //     dependencies,
+    //     config,
+    //     getTokens: preferredGetTokenFn,
+    //   },
+    // )
+    //
+    // const wbtcUsdcMultiplyPosition = await createPositionWithRetries(
+    //   hre.ethers,
+    //   wbtcUsdcMultiplyAavePosition,
+    //   {
+    //     proxy: dpmProxyForMultiplyWbtcUsdc,
+    //     isDPM: true,
+    //     use1inch,
+    //     swapAddress,
+    //     dependencies,
+    //     config,
+    //     getTokens: preferredGetTokenFn,
+    //   },
+    // )
 
     const dsProxyStEthEthEarnPosition = await createPositionWithRetries(
       hre.ethers,
@@ -225,16 +220,16 @@ export const systemWithAavePositions = ({
     )
 
     const dpmPositions = {
-      ...(stEthEthEarnPosition ? { [stEthEthEarnPosition.strategy]: stEthEthEarnPosition } : {}),
-      ...(ethUsdcMultiplyPosition
-        ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
-        : {}),
-      ...(stethUsdcMultiplyPosition
-        ? { [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition }
-        : {}),
-      ...(wbtcUsdcMultiplyPosition
-        ? { [wbtcUsdcMultiplyPosition.strategy]: wbtcUsdcMultiplyPosition }
-        : {}),
+      // ...(stEthEthEarnPosition ? { [stEthEthEarnPosition.strategy]: stEthEthEarnPosition } : {}),
+      // ...(ethUsdcMultiplyPosition
+      //   ? { [ethUsdcMultiplyPosition.strategy]: ethUsdcMultiplyPosition }
+      //   : {}),
+      // ...(stethUsdcMultiplyPosition
+      //   ? { [stethUsdcMultiplyPosition.strategy]: stethUsdcMultiplyPosition }
+      //   : {}),
+      // ...(wbtcUsdcMultiplyPosition
+      //   ? { [wbtcUsdcMultiplyPosition.strategy]: wbtcUsdcMultiplyPosition }
+      //   : {}),
     }
 
     return {

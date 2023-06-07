@@ -1,5 +1,5 @@
 import { ONE } from '@dma-common/constants'
-import { denormaliseAmount, normaliseAmount } from '@domain/utils'
+import { revertToTokenSpecificPrecision, standardiseAmountTo18Decimals } from '@domain/utils'
 import BigNumber from 'bignumber.js'
 
 import { FLASHLOAN_SAFETY_MARGIN } from './constants'
@@ -33,8 +33,8 @@ export const transientCollateralFlashloan: TransientCollateralFlashloan = (
    * We normalise debtAmountToCover to 18 decimals and denormalise back to the precision of the FL
    * See packages/domain/src/utils/precision.ts
    * */
-  const flashloan = denormaliseAmount(
-    normaliseAmount(debtAmountToCover, debtTokenPrecision),
+  const flashloan = revertToTokenSpecificPrecision(
+    standardiseAmountTo18Decimals(debtAmountToCover, debtTokenPrecision),
     flashloanTokenPrecision,
   )
     .times(oraclePrice)
