@@ -1,4 +1,5 @@
-import { ONE } from '@dma-common/constants'
+import { ONE, ZERO } from '@dma-common/constants'
+import { Amount } from '@domain/amount'
 import BigNumber from 'bignumber.js'
 
 export interface IRiskRatio {
@@ -43,4 +44,20 @@ export class RiskRatio implements IRiskRatio {
   public get multiple(): BigNumber {
     return ONE.plus(ONE.div(ONE.div(this.loanToValue).minus(ONE)))
   }
+}
+
+export const createRiskRatio = (
+  debt: Amount,
+  collateral: Amount,
+  /** Oracle price of 1 Collateral Token in Debt Tokens  */
+  oraclePrice: BigNumber,
+) => {
+  const normalisedDebt = debt.switchPrecisionMode('normalized')
+  const normalisedCollateral = collateral.switchPrecisionMode('normalized')
+
+  const ltv = normalisedDebt
+    .toBigNumber()
+    .div(normalisedCollateral.toBigNumber().times(oraclePrice))
+
+  return new RiskRatio(ltv.isNaN() || !ltv.isFinite() ? ZERO : ltv, RiskRatio.TYPE.LTV)
 }

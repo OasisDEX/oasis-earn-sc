@@ -30,8 +30,7 @@ export const transientCollateralFlashloan: TransientCollateralFlashloan = (
   maxLoanToValueWhenCollateralising = ONE,
 ) => {
   /**
-   * We normalise debtAmountToCover to 18 decimals and denormalise back to the precision of the FL
-   * See packages/domain/src/utils/precision.ts
+   * We normalise debtAmountToCover to 18 decimals and revert back to the precision of the Flashloan token
    * */
   const flashloan = revertToTokenSpecificPrecision(
     standardiseAmountTo18Decimals(debtAmountToCover, debtTokenPrecision),

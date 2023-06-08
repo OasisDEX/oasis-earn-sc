@@ -1,12 +1,11 @@
 import { FEE_BASE, ONE, ZERO } from '@dma-common/constants'
 import { calculateFee } from '@dma-common/utils/swap'
 import { Amount } from '@domain/amount'
-import { revertToTokenSpecificPrecision } from '@domain/utils'
 import { determineRiskDirection } from '@domain/utils/risk-direction'
 import BigNumber from 'bignumber.js'
 
-import { createRiskRatio, Delta, IPositionV2, Swap } from './position'
-import { IRiskRatio } from './risk-ratio'
+import { Delta, IPositionV2, Swap } from './position'
+import { createRiskRatio, IRiskRatio } from './risk-ratio'
 
 interface AdjustToParams {
   toDeposit: {
@@ -84,18 +83,7 @@ export function adjustToTargetRiskRatio(
    * C_C  Current collateral
    * D_C  Current debt
    * */
-  // const normalisedCurrentCollateral = (
-  //   standardiseAmountTo18Decimals(
-  //     position.collateral.amount,
-  //     position.collateral.precision || TYPICAL_PRECISION,
-  //   ) || ZERO
-  // ).plus(collateralDepositedByUser.toBigNumber())
-  // const normalisedCurrentDebt = (
-  //   standardiseAmountTo18Decimals(
-  //     position.debt.amount,
-  //     position.debt.precision || TYPICAL_PRECISION,
-  //   ) || ZERO
-  // ).minus(debtTokensDepositedByUser.toBigNumber())
+
   const normalisedCurrentCollateral = new Amount(
     position.collateral.amount,
     'max',
@@ -199,13 +187,13 @@ export function adjustToTargetRiskRatio(
       position,
       debtDelta,
       collateralDelta,
-      normalisedCurrentDebt.toBigNumber(),
-      normalisedCurrentCollateral.toBigNumber(),
+      normalisedCurrentDebt,
+      normalisedCurrentCollateral,
       oraclePrice,
     ),
     delta: {
-      debt: debtDelta,
-      collateral: collateralDelta,
+      debt: debtDelta.toBigNumber(),
+      collateral: collateralDelta.toBigNumber(),
     },
     swap: buildSwapSimulation(position, debtDelta, collateralDelta, oazoFee, {
       isIncreasingRisk: riskIsIncreasing,
@@ -216,31 +204,34 @@ export function adjustToTargetRiskRatio(
 
 function buildAdjustedPosition(
   position: IPositionV2,
-  debtDelta: BigNumber,
-  collateralDelta: BigNumber,
-  currentDebt: BigNumber,
-  currentCollateral: BigNumber,
+  debtDelta: Amount,
+  collateralDelta: Amount,
+  currentDebt: Amount,
+  currentCollateral: Amount,
   oraclePrice: BigNumber,
 ): IPositionV2 {
-  const nextDebt = {
+  const nextDebt = currentDebt.switchPrecisionMode('max').plus(debtDelta)
+  const nextCollateral = currentCollateral.switchPrecisionMode('max').plus(collateralDelta)
+  const nextDebtAsPositionBalance = {
     ...position.debt,
-    amount: currentDebt.plus(debtDelta),
+    amount: nextDebt.toBigNumber(),
   }
-  const nextCollateral = {
+  const nextCollateralAsPositionBalance = {
     ...position.collateral,
-    amount: currentCollateral.plus(collateralDelta),
+    amount: nextCollateral.toBigNumber(),
   }
+
   return {
-    debt: nextDebt,
-    collateral: nextCollateral,
+    debt: nextDebtAsPositionBalance,
+    collateral: nextCollateralAsPositionBalance,
     riskRatio: createRiskRatio(nextDebt, nextCollateral, oraclePrice),
   }
 }
 
 function buildSwapSimulation(
   position: IPositionV2,
-  debtDelta: BigNumber,
-  collateralDelta: BigNumber,
+  debtDelta: Amount,
+  collateralDelta: Amount,
   oazoFee: BigNumber,
   options: {
     isIncreasingRisk: boolean
@@ -249,8 +240,12 @@ function buildSwapSimulation(
 ) {
   const { isIncreasingRisk, collectSwapFeeFrom } = options
 
-  const fromTokenAmount = isIncreasingRisk ? debtDelta : collateralDelta.abs()
-  const minToTokenAmount = isIncreasingRisk ? collateralDelta : debtDelta.abs()
+  const fromTokenAmount = isIncreasingRisk
+    ? debtDelta.toBigNumber()
+    : collateralDelta.toBigNumber().abs()
+  const minToTokenAmount = isIncreasingRisk
+    ? collateralDelta.toBigNumber()
+    : debtDelta.toBigNumber().abs()
 
   const fromToken = isIncreasingRisk ? position.debt : position.collateral
   const toToken = isIncreasingRisk ? position.collateral : position.debt
@@ -279,9 +274,9 @@ function buildSwapSimulation(
 
 function determineFee(
   isIncreasingRisk: boolean,
-  debtDelta,
-  collateralDelta,
-  oazoFee,
+  debtDelta: Amount,
+  collateralDelta: Amount,
+  oazoFee: BigNumber,
   fromToken,
   toToken,
   collectSwapFeeFrom,
@@ -292,24 +287,32 @@ function determineFee(
    */
   const collectFeeFromSourceToken = collectSwapFeeFrom === 'sourceToken'
 
-  const normalisedSourceFee = (
-    isIncreasingRisk
-      ? calculateFee(debtDelta, oazoFee.toNumber())
-      : calculateFee(collateralDelta, oazoFee.toNumber())
-  ).integerValue(BigNumber.ROUND_DOWN)
-  const normalisedTargetFee = (
-    isIncreasingRisk
-      ? calculateFee(collateralDelta, oazoFee.toNumber())
-      : calculateFee(debtDelta, oazoFee.toNumber())
-  ).integerValue(BigNumber.ROUND_DOWN)
-  const sourceFee = revertToTokenSpecificPrecision(
-    normalisedSourceFee,
-    fromToken.precision,
-  ).integerValue(BigNumber.ROUND_DOWN)
-  const targetFee = revertToTokenSpecificPrecision(
-    normalisedTargetFee,
-    toToken.precision,
-  ).integerValue(BigNumber.ROUND_DOWN)
+  const sourceDelta = isIncreasingRisk ? debtDelta : collateralDelta
+  const sourcePrecision = isIncreasingRisk
+    ? debtDelta.getTokenPrecision()
+    : collateralDelta.getTokenPrecision()
+  const targetDelta = isIncreasingRisk ? collateralDelta : debtDelta
+  const targetPrecision = isIncreasingRisk
+    ? collateralDelta.getTokenPrecision()
+    : debtDelta.getTokenPrecision()
+
+  const sourceFee = new Amount(
+    calculateFee(sourceDelta.toBigNumber(), oazoFee.toNumber()),
+    'normalized',
+    sourcePrecision,
+  )
+    .switchPrecisionMode('max')
+    .integerValue(BigNumber.ROUND_DOWN)
+    .toBigNumber()
+
+  const targetFee = new Amount(
+    calculateFee(targetDelta.toBigNumber(), oazoFee.toNumber()),
+    'normalized',
+    targetPrecision,
+  )
+    .switchPrecisionMode('max')
+    .integerValue(BigNumber.ROUND_DOWN)
+    .toBigNumber()
 
   return collectFeeFromSourceToken ? sourceFee : targetFee
 }

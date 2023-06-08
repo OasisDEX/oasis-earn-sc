@@ -115,8 +115,8 @@ export class Amount {
     return this.amount.dividedBy(ratio)
   }
 
-  integerValue(rm?: BigNumber.RoundingMode | undefined): BigNumber {
-    return this.amount.integerValue(rm)
+  integerValue(rm?: BigNumber.RoundingMode | undefined): Amount {
+    return this._setAmount(this.amount.integerValue(rm))
   }
 
   private _dividedByBigNumber(otherAmount: BigNumber): Amount {
