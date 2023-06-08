@@ -293,7 +293,12 @@ export class Position implements IPosition {
         flashloanAmount: transientCollateralFlashloan(
           mappedParams.fees.flashLoan,
           mappedParams.prices.oracleFLtoDebtToken || ONE,
-          simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtInWei || ZERO),
+          new Amount(
+            simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtInWei || ZERO),
+            'max',
+            simulatedAdjust.position.debt.precision,
+          ),
+          // simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtInWei || ZERO),
           daiFlashloanPrecision,
           this.debt.precision,
           mappedParams.flashloan.maxLoanToValueFL,

@@ -1,7 +1,6 @@
 import operationExecutorAbi from '@abis/system/contracts/core/OperationExecutor.sol/OperationExecutor.json'
 import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses/index'
-import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
@@ -17,6 +16,7 @@ import { AjnaCommonDMADependencies, AjnaPosition, AjnaStrategy } from '@dma-libr
 import * as SwapUtils from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import * as Domain from '@domain'
+import { Amount } from '@domain/amount'
 import * as DomainUtils from '@domain/utils'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -55,22 +55,36 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     riskIsIncreasing,
     oraclePrice,
   )
+
+  const collateralAmountAsBN = new Amount(
+    simulatedAdjustment.position.collateral.amount,
+    'max',
+    simulatedAdjustment.position.collateral.precision,
+  )
+    .switchPrecisionMode('normal')
+    .toBigNumber()
+  const debtAmountAsBN = new Amount(
+    simulatedAdjustment.position.debt.amount,
+    'max',
+    simulatedAdjustment.position.debt.precision,
+  )
+    .switchPrecisionMode('normal')
+    .toBigNumber()
+
   const targetPosition = new AjnaPosition(
     position.pool,
     args.dpmProxyAddress,
-    amountFromWei(
-      simulatedAdjustment.position.collateral.amount,
-      simulatedAdjustment.position.collateral.precision,
-    ),
-    amountFromWei(
-      simulatedAdjustment.position.debt.amount,
-      simulatedAdjustment.position.debt.precision,
-    ),
+    collateralAmountAsBN,
+    debtAmountAsBN,
     args.collateralPrice,
     args.quotePrice,
   )
 
   const isDepositingEth = areAddressesEqual(position.pool.collateralToken, dependencies.WETH)
+  const txAmountAsBN = new Amount(args.collateralAmount, 'max', TYPICAL_PRECISION)
+    .switchPrecisionMode('normal')
+    .toBigNumber()
+
   return prepareAjnaDMAPayload({
     dependencies,
     targetPosition,
@@ -79,10 +93,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     warnings: [],
     success: [],
     notices: [],
-    txValue: resolveAjnaEthAction(
-      isDepositingEth,
-      amountFromWei(args.collateralAmount, TYPICAL_PRECISION),
-    ),
+    txValue: resolveAjnaEthAction(isDepositingEth, txAmountAsBN),
   })
 }
 
@@ -128,7 +139,9 @@ async function simulateAdjustment(
   riskIsIncreasing: true,
   oraclePrice: BigNumber,
 ) {
-  const preFlightSwapAmount = amountToWei(ONE, args.quoteTokenPrecision)
+  const preFlightSwapAmount = new Amount(ONE, 'normal', args.quoteTokenPrecision)
+    .switchPrecisionMode('max')
+    .toBigNumber()
   const fromToken = buildFromToken(args, position)
   const toToken = buildToToken(args, position)
   const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
@@ -152,15 +165,23 @@ async function simulateAdjustment(
       getSwapData: dependencies.getSwapData,
     },
   })
-  const preFlightMarketPrice = DomainUtils.standardiseAmountTo18Decimals(
+  const preFlightFromAmount = new Amount(
     preFlightSwapData.fromTokenAmount,
+    'max',
     args.quoteTokenPrecision,
-  ).div(
-    DomainUtils.standardiseAmountTo18Decimals(
-      preFlightSwapData.toTokenAmount,
-      args.collateralTokenPrecision,
-    ),
   )
+    .switchPrecisionMode('normalized')
+    .toBigNumber()
+
+  const preFlightToAmount = new Amount(
+    preFlightSwapData.toTokenAmount,
+    'max',
+    args.collateralTokenPrecision,
+  )
+    .switchPrecisionMode('normalized')
+    .toBigNumber()
+
+  const preFlightMarketPrice = preFlightFromAmount.div(preFlightToAmount)
 
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: fromToken.symbol,
@@ -328,7 +349,9 @@ async function buildOperation(
       pool: args.poolAddress,
     },
     // Prices must be in 18 decimal precision
-    price: amountToWei(oraclePrice, TYPICAL_PRECISION),
+    price: new Amount(oraclePrice, 'normal', TYPICAL_PRECISION)
+      .switchPrecisionMode('max')
+      .toBigNumber(),
   }
   return await operations.ajna.open(openMultiplyArgs)
 }
