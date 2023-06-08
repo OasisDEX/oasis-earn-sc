@@ -4,6 +4,7 @@ import { Position } from '@domain/position'
 import { RiskRatio } from '@domain/risk-ratio'
 import BigNumber from 'bignumber.js'
 
+// @ts-ignore
 import { testDataSources } from './scenarios/generateTestData'
 import { fetchTestScenarios } from './utils'
 

@@ -1,6 +1,7 @@
-import { FEE_BASE, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { FEE_BASE, ONE, ZERO } from '@dma-common/constants'
 import { calculateFee } from '@dma-common/utils/swap'
-import { revertToTokenSpecificPrecision, standardiseAmountTo18Decimals } from '@domain/utils'
+import { Amount } from '@domain/amount'
+import { revertToTokenSpecificPrecision } from '@domain/utils'
 import { determineRiskDirection } from '@domain/utils/risk-direction'
 import BigNumber from 'bignumber.js'
 
@@ -63,14 +64,17 @@ export function adjustToTargetRiskRatio(
    * C_W  Collateral in wallet to top-up or seed position
    * D_W  Debt token in wallet to top-up or seed position
    * */
-  const collateralDepositedByUser = standardiseAmountTo18Decimals(
-    toDeposit.collateral || ZERO,
-    position.collateral.precision || TYPICAL_PRECISION,
-  )
-  const debtTokensDepositedByUser = standardiseAmountTo18Decimals(
-    toDeposit?.debt || ZERO,
-    position.debt.precision || TYPICAL_PRECISION,
-  )
+  const collateralDepositedByUser = new Amount(
+    toDeposit.collateral,
+    'max',
+    position.collateral.precision,
+  ).switchPrecisionMode('normalized')
+
+  const debtTokensDepositedByUser = new Amount(
+    toDeposit?.debt,
+    'max',
+    position.debt.precision,
+  ).switchPrecisionMode('normalized')
 
   /**
    * These values are based on the initial state of the position.
@@ -80,18 +84,29 @@ export function adjustToTargetRiskRatio(
    * C_C  Current collateral
    * D_C  Current debt
    * */
-  const normalisedCurrentCollateral = (
-    standardiseAmountTo18Decimals(
-      position.collateral.amount,
-      position.collateral.precision || TYPICAL_PRECISION,
-    ) || ZERO
-  ).plus(collateralDepositedByUser)
-  const normalisedCurrentDebt = (
-    standardiseAmountTo18Decimals(
-      position.debt.amount,
-      position.debt.precision || TYPICAL_PRECISION,
-    ) || ZERO
-  ).minus(debtTokensDepositedByUser)
+  // const normalisedCurrentCollateral = (
+  //   standardiseAmountTo18Decimals(
+  //     position.collateral.amount,
+  //     position.collateral.precision || TYPICAL_PRECISION,
+  //   ) || ZERO
+  // ).plus(collateralDepositedByUser.toBigNumber())
+  // const normalisedCurrentDebt = (
+  //   standardiseAmountTo18Decimals(
+  //     position.debt.amount,
+  //     position.debt.precision || TYPICAL_PRECISION,
+  //   ) || ZERO
+  // ).minus(debtTokensDepositedByUser.toBigNumber())
+  const normalisedCurrentCollateral = new Amount(
+    position.collateral.amount,
+    'max',
+    position.collateral.precision,
+  )
+    .switchPrecisionMode('normalized')
+    .plus(collateralDepositedByUser)
+
+  const normalisedCurrentDebt = new Amount(position.debt.amount, 'max', position.debt.precision)
+    .switchPrecisionMode('normalized')
+    .minus(debtTokensDepositedByUser)
 
   /**
    * The Oracle price is what we use to convert a position's collateral into the same
@@ -139,7 +154,7 @@ export function adjustToTargetRiskRatio(
     .times(marketPriceAdjustedForSlippage)
     .minus(
       targetLTV
-        .times(normalisedCurrentCollateral)
+        .times(normalisedCurrentCollateral.toBigNumber())
         .times(oraclePrice)
         .times(marketPriceAdjustedForSlippage),
     )
@@ -149,7 +164,6 @@ export function adjustToTargetRiskRatio(
         .times(oraclePrice)
         .minus(ONE.plus(flashloanFee).times(marketPriceAdjustedForSlippage)),
     )
-    .integerValue(BigNumber.ROUND_DOWN)
 
   /**
    * Finally, we can compute the deltas in debt & collateral
@@ -165,25 +179,28 @@ export function adjustToTargetRiskRatio(
     shouldIncreaseDebtDeltaToAccountForFees ? ONE.minus(oazoFee.div(FEE_BASE)) : ONE,
   )
 
-  const collateralDelta = revertToTokenSpecificPrecision(
-    unknownVarX
-      .div(marketPriceAdjustedForSlippage)
-      .div(riskIsIncreasing ? ONE : ONE.minus(oazoFee.div(FEE_BASE))),
+  const collateralDelta = new Amount(
+    unknownVarX.toBigNumber(),
+    'normalized',
     position.collateral.precision,
-  ).integerValue(BigNumber.ROUND_DOWN)
+  )
+    .div(marketPriceAdjustedForSlippage)
+    .div(riskIsIncreasing ? ONE : ONE.minus(oazoFee.div(FEE_BASE)))
+    .switchPrecisionMode('max')
+    .integerValue(BigNumber.ROUND_DOWN)
 
-  const debtDelta = revertToTokenSpecificPrecision(
-    debtDeltaPreFlashloanFee.times(ONE.plus(isFlashloanRequired ? flashloanFee : ZERO)),
-    position.debt.precision,
-  ).integerValue(BigNumber.ROUND_DOWN)
+  const debtDelta = debtDeltaPreFlashloanFee
+    .times(ONE.plus(isFlashloanRequired ? flashloanFee : ZERO))
+    .switchPrecisionMode('max')
+    .integerValue(BigNumber.ROUND_DOWN)
 
   return {
     position: buildAdjustedPosition(
       position,
       debtDelta,
       collateralDelta,
-      normalisedCurrentDebt,
-      normalisedCurrentCollateral,
+      normalisedCurrentDebt.toBigNumber(),
+      normalisedCurrentCollateral.toBigNumber(),
       oraclePrice,
     ),
     delta: {

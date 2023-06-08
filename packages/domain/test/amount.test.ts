@@ -11,7 +11,7 @@ describe('Amount Class | Unit', () => {
       const amount = new Amount(ONE, 'normal', tokenPrecision)
       amount.switchPrecisionMode('max')
       const precisionDiff = TEN.pow(tokenPrecision - normalPrecision)
-      expect(amount.getRawAmount()).to.deep.equal(precisionDiff)
+      expect(amount.toBigNumber()).to.deep.equal(precisionDiff)
     })
     it('should switch precision from max to normalized', () => {
       const normalizedPrecision = 18
@@ -19,7 +19,7 @@ describe('Amount Class | Unit', () => {
       const amount = new Amount(ONE, 'max', tokenPrecision)
       amount.switchPrecisionMode('normalized')
       const precisionDiff = TEN.pow(normalizedPrecision - tokenPrecision)
-      expect(amount.getRawAmount()).to.deep.equal(precisionDiff)
+      expect(amount.toBigNumber()).to.deep.equal(precisionDiff)
     })
     it('should switch precision from normalized to normal', () => {
       const normalizedPrecision = 18
@@ -28,7 +28,7 @@ describe('Amount Class | Unit', () => {
       const amount = new Amount(ONE, 'normalized', tokenPrecision)
       amount.switchPrecisionMode('normal')
       const precisionDiff = TEN.pow(normalPrecision - normalizedPrecision)
-      expect(amount.getRawAmount()).to.deep.equal(precisionDiff)
+      expect(amount.toBigNumber()).to.deep.equal(precisionDiff)
     })
     it('should switch precision from normalized to max', () => {
       const normalizedPrecision = 18
@@ -36,7 +36,7 @@ describe('Amount Class | Unit', () => {
       const amount = new Amount(ONE, 'normalized', tokenPrecision)
       amount.switchPrecisionMode('max')
       const precisionDiff = TEN.pow(tokenPrecision - normalizedPrecision)
-      expect(amount.getRawAmount()).to.deep.equal(precisionDiff)
+      expect(amount.toBigNumber()).to.deep.equal(precisionDiff)
     })
   })
   describe('addition', function () {
@@ -44,7 +44,7 @@ describe('Amount Class | Unit', () => {
       const amount1 = new Amount(new BigNumber(10), 'normal')
       const amount2 = new Amount(new BigNumber(5), 'normal')
       amount1.plus(amount2)
-      expect(amount1.getRawAmount()).to.deep.equal(new BigNumber(15))
+      expect(amount1.toBigNumber()).to.deep.equal(new BigNumber(15))
     })
 
     it('should add max amount to normal amount', () => {
@@ -52,7 +52,7 @@ describe('Amount Class | Unit', () => {
       const amount1 = new Amount(new BigNumber(ONE), 'normal', tokenPrecision)
       const amount2 = new Amount(new BigNumber(5e5), 'max', tokenPrecision)
       amount1.plus(amount2)
-      expect(amount1.getRawAmount()).to.deep.equal(new BigNumber(1.5))
+      expect(amount1.toBigNumber()).to.deep.equal(new BigNumber(1.5))
     })
 
     it('should add nax amount to normalized amount', () => {
@@ -60,7 +60,7 @@ describe('Amount Class | Unit', () => {
       const amount1 = new Amount(new BigNumber(1e12), 'normalized', tokenPrecision)
       const amount2 = new Amount(new BigNumber(1), 'max', tokenPrecision)
       amount1.plus(amount2)
-      expect(amount1.getRawAmount()).to.deep.equal(new BigNumber(2e12))
+      expect(amount1.toBigNumber()).to.deep.equal(new BigNumber(2e12))
     })
 
     it('should add BigNumber to Amount', () => {
@@ -68,7 +68,7 @@ describe('Amount Class | Unit', () => {
       const amount = new Amount(new BigNumber(1e12), 'normalized', tokenPrecision)
       const amountAsBigNumber = new BigNumber(1e10)
       amount.plus(amountAsBigNumber)
-      expect(amount.getRawAmount()).to.deep.equal(new BigNumber(1.01e12))
+      expect(amount.toBigNumber()).to.deep.equal(new BigNumber(1.01e12))
     })
 
     it('should throw an error when adding incompatible amounts', () => {
@@ -84,7 +84,7 @@ describe('Amount Class | Unit', () => {
       const amount1 = new Amount(new BigNumber(10), 'normal')
       const amount2 = new Amount(new BigNumber(5), 'normal')
       amount1.minus(amount2)
-      expect(amount1.getRawAmount()).to.deep.equal(new BigNumber(5))
+      expect(amount1.toBigNumber()).to.deep.equal(new BigNumber(5))
     })
 
     it('should subtract max amount to normal amount', () => {
@@ -92,7 +92,7 @@ describe('Amount Class | Unit', () => {
       const amount1 = new Amount(new BigNumber(ONE), 'normal', tokenPrecision)
       const amount2 = new Amount(new BigNumber(5e5), 'max', tokenPrecision)
       amount1.minus(amount2)
-      expect(amount1.getRawAmount()).to.deep.equal(new BigNumber(0.5))
+      expect(amount1.toBigNumber()).to.deep.equal(new BigNumber(0.5))
     })
 
     it('should add nax amount to normalized amount', () => {
@@ -100,7 +100,7 @@ describe('Amount Class | Unit', () => {
       const amount1 = new Amount(new BigNumber(1e12), 'normalized', tokenPrecision)
       const amount2 = new Amount(new BigNumber(1), 'max', tokenPrecision)
       amount1.minus(amount2)
-      expect(amount1.getRawAmount()).to.deep.equal(ZERO)
+      expect(amount1.toBigNumber()).to.deep.equal(ZERO)
     })
 
     it('should subtract BigNumber from Amount', () => {
@@ -108,7 +108,7 @@ describe('Amount Class | Unit', () => {
       const amount = new Amount(new BigNumber(1e12), 'normalized', tokenPrecision)
       const amountAsBigNumber = new BigNumber(1e10)
       amount.minus(amountAsBigNumber)
-      expect(amount.getRawAmount()).to.deep.equal(new BigNumber(9.9e11))
+      expect(amount.toBigNumber()).to.deep.equal(new BigNumber(9.9e11))
     })
 
     it('should throw an error when adding incompatible amounts', () => {
@@ -124,7 +124,7 @@ describe('Amount Class | Unit', () => {
       const amount1 = new Amount(new BigNumber(10), 'normal')
       const amount2 = new Amount(new BigNumber(5), 'normal')
       amount1.times(amount2)
-      expect(amount1.getRawAmount()).to.deep.equal(new BigNumber(50))
+      expect(amount1.toBigNumber()).to.deep.equal(new BigNumber(50))
     })
 
     it('should multiply max amount to normal amount', () => {
@@ -132,7 +132,7 @@ describe('Amount Class | Unit', () => {
       const amount1 = new Amount(new BigNumber(ONE), 'normal', tokenPrecision)
       const amount2 = new Amount(new BigNumber(5e5), 'max', tokenPrecision)
       amount1.times(amount2)
-      expect(amount1.getRawAmount()).to.deep.equal(new BigNumber(0.5))
+      expect(amount1.toBigNumber()).to.deep.equal(new BigNumber(0.5))
     })
 
     it('should multiply max amount to normalized amount', () => {
@@ -140,7 +140,7 @@ describe('Amount Class | Unit', () => {
       const amount1 = new Amount(new BigNumber(1e12), 'normalized', tokenPrecision)
       const amount2 = new Amount(new BigNumber(2), 'max', tokenPrecision)
       amount1.times(amount2)
-      expect(amount1.getRawAmount()).to.deep.equal(new BigNumber(2e6))
+      expect(amount1.toBigNumber()).to.deep.equal(new BigNumber(2e6))
     })
 
     it('should multiply Amount by BigNumber', () => {
@@ -148,7 +148,7 @@ describe('Amount Class | Unit', () => {
       const amount = new Amount(new BigNumber(1e12), 'normalized', tokenPrecision)
       const amountAsBigNumber = new BigNumber(1e10)
       amount.times(amountAsBigNumber)
-      expect(amount.getRawAmount()).to.deep.equal(new BigNumber(1e22))
+      expect(amount.toBigNumber()).to.deep.equal(new BigNumber(1e22))
     })
 
     it('should throw an error when adding incompatible amounts', () => {
@@ -164,7 +164,7 @@ describe('Amount Class | Unit', () => {
       const amount1 = new Amount(new BigNumber(10), 'normal')
       const amount2 = new Amount(new BigNumber(5), 'normal')
       amount1.div(amount2)
-      expect(amount1.getRawAmount()).to.deep.equal(new BigNumber(2))
+      expect(amount1.toBigNumber()).to.deep.equal(new BigNumber(2))
     })
 
     it('should divide normal amount by max amount', () => {
@@ -172,7 +172,7 @@ describe('Amount Class | Unit', () => {
       const amount1 = new Amount(new BigNumber(ONE), 'normal', tokenPrecision)
       const amount2 = new Amount(new BigNumber(5e5), 'max', tokenPrecision)
       amount1.div(amount2)
-      expect(amount1.getRawAmount()).to.deep.equal(new BigNumber(2))
+      expect(amount1.toBigNumber()).to.deep.equal(new BigNumber(2))
     })
 
     it('should divide max amount to normalized amount', () => {
@@ -180,7 +180,7 @@ describe('Amount Class | Unit', () => {
       const amount1 = new Amount(new BigNumber(1e12), 'normalized', tokenPrecision)
       const amount2 = new Amount(new BigNumber(2), 'max', tokenPrecision)
       amount1.div(amount2)
-      expect(amount1.getRawAmount()).to.deep.equal(new BigNumber(0.5))
+      expect(amount1.toBigNumber()).to.deep.equal(new BigNumber(0.5))
     })
 
     it('should divide Amount by BigNumber', () => {
@@ -188,7 +188,7 @@ describe('Amount Class | Unit', () => {
       const amount = new Amount(new BigNumber(1e12), 'normalized', tokenPrecision)
       const amountAsBigNumber = new BigNumber(2e10)
       amount.dividedBy(amountAsBigNumber)
-      expect(amount.getRawAmount()).to.deep.equal(new BigNumber(50))
+      expect(amount.toBigNumber()).to.deep.equal(new BigNumber(50))
     })
 
     it('should throw an error when adding incompatible amounts', () => {
@@ -199,15 +199,15 @@ describe('Amount Class | Unit', () => {
       expect(() => amount1.div(amount2)).to.throw()
     })
   })
-  describe('getRawAmountInPrecision', function () {
+  describe('toBigNumberInPrecision', function () {
     it('should get the raw amount in normal precision', () => {
       const amount = new Amount(new BigNumber(10), 'max')
-      expect(amount.getRawAmountUsingMode('normal')).to.deep.equal(new BigNumber(10e-18))
+      expect(amount.toBigNumber('normal')).to.deep.equal(new BigNumber(10e-18))
     })
 
     it('should get the raw amount in max precision', () => {
       const amount = new Amount(new BigNumber(10), 'normal')
-      expect(amount.getRawAmountUsingMode('max')).to.deep.equal(new BigNumber(10e18))
+      expect(amount.toBigNumber('max')).to.deep.equal(new BigNumber(10e18))
     })
   })
 
