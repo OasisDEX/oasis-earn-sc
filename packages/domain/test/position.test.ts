@@ -1,9 +1,9 @@
 import { ONE, ZERO } from '@dma-common/constants'
 import { expect } from '@dma-common/test-utils'
+import { Position } from '@domain/position'
+import { RiskRatio } from '@domain/risk-ratio'
 import BigNumber from 'bignumber.js'
 
-import { Position } from '../src/position'
-import { RiskRatio } from '../src/risk-ratio'
 import { testDataSources } from './scenarios/generateTestData'
 import { fetchTestScenarios } from './utils'
 
@@ -46,7 +46,7 @@ type Scenario = {
   feePaidFromTargetToken: BigNumber
 }
 
-describe('Calculate Position Helper', async () => {
+describe('Calculate Position Helper | Unit', async () => {
   describe('LTV_target', async () => {
     const scenarios = (await fetchTestScenarios<Scenario>(testDataSources.LTV_target)) as Scenario[]
     const debug = false
@@ -224,7 +224,7 @@ describe('Calculate Position Helper', async () => {
   })
 })
 
-describe('Position Mock Tests', () => {
+describe('Position Mock Tests | Unit', () => {
   const maxDebt = { amount: new BigNumber(80), symbol: 'ETH', precision: 18 }
   const halfDebt = { amount: new BigNumber(40), symbol: 'ETH', precision: 18 }
   const collateral = { amount: new BigNumber(200), symbol: 'STETH', precision: 18 }

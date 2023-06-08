@@ -7,9 +7,11 @@ export const FIFTY = new BigNumber(50)
 export const HUNDRED = new BigNumber(100)
 export const ONE_THOUSAND = new BigNumber(10000)
 export const ONE_TEN_THOUSANDTH = new BigNumber(0.0001)
-export const TEN_THOUSAND = new BigNumber(10000)
-export const MILLION = new BigNumber('1000000')
-export const BILLION = new BigNumber('1000000000')
+export const TEN_THOUSAND = new BigNumber(1e4)
+export const MILLION = new BigNumber(1e6)
+export const BILLION = new BigNumber(1e9)
+export const TEN_POW_18 = new BigNumber(1e18)
+
 export const MAX_UINT =
   '115792089237316195423570985008687907853269984665640564039457584007913129639935'
 

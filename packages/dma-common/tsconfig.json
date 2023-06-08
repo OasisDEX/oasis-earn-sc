@@ -12,9 +12,10 @@
       "@dma-common/test-utils": ["./test-utils/index.ts"],
       "@dma-common/test-utils/*": ["./test-utils/*"],
       "@dma-common/types/*": ["./types/*"],
-      "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
       "@deploy-configurations/utils/*": ["../deploy-configurations/utils/*"],
+      "@deploy-configurations/configs/*": ["../deploy-configurations/configs/*"],
       "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
+      "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
       "@deploy-configurations/constants": ["../deploy-configurations/constants/index.ts"],
       "@deploy-configurations/operation-definitions": ["../deploy-configurations/operation-definitions/index.ts"]
     },

@@ -20,6 +20,8 @@
       "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
       "@deploy-configurations/utils/*": ["../deploy-configurations/utils/*"],
       "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
+      "@deploy-configurations/configs": ["../deploy-configurations/configs/index.ts"],
+      "@deploy-configurations/configs/*": ["../deploy-configurations/configs/*"],
       "@deploy-configurations/constants": ["../deploy-configurations/constants/index.ts"],
       "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
 
@@ -37,6 +39,7 @@
     }
   ],
   "include": [
-    "./src"
+    "./src",
+    "./test"
   ],
 }

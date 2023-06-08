@@ -10,7 +10,7 @@
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
     "lint:fix": "yarn eslint . --fix --ext .ts",
     "test": "yarn run test:unit",
-    "test:unit": "npx hardhat test ./test/position.test.ts"
+    "test:unit": "npx hardhat test --grep Unit"
   },
   "dependencies": {
     "bignumber.js": "9.0.1"

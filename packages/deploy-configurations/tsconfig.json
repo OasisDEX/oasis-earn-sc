@@ -5,6 +5,7 @@
       "../../node_modules/@types"
     ],
     "paths": {
+      "@deploy-configurations/configs/*": ["./configs/*"],
       "@deploy-configurations/configs": ["./configs/index.ts"],
       "@deploy-configurations/utils/*": ["./utils/*"],
       "@deploy-configurations/types/*": ["./types/*"],

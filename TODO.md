@@ -1,4 +1,3 @@
-- Import and expose addresses directly from the deployment configs file in dma-contracts/scripts/deployment20
 - Add Lerna Changelog https://github.com/lerna/lerna-changelog
 - Add Husky to perform checks before commit
 - Update the many skipped tests
@@ -35,3 +34,4 @@
 - Add linting rules for files and folders names
 - Enforce no relative paths
 - Put Ajna buckets in their own package
+- Refactor code to use Amount class
