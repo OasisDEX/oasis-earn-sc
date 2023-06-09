@@ -311,6 +311,7 @@ contract AjnaProxyActions {
      */
     function openEarnPosition(ERC20Pool pool, uint256 depositAmount, uint256 price) public payable {
         supplyQuoteInternal(pool, depositAmount, price);
+        emit ProxyActionsOperation("AjnaSupplyQuote");
         emit CreatePosition(address(this), "Ajna", "Earn", pool.collateralAddress(), pool.quoteTokenAddress());
     }
 
