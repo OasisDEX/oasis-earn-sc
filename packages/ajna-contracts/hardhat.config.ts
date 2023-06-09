@@ -27,14 +27,15 @@ const config: HardhatUserConfig = {
       chainId: 2137,
     },
     tenderly: {
-      url: "https://rpc.tenderly.co/fork/cd5298fb-7ca4-4795-b9b6-f7f315606f41",
+      url: "https://rpc.tenderly.co/fork/bbac2e6d-3c56-4b72-9d1a-3a6faec78814",
       chainId: 1,
-      accounts: [
-        "c442ee013249dabe2b1461b5c1b2f62cc31d803d79039ebe0eb31ad5883b9e93",
-      ],
+      accounts: ["c442ee013249dabe2b1461b5c1b2f62cc31d803d79039ebe0eb31ad5883b9e93"],
     },
     hardhat: {
       chainId: 2137,
+      forking: {
+        url: "https://rpc.tenderly.co/fork/bbac2e6d-3c56-4b72-9d1a-3a6faec78814",
+      },
       mining: {
         auto: true,
         interval: 2000,

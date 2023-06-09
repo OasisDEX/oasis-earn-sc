@@ -1,5 +1,5 @@
 import { ADDRESSES } from "@oasisdex/oasis-actions";
-import { Contract, Signer } from "ethers";
+import { Contract, ContractTransaction } from "ethers";
 import hre, { ethers } from "hardhat";
 
 import {
@@ -25,7 +25,7 @@ import {
   Token,
   WETH,
 } from "../../typechain-types";
-import { HardhatUtils } from "./hardhat.utils";
+import { BasicSimulationData, HardhatUtils } from "./hardhat.utils";
 
 const utils = new HardhatUtils(hre);
 
@@ -53,7 +53,7 @@ export async function deployLibraries() {
   };
 }
 
-export async function deployTokens(receiver: string, mainnetTokens: boolean = false) {
+export async function deployTokens(receiver: string, mainnetTokens = false) {
   const usdc = mainnetTokens
     ? await utils.getContract<Token>("ERC20", ADDRESSES.main.USDC)
     : await utils.deployContract<Token>("Token", ["USDC", "USDC", receiver, 6]);
@@ -113,15 +113,26 @@ export async function deployApa(
   isMainnet = false
 ) {
   const { serviceRegistryContract } = await deployServiceRegistry();
+  const owner = await serviceRegistryContract.owner();
   const hash = await serviceRegistryContract.getServiceNameHash("DPM_GUARD");
-  const result = await serviceRegistryContract.addNamedService(hash, dpmGuardContract.address);
+  let result: ContractTransaction | BasicSimulationData;
+  if (isMainnet) {
+    result = await serviceRegistryContract.addNamedService(hash, dpmGuardContract.address);
+  } else {
+    result = {
+      from: owner,
+      to: serviceRegistryContract.address,
+      data: serviceRegistryContract.interface.encodeFunctionData("addNamedService", [hash, dpmGuardContract.address]),
+    };
+    await utils.performSimulation(result);
+  }
 
   utils.traceTransaction("addNamedService", {
     address: await serviceRegistryContract.owner(),
     data: result.data,
     from: signerAddress,
     to: serviceRegistryContract.address,
-    nonce: result.nonce,
+    nonce: -1,
   });
 
   const poolInfoContract = await utils.deployContract<PoolInfoUtils>("PoolInfoUtils", [], {
@@ -148,35 +159,33 @@ export async function deployApa(
 
   await arc.initializeAjnaProxyActions(ajnaProxyActionsContract.address);
 
-  if(!isMainnet) {
+  if (!isMainnet) {
     await dpmGuardContract.connect(guardOwnerAddress).setWhitelist(ajnaProxyActionsContract.address, true);
-  }else{
-    console.log("Simulating transaction, whitelisting AjnaProxyActions contract")
-    await utils.performSimulation(
-      {
-        from: guardOwnerAddress,
-        to: dpmGuardContract.address,
-        data: dpmGuardContract.interface.encodeFunctionData("setWhitelist", [ajnaProxyActionsContract.address, true]),
-     }
-    );
-     console.log("Done");
+  } else {
+    console.log("Simulating transaction, whitelisting AjnaProxyActions contract");
+    await utils.performSimulation({
+      from: guardOwnerAddress,
+      to: dpmGuardContract.address,
+      data: dpmGuardContract.interface.encodeFunctionData("setWhitelist", [ajnaProxyActionsContract.address, true]),
+    });
+    console.log("Done");
   }
 
   return { ajnaProxyActionsContract, poolInfo: poolInfoContract, poolInfoContract, ajnaRewardsClaimerContract: arc };
 }
-export async function deployGuard(isMainnet: boolean = false) {
+export async function deployGuard(isMainnet = false) {
   let dpmGuardContract: AccountGuard;
   let guardDeployerAddress: string;
-  let dpmFactory: AccountFactory;  
+  let dpmFactory: AccountFactory;
 
-  if(isMainnet) {
+  if (isMainnet) {
     dpmGuardContract = await utils.getContract<AccountGuard>("AccountGuard", ADDRESSES.main.accountGuard);
     dpmFactory = await utils.getContract<AccountFactory>("AccountFactory", ADDRESSES.main.accountFactory);
     guardDeployerAddress = await dpmGuardContract.owner();
   } else {
     dpmGuardContract = await utils.deployContract<AccountGuard>("AccountGuard", []);
     dpmFactory = await utils.deployContract<AccountFactory>("AccountFactory", [dpmGuardContract.address]);
-    [guardDeployerAddress] = await (await hre.ethers.getSigners())[0].getAddress();  
+    [guardDeployerAddress] = await (await hre.ethers.getSigners())[0].getAddress();
   }
 
   return { dpmGuardContract, guardDeployerAddress, dpmFactory };
