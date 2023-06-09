@@ -58,7 +58,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
 
   const collateralAmountAsBN = new Amount(
     simulatedAdjustment.position.collateral.amount,
-    'max',
+    'token',
     simulatedAdjustment.position.collateral.precision,
   )
     .switchPrecisionMode('normal')

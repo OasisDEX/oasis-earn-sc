@@ -293,12 +293,15 @@ export class Position implements IPosition {
         flashloanAmount: transientCollateralFlashloan(
           mappedParams.fees.flashLoan,
           mappedParams.prices.oracleFLtoDebtToken || ONE,
-          new Amount(
-            simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtInWei || ZERO),
-            'max',
-            simulatedAdjust.position.debt.precision,
-          ),
-          // simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtInWei || ZERO),
+          new Amount({
+            amount: simulatedAdjust.delta.debt.minus(
+              mappedParams.depositedByUser?.debtInWei || ZERO,
+            ),
+            precision: {
+              mode: 'tokenMax',
+              tokenMaxDecimals: simulatedAdjust.position.debt.precision,
+            },
+          }),
           daiFlashloanPrecision,
           this.debt.precision,
           mappedParams.flashloan.maxLoanToValueFL,
@@ -362,6 +365,8 @@ export class Position implements IPosition {
   }
 
   private _denormaliseAmount(amount: BigNumber, precision: number): BigNumber {
-    return new Amount(amount, 'normalized', precision).switchPrecisionMode('max').toBigNumber()
+    return new Amount({ amount, precision: { mode: 'normalized', tokenMaxDecimals: precision } })
+      .switchPrecisionMode('tokenMax')
+      .toBigNumber()
   }
 }

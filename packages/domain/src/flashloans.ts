@@ -32,11 +32,10 @@ export const transientCollateralFlashloan: TransientCollateralFlashloan = (
   /**
    * We normalise debtAmountToCover to 18 decimals and revert back to the precision of the Flashloan token
    * */
-  const flashloan = new Amount(
-    debtAmountToCover.switchPrecisionMode('normalized').toBigNumber(),
-    'normalized',
-    flashloanTokenPrecision,
-  )
+  const flashloan = new Amount({
+    amount: debtAmountToCover.switchPrecisionMode('normalized').toBigNumber(),
+    precision: { mode: 'normalized', tokenMaxDecimals: flashloanTokenPrecision },
+  })
     .times(oraclePrice)
     .div(maxLoanToValueWhenCollateralising.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
     .integerValue(BigNumber.ROUND_DOWN)

@@ -63,17 +63,15 @@ export function adjustToTargetRiskRatio(
    * C_W  Collateral in wallet to top-up or seed position
    * D_W  Debt token in wallet to top-up or seed position
    * */
-  const collateralDepositedByUser = new Amount(
-    toDeposit.collateral,
-    'max',
-    position.collateral.precision,
-  ).switchPrecisionMode('normalized')
+  const collateralDepositedByUser = new Amount({
+    amount: toDeposit.collateral,
+    precision: { mode: 'tokenMax', tokenMaxDecimals: position.collateral.precision },
+  }).switchPrecisionMode('normalized')
 
-  const debtTokensDepositedByUser = new Amount(
-    toDeposit?.debt,
-    'max',
-    position.debt.precision,
-  ).switchPrecisionMode('normalized')
+  const debtTokensDepositedByUser = new Amount({
+    amount: toDeposit?.debt,
+    precision: { mode: 'tokenMax', tokenMaxDecimals: position.debt.precision },
+  }).switchPrecisionMode('normalized')
 
   /**
    * These values are based on the initial state of the position.
@@ -83,16 +81,17 @@ export function adjustToTargetRiskRatio(
    * C_C  Current collateral
    * D_C  Current debt
    * */
-
-  const normalisedCurrentCollateral = new Amount(
-    position.collateral.amount,
-    'max',
-    position.collateral.precision,
-  )
+  const normalisedCurrentCollateral = new Amount({
+    amount: position.collateral.amount,
+    precision: { mode: 'tokenMax', tokenMaxDecimals: position.collateral.precision },
+  })
     .switchPrecisionMode('normalized')
     .plus(collateralDepositedByUser)
 
-  const normalisedCurrentDebt = new Amount(position.debt.amount, 'max', position.debt.precision)
+  const normalisedCurrentDebt = new Amount({
+    amount: position.debt.amount,
+    precision: { mode: 'tokenMax', tokenMaxDecimals: position.debt.precision },
+  })
     .switchPrecisionMode('normalized')
     .minus(debtTokensDepositedByUser)
 
@@ -167,19 +166,18 @@ export function adjustToTargetRiskRatio(
     shouldIncreaseDebtDeltaToAccountForFees ? ONE.minus(oazoFee.div(FEE_BASE)) : ONE,
   )
 
-  const collateralDelta = new Amount(
-    unknownVarX.toBigNumber(),
-    'normalized',
-    position.collateral.precision,
-  )
+  const collateralDelta = new Amount({
+    amount: unknownVarX.toBigNumber(),
+    precision: { mode: 'normalized', tokenMaxDecimals: position.collateral.precision },
+  })
     .div(marketPriceAdjustedForSlippage)
     .div(riskIsIncreasing ? ONE : ONE.minus(oazoFee.div(FEE_BASE)))
-    .switchPrecisionMode('max')
+    .switchPrecisionMode('tokenMax')
     .integerValue(BigNumber.ROUND_DOWN)
 
   const debtDelta = debtDeltaPreFlashloanFee
     .times(ONE.plus(isFlashloanRequired ? flashloanFee : ZERO))
-    .switchPrecisionMode('max')
+    .switchPrecisionMode('tokenMax')
     .integerValue(BigNumber.ROUND_DOWN)
 
   return {
@@ -210,8 +208,8 @@ function buildAdjustedPosition(
   currentCollateral: Amount,
   oraclePrice: BigNumber,
 ): IPositionV2 {
-  const nextDebt = currentDebt.switchPrecisionMode('max').plus(debtDelta)
-  const nextCollateral = currentCollateral.switchPrecisionMode('max').plus(collateralDelta)
+  const nextDebt = currentDebt.switchPrecisionMode('tokenMax').plus(debtDelta)
+  const nextCollateral = currentCollateral.switchPrecisionMode('tokenMax').plus(collateralDelta)
   const nextDebtAsPositionBalance = {
     ...position.debt,
     amount: nextDebt.toBigNumber(),
@@ -289,28 +287,32 @@ function determineFee(
 
   const sourceDelta = isIncreasingRisk ? debtDelta : collateralDelta
   const sourcePrecision = isIncreasingRisk
-    ? debtDelta.getTokenPrecision()
-    : collateralDelta.getTokenPrecision()
+    ? debtDelta.getTokenMaxDecimals()
+    : collateralDelta.getTokenMaxDecimals()
   const targetDelta = isIncreasingRisk ? collateralDelta : debtDelta
   const targetPrecision = isIncreasingRisk
-    ? collateralDelta.getTokenPrecision()
-    : debtDelta.getTokenPrecision()
+    ? collateralDelta.getTokenMaxDecimals()
+    : debtDelta.getTokenMaxDecimals()
 
-  const sourceFee = new Amount(
-    calculateFee(sourceDelta.toBigNumber(), oazoFee.toNumber()),
-    'normalized',
-    sourcePrecision,
-  )
-    .switchPrecisionMode('max')
+  const sourceFee = new Amount({
+    amount: calculateFee(sourceDelta.toBigNumber(), oazoFee.toNumber()),
+    precision: {
+      mode: 'normalized',
+      tokenMaxDecimals: sourcePrecision,
+    },
+  })
+    .switchPrecisionMode('tokenMax')
     .integerValue(BigNumber.ROUND_DOWN)
     .toBigNumber()
 
-  const targetFee = new Amount(
-    calculateFee(targetDelta.toBigNumber(), oazoFee.toNumber()),
-    'normalized',
-    targetPrecision,
-  )
-    .switchPrecisionMode('max')
+  const targetFee = new Amount({
+    amount: calculateFee(targetDelta.toBigNumber(), oazoFee.toNumber()),
+    precision: {
+      mode: 'normalized',
+      tokenMaxDecimals: targetPrecision,
+    },
+  })
+    .switchPrecisionMode('tokenMax')
     .integerValue(BigNumber.ROUND_DOWN)
     .toBigNumber()
 

@@ -3,47 +3,56 @@ import BigNumber from 'bignumber.js'
 
 /**
  * Possible precision levels are:
- * - normal                                             EG 1 USDC = 1
+ * - none                                             EG 1 USDC = 1
  * - (no precision set, just the raw amount)
  *
- * - max                                                EG 1 USDC = 1e6
+ * - tokenMax                                                EG 1 USDC = 1e6
  * - (max precision for the token)
  *
  * - normalized                                         EG 1 USDC = 1e18
  * - (precision set 18 decimals for to standardise amounts for maths reasons)
  */
-type PrecisionMode = 'normal' | 'max' | 'normalized'
+type PrecisionMode = 'none' | 'tokenMax' | 'normalized'
 type PrecisionMap = Record<PrecisionMode, BigNumber>
 
+type AmountArgs = {
+  amount: BigNumber
+  precision?: {
+    /** none: 1USDC = 1, max: 1USDC = 1e6, normalized: 1USDC = 1e18 */
+    mode?: PrecisionMode
+    tokenMaxDecimals?: number
+  }
+}
+
 export class Amount {
-  private currentPrecision: BigNumber
-  private readonly tokenPrecision: number
+  private currentPrecisionScale: BigNumber
+  private readonly tokenMaxDecimals: number
   private amount: BigNumber
   private readonly precisionMap: PrecisionMap
-  constructor(
-    initialAmount = ZERO,
-    initialPrecision: PrecisionMode = 'normal',
-    tokenPrecision: number = TYPICAL_PRECISION,
-  ) {
-    this.tokenPrecision = tokenPrecision
+  constructor(args: AmountArgs) {
+    const initialAmount = args.amount || ZERO
+    const initialPrecisionMode = args?.precision?.mode || 'none'
+    this.tokenMaxDecimals = args?.precision?.tokenMaxDecimals || TYPICAL_PRECISION
     this.precisionMap = {
-      normal: ONE,
-      max: new BigNumber(TEN.pow(tokenPrecision)),
+      none: ONE,
+      tokenMax: new BigNumber(TEN.pow(this.tokenMaxDecimals)),
       normalized: TEN_POW_18,
     }
-    this.currentPrecision = this.precisionMap[initialPrecision]
+    this.currentPrecisionScale = this.precisionMap[initialPrecisionMode]
     this.amount = initialAmount
   }
 
   static from(amount: Amount | BigNumber) {
     if (amount instanceof Amount) {
-      return new Amount(
-        amount.toBigNumber(),
-        amount.getCurrentPrecisionMode(),
-        amount.getTokenPrecision(),
-      )
+      return new Amount({
+        amount: amount.toBigNumber(),
+        precision: {
+          mode: amount.getCurrentPrecisionMode(),
+          tokenMaxDecimals: amount.getTokenMaxDecimals(),
+        },
+      })
     }
-    return new Amount(amount)
+    return new Amount({ amount })
   }
 
   plus(otherAmount: Amount | BigNumber): Amount {
@@ -64,7 +73,7 @@ export class Amount {
     if (otherAmount instanceof Amount) {
       this._doMaths(otherAmount, 'times')
       // Needs to be divided by the current precision to get the correct amount
-      return this._dividedByBigNumber(this.currentPrecision)
+      return this._dividedByBigNumber(this.currentPrecisionScale)
     }
     return this._timesByBigNumber(otherAmount)
   }
@@ -82,7 +91,7 @@ export class Amount {
 
   getCurrentPrecisionMode(): PrecisionMode {
     for (const precisionMode of Object.keys(this.precisionMap)) {
-      if (this.precisionMap[precisionMode].isEqualTo(this.currentPrecision)) {
+      if (this.precisionMap[precisionMode].isEqualTo(this.currentPrecisionScale)) {
         return precisionMode as PrecisionMode
       }
     }
@@ -90,8 +99,8 @@ export class Amount {
     throw new Error('Could not get current precision')
   }
 
-  getTokenPrecision(): number {
-    return this.tokenPrecision
+  getTokenMaxDecimals(): number {
+    return this.tokenMaxDecimals
   }
 
   switchPrecisionMode(mode: PrecisionMode): Amount {
@@ -99,9 +108,9 @@ export class Amount {
       throw new Error(`Invalid precision mode: ${mode}`)
     }
 
-    const ratio = this.precisionMap[mode].dividedBy(this.currentPrecision)
+    const ratio = this.precisionMap[mode].dividedBy(this.currentPrecisionScale)
     this.amount = this.amount.multipliedBy(ratio)
-    this.currentPrecision = this.precisionMap[mode]
+    this.currentPrecisionScale = this.precisionMap[mode]
 
     return Amount.from(this)
   }
@@ -111,7 +120,7 @@ export class Amount {
       throw new Error(`Invalid precision level: ${mode}`)
     }
 
-    const ratio = this.currentPrecision.dividedBy(this.precisionMap[mode])
+    const ratio = this.currentPrecisionScale.dividedBy(this.precisionMap[mode])
     return this.amount.dividedBy(ratio)
   }
 
@@ -151,19 +160,19 @@ export class Amount {
   }
 
   private _verifyAmountsAreCompatible(otherAmount: Amount) {
-    const thisMaxPrecision = this._getMaxPrecision()
-    const otherMaxPrecision = otherAmount._getMaxPrecision()
+    const thisTokenMaxDecimals = this._getTokenMaxPrecisionAsBigNumber()
+    const otherTokenMaxDecimals = otherAmount._getTokenMaxPrecisionAsBigNumber()
 
-    if (thisMaxPrecision.eq(otherMaxPrecision)) {
+    if (thisTokenMaxDecimals.eq(otherTokenMaxDecimals)) {
       return true // All good
     }
 
     throw new Error(
-      `Amounts are not compatible: ${thisMaxPrecision.toString()} !== ${otherMaxPrecision.toString()}`,
+      `Amounts are not compatible: ${thisTokenMaxDecimals.toString()} !== ${otherTokenMaxDecimals.toString()}`,
     )
   }
 
-  private _getMaxPrecision(): BigNumber {
-    return this.precisionMap.max
+  private _getTokenMaxPrecisionAsBigNumber(): BigNumber {
+    return new BigNumber(this.tokenMaxDecimals)
   }
 }
