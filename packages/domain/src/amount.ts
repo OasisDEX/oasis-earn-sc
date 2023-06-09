@@ -1,4 +1,5 @@
 import { ONE, TEN, TEN_POW_18, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { Token } from '@domain/token'
 import BigNumber from 'bignumber.js'
 
 /**
@@ -29,6 +30,7 @@ export class Amount {
   private readonly tokenMaxDecimals: number
   private amount: BigNumber
   private readonly precisionMap: PrecisionMap
+
   constructor(args: AmountArgs) {
     const initialAmount = args.amount || ZERO
     const initialPrecisionMode = args?.precision?.mode || 'none'
@@ -178,11 +180,14 @@ export class Amount {
 }
 
 export class TokenAmount extends Amount {
-  constructor(args: AmountArgs) {
+  public token: Token
+
+  constructor(args: AmountArgs & { token: Token }) {
     super(args)
+    this.token = args.token
   }
 
-  static from(amount: TokenAmount | BigNumber) {
+  static from(amount: TokenAmount | BigNumber, token?: Token) {
     if (amount instanceof TokenAmount) {
       return new TokenAmount({
         amount: amount.toBigNumber(),
@@ -190,8 +195,12 @@ export class TokenAmount extends Amount {
           mode: amount.getCurrentPrecisionMode(),
           tokenMaxDecimals: amount.getTokenMaxDecimals(),
         },
+        token: amount.token,
       })
     }
-    return new TokenAmount({ amount })
+    if (!token) {
+      throw new Error('Token arg is required if passing BigNumber as amount')
+    }
+    return new TokenAmount({ amount, precision: { tokenMaxDecimals: token.precision }, token })
   }
 }
