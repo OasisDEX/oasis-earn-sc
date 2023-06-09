@@ -23,6 +23,7 @@ export class HardhatUtils {
     );
   }
   public async sendLotsOfMoney(target: string, token: Token | WETH, mainnet = false) {
+
     if (mainnet) {
       await this.setTokenBalance(target, token.address, BigNumber.from("1000000000000000000").mul(1000));
     } else {
@@ -86,17 +87,66 @@ export class HardhatUtils {
    * @return {Promise<boolean>} if the operation succedded
    */
   public async setTokenBalance(account: string, tokenAddress: string, balance: BigNumber): Promise<boolean> {
-    const slot = await this.findBalancesSlot(tokenAddress);
-    let index = this.hre.ethers.utils.solidityKeccak256(["uint256", "uint256"], [account, slot]);
-    if (index.startsWith("0x0")) index = "0x" + index.slice(3);
-
-    await this.hre.ethers.provider.send("hardhat_setStorageAt", [
+    const isStorageManipulationSuccessful = await this.setTokenBalanceByStorageManipulation(
+      account,
       tokenAddress,
-      index,
-      this.hre.ethers.utils.hexZeroPad(balance.toHexString(), 32),
-    ]);
-    const token = await this.hre.ethers.getContractAt("ERC20", tokenAddress);
-    const balanceAfter = await token.balanceOf(account);
-    return balance == balanceAfter;
+      balance
+    );
+    if (!isStorageManipulationSuccessful) {
+      const isBridgeImpersonationSuccessful = await this.setTokenBalanceByBridgeImpersonation(
+        account,
+        tokenAddress,
+        balance
+      );
+      return isBridgeImpersonationSuccessful;
+    }
+    return isStorageManipulationSuccessful;
+  }
+
+  private async setTokenBalanceByBridgeImpersonation(account: string, tokenAddress: string, balance: BigNumber) {
+    const bridgeAddress = "0x8eb8a3b98659cce290402893d0123abb75e3ab28";
+    const signer = await this.impersonate(bridgeAddress);
+    const token = await this.hre.ethers.getContractAt("ERC20", tokenAddress, signer);
+    const balanceOfSource = BigNumber.from((await token.balanceOf(bridgeAddress)).toString());
+    console.log("balanceOfSource", balanceOfSource.toString());
+    console.log("balance", balance.toString());
+    if (balanceOfSource.lt(balance)) {
+      balance = balanceOfSource.div(10);
+      console.warn(
+        "Absurd amount of money requested, even Avalanche Bridge is too poor to handle it sending only ",
+        balance.toString()
+      );
+    }
+    try {
+      await token.transfer(account, balance.toString());
+      const balanceAfter = await token.balanceOf(account);
+      return balance < balanceAfter;
+    } catch (ex) {
+      console.log(ex);
+      return false;
+    }
+  }
+
+  private async setTokenBalanceByStorageManipulation(
+    account: string,
+    tokenAddress: string,
+    balance: BigNumber
+  ): Promise<boolean> {
+    try {
+      const slot = await this.findBalancesSlot(tokenAddress);
+      let index = this.hre.ethers.utils.solidityKeccak256(["uint256", "uint256"], [account, slot]);
+      if (index.startsWith("0x0")) index = "0x" + index.slice(3);
+
+      await this.hre.ethers.provider.send("hardhat_setStorageAt", [
+        tokenAddress,
+        index,
+        this.hre.ethers.utils.hexZeroPad(balance.toHexString(), 32),
+      ]);
+      const token = await this.hre.ethers.getContractAt("ERC20", tokenAddress);
+      const balanceAfter = await token.balanceOf(account);
+      return balance == balanceAfter;
+    } catch (ex) {
+      return false;
+    }
   }
 }
