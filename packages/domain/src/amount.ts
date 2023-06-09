@@ -176,3 +176,22 @@ export class Amount {
     return new BigNumber(this.tokenMaxDecimals)
   }
 }
+
+export class TokenAmount extends Amount {
+  constructor(args: AmountArgs) {
+    super(args)
+  }
+
+  static from(amount: TokenAmount | BigNumber) {
+    if (amount instanceof TokenAmount) {
+      return new TokenAmount({
+        amount: amount.toBigNumber(),
+        precision: {
+          mode: amount.getCurrentPrecisionMode(),
+          tokenMaxDecimals: amount.getTokenMaxDecimals(),
+        },
+      })
+    }
+    return new TokenAmount({ amount })
+  }
+}

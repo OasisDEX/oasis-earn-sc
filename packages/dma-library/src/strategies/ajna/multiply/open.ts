@@ -56,19 +56,23 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     oraclePrice,
   )
 
-  const collateralAmountAsBN = new Amount(
-    simulatedAdjustment.position.collateral.amount,
-    'token',
-    simulatedAdjustment.position.collateral.precision,
-  )
-    .switchPrecisionMode('normal')
+  const collateralAmountAsBN = new Amount({
+    amount: simulatedAdjustment.position.collateral.amount,
+    precision: {
+      mode: 'tokenMax',
+      tokenMaxDecimals: simulatedAdjustment.position.collateral.precision,
+    },
+  })
+    .switchPrecisionMode('none')
     .toBigNumber()
-  const debtAmountAsBN = new Amount(
-    simulatedAdjustment.position.debt.amount,
-    'max',
-    simulatedAdjustment.position.debt.precision,
-  )
-    .switchPrecisionMode('normal')
+  const debtAmountAsBN = new Amount({
+    amount: simulatedAdjustment.position.debt.amount,
+    precision: {
+      mode: 'tokenMax',
+      tokenMaxDecimals: simulatedAdjustment.position.debt.precision,
+    },
+  })
+    .switchPrecisionMode('none')
     .toBigNumber()
 
   const targetPosition = new AjnaPosition(
@@ -81,8 +85,14 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   )
 
   const isDepositingEth = areAddressesEqual(position.pool.collateralToken, dependencies.WETH)
-  const txAmountAsBN = new Amount(args.collateralAmount, 'max', TYPICAL_PRECISION)
-    .switchPrecisionMode('normal')
+  const txAmountAsBN = new Amount({
+    amount: args.collateralAmount,
+    precision: {
+      mode: 'tokenMax',
+      tokenMaxDecimals: TYPICAL_PRECISION,
+    },
+  })
+    .switchPrecisionMode('none')
     .toBigNumber()
 
   return prepareAjnaDMAPayload({
@@ -139,8 +149,11 @@ async function simulateAdjustment(
   riskIsIncreasing: true,
   oraclePrice: BigNumber,
 ) {
-  const preFlightSwapAmount = new Amount(ONE, 'normal', args.quoteTokenPrecision)
-    .switchPrecisionMode('max')
+  const preFlightSwapAmount = new Amount({
+    amount: ONE,
+    precision: { mode: 'none', tokenMaxDecimals: args.quoteTokenPrecision },
+  })
+    .switchPrecisionMode('tokenMax')
     .toBigNumber()
   const fromToken = buildFromToken(args, position)
   const toToken = buildToToken(args, position)
@@ -165,19 +178,23 @@ async function simulateAdjustment(
       getSwapData: dependencies.getSwapData,
     },
   })
-  const preFlightFromAmount = new Amount(
-    preFlightSwapData.fromTokenAmount,
-    'max',
-    args.quoteTokenPrecision,
-  )
+  const preFlightFromAmount = new Amount({
+    amount: preFlightSwapData.fromTokenAmount,
+    precision: {
+      mode: 'tokenMax',
+      tokenMaxDecimals: args.quoteTokenPrecision,
+    },
+  })
     .switchPrecisionMode('normalized')
     .toBigNumber()
 
-  const preFlightToAmount = new Amount(
-    preFlightSwapData.toTokenAmount,
-    'max',
-    args.collateralTokenPrecision,
-  )
+  const preFlightToAmount = new Amount({
+    amount: preFlightSwapData.toTokenAmount,
+    precision: {
+      mode: 'tokenMax',
+      tokenMaxDecimals: args.collateralTokenPrecision,
+    },
+  })
     .switchPrecisionMode('normalized')
     .toBigNumber()
 
@@ -349,8 +366,14 @@ async function buildOperation(
       pool: args.poolAddress,
     },
     // Prices must be in 18 decimal precision
-    price: new Amount(oraclePrice, 'normal', TYPICAL_PRECISION)
-      .switchPrecisionMode('max')
+    price: new Amount({
+      amount: oraclePrice,
+      precision: {
+        mode: 'none',
+        tokenMaxDecimals: TYPICAL_PRECISION,
+      },
+    })
+      .switchPrecisionMode('tokenMax')
       .toBigNumber(),
   }
   return await operations.ajna.open(openMultiplyArgs)
