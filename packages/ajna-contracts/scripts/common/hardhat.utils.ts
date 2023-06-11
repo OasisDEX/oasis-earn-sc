@@ -8,6 +8,23 @@ import { HardhatRuntimeEnvironment, Network } from "hardhat/types/runtime";
 
 import { Token, WETH } from "../../typechain-types";
 
+export type BasicSimulationData = {
+  data: string;
+  from: string;
+  to: string;
+};
+
+export type TraceData = BasicSimulationData & {
+  address: string;
+  nonce: number;
+};
+
+export type TraceItem = TraceData & {
+  operationName: string;
+};
+
+export let trace: TraceItem[] = [];
+
 export class HardhatUtils {
   constructor(public readonly hre: HardhatRuntimeEnvironment, public readonly forked?: Network) {}
   public getEvents(receipt: ContractReceipt, eventAbi: EventFragment) {
@@ -22,8 +39,27 @@ export class HardhatUtils {
       })) || []
     );
   }
-  public async sendLotsOfMoney(target: string, token: Token | WETH, mainnet = false) {
 
+  public clearTrace() {
+    trace = [];
+  }
+
+  public traceTransaction(operationName: string, result: TraceData) {
+    trace.push({
+      operationName,
+      address: result.address,
+      data: result.data,
+      from: result.from,
+      to: result.to,
+      nonce: result.nonce,
+    });
+  }
+
+  public printTrace() {
+    return JSON.stringify(trace, null, 2);
+  }
+
+  public async sendLotsOfMoney(target: string, token: Token | WETH, mainnet = false) {
     if (mainnet) {
       await this.setTokenBalance(target, token.address, BigNumber.from("1000000000000000000").mul(1000));
     } else {
