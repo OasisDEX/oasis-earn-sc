@@ -1,4 +1,4 @@
-import { prepareEnv as prepareAjnaEnv } from '@ajna-contracts/scripts'
+import { HardhatUtils, prepareEnv as prepareAjnaEnv } from '@ajna-contracts/scripts'
 import { System } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
 import { ONE, TEN } from '@dma-common/constants'
@@ -19,6 +19,7 @@ import {
 import { mapAjnaPoolDataTypes } from '@dma-contracts/test/utils/ajna/map-ajna-pool-type'
 import { views } from '@dma-library'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
+import { impersonateAccount } from '@nomicfoundation/hardhat-network-helpers'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
@@ -52,6 +53,10 @@ export const envWithAjnaPositions = ({
       configExtensionPaths,
       hideLogging,
     )
+    for (let i = 0; i < 10; i++) {
+      const defaultSigner = await hre.ethers.provider.getSigner(i)
+      console.log('defaultSigner', await defaultSigner.getAddress())
+    }
     await resetNode(ds, network)
     const ajnaSystem = await prepareAjnaEnv(hre, true)
     const dmaSystem = await deployDmaSystem(ds, ajnaSystem)
@@ -156,8 +161,18 @@ async function configureSwapContract(dsSystem: System) {
     ? dsSystem.system.uSwap.contract
     : dsSystem.system.Swap.contract
 
-  await swapContract.addFeeTier(0)
-  await swapContract.addFeeTier(7)
+  const benefAddress = await swapContract.feeBeneficiaryAddress()
+  await impersonateAccount(benefAddress)
+  const signer = hre.ethers.provider.getSigner(benefAddress);
+
+  console.log(`impersonating  ${benefAddress} to add fee tiers`);
+
+  const utils = new HardhatUtils(hre)
+
+  const tx1 = await swapContract.connect(signer).addFeeTier(0)
+  const receipt1 = tx1.wait()
+  await swapContract.connect(signer).addFeeTier(7)
+  utils.traceTransaction()
   await dsSystem.system.AccountGuard.contract.setWhitelist(
     dsSystem.system.OperationExecutor.contract.address,
     true,

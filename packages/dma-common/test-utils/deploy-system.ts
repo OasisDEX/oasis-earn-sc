@@ -78,7 +78,6 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
     '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     10000,
   )
-
   await uSwap.addFeeTier(20)
   await uSwap.addFeeTier(7)
 

@@ -130,7 +130,10 @@ abstract class DeployedSystemHelpers {
     this.forkedNetwork = this.getNetworkFromChainId(this.chainId)
 
     this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
-    this.log('NETWORK / FORKED NETWORK', `${this.network} / ${this.forkedNetwork}`)
+    this.log(
+      'NETWORK / FORKED NETWORK / ChainID',
+      `${this.network} / ${this.forkedNetwork} / ${this.chainId}`,
+    )
 
     return {
       provider: this.provider,
@@ -662,7 +665,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   // TODO unify resetNode and resetNodeToLatestBlock into one function
   async resetNode(blockNumber: number) {
     if (!this.provider) throw new Error('No provider set')
-    this.log(`\x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
+    this.log(`\x1b[90mResetting fork to block number: ${blockNumber} using ${this.rpcUrl} \x1b[0m`)
     await this.provider.send('hardhat_reset', [
       {
         forking: {
