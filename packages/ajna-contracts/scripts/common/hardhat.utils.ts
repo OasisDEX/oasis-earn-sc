@@ -66,6 +66,7 @@ export class HardhatUtils {
       await token.mint(target, BigNumber.from("1000000000000000000").mul(1000));
     }
   }
+
   public async deployContract<T extends Contract>(
     contractName: string,
     args: any[],
@@ -84,6 +85,7 @@ export class HardhatUtils {
     });
     return contract;
   }
+
   public async getContract<T extends Contract>(contractName: string, contractAddress: string): Promise<T> {
     const contract = (await ethers.getContractAt(contractName, contractAddress)) as T;
     return contract;
@@ -94,6 +96,7 @@ export class HardhatUtils {
     const newSigner = await this.hre.ethers.getSigner(user);
     return newSigner;
   }
+
   private async impersonateAccount(account: string) {
     await this.hre.network.provider.request({
       method: "hardhat_impersonateAccount",
