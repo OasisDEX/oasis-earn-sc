@@ -163,16 +163,30 @@ async function configureSwapContract(dsSystem: System) {
 
   const benefAddress = await swapContract.feeBeneficiaryAddress()
   await impersonateAccount(benefAddress)
-  const signer = hre.ethers.provider.getSigner(benefAddress);
+  const signer = hre.ethers.provider.getSigner(benefAddress)
 
-  console.log(`impersonating  ${benefAddress} to add fee tiers`);
+  console.log(`impersonating  ${benefAddress} to add fee tiers`)
 
   const utils = new HardhatUtils(hre)
 
   const tx1 = await swapContract.connect(signer).addFeeTier(0)
   const receipt1 = tx1.wait()
-  await swapContract.connect(signer).addFeeTier(7)
-  utils.traceTransaction()
+  utils.traceTransaction('addFeeTier', {
+    address: await swapContract.owner(),
+    data: receipt1.data,
+    from: benefAddress,
+    to: swapContract.address,
+    nonce: tx1.nonce ?? -1,
+  })
+  const tx2 = await swapContract.connect(signer).addFeeTier(7)
+  const receipt2 = tx2.wait()
+  utils.traceTransaction('addFeeTier', {
+    address: await swapContract.owner(),
+    data: receipt2.data,
+    from: benefAddress,
+    to: swapContract.address,
+    nonce: tx2.nonce ?? -1,
+  })
   await dsSystem.system.AccountGuard.contract.setWhitelist(
     dsSystem.system.OperationExecutor.contract.address,
     true,
