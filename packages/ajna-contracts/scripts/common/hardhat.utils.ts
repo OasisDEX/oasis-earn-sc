@@ -72,8 +72,16 @@ export class HardhatUtils {
     signerOrOptions?: Signer | FactoryOptions | undefined
   ): Promise<T> {
     const factory = await ethers.getContractFactory(contractName, signerOrOptions);
-    const contract = (await factory.deploy(...args)) as T;
+    const contract = (await factory.deploy(...args)) as unknown as T;
     await contract.deployed();
+    const receipt = await contract.deployTransaction.wait();
+    this.traceTransaction(contractName, {
+      address: contract.address,
+      data: contract.deployTransaction.data,
+      from: receipt.from,
+      to: receipt.to,
+      nonce: contract.deployTransaction.nonce,
+    });
     return contract;
   }
   public async getContract<T extends Contract>(contractName: string, contractAddress: string): Promise<T> {
