@@ -62,7 +62,7 @@ export interface AjnaOpenEarnPayload extends AjnaCommonPayload {
   quoteAmount: BigNumber
 }
 
-interface AjnaMultiplyPayload extends AjnaCommonPayload {
+export interface AjnaMultiplyPayload extends AjnaCommonPayload {
   riskRatio: IRiskRatio
   slippage: BigNumber
   user: Address
@@ -78,13 +78,8 @@ export interface AjnaOpenMultiplyPayload extends AjnaMultiplyPayload {
 export interface AjnaCloseMultiplyPayload extends AjnaMultiplyPayload {
   quoteTokenSymbol: string
   collateralTokenSymbol: string
+  shouldCloseToCollateral: boolean
 }
-
-// export interface AjnaMultiplyPayload extends AjnaCommonPayload {
-//   position: AjnaPosition
-//   collateralAmount: BigNumber
-//   riskRatio: IRiskRatio
-// }
 
 export interface AjnaEarnPayload extends AjnaCommonPayload {
   isStakingNft: boolean

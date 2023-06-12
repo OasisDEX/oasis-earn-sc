@@ -1,10 +1,10 @@
 import { ZERO } from '@dma-common/constants'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { AjnaCommonDependencies, AjnaPosition, PositionType, Strategy } from '@dma-library/types'
-import { AjnaMultiplyPayload } from '@dma-library/types/ajna'
+import { AjnaCloseMultiplyPayload } from '@dma-library/types/ajna/ajna-dependencies'
 
 export type AjnaCloseStrategy = (
-  args: AjnaMultiplyPayload,
+  args: AjnaCloseMultiplyPayload,
   dependencies: AjnaCommonDependencies,
 ) => Promise<Strategy<AjnaPosition>>
 
