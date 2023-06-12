@@ -1,8 +1,8 @@
-import { Tx } from '@dma-common/types'
+import { Swap, Tx } from '@dma-common/types'
 
 export type Strategy<Position> = {
   simulation: {
-    swaps: []
+    swaps: Swap[]
     /** @deprecated - use position */
     targetPosition: Position
     position: Position

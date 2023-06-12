@@ -404,6 +404,20 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
 
     return timestamp + 130000;
   }
+
+  console.log(`
+    DEPLOYED AJNA CONTRACTS:
+    ========================
+    erc20PoolFactory: ${erc20PoolFactory.address}
+    wbtcUsdcPool: ${pools.wbtcUsdcPool.address}
+    wethUsdcPool: ${pools.wethUsdcPool.address}
+    poolInfoContract: ${poolInfoContract.address}
+    ajnaProxyActionsContract: ${ajnaProxyActionsContract.address}
+    positionManagerContract: ${positionManagerContract.address}
+    rewardsManagerContract: ${rewardsManagerContract.address}
+    ========================
+  `);
+
   return {
     times: {
       DAY,
