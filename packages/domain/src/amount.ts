@@ -29,6 +29,7 @@ export class Amount {
   private readonly tokenMaxDecimals: number
   private amount: BigNumber
   private readonly precisionMap: PrecisionMap
+  private currentPrecisionMode: 'none' | 'tokenMax' | 'normalized' = 'none'
 
   constructor(args: AmountArgs) {
     const initialAmount = args.amount || ZERO
@@ -39,6 +40,7 @@ export class Amount {
       tokenMax: new BigNumber(TEN.pow(this.tokenMaxDecimals)),
       normalized: TEN_POW_18,
     }
+    this.currentPrecisionMode = initialPrecisionMode
     this.currentPrecisionScale = this.precisionMap[initialPrecisionMode]
     this.amount = initialAmount
   }
@@ -78,13 +80,7 @@ export class Amount {
   }
 
   getCurrentPrecisionMode(): PrecisionMode {
-    for (const precisionMode of Object.keys(this.precisionMap)) {
-      if (this.precisionMap[precisionMode].isEqualTo(this.currentPrecisionScale)) {
-        return precisionMode as PrecisionMode
-      }
-    }
-
-    throw new Error('Could not get current precision')
+    return this.currentPrecisionMode
   }
 
   getTokenMaxDecimals(): number {
@@ -167,6 +163,13 @@ export class Amount {
   private _verifyAmountsAreCompatible(otherAmount: Amount) {
     const thisTokenMaxDecimals = this._getTokenMaxPrecisionAsBigNumber()
     const otherTokenMaxDecimals = otherAmount._getTokenMaxPrecisionAsBigNumber()
+
+    const thisPrecisionMode = this.getCurrentPrecisionMode()
+    const otherPrecisionMode = otherAmount.getCurrentPrecisionMode()
+
+    if (thisPrecisionMode === 'normalized' && otherPrecisionMode === 'normalized') {
+      return true // All good
+    }
 
     if (thisTokenMaxDecimals.eq(otherTokenMaxDecimals)) {
       return true // All good

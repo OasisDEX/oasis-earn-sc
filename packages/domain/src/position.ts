@@ -78,8 +78,8 @@ export type IBaseSimulatedTransition = {
 export interface IPositionTransitionParams {
   // Where Wei is the smallest unit of the token
   depositedByUser?: {
-    collateralInWei?: BigNumber
-    debtInWei?: BigNumber
+    collateralAmount$?: BigNumber
+    debtAmount$?: BigNumber
   }
   flashloan: {
     /* Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH) */
@@ -266,8 +266,8 @@ export class Position implements IPosition {
     const mappedParams = {
       ...params,
       toDeposit: {
-        collateral: params.depositedByUser?.collateralInWei || ZERO,
-        debt: params.depositedByUser?.debtInWei || ZERO,
+        collateral: params.depositedByUser?.collateralAmount$ || ZERO,
+        debt: params.depositedByUser?.debtAmount$ || ZERO,
       },
     }
     const simulatedAdjust = adjustToTargetRiskRatio(this, targetRiskRatio, mappedParams)
@@ -280,7 +280,7 @@ export class Position implements IPosition {
     const daiFlashloanPrecision = TYPICAL_PRECISION
 
     const debtAmountToCoverWithFlashloan$ = new Amount({
-      amount: simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtInWei || ZERO),
+      amount: simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtAmount$ || ZERO),
       precision: {
         mode: 'tokenMax',
         tokenMaxDecimals: simulatedAdjust.position.debt.precision,

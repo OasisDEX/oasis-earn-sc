@@ -73,10 +73,11 @@ export async function open(
   const estimatedSwapAmount$ = new Amount({
     amount: ONE,
     precision: {
-      mode: 'tokenMax',
+      mode: 'none',
       tokenMaxDecimals: args.debtToken.precision,
     },
-  })
+  }).switchPrecisionMode('tokenMax')
+
   const { swapData: quoteSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     AAVETokens
@@ -86,7 +87,7 @@ export async function open(
       toToken: args.collateralToken,
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: estimatedSwapAmount$.toBigNumber(),
+      swapAmountBeforeFees$: estimatedSwapAmount$.toBigNumber(),
     },
     addresses: dependencies.addresses,
     services: {
@@ -102,7 +103,6 @@ export async function open(
       fee,
     },
     dependencies,
-    // true,
   )
 
   const { swapData, collectFeeFrom } = await SwapUtils.getSwapDataHelper<
@@ -114,7 +114,7 @@ export async function open(
       toToken: args.collateralToken,
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: simulatedPositionTransition.swap.fromTokenAmount,
+      swapAmountBeforeFees$: simulatedPositionTransition.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
     services: {
@@ -226,9 +226,8 @@ async function simulatePositionTransition(
 
   const multiple = args.multiple
 
-  const depositDebtAmountInWei = args.depositedByUser?.debtToken?.amountInBaseUnit || ZERO
-  const depositCollateralAmountInWei =
-    args.depositedByUser?.collateralToken?.amountInBaseUnit || ZERO
+  const depositDebtAmount$ = args.depositedByUser?.debtToken?.amountInBaseUnit || ZERO
+  const depositCollateralAmount$ = args.depositedByUser?.collateralToken?.amountInBaseUnit || ZERO
 
   // Needs to be correct precision.
   const fromTokenAmountNormalised$$ = new Amount({
@@ -283,8 +282,8 @@ async function simulatePositionTransition(
       tokenSymbol: 'DAI',
     },
     depositedByUser: {
-      debtInWei: depositDebtAmountInWei,
-      collateralInWei: depositCollateralAmountInWei,
+      debtAmount$: depositDebtAmount$,
+      collateralAmount$: depositCollateralAmount$,
     },
     collectSwapFeeFrom: collectFeeFrom,
   })
