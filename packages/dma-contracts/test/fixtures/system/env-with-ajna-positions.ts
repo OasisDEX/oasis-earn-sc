@@ -145,6 +145,8 @@ async function deployDmaSystem(ds: DeploymentSystem, ajnaSystem: AjnaSystem) {
   await _ds.deployActions()
   await _ds.addOperationEntries()
 
+  _ds.saveConfig()
+
   return _ds.getSystem() as System
 }
 
