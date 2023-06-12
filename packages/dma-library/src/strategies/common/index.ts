@@ -1,2 +1,2 @@
-export { getSwapDataToCloseToCollateral } from './close-to-collateral-swap-data'
-export { getSwapDataToCloseToDebt } from './close-to-debt-swap-data'
+export { getSwapDataForCloseToCollateral } from './close-to-coll-swap-data'
+export { getSwapDataForCloseToDebt } from './close-to-debt-swap-data'

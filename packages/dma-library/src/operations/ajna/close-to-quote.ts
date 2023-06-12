@@ -5,7 +5,7 @@ import {
   IOperation,
   WithAjnaBucketPrice,
   WithAjnaStrategyAddresses,
-  WithCollateralAndWithdrawal,
+  WithCollateral,
   WithDebt,
   WithFlashloan,
   WithProxy,
@@ -14,7 +14,7 @@ import {
 import { FlashloanProvider } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
 
-type AjnaCloseArgs = WithCollateralAndWithdrawal &
+type AjnaCloseArgs = WithCollateral &
   WithDebt &
   WithSwap &
   WithFlashloan &

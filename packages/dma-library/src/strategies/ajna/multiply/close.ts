@@ -1,10 +1,12 @@
-import { ZERO } from '@dma-common/constants'
+import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { CollectFeeFrom } from '@dma-common/types'
+import { areSymbolsEqual } from '@dma-common/utils/symbols'
+import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { getSwapDataToCloseToDebt } from '@dma-library/strategies/common'
-import { getSwapDataToCloseToCollateral } from '@dma-library/strategies/common/close-to-coll-swap-data'
+import * as StrategiesCommon from '@dma-library/strategies/common'
 import {
-  AjnaOpenMultiplyPayload,
   AjnaPosition,
+  FlashloanProvider,
   IOperation,
   PositionType,
   Strategy,
@@ -15,6 +17,9 @@ import {
   AjnaCommonDMADependencies,
 } from '@dma-library/types/ajna/ajna-dependencies'
 import { encodeOperation } from '@dma-library/utils/operation'
+import * as SwapUtils from '@dma-library/utils/swap'
+import { Amount } from '@domain'
+import BigNumber from 'bignumber.js'
 
 export type AjnaCloseStrategy = (
   args: AjnaCloseMultiplyPayload,
@@ -72,7 +77,7 @@ async function getAjnaSwapDataToCloseToDebt(
     address: position.pool.quoteToken,
   }
 
-  return getSwapDataToCloseToDebt({
+  return StrategiesCommon.getSwapDataForCloseToDebt({
     fromToken,
     toToken,
     slippage: args.slippage,
@@ -101,7 +106,7 @@ async function getAjnaSwapDataToCloseToCollateral(
   const colPrice = args.collateralPrice
   const debtPrice = args.quotePrice
 
-  return getSwapDataToCloseToCollateral({
+  return StrategiesCommon.getSwapDataForCloseToCollateral({
     collateralToken,
     debtToken,
     colPrice,
@@ -114,8 +119,85 @@ async function getAjnaSwapDataToCloseToCollateral(
 }
 
 async function buildOperation(
-  args: AjnaOpenMultiplyPayload,
+  args: AjnaCloseMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
   position: AjnaPosition,
   swapData: SwapData,
-): IOperation {}
+  preSwapFee$: BigNumber,
+  collectFeeFrom: CollectFeeFrom,
+): Promise<IOperation> {
+  const amountToFlashloan$ = position.debtAmount
+  const lockedCollateralAmount$ = position.collateralAmount
+
+  const collateralToken = {
+    symbol: args.collateralTokenSymbol,
+    precision: args.collateralTokenPrecision,
+    address: position.pool.collateralToken,
+  }
+  const debtToken = {
+    symbol: args.quoteTokenSymbol,
+    precision: args.quoteTokenPrecision,
+    address: position.pool.quoteToken,
+  }
+
+  const fee = SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol)
+  const collateralAmountToBeSwapped$ = args.shouldCloseToCollateral
+    ? swapData.fromTokenAmount.plus(preSwapFee$)
+    : lockedCollateralAmount$
+  const oraclePrice = args.collateralPrice.div(args.quotePrice)
+
+  const closeArgs = {
+    collateral: {
+      address: collateralToken.address,
+      isEth: areSymbolsEqual(collateralToken.symbol, 'ETH'),
+    },
+    debt: {
+      address: debtToken.address,
+      isEth: areSymbolsEqual(debtToken.symbol, 'ETH'),
+    },
+    swap: {
+      fee: fee.toNumber(),
+      data: swapData.exchangeCalldata,
+      amount: collateralAmountToBeSwapped$,
+      collectFeeFrom,
+      receiveAtLeast: swapData.minToTokenAmount,
+    },
+    flashloan: {
+      // Always balancer on Ajna for now
+      provider: FlashloanProvider.Balancer,
+      amount: amountToFlashloan$,
+    },
+    position: {
+      type: positionType,
+      collateral: { amount: collateralAmountToBeSwapped$ },
+    },
+    proxy: {
+      address: args.dpmProxyAddress,
+      // Ajna is always DPM
+      isDPMProxy: true,
+      owner: args.user,
+    },
+    addresses: {
+      ...dependencies.addresses,
+      WETH: dependencies.WETH,
+      operationExecutor: dependencies.operationExecutor,
+      pool: args.poolAddress,
+    },
+    // Prices must be in 18 decimal precision
+    price: new Amount({
+      amount: oraclePrice,
+      precision: {
+        mode: 'none',
+        tokenMaxDecimals: TYPICAL_PRECISION,
+      },
+    })
+      .switchPrecisionMode('tokenMax')
+      .toBigNumber(),
+  }
+
+  if (args.shouldCloseToCollateral) {
+    return await operations.ajna.closeToCollateral(closeArgs)
+  } else {
+    return await operations.ajna.closeToQuote(closeArgs)
+  }
+}

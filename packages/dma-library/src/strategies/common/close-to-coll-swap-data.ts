@@ -25,7 +25,7 @@ interface GetSwapDataToCloseToCollateralArgs {
   getSwapData: GetSwapData
 }
 
-export async function getSwapDataToCloseToCollateral({
+export async function getSwapDataForCloseToCollateral({
   collateralToken,
   debtToken,
   colPrice,

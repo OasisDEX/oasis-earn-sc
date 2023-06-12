@@ -5,7 +5,7 @@ import { GetSwapData } from '@dma-library/types/common'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
-interface GetSwapDataToCloseToDebtArgs {
+interface GetSwapDataForCloseToDebtArgs {
   fromToken: {
     symbol: string
     precision: number
@@ -21,13 +21,13 @@ interface GetSwapDataToCloseToDebtArgs {
   getSwapData: GetSwapData
 }
 
-export async function getSwapDataToCloseToDebt({
+export async function getSwapDataForCloseToDebt({
   fromToken,
   toToken,
   slippage,
   swapAmountBeforeFees$,
   getSwapData,
-}: GetSwapDataToCloseToDebtArgs) {
+}: GetSwapDataForCloseToDebtArgs) {
   const collectFeeFrom = SwapUtils.acceptedFeeTokenByAddress({
     fromTokenAddress: fromToken.address,
     toTokenAddress: toToken.address,

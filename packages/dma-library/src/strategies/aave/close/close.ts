@@ -17,10 +17,7 @@ import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { AaveVersion } from '@dma-library/strategies/aave'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
-import {
-  getSwapDataToCloseToCollateral,
-  getSwapDataToCloseToDebt,
-} from '@dma-library/strategies/common'
+import * as StrategiesCommon from '@dma-library/strategies/common'
 import {
   IBasePositionTransitionArgs,
   IOperation,
@@ -107,7 +104,7 @@ async function getAaveSwapDataToCloseToCollateral(
     address: debtTokenAddress,
   }
 
-  return await getSwapDataToCloseToCollateral({
+  return await StrategiesCommon.getSwapDataForCloseToCollateral({
     collateralToken: collateralTokenWithAddress,
     debtToken: debtTokenWithAddress,
     colPrice,
@@ -141,7 +138,7 @@ async function getAaveSwapDataToCloseToDebt(
     address: debtTokenAddress,
   }
 
-  return getSwapDataToCloseToDebt({
+  return StrategiesCommon.getSwapDataForCloseToDebt({
     fromToken,
     toToken,
     slippage,
