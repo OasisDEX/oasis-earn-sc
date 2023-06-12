@@ -2,7 +2,6 @@ import { ERC20Pool } from '@ajna-contracts/typechain-types'
 import { ONE } from '@dma-common/constants'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
-import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
 import {
   AjnaPositionDetails,
@@ -18,6 +17,7 @@ import {
 } from '@dma-contracts/test/fixtures/factories/common'
 import { AjnaPosition, RiskRatio, strategies } from '@dma-library'
 import { AjnaPool, AjnaStrategy } from '@dma-library/types/ajna'
+import { Amount } from '@domain'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -162,7 +162,13 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
   },
 ) {
   // Amount is at max precision for the token EG 1 USDC -> 1e6 or 1 ETH -> 1e18
-  const collateralAmount = amountToWei(ONE, tokens.ETH.precision)
+  const collateralAmount$ = new Amount({
+    amount: ONE,
+    precision: {
+      mode: 'none',
+      tokenMaxDecimals: tokens.ETH.precision,
+    },
+  }).switchPrecisionMode('tokenMax')
   const slippage = UNISWAP_TEST_SLIPPAGE
   const riskRatio = new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE)
 
@@ -177,7 +183,7 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
     quoteTokenPrecision: tokens.USDC.precision,
     collateralTokenPrecision: tokens.ETH.precision,
 
-    collateralAmount,
+    collateralAmount$: collateralAmount$.toBigNumber(),
     slippage,
     riskRatio,
   }

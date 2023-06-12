@@ -60,22 +60,20 @@ export interface AjnaOpenEarnPayload extends AjnaCommonPayload {
 }
 
 export interface AjnaMultiplyPayload extends AjnaCommonPayload {
+  quoteTokenSymbol: string
+  collateralTokenSymbol: string
   riskRatio: IRiskRatio
   slippage: BigNumber
   user: Address
 }
 
 export interface AjnaOpenMultiplyPayload extends AjnaMultiplyPayload {
-  quoteTokenSymbol: string
-  collateralTokenSymbol: string
   // In wei units or equivalent EG 1 USDC -> 1e6 or 1 ETH -> 1e18
   collateralAmount$: BigNumber
 }
 
 export interface AjnaCloseMultiplyPayload extends AjnaMultiplyPayload {
   position: AjnaPosition
-  quoteTokenSymbol: string
-  collateralTokenSymbol: string
   shouldCloseToCollateral: boolean
 }
 
