@@ -86,7 +86,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
 
   const isDepositingEth = areAddressesEqual(position.pool.collateralToken, dependencies.WETH)
   const txAmountAsBN = new Amount({
-    amount: args.collateralAmount,
+    amount: args.collateralAmount$,
     precision: {
       mode: 'tokenMax',
       tokenMaxDecimals: TYPICAL_PRECISION,
@@ -207,7 +207,7 @@ async function simulateAdjustment(
 
   const positionAdjustArgs = {
     toDeposit: {
-      collateral: args.collateralAmount,
+      collateral: args.collateralAmount$,
       /** Not relevant for Ajna */
       debt: ZERO,
     },
@@ -336,7 +336,7 @@ async function buildOperation(
     deposit: {
       // Always collateral only as deposit on Ajna
       address: position.pool.collateralToken,
-      amount: args.collateralAmount,
+      amount: args.collateralAmount$,
     },
     swap: {
       fee: fee.toNumber(),

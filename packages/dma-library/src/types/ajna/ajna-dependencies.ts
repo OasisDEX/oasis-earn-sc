@@ -67,7 +67,7 @@ export interface AjnaOpenMultiplyPayload extends AjnaCommonPayload {
   quoteTokenSymbol: string
   collateralTokenSymbol: string
   // In wei units or equivalent EG 1 USDC -> 1e6 or 1 ETH -> 1e18
-  collateralAmount: BigNumber
+  collateralAmount$: BigNumber
   slippage: BigNumber
   riskRatio: IRiskRatio
 }
