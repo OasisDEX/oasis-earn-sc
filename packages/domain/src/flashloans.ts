@@ -13,8 +13,6 @@ interface TransientCollateralFlashloan {
     debtAmountToCover: Amount,
     /** The precision of the flashloan token */
     flashloanTokenPrecision?: number,
-    /** The precision of the flashloan token */
-    debtTokenPrecision?: number,
     /** The maximum loan to value ratio that the flashloan can be used to collateralise when borrowing against it */
     maxLoanToValueWhenCollateralising?: BigNumber,
   ): BigNumber
@@ -26,7 +24,6 @@ export const transientCollateralFlashloan: TransientCollateralFlashloan = (
   oraclePrice,
   debtAmountToCover$,
   flashloanTokenPrecision = 18,
-  debtTokenPrecision = 18,
   maxLoanToValueWhenCollateralising = ONE,
 ) => {
   /**

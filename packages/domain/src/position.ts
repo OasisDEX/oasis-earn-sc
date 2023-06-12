@@ -302,7 +302,6 @@ export class Position implements IPosition {
           mappedParams.prices.oracleFLtoDebtToken || ONE,
           debtAmountToCoverWithFlashloan$,
           daiFlashloanPrecision,
-          this.debt.precision,
           mappedParams.flashloan.maxLoanToValueFL,
         ),
       },
