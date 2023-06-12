@@ -63,12 +63,12 @@ export function adjustToTargetRiskRatio(
    * C_W  Collateral in wallet to top-up or seed position
    * D_W  Debt token in wallet to top-up or seed position
    * */
-  const collateralDepositedByUser = new Amount({
+  const collateralDepositedByUser$$ = new Amount({
     amount: toDeposit.collateral,
     precision: { mode: 'tokenMax', tokenMaxDecimals: position.collateral.precision },
   }).switchPrecisionMode('normalized')
 
-  const debtTokensDepositedByUser = new Amount({
+  const debtTokensDepositedByUser$$ = new Amount({
     amount: toDeposit?.debt,
     precision: { mode: 'tokenMax', tokenMaxDecimals: position.debt.precision },
   }).switchPrecisionMode('normalized')
@@ -81,19 +81,19 @@ export function adjustToTargetRiskRatio(
    * C_C  Current collateral
    * D_C  Current debt
    * */
-  const normalisedCurrentCollateral = new Amount({
+  const normalisedCurrentCollateral$$ = new Amount({
     amount: position.collateral.amount,
     precision: { mode: 'tokenMax', tokenMaxDecimals: position.collateral.precision },
   })
     .switchPrecisionMode('normalized')
-    .plus(collateralDepositedByUser)
+    .plus(collateralDepositedByUser$$)
 
-  const normalisedCurrentDebt = new Amount({
+  const normalisedCurrentDebt$$ = new Amount({
     amount: position.debt.amount,
     precision: { mode: 'tokenMax', tokenMaxDecimals: position.debt.precision },
   })
     .switchPrecisionMode('normalized')
-    .minus(debtTokensDepositedByUser)
+    .minus(debtTokensDepositedByUser$$)
 
   /**
    * The Oracle price is what we use to convert a position's collateral into the same
@@ -137,11 +137,11 @@ export function adjustToTargetRiskRatio(
    *
    * X = \frac{D_C\cdot P_{MS} - T_{LTV}\cdot C_C\cdot P_O\cdot P_{MS}}{((T_{LTV}\cdot (1 -F_O)\cdot P_O) - (1 +F_F)\cdot P_{MS})}
    * */
-  const unknownVarX = normalisedCurrentDebt
+  const unknownVarX$$ = normalisedCurrentDebt$$
     .times(marketPriceAdjustedForSlippage)
     .minus(
       targetLTV
-        .times(normalisedCurrentCollateral.toBigNumber())
+        .times(normalisedCurrentCollateral$$.toBigNumber())
         .times(oraclePrice)
         .times(marketPriceAdjustedForSlippage),
     )
@@ -162,12 +162,15 @@ export function adjustToTargetRiskRatio(
    * \Delta C = X \cdot (1 - F_O) / P_{MS}
    * */
   const shouldIncreaseDebtDeltaToAccountForFees = riskIsIncreasing && collectFeeFromSourceToken
-  const debtDeltaPreFlashloanFee = unknownVarX.div(
-    shouldIncreaseDebtDeltaToAccountForFees ? ONE.minus(oazoFee.div(FEE_BASE)) : ONE,
-  )
+  const debtDeltaPreFlashloanFee$$ = new Amount({
+    amount: unknownVarX$$
+      .div(shouldIncreaseDebtDeltaToAccountForFees ? ONE.minus(oazoFee.div(FEE_BASE)) : ONE)
+      .toBigNumber(),
+    precision: { mode: 'normalized', tokenMaxDecimals: position.debt.precision },
+  })
 
-  const collateralDelta = new Amount({
-    amount: unknownVarX.toBigNumber(),
+  const collateralDelta$ = new Amount({
+    amount: unknownVarX$$.toBigNumber(),
     precision: { mode: 'normalized', tokenMaxDecimals: position.collateral.precision },
   })
     .div(marketPriceAdjustedForSlippage)
@@ -175,7 +178,7 @@ export function adjustToTargetRiskRatio(
     .switchPrecisionMode('tokenMax')
     .integerValue(BigNumber.ROUND_DOWN)
 
-  const debtDelta = debtDeltaPreFlashloanFee
+  const debtDelta$ = debtDeltaPreFlashloanFee$$
     .times(ONE.plus(isFlashloanRequired ? flashloanFee : ZERO))
     .switchPrecisionMode('tokenMax')
     .integerValue(BigNumber.ROUND_DOWN)
@@ -183,17 +186,17 @@ export function adjustToTargetRiskRatio(
   return {
     position: buildAdjustedPosition(
       position,
-      debtDelta,
-      collateralDelta,
-      normalisedCurrentDebt,
-      normalisedCurrentCollateral,
+      debtDelta$,
+      collateralDelta$,
+      normalisedCurrentDebt$$,
+      normalisedCurrentCollateral$$,
       oraclePrice,
     ),
     delta: {
-      debt: debtDelta.toBigNumber(),
-      collateral: collateralDelta.toBigNumber(),
+      debt: debtDelta$.toBigNumber(),
+      collateral: collateralDelta$.toBigNumber(),
     },
-    swap: buildSwapSimulation(position, debtDelta, collateralDelta, oazoFee, {
+    swap: buildSwapSimulation(position, debtDelta$, collateralDelta$, oazoFee, {
       isIncreasingRisk: riskIsIncreasing,
       collectSwapFeeFrom,
     }),
@@ -202,34 +205,34 @@ export function adjustToTargetRiskRatio(
 
 function buildAdjustedPosition(
   position: IPositionV2,
-  debtDelta: Amount,
-  collateralDelta: Amount,
-  currentDebt: Amount,
-  currentCollateral: Amount,
+  debtDelta$: Amount,
+  collateralDelta$: Amount,
+  currentDebt$$: Amount,
+  currentCollateral$$: Amount,
   oraclePrice: BigNumber,
 ): IPositionV2 {
-  const nextDebt = currentDebt.switchPrecisionMode('tokenMax').plus(debtDelta)
-  const nextCollateral = currentCollateral.switchPrecisionMode('tokenMax').plus(collateralDelta)
+  const nextDebt$ = currentDebt$$.switchPrecisionMode('tokenMax').plus(debtDelta$)
+  const nextCollateral$ = currentCollateral$$.switchPrecisionMode('tokenMax').plus(collateralDelta$)
   const nextDebtAsPositionBalance = {
     ...position.debt,
-    amount: nextDebt.toBigNumber(),
+    amount: nextDebt$.toBigNumber(),
   }
   const nextCollateralAsPositionBalance = {
     ...position.collateral,
-    amount: nextCollateral.toBigNumber(),
+    amount: nextCollateral$.toBigNumber(),
   }
 
   return {
     debt: nextDebtAsPositionBalance,
     collateral: nextCollateralAsPositionBalance,
-    riskRatio: createRiskRatio(nextDebt, nextCollateral, oraclePrice),
+    riskRatio: createRiskRatio(nextDebt$, nextCollateral$, oraclePrice),
   }
 }
 
 function buildSwapSimulation(
   position: IPositionV2,
-  debtDelta: Amount,
-  collateralDelta: Amount,
+  debtDelta$: Amount,
+  collateralDelta$: Amount,
   oazoFee: BigNumber,
   options: {
     isIncreasingRisk: boolean
@@ -238,23 +241,23 @@ function buildSwapSimulation(
 ) {
   const { isIncreasingRisk, collectSwapFeeFrom } = options
 
-  const fromTokenAmount = isIncreasingRisk
-    ? debtDelta.toBigNumber()
-    : collateralDelta.toBigNumber().abs()
-  const minToTokenAmount = isIncreasingRisk
-    ? collateralDelta.toBigNumber()
-    : debtDelta.toBigNumber().abs()
+  const fromTokenAmount$ = isIncreasingRisk
+    ? debtDelta$.toBigNumber()
+    : collateralDelta$.toBigNumber().abs()
+  const minToTokenAmount$ = isIncreasingRisk
+    ? collateralDelta$.toBigNumber()
+    : debtDelta$.toBigNumber().abs()
 
   const fromToken = isIncreasingRisk ? position.debt : position.collateral
   const toToken = isIncreasingRisk ? position.collateral : position.debt
 
   return {
-    fromTokenAmount,
-    minToTokenAmount,
+    fromTokenAmount: fromTokenAmount$,
+    minToTokenAmount: minToTokenAmount$,
     tokenFee: determineFee(
       isIncreasingRisk,
-      debtDelta,
-      collateralDelta,
+      debtDelta$,
+      collateralDelta$,
       oazoFee,
       fromToken,
       toToken,
@@ -272,8 +275,8 @@ function buildSwapSimulation(
 
 function determineFee(
   isIncreasingRisk: boolean,
-  debtDelta: Amount,
-  collateralDelta: Amount,
+  debtDelta$: Amount,
+  collateralDelta$: Amount,
   oazoFee: BigNumber,
   fromToken,
   toToken,
@@ -285,17 +288,17 @@ function determineFee(
    */
   const collectFeeFromSourceToken = collectSwapFeeFrom === 'sourceToken'
 
-  const sourceDelta = isIncreasingRisk ? debtDelta : collateralDelta
+  const sourceDelta$ = isIncreasingRisk ? debtDelta$ : collateralDelta$
   const sourcePrecision = isIncreasingRisk
-    ? debtDelta.getTokenMaxDecimals()
-    : collateralDelta.getTokenMaxDecimals()
-  const targetDelta = isIncreasingRisk ? collateralDelta : debtDelta
+    ? debtDelta$.getTokenMaxDecimals()
+    : collateralDelta$.getTokenMaxDecimals()
+  const targetDelta$ = isIncreasingRisk ? collateralDelta$ : debtDelta$
   const targetPrecision = isIncreasingRisk
-    ? collateralDelta.getTokenMaxDecimals()
-    : debtDelta.getTokenMaxDecimals()
+    ? collateralDelta$.getTokenMaxDecimals()
+    : debtDelta$.getTokenMaxDecimals()
 
-  const sourceFee = new Amount({
-    amount: calculateFee(sourceDelta.toBigNumber(), oazoFee.toNumber()),
+  const sourceFee$ = new Amount({
+    amount: calculateFee(sourceDelta$.toBigNumber(), oazoFee.toNumber()),
     precision: {
       mode: 'normalized',
       tokenMaxDecimals: sourcePrecision,
@@ -305,8 +308,8 @@ function determineFee(
     .integerValue(BigNumber.ROUND_DOWN)
     .toBigNumber()
 
-  const targetFee = new Amount({
-    amount: calculateFee(targetDelta.toBigNumber(), oazoFee.toNumber()),
+  const targetFee$ = new Amount({
+    amount: calculateFee(targetDelta$.toBigNumber(), oazoFee.toNumber()),
     precision: {
       mode: 'normalized',
       tokenMaxDecimals: targetPrecision,
@@ -316,5 +319,5 @@ function determineFee(
     .integerValue(BigNumber.ROUND_DOWN)
     .toBigNumber()
 
-  return collectFeeFromSourceToken ? sourceFee : targetFee
+  return collectFeeFromSourceToken ? sourceFee$ : targetFee$
 }

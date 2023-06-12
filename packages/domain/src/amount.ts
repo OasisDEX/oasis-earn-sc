@@ -43,19 +43,6 @@ export class Amount {
     this.amount = initialAmount
   }
 
-  static from(amount: Amount | BigNumber) {
-    if (amount instanceof Amount) {
-      return new Amount({
-        amount: amount.toBigNumber(),
-        precision: {
-          mode: amount.getCurrentPrecisionMode(),
-          tokenMaxDecimals: amount.getTokenMaxDecimals(),
-        },
-      })
-    }
-    return new Amount({ amount })
-  }
-
   plus(otherAmount: Amount | BigNumber): Amount {
     if (otherAmount instanceof Amount) {
       return this._doMaths(otherAmount, 'plus')
@@ -72,9 +59,9 @@ export class Amount {
 
   times(otherAmount: Amount | BigNumber): Amount {
     if (otherAmount instanceof Amount) {
-      this._doMaths(otherAmount, 'times')
+      const nextAmount = this._doMaths(otherAmount, 'times')
       // Needs to be divided by the current precision to get the correct amount
-      return this._dividedByBigNumber(this.currentPrecisionScale)
+      return nextAmount._dividedByBigNumber(this.currentPrecisionScale)
     }
     return this._timesByBigNumber(otherAmount)
   }
@@ -110,10 +97,15 @@ export class Amount {
     }
 
     const ratio = this.precisionMap[mode].dividedBy(this.currentPrecisionScale)
-    this.amount = this.amount.multipliedBy(ratio)
-    this.currentPrecisionScale = this.precisionMap[mode]
+    const nextAmount = this.amount.multipliedBy(ratio)
 
-    return Amount.from(this)
+    return new Amount({
+      amount: nextAmount,
+      precision: {
+        mode,
+        tokenMaxDecimals: this.tokenMaxDecimals,
+      },
+    })
   }
 
   toBigNumber(mode: PrecisionMode = this.getCurrentPrecisionMode()): BigNumber {
@@ -126,28 +118,33 @@ export class Amount {
   }
 
   integerValue(rm?: BigNumber.RoundingMode | undefined): Amount {
-    return this._setAmount(this.amount.integerValue(rm))
+    return this._doMathsWithBigNumber(this.amount.integerValue(rm))
   }
 
   private _dividedByBigNumber(otherAmount: BigNumber): Amount {
-    return this._setAmount(this.amount.div(otherAmount))
+    return this._doMathsWithBigNumber(this.amount.div(otherAmount))
   }
 
   private _timesByBigNumber(otherAmount: BigNumber): Amount {
-    return this._setAmount(this.amount.times(otherAmount))
+    return this._doMathsWithBigNumber(this.amount.times(otherAmount))
   }
 
   private _minusByBigNumber(otherAmount: BigNumber): Amount {
-    return this._setAmount(this.amount.minus(otherAmount))
+    return this._doMathsWithBigNumber(this.amount.minus(otherAmount))
   }
 
   private _plusByBigNumber(otherAmount: BigNumber): Amount {
-    return this._setAmount(this.amount.plus(otherAmount))
+    return this._doMathsWithBigNumber(this.amount.plus(otherAmount))
   }
 
-  private _setAmount(amount: BigNumber): Amount {
-    this.amount = amount
-    return Amount.from(this)
+  private _doMathsWithBigNumber(nextAmount: BigNumber): Amount {
+    return new Amount({
+      amount: nextAmount,
+      precision: {
+        mode: this.getCurrentPrecisionMode(),
+        tokenMaxDecimals: this.getTokenMaxDecimals(),
+      },
+    })
   }
 
   private _doMaths(otherAmount: Amount, operator: 'plus' | 'minus' | 'times' | 'div') {
@@ -157,7 +154,14 @@ export class Amount {
     const otherAmountInSamePrecisionMode = otherAmount.toBigNumber(currentPrecisionMode)
 
     const newAmount = currentAmount[operator](otherAmountInSamePrecisionMode)
-    return this._setAmount(newAmount)
+
+    return new Amount({
+      amount: newAmount,
+      precision: {
+        mode: currentPrecisionMode,
+        tokenMaxDecimals: this.getTokenMaxDecimals(),
+      },
+    })
   }
 
   private _verifyAmountsAreCompatible(otherAmount: Amount) {

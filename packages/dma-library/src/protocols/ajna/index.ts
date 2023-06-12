@@ -51,7 +51,7 @@ export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
   success: AjnaSuccess[]
   data: string
   txValue: string
-  swaps: (SwapData & { collectFeeFrom: 'sourceToken' | 'targetToken'; preSwapFee: BigNumber })[]
+  swaps: (SwapData & { collectFeeFrom: 'sourceToken' | 'targetToken'; preSwapFee$: BigNumber })[]
 }): AjnaStrategy<T> => {
   return {
     simulation: {
@@ -63,7 +63,7 @@ export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
         minToTokenAmount: swap.minToTokenAmount,
         exchangeCalldata: swap.exchangeCalldata,
         collectFeeFrom: swap.collectFeeFrom,
-        fee: swap.preSwapFee,
+        fee: swap.preSwapFee$,
       })),
       errors,
       warnings,

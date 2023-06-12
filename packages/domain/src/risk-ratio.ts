@@ -47,17 +47,17 @@ export class RiskRatio implements IRiskRatio {
 }
 
 export const createRiskRatio = (
-  debt: Amount,
-  collateral: Amount,
+  debt$: Amount,
+  collateral$: Amount,
   /** Oracle price of 1 Collateral Token in Debt Tokens  */
   oraclePrice: BigNumber,
 ) => {
-  const normalisedDebt = debt.switchPrecisionMode('normalized')
-  const normalisedCollateral = collateral.switchPrecisionMode('normalized')
+  const normalisedDebt$$ = debt$.switchPrecisionMode('normalized')
+  const normalisedCollateral$$ = collateral$.switchPrecisionMode('normalized')
 
-  const ltv = normalisedDebt
+  const ltv = normalisedDebt$$
     .toBigNumber()
-    .div(normalisedCollateral.toBigNumber().times(oraclePrice))
+    .div(normalisedCollateral$$.toBigNumber().times(oraclePrice))
 
   return new RiskRatio(ltv.isNaN() || !ltv.isFinite() ? ZERO : ltv, RiskRatio.TYPE.LTV)
 }

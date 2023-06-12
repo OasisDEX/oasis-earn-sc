@@ -279,6 +279,13 @@ export class Position implements IPosition {
     // Assumes we're using DAI as FL token for now
     const daiFlashloanPrecision = TYPICAL_PRECISION
 
+    const debtAmountToCoverWithFlashloan$ = new Amount({
+      amount: simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtInWei || ZERO),
+      precision: {
+        mode: 'tokenMax',
+        tokenMaxDecimals: simulatedAdjust.position.debt.precision,
+      },
+    })
     return {
       ...simulatedAdjust,
       position: this._createTargetPosition(
@@ -293,15 +300,7 @@ export class Position implements IPosition {
         flashloanAmount: transientCollateralFlashloan(
           mappedParams.fees.flashLoan,
           mappedParams.prices.oracleFLtoDebtToken || ONE,
-          new Amount({
-            amount: simulatedAdjust.delta.debt.minus(
-              mappedParams.depositedByUser?.debtInWei || ZERO,
-            ),
-            precision: {
-              mode: 'tokenMax',
-              tokenMaxDecimals: simulatedAdjust.position.debt.precision,
-            },
-          }),
+          debtAmountToCoverWithFlashloan$,
           daiFlashloanPrecision,
           this.debt.precision,
           mappedParams.flashloan.maxLoanToValueFL,
@@ -365,8 +364,13 @@ export class Position implements IPosition {
   }
 
   private _denormaliseAmount(amount: BigNumber, precision: number): BigNumber {
-    return new Amount({ amount, precision: { mode: 'normalized', tokenMaxDecimals: precision } })
+    const denormalisedAmount$ = new Amount({
+      amount,
+      precision: { mode: 'normalized', tokenMaxDecimals: precision },
+    })
       .switchPrecisionMode('tokenMax')
       .toBigNumber()
+
+    return denormalisedAmount$
   }
 }
