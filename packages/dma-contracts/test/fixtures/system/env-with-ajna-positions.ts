@@ -172,7 +172,7 @@ async function configureSwapContract(dsSystem: System) {
   const tx1 = await swapContract.connect(signer).addFeeTier(0)
   const receipt1 = tx1.wait()
   utils.traceTransaction('addFeeTier', {
-    address: await swapContract.owner(),
+    address: swapContract.address,
     data: receipt1.data,
     from: benefAddress,
     to: swapContract.address,
@@ -181,7 +181,7 @@ async function configureSwapContract(dsSystem: System) {
   const tx2 = await swapContract.connect(signer).addFeeTier(7)
   const receipt2 = tx2.wait()
   utils.traceTransaction('addFeeTier', {
-    address: await swapContract.owner(),
+    address: swapContract.address,
     data: receipt2.data,
     from: benefAddress,
     to: swapContract.address,

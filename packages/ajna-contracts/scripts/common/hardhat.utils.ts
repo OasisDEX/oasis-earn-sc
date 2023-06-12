@@ -5,7 +5,8 @@ import { FactoryOptions } from "@nomiclabs/hardhat-ethers/types";
 import { BigNumber, constants, Contract, ContractReceipt, Signer } from "ethers";
 import { ethers } from "hardhat";
 import { HardhatRuntimeEnvironment, Network } from "hardhat/types/runtime";
-
+import { writeFileSync } from "fs";
+import { join } from "path";
 import { Token, WETH } from "../../typechain-types";
 
 export type BasicSimulationData = {
@@ -26,6 +27,11 @@ export type TraceItem = TraceData & {
 export let trace: TraceItem[] = [];
 
 export class HardhatUtils {
+  public async getMainSignerTransactionCount(): Promise<number> {
+    const signer: Signer = this.hre.ethers.provider.getSigner(0);
+    const transactionCount = await signer.getTransactionCount();
+    return transactionCount;
+  }
   constructor(public readonly hre: HardhatRuntimeEnvironment, public readonly forked?: Network) {}
   public getEvents(receipt: ContractReceipt, eventAbi: EventFragment) {
     const iface = new this.hre.ethers.utils.Interface([eventAbi]);
@@ -52,6 +58,16 @@ export class HardhatUtils {
       from: result.from,
       to: result.to,
       nonce: result.nonce,
+    });
+  }
+
+  public getTraceSize() {
+    return trace.length;
+  }
+
+  public async saveTrace(fullFileName: string) {
+    writeFileSync(join(__dirname, fullFileName), this.printTrace(), {
+      flag: "w",
     });
   }
 

@@ -16,7 +16,6 @@ import hre from 'hardhat'
 
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
-let fullTrace: string
 
 describe('Strategy | AJNA | Open Multiply | E2E', () => {
   const utils = new HardhatUtils(hre)
@@ -30,16 +29,11 @@ describe('Strategy | AJNA | Open Multiply | E2E', () => {
   })
   before(async function () {
     env = await loadFixture(fixture)
-    fullTrace = utils.printTrace()
-    const signer : Signer = utils.hre.ethers.provider.getSigner(0)
-    const transactionCount = await signer.getTransactionCount()
+    utils.saveTrace('trace.json')
+    const transactionCount = await utils.getMainSignerTransactionCount()
     console.log('transactionCount!!!!!', transactionCount)
     console.log('traceSize!!!!!', utils.getTraceSize())
     if (!env) throw new Error('Env not setup')
-  })
-
-  after(async function () {
-    console.log(fullTrace)
   })
 
   describe('Open multiply positions', function () {
