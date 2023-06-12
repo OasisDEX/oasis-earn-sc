@@ -30,5 +30,6 @@
     "implicitDependencies": [
       "@oasisdex/domain"
     ]
-  }
+  },
+  "gitHead": "095a4a34d5b6e2d5f5adcca9721813f9657feda2"
 }
