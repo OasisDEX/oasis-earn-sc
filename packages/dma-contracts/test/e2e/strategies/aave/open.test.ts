@@ -30,7 +30,6 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
         }
-        console.log('NETWORK FORK', networkFork)
 
         const _fixture = await systemWithAavePositions({
           use1inch: false,
