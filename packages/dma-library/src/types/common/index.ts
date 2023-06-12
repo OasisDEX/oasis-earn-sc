@@ -1,8 +1,9 @@
-import { Tx } from '@dma-common/types'
+import { Address, Swap, Tx } from '@dma-common/types'
+import { ethers } from 'ethers'
 
 export type Strategy<Position> = {
   simulation: {
-    swaps: []
+    swaps: Swap[]
     /** @deprecated - use position */
     targetPosition: Position
     position: Position
@@ -13,4 +14,12 @@ export type Strategy<Position> = {
 export enum FlashloanProvider {
   DssFlash = 0,
   Balancer = 1,
+}
+
+export interface CommonDependencies {
+  provider: ethers.providers.Provider
+}
+
+export interface CommonDMADependencies extends CommonDependencies {
+  operationExecutor: Address
 }

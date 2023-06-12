@@ -1,15 +1,14 @@
 import { Address } from '@deploy-configurations/types/address'
 import { AjnaEarnPosition, AjnaPosition, SwapData } from '@dma-library/types'
+import { CommonDependencies } from '@dma-library/types/common'
 import { GetEarnData } from '@dma-library/views'
 import { GetPoolData } from '@dma-library/views/ajna'
 import { IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
 
-export interface AjnaCommonDependencies {
+export interface AjnaCommonDependencies extends CommonDependencies {
   ajnaProxyActions: Address
   poolInfoAddress: Address
-  provider: ethers.providers.Provider
   WETH: Address
   getPoolData: GetPoolData
 }
@@ -72,12 +71,14 @@ export interface AjnaOpenMultiplyPayload extends AjnaMultiplyPayload {
   quoteTokenSymbol: string
   collateralTokenSymbol: string
   // In wei units or equivalent EG 1 USDC -> 1e6 or 1 ETH -> 1e18
-  collateralAmount: BigNumber
+  collateralAmount$: BigNumber
 }
 
 export interface AjnaCloseMultiplyPayload extends AjnaMultiplyPayload {
+  position: AjnaPosition
   quoteTokenSymbol: string
   collateralTokenSymbol: string
+  collateralAmount$: BigNumber
   shouldCloseToCollateral: boolean
 }
 

@@ -4,6 +4,7 @@ import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
 import { getPoolLiquidity } from '@dma-library/strategies/ajna/validation/notEnoughLiquidity'
+import { SwapData } from '@dma-library/types'
 import {
   AjnaCommonDependencies,
   AjnaCommonDMADependencies,
@@ -40,6 +41,7 @@ export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
   warnings,
   data,
   txValue,
+  swaps,
 }: {
   dependencies: AjnaCommonDMADependencies
   targetPosition: T
@@ -49,10 +51,20 @@ export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
   success: AjnaSuccess[]
   data: string
   txValue: string
+  swaps: (SwapData & { collectFeeFrom: 'sourceToken' | 'targetToken'; preSwapFee: BigNumber })[]
 }): AjnaStrategy<T> => {
   return {
     simulation: {
-      swaps: [],
+      swaps: swaps.map(swap => ({
+        fromTokenAddress: swap.fromTokenAddress,
+        toTokenAddress: swap.toTokenAddress,
+        fromTokenAmount: swap.fromTokenAmount,
+        toTokenAmount: swap.toTokenAmount,
+        minToTokenAmount: swap.minToTokenAmount,
+        exchangeCalldata: swap.exchangeCalldata,
+        collectFeeFrom: swap.collectFeeFrom,
+        fee: swap.preSwapFee,
+      })),
       errors,
       warnings,
       notices: [],

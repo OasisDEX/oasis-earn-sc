@@ -1,4 +1,3 @@
-import operationExecutorAbi from '@abis/system/contracts/core/OperationExecutor.sol/OperationExecutor.json'
 import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses/index'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
@@ -8,18 +7,17 @@ import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protoc
 import {
   AjnaOpenMultiplyPayload,
   FlashloanProvider,
-  IOperation,
   PositionType,
   SwapData,
 } from '@dma-library/types'
 import { AjnaCommonDMADependencies, AjnaPosition, AjnaStrategy } from '@dma-library/types/ajna'
+import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import * as Domain from '@domain'
 import { Amount } from '@domain/amount'
 import * as DomainUtils from '@domain/utils'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
 
 export type AjnaOpenMultiplyStrategy = (
   args: AjnaOpenMultiplyPayload,
@@ -86,7 +84,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
 
   const isDepositingEth = areAddressesEqual(position.pool.collateralToken, dependencies.WETH)
   const txAmountAsBN = new Amount({
-    amount: args.collateralAmount,
+    amount: args.collateralAmount$,
     precision: {
       mode: 'tokenMax',
       tokenMaxDecimals: TYPICAL_PRECISION,
@@ -96,6 +94,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     .toBigNumber()
 
   return prepareAjnaDMAPayload({
+    swaps: [swapData],
     dependencies,
     targetPosition,
     data: encodeOperation(operation, dependencies),
@@ -207,7 +206,7 @@ async function simulateAdjustment(
 
   const positionAdjustArgs = {
     toDeposit: {
-      collateral: args.collateralAmount,
+      collateral: args.collateralAmount$,
       /** Not relevant for Ajna */
       debt: ZERO,
     },
@@ -277,7 +276,10 @@ async function getSwapData(
       isEarnPosition: positionType === 'Earn',
     },
   )
-  const { swapData } = await SwapUtils.getSwapDataHelper<typeof dependencies.addresses, string>({
+  const { swapData, collectFeeFrom, preSwapFee } = await SwapUtils.getSwapDataHelper<
+    typeof dependencies.addresses,
+    string
+  >({
     args: {
       fromToken: buildFromToken(args, position),
       toToken: buildToToken(args, position),
@@ -291,7 +293,7 @@ async function getSwapData(
     },
   })
 
-  return swapData
+  return { ...swapData, collectFeeFrom, preSwapFee }
 }
 
 async function buildOperation(
@@ -336,7 +338,7 @@ async function buildOperation(
     deposit: {
       // Always collateral only as deposit on Ajna
       address: position.pool.collateralToken,
-      amount: args.collateralAmount,
+      amount: args.collateralAmount$,
     },
     swap: {
       fee: fee.toNumber(),
@@ -377,16 +379,4 @@ async function buildOperation(
       .toBigNumber(),
   }
   return await operations.ajna.open(openMultiplyArgs)
-}
-
-function encodeOperation(operation: IOperation, dependencies: AjnaCommonDMADependencies): string {
-  const operationExecutor = new ethers.Contract(
-    dependencies.operationExecutor,
-    operationExecutorAbi,
-    dependencies.provider,
-  )
-  return operationExecutor.interface.encodeFunctionData('executeOp', [
-    operation.calls,
-    operation.operationName,
-  ])
 }
