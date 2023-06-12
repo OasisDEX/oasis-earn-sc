@@ -116,6 +116,7 @@
     "@domain": "./packages/domain/src/index.ts",
     "@domain/utils": "./packages/domain/src/utils/",
     "@domain/constants": "./packages/domain/src/constants/",
+    "@domain/amount": "./packages/domain/src/amount.ts",
     "@domain/adjust-position": "./packages/domain/src/adjust-position.ts",
     "@domain/flashloans": "./packages/domain/src/flashloans.ts",
     "@domain/position": "./packages/domain/src/position.ts",
