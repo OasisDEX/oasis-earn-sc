@@ -2,6 +2,7 @@ import { Address } from '@deploy-configurations/types/address'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { AAVETokens } from '@dma-library/types/aave'
+import { GetSwapData } from '@dma-library/types/common/get-swap-data'
 import { IPosition, IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
@@ -86,12 +87,7 @@ export interface IPositionTransitionDependencies<Addresses> {
   addresses: Addresses
   provider: providers.Provider
   currentPosition: IPosition
-  getSwapData: (
-    fromToken: string,
-    toToken: string,
-    amount: BigNumber,
-    slippage: BigNumber,
-  ) => Promise<SwapData>
+  getSwapData: GetSwapData
   proxy: Address
   user: Address
   isDPMProxy: boolean

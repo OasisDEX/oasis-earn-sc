@@ -1,5 +1,5 @@
 import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { areAddressesEqual } from '@dma-common/utils/addresses/index'
+import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'

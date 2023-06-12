@@ -23,3 +23,5 @@ export interface CommonDependencies {
 export interface CommonDMADependencies extends CommonDependencies {
   operationExecutor: Address
 }
+
+export { GetSwapData } from './get-swap-data'
