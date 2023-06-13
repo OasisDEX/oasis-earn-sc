@@ -52,6 +52,7 @@ describe('Calculate Position Helper | Unit', async () => {
     const scenarios = (await fetchTestScenarios<Scenario>(testDataSources.LTV_target)) as Scenario[]
     const debug = false
 
+    // TODO: May need to review precision when running these tests since changes
     scenarios.forEach((scenario, index) => {
       const {
         name,
@@ -105,8 +106,8 @@ describe('Calculate Position Helper | Unit', async () => {
         const oazoFeeBase = new BigNumber(10000)
         const target = currentVault.adjustToTargetRiskRatio(riskRatio, {
           depositedByUser: {
-            debtInWei: debtDenominatedTokensDepositedByUser,
-            collateralInWei: collateralDepositedByUser,
+            debtAmount$: debtDenominatedTokensDepositedByUser,
+            collateralAmount$: collateralDepositedByUser,
           },
           flashloan: {
             maxLoanToValueFL: maxLoanToValueFL,
