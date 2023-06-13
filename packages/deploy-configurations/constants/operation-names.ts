@@ -40,7 +40,8 @@ export const OPERATION_NAMES = {
     ADJUST_RISK_DOWN: 'AjnaAdjustRiskDown',
     DEPOSIT_BORROW: 'AjnaDepositBorrow',
     PAYBACK_WITHDRAW: 'AjnaPaybackWithdraw',
-    CLOSE_POSITION: 'AjnaClosePosition',
+    CLOSE_POSITION_TO_QUOTE: 'AjnaCloseToQuotePosition',
+    CLOSE_POSITION_TO_COLLATERAL: 'AjnaCloseToCollateralPosition',
   },
   common: {
     CUSTOM_OPERATION: 'CustomOperation',

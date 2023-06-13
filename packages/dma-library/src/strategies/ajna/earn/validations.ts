@@ -39,7 +39,8 @@ export const getAjnaEarnValidations = ({
 
   if (
     price.gte(position.pool.highestThresholdPrice) &&
-    price.lt(position.pool.lowestUtilizedPrice)
+    price.lt(position.pool.lowestUtilizedPrice) &&
+    !position.pool.lowestUtilizedPriceIndex.isZero()
   ) {
     successes.push({
       name: 'price-between-htp-and-lup',
