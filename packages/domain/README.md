@@ -5,7 +5,7 @@ Token amounts that have been standardised to 18 decimal places are suffixed with
 Regular token amounts are unadorned
 
 ```shell
-// Ordinary balance
+// Ordinary (no-precision) balance
 // 1 ETH = 1
 // 1 USDC = 1
 const balance

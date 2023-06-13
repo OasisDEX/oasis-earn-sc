@@ -1,5 +1,6 @@
 import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
+import { calculateFee } from '@dma-common/utils/swap'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
@@ -37,7 +38,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     riskIsIncreasing,
     oraclePrice,
   )
-  const swapData = await getSwapData(
+  const { swapData, collectFeeFrom, preSwapFee$ } = await getSwapData(
     args,
     dependencies,
     position,
@@ -54,7 +55,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     oraclePrice,
   )
 
-  const collateralAmountAsBN = new Amount({
+  const collateralAmount = new Amount({
     amount: simulatedAdjustment.position.collateral.amount,
     precision: {
       mode: 'tokenMax',
@@ -63,7 +64,8 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   })
     .switchPrecisionMode('none')
     .toBigNumber()
-  const debtAmountAsBN = new Amount({
+
+  const debtAmount = new Amount({
     amount: simulatedAdjustment.position.debt.amount,
     precision: {
       mode: 'tokenMax',
@@ -76,14 +78,14 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   const targetPosition = new AjnaPosition(
     position.pool,
     args.dpmProxyAddress,
-    collateralAmountAsBN,
-    debtAmountAsBN,
+    collateralAmount,
+    debtAmount,
     args.collateralPrice,
     args.quotePrice,
   )
 
   const isDepositingEth = areAddressesEqual(position.pool.collateralToken, dependencies.WETH)
-  const txAmountAsBN = new Amount({
+  const txAmount = new Amount({
     amount: args.collateralAmount$,
     precision: {
       mode: 'tokenMax',
@@ -93,8 +95,14 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     .switchPrecisionMode('none')
     .toBigNumber()
 
+  const fee = SwapUtils.feeResolver(position.pool.collateralToken, position.pool.quoteToken)
+
+  const postSwapFee$ =
+    collectFeeFrom === 'sourceToken' ? ZERO : calculateFee(swapData.toTokenAmount, fee.toNumber())
+  const tokenFee$ = preSwapFee$.plus(postSwapFee$)
+
   return prepareAjnaDMAPayload({
-    swaps: [swapData],
+    swaps: [{ ...swapData, collectFeeFrom, tokenFee: tokenFee$ }],
     dependencies,
     targetPosition,
     data: encodeOperation(operation, dependencies),
@@ -102,7 +110,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     warnings: [],
     success: [],
     notices: [],
-    txValue: resolveAjnaEthAction(isDepositingEth, txAmountAsBN),
+    txValue: resolveAjnaEthAction(isDepositingEth, txAmount),
   })
 }
 
@@ -293,7 +301,7 @@ async function getSwapData(
     },
   })
 
-  return { ...swapData, collectFeeFrom, preSwapFee$ }
+  return { swapData, collectFeeFrom, preSwapFee$ }
 }
 
 async function buildOperation(

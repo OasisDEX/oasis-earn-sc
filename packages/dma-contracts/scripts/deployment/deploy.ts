@@ -20,6 +20,8 @@ import {
   aaveOpenV3OperationDefinition,
   aavePaybackWithdrawV2OperationDefinition,
   aavePaybackWithdrawV3OperationDefinition,
+  ajnaCloseToCollateralOperationDefinition,
+  ajnaCloseToQuoteOperationDefinition,
   ajnaOpenOperationDefinition,
 } from '@deploy-configurations/operation-definitions'
 import {
@@ -648,6 +650,16 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await operationsRegistry.addOp(
       ajnaOpenOperationDefinition.name,
       ajnaOpenOperationDefinition.actions,
+    )
+
+    await operationsRegistry.addOp(
+      ajnaCloseToQuoteOperationDefinition.name,
+      ajnaCloseToQuoteOperationDefinition.actions,
+    )
+
+    await operationsRegistry.addOp(
+      ajnaCloseToCollateralOperationDefinition.name,
+      ajnaCloseToCollateralOperationDefinition.actions,
     )
   }
 

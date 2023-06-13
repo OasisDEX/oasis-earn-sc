@@ -1,6 +1,7 @@
 import { ajnaCloseToQuoteOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { MAX_UINT, ZERO } from '@dma-common/constants'
+import { FEE_BASE, MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   IOperation,
   WithAjnaBucketPrice,
@@ -58,6 +59,9 @@ export const closeToQuote: AjnaCloseToQuoteOperation = async ({
     price,
   })
 
+  console.log('SWAP')
+  console.log(swap.amount.toString())
+  console.log(swap.receiveAtLeast.toString())
   const swapCollateralTokensForDebtTokens = actions.common.swap({
     fromAsset: collateral.address,
     toAsset: debt.address,
@@ -74,6 +78,12 @@ export const closeToQuote: AjnaCloseToQuoteOperation = async ({
 
   unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken({
+    asset: debt.address,
+    to: addresses.operationExecutor,
+    amount: flashloan.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.amount)),
+  })
+
   const returnDebtFunds = actions.common.returnFunds({
     asset: debt.isEth ? addresses.ETH : debt.address,
   })
@@ -83,6 +93,7 @@ export const closeToQuote: AjnaCloseToQuoteOperation = async ({
     paybackWithdraw,
     swapCollateralTokensForDebtTokens,
     unwrapEth,
+    sendQuoteTokenToOpExecutor,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({

@@ -17,7 +17,6 @@ import {
   StrategyDependenciesAjna,
 } from '@dma-contracts/test/fixtures/types'
 import { mapAjnaPoolDataTypes } from '@dma-contracts/test/utils/ajna/map-ajna-pool-type'
-import { views } from '@dma-library'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
@@ -178,7 +177,6 @@ function buildDependencies(dsSystem: System, ajnaSystem: AjnaSystem, config: Run
     operationExecutor: system.OperationExecutor.contract.address,
     WETH: systemConfig.common.WETH.address,
     getPoolData: mapGetPoolDataFunction(ajnaSystem),
-    getPosition: views.ajna.getPosition,
     addresses: {
       DAI: systemConfig.common.DAI.address,
       ETH: systemConfig.common.ETH.address,

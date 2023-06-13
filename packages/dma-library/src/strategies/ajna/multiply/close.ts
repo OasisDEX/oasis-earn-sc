@@ -1,5 +1,6 @@
-import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { FEE_ESTIMATE_INFLATOR, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { CollectFeeFrom } from '@dma-common/types'
+import { calculateFee } from '@dma-common/utils/swap'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
@@ -18,7 +19,9 @@ import {
 } from '@dma-library/types/ajna/ajna-dependencies'
 import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
+import * as Domain from '@domain'
 import { Amount } from '@domain'
+import { FLASHLOAN_SAFETY_MARGIN } from '@domain/constants'
 import BigNumber from 'bignumber.js'
 
 export type AjnaCloseStrategy = (
@@ -38,7 +41,14 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
   const { swapData, collectFeeFrom, preSwapFee$ } = await getSwapData(args, dependencies, position)
 
   // Build operation
-  const operation = await buildOperation(args, dependencies, position, swapData)
+  const operation = await buildOperation(
+    args,
+    dependencies,
+    position,
+    swapData,
+    preSwapFee$,
+    collectFeeFrom,
+  )
 
   // Prepare Payload
   const isDepositingEth =
@@ -46,8 +56,18 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
 
   const targetPosition = args.position.close()
 
+  const fee = SwapUtils.feeResolver(
+    args.position.pool.collateralToken,
+    args.position.pool.quoteToken,
+  )
+
+  const postSwapFee$ =
+    collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
+  const tokenFee$ = preSwapFee$.plus(
+    postSwapFee$.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
+  )
   return prepareAjnaDMAPayload({
-    swaps: [],
+    swaps: [{ ...swapData, collectFeeFrom, tokenFee: tokenFee$ }],
     dependencies,
     targetPosition,
     data: encodeOperation(operation, dependencies),
@@ -65,7 +85,17 @@ async function getAjnaSwapDataToCloseToDebt(
   dependencies: AjnaCommonDMADependencies,
   position: AjnaPosition,
 ) {
-  const swapAmountBeforeFees$ = position.collateralAmount
+  const swapAmountBeforeFees$ = new Amount({
+    amount: position.collateralAmount,
+    precision: {
+      mode: 'none',
+      tokenMaxDecimals: args.collateralTokenPrecision,
+    },
+  })
+    .switchPrecisionMode('tokenMax')
+    .integerValue(BigNumber.ROUND_DOWN)
+    .toBigNumber()
+
   const fromToken = {
     symbol: args.collateralTokenSymbol,
     precision: args.collateralTokenPrecision,
@@ -81,7 +111,7 @@ async function getAjnaSwapDataToCloseToDebt(
     fromToken,
     toToken,
     slippage: args.slippage,
-    swapAmountBeforeFees$,
+    swapAmountBeforeFees$: swapAmountBeforeFees$,
     getSwapData: dependencies.getSwapData,
   })
 }
@@ -126,8 +156,28 @@ async function buildOperation(
   preSwapFee$: BigNumber,
   collectFeeFrom: CollectFeeFrom,
 ): Promise<IOperation> {
-  const amountToFlashloan$ = position.debtAmount
-  const lockedCollateralAmount$ = position.collateralAmount
+  console.log('position.debtAmount', position.debtAmount.toString())
+  const amountToFlashloan$ = new Amount({
+    amount: position.debtAmount.times(ONE.plus(FLASHLOAN_SAFETY_MARGIN)),
+    precision: {
+      mode: 'none',
+      tokenMaxDecimals: args.quoteTokenPrecision,
+    },
+  })
+    .switchPrecisionMode('tokenMax')
+    .integerValue(BigNumber.ROUND_DOWN)
+    .toBigNumber()
+
+  const lockedCollateralAmount$ = new Amount({
+    amount: position.collateralAmount,
+    precision: {
+      mode: 'none',
+      tokenMaxDecimals: args.collateralTokenPrecision,
+    },
+  })
+    .switchPrecisionMode('tokenMax')
+    .integerValue(BigNumber.ROUND_DOWN)
+    .toBigNumber()
 
   const collateralToken = {
     symbol: args.collateralTokenSymbol,
@@ -144,7 +194,15 @@ async function buildOperation(
   const collateralAmountToBeSwapped$ = args.shouldCloseToCollateral
     ? swapData.fromTokenAmount.plus(preSwapFee$)
     : lockedCollateralAmount$
-  const oraclePrice = args.collateralPrice.div(args.quotePrice)
+  const oraclePrice$$ = new Amount({
+    amount: args.collateralPrice.div(args.quotePrice),
+    precision: {
+      mode: 'none',
+      tokenMaxDecimals: TYPICAL_PRECISION,
+    },
+  })
+    .switchPrecisionMode('normalized')
+    .toBigNumber()
 
   const closeArgs = {
     collateral: {
@@ -165,7 +223,7 @@ async function buildOperation(
     flashloan: {
       // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
-      amount: amountToFlashloan$,
+      amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan$),
     },
     position: {
       type: positionType,
@@ -184,15 +242,7 @@ async function buildOperation(
       pool: args.poolAddress,
     },
     // Prices must be in 18 decimal precision
-    price: new Amount({
-      amount: oraclePrice,
-      precision: {
-        mode: 'none',
-        tokenMaxDecimals: TYPICAL_PRECISION,
-      },
-    })
-      .switchPrecisionMode('tokenMax')
-      .toBigNumber(),
+    price: oraclePrice$$,
   }
 
   if (args.shouldCloseToCollateral) {

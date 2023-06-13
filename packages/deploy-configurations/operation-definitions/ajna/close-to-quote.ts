@@ -25,6 +25,10 @@ export const ajnaCloseToQuoteOperationDefinition = {
       optional: true,
     },
     {
+      hash: getActionHash(CONTRACT_NAMES.common.SEND_TOKEN),
+      optional: false,
+    },
+    {
       hash: getActionHash(CONTRACT_NAMES.common.RETURN_FUNDS),
       optional: false,
     },
