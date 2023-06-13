@@ -3,6 +3,7 @@ pragma solidity ^0.8.15;
 
 import { OperationsRegistryV2 } from "./OperationsRegistry.sol";
 import { ServiceRegistry } from "../core/ServiceRegistry.sol";
+import { ChainLogView } from "../core/views/ChainLogView.sol";
 import { StorageSlot } from "./UseStorageSlot.sol";
 import { ActionAddress } from "../libs/ActionAddress.sol";
 import { TakeFlashloan } from "../actions/common/TakeFlashloan.sol";
@@ -13,11 +14,13 @@ import { IFlashLoanRecipient } from "../interfaces/flashloan/balancer/IFlashLoan
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanData, Call } from "../core/types/Common.sol";
+import { MCD_FLASH } from "../core/constants/Maker.sol";
 
 error UntrustedLender(address lender);
 error UnknownActionsSet(bytes packedActionHashes);
 error InconsistentAsset(address flashloaned, address required);
 error InconsistentAmount(uint256 flashloaned, uint256 required);
+error InsufficientFunds(uint256 actual, uint256 required);
 error ForbiddenCall(address caller);
 
 interface IProxy {
@@ -40,13 +43,12 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
 
   ServiceRegistry immutable REGISTRY;
   OperationsRegistryV2 immutable OPERATIONS_REGISTRY;
-  address immutable FLASH_MINT_MODULE;
+  ChainLogView immutable CHAINLOG_VIEWER;
   address immutable BALANCER_VAULT;
   address immutable OPERATION_EXECUTOR;
-
   /**
    * @dev Emitted once an Operation has completed execution
-   * @param name The address initiating the deposit
+   * @param name Name of the operation based on the hashed value of all action hashes
    * @param calls An array of Action calls the operation must execute
    **/
   event Operation(bytes32 indexed name, Call[] calls);
@@ -54,12 +56,12 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
   constructor(
     ServiceRegistry _registry,
     OperationsRegistryV2 _operationsRegistry,
-    address _flashMintModule,
+    ChainLogView _chainLogView,
     address _balanacerVault
   ) {
     REGISTRY = _registry;
     OPERATIONS_REGISTRY = _operationsRegistry;
-    FLASH_MINT_MODULE = _flashMintModule;
+    CHAINLOG_VIEWER = _chainLogView;
     BALANCER_VAULT = _balanacerVault;
     OPERATION_EXECUTOR = address(this);
   }
@@ -99,7 +101,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
    * @param calls An array of Action calls the operation must execute
    */
   function callbackAggregate(Call[] memory calls) external {
-    if (msg.sender == OPERATION_EXECUTOR) {
+    if (msg.sender != OPERATION_EXECUTOR) {
       revert ForbiddenCall(msg.sender);
     }
     aggregate(calls);
@@ -126,18 +128,19 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     bytes calldata data
   ) external override returns (bytes32) {
     FlashloanData memory flData = abi.decode(data, (FlashloanData));
-    checkIfLenderIsTrusted(FLASH_MINT_MODULE);
+    address mcdFlash = CHAINLOG_VIEWER.getServiceAddress(MCD_FLASH);
+    checkIfLenderIsTrusted(mcdFlash);
     checkIfFlashloanedAssetIsTheRequiredOne(asset, flData.asset);
     checkIfFlashloanedAmountIsTheRequiredOne(asset, flData.amount);
 
     processFlashloan(flData, initiator);
 
     uint256 paybackAmount = amount.add(fee);
-    require(
-      IERC20(asset).balanceOf(address(this)) >= paybackAmount,
-      "Insufficient funds for payback"
-    );
-    IERC20(asset).safeApprove(FLASH_MINT_MODULE, paybackAmount);
+    uint256 funds = IERC20(asset).balanceOf(address(this));
+    if (funds < paybackAmount) {
+      revert InsufficientFunds(funds, paybackAmount);
+    }
+    IERC20(asset).safeApprove(mcdFlash, paybackAmount);
     return keccak256("ERC3156FlashBorrower.onFlashLoan");
   }
 
@@ -158,10 +161,10 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
 
     uint256 paybackAmount = amounts[0].add(feeAmounts[0]);
 
-    require(
-      IERC20(asset).balanceOf(address(this)) >= paybackAmount,
-      "Insufficient funds for payback"
-    );
+    uint256 funds = IERC20(asset).balanceOf(address(this));
+    if (funds < paybackAmount) {
+      revert InsufficientFunds(funds, paybackAmount);
+    }
 
     IERC20(asset).safeTransfer(BALANCER_VAULT, paybackAmount);
   }

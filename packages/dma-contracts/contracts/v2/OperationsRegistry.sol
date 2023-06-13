@@ -32,7 +32,7 @@ contract OperationsRegistryV2 {
    * @param name The Operation name
    * @param operationHash Hashed value of the concatenated hash values of all action that take place in this operation
    **/
-  event OperationAdded(string indexed name, bytes32 operationHash);
+  event OperationAdded(string name, bytes32 operationHash);
 
   /**
    * @notice Adds an Operation's Actions keyed to a an operation name

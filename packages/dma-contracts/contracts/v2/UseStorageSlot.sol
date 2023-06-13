@@ -7,7 +7,7 @@ library StorageSlot {
   }
 
   function getTransactionStorage() internal pure returns (TransactionStorage storage tStorage) {
-    bytes32 slotPosition = bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);
+    bytes32 slotPosition = bytes32(uint256(keccak256("proxy.transaction.storage")) - 1);
 
     assembly {
       tStorage.slot := slotPosition

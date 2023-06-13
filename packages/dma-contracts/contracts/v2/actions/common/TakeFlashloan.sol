@@ -12,6 +12,7 @@ import { FlashloanData, FlashloanProvider } from "../../../core/types/Common.sol
 import { ChainLogView } from "../../../core/views/ChainLogView.sol";
 import { ProxyPermission } from "../../../libs/DS/ProxyPermission.sol";
 import { IERC20 } from "../../../libs/SafeERC20.sol";
+import { MCD_FLASH } from "../../../core/constants/Maker.sol";
 
 /**
  * @title TakeFlashloan Action contract
@@ -20,19 +21,16 @@ import { IERC20 } from "../../../libs/SafeERC20.sol";
 contract TakeFlashloanV2 is Executable, ProxyPermission {
   address internal immutable DAI;
   address immutable OPERATION_EXECUTOR;
-  IERC3156FlashLender immutable MCD_FLASH;
   IVault immutable BALANCER_VAULT;
   ChainLogView immutable CHAINLOG_VIEWER;
 
   constructor(
-    address _flashMintModule,
     address _balancerVault,
     address _operationExecutor,
     address _chainLogViewer,
     address _dai,
     address _dsGuardFactory
   ) ProxyPermission(_dsGuardFactory) {
-    MCD_FLASH = IERC3156FlashLender(_flashMintModule);
     BALANCER_VAULT = IVault(_balancerVault);
     OPERATION_EXECUTOR = _operationExecutor;
     CHAINLOG_VIEWER = ChainLogView(_chainLogViewer);
@@ -53,7 +51,7 @@ contract TakeFlashloanV2 is Executable, ProxyPermission {
     }
 
     if (flData.provider == FlashloanProvider.DssFlash) {
-      MCD_FLASH.flashLoan(
+      IERC3156FlashLender(CHAINLOG_VIEWER.getServiceAddress(MCD_FLASH)).flashLoan(
         IERC3156FlashBorrower(OPERATION_EXECUTOR),
         DAI,
         flData.amount,
