@@ -148,7 +148,7 @@ async function simulateAdjustment(
   riskIsIncreasing: true,
   oraclePrice: BigNumber,
 ) {
-  const preFlightSwapAmount = new Amount({
+  const preFlightSwapAmount$ = new Amount({
     amount: ONE,
     precision: { mode: 'none', tokenMaxDecimals: args.quoteTokenPrecision },
   })
@@ -170,14 +170,14 @@ async function simulateAdjustment(
       toToken,
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: preFlightSwapAmount,
+      swapAmountBeforeFees$: preFlightSwapAmount$,
     },
     addresses: dependencies.addresses,
     services: {
       getSwapData: dependencies.getSwapData,
     },
   })
-  const preFlightFromAmount = new Amount({
+  const preFlightFromAmount$$ = new Amount({
     amount: preFlightSwapData.fromTokenAmount,
     precision: {
       mode: 'tokenMax',
@@ -187,7 +187,7 @@ async function simulateAdjustment(
     .switchPrecisionMode('normalized')
     .toBigNumber()
 
-  const preFlightToAmount = new Amount({
+  const preFlightToAmount$$ = new Amount({
     amount: preFlightSwapData.toTokenAmount,
     precision: {
       mode: 'tokenMax',
@@ -197,7 +197,7 @@ async function simulateAdjustment(
     .switchPrecisionMode('normalized')
     .toBigNumber()
 
-  const preFlightMarketPrice = preFlightFromAmount.div(preFlightToAmount)
+  const preFlightMarketPrice = preFlightFromAmount$$.div(preFlightToAmount$$)
 
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: fromToken.symbol,
@@ -266,7 +266,7 @@ async function getSwapData(
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   riskIsIncreasing: true,
 ) {
-  const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
+  const swapAmountBeforeFees$ = simulatedAdjust.swap.fromTokenAmount
   const fee = SwapUtils.feeResolver(
     simulatedAdjust.position.collateral.symbol,
     simulatedAdjust.position.debt.symbol,
@@ -276,7 +276,7 @@ async function getSwapData(
       isEarnPosition: positionType === 'Earn',
     },
   )
-  const { swapData, collectFeeFrom, preSwapFee } = await SwapUtils.getSwapDataHelper<
+  const { swapData, collectFeeFrom, preSwapFee$ } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     string
   >({
@@ -285,7 +285,7 @@ async function getSwapData(
       toToken: buildToToken(args, position),
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: swapAmountBeforeFees,
+      swapAmountBeforeFees$: swapAmountBeforeFees$,
     },
     addresses: dependencies.addresses,
     services: {
@@ -293,7 +293,7 @@ async function getSwapData(
     },
   })
 
-  return { ...swapData, collectFeeFrom, preSwapFee }
+  return { ...swapData, collectFeeFrom, preSwapFee$ }
 }
 
 async function buildOperation(
@@ -317,12 +317,21 @@ async function buildOperation(
       isEarnPosition: positionType === 'Earn',
     },
   )
-  const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
+  const swapAmountBeforeFees$ = simulatedAdjust.swap.fromTokenAmount
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: simulatedAdjust.position.debt.symbol,
     toTokenSymbol: simulatedAdjust.position.collateral.symbol,
   })
 
+  const price$$ = new Amount({
+    amount: oraclePrice,
+    precision: {
+      mode: 'none',
+      tokenMaxDecimals: TYPICAL_PRECISION,
+    },
+  })
+    .switchPrecisionMode('normalized')
+    .toBigNumber()
   const openMultiplyArgs = {
     debt: {
       address: position.pool.quoteToken,
@@ -343,12 +352,12 @@ async function buildOperation(
     swap: {
       fee: fee.toNumber(),
       data: swapData.exchangeCalldata,
-      amount: swapAmountBeforeFees,
+      amount: swapAmountBeforeFees$,
       collectFeeFrom,
       receiveAtLeast: swapData.minToTokenAmount,
     },
     flashloan: {
-      amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
+      amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees$),
       // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
     },
@@ -368,15 +377,7 @@ async function buildOperation(
       pool: args.poolAddress,
     },
     // Prices must be in 18 decimal precision
-    price: new Amount({
-      amount: oraclePrice,
-      precision: {
-        mode: 'none',
-        tokenMaxDecimals: TYPICAL_PRECISION,
-      },
-    })
-      .switchPrecisionMode('tokenMax')
-      .toBigNumber(),
+    price: price$$,
   }
   return await operations.ajna.open(openMultiplyArgs)
 }

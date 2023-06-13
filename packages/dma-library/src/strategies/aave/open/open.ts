@@ -6,6 +6,7 @@ import {
   FEE_ESTIMATE_INFLATOR,
   NO_FEE,
   ONE,
+  TYPICAL_PRECISION,
   ZERO,
 } from '@dma-common/constants'
 import { Unbox } from '@dma-common/types/common'
@@ -69,13 +70,14 @@ export async function open(
     isIncreasingRisk: true,
     isEarnPosition: args.positionType === 'Earn',
   })
-  const estimatedSwapAmount = new Amount({
+  const estimatedSwapAmount$ = new Amount({
     amount: ONE,
     precision: {
-      mode: 'tokenMax',
+      mode: 'none',
       tokenMaxDecimals: args.debtToken.precision,
     },
-  })
+  }).switchPrecisionMode('tokenMax')
+
   const { swapData: quoteSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     AAVETokens
@@ -85,7 +87,7 @@ export async function open(
       toToken: args.collateralToken,
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: estimatedSwapAmount.toBigNumber(),
+      swapAmountBeforeFees$: estimatedSwapAmount$.toBigNumber(),
     },
     addresses: dependencies.addresses,
     services: {
@@ -101,7 +103,6 @@ export async function open(
       fee,
     },
     dependencies,
-    // true,
   )
 
   const { swapData, collectFeeFrom } = await SwapUtils.getSwapDataHelper<
@@ -113,7 +114,7 @@ export async function open(
       toToken: args.collateralToken,
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: simulatedPositionTransition.swap.fromTokenAmount,
+      swapAmountBeforeFees$: simulatedPositionTransition.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
     services: {
@@ -225,20 +226,27 @@ async function simulatePositionTransition(
 
   const multiple = args.multiple
 
-  const depositDebtAmountInWei = args.depositedByUser?.debtToken?.amountInBaseUnit || ZERO
-  const depositCollateralAmountInWei =
-    args.depositedByUser?.collateralToken?.amountInBaseUnit || ZERO
+  const depositDebtAmount$ = args.depositedByUser?.debtToken?.amountInBaseUnit || ZERO
+  const depositCollateralAmount$ = args.depositedByUser?.collateralToken?.amountInBaseUnit || ZERO
 
   // Needs to be correct precision.
-  const fromTokenAmountNormalised = amountFromWei(
-    quoteSwapData.fromTokenAmount,
-    args.debtToken.precision,
-  )
-  const toTokenAmountNormalised = amountFromWei(
-    quoteSwapData.toTokenAmount,
-    args.collateralToken.precision,
-  )
-  const quoteMarketPrice = fromTokenAmountNormalised.div(toTokenAmountNormalised)
+  const fromTokenAmountNormalised$$ = new Amount({
+    amount: quoteSwapData.fromTokenAmount,
+    precision: {
+      mode: 'tokenMax',
+      tokenMaxDecimals: args.debtToken.precision || TYPICAL_PRECISION,
+    },
+  }).switchPrecisionMode('normalized')
+
+  const toTokenAmountNormalised$$ = new Amount({
+    amount: quoteSwapData.toTokenAmount,
+    precision: {
+      mode: 'tokenMax',
+      tokenMaxDecimals: args.collateralToken.precision || TYPICAL_PRECISION,
+    },
+  }).switchPrecisionMode('normalized')
+
+  const quoteMarketPrice = fromTokenAmountNormalised$$.div(toTokenAmountNormalised$$).toBigNumber()
   const flashloanFee = new BigNumber(0)
 
   // ETH/DAI
@@ -274,8 +282,8 @@ async function simulatePositionTransition(
       tokenSymbol: 'DAI',
     },
     depositedByUser: {
-      debtInWei: depositDebtAmountInWei,
-      collateralInWei: depositCollateralAmountInWei,
+      debtAmount$: depositDebtAmount$,
+      collateralAmount$: depositCollateralAmount$,
     },
     collectSwapFeeFrom: collectFeeFrom,
   })
@@ -300,11 +308,10 @@ async function buildOperation(
     dependencies.addresses,
   )
 
-  const depositCollateralAmountInWei =
-    args.depositedByUser?.collateralToken?.amountInBaseUnit || ZERO
-  const depositDebtAmountInWei = args.depositedByUser?.debtToken?.amountInBaseUnit || ZERO
-  const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
-  const borrowAmountInWei = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
+  const depositCollateralAmount$ = args.depositedByUser?.collateralToken?.amountInBaseUnit || ZERO
+  const depositDebtAmount$ = args.depositedByUser?.debtToken?.amountInBaseUnit || ZERO
+  const swapAmountBeforeFees$ = simulatedPositionTransition.swap.fromTokenAmount
+  const borrowAmount$ = simulatedPositionTransition.delta.debt.minus(depositDebtAmount$)
 
   const isIncreasingRisk = true
   const fee = SwapUtils.feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
@@ -316,12 +323,12 @@ async function buildOperation(
     const flashloanProvider = resolveFlashloanProvider(
       await getForkedNetwork(dependencies.provider),
     )
-    const hasCollateralDeposit = args.depositedByUser?.collateralToken?.amountInBaseUnit?.gt(ZERO)
-    const depositAddress = hasCollateralDeposit ? collateralTokenAddress : debtTokenAddress
-    const depositAmount = hasCollateralDeposit
+    const hasCollateralDeposit$ = args.depositedByUser?.collateralToken?.amountInBaseUnit?.gt(ZERO)
+    const depositAddress = hasCollateralDeposit$ ? collateralTokenAddress : debtTokenAddress
+    const depositAmount$ = hasCollateralDeposit$
       ? args.depositedByUser?.collateralToken?.amountInBaseUnit
       : args.depositedByUser?.debtToken?.amountInBaseUnit
-    const borrowAmount = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
+    const borrowAmount$ = simulatedPositionTransition.delta.debt.minus(depositDebtAmount$)
 
     const openArgs = {
       collateral: {
@@ -332,17 +339,17 @@ async function buildOperation(
         address: debtTokenAddress,
         isEth: args.debtToken.symbol === 'ETH',
         borrow: {
-          amount: borrowAmount,
+          amount: borrowAmount$,
         },
       },
       deposit: {
         address: depositAddress,
-        amount: depositAmount || ZERO,
+        amount: depositAmount$ || ZERO,
       },
       swap: {
         fee: fee.toNumber(),
         data: swapData.exchangeCalldata,
-        amount: swapAmountBeforeFees,
+        amount: swapAmountBeforeFees$,
         collectFeeFrom,
         receiveAtLeast: swapData.minToTokenAmount,
       },
@@ -370,25 +377,25 @@ async function buildOperation(
     const openArgs = {
       deposit: {
         collateralToken: {
-          amountInBaseUnit: depositCollateralAmountInWei,
+          amountInBaseUnit: depositCollateralAmount$,
           isEth: args.collateralToken.symbol === 'ETH',
         },
         debtToken: {
-          amountInBaseUnit: depositDebtAmountInWei,
+          amountInBaseUnit: depositDebtAmount$,
           isEth: args.debtToken.symbol === 'ETH',
         },
       },
       swapArgs: {
         fee: args.positionType === 'Earn' ? NO_FEE : DEFAULT_FEE,
         swapData: swapData.exchangeCalldata,
-        swapAmountInBaseUnit: swapAmountBeforeFees,
+        swapAmountInBaseUnit: swapAmountBeforeFees$,
         collectFeeFrom,
         receiveAtLeast: swapData.minToTokenAmount,
       },
       positionType: args.positionType,
       addresses: dependencies.addresses as AAVEStrategyAddresses,
       flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
-      borrowAmountInBaseUnit: borrowAmountInWei,
+      borrowAmountInBaseUnit: borrowAmount$,
       collateralTokenAddress,
       debtTokenAddress,
       useFlashloan: simulatedPositionTransition.flags.requiresFlashloan,

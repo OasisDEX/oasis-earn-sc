@@ -10,7 +10,6 @@ import {
   TYPICAL_PRECISION,
   ZERO,
 } from '@dma-common/constants'
-import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { operations } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
@@ -30,7 +29,7 @@ import {
 import { AAVETokens } from '@dma-library/types/aave'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
-import { Position } from '@domain'
+import { Amount, Position } from '@domain'
 import { FLASHLOAN_SAFETY_MARGIN } from '@domain/constants'
 import { Provider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
@@ -97,10 +96,12 @@ async function getAaveSwapDataToCloseToCollateral(
 
   const collateralTokenWithAddress = {
     ...collateralToken,
+    precision: collateralToken.precision || TYPICAL_PRECISION,
     address: collateralTokenAddress,
   }
   const debtTokenWithAddress = {
     ...debtToken,
+    precision: debtToken.precision || TYPICAL_PRECISION,
     address: debtTokenAddress,
   }
 
@@ -175,12 +176,22 @@ async function buildOperation(
   // EG STETH/ETH divided by ETH/DAI = STETH/ETH times by DAI/ETH = STETH/DAI
   const oracleFLtoCollateralToken = ethPerCollateralToken.div(ethPerDAI)
 
-  const amountToFlashloan$ = amountToWei(
-    amountFromWei(args.collateralAmountLockedInProtocolInWei, args.collateralToken.precision).times(
-      oracleFLtoCollateralToken,
-    ),
-    18,
-  )
+  // const amountToFlashloan$ = amountToWei(
+  //   amountFromWei(args.collateralAmountLockedInProtocolInWei, args.collateralToken.precision).times(
+  //     oracleFLtoCollateralToken,
+  //   ),
+  //   18,
+  // )
+  const amountToFlashloan$ = new Amount({
+    amount: args.collateralAmountLockedInProtocolInWei,
+    precision: {
+      mode: 'tokenMax',
+      tokenMaxDecimals: args.collateralToken.precision,
+    },
+  })
+    .switchPrecisionMode('none')
+    .times(oracleFLtoCollateralToken)
+    .switchPrecisionMode('tokenMax')
     .div(maxLoanToValueForFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
     .integerValue(BigNumber.ROUND_DOWN)
 
@@ -195,7 +206,8 @@ async function buildOperation(
       // So, that when taking the fee from the source token we are sending the Swap contract
       // the sum of the fee and the ultimately fromAmount that will be swapped
       collateralAmountToBeSwapped,
-      flashloanAmount: amountToFlashloan$,
+      // flashloanAmount: amountToFlashloan$,
+      flashloanAmount: amountToFlashloan$.toBigNumber(),
       fee: fee.toNumber(),
       swapData: swapData.exchangeCalldata,
       receiveAtLeast: swapData.minToTokenAmount,
@@ -234,7 +246,7 @@ async function buildOperation(
         receiveAtLeast: swapData.minToTokenAmount,
       },
       flashloan: {
-        amount: amountToFlashloan$,
+        amount: amountToFlashloan$.toBigNumber(),
         provider: flashloanProvider,
       },
       position: {
@@ -292,18 +304,24 @@ async function generateTransition(
   // We use the toTokenAmount given it's the most optimistic swap scenario
   // Meaning it corresponds with the largest fee a user can expect to pay
   // Thus, if the swap performs poorly the fee will be less than expected
-  const fromTokenAmountNormalised$$ = amountFromWei(
-    swapData.fromTokenAmount,
-    args.collateralToken.precision,
-  )
-  const toTokenAmountNormalisedWithMaxSlippage$$ = amountFromWei(
-    swapData.minToTokenAmount,
-    args.debtToken.precision,
-  )
+  const fromTokenAmountNormalised$$ = new Amount({
+    amount: swapData.fromTokenAmount,
+    precision: {
+      mode: 'tokenMax',
+      tokenMaxDecimals: args.collateralToken.precision,
+    },
+  }).switchPrecisionMode('normalized')
+  const toTokenAmountNormalisedWithMaxSlippage$$ = new Amount({
+    amount: swapData.minToTokenAmount,
+    precision: {
+      mode: 'tokenMax',
+      tokenMaxDecimals: args.debtToken.precision,
+    },
+  }).switchPrecisionMode('normalized')
 
-  const expectedMarketPriceWithSlippage = fromTokenAmountNormalised$$.div(
-    toTokenAmountNormalisedWithMaxSlippage$$,
-  )
+  const expectedMarketPriceWithSlippage = fromTokenAmountNormalised$$
+    .div(toTokenAmountNormalisedWithMaxSlippage$$)
+    .toBigNumber()
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
 
   const postSwapFee$ =

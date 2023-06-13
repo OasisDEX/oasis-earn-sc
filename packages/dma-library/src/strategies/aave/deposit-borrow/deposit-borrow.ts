@@ -209,7 +209,7 @@ async function buildDepositArgs(
         toToken: collateralToken,
         slippage,
         fee,
-        swapAmountBeforeFees: entryTokenAmount,
+        swapAmountBeforeFees$: entryTokenAmount,
       },
       addresses: dependencies.addresses,
       services: {

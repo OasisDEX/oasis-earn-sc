@@ -6,7 +6,7 @@ import { acceptedFeeTokenByAddress } from './accepted-fee-token'
 import { calculatePreSwapFeeAmount } from './calculate-swap-fee-amount'
 
 type GetSwapDataArgs<Tokens> = {
-  swapAmountBeforeFees: BigNumber
+  swapAmountBeforeFees$: BigNumber
   fromToken: { symbol: Tokens; address?: Address; precision?: number }
   toToken: { symbol: Tokens; address?: Address; precision?: number }
   slippage: BigNumber
@@ -45,17 +45,21 @@ export async function getSwapDataHelper<Addresses, Tokens>({
     toTokenAddress,
   })
 
-  const preSwapFee = calculatePreSwapFeeAmount(collectFeeFrom, args.swapAmountBeforeFees, args?.fee)
-  const swapAmountAfterFees = args.swapAmountBeforeFees
-    .minus(preSwapFee)
+  const preSwapFee$ = calculatePreSwapFeeAmount(
+    collectFeeFrom,
+    args.swapAmountBeforeFees$,
+    args?.fee,
+  )
+  const swapAmountAfterFees$ = args.swapAmountBeforeFees$
+    .minus(preSwapFee$)
     .integerValue(BigNumber.ROUND_DOWN)
 
   const swapData = await services.getSwapData(
     fromTokenAddress,
     toTokenAddress,
-    swapAmountAfterFees,
+    swapAmountAfterFees$,
     args.slippage,
   )
 
-  return { swapData, collectFeeFrom, preSwapFee }
+  return { swapData, collectFeeFrom, preSwapFee$ }
 }

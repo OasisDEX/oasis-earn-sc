@@ -13,8 +13,6 @@ interface TransientCollateralFlashloan {
     debtAmountToCover: Amount,
     /** The precision of the flashloan token */
     flashloanTokenPrecision?: number,
-    /** The precision of the flashloan token */
-    debtTokenPrecision?: number,
     /** The maximum loan to value ratio that the flashloan can be used to collateralise when borrowing against it */
     maxLoanToValueWhenCollateralising?: BigNumber,
   ): BigNumber
@@ -24,30 +22,30 @@ interface TransientCollateralFlashloan {
 export const transientCollateralFlashloan: TransientCollateralFlashloan = (
   fee,
   oraclePrice,
-  debtAmountToCover,
+  debtAmountToCover$,
   flashloanTokenPrecision = 18,
-  debtTokenPrecision = 18,
   maxLoanToValueWhenCollateralising = ONE,
 ) => {
   /**
    * We normalise debtAmountToCover to 18 decimals and revert back to the precision of the Flashloan token
    * */
-  const flashloan = new Amount({
-    amount: debtAmountToCover.switchPrecisionMode('normalized').toBigNumber(),
+  const flashloan$ = new Amount({
+    amount: debtAmountToCover$.switchPrecisionMode('normalized').toBigNumber(),
     precision: { mode: 'normalized', tokenMaxDecimals: flashloanTokenPrecision },
   })
+    .switchPrecisionMode('tokenMax')
     .times(oraclePrice)
     .div(maxLoanToValueWhenCollateralising.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
     .integerValue(BigNumber.ROUND_DOWN)
     .toBigNumber()
 
-  return flashloan
+  return flashloan$
 }
 
 /** For example, flashloaning USDC to open an ETH/USDC position on Ajna */
-export const debtToCollateralSwapFlashloan = (swapAmountBeforeSwapFeeIsApplied: BigNumber) => {
+export const debtToCollateralSwapFlashloan = (swapAmountBeforeSwapFeeIsApplied$: BigNumber) => {
   // We do not need to inflate this value to account for the flashloan fee because
   // This is already factored into the debt (or quote token) deltas produced
   // by the adjustPosition domain logic
-  return swapAmountBeforeSwapFeeIsApplied
+  return swapAmountBeforeSwapFeeIsApplied$
 }

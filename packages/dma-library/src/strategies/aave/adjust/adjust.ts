@@ -84,7 +84,7 @@ async function adjustRiskUp(
   })
 
   // Get quote swap
-  const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
+  const estimatedSwapAmount$ = amountToWei(new BigNumber(1), args.debtToken.precision)
   const { swapData: quoteSwapData } = await getSwapDataHelper<
     typeof dependencies.addresses,
     AAVETokens
@@ -94,7 +94,7 @@ async function adjustRiskUp(
       toToken: args.collateralToken,
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: estimatedSwapAmount,
+      swapAmountBeforeFees$: estimatedSwapAmount$,
     },
     addresses: dependencies.addresses,
     services: {
@@ -123,7 +123,7 @@ async function adjustRiskUp(
       toToken: args.collateralToken,
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: simulatedAdjustUp.swap.fromTokenAmount,
+      swapAmountBeforeFees$: simulatedAdjustUp.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
     services: {
@@ -179,7 +179,7 @@ async function adjustRiskDown(
       toToken: args.debtToken,
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: estimatedSwapAmount,
+      swapAmountBeforeFees$: estimatedSwapAmount,
     },
     addresses: dependencies.addresses,
     services: {
@@ -207,7 +207,7 @@ async function adjustRiskDown(
       toToken: args.debtToken,
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: simulatedAdjustDown.swap.fromTokenAmount,
+      swapAmountBeforeFees$: simulatedAdjustDown.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
     services: {
@@ -331,8 +331,8 @@ async function simulatePositionTransition(
         tokenSymbol: 'DAI',
       },
       depositedByUser: {
-        debtInWei: depositDebtAmountInBaseUnits,
-        collateralInWei: depositCollateralAmountInBaseUnits,
+        debtAmount$: depositDebtAmountInBaseUnits,
+        collateralAmount$: depositCollateralAmountInBaseUnits,
       },
       collectSwapFeeFrom: collectFeeFrom,
       debug,
