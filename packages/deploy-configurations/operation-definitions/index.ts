@@ -21,6 +21,6 @@ export { getAavePaybackWithdrawV3OperationDefinition } from './aave/v3/payback-w
 // AJNA
 export { ajnaAdjustDownOperationDefinition } from './ajna/adjust-down'
 export { ajnaAdjustUpOperationDefinition } from './ajna/adjust-up'
-export { ajnaCloseToCollateralOperationDefinition } from './ajna/close-to-collateral'
-export { ajnaCloseToQuoteOperationDefinition } from './ajna/close-to-quote'
+export { getAjnaCloseToCollateralOperationDefinition } from './ajna/close-to-collateral'
+export { getAjnaCloseToQuoteOperationDefinition } from './ajna/close-to-quote'
 export { ajnaOpenOperationDefinition } from './ajna/open'
