@@ -1,4 +1,5 @@
 export type {
+  AjnaAdjustMultiplyPayload,
   AjnaBorrowPayload,
   AjnaCommonDependencies,
   AjnaCommonDMADependencies,

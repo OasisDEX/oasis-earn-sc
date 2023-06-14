@@ -12,7 +12,6 @@
       "@dma-common/test-utils": ["./test-utils/index.ts"],
       "@dma-common/test-utils/*": ["./test-utils/*"],
       "@dma-common/types/*": ["./types/*"],
-      "@domain/*": ["../domain/src/*"],
       "@deploy-configurations/utils/*": ["../deploy-configurations/utils/*"],
       "@deploy-configurations/configs/*": ["../deploy-configurations/configs/*"],
       "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
@@ -24,9 +23,6 @@
   "references": [
     {
       "path": "../abis"
-    },
-    {
-        "path": "../domain"
     },
     {
       "path": "../deploy-configurations"

@@ -25,6 +25,7 @@ describe('Strategy | AJNA | Close To Quote Multiply | E2E', () => {
     network: networkFork,
     systemConfigPath: `test/${networkFork}.conf.ts`,
     configExtensionPaths: [`test/uSwap.conf.ts`],
+    hideLogging: true,
   })
   before(async function () {
     env = await loadFixture(fixture)
@@ -37,7 +38,7 @@ describe('Strategy | AJNA | Close To Quote Multiply | E2E', () => {
     address: Address
   }
 
-  describe('Close Positions', function () {
+  describe('Close Positions using Close to Quote', function () {
     supportedPositions.forEach(({ name: variant }) => {
       let position: AjnaPosition
       let debtToken: Token
@@ -109,13 +110,14 @@ describe('Strategy | AJNA | Close To Quote Multiply | E2E', () => {
   })
 })
 
-describe.only('Strategy | AJNA | Close To Collateral Multiply | E2E', () => {
+describe('Strategy | AJNA | Close To Collateral Multiply | E2E', () => {
   const supportedPositions = getSupportedAjnaPositions(networkFork)
   let env: EnvWithAjnaPositions
   const fixture = envWithAjnaPositions({
     network: networkFork,
     systemConfigPath: `test/${networkFork}.conf.ts`,
     configExtensionPaths: [`test/uSwap.conf.ts`],
+    hideLogging: true,
   })
   before(async function () {
     env = await loadFixture(fixture)
@@ -128,7 +130,7 @@ describe.only('Strategy | AJNA | Close To Collateral Multiply | E2E', () => {
     address: Address
   }
 
-  describe('Close Positions', function () {
+  describe('Close Positions using Close to Collateral', function () {
     supportedPositions.forEach(({ name: variant }) => {
       let position: AjnaPosition
       let debtToken: Token

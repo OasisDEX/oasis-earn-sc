@@ -1,6 +1,5 @@
 import operationExecutorAbi from '@abis/system/contracts/core/OperationExecutor.sol/OperationExecutor.json'
-import { IOperation } from '@dma-library/types'
-import { CommonDMADependencies } from '@dma-library/types/ajna/ajna-dependencies'
+import { CommonDMADependencies, IOperation } from '@dma-library/types'
 import { ethers } from 'ethers'
 
 export function encodeOperation(

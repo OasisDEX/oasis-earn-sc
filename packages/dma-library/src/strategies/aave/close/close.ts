@@ -200,7 +200,6 @@ async function buildOperation(
       // So, that when taking the fee from the source token we are sending the Swap contract
       // the sum of the fee and the ultimately fromAmount that will be swapped
       collateralAmountToBeSwapped: collateralAmountToBeSwapped$,
-      // flashloanAmount: amountToFlashloan$,
       flashloanAmount: amountToFlashloan$.toBigNumber(),
       fee: fee.toNumber(),
       swapData: swapData.exchangeCalldata,

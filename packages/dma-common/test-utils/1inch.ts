@@ -2,7 +2,7 @@ import { ADDRESSES } from '@deploy-configurations/addresses'
 import { Network } from '@deploy-configurations/types/network'
 import { ONE } from '@dma-common/constants'
 import { OneInchSwapResponse } from '@dma-common/types/common'
-import { Amount } from '@domain/amount'
+import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 
@@ -30,19 +30,10 @@ export const oneInchCallMock =
     const toTokenPrecision = __invertSwapDirection ? precision.from : precision.to
     const _marketPrice = __invertSwapDirection ? ONE.div(marketPrice) : marketPrice
 
-    const precisionAdjustedToAmount = new Amount({
-      amount: amount,
-      precision: {
-        mode: 'tokenMax',
-        tokenMaxDecimals: fromTokenPrecision,
-      },
-    })
-      .switchPrecisionMode('normalized')
-      .div(_marketPrice)
-      .integerValue(BigNumber.ROUND_DOWN)
-      .updateTokenMaxDecimals(toTokenPrecision)
-      .switchPrecisionMode('tokenMax')
-      .toBigNumber()
+    const precisionAdjustedToAmount = amountToWei(
+      amountFromWei(amount, fromTokenPrecision).div(_marketPrice),
+      toTokenPrecision,
+    ).integerValue(BigNumber.ROUND_DOWN)
 
     if (debug) {
       console.log('OneInchCallMock')

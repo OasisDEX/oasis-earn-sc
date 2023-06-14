@@ -141,12 +141,12 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
     try {
       htpIndex = await poolInfoContract.priceToIndex(htp);
     } catch (e) {
-      console.error("htp not found", e);
+      console.error("htpIndex not found");
     }
     try {
       momp = await poolInfoContract.momp(pool.address);
     } catch (e) {
-      console.error("momp not found", e);
+      console.error("momp not found");
     }
     const lenderInterestMargin = await poolInfoContract.lenderInterestMargin(pool.address);
     const lup = await poolInfoContract.lup(pool.address);
