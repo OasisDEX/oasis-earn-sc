@@ -9,7 +9,23 @@ export type AjnaAdjustRiskStrategy = (
   dependencies: AjnaCommonDMADependencies,
 ) => Promise<Strategy<AjnaPosition>>
 
+export const adjustMultiply: AjnaAdjustRiskStrategy = (
+  args: AjnaAdjustMultiplyPayload,
+  dependencies: AjnaCommonDMADependencies,
+) => {
+  if (isRiskIncreasing(args.position.riskRatio, args.riskRatio)) {
+    return adjustRiskUp(args, dependencies)
+  } else {
+    return adjustRiskDown(args, dependencies)
+  }
+}
+
 const adjustRiskUp: AjnaAdjustRiskStrategy = async (args, dependencies) => {
+  // Get position (see Close)
+  // Simulate adjust
+  // Get swap data
+  // Build operation
+  // prepare payload
   const isDepositingEth =
     args.position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
@@ -61,15 +77,4 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
     // TODO instead of zero we will need data from swap
     txValue: resolveAjnaEthAction(isWithdrawingEth, ZERO),
   })
-}
-
-export const adjustMultiply: AjnaAdjustRiskStrategy = (
-  args: AjnaAdjustMultiplyPayload,
-  dependencies: AjnaCommonDMADependencies,
-) => {
-  if (isRiskIncreasing(args.position.riskRatio, args.riskRatio)) {
-    return adjustRiskUp(args, dependencies)
-  } else {
-    return adjustRiskDown(args, dependencies)
-  }
 }
