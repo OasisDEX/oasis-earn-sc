@@ -67,13 +67,13 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
     postSwapFee$.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
   )
   return prepareAjnaDMAPayload({
-    swaps: [{ ...swapData, collectFeeFrom, tokenFee: tokenFee$ }],
+    swaps: [{ ...swapData, collectFeeFrom, tokenFee$ }],
     dependencies,
     targetPosition,
     data: encodeOperation(operation, dependencies),
     errors: [],
     warnings: [],
-    success: [],
+    successes: [],
     notices: [],
     // TODO instead of zero we will need data from swap
     txValue: resolveAjnaEthAction(isDepositingEth, ZERO),

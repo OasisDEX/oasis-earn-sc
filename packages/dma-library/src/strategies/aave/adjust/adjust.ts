@@ -31,11 +31,11 @@ import { WithFee } from '@dma-library/types/aave/fee'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import { FlashloanProvider } from '@dma-library/types/common'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
-import { isRiskIncreasing } from '@dma-library/utils/swap'
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
 import { getSwapDataHelper } from '@dma-library/utils/swap/get-swap-data'
 import { IBaseSimulatedTransition, IPosition } from '@domain'
+import { isRiskIncreasing } from '@domain/utils'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
@@ -66,7 +66,9 @@ export async function adjust(
   args: AaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
 ): Promise<PositionTransition> {
-  if (isRiskIncreasing(dependencies.currentPosition.riskRatio, args.multiple)) {
+  if (
+    isRiskIncreasing(dependencies.currentPosition.riskRatio.loanToValue, args.multiple.loanToValue)
+  ) {
     return adjustRiskUp(args, dependencies)
   } else {
     return adjustRiskDown(args, dependencies)
