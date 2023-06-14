@@ -1,6 +1,7 @@
 import operationExecutorAbi from '@abis/system/contracts/core/OperationExecutor.sol/OperationExecutor.json'
 import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses/index'
+import { calculateFee } from '@dma-common/utils/swap'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
@@ -39,7 +40,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     riskIsIncreasing,
     oraclePrice,
   )
-  const swapData = await getSwapData(
+  const { swapData, collectFeeFrom, preSwapFee$ } = await getSwapData(
     args,
     dependencies,
     position,
@@ -95,14 +96,19 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     .switchPrecisionMode('none')
     .toBigNumber()
 
+  const fee = SwapUtils.feeResolver(position.pool.collateralToken, position.pool.quoteToken)
+  const postSwapFee$ =
+    collectFeeFrom === 'sourceToken' ? ZERO : calculateFee(swapData.toTokenAmount, fee.toNumber())
+  const tokenFee$ = preSwapFee$.plus(postSwapFee$)
+
   return prepareAjnaDMAPayload({
-    swaps: [swapData],
+    swaps: [{ ...swapData, collectFeeFrom, tokenFee$ }],
     dependencies,
     targetPosition,
     data: encodeOperation(operation, dependencies),
     errors: [],
     warnings: [],
-    success: [],
+    successes: [],
     notices: [],
     txValue: resolveAjnaEthAction(isDepositingEth, txAmountAsBN),
   })
@@ -132,7 +138,7 @@ async function getPosition(args: AjnaOpenMultiplyPayload, dependencies: AjnaComm
 }
 
 function verifyRiskDirection(args: AjnaOpenMultiplyPayload, position: AjnaPosition): true {
-  const riskIsIncreasing = DomainUtils.determineRiskDirection(
+  const riskIsIncreasing = DomainUtils.isRiskIncreasing(
     args.riskRatio.loanToValue,
     position.riskRatio.loanToValue,
   )
@@ -295,7 +301,7 @@ async function getSwapData(
     },
   })
 
-  return { ...swapData, collectFeeFrom, preSwapFee$ }
+  return { swapData, collectFeeFrom, preSwapFee$ }
 }
 
 async function buildOperation(
