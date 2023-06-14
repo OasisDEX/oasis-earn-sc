@@ -59,9 +59,6 @@ export const closeToQuote: AjnaCloseToQuoteOperation = async ({
     price,
   })
 
-  console.log('SWAP')
-  console.log(swap.amount.toString())
-  console.log(swap.receiveAtLeast.toString())
   const swapCollateralTokensForDebtTokens = actions.common.swap({
     fromAsset: collateral.address,
     toAsset: debt.address,

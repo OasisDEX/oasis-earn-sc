@@ -1,6 +1,13 @@
 import { SwapData } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
+/** __invertSwapDirection is only used in tests using 1inch mocks */
 export interface GetSwapData {
-  (fromToken: string, toToken: string, amount: BigNumber, slippage: BigNumber): Promise<SwapData>
+  (
+    fromToken: string,
+    toToken: string,
+    amount: BigNumber,
+    slippage: BigNumber,
+    __invertSwapDirection?: boolean,
+  ): Promise<SwapData>
 }

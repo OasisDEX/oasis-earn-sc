@@ -49,9 +49,5 @@ export async function getSwapDataForCloseToDebt({
     slippage,
   )
 
-  console.log('GET SWAP DATA')
-  console.log(swapData)
-  console.log(swapAmountAfterFees$.toString())
-
   return { swapData, collectFeeFrom, preSwapFee$ }
 }

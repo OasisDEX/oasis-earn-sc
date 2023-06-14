@@ -25,6 +25,14 @@ export const ajnaCloseToCollateralOperationDefinition = {
       optional: true,
     },
     {
+      hash: getActionHash(CONTRACT_NAMES.common.SEND_TOKEN),
+      optional: false,
+    },
+    {
+      hash: getActionHash(CONTRACT_NAMES.common.RETURN_FUNDS),
+      optional: false,
+    },
+    {
       hash: getActionHash(CONTRACT_NAMES.common.RETURN_FUNDS),
       optional: false,
     },

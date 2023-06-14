@@ -16,7 +16,7 @@ type PrecisionMode = 'none' | 'tokenMax' | 'normalized'
 type PrecisionMap = Record<PrecisionMode, BigNumber>
 
 type AmountArgs = {
-  amount: BigNumber
+  amount: BigNumber | Amount
   precision?: {
     /** none: 1USDC = 1, max: 1USDC = 1e6, normalized: 1USDC = 1e18 */
     mode?: PrecisionMode
@@ -32,7 +32,13 @@ export class Amount {
   private currentPrecisionMode: 'none' | 'tokenMax' | 'normalized' = 'none'
 
   constructor(args: AmountArgs) {
-    const initialAmount = args.amount || ZERO
+    let initialAmount: BigNumber = ZERO
+    if (args.amount instanceof Amount) {
+      initialAmount = args.amount.toBigNumber()
+    } else {
+      initialAmount = args.amount || ZERO
+    }
+
     const initialPrecisionMode = args?.precision?.mode || 'none'
     this.tokenMaxDecimals = args?.precision?.tokenMaxDecimals || TYPICAL_PRECISION
     this.precisionMap = {
@@ -85,6 +91,16 @@ export class Amount {
 
   getTokenMaxDecimals(): number {
     return this.tokenMaxDecimals
+  }
+
+  updateTokenMaxDecimals(tokenMaxDecimals: number): Amount {
+    return new Amount({
+      amount: this.amount,
+      precision: {
+        mode: this.getCurrentPrecisionMode(),
+        tokenMaxDecimals: tokenMaxDecimals,
+      },
+    })
   }
 
   switchPrecisionMode(mode: PrecisionMode): Amount {

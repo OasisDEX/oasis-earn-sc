@@ -2,7 +2,7 @@ import { ADDRESSES } from '@deploy-configurations/addresses'
 import { Network } from '@deploy-configurations/types/network'
 import { ONE } from '@dma-common/constants'
 import { OneInchSwapResponse } from '@dma-common/types/common'
-import { amountFromWei, amountToWei } from '@dma-common/utils/common'
+import { Amount } from '@domain/amount'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 
@@ -13,22 +13,43 @@ export const oneInchCallMock =
     precision: { from: number; to: number } = { from: 18, to: 18 },
     debug = false,
   ) =>
-  async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
+  // Swap Direction Inversion is needed for use in tests where a preflight market price for a given token
+  // is required - EG in the case of Close to Collateral
+  async (
+    from: string,
+    to: string,
+    amount: BigNumber,
+    slippage: BigNumber,
+    __invertSwapDirection?: boolean,
+  ) => {
     // EG FROM WBTC 8 to USDC 6
     // Convert WBTC fromWei
     // Apply market price
     // Convert result back to USDC at precision 6
-    const precisionAdjustedToAmount = amountToWei(
-      amountFromWei(amount, precision.from).div(marketPrice),
-      precision.to,
-    ).integerValue(BigNumber.ROUND_DOWN)
+    const fromTokenPrecision = __invertSwapDirection ? precision.to : precision.from
+    const toTokenPrecision = __invertSwapDirection ? precision.from : precision.to
+    const _marketPrice = __invertSwapDirection ? ONE.div(marketPrice) : marketPrice
+
+    const precisionAdjustedToAmount = new Amount({
+      amount: amount,
+      precision: {
+        mode: 'tokenMax',
+        tokenMaxDecimals: fromTokenPrecision,
+      },
+    })
+      .switchPrecisionMode('normalized')
+      .div(_marketPrice)
+      .integerValue(BigNumber.ROUND_DOWN)
+      .updateTokenMaxDecimals(toTokenPrecision)
+      .switchPrecisionMode('tokenMax')
+      .toBigNumber()
 
     if (debug) {
       console.log('OneInchCallMock')
       console.log('Amount to swap:', amount.toString())
       console.log('Market price:', marketPrice.toString())
-      console.log('Precision from:', precision.from)
-      console.log('Precision to:', precision.to)
+      console.log('Precision from:', fromTokenPrecision)
+      console.log('Precision to:', toTokenPrecision)
       console.log('Received amount:', precisionAdjustedToAmount.toString())
     }
 

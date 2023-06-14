@@ -121,7 +121,17 @@ async function getAjnaSwapDataToCloseToCollateral(
   dependencies: AjnaCommonDMADependencies,
   position: AjnaPosition,
 ) {
-  const outstandingDebt$ = position.debtAmount
+  const outstandingDebt$ = new Amount({
+    amount: position.debtAmount,
+    precision: {
+      mode: 'none',
+      tokenMaxDecimals: args.quoteTokenPrecision,
+    },
+  })
+    .switchPrecisionMode('tokenMax')
+    .integerValue(BigNumber.ROUND_DOWN)
+    .toBigNumber()
+
   const collateralToken = {
     symbol: args.collateralTokenSymbol,
     precision: args.collateralTokenPrecision,
@@ -156,7 +166,6 @@ async function buildOperation(
   preSwapFee$: BigNumber,
   collectFeeFrom: CollectFeeFrom,
 ): Promise<IOperation> {
-  console.log('position.debtAmount', position.debtAmount.toString())
   const amountToFlashloan$ = new Amount({
     amount: position.debtAmount.times(ONE.plus(FLASHLOAN_SAFETY_MARGIN)),
     precision: {

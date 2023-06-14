@@ -18,7 +18,7 @@ import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
-describe('Strategy | AJNA | Close Multiply | E2E', () => {
+describe('Strategy | AJNA | Close To Quote Multiply | E2E', () => {
   const supportedPositions = getSupportedAjnaPositions(networkFork)
   let env: EnvWithAjnaPositions
   const fixture = envWithAjnaPositions({
@@ -37,7 +37,7 @@ describe('Strategy | AJNA | Close Multiply | E2E', () => {
     address: Address
   }
 
-  describe('Close-to-Quote', function () {
+  describe('Close Positions', function () {
     supportedPositions.forEach(({ name: variant }) => {
       let position: AjnaPosition
       let debtToken: Token
@@ -71,6 +71,98 @@ describe('Strategy | AJNA | Close Multiply | E2E', () => {
           env,
           positionDetails,
           position,
+          shouldCloseToCollateral: false,
+        })
+      })
+
+      it(`Should have closed ${variant} position`, async () => {
+        expect(act.closeTxStatus).to.be.true
+      })
+      it(`Should have paid back all debt for ${variant}`, async () => {
+        expect.toBe(act.closedPosition.debtAmount.toFixed(0), 'lte', ONE)
+      })
+      it(`Should have withdrawn all collateral for ${variant}`, async () => {
+        expect.toBe(act.closedPosition.collateralAmount.toFixed(0), 'lte', ONE)
+      })
+      it(`Should not have anything left on the proxy for ${variant}`, async () => {
+        const proxyDebtBalance = await balanceOf(debtToken.address, positionDetails.proxy, {
+          config: env.config,
+          isFormatted: true,
+        })
+        const proxyCollateralBalance = await balanceOf(
+          collateralToken.address,
+          positionDetails.proxy,
+          {
+            config: env.config,
+            isFormatted: true,
+          },
+        )
+
+        expect.toBeEqual(proxyDebtBalance, ZERO)
+        expect.toBeEqual(proxyCollateralBalance, ZERO)
+      })
+      it(`Should have collected a fee for ${variant}`, async () => {
+        const simulatedFee = act.simulation.swaps[0].fee || ZERO
+        expect.toBe(simulatedFee, 'gte', act.feesCollected, EXPECT_LARGER_SIMULATED_FEE)
+      })
+    })
+  })
+})
+
+describe.only('Strategy | AJNA | Close To Collateral Multiply | E2E', () => {
+  const supportedPositions = getSupportedAjnaPositions(networkFork)
+  let env: EnvWithAjnaPositions
+  const fixture = envWithAjnaPositions({
+    network: networkFork,
+    systemConfigPath: `test/${networkFork}.conf.ts`,
+    configExtensionPaths: [`test/uSwap.conf.ts`],
+  })
+  before(async function () {
+    env = await loadFixture(fixture)
+    if (!env) throw new Error('Env not setup')
+  })
+
+  type Token = {
+    symbol: string
+    precision: number
+    address: Address
+  }
+
+  describe('Close Positions', function () {
+    supportedPositions.forEach(({ name: variant }) => {
+      let position: AjnaPosition
+      let debtToken: Token
+      let collateralToken: Token
+      let positionDetails: AjnaPositionDetails
+      let act: Unbox<ReturnType<typeof closePositionHelper>>
+
+      before(async function () {
+        const { positions, ajnaSystem } = env
+        positionDetails = positions[variant]
+        if (!positionDetails) {
+          throw new Error('Position not found')
+        }
+        position = await views.ajna.getPosition(
+          {
+            proxyAddress: positionDetails.proxy,
+            poolAddress: positionDetails.pool.poolAddress,
+            collateralPrice: positionDetails.__collateralPrice,
+            quotePrice: positionDetails.__quotePrice,
+          },
+          {
+            poolInfoAddress: ajnaSystem.poolInfo.address,
+            provider: env.config.provider,
+            getPoolData: env.dependencies.getPoolData,
+          },
+        )
+        debtToken = positionDetails.debtToken
+        collateralToken = positionDetails.collateralToken
+
+        act = await closePositionHelper({
+          env,
+          positionDetails,
+          position,
+          shouldCloseToCollateral: true,
         })
       })
 
@@ -112,9 +204,15 @@ type PositionCloserHelper = {
   env: EnvWithAjnaPositions
   positionDetails: AjnaPositionDetails
   position: AjnaPosition
+  shouldCloseToCollateral: boolean
 }
 
-async function closePositionHelper({ env, positionDetails, position }: PositionCloserHelper) {
+async function closePositionHelper({
+  env,
+  positionDetails,
+  position,
+  shouldCloseToCollateral,
+}: PositionCloserHelper) {
   const { dependencies, dsSystem, config, ajnaSystem } = env
   const { collateralToken, debtToken, proxy } = positionDetails
 
@@ -147,7 +245,7 @@ async function closePositionHelper({ env, positionDetails, position }: PositionC
       slippage: UNISWAP_TEST_SLIPPAGE,
       user: dependencies.user,
       position,
-      shouldCloseToCollateral: false,
+      shouldCloseToCollateral,
     },
     {
       provider: config.provider,

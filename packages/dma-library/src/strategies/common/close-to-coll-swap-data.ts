@@ -45,8 +45,7 @@ export async function getSwapDataForCloseToCollateral({
   const fee = SwapUtils.feeResolver(collateralToken.symbol, debtToken.symbol)
 
   // 2. Calculated the needed amount of collateral to payback the debt
-  // This value is calculated based on the AAVE protocol oracles.
-  // At the time of writing, their main source are Chainlink oracles.
+  // This value is calculated based on oracle prices.
   const debtTokenPrecision = debtToken.precision
   const collateralTokenPrecision = collateralToken.precision
   const collateralNeeded$ = calculateNeededCollateralToPaybackDebt(
@@ -75,6 +74,7 @@ export async function getSwapDataForCloseToCollateral({
       ETHAddress,
       outstandingDebt$,
       slippage,
+      true, // inverts swap mock in tests ignored in prod
     )
     debtPrice = new BigNumber(
       debtPricePreflightSwapData.toTokenAmount
