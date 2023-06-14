@@ -2,7 +2,7 @@ import { ZERO } from '@dma-common/constants'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { AjnaCommonDependencies, AjnaPosition, Strategy } from '@dma-library/types'
 import { AjnaMultiplyPayload } from '@dma-library/types/ajna'
-import { isRiskIncreasing } from '@dma-library/utils/swap'
+import { isRiskIncreasing } from '@domain/utils'
 
 export type AjnaAdjustRiskStrategy = (
   args: AjnaMultiplyPayload,
@@ -65,7 +65,7 @@ export const adjustMultiply: AjnaAdjustRiskStrategy = (
   args: AjnaMultiplyPayload,
   dependencies: AjnaCommonDependencies,
 ) => {
-  if (isRiskIncreasing(args.position.riskRatio, args.riskRatio)) {
+  if (isRiskIncreasing(args.position.riskRatio.loanToValue, args.riskRatio.loanToValue)) {
     return adjustRiskUp(args, dependencies)
   } else {
     return adjustRiskDown(args, dependencies)

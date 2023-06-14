@@ -1,7 +1,7 @@
 import { FEE_BASE, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { calculateFee } from '@dma-common/utils/swap'
 import { revertToTokenSpecificPrecision, standardiseAmountTo18Decimals } from '@domain/utils'
-import { determineRiskDirection } from '@domain/utils/risk-direction'
+import { isRiskIncreasing } from '@domain/utils/risk-direction'
 import BigNumber from 'bignumber.js'
 
 import { createRiskRatio, Delta, IPositionV2, Swap } from './position'
@@ -53,7 +53,7 @@ export function adjustToTargetRiskRatio(
 ): ISimulationV2 & WithSwap {
   const targetLTV = targetRiskRatio.loanToValue
 
-  const riskIsIncreasing = determineRiskDirection(targetLTV, position.riskRatio.loanToValue)
+  const riskIsIncreasing = isRiskIncreasing(targetLTV, position.riskRatio.loanToValue)
 
   const { toDeposit, fees, prices, slippage } = params
   const { collectSwapFeeFrom = 'sourceToken', isFlashloanRequired = true } = params.options || {}

@@ -4,7 +4,7 @@ import { amountFromWei } from '@dma-common/utils/common'
 import { adjustToTargetRiskRatio, WithFlags } from '@domain/adjust-position'
 import { transientCollateralFlashloan } from '@domain/flashloans'
 import { revertToTokenSpecificPrecision, standardiseAmountTo18Decimals } from '@domain/utils'
-import { determineRiskDirection } from '@domain/utils/risk-direction'
+import { isRiskIncreasing } from '@domain/utils/risk-direction'
 import BigNumber from 'bignumber.js'
 
 import { IRiskRatio, RiskRatio } from './risk-ratio'
@@ -302,10 +302,7 @@ export class Position implements IPosition {
       flags: {
         // TODO: Flashloan is always required on adjust (multiply) currently
         requiresFlashloan: true,
-        isIncreasingRisk: determineRiskDirection(
-          targetRiskRatio.loanToValue,
-          this.riskRatio.loanToValue,
-        ),
+        isIncreasingRisk: isRiskIncreasing(targetRiskRatio.loanToValue, this.riskRatio.loanToValue),
       },
     }
   }
