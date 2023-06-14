@@ -33,6 +33,8 @@ describe('Strategy | AJNA | Open Multiply | E2E', () => {
     const transactionCount = await utils.getMainSignerTransactionCount()
     console.log('transactionCount!!!!!', transactionCount)
     console.log('traceSize!!!!!', utils.getTraceSize())
+    const lastBlock = await utils.hre.ethers.provider.getBlockNumber()
+    console.log('lastBlock!!!!!', lastBlock)
     if (!env) throw new Error('Env not setup')
   })
 

@@ -7,7 +7,7 @@ export const testBlockNumberForAaveOptimismV3 = 79811107
 
 // AJNA
 export const testBlockNumbersForAjna = {
-  [Network.MAINNET]: 16597880,
+  [Network.MAINNET]: 17477970,
   [Network.OPTIMISM]: 79811107,
 }
 
