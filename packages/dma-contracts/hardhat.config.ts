@@ -174,6 +174,7 @@ const config = {
       chainId: ChainIdByNetwork[Network.LOCAL],
       mining: {
         auto: true,
+        interval: 2000,
       },
       hardfork: 'london',
       gas: 'auto',
