@@ -689,6 +689,31 @@ contract AjnaProxyActions {
         emit ProxyActionsOperation("AjnaRemoveCollateral");
     }
 
+    // OPT IN AND OUT
+
+    /**
+     *  @notice Mints and NFT, memorizes the LPs of the user and stakes the NFT.
+     *  @param  pool     Address of the Ajana Pool.
+     *  @param  price    Price of the LPs to be memoriazed.
+     *  @return tokenId  Id of the minted NFT
+     */
+    function optInStaking(ERC20Pool pool, uint256 price) public returns (uint256 tokenId) {
+        tokenId = mintAndStakeNft(pool, price);
+        emit ProxyActionsOperation("AjnaOptInStaking");
+    }
+
+    /**
+     * @notice Unstakes the NFT, burns it and redeems invested LP tokens, memorized by the user.
+     * @param pool Address of the Ajana Pool.
+     * @param tokenId Id of the NFT to unstake and burn.
+     * @param price Price of the LPs to be redeemed.
+     * @dev This function unstakes the NFT which was previously staked and also calls "unstakeNftAndRedeem" to redeem invested LP tokens.
+     */
+    function optOutStaking(ERC20Pool pool, uint256 tokenId, uint256 price) public {
+        unstakeNftAndRedeem(tokenId, pool, price, true);
+        emit ProxyActionsOperation("AjnaOptOutStaking");
+    }
+
     // VIEW FUNCTIONS
     /**
      * @notice  Converts price to index
