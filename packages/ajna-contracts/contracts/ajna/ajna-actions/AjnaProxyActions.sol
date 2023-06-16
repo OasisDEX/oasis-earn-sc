@@ -2,7 +2,7 @@
 pragma solidity 0.8.18;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol";
 import { IERC20Pool } from "../interfaces/pool/erc20/IERC20Pool.sol";
@@ -136,7 +136,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
         lpCounts[0] = lpCount;
         IERC20Pool(pool).increaseLPAllowance(address(self.positionManager()), indexes, lpCounts);
         self.positionManager().memorializePositions(address(pool), tokenId, indexes);
-        ERC721(address(self.positionManager())).approve(address(self.rewardsManager()), tokenId);
+        IERC721(address(self.positionManager())).approve(address(self.rewardsManager()), tokenId);
     }
 
     /**
@@ -151,7 +151,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
         uint256 newIndex = convertPriceToIndex(newPrice);
 
         self.positionManager().moveLiquidity(pool, tokenId, oldIndex, newIndex, block.timestamp + 1);
-        ERC721(address(self.positionManager())).approve(address(self.rewardsManager()), tokenId);
+        IERC721(address(self.positionManager())).approve(address(self.rewardsManager()), tokenId);
     }
 
     /**
