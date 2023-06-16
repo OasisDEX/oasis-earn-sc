@@ -1080,6 +1080,7 @@ describe.only("AjnaProxyActions", function () {
       const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(poolContract.address, lpBalance_, index);
       expect(depositedQuoteAmount).to.be.equal(bn.eighteen.THOUSAND);
       expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.THOUSAND));
+      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should supplyQuote --> moveQuote", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
@@ -1131,6 +1132,7 @@ describe.only("AjnaProxyActions", function () {
       );
       expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.HUNDRED_THOUSAND);
       expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.HUNDRED_THOUSAND));
+      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should supplyAndMoveQuote", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
@@ -1183,6 +1185,7 @@ describe.only("AjnaProxyActions", function () {
       );
       expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.HUNDRED_THOUSAND.mul(2));
       expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.HUNDRED_THOUSAND.mul(2)));
+      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should withdrawAndMoveQuote", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
@@ -1230,6 +1233,7 @@ describe.only("AjnaProxyActions", function () {
       );
       expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.TEN_THOUSAND.mul(9));
       expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(lendAmount).add(withdrawAmount));
+      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should supplyQuote and withdrawQuote", async () => {
       const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(
@@ -1254,6 +1258,7 @@ describe.only("AjnaProxyActions", function () {
       };
       // there are no borrowers hence the depoisit is not earning
       expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender);
+      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
     it("should supplyQuote and withdrawQuote and accrue interest", async () => {
       const { wbtc, lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, borrower, borrowerProxy } =
@@ -1297,6 +1302,7 @@ describe.only("AjnaProxyActions", function () {
       };
       // expected that the lender will get more quote tokens due to interest
       expect(balancesQuoteAfter.lender).to.be.gt(balancesQuoteBefore.lender);
+      expect(await ajnaProxyActionsContract.positionManager()).to.be.equal(ethers.constants.AddressZero);
     });
   });
 });
