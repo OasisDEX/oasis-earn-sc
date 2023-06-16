@@ -116,14 +116,11 @@ export async function deployApa(
 
   const ajnaProxyActionsContract = await utils.deployContract<AjnaProxyActions>("AjnaProxyActions", [
     poolInfoContract.address,
-    positionManager.address,
-    rewardsManager.address,
     ajna.address,
     weth.address,
-    arc.address,
     dmpGuardContract.address,
   ]);
-
+  await ajnaProxyActionsContract.initialize(positionManager.address, rewardsManager.address, arc.address);
   await arc.initializeAjnaProxyActions(ajnaProxyActionsContract.address);
 
   await dmpGuardContract.connect(guardDeployerSigner).setWhitelist(ajnaProxyActionsContract.address, true);

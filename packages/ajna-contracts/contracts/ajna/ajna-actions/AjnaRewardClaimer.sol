@@ -3,7 +3,7 @@ pragma solidity 0.8.18;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { RewardsManager } from "../RewardsManager.sol";
+import { IRewardsManager } from "../interfaces/rewards/IRewardsManager.sol";
 import { IAccountImplementation } from "../../interfaces/dpm/IAccountImplementation.sol";
 import { IAccountGuard } from "../../interfaces/dpm/IAccountGuard.sol";
 import { IServiceRegistry } from "../../interfaces/IServiceRegistry.sol";
@@ -18,7 +18,7 @@ error OnlyNotDelegate();
 error ApaNotWhitelisted(address);
 
 contract AjnaRewardClaimer {
-    RewardsManager public immutable rewardsManager;
+    IRewardsManager public immutable rewardsManager;
     IAccountGuard public immutable guard;
     IERC20 public immutable ajnaToken;
     address public immutable self;
@@ -33,7 +33,7 @@ contract AjnaRewardClaimer {
 
     event AjnaRewardClaimed(address indexed proxy, address indexed pool, uint256 indexed tokenId);
 
-    constructor(RewardsManager _rewardsManager, IERC20 _ajnaToken, IServiceRegistry _serviceRegistry) {
+    constructor(IRewardsManager _rewardsManager, IERC20 _ajnaToken, IServiceRegistry _serviceRegistry) {
         rewardsManager = _rewardsManager;
         ajnaToken = _ajnaToken;
         self = address(this);
