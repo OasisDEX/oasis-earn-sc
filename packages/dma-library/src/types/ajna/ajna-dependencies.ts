@@ -70,7 +70,10 @@ export interface AjnaMultiplyPayload extends AjnaCommonPayload {
 }
 
 export type AjnaOpenMultiplyPayload = Omit<AjnaMultiplyPayload, 'position'>
-export interface AjnaCloseMultiplyPayload extends AjnaMultiplyPayload {
+export type AjnaCloseMultiplyPayload = Omit<
+  AjnaMultiplyPayload,
+  'riskRatio' | 'collateralAmount$'
+> & {
   shouldCloseToCollateral: boolean
 }
 

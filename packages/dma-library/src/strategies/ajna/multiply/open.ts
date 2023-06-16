@@ -170,8 +170,8 @@ async function simulateAdjustment(
   })
     .switchPrecisionMode('tokenMax')
     .toBigNumber()
-  const fromToken = buildFromToken({ ...args, position })
-  const toToken = buildToToken({ ...args, position })
+  const fromToken = buildFromToken({ ...args, position }, riskIsIncreasing)
+  const toToken = buildToToken({ ...args, position }, riskIsIncreasing)
 
   const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,

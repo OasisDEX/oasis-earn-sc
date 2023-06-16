@@ -9,10 +9,6 @@ export const ajnaAdjustDownOperationDefinition = {
       optional: false,
     },
     {
-      hash: getActionHash(CONTRACT_NAMES.common.SWAP_ACTION),
-      optional: false,
-    },
-    {
       hash: getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
       optional: false,
     },
@@ -21,8 +17,17 @@ export const ajnaAdjustDownOperationDefinition = {
       optional: false,
     },
     {
+      hash: getActionHash(CONTRACT_NAMES.common.SWAP_ACTION),
+      optional: false,
+    },
+
+    {
       hash: getActionHash(CONTRACT_NAMES.common.UNWRAP_ETH),
       optional: true,
+    },
+    {
+      hash: getActionHash(CONTRACT_NAMES.common.SEND_TOKEN),
+      optional: false,
     },
     {
       hash: getActionHash(CONTRACT_NAMES.common.RETURN_FUNDS),

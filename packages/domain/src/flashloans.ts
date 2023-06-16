@@ -49,3 +49,11 @@ export const debtToCollateralSwapFlashloan = (swapAmountBeforeSwapFeeIsApplied$:
   // by the adjustPosition domain logic
   return swapAmountBeforeSwapFeeIsApplied$
 }
+
+export const collateralToDebtSwapFlashloan = (swapMinToAmount$: BigNumber) => {
+  // We're flashloan the most conversative outcome for the swap
+  // This insures we have enough debt token in hand to repay the loan
+  // According to the debt delta (before the swap)
+  // And have enough tokens to repay the FL afterwards
+  return swapMinToAmount$
+}

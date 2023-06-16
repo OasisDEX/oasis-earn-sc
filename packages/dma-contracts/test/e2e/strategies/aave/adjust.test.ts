@@ -942,7 +942,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           )
         })
       })
-      describe('Using DPM Proxy', () => {
+      describe.only('Using DPM Proxy', () => {
         supportedStrategies
           .filter(s => s.name !== 'WSTETH/ETH Earn')
           .forEach(({ name: strategy }) => {

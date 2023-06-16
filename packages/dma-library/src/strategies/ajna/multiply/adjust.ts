@@ -32,7 +32,7 @@ export const adjustMultiply: AjnaAdjustRiskStrategy = (
   args: AjnaAdjustMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
 ) => {
-  if (isRiskIncreasing(args.position.riskRatio.loanToValue, args.riskRatio.loanToValue)) {
+  if (isRiskIncreasing(args.riskRatio.loanToValue, args.position.riskRatio.loanToValue)) {
     return adjustRiskUp(args, dependencies)
   } else {
     return adjustRiskDown(args, dependencies)
@@ -152,7 +152,12 @@ async function buildOperation(
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: false,
   })
+  // Used by Adjust Up
   const swapAmountBeforeFees$ = simulatedAdjust.swap.fromTokenAmount
+
+  // Used by Adjust Down
+  const minSwapToAmount$ = simulatedAdjust.swap.minToTokenAmount
+
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: simulatedAdjust.position.debt.symbol,
     toTokenSymbol: simulatedAdjust.position.collateral.symbol,
@@ -168,6 +173,10 @@ async function buildOperation(
     .switchPrecisionMode('normalized')
     .toBigNumber()
 
+  const flashloanAmount$ = riskIsIncreasing
+    ? Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees$)
+    : Domain.collateralToDebtSwapFlashloan(minSwapToAmount$)
+  console.log('FL AMT:', flashloanAmount$.toString())
   const commonAdjustMultiplyArgs = {
     debt: {
       address: args.position.pool.quoteToken,
@@ -190,7 +199,7 @@ async function buildOperation(
       receiveAtLeast: swapData.minToTokenAmount,
     },
     flashloan: {
-      amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees$),
+      amount: flashloanAmount$,
       // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
     },

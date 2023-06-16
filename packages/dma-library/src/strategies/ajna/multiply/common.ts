@@ -26,15 +26,18 @@ export async function simulateAdjustment(
   oraclePrice: BigNumber,
   positionType: PositionType,
 ) {
+  const preFlightTokenMaxDecimals = riskIsIncreasing
+    ? args.quoteTokenPrecision
+    : args.collateralTokenPrecision
   const preFlightSwapAmount$ = new Amount({
     amount: ONE,
-    precision: { mode: 'none', tokenMaxDecimals: args.quoteTokenPrecision },
+    precision: { mode: 'none', tokenMaxDecimals: preFlightTokenMaxDecimals },
   })
     .switchPrecisionMode('tokenMax')
     .toBigNumber()
 
-  const fromToken = buildFromToken({ ...args, position })
-  const toToken = buildToToken({ ...args, position })
+  const fromToken = buildFromToken({ ...args, position }, riskIsIncreasing)
+  const toToken = buildToToken({ ...args, position }, riskIsIncreasing)
   const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
     // Strategy is called open multiply (not open earn)
@@ -61,7 +64,7 @@ export async function simulateAdjustment(
     amount: preFlightSwapData.fromTokenAmount,
     precision: {
       mode: 'tokenMax',
-      tokenMaxDecimals: args.quoteTokenPrecision,
+      tokenMaxDecimals: fromToken.precision,
     },
   })
     .switchPrecisionMode('normalized')
@@ -71,13 +74,18 @@ export async function simulateAdjustment(
     amount: preFlightSwapData.toTokenAmount,
     precision: {
       mode: 'tokenMax',
-      tokenMaxDecimals: args.collateralTokenPrecision,
+      tokenMaxDecimals: toToken.precision,
     },
   })
     .switchPrecisionMode('normalized')
     .toBigNumber()
 
-  const preFlightMarketPrice = preFlightFromAmount$$.div(preFlightToAmount$$)
+  // The adjust logic expects market price in the form of
+  // the price of collateral with respect to debt
+  // So, when risk is decreasing we need to invert the price
+  const preFlightMarketPrice = riskIsIncreasing
+    ? preFlightFromAmount$$.div(preFlightToAmount$$)
+    : preFlightToAmount$$.div(preFlightFromAmount$$)
 
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: fromToken.symbol,
@@ -108,13 +116,31 @@ export async function simulateAdjustment(
   // TODO: Refactor AjnaPosition to extend IPositionV2 (eventually)
   const mappedPosition = {
     debt: {
-      amount: position.debtAmount,
-      symbol: fromToken.symbol,
+      // Adjust logic expects tokenMax form for current collateral amount
+      amount: new Amount({
+        amount: position.debtAmount,
+        precision: {
+          mode: 'none',
+          tokenMaxDecimals: args.quoteTokenPrecision,
+        },
+      })
+        .switchPrecisionMode('tokenMax')
+        .toBigNumber(),
+      symbol: position.pool.quoteToken,
       precision: args.quoteTokenPrecision,
     },
     collateral: {
-      amount: position.collateralAmount,
-      symbol: toToken.symbol,
+      // Adjust logic expects tokenMax form for current collateral amount
+      amount: new Amount({
+        amount: position.collateralAmount,
+        precision: {
+          mode: 'none',
+          tokenMaxDecimals: args.collateralTokenPrecision,
+        },
+      })
+        .switchPrecisionMode('tokenMax')
+        .toBigNumber(),
+      symbol: position.pool.collateralToken,
       precision: args.collateralTokenPrecision,
     },
     riskRatio: position.riskRatio,
@@ -145,8 +171,8 @@ export async function getSwapData(
     string
   >({
     args: {
-      fromToken: buildFromToken(args),
-      toToken: buildToToken(args),
+      fromToken: buildFromToken(args, riskIsIncreasing),
+      toToken: buildToToken(args, riskIsIncreasing),
       slippage: args.slippage,
       fee,
       swapAmountBeforeFees$: swapAmountBeforeFees$,
@@ -233,18 +259,34 @@ export function prepareAjnaMultiplyDMAPayload(
   })
 }
 
-export function buildFromToken(args: AjnaMultiplyPayload) {
-  return {
-    symbol: args.quoteTokenSymbol.toUpperCase(),
-    address: args.position.pool.quoteToken,
-    args: args.quoteTokenPrecision,
+export function buildFromToken(args: AjnaMultiplyPayload, isIncreasingRisk: boolean) {
+  if (isIncreasingRisk) {
+    return {
+      symbol: args.quoteTokenSymbol.toUpperCase(),
+      address: args.position.pool.quoteToken,
+      precision: args.quoteTokenPrecision,
+    }
+  } else {
+    return {
+      symbol: args.collateralTokenSymbol.toUpperCase(),
+      address: args.position.pool.collateralToken,
+      precision: args.collateralTokenPrecision,
+    }
   }
 }
 
-export function buildToToken(args: AjnaMultiplyPayload) {
-  return {
-    symbol: args.collateralTokenSymbol.toUpperCase(),
-    address: args.position.pool.collateralToken,
-    args: args.collateralTokenPrecision,
+export function buildToToken(args: AjnaMultiplyPayload, isIncreasingRisk: boolean) {
+  if (isIncreasingRisk) {
+    return {
+      symbol: args.collateralTokenSymbol.toUpperCase(),
+      address: args.position.pool.collateralToken,
+      precision: args.collateralTokenPrecision,
+    }
+  } else {
+    return {
+      symbol: args.quoteTokenSymbol.toUpperCase(),
+      address: args.position.pool.quoteToken,
+      precision: args.quoteTokenPrecision,
+    }
   }
 }

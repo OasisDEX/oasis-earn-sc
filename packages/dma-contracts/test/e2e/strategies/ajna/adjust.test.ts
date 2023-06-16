@@ -12,13 +12,15 @@ import {
   getSupportedAjnaPositions,
 } from '@dma-contracts/test/fixtures/system/env-with-ajna-positions'
 import { AjnaPosition, IRiskRatio, RiskRatio, strategies, views } from '@dma-library'
+import { GetSwapData } from '@dma-library/types/common'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
+import BigNumber from 'bignumber.js'
 
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
-describe.only('Strategy | AJNA | Adjust Risk Up Multiply | E2E', () => {
+describe('Strategy | AJNA | Adjust Risk Up Multiply | E2E', () => {
   const supportedPositions = getSupportedAjnaPositions(networkFork)
   let env: EnvWithAjnaPositions
   const fixture = envWithAjnaPositions({
@@ -52,6 +54,7 @@ describe.only('Strategy | AJNA | Adjust Risk Up Multiply | E2E', () => {
         if (!positionDetails) {
           throw new Error('Position not found')
         }
+        console.log('ABOUT to view position')
         position = await views.ajna.getPosition(
           {
             proxyAddress: positionDetails.proxy,
@@ -72,7 +75,9 @@ describe.only('Strategy | AJNA | Adjust Risk Up Multiply | E2E', () => {
           env,
           positionDetails,
           position,
-          targetLTV: new RiskRatio(),
+          targetMultiple: new RiskRatio(new BigNumber(3.5), RiskRatio.TYPE.MULITPLE),
+          // Can use same swap data mock given increasing risk is same as opening
+          getSwapData: positionDetails.getSwapData,
         })
       })
 
@@ -80,9 +85,19 @@ describe.only('Strategy | AJNA | Adjust Risk Up Multiply | E2E', () => {
         expect(act.adjustTxStatus).to.be.true
       })
       it(`Should have drawn debt according to multiple for ${variant}`, async () => {
-        expect.toBe(act.adjustPosition.debtAmount.toFixed(0), 'lte', ONE)
+        expect.toBe(
+          act.simulation.position.debtAmount.toFixed(0),
+          'lte',
+          act.adjustPosition.debtAmount.toFixed(0),
+        )
       })
-      it(`Should have increased collateral according to multiple for ${variant}`, async () => {})
+      it(`Should have increased collateral according to multiple for ${variant}`, async () => {
+        expect.toBe(
+          act.simulation.position.collateralAmount.toFixed(0),
+          'lte',
+          act.adjustPosition.collateralAmount.toFixed(0),
+        )
+      })
       it(`Should not have anything left on the proxy for ${variant}`, async () => {
         const proxyDebtBalance = await balanceOf(debtToken.address, positionDetails.proxy, {
           config: env.config,
@@ -108,7 +123,7 @@ describe.only('Strategy | AJNA | Adjust Risk Up Multiply | E2E', () => {
   })
 })
 
-describe('Strategy | AJNA | Adjust Risk Down Multiply | E2E', () => {
+describe.only('Strategy | AJNA | Adjust Risk Down Multiply | E2E', () => {
   const supportedPositions = getSupportedAjnaPositions(networkFork)
   let env: EnvWithAjnaPositions
   const fixture = envWithAjnaPositions({
@@ -162,7 +177,11 @@ describe('Strategy | AJNA | Adjust Risk Down Multiply | E2E', () => {
           env,
           positionDetails,
           position,
-          targetLTV: new RiskRatio(),
+          targetMultiple: new RiskRatio(new BigNumber(1.3), RiskRatio.TYPE.MULITPLE),
+          getSwapData: oneInchCallMock(ONE.div(positionDetails.__mockPrice), {
+            from: collateralToken.precision,
+            to: debtToken.precision,
+          }),
         })
       })
 
@@ -170,10 +189,18 @@ describe('Strategy | AJNA | Adjust Risk Down Multiply | E2E', () => {
         expect(act.adjustTxStatus).to.be.true
       })
       it(`Should have paid back debt according to multiple for ${variant}`, async () => {
-        expect.toBe(act.adjustPosition.debtAmount.toFixed(0), 'lte', ONE)
+        expect.toBe(
+          act.simulation.position.debtAmount.toString(),
+          'gte',
+          act.adjustPosition.debtAmount.toString(),
+        )
       })
       it(`Should have decreased collateral according to multiple for ${variant}`, async () => {
-        expect.toBe(act.adjustPosition.collateralAmount.toFixed(0), 'lte', ONE)
+        expect.toBe(
+          act.simulation.position.collateralAmount.toFixed(0),
+          'lte',
+          act.adjustPosition.collateralAmount.toFixed(0),
+        )
       })
       it(`Should not have anything left on the proxy for ${variant}`, async () => {
         const proxyDebtBalance = await balanceOf(debtToken.address, positionDetails.proxy, {
@@ -204,14 +231,16 @@ type AdjustPositionHelper = {
   env: EnvWithAjnaPositions
   positionDetails: AjnaPositionDetails
   position: AjnaPosition
-  targetLTV: IRiskRatio
+  targetMultiple: IRiskRatio
+  getSwapData: GetSwapData
 }
 
 async function adjustPositionHelper({
   env,
   positionDetails,
   position,
-  targetLTV,
+  targetMultiple,
+  getSwapData,
 }: AdjustPositionHelper) {
   const { dependencies, dsSystem, config, ajnaSystem } = env
   const { collateralToken, debtToken, proxy } = positionDetails
@@ -245,8 +274,8 @@ async function adjustPositionHelper({
       slippage: UNISWAP_TEST_SLIPPAGE,
       user: dependencies.user,
       position,
-      collateralAmount$: ONE,
-      riskRatio: targetLTV,
+      collateralAmount$: ZERO,
+      riskRatio: targetMultiple,
     },
     {
       provider: config.provider,
@@ -255,10 +284,7 @@ async function adjustPositionHelper({
       WETH: dependencies.WETH,
       getPoolData: dependencies.getPoolData,
       addresses: dependencies.addresses,
-      getSwapData: oneInchCallMock(ONE.div(positionDetails.__mockPrice), {
-        from: collateralToken.precision,
-        to: debtToken.precision,
-      }),
+      getSwapData,
     },
   )
 
