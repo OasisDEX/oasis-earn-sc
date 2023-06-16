@@ -26,6 +26,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
     IERC20 public immutable ajnaToken;
     address public immutable WETH;
     address public immutable GUARD;
+    address public immutable deployer;
     IAjnaProxyActions public immutable self;
     IPositionManager public positionManager;
     IRewardsManager public rewardsManager;
@@ -37,9 +38,11 @@ contract AjnaProxyActions is IAjnaProxyActions {
         WETH = _WETH;
         GUARD = _GUARD;
         self = this;
+        deployer = msg.sender;
     }
 
     function initialize(address _positionManager, address _rewardsManager, address _ARC) external {
+        require(msg.sender == deployer, "apa/not-deployer");
         require(
             address(positionManager) == address(0) && address(rewardsManager) == address(0) && ARC == address(0),
             "apa/already-initialized"
