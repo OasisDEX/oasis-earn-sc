@@ -97,7 +97,8 @@ export async function deployApa(
   dmpGuardContract: Contract,
   guardDeployerSigner: Signer,
   weth: WETH,
-  ajna: Token
+  ajna: Token,
+  initializeStaking = true
 ) {
   const { serviceRegistryContract } = await deployServiceRegistry();
   const hash = await serviceRegistryContract.getServiceNameHash("DPM_GUARD");
@@ -120,8 +121,11 @@ export async function deployApa(
     weth.address,
     dmpGuardContract.address,
   ]);
-  await ajnaProxyActionsContract.initialize(positionManager.address, rewardsManager.address, arc.address);
-  await arc.initializeAjnaProxyActions(ajnaProxyActionsContract.address);
+
+  if (initializeStaking) {
+    await ajnaProxyActionsContract.initialize(positionManager.address, rewardsManager.address, arc.address);
+    await arc.initializeAjnaProxyActions(ajnaProxyActionsContract.address);
+  }
 
   await dmpGuardContract.connect(guardDeployerSigner).setWhitelist(ajnaProxyActionsContract.address, true);
 

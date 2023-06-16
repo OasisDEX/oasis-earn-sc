@@ -29,7 +29,7 @@ const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
 
 describe.only("AjnaProxyActions", function () {
-  async function deploy() {
+  async function deploy(initializeStaking = true) {
     await hre.network.provider.request({
       method: "hardhat_reset",
       params: [
@@ -84,7 +84,8 @@ describe.only("AjnaProxyActions", function () {
       dmpGuardContract,
       guardDeployerSigner,
       weth,
-      ajna
+      ajna,
+      initializeStaking
     );
 
     await dmpGuardContract.connect(guardDeployerSigner).setWhitelist(ajnaProxyActionsContract.address, true);
@@ -140,7 +141,7 @@ describe.only("AjnaProxyActions", function () {
       hash,
     };
   }
-
+  const deployWithoutInitialization = () => deploy(false);
   describe("DPM - borrower - AjnaProxyActions - WETH", function () {
     it("should depositCollateral", async () => {
       const { weth, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, poolContractWeth } =
@@ -609,246 +610,6 @@ describe.only("AjnaProxyActions", function () {
       expect(balancesQuoteAfter.borrower).to.be.eq(balancesQuoteBefore.borrower.add(bn.six.HUNDRED));
     });
   });
-  describe("DPM - lender - AjnaProxyActions", function () {
-    it("should supplyQuote", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
-        deploy
-      );
-      const balancesQuoteBefore = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-
-      const price = bn.eighteen.TEST_PRICE_3;
-      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
-      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, bn.six.THOUSAND, price);
-
-      const balancesQuoteAfter = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-      const { lpBalance_ } = await poolContract.lenderInfo(index, lenderProxy.address);
-      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(poolContract.address, lpBalance_, index);
-      expect(depositedQuoteAmount).to.be.equal(bn.eighteen.THOUSAND);
-      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.THOUSAND));
-    });
-    it("should supplyQuote --> moveQuote", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
-        deploy
-      );
-      const balancesQuoteBefore = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-
-      const price = bn.eighteen.TEST_PRICE_3;
-      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
-      await supplyQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        bn.six.HUNDRED_THOUSAND,
-        price
-      );
-      await moveQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        price,
-        price.add(bn.eighteen.THOUSAND)
-      );
-
-      const balancesQuoteAfter = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-      const oldBalance = await poolContract.lenderInfo(index, lenderProxy.address);
-      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
-        poolContract.address,
-        oldBalance.lpBalance_,
-        index
-      );
-      expect(depositedQuoteAmount).to.be.equal(0);
-      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
-      const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
-      const newDepositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
-        poolContract.address,
-        newBalance.lpBalance_,
-        newIndex
-      );
-      expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.HUNDRED_THOUSAND);
-      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.HUNDRED_THOUSAND));
-    });
-    it("should supplyAndMoveQuote", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
-        deploy
-      );
-      const balancesQuoteBefore = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-
-      const price = bn.eighteen.TEST_PRICE_3;
-      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
-      await supplyQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        bn.six.HUNDRED_THOUSAND,
-        price
-      );
-      await supplyAndMoveQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        bn.six.HUNDRED_THOUSAND,
-        price,
-        price.add(bn.eighteen.THOUSAND)
-      );
-
-      const balancesQuoteAfter = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-      const oldBalance = await poolContract.lenderInfo(index, lenderProxy.address);
-      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
-        poolContract.address,
-        oldBalance.lpBalance_,
-        index
-      );
-      expect(depositedQuoteAmount).to.be.equal(0);
-      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
-      const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
-      const newDepositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
-        poolContract.address,
-        newBalance.lpBalance_,
-        newIndex
-      );
-      expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.HUNDRED_THOUSAND.mul(2));
-      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.HUNDRED_THOUSAND.mul(2)));
-    });
-    it("should withdrawAndMoveQuote", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
-        deploy
-      );
-      const balancesQuoteBefore = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-
-      const price = bn.eighteen.TEST_PRICE_3;
-      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
-      const lendAmount = bn.six.HUNDRED_THOUSAND;
-      const withdrawAmount = bn.six.TEN_THOUSAND;
-      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
-      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
-      await withdrawAndMoveQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        withdrawAmount,
-        price,
-        price.add(bn.eighteen.THOUSAND)
-      );
-
-      const balancesQuoteAfter = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-      const oldBalance = await poolContract.lenderInfo(index, lenderProxy.address);
-      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
-        poolContract.address,
-        oldBalance.lpBalance_,
-        index
-      );
-      expect(depositedQuoteAmount).to.be.equal(0);
-      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
-      const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
-      const newDepositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
-        poolContract.address,
-        newBalance.lpBalance_,
-        newIndex
-      );
-      expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.TEN_THOUSAND.mul(9));
-      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(lendAmount).add(withdrawAmount));
-    });
-    it("should supplyQuote and withdrawQuote", async () => {
-      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(deploy);
-      const balancesQuoteBefore = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-
-      const price = bn.eighteen.TEST_PRICE_3;
-      const lendAmount = bn.six.THOUSAND;
-      const withdrawAmount = bn.six.THOUSAND.mul(2);
-
-      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
-      // increase the time of the next block
-      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
-      await withdrawQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, withdrawAmount, price);
-
-      const balancesQuoteAfter = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-      // there are no borrowers hence the depoisit is not earning
-      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender);
-    });
-    it("should supplyQuote and withdrawQuote and accrue interest", async () => {
-      const { wbtc, lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, borrower, borrowerProxy } =
-        await loadFixture(deploy);
-      const balancesQuoteBefore = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-      const lendAmount = bn.six.MILLION;
-      const borrowAmount = bn.six.MILLION;
-      const depositAmount = bn.eight.HUNDRED_THOUSAND;
-      const price = bn.eighteen.TEST_PRICE_3;
-
-      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
-      // increase the time of the next block
-      await depositAndDrawDebt(
-        ajnaProxyActionsContract,
-        poolContract,
-        price,
-        wbtc,
-        borrower,
-        borrowerProxy,
-        borrowAmount,
-        depositAmount
-      );
-      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
-      await repayAndClose(ajnaProxyActionsContract, poolContract, usdc, borrower, borrowerProxy);
-      await withdrawQuote(
-        ajnaProxyActionsContract,
-        poolContract,
-        usdc,
-        lender,
-        lenderProxy,
-        lendAmount.mul(101).div(100),
-        price
-      );
-
-      const balancesQuoteAfter = {
-        lender: await usdc.balanceOf(lender.address),
-        pool: await usdc.balanceOf(poolContract.address),
-      };
-      // expected that the lender will get more quote tokens due to interest
-      expect(balancesQuoteAfter.lender).to.be.gt(balancesQuoteBefore.lender);
-    });
-  });
   describe("DPM - lender - AjnaProxyActions - NFT", function () {
     it("should claim multiple rewards from multiple proxies - same owner - called by the owner", async () => {
       const {
@@ -1295,6 +1056,247 @@ describe.only("AjnaProxyActions", function () {
       const balanceAfter = await wbtc.balanceOf(lender.address);
 
       expect(balanceAfter.sub(balanceBefore).toString()).to.be.equal(bn.eight.ONE.toString());
+    });
+  });
+  describe("DPM - lender - AjnaProxyActions", function () {
+    it("should supplyQuote", async () => {
+      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
+        deployWithoutInitialization
+      );
+      const balancesQuoteBefore = {
+        lender: await usdc.balanceOf(lender.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+
+      const price = bn.eighteen.TEST_PRICE_3;
+      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
+      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, bn.six.THOUSAND, price);
+
+      const balancesQuoteAfter = {
+        lender: await usdc.balanceOf(lender.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+      const { lpBalance_ } = await poolContract.lenderInfo(index, lenderProxy.address);
+      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(poolContract.address, lpBalance_, index);
+      expect(depositedQuoteAmount).to.be.equal(bn.eighteen.THOUSAND);
+      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.THOUSAND));
+    });
+    it("should supplyQuote --> moveQuote", async () => {
+      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
+        deployWithoutInitialization
+      );
+      const balancesQuoteBefore = {
+        lender: await usdc.balanceOf(lender.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+
+      const price = bn.eighteen.TEST_PRICE_3;
+      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
+      await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        bn.six.HUNDRED_THOUSAND,
+        price
+      );
+      await moveQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        price,
+        price.add(bn.eighteen.THOUSAND)
+      );
+
+      const balancesQuoteAfter = {
+        lender: await usdc.balanceOf(lender.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+      const oldBalance = await poolContract.lenderInfo(index, lenderProxy.address);
+      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
+        poolContract.address,
+        oldBalance.lpBalance_,
+        index
+      );
+      expect(depositedQuoteAmount).to.be.equal(0);
+      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
+      const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
+      const newDepositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
+        poolContract.address,
+        newBalance.lpBalance_,
+        newIndex
+      );
+      expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.HUNDRED_THOUSAND);
+      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.HUNDRED_THOUSAND));
+    });
+    it("should supplyAndMoveQuote", async () => {
+      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
+        deployWithoutInitialization
+      );
+      const balancesQuoteBefore = {
+        lender: await usdc.balanceOf(lender.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+
+      const price = bn.eighteen.TEST_PRICE_3;
+      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
+      await supplyQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        bn.six.HUNDRED_THOUSAND,
+        price
+      );
+      await supplyAndMoveQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        bn.six.HUNDRED_THOUSAND,
+        price,
+        price.add(bn.eighteen.THOUSAND)
+      );
+
+      const balancesQuoteAfter = {
+        lender: await usdc.balanceOf(lender.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+      const oldBalance = await poolContract.lenderInfo(index, lenderProxy.address);
+      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
+        poolContract.address,
+        oldBalance.lpBalance_,
+        index
+      );
+      expect(depositedQuoteAmount).to.be.equal(0);
+      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
+      const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
+      const newDepositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
+        poolContract.address,
+        newBalance.lpBalance_,
+        newIndex
+      );
+      expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.HUNDRED_THOUSAND.mul(2));
+      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(bn.six.HUNDRED_THOUSAND.mul(2)));
+    });
+    it("should withdrawAndMoveQuote", async () => {
+      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, poolInfoContract } = await loadFixture(
+        deployWithoutInitialization
+      );
+      const balancesQuoteBefore = {
+        lender: await usdc.balanceOf(lender.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+
+      const price = bn.eighteen.TEST_PRICE_3;
+      const index = await ajnaProxyActionsContract.convertPriceToIndex(price);
+      const lendAmount = bn.six.HUNDRED_THOUSAND;
+      const withdrawAmount = bn.six.TEN_THOUSAND;
+      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
+      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
+      await withdrawAndMoveQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        withdrawAmount,
+        price,
+        price.add(bn.eighteen.THOUSAND)
+      );
+
+      const balancesQuoteAfter = {
+        lender: await usdc.balanceOf(lender.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+      const oldBalance = await poolContract.lenderInfo(index, lenderProxy.address);
+      const depositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
+        poolContract.address,
+        oldBalance.lpBalance_,
+        index
+      );
+      expect(depositedQuoteAmount).to.be.equal(0);
+      const newIndex = await ajnaProxyActionsContract.convertPriceToIndex(price.add(bn.eighteen.THOUSAND));
+      const newBalance = await poolContract.lenderInfo(newIndex, lenderProxy.address);
+      const newDepositedQuoteAmount = await poolInfoContract.lpToQuoteTokens(
+        poolContract.address,
+        newBalance.lpBalance_,
+        newIndex
+      );
+      expect(newDepositedQuoteAmount).to.be.equal(bn.eighteen.TEN_THOUSAND.mul(9));
+      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender.sub(lendAmount).add(withdrawAmount));
+    });
+    it("should supplyQuote and withdrawQuote", async () => {
+      const { lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc } = await loadFixture(
+        deployWithoutInitialization
+      );
+      const balancesQuoteBefore = {
+        lender: await usdc.balanceOf(lender.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+      const price = bn.eighteen.TEST_PRICE_3;
+      const lendAmount = bn.six.THOUSAND;
+      const withdrawAmount = bn.six.THOUSAND.mul(2);
+
+      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
+      // increase the time of the next block
+      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
+      await withdrawQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, withdrawAmount, price);
+
+      const balancesQuoteAfter = {
+        lender: await usdc.balanceOf(lender.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+      // there are no borrowers hence the depoisit is not earning
+      expect(balancesQuoteAfter.lender).to.be.equal(balancesQuoteBefore.lender);
+    });
+    it("should supplyQuote and withdrawQuote and accrue interest", async () => {
+      const { wbtc, lenderProxy, poolContract, ajnaProxyActionsContract, lender, usdc, borrower, borrowerProxy } =
+        await loadFixture(deployWithoutInitialization);
+      const balancesQuoteBefore = {
+        lender: await usdc.balanceOf(lender.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+      const lendAmount = bn.six.MILLION;
+      const borrowAmount = bn.six.MILLION;
+      const depositAmount = bn.eight.HUNDRED_THOUSAND;
+      const price = bn.eighteen.TEST_PRICE_3;
+
+      await supplyQuote(ajnaProxyActionsContract, poolContract, usdc, lender, lenderProxy, lendAmount, price);
+      // increase the time of the next block
+      await depositAndDrawDebt(
+        ajnaProxyActionsContract,
+        poolContract,
+        price,
+        wbtc,
+        borrower,
+        borrowerProxy,
+        borrowAmount,
+        depositAmount
+      );
+      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
+      await repayAndClose(ajnaProxyActionsContract, poolContract, usdc, borrower, borrowerProxy);
+      await withdrawQuote(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        lender,
+        lenderProxy,
+        lendAmount.mul(101).div(100),
+        price
+      );
+
+      const balancesQuoteAfter = {
+        lender: await usdc.balanceOf(lender.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+      // expected that the lender will get more quote tokens due to interest
+      expect(balancesQuoteAfter.lender).to.be.gt(balancesQuoteBefore.lender);
     });
   });
 });
