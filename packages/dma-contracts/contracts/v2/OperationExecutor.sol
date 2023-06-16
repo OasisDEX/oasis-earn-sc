@@ -17,7 +17,6 @@ import { FlashloanData, Call } from "../core/types/Common.sol";
 import { MCD_FLASH } from "../core/constants/Maker.sol";
 
 error UntrustedLender(address lender);
-error UnknownActionsSet(bytes packedActionHashes);
 error InconsistentAsset(address flashloaned, address required);
 error InconsistentAmount(uint256 flashloaned, uint256 required);
 error InsufficientFunds(uint256 actual, uint256 required);
@@ -27,13 +26,10 @@ interface IProxy {
   function execute(address, bytes memory) external payable returns (bytes memory);
 }
 
-interface IOperationStorage {
-  function setInitiator(address) external;
-}
-
 /**
  * @title Operation Executor
- * @notice Is responsible for executing sequences of Actions (Operations)
+ * @notice Is responsible for executing sequences of Actions (Operations).
+ * Also it acts as a flashloan recipient
  */
 
 contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
@@ -49,7 +45,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
   /**
    * @dev Emitted once an Operation has completed execution
    * @param name Name of the operation based on the hashed value of all action hashes
-   * @param calls An array of Action calls the operation must execute
+   * @param calls An array of Actions that are executed
    **/
   event Operation(bytes32 indexed name, Call[] calls);
 
@@ -66,6 +62,24 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     OPERATION_EXECUTOR = address(this);
   }
 
+  /**
+   * @notice Executes a list of action calls that form an Operation
+   * @dev Call to this contract MUST be done through a Proxy contract.
+   * Either through a https://github.com/makerdao/ds-proxy
+   * or https://github.com/OasisDEX/defi-position-manager-smartcontracts/blob/master/contracts/AccountImplementation.sol
+   * or something similar.
+   *
+   * During the transaction execution there is a proxy storage slot reserved that keeps
+   * all the data that's used during the transaction execution.
+   * After transaction completes, the data in that slot is deleted.
+   *
+   * During the execution each action hash is added to a common variable and then
+   * the whole thing is hashed using keccak256.
+   * Then using that hased value there is a lookup in the OperationsRegistry for a specific operation
+   * that corresponds to that value, If there isn't, the transaction reverts.
+   *
+   * @param calls List of action calls to be executed.
+   */
   function executeOp(Call[] memory calls) public payable {
     StorageSlot.TransactionStorage storage txStorage = StorageSlot.getTransactionStorage();
     delete txStorage.actions;
@@ -73,15 +87,10 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
 
     aggregate(calls);
     bytes32 operationName = OPERATIONS_REGISTRY.getOperationName(keccak256(txStorage.actions));
-
-    if (operationName == bytes32("")) {
-      revert UnknownActionsSet(txStorage.actions);
-    }
+    emit Operation(operationName, calls);
 
     delete txStorage.actions;
     delete txStorage.returnedValues;
-    // By packing the string into bytes32 which means the max char length is capped at 64
-    emit Operation(operationName, calls);
   }
 
   function aggregate(Call[] memory calls) internal {
@@ -108,14 +117,11 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
   }
 
   /**
-   * @notice Not to be called directly.
-   * @dev Callback handler for use by a flashloan lender contract.
-   * If the isProxyFlashloan flag is supplied we reestablish the calling context as the user's proxy (at time of writing DSProxy). Although stored values will
-   * We set the initiator on Operation Storage such that calls originating from other contracts EG Oasis Automation Bot (see https://github.com/OasisDEX/automation-smartcontracts)
-   * The initiator address will be used to store values against the original msg.sender.
-   * This protects against the Operation Storage values being polluted by malicious code from untrusted 3rd party contracts.
-
-   * @param asset The address of the asset being flash loaned
+   * @notice ERC3156 Flashloan Callback Handler. NOT to be called directly.
+   * @dev This callback handler handles flashloan provided by Maker's Flashloan Provider.
+   * Throws an error and reverts if there are not enough funds to refund the FL.
+   * @param initiator Who initiated the flashloan. It the context of our contract this is the Proxy address of the user.
+   * @param asset The address of the asset being flash loaned. It context of Maker's Flashloan, this is the DAI address.
    * @param amount The size of the flash loan
    * @param fee The Fee charged for the loan
    * @param data Any calldata sent to the contract for execution later in the callback
@@ -144,6 +150,16 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     return keccak256("ERC3156FlashBorrower.onFlashLoan");
   }
 
+  /**
+   * @notice Balancer Flashloan Provider handler. NOT to be called directly.
+   * @dev Main used of this flashloan provider is on L2 Networks such as Optimism.
+   * Also there are cases where a flashloan, in different than DAI asset, is needed.
+   * Throws an error and reverts if there are not enough funds to refund the FL.
+   * @param tokens Tokens used for the FL
+   * @param amounts Flashloaned amounts of the corresponding tokens
+   * @param feeAmounts Fee for each token's flashloaned amount
+   * @param data Any calldata sent to the contract for execution later in the callback
+   */
   function receiveFlashLoan(
     IERC20[] memory tokens,
     uint256[] memory amounts,
@@ -176,18 +192,27 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
   function checkIfFlashloanedAssetIsTheRequiredOne(
     address flashloaned,
     address required
-  ) public pure {
+  ) private pure {
     if (flashloaned != required) revert InconsistentAsset(flashloaned, required);
   }
 
   function checkIfFlashloanedAmountIsTheRequiredOne(
     address asset,
     uint256 requiredAmount
-  ) public view {
+  ) private view {
     uint256 assetBalance = IERC20(asset).balanceOf(address(this));
     if (assetBalance < requiredAmount) revert InconsistentAmount(assetBalance, requiredAmount);
   }
 
+  /**
+   * @custom:scope The scope at which this method is execute is an external call. Our TakeFlashloan contract
+   * calls a provider ( by an external call ) which calls a FL handler ( by an external call ).
+   * Our contracts are meant to be execute in the context of a proxy hence is the need to call the proxy again
+   * and pass the received amount.
+   * @param flData In the context of this method it contains the amount that is flashloaned and that needs
+   * to be send to the proxy. Also it contains further action calls that will be executed.
+   * @param initiator The address of the proxy that initiated the flashloan
+   */
   function processFlashloan(FlashloanData memory flData, address initiator) private {
     IERC20(flData.asset).safeTransfer(initiator, flData.amount);
     IProxy(payable(initiator)).execute(

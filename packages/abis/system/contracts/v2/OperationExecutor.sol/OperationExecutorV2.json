@@ -12,8 +12,8 @@
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "_flashMintModule",
+        "internalType": "contract ChainLogView",
+        "name": "_chainLogView",
         "type": "address"
       },
       {
@@ -71,12 +71,17 @@
   {
     "inputs": [
       {
-        "internalType": "bytes",
-        "name": "packedActionHashes",
-        "type": "bytes"
+        "internalType": "uint256",
+        "name": "actual",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "required",
+        "type": "uint256"
       }
     ],
-    "name": "UnknownActionsSet",
+    "name": "InsufficientFunds",
     "type": "error"
   },
   {

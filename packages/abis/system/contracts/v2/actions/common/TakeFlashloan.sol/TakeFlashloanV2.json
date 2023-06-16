@@ -3,11 +3,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_flashMintModule",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_balancerVault",
         "type": "address"
       },

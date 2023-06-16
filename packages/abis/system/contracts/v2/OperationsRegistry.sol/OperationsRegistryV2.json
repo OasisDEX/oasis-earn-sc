@@ -5,10 +5,21 @@
     "type": "constructor"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "packedActionHashes",
+        "type": "bytes32"
+      }
+    ],
+    "name": "UnknownOperationHash",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "string",
         "name": "name",
         "type": "string"
