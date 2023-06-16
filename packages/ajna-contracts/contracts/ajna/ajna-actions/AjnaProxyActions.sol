@@ -4,7 +4,7 @@ pragma solidity 0.8.18;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-import { IPoolInfoUtils } from "../../interfaces/IPoolInfoUtils.sol";
+import { IAjnaPoolUtilsInfo } from "../../interfaces/ajna/IAjnaPoolUtilsInfo.sol";
 import { IERC20Pool } from "../interfaces/pool/erc20/IERC20Pool.sol";
 import { IPositionManager } from "../interfaces/position/IPositionManager.sol";
 import { IRewardsManager } from "../interfaces/rewards/IRewardsManager.sol";
@@ -22,7 +22,7 @@ interface IAjnaProxyActions {
 }
 
 contract AjnaProxyActions is IAjnaProxyActions {
-    IPoolInfoUtils public immutable poolInfoUtils;
+    IAjnaPoolUtilsInfo public immutable poolInfoUtils;
     IERC20 public immutable ajnaToken;
     address public immutable WETH;
     address public immutable GUARD;
@@ -31,7 +31,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
     IRewardsManager public rewardsManager;
     address public ARC;
 
-    constructor(IPoolInfoUtils _poolInfoUtils, IERC20 _ajnaToken, address _WETH, address _GUARD) {
+    constructor(IAjnaPoolUtilsInfo _poolInfoUtils, IERC20 _ajnaToken, address _WETH, address _GUARD) {
         poolInfoUtils = _poolInfoUtils;
         ajnaToken = _ajnaToken;
         WETH = _WETH;

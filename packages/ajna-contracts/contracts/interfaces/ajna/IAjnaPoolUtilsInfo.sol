@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.15;
 
-interface IPoolInfoUtils {
+interface IAjnaPoolUtilsInfo {
     function priceToIndex(uint256 price_) external pure returns (uint256);
 
     function borrowerInfo(
