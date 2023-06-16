@@ -6,6 +6,7 @@ export type { AAVEV3StrategyAddresses } from './operations/aave/v3/addresses'
 export { calculateAjnaApyPerDays, getAjnaLiquidationPrice, protocols } from './protocols'
 export { strategies } from './strategies'
 export { AaveVersion } from './strategies'
+export { ajnaBuckets } from './strategies'
 export type {
   ISimplePositionTransition,
   ISimpleSimulatedTransition,
