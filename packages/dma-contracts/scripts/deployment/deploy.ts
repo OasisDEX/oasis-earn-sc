@@ -96,6 +96,7 @@ abstract class DeployedSystemHelpers {
 
   async getForkedNetworkChainId(provider: providers.JsonRpcProvider) {
     try {
+      return (await provider.getNetwork()).chainId
       const metadata = await provider.send('hardhat_metadata', [])
       return metadata.forkedNetwork.chainId
     } catch (e) {
