@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 
-pragma solidity 0.8.15;
+pragma solidity 0.8.18;
 
 import { Strings } from '@openzeppelin/contracts/utils/Strings.sol';
 import { Base64 }  from '../../libs/base64/base64.sol';
@@ -51,6 +51,7 @@ library PositionNFTSVG {
                             '", "description":"',
                             description,
                             '", "image":"',
+                            'data:image/svg+xml;base64,',
                             image,
                             '", "owner":"',
                             ownerHexString,
