@@ -76,7 +76,7 @@ export async function createDPMProxy(dmpFactory: AccountFactory, owner: Signer) 
   return dpmProxy;
 }
 
-export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens = false) {
+export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens = false, setTokenBalance = true) {
   const hre = _hre ? _hre : await import("hardhat");
   const ethers = hre.ethers;
   const signers = await ethers.getSigners();
@@ -104,12 +104,14 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
     {} as Record<string, ERC20Pool>
   );
 
-  await Promise.all([
-    // Have some issues with setting balance on mainnet USDC contract
-    ...(mainnetTokens ? [] : signers.map(signer => utils.sendLotsOfMoney(signer.address, usdc, mainnetTokens))),
-    ...signers.map(signer => utils.sendLotsOfMoney(signer.address, wbtc, mainnetTokens)),
-    ...signers.map(signer => utils.sendLotsOfMoney(signer.address, weth, mainnetTokens)),
-  ]);
+  if (setTokenBalance) {
+    await Promise.all([
+      // Have some issues with setting balance on mainnet USDC contract
+      ...(mainnetTokens ? [] : signers.map(signer => utils.sendLotsOfMoney(signer.address, usdc, mainnetTokens))),
+      ...signers.map(signer => utils.sendLotsOfMoney(signer.address, wbtc, mainnetTokens)),
+      ...signers.map(signer => utils.sendLotsOfMoney(signer.address, weth, mainnetTokens)),
+    ]);
+  }
 
   const dmpProxies = await Promise.all(signers.map(signer => createDPMProxy(dmpFactory, signer)));
   const users: User[] = signers.map((signer, index) => ({

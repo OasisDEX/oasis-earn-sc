@@ -153,9 +153,10 @@ export async function deployGuard(hre: HardhatRuntimeEnvironment) {
   const dmpFactory = await utils.deployContract<AccountFactory>("AccountFactory", [dmpGuardContract.address]);
 
   const [guardDeployerAddress] = await hre.ethers.getSigners();
-  const guardDeployerSigner = await utils.impersonate(guardDeployerAddress.address);
+  // TODO: fix scripts
+  // const guardDeployerSigner = await utils.impersonate(guardDeployerAddress.address);
 
-  return { dmpGuardContract, guardDeployerSigner, dmpFactory };
+  return { dmpGuardContract, guardDeployerSigner: guardDeployerAddress, dmpFactory };
 }
 
 export async function deployPoolFactory(

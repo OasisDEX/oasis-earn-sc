@@ -323,3 +323,21 @@ export type SystemConfig = {
   automation: Record<AutomationProtocol, DeploymentConfig>
   ajna: Record<AjnaProtocol, DeploymentConfig>
 }
+
+export type SystemConfigWithAjna = {
+  mpa: {
+    core: CoreRecord & CoreMainnetRecord & SwapRecord &  Record<AjnaProtocol, DeploymentConfig>
+    actions: ActionsRecord & AaveV2ActionsRecord
+  }
+  common: Record<Common, DeploymentConfig>
+  aave: {
+    v2: Record<AaveV2Protocol, DeploymentConfig>
+    v3: Record<AaveV3Protocol, DeploymentConfig>
+  }
+  maker: {
+    common: Record<MakerProtocol, DeploymentConfig>
+    joins: Record<MakerProtocolJoins, DeploymentConfig>
+    pips: Record<MakerProtocolPips, DeploymentConfig>
+  }
+  automation: Record<AutomationProtocol, DeploymentConfig>
+}
