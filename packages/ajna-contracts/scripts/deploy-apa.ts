@@ -100,26 +100,12 @@ async function main() {
         ADDRESSES[network].SERVICE_REGISTRY,
       ]);
       await apa.initialize(ADDRESSES[network].POSITION_MANAGER, ADDRESSES[network].REWARD_MANAGER, arc.address);
-
+      console.log(`AjnaProxyActions Address   : ${apa.address}`);
       console.log(`AjnaRewardsClaimer Deployed: ${arc.address}`);
     }
   }
   await deployAjnaPools(deployPools, network, erc20PoolFactory, apa, signer);
 }
-
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main()
-  .then(() => {
-    // success message or other processing
-    process.exitCode = 0;
-    process.exit();
-  })
-  .catch(error => {
-    console.error(error);
-    process.exitCode = 1;
-    process.exit();
-  });
 
 async function deployAjnaPools(
   deployPools: boolean,
@@ -189,3 +175,17 @@ async function getSigner() {
   }
   return signer;
 }
+
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
+main()
+  .then(() => {
+    // success message or other processing
+    process.exitCode = 0;
+    process.exit();
+  })
+  .catch(error => {
+    console.error(error);
+    process.exitCode = 1;
+    process.exit();
+  });
