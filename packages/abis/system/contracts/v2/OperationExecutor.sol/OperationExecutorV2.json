@@ -115,15 +115,10 @@
             "internalType": "bytes",
             "name": "callData",
             "type": "bytes"
-          },
-          {
-            "internalType": "bool",
-            "name": "skipped",
-            "type": "bool"
           }
         ],
         "indexed": false,
-        "internalType": "struct Call[]",
+        "internalType": "struct CallV2[]",
         "name": "calls",
         "type": "tuple[]"
       }
@@ -144,14 +139,9 @@
             "internalType": "bytes",
             "name": "callData",
             "type": "bytes"
-          },
-          {
-            "internalType": "bool",
-            "name": "skipped",
-            "type": "bool"
           }
         ],
-        "internalType": "struct Call[]",
+        "internalType": "struct CallV2[]",
         "name": "calls",
         "type": "tuple[]"
       }
@@ -159,42 +149,6 @@
     "name": "callbackAggregate",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "asset",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "requiredAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "checkIfFlashloanedAmountIsTheRequiredOne",
-    "outputs": [],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "flashloaned",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "required",
-        "type": "address"
-      }
-    ],
-    "name": "checkIfFlashloanedAssetIsTheRequiredOne",
-    "outputs": [],
-    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -223,14 +177,9 @@
             "internalType": "bytes",
             "name": "callData",
             "type": "bytes"
-          },
-          {
-            "internalType": "bool",
-            "name": "skipped",
-            "type": "bool"
           }
         ],
-        "internalType": "struct Call[]",
+        "internalType": "struct CallV2[]",
         "name": "calls",
         "type": "tuple[]"
       }

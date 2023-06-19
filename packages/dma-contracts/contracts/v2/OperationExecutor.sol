@@ -13,7 +13,7 @@ import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender
 import { IFlashLoanRecipient } from "../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
-import { FlashloanData, Call } from "../core/types/Common.sol";
+import { FlashloanDataV2, CallV2 } from "./types/Common.sol";
 import { MCD_FLASH } from "../core/constants/Maker.sol";
 
 error UntrustedLender(address lender);
@@ -47,7 +47,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
    * @param name Name of the operation based on the hashed value of all action hashes
    * @param calls An array of Actions that are executed
    **/
-  event Operation(bytes32 indexed name, Call[] calls);
+  event Operation(bytes32 indexed name, CallV2[] calls);
 
   constructor(
     ServiceRegistry _registry,
@@ -80,7 +80,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
    *
    * @param calls List of action calls to be executed.
    */
-  function executeOp(Call[] memory calls) public payable {
+  function executeOp(CallV2[] memory calls) public payable {
     StorageSlot.TransactionStorage storage txStorage = StorageSlot.getTransactionStorage();
     delete txStorage.actions;
     delete txStorage.returnedValues;
@@ -93,7 +93,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     delete txStorage.returnedValues;
   }
 
-  function aggregate(Call[] memory calls) internal {
+  function aggregate(CallV2[] memory calls) internal {
     StorageSlot.TransactionStorage storage txStorage = StorageSlot.getTransactionStorage();
 
     for (uint256 current = 0; current < calls.length; current++) {
@@ -109,7 +109,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
    * @dev Is called by the Operation Executor via a user's proxy to execute Actions nested in the FlashloanAction
    * @param calls An array of Action calls the operation must execute
    */
-  function callbackAggregate(Call[] memory calls) external {
+  function callbackAggregate(CallV2[] memory calls) external {
     if (msg.sender != OPERATION_EXECUTOR) {
       revert ForbiddenCall(msg.sender);
     }
@@ -133,7 +133,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     uint256 fee,
     bytes calldata data
   ) external override returns (bytes32) {
-    FlashloanData memory flData = abi.decode(data, (FlashloanData));
+    FlashloanDataV2 memory flData = abi.decode(data, (FlashloanDataV2));
     address mcdFlash = CHAINLOG_VIEWER.getServiceAddress(MCD_FLASH);
     checkIfLenderIsTrusted(mcdFlash);
     checkIfFlashloanedAssetIsTheRequiredOne(asset, flData.asset);
@@ -167,7 +167,10 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     bytes memory data
   ) external override {
     address asset = address(tokens[0]);
-    (FlashloanData memory flData, address initiator) = abi.decode(data, (FlashloanData, address));
+    (FlashloanDataV2 memory flData, address initiator) = abi.decode(
+      data,
+      (FlashloanDataV2, address)
+    );
 
     checkIfLenderIsTrusted(BALANCER_VAULT);
     checkIfFlashloanedAssetIsTheRequiredOne(asset, flData.asset);
@@ -213,7 +216,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
    * to be send to the proxy. Also it contains further action calls that will be executed.
    * @param initiator The address of the proxy that initiated the flashloan
    */
-  function processFlashloan(FlashloanData memory flData, address initiator) private {
+  function processFlashloan(FlashloanDataV2 memory flData, address initiator) private {
     IERC20(flData.asset).safeTransfer(initiator, flData.amount);
     IProxy(payable(initiator)).execute(
       address(this),

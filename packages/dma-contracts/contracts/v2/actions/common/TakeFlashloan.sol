@@ -8,7 +8,8 @@ import { IERC3156FlashLender } from "../../../interfaces/flashloan/IERC3156Flash
 import {
   IFlashLoanRecipient
 } from "../../../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
-import { FlashloanData, FlashloanProvider } from "../../../core/types/Common.sol";
+import { FlashloanProvider } from "../../../core/types/Common.sol";
+import { FlashloanDataV2 } from "../../types/Common.sol";
 import { ChainLogView } from "../../../core/views/ChainLogView.sol";
 import { ProxyPermission } from "../../../libs/DS/ProxyPermission.sol";
 import { IERC20 } from "../../../libs/SafeERC20.sol";
@@ -44,11 +45,8 @@ contract TakeFlashloanV2 is Executable, ProxyPermission {
    * @param data Encoded calldata that conforms to the FlashloanData struct
    */
   function execute(bytes calldata data, uint8[] memory) external payable override {
-    FlashloanData memory flData = parseInputs(data);
-
-    if (flData.isProxyFlashloan) {
-      givePermission(flData.isDPMProxy, OPERATION_EXECUTOR);
-    }
+    FlashloanDataV2 memory flData = parseInputs(data);
+    givePermission(flData.isDPMProxy, OPERATION_EXECUTOR);
 
     if (flData.provider == FlashloanProvider.DssFlash) {
       IERC3156FlashLender(CHAINLOG_VIEWER.getServiceAddress(MCD_FLASH)).flashLoan(
@@ -74,12 +72,10 @@ contract TakeFlashloanV2 is Executable, ProxyPermission {
       );
     }
 
-    if (flData.isProxyFlashloan) {
-      removePermission(flData.isDPMProxy, OPERATION_EXECUTOR);
-    }
+    removePermission(flData.isDPMProxy, OPERATION_EXECUTOR);
   }
 
-  function parseInputs(bytes memory _callData) public pure returns (FlashloanData memory params) {
-    return abi.decode(_callData, (FlashloanData));
+  function parseInputs(bytes memory _callData) public pure returns (FlashloanDataV2 memory params) {
+    return abi.decode(_callData, (FlashloanDataV2));
   }
 }

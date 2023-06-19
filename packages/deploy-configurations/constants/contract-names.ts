@@ -72,6 +72,8 @@ export const CONTRACT_NAMES = {
   },
   test: {
     DUMMY_ACTION: 'DummyAction',
+    DUMMY_READ_ACTION: 'DummyReadAction',
+    DUMMY_WRITE_ACTION: 'DummyWriteAction',
     DUMMY_OPTIONAL_ACTION: 'DummyOptionalAction',
     DUMMY_SWAP: 'DummySwap',
     DUMMY_EXCHANGE: 'DummyExchange',

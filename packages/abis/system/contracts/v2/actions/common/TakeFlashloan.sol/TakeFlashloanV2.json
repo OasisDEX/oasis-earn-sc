@@ -103,11 +103,6 @@
           },
           {
             "internalType": "bool",
-            "name": "isProxyFlashloan",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
             "name": "isDPMProxy",
             "type": "bool"
           },
@@ -127,19 +122,14 @@
                 "internalType": "bytes",
                 "name": "callData",
                 "type": "bytes"
-              },
-              {
-                "internalType": "bool",
-                "name": "skipped",
-                "type": "bool"
               }
             ],
-            "internalType": "struct Call[]",
+            "internalType": "struct CallV2[]",
             "name": "calls",
             "type": "tuple[]"
           }
         ],
-        "internalType": "struct FlashloanData",
+        "internalType": "struct FlashloanDataV2",
         "name": "params",
         "type": "tuple"
       }
