@@ -1,0 +1,15 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "badBytes",
+        "type": "bytes"
+      }
+    ],
+    "name": "write",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

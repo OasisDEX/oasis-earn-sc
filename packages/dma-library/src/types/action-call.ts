@@ -3,3 +3,8 @@ export type ActionCall = {
   callData: string
   skipped: boolean
 }
+
+export type BasicCall = {
+  targetHash: string
+  callData: string
+}
