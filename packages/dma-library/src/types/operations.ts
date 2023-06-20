@@ -75,7 +75,10 @@ export type WithSwap = {
 export type WithFlashloan = {
   flashloan: {
     provider: FlashloanProvider
-    amount: BigNumber
+    token: {
+      amount: BigNumber
+      address: Address
+    }
   }
 }
 

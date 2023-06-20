@@ -14,6 +14,7 @@ import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { AAVEStrategyAddresses, AAVEV3StrategyAddresses } from '@dma-library/index'
 import { operations } from '@dma-library/operations'
+import { OpenOperationArgs } from '@dma-library/operations/aave/v3/open'
 import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
@@ -323,7 +324,7 @@ async function buildOperation(
       : args.depositedByUser?.debtToken?.amountInBaseUnit
     const borrowAmount = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
 
-    const openArgs = {
+    const openArgs: OpenOperationArgs = {
       collateral: {
         address: collateralTokenAddress,
         isEth: args.collateralToken.symbol === 'ETH',
@@ -347,7 +348,10 @@ async function buildOperation(
         receiveAtLeast: swapData.minToTokenAmount,
       },
       flashloan: {
-        amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
+        token: {
+          amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
+          address: dependencies.addresses.DAI,
+        },
         provider: flashloanProvider,
       },
       position: {
