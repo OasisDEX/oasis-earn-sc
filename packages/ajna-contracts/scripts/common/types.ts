@@ -6,3 +6,5 @@ export interface User {
   signer: Signer;
   proxy: IAccountImplementation;
 }
+
+export type Pool = { pair: string; amount: number; price: number; deposit: boolean };
