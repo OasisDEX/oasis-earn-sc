@@ -97,11 +97,13 @@ async function buildOperation(
       operations.aave.v3.paybackWithdraw({
         ...sharedArgs,
         addresses: dependencies.addresses as AAVEV3StrategyAddresses,
+        network: dependencies.network,
       }),
     [AaveVersion.v2]: () =>
       operations.aave.v2.paybackWithdraw({
         ...sharedArgs,
         addresses: dependencies.addresses as AAVEStrategyAddresses,
+        network: dependencies.network,
       }),
   }
 

@@ -1,4 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
+import { Network } from '@deploy-configurations/types/network'
 import { OperationNames } from '@dma-common/constants'
 import { BigNumber } from 'bignumber.js'
 
@@ -128,4 +129,8 @@ export type WithEMode = {
 
 export type WithAjnaBucketPrice = {
   price: BigNumber
+}
+
+export type WithNetwork = {
+  network: Network
 }

@@ -1,4 +1,4 @@
-import { aaveAdjustDownV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getAaveAdjustDownV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
@@ -7,6 +7,7 @@ import {
   WithCollateralAndWithdrawal,
   WithDebt,
   WithFlashloan,
+  WithNetwork,
   WithProxy,
   WithSwap,
 } from '@dma-library/types/operations'
@@ -17,7 +18,8 @@ type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithSwap &
   WithFlashloan &
   WithProxy &
-  WithAaveV3StrategyAddresses
+  WithAaveV3StrategyAddresses &
+  WithNetwork
 
 export type AaveV3AdjustDownOperation = ({
   collateral,
@@ -26,6 +28,7 @@ export type AaveV3AdjustDownOperation = ({
   flashloan,
   proxy,
   addresses,
+  network,
 }: AdjustRiskDownArgs) => Promise<IOperation>
 
 export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
@@ -35,27 +38,28 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
   flashloan,
   proxy,
   addresses,
+  network,
 }) => {
-  const setDaiApprovalOnLendingPool = actions.common.setApproval({
+  const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
     amount: flashloan.amount,
     asset: addresses.DAI,
     delegate: addresses.pool,
     sumAmounts: false,
   })
 
-  const depositDaiInAAVE = actions.aave.v3.aaveV3Deposit({
+  const depositDaiInAAVE = actions.aave.v3.aaveV3Deposit(network, {
     amount: flashloan.amount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
 
-  const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw({
+  const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw(network, {
     asset: collateral.address,
     amount: collateral.withdrawal.amount,
     to: proxy.address,
   })
 
-  const swapCollateralTokensForDebtTokens = actions.common.swap({
+  const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
     fromAsset: collateral.address,
     toAsset: debt.address,
     amount: swap.amount,
@@ -66,6 +70,7 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
   })
 
   const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
+    network,
     {
       amount: 0,
       asset: debt.address,
@@ -76,6 +81,7 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
   )
 
   const paybackInAAVE = actions.aave.v3.aaveV3Payback(
+    network,
     {
       asset: debt.address,
       amount: new BigNumber(0),
@@ -84,21 +90,21 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
     [0, 3, 0],
   )
 
-  const withdrawDAIFromAAVE = actions.aave.v3.aaveV3Withdraw({
+  const withdrawDAIFromAAVE = actions.aave.v3.aaveV3Withdraw(network, {
     asset: addresses.DAI,
     amount: flashloan.amount,
     to: addresses.operationExecutor,
   })
 
-  const unwrapEth = actions.common.unwrapEth({
+  const unwrapEth = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
   })
 
-  const returnDebtFunds = actions.common.returnFunds({
+  const returnDebtFunds = actions.common.returnFunds(network, {
     asset: debt.isEth ? addresses.ETH : debt.address,
   })
 
-  const returnCollateralFunds = actions.common.returnFunds({
+  const returnCollateralFunds = actions.common.returnFunds(network, {
     asset: collateral.isEth ? addresses.ETH : collateral.address,
   })
 
@@ -117,7 +123,7 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
     returnCollateralFunds,
   ]
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan({
+  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: addresses.DAI,
     flashloanAmount: flashloan.amount,
@@ -128,6 +134,6 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: aaveAdjustDownV3OperationDefinition.name,
+    operationName: getAaveAdjustDownV3OperationDefinition(network).name,
   }
 }

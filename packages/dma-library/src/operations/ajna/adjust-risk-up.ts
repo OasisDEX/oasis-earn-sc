@@ -8,6 +8,7 @@ import {
   WithCollateral,
   WithDebtAndBorrow,
   WithFlashloan,
+  WithNetwork,
   WithOptionalDeposit,
   WithProxy,
   WithSwap,
@@ -23,7 +24,8 @@ type AjnaAdjustRiskUpArgs = WithCollateral &
   WithFlashloan &
   WithProxy &
   WithAjnaStrategyAddresses &
-  WithAjnaBucketPrice
+  WithAjnaBucketPrice &
+  WithNetwork
 
 export type AjnaAdjustRiskUpOperation = ({
   collateral,
@@ -34,6 +36,7 @@ export type AjnaAdjustRiskUpOperation = ({
   proxy,
   addresses,
   price,
+  network,
 }: AjnaAdjustRiskUpArgs) => Promise<IOperation>
 
 export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
@@ -45,16 +48,17 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
   proxy,
   addresses,
   price,
+  network,
 }) => {
   const depositAmount = deposit?.amount || ZERO
 
-  const pullCollateralTokensToProxy = actions.common.pullToken({
+  const pullCollateralTokensToProxy = actions.common.pullToken(network, {
     asset: collateral.address,
     amount: depositAmount,
     from: proxy.owner,
   })
 
-  const wrapEth = actions.common.wrapEth({
+  const wrapEth = actions.common.wrapEth(network, {
     amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
   })
 
@@ -63,7 +67,7 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
   const shouldSkippWrapEth = !collateral.isEth
   wrapEth.skipped = shouldSkippWrapEth
 
-  const swapDebtTokensForCollateralTokens = actions.common.swap({
+  const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
     fromAsset: debt.address,
     toAsset: collateral.address,
     amount: swap.amount,
@@ -76,6 +80,7 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
   const swapValueIndex = shouldSkippWrapEth ? 1 : 2
 
   const setCollateralTokenApprovalOnPool = actions.common.setApproval(
+    network,
     {
       asset: collateral.address,
       delegate: addresses.pool,
@@ -105,7 +110,7 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
     depositBorrow,
   ]
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan({
+  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: debt.address,
     flashloanAmount: flashloan.amount,

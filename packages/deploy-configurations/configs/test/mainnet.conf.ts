@@ -1,5 +1,8 @@
-import { ADDRESS_ZERO, CONTRACT_NAMES } from '@deploy-configurations/constants'
+import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
+import { Network } from '@deploy-configurations/types/network'
+
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 export const config: SystemConfig = {
   mpa: {
@@ -39,7 +42,7 @@ export const config: SystemConfig = {
         name: 'DSProxyFactory',
         deploy: true,
         address: '0xA26e15C895EFc0616177B7c1e7270A4C7D51C997',
-        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_FACTORY,
         history: [],
         constructorArgs: [],
       },
@@ -47,7 +50,7 @@ export const config: SystemConfig = {
         name: 'DSProxyRegistry',
         deploy: true,
         address: '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4',
-        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_REGISTRY,
         history: [],
         constructorArgs: ['address:DSProxyFactory'],
       },
@@ -55,7 +58,7 @@ export const config: SystemConfig = {
         name: 'DSGuardFactory',
         deploy: true,
         address: '0x5a15566417e6C1c9546523066500bDDBc53F88C7',
-        serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_GUARD_FACTORY,
         history: [],
         constructorArgs: [],
       },
@@ -77,7 +80,7 @@ export const config: SystemConfig = {
         name: 'ChainLogView',
         deploy: true,
         address: '0x4B323Eb2ece7fc1D81F1819c26A7cBD29975f75f',
-        serviceRegistryName: CONTRACT_NAMES.maker.CHAINLOG_VIEW,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.CHAINLOG_VIEW,
         history: [],
         constructorArgs: ['0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F'],
       },
@@ -211,7 +214,7 @@ export const config: SystemConfig = {
         name: 'AaveV3Withdraw',
         deploy: true,
         address: '0x414958801DC53E840501f507D7A0FEBE55806200',
-        serviceRegistryName: CONTRACT_NAMES.aave.v3.WITHDRAW,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
@@ -219,7 +222,7 @@ export const config: SystemConfig = {
         name: 'AaveV3Deposit',
         deploy: true,
         address: '0x852c56859840487DcED2aF501fC06f7462C4f2a8',
-        serviceRegistryName: CONTRACT_NAMES.aave.v3.DEPOSIT,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.DEPOSIT,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
@@ -249,17 +252,17 @@ export const config: SystemConfig = {
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xe592427a0aece92de3edee1f18e0157c05861564',
-      serviceRegistryName: CONTRACT_NAMES.common.UNISWAP_ROUTER,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.UNISWAP_ROUTER,
     },
     BalancerVault: {
       name: 'BalancerVault',
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.BALANCER_VAULT,
     },
     OneInchAggregator: {
       name: 'OneInchAggregator',
       address: '0x1111111254fb6c44bac0bed2854e76f90643097d',
-      serviceRegistryName: CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
     },
     AuthorizedCaller: {
       name: 'AuthorizedCaller',
@@ -363,7 +366,7 @@ export const config: SystemConfig = {
     DAI: {
       name: 'DAI',
       address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-      serviceRegistryName: CONTRACT_NAMES.common.DAI,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DAI,
     },
     ETH: { name: 'ETH', address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' },
     GNO: { name: 'GNO', address: '0x6810e776880C02933D47DB1b9fc05908e5386b96' },
@@ -395,7 +398,7 @@ export const config: SystemConfig = {
     STETH: {
       name: 'STETH',
       address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
-      serviceRegistryName: CONTRACT_NAMES.common.STETH,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.STETH,
     },
     TUSD: { name: 'TUSD', address: '0x0000000000085d4780B73119b644AE5ecd22b376' },
     UNI: { name: 'UNI', address: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984' },
@@ -412,23 +415,23 @@ export const config: SystemConfig = {
     USDC: {
       name: 'USDC',
       address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-      serviceRegistryName: CONTRACT_NAMES.common.USDC,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
     },
     USDT: { name: 'USDT', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7' },
     WBTC: {
       name: 'WBTC',
       address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-      serviceRegistryName: CONTRACT_NAMES.common.WBTC,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WBTC,
     },
     WETH: {
       name: 'WETH',
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-      serviceRegistryName: CONTRACT_NAMES.common.WETH,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
     },
     WSTETH: {
       name: 'WSTETH',
       address: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
-      serviceRegistryName: CONTRACT_NAMES.common.WSTETH,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WSTETH,
     },
     YFI: { name: 'YFI', address: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e' },
     ZRX: { name: 'ZRX', address: '0xE41d2489571d322189246DaFA5ebDe1F4699F498' },
@@ -442,7 +445,7 @@ export const config: SystemConfig = {
       LendingPool: {
         name: 'LendingPool',
         address: '0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9',
-        serviceRegistryName: CONTRACT_NAMES.aave.v2.LENDING_POOL,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.LENDING_POOL,
       },
       ProtocolDataProvider: {
         name: 'ProtocolDataProvider',
@@ -451,7 +454,7 @@ export const config: SystemConfig = {
       WETHGateway: {
         name: 'WETHGateway',
         address: '0xcc9a0B7c43DC2a5F023Bb9b738E45B0Ef6B06E04',
-        serviceRegistryName: CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.WETH_GATEWAY,
       },
     },
     v3: {
@@ -462,7 +465,7 @@ export const config: SystemConfig = {
       Pool: {
         name: 'Pool',
         address: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
-        serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
       },
       AavePoolDataProvider: {
         name: 'AavePoolDataProvider',
@@ -479,7 +482,7 @@ export const config: SystemConfig = {
       FlashMintModule: {
         name: 'FlashMintModule',
         address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
-        serviceRegistryName: CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.FLASH_MINT_MODULE,
       },
       Chainlog: {
         name: 'Chainlog',

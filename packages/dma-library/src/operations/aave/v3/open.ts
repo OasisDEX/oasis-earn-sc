@@ -1,4 +1,4 @@
-import { aaveOpenV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getAaveOpenV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import {
@@ -9,6 +9,7 @@ import {
   WithDebtAndBorrow,
   WithEMode,
   WithFlashloan,
+  WithNetwork,
   WithOptionalDeposit,
   WithPosition,
   WithProxy,
@@ -25,7 +26,8 @@ type OpenArgs = WithCollateral &
   WithProxy &
   WithPosition &
   WithEMode &
-  WithAaveV3StrategyAddresses
+  WithAaveV3StrategyAddresses &
+  WithNetwork
 
 export type AaveV3OpenOperation = ({
   collateral,
@@ -37,6 +39,7 @@ export type AaveV3OpenOperation = ({
   position,
   emode,
   addresses,
+  network,
 }: OpenArgs) => Promise<IOperation>
 
 export const open: AaveV3OpenOperation = async ({
@@ -49,6 +52,7 @@ export const open: AaveV3OpenOperation = async ({
   position,
   emode,
   addresses,
+  network,
 }) => {
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
@@ -56,42 +60,42 @@ export const open: AaveV3OpenOperation = async ({
   const isDepositingCollateral = deposit?.address === collateral.address
   const isDepositingDebtTokens = deposit?.address === debt.address
 
-  const pullDebtTokensToProxy = actions.common.pullToken({
+  const pullDebtTokensToProxy = actions.common.pullToken(network, {
     asset: debt.address,
     amount: isDepositingDebtTokens ? depositAmount : ZERO,
     from: proxy.owner,
   })
 
-  const pullCollateralTokensToProxy = actions.common.pullToken({
+  const pullCollateralTokensToProxy = actions.common.pullToken(network, {
     asset: collateral.address,
     amount: isDepositingCollateral ? depositAmount : ZERO,
     from: proxy.owner,
   })
 
-  const setDaiApprovalOnLendingPool = actions.common.setApproval({
+  const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
     amount: flashloan.amount,
     asset: addresses.DAI,
     delegate: addresses.pool,
     sumAmounts: false,
   })
 
-  const depositDaiInAAVE = actions.aave.v3.aaveV3Deposit({
+  const depositDaiInAAVE = actions.aave.v3.aaveV3Deposit(network, {
     amount: flashloan.amount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
 
-  const borrowDebtTokensFromAAVE = actions.aave.v3.aaveV3Borrow({
+  const borrowDebtTokensFromAAVE = actions.aave.v3.aaveV3Borrow(network, {
     amount: debt.borrow.amount,
     asset: debt.address,
     to: proxy.address,
   })
 
-  const wrapEth = actions.common.wrapEth({
+  const wrapEth = actions.common.wrapEth(network, {
     amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
   })
 
-  const swapDebtTokensForCollateralTokens = actions.common.swap({
+  const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
     fromAsset: debt.address,
     toAsset: collateral.address,
     amount: swap.amount,
@@ -103,6 +107,7 @@ export const open: AaveV3OpenOperation = async ({
 
   const depositIsCollateral = depositAddress === collateral.address
   const setCollateralTokenApprovalOnLendingPool = actions.common.setApproval(
+    network,
     {
       asset: collateral.address,
       delegate: addresses.pool,
@@ -113,6 +118,7 @@ export const open: AaveV3OpenOperation = async ({
   )
 
   const depositCollateral = actions.aave.v3.aaveV3Deposit(
+    network,
     {
       asset: collateral.address,
       amount: depositIsCollateral ? depositAmount : ZERO,
@@ -122,7 +128,7 @@ export const open: AaveV3OpenOperation = async ({
     [0, 3, 0, 0],
   )
 
-  const withdrawDAIFromAAVE = actions.aave.v3.aaveV3Withdraw({
+  const withdrawDAIFromAAVE = actions.aave.v3.aaveV3Withdraw(network, {
     asset: addresses.DAI,
     amount: flashloan.amount,
     to: addresses.operationExecutor,
@@ -130,7 +136,7 @@ export const open: AaveV3OpenOperation = async ({
 
   const protocol: Protocol = 'AAVE_V3'
 
-  const positionCreated = actions.common.positionCreated({
+  const positionCreated = actions.common.positionCreated(network, {
     protocol,
     positionType: position.type,
     collateralToken: collateral.address,
@@ -143,7 +149,7 @@ export const open: AaveV3OpenOperation = async ({
     isDepositingDebtTokens || !hasAmountToDeposit || collateral.isEth
   wrapEth.skipped = !debt.isEth && !collateral.isEth
 
-  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode({
+  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode(network, {
     categoryId: emode.categoryId || 0,
   })
 
@@ -164,7 +170,7 @@ export const open: AaveV3OpenOperation = async ({
     positionCreated,
   ]
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan({
+  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: addresses.DAI,
     flashloanAmount: flashloan.amount,
@@ -175,6 +181,6 @@ export const open: AaveV3OpenOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: aaveOpenV3OperationDefinition.name,
+    operationName: getAaveOpenV3OperationDefinition(network).name,
   }
 }

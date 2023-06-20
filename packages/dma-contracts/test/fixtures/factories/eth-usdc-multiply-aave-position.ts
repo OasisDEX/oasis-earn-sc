@@ -3,6 +3,7 @@ import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
+import { Network } from '@dma-contracts/../deploy-configurations/types/network'
 import {
   AAVEStrategyAddresses,
   AAVEV3StrategyAddresses,
@@ -65,6 +66,7 @@ export async function ethUsdcMultiplyAavePosition({
   dependencies,
   config,
   feeRecipient,
+  network,
 }: {
   proxy: string
   isDPM: boolean
@@ -73,6 +75,7 @@ export async function ethUsdcMultiplyAavePosition({
   dependencies: StrategiesDependencies
   config: RuntimeConfig
   feeRecipient: string
+  network: Network
 }): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'ETH/USDC Multiply'
 
@@ -98,6 +101,7 @@ export async function ethUsdcMultiplyAavePosition({
       getSwapData,
       isDPMProxy: isDPM,
       proxy: proxy,
+      network,
     },
   )
 

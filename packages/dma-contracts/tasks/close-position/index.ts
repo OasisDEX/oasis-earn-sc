@@ -2,7 +2,7 @@ import DSProxyABI from '@abis/external/libs/DS/ds-proxy.json'
 import AAVELendingPoolABI from '@abis/external/protocols/aave/v2/lendingPool.json'
 import AAVEDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
 import { ADDRESSES } from '@deploy-configurations/addresses'
-import { CONTRACT_NAMES } from '@deploy-configurations/constants'
+import { SERVICE_REGISTRY_NAMES } from '@deploy-configurations/constants'
 import { Network } from '@deploy-configurations/types/network'
 import { ONE, ZERO } from '@dma-common/constants'
 import { addressesByNetwork } from '@dma-common/test-utils'
@@ -64,10 +64,12 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     const operationExecutorAddress = await serviceRegistry.getRegisteredService(
-      CONTRACT_NAMES.common.OPERATION_EXECUTOR,
+      SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
     )
 
-    const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
+    const swapAddress = await serviceRegistry.getRegisteredService(
+      SERVICE_REGISTRY_NAMES.common.SWAP,
+    )
 
     console.log('Operation executor address', operationExecutorAddress)
 
@@ -171,7 +173,7 @@ task('closePosition', 'Close stETH position on AAVE')
     )
 
     const operationExecutor = await hre.ethers.getContractAt(
-      CONTRACT_NAMES.common.OPERATION_EXECUTOR,
+      SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
       addresses.operationExecutor,
       config.signer,
     )

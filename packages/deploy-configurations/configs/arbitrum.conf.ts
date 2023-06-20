@@ -1,5 +1,9 @@
-import { ADDRESS_ZERO, CONTRACT_NAMES } from '../constants'
+import { Network } from '@deploy-configurations/types/network'
+
+import { ADDRESS_ZERO, loadContractNames } from '../constants'
 import { SystemConfig } from '../types/deployment-config'
+
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.ARBITRUM)
 
 export const config: SystemConfig = {
   mpa: {
@@ -15,7 +19,7 @@ export const config: SystemConfig = {
         name: 'OperationExecutor',
         deploy: false,
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.common.OPERATION_EXECUTOR,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
         history: [ADDRESS_ZERO],
         constructorArgs: ['address:ServiceRegistry'],
       },
@@ -23,7 +27,7 @@ export const config: SystemConfig = {
         name: 'OperationStorage',
         deploy: false,
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.common.OPERATION_STORAGE,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE,
         history: [ADDRESS_ZERO],
         constructorArgs: ['address:ServiceRegistry', 'address:OperationExecutor'],
       },
@@ -31,7 +35,7 @@ export const config: SystemConfig = {
         name: 'OperationsRegistry',
         deploy: false,
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
         history: [ADDRESS_ZERO],
         constructorArgs: [],
       },
@@ -39,7 +43,7 @@ export const config: SystemConfig = {
         name: 'DSProxyFactory',
         deploy: false,
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_FACTORY,
         history: [],
         constructorArgs: [],
       },
@@ -47,7 +51,7 @@ export const config: SystemConfig = {
         name: 'DSProxyRegistry',
         deploy: false,
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_REGISTRY,
         history: [],
         constructorArgs: ['address:DSProxyFactory'],
       },
@@ -55,7 +59,7 @@ export const config: SystemConfig = {
         name: 'DSGuardFactory',
         deploy: false,
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_GUARD_FACTORY,
         history: [],
         constructorArgs: [],
       },
@@ -63,7 +67,7 @@ export const config: SystemConfig = {
         name: 'AccountGuard',
         deploy: false,
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.common.ACCOUNT_GUARD,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ACCOUNT_GUARD,
         history: [ADDRESS_ZERO],
         constructorArgs: [],
       },
@@ -71,7 +75,7 @@ export const config: SystemConfig = {
         name: 'AccountFactory',
         deploy: false,
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.common.ACCOUNT_FACTORY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ACCOUNT_FACTORY,
         history: [ADDRESS_ZERO],
         constructorArgs: ['address:AccountGuard'],
       },
@@ -79,7 +83,7 @@ export const config: SystemConfig = {
         name: 'Swap',
         deploy: false,
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.common.SWAP,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
         history: [],
         constructorArgs: [ADDRESS_ZERO, ADDRESS_ZERO, 20, 'address:ServiceRegistry'],
       },
@@ -207,12 +211,12 @@ export const config: SystemConfig = {
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: ADDRESS_ZERO,
-      serviceRegistryName: CONTRACT_NAMES.common.UNISWAP_ROUTER,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.UNISWAP_ROUTER,
     },
     BalancerVault: {
       name: 'BalancerVault',
       address: ADDRESS_ZERO,
-      serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.BALANCER_VAULT,
     },
     FeeRecipient: {
       name: 'FeeRecipient',
@@ -225,7 +229,7 @@ export const config: SystemConfig = {
     OneInchAggregator: {
       name: 'OneInchAggregator',
       address: ADDRESS_ZERO,
-      serviceRegistryName: CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
     },
     MerkleRedeemer: {
       name: 'MerkleRedeemer',
@@ -321,7 +325,7 @@ export const config: SystemConfig = {
     DAI: {
       name: 'DAI',
       address: ADDRESS_ZERO,
-      serviceRegistryName: CONTRACT_NAMES.common.DAI,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DAI,
     },
     ETH: { name: 'ETH', address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' },
     GNO: { name: 'GNO', address: ADDRESS_ZERO },
@@ -366,23 +370,23 @@ export const config: SystemConfig = {
     USDC: {
       name: 'USDC',
       address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
-      serviceRegistryName: CONTRACT_NAMES.common.USDC,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
     },
     USDT: { name: 'USDT', address: ADDRESS_ZERO },
     WBTC: {
       name: 'WBTC',
       address: '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
-      serviceRegistryName: CONTRACT_NAMES.common.WBTC,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WBTC,
     },
     WETH: {
       name: 'WETH',
       address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-      serviceRegistryName: CONTRACT_NAMES.common.WETH,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
     },
     WSTETH: {
       name: 'WSTETH',
       address: '0x5979D7b546E38E414F7E9822514be443A4800529',
-      serviceRegistryName: CONTRACT_NAMES.common.WSTETH,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WSTETH,
     },
     YFI: { name: 'YFI', address: ADDRESS_ZERO },
     ZRX: { name: 'ZRX', address: ADDRESS_ZERO },
@@ -414,7 +418,7 @@ export const config: SystemConfig = {
       Pool: {
         name: 'Pool',
         address: '0x794a61358D6845594F94dc1DB02A252b5b4814aD',
-        serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
       },
       AavePoolDataProvider: {
         name: 'AavePoolDataProvider',
