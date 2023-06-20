@@ -309,7 +309,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
      */
     function openPosition(IERC20Pool pool, uint256 debtAmount, uint256 collateralAmount, uint256 price) public payable {
         depositAndDraw(pool, debtAmount, collateralAmount, price);
-        emit CreatePosition(address(this), "Ajna", "Borrow", pool.collateralAddress(), pool.quoteTokenAddress());
+        emit CreatePosition(address(this), "AJNA_RC5", "Borrow", pool.collateralAddress(), pool.quoteTokenAddress());
     }
 
     /**
@@ -321,7 +321,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
     function openEarnPosition(IERC20Pool pool, uint256 depositAmount, uint256 price) public payable {
         supplyQuoteInternal(pool, depositAmount, price);
         emit ProxyActionsOperation("AjnaSupplyQuote");
-        emit CreatePosition(address(this), "Ajna", "Earn", pool.collateralAddress(), pool.quoteTokenAddress());
+        emit CreatePosition(address(this), "AJNA_RC5", "Earn", pool.collateralAddress(), pool.quoteTokenAddress());
     }
 
     /**
@@ -332,7 +332,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
      */
     function openEarnPositionNft(IERC20Pool pool, uint256 depositAmount, uint256 price) public payable {
         supplyQuoteMintNftAndStake(pool, depositAmount, price);
-        emit CreatePosition(address(this), "Ajna", "Earn", pool.collateralAddress(), pool.quoteTokenAddress());
+        emit CreatePosition(address(this), "AJNA_RC5", "Earn", pool.collateralAddress(), pool.quoteTokenAddress());
     }
 
     /**
