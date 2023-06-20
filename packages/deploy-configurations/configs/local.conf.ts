@@ -1059,11 +1059,11 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0x1F9F7732ff409FC0AbcAAea94634A7b41F445299',
+      address: ADDRESS_ZERO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0xeE83e98a6734cd59347066F8adDba8B304DA4905',
+      address: ADDRESS_ZERO,
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1119,11 +1119,11 @@ export const config: SystemConfig = {
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
-      address: '0xaF9bc1F09fe561CbD00018fC352507fD23cD46E2',
+      address: ADDRESS_ZERO,
     },
     AjnaRewardsClaimer: {
       name: 'AjnaRewardsClaimer',
-      address: '0xFb6EdFC7ADc67645423c233332efD6E6804e72F5',
+      address: ADDRESS_ZERO,
     },
   },
 }
