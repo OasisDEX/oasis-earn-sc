@@ -2,6 +2,7 @@ import hre from 'hardhat'
 
 import { DeploymentSystem } from './deploy'
 import { prepareEnv } from '@ajna-contracts/scripts'
+import { updateDmaConfigWithLocalAjnaDeploy } from '@dma-contracts/test/fixtures'
 
 async function main() {
   const signer = hre.ethers.provider.getSigner(0)
@@ -9,12 +10,15 @@ async function main() {
   console.log(`Deployer address: ${await signer.getAddress()}`)
   console.log(`Network: ${network}`)
 
-  // const ajnaEnv = await prepareEnv(hre, true, false)
+  const ajnaEnv = await prepareEnv(hre, true)
 
-  const ds = new DeploymentSystem(hre)
+  let ds = new DeploymentSystem(hre)
+
   await ds.init()
   await ds.loadConfig('tenderly.conf.ts')
+  ds = updateDmaConfigWithLocalAjnaDeploy(ds, ajnaEnv)
   await ds.deployCore()
+  await ds.addAjnaEntries()
   await ds.deployActions()
   await ds.saveConfig()
   await ds.addOperationEntries()

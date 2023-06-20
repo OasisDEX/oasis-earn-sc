@@ -150,12 +150,16 @@ async function deployDmaSystem(ds: DeploymentSystem, ajnaSystem: AjnaSystem) {
   return _ds.getSystem() as System
 }
 
-function updateDmaConfigWithLocalAjnaDeploy(ds: DeploymentSystem, ajnaSystem: AjnaSystem) {
+export function updateDmaConfigWithLocalAjnaDeploy(ds: DeploymentSystem, ajnaSystem: AjnaSystem) {
   if (!ds.config) throw new Error('No config')
   ds.config.ajna.AjnaPoolInfo.address = ajnaSystem.poolInfo.address
   ds.config.ajna.ERC20PoolFactory.address = ajnaSystem.erc20PoolFactory.address
 
   return ds
+}
+
+export function addLiquidityToPools(ds: DeploymentSystem, ajnaSystem: AjnaSystem) {
+  // TODO add liqidity
 }
 
 async function configureSwapContract(dsSystem: System) {

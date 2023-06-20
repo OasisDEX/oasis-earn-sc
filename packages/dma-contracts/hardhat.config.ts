@@ -95,7 +95,7 @@ const config = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 0,
           },
         },
       },
@@ -104,7 +104,7 @@ const config = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 0,
           },
         },
       },
@@ -113,7 +113,7 @@ const config = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 0,
           },
         },
       },
@@ -122,7 +122,7 @@ const config = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 0,
           },
         },
       },
@@ -130,13 +130,13 @@ const config = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 1000,
+        runs: 0,
       },
     },
   },
   networks: {
-    fork: {
-      url: 'https://rpc.tenderly.co/fork/f4d57061-4fb7-4d67-a94d-5cb74937fa0c',
+    tenderly: {
+      url: 'https://rpc.tenderly.co/fork/41dcef10-2114-44d3-becf-94c1a707931f',
       accounts: [
         '0xe4966abd3595e37f1d9313616d9a833fdbde301f70b61eb17cb7e919ca0addd8',
         '0x8a78506679446be6dc846c7dddbbee4b5f0ae725caa50126739e0851d66a29c8',

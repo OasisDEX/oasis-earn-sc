@@ -76,7 +76,7 @@ export async function createDPMProxy(dmpFactory: AccountFactory, owner: Signer) 
   return dpmProxy;
 }
 
-export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens = false, setTokenBalance = true) {
+export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens = false) {
   const hre = _hre ? _hre : await import("hardhat");
   const ethers = hre.ethers;
   const signers = await ethers.getSigners();
@@ -104,7 +104,15 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
     {} as Record<string, ERC20Pool>
   );
 
-  if (setTokenBalance) {
+  if (hre.network.name === 'tenderly') {
+    await hre.ethers.provider.send("tenderly_setBalance", [
+      signers.map(signer => signer.address),
+      //amount in wei will be set for all wallets
+      hre.ethers.utils.hexValue(ethers.utils.parseUnits("100000", "ether").toHexString()),
+    ]);
+
+  }
+  if (hre.network.name !== 'tenderly') {
     await Promise.all([
       // Have some issues with setting balance on mainnet USDC contract
       ...(mainnetTokens ? [] : signers.map(signer => utils.sendLotsOfMoney(signer.address, usdc, mainnetTokens))),

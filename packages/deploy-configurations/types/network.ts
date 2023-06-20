@@ -5,4 +5,5 @@ export enum Network {
   OPTIMISM = 'optimism',
   ARBITRUM = 'arbitrum',
   LOCAL = 'local',
+  TENDERLY = 'tenderly'
 }

@@ -8,6 +8,8 @@ import { HardhatRuntimeEnvironment, Network } from "hardhat/types/runtime";
 import { writeFileSync } from "fs";
 import { join } from "path";
 import { Token, WETH } from "../../typechain-types";
+import erc20abi from '@abis/external/tokens/IERC20.json'
+import uniswapAbi from '@abis/external/protocols/uniswap/uniswap-router.json'
 
 export type BasicSimulationData = {
   data: string;
@@ -108,9 +110,13 @@ export class HardhatUtils {
   }
 
   public async impersonate(user: string): Promise<Signer> {
-    await this.impersonateAccount(user);
-    const newSigner = await this.hre.ethers.getSigner(user);
-    return newSigner;
+    if(this.hre.network.name !== 'tenderly') {
+      await this.impersonateAccount(user);
+      const newSigner = await this.hre.ethers.getSigner(user);
+      return newSigner;
+    } else {
+      return this.hre.ethers.getSigner(user)
+    }
   }
 
   private async impersonateAccount(account: string) {
@@ -124,20 +130,21 @@ export class HardhatUtils {
     const account = constants.AddressZero;
     const probeA = encode(["uint"], [BigNumber.from("100")]);
     const probeB = encode(["uint"], [BigNumber.from("200")]);
-    const token = await this.hre.ethers.getContractAt("ERC20", tokenAddress);
+    // const token = await this.hre.ethers.getContractAt("ERC20", tokenAddress);
+    const token = new this.hre.ethers.Contract(tokenAddress, erc20abi)
     for (let i = 0; i < 100; i++) {
       let probedSlot = this.hre.ethers.utils.keccak256(encode(["address", "uint"], [account, i]));
       // remove padding for JSON RPC
       while (probedSlot.startsWith("0x0")) probedSlot = "0x" + probedSlot.slice(3);
-      const prev = await this.hre.network.provider.send("eth_getStorageAt", [tokenAddress, probedSlot, "latest"]);
+      const prev = await this.hre.network.provider.send("eth_getStorageAt", [tokenAddress, probedSlot]);
       // make sure the probe will change the slot value
       const probe = prev === probeA ? probeB : probeA;
 
-      await this.hre.network.provider.send("hardhat_setStorageAt", [tokenAddress, probedSlot, probe]);
+      await this.hre.network.provider.send(this.getRPCmethodToManipulateStorage(), [tokenAddress, probedSlot, probe]);
 
       const balance = await token.balanceOf(account);
       // reset to previous value
-      await this.hre.network.provider.send("hardhat_setStorageAt", [tokenAddress, probedSlot, prev]);
+      await this.hre.network.provider.send(this.getRPCmethodToManipulateStorage(), [tokenAddress, probedSlot, prev]);
       if (balance.eq(this.hre.ethers.BigNumber.from(probe))) return i;
     }
     throw "Balances slot not found!";
@@ -166,6 +173,17 @@ export class HardhatUtils {
     return isStorageManipulationSuccessful;
   }
 
+  private async swapEthToToken(account: string, tokenAddress: string, balance: BigNumber): Promise<boolean> {
+    const UNISWAP_ROUTER = ''
+    const signer = (await this.hre.ethers.getSigners()).find(signer => signer.address.toLowerCase() === account.toLowerCase())
+    const uniswapRouter = await this.hre.ethers.getContractAt(uniswapAbi, UNISWAP_ROUTER, signer)
+
+    uniswapRouter.exactInputSingle()
+
+
+    return true
+  }
+
   private async setTokenBalanceByBridgeImpersonation(account: string, tokenAddress: string, balance: BigNumber) {
     const bridgeAddress = "0x8eb8a3b98659cce290402893d0123abb75e3ab28";
     const signer = await this.impersonate(bridgeAddress);
@@ -190,6 +208,10 @@ export class HardhatUtils {
     }
   }
 
+  private getRPCmethodToManipulateStorage() {
+    return this.hre.network.name === 'tenderly' ? 'tenderly_setStorageAt' : 'hardhat_setStorageAt'
+  }
+
   private async setTokenBalanceByStorageManipulation(
     account: string,
     tokenAddress: string,
@@ -200,12 +222,13 @@ export class HardhatUtils {
       let index = this.hre.ethers.utils.solidityKeccak256(["uint256", "uint256"], [account, slot]);
       if (index.startsWith("0x0")) index = "0x" + index.slice(3);
 
-      await this.hre.ethers.provider.send("hardhat_setStorageAt", [
+      await this.hre.ethers.provider.send(this.getRPCmethodToManipulateStorage(), [
         tokenAddress,
         index,
         this.hre.ethers.utils.hexZeroPad(balance.toHexString(), 32),
       ]);
-      const token = await this.hre.ethers.getContractAt("ERC20", tokenAddress);
+      // const token = await this.hre.ethers.getContractAt("ERC20", tokenAddress);
+      const token = new this.hre.ethers.Contract(tokenAddress, erc20abi)
       const balanceAfter = await token.balanceOf(account);
       return balance == balanceAfter;
     } catch (ex) {

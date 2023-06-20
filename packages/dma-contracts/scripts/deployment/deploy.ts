@@ -76,6 +76,7 @@ const gnosisSafeServiceUrl: any = {
   [Network.OPTIMISM]: '',
   [Network.GOERLI]: 'https://safe-transaction.goerli.gnosis.io',
   [Network.HARDHAT]: '',
+  [Network.TENDERLY]: '',
 }
 
 // HELPERS --------------------------

@@ -171,7 +171,7 @@ export async function deployPoolFactory(
   hre: HardhatRuntimeEnvironment
 ) {
   const utils = new HardhatUtils(hre);
-  const erc20PoolFactory = await utils.deployContract<ERC20PoolFactory>("ERC20PoolFactory", [reward], {
+  const erc20PoolFactory = await utils.deployContract<ERC20PoolFactory>("ERC20PoolFactory", [reward, {gasLimit: 30000000}], {
     libraries: {
       BorrowerActions: borrowerActionsInstance.address,
       KickerActions: kickerActionsInstance.address,
@@ -182,20 +182,20 @@ export async function deployPoolFactory(
       TakerActions: takerActionsInstance.address,
     },
   });
+  
+  // const erc721PoolFactory = await utils.deployContract<ERC721PoolFactory>("ERC721PoolFactory", [reward, {gasLimit: 30000000}], {
+  //   libraries: {
+  //     KickerActions: kickerActionsInstance.address,
+  //     LPActions: lpActionsInstance.address,
+  //     SettlerActions: settlerActionsInstance.address,
+  //     TakerActions: takerActionsInstance.address,
+  //     BorrowerActions: borrowerActionsInstance.address,
+  //     LenderActions: lenderActionsInstance.address,
+  //     PoolCommons: poolInstance.address,
+  //   },
+  // });
 
-  const erc721PoolFactory = await utils.deployContract<ERC721PoolFactory>("ERC721PoolFactory", [reward], {
-    libraries: {
-      KickerActions: kickerActionsInstance.address,
-      LPActions: lpActionsInstance.address,
-      SettlerActions: settlerActionsInstance.address,
-      TakerActions: takerActionsInstance.address,
-      BorrowerActions: borrowerActionsInstance.address,
-      LenderActions: lenderActionsInstance.address,
-      PoolCommons: poolInstance.address,
-    },
-  });
-
-  return { erc20PoolFactory, erc721PoolFactory };
+  return { erc20PoolFactory, erc721PoolFactory: erc20PoolFactory as any as ERC721PoolFactory };
 }
 export async function deployPool(
   erc20PoolFactory: ERC20PoolFactory,
