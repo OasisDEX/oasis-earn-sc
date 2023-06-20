@@ -333,7 +333,7 @@ export const config: SystemConfig = {
     BAL: { name: 'BAL', address: ADDRESS_ZERO },
     BAT: { name: 'BAT', address: ADDRESS_ZERO },
     COMP: { name: 'COMP', address: ADDRESS_ZERO },
-    CBETH: { name: 'CBETH', address: ADDRESS_ZERO },
+    CBETH: { name: 'CBETH', address: '0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2' },
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },
     DAI: {
       name: 'DAI',
@@ -360,7 +360,7 @@ export const config: SystemConfig = {
     PAX: { name: 'PAX', address: ADDRESS_ZERO },
     PAXUSD: { name: 'PAXUSD', address: ADDRESS_ZERO },
     RENBTC: { name: 'RENBTC', address: ADDRESS_ZERO },
-    RETH: { name: 'RETH', address: ADDRESS_ZERO },
+    RETH: { name: 'RETH', address: '0x9bcef72be871e61ed4fbbc7630889bee758eb81d' },
     RWA001: { name: 'RWA001', address: ADDRESS_ZERO },
     RWA002: { name: 'RWA002', address: ADDRESS_ZERO },
     RWA003: { name: 'RWA003', address: ADDRESS_ZERO },

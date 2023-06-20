@@ -5,6 +5,8 @@ export interface AAVEV3StrategyAddresses {
   WSTETH: string
   USDC: string
   WBTC: string
+  CBETH: string
+  RETH: string
   operationExecutor: string
   chainlinkEthUsdPriceFeed: string
   aaveOracle: string
