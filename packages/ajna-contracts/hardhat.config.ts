@@ -23,7 +23,8 @@ const config: HardhatUserConfig = {
   networks: {
     goerli: {
       url: process.env.GOERLI_URL || "",
-      accounts: [process.env.PRIV_KEY_MAINNET || ""],
+      // FIXME: uncomment when we have the env variable properly set up in gh actions
+      // accounts: [process.env.PRIV_KEY_GOERLI || ""],
       initialBaseFeePerGas: 1000000000,
     },
     local: {
