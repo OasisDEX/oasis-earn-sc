@@ -34,7 +34,7 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       forking: {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        enabled: true,
         url: process.env.GOERLI_URL as string,
         blockNumber: 9204225,
       },
