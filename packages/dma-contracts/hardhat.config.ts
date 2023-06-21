@@ -26,6 +26,9 @@ import './tasks/transfer-all-proxies'
 import { Network } from '@deploy-configurations/types/network'
 import * as process from 'process'
 
+import * as tdly from "@tenderly/hardhat-tenderly";
+tdly.setup();
+
 import { ChainIdByNetwork } from '../deploy-configurations/utils/network'
 
 const networkFork = process.env.NETWORK_FORK as Network | undefined
@@ -191,6 +194,10 @@ const config = {
           },
         }
       : {}),
+    devnet: {
+      url: 'https://rpc.tenderly.co/fork/b37286ff-ebff-4d31-97e0-9a9f3d1ee57f',
+      chainId: 10,
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS === '1',
@@ -236,6 +243,11 @@ const config = {
       './test',
     ],
   },
+  tenderly: {
+    username: "oazoapps", // tenderly username (or organization name)
+    project: "oasis-aave", // project name
+    privateVerification: true // if true, contracts will be verified privately, if false, contracts will be verified publicly
+  }
 }
 
 // @ts-ignore
