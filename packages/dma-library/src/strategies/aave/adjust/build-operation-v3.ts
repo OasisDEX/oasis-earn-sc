@@ -69,7 +69,9 @@ export async function buildOperationV3({
     },
     flashloan: {
       token: {
-        amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
+        amount: flashloanToken === dependencies.addresses.DAI
+          ? simulatedPositionTransition.delta.flashloanAmount.abs()
+          : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12),
         address: flashloanToken,
       },
       provider: flashloanProvider,
@@ -93,7 +95,9 @@ export async function buildOperationV3({
       },
       flashloan: {
         token: {
-          amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
+          amount: flashloanToken === dependencies.addresses.DAI
+            ? simulatedPositionTransition.delta.flashloanAmount.abs()
+            : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12),
           address: flashloanToken,
         },
         amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
@@ -116,7 +120,9 @@ export async function buildOperationV3({
       },
       flashloan: {
         token: {
-          amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
+          amount: flashloanToken === dependencies.addresses.DAI
+            ? simulatedPositionTransition.delta.flashloanAmount.abs()
+            : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12),
           address: flashloanToken,
         },
         amount: simulatedPositionTransition.delta.flashloanAmount.abs(),

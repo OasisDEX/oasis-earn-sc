@@ -6,7 +6,7 @@ import { BuildOperationV2Args } from '@dma-library/strategies/aave/adjust/types'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
 import { feeResolver } from '@dma-library/utils/swap'
 
-import { FlashloanProvider } from '../../../../lib'
+import { FlashloanProvider } from '@dma-library/types/common'
 
 export async function buildOperationV2({
   adjustRiskUp,

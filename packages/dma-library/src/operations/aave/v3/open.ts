@@ -149,8 +149,8 @@ export const open: AaveV3OpenOperation = async ({
     isDepositingDebtTokens || !hasAmountToDeposit || collateral.isEth
   wrapEth.skipped = !debt.isEth && !collateral.isEth
 
-  depositFlashloanAsCollateral.skipped = flashloan.token.address === debt.address
-  borrowDebtTokensFromAAVE.skipped = flashloan.token.address === debt.address
+  depositFlashloanAsCollateral.skipped = false //flashloan.token.address === debt.address
+  borrowDebtTokensFromAAVE.skipped = false // flashloan.token.address === debt.address
 
   const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode(network, {
     categoryId: emode.categoryId || 0,

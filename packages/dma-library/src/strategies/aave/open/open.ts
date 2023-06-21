@@ -187,10 +187,7 @@ async function simulatePositionTransition(
       },
     )
     protocolData = await dependencies.protocol.getProtocolData({
-      flashloanTokenAddress:
-        dependencies.network === Network.MAINNET
-          ? dependencies.addresses.DAI
-          : dependencies.addresses.USDC,
+      flashloanTokenAddress,
       collateralTokenAddress,
       debtTokenAddress,
       addresses: dependencies.addresses,
@@ -363,7 +360,9 @@ async function buildOperation(
       },
       flashloan: {
         token: {
-          amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
+          amount: args.flashloanToken === dependencies.addresses.DAI
+            ? simulatedPositionTransition.delta.flashloanAmount.abs()
+            : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12),
           address: args.flashloanToken,
         },
         amount: simulatedPositionTransition.delta.flashloanAmount.abs(),

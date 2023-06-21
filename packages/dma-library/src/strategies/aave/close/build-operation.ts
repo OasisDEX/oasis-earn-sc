@@ -108,7 +108,7 @@ export async function buildOperation(
       },
       flashloan: {
         token: {
-          amount: amountToFlashloanInWei,
+          amount: flashloanToken === dependencies.addresses.DAI ? amountToFlashloanInWei : amountToFlashloanInWei.div(10 ** 12),
           address: flashloanToken,
         },
         amount: amountToFlashloanInWei,
