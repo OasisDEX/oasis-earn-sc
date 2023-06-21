@@ -287,7 +287,7 @@ async function simulatePositionTransition(
       slippage: args.slippage,
       flashloan: {
         maxLoanToValueFL: maxLoanToValueForFL,
-        tokenSymbol: 'DAI',
+        tokenSymbol: flashloanTokenAddress === dependencies.addresses.DAI ? 'DAI' : 'USDC',
       },
       depositedByUser: {
         debtInWei: depositDebtAmountInWei,
