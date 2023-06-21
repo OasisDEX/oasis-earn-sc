@@ -14,7 +14,7 @@ import {
 } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
-type CloseArgs = WithCollateral &
+export type CloseArgs = WithCollateral &
   WithDebt &
   WithSwap &
   WithFlashloan &

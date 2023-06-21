@@ -13,7 +13,7 @@ import {
 } from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 
-type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
+export type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithDebt &
   WithSwap &
   WithFlashloan &
@@ -40,16 +40,16 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
   addresses,
   network,
 }) => {
-  const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
-    amount: flashloan.amount,
-    asset: addresses.DAI,
+  const setFlashloanTokenApprovalOnLendingPool = actions.common.setApproval(network, {
+    amount: flashloan.token.amount,
+    asset: flashloan.token.address,
     delegate: addresses.pool,
     sumAmounts: false,
   })
 
-  const depositDaiInAAVE = actions.aave.v3.aaveV3Deposit(network, {
-    amount: flashloan.amount,
-    asset: addresses.DAI,
+  const depositFlashloanTokenInAave = actions.aave.v3.aaveV3Deposit(network, {
+    amount: flashloan.token.amount,
+    asset: flashloan.token.address,
     sumAmounts: false,
   })
 
@@ -90,9 +90,9 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
     [0, 3, 0],
   )
 
-  const withdrawDAIFromAAVE = actions.aave.v3.aaveV3Withdraw(network, {
-    asset: addresses.DAI,
-    amount: flashloan.amount,
+  const withdrawFlashloanTokenFromAave = actions.aave.v3.aaveV3Withdraw(network, {
+    asset: flashloan.token.address,
+    amount: flashloan.token.amount,
     to: addresses.operationExecutor,
   })
 
@@ -111,13 +111,13 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
   unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
   const flashloanCalls = [
-    setDaiApprovalOnLendingPool,
-    depositDaiInAAVE,
+    setFlashloanTokenApprovalOnLendingPool,
+    depositFlashloanTokenInAave,
     withdrawCollateralFromAAVE,
     swapCollateralTokensForDebtTokens,
     setDebtTokenApprovalOnLendingPool,
     paybackInAAVE,
-    withdrawDAIFromAAVE,
+    withdrawFlashloanTokenFromAave,
     unwrapEth,
     returnDebtFunds,
     returnCollateralFunds,
@@ -125,8 +125,8 @@ export const adjustRiskDown: AaveV3AdjustDownOperation = async ({
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
-    asset: addresses.DAI,
-    flashloanAmount: flashloan.amount,
+    asset: flashloan.token.address,
+    flashloanAmount: flashloan.token.amount,
     isProxyFlashloan: true,
     provider: flashloan.provider,
     calls: flashloanCalls,

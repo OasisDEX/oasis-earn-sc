@@ -15,7 +15,7 @@ import {
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-type AdjustRiskUpArgs = WithCollateral &
+export type AdjustRiskUpArgs = WithCollateral &
   WithDebtAndBorrow &
   WithOptionalDeposit &
   WithSwap &

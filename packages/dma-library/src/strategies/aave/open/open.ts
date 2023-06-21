@@ -95,15 +95,16 @@ export async function open(
     },
   })
 
-  const { simulatedPositionTransition, reserveEModeCategory } = await simulatePositionTransition(
-    quoteSwapData,
-    {
-      ...args,
-      fee,
-    },
-    dependencies,
-    // true,
-  )
+  const { simulatedPositionTransition, reserveEModeCategory, flashloanTokenAddress } =
+    await simulatePositionTransition(
+      quoteSwapData,
+      {
+        ...args,
+        fee,
+      },
+      dependencies,
+      // true,
+    )
 
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
     typeof dependencies.addresses,
@@ -128,7 +129,7 @@ export async function open(
     simulatedPositionTransition,
     collectFeeFrom,
     reserveEModeCategory,
-    args,
+    { ...args, flashloanToken: flashloanTokenAddress },
     dependencies,
   )
 
@@ -142,6 +143,7 @@ export async function open(
     fee,
     dependencies,
     simulatedPositionTransition,
+    quoteSwapData,
   })
 }
 
@@ -155,6 +157,11 @@ async function simulatePositionTransition(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
   )
+
+  const flashloanTokenAddress =
+    dependencies.network === Network.MAINNET
+      ? dependencies.addresses.DAI
+      : dependencies.addresses.USDC
 
   /**
    * We've add current Position into all strategy dependencies
@@ -180,6 +187,10 @@ async function simulatePositionTransition(
       },
     )
     protocolData = await dependencies.protocol.getProtocolData({
+      flashloanTokenAddress:
+        dependencies.network === Network.MAINNET
+          ? dependencies.addresses.DAI
+          : dependencies.addresses.USDC,
       collateralTokenAddress,
       debtTokenAddress,
       addresses: dependencies.addresses,
@@ -203,7 +214,9 @@ async function simulatePositionTransition(
         protocolVersion: dependencies.protocol.version,
       },
     )
+
     protocolData = await dependencies.protocol.getProtocolData({
+      flashloanTokenAddress,
       collateralTokenAddress,
       debtTokenAddress,
       addresses: dependencies.addresses,
@@ -216,7 +229,7 @@ async function simulatePositionTransition(
   if (!currentPosition) throw new Error('No current position found')
 
   const {
-    aaveFlashloanDaiPriceInEth,
+    aaveFlashloanAssetPriceInEth,
     aaveDebtTokenPriceInEth,
     aaveCollateralTokenPriceInEth,
     reserveDataForFlashloan,
@@ -244,13 +257,13 @@ async function simulatePositionTransition(
   const flashloanFee = new BigNumber(0)
 
   // ETH/DAI
-  const ethPerDAI = aaveFlashloanDaiPriceInEth
+  const ethPerFlashloanAmount = aaveFlashloanAssetPriceInEth
 
   // EG USDC/ETH
   const ethPerDebtToken = aaveDebtTokenPriceInEth
 
   // EG USDC/ETH divided by ETH/DAI = USDC/ETH times by DAI/ETH = USDC/DAI
-  const oracleFLtoDebtToken = ethPerDebtToken.div(ethPerDAI)
+  const oracleFLtoDebtToken = ethPerDebtToken.div(ethPerFlashloanAmount)
 
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
@@ -284,6 +297,7 @@ async function simulatePositionTransition(
       debug,
     }),
     reserveEModeCategory,
+    flashloanTokenAddress,
   }
 }
 
@@ -292,7 +306,7 @@ async function buildOperation(
   simulatedPositionTransition: IBaseSimulatedTransition,
   collectFeeFrom: 'sourceToken' | 'targetToken',
   reserveEModeCategory: number | undefined,
-  args: AaveOpenArgs,
+  args: AaveOpenArgs & { flashloanToken: string },
   dependencies: AaveOpenDependencies,
 ) {
   const protocolVersion = dependencies.protocol.version
@@ -350,8 +364,9 @@ async function buildOperation(
       flashloan: {
         token: {
           amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
-          address: dependencies.addresses.DAI,
+          address: args.flashloanToken,
         },
+        amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
         provider: flashloanProvider,
       },
       position: {
@@ -414,6 +429,7 @@ type GenerateTransitionArgs = {
   simulatedPositionTransition: IBaseSimulatedTransition
   args: AaveOpenArgs
   dependencies: AaveOpenDependencies
+  quoteSwapData: SwapData
 }
 
 async function generateTransition({

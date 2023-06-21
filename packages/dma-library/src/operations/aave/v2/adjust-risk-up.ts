@@ -16,7 +16,7 @@ import {
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-type AdjustRiskUpArgs = WithCollateral &
+export type AdjustRiskUpArgs = WithCollateral &
   WithDebtAndBorrow &
   WithOptionalDeposit &
   WithSwap &
@@ -64,14 +64,14 @@ export const adjustRiskUp: AaveV2AdjustUpOperation = async ({
   })
 
   const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
-    amount: flashloan.amount,
+    amount: flashloan.token.amount,
     asset: addresses.DAI,
     delegate: addresses.lendingPool,
     sumAmounts: false,
   })
 
   const depositDaiInAAVE = actions.aave.v2.aaveDeposit(network, {
-    amount: flashloan.amount,
+    amount: flashloan.token.amount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
@@ -121,7 +121,7 @@ export const adjustRiskUp: AaveV2AdjustUpOperation = async ({
 
   const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw(network, {
     asset: addresses.DAI,
-    amount: flashloan.amount,
+    amount: flashloan.token.amount,
     to: addresses.operationExecutor,
   })
 
@@ -147,7 +147,7 @@ export const adjustRiskUp: AaveV2AdjustUpOperation = async ({
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: addresses.DAI,
-    flashloanAmount: flashloan.amount,
+    flashloanAmount: flashloan.token.amount,
     isProxyFlashloan: true,
     provider: FlashloanProvider.DssFlash,
     calls: flashloanCalls,

@@ -11,29 +11,27 @@ import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 
-describe('Open Aave v3 strategy | new-tests', async () => {
+describe('Open Aave v3 strategy | Ethereum | new-tests', async () => {
   it('Should open a position', async () => {
     const signer = await ethers.provider.getSigner()
 
-    // const accountFactory = await ethers.getContractAt(
-    //   'AccountFactory',
-    //   mainnetConfig.mpa.core.AccountFactory.address,
-    //   signer,
-    // )
-    //
-    // expect(true).to.be.true
-    //
-    // const response = await accountFactory['createAccount()']()
-    //
-    // const accountResult = await response.wait()
-    // const event = accountResult.events?.find(e => e.event === 'AccountCreated')
-    // if (!event) {
-    //   throw new Error('No AccountCreated event found in receipt')
-    // }
-    // const proxyAddress = event.args?.proxy
-    // if (!proxyAddress) {
-    //   throw new Error('No proxy address found in AccountCreated event')
-    // }
+    const accountFactory = await ethers.getContractAt(
+      'AccountFactory',
+      mainnetConfig.mpa.core.AccountFactory.address,
+      signer,
+    )
+
+    const response = await accountFactory['createAccount()']()
+
+    const accountResult = await response.wait()
+    const event = accountResult.events?.find(e => e.event === 'AccountCreated')
+    if (!event) {
+      throw new Error('No AccountCreated event found in receipt')
+    }
+    const proxyAddress = event.args?.proxy as string
+    if (!proxyAddress) {
+      throw new Error('No proxy address found in AccountCreated event')
+    }
 
     const amountToDeposit = new BigNumber(10).pow(18)
 
@@ -74,13 +72,12 @@ describe('Open Aave v3 strategy | new-tests', async () => {
       },
       provider: ethers.provider,
       user: await signer.getAddress(),
-      proxy: '0x660f6907eab21be03fb1befc6066b4b203b812a2',
+      proxy: proxyAddress,
       isDPMProxy: true,
       getSwapData: getOneInchCall(mainnetConfig.mpa.core.Swap.address),
     }
     const transition = await strategies.aave.v3.open(args, dependencies)
 
-    console.log(`Got transaction`)
     const operationExecutor = await ethers.getContractAt(
       'OperationExecutor',
       mainnetConfig.mpa.core.OperationExecutor.address,
@@ -92,10 +89,7 @@ describe('Open Aave v3 strategy | new-tests', async () => {
       transition.transaction.operationName,
     ])
 
-    const accountImplementation = await ethers.getContractAt(
-      'AccountImplementation',
-      '0x660f6907eab21be03fb1befc6066b4b203b812a2',
-    )
+    const accountImplementation = await ethers.getContractAt('AccountImplementation', proxyAddress)
 
     const opResult = await accountImplementation.execute(
       operationExecutor.address,
@@ -110,6 +104,6 @@ describe('Open Aave v3 strategy | new-tests', async () => {
 
     const oo = await opResult.wait()
 
-    expect(oo.status).to.eq(2)
+    expect(oo.status).to.eq(1)
   })
 })

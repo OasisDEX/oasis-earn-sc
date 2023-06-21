@@ -1,0 +1,134 @@
+import { getForkedNetwork } from '@deploy-configurations/utils/network'
+import { FEE_BASE, ONE } from '@dma-common/constants'
+import { amountFromWei, amountToWei } from '@dma-common/utils/common'
+import { operations } from '@dma-library/operations'
+import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
+import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
+import { CloseArgs } from '@dma-library/operations/aave/v3/close'
+import { AaveVersion } from '@dma-library/strategies'
+import { getValuesFromProtocol } from '@dma-library/strategies/aave/close/get-values-from-protocol'
+import {
+  AaveCloseArgsWithVersioning,
+  AaveCloseDependencies,
+} from '@dma-library/strategies/aave/close/types'
+import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import { IOperation, SwapData } from '@dma-library/types'
+import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
+import { feeResolver } from '@dma-library/utils/swap'
+import { FLASHLOAN_SAFETY_MARGIN } from '@domain'
+import BigNumber from 'bignumber.js'
+
+export async function buildOperation(
+  swapData: SwapData & {
+    collectFeeFrom: 'sourceToken' | 'targetToken'
+    preSwapFee: BigNumber
+  },
+  flashloanToken: string,
+  args: AaveCloseArgsWithVersioning,
+  dependencies: AaveCloseDependencies,
+): Promise<IOperation> {
+  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
+    { debtToken: args.debtToken, collateralToken: args.collateralToken },
+    dependencies.addresses,
+  )
+
+  const [aaveFlashloanDaiPriceInEth, aaveCollateralTokenPriceInEth, , reserveDataForFlashloan] =
+    await getValuesFromProtocol(
+      args.protocolVersion,
+      collateralTokenAddress,
+      debtTokenAddress,
+      dependencies,
+    )
+
+  /* Calculate Amount to flashloan */
+  const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
+  const ethPerDAI = new BigNumber(aaveFlashloanDaiPriceInEth.toString())
+  const ethPerCollateralToken = new BigNumber(aaveCollateralTokenPriceInEth.toString())
+  // EG STETH/ETH divided by ETH/DAI = STETH/ETH times by DAI/ETH = STETH/DAI
+  const oracleFLtoCollateralToken = ethPerCollateralToken.div(ethPerDAI)
+
+  const amountToFlashloanInWei = amountToWei(
+    amountFromWei(args.collateralAmountLockedInProtocolInWei, args.collateralToken.precision).times(
+      oracleFLtoCollateralToken,
+    ),
+    18,
+  )
+    .div(maxLoanToValueForFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
+    .integerValue(BigNumber.ROUND_DOWN)
+
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
+  const collateralAmountToBeSwapped = args.shouldCloseToCollateral
+    ? swapData.fromTokenAmount.plus(swapData.preSwapFee)
+    : args.collateralAmountLockedInProtocolInWei
+  const collectFeeFrom = swapData.collectFeeFrom
+  if (args.protocolVersion === AaveVersion.v2) {
+    const closeArgs = {
+      // In the close to collateral scenario we need to add the preSwapFee amount to the fromTokenAmount
+      // So, that when taking the fee from the source token we are sending the Swap contract
+      // the sum of the fee and the ultimately fromAmount that will be swapped
+      collateralAmountToBeSwapped,
+      flashloanAmount: amountToFlashloanInWei,
+      fee: fee.toNumber(),
+      swapData: swapData.exchangeCalldata,
+      receiveAtLeast: swapData.minToTokenAmount,
+      proxy: dependencies.proxy,
+      collectFeeFrom,
+      collateralTokenAddress,
+      collateralIsEth: args.collateralToken.symbol === 'ETH',
+      debtTokenAddress,
+      debtTokenIsEth: args.debtToken.symbol === 'ETH',
+      isDPMProxy: dependencies.isDPMProxy,
+      network: dependencies.network,
+    }
+    return await operations.aave.v2.close(
+      closeArgs,
+      dependencies.addresses as AAVEStrategyAddresses,
+    )
+  }
+  if (args.protocolVersion === AaveVersion.v3) {
+    const flashloanProvider = resolveFlashloanProvider(
+      await getForkedNetwork(dependencies.provider),
+    )
+
+    const closeArgs: CloseArgs = {
+      collateral: {
+        address: collateralTokenAddress,
+        isEth: args.collateralToken.symbol === 'ETH',
+      },
+      debt: {
+        address: debtTokenAddress,
+        isEth: args.debtToken.symbol === 'ETH',
+      },
+      swap: {
+        fee: fee.toNumber(),
+        data: swapData.exchangeCalldata,
+        amount: collateralAmountToBeSwapped,
+        collectFeeFrom,
+        receiveAtLeast: swapData.minToTokenAmount,
+      },
+      flashloan: {
+        token: {
+          amount: amountToFlashloanInWei,
+          address: flashloanToken,
+        },
+        amount: amountToFlashloanInWei,
+        provider: flashloanProvider,
+      },
+      position: {
+        type: args.positionType,
+        collateral: { amount: collateralAmountToBeSwapped },
+      },
+      proxy: {
+        address: dependencies.proxy,
+        isDPMProxy: dependencies.isDPMProxy,
+        owner: dependencies.user,
+      },
+      addresses: dependencies.addresses as AAVEV3StrategyAddresses,
+      network: dependencies.network,
+    }
+
+    return await operations.aave.v3.close(closeArgs)
+  }
+
+  throw new Error('Unsupported AAVE version')
+}
