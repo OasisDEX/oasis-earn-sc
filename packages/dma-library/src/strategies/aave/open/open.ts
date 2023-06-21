@@ -360,9 +360,10 @@ async function buildOperation(
       },
       flashloan: {
         token: {
-          amount: args.flashloanToken === dependencies.addresses.DAI
-            ? simulatedPositionTransition.delta.flashloanAmount.abs()
-            : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12),
+          amount:
+            args.flashloanToken === dependencies.addresses.DAI
+              ? simulatedPositionTransition.delta.flashloanAmount.abs()
+              : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12),
           address: args.flashloanToken,
         },
         amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
