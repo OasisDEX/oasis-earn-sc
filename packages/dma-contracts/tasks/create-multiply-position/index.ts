@@ -1,6 +1,6 @@
 import { Network } from '@deploy-configurations/types/network'
 import { ChainIdByNetwork } from '@deploy-configurations/utils/network'
-import { CONTRACT_NAMES } from '@dma-common/constants'
+import { SERVICE_REGISTRY_NAMES } from '@dma-common/constants'
 import {
   addressesByNetwork,
   createDPMAccount,
@@ -69,10 +69,12 @@ task('createMultiplyPositions', 'Create main token pair multiply positions (AAVE
     )
 
     const operationExecutorAddress = await serviceRegistry.getRegisteredService(
-      CONTRACT_NAMES.common.OPERATION_EXECUTOR,
+      SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
     )
 
-    const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
+    const swapAddress = await serviceRegistry.getRegisteredService(
+      SERVICE_REGISTRY_NAMES.common.SWAP,
+    )
 
     const addresses = addressesByNetwork(networkFork)
     if (!addresses) throw new Error(`Can't find addresses for network ${networkFork}`)

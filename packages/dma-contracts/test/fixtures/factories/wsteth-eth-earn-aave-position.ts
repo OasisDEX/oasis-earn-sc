@@ -67,6 +67,7 @@ export async function wstethEthEarnAavePosition({
   dependencies,
   config,
   feeRecipient,
+  network,
 }: {
   proxy: string
   isDPM: boolean
@@ -75,6 +76,7 @@ export async function wstethEthEarnAavePosition({
   dependencies: StrategyDependenciesAaveV3
   config: RuntimeConfig & { network?: Network }
   feeRecipient: Address
+  network: Network
 }): Promise<AavePositionDetails> {
   const strategy: AaveV3PositionStrategy = 'WSTETH/ETH Earn'
   const isOptimism = config.network === Network.OPTIMISM
@@ -101,6 +103,7 @@ export async function wstethEthEarnAavePosition({
       getSwapData,
       isDPMProxy: isDPM,
       proxy: proxy,
+      network,
     },
     // Emode doesn't appear to be working as expected on Optimism
     isOptimism ? MULTIPLE : EMODE_MULTIPLE,

@@ -13,16 +13,19 @@ export function getPoolLiquidity(pool: AjnaPool): BigNumber {
 }
 
 export function validateLiquidity(
+  position: AjnaPosition,
   positionBefore: AjnaPosition,
   borrowAmount: BigNumber,
 ): AjnaError[] {
   const availableLiquidity = getPoolLiquidity(positionBefore.pool)
+  const maxDebt = positionBefore.debtAvailable(position.collateralAmount)
+
   if (availableLiquidity.lt(borrowAmount)) {
     return [
       {
         name: 'not-enough-liquidity',
         data: {
-          amount: formatCryptoBalance(negativeToZero(availableLiquidity)),
+          amount: formatCryptoBalance(negativeToZero(maxDebt)),
         },
       },
     ]

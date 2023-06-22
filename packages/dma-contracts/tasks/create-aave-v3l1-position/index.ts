@@ -1,6 +1,6 @@
 import { ADDRESSES } from '@deploy-configurations/addresses'
 import { Network } from '@deploy-configurations/types/network'
-import { CONTRACT_NAMES } from '@dma-common/constants'
+import { SERVICE_REGISTRY_NAMES } from '@dma-common/constants'
 import { createDPMAccount, getOneInchCall, oneInchCallMock } from '@dma-common/test-utils'
 import init from '@dma-common/utils/init'
 import { getAccountFactory } from '@dma-common/utils/proxy'
@@ -53,14 +53,16 @@ task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
     )
 
     const operationExecutorAddress = await serviceRegistry.getRegisteredService(
-      CONTRACT_NAMES.common.OPERATION_EXECUTOR,
+      SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
     )
 
     console.log('operationExecutorAddress', operationExecutorAddress)
 
     const accountFactoryAddress = await serviceRegistry.getRegisteredService('AccountFactory')
     console.log('account factory address', accountFactoryAddress)
-    const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
+    const swapAddress = await serviceRegistry.getRegisteredService(
+      SERVICE_REGISTRY_NAMES.common.SWAP,
+    )
 
     const mainnetAddresses = {
       DAI: ADDRESSES[Network.MAINNET].common.DAI,

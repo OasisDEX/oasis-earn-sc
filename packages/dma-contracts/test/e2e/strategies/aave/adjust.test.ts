@@ -39,13 +39,14 @@ import { loadFixture } from 'ethereum-waffle'
 import { Contract, ethers } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
 describe('Strategy | AAVE | Adjust Position | E2E', async function () {
   describe('Using AAVE V2', async function () {
     let fixture: SystemWithAavePositions
+
+    const networkAddresses = addressesByNetwork(networkFork)
 
     const supportedStrategies = getSupportedStrategies()
 
@@ -83,16 +84,16 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
       await advanceTime(hre.ethers, TIME_TO_ADVANCE)
 
       const addresses = {
-        ...mainnetAddresses,
+        ...networkAddresses,
         operationExecutor: system.OperationExecutor.contract.address,
       }
       const tokenAddresses: Record<AAVETokens, string> = {
-        WETH: mainnetAddresses.WETH,
-        ETH: mainnetAddresses.WETH,
-        STETH: mainnetAddresses.STETH,
-        WSTETH: mainnetAddresses.WSTETH,
-        USDC: mainnetAddresses.USDC,
-        WBTC: mainnetAddresses.WBTC,
+        WETH: networkAddresses.WETH,
+        ETH: networkAddresses.WETH,
+        STETH: networkAddresses.STETH,
+        WSTETH: networkAddresses.WSTETH,
+        USDC: networkAddresses.USDC,
+        WBTC: networkAddresses.WBTC,
       }
 
       const collateralTokenAddress = tokenAddresses[collateralToken.symbol as AAVETokens]
@@ -154,6 +155,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           getSwapData,
           proxy,
           user: userAddress,
+          network: networkFork,
         },
       )
 
@@ -230,6 +232,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           systemWithAavePositions({
             use1inch: false,
             configExtensionPaths: [`test/uSwap.conf.ts`],
+            network: networkFork,
           }),
         )
         if (!_fixture) throw new Error('Failed to load fixture')
@@ -361,6 +364,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           systemWithAavePositions({
             use1inch: true,
             configExtensionPaths: [`test/swap.conf.ts`],
+            network: networkFork,
           }),
         )
         if (!_fixture) throw new Error('Failed to load fixture')
@@ -641,6 +645,7 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
           getSwapData,
           proxy,
           user: userAddress,
+          network: networkFork,
         },
       )
 

@@ -1,24 +1,32 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.15;
+pragma solidity 0.8.18;
+
+import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 /**
  * @title Positions Manager State
  */
 interface IPositionManagerState {
+    /**
+     * @dev Struct holding Position `LP` state.
+     * @param lps         [WAD] position LP.
+     * @param depositTime Deposit time for position
+     */
+    struct Position {
+        uint256 lps;
+        uint256 depositTime;
+    }
 
     /**
-     *  @notice Returns the pool address associated with a positions `NFT`.
-     *  @param  tokenId_ The token id of the positions `NFT`.
-     *  @return Pool address associated with the `NFT`.
+     * @dev Struct tracking a position token info.
+     * @param pool            The pool address associated with the position.
+     * @param positionIndexes Mapping tracking indexes to which a position is associated.
+     * @param positions       Mapping tracking a positions state in a bucket index.
      */
-    function poolKey(
-        uint256 tokenId_
-    ) external view returns (address);
-}
-
-/// @dev Struct holding Position `LP` state.
-struct Position {
-    uint256 lps;         // [WAD] position LP
-    uint256 depositTime; // deposit time for position
+    struct TokenInfo {
+        address pool;
+        EnumerableSet.UintSet positionIndexes;
+        mapping(uint256 index => Position) positions;
+    }
 }

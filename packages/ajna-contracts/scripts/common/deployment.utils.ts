@@ -113,7 +113,8 @@ export async function deployApa(
   guardDeployerSigner: Signer,
   weth: WETH,
   ajna: Token,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
+  initializeStaking = true
 ) {
   const utils = new HardhatUtils(hre);
   const { serviceRegistryContract } = await deployServiceRegistry(hre);
@@ -133,15 +134,15 @@ export async function deployApa(
 
   const ajnaProxyActionsContract = await utils.deployContract<AjnaProxyActions>("AjnaProxyActions", [
     poolInfoContract.address,
-    positionManager.address,
-    rewardsManager.address,
     ajna.address,
     weth.address,
-    arc.address,
     dmpGuardContract.address,
   ]);
 
-  await arc.initializeAjnaProxyActions(ajnaProxyActionsContract.address);
+  if (initializeStaking) {
+    // await ajnaProxyActionsContract.initialize(positionManager.address, rewardsManager.address, arc.address);
+    await arc.initializeAjnaProxyActions(ajnaProxyActionsContract.address);
+  }
 
   await dmpGuardContract.connect(guardDeployerSigner).setWhitelist(ajnaProxyActionsContract.address, true);
 
@@ -171,18 +172,22 @@ export async function deployPoolFactory(
   hre: HardhatRuntimeEnvironment
 ) {
   const utils = new HardhatUtils(hre);
-  const erc20PoolFactory = await utils.deployContract<ERC20PoolFactory>("ERC20PoolFactory", [reward, {gasLimit: 30000000}], {
-    libraries: {
-      BorrowerActions: borrowerActionsInstance.address,
-      KickerActions: kickerActionsInstance.address,
-      LPActions: lpActionsInstance.address,
-      LenderActions: lenderActionsInstance.address,
-      PoolCommons: poolInstance.address,
-      SettlerActions: settlerActionsInstance.address,
-      TakerActions: takerActionsInstance.address,
-    },
-  });
-  
+  const erc20PoolFactory = await utils.deployContract<ERC20PoolFactory>(
+    "ERC20PoolFactory",
+    [reward, { gasLimit: 30000000 }],
+    {
+      libraries: {
+        BorrowerActions: borrowerActionsInstance.address,
+        KickerActions: kickerActionsInstance.address,
+        LPActions: lpActionsInstance.address,
+        LenderActions: lenderActionsInstance.address,
+        PoolCommons: poolInstance.address,
+        SettlerActions: settlerActionsInstance.address,
+        TakerActions: takerActionsInstance.address,
+      },
+    }
+  );
+
   // const erc721PoolFactory = await utils.deployContract<ERC721PoolFactory>("ERC721PoolFactory", [reward, {gasLimit: 30000000}], {
   //   libraries: {
   //     KickerActions: kickerActionsInstance.address,

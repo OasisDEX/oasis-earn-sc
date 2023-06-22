@@ -1,4 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
+import { Network } from '@deploy-configurations/types/network'
 import { getForkedNetwork } from '@deploy-configurations/utils/network'
 import {
   FEE_ESTIMATE_INFLATOR,
@@ -52,6 +53,7 @@ type AaveAdjustSharedDependencies = {
   proxy: Address
   user: Address
   isDPMProxy: boolean
+  network: Network
   debug?: boolean
 }
 export type AaveV2AdjustDependencies = AaveAdjustSharedDependencies &
@@ -140,6 +142,7 @@ async function adjustRiskUp(
     collectFeeFrom,
     args,
     dependencies,
+    network: dependencies.network,
   })
 
   if (operation === undefined) throw new Error('No operation built. Check your arguments.')
@@ -224,6 +227,7 @@ async function adjustRiskDown(
     collectFeeFrom,
     args,
     dependencies,
+    network: dependencies.network,
   })
 
   if (operation === undefined) throw new Error('No operation built. Check your arguments.')
@@ -428,6 +432,7 @@ type BuildOperationArgs = {
   reserveEModeCategory?: number | undefined
   args: AaveAdjustArgs
   dependencies: AaveAdjustDependencies
+  network: Network
 }
 type BuildOperationV2Args = BuildOperationArgs & {
   addresses: AAVEStrategyAddresses
@@ -453,6 +458,7 @@ async function buildOperation({
       args,
       dependencies,
       addresses: dependencies.addresses,
+      network: dependencies.network,
     })
   }
 
@@ -465,6 +471,7 @@ async function buildOperation({
       args,
       dependencies,
       addresses: dependencies.addresses,
+      network: dependencies.network,
     })
   }
 
@@ -479,6 +486,7 @@ async function buildOperationV2({
   args,
   dependencies,
   addresses,
+  network,
 }: BuildOperationV2Args) {
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
@@ -548,6 +556,7 @@ async function buildOperationV2({
         // Aave V2 not on L2
         provider: FlashloanProvider.DssFlash,
       },
+      network,
     }
     return await operations.aave.v2.adjustRiskUp(adjustRiskUpArgs)
   }
@@ -573,6 +582,7 @@ async function buildOperationV2({
         // Aave V2 not on L2
         provider: FlashloanProvider.DssFlash,
       },
+      network,
     }
     return await operations.aave.v2.adjustRiskDown(adjustRiskDownArgs)
   }
@@ -588,6 +598,7 @@ async function buildOperationV3({
   args,
   dependencies,
   addresses,
+  network,
 }: BuildOperationV3Args) {
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
@@ -653,6 +664,7 @@ async function buildOperationV3({
           amount: borrowAmount,
         },
       },
+      network,
     }
     return await operations.aave.v3.adjustRiskUp(adjustRiskUpArgs)
   }
@@ -667,6 +679,7 @@ async function buildOperationV3({
           amount: withdrawCollateralAmount,
         },
       },
+      network,
     }
     return await operations.aave.v3.adjustRiskDown(adjustRiskDownArgs)
   }

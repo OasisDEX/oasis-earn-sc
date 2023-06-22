@@ -1,4 +1,4 @@
-import { ADDRESSES } from '@deploy-configurations/addresses'
+import { ADDRESS_ZERO, ADDRESSES } from '@deploy-configurations/addresses'
 import { Network } from '@deploy-configurations/types/network'
 import { constants } from 'ethers'
 
@@ -53,6 +53,9 @@ const testAddresses = {
     aaveOracle: ADDRESSES[Network.OPTIMISM].aave.v3.AaveOracle,
     pool: ADDRESSES[Network.OPTIMISM].aave.v3.Pool,
     poolDataProvider: ADDRESSES[Network.OPTIMISM].aave.v3.AavePoolDataProvider,
+    priceOracle: ADDRESS_ZERO,
+    lendingPool: ADDRESS_ZERO,
+    protocolDataProvider: ADDRESS_ZERO,
   },
 }
 

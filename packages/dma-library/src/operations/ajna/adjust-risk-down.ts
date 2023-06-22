@@ -8,6 +8,7 @@ import {
   WithCollateralAndWithdrawal,
   WithDebt,
   WithFlashloan,
+  WithNetwork,
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
@@ -20,7 +21,8 @@ type AjnaAdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithFlashloan &
   WithProxy &
   WithAjnaStrategyAddresses &
-  WithAjnaBucketPrice
+  WithAjnaBucketPrice &
+  WithNetwork
 
 export type AjnaAdjustRiskDownOperation = ({
   collateral,
@@ -30,6 +32,7 @@ export type AjnaAdjustRiskDownOperation = ({
   proxy,
   addresses,
   price,
+  network,
 }: AjnaAdjustRiskDownArgs) => Promise<IOperation>
 
 export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
@@ -40,8 +43,9 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
   proxy,
   addresses,
   price,
+  network,
 }) => {
-  const swapCollateralTokensForDebtTokens = actions.common.swap({
+  const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
     fromAsset: collateral.address,
     toAsset: debt.address,
     amount: swap.amount,
@@ -52,6 +56,7 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
   })
 
   const setDebtTokenApprovalOnPool = actions.common.setApproval(
+    network,
     {
       asset: debt.address,
       delegate: addresses.pool,
@@ -72,17 +77,17 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
     [0, 0, 0, 1, 0, 0, 0],
   )
 
-  const unwrapEth = actions.common.unwrapEth({
+  const unwrapEth = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
   })
 
   unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
-  const returnDebtFunds = actions.common.returnFunds({
+  const returnDebtFunds = actions.common.returnFunds(network, {
     asset: debt.isEth ? addresses.ETH : debt.address,
   })
 
-  const returnCollateralFunds = actions.common.returnFunds({
+  const returnCollateralFunds = actions.common.returnFunds(network, {
     asset: collateral.isEth ? addresses.ETH : collateral.address,
   })
 
@@ -93,7 +98,7 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
     unwrapEth,
   ]
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan({
+  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: debt.address,
     flashloanAmount: flashloan.amount,

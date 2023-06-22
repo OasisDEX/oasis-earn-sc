@@ -22,7 +22,6 @@ import BigNumber from 'bignumber.js'
 import { OpenPositionTypes } from './aave/open-position-types'
 import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC, WBTC } from './common'
 
-const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 const amountInBaseUnit = amountToWei(new BigNumber(0.1), WBTC.precision)
 const wBTCtoSteal = amountToWei(new BigNumber(2), WBTC.precision)
 const WETHtoSwap = amountToWei(new BigNumber(2), ETH.precision)
@@ -70,6 +69,7 @@ export async function wbtcUsdcMultiplyAavePosition({
   dependencies,
   config,
   getTokens,
+  network,
 }: {
   proxy: string
   isDPM: boolean
@@ -77,11 +77,14 @@ export async function wbtcUsdcMultiplyAavePosition({
   swapAddress?: string
   dependencies: StrategyDependenciesAave
   config: RuntimeConfig
+  network: Network
   getTokens: (symbol: 'WBTC', amount: BigNumber) => Promise<boolean>
 }): Promise<AavePositionDetails | null> {
   const strategy: AavePositionStrategy = 'WBTC/USDC Multiply'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
+
+  const addresses = addressesByNetwork(network)
 
   const mockPrice = new BigNumber(22842.53)
   const getSwapData = use1inch
@@ -98,6 +101,7 @@ export async function wbtcUsdcMultiplyAavePosition({
       getSwapData,
       isDPMProxy: isDPM,
       proxy: proxy,
+      network,
     },
   )
 
@@ -110,13 +114,9 @@ export async function wbtcUsdcMultiplyAavePosition({
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeWalletBalanceBefore = await balanceOf(
-    mainnetAddresses.USDC,
-    mainnetAddresses.feeRecipient,
-    {
-      config,
-    },
-  )
+  const feeWalletBalanceBefore = await balanceOf(addresses.USDC, addresses.feeRecipient, {
+    config,
+  })
 
   const [status] = await proxyFunction(
     proxy,
@@ -135,13 +135,9 @@ export async function wbtcUsdcMultiplyAavePosition({
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  const feeWalletBalanceAfter = await balanceOf(
-    mainnetAddresses.USDC,
-    mainnetAddresses.feeRecipient,
-    {
-      config,
-    },
-  )
+  const feeWalletBalanceAfter = await balanceOf(addresses.USDC, addresses.feeRecipient, {
+    config,
+  })
 
   let getPosition
   if (

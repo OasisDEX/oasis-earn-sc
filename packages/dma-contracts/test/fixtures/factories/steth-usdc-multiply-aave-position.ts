@@ -18,8 +18,6 @@ import BigNumber from 'bignumber.js'
 import { OpenPositionTypes } from './aave/open-position-types'
 import { ETH, MULTIPLE, SLIPPAGE, STETH, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
 
-const mainnetAddresses = addressesByNetwork(Network.MAINNET)
-
 const amountInBaseUnit = amountToWei(new BigNumber(100), USDC.precision)
 const wethToSwapToUSDCTo = amountToWei(new BigNumber(1), ETH.precision)
 const usdcToSteal = amountToWei(new BigNumber(10000), USDC.precision)
@@ -67,6 +65,7 @@ export async function stethUsdcMultiplyAavePosition({
   dependencies,
   config,
   getTokens,
+  network,
 }: {
   proxy: string
   isDPM: boolean
@@ -75,10 +74,14 @@ export async function stethUsdcMultiplyAavePosition({
   dependencies: StrategyDependenciesAaveV2
   config: RuntimeConfig
   getTokens: (symbol: 'USDC', amount: BigNumber) => Promise<boolean>
+  network: Network
 }): Promise<AavePositionDetails> {
   const strategy: AavePositionStrategy = 'STETH/USDC Multiply'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
+
+  const addresses = addressesByNetwork(network)
+
   const tokens = {
     STETH: new STETH(dependencies.addresses),
     USDC: new USDC(dependencies.addresses),
@@ -98,22 +101,19 @@ export async function stethUsdcMultiplyAavePosition({
       getSwapData,
       isDPMProxy: isDPM,
       proxy: proxy,
+      network,
     },
   )
 
   await getTokens('USDC', use1inch ? wethToSwapToUSDCTo : usdcToSteal)
 
-  await approve(mainnetAddresses.USDC, proxy, amountInBaseUnit, config)
+  await approve(addresses.USDC, proxy, amountInBaseUnit, config)
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
-  const feeWalletBalanceBefore = await balanceOf(
-    mainnetAddresses.USDC,
-    mainnetAddresses.feeRecipient,
-    {
-      config,
-    },
-  )
+  const feeWalletBalanceBefore = await balanceOf(addresses.USDC, addresses.feeRecipient, {
+    config,
+  })
 
   const [status] = await proxyFunction(
     proxy,
@@ -132,15 +132,10 @@ export async function stethUsdcMultiplyAavePosition({
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  const feeWalletBalanceAfter = await balanceOf(
-    mainnetAddresses.USDC,
-    mainnetAddresses.feeRecipient,
-    {
-      config,
-    },
-  )
+  const feeWalletBalanceAfter = await balanceOf(addresses.USDC, addresses.feeRecipient, {
+    config,
+  })
 
-  const addresses = dependencies.addresses
   const getPosition = async () => {
     return await strategies.aave.v2.view(
       {
@@ -150,7 +145,7 @@ export async function stethUsdcMultiplyAavePosition({
       },
       {
         addresses: {
-          ...addresses,
+          ...dependencies.addresses,
           operationExecutor: dependencies.contracts.operationExecutor.address,
         },
         provider: config.provider,

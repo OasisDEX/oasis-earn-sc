@@ -67,7 +67,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
       positionType: PositionType
     }) {
       const addresses = {
-        ...addressesByNetwork(Network.MAINNET),
+        ...addressesByNetwork(networkFork),
         operationExecutor: system.OperationExecutor.contract.address,
       }
 
@@ -127,6 +127,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
           getSwapData,
           proxy,
           user: userAddress,
+          network: networkFork,
         },
       )
 
@@ -203,6 +204,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
           systemWithAavePositions({
             use1inch: false,
             configExtensionPaths: [`test/uSwap.conf.ts`],
+            network: networkFork,
           }),
         )
       })
@@ -416,6 +418,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
       config: RuntimeConfig
       dsSystem: System
       positionType: PositionType
+      network: Network
     }
 
     async function closePositionV3OnMainnet(
@@ -539,6 +542,7 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
           getSwapData,
           proxy,
           user: userAddress,
+          network: networkFork,
         },
       )
 

@@ -62,6 +62,7 @@ export const openDepositAndBorrowDebt: AaveV2OpenDepositAndBorrowDebt = async (
       protocol: 'AAVE',
     },
     dependencies.addresses,
+    dependencies.network,
   )
 
   const finalPosition = currentPosition
