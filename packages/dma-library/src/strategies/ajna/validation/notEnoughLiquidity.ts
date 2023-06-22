@@ -13,8 +13,8 @@ export function getPoolLiquidity(pool: AjnaPool): BigNumber {
 }
 
 export function validateLiquidity(
-  positionBefore: AjnaPosition,
   position: AjnaPosition,
+  positionBefore: AjnaPosition,
   borrowAmount: BigNumber,
 ): AjnaError[] {
   const availableLiquidity = getPoolLiquidity(positionBefore.pool)

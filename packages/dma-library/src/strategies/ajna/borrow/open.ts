@@ -60,7 +60,7 @@ export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
 
   const errors = [
     ...validateDustLimit(targetPosition),
-    ...validateLiquidity(position, targetPosition, args.quoteAmount),
+    ...validateLiquidity(targetPosition, position, args.quoteAmount),
     ...validateBorrowUndercollateralized(targetPosition, position, args.quoteAmount),
   ]
 

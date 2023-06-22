@@ -8,7 +8,7 @@ export function validateBorrowUndercollateralized(
   positionBefore: AjnaPosition,
   borrowAmount: BigNumber,
 ): AjnaError[] {
-  if (validateLiquidity(positionBefore, position, borrowAmount).length) {
+  if (validateLiquidity(position, positionBefore, borrowAmount).length) {
     return []
   }
 

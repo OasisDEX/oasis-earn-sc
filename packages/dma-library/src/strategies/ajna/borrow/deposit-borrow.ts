@@ -46,7 +46,7 @@ export const depositBorrow: AjnaDepositBorrowStrategy = async (args, dependencie
   const errors = [
     ...validateDustLimit(targetPosition),
     ...validateBorrowUndercollateralized(targetPosition, args.position, args.quoteAmount),
-    ...validateLiquidity(args.position, targetPosition, args.quoteAmount),
+    ...validateLiquidity(targetPosition, args.position, args.quoteAmount),
   ]
 
   const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, args.position)]
