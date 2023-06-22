@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/dma-library",
-  "version": "0.3.24-rc-flashloan-aave.2",
+  "version": "0.3.24-rc-flashloan-aave.3",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
