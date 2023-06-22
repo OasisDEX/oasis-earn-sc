@@ -18,7 +18,8 @@
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
     "test": "yarn test:unit && yarn test:e2e",
     "test:e2e": "yarn clean && npx hardhat test --grep E2E",
-    "test:unit": "yarn clean && npx hardhat test --grep Unit"
+    "test:unit": "yarn clean && npx hardhat test --grep Unit",
+    "deploy:tenderly": "npx hardhat run ./scripts/deployment/deploy-with-ajna.ts --network tenderly"
   },
   "dependencies": {
     "@openzeppelin/contracts": "4.7.3",

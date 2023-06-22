@@ -154,12 +154,12 @@ export function updateDmaConfigWithLocalAjnaDeploy(ds: DeploymentSystem, ajnaSys
   if (!ds.config) throw new Error('No config')
   ds.config.ajna.AjnaPoolInfo.address = ajnaSystem.poolInfo.address
   ds.config.ajna.ERC20PoolFactory.address = ajnaSystem.erc20PoolFactory.address
+  ds.config.ajna.AjnaPoolPairs_ETHUSDC.address = ajnaSystem.pools.wethUsdcPool.address
+  ds.config.ajna.AjnaPoolPairs_WBTCUSDC.address = ajnaSystem.pools.wbtcUsdcPool.address
+  ds.config.ajna.AjnaProxyActions.address = ajnaSystem.ajnaProxyActionsContract.address
+  ds.config.ajna.AjnaRewardsManager.address = ajnaSystem.rewardsManagerContract.address
 
   return ds
-}
-
-export function addLiquidityToPools(ds: DeploymentSystem, ajnaSystem: AjnaSystem) {
-  // TODO add liqidity
 }
 
 async function configureSwapContract(dsSystem: System) {

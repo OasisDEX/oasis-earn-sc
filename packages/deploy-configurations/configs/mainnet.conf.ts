@@ -7,86 +7,113 @@ export const config: SystemConfig = {
       ServiceRegistry: {
         name: 'ServiceRegistry',
         deploy: true,
-        address: '0xc4A5Bb7Bf656FF978dB453DEF53e5EAAe62cD44e',
-        history: [ '0x9b4Ae7b164d195df9C4Da5d08Be88b2848b2EaDA' ],
+        address: '0xD8De88D48D70ACc4B6F8713C1666fB6aaFf5e909',
+        history: [
+          '0x9b4Ae7b164d195df9C4Da5d08Be88b2848b2EaDA'
+        ],
         constructorArgs: [ 0 ]
       },
       OperationExecutor: {
         name: 'OperationExecutor',
         deploy: true,
-        address: '0x5D809FE187D6875eae44A9CB219Dc97F4E69c0c8',
+        address: '0xa898315E79b71B9f3Be7c2Bb356164Db4EfC7a36',
         serviceRegistryName: CONTRACT_NAMES.common.OPERATION_EXECUTOR,
-        history: [ '0xc1cd3654ab3b37e0bc26bafb5ae4c096892d0b0c' ],
+        history: [
+          '0xc1cd3654ab3b37e0bc26bafb5ae4c096892d0b0c',
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       OperationStorage: {
         name: 'OperationStorage',
         deploy: true,
-        address: '0xD0Fc2a5ee71dD74e89950af1F386520D8e69d5F0',
+        address: '0x7DB99085c31358B2A7D9FDC70315C314d6AA75bC',
         serviceRegistryName: CONTRACT_NAMES.common.OPERATION_STORAGE,
-        history: [ '0x66081bcDb3760f1Bf765B4D9800d0a059BBec73F' ],
+        history: [
+          '0x66081bcDb3760f1Bf765B4D9800d0a059BBec73F'
+        ],
         constructorArgs: [ 'address:ServiceRegistry', 'address:OperationExecutor' ]
       },
       OperationsRegistry: {
         name: 'OperationsRegistry',
         deploy: true,
-        address: '0x23Ee3228C8D8812Aa1198d5b4dD030984d3B580B',
+        address: '0x18Bb661B1c83278bE90e5AB66A3cFf6E83da3A69',
         serviceRegistryName: CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
-        history: [ '0x01871C3cCfeDE29d2b998E7D1BF0eEEBD26d9c49' ],
+        history: [
+          '0x01871C3cCfeDE29d2b998E7D1BF0eEEBD26d9c49',
+        ],
         constructorArgs: []
       },
       DSProxyFactory: {
         name: 'DSProxyFactory',
         deploy: true,
-        address: '0x72562094AA23Aa2A4e245861F08CAd061194Cd55',
+        address: '0x27eF13fF788aB5BF82AF8C2Ba38A2070b0432f2F',
         serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
-        history: [ '0xA26e15C895EFc0616177B7c1e7270A4C7D51C997' ],
+        history: [
+          '0xA26e15C895EFc0616177B7c1e7270A4C7D51C997',
+        ],
         constructorArgs: []
       },
       DSProxyRegistry: {
         name: 'DSProxyRegistry',
         deploy: true,
-        address: '0x06C23465a5Adb3975E1100ad7EC24e256983FEf9',
+        address: '0x79E77a49bb328188F337e67493d6198E16868B09',
         serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
-        history: [ '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4' ],
+        history: [
+          '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4',
+        ],
         constructorArgs: [ 'address:DSProxyFactory' ]
       },
       DSGuardFactory: {
         name: 'DSGuardFactory',
         deploy: true,
-        address: '0x2bB18769F9Aa002180E896a5aCa73ec170733ce0',
+        address: '0xe38d007f8DbE1cFAe148e5b942Dd209B93DE0952',
         serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
-        history: [ '0x5a15566417e6C1c9546523066500bDDBc53F88C7' ],
+        history: [
+          '0x5a15566417e6C1c9546523066500bDDBc53F88C7',
+        ],
         constructorArgs: []
       },
       AccountGuard: {
         name: 'AccountGuard',
         deploy: true,
-        address: '0x525F89FCb74C0c6D721a774ACd4a1F8eE42b2688',
-        history: [ '0xCe91349d2A4577BBd0fC91Fe6019600e047f2847' ],
+        address: '0x27f1Cf4e972A2387b76EB5e16D12d15444904d05',
+        history: [
+          '0xCe91349d2A4577BBd0fC91Fe6019600e047f2847',
+        ],
         constructorArgs: []
       },
       AccountFactory: {
         name: 'AccountFactory',
         deploy: true,
-        address: '0x21035789646ee8398ba9d6062F30894318172ff3',
-        history: [ '0xF7B75183A2829843dB06266c114297dfbFaeE2b6' ],
+        address: '0xD088ab89bE13358C3fCEB1B416cE14c54B315177',
+        history: [
+          '0xF7B75183A2829843dB06266c114297dfbFaeE2b6',
+        ],
         constructorArgs: [ 'address:AccountGuard' ]
       },
       ChainLogView: {
         name: 'ChainLogView',
         deploy: true,
-        address: '0x69684090ccFA94747DC5B9C76E679e87E911a83b',
+        address: '0xDcce995E57Cd23668443c9bf540a8B7Ecb0be6db',
         serviceRegistryName: CONTRACT_NAMES.common.CHAINLOG_VIEWER,
-        history: [ '0x4B323Eb2ece7fc1D81F1819c26A7cBD29975f75f' ],
+        history: [
+          '0x4B323Eb2ece7fc1D81F1819c26A7cBD29975f75f',
+        ],
         constructorArgs: [ '0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F' ]
       },
       Swap: {
         name: 'uSwap',
         deploy: true,
-        address: '0xafF4e03FE547584fFf0cE8Be05A9421aFfc17475',
+        address: '0x06a25ee7e0e969935136D4b37003905DB195B6F3',
         serviceRegistryName: CONTRACT_NAMES.common.SWAP,
-        history: [],
+        history: [
+          '0xb6DaDafBfDCad836A701A1f95445e31cb52BFe78',
+          '0x7626A3079bfF965A50131c078aF79bCaD42E41dE',
+          '0xa1d02ed364C84a76d6f5b224301ffd5b853Ed66E',
+          '0x6B89e123949228B9eb7B04cD7da0172DF8215EcB',
+          '0xfdB5B97966430d1E6e0167F24000dd625C136778',
+          '0x06a25ee7e0e969935136D4b37003905DB195B6F3'
+        ],
         constructorArgs: [
           '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
           '0xC7b548AD9Cf38721810246C079b2d8083aba8909',
@@ -99,25 +126,49 @@ export const config: SystemConfig = {
       PositionCreated: {
         name: 'PositionCreated',
         deploy: true,
-        address: '0xFcF31da435AA6a28a2D1AEf7BBB6d191F634DbCE',
+        address: '0xf2987fa1aA41b4d8A1F491c1320E74975864bF16',
         serviceRegistryName: CONTRACT_NAMES.common.POSITION_CREATED,
-        history: [ '0xA0Cb87300aB07D00468704cD8f016F8dE47D8E0A' ],
+        history: [
+          '0xA0Cb87300aB07D00468704cD8f016F8dE47D8E0A',
+          '0xd65Ec56774f9ef62A0aA8ec8ad1be71cdf37987C',
+          '0x9f3f24a4d0a769b10DeBCa6eF01943D09A0334f2',
+          '0x58060B2298e3398B09952B3b1BDbC9aC5e52cb76',
+          '0x73323610267006B06a0D0573970D115a218736f9',
+          '0xc60CDD9Cf65e56eAB9ea7E71E5EA90DAEbfda130',
+          '0xf2987fa1aA41b4d8A1F491c1320E74975864bF16'
+        ],
         constructorArgs: []
       },
       SwapAction: {
         name: 'SwapAction',
         deploy: true,
-        address: '0xdE5901eaBcb369BC71c9499765792D592b9a8A60',
+        address: '0x81D149d74C3E78F03614e8b5946913C546fd62E4',
         serviceRegistryName: CONTRACT_NAMES.common.SWAP_ACTION,
-        history: [ '0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85' ],
+        history: [
+          '0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85',
+          '0x81ea27E7D4fCE6F3C8d5Ff1c72b2E1976Db48e92',
+          '0x5C12E60210839E9b785cb0718cdE21bfB53Ce475',
+          '0xAd535D64c2aE0EdCAe77212C83793Dd698568214',
+          '0xFC568380508C1b3A6fD1F609D3CFF2353865a842',
+          '0x9B89924C474d1f69e7183Ca0F35327EE06e07a19',
+          '0x81D149d74C3E78F03614e8b5946913C546fd62E4'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       TakeFlashloan: {
         name: 'TakeFlashloan',
         deploy: true,
-        address: '0xf1cE055b82c83f6D68E8Af6439F6Bd26F5B2F199',
+        address: '0xe3CdcA2a8910C36C5d17aD5a28723417F0F37Cd3',
         serviceRegistryName: CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
-        history: [ '0x0eD12441616ca97F5729Fff519F5e8d13d8De15F' ],
+        history: [
+          '0x0eD12441616ca97F5729Fff519F5e8d13d8De15F',
+          '0x10a24e649712f2C05fC9c4bc26CaeDFe4500a26A',
+          '0xD1E232BfECf35c244e4f455993A79fd9973846Ec',
+          '0x5B30D04A9A4874986DBf1627f71909bDB2DBa8c7',
+          '0x08A176b44Bd8F95bbAD15B22Df0b4d9aB674649E',
+          '0x2af724C4B346D3d7a5eD02182c42955818892eBd',
+          '0xe3CdcA2a8910C36C5d17aD5a28723417F0F37Cd3'
+        ],
         constructorArgs: [
           'address:ServiceRegistry',
           '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -127,137 +178,271 @@ export const config: SystemConfig = {
       SetApproval: {
         name: 'SetApproval',
         deploy: true,
-        address: '0x453e60F975Ec212878F8582Aa4A4eA42D2D22c22',
+        address: '0xc0529CA699D61EEbCdcda39B97DB33058c4fd081',
         serviceRegistryName: CONTRACT_NAMES.common.SET_APPROVAL,
-        history: [ '0xcEA79d9132d6446f0B59F194b22DB2a93dB4146c' ],
+        history: [
+          '0xcEA79d9132d6446f0B59F194b22DB2a93dB4146c',
+          '0x6DaC0ec21148fcD13B1B4e38CBAd56092333bc08',
+          '0x9cCE0b020Bc37ECB7a970c163738312B57DC887B',
+          '0x4D066b3B3A166447dAb9a9a73746b4C0EE179ba2',
+          '0x4C014D733bdDb2783521f4436270acd133B4b362',
+          '0xb47782652F792CB70eEFCb582a8b4A7A0027017d',
+          '0xc0529CA699D61EEbCdcda39B97DB33058c4fd081'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       PullToken: {
         name: 'PullToken',
         deploy: true,
-        address: '0x0cc8B62772d5a4999e5Af96405dC03C0E2F4950d',
+        address: '0x7452A15B37584EF83f74FD53434972c42E62C8b1',
         serviceRegistryName: CONTRACT_NAMES.common.PULL_TOKEN,
-        history: [ '0x0bE3B9c118eD4eF2002Fd58d0d8cc8f7c76e168C' ],
+        history: [
+          '0x0bE3B9c118eD4eF2002Fd58d0d8cc8f7c76e168C',
+          '0xd8Ff47e977c8cf97A491Ab3B086ea3E12b01bfb1',
+          '0xCC7334afAafE0465EdC73113534Ce5A02e0b835C',
+          '0x9fF78de3bD970F626ccaa931b86752ac35235b21',
+          '0x0c35D9D756F68555089330A845B7a627b7af1F3E',
+          '0x0Da6205ECC640fE2dD29541dE9e80890436B5A1e',
+          '0x7452A15B37584EF83f74FD53434972c42E62C8b1'
+        ],
         constructorArgs: []
       },
       SendToken: {
         name: 'SendToken',
         deploy: true,
-        address: '0xD6bD090a6FDcf46733e9D9A35359ce39A29fEf8d',
+        address: '0x77BE575bd66D680174740bFFAFF01890e4f12cAf',
         serviceRegistryName: CONTRACT_NAMES.common.SEND_TOKEN,
-        history: [ '0xAa4C55A8dd5b0e923056676D544FC20bb5D5e3A3' ],
+        history: [
+          '0xAa4C55A8dd5b0e923056676D544FC20bb5D5e3A3',
+          '0x14443362A4dF62d1487bC7C74d8523DDb71306c6',
+          '0x81d8c374B88A3Fe77303b4eB55E3b8c15f4D5c19',
+          '0x59F0e0c40734Ed7eAEd388745F3fcF9C3065725D',
+          '0x484885ba69dCB6F25674FF979F75D0033C4E126f',
+          '0xA3B1A6e78aC46E5089D7ae97c9A9e43c5ACFA99C',
+          '0x77BE575bd66D680174740bFFAFF01890e4f12cAf'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       WrapEth: {
         name: 'WrapEth',
         deploy: true,
-        address: '0xFBA7fB7B8a8a87fd1aFdD49C31b48D6455f85269',
+        address: '0x3b2Da11feAf83A55875456C1e3aa0bb10d5d89c5',
         serviceRegistryName: CONTRACT_NAMES.common.WRAP_ETH,
-        history: [ '0xafdD2e556Cef33C5C0033beB76E09b7Bd8d14Dec' ],
+        history: [
+          '0xafdD2e556Cef33C5C0033beB76E09b7Bd8d14Dec',
+          '0x9fc98b41549f8a06C4260C06F60B654609cA7f85',
+          '0x3c7bB7E881b0E21DCc139BDa790DEB965711eA04',
+          '0xdc38d89FD009217DC2AfCCba983c6a53F4730525',
+          '0xA2A368BaBbbdC3b1cD950c69FCa9094282A3B870',
+          '0xb450eCcd462af76fd670091B726deEcc86ccA9Cb',
+          '0x3b2Da11feAf83A55875456C1e3aa0bb10d5d89c5'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       UnwrapEth: {
         name: 'UnwrapEth',
         deploy: true,
-        address: '0x768A31c1d01cb631F92ef8756825EA667B23A0bb',
+        address: '0xb8C1acA85e9CE49bA2AaB838B0210722C1eaF51e',
         serviceRegistryName: CONTRACT_NAMES.common.UNWRAP_ETH,
-        history: [ '0xAC0B1652388Ea425884e6b60e2eD30155f43D50b' ],
+        history: [
+          '0xAC0B1652388Ea425884e6b60e2eD30155f43D50b',
+          '0x37d1d74d0a384743fD4f3a30b6f2EDcE744c91a2',
+          '0xd316A5EC8391Daa7d90f02bb963Dd645456eA432',
+          '0x96898Dd22e72A5B102902F67E2eD8a7302BBde74',
+          '0x3f9C79ADED832Cf1e20A8B086a29F7e72964149E',
+          '0xA74f89f49670d9C3D758939Bdb45bB2587A4b6AA',
+          '0xb8C1acA85e9CE49bA2AaB838B0210722C1eaF51e'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       ReturnFunds: {
         name: 'ReturnFunds',
         deploy: true,
-        address: '0x5EAceb164c6DB7Ca4B4Aa03850326bf43921593f',
+        address: '0x0D6490E9E95A2CFE34346BE41B8e078E995afE32',
         serviceRegistryName: CONTRACT_NAMES.common.RETURN_FUNDS,
-        history: [ '0x645325494A37d35cf6baFc82C3e6bcE4473F2685' ],
+        history: [
+          '0x645325494A37d35cf6baFc82C3e6bcE4473F2685',
+          '0x9A48c2A25da6dA49722ed1F0E109897722C77A35',
+          '0xDD7457A72064D6D89dF7b205BAe4F96774745424',
+          '0x95a76f49ADD812055E7489dd6e0eD63A0d2A06af',
+          '0xD395Bce0Db47784DB7b708D1eEB3dca6E65e7B77',
+          '0xAeC3cA2D48de8F6b5d408E31EdC9f539389f9329',
+          '0x0D6490E9E95A2CFE34346BE41B8e078E995afE32'
+        ],
         constructorArgs: []
       },
       AaveBorrow: {
         name: 'AaveBorrow',
         deploy: true,
-        address: '0x26BE1c2341E8EA6D0BBAA51B9a2b0420767EA2c2',
+        address: '0x5DCC84bE21aAC48abBd3DE5A1876A61269C51718',
         serviceRegistryName: CONTRACT_NAMES.aave.v2.BORROW,
-        history: [ '0x6166B1587be6B954e660A71e4B083A5e0a5bF1b6' ],
+        history: [
+          '0x6166B1587be6B954e660A71e4B083A5e0a5bF1b6',
+          '0xf69FA67ECDf0B928bEe9Cd0383DB52Cd2e743fbB',
+          '0x7b5072c8bFFe7a28fA0e02bc697776c28389b78A',
+          '0xfaf7ae42126B8aBb849118b88297a82D104CbCc0',
+          '0x29a6a41111b628aDA06E427afdB0Eb8c6f6838a4',
+          '0xe2B665b1AE5472947a7d8B55935f757cafF4dC78',
+          '0x5DCC84bE21aAC48abBd3DE5A1876A61269C51718'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveWithdraw: {
         name: 'AaveWithdraw',
         deploy: true,
-        address: '0x4aE38e17Ea354f2a4A9AFEdeA0FF8FAA5C7C2D31',
+        address: '0x8b20C422adbd764B268a708377BB69B03cf91b7c',
         serviceRegistryName: CONTRACT_NAMES.aave.v2.WITHDRAW,
-        history: [ '0xECf6CaB5cD20F5f889e95A1A40d46607aa0F41Cf' ],
+        history: [
+          '0xECf6CaB5cD20F5f889e95A1A40d46607aa0F41Cf',
+          '0xa8C2e11aebdDf663284ad57a57e044199c5eD30a',
+          '0xA6443A24bA5d6f9996E5EF0ca5ffA282Ca389252',
+          '0x853Ce220fFaB32b57Ee03200473EFd23dB324842',
+          '0x1644A899995813314f5c0d44276C5D863d45a49d',
+          '0x55a9f50EAA192cDb277b42A25Ef8FFb0e0F87607',
+          '0x8b20C422adbd764B268a708377BB69B03cf91b7c'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveDeposit: {
         name: 'AaveDeposit',
         deploy: true,
-        address: '0x321Ea31D86f0D2eEd377FBd1bbD436B80c29a3f5',
+        address: '0xddB2B3894Ce052Af6aa7B60B7CB4473BC2cc26EB',
         serviceRegistryName: CONTRACT_NAMES.aave.v2.DEPOSIT,
-        history: [ '0xFAf9D0B7B92e8B281CaF10b42970179B45CA6412' ],
+        history: [
+          '0xFAf9D0B7B92e8B281CaF10b42970179B45CA6412',
+          '0x859c71DFf1168ec537a496bBfc517EF40fb03828',
+          '0xAD85aae8A818Dd84176a28c193F1F9b11c67679d',
+          '0x1BCb41e8c83a5c410246622abe97cb2056Cf3Ce8',
+          '0xCfeD82a38fFC32c7F728F5d16ebfA92416B08E7d',
+          '0xC7DBcB2fe46Ef88A1650Af96F01e48142e27a446',
+          '0xddB2B3894Ce052Af6aa7B60B7CB4473BC2cc26EB'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AavePayback: {
         name: 'AavePayback',
         deploy: true,
-        address: '0x453C16e728EDb59953F34977e98b900cA3F640Df',
+        address: '0xDd3fCB5C4E7f0fEfa9520dc6Ed18D996A3dED7C0',
         serviceRegistryName: CONTRACT_NAMES.aave.v2.PAYBACK,
-        history: [ '0xeB54C366512c4d59A222A251ea7316568859E08C' ],
+        history: [
+          '0xeB54C366512c4d59A222A251ea7316568859E08C',
+          '0x5011d41D73F1Ae7D9Cb6dE5b9B50693C0eCfEa0d',
+          '0x0A2C4f5d56162DF049D3911BBC288bB986F9715A',
+          '0x252b405eb3e7b7D71eEEC76969f627D1A8Ff6cd2',
+          '0xBA78e1E257b24766603eF66505c1C04fa4129015',
+          '0x9F0c494294bf5a1834db0a7ad06d24764e90E312',
+          '0xDd3fCB5C4E7f0fEfa9520dc6Ed18D996A3dED7C0'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveV3Borrow: {
         name: 'AaveV3Borrow',
         deploy: true,
-        address: '0xF1944e6530d0f26077d792Dc5c321095380ac743',
+        address: '0xEAF045a19bFfDA1F088bB09D0774c274E2B4B929',
         serviceRegistryName: CONTRACT_NAMES.aave.v3.BORROW,
-        history: [ '0x18ca8bE41D32727383bC0F98705f7662ed0B7E28' ],
+        history: [
+          '0x18ca8bE41D32727383bC0F98705f7662ed0B7E28',
+          '0xc45A04bc17941900Df0cc08E93A3CA56A411B1Ac',
+          '0x609E6094e7Ec869284f9EF6C34d7e0BDc30eC3CD',
+          '0x0475C2939e1D0b3BA577764F48b4814eFec3932e',
+          '0xbae51d20366b1D16127334ac909272E84903CD97',
+          '0xD9ed7A6B3C2273287816772Cef8d50f476e94B76',
+          '0xEAF045a19bFfDA1F088bB09D0774c274E2B4B929'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveV3Withdraw: {
         name: 'AaveV3Withdraw',
         deploy: true,
-        address: '0xC1439668E53522D6593E685BbCc1e44C87403d45',
+        address: '0xB8064036fe0DC39C49aD7962284b2001E37490eA',
         serviceRegistryName: CONTRACT_NAMES.aave.v3.WITHDRAW,
-        history: [ '0x414958801DC53E840501f507D7A0FEBE55806200' ],
+        history: [
+          '0x414958801DC53E840501f507D7A0FEBE55806200',
+          '0xE4375b9777a3DcDdBBaE922Db1039015970c24c7',
+          '0xB58C6Dd084825bfaB7f13e4736458e51754a66f8',
+          '0x2aB0BE2feFCcD54e4f5af1B070082bcE912a5bEB',
+          '0xE539345f745ba7CfA32DB0342c03453Ebb124a23',
+          '0x3f70EB7Ba4b8b19f8F77538E856BE0d66BDf8277',
+          '0xB8064036fe0DC39C49aD7962284b2001E37490eA'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveV3Deposit: {
         name: 'AaveV3Deposit',
         deploy: true,
-        address: '0x2E668623542608b09B81Ae4da3e27462190E8758',
+        address: '0xeaCc65458b627D8473a0b04De531C44be6ff3847',
         serviceRegistryName: CONTRACT_NAMES.aave.v3.DEPOSIT,
-        history: [ '0x852c56859840487DcED2aF501fC06f7462C4f2a8' ],
+        history: [
+          '0x852c56859840487DcED2aF501fC06f7462C4f2a8',
+          '0x0B0e8D4b59199d33c6FCa15022420bD3a0dbab11',
+          '0x54926b9e27BaFbe7d0A40eba729DE4aB1E069318',
+          '0xecf69446B8C33bDb7477a4b1d19bACA1B51A2f2F',
+          '0x3F3ae41571fcE03A8CD33A8d45ca32bA1c2a059A',
+          '0x09ac5FE5d8420953046035d193207bB834f14543',
+          '0xeaCc65458b627D8473a0b04De531C44be6ff3847'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveV3Payback: {
         name: 'AaveV3Payback',
         deploy: true,
-        address: '0xD64Da2bA090758c4A571691cbE5A59A6C402b2e8',
+        address: '0x11e5cfd9BDa4E847602F04a9e619148a745A1D2d',
         serviceRegistryName: CONTRACT_NAMES.aave.v3.PAYBACK,
-        history: [ '0xdB736d13CE851Ee81ac2109DF37EBAb8Ce525C42' ],
+        history: [
+          '0xdB736d13CE851Ee81ac2109DF37EBAb8Ce525C42',
+          '0x10Dd12f656FAa9162444B0377e8e8CE9Bc944Ce7',
+          '0x745702eE29ba359ACB15942860A2eF1837b4Afa2',
+          '0xf87eD9c776375bbe50d06603520606b9015c81eC',
+          '0xFb15657D8286DA156196559E2CF68931E4620ef1',
+          '0x4e942F84092796E89b1B0E4f946d5F7d461903Ab',
+          '0x11e5cfd9BDa4E847602F04a9e619148a745A1D2d'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AaveV3SetEMode: {
         name: 'AaveV3SetEMode',
         deploy: true,
-        address: '0x5e42ecCB5dAB6bfA573a5702B3b674Ca7eB9c337',
+        address: '0x497FaE16975F1CC25f3399f294F566fB6833d60B',
         serviceRegistryName: CONTRACT_NAMES.aave.v3.SET_EMODE,
-        history: [ '0xd4DB3799DEe98Fe752d952Ba6F84Bb99Af829920' ],
+        history: [
+          '0xd4DB3799DEe98Fe752d952Ba6F84Bb99Af829920',
+          '0x99B31f423D1963a7F07eAE4AfBA7652587816391',
+          '0x3572bdcE311C5Dda9514766Ea6E5c3D699bfE45C',
+          '0x2F88BCc4A28c06ea8Ca79FBcaBe9d8C85e72c984',
+          '0x8332E00e1E82631a86cDD0349F79c7BA37aDea69',
+          '0x4EEfCb53D8f2CC67611626e9034126BE56968718',
+          '0x497FaE16975F1CC25f3399f294F566fB6833d60B'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
         deploy: true,
-        address: '0x69d0C484E174105729Ff5e4dE4D65AbE78424d43',
+        address: '0x92819270316ee747A2534BFE6f8D352C9E449182',
         serviceRegistryName: CONTRACT_NAMES.ajna.DEPOSIT_BORROW,
-        history: [],
+        history: [
+          '0xE724a3Aadc44A5350Fb0e002Be4765A5990Db474',
+          '0x00C583EF1cae9fA955B58f0C86a5DC8195a816a2',
+          '0x8e6cbe512961F31d233c1117fbE2192b5a9a219c',
+          '0x0a2dBc0e3DFcdC2B95738244CB1fc61A73757584',
+          '0xeEE0790359d154915806856d59f4B4d4Bc27A61F',
+          '0x92819270316ee747A2534BFE6f8D352C9E449182'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
         deploy: true,
-        address: '0x4747794c8CA05631C59C454d24800d2a99a7D2B3',
+        address: '0xff3D51d6Fdb5e0809E08BD9c3FBfb9fe71Bd2eF7',
         serviceRegistryName: CONTRACT_NAMES.ajna.REPAY_WITHDRAW,
-        history: [],
+        history: [
+          '0xEb84CC72e291822E2633C91Ac3221E3C3c6d0EC0',
+          '0x16C0E833a3fd052799F0d9Df48982AF3E20d2a9A',
+          '0xc320C39D0c59E6f4F0237109807f2ac5525Da600',
+          '0xF48663CE0879C77602AE126C0601669AB9Ffd373',
+          '0x0F7e0c7aE197f62221e65dAEe2B31546f569C9E6',
+          '0xff3D51d6Fdb5e0809E08BD9c3FBfb9fe71Bd2eF7'
+        ],
         constructorArgs: [ 'address:ServiceRegistry' ]
       }
     }
@@ -1074,56 +1259,35 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0xf0f5b689d27365C18fbdFB9bc499708a19b56Fb5',
+      address: '0x658Bc3CebaA129e652c0baC2c1dfb866413d999D',
       serviceRegistryName: CONTRACT_NAMES.ajna.AJNA_POOL_UTILS_INFO
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x2b639Cc84e1Ad3aA92D4Ee7d2755A6ABEf300D72'
+      address: '0x48C4d4B2e8340045f3Dc0a4e271f236e217f44Be'
     },
     AjnaPoolPairs_WBTCUSDC: {
       name: 'AjnaPoolPairs_WBTCUSDC',
-      address: '0xa11a3BCeaD7f27a19dAaaf59BC0484f8440e93fe'
+      address: '0x0D74bEf3CA8FC936C6E1Ff21acc94fB85dC5d3b1'
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
-      address: '0x0c9Bc4EFD40cCD0B6c6372CFa8b8562A940185C1'
+      address: '0x9B260a1b450f425198a81b13C49c80113424dCC8'
     },
-    AjnaPoolPairs_WSTETHDAI: {
-      name: 'AjnaPoolPairs_WSTETHDAI',
-      address: '0x2549f77Bf6ca28963426709844B1DdFb8197876A'
-    },
-    AjnaPoolPairs_RETHDAI: {
-      name: 'AjnaPoolPairs_RETHDAI',
-      address: '0xeCf773a0535F46DD3Cd8728EE263eEEaBCa16A8e'
-    },
-    AjnaPoolPairs_WBTCDAI: {
-      name: 'AjnaPoolPairs_WBTCDAI',
-      address: '0xfa3F2cfC67C32C53601d52A9dEC31b2c2f0db3E2'
-    },
-    AjnaPoolPairs_USDCWETH: {
-      name: 'AjnaPoolPairs_USDCWETH',
-      address: '0xE3efD887308d6C29B5F9BF44957d8bD145a21bD5'
-    },
-    AjnaPoolPairs_USDCWBTC: {
-      name: 'AjnaPoolPairs_USDCWBTC',
-      address: '0x20D07529a9E1686773BA45eade1fbD3AA9F31aea'
-    },
-    AjnaPoolPairs_USDCDAI: {
-      name: 'AjnaPoolPairs_USDCDAI',
-      address: '0x7ed4194a16919dc5070457A2a22B9abFd9352E85'
-    },
+    AjnaPoolPairs_WSTETHDAI: { name: 'AjnaPoolPairs_WSTETHDAI', address: '' },
+    AjnaPoolPairs_RETHDAI: { name: 'AjnaPoolPairs_RETHDAI', address: '' },
+    AjnaPoolPairs_WBTCDAI: { name: 'AjnaPoolPairs_WBTCDAI', address: '' },
+    AjnaPoolPairs_USDCWETH: { name: 'AjnaPoolPairs_USDCWETH', address: '' },
+    AjnaPoolPairs_USDCWBTC: { name: 'AjnaPoolPairs_USDCWBTC', address: '' },
+    AjnaPoolPairs_USDCDAI: { name: 'AjnaPoolPairs_USDCDAI', address: '' },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
-      address: '0xEd6890d748e62ddbb3f80e7256Deeb2fBb853476'
+      address: '0x71047d50310733fA46215e2b36eE1B9DA0B2B70A'
     },
-    AjnaRewardsClaimer: {
-      name: 'AjnaRewardsClaimer',
-      address: '0xEd6890d748e62ddbb3f80e7256Deeb2fBb853476'
-    },
+    AjnaRewardsClaimer: { name: 'AjnaRewardsClaimer', address: '' },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0xCF6F52F6b65f284ffFaFc35FfE754830C05DA0c2',
+      address: '0xEE5842A5CeC7aD2A9c168122943Cbe43E201b6a9',
       serviceRegistryName: CONTRACT_NAMES.ajna.ERC20_POOL_FACTORY
     }
   }
