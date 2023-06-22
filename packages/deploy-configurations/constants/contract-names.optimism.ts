@@ -5,7 +5,7 @@ export const SERVICE_REGISTRY_NAMES = {
     SEND_TOKEN: 'SendToken_4',
     SET_APPROVAL: 'SetApproval_3',
     TAKE_A_FLASHLOAN: 'TakeFlashloan_3',
-    SWAP_ACTION: 'SwapAction_4',
+    SWAP_ACTION: 'SwapAction_5',
     WRAP_ETH: 'WrapEth_3',
     UNWRAP_ETH: 'UnwrapEth_3',
     RETURN_FUNDS: 'ReturnFunds_3',
