@@ -1,16 +1,39 @@
-import { Network } from '@deploy-configurations/types/network'
 import { FEE_BASE, ONE, TEN, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { calculateFee } from '@dma-common/utils/swap'
 import { buildOperation } from '@dma-library/strategies/aave/close/build-operation'
 import { generateTransition } from '@dma-library/strategies/aave/close/generate-transition'
 import { getValuesFromProtocol } from '@dma-library/strategies/aave/close/get-values-from-protocol'
-import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import {
+  getAaveTokenAddress,
+  getAaveTokenAddresses,
+} from '@dma-library/strategies/aave/get-aave-token-addresses'
 import { PositionTransition } from '@dma-library/types'
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
 import BigNumber from 'bignumber.js'
 
-import { AaveCloseArgs, AaveCloseArgsWithVersioning, AaveCloseDependencies } from './types'
+import {
+  AaveCloseArgsWithVersioning,
+  AaveCloseDependencies,
+  ExpandedAaveCloseArgs,
+  WithFlashloanToken,
+} from './types'
+
+function getFlashloanToken({
+  network,
+  addresses,
+}: Pick<AaveCloseDependencies, 'network' | 'addresses'>): WithFlashloanToken {
+  const { DAI, USDC } = addresses
+
+  const flashloanToken =
+    network === 'mainnet'
+      ? { symbol: 'DAI' as const, address: DAI, precision: 18 }
+      : { symbol: 'USDC' as const, address: USDC, precision: 6 }
+
+  return {
+    flashloanToken,
+  }
+}
 
 export async function close(
   args: AaveCloseArgsWithVersioning,
@@ -20,46 +43,61 @@ export async function close(
     ? getSwapDataToCloseToCollateral
     : getSwapDataToCloseToDebt
 
-  const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(args, dependencies)
+  const collateralTokenAddress = getAaveTokenAddress(args.collateralToken, dependencies.addresses)
+  const debtTokenAddress = getAaveTokenAddress(args.debtToken, dependencies.addresses)
 
-  const flashloanToken =
-    dependencies.network === Network.MAINNET
-      ? dependencies.addresses.DAI
-      : dependencies.addresses.USDC
+  const flashloanToken = getFlashloanToken(dependencies)
 
-  const operation = await buildOperation(
-    { ...swapData, collectFeeFrom, preSwapFee },
-    flashloanToken,
-    args,
+  const aaveValuesFromProtocol = await getValuesFromProtocol(
+    args.protocolVersion,
+    collateralTokenAddress,
+    debtTokenAddress,
+    flashloanToken.flashloanToken.address,
     dependencies,
   )
 
-  return generateTransition(swapData, collectFeeFrom, preSwapFee, operation, args, dependencies)
+  const expandedArgs: ExpandedAaveCloseArgs = {
+    ...args,
+    ...flashloanToken,
+    collateralTokenAddress,
+    debtTokenAddress,
+    protocolValues: aaveValuesFromProtocol,
+  }
+
+  const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(expandedArgs, dependencies)
+
+  const operation = await buildOperation(
+    { ...swapData, collectFeeFrom, preSwapFee },
+    expandedArgs,
+    dependencies,
+  )
+
+  return generateTransition(
+    swapData,
+    collectFeeFrom,
+    preSwapFee,
+    operation,
+    expandedArgs,
+    dependencies,
+  )
 }
 
 async function getSwapDataToCloseToCollateral(
-  { debtToken, collateralToken, slippage, protocolVersion }: AaveCloseArgsWithVersioning,
+  {
+    debtToken,
+    collateralToken,
+    slippage,
+    protocolValues: { collateralTokenPrice, debtTokenPrice },
+    collateralTokenAddress,
+    debtTokenAddress,
+  }: ExpandedAaveCloseArgs,
   dependencies: AaveCloseDependencies,
 ) {
-  const { addresses } = dependencies
-  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
-    { debtToken, collateralToken },
-    addresses,
-  )
-
   // Since we cannot get the exact amount that will be needed
   // to cover all debt, there will be left overs of the debt token
   // which will then have to be transferred back to the user
-  let [, colPrice, debtPrice] = (
-    await getValuesFromProtocol(
-      protocolVersion,
-      collateralTokenAddress,
-      debtTokenAddress,
-      dependencies,
-    )
-  ).map(price => {
-    return new BigNumber(price.toString())
-  })
+  let colPrice = collateralTokenPrice
+  let debtPrice = debtTokenPrice
 
   // 1.Use offset amount which will be used in the swap as well.
   // The idea is that after the debt is paid, the remaining will be transferred to the beneficiary
@@ -167,7 +205,12 @@ async function getSwapDataToCloseToCollateral(
 }
 
 async function getSwapDataToCloseToDebt(
-  { debtToken, collateralToken, slippage, collateralAmountLockedInProtocolInWei }: AaveCloseArgs,
+  {
+    debtToken,
+    collateralToken,
+    slippage,
+    collateralAmountLockedInProtocolInWei,
+  }: ExpandedAaveCloseArgs,
   dependencies: AaveCloseDependencies,
 ) {
   const { addresses } = dependencies

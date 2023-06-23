@@ -1,1 +1,10 @@
-export type AAVETokens = 'ETH' | 'WETH' | 'STETH' | 'WSTETH' | 'WBTC' | 'USDC' | 'CBETH' | 'RETH'
+export type AAVETokens =
+  | 'ETH'
+  | 'WETH'
+  | 'STETH'
+  | 'WSTETH'
+  | 'WBTC'
+  | 'USDC'
+  | 'CBETH'
+  | 'RETH'
+  | 'DAI'

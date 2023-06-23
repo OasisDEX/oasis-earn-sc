@@ -1,39 +1,30 @@
 import { FEE_ESTIMATE_INFLATOR, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { amountFromWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
-import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
 import { IOperation, PositionTransition, SwapData } from '@dma-library/types'
 import { feeResolver } from '@dma-library/utils/swap'
 import { Position } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { getValuesFromProtocol } from './get-values-from-protocol'
-import { AaveCloseArgsWithVersioning, AaveCloseDependencies } from './types'
+import { AaveCloseDependencies, ExpandedAaveCloseArgs } from './types'
 
 export async function generateTransition(
   swapData: SwapData,
   collectFeeFrom: 'sourceToken' | 'targetToken',
   preSwapFee: BigNumber,
   operation: IOperation,
-  args: AaveCloseArgsWithVersioning,
+  args: ExpandedAaveCloseArgs,
   dependencies: AaveCloseDependencies,
 ): Promise<PositionTransition> {
   const currentPosition = dependencies.currentPosition
-  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
-    { debtToken: args.debtToken, collateralToken: args.collateralToken },
-    dependencies.addresses,
-  )
 
-  const [, aaveCollateralTokenPriceInEth, aaveDebtTokenPriceInEth] = await getValuesFromProtocol(
-    args.protocolVersion,
-    collateralTokenAddress,
-    debtTokenAddress,
-    dependencies,
-  )
+  const {
+    protocolValues: { collateralTokenPrice, debtTokenPrice },
+  } = args
   /*
     Final position calculated using actual swap data and the latest market price
    */
-  const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+  const oracle = collateralTokenPrice.div(debtTokenPrice)
   const finalPosition = new Position(
     { amount: ZERO, symbol: currentPosition.debt.symbol },
     { amount: ZERO, symbol: currentPosition.collateral.symbol },

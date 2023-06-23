@@ -6,12 +6,10 @@ import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { CloseArgs } from '@dma-library/operations/aave/v3/close'
 import { AaveVersion } from '@dma-library/strategies'
-import { getValuesFromProtocol } from '@dma-library/strategies/aave/close/get-values-from-protocol'
 import {
-  AaveCloseArgsWithVersioning,
   AaveCloseDependencies,
+  ExpandedAaveCloseArgs,
 } from '@dma-library/strategies/aave/close/types'
-import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
 import { IOperation, SwapData } from '@dma-library/types'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
@@ -23,35 +21,28 @@ export async function buildOperation(
     collectFeeFrom: 'sourceToken' | 'targetToken'
     preSwapFee: BigNumber
   },
-  flashloanToken: string,
-  args: AaveCloseArgsWithVersioning,
+  args: ExpandedAaveCloseArgs,
   dependencies: AaveCloseDependencies,
 ): Promise<IOperation> {
-  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
-    { debtToken: args.debtToken, collateralToken: args.collateralToken },
-    dependencies.addresses,
-  )
-
-  const [aaveFlashloanDaiPriceInEth, aaveCollateralTokenPriceInEth, , reserveDataForFlashloan] =
-    await getValuesFromProtocol(
-      args.protocolVersion,
-      collateralTokenAddress,
-      debtTokenAddress,
-      dependencies,
-    )
+  const {
+    collateralTokenAddress,
+    debtTokenAddress,
+    protocolValues: { reserveDataForFlashloan, flashloanTokenPrice, collateralTokenPrice },
+    flashloanToken,
+  } = args
 
   /* Calculate Amount to flashloan */
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
-  const ethPerDAI = new BigNumber(aaveFlashloanDaiPriceInEth.toString())
-  const ethPerCollateralToken = new BigNumber(aaveCollateralTokenPriceInEth.toString())
+  const baseCurrencyPerFlashLoan = new BigNumber(flashloanTokenPrice.toString())
+  const baseCurrencyPerCollateralToken = new BigNumber(collateralTokenPrice.toString())
   // EG STETH/ETH divided by ETH/DAI = STETH/ETH times by DAI/ETH = STETH/DAI
-  const oracleFLtoCollateralToken = ethPerCollateralToken.div(ethPerDAI)
+  const oracleFLtoCollateralToken = baseCurrencyPerCollateralToken.div(baseCurrencyPerFlashLoan)
 
   const amountToFlashloanInWei = amountToWei(
     amountFromWei(args.collateralAmountLockedInProtocolInWei, args.collateralToken.precision).times(
       oracleFLtoCollateralToken,
     ),
-    18,
+    flashloanToken.precision,
   )
     .div(maxLoanToValueForFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
     .integerValue(BigNumber.ROUND_DOWN)
@@ -108,11 +99,8 @@ export async function buildOperation(
       },
       flashloan: {
         token: {
-          amount:
-            flashloanToken === dependencies.addresses.DAI
-              ? amountToFlashloanInWei
-              : amountToFlashloanInWei.div(10 ** 12),
-          address: flashloanToken,
+          amount: amountToFlashloanInWei,
+          address: flashloanToken.address,
         },
         amount: amountToFlashloanInWei,
         provider: flashloanProvider,

@@ -64,6 +64,7 @@ export function swap(
   },
 ) {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+  console.log(`Swap service registry names: ${SERVICE_REGISTRY_NAMES.common.SWAP_ACTION}`)
 
   return createAction(
     getActionHash(SERVICE_REGISTRY_NAMES.common.SWAP_ACTION),
