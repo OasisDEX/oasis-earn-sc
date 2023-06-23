@@ -47,16 +47,16 @@ export const close: AaveV3CloseOperation = async ({
   const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode(network, {
     categoryId: 0,
   })
-  const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
-    amount: flashloan.amount,
-    asset: addresses.DAI,
+  const setFlashLoanApproval = actions.common.setApproval(network, {
+    amount: flashloan.token.amount,
+    asset: flashloan.token.address,
     delegate: addresses.pool,
     sumAmounts: false,
   })
 
-  const depositDaiInAAVE = actions.aave.v3.aaveV3Deposit(network, {
-    amount: flashloan.amount,
-    asset: addresses.DAI,
+  const depositFlashLoan = actions.aave.v3.aaveV3Deposit(network, {
+    amount: flashloan.token.amount,
+    asset: flashloan.token.address,
     sumAmounts: false,
   })
 
@@ -93,9 +93,9 @@ export const close: AaveV3CloseOperation = async ({
     paybackAll: true,
   })
 
-  const withdrawDAIFromAAVE = actions.aave.v3.aaveV3Withdraw(network, {
-    asset: addresses.DAI,
-    amount: flashloan.amount,
+  const withdrawFlashLoan = actions.aave.v3.aaveV3Withdraw(network, {
+    asset: flashloan.token.address,
+    amount: flashloan.token.amount,
     to: addresses.operationExecutor,
   })
 
@@ -115,18 +115,18 @@ export const close: AaveV3CloseOperation = async ({
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
-    asset: addresses.DAI,
-    flashloanAmount: flashloan.amount,
+    asset: flashloan.token.address,
+    flashloanAmount: flashloan.token.amount,
     isProxyFlashloan: true,
     provider: flashloan.provider,
     calls: [
-      setDaiApprovalOnLendingPool,
-      depositDaiInAAVE,
+      setFlashLoanApproval,
+      depositFlashLoan,
       withdrawCollateralFromAAVE,
       swapCollateralTokensForDebtTokens,
       setDebtTokenApprovalOnLendingPool,
       paybackInAAVE,
-      withdrawDAIFromAAVE,
+      withdrawFlashLoan,
       unwrapEth,
       returnDebtFunds,
       returnCollateralFunds,

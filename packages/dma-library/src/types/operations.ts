@@ -79,9 +79,7 @@ export type WithFlashloan = {
       amount: BigNumber
       address: Address
     }
-    /*
-     * @deprecated Please use `token` instead
-     */
+    /** @deprecated Please use `token` instead **/
     amount: BigNumber
   }
 }
