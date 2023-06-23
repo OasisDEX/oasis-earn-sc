@@ -108,7 +108,7 @@ export const open: AjnaOpenOperation = async ({
     [0, 0, 1, 0, 0, 0],
   )
 
-  const sendQuoteTokenToOpExecutor = actions.common.sendToken({
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken(network, {
     asset: debt.address,
     to: addresses.operationExecutor,
     amount: flashloan.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.amount)),

@@ -1,4 +1,4 @@
-import { loadContractNames } from '@deploy-configurations/constants'
+import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
@@ -1257,12 +1257,32 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_ETHUSDC',
       address: '0x9B260a1b450f425198a81b13C49c80113424dCC8',
     },
-    AjnaPoolPairs_WSTETHDAI: { name: 'AjnaPoolPairs_WSTETHDAI', address: '' },
-    AjnaPoolPairs_RETHDAI: { name: 'AjnaPoolPairs_RETHDAI', address: '' },
-    AjnaPoolPairs_WBTCDAI: { name: 'AjnaPoolPairs_WBTCDAI', address: '' },
-    AjnaPoolPairs_USDCETH: { name: 'AjnaPoolPairs_USDCETH', address: '' },
-    AjnaPoolPairs_USDCWBTC: { name: 'AjnaPoolPairs_USDCWBTC', address: '' },
-    AjnaPoolPairs_USDCDAI: { name: 'AjnaPoolPairs_USDCDAI', address: '' },
+    AjnaPoolPairs_WSTETHDAI: { name: 'AjnaPoolPairs_WSTETHDAI', address: ADDRESS_ZERO },
+    AjnaPoolPairs_RETHDAI: { name: 'AjnaPoolPairs_RETHDAI', address: ADDRESS_ZERO },
+    AjnaPoolPairs_WBTCDAI: { name: 'AjnaPoolPairs_WBTCDAI', address: ADDRESS_ZERO },
+    AjnaPoolPairs_USDCETH: { name: 'AjnaPoolPairs_USDCETH', address: ADDRESS_ZERO },
+    AjnaPoolPairs_USDCWBTC: { name: 'AjnaPoolPairs_USDCWBTC', address: ADDRESS_ZERO },
+    AjnaPoolPairs_USDCDAI: { name: 'AjnaPoolPairs_USDCDAI', address: ADDRESS_ZERO },
+    AjnaPoolPairs_ETHDAI: {
+      name: 'AjnaPoolPairs_ETHDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_RETHETH: {
+      name: 'AjnaPoolPairs_RETHETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_RETHUSDC: {
+      name: 'AjnaPoolPairs_RETHUSDC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_WSTETHETH: {
+      name: 'AjnaPoolPairs_WSTETHUSDC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_WSTETHUSDC: {
+      name: 'AjnaPoolPairs_WSTETHUSDC',
+      address: ADDRESS_ZERO,
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: '0x71047d50310733fA46215e2b36eE1B9DA0B2B70A',

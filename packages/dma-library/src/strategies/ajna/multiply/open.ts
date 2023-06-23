@@ -1,6 +1,7 @@
 import operationExecutorAbi from '@abis/system/contracts/core/OperationExecutor.sol/OperationExecutor.json'
+import { getNetwork } from '@deploy-configurations/utils/network'
 import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { areAddressesEqual } from '@dma-common/utils/addresses/index'
+import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
@@ -240,6 +241,7 @@ async function getSwapData(
       isEarnPosition: positionType === 'Earn',
     },
   )
+  console.log('swapAmountBeforeFees', swapAmountBeforeFees.toString())
   const { swapData, collectFeeFrom, preSwapFee } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     string
@@ -287,6 +289,8 @@ async function buildOperation(
     toTokenSymbol: simulatedAdjust.position.collateral.symbol,
   })
 
+  const network = await getNetwork(dependencies.provider)
+
   const openMultiplyArgs = {
     debt: {
       address: position.pool.quoteToken,
@@ -333,6 +337,7 @@ async function buildOperation(
     },
     // Prices must be in 18 decimal precision
     price: amountToWei(oraclePrice, TYPICAL_PRECISION),
+    network,
   }
   return await operations.ajna.open(openMultiplyArgs)
 }

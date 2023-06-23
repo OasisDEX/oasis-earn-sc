@@ -57,5 +57,11 @@ export async function getSwapDataHelper<Addresses, Tokens>({
     args.slippage,
   )
 
+  console.log('hehe', {
+    fromTokenAddress,
+    toTokenAddress,
+    swapAmountAfterFees,
+    slippage: args.slippage,
+  })
   return { swapData, collectFeeFrom, preSwapFee }
 }
