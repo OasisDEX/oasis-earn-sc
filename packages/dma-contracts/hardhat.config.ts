@@ -195,8 +195,8 @@ const config = {
         }
       : {}),
     devnet: {
-      url: 'https://rpc.tenderly.co/fork/b37286ff-ebff-4d31-97e0-9a9f3d1ee57f',
-      chainId: 10,
+      url: process.env.TENDERLY_FORK_URL,
+      chainId: Number(process.env.TENDERLY_FORK_CHAIN_ID ?? 1),
     },
   },
   gasReporter: {
@@ -245,7 +245,7 @@ const config = {
   },
   tenderly: {
     username: "oazoapps", // tenderly username (or organization name)
-    project: "oasis-aave", // project name
+    project: process.env.TENDERLY_PROJECT, // project name
     privateVerification: true // if true, contracts will be verified privately, if false, contracts will be verified publicly
   }
 }
