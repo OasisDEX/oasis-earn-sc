@@ -205,13 +205,22 @@ function buildAdjustedPosition(
   currentCollateral: BigNumber,
   oraclePrice: BigNumber,
 ): IPositionV2 {
+  const denormalisedCurrentDebt = revertToTokenSpecificPrecision(
+    currentDebt,
+    position.debt.precision,
+  )
+  const denormalisedCurrentCollateral = revertToTokenSpecificPrecision(
+    currentCollateral,
+    position.collateral.precision,
+  )
+
   const nextDebt = {
     ...position.debt,
-    amount: currentDebt.plus(debtDelta),
+    amount: denormalisedCurrentDebt.plus(debtDelta),
   }
   const nextCollateral = {
     ...position.collateral,
-    amount: currentCollateral.plus(collateralDelta),
+    amount: denormalisedCurrentCollateral.plus(collateralDelta),
   }
   return {
     debt: nextDebt,
