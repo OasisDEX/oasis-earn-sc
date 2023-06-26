@@ -83,7 +83,6 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "@enzoferey/ethers-error-parser": "^0.2.3",
     "bignumber.js": "9.0.1",
     "chalk": "^4.1.1",
     "ethers": "5.7.2",

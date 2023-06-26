@@ -2,7 +2,6 @@ import { optimismConfig } from '@deploy-configurations/configs'
 import { getOneInchCall, optimismLiquidityProviders } from '@dma-common/test-utils'
 import { AaveGetCurrentPositionDependencies } from '@dma-library/strategies/aave/get-current-position'
 import { RiskRatio } from '@domain'
-import { EthersError } from '@enzoferey/ethers-error-parser'
 import {
   AaveAdjustArgs,
   AaveCloseArgs,
@@ -28,45 +27,19 @@ async function runTransaction(
     console.log(`${name} transaction hash: ${result.hash}`)
     return await result.wait()
   } catch (e) {
-    // type E = typeof e
-    const etherError = e as EthersError
-    console.error(`Error code: ${etherError.reason}`)
-    console.error(`Error action: ${etherError.action}`)
-    console.error(`Error nested message: ${etherError.error?.message}`)
+    console.error(`Error code: ${e.reason}`)
+    console.error(`Error action: ${e.action}`)
+    console.error(`Error nested message: ${e.error?.message}`)
     throw new Error(`Error while running ${name} transaction.`, {
-      reason: etherError.reason,
-      action: etherError.action,
-      nestedMessage: etherError.error?.message,
+      reason: e.reason,
+      action: e.action,
+      nestedMessage: e.error?.message,
     })
   }
 }
 
-/*
- * This script is used to test the Aave V3 strategy on Optimism.
- * It should:
- * 1. Take a netwrok as a parameter. In first iteration it should be Optimism, Arbitrum & Mainnet
- * 2. Take a openning token as a parameter. (ETH, wBTC, wstETH)
- * 3. Debt is always USDC in this iteration.
- * 4. First step: check if the signer has funds to open a position. If not, deposit funds to the signer from one of the whales. We are using tenderly, so we can create a simple signer from whale without checking a private key
- * 5. Open a position with the signer depositing one of the collateral (10 ETH, 10 wBTC, or 10 wstETH)
- * 6. Let's set multiply as 2x for now.
- * 7. Save the balalance of tokens before and after each transaction.
- * 8. Try to adjust the position. Fist transaction - decrese risk - to 1.75x multiply
- * 9. Try to adjust the position. Second transaction - increase risk - to 2.25x multiply
- * 10. Deposit more collateral to the position (1 ETH, 1 wBTC, or 1 wstETH)
- * 11. Withdraw collateral from the position (1 ETH, 1 wBTC, or 1 wstETH)
- * 12. Borrow more debt from the position (10 USDC)
- * 13. Repay debt from the position (10 USDC)
- * 14. Close the position to collateral token (ETH, wBTC, or wstETH)
- * 15. Check the balances of tokens.
- * 16. Print helpfull messages to the console.
- * 17. Use strong types from the library.
- */
-
 async function main() {
   const signer = await ethers.provider.getSigner()
-
-  // check if the network has proper chain id
 
   const accountFactory = await ethers.getContractAt(
     'AccountFactory',
