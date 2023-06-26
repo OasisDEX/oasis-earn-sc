@@ -33,22 +33,28 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   const position = await getPosition(args, dependencies)
   const riskIsIncreasing = verifyRiskDirection(args, position)
   const oraclePrice = args.collateralPrice.div(args.quotePrice)
+
+  const mappedArgs = {
+    ...args,
+    collateralAmount: args.collateralAmount.shiftedBy(args.collateralTokenPrecision),
+  }
+
   const simulatedAdjustment = await simulateAdjustment(
-    args,
+    mappedArgs,
     dependencies,
     position,
     riskIsIncreasing,
     oraclePrice,
   )
   const swapData = await getSwapData(
-    args,
+    mappedArgs,
     dependencies,
     position,
     simulatedAdjustment,
     riskIsIncreasing,
   )
   const operation = await buildOperation(
-    args,
+    mappedArgs,
     dependencies,
     position,
     simulatedAdjustment,
@@ -58,7 +64,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   )
   const targetPosition = new AjnaPosition(
     position.pool,
-    args.dpmProxyAddress,
+    mappedArgs.dpmProxyAddress,
     amountFromWei(
       simulatedAdjustment.position.collateral.amount,
       simulatedAdjustment.position.collateral.precision,
@@ -67,8 +73,8 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
       simulatedAdjustment.position.debt.amount,
       simulatedAdjustment.position.debt.precision,
     ),
-    args.collateralPrice,
-    args.quotePrice,
+    mappedArgs.collateralPrice,
+    mappedArgs.quotePrice,
   )
 
   const isDepositingEth = areAddressesEqual(position.pool.collateralToken, dependencies.WETH)
