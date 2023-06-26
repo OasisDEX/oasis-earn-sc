@@ -152,11 +152,16 @@ async function buildOperation(
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: false,
   })
-  // Used by Adjust Up
+  // When adjusting risk up we need to flashloan the swap amount before deducting fees
+  // Assuming an ETH/USDC position, we'd be Flashloaning USDC to swap for ETH
+  // Once the received ETH is deposited as collateral we can then increase our debt
+  // And use the additional debt (USDC in this example) to repay the flashloan with fees included
   const swapAmountBeforeFees$ = simulatedAdjust.swap.fromTokenAmount
 
-  // Used by Adjust Down
-  const minSwapToAmount$ = simulatedAdjust.swap.minToTokenAmount
+  // When adjusting down we need to flashloan the minimum amount of USDC received from the swap
+  // Assuming an ETH/USDC position, this would be the minimum amount of USDC we'd receive from swapping ETH after withdrawing ETH
+  // We Flashloan the minimum amount to pay down debt before using the proceeds from the ETH -> USDC swap to repay the flashloan
+  const minSwapToAmount$ = swapData.minToTokenAmount
 
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: simulatedAdjust.position.debt.symbol,
@@ -176,7 +181,7 @@ async function buildOperation(
   const flashloanAmount$ = riskIsIncreasing
     ? Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees$)
     : Domain.collateralToDebtSwapFlashloan(minSwapToAmount$)
-  console.log('FL AMT:', flashloanAmount$.toString())
+
   const commonAdjustMultiplyArgs = {
     debt: {
       address: args.position.pool.quoteToken,

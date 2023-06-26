@@ -54,7 +54,7 @@ describe('Strategy | AJNA | Adjust Risk Up Multiply | E2E', () => {
         if (!positionDetails) {
           throw new Error('Position not found')
         }
-        console.log('ABOUT to view position')
+
         position = await views.ajna.getPosition(
           {
             proxyAddress: positionDetails.proxy,
@@ -123,7 +123,7 @@ describe('Strategy | AJNA | Adjust Risk Up Multiply | E2E', () => {
   })
 })
 
-describe.only('Strategy | AJNA | Adjust Risk Down Multiply | E2E', () => {
+describe('Strategy | AJNA | Adjust Risk Down Multiply | E2E', () => {
   const supportedPositions = getSupportedAjnaPositions(networkFork)
   let env: EnvWithAjnaPositions
   const fixture = envWithAjnaPositions({
