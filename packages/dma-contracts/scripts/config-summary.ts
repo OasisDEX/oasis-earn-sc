@@ -13,7 +13,7 @@ function main() {
     }
   })
 
-  const inString = contracts.map(({ key, name, serviceRegistryName, address }) => {
+  const inString = contracts.map(({ name, address }) => {
     return `${name}: ${address}`
   })
 
