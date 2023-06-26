@@ -2,20 +2,41 @@ import { optimismConfig } from '@deploy-configurations/configs'
 import { getOneInchCall, optimismLiquidityProviders } from '@dma-common/test-utils'
 import { AaveGetCurrentPositionDependencies } from '@dma-library/strategies/aave/get-current-position'
 import { RiskRatio } from '@domain'
+import { EthersError, getParsedEthersError } from '@enzoferey/ethers-error-parser'
 import {
   AaveAdjustArgs,
-  AaveV3AdjustDependencies,
   AaveCloseArgs,
   AaveCloseDependencies,
   AaveGetCurrentPositionArgs,
   AaveOpenArgs,
   AaveOpenSharedDependencies,
+  AaveV3AdjustDependencies,
   AaveVersion,
   strategies,
   WithV3Addresses,
 } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'hardhat'
+
+async function runTransaction(
+  transaction: () => Promise<ethers.ContractTransaction>,
+  name: string,
+): Promise<boolean> {
+  console.log(`Running ${name} transaction`)
+  const result = await transaction()
+  console.log(`${name} transaction hash: ${result.hash}`)
+  try {
+    const d = await result.wait()
+    return true
+  } catch (e) {
+    const etherError = getParsedEthersError(e as EthersError)
+    if (!etherError) {
+      throw e
+    }
+    console.log(`Error while running ${name} transaction.`, etherError)
+  }
+  return false
+}
 
 /*
  * This script is used to test the Aave V3 strategy on Optimism.
@@ -133,16 +154,20 @@ async function main() {
 
   const accountImplementation = await ethers.getContractAt('AccountImplementation', proxyAddress)
 
-  const opResult = await accountImplementation.execute(operationExecutor.address, encodedCallData, {
-    value: ethers.utils.parseEther('10').toHexString(),
-    gasLimit: ethers.BigNumber.from(10000000),
-  })
-
-  await opResult.wait()
+  let check = await runTransaction(
+    () =>
+      accountImplementation.execute(operationExecutor.address, encodedCallData, {
+        value: ethers.utils.parseEther('10').toHexString(),
+        gasLimit: ethers.BigNumber.from(10000000),
+      }),
+    'open position',
+  )
 
   const balanceaAfterOpen = await signer.getBalance().then(b => {
     return new BigNumber(b.toString())
   })
+
+  if (!check) return 1
 
   const getPositionArgs: AaveGetCurrentPositionArgs = {
     collateralToken: {
@@ -191,22 +216,30 @@ async function main() {
     adjustTransition.transaction.operationName,
   ])
 
-  const adjustOpResult = await accountImplementation.execute(
-    operationExecutor.address,
-    adjustEncodedData,
-    {
-      gasLimit: 100_000_000,
-    },
+  check = await runTransaction(
+    () =>
+      accountImplementation.execute(operationExecutor.address, adjustEncodedData, {
+        gasLimit: 100_000_000,
+      }),
+    'increase risk',
   )
-  const receipt = await adjustOpResult.wait()
-  console.log(`Transaction hash: ${receipt.transactionHash}`)
-  console.log(`Transaction status: ${receipt.status}`)
-
-  console.log(`Transaction gas used: ${receipt.gasUsed.toString()}`)
+  if (!check) return 1
+  // const receipt = await adjustOpResult.wait()
+  // console.log(`Transaction hash: ${receipt.transactionHash}`)
+  // console.log(`Transaction status: ${receipt.status}`)
+  //
+  // console.log(`Transaction gas used: ${receipt.gasUsed.toString()}`)
   console.log(`Adjustment was successful`)
   console.log(`Trying to close to ETH`)
 
+  console.log(
+    `Current Position Collateral and Debt: ${currentPosition.collateral.amount.toString()} ${currentPosition.debt.amount.toString()}}`,
+  )
   currentPosition = await getter()
+
+  console.log(
+    `Current Position Collateral and Debt: ${currentPosition.collateral.amount.toString()} ${currentPosition.debt.amount.toString()}}`,
+  )
 
   const closingArgs: AaveCloseArgs = {
     debtToken: {
@@ -219,8 +252,10 @@ async function main() {
     },
     slippage: new BigNumber(0.3),
     positionType: 'Multiply',
-    shouldCloseToCollateral: true,
+    shouldCloseToCollateral: false,
   }
+
+  console.log(`Current position collateral: ${currentPosition.collateral.amount.toString()}`)
 
   const closingDeps: AaveCloseDependencies = {
     currentPosition: currentPosition,
@@ -240,15 +275,19 @@ async function main() {
     closeTransition.transaction.operationName,
   ])
 
-  const closeResult = await accountImplementation.execute(
-    operationExecutor.address,
-    encodedCloseCallData,
-    {
-      gasLimit: ethers.BigNumber.from(10000000),
-    },
+  check = await runTransaction(
+    () =>
+      accountImplementation.execute(operationExecutor.address, encodedCloseCallData, {
+        gasLimit: ethers.BigNumber.from(10000000),
+      }),
+    'Closing position',
   )
 
-  await closeResult.wait()
+  if (!check) return 1
+
+  // const closeResult = await
+  //
+  // await closeResult.wait()
 
   console.log(`Position was closed successfully`)
 
@@ -264,6 +303,6 @@ async function main() {
 main()
   .then(() => process.exit(0))
   .catch(error => {
-    console.error(error)
+    // console.error(error)error
     process.exit(1)
   })
