@@ -2,7 +2,7 @@ import { optimismConfig } from '@deploy-configurations/configs'
 import { getOneInchCall, optimismLiquidityProviders } from '@dma-common/test-utils'
 import { AaveGetCurrentPositionDependencies } from '@dma-library/strategies/aave/get-current-position'
 import { RiskRatio } from '@domain'
-import { EthersError, getParsedEthersError } from '@enzoferey/ethers-error-parser'
+import { EthersError } from '@enzoferey/ethers-error-parser'
 import {
   AaveAdjustArgs,
   AaveCloseArgs,
@@ -10,7 +10,6 @@ import {
   AaveGetCurrentPositionArgs,
   AaveOpenArgs,
   AaveOpenSharedDependencies,
-  AaveV3AdjustDependencies,
   AaveVersion,
   strategies,
   WithV3Addresses,
@@ -21,21 +20,25 @@ import { ethers } from 'hardhat'
 async function runTransaction(
   transaction: () => Promise<ethers.ContractTransaction>,
   name: string,
-): Promise<boolean> {
+): Promise<ethers.ContractReceipt> {
   console.log(`Running ${name} transaction`)
-  const result = await transaction()
-  console.log(`${name} transaction hash: ${result.hash}`)
+
   try {
-    const d = await result.wait()
-    return true
+    const result = await transaction()
+    console.log(`${name} transaction hash: ${result.hash}`)
+    return await result.wait()
   } catch (e) {
-    const etherError = getParsedEthersError(e as EthersError)
-    if (!etherError) {
-      throw e
-    }
-    console.log(`Error while running ${name} transaction.`, etherError)
+    // type E = typeof e
+    const etherError = e as EthersError
+    console.error(`Error code: ${etherError.reason}`)
+    console.error(`Error action: ${etherError.action}`)
+    console.error(`Error nested message: ${etherError.error?.message}`)
+    throw new Error(`Error while running ${name} transaction.`, {
+      reason: etherError.reason,
+      action: etherError.action,
+      nestedMessage: etherError.error?.message,
+    })
   }
-  return false
 }
 
 /*
@@ -140,7 +143,6 @@ async function main() {
   }
 
   const transition = await strategies.aave.v3.open(args, dependencies)
-
   const operationExecutor = await ethers.getContractAt(
     'OperationExecutor',
     optimismConfig.mpa.core.OperationExecutor.address,
@@ -154,7 +156,7 @@ async function main() {
 
   const accountImplementation = await ethers.getContractAt('AccountImplementation', proxyAddress)
 
-  let check = await runTransaction(
+  await runTransaction(
     () =>
       accountImplementation.execute(operationExecutor.address, encodedCallData, {
         value: ethers.utils.parseEther('10').toHexString(),
@@ -166,8 +168,6 @@ async function main() {
   const balanceaAfterOpen = await signer.getBalance().then(b => {
     return new BigNumber(b.toString())
   })
-
-  if (!check) return 1
 
   const getPositionArgs: AaveGetCurrentPositionArgs = {
     collateralToken: {
@@ -216,21 +216,15 @@ async function main() {
     adjustTransition.transaction.operationName,
   ])
 
-  check = await runTransaction(
+  await runTransaction(
     () =>
       accountImplementation.execute(operationExecutor.address, adjustEncodedData, {
         gasLimit: 100_000_000,
       }),
     'increase risk',
   )
-  if (!check) return 1
-  // const receipt = await adjustOpResult.wait()
-  // console.log(`Transaction hash: ${receipt.transactionHash}`)
-  // console.log(`Transaction status: ${receipt.status}`)
-  //
-  // console.log(`Transaction gas used: ${receipt.gasUsed.toString()}`)
+
   console.log(`Adjustment was successful`)
-  console.log(`Trying to close to ETH`)
 
   console.log(
     `Current Position Collateral and Debt: ${currentPosition.collateral.amount.toString()} ${currentPosition.debt.amount.toString()}}`,
@@ -240,6 +234,44 @@ async function main() {
   console.log(
     `Current Position Collateral and Debt: ${currentPosition.collateral.amount.toString()} ${currentPosition.debt.amount.toString()}}`,
   )
+
+  console.log(`Trying to decrease risk`)
+  const decreaseRiskArgs: AaveAdjustArgs = {
+    ...increaseRiskArgs,
+    multiple: new RiskRatio(new BigNumber(1.4), 'MULITPLE' as any),
+  }
+  const decreaseRiskDeps: Omit<AaveV3AdjustDependencies, 'protocol'> = {
+    ...increaseRiskDeps,
+    currentPosition: currentPosition,
+  }
+
+  const decreaseRiskTransition = await strategies.aave.v3.adjust(decreaseRiskArgs, decreaseRiskDeps)
+
+  const decreaseRiskEncodedData = operationExecutor.interface.encodeFunctionData('executeOp', [
+    decreaseRiskTransition.transaction.calls,
+    decreaseRiskTransition.transaction.operationName,
+  ])
+
+  await runTransaction(
+    () =>
+      accountImplementation.execute(operationExecutor.address, decreaseRiskEncodedData, {
+        gasLimit: 100_000_000,
+      }),
+    'decrease risk',
+  )
+
+  console.log(`Adjustment was successful`)
+
+  console.log(
+    `Current Position Collateral and Debt: ${currentPosition.collateral.amount.toString()} ${currentPosition.debt.amount.toString()}}`,
+  )
+  currentPosition = await getter()
+
+  console.log(
+    `Current Position Collateral and Debt: ${currentPosition.collateral.amount.toString()} ${currentPosition.debt.amount.toString()}}`,
+  )
+
+  console.log(`Trying to close to ETH`)
 
   const closingArgs: AaveCloseArgs = {
     debtToken: {
@@ -254,8 +286,6 @@ async function main() {
     positionType: 'Multiply',
     shouldCloseToCollateral: false,
   }
-
-  console.log(`Current position collateral: ${currentPosition.collateral.amount.toString()}`)
 
   const closingDeps: AaveCloseDependencies = {
     currentPosition: currentPosition,
@@ -275,19 +305,13 @@ async function main() {
     closeTransition.transaction.operationName,
   ])
 
-  check = await runTransaction(
+  await runTransaction(
     () =>
       accountImplementation.execute(operationExecutor.address, encodedCloseCallData, {
         gasLimit: ethers.BigNumber.from(10000000),
       }),
     'Closing position',
   )
-
-  if (!check) return 1
-
-  // const closeResult = await
-  //
-  // await closeResult.wait()
 
   console.log(`Position was closed successfully`)
 
@@ -303,6 +327,6 @@ async function main() {
 main()
   .then(() => process.exit(0))
   .catch(error => {
-    // console.error(error)error
+    console.error(error)
     process.exit(1)
   })

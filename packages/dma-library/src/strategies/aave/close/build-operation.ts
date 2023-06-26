@@ -41,7 +41,7 @@ export async function buildOperation(
   const amountToFlashloanInWei = amountToWei(
     amountFromWei(
       dependencies.currentPosition.collateral.amount,
-      dependencies.currentPosition.collateral.amount.toNumber(),
+      dependencies.currentPosition.collateral.precision,
     ).times(oracleFLtoCollateralToken),
     flashloanToken.precision,
   )
