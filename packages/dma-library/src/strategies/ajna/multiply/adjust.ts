@@ -14,7 +14,7 @@ import {
   Strategy,
   SwapData,
 } from '@dma-library/types'
-import { AjnaAdjustMultiplyPayload, AjnaCommonDMADependencies } from '@dma-library/types/ajna'
+import { AjnaCommonDMADependencies } from '@dma-library/types/ajna'
 import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
 import { Amount } from '@domain'
@@ -22,14 +22,14 @@ import { isRiskIncreasing } from '@domain/utils'
 import BigNumber from 'bignumber.js'
 
 export type AjnaAdjustRiskStrategy = (
-  args: AjnaAdjustMultiplyPayload,
+  args: AjnaMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
 ) => Promise<Strategy<AjnaPosition>>
 
 const positionType: PositionType = 'Multiply'
 
 export const adjustMultiply: AjnaAdjustRiskStrategy = (
-  args: AjnaAdjustMultiplyPayload,
+  args: AjnaMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
 ) => {
   if (isRiskIncreasing(args.riskRatio.loanToValue, args.position.riskRatio.loanToValue)) {
