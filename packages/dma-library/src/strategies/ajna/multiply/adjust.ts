@@ -1,13 +1,13 @@
 import { ZERO } from '@dma-common/constants'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { AjnaCommonDependencies, AjnaPosition, Strategy } from '@dma-library/types'
-import { AjnaMultiplyPayload } from '@dma-library/types/ajna'
+import { AjnaCommonDependencies, AjnaPosition } from '@dma-library/types'
+import { AjnaMultiplyPayload, AjnaStrategy } from '@dma-library/types/ajna'
 import { isRiskIncreasing } from '@dma-library/utils/swap'
 
 export type AjnaAdjustRiskStrategy = (
   args: AjnaMultiplyPayload,
   dependencies: AjnaCommonDependencies,
-) => Promise<Strategy<AjnaPosition>>
+) => Promise<AjnaStrategy<AjnaPosition>>
 
 const adjustRiskUp: AjnaAdjustRiskStrategy = async (args, dependencies) => {
   const isDepositingEth =
