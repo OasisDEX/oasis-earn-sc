@@ -1,6 +1,7 @@
 import { ajnaAdjustUpOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { ZERO } from '@dma-common/constants'
+import { FEE_BASE, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   IOperation,
   WithAjnaBucketPrice,
@@ -60,8 +61,8 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
 
   const hasAmountToDeposit = depositAmount.gt(ZERO)
   pullCollateralTokensToProxy.skipped = !hasAmountToDeposit || collateral.isEth
-  const shouldSkippWrapEth = !collateral.isEth
-  wrapEth.skipped = shouldSkippWrapEth
+  const shouldSkipWrapEth = !collateral.isEth
+  wrapEth.skipped = shouldSkipWrapEth
 
   const swapDebtTokensForCollateralTokens = actions.common.swap({
     fromAsset: debt.address,
@@ -73,7 +74,7 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const swapValueIndex = shouldSkippWrapEth ? 1 : 2
+  const swapValueIndex = shouldSkipWrapEth ? 1 : 2
 
   const setCollateralTokenApprovalOnPool = actions.common.setApproval(
     {
@@ -97,12 +98,19 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
     [0, 0, swapValueIndex, 0, 0, 0],
   )
 
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken({
+    asset: debt.address,
+    to: addresses.operationExecutor,
+    amount: flashloan.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.amount)),
+  })
+
   const flashloanCalls = [
     pullCollateralTokensToProxy,
     wrapEth,
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnPool,
     depositBorrow,
+    sendQuoteTokenToOpExecutor,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({

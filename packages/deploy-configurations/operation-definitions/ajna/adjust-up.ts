@@ -28,5 +28,9 @@ export const ajnaAdjustUpOperationDefinition = {
       hash: getActionHash(CONTRACT_NAMES.ajna.DEPOSIT_BORROW),
       optional: false,
     },
+    {
+      hash: getActionHash(CONTRACT_NAMES.common.SEND_TOKEN),
+      optional: false,
+    },
   ],
 }

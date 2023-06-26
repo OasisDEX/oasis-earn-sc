@@ -2,10 +2,15 @@ import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses/index'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
-import { areSymbolsEqual } from '@dma-common/utils/symbols'
+import { areSymbolsEqual } from '@dma-common/utils/symbols/index'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import {
+  buildFromToken,
+  buildToToken,
+  getSwapData,
+} from '@dma-library/strategies/ajna/multiply/common'
 import {
   AjnaOpenMultiplyPayload,
   FlashloanProvider,
@@ -39,11 +44,11 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     oraclePrice,
   )
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
-    args,
+    { ...args, position },
     dependencies,
-    position,
     simulatedAdjustment,
     riskIsIncreasing,
+    positionType,
   )
   const operation = await buildOperation(
     args,
@@ -70,7 +75,10 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   )
 
   const isDepositingEth = areAddressesEqual(position.pool.collateralToken, dependencies.WETH)
-  const fee = SwapUtils.feeResolver(position.pool.collateralToken, position.pool.quoteToken)
+  const fee = SwapUtils.feeResolver(position.pool.collateralToken, position.pool.quoteToken, {
+    isIncreasingRisk: riskIsIncreasing,
+    isEarnPosition: false,
+  })
   const postSwapFee =
     collectFeeFrom === 'sourceToken' ? ZERO : calculateFee(swapData.toTokenAmount, fee.toNumber())
   const tokenFee = preSwapFee.plus(postSwapFee)
@@ -134,8 +142,8 @@ async function simulateAdjustment(
   oraclePrice: BigNumber,
 ) {
   const preFlightSwapAmount = amountToWei(ONE, args.quoteTokenPrecision)
-  const fromToken = buildFromToken(args, position)
-  const toToken = buildToToken(args, position)
+  const fromToken = buildFromToken({ ...args, position }, riskIsIncreasing)
+  const toToken = buildToToken({ ...args, position }, riskIsIncreasing)
   const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
     // Strategy is called open multiply (not open earn)
@@ -209,59 +217,6 @@ async function simulateAdjustment(
   }
 
   return Domain.adjustToTargetRiskRatio(mappedPosition, args.riskRatio, positionAdjustArgs)
-}
-
-function buildFromToken(args: AjnaOpenMultiplyPayload, position: AjnaPosition) {
-  return {
-    symbol: args.quoteTokenSymbol.toUpperCase(),
-    address: position.pool.quoteToken,
-    args: args.quoteTokenPrecision,
-  }
-}
-
-function buildToToken(args: AjnaOpenMultiplyPayload, position: AjnaPosition) {
-  return {
-    symbol: args.collateralTokenSymbol.toUpperCase(),
-    address: position.pool.collateralToken,
-    args: args.collateralTokenPrecision,
-  }
-}
-
-async function getSwapData(
-  args: AjnaOpenMultiplyPayload,
-  dependencies: AjnaCommonDMADependencies,
-  position: AjnaPosition,
-  simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
-  riskIsIncreasing: true,
-) {
-  const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
-  const fee = SwapUtils.feeResolver(
-    simulatedAdjust.position.collateral.symbol,
-    simulatedAdjust.position.debt.symbol,
-    {
-      isIncreasingRisk: riskIsIncreasing,
-      // Strategy is called open multiply (not open earn)
-      isEarnPosition: positionType === 'Earn',
-    },
-  )
-  const { swapData, collectFeeFrom, preSwapFee } = await SwapUtils.getSwapDataHelper<
-    typeof dependencies.addresses,
-    string
-  >({
-    args: {
-      fromToken: buildFromToken(args, position),
-      toToken: buildToToken(args, position),
-      slippage: args.slippage,
-      fee,
-      swapAmountBeforeFees: swapAmountBeforeFees,
-    },
-    addresses: dependencies.addresses,
-    services: {
-      getSwapData: dependencies.getSwapData,
-    },
-  })
-
-  return { swapData, collectFeeFrom, preSwapFee }
 }
 
 async function buildOperation(

@@ -85,13 +85,17 @@ export function adjustToTargetRiskRatio(
       position.collateral.amount,
       position.collateral.precision || TYPICAL_PRECISION,
     ) || ZERO
-  ).plus(collateralDepositedByUser)
+  )
+    .plus(collateralDepositedByUser)
+    .integerValue(BigNumber.ROUND_DOWN)
   const normalisedCurrentDebt = (
     standardiseAmountTo18Decimals(
       position.debt.amount,
       position.debt.precision || TYPICAL_PRECISION,
     ) || ZERO
-  ).minus(debtTokensDepositedByUser)
+  )
+    .minus(debtTokensDepositedByUser)
+    .integerValue(BigNumber.ROUND_DOWN)
 
   /**
    * The Oracle price is what we use to convert a position's collateral into the same
@@ -222,6 +226,7 @@ function buildAdjustedPosition(
     ...position.collateral,
     amount: denormalisedCurrentCollateral.plus(collateralDelta),
   }
+
   return {
     debt: nextDebt,
     collateral: nextCollateral,

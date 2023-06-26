@@ -1,6 +1,7 @@
 import { ajnaAdjustDownOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { MAX_UINT, ZERO } from '@dma-common/constants'
+import { FEE_BASE, MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   IOperation,
   WithAjnaBucketPrice,
@@ -41,6 +42,32 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
   addresses,
   price,
 }) => {
+  // Simulation is based on worst case swap IE Max slippage
+  // Payback Debt using FL which should be equivalent to minSwapToAmount
+  // Withdraw Collateral according to simulation
+  // Swap Collateral to Debt (should get more than minSwapToAmount)
+  // Payback Debt using FL (should be equivalent to/gt minSwapToAmount)
+  // Withdraw remaining dust debt
+  // Resulting risk will be same as simulation given that dust amount is transferred to user
+  const setDebtTokenApprovalOnPool = actions.common.setApproval({
+    asset: debt.address,
+    delegate: addresses.pool,
+    amount: flashloan.amount,
+    sumAmounts: false,
+  })
+
+  const paybackWithdraw = actions.ajna.ajnaPaybackWithdraw(
+    {
+      quoteToken: debt.address,
+      collateralToken: collateral.address,
+      withdrawAmount: collateral.withdrawal.amount,
+      // Payback the max amount we can get from the swap
+      paybackAmount: swap.receiveAtLeast,
+      price,
+    },
+    [0, 0, 0, 0, 0, 0, 0],
+  )
+
   const swapCollateralTokensForDebtTokens = actions.common.swap({
     fromAsset: collateral.address,
     toAsset: debt.address,
@@ -51,32 +78,17 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const setDebtTokenApprovalOnPool = actions.common.setApproval(
-    {
-      asset: debt.address,
-      delegate: addresses.pool,
-      amount: ZERO,
-      sumAmounts: false,
-    },
-    [0, 0, 1, 0],
-  )
-
-  const paybackWithdraw = actions.ajna.ajnaPaybackWithdraw(
-    {
-      quoteToken: debt.address,
-      collateralToken: collateral.address,
-      withdrawAmount: collateral.withdrawal.amount,
-      paybackAmount: ZERO,
-      price,
-    },
-    [0, 0, 0, 1, 0, 0, 0],
-  )
-
   const unwrapEth = actions.common.unwrapEth({
     amount: new BigNumber(MAX_UINT),
   })
 
   unwrapEth.skipped = !debt.isEth && !collateral.isEth
+
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken({
+    asset: debt.address,
+    to: addresses.operationExecutor,
+    amount: flashloan.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.amount)),
+  })
 
   const returnDebtFunds = actions.common.returnFunds({
     asset: debt.isEth ? addresses.ETH : debt.address,
@@ -91,6 +103,7 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
     paybackWithdraw,
     swapCollateralTokensForDebtTokens,
     unwrapEth,
+    sendQuoteTokenToOpExecutor,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan({
