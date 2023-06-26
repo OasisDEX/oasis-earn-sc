@@ -1,11 +1,11 @@
 import { Address } from '@deploy-configurations/types/address'
 import { AjnaEarnPosition, AjnaPosition } from '@dma-library/types'
+import { GetSwapData } from '@dma-library/types/common'
 import { GetEarnData } from '@dma-library/views'
 import { GetPoolData } from '@dma-library/views/ajna'
 import { IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
-import { GetSwapData } from '@dma-library/types/common'
 
 export interface AjnaCommonDependencies {
   ajnaProxyActions: Address

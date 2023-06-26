@@ -10,6 +10,7 @@ import {
   TYPICAL_PRECISION,
   ZERO,
 } from '@dma-common/constants'
+import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { operations } from '@dma-library/operations'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
@@ -34,7 +35,6 @@ import { FLASHLOAN_SAFETY_MARGIN } from '@domain/constants'
 import { Provider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
-import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 
 export type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> & {
   positionType: PositionType

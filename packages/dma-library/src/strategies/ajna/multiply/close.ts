@@ -1,5 +1,6 @@
 import { FEE_ESTIMATE_INFLATOR, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { CollectFeeFrom } from '@dma-common/types'
+import { amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { operations } from '@dma-library/operations'
@@ -22,7 +23,6 @@ import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
 import { FLASHLOAN_SAFETY_MARGIN } from '@domain/constants'
 import BigNumber from 'bignumber.js'
-import { amountToWei } from '@dma-common/utils/common'
 
 export type AjnaCloseStrategy = (
   args: AjnaCloseMultiplyPayload,

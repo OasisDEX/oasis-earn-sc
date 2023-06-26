@@ -12,8 +12,8 @@ import {
   PositionType,
   SwapData,
 } from '@dma-library/types'
-import { encodeOperation } from '@dma-library/utils/operation'
 import { AjnaCommonDMADependencies, AjnaPosition, AjnaStrategy } from '@dma-library/types/ajna'
+import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import * as Domain from '@domain'
