@@ -32,9 +32,12 @@ async function main() {
   ds = updateDmaConfigWithLocalAjnaDeploy(ds, ajnaEnv)
   await ds.deployCore()
   await ds.addAjnaEntries()
+  await ds.addCommonEntries()
+  await ds.addMakerEntries()
+  await ds.addAaveEntries()
   await ds.deployActions()
   await ds.saveConfig()
-  await ds.addOperationEntries()
+  await ds.addOperationEntries() 
 
   await ds
     .getSystem()
