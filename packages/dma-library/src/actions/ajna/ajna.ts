@@ -38,7 +38,7 @@ export const ajnaDepositBorrow: AjnaDepositBorrowAction = (
         quoteToken: args.quoteToken,
         collateralToken: args.collateralToken,
         depositAmount: args.depositAmount.toFixed(0),
-        borrowAmount: args.borrowAmount?.toFixed(0) || ZERO,
+        borrowAmount: args.borrowAmount?.toFixed(0) || ZERO.toFixed(0),
         sumDepositAmounts: args.sumDepositAmounts,
         price: args.price.toFixed(0),
       },
@@ -72,6 +72,8 @@ export const ajnaPaybackWithdraw: AjnaPaybackWithdrawAction = (
   args,
   paramsMapping = [0, 0, 0, 0, 0, 0, 0],
 ) => {
+  const withdrawAmount = args.withdrawAmount?.toFixed(0) || ZERO.toFixed(0)
+  const paybackAmount = args.paybackAmount?.toFixed(0) || ZERO.toFixed(0)
   return createAction(
     getActionHash(CONTRACT_NAMES.ajna.REPAY_WITHDRAW),
     [calldataTypes.ajna.RepayWithdraw],
@@ -79,11 +81,12 @@ export const ajnaPaybackWithdraw: AjnaPaybackWithdrawAction = (
       {
         quoteToken: args.quoteToken,
         collateralToken: args.collateralToken,
-        withdrawAmount: args.withdrawAmount?.toFixed(0) || ZERO,
-        paybackAmount: args.paybackAmount?.toFixed(0) || ZERO,
+        withdrawAmount,
+        // Flagging different arg names here
+        repayAmount: paybackAmount,
         paybackAll: !!args.paybackAll,
         withdrawAll: !!args.withdrawAll,
-        price: args.price,
+        price: args.price.toFixed(0),
       },
       paramsMapping,
     ],

@@ -64,6 +64,7 @@ import type {
 } from './strategy-params'
 import type { SwapData } from './swap-data'
 
+export type { CommonDMADependencies } from './common'
 export { FlashloanProvider }
 export type { AjnaError, Strategy }
 export { AjnaEarnPosition, AjnaPosition }

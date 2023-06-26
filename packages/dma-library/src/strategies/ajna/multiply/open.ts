@@ -1,4 +1,3 @@
-import operationExecutorAbi from '@abis/system/contracts/core/OperationExecutor.sol/OperationExecutor.json'
 import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses/index'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
@@ -10,17 +9,16 @@ import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protoc
 import {
   AjnaOpenMultiplyPayload,
   FlashloanProvider,
-  IOperation,
   PositionType,
   SwapData,
 } from '@dma-library/types'
+import { encodeOperation } from '@dma-library/utils/operation'
 import { AjnaCommonDMADependencies, AjnaPosition, AjnaStrategy } from '@dma-library/types/ajna'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import * as Domain from '@domain'
 import * as DomainUtils from '@domain/utils'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
 
 export type AjnaOpenMultiplyStrategy = (
   args: AjnaOpenMultiplyPayload,
@@ -341,16 +339,4 @@ async function buildOperation(
     price: amountToWei(oraclePrice, TYPICAL_PRECISION),
   }
   return await operations.ajna.open(openMultiplyArgs)
-}
-
-function encodeOperation(operation: IOperation, dependencies: AjnaCommonDMADependencies): string {
-  const operationExecutor = new ethers.Contract(
-    dependencies.operationExecutor,
-    operationExecutorAbi,
-    dependencies.provider,
-  )
-  return operationExecutor.interface.encodeFunctionData('executeOp', [
-    operation.calls,
-    operation.operationName,
-  ])
 }
