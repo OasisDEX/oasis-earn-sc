@@ -1,8 +1,6 @@
 import { FEE_BASE, ONE, TEN, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { calculateFee } from '@dma-common/utils/swap'
-import { buildOperation } from '@dma-library/strategies/aave/close/build-operation'
-import { generateTransition } from '@dma-library/strategies/aave/close/generate-transition'
-import { getValuesFromProtocol } from '@dma-library/strategies/aave/close/get-values-from-protocol'
+import { getFlashloanToken } from '@dma-library/strategies/aave/common'
 import {
   getAaveTokenAddress,
   getAaveTokenAddresses,
@@ -12,28 +10,10 @@ import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
 import BigNumber from 'bignumber.js'
 
-import {
-  AaveCloseArgsWithVersioning,
-  AaveCloseDependencies,
-  ExpandedAaveCloseArgs,
-  WithFlashloanToken,
-} from './types'
-
-function getFlashloanToken({
-  network,
-  addresses,
-}: Pick<AaveCloseDependencies, 'network' | 'addresses'>): WithFlashloanToken {
-  const { DAI, USDC } = addresses
-
-  const flashloanToken =
-    network === 'mainnet'
-      ? { symbol: 'DAI' as const, address: DAI, precision: 18 }
-      : { symbol: 'USDC' as const, address: USDC, precision: 6 }
-
-  return {
-    flashloanToken,
-  }
-}
+import { buildOperation } from './build-operation'
+import { generateTransition } from './generate-transition'
+import { getValuesFromProtocol } from './get-values-from-protocol'
+import { AaveCloseArgsWithVersioning, AaveCloseDependencies, ExpandedAaveCloseArgs } from './types'
 
 export async function close(
   args: AaveCloseArgsWithVersioning,
@@ -205,12 +185,7 @@ async function getSwapDataToCloseToCollateral(
 }
 
 async function getSwapDataToCloseToDebt(
-  {
-    debtToken,
-    collateralToken,
-    slippage,
-    collateralAmountLockedInProtocolInWei,
-  }: ExpandedAaveCloseArgs,
+  { debtToken, collateralToken, slippage }: ExpandedAaveCloseArgs,
   dependencies: AaveCloseDependencies,
 ) {
   const { addresses } = dependencies
@@ -219,8 +194,7 @@ async function getSwapDataToCloseToDebt(
     addresses,
   )
 
-  const swapAmountBeforeFees = collateralAmountLockedInProtocolInWei
-
+  const swapAmountBeforeFees = dependencies.currentPosition.collateral.amount
   const collectFeeFrom = acceptedFeeToken({
     fromToken: collateralTokenAddress,
     toToken: debtTokenAddress,

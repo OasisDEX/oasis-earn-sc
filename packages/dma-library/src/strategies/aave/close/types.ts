@@ -7,32 +7,22 @@ import {
   IBasePositionTransitionArgs,
   IPositionTransitionDependencies,
   PositionType,
-  WithLockedCollateral,
+  WithCollateralTokenAddress,
+  WithDebtTokenAddress,
+  WithFlashloanToken,
 } from '@dma-library/types'
 
 export type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> & {
   positionType: PositionType
-} & WithLockedCollateral & {
-    shouldCloseToCollateral?: boolean
-  }
+} & {
+  shouldCloseToCollateral?: boolean
+}
 export type WithVersioning = {
   protocolVersion: AaveVersion
 }
 
 export type WithAaveValuesFromProtocol = {
   protocolValues: AaveValuesFromProtocol
-}
-
-export type WithFlashloanToken = {
-  flashloanToken: { symbol: AAVETokens; precision: number; address: string }
-}
-
-export type WithCollateralTokenAddress = {
-  collateralTokenAddress: string
-}
-
-export type WithDebtTokenAddress = {
-  debtTokenAddress: string
 }
 
 export type AaveCloseArgsWithVersioning = AaveCloseArgs & WithVersioning

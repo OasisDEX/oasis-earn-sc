@@ -1,9 +1,11 @@
-import { Network } from '@deploy-configurations/types/network'
 import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { getCurrentPosition } from '@dma-library/strategies/aave/adjust/get-current-position'
 import { getProtocolData } from '@dma-library/strategies/aave/adjust/get-protocol-data'
-import { AaveAdjustArgs, AaveAdjustDependencies } from '@dma-library/strategies/aave/adjust/types'
+import {
+  AaveAdjustDependencies,
+  ExtendedAaveAdjustArgs,
+} from '@dma-library/strategies/aave/adjust/types'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
 import { SwapData } from '@dma-library/types'
 import { WithFee } from '@dma-library/types/aave/fee'
@@ -13,7 +15,7 @@ import BigNumber from 'bignumber.js'
 export async function simulatePositionTransition(
   isRiskIncreasing: boolean,
   quoteSwapData: SwapData,
-  args: AaveAdjustArgs & WithFee,
+  args: ExtendedAaveAdjustArgs & WithFee,
   dependencies: AaveAdjustDependencies,
   fromTokenIsDebt: boolean,
   debug?: boolean,
@@ -23,17 +25,12 @@ export async function simulatePositionTransition(
     dependencies.addresses,
   )
 
-  const flashloanToken =
-    dependencies.network === Network.MAINNET
-      ? dependencies.addresses.DAI
-      : dependencies.addresses.USDC
-
   const currentPosition = await getCurrentPosition(args, dependencies)
   const protocolData = await getProtocolData(
     collateralTokenAddress,
     debtTokenAddress,
     args,
-    flashloanToken,
+    args.flashloanToken.address,
     dependencies,
   )
 
@@ -103,7 +100,7 @@ export async function simulatePositionTransition(
       slippage: args.slippage,
       flashloan: {
         maxLoanToValueFL: maxLoanToValueForFL,
-        tokenSymbol: 'DAI',
+        tokenSymbol: args.flashloanToken.symbol,
       },
       depositedByUser: {
         debtInWei: depositDebtAmountInBaseUnits,

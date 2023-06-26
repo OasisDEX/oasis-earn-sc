@@ -8,6 +8,7 @@ import {
   IPositionTransitionArgs,
   PositionType,
   SwapData,
+  WithFlashloanToken,
 } from '@dma-library/types'
 import { WithV2Addresses, WithV3Addresses } from '@dma-library/types/aave/addresses'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
@@ -16,6 +17,7 @@ import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
 
 export type AaveAdjustArgs = IPositionTransitionArgs<AAVETokens> & { positionType: PositionType }
+export type ExtendedAaveAdjustArgs = AaveAdjustArgs & WithFlashloanToken
 export type AaveAdjustSharedDependencies = {
   provider: providers.Provider
   currentPosition: IPosition

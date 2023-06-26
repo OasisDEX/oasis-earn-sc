@@ -1,21 +1,48 @@
 import { optimismConfig } from '@deploy-configurations/configs'
 import { getOneInchCall, optimismLiquidityProviders } from '@dma-common/test-utils'
-import { AaveVersion, strategies } from '@dma-library'
 import { AaveGetCurrentPositionDependencies } from '@dma-library/strategies/aave/get-current-position'
 import { RiskRatio } from '@domain'
 import {
+  AaveAdjustArgs,
+  AaveV3AdjustDependencies,
   AaveCloseArgs,
   AaveCloseDependencies,
   AaveGetCurrentPositionArgs,
   AaveOpenArgs,
   AaveOpenSharedDependencies,
+  AaveVersion,
+  strategies,
   WithV3Addresses,
 } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'hardhat'
 
+/*
+ * This script is used to test the Aave V3 strategy on Optimism.
+ * It should:
+ * 1. Take a netwrok as a parameter. In first iteration it should be Optimism, Arbitrum & Mainnet
+ * 2. Take a openning token as a parameter. (ETH, wBTC, wstETH)
+ * 3. Debt is always USDC in this iteration.
+ * 4. First step: check if the signer has funds to open a position. If not, deposit funds to the signer from one of the whales. We are using tenderly, so we can create a simple signer from whale without checking a private key
+ * 5. Open a position with the signer depositing one of the collateral (10 ETH, 10 wBTC, or 10 wstETH)
+ * 6. Let's set multiply as 2x for now.
+ * 7. Save the balalance of tokens before and after each transaction.
+ * 8. Try to adjust the position. Fist transaction - decrese risk - to 1.75x multiply
+ * 9. Try to adjust the position. Second transaction - increase risk - to 2.25x multiply
+ * 10. Deposit more collateral to the position (1 ETH, 1 wBTC, or 1 wstETH)
+ * 11. Withdraw collateral from the position (1 ETH, 1 wBTC, or 1 wstETH)
+ * 12. Borrow more debt from the position (10 USDC)
+ * 13. Repay debt from the position (10 USDC)
+ * 14. Close the position to collateral token (ETH, wBTC, or wstETH)
+ * 15. Check the balances of tokens.
+ * 16. Print helpfull messages to the console.
+ * 17. Use strong types from the library.
+ */
+
 async function main() {
   const signer = await ethers.provider.getSigner()
+
+  // check if the network has proper chain id
 
   const accountFactory = await ethers.getContractAt(
     'AccountFactory',
@@ -132,17 +159,54 @@ async function main() {
   const getPositionDeps: AaveGetCurrentPositionDependencies = {
     addresses: dependencies.addresses,
     provider: dependencies.provider,
-    protocolVersion: AaveVersion.V3,
+    protocolVersion: AaveVersion.v3,
   }
 
-  const currentPosition = await strategies.aave.v3.view(getPositionArgs, getPositionDeps)
+  const getter = () => strategies.aave.v3.view(getPositionArgs, getPositionDeps)
+  let currentPosition = await getter()
 
   console.log(`Position was opened successfully`)
 
   console.log(`Current Position Collateral: ${currentPosition.collateral.amount.toString()}`)
   console.log(`Current Position Debt: ${currentPosition.debt.amount.toString()}`)
 
+  console.log(`Trying to increase risk`)
+  const increaseRiskArgs: AaveAdjustArgs = {
+    debtToken: args.debtToken,
+    collateralToken: args.collateralToken,
+    slippage: args.slippage,
+    positionType: args.positionType,
+    multiple: new RiskRatio(new BigNumber(1.8), 'MULITPLE' as any),
+  }
+
+  const increaseRiskDeps: Omit<AaveV3AdjustDependencies, 'protocol'> = {
+    ...dependencies,
+    currentPosition: currentPosition,
+  }
+
+  const adjustTransition = await strategies.aave.v3.adjust(increaseRiskArgs, increaseRiskDeps)
+
+  const adjustEncodedData = operationExecutor.interface.encodeFunctionData('executeOp', [
+    adjustTransition.transaction.calls,
+    adjustTransition.transaction.operationName,
+  ])
+
+  const adjustOpResult = await accountImplementation.execute(
+    operationExecutor.address,
+    adjustEncodedData,
+    {
+      gasLimit: 100_000_000,
+    },
+  )
+  const receipt = await adjustOpResult.wait()
+  console.log(`Transaction hash: ${receipt.transactionHash}`)
+  console.log(`Transaction status: ${receipt.status}`)
+
+  console.log(`Transaction gas used: ${receipt.gasUsed.toString()}`)
+  console.log(`Adjustment was successful`)
   console.log(`Trying to close to ETH`)
+
+  currentPosition = await getter()
 
   const closingArgs: AaveCloseArgs = {
     debtToken: {
@@ -155,11 +219,7 @@ async function main() {
     },
     slippage: new BigNumber(0.3),
     positionType: 'Multiply',
-    collateral: {
-      amount: currentPosition.collateral.amount,
-    },
     shouldCloseToCollateral: true,
-    collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
   }
 
   const closingDeps: AaveCloseDependencies = {

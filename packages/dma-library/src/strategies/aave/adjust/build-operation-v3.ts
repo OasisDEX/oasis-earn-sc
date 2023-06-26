@@ -45,6 +45,11 @@ export async function buildOperationV3({
   })
   const flashloanProvider = resolveFlashloanProvider(await getForkedNetwork(dependencies.provider))
 
+  const flashloanAmount =
+    flashloanToken === dependencies.addresses.DAI
+      ? simulatedPositionTransition.delta.flashloanAmount.abs()
+      : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12)
+
   const adjustRiskArgs = {
     collateral: {
       address: collateralTokenAddress,
@@ -69,10 +74,7 @@ export async function buildOperationV3({
     },
     flashloan: {
       token: {
-        amount:
-          flashloanToken === dependencies.addresses.DAI
-            ? simulatedPositionTransition.delta.flashloanAmount.abs()
-            : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12),
+        amount: flashloanAmount,
         address: flashloanToken,
       },
       provider: flashloanProvider,
@@ -96,13 +98,10 @@ export async function buildOperationV3({
       },
       flashloan: {
         token: {
-          amount:
-            flashloanToken === dependencies.addresses.DAI
-              ? simulatedPositionTransition.delta.flashloanAmount.abs()
-              : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12),
+          amount: flashloanAmount,
           address: flashloanToken,
         },
-        amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
+        amount: flashloanAmount,
         provider: flashloanProvider,
       },
       network,
@@ -122,13 +121,10 @@ export async function buildOperationV3({
       },
       flashloan: {
         token: {
-          amount:
-            flashloanToken === dependencies.addresses.DAI
-              ? simulatedPositionTransition.delta.flashloanAmount.abs()
-              : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12),
+          amount: flashloanAmount,
           address: flashloanToken,
         },
-        amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
+        amount: flashloanAmount,
         provider: flashloanProvider,
       },
       network,

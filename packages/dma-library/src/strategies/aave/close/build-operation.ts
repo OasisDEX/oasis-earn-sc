@@ -39,9 +39,10 @@ export async function buildOperation(
   const oracleFLtoCollateralToken = baseCurrencyPerCollateralToken.div(baseCurrencyPerFlashLoan)
 
   const amountToFlashloanInWei = amountToWei(
-    amountFromWei(args.collateralAmountLockedInProtocolInWei, args.collateralToken.precision).times(
-      oracleFLtoCollateralToken,
-    ),
+    amountFromWei(
+      dependencies.currentPosition.collateral.amount,
+      dependencies.currentPosition.collateral.amount.toNumber(),
+    ).times(oracleFLtoCollateralToken),
     flashloanToken.precision,
   )
     .div(maxLoanToValueForFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
@@ -50,7 +51,7 @@ export async function buildOperation(
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
   const collateralAmountToBeSwapped = args.shouldCloseToCollateral
     ? swapData.fromTokenAmount.plus(swapData.preSwapFee)
-    : args.collateralAmountLockedInProtocolInWei
+    : dependencies.currentPosition.collateral.amount
   const collectFeeFrom = swapData.collectFeeFrom
   if (args.protocolVersion === AaveVersion.v2) {
     const closeArgs = {

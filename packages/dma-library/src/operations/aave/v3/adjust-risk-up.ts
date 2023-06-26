@@ -134,7 +134,7 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: flashloan.token.address,
-    flashloanAmount: flashloan.amount,
+    flashloanAmount: flashloan.token.amount,
     isProxyFlashloan: true,
     provider: flashloan.provider,
     calls: flashloanCalls,

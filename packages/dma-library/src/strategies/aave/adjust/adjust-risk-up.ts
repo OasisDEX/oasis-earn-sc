@@ -3,13 +3,16 @@ import { getAaveTokenAddress } from '@dma-library/strategies'
 import { buildOperation } from '@dma-library/strategies/aave/adjust/build-operation'
 import { generateTransition } from '@dma-library/strategies/aave/adjust/generate-transition'
 import { simulatePositionTransition } from '@dma-library/strategies/aave/adjust/simulate-position-transition'
-import { AaveAdjustArgs, AaveAdjustDependencies } from '@dma-library/strategies/aave/adjust/types'
+import {
+  AaveAdjustDependencies,
+  ExtendedAaveAdjustArgs,
+} from '@dma-library/strategies/aave/adjust/types'
 import { AAVETokens, PositionTransition } from '@dma-library/types'
 import { feeResolver, getSwapDataHelper } from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
 export async function adjustRiskUp(
-  args: AaveAdjustArgs,
+  args: ExtendedAaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
 ): Promise<PositionTransition> {
   const isAdjustUp = true
