@@ -15,7 +15,7 @@ import {
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-type AdjustRiskUpArgs = WithCollateral &
+export type AdjustRiskUpArgs = WithCollateral &
   WithDebtAndBorrow &
   WithOptionalDeposit &
   WithSwap &
@@ -54,16 +54,16 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
     from: proxy.owner,
   })
 
-  const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
-    amount: flashloan.amount,
-    asset: addresses.DAI,
+  const setFlashLoanApproval = actions.common.setApproval(network, {
+    amount: flashloan.token.amount,
+    asset: flashloan.token.address,
     delegate: addresses.pool,
     sumAmounts: false,
   })
 
-  const depositDaiInAAVE = actions.aave.v3.aaveV3Deposit(network, {
-    amount: flashloan.amount,
-    asset: addresses.DAI,
+  const depositFlashloan = actions.aave.v3.aaveV3Deposit(network, {
+    amount: flashloan.token.amount,
+    asset: flashloan.token.address,
     sumAmounts: false,
   })
 
@@ -110,9 +110,9 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
     [0, 3, 0, 0],
   )
 
-  const withdrawDAIFromAAVE = actions.aave.v3.aaveV3Withdraw(network, {
-    asset: addresses.DAI,
-    amount: flashloan.amount,
+  const withdrawFlashloan = actions.aave.v3.aaveV3Withdraw(network, {
+    asset: flashloan.token.address,
+    amount: flashloan.token.amount,
     to: addresses.operationExecutor,
   })
 
@@ -121,20 +121,20 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
 
   const flashloanCalls = [
     pullDepositTokensToProxy,
-    setDaiApprovalOnLendingPool,
-    depositDaiInAAVE,
+    setFlashLoanApproval,
+    depositFlashloan,
     borrowDebtTokensFromAAVE,
     wrapEth,
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnLendingPool,
     depositCollateral,
-    withdrawDAIFromAAVE,
+    withdrawFlashloan,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
-    asset: addresses.DAI,
-    flashloanAmount: flashloan.amount,
+    asset: flashloan.token.address,
+    flashloanAmount: flashloan.token.amount,
     isProxyFlashloan: true,
     provider: flashloan.provider,
     calls: flashloanCalls,

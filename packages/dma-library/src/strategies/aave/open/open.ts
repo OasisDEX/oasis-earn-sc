@@ -14,6 +14,7 @@ import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { AAVEStrategyAddresses, AAVEV3StrategyAddresses } from '@dma-library/index'
 import { operations } from '@dma-library/operations'
+import { OpenOperationArgs } from '@dma-library/operations/aave/v3/open'
 import {
   aaveV2UniqueContractName,
   aaveV3UniqueContractName,
@@ -94,15 +95,16 @@ export async function open(
     },
   })
 
-  const { simulatedPositionTransition, reserveEModeCategory } = await simulatePositionTransition(
-    quoteSwapData,
-    {
-      ...args,
-      fee,
-    },
-    dependencies,
-    // true,
-  )
+  const { simulatedPositionTransition, reserveEModeCategory, flashloanTokenAddress } =
+    await simulatePositionTransition(
+      quoteSwapData,
+      {
+        ...args,
+        fee,
+      },
+      dependencies,
+      // true,
+    )
 
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
     typeof dependencies.addresses,
@@ -127,7 +129,7 @@ export async function open(
     simulatedPositionTransition,
     collectFeeFrom,
     reserveEModeCategory,
-    args,
+    { ...args, flashloanToken: flashloanTokenAddress },
     dependencies,
   )
 
@@ -141,6 +143,7 @@ export async function open(
     fee,
     dependencies,
     simulatedPositionTransition,
+    quoteSwapData,
   })
 }
 
@@ -154,6 +157,11 @@ async function simulatePositionTransition(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
   )
+
+  const flashloanTokenAddress =
+    dependencies.network === Network.MAINNET
+      ? dependencies.addresses.DAI
+      : dependencies.addresses.USDC
 
   /**
    * We've add current Position into all strategy dependencies
@@ -179,6 +187,7 @@ async function simulatePositionTransition(
       },
     )
     protocolData = await dependencies.protocol.getProtocolData({
+      flashloanTokenAddress,
       collateralTokenAddress,
       debtTokenAddress,
       addresses: dependencies.addresses,
@@ -202,7 +211,9 @@ async function simulatePositionTransition(
         protocolVersion: dependencies.protocol.version,
       },
     )
+
     protocolData = await dependencies.protocol.getProtocolData({
+      flashloanTokenAddress,
       collateralTokenAddress,
       debtTokenAddress,
       addresses: dependencies.addresses,
@@ -215,7 +226,7 @@ async function simulatePositionTransition(
   if (!currentPosition) throw new Error('No current position found')
 
   const {
-    aaveFlashloanDaiPriceInEth,
+    aaveFlashloanAssetPriceInEth,
     aaveDebtTokenPriceInEth,
     aaveCollateralTokenPriceInEth,
     reserveDataForFlashloan,
@@ -243,13 +254,13 @@ async function simulatePositionTransition(
   const flashloanFee = new BigNumber(0)
 
   // ETH/DAI
-  const ethPerDAI = aaveFlashloanDaiPriceInEth
+  const ethPerFlashloanAmount = aaveFlashloanAssetPriceInEth
 
   // EG USDC/ETH
   const ethPerDebtToken = aaveDebtTokenPriceInEth
 
   // EG USDC/ETH divided by ETH/DAI = USDC/ETH times by DAI/ETH = USDC/DAI
-  const oracleFLtoDebtToken = ethPerDebtToken.div(ethPerDAI)
+  const oracleFLtoDebtToken = ethPerDebtToken.div(ethPerFlashloanAmount)
 
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
@@ -273,7 +284,7 @@ async function simulatePositionTransition(
       slippage: args.slippage,
       flashloan: {
         maxLoanToValueFL: maxLoanToValueForFL,
-        tokenSymbol: 'DAI',
+        tokenSymbol: flashloanTokenAddress === dependencies.addresses.DAI ? 'DAI' : 'USDC',
       },
       depositedByUser: {
         debtInWei: depositDebtAmountInWei,
@@ -283,6 +294,7 @@ async function simulatePositionTransition(
       debug,
     }),
     reserveEModeCategory,
+    flashloanTokenAddress,
   }
 }
 
@@ -291,7 +303,7 @@ async function buildOperation(
   simulatedPositionTransition: IBaseSimulatedTransition,
   collectFeeFrom: 'sourceToken' | 'targetToken',
   reserveEModeCategory: number | undefined,
-  args: AaveOpenArgs,
+  args: AaveOpenArgs & { flashloanToken: string },
   dependencies: AaveOpenDependencies,
 ) {
   const protocolVersion = dependencies.protocol.version
@@ -323,7 +335,7 @@ async function buildOperation(
       : args.depositedByUser?.debtToken?.amountInBaseUnit
     const borrowAmount = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
 
-    const openArgs = {
+    const openArgs: OpenOperationArgs = {
       collateral: {
         address: collateralTokenAddress,
         isEth: args.collateralToken.symbol === 'ETH',
@@ -347,6 +359,13 @@ async function buildOperation(
         receiveAtLeast: swapData.minToTokenAmount,
       },
       flashloan: {
+        token: {
+          amount:
+            args.flashloanToken === dependencies.addresses.DAI
+              ? simulatedPositionTransition.delta.flashloanAmount.abs()
+              : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12),
+          address: args.flashloanToken,
+        },
         amount: simulatedPositionTransition.delta.flashloanAmount.abs(),
         provider: flashloanProvider,
       },
@@ -410,6 +429,7 @@ type GenerateTransitionArgs = {
   simulatedPositionTransition: IBaseSimulatedTransition
   args: AaveOpenArgs
   dependencies: AaveOpenDependencies
+  quoteSwapData: SwapData
 }
 
 async function generateTransition({
