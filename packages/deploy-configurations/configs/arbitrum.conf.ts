@@ -115,11 +115,7 @@ export const config: SystemConfig = {
         address: '0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN,
         history: [],
-        constructorArgs: [
-          'address:ServiceRegistry',
-          ADDRESS_ZERO,
-          'address:DSGuardFactory',
-        ],
+        constructorArgs: ['address:ServiceRegistry', ADDRESS_ZERO, 'address:DSGuardFactory'],
       },
       SetApproval: {
         name: 'SetApproval',
