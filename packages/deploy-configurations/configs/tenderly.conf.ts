@@ -33,6 +33,7 @@ export const config: SystemConfig = {
           '0xD8De88D48D70ACc4B6F8713C1666fB6aaFf5e909',
           '0xD8De88D48D70ACc4B6F8713C1666fB6aaFf5e909',
           '0xD8De88D48D70ACc4B6F8713C1666fB6aaFf5e909',
+          '0xD8De88D48D70ACc4B6F8713C1666fB6aaFf5e909',
           '0xD8De88D48D70ACc4B6F8713C1666fB6aaFf5e909'
         ],
         constructorArgs: [ 0 ]
@@ -59,6 +60,7 @@ export const config: SystemConfig = {
           '0xa898315E79b71B9f3Be7c2Bb356164Db4EfC7a36',
           '0xa898315E79b71B9f3Be7c2Bb356164Db4EfC7a36',
           '0x9a4F6FAbCf33f7fA278F8F93DB656d2d554B91bA',
+          '0xa898315E79b71B9f3Be7c2Bb356164Db4EfC7a36',
           '0xa898315E79b71B9f3Be7c2Bb356164Db4EfC7a36',
           '0xa898315E79b71B9f3Be7c2Bb356164Db4EfC7a36',
           '0xa898315E79b71B9f3Be7c2Bb356164Db4EfC7a36',
@@ -95,6 +97,7 @@ export const config: SystemConfig = {
           '0x7DB99085c31358B2A7D9FDC70315C314d6AA75bC',
           '0x7DB99085c31358B2A7D9FDC70315C314d6AA75bC',
           '0x7DB99085c31358B2A7D9FDC70315C314d6AA75bC',
+          '0x7DB99085c31358B2A7D9FDC70315C314d6AA75bC',
           '0x7DB99085c31358B2A7D9FDC70315C314d6AA75bC'
         ],
         constructorArgs: [ 'address:ServiceRegistry', 'address:OperationExecutor' ]
@@ -121,6 +124,7 @@ export const config: SystemConfig = {
           '0x18Bb661B1c83278bE90e5AB66A3cFf6E83da3A69',
           '0x18Bb661B1c83278bE90e5AB66A3cFf6E83da3A69',
           '0x0f88FB3d5F70Eb877872e14820e5607804d7C961',
+          '0x18Bb661B1c83278bE90e5AB66A3cFf6E83da3A69',
           '0x18Bb661B1c83278bE90e5AB66A3cFf6E83da3A69',
           '0x18Bb661B1c83278bE90e5AB66A3cFf6E83da3A69',
           '0x18Bb661B1c83278bE90e5AB66A3cFf6E83da3A69',
@@ -157,6 +161,7 @@ export const config: SystemConfig = {
           '0x27eF13fF788aB5BF82AF8C2Ba38A2070b0432f2F',
           '0x27eF13fF788aB5BF82AF8C2Ba38A2070b0432f2F',
           '0x27eF13fF788aB5BF82AF8C2Ba38A2070b0432f2F',
+          '0x27eF13fF788aB5BF82AF8C2Ba38A2070b0432f2F',
           '0x27eF13fF788aB5BF82AF8C2Ba38A2070b0432f2F'
         ],
         constructorArgs: []
@@ -183,6 +188,7 @@ export const config: SystemConfig = {
           '0x79E77a49bb328188F337e67493d6198E16868B09',
           '0x79E77a49bb328188F337e67493d6198E16868B09',
           '0x67F9116924F97e4b758565869dBf8f3AaEab3f88',
+          '0x79E77a49bb328188F337e67493d6198E16868B09',
           '0x79E77a49bb328188F337e67493d6198E16868B09',
           '0x79E77a49bb328188F337e67493d6198E16868B09',
           '0x79E77a49bb328188F337e67493d6198E16868B09',
@@ -219,6 +225,7 @@ export const config: SystemConfig = {
           '0xe38d007f8DbE1cFAe148e5b942Dd209B93DE0952',
           '0xe38d007f8DbE1cFAe148e5b942Dd209B93DE0952',
           '0xe38d007f8DbE1cFAe148e5b942Dd209B93DE0952',
+          '0xe38d007f8DbE1cFAe148e5b942Dd209B93DE0952',
           '0xe38d007f8DbE1cFAe148e5b942Dd209B93DE0952'
         ],
         constructorArgs: []
@@ -249,6 +256,7 @@ export const config: SystemConfig = {
           '0x27f1Cf4e972A2387b76EB5e16D12d15444904d05',
           '0x27f1Cf4e972A2387b76EB5e16D12d15444904d05',
           '0x27f1Cf4e972A2387b76EB5e16D12d15444904d05',
+          '0x27f1Cf4e972A2387b76EB5e16D12d15444904d05',
           '0x27f1Cf4e972A2387b76EB5e16D12d15444904d05'
         ],
         constructorArgs: []
@@ -274,6 +282,7 @@ export const config: SystemConfig = {
           '0xD088ab89bE13358C3fCEB1B416cE14c54B315177',
           '0xD088ab89bE13358C3fCEB1B416cE14c54B315177',
           '0x4C014D733bdDb2783521f4436270acd133B4b362',
+          '0xD088ab89bE13358C3fCEB1B416cE14c54B315177',
           '0xD088ab89bE13358C3fCEB1B416cE14c54B315177',
           '0xD088ab89bE13358C3fCEB1B416cE14c54B315177',
           '0xD088ab89bE13358C3fCEB1B416cE14c54B315177',
@@ -310,6 +319,7 @@ export const config: SystemConfig = {
           '0xDcce995E57Cd23668443c9bf540a8B7Ecb0be6db',
           '0xDcce995E57Cd23668443c9bf540a8B7Ecb0be6db',
           '0xDcce995E57Cd23668443c9bf540a8B7Ecb0be6db',
+          '0xDcce995E57Cd23668443c9bf540a8B7Ecb0be6db',
           '0xDcce995E57Cd23668443c9bf540a8B7Ecb0be6db'
         ],
         constructorArgs: [ '0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F' ]
@@ -335,6 +345,7 @@ export const config: SystemConfig = {
           '0x06a25ee7e0e969935136D4b37003905DB195B6F3',
           '0x06a25ee7e0e969935136D4b37003905DB195B6F3',
           '0xB4A268aFA7CbA205494e4aA8fD3D5DD3265fC0a9',
+          '0x06a25ee7e0e969935136D4b37003905DB195B6F3',
           '0x06a25ee7e0e969935136D4b37003905DB195B6F3',
           '0x06a25ee7e0e969935136D4b37003905DB195B6F3',
           '0x06a25ee7e0e969935136D4b37003905DB195B6F3',
@@ -378,6 +389,7 @@ export const config: SystemConfig = {
           '0xf2987fa1aA41b4d8A1F491c1320E74975864bF16',
           '0x7AaB8A30BDeCf8a820F227C5Ed7410Fe7f30Ce7E',
           '0x7AaB8A30BDeCf8a820F227C5Ed7410Fe7f30Ce7E',
+          '0x7AaB8A30BDeCf8a820F227C5Ed7410Fe7f30Ce7E',
           '0x7AaB8A30BDeCf8a820F227C5Ed7410Fe7f30Ce7E'
         ],
         constructorArgs: []
@@ -409,6 +421,7 @@ export const config: SystemConfig = {
           '0x81D149d74C3E78F03614e8b5946913C546fd62E4',
           '0xd681e91E8fB7c8bf81dee1f37A228c3D5DEF07b3',
           '0xd681e91E8fB7c8bf81dee1f37A228c3D5DEF07b3',
+          '0xd681e91E8fB7c8bf81dee1f37A228c3D5DEF07b3',
           '0xd681e91E8fB7c8bf81dee1f37A228c3D5DEF07b3'
         ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -438,6 +451,7 @@ export const config: SystemConfig = {
           '0xe3CdcA2a8910C36C5d17aD5a28723417F0F37Cd3',
           '0xe3CdcA2a8910C36C5d17aD5a28723417F0F37Cd3',
           '0xe3CdcA2a8910C36C5d17aD5a28723417F0F37Cd3',
+          '0x5B26ca0f1D22eD64E170A5C79Ed129533B5F003b',
           '0x5B26ca0f1D22eD64E170A5C79Ed129533B5F003b',
           '0x5B26ca0f1D22eD64E170A5C79Ed129533B5F003b',
           '0x5B26ca0f1D22eD64E170A5C79Ed129533B5F003b'
@@ -475,6 +489,7 @@ export const config: SystemConfig = {
           '0xc0529CA699D61EEbCdcda39B97DB33058c4fd081',
           '0x0518864522c8377486115C11b7Ed891c9614e785',
           '0x0518864522c8377486115C11b7Ed891c9614e785',
+          '0x0518864522c8377486115C11b7Ed891c9614e785',
           '0x0518864522c8377486115C11b7Ed891c9614e785'
         ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -504,6 +519,7 @@ export const config: SystemConfig = {
           '0x7452A15B37584EF83f74FD53434972c42E62C8b1',
           '0x7452A15B37584EF83f74FD53434972c42E62C8b1',
           '0x7452A15B37584EF83f74FD53434972c42E62C8b1',
+          '0xa2dc89D740fE4640Eda41eE933B045049bC25247',
           '0xa2dc89D740fE4640Eda41eE933B045049bC25247',
           '0xa2dc89D740fE4640Eda41eE933B045049bC25247',
           '0xa2dc89D740fE4640Eda41eE933B045049bC25247'
@@ -537,6 +553,7 @@ export const config: SystemConfig = {
           '0x77BE575bd66D680174740bFFAFF01890e4f12cAf',
           '0x3314A93Cd8ED08a408BAAA211e26c96887FCA2a6',
           '0x3314A93Cd8ED08a408BAAA211e26c96887FCA2a6',
+          '0x3314A93Cd8ED08a408BAAA211e26c96887FCA2a6',
           '0x3314A93Cd8ED08a408BAAA211e26c96887FCA2a6'
         ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -566,6 +583,7 @@ export const config: SystemConfig = {
           '0x3b2Da11feAf83A55875456C1e3aa0bb10d5d89c5',
           '0x3b2Da11feAf83A55875456C1e3aa0bb10d5d89c5',
           '0x3b2Da11feAf83A55875456C1e3aa0bb10d5d89c5',
+          '0xb6DaDafBfDCad836A701A1f95445e31cb52BFe78',
           '0xb6DaDafBfDCad836A701A1f95445e31cb52BFe78',
           '0xb6DaDafBfDCad836A701A1f95445e31cb52BFe78',
           '0xb6DaDafBfDCad836A701A1f95445e31cb52BFe78'
@@ -599,6 +617,7 @@ export const config: SystemConfig = {
           '0xb8C1acA85e9CE49bA2AaB838B0210722C1eaF51e',
           '0xd65Ec56774f9ef62A0aA8ec8ad1be71cdf37987C',
           '0xd65Ec56774f9ef62A0aA8ec8ad1be71cdf37987C',
+          '0xd65Ec56774f9ef62A0aA8ec8ad1be71cdf37987C',
           '0xd65Ec56774f9ef62A0aA8ec8ad1be71cdf37987C'
         ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -628,6 +647,7 @@ export const config: SystemConfig = {
           '0x0D6490E9E95A2CFE34346BE41B8e078E995afE32',
           '0x0D6490E9E95A2CFE34346BE41B8e078E995afE32',
           '0x0D6490E9E95A2CFE34346BE41B8e078E995afE32',
+          '0x81ea27E7D4fCE6F3C8d5Ff1c72b2E1976Db48e92',
           '0x81ea27E7D4fCE6F3C8d5Ff1c72b2E1976Db48e92',
           '0x81ea27E7D4fCE6F3C8d5Ff1c72b2E1976Db48e92',
           '0x81ea27E7D4fCE6F3C8d5Ff1c72b2E1976Db48e92'
@@ -661,6 +681,7 @@ export const config: SystemConfig = {
           '0x5DCC84bE21aAC48abBd3DE5A1876A61269C51718',
           '0x10a24e649712f2C05fC9c4bc26CaeDFe4500a26A',
           '0x10a24e649712f2C05fC9c4bc26CaeDFe4500a26A',
+          '0x10a24e649712f2C05fC9c4bc26CaeDFe4500a26A',
           '0x10a24e649712f2C05fC9c4bc26CaeDFe4500a26A'
         ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -690,6 +711,7 @@ export const config: SystemConfig = {
           '0x8b20C422adbd764B268a708377BB69B03cf91b7c',
           '0x8b20C422adbd764B268a708377BB69B03cf91b7c',
           '0x8b20C422adbd764B268a708377BB69B03cf91b7c',
+          '0x6DaC0ec21148fcD13B1B4e38CBAd56092333bc08',
           '0x6DaC0ec21148fcD13B1B4e38CBAd56092333bc08',
           '0x6DaC0ec21148fcD13B1B4e38CBAd56092333bc08',
           '0x6DaC0ec21148fcD13B1B4e38CBAd56092333bc08'
@@ -723,6 +745,7 @@ export const config: SystemConfig = {
           '0xddB2B3894Ce052Af6aa7B60B7CB4473BC2cc26EB',
           '0xd8Ff47e977c8cf97A491Ab3B086ea3E12b01bfb1',
           '0xd8Ff47e977c8cf97A491Ab3B086ea3E12b01bfb1',
+          '0xd8Ff47e977c8cf97A491Ab3B086ea3E12b01bfb1',
           '0xd8Ff47e977c8cf97A491Ab3B086ea3E12b01bfb1'
         ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -752,6 +775,7 @@ export const config: SystemConfig = {
           '0xDd3fCB5C4E7f0fEfa9520dc6Ed18D996A3dED7C0',
           '0xDd3fCB5C4E7f0fEfa9520dc6Ed18D996A3dED7C0',
           '0xDd3fCB5C4E7f0fEfa9520dc6Ed18D996A3dED7C0',
+          '0x14443362A4dF62d1487bC7C74d8523DDb71306c6',
           '0x14443362A4dF62d1487bC7C74d8523DDb71306c6',
           '0x14443362A4dF62d1487bC7C74d8523DDb71306c6',
           '0x14443362A4dF62d1487bC7C74d8523DDb71306c6'
@@ -785,6 +809,7 @@ export const config: SystemConfig = {
           '0xEAF045a19bFfDA1F088bB09D0774c274E2B4B929',
           '0x9fc98b41549f8a06C4260C06F60B654609cA7f85',
           '0x9fc98b41549f8a06C4260C06F60B654609cA7f85',
+          '0x9fc98b41549f8a06C4260C06F60B654609cA7f85',
           '0x9fc98b41549f8a06C4260C06F60B654609cA7f85'
         ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -814,6 +839,7 @@ export const config: SystemConfig = {
           '0xB8064036fe0DC39C49aD7962284b2001E37490eA',
           '0xB8064036fe0DC39C49aD7962284b2001E37490eA',
           '0xB8064036fe0DC39C49aD7962284b2001E37490eA',
+          '0x37d1d74d0a384743fD4f3a30b6f2EDcE744c91a2',
           '0x37d1d74d0a384743fD4f3a30b6f2EDcE744c91a2',
           '0x37d1d74d0a384743fD4f3a30b6f2EDcE744c91a2',
           '0x37d1d74d0a384743fD4f3a30b6f2EDcE744c91a2'
@@ -847,6 +873,7 @@ export const config: SystemConfig = {
           '0xeaCc65458b627D8473a0b04De531C44be6ff3847',
           '0x9A48c2A25da6dA49722ed1F0E109897722C77A35',
           '0x9A48c2A25da6dA49722ed1F0E109897722C77A35',
+          '0x9A48c2A25da6dA49722ed1F0E109897722C77A35',
           '0x9A48c2A25da6dA49722ed1F0E109897722C77A35'
         ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -876,6 +903,7 @@ export const config: SystemConfig = {
           '0x11e5cfd9BDa4E847602F04a9e619148a745A1D2d',
           '0x11e5cfd9BDa4E847602F04a9e619148a745A1D2d',
           '0x11e5cfd9BDa4E847602F04a9e619148a745A1D2d',
+          '0xf69FA67ECDf0B928bEe9Cd0383DB52Cd2e743fbB',
           '0xf69FA67ECDf0B928bEe9Cd0383DB52Cd2e743fbB',
           '0xf69FA67ECDf0B928bEe9Cd0383DB52Cd2e743fbB',
           '0xf69FA67ECDf0B928bEe9Cd0383DB52Cd2e743fbB'
@@ -909,6 +937,7 @@ export const config: SystemConfig = {
           '0x497FaE16975F1CC25f3399f294F566fB6833d60B',
           '0xa8C2e11aebdDf663284ad57a57e044199c5eD30a',
           '0xa8C2e11aebdDf663284ad57a57e044199c5eD30a',
+          '0xa8C2e11aebdDf663284ad57a57e044199c5eD30a',
           '0xa8C2e11aebdDf663284ad57a57e044199c5eD30a'
         ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -939,6 +968,7 @@ export const config: SystemConfig = {
           '0x92819270316ee747A2534BFE6f8D352C9E449182',
           '0x859c71DFf1168ec537a496bBfc517EF40fb03828',
           '0x859c71DFf1168ec537a496bBfc517EF40fb03828',
+          '0x859c71DFf1168ec537a496bBfc517EF40fb03828',
           '0x859c71DFf1168ec537a496bBfc517EF40fb03828'
         ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -967,6 +997,7 @@ export const config: SystemConfig = {
           '0xff3D51d6Fdb5e0809E08BD9c3FBfb9fe71Bd2eF7',
           '0xff3D51d6Fdb5e0809E08BD9c3FBfb9fe71Bd2eF7',
           '0xff3D51d6Fdb5e0809E08BD9c3FBfb9fe71Bd2eF7',
+          '0x5011d41D73F1Ae7D9Cb6dE5b9B50693C0eCfEa0d',
           '0x5011d41D73F1Ae7D9Cb6dE5b9B50693C0eCfEa0d',
           '0x5011d41D73F1Ae7D9Cb6dE5b9B50693C0eCfEa0d',
           '0x5011d41D73F1Ae7D9Cb6dE5b9B50693C0eCfEa0d'
