@@ -84,7 +84,7 @@ export const config: SystemConfig = {
         deploy: false,
         address: '0x6e4c6e76b3C1D834c0e3c4c2bAec8d58B8421A99',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
-        history: [],
+        history: ['0x4De3CA09e803969408f83F453416b3e2D70C12Fe'],
         constructorArgs: [
           '0x4De3CA09e803969408f83F453416b3e2D70C12Fe',
           '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
@@ -106,9 +106,10 @@ export const config: SystemConfig = {
       SwapAction: {
         name: 'SwapAction',
         deploy: false,
-        address: '0xAE39820D9F9F0cE9331eAe6827A9D922CA5287b9',
+        address: '0x02F55D374d791DfF5614aD2F368145A46343B08A',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP_ACTION,
         history: [
+          '0xAE39820D9F9F0cE9331eAe6827A9D922CA5287b9',
           '0x398105CD43115b54A0EFE0b210D99c596e4571A7',
           '0x55D4d311Cd9B2dD5693FB51f06DbE50B9Da84D13',
         ],
@@ -333,7 +334,7 @@ export const config: SystemConfig = {
     BAL: { name: 'BAL', address: ADDRESS_ZERO },
     BAT: { name: 'BAT', address: ADDRESS_ZERO },
     COMP: { name: 'COMP', address: ADDRESS_ZERO },
-    CBETH: { name: 'CBETH', address: ADDRESS_ZERO },
+    CBETH: { name: 'CBETH', address: '0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2' },
     CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: ADDRESS_ZERO },
     DAI: {
       name: 'DAI',
@@ -360,7 +361,7 @@ export const config: SystemConfig = {
     PAX: { name: 'PAX', address: ADDRESS_ZERO },
     PAXUSD: { name: 'PAXUSD', address: ADDRESS_ZERO },
     RENBTC: { name: 'RENBTC', address: ADDRESS_ZERO },
-    RETH: { name: 'RETH', address: ADDRESS_ZERO },
+    RETH: { name: 'RETH', address: '0x9bcef72be871e61ed4fbbc7630889bee758eb81d' },
     RWA001: { name: 'RWA001', address: ADDRESS_ZERO },
     RWA002: { name: 'RWA002', address: ADDRESS_ZERO },
     RWA003: { name: 'RWA003', address: ADDRESS_ZERO },
@@ -910,36 +911,56 @@ export const config: SystemConfig = {
       name: 'AjnaProxyActions',
       address: ADDRESS_ZERO,
     },
-    AjnaPoolPairs_WBTCUSDC: {
-      name: 'AjnaPoolPairs_WBTCUSDC',
+    AjnaPoolPairs_ETHDAI: {
+      name: 'AjnaPoolPairs_ETHDAI',
       address: ADDRESS_ZERO,
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
       address: ADDRESS_ZERO,
     },
-    AjnaPoolPairs_WSTETHDAI: {
-      name: 'AjnaPoolPairs_WSTETHDAI',
-      address: ADDRESS_ZERO,
-    },
     AjnaPoolPairs_RETHDAI: {
       name: 'AjnaPoolPairs_RETHDAI',
       address: ADDRESS_ZERO,
     },
-    AjnaPoolPairs_WBTCDAI: {
-      name: 'AjnaPoolPairs_WBTCDAI',
+    AjnaPoolPairs_RETHETH: {
+      name: 'AjnaPoolPairs_RETHETH',
       address: ADDRESS_ZERO,
     },
-    AjnaPoolPairs_USDCWETH: {
-      name: 'AjnaPoolPairs_USDCWETH',
+    AjnaPoolPairs_RETHUSDC: {
+      name: 'AjnaPoolPairs_RETHUSDC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_USDCDAI: {
+      name: 'AjnaPoolPairs_USDCDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_USDCETH: {
+      name: 'AjnaPoolPairs_USDCETH',
       address: ADDRESS_ZERO,
     },
     AjnaPoolPairs_USDCWBTC: {
       name: 'AjnaPoolPairs_USDCWBTC',
       address: ADDRESS_ZERO,
     },
-    AjnaPoolPairs_USDCDAI: {
-      name: 'AjnaPoolPairs_USDCDAI',
+    AjnaPoolPairs_WBTCDAI: {
+      name: 'AjnaPoolPairs_WBTCDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_WBTCUSDC: {
+      name: 'AjnaPoolPairs_WBTCUSDC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_WSTETHDAI: {
+      name: 'AjnaPoolPairs_WSTETHDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_WSTETHETH: {
+      name: 'AjnaPoolPairs_WSTETHUSDC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_WSTETHUSDC: {
+      name: 'AjnaPoolPairs_WSTETHUSDC',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

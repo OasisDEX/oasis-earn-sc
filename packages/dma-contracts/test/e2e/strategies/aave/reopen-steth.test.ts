@@ -153,7 +153,6 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
       const mockMarketPriceOnClose = ONE.div(new BigNumber(0.9759))
       const closePositionTransition = await strategies.aave.v2.close(
         {
-          collateralAmountLockedInProtocolInWei: beforeTransaction.collateral.amount,
           debtToken,
           collateralToken,
           slippage,
@@ -361,7 +360,6 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
 
       const closePositionTransition = await strategies.aave.v2.close(
         {
-          collateralAmountLockedInProtocolInWei: beforeTransaction.collateral.amount,
           slippage,
           debtToken,
           collateralToken,

@@ -236,6 +236,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   async saveConfig() {
+    if (!this.forkedNetwork) throw new Error('Forked network is not defined!')
+
     const { writeFile } = await import('fs')
     let configString = inspect(this.config, { depth: null })
     configString = this.replaceServiceRegistryName(configString, this.findStringPath)

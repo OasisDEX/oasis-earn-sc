@@ -118,6 +118,8 @@ export const systemWithAaveV3Positions = ({
         WETH: systemConfig.common.WETH.address,
         WSTETH: systemConfig.common.WSTETH.address,
         WBTC: systemConfig.common.WBTC.address,
+        CBETH: systemConfig.common.CBETH.address,
+        RETH: systemConfig.common.RETH.address,
         chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkPriceOracle_ETHUSD.address,
         aaveOracle: systemConfig.aave.v3.AaveOracle.address,
         pool: systemConfig.aave.v3.Pool.address,

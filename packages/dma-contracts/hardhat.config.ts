@@ -12,7 +12,6 @@ import 'hardhat-abi-exporter'
 import './tasks/deploy'
 import './tasks/create-position'
 import './tasks/create-aave-v3l1-position'
-import './tasks/close-position'
 import './tasks/proxy'
 import './tasks/verify-earn'
 import './tasks/transfer-erc20'
@@ -21,10 +20,12 @@ import './tasks/read-erc20-balance'
 import './tasks/user-dpm-proxies'
 import './tasks/create-multiply-position'
 import './tasks/transfer-dpm'
-import './tasks/transfer-all-proxies'
 
 import { Network } from '@deploy-configurations/types/network'
 import * as process from 'process'
+
+import * as tdly from "@tenderly/hardhat-tenderly";
+tdly.setup();
 
 import { ChainIdByNetwork } from '../deploy-configurations/utils/network'
 
@@ -136,6 +137,15 @@ const config = {
         },
       },
       {
+        version: '0.8.18',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 0,
+          },
+        },
+      },
+      {
         version: '0.8.15',
         settings: {
           optimizer: {
@@ -144,6 +154,7 @@ const config = {
           },
         },
       },
+
     ],
     settings: {
       optimizer: {
@@ -209,6 +220,10 @@ const config = {
           },
         }
       : {}),
+    devnet: {
+      url: process.env.TENDERLY_FORK_URL ?? '',
+      chainId: Number(process.env.TENDERLY_FORK_CHAIN_ID ?? 1),
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS === '1',
@@ -255,6 +270,11 @@ const config = {
       './test',
     ],
   },
+  tenderly: {
+    username: "oazoapps", // tenderly username (or organization name)
+    project: process.env.TENDERLY_PROJECT ?? '', // project name
+    privateVerification: true // if true, contracts will be verified privately, if false, contracts will be verified publicly
+  }
 }
 
 // @ts-ignore

@@ -1,4 +1,4 @@
-import type { AaveCloseArgs, AaveCloseDependencies } from './close'
+import { AaveCloseArgs, AaveCloseDependencies } from './types'
 
 export { close } from './close'
 export { AaveCloseArgs, AaveCloseDependencies }
