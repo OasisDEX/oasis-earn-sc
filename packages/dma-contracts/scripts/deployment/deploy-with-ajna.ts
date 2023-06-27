@@ -50,8 +50,8 @@ async function main() {
     .getSystem()
     .system.AccountGuard.contract.setWhitelist(ajnaEnv.ajnaProxyActionsContract.address, true)
 
-  await (await ds.getSystem().system.uSwap.contract.connect(ajnaEnv.deployer).addFeeTier(0)).wait()
-  await (await ds.getSystem().system.uSwap.contract.connect(ajnaEnv.deployer).addFeeTier(7)).wait()
+  await (await ds.getSystem().system.Swap.contract.connect(ajnaEnv.deployer).addFeeTier(0)).wait()
+  await (await ds.getSystem().system.Swap.contract.connect(ajnaEnv.deployer).addFeeTier(7)).wait()
 }
 
 // We recommend this pattern to be able to use async/await everywhere
