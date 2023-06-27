@@ -135,7 +135,7 @@ export const open: AjnaOpenOperation = async ({
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
-    asset: debt.address,
+    asset: flashloan.token.address,
     flashloanAmount: flashloan.token.amount,
     isProxyFlashloan: true,
     provider: FlashloanProvider.Balancer,

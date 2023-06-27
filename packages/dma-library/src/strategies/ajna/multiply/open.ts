@@ -250,7 +250,7 @@ async function getSwapData(
       isEarnPosition: positionType === 'Earn',
     },
   )
-  console.log('swapAmountBeforeFees', swapAmountBeforeFees.toString())
+
   const { swapData, collectFeeFrom, preSwapFee } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     string
@@ -325,6 +325,10 @@ async function buildOperation(
       receiveAtLeast: swapData.minToTokenAmount,
     },
     flashloan: {
+      token: {
+        amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
+        address: position.pool.quoteToken,
+      },
       amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
       // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
