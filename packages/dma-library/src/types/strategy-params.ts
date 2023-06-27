@@ -42,10 +42,6 @@ type WithMultiple = {
   multiple: IRiskRatio
 }
 
-export type WithLockedCollateral = {
-  collateralAmountLockedInProtocolInWei: BigNumber
-}
-
 export type WithWithdrawCollateral = {
   amountCollateralToWithdrawInBaseUnit: BigNumber
 }
@@ -138,4 +134,14 @@ export type IOnlyDepositBorrowOpenPositionTransitionDependencies<Addresses> = Om
 export interface IViewPositionDependencies<Addresses> {
   addresses: Addresses
   provider: providers.Provider
+}
+
+export type WithFlashloanToken = {
+  flashloanToken: { symbol: AAVETokens; precision: number; address: string }
+}
+export type WithCollateralTokenAddress = {
+  collateralTokenAddress: string
+}
+export type WithDebtTokenAddress = {
+  debtTokenAddress: string
 }

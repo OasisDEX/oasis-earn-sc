@@ -84,9 +84,8 @@ export const config: SystemConfig = {
         deploy: false,
         address: '0x6e4c6e76b3C1D834c0e3c4c2bAec8d58B8421A99',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
-        history: [],
+        history: ['0x4De3CA09e803969408f83F453416b3e2D70C12Fe'],
         constructorArgs: [
-          '0x4De3CA09e803969408f83F453416b3e2D70C12Fe',
           '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
           '0xE0611d7A57879734058aCE889569A2E79701fcAf',
           20,
@@ -106,9 +105,10 @@ export const config: SystemConfig = {
       SwapAction: {
         name: 'SwapAction',
         deploy: false,
-        address: '0xAE39820D9F9F0cE9331eAe6827A9D922CA5287b9',
+        address: '0x02F55D374d791DfF5614aD2F368145A46343B08A',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP_ACTION,
         history: [
+          '0xAE39820D9F9F0cE9331eAe6827A9D922CA5287b9',
           '0x398105CD43115b54A0EFE0b210D99c596e4571A7',
           '0x55D4d311Cd9B2dD5693FB51f06DbE50B9Da84D13',
         ],

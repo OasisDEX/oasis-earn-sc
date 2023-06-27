@@ -17,10 +17,12 @@ export const getAaveTokenAddress = (
     WBTC: addresses.WBTC,
     CBETH: 'CBETH' in addresses ? addresses.CBETH : EMPTY_ADDRESS,
     RETH: 'RETH' in addresses ? addresses.RETH : EMPTY_ADDRESS,
+    DAI: addresses.DAI,
   }
   const tokenAddress = tokenAddresses[token.symbol]
 
-  if (!tokenAddress) throw new Error('Token not recognised or address missing in dependencies')
+  if (!tokenAddress || tokenAddress === EMPTY_ADDRESS)
+    throw new Error('Token not recognised or address missing in dependencies')
 
   return tokenAddress
 }

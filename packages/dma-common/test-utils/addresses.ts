@@ -39,6 +39,8 @@ const testAddresses = {
     aaveOracle: ADDRESSES[Network.MAINNET].aave.v3.AaveOracle,
     pool: ADDRESSES[Network.MAINNET].aave.v3.Pool,
     poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.AavePoolDataProvider,
+    CBETH: ADDRESSES[Network.MAINNET].common.CBETH,
+    RETH: ADDRESSES[Network.MAINNET].common.RETH,
   },
   [Network.OPTIMISM]: {
     DAI: ADDRESSES[Network.OPTIMISM].common.DAI,
@@ -56,6 +58,8 @@ const testAddresses = {
     priceOracle: ADDRESS_ZERO,
     lendingPool: ADDRESS_ZERO,
     protocolDataProvider: ADDRESS_ZERO,
+    CBETH: ADDRESSES[Network.OPTIMISM].common.CBETH,
+    RETH: ADDRESSES[Network.OPTIMISM].common.RETH,
   },
 }
 

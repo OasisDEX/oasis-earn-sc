@@ -27,5 +27,8 @@
   },
   "files": [
     "tsconfig.json"
-  ]
+  ],
+  "devDependencies": {
+    "@tenderly/hardhat-tenderly": "^1.7.7"
+  }
 }

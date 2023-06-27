@@ -78,6 +78,9 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
         WSTETH: addresses.WSTETH,
         USDC: addresses.USDC,
         WBTC: addresses.WBTC,
+        DAI: addresses.DAI,
+        CBETH: addresses.CBETH,
+        RETH: addresses.RETH,
       }
 
       const collateralTokenAddress = tokenAddresses[collateralToken.symbol]
@@ -111,7 +114,6 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
       const closePosition = await strategies.aave.v2.close(
         {
           slippage,
-          collateralAmountLockedInProtocolInWei: position.collateral.amount,
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
           collateralToken: {
             symbol: collateralToken.symbol,
@@ -437,6 +439,9 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
         WSTETH: addresses.WSTETH,
         USDC: addresses.USDC,
         WBTC: addresses.WBTC,
+        RETH: addresses.RETH,
+        CBETH: addresses.CBETH,
+        DAI: addresses.DAI,
       }
       const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
       const debtTokenAddress = tokenAddresses[args.debtToken.symbol]
@@ -464,6 +469,9 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
         USDC: addresses.USDC,
         WBTC: addresses.WBTC,
         STETH: EMPTY_ADDRESS,
+        DAI: addresses.DAI,
+        RETH: addresses.RETH,
+        CBETH: addresses.CBETH,
       }
       const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
       const debtTokenAddress = tokenAddresses[args.debtToken.symbol]
@@ -526,7 +534,6 @@ describe(`Strategy | AAVE | Close Position | E2E`, async () => {
       const closePosition = await strategies.aave.v3.close(
         {
           slippage,
-          collateralAmountLockedInProtocolInWei: position.collateral.amount,
           debtToken: { symbol: debtToken.symbol, precision: debtToken.precision },
           collateralToken: {
             symbol: collateralToken.symbol,
