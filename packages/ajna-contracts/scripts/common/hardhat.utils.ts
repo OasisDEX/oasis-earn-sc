@@ -1,14 +1,15 @@
 import "@nomiclabs/hardhat-ethers";
 
+import erc20abi from "@abis/external/tokens/IERC20.json";
 import { EventFragment } from "@ethersproject/abi";
 import { FactoryOptions } from "@nomiclabs/hardhat-ethers/types";
 import { BigNumber, constants, Contract, ContractReceipt, Signer } from "ethers";
+import { writeFileSync } from "fs";
 import { ethers } from "hardhat";
 import { HardhatRuntimeEnvironment, Network } from "hardhat/types/runtime";
-import { writeFileSync } from "fs";
 import { join } from "path";
+
 import { Token, WETH } from "../../typechain-types";
-import erc20abi from '@abis/external/tokens/IERC20.json'
 
 export type BasicSimulationData = {
   data: string;
@@ -109,12 +110,12 @@ export class HardhatUtils {
   }
 
   public async impersonate(user: string): Promise<Signer> {
-    if(this.hre.network.name !== 'tenderly') {
+    if (this.hre.network.name !== "tenderly") {
       await this.impersonateAccount(user);
       const newSigner = await this.hre.ethers.getSigner(user);
       return newSigner;
     } else {
-      return this.hre.ethers.getSigner(user)
+      return this.hre.ethers.getSigner(user);
     }
   }
 
@@ -130,7 +131,7 @@ export class HardhatUtils {
     const probeA = encode(["uint"], [BigNumber.from("100")]);
     const probeB = encode(["uint"], [BigNumber.from("200")]);
     // const token = await this.hre.ethers.getContractAt("ERC20", tokenAddress);
-    const token = new this.hre.ethers.Contract(tokenAddress, erc20abi)
+    const token = new this.hre.ethers.Contract(tokenAddress, erc20abi);
     for (let i = 0; i < 100; i++) {
       let probedSlot = this.hre.ethers.utils.keccak256(encode(["address", "uint"], [account, i]));
       // remove padding for JSON RPC
@@ -139,11 +140,11 @@ export class HardhatUtils {
       // make sure the probe will change the slot value
       const probe = prev === probeA ? probeB : probeA;
 
-      await this.hre.network.provider.send('hardhat_setStorageAt', [tokenAddress, probedSlot, probe]);
+      await this.hre.network.provider.send("hardhat_setStorageAt", [tokenAddress, probedSlot, probe]);
 
       const balance = await token.balanceOf(account);
       // reset to previous value
-      await this.hre.network.provider.send('hardhat_setStorageAt', [tokenAddress, probedSlot, prev]);
+      await this.hre.network.provider.send("hardhat_setStorageAt", [tokenAddress, probedSlot, prev]);
       if (balance.eq(this.hre.ethers.BigNumber.from(probe))) return i;
     }
     throw "Balances slot not found!";
@@ -156,27 +157,28 @@ export class HardhatUtils {
    * @return {Promise<boolean>} if the operation succedded
    */
   public async setTokenBalance(account: string, tokenAddress: string, balance: BigNumber): Promise<boolean> {
-      const isStorageManipulationSuccessful = await this.setTokenBalanceByStorageManipulation(
+    const isStorageManipulationSuccessful = await this.setTokenBalanceByStorageManipulation(
+      account,
+      tokenAddress,
+      balance
+    );
+    if (!isStorageManipulationSuccessful) {
+      const isBridgeImpersonationSuccessful = await this.setTokenBalanceByBridgeImpersonation(
         account,
         tokenAddress,
         balance
       );
-      if (!isStorageManipulationSuccessful) {
-        const isBridgeImpersonationSuccessful = await this.setTokenBalanceByBridgeImpersonation(
-          account,
-          tokenAddress,
-          balance
-        );
-        return isBridgeImpersonationSuccessful;
-      }
-      return isStorageManipulationSuccessful;
+      return isBridgeImpersonationSuccessful;
+    }
+    return isStorageManipulationSuccessful;
   }
 
   private async setTokenBalanceByBridgeImpersonation(account: string, tokenAddress: string, balance: BigNumber) {
     const bridgeAddress = "0x8eb8a3b98659cce290402893d0123abb75e3ab28";
-    const signer = this.hre.network.name === 'tenderly' 
-      ? await this.hre.ethers.getSigner(bridgeAddress) 
-      : await this.impersonate(bridgeAddress);
+    const signer =
+      this.hre.network.name === "tenderly"
+        ? await this.hre.ethers.getSigner(bridgeAddress)
+        : await this.impersonate(bridgeAddress);
     const token = await this.hre.ethers.getContractAt("ERC20", tokenAddress, signer);
     const balanceOfSource = BigNumber.from((await token.balanceOf(bridgeAddress)).toString());
     console.log("balanceOfSource", balanceOfSource.toString());
@@ -208,13 +210,13 @@ export class HardhatUtils {
       let index = this.hre.ethers.utils.solidityKeccak256(["uint256", "uint256"], [account, slot]);
       if (index.startsWith("0x0")) index = "0x" + index.slice(3);
 
-      await this.hre.ethers.provider.send('hardhat_setStorageAt', [
+      await this.hre.ethers.provider.send("hardhat_setStorageAt", [
         tokenAddress,
         index,
         this.hre.ethers.utils.hexZeroPad(balance.toHexString(), 32),
       ]);
       // const token = await this.hre.ethers.getContractAt("ERC20", tokenAddress);
-      const token = new this.hre.ethers.Contract(tokenAddress, erc20abi)
+      const token = new this.hre.ethers.Contract(tokenAddress, erc20abi);
       const balanceAfter = await token.balanceOf(account);
       return balance == balanceAfter;
     } catch (ex) {
@@ -222,4 +224,3 @@ export class HardhatUtils {
     }
   }
 }
-

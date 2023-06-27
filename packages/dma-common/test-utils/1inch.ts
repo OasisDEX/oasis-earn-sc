@@ -151,6 +151,7 @@ export async function exchangeToDAI(
 }
 
 type OneInchVersion = 'v4.0' | 'v5.0'
+// TODO: Let's move entirely to v5.0 on FE as well
 export const oneInchVersionMap: Record<
   Exclude<Network, Network.LOCAL | Network.HARDHAT | Network.GOERLI>,
   OneInchVersion
@@ -158,6 +159,7 @@ export const oneInchVersionMap: Record<
   [Network.MAINNET]: 'v4.0',
   [Network.OPTIMISM]: 'v5.0',
   [Network.ARBITRUM]: 'v5.0',
+  [Network.TENDERLY]: 'v5.0',
 }
 
 export function resolveOneInchVersion(network: Network): OneInchVersion {

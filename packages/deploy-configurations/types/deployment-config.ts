@@ -331,7 +331,7 @@ export type SystemConfig = {
 
 export type SystemConfigWithAjna = {
   mpa: {
-    core: CoreRecord & CoreMainnetRecord & SwapRecord &  Record<AjnaProtocol, DeploymentConfig>
+    core: CoreRecord & CoreMainnetRecord & SwapRecord & Record<AjnaProtocol, DeploymentConfig>
     actions: ActionsRecord & AaveV2ActionsRecord
   }
   common: Record<Common, DeploymentConfig>

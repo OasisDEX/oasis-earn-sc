@@ -213,7 +213,7 @@ export const config: SystemConfig = {
         name: 'AjnaDepositBorrow',
         deploy: true,
         address: '',
-        serviceRegistryName: CONTRACT_NAMES.ajna.DEPOSIT_BORROW,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
@@ -221,7 +221,7 @@ export const config: SystemConfig = {
         name: 'AjnaRepayWithdraw',
         deploy: true,
         address: '',
-        serviceRegistryName: CONTRACT_NAMES.ajna.REPAY_WITHDRAW,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
@@ -916,7 +916,7 @@ export const config: SystemConfig = {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
       address: '0x0000000000000000000000000000000000000000',
-      serviceRegistryName: CONTRACT_NAMES.ajna.AJNA_POOL_UTILS_INFO,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
@@ -985,7 +985,7 @@ export const config: SystemConfig = {
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
       address: '0x0000000000000000000000000000000000000000',
-      serviceRegistryName: CONTRACT_NAMES.ajna.ERC20_POOL_FACTORY,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },
 }

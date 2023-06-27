@@ -37,7 +37,7 @@ async function main() {
   await ds.addAaveEntries()
   await ds.deployActions()
   await ds.saveConfig()
-  await ds.addOperationEntries() 
+  await ds.addOperationEntries()
 
   await ds
     .getSystem()
@@ -46,10 +46,9 @@ async function main() {
       true,
     )
 
-  await ds.getSystem().system.AccountGuard.contract.setWhitelist(
-    ajnaEnv.ajnaProxyActionsContract.address,
-    true,
-  )
+  await ds
+    .getSystem()
+    .system.AccountGuard.contract.setWhitelist(ajnaEnv.ajnaProxyActionsContract.address, true)
 
   await (await ds.getSystem().system.uSwap.contract.connect(ajnaEnv.deployer).addFeeTier(0)).wait()
   await (await ds.getSystem().system.uSwap.contract.connect(ajnaEnv.deployer).addFeeTier(7)).wait()

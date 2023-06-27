@@ -211,7 +211,7 @@ export async function deployPool(
   const utils = new HardhatUtils(hre);
   const hash = await erc20PoolFactory.ERC20_NON_SUBSET_HASH();
 
-  const tx = await erc20PoolFactory.deployPool(collateral, quote, "50000000000000000", {
+  await erc20PoolFactory.deployPool(collateral, quote, "50000000000000000", {
     gasLimit: 10000000,
   });
 

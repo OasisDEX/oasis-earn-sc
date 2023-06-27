@@ -59,7 +59,6 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
     price,
   })
 
-
   const swapCollateralTokensForDebtTokens = actions.common.swap(Network.MAINNET, {
     fromAsset: collateral.address,
     toAsset: debt.address,
