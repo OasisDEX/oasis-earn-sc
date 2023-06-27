@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 
-pragma solidity 0.8.15;
+pragma solidity 0.8.18;
 
 import { IPool, IERC20Token } from "./interfaces/pool/IPool.sol";
 
@@ -58,7 +58,6 @@ contract PoolInfoUtils {
         )
     {
         IPool pool = IPool(ajnaPool_);
-
         uint256 kickMomp;
         (, , , kickTime_, kickMomp, neutralPrice_, , , , ) = pool.auctionInfo(borrower_);
         if (kickTime_ != 0) {
@@ -95,7 +94,7 @@ contract PoolInfoUtils {
         uint256 t0Debt;
         (t0Debt, collateral_, t0Np_) = pool.borrowerInfo(borrower_);
 
-        debt_ = Maths.wmul(t0Debt, pendingInflator);
+        debt_ = Maths.ceilWmul(t0Debt, pendingInflator);
     }
 
     /**
@@ -197,6 +196,22 @@ contract PoolInfoUtils {
         htpIndex_ = htp_ >= MIN_PRICE ? _indexOf(htp_) : MAX_FENWICK_INDEX;
         lupIndex_ = pool.depositIndex(debt);
         lup_ = _priceAt(lupIndex_);
+    }
+
+    /**
+     *  @notice Returns the amount of quote token available for borrowing or removing from pool.
+     *  @dev    Calculated as the difference between pool balance and escrowed amounts locked in pool (auction bons + unclaimed reserves).
+     *  @param  ajnaPool_ Address of `Ajna` pool.
+     *  @return amount_   The total quote token amount available to borrow or to be removed from pool, in `WAD` units.
+     */
+    function availableQuoteTokenAmount(address ajnaPool_) external view returns (uint256 amount_) {
+        IPool pool = IPool(ajnaPool_);
+        (uint256 bondEscrowed, uint256 unclaimedReserve, , ) = pool.reservesInfo();
+        uint256 escrowedAmounts = bondEscrowed + unclaimedReserve;
+
+        uint256 poolBalance = IERC20Token(pool.quoteTokenAddress()).balanceOf(ajnaPool_) * pool.quoteTokenScale();
+
+        if (poolBalance > escrowedAmounts) amount_ = poolBalance - escrowedAmounts;
     }
 
     /**

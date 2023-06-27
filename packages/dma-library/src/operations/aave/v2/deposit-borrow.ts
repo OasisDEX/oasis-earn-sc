@@ -1,4 +1,6 @@
-import { aaveDepositBorrowV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { OperationNames } from '@deploy-configurations/constants'
+import { getAaveDepositBorrowV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { Network } from '@deploy-configurations/types/network'
 import { BorrowArgs, DepositArgs } from '@dma-library/operations/aave/common'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
 import { ActionCall, IOperation } from '@dma-library/types'
@@ -10,6 +12,7 @@ type AaveV2DepositBorrowArgs = [
   depositArgs: DepositArgs | undefined,
   borrowArgs: BorrowArgs | undefined,
   addresses: AAVEStrategyAddresses,
+  network: Network,
 ]
 
 export type AaveV2DepositBorrowOperation = (...args: AaveV2DepositBorrowArgs) => Promise<IOperation>
@@ -18,25 +21,26 @@ export const depositBorrow: AaveV2DepositBorrowOperation = async (
   depositArgs,
   borrowArgs,
   addresses,
+  network,
 ) => {
   if (depositArgs && borrowArgs) {
     return {
       calls: [
-        ...(await deposit(depositArgs, addresses)).calls,
-        ...(await borrow(borrowArgs, addresses)).calls,
+        ...(await deposit(depositArgs, addresses, network)).calls,
+        ...(await borrow(borrowArgs, addresses, network)).calls,
       ],
-      operationName: aaveDepositBorrowV2OperationDefinition.name,
+      operationName: getAaveDepositBorrowV2OperationDefinition(network).name,
     } as {
       // Import ActionCall as it assists type generation
       calls: ActionCall[]
-      operationName: typeof aaveDepositBorrowV2OperationDefinition.name
+      operationName: OperationNames
     }
   }
   if (depositArgs) {
-    return deposit(depositArgs, addresses)
+    return deposit(depositArgs, addresses, network)
   }
   if (borrowArgs) {
-    return borrow(borrowArgs, addresses)
+    return borrow(borrowArgs, addresses, network)
   }
 
   throw new Error('At least one argument needs to be provided')

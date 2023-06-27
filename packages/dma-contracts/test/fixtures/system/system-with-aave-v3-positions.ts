@@ -52,6 +52,7 @@ const testBlockNumberByNetwork: Record<
 > = {
   [Network.MAINNET]: testBlockNumberForAaveV3,
   [Network.OPTIMISM]: testBlockNumberForAaveOptimismV3,
+  [Network.ARBITRUM]: testBlockNumberForAaveV3,
 }
 
 export const systemWithAaveV3Positions = ({
@@ -175,6 +176,7 @@ export const systemWithAaveV3Positions = ({
       dependencies,
       config,
       feeRecipient: systemConfig.common.FeeRecipient.address,
+      network,
     })
 
     let wstethEthEarnPosition: AavePositionDetails | undefined
@@ -192,6 +194,7 @@ export const systemWithAaveV3Positions = ({
         dependencies,
         config,
         feeRecipient: systemConfig.common.FeeRecipient.address,
+        network,
       })
     }
 
@@ -203,6 +206,7 @@ export const systemWithAaveV3Positions = ({
       dependencies,
       config,
       feeRecipient: systemConfig.common.FeeRecipient.address,
+      network,
     })
 
     return {

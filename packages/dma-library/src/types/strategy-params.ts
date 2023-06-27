@@ -1,4 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
+import { Network } from '@deploy-configurations/types/network'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { AAVETokens } from '@dma-library/types/aave'
@@ -95,6 +96,7 @@ export interface IPositionTransitionDependencies<Addresses> {
   proxy: Address
   user: Address
   isDPMProxy: boolean
+  network: Network
 }
 
 type SharedStrategyDependencies = {
@@ -102,6 +104,7 @@ type SharedStrategyDependencies = {
   currentPosition: IPosition
   proxy: Address
   user: Address
+  network: Network
 }
 export type WithAaveV2StrategyDependencies = {
   addresses: AAVEStrategyAddresses

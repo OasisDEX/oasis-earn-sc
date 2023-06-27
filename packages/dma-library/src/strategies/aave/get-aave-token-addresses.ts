@@ -15,6 +15,8 @@ export const getAaveTokenAddress = (
     WSTETH: 'WSTETH' in addresses ? addresses.WSTETH : EMPTY_ADDRESS,
     USDC: addresses.USDC,
     WBTC: addresses.WBTC,
+    CBETH: 'CBETH' in addresses ? addresses.CBETH : EMPTY_ADDRESS,
+    RETH: 'RETH' in addresses ? addresses.RETH : EMPTY_ADDRESS,
   }
   const tokenAddress = tokenAddresses[token.symbol]
 

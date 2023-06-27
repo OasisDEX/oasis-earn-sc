@@ -4,23 +4,23 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import {
-  aaveAdjustDownV2OperationDefinition,
-  aaveAdjustDownV3OperationDefinition,
-  aaveAdjustUpV2OperationDefinition,
-  aaveAdjustUpV3OperationDefinition,
-  aaveBorrowV2OperationDefinition,
-  aaveBorrowV3OperationDefinition,
-  aaveCloseV2OperationDefinition,
-  aaveCloseV3OperationDefinition,
-  aaveDepositBorrowV2OperationDefinition,
-  aaveDepositBorrowV3OperationDefinition,
-  aaveDepositV2OperationDefinition,
-  aaveDepositV3OperationDefinition,
-  aaveOpenV2OperationDefinition,
-  aaveOpenV3OperationDefinition,
-  aavePaybackWithdrawV2OperationDefinition,
-  aavePaybackWithdrawV3OperationDefinition,
   ajnaOpenOperationDefinition,
+  getAaveAdjustDownV2OperationDefinition,
+  getAaveAdjustDownV3OperationDefinition,
+  getAaveAdjustUpV2OperationDefinition,
+  getAaveAdjustUpV3OperationDefinition,
+  getAaveBorrowV2OperationDefinition,
+  getAaveBorrowV3OperationDefinition,
+  getAaveCloseV2OperationDefinition,
+  getAaveCloseV3OperationDefinition,
+  getAaveDepositBorrowV2OperationDefinition,
+  getAaveDepositBorrowV3OperationDefinition,
+  getAaveDepositV2OperationDefinition,
+  getAaveDepositV3OperationDefinition,
+  getAaveOpenV2OperationDefinition,
+  getAaveOpenV3OperationDefinition,
+  getAavePaybackWithdrawV2OperationDefinition,
+  getAavePaybackWithdrawV3OperationDefinition,
 } from '@deploy-configurations/operation-definitions'
 import {
   ContractProps,
@@ -38,7 +38,7 @@ import { EtherscanGasPrice } from '@deploy-configurations/types/etherscan'
 import { Network } from '@deploy-configurations/types/network'
 import { NetworkByChainId } from '@deploy-configurations/utils/network/index'
 import { OperationsRegistry, ServiceRegistry } from '@deploy-configurations/utils/wrappers/index'
-import { CONTRACT_NAMES } from '@dma-contracts/../deploy-configurations/constants'
+import { loadContractNames } from '@dma-contracts/../deploy-configurations/constants'
 import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
@@ -76,6 +76,7 @@ const gnosisSafeServiceUrl: any = {
   [Network.OPTIMISM]: '',
   [Network.GOERLI]: 'https://safe-transaction.goerli.gnosis.io',
   [Network.HARDHAT]: '',
+  [Network.TENDERLY]: '',
 }
 
 // HELPERS --------------------------
@@ -93,9 +94,11 @@ abstract class DeployedSystemHelpers {
   public feeRecipient: string | undefined
   public serviceRegistryHelper: ServiceRegistry | undefined
   public hideLogging = false
+  public serviceRegistryNames = {}
 
   async getForkedNetworkChainId(provider: providers.JsonRpcProvider) {
     try {
+      return (await provider.getNetwork()).chainId
       const metadata = await provider.send('hardhat_metadata', [])
       return metadata.forkedNetwork.chainId
     } catch (e) {
@@ -130,7 +133,18 @@ abstract class DeployedSystemHelpers {
     this.forkedNetwork = this.getNetworkFromChainId(this.chainId)
 
     this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
-    this.log('NETWORK / FORKED NETWORK', `${this.network} / ${this.forkedNetwork}`)
+    this.log(
+      'NETWORK / FORKED NETWORK / ChainID',
+      `${this.network} / ${this.forkedNetwork} / ${this.chainId}`,
+    )
+
+    if (this.forkedNetwork) {
+      console.log('Loading ServiceRegistryNames for', this.forkedNetwork)
+      this.serviceRegistryNames = loadContractNames(this.forkedNetwork)
+    } else {
+      console.log('Loading ServiceRegistryNames for', this.network)
+      this.serviceRegistryNames = loadContractNames(this.network)
+    }
 
     return {
       provider: this.provider,
@@ -202,8 +216,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   findStringPath = target => {
-    const rootPath = 'CONTRACT_NAMES'
-    return this.findPath(CONTRACT_NAMES, target, rootPath)
+    const rootPath = 'SERVICE_REGISTRY_NAMES'
+    return this.findPath(this.serviceRegistryNames, target, rootPath)
   }
 
   replaceServiceRegistryName(inputString, transformFunction) {
@@ -213,14 +227,30 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     })
   }
 
+  getNetworkEnumString(param: string): string | undefined {
+    const keys = Object.keys(Network).filter(key => typeof Network[key] === 'string')
+
+    for (const key of keys) {
+      if (Network[key] === param) {
+        return `Network.${key}`
+      }
+    }
+
+    return undefined
+  }
+
   async saveConfig() {
+    if (!this.forkedNetwork) throw new Error('Forked network is not defined!')
+
     const { writeFile } = await import('fs')
     let configString = inspect(this.config, { depth: null })
     configString = this.replaceServiceRegistryName(configString, this.findStringPath)
 
     writeFile(
       `./../deploy-configurations/configs/${this.network}.conf.ts`,
-      `import { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { CONTRACT_NAMES } from '@deploy-configurations/constants'\n\nexport const config: SystemConfig = ${configString} \n`,
+      `import { loadContractNames } from '@deploy-configurations/constants'\nimport { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { Network } from '@deploy-configurations/types/network'\n\nconst SERVICE_REGISTRY_NAMES = loadContractNames(${this.getNetworkEnumString(
+        this.forkedNetwork,
+      )})\n\nexport const config: SystemConfig = ${configString}`,
       (error: any) => {
         if (error) {
           console.log('ERROR: ', error)
@@ -576,72 +606,77 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       this.signer,
     )
 
+    let network = this.network
+    if (this.forkedNetwork) {
+      network = this.forkedNetwork
+    }
+
     // AAVE V2
     await operationsRegistry.addOp(
-      aaveOpenV2OperationDefinition.name,
-      aaveOpenV2OperationDefinition.actions,
+      getAaveOpenV2OperationDefinition(network).name,
+      getAaveOpenV2OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aaveCloseV2OperationDefinition.name,
-      aaveCloseV2OperationDefinition.actions,
+      getAaveCloseV2OperationDefinition(network).name,
+      getAaveCloseV2OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aaveAdjustDownV2OperationDefinition.name,
-      aaveAdjustDownV2OperationDefinition.actions,
+      getAaveAdjustDownV2OperationDefinition(network).name,
+      getAaveAdjustDownV2OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aaveAdjustUpV2OperationDefinition.name,
-      aaveAdjustUpV2OperationDefinition.actions,
+      getAaveAdjustUpV2OperationDefinition(network).name,
+      getAaveAdjustUpV2OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aavePaybackWithdrawV2OperationDefinition.name,
-      aavePaybackWithdrawV2OperationDefinition.actions,
+      getAavePaybackWithdrawV2OperationDefinition(network).name,
+      getAavePaybackWithdrawV2OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aaveDepositV2OperationDefinition.name,
-      aaveDepositV2OperationDefinition.actions,
+      getAaveDepositV2OperationDefinition(network).name,
+      getAaveDepositV2OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aaveBorrowV2OperationDefinition.name,
-      aaveBorrowV2OperationDefinition.actions,
+      getAaveBorrowV2OperationDefinition(network).name,
+      getAaveBorrowV2OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aaveDepositBorrowV2OperationDefinition.name,
-      aaveDepositBorrowV2OperationDefinition.actions,
+      getAaveDepositBorrowV2OperationDefinition(network).name,
+      getAaveDepositBorrowV2OperationDefinition(network).actions,
     )
 
     // AAVE V3
     await operationsRegistry.addOp(
-      aaveOpenV3OperationDefinition.name,
-      aaveOpenV3OperationDefinition.actions,
+      getAaveOpenV3OperationDefinition(network).name,
+      getAaveOpenV3OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aaveCloseV3OperationDefinition.name,
-      aaveCloseV3OperationDefinition.actions,
+      getAaveCloseV3OperationDefinition(network).name,
+      getAaveCloseV3OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aaveAdjustDownV3OperationDefinition.name,
-      aaveAdjustDownV3OperationDefinition.actions,
+      getAaveAdjustDownV3OperationDefinition(network).name,
+      getAaveAdjustDownV3OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aaveAdjustUpV3OperationDefinition.name,
-      aaveAdjustUpV3OperationDefinition.actions,
+      getAaveAdjustUpV3OperationDefinition(network).name,
+      getAaveAdjustUpV3OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aavePaybackWithdrawV3OperationDefinition.name,
-      aavePaybackWithdrawV3OperationDefinition.actions,
+      getAavePaybackWithdrawV3OperationDefinition(network).name,
+      getAavePaybackWithdrawV3OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aaveDepositBorrowV3OperationDefinition.name,
-      aaveDepositBorrowV3OperationDefinition.actions,
+      getAaveDepositBorrowV3OperationDefinition(network).name,
+      getAaveDepositBorrowV3OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aaveDepositV3OperationDefinition.name,
-      aaveDepositV3OperationDefinition.actions,
+      getAaveDepositV3OperationDefinition(network).name,
+      getAaveDepositV3OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
-      aaveBorrowV3OperationDefinition.name,
-      aaveBorrowV3OperationDefinition.actions,
+      getAaveBorrowV3OperationDefinition(network).name,
+      getAaveBorrowV3OperationDefinition(network).actions,
     )
 
     // AJNA
@@ -662,7 +697,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   // TODO unify resetNode and resetNodeToLatestBlock into one function
   async resetNode(blockNumber: number) {
     if (!this.provider) throw new Error('No provider set')
-    this.log(`\x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
+    this.log(`\x1b[90mResetting fork to block number: ${blockNumber} using ${this.rpcUrl} \x1b[0m`)
     await this.provider.send('hardhat_reset', [
       {
         forking: {

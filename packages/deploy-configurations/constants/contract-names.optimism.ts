@@ -1,11 +1,11 @@
 // Service Registry Entry Names
-export const CONTRACT_NAMES = {
+export const SERVICE_REGISTRY_NAMES = {
   common: {
     PULL_TOKEN: 'PullToken_3',
     SEND_TOKEN: 'SendToken_4',
     SET_APPROVAL: 'SetApproval_3',
     TAKE_A_FLASHLOAN: 'TakeFlashloan_3',
-    SWAP_ACTION: 'SwapAction_3',
+    SWAP_ACTION: 'SwapAction_4',
     WRAP_ETH: 'WrapEth_3',
     UNWRAP_ETH: 'UnwrapEth_3',
     RETURN_FUNDS: 'ReturnFunds_3',
@@ -20,7 +20,7 @@ export const CONTRACT_NAMES = {
     DS_GUARD_FACTORY: 'DSGuardFactory',
     DS_PROXY_REGISTRY: 'DSProxyRegistry',
     DS_PROXY_FACTORY: 'DSProxyFactory',
-    SWAP: 'Swap',
+    SWAP: 'Swap2',
     EXCHANGE: 'Exchange',
     UNISWAP_ROUTER: 'UniswapRouter',
     BALANCER_VAULT: 'BalancerVault',
@@ -69,8 +69,6 @@ export const CONTRACT_NAMES = {
   ajna: {
     DEPOSIT_BORROW: 'AjnaDepositBorrow',
     REPAY_WITHDRAW: 'AjnaRepayWithdraw',
-    ERC20_POOL_FACTORY: 'ERC20PoolFactory',
-    AJNA_POOL_UTILS_INFO: 'AjnaPoolUtilsInfo',
   },
   test: {
     DUMMY_ACTION: 'DummyAction',
@@ -80,7 +78,3 @@ export const CONTRACT_NAMES = {
     SWAP: 'uSwap',
   },
 } as const
-
-export type AllValues<T> = { [K in keyof T]: T[K] extends object ? AllValues<T[K]> : T[K] }[keyof T]
-
-export type ContractNames = AllValues<typeof CONTRACT_NAMES>

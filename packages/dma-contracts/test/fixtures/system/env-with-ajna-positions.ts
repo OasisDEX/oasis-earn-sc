@@ -1,4 +1,4 @@
-import { prepareEnv as prepareAjnaEnv } from '@ajna-contracts/scripts'
+import { HardhatUtils, prepareEnv as prepareAjnaEnv } from '@ajna-contracts/scripts'
 import { System } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
 import { ONE, TEN } from '@dma-common/constants'
@@ -19,6 +19,7 @@ import {
 import { mapAjnaPoolDataTypes } from '@dma-contracts/test/utils/ajna/map-ajna-pool-type'
 import { views } from '@dma-library'
 import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
+import { impersonateAccount } from '@nomicfoundation/hardhat-network-helpers'
 import hre from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
@@ -52,6 +53,10 @@ export const envWithAjnaPositions = ({
       configExtensionPaths,
       hideLogging,
     )
+    for (let i = 0; i < 10; i++) {
+      const defaultSigner = await hre.ethers.provider.getSigner(i)
+      console.log('defaultSigner', await defaultSigner.getAddress())
+    }
     await resetNode(ds, network)
     const ajnaSystem = await prepareAjnaEnv(hre, true)
     const dmaSystem = await deployDmaSystem(ds, ajnaSystem)
@@ -140,13 +145,19 @@ async function deployDmaSystem(ds: DeploymentSystem, ajnaSystem: AjnaSystem) {
   await _ds.deployActions()
   await _ds.addOperationEntries()
 
+  _ds.saveConfig()
+
   return _ds.getSystem() as System
 }
 
-function updateDmaConfigWithLocalAjnaDeploy(ds: DeploymentSystem, ajnaSystem: AjnaSystem) {
+export function updateDmaConfigWithLocalAjnaDeploy(ds: DeploymentSystem, ajnaSystem: AjnaSystem) {
   if (!ds.config) throw new Error('No config')
   ds.config.ajna.AjnaPoolInfo.address = ajnaSystem.poolInfo.address
   ds.config.ajna.ERC20PoolFactory.address = ajnaSystem.erc20PoolFactory.address
+  ds.config.ajna.AjnaPoolPairs_ETHUSDC.address = ajnaSystem.pools.wethUsdcPool.address
+  ds.config.ajna.AjnaPoolPairs_WBTCUSDC.address = ajnaSystem.pools.wbtcUsdcPool.address
+  ds.config.ajna.AjnaProxyActions.address = ajnaSystem.ajnaProxyActionsContract.address
+  ds.config.ajna.AjnaRewardsManager.address = ajnaSystem.rewardsManagerContract.address
 
   return ds
 }
@@ -156,8 +167,32 @@ async function configureSwapContract(dsSystem: System) {
     ? dsSystem.system.uSwap.contract
     : dsSystem.system.Swap.contract
 
-  await swapContract.addFeeTier(0)
-  await swapContract.addFeeTier(7)
+  const benefAddress = await swapContract.feeBeneficiaryAddress()
+  await impersonateAccount(benefAddress)
+  const signer = hre.ethers.provider.getSigner(benefAddress)
+
+  console.log(`impersonating  ${benefAddress} to add fee tiers`)
+
+  const utils = new HardhatUtils(hre)
+
+  const tx1 = await swapContract.connect(signer).addFeeTier(0)
+  const receipt1 = tx1.wait()
+  utils.traceTransaction('addFeeTier', {
+    address: swapContract.address,
+    data: receipt1.data,
+    from: benefAddress,
+    to: swapContract.address,
+    nonce: tx1.nonce ?? -1,
+  })
+  const tx2 = await swapContract.connect(signer).addFeeTier(7)
+  const receipt2 = tx2.wait()
+  utils.traceTransaction('addFeeTier', {
+    address: swapContract.address,
+    data: receipt2.data,
+    from: benefAddress,
+    to: swapContract.address,
+    nonce: tx2.nonce ?? -1,
+  })
   await dsSystem.system.AccountGuard.contract.setWhitelist(
     dsSystem.system.OperationExecutor.contract.address,
     true,

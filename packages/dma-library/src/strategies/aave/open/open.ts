@@ -1,4 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
+import { Network } from '@deploy-configurations/types/network'
 import { getForkedNetwork } from '@deploy-configurations/utils/network'
 import {
   DEFAULT_FEE,
@@ -51,6 +52,7 @@ export interface AaveOpenSharedDependencies {
   isDPMProxy: boolean
   /* Services below 👇*/
   provider: providers.Provider
+  network: Network
   getSwapData: (
     fromToken: string,
     toToken: string,
@@ -357,6 +359,7 @@ async function buildOperation(
         owner: dependencies.user,
       },
       addresses: dependencies.addresses as AAVEV3StrategyAddresses,
+      network: dependencies.network,
     }
 
     return await operations.aave.v3.open(openArgs)
@@ -390,6 +393,7 @@ async function buildOperation(
       proxy: dependencies.proxy,
       user: dependencies.user,
       isDPMProxy: dependencies.isDPMProxy,
+      network: dependencies.network,
     }
     return await operations.aave.v2.open(openArgs)
   }

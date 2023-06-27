@@ -123,6 +123,6 @@ export async function provideLiquidity(
   const amountWei = ethers.utils.parseUnits(amount.toString(), 18);
   await usdc.connect(lender).approve(poolContract.address, amountWei);
   const expiry = await getExpiryTimestamp();
-  const tx = await poolContract.connect(lender).addQuoteToken(amountWei, bucketIndex, expiry);
+  const tx = await poolContract.connect(lender).addQuoteToken(amountWei, bucketIndex, expiry, {gasLimit: 3000000});
   await tx.wait();
 }

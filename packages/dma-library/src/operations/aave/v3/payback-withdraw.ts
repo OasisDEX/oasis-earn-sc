@@ -1,4 +1,5 @@
-import { aavePaybackWithdrawV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getAavePaybackWithdrawV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { Network } from '@deploy-configurations/types/network'
 import { MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3/addresses'
@@ -16,47 +17,49 @@ type PaybackWithdrawArgs = {
   proxy: string
   user: string
   addresses: AAVEV3StrategyAddresses
+  network: Network
 }
 
 export type AaveV3PaybackWithdrawOperation = (args: PaybackWithdrawArgs) => Promise<IOperation>
 
 export const paybackWithdraw: AaveV3PaybackWithdrawOperation = async args => {
-  const pullDebtTokensToProxy = actions.common.pullToken({
+  const { network } = args
+  const pullDebtTokensToProxy = actions.common.pullToken(network, {
     asset: args.debtTokenAddress,
     amount: args.amountDebtToPaybackInBaseUnit,
     from: args.user,
   })
-  const setDebtApprovalOnLendingPool = actions.common.setApproval({
+  const setDebtApprovalOnLendingPool = actions.common.setApproval(network, {
     amount: args.amountDebtToPaybackInBaseUnit,
     asset: args.debtTokenAddress,
     delegate: args.addresses.pool,
     sumAmounts: false,
   })
-  const wrapEth = actions.common.wrapEth({
+  const wrapEth = actions.common.wrapEth(network, {
     amount: args.amountDebtToPaybackInBaseUnit,
   })
-  const paybackDebt = actions.aave.v3.aaveV3Payback({
+  const paybackDebt = actions.aave.v3.aaveV3Payback(args.network, {
     asset: args.debtTokenAddress,
     amount: args.amountDebtToPaybackInBaseUnit,
     paybackAll: args.isPaybackAll,
   })
-  const unwrapEthDebt = actions.common.unwrapEth({
+  const unwrapEthDebt = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
   })
-  const returnLeftFundFromPayback = actions.common.returnFunds({
+  const returnLeftFundFromPayback = actions.common.returnFunds(network, {
     asset: args.debtTokenIsEth ? args.addresses.ETH : args.debtTokenAddress,
   })
 
-  const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw({
+  const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw(args.network, {
     asset: args.collateralTokenAddress,
     amount: args.amountCollateralToWithdrawInBaseUnit,
     to: args.proxy,
   })
-  const unwrapEth = actions.common.unwrapEth({
+  const unwrapEth = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
   })
 
-  const returnFunds = actions.common.returnFunds({
+  const returnFunds = actions.common.returnFunds(network, {
     asset: args.collateralIsEth ? args.addresses.ETH : args.collateralTokenAddress,
   })
 
@@ -84,5 +87,8 @@ export const paybackWithdraw: AaveV3PaybackWithdrawOperation = async args => {
     returnFunds,
   ]
 
-  return { calls: calls, operationName: aavePaybackWithdrawV3OperationDefinition.name }
+  return {
+    calls: calls,
+    operationName: getAavePaybackWithdrawV3OperationDefinition(args.network).name,
+  }
 }

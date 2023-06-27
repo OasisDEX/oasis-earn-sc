@@ -142,6 +142,17 @@ export class Position implements IPosition {
   public collateral: PositionBalance
   public category: IPositionCategory
 
+  public static emptyPosition(
+    debt: Optional<IPositionBalance, 'precision'>,
+    collateral: Optional<IPositionBalance, 'precision'>,
+  ) {
+    return new Position(debt, collateral, ZERO, {
+      liquidationThreshold: ZERO,
+      maxLoanToValue: ZERO,
+      dustLimit: ZERO,
+    })
+  }
+
   constructor(
     debt: Optional<IPositionBalance, 'precision'>,
     collateral: Optional<IPositionBalance, 'precision'>,
