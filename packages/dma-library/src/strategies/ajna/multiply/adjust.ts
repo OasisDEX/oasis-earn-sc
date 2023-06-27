@@ -61,11 +61,18 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
   })
 }
 
-export const adjustMultiply: AjnaAdjustRiskStrategy = (
+export const adjustMultiply: AjnaAdjustRisk
+
+
+
+
+
+
+= (
   args: AjnaMultiplyPayload,
   dependencies: AjnaCommonDependencies,
 ) => {
-  if (isRiskIncreasing(args.position.riskRatio, args.riskRatio)) {
+  if (isRiskIncreasing(args.position.riskRatio.loanToValue, args.riskRatio.loanToValue)) {
     return adjustRiskUp(args, dependencies)
   } else {
     return adjustRiskDown(args, dependencies)
