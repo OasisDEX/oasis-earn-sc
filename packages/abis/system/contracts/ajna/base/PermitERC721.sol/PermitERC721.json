@@ -1,5 +1,20 @@
 [
   {
+    "inputs": [],
+    "name": "NonExistentToken",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotAuthorized",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PermitExpired",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -197,6 +212,25 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      }
+    ],
+    "name": "nonces",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
       }
@@ -230,19 +264,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint8",
-        "name": "v_",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r_",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s_",
-        "type": "bytes32"
+        "internalType": "bytes",
+        "name": "signature_",
+        "type": "bytes"
       }
     ],
     "name": "permit",

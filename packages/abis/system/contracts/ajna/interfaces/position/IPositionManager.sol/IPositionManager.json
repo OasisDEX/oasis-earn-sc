@@ -1,7 +1,17 @@
 [
   {
     "inputs": [],
+    "name": "AllowanceTooLow",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "BucketBankrupt",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DeployWithZeroAddress",
     "type": "error"
   },
   {
@@ -12,6 +22,11 @@
   {
     "inputs": [],
     "name": "NoAuth",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoToken",
     "type": "error"
   },
   {
@@ -169,21 +184,14 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "pool",
-            "type": "address"
-          }
-        ],
-        "internalType": "struct IPositionManagerOwnerActions.BurnParams",
-        "name": "params_",
-        "type": "tuple"
+        "internalType": "address",
+        "name": "pool_",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
       }
     ],
     "name": "burn",
@@ -285,6 +293,30 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "pool_",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "subsetHash_",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isAjnaPool",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "isAjnaPool_",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "tokenId_",
         "type": "uint256"
@@ -333,21 +365,19 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256[]",
-            "name": "indexes",
-            "type": "uint256[]"
-          }
-        ],
-        "internalType": "struct IPositionManagerOwnerActions.MemorializePositionsParams",
-        "name": "params_",
-        "type": "tuple"
+        "internalType": "address",
+        "name": "pool_",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "indexes_",
+        "type": "uint256[]"
       }
     ],
     "name": "memorializePositions",
@@ -358,26 +388,19 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "recipient",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "pool",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "poolSubsetHash",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct IPositionManagerOwnerActions.MintParams",
-        "name": "params_",
-        "type": "tuple"
+        "internalType": "address",
+        "name": "pool_",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "recipient_",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "poolSubsetHash_",
+        "type": "bytes32"
       }
     ],
     "name": "mint",
@@ -394,36 +417,29 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "pool",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fromIndex",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "toIndex",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IPositionManagerOwnerActions.MoveLiquidityParams",
-        "name": "params_",
-        "type": "tuple"
+        "internalType": "address",
+        "name": "pool_",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fromIndex_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "toIndex_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "expiry_",
+        "type": "uint256"
       }
     ],
     "name": "moveLiquidity",
@@ -453,29 +469,22 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "pool",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256[]",
-            "name": "indexes",
-            "type": "uint256[]"
-          }
-        ],
-        "internalType": "struct IPositionManagerOwnerActions.RedeemPositionsParams",
-        "name": "params_",
-        "type": "tuple"
+        "internalType": "address",
+        "name": "pool_",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "indexes_",
+        "type": "uint256[]"
       }
     ],
-    "name": "reedemPositions",
+    "name": "redeemPositions",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

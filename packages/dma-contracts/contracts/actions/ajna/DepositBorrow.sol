@@ -21,6 +21,7 @@ import { IERC20PoolFactory } from "../../interfaces/ajna/IERC20PoolFactory.sol";
 contract AjnaDepositBorrow is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
+  using SafeERC20 for IERC20;
   IAjnaPoolUtilsInfo public immutable poolUtilsInfo;
   IERC20PoolFactory public immutable erc20PoolFactory;
 
@@ -44,6 +45,7 @@ contract AjnaDepositBorrow is Executable, UseStore {
       paramsMap[2],
       address(this)
     );
+    console.log(mappedDepositAmount);
 
     uint256 mappedBorrowAmount = store().readUint(
       bytes32(args.borrowAmount),

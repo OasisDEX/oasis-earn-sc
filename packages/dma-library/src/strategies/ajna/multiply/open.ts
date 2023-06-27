@@ -93,10 +93,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     warnings: [],
     successes: [],
     notices: [],
-    txValue: resolveAjnaEthAction(
-      isDepositingEth,
-      amountFromWei(args.collateralAmount, TYPICAL_PRECISION),
-    ),
+    txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
   })
 }
 
