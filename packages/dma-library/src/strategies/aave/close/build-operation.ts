@@ -13,8 +13,8 @@ import {
 import { IOperation, SwapData } from '@dma-library/types'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
+import { FLASHLOAN_SAFETY_MARGIN } from '@domain/constants'
 import BigNumber from 'bignumber.js'
-import { FLASHLOAN_SAFETY_MARGIN } from "@domain/constants";
 
 export async function buildOperation(
   swapData: SwapData & {
