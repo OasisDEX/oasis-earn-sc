@@ -9,7 +9,15 @@ import { ETH } from "../../../core/constants/Common.sol";
 
 /**
  * @title SendToken Action contract
- * @notice Transfer token from the calling contract to the destination address
+ * @notice This contract has the ability to send ERC20 tokens and native ETH.
+ * The assumption is that this contract is called with a delegatecall using a proxy contract.
+ *  - The amount of ERC20 token can be transferred is either an amount
+ * that's been received in the current transaction ( through the usage of other actions)
+ * or some amount that has been transferred prior this transaction
+ *  - The amount of ETH that can be transferred is either the whole or
+ * partial ( whether some amount has been used in other actions) amount from the
+ * amount that the transaction has been called with ( msg.value ). If the proxy contract
+ * contains any prior ETH balance, it CANNOT be transferred.
  */
 contract SendTokenV2 is Executable, UseStorageSlot {
   using SafeERC20 for IERC20;
