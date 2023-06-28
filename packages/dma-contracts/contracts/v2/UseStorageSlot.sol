@@ -3,9 +3,7 @@ pragma solidity ^0.8.15;
 
 /**
  * @title A library that operates on a storage slot
- * @notice This library is a small implementation of EIP-1967. Unlike that EIP which usage
- * is to store an address to an implementation under specific slot,
- * it is used to storage all kind of information that is going to be used during a transaction life time.
+ * @notice It is used to storage all kind of information that is going to be used during a transaction life time.
  * @dev The system of contracts that utilize this library work under the assumption
  * that all contracts are called in the scope of a proxy. Using the library will create a storage pointer
  * to a slot in the Proxy instance.
