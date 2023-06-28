@@ -19,12 +19,14 @@ contract OperationStorage {
   address private whoLocked;
   address public initiator;
   address immutable operationExecutorAddress;
+  bool private activeLoan;
 
   ServiceRegistry internal immutable registry;
 
   constructor(ServiceRegistry _registry, address _operationExecutorAddress) {
     registry = _registry;
     operationExecutorAddress = _operationExecutorAddress;
+    activeLoan = false;
   }
 
   /**
@@ -54,6 +56,20 @@ contract OperationStorage {
   function setInitiator(address _initiator) external {
     require(msg.sender == operationExecutorAddress);
     initiator = _initiator;
+  }
+
+  function setActiveLoan() external {
+    require(msg.sender == operationExecutorAddress);
+    activeLoan = true;
+  }
+
+  function clearActiveLoan() external {
+    require(msg.sender == operationExecutorAddress);
+    activeLoan = false;
+  }
+
+  function getActiveLoan() external view returns (bool) {
+    return activeLoan;
   }
 
   /**

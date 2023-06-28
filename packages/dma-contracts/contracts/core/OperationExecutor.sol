@@ -151,6 +151,12 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
     uint256[] memory feeAmounts,
     bytes memory data
   ) external override {
+    OperationStorage opStorage = OperationStorage(registry.getRegisteredService(OPERATION_STORAGE));
+    bool activeLoan = opStorage.getActiveLoan();
+    require(!activeLoan, "Reentrant loan not allowed");
+    opStorage.setActiveLoan();
+
+    activeLoan = true;
     address asset = address(tokens[0]);
     address lender = registry.getRegisteredService(BALANCER_VAULT);
     (FlashloanData memory flData, address initiator) = abi.decode(data, (FlashloanData, address));
@@ -169,6 +175,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
     );
 
     IERC20(asset).safeTransfer(lender, paybackAmount);
+    opStorage.clearActiveLoan();
   }
 
   function checkIfLenderIsTrusted(address lender) public view {
