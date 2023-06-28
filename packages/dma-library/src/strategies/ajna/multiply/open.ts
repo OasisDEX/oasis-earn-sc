@@ -1,6 +1,6 @@
 import operationExecutorAbi from '@abis/system/contracts/core/OperationExecutor.sol/OperationExecutor.json'
 import { getNetwork } from '@deploy-configurations/utils/network'
-import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { ONE, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
@@ -8,6 +8,7 @@ import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { ajnaBuckets } from '@dma-library/strategies'
 import {
   AjnaOpenMultiplyPayload,
   FlashloanProvider,
@@ -61,7 +62,6 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     simulatedAdjustment,
     swapData,
     riskIsIncreasing,
-    oraclePrice,
   )
   const targetPosition = new AjnaPosition(
     position.pool,
@@ -278,7 +278,6 @@ async function buildOperation(
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   swapData: SwapData,
   riskIsIncreasing: true,
-  oraclePrice: BigNumber,
 ) {
   /** Not relevant for Ajna */
   const debtTokensDeposited = ZERO
@@ -348,8 +347,7 @@ async function buildOperation(
       operationExecutor: dependencies.operationExecutor,
       pool: args.poolAddress,
     },
-    // Prices must be in 18 decimal precision
-    price: amountToWei(oraclePrice, TYPICAL_PRECISION),
+    price: new BigNumber(ajnaBuckets[ajnaBuckets.length - 1]),
     network,
   }
   return await operations.ajna.open(openMultiplyArgs)
