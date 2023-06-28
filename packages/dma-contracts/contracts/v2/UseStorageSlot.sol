@@ -10,15 +10,14 @@ pragma solidity ^0.8.15;
  * that all contracts are called in the scope of a proxy. Using the library will create a storage pointer
  * to a slot in the Proxy instance.
  * The `TransactionStorage` structure contains the following properties:
- *  - actions - This is used to store ( by concatenation ) executed action hashes. At the end,
- * this value is hashed using `keccak256` and used to check if there is an operation that exists in the
- * OperationRegistry
+ *  - actions - Each executed action's hash is pushed into the array. At the end of the operation execution,
+ * this values are concatenated ( abi.encodePacked ) .
  *  - returnedValues - Used to store values from actions. It is used to share values between actions and
  * other interested contacts
  */
 library StorageSlot {
   struct TransactionStorage {
-    bytes actions;
+    bytes32[] actions;
     bytes32[] returnedValues;
   }
 

@@ -86,7 +86,9 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     delete txStorage.returnedValues;
 
     aggregate(calls);
-    bytes32 operationName = OPERATIONS_REGISTRY.getOperationName(keccak256(txStorage.actions));
+    bytes32 operationName = OPERATIONS_REGISTRY.getOperationName(
+      keccak256(abi.encodePacked(txStorage.actions))
+    );
     emit Operation(operationName, calls);
 
     delete txStorage.actions;
@@ -99,7 +101,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     for (uint256 current = 0; current < calls.length; current++) {
       bytes32 targetHash = calls[current].targetHash;
       address target = REGISTRY.getServiceAddress(targetHash);
-      txStorage.actions = abi.encodePacked(txStorage.actions, targetHash);
+      txStorage.actions.push(targetHash);
       target.execute(calls[current].callData);
     }
   }
