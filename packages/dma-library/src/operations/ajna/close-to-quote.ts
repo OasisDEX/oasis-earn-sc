@@ -73,7 +73,7 @@ export const closeToQuote: AjnaCloseToQuoteOperation = async ({
   const sendQuoteTokenToOpExecutor = actions.common.sendToken(Network.MAINNET, {
     asset: debt.address,
     to: addresses.operationExecutor,
-    amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.amount)),
+    amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.token.amount)),
   })
 
   const unwrapEth = actions.common.unwrapEth(Network.MAINNET, {
