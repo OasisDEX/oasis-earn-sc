@@ -1,7 +1,17 @@
 [
   {
     "inputs": [],
+    "name": "AllowanceTooLow",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "BucketBankrupt",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DeployWithZeroAddress",
     "type": "error"
   },
   {
@@ -12,6 +22,11 @@
   {
     "inputs": [],
     "name": "NoAuth",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoToken",
     "type": "error"
   },
   {

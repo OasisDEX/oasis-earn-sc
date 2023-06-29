@@ -255,14 +255,19 @@ export type AutomationProtocol = 'AutomationBot' | 'AutomationBotV2' | 'Automati
 export type AjnaProtocol =
   | 'AjnaPoolInfo'
   | 'AjnaProxyActions'
-  | 'AjnaPoolPairs_WBTCUSDC'
+  | 'AjnaPoolPairs_ETHDAI'
   | 'AjnaPoolPairs_ETHUSDC'
-  | 'AjnaPoolPairs_WSTETHDAI'
   | 'AjnaPoolPairs_RETHDAI'
-  | 'AjnaPoolPairs_WBTCDAI'
-  | 'AjnaPoolPairs_USDCWETH'
-  | 'AjnaPoolPairs_USDCWBTC'
+  | 'AjnaPoolPairs_RETHETH'
+  | 'AjnaPoolPairs_RETHUSDC'
   | 'AjnaPoolPairs_USDCDAI'
+  | 'AjnaPoolPairs_USDCETH'
+  | 'AjnaPoolPairs_USDCWBTC'
+  | 'AjnaPoolPairs_WBTCDAI'
+  | 'AjnaPoolPairs_WBTCUSDC'
+  | 'AjnaPoolPairs_WSTETHDAI'
+  | 'AjnaPoolPairs_WSTETHETH'
+  | 'AjnaPoolPairs_WSTETHUSDC'
   | 'AjnaRewardsManager'
   | 'AjnaRewardsClaimer'
   | 'ERC20PoolFactory'
@@ -322,4 +327,22 @@ export type SystemConfig = {
   }
   automation: Record<AutomationProtocol, DeploymentConfig>
   ajna: Record<AjnaProtocol, DeploymentConfig>
+}
+
+export type SystemConfigWithAjna = {
+  mpa: {
+    core: CoreRecord & CoreMainnetRecord & SwapRecord & Record<AjnaProtocol, DeploymentConfig>
+    actions: ActionsRecord & AaveV2ActionsRecord
+  }
+  common: Record<Common, DeploymentConfig>
+  aave: {
+    v2: Record<AaveV2Protocol, DeploymentConfig>
+    v3: Record<AaveV3Protocol, DeploymentConfig>
+  }
+  maker: {
+    common: Record<MakerProtocol, DeploymentConfig>
+    joins: Record<MakerProtocolJoins, DeploymentConfig>
+    pips: Record<MakerProtocolPips, DeploymentConfig>
+  }
+  automation: Record<AutomationProtocol, DeploymentConfig>
 }

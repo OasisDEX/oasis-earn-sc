@@ -1,4 +1,5 @@
-import { CONTRACT_NAMES } from '@deploy-configurations/constants'
+import { loadContractNames } from '@deploy-configurations/constants'
+import { Network } from '@deploy-configurations/types/network'
 import { getActionHash } from '@deploy-configurations/utils/action-hash'
 import { ActionCall, calldataTypes } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
@@ -7,9 +8,14 @@ import { ActionFactory } from './action-factory'
 
 const createAction = ActionFactory.create
 
-export function pullToken(args: { amount: BigNumber; asset: string; from: string }) {
+export function pullToken(
+  network: Network,
+  args: { amount: BigNumber; asset: string; from: string },
+) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
   return createAction(
-    getActionHash(CONTRACT_NAMES.common.PULL_TOKEN),
+    getActionHash(SERVICE_REGISTRY_NAMES.common.PULL_TOKEN),
     [calldataTypes.common.PullToken],
     [
       {
@@ -22,13 +28,16 @@ export function pullToken(args: { amount: BigNumber; asset: string; from: string
 }
 
 export function setApproval(
+  network: Network,
   args: { amount: BigNumber | 0; asset: string; delegate: string; sumAmounts: boolean },
   paramsMapping: [asset: number, delegate: number, amount: number, sumAmounts: number] = [
     0, 0, 0, 0,
   ],
 ) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
   return createAction(
-    getActionHash(CONTRACT_NAMES.common.SET_APPROVAL),
+    getActionHash(SERVICE_REGISTRY_NAMES.common.SET_APPROVAL),
     [calldataTypes.common.Approval],
     [
       {
@@ -42,17 +51,22 @@ export function setApproval(
   )
 }
 
-export function swap(args: {
-  fromAsset: string
-  toAsset: string
-  amount: BigNumber
-  receiveAtLeast: BigNumber
-  fee: number
-  withData: string | number
-  collectFeeInFromToken: boolean
-}) {
+export function swap(
+  network: Network,
+  args: {
+    fromAsset: string
+    toAsset: string
+    amount: BigNumber
+    receiveAtLeast: BigNumber
+    fee: number
+    withData: string | number
+    collectFeeInFromToken: boolean
+  },
+) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
   return createAction(
-    getActionHash(CONTRACT_NAMES.common.SWAP_ACTION),
+    getActionHash(SERVICE_REGISTRY_NAMES.common.SWAP_ACTION),
     [calldataTypes.common.Swap],
     [
       {
@@ -69,11 +83,14 @@ export function swap(args: {
 }
 
 export function sendToken(
+  network: Network,
   args: { asset: string; to: string; amount: BigNumber },
   paramsMapping: [asset: number, to: number, amount: number] = [0, 0, 0],
 ) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
   return createAction(
-    getActionHash(CONTRACT_NAMES.common.SEND_TOKEN),
+    getActionHash(SERVICE_REGISTRY_NAMES.common.SEND_TOKEN),
     [calldataTypes.common.SendToken],
     [
       {
@@ -86,16 +103,21 @@ export function sendToken(
   )
 }
 
-export function takeAFlashLoan(args: {
-  flashloanAmount: BigNumber
-  asset: string
-  isProxyFlashloan: boolean
-  isDPMProxy: boolean
-  provider: number
-  calls: ActionCall[]
-}) {
+export function takeAFlashLoan(
+  network: Network,
+  args: {
+    flashloanAmount: BigNumber
+    asset: string
+    isProxyFlashloan: boolean
+    isDPMProxy: boolean
+    provider: number
+    calls: ActionCall[]
+  },
+) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
   return createAction(
-    getActionHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
+    getActionHash(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN),
     [calldataTypes.common.TakeAFlashLoan],
     [
       {
@@ -110,9 +132,15 @@ export function takeAFlashLoan(args: {
   )
 }
 
-export function wrapEth(args: { amount: BigNumber | 0 }, paramsMapping: [amount: number] = [0]) {
+export function wrapEth(
+  network: Network,
+  args: { amount: BigNumber | 0 },
+  paramsMapping: [amount: number] = [0],
+) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
   return createAction(
-    getActionHash(CONTRACT_NAMES.common.WRAP_ETH),
+    getActionHash(SERVICE_REGISTRY_NAMES.common.WRAP_ETH),
     [calldataTypes.common.WrapEth],
     [
       {
@@ -123,9 +151,15 @@ export function wrapEth(args: { amount: BigNumber | 0 }, paramsMapping: [amount:
   )
 }
 
-export function unwrapEth(args: { amount: BigNumber | 0 }, paramsMapping: [amount: number] = [0]) {
+export function unwrapEth(
+  network: Network,
+  args: { amount: BigNumber | 0 },
+  paramsMapping: [amount: number] = [0],
+) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
   return createAction(
-    getActionHash(CONTRACT_NAMES.common.UNWRAP_ETH),
+    getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
     [calldataTypes.common.UnwrapEth],
     [
       {
@@ -136,9 +170,11 @@ export function unwrapEth(args: { amount: BigNumber | 0 }, paramsMapping: [amoun
   )
 }
 
-export function returnFunds(args: { asset: string }) {
+export function returnFunds(network: Network, args: { asset: string }) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
   return createAction(
-    getActionHash(CONTRACT_NAMES.common.RETURN_FUNDS),
+    getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS),
     [calldataTypes.common.ReturnFunds],
     [
       {
@@ -148,14 +184,19 @@ export function returnFunds(args: { asset: string }) {
   )
 }
 
-export function positionCreated(args: {
-  protocol: string
-  positionType: string
-  collateralToken: string
-  debtToken: string
-}) {
+export function positionCreated(
+  network: Network,
+  args: {
+    protocol: string
+    positionType: string
+    collateralToken: string
+    debtToken: string
+  },
+) {
+  const SERVICE_REGISTRY_NAMES = loadContractNames(network)
+
   return createAction(
-    getActionHash(CONTRACT_NAMES.common.POSITION_CREATED),
+    getActionHash(SERVICE_REGISTRY_NAMES.common.POSITION_CREATED),
     [calldataTypes.common.PositionCreated],
     [
       {

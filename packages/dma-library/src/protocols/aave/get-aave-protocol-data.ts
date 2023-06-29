@@ -14,6 +14,7 @@ import { ethers, providers } from 'ethers'
 type InternalAaveProtocolData<AaveAddresses> = {
   collateralTokenAddress: string
   debtTokenAddress: string
+  flashloanTokenAddress: string
   proxy?: string
   addresses: AaveAddresses
   provider: providers.Provider
@@ -52,6 +53,7 @@ async function getAaveV2ProtocolData({
   provider,
   debtTokenAddress,
   collateralTokenAddress,
+  flashloanTokenAddress,
   proxy,
 }: InternalAaveProtocolData<AAVEStrategyAddresses> & { protocolVersion: AaveVersion.v2 }) {
   const priceOracle = new ethers.Contract(addresses.priceOracle, aaveV2PriceOracleABI, provider)
@@ -65,7 +67,7 @@ async function getAaveV2ProtocolData({
 
   const promises = [
     priceOracle
-      .getAssetPrice(addresses.DAI)
+      .getAssetPrice(flashloanTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     priceOracle
       .getAssetPrice(debtTokenAddress)
@@ -73,7 +75,7 @@ async function getAaveV2ProtocolData({
     priceOracle
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aaveProtocolDataProvider.getReserveConfigurationData(addresses.DAI),
+    aaveProtocolDataProvider.getReserveConfigurationData(flashloanTokenAddress),
     aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
   ]
 
@@ -85,7 +87,7 @@ async function getAaveV2ProtocolData({
   const results = await Promise.all(promises)
 
   return {
-    aaveFlashloanDaiPriceInEth: results[0] as BigNumber,
+    aaveFlashloanAssetPriceInEth: results[0] as BigNumber,
     aaveDebtTokenPriceInEth: results[1] as BigNumber,
     aaveCollateralTokenPriceInEth: results[2] as BigNumber,
     reserveDataForFlashloan: results[3],
@@ -102,6 +104,7 @@ async function getAaveV3ProtocolData({
   provider,
   debtTokenAddress,
   collateralTokenAddress,
+  flashloanTokenAddress,
   proxy,
 }: InternalAaveProtocolData<AAVEV3StrategyAddresses> & { protocolVersion: AaveVersion.v3 }) {
   const priceOracle = new ethers.Contract(
@@ -124,7 +127,7 @@ async function getAaveV3ProtocolData({
 
   const promises = [
     priceOracle
-      .getAssetPrice(addresses.DAI)
+      .getAssetPrice(flashloanTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
     priceOracle
       .getAssetPrice(debtTokenAddress)
@@ -132,7 +135,7 @@ async function getAaveV3ProtocolData({
     priceOracle
       .getAssetPrice(collateralTokenAddress)
       .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aaveProtocolDataProvider.getReserveConfigurationData(addresses.DAI),
+    aaveProtocolDataProvider.getReserveConfigurationData(flashloanTokenAddress),
     aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
   ]
 
@@ -167,7 +170,7 @@ async function getAaveV3ProtocolData({
   }
 
   return {
-    aaveFlashloanDaiPriceInEth: results[0] as BigNumber,
+    aaveFlashloanAssetPriceInEth: results[0] as BigNumber,
     aaveDebtTokenPriceInEth: results[1] as BigNumber,
     aaveCollateralTokenPriceInEth: results[2] as BigNumber,
     reserveDataForFlashloan: results[3],

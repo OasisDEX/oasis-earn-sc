@@ -1,4 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
+import { Network } from '@deploy-configurations/types/network'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { AAVETokens } from '@dma-library/types/aave'
@@ -40,10 +41,6 @@ type WithDeposit = {
 
 type WithMultiple = {
   multiple: IRiskRatio
-}
-
-export type WithLockedCollateral = {
-  collateralAmountLockedInProtocolInWei: BigNumber
 }
 
 export type WithWithdrawCollateral = {
@@ -91,6 +88,7 @@ export interface IPositionTransitionDependencies<Addresses> {
   proxy: Address
   user: Address
   isDPMProxy: boolean
+  network: Network
 }
 
 type SharedStrategyDependencies = {
@@ -98,6 +96,7 @@ type SharedStrategyDependencies = {
   currentPosition: IPosition
   proxy: Address
   user: Address
+  network: Network
 }
 export type WithAaveV2StrategyDependencies = {
   addresses: AAVEStrategyAddresses
@@ -131,4 +130,14 @@ export type IOnlyDepositBorrowOpenPositionTransitionDependencies<Addresses> = Om
 export interface IViewPositionDependencies<Addresses> {
   addresses: Addresses
   provider: providers.Provider
+}
+
+export type WithFlashloanToken = {
+  flashloanToken: { symbol: AAVETokens; precision: number; address: string }
+}
+export type WithCollateralTokenAddress = {
+  collateralTokenAddress: string
+}
+export type WithDebtTokenAddress = {
+  debtTokenAddress: string
 }

@@ -35,6 +35,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
       use1inch: false,
       hideLogging: true,
       configExtensionPaths: [`test/uSwap.conf.ts`],
+      network: networkFork,
     })
 
     beforeEach(async function () {
@@ -85,6 +86,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
             ...strategiesDependencies,
             proxy: dsProxyPosition.proxy,
             currentPosition: beforeTransactionPosition,
+            network: networkFork,
           })
 
           const transactionValue =
@@ -147,6 +149,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
               ...strategiesDependencies,
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             if (
@@ -215,6 +218,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
               ...strategiesDependencies,
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             if (
@@ -301,6 +305,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
             ...strategiesDependencies,
             proxy: dsProxyPosition.proxy,
             currentPosition: beforeTransactionPosition,
+            network: networkFork,
           })
 
           const [status] = await executeThroughProxy(
@@ -383,6 +388,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
               ...strategiesDependencies,
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             const [status] = await executeThroughDPMProxy(
@@ -455,6 +461,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
               ...strategiesDependencies,
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             const [status] = await executeThroughDPMProxy(
@@ -533,6 +540,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
             ...strategiesDependencies,
             proxy: dsProxyPosition.proxy,
             currentPosition: beforeTransactionPosition,
+            network: networkFork,
           })
 
           if (
@@ -615,6 +623,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
               ...strategiesDependencies,
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             if (
@@ -733,6 +742,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
             ...strategiesDependencies,
             proxy: dsProxyPosition.proxy,
             currentPosition: beforeTransactionPosition,
+            network: networkFork,
           })
 
           const transactionValue =
@@ -799,6 +809,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
               ...strategiesDependencies,
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             if (
@@ -867,6 +878,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
               ...strategiesDependencies,
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             if (
@@ -953,6 +965,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
             ...strategiesDependencies,
             proxy: dsProxyPosition.proxy,
             currentPosition: beforeTransactionPosition,
+            network: networkFork,
           })
 
           const [status] = await executeThroughProxy(
@@ -1041,6 +1054,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
               ...strategiesDependencies,
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             const [status] = await executeThroughDPMProxy(
@@ -1115,6 +1129,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
               ...strategiesDependencies,
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             const [status] = await executeThroughDPMProxy(
@@ -1193,6 +1208,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
             ...strategiesDependencies,
             proxy: dsProxyPosition.proxy,
             currentPosition: beforeTransactionPosition,
+            network: networkFork,
           })
 
           if (
@@ -1276,6 +1292,7 @@ describe('Strategy | AAVE | Payback/Withdraw | E2E', async function () {
               ...strategiesDependencies,
               proxy: position.proxy,
               currentPosition: beforeTransactionPosition,
+              network: networkFork,
             })
 
             if (

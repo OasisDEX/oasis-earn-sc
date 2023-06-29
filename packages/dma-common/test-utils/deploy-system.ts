@@ -1,5 +1,5 @@
 import { ADDRESSES } from '@deploy-configurations/addresses'
-import { CONTRACT_NAMES, OPERATION_NAMES } from '@deploy-configurations/constants'
+import { loadContractNames, OPERATION_NAMES } from '@deploy-configurations/constants'
 import { Network } from '@deploy-configurations/types/network'
 import { OperationsRegistry, ServiceRegistry } from '@deploy-configurations/utils/wrappers'
 import { logDebug } from '@dma-common/utils/common'
@@ -8,6 +8,8 @@ import { getDsProxyRegistry, getOrCreateProxy } from '@dma-common/utils/proxy'
 
 import { RuntimeConfig, Unbox } from '../types/common'
 import { loadDummyExchangeFixtures } from './dummy-exchange'
+
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 export async function deploySystem(config: RuntimeConfig, debug = false, useFallbackSwap = true) {
   const { provider, signer, address } = config
@@ -33,17 +35,17 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   const registry = new ServiceRegistry(serviceRegistryAddress, signer)
 
   const [operationExecutor, operationExecutorAddress] = await deploy(
-    CONTRACT_NAMES.common.OPERATION_EXECUTOR,
+    SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
     [serviceRegistryAddress],
   )
 
   const [operationStorage, operationStorageAddress] = await deploy(
-    CONTRACT_NAMES.common.OPERATION_STORAGE,
+    SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE,
     [serviceRegistryAddress, operationExecutorAddress],
   )
 
   const [operationRegistry, operationsRegistryAddress] = await deploy(
-    CONTRACT_NAMES.common.OPERATIONS_REGISTRY,
+    SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
     [],
   )
 
@@ -59,14 +61,17 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
 
   await accountGuard.setWhitelist(operationExecutorAddress, true)
 
-  const [mcdView, mcdViewAddress] = await deploy(CONTRACT_NAMES.maker.MCD_VIEW, [])
-  const [, chainLogViewAddress] = await deploy(CONTRACT_NAMES.maker.CHAINLOG_VIEW, [
+  const [mcdView, mcdViewAddress] = await deploy(SERVICE_REGISTRY_NAMES.maker.MCD_VIEW, [])
+  const [, chainLogViewAddress] = await deploy(SERVICE_REGISTRY_NAMES.maker.CHAINLOG_VIEW, [
     ADDRESSES[Network.MAINNET].maker.common.Chainlog,
   ])
 
-  const [dummyExchange, dummyExchangeAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_EXCHANGE, [])
+  const [dummyExchange, dummyExchangeAddress] = await deploy(
+    SERVICE_REGISTRY_NAMES.test.DUMMY_EXCHANGE,
+    [],
+  )
 
-  const [uSwap, uSwapAddress] = await deploy(CONTRACT_NAMES.test.SWAP, [
+  const [uSwap, uSwapAddress] = await deploy(SERVICE_REGISTRY_NAMES.test.SWAP, [
     address,
     ADDRESSES[Network.MAINNET].common.FeeRecipient,
     0,
@@ -82,7 +87,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   await uSwap.addFeeTier(20)
   await uSwap.addFeeTier(7)
 
-  const [swap, swapAddress] = await deploy(CONTRACT_NAMES.common.SWAP, [
+  const [swap, swapAddress] = await deploy(SERVICE_REGISTRY_NAMES.common.SWAP, [
     address,
     ADDRESSES[Network.MAINNET].common.FeeRecipient,
     0,
@@ -100,262 +105,297 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   debug && console.log('3/ Deploying actions')
   //-- Common Actions
   const [positionCreatedAction, positionCreatedAddress] = await deploy(
-    CONTRACT_NAMES.common.POSITION_CREATED,
+    SERVICE_REGISTRY_NAMES.common.POSITION_CREATED,
     [],
   )
-  const [swapAction, swapActionAddress] = await deploy(CONTRACT_NAMES.common.SWAP_ACTION, [
+  const [swapAction, swapActionAddress] = await deploy(SERVICE_REGISTRY_NAMES.common.SWAP_ACTION, [
     serviceRegistryAddress,
   ])
 
-  const [sendToken, sendTokenAddress] = await deploy(CONTRACT_NAMES.common.SEND_TOKEN, [
+  const [sendToken, sendTokenAddress] = await deploy(SERVICE_REGISTRY_NAMES.common.SEND_TOKEN, [
     serviceRegistryAddress,
   ])
-  const [, dummyActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_ACTION, [
+  const [, dummyActionAddress] = await deploy(SERVICE_REGISTRY_NAMES.test.DUMMY_ACTION, [
     serviceRegistryAddress,
   ])
-  const [, dummyOptionalActionAddress] = await deploy(CONTRACT_NAMES.test.DUMMY_OPTIONAL_ACTION, [
+  const [, dummyOptionalActionAddress] = await deploy(
+    SERVICE_REGISTRY_NAMES.test.DUMMY_OPTIONAL_ACTION,
+    [serviceRegistryAddress],
+  )
+
+  const [pullToken, pullTokenAddress] = await deploy(SERVICE_REGISTRY_NAMES.common.PULL_TOKEN, [])
+
+  const [setApproval, setApprovalAddress] = await deploy(
+    SERVICE_REGISTRY_NAMES.common.SET_APPROVAL,
+    [serviceRegistryAddress],
+  )
+  const [cdpAllow, cdpAllowAddress] = await deploy(SERVICE_REGISTRY_NAMES.maker.CDP_ALLOW, [
     serviceRegistryAddress,
   ])
 
-  const [pullToken, pullTokenAddress] = await deploy(CONTRACT_NAMES.common.PULL_TOKEN, [])
-
-  const [setApproval, setApprovalAddress] = await deploy(CONTRACT_NAMES.common.SET_APPROVAL, [
-    serviceRegistryAddress,
-  ])
-  const [cdpAllow, cdpAllowAddress] = await deploy(CONTRACT_NAMES.maker.CDP_ALLOW, [
-    serviceRegistryAddress,
-  ])
-
-  const [actionFl, actionFlAddress] = await deploy(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN, [
+  const [actionFl, actionFlAddress] = await deploy(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN, [
     serviceRegistryAddress,
     ADDRESSES[Network.MAINNET].common.DAI,
   ])
 
-  const [wrapEth, wrapActionAddress] = await deploy(CONTRACT_NAMES.common.WRAP_ETH, [
+  const [wrapEth, wrapActionAddress] = await deploy(SERVICE_REGISTRY_NAMES.common.WRAP_ETH, [
     serviceRegistryAddress,
   ])
-  const [unwrapEth, unwrapActionAddress] = await deploy(CONTRACT_NAMES.common.UNWRAP_ETH, [
+  const [unwrapEth, unwrapActionAddress] = await deploy(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH, [
     serviceRegistryAddress,
   ])
 
   const [returnFunds, returnFundsActionAddress] = await deploy(
-    CONTRACT_NAMES.common.RETURN_FUNDS,
+    SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS,
     [],
   )
 
   //-- Maker Actions
-  const [actionOpenVault, actionOpenVaultAddress] = await deploy(CONTRACT_NAMES.maker.OPEN_VAULT, [
+  const [actionOpenVault, actionOpenVaultAddress] = await deploy(
+    SERVICE_REGISTRY_NAMES.maker.OPEN_VAULT,
+    [serviceRegistryAddress],
+  )
+
+  const [actionDeposit, actionDepositAddress] = await deploy(SERVICE_REGISTRY_NAMES.maker.DEPOSIT, [
     serviceRegistryAddress,
   ])
 
-  const [actionDeposit, actionDepositAddress] = await deploy(CONTRACT_NAMES.maker.DEPOSIT, [
+  const [actionPayback, actionPaybackAddress] = await deploy(SERVICE_REGISTRY_NAMES.maker.PAYBACK, [
     serviceRegistryAddress,
   ])
 
-  const [actionPayback, actionPaybackAddress] = await deploy(CONTRACT_NAMES.maker.PAYBACK, [
-    serviceRegistryAddress,
-  ])
+  const [actionWithdraw, actionWithdrawAddress] = await deploy(
+    SERVICE_REGISTRY_NAMES.maker.WITHDRAW,
+    [serviceRegistryAddress],
+  )
 
-  const [actionWithdraw, actionWithdrawAddress] = await deploy(CONTRACT_NAMES.maker.WITHDRAW, [
-    serviceRegistryAddress,
-  ])
-
-  const [actionGenerate, actionGenerateAddress] = await deploy(CONTRACT_NAMES.maker.GENERATE, [
-    serviceRegistryAddress,
-  ])
+  const [actionGenerate, actionGenerateAddress] = await deploy(
+    SERVICE_REGISTRY_NAMES.maker.GENERATE,
+    [serviceRegistryAddress],
+  )
 
   //-- AAVE Actions
   const [depositInAAVEAction, actionDepositInAAVEAddress] = await deploy(
-    CONTRACT_NAMES.aave.v2.DEPOSIT,
+    SERVICE_REGISTRY_NAMES.aave.v2.DEPOSIT,
     [serviceRegistryAddress],
   )
 
   const [borrowInAAVEAction, actionAaveBorrowAddress] = await deploy(
-    CONTRACT_NAMES.aave.v2.BORROW,
+    SERVICE_REGISTRY_NAMES.aave.v2.BORROW,
     [serviceRegistryAddress],
   )
 
   const [withdrawInAAVEAction, actionWithdrawFromAAVEAddress] = await deploy(
-    CONTRACT_NAMES.aave.v2.WITHDRAW,
+    SERVICE_REGISTRY_NAMES.aave.v2.WITHDRAW,
     [serviceRegistryAddress],
   )
 
   const [paybackInAAVEAction, actionPaybackFromAAVEAddress] = await deploy(
-    CONTRACT_NAMES.aave.v2.PAYBACK,
+    SERVICE_REGISTRY_NAMES.aave.v2.PAYBACK,
     [serviceRegistryAddress],
   )
 
   //-- AAVE V3 Actions
   const [depositInAAVEV3Action, actionDepositInAAVEV3Address] = await deploy(
-    CONTRACT_NAMES.aave.v3.DEPOSIT,
+    SERVICE_REGISTRY_NAMES.aave.v3.DEPOSIT,
     [serviceRegistryAddress],
   )
 
   const [borrowInAAVEV3Action, actionAaveV3BorrowAddress] = await deploy(
-    CONTRACT_NAMES.aave.v3.BORROW,
+    SERVICE_REGISTRY_NAMES.aave.v3.BORROW,
     [serviceRegistryAddress],
   )
 
   const [withdrawInAAVEV3Action, actionWithdrawFromAAVEV3Address] = await deploy(
-    CONTRACT_NAMES.aave.v3.WITHDRAW,
+    SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW,
     [serviceRegistryAddress],
   )
 
   const [paybackInAAVEV3Action, actionPaybackFromAAVEV3Address] = await deploy(
-    CONTRACT_NAMES.aave.v3.PAYBACK,
+    SERVICE_REGISTRY_NAMES.aave.v3.PAYBACK,
     [serviceRegistryAddress],
   )
 
   const [setEModeInAAVEV3Action, actionSetEModeInAAVEV3Address] = await deploy(
-    CONTRACT_NAMES.aave.v3.SET_EMODE,
+    SERVICE_REGISTRY_NAMES.aave.v3.SET_EMODE,
     [serviceRegistryAddress],
   )
 
   debug && console.log('4/ Adding contracts to registry')
   //-- Add Token Contract Entries
-  await registry.addEntry(CONTRACT_NAMES.common.DAI, ADDRESSES[Network.MAINNET].common.DAI)
-  await registry.addEntry(CONTRACT_NAMES.common.WETH, ADDRESSES[Network.MAINNET].common.WETH)
+  await registry.addEntry(SERVICE_REGISTRY_NAMES.common.DAI, ADDRESSES[Network.MAINNET].common.DAI)
+  await registry.addEntry(
+    SERVICE_REGISTRY_NAMES.common.WETH,
+    ADDRESSES[Network.MAINNET].common.WETH,
+  )
 
   // add flag to deploy fallbackSwap contract
-  await registry.addEntry(CONTRACT_NAMES.common.SWAP, useFallbackSwap ? uSwapAddress : swapAddress)
+  await registry.addEntry(
+    SERVICE_REGISTRY_NAMES.common.SWAP,
+    useFallbackSwap ? uSwapAddress : swapAddress,
+  )
 
   //-- Add Common Contract Entries
-  await registry.addEntry(CONTRACT_NAMES.common.OPERATION_EXECUTOR, operationExecutorAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.OPERATIONS_REGISTRY, operationsRegistryAddress)
-  await registry.addEntry(CONTRACT_NAMES.common.EXCHANGE, dummyExchangeAddress)
+  await registry.addEntry(
+    SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
+    operationExecutorAddress,
+  )
+  await registry.addEntry(SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
+  await registry.addEntry(
+    SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
+    operationsRegistryAddress,
+  )
+  await registry.addEntry(SERVICE_REGISTRY_NAMES.common.EXCHANGE, dummyExchangeAddress)
 
-  await registry.addEntry(CONTRACT_NAMES.common.CHAINLOG_VIEWER, chainLogViewAddress)
+  await registry.addEntry(SERVICE_REGISTRY_NAMES.common.CHAINLOG_VIEWER, chainLogViewAddress)
 
   const takeFlashLoanHash = await registry.addEntry(
-    CONTRACT_NAMES.common.TAKE_A_FLASHLOAN,
+    SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN,
     actionFlAddress,
   )
   const positionCreatedHash = await registry.addEntry(
-    CONTRACT_NAMES.common.POSITION_CREATED,
+    SERVICE_REGISTRY_NAMES.common.POSITION_CREATED,
     positionCreatedAddress,
   )
-  const sendTokenHash = await registry.addEntry(CONTRACT_NAMES.common.SEND_TOKEN, sendTokenAddress)
-  await registry.addEntry(CONTRACT_NAMES.test.DUMMY_ACTION, dummyActionAddress)
-  await registry.addEntry(CONTRACT_NAMES.test.DUMMY_OPTIONAL_ACTION, dummyOptionalActionAddress)
-  const pullTokenHash = await registry.addEntry(CONTRACT_NAMES.common.PULL_TOKEN, pullTokenAddress)
+  const sendTokenHash = await registry.addEntry(
+    SERVICE_REGISTRY_NAMES.common.SEND_TOKEN,
+    sendTokenAddress,
+  )
+  await registry.addEntry(SERVICE_REGISTRY_NAMES.test.DUMMY_ACTION, dummyActionAddress)
+  await registry.addEntry(
+    SERVICE_REGISTRY_NAMES.test.DUMMY_OPTIONAL_ACTION,
+    dummyOptionalActionAddress,
+  )
+  const pullTokenHash = await registry.addEntry(
+    SERVICE_REGISTRY_NAMES.common.PULL_TOKEN,
+    pullTokenAddress,
+  )
   const setApprovalHash = await registry.addEntry(
-    CONTRACT_NAMES.common.SET_APPROVAL,
+    SERVICE_REGISTRY_NAMES.common.SET_APPROVAL,
     setApprovalAddress,
   )
 
   await registry.addEntry(
-    CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
+    SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
     ADDRESSES[Network.MAINNET].common.OneInchAggregator,
   )
 
   const swapActionHash = await registry.addEntry(
-    CONTRACT_NAMES.common.SWAP_ACTION,
+    SERVICE_REGISTRY_NAMES.common.SWAP_ACTION,
     swapActionAddress,
   )
-  const wrapEthHash = await registry.addEntry(CONTRACT_NAMES.common.WRAP_ETH, wrapActionAddress)
+  const wrapEthHash = await registry.addEntry(
+    SERVICE_REGISTRY_NAMES.common.WRAP_ETH,
+    wrapActionAddress,
+  )
   const unwrapEthHash = await registry.addEntry(
-    CONTRACT_NAMES.common.UNWRAP_ETH,
+    SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH,
     unwrapActionAddress,
   )
 
   const returnFundsActionHash = await registry.addEntry(
-    CONTRACT_NAMES.common.RETURN_FUNDS,
+    SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS,
     returnFundsActionAddress,
   )
 
   //-- Add Maker Contract Entries
   await registry.addEntry(
-    CONTRACT_NAMES.common.UNISWAP_ROUTER,
+    SERVICE_REGISTRY_NAMES.common.UNISWAP_ROUTER,
     ADDRESSES[Network.MAINNET].common.UniswapRouterV3,
   )
-  await registry.addEntry(CONTRACT_NAMES.maker.MCD_VIEW, mcdViewAddress)
+  await registry.addEntry(SERVICE_REGISTRY_NAMES.maker.MCD_VIEW, mcdViewAddress)
   await registry.addEntry(
-    CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
+    SERVICE_REGISTRY_NAMES.maker.FLASH_MINT_MODULE,
     ADDRESSES[Network.MAINNET].maker.common.FlashMintModule,
   )
   await registry.addEntry(
-    CONTRACT_NAMES.maker.MCD_MANAGER,
+    SERVICE_REGISTRY_NAMES.maker.MCD_MANAGER,
     ADDRESSES[Network.MAINNET].maker.common.CdpManager,
   )
-  await registry.addEntry(CONTRACT_NAMES.maker.MCD_JUG, ADDRESSES[Network.MAINNET].maker.common.Jug)
   await registry.addEntry(
-    CONTRACT_NAMES.maker.MCD_JOIN_DAI,
+    SERVICE_REGISTRY_NAMES.maker.MCD_JUG,
+    ADDRESSES[Network.MAINNET].maker.common.Jug,
+  )
+  await registry.addEntry(
+    SERVICE_REGISTRY_NAMES.maker.MCD_JOIN_DAI,
     ADDRESSES[Network.MAINNET].maker.joins.MCD_JOIN_DAI,
   )
   const makerOpenVaultHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.OPEN_VAULT,
+    SERVICE_REGISTRY_NAMES.maker.OPEN_VAULT,
     actionOpenVaultAddress,
   )
   const makerDepositHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.DEPOSIT,
+    SERVICE_REGISTRY_NAMES.maker.DEPOSIT,
     actionDepositAddress,
   )
   const makerPaybackHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.PAYBACK,
+    SERVICE_REGISTRY_NAMES.maker.PAYBACK,
     actionPaybackAddress,
   )
   const makerWithdrawHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.WITHDRAW,
+    SERVICE_REGISTRY_NAMES.maker.WITHDRAW,
     actionWithdrawAddress,
   )
   const makerGenerateHash = await registry.addEntry(
-    CONTRACT_NAMES.maker.GENERATE,
+    SERVICE_REGISTRY_NAMES.maker.GENERATE,
     actionGenerateAddress,
   )
 
-  await registry.addEntry(CONTRACT_NAMES.maker.CDP_ALLOW, cdpAllowAddress)
+  await registry.addEntry(SERVICE_REGISTRY_NAMES.maker.CDP_ALLOW, cdpAllowAddress)
 
   //-- Add AAVE Contract Entries
   const aaveBorrowHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.v2.BORROW,
+    SERVICE_REGISTRY_NAMES.aave.v2.BORROW,
     actionAaveBorrowAddress,
   )
   const aaveDepositHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.v2.DEPOSIT,
+    SERVICE_REGISTRY_NAMES.aave.v2.DEPOSIT,
     actionDepositInAAVEAddress,
   )
   const aaveWithdrawHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.v2.WITHDRAW,
+    SERVICE_REGISTRY_NAMES.aave.v2.WITHDRAW,
     actionWithdrawFromAAVEAddress,
   )
   const aavePaybackHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.v2.PAYBACK,
+    SERVICE_REGISTRY_NAMES.aave.v2.PAYBACK,
     actionPaybackFromAAVEAddress,
   )
 
   if (!ADDRESSES[Network.MAINNET].aave.v2) throw new Error('Missing AAVE V2 addresses on mainnet')
   await registry.addEntry(
-    CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
+    SERVICE_REGISTRY_NAMES.aave.v2.WETH_GATEWAY,
     ADDRESSES[Network.MAINNET].aave.v2.WETHGateway,
   )
   await registry.addEntry(
-    CONTRACT_NAMES.aave.v2.LENDING_POOL,
+    SERVICE_REGISTRY_NAMES.aave.v2.LENDING_POOL,
     ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
   )
 
   //-- Add AAVE V3 Contract Entries
   const aaveV3BorrowHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.v3.BORROW,
+    SERVICE_REGISTRY_NAMES.aave.v3.BORROW,
     actionAaveV3BorrowAddress,
   )
   const aaveV3DepositHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.v3.DEPOSIT,
+    SERVICE_REGISTRY_NAMES.aave.v3.DEPOSIT,
     actionDepositInAAVEV3Address,
   )
   const aaveV3WithdrawHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.v3.WITHDRAW,
+    SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW,
     actionWithdrawFromAAVEV3Address,
   )
   const aaveV3PaybackHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.v3.PAYBACK,
+    SERVICE_REGISTRY_NAMES.aave.v3.PAYBACK,
     actionPaybackFromAAVEV3Address,
   )
   const aaveV3SetEModeHash = await registry.addEntry(
-    CONTRACT_NAMES.aave.v3.SET_EMODE,
+    SERVICE_REGISTRY_NAMES.aave.v3.SET_EMODE,
     actionSetEModeInAAVEV3Address,
   )
-  await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, ADDRESSES[Network.MAINNET].aave.v3.Pool)
+  await registry.addEntry(
+    SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
+    ADDRESSES[Network.MAINNET].aave.v3.Pool,
+  )
 
   debug && console.log('5/ Adding operations to registry')
   // Add Maker Operations

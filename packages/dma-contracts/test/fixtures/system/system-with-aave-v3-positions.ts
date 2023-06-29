@@ -52,6 +52,7 @@ const testBlockNumberByNetwork: Record<
 > = {
   [Network.MAINNET]: testBlockNumberForAaveV3,
   [Network.OPTIMISM]: testBlockNumberForAaveOptimismV3,
+  [Network.ARBITRUM]: testBlockNumberForAaveV3,
 }
 
 export const systemWithAaveV3Positions = ({
@@ -117,6 +118,8 @@ export const systemWithAaveV3Positions = ({
         WETH: systemConfig.common.WETH.address,
         WSTETH: systemConfig.common.WSTETH.address,
         WBTC: systemConfig.common.WBTC.address,
+        CBETH: systemConfig.common.CBETH.address,
+        RETH: systemConfig.common.RETH.address,
         chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkPriceOracle_ETHUSD.address,
         aaveOracle: systemConfig.aave.v3.AaveOracle.address,
         pool: systemConfig.aave.v3.Pool.address,
@@ -175,6 +178,7 @@ export const systemWithAaveV3Positions = ({
       dependencies,
       config,
       feeRecipient: systemConfig.common.FeeRecipient.address,
+      network,
     })
 
     let wstethEthEarnPosition: AavePositionDetails | undefined
@@ -192,6 +196,7 @@ export const systemWithAaveV3Positions = ({
         dependencies,
         config,
         feeRecipient: systemConfig.common.FeeRecipient.address,
+        network,
       })
     }
 
@@ -203,6 +208,7 @@ export const systemWithAaveV3Positions = ({
       dependencies,
       config,
       feeRecipient: systemConfig.common.FeeRecipient.address,
+      network,
     })
 
     return {

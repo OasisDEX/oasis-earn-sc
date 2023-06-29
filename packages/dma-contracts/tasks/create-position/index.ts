@@ -45,10 +45,10 @@ task('createPosition', 'Create stETH position on AAVE')
     // )
     //
     // const operationExecutorAddress = await serviceRegistry.getRegisteredService(
-    //   CONTRACT_NAMES.common.OPERATION_EXECUTOR,
+    //   SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
     // )
     //
-    // const swapAddress = await serviceRegistry.getRegisteredService(CONTRACT_NAMES.common.SWAP)
+    // const swapAddress = await serviceRegistry.getRegisteredService(SERVICE_REGISTRY_NAMES.common.SWAP)
     //
     // const aaveLendingPool = new hre.ethers.Contract(
     //   ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
@@ -123,7 +123,7 @@ task('createPosition', 'Create stETH position on AAVE')
     // )
     //
     // const operationExecutor = await hre.ethers.getContractAt(
-    //   CONTRACT_NAMES.common.OPERATION_EXECUTOR,
+    //   SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
     //   addresses.operationExecutor,
     //   config.signer,
     // )

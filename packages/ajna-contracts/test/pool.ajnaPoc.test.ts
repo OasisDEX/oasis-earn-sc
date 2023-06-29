@@ -20,9 +20,8 @@ let WBTCToken: IERC20;
 let USDCToken: IERC20;
 
 async function sendLotsOfMoney(target: string) {
-  await utils.setTokenBalance(target, WBTC, BigNumber.from("1000000000000000000").mul(1000));
-
-  await utils.setTokenBalance(target, USDC, BigNumber.from("1000000000000000000").mul(1000));
+  await utils.setTokenBalance(target, WBTC, BigNumber.from("100000000").mul(1000));
+  await utils.setTokenBalance(target, USDC, BigNumber.from("1000000").mul(10000000));
 }
 
 describe.skip("Pool test", function () {

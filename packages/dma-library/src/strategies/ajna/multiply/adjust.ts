@@ -1,13 +1,13 @@
 import { ZERO } from '@dma-common/constants'
-import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { AjnaPosition, Strategy } from '@dma-library/types'
-import { AjnaAdjustMultiplyPayload, AjnaCommonDMADependencies } from '@dma-library/types/ajna'
-import { isRiskIncreasing } from '@domain/utils'
+import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { AjnaCommonDependencies, AjnaPosition } from '@dma-library/types'
+import { AjnaMultiplyPayload, AjnaStrategy } from '@dma-library/types/ajna'
+import { isRiskIncreasing } from '@domain/utils/risk-direction'
 
 export type AjnaAdjustRiskStrategy = (
-  args: AjnaAdjustMultiplyPayload,
-  dependencies: AjnaCommonDMADependencies,
-) => Promise<Strategy<AjnaPosition>>
+  args: AjnaMultiplyPayload,
+  dependencies: AjnaCommonDependencies,
+) => Promise<AjnaStrategy<AjnaPosition>>
 
 const adjustRiskUp: AjnaAdjustRiskStrategy = async (args, dependencies) => {
   const isDepositingEth =
@@ -22,11 +22,10 @@ const adjustRiskUp: AjnaAdjustRiskStrategy = async (args, dependencies) => {
 
   const targetPosition = positionAfterDeposit.borrow(quoteAmount.minus(args.position.debtAmount))
 
-  return prepareAjnaDMAPayload({
+  return prepareAjnaPayload({
     dependencies,
     targetPosition,
     data: '',
-    swaps: [],
     errors: [],
     warnings: [],
     notices: [],
@@ -49,11 +48,10 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
 
   const targetPosition = positionAfterWithdraw.payback(args.position.debtAmount.minus(quoteAmount))
 
-  return prepareAjnaDMAPayload({
+  return prepareAjnaPayload({
     dependencies,
     targetPosition,
     data: '',
-    swaps: [],
     errors: [],
     warnings: [],
     notices: [],
@@ -64,8 +62,8 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
 }
 
 export const adjustMultiply: AjnaAdjustRiskStrategy = (
-  args: AjnaAdjustMultiplyPayload,
-  dependencies: AjnaCommonDMADependencies,
+  args: AjnaMultiplyPayload,
+  dependencies: AjnaCommonDependencies,
 ) => {
   if (isRiskIncreasing(args.position.riskRatio.loanToValue, args.riskRatio.loanToValue)) {
     return adjustRiskUp(args, dependencies)

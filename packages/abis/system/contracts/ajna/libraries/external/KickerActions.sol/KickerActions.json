@@ -16,7 +16,17 @@
   },
   {
     "inputs": [],
+    "name": "InsufficientLP",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InsufficientLiquidity",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidAmount",
     "type": "error"
   },
   {

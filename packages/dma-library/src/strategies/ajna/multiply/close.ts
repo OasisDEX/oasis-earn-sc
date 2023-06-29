@@ -8,10 +8,10 @@ import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protoc
 import * as StrategiesCommon from '@dma-library/strategies/common'
 import {
   AjnaPosition,
+  AjnaStrategy,
   FlashloanProvider,
   IOperation,
   PositionType,
-  Strategy,
   SwapData,
 } from '@dma-library/types'
 import {
@@ -27,7 +27,7 @@ import BigNumber from 'bignumber.js'
 export type AjnaCloseStrategy = (
   args: AjnaCloseMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
-) => Promise<Strategy<AjnaPosition>>
+) => Promise<AjnaStrategy<AjnaPosition>>
 
 const positionType: PositionType = 'Multiply'
 
@@ -59,10 +59,15 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
   const fee = SwapUtils.feeResolver(
     args.position.pool.collateralToken,
     args.position.pool.quoteToken,
+    {
+      isEarnPosition: false,
+      isIncreasingRisk: false,
+    },
   )
 
   const postSwapFee =
     collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
+
   const tokenFee = preSwapFee.plus(
     postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
   )
@@ -202,6 +207,10 @@ async function buildOperation(
       receiveAtLeast: swapData.minToTokenAmount,
     },
     flashloan: {
+      token: {
+        amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan),
+        address: position.pool.quoteToken,
+      },
       // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
       amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan),

@@ -1,4 +1,5 @@
-import { aaveOpenV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getAaveOpenV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { Address } from '@dma-common/types/address'
 import { actions } from '@dma-library/actions'
@@ -33,6 +34,7 @@ interface OpenArgs {
   proxy: Address
   user: Address
   isDPMProxy: boolean
+  network: Network
 }
 
 export type AaveV2OpenOperation = ({
@@ -47,6 +49,7 @@ export type AaveV2OpenOperation = ({
   user,
   isDPMProxy,
   positionType,
+  network,
 }: OpenArgs) => Promise<IOperation>
 
 export const open: AaveV2OpenOperation = async ({
@@ -61,43 +64,44 @@ export const open: AaveV2OpenOperation = async ({
   user,
   isDPMProxy,
   positionType,
+  network,
 }) => {
-  const pullDebtTokensToProxy = actions.common.pullToken({
+  const pullDebtTokensToProxy = actions.common.pullToken(network, {
     asset: debtTokenAddress,
     amount: deposit.debtToken.amountInBaseUnit,
     from: user,
   })
 
-  const pullCollateralTokensToProxy = actions.common.pullToken({
+  const pullCollateralTokensToProxy = actions.common.pullToken(network, {
     asset: collateralTokenAddress,
     amount: deposit.collateralToken.amountInBaseUnit,
     from: user,
   })
 
-  const setDaiApprovalOnLendingPool = actions.common.setApproval({
+  const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
     amount: flashloanAmount,
     asset: addresses.DAI,
     delegate: addresses.lendingPool,
     sumAmounts: false,
   })
 
-  const depositDaiInAAVE = actions.aave.v2.aaveDeposit({
+  const depositDaiInAAVE = actions.aave.v2.aaveDeposit(network, {
     amount: flashloanAmount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
 
-  const borrowDebtTokensFromAAVE = actions.aave.v2.aaveBorrow({
+  const borrowDebtTokensFromAAVE = actions.aave.v2.aaveBorrow(network, {
     amount: borrowAmountInBaseUnit,
     asset: debtTokenAddress,
     to: proxy,
   })
 
-  const wrapEth = actions.common.wrapEth({
+  const wrapEth = actions.common.wrapEth(network, {
     amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
   })
 
-  const swapDebtTokensForCollateralTokens = actions.common.swap({
+  const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
     fromAsset: debtTokenAddress,
     toAsset: collateralTokenAddress,
     amount: swapArgs.swapAmountInBaseUnit,
@@ -108,6 +112,7 @@ export const open: AaveV2OpenOperation = async ({
   })
 
   const setCollateralTokenApprovalOnLendingPool = actions.common.setApproval(
+    network,
     {
       asset: collateralTokenAddress,
       delegate: addresses.lendingPool,
@@ -118,6 +123,7 @@ export const open: AaveV2OpenOperation = async ({
   )
 
   const depositCollateral = actions.aave.v2.aaveDeposit(
+    network,
     {
       asset: collateralTokenAddress,
       amount: deposit.collateralToken.amountInBaseUnit,
@@ -127,7 +133,7 @@ export const open: AaveV2OpenOperation = async ({
     [0, 3, 0, 0],
   )
 
-  const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw({
+  const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw(network, {
     asset: addresses.DAI,
     amount: flashloanAmount,
     to: addresses.operationExecutor,
@@ -135,7 +141,7 @@ export const open: AaveV2OpenOperation = async ({
 
   const protocol: Protocol = 'AAVE'
 
-  const positionCreated = actions.common.positionCreated({
+  const positionCreated = actions.common.positionCreated(network, {
     protocol,
     positionType,
     collateralToken: collateralTokenAddress,
@@ -163,7 +169,7 @@ export const open: AaveV2OpenOperation = async ({
     positionCreated,
   ]
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan({
+  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy,
     asset: addresses.DAI,
     flashloanAmount: flashloanAmount,
@@ -174,6 +180,6 @@ export const open: AaveV2OpenOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: aaveOpenV2OperationDefinition.name,
+    operationName: getAaveOpenV2OperationDefinition(network).name,
   }
 }

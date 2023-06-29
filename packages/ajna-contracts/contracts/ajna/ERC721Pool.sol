@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 
-pragma solidity 0.8.15;
+pragma solidity 0.8.18;
 
 import {
     IERC721Token,
@@ -29,8 +29,9 @@ import { IERC721Taker } from "./interfaces/pool/erc721/IERC721Taker.sol";
 import { IERC721PoolState } from "./interfaces/pool/erc721/IERC721PoolState.sol";
 
 import { FlashloanablePool } from "./base/FlashloanablePool.sol";
+import { _roundToScale } from "./libraries/helpers/PoolHelper.sol";
 
-import { _revertIfAuctionClearable, _revertOnExpiry } from "./libraries/helpers/RevertsHelper.sol";
+import { _revertIfAuctionClearable, _revertAfterExpiry } from "./libraries/helpers/RevertsHelper.sol";
 
 import { Maths } from "./libraries/internal/Maths.sol";
 import { Deposits } from "./libraries/internal/Deposits.sol";
@@ -67,12 +68,13 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
     /*** State Variables ***/
     /***********************/
 
-    /// @dev Mapping of `tokenIds` allowed in `NFT` Subset type pool.
-    mapping(uint256 => bool) public tokenIdsAllowed;
     /// @dev Borrower `address => array` of tokenIds pledged by borrower mapping.
     mapping(address => uint256[]) public borrowerTokenIds;
     /// @dev Array of `tokenIds` in pool buckets (claimable from pool).
     uint256[] public bucketTokenIds;
+
+    /// @dev Mapping of `tokenIds` allowed in `NFT` Subset type pool.
+    mapping(uint256 => bool) internal tokenIdsAllowed_;
 
     /****************************/
     /*** Initialize Functions ***/
@@ -93,7 +95,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         if (noOfTokens != 0) {
             // add subset of tokenIds allowed in the pool
             for (uint256 id = 0; id < noOfTokens; ) {
-                tokenIdsAllowed[tokenIds_[id]] = true;
+                tokenIdsAllowed_[tokenIds_[id]] = true;
 
                 unchecked {
                     ++id;
@@ -120,6 +122,10 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
     /*** Borrower External Functions ***/
     /***********************************/
 
+    function tokenIdsAllowed(uint256 tokenId_) public view returns (bool) {
+        return (_getArgUint256(SUBSET) == 0 || tokenIdsAllowed_[tokenId_]);
+    }
+
     /**
      *  @inheritdoc IERC721PoolBorrowerActions
      *  @dev    === Write state ===
@@ -139,12 +145,16 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
     ) external nonReentrant {
         PoolState memory poolState = _accruePoolInterest();
 
+        // ensure the borrower is not charged for additional debt that they did not receive
+        amountToBorrow_ = _roundToScale(amountToBorrow_, poolState.quoteTokenScale);
+
         DrawDebtResult memory result = BorrowerActions.drawDebt(
             auctions,
             buckets,
             deposits,
             loans,
             poolState,
+            _availableQuoteToken(),
             borrowerAddress_,
             amountToBorrow_,
             limitIndex_,
@@ -214,6 +224,10 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         uint256 limitIndex_
     ) external nonReentrant {
         PoolState memory poolState = _accruePoolInterest();
+
+        // ensure accounting is performed using the appropriate token scale
+        if (maxQuoteTokenAmountToRepay_ != type(uint256).max)
+            maxQuoteTokenAmountToRepay_ = _roundToScale(maxQuoteTokenAmountToRepay_, poolState.quoteTokenScale);
 
         RepayDebtResult memory result = BorrowerActions.repayDebt(
             auctions,
@@ -285,7 +299,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         uint256 index_,
         uint256 expiry_
     ) external override nonReentrant returns (uint256 bucketLP_) {
-        _revertOnExpiry(expiry_);
+        _revertAfterExpiry(expiry_);
         PoolState memory poolState = _accruePoolInterest();
 
         bucketLP_ = LenderActions.addCollateral(buckets, deposits, Maths.wad(tokenIds_.length), index_);
@@ -396,7 +410,7 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         _updatePostSettleState(result, poolState);
 
         // move token ids from borrower array to pool claimable array if any collateral used to settle bad debt
-        if (result.collateralSettled != 0) _rebalanceTokens(params.borrower, result.collateralRemaining);
+        _rebalanceTokens(params.borrower, result.collateralRemaining);
     }
 
     /**
@@ -440,12 +454,13 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
         if (data_.length != 0) {
             IERC721Taker(callee_).atomicSwapCallback(
                 tokensTaken,
-                totalQuoteTokenAmount / _getArgUint256(QUOTE_SCALE),
+                totalQuoteTokenAmount / poolState.quoteTokenScale,
                 data_
             );
         }
 
-        if (result.settledAuction) _rebalanceTokens(borrowerAddress_, result.remainingCollateral);
+        // move borrower token ids to bucket claimable token ids after taking / reducing borrower collateral
+        _rebalanceTokens(borrowerAddress_, result.remainingCollateral);
 
         // transfer from taker to pool the amount of quote tokens needed to cover collateral auctioned (including excess for rounded collateral)
         _transferQuoteTokenFrom(msg.sender, totalQuoteTokenAmount);
@@ -479,7 +494,8 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
 
         _updatePostTakeState(result, poolState);
 
-        if (result.settledAuction) _rebalanceTokens(borrowerAddress_, result.remainingCollateral);
+        // move borrower token ids to bucket claimable token ids after taking / reducing borrower collateral
+        _rebalanceTokens(borrowerAddress_, result.remainingCollateral);
     }
 
     /**************************/
@@ -490,8 +506,6 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
      *  @notice Rebalance `NFT` token and transfer difference to floor collateral from borrower to pool claimable array.
      *  @dev    === Write state ===
      *  @dev    - update `borrowerTokens` and `bucketTokenIds` arrays
-     *  @dev    === Emit events ===
-     *  @dev    - `RemoveCollateral`
      *  @param  borrowerAddress_    Address of borrower.
      *  @param  borrowerCollateral_ Current borrower collateral to be rebalanced.
      */
@@ -525,11 +539,9 @@ contract ERC721Pool is FlashloanablePool, IERC721Pool {
      *  @param  tokenIds_   Array of `NFT` token ids to transfer from `msg.sender` to pool.
      */
     function _transferFromSenderToPool(uint256[] storage poolTokens_, uint256[] calldata tokenIds_) internal {
-        bool subset = _getArgUint256(SUBSET) != 0;
-
         for (uint256 i = 0; i < tokenIds_.length; ) {
             uint256 tokenId = tokenIds_[i];
-            if (subset && !tokenIdsAllowed[tokenId]) revert OnlySubset();
+            if (!tokenIdsAllowed(tokenId)) revert OnlySubset();
             poolTokens_.push(tokenId);
 
             _transferNFT(msg.sender, address(this), tokenId);

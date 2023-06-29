@@ -1,6 +1,11 @@
 [
   {
     "inputs": [],
+    "name": "DecimalsNotCompliant",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "DeployQuoteCollateralSameToken",
     "type": "error"
   },
@@ -15,7 +20,13 @@
     "type": "error"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "pool_",
+        "type": "address"
+      }
+    ],
     "name": "PoolAlreadyExists",
     "type": "error"
   },

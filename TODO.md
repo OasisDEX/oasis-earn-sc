@@ -35,3 +35,4 @@
 - Add linting rules for files and folders names
 - Enforce no relative paths
 - Put Ajna buckets in their own package
+- Move entirely to v5.0 for 1inch

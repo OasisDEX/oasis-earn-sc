@@ -1,4 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
+import { Network } from '@deploy-configurations/types/network'
 import { AjnaEarnPosition, AjnaPosition } from '@dma-library/types'
 import { GetSwapData } from '@dma-library/types/common'
 import { GetEarnData } from '@dma-library/views'
@@ -13,6 +14,7 @@ export interface AjnaCommonDependencies {
   provider: ethers.providers.Provider
   WETH: Address
   getPoolData: GetPoolData
+  network: Network
 }
 
 export type AjnaCommonDMADependencies = Omit<AjnaCommonDependencies, 'ajnaProxyActions'> & {

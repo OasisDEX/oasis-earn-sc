@@ -2,7 +2,7 @@ import type { AAVETokens } from './aave'
 import { AavePosition } from './aave'
 import { ActionCall } from './action-call'
 import { calldataTypes } from './actions'
-import type { AjnaError } from './ajna'
+import type { AjnaError, AjnaStrategy } from './ajna'
 import {
   AjnaBorrowPayload,
   AjnaCommonDependencies,
@@ -30,6 +30,7 @@ import type {
   WithDeposit,
   WithEMode,
   WithFlashloan,
+  WithNetwork,
   WithOptionalDeposit,
   WithOptionalFlashloan,
   WithPosition,
@@ -55,9 +56,11 @@ import type {
   IViewPositionDependencies,
   IViewPositionParams,
   WithBorrowDebt,
+  WithCollateralTokenAddress,
   WithDebtChange,
+  WithDebtTokenAddress,
   WithDepositCollateral,
-  WithLockedCollateral,
+  WithFlashloanToken,
   WithPaybackDebt,
   WithPositionType,
   WithWithdrawCollateral,
@@ -66,7 +69,7 @@ import type { SwapData } from './swap-data'
 
 export type { CommonDMADependencies } from './common'
 export { FlashloanProvider }
-export type { AjnaError, Strategy }
+export type { AjnaError, AjnaStrategy, Strategy }
 export { AjnaEarnPosition, AjnaPosition }
 
 export type {
@@ -99,6 +102,7 @@ export type {
   WithDeposit,
   WithEMode,
   WithFlashloan,
+  WithNetwork,
   WithOptionalDeposit,
   WithOptionalFlashloan,
   WithPosition,
@@ -125,9 +129,11 @@ export type {
   IViewPositionDependencies,
   IViewPositionParams,
   WithBorrowDebt,
+  WithCollateralTokenAddress,
   WithDebtChange,
+  WithDebtTokenAddress,
   WithDepositCollateral,
-  WithLockedCollateral,
+  WithFlashloanToken,
   WithPaybackDebt,
   WithPositionType,
   WithWithdrawCollateral,
