@@ -1,4 +1,4 @@
-import { HardhatUtils } from '@ajna-contracts/scripts'
+import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { expect } from '@dma-common/test-utils'
@@ -12,14 +12,11 @@ import { AjnaPosition, views } from '@dma-library'
 import { Strategy } from '@dma-library/types'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import BigNumber from 'bignumber.js'
-import hre from 'hardhat'
 
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
 describe('Strategy | AJNA | Open Multiply | E2E', () => {
-  const utils = new HardhatUtils(hre)
-  utils.clearTrace()
   const supportedPositions = getSupportedAjnaPositions(networkFork)
   let env: EnvWithAjnaPositions
   const fixture = envWithAjnaPositions({
@@ -29,10 +26,6 @@ describe('Strategy | AJNA | Open Multiply | E2E', () => {
   })
   before(async function () {
     env = await loadFixture(fixture)
-    utils.saveTrace('trace.json')
-    const transactionCount = await utils.getMainSignerTransactionCount()
-    console.log('transactionCount!!!!!', transactionCount)
-    console.log('traceSize!!!!!', utils.getTraceSize())
     if (!env) throw new Error('Env not setup')
   })
 
@@ -113,13 +106,6 @@ describe('Strategy | AJNA | Open Multiply | E2E', () => {
         const simulatedFee = simulation.swaps[0].fee || ZERO
         expect.toBe(simulatedFee, 'gte', feesCollected, EXPECT_LARGER_SIMULATED_FEE)
       })
-      // it(`Should not have anything left on the proxy for ${variant}`, async () => {
-      //   expect.toBeEqual(false, true)
-      // })
-      // it(`Should collect fee for ${variant}`, async () => {
-      //   // const simulatedFee = simulation.swaps[0].tokenFee || ZERO
-      //   expect.toBe(ZERO, 'gte', feesCollected, EXPECT_LARGER_SIMULATED_FEE)
-      // })
     })
   })
 })
