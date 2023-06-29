@@ -111,27 +111,14 @@ describe('Strategy | AJNA | Close To Quote Multiply | E2E', () => {
           config: env.config,
         })
 
-        // What are the remaining funds?
         const amountToFlashloan = amountToWei(
           position.debtAmount.times(ONE.plus(FLASHLOAN_SAFETY_MARGIN)),
           positionDetails.debtToken.precision,
         ).integerValue(BigNumber.ROUND_DOWN)
-        // const positionDebt = amountToWei(
-        //   position.debtAmount,
-        //   positionDetails.debtToken.precision,
-        // ).integerValue(BigNumber.ROUND_DOWN)
-        const leftoverDebtTokens = act.simulation.swaps[0].minToTokenAmount.minus(amountToFlashloan)
-        console.log('REMAINING FUNDS')
-        // console.log('positionDebtInWei', positionDebt.toString())
-        console.log('amountToFlashloan', amountToFlashloan.toString())
-        console.log('userDebtBalance.toString()', userDebtBalance.toString())
-        console.log('act.userDebtBalanceBefore', act.userDebtBalanceBefore.toString())
-        console.log('userDebtBalance', userDebtBalance.toString())
-        console.log('leftoverDebtTokens', leftoverDebtTokens.toString())
 
+        const leftoverDebtTokens = act.simulation.swaps[0].minToTokenAmount.minus(amountToFlashloan)
         const estimatedUserDebtBalance = act.userDebtBalanceBefore.plus(leftoverDebtTokens)
-        console.log('estimatedUserDebtBalance', estimatedUserDebtBalance.toString())
-        expect.toBe(act.userDebtBalanceBefore.plus(leftoverDebtTokens), 'lte', userDebtBalance)
+        expect.toBe(estimatedUserDebtBalance, 'lte', userDebtBalance)
       })
       it(`Should have collected a fee for ${variant}`, async () => {
         const simulatedFee = act.simulation.swaps[0].fee || ZERO
