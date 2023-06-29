@@ -9,6 +9,7 @@ import {
 } from '@dma-contracts/test/utils/aave'
 import { createPositionWithRetries } from '@dma-contracts/test/utils/aave/create-position-with-retries'
 import { AaveVersion, protocols, strategies } from '@dma-library'
+import { impersonateAccount } from '@nomicfoundation/hardhat-network-helpers'
 import hre from 'hardhat'
 
 import {
@@ -75,18 +76,21 @@ export const systemWithAavePositions = ({
 
     const dsSystem = ds.getSystem()
     const { system, registry, config: systemConfig } = dsSystem
+
     const swapContract = system.uSwap ? system.uSwap.contract : system.Swap.contract
     const swapAddress = swapContract.address
 
+    const benefAddress = await swapContract.feeBeneficiaryAddress()
+    await impersonateAccount(benefAddress)
+    const impersonatedSigner = hre.ethers.provider.getSigner(benefAddress)
+
     if (!systemConfig.aave.v2) throw new Error('aave v2 not deployed')
     !use1inch &&
-      (await swapContract.setPool(
-        systemConfig.common.STETH.address,
-        systemConfig.common.WETH.address,
-        10000,
-      ))
-    await swapContract.addFeeTier(0)
-    await swapContract.addFeeTier(7)
+      (await swapContract
+        .connect(impersonatedSigner)
+        .setPool(systemConfig.common.STETH.address, systemConfig.common.WETH.address, 10000))
+    await swapContract.connect(impersonatedSigner).addFeeTier(0)
+    await swapContract.connect(impersonatedSigner).addFeeTier(7)
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
 
     if (!systemConfig.aave.v2) throw new Error('aave v2 is not configured')

@@ -29,6 +29,7 @@ import {
   buildGetTokenFunction,
 } from '@dma-contracts/test/utils/aave'
 import { AaveVersion, protocols, strategies } from '@dma-library'
+import { impersonateAccount } from '@nomicfoundation/hardhat-network-helpers'
 import hre from 'hardhat'
 
 type SupportedV3Strategies = Array<{
@@ -105,8 +106,12 @@ export const systemWithAaveV3Positions = ({
     const swapContract = system.uSwap ? system.uSwap.contract : system.Swap.contract
     const swapAddress = swapContract.address
 
-    await swapContract.addFeeTier(0)
-    await swapContract.addFeeTier(7)
+    const benefAddress = await swapContract.feeBeneficiaryAddress()
+    await impersonateAccount(benefAddress)
+    const impersonatedSigner = hre.ethers.provider.getSigner(benefAddress)
+
+    await swapContract.connect(impersonatedSigner).addFeeTier(0)
+    await swapContract.connect(impersonatedSigner).addFeeTier(7)
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
 
     if (!oneInchVersion) throw new Error('Unsupported network')
