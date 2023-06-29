@@ -1,7 +1,7 @@
 import { getAjnaCloseToQuoteOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { Network } from "@deploy-configurations/types/network";
-import { actions } from "@dma-library/actions";
-import { FEE_BASE, MAX_UINT, ZERO } from "@dma-common/constants";
+import { Network } from '@deploy-configurations/types/network'
+import { FEE_BASE, MAX_UINT, ZERO } from '@dma-common/constants'
+import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   IOperation,
@@ -11,10 +11,10 @@ import {
   WithDebt,
   WithFlashloan,
   WithProxy,
-  WithSwap
-} from "@dma-library/types";
-import { FlashloanProvider } from "@dma-library/types/common";
-import BigNumber from "bignumber.js";
+  WithSwap,
+} from '@dma-library/types'
+import { FlashloanProvider } from '@dma-library/types/common'
+import BigNumber from 'bignumber.js'
 
 type AjnaCloseArgs = WithCollateral &
   WithDebt &
@@ -70,17 +70,17 @@ export const closeToQuote: AjnaCloseToQuoteOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const unwrapEth = actions.common.unwrapEth(Network.MAINNET, {
-    amount: new BigNumber(MAX_UINT),
-  })
-
-  unwrapEth.skipped = !debt.isEth && !collateral.isEth
-
   const sendQuoteTokenToOpExecutor = actions.common.sendToken(Network.MAINNET, {
     asset: debt.address,
     to: addresses.operationExecutor,
     amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.amount)),
   })
+
+  const unwrapEth = actions.common.unwrapEth(Network.MAINNET, {
+    amount: new BigNumber(MAX_UINT),
+  })
+
+  unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
   const returnDebtFunds = actions.common.returnFunds(Network.MAINNET, {
     asset: debt.isEth ? addresses.ETH : debt.address,
@@ -90,8 +90,8 @@ export const closeToQuote: AjnaCloseToQuoteOperation = async ({
     setDebtTokenApprovalOnPool,
     paybackWithdraw,
     swapCollateralTokensForDebtTokens,
-    unwrapEth,
     sendQuoteTokenToOpExecutor,
+    unwrapEth,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(Network.MAINNET, {

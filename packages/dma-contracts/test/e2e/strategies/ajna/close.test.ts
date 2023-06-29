@@ -104,9 +104,6 @@ describe('Strategy | AJNA | Close To Quote Multiply | E2E', () => {
       })
       it(`Should have collected a fee for ${variant}`, async () => {
         const simulatedFee = act.simulation.swaps[0].fee || ZERO
-        console.log('FEES!!!')
-        console.log('simulatedFee', simulatedFee.toString())
-        console.log('act.feesCollected', act.feesCollected.toString())
         expect.toBe(simulatedFee, 'gte', act.feesCollected, EXPECT_LARGER_SIMULATED_FEE)
       })
     })

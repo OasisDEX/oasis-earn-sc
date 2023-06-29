@@ -70,17 +70,17 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const unwrapEth = actions.common.unwrapEth(Network.MAINNET, {
-    amount: new BigNumber(MAX_UINT),
-  })
-
-  unwrapEth.skipped = !debt.isEth && !collateral.isEth
-
   const sendQuoteTokenToOpExecutor = actions.common.sendToken(Network.MAINNET, {
     asset: debt.address,
     to: addresses.operationExecutor,
     amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.token.amount)),
   })
+
+  const unwrapEth = actions.common.unwrapEth(Network.MAINNET, {
+    amount: new BigNumber(MAX_UINT),
+  })
+
+  unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
   const returnDebtFunds = actions.common.returnFunds(Network.MAINNET, {
     asset: debt.isEth ? addresses.ETH : debt.address,
@@ -94,8 +94,8 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
     setDebtTokenApprovalOnPool,
     paybackWithdraw,
     swapCollateralTokensForDebtTokens,
-    unwrapEth,
     sendQuoteTokenToOpExecutor,
+    unwrapEth,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(Network.MAINNET, {
