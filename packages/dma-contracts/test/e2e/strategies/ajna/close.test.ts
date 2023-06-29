@@ -212,6 +212,33 @@ describe('Strategy | AJNA | Close To Collateral Multiply | E2E', () => {
         expect.toBe(proxyDebtBalance, ZERO)
         expect.toBeEqual(proxyCollateralBalance, ZERO)
       })
+      it(`Should have passed all remaining funds to the user for ${variant}`, async () => {
+        const user = env.config.address
+        const userDebtBalance = await balanceOf(debtToken.address, user, {
+          config: env.config,
+        })
+        const userCollateralBalance = await balanceOf(collateralToken.address, user, {
+          config: env.config,
+        })
+
+        const positionCollateral = amountToWei(
+          position.collateralAmount,
+          positionDetails.collateralToken.precision,
+        ).integerValue(BigNumber.ROUND_DOWN)
+
+        const amountToFlashloan = amountToWei(
+          position.debtAmount.times(ONE.plus(FLASHLOAN_SAFETY_MARGIN)),
+          positionDetails.debtToken.precision,
+        ).integerValue(BigNumber.ROUND_DOWN)
+
+        const leftoverCollateral = positionCollateral.minus(act.simulation.swaps[0].fromTokenAmount)
+        const leftoverDebtTokens = act.simulation.swaps[0].minToTokenAmount.minus(amountToFlashloan)
+        const estimatedUserDebtBalance = act.userDebtBalanceBefore.plus(leftoverDebtTokens)
+        expect.toBeEqual(leftoverCollateral, userCollateralBalance)
+        expect.toBe(estimatedUserDebtBalance, 'lte', userDebtBalance)
+        // Confirm dust amount given close to collateral estimation
+        expect.toBe(userDebtBalance, 'gt', ZERO)
+      })
       it(`Should have collected a fee for ${variant}`, async () => {
         const simulatedFee = act.simulation.swaps[0].fee || ZERO
         expect.toBe(simulatedFee, 'gte', act.feesCollected, EXPECT_LARGER_SIMULATED_FEE)
