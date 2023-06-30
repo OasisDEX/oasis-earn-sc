@@ -256,11 +256,11 @@ describe('OperationExecutor', async function () {
 
   it('should take a Balancer`s flashloan', async () => {
     const sendBackDAI = await sendToken(TEN_THOUSAND, system.operationExecutor.address)
-    const takeAMakerFlashloan = await takeAFlashloan(FlashloanProvider.Balancer, [sendBackDAI])
+    const takeABalancerFlashloan = await takeAFlashloan(FlashloanProvider.Balancer, [sendBackDAI])
 
     await system.opsRegistry.addOperation(
-      'SIMPLE_MAKER_FLASHLOAN',
-      calculateOperationHash([takeAMakerFlashloan, sendBackDAI]),
+      'SIMPLE_BALANCER_FLASHLOAN',
+      calculateOperationHash([takeABalancerFlashloan, sendBackDAI]),
     )
 
     const [isSuccessful] = await executeThroughProxy(
@@ -268,7 +268,7 @@ describe('OperationExecutor', async function () {
       {
         address: system.operationExecutor.address,
         calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
-          [takeAMakerFlashloan],
+          [takeABalancerFlashloan],
         ]),
       },
       config.signer,
