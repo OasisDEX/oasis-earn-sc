@@ -15,12 +15,14 @@ import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanDataV2, CallV2 } from "./types/Common.sol";
 import { MCD_FLASH } from "../core/constants/Maker.sol";
+import "hardhat/console.sol";
 
 error UntrustedLender(address lender);
 error InconsistentAsset(address flashloaned, address required);
 error InconsistentAmount(uint256 flashloaned, uint256 required);
 error InsufficientFunds(uint256 actual, uint256 required);
 error ForbiddenCall(address caller);
+error FlashloanReentrancyAttempt();
 
 interface IProxy {
   function execute(address, bytes memory) external payable returns (bytes memory);
@@ -42,6 +44,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
   ChainLogView immutable CHAINLOG_VIEWER;
   address immutable BALANCER_VAULT;
   address immutable OPERATION_EXECUTOR;
+  uint8 private isFlashloanInProgress = 1;
   /**
    * @dev Emitted once an Operation has completed execution
    * @param name Name of the operation based on the hashed value of all action hashes
@@ -135,6 +138,8 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     uint256 fee,
     bytes calldata data
   ) external override returns (bytes32) {
+    console.log("Received a Maker flashloan...");
+    checkIfFlashloanIsInProgress();
     FlashloanDataV2 memory flData = abi.decode(data, (FlashloanDataV2));
     address mcdFlash = CHAINLOG_VIEWER.getServiceAddress(MCD_FLASH);
     checkIfLenderIsTrusted(mcdFlash);
@@ -168,6 +173,8 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     uint256[] memory feeAmounts,
     bytes memory data
   ) external override {
+    console.log("Received a balancer flashloan...");
+    checkIfFlashloanIsInProgress();
     address asset = address(tokens[0]);
     (FlashloanDataV2 memory flData, address initiator) = abi.decode(
       data,
@@ -194,10 +201,17 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     if (msg.sender != lender) revert UntrustedLender(msg.sender);
   }
 
+  function checkIfFlashloanIsInProgress() private {
+    if (isFlashloanInProgress == 2) {
+      revert FlashloanReentrancyAttempt();
+    }
+  }
+
   function checkIfFlashloanedAssetIsTheRequiredOne(
     address flashloaned,
     address required
-  ) private pure {
+  ) private view {
+    console.log("Checking flashloan asset...");
     if (flashloaned != required) revert InconsistentAsset(flashloaned, required);
   }
 
@@ -206,6 +220,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     uint256 requiredAmount
   ) private view {
     uint256 assetBalance = IERC20(asset).balanceOf(address(this));
+    console.log("Checking flashloan amount...");
     if (assetBalance < requiredAmount) revert InconsistentAmount(assetBalance, requiredAmount);
   }
 
@@ -219,10 +234,14 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
    * @param initiator The address of the proxy that initiated the flashloan
    */
   function processFlashloan(FlashloanDataV2 memory flData, address initiator) private {
+    isFlashloanInProgress = 2;
+
     IERC20(flData.asset).safeTransfer(initiator, flData.amount);
     IProxy(payable(initiator)).execute(
       address(this),
       abi.encodeWithSelector(this.callbackAggregate.selector, flData.calls)
     );
+
+    isFlashloanInProgress = 1;
   }
 }
