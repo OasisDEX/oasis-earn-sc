@@ -72,6 +72,7 @@ export const systemWithAavePositions = ({
 
     await ds.deployAll()
     await ds.addAllEntries()
+    await ds.replaceSwapContracts()
 
     const dsSystem = ds.getSystem()
     const { system, registry, config: systemConfig } = dsSystem
@@ -119,6 +120,8 @@ export const systemWithAavePositions = ({
         ? swapAddress => getOneInchCall(swapAddress, [])
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
+
+    // const getTokens = buildGetTokenFunctionByStorage(ds, network)
 
     const getTokens = {
       byImpersonate: buildGetTokenByImpersonateFunction(

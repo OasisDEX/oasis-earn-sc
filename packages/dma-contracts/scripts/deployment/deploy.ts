@@ -46,6 +46,7 @@ import axios from 'axios'
 import BigNumber from 'bignumber.js'
 import {
   BigNumber as EthersBN,
+  constants,
   Contract,
   ContractFactory,
   ethers,
@@ -146,6 +147,64 @@ abstract class DeployedSystemHelpers {
       address: this.signerAddress,
     }
   }
+
+  public async findBalancesSlot(tokenAddress: string): Promise<number> {
+    if (!this.provider) throw new Error('Provider is not defined!')
+
+    const encode = (types: any[], values: any[]) =>
+      this.ethers.utils.defaultAbiCoder.encode(types, values)
+    const account = constants.AddressZero
+    const probeA = encode(['uint'], [EthersBN.from('100')])
+    const probeB = encode(['uint'], [EthersBN.from('200')])
+    const token = await this.ethers.getContractAt('IERC20', tokenAddress)
+    for (let i = 0; i < 100; i++) {
+      let probedSlot = this.ethers.utils.keccak256(encode(['address', 'uint'], [account, i]))
+      // remove padding for JSON RPC
+      while (probedSlot.startsWith('0x0')) probedSlot = '0x' + probedSlot.slice(3)
+      const prev = await this.provider.send('eth_getStorageAt', [
+        tokenAddress,
+        probedSlot,
+        'latest',
+      ])
+      // make sure the probe will change the slot value
+      const probe = prev === probeA ? probeB : probeA
+
+      await this.provider.send('hardhat_setStorageAt', [tokenAddress, probedSlot, probe])
+
+      const balance = await token.balanceOf(account)
+      // reset to previous value
+      await this.provider.send('hardhat_setStorageAt', [tokenAddress, probedSlot, prev])
+      if (balance.eq(EthersBN.from(probe))) return i
+    }
+    throw 'Balances slot not found!'
+  }
+  /**
+   * Set token balance to the provided value.
+   * @param {string} account  - address of the wallet holding the tokens
+   * @param {string}tokenAddress - address of the token contract
+   * @param {BigNumber} balance - token balance to set
+   * @return {Promise<boolean>} if the operation succedded
+   */
+
+  public async setTokenBalance(
+    account: string,
+    tokenAddress: string,
+    balance: BigNumber,
+  ): Promise<boolean> {
+    const slot = await this.findBalancesSlot(tokenAddress)
+    let index = this.ethers.utils.solidityKeccak256(['uint256', 'uint256'], [account, slot])
+    if (index.startsWith('0x0')) index = '0x' + index.slice(3)
+
+    const balanceBN = EthersBN.from(balance.toFixed())
+    await this.ethers.provider.send('hardhat_setStorageAt', [
+      tokenAddress,
+      index,
+      this.ethers.utils.hexZeroPad(balanceBN.toHexString(), 32),
+    ])
+    const token = await this.ethers.getContractAt('IERC20', tokenAddress)
+    const balanceAfter = await token.balanceOf(account)
+    return balance.toString() == balanceAfter.toString()
+  }
 }
 
 // MAIN CLASS ===============================================
@@ -153,11 +212,13 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   public config: SystemConfig | undefined
   public deployedSystem: SystemTemplate = {}
   private readonly _cache = new NodeCache()
+  private readonly isLocal: boolean
 
   constructor(public readonly hre: HardhatRuntimeEnvironment) {
     super()
     this.hre = hre
     this.network = hre.network.name as Network
+    this.isLocal = this.network === Network.LOCAL
   }
 
   async loadConfig(configFileName?: string) {
@@ -377,6 +438,34 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
+  async removeRegistryEntry(configItem: DeploymentConfig) {
+    if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
+    if (configItem.serviceRegistryName) {
+      this.serviceRegistryHelper.removeEntry(configItem.serviceRegistryName)
+    }
+  }
+
+  async replaceSwapContracts() {
+    if (!this.provider) throw new Error('No provider set')
+    if (!this.signerAddress) throw new Error('No signerAddress set')
+    if (!this.deployedSystem.ServiceRegistry) throw new Error('No ServiceRegistry instance')
+
+    if (this.deployedSystem.uSwap) {
+      const serviceRegistry = this.deployedSystem.ServiceRegistry
+      const swapHash = this.getRegistryEntryHash('Swap')
+      const encode = (types: any[], values: any[]) =>
+        this.ethers.utils.defaultAbiCoder.encode(types, values)
+      const slot = this.ethers.utils.keccak256(encode(['bytes32', 'uint'], [swapHash, 1]))
+      const paddedAddress = ethers.utils.hexZeroPad(this.deployedSystem.uSwap.contract.address, 32)
+
+      await this.provider.send('hardhat_setStorageAt', [
+        serviceRegistry.contract.address,
+        slot,
+        paddedAddress,
+      ])
+    }
+  }
+
   async instantiateContracts(addressesConfig: SystemConfigItem[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     for (const configItem of addressesConfig) {
@@ -399,6 +488,48 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
       if (configItem.name === 'ServiceRegistry') {
         this.serviceRegistryHelper = new ServiceRegistry(configItem.address, this.signer)
+
+        if (this.isLocal) {
+          if (!this.provider) throw new Error('No provider set')
+          if (!this.signerAddress) throw new Error('No signerAddress set')
+
+          const paddedOwnerAddress = ethers.utils.hexZeroPad(this.signerAddress, 32)
+
+          await this.provider.send('hardhat_setStorageAt', [
+            contractInstance.address,
+            '0x3',
+            paddedOwnerAddress,
+          ])
+        }
+      }
+
+      if (configItem.name === 'AccountGuard') {
+        if (!this.provider) throw new Error('No provider set')
+        if (!this.signerAddress) throw new Error('No signerAddress set')
+
+        if (this.isLocal) {
+          const paddedOwnerAddress = ethers.utils.hexZeroPad(this.signerAddress, 32)
+
+          await this.provider.send('hardhat_setStorageAt', [
+            contractInstance.address,
+            '0x0',
+            paddedOwnerAddress,
+          ])
+        }
+      }
+      if (configItem.name === 'OperationsRegistry') {
+        if (!this.provider) throw new Error('No provider set')
+        if (!this.signerAddress) throw new Error('No signerAddress set')
+
+        if (this.isLocal) {
+          const paddedOwnerAddress = ethers.utils.hexZeroPad(this.signerAddress, 32)
+
+          await this.provider.send('hardhat_setStorageAt', [
+            contractInstance.address,
+            '0x1',
+            paddedOwnerAddress,
+          ])
+        }
       }
 
       await this.postInstantiation(configItem, contractInstance)
