@@ -20,6 +20,7 @@ export const oneInchCallMock =
     to: string,
     amount: BigNumber,
     slippage: BigNumber,
+    protocols?: string[],
     __invertSwapDirection?: boolean,
   ) => {
     // EG FROM WBTC 8 to USDC 6

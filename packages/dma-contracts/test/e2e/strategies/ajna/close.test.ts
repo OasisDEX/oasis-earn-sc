@@ -313,7 +313,6 @@ async function closePositionHelper({
       quoteTokenPrecision: debtToken.precision,
       quoteTokenSymbol: debtToken.symbol,
       slippage: new BigNumber(0.01),
-      // slippage: UNISWAP_TEST_SLIPPAGE,
       collateralAmount: ZERO,
       user: dependencies.user,
       position,

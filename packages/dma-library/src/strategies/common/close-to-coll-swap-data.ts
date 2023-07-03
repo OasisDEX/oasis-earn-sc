@@ -74,6 +74,7 @@ export async function getSwapDataForCloseToCollateral({
       ETHAddress,
       outstandingDebt,
       slippage,
+      undefined,
       true, // inverts swap mock in tests ignored in prod
     )
     debtPrice = new BigNumber(

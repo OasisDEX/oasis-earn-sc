@@ -51,8 +51,8 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
   const ajnaPool = await dependencies.getPoolData(pool.address)
 
   // Mocked price info
-  const mockMarketPrice = new BigNumber(1720) // 1 ETH = 1720 USDC
-  const collateralPrice = new BigNumber(1720) // 1 ETH = 1720 USD
+  const mockMarketPrice = new BigNumber(1959.31) // 1 ETH = 1959.31 USDC
+  const collateralPrice = new BigNumber(1959.31) // 1 ETH = 1959.31 USD
   const quotePrice = new BigNumber(1) // 1 USDC = 1 USD
 
   const tokens = configureTokens(dependencies)

@@ -1,10 +1,11 @@
-import { FEE_ESTIMATE_INFLATOR, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { FEE_ESTIMATE_INFLATOR, ONE, ZERO } from '@dma-common/constants'
 import { CollectFeeFrom } from '@dma-common/types'
 import { amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { ajnaBuckets } from '@dma-library/strategies'
 import * as StrategiesCommon from '@dma-library/strategies/common'
 import {
   AjnaPosition,
@@ -185,12 +186,6 @@ async function buildOperation(
     ? swapData.fromTokenAmount.plus(preSwapFee)
     : lockedCollateralAmount
 
-  // Normalised to 18 decimal places (EG Typical Precision) as required by domain logic
-  const normalisedOraclePrice = amountToWei(
-    args.collateralPrice.div(args.quotePrice),
-    TYPICAL_PRECISION,
-  ).integerValue(BigNumber.ROUND_DOWN)
-
   const closeArgs = {
     collateral: {
       address: collateralToken.address,
@@ -232,8 +227,7 @@ async function buildOperation(
       operationExecutor: dependencies.operationExecutor,
       pool: args.poolAddress,
     },
-    // Prices must be in 18 decimal precision
-    price: normalisedOraclePrice,
+    price: new BigNumber(ajnaBuckets[ajnaBuckets.length - 1]),
   }
 
   if (args.shouldCloseToCollateral) {
