@@ -9,13 +9,8 @@ import {
   PositionVariants,
   StrategyDependenciesAjna,
 } from '@dma-contracts/test/fixtures'
-import {
-  ETH,
-  MULTIPLE,
-  UNISWAP_TEST_SLIPPAGE,
-  USDC,
-} from '@dma-contracts/test/fixtures/factories/common'
-import { AjnaPosition, RiskRatio, strategies } from '@dma-library'
+import { ETH, MULTIPLE, USDC } from '@dma-contracts/test/fixtures/factories/common'
+import { AjnaPosition, Network, RiskRatio, strategies } from '@dma-library'
 import { AjnaPool, AjnaStrategy } from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -23,7 +18,7 @@ import { ethers } from 'ethers'
 import { OpenMultiplyPositionTypes } from './open-position-types'
 
 export interface EthUsdcMultiplyAjnaPosition {
-  positionVariant: 'ETH/USDC Multiply'
+  positionVariant: 'ETH/USDC Multiply;'
 
   ({
     proxy,
@@ -161,7 +156,7 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
   },
 ) {
   const collateralAmount = ONE
-  const slippage = UNISWAP_TEST_SLIPPAGE
+  const slippage = new BigNumber(0.02)
   const riskRatio = new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE)
 
   const args: OpenMultiplyPositionTypes[0] = {
@@ -180,7 +175,7 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
     riskRatio,
   }
 
-  return await strategies.ajna.multiply.open(args, dependencies)
+  return await strategies.ajna.multiply.open(args, { ...dependencies, network: Network.MAINNET })
 }
 
 async function executeTx(
