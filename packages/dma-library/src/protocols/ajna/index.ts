@@ -2,7 +2,10 @@ import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { ajnaBuckets } from '@dma-library/strategies'
 import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
-import { getPoolLiquidity } from '@dma-library/strategies/ajna/validation/borrowish/notEnoughLiquidity'
+import {
+  getLiquidityInLupBucket,
+  getPoolLiquidity,
+} from '@dma-library/strategies/ajna/validation/borrowish/notEnoughLiquidity'
 import {
   AjnaCommonDependencies,
   AjnaEarnActions,
@@ -265,8 +268,15 @@ export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumb
 export function calculateNewLupWhenAdjusting(
   pool: AjnaPool,
   position: AjnaEarnPosition,
-  simulation: AjnaEarnPosition,
+  simulation?: AjnaEarnPosition,
 ) {
+  if (!simulation) {
+    return {
+      newLupPrice: pool.lowestUtilizedPrice,
+      newLupIndex: pool.lowestUtilizedPriceIndex,
+    }
+  }
+
   let newLupPrice = ZERO
   let newLupIndex = ZERO
 
@@ -364,3 +374,64 @@ export const getAjnaLiquidationPrice = ({
       )
       .times(ONE.plus(pool.interestRate)),
   )
+
+const resolveMaxLiquidityWithdraw = (availableToWithdraw: BigNumber, quoteTokenAmount: BigNumber) =>
+  availableToWithdraw.gte(quoteTokenAmount) ? quoteTokenAmount : availableToWithdraw
+
+export const calculateAjnaMaxLiquidityWithdraw = ({
+  availableToWithdraw = ZERO,
+  pool,
+  position,
+  simulation,
+}: {
+  availableToWithdraw?: BigNumber
+  pool: AjnaPool
+  position: AjnaEarnPosition
+  simulation?: AjnaEarnPosition
+}) => {
+  if (
+    availableToWithdraw.gte(position.quoteTokenAmount) ||
+    pool.lowestUtilizedPriceIndex.isZero()
+  ) {
+    return position.quoteTokenAmount
+  }
+
+  const { newLupIndex } = calculateNewLupWhenAdjusting(pool, position, simulation)
+
+  if (newLupIndex.gt(pool.highestThresholdPriceIndex)) {
+    return resolveMaxLiquidityWithdraw(availableToWithdraw, position.quoteTokenAmount)
+  }
+
+  const buckets = pool.buckets.filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
+
+  const lupBucket = buckets.find(bucket => bucket.index.eq(pool.lowestUtilizedPriceIndex))
+  const lupBucketIndex = buckets.findIndex(bucket => bucket.index.eq(pool.lowestUtilizedPriceIndex))
+
+  if (!lupBucket) {
+    return resolveMaxLiquidityWithdraw(availableToWithdraw, position.quoteTokenAmount)
+  }
+
+  const liquidityInLupBucket = getLiquidityInLupBucket(pool)
+
+  if (!buckets[lupBucketIndex + 1]) {
+    return resolveMaxLiquidityWithdraw(
+      availableToWithdraw.plus(liquidityInLupBucket),
+      position.quoteTokenAmount,
+    )
+  }
+
+  return calculateAjnaMaxLiquidityWithdraw({
+    availableToWithdraw: availableToWithdraw.plus(liquidityInLupBucket),
+    pool: {
+      ...pool,
+      buckets: [
+        ...buckets.filter(bucket => !bucket.index.eq(lupBucket.index)),
+        { ...lupBucket, quoteTokens: lupBucket.quoteTokens.minus(liquidityInLupBucket) },
+      ],
+      lowestUtilizedPriceIndex: buckets[lupBucketIndex + 1].index,
+      lowestUtilizedPrice: buckets[lupBucketIndex + 1].price,
+    },
+    position,
+    simulation,
+  })
+}
