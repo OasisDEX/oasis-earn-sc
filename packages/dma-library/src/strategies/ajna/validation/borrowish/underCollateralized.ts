@@ -1,5 +1,5 @@
 import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
-import { validateLiquidity } from '@dma-library/strategies/ajna/validation/notEnoughLiquidity'
+import { validateLiquidity } from '@dma-library/strategies/ajna/validation/borrowish/notEnoughLiquidity'
 import { AjnaError, AjnaPosition } from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
 
