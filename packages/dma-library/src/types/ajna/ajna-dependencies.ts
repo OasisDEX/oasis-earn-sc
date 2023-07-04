@@ -78,11 +78,6 @@ export type AjnaCloseMultiplyPayload = Omit<
   shouldCloseToCollateral: boolean
 }
 
-export interface AjnaAdjustMultiplyPayload extends AjnaMultiplyPayload {
-  position: AjnaPosition
-  riskRatio: IRiskRatio
-}
-
 export interface AjnaEarnPayload extends AjnaCommonPayload {
   isStakingNft: boolean
   price: BigNumber

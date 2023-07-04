@@ -104,17 +104,17 @@ async function addLiquidityToPool(ajnaSystem: AjnaSystem, pool: ERC20Pool) {
    * */
   const buckets = [
     {
-      amount: ethers.BigNumber.from(1000),
+      amount: ethers.BigNumber.from(3000),
       // Lower meaning better price offered
       index: ethers.BigNumber.from(1000),
     },
     {
-      amount: ethers.BigNumber.from(1000),
-      index: ethers.BigNumber.from(1001),
+      amount: ethers.BigNumber.from(3000),
+      index: ethers.BigNumber.from(1200),
     },
     {
-      amount: ethers.BigNumber.from(1000),
-      index: ethers.BigNumber.from(1002),
+      amount: ethers.BigNumber.from(3000),
+      index: ethers.BigNumber.from(1400),
     },
   ]
 

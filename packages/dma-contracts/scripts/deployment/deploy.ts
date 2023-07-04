@@ -20,6 +20,8 @@ import {
   getAaveOpenV3OperationDefinition,
   getAavePaybackWithdrawV2OperationDefinition,
   getAavePaybackWithdrawV3OperationDefinition,
+  getAjnaAdjustDownOperationDefinition,
+  getAjnaAdjustUpOperationDefinition,
   getAjnaCloseToCollateralOperationDefinition,
   getAjnaCloseToQuoteOperationDefinition,
   getAjnaOpenOperationDefinition,
@@ -695,6 +697,16 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await operationsRegistry.addOp(
       getAjnaCloseToCollateralOperationDefinition(network).name,
       getAjnaCloseToCollateralOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaAdjustUpOperationDefinition(network).name,
+      getAjnaAdjustUpOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaAdjustDownOperationDefinition(network).name,
+      getAjnaAdjustDownOperationDefinition(network).actions,
     )
   }
 
