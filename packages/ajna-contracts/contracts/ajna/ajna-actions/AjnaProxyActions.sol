@@ -349,21 +349,20 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  collateralAmount Amount of collateral to withdraw
      */
     function repayWithdraw(IERC20Pool pool, uint256 debtAmount, uint256 collateralAmount) external payable {
-        {
-            address debtToken = pool.quoteTokenAddress();
-            address collateralToken = pool.collateralAddress();
-            _pull(debtToken, debtAmount);
-            IERC20(debtToken).approve(address(pool), debtAmount);
-            (, , , , , uint256 lupIndex_) = poolInfoUtils.poolPricesInfo(address(pool));
-            pool.repayDebt(
-                address(this),
-                debtAmount * pool.quoteTokenScale(),
-                collateralAmount * pool.collateralScale(),
-                address(this),
-                lupIndex_
-            );
-            _send(collateralToken, collateralAmount);
-        }
+        address debtToken = pool.quoteTokenAddress();
+        address collateralToken = pool.collateralAddress();
+        _pull(debtToken, debtAmount);
+        IERC20(debtToken).approve(address(pool), debtAmount);
+        (, , , , , uint256 lupIndex_) = poolInfoUtils.poolPricesInfo(address(pool));
+        pool.repayDebt(
+            address(this),
+            debtAmount * pool.quoteTokenScale(),
+            collateralAmount * pool.collateralScale(),
+            address(this),
+            lupIndex_
+        );
+        _send(collateralToken, collateralAmount);
+
         if (debtAmount > 0 && collateralAmount > 0) {
             emit ProxyActionsOperation("AjnaRepayWithdraw");
         } else if (debtAmount > 0) {
