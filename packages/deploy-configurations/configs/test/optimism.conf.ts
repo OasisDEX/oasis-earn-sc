@@ -96,7 +96,7 @@ export const config: SystemConfig = {
       PositionCreated: {
         name: 'PositionCreated',
         deploy: true,
-        address: '0x5743b5606e94fb534a31e1cefb3242c8a9422e5e',
+        address: '0x8061c24823094E51e57A4a5cF8bEd3CCf09d316F',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.POSITION_CREATED,
         history: ['0xE7aA0939F0cFF45162A22751CbE0009c689EA256'],
         constructorArgs: [],
