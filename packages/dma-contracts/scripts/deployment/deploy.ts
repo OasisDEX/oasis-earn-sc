@@ -4,7 +4,6 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import {
-  ajnaOpenOperationDefinition,
   getAaveAdjustDownV2OperationDefinition,
   getAaveAdjustDownV3OperationDefinition,
   getAaveAdjustUpV2OperationDefinition,
@@ -21,6 +20,11 @@ import {
   getAaveOpenV3OperationDefinition,
   getAavePaybackWithdrawV2OperationDefinition,
   getAavePaybackWithdrawV3OperationDefinition,
+  getAjnaAdjustDownOperationDefinition,
+  getAjnaAdjustUpOperationDefinition,
+  getAjnaCloseToCollateralOperationDefinition,
+  getAjnaCloseToQuoteOperationDefinition,
+  getAjnaOpenOperationDefinition,
 } from '@deploy-configurations/operation-definitions'
 import {
   ContractProps,
@@ -681,8 +685,28 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
     // AJNA
     await operationsRegistry.addOp(
-      ajnaOpenOperationDefinition.name,
-      ajnaOpenOperationDefinition.actions,
+      getAjnaOpenOperationDefinition(network).name,
+      getAjnaOpenOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaCloseToQuoteOperationDefinition(network).name,
+      getAjnaCloseToQuoteOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaCloseToCollateralOperationDefinition(network).name,
+      getAjnaCloseToCollateralOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaAdjustUpOperationDefinition(network).name,
+      getAjnaAdjustUpOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaAdjustDownOperationDefinition(network).name,
+      getAjnaAdjustDownOperationDefinition(network).actions,
     )
   }
 

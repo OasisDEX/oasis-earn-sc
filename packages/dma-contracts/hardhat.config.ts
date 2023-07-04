@@ -25,10 +25,10 @@ import './tasks/deploy-ajna'
 import { Network } from '@deploy-configurations/types/network'
 import * as process from 'process'
 
-import * as tdly from "@tenderly/hardhat-tenderly";
-tdly.setup();
-
+import * as tdly from '@tenderly/hardhat-tenderly'
 import { ChainIdByNetwork } from '../deploy-configurations/utils/network'
+
+tdly.setup()
 
 const networkFork = process.env.NETWORK_FORK as Network | undefined
 
@@ -136,7 +136,6 @@ const config = {
           },
         },
       },
-
     ],
     settings: {
       optimizer: {
@@ -147,7 +146,7 @@ const config = {
   },
   networks: {
     tenderly: {
-      url: 'https://rpc.tenderly.co/fork/3c3fcded-bd11-4028-8d61-266499fbff02',
+      url: 'https://rpc.tenderly.co/fork/5f360c14-1668-4079-8c30-c840b1564775',
       accounts: [
         '0xe4966abd3595e37f1d9313616d9a833fdbde301f70b61eb17cb7e919ca0addd8',
         '0x8a78506679446be6dc846c7dddbbee4b5f0ae725caa50126739e0851d66a29c8',
@@ -182,22 +181,51 @@ const config = {
     },
     hardhat: {
       forking: {
-
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         url: forkConfig ? forkConfig.nodeURL : 'http://127.0.0.1:8545',
         blockNumber: forkConfig ? parseInt(forkConfig.blockNumber) : 0,
       },
       accounts: [
-         {privateKey: '8a78506679446be6dc846c7dddbbee4b5f0ae725caa50126739e0851d66a29c8', balance: '10000000000000000000000000'},
-         {privateKey: '284e6f4bc08734aacbd59772662216e288d01a689610c105a5ed8e8defc4425d', balance: '10000000000000000000000000'},
-         {privateKey: 'd7af053f5710feb0718095bd5f403b4e6db3625bf572bb1fcae19a84f0faa71a', balance: '10000000000000000000000000'},
-         {privateKey: 'a15ee68c2bd73743cd1a54ac95215bc79cfaa164460fcb907759459ef15d0a99', balance: '10000000000000000000000000'},
-         {privateKey: 'd90167141d1bef8a39da4a62673cc18e0a9dd31e25ab47695564fe79d6555cac', balance: '10000000000000000000000000'},
-         {privateKey: '3386f570f1af049a61a551efd5cbe9d0070d7eb79ec70c5436e89cdc0ec8548d', balance: '10000000000000000000000000'},
-         {privateKey: 'c14983f5efd216aa3d0ded41f6469774942aa5c2d89f4c9da83229cd45834189', balance: '10000000000000000000000000'},
-         {privateKey: '467d25134b5539cf5788eab218fbed1dba640bcd5c8562a94f191cc5992de20b', balance: '10000000000000000000000000'},
-         {privateKey: '8fc5a92c787ae1a4183f1cc5ace40c459d07457c932fc368bdc4b215ad31832a', balance: '10000000000000000000000000'},
-         {privateKey: '573950c5ca81624e315ad243c6af1b9eb6e32f4f2f45f6f26669ed0b209b6746', balance: '10000000000000000000000000'},
+        {
+          privateKey: '8a78506679446be6dc846c7dddbbee4b5f0ae725caa50126739e0851d66a29c8',
+          balance: '10000000000000000000000000',
+        },
+        {
+          privateKey: '284e6f4bc08734aacbd59772662216e288d01a689610c105a5ed8e8defc4425d',
+          balance: '10000000000000000000000000',
+        },
+        {
+          privateKey: 'd7af053f5710feb0718095bd5f403b4e6db3625bf572bb1fcae19a84f0faa71a',
+          balance: '10000000000000000000000000',
+        },
+        {
+          privateKey: 'a15ee68c2bd73743cd1a54ac95215bc79cfaa164460fcb907759459ef15d0a99',
+          balance: '10000000000000000000000000',
+        },
+        {
+          privateKey: 'd90167141d1bef8a39da4a62673cc18e0a9dd31e25ab47695564fe79d6555cac',
+          balance: '10000000000000000000000000',
+        },
+        {
+          privateKey: '3386f570f1af049a61a551efd5cbe9d0070d7eb79ec70c5436e89cdc0ec8548d',
+          balance: '10000000000000000000000000',
+        },
+        {
+          privateKey: 'c14983f5efd216aa3d0ded41f6469774942aa5c2d89f4c9da83229cd45834189',
+          balance: '10000000000000000000000000',
+        },
+        {
+          privateKey: '467d25134b5539cf5788eab218fbed1dba640bcd5c8562a94f191cc5992de20b',
+          balance: '10000000000000000000000000',
+        },
+        {
+          privateKey: '8fc5a92c787ae1a4183f1cc5ace40c459d07457c932fc368bdc4b215ad31832a',
+          balance: '10000000000000000000000000',
+        },
+        {
+          privateKey: '573950c5ca81624e315ad243c6af1b9eb6e32f4f2f45f6f26669ed0b209b6746',
+          balance: '10000000000000000000000000',
+        },
       ],
       chainId: ChainIdByNetwork[Network.LOCAL],
       mining: {
@@ -286,10 +314,10 @@ const config = {
     ],
   },
   tenderly: {
-    username: "oazoapps", // tenderly username (or organization name)
+    username: 'oazoapps', // tenderly username (or organization name)
     project: process.env.TENDERLY_PROJECT ?? '', // project name
-    privateVerification: true // if true, contracts will be verified privately, if false, contracts will be verified publicly
-  }
+    privateVerification: true, // if true, contracts will be verified privately, if false, contracts will be verified publicly
+  },
 }
 
 // @ts-ignore

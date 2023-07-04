@@ -5,26 +5,41 @@ import { Network } from '@deploy-configurations/types/network'
 export const acceptedTokens = [
   {
     symbol: 'USDC',
-    address: [ADDRESSES.mainnet.common.USDC, ADDRESSES[Network.OPTIMISM].common.USDC],
+    address: [
+      ADDRESSES.mainnet.common.USDC.toLowerCase(),
+      ADDRESSES[Network.OPTIMISM].common.USDC.toLowerCase(),
+    ],
   },
   {
     symbol: 'DAI',
-    address: [ADDRESSES.mainnet.common.DAI, ADDRESSES[Network.OPTIMISM].common.DAI],
+    address: [
+      ADDRESSES.mainnet.common.DAI.toLowerCase(),
+      ADDRESSES[Network.OPTIMISM].common.DAI.toLowerCase(),
+    ],
   },
   {
     symbol: 'WETH',
-    address: [ADDRESSES.mainnet.common.WETH, ADDRESSES[Network.OPTIMISM].common.WETH],
+    address: [
+      ADDRESSES.mainnet.common.WETH.toLowerCase(),
+      ADDRESSES[Network.OPTIMISM].common.WETH.toLowerCase(),
+    ],
   },
   {
     symbol: 'ETH',
-    address: [ADDRESSES.mainnet.common.ETH, ADDRESSES[Network.OPTIMISM].common.ETH],
+    address: [
+      ADDRESSES.mainnet.common.ETH.toLowerCase(),
+      ADDRESSES[Network.OPTIMISM].common.ETH.toLowerCase(),
+    ],
   },
   {
     symbol: 'STETH',
-    address: [ADDRESSES.mainnet.common.STETH],
+    address: [ADDRESSES.mainnet.common.STETH.toLowerCase()],
   },
   {
     symbol: 'WBTC',
-    address: [ADDRESSES.mainnet.common.WBTC, ADDRESSES[Network.OPTIMISM].common.WBTC],
+    address: [
+      ADDRESSES.mainnet.common.WBTC.toLowerCase(),
+      ADDRESSES[Network.OPTIMISM].common.WBTC.toLowerCase(),
+    ],
   },
 ]

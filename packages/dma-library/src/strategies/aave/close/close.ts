@@ -5,6 +5,7 @@ import {
   getAaveTokenAddress,
   getAaveTokenAddresses,
 } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import * as StrategiesCommon from '@dma-library/strategies/common'
 import { PositionTransition } from '@dma-library/types'
 import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
 import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
@@ -61,6 +62,84 @@ export async function close(
     dependencies,
   )
 }
+
+// async function getAaveSwapDataToCloseToCollateral(
+//   { debtToken, collateralToken, slippage, protocolVersion }: AaveCloseArgsWithVersioning,
+//   dependencies: AaveCloseDependencies,
+// ) {
+//   const { addresses } = dependencies
+//   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
+//     { debtToken, collateralToken },
+//     addresses,
+//   )
+//
+//   // Since we cannot get the exact amount that will be needed
+//   // to cover all debt, there will be left overs of the debt token
+//   // which will then have to be transferred back to the user
+//   const [, colPrice, debtPrice] = (
+//     await getValuesFromProtocol(
+//       protocolVersion,
+//       collateralTokenAddress,
+//       debtTokenAddress,
+//       dependencies,
+//     )
+//   ).map(price => {
+//     return new BigNumber(price.toString())
+//   })
+//
+//   const collateralTokenWithAddress = {
+//     ...collateralToken,
+//     precision: collateralToken.precision || TYPICAL_PRECISION,
+//     address: collateralTokenAddress,
+//   }
+//   const debtTokenWithAddress = {
+//     ...debtToken,
+//     precision: debtToken.precision || TYPICAL_PRECISION,
+//     address: debtTokenAddress,
+//   }
+//
+//   return await StrategiesCommon.getSwapDataForCloseToCollateral({
+//     collateralToken: collateralTokenWithAddress,
+//     debtToken: debtTokenWithAddress,
+//     colPrice,
+//     debtPrice,
+//     outstandingDebt: dependencies.currentPosition.debt.amount,
+//     slippage,
+//     ETHAddress: addresses.ETH,
+//     getSwapData: dependencies.getSwapData,
+//   })
+// }
+//
+// async function getAaveSwapDataToCloseToDebt(
+//   { debtToken, collateralToken, slippage, collateralAmountLockedInProtocolInWei }: AaveCloseArgs,
+//   dependencies: AaveCloseDependencies,
+// ) {
+//   const { addresses } = dependencies
+//   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
+//     { debtToken, collateralToken },
+//     addresses,
+//   )
+//
+//   const swapAmountBeforeFees = collateralAmountLockedInProtocolInWei
+//   const fromToken = {
+//     ...collateralToken,
+//     precision: collateralToken.precision || TYPICAL_PRECISION,
+//     address: collateralTokenAddress,
+//   }
+//   const toToken = {
+//     ...debtToken,
+//     precision: debtToken.precision || TYPICAL_PRECISION,
+//     address: debtTokenAddress,
+//   }
+//
+//   return StrategiesCommon.getSwapDataForCloseToDebt({
+//     fromToken,
+//     toToken,
+//     slippage,
+//     swapAmountBeforeFees,
+//     getSwapData: dependencies.getSwapData,
+//   })
+// }
 
 async function getSwapDataToCloseToCollateral(
   {
@@ -195,28 +274,41 @@ async function getSwapDataToCloseToDebt(
   )
 
   const swapAmountBeforeFees = dependencies.currentPosition.collateral.amount
-  const collectFeeFrom = acceptedFeeToken({
-    fromToken: collateralTokenAddress,
-    toToken: debtTokenAddress,
-  })
+  const fromToken = {
+    ...collateralToken,
+    precision: collateralToken.precision || TYPICAL_PRECISION,
+    address: collateralTokenAddress,
+  }
+  const toToken = {
+    ...debtToken,
+    precision: debtToken.precision || TYPICAL_PRECISION,
+    address: debtTokenAddress,
+  }
 
-  const fee = feeResolver(collateralToken.symbol, debtToken.symbol)
-
-  const preSwapFee =
-    collectFeeFrom === 'sourceToken' ? calculateFee(swapAmountBeforeFees, fee.toNumber()) : ZERO
-
-  const swapAmountAfterFees = swapAmountBeforeFees
-    .minus(preSwapFee)
-    .integerValue(BigNumber.ROUND_DOWN)
-
-  const swapData = await dependencies.getSwapData(
-    collateralTokenAddress,
-    debtTokenAddress,
-    swapAmountAfterFees,
+  return StrategiesCommon.getSwapDataForCloseToDebt({
+    fromToken,
+    toToken,
     slippage,
-  )
-
-  return { swapData, collectFeeFrom, preSwapFee }
+    swapAmountBeforeFees,
+    getSwapData: dependencies.getSwapData,
+  })
+  // const fee = feeResolver(collateralToken.symbol, debtToken.symbol)
+  //
+  // const preSwapFee =
+  //   collectFeeFrom === 'sourceToken' ? calculateFee(swapAmountBeforeFees, fee.toNumber()) : ZERO
+  //
+  // const swapAmountAfterFees = swapAmountBeforeFees
+  //   .minus(preSwapFee)
+  //   .integerValue(BigNumber.ROUND_DOWN)
+  //
+  // const swapData = await dependencies.getSwapData(
+  //   collateralTokenAddress,
+  //   debtTokenAddress,
+  //   swapAmountAfterFees,
+  //   slippage,
+  // )
+  //
+  // return { swapData, collectFeeFrom, preSwapFee }
 }
 
 function calculateNeededCollateralToPaybackDebt(

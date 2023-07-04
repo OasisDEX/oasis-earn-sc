@@ -1,6 +1,7 @@
 import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
-import { AjnaEarnPosition, AjnaPosition, SwapData } from '@dma-library/types'
+import { AjnaEarnPosition, AjnaPosition } from '@dma-library/types'
+import { GetSwapData } from '@dma-library/types/common'
 import { GetEarnData } from '@dma-library/views'
 import { GetPoolData } from '@dma-library/views/ajna'
 import { IRiskRatio } from '@domain'
@@ -25,12 +26,7 @@ export type AjnaCommonDMADependencies = Omit<AjnaCommonDependencies, 'ajnaProxyA
     USDC: Address
     WBTC: Address
   }
-  getSwapData: (
-    fromToken: string,
-    toToken: string,
-    amount: BigNumber,
-    slippage: BigNumber,
-  ) => Promise<SwapData>
+  getSwapData: GetSwapData
 }
 
 export interface AjnaOpenEarnDependencies extends AjnaCommonDependencies {
@@ -64,20 +60,22 @@ export interface AjnaOpenEarnPayload extends AjnaCommonPayload {
   quoteAmount: BigNumber
 }
 
-export interface AjnaOpenMultiplyPayload extends AjnaCommonPayload {
-  user: Address
+export interface AjnaMultiplyPayload extends AjnaCommonPayload {
   quoteTokenSymbol: string
   collateralTokenSymbol: string
-  // In wei units or equivalent EG 1 USDC -> 1e6 or 1 ETH -> 1e18
-  collateralAmount: BigNumber
   slippage: BigNumber
+  user: Address
+  collateralAmount: BigNumber
   riskRatio: IRiskRatio
+  position: AjnaPosition
 }
 
-export interface AjnaMultiplyPayload extends AjnaCommonPayload {
-  position: AjnaPosition
-  collateralAmount: BigNumber
-  riskRatio: IRiskRatio
+export type AjnaOpenMultiplyPayload = Omit<AjnaMultiplyPayload, 'position'>
+export type AjnaCloseMultiplyPayload = Omit<
+  AjnaMultiplyPayload,
+  'riskRatio' | 'collateralAmount'
+> & {
+  shouldCloseToCollateral: boolean
 }
 
 export interface AjnaEarnPayload extends AjnaCommonPayload {

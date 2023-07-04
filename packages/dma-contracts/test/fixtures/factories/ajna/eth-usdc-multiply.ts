@@ -9,13 +9,8 @@ import {
   PositionVariants,
   StrategyDependenciesAjna,
 } from '@dma-contracts/test/fixtures'
-import {
-  ETH,
-  MULTIPLE,
-  UNISWAP_TEST_SLIPPAGE,
-  USDC,
-} from '@dma-contracts/test/fixtures/factories/common'
-import { AjnaPosition, RiskRatio, strategies } from '@dma-library'
+import { ETH, MULTIPLE, USDC } from '@dma-contracts/test/fixtures/factories/common'
+import { AjnaPosition, Network, RiskRatio, strategies } from '@dma-library'
 import { AjnaPool, AjnaStrategy } from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -23,7 +18,7 @@ import { ethers } from 'ethers'
 import { OpenMultiplyPositionTypes } from './open-position-types'
 
 export interface EthUsdcMultiplyAjnaPosition {
-  positionVariant: 'ETH/USDC Multiply'
+  positionVariant: 'ETH/USDC Multiply;'
 
   ({
     proxy,
@@ -56,8 +51,8 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
   const ajnaPool = await dependencies.getPoolData(pool.address)
 
   // Mocked price info
-  const mockMarketPrice = new BigNumber(1543) // 1 ETH = 1543 USDC
-  const collateralPrice = new BigNumber(1543) // 1 ETH = 1543 USD
+  const mockMarketPrice = new BigNumber(1959.31) // 1 ETH = 1959.31 USDC
+  const collateralPrice = new BigNumber(1959.31) // 1 ETH = 1959.31 USD
   const quotePrice = new BigNumber(1) // 1 USDC = 1 USD
 
   const tokens = configureTokens(dependencies)
@@ -109,17 +104,17 @@ async function addLiquidityToPool(ajnaSystem: AjnaSystem, pool: ERC20Pool) {
    * */
   const buckets = [
     {
-      amount: ethers.BigNumber.from(1000),
+      amount: ethers.BigNumber.from(3000),
       // Lower meaning better price offered
       index: ethers.BigNumber.from(1000),
     },
     {
-      amount: ethers.BigNumber.from(1000),
-      index: ethers.BigNumber.from(1001),
+      amount: ethers.BigNumber.from(3000),
+      index: ethers.BigNumber.from(1200),
     },
     {
-      amount: ethers.BigNumber.from(1000),
-      index: ethers.BigNumber.from(1002),
+      amount: ethers.BigNumber.from(3000),
+      index: ethers.BigNumber.from(1400),
     },
   ]
 
@@ -161,7 +156,7 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
   },
 ) {
   const collateralAmount = ONE
-  const slippage = UNISWAP_TEST_SLIPPAGE
+  const slippage = new BigNumber(0.02)
   const riskRatio = new RiskRatio(MULTIPLE, RiskRatio.TYPE.MULITPLE)
 
   const args: OpenMultiplyPositionTypes[0] = {
@@ -180,7 +175,7 @@ async function getEthUsdcMultiplyAjnaPositionPayload(
     riskRatio,
   }
 
-  return await strategies.ajna.multiply.open(args, dependencies)
+  return await strategies.ajna.multiply.open(args, { ...dependencies, network: Network.MAINNET })
 }
 
 async function executeTx(

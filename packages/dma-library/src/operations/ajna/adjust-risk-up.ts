@@ -1,6 +1,7 @@
-import { ajnaAdjustUpOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { ZERO } from '@dma-common/constants'
+import { getAjnaAdjustUpOperationDefinition } from '@deploy-configurations/operation-definitions'
+import { FEE_BASE, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   IOperation,
   WithAjnaBucketPrice,
@@ -64,8 +65,8 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
 
   const hasAmountToDeposit = depositAmount.gt(ZERO)
   pullCollateralTokensToProxy.skipped = !hasAmountToDeposit || collateral.isEth
-  const shouldSkippWrapEth = !collateral.isEth
-  wrapEth.skipped = shouldSkippWrapEth
+  const shouldSkipWrapEth = !collateral.isEth
+  wrapEth.skipped = shouldSkipWrapEth
 
   const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
     fromAsset: debt.address,
@@ -77,7 +78,7 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const swapValueIndex = shouldSkippWrapEth ? 1 : 2
+  const swapValueIndex = shouldSkipWrapEth ? 1 : 2
 
   const setCollateralTokenApprovalOnPool = actions.common.setApproval(
     network,
@@ -102,18 +103,25 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
     [0, 0, swapValueIndex, 0, 0, 0],
   )
 
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken(network, {
+    asset: debt.address,
+    to: addresses.operationExecutor,
+    amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.token.amount)),
+  })
+
   const flashloanCalls = [
     pullCollateralTokensToProxy,
     wrapEth,
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnPool,
     depositBorrow,
+    sendQuoteTokenToOpExecutor,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: debt.address,
-    flashloanAmount: flashloan.amount,
+    flashloanAmount: flashloan.token.amount,
     isProxyFlashloan: true,
     provider: FlashloanProvider.Balancer,
     calls: flashloanCalls,
@@ -121,6 +129,6 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: ajnaAdjustUpOperationDefinition.name,
+    operationName: getAjnaAdjustUpOperationDefinition(network).name,
   }
 }

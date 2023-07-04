@@ -46,14 +46,17 @@ interface Props {
  * Accepts args as either a token symbol or in address format
  */
 export function acceptedFeeToken({ fromToken, toToken }: Props): 'sourceToken' | 'targetToken' {
+  const fromTokenLowerCase = fromToken.toLowerCase()
+  const toTokenLowerCase = toToken.toLowerCase()
   const fallbackTokenType = 'sourceToken'
   const fromTokenAcceptedIndex = acceptedTokens.findIndex(
     acceptedToken =>
-      fromToken === acceptedToken.symbol || acceptedToken.address.includes(fromToken),
+      fromToken === acceptedToken.symbol || acceptedToken.address.includes(fromTokenLowerCase),
   )
 
   const toTokenAcceptedIndex = acceptedTokens.findIndex(
-    acceptedToken => toToken === acceptedToken.symbol || acceptedToken.address.includes(toToken),
+    acceptedToken =>
+      toToken === acceptedToken.symbol || acceptedToken.address.includes(toTokenLowerCase),
   )
 
   const fromTokenNotAccepted = fromTokenAcceptedIndex === -1
