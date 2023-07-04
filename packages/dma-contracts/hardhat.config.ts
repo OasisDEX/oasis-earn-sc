@@ -146,7 +146,7 @@ const config = {
   },
   networks: {
     tenderly: {
-      url: 'https://rpc.tenderly.co/fork/5f360c14-1668-4079-8c30-c840b1564775',
+      url: 'https://rpc.tenderly.co/fork/6629361a-f4a9-48c9-9bf4-0a83da275a7c',
       accounts: [
         '0xe4966abd3595e37f1d9313616d9a833fdbde301f70b61eb17cb7e919ca0addd8',
         '0x8a78506679446be6dc846c7dddbbee4b5f0ae725caa50126739e0851d66a29c8',
