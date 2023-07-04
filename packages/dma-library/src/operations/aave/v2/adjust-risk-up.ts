@@ -1,4 +1,4 @@
-import { aaveAdjustUpV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getAaveAdjustUpV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
@@ -8,6 +8,7 @@ import {
   WithCollateral,
   WithDebtAndBorrow,
   WithFlashloan,
+  WithNetwork,
   WithOptionalDeposit,
   WithProxy,
   WithSwap,
@@ -15,13 +16,14 @@ import {
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-type AdjustRiskUpArgs = WithCollateral &
+export type AdjustRiskUpArgs = WithCollateral &
   WithDebtAndBorrow &
   WithOptionalDeposit &
   WithSwap &
   WithFlashloan &
   WithProxy &
-  WithAaveV2StrategyAddresses
+  WithAaveV2StrategyAddresses &
+  WithNetwork
 
 export type AaveV2AdjustUpOperation = ({
   collateral,
@@ -31,6 +33,7 @@ export type AaveV2AdjustUpOperation = ({
   flashloan,
   proxy,
   addresses,
+  network,
 }: AdjustRiskUpArgs) => Promise<IOperation>
 
 export const adjustRiskUp: AaveV2AdjustUpOperation = async ({
@@ -41,48 +44,49 @@ export const adjustRiskUp: AaveV2AdjustUpOperation = async ({
   flashloan,
   proxy,
   addresses,
+  network,
 }) => {
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
 
   const isDepositingCollateral = deposit?.address === collateral.address
   const isDepositingDebtTokens = deposit?.address === debt.address
-  const pullDebtTokensToProxy = actions.common.pullToken({
+  const pullDebtTokensToProxy = actions.common.pullToken(network, {
     asset: debt.address,
     amount: isDepositingDebtTokens ? depositAmount : ZERO,
     from: proxy.owner,
   })
 
-  const pullCollateralTokensToProxy = actions.common.pullToken({
+  const pullCollateralTokensToProxy = actions.common.pullToken(network, {
     asset: collateral.address,
     amount: isDepositingCollateral ? depositAmount : ZERO,
     from: proxy.owner,
   })
 
-  const setDaiApprovalOnLendingPool = actions.common.setApproval({
-    amount: flashloan.amount,
+  const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
+    amount: flashloan.token.amount,
     asset: addresses.DAI,
     delegate: addresses.lendingPool,
     sumAmounts: false,
   })
 
-  const depositDaiInAAVE = actions.aave.v2.aaveDeposit({
-    amount: flashloan.amount,
+  const depositDaiInAAVE = actions.aave.v2.aaveDeposit(network, {
+    amount: flashloan.token.amount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
 
-  const borrowDebtTokensFromAAVE = actions.aave.v2.aaveBorrow({
+  const borrowDebtTokensFromAAVE = actions.aave.v2.aaveBorrow(network, {
     amount: debt.borrow.amount,
     asset: debt.address,
     to: proxy.address,
   })
 
-  const wrapEth = actions.common.wrapEth({
+  const wrapEth = actions.common.wrapEth(network, {
     amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
   })
 
-  const swapDebtTokensForCollateralTokens = actions.common.swap({
+  const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
     fromAsset: debt.address,
     toAsset: collateral.address,
     amount: swap.amount,
@@ -94,6 +98,7 @@ export const adjustRiskUp: AaveV2AdjustUpOperation = async ({
 
   const depositIsCollateral = depositAddress === collateral.address
   const setCollateralTokenApprovalOnLendingPool = actions.common.setApproval(
+    network,
     {
       asset: collateral.address,
       delegate: addresses.lendingPool,
@@ -104,6 +109,7 @@ export const adjustRiskUp: AaveV2AdjustUpOperation = async ({
   )
 
   const depositCollateral = actions.aave.v2.aaveDeposit(
+    network,
     {
       asset: collateral.address,
       amount: depositIsCollateral ? depositAmount : ZERO,
@@ -113,9 +119,9 @@ export const adjustRiskUp: AaveV2AdjustUpOperation = async ({
     [0, 3, 0, 0],
   )
 
-  const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw({
+  const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw(network, {
     asset: addresses.DAI,
-    amount: flashloan.amount,
+    amount: flashloan.token.amount,
     to: addresses.operationExecutor,
   })
 
@@ -138,10 +144,10 @@ export const adjustRiskUp: AaveV2AdjustUpOperation = async ({
     withdrawDAIFromAAVE,
   ]
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan({
+  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: addresses.DAI,
-    flashloanAmount: flashloan.amount,
+    flashloanAmount: flashloan.token.amount,
     isProxyFlashloan: true,
     provider: FlashloanProvider.DssFlash,
     calls: flashloanCalls,
@@ -149,6 +155,6 @@ export const adjustRiskUp: AaveV2AdjustUpOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: aaveAdjustUpV2OperationDefinition.name,
+    operationName: getAaveAdjustUpV2OperationDefinition(network).name,
   }
 }

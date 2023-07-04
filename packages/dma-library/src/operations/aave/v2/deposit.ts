@@ -1,5 +1,6 @@
-import { aaveDepositV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getAaveDepositV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Address } from '@deploy-configurations/types/address'
+import { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { DepositArgs } from '@dma-library/operations/aave/common'
@@ -12,6 +13,7 @@ import BigNumber from 'bignumber.js'
 export type AaveV2DepositOperation = (
   args: DepositArgs,
   addresses: AAVEStrategyAddresses,
+  network: Network,
 ) => Promise<IOperation>
 
 function getSwapCalls(
@@ -22,6 +24,7 @@ function getSwapCalls(
   ETHAddress: Address,
   WETHAddress: Address,
   isSwapNeeded: boolean,
+  network: Network,
 ) {
   const actualAssetToSwap = entryTokenAddress != ETHAddress ? entryTokenAddress : WETHAddress
 
@@ -30,7 +33,7 @@ function getSwapCalls(
     isDefined(swapArgs, 'Swap arguments are needed when deposit token is not entry token')
   ) {
     return [
-      actions.common.swap({
+      actions.common.swap(network, {
         fromAsset: actualAssetToSwap,
         toAsset: depositTokenAddress,
         amount: amountInBaseUnit,
@@ -41,7 +44,7 @@ function getSwapCalls(
       }),
     ]
   } else {
-    const skippedCall = actions.common.swap({
+    const skippedCall = actions.common.swap(network, {
       fromAsset: entryTokenAddress,
       toAsset: depositTokenAddress,
       amount: ZERO,
@@ -67,15 +70,16 @@ export const deposit: AaveV2DepositOperation = async (
     isSwapNeeded,
   },
   addresses,
+  network,
 ) => {
   const isAssetEth = entryTokenIsEth
 
   // Import ActionCall as it assists type generation
   const tokenTransferCalls: ActionCall[] = [
-    actions.common.wrapEth({
+    actions.common.wrapEth(network, {
       amount: amountInBaseUnit,
     }),
-    actions.common.pullToken({
+    actions.common.pullToken(network, {
       amount: amountInBaseUnit,
       asset: entryTokenAddress,
       from: depositorAddress,
@@ -98,6 +102,7 @@ export const deposit: AaveV2DepositOperation = async (
     addresses.ETH,
     addresses.WETH,
     isSwapNeeded,
+    network,
   )
 
   return {
@@ -105,6 +110,7 @@ export const deposit: AaveV2DepositOperation = async (
       ...tokenTransferCalls,
       ...swapCalls,
       actions.common.setApproval(
+        network,
         {
           asset: depositToken,
           delegate: addresses.lendingPool,
@@ -122,6 +128,7 @@ export const deposit: AaveV2DepositOperation = async (
       // On other note, if mapping is 0, that means that no swap is required
       // therefore the actual deposited value will be used.
       actions.aave.v2.aaveDeposit(
+        network,
         {
           asset: depositToken,
           amount: amountInBaseUnit,
@@ -131,6 +138,6 @@ export const deposit: AaveV2DepositOperation = async (
         [0, isSwapNeeded ? 1 : 0, 0, 0],
       ),
     ],
-    operationName: aaveDepositV2OperationDefinition.name,
+    operationName: getAaveDepositV2OperationDefinition(network).name,
   }
 }

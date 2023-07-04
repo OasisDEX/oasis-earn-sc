@@ -1,17 +1,18 @@
-import { FEE_ESTIMATE_INFLATOR, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { FEE_ESTIMATE_INFLATOR, ONE, ZERO } from '@dma-common/constants'
 import { CollectFeeFrom } from '@dma-common/types'
 import { amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { ajnaBuckets } from '@dma-library/strategies'
 import * as StrategiesCommon from '@dma-library/strategies/common'
 import {
   AjnaPosition,
+  AjnaStrategy,
   FlashloanProvider,
   IOperation,
   PositionType,
-  Strategy,
   SwapData,
 } from '@dma-library/types'
 import {
@@ -27,7 +28,7 @@ import BigNumber from 'bignumber.js'
 export type AjnaCloseStrategy = (
   args: AjnaCloseMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
-) => Promise<Strategy<AjnaPosition>>
+) => Promise<AjnaStrategy<AjnaPosition>>
 
 const positionType: PositionType = 'Multiply'
 
@@ -59,13 +60,19 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
   const fee = SwapUtils.feeResolver(
     args.position.pool.collateralToken,
     args.position.pool.quoteToken,
+    {
+      isEarnPosition: false,
+      isIncreasingRisk: false,
+    },
   )
 
   const postSwapFee =
     collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
+
   const tokenFee = preSwapFee.plus(
     postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
   )
+
   return prepareAjnaDMAPayload({
     swaps: [{ ...swapData, collectFeeFrom, tokenFee }],
     dependencies,
@@ -179,12 +186,6 @@ async function buildOperation(
     ? swapData.fromTokenAmount.plus(preSwapFee)
     : lockedCollateralAmount
 
-  // Normalised to 18 decimal places (EG Typical Precision) as required by domain logic
-  const normalisedOraclePrice = amountToWei(
-    args.collateralPrice.div(args.quotePrice),
-    TYPICAL_PRECISION,
-  ).integerValue(BigNumber.ROUND_DOWN)
-
   const closeArgs = {
     collateral: {
       address: collateralToken.address,
@@ -202,6 +203,10 @@ async function buildOperation(
       receiveAtLeast: swapData.minToTokenAmount,
     },
     flashloan: {
+      token: {
+        amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan),
+        address: position.pool.quoteToken,
+      },
       // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
       amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan),
@@ -222,8 +227,7 @@ async function buildOperation(
       operationExecutor: dependencies.operationExecutor,
       pool: args.poolAddress,
     },
-    // Prices must be in 18 decimal precision
-    price: normalisedOraclePrice,
+    price: new BigNumber(ajnaBuckets[ajnaBuckets.length - 1]),
   }
 
   if (args.shouldCloseToCollateral) {

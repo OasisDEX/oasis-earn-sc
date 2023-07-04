@@ -11,7 +11,7 @@
 			"options": {
 				"printWidth": 120,
 				"tabWidth": 4,
-				"compiler": "0.8.13",
+				"compiler": "0.8.18",
 				"useTabs": false,
 				"singleQuote": false,
 				"bracketSpacing": true,

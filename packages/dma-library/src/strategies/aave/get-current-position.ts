@@ -1,8 +1,8 @@
+import { getAaveProtocolData } from '@dma-library/protocols/aave'
 import BigNumber from 'bignumber.js'
 
 import { AAVEStrategyAddresses } from '../../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../../operations/aave/v3'
-import { getAaveProtocolData } from '../../protocols/aave/get-aave-protocol-data'
 import { IViewPositionDependencies, IViewPositionParams } from '../../types'
 import { AavePosition, AAVETokens } from '../../types/aave'
 import { getAaveTokenAddresses } from './get-aave-token-addresses'
@@ -58,6 +58,7 @@ async function getCurrentPositionAaveV2(
     proxy: args.proxy,
     provider: dependencies.provider,
     protocolVersion: dependencies.protocolVersion,
+    flashloanTokenAddress: dependencies.addresses.DAI, // it's not relevant for the current position
   })
 
   const {
@@ -119,6 +120,7 @@ async function getCurrentPositionAaveV3(
     proxy: args.proxy,
     provider: dependencies.provider,
     protocolVersion: dependencies.protocolVersion,
+    flashloanTokenAddress: dependencies.addresses.DAI, // it's not relevant for the current position
   })
 
   const {

@@ -4,6 +4,8 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
+    "start:ajna": "npx hardhat node --hostname 0.0.0.0",
+    "init:ajna": "yarn hardhat test test/e2e/strategies/ajna/open.test.ts --network local",
     "dev": "yarn dev:mainnet",
     "dev:mainnet": "yarn ts-node scripts/update-block-number.ts && yarn hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ../../.env | cut -d '=' -f2)",
     "dev:optimism": "yarn ts-node scripts/update-block-number.ts && yarn hardhat node --max-memory 8192 --fork $(grep OPTIMISM_URL ../../.env | cut -d '=' -f2)",
@@ -16,7 +18,8 @@
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
     "test": "yarn test:unit && yarn test:e2e",
     "test:e2e": "yarn clean && npx hardhat test --grep E2E",
-    "test:unit": "yarn clean && npx hardhat test --grep Unit"
+    "test:unit": "yarn clean && npx hardhat test --grep Unit",
+    "deploy:tenderly": "npx hardhat run ./scripts/deployment/deploy-with-ajna.ts --network tenderly"
   },
   "dependencies": {
     "@openzeppelin/contracts": "4.7.3",
@@ -24,5 +27,8 @@
   },
   "files": [
     "tsconfig.json"
-  ]
+  ],
+  "devDependencies": {
+    "@tenderly/hardhat-tenderly": "^1.7.7"
+  }
 }

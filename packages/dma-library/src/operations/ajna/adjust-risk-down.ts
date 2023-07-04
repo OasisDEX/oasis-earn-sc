@@ -1,4 +1,4 @@
-import { ajnaAdjustDownOperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getAjnaAdjustDownOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { FEE_BASE, MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
@@ -9,6 +9,7 @@ import {
   WithCollateralAndWithdrawal,
   WithDebt,
   WithFlashloan,
+  WithNetwork,
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
@@ -21,7 +22,8 @@ type AjnaAdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithFlashloan &
   WithProxy &
   WithAjnaStrategyAddresses &
-  WithAjnaBucketPrice
+  WithAjnaBucketPrice &
+  WithNetwork
 
 export type AjnaAdjustRiskDownOperation = ({
   collateral,
@@ -31,6 +33,7 @@ export type AjnaAdjustRiskDownOperation = ({
   proxy,
   addresses,
   price,
+  network,
 }: AjnaAdjustRiskDownArgs) => Promise<IOperation>
 
 export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
@@ -41,6 +44,7 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
   proxy,
   addresses,
   price,
+  network,
 }) => {
   // Simulation is based on worst case swap IE Max slippage
   // Payback Debt using FL which should be equivalent to minSwapToAmount
@@ -49,10 +53,10 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
   // Payback Debt using FL (should be equivalent to/gt minSwapToAmount)
   // Withdraw remaining dust debt
   // Resulting risk will be same as simulation given that dust amount is transferred to user
-  const setDebtTokenApprovalOnPool = actions.common.setApproval({
+  const setDebtTokenApprovalOnPool = actions.common.setApproval(network, {
     asset: debt.address,
     delegate: addresses.pool,
-    amount: flashloan.amount,
+    amount: flashloan.token.amount,
     sumAmounts: false,
   })
 
@@ -68,7 +72,7 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
     [0, 0, 0, 0, 0, 0, 0],
   )
 
-  const swapCollateralTokensForDebtTokens = actions.common.swap({
+  const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
     fromAsset: collateral.address,
     toAsset: debt.address,
     amount: swap.amount,
@@ -78,23 +82,23 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const unwrapEth = actions.common.unwrapEth({
+  const unwrapEth = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
   })
 
   unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
-  const sendQuoteTokenToOpExecutor = actions.common.sendToken({
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken(network, {
     asset: debt.address,
     to: addresses.operationExecutor,
-    amount: flashloan.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.amount)),
+    amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.token.amount)),
   })
 
-  const returnDebtFunds = actions.common.returnFunds({
+  const returnDebtFunds = actions.common.returnFunds(network, {
     asset: debt.isEth ? addresses.ETH : debt.address,
   })
 
-  const returnCollateralFunds = actions.common.returnFunds({
+  const returnCollateralFunds = actions.common.returnFunds(network, {
     asset: collateral.isEth ? addresses.ETH : collateral.address,
   })
 
@@ -106,10 +110,10 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
     sendQuoteTokenToOpExecutor,
   ]
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan({
+  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: debt.address,
-    flashloanAmount: flashloan.amount,
+    flashloanAmount: flashloan.token.amount,
     isProxyFlashloan: true,
     provider: FlashloanProvider.Balancer,
     calls: flashloanCalls,
@@ -117,6 +121,6 @@ export const adjustRiskDown: AjnaAdjustRiskDownOperation = async ({
 
   return {
     calls: [takeAFlashLoan, returnDebtFunds, returnCollateralFunds],
-    operationName: ajnaAdjustDownOperationDefinition.name,
+    operationName: getAjnaAdjustDownOperationDefinition(network).name,
   }
 }

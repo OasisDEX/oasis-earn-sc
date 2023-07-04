@@ -1,4 +1,5 @@
-import { ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { getNetwork } from '@deploy-configurations/utils/network/index'
+import { ONE, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses/index'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
@@ -6,6 +7,7 @@ import { areSymbolsEqual } from '@dma-common/utils/symbols/index'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { ajnaBuckets } from '@dma-library/strategies'
 import {
   buildFromToken,
   buildToToken,
@@ -36,32 +38,37 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   const position = await getPosition(args, dependencies)
   const riskIsIncreasing = verifyRiskDirection(args, position)
   const oraclePrice = args.collateralPrice.div(args.quotePrice)
+
+  const mappedArgs = {
+    ...args,
+    collateralAmount: args.collateralAmount.shiftedBy(args.collateralTokenPrecision),
+  }
+
   const simulatedAdjustment = await simulateAdjustment(
-    args,
+    mappedArgs,
     dependencies,
     position,
     riskIsIncreasing,
     oraclePrice,
   )
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
-    { ...args, position },
+    { ...mappedArgs, position },
     dependencies,
     simulatedAdjustment,
     riskIsIncreasing,
     positionType,
   )
   const operation = await buildOperation(
-    args,
+    mappedArgs,
     dependencies,
     position,
     simulatedAdjustment,
     swapData,
     riskIsIncreasing,
-    oraclePrice,
   )
   const targetPosition = new AjnaPosition(
     position.pool,
-    args.dpmProxyAddress,
+    mappedArgs.dpmProxyAddress,
     amountFromWei(
       simulatedAdjustment.position.collateral.amount,
       simulatedAdjustment.position.collateral.precision,
@@ -70,8 +77,8 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
       simulatedAdjustment.position.debt.amount,
       simulatedAdjustment.position.debt.precision,
     ),
-    args.collateralPrice,
-    args.quotePrice,
+    mappedArgs.collateralPrice,
+    mappedArgs.quotePrice,
   )
 
   const isDepositingEth = areAddressesEqual(position.pool.collateralToken, dependencies.WETH)
@@ -92,10 +99,7 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     warnings: [],
     successes: [],
     notices: [],
-    txValue: resolveAjnaEthAction(
-      isDepositingEth,
-      amountFromWei(args.collateralAmount, TYPICAL_PRECISION),
-    ),
+    txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
   })
 }
 
@@ -226,7 +230,6 @@ async function buildOperation(
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   swapData: SwapData,
   riskIsIncreasing: true,
-  oraclePrice: BigNumber,
 ) {
   /** Not relevant for Ajna */
   const debtTokensDeposited = ZERO
@@ -245,6 +248,8 @@ async function buildOperation(
     fromTokenSymbol: simulatedAdjust.position.debt.symbol,
     toTokenSymbol: simulatedAdjust.position.collateral.symbol,
   })
+
+  const network = await getNetwork(dependencies.provider)
 
   const openMultiplyArgs = {
     debt: {
@@ -271,6 +276,10 @@ async function buildOperation(
       receiveAtLeast: swapData.minToTokenAmount,
     },
     flashloan: {
+      token: {
+        amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
+        address: position.pool.quoteToken,
+      },
       amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
       // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
@@ -290,8 +299,8 @@ async function buildOperation(
       operationExecutor: dependencies.operationExecutor,
       pool: args.poolAddress,
     },
-    // Prices must be in 18 decimal precision
-    price: amountToWei(oraclePrice, TYPICAL_PRECISION),
+    price: new BigNumber(ajnaBuckets[ajnaBuckets.length - 1]),
+    network,
   }
   return await operations.ajna.open(openMultiplyArgs)
 }

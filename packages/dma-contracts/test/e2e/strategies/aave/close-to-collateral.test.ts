@@ -38,6 +38,7 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
       systemWithAavePositions({
         use1inch: true,
         configExtensionPaths: [`./test/swap.conf.ts`],
+        network: networkFork,
       }),
     )
     feeRecipient = fixture.dsSystem.config.common.FeeRecipient.address
@@ -70,7 +71,6 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
         collateralToken,
         debtToken,
         slippage,
-        collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
         positionType: position?.__positionType,
       },
@@ -82,6 +82,7 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
         proxy,
         user: fixture.config.address,
         isDPMProxy: true,
+        network: networkFork,
       },
     )
 
@@ -144,7 +145,6 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
         collateralToken,
         debtToken,
         slippage,
-        collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
         positionType: position?.__positionType,
       },
@@ -156,6 +156,7 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
         proxy,
         user: fixture.config.address,
         isDPMProxy: true,
+        network: networkFork,
       },
     )
     const userCollateralBalanceBeforeTx = await getBalanceOf(user, collateralToken.address)
@@ -227,7 +228,6 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
         collateralToken,
         debtToken,
         slippage,
-        collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
         positionType: position?.__positionType,
       },
@@ -239,6 +239,7 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
         proxy,
         user: fixture.config.address,
         isDPMProxy: false,
+        network: networkFork,
       },
     )
 
@@ -354,7 +355,6 @@ describe('Close AAVEv3 Position to collateral', () => {
         collateralToken,
         debtToken,
         slippage,
-        collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
         positionType: position?.__positionType,
       },
@@ -374,6 +374,7 @@ describe('Close AAVEv3 Position to collateral', () => {
         proxy,
         user: fixture.config.address,
         isDPMProxy: true,
+        network: networkFork,
       },
     )
 
@@ -446,7 +447,6 @@ describe('Close AAVEv3 Position to collateral', () => {
         collateralToken,
         debtToken,
         slippage,
-        collateralAmountLockedInProtocolInWei: currentPosition.collateral.amount,
         shouldCloseToCollateral: true,
         positionType: position?.__positionType,
       },
@@ -466,6 +466,7 @@ describe('Close AAVEv3 Position to collateral', () => {
         proxy,
         user: fixture.config.address,
         isDPMProxy: true,
+        network: networkFork,
       },
     )
 

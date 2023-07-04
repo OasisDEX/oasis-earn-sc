@@ -1,9 +1,12 @@
-import { CONTRACT_NAMES } from '@deploy-configurations/constants'
+import { loadContractNames } from '@deploy-configurations/constants'
+import { Network } from '@deploy-configurations/types/network'
 import { getActionHash } from '@deploy-configurations/utils/action-hash'
 import { ZERO } from '@dma-common/constants'
 import { ActionFactory } from '@dma-library/actions/action-factory'
 import { ActionCall, calldataTypes } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
+
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 const createAction = ActionFactory.create
 
@@ -31,7 +34,7 @@ export const ajnaDepositBorrow: AjnaDepositBorrowAction = (
   paramsMapping = [0, 0, 0, 0, 0, 0],
 ) => {
   return createAction(
-    getActionHash(CONTRACT_NAMES.ajna.DEPOSIT_BORROW),
+    getActionHash(SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW),
     [calldataTypes.ajna.DepositBorrow],
     [
       {
@@ -75,7 +78,7 @@ export const ajnaPaybackWithdraw: AjnaPaybackWithdrawAction = (
   const withdrawAmount = args.withdrawAmount?.toFixed(0) || ZERO.toFixed(0)
   const paybackAmount = args.paybackAmount?.toFixed(0) || ZERO.toFixed(0)
   return createAction(
-    getActionHash(CONTRACT_NAMES.ajna.REPAY_WITHDRAW),
+    getActionHash(SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW),
     [calldataTypes.ajna.RepayWithdraw],
     [
       {

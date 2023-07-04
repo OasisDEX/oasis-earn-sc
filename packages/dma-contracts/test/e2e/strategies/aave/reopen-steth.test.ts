@@ -21,7 +21,8 @@ import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
 import { Contract, Signer } from 'ethers'
 
-const mainnetAddresses = addressesByNetwork(Network.MAINNET)
+const networkFork = process.env.NETWORK_FORK as Network
+
 describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
   const depositAmountInWei = amountToWei(new BigNumber(1))
   const multiple = new RiskRatio(new BigNumber(2), RiskRatio.TYPE.MULITPLE)
@@ -41,6 +42,8 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
 
   let operationExecutor: Contract
 
+  const networkAddresses = addressesByNetwork(networkFork)
+
   before(async () => {
     ;({ config, provider, signer } = await loadFixture(initialiseConfig))
   })
@@ -58,7 +61,7 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
       const system = snapshot.deployed.system
 
       addresses = {
-        ...mainnetAddresses,
+        ...networkAddresses,
         operationExecutor: system.common.operationExecutor.address,
       }
 
@@ -100,6 +103,7 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
         {
           ...dependencies,
           isDPMProxy: false,
+          network: networkFork,
         },
       )
 
@@ -149,7 +153,6 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
       const mockMarketPriceOnClose = ONE.div(new BigNumber(0.9759))
       const closePositionTransition = await strategies.aave.v2.close(
         {
-          collateralAmountLockedInProtocolInWei: beforeTransaction.collateral.amount,
           debtToken,
           collateralToken,
           slippage,
@@ -164,6 +167,7 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
             from: collateralToken.precision,
             to: debtToken.precision,
           }),
+          network: networkFork,
         },
       )
 
@@ -223,6 +227,7 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
         {
           ...dependencies,
           isDPMProxy: false,
+          network: networkFork,
         },
       )
 
@@ -263,7 +268,7 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
       const { system } = await deploySystem(config, false, false)
 
       addresses = {
-        ...mainnetAddresses,
+        ...networkAddresses,
         operationExecutor: system.common.operationExecutor.address,
       }
 
@@ -305,6 +310,7 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
         {
           ...dependencies,
           isDPMProxy: false,
+          network: networkFork,
         },
       )
 
@@ -354,7 +360,6 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
 
       const closePositionTransition = await strategies.aave.v2.close(
         {
-          collateralAmountLockedInProtocolInWei: beforeTransaction.collateral.amount,
           slippage,
           debtToken,
           collateralToken,
@@ -365,6 +370,7 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
           addresses,
           isDPMProxy: false,
           currentPosition: beforeTransaction,
+          network: networkFork,
         },
       )
 
@@ -424,6 +430,7 @@ describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
         {
           isDPMProxy: false,
           ...dependencies,
+          network: networkFork,
         },
       )
 

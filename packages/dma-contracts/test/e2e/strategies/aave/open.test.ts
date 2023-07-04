@@ -30,9 +30,11 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
         if (isOptimismByNetwork(networkFork)) {
           this.skip()
         }
+
         const _fixture = await systemWithAavePositions({
           use1inch: false,
           configExtensionPaths: [`test/uSwap.conf.ts`],
+          network: networkFork,
         })()
         if (!_fixture) throw new Error('Failed to load fixture')
         fixture = _fixture
@@ -124,6 +126,7 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
         const _fixture = await systemWithAavePositions({
           use1inch: true,
           configExtensionPaths: [`test/swap.conf.ts`],
+          network: networkFork,
         })()
 
         if (!_fixture) throw new Error('Failed to load fixture')

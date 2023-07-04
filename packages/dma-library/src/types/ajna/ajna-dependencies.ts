@@ -1,4 +1,5 @@
 import { Address } from '@deploy-configurations/types/address'
+import { Network } from '@deploy-configurations/types/network'
 import { AjnaEarnPosition, AjnaPosition } from '@dma-library/types'
 import { GetSwapData } from '@dma-library/types/common'
 import { GetEarnData } from '@dma-library/views'
@@ -13,6 +14,7 @@ export interface AjnaCommonDependencies {
   provider: ethers.providers.Provider
   WETH: Address
   getPoolData: GetPoolData
+  network: Network
 }
 
 export type AjnaCommonDMADependencies = Omit<AjnaCommonDependencies, 'ajnaProxyActions'> & {
@@ -71,30 +73,10 @@ export interface AjnaMultiplyPayload extends AjnaCommonPayload {
 export type AjnaOpenMultiplyPayload = Omit<AjnaMultiplyPayload, 'position'>
 export type AjnaCloseMultiplyPayload = Omit<
   AjnaMultiplyPayload,
-  'riskRatio' | 'collateralAmount$'
+  'riskRatio' | 'collateralAmount'
 > & {
   shouldCloseToCollateral: boolean
 }
-
-// export interface AjnaOpenMultiplyPayload extends AjnaCommonPayload {
-//   user: Address
-//   quoteTokenSymbol: string
-//   collateralTokenSymbol: string
-//   // In wei units or equivalent EG 1 USDC -> 1e6 or 1 ETH -> 1e18
-//   collateralAmount: BigNumber
-//   slippage: BigNumber
-//   riskRatio: IRiskRatio
-// }
-//
-// export interface AjnaCloseMultiplyPayload extends AjnaMultiplyPayload {
-//   position: AjnaPosition
-//   shouldCloseToCollateral: boolean
-// }
-
-// export interface AjnaAdjustMultiplyPayload extends AjnaMultiplyPayload {
-//   position: AjnaPosition
-//   riskRatio: IRiskRatio
-// }
 
 export interface AjnaEarnPayload extends AjnaCommonPayload {
   isStakingNft: boolean

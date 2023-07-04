@@ -1,9 +1,10 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const POOL_INFO_UTILS = "0x1F9F7732ff409FC0AbcAAea94634A7b41F445299";
-  const POSITION_MANAGER = "0x83AB3762A4AeC9FBD4e7c01581C9495f2160630b";
-  const REWARD_MANAGER = "0xaF9bc1F09fe561CbD00018fC352507fD23cD46E2";
+  // RC5 addresses
+  const POOL_INFO_UTILS = "0x28ef92e694d1044917981837b21e5eA994931c71";
+  const POSITION_MANAGER = "0x31E3B448cAFF35e9eEb232053f4d5e76776a1C83";
+  const REWARD_MANAGER = "0x015441062c2aad707629D9A1f2029074F58ad5aE";
   const AJNA_TOKEN = "0xaadebCF61AA7Da0573b524DE57c67aDa797D46c5";
   const WETH = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
   const GUARD = "0x9319710C25cdaDDD1766F0bDE40F1A4034C17c7e";
@@ -15,16 +16,9 @@ async function main() {
 
   const AjnaProxyActions = await ethers.getContractFactory("AjnaProxyActions");
   // hardcoded addresses for now
-  const apa = await AjnaProxyActions.deploy(
-    POOL_INFO_UTILS,
-    POSITION_MANAGER,
-    REWARD_MANAGER,
-    AJNA_TOKEN,
-    WETH,
-    ARC,
-    GUARD
-  );
+  const apa = await AjnaProxyActions.deploy(POOL_INFO_UTILS, AJNA_TOKEN, WETH, GUARD);
   await apa.deployed();
+  await apa.initialize(POSITION_MANAGER, REWARD_MANAGER, ARC);
   console.log(`AjnaRewardsClaimer Deployed: ${arc.address}`);
   console.log(`AjnaProxyActions Deployed: ${apa.address}`);
 }

@@ -29,6 +29,7 @@ import {
   buildGetTokenFunction,
 } from '@dma-contracts/test/utils/aave'
 import { AaveVersion, protocols, strategies } from '@dma-library'
+import { impersonateAccount } from '@nomicfoundation/hardhat-network-helpers'
 import hre from 'hardhat'
 
 type SupportedV3Strategies = Array<{
@@ -52,6 +53,7 @@ const testBlockNumberByNetwork: Record<
 > = {
   [Network.MAINNET]: testBlockNumberForAaveV3,
   [Network.OPTIMISM]: testBlockNumberForAaveOptimismV3,
+  [Network.ARBITRUM]: testBlockNumberForAaveV3,
 }
 
 export const systemWithAaveV3Positions = ({
@@ -104,8 +106,12 @@ export const systemWithAaveV3Positions = ({
     const swapContract = system.uSwap ? system.uSwap.contract : system.Swap.contract
     const swapAddress = swapContract.address
 
-    await swapContract.addFeeTier(0)
-    await swapContract.addFeeTier(7)
+    const benefAddress = await swapContract.feeBeneficiaryAddress()
+    await impersonateAccount(benefAddress)
+    const impersonatedSigner = hre.ethers.provider.getSigner(benefAddress)
+
+    await swapContract.connect(impersonatedSigner).addFeeTier(0)
+    await swapContract.connect(impersonatedSigner).addFeeTier(7)
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
 
     if (!oneInchVersion) throw new Error('Unsupported network')
@@ -117,6 +123,8 @@ export const systemWithAaveV3Positions = ({
         WETH: systemConfig.common.WETH.address,
         WSTETH: systemConfig.common.WSTETH.address,
         WBTC: systemConfig.common.WBTC.address,
+        CBETH: systemConfig.common.CBETH.address,
+        RETH: systemConfig.common.RETH.address,
         chainlinkEthUsdPriceFeed: systemConfig.common.ChainlinkPriceOracle_ETHUSD.address,
         aaveOracle: systemConfig.aave.v3.AaveOracle.address,
         pool: systemConfig.aave.v3.Pool.address,
@@ -175,6 +183,7 @@ export const systemWithAaveV3Positions = ({
       dependencies,
       config,
       feeRecipient: systemConfig.common.FeeRecipient.address,
+      network,
     })
 
     let wstethEthEarnPosition: AavePositionDetails | undefined
@@ -192,6 +201,7 @@ export const systemWithAaveV3Positions = ({
         dependencies,
         config,
         feeRecipient: systemConfig.common.FeeRecipient.address,
+        network,
       })
     }
 
@@ -203,6 +213,7 @@ export const systemWithAaveV3Positions = ({
       dependencies,
       config,
       feeRecipient: systemConfig.common.FeeRecipient.address,
+      network,
     })
 
     return {

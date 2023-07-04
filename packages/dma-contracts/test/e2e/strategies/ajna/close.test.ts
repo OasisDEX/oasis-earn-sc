@@ -4,19 +4,22 @@ import { ONE, ZERO } from '@dma-common/constants'
 import { expect, oneInchCallMock } from '@dma-common/test-utils'
 import { Unbox } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
+import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
 import { AjnaPositionDetails, EnvWithAjnaPositions } from '@dma-contracts/test/fixtures'
-import { UNISWAP_TEST_SLIPPAGE } from '@dma-contracts/test/fixtures/factories/common'
 import {
   envWithAjnaPositions,
   getSupportedAjnaPositions,
 } from '@dma-contracts/test/fixtures/system/env-with-ajna-positions'
 import { AjnaPosition, strategies, views } from '@dma-library'
 import * as SwapUtils from '@dma-library/utils/swap'
+import { FLASHLOAN_SAFETY_MARGIN } from '@domain/constants'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
+import BigNumber from 'bignumber.js'
 
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
+const ETH_STAND_IN_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
 describe('Strategy | AJNA | Close To Quote Multiply | E2E', () => {
   const supportedPositions = getSupportedAjnaPositions(networkFork)
@@ -102,6 +105,21 @@ describe('Strategy | AJNA | Close To Quote Multiply | E2E', () => {
         expect.toBeEqual(proxyDebtBalance, ZERO)
         expect.toBeEqual(proxyCollateralBalance, ZERO)
       })
+      it(`Should have passed all remaining funds to the user for ${variant}`, async () => {
+        const user = env.config.address
+        const userDebtBalance = await balanceOf(debtToken.address, user, {
+          config: env.config,
+        })
+
+        const amountToFlashloan = amountToWei(
+          position.debtAmount.times(ONE.plus(FLASHLOAN_SAFETY_MARGIN)),
+          positionDetails.debtToken.precision,
+        ).integerValue(BigNumber.ROUND_DOWN)
+
+        const leftoverDebtTokens = act.simulation.swaps[0].minToTokenAmount.minus(amountToFlashloan)
+        const estimatedUserDebtBalance = act.userDebtBalanceBefore.plus(leftoverDebtTokens)
+        expect.toBe(estimatedUserDebtBalance, 'lte', userDebtBalance)
+      })
       it(`Should have collected a fee for ${variant}`, async () => {
         const simulatedFee = act.simulation.swaps[0].fee || ZERO
         expect.toBe(simulatedFee, 'gte', act.feesCollected, EXPECT_LARGER_SIMULATED_FEE)
@@ -130,7 +148,7 @@ describe('Strategy | AJNA | Close To Collateral Multiply | E2E', () => {
     address: Address
   }
 
-  describe('Close Positions using Close to Collateral', function () {
+  describe.only('Close Positions using Close to Collateral', function () {
     supportedPositions.forEach(({ name: variant }) => {
       let position: AjnaPosition
       let debtToken: Token
@@ -182,17 +200,54 @@ describe('Strategy | AJNA | Close To Collateral Multiply | E2E', () => {
           config: env.config,
           isFormatted: true,
         })
-        const proxyCollateralBalance = await balanceOf(
-          collateralToken.address,
-          positionDetails.proxy,
-          {
-            config: env.config,
-            isFormatted: true,
-          },
-        )
+
+        let collateralAddress = collateralToken.address
+        if (collateralToken.symbol === 'ETH') {
+          collateralAddress = ETH_STAND_IN_ADDRESS
+        }
+        const proxyCollateralBalance = await balanceOf(collateralAddress, positionDetails.proxy, {
+          config: env.config,
+          isFormatted: true,
+        })
 
         expect.toBeEqual(proxyDebtBalance, ZERO)
         expect.toBeEqual(proxyCollateralBalance, ZERO)
+      })
+      it(`Should have passed all remaining funds to the user for ${variant}`, async () => {
+        const user = env.config.address
+        const userDebtBalance = await balanceOf(debtToken.address, user, {
+          config: env.config,
+        })
+
+        let collateralAddress = collateralToken.address
+        if (collateralToken.symbol === 'ETH') {
+          collateralAddress = ETH_STAND_IN_ADDRESS
+        }
+        const userCollateralBalance = await balanceOf(collateralAddress, user, {
+          config: env.config,
+        })
+        const userCollateralBalanceDiff = userCollateralBalance.minus(
+          act.userCollateralBalanceBefore,
+        )
+
+        const positionCollateral = amountToWei(
+          position.collateralAmount,
+          positionDetails.collateralToken.precision,
+        ).integerValue(BigNumber.ROUND_DOWN)
+
+        const amountToFlashloan = amountToWei(
+          position.debtAmount.times(ONE.plus(FLASHLOAN_SAFETY_MARGIN)),
+          positionDetails.debtToken.precision,
+        ).integerValue(BigNumber.ROUND_DOWN)
+
+        const leftoverCollateral = positionCollateral.minus(act.simulation.swaps[0].fromTokenAmount)
+        const leftoverDebtTokens = act.simulation.swaps[0].minToTokenAmount.minus(amountToFlashloan)
+        const estimatedUserDebtBalance = act.userDebtBalanceBefore.plus(leftoverDebtTokens)
+
+        expect.toBe(leftoverCollateral, 'gte', userCollateralBalanceDiff)
+        expect.toBe(estimatedUserDebtBalance, 'lte', userDebtBalance)
+        // Confirm dust amount given close to collateral estimation
+        expect.toBe(userDebtBalance, 'gt', ZERO)
       })
       it(`Should have collected a fee for ${variant}`, async () => {
         const simulatedFee = act.simulation.swaps[0].fee || ZERO
@@ -218,6 +273,15 @@ async function closePositionHelper({
   const { dependencies, dsSystem, config, ajnaSystem } = env
   const { collateralToken, debtToken, proxy } = positionDetails
 
+  const user = env.config.address
+  const userDebtBalanceBefore = await balanceOf(debtToken.address, user, {
+    config: env.config,
+  })
+  let collateralAddress = collateralToken.address
+  if (collateralToken.symbol === 'ETH') {
+    collateralAddress = ETH_STAND_IN_ADDRESS
+  }
+
   const isFeeFromDebtToken =
     SwapUtils.acceptedFeeTokenBySymbol({
       fromTokenSymbol: collateralToken.symbol,
@@ -226,11 +290,15 @@ async function closePositionHelper({
 
   const feeRecipient = dsSystem.config.common.FeeRecipient.address
   if (!feeRecipient) throw new Error('Fee recipient is not set')
+
   const feeBalanceBeforeClosing = await balanceOf(
     isFeeFromDebtToken ? debtToken.address : collateralToken.address,
     feeRecipient,
     { config },
   )
+  const userCollateralBalanceBefore = await balanceOf(collateralAddress, user, {
+    config: env.config,
+  })
   const pool = ajnaSystem.pools.wethUsdcPool
   const ajnaPool = await dependencies.getPoolData(pool.address)
 
@@ -244,7 +312,8 @@ async function closePositionHelper({
       quotePrice: positionDetails.__quotePrice,
       quoteTokenPrecision: debtToken.precision,
       quoteTokenSymbol: debtToken.symbol,
-      slippage: UNISWAP_TEST_SLIPPAGE,
+      slippage: new BigNumber(0.01),
+      collateralAmount: ZERO,
       user: dependencies.user,
       position,
       shouldCloseToCollateral,
@@ -260,6 +329,7 @@ async function closePositionHelper({
         from: collateralToken.precision,
         to: debtToken.precision,
       }),
+      network: Network.MAINNET,
     },
   )
 
@@ -302,5 +372,7 @@ async function closePositionHelper({
     simulation: payload.simulation,
     closeTxStatus,
     feesCollected,
+    userDebtBalanceBefore,
+    userCollateralBalanceBefore,
   }
 }

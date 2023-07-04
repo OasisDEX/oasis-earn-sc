@@ -1,7 +1,8 @@
-import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { amountToWei } from '@dma-common/utils/common'
+import { getNetwork } from '@deploy-configurations/utils/network/index'
+import { ZERO } from '@dma-common/constants'
 import { areSymbolsEqual } from '@dma-common/utils/symbols'
 import { operations } from '@dma-library/operations'
+import { ajnaBuckets } from '@dma-library/strategies'
 import {
   getSwapData,
   prepareAjnaMultiplyDMAPayload,
@@ -10,9 +11,9 @@ import {
 import {
   AjnaMultiplyPayload,
   AjnaPosition,
+  AjnaStrategy,
   FlashloanProvider,
   PositionType,
-  Strategy,
   SwapData,
 } from '@dma-library/types'
 import { AjnaCommonDMADependencies } from '@dma-library/types/ajna'
@@ -24,7 +25,7 @@ import BigNumber from 'bignumber.js'
 export type AjnaAdjustRiskStrategy = (
   args: AjnaMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
-) => Promise<Strategy<AjnaPosition>>
+) => Promise<AjnaStrategy<AjnaPosition>>
 
 const positionType: PositionType = 'Multiply'
 
@@ -40,7 +41,6 @@ export const adjustMultiply: AjnaAdjustRiskStrategy = (
 }
 
 const adjustRiskUp: AjnaAdjustRiskStrategy = async (args, dependencies) => {
-  const position = args.position
   const oraclePrice = args.collateralPrice.div(args.quotePrice)
 
   // Simulate adjust
@@ -48,7 +48,6 @@ const adjustRiskUp: AjnaAdjustRiskStrategy = async (args, dependencies) => {
   const simulatedAdjustment = await simulateAdjustment(
     args,
     dependencies,
-    position,
     riskIsIncreasing,
     oraclePrice,
     positionType,
@@ -56,7 +55,7 @@ const adjustRiskUp: AjnaAdjustRiskStrategy = async (args, dependencies) => {
 
   // Get swap data
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
-    { ...args, position },
+    args,
     dependencies,
     simulatedAdjustment,
     riskIsIncreasing,
@@ -70,7 +69,6 @@ const adjustRiskUp: AjnaAdjustRiskStrategy = async (args, dependencies) => {
     simulatedAdjustment,
     swapData,
     riskIsIncreasing,
-    oraclePrice,
   )
 
   // Prepare payload
@@ -87,7 +85,6 @@ const adjustRiskUp: AjnaAdjustRiskStrategy = async (args, dependencies) => {
 }
 
 const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
-  const position = args.position
   const oraclePrice = args.collateralPrice.div(args.quotePrice)
 
   // Simulate adjust
@@ -95,7 +92,6 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
   const simulatedAdjustment = await simulateAdjustment(
     args,
     dependencies,
-    position,
     riskIsIncreasing,
     oraclePrice,
     positionType,
@@ -103,7 +99,7 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
 
   // Get swap data
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(
-    { ...args, position },
+    args,
     dependencies,
     simulatedAdjustment,
     riskIsIncreasing,
@@ -117,7 +113,6 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
     simulatedAdjustment,
     swapData,
     riskIsIncreasing,
-    oraclePrice,
   )
 
   // Prepare payload
@@ -139,7 +134,6 @@ async function buildOperation(
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   swapData: SwapData,
   riskIsIncreasing: boolean,
-  oraclePrice: BigNumber,
 ) {
   /** Not relevant for Ajna */
   const debtTokensDeposited = ZERO
@@ -172,6 +166,8 @@ async function buildOperation(
     ? Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees)
     : Domain.collateralToDebtSwapFlashloan(minSwapToAmount)
 
+  const network = await getNetwork(dependencies.provider)
+
   const commonAdjustMultiplyArgs = {
     debt: {
       address: args.position.pool.quoteToken,
@@ -194,6 +190,10 @@ async function buildOperation(
       receiveAtLeast: swapData.minToTokenAmount,
     },
     flashloan: {
+      token: {
+        amount: flashloanAmount,
+        address: args.position.pool.quoteToken,
+      },
       amount: flashloanAmount,
       // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
@@ -213,8 +213,8 @@ async function buildOperation(
       operationExecutor: dependencies.operationExecutor,
       pool: args.poolAddress,
     },
-    // Prices must be in 18 decimal precision
-    price: amountToWei(oraclePrice, TYPICAL_PRECISION),
+    price: new BigNumber(ajnaBuckets[ajnaBuckets.length - 1]),
+    network,
   }
   if (riskIsIncreasing) {
     const adjustUpMultiplyArgs = {

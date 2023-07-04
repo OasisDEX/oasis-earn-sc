@@ -9,6 +9,7 @@ import {
 } from '@dma-contracts/test/utils/aave'
 import { createPositionWithRetries } from '@dma-contracts/test/utils/aave/create-position-with-retries'
 import { AaveVersion, protocols, strategies } from '@dma-library'
+import { impersonateAccount } from '@nomicfoundation/hardhat-network-helpers'
 import hre from 'hardhat'
 
 import {
@@ -38,15 +39,18 @@ export const systemWithAavePositions = ({
   use1inch,
   hideLogging,
   configExtensionPaths,
+  network,
 }: {
   use1inch: boolean
   hideLogging?: boolean
   configExtensionPaths?: string[]
+  network: Network
 }) =>
   async function fixture(): Promise<SystemWithAavePositions> {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init(hideLogging)
-    const systemConfigPath = 'test/mainnet.conf.ts'
+    const systemConfigPath = `test/${network}.conf.ts`
+    console.log('Loading config from', systemConfigPath)
     await ds.loadConfig(systemConfigPath)
     if (configExtensionPaths) {
       for (const configPath of configExtensionPaths) {
@@ -72,18 +76,21 @@ export const systemWithAavePositions = ({
 
     const dsSystem = ds.getSystem()
     const { system, registry, config: systemConfig } = dsSystem
+
     const swapContract = system.uSwap ? system.uSwap.contract : system.Swap.contract
     const swapAddress = swapContract.address
 
+    const benefAddress = await swapContract.feeBeneficiaryAddress()
+    await impersonateAccount(benefAddress)
+    const impersonatedSigner = hre.ethers.provider.getSigner(benefAddress)
+
     if (!systemConfig.aave.v2) throw new Error('aave v2 not deployed')
     !use1inch &&
-      (await swapContract.setPool(
-        systemConfig.common.STETH.address,
-        systemConfig.common.WETH.address,
-        10000,
-      ))
-    await swapContract.addFeeTier(0)
-    await swapContract.addFeeTier(7)
+      (await swapContract
+        .connect(impersonatedSigner)
+        .setPool(systemConfig.common.STETH.address, systemConfig.common.WETH.address, 10000))
+    await swapContract.connect(impersonatedSigner).addFeeTier(0)
+    await swapContract.connect(impersonatedSigner).addFeeTier(7)
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
 
     if (!systemConfig.aave.v2) throw new Error('aave v2 is not configured')
@@ -165,6 +172,7 @@ export const systemWithAavePositions = ({
         dependencies,
         config,
         feeRecipient: systemConfig.common.FeeRecipient.address,
+        network,
       },
     )
 
@@ -179,6 +187,7 @@ export const systemWithAavePositions = ({
         dependencies,
         config,
         feeRecipient: systemConfig.common.FeeRecipient.address,
+        network,
       },
     )
 
@@ -193,6 +202,7 @@ export const systemWithAavePositions = ({
         dependencies,
         config,
         getTokens: preferredGetTokenFn,
+        network,
       },
     )
 
@@ -207,6 +217,7 @@ export const systemWithAavePositions = ({
         dependencies,
         config,
         getTokens: preferredGetTokenFn,
+        network,
       },
     )
 
@@ -221,6 +232,7 @@ export const systemWithAavePositions = ({
         dependencies,
         config,
         feeRecipient: systemConfig.common.FeeRecipient.address,
+        network,
       },
     )
 

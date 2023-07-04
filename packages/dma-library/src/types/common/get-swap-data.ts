@@ -8,6 +8,7 @@ export interface GetSwapData {
     toToken: string,
     amount: BigNumber,
     slippage: BigNumber,
+    protocol?: string[],
     __invertSwapDirection?: boolean,
   ): Promise<SwapData>
 }

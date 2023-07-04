@@ -21,7 +21,6 @@ import BigNumber from 'bignumber.js'
 export async function simulateAdjustment(
   args: AjnaMultiplyPayload,
   dependencies: AjnaCommonDMADependencies,
-  position: AjnaPosition,
   riskIsIncreasing: boolean,
   oraclePrice: BigNumber,
   positionType: PositionType,
@@ -31,8 +30,8 @@ export async function simulateAdjustment(
     : args.collateralTokenPrecision
   const preFlightSwapAmount = amountToWei(ONE, preFlightTokenMaxDecimals)
 
-  const fromToken = buildFromToken({ ...args, position }, riskIsIncreasing)
-  const toToken = buildToToken({ ...args, position }, riskIsIncreasing)
+  const fromToken = buildFromToken(args, riskIsIncreasing)
+  const toToken = buildToToken(args, riskIsIncreasing)
   const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
     // Strategy is called open multiply (not open earn)
@@ -101,17 +100,17 @@ export async function simulateAdjustment(
   const mappedPosition = {
     debt: {
       // Adjust logic expects tokenMax form for current collateral amount
-      amount: amountToWei(position.debtAmount, args.quoteTokenPrecision),
-      symbol: position.pool.quoteToken,
+      amount: amountToWei(args.position.debtAmount, args.quoteTokenPrecision),
+      symbol: args.position.pool.quoteToken,
       precision: args.quoteTokenPrecision,
     },
     collateral: {
       // Adjust logic expects tokenMax form for current collateral amount
-      amount: amountToWei(position.collateralAmount, args.collateralTokenPrecision),
-      symbol: position.pool.collateralToken,
+      amount: amountToWei(args.position.collateralAmount, args.collateralTokenPrecision),
+      symbol: args.position.pool.collateralToken,
       precision: args.collateralTokenPrecision,
     },
-    riskRatio: position.riskRatio,
+    riskRatio: args.position.riskRatio,
   }
 
   return Domain.adjustToTargetRiskRatio(mappedPosition, args.riskRatio, positionAdjustArgs)

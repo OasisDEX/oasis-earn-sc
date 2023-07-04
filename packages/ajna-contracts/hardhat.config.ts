@@ -9,14 +9,14 @@ import { HardhatUserConfig } from "hardhat/config";
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.15",
+    version: "0.8.18",
     settings: {
       metadata: {
         bytecodeHash: "none",
       },
       optimizer: {
         enabled: true,
-        runs: 100,
+        runs: 0,
       },
     },
   },

@@ -6,6 +6,7 @@ export type { AAVEV3StrategyAddresses } from './operations/aave/v3/addresses'
 export { calculateAjnaApyPerDays, getAjnaLiquidationPrice, protocols } from './protocols'
 export { strategies } from './strategies'
 export { AaveVersion } from './strategies'
+export { ajnaBuckets } from './strategies'
 export type {
   ISimplePositionTransition,
   ISimpleSimulatedTransition,
@@ -28,6 +29,9 @@ export type {
 } from './types/ajna'
 export { AjnaEarnPosition, AjnaPosition } from './types/ajna'
 export { views } from './views'
+export { OPERATION_NAMES } from '@deploy-configurations/constants'
+export { Network } from '@deploy-configurations/types/network'
 export { normalizeValue } from '@dma-common/utils/common'
+export { negativeToZero } from '@dma-common/utils/common'
 export type { IRiskRatio } from '@domain'
 export { RiskRatio } from '@domain'
