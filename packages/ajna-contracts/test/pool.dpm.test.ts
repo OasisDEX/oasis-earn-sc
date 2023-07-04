@@ -1735,7 +1735,7 @@ async function mintAndStakeNft(
   lender: Signer,
   price: BigNumber
 ) {
-  const mintNftData = ajnaProxyActionsContract.interface.encodeFunctionData("mintAndStakeNft", [
+  const mintNftData = ajnaProxyActionsContract.interface.encodeFunctionData("optInStaking", [
     poolContract.address,
     price,
   ]);
