@@ -23,7 +23,7 @@ import { bn } from "../scripts/common";
 import { HardhatUtils } from "../scripts/common/hardhat.utils";
 import { createDPMProxy } from "../scripts/prepare-env";
 import { ERC20 } from "../typechain-types/@openzeppelin/contracts/token/ERC20/";
-import { WETH as WETHContract } from "../typechain-types/contracts";
+import { WETH as WETHContract } from "../typechain-types/contracts/ajna";
 
 const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
@@ -345,7 +345,64 @@ describe.only("AjnaProxyActions", function () {
       expect(balancesQuoteBefore.borrower).to.be.eq(balancesQuoteAfterDraw.borrower.sub(bn.six.THOUSAND));
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(gas).sub(gas2));
     });
+    it("should openAndDraw and repayWithdraw", async () => {
+      const { weth, borrowerProxy, poolContractWeth, ajnaProxyActionsContract, borrower, usdc, poolInfoContract } =
+        await loadFixture(deploy);
 
+      const balancesQuoteBefore = {
+        borrower: await usdc.balanceOf(borrower.address),
+        pool: await usdc.balanceOf(poolContractWeth.address),
+      };
+      const balancesCollateralBefore = {
+        borrower: await hre.ethers.provider.getBalance(borrower.address),
+        pool: await hre.ethers.provider.getBalance(poolContractWeth.address),
+      };
+      const price = bn.eighteen.TEST_PRICE_3;
+      const gas = await depositAndDrawDebt(
+        ajnaProxyActionsContract,
+        poolContractWeth,
+        price,
+        weth,
+        borrower,
+        borrowerProxy,
+        bn.six.THOUSAND,
+        bn.eighteen.TEN,
+        true
+      );
+      const balancesQuoteAfterDraw = {
+        borrower: await usdc.balanceOf(borrower.address),
+        pool: await usdc.balanceOf(poolContractWeth.address),
+      };
+      await hre.network.provider.send("evm_increaseTime", ["0x127501"]);
+      const [debtAmount, collateralAmount] = await poolInfoContract.borrowerInfo(
+        poolContractWeth.address,
+        borrowerProxy.address
+      );
+      const quoteScale = await poolContractWeth.quoteTokenScale();
+      const collateralScale = await poolContractWeth.collateralScale();
+      const gas2 = await repayWithdraw(
+        ajnaProxyActionsContract,
+        poolContractWeth,
+        usdc,
+        borrower,
+        borrowerProxy,
+        debtAmount.mul(105).div(100).div(quoteScale),
+        collateralAmount.div(collateralScale)
+      );
+
+      const balancesQuoteAfter = {
+        borrower: await usdc.balanceOf(borrower.address),
+        pool: await usdc.balanceOf(poolContractWeth.address),
+      };
+      const balancesCollateralAfter = {
+        borrower: await hre.ethers.provider.getBalance(borrower.address),
+        pool: await hre.ethers.provider.getBalance(poolContractWeth.address),
+      };
+
+      expect(balancesQuoteAfter.borrower).to.be.lt(balancesQuoteBefore.borrower);
+      expect(balancesQuoteBefore.borrower).to.be.eq(balancesQuoteAfterDraw.borrower.sub(bn.six.THOUSAND));
+      expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(gas).sub(gas2));
+    });
     it("should drawDebt", async () => {
       const { weth, borrowerProxy, poolContractWeth, ajnaProxyActionsContract, borrower, usdc } = await loadFixture(
         deploy
@@ -1622,6 +1679,32 @@ async function depositCollateral(
     .add(approvalTxReceipt.gasUsed.mul(approvalTxReceipt.effectiveGasPrice));
 }
 
+async function repayWithdraw(
+  ajnaProxyActionsContract: AjnaProxyActions,
+  poolContract: ERC20Pool,
+  usdc: DSToken,
+  borrower: Signer,
+  borrowerProxy: IAccountImplementation,
+  debtAmount: BigNumber,
+  collateralAmount: BigNumber
+) {
+  const encodedRepayData = ajnaProxyActionsContract.interface.encodeFunctionData("repayWithdraw", [
+    poolContract.address,
+    debtAmount,
+    collateralAmount,
+  ]);
+  const approvalTx = await usdc.connect(borrower).approve(borrowerProxy.address, bn.eighteen.MILLION);
+  const approvalTxReceipt = await approvalTx.wait();
+  const repayTx = await borrowerProxy.connect(borrower).execute(ajnaProxyActionsContract.address, encodedRepayData, {
+    gasLimit: 3000000,
+  });
+
+  const receipt = await repayTx.wait();
+  console.log("gas used repayWithdraw", receipt.gasUsed.toString());
+  return receipt.gasUsed
+    .mul(receipt.effectiveGasPrice)
+    .add(approvalTxReceipt.gasUsed.mul(approvalTxReceipt.effectiveGasPrice));
+}
 async function repayAndClose(
   ajnaProxyActionsContract: AjnaProxyActions,
   poolContract: ERC20Pool,
@@ -1639,7 +1722,7 @@ async function repayAndClose(
   });
 
   const receipt = await repayTx.wait();
-
+  console.log("gas used repayAndClose", receipt.gasUsed.toString());
   return receipt.gasUsed
     .mul(receipt.effectiveGasPrice)
     .add(approvalTxReceipt.gasUsed.mul(approvalTxReceipt.effectiveGasPrice));
@@ -1652,7 +1735,7 @@ async function mintAndStakeNft(
   lender: Signer,
   price: BigNumber
 ) {
-  const mintNftData = ajnaProxyActionsContract.interface.encodeFunctionData("mintAndStakeNft", [
+  const mintNftData = ajnaProxyActionsContract.interface.encodeFunctionData("optInStaking", [
     poolContract.address,
     price,
   ]);
