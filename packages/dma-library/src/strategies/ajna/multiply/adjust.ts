@@ -142,6 +142,7 @@ async function buildOperation(
 
   const fromTokenSymbol = riskIsIncreasing ? args.quoteTokenSymbol : args.collateralTokenSymbol
   const toTokenSymbol = riskIsIncreasing ? args.collateralTokenSymbol : args.quoteTokenSymbol
+
   const fee = SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
     isEarnPosition: false,
@@ -158,8 +159,8 @@ async function buildOperation(
   const minSwapToAmount = swapData.minToTokenAmount
 
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
-    fromTokenSymbol: simulatedAdjust.position.debt.symbol,
-    toTokenSymbol: simulatedAdjust.position.collateral.symbol,
+    fromTokenSymbol,
+    toTokenSymbol,
   })
 
   const flashloanAmount = riskIsIncreasing

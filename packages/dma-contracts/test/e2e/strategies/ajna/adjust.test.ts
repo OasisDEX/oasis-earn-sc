@@ -6,7 +6,6 @@ import { Unbox } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
 import { AjnaPositionDetails, EnvWithAjnaPositions } from '@dma-contracts/test/fixtures'
-import { UNISWAP_TEST_SLIPPAGE } from '@dma-contracts/test/fixtures/factories/common'
 import {
   envWithAjnaPositions,
   getSupportedAjnaPositions,
@@ -271,7 +270,7 @@ async function adjustPositionHelper({
       quotePrice: positionDetails.__quotePrice,
       quoteTokenPrecision: debtToken.precision,
       quoteTokenSymbol: debtToken.symbol,
-      slippage: UNISWAP_TEST_SLIPPAGE,
+      slippage: new BigNumber(0.02),
       user: dependencies.user,
       position,
       collateralAmount: ZERO,
@@ -285,6 +284,7 @@ async function adjustPositionHelper({
       getPoolData: dependencies.getPoolData,
       addresses: dependencies.addresses,
       getSwapData,
+      network: Network.MAINNET,
     },
   )
 
