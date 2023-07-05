@@ -57,6 +57,7 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
       indexToPrice.toString(),
       args.price.shiftedBy(18).toString(),
       args.position.stakedNftId,
+      false, // TODO revertIfBelowLup, hardcoded for now
     ])
     targetPosition = args.position.moveQuote(priceToIndex).deposit(args.quoteAmount)
   }
@@ -68,6 +69,7 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
       indexToPrice.toString(),
       args.price.shiftedBy(18).toString(),
       args.position.stakedNftId,
+      false, // TODO revertIfBelowLup, hardcoded for now
     ])
     targetPosition = args.position.moveQuote(priceToIndex)
   }
@@ -79,6 +81,7 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       args.price.shiftedBy(18).toString(),
       args.position.stakedNftId,
+      false, // TODO revertIfBelowLup, hardcoded for now
     ])
     targetPosition = args.position.deposit(args.quoteAmount)
   }
@@ -90,6 +93,7 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       indexToPrice.toString(),
       args.price.shiftedBy(18).toString(),
+      false, // TODO revertIfBelowLup, hardcoded for now
     ])
     targetPosition = args.position.moveQuote(priceToIndex).deposit(args.quoteAmount)
   }
@@ -100,6 +104,7 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
       args.poolAddress,
       indexToPrice.toString(),
       args.price.shiftedBy(18).toString(),
+      false, // TODO revertIfBelowLup, hardcoded for now
     ])
     targetPosition = args.position.moveQuote(priceToIndex)
   }
@@ -110,6 +115,7 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       args.price.shiftedBy(18).toString(),
+      false, // TODO revertIfBelowLup, hardcoded for now
     ])
     targetPosition = args.position.deposit(args.quoteAmount)
   }
@@ -122,6 +128,7 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
         args.poolAddress,
         ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
         args.price.shiftedBy(18).toString(),
+        false, // TODO revertIfBelowLup, hardcoded for now
       ],
     )
     targetPosition = args.position.reopen(args.quoteAmount, priceToIndex)

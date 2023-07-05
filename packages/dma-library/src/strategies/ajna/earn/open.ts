@@ -60,6 +60,7 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       args.price.shiftedBy(18).toString(),
+      false, // TODO revertIfBelowLup, hardcoded for now
     ],
   )
 
