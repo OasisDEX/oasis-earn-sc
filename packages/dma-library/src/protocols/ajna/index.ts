@@ -1,8 +1,8 @@
-import poolAbi from '@abis/external/protocols/ajna/ajnaPoolERC20.json'
 import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
+import { ajnaBuckets } from '@dma-library/strategies'
 import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
-import { getPoolLiquidity } from '@dma-library/strategies/ajna/validation/notEnoughLiquidity'
+import { getPoolLiquidity } from '@dma-library/strategies/ajna/validation/borrowish/notEnoughLiquidity'
 import {
   AjnaCommonDependencies,
   AjnaEarnActions,
@@ -70,15 +70,9 @@ export const getAjnaEarnActionOutput = async ({
   action: AjnaEarnActions
   txValue: string
 }) => {
-  const pool = new ethers.Contract(args.poolAddress, poolAbi, dependencies.provider)
-  const [poolDebt] = await pool.debtInfo()
-
-  const afterLupIndex =
-    action === 'withdraw-earn'
-      ? await pool.depositIndex(
-          new BigNumber(poolDebt.toString()).plus(args.quoteAmount.shiftedBy(18)).toString(),
-        )
-      : undefined
+  const afterLupIndex = ['deposit-earn', 'withdraw-earn'].includes(action)
+    ? calculateNewLupWhenAdjusting(args.position.pool, args.position, targetPosition).newLupIndex
+    : undefined
 
   const { errors, warnings, notices, successes } = getAjnaEarnValidations({
     price: args.price,
@@ -266,6 +260,72 @@ export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumb
     }
   })
   return [newLup, newLupIndex]
+}
+
+export function calculateNewLupWhenAdjusting(
+  pool: AjnaPool,
+  position: AjnaEarnPosition,
+  simulation: AjnaEarnPosition,
+) {
+  let newLupPrice = ZERO
+  let newLupIndex = ZERO
+
+  const oldBucket = pool.buckets.find(bucket => bucket.price.eq(position.price))
+
+  if (!oldBucket) {
+    return {
+      newLupPrice,
+      newLupIndex,
+    }
+  }
+
+  const poolBuckets = [...pool.buckets].filter(bucket => !bucket.index.eq(oldBucket.index))
+
+  poolBuckets.push({
+    ...oldBucket,
+    quoteTokens: oldBucket.quoteTokens.minus(position.quoteTokenAmount),
+  })
+
+  const newBucketIndex = new BigNumber(
+    ajnaBuckets.findIndex(bucket => new BigNumber(bucket).eq(simulation.price.shiftedBy(18))),
+  )
+
+  const existingBucketArrayIndex = poolBuckets.findIndex(bucket => bucket.index.eq(newBucketIndex))
+
+  if (existingBucketArrayIndex !== -1) {
+    poolBuckets[existingBucketArrayIndex].quoteTokens = poolBuckets[
+      existingBucketArrayIndex
+    ].quoteTokens.plus(simulation.quoteTokenAmount)
+  } else {
+    poolBuckets.push({
+      price: simulation.price,
+      index: newBucketIndex,
+      quoteTokens: simulation.quoteTokenAmount,
+      bucketLPs: ZERO,
+      collateral: ZERO,
+    })
+  }
+
+  const sortedBuckets = poolBuckets.sort((a, b) => a.index.minus(b.index).toNumber())
+
+  let remainingDebt = pool.debt
+
+  for (let i = 0; i < sortedBuckets.length; i++) {
+    const bucket = sortedBuckets[i]
+
+    if (remainingDebt.gt(bucket.quoteTokens)) {
+      remainingDebt = remainingDebt.minus(bucket.quoteTokens)
+    } else {
+      newLupPrice = bucket.price
+      newLupIndex = bucket.index
+      break
+    }
+  }
+
+  return {
+    newLupPrice,
+    newLupIndex,
+  }
 }
 
 export function simulatePool(

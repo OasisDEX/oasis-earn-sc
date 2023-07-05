@@ -1,5 +1,5 @@
 import { ADDRESSES } from '@deploy-configurations/addresses'
-import { aaveCloseV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getAaveCloseV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
@@ -22,6 +22,7 @@ type CloseArgs = {
   debtTokenAddress: string
   debtTokenIsEth: boolean
   isDPMProxy: boolean
+  network: Network
 }
 
 export type AaveV2CloseOperation = (
@@ -30,26 +31,27 @@ export type AaveV2CloseOperation = (
 ) => Promise<IOperation>
 
 export const close: AaveV2CloseOperation = async (args, addresses) => {
-  const setDaiApprovalOnLendingPool = actions.common.setApproval({
+  const { network } = args
+  const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
     amount: args.flashloanAmount,
     asset: addresses.DAI,
     delegate: addresses.lendingPool,
     sumAmounts: false,
   })
 
-  const depositDaiInAAVE = actions.aave.v2.aaveDeposit({
+  const depositDaiInAAVE = actions.aave.v2.aaveDeposit(network, {
     amount: args.flashloanAmount,
     asset: addresses.DAI,
     sumAmounts: false,
   })
 
-  const withdrawCollateralFromAAVE = actions.aave.v2.aaveWithdraw({
+  const withdrawCollateralFromAAVE = actions.aave.v2.aaveWithdraw(network, {
     asset: args.collateralTokenAddress,
     amount: new BigNumber(MAX_UINT),
     to: args.proxy,
   })
 
-  const swapCollateralTokensForDebtTokens = actions.common.swap({
+  const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
     fromAsset: args.collateralTokenAddress,
     toAsset: args.debtTokenAddress,
     amount: args.collateralAmountToBeSwapped,
@@ -60,6 +62,7 @@ export const close: AaveV2CloseOperation = async (args, addresses) => {
   })
 
   const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
+    network,
     {
       asset: args.debtTokenAddress,
       delegate: addresses.lendingPool,
@@ -69,28 +72,28 @@ export const close: AaveV2CloseOperation = async (args, addresses) => {
     [0, 0, 3, 0],
   )
 
-  const paybackInAAVE = actions.aave.v2.aavePayback({
+  const paybackInAAVE = actions.aave.v2.aavePayback(network, {
     asset: args.debtTokenAddress,
     amount: new BigNumber(0),
     paybackAll: true,
   })
 
-  const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw({
+  const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw(network, {
     asset: addresses.DAI,
     amount: args.flashloanAmount,
     to: addresses.operationExecutor,
   })
 
-  const unwrapEth = actions.common.unwrapEth({
+  const unwrapEth = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
   })
 
   // Also covers the return of dust amount funds to the user - in the close to collateral scenario
-  const returnDebtFunds = actions.common.returnFunds({
+  const returnDebtFunds = actions.common.returnFunds(network, {
     asset: args.debtTokenIsEth ? ADDRESSES[Network.MAINNET].common.ETH : args.debtTokenAddress,
   })
 
-  const returnCollateralFunds = actions.common.returnFunds({
+  const returnCollateralFunds = actions.common.returnFunds(network, {
     asset: args.collateralIsEth
       ? ADDRESSES[Network.MAINNET].common.ETH
       : args.collateralTokenAddress,
@@ -98,7 +101,7 @@ export const close: AaveV2CloseOperation = async (args, addresses) => {
 
   unwrapEth.skipped = !args.debtTokenIsEth && !args.collateralIsEth
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan({
+  const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     flashloanAmount: args.flashloanAmount,
     asset: addresses.DAI,
     isProxyFlashloan: true,
@@ -118,5 +121,5 @@ export const close: AaveV2CloseOperation = async (args, addresses) => {
     ],
   })
 
-  return { calls: [takeAFlashLoan], operationName: aaveCloseV2OperationDefinition.name }
+  return { calls: [takeAFlashLoan], operationName: getAaveCloseV2OperationDefinition(network).name }
 }

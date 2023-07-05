@@ -1,5 +1,9 @@
-import { ADDRESS_ZERO, CONTRACT_NAMES } from '../constants'
+import { Network } from '@deploy-configurations/types/network'
+
+import { ADDRESS_ZERO, loadContractNames } from '../constants'
 import { SystemConfig } from '../types/deployment-config'
+
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.GOERLI)
 
 export const config: SystemConfig = {
   mpa: {
@@ -39,7 +43,7 @@ export const config: SystemConfig = {
         name: 'DSProxyFactory',
         deploy: false,
         address: '0x84eFB9c18059394172D0d69A3E58B03320001871',
-        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_FACTORY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_FACTORY,
         history: [],
         constructorArgs: [],
       },
@@ -47,7 +51,7 @@ export const config: SystemConfig = {
         name: 'DSProxyRegistry',
         deploy: false,
         address: '0x46759093D8158db8BB555aC7C6F98070c56169ce',
-        serviceRegistryName: CONTRACT_NAMES.common.DS_PROXY_REGISTRY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_REGISTRY,
         history: [],
         constructorArgs: ['address:DSProxyFactory'],
       },
@@ -55,7 +59,7 @@ export const config: SystemConfig = {
         name: 'DSGuardFactory',
         deploy: false,
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.common.DS_GUARD_FACTORY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_GUARD_FACTORY,
         history: [],
         constructorArgs: [],
       },
@@ -235,17 +239,17 @@ export const config: SystemConfig = {
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
       address: '0xe592427a0aece92de3edee1f18e0157c05861564',
-      serviceRegistryName: CONTRACT_NAMES.common.UNISWAP_ROUTER,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.UNISWAP_ROUTER,
     },
     BalancerVault: {
       name: 'BalancerVault',
       address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      serviceRegistryName: CONTRACT_NAMES.common.BALANCER_VAULT,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.BALANCER_VAULT,
     },
     OneInchAggregator: {
       name: 'OneInchAggregator',
       address: '0x1111111254fb6c44bac0bed2854e76f90643097d',
-      serviceRegistryName: CONTRACT_NAMES.common.ONE_INCH_AGGREGATOR,
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
     },
     AuthorizedCaller: {
       name: 'AuthorizedCaller',
@@ -424,7 +428,7 @@ export const config: SystemConfig = {
       LendingPool: {
         name: 'LendingPool',
         address: '0x4bd5643ac6f66a5237E18bfA7d47cF22f1c9F210',
-        serviceRegistryName: CONTRACT_NAMES.aave.v2.LENDING_POOL,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.LENDING_POOL,
       },
       ProtocolDataProvider: {
         name: 'ProtocolDataProvider',
@@ -433,7 +437,7 @@ export const config: SystemConfig = {
       WETHGateway: {
         name: 'WETHGateway',
         address: ADDRESS_ZERO,
-        serviceRegistryName: CONTRACT_NAMES.aave.v2.WETH_GATEWAY,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.WETH_GATEWAY,
       },
     },
     v3: {
@@ -444,7 +448,7 @@ export const config: SystemConfig = {
       Pool: {
         name: 'Pool',
         address: '0x6060Cf73C79098D32c9b936F4B26283427f1BFAd',
-        serviceRegistryName: CONTRACT_NAMES.aave.v3.AAVE_POOL,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
       },
       AavePoolDataProvider: {
         name: 'AavePoolDataProvider',
@@ -461,7 +465,7 @@ export const config: SystemConfig = {
       FlashMintModule: {
         name: 'FlashMintModule',
         address: '0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA',
-        serviceRegistryName: CONTRACT_NAMES.maker.FLASH_MINT_MODULE,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.maker.FLASH_MINT_MODULE,
       },
       Chainlog: {
         name: 'Chainlog',
@@ -918,43 +922,63 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0x1F9F7732ff409FC0AbcAAea94634A7b41F445299',
+      address: '0x28ef92e694d1044917981837b21e5eA994931c71',
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0xeE83e98a6734cd59347066F8adDba8B304DA4905',
+      address: '0x64a1F45718704749AF9F9BBdA1f18608D1DE46f0',
     },
-    AjnaPoolPairs_WBTCUSDC: {
-      name: 'AjnaPoolPairs_WBTCUSDC',
-      address: '0xc2b64ca87090fe79786a8773009d7fb1288d3db1',
+    AjnaPoolPairs_ETHDAI: {
+      name: 'AjnaPoolPairs_ETHDAI',
+      address: '0x2829629488a2977DA907fE5b2a60f58F61E2F30C',
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
-      address: '0x3ae0ea990cb38487d7a698c68b7b520a3d57c018',
-    },
-    AjnaPoolPairs_WSTETHDAI: {
-      name: 'AjnaPoolPairs_WSTETHDAI',
-      address: '0x2549f77Bf6ca28963426709844B1DdFb8197876A',
+      address: '0x8806584b9ba1383Cd77589DD937d4AE267E8c61d',
     },
     AjnaPoolPairs_RETHDAI: {
       name: 'AjnaPoolPairs_RETHDAI',
-      address: '0xeCf773a0535F46DD3Cd8728EE263eEEaBCa16A8e',
+      address: '0x0003270e702C8001A48d3Ff6a792c1F4E9BC0372',
     },
-    AjnaPoolPairs_WBTCDAI: {
-      name: 'AjnaPoolPairs_WBTCDAI',
-      address: '0xfa3F2cfC67C32C53601d52A9dEC31b2c2f0db3E2',
+    AjnaPoolPairs_RETHETH: {
+      name: 'AjnaPoolPairs_RETHETH',
+      address: '0x9c7287bdBCF44e8d5085dA5D7c06F2004d078346',
     },
-    AjnaPoolPairs_USDCWETH: {
-      name: 'AjnaPoolPairs_USDCWETH',
-      address: '0xE3efD887308d6C29B5F9BF44957d8bD145a21bD5',
-    },
-    AjnaPoolPairs_USDCWBTC: {
-      name: 'AjnaPoolPairs_USDCWBTC',
-      address: '0x20D07529a9E1686773BA45eade1fbD3AA9F31aea',
+    AjnaPoolPairs_RETHUSDC: {
+      name: 'AjnaPoolPairs_RETHUSDC',
+      address: '0xe61531d5A4F6ADbBFc12ff2A22Aa4A5Bb46CB348',
     },
     AjnaPoolPairs_USDCDAI: {
       name: 'AjnaPoolPairs_USDCDAI',
       address: '0x7ed4194a16919dc5070457A2a22B9abFd9352E85',
+    },
+    AjnaPoolPairs_USDCETH: {
+      name: 'AjnaPoolPairs_USDCETH',
+      address: '0xFB2D48ccDc2c97Aebd92757662aB1F6a8d1cdF60',
+    },
+    AjnaPoolPairs_USDCWBTC: {
+      name: 'AjnaPoolPairs_USDCWBTC',
+      address: '0xC9760844a2C2627304D036ee7C6052028F798b23',
+    },
+    AjnaPoolPairs_WBTCDAI: {
+      name: 'AjnaPoolPairs_WBTCDAI',
+      address: '0xa06db0b8A0E44177AcC8f35Fea71bd4b517aeC6F',
+    },
+    AjnaPoolPairs_WBTCUSDC: {
+      name: 'AjnaPoolPairs_WBTCUSDC',
+      address: '0x325E0C594C011Af40a260c6aEb20E0557DEd7E6f',
+    },
+    AjnaPoolPairs_WSTETHDAI: {
+      name: 'AjnaPoolPairs_WSTETHDAI',
+      address: '0x4b6E1d22e2C37AD4FEfc0f2560C0d267A0ef4C85',
+    },
+    AjnaPoolPairs_WSTETHETH: {
+      name: 'AjnaPoolPairs_WSTETHUSDC',
+      address: '0x9D06eB26860a9eC5DD9e53AA33eec7aEEcf787dd',
+    },
+    AjnaPoolPairs_WSTETHUSDC: {
+      name: 'AjnaPoolPairs_WSTETHUSDC',
+      address: '0x6ad72426e959229Da1F0b0e737Fa984ea1fBC948',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',

@@ -22,7 +22,6 @@ import { ETH, MULTIPLE, STETH, UNISWAP_TEST_SLIPPAGE } from './common'
 import { OpenPositionTypes } from './open-position-types'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
-const mainnetAddresses = addressesByNetwork(Network.MAINNET)
 
 async function openStEthEthEarnAAVEPosition(
   slippage: BigNumber,
@@ -67,6 +66,7 @@ export async function stethEthEarnAavePosition({
   dependencies,
   config,
   feeRecipient,
+  network,
 }: {
   proxy: string
   isDPM: boolean
@@ -75,10 +75,13 @@ export async function stethEthEarnAavePosition({
   dependencies: StrategyDependenciesAaveV2
   config: RuntimeConfig
   feeRecipient: Address
+  network: Network
 }): Promise<PositionDetails> {
   const strategy: AavePositionStrategy = 'STETH/ETH Earn'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
+
+  const addresses = addressesByNetwork(network)
 
   const mockPrice = new BigNumber(0.98634)
   const getSwapData = use1inch
@@ -97,13 +100,14 @@ export async function stethEthEarnAavePosition({
       getSwapData,
       isDPMProxy: isDPM,
       proxy: proxy,
+      network,
     },
   )
 
   const proxyFunction = isDPM ? executeThroughDPMProxy : executeThroughProxy
 
   if (!feeRecipient) throw new Error('FeeRecipient is not defined')
-  const feeWalletBalanceBefore = await balanceOf(mainnetAddresses.WETH, feeRecipient, {
+  const feeWalletBalanceBefore = await balanceOf(addresses.WETH, feeRecipient, {
     config,
   })
 
@@ -124,11 +128,10 @@ export async function stethEthEarnAavePosition({
     throw new Error(`Creating ${strategy} position failed`)
   }
 
-  const feeWalletBalanceAfter = await balanceOf(mainnetAddresses.WETH, feeRecipient, {
+  const feeWalletBalanceAfter = await balanceOf(addresses.WETH, feeRecipient, {
     config,
   })
 
-  const addresses = dependencies.addresses
   const getPosition = async () => {
     return await strategies.aave.v2.view(
       {
@@ -138,7 +141,7 @@ export async function stethEthEarnAavePosition({
       },
       {
         addresses: {
-          ...addresses,
+          ...dependencies.addresses,
           operationExecutor: dependencies.contracts.operationExecutor.address,
         },
         provider: config.provider,

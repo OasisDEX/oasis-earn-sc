@@ -38,15 +38,18 @@ export const systemWithAavePositions = ({
   use1inch,
   hideLogging,
   configExtensionPaths,
+  network,
 }: {
   use1inch: boolean
   hideLogging?: boolean
   configExtensionPaths?: string[]
+  network: Network
 }) =>
   async function fixture(): Promise<SystemWithAavePositions> {
     const ds = new DeploymentSystem(hre)
     const config: RuntimeConfig = await ds.init(hideLogging)
-    const systemConfigPath = 'test/mainnet.conf.ts'
+    const systemConfigPath = `test/${network}.conf.ts`
+    console.log('Loading config from', systemConfigPath)
     await ds.loadConfig(systemConfigPath)
     if (configExtensionPaths) {
       for (const configPath of configExtensionPaths) {
@@ -69,6 +72,7 @@ export const systemWithAavePositions = ({
 
     await ds.deployAll()
     await ds.addAllEntries()
+    await ds.replaceSwapContracts()
 
     const dsSystem = ds.getSystem()
     const { system, registry, config: systemConfig } = dsSystem
@@ -116,6 +120,8 @@ export const systemWithAavePositions = ({
         ? swapAddress => getOneInchCall(swapAddress, [])
         : (marketPrice, precision) => oneInchCallMock(marketPrice, precision),
     }
+
+    // const getTokens = buildGetTokenFunctionByStorage(ds, network)
 
     const getTokens = {
       byImpersonate: buildGetTokenByImpersonateFunction(
@@ -165,6 +171,7 @@ export const systemWithAavePositions = ({
         dependencies,
         config,
         feeRecipient: systemConfig.common.FeeRecipient.address,
+        network,
       },
     )
 
@@ -179,6 +186,7 @@ export const systemWithAavePositions = ({
         dependencies,
         config,
         feeRecipient: systemConfig.common.FeeRecipient.address,
+        network,
       },
     )
 
@@ -193,6 +201,7 @@ export const systemWithAavePositions = ({
         dependencies,
         config,
         getTokens: preferredGetTokenFn,
+        network,
       },
     )
 
@@ -207,6 +216,7 @@ export const systemWithAavePositions = ({
         dependencies,
         config,
         getTokens: preferredGetTokenFn,
+        network,
       },
     )
 
@@ -221,6 +231,7 @@ export const systemWithAavePositions = ({
         dependencies,
         config,
         feeRecipient: systemConfig.common.FeeRecipient.address,
+        network,
       },
     )
 

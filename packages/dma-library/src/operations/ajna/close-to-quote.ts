@@ -1,4 +1,5 @@
-import { ajnaCloseToQuoteOperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getAjnaCloseToQuoteOperationDefinition } from '@deploy-configurations/operation-definitions'
+import { Network } from '@deploy-configurations/types/network'
 import { MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import {
@@ -41,7 +42,7 @@ export const closeToQuote: AjnaCloseToQuoteOperation = async ({
   addresses,
   price,
 }) => {
-  const setDebtTokenApprovalOnPool = actions.common.setApproval({
+  const setDebtTokenApprovalOnPool = actions.common.setApproval(Network.MAINNET, {
     asset: debt.address,
     delegate: addresses.pool,
     amount: flashloan.amount,
@@ -58,7 +59,7 @@ export const closeToQuote: AjnaCloseToQuoteOperation = async ({
     price,
   })
 
-  const swapCollateralTokensForDebtTokens = actions.common.swap({
+  const swapCollateralTokensForDebtTokens = actions.common.swap(Network.MAINNET, {
     fromAsset: collateral.address,
     toAsset: debt.address,
     amount: swap.amount,
@@ -68,13 +69,13 @@ export const closeToQuote: AjnaCloseToQuoteOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const unwrapEth = actions.common.unwrapEth({
+  const unwrapEth = actions.common.unwrapEth(Network.MAINNET, {
     amount: new BigNumber(MAX_UINT),
   })
 
   unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
-  const returnDebtFunds = actions.common.returnFunds({
+  const returnDebtFunds = actions.common.returnFunds(Network.MAINNET, {
     asset: debt.isEth ? addresses.ETH : debt.address,
   })
 
@@ -85,7 +86,7 @@ export const closeToQuote: AjnaCloseToQuoteOperation = async ({
     unwrapEth,
   ]
 
-  const takeAFlashLoan = actions.common.takeAFlashLoan({
+  const takeAFlashLoan = actions.common.takeAFlashLoan(Network.MAINNET, {
     isDPMProxy: proxy.isDPMProxy,
     asset: debt.address,
     flashloanAmount: flashloan.amount,
@@ -96,6 +97,6 @@ export const closeToQuote: AjnaCloseToQuoteOperation = async ({
 
   return {
     calls: [takeAFlashLoan, returnDebtFunds],
-    operationName: ajnaCloseToQuoteOperationDefinition.name,
+    operationName: getAjnaCloseToQuoteOperationDefinition(Network.MAINNET).name,
   }
 }

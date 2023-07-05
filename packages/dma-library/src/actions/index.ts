@@ -26,7 +26,6 @@ import {
   unwrapEth,
   wrapEth,
 } from './common'
-import { openVault } from './maker'
 
 const aave = {
   v2: {
@@ -56,10 +55,6 @@ const common = {
   takeAFlashLoan,
 }
 
-const maker = {
-  openVault,
-}
-
 const ajna: {
   ajnaPaybackWithdraw: AjnaPaybackWithdrawAction
   ajnaDepositBorrow: AjnaDepositBorrowAction
@@ -68,6 +63,6 @@ const ajna: {
   ajnaDepositBorrow,
 }
 
-const actions = { aave, ajna, common, maker }
+const actions = { aave, ajna, common }
 
 export { actions }

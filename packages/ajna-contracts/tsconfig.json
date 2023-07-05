@@ -26,5 +26,5 @@
       "path": "../deploy-configurations",
     }
   ],
-  "include": ["./bootstrap-env.ts", "./hardhat.config.ts", "./test", "./tasks", "./scripts/**/*.ts"]
+  "include": ["./bootstrap-env.ts", "./hardhat.config.ts", "./test", "./tasks", "./scripts/**/*.ts", "./typechain-types"]
 }

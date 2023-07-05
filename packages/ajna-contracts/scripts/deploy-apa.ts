@@ -102,7 +102,7 @@ async function depositQuoteToken(
   }
   if (amountInDecimals.lte(balance)) {
     console.info(`Adding ${pool.amount} of ${quote} to pool ${pool.pair} at index ${index}`);
-    await deployedPool.connect(signer).addQuoteToken(amount, index, 999999999999999);
+    await deployedPool.connect(signer).addQuoteToken(amount, index, 999999999999999, false);
   }
 }
 

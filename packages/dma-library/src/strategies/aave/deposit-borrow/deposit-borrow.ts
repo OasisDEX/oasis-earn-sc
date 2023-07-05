@@ -132,13 +132,23 @@ async function buildOperation(
     protocolVersion === AaveVersion.v3 &&
     AaveProtocolUtils.isAaveV3Addresses(dependencies.addresses)
   ) {
-    return await operations.aave.v3.depositBorrow(depositArgs, borrowArgs, dependencies.addresses)
+    return await operations.aave.v3.depositBorrow(
+      depositArgs,
+      borrowArgs,
+      dependencies.addresses,
+      dependencies.network,
+    )
   }
   if (
     protocolVersion === AaveVersion.v2 &&
     AaveProtocolUtils.isAaveV2Addresses(dependencies.addresses)
   ) {
-    return await operations.aave.v2.depositBorrow(depositArgs, borrowArgs, dependencies.addresses)
+    return await operations.aave.v2.depositBorrow(
+      depositArgs,
+      borrowArgs,
+      dependencies.addresses,
+      dependencies.network,
+    )
   }
 
   throw new Error('No operation found for Aave protocol version')

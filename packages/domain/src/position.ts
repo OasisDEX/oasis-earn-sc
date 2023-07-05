@@ -133,6 +133,17 @@ export class Position implements IPosition {
   public category: IPositionCategory
   private _feeBase: BigNumber = new BigNumber(10000)
 
+  public static emptyPosition(
+    debt: Optional<IPositionBalance, 'precision'>,
+    collateral: Optional<IPositionBalance, 'precision'>,
+  ) {
+    return new Position(debt, collateral, ZERO, {
+      liquidationThreshold: ZERO,
+      maxLoanToValue: ZERO,
+      dustLimit: ZERO,
+    })
+  }
+
   constructor(
     debt: Optional<IPositionBalance, 'precision'>,
     collateral: Optional<IPositionBalance, 'precision'>,
