@@ -3,23 +3,26 @@
 pragma solidity 0.8.18;
 
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC20 }    from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import {
+import { 
     IERC20Pool,
     IERC20PoolBorrowerActions,
     IERC20PoolImmutables,
     IERC20PoolLenderActions
-} from "./interfaces/pool/erc20/IERC20Pool.sol";
-import { IERC20Taker } from "./interfaces/pool/erc20/IERC20Taker.sol";
+}                              from './interfaces/pool/erc20/IERC20Pool.sol';
+import { IERC20Taker }         from './interfaces/pool/erc20/IERC20Taker.sol';
 
 import {
     IPoolLenderActions,
     IPoolKickerActions,
     IPoolTakerActions,
     IPoolSettlerActions
-} from "./interfaces/pool/IPool.sol";
-import { IERC3156FlashBorrower, IERC3156FlashLender } from "./interfaces/pool/IERC3156FlashLender.sol";
+}                            from './interfaces/pool/IPool.sol';
+import {
+    IERC3156FlashBorrower,
+    IERC3156FlashLender
+}                            from './interfaces/pool/IERC3156FlashLender.sol';
 
 import {
     DrawDebtResult,
@@ -27,26 +30,29 @@ import {
     SettleParams,
     SettleResult,
     TakeResult
-} from "./interfaces/pool/commons/IPoolInternals.sol";
-import { PoolState } from "./interfaces/pool/commons/IPoolState.sol";
+}                    from './interfaces/pool/commons/IPoolInternals.sol';
+import { PoolState } from './interfaces/pool/commons/IPoolState.sol';
 
-import { FlashloanablePool } from "./base/FlashloanablePool.sol";
+import { FlashloanablePool } from './base/FlashloanablePool.sol';
 
 import {
     _getCollateralDustPricePrecisionAdjustment,
     _roundToScale,
     _roundUpToScale
-} from "./libraries/helpers/PoolHelper.sol";
-import { _revertIfAuctionClearable, _revertAfterExpiry } from "./libraries/helpers/RevertsHelper.sol";
+}                                               from './libraries/helpers/PoolHelper.sol';
+import { 
+    _revertIfAuctionClearable,
+    _revertAfterExpiry 
+}                               from './libraries/helpers/RevertsHelper.sol';
 
-import { Loans } from "./libraries/internal/Loans.sol";
-import { Deposits } from "./libraries/internal/Deposits.sol";
-import { Maths } from "./libraries/internal/Maths.sol";
+import { Loans }    from './libraries/internal/Loans.sol';
+import { Deposits } from './libraries/internal/Deposits.sol';
+import { Maths }    from './libraries/internal/Maths.sol';
 
-import { BorrowerActions } from "./libraries/external/BorrowerActions.sol";
-import { LenderActions } from "./libraries/external/LenderActions.sol";
-import { SettlerActions } from "./libraries/external/SettlerActions.sol";
-import { TakerActions } from "./libraries/external/TakerActions.sol";
+import { BorrowerActions } from './libraries/external/BorrowerActions.sol';
+import { LenderActions }   from './libraries/external/LenderActions.sol';
+import { SettlerActions }  from './libraries/external/SettlerActions.sol';
+import { TakerActions }    from './libraries/external/TakerActions.sol';
 
 /**
  *  @title  ERC20 Pool contract
@@ -77,13 +83,15 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
     /****************************/
 
     /// @inheritdoc IERC20Pool
-    function initialize(uint256 rate_) external override {
+    function initialize(
+        uint256 rate_
+    ) external override {
         if (isPoolInitialized) revert AlreadyInitialized();
 
-        inflatorState.inflator = uint208(1e18);
+        inflatorState.inflator       = uint208(1e18);
         inflatorState.inflatorUpdate = uint48(block.timestamp);
 
-        interestState.interestRate = uint208(rate_);
+        interestState.interestRate       = uint208(rate_);
         interestState.interestRateUpdate = uint48(block.timestamp);
 
         Loans.init(loans);
@@ -129,7 +137,7 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
         PoolState memory poolState = _accruePoolInterest();
 
         // ensure the borrower is not charged for additional debt that they did not receive
-        amountToBorrow_ = _roundToScale(amountToBorrow_, poolState.quoteTokenScale);
+        amountToBorrow_     = _roundToScale(amountToBorrow_, poolState.quoteTokenScale);
         // ensure the borrower is not credited with a fractional amount of collateral smaller than the token scale
         collateralToPledge_ = _roundToScale(collateralToPledge_, _getArgUint256(COLLATERAL_SCALE));
 
@@ -149,15 +157,20 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
         emit DrawDebt(borrowerAddress_, amountToBorrow_, collateralToPledge_, result.newLup);
 
         // update in memory pool state struct
-        poolState.debt = result.poolDebt;
-        poolState.t0Debt = result.t0PoolDebt;
-        if (result.t0DebtInAuctionChange != 0) poolState.t0DebtInAuction -= result.t0DebtInAuctionChange;
+        poolState.debt       = result.poolDebt;
+        poolState.t0Debt     = result.t0PoolDebt;
         poolState.collateral = result.poolCollateral;
+
+        // update t0 debt in auction in memory pool state struct and pool balances state
+        if (result.t0DebtInAuctionChange != 0) {
+            poolState.t0DebtInAuction    -= result.t0DebtInAuctionChange;
+            poolBalances.t0DebtInAuction = poolState.t0DebtInAuction;
+        }
 
         // adjust t0Debt2ToCollateral ratio if loan not in auction
         if (!result.inAuction) {
             _updateT0Debt2ToCollateral(
-                result.settledAuction ? 0 : result.debtPreAction, // debt pre settle (for loan in auction) not taken into account
+                result.settledAuction ? 0 : result.debtPreAction,       // debt pre settle (for loan in auction) not taken into account
                 result.debtPostAction,
                 result.settledAuction ? 0 : result.collateralPreAction, // collateral pre settle (for loan in auction) not taken into account
                 result.collateralPostAction
@@ -168,10 +181,7 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
         _updateInterestState(poolState, result.newLup);
 
         if (collateralToPledge_ != 0) {
-            // update pool balances state
-            if (result.t0DebtInAuctionChange != 0) {
-                poolBalances.t0DebtInAuction = poolState.t0DebtInAuction;
-            }
+            // update pool balances pledged collateral state
             poolBalances.pledgedCollateral = poolState.collateral;
 
             // move collateral from sender to pool
@@ -179,7 +189,7 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
         }
 
         if (amountToBorrow_ != 0) {
-            // update pool balances state
+            // update pool balances t0 debt state
             poolBalances.t0Debt = poolState.t0Debt;
 
             // move borrowed amount from pool to sender
@@ -209,7 +219,7 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
         // ensure accounting is performed using the appropriate token scale
         if (maxQuoteTokenAmountToRepay_ != type(uint256).max)
             maxQuoteTokenAmountToRepay_ = _roundToScale(maxQuoteTokenAmountToRepay_, poolState.quoteTokenScale);
-        collateralAmountToPull_ = _roundToScale(collateralAmountToPull_, _getArgUint256(COLLATERAL_SCALE));
+        collateralAmountToPull_         = _roundToScale(collateralAmountToPull_,     _getArgUint256(COLLATERAL_SCALE));
 
         RepayDebtResult memory result = BorrowerActions.repayDebt(
             auctions,
@@ -226,15 +236,20 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
         emit RepayDebt(borrowerAddress_, result.quoteTokenToRepay, collateralAmountToPull_, result.newLup);
 
         // update in memory pool state struct
-        poolState.debt = result.poolDebt;
-        poolState.t0Debt = result.t0PoolDebt;
-        if (result.t0DebtInAuctionChange != 0) poolState.t0DebtInAuction -= result.t0DebtInAuctionChange;
+        poolState.debt       = result.poolDebt;
+        poolState.t0Debt     = result.t0PoolDebt;
         poolState.collateral = result.poolCollateral;
+
+        // update t0 debt in auction in memory pool state struct and pool balances state
+        if (result.t0DebtInAuctionChange != 0) {
+            poolState.t0DebtInAuction    -= result.t0DebtInAuctionChange;
+            poolBalances.t0DebtInAuction = poolState.t0DebtInAuction;
+        }
 
         // adjust t0Debt2ToCollateral ratio if loan not in auction
         if (!result.inAuction) {
             _updateT0Debt2ToCollateral(
-                result.settledAuction ? 0 : result.debtPreAction, // debt pre settle (for loan in auction) not taken into account
+                result.settledAuction ? 0 : result.debtPreAction,       // debt pre settle (for loan in auction) not taken into account
                 result.debtPostAction,
                 result.settledAuction ? 0 : result.collateralPreAction, // collateral pre settle (for loan in auction) not taken into account
                 result.collateralPostAction
@@ -245,17 +260,14 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
         _updateInterestState(poolState, result.newLup);
 
         if (result.quoteTokenToRepay != 0) {
-            // update pool balances state
+            // update pool balances t0 debt state
             poolBalances.t0Debt = poolState.t0Debt;
-            if (result.t0DebtInAuctionChange != 0) {
-                poolBalances.t0DebtInAuction = poolState.t0DebtInAuction;
-            }
 
             // move amount to repay from sender to pool
             _transferQuoteTokenFrom(msg.sender, result.quoteTokenToRepay);
         }
         if (collateralAmountToPull_ != 0) {
-            // update pool balances state
+            // update pool balances pledged collateral state
             poolBalances.pledgedCollateral = poolState.collateral;
 
             // move collateral from pool to address specified as collateral receiver
@@ -286,7 +298,12 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
         if (amountToAdd_ != 0 && amountToAdd_ < _bucketCollateralDust(index_)) revert DustAmountNotExceeded();
         amountToAdd_ = _roundToScale(amountToAdd_, _getArgUint256(COLLATERAL_SCALE));
 
-        bucketLP_ = LenderActions.addCollateral(buckets, deposits, amountToAdd_, index_);
+        bucketLP_ = LenderActions.addCollateral(
+            buckets,
+            deposits,
+            amountToAdd_,
+            index_
+        );
 
         emit AddCollateral(msg.sender, index_, amountToAdd_, bucketLP_);
 
@@ -343,7 +360,10 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
      *  @dev    - no update of `t0Debt2ToCollateral` ratio as debt and collateral pre settle are not taken into account (pre debt and pre collateral = 0)
      *  @dev     and loan is removed from auction queue only when there's no more debt (post debt = 0)
      */
-    function settle(address borrowerAddress_, uint256 maxDepth_) external override nonReentrant {
+    function settle(
+        address borrowerAddress_,
+        uint256 maxDepth_
+    ) external override nonReentrant {
         PoolState memory poolState = _accruePoolInterest();
 
         SettleResult memory result = SettlerActions.settlePoolDebt(
@@ -354,7 +374,7 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
             reserveAuction,
             poolState,
             SettleParams({
-                borrower: borrowerAddress_,
+                borrower:    borrowerAddress_,
                 poolBalance: _getNormalizedPoolQuoteTokenBalance(),
                 bucketDepth: maxDepth_
             })
@@ -372,9 +392,9 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
      *  @dev    - update `t0Debt2ToCollateral` ratio only if auction settled, debt and collateral pre action are considered 0
      */
     function take(
-        address borrowerAddress_,
-        uint256 maxAmount_,
-        address callee_,
+        address        borrowerAddress_,
+        uint256        maxAmount_,
+        address        callee_,
         bytes calldata data_
     ) external override nonReentrant {
         PoolState memory poolState = _accruePoolInterest();
@@ -420,7 +440,12 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
      *  @dev    - decrement `poolBalances.pledgedCollateral` accumulator
      *  @dev    - update `t0Debt2ToCollateral` ratio only if auction settled, debt and collateral pre action are considered 0
      */
-    function bucketTake(address borrowerAddress_, bool depositTake_, uint256 index_) external override nonReentrant {
+    function bucketTake(
+        address borrowerAddress_,
+        bool    depositTake_,
+        uint256 index_
+    ) external override nonReentrant {
+
         PoolState memory poolState = _accruePoolInterest();
 
         TakeResult memory result = TakerActions.bucketTake(
@@ -446,7 +471,9 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
      *  @inheritdoc FlashloanablePool
      *  @dev Override default implementation and allows flashloans for both quote and collateral token.
      */
-    function _isFlashloanSupported(address token_) internal view virtual override returns (bool) {
+    function _isFlashloanSupported(
+        address token_
+    ) internal virtual view override returns (bool) {
         return token_ == _getArgAddress(QUOTE_ADDRESS) || token_ == _getArgAddress(COLLATERAL_ADDRESS);
     }
 
@@ -484,5 +511,5 @@ contract ERC20Pool is FlashloanablePool, IERC20Pool {
         uint256 pricePrecisionAdjustment = _getCollateralDustPricePrecisionAdjustment(bucketIndex_);
         // difference between the normalized scale and the collateral token's scale
         return Maths.max(_getArgUint256(COLLATERAL_SCALE), 10 ** pricePrecisionAdjustment);
-    }
+    } 
 }

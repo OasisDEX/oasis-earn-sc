@@ -4,12 +4,12 @@ pragma solidity 0.8.18;
 
 import { ClonesWithImmutableArgs } from "./libs/clones-with-immutable-args/src/ClonesWithImmutableArgs.sol";
 
-import { IERC20PoolFactory } from "./interfaces/pool/erc20/IERC20PoolFactory.sol";
-import { IPoolFactory } from "./interfaces/pool/IPoolFactory.sol";
-import { PoolType } from "./interfaces/pool/IPool.sol";
+import { IERC20PoolFactory } from './interfaces/pool/erc20/IERC20PoolFactory.sol';
+import { IPoolFactory }      from './interfaces/pool/IPoolFactory.sol';
+import { PoolType }          from './interfaces/pool/IPool.sol';
 
-import { ERC20Pool } from "./ERC20Pool.sol";
-import { PoolDeployer } from "./base/PoolDeployer.sol";
+import { ERC20Pool }    from './ERC20Pool.sol';
+import { PoolDeployer } from './base/PoolDeployer.sol';
 
 /**
  *  @title  ERC20 Pool Factory
@@ -18,6 +18,7 @@ import { PoolDeployer } from "./base/PoolDeployer.sol";
  *  @dev    Reverts if pool is already created or if params to deploy new pool are invalid.
  */
 contract ERC20PoolFactory is PoolDeployer, IERC20PoolFactory {
+
     using ClonesWithImmutableArgs for address;
 
     /// @dev `ERC20` clonable pool contract used to deploy the new pool.
@@ -49,9 +50,7 @@ contract ERC20PoolFactory is PoolDeployer, IERC20PoolFactory {
      *  @dev    - `PoolCreated`
      */
     function deployPool(
-        address collateral_,
-        address quote_,
-        uint256 interestRate_
+        address collateral_, address quote_, uint256 interestRate_
     ) external canDeploy(collateral_, quote_, interestRate_) returns (address pool_) {
         address existingPool = deployedPools[ERC20_NON_SUBSET_HASH][collateral_][quote_];
         if (existingPool != address(0)) revert IPoolFactory.PoolAlreadyExists(existingPool);

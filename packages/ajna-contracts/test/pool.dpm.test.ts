@@ -28,6 +28,8 @@ import { WETH as WETHContract } from "../typechain-types/contracts/ajna";
 const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
 
+const REVERT_IF_BELOW_LUP = false;
+
 describe.only("AjnaProxyActions", function () {
   async function deploy(initializeStaking = true) {
     await hre.network.provider.request({
@@ -1402,6 +1404,7 @@ async function supplyQuote(
     poolContract.address,
     amountToSupply,
     price,
+    REVERT_IF_BELOW_LUP,
   ]);
   await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const tx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, encodedSupplyQuoteData, {
@@ -1424,6 +1427,7 @@ async function moveQuote(
     poolContract.address,
     price,
     newPrice,
+    REVERT_IF_BELOW_LUP,
   ]);
   await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
@@ -1450,6 +1454,7 @@ async function supplyAndMoveQuote(
     amountToMove,
     price,
     newPrice,
+    REVERT_IF_BELOW_LUP,
   ]);
   await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
@@ -1476,6 +1481,7 @@ async function withdrawAndMoveQuote(
     amountToWithdraw,
     oldPrice,
     newPrice,
+    REVERT_IF_BELOW_LUP,
   ]);
   await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
@@ -1502,6 +1508,7 @@ async function supplyQuoteNft(
     amountToWithdraw,
     price,
     tokenId,
+    REVERT_IF_BELOW_LUP,
   ]);
   await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const txWithdraw = await lenderProxy
@@ -1759,6 +1766,7 @@ async function supplyQuoteMintNftAndStake(
     poolContract.address,
     amount,
     price,
+    REVERT_IF_BELOW_LUP,
   ]);
   await debt.connect(lender).approve(lenderProxy.address, amount);
   const mintNftTx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, mintNftData, {
@@ -1782,6 +1790,7 @@ async function moveQuoteNft(
     oldPrice,
     newPrice,
     tokenId,
+    REVERT_IF_BELOW_LUP,
   ]);
   const moveLiquidityTx = await lenderProxy
     .connect(lender)
@@ -1809,6 +1818,7 @@ async function supplyAndMoveQuoteNft(
     oldPrice,
     newPrice,
     tokenId,
+    REVERT_IF_BELOW_LUP,
   ]);
   await debt.connect(lender).approve(poolContract.address, bn.eighteen.MILLION);
   const mintNftTx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, mintNftData, {
@@ -1835,6 +1845,7 @@ async function withdrawAndMoveQuoteNft(
     oldPrice,
     newPrice,
     tokenId,
+    REVERT_IF_BELOW_LUP,
   ]);
   await debt.connect(lender).approve(poolContract.address, bn.eighteen.MILLION);
   const mintNftTx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, mintNftData, {
@@ -1915,8 +1926,12 @@ async function provideLiquidity(usdc: DSToken, poolContract: ERC20Pool, poolCont
   await usdc.connect(lender).approve(poolContractWeth.address, bn.eighteen.MILLION);
   const blockNumber = await ethers.provider.getBlockNumber();
   const timestamp = (await ethers.provider.getBlock(blockNumber)).timestamp;
-  const tx = await poolContract.connect(lender).addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000);
-  const tx2 = await poolContractWeth.connect(lender).addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000);
+  const tx = await poolContract
+    .connect(lender)
+    .addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000, REVERT_IF_BELOW_LUP);
+  const tx2 = await poolContractWeth
+    .connect(lender)
+    .addQuoteToken(bn.eighteen.MILLION, 2000, timestamp + 100000, REVERT_IF_BELOW_LUP);
   await tx.wait();
   await tx2.wait();
 }
