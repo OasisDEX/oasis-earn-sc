@@ -33,8 +33,12 @@ export type AjnaErrorNotEnoughLiquidity = {
   }
 }
 
-export type AjnaErrorAfterLupIndexBiggerThanHtpIndex = {
-  name: 'after-lup-index-bigger-than-htp-index'
+export type AjnaErrorAfterLupIndexBiggerThanHtpIndexDeposit = {
+  name: 'after-lup-index-bigger-than-htp-index-deposit'
+}
+
+export type AjnaErrorAfterLupIndexBiggerThanHtpIndexWithdraw = {
+  name: 'after-lup-index-bigger-than-htp-index-withdraw'
 }
 
 export type AjnaErrorOverWithdraw = {
@@ -55,7 +59,8 @@ export type AjnaError =
   | AjnaErrorWithdrawUndercollateralized
   | AjnaErrorBorrowUndercollateralized
   | AjnaErrorWithdrawMoreThanAvailable
-  | AjnaErrorAfterLupIndexBiggerThanHtpIndex
+  | AjnaErrorAfterLupIndexBiggerThanHtpIndexDeposit
+  | AjnaErrorAfterLupIndexBiggerThanHtpIndexWithdraw
   | AjnaErrorDustLimit
   | AjnaErrorNotEnoughLiquidity
   | AjnaErrorOverWithdraw
