@@ -183,14 +183,24 @@ export async function deployPool(
   quote: string
 ): Promise<ERC20Pool> {
   const hash = await erc20PoolFactory.ERC20_NON_SUBSET_HASH();
+  let poolAddress = await erc20PoolFactory.deployedPools(hash, collateral, quote);
+  if (poolAddress === hre.ethers.constants.AddressZero) {
+    await erc20PoolFactory.deployPool(collateral, quote, "50000000000000000", {
+      gasLimit: 10000000,
+    });
+    poolAddress = await erc20PoolFactory.deployedPools(hash, collateral, quote);
+  }
 
-  await erc20PoolFactory.deployPool(collateral, quote, "50000000000000000", {
-    gasLimit: 10000000,
-  });
-
+  return utils.getContract<ERC20Pool>("ERC20Pool", poolAddress);
+}
+export async function getPool(
+  erc20PoolFactory: ERC20PoolFactory,
+  collateral: string,
+  quote: string
+): Promise<ERC20Pool> {
+  const hash = await erc20PoolFactory.ERC20_NON_SUBSET_HASH();
   const poolAddress = await erc20PoolFactory.deployedPools(hash, collateral, quote);
-
-  return (await utils.getContract<ERC20Pool>("ERC20Pool", poolAddress)) as ERC20Pool;
+  return utils.getContract<ERC20Pool>("ERC20Pool", poolAddress);
 }
 export async function deploy() {
   const [deployer] = await ethers.getSigners();
