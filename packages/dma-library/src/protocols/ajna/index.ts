@@ -427,7 +427,7 @@ export const calculateAjnaMaxLiquidityWithdraw = ({
       buckets: [
         ...buckets.filter(bucket => !bucket.index.eq(lupBucket.index)),
         { ...lupBucket, quoteTokens: lupBucket.quoteTokens.minus(liquidityInLupBucket) },
-      ],
+      ].sort((a, b) => a.index.minus(b.index).toNumber()),
       lowestUtilizedPriceIndex: buckets[lupBucketIndex + 1].index,
       lowestUtilizedPrice: buckets[lupBucketIndex + 1].price,
     },
