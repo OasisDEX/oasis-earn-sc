@@ -2,30 +2,27 @@
 
 pragma solidity 0.8.18;
 
-import { ERC20 }           from '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import { IERC20 }          from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import { EnumerableSet }   from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
-import { Multicall }       from '@openzeppelin/contracts/utils/Multicall.sol';
-import { ReentrancyGuard } from '@openzeppelin/contracts/security/ReentrancyGuard.sol';
-import { SafeERC20 }       from '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import { Multicall } from "@openzeppelin/contracts/utils/Multicall.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import { IPool }                        from './interfaces/pool/IPool.sol';
-import { IPositionManager }             from './interfaces/position/IPositionManager.sol';
-import { IPositionManagerOwnerActions } from './interfaces/position/IPositionManagerOwnerActions.sol';
-import { IPositionManagerDerivedState } from './interfaces/position/IPositionManagerDerivedState.sol';
+import { IPool } from "./interfaces/pool/IPool.sol";
+import { IPositionManager } from "./interfaces/position/IPositionManager.sol";
+import { IPositionManagerOwnerActions } from "./interfaces/position/IPositionManagerOwnerActions.sol";
+import { IPositionManagerDerivedState } from "./interfaces/position/IPositionManagerDerivedState.sol";
 
-import { ERC20PoolFactory }  from './ERC20PoolFactory.sol';
-import { ERC721PoolFactory } from './ERC721PoolFactory.sol';
+import { ERC20PoolFactory } from "./ERC20PoolFactory.sol";
+import { ERC721PoolFactory } from "./ERC721PoolFactory.sol";
 
-import { PermitERC721 } from './base/PermitERC721.sol';
+import { PermitERC721 } from "./base/PermitERC721.sol";
 
-import {
-    _lpToQuoteToken,
-    _priceAt
-}                      from './libraries/helpers/PoolHelper.sol';
-import { tokenSymbol } from './libraries/helpers/SafeTokenNamer.sol';
+import { _lpToQuoteToken, _priceAt } from "./libraries/helpers/PoolHelper.sol";
+import { tokenSymbol } from "./libraries/helpers/SafeTokenNamer.sol";
 
-import { PositionNFTSVG } from './libraries/external/PositionNFTSVG.sol';
+import { PositionNFTSVG } from "./libraries/external/PositionNFTSVG.sol";
 
 /**
  *  @title  Position Manager Contract
@@ -39,7 +36,7 @@ import { PositionNFTSVG } from './libraries/external/PositionNFTSVG.sol';
  */
 contract PositionManager is PermitERC721, IPositionManager, Multicall, ReentrancyGuard {
     using EnumerableSet for EnumerableSet.UintSet;
-    using SafeERC20     for ERC20;
+    using SafeERC20 for ERC20;
 
     /***********************/
     /*** State Variables ***/
@@ -56,7 +53,7 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
     /******************/
 
     /// @dev The `ERC20` pools factory contract, used to check if address is an `Ajna` pool.
-    ERC20PoolFactory  private immutable erc20PoolFactory;
+    ERC20PoolFactory private immutable erc20PoolFactory;
     /// @dev The `ERC721` pools factory contract, used to check if address is an `Ajna` pool.
     ERC721PoolFactory private immutable erc721PoolFactory;
 
@@ -66,23 +63,23 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
 
     /// @dev Struct used for `moveLiquidity` function local vars.
     struct MoveLiquidityLocalVars {
-        uint256 bucketLP;         // [WAD] amount of LP in from bucket
+        uint256 bucketLP; // [WAD] amount of LP in from bucket
         uint256 bucketCollateral; // [WAD] amount of collateral in from bucket
-        uint256 bankruptcyTime;   // from bucket bankruptcy time
-        uint256 bucketDeposit;    // [WAD] from bucket deposit
-        uint256 fromDepositTime;  // lender deposit time in from bucket
-        uint256 fromLP;           // [WAD] the LP memorialized in from position
-        uint256 toDepositTime;    // lender deposit time in to bucket
-        uint256 maxQuote;         // [WAD] max amount that can be moved from bucket
-        uint256 lpbAmountFrom;    // [WAD] the LP redeemed from bucket
-        uint256 lpbAmountTo;      // [WAD] the LP awarded in to bucket
+        uint256 bankruptcyTime; // from bucket bankruptcy time
+        uint256 bucketDeposit; // [WAD] from bucket deposit
+        uint256 fromDepositTime; // lender deposit time in from bucket
+        uint256 fromLP; // [WAD] the LP memorialized in from position
+        uint256 toDepositTime; // lender deposit time in to bucket
+        uint256 maxQuote; // [WAD] max amount that can be moved from bucket
+        uint256 lpbAmountFrom; // [WAD] the LP redeemed from bucket
+        uint256 lpbAmountTo; // [WAD] the LP awarded in to bucket
     }
 
     /// @dev Struct used for `memorializePositions` function Lenders Local vars
     struct LendersBucketLocalVars {
-        uint256 lpBalance;   // Lender lp balance in a bucket
+        uint256 lpBalance; // Lender lp balance in a bucket
         uint256 depositTime; // Lender deposit time in a bucket
-        uint256 allowance;   // Lp allowance for a bucket
+        uint256 allowance; // Lp allowance for a bucket
     }
 
     /*****************/
@@ -95,7 +92,6 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
      *  @param tokenId_ Id of positions `NFT`.
      */
     modifier mayInteract(address pool_, uint256 tokenId_) {
-
         // revert if token id is not a valid / minted id
         _requireMinted(tokenId_);
 
@@ -116,11 +112,10 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
         ERC20PoolFactory erc20Factory_,
         ERC721PoolFactory erc721Factory_
     ) PermitERC721("Ajna Positions NFT-V1", "AJNA-V1-POS", "1") {
-        if (
-            address(erc20Factory_) == address(0) || address(erc721Factory_) == address(0)
-        ) revert DeployWithZeroAddress();
+        if (address(erc20Factory_) == address(0) || address(erc721Factory_) == address(0))
+            revert DeployWithZeroAddress();
 
-        erc20PoolFactory  = erc20Factory_;
+        erc20PoolFactory = erc20Factory_;
         erc721PoolFactory = erc721Factory_;
     }
 
@@ -142,10 +137,7 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
      *  @dev    === Emit events ===
      *  @dev    - `Burn`
      */
-    function burn(
-        address pool_,
-        uint256 tokenId_
-    ) external override mayInteract(pool_, tokenId_) {
+    function burn(address pool_, uint256 tokenId_) external override mayInteract(pool_, tokenId_) {
         // revert if trying to burn an positions token that still has liquidity
         if (positionTokens[tokenId_].positionIndexes.length() != 0) revert LiquidityNotRemoved();
 
@@ -180,11 +172,11 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
         address pool_,
         uint256 tokenId_,
         uint256[] calldata indexes_
-    ) external mayInteract(pool_, tokenId_) override {
+    ) external override mayInteract(pool_, tokenId_) {
         TokenInfo storage tokenInfo = positionTokens[tokenId_];
         EnumerableSet.UintSet storage positionIndexes = tokenInfo.positionIndexes;
 
-        IPool   pool  = IPool(pool_);
+        IPool pool = IPool(pool_);
         address owner = ownerOf(tokenId_);
 
         LendersBucketLocalVars memory vars;
@@ -227,7 +219,9 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
             // save position in storage
             tokenInfo.positions[index] = position;
 
-            unchecked { ++i; }
+            unchecked {
+                ++i;
+            }
         }
 
         // update pool LP accounting and transfer ownership of LP to PositionManager contract
@@ -291,10 +285,10 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
         uint256 fromIndex_,
         uint256 toIndex_,
         uint256 expiry_,
-        bool    revertIfBelowLup_
+        bool revertIfBelowLup_
     ) external override nonReentrant mayInteract(pool_, tokenId_) {
-        TokenInfo storage tokenInfo    = positionTokens[tokenId_];
-        Position  storage fromPosition = tokenInfo.positions[fromIndex_];
+        TokenInfo storage tokenInfo = positionTokens[tokenId_];
+        Position storage fromPosition = tokenInfo.positions[fromIndex_];
 
         MoveLiquidityLocalVars memory vars;
         vars.fromDepositTime = fromPosition.depositTime;
@@ -306,13 +300,10 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
         // ensure bucketDeposit accounts for accrued interest
         IPool(pool_).updateInterest();
 
-        // retrieve info of bucket from which liquidity is moved  
-        (
-            vars.bucketLP,
-            vars.bucketCollateral,
-            vars.bankruptcyTime,
-            vars.bucketDeposit,
-        ) = IPool(pool_).bucketInfo(fromIndex_);
+        // retrieve info of bucket from which liquidity is moved
+        (vars.bucketLP, vars.bucketCollateral, vars.bankruptcyTime, vars.bucketDeposit, ) = IPool(pool_).bucketInfo(
+            fromIndex_
+        );
 
         // check that from bucket hasn't gone bankrupt since memorialization
         if (vars.fromDepositTime <= vars.bankruptcyTime) revert BucketBankrupt();
@@ -328,10 +319,7 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
         );
 
         // move quote tokens in pool
-        (
-            vars.lpbAmountFrom,
-            vars.lpbAmountTo,
-        ) = IPool(pool_).moveQuoteToken(
+        (vars.lpbAmountFrom, vars.lpbAmountTo, ) = IPool(pool_).moveQuoteToken(
             vars.maxQuote,
             fromIndex_,
             toIndex_,
@@ -365,14 +353,7 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
         (, vars.toDepositTime) = IPool(pool_).lenderInfo(toIndex_, address(this));
         toPosition.depositTime = vars.toDepositTime;
 
-        emit MoveLiquidity(
-            ownerOf(tokenId_),
-            tokenId_,
-            fromIndex_,
-            toIndex_,
-            vars.lpbAmountFrom,
-            vars.lpbAmountTo
-        );
+        emit MoveLiquidity(ownerOf(tokenId_), tokenId_, fromIndex_, toIndex_, vars.lpbAmountFrom, vars.lpbAmountTo);
     }
 
     /**
@@ -427,7 +408,9 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
             // remove LP tracked by position manager at bucket index
             delete tokenInfo.positions[index];
 
-            unchecked { ++i; }
+            unchecked {
+                ++i;
+            }
         }
 
         address owner = ownerOf(tokenId_);
@@ -450,18 +433,11 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
      *  @param  subsetHash_ Factory's subset hash pool.
      *  @return `True` if a valid `Ajna` pool, `false` otherwise.
      */
-    function _isAjnaPool(
-        address pool_,
-        bytes32 subsetHash_
-    ) internal view returns (bool) {
+    function _isAjnaPool(address pool_, bytes32 subsetHash_) internal view returns (bool) {
         address collateralAddress = IPool(pool_).collateralAddress();
-        address quoteAddress      = IPool(pool_).quoteTokenAddress();
+        address quoteAddress = IPool(pool_).quoteTokenAddress();
 
-        address erc20DeployedPoolAddress  = erc20PoolFactory.deployedPools(
-            subsetHash_,
-            collateralAddress,
-            quoteAddress
-        );
+        address erc20DeployedPoolAddress = erc20PoolFactory.deployedPools(subsetHash_, collateralAddress, quoteAddress);
         address erc721DeployedPoolAddress = erc721PoolFactory.deployedPools(
             subsetHash_,
             collateralAddress,
@@ -493,19 +469,14 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
     /**********************/
 
     /// @inheritdoc IPositionManagerDerivedState
-    function getLP(
-        uint256 tokenId_,
-        uint256 index_
-    ) external override view returns (uint256) {
+    function getLP(uint256 tokenId_, uint256 index_) external view override returns (uint256) {
         TokenInfo storage tokenInfo = positionTokens[tokenId_];
         Position memory position = tokenInfo.positions[index_];
         return _bucketBankruptAfterDeposit(IPool(tokenInfo.pool), index_, position.depositTime) ? 0 : position.lps;
     }
 
     /// @inheritdoc IPositionManagerDerivedState
-    function getPositionIndexes(
-        uint256 tokenId_
-    ) external view override returns (uint256[] memory) {
+    function getPositionIndexes(uint256 tokenId_) external view override returns (uint256[] memory) {
         return positionTokens[tokenId_].positionIndexes.values();
     }
 
@@ -525,23 +496,21 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
             if (!_bucketBankruptAfterDeposit(pool, indexes[i], tokenInfo.positions[indexes[i]].depositTime)) {
                 filteredIndexes_[filteredIndexesLength++] = indexes[i];
             }
-            unchecked { ++i; }
+            unchecked {
+                ++i;
+            }
         }
 
         // resize array
-        assembly { mstore(filteredIndexes_, filteredIndexesLength) }
+        assembly {
+            mstore(filteredIndexes_, filteredIndexesLength)
+        }
     }
 
     /// @inheritdoc IPositionManagerDerivedState
-    function getPositionInfo(
-        uint256 tokenId_,
-        uint256 index_
-    ) external view override returns (uint256, uint256) {
+    function getPositionInfo(uint256 tokenId_, uint256 index_) external view override returns (uint256, uint256) {
         Position memory position = positionTokens[tokenId_].positions[index_];
-        return (
-            position.lps,
-            position.depositTime
-        );
+        return (position.lps, position.depositTime);
     }
 
     /// @inheritdoc IPositionManagerDerivedState
@@ -550,54 +519,42 @@ contract PositionManager is PermitERC721, IPositionManager, Multicall, Reentranc
     }
 
     /// @inheritdoc IPositionManagerDerivedState
-    function isAjnaPool(
-        address pool_,
-        bytes32 subsetHash_
-    ) external override view returns (bool) {
+    function isAjnaPool(address pool_, bytes32 subsetHash_) external view override returns (bool) {
         return _isAjnaPool(pool_, subsetHash_);
     }
 
     /// @inheritdoc IPositionManagerDerivedState
-    function isPositionBucketBankrupt(
-        uint256 tokenId_,
-        uint256 index_
-    ) external view override returns (bool) {
+    function isPositionBucketBankrupt(uint256 tokenId_, uint256 index_) external view override returns (bool) {
         TokenInfo storage tokenInfo = positionTokens[tokenId_];
         return _bucketBankruptAfterDeposit(IPool(tokenInfo.pool), index_, tokenInfo.positions[index_].depositTime);
     }
 
     /// @inheritdoc IPositionManagerDerivedState
-    function isIndexInPosition(
-        uint256 tokenId_,
-        uint256 index_
-    ) external override view returns (bool) {
+    function isIndexInPosition(uint256 tokenId_, uint256 index_) external view override returns (bool) {
         return positionTokens[tokenId_].positionIndexes.contains(index_);
     }
 
     /**
      * @dev See {IERC721Metadata-tokenURI}.
      */
-    function tokenURI(
-        uint256 tokenId_
-    ) public view override returns (string memory) {
+    function tokenURI(uint256 tokenId_) public view override returns (string memory) {
         if (!_exists(tokenId_)) revert NoToken();
 
         TokenInfo storage tokenInfo = positionTokens[tokenId_];
         address pool = tokenInfo.pool;
 
         address collateralTokenAddress = IPool(pool).collateralAddress();
-        address quoteTokenAddress      = IPool(pool).quoteTokenAddress();
+        address quoteTokenAddress = IPool(pool).quoteTokenAddress();
 
         PositionNFTSVG.ConstructTokenURIParams memory params = PositionNFTSVG.ConstructTokenURIParams({
             collateralTokenSymbol: tokenSymbol(collateralTokenAddress),
-            quoteTokenSymbol:      tokenSymbol(quoteTokenAddress),
-            tokenId:               tokenId_,
-            pool:                  pool,
-            owner:                 ownerOf(tokenId_),
-            indexes:               tokenInfo.positionIndexes.values()
+            quoteTokenSymbol: tokenSymbol(quoteTokenAddress),
+            tokenId: tokenId_,
+            pool: pool,
+            owner: ownerOf(tokenId_),
+            indexes: tokenInfo.positionIndexes.values()
         });
 
         return PositionNFTSVG.constructTokenURI(params);
     }
-
 }
