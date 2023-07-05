@@ -52,12 +52,12 @@ export const getAjnaEarnValidations = ({
       break
     }
     case 'deposit-earn': {
-      errors.push(...validateLupBelowHtp(position, afterLupIndex))
+      errors.push(...validateLupBelowHtp(position, action, afterLupIndex))
       break
     }
     case 'withdraw-earn': {
       errors.push(
-        ...validateLupBelowHtp(position, afterLupIndex),
+        ...validateLupBelowHtp(position, action, afterLupIndex),
         ...validateWithdrawMoreThanAvailable(position, quoteAmount, quoteTokenPrecision),
       )
       break

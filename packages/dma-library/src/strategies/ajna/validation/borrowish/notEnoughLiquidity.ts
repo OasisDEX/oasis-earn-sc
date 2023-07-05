@@ -12,6 +12,14 @@ export function getPoolLiquidity(pool: AjnaPool): BigNumber {
   return liquidityAboveHtp.minus(pool.debt)
 }
 
+export function getLiquidityInLupBucket(pool: AjnaPool): BigNumber {
+  const liquidityAboveLup = pool.buckets
+    .filter(bucket => bucket.index.lte(pool.lowestUtilizedPriceIndex))
+    .reduce((acc, bucket) => acc.plus(bucket.quoteTokens), new BigNumber(0))
+
+  return liquidityAboveLup.minus(pool.debt)
+}
+
 export function validateLiquidity(
   position: AjnaPosition,
   positionBefore: AjnaPosition,
