@@ -376,7 +376,7 @@ export const getAjnaLiquidationPrice = ({
   )
 
 const resolveMaxLiquidityWithdraw = (availableToWithdraw: BigNumber, quoteTokenAmount: BigNumber) =>
-  availableToWithdraw.gte(quoteTokenAmount) ? quoteTokenAmount : availableToWithdraw
+  negativeToZero(availableToWithdraw.gte(quoteTokenAmount) ? quoteTokenAmount : availableToWithdraw)
 
 export const calculateAjnaMaxLiquidityWithdraw = ({
   availableToWithdraw = ZERO,
