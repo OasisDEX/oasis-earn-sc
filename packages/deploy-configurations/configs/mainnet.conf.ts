@@ -1055,10 +1055,6 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_RETHUSDC',
       address: ADDRESS_ZERO,
     },
-    AjnaPoolPairs_USDCDAI: {
-      name: 'AjnaPoolPairs_USDCDAI',
-      address: ADDRESS_ZERO,
-    },
     AjnaPoolPairs_USDCETH: {
       name: 'AjnaPoolPairs_USDCETH',
       address: ADDRESS_ZERO,
