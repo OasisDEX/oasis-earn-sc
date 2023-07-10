@@ -77,7 +77,6 @@ export const withdrawAndAdjust: AjnaWithdrawAndAdjustStrategy = async (args, dep
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       indexToPrice.toString(),
       args.position.stakedNftId,
-      revertIfBelowLup,
     ])
     targetPosition = args.position.withdraw(args.quoteAmount)
   }
@@ -111,7 +110,6 @@ export const withdrawAndAdjust: AjnaWithdrawAndAdjustStrategy = async (args, dep
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       args.price.shiftedBy(18).toString(),
-      revertIfBelowLup,
     ])
     targetPosition = args.position.withdraw(args.quoteAmount)
   }
@@ -122,7 +120,6 @@ export const withdrawAndAdjust: AjnaWithdrawAndAdjustStrategy = async (args, dep
       args.poolAddress,
       ethers.constants.MaxUint256,
       args.position.price.shiftedBy(18).toString(),
-      revertIfBelowLup,
     ])
     targetPosition = args.position.close()
   }
@@ -133,7 +130,6 @@ export const withdrawAndAdjust: AjnaWithdrawAndAdjustStrategy = async (args, dep
       args.poolAddress,
       indexToPrice.toString(),
       args.position.stakedNftId,
-      revertIfBelowLup,
     ])
     targetPosition = args.position.close()
   }
