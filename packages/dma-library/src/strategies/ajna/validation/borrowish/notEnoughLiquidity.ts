@@ -1,15 +1,25 @@
 import { negativeToZero } from '@dma-common/utils/common'
 import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
 import { AjnaError, AjnaPosition } from '@dma-library/types/ajna'
-import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
+import { AjnaPool, Bucket } from '@dma-library/types/ajna/ajna-pool'
 import BigNumber from 'bignumber.js'
 
-export function getPoolLiquidity(pool: AjnaPool): BigNumber {
-  const liquidityAboveHtp = pool.buckets
-    .filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
+interface GetLiquidityInLupBucketParams {
+  buckets: Bucket[]
+  debt: BigNumber
+  highestThresholdPriceIndex: BigNumber
+}
+
+export function getPoolLiquidity({
+  buckets,
+  debt,
+  highestThresholdPriceIndex,
+}: GetLiquidityInLupBucketParams): BigNumber {
+  const liquidityAboveHtp = buckets
+    .filter(bucket => bucket.index.lte(highestThresholdPriceIndex))
     .reduce((acc, bucket) => acc.plus(bucket.quoteTokens), new BigNumber(0))
 
-  return liquidityAboveHtp.minus(pool.debt)
+  return liquidityAboveHtp.minus(debt)
 }
 
 export function getLiquidityInLupBucket(pool: AjnaPool): BigNumber {
