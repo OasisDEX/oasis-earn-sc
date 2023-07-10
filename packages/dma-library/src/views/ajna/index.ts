@@ -108,14 +108,14 @@ export async function getEarnPosition(
     : ZERO
 
   const netValue = quoteTokenAmount.times(quotePrice)
-  const pnl = quoteTokenAmount.minus(
-    cumulativeDeposit.minus(cumulativeWithdraw).plus(cumulativeFees),
-  )
-  const totalEarnings = cumulativeWithdraw
+  const pnl = cumulativeWithdraw
     .plus(quoteTokenAmount)
     .minus(cumulativeFees)
     .minus(cumulativeDeposit)
     .div(cumulativeDeposit)
+  const totalEarnings = quoteTokenAmount.minus(
+    cumulativeDeposit.minus(cumulativeWithdraw).plus(cumulativeFees),
+  )
 
   return new AjnaEarnPosition(
     pool,
