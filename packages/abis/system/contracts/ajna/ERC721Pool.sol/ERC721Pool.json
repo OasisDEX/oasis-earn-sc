@@ -2143,19 +2143,6 @@
   },
   {
     "inputs": [],
-    "name": "quoteTokenDust",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "quoteTokenScale",
     "outputs": [
       {
@@ -2393,7 +2380,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "tokenId_",
         "type": "uint256"
       }
     ],

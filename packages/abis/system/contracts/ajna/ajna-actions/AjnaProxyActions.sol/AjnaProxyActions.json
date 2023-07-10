@@ -2,18 +2,8 @@
   {
     "inputs": [
       {
-        "internalType": "contract PoolInfoUtils",
+        "internalType": "contract IAjnaPoolUtilsInfo",
         "name": "_poolInfoUtils",
-        "type": "address"
-      },
-      {
-        "internalType": "contract PositionManager",
-        "name": "_positionManager",
-        "type": "address"
-      },
-      {
-        "internalType": "contract RewardsManager",
-        "name": "_rewardsManager",
         "type": "address"
       },
       {
@@ -24,11 +14,6 @@
       {
         "internalType": "address",
         "name": "_WETH",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_ARC",
         "type": "address"
       },
       {
@@ -75,6 +60,19 @@
       }
     ],
     "name": "CreatePosition",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "name",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ProxyActionsOperation",
     "type": "event"
   },
   {
@@ -132,7 +130,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -167,9 +165,22 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "deployer",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -197,7 +208,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -220,7 +231,35 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "debtAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "collateralAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "name": "depositCollateralAndDrawDebt",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -243,7 +282,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -267,31 +306,30 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
-        "name": "pool",
+        "internalType": "address",
+        "name": "_positionManager",
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      }
-    ],
-    "name": "mintAndStakeNft",
-    "outputs": [
+        "internalType": "address",
+        "name": "_rewardsManager",
+        "type": "address"
+      },
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_ARC",
+        "type": "address"
       }
     ],
+    "name": "initialize",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -314,8 +352,8 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
-        "name": "",
+        "internalType": "contract IERC20Pool",
+        "name": "pool",
         "type": "address"
       },
       {
@@ -342,7 +380,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -365,7 +403,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -388,7 +426,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -414,11 +452,58 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "contract IERC20Pool",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "name": "optInStaking",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20Pool",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "name": "optOutStaking",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "poolInfoUtils",
     "outputs": [
       {
-        "internalType": "contract PoolInfoUtils",
+        "internalType": "contract IAjnaPoolUtilsInfo",
         "name": "",
         "type": "address"
       }
@@ -431,7 +516,7 @@
     "name": "positionManager",
     "outputs": [
       {
-        "internalType": "contract IPositionManagerOwnerActions",
+        "internalType": "contract IPositionManager",
         "name": "",
         "type": "address"
       }
@@ -442,7 +527,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -460,7 +545,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       }
@@ -473,7 +558,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -491,7 +576,30 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "debtAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "collateralAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "repayDebtAndWithdrawCollateral",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -508,7 +616,7 @@
     ],
     "name": "repayWithdraw",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -516,7 +624,20 @@
     "name": "rewardsManager",
     "outputs": [
       {
-        "internalType": "contract IRewardsManagerOwnerActions",
+        "internalType": "contract IRewardsManager",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "self",
+    "outputs": [
+      {
+        "internalType": "contract IAjnaProxyActions",
         "name": "",
         "type": "address"
       }
@@ -527,7 +648,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -555,7 +676,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -588,7 +709,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -611,30 +732,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
-        "name": "pool",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
-      }
-    ],
-    "name": "supplyQuoteIndex",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -663,7 +761,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -691,7 +789,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -714,35 +812,7 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "contract ERC20Pool",
-        "name": "pool",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "burn",
-        "type": "bool"
-      }
-    ],
-    "name": "unstakeNftAndRedeem",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -765,7 +835,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -793,7 +863,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -826,7 +896,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -844,7 +914,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },
@@ -867,30 +937,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ERC20Pool",
-        "name": "pool",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      }
-    ],
-    "name": "withdrawQuoteIndex",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "contract ERC20Pool",
+        "internalType": "contract IERC20Pool",
         "name": "pool",
         "type": "address"
       },

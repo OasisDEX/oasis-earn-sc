@@ -10,6 +10,11 @@
         "internalType": "uint256",
         "name": "epochToClaim_",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minAmount_",
+        "type": "uint256"
       }
     ],
     "name": "claimRewards",
@@ -23,24 +28,9 @@
         "internalType": "uint256",
         "name": "tokenId_",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "fromBuckets_",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "toBuckets_",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "uint256",
-        "name": "expiry_",
-        "type": "uint256"
       }
     ],
-    "name": "moveStakedLiquidity",
+    "name": "emergencyUnstake",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -77,6 +67,11 @@
         "internalType": "address",
         "name": "pool_",
         "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "subsetHash_",
+        "type": "bytes32"
       },
       {
         "internalType": "uint256[]",
