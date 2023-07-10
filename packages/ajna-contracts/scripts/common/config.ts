@@ -29,6 +29,7 @@ export const TOKENS = {
     WBTC: "0x7ccF0411c7932B99FC3704d68575250F032e3bB7",
     USDC: "0x6Fb5ef893d44F4f88026430d82d4ef269543cB23",
     DAI: "0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844",
+    CBETH: "0x0000000000000000000000000000000000000000",
     AJNA: "0xaadebCF61AA7Da0573b524DE57c67aDa797D46c5",
   },
   // TODO: update mainnet addresses
@@ -39,6 +40,7 @@ export const TOKENS = {
     WBTC: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
     USDC: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     DAI: "0x6b175474e89094c44da98b954eedeac495271d0f",
+    CBETH: "0xbe9895146f7af43049ca1c1ae358b0541ea49704",
     AJNA: "0x9a96ec9b57fb64fbc60b423d1f4da7691bd35079",
   },
 };
@@ -56,6 +58,7 @@ export const POOLS: Pool[] = [
   { pair: "WSTETH-DAI", amount: 5000, price: 1500, deposit: false },
   { pair: "WSTETH-USDC", amount: 5000, price: 1500, deposit: false },
   { pair: "WSTETH-WETH", amount: 1, price: 1.09, deposit: false },
+  { pair: "CBETH-WETH", amount: 1, price: 1.09, deposit: false },
 ];
 
 export const CONFIG = {

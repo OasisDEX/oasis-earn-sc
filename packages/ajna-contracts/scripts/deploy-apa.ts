@@ -60,13 +60,19 @@ async function deployAjnaPools(
 ) {
   for (const pool of POOLS) {
     const [collateral, quote] = pool.pair.split("-");
-    try {
-      const deployedPool = await deployPool(
-        erc20PoolFactory,
-        TOKENS[network][collateral],
-        TOKENS[network][quote],
-        deployPools
+    const collateralToken = TOKENS[network][collateral];
+    const quoteToken = TOKENS[network][quote];
+    if (
+      quoteToken === "0x0000000000000000000000000000000000000000" ||
+      collateralToken === "0x0000000000000000000000000000000000000000"
+    ) {
+      console.log(
+        chalk.red(`Token ${quote}(${quoteToken}) or ${collateral}(${collateralToken}) not found for ${network}`)
       );
+      continue;
+    }
+    try {
+      const deployedPool = await deployPool(erc20PoolFactory, collateralToken, quoteToken, deployPools);
       deployedPool.address === hre.ethers.constants.AddressZero
         ? console.info(chalk.red(`Pool ${pool.pair} not yet deployed`))
         : console.info(chalk.green(`Pool ${pool.pair} deployed at ${deployedPool.address}`));
