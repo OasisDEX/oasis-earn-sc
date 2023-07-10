@@ -62,10 +62,7 @@ async function deployAjnaPools(
     const [collateral, quote] = pool.pair.split("-");
     const collateralToken = TOKENS[network][collateral];
     const quoteToken = TOKENS[network][quote];
-    if (
-      quoteToken === "0x0000000000000000000000000000000000000000" ||
-      collateralToken === "0x0000000000000000000000000000000000000000"
-    ) {
+    if (quoteToken === hre.ethers.constants.AddressZero || collateralToken === hre.ethers.constants.AddressZero) {
       console.log(
         chalk.red(`Token ${quote}(${quoteToken}) or ${collateral}(${collateralToken}) not found for ${network}`)
       );
