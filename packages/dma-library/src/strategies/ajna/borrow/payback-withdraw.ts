@@ -13,7 +13,7 @@ import {
   validateOverWithdraw,
   validateWithdrawUndercollateralized,
 } from '../validation'
-import { validateWithdrawCloseToMaxLtv } from '../validation/closeToMaxLtv'
+import { validateWithdrawCloseToMaxLtv } from '../validation/borrowish/closeToMaxLtv'
 
 export type AjnaPaybackWithdrawStrategy = (
   args: AjnaBorrowPayload,

@@ -16,7 +16,8 @@ export { AjnaPosition } from './ajna-position'
 export type { AjnaStrategy } from './ajna-strategy'
 export type {
   AjnaError,
-  AjnaErrorAfterLupIndexBiggerThanHtpIndex,
+  AjnaErrorAfterLupIndexBiggerThanHtpIndexDeposit,
+  AjnaErrorAfterLupIndexBiggerThanHtpIndexWithdraw,
   AjnaErrorBorrowUndercollateralized,
   AjnaErrorDustLimit,
   AjnaErrorNotEnoughLiquidity,

@@ -942,7 +942,7 @@ export const config: SystemConfig = {
     },
     AutomationBotV2: {
       name: 'AutomationBotV2',
-      address: '0x8061c24823094E51e57A4a5cF8bEd3CCf09d316F',
+      address: '0x5743b5606e94fb534a31e1cefb3242c8a9422e5e',
     },
     AutomationBotAggregator: {
       name: 'AutomationBotAggregator',
@@ -977,10 +977,6 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_RETHUSDC: {
       name: 'AjnaPoolPairs_RETHUSDC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_USDCDAI: {
-      name: 'AjnaPoolPairs_USDCDAI',
       address: ADDRESS_ZERO,
     },
     AjnaPoolPairs_USDCETH: {

@@ -98,6 +98,7 @@ export const systemWithAaveV3Positions = ({
 
     await ds.deployAll()
     await ds.addAllEntries()
+    await ds.replaceSwapContracts()
 
     const dsSystem = ds.getSystem()
     const { system, registry, config: systemConfig } = dsSystem
