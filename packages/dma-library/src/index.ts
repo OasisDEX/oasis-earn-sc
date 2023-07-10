@@ -12,6 +12,7 @@ export {
 export { strategies } from './strategies'
 export { AaveVersion } from './strategies'
 export { ajnaBuckets } from './strategies'
+export { getLiquidityInLupBucket } from './strategies/ajna/validation'
 export type {
   ISimplePositionTransition,
   ISimpleSimulatedTransition,
