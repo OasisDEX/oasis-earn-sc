@@ -1063,6 +1063,11 @@
         "internalType": "uint256",
         "name": "expiry_",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup_",
+        "type": "bool"
       }
     ],
     "name": "addQuoteToken",
@@ -1751,24 +1756,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "index_",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "npLimitIndex_",
-        "type": "uint256"
-      }
-    ],
-    "name": "kickWithDeposit",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "kicker_",
         "type": "address"
@@ -1817,6 +1804,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "index_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "npLimitIndex_",
+        "type": "uint256"
+      }
+    ],
+    "name": "lenderKick",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1969,6 +1974,11 @@
         "internalType": "uint256",
         "name": "expiry_",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup_",
+        "type": "bool"
       }
     ],
     "name": "moveQuoteToken",

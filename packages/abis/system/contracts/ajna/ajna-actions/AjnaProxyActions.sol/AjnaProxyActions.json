@@ -342,6 +342,11 @@
         "internalType": "uint256",
         "name": "newPrice",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup",
+        "type": "bool"
       }
     ],
     "name": "moveQuote",
@@ -370,6 +375,11 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup",
+        "type": "bool"
       }
     ],
     "name": "moveQuoteNft",
@@ -393,6 +403,11 @@
         "internalType": "uint256",
         "name": "price",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup",
+        "type": "bool"
       }
     ],
     "name": "openEarnPosition",
@@ -416,6 +431,11 @@
         "internalType": "uint256",
         "name": "price",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup",
+        "type": "bool"
       }
     ],
     "name": "openEarnPositionNft",
@@ -666,6 +686,11 @@
         "internalType": "uint256",
         "name": "newPrice",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup",
+        "type": "bool"
       }
     ],
     "name": "supplyAndMoveQuote",
@@ -699,6 +724,11 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup",
+        "type": "bool"
       }
     ],
     "name": "supplyAndMoveQuoteNft",
@@ -722,6 +752,11 @@
         "internalType": "uint256",
         "name": "price",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup",
+        "type": "bool"
       }
     ],
     "name": "supplyQuote",
@@ -745,6 +780,11 @@
         "internalType": "uint256",
         "name": "price",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup",
+        "type": "bool"
       }
     ],
     "name": "supplyQuoteMintNftAndStake",
@@ -779,6 +819,11 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup",
+        "type": "bool"
       }
     ],
     "name": "supplyQuoteNft",
@@ -853,6 +898,11 @@
         "internalType": "uint256",
         "name": "newPrice",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup",
+        "type": "bool"
       }
     ],
     "name": "withdrawAndMoveQuote",
@@ -886,6 +936,11 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup",
+        "type": "bool"
       }
     ],
     "name": "withdrawAndMoveQuoteNft",
