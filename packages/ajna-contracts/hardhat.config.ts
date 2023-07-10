@@ -36,7 +36,7 @@ const config: HardhatUserConfig = {
       forking: {
         enabled: true,
         url: process.env.GOERLI_URL || "https://eth-goerli.g.alchemy.com/v2/8pU3VS_K57r5DcgdmC9QEEhDcObR56Zx",
-        blockNumber: 9204225,
+        blockNumber: 9289450,
       },
       chainId: 2137,
       mining: {
