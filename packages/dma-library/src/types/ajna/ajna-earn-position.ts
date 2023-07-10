@@ -52,6 +52,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
     public collateralPrice: BigNumber,
     public quotePrice: BigNumber,
     public rewards: BigNumber,
+    public netValue: BigNumber,
+    public pnl: BigNumber,
+    public totalEarnings: BigNumber,
   ) {
     this.fundsLockedUntil = Date.now() + 5 * 60 * 60 * 1000 // MOCK funds locked until 5h from now
     this.price = priceIndex ? priceIndexToPrice(priceIndex) : ZERO
@@ -144,6 +147,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       this.rewards,
+      this.netValue,
+      this.pnl,
+      this.totalEarnings,
     )
   }
 
@@ -158,6 +164,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       this.rewards,
+      this.netValue,
+      this.pnl,
+      this.totalEarnings,
     )
   }
 
@@ -172,6 +181,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       this.rewards,
+      this.netValue,
+      this.pnl,
+      this.totalEarnings,
     )
   }
 
@@ -186,6 +198,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       this.rewards,
+      this.netValue,
+      this.pnl,
+      this.totalEarnings,
     )
   }
 
@@ -200,6 +215,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       this.rewards,
+      this.netValue,
+      this.pnl,
+      this.totalEarnings,
     )
   }
 
@@ -214,6 +232,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       ZERO,
+      this.netValue,
+      this.pnl,
+      this.totalEarnings,
     )
   }
 }
