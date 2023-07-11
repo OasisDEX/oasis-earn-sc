@@ -399,7 +399,8 @@ export const calculateAjnaMaxLiquidityWithdraw = ({
 }) => {
   if (
     availableToWithdraw.gte(position.quoteTokenAmount) ||
-    pool.lowestUtilizedPriceIndex.isZero()
+    pool.lowestUtilizedPriceIndex.isZero() ||
+    position.priceIndex?.gt(pool.lowestUtilizedPriceIndex)
   ) {
     return position.quoteTokenAmount
   }
