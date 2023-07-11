@@ -32,7 +32,6 @@ export const TOKENS = {
     CBETH: "0x0000000000000000000000000000000000000000",
     AJNA: "0xaadebCF61AA7Da0573b524DE57c67aDa797D46c5",
   },
-  // TODO: update mainnet addresses
   mainnet: {
     WETH: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
     RETH: "0xae78736cd615f374d3085123a210448e74fc6393",

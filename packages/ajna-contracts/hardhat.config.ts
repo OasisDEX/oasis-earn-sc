@@ -24,7 +24,7 @@ const config: HardhatUserConfig = {
     mainnet: {
       url: process.env.MAINNET_URL || "",
       initialBaseFeePerGas: 1000000000,
-      gasPrice: 30000000000, // 30 gwei
+      gasPrice: 45000000000, // 30 gwei
       // FIXME: uncomment when we have the env variable properly set up in gh actions
       // accounts: [process.env.PRIV_KEY_MAINNET || ""],
     },
