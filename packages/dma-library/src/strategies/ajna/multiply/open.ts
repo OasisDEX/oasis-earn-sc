@@ -14,6 +14,11 @@ import {
   getSwapData,
 } from '@dma-library/strategies/ajna/multiply/common'
 import {
+  validateBorrowUndercollateralized,
+  validateDustLimit,
+  validateLiquidity,
+} from '@dma-library/strategies/ajna/validation'
+import {
   AjnaOpenMultiplyPayload,
   FlashloanProvider,
   PositionType,
@@ -90,12 +95,21 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     collectFeeFrom === 'sourceToken' ? ZERO : calculateFee(swapData.toTokenAmount, fee.toNumber())
   const tokenFee = preSwapFee.plus(postSwapFee)
 
+  /** Not relevant for Ajna */
+  const debtTokensDeposited = ZERO
+  const borrowAmount = simulatedAdjustment.delta.debt.minus(debtTokensDeposited)
+  const errors = [
+    ...validateDustLimit(targetPosition),
+    ...validateLiquidity(targetPosition, position, borrowAmount),
+    ...validateBorrowUndercollateralized(targetPosition, position, borrowAmount),
+  ]
+
   return prepareAjnaDMAPayload({
     swaps: [{ ...swapData, collectFeeFrom, tokenFee }],
     dependencies,
     targetPosition,
     data: encodeOperation(operation, dependencies),
-    errors: [],
+    errors,
     warnings: [],
     successes: [],
     notices: [],
