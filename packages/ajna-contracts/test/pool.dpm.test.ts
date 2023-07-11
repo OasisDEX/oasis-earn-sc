@@ -57,7 +57,7 @@ describe.only("AjnaProxyActions", function () {
       lenderActionsInstance,
     } = await deployLibraries();
 
-    const { dmpGuardContract, guardDeployerSigner, dmpFactory } = await deployGuard();
+    const { dmpGuardContract, guardDeployerSigner, dmpFactory } = await deployGuard(hre);
 
     const { erc20PoolFactory, erc721PoolFactory } = await deployPoolFactory(
       poolCommons,
@@ -67,17 +67,19 @@ describe.only("AjnaProxyActions", function () {
       takerActionsInstance,
       lpActionsInstance,
       lenderActionsInstance,
-      ajna.address
+      ajna.address,
+      hre
     );
     const [poolContract, poolContractWeth] = await Promise.all([
-      deployPool(erc20PoolFactory, wbtc.address, usdc.address),
-      deployPool(erc20PoolFactory, weth.address, usdc.address),
+      deployPool(erc20PoolFactory, wbtc.address, usdc.address, hre),
+      deployPool(erc20PoolFactory, weth.address, usdc.address, hre),
     ]);
     const { rewardsManagerContract, positionManagerContract } = await deployRewardsContracts(
       positionNFTSVGInstance,
       erc20PoolFactory,
       erc721PoolFactory,
-      ajna
+      ajna,
+      hre
     );
     const { ajnaProxyActionsContract, poolInfoContract, ajnaRewardsClaimerContract } = await deployApa(
       poolCommons,
@@ -87,6 +89,7 @@ describe.only("AjnaProxyActions", function () {
       guardDeployerSigner,
       weth,
       ajna,
+      hre,
       initializeStaking
     );
 
@@ -148,6 +151,7 @@ describe.only("AjnaProxyActions", function () {
     it("should depositCollateral", async () => {
       const { weth, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, poolContractWeth } =
         await loadFixture(deploy);
+
       const balancesCollateralBefore = {
         borrower: await hre.ethers.provider.getBalance(borrower.address),
         pool: await hre.ethers.provider.getBalance(poolContract.address),

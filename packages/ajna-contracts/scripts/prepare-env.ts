@@ -11,10 +11,10 @@ import {
   YEAR,
 } from "@ajna-contracts/scripts";
 import { AccountFactory, ERC20Pool, IAccountImplementation, Token, WETH } from "@ajna-contracts/typechain";
+import { swapUniswapTokens } from "@oasisdex/dma-common/test-utils";
 import { BigNumber, Signer } from "ethers";
 import hre from "hardhat";
 import { HardhatRuntimeEnvironment } from "hardhat/types/runtime";
-import { swapUniswapTokens } from '@oasisdex/dma-common/test-utils'
 // @ts-ignore
 import ploty_ from "plotly";
 
@@ -83,7 +83,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
   const signers = await ethers.getSigners();
   const [deployer, lender, borrower] = signers;
 
-  if (hre.network.name === 'tenderly') {
+  if (hre.network.name === "tenderly") {
     await hre.ethers.provider.send("tenderly_setBalance", [
       [deployer.address, lender.address, borrower.address],
       //amount in wei will be set for all wallets
@@ -92,31 +92,32 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
   }
 
   async function getTokensForAccounts(token: string) {
-    await Promise.all(signers.map(async signer => {
-      return swapUniswapTokens(
-        weth.address,
-        token,
-        hre.ethers.utils.parseEther("1000").toHexString(),
-        '0',
-        await signer.getAddress(),
-        {provider: hre.ethers.provider, signer}
-      )
-    }))
+    await Promise.all(
+      signers.map(async signer => {
+        return swapUniswapTokens(
+          weth.address,
+          token,
+          hre.ethers.utils.parseEther("1000").toHexString(),
+          "0",
+          await signer.getAddress(),
+          { provider: hre.ethers.provider, signer }
+        );
+      })
+    );
   }
 
   async function fundAccounts() {
-    if (hre.network.name === 'tenderly') {
+    if (hre.network.name === "tenderly") {
       await hre.ethers.provider.send("tenderly_setBalance", [
         signers.map(signer => signer.address),
         //amount in wei will be set for all wallets
         hre.ethers.utils.hexValue(ethers.utils.parseUnits("1000000", "ether").toHexString()),
       ]);
 
-    await getTokensForAccounts(usdc.address)
-    await getTokensForAccounts(wbtc.address)
-
-
-    if (hre.network.name !== 'tenderly') {
+      await getTokensForAccounts(usdc.address);
+      await getTokensForAccounts(wbtc.address);
+    }
+    if (hre.network.name !== "tenderly") {
       await Promise.all([
         // Have some issues with setting balance on mainnet USDC contract
         ...(mainnetTokens ? [] : signers.map(signer => utils.sendLotsOfMoney(signer.address, usdc, mainnetTokens))),
@@ -124,7 +125,6 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
         ...signers.map(signer => utils.sendLotsOfMoney(signer.address, weth, mainnetTokens)),
       ]);
     }
-  }
   }
 
   const {
@@ -149,8 +149,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
     {} as Record<string, ERC20Pool>
   );
 
-  await fundAccounts()
-
+  await fundAccounts();
 
   const dmpProxies = await Promise.all(signers.map(signer => createDPMProxy(dmpFactory, signer)));
   const users: User[] = signers.map((signer, index) => ({
@@ -324,7 +323,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens
   ) {
     const amountWei = ethers.utils.parseUnits(amount.toString(), 18);
     const expiry = await getExpiryTimestamp();
-    const tx = await pool.connect(user.signer).moveQuoteToken(amountWei, fromBucketIndex, toBucketIndex, expiry);
+    const tx = await pool.connect(user.signer).moveQuoteToken(amountWei, fromBucketIndex, toBucketIndex, expiry, false);
     await tx.wait();
   }
 
