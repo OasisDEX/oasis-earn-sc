@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.options.json",
   "compilerOptions": {
+    "types": ["node", "mocha"],
     "typeRoots": [
       "../../node_modules/@types"
     ],

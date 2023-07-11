@@ -33,6 +33,6 @@
     "./utils",
     "./test-utils",
     "./types",
-    "./hardhat.config.ts",
+    "./hardhat.config.ts"
   ]
 }
