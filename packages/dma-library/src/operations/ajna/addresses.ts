@@ -6,6 +6,5 @@ export interface AjnaStrategyAddresses {
   USDC: string
   WBTC: string
   operationExecutor: string
-  chainlinkEthUsdPriceFeed: string
   pool: string
 }

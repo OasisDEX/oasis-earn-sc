@@ -1,7 +1,10 @@
-import { ajnaOpenOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { ZERO } from '@dma-common/constants'
+import { getAjnaOpenOperationDefinition } from '@deploy-configurations/operation-definitions'
+import { Network } from '@deploy-configurations/types/network'
+import { FEE_BASE, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
+  FlashloanProvider,
   IOperation,
   Protocol,
   WithAjnaBucketPrice,
@@ -15,7 +18,6 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
-import { FlashloanProvider } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -69,8 +71,8 @@ export const open: AjnaOpenOperation = async ({
 
   const hasAmountToDeposit = depositAmount.gt(ZERO)
   pullCollateralTokensToProxy.skipped = !hasAmountToDeposit || collateral.isEth
-  const shouldSkippWrapEth = !collateral.isEth
-  wrapEth.skipped = shouldSkippWrapEth
+  const shouldSkipWrapEth = !collateral.isEth
+  wrapEth.skipped = shouldSkipWrapEth
 
   const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
     fromAsset: debt.address,
@@ -82,8 +84,8 @@ export const open: AjnaOpenOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const swapValueIndex = shouldSkippWrapEth ? 1 : 2
-
+  // We do not need to dynamically calculate index here
+  // Because not all actions store values in OpStorage
   const setCollateralTokenApprovalOnPool = actions.common.setApproval(
     network,
     {
@@ -92,7 +94,7 @@ export const open: AjnaOpenOperation = async ({
       amount: depositAmount,
       sumAmounts: true,
     },
-    [0, 0, swapValueIndex, 0],
+    [0, 0, 1, 0],
   )
 
   const depositBorrow = actions.ajna.ajnaDepositBorrow(
@@ -104,8 +106,14 @@ export const open: AjnaOpenOperation = async ({
       sumDepositAmounts: true,
       price,
     },
-    [0, 0, swapValueIndex, 0, 0, 0],
+    [0, 0, 1, 0, 0, 0],
   )
+
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken(network, {
+    asset: debt.address,
+    to: addresses.operationExecutor,
+    amount: flashloan.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.amount)),
+  })
 
   const protocol: Protocol = 'Ajna'
 
@@ -122,12 +130,13 @@ export const open: AjnaOpenOperation = async ({
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnPool,
     depositBorrow,
+    sendQuoteTokenToOpExecutor,
     positionCreated,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
-    asset: debt.address,
+    asset: flashloan.token.address,
     flashloanAmount: flashloan.token.amount,
     isProxyFlashloan: true,
     provider: FlashloanProvider.Balancer,
@@ -136,6 +145,6 @@ export const open: AjnaOpenOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: ajnaOpenOperationDefinition.name,
+    operationName: getAjnaOpenOperationDefinition(Network.MAINNET).name,
   }
 }

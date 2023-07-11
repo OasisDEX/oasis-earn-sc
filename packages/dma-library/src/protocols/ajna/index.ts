@@ -1,25 +1,89 @@
+import poolAbi from '@abis/external/protocols/ajna/ajnaPoolERC20.json'
+import { Address } from '@deploy-configurations/types/address'
 import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { ajnaBuckets } from '@dma-library/strategies'
 import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
+import { SwapData } from '@dma-library/types'
 import {
   getLiquidityInLupBucket,
   getPoolLiquidity,
 } from '@dma-library/strategies/ajna/validation/borrowish/notEnoughLiquidity'
+
 import {
   AjnaCommonDependencies,
+  AjnaCommonDMADependencies,
   AjnaEarnActions,
+  AjnaEarnPayload,
   AjnaEarnPosition,
   AjnaError,
   AjnaNotice,
+  AjnaPool,
+  AjnaStrategy,
   AjnaSuccess,
   AjnaWarning,
-  Strategy,
 } from '@dma-library/types/ajna'
-import { AjnaEarnPayload } from '@dma-library/types/ajna/ajna-dependencies'
-import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
+
+export interface AjnaEarnArgs {
+  poolAddress: Address
+  dpmProxyAddress: Address
+  collateralAmount: BigNumber
+  quoteAmount: BigNumber
+  quoteTokenPrecision: number
+  price: BigNumber
+  position: AjnaEarnPosition
+  collateralPrice: BigNumber
+  quotePrice: BigNumber
+  isStakingNft?: boolean
+}
+
+export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
+  dependencies,
+  targetPosition,
+  errors,
+  warnings,
+  data,
+  txValue,
+  swaps,
+}: {
+  dependencies: AjnaCommonDMADependencies
+  targetPosition: T
+  errors: AjnaError[]
+  warnings: AjnaWarning[]
+  notices: AjnaNotice[]
+  successes: AjnaSuccess[]
+  data: string
+  txValue: string
+  swaps: (SwapData & { collectFeeFrom: 'sourceToken' | 'targetToken'; tokenFee: BigNumber })[]
+}): AjnaStrategy<T> => {
+  return {
+    simulation: {
+      swaps: swaps.map(swap => ({
+        fromTokenAddress: swap.fromTokenAddress,
+        toTokenAddress: swap.toTokenAddress,
+        fromTokenAmount: swap.fromTokenAmount,
+        toTokenAmount: swap.toTokenAmount,
+        minToTokenAmount: swap.minToTokenAmount,
+        exchangeCalldata: swap.exchangeCalldata,
+        collectFeeFrom: swap.collectFeeFrom,
+        fee: swap.tokenFee,
+      })),
+      errors,
+      warnings,
+      notices: [],
+      successes: [],
+      targetPosition,
+      position: targetPosition,
+    },
+    tx: {
+      to: dependencies.operationExecutor,
+      data,
+      value: txValue,
+    },
+  }
+}
 
 export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
   dependencies,
@@ -39,7 +103,7 @@ export const prepareAjnaPayload = <T extends { pool: AjnaPool }>({
   successes: AjnaSuccess[]
   data: string
   txValue: string
-}): Strategy<T> => {
+}): AjnaStrategy<T> => {
   return {
     simulation: {
       swaps: [],

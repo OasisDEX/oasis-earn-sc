@@ -87,8 +87,8 @@ describe.skip("Pool direct test", function () {
     console.table(addresses);
 
     for (const address in addresses) {
-      await utils.setTokenBalance(addresses[address], WBTC, BigNumber.from("1000000000000000000").mul(1000));
-      await utils.setTokenBalance(addresses[address], USDC, BigNumber.from("1000000000000000000").mul(1000));
+      await utils.setTokenBalance(addresses[address], WBTC, BigNumber.from("100000000").mul(1000));
+      await utils.setTokenBalance(addresses[address], USDC, BigNumber.from("1000000").mul(10000000));
     }
 
     const poolInfoContract = await ethers.getContractAt("PoolInfoUtils", poolInfo.address);

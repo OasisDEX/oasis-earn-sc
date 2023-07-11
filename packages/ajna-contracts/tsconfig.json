@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.options.json",
   "compilerOptions": {
     "paths": {
+      "@abis/*": ["../abis/*"],
       "@ajna-contracts/typechain": ["./typechain-types/index.ts"],
       "@ajna-contracts/typechain/*": ["./typechain-types/*"],
       "@dma-library": ["../dma-library/src/index.ts"],
@@ -16,6 +17,9 @@
     ]
   },
   "references": [
+    {
+      "path": "../abis",
+    },
     {
       "path": "../dma-common",
     },

@@ -4,7 +4,7 @@ import {
   AjnaBorrowPayload,
   AjnaCommonDependencies,
   AjnaPosition,
-  Strategy,
+  AjnaStrategy,
 } from '@dma-library/types/ajna'
 import { ethers } from 'ethers'
 
@@ -18,7 +18,7 @@ import { validateWithdrawCloseToMaxLtv } from '../validation/borrowish/closeToMa
 export type AjnaPaybackWithdrawStrategy = (
   args: AjnaBorrowPayload,
   dependencies: AjnaCommonDependencies,
-) => Promise<Strategy<AjnaPosition>>
+) => Promise<AjnaStrategy<AjnaPosition>>
 
 export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, dependencies) => {
   const apa = new ethers.Contract(

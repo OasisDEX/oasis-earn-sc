@@ -24,6 +24,10 @@ export function getAjnaCloseToQuoteOperationDefinition(network: Network) {
         optional: false,
       },
       {
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SEND_TOKEN),
+        optional: false,
+      },
+      {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
         optional: true,
       },

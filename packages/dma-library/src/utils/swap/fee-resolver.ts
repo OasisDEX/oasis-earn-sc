@@ -1,10 +1,9 @@
 import { DEFAULT_FEE, HIGH_MULTIPLE_FEE, NO_FEE } from '@dma-common/constants'
-import { AAVETokens } from '@dma-library/types/aave'
 import BigNumber from 'bignumber.js'
 
-export const feeResolver = (
-  fromToken: AAVETokens,
-  toToken: AAVETokens,
+export const feeResolver = <T extends string = string>(
+  fromToken: T,
+  toToken: T,
   flags?: {
     isIncreasingRisk?: boolean
     isEarnPosition?: boolean

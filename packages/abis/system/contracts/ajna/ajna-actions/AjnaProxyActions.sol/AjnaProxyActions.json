@@ -242,34 +242,6 @@
       },
       {
         "internalType": "uint256",
-        "name": "collateralAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      }
-    ],
-    "name": "depositCollateralAndDrawDebt",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "contract IERC20Pool",
-        "name": "pool",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "debtAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
         "name": "price",
         "type": "uint256"
       }
@@ -308,6 +280,29 @@
       {
         "internalType": "address",
         "name": "_positionManager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_rewardsManager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_ARC",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20Pool",
+        "name": "pool",
         "type": "address"
       },
       {
@@ -611,29 +606,6 @@
         "type": "uint256"
       }
     ],
-    "name": "repayDebtAndWithdrawCollateral",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "contract IERC20Pool",
-        "name": "pool",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "debtAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "collateralAmount",
-        "type": "uint256"
-      }
-    ],
     "name": "repayWithdraw",
     "outputs": [],
     "stateMutability": "payable",
@@ -778,6 +750,29 @@
       },
       {
         "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "supplyQuoteIndex",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20Pool",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "price",
         "type": "uint256"
       },
@@ -850,6 +845,34 @@
       }
     ],
     "name": "unstakeNftAndClaimCollateral",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "contract IERC20Pool",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "burn",
+        "type": "bool"
+      }
+    ],
+    "name": "unstakeNftAndRedeem",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -985,6 +1008,29 @@
       }
     ],
     "name": "withdrawQuote",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20Pool",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawQuoteIndex",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

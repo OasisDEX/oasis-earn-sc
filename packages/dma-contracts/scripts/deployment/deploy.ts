@@ -20,6 +20,11 @@ import {
   getAaveOpenV3OperationDefinition,
   getAavePaybackWithdrawV2OperationDefinition,
   getAavePaybackWithdrawV3OperationDefinition,
+  getAjnaAdjustDownOperationDefinition,
+  getAjnaAdjustUpOperationDefinition,
+  getAjnaCloseToCollateralOperationDefinition,
+  getAjnaCloseToQuoteOperationDefinition,
+  getAjnaOpenOperationDefinition,
 } from '@deploy-configurations/operation-definitions'
 import {
   ContractProps,
@@ -76,6 +81,7 @@ const gnosisSafeServiceUrl: any = {
   [Network.OPTIMISM]: '',
   [Network.GOERLI]: 'https://safe-transaction.goerli.gnosis.io',
   [Network.HARDHAT]: '',
+  [Network.TENDERLY]: '',
 }
 
 // HELPERS --------------------------
@@ -97,6 +103,7 @@ abstract class DeployedSystemHelpers {
 
   async getForkedNetworkChainId(provider: providers.JsonRpcProvider) {
     try {
+      return (await provider.getNetwork()).chainId
       const metadata = await provider.send('hardhat_metadata', [])
       return metadata.forkedNetwork.chainId
     } catch (e) {
@@ -131,7 +138,10 @@ abstract class DeployedSystemHelpers {
     this.forkedNetwork = this.getNetworkFromChainId(this.chainId)
 
     this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
-    this.log('NETWORK / FORKED NETWORK', `${this.network} / ${this.forkedNetwork}`)
+    this.log(
+      'NETWORK / FORKED NETWORK / ChainID',
+      `${this.network} / ${this.forkedNetwork} / ${this.chainId}`,
+    )
 
     if (this.forkedNetwork) {
       console.log('Loading ServiceRegistryNames for', this.forkedNetwork)
@@ -241,7 +251,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async extendConfig(configFileName?: string) {
+  async extendConfig(configFileName: string) {
     try {
       if (!this.config) {
         await this.loadConfig(configFileName)
@@ -714,6 +724,15 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     )
   }
 
+  async addAjnaEntries() {
+    if (!this.config) throw new Error('No config set')
+    await this.addRegistryEntries(
+      Object.values(this.config.ajna).filter(
+        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+      ),
+    )
+  }
+
   async addOperationEntries() {
     if (!this.signer) throw new Error('No signer set')
     if (!this.deployedSystem.OperationsRegistry) throw new Error('No OperationsRegistry deployed')
@@ -794,19 +813,46 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       getAaveBorrowV3OperationDefinition(network).name,
       getAaveBorrowV3OperationDefinition(network).actions,
     )
+
+    // AJNA
+    await operationsRegistry.addOp(
+      getAjnaOpenOperationDefinition(network).name,
+      getAjnaOpenOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaCloseToQuoteOperationDefinition(network).name,
+      getAjnaCloseToQuoteOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaCloseToCollateralOperationDefinition(network).name,
+      getAjnaCloseToCollateralOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaAdjustUpOperationDefinition(network).name,
+      getAjnaAdjustUpOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaAdjustDownOperationDefinition(network).name,
+      getAjnaAdjustDownOperationDefinition(network).actions,
+    )
   }
 
   async addAllEntries() {
     await this.addCommonEntries()
     await this.addAaveEntries()
     await this.addMakerEntries()
+    await this.addAjnaEntries()
     await this.addOperationEntries()
   }
 
   // TODO unify resetNode and resetNodeToLatestBlock into one function
   async resetNode(blockNumber: number) {
     if (!this.provider) throw new Error('No provider set')
-    this.log(`\x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
+    this.log(`\x1b[90mResetting fork to block number: ${blockNumber} using ${this.rpcUrl} \x1b[0m`)
     await this.provider.send('hardhat_reset', [
       {
         forking: {
