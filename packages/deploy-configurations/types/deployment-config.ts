@@ -37,8 +37,6 @@ export type AaveV3Actions =
   | `AaveV3Payback`
   | `AaveV3SetEMode`
 
-export type AjnaContracts = 'AjnaDepositBorrow' | 'AjnaRepayWithdraw'
-
 export type CoreActions =
   | 'SwapAction'
   | 'PullToken'
@@ -50,7 +48,7 @@ export type CoreActions =
   | 'ReturnFunds'
   | 'PositionCreated'
 
-export type Actions = CoreActions | AaveV3Actions | AjnaContracts
+export type Actions = CoreActions | AaveV3Actions
 
 export type Tokens =
   | 'AAVE'
@@ -262,7 +260,6 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_RETHUSDC'
   | 'AjnaPoolPairs_USDCETH'
   | 'AjnaPoolPairs_USDCWBTC'
-  | 'AjnaPoolPairs_USDCDAI'
   | 'AjnaPoolPairs_WBTCDAI'
   | 'AjnaPoolPairs_WBTCUSDC'
   | 'AjnaPoolPairs_WSTETHDAI'
@@ -271,7 +268,6 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_CBETHETH'
   | 'AjnaRewardsManager'
   | 'AjnaRewardsClaimer'
-  | 'ERC20PoolFactory'
 
 export type Contracts =
   | CoreContracts
@@ -328,22 +324,4 @@ export type SystemConfig = {
   }
   automation: Record<AutomationProtocol, DeploymentConfig>
   ajna: Record<AjnaProtocol, DeploymentConfig>
-}
-
-export type SystemConfigWithAjna = {
-  mpa: {
-    core: CoreRecord & CoreMainnetRecord & SwapRecord & Record<AjnaProtocol, DeploymentConfig>
-    actions: ActionsRecord & AaveV2ActionsRecord
-  }
-  common: Record<Common, DeploymentConfig>
-  aave: {
-    v2: Record<AaveV2Protocol, DeploymentConfig>
-    v3: Record<AaveV3Protocol, DeploymentConfig>
-  }
-  maker: {
-    common: Record<MakerProtocol, DeploymentConfig>
-    joins: Record<MakerProtocolJoins, DeploymentConfig>
-    pips: Record<MakerProtocolPips, DeploymentConfig>
-  }
-  automation: Record<AutomationProtocol, DeploymentConfig>
 }
