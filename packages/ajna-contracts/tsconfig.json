@@ -10,7 +10,14 @@
       "utils/*": ["../dma-common/utils/*"],
       "@ajna-contracts/scripts": ["./scripts/index.ts"],
       "@ajna-contracts/scripts/*": ["./scripts/*"],
-      "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"]
+      "@dma-common/constants": ["../dma-common/constants/index.ts"],
+      "@dma-common/utils/*": ["../dma-common/utils/*"],
+      "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
+      "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
+      "@deploy-configurations/utils/*": ["../deploy-configurations/utils/*"],
+      "@deploy-configurations/configs": ["../deploy-configurations/configs/index.ts"],
+      "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
+      "@deploy-configurations/constants": ["../deploy-configurations/constants/index.ts"]
     },
     "typeRoots": [
       "../../node_modules/@types"
