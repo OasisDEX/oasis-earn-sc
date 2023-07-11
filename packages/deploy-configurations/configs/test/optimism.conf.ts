@@ -946,11 +946,15 @@ export const config: SystemConfig = {
       address: ADDRESS_ZERO,
     },
     AjnaPoolPairs_WSTETHETH: {
-      name: 'AjnaPoolPairs_WSTETHUSDC',
+      name: 'AjnaPoolPairs_WSTETHETH',
       address: ADDRESS_ZERO,
     },
     AjnaPoolPairs_WSTETHUSDC: {
       name: 'AjnaPoolPairs_WSTETHUSDC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_CBETHETH: {
+      name: 'AjnaPoolPairs_CBETHETH',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

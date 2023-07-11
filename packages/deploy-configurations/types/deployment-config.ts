@@ -265,6 +265,7 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_WSTETHDAI'
   | 'AjnaPoolPairs_WSTETHETH'
   | 'AjnaPoolPairs_WSTETHUSDC'
+  | 'AjnaPoolPairs_CBETHETH'
   | 'AjnaRewardsManager'
   | 'AjnaRewardsClaimer'
 
