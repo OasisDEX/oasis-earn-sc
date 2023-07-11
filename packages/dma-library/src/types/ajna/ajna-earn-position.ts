@@ -52,6 +52,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
     public collateralPrice: BigNumber,
     public quotePrice: BigNumber,
     public rewards: BigNumber,
+    public netValue: BigNumber,
+    public pnl: BigNumber,
+    public totalEarnings: BigNumber,
   ) {
     this.fundsLockedUntil = Date.now() + 5 * 60 * 60 * 1000 // MOCK funds locked until 5h from now
     this.price = priceIndex ? priceIndexToPrice(priceIndex) : ZERO
@@ -69,10 +72,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
   get marketPrice() {
     return this.collateralPrice.div(this.quotePrice)
   }
-  // TODO here we will need also verify lup change due to quote deposit
   get getFeeWhenBelowLup() {
-    return this.price.lt(this.pool.lowestUtilizedPrice)
-      ? this.pool.interestRate.div(365).times(this.quoteTokenAmount).times(this.quotePrice)
+    return this.price.lt(this.pool.lowestUtilizedPrice) && this.apy.per1d
+      ? this.apy.per1d.times(this.quoteTokenAmount)
       : ZERO
   }
 
@@ -144,6 +146,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       this.rewards,
+      this.netValue,
+      this.pnl,
+      this.totalEarnings,
     )
   }
 
@@ -158,6 +163,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       this.rewards,
+      this.netValue,
+      this.pnl,
+      this.totalEarnings,
     )
   }
 
@@ -172,6 +180,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       this.rewards,
+      this.netValue,
+      this.pnl,
+      this.totalEarnings,
     )
   }
 
@@ -186,6 +197,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       this.rewards,
+      this.netValue,
+      this.pnl,
+      this.totalEarnings,
     )
   }
 
@@ -200,6 +214,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       this.rewards,
+      this.netValue,
+      this.pnl,
+      this.totalEarnings,
     )
   }
 
@@ -214,6 +231,9 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.collateralPrice,
       this.quotePrice,
       ZERO,
+      this.netValue,
+      this.pnl,
+      this.totalEarnings,
     )
   }
 }

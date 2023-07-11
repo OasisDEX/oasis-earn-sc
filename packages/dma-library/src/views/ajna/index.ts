@@ -18,6 +18,9 @@ interface EarnData {
   lps: BigNumber
   priceIndex: BigNumber | null
   nftID: string | null
+  cumulativeDeposit: BigNumber
+  cumulativeFees: BigNumber
+  cumulativeWithdraw: BigNumber
 }
 
 export interface GetEarnData {
@@ -75,12 +78,13 @@ export async function getEarnPosition(
   const rewardsManager = new ethers.Contract(rewardsManagerAddress, rewardsManagerAbi, provider)
 
   const [pool, earnData] = await Promise.all([getPoolData(poolAddress), getEarnData(proxyAddress)])
+  const { cumulativeDeposit, cumulativeFees, cumulativeWithdraw, lps, nftID, priceIndex } = earnData
 
   const quoteTokenAmount: BigNumber =
-    earnData.lps.eq(ZERO) || earnData.priceIndex == null
+    lps.eq(ZERO) || priceIndex == null
       ? ZERO
       : await poolInfo
-          .lpToQuoteTokens(poolAddress, earnData.lps.toString(), earnData.priceIndex?.toString())
+          .lpToQuoteTokens(poolAddress, lps.toString(), priceIndex?.toString())
           .then((quoteTokens: ethers.BigNumberish) => ethers.utils.formatUnits(quoteTokens, 18))
           .then((res: string) => new BigNumber(res))
 
@@ -89,19 +93,29 @@ export async function getEarnPosition(
   // we can utilize this value to show how much user will be able to withdraw
   // (it's basically needed for case when there were some liquidations of borrow positions in lender bucket)
   const collateralTokenAmount: BigNumber =
-    !earnData.lps.isZero() && quoteTokenAmount.isZero()
+    !lps.isZero() && quoteTokenAmount.isZero()
       ? await poolInfo
-          .lpToCollateral(poolAddress, earnData.lps.toString(), earnData.priceIndex?.toString())
+          .lpToCollateral(poolAddress, lps.toString(), priceIndex?.toString())
           .then((quoteTokens: ethers.BigNumberish) => ethers.utils.formatUnits(quoteTokens, 18))
           .then((res: string) => new BigNumber(res))
       : ZERO
 
-  const rewards: BigNumber = earnData.nftID
+  const rewards: BigNumber = nftID
     ? await rewardsManager
-        .calculateRewards(earnData.nftID, pool.currentBurnEpoch.toString())
+        .calculateRewards(nftID, pool.currentBurnEpoch.toString())
         .then((reward: ethers.BigNumberish) => ethers.utils.formatUnits(reward, 18))
         .then((res: ethers.BigNumberish) => new BigNumber(res.toString()))
     : ZERO
+
+  const netValue = quoteTokenAmount.times(quotePrice)
+  const pnl = cumulativeWithdraw
+    .plus(quoteTokenAmount)
+    .minus(cumulativeFees)
+    .minus(cumulativeDeposit)
+    .div(cumulativeDeposit)
+  const totalEarnings = quoteTokenAmount.minus(
+    cumulativeDeposit.minus(cumulativeWithdraw).plus(cumulativeFees),
+  )
 
   return new AjnaEarnPosition(
     pool,
@@ -113,5 +127,8 @@ export async function getEarnPosition(
     collateralPrice,
     quotePrice,
     rewards,
+    netValue,
+    pnl,
+    totalEarnings,
   )
 }
