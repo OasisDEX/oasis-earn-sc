@@ -1,15 +1,13 @@
-import poolAbi from '@abis/external/protocols/ajna/ajnaPoolERC20.json'
 import { Address } from '@deploy-configurations/types/address'
 import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { ajnaBuckets } from '@dma-library/strategies'
 import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
-import { SwapData } from '@dma-library/types'
 import {
   getLiquidityInLupBucket,
   getPoolLiquidity,
 } from '@dma-library/strategies/ajna/validation/borrowish/notEnoughLiquidity'
-
+import { SwapData } from '@dma-library/types'
 import {
   AjnaCommonDependencies,
   AjnaCommonDMADependencies,

@@ -969,6 +969,7 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_USDCETH',
       address: '0xb93628E0f66a6b65a2A7b24dADCeA17fC423D914',
     },
+    AjnaPoolPairs_USDCDAI: { name: 'AjnaPoolPairs_USDCDAI', address: '' },
     AjnaPoolPairs_USDCWBTC: {
       name: 'AjnaPoolPairs_USDCWBTC',
       address: '0xaEbb326B1a7Beb2Bd7d9B23473CF7b11E45e0802',

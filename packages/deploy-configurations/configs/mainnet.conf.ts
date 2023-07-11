@@ -1,4 +1,4 @@
-import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
+import { loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
@@ -1795,27 +1795,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_RETHUSDC: {
       name: 'AjnaPoolPairs_RETHUSDC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_USDCETH: {
-      name: 'AjnaPoolPairs_USDCETH',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_USDCWBTC: {
-      name: 'AjnaPoolPairs_USDCWBTC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_WBTCDAI: {
-      name: 'AjnaPoolPairs_WBTCDAI',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_WBTCUSDC: {
-      name: 'AjnaPoolPairs_WBTCUSDC',
-      address: ADDRESS_ZERO,
-    },
-    AjnaPoolPairs_WSTETHDAI: {
-      name: 'AjnaPoolPairs_WSTETHDAI',
-      address: ADDRESS_ZERO,
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_WSTETHETH: {
       name: 'AjnaPoolPairs_WSTETHUSDC',

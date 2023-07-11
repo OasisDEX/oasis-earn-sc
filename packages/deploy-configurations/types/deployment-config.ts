@@ -262,6 +262,7 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_RETHUSDC'
   | 'AjnaPoolPairs_USDCETH'
   | 'AjnaPoolPairs_USDCWBTC'
+  | 'AjnaPoolPairs_USDCDAI'
   | 'AjnaPoolPairs_WBTCDAI'
   | 'AjnaPoolPairs_WBTCUSDC'
   | 'AjnaPoolPairs_WSTETHDAI'
