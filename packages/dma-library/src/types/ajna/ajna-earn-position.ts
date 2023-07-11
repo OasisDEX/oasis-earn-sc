@@ -79,16 +79,6 @@ export class AjnaEarnPosition implements IAjnaEarn {
   }
 
   get apy() {
-    if (!this.isEarningFees) {
-      return {
-        per1d: ZERO,
-        per7d: ZERO,
-        per30d: ZERO,
-        per90d: ZERO,
-        per365d: ZERO,
-      }
-    }
-
     return {
       per1d: this.getApyPerDays({ amount: this.quoteTokenAmount, days: 1 }),
       per7d: this.getApyPerDays({ amount: this.quoteTokenAmount, days: 7 }),
