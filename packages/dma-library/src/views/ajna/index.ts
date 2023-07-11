@@ -117,11 +117,6 @@ export async function getEarnPosition(
     .minus(cumulativeDeposit.minus(cumulativeWithdraw).plus(cumulativeFees))
     .div(quotePrice)
 
-  console.log(`netValue: ${netValue}`)
-  console.log(`cumulativeDeposit: ${cumulativeDeposit}`)
-  console.log(`cumulativeWithdraw: ${cumulativeWithdraw}`)
-  console.log(`cumulativeFees: ${cumulativeFees}`)
-
   return new AjnaEarnPosition(
     pool,
     proxyAddress,
