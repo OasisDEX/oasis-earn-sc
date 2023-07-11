@@ -140,7 +140,7 @@ export async function deployApa(
   ]);
 
   if (initializeStaking) {
-    // await ajnaProxyActionsContract.initialize(positionManager.address, rewardsManager.address, arc.address);
+    await ajnaProxyActionsContract.initialize(positionManager.address, rewardsManager.address, arc.address);
     await arc.initializeAjnaProxyActions(ajnaProxyActionsContract.address);
   }
 
