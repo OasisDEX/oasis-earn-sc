@@ -969,12 +969,16 @@ export const config: SystemConfig = {
       address: '0x78b4102D793bdb0e9fc6B80B852036c9045A5d6C',
     },
     AjnaPoolPairs_WSTETHETH: {
-      name: 'AjnaPoolPairs_WSTETHUSDC',
+      name: 'AjnaPoolPairs_WSTETHETH',
       address: '0x2ae4C56d48f5Bbda17E8e7E2D8199dD510e337aC',
     },
     AjnaPoolPairs_WSTETHUSDC: {
       name: 'AjnaPoolPairs_WSTETHUSDC',
       address: '0x29eD1a103c9F59ed58bA96c1867DF3Ca9C7946D1',
+    },
+    AjnaPoolPairs_CBETHETH: {
+      name: 'AjnaPoolPairs_CBETHETH',
+      address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
