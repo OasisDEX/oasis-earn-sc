@@ -90,8 +90,11 @@ export class AjnaEarnPosition implements IAjnaEarn {
 
   get poolApy() {
     return {
+      per1d: this.getApyPerDays({ amount: this.pool.depositSize, days: 1 }),
       per7d: this.getApyPerDays({ amount: this.pool.depositSize, days: 7 }),
+      per30d: this.getApyPerDays({ amount: this.pool.depositSize, days: 30 }),
       per90d: this.getApyPerDays({ amount: this.pool.depositSize, days: 90 }),
+      per365: this.getApyPerDays({ amount: this.pool.depositSize, days: 365 }),
     }
   }
 
