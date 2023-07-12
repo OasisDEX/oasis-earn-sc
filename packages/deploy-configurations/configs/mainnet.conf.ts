@@ -242,6 +242,22 @@ export const config: SystemConfig = {
         history: ['0xd4DB3799DEe98Fe752d952Ba6F84Bb99Af829920'],
         constructorArgs: ['address:ServiceRegistry'],
       },
+      AjnaDepositBorrow: {
+        name: 'AjnaDepositBorrow',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      AjnaRepayWithdraw: {
+        name: 'AjnaRepayWithdraw',
+        deploy: true,
+        address: '',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
     },
   },
   common: {
@@ -1063,6 +1079,7 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_USDCWBTC',
       address: '0x1a9Cea49DaEB8c36EA707A9171EbDF4097796dD4',
     },
+    AjnaPoolPairs_USDCDAI: { name: 'AjnaPoolPairs_USDCDAI', address: '' },
     AjnaPoolPairs_WBTCDAI: {
       name: 'AjnaPoolPairs_WBTCDAI',
       address: '0xdB30a08Ebc49af1BaF87f57824f85056cEd33d5F',
@@ -1094,6 +1111,11 @@ export const config: SystemConfig = {
     AjnaRewardsClaimer: {
       name: 'AjnaRewardsClaimer',
       address: '0xFb6EdFC7ADc67645423c233332efD6E6804e72F5',
+    },
+    ERC20PoolFactory: {
+      name: 'ERC20PoolFactory',
+      address: '0x0000000000000000000000000000000000000000',
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
     },
   },
 }

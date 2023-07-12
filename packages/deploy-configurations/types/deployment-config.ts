@@ -48,7 +48,9 @@ export type CoreActions =
   | 'ReturnFunds'
   | 'PositionCreated'
 
-export type Actions = CoreActions | AaveV3Actions
+export type AjnaActions = 'AjnaDepositBorrow' | 'AjnaRepayWithdraw'
+
+export type Actions = CoreActions | AaveV3Actions | AjnaActions
 
 export type Tokens =
   | 'AAVE'
@@ -260,6 +262,7 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_RETHUSDC'
   | 'AjnaPoolPairs_USDCETH'
   | 'AjnaPoolPairs_USDCWBTC'
+  | 'AjnaPoolPairs_USDCDAI'
   | 'AjnaPoolPairs_WBTCDAI'
   | 'AjnaPoolPairs_WBTCUSDC'
   | 'AjnaPoolPairs_WSTETHDAI'
@@ -268,6 +271,7 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_CBETHETH'
   | 'AjnaRewardsManager'
   | 'AjnaRewardsClaimer'
+  | 'ERC20PoolFactory'
 
 export type Contracts =
   | CoreContracts
