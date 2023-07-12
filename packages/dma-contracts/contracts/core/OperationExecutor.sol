@@ -12,7 +12,6 @@ import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender
 import { IFlashLoanRecipient } from "../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
 import { IDSProxy } from "../interfaces/ds/IDSProxy.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
-import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanData, Call } from "./types/Common.sol";
 import { OPERATION_STORAGE, OPERATIONS_REGISTRY, OPERATION_EXECUTOR } from "./constants/Common.sol";
 import { FLASH_MINT_MODULE } from "./constants/Maker.sol";
@@ -29,7 +28,6 @@ error InconsistentAmount(uint256 flashloaned, uint256 required);
 contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
   using ActionAddress for address;
   using SafeERC20 for IERC20;
-  using SafeMath for uint256;
 
   ServiceRegistry public immutable registry;
 
@@ -135,7 +133,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
 
     processFlashloan(flData, initiator);
 
-    uint256 paybackAmount = amount.add(fee);
+    uint256 paybackAmount = amount + fee;
     require(
       IERC20(asset).balanceOf(address(this)) >= paybackAmount,
       "Insufficient funds for payback"
@@ -161,7 +159,7 @@ contract OperationExecutor is IERC3156FlashBorrower, IFlashLoanRecipient {
 
     processFlashloan(flData, initiator);
 
-    uint256 paybackAmount = amounts[0].add(feeAmounts[0]);
+    uint256 paybackAmount = amounts[0] + feeAmounts[0];
 
     require(
       IERC20(asset).balanceOf(address(this)) >= paybackAmount,

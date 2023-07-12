@@ -4,13 +4,11 @@ pragma solidity ^0.8.15;
 import { ServiceRegistry } from "../core/ServiceRegistry.sol";
 import { ISwapRouter } from "../interfaces/common/ISwapRouter.sol";
 import { IERC20 } from "../interfaces/tokens/IERC20.sol";
-import { SafeMath } from "../libs/SafeMath.sol";
 import { SafeERC20 } from "../libs/SafeERC20.sol";
 import { UNISWAP_ROUTER } from "../core/constants/Common.sol";
 import { SwapData } from "../core/types/Common.sol";
 
 contract uSwap {
-  using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
   address public feeBeneficiaryAddress;
@@ -155,14 +153,14 @@ contract uSwap {
     if (!isFeeValid) {
       revert FeeTierDoesNotExist(fee);
     }
-    uint256 feeToTransfer = fromAmount.mul(fee).div(fee.add(feeBase));
+    uint256 feeToTransfer = (fromAmount * fee)/(fee + feeBase);
 
     if (fee > 0) {
       IERC20(asset).safeTransfer(feeBeneficiaryAddress, feeToTransfer);
       emit FeePaid(feeBeneficiaryAddress, feeToTransfer, asset);
     }
 
-    amount = fromAmount.sub(feeToTransfer);
+    amount = fromAmount - feeToTransfer;
   }
 
   function compareMethodSigs(bytes memory a, bytes memory b) internal pure returns (bool) {

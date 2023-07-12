@@ -9,13 +9,11 @@ import { IManager } from "../../interfaces/maker/IManager.sol";
 import { IJoin } from "../../interfaces/maker/IJoin.sol";
 import { IDaiJoin } from "../../interfaces/maker/IDaiJoin.sol";
 import { IJug } from "../../interfaces/maker/IJug.sol";
-import { SafeMath } from "../../libs/SafeMath.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
 import { GenerateData } from "../../core/types/Maker.sol";
 import { MCD_MANAGER, MCD_JUG, MCD_JOIN_DAI } from "../../core/constants/Maker.sol";
 
 contract MakerGenerate is Executable, UseStore {
-  using SafeMath for uint256;
   using Read for OperationStorage;
   using Write for OperationStorage;
 
@@ -49,7 +47,7 @@ contract MakerGenerate is Executable, UseStore {
       )
     );
 
-    manager.move(data.vaultId, address(this), data.amount.mul(MathUtils.RAY));
+    manager.move(data.vaultId, address(this), data.amount * MathUtils.RAY);
 
     address daiJoin = registry.getRegisteredService(MCD_JOIN_DAI);
     if (vat.can(address(this), daiJoin) == 0) {
@@ -75,11 +73,11 @@ contract MakerGenerate is Executable, UseStore {
     uint256 dai = vat.dai(urn);
 
     // If there was already enough DAI in the vat balance, just exits it without adding more debt
-    if (dai < wad.mul(MathUtils.RAY)) {
+    if (dai < wad * MathUtils.RAY) {
       // Calculates the needed dart so together with the existing dai in the vat is enough to exit wad amount of DAI tokens
-      dart = MathUtils.uintToInt(wad.mul(MathUtils.RAY).sub(dai) / rate);
+      dart = MathUtils.uintToInt(((wad * MathUtils.RAY) - dai) / rate);
       // This is neeeded due lack of precision. It might need to sum an extra dart wei (for the given DAI wad amount)
-      dart = uint256(dart).mul(rate) < wad.mul(MathUtils.RAY) ? dart + 1 : dart;
+      dart = uint256(dart) * rate  < wad * MathUtils.RAY ? dart + 1 : dart;
     }
   }
 

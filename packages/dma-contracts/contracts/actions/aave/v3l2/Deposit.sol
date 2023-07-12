@@ -6,7 +6,6 @@ import { UseStore, Write, Read } from "../../common/UseStore.sol";
 import { OperationStorage } from "../../../core/OperationStorage.sol";
 import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
 import { DepositData } from "../../../core/types/Aave.sol";
-import { SafeMath } from "../../../libs/SafeMath.sol";
 
 import { AAVE_POOL, AAVE_L2_ENCODER } from "../../../core/constants/Aave.sol";
 
@@ -30,7 +29,6 @@ interface IL2Encoder {
 contract AaveV3L2Deposit is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
-  using SafeMath for uint256;
 
   constructor(address _registry) UseStore(_registry) {}
 
@@ -49,7 +47,7 @@ contract AaveV3L2Deposit is Executable, UseStore {
     );
 
     uint256 actualDepositAmount = deposit.sumAmounts
-      ? mappedDepositAmount.add(deposit.amount)
+      ? mappedDepositAmount + deposit.amount
       : mappedDepositAmount;
 
     IL2Pool(registry.getRegisteredService(AAVE_POOL)).supply(
