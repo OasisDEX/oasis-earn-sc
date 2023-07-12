@@ -188,7 +188,6 @@ export function prepareAjnaMultiplyDMAPayload(
   )
 
   const isDepositingEth = areAddressesEqual(args.position.pool.collateralToken, dependencies.WETH)
-  // const txAmount = amountFromWei(args.collateralAmount, TYPICAL_PRECISION)
   const txAmount = args.collateralAmount
   const fromTokenSymbol = riskIsIncreasing ? args.quoteTokenSymbol : args.collateralTokenSymbol
   const toTokenSymbol = riskIsIncreasing ? args.collateralTokenSymbol : args.quoteTokenSymbol
