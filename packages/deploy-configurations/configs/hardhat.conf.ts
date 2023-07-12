@@ -1197,6 +1197,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_USDCWBTC',
       address: '0x0000000000000000000000000000000000000000'
     },
+    AjnaPoolPairs_CBETHETH: {
+      name: 'AjnaPoolPairs_USDCWBTC',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     AjnaPoolPairs_WBTCDAI: {
       name: 'AjnaPoolPairs_WBTCDAI',
       address: '0x0000000000000000000000000000000000000000'
@@ -1227,8 +1231,8 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0xCF6F52F6b65f284ffFaFc35FfE754830C05DA0c2',
-      serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY
-    }
-  }
+      address: '0x0000000000000000000000000000000000000000',
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY,
+    },
+  },
 }
