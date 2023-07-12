@@ -1,23 +1,16 @@
 import { getNetwork } from '@deploy-configurations/utils/network/index'
 import { ONE, ZERO } from '@dma-common/constants'
-import { areAddressesEqual } from '@dma-common/utils/addresses/index'
-import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { calculateFee } from '@dma-common/utils/swap'
+import { amountToWei } from '@dma-common/utils/common'
 import { areSymbolsEqual } from '@dma-common/utils/symbols/index'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { operations } from '@dma-library/operations'
-import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import { ajnaBuckets } from '@dma-library/strategies'
 import {
   buildFromToken,
   buildToToken,
   getSwapData,
+  prepareAjnaMultiplyDMAPayload,
 } from '@dma-library/strategies/ajna/multiply/common'
-import {
-  validateBorrowUndercollateralized,
-  validateDustLimit,
-  validateLiquidity,
-} from '@dma-library/strategies/ajna/validation'
 import {
   AjnaOpenMultiplyPayload,
   FlashloanProvider,
@@ -25,7 +18,6 @@ import {
   SwapData,
 } from '@dma-library/types'
 import { AjnaCommonDMADependencies, AjnaPosition, AjnaStrategy } from '@dma-library/types/ajna'
-import { encodeOperation } from '@dma-library/utils/operation'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { views } from '@dma-library/views'
 import * as Domain from '@domain'
@@ -71,50 +63,17 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
     swapData,
     riskIsIncreasing,
   )
-  const targetPosition = new AjnaPosition(
-    position.pool,
-    mappedArgs.dpmProxyAddress,
-    amountFromWei(
-      simulatedAdjustment.position.collateral.amount,
-      simulatedAdjustment.position.collateral.precision,
-    ),
-    amountFromWei(
-      simulatedAdjustment.position.debt.amount,
-      simulatedAdjustment.position.debt.precision,
-    ),
-    mappedArgs.collateralPrice,
-    mappedArgs.quotePrice,
-  )
 
-  const isDepositingEth = areAddressesEqual(position.pool.collateralToken, dependencies.WETH)
-  const fee = SwapUtils.feeResolver(position.pool.collateralToken, position.pool.quoteToken, {
-    isIncreasingRisk: riskIsIncreasing,
-    isEarnPosition: false,
-  })
-  const postSwapFee =
-    collectFeeFrom === 'sourceToken' ? ZERO : calculateFee(swapData.toTokenAmount, fee.toNumber())
-  const tokenFee = preSwapFee.plus(postSwapFee)
-
-  /** Not relevant for Ajna */
-  const debtTokensDeposited = ZERO
-  const borrowAmount = simulatedAdjustment.delta.debt.minus(debtTokensDeposited)
-  const errors = [
-    ...validateDustLimit(targetPosition),
-    ...validateLiquidity(targetPosition, position, borrowAmount),
-    ...validateBorrowUndercollateralized(targetPosition, position, borrowAmount),
-  ]
-
-  return prepareAjnaDMAPayload({
-    swaps: [{ ...swapData, collectFeeFrom, tokenFee }],
+  return prepareAjnaMultiplyDMAPayload(
+    { ...args, position },
     dependencies,
-    targetPosition,
-    data: encodeOperation(operation, dependencies),
-    errors,
-    warnings: [],
-    successes: [],
-    notices: [],
-    txValue: resolveAjnaEthAction(isDepositingEth, args.collateralAmount),
-  })
+    simulatedAdjustment,
+    operation,
+    swapData,
+    collectFeeFrom,
+    preSwapFee,
+    riskIsIncreasing,
+  )
 }
 
 async function getPosition(args: AjnaOpenMultiplyPayload, dependencies: AjnaCommonDMADependencies) {

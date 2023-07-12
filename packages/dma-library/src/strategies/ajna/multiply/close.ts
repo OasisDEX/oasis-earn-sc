@@ -73,13 +73,22 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
     postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
   )
 
+  // Validation
+  const errors = [
+    // Add as required...
+  ]
+
+  const warnings = [
+    // Add as required..
+  ]
+
   return prepareAjnaDMAPayload({
     swaps: [{ ...swapData, collectFeeFrom, tokenFee }],
     dependencies,
     targetPosition,
     data: encodeOperation(operation, dependencies),
-    errors: [],
-    warnings: [],
+    errors: errors,
+    warnings: warnings,
     successes: [],
     notices: [],
     // TODO instead of zero we will need data from swap
