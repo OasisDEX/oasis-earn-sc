@@ -818,26 +818,31 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     await operationsRegistry.addOp(
       getAjnaOpenOperationDefinition(network).name,
       getAjnaOpenOperationDefinition(network).actions,
+      true,
     )
 
     await operationsRegistry.addOp(
       getAjnaCloseToQuoteOperationDefinition(network).name,
       getAjnaCloseToQuoteOperationDefinition(network).actions,
+      true,
     )
 
     await operationsRegistry.addOp(
       getAjnaCloseToCollateralOperationDefinition(network).name,
       getAjnaCloseToCollateralOperationDefinition(network).actions,
+      true,
     )
 
     await operationsRegistry.addOp(
       getAjnaAdjustUpOperationDefinition(network).name,
       getAjnaAdjustUpOperationDefinition(network).actions,
+      true,
     )
 
     await operationsRegistry.addOp(
       getAjnaAdjustDownOperationDefinition(network).name,
       getAjnaAdjustDownOperationDefinition(network).actions,
+      true,
     )
   }
 

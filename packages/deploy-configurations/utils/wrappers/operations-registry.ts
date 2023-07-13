@@ -24,6 +24,8 @@ export class OperationsRegistry {
 
     if (debug) {
       console.log(`DEBUG: Service '${label}' has been added with hash: ${entryHash}`)
+      console.log('DEBUG: Actions:', actionHashes)
+      console.log('DEBUG: Optional:', optional)
     }
 
     return entryHash
