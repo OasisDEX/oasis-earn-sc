@@ -74,13 +74,13 @@ const rpcUrls: any = {
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
 }
 
-const gnosisSafeServiceUrl: any = {
+const gnosisSafeServiceUrl: Record<Network, string> = {
   [Network.MAINNET]: '',
   [Network.HARDHAT]: '',
   [Network.LOCAL]: '',
   [Network.OPTIMISM]: '',
-  [Network.GOERLI]: 'https://safe-transaction.goerli.gnosis.io',
-  [Network.HARDHAT]: '',
+  [Network.ARBITRUM]: '',
+  [Network.GOERLI]: 'https://safe-transaction-goerli.safe.global',
   [Network.TENDERLY]: '',
 }
 
@@ -188,6 +188,7 @@ abstract class DeployedSystemHelpers {
     }
     throw 'Balances slot not found!'
   }
+
   /**
    * Set token balance to the provided value.
    * @param {string} account  - address of the wallet holding the tokens
@@ -365,7 +366,13 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
       if (gnosisSafeServiceUrl[this.network] !== '') {
-        const signer = this.provider.getSigner(1)
+        /**
+         * Currently throws the following error:
+         * Error: Unprocessable Entity
+         * When attempting to generate a Safe transaction
+         * TODO: investigate and debug error
+         */
+        const signer = this.provider.getSigner(0)
         const ethAdapter = new EthersAdapter({ ethers, signerOrProvider: signer })
 
         const safeSdk: Safe = await Safe.create({
@@ -408,7 +415,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           senderAddress: ethers.utils.getAddress(address),
           senderSignature: ownerSignature.data,
         })
-      } else {
+        // Mainnet is excluded because Service Registry is managed by multi-sig wallet
+      } else if (this.network !== Network.MAINNET) {
         await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, contract.address)
       }
     }

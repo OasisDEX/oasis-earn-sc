@@ -9,7 +9,7 @@ export const config: SystemConfig = {
     core: {
       ServiceRegistry: {
         name: 'ServiceRegistry',
-        deploy: true,
+        deploy: false,
         address: '0x5e81a7515f956ab642eb698821a449fe8fe7498e',
         history: ['0x9b4Ae7b164d195df9C4Da5d08Be88b2848b2EaDA'],
         constructorArgs: [0],
@@ -244,16 +244,16 @@ export const config: SystemConfig = {
       },
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
-        deploy: true,
-        address: '',
+        deploy: false,
+        address: '0x4D6F457C8305A1E6f688a8a05C7341DD959cB681',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
-        deploy: true,
-        address: '',
+        deploy: false,
+        address: '0xc0BAFEa22AD2A2D92BF54B1d76eA175785aa9Eb1',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
@@ -263,7 +263,7 @@ export const config: SystemConfig = {
   common: {
     GnosisSafe: {
       name: 'GnosisSafe',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
     },
     UniswapRouterV3: {
       name: 'UniswapRouterV3',
@@ -366,20 +366,47 @@ export const config: SystemConfig = {
       name: 'ChainlinkPriceOracle_ETHUSD',
       address: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
     },
-    AAVE: { name: 'AAVE', address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9' },
-    ADAI: { name: 'ADAI', address: '0x028171bCA77440897B824Ca71D1c56caC55b68A3' },
-    BAL: { name: 'BAL', address: '0xba100000625a3754423978a60c9317c58a424e3D' },
-    BAT: { name: 'BAT', address: '0x0D8775F648430679A709E98d2b0Cb6250d2887EF' },
-    CBETH: { name: 'CBETH', address: '0xbe9895146f7af43049ca1c1ae358b0541ea49704' },
-    COMP: { name: 'COMP', address: '0xc00e94Cb662C3520282E6f5717214004A7f26888' },
-    CRVV1ETHSTETH: { name: 'CRVV1ETHSTETH', address: '0x06325440D014e39736583c165C2963BA99fAf14E' },
+    AAVE: {
+      name: 'AAVE',
+      address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
+    },
+    ADAI: {
+      name: 'ADAI',
+      address: '0x028171bCA77440897B824Ca71D1c56caC55b68A3',
+    },
+    BAL: {
+      name: 'BAL',
+      address: '0xba100000625a3754423978a60c9317c58a424e3D',
+    },
+    BAT: {
+      name: 'BAT',
+      address: '0x0D8775F648430679A709E98d2b0Cb6250d2887EF',
+    },
+    CBETH: {
+      name: 'CBETH',
+      address: '0xbe9895146f7af43049ca1c1ae358b0541ea49704',
+    },
+    COMP: {
+      name: 'COMP',
+      address: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
+    },
+    CRVV1ETHSTETH: {
+      name: 'CRVV1ETHSTETH',
+      address: '0x06325440D014e39736583c165C2963BA99fAf14E',
+    },
     DAI: {
       name: 'DAI',
       address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DAI,
     },
-    ETH: { name: 'ETH', address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' },
-    GNO: { name: 'GNO', address: '0x6810e776880C02933D47DB1b9fc05908e5386b96' },
+    ETH: {
+      name: 'ETH',
+      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+    },
+    GNO: {
+      name: 'GNO',
+      address: '0x6810e776880C02933D47DB1b9fc05908e5386b96',
+    },
     GUNIV3DAIUSDC1: {
       name: 'GUNIV3DAIUSDC1',
       address: '0xAbDDAfB225e10B90D798bB8A886238Fb835e2053',
