@@ -225,7 +225,6 @@ export function calculateMaxGenerate(
   const poolLiquidity = getPoolLiquidity({
     buckets: pool.buckets,
     debt: pool.debt,
-    highestThresholdPriceIndex: pool.highestThresholdPriceIndex,
   })
   const poolLiquidityWithFee = poolLiquidity.minus(originationFee)
   const maxDebtWithFee = maxDebtWithoutFee.minus(originationFee)
@@ -244,7 +243,6 @@ export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumb
   const availablePoolLiquidity = getPoolLiquidity({
     buckets: pool.buckets,
     debt: pool.debt,
-    highestThresholdPriceIndex: pool.highestThresholdPriceIndex,
   })
 
   let remainingDebt = pool.debt.plus(debtChange)
