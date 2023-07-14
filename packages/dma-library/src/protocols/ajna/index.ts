@@ -165,9 +165,9 @@ export const resolveAjnaEthAction = (isUsingEth: boolean, amount: BigNumber) =>
   isUsingEth ? ethers.utils.parseEther(amount.toString()).toString() : '0'
 
 export const calculateAjnaApyPerDays = (amount: BigNumber, apy: BigNumber, days: number) =>
-  // converted to numbers because BigNumber doesn't handle power with decimals
   amount
-    .times(new BigNumber(Math.E ** apy.times(days).div(365).toNumber()))
+    // converted to numbers because BigNumber doesn't handle power with decimals
+    .times(new BigNumber(Math.E ** apy.times(days).toNumber()))
     .minus(amount)
     .div(amount)
 
@@ -287,7 +287,6 @@ export function calculateMaxGenerate(
   const poolLiquidity = getPoolLiquidity({
     buckets: pool.buckets,
     debt: pool.debt,
-    highestThresholdPriceIndex: pool.highestThresholdPriceIndex,
   })
   const poolLiquidityWithFee = poolLiquidity.minus(originationFee)
   const maxDebtWithFee = maxDebtWithoutFee.minus(originationFee)
@@ -306,7 +305,6 @@ export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumb
   const availablePoolLiquidity = getPoolLiquidity({
     buckets: pool.buckets,
     debt: pool.debt,
-    highestThresholdPriceIndex: pool.highestThresholdPriceIndex,
   })
 
   let remainingDebt = pool.debt.plus(debtChange)
