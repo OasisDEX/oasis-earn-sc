@@ -953,6 +953,7 @@ export const config: SystemConfig = {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
       address: '0x154FFf344f426F99E328bacf70f4Eb632210ecdc',
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO,
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
