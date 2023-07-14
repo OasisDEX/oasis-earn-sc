@@ -10,14 +10,14 @@ export const config: SystemConfig = {
       ServiceRegistry: {
         name: 'ServiceRegistry',
         deploy: true,
-        address: '0xF0001862E65CCF290305f8ca889d0E0CB23A6db8',
+        address: '0x5D809FE187D6875eae44A9CB219Dc97F4E69c0c8',
         history: [ '0x9b4Ae7b164d195df9C4Da5d08Be88b2848b2EaDA' ],
         constructorArgs: [ 0 ]
       },
       OperationExecutor: {
         name: 'OperationExecutor',
         deploy: true,
-        address: '0x23Ee3228C8D8812Aa1198d5b4dD030984d3B580B',
+        address: '0xcD4Ec4F66A5D8Bc2F75170Dc35E3F684556f9810',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_EXECUTOR,
         history: [ '0xc1cd3654ab3b37e0bc26bafb5ae4c096892d0b0c' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -25,7 +25,7 @@ export const config: SystemConfig = {
       OperationStorage: {
         name: 'OperationStorage',
         deploy: true,
-        address: '0x72562094AA23Aa2A4e245861F08CAd061194Cd55',
+        address: '0xF0001862E65CCF290305f8ca889d0E0CB23A6db8',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE,
         history: [ '0x66081bcDb3760f1Bf765B4D9800d0a059BBec73F' ],
         constructorArgs: [ 'address:ServiceRegistry', 'address:OperationExecutor' ]
@@ -33,7 +33,7 @@ export const config: SystemConfig = {
       OperationsRegistry: {
         name: 'OperationsRegistry',
         deploy: true,
-        address: '0x06C23465a5Adb3975E1100ad7EC24e256983FEf9',
+        address: '0xb24fbDCB2B61e2777348F15FB061dBd2f5337847',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.OPERATIONS_REGISTRY,
         history: [ '0x01871C3cCfeDE29d2b998E7D1BF0eEEBD26d9c49' ],
         constructorArgs: []
@@ -41,7 +41,7 @@ export const config: SystemConfig = {
       DSProxyFactory: {
         name: 'DSProxyFactory',
         deploy: true,
-        address: '0x2bB18769F9Aa002180E896a5aCa73ec170733ce0',
+        address: '0x054364D48D17E8c40D1BF8d57F83f4C826283aC3',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_FACTORY,
         history: [ '0xA26e15C895EFc0616177B7c1e7270A4C7D51C997' ],
         constructorArgs: []
@@ -49,7 +49,7 @@ export const config: SystemConfig = {
       DSProxyRegistry: {
         name: 'DSProxyRegistry',
         deploy: true,
-        address: '0x525F89FCb74C0c6D721a774ACd4a1F8eE42b2688',
+        address: '0xCC402bf9264491BCC4883451937845806e88F263',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_PROXY_REGISTRY,
         history: [ '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4' ],
         constructorArgs: [ 'address:DSProxyFactory' ]
@@ -57,7 +57,7 @@ export const config: SystemConfig = {
       DSGuardFactory: {
         name: 'DSGuardFactory',
         deploy: true,
-        address: '0x69684090ccFA94747DC5B9C76E679e87E911a83b',
+        address: '0x13129fb699d7AbeD45263992D07995C8510BA4Fd',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DS_GUARD_FACTORY,
         history: [ '0x5a15566417e6C1c9546523066500bDDBc53F88C7' ],
         constructorArgs: []
@@ -65,21 +65,21 @@ export const config: SystemConfig = {
       AccountGuard: {
         name: 'AccountGuard',
         deploy: true,
-        address: '0xafF4e03FE547584fFf0cE8Be05A9421aFfc17475',
+        address: '0x21035789646ee8398ba9d6062F30894318172ff3',
         history: [ '0xCe91349d2A4577BBd0fC91Fe6019600e047f2847' ],
         constructorArgs: []
       },
       AccountFactory: {
         name: 'AccountFactory',
         deploy: true,
-        address: '0x436Af5D447E5Ce6341676D4E3d87bE6C52ea0d56',
+        address: '0x69684090ccFA94747DC5B9C76E679e87E911a83b',
         history: [ '0xF7B75183A2829843dB06266c114297dfbFaeE2b6' ],
         constructorArgs: [ 'address:AccountGuard' ]
       },
       ChainLogView: {
         name: 'ChainLogView',
         deploy: true,
-        address: '0xA9EE1fC2EBc036FA5c367E54D6cE5e584c4b7171',
+        address: '0x7a44aadaCA83d044DD900899384c2Df39822066f',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.CHAINLOG_VIEWER,
         history: [ '0x4B323Eb2ece7fc1D81F1819c26A7cBD29975f75f' ],
         constructorArgs: [ '0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F' ]
@@ -87,7 +87,7 @@ export const config: SystemConfig = {
       Swap: {
         name: 'uSwap',
         deploy: true,
-        address: '0xffC93836c2F52382B94685bB403bAaD953b1c21f',
+        address: '0x436Af5D447E5Ce6341676D4E3d87bE6C52ea0d56',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
         history: [],
         constructorArgs: [
@@ -102,7 +102,7 @@ export const config: SystemConfig = {
       PositionCreated: {
         name: 'PositionCreated',
         deploy: true,
-        address: '0xf1cE055b82c83f6D68E8Af6439F6Bd26F5B2F199',
+        address: '0xF108CE1A3E5C6CB67E16120CCdC637E844B4DcBF',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.POSITION_CREATED,
         history: [ '0xA0Cb87300aB07D00468704cD8f016F8dE47D8E0A' ],
         constructorArgs: []
@@ -110,7 +110,7 @@ export const config: SystemConfig = {
       SwapAction: {
         name: 'SwapAction',
         deploy: true,
-        address: '0x453e60F975Ec212878F8582Aa4A4eA42D2D22c22',
+        address: '0x8735E5d74542Aba2524AEC98Df1D37F445146635',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP_ACTION,
         history: [ '0x7E7EB65A93441a2D2Bf0941216b4c1116B554d85' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -118,7 +118,7 @@ export const config: SystemConfig = {
       TakeFlashloan: {
         name: 'TakeFlashloan',
         deploy: true,
-        address: '0x0cc8B62772d5a4999e5Af96405dC03C0E2F4950d',
+        address: '0xBF7f2a5c71dD7b6D5dEE91C742Ba64B9D56222A5',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN,
         history: [ '0x0eD12441616ca97F5729Fff519F5e8d13d8De15F' ],
         constructorArgs: [
@@ -130,7 +130,7 @@ export const config: SystemConfig = {
       SetApproval: {
         name: 'SetApproval',
         deploy: true,
-        address: '0xD6bD090a6FDcf46733e9D9A35359ce39A29fEf8d',
+        address: '0x5B2a0D171Ef02F081f863a97cDcbe296847f2a57',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SET_APPROVAL,
         history: [ '0xcEA79d9132d6446f0B59F194b22DB2a93dB4146c' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -138,7 +138,7 @@ export const config: SystemConfig = {
       PullToken: {
         name: 'PullToken',
         deploy: true,
-        address: '0xFBA7fB7B8a8a87fd1aFdD49C31b48D6455f85269',
+        address: '0xd60173b525AB913abD81bd9fF0e15E79250f1509',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.PULL_TOKEN,
         history: [ '0x0bE3B9c118eD4eF2002Fd58d0d8cc8f7c76e168C' ],
         constructorArgs: []
@@ -146,7 +146,7 @@ export const config: SystemConfig = {
       SendToken: {
         name: 'SendToken',
         deploy: true,
-        address: '0x768A31c1d01cb631F92ef8756825EA667B23A0bb',
+        address: '0x52Fc3c2f0Bfd288E2819D33DAC78Ed2795880d7E',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SEND_TOKEN,
         history: [ '0xAa4C55A8dd5b0e923056676D544FC20bb5D5e3A3' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -154,7 +154,7 @@ export const config: SystemConfig = {
       WrapEth: {
         name: 'WrapEth',
         deploy: true,
-        address: '0x5EAceb164c6DB7Ca4B4Aa03850326bf43921593f',
+        address: '0x07cc3d4919F55FeBb814391A5DaBF9aFa567672e',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WRAP_ETH,
         history: [ '0xafdD2e556Cef33C5C0033beB76E09b7Bd8d14Dec' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -162,7 +162,7 @@ export const config: SystemConfig = {
       UnwrapEth: {
         name: 'UnwrapEth',
         deploy: true,
-        address: '0x26BE1c2341E8EA6D0BBAA51B9a2b0420767EA2c2',
+        address: '0xfA71EbC30681949474484DB5396B003E2fCFB7b1',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH,
         history: [ '0xAC0B1652388Ea425884e6b60e2eD30155f43D50b' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -170,7 +170,7 @@ export const config: SystemConfig = {
       ReturnFunds: {
         name: 'ReturnFunds',
         deploy: true,
-        address: '0x4aE38e17Ea354f2a4A9AFEdeA0FF8FAA5C7C2D31',
+        address: '0xf5eECf521f055be9a16AF22a87A117e7E38aCd9b',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS,
         history: [ '0x645325494A37d35cf6baFc82C3e6bcE4473F2685' ],
         constructorArgs: []
@@ -178,7 +178,7 @@ export const config: SystemConfig = {
       AaveBorrow: {
         name: 'AaveBorrow',
         deploy: true,
-        address: '0x321Ea31D86f0D2eEd377FBd1bbD436B80c29a3f5',
+        address: '0xa162d4EDf8b70E0553a4F767F1E0C883A4a50E7e',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.BORROW,
         history: [ '0x6166B1587be6B954e660A71e4B083A5e0a5bF1b6' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -186,7 +186,7 @@ export const config: SystemConfig = {
       AaveWithdraw: {
         name: 'AaveWithdraw',
         deploy: true,
-        address: '0x453C16e728EDb59953F34977e98b900cA3F640Df',
+        address: '0xBF0b695588C90613E52cB40Cb5e8471fD74512Cc',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.WITHDRAW,
         history: [ '0xECf6CaB5cD20F5f889e95A1A40d46607aa0F41Cf' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -194,7 +194,7 @@ export const config: SystemConfig = {
       AaveDeposit: {
         name: 'AaveDeposit',
         deploy: true,
-        address: '0xF1944e6530d0f26077d792Dc5c321095380ac743',
+        address: '0xfEFFAbe22674084a3E6743aBAe692Ccb1B951B3B',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.DEPOSIT,
         history: [ '0xFAf9D0B7B92e8B281CaF10b42970179B45CA6412' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -202,7 +202,7 @@ export const config: SystemConfig = {
       AavePayback: {
         name: 'AavePayback',
         deploy: true,
-        address: '0xC1439668E53522D6593E685BbCc1e44C87403d45',
+        address: '0x87170E13656C6F77532EbE715201cb1216101E2b',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.PAYBACK,
         history: [ '0xeB54C366512c4d59A222A251ea7316568859E08C' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -210,7 +210,7 @@ export const config: SystemConfig = {
       AaveV3Borrow: {
         name: 'AaveV3Borrow',
         deploy: true,
-        address: '0x2E668623542608b09B81Ae4da3e27462190E8758',
+        address: '0x3628e107e0277D1878f70cCdb40798D56e8C48D1',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.BORROW,
         history: [ '0x18ca8bE41D32727383bC0F98705f7662ed0B7E28' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -218,7 +218,7 @@ export const config: SystemConfig = {
       AaveV3Withdraw: {
         name: 'AaveV3Withdraw',
         deploy: true,
-        address: '0xD64Da2bA090758c4A571691cbE5A59A6C402b2e8',
+        address: '0x26F4cb3662E8848C0FF881a980F33d2dAEe59bca',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW,
         history: [ '0x414958801DC53E840501f507D7A0FEBE55806200' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -226,7 +226,7 @@ export const config: SystemConfig = {
       AaveV3Deposit: {
         name: 'AaveV3Deposit',
         deploy: true,
-        address: '0x5e42ecCB5dAB6bfA573a5702B3b674Ca7eB9c337',
+        address: '0x97dCea180a9fDE84F9B23F2016Ac730Be8f43193',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.DEPOSIT,
         history: [ '0x852c56859840487DcED2aF501fC06f7462C4f2a8' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -234,7 +234,7 @@ export const config: SystemConfig = {
       AaveV3Payback: {
         name: 'AaveV3Payback',
         deploy: true,
-        address: '0x69d0C484E174105729Ff5e4dE4D65AbE78424d43',
+        address: '0xbE8FAf6177A2c652349E327cc73967E649191C12',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.PAYBACK,
         history: [ '0xdB736d13CE851Ee81ac2109DF37EBAb8Ce525C42' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -242,7 +242,7 @@ export const config: SystemConfig = {
       AaveV3SetEMode: {
         name: 'AaveV3SetEMode',
         deploy: true,
-        address: '0x4747794c8CA05631C59C454d24800d2a99a7D2B3',
+        address: '0xBfBAb76A629343bd0021A15CEaE56B680f401F32',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.SET_EMODE,
         history: [ '0xd4DB3799DEe98Fe752d952Ba6F84Bb99Af829920' ],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -250,7 +250,7 @@ export const config: SystemConfig = {
       AjnaDepositBorrow: {
         name: 'AjnaDepositBorrow',
         deploy: true,
-        address: '0xe09aD8907dA22527850c6c0789db9EC85E9d75E6',
+        address: '0x1f61D65FfD5f1ddbCe521FD6e351e50267b4F4C0',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.DEPOSIT_BORROW,
         history: [],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -258,7 +258,7 @@ export const config: SystemConfig = {
       AjnaRepayWithdraw: {
         name: 'AjnaRepayWithdraw',
         deploy: true,
-        address: '0x5B953ee89d3A45ff5e148826aE451811AACd6021',
+        address: '0x4E5c6dd0FFDa3a6aA3F7461CAdf30be63F175327',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [],
         constructorArgs: [ 'address:ServiceRegistry' ]
@@ -1077,12 +1077,12 @@ export const config: SystemConfig = {
   ajna: {
     AjnaPoolInfo: {
       name: 'AjnaPoolInfo',
-      address: '0x9124523d32E881697bd65e43e78B1f7Be71cb00C',
+      address: '0xf0f5b689d27365C18fbdFB9bc499708a19b56Fb5',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.AJNA_POOL_UTILS_INFO
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x373857dFe57F0B894f06aF9B16aBF46a28bB3908'
+      address: '0x2156315Ac14E2388225C33FB216eC57962A3df99'
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
@@ -1090,7 +1090,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_ETHUSDC: {
       name: 'AjnaPoolPairs_ETHUSDC',
-      address: '0x242b89EFA5Df95Ae2Dabaa2F99B9494D808e3DFF'
+      address: '0xA1f61eaAAb817739b12aEd59CA7792e19E0F90b4'
     },
     AjnaPoolPairs_RETHDAI: {
       name: 'AjnaPoolPairs_RETHDAI',
@@ -1119,7 +1119,7 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_WBTCUSDC: {
       name: 'AjnaPoolPairs_WBTCUSDC',
-      address: '0xB390Aae0a5C6482FFb3747C01B1285b6200d97E3'
+      address: '0x9C061E94ee3d3a300dBDeb0E573d3A9Ba8f67C04'
     },
     AjnaPoolPairs_WSTETHDAI: {
       name: 'AjnaPoolPairs_WSTETHDAI',
@@ -1139,7 +1139,7 @@ export const config: SystemConfig = {
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
-      address: '0xf0f5b689d27365C18fbdFB9bc499708a19b56Fb5'
+      address: '0x3C0Ac1a4F89d227DB52115828FAe7085f8686Dc0'
     },
     AjnaRewardsClaimer: {
       name: 'AjnaRewardsClaimer',
@@ -1147,7 +1147,7 @@ export const config: SystemConfig = {
     },
     ERC20PoolFactory: {
       name: 'ERC20PoolFactory',
-      address: '0x3C0Ac1a4F89d227DB52115828FAe7085f8686Dc0',
+      address: '0xCF6F52F6b65f284ffFaFc35FfE754830C05DA0c2',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.ERC20_POOL_FACTORY
     }
   }
