@@ -159,12 +159,6 @@ function getMaxGenerate(
   positionCollateral: BigNumber,
   maxDebt: BigNumber = ZERO,
 ): BigNumber {
-  const { lowestUtilizedPrice, highestThresholdPrice } = pool
-
-  if (lowestUtilizedPrice.lt(highestThresholdPrice)) {
-    return maxDebt
-  }
-
   const initialMaxDebt = positionCollateral.times(pool.lowestUtilizedPrice).minus(positionDebt)
 
   const bucketsAboveLup = pool.buckets
@@ -179,9 +173,7 @@ function getMaxGenerate(
     return initialMaxDebt.plus(maxDebt)
   }
 
-  const sortedBuckets = pool.buckets
-    .filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
-    .sort((a, b) => a.index.minus(b.index).toNumber())
+  const sortedBuckets = pool.buckets.sort((a, b) => a.index.minus(b.index).toNumber())
 
   const lupBucketArrayIndex = sortedBuckets.findIndex(bucket =>
     bucket.index.isEqualTo(pool.lowestUtilizedPriceIndex),
@@ -395,6 +387,12 @@ export const calculateAjnaMaxLiquidityWithdraw = ({
   position: AjnaEarnPosition
   simulation?: AjnaEarnPosition
 }) => {
+  const poolLiquidity = getPoolLiquidity({ buckets: pool.buckets, debt: pool.debt })
+
+  if (availableToWithdraw.gt(poolLiquidity)) {
+    return poolLiquidity
+  }
+
   if (
     availableToWithdraw.gte(position.quoteTokenAmount) ||
     pool.lowestUtilizedPriceIndex.isZero() ||
