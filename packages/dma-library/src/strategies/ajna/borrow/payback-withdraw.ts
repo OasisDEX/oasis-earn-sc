@@ -10,8 +10,8 @@ import { ethers } from 'ethers'
 
 import {
   validateDustLimit,
-  // validateOverWithdraw,
-  // validateWithdrawUndercollateralized,
+  validateOverWithdraw,
+  validateWithdrawUndercollateralized,
 } from '../validation'
 import { validateWithdrawCloseToMaxLtv } from '../validation/borrowish/closeToMaxLtv'
 
@@ -42,9 +42,8 @@ export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, depende
 
   const errors = [
     ...validateDustLimit(targetPosition),
-    // ...validateWithdrawUndercollateralized(targetPosition, args.position),
-    // ...validateOverWithdraw(targetPosition, args.position, args.collateralAmount),
-    // ...validateOverRepay(args.position, args.quoteAmount),
+    ...validateWithdrawUndercollateralized(targetPosition, args.position),
+    ...validateOverWithdraw(targetPosition, args.position, args.collateralAmount),
   ]
 
   const warnings = [...validateWithdrawCloseToMaxLtv(targetPosition, args.position)]
