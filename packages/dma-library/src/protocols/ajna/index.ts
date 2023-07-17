@@ -221,12 +221,6 @@ function getMaxGenerate(
   positionCollateral: BigNumber,
   maxDebt: BigNumber = ZERO,
 ): BigNumber {
-  const { lowestUtilizedPrice, highestThresholdPrice } = pool
-
-  if (lowestUtilizedPrice.lt(highestThresholdPrice)) {
-    return maxDebt
-  }
-
   const initialMaxDebt = positionCollateral.times(pool.lowestUtilizedPrice).minus(positionDebt)
 
   const bucketsAboveLup = pool.buckets
@@ -241,9 +235,7 @@ function getMaxGenerate(
     return initialMaxDebt.plus(maxDebt)
   }
 
-  const sortedBuckets = pool.buckets
-    .filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
-    .sort((a, b) => a.index.minus(b.index).toNumber())
+  const sortedBuckets = pool.buckets.sort((a, b) => a.index.minus(b.index).toNumber())
 
   const lupBucketArrayIndex = sortedBuckets.findIndex(bucket =>
     bucket.index.isEqualTo(pool.lowestUtilizedPriceIndex),
@@ -299,9 +291,7 @@ export function calculateMaxGenerate(
 }
 
 export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumber, BigNumber] {
-  const sortedBuckets = pool.buckets
-    .filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
-    .sort((a, b) => a.index.minus(b.index).toNumber())
+  const sortedBuckets = pool.buckets.sort((a, b) => a.index.minus(b.index).toNumber())
   const availablePoolLiquidity = getPoolLiquidity({
     buckets: pool.buckets,
     debt: pool.debt,
@@ -457,6 +447,12 @@ export const calculateAjnaMaxLiquidityWithdraw = ({
   position: AjnaEarnPosition
   simulation?: AjnaEarnPosition
 }) => {
+  const poolLiquidity = getPoolLiquidity({ buckets: pool.buckets, debt: pool.debt })
+
+  if (availableToWithdraw.gt(poolLiquidity)) {
+    return poolLiquidity
+  }
+
   if (
     availableToWithdraw.gte(position.quoteTokenAmount) ||
     pool.lowestUtilizedPriceIndex.isZero() ||
@@ -497,6 +493,7 @@ export const calculateAjnaMaxLiquidityWithdraw = ({
         ...buckets.filter(bucket => !bucket.index.eq(lupBucket.index)),
         { ...lupBucket, quoteTokens: lupBucket.quoteTokens.minus(liquidityInLupBucket) },
       ].sort((a, b) => a.index.minus(b.index).toNumber()),
+      depositSize: pool.depositSize.minus(liquidityInLupBucket),
       lowestUtilizedPriceIndex: buckets[lupBucketIndex + 1].index,
       lowestUtilizedPrice: buckets[lupBucketIndex + 1].price,
     },
