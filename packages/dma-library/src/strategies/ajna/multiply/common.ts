@@ -7,10 +7,10 @@ import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import {
   validateBorrowUndercollateralized,
-  validateDustLimit,
   validateLiquidity,
 } from '@dma-library/strategies/ajna/validation'
 import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/ajna/validation/borrowish/closeToMaxLtv'
+import { validateDustLimitMultiply } from '@dma-library/strategies/ajna/validation/multiply/dustLimit'
 import {
   AjnaMultiplyPayload,
   AjnaPosition,
@@ -204,7 +204,7 @@ export function prepareAjnaMultiplyDMAPayload(
   const borrowAmount = simulatedAdjustment.delta.debt.minus(debtTokensDeposited)
   const errors = [
     // Add as required...
-    ...validateDustLimit(targetPosition),
+    ...validateDustLimitMultiply(targetPosition),
     ...validateLiquidity(targetPosition, args.position, borrowAmount),
     ...validateBorrowUndercollateralized(targetPosition, args.position, borrowAmount),
   ]
