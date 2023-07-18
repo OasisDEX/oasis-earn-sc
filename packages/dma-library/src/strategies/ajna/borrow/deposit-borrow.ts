@@ -11,9 +11,9 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import {
-  // validateBorrowUndercollateralized,
+  validateBorrowUndercollateralized,
   validateDustLimit,
-  // validateLiquidity,
+  validateLiquidity,
 } from '../validation'
 import { validateGenerateCloseToMaxLtv } from '../validation/borrowish/closeToMaxLtv'
 
@@ -47,8 +47,8 @@ export const depositBorrow: AjnaDepositBorrowStrategy = async (args, dependencie
 
   const errors = [
     ...validateDustLimit(targetPosition),
-    // ...validateBorrowUndercollateralized(targetPosition, args.position, args.quoteAmount),
-    // ...validateLiquidity(targetPosition, args.position, args.quoteAmount),
+    ...validateBorrowUndercollateralized(targetPosition, args.position, args.quoteAmount),
+    ...validateLiquidity(targetPosition, args.position, args.quoteAmount),
   ]
 
   const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, args.position)]
