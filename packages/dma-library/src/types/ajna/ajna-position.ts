@@ -137,10 +137,15 @@ export class AjnaPosition implements IAjnaPosition {
     cumulativeWithdrawnUSD: BigNumber,
     cumulativeFeesUSD: BigNumber,
   ): BigNumber {
-    return this.netValue
-      .minus(cumulativeDepositUSD)
-      .plus(cumulativeWithdrawnUSD)
+    if (cumulativeDepositUSD.isZero()) {
+      return ZERO
+    }
+
+    return cumulativeWithdrawnUSD
+      .plus(this.netValue)
       .minus(cumulativeFeesUSD)
+      .minus(cumulativeDepositUSD)
+      .div(cumulativeDepositUSD)
   }
 
   debtAvailable(collateralAmount?: BigNumber) {
