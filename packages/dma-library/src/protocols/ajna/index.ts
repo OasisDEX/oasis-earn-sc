@@ -388,7 +388,7 @@ export const calculateAjnaMaxLiquidityWithdraw = ({
   const poolLiquidity = getPoolLiquidity({ buckets: pool.buckets, debt: pool.debt })
 
   if (availableToWithdraw.gt(poolLiquidity)) {
-    return poolLiquidity
+    return position.quoteTokenAmount.gt(poolLiquidity) ? poolLiquidity : position.quoteTokenAmount
   }
 
   if (
