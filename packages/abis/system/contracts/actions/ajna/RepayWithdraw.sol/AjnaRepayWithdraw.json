@@ -3,17 +3,25 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "poolUtilsInfoAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_registry",
         "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "erc20PoolFactory",
+    "outputs": [
+      {
+        "internalType": "contract IERC20PoolFactory",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
@@ -47,7 +55,12 @@
         "components": [
           {
             "internalType": "address",
-            "name": "pool",
+            "name": "quoteToken",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "collateralToken",
             "type": "address"
           },
           {

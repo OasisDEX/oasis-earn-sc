@@ -9,13 +9,11 @@ import { IVat } from "../../interfaces/maker/IVat.sol";
 import { IDaiJoin } from "../../interfaces/maker/IDaiJoin.sol";
 import { IJoin } from "../../interfaces/maker/IJoin.sol";
 import { IManager } from "../../interfaces/maker/IManager.sol";
-import { SafeMath } from "../../libs/SafeMath.sol";
 import { PaybackData } from "../../core/types/Maker.sol";
 import { MathUtils } from "../../libs/MathUtils.sol";
 import { MCD_MANAGER, MCD_JOIN_DAI } from "../../core/constants/Maker.sol";
 
 contract MakerPayback is Executable, UseStore {
-  using SafeMath for uint256;
   using SafeERC20 for IERC20;
   using Read for OperationStorage;
   using Write for OperationStorage;
@@ -141,11 +139,11 @@ contract MakerPayback is Executable, UseStore {
     // Gets actual dai amount in the urn
     uint256 dai = data.vat.dai(data.usr);
 
-    uint256 rad = art.mul(rate).sub(dai);
+    uint256 rad = (art * rate) - dai;
     wad = rad / MathUtils.RAY;
 
     // If the rad precision has some dust, it will need to request for 1 extra wad wei
-    wad = wad.mul(MathUtils.RAY) < rad ? wad + 1 : wad;
+    wad = wad * MathUtils.RAY < rad ? wad + 1 : wad;
   }
 
   function parseInputs(bytes memory _callData) public pure returns (PaybackData memory params) {

@@ -5,7 +5,6 @@ import { Executable } from "../common/Executable.sol";
 import { SafeERC20, IERC20 } from "../../libs/SafeERC20.sol";
 import { SetApprovalData } from "../../core/types/Common.sol";
 import { UseStore, Read } from "../common/UseStore.sol";
-import { SafeMath } from "../../libs/SafeMath.sol";
 import { OperationStorage } from "../../core/OperationStorage.sol";
 
 /**
@@ -15,7 +14,6 @@ import { OperationStorage } from "../../core/OperationStorage.sol";
 contract SetApproval is Executable, UseStore {
   using SafeERC20 for IERC20;
   using Read for OperationStorage;
-  using SafeMath for uint256;
 
   constructor(address _registry) UseStore(_registry) {}
 
@@ -33,7 +31,7 @@ contract SetApproval is Executable, UseStore {
       address(this)
     );
     uint256 actualApprovalAmount = approval.sumAmounts
-      ? mappedApprovalAmount.add(approval.amount)
+      ? mappedApprovalAmount + approval.amount
       : mappedApprovalAmount;
 
     IERC20(approval.asset).safeApprove(approval.delegate, actualApprovalAmount);

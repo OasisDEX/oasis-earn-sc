@@ -12,7 +12,6 @@ import { IERC3156FlashBorrower } from "../interfaces/flashloan/IERC3156FlashBorr
 import { IERC3156FlashLender } from "../interfaces/flashloan/IERC3156FlashLender.sol";
 import { IFlashLoanRecipient } from "../interfaces/flashloan/balancer/IFlashLoanRecipient.sol";
 import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
-import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanDataV2, CallV2 } from "./types/Common.sol";
 import { MCD_FLASH } from "../core/constants/Maker.sol";
 
@@ -35,7 +34,6 @@ interface IProxy {
 contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
   using ActionAddress for address;
   using SafeERC20 for IERC20;
-  using SafeMath for uint256;
 
   ServiceRegistry immutable REGISTRY;
   OperationsRegistryV2 immutable OPERATIONS_REGISTRY;
@@ -143,7 +141,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
 
     processFlashloan(flData, initiator);
 
-    uint256 paybackAmount = amount.add(fee);
+    uint256 paybackAmount = amount + fee;
     uint256 funds = IERC20(asset).balanceOf(address(this));
     if (funds < paybackAmount) {
       revert InsufficientFunds(funds, paybackAmount);
@@ -180,7 +178,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
 
     processFlashloan(flData, initiator);
 
-    uint256 paybackAmount = amounts[0].add(feeAmounts[0]);
+    uint256 paybackAmount = amounts[0] + feeAmounts[0];
 
     uint256 funds = IERC20(asset).balanceOf(address(this));
     if (funds < paybackAmount) {

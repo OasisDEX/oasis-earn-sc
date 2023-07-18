@@ -5,7 +5,6 @@ import { Executable } from "../../../actions/common/Executable.sol";
 import { UseStorageSlot, StorageSlot, Write, Read } from "../../UseStorageSlot.sol";
 import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
 import { DepositData } from "../../../core/types/Aave.sol";
-import { SafeMath } from "../../../libs/SafeMath.sol";
 
 /**
  * @title Deposit | AAVE V3 Action contract
@@ -14,7 +13,6 @@ import { SafeMath } from "../../../libs/SafeMath.sol";
 contract AaveV3DepositV2 is Executable, UseStorageSlot {
   using Write for StorageSlot.TransactionStorage;
   using Read for StorageSlot.TransactionStorage;
-  using SafeMath for uint256;
 
   IPoolV3 immutable AAVE_POOL;
 
@@ -33,7 +31,7 @@ contract AaveV3DepositV2 is Executable, UseStorageSlot {
     uint256 mappedDepositAmount = store().readUint(bytes32(deposit.amount), paramsMap[1]);
 
     uint256 actualDepositAmount = deposit.sumAmounts
-      ? mappedDepositAmount.add(deposit.amount)
+      ? mappedDepositAmount + deposit.amount
       : mappedDepositAmount;
 
     AAVE_POOL.supply(deposit.asset, actualDepositAmount, address(this), 0);

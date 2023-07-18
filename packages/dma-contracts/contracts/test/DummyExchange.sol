@@ -3,11 +3,9 @@
 pragma solidity ^0.8.15;
 
 import "../interfaces/tokens/IERC20.sol";
-import "../libs/SafeMath.sol";
 import "../libs/SafeERC20.sol";
 
 contract DummyExchange {
-  using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
   address DAI_ADDRESS = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
@@ -63,10 +61,10 @@ contract DummyExchange {
   }
 
   function _collectFee(address asset, uint256 fromAmount) public returns (uint256) {
-    uint256 feeToTransfer = (fromAmount.mul(fee)).div(feeBase);
+    uint256 feeToTransfer = (fromAmount * fee ) /feeBase;
     IERC20(asset).safeTransferFrom(address(this), feeBeneficiaryAddress, feeToTransfer);
     emit FeePaid(feeBeneficiaryAddress, feeToTransfer);
-    return fromAmount.sub(feeToTransfer);
+    return fromAmount - feeToTransfer;
   }
 
   // uses the same interface as default Exchange contract
