@@ -378,17 +378,19 @@ export const calculateAjnaMaxLiquidityWithdraw = ({
   availableToWithdraw = ZERO,
   pool,
   position,
+  poolCurrentLiquidity,
   simulation,
 }: {
   availableToWithdraw?: BigNumber
   pool: AjnaPool
+  poolCurrentLiquidity: BigNumber
   position: AjnaEarnPosition
   simulation?: AjnaEarnPosition
 }) => {
-  const poolLiquidity = getPoolLiquidity({ buckets: pool.buckets, debt: pool.debt })
-
-  if (availableToWithdraw.gt(poolLiquidity)) {
-    return position.quoteTokenAmount.gt(poolLiquidity) ? poolLiquidity : position.quoteTokenAmount
+  if (availableToWithdraw.gt(poolCurrentLiquidity)) {
+    return position.quoteTokenAmount.gt(poolCurrentLiquidity)
+      ? poolCurrentLiquidity
+      : position.quoteTokenAmount
   }
 
   if (
@@ -435,6 +437,7 @@ export const calculateAjnaMaxLiquidityWithdraw = ({
       lowestUtilizedPriceIndex: buckets[lupBucketIndex + 1].index,
       lowestUtilizedPrice: buckets[lupBucketIndex + 1].price,
     },
+    poolCurrentLiquidity,
     position,
     simulation,
   })
