@@ -1,23 +1,22 @@
 import { ADDRESSES } from '@deploy-configurations/addresses'
 import { CONTRACT_NAMES } from '@deploy-configurations/constants'
 import { ServiceRegistry } from '@deploy-configurations/utils/wrappers'
-import { TEN, TEN_THOUSAND } from '@dma-common/constants'
+import { TEN_THOUSAND } from '@dma-common/constants'
 import { ensureWeiFormat, expect } from '@dma-common/test-utils'
+import { RuntimeConfig } from '@dma-common/types/common'
 import { getEvents, getServiceNameHash } from '@dma-common/utils/common'
 import { createDeploy, DeployFunction } from '@dma-common/utils/deploy'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import init from '@dma-common/utils/init'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
-import { ActionCall, ActionFactory, calldataTypes } from '@dma-library'
+import { ActionFactory, calldataTypes } from '@dma-library'
+import { calculateOperationHash } from '@dma-library/operations'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import BigNumber from 'bignumber.js'
 import { Contract, Signer } from 'ethers'
 import { EventFragment } from 'ethers/lib/utils'
 import hre from 'hardhat'
-
-import { RuntimeConfig } from '../../../../dma-common/types'
-import { calculateOperationHash } from '../../../../dma-library/src/operations/utils'
-import { BasicCall } from '../../../../dma-library/src/types/action-call'
+import { BasicCall } from '@dma-library/src/types/action-call'
 
 const ethers = hre.ethers
 const createAction = ActionFactory.create

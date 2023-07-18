@@ -10,11 +10,9 @@ import "../core/ServiceRegistry.sol";
 import "../interfaces/tokens/IWETH.sol";
 import "../interfaces/IExchange.sol";
 import "../core/OperationStorage.sol";
-import { SafeMath } from "../libs/SafeMath.sol";
 import { SwapData } from "../core/types/Common.sol";
 
 contract DummySwap is Executable, UseStore {
-  using SafeMath for uint256;
   using Write for OperationStorage;
   using Read for OperationStorage;
 
@@ -48,7 +46,7 @@ contract DummySwap is Executable, UseStore {
     );
 
     uint256 balanceAfter = IERC20(swap.toAsset).balanceOf(address(this));
-    uint256 amountBought = balanceAfter.sub(balanceBefore);
+    uint256 amountBought = balanceAfter - balanceBefore;
 
     require(amountBought >= swap.receiveAtLeast, "Exchange / Received less");
 

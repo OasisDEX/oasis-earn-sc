@@ -6,7 +6,6 @@ import { UseStore, Write, Read } from "../../common/UseStore.sol";
 import { OperationStorage } from "../../../core/OperationStorage.sol";
 import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
 import { DepositData } from "../../../core/types/Aave.sol";
-import { SafeMath } from "../../../libs/SafeMath.sol";
 import { SafeERC20, IERC20 } from "../../../libs/SafeERC20.sol";
 import { AAVE_LENDING_POOL } from "../../../core/constants/Aave.sol";
 
@@ -17,7 +16,6 @@ import { AAVE_LENDING_POOL } from "../../../core/constants/Aave.sol";
 contract AaveDeposit is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
-  using SafeMath for uint256;
 
   constructor(address _registry) UseStore(_registry) {}
 
@@ -36,7 +34,7 @@ contract AaveDeposit is Executable, UseStore {
     );
 
     uint256 actualDepositAmount = deposit.sumAmounts
-      ? mappedDepositAmount.add(deposit.amount)
+      ? mappedDepositAmount + deposit.amount
       : mappedDepositAmount;
 
     ILendingPool(registry.getRegisteredService(AAVE_LENDING_POOL)).deposit(

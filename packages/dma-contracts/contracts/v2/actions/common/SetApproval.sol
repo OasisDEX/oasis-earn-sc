@@ -5,7 +5,6 @@ import { Executable } from "../../../actions/common/Executable.sol";
 import { UseStorageSlot, StorageSlot, Read } from "../../UseStorageSlot.sol";
 import { SafeERC20, IERC20 } from "../../../libs/SafeERC20.sol";
 import { SetApprovalData } from "../../../core/types/Common.sol";
-import { SafeMath } from "../../../libs/SafeMath.sol";
 
 /**
  * @title SetApproval Action contract
@@ -14,7 +13,6 @@ import { SafeMath } from "../../../libs/SafeMath.sol";
 contract SetApprovalV2 is Executable, UseStorageSlot {
   using SafeERC20 for IERC20;
   using Read for StorageSlot.TransactionStorage;
-  using SafeMath for uint256;
 
   /**
    * @dev Look at UseStore.sol to get additional info on paramsMapping
@@ -26,7 +24,7 @@ contract SetApprovalV2 is Executable, UseStorageSlot {
 
     uint256 mappedApprovalAmount = store().readUint(bytes32(approval.amount), paramsMap[2]);
     uint256 actualApprovalAmount = approval.sumAmounts
-      ? mappedApprovalAmount.add(approval.amount)
+      ? mappedApprovalAmount + approval.amount
       : mappedApprovalAmount;
 
     IERC20(approval.asset).safeApprove(approval.delegate, actualApprovalAmount);
