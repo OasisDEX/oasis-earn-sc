@@ -15,7 +15,6 @@ import { SafeERC20, IERC20 } from "../libs/SafeERC20.sol";
 import { SafeMath } from "../libs/SafeMath.sol";
 import { FlashloanDataV2, CallV2 } from "./types/Common.sol";
 import { MCD_FLASH } from "../core/constants/Maker.sol";
-import "hardhat/console.sol";
 
 error UntrustedLender(address lender);
 error InconsistentAsset(address flashloaned, address required);
@@ -138,9 +137,10 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     uint256 fee,
     bytes calldata data
   ) external override returns (bytes32) {
-    console.log("Received a Maker flashloan...");
     checkIfFlashloanIsInProgress();
+
     FlashloanDataV2 memory flData = abi.decode(data, (FlashloanDataV2));
+
     address mcdFlash = CHAINLOG_VIEWER.getServiceAddress(MCD_FLASH);
     checkIfLenderIsTrusted(mcdFlash);
     checkIfFlashloanedAssetIsTheRequiredOne(asset, flData.asset);
@@ -153,7 +153,9 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     if (funds < paybackAmount) {
       revert InsufficientFunds(funds, paybackAmount);
     }
+
     IERC20(asset).safeApprove(mcdFlash, paybackAmount);
+
     return keccak256("ERC3156FlashBorrower.onFlashLoan");
   }
 
@@ -173,7 +175,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     uint256[] memory feeAmounts,
     bytes memory data
   ) external override {
-    console.log("Received a balancer flashloan...");
+
     checkIfFlashloanIsInProgress();
     address asset = address(tokens[0]);
     (FlashloanDataV2 memory flData, address initiator) = abi.decode(
@@ -201,7 +203,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     if (msg.sender != lender) revert UntrustedLender(msg.sender);
   }
 
-  function checkIfFlashloanIsInProgress() private {
+  function checkIfFlashloanIsInProgress() private view {
     if (isFlashloanInProgress == 2) {
       revert FlashloanReentrancyAttempt();
     }
@@ -210,8 +212,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
   function checkIfFlashloanedAssetIsTheRequiredOne(
     address flashloaned,
     address required
-  ) private view {
-    console.log("Checking flashloan asset...");
+  ) private pure {
     if (flashloaned != required) revert InconsistentAsset(flashloaned, required);
   }
 
@@ -220,7 +221,6 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     uint256 requiredAmount
   ) private view {
     uint256 assetBalance = IERC20(asset).balanceOf(address(this));
-    console.log("Checking flashloan amount...");
     if (assetBalance < requiredAmount) revert InconsistentAmount(assetBalance, requiredAmount);
   }
 
@@ -242,6 +242,6 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
       abi.encodeWithSelector(this.callbackAggregate.selector, flData.calls)
     );
 
-    isFlashloanInProgress = 1;
+    isFlashloanInProgress = 1;    
   }
 }

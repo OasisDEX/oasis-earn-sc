@@ -1,22 +1,23 @@
-import hre from 'hardhat'
-import { ActionCall, ActionFactory, calldataTypes } from '@dma-contracts/../dma-library'
-import { RuntimeConfig } from '@dma-contracts/../dma-common/types'
-import { Contract, Signer } from 'ethers'
-import { DeployFunction, createDeploy } from '@dma-contracts/../dma-common/utils/deploy'
-import init from '@dma-contracts/../dma-common/utils/init'
-import { getOrCreateProxy } from '@dma-contracts/../dma-common/utils/proxy'
-import { getEvents, getServiceNameHash } from '@dma-contracts/../dma-common/utils/common'
-import { ADDRESSES } from '@dma-contracts/../deploy-configurations/addresses'
-import { executeThroughProxy } from '@dma-contracts/../dma-common/utils/execute'
-import { calculateOperationHash } from '@dma-contracts/../dma-library/src/operations'
-import { ServiceRegistry } from '@dma-contracts/../deploy-configurations/utils/wrappers'
-import { ensureWeiFormat, expect } from '@dma-contracts/../dma-common/test-utils'
-import { EventFragment } from 'ethers/lib/utils'
+import { ADDRESSES } from '@deploy-configurations/addresses'
+import { CONTRACT_NAMES } from '@deploy-configurations/constants'
+import { ServiceRegistry } from '@deploy-configurations/utils/wrappers'
+import { TEN, TEN_THOUSAND } from '@dma-common/constants'
+import { ensureWeiFormat, expect } from '@dma-common/test-utils'
+import { getEvents, getServiceNameHash } from '@dma-common/utils/common'
+import { createDeploy, DeployFunction } from '@dma-common/utils/deploy'
+import { executeThroughProxy } from '@dma-common/utils/execute'
+import init from '@dma-common/utils/init'
+import { getOrCreateProxy } from '@dma-common/utils/proxy'
+import { ActionCall, ActionFactory, calldataTypes } from '@dma-library'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { CONTRACT_NAMES } from '@dma-contracts/../deploy-configurations/constants'
-import { TEN, TEN_THOUSAND } from '@dma-contracts/../dma-common/constants'
-import { BasicCall } from '@dma-contracts/../dma-library/src/types/action-call'
 import BigNumber from 'bignumber.js'
+import { Contract, Signer } from 'ethers'
+import { EventFragment } from 'ethers/lib/utils'
+import hre from 'hardhat'
+
+import { RuntimeConfig } from '../../../../dma-common/types'
+import { calculateOperationHash } from '../../../../dma-library/src/operations/utils'
+import { BasicCall } from '../../../../dma-library/src/types/action-call'
 
 const ethers = hre.ethers
 const createAction = ActionFactory.create
@@ -92,7 +93,6 @@ const callMaliciousFlAction = async (amount: BigNumber, calls: ActionCall[]) =>
         provider: FlashloanProvider.Balancer,
         calls,
       },
-      ,
       [],
     ],
   )
@@ -105,7 +105,7 @@ const dummyOperation = [
   dummyWriteAction(45),
 ]
 
-describe('OperationExecutor', async function () {
+describe('OperationExecutorFL', async function () {
   let config: RuntimeConfig
   let signer: Signer
   let proxyAddress: string
@@ -130,9 +130,7 @@ describe('OperationExecutor', async function () {
   })
 
   const deployeContracts = async () => {
-    // ChainLogView - this should be fixed in deploy-configuration package.
-    // This address cannot be accessed ( an issue with types)
-    const chainLogViewAddress = '0x4B323Eb2ece7fc1D81F1819c26A7cBD29975f75f'
+    const chainLogViewAddress = ADDRESSES.mainnet.mpa.core.ChainLogView
     const [serviceRegistry] = await deploy('ServiceRegistry', [0])
     const [opsRegistry] = await deploy('OperationsRegistryV2')
     const [operationExecutor] = await deploy('OperationExecutorV2', [
@@ -331,7 +329,6 @@ describe('OperationExecutor', async function () {
         sendBackDAI,
       ]),
     )
-    
 
     const [isSuccessful] = await executeThroughProxy(
       proxyAddress,

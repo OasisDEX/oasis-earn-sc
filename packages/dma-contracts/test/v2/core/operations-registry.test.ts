@@ -1,6 +1,5 @@
 import { expect } from '@dma-contracts/../dma-common/test-utils'
 import { RuntimeConfig } from '@dma-contracts/../dma-common/types'
-import { DeployFunction } from '@dma-contracts/../dma-common/utils/deploy'
 import { createDeploy } from '@dma-contracts/../dma-common/utils/deploy'
 import init from '@dma-contracts/../dma-common/utils/init'
 import { Contract, utils } from 'ethers'

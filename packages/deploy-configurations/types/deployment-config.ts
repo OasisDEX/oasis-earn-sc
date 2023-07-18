@@ -27,6 +27,7 @@ export type CoreContracts =
   | 'AccountGuard'
   | 'AccountFactory'
   | 'Swap'
+  | 'ChainLogView'
 
 export type AaveV2Actions = 'AaveBorrow' | 'AaveDeposit' | 'AaveWithdraw' | `AavePayback`
 
