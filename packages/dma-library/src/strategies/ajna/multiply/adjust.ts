@@ -145,7 +145,7 @@ async function buildOperation(
 
   const fee = SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
-    isEarnPosition: false,
+    isEarnPosition: SwapUtils.isCorrelatedPosition(fromTokenSymbol, toTokenSymbol),
   })
   // When adjusting risk up we need to flashloan the swap amount before deducting fees
   // Assuming an ETH/USDC position, we'd be Flashloaning USDC to swap for ETH

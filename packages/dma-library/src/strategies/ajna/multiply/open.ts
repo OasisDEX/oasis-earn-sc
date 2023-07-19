@@ -82,9 +82,11 @@ export const openMultiply: AjnaOpenMultiplyStrategy = async (args, dependencies)
   )
 
   const isDepositingEth = areAddressesEqual(position.pool.collateralToken, dependencies.WETH)
-  const fee = SwapUtils.feeResolver(position.pool.collateralToken, position.pool.quoteToken, {
+  const collateralTokenSymbol = position.pool.collateralToken.toUpperCase()
+  const quoteTokenSymbol = position.pool.quoteToken.toUpperCase()
+  const fee = SwapUtils.feeResolver(collateralTokenSymbol, quoteTokenSymbol, {
     isIncreasingRisk: riskIsIncreasing,
-    isEarnPosition: false,
+    isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, quoteTokenSymbol),
   })
   const postSwapFee =
     collectFeeFrom === 'sourceToken' ? ZERO : calculateFee(swapData.toTokenAmount, fee.toNumber())
@@ -150,8 +152,7 @@ async function simulateAdjustment(
   const toToken = buildToToken({ ...args, position }, riskIsIncreasing)
   const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
     isIncreasingRisk: riskIsIncreasing,
-    // Strategy is called open multiply (not open earn)
-    isEarnPosition: positionType === 'Earn',
+    isEarnPosition: SwapUtils.isCorrelatedPosition(fromToken.symbol, toToken.symbol),
   })
   const { swapData: preFlightSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
@@ -234,15 +235,12 @@ async function buildOperation(
   /** Not relevant for Ajna */
   const debtTokensDeposited = ZERO
   const borrowAmount = simulatedAdjust.delta.debt.minus(debtTokensDeposited)
-  const fee = SwapUtils.feeResolver(
-    simulatedAdjust.position.collateral.symbol,
-    simulatedAdjust.position.debt.symbol,
-    {
-      isIncreasingRisk: riskIsIncreasing,
-      // Strategy is called open multiply (not open earn)
-      isEarnPosition: positionType === 'Earn',
-    },
-  )
+  const collateralTokenSymbol = simulatedAdjust.position.collateral.symbol.toUpperCase()
+  const debtTokenSymbol = simulatedAdjust.position.debt.symbol.toUpperCase()
+  const fee = SwapUtils.feeResolver(collateralTokenSymbol, debtTokenSymbol, {
+    isIncreasingRisk: riskIsIncreasing,
+    isEarnPosition: SwapUtils.isCorrelatedPosition(collateralTokenSymbol, debtTokenSymbol),
+  })
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: simulatedAdjust.position.debt.symbol,
