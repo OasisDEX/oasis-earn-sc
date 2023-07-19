@@ -6,6 +6,12 @@ import { calculateFee } from '@dma-common/utils/swap'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { prepareAjnaDMAPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
 import {
+  validateBorrowUndercollateralized,
+  validateLiquidity,
+} from '@dma-library/strategies/ajna/validation'
+import { validateGenerateCloseToMaxLtv } from '@dma-library/strategies/ajna/validation/borrowish/closeToMaxLtv'
+import { validateDustLimitMultiply } from '@dma-library/strategies/ajna/validation/multiply/dustLimit'
+import {
   AjnaMultiplyPayload,
   AjnaPosition,
   IOperation,
@@ -182,8 +188,7 @@ export function prepareAjnaMultiplyDMAPayload(
   )
 
   const isDepositingEth = areAddressesEqual(args.position.pool.collateralToken, dependencies.WETH)
-  const txAmount = amountFromWei(args.collateralAmount, TYPICAL_PRECISION)
-
+  const txAmount = args.collateralAmount
   const fromTokenSymbol = riskIsIncreasing ? args.quoteTokenSymbol : args.collateralTokenSymbol
   const toTokenSymbol = riskIsIncreasing ? args.collateralTokenSymbol : args.quoteTokenSymbol
   const fee = SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
@@ -194,13 +199,25 @@ export function prepareAjnaMultiplyDMAPayload(
     collectFeeFrom === 'sourceToken' ? ZERO : calculateFee(swapData.toTokenAmount, fee.toNumber())
   const tokenFee = preSwapFee.plus(postSwapFee)
 
+  // Validation
+  const debtTokensDeposited = ZERO // Not relevant for Ajna
+  const borrowAmount = simulatedAdjustment.delta.debt.minus(debtTokensDeposited)
+  const errors = [
+    // Add as required...
+    ...validateDustLimitMultiply(targetPosition),
+    ...validateLiquidity(targetPosition, args.position, borrowAmount),
+    ...validateBorrowUndercollateralized(targetPosition, args.position, borrowAmount),
+  ]
+
+  const warnings = [...validateGenerateCloseToMaxLtv(targetPosition, args.position)]
+
   return prepareAjnaDMAPayload({
     swaps: [{ ...swapData, collectFeeFrom, tokenFee }],
     dependencies,
     targetPosition,
     data: encodeOperation(operation, dependencies),
-    errors: [],
-    warnings: [],
+    errors: errors,
+    warnings: warnings,
     successes: [],
     notices: [],
     txValue: resolveAjnaEthAction(isDepositingEth, txAmount),

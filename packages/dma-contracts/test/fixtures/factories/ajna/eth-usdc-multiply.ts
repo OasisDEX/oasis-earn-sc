@@ -93,7 +93,7 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
 
 ethUsdcMultiplyAjnaPosition.positionVariant = 'ETH/USDC Multiply' as const
 
-async function addLiquidityToPool(ajnaSystem: AjnaSystem, pool: ERC20Pool, config: RuntimeConfig) {
+async function addLiquidityToPool(ajnaSystem: AjnaSystem, pool: ERC20Pool) {
   /**
    * When collateral price is increased it will decrease the index
    * determined via pool utils priceToIndex. A decreasing bucket price means that index
