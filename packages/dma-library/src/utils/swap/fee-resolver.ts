@@ -45,7 +45,9 @@ export const feeResolver = <T extends string = string>(
 
 export function isCorrelatedPosition(symbolA: string, symbolB: string) {
   const correlatedAssetMatrix = [
-    ['WSTETH', 'ETH', 'CBETH', 'RETH', 'STETH'],
+    ['ETH', 'WSTETH', 'CBETH', 'RETH', 'STETH'], // ETH correlated assets
+    ['WBTC', 'TBTC'], // BTC correlated assets
+    ['USDC', 'DAI', 'GHO'], // USDC correlated assets
     // Add more arrays here to expand the matrix in the future
   ]
 

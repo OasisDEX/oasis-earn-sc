@@ -10,12 +10,12 @@ describe('feeResolver', function () {
     assert(fee.isEqualTo(new BigNumber(DEFAULT_FEE)))
   })
 
-  it('should return REDUCED_FEE if fromToken and toToken are correlated and isIncreasingRisk flag is not set', function () {
+  it('should return REDUCED_FEE when decreasing risk and token pair are correlated', function () {
     const fee = feeResolver('WSTETH', 'ETH')
     assert(fee.isEqualTo(new BigNumber(REDUCED_FEE)))
   })
 
-  it('should return NO_FEE if isIncreasingRisk and token pair are correlated', function () {
+  it('should return NO_FEE when increasing risk and token pair are correlated', function () {
     const fee = feeResolver('ETH', 'WSTETH', { isIncreasingRisk: true })
     assert(fee.isEqualTo(new BigNumber(NO_FEE)))
   })
