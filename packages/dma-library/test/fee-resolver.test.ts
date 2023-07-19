@@ -1,4 +1,4 @@
-import { DEFAULT_FEE, HIGH_MULTIPLE_FEE, NO_FEE } from '@dma-common/constants'
+import { DEFAULT_FEE, NO_FEE, REDUCED_FEE } from '@dma-common/constants'
 import { feeResolver } from '@dma-library/utils/swap'
 import { isCorrelatedPosition } from '@dma-library/utils/swap/fee-resolver'
 import BigNumber from 'bignumber.js'
@@ -10,18 +10,18 @@ describe('feeResolver', function () {
     assert(fee.isEqualTo(new BigNumber(DEFAULT_FEE)))
   })
 
-  it('should return HIGH_MULTIPLE_FEE if fromToken is WSTETH, toToken is ETH and isIncreasingRisk flag is not set', function () {
+  it('should return REDUCED_FEE if fromToken and toToken are correlated and isIncreasingRisk flag is not set', function () {
     const fee = feeResolver('WSTETH', 'ETH')
-    assert(fee.isEqualTo(new BigNumber(HIGH_MULTIPLE_FEE)))
+    assert(fee.isEqualTo(new BigNumber(REDUCED_FEE)))
   })
 
-  it('should return NO_FEE if isIncreasingRisk and isEarnPosition flags are set', function () {
-    const fee = feeResolver('ETH', 'WSTETH', { isIncreasingRisk: true, isEarnPosition: true })
+  it('should return NO_FEE if isIncreasingRisk and token pair are correlated', function () {
+    const fee = feeResolver('ETH', 'WSTETH', { isIncreasingRisk: true })
     assert(fee.isEqualTo(new BigNumber(NO_FEE)))
   })
 
   it('should return DEFAULT_FEE for all other cases', function () {
-    const fee = feeResolver('ETH', 'WSTETH')
+    const fee = feeResolver('ETH', 'USDC')
     assert(fee.isEqualTo(new BigNumber(DEFAULT_FEE)))
   })
 })
