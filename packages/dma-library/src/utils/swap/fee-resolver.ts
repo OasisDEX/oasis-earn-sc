@@ -1,4 +1,5 @@
-import { DEFAULT_FEE, HIGH_MULTIPLE_FEE, NO_FEE } from '@dma-common/constants'
+import { DEFAULT_FEE, NO_FEE } from '@dma-common/constants'
+import { REDUCED_FEE } from '@oasisdex/dma-common/constants/fee'
 import BigNumber from 'bignumber.js'
 
 export const feeResolver = <T extends string = string>(
@@ -10,11 +11,36 @@ export const feeResolver = <T extends string = string>(
     isEntrySwap?: boolean
   },
 ) => {
+  const DEFAULT_FEE_BN = new BigNumber(DEFAULT_FEE)
+  const NO_FEE_BN = new BigNumber(NO_FEE)
+  const REDUCED_FEE_BN = new BigNumber(REDUCED_FEE)
+
+  let type = 'defaultMultiply'
+  if (flags?.isEntrySwap) {
+    type = 'entry'
+  }
+
+  const feesMap = {
+    entry: {
+      onIncrease: DEFAULT_FEE_BN,
+      onDecrease: DEFAULT_FEE_BN,
+    },
+    earnMultiply: {
+      onIncrease: NO_FEE_BN,
+      onDecrease: REDUCED_FEE_BN,
+    },
+    defaultMultiply: {
+      onIncrease: DEFAULT_FEE_BN,
+      onDecrease: DEFAULT_FEE_BN,
+    },
+  }
+
   if (flags?.isEntrySwap) {
     return new BigNumber(DEFAULT_FEE)
   }
-  if (fromToken === 'WSTETH' && toToken === 'ETH' && !flags?.isIncreasingRisk) {
-    return new BigNumber(HIGH_MULTIPLE_FEE)
+  // Previously only fromToken === 'WSTETH' && toToken === 'ETH'
+  if (isCorrelatedPosition(fromToken, toToken) && !flags?.isIncreasingRisk) {
+    return new BigNumber(REDUCED_FEE)
   }
   if (flags?.isIncreasingRisk && flags.isEarnPosition) {
     return new BigNumber(NO_FEE)
