@@ -20,6 +20,7 @@ error InconsistentAsset(address flashloaned, address required);
 error InconsistentAmount(uint256 flashloaned, uint256 required);
 error InsufficientFunds(uint256 actual, uint256 required);
 error ForbiddenCall(address caller);
+error FlashloanReentrancyAttempt();
 
 interface IProxy {
   function execute(address, bytes memory) external payable returns (bytes memory);
@@ -40,6 +41,7 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
   ChainLogView immutable CHAINLOG_VIEWER;
   address immutable BALANCER_VAULT;
   address immutable OPERATION_EXECUTOR;
+  uint8 private isFlashloanInProgress = 1;
   /**
    * @dev Emitted once an Operation has completed execution
    * @param name Name of the operation based on the hashed value of all action hashes
@@ -133,7 +135,10 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     uint256 fee,
     bytes calldata data
   ) external override returns (bytes32) {
+    checkIfFlashloanIsInProgress();
+
     FlashloanDataV2 memory flData = abi.decode(data, (FlashloanDataV2));
+
     address mcdFlash = CHAINLOG_VIEWER.getServiceAddress(MCD_FLASH);
     checkIfLenderIsTrusted(mcdFlash);
     checkIfFlashloanedAssetIsTheRequiredOne(asset, flData.asset);
@@ -146,7 +151,9 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     if (funds < paybackAmount) {
       revert InsufficientFunds(funds, paybackAmount);
     }
+
     IERC20(asset).safeApprove(mcdFlash, paybackAmount);
+
     return keccak256("ERC3156FlashBorrower.onFlashLoan");
   }
 
@@ -166,6 +173,8 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
     uint256[] memory feeAmounts,
     bytes memory data
   ) external override {
+
+    checkIfFlashloanIsInProgress();
     address asset = address(tokens[0]);
     (FlashloanDataV2 memory flData, address initiator) = abi.decode(
       data,
@@ -190,6 +199,12 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
 
   function checkIfLenderIsTrusted(address lender) public view {
     if (msg.sender != lender) revert UntrustedLender(msg.sender);
+  }
+
+  function checkIfFlashloanIsInProgress() private view {
+    if (isFlashloanInProgress == 2) {
+      revert FlashloanReentrancyAttempt();
+    }
   }
 
   function checkIfFlashloanedAssetIsTheRequiredOne(
@@ -217,10 +232,14 @@ contract OperationExecutorV2 is IERC3156FlashBorrower, IFlashLoanRecipient {
    * @param initiator The address of the proxy that initiated the flashloan
    */
   function processFlashloan(FlashloanDataV2 memory flData, address initiator) private {
+    isFlashloanInProgress = 2;
+
     IERC20(flData.asset).safeTransfer(initiator, flData.amount);
     IProxy(payable(initiator)).execute(
       address(this),
       abi.encodeWithSelector(this.callbackAggregate.selector, flData.calls)
     );
+
+    isFlashloanInProgress = 1;    
   }
 }

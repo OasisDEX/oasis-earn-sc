@@ -2,6 +2,7 @@ import { expect } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { createDeploy } from '@dma-common/utils/deploy'
 import init from '@dma-common/utils/init'
+
 import { Contract, utils } from 'ethers'
 
 describe('OperationsRegistry', () => {

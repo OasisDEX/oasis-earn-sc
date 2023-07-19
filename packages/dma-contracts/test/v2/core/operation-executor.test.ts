@@ -9,7 +9,6 @@ import { createDeploy, DeployFunction } from '@dma-common/utils/deploy'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import init from '@dma-common/utils/init'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
-import { BasicCall } from '@dma-contracts/../dma-library/src/types/action-call'
 import { ActionFactory, calldataTypes } from '@dma-library'
 import { calculateOperationHash } from '@dma-library/operations'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
@@ -17,6 +16,7 @@ import BigNumber from 'bignumber.js'
 import { Contract, Signer } from 'ethers'
 import { EventFragment } from 'ethers/lib/utils'
 import hre from 'hardhat'
+import { BasicCall } from '@dma-library/src/types/action-call'
 
 const ethers = hre.ethers
 const createAction = ActionFactory.create
@@ -64,19 +64,35 @@ const sendToken = async (amount: BigNumber, to: string) =>
     ],
   )
 
-const takeAFlashloan = async (provider: FlashloanProvider, calls: BasicCall[]) =>
+const takeAFlashloan = async (provider: FlashloanProvider, amount: BigNumber, calls: BasicCall[]) =>
   createAction(
     getServiceNameHash(CONTRACT_NAMES.common.TAKE_A_FLASHLOAN),
     [calldataTypes.common.TakeAFlashLoanV2, calldataTypes.paramsMap],
     [
       {
-        amount: ensureWeiFormat(TEN_THOUSAND),
+        amount: ensureWeiFormat(amount),
         asset: ADDRESSES.mainnet.common.DAI,
         isDPMProxy: false,
         provider,
         calls,
       },
       [0],
+    ],
+  )
+
+const callMaliciousFlAction = async (amount: BigNumber, calls: ActionCall[]) =>
+  createAction(
+    getServiceNameHash('MaliciousFlashloanAction'),
+    [calldataTypes.common.TakeAFlashLoanV2, calldataTypes.paramsMap],
+    [
+      {
+        amount: ensureWeiFormat(amount),
+        asset: ADDRESSES.mainnet.common.DAI,
+        isDPMProxy: false,
+        provider: FlashloanProvider.Balancer,
+        calls,
+      },
+      [],
     ],
   )
 
@@ -88,7 +104,7 @@ const dummyOperation = [
   dummyWriteAction(45),
 ]
 
-describe('OperationExecutor', async function () {
+describe('OperationExecutorFL', async function () {
   let config: RuntimeConfig
   let signer: Signer
   let proxyAddress: string
@@ -113,9 +129,7 @@ describe('OperationExecutor', async function () {
   })
 
   const deployeContracts = async () => {
-    // ChainLogView - this should be fixed in deploy-configuration package.
-    // This address cannot be accessed ( an issue with types)
-    const chainLogViewAddress = '0x4B323Eb2ece7fc1D81F1819c26A7cBD29975f75f'
+    const chainLogViewAddress = ADDRESSES.mainnet.mpa.core.ChainLogView
     const [serviceRegistry] = await deploy('ServiceRegistry', [0])
     const [opsRegistry] = await deploy('OperationsRegistryV2')
     const [operationExecutor] = await deploy('OperationExecutorV2', [
@@ -135,6 +149,11 @@ describe('OperationExecutor', async function () {
     const [dummyReadAction] = await deploy('DummyReadAction', [])
     const [dummyWriteAction] = await deploy('DummyWriteAction', [])
     const [maliciousAction] = await deploy('MaliciousAction', [])
+    const [maliciousFLAction] = await deploy('MaliciousFlashloanAction', [
+      operationExecutor.address,
+      ADDRESSES.mainnet.maker.common.FlashMintModule,
+      proxyAddress,
+    ])
 
     const serviceRegistryWrapper = new ServiceRegistry(serviceRegistry.address, signer)
 
@@ -142,6 +161,7 @@ describe('OperationExecutor', async function () {
     await serviceRegistryWrapper.addEntry('DummyWriteAction', dummyWriteAction.address)
     await serviceRegistryWrapper.addEntry('TakeFlashloan_3', takeAFlashloan.address)
     await serviceRegistryWrapper.addEntry('SendToken_4', sendToken.address)
+    await serviceRegistryWrapper.addEntry('MaliciousFlashloanAction', maliciousFLAction.address)
 
     return {
       serviceRegistry,
@@ -150,6 +170,7 @@ describe('OperationExecutor', async function () {
       dummyReadAction,
       dummyWriteAction,
       maliciousAction,
+      maliciousFLAction,
       sendToken,
       takeAFlashloan,
     }
@@ -233,7 +254,9 @@ describe('OperationExecutor', async function () {
 
   it('should take a Maker`s flashloan', async () => {
     const sendBackDAI = await sendToken(TEN_THOUSAND, system.operationExecutor.address)
-    const takeAMakerFlashloan = await takeAFlashloan(FlashloanProvider.Maker, [sendBackDAI])
+    const takeAMakerFlashloan = await takeAFlashloan(FlashloanProvider.Maker, TEN_THOUSAND, [
+      sendBackDAI,
+    ])
 
     await system.opsRegistry.addOperation(
       'SIMPLE_MAKER_FLASHLOAN',
@@ -256,7 +279,9 @@ describe('OperationExecutor', async function () {
 
   it('should take a Balancer`s flashloan', async () => {
     const sendBackDAI = await sendToken(TEN_THOUSAND, system.operationExecutor.address)
-    const takeABalancerFlashloan = await takeAFlashloan(FlashloanProvider.Balancer, [sendBackDAI])
+    const takeABalancerFlashloan = await takeAFlashloan(FlashloanProvider.Balancer, TEN_THOUSAND, [
+      sendBackDAI,
+    ])
 
     await system.opsRegistry.addOperation(
       'SIMPLE_BALANCER_FLASHLOAN',
@@ -283,5 +308,38 @@ describe('OperationExecutor', async function () {
     } catch (e: any) {
       expect(e.reason.includes('ForbiddenCall')).to.be.true
     }
+  })
+
+  it('should not allow Flashloan reentracy', async () => {
+    const sendBackDAI = await sendToken(TEN_THOUSAND, system.operationExecutor.address)
+    const sendBackDAI2 = await sendToken(TEN, system.operationExecutor.address)
+    const takeAMaliciousFlashloan = await callMaliciousFlAction(TEN, [sendBackDAI2])
+    const takeABalancerFlashloan = await takeAFlashloan(FlashloanProvider.Balancer, TEN_THOUSAND, [
+      takeAMaliciousFlashloan,
+      sendBackDAI,
+    ])
+
+    await system.opsRegistry.addOperation(
+      'EMBEDDED_FLASHLOAN',
+      calculateOperationHash([
+        takeABalancerFlashloan,
+        takeAMaliciousFlashloan,
+        sendBackDAI2,
+        sendBackDAI,
+      ]),
+    )
+
+    const [isSuccessful] = await executeThroughProxy(
+      proxyAddress,
+      {
+        address: system.operationExecutor.address,
+        calldata: system.operationExecutor.interface.encodeFunctionData('executeOp', [
+          [takeABalancerFlashloan],
+        ]),
+      },
+      config.signer,
+    )
+
+    expect(isSuccessful).to.be.false
   })
 })

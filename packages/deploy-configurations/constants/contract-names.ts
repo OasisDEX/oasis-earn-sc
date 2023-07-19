@@ -77,6 +77,7 @@ export const CONTRACT_NAMES = {
     DUMMY_OPTIONAL_ACTION: 'DummyOptionalAction',
     DUMMY_SWAP: 'DummySwap',
     DUMMY_EXCHANGE: 'DummyExchange',
+    MALICIOUS_FL_ACTION: 'MaliciousFlashloanAction',
     SWAP: 'uSwap',
   },
 } as const
