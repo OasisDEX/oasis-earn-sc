@@ -31,6 +31,7 @@ export const TOKENS = {
     DAI: "0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844",
     CBETH: "0x0000000000000000000000000000000000000000",
     AJNA: "0xaadebCF61AA7Da0573b524DE57c67aDa797D46c5",
+    TBTC: "0x679874fbe6d4e7cc54a59e315ff1eb266686a937",
   },
   mainnet: {
     WETH: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
@@ -41,6 +42,7 @@ export const TOKENS = {
     DAI: "0x6b175474e89094c44da98b954eedeac495271d0f",
     CBETH: "0xbe9895146f7af43049ca1c1ae358b0541ea49704",
     AJNA: "0x9a96ec9b57fb64fbc60b423d1f4da7691bd35079",
+    TBTC: "0x18084fbA666a33d37592fA2633fD49a74DD93a88",
   },
 };
 
@@ -58,6 +60,7 @@ export const POOLS: Pool[] = [
   { pair: "WSTETH-USDC", amount: 5000, price: 1500, deposit: false },
   { pair: "WSTETH-WETH", amount: 1, price: 1.09, deposit: false },
   { pair: "CBETH-WETH", amount: 1, price: 1.09, deposit: false },
+  { pair: "TBTC-WBTC", amount: 1, price: 1.01, deposit: false },
 ];
 
 export const CONFIG = {

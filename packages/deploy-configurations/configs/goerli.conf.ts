@@ -383,6 +383,7 @@ export const config: SystemConfig = {
     RWA005: { name: 'RWA005', address: '0x650d168fC94B79Bb16898CAae773B0Ce1097Cc3F' },
     RWA006: { name: 'RWA006', address: '0xf754FD6611852eE94AC0614c51B8692cAE9fEe9F' },
     STETH: { name: 'STETH', address: '0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F' },
+    TBTC: { name: 'TBTC', address: '0x679874fbe6d4e7cc54a59e315ff1eb266686a937' },
     TUSD: { name: 'TUSD', address: '0xe0B3D300E2e09c1Fd01252287dDbC70A7730ffB0' },
     UNI: { name: 'UNI', address: '0x82D98aA89E391c6759012df39ccDA0d9d6b24143' },
     UNIV2AAVEETH: { name: 'UNIV2AAVEETH', address: '0xaF2CC6F46d1d0AB30dd45F59B562394c3E21e6f3' },
@@ -978,6 +979,10 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_CBETHETH: {
       name: 'AjnaPoolPairs_CBETHETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_TBTCWBTC: {
+      name: 'AjnaPoolPairs_TBTCWBTC',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

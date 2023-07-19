@@ -81,6 +81,7 @@ export type Tokens =
   | 'RWA005'
   | 'RWA006'
   | 'STETH'
+  | 'TBTC'
   | 'TUSD'
   | 'UNI'
   | 'UNIV2AAVEETH'
@@ -266,6 +267,7 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_WSTETHETH'
   | 'AjnaPoolPairs_WSTETHUSDC'
   | 'AjnaPoolPairs_CBETHETH'
+  | 'AjnaPoolPairs_TBTCWBTC'
   | 'AjnaRewardsManager'
   | 'AjnaRewardsClaimer'
 

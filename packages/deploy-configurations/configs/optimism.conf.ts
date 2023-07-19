@@ -368,6 +368,7 @@ export const config: SystemConfig = {
     RWA005: { name: 'RWA005', address: ADDRESS_ZERO },
     RWA006: { name: 'RWA006', address: ADDRESS_ZERO },
     STETH: { name: 'STETH', address: ADDRESS_ZERO },
+    TBTC: { name: 'TBTC', address: ADDRESS_ZERO },
     TUSD: { name: 'TUSD', address: ADDRESS_ZERO },
     UNI: { name: 'UNI', address: ADDRESS_ZERO },
     UNIV2AAVEETH: { name: 'UNIV2AAVEETH', address: ADDRESS_ZERO },
@@ -960,6 +961,10 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_CBETHETH: {
       name: 'AjnaPoolPairs_CBETHETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_TBTCWBTC: {
+      name: 'AjnaPoolPairs_TBTCWBTC',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {
