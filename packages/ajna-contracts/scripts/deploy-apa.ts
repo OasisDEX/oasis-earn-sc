@@ -8,6 +8,7 @@ import {
   IWETH,
 } from "@ajna-contracts/typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import chalk from "chalk";
 import hre from "hardhat";
 
 import { ADDRESSES, CONFIG, POOLS, TOKENS } from "./common/config";
@@ -15,7 +16,8 @@ const utils = new HardhatUtils(hre);
 
 async function main() {
   const signer: SignerWithAddress = await getSigner();
-  const network = hre.network.name === "hardhat" || hre.network.name === "local" ? "goerli" : hre.network.name;
+  console.info(`Deployer address: ${signer.address}`);
+  const network = hre.network.name === "hardhat" || hre.network.name === "local" ? "mainnet" : hre.network.name;
 
   const initializeStakingRewards = CONFIG.initializeStakingRewards || false;
   const deployPools = CONFIG.deployPools || false;
@@ -56,18 +58,26 @@ async function deployAjnaPools(
   apa: AjnaProxyActions,
   signer: SignerWithAddress
 ) {
-  if (deployPools) {
-    for (const pool of POOLS) {
-      const [collateral, quote] = pool.pair.split("-");
-      try {
-        const deployedPool = await deployPool(erc20PoolFactory, TOKENS[network][collateral], TOKENS[network][quote]);
-        console.info(`Pool ${pool.pair} deployed at ${deployedPool.address}`);
-        if (pool.deposit) {
-          await depositQuoteToken(network, quote, signer, pool, apa, deployedPool);
-        }
-      } catch (error) {
-        console.error("error adding quote token", error);
+  for (const pool of POOLS) {
+    const [collateral, quote] = pool.pair.split("-");
+    const collateralToken = TOKENS[network][collateral];
+    const quoteToken = TOKENS[network][quote];
+    if (quoteToken === hre.ethers.constants.AddressZero || collateralToken === hre.ethers.constants.AddressZero) {
+      console.log(
+        chalk.red(`Token ${quote}(${quoteToken}) or ${collateral}(${collateralToken}) not found for ${network}`)
+      );
+      continue;
+    }
+    try {
+      const deployedPool = await deployPool(erc20PoolFactory, collateralToken, quoteToken, deployPools);
+      deployedPool.address === hre.ethers.constants.AddressZero
+        ? console.info(chalk.red(`Pool ${pool.pair} not yet deployed`))
+        : console.info(chalk.green(`Pool ${pool.pair} deployed at ${deployedPool.address}`));
+      if (pool.deposit) {
+        await depositQuoteToken(network, quote, signer, pool, apa, deployedPool);
       }
+    } catch (error) {
+      console.error(chalk.red("error adding quote token"), error);
     }
   }
 }
@@ -97,19 +107,21 @@ async function depositQuoteToken(
   const amount = hre.ethers.utils.parseUnits(pool.amount.toString(), 18);
   const allowance = await quoteToken.allowance(signer.address, deployedPool.address);
   if (allowance.lt(amountInDecimals)) {
-    console.info(`Approving ${pool.amount} of ${quote} to pool ${pool.pair} at index ${index}`);
+    console.info(chalk.blue(`Approving ${pool.amount} of ${quote} to pool ${pool.pair} at index ${index}`));
     await quoteToken.connect(signer).approve(deployedPool.address, amountInDecimals);
   }
   if (amountInDecimals.lte(balance)) {
-    console.info(`Adding ${pool.amount} of ${quote} to pool ${pool.pair} at index ${index}`);
+    console.info(chalk.blue(`Adding ${pool.amount} of ${quote} to pool ${pool.pair} at index ${index}`));
     await deployedPool.connect(signer).addQuoteToken(amount, index, 999999999999999, false);
+  } else {
+    console.info(chalk.red(`Not enough ${quote} to add to pool ${pool.pair}`));
   }
 }
 
 async function getSigner() {
   let signer: SignerWithAddress;
   if (hre.network.name === "hardhat" || hre.network.name === "localhost") {
-    const deployer = CONFIG.deployer || "0x0B5a3C04D1199283938fbe887A2C82C808aa89Fb";
+    const deployer = CONFIG.deployer || "0x8E78CC7089509B568a401f593F64B3074693d25E";
     await utils.impersonate(deployer);
     signer = await hre.ethers.getSigner(deployer);
   } else {

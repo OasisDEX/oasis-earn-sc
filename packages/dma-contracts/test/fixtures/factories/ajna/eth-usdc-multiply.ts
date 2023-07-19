@@ -46,7 +46,7 @@ const ethUsdcMultiplyAjnaPosition: EthUsdcMultiplyAjnaPosition = async ({
   const pool = ajnaSystem.pools.wethUsdcPool
   if (!pool) throw new Error('wethUsdcPool is not set')
 
-  await addLiquidityToPool(ajnaSystem, pool)
+  await addLiquidityToPool(ajnaSystem, pool, config)
 
   const ajnaPool = await dependencies.getPoolData(pool.address)
 
@@ -104,16 +104,16 @@ async function addLiquidityToPool(ajnaSystem: AjnaSystem, pool: ERC20Pool) {
    * */
   const buckets = [
     {
-      amount: ethers.BigNumber.from(3000),
+      amount: ethers.BigNumber.from(1500),
       // Lower meaning better price offered
       index: ethers.BigNumber.from(1000),
     },
     {
-      amount: ethers.BigNumber.from(3000),
+      amount: ethers.BigNumber.from(1500),
       index: ethers.BigNumber.from(1200),
     },
     {
-      amount: ethers.BigNumber.from(3000),
+      amount: ethers.BigNumber.from(1500),
       index: ethers.BigNumber.from(1400),
     },
   ]

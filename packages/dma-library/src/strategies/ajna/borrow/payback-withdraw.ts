@@ -44,7 +44,6 @@ export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, depende
     ...validateDustLimit(targetPosition),
     ...validateWithdrawUndercollateralized(targetPosition, args.position),
     ...validateOverWithdraw(targetPosition, args.position, args.collateralAmount),
-    // ...validateOverRepay(args.position, args.quoteAmount),
   ]
 
   const warnings = [...validateWithdrawCloseToMaxLtv(targetPosition, args.position)]

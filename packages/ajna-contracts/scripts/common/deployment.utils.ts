@@ -1,7 +1,6 @@
-import { ADDRESSES } from "@oasisdex/oasis-actions";
+import { ADDRESSES } from "@deploy-configurations/addresses";
 import { Contract, Signer } from "ethers";
-import _hre, { ethers } from "hardhat";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import hre, { ethers } from "hardhat";
 
 import {
   AccountFactory,
@@ -28,8 +27,9 @@ import {
 } from "../../typechain-types";
 import { HardhatUtils } from "./hardhat.utils";
 
-export async function deployLibraries(hre: HardhatRuntimeEnvironment) {
-  const utils = new HardhatUtils(hre);
+const utils = new HardhatUtils(hre);
+
+export async function deployLibraries() {
   const borrowerActionsInstance = await utils.deployContract<BorrowerActions>("BorrowerActions", []);
   const kickerActionsInstance = await utils.deployContract<KickerActions>("KickerActions", []);
   const actionsInstance = await utils.deployContract<LenderActions>("LenderActions", []);
@@ -53,17 +53,16 @@ export async function deployLibraries(hre: HardhatRuntimeEnvironment) {
   };
 }
 
-export async function deployTokens(receiver: string, mainnetTokens: boolean, hre: HardhatRuntimeEnvironment) {
-  const utils = new HardhatUtils(hre);
+export async function deployTokens(receiver: string, mainnetTokens: boolean) {
   const usdc = mainnetTokens
-    ? await utils.getContract<Token>("ERC20", ADDRESSES.main.USDC)
+    ? await utils.getContract<Token>("ERC20", ADDRESSES.mainnet.common.USDC)
     : await utils.deployContract<Token>("Token", ["USDC", "USDC", receiver, 6]);
   const wbtc = mainnetTokens
-    ? await utils.getContract<Token>("ERC20", ADDRESSES.main.WBTC)
+    ? await utils.getContract<Token>("ERC20", ADDRESSES.mainnet.common.WBTC)
     : await utils.deployContract<Token>("Token", ["WBTC", "WBTC", receiver, 8]);
   const ajna = await utils.deployContract<Token>("Token", ["AJNA", "AJNA", receiver, 18]);
   const weth = mainnetTokens
-    ? await utils.getContract<WETH>("WETH", ADDRESSES.main.WETH)
+    ? await utils.getContract<WETH>("WETH", ADDRESSES.mainnet.common.WETH)
     : await utils.deployContract<WETH>("WETH", []);
   console.log("usdc", usdc.address);
   console.log("wbtc", wbtc.address);
@@ -77,10 +76,8 @@ export async function deployRewardsContracts(
   positionNFTSVGInstance: PositionNFTSVG,
   erc20PoolFactory: ERC20PoolFactory,
   erc721PoolFactory: ERC721PoolFactory,
-  ajna: Token,
-  hre: HardhatRuntimeEnvironment
+  ajna: Token
 ) {
-  const utils = new HardhatUtils(hre);
   const positionManagerContract = await utils.deployContract<PositionManager>(
     "PositionManager",
     [erc20PoolFactory.address, erc721PoolFactory.address],
@@ -98,8 +95,7 @@ export async function deployRewardsContracts(
   return { rewardsManagerContract, positionManagerContract };
 }
 
-async function deployServiceRegistry(hre: HardhatRuntimeEnvironment) {
-  const utils = new HardhatUtils(hre);
+async function deployServiceRegistry() {
   const serviceRegistryContract = await utils.deployContract<ServiceRegistry>("ServiceRegistry", [0]);
 
   return { serviceRegistryContract };
@@ -113,11 +109,9 @@ export async function deployApa(
   guardDeployerSigner: Signer,
   weth: WETH,
   ajna: Token,
-  hre: HardhatRuntimeEnvironment,
   initializeStaking = true
 ) {
-  const utils = new HardhatUtils(hre);
-  const { serviceRegistryContract } = await deployServiceRegistry(hre);
+  const { serviceRegistryContract } = await deployServiceRegistry();
   const hash = await serviceRegistryContract.getServiceNameHash("DPM_GUARD");
   await serviceRegistryContract.addNamedService(hash, dmpGuardContract.address);
   const poolInfoContract = await utils.deployContract<PoolInfoUtils>("PoolInfoUtils", [], {
@@ -148,16 +142,14 @@ export async function deployApa(
 
   return { ajnaProxyActionsContract, poolInfo: poolInfoContract, poolInfoContract, ajnaRewardsClaimerContract: arc };
 }
-export async function deployGuard(hre: HardhatRuntimeEnvironment) {
-  const utils = new HardhatUtils(hre);
+export async function deployGuard() {
   const dmpGuardContract = await utils.deployContract<AccountGuard>("AccountGuard", []);
   const dmpFactory = await utils.deployContract<AccountFactory>("AccountFactory", [dmpGuardContract.address]);
 
   const [guardDeployerAddress] = await hre.ethers.getSigners();
-  // TODO: fix scripts
-  // const guardDeployerSigner = await utils.impersonate(guardDeployerAddress.address);
+  const guardDeployerSigner = await utils.impersonate(guardDeployerAddress.address);
 
-  return { dmpGuardContract, guardDeployerSigner: guardDeployerAddress, dmpFactory };
+  return { dmpGuardContract, guardDeployerSigner, dmpFactory };
 }
 
 export async function deployPoolFactory(
@@ -168,53 +160,46 @@ export async function deployPoolFactory(
   takerActionsInstance: TakerActions,
   lpActionsInstance: LPActions,
   lenderActionsInstance: LenderActions,
-  reward: string,
-  hre: HardhatRuntimeEnvironment
+  reward: string
 ) {
-  const utils = new HardhatUtils(hre);
-  const erc20PoolFactory = await utils.deployContract<ERC20PoolFactory>(
-    "ERC20PoolFactory",
-    [reward, { gasLimit: 30000000 }],
-    {
-      libraries: {
-        BorrowerActions: borrowerActionsInstance.address,
-        KickerActions: kickerActionsInstance.address,
-        LPActions: lpActionsInstance.address,
-        LenderActions: lenderActionsInstance.address,
-        PoolCommons: poolInstance.address,
-        SettlerActions: settlerActionsInstance.address,
-        TakerActions: takerActionsInstance.address,
-      },
-    }
-  );
+  const erc20PoolFactory = await utils.deployContract<ERC20PoolFactory>("ERC20PoolFactory", [reward], {
+    libraries: {
+      BorrowerActions: borrowerActionsInstance.address,
+      KickerActions: kickerActionsInstance.address,
+      LPActions: lpActionsInstance.address,
+      LenderActions: lenderActionsInstance.address,
+      PoolCommons: poolInstance.address,
+      SettlerActions: settlerActionsInstance.address,
+      TakerActions: takerActionsInstance.address,
+    },
+  });
 
-  // const erc721PoolFactory = await utils.deployContract<ERC721PoolFactory>("ERC721PoolFactory", [reward, {gasLimit: 30000000}], {
-  //   libraries: {
-  //     KickerActions: kickerActionsInstance.address,
-  //     LPActions: lpActionsInstance.address,
-  //     SettlerActions: settlerActionsInstance.address,
-  //     TakerActions: takerActionsInstance.address,
-  //     BorrowerActions: borrowerActionsInstance.address,
-  //     LenderActions: lenderActionsInstance.address,
-  //     PoolCommons: poolInstance.address,
-  //   },
-  // });
+  const erc721PoolFactory = await utils.deployContract<ERC721PoolFactory>("ERC721PoolFactory", [reward], {
+    libraries: {
+      KickerActions: kickerActionsInstance.address,
+      LPActions: lpActionsInstance.address,
+      SettlerActions: settlerActionsInstance.address,
+      TakerActions: takerActionsInstance.address,
+      BorrowerActions: borrowerActionsInstance.address,
+      LenderActions: lenderActionsInstance.address,
+      PoolCommons: poolInstance.address,
+    },
+  });
 
-  return { erc20PoolFactory, erc721PoolFactory: erc20PoolFactory as any as ERC721PoolFactory };
+  return { erc20PoolFactory, erc721PoolFactory };
 }
 export async function deployPool(
   erc20PoolFactory: ERC20PoolFactory,
   collateral: string,
   quote: string,
-  hre: HardhatRuntimeEnvironment
+  deployPools = true
 ): Promise<ERC20Pool> {
-  const utils = new HardhatUtils(hre);
   const hash = await erc20PoolFactory.ERC20_NON_SUBSET_HASH();
   let poolAddress = await erc20PoolFactory.deployedPools(hash, collateral, quote);
-  if (poolAddress === hre.ethers.constants.AddressZero) {
-    await erc20PoolFactory.deployPool(collateral, quote, "50000000000000000", {
-      gasLimit: 10000000,
-    });
+  if (poolAddress === hre.ethers.constants.AddressZero && deployPools) {
+    console.log("Deploying pool");
+    const tx = await erc20PoolFactory.deployPool(collateral, quote, "25000000000000000");
+    await tx.wait();
     poolAddress = await erc20PoolFactory.deployedPools(hash, collateral, quote);
   }
 
@@ -229,9 +214,9 @@ export async function getPool(
   const poolAddress = await erc20PoolFactory.deployedPools(hash, collateral, quote);
   return utils.getContract<ERC20Pool>("ERC20Pool", poolAddress);
 }
-export async function deploy(mainnetTokens = false, hre: HardhatRuntimeEnvironment = _hre) {
+export async function deploy(mainnet = false) {
   const [deployer] = await ethers.getSigners();
-  const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address, mainnetTokens, hre);
+  const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address, mainnet);
   const {
     poolCommons,
     /*actionsInstance,*/
@@ -242,9 +227,9 @@ export async function deploy(mainnetTokens = false, hre: HardhatRuntimeEnvironme
     takerActionsInstance,
     lpActionsInstance,
     lenderActionsInstance,
-  } = await deployLibraries(hre);
+  } = await deployLibraries();
 
-  const { dmpFactory, guardDeployerSigner, dmpGuardContract } = await deployGuard(hre);
+  const { dmpFactory, guardDeployerSigner, dmpGuardContract } = await deployGuard();
   const { erc20PoolFactory, erc721PoolFactory } = await deployPoolFactory(
     poolCommons,
     borrowerActionsInstance,
@@ -253,16 +238,14 @@ export async function deploy(mainnetTokens = false, hre: HardhatRuntimeEnvironme
     takerActionsInstance,
     lpActionsInstance,
     lenderActionsInstance,
-    ajna.address,
-    hre
+    ajna.address
   );
 
   const { rewardsManagerContract, positionManagerContract } = await deployRewardsContracts(
     positionNFTSVGInstance,
     erc20PoolFactory,
     erc721PoolFactory,
-    ajna,
-    hre
+    ajna
   );
 
   const { ajnaProxyActionsContract, poolInfoContract } = await deployApa(
@@ -272,13 +255,11 @@ export async function deploy(mainnetTokens = false, hre: HardhatRuntimeEnvironme
     dmpGuardContract,
     guardDeployerSigner,
     weth,
-    ajna,
-    hre
+    ajna
   );
-
   const pools = {
-    wbtcUsdcPool: await deployPool(erc20PoolFactory, wbtc.address, usdc.address, hre),
-    wethUsdcPool: await deployPool(erc20PoolFactory, weth.address, usdc.address, hre),
+    wbtcUsdcPool: await deployPool(erc20PoolFactory, wbtc.address, usdc.address),
+    wethUsdcPool: await deployPool(erc20PoolFactory, weth.address, usdc.address),
   };
 
   return {

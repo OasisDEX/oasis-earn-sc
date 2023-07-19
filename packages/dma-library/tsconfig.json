@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.options.json",
   "compilerOptions": {
     "outDir": "./lib",
+    "types": ["node", "mocha"],
     "typeRoots": [
       "../../node_modules/@types"
     ],
@@ -45,6 +46,7 @@
   ],
   "include": [
     "./src",
-    "./src/strategies/ajna/earn/buckets.json"
+    "./src/strategies/ajna/earn/buckets.json",
+    "test"
   ]
 }

@@ -7,19 +7,12 @@ import BigNumber from 'bignumber.js'
 interface GetLiquidityInLupBucketParams {
   buckets: Bucket[]
   debt: BigNumber
-  highestThresholdPriceIndex: BigNumber
 }
 
-export function getPoolLiquidity({
-  buckets,
-  debt,
-  highestThresholdPriceIndex,
-}: GetLiquidityInLupBucketParams): BigNumber {
-  const liquidityAboveHtp = buckets
-    .filter(bucket => bucket.index.lte(highestThresholdPriceIndex))
-    .reduce((acc, bucket) => acc.plus(bucket.quoteTokens), new BigNumber(0))
+export function getPoolLiquidity({ buckets, debt }: GetLiquidityInLupBucketParams): BigNumber {
+  const liquidity = buckets.reduce((acc, bucket) => acc.plus(bucket.quoteTokens), new BigNumber(0))
 
-  return liquidityAboveHtp.minus(debt)
+  return liquidity.minus(debt)
 }
 
 export function getLiquidityInLupBucket(pool: AjnaPool): BigNumber {
@@ -36,14 +29,13 @@ export function validateLiquidity(
   borrowAmount: BigNumber,
 ): AjnaError[] {
   const availableLiquidity = getPoolLiquidity(positionBefore.pool)
-  const maxDebt = positionBefore.debtAvailable(position.collateralAmount)
 
   if (availableLiquidity.lt(borrowAmount)) {
     return [
       {
         name: 'not-enough-liquidity',
         data: {
-          amount: formatCryptoBalance(negativeToZero(maxDebt)),
+          amount: formatCryptoBalance(negativeToZero(availableLiquidity)),
         },
       },
     ]

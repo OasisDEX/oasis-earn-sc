@@ -34,6 +34,12 @@ export interface IAjnaPosition {
   netValue: BigNumber
   buyingPower: BigNumber
 
+  pnl(
+    cumulativeDepositUSD: BigNumber,
+    cumulativeWithdrawnUSD: BigNumber,
+    cumulativeFeesUSD: BigNumber,
+  ): BigNumber
+
   debtAvailable(collateralAmount: BigNumber): BigNumber
 
   originationFee(amount: BigNumber): BigNumber
@@ -106,8 +112,9 @@ export class AjnaPosition implements IAjnaPosition {
   }
 
   get netValue(): BigNumber {
-    // TODO: implement
-    return ZERO
+    return this.collateralAmount
+      .times(this.collateralPrice)
+      .minus(this.debtAmount.times(this.quotePrice))
   }
 
   get minRiskRatio() {
@@ -123,6 +130,22 @@ export class AjnaPosition implements IAjnaPosition {
       .times(this.collateralPrice)
       .times(this.maxRiskRatio.loanToValue)
       .minus(this.debtAmount.times(this.quotePrice))
+  }
+
+  pnl(
+    cumulativeDepositUSD: BigNumber,
+    cumulativeWithdrawnUSD: BigNumber,
+    cumulativeFeesUSD: BigNumber,
+  ): BigNumber {
+    if (cumulativeDepositUSD.isZero()) {
+      return ZERO
+    }
+
+    return cumulativeWithdrawnUSD
+      .plus(this.netValue)
+      .minus(cumulativeFeesUSD)
+      .minus(cumulativeDepositUSD)
+      .div(cumulativeDepositUSD)
   }
 
   debtAvailable(collateralAmount?: BigNumber) {

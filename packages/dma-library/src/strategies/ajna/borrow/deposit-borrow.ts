@@ -1,11 +1,13 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
+import { ajnaBuckets } from '@dma-library/strategies'
 import {
   AjnaBorrowPayload,
   AjnaCommonDependencies,
   AjnaPosition,
   AjnaStrategy,
 } from '@dma-library/types/ajna'
+import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import {
@@ -30,7 +32,7 @@ export const depositBorrow: AjnaDepositBorrowStrategy = async (args, dependencie
     dependencies.provider,
   )
 
-  const htp = args.position.pool.highestThresholdPrice.shiftedBy(18)
+  const limitIndex = new BigNumber(ajnaBuckets[ajnaBuckets.length - 1])
 
   const data = apa.interface.encodeFunctionData('depositAndDraw', [
     args.poolAddress,
@@ -38,7 +40,7 @@ export const depositBorrow: AjnaDepositBorrowStrategy = async (args, dependencie
     ethers.utils
       .parseUnits(args.collateralAmount.toString(), args.collateralTokenPrecision)
       .toString(),
-    htp.toString(),
+    limitIndex.toString(),
   ])
 
   const targetPosition = args.position.deposit(args.collateralAmount).borrow(args.quoteAmount)

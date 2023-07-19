@@ -1,7 +1,7 @@
 import { HardhatUtils, prepareEnv as prepareAjnaEnv } from '@ajna-contracts/scripts'
 import { System } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
-import { ONE, TEN } from '@dma-common/constants'
+import { HUNDRED, ONE } from '@dma-common/constants'
 import { createDPMAccount, oneInchCallMock, swapUniswapTokens } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { amountToWei } from '@dma-common/utils/common'
@@ -100,7 +100,7 @@ async function getQuoteTokenForPoolSetup(
   await swapUniswapTokens(
     dependencies.WETH,
     usdc.address,
-    amountToWei(TEN.times(TEN)).toFixed(0),
+    amountToWei(HUNDRED.times(2)).toFixed(0),
     amountToWei(ONE, usdc.precision).toFixed(0),
     lenderAddress,
     config,

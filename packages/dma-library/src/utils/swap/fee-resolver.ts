@@ -21,3 +21,21 @@ export const feeResolver = <T extends string = string>(
   }
   return new BigNumber(DEFAULT_FEE)
 }
+
+export function isCorrelatedPosition(symbolA: string, symbolB: string) {
+  const correlatedAssetMatrix = [
+    ['WSTETH', 'ETH', 'CBETH', 'RETH', 'STETH'],
+    // Add more arrays here to expand the matrix in the future
+  ]
+
+  // Iterate over each row in the matrix
+  for (let i = 0; i < correlatedAssetMatrix.length; i++) {
+    // Check if both symbols are in the same row
+    if (correlatedAssetMatrix[i].includes(symbolA) && correlatedAssetMatrix[i].includes(symbolB)) {
+      return true
+    }
+  }
+
+  // If we haven't found both symbols in the same row, they're not correlated
+  return false
+}
