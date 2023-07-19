@@ -1,5 +1,4 @@
-import { DEFAULT_FEE, NO_FEE } from '@dma-common/constants'
-import { REDUCED_FEE } from '@oasisdex/dma-common/constants/fee'
+import { DEFAULT_FEE, NO_FEE, REDUCED_FEE } from '@dma-common/constants'
 import BigNumber from 'bignumber.js'
 
 export const feeResolver = <T extends string = string>(
@@ -7,45 +6,41 @@ export const feeResolver = <T extends string = string>(
   toToken: T,
   flags?: {
     isIncreasingRisk?: boolean
+    /** @deprecated Should rely on correlated asset matrix  */
     isEarnPosition?: boolean
     isEntrySwap?: boolean
   },
 ) => {
-  const DEFAULT_FEE_BN = new BigNumber(DEFAULT_FEE)
-  const NO_FEE_BN = new BigNumber(NO_FEE)
-  const REDUCED_FEE_BN = new BigNumber(REDUCED_FEE)
-
   let type = 'defaultMultiply'
+  if (isCorrelatedPosition(fromToken, toToken) || flags?.isEarnPosition) {
+    type = 'earnMultiply'
+  }
   if (flags?.isEntrySwap) {
+    // Should override multiply type given position type isn't relevant if the swap is an entry swap
     type = 'entry'
   }
 
-  const feesMap = {
+  const feesConfig = {
     entry: {
-      onIncrease: DEFAULT_FEE_BN,
-      onDecrease: DEFAULT_FEE_BN,
+      onIncrease: new BigNumber(DEFAULT_FEE),
+      onDecrease: new BigNumber(DEFAULT_FEE),
     },
     earnMultiply: {
-      onIncrease: NO_FEE_BN,
-      onDecrease: REDUCED_FEE_BN,
+      onIncrease: new BigNumber(NO_FEE),
+      onDecrease: new BigNumber(REDUCED_FEE),
     },
     defaultMultiply: {
-      onIncrease: DEFAULT_FEE_BN,
-      onDecrease: DEFAULT_FEE_BN,
+      onIncrease: new BigNumber(DEFAULT_FEE),
+      onDecrease: new BigNumber(DEFAULT_FEE),
     },
   }
 
-  if (flags?.isEntrySwap) {
-    return new BigNumber(DEFAULT_FEE)
+  const feeToCharge = feesConfig[type][flags?.isIncreasingRisk ? 'onIncrease' : 'onDecrease']
+  if (!feeToCharge) {
+    throw new Error('No fee could be resolved')
   }
-  // Previously only fromToken === 'WSTETH' && toToken === 'ETH'
-  if (isCorrelatedPosition(fromToken, toToken) && !flags?.isIncreasingRisk) {
-    return new BigNumber(REDUCED_FEE)
-  }
-  if (flags?.isIncreasingRisk && flags.isEarnPosition) {
-    return new BigNumber(NO_FEE)
-  }
-  return new BigNumber(DEFAULT_FEE)
+
+  return feeToCharge
 }
 
 export function isCorrelatedPosition(symbolA: string, symbolB: string) {
