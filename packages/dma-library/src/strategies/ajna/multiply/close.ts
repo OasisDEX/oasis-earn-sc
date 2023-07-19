@@ -57,14 +57,13 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
 
   const targetPosition = args.position.close()
 
-  const fee = SwapUtils.feeResolver(
-    args.position.pool.collateralToken,
-    args.position.pool.quoteToken,
-    {
-      isEarnPosition: false,
-      isIncreasingRisk: false,
-    },
-  )
+  const fee = SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
+    isEarnPosition: SwapUtils.isCorrelatedPosition(
+      args.collateralTokenSymbol,
+      args.quoteTokenSymbol,
+    ),
+    isIncreasingRisk: false,
+  })
 
   const postSwapFee =
     collectFeeFrom === 'targetToken' ? calculateFee(swapData.toTokenAmount, fee.toNumber()) : ZERO
@@ -73,13 +72,22 @@ export const closeMultiply: AjnaCloseStrategy = async (args, dependencies) => {
     postSwapFee.times(ONE.plus(FEE_ESTIMATE_INFLATOR)).integerValue(BigNumber.ROUND_DOWN),
   )
 
+  // Validation
+  const errors = [
+    // Add as required...
+  ]
+
+  const warnings = [
+    // Add as required..
+  ]
+
   return prepareAjnaDMAPayload({
     swaps: [{ ...swapData, collectFeeFrom, tokenFee }],
     dependencies,
     targetPosition,
     data: encodeOperation(operation, dependencies),
-    errors: [],
-    warnings: [],
+    errors: errors,
+    warnings: warnings,
     successes: [],
     notices: [],
     // TODO instead of zero we will need data from swap
@@ -181,7 +189,13 @@ async function buildOperation(
     address: position.pool.quoteToken,
   }
 
-  const fee = SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol)
+  const fee = SwapUtils.feeResolver(args.collateralTokenSymbol, args.quoteTokenSymbol, {
+    isEarnPosition: SwapUtils.isCorrelatedPosition(
+      args.collateralTokenSymbol,
+      args.quoteTokenSymbol,
+    ),
+    isIncreasingRisk: false,
+  })
   const collateralAmountToBeSwapped = args.shouldCloseToCollateral
     ? swapData.fromTokenAmount.plus(preSwapFee)
     : lockedCollateralAmount
