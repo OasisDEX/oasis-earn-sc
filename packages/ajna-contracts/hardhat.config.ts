@@ -21,6 +21,13 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
+    mainnet: {
+      url: process.env.MAINNET_URL || "",
+      initialBaseFeePerGas: 1000000000,
+      gasPrice: 45000000000, // 30 gwei
+      // FIXME: uncomment when we have the env variable properly set up in gh actions
+      // accounts: [process.env.PRIV_KEY_MAINNET || ""],
+    },
     goerli: {
       url: process.env.GOERLI_URL || "",
       // FIXME: uncomment when we have the env variable properly set up in gh actions
@@ -35,8 +42,8 @@ const config: HardhatUserConfig = {
     hardhat: {
       forking: {
         enabled: true,
-        url: process.env.GOERLI_URL || "https://eth-goerli.g.alchemy.com/v2/8pU3VS_K57r5DcgdmC9QEEhDcObR56Zx",
-        blockNumber: 9289450,
+        url: process.env.MAINNET_URL || "https://eth-goerli.g.alchemy.com/v2/8pU3VS_K57r5DcgdmC9QEEhDcObR56Zx",
+        blockNumber: 17663832,
       },
       chainId: 2137,
       mining: {
