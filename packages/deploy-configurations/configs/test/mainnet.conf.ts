@@ -416,6 +416,10 @@ export const config: SystemConfig = {
       address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.STETH,
     },
+    TBTC: {
+      name: 'TBTC',
+      address: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
+    },
     TUSD: { name: 'TUSD', address: '0x0000000000085d4780B73119b644AE5ecd22b376' },
     UNI: { name: 'UNI', address: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984' },
     UNIV2AAVEETH: { name: 'UNIV2AAVEETH', address: '0xDFC14d2Af169B0D36C4EFF567Ada9b2E0CAE044f' },
@@ -1011,6 +1015,10 @@ export const config: SystemConfig = {
     AjnaPoolPairs_CBETHETH: {
       name: 'AjnaPoolPairs_CBETHETH',
       address: '0xad24FC773e125Edb223C38a39657cB64bc7C178e',
+    },
+    AjnaPoolPairs_TBTCWBTC: {
+      name: 'AjnaPoolPairs_TBTCWBTC',
+      address: '0x74da6fc4e456583b88d622b19ef6addfb726c0d7',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
