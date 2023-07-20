@@ -21,6 +21,7 @@ export interface IAjnaPosition {
 
   marketPrice: BigNumber
   liquidationPrice: BigNumber
+  liquidationPriceT0Np: BigNumber
   liquidationToMarketPrice: BigNumber
   thresholdPrice: BigNumber
 
@@ -54,6 +55,7 @@ export class AjnaPosition implements IAjnaPosition {
     public debtAmount: BigNumber,
     public collateralPrice: BigNumber,
     public quotePrice: BigNumber,
+    public t0NeutralPrice: BigNumber,
   ) {}
 
   get liquidationPrice() {
@@ -64,12 +66,16 @@ export class AjnaPosition implements IAjnaPosition {
     })
   }
 
+  get liquidationPriceT0Np() {
+    return this.t0NeutralPrice.times(this.pool.pendingInflator)
+  }
+
   get marketPrice() {
     return this.collateralPrice.div(this.quotePrice)
   }
 
   get liquidationToMarketPrice() {
-    return this.liquidationPrice.div(this.marketPrice)
+    return this.liquidationPriceT0Np.div(this.marketPrice)
   }
 
   get thresholdPrice() {
@@ -136,6 +142,7 @@ export class AjnaPosition implements IAjnaPosition {
       this.debtAmount,
       this.collateralPrice,
       this.quotePrice,
+      this.t0NeutralPrice,
     )
   }
 
@@ -148,6 +155,7 @@ export class AjnaPosition implements IAjnaPosition {
       this.debtAmount,
       this.collateralPrice,
       this.quotePrice,
+      this.t0NeutralPrice,
     )
   }
 
@@ -160,6 +168,7 @@ export class AjnaPosition implements IAjnaPosition {
       newDebt,
       this.collateralPrice,
       this.quotePrice,
+      this.t0NeutralPrice,
     )
   }
 
@@ -172,6 +181,7 @@ export class AjnaPosition implements IAjnaPosition {
       newDebt,
       this.collateralPrice,
       this.quotePrice,
+      this.t0NeutralPrice,
     )
   }
 
@@ -183,6 +193,7 @@ export class AjnaPosition implements IAjnaPosition {
       ZERO,
       this.collateralPrice,
       this.quotePrice,
+      this.t0NeutralPrice,
     )
   }
 }
