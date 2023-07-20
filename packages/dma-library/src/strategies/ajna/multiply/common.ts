@@ -201,7 +201,10 @@ export function prepareAjnaMultiplyDMAPayload(
 
   // Validation
   const debtTokensDeposited = ZERO // Not relevant for Ajna
-  const borrowAmount = simulatedAdjustment.delta.debt.minus(debtTokensDeposited)
+  const borrowAmount = simulatedAdjustment.delta.debt
+    .minus(debtTokensDeposited)
+    .shiftedBy(-args.quoteTokenPrecision)
+
   const errors = [
     // Add as required...
     ...validateDustLimitMultiply(targetPosition),
