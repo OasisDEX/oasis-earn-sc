@@ -65,6 +65,7 @@ export async function getPosition(
     new BigNumber(borrowerInfo.debt_.toString()).div(WAD),
     collateralPrice,
     quotePrice,
+    new BigNumber(borrowerInfo.t0Np_.toString()).div(WAD),
   )
 }
 
