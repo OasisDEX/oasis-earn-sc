@@ -1,8 +1,10 @@
 import ajnaProxyActionsAbi from '@abis/external/protocols/ajna/ajnaProxyActions.json'
 import { prepareAjnaPayload, resolveAjnaEthAction } from '@dma-library/protocols/ajna'
-import { AjnaCommonDependencies, AjnaPosition, AjnaStrategy } from '@dma-library/types/ajna'
+import { ajnaBuckets } from '@dma-library/strategies'
+import { AjnaCommonDependencies, AjnaPosition, Strategy } from '@dma-library/types/ajna'
 import { AjnaOpenBorrowPayload } from '@dma-library/types/ajna/ajna-dependencies'
 import { views } from '@dma-library/views'
+import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import {
@@ -14,7 +16,7 @@ import {
 export type AjnaOpenBorrowStrategy = (
   args: AjnaOpenBorrowPayload,
   dependencies: AjnaCommonDependencies,
-) => Promise<AjnaStrategy<AjnaPosition>>
+) => Promise<Strategy<AjnaPosition>>
 
 export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
   const getPosition = views.ajna.getPosition
@@ -36,7 +38,7 @@ export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
     throw new Error('Position already exists')
   }
 
-  const htp = position.pool.highestThresholdPrice.shiftedBy(18)
+  const limitIndex = new BigNumber(ajnaBuckets[ajnaBuckets.length - 1])
 
   const isDepositingEth =
     position.pool.collateralToken.toLowerCase() === dependencies.WETH.toLowerCase()
@@ -53,7 +55,7 @@ export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
     ethers.utils
       .parseUnits(args.collateralAmount.toString(), args.collateralTokenPrecision)
       .toString(),
-    htp.toString(),
+    limitIndex.toString(),
   ])
 
   const targetPosition = position.deposit(args.collateralAmount).borrow(args.quoteAmount)
