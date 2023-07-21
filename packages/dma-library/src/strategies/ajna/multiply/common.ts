@@ -185,6 +185,7 @@ export function prepareAjnaMultiplyDMAPayload(
     debtAmount,
     args.collateralPrice,
     args.quotePrice,
+    args.position.t0NeutralPrice,
   )
 
   const isDepositingEth = areAddressesEqual(args.position.pool.collateralToken, dependencies.WETH)
