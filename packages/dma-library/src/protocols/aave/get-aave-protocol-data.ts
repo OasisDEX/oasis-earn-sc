@@ -195,11 +195,12 @@ type AllowedContractNames = 'poolDataProvider' | 'pool' | 'aaveOracle'
 async function getAbiForContract(contractName: AllowedContractNames, provider: providers.Provider) {
   const network = await coalesceNetwork(provider as providers.JsonRpcProvider)
   if (network === Network.GOERLI) throw new Error('Goerli not supported yet')
+
   return abiByContractName[network][contractName]
 }
 
 const abiByContractName: Record<
-  Network.MAINNET | Network.OPTIMISM,
+  Network.MAINNET | Network.OPTIMISM | Network.ARBITRUM,
   Record<AllowedContractNames, any>
 > = {
   [Network.MAINNET]: {
@@ -208,6 +209,11 @@ const abiByContractName: Record<
     aaveOracle: aaveV3PriceOracleABI,
   },
   [Network.OPTIMISM]: {
+    poolDataProvider: aaveV3ProtocolDataProviderOptimismABI,
+    pool: aaveV3PoolOptimismABI,
+    aaveOracle: aaveV3PriceOracleOptimismABI,
+  },
+  [Network.ARBITRUM]: {
     poolDataProvider: aaveV3ProtocolDataProviderOptimismABI,
     pool: aaveV3PoolOptimismABI,
     aaveOracle: aaveV3PriceOracleOptimismABI,

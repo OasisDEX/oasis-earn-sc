@@ -11,7 +11,7 @@ export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH'>
 export function buildGetTokenFunction(
   config: RuntimeConfig,
   hre: HardhatRuntimeEnvironment,
-  network: Network.MAINNET | Network.OPTIMISM,
+  network: Network.MAINNET | Network.OPTIMISM | Network.ARBITRUM,
   wethAddress: string,
 ): (symbol: AAVETokensToGet, amount: BigNumber) => Promise<boolean> {
   return async function getTokens(symbol: AAVETokensToGet, amount: BigNumber): Promise<boolean> {
