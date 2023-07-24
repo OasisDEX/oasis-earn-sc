@@ -12,7 +12,7 @@ tenderly.yaml
 .DS_Store
 
 #Hardhat files
-packages/dma-contracts/abis/system/*
+packages/abis/system/*
 cache
 artifacts
 
