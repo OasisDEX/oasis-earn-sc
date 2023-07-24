@@ -33,9 +33,6 @@ jobs:
 
       - name: Build packages
         run: yarn build
-
-      - name: Compile contracts
-        run: yarn compile
         env:
           BLOCK_NUMBER: 15946543
           NETWORK_FORK: 'mainnet'
