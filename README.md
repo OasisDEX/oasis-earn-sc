@@ -22,7 +22,8 @@ yarn clean
 yarn build
 ```
 
-4. Compile contracts
+4. Compile contracts (optional)
+Contracts are automatically compiled when running `yarn build` but can also be compiled separately
 
 ```shell
 yarn compile
