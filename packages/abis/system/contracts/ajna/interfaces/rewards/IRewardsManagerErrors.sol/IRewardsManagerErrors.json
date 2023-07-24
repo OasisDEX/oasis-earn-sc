@@ -16,7 +16,17 @@
   },
   {
     "inputs": [],
+    "name": "InsufficientLiquidity",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "MoveStakedLiquidityInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotAjnaPool",
     "type": "error"
   },
   {

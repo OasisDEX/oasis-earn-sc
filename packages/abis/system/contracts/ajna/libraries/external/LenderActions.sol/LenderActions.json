@@ -136,6 +136,11 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "PriceBelowLUP",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {

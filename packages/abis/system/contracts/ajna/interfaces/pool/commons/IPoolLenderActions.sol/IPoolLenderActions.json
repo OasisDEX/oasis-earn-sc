@@ -15,6 +15,11 @@
         "internalType": "uint256",
         "name": "expiry_",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup_",
+        "type": "bool"
       }
     ],
     "name": "addQuoteToken",
@@ -49,6 +54,11 @@
         "internalType": "uint256",
         "name": "expiry_",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "revertIfBelowLup_",
+        "type": "bool"
       }
     ],
     "name": "moveQuoteToken",
