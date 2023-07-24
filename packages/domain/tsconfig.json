@@ -18,6 +18,7 @@
       "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
       "@deploy-configurations/constants": ["../deploy-configurations/constants/index.ts"],
       "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
+      "@deploy-configurations/configs": ["../deploy-configurations/configs/index.ts"],
       "@domain/test/*": [
         "./test/*"
       ]
