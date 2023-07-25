@@ -372,6 +372,7 @@ export const config: SystemConfig = {
       name: 'TUSD',
       address: ADDRESS_ZERO,
     },
+    TBTC: { name: 'TBTC', address: ADDRESS_ZERO },
     UNI: {
       name: 'UNI',
       address: ADDRESS_ZERO,
@@ -627,10 +628,6 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_RETHUSDC',
       address: ADDRESS_ZERO,
     },
-    AjnaPoolPairs_USDCDAI: {
-      name: 'AjnaPoolPairs_USDCDAI',
-      address: ADDRESS_ZERO,
-    },
     AjnaPoolPairs_USDCETH: {
       name: 'AjnaPoolPairs_USDCETH',
       address: ADDRESS_ZERO,
@@ -652,11 +649,19 @@ export const config: SystemConfig = {
       address: ADDRESS_ZERO,
     },
     AjnaPoolPairs_WSTETHETH: {
-      name: 'AjnaPoolPairs_WSTETHUSDC',
+      name: 'AjnaPoolPairs_WSTETHETH',
       address: ADDRESS_ZERO,
     },
     AjnaPoolPairs_WSTETHUSDC: {
       name: 'AjnaPoolPairs_WSTETHUSDC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_CBETHETH: {
+      name: 'AjnaPoolPairs_CBETHETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_TBTCWBTC: {
+      name: 'AjnaPoolPairs_TBTCWBTC',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

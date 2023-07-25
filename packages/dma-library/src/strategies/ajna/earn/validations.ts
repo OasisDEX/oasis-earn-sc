@@ -1,4 +1,11 @@
-import { formatCryptoBalance } from '@dma-common/utils/common/formaters'
+import {
+  validateLupBelowHtp,
+  validatePriceAboveMomp,
+  validatePriceBelowHtp,
+  validatePriceBetweenHtpAndLup,
+  validatePriceBetweenLupAndMomp,
+  validateWithdrawMoreThanAvailable,
+} from '@dma-library/strategies/ajna/validation'
 import {
   AjnaEarnActions,
   AjnaEarnPosition,
@@ -14,16 +21,16 @@ export const getAjnaEarnValidations = ({
   quoteAmount,
   quoteTokenPrecision,
   position,
-  afterLupIndex,
   action,
+  afterLupIndex,
 }: {
   price: BigNumber
   quoteAmount: BigNumber
   quoteTokenPrecision: number
   position: AjnaEarnPosition
   simulation: AjnaEarnPosition
-  afterLupIndex?: BigNumber
   action: AjnaEarnActions
+  afterLupIndex?: BigNumber
 }) => {
   const errors: AjnaError[] = []
   const warnings: AjnaWarning[] = []
@@ -31,69 +38,28 @@ export const getAjnaEarnValidations = ({
   const successes: AjnaSuccess[] = []
 
   // common
-  if (price.lt(position.pool.highestThresholdPrice)) {
-    notices.push({
-      name: 'price-below-htp',
-    })
-  }
-
-  if (
-    price.gte(position.pool.highestThresholdPrice) &&
-    price.lt(position.pool.lowestUtilizedPrice) &&
-    !position.pool.lowestUtilizedPriceIndex.isZero()
-  ) {
-    successes.push({
-      name: 'price-between-htp-and-lup',
-    })
-  }
-
-  if (
-    price.gte(position.pool.lowestUtilizedPrice) &&
-    price.lt(position.pool.mostOptimisticMatchingPrice)
-  ) {
-    successes.push({
-      name: 'price-between-lup-and-momp',
-      data: {
-        lup: formatCryptoBalance(position.pool.lowestUtilizedPrice),
-      },
-    })
-  }
-
-  if (price.gt(position.pool.mostOptimisticMatchingPrice)) {
-    warnings.push({
-      name: 'price-above-momp',
-    })
-  }
+  notices.push(...validatePriceBelowHtp(position, price))
+  successes.push(
+    ...validatePriceBetweenLupAndMomp(position, price),
+    ...validatePriceBetweenHtpAndLup(position, price),
+  )
+  warnings.push(...validatePriceAboveMomp(position, price))
 
   // action specific
   switch (action) {
     case 'open-earn':
-    case 'deposit-earn':
     case 'claim-earn': {
       break
     }
+    case 'deposit-earn': {
+      errors.push(...validateLupBelowHtp(position, action, afterLupIndex))
+      break
+    }
     case 'withdraw-earn': {
-      if (
-        position.quoteTokenAmount
-          .decimalPlaces(quoteTokenPrecision, BigNumber.ROUND_UP)
-          .lt(quoteAmount)
-      ) {
-        errors.push({
-          name: 'withdraw-more-than-available',
-          data: {
-            amount: formatCryptoBalance(position.quoteTokenAmount),
-          },
-        })
-      }
-
-      if (
-        afterLupIndex &&
-        new BigNumber(afterLupIndex.toString()).gt(position.pool.highestThresholdPriceIndex)
-      ) {
-        errors.push({
-          name: 'after-lup-index-bigger-than-htp-index',
-        })
-      }
+      errors.push(
+        ...validateLupBelowHtp(position, action, afterLupIndex),
+        ...validateWithdrawMoreThanAvailable(position, quoteAmount, quoteTokenPrecision),
+      )
       break
     }
     default:

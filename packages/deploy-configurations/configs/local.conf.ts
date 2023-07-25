@@ -475,6 +475,10 @@ export const config: SystemConfig = {
       address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.STETH,
     },
+    TBTC: {
+      name: 'TBTC',
+      address: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
+    },
     TUSD: {
       name: 'TUSD',
       address: '0x0000000000085d4780B73119b644AE5ecd22b376',
@@ -1049,7 +1053,7 @@ export const config: SystemConfig = {
     },
     AutomationBotV2: {
       name: 'AutomationBotV2',
-      address: '0x8061c24823094E51e57A4a5cF8bEd3CCf09d316F',
+      address: '0x5743b5606e94fb534a31e1cefb3242c8a9422e5e',
     },
     AutomationBotAggregator: {
       name: 'AutomationBotAggregator',
@@ -1085,10 +1089,6 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_RETHUSDC',
       address: ADDRESS_ZERO,
     },
-    AjnaPoolPairs_USDCDAI: {
-      name: 'AjnaPoolPairs_USDCDAI',
-      address: ADDRESS_ZERO,
-    },
     AjnaPoolPairs_USDCETH: {
       name: 'AjnaPoolPairs_USDCETH',
       address: ADDRESS_ZERO,
@@ -1110,11 +1110,19 @@ export const config: SystemConfig = {
       address: ADDRESS_ZERO,
     },
     AjnaPoolPairs_WSTETHETH: {
-      name: 'AjnaPoolPairs_WSTETHUSDC',
+      name: 'AjnaPoolPairs_WSTETHETH',
       address: ADDRESS_ZERO,
     },
     AjnaPoolPairs_WSTETHUSDC: {
       name: 'AjnaPoolPairs_WSTETHUSDC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_CBETHETH: {
+      name: 'AjnaPoolPairs_CBETHETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_TBTCWBTC: {
+      name: 'AjnaPoolPairs_TBTCWBTC',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

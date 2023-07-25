@@ -34,6 +34,7 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
       rewardsManagerAddress: dependencies.rewardsManagerAddress,
     },
   )
+  const revertIfBelowLup = false // TODO revertIfBelowLup, hardcoded for now
 
   const isLendingEth = position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()
 
@@ -60,6 +61,7 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
       args.poolAddress,
       ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
       args.price.shiftedBy(18).toString(),
+      revertIfBelowLup,
     ],
   )
 
@@ -73,6 +75,9 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
     args.collateralPrice,
     args.quotePrice,
     position.rewards,
+    position.netValue,
+    position.pnl,
+    position.totalEarnings,
   )
 
   return getAjnaEarnActionOutput({

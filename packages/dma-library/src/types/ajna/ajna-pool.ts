@@ -36,6 +36,8 @@ export interface AjnaPool {
 
   // annualized rate as a fraction 0.05 = 5%
   interestRate: BigNumber
+  lendApr: BigNumber
+  borrowApr: BigNumber
   debt: BigNumber
   depositSize: BigNumber
   apr30dAverage: BigNumber

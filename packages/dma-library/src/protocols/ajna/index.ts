@@ -1,8 +1,11 @@
-import poolAbi from '@abis/external/protocols/ajna/ajnaPoolERC20.json'
 import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
+import { ajnaBuckets } from '@dma-library/strategies'
 import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
-import { getPoolLiquidity } from '@dma-library/strategies/ajna/validation/notEnoughLiquidity'
+import {
+  getLiquidityInLupBucket,
+  getPoolLiquidity,
+} from '@dma-library/strategies/ajna/validation/borrowish/notEnoughLiquidity'
 import {
   AjnaCommonDependencies,
   AjnaEarnActions,
@@ -70,15 +73,9 @@ export const getAjnaEarnActionOutput = async ({
   action: AjnaEarnActions
   txValue: string
 }) => {
-  const pool = new ethers.Contract(args.poolAddress, poolAbi, dependencies.provider)
-  const [poolDebt] = await pool.debtInfo()
-
-  const afterLupIndex =
-    action === 'withdraw-earn'
-      ? await pool.depositIndex(
-          new BigNumber(poolDebt.toString()).plus(args.quoteAmount.shiftedBy(18)).toString(),
-        )
-      : undefined
+  const afterLupIndex = ['deposit-earn', 'withdraw-earn'].includes(action)
+    ? calculateNewLupWhenAdjusting(args.position.pool, args.position, targetPosition).newLupIndex
+    : undefined
 
   const { errors, warnings, notices, successes } = getAjnaEarnValidations({
     price: args.price,
@@ -106,9 +103,9 @@ export const resolveAjnaEthAction = (isUsingEth: boolean, amount: BigNumber) =>
   isUsingEth ? ethers.utils.parseEther(amount.toString()).toString() : '0'
 
 export const calculateAjnaApyPerDays = (amount: BigNumber, apy: BigNumber, days: number) =>
-  // converted to numbers because BigNumber doesn't handle power with decimals
   amount
-    .times(new BigNumber(Math.E ** apy.times(days).div(365).toNumber()))
+    // converted to numbers because BigNumber doesn't handle power with decimals
+    .times(new BigNumber(Math.E ** apy.times(days).toNumber()))
     .minus(amount)
     .div(amount)
 
@@ -162,12 +159,6 @@ function getMaxGenerate(
   positionCollateral: BigNumber,
   maxDebt: BigNumber = ZERO,
 ): BigNumber {
-  const { lowestUtilizedPrice, highestThresholdPrice } = pool
-
-  if (lowestUtilizedPrice.lt(highestThresholdPrice)) {
-    return maxDebt
-  }
-
   const initialMaxDebt = positionCollateral.times(pool.lowestUtilizedPrice).minus(positionDebt)
 
   const bucketsAboveLup = pool.buckets
@@ -182,9 +173,7 @@ function getMaxGenerate(
     return initialMaxDebt.plus(maxDebt)
   }
 
-  const sortedBuckets = pool.buckets
-    .filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
-    .sort((a, b) => a.index.minus(b.index).toNumber())
+  const sortedBuckets = pool.buckets.sort((a, b) => a.index.minus(b.index).toNumber())
 
   const lupBucketArrayIndex = sortedBuckets.findIndex(bucket =>
     bucket.index.isEqualTo(pool.lowestUtilizedPriceIndex),
@@ -225,7 +214,10 @@ export function calculateMaxGenerate(
     quoteAmount: maxDebtWithoutFee,
   })
 
-  const poolLiquidity = getPoolLiquidity(pool)
+  const poolLiquidity = getPoolLiquidity({
+    buckets: pool.buckets,
+    debt: pool.debt,
+  })
   const poolLiquidityWithFee = poolLiquidity.minus(originationFee)
   const maxDebtWithFee = maxDebtWithoutFee.minus(originationFee)
 
@@ -237,10 +229,11 @@ export function calculateMaxGenerate(
 }
 
 export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumber, BigNumber] {
-  const sortedBuckets = pool.buckets
-    .filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
-    .sort((a, b) => a.index.minus(b.index).toNumber())
-  const availablePoolLiquidity = getPoolLiquidity(pool)
+  const sortedBuckets = pool.buckets.sort((a, b) => a.index.minus(b.index).toNumber())
+  const availablePoolLiquidity = getPoolLiquidity({
+    buckets: pool.buckets,
+    debt: pool.debt,
+  })
 
   let remainingDebt = pool.debt.plus(debtChange)
   let newLup = sortedBuckets[0] ? sortedBuckets[0].price : pool.lowestUtilizedPrice
@@ -266,6 +259,79 @@ export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumb
     }
   })
   return [newLup, newLupIndex]
+}
+
+export function calculateNewLupWhenAdjusting(
+  pool: AjnaPool,
+  position: AjnaEarnPosition,
+  simulation?: AjnaEarnPosition,
+) {
+  if (!simulation) {
+    return {
+      newLupPrice: pool.lowestUtilizedPrice,
+      newLupIndex: pool.lowestUtilizedPriceIndex,
+    }
+  }
+
+  let newLupPrice = ZERO
+  let newLupIndex = ZERO
+
+  const oldBucket = pool.buckets.find(bucket => bucket.price.eq(position.price))
+
+  if (!oldBucket) {
+    return {
+      newLupPrice,
+      newLupIndex,
+    }
+  }
+
+  const poolBuckets = [...pool.buckets].filter(bucket => !bucket.index.eq(oldBucket.index))
+
+  poolBuckets.push({
+    ...oldBucket,
+    quoteTokens: oldBucket.quoteTokens.minus(position.quoteTokenAmount),
+  })
+
+  const newBucketIndex = new BigNumber(
+    ajnaBuckets.findIndex(bucket => new BigNumber(bucket).eq(simulation.price.shiftedBy(18))),
+  )
+
+  const existingBucketArrayIndex = poolBuckets.findIndex(bucket => bucket.index.eq(newBucketIndex))
+
+  if (existingBucketArrayIndex !== -1) {
+    poolBuckets[existingBucketArrayIndex].quoteTokens = poolBuckets[
+      existingBucketArrayIndex
+    ].quoteTokens.plus(simulation.quoteTokenAmount)
+  } else {
+    poolBuckets.push({
+      price: simulation.price,
+      index: newBucketIndex,
+      quoteTokens: simulation.quoteTokenAmount,
+      bucketLPs: ZERO,
+      collateral: ZERO,
+    })
+  }
+
+  const sortedBuckets = poolBuckets.sort((a, b) => a.index.minus(b.index).toNumber())
+
+  let remainingDebt = pool.debt
+
+  for (let i = 0; i < sortedBuckets.length; i++) {
+    const bucket = sortedBuckets[i]
+
+    if (remainingDebt.gt(bucket.quoteTokens)) {
+      remainingDebt = remainingDebt.minus(bucket.quoteTokens)
+    } else {
+      newLupPrice = bucket.price
+      newLupIndex = bucket.index
+      break
+    }
+  }
+
+  return {
+    newLupPrice,
+    newLupIndex,
+  }
 }
 
 export function simulatePool(
@@ -304,3 +370,75 @@ export const getAjnaLiquidationPrice = ({
       )
       .times(ONE.plus(pool.interestRate)),
   )
+
+const resolveMaxLiquidityWithdraw = (availableToWithdraw: BigNumber, quoteTokenAmount: BigNumber) =>
+  negativeToZero(availableToWithdraw.gte(quoteTokenAmount) ? quoteTokenAmount : availableToWithdraw)
+
+export const calculateAjnaMaxLiquidityWithdraw = ({
+  availableToWithdraw = ZERO,
+  pool,
+  position,
+  poolCurrentLiquidity,
+  simulation,
+}: {
+  availableToWithdraw?: BigNumber
+  pool: AjnaPool
+  poolCurrentLiquidity: BigNumber
+  position: AjnaEarnPosition
+  simulation?: AjnaEarnPosition
+}) => {
+  if (availableToWithdraw.gt(poolCurrentLiquidity)) {
+    return position.quoteTokenAmount.gt(poolCurrentLiquidity)
+      ? poolCurrentLiquidity
+      : position.quoteTokenAmount
+  }
+
+  if (
+    availableToWithdraw.gte(position.quoteTokenAmount) ||
+    pool.lowestUtilizedPriceIndex.isZero() ||
+    position.priceIndex?.gt(pool.lowestUtilizedPriceIndex)
+  ) {
+    return position.quoteTokenAmount
+  }
+
+  const { newLupIndex } = calculateNewLupWhenAdjusting(pool, position, simulation)
+
+  if (newLupIndex.gt(pool.highestThresholdPriceIndex)) {
+    return resolveMaxLiquidityWithdraw(availableToWithdraw, position.quoteTokenAmount)
+  }
+
+  const buckets = pool.buckets.filter(bucket => bucket.index.lte(pool.highestThresholdPriceIndex))
+
+  const lupBucket = buckets.find(bucket => bucket.index.eq(pool.lowestUtilizedPriceIndex))
+  const lupBucketIndex = buckets.findIndex(bucket => bucket.index.eq(pool.lowestUtilizedPriceIndex))
+
+  if (!lupBucket) {
+    return resolveMaxLiquidityWithdraw(availableToWithdraw, position.quoteTokenAmount)
+  }
+
+  const liquidityInLupBucket = getLiquidityInLupBucket(pool)
+
+  if (!buckets[lupBucketIndex + 1]) {
+    return resolveMaxLiquidityWithdraw(
+      availableToWithdraw.plus(liquidityInLupBucket),
+      position.quoteTokenAmount,
+    )
+  }
+
+  return calculateAjnaMaxLiquidityWithdraw({
+    availableToWithdraw: availableToWithdraw.plus(liquidityInLupBucket),
+    pool: {
+      ...pool,
+      buckets: [
+        ...buckets.filter(bucket => !bucket.index.eq(lupBucket.index)),
+        { ...lupBucket, quoteTokens: lupBucket.quoteTokens.minus(liquidityInLupBucket) },
+      ].sort((a, b) => a.index.minus(b.index).toNumber()),
+      depositSize: pool.depositSize.minus(liquidityInLupBucket),
+      lowestUtilizedPriceIndex: buckets[lupBucketIndex + 1].index,
+      lowestUtilizedPrice: buckets[lupBucketIndex + 1].price,
+    },
+    poolCurrentLiquidity,
+    position,
+    simulation,
+  })
+}
