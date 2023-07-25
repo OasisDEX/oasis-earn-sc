@@ -159,5 +159,7 @@ function calculateNeededCollateralToPaybackDebt(
       .plus(paybackAmountInclFee.times(slippage))
       .div(colPrice),
   ).integerValue(BigNumber.ROUND_DOWN)
-  return collateralAmountNeeded.times(TEN.pow(colPrecision - debtPrecision))
+  return collateralAmountNeeded
+    .times(TEN.pow(colPrecision - debtPrecision))
+    .integerValue(BigNumber.ROUND_DOWN)
 }
