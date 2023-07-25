@@ -41,13 +41,13 @@ contract AjnaDepositBorrow is Executable, UseStore {
 
     uint256 mappedDepositAmount = store().readUint(
       bytes32(args.depositAmount),
-      paramsMap[1],
+      paramsMap[2],
       address(this)
     );
 
     uint256 mappedBorrowAmount = store().readUint(
       bytes32(args.borrowAmount),
-      paramsMap[2],
+      paramsMap[3],
       address(this)
     );
 

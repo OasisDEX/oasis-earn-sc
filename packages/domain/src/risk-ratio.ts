@@ -7,7 +7,7 @@ export interface IRiskRatio {
   multiple: BigNumber
 }
 
-enum RISK_RATIO_CTOR_TYPE {
+export enum RISK_RATIO_CTOR_TYPE {
   LTV = 'LTV',
   COL_RATIO = 'COL_RATIO',
   MULITPLE = 'MULITPLE',
@@ -15,9 +15,12 @@ enum RISK_RATIO_CTOR_TYPE {
 
 export class RiskRatio implements IRiskRatio {
   static TYPE = RISK_RATIO_CTOR_TYPE
+  type: RISK_RATIO_CTOR_TYPE = RISK_RATIO_CTOR_TYPE.LTV
   loanToValue: BigNumber
 
   constructor(input: BigNumber, type: RISK_RATIO_CTOR_TYPE) {
+    this.type = type
+
     switch (type) {
       case RiskRatio.TYPE.LTV:
         this.loanToValue = input

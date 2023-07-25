@@ -1,3 +1,4 @@
+import { ADDRESSES } from "@deploy-configurations/addresses";
 import { Contract, Signer } from "ethers";
 import hre, { ethers } from "hardhat";
 
@@ -52,12 +53,22 @@ export async function deployLibraries() {
   };
 }
 
-export async function deployTokens(receiver: string) {
-  const usdc = await utils.deployContract<Token>("Token", ["USDC", "USDC", receiver, 6]);
-  const wbtc = await utils.deployContract<Token>("Token", ["WBTC", "WBTC", receiver, 8]);
+export async function deployTokens(receiver: string, mainnetTokens: boolean) {
+  const usdc = mainnetTokens
+    ? await utils.getContract<Token>("ERC20", ADDRESSES.mainnet.common.USDC)
+    : await utils.deployContract<Token>("Token", ["USDC", "USDC", receiver, 6]);
+  const wbtc = mainnetTokens
+    ? await utils.getContract<Token>("ERC20", ADDRESSES.mainnet.common.WBTC)
+    : await utils.deployContract<Token>("Token", ["WBTC", "WBTC", receiver, 8]);
   const ajna = await utils.deployContract<Token>("Token", ["AJNA", "AJNA", receiver, 18]);
-  const weth = await utils.deployContract<WETH>("WETH", []);
-
+  const weth = mainnetTokens
+    ? await utils.getContract<WETH>("WETH", ADDRESSES.mainnet.common.WETH)
+    : await utils.deployContract<WETH>("WETH", []);
+  console.log("usdc", usdc.address);
+  console.log("wbtc", wbtc.address);
+  console.log("ajna", ajna.address);
+  console.log("weth", weth.address);
+  console.log("mainnet tokens:", mainnetTokens);
   return { usdc, wbtc, ajna, weth };
 }
 
@@ -203,9 +214,9 @@ export async function getPool(
   const poolAddress = await erc20PoolFactory.deployedPools(hash, collateral, quote);
   return utils.getContract<ERC20Pool>("ERC20Pool", poolAddress);
 }
-export async function deploy() {
+export async function deploy(mainnet = false) {
   const [deployer] = await ethers.getSigners();
-  const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address);
+  const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address, mainnet);
   const {
     poolCommons,
     /*actionsInstance,*/

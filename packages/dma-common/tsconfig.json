@@ -16,6 +16,7 @@
       "@deploy-configurations/utils/*": ["../deploy-configurations/utils/*"],
       "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
       "@deploy-configurations/constants": ["../deploy-configurations/constants/index.ts"],
+      "@deploy-configurations/configs": ["../deploy-configurations/configs/index.ts"],
       "@deploy-configurations/operation-definitions": ["../deploy-configurations/operation-definitions/index.ts"]
     },
   },

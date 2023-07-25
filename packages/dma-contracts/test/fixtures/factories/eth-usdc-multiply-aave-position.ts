@@ -5,6 +5,11 @@ import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import { Network } from '@dma-contracts/../deploy-configurations/types/network'
 import {
+  AavePositionDetails,
+  AavePositionStrategy,
+  StrategyDependenciesAave,
+} from '@dma-contracts/test/fixtures/types'
+import {
   AAVEStrategyAddresses,
   AAVEV3StrategyAddresses,
   AaveVersion,
@@ -17,9 +22,8 @@ import {
 import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { AavePositionStrategy, PositionDetails, StrategiesDependencies } from '../types'
+import { OpenPositionTypes } from './aave/open-position-types'
 import { ETH, MULTIPLE, SLIPPAGE, UNISWAP_TEST_SLIPPAGE, USDC } from './common'
-import { OpenPositionTypes } from './open-position-types'
 
 const depositCollateralAmount = amountToWei(ONE, ETH.precision)
 
@@ -72,11 +76,11 @@ export async function ethUsdcMultiplyAavePosition({
   isDPM: boolean
   use1inch: boolean
   swapAddress?: string
-  dependencies: StrategiesDependencies
+  dependencies: StrategyDependenciesAave
   config: RuntimeConfig
   feeRecipient: string
   network: Network
-}): Promise<PositionDetails> {
+}): Promise<AavePositionDetails> {
   const strategy: AavePositionStrategy = 'ETH/USDC Multiply'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
@@ -179,13 +183,16 @@ export async function ethUsdcMultiplyAavePosition({
   return {
     proxy: proxy,
     getPosition,
+    variant: strategy,
     strategy,
     collateralToken: tokens.ETH,
     debtToken: tokens.USDC,
     getSwapData,
     __positionType: 'Multiply',
     __mockPrice: mockPrice,
+    __mockMarketPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
+    __feesCollected: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }
 }

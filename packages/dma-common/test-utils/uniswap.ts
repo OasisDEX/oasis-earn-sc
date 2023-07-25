@@ -20,16 +20,29 @@ export async function swapUniswapTokens(
   recipient: string,
   { provider, signer }: Optional<Pick<RuntimeConfig, 'provider' | 'signer' | 'address'>, 'address'>,
   hre?: HardhatRuntimeEnvironment,
+  network: Network = Network.MAINNET,
 ) {
+  // TODO: Hacky fix. Should pass addresses as params
+  if (network !== Network.MAINNET && network !== Network.OPTIMISM) {
+    throw new Error('Unsupported network')
+  }
+
+  const WETHByNetwork = {
+    [Network.MAINNET]: ADDRESSES[Network.MAINNET].common.WETH,
+    [Network.OPTIMISM]: ADDRESSES[Network.OPTIMISM].common.WETH,
+  }
+
+  const RouterByNetwork = {
+    [Network.MAINNET]: ADDRESSES[Network.MAINNET].common.UniswapRouterV3,
+    [Network.OPTIMISM]: ADDRESSES[Network.OPTIMISM].common.UniswapRouterV3,
+  }
+
   const value =
-    tokenIn === ADDRESSES[Network.MAINNET].common.WETH ||
-    tokenIn === ADDRESSES[Network.OPTIMISM].common.WETH
-      ? amountIn
-      : 0
+    tokenIn === WETHByNetwork[network] || tokenIn === WETHByNetwork[network] ? amountIn : 0
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
 
   const uniswapV3 = new ethers.Contract(
-    ADDRESSES[Network.MAINNET].common.UniswapRouterV3,
+    RouterByNetwork[network],
     UNISWAP_ROUTER_V3_ABI,
     provider,
   ).connect(signer)
@@ -45,6 +58,6 @@ export async function swapUniswapTokens(
     sqrtPriceLimitX96: 0,
   }
 
-  const uniswapTx = await uniswapV3.exactInputSingle(swapParams, { value, gasLimit: 3000000 })
+  const uniswapTx = await uniswapV3.exactInputSingle(swapParams, { value, gasLimit: 30000000 })
   await uniswapTx.wait()
 }

@@ -6,45 +6,46 @@ export const acceptedTokens = [
   {
     symbol: 'USDC',
     address: [
-      ADDRESSES.mainnet.common.USDC,
-      ADDRESSES[Network.OPTIMISM].common.USDC,
-      ADDRESSES[Network.ARBITRUM].common.USDC,
+      ADDRESSES.mainnet.common.USDC.toLowerCase(),
+      ADDRESSES[Network.OPTIMISM].common.USDC.toLowerCase(),
+      ADDRESSES[Network.ARBITRUM].common.USDC.toLowerCase(),
     ],
   },
   {
     symbol: 'DAI',
     address: [
-      ADDRESSES.mainnet.common.DAI,
-      ADDRESSES[Network.OPTIMISM].common.DAI,
-      ADDRESSES[Network.ARBITRUM].common.DAI,
+      ADDRESSES.mainnet.common.DAI.toLowerCase(),
+      ADDRESSES[Network.OPTIMISM].common.DAI.toLowerCase(),
+      ADDRESSES[Network.ARBITRUM].common.DAI.toLowerCase(),
     ],
   },
   {
     symbol: 'WETH',
     address: [
-      ADDRESSES.mainnet.common.WETH,
-      ADDRESSES[Network.OPTIMISM].common.WETH,
-      ADDRESSES[Network.ARBITRUM].common.WETH,
+      ADDRESSES.mainnet.common.WETH.toLowerCase(),
+      ADDRESSES[Network.OPTIMISM].common.WETH.toLowerCase(),
+      ADDRESSES[Network.ARBITRUM].common.WETH.toLowerCase(),
     ],
   },
   {
     symbol: 'ETH',
     address: [
-      ADDRESSES.mainnet.common.ETH,
-      ADDRESSES[Network.OPTIMISM].common.ETH,
-      ADDRESSES[Network.ARBITRUM].common.ETH,
+      ADDRESSES.mainnet.common.ETH.toLowerCase(),
+      ADDRESSES[Network.OPTIMISM].common.ETH.toLowerCase(),
+      ADDRESSES[Network.ARBITRUM].common.ETH.toLowerCase(),
+
     ],
   },
   {
     symbol: 'STETH',
-    address: [ADDRESSES.mainnet.common.STETH],
+    address: [ADDRESSES.mainnet.common.STETH.toLowerCase()],
   },
   {
     symbol: 'WBTC',
     address: [
-      ADDRESSES.mainnet.common.WBTC,
-      ADDRESSES[Network.OPTIMISM].common.WBTC,
-      ADDRESSES[Network.ARBITRUM].common.WBTC,
+      ADDRESSES.mainnet.common.WBTC.toLowerCase(),
+      ADDRESSES[Network.OPTIMISM].common.WBTC.toLowerCase(),
+      ADDRESSES[Network.ARBITRUM].common.WBTC.toLowerCase(),
     ],
   },
 ]

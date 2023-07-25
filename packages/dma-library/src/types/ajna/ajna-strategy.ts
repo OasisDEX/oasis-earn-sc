@@ -1,16 +1,11 @@
-import { Tx } from '@dma-common/types'
+import { Strategy } from '@dma-library/types'
 import { AjnaError, AjnaNotice, AjnaSuccess, AjnaWarning } from '@dma-library/types/ajna'
 
-export type Strategy<Position> = {
-  simulation: {
-    swaps: []
-    // @deprecated - use position
-    targetPosition: Position
-    position: Position
+export type AjnaStrategy<Position> = Strategy<Position> & {
+  simulation: Strategy<Position>['simulation'] & {
     errors: AjnaError[]
     warnings: AjnaWarning[]
     notices: AjnaNotice[]
     successes: AjnaSuccess[]
   }
-  tx: Tx
 }

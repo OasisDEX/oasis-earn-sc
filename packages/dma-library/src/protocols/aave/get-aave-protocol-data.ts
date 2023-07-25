@@ -2,19 +2,12 @@
 import aaveV2PriceOracleABI from '@abis/external/protocols/aave/v2/priceOracle.json'
 import aaveV2ProtocolDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
 // V3 ABIs
-import aaveV3PriceOracleABI from '@abis/external/protocols/aave/v3/aaveOracle.json'
-import aaveV3ProtocolDataProviderABI from '@abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
-import aaveV3PoolABI from '@abis/external/protocols/aave/v3/pool.json'
 // V3 L2 ABIs
-import aaveV3PriceOracleOptimismABI from '@abis/external/protocols/aave/v3-l2/aaveOracle.json'
-import aaveV3ProtocolDataProviderOptimismABI from '@abis/external/protocols/aave/v3-l2/aaveProtocolDataProvider.json'
-import aaveV3PoolOptimismABI from '@abis/external/protocols/aave/v3-l2/pool.json'
-import { Network } from '@deploy-configurations/types/network'
-import { getForkedNetwork as coalesceNetwork } from '@deploy-configurations/utils/network'
 import { amountFromWei } from '@dma-common/utils/common'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { AaveVersion } from '@dma-library/strategies'
+import { getAbiForContract } from '@dma-library/utils/abis/get-abi-for-contract'
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 
@@ -190,32 +183,3 @@ async function getAaveV3ProtocolData({
 }
 
 export type AaveProtocolData = ReturnType<typeof getAaveProtocolData>
-
-type AllowedContractNames = 'poolDataProvider' | 'pool' | 'aaveOracle'
-async function getAbiForContract(contractName: AllowedContractNames, provider: providers.Provider) {
-  const network = await coalesceNetwork(provider as providers.JsonRpcProvider)
-  if (network === Network.GOERLI) throw new Error('Goerli not supported yet')
-
-  return abiByContractName[network][contractName]
-}
-
-const abiByContractName: Record<
-  Network.MAINNET | Network.OPTIMISM | Network.ARBITRUM,
-  Record<AllowedContractNames, any>
-> = {
-  [Network.MAINNET]: {
-    poolDataProvider: aaveV3ProtocolDataProviderABI,
-    pool: aaveV3PoolABI,
-    aaveOracle: aaveV3PriceOracleABI,
-  },
-  [Network.OPTIMISM]: {
-    poolDataProvider: aaveV3ProtocolDataProviderOptimismABI,
-    pool: aaveV3PoolOptimismABI,
-    aaveOracle: aaveV3PriceOracleOptimismABI,
-  },
-  [Network.ARBITRUM]: {
-    poolDataProvider: aaveV3ProtocolDataProviderOptimismABI,
-    pool: aaveV3PoolOptimismABI,
-    aaveOracle: aaveV3PriceOracleOptimismABI,
-  },
-}

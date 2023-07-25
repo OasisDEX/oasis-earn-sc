@@ -1,6 +1,9 @@
-import { AavePosition, AAVETokens, PositionTransition, SwapData } from '@dma-library'
-import { PositionType } from '@dma-library/types'
+import { AavePosition, AAVETokens, AjnaPosition, PositionTransition, SwapData } from '@dma-library'
+import { AjnaStrategy, PositionType } from '@dma-library/types'
+import { AjnaPool } from '@dma-library/types/ajna/ajna-pool'
 import BigNumber from 'bignumber.js'
+
+export type AjnaPositions = 'ETH/USDC Multiply'
 
 export type AaveV3PositionStrategy = 'ETH/USDC Multiply' | 'WSTETH/ETH Earn'
 
@@ -10,17 +13,21 @@ export type AavePositionStrategy =
   | 'ETH/USDC Multiply'
   | 'STETH/USDC Multiply'
 
+export type PositionVariants = AaveV3PositionStrategy | AavePositionStrategy | AjnaPositions
+
 export type TokenDetails = {
   symbol: AAVETokens
   precision: number
   address: string
 }
 
-export type PositionDetails = {
-  getPosition: () => Promise<AavePosition>
+type PositionDetails = {
   proxy: string
-  strategy: AavePositionStrategy | AaveV3PositionStrategy
+  variant: PositionVariants
+  /** @deprecated use variant instead */
+  strategy: PositionVariants
   collateralToken: TokenDetails
+  /** debtToken === quoteToken on Ajna */
   debtToken: TokenDetails
   getSwapData: (
     fromToken: string,
@@ -29,7 +36,22 @@ export type PositionDetails = {
     slippage: BigNumber,
   ) => Promise<SwapData>
   __positionType: PositionType
-  __mockPrice: BigNumber
-  __openPositionSimulation: PositionTransition['simulation']
+  /** @deprecated use __feesCollected instead */
   __feeWalletBalanceChange: BigNumber
+  __feesCollected: BigNumber
+  /** @deprecated use __mockMarketPrice instead */
+  __mockPrice: BigNumber
+  __mockMarketPrice: BigNumber
+}
+
+export type AavePositionDetails = PositionDetails & {
+  getPosition: () => Promise<AavePosition>
+  __openPositionSimulation: PositionTransition['simulation']
+}
+
+export type AjnaPositionDetails = PositionDetails & {
+  pool: AjnaPool
+  __openPositionSimulation: AjnaStrategy<AjnaPosition>['simulation']
+  __collateralPrice: BigNumber
+  __quotePrice: BigNumber
 }

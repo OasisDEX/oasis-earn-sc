@@ -1,12 +1,13 @@
 import { getAjnaCloseToCollateralOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
-import { MAX_UINT, ZERO } from '@dma-common/constants'
+import { FEE_BASE, MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   IOperation,
   WithAjnaBucketPrice,
   WithAjnaStrategyAddresses,
-  WithCollateralAndWithdrawal,
+  WithCollateral,
   WithDebt,
   WithFlashloan,
   WithProxy,
@@ -15,7 +16,7 @@ import {
 import { FlashloanProvider } from '@dma-library/types/common'
 import BigNumber from 'bignumber.js'
 
-type AjnaCloseArgs = WithCollateralAndWithdrawal &
+type AjnaCloseArgs = WithCollateral &
   WithDebt &
   WithSwap &
   WithFlashloan &
@@ -45,7 +46,7 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
   const setDebtTokenApprovalOnPool = actions.common.setApproval(Network.MAINNET, {
     asset: debt.address,
     delegate: addresses.pool,
-    amount: flashloan.amount,
+    amount: flashloan.token.amount,
     sumAmounts: false,
   })
 
@@ -69,6 +70,12 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken(Network.MAINNET, {
+    asset: debt.address,
+    to: addresses.operationExecutor,
+    amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.token.amount)),
+  })
+
   const unwrapEth = actions.common.unwrapEth(Network.MAINNET, {
     amount: new BigNumber(MAX_UINT),
   })
@@ -87,13 +94,14 @@ export const closeToCollateral: AjnaCloseToCollateralOperation = async ({
     setDebtTokenApprovalOnPool,
     paybackWithdraw,
     swapCollateralTokensForDebtTokens,
+    sendQuoteTokenToOpExecutor,
     unwrapEth,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(Network.MAINNET, {
     isDPMProxy: proxy.isDPMProxy,
-    asset: debt.address,
-    flashloanAmount: flashloan.amount,
+    asset: flashloan.token.address,
+    flashloanAmount: flashloan.token.amount,
     isProxyFlashloan: true,
     provider: FlashloanProvider.Balancer,
     calls: flashloanCalls,

@@ -1,6 +1,5 @@
 import { Network } from '@deploy-configurations/types/network'
-
-import { FlashloanProvider } from '../../types/common'
+import { FlashloanProvider } from '@dma-library/types/common'
 
 export function resolveFlashloanProvider(network: Network): FlashloanProvider {
   switch (network) {

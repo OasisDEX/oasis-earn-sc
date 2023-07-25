@@ -1,7 +1,9 @@
 export type {
   AjnaBorrowPayload,
   AjnaCommonDependencies,
+  AjnaCommonDMADependencies,
   AjnaCommonPayload,
+  AjnaEarnPayload,
   AjnaMultiplyPayload,
   AjnaOpenEarnDependencies,
   AjnaOpenEarnPayload,
@@ -9,8 +11,9 @@ export type {
 } from './ajna-dependencies'
 export type { AjnaEarnActions } from './ajna-earn-position'
 export { AjnaEarnPosition } from './ajna-earn-position'
+export type { AjnaPool } from './ajna-pool'
 export { AjnaPosition } from './ajna-position'
-export type { Strategy } from './ajna-strategy'
+export type { AjnaStrategy } from './ajna-strategy'
 export type {
   AjnaError,
   AjnaErrorAfterLupIndexBiggerThanHtpIndexDeposit,

@@ -7,8 +7,8 @@ import { calculatePreSwapFeeAmount } from './calculate-swap-fee-amount'
 
 type GetSwapDataArgs<Tokens> = {
   swapAmountBeforeFees: BigNumber
-  fromToken: { symbol: Tokens; precision?: number }
-  toToken: { symbol: Tokens; precision?: number }
+  fromToken: { symbol: Tokens; address?: Address; precision?: number }
+  toToken: { symbol: Tokens; address?: Address; precision?: number }
   slippage: BigNumber
   fee?: BigNumber
 }
@@ -21,7 +21,7 @@ export async function getSwapDataHelper<Addresses, Tokens>({
   args: GetSwapDataArgs<Tokens>
   addresses: Addresses
   services: {
-    getTokenAddress: (token: { symbol: Tokens }, addresses: Addresses) => Address
+    getTokenAddress?: (token: { symbol: Tokens }, addresses: Addresses) => Address
     getSwapData: (
       fromTokenAddress: string,
       toTokenAddress: string,
@@ -30,8 +30,15 @@ export async function getSwapDataHelper<Addresses, Tokens>({
     ) => Promise<SwapData>
   }
 }) {
-  const fromTokenAddress = services.getTokenAddress(args.fromToken, addresses)
-  const toTokenAddress = services.getTokenAddress(args.toToken, addresses)
+  const getTokenAddress = services.getTokenAddress
+  const fromTokenAddress =
+    args.fromToken.address || (getTokenAddress ? getTokenAddress(args.fromToken, addresses) : null)
+  const toTokenAddress =
+    args.toToken.address || (getTokenAddress ? getTokenAddress(args.toToken, addresses) : null)
+
+  if (!fromTokenAddress || !toTokenAddress) {
+    throw new Error('Address(es) missing in args or getTokenAddress function missing')
+  }
 
   const collectFeeFrom = acceptedFeeTokenByAddress({
     fromTokenAddress,

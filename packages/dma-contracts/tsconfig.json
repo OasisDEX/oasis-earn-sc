@@ -4,6 +4,7 @@
     "paths": {
       "@typechain/*": ["./typechain/*"],
       "@abis/*": ["../abis/*"],
+      "@ajna-contracts/*": ["../ajna-contracts/*"],
       "@ajna-contracts/scripts": ["../ajna-contracts/scripts/index.ts"],
       "@ajna-contracts/scripts/*": ["../ajna-contracts/scripts/*"],
       "@dma-contracts/test/*": ["./test/*"],
@@ -25,6 +26,7 @@
       "@deploy-configurations/operation-definitions": [
         "../deploy-configurations/operation-definitions/index.ts"
       ],
+      "@domain/*": ["../domain/src/*"],
       "@domain": ["../domain/src/index.ts"]
     },
     "typeRoots": ["../../node_modules/@types"]

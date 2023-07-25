@@ -5,7 +5,7 @@ import {
   AjnaBorrowPayload,
   AjnaCommonDependencies,
   AjnaPosition,
-  Strategy,
+  AjnaStrategy,
 } from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -20,7 +20,7 @@ import { validateGenerateCloseToMaxLtv } from '../validation/borrowish/closeToMa
 export type AjnaDepositBorrowStrategy = (
   args: AjnaBorrowPayload,
   dependencies: AjnaCommonDependencies,
-) => Promise<Strategy<AjnaPosition>>
+) => Promise<AjnaStrategy<AjnaPosition>>
 
 export const depositBorrow: AjnaDepositBorrowStrategy = async (args, dependencies) => {
   const isDepositingEth =

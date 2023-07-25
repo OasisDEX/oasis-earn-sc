@@ -1,10 +1,10 @@
 import { OperationNames } from '@deploy-configurations/constants'
-import { IBaseSimulatedTransition, IPosition, IRiskRatio, Swap } from '@domain'
-import { Delta } from '@domain/position'
+import { Delta, IBaseSimulatedTransition, IPosition, IRiskRatio, Swap } from '@domain'
 
 import { ActionCall } from './action-call'
 import { SwapData } from './swap-data'
 
+/** @deprecated use ISimulationV2 instead */
 export interface ISimulation {
   position: IPosition
   delta: Delta
@@ -21,7 +21,7 @@ export type WithMinConfigurableRiskRatio = {
 }
 
 /** @deprecated use ISimulation instead */
-export interface ISimulatedTransition extends IBaseSimulatedTransition {
+export type ISimulatedTransition = IBaseSimulatedTransition & {
   swap: SwapData & Swap
   minConfigurableRiskRatio: IRiskRatio
 }

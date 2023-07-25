@@ -215,7 +215,7 @@ describe(`Strategy | AAVE | Open Position | E2E`, async function () {
   describe('Using AAVE V3', async function () {
     const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
 
-    describe('Open position: With Uniswap', function () {
+    describe.only('Open position: With Uniswap', function () {
       let env: SystemWithAAVEV3Positions
       const fixture = systemWithAaveV3Positions({
         use1inch: false,

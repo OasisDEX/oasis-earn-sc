@@ -13,22 +13,35 @@ export const oneInchCallMock =
     precision: { from: number; to: number } = { from: 18, to: 18 },
     debug = false,
   ) =>
-  async (from: string, to: string, amount: BigNumber, slippage: BigNumber) => {
+  // Swap Direction Inversion is needed for use in tests where a preflight market price for a given token
+  // is required - EG in the case of Close to Collateral
+  async (
+    from: string,
+    to: string,
+    amount: BigNumber,
+    slippage: BigNumber,
+    protocols?: string[],
+    __invertSwapDirection?: boolean,
+  ) => {
     // EG FROM WBTC 8 to USDC 6
     // Convert WBTC fromWei
     // Apply market price
     // Convert result back to USDC at precision 6
+    const fromTokenPrecision = __invertSwapDirection ? precision.to : precision.from
+    const toTokenPrecision = __invertSwapDirection ? precision.from : precision.to
+    const _marketPrice = __invertSwapDirection ? ONE.div(marketPrice) : marketPrice
+
     const precisionAdjustedToAmount = amountToWei(
-      amountFromWei(amount, precision.from).div(marketPrice),
-      precision.to,
+      amountFromWei(amount, fromTokenPrecision).div(_marketPrice),
+      toTokenPrecision,
     ).integerValue(BigNumber.ROUND_DOWN)
 
     if (debug) {
       console.log('OneInchCallMock')
       console.log('Amount to swap:', amount.toString())
       console.log('Market price:', marketPrice.toString())
-      console.log('Precision from:', precision.from)
-      console.log('Precision to:', precision.to)
+      console.log('Precision from:', fromTokenPrecision)
+      console.log('Precision to:', toTokenPrecision)
       console.log('Received amount:', precisionAdjustedToAmount.toString())
     }
 
@@ -151,6 +164,7 @@ export async function exchangeToDAI(
 }
 
 type OneInchVersion = 'v4.0' | 'v5.0'
+// TODO: Let's move entirely to v5.0 on FE as well
 export const oneInchVersionMap: Record<
   Exclude<Network, Network.LOCAL | Network.HARDHAT | Network.GOERLI>,
   OneInchVersion
@@ -158,6 +172,7 @@ export const oneInchVersionMap: Record<
   [Network.MAINNET]: 'v4.0',
   [Network.OPTIMISM]: 'v5.0',
   [Network.ARBITRUM]: 'v5.0',
+  [Network.TENDERLY]: 'v5.0',
 }
 
 export function resolveOneInchVersion(network: Network): OneInchVersion {
