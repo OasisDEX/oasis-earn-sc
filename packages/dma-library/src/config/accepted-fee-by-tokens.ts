@@ -5,19 +5,35 @@ import { Network } from '@deploy-configurations/types/network'
 export const acceptedTokens = [
   {
     symbol: 'USDC',
-    address: [ADDRESSES.mainnet.common.USDC, ADDRESSES[Network.OPTIMISM].common.USDC],
+    address: [
+      ADDRESSES.mainnet.common.USDC,
+      ADDRESSES[Network.OPTIMISM].common.USDC,
+      ADDRESSES[Network.ARBITRUM].common.USDC,
+    ],
   },
   {
     symbol: 'DAI',
-    address: [ADDRESSES.mainnet.common.DAI, ADDRESSES[Network.OPTIMISM].common.DAI],
+    address: [
+      ADDRESSES.mainnet.common.DAI,
+      ADDRESSES[Network.OPTIMISM].common.DAI,
+      ADDRESSES[Network.ARBITRUM].common.DAI,
+    ],
   },
   {
     symbol: 'WETH',
-    address: [ADDRESSES.mainnet.common.WETH, ADDRESSES[Network.OPTIMISM].common.WETH],
+    address: [
+      ADDRESSES.mainnet.common.WETH,
+      ADDRESSES[Network.OPTIMISM].common.WETH,
+      ADDRESSES[Network.ARBITRUM].common.WETH,
+    ],
   },
   {
     symbol: 'ETH',
-    address: [ADDRESSES.mainnet.common.ETH, ADDRESSES[Network.OPTIMISM].common.ETH],
+    address: [
+      ADDRESSES.mainnet.common.ETH,
+      ADDRESSES[Network.OPTIMISM].common.ETH,
+      ADDRESSES[Network.ARBITRUM].common.ETH,
+    ],
   },
   {
     symbol: 'STETH',
@@ -25,6 +41,10 @@ export const acceptedTokens = [
   },
   {
     symbol: 'WBTC',
-    address: [ADDRESSES.mainnet.common.WBTC, ADDRESSES[Network.OPTIMISM].common.WBTC],
+    address: [
+      ADDRESSES.mainnet.common.WBTC,
+      ADDRESSES[Network.OPTIMISM].common.WBTC,
+      ADDRESSES[Network.ARBITRUM].common.WBTC,
+    ],
   },
 ]
