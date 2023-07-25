@@ -2897,6 +2897,14 @@
   dependencies:
     nx "15.9.2"
 
+"@oasisdex/dma-library@latest":
+  version "0.3.45-ajna-multiply-1"
+  resolved "https://registry.yarnpkg.com/@oasisdex/dma-library/-/dma-library-0.3.45-ajna-multiply-1.tgz#b3c2ce674831110935bc01baea467af9860872e9"
+  integrity sha512-TY+lnN8TtdC83z1NalfxRbLJxEYFfHzwzUyJYZUzBtXdXAsAVGlRo/oDrti+/+edlPfDyHNzWyO93fLUjJvrSQ==
+  dependencies:
+    bignumber.js "9.0.1"
+    ethers "5.6.2"
+
 "@oasisdex/oasis-actions@^0.2.16":
   version "0.2.16"
   resolved "https://registry.npmjs.org/@oasisdex/oasis-actions/-/oasis-actions-0.2.16.tgz"

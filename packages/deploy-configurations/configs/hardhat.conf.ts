@@ -497,6 +497,10 @@ export const config: SystemConfig = {
       name: 'TUSD',
       address: '0x0000000000085d4780B73119b644AE5ecd22b376',
     },
+    TBTC: {
+      name: 'TBTC',
+      address: '0x0000000000000000000000000000000000000000',
+    },
     UNI: {
       name: 'UNI',
       address: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
@@ -1103,6 +1107,10 @@ export const config: SystemConfig = {
     AjnaPoolPairs_RETHUSDC: {
       name: 'AjnaPoolPairs_RETHUSDC',
       address: '0xee056B440F78e692C9a49ed0640146452F881240',
+    },
+    AjnaPoolPairs_TBTCWBTC: {
+      name: 'AjnaPoolPairs_TBTCWBTC',
+      address: '0x0000000000000000000000000000000000000000',
     },
     AjnaPoolPairs_USDCETH: {
       name: 'AjnaPoolPairs_USDCETH',
