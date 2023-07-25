@@ -18,7 +18,7 @@
     "test:unit": "lerna run test:unit --stream",
     "clean": "rm -rf .parcel-cache && lerna run clean --stream",
     "compile": "npx ts-node symlink-contracts.ts && lerna run compile --stream",
-    "build": "lerna run build --stream && yarn compile",
+    "build": "yarn compile && lerna run build --stream",
     "format": "lerna run format --stream",
     "format:check": "lerna run format:check --stream",
     "lint": "lerna run lint --stream",
