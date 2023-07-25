@@ -19,6 +19,13 @@ export type AjnaErrorDustLimit = {
   }
 }
 
+export type AjnaErrorDustLimitMultiply = {
+  name: 'debt-less-then-dust-limit-multiply'
+  data: {
+    minDebtAmount: string
+  }
+}
+
 export type AjnaErrorWithdrawMoreThanAvailable = {
   name: 'withdraw-more-than-available'
   data: {
@@ -62,6 +69,7 @@ export type AjnaError =
   | AjnaErrorAfterLupIndexBiggerThanHtpIndexDeposit
   | AjnaErrorAfterLupIndexBiggerThanHtpIndexWithdraw
   | AjnaErrorDustLimit
+  | AjnaErrorDustLimitMultiply
   | AjnaErrorNotEnoughLiquidity
   | AjnaErrorOverWithdraw
   | AjnaErrorOverRepay

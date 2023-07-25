@@ -7,6 +7,10 @@
       "../../node_modules/@types"
     ],
     "paths": {
+      "@domain/*": ["./src/*"],
+      "@domain/test/*": [
+        "./test/*"
+      ],
       "@abis/external/*": ["../abis/external/*"],
       "@abis/system/*": ["../abis/system/*"],
       "@dma-common/constants": ["../dma-common/constants/index.ts"],
@@ -18,10 +22,7 @@
       "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
       "@deploy-configurations/constants": ["../deploy-configurations/constants/index.ts"],
       "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
-      "@deploy-configurations/configs": ["../deploy-configurations/configs/index.ts"],
-      "@domain/test/*": [
-        "./test/*"
-      ]
+      "@deploy-configurations/configs": ["../deploy-configurations/configs/index.ts"]
     },
   },
   "references": [

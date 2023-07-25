@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/dma-library",
-  "version": "0.3.45",
+  "version": "0.3.45-ajna-multiply-1",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -17,6 +17,7 @@
     "clean": "rm -rf lib && rm -f tsconfig.lint.tsbuildinfo",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && yarn tsc --build ./tsconfig.lint.json",
     "lint:fix": "yarn eslint . --fix --ext .ts",
+    "test": "yarn mocha -r ts-node/register -r tsconfig-paths/register 'test/**/*.ts'",
     "linked": "yarn link",
     "unlinked": "yarn unlink",
     "prepublish": "yarn build"
@@ -30,5 +31,14 @@
     "implicitDependencies": [
       "@oasisdex/domain"
     ]
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.4.1",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.1.6"
   }
 }

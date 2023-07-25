@@ -1,6 +1,7 @@
 import AavePoolAbi from '@abis/external/protocols/aave/v3/pool.json'
 import { FakeContract, smock } from '@defi-wonderland/smock'
-import { CONTRACT_NAMES } from '@deploy-configurations/constants'
+import { loadContractNames } from '@deploy-configurations/constants'
+import { Network } from '@deploy-configurations/types/network'
 import { ServiceRegistry } from '@deploy-configurations/utils/wrappers'
 import { createDeploy } from '@dma-common/utils/deploy'
 import init from '@dma-common/utils/init'
@@ -13,6 +14,7 @@ import { ethers } from 'hardhat'
 
 const utils = ethers.utils
 chai.use(smock.matchers)
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 const defaultDebtRateMode = 2
 describe('AAVE | PaybackV3 Action | Unit', () => {
@@ -46,8 +48,11 @@ describe('AAVE | PaybackV3 Action | Unit', () => {
     fakePool = await smock.fake<Pool>(AavePoolAbi)
     fakePool.repay.returns()
 
-    await registry.addEntry(CONTRACT_NAMES.aave.v3.AAVE_POOL, fakePool.address)
-    await registry.addEntry(CONTRACT_NAMES.common.OPERATION_STORAGE, operationStorageAddress)
+    await registry.addEntry(SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL, fakePool.address)
+    await registry.addEntry(
+      SERVICE_REGISTRY_NAMES.common.OPERATION_STORAGE,
+      operationStorageAddress,
+    )
 
     const [_paybackV3Action, _paybackV3ActionAddress] = await deploy('AaveV3Payback', [
       serviceRegistryAddress,

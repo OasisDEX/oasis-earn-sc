@@ -9,39 +9,37 @@ import {
   AaveGetCurrentPositionArgs,
   AaveOpenArgs,
   AaveOpenSharedDependencies,
+  AaveV3AdjustDependencies,
   AaveVersion,
   strategies,
   WithV3Addresses,
 } from '@oasisdex/dma-library'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'hardhat'
+import { ContractReceipt, ContractTransaction } from 'ethers'
+import hre from 'hardhat'
 
 async function runTransaction(
-  transaction: () => Promise<ethers.ContractTransaction>,
+  transaction: () => Promise<ContractTransaction>,
   name: string,
-): Promise<ethers.ContractReceipt> {
+): Promise<ContractReceipt> {
   console.log(`Running ${name} transaction`)
 
   try {
     const result = await transaction()
     console.log(`${name} transaction hash: ${result.hash}`)
     return await result.wait()
-  } catch (e) {
+  } catch (e: any) {
     console.error(`Error code: ${e.reason}`)
     console.error(`Error action: ${e.action}`)
     console.error(`Error nested message: ${e.error?.message}`)
-    throw new Error(`Error while running ${name} transaction.`, {
-      reason: e.reason,
-      action: e.action,
-      nestedMessage: e.error?.message,
-    })
+    throw new Error(`Error while running ${name} transaction.`)
   }
 }
 
 async function main() {
-  const signer = await ethers.provider.getSigner()
+  const signer = await hre.ethers.provider.getSigner()
 
-  const accountFactory = await ethers.getContractAt(
+  const accountFactory = await hre.ethers.getContractAt(
     'AccountFactory',
     optimismConfig.mpa.core.AccountFactory.address,
     signer,
@@ -103,7 +101,7 @@ async function main() {
       chainlinkEthUsdPriceFeed: optimismConfig.common.ChainlinkPriceOracle_ETHUSD.address,
       poolDataProvider: optimismConfig.aave.v3.AavePoolDataProvider.address,
     },
-    provider: ethers.provider,
+    provider: hre.ethers.provider,
     user: await signer.getAddress(),
     proxy: proxyAddress,
     isDPMProxy: true,
@@ -116,7 +114,7 @@ async function main() {
   }
 
   const transition = await strategies.aave.v3.open(args, dependencies)
-  const operationExecutor = await ethers.getContractAt(
+  const operationExecutor = await hre.ethers.getContractAt(
     'OperationExecutor',
     optimismConfig.mpa.core.OperationExecutor.address,
     signer,
@@ -127,13 +125,16 @@ async function main() {
     transition.transaction.operationName,
   ])
 
-  const accountImplementation = await ethers.getContractAt('AccountImplementation', proxyAddress)
+  const accountImplementation = await hre.ethers.getContractAt(
+    'AccountImplementation',
+    proxyAddress,
+  )
 
   await runTransaction(
     () =>
       accountImplementation.execute(operationExecutor.address, encodedCallData, {
-        value: ethers.utils.parseEther('10').toHexString(),
-        gasLimit: ethers.BigNumber.from(10000000),
+        value: hre.ethers.utils.parseEther('10').toHexString(),
+        gasLimit: hre.ethers.BigNumber.from(10000000),
       }),
     'open position',
   )
@@ -281,7 +282,7 @@ async function main() {
   await runTransaction(
     () =>
       accountImplementation.execute(operationExecutor.address, encodedCloseCallData, {
-        gasLimit: ethers.BigNumber.from(10000000),
+        gasLimit: hre.ethers.BigNumber.from(10000000),
       }),
     'Closing position',
   )

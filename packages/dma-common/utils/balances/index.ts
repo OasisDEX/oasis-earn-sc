@@ -10,11 +10,23 @@ export async function balanceOf(
   address: string,
   options: BalanceOptions,
   hre?: HardhatRuntimeEnvironment,
+  network: Network = Network.MAINNET,
 ): Promise<BigNumber> {
   let balance
   const { provider, signer } = options.config
   const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
-  if (asset === ADDRESSES[Network.MAINNET].common.ETH) {
+
+  // TODO: Hacky fix. Should pass addresses as params
+  if (network !== Network.MAINNET && network !== Network.OPTIMISM) {
+    throw new Error('Unsupported network')
+  }
+
+  const ETHByNetwork = {
+    [Network.MAINNET]: ADDRESSES[Network.MAINNET].common.ETH,
+    [Network.OPTIMISM]: ADDRESSES[Network.OPTIMISM].common.ETH,
+  }
+
+  if (asset === ETHByNetwork[network]) {
     balance = new BigNumber((await provider.getBalance(address)).toString())
   } else {
     const ERC20Asset = new ethers.Contract(asset, IERC20_ABI, signer)

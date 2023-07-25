@@ -6,8 +6,8 @@ import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy, executeThroughProxy } from '@dma-common/utils/execute'
 import {
+  AavePositionDetails,
   AavePositionStrategy,
-  PositionDetails,
   StrategyDependenciesAaveV2,
 } from '@dma-contracts/test/fixtures/types'
 import { AaveVersion, strategies } from '@dma-library'
@@ -18,8 +18,8 @@ import {
 import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 
+import { OpenPositionTypes } from './aave/open-position-types'
 import { ETH, MULTIPLE, STETH, UNISWAP_TEST_SLIPPAGE } from './common'
-import { OpenPositionTypes } from './open-position-types'
 
 const transactionAmount = amountToWei(new BigNumber(2), ETH.precision)
 
@@ -76,7 +76,7 @@ export async function stethEthEarnAavePosition({
   config: RuntimeConfig
   feeRecipient: Address
   network: Network
-}): Promise<PositionDetails> {
+}): Promise<AavePositionDetails> {
   const strategy: AavePositionStrategy = 'STETH/ETH Earn'
 
   if (use1inch && !swapAddress) throw new Error('swapAddress is required when using 1inch')
@@ -155,12 +155,15 @@ export async function stethEthEarnAavePosition({
     proxy: proxy,
     getPosition,
     strategy: 'STETH/ETH Earn',
+    variant: strategy,
     collateralToken: new STETH(dependencies.addresses),
     debtToken: new ETH(dependencies.addresses),
     getSwapData,
     __positionType: 'Earn',
     __mockPrice: mockPrice,
+    __mockMarketPrice: mockPrice,
     __openPositionSimulation: position.simulation,
     __feeWalletBalanceChange: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
+    __feesCollected: feeWalletBalanceAfter.minus(feeWalletBalanceBefore),
   }
 }

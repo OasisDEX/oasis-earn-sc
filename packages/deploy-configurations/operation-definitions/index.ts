@@ -19,8 +19,8 @@ export { getAaveOpenV3OperationDefinition } from './aave/v3/open'
 export { getAavePaybackWithdrawV3OperationDefinition } from './aave/v3/payback-withdraw'
 
 // AJNA
-export { ajnaAdjustDownOperationDefinition } from './ajna/adjust-down'
-export { ajnaAdjustUpOperationDefinition } from './ajna/adjust-up'
+export { getAjnaAdjustDownOperationDefinition } from './ajna/adjust-down'
+export { getAjnaAdjustUpOperationDefinition } from './ajna/adjust-up'
 export { getAjnaCloseToCollateralOperationDefinition } from './ajna/close-to-collateral'
 export { getAjnaCloseToQuoteOperationDefinition } from './ajna/close-to-quote'
-export { ajnaOpenOperationDefinition } from './ajna/open'
+export { getAjnaOpenOperationDefinition } from './ajna/open'

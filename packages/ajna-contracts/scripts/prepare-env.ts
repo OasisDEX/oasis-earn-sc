@@ -11,6 +11,7 @@ import {
   YEAR,
 } from "@ajna-contracts/scripts";
 import { AccountFactory, ERC20Pool, IAccountImplementation, Token, WETH } from "@ajna-contracts/typechain";
+import { swapUniswapTokens } from "@oasisdex/dma-common/test-utils";
 import { BigNumber, Signer } from "ethers";
 import hre from "hardhat";
 import { HardhatRuntimeEnvironment } from "hardhat/types/runtime";
@@ -21,6 +22,51 @@ const plotly =
   process.env.PLOTY_KEY && process.env.PLOTY_USER ? ploty_(process.env.PLOTY_USER, process.env.PLOTY_KEY) : undefined;
 
 const utils = new HardhatUtils(hre);
+
+interface Bucket {
+  price: BigNumber;
+  index: BigNumber;
+  quoteTokens: BigNumber;
+  collateral: BigNumber;
+  bucketLPs: BigNumber;
+}
+interface AjnaPool {
+  poolAddress: string;
+  quoteToken: string;
+  collateralToken: string;
+
+  //@deprecated use lowestUtilizedPrice
+  lup: BigNumber;
+  lowestUtilizedPrice: BigNumber;
+  lowestUtilizedPriceIndex: BigNumber;
+
+  //@deprecated use highestThresholdPrice
+  htp: BigNumber;
+  highestThresholdPrice: BigNumber;
+  highestThresholdPriceIndex: BigNumber;
+
+  highestPriceBucket: BigNumber;
+  highestPriceBucketIndex: BigNumber;
+
+  mostOptimisticMatchingPrice: BigNumber;
+
+  poolMinDebtAmount: BigNumber;
+  poolCollateralization: BigNumber;
+  poolActualUtilization: BigNumber;
+  poolTargetUtilization: BigNumber;
+
+  // annualized rate as a fraction 0.05 = 5%
+  interestRate: BigNumber;
+  debt: BigNumber;
+  depositSize: BigNumber;
+  apr30dAverage: BigNumber;
+  dailyPercentageRate30dAverage: BigNumber;
+  monthlyPercentageRate30dAverage: BigNumber;
+  currentBurnEpoch: BigNumber;
+  buckets: Bucket[];
+  pendingInflator: BigNumber;
+}
+
 export const ajnaHre = hre;
 export async function createDPMProxy(dmpFactory: AccountFactory, owner: Signer) {
   const accountTx = await dmpFactory.connect(owner)["createAccount()"]();
@@ -31,11 +77,55 @@ export async function createDPMProxy(dmpFactory: AccountFactory, owner: Signer) 
   return dpmProxy;
 }
 
-export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
+export async function prepareEnv(_hre?: HardhatRuntimeEnvironment, mainnetTokens = false) {
   const hre = _hre ? _hre : await import("hardhat");
   const ethers = hre.ethers;
   const signers = await ethers.getSigners();
   const [deployer, lender, borrower] = signers;
+
+  if (hre.network.name === "tenderly") {
+    await hre.ethers.provider.send("tenderly_setBalance", [
+      [deployer.address, lender.address, borrower.address],
+      //amount in wei will be set for all wallets
+      hre.ethers.utils.hexValue(ethers.utils.parseUnits("1000000", "ether").toHexString()),
+    ]);
+  }
+
+  async function getTokensForAccounts(token: string) {
+    await Promise.all(
+      signers.map(async signer => {
+        return swapUniswapTokens(
+          weth.address,
+          token,
+          hre.ethers.utils.parseEther("1000").toHexString(),
+          "0",
+          await signer.getAddress(),
+          { provider: hre.ethers.provider, signer }
+        );
+      })
+    );
+  }
+
+  async function fundAccounts() {
+    if (hre.network.name === "tenderly") {
+      await hre.ethers.provider.send("tenderly_setBalance", [
+        signers.map(signer => signer.address),
+        //amount in wei will be set for all wallets
+        hre.ethers.utils.hexValue(ethers.utils.parseUnits("1000000", "ether").toHexString()),
+      ]);
+
+      await getTokensForAccounts(usdc.address);
+      await getTokensForAccounts(wbtc.address);
+    }
+    if (hre.network.name !== "tenderly") {
+      await Promise.all([
+        // Have some issues with setting balance on mainnet USDC contract
+        ...(mainnetTokens ? [] : signers.map(signer => utils.sendLotsOfMoney(signer.address, usdc, mainnetTokens))),
+        ...signers.map(signer => utils.sendLotsOfMoney(signer.address, wbtc, mainnetTokens)),
+        ...signers.map(signer => utils.sendLotsOfMoney(signer.address, weth, mainnetTokens)),
+      ]);
+    }
+  }
 
   const {
     erc20PoolFactory,
@@ -52,13 +142,14 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
     pools,
     positionManagerContract,
     rewardsManagerContract,
-  } = await deploy();
+  } = await deploy(mainnetTokens, hre);
 
-  await Promise.all([
-    ...signers.map(signer => utils.sendLotsOfMoney(signer.address, usdc)),
-    ...signers.map(signer => utils.sendLotsOfMoney(signer.address, wbtc)),
-    ...signers.map(signer => utils.sendLotsOfMoney(signer.address, weth)),
-  ]);
+  const poolByAddress = Object.entries(pools).reduce(
+    (acc, [, pool]) => ({ ...acc, [pool.address]: pool }),
+    {} as Record<string, ERC20Pool>
+  );
+
+  await fundAccounts();
 
   const dmpProxies = await Promise.all(signers.map(signer => createDPMProxy(dmpFactory, signer)));
   const users: User[] = signers.map((signer, index) => ({
@@ -86,10 +177,16 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
     const hpbIndex = await poolInfoContract.hpbIndex(pool.address);
     const htp = await poolInfoContract.htp(pool.address);
     let momp = BigNumber.from(0);
+    let htpIndex = BigNumber.from(0);
+    try {
+      htpIndex = await poolInfoContract.priceToIndex(htp);
+    } catch (e) {
+      console.error("htp not found");
+    }
     try {
       momp = await poolInfoContract.momp(pool.address);
     } catch (e) {
-      console.error("momp not found", e);
+      console.error("momp not found");
     }
     const lenderInterestMargin = await poolInfoContract.lenderInterestMargin(pool.address);
     const lup = await poolInfoContract.lup(pool.address);
@@ -104,6 +201,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
       hpb,
       hpbIndex,
       htp,
+      htpIndex,
       lenderInterestMargin,
       lup,
       lupIndex,
@@ -146,19 +244,71 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
   const bucketsRepo: Record<string, Set<number>> = Object.values(pools).reduce(
     (acc, pool) => ({
       ...acc,
-      [pool.address.toLowerCase()]: new Set<number>(),
+      [pool.address]: new Set<number>(),
     }),
     {}
   );
   async function provideLiquidity_(pool: ERC20Pool, amount: BigNumber, bucketIndex: BigNumber, user: User = users[1]) {
     await provideLiquidity(usdc, user.signer, pool, amount, bucketIndex, getExpiryTimestamp);
-    bucketsRepo[pool.address.toLowerCase()].add(bucketIndex.toNumber());
+    bucketsRepo[pool.address].add(bucketIndex.toNumber());
   }
   async function removeLiquidity_(pool: ERC20Pool, amount: BigNumber, bucketIndex: BigNumber, user: User = users[1]) {
     const amountWei = ethers.utils.parseUnits(amount.toString(), 18);
     const tx = await pool.connect(user.signer).removeQuoteToken(amountWei, bucketIndex);
     await tx.wait();
   }
+
+  async function getPoolData(poolAddress: string): Promise<AjnaPool> {
+    const buckets = await getAllBucketsInfo(poolAddress);
+    const pool = poolByAddress[poolAddress];
+    const params = await getParams(pool);
+
+    return {
+      poolAddress: pool.address,
+      quoteToken: await pool.quoteTokenAddress(),
+      collateralToken: await pool.collateralAddress(),
+
+      //@deprecated use lowestUtilizedPrice
+      lup: params.lup,
+      lowestUtilizedPrice: params.lup,
+      lowestUtilizedPriceIndex: params.lupIndex,
+
+      //@deprecated use highestThresholdPrice
+      htp: params.htp,
+      highestThresholdPrice: params.htp,
+      highestThresholdPriceIndex: params.htpIndex,
+
+      highestPriceBucket: params.hpb,
+      highestPriceBucketIndex: params.hpbIndex,
+
+      mostOptimisticMatchingPrice: params.momp,
+
+      poolMinDebtAmount: params.poolUtilizationInfo.poolMinDebtAmount_,
+      poolCollateralization: params.poolUtilizationInfo.poolCollateralization_,
+      poolActualUtilization: params.poolUtilizationInfo.poolActualUtilization_,
+      poolTargetUtilization: params.poolUtilizationInfo.poolTargetUtilization_,
+
+      // annualized rate as a fraction 0.05 = 5%
+      interestRate: params.poolLoansInfo.pendingInflator_,
+      debt: BigNumber.from(0),
+      depositSize: BigNumber.from(0),
+      apr30dAverage: BigNumber.from(0),
+      dailyPercentageRate30dAverage: BigNumber.from(0),
+      monthlyPercentageRate30dAverage: BigNumber.from(0),
+      currentBurnEpoch: BigNumber.from(0),
+      buckets: Object.entries(buckets).map(([index, bucket]) => {
+        return {
+          price: bucket.price_,
+          index: BigNumber.from(index),
+          quoteTokens: bucket.quoteTokens_,
+          collateral: bucket.collateral_,
+          bucketLPs: bucket.bucketLP_,
+        };
+      }),
+      pendingInflator: BigNumber.from(0),
+    };
+  }
+
   async function getBucketInfo(index: BigNumber, poolAddress: string = pools.wbtcUsdcPool.address.toLowerCase()) {
     const bucketInfo = await poolInfoContract.bucketInfo(poolAddress, index);
 
@@ -173,7 +323,7 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
   ) {
     const amountWei = ethers.utils.parseUnits(amount.toString(), 18);
     const expiry = await getExpiryTimestamp();
-    const tx = await pool.connect(user.signer).moveQuoteToken(amountWei, fromBucketIndex, toBucketIndex, expiry);
+    const tx = await pool.connect(user.signer).moveQuoteToken(amountWei, fromBucketIndex, toBucketIndex, expiry, false);
     await tx.wait();
   }
 
@@ -294,6 +444,20 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
 
     return timestamp + 130000;
   }
+
+  console.log(`
+    DEPLOYED AJNA CONTRACTS:
+    ========================
+    erc20PoolFactory: ${erc20PoolFactory.address}
+    wbtcUsdcPool: ${pools.wbtcUsdcPool.address}
+    wethUsdcPool: ${pools.wethUsdcPool.address}
+    poolInfoContract: ${poolInfoContract.address}
+    ajnaProxyActionsContract: ${ajnaProxyActionsContract.address}
+    positionManagerContract: ${positionManagerContract.address}
+    rewardsManagerContract: ${rewardsManagerContract.address}
+    ========================
+  `);
+
   return {
     times: {
       DAY,
@@ -328,6 +492,8 @@ export async function prepareEnv(_hre?: HardhatRuntimeEnvironment) {
     getBorrowerInfo,
     printBuckets,
     printAddresses,
+    getPoolData,
+    fundAccounts,
     pools,
     positionManagerContract,
     rewardsManagerContract,

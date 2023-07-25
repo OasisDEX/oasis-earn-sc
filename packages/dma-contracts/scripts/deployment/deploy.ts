@@ -20,6 +20,11 @@ import {
   getAaveOpenV3OperationDefinition,
   getAavePaybackWithdrawV2OperationDefinition,
   getAavePaybackWithdrawV3OperationDefinition,
+  getAjnaAdjustDownOperationDefinition,
+  getAjnaAdjustUpOperationDefinition,
+  getAjnaCloseToCollateralOperationDefinition,
+  getAjnaCloseToQuoteOperationDefinition,
+  getAjnaOpenOperationDefinition,
 } from '@deploy-configurations/operation-definitions'
 import {
   ContractProps,
@@ -69,13 +74,14 @@ const rpcUrls: any = {
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
 }
 
-const gnosisSafeServiceUrl: any = {
+const gnosisSafeServiceUrl: Record<Network, string> = {
   [Network.MAINNET]: '',
   [Network.HARDHAT]: '',
   [Network.LOCAL]: '',
   [Network.OPTIMISM]: '',
-  [Network.GOERLI]: 'https://safe-transaction.goerli.gnosis.io',
-  [Network.HARDHAT]: '',
+  [Network.ARBITRUM]: '',
+  [Network.GOERLI]: 'https://safe-transaction-goerli.safe.global',
+  [Network.TENDERLY]: '',
 }
 
 // HELPERS --------------------------
@@ -97,6 +103,7 @@ abstract class DeployedSystemHelpers {
 
   async getForkedNetworkChainId(provider: providers.JsonRpcProvider) {
     try {
+      return (await provider.getNetwork()).chainId
       const metadata = await provider.send('hardhat_metadata', [])
       return metadata.forkedNetwork.chainId
     } catch (e) {
@@ -131,7 +138,10 @@ abstract class DeployedSystemHelpers {
     this.forkedNetwork = this.getNetworkFromChainId(this.chainId)
 
     this.rpcUrl = this.getRpcUrl(this.forkedNetwork)
-    this.log('NETWORK / FORKED NETWORK', `${this.network} / ${this.forkedNetwork}`)
+    this.log(
+      'NETWORK / FORKED NETWORK / ChainID',
+      `${this.network} / ${this.forkedNetwork} / ${this.chainId}`,
+    )
 
     if (this.forkedNetwork) {
       console.log('Loading ServiceRegistryNames for', this.forkedNetwork)
@@ -178,6 +188,7 @@ abstract class DeployedSystemHelpers {
     }
     throw 'Balances slot not found!'
   }
+
   /**
    * Set token balance to the provided value.
    * @param {string} account  - address of the wallet holding the tokens
@@ -241,7 +252,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async extendConfig(configFileName?: string) {
+  async extendConfig(configFileName: string) {
     try {
       if (!this.config) {
         await this.loadConfig(configFileName)
@@ -355,7 +366,13 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
       if (gnosisSafeServiceUrl[this.network] !== '') {
-        const signer = this.provider.getSigner(1)
+        /**
+         * Currently throws the following error:
+         * Error: Unprocessable Entity
+         * When attempting to generate a Safe transaction
+         * TODO: investigate and debug error
+         */
+        const signer = this.provider.getSigner(0)
         const ethAdapter = new EthersAdapter({ ethers, signerOrProvider: signer })
 
         const safeSdk: Safe = await Safe.create({
@@ -398,7 +415,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
           senderAddress: ethers.utils.getAddress(address),
           senderSignature: ownerSignature.data,
         })
-      } else {
+        // Mainnet is excluded because Service Registry is managed by multi-sig wallet
+      } else if (this.network !== Network.MAINNET) {
         await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, contract.address)
       }
     }
@@ -714,6 +732,15 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     )
   }
 
+  async addAjnaEntries() {
+    if (!this.config) throw new Error('No config set')
+    await this.addRegistryEntries(
+      Object.values(this.config.ajna).filter(
+        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+      ),
+    )
+  }
+
   async addOperationEntries() {
     if (!this.signer) throw new Error('No signer set')
     if (!this.deployedSystem.OperationsRegistry) throw new Error('No OperationsRegistry deployed')
@@ -794,19 +821,46 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       getAaveBorrowV3OperationDefinition(network).name,
       getAaveBorrowV3OperationDefinition(network).actions,
     )
+
+    // AJNA
+    await operationsRegistry.addOp(
+      getAjnaOpenOperationDefinition(network).name,
+      getAjnaOpenOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaCloseToQuoteOperationDefinition(network).name,
+      getAjnaCloseToQuoteOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaCloseToCollateralOperationDefinition(network).name,
+      getAjnaCloseToCollateralOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaAdjustUpOperationDefinition(network).name,
+      getAjnaAdjustUpOperationDefinition(network).actions,
+    )
+
+    await operationsRegistry.addOp(
+      getAjnaAdjustDownOperationDefinition(network).name,
+      getAjnaAdjustDownOperationDefinition(network).actions,
+    )
   }
 
   async addAllEntries() {
     await this.addCommonEntries()
     await this.addAaveEntries()
     await this.addMakerEntries()
+    await this.addAjnaEntries()
     await this.addOperationEntries()
   }
 
   // TODO unify resetNode and resetNodeToLatestBlock into one function
   async resetNode(blockNumber: number) {
     if (!this.provider) throw new Error('No provider set')
-    this.log(`\x1b[90mResetting fork to block number: ${blockNumber}\x1b[0m`)
+    this.log(`\x1b[90mResetting fork to block number: ${blockNumber} using ${this.rpcUrl} \x1b[0m`)
     await this.provider.send('hardhat_reset', [
       {
         forking: {

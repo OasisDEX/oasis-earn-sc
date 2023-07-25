@@ -2,7 +2,7 @@ import { adjustRiskDown } from '@dma-library/strategies/aave/adjust/adjust-risk-
 import { adjustRiskUp } from '@dma-library/strategies/aave/adjust/adjust-risk-up'
 import { getFlashloanToken } from '@dma-library/strategies/aave/common'
 import { PositionTransition } from '@dma-library/types'
-import { isRiskIncreasing } from '@dma-library/utils/swap'
+import { isRiskIncreasing } from '@domain/utils/risk-direction'
 
 import { AaveAdjustArgs, AaveAdjustDependencies, ExtendedAaveAdjustArgs } from './types'
 
@@ -14,7 +14,9 @@ export async function adjust(
     ...args,
     flashloanToken: getFlashloanToken(dependencies).flashloanToken,
   }
-  if (isRiskIncreasing(dependencies.currentPosition.riskRatio, args.multiple)) {
+  if (
+    isRiskIncreasing(dependencies.currentPosition.riskRatio.loanToValue, args.multiple.loanToValue)
+  ) {
     return adjustRiskUp(expandedArgs, dependencies)
   } else {
     return adjustRiskDown(expandedArgs, dependencies)

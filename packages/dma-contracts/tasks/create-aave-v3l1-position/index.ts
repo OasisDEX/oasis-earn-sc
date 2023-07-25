@@ -1,6 +1,6 @@
 import { ADDRESSES } from '@deploy-configurations/addresses'
+import { loadContractNames } from '@deploy-configurations/constants'
 import { Network } from '@deploy-configurations/types/network'
-import { SERVICE_REGISTRY_NAMES } from '@dma-common/constants'
 import { createDPMAccount, getOneInchCall, oneInchCallMock } from '@dma-common/test-utils'
 import init from '@dma-common/utils/init'
 import { getAccountFactory } from '@dma-common/utils/proxy'
@@ -9,6 +9,8 @@ import { StrategyDependenciesAaveV3 } from '@dma-contracts/test/fixtures/types/s
 import { AaveVersion, protocols } from '@dma-library'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
+
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 task('createAaveV3L1Position', 'Create wsteth/eth position on AAVE V3 L1')
   .addOptionalParam<string>('serviceregistry', 'Service Registry address')
