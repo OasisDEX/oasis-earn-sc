@@ -1,12 +1,12 @@
 import DummyActionABI from '@abis/system/contracts/test/DummyAction.sol/DummyAction.json'
+import { loadContractNames } from '@deploy-configurations/constants'
 import { OperationsRegistry } from '@deploy-configurations/utils/wrappers'
-import { CONTRACT_NAMES } from '@dma-common/constants'
 import { DeployedSystemInfo, restoreSnapshot } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
-import { ActionCall, ActionFactory, calldataTypes } from '@dma-library'
+import { ActionCall, ActionFactory, calldataTypes, Network } from '@dma-library'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { expect } from 'chai'
 import { ContractReceipt, Signer, utils } from 'ethers'
@@ -14,6 +14,7 @@ import { Interface } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 
 const createAction = ActionFactory.create
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 const dummyActionIface = new ethers.utils.Interface(DummyActionABI)
 
@@ -77,9 +78,11 @@ describe.skip(`Optional Actions | Unit`, async () => {
 
     // Add new operation with optional Actions
     OPERATION_NAME = 'TEST_OPERATION_1'
-    Action1Hash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.test.DUMMY_ACTION))
-    Action2Hash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.test.DUMMY_OPTIONAL_ACTION))
-    Action3Hash = utils.keccak256(utils.toUtf8Bytes(CONTRACT_NAMES.test.DUMMY_ACTION))
+    Action1Hash = utils.keccak256(utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_ACTION))
+    Action2Hash = utils.keccak256(
+      utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_OPTIONAL_ACTION),
+    )
+    Action3Hash = utils.keccak256(utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_ACTION))
 
     await operationsRegistry.addOp(OPERATION_NAME, [
       { hash: Action1Hash, optional: false },

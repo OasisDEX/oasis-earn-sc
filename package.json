@@ -21,7 +21,7 @@
     "build": "lerna run build --stream && yarn compile",
     "format": "lerna run format --stream",
     "format:check": "lerna run format:check --stream",
-    "lint": "lerna run lint --stream",
+    "lint": "yarn compile && lerna run lint --stream",
     "publish:all": "npx lerna publish --no-private"
   },
   "devDependencies": {
