@@ -33,7 +33,6 @@ export const acceptedTokens = [
       ADDRESSES.mainnet.common.ETH.toLowerCase(),
       ADDRESSES[Network.OPTIMISM].common.ETH.toLowerCase(),
       ADDRESSES[Network.ARBITRUM].common.ETH.toLowerCase(),
-
     ],
   },
   {
