@@ -23,8 +23,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "4.7.3",
-    "glob": "^10.1.0",
-    "@oasisdex/dma-library": "latest"
+    "glob": "^10.1.0"
   },
   "files": [
     "tsconfig.json"

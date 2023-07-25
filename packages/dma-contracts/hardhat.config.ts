@@ -11,17 +11,18 @@ import 'hardhat-abi-exporter'
 // Tasks
 import './tasks/deploy'
 import './tasks/create-position'
-import './tasks/create-aave-v3l1-position'
+
 import './tasks/proxy'
 import './tasks/verify-earn'
 import './tasks/transfer-erc20'
 import './tasks/get-tokens'
 import './tasks/read-erc20-balance'
 import './tasks/user-dpm-proxies'
-import './tasks/create-multiply-position'
 import './tasks/transfer-dpm'
 import './tasks/deploy-ajna'
 
+// import './tasks/create-aave-v3l1-position'
+// import './tasks/create-multiply-position'
 import { Network } from '@deploy-configurations/types/network'
 import * as process from 'process'
 
