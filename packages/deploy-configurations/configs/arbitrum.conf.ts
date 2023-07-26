@@ -344,6 +344,7 @@ export const config: SystemConfig = {
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DAI,
     },
     ETH: { name: 'ETH', address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' },
+    GHO: { name: 'GHO', address: ADDRESS_ZERO },
     GNO: { name: 'GNO', address: ADDRESS_ZERO },
     GUNIV3DAIUSDC1: {
       name: 'GUNIV3DAIUSDC1',
@@ -400,6 +401,7 @@ export const config: SystemConfig = {
       address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
     },
+    WLD: { name: 'WLD', address: ADDRESS_ZERO },
     WSTETH: {
       name: 'WSTETH',
       address: '0x5979D7b546E38E414F7E9822514be443A4800529',
@@ -972,6 +974,14 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_TBTCWBTC',
       address: ADDRESS_ZERO,
     },
+    AjnaPoolPairs_ETHGHO: { name: 'AjnaPoolPairs_ETHGHO', address: ADDRESS_ZERO },
+    AjnaPoolPairs_WSTETHGHO: { name: 'AjnaPoolPairs_WSTETHGHO', address: ADDRESS_ZERO },
+    AjnaPoolPairs_GHODAI: { name: 'AjnaPoolPairs_GHODAI', address: ADDRESS_ZERO },
+    AjnaPoolPairs_RETHGHO: { name: 'AjnaPoolPairs_RETHGHO', address: ADDRESS_ZERO },
+    AjnaPoolPairs_WBTCGHO: { name: 'AjnaPoolPairs_WBTCGHO', address: ADDRESS_ZERO },
+    AjnaPoolPairs_CBETHGHO: { name: 'AjnaPoolPairs_CBETHGHO', address: ADDRESS_ZERO },
+    AjnaPoolPairs_WLDUSDC: { name: 'AjnaPoolPairs_WLDUSDC', address: ADDRESS_ZERO },
+    AjnaPoolPairs_USDCWLD: { name: 'AjnaPoolPairs_USDCWLD', address: ADDRESS_ZERO },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: ADDRESS_ZERO,
