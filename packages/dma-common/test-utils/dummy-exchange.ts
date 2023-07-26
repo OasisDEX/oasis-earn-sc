@@ -13,6 +13,8 @@ import { Contract, ethers, Signer } from 'ethers'
 import fetch from 'node-fetch'
 import { curry } from 'ramda'
 
+import { getOneInchAuthHeader, ONE_INCH_API_URL } from './1inch'
+
 export const FEE = 20
 export const FEE_BASE = 10000
 
@@ -30,9 +32,15 @@ export async function getMarketPrice(
   toPrecision = 18,
 ) {
   const amount = ethers.utils.parseUnits('0.1', fromPrecision)
-  const url = `https://api.1inch.exchange/v4.0/1/quote?fromTokenAddress=${from}&toTokenAddress=${to}&amount=${amount}&protocols=UNISWAP_V3`
+  const url = `${ONE_INCH_API_URL}/v4.0/1/quote?fromTokenAddress=${from}&toTokenAddress=${to}&amount=${amount}&protocols=UNISWAP_V3`
 
-  const response = await fetch(url)
+  const oneInchAuthHeader = getOneInchAuthHeader()
+
+  const response = await fetch(url, {
+    headers: {
+      ...oneInchAuthHeader,
+    },
+  })
 
   if (!response.ok) {
     throw new Error(`Error performing 1inch quote request ${url}: ${await response.text()}`)
