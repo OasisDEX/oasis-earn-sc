@@ -403,6 +403,10 @@ export const config: SystemConfig = {
       name: 'ETH',
       address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     },
+    GHO: {
+      name: 'GHO',
+      address: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
+    },
     GNO: {
       name: 'GNO',
       address: '0x6810e776880C02933D47DB1b9fc05908e5386b96',
@@ -558,6 +562,10 @@ export const config: SystemConfig = {
       name: 'WETH',
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
+    },
+    WLD: {
+      name: 'WLD',
+      address: '0x163f8c2467924be0ae7b5347228cabf260318753',
     },
     WSTETH: {
       name: 'WSTETH',
@@ -1139,6 +1147,38 @@ export const config: SystemConfig = {
     AjnaPoolPairs_TBTCWBTC: {
       name: 'AjnaPoolPairs_TBTCWBTC',
       address: '0x74da6fc4e456583b88d622b19ef6addfb726c0d7',
+    },
+    AjnaPoolPairs_ETHGHO: {
+      name: 'AjnaPoolPairs_ETHGHO',
+      address: '0x15838515903b3843e02f9283b4492833f138e8de',
+    },
+    AjnaPoolPairs_WSTETHGHO: {
+      name: 'AjnaPoolPairs_WSTETHGHO',
+      address: '0x33567e358a64924b2247c490fd08d18facac4a14',
+    },
+    AjnaPoolPairs_GHODAI: {
+      name: 'AjnaPoolPairs_GHODAI',
+      address: '0x9a98d5e8b9b2f85ca9f1566630c448a87ac7e6c4',
+    },
+    AjnaPoolPairs_RETHGHO: {
+      name: 'AjnaPoolPairs_RETHGHO',
+      address: '0xb60f9a764b0c08053dbb187726dc9afb126e8e19',
+    },
+    AjnaPoolPairs_WBTCGHO: {
+      name: 'AjnaPoolPairs_WBTCGHO',
+      address: '0x3fec883aaaa6896a600b99748e5d5d5c93df6aa1',
+    },
+    AjnaPoolPairs_CBETHGHO: {
+      name: 'AjnaPoolPairs_CBETHGHO',
+      address: '0x15acb60c3b1868d6ddc6e1b9fbdcc9531547438b',
+    },
+    AjnaPoolPairs_WLDUSDC: {
+      name: 'AjnaPoolPairs_WLDUSDC',
+      address: '0x29c1459e3fc8d4fde275bee5df5edaf984978f29',
+    },
+    AjnaPoolPairs_USDCWLD: {
+      name: 'AjnaPoolPairs_USDCWLD',
+      address: '0xe4418e421d179d33f2f16cecef89b72e46c099bf',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
