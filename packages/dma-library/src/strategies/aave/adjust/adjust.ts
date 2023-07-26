@@ -15,7 +15,7 @@ export async function adjust(
     flashloanToken: getFlashloanToken(dependencies).flashloanToken,
   }
   if (
-    isRiskIncreasing(dependencies.currentPosition.riskRatio.loanToValue, args.multiple.loanToValue)
+    isRiskIncreasing(args.multiple.loanToValue, dependencies.currentPosition.riskRatio.loanToValue)
   ) {
     return adjustRiskUp(expandedArgs, dependencies)
   } else {
