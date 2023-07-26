@@ -7,7 +7,10 @@ export function validateGenerateCloseToMaxLtv(
   position: AjnaPosition,
   positionBefore: AjnaPosition,
 ): AjnaWarning[] {
-  if (position.maxRiskRatio.loanToValue.minus(MAX_LTV_OFFSET).lte(position.riskRatio.loanToValue)) {
+  if (
+    position.maxRiskRatio.loanToValue.minus(MAX_LTV_OFFSET).lte(position.riskRatio.loanToValue) &&
+    !positionBefore.debtAmount.eq(position.debtAmount)
+  ) {
     return [
       {
         name: 'generate-close-to-max-ltv',
