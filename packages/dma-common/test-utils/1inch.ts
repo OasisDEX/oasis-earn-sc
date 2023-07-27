@@ -6,6 +6,23 @@ import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 
+export const ONE_INCH_API_URL = 'https://api-oasis.1inch.io'
+
+/**
+ * Returns the auth header for 1inch API calls
+ * @throws {Error} - if process.env.ONE_INCH_API_KEY is not defined
+ * @returns {Object} - { auth-key: process.env.ONE_INCH_API_KEY }
+ */
+export const getOneInchAuthHeader = () => {
+  const AUTH_HEADER_KEY = 'auth-key'
+
+  if (!process.env.ONE_INCH_API_KEY) {
+    throw new Error('ONE_INCH_API_KEY is not defined')
+  }
+
+  return { [AUTH_HEADER_KEY]: process.env.ONE_INCH_API_KEY }
+}
+
 const testMarketPrice = 0.979
 export const oneInchCallMock =
   (
@@ -88,11 +105,19 @@ export function formatOneInchSwapUrl(
   version = 'v4.0',
 ) {
   const protocolsParam = !protocols?.length ? '' : `&protocols=${protocols.join(',')}`
-  return `https://oasis.api.enterprise.1inch.exchange/${version}/${chainId}/swap?fromTokenAddress=${fromToken.toLowerCase()}&toTokenAddress=${toToken}&amount=${amount}&fromAddress=${recipient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`
+  return `${ONE_INCH_API_URL}/${version}/${chainId}/swap?fromTokenAddress=${fromToken.toLowerCase()}&toTokenAddress=${toToken}&amount=${amount}&fromAddress=${recipient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`
 }
 
 export async function exchangeTokens(url: string): Promise<OneInchSwapResponse> {
-  const response = await axios.get(url)
+  if (!process.env.ONE_INCH_API_KEY) {
+    throw new Error('ONE_INCH_API_KEY is not defined')
+  }
+
+  const oneInchAuthHeader = getOneInchAuthHeader()
+
+  const response = await axios.get(url, {
+    headers: oneInchAuthHeader,
+  })
 
   if (!(response.status === 200 && response.statusText === 'OK')) {
     throw new Error(`Error performing 1inch swap request ${url}: ${await response.data}`)
