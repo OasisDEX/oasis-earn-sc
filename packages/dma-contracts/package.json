@@ -22,7 +22,7 @@
     "deploy:tenderly": "npx hardhat run ./scripts/deployment/deploy-with-ajna.ts --network tenderly"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "4.7.3",
+    "@openzeppelin/contracts": "4.8.3",
     "glob": "^10.1.0"
   },
   "files": [
