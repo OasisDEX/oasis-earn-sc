@@ -1,0 +1,41 @@
+{
+  "extends": "../../tsconfig.options.json",
+  "compilerOptions": {
+    "paths": {
+      "@abis/*": ["../abis/*"],
+      "@aum-oracle/typechain": ["./typechain-types/index.ts"],
+      "@aum-oracle/typechain/*": ["./typechain-types/*"],
+      "@dma-library": ["../dma-library/src/index.ts"],
+      "@dma-library/*": ["../dma-library/src/*"],
+      "utils/*": ["../dma-common/utils/*"],
+      "@aum-oracle/scripts": ["./scripts/index.ts"],
+      "@aum-oracle/scripts/*": ["./scripts/*"],
+      "@dma-common/constants": ["../dma-common/constants/index.ts"],
+      "@dma-common/utils/*": ["../dma-common/utils/*"],
+      "@dma-common/test-utils/*": ["../dma-common/test-utils/*"],
+      "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
+      "@deploy-configurations/utils/*": ["../deploy-configurations/utils/*"],
+      "@deploy-configurations/configs": ["../deploy-configurations/configs/index.ts"],
+      "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
+      "@deploy-configurations/constants": ["../deploy-configurations/constants/index.ts"]
+    },
+    "typeRoots": [
+      "../../node_modules/@types"
+    ]
+  },
+  "references": [
+    {
+      "path": "../abis",
+    },
+    {
+      "path": "../dma-common",
+    },
+    {
+      "path": "../dma-library",
+    },
+    {
+      "path": "../deploy-configurations",
+    }
+  ],
+  "include": ["./bootstrap-env.ts", "./hardhat.config.ts", "./test", "./tasks", "./scripts/**/*.ts", "./typechain-types"]
+}

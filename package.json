@@ -120,7 +120,9 @@
     "@domain/adjust-position": "./packages/domain/src/adjust-position.ts",
     "@domain/flashloans": "./packages/domain/src/flashloans.ts",
     "@domain/position": "./packages/domain/src/position.ts",
-    "@domain/risk-ratio": "./packages/domain/src/risk-ratio.ts"
+    "@domain/risk-ratio": "./packages/domain/src/risk-ratio.ts",
+    "@aum-oracle/typechain-types": "./packages/aum-oracle/typechain-types",
+    "@aum-oracle/scripts": "./packages/aum-oracle/scripts"
   },
   "resolutions": {
     "hardhat/**/@ethereumjs/tx": "3.5.0"

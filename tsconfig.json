@@ -11,6 +11,9 @@
       "path": "packages/ajna-contracts"
     },
     {
+      "path": "packages/aum-oracle"
+    },
+    {
       "path": "packages/dma-contracts"
     },
     {

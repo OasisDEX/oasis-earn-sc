@@ -1,0 +1,76 @@
+{
+  "name": "@oasisdex/aum-oracle",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "private": true,
+  "files": [
+    "tsconfig.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OasisDEX/oasis-earn-sc.git"
+  },
+  "scripts": {
+    "init:modules": "git submodule update --init",
+    "test": "npx hardhat test",
+    "compile": "npx hardhat compile",
+    "clean": "rm -rf artifacts cache typechain",
+    "lint:fix": "./node_modules/.bin/solhint --fix -f table contracts/**/*.sol && ./node_modules/.bin/eslint --fix test/**/*.ts scripts/**/*.ts",
+    "lint:contracts": "./node_modules/.bin/solhint -f table contracts/**/*.sol",
+    "lint:typescript": "./node_modules/.bin/eslint test/**/*.ts scripts/**/*.ts",
+    "lint": "yarn lint:contracts && yarn lint:typescript",
+    "format": "prettier --write contracts/**/*.sol test/**/*.ts scripts/**/*.ts",
+    "format:check": "prettier --check contracts/**/*.sol test/**/*.ts"
+  },
+  "dependencies": {
+    "decimal.js": "^10.4.3",
+    "evm-bn": "^1.1.2",
+    "mathjs": "^9.4.4"
+  },
+  "devDependencies": {
+    "@ethersproject/abi": "^5.4.7",
+    "@ethersproject/providers": "^5.4.7",
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "@nomiclabs/hardhat-ethers": "^2.0.0",
+    "@nomiclabs/hardhat-etherscan": "^3.0.0",
+    "@oasisdex/oasis-actions": "^0.2.16",
+    "@openzeppelin/contracts": "^4.8.1",
+    "@tenderly/hardhat-tenderly": "^1.5.3",
+    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/hardhat": "^6.1.2",
+    "@types/chai": "^4.2.0",
+    "@types/mocha": "^9.1.0",
+    "@types/node": ">=12.0.0",
+    "bignumber.js": "9.0.1",
+    "chai": "^4.2.0",
+    "dotenv": "^16.0.3",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.4.1",
+    "eslint-plugin-promise": "^5.1.1",
+    "ethers": "5.6.2",
+    "hardhat": "^2.13.0",
+    "hardhat-docgen": "^1.3.0",
+    "hardhat-gas-reporter": "^1.0.8",
+    "hardhat-preprocessor": "^0.1.5",
+    "hardhat-tenderly": "^1.0.1",
+    "hardhat-tracer": "^2.1.2",
+    "plotly": "^1.0.6",
+    "prettier-plugin-solidity": "^1.1.2",
+    "ramda": "^0.28.0",
+    "solhint": "^3.4.1",
+    "solhint-plugin-prettier": "^0.0.5",
+    "solidity-coverage": "^0.8.0",
+    "ts-node": ">=8.0.0",
+    "typechain": "^8.1.0",
+    "typescript": ">=4.5.0"
+  },
+  "bugs": {
+    "url": "https://github.com/OasisDEX/oasis-earn-sc/issues"
+  }
+}
