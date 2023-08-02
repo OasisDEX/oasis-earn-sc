@@ -344,6 +344,10 @@ export const config: SystemConfig = {
       name: 'ChainlinkPriceOracle_ETHUSD',
       address: '0x13e3ee699d1909e989722e753853ae30b17e08c5',
     },
+    SdaiOracle: {
+      name: 'SdaiOracle',
+      address: ADDRESS_ZERO,
+    },
     ADAI: { name: 'ADAI', address: ADDRESS_ZERO },
     AAVE: { name: 'AAVE', address: ADDRESS_ZERO },
     BAL: { name: 'BAL', address: ADDRESS_ZERO },
@@ -384,6 +388,7 @@ export const config: SystemConfig = {
     RWA004: { name: 'RWA004', address: ADDRESS_ZERO },
     RWA005: { name: 'RWA005', address: ADDRESS_ZERO },
     RWA006: { name: 'RWA006', address: ADDRESS_ZERO },
+    SDAI: { name: 'SDAI', address: ADDRESS_ZERO },
     STETH: { name: 'STETH', address: ADDRESS_ZERO },
     TBTC: { name: 'TBTC', address: ADDRESS_ZERO },
     TUSD: { name: 'TUSD', address: ADDRESS_ZERO },
@@ -987,14 +992,46 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_TBTCWBTC',
       address: ADDRESS_ZERO,
     },
-    AjnaPoolPairs_ETHGHO: { name: 'AjnaPoolPairs_ETHGHO', address: ADDRESS_ZERO },
-    AjnaPoolPairs_WSTETHGHO: { name: 'AjnaPoolPairs_WSTETHGHO', address: ADDRESS_ZERO },
-    AjnaPoolPairs_GHODAI: { name: 'AjnaPoolPairs_GHODAI', address: ADDRESS_ZERO },
-    AjnaPoolPairs_RETHGHO: { name: 'AjnaPoolPairs_RETHGHO', address: ADDRESS_ZERO },
-    AjnaPoolPairs_WBTCGHO: { name: 'AjnaPoolPairs_WBTCGHO', address: ADDRESS_ZERO },
-    AjnaPoolPairs_CBETHGHO: { name: 'AjnaPoolPairs_CBETHGHO', address: ADDRESS_ZERO },
-    AjnaPoolPairs_WLDUSDC: { name: 'AjnaPoolPairs_WLDUSDC', address: ADDRESS_ZERO },
-    AjnaPoolPairs_USDCWLD: { name: 'AjnaPoolPairs_USDCWLD', address: ADDRESS_ZERO },
+    AjnaPoolPairs_TBTCUSDC: {
+      name: 'AjnaPoolPairs_TBTCUSDC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_ETHGHO: {
+      name: 'AjnaPoolPairs_ETHGHO',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_WSTETHGHO: {
+      name: 'AjnaPoolPairs_WSTETHGHO',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_GHODAI: {
+      name: 'AjnaPoolPairs_GHODAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_RETHGHO: {
+      name: 'AjnaPoolPairs_RETHGHO',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_WBTCGHO: {
+      name: 'AjnaPoolPairs_WBTCGHO',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_CBETHGHO: {
+      name: 'AjnaPoolPairs_CBETHGHO',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_WLDUSDC: {
+      name: 'AjnaPoolPairs_WLDUSDC',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_USDCWLD: {
+      name: 'AjnaPoolPairs_USDCWLD',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_SDAIUSDC: {
+      name: 'AjnaPoolPairs_SDAIUSDC',
+      address: ADDRESS_ZERO,
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: ADDRESS_ZERO,

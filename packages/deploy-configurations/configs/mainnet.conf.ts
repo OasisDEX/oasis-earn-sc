@@ -366,6 +366,10 @@ export const config: SystemConfig = {
       name: 'ChainlinkPriceOracle_ETHUSD',
       address: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
     },
+    SdaiOracle: {
+      name: 'SdaiOracle',
+      address: '0xb9E6DBFa4De19CCed908BcbFe1d015190678AB5f',
+    },
     AAVE: {
       name: 'AAVE',
       address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
@@ -486,6 +490,10 @@ export const config: SystemConfig = {
     RWA006: {
       name: 'RWA006',
       address: '0x4EE03cfBF6E784c462839f5954d60f7C2B60b113',
+    },
+    SDAI: {
+      name: 'SDAI',
+      address: '0x83f20f44975d03b1b09e64809b757c47f942beea',
     },
     STETH: {
       name: 'STETH',
@@ -1148,6 +1156,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_TBTCWBTC',
       address: '0x74da6fc4e456583b88d622b19ef6addfb726c0d7',
     },
+    AjnaPoolPairs_TBTCUSDC: {
+      name: 'AjnaPoolPairs_TBTCUSDC',
+      address: '0xe0cdc238a7bbb2c96c57595163a8f6d2d4b42546',
+    },
     AjnaPoolPairs_ETHGHO: {
       name: 'AjnaPoolPairs_ETHGHO',
       address: '0x15838515903b3843e02f9283b4492833f138e8de',
@@ -1179,6 +1191,10 @@ export const config: SystemConfig = {
     AjnaPoolPairs_USDCWLD: {
       name: 'AjnaPoolPairs_USDCWLD',
       address: '0xe4418e421d179d33f2f16cecef89b72e46c099bf',
+    },
+    AjnaPoolPairs_SDAIUSDC: {
+      name: 'AjnaPoolPairs_SDAIUSDC',
+      address: '0xf4ab415e00ff0ed4f25d31d7e9140f3c75b69e7d',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
