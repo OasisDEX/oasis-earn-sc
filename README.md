@@ -65,7 +65,8 @@ yarn test:unit
 yarn test:e2e
 ```
 
-4. Run a specific test in the repo (example)
+4. Run a specific test in the specific package (example)
+_Command should be run from a respective package folder_
 
 ```shell
 yarn clean & yarn hardhat test <path-to-test>
