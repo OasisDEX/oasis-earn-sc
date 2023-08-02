@@ -34,6 +34,7 @@ export type {
   AjnaOpenMultiplyPayload,
 } from './types/ajna'
 export { AjnaEarnPosition, AjnaPosition } from './types/ajna'
+export { isCorrelatedPosition } from './utils/swap/fee-resolver'
 export { views } from './views'
 export { OPERATION_NAMES } from '@deploy-configurations/constants'
 export { Network } from '@deploy-configurations/types/network'
