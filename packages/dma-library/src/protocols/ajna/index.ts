@@ -6,6 +6,7 @@ import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/valida
 import {
   getLiquidityInLupBucket,
   getPoolLiquidity,
+  getTotalPoolLiquidity,
 } from '@dma-library/strategies/ajna/validation/borrowish/notEnoughLiquidity'
 import { SwapData } from '@dma-library/types'
 import {
@@ -292,16 +293,13 @@ export function calculateMaxGenerate(
 
 export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumber, BigNumber] {
   const sortedBuckets = pool.buckets.sort((a, b) => a.index.minus(b.index).toNumber())
-  const availablePoolLiquidity = getPoolLiquidity({
-    buckets: pool.buckets,
-    debt: pool.debt,
-  })
+  const totalPoolLiquidity = getTotalPoolLiquidity(pool.buckets)
 
   let remainingDebt = pool.debt.plus(debtChange)
   let newLup = sortedBuckets[0] ? sortedBuckets[0].price : pool.lowestUtilizedPrice
   let newLupIndex = sortedBuckets[0] ? sortedBuckets[0].index : pool.lowestUtilizedPriceIndex
 
-  if (remainingDebt.gt(availablePoolLiquidity)) {
+  if (remainingDebt.gt(totalPoolLiquidity)) {
     newLup = sortedBuckets[sortedBuckets.length - 1].price
     newLupIndex = sortedBuckets[sortedBuckets.length - 1].index
     remainingDebt = ZERO

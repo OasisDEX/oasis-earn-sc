@@ -15,6 +15,10 @@ export function getPoolLiquidity({ buckets, debt }: GetLiquidityInLupBucketParam
   return liquidity.minus(debt)
 }
 
+export function getTotalPoolLiquidity(buckets: Bucket[]): BigNumber {
+  return buckets.reduce((acc, bucket) => acc.plus(bucket.quoteTokens), new BigNumber(0))
+}
+
 export function getLiquidityInLupBucket(pool: AjnaPool): BigNumber {
   const liquidityAboveLup = pool.buckets
     .filter(bucket => bucket.index.lte(pool.lowestUtilizedPriceIndex))
