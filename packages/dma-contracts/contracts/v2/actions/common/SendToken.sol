@@ -9,15 +9,11 @@ import { ETH } from "../../../core/constants/Common.sol";
 
 /**
  * @title SendToken Action contract
- * @notice This contract has the ability to send ERC20 tokens and native ETH.
+ * @notice This contract has the ability to send ERC20 tokens and native token.
  * The assumption is that this contract is called with a delegatecall using a proxy contract.
- *  - The amount of ERC20 token can be transferred is either an amount
+ * The amount of ERC20 or native token can be transferred is either an amount
  * that's been received in the current transaction ( through the usage of other actions)
- * or some amount that has been transferred prior this transaction
- *  - The amount of ETH that can be transferred is either the whole or
- * partial ( whether some amount has been used in other actions) amount from the
- * amount that the transaction has been called with ( msg.value ). If the proxy contract
- * contains any prior ETH balance, it CANNOT be transferred.
+ * or some amount that has been transferred prior this transaction.
  */
 contract SendTokenV2 is Executable, UseStorageSlot {
   using SafeERC20 for IERC20;
@@ -30,13 +26,16 @@ contract SendTokenV2 is Executable, UseStorageSlot {
     SendTokenData memory send = parseInputs(data);
     send.amount = store().readUint(bytes32(send.amount), paramsMap[2]);
 
-    if (msg.value > 0) {
-      payable(send.to).transfer(msg.value);
-    } else {
+    if (send.asset != ETH) {
       if (send.amount == type(uint256).max) {
         send.amount = IERC20(send.asset).balanceOf(address(this));
       }
       IERC20(send.asset).safeTransfer(send.to, send.amount);
+    } else {
+      if (send.amount == type(uint256).max) {
+        send.amount = address(this).balance;
+      }
+      payable(send.to).transfer(send.amount);
     }
   }
 
