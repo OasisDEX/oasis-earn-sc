@@ -1,15 +1,15 @@
 import { ADDRESSES } from '@deploy-configurations/addresses'
+import { loadContractNames } from '@deploy-configurations/constants'
 import { Network } from '@deploy-configurations/types/network'
-import { SERVICE_REGISTRY_NAMES } from '@dma-common/constants'
-import { createDPMAccount, getOneInchCall, oneInchCallMock } from '@dma-common/test-utils'
+import { createDPMAccount, getOneInchCall } from '@dma-common/test-utils'
 import { amountToWei } from '@dma-common/utils/common'
 import { executeThroughDPMProxy } from '@dma-common/utils/execute'
 import init from '@dma-common/utils/init'
 import { getAccountFactory } from '@dma-common/utils/proxy'
 import { approve } from '@dma-common/utils/tx'
-import { StrategyDependenciesAaveV2 } from '@dma-contracts/test/fixtures/types/strategies-dependencies'
 import { AAVETokensToGet, buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
 import { AAVETokens, AaveVersion, protocols, strategies } from '@dma-library'
+import { AaveV3DepositBorrowDependencies } from '@dma-library/strategies/aave/deposit-borrow'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -33,7 +33,12 @@ const precisionMap: Record<AAVETokensWithoutWSTETH, number> = {
   USDC: 6,
   ETH: 18,
   WETH: 18,
+  CBETH: 18,
+  DAI: 18,
+  RETH: 18,
 }
+
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 
 task('createBorrowPosition', 'Create borrow position')
   .addOptionalParam<string>('serviceRegistry', 'Service Registry address')
@@ -85,7 +90,7 @@ task('createBorrowPosition', 'Create borrow position')
     const swapAddress = await serviceRegistryContract.getRegisteredService(
       SERVICE_REGISTRY_NAMES.common.SWAP,
     )
-
+    debugger
     const mainnetAddresses = {
       DAI: ADDRESSES[Network.MAINNET].common.DAI,
       ETH: ADDRESSES[Network.MAINNET].common.ETH,
@@ -93,18 +98,18 @@ task('createBorrowPosition', 'Create borrow position')
       STETH: ADDRESSES[Network.MAINNET].common.STETH,
       WBTC: ADDRESSES[Network.MAINNET].common.WBTC,
       USDC: ADDRESSES[Network.MAINNET].common.USDC,
+      WSTETH: ADDRESSES[Network.MAINNET].common.WSTETH,
+      CBETH: ADDRESSES[Network.MAINNET].common.CBETH,
+      RETH: ADDRESSES[Network.MAINNET].common.RETH,
+      aaveOracle: ADDRESSES[Network.MAINNET].aave.v3.AaveOracle,
+      pool: ADDRESSES[Network.MAINNET].aave.v3.Pool,
+      poolDataProvider: ADDRESSES[Network.MAINNET].aave.v3.AavePoolDataProvider,
       chainlinkEthUsdPriceFeed: ADDRESSES[Network.MAINNET].common.ChainlinkPriceOracle_ETHUSD,
-      priceOracle: ADDRESSES[Network.MAINNET].aave.v2.PriceOracle,
-      lendingPool: ADDRESSES[Network.MAINNET].aave.v2.LendingPool,
       operationExecutor: operationExecutorAddress,
-      protocolDataProvider: ADDRESSES[Network.MAINNET].aave.v2.ProtocolDataProvider,
       accountFactory: accountFactory,
     }
 
-    const swapData = taskArgs.usefallbackswap
-      ? (marketPrice: BigNumber, precision: { from: number; to: number }) =>
-          oneInchCallMock(marketPrice, precision)
-      : () => getOneInchCall(swapAddress)
+    const swapData = getOneInchCall(swapAddress)
 
     const [proxy1, vaultId1] = await createDPMAccount(
       await getAccountFactory(config.signer, mainnetAddresses.accountFactory),
@@ -116,23 +121,35 @@ task('createBorrowPosition', 'Create borrow position')
 
     console.log(`DPM Created: ${proxy1}. VaultId: ${vaultId1}`)
 
-    const dependencies: StrategyDependenciesAaveV2 = {
+    const collateralToken = {
+      symbol: collateral,
+      precision: precisionMap[collateral],
+    }
+    const debtToken = {
+      symbol: debt,
+      precision: precisionMap[debt],
+    }
+    const currentPosition = await strategies.aave.v3.view(
+      {
+        collateralToken,
+        debtToken,
+        proxy: proxy1,
+      },
+      { addresses: mainnetAddresses, provider: config.provider },
+    )
+    const dependencies: AaveV3DepositBorrowDependencies = {
       addresses: mainnetAddresses,
       provider: config.provider,
       getSwapData: swapData,
       user: config.address,
-      contracts: {
-        operationExecutor: await hre.ethers.getContractAt(
-          'OperationExecutor',
-          operationExecutorAddress,
-          config.signer,
-        ),
-      },
       protocol: {
-        version: AaveVersion.v2,
-        getCurrentPosition: strategies.aave.v2.view,
+        version: AaveVersion.v3,
+        getCurrentPosition: strategies.aave.v3.view,
         getProtocolData: protocols.aave.getAaveProtocolData,
       },
+      proxy: proxy1,
+      network: Network.MAINNET,
+      currentPosition,
     }
 
     if (collateral === 'WSTETH' || debt === 'WSTETH') throw new Error('WSTETH is not supported yet')
@@ -143,26 +160,21 @@ task('createBorrowPosition', 'Create borrow position')
       await approve(collateralAddress, proxy1, new BigNumber(deposit), config, false)
     }
 
-    const simulation = await strategies.aave.v2.openDepositAndBorrowDebt(
+    const simulation = await strategies.aave.v3.depositBorrow(
       {
-        positionType: 'Borrow',
         slippage: new BigNumber(0.1),
         debtToken: { symbol: debt, precision: precisionMap[debt] },
         collateralToken: { symbol: collateral, precision: precisionMap[collateral] },
         amountCollateralToDepositInBaseUnit: new BigNumber(deposit),
         amountDebtToBorrowInBaseUnit: new BigNumber(borrow),
+        entryToken: { symbol: 'ETH', precision: 18 },
       },
-      {
-        ...dependencies,
-        proxy: proxy1,
-        isDPMProxy: true,
-        user: config.address,
-      },
+      dependencies,
     )
 
     const transactionValue = collateral === 'ETH' ? deposit : '0'
 
-    const [status] = await executeThroughDPMProxy(
+    const [status, receipt] = await executeThroughDPMProxy(
       proxy1,
       {
         address: operationExecutorAddress,
@@ -175,6 +187,15 @@ task('createBorrowPosition', 'Create borrow position')
       transactionValue,
     )
 
+    const positionCreatedEventSignature = 'CreatePosition(address,string,string,address,address)'
+    const signatureBytes = hre.ethers.utils.toUtf8Bytes(positionCreatedEventSignature)
+    const signature = hre.ethers.utils.keccak256(signatureBytes)
+    console.log('signature', signature)
+    console.log('logs', receipt.logs)
+    console.log(
+      'positionCreatedEvent',
+      receipt.logs.filter(log => log.topics[0] === signature),
+    )
     console.log(`Transaction status: ${status}`)
 
     console.log(

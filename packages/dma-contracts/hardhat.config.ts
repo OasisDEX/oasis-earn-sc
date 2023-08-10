@@ -11,7 +11,7 @@ import 'hardhat-abi-exporter'
 // Tasks
 import './tasks/deploy'
 import './tasks/create-position'
-
+import './tasks/create-borrow-position'
 import './tasks/proxy'
 import './tasks/verify-earn'
 import './tasks/transfer-erc20'
