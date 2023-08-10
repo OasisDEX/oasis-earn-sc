@@ -30,7 +30,7 @@ export function getAaveOpenDepositBorrowV3OperationDefinition(network: Network) 
       },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.BORROW),
-        optional: false,
+        optional: true,
       },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
@@ -38,7 +38,7 @@ export function getAaveOpenDepositBorrowV3OperationDefinition(network: Network) 
       },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS),
-        optional: false,
+        optional: true,
       },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.POSITION_CREATED),
