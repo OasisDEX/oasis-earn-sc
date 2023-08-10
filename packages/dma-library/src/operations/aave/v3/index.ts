@@ -1,3 +1,8 @@
+import {
+  AaveV3OpenDepositBorrowOperation,
+  openDepositBorrow,
+} from '@dma-library/operations/aave/v3/open-deposit-and-borrow'
+
 import type { AAVEV3StrategyAddresses } from './addresses'
 import { AaveV3AdjustDownOperation, adjustRiskDown } from './adjust-risk-down'
 import { AaveV3AdjustUpOperation, adjustRiskUp } from './adjust-risk-up'
@@ -15,6 +20,7 @@ export type AaveV3Operations = {
   open: AaveV3OpenOperation
   paybackWithdraw: AaveV3PaybackWithdrawOperation
   depositBorrow: AaveV3DepositBorrowOperation
+  openDepositBorrow: AaveV3OpenDepositBorrowOperation
 }
 
 export const aaveV3Operations = {
@@ -24,4 +30,5 @@ export const aaveV3Operations = {
   open,
   paybackWithdraw,
   depositBorrow,
+  openDepositBorrow,
 }
