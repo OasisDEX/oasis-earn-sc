@@ -1050,6 +1050,10 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_SDAIUSDC',
       address: ADDRESS_ZERO,
     },
+    AjnaPoolPairs_YFIDAI: {
+      name: 'AjnaPoolPairs_YFIDAI',
+      address: ADDRESS_ZERO,
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: '0x994dE190dd763Af3126FcC8EdC139275937d800b',
