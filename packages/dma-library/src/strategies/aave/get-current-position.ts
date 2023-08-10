@@ -5,6 +5,7 @@ import { AAVEStrategyAddresses } from '../../operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '../../operations/aave/v3'
 import { IViewPositionDependencies, IViewPositionParams } from '../../types'
 import { AavePosition, AAVETokens } from '../../types/aave'
+import * as AaveCommon from './common'
 import { getAaveTokenAddresses } from './get-aave-token-addresses'
 
 export enum AaveVersion {
@@ -28,9 +29,17 @@ export async function getCurrentPosition(
   args: AaveGetCurrentPositionArgs,
   dependencies: AaveGetCurrentPositionDependencies,
 ): Promise<AavePosition> {
-  if (isV2(dependencies)) {
+  if (
+    AaveCommon.isV2<AaveGetCurrentPositionDependencies, AaveV2GetCurrentPositionDependencies>(
+      dependencies,
+    )
+  ) {
     return getCurrentPositionAaveV2(args, dependencies)
-  } else if (isV3(dependencies)) {
+  } else if (
+    AaveCommon.isV3<AaveGetCurrentPositionDependencies, AaveV3GetCurrentPositionDependencies>(
+      dependencies,
+    )
+  ) {
     return getCurrentPositionAaveV3(args, dependencies)
   } else {
     throw new Error('Invalid Aave version')
@@ -167,20 +176,4 @@ async function getCurrentPositionAaveV3(
       liquidationThreshold: liquidationThreshold,
     },
   )
-}
-
-function isV2(
-  dependencies: AaveGetCurrentPositionDependencies,
-): dependencies is IViewPositionDependencies<AAVEStrategyAddresses> & {
-  protocolVersion: AaveVersion.v2
-} {
-  return dependencies.protocolVersion === AaveVersion.v2
-}
-
-function isV3(
-  dependencies: AaveGetCurrentPositionDependencies,
-): dependencies is IViewPositionDependencies<AAVEV3StrategyAddresses> & {
-  protocolVersion: AaveVersion.v3
-} {
-  return dependencies.protocolVersion === AaveVersion.v3
 }

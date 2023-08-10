@@ -11,3 +11,5 @@ export interface AAVEStrategyAddresses {
   lendingPool: string
   protocolDataProvider: string
 }
+
+export type AAVEV2StrategyAddresses = AAVEStrategyAddresses

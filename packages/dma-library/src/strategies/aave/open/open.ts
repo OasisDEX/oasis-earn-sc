@@ -15,8 +15,8 @@ import { calculateFee } from '@dma-common/utils/swap'
 import { AAVEStrategyAddresses, AAVEV3StrategyAddresses } from '@dma-library/index'
 import { operations } from '@dma-library/operations'
 import { OpenOperationArgs } from '@dma-library/operations/aave/v3/open'
-import { isAaveV2Addresses, isAaveV3Addresses } from '@dma-library/protocols/aave/config'
 import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
+import * as AaveCommon from '@dma-library/strategies/aave/common'
 import {
   getAaveTokenAddress,
   getAaveTokenAddresses,
@@ -61,6 +61,7 @@ export interface AaveOpenSharedDependencies {
     slippage: BigNumber,
   ) => Promise<SwapData>
 }
+
 export type AaveV2OpenDependencies = AaveOpenSharedDependencies & WithV2Addresses & WithV2Protocol
 export type AaveV3OpenDependencies = AaveOpenSharedDependencies & WithV3Addresses & WithV3Protocol
 export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependencies
@@ -167,10 +168,7 @@ async function simulatePositionTransition(
    */
   let currentPosition: Position | undefined
   let protocolData: Unbox<AaveProtocolData> | undefined
-  if (
-    dependencies.protocol.version === AaveVersion.v2 &&
-    isAaveV2Addresses(dependencies.addresses)
-  ) {
+  if (AaveCommon.isV2<AaveOpenDependencies, AaveV2OpenDependencies>(dependencies)) {
     currentPosition = await dependencies.protocol.getCurrentPosition(
       {
         collateralToken: args.collateralToken,
@@ -192,10 +190,7 @@ async function simulatePositionTransition(
       protocolVersion: dependencies.protocol.version,
     })
   }
-  if (
-    dependencies.protocol.version === AaveVersion.v3 &&
-    isAaveV3Addresses(dependencies.addresses)
-  ) {
+  if (AaveCommon.isV3<AaveOpenDependencies, AaveV3OpenDependencies>(dependencies)) {
     currentPosition = await dependencies.protocol.getCurrentPosition(
       {
         collateralToken: args.collateralToken,
