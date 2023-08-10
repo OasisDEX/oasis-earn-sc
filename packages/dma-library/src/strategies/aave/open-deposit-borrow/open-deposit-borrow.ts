@@ -1,17 +1,20 @@
 import { CollectFeeFrom } from '@dma-common/types'
 import { BorrowArgs, DepositArgs, operations } from '@dma-library/operations'
-import { getAaveTokenAddress } from '@dma-library/strategies'
+import { AaveVersion } from '@dma-library/strategies'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
+import { getAaveTokenAddress } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import { getCurrentPosition } from '@dma-library/strategies/aave/get-current-position'
 import {
-  AaveDepositBorrow,
-  AaveDepositBorrowDependencies,
-  AaveV3DepositBorrowDependencies,
-} from '@dma-library/strategies/aave/deposit-borrow/types'
+  AaveOpenDepositBorrow,
+  AaveOpenDepositBorrowArgs,
+  AaveOpenDepositBorrowDependencies,
+  AaveV3OpenDepositBorrowDependencies,
+} from '@dma-library/strategies/aave/open-deposit-borrow/types'
 import { IOperation } from '@dma-library/types'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { IPosition } from '@domain'
 
-export const depositBorrow: AaveDepositBorrow = async (args, dependencies) => {
+export const openDepositBorrow: AaveOpenDepositBorrow = async (args, dependencies) => {
   const {
     collateralToken,
     debtToken,
@@ -20,6 +23,8 @@ export const depositBorrow: AaveDepositBorrow = async (args, dependencies) => {
     amountCollateralToDepositInBaseUnit: depositAmount,
     amountDebtToBorrowInBaseUnit: borrowAmount,
   } = args
+
+  const currentPosition = await resolveCurrentPositionForProtocol(args, dependencies)
   const entryTokenAddress = getAaveTokenAddress(entryToken, dependencies.addresses)
   const collateralTokenAddress = getAaveTokenAddress(collateralToken, dependencies.addresses)
 
@@ -38,10 +43,12 @@ export const depositBorrow: AaveDepositBorrow = async (args, dependencies) => {
     slippage,
     dependencies,
   )
+
   const borrow = await AaveCommon.buildBorrowArgs(borrowAmount, debtToken, dependencies)
+
   const operation = await buildOperation(deposit.args, borrow.args, dependencies)
 
-  const finalPosition: IPosition = dependencies.currentPosition
+  const finalPosition: IPosition = currentPosition
     .deposit(deposit.collateralDelta)
     .borrow(borrow.debtDelta)
 
@@ -76,12 +83,14 @@ export const depositBorrow: AaveDepositBorrow = async (args, dependencies) => {
 async function buildOperation(
   depositArgs: DepositArgs | undefined,
   borrowArgs: BorrowArgs | undefined,
-  dependencies: AaveDepositBorrowDependencies,
+  dependencies: AaveOpenDepositBorrowDependencies,
 ): Promise<IOperation> {
   if (
-    AaveCommon.isV3<AaveDepositBorrowDependencies, AaveV3DepositBorrowDependencies>(dependencies)
+    AaveCommon.isV3<AaveOpenDepositBorrowDependencies, AaveV3OpenDepositBorrowDependencies>(
+      dependencies,
+    )
   ) {
-    return await operations.aave.v3.depositBorrow(
+    return await operations.aave.v3.openDepositBorrow(
       depositArgs,
       borrowArgs,
       dependencies.addresses,
@@ -89,7 +98,7 @@ async function buildOperation(
     )
   }
   if (AaveCommon.isV2(dependencies)) {
-    return await operations.aave.v2.depositBorrow(
+    return await operations.aave.v2.openDepositBorrow(
       depositArgs,
       borrowArgs,
       dependencies.addresses,
@@ -98,4 +107,29 @@ async function buildOperation(
   }
 
   throw new Error('No operation found for Aave protocol version')
+}
+
+async function resolveCurrentPositionForProtocol(
+  args: AaveOpenDepositBorrowArgs,
+  dependencies: AaveOpenDepositBorrowDependencies,
+) {
+  if (
+    AaveCommon.isV3<AaveOpenDepositBorrowDependencies, AaveV3OpenDepositBorrowDependencies>(
+      dependencies,
+    )
+  ) {
+    return await getCurrentPosition(
+      { ...args, proxy: dependencies.proxy },
+      { ...dependencies, protocolVersion: AaveVersion.v3 },
+    )
+  }
+
+  if (AaveCommon.isV2(dependencies)) {
+    return await getCurrentPosition(
+      { ...args, proxy: dependencies.proxy },
+      { ...dependencies, protocolVersion: AaveVersion.v2 },
+    )
+  }
+
+  throw new Error('No current position resolver found for Aave protocol version')
 }

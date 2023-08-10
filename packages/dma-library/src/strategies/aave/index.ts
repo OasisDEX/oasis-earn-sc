@@ -1,4 +1,9 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
+import {
+  AaveV2OpenDepositBorrow,
+  AaveV3OpenDepositBorrow,
+  openDepositBorrow,
+} from '@dma-library/strategies/aave/open-deposit-borrow'
 import { AavePosition, PositionTransition } from '@dma-library/types'
 
 import {
@@ -19,10 +24,6 @@ import {
 } from './get-current-position'
 import { open as aaveOpen } from './open'
 import { AaveOpenArgs, AaveV2OpenDependencies, AaveV3OpenDependencies } from './open/open'
-import {
-  AaveV2OpenDepositAndBorrowDebt,
-  openDepositAndBorrowDebt,
-} from './open-deposit-and-borrow-debt'
 import { AaveV2PaybackWithdraw, AaveV3PaybackWithdraw, paybackWithdraw } from './payback-withdraw'
 
 export { getAaveTokenAddress } from './get-aave-token-addresses'
@@ -45,8 +46,8 @@ export const aave: {
     ) => Promise<PositionTransition>
     changeDebt: AaveV2ChangeDebt
     depositBorrow: AaveV2DepositBorrow
+    openDepositAndBorrowDebt: AaveV2OpenDepositBorrow
     paybackWithdraw: AaveV2PaybackWithdraw
-    openDepositAndBorrowDebt: AaveV2OpenDepositAndBorrowDebt
   }
   v3: {
     open: (
@@ -63,6 +64,7 @@ export const aave: {
       dependencies: Omit<AaveV3GetCurrentPositionDependencies, 'protocol' | 'protocolVersion'>,
     ) => Promise<AavePosition>
     depositBorrow: AaveV3DepositBorrow
+    openDepositBorrow: AaveV3OpenDepositBorrow
     paybackWithdraw: AaveV3PaybackWithdraw
   }
 } = {
@@ -102,6 +104,15 @@ export const aave: {
           getProtocolData: getAaveProtocolData,
         },
       }),
+    openDepositAndBorrowDebt: (args, dependencies) =>
+      openDepositBorrow(args, {
+        ...dependencies,
+        protocol: {
+          version: AaveVersion.v2,
+          getCurrentPosition,
+          getProtocolData: getAaveProtocolData,
+        },
+      }),
     paybackWithdraw: (args, dependencies) =>
       paybackWithdraw(args, {
         ...dependencies,
@@ -111,7 +122,6 @@ export const aave: {
           getProtocolData: getAaveProtocolData,
         },
       }),
-    openDepositAndBorrowDebt,
   },
   v3: {
     open: (args, dependencies) =>
@@ -136,6 +146,15 @@ export const aave: {
       }),
     depositBorrow: (args, dependencies) =>
       depositBorrow(args, {
+        ...dependencies,
+        protocol: {
+          version: AaveVersion.v3,
+          getCurrentPosition,
+          getProtocolData: getAaveProtocolData,
+        },
+      }),
+    openDepositBorrow: (args, dependencies) =>
+      openDepositBorrow(args, {
         ...dependencies,
         protocol: {
           version: AaveVersion.v3,
