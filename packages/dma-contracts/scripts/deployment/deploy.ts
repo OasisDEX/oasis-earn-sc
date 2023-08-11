@@ -16,6 +16,7 @@ import {
   getAaveDepositBorrowV3OperationDefinition,
   getAaveDepositV2OperationDefinition,
   getAaveDepositV3OperationDefinition,
+  getAaveOpenDepositBorrowV3OperationDefinition,
   getAaveOpenV2OperationDefinition,
   getAaveOpenV3OperationDefinition,
   getAavePaybackWithdrawV2OperationDefinition,
@@ -814,6 +815,10 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       getAaveDepositBorrowV3OperationDefinition(network).actions,
     )
     await operationsRegistry.addOp(
+      getAaveOpenDepositBorrowV3OperationDefinition(network).name,
+      getAaveOpenDepositBorrowV3OperationDefinition(network).actions,
+    )
+    await operationsRegistry.addOp(
       getAaveDepositV3OperationDefinition(network).name,
       getAaveDepositV3OperationDefinition(network).actions,
     )
@@ -827,22 +832,18 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       getAjnaOpenOperationDefinition(network).name,
       getAjnaOpenOperationDefinition(network).actions,
     )
-
     await operationsRegistry.addOp(
       getAjnaCloseToQuoteOperationDefinition(network).name,
       getAjnaCloseToQuoteOperationDefinition(network).actions,
     )
-
     await operationsRegistry.addOp(
       getAjnaCloseToCollateralOperationDefinition(network).name,
       getAjnaCloseToCollateralOperationDefinition(network).actions,
     )
-
     await operationsRegistry.addOp(
       getAjnaAdjustUpOperationDefinition(network).name,
       getAjnaAdjustUpOperationDefinition(network).actions,
     )
-
     await operationsRegistry.addOp(
       getAjnaAdjustDownOperationDefinition(network).name,
       getAjnaAdjustDownOperationDefinition(network).actions,
