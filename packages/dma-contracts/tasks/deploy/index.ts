@@ -25,14 +25,17 @@ task('deploy', 'Deploy the system to a local node.').setAction(
     await ds.extendConfig(swapConfigPath)
 
     await ds.deployAll()
-    await ds.addAllEntries()
+    // await ds.addAllEntries()
+    await ds.addCommonEntries()
+    await ds.addAaveEntries()
+    await ds.addOperationEntries()
 
     const dsSystem = ds.getSystem()
     const { system } = dsSystem
-    const swapContract = system.uSwap ? system.uSwap.contract : system.Swap.contract
-
-    await swapContract.addFeeTier(0)
-    await swapContract.addFeeTier(7)
+    // const swapContract = system.uSwap ? system.uSwap.contract : system.Swap.contract
+    //
+    // await swapContract.addFeeTier(0)
+    // await swapContract.addFeeTier(7)
     await system.AccountGuard.contract.setWhitelist(system.OperationExecutor.contract.address, true)
   },
 )

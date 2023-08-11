@@ -9,7 +9,7 @@ import { getAccountFactory } from '@dma-common/utils/proxy'
 import { approve } from '@dma-common/utils/tx'
 import { AAVETokensToGet, buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
 import { AAVETokens, AaveVersion, protocols, strategies } from '@dma-library'
-import { AaveV3DepositBorrowDependencies } from '@dma-library/strategies/aave/deposit-borrow'
+import { AaveV3OpenDepositBorrowDependencies } from '@dma-library/strategies/aave/open-deposit-borrow'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 
@@ -137,7 +137,7 @@ task('createBorrowPosition', 'Create borrow position')
       },
       { addresses: mainnetAddresses, provider: config.provider },
     )
-    const dependencies: AaveV3DepositBorrowDependencies = {
+    const dependencies: AaveV3OpenDepositBorrowDependencies = {
       addresses: mainnetAddresses,
       provider: config.provider,
       getSwapData: swapData,
@@ -147,6 +147,7 @@ task('createBorrowPosition', 'Create borrow position')
         getCurrentPosition: strategies.aave.v3.view,
         getProtocolData: protocols.aave.getAaveProtocolData,
       },
+      positionType: 'Borrow',
       proxy: proxy1,
       network: Network.MAINNET,
       currentPosition,
@@ -160,7 +161,7 @@ task('createBorrowPosition', 'Create borrow position')
       await approve(collateralAddress, proxy1, new BigNumber(deposit), config, false)
     }
 
-    const simulation = await strategies.aave.v3.depositBorrow(
+    const simulation = await strategies.aave.v3.openDepositBorrow(
       {
         slippage: new BigNumber(0.1),
         debtToken: { symbol: debt, precision: precisionMap[debt] },
@@ -168,6 +169,7 @@ task('createBorrowPosition', 'Create borrow position')
         amountCollateralToDepositInBaseUnit: new BigNumber(deposit),
         amountDebtToBorrowInBaseUnit: new BigNumber(borrow),
         entryToken: { symbol: 'ETH', precision: 18 },
+        positionType: 'Borrow',
       },
       dependencies,
     )
