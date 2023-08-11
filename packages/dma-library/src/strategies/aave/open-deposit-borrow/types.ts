@@ -10,10 +10,16 @@ export type AaveOpenDepositBorrowArgs = AaveDepositBorrowArgs
 
 type IOpenDepositBorrowStrategy = IDepositBorrowStrategy
 
-export type AaveV2OpenDepositBorrowDependencies = AaveV2DepositBorrowDependencies &
+export type AaveV2OpenDepositBorrowDependencies = Omit<
+  AaveV2DepositBorrowDependencies,
+  'currentPosition'
+> &
   StrategyParams.WithOptionalSwap &
   StrategyParams.WithPositionType
-export type AaveV3OpenDepositBorrowDependencies = AaveV3DepositBorrowDependencies &
+export type AaveV3OpenDepositBorrowDependencies = Omit<
+  AaveV3DepositBorrowDependencies,
+  'currentPosition'
+> &
   StrategyParams.WithPositionType
 export type AaveOpenDepositBorrowDependencies =
   | AaveV2OpenDepositBorrowDependencies
