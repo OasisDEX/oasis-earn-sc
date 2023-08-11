@@ -8,10 +8,13 @@ import 'solidity-coverage'
 import 'solidity-docgen'
 import 'hardhat-tracer'
 import 'hardhat-abi-exporter'
-// Tasks
+/*
+ * Tasks
+ * Please see note on circular dependencies below in tasks
+ * And how to run tasks that import from the library
+ */
 import './tasks/deploy'
 import './tasks/create-position'
-import './tasks/create-borrow-position'
 import './tasks/proxy'
 import './tasks/verify-earn'
 import './tasks/transfer-erc20'
@@ -21,8 +24,23 @@ import './tasks/user-dpm-proxies'
 import './tasks/transfer-dpm'
 import './tasks/deploy-ajna'
 
-// import './tasks/create-aave-v3l1-position'
-// import './tasks/create-multiply-position'
+/*
+ * Note, now that ABIs are not committed
+ * There exists a circular dependency between
+ * in tasks that import from the library
+ *
+ * Historic examples being:
+ * import './tasks/create-aave-v3l1-position'
+ * import './tasks/create-multiply-position'
+ * import './tasks/create-borrow-position'
+ *
+ * Instead please use the `run-dependent-task.ts` script
+ * Which can be found at /scripts/run-dependent-task.ts
+ *
+ * Example:
+ * yarn hardhat run scripts/run-dependent-task.ts --network local
+ * And then follow the prompts
+ */
 import { Network } from '@deploy-configurations/types/network'
 import * as process from 'process'
 
