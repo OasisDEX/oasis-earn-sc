@@ -1,6 +1,10 @@
 import { AaveProtocolData } from '@dma-library/protocols'
-import { isV2, isV3 } from '@dma-library/strategies/aave/adjust/helpers'
-import { AaveAdjustArgs, AaveAdjustDependencies } from '@dma-library/strategies/aave/adjust/types'
+import {
+  AaveAdjustArgs,
+  AaveAdjustDependencies,
+  AaveV2AdjustDependencies,
+} from '@dma-library/strategies/aave/adjust/types'
+import * as AaveCommon from '@dma-library/strategies/aave/common'
 
 export async function getProtocolData(
   collateralTokenAddress: string,
@@ -9,7 +13,7 @@ export async function getProtocolData(
   flashloanTokenAddress: string,
   dependencies: AaveAdjustDependencies,
 ): AaveProtocolData {
-  if (isV2(dependencies)) {
+  if (AaveCommon.isV2<AaveAdjustDependencies, AaveV2AdjustDependencies>(dependencies)) {
     return dependencies.protocol.getProtocolData({
       flashloanTokenAddress,
       collateralTokenAddress,
@@ -19,7 +23,7 @@ export async function getProtocolData(
       protocolVersion: dependencies.protocol.version,
     })
   }
-  if (isV3(dependencies)) {
+  if (AaveCommon.isV3(dependencies)) {
     return await dependencies.protocol.getProtocolData({
       flashloanTokenAddress,
       collateralTokenAddress,

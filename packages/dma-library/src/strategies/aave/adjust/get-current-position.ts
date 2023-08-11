@@ -1,13 +1,17 @@
 import { AaveVersion } from '@dma-library/strategies'
-import { isV2, isV3 } from '@dma-library/strategies/aave/adjust/helpers'
-import { AaveAdjustArgs, AaveAdjustDependencies } from '@dma-library/strategies/aave/adjust/types'
+import {
+  AaveAdjustArgs,
+  AaveAdjustDependencies,
+  AaveV2AdjustDependencies,
+} from '@dma-library/strategies/aave/adjust/types'
+import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { IPosition } from '@domain'
 
 export function getCurrentPosition(
   args: AaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
 ): Promise<IPosition | undefined> {
-  if (isV2(dependencies)) {
+  if (AaveCommon.isV2<AaveAdjustDependencies, AaveV2AdjustDependencies>(dependencies)) {
     return dependencies.protocol.getCurrentPosition(
       {
         collateralToken: args.collateralToken,
@@ -21,7 +25,7 @@ export function getCurrentPosition(
       },
     )
   }
-  if (isV3(dependencies)) {
+  if (AaveCommon.isV3(dependencies)) {
     return dependencies.protocol.getCurrentPosition(
       {
         collateralToken: args.collateralToken,

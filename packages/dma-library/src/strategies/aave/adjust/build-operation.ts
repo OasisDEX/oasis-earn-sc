@@ -1,7 +1,11 @@
 import { buildOperationV2 } from '@dma-library/strategies/aave/adjust/build-operation-v2'
 import { buildOperationV3 } from '@dma-library/strategies/aave/adjust/build-operation-v3'
-import { isV2, isV3 } from '@dma-library/strategies/aave/adjust/helpers'
-import { BuildOperationArgs } from '@dma-library/strategies/aave/adjust/types'
+import {
+  AaveAdjustDependencies,
+  AaveV2AdjustDependencies,
+  BuildOperationArgs,
+} from '@dma-library/strategies/aave/adjust/types'
+import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { IOperation } from '@dma-library/types'
 
 export async function buildOperation({
@@ -12,7 +16,7 @@ export async function buildOperation({
   args,
   dependencies,
 }: BuildOperationArgs): Promise<IOperation | undefined> {
-  if (isV2(dependencies)) {
+  if (AaveCommon.isV2<AaveAdjustDependencies, AaveV2AdjustDependencies>(dependencies)) {
     return buildOperationV2({
       adjustRiskUp,
       swapData,
@@ -25,7 +29,7 @@ export async function buildOperation({
     })
   }
 
-  if (isV3(dependencies)) {
+  if (AaveCommon.isV3(dependencies)) {
     return buildOperationV3({
       adjustRiskUp,
       swapData,

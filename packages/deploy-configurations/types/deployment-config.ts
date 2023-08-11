@@ -285,6 +285,7 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_WLDUSDC'
   | 'AjnaPoolPairs_USDCWLD'
   | 'AjnaPoolPairs_SDAIUSDC'
+  | 'AjnaPoolPairs_YFIDAI'
   | 'AjnaRewardsManager'
   | 'AjnaRewardsClaimer'
   | 'ERC20PoolFactory'
