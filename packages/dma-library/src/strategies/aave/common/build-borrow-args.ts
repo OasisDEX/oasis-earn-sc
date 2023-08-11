@@ -15,11 +15,12 @@ export async function buildBorrowArgs(
     proxy: string
     addresses: AAVEV3StrategyAddresses | AAVEV2StrategyAddresses
   },
+  alwaysReturnArgs = false,
 ): Promise<{
   args: BorrowArgs | undefined
   debtDelta: BigNumber
 }> {
-  if (borrowAmount.lte(ZERO)) {
+  if (!alwaysReturnArgs && borrowAmount.lte(ZERO)) {
     return { args: undefined, debtDelta: ZERO }
   }
 

@@ -19,6 +19,7 @@ export async function buildDepositArgs(
     user: Address
     addresses: AAVEV3StrategyAddresses | AAVEV2StrategyAddresses
   } & WithOptionalSwap,
+  alwaysReturnArgs = false,
 ): Promise<{
   swap:
     | {
@@ -35,7 +36,8 @@ export async function buildDepositArgs(
   const collateralSymbol = collateralToken.symbol
 
   const isDepositNeeded = entryToken && entryTokenAmount && slippage && entryTokenAmount.gt(ZERO)
-  if (!isDepositNeeded) return { args: undefined, collateralDelta: ZERO, swap: undefined }
+  if (!alwaysReturnArgs && !isDepositNeeded)
+    return { args: undefined, collateralDelta: ZERO, swap: undefined }
 
   const isSwapNeeded = SwapUtils.getIsSwapNeeded(
     entryTokenAddress,

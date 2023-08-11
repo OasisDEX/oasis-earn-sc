@@ -10,7 +10,7 @@ import {
   AaveOpenDepositBorrowDependencies,
   AaveV3OpenDepositBorrowDependencies,
 } from '@dma-library/strategies/aave/open-deposit-borrow/types'
-import { IOperation, PositionType } from '@dma-library/types'
+import { IOperation } from '@dma-library/types'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { IPosition } from '@domain'
 
@@ -35,6 +35,7 @@ export const openDepositBorrow: AaveOpenDepositBorrow = async (args, dependencie
     dependencies.addresses.WETH,
   )
 
+  const alwaysReturnDepositArgs = true
   const deposit = await AaveCommon.buildDepositArgs(
     entryToken,
     collateralToken,
@@ -42,13 +43,20 @@ export const openDepositBorrow: AaveOpenDepositBorrow = async (args, dependencie
     depositAmount,
     slippage,
     dependencies,
+    alwaysReturnDepositArgs,
   )
 
-  const borrow = await AaveCommon.buildBorrowArgs(borrowAmount, debtToken, dependencies)
+  const alwaysReturnBorrowArgs = true
+  const borrow = await AaveCommon.buildBorrowArgs(
+    borrowAmount,
+    debtToken,
+    dependencies,
+    alwaysReturnBorrowArgs,
+  )
 
   if (!deposit.args) throw new Error('Deposit args must be defined when opening position')
   if (!borrow.args) throw new Error('Borrow args must be defined when opening position')
-  const operation = await buildOperation(deposit.args, borrow.args, args.positionType, dependencies)
+  const operation = await buildOperation(deposit.args, borrow.args, dependencies)
 
   const finalPosition: IPosition = currentPosition
     .deposit(deposit.collateralDelta)
@@ -85,7 +93,6 @@ export const openDepositBorrow: AaveOpenDepositBorrow = async (args, dependencie
 async function buildOperation(
   depositArgs: DepositArgs,
   borrowArgs: BorrowArgs,
-  positionType: PositionType,
   dependencies: AaveOpenDepositBorrowDependencies,
 ): Promise<IOperation> {
   if (
@@ -97,7 +104,7 @@ async function buildOperation(
       depositArgs,
       borrowArgs,
       {
-        positionType: positionType,
+        positionType: dependencies.positionType,
         protocol: 'AAVE_V3',
       },
       dependencies.addresses,
@@ -109,7 +116,7 @@ async function buildOperation(
       depositArgs,
       borrowArgs,
       {
-        positionType: positionType,
+        positionType: dependencies.positionType,
         protocol: 'AAVE',
       },
       dependencies.addresses,

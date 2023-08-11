@@ -6,12 +6,13 @@ import {
 import { IDepositBorrowStrategy } from '@dma-library/strategies/aave/deposit-borrow/types'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
-export type AaveOpenDepositBorrowArgs = AaveDepositBorrowArgs & StrategyParams.WithPositionType
+export type AaveOpenDepositBorrowArgs = AaveDepositBorrowArgs
 
 type IOpenDepositBorrowStrategy = IDepositBorrowStrategy
 
 export type AaveV2OpenDepositBorrowDependencies = AaveV2DepositBorrowDependencies &
-  StrategyParams.WithOptionalSwap
+  StrategyParams.WithOptionalSwap &
+  StrategyParams.WithPositionType
 export type AaveV3OpenDepositBorrowDependencies = AaveV3DepositBorrowDependencies &
   StrategyParams.WithPositionType
 export type AaveOpenDepositBorrowDependencies =

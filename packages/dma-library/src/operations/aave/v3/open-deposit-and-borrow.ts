@@ -1,5 +1,5 @@
 import { OperationNames } from '@deploy-configurations/constants'
-import { getAaveOpenDepositBorrowV3OperationDefinition } from '@deploy-configurations/operation-definitions/aave/v3/open-deposit-borrow'
+import { getAaveOpenDepositBorrowV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
 import { DepositArgs } from '@dma-library/operations/aave/common'
@@ -32,7 +32,7 @@ export const openDepositBorrow: AaveV3OpenDepositBorrowOperation = async (
   const depositCalls = (await deposit(depositArgs, addresses, network)).calls
   const borrowCalls = (await borrow(borrowArgs, addresses, network)).calls
 
-  if (borrowArgs.amountInBaseUnit.isZero()) {
+  if (borrowArgs?.amountInBaseUnit.isZero()) {
     borrowCalls.forEach(call => {
       call.skipped = true
     })
