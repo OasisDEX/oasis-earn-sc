@@ -90,7 +90,7 @@ task('createBorrowPosition', 'Create borrow position')
     const swapAddress = await serviceRegistryContract.getRegisteredService(
       SERVICE_REGISTRY_NAMES.common.SWAP,
     )
-    debugger
+
     const mainnetAddresses = {
       DAI: ADDRESSES[Network.MAINNET].common.DAI,
       ETH: ADDRESSES[Network.MAINNET].common.ETH,
