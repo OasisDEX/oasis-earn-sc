@@ -8,9 +8,11 @@ import { BACKEND_MSG_SIGNER, ORACLE_ADAPTER } from "../../core/constants/Common.
 import "../../core/types/Common.sol";
 
 import { PercentageUtils } from "../../libs/PercentageUtils.sol";
+import { PriceUtils } from "../../libs/PriceUtils.sol";
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { IOracleAdapter } from "../../interfaces/common/IOracleAdapter.sol";
+import { USD } from "../../interfaces/common/IOracleAdapter.sol";
 
 /**
  * @title ChargeFee Action contract
@@ -34,10 +36,12 @@ contract ChargeFee is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     ChargeFeeData memory chargeFeeData = parseInputs(data);
 
-    _verifySignature(chargeFeeData, registry.getRegisteredService(BACKEND_MSG_SIGNER));
-    uint256 netWorthInCollateral = _calculateNetWorth(chargeFeeData);
+    _verifySignature(chargeFeeData);
+
+    uint256 netWorthInCollateral = _calculateNetWorthInCollateral(chargeFeeData);
 
     uint256 feeAmount = _calculateFeeAmount(chargeFeeData, netWorthInCollateral);
+
     _chargeFee(feeAmount);
   }
 
@@ -46,15 +50,18 @@ contract ChargeFee is Executable, UseStore {
     return abi.decode(_callData, (ChargeFeeData));
   }
 
-  function _verifySignature(ChargeFeeData memory chargeFeeData) internal pure {
+  function _verifySignature(ChargeFeeData memory chargeFeeData) internal view {
     address expectedBackendSigner = registry.getRegisteredService(BACKEND_MSG_SIGNER);
     address recoveredBackendSigner = keccak256(
       abi.encode(
         chargeFeeData.feeAmount,
+        chargeFeeData.maxFeePercentage,
         chargeFeeData.collateralAmount,
         chargeFeeData.collateralAsset,
+        chargeFeeData.collateralAssetDecimals,
         chargeFeeData.debtAmount,
-        chargeFeeData.debtAsset
+        chargeFeeData.debtAsset,
+        chargeFeeData.debtAssetDecimals
       )
     ).toEthSignedMessageHash().recover(chargeFeeData.signature);
 
@@ -63,20 +70,36 @@ contract ChargeFee is Executable, UseStore {
     }
   }
 
-  function _calculateNetWorth(ChargeFeeData memory chargeFeeData) internal view returns (uint256) {
+  function _calculateNetWorthInCollateral(
+    ChargeFeeData memory chargeFeeData
+  ) internal view returns (uint256) {
     IOracleAdapter oracleAdapter = IOracleAdapter(registry.getRegisteredService(ORACLE_ADAPTER));
+
+    if (chargeFeeData.debtAmount == 0) {
+      return chargeFeeData.collateralAmount;
+    }
 
     // TODO: for now we only support USD denomination
     (int256 latestPriceCollateral, uint8 collateralPriceDecimals) = oracleAdapter.getLatestPrice(
       chargeFeeData.collateralAsset,
-      IOracleAdapter.USD
+      USD
     );
     (int256 latestPriceDebt, uint8 debtPriceDecimals) = oracleAdapter.getLatestPrice(
       chargeFeeData.debtAsset,
-      IOracleAdapter.USD
+      USD
     );
 
-    // TODO: calculate net worth
+    uint256 debtAmountInCollateral = PriceUtils.convertAmountOnOraclePrice(
+      chargeFeeData.debtAmount,
+      chargeFeeData.debtAssetDecimals,
+      latestPriceDebt,
+      debtPriceDecimals,
+      chargeFeeData.collateralAssetDecimals,
+      latestPriceCollateral,
+      collateralPriceDecimals
+    );
+
+    return chargeFeeData.collateralAmount - debtAmountInCollateral;
   }
 
   function _calculateFeeAmount(
@@ -87,7 +110,7 @@ contract ChargeFee is Executable, UseStore {
     if (chargeFeeData.feeAmount > maxFeeAmount) {
       return maxFeeAmount;
     }
-    return feeAmount;
+    return chargeFeeData.feeAmount;
   }
 
   function _chargeFee(uint256 feeAmount) internal {

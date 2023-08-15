@@ -77,9 +77,11 @@ struct PositionCreatedData {
 struct ChargeFeeData {
   uint256 feeAmount;
   uint256 maxFeePercentage;
-  uint256 collateralAmount; // temporary, just for PoC
-  address collateralAsset; // temporary, just for PoC
-  uint256 debtAmount; // temporary, just for PoC
-  address debtAsset; // temporary, just for PoC
+  uint256 collateralAmount;
+  address collateralAsset;
+  uint8 collateralAssetDecimals;
+  uint256 debtAmount;
+  address debtAsset;
+  uint8 debtAssetDecimals;
   bytes signature;
 }

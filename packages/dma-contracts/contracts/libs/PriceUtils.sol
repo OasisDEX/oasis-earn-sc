@@ -3,41 +3,45 @@ pragma solidity 0.8.15;
 
 /**
     @title PriceUtils   
-    @notice Utility library to convert an input amount into an output amount using
-    the given priceNumerator and priceDenominator as the conversion factor
+    @notice Utility library to manage prices and amounts conversion
  */
 library PriceUtils {
   /**
-        @notice Converts an amount of input token to an amount of output token using the given price rate
+        @notice Converts an amount of an input token to an amount of an output token by using their
+                respective Chainlink prices and decimals
 
+        @param inputTokenAmount The amount of the input token to convert
         @param inputTokenDecimals The number of decimals of the input token
+        @param inputTokenPrice The price of the input token
+        @param inputTokenPriceDecimals The number of decimals of the input token price
         @param outputTokenDecimals The number of decimals of the output token
-        @param amount The amount of the input token to convert
-        @param priceNumerator The numerator of the price rate
-        @param priceDenominator The denominator of the price rate
+        @param outputTokenPrice The price of the output token
+        @param outputTokenPriceDecimals The number of decimals of the output token price
 
-        @return outputAmount The output amount denominated in the output token
+        @return outputAmount The output amount denominated in the output token with the output token decimals
+
+        @dev inputTokenPrice and outputTokenPrice are assumed to be denominated in the same currency
      */
-  function convertAmount(
+  function convertAmountOnOraclePrice(
+    uint256 inputTokenAmount,
     uint8 inputTokenDecimals,
+    int256 inputTokenPrice,
+    uint8 inputTokenPriceDecimals,
     uint8 outputTokenDecimals,
-    uint256 amount,
-    int256 priceNumerator,
-    uint256 priceDenominator
+    int256 outputTokenPrice,
+    uint8 outputTokenPriceDecimals
   ) internal pure returns (uint256 outputAmount) {
-    uint256 priceRate = PRBMathUD60x18.div(
-      PRBMathUD60x18.fromUint(priceNumerator),
-      PRBMathUD60x18.fromUint(priceDenominator)
-    );
+    uint8 inputDecimals = inputTokenDecimals + inputTokenPriceDecimals;
+    uint8 outputDecimals = outputTokenDecimals + outputTokenPriceDecimals;
 
-    if (inputTokenDecimals > outputTokenDecimals) {
-      uint256 exp = inputTokenDecimals - outputTokenDecimals;
-      priceRate = priceRate.div(PRBMathUD60x18.fromUint(10 ** exp));
+    if (inputDecimals > outputDecimals) {
+      uint256 exp = inputDecimals - outputDecimals;
+      return
+        (inputTokenAmount * uint256(inputTokenPrice)) / (10 ** exp) / uint256(outputTokenPrice);
     } else if (inputTokenDecimals < outputTokenDecimals) {
-      uint256 exp = outputTokenDecimals - inputTokenDecimals;
-      priceRate = priceRate.mul(PRBMathUD60x18.fromUint(10 ** exp));
+      uint256 exp = outputDecimals - inputDecimals;
+      return
+        (inputTokenAmount * uint256(inputTokenPrice) * (10 ** exp)) / uint256(outputTokenPrice);
     }
-
-    return priceRate.mul(PRBMathUD60x18.fromUint(amount)).toUint();
   }
 }

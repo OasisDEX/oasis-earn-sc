@@ -27,7 +27,7 @@
   },
   {
     "inputs": [],
-    "name": "FlashloanReenrancyAttempt",
+    "name": "FlashloanReentrancyAttempt",
     "type": "error"
   },
   {
