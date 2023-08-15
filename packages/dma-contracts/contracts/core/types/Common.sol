@@ -73,3 +73,13 @@ struct PositionCreatedData {
   address collateralToken;
   address debtToken;
 }
+
+struct ChargeFeeData {
+  uint256 feeAmount;
+  uint256 maxFeePercentage;
+  uint256 collateralAmount; // temporary, just for PoC
+  address collateralAsset; // temporary, just for PoC
+  uint256 debtAmount; // temporary, just for PoC
+  address debtAsset; // temporary, just for PoC
+  bytes signature;
+}
