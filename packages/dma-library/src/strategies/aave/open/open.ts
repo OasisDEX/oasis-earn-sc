@@ -74,6 +74,7 @@ export async function open(
     isIncreasingRisk: true,
     isEarnPosition: args.positionType === 'Earn',
   })
+
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
   const { swapData: quoteSwapData } = await getSwapDataHelper<
     typeof dependencies.addresses,
