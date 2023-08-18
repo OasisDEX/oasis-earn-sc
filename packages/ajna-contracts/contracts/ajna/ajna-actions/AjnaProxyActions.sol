@@ -325,6 +325,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
         IERC20(debtToken).approve(address(pool), amount);
         (, , , , , uint256 lupIndex_) = poolInfoUtils.poolPricesInfo(address(pool));
         pool.repayDebt(address(this), amount * pool.quoteTokenScale(), 0, address(this), lupIndex_);
+        pool.stampLoan();
         emit ProxyActionsOperation("AjnaRepay");
     }
 
@@ -375,7 +376,6 @@ contract AjnaProxyActions is IAjnaProxyActions {
             repayDebtAndWithdrawCollateral(pool, debtAmount, collateralAmount);
         } else if (debtAmount > 0) {
             repayDebt(pool, debtAmount);
-            pool.stampLoan();
         } else if (collateralAmount > 0) {
             withdrawCollateral(pool, collateralAmount);
         }
