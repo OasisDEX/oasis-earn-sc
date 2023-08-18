@@ -44,7 +44,7 @@ describe.only("AjnaProxyActions", function () {
     });
     const [deployer, lender, borrower, bidder] = await hre.ethers.getSigners();
 
-    const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address);
+    const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address, false);
 
     const {
       poolCommons,
@@ -57,7 +57,7 @@ describe.only("AjnaProxyActions", function () {
       lenderActionsInstance,
     } = await deployLibraries();
 
-    const { dmpGuardContract, guardDeployerSigner, dmpFactory } = await deployGuard(hre);
+    const { dmpGuardContract, guardDeployerSigner, dmpFactory } = await deployGuard();
 
     const { erc20PoolFactory, erc721PoolFactory } = await deployPoolFactory(
       poolCommons,
@@ -67,19 +67,17 @@ describe.only("AjnaProxyActions", function () {
       takerActionsInstance,
       lpActionsInstance,
       lenderActionsInstance,
-      ajna.address,
-      hre
+      ajna.address
     );
     const [poolContract, poolContractWeth] = await Promise.all([
-      deployPool(erc20PoolFactory, wbtc.address, usdc.address, hre),
-      deployPool(erc20PoolFactory, weth.address, usdc.address, hre),
+      deployPool(erc20PoolFactory, wbtc.address, usdc.address),
+      deployPool(erc20PoolFactory, weth.address, usdc.address),
     ]);
     const { rewardsManagerContract, positionManagerContract } = await deployRewardsContracts(
       positionNFTSVGInstance,
       erc20PoolFactory,
       erc721PoolFactory,
-      ajna,
-      hre
+      ajna
     );
     const { ajnaProxyActionsContract, poolInfoContract, ajnaRewardsClaimerContract } = await deployApa(
       poolCommons,
@@ -89,7 +87,6 @@ describe.only("AjnaProxyActions", function () {
       guardDeployerSigner,
       weth,
       ajna,
-      hre,
       initializeStaking
     );
 

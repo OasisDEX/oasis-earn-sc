@@ -375,6 +375,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
             repayDebtAndWithdrawCollateral(pool, debtAmount, collateralAmount);
         } else if (debtAmount > 0) {
             repayDebt(pool, debtAmount);
+            pool.stampLoan();
         } else if (collateralAmount > 0) {
             withdrawCollateral(pool, collateralAmount);
         }
