@@ -102,20 +102,15 @@ export async function getSwapDataForCloseToCollateral({
 
   // 4. Get Swap Data
   // This is the actual swap data that will be used in the transaction.
+  // We're inflating the needed collateral by the fee amount
+  // This is for when fees is collected on the other end of the swap
   const amountNeededToEnsureRemainingDebtIsRepaid = calculateNeededCollateralToPaybackDebt(
     debtPrice,
     debtTokenPrecision,
     colPrice,
     collateralTokenPrecision,
     outstandingDebt,
-    fee.div(FEE_BASE),
-    slippage,
-  )
-
-  const swapData = await getSwapData(
-    collateralToken.address,
-    debtToken.address,
-    amountNeededToEnsureRemainingDebtIsRepaid,
+    fee.div(new BigNumber(FEE_BASE).plus(fee)),
     slippage,
   )
 
@@ -128,6 +123,15 @@ export async function getSwapDataForCloseToCollateral({
     collectFeeFrom === 'sourceToken'
       ? calculateFee(amountNeededToEnsureRemainingDebtIsRepaid, fee.toNumber())
       : ZERO
+
+  // 5. Get Swap Data
+  // The swap amount needs to be the collateral needed minus the preSwapFee
+  const swapData = await getSwapData(
+    collateralToken.address,
+    debtToken.address,
+    amountNeededToEnsureRemainingDebtIsRepaid.minus(preSwapFee),
+    slippage,
+  )
 
   return {
     swapData,
