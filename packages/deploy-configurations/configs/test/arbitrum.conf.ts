@@ -464,6 +464,14 @@ export const config: SystemConfig = {
       address: '0x5979D7b546E38E414F7E9822514be443A4800529',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WSTETH,
     },
+    YIELDBTC: {
+      name: 'YIELDBTC',
+      address: ADDRESS_ZERO,
+    },
+    YIELDETH: {
+      name: 'YIELDETH',
+      address: ADDRESS_ZERO,
+    },
     YFI: {
       name: 'YFI',
       address: ADDRESS_ZERO,
