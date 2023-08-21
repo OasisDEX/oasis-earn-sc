@@ -262,7 +262,7 @@ export const config: SystemConfig = {
     },
     MerkleRedeemer: {
       name: 'MerkleRedeemer',
-      address: ADDRESS_ZERO,
+      address: '0x34792F2481a3e2ADAD4d0000D8D202814090eFb5',
     },
     DssCharter: {
       name: 'DssCharter',

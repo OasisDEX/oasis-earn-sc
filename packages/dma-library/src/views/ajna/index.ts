@@ -18,9 +18,9 @@ interface EarnData {
   lps: BigNumber
   priceIndex: BigNumber | null
   nftID: string | null
-  cumulativeDeposit: BigNumber
-  cumulativeFees: BigNumber
-  cumulativeWithdraw: BigNumber
+  earnCumulativeFeesInQuoteToken: BigNumber
+  earnCumulativeQuoteTokenDeposit: BigNumber
+  earnCumulativeQuoteTokenWithdraw: BigNumber
 }
 
 export interface GetEarnData {
@@ -79,7 +79,14 @@ export async function getEarnPosition(
   const rewardsManager = new ethers.Contract(rewardsManagerAddress, rewardsManagerAbi, provider)
 
   const [pool, earnData] = await Promise.all([getPoolData(poolAddress), getEarnData(proxyAddress)])
-  const { cumulativeDeposit, cumulativeFees, cumulativeWithdraw, lps, nftID, priceIndex } = earnData
+  const {
+    lps,
+    nftID,
+    priceIndex,
+    earnCumulativeFeesInQuoteToken,
+    earnCumulativeQuoteTokenDeposit,
+    earnCumulativeQuoteTokenWithdraw,
+  } = earnData
 
   const quoteTokenAmount: BigNumber =
     lps.eq(ZERO) || priceIndex == null
@@ -109,14 +116,28 @@ export async function getEarnPosition(
     : ZERO
 
   const netValue = quoteTokenAmount.times(quotePrice)
-  const pnl = cumulativeWithdraw
-    .plus(netValue)
-    .minus(cumulativeFees)
-    .minus(cumulativeDeposit)
-    .div(cumulativeDeposit)
-  const totalEarnings = netValue
-    .minus(cumulativeDeposit.minus(cumulativeWithdraw).plus(cumulativeFees))
-    .div(quotePrice)
+
+  const pnl = {
+    withFees: earnCumulativeQuoteTokenWithdraw
+      .plus(quoteTokenAmount)
+      .minus(earnCumulativeFeesInQuoteToken)
+      .minus(earnCumulativeQuoteTokenDeposit)
+      .div(earnCumulativeQuoteTokenDeposit),
+    withoutFees: earnCumulativeQuoteTokenWithdraw
+      .plus(quoteTokenAmount)
+      .minus(earnCumulativeQuoteTokenDeposit)
+      .div(earnCumulativeQuoteTokenDeposit),
+  }
+  const totalEarnings = {
+    withFees: quoteTokenAmount.minus(
+      earnCumulativeQuoteTokenDeposit
+        .minus(earnCumulativeQuoteTokenWithdraw)
+        .plus(earnCumulativeFeesInQuoteToken),
+    ),
+    withoutFees: quoteTokenAmount.minus(
+      earnCumulativeQuoteTokenDeposit.minus(earnCumulativeQuoteTokenWithdraw),
+    ),
+  }
 
   return new AjnaEarnPosition(
     pool,
