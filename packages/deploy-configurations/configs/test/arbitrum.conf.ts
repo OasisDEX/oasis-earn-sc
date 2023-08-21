@@ -269,6 +269,10 @@ export const config: SystemConfig = {
       name: 'ChainlinkPriceOracle_ETHUSD',
       address: '0x639fe6ab55c921f74e7fac1ee960c0b6293ba612',
     },
+    SdaiOracle: {
+      name: 'SdaiOracle',
+      address: ADDRESS_ZERO,
+    },
     ADAI: {
       name: 'ADAI',
       address: ADDRESS_ZERO,
@@ -306,6 +310,7 @@ export const config: SystemConfig = {
       name: 'ETH',
       address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
     },
+    GHO: { name: 'GHO', address: ADDRESS_ZERO },
     GNO: {
       name: 'GNO',
       address: ADDRESS_ZERO,
@@ -380,6 +385,7 @@ export const config: SystemConfig = {
       name: 'RWA006',
       address: ADDRESS_ZERO,
     },
+    SDAI: { name: 'SDAI', address: ADDRESS_ZERO },
     STETH: {
       name: 'STETH',
       address: ADDRESS_ZERO,
@@ -452,6 +458,7 @@ export const config: SystemConfig = {
       address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
     },
+    WLD: { name: 'WLD', address: ADDRESS_ZERO },
     WSTETH: {
       name: 'WSTETH',
       address: '0x5979D7b546E38E414F7E9822514be443A4800529',
