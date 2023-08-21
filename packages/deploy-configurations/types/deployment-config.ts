@@ -104,6 +104,8 @@ export type Tokens =
   | 'WETH'
   | 'WLD'
   | 'WSTETH'
+  | 'YIELDBTC'
+  | 'YIELDETH'
   | 'YFI'
   | 'ZRX'
 

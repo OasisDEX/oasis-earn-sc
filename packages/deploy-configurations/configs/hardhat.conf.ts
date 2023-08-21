@@ -582,6 +582,14 @@ export const config: SystemConfig = {
       address: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WSTETH,
     },
+    YIELDBTC: {
+      name: 'YIELDBTC',
+      address: ADDRESS_ZERO,
+    },
+    YIELDETH: {
+      name: 'YIELDETH',
+      address: ADDRESS_ZERO,
+    },
     YFI: {
       name: 'YFI',
       address: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
