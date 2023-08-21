@@ -1054,12 +1054,12 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_YFIDAI',
       address: ADDRESS_ZERO,
     },
-    AjnaPoolPairs_YIELDETH: {
-      name: 'AjnaPoolPairs_YIELDETH',
+    AjnaPoolPairs_YIELDETHETH: {
+      name: 'AjnaPoolPairs_YIELDETHETH',
       address: ADDRESS_ZERO,
     },
-    AjnaPoolPairs_YIELDBTC: {
-      name: 'AjnaPoolPairs_YIELDBTC',
+    AjnaPoolPairs_YIELDBTCWBTC: {
+      name: 'AjnaPoolPairs_YIELDBTCWBTC',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {
