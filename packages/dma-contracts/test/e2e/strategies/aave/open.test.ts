@@ -5,13 +5,13 @@ import {
   getSupportedStrategies,
   SystemWithAavePositions,
   systemWithAavePositions,
+  SystemWithAAVEV3Positions,
 } from '@dma-contracts/test/fixtures'
 import {
   getSupportedAaveV3Strategies,
   systemWithAaveV3Positions,
 } from '@dma-contracts/test/fixtures/system/system-with-aave-v3-positions'
-import { SystemWithAAVEV3Positions } from '@dma-contracts/test/fixtures/types/env'
-import { ISimulatedTransition } from '@dma-library'
+import { PositionTransition } from '@dma-library'
 import { IPosition } from '@domain'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import BigNumber from 'bignumber.js'
@@ -19,7 +19,7 @@ import BigNumber from 'bignumber.js'
 const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_LARGER_SIMULATED_FEE = 'Expect simulated fee to be more than the user actual pays'
 
-describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
+describe(`Strategy | AAVE | Open Position | E2E`, async function () {
   describe('Using AAVE V2', async function () {
     let fixture: SystemWithAavePositions
 
@@ -43,7 +43,7 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
       describe('Using DSProxy', function () {
         let position: IPosition
         let simulatedPosition: IPosition
-        let simulatedTransition: ISimulatedTransition
+        let simulatedTransition: PositionTransition['simulation']
         let feeWalletBalanceChange: BigNumber
 
         before(async function () {
@@ -80,7 +80,7 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
         supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let simulatedPosition: IPosition
-          let simulatedTransition: ISimulatedTransition
+          let simulatedTransition: PositionTransition['simulation']
           let feeWalletBalanceChange: BigNumber
 
           before(async function () {
@@ -136,7 +136,7 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
       describe('Using DSProxy', () => {
         let position: IPosition
         let simulatedPosition: IPosition
-        let simulatedTransition: ISimulatedTransition
+        let simulatedTransition: PositionTransition['simulation']
         let feeWalletBalanceChange: BigNumber
 
         before(async () => {
@@ -173,7 +173,7 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
         supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let simulatedPosition: IPosition
-          let simulatedTransition: ISimulatedTransition
+          let simulatedTransition: PositionTransition['simulation']
           let feeWalletBalanceChange: BigNumber
 
           before(async function () {
@@ -215,7 +215,7 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
   describe('Using AAVE V3', async function () {
     const supportedStrategies = getSupportedAaveV3Strategies(networkFork)
 
-    describe('Open position: With Uniswap', function () {
+    describe.only('Open position: With Uniswap', function () {
       let env: SystemWithAAVEV3Positions
       const fixture = systemWithAaveV3Positions({
         use1inch: false,
@@ -232,7 +232,7 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
       describe('Using DSProxy', () => {
         let position: IPosition
         let simulatedPosition: IPosition
-        let simulatedTransition: ISimulatedTransition
+        let simulatedTransition: PositionTransition['simulation']
         let feeWalletBalanceChange: BigNumber
 
         before(async () => {
@@ -278,7 +278,7 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
           .forEach(({ name: strategy }) => {
             let position: IPosition
             let simulatedPosition: IPosition
-            let simulatedTransition: ISimulatedTransition
+            let simulatedTransition: PositionTransition['simulation']
             let feeWalletBalanceChange: BigNumber
 
             before(async function () {
@@ -338,7 +338,7 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
       describe('Using DSProxy', () => {
         let position: IPosition
         let simulatedPosition: IPosition
-        let simulatedTransition: ISimulatedTransition
+        let simulatedTransition: PositionTransition['simulation']
         let feeWalletBalanceChange: BigNumber
 
         before(async () => {
@@ -381,7 +381,7 @@ describe(`Strategy | AAVE | Open Multiply/Earn | E2E`, async function () {
         supportedStrategies.forEach(({ name: strategy }) => {
           let position: IPosition
           let simulatedPosition: IPosition
-          let simulatedTransition: ISimulatedTransition
+          let simulatedTransition: PositionTransition['simulation']
           let feeWalletBalanceChange: BigNumber
 
           before(async function () {

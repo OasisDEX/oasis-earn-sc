@@ -8,6 +8,7 @@ export const acceptedTokens = [
     address: [
       ADDRESSES.mainnet.common.USDC.toLowerCase(),
       ADDRESSES[Network.OPTIMISM].common.USDC.toLowerCase(),
+      ADDRESSES[Network.ARBITRUM].common.USDC.toLowerCase(),
     ],
   },
   {
@@ -15,6 +16,7 @@ export const acceptedTokens = [
     address: [
       ADDRESSES.mainnet.common.DAI.toLowerCase(),
       ADDRESSES[Network.OPTIMISM].common.DAI.toLowerCase(),
+      ADDRESSES[Network.ARBITRUM].common.DAI.toLowerCase(),
     ],
   },
   {
@@ -22,6 +24,7 @@ export const acceptedTokens = [
     address: [
       ADDRESSES.mainnet.common.WETH.toLowerCase(),
       ADDRESSES[Network.OPTIMISM].common.WETH.toLowerCase(),
+      ADDRESSES[Network.ARBITRUM].common.WETH.toLowerCase(),
     ],
   },
   {
@@ -29,6 +32,7 @@ export const acceptedTokens = [
     address: [
       ADDRESSES.mainnet.common.ETH.toLowerCase(),
       ADDRESSES[Network.OPTIMISM].common.ETH.toLowerCase(),
+      ADDRESSES[Network.ARBITRUM].common.ETH.toLowerCase(),
     ],
   },
   {
@@ -40,6 +44,7 @@ export const acceptedTokens = [
     address: [
       ADDRESSES.mainnet.common.WBTC.toLowerCase(),
       ADDRESSES[Network.OPTIMISM].common.WBTC.toLowerCase(),
+      ADDRESSES[Network.ARBITRUM].common.WBTC.toLowerCase(),
     ],
   },
 ]

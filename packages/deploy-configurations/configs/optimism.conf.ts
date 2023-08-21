@@ -86,6 +86,7 @@ export const config: SystemConfig = {
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
         history: ['0x4De3CA09e803969408f83F453416b3e2D70C12Fe'],
         constructorArgs: [
+          '0x4De3CA09e803969408f83F453416b3e2D70C12Fe',
           '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
           '0xE0611d7A57879734058aCE889569A2E79701fcAf',
           20,

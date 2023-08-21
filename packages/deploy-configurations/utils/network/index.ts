@@ -39,6 +39,7 @@ export const ForkedNetworkByChainId: {
   1: Network.MAINNET,
   5: Network.GOERLI,
   10: Network.OPTIMISM,
+  42161: Network.ARBITRUM,
 }
 
 export const NetworkByChainId: { [key: number]: Network } = {

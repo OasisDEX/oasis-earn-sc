@@ -70,6 +70,7 @@ describe.skip('Strategy | AAVE | Open Deposit and Borrow Debt | E2E', async () =
           ...strategiesDependencies,
           isDPMProxy: false,
           proxy: dsProxy,
+          network: Network.MAINNET,
         })
 
         const transactionValue = amountToDeposit.toString()
@@ -133,6 +134,7 @@ describe.skip('Strategy | AAVE | Open Deposit and Borrow Debt | E2E', async () =
             ...strategiesDependencies,
             isDPMProxy: true,
             proxy: proxy.proxy,
+            network: Network.MAINNET,
           })
 
           const transactionValue = collateral.symbol === 'ETH' ? amountToDeposit.toString() : '0'
@@ -196,6 +198,7 @@ describe.skip('Strategy | AAVE | Open Deposit and Borrow Debt | E2E', async () =
           ...strategiesDependencies,
           isDPMProxy: false,
           proxy: dsProxy,
+          network: Network.MAINNET,
         })
 
         const transactionValue = amountToDeposit.toString()
@@ -267,6 +270,7 @@ describe.skip('Strategy | AAVE | Open Deposit and Borrow Debt | E2E', async () =
             ...strategiesDependencies,
             isDPMProxy: true,
             proxy: proxy.proxy,
+            network: Network.MAINNET,
           })
 
           const transactionValue = collateral.symbol === 'ETH' ? amountToDeposit.toString() : '0'

@@ -94,6 +94,9 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         WSTETH: networkAddresses.WSTETH,
         USDC: networkAddresses.USDC,
         WBTC: networkAddresses.WBTC,
+        DAI: networkAddresses.DAI,
+        CBETH: networkAddresses.CBETH,
+        RETH: networkAddresses.RETH,
       }
 
       const collateralTokenAddress = tokenAddresses[collateralToken.symbol as AAVETokens]
@@ -521,6 +524,9 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         WSTETH: addresses.WSTETH,
         USDC: addresses.USDC,
         WBTC: addresses.WBTC,
+        DAI: addresses.DAI,
+        CBETH: addresses.CBETH,
+        RETH: addresses.RETH,
       }
       const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
       const debtTokenAddress = tokenAddresses[args.debtToken.symbol]
@@ -548,6 +554,9 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         USDC: addresses.USDC,
         WBTC: addresses.WBTC,
         STETH: EMPTY_ADDRESS,
+        DAI: addresses.DAI,
+        CBETH: addresses.CBETH,
+        RETH: addresses.RETH,
       }
       const collateralTokenAddress = tokenAddresses[args.collateralToken.symbol]
       const debtTokenAddress = tokenAddresses[args.debtToken.symbol]
@@ -591,6 +600,9 @@ describe('Strategy | AAVE | Adjust Position | E2E', async function () {
         WSTETH: addresses.WSTETH,
         USDC: addresses.USDC,
         WBTC: addresses.WBTC,
+        DAI: addresses.DAI,
+        CBETH: addresses.CBETH,
+        RETH: addresses.RETH,
       }
 
       const collateralTokenAddress = tokenAddresses[collateralToken.symbol as AAVETokens]

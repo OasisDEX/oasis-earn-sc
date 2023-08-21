@@ -72,6 +72,7 @@ const restrictedNetworks = [Network.MAINNET, Network.OPTIMISM, Network.GOERLI]
 const rpcUrls: any = {
   [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
   [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
+  [Network.ARBITRUM]: 'https://arb-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
 }
 
@@ -316,7 +317,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     writeFile(
       `./../deploy-configurations/configs/${this.network}.conf.ts`,
       `import { loadContractNames } from '@deploy-configurations/constants'\nimport { SystemConfig } from '@deploy-configurations/types/deployment-config'\nimport { Network } from '@deploy-configurations/types/network'\n\nconst SERVICE_REGISTRY_NAMES = loadContractNames(${this.getNetworkEnumString(
-        this.forkedNetwork,
+        this.network,
       )})\n\nexport const config: SystemConfig = ${configString}`,
       (error: any) => {
         if (error) {
