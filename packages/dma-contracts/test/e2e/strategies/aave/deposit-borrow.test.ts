@@ -74,7 +74,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
           if (entryToken.symbol !== 'ETH' && entryToken.symbol !== 'WETH') {
             // Inflated to make sure there's sufficient balance to cover swap back from entry to collateral
             const entryTokenAmountToGet = roundedAmountToDeposit.times(1.2)
-            await getTokens.byImpersonate(entryToken.symbol, entryTokenAmountToGet)
+            await getTokens.byImpersonate(entryToken.symbol as any, entryTokenAmountToGet)
             await approve(entryToken.address, dsProxyPosition.proxy, entryTokenAmountToGet, config)
           }
 
@@ -394,7 +394,7 @@ describe(`Strategy | AAVE | Deposit/Borrow | E2E`, async function () {
           }
 
           if (entryToken.symbol !== 'ETH' && entryToken.symbol !== 'WETH') {
-            await getTokens.byImpersonate(entryToken.symbol, roundedAmountToDeposit)
+            await getTokens.byImpersonate(entryToken.symbol as any, roundedAmountToDeposit)
             await approve(entryToken.address, dsProxyPosition.proxy, roundedAmountToDeposit, config)
           }
 

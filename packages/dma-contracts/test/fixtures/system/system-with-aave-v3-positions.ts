@@ -48,7 +48,7 @@ export function getSupportedAaveV3Strategies(network?: Network): SupportedV3Stra
 }
 
 const testBlockNumberByNetwork: Record<
-  Exclude<Network, Network.LOCAL | Network.GOERLI | Network.ARBITRUM | Network.HARDHAT>,
+  Exclude<Network, Network.LOCAL | Network.GOERLI | Network.TENDERLY | Network.HARDHAT>,
   number
 > = {
   [Network.MAINNET]: testBlockNumberForAaveV3,
