@@ -372,6 +372,10 @@ export const config: SystemConfig = {
       name: 'ChainlinkPriceOracle_ETHUSD',
       address: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
     },
+    SdaiOracle: {
+      name: 'SdaiOracle',
+      address: '0xb9E6DBFa4De19CCed908BcbFe1d015190678AB5f',
+    },
     AAVE: { name: 'AAVE', address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9' },
     ADAI: { name: 'ADAI', address: '0x028171bCA77440897B824Ca71D1c56caC55b68A3' },
     BAL: { name: 'BAL', address: '0xba100000625a3754423978a60c9317c58a424e3D' },
@@ -385,6 +389,7 @@ export const config: SystemConfig = {
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DAI,
     },
     ETH: { name: 'ETH', address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' },
+    GHO: { name: 'GHO', address: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f' },
     GNO: { name: 'GNO', address: '0x6810e776880C02933D47DB1b9fc05908e5386b96' },
     GUNIV3DAIUSDC1: {
       name: 'GUNIV3DAIUSDC1',
@@ -411,6 +416,10 @@ export const config: SystemConfig = {
     RWA004: { name: 'RWA004', address: '0x873F2101047A62F84456E3B2B13df2287925D3F9' },
     RWA005: { name: 'RWA005', address: '0x6DB236515E90fC831D146f5829407746EDdc5296' },
     RWA006: { name: 'RWA006', address: '0x4EE03cfBF6E784c462839f5954d60f7C2B60b113' },
+    SDAI: {
+      name: 'SDAI',
+      address: '0x83f20f44975d03b1b09e64809b757c47f942beea',
+    },
     STETH: {
       name: 'STETH',
       address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
@@ -447,6 +456,10 @@ export const config: SystemConfig = {
       name: 'WETH',
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
+    },
+    WLD: {
+      name: 'WLD',
+      address: '0x163f8c2467924be0ae7b5347228cabf260318753',
     },
     WSTETH: {
       name: 'WSTETH',
@@ -1019,6 +1032,58 @@ export const config: SystemConfig = {
     AjnaPoolPairs_TBTCWBTC: {
       name: 'AjnaPoolPairs_TBTCWBTC',
       address: '0x74da6fc4e456583b88d622b19ef6addfb726c0d7',
+    },
+    AjnaPoolPairs_TBTCUSDC: {
+      name: 'AjnaPoolPairs_TBTCUSDC',
+      address: '0xe0cdc238a7bbb2c96c57595163a8f6d2d4b42546',
+    },
+    AjnaPoolPairs_ETHGHO: {
+      name: 'AjnaPoolPairs_ETHGHO',
+      address: '0x15838515903b3843e02f9283b4492833f138e8de',
+    },
+    AjnaPoolPairs_WSTETHGHO: {
+      name: 'AjnaPoolPairs_WSTETHGHO',
+      address: '0x33567e358a64924b2247c490fd08d18facac4a14',
+    },
+    AjnaPoolPairs_GHODAI: {
+      name: 'AjnaPoolPairs_GHODAI',
+      address: '0x9a98d5e8b9b2f85ca9f1566630c448a87ac7e6c4',
+    },
+    AjnaPoolPairs_RETHGHO: {
+      name: 'AjnaPoolPairs_RETHGHO',
+      address: '0xb60f9a764b0c08053dbb187726dc9afb126e8e19',
+    },
+    AjnaPoolPairs_WBTCGHO: {
+      name: 'AjnaPoolPairs_WBTCGHO',
+      address: '0x3fec883aaaa6896a600b99748e5d5d5c93df6aa1',
+    },
+    AjnaPoolPairs_CBETHGHO: {
+      name: 'AjnaPoolPairs_CBETHGHO',
+      address: '0x15acb60c3b1868d6ddc6e1b9fbdcc9531547438b',
+    },
+    AjnaPoolPairs_WLDUSDC: {
+      name: 'AjnaPoolPairs_WLDUSDC',
+      address: '0x29c1459e3fc8d4fde275bee5df5edaf984978f29',
+    },
+    AjnaPoolPairs_USDCWLD: {
+      name: 'AjnaPoolPairs_USDCWLD',
+      address: '0xe4418e421d179d33f2f16cecef89b72e46c099bf',
+    },
+    AjnaPoolPairs_SDAIUSDC: {
+      name: 'AjnaPoolPairs_SDAIUSDC',
+      address: '0xf4ab415e00ff0ed4f25d31d7e9140f3c75b69e7d',
+    },
+    AjnaPoolPairs_YFIDAI: {
+      name: 'AjnaPoolPairs_YFIDAI',
+      address: '0x5b14144da6fd5e3b158d6df7b6ed8345829aab78',
+    },
+    AjnaPoolPairs_YIELDETHETH: {
+      name: 'AjnaPoolPairs_YIELDETHETH',
+      address: '0x25d63c91a85d0a21dc84021df01a800cd3cda797',
+    },
+    AjnaPoolPairs_YIELDBTCWBTC: {
+      name: 'AjnaPoolPairs_YIELDBTCWBTC',
+      address: '0x67a64e974bfeaded23cf479e27654d8face82126',
     },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',

@@ -53,8 +53,11 @@ export class AjnaEarnPosition implements IAjnaEarn {
     public quotePrice: BigNumber,
     public rewards: BigNumber,
     public netValue: BigNumber,
-    public pnl: BigNumber,
-    public totalEarnings: BigNumber,
+    public pnl: {
+      withFees: BigNumber
+      withoutFees: BigNumber
+    },
+    public totalEarnings: { withFees: BigNumber; withoutFees: BigNumber },
   ) {
     this.fundsLockedUntil = Date.now() + 5 * 60 * 60 * 1000 // MOCK funds locked until 5h from now
     this.price = priceIndex ? priceIndexToPrice(priceIndex) : ZERO

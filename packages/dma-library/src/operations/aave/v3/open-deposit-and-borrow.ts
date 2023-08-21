@@ -1,26 +1,28 @@
+import { OperationNames } from '@deploy-configurations/constants'
+import { getAaveOpenDepositBorrowV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
-import { OPERATION_NAMES } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import { BorrowArgs, DepositArgs } from '@dma-library/operations/aave/common'
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
+import { DepositArgs } from '@dma-library/operations/aave/common'
+import { BorrowArgs } from '@dma-library/operations/aave/common/borrow-args'
+import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3/addresses'
 import { ActionCall, IOperation, PositionType, Protocol } from '@dma-library/types'
 
 import { borrow } from './borrow'
 import { deposit } from './deposit'
 
-type AaveV2OpenDepositBorrowArgs = [
+type AaveV3OpenDepositBorrowArgs = [
   depositArgs: DepositArgs,
   borrowArgs: BorrowArgs,
   metaArgs: { protocol: Protocol; positionType: PositionType },
-  addresses: AAVEStrategyAddresses,
+  addresses: AAVEV3StrategyAddresses,
   network: Network,
 ]
 
-export type AaveV2OpenDepositBorrowOperation = (
-  ...args: AaveV2OpenDepositBorrowArgs
+export type AaveV3OpenDepositBorrowOperation = (
+  ...args: AaveV3OpenDepositBorrowArgs
 ) => Promise<IOperation>
 
-export const openDepositAndBorrow: AaveV2OpenDepositBorrowOperation = async (
+export const openDepositBorrow: AaveV3OpenDepositBorrowOperation = async (
   depositArgs,
   borrowArgs,
   { protocol, positionType },
@@ -30,7 +32,7 @@ export const openDepositAndBorrow: AaveV2OpenDepositBorrowOperation = async (
   const depositCalls = (await deposit(depositArgs, addresses, network)).calls
   const borrowCalls = (await borrow(borrowArgs, addresses, network)).calls
 
-  if (borrowArgs.amountInBaseUnit.isZero()) {
+  if (borrowArgs?.amountInBaseUnit.isZero()) {
     borrowCalls.forEach(call => {
       call.skipped = true
     })
@@ -45,10 +47,10 @@ export const openDepositAndBorrow: AaveV2OpenDepositBorrowOperation = async (
 
   return {
     calls: [...depositCalls, ...borrowCalls, positionCreatedEvent],
-    operationName: OPERATION_NAMES.aave.v2.OPEN_DEPOSIT_BORROW,
+    operationName: getAaveOpenDepositBorrowV3OperationDefinition(network).name,
   } as {
     // Import ActionCall as it assists type generation
     calls: ActionCall[]
-    operationName: typeof OPERATION_NAMES.aave.v2.OPEN_DEPOSIT_BORROW
+    operationName: OperationNames
   }
 }
