@@ -1200,6 +1200,14 @@ export const config: SystemConfig = {
       name: 'AjnaPoolPairs_YFIDAI',
       address: '0x5b14144da6fd5e3b158d6df7b6ed8345829aab78',
     },
+    AjnaPoolPairs_YIELDETH: {
+      name: 'AjnaPoolPairs_YIELDETH',
+      address: '0xb5b29320d2dde5ba5bafa1ebcd270052070483ec',
+    },
+    AjnaPoolPairs_YIELDBTC: {
+      name: 'AjnaPoolPairs_YIELDBTC',
+      address: '0x0274a704a6d9129f90a62ddc6f6024b33ecdad36',
+    },
     AjnaRewardsManager: {
       name: 'AjnaRewardsManager',
       address: '0xaF9bc1F09fe561CbD00018fC352507fD23cD46E2',
