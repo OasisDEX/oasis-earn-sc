@@ -1,16 +1,14 @@
 import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { getCurrentPosition } from '@dma-library/strategies/aave/adjust/get-current-position'
-import { getProtocolData } from '@dma-library/strategies/aave/adjust/get-protocol-data'
-import {
-  AaveAdjustDependencies,
-  ExtendedAaveAdjustArgs,
-} from '@dma-library/strategies/aave/adjust/types'
-import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import { SwapData } from '@dma-library/types'
 import { WithFee } from '@dma-library/types/aave/fee'
 import { acceptedFeeToken } from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
+
+import { getCurrentPosition } from './get-current-position'
+import { getProtocolData } from './get-protocol-data'
+import { AaveAdjustDependencies, ExtendedAaveAdjustArgs } from './types'
 
 export async function simulatePositionTransition(
   isRiskIncreasing: boolean,

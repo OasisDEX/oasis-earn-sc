@@ -1,10 +1,11 @@
-import { AaveProtocolData, AaveProtocolDataArgs } from '../../protocols/aave/get-aave-protocol-data'
-import { AaveVersion } from '../../strategies'
+import { AaveProtocolData, AaveProtocolDataArgs } from '@dma-library/protocols/aave'
+import { AaveVersion } from '@dma-library/types/aave'
 import {
   AaveGetCurrentPositionArgs,
   AaveV2GetCurrentPositionDependencies,
   AaveV3GetCurrentPositionDependencies,
-} from '../../strategies/aave/get-current-position'
+} from '@dma-library/views/aave'
+
 import { AavePosition } from './aave-position'
 
 export type WithV2Protocol = {

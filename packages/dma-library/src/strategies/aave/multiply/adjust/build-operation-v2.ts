@@ -1,11 +1,10 @@
 import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '@dma-common/constants'
-import { operations } from '@dma-library/operations'
-import { AdjustRiskDownArgs } from '@dma-library/operations/aave/v2/adjust-risk-down'
-import { AdjustRiskUpArgs } from '@dma-library/operations/aave/v2/adjust-risk-up'
-import { BuildOperationV2Args } from '@dma-library/strategies/aave/adjust/types'
-import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import { AdjustRiskDownArgs, AdjustRiskUpArgs, operations } from '@dma-library/operations'
+import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import { FlashloanProvider } from '@dma-library/types/common'
 import { feeResolver } from '@dma-library/utils/swap'
+
+import { BuildOperationV2Args } from './types'
 
 export async function buildOperationV2({
   adjustRiskUp,

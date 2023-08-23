@@ -1,11 +1,8 @@
-import { AaveVersion } from '@dma-library/strategies'
-import {
-  AaveAdjustArgs,
-  AaveAdjustDependencies,
-  AaveV2AdjustDependencies,
-} from '@dma-library/strategies/aave/adjust/types'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
+import { AaveVersion } from '@dma-library/types/aave'
 import { IPosition } from '@domain'
+
+import { AaveAdjustArgs, AaveAdjustDependencies, AaveV2AdjustDependencies } from './types'
 
 export function getCurrentPosition(
   args: AaveAdjustArgs,

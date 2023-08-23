@@ -1,9 +1,9 @@
 import { TYPICAL_PRECISION } from '@dma-common/constants'
-import { getFlashloanToken } from '@dma-library/strategies/aave/common'
 import {
   getAaveTokenAddress,
   getAaveTokenAddresses,
-} from '@dma-library/strategies/aave/get-aave-token-addresses'
+  getFlashloanToken,
+} from '@dma-library/strategies/aave/common'
 import * as StrategiesCommon from '@dma-library/strategies/common'
 import { PositionTransition } from '@dma-library/types'
 

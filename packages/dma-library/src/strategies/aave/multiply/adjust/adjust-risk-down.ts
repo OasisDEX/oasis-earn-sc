@@ -1,35 +1,34 @@
 import { amountToWei } from '@dma-common/utils/common'
-import { getAaveTokenAddress } from '@dma-library/strategies'
-import { buildOperation } from '@dma-library/strategies/aave/adjust/build-operation'
-import { generateTransition } from '@dma-library/strategies/aave/adjust/generate-transition'
-import { simulatePositionTransition } from '@dma-library/strategies/aave/adjust/simulate-position-transition'
-import {
-  AaveAdjustDependencies,
-  ExtendedAaveAdjustArgs,
-} from '@dma-library/strategies/aave/adjust/types'
+import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { AAVETokens, PositionTransition } from '@dma-library/types'
 import { feeResolver, getSwapDataHelper } from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
-export async function adjustRiskUp(
+import { buildOperation } from './build-operation'
+import { generateTransition } from './generate-transition'
+import { simulatePositionTransition } from './simulate-position-transition'
+import { AaveAdjustDependencies, ExtendedAaveAdjustArgs } from './types'
+
+export async function adjustRiskDown(
   args: ExtendedAaveAdjustArgs,
   dependencies: AaveAdjustDependencies,
 ): Promise<PositionTransition> {
-  const isAdjustUp = true
+  const isAdjustDown = true
+  const isAdjustUp = !isAdjustDown
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk: isAdjustUp,
     isEarnPosition: args.positionType === 'Earn',
   })
 
   // Get quote swap
-  const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
+  const estimatedSwapAmount = amountToWei(new BigNumber(1), args.collateralToken.precision)
   const { swapData: quoteSwapData } = await getSwapDataHelper<
     typeof dependencies.addresses,
     AAVETokens
   >({
     args: {
-      fromToken: args.debtToken,
-      toToken: args.collateralToken,
+      fromToken: args.collateralToken,
+      toToken: args.debtToken,
       slippage: args.slippage,
       fee,
       swapAmountBeforeFees: estimatedSwapAmount,
@@ -41,14 +40,13 @@ export async function adjustRiskUp(
     },
   })
 
-  // SimulateAdjustUp
-  const { simulatedPositionTransition: simulatedAdjustUp } = await simulatePositionTransition(
+  // SimulateAdjustDown
+  const { simulatedPositionTransition: simulatedAdjustDown } = await simulatePositionTransition(
     isAdjustUp,
     quoteSwapData,
     { ...args, fee },
     dependencies,
-    true,
-    dependencies.debug,
+    false,
   )
 
   // Get accurate swap
@@ -57,11 +55,11 @@ export async function adjustRiskUp(
     AAVETokens
   >({
     args: {
-      fromToken: args.debtToken,
-      toToken: args.collateralToken,
+      fromToken: args.collateralToken,
+      toToken: args.debtToken,
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: simulatedAdjustUp.swap.fromTokenAmount,
+      swapAmountBeforeFees: simulatedAdjustDown.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
     services: {
@@ -74,7 +72,7 @@ export async function adjustRiskUp(
   const operation = await buildOperation({
     adjustRiskUp: isAdjustUp,
     swapData,
-    simulatedPositionTransition: simulatedAdjustUp,
+    simulatedPositionTransition: simulatedAdjustDown,
     collectFeeFrom,
     args,
     dependencies,
@@ -90,7 +88,7 @@ export async function adjustRiskUp(
     operation,
     collectFeeFrom,
     fee,
-    simulatedPositionTransition: simulatedAdjustUp,
+    simulatedPositionTransition: simulatedAdjustDown,
     args,
     dependencies,
     quoteSwapData,

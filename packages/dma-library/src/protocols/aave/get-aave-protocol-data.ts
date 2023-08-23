@@ -4,9 +4,8 @@ import aaveV2ProtocolDataProviderABI from '@abis/external/protocols/aave/v2/prot
 // V3 ABIs
 // V3 L2 ABIs
 import { amountFromWei } from '@dma-common/utils/common'
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
-import { AaveVersion } from '@dma-library/strategies'
+import { AAVEStrategyAddresses, AAVEV3StrategyAddresses } from '@dma-library/operations'
+import { AaveVersion } from '@dma-library/types/aave'
 import { getAbiForContract } from '@dma-library/utils/abis/get-abi-for-contract'
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'

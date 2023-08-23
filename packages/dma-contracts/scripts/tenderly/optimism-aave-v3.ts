@@ -1,6 +1,6 @@
 import { optimismConfig } from '@deploy-configurations/configs'
 import { getOneInchCall, optimismLiquidityProviders } from '@dma-common/test-utils'
-import { AaveGetCurrentPositionDependencies } from '@dma-library/strategies/aave/get-current-position'
+import { AaveGetCurrentPositionDependencies } from '@dma-library/views/aave'
 import { RiskRatio } from '@domain'
 import {
   AaveAdjustArgs,

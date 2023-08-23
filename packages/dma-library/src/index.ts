@@ -1,8 +1,7 @@
 export { actions } from './actions'
 export { ActionFactory } from './actions/action-factory'
+export type { AAVEStrategyAddresses, AAVEV3StrategyAddresses } from './operations'
 export { operations } from './operations'
-export type { AAVEStrategyAddresses } from './operations/aave/v2/addresses'
-export type { AAVEV3StrategyAddresses } from './operations/aave/v3/addresses'
 export {
   calculateAjnaApyPerDays,
   calculateAjnaMaxLiquidityWithdraw,
@@ -10,7 +9,6 @@ export {
   protocols,
 } from './protocols'
 export { strategies } from './strategies'
-export { AaveVersion } from './strategies'
 export { ajnaBuckets } from './strategies'
 export { getPoolLiquidity } from './strategies/ajna/validation'
 export type {
@@ -21,6 +19,7 @@ export type {
   SwapData,
 } from './types'
 export type { AAVETokens } from './types/aave'
+export { AaveVersion } from './types/aave'
 export { AavePosition } from './types/aave'
 export type { ActionCall } from './types/action-call'
 export { calldataTypes } from './types/actions'
