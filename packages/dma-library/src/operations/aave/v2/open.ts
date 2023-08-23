@@ -77,9 +77,6 @@ export const open: AaveV2OpenOperation = async ({
     from: user,
   })
 
-  if (!addresses.tokens.DAI) {
-    throw new Error('Missing DAI address')
-  }
   const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
     amount: flashloanAmount,
     asset: addresses.tokens.DAI,
