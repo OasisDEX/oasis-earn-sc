@@ -563,7 +563,7 @@ describe.only("AjnaProxyActions", function () {
       );
 
       let borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
-
+      console.log(`Neutral price before : ${borrowerInfo.t0Np_.toString()}`);
       await repayDebt(ajnaProxyActionsContract, poolContract, usdc, borrower, borrowerProxy, poolInfoContract);
 
       const balancesQuoteAfter = {
@@ -574,8 +574,59 @@ describe.only("AjnaProxyActions", function () {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
-      borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrower.address);
+      borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
+      console.log(`Neutral price after : ${borrowerInfo.t0Np_.toString()}`);
+      expect(balancesQuoteAfter.borrower).to.be.lt(balancesQuoteBefore.borrower);
+      expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.TEN));
+      expect(borrowerInfo.debt_).to.be.eq(0);
+    });
+    it("should openAndDraw and repayDebt - force stamploan", async () => {
+      const { wbtc, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, usdc, poolInfoContract } =
+        await loadFixture(deploy);
+      const balancesQuoteBefore = {
+        borrower: await usdc.balanceOf(borrower.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+      const balancesCollateralBefore = {
+        borrower: await wbtc.balanceOf(borrower.address),
+        pool: await wbtc.balanceOf(poolContract.address),
+      };
+      const price = bn.eighteen.TEST_PRICE_3;
 
+      await depositAndDrawDebt(
+        ajnaProxyActionsContract,
+        poolContract,
+        price,
+        wbtc,
+        borrower,
+        borrowerProxy,
+        bn.six.HUNDRED,
+        bn.eight.TEN
+      );
+
+      let borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
+      console.log(`Neutral price before stamploan : ${borrowerInfo.t0Np_.toString()}`);
+      await repayDebt(
+        ajnaProxyActionsContract,
+        poolContract,
+        usdc,
+        borrower,
+        borrowerProxy,
+        poolInfoContract,
+        undefined,
+        true
+      );
+
+      const balancesQuoteAfter = {
+        borrower: await usdc.balanceOf(borrower.address),
+        pool: await usdc.balanceOf(poolContract.address),
+      };
+      const balancesCollateralAfter = {
+        borrower: await wbtc.balanceOf(borrower.address),
+        pool: await wbtc.balanceOf(poolContract.address),
+      };
+      borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
+      console.log(`Neutral price after stamploan : ${borrowerInfo.t0Np_.toString()}`);
       expect(balancesQuoteAfter.borrower).to.be.lt(balancesQuoteBefore.borrower);
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.TEN));
       expect(borrowerInfo.debt_).to.be.eq(0);
@@ -1395,7 +1446,7 @@ async function withdrawQuote(
 async function supplyQuote(
   ajnaProxyActionsContract: AjnaProxyActions,
   poolContract: ERC20Pool,
-  usdc: DSToken,
+  quoteToken: DSToken,
   lender: Signer,
   lenderProxy: IAccountImplementation,
   amountToSupply: BigNumber,
@@ -1407,7 +1458,7 @@ async function supplyQuote(
     price,
     REVERT_IF_BELOW_LUP,
   ]);
-  await usdc.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
+  await quoteToken.connect(lender).approve(lenderProxy.address, bn.eighteen.MILLION);
   const tx = await lenderProxy.connect(lender).execute(ajnaProxyActionsContract.address, encodedSupplyQuoteData, {
     gasLimit: 3000000,
   });
@@ -1694,12 +1745,14 @@ async function repayWithdraw(
   borrower: Signer,
   borrowerProxy: IAccountImplementation,
   debtAmount: BigNumber,
-  collateralAmount: BigNumber
+  collateralAmount: BigNumber,
+  stamploan = false
 ) {
   const encodedRepayData = ajnaProxyActionsContract.interface.encodeFunctionData("repayWithdraw", [
     poolContract.address,
     debtAmount,
     collateralAmount,
+    stamploan,
   ]);
   const approvalTx = await usdc.connect(borrower).approve(borrowerProxy.address, bn.eighteen.MILLION);
   const approvalTxReceipt = await approvalTx.wait();
@@ -1863,13 +1916,15 @@ async function repayDebt(
   borrower: Signer,
   borrowerProxy: IAccountImplementation,
   poolInfoContract: PoolInfoUtils,
-  amountToRepay?: BigNumber
+  amountToRepay?: BigNumber,
+  stamploan = false
 ) {
   let encodedRepayData = "";
   if (amountToRepay) {
     encodedRepayData = ajnaProxyActionsContract.interface.encodeFunctionData("repayDebt", [
       poolContract.address,
       amountToRepay,
+      stamploan,
     ]);
   } else {
     const borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
@@ -1877,6 +1932,7 @@ async function repayDebt(
     encodedRepayData = ajnaProxyActionsContract.interface.encodeFunctionData("repayDebt", [
       poolContract.address,
       borrowerInfo.debt_.mul(105).div(100).div(quoteScale),
+      stamploan,
     ]);
   }
   const approvalTx = await usdc.connect(borrower).approve(borrowerProxy.address, bn.eighteen.MILLION);
