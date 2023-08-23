@@ -1,10 +1,15 @@
 import { Address } from '@deploy-configurations/types/address'
 import { Tokens } from '@deploy-configurations/types/deployment-config'
 
-export type TokenAddresses = Partial<Record<Tokens, Address>>
+type RequiredTokens = 'WETH' | 'DAI' | 'ETH' | 'USDC'
+type OptionalTokens = Exclude<Tokens, RequiredTokens>
+
+export type TokenAddresses = {
+  [K in RequiredTokens]: Address
+} & Partial<Record<OptionalTokens, Address>>
 
 export interface AaveLikeStrategyAddresses {
-  tokens: TokenAddresses & { WETH: Address; DAI: Address; ETH: Address; USDC: Address }
+  tokens: TokenAddresses
   operationExecutor: string
   chainlinkEthUsdPriceFeed: string
   oracle: string

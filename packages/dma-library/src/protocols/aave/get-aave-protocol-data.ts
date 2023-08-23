@@ -44,7 +44,7 @@ export const getAaveProtocolData = async (args: AaveProtocolDataArgs) => {
 }
 
 type PriceResult = BigNumber | undefined
-type ReserveDataResult = any // Replace 'any' with the actual type if known
+type ReserveDataResult = any
 
 async function getAaveV2ProtocolData({
   addresses,

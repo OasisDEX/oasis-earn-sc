@@ -40,9 +40,6 @@ export const adjustRiskDown: AaveV2AdjustDownOperation = async ({
   addresses,
   network,
 }) => {
-  if (!addresses.tokens.DAI) {
-    throw new Error('Missing DAI address')
-  }
   const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
     amount: flashloan.token.amount,
     asset: addresses.tokens.DAI,

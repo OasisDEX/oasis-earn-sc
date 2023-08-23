@@ -48,9 +48,7 @@ export const paybackWithdraw: AaveV2PaybackWithdrawOperation = async args => {
   const unwrapEthDebt = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
   })
-  if (!args.addresses.tokens.ETH) {
-    throw new Error('Missing ETH address')
-  }
+
   const returnLeftFundFromPayback = actions.common.returnFunds(network, {
     asset: args.debtTokenIsEth ? args.addresses.tokens.ETH : args.debtTokenAddress,
   })
