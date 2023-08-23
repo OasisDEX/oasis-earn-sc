@@ -12,25 +12,18 @@ import {
 import { Unbox } from '@dma-common/types/common'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
-import { AAVEStrategyAddresses, AAVEV3StrategyAddresses } from '@dma-library/index'
-import { operations } from '@dma-library/operations'
+import { AAVEStrategyAddresses, AAVEV3StrategyAddresses, operations } from '@dma-library/operations'
 import { OpenOperationArgs } from '@dma-library/operations/aave/v3/open'
 import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
-import {
-  getAaveTokenAddress,
-  getAaveTokenAddresses,
-} from '@dma-library/strategies/aave/get-aave-token-addresses'
-import { AaveVersion } from '@dma-library/strategies/aave/get-current-position'
+import { getAaveTokenAddress, getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import { IOperation, PositionTransition, PositionType, SwapData } from '@dma-library/types'
-import { AAVETokens } from '@dma-library/types/aave'
+import { AAVETokens, AaveVersion } from '@dma-library/types/aave'
 import { WithV2Addresses, WithV3Addresses } from '@dma-library/types/aave/addresses'
 import { WithFee } from '@dma-library/types/aave/fee'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
-import { acceptedFeeToken } from '@dma-library/utils/swap/accepted-fee-token'
-import { feeResolver } from '@dma-library/utils/swap/fee-resolver'
-import { getSwapDataHelper } from '@dma-library/utils/swap/get-swap-data'
+import * as SwapUtils from '@dma-library/utils/swap'
 import { IBaseSimulatedTransition, IRiskRatio, Position } from '@domain'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
@@ -70,12 +63,12 @@ export async function open(
   args: AaveOpenArgs,
   dependencies: AaveOpenDependencies,
 ): Promise<PositionTransition> {
-  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+  const fee = SwapUtils.feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk: true,
     isEarnPosition: args.positionType === 'Earn',
   })
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
-  const { swapData: quoteSwapData } = await getSwapDataHelper<
+  const { swapData: quoteSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     AAVETokens
   >({
@@ -104,7 +97,7 @@ export async function open(
       // true,
     )
 
-  const { swapData, collectFeeFrom } = await getSwapDataHelper<
+  const { swapData, collectFeeFrom } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     AAVETokens
   >({
@@ -257,7 +250,7 @@ async function simulatePositionTransition(
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
-  const collectFeeFrom = acceptedFeeToken({
+  const collectFeeFrom = SwapUtils.acceptedFeeToken({
     fromToken: args.debtToken.symbol,
     toToken: args.collateralToken.symbol,
   })
@@ -313,7 +306,7 @@ async function buildOperation(
   const borrowAmountInWei = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
 
   const isIncreasingRisk = true
-  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+  const fee = SwapUtils.feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk,
     isEarnPosition: args.positionType === 'Earn',
   })

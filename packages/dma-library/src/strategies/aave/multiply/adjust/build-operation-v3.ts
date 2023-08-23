@@ -4,10 +4,11 @@ import { ZERO } from '@dma-common/constants'
 import { operations } from '@dma-library/operations'
 import { AdjustRiskDownArgs } from '@dma-library/operations/aave/v3/adjust-risk-down'
 import { AdjustRiskUpArgs } from '@dma-library/operations/aave/v3/adjust-risk-up'
-import { BuildOperationV3Args } from '@dma-library/strategies/aave/adjust/types'
-import { getAaveTokenAddresses } from '@dma-library/strategies/aave/get-aave-token-addresses'
+import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
+
+import { BuildOperationV3Args } from './types'
 
 export async function buildOperationV3({
   adjustRiskUp,

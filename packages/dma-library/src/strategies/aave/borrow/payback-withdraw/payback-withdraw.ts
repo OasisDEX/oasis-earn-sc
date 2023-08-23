@@ -1,9 +1,8 @@
 import { MAX_UINT, ZERO } from '@dma-common/constants'
-import { operations } from '@dma-library/operations'
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
-import { AaveVersion } from '@dma-library/strategies'
+import { AAVEStrategyAddresses, AAVEV3StrategyAddresses, operations } from '@dma-library/operations'
+import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import { IOperation, WithPaybackDebt, WithWithdrawCollateral } from '@dma-library/types'
+import { AaveVersion } from '@dma-library/types/aave'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import { IStrategy } from '@dma-library/types/strategies'
 import {
@@ -12,8 +11,6 @@ import {
   WithAaveV3StrategyDependencies,
 } from '@dma-library/types/strategy-params'
 import BigNumber from 'bignumber.js'
-
-import { getAaveTokenAddresses } from '../get-aave-token-addresses'
 
 export type AavePaybackWithdrawArgs = WithAaveStrategyArgs &
   WithWithdrawCollateral &

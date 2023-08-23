@@ -3,7 +3,7 @@ import { ZERO } from '@dma-common/constants'
 import { BorrowArgs } from '@dma-library/operations'
 import { AAVEV2StrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
-import { getAaveTokenAddress } from '@dma-library/strategies'
+import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { AAVETokens } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 

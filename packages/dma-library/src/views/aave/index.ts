@@ -1,17 +1,10 @@
+import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
+import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { getAaveProtocolData } from '@dma-library/protocols/aave'
+import * as AaveCommon from '@dma-library/strategies/aave/common'
+import { IViewPositionDependencies, IViewPositionParams } from '@dma-library/types'
+import { AavePosition, AAVETokens, AaveVersion } from '@dma-library/types/aave'
 import BigNumber from 'bignumber.js'
-
-import { AAVEStrategyAddresses } from '../../operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '../../operations/aave/v3'
-import { IViewPositionDependencies, IViewPositionParams } from '../../types'
-import { AavePosition, AAVETokens } from '../../types/aave'
-import * as AaveCommon from './common'
-import { getAaveTokenAddresses } from './get-aave-token-addresses'
-
-export enum AaveVersion {
-  v2 = 'v2',
-  v3 = 'v3',
-}
 
 export type AaveGetCurrentPositionArgs = IViewPositionParams<AAVETokens>
 export type AaveV2GetCurrentPositionDependencies =
@@ -52,7 +45,7 @@ async function getCurrentPositionAaveV2(
 ): Promise<AavePosition> {
   const debtToken = args.debtToken
   const collateralToken = args.collateralToken
-  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
+  const { collateralTokenAddress, debtTokenAddress } = AaveCommon.getAaveTokenAddresses(
     {
       collateralToken: collateralToken,
       debtToken: debtToken,
@@ -114,7 +107,7 @@ async function getCurrentPositionAaveV3(
 ): Promise<AavePosition> {
   const debtToken = args.debtToken
   const collateralToken = args.collateralToken
-  const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
+  const { collateralTokenAddress, debtTokenAddress } = AaveCommon.getAaveTokenAddresses(
     {
       collateralToken: collateralToken,
       debtToken: debtToken,

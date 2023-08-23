@@ -9,7 +9,7 @@ import { getAccountFactory } from '@dma-common/utils/proxy'
 import { approve } from '@dma-common/utils/tx'
 import { AAVETokensToGet, buildGetTokenFunction } from '@dma-contracts/test/utils/aave'
 import { AAVETokens, AaveVersion, protocols, strategies } from '@dma-library'
-import { AaveV3OpenDepositBorrowDependencies } from '@dma-library/strategies/aave/open-deposit-borrow'
+import { AaveV3OpenDepositBorrowDependencies } from '@dma-library/strategies/aave/borrow/open-deposit-borrow'
 import BigNumber from 'bignumber.js'
 import { task } from 'hardhat/config'
 

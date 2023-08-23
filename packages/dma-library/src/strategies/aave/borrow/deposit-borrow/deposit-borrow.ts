@@ -1,15 +1,16 @@
 import { CollectFeeFrom } from '@dma-common/types'
 import { BorrowArgs, DepositArgs, operations } from '@dma-library/operations'
-import { getAaveTokenAddress } from '@dma-library/strategies'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
+import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
+import { IOperation } from '@dma-library/types'
+import * as SwapUtils from '@dma-library/utils/swap'
+import { IPosition } from '@domain'
+
 import {
   AaveDepositBorrow,
   AaveDepositBorrowDependencies,
   AaveV3DepositBorrowDependencies,
-} from '@dma-library/strategies/aave/deposit-borrow/types'
-import { IOperation } from '@dma-library/types'
-import * as SwapUtils from '@dma-library/utils/swap'
-import { IPosition } from '@domain'
+} from './types'
 
 export const depositBorrow: AaveDepositBorrow = async (args, dependencies) => {
   const {

@@ -4,7 +4,7 @@ import aaveV3PriceOracleABI from '@abis/external/protocols/aave/v3/aaveOracle.js
 import aaveV3ProtocolDataProviderABI from '@abis/external/protocols/aave/v3/aaveProtocolDataProvider.json'
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
-import { AaveVersion } from '@dma-library/strategies'
+import { AaveVersion } from '@dma-library/types/aave'
 import { Provider } from '@ethersproject/providers'
 import { ethers } from 'ethers'
 

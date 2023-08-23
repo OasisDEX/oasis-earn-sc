@@ -2,8 +2,8 @@ import {
   AaveDepositBorrowArgs,
   AaveV2DepositBorrowDependencies,
   AaveV3DepositBorrowDependencies,
-} from '@dma-library/strategies/aave/deposit-borrow'
-import { IDepositBorrowStrategy } from '@dma-library/strategies/aave/deposit-borrow/types'
+} from '@dma-library/strategies/aave/borrow/deposit-borrow'
+import { IDepositBorrowStrategy } from '@dma-library/strategies/aave/borrow/deposit-borrow/types'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
 export type AaveOpenDepositBorrowArgs = AaveDepositBorrowArgs

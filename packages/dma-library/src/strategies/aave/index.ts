@@ -1,33 +1,38 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
+import { AavePosition, PositionTransition } from '@dma-library/types'
+import { AaveVersion } from '@dma-library/types/aave'
+import {
+  AaveGetCurrentPositionArgs,
+  AaveV2GetCurrentPositionDependencies,
+  AaveV3GetCurrentPositionDependencies,
+  getCurrentPosition,
+} from '@dma-library/views/aave'
+
+import { AaveV2ChangeDebt, changeDebt } from './borrow/change-debt'
+import { AaveV2DepositBorrow, AaveV3DepositBorrow, depositBorrow } from './borrow/deposit-borrow'
 import {
   AaveV2OpenDepositBorrow,
   AaveV3OpenDepositBorrow,
   openDepositBorrow,
-} from '@dma-library/strategies/aave/open-deposit-borrow'
-import { AavePosition, PositionTransition } from '@dma-library/types'
-
+} from './borrow/open-deposit-borrow'
+import {
+  AaveV2PaybackWithdraw,
+  AaveV3PaybackWithdraw,
+  paybackWithdraw,
+} from './borrow/payback-withdraw'
 import {
   AaveAdjustArgs,
   AaveV2AdjustDependencies,
   AaveV3AdjustDependencies,
   adjust,
-} from './adjust'
-import { AaveV2ChangeDebt, changeDebt } from './change-debt'
-import { AaveCloseArgs, AaveCloseDependencies, close } from './close'
-import { AaveV2DepositBorrow, AaveV3DepositBorrow, depositBorrow } from './deposit-borrow'
+} from './multiply/adjust'
+import { AaveCloseArgs, AaveCloseDependencies, close } from './multiply/close'
 import {
-  AaveGetCurrentPositionArgs,
-  AaveV2GetCurrentPositionDependencies,
-  AaveV3GetCurrentPositionDependencies,
-  AaveVersion,
-  getCurrentPosition,
-} from './get-current-position'
-import { open as aaveOpen } from './open'
-import { AaveOpenArgs, AaveV2OpenDependencies, AaveV3OpenDependencies } from './open/open'
-import { AaveV2PaybackWithdraw, AaveV3PaybackWithdraw, paybackWithdraw } from './payback-withdraw'
-
-export { getAaveTokenAddress } from './get-aave-token-addresses'
-export { AaveVersion } from './get-current-position'
+  AaveOpenArgs,
+  AaveV2OpenDependencies,
+  AaveV3OpenDependencies,
+  open as aaveOpen,
+} from './multiply/open'
 
 export const aave: {
   v2: {

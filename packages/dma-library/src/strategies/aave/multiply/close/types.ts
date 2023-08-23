@@ -1,7 +1,5 @@
 import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
 import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
-import { AaveVersion } from '@dma-library/strategies'
-import { AaveValuesFromProtocol } from '@dma-library/strategies/aave/close/get-values-from-protocol'
 import {
   AAVETokens,
   IBasePositionTransitionArgs,
@@ -11,6 +9,9 @@ import {
   WithDebtTokenAddress,
   WithFlashloanToken,
 } from '@dma-library/types'
+import { AaveVersion } from '@dma-library/types/aave'
+
+import { AaveValuesFromProtocol } from './get-values-from-protocol'
 
 export type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> & {
   positionType: PositionType
