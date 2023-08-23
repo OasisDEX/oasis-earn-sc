@@ -1,4 +1,4 @@
-import { AaveVersion } from '@dma-library/strategies'
+import { AaveVersion } from '@dma-library/types/aave'
 
 export function isV3<
   GeneralDeps extends { protocol: { version: AaveVersion } } | { protocolVersion: AaveVersion },

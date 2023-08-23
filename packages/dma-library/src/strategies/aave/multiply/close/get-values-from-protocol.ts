@@ -1,7 +1,8 @@
-import { AaveVersion } from '@dma-library/strategies'
-import { getAAVEProtocolServices } from '@dma-library/strategies/aave/close/get-aave-protocol-services'
-import { AaveCloseDependencies } from '@dma-library/strategies/aave/close/types'
+import { AaveVersion } from '@dma-library/types/aave'
 import BigNumber from 'bignumber.js'
+
+import { getAAVEProtocolServices } from './get-aave-protocol-services'
+import { AaveCloseDependencies } from './types'
 
 export interface AaveValuesFromProtocol {
   flashloanTokenPrice: BigNumber

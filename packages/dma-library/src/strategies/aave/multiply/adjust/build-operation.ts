@@ -1,12 +1,9 @@
-import { buildOperationV2 } from '@dma-library/strategies/aave/adjust/build-operation-v2'
-import { buildOperationV3 } from '@dma-library/strategies/aave/adjust/build-operation-v3'
-import {
-  AaveAdjustDependencies,
-  AaveV2AdjustDependencies,
-  BuildOperationArgs,
-} from '@dma-library/strategies/aave/adjust/types'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { IOperation } from '@dma-library/types'
+
+import { buildOperationV2 } from './build-operation-v2'
+import { buildOperationV3 } from './build-operation-v3'
+import { AaveAdjustDependencies, AaveV2AdjustDependencies, BuildOperationArgs } from './types'
 
 export async function buildOperation({
   adjustRiskUp,

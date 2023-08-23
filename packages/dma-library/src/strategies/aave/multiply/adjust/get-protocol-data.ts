@@ -1,10 +1,7 @@
 import { AaveProtocolData } from '@dma-library/protocols'
-import {
-  AaveAdjustArgs,
-  AaveAdjustDependencies,
-  AaveV2AdjustDependencies,
-} from '@dma-library/strategies/aave/adjust/types'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
+
+import { AaveAdjustArgs, AaveAdjustDependencies, AaveV2AdjustDependencies } from './types'
 
 export async function getProtocolData(
   collateralTokenAddress: string,
