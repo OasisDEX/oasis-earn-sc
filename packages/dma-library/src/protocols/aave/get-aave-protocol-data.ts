@@ -1,51 +1,50 @@
 // V2 ABIs
-import aaveV2PriceOracleABI from '@abis/external/protocols/aave/v2/priceOracle.json'
-import aaveV2ProtocolDataProviderABI from '@abis/external/protocols/aave/v2/protocolDataProvider.json'
+import { Address } from '@deploy-configurations/types/address'
 // V3 ABIs
 // V3 L2 ABIs
 import { amountFromWei } from '@dma-common/utils/common'
-import { AAVEStrategyAddresses, AAVEV3StrategyAddresses } from '@dma-library/operations'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
+import * as AaveCommon from '@dma-library/strategies/aave/common'
+import { Protocol } from '@dma-library/types'
 import { AaveVersion } from '@dma-library/types/aave'
-import { getAbiForContract } from '@dma-library/utils/abis/get-abi-for-contract'
+import {
+  AllowedContractNames,
+  getAbiForContract,
+} from '@dma-library/utils/abis/get-abi-for-contract'
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 
-type InternalAaveProtocolData<AaveAddresses> = {
+type InternalAaveProtocolData = {
   collateralTokenAddress: string
   debtTokenAddress: string
-  flashloanTokenAddress: string
-  proxy?: string
-  addresses: AaveAddresses
+  addresses: AaveLikeStrategyAddresses
   provider: providers.Provider
+  flashloanTokenAddress?: string
+  proxy?: string
 }
 
 export type AaveProtocolDataArgs =
-  | (InternalAaveProtocolData<AAVEStrategyAddresses> & { protocolVersion: AaveVersion.v2 })
-  | (InternalAaveProtocolData<AAVEV3StrategyAddresses> & { protocolVersion: AaveVersion.v3 })
+  | (InternalAaveProtocolData & { protocolVersion: AaveVersion.v2 })
+  | (InternalAaveProtocolData & { protocolVersion: AaveVersion.v3 })
 
 export const getAaveProtocolData = async (args: AaveProtocolDataArgs) => {
-  if (isV2(args)) {
+  if (
+    AaveCommon.isV2<
+      AaveProtocolDataArgs,
+      InternalAaveProtocolData & { protocolVersion: AaveVersion.v2 }
+    >(args)
+  ) {
     return getAaveV2ProtocolData(args)
-  } else if (isV3(args)) {
-    return getAaveV3ProtocolData(args)
-  } else {
-    throw new Error('Invalid Aave version')
   }
+  if (AaveCommon.isV3(args)) {
+    return getAaveV3ProtocolData(args)
+  }
+
+  throw new Error('Invalid Aave version')
 }
 
-function isV2(
-  args: AaveProtocolDataArgs,
-): args is InternalAaveProtocolData<AAVEStrategyAddresses> & { protocolVersion: AaveVersion.v2 } {
-  return args.protocolVersion === AaveVersion.v2
-}
-
-function isV3(
-  args: AaveProtocolDataArgs,
-): args is InternalAaveProtocolData<AAVEV3StrategyAddresses> & {
-  protocolVersion: AaveVersion.v3
-} {
-  return args.protocolVersion === AaveVersion.v3
-}
+type PriceResult = BigNumber | undefined
+type ReserveDataResult = any // Replace 'any' with the actual type if known
 
 async function getAaveV2ProtocolData({
   addresses,
@@ -54,46 +53,42 @@ async function getAaveV2ProtocolData({
   collateralTokenAddress,
   flashloanTokenAddress,
   proxy,
-}: InternalAaveProtocolData<AAVEStrategyAddresses> & { protocolVersion: AaveVersion.v2 }) {
-  const priceOracle = new ethers.Contract(addresses.priceOracle, aaveV2PriceOracleABI, provider)
-  const aaveProtocolDataProvider = new ethers.Contract(
-    addresses.protocolDataProvider,
-    aaveV2ProtocolDataProviderABI,
+}: InternalAaveProtocolData & { protocolVersion: AaveVersion.v2 }) {
+  const oracle = await getContract(addresses.oracle, 'oracle', provider, 'AAVE')
+  const poolDataProvider = await getContract(
+    addresses.poolDataProvider,
+    'poolDataProvider',
     provider,
+    'AAVE',
   )
 
-  const hasProxy = !!proxy
-
-  const promises = [
-    priceOracle
-      .getAssetPrice(flashloanTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    priceOracle
-      .getAssetPrice(debtTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    priceOracle
-      .getAssetPrice(collateralTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aaveProtocolDataProvider.getReserveConfigurationData(flashloanTokenAddress),
-    aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
-  ]
-
-  if (hasProxy) {
-    promises.push(aaveProtocolDataProvider.getUserReserveData(debtTokenAddress, proxy))
-    promises.push(aaveProtocolDataProvider.getUserReserveData(collateralTokenAddress, proxy))
-  }
-
-  const results = await Promise.all(promises)
+  const [
+    flashloanPrice,
+    debtPrice,
+    collateralPrice,
+    flashloanReserveData,
+    collateralReserveData,
+    userDebtData,
+    userCollateralData,
+  ] = await Promise.all([
+    fetchAssetPrice(oracle, flashloanTokenAddress),
+    fetchAssetPrice(oracle, debtTokenAddress),
+    fetchAssetPrice(oracle, collateralTokenAddress),
+    fetchReserveData(poolDataProvider, flashloanTokenAddress),
+    fetchReserveData(poolDataProvider, collateralTokenAddress),
+    proxy ? fetchUserReserveData(poolDataProvider, debtTokenAddress, proxy) : undefined,
+    proxy ? fetchUserReserveData(poolDataProvider, collateralTokenAddress, proxy) : undefined,
+  ])
 
   return {
-    aaveFlashloanAssetPriceInEth: results[0] as BigNumber,
-    aaveDebtTokenPriceInEth: results[1] as BigNumber,
-    aaveCollateralTokenPriceInEth: results[2] as BigNumber,
-    reserveDataForFlashloan: results[3],
-    reserveDataForCollateral: results[4],
+    aaveFlashloanAssetPriceInEth: flashloanPrice,
+    aaveDebtTokenPriceInEth: debtPrice,
+    aaveCollateralTokenPriceInEth: collateralPrice,
+    reserveDataForFlashloan: flashloanReserveData,
+    reserveDataForCollateral: collateralReserveData,
     reserveEModeCategory: undefined,
-    userReserveDataForDebtToken: hasProxy ? results[5] : undefined,
-    userReserveDataForCollateral: hasProxy ? results[6] : undefined,
+    userReserveDataForDebtToken: userDebtData,
+    userReserveDataForCollateral: userCollateralData,
     eModeCategoryData: undefined,
   }
 }
@@ -105,80 +100,105 @@ async function getAaveV3ProtocolData({
   collateralTokenAddress,
   flashloanTokenAddress,
   proxy,
-}: InternalAaveProtocolData<AAVEV3StrategyAddresses> & { protocolVersion: AaveVersion.v3 }) {
-  const priceOracle = new ethers.Contract(
-    addresses.aaveOracle,
-    await getAbiForContract('aaveOracle', provider),
-    provider,
-  )
-  const aaveProtocolDataProvider = new ethers.Contract(
+}: InternalAaveProtocolData & { protocolVersion: AaveVersion.v3 }) {
+  const oracle = await getContract(addresses.oracle, 'oracle', provider, 'AAVE_V3')
+  const poolDataProvider = await getContract(
     addresses.poolDataProvider,
-    await getAbiForContract('poolDataProvider', provider),
+    'poolDataProvider',
     provider,
+    'AAVE_V3',
   )
-  const aavePool = new ethers.Contract(
-    addresses.pool,
-    await getAbiForContract('pool', provider),
-    provider,
-  )
+  const pool = await getContract(addresses.lendingPool, 'pool', provider, 'AAVE_V3')
 
   const hasProxy = !!proxy
 
-  const promises = [
-    priceOracle
-      .getAssetPrice(flashloanTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    priceOracle
-      .getAssetPrice(debtTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    priceOracle
-      .getAssetPrice(collateralTokenAddress)
-      .then((amount: ethers.BigNumberish) => amountFromWei(new BigNumber(amount.toString()))),
-    aaveProtocolDataProvider.getReserveConfigurationData(flashloanTokenAddress),
-    aaveProtocolDataProvider.getReserveConfigurationData(collateralTokenAddress),
-  ]
+  const [
+    flashloanPrice,
+    debtPrice,
+    collateralPrice,
+    flashloanReserveData,
+    collateralReserveData,
+    userDebtData,
+    userCollateralData,
+    collateralEModeCategory,
+    debtEModeCategory,
+  ] = await Promise.all([
+    fetchAssetPrice(oracle, flashloanTokenAddress),
+    fetchAssetPrice(oracle, debtTokenAddress),
+    fetchAssetPrice(oracle, collateralTokenAddress),
+    fetchReserveData(poolDataProvider, flashloanTokenAddress),
+    fetchReserveData(poolDataProvider, collateralTokenAddress),
+    hasProxy ? fetchUserReserveData(poolDataProvider, debtTokenAddress, proxy) : undefined,
+    hasProxy ? fetchUserReserveData(poolDataProvider, collateralTokenAddress, proxy) : undefined,
+    poolDataProvider.getReserveEModeCategory(collateralTokenAddress),
+    poolDataProvider.getReserveEModeCategory(debtTokenAddress),
+  ])
 
-  if (hasProxy) {
-    promises.push(aaveProtocolDataProvider.getUserReserveData(debtTokenAddress, proxy))
-    promises.push(aaveProtocolDataProvider.getUserReserveData(collateralTokenAddress, proxy))
-  }
-
-  promises.push(aaveProtocolDataProvider.getReserveEModeCategory(collateralTokenAddress))
-  promises.push(aaveProtocolDataProvider.getReserveEModeCategory(debtTokenAddress))
-
-  const results = await Promise.all(promises)
-
-  let reserveEModeCategory
-  const doesNotHaveProxy = !hasProxy
-  if (hasProxy && results[7] && results[8]) {
-    const collateralEModeCategory = Number(results[7].toString())
-    const debtEModeCategory = Number(results[8].toString())
-    reserveEModeCategory =
-      collateralEModeCategory === debtEModeCategory ? collateralEModeCategory : 0
-  }
-  if (doesNotHaveProxy && results[5] && results[6]) {
-    const collateralEModeCategory = Number(results[5].toString())
-    const debtEModeCategory = Number(results[6].toString())
-    reserveEModeCategory =
-      collateralEModeCategory === debtEModeCategory ? collateralEModeCategory : 0
-  }
+  const reserveEModeCategory = await determineReserveEModeCategory(
+    [collateralEModeCategory, debtEModeCategory],
+    hasProxy,
+  )
 
   let eModeCategoryData
-  if (aavePool && reserveEModeCategory !== 0) {
-    eModeCategoryData = await aavePool.getEModeCategoryData(reserveEModeCategory)
+  if (pool && reserveEModeCategory !== 0) {
+    eModeCategoryData = await pool.getEModeCategoryData(reserveEModeCategory)
   }
 
   return {
-    aaveFlashloanAssetPriceInEth: results[0] as BigNumber,
-    aaveDebtTokenPriceInEth: results[1] as BigNumber,
-    aaveCollateralTokenPriceInEth: results[2] as BigNumber,
-    reserveDataForFlashloan: results[3],
-    reserveDataForCollateral: results[4],
+    aaveFlashloanAssetPriceInEth: flashloanPrice,
+    aaveDebtTokenPriceInEth: debtPrice,
+    aaveCollateralTokenPriceInEth: collateralPrice,
+    reserveDataForFlashloan: flashloanReserveData,
+    reserveDataForCollateral: collateralReserveData,
     reserveEModeCategory: reserveEModeCategory,
-    userReserveDataForDebtToken: hasProxy ? results[5] : undefined,
-    userReserveDataForCollateral: hasProxy ? results[6] : undefined,
+    userReserveDataForDebtToken: userDebtData,
+    userReserveDataForCollateral: userCollateralData,
     eModeCategoryData: eModeCategoryData,
   }
+}
+async function determineReserveEModeCategory(
+  collateralEModeCategoryResult: any,
+  debtEModeCategoryResult: any,
+): Promise<number | undefined> {
+  const collateralEModeCategory = Number(collateralEModeCategoryResult.toString())
+  const debtEModeCategory = Number(debtEModeCategoryResult.toString())
+
+  if (collateralEModeCategory === debtEModeCategory) {
+    return collateralEModeCategory
+  }
+  return 0
+}
+
+async function getContract(
+  address: Address,
+  contractName: AllowedContractNames,
+  provider: any,
+  protocol: Protocol,
+) {
+  const abi = await getAbiForContract(contractName, provider, protocol)
+  return new ethers.Contract(address, abi, provider)
+}
+
+async function fetchAssetPrice(priceOracle: any, tokenAddress?: string): Promise<PriceResult> {
+  if (!tokenAddress) return undefined
+  const amount: ethers.BigNumberish = await priceOracle.getAssetPrice(tokenAddress)
+  return amountFromWei(new BigNumber(amount.toString()))
+}
+
+async function fetchReserveData(
+  dataProvider: any,
+  tokenAddress?: string,
+): Promise<ReserveDataResult> {
+  if (!tokenAddress) return undefined
+  return dataProvider.getReserveConfigurationData(tokenAddress)
+}
+
+async function fetchUserReserveData(
+  dataProvider: any,
+  tokenAddress: string,
+  proxy: string,
+): Promise<ReserveDataResult> {
+  return dataProvider.getUserReserveData(tokenAddress, proxy)
 }
 
 export type AaveProtocolData = ReturnType<typeof getAaveProtocolData>

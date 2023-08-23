@@ -2,7 +2,7 @@ import { Network } from '@deploy-configurations/types/network'
 import { OPERATION_NAMES } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { BorrowArgs, DepositArgs } from '@dma-library/operations/aave/common'
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation, PositionType, Protocol } from '@dma-library/types'
 
 import { borrow } from './borrow'
@@ -12,7 +12,7 @@ type AaveV2OpenDepositBorrowArgs = [
   depositArgs: DepositArgs,
   borrowArgs: BorrowArgs,
   metaArgs: { protocol: Protocol; positionType: PositionType },
-  addresses: AAVEStrategyAddresses,
+  addresses: AaveLikeStrategyAddresses,
   network: Network,
 ]
 

@@ -76,7 +76,14 @@ export async function simulatePositionTransition(
 
   const ethPerFlashloanToken = aaveFlashloanAssetPriceInEth
   const ethPerDebtToken = aaveDebtTokenPriceInEth
+  if (ethPerDebtToken === undefined || ethPerFlashloanToken === undefined) {
+    throw new Error('Could not get ETH per debt token or ETH per flashloan token')
+  }
   const oracleFLtoDebtToken = ethPerDebtToken.div(ethPerFlashloanToken)
+
+  if (aaveCollateralTokenPriceInEth === undefined || aaveDebtTokenPriceInEth === undefined) {
+    throw new Error('Could not get ETH per collateral token or ETH per debt token')
+  }
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
 
   const collectFeeFrom = acceptedFeeToken({

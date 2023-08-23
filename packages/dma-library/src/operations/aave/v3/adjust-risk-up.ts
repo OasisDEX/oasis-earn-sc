@@ -3,7 +3,7 @@ import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import {
-  WithAaveV3StrategyAddresses,
+  WithAaveLikeStrategyAddresses,
   WithCollateral,
   WithDebtAndBorrow,
   WithFlashloan,
@@ -21,7 +21,7 @@ export type AdjustRiskUpArgs = WithCollateral &
   WithSwap &
   WithFlashloan &
   WithProxy &
-  WithAaveV3StrategyAddresses &
+  WithAaveLikeStrategyAddresses &
   WithNetwork
 
 export type AaveV3AdjustUpOperation = ({
@@ -57,7 +57,7 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
   const setFlashLoanApproval = actions.common.setApproval(network, {
     amount: flashloan.token.amount,
     asset: flashloan.token.address,
-    delegate: addresses.pool,
+    delegate: addresses.lendingPool,
     sumAmounts: false,
   })
 
@@ -92,7 +92,7 @@ export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
     network,
     {
       asset: collateral.address,
-      delegate: addresses.pool,
+      delegate: addresses.lendingPool,
       amount: depositIsCollateral ? depositAmount : ZERO,
       sumAmounts: true,
     },

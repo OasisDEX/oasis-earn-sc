@@ -1,5 +1,5 @@
 import { MAX_UINT, ZERO } from '@dma-common/constants'
-import { AAVEStrategyAddresses, AAVEV3StrategyAddresses, operations } from '@dma-library/operations'
+import { operations } from '@dma-library/operations'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import { IOperation, WithPaybackDebt, WithWithdrawCollateral } from '@dma-library/types'
 import { AaveVersion } from '@dma-library/types/aave'
@@ -7,8 +7,7 @@ import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol
 import { IStrategy } from '@dma-library/types/strategies'
 import {
   WithAaveStrategyArgs,
-  WithAaveV2StrategyDependencies,
-  WithAaveV3StrategyDependencies,
+  WithAaveStrategyDependencies,
 } from '@dma-library/types/strategy-params'
 import BigNumber from 'bignumber.js'
 
@@ -16,8 +15,8 @@ export type AavePaybackWithdrawArgs = WithAaveStrategyArgs &
   WithWithdrawCollateral &
   WithPaybackDebt
 
-export type AaveV2PaybackWithdrawDependencies = WithAaveV2StrategyDependencies & WithV2Protocol
-export type AaveV3PaybackWithdrawDependencies = WithAaveV3StrategyDependencies & WithV3Protocol
+export type AaveV2PaybackWithdrawDependencies = WithAaveStrategyDependencies & WithV2Protocol
+export type AaveV3PaybackWithdrawDependencies = WithAaveStrategyDependencies & WithV3Protocol
 type AavePaybackWithdrawDependencies =
   | AaveV2PaybackWithdrawDependencies
   | AaveV3PaybackWithdrawDependencies
@@ -93,13 +92,13 @@ async function buildOperation(
     [AaveVersion.v3]: () =>
       operations.aave.v3.paybackWithdraw({
         ...sharedArgs,
-        addresses: dependencies.addresses as AAVEV3StrategyAddresses,
+        addresses: dependencies.addresses,
         network: dependencies.network,
       }),
     [AaveVersion.v2]: () =>
       operations.aave.v2.paybackWithdraw({
         ...sharedArgs,
-        addresses: dependencies.addresses as AAVEStrategyAddresses,
+        addresses: dependencies.addresses,
         network: dependencies.network,
       }),
   }

@@ -5,14 +5,14 @@ import { ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { DepositArgs } from '@dma-library/operations/aave/common'
 import { DepositSwapArgs } from '@dma-library/operations/aave/common/deposit-args'
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation } from '@dma-library/types'
 import { isDefined } from '@dma-library/utils/is-defined'
 import BigNumber from 'bignumber.js'
 
 export type AaveV2DepositOperation = (
   args: DepositArgs,
-  addresses: AAVEStrategyAddresses,
+  addresses: AaveLikeStrategyAddresses,
   network: Network,
 ) => Promise<IOperation>
 
@@ -99,8 +99,8 @@ export const deposit: AaveV2DepositOperation = async (
     entryTokenAddress,
     amountInBaseUnit,
     swapArgs,
-    addresses.ETH,
-    addresses.WETH,
+    addresses.tokens.ETH,
+    addresses.tokens.WETH,
     isSwapNeeded,
     network,
   )

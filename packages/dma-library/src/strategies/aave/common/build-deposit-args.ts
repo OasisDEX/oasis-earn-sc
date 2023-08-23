@@ -1,8 +1,7 @@
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { DepositArgs } from '@dma-library/operations'
-import { AAVEV2StrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { AAVETokens, SwapData } from '@dma-library/types'
 import { WithOptionalSwap } from '@dma-library/types/strategy-params'
@@ -17,7 +16,7 @@ export async function buildDepositArgs(
   slippage: BigNumber,
   dependencies: {
     user: Address
-    addresses: AAVEV3StrategyAddresses | AAVEV2StrategyAddresses
+    addresses: AaveLikeStrategyAddresses
   } & WithOptionalSwap,
   alwaysReturnArgs = false,
 ): Promise<{
@@ -42,8 +41,8 @@ export async function buildDepositArgs(
   const isSwapNeeded = SwapUtils.getIsSwapNeeded(
     entryTokenAddress,
     collateralTokenAddress,
-    dependencies.addresses.ETH,
-    dependencies.addresses.WETH,
+    dependencies.addresses.tokens.ETH,
+    dependencies.addresses.tokens.WETH,
   )
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: entryToken.symbol,
@@ -53,8 +52,8 @@ export async function buildDepositArgs(
   const depositArgs = {
     depositorAddress: dependencies.user,
     depositToken:
-      collateralTokenAddress.toLowerCase() === dependencies.addresses.ETH.toLowerCase()
-        ? dependencies.addresses.WETH
+      collateralTokenAddress.toLowerCase() === dependencies.addresses.tokens.ETH.toLowerCase()
+        ? dependencies.addresses.tokens.WETH
         : collateralTokenAddress,
     entryTokenAddress: entryTokenAddress,
     entryTokenIsEth,

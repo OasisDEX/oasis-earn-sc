@@ -3,7 +3,7 @@ import { getAaveDepositBorrowV3OperationDefinition } from '@deploy-configuration
 import { Network } from '@deploy-configurations/types/network'
 import { DepositArgs } from '@dma-library/operations/aave/common'
 import { BorrowArgs } from '@dma-library/operations/aave/common/borrow-args'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3/addresses'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation } from '@dma-library/types'
 
 import { borrow } from './borrow'
@@ -12,7 +12,7 @@ import { deposit } from './deposit'
 type AaveV3DepositBorrowArgs = [
   depositArgs: DepositArgs | undefined,
   borrowArgs: BorrowArgs | undefined,
-  addresses: AAVEV3StrategyAddresses,
+  addresses: AaveLikeStrategyAddresses,
   network: Network,
 ]
 

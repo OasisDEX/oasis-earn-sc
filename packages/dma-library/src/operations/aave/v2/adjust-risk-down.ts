@@ -3,7 +3,7 @@ import { actions } from '@dma-library/actions'
 import { IOperation, WithCollateralAndWithdrawal, WithDebt } from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'
 import {
-  WithAaveV2StrategyAddresses,
+  WithAaveLikeStrategyAddresses,
   WithFlashloan,
   WithNetwork,
   WithOptionalDeposit,
@@ -18,7 +18,7 @@ export type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithSwap &
   WithFlashloan &
   WithProxy &
-  WithAaveV2StrategyAddresses &
+  WithAaveLikeStrategyAddresses &
   WithNetwork
 
 export type AaveV2AdjustDownOperation = ({
@@ -40,16 +40,19 @@ export const adjustRiskDown: AaveV2AdjustDownOperation = async ({
   addresses,
   network,
 }) => {
+  if (!addresses.tokens.DAI) {
+    throw new Error('Missing DAI address')
+  }
   const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
     amount: flashloan.token.amount,
-    asset: addresses.DAI,
+    asset: addresses.tokens.DAI,
     delegate: addresses.lendingPool,
     sumAmounts: false,
   })
 
   const depositDaiInAAVE = actions.aave.v2.aaveDeposit(network, {
     amount: flashloan.token.amount,
-    asset: addresses.DAI,
+    asset: addresses.tokens.DAI,
     sumAmounts: false,
   })
 
@@ -91,7 +94,7 @@ export const adjustRiskDown: AaveV2AdjustDownOperation = async ({
   )
 
   const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw(network, {
-    asset: addresses.DAI,
+    asset: addresses.tokens.DAI,
     amount: flashloan.token.amount,
     to: addresses.operationExecutor,
   })
@@ -108,7 +111,7 @@ export const adjustRiskDown: AaveV2AdjustDownOperation = async ({
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
-    asset: addresses.DAI,
+    asset: addresses.tokens.DAI,
     flashloanAmount: flashloan.token.amount,
     isProxyFlashloan: true,
     provider: FlashloanProvider.DssFlash,

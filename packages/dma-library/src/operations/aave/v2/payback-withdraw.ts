@@ -2,10 +2,9 @@ import { getAavePaybackWithdrawV2OperationDefinition } from '@deploy-configurati
 import { Network } from '@deploy-configurations/types/network'
 import { MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { IOperation } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
-
-import { AAVEStrategyAddresses } from './addresses'
 
 type PaybackWithdrawArgs = {
   amountCollateralToWithdrawInBaseUnit: BigNumber
@@ -17,7 +16,7 @@ type PaybackWithdrawArgs = {
   debtTokenIsEth: boolean
   proxy: string
   user: string
-  addresses: AAVEStrategyAddresses
+  addresses: AaveLikeStrategyAddresses
   network: Network
 }
 
@@ -49,8 +48,11 @@ export const paybackWithdraw: AaveV2PaybackWithdrawOperation = async args => {
   const unwrapEthDebt = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
   })
+  if (!args.addresses.tokens.ETH) {
+    throw new Error('Missing ETH address')
+  }
   const returnLeftFundFromPayback = actions.common.returnFunds(network, {
-    asset: args.debtTokenIsEth ? args.addresses.ETH : args.debtTokenAddress,
+    asset: args.debtTokenIsEth ? args.addresses.tokens.ETH : args.debtTokenAddress,
   })
 
   const withdrawCollateralFromAAVE = actions.aave.v2.aaveWithdraw(network, {
@@ -63,7 +65,7 @@ export const paybackWithdraw: AaveV2PaybackWithdrawOperation = async args => {
   })
 
   const returnFunds = actions.common.returnFunds(network, {
-    asset: args.collateralIsEth ? args.addresses.ETH : args.collateralTokenAddress,
+    asset: args.collateralIsEth ? args.addresses.tokens.ETH : args.collateralTokenAddress,
   })
 
   pullDebtTokensToProxy.skipped =

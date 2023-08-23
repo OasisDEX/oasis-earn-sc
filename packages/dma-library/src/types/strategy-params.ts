@@ -95,6 +95,7 @@ type SharedStrategyDependencies = {
   currentPosition: IPosition
   proxy: Address
   user: Address
+  isDPMProxy: boolean
   network: Network
 }
 export type WithAaveStrategyDependencies = {
@@ -108,6 +109,10 @@ export type WithSwap = {
     amount: BigNumber,
     slippage: BigNumber,
   ) => Promise<SwapData>
+}
+
+export type WithDebug = {
+  debug: boolean
 }
 
 export type WithOptionalSwap = Partial<WithSwap>

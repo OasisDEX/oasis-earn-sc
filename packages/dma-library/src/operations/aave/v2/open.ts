@@ -3,14 +3,13 @@ import { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { Address } from '@dma-common/types/address'
 import { actions } from '@dma-library/actions'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { FlashloanProvider } from '@dma-library/types/common'
 import { IOperation } from '@dma-library/types/operations'
 import { PositionType } from '@dma-library/types/position-type'
 import { Protocol } from '@dma-library/types/protocol'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
-
-import { AAVEStrategyAddresses } from './addresses'
 
 interface OpenArgs {
   deposit: {
@@ -25,7 +24,7 @@ interface OpenArgs {
     receiveAtLeast: BigNumber
   }
   positionType: PositionType
-  addresses: AAVEStrategyAddresses
+  addresses: AaveLikeStrategyAddresses
   flashloanAmount: BigNumber
   borrowAmountInBaseUnit: BigNumber
   collateralTokenAddress: Address
@@ -78,16 +77,19 @@ export const open: AaveV2OpenOperation = async ({
     from: user,
   })
 
+  if (!addresses.tokens.DAI) {
+    throw new Error('Missing DAI address')
+  }
   const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
     amount: flashloanAmount,
-    asset: addresses.DAI,
+    asset: addresses.tokens.DAI,
     delegate: addresses.lendingPool,
     sumAmounts: false,
   })
 
   const depositDaiInAAVE = actions.aave.v2.aaveDeposit(network, {
     amount: flashloanAmount,
-    asset: addresses.DAI,
+    asset: addresses.tokens.DAI,
     sumAmounts: false,
   })
 
@@ -134,7 +136,7 @@ export const open: AaveV2OpenOperation = async ({
   )
 
   const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw(network, {
-    asset: addresses.DAI,
+    asset: addresses.tokens.DAI,
     amount: flashloanAmount,
     to: addresses.operationExecutor,
   })
@@ -171,7 +173,7 @@ export const open: AaveV2OpenOperation = async ({
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy,
-    asset: addresses.DAI,
+    asset: addresses.tokens.DAI,
     flashloanAmount: flashloanAmount,
     isProxyFlashloan: true,
     provider: FlashloanProvider.DssFlash,

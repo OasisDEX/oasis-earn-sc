@@ -2,12 +2,12 @@ import { getAaveBorrowV2OperationDefinition } from '@deploy-configurations/opera
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
 import { BorrowArgs } from '@dma-library/operations'
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation } from '@dma-library/types'
 
 export type BorrowV2Operation = (
   args: BorrowArgs,
-  addresses: AAVEStrategyAddresses,
+  addresses: AaveLikeStrategyAddresses,
   network: Network,
 ) => Promise<IOperation>
 
@@ -27,7 +27,7 @@ export const borrow: BorrowV2Operation = async (
       amount: amountInBaseUnit,
     }),
     actions.common.returnFunds(network, {
-      asset: isEthToken ? addresses.ETH : borrowToken,
+      asset: isEthToken ? addresses.tokens.ETH : borrowToken,
     }),
   ]
 

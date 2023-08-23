@@ -18,8 +18,6 @@ import type { Strategy } from './common'
 import { FlashloanProvider } from './common'
 import type {
   IOperation,
-  WithAaveV2StrategyAddresses,
-  WithAaveV3StrategyAddresses,
   WithAjnaBucketPrice,
   WithAjnaStrategyAddresses,
   WithBorrowing,
@@ -90,8 +88,6 @@ export { calldataTypes }
 
 export type {
   IOperation,
-  WithAaveV2StrategyAddresses,
-  WithAaveV3StrategyAddresses,
   WithAjnaBucketPrice,
   WithAjnaStrategyAddresses,
   WithBorrowing,

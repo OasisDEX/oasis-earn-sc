@@ -8,7 +8,6 @@ import { AaveV2OpenOperation, open } from './open'
 import { AaveV2OpenDepositBorrowOperation, openDepositAndBorrow } from './open-deposit-and-borrow'
 import { AaveV2PaybackWithdrawOperation, paybackWithdraw } from './payback-withdraw'
 
-export { AAVEStrategyAddresses } from './addresses'
 export { AdjustRiskDownArgs } from './adjust-risk-down'
 export { AdjustRiskUpArgs } from './adjust-risk-up'
 

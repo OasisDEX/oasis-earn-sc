@@ -1,5 +1,4 @@
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveProtocolData } from '@dma-library/protocols/aave'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { IViewPositionDependencies, IViewPositionParams } from '@dma-library/types'
@@ -8,11 +7,13 @@ import BigNumber from 'bignumber.js'
 
 export type AaveGetCurrentPositionArgs = IViewPositionParams<AAVETokens>
 export type AaveV2GetCurrentPositionDependencies =
-  IViewPositionDependencies<AAVEStrategyAddresses> & {
+  IViewPositionDependencies<AaveLikeStrategyAddresses> & {
     protocolVersion: AaveVersion.v2
   }
 export type AaveV3GetCurrentPositionDependencies =
-  IViewPositionDependencies<AAVEV3StrategyAddresses> & { protocolVersion: AaveVersion.v3 }
+  IViewPositionDependencies<AaveLikeStrategyAddresses> & {
+    protocolVersion: AaveVersion.v3
+  }
 
 export type AaveGetCurrentPositionDependencies =
   | AaveV2GetCurrentPositionDependencies
@@ -53,6 +54,10 @@ async function getCurrentPositionAaveV2(
     dependencies.addresses,
   )
 
+  if (!dependencies.addresses.tokens.DAI) {
+    throw new Error('Missing DAI address')
+  }
+
   const protocolData = await getAaveProtocolData({
     collateralTokenAddress,
     debtTokenAddress,
@@ -60,7 +65,6 @@ async function getCurrentPositionAaveV2(
     proxy: args.proxy,
     provider: dependencies.provider,
     protocolVersion: dependencies.protocolVersion,
-    flashloanTokenAddress: dependencies.addresses.DAI, // it's not relevant for the current position
   })
 
   const {
@@ -77,7 +81,11 @@ async function getCurrentPositionAaveV2(
   ).div(BASE)
   const maxLoanToValue = new BigNumber(reserveDataForCollateral.ltv.toString()).div(BASE)
 
-  const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+  const [validatedCollateralPrice, validatedDebtPrice] = ensureOraclePricesDefined(
+    aaveCollateralTokenPriceInEth,
+    aaveDebtTokenPriceInEth,
+  )
+  const oracle = validatedCollateralPrice.div(validatedDebtPrice)
 
   return new AavePosition(
     {
@@ -122,7 +130,6 @@ async function getCurrentPositionAaveV3(
     proxy: args.proxy,
     provider: dependencies.provider,
     protocolVersion: dependencies.protocolVersion,
-    flashloanTokenAddress: dependencies.addresses.DAI, // it's not relevant for the current position
   })
 
   const {
@@ -147,7 +154,11 @@ async function getCurrentPositionAaveV3(
     maxLoanToValue = new BigNumber(eModeCategoryData.ltv.toString()).div(BASE)
   }
 
-  const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+  const [validatedCollateralPrice, validatedDebtPrice] = ensureOraclePricesDefined(
+    aaveCollateralTokenPriceInEth,
+    aaveDebtTokenPriceInEth,
+  )
+  const oracle = validatedCollateralPrice.div(validatedDebtPrice)
 
   return new AavePosition(
     {
@@ -169,4 +180,14 @@ async function getCurrentPositionAaveV3(
       liquidationThreshold: liquidationThreshold,
     },
   )
+}
+
+function ensureOraclePricesDefined(
+  collateralPrice: BigNumber | undefined,
+  debtPrice: BigNumber | undefined,
+): [BigNumber, BigNumber] {
+  if (collateralPrice === undefined || debtPrice === undefined) {
+    throw new Error('Cannot determine oracle price')
+  }
+  return [collateralPrice, debtPrice]
 }

@@ -1,17 +1,16 @@
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { WithFlashloanToken } from '@dma-library/types'
 
 export interface FlashloanDependencies {
   network: string
-  addresses: AAVEV3StrategyAddresses | AAVEStrategyAddresses
+  addresses: AaveLikeStrategyAddresses
 }
 
 export function getFlashloanToken({
   network,
   addresses,
 }: FlashloanDependencies): WithFlashloanToken {
-  const { DAI, USDC } = addresses
+  const { DAI, USDC } = addresses.tokens
 
   const flashloanToken =
     network === 'mainnet'
