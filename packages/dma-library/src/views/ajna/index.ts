@@ -100,7 +100,9 @@ export async function getEarnPosition(
     ? ZERO
     : await poolInfo
         .lpToCollateral(poolAddress, lps.toString(), priceIndex?.toString())
-        .then((quoteTokens: ethers.BigNumberish) => ethers.utils.formatUnits(quoteTokens, 18))
+        .then((collateralTokens: ethers.BigNumberish) =>
+          ethers.utils.formatUnits(collateralTokens, 18),
+        )
         .then((res: string) => new BigNumber(res))
 
   const rewards: BigNumber = nftID
