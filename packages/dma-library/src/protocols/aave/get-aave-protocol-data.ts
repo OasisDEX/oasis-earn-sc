@@ -1,5 +1,6 @@
 // V2 ABIs
 import { Address } from '@deploy-configurations/types/address'
+import { AaveLikeProtocol } from '@deploy-configurations/types/deployment-config'
 // V3 ABIs
 // V3 L2 ABIs
 import { amountFromWei } from '@dma-common/utils/common'
@@ -7,10 +8,7 @@ import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { Protocol } from '@dma-library/types'
 import { AaveVersion } from '@dma-library/types/aave'
-import {
-  AllowedContractNames,
-  getAbiForContract,
-} from '@dma-library/utils/abis/get-abi-for-contract'
+import { getAbiForContract } from '@dma-library/utils/abis/get-abi-for-contract'
 import BigNumber from 'bignumber.js'
 import { ethers, providers } from 'ethers'
 
@@ -54,10 +52,10 @@ async function getAaveV2ProtocolData({
   flashloanTokenAddress,
   proxy,
 }: InternalAaveProtocolData & { protocolVersion: AaveVersion.v2 }) {
-  const oracle = await getContract(addresses.oracle, 'oracle', provider, 'AAVE')
+  const oracle = await getContract(addresses.oracle, 'Oracle', provider, 'AAVE')
   const poolDataProvider = await getContract(
     addresses.poolDataProvider,
-    'poolDataProvider',
+    'PoolDataProvider',
     provider,
     'AAVE',
   )
@@ -101,14 +99,14 @@ async function getAaveV3ProtocolData({
   flashloanTokenAddress,
   proxy,
 }: InternalAaveProtocolData & { protocolVersion: AaveVersion.v3 }) {
-  const oracle = await getContract(addresses.oracle, 'oracle', provider, 'AAVE_V3')
+  const oracle = await getContract(addresses.oracle, 'Oracle', provider, 'AAVE_V3')
   const poolDataProvider = await getContract(
     addresses.poolDataProvider,
-    'poolDataProvider',
+    'PoolDataProvider',
     provider,
     'AAVE_V3',
   )
-  const pool = await getContract(addresses.lendingPool, 'pool', provider, 'AAVE_V3')
+  const pool = await getContract(addresses.lendingPool, 'LendingPool', provider, 'AAVE_V3')
 
   const hasProxy = !!proxy
 
@@ -171,7 +169,7 @@ async function determineReserveEModeCategory(
 
 async function getContract(
   address: Address,
-  contractName: AllowedContractNames,
+  contractName: AaveLikeProtocol,
   provider: any,
   protocol: Protocol,
 ) {
