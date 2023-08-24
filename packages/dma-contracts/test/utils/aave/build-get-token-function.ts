@@ -7,7 +7,7 @@ import { AAVETokens } from '@dma-library'
 import BigNumber from 'bignumber.js'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-export type AAVETokensToGet = Exclude<AAVETokens, 'ETH' | 'WETH' | 'CBETH' | 'RETH' | 'DAI'>
+export type AAVETokensToGet = Exclude<AAVETokens, 'ETH'>
 
 export function buildGetTokenFunctionByStorage(
   ds: DeploymentSystem,
@@ -25,6 +25,10 @@ export function buildGetTokenFunctionByStorage(
         WBTC: addresses.WBTC,
         USDC: addresses.USDC,
         WSTETH: addresses.WSTETH,
+        DAI: addresses.DAI,
+        CBETH: addresses.CBETH,
+        RETH: addresses.RETH,
+        WETH: addresses.WETH,
       }
 
       const tokenAddress = tokens[symbol]
@@ -40,7 +44,7 @@ export function buildGetTokenFunctionByStorage(
 export function buildGetTokenFunction(
   config: RuntimeConfig,
   hre: HardhatRuntimeEnvironment,
-  network: Network.MAINNET | Network.OPTIMISM,
+  network: Network.MAINNET | Network.OPTIMISM | Network.ARBITRUM,
   wethAddress: string,
 ): (symbol: AAVETokensToGet, amount: BigNumber) => Promise<boolean> {
   return async function getTokens(symbol: AAVETokensToGet, amount: BigNumber): Promise<boolean> {
@@ -58,6 +62,10 @@ export function buildGetTokenFunction(
         WBTC: addresses.WBTC,
         USDC: addresses.USDC,
         WSTETH: addresses.WSTETH,
+        DAI: addresses.DAI,
+        CBETH: addresses.CBETH,
+        RETH: addresses.RETH,
+        WETH: addresses.WETH,
       }
 
       const tokenAddress = tokens[symbol]

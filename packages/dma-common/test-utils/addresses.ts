@@ -13,6 +13,8 @@ export function addressesByNetwork<T extends Network>(network: T): NetworkAddres
       return testAddresses[Network.MAINNET] as NetworkAddressesForNetwork<T>
     case Network.OPTIMISM:
       return testAddresses[Network.OPTIMISM] as NetworkAddressesForNetwork<T>
+    case Network.ARBITRUM:
+      return testAddresses[Network.ARBITRUM] as NetworkAddressesForNetwork<T>
     default:
       throw new Error(`Network ${network} not supported`)
   }
@@ -61,8 +63,28 @@ const testAddresses = {
     CBETH: ADDRESSES[Network.OPTIMISM].common.CBETH,
     RETH: ADDRESSES[Network.OPTIMISM].common.RETH,
   },
+  [Network.ARBITRUM]: {
+    DAI: ADDRESSES[Network.ARBITRUM].common.DAI,
+    ETH: ADDRESSES[Network.ARBITRUM].common.ETH,
+    WETH: ADDRESSES[Network.ARBITRUM].common.WETH,
+    STETH: constants.AddressZero,
+    WSTETH: ADDRESSES[Network.ARBITRUM].common.WSTETH,
+    WBTC: ADDRESSES[Network.ARBITRUM].common.WBTC,
+    USDC: ADDRESSES[Network.ARBITRUM].common.USDC,
+    feeRecipient: ADDRESSES[Network.ARBITRUM].common.FeeRecipient,
+    chainlinkEthUsdPriceFeed: ADDRESSES[Network.ARBITRUM].common.ChainlinkPriceOracle_ETHUSD,
+    aaveOracle: ADDRESSES[Network.ARBITRUM].aave.v3.AaveOracle,
+    pool: ADDRESSES[Network.ARBITRUM].aave.v3.Pool,
+    poolDataProvider: ADDRESSES[Network.ARBITRUM].aave.v3.AavePoolDataProvider,
+    priceOracle: ADDRESS_ZERO,
+    lendingPool: ADDRESS_ZERO,
+    protocolDataProvider: ADDRESS_ZERO,
+    CBETH: ADDRESSES[Network.ARBITRUM].common.CBETH,
+    RETH: ADDRESSES[Network.ARBITRUM].common.RETH,
+  },
 }
 
 export type MainnetAddresses = (typeof testAddresses)[Network.MAINNET]
 export type OptMainnetAddresses = (typeof testAddresses)[Network.OPTIMISM]
-export type NetworkAddressesForTests = MainnetAddresses | OptMainnetAddresses
+export type ArbMainnetAddresses = (typeof testAddresses)[Network.ARBITRUM]
+export type NetworkAddressesForTests = MainnetAddresses | OptMainnetAddresses | ArbMainnetAddresses

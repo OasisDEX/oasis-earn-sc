@@ -1,4 +1,5 @@
 import erc20abi from '@abis/external/tokens/IERC20.json'
+import { ADDRESS_ZERO } from '@deploy-configurations/constants'
 import { Network } from '@deploy-configurations/types/network'
 import { addressesByNetwork } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
@@ -32,6 +33,18 @@ const tokensWhales: {
       whale: '0xe1f8afc92644bfe77080d7dcb0f936f578e00f53',
       tokenAddress: mainnetAddressesForTests.WSTETH,
     },
+    DAI: {
+      whale: ADDRESS_ZERO,
+      tokenAddress: mainnetAddressesForTests.DAI,
+    },
+    CBETH: {
+      whale: ADDRESS_ZERO,
+      tokenAddress: mainnetAddressesForTests.CBETH,
+    },
+    RETH: {
+      whale: ADDRESS_ZERO,
+      tokenAddress: mainnetAddressesForTests.RETH,
+    },
   },
   [Network.OPTIMISM]: {
     STETH: {
@@ -51,6 +64,18 @@ const tokensWhales: {
       tokenAddress: optimismAddressesForTests.WSTETH,
       // ~872 WSTETH as of Block number 97219392
       whale: '0x766854992bd5363ebeeff0113f5a5795796befab',
+    },
+    DAI: {
+      whale: ADDRESS_ZERO,
+      tokenAddress: optimismAddressesForTests.DAI,
+    },
+    CBETH: {
+      whale: ADDRESS_ZERO,
+      tokenAddress: optimismAddressesForTests.CBETH,
+    },
+    RETH: {
+      whale: ADDRESS_ZERO,
+      tokenAddress: optimismAddressesForTests.RETH,
     },
   },
 }

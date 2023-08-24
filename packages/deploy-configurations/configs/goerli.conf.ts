@@ -440,6 +440,14 @@ export const config: SystemConfig = {
       address: '0x6320cD32aA674d2898A68ec82e869385Fc5f7E2f',
       serviceRegistryName: 'WSTETH',
     },
+    YIELDBTC: {
+      name: 'YIELDBTC',
+      address: ADDRESS_ZERO,
+    },
+    YIELDETH: {
+      name: 'YIELDETH',
+      address: ADDRESS_ZERO,
+    },
     YFI: { name: 'YFI', address: '0xd9510EF268F8273C9b7514F0bfFe18Fe1EFC0d43' },
     ZRX: { name: 'ZRX', address: '0x96E0C18524789ED3e62CD9F56aAEc7cEAC78725a' },
   },
@@ -1052,6 +1060,14 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_YFIDAI: {
       name: 'AjnaPoolPairs_YFIDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_YIELDETHETH: {
+      name: 'AjnaPoolPairs_YIELDETHETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_YIELDBTCWBTC: {
+      name: 'AjnaPoolPairs_YIELDBTCWBTC',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

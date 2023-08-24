@@ -86,6 +86,7 @@ export const config: SystemConfig = {
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
         history: ['0x4De3CA09e803969408f83F453416b3e2D70C12Fe'],
         constructorArgs: [
+          '0x4De3CA09e803969408f83F453416b3e2D70C12Fe',
           '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
           '0xE0611d7A57879734058aCE889569A2E79701fcAf',
           20,
@@ -262,7 +263,7 @@ export const config: SystemConfig = {
     },
     MerkleRedeemer: {
       name: 'MerkleRedeemer',
-      address: '0x34792F2481a3e2ADAD4d0000D8D202814090eFb5',
+      address: '0x7D1405e1Bafd1c48721403D2Eb2F394e10a67A1b',
     },
     DssCharter: {
       name: 'DssCharter',
@@ -424,6 +425,14 @@ export const config: SystemConfig = {
       name: 'WSTETH',
       address: '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WSTETH,
+    },
+    YIELDBTC: {
+      name: 'YIELDBTC',
+      address: ADDRESS_ZERO,
+    },
+    YIELDETH: {
+      name: 'YIELDETH',
+      address: ADDRESS_ZERO,
     },
     YFI: { name: 'YFI', address: ADDRESS_ZERO },
     ZRX: { name: 'ZRX', address: ADDRESS_ZERO },
@@ -1034,6 +1043,14 @@ export const config: SystemConfig = {
     },
     AjnaPoolPairs_YFIDAI: {
       name: 'AjnaPoolPairs_YFIDAI',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_YIELDETHETH: {
+      name: 'AjnaPoolPairs_YIELDETHETH',
+      address: ADDRESS_ZERO,
+    },
+    AjnaPoolPairs_YIELDBTCWBTC: {
+      name: 'AjnaPoolPairs_YIELDBTCWBTC',
       address: ADDRESS_ZERO,
     },
     AjnaRewardsManager: {

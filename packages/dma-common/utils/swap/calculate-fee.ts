@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 export function calculateFee(amountWei: BigNumber, fee: number = DEFAULT_FEE): BigNumber {
   return amountWei
     .times(fee)
-    .div(new BigNumber(fee).plus(FEE_BASE))
+    .div(new BigNumber(fee).plus(new BigNumber(FEE_BASE)))
     .abs()
     .integerValue(BigNumber.ROUND_DOWN)
 }

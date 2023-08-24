@@ -48,7 +48,7 @@ export function getSupportedAaveV3Strategies(network?: Network): SupportedV3Stra
 }
 
 const testBlockNumberByNetwork: Record<
-  Exclude<Network, Network.LOCAL | Network.GOERLI | Network.ARBITRUM | Network.HARDHAT>,
+  Exclude<Network, Network.LOCAL | Network.GOERLI | Network.TENDERLY | Network.HARDHAT>,
   number
 > = {
   [Network.MAINNET]: testBlockNumberForAaveV3,
@@ -81,7 +81,7 @@ export const systemWithAaveV3Positions = ({
 
     const useFallbackSwap = !use1inch
 
-    if (network !== Network.MAINNET && network !== Network.OPTIMISM)
+    if (network !== Network.MAINNET && network !== Network.OPTIMISM && network !== Network.ARBITRUM)
       throw new Error('Unsupported network')
 
     if (testBlockNumberByNetwork[network] && useFallbackSwap) {

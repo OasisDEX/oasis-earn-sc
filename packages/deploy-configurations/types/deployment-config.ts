@@ -104,6 +104,8 @@ export type Tokens =
   | 'WETH'
   | 'WLD'
   | 'WSTETH'
+  | 'YIELDBTC'
+  | 'YIELDETH'
   | 'YFI'
   | 'ZRX'
 
@@ -286,6 +288,8 @@ export type AjnaProtocol =
   | 'AjnaPoolPairs_USDCWLD'
   | 'AjnaPoolPairs_SDAIUSDC'
   | 'AjnaPoolPairs_YFIDAI'
+  | 'AjnaPoolPairs_YIELDETHETH'
+  | 'AjnaPoolPairs_YIELDBTCWBTC'
   | 'AjnaRewardsManager'
   | 'AjnaRewardsClaimer'
   | 'ERC20PoolFactory'

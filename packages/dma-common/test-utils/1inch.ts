@@ -201,7 +201,7 @@ export const oneInchVersionMap: Record<
 }
 
 export function resolveOneInchVersion(network: Network): OneInchVersion {
-  if (network !== Network.MAINNET && network !== Network.OPTIMISM)
+  if (network !== Network.MAINNET && network !== Network.OPTIMISM && network !== Network.ARBITRUM)
     throw new Error('Unsupported network')
 
   const version = oneInchVersionMap[network]
