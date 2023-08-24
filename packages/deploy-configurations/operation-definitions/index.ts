@@ -29,3 +29,4 @@ export { getAjnaOpenOperationDefinition } from './ajna/open'
 // SPARK
 export { getSparkBorrowOperationDefinition } from './spark/borrow'
 export { getSparkDepositOperationDefinition } from './spark/borrow'
+export { getSparkDepositBorrowOperationDefinition } from './spark/borrow'
