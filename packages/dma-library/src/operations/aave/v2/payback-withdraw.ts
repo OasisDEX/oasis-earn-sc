@@ -6,8 +6,6 @@ import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { IOperation } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
-import { AAVEStrategyAddresses } from './addresses'
-
 type PaybackWithdrawArgs = {
   amountCollateralToWithdrawInBaseUnit: BigNumber
   amountDebtToPaybackInBaseUnit: BigNumber
