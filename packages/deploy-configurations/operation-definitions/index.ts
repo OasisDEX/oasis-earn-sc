@@ -25,3 +25,6 @@ export { getAjnaAdjustUpOperationDefinition } from './ajna/adjust-up'
 export { getAjnaCloseToCollateralOperationDefinition } from './ajna/close-to-collateral'
 export { getAjnaCloseToQuoteOperationDefinition } from './ajna/close-to-quote'
 export { getAjnaOpenOperationDefinition } from './ajna/open'
+
+// SPARK
+export { getSparkBorrowOperationDefinition } from './spark/borrow'

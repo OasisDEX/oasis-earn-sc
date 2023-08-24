@@ -1,4 +1,4 @@
-import { getAaveBorrowV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getSparkBorrowOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
 import { AaveLikeStrategyAddresses, BorrowArgs } from '@dma-library/operations/aave-like'
@@ -17,7 +17,7 @@ export const borrow: SparkBorrowOperation = async (
 ) => {
   // Import ActionCall as it assists type generation
   const calls: ActionCall[] = [
-    actions.aave.v3.aaveV3Borrow(network, {
+    actions.spark.borrow(network, {
       amount: amount,
       asset: borrowToken,
       to: account,
@@ -34,6 +34,6 @@ export const borrow: SparkBorrowOperation = async (
 
   return {
     calls,
-    operationName: getAaveBorrowV3OperationDefinition(network).name,
+    operationName: getSparkBorrowOperationDefinition(network).name,
   }
 }
