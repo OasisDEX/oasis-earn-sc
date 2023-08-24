@@ -959,7 +959,7 @@ export const config: SystemConfig = {
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0xdc1293C84aD636fdbe70e53F8C6dB67632704BD3',
+      address: '0x0c1EDa5544EA63cf3d365912343161913a8f19Eb',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
