@@ -8,7 +8,7 @@ import BigNumber from 'bignumber.js'
 const createAction = ActionFactory.create
 
 // Import ActionCall as it assists type generation
-export function aaveV3Deposit(
+export function sparkDeposit(
   network: Network,
   args: { asset: string; amount: BigNumber | 0; sumAmounts: boolean; setAsCollateral?: boolean },
   paramsMapping: [asset: number, amount: number, sumAmounts: number, setAsCollateral: number] = [
@@ -18,8 +18,8 @@ export function aaveV3Deposit(
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
   return createAction(
-    getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.DEPOSIT),
-    [calldataTypes.aaveV3.Deposit],
+    getActionHash(SERVICE_REGISTRY_NAMES.spark.DEPOSIT),
+    [calldataTypes.spark.Deposit],
     [
       {
         asset: args.asset,
@@ -33,15 +33,15 @@ export function aaveV3Deposit(
 }
 
 // Import ActionCall as it assists type generation
-export function aaveV3Borrow(
+export function sparkBorrow(
   network: Network,
   args: { amount: BigNumber; asset: string; to: string },
 ): ActionCall {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
   return createAction(
-    getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.BORROW),
-    [calldataTypes.aaveV3.Borrow],
+    getActionHash(SERVICE_REGISTRY_NAMES.spark.BORROW),
+    [calldataTypes.spark.Borrow],
     [
       {
         amount: args.amount.toFixed(0),
@@ -53,15 +53,15 @@ export function aaveV3Borrow(
 }
 
 // Import ActionCall as it assists type generation
-export function aaveV3Withdraw(
+export function sparkWithdraw(
   network: Network,
   args: { amount: BigNumber; asset: string; to: string },
 ): ActionCall {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
   return createAction(
-    getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW),
-    [calldataTypes.aaveV3.Withdraw],
+    getActionHash(SERVICE_REGISTRY_NAMES.spark.WITHDRAW),
+    [calldataTypes.spark.Withdraw],
     [
       {
         asset: args.asset,
@@ -73,7 +73,7 @@ export function aaveV3Withdraw(
 }
 
 // Import ActionCall as it assists type generation
-export function aaveV3Payback(
+export function sparkPayback(
   network: Network,
   args: { asset: string; amount: BigNumber; paybackAll: boolean },
   paramsMapping: [asset: number, amount: number, paybackAll: number] = [0, 0, 0],
@@ -81,8 +81,8 @@ export function aaveV3Payback(
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
   return createAction(
-    getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.PAYBACK),
-    [calldataTypes.aaveV3.Payback],
+    getActionHash(SERVICE_REGISTRY_NAMES.spark.PAYBACK),
+    [calldataTypes.spark.Payback],
     [
       {
         asset: args.asset,
@@ -95,12 +95,12 @@ export function aaveV3Payback(
 }
 
 // Import ActionCall as it assists type generation
-export function aaveV3SetEMode(network: Network, args: { categoryId: number }): ActionCall {
+export function sparkSetEMode(network: Network, args: { categoryId: number }): ActionCall {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
   return createAction(
-    getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.SET_EMODE),
-    [calldataTypes.aaveV3.SetEMode],
+    getActionHash(SERVICE_REGISTRY_NAMES.spark.SET_EMODE),
+    [calldataTypes.spark.SetEMode],
     [
       {
         categoryId: args.categoryId,
