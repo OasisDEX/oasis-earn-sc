@@ -1,22 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
-import { Executable } from "../../common/Executable.sol";
-import { UseStore, Write, Read } from "../../common/UseStore.sol";
-import { OperationStorage } from "../../../core/OperationStorage.sol";
-import { IVariableDebtToken } from "../../../interfaces/aave/IVariableDebtToken.sol";
-import { IWETHGateway } from "../../../interfaces/aave/IWETHGateway.sol";
-import { PaybackData } from "../../../core/types/Aave.sol";
-import { ILendingPool } from "../../../interfaces/aave/ILendingPool.sol";
-import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
-
-import { AAVE_POOL } from "../../../core/constants/Aave.sol";
+import { Executable } from "../common/Executable.sol";
+import { Read, Write, UseStore } from "../common/UseStore.sol";
+import { OperationStorage } from "../../core/OperationStorage.sol";
+import { PaybackData } from "../../core/types/Spark.sol";
+import { SPARK_LENDING_POOL } from "../../core/constants/Spark.sol";
+import { IPool } from "../../interfaces/spark/IPool.sol";
 
 /**
- * @title Payback | AAVE V3 Action contract
- * @notice Pays back a specified amount to AAVE's lending pool
+ * @title Payback | Spark Action contract
+ * @notice Pays back a specified amount to Spark's lending pool
  */
-contract AaveV3Payback is Executable, UseStore {
+contract SparkPayback is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
 
@@ -33,7 +29,7 @@ contract AaveV3Payback is Executable, UseStore {
 
     payback.amount = store().readUint(bytes32(payback.amount), paramsMap[1], address(this));
 
-    IPoolV3(registry.getRegisteredService(AAVE_POOL)).repay(
+    IPool(registry.getRegisteredService(SPARK_LENDING_POOL)).repay(
       payback.asset,
       payback.paybackAll ? type(uint256).max : payback.amount,
       2,
