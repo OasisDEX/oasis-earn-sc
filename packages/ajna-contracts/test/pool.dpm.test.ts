@@ -16,14 +16,15 @@ import {
   PoolInfoUtils,
 } from "@oasisdex/ajna-contracts/typechain-types";
 import { expect } from "chai";
-import { BigNumber, Signer } from "ethers";
+import { BigNumber, ContractReceipt, Signer } from "ethers";
 import hre, { ethers } from "hardhat";
 
 import { bn } from "../scripts/common";
-import { HardhatUtils } from "../scripts/common/hardhat.utils";
+import { HardhatUtils, logGasUsage } from "../scripts/common/hardhat.utils";
 import { createDPMProxy } from "../scripts/prepare-env";
 import { ERC20 } from "../typechain-types/@openzeppelin/contracts/token/ERC20/";
 import { WETH as WETHContract } from "../typechain-types/contracts/ajna";
+import { CONFIG } from "@ajna-contracts/scripts/common/config";
 
 const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
@@ -563,6 +564,7 @@ describe.only("AjnaProxyActions", function () {
       );
 
       let borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
+      const t0npBefore = borrowerInfo.t0Np_.toString();
       console.log(`Neutral price before : ${borrowerInfo.t0Np_.toString()}`);
       await repayDebt(ajnaProxyActionsContract, poolContract, usdc, borrower, borrowerProxy, poolInfoContract);
 
@@ -575,7 +577,9 @@ describe.only("AjnaProxyActions", function () {
         pool: await wbtc.balanceOf(poolContract.address),
       };
       borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
-      console.log(`Neutral price after : ${borrowerInfo.t0Np_.toString()}`);
+      const t0npAfter = borrowerInfo.t0Np_.toString();
+      console.log(`Neutral price after stamploan : ${borrowerInfo.t0Np_.toString()}`);
+      expect(t0npAfter).to.be.equal(t0npBefore);
       expect(balancesQuoteAfter.borrower).to.be.lt(balancesQuoteBefore.borrower);
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.TEN));
       expect(borrowerInfo.debt_).to.be.eq(0);
@@ -605,6 +609,7 @@ describe.only("AjnaProxyActions", function () {
       );
 
       let borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
+      const t0npBefore = borrowerInfo.t0Np_.toString();
       console.log(`Neutral price before stamploan : ${borrowerInfo.t0Np_.toString()}`);
       await repayDebt(
         ajnaProxyActionsContract,
@@ -626,7 +631,9 @@ describe.only("AjnaProxyActions", function () {
         pool: await wbtc.balanceOf(poolContract.address),
       };
       borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
+      const t0npAfter = borrowerInfo.t0Np_.toString();
       console.log(`Neutral price after stamploan : ${borrowerInfo.t0Np_.toString()}`);
+      expect(t0npAfter).to.be.not.equal(t0npBefore);
       expect(balancesQuoteAfter.borrower).to.be.lt(balancesQuoteBefore.borrower);
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.TEN));
       expect(borrowerInfo.debt_).to.be.eq(0);
@@ -1439,7 +1446,7 @@ async function withdrawQuote(
       gasLimit: 3000000,
     });
   const receipt = await txWithdraw.wait();
-  console.log("withdrawQuote gasUsed", receipt.gasUsed.toString());
+  logGasUsage(receipt, "withdrawQuote");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 
@@ -1463,7 +1470,7 @@ async function supplyQuote(
     gasLimit: 3000000,
   });
   const receipt = await tx.wait();
-  console.log("supplyQuote gasUsed", receipt.gasUsed.toString());
+  logGasUsage(receipt, "supplyQuote");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function moveQuote(
@@ -1488,7 +1495,7 @@ async function moveQuote(
       gasLimit: 3000000,
     });
   const receipt = await txWithdraw.wait();
-  console.log("moveQuote gasUsed", receipt.gasUsed.toString());
+  logGasUsage(receipt, "moveQuote");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function supplyAndMoveQuote(
@@ -1515,7 +1522,7 @@ async function supplyAndMoveQuote(
       gasLimit: 3000000,
     });
   const receipt = await txWithdraw.wait();
-  console.log("supplyAndMoveQuote gasUsed", receipt.gasUsed.toString());
+  logGasUsage(receipt, "supplyAndMoveQuote");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function withdrawAndMoveQuote(
@@ -1542,9 +1549,10 @@ async function withdrawAndMoveQuote(
       gasLimit: 3000000,
     });
   const receipt = await txWithdraw.wait();
-  console.log("gas used withdrawAndMoveQuote", receipt.gasUsed.toString());
+  logGasUsage(receipt, "withdrawAndMoveQuote");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
+
 async function supplyQuoteNft(
   ajnaProxyActionsContract: AjnaProxyActions,
   poolContract: ERC20Pool,
@@ -1569,7 +1577,7 @@ async function supplyQuoteNft(
       gasLimit: 3000000,
     });
   const receipt = await txWithdraw.wait();
-  console.log("gas used supplyQuoteNft", receipt.gasUsed.toString());
+  logGasUsage(receipt, "supplyQuoteNft");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function withdrawQuoteNft(
@@ -1595,7 +1603,7 @@ async function withdrawQuoteNft(
       gasLimit: 3000000,
     });
   const receipt = await txWithdraw.wait();
-  console.log("gas used withdrawQuoteNft", receipt.gasUsed.toString());
+  logGasUsage(receipt, "withdrawQuoteNft");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function unstakeNftAndWithdrawQuote(
@@ -1617,7 +1625,7 @@ async function unstakeNftAndWithdrawQuote(
     gasLimit: 3000000,
   });
   const receipt = await txWithdraw.wait();
-  console.log("gas used unstakeNftAndWithdrawQuote", receipt.gasUsed.toString());
+  logGasUsage(receipt, "unstakesNftAndWithdrawQuote");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function unstakeNftAndClaimCollateral(
@@ -1637,7 +1645,7 @@ async function unstakeNftAndClaimCollateral(
     gasLimit: 3000000,
   });
   const receipt = await txWithdraw.wait();
-  console.log("gas used unstakeNftAndClaimCollateral", receipt.gasUsed.toString());
+  logGasUsage(receipt, "unstakesNftAndClaimCollateral");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function removeCollateral(
@@ -1655,7 +1663,7 @@ async function removeCollateral(
     gasLimit: 3000000,
   });
   const receipt = await txWithdraw.wait();
-  console.log("gas used unstakeNftAndClaimCollateral", receipt.gasUsed.toString());
+  logGasUsage(receipt, "removeCollateral");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function drawDebt(
@@ -1677,7 +1685,7 @@ async function drawDebt(
   });
 
   const receipt = await tx.wait();
-
+  logGasUsage(receipt, "drawDebt");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 
@@ -1702,7 +1710,7 @@ async function withdrawCollateral(
     });
 
   const receipt = await withdrawCollateralTx.wait();
-
+  logGasUsage(receipt, "withdrawCollateral");
   return receipt.gasUsed
     .mul(receipt.effectiveGasPrice)
     .add(receiptApproval.gasUsed.mul(receiptApproval.effectiveGasPrice));
@@ -1732,7 +1740,7 @@ async function depositCollateral(
     });
   const approvalTxReceipt = await approvalTx.wait();
   const receipt = await addCollateralTx.wait();
-
+  logGasUsage(receipt, "depositCollateral");
   return receipt.gasUsed
     .mul(receipt.effectiveGasPrice)
     .add(approvalTxReceipt.gasUsed.mul(approvalTxReceipt.effectiveGasPrice));
@@ -1761,7 +1769,7 @@ async function repayWithdraw(
   });
 
   const receipt = await repayTx.wait();
-  console.log("gas used repayWithdraw", receipt.gasUsed.toString());
+  logGasUsage(receipt, "repayWithdraw");
   return receipt.gasUsed
     .mul(receipt.effectiveGasPrice)
     .add(approvalTxReceipt.gasUsed.mul(approvalTxReceipt.effectiveGasPrice));
@@ -1783,7 +1791,7 @@ async function repayAndClose(
   });
 
   const receipt = await repayTx.wait();
-  console.log("gas used repayAndClose", receipt.gasUsed.toString());
+  logGasUsage(receipt, "repayAndClose");
   return receipt.gasUsed
     .mul(receipt.effectiveGasPrice)
     .add(approvalTxReceipt.gasUsed.mul(approvalTxReceipt.effectiveGasPrice));
@@ -1804,6 +1812,7 @@ async function mintAndStakeNft(
     gasLimit: 3000000,
   });
   const receipt = await mintNftTx.wait();
+  logGasUsage(receipt, "mintAndStakeNft");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 
@@ -1827,7 +1836,7 @@ async function supplyQuoteMintNftAndStake(
     gasLimit: 3000000,
   });
   const receipt = await mintNftTx.wait();
-  console.log("gas used supplyQuoteMintNftAndStake", receipt.gasUsed.toString());
+  logGasUsage(receipt, "supplyQuoteMintNftAndStake");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function moveQuoteNft(
@@ -1852,7 +1861,7 @@ async function moveQuoteNft(
       gasLimit: 3000000,
     });
   const receipt = await moveLiquidityTx.wait();
-  console.log("gas used moveQuoteNft", receipt.gasUsed.toString());
+  logGasUsage(receipt, "moveQuoteNft");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function supplyAndMoveQuoteNft(
@@ -1879,7 +1888,7 @@ async function supplyAndMoveQuoteNft(
     gasLimit: 3000000,
   });
   const receipt = await mintNftTx.wait();
-  console.log("gas used supplyAndMoveQuoteNft", receipt.gasUsed.toString());
+  logGasUsage(receipt, "supplyAndMoveQuoteNft");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function withdrawAndMoveQuoteNft(
@@ -1906,7 +1915,7 @@ async function withdrawAndMoveQuoteNft(
     gasLimit: 3000000,
   });
   const receipt = await mintNftTx.wait();
-  console.log("gas used withdrawAndMoveQuoteNft", receipt.gasUsed.toString());
+  logGasUsage(receipt, "withdrawAndMoveQuoteNft");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 async function repayDebt(
@@ -1942,7 +1951,7 @@ async function repayDebt(
   });
 
   const receipt = await repayTx.wait();
-  console.log("gas used repayDebt", receipt.gasUsed.toString());
+  logGasUsage(receipt, "repayDebt");
   return receipt.gasUsed
     .mul(receipt.effectiveGasPrice)
     .add(receiptApproval.gasUsed.mul(receiptApproval.effectiveGasPrice));
@@ -1974,7 +1983,7 @@ async function depositAndDrawDebt(
   });
 
   const receipt = await tx2.wait();
-  console.log("gas used depositAndDrawDebt", receipt.gasUsed.toString());
+  logGasUsage(receipt, "depositAndDrawDebt");
   return receipt.gasUsed.mul(receipt.effectiveGasPrice);
 }
 
