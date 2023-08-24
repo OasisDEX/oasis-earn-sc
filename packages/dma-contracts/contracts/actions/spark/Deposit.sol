@@ -1,20 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
-import { Executable } from "../../common/Executable.sol";
-import { UseStore, Write, Read } from "../../common/UseStore.sol";
-import { OperationStorage } from "../../../core/OperationStorage.sol";
-import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
-import { DepositData } from "../../../core/types/Aave.sol";
-import { SafeMath } from "../../../libs/SafeMath.sol";
-
-import { AAVE_POOL } from "../../../core/constants/Aave.sol";
+import { Executable } from "../common/Executable.sol";
+import { Read, Write, UseStore } from "../common/UseStore.sol";
+import { OperationStorage } from "../../core/OperationStorage.sol";
+import { DepositData } from "../../core/types/Spark.sol";
+import { SPARK_LENDING_POOL } from "../../core/constants/Spark.sol";
+import { IPool } from "../../interfaces/spark/IPool.sol";
+import { SafeMath } from "../../libs/SafeMath.sol";
 
 /**
- * @title Deposit | AAVE V3 Action contract
- * @notice Deposits the specified asset as collateral on AAVE's lending pool
+ * @title Deposit | Spark Action contract
+ * @notice Deposits the specified asset as collateral to Spark's lending pool
  */
-contract AaveV3Deposit is Executable, UseStore {
+contract SparkDeposit is Executable, UseStore {
   using Write for OperationStorage;
   using Read for OperationStorage;
   using SafeMath for uint256;
@@ -39,7 +38,7 @@ contract AaveV3Deposit is Executable, UseStore {
       ? mappedDepositAmount.add(deposit.amount)
       : mappedDepositAmount;
 
-    IPoolV3(registry.getRegisteredService(AAVE_POOL)).supply(
+    IPool(registry.getRegisteredService(SPARK_LENDING_POOL)).supply(
       deposit.asset,
       actualDepositAmount,
       address(this),
@@ -47,7 +46,7 @@ contract AaveV3Deposit is Executable, UseStore {
     );
 
     if (deposit.setAsCollateral) {
-      IPoolV3(registry.getRegisteredService(AAVE_POOL)).setUserUseReserveAsCollateral(
+      IPool(registry.getRegisteredService(SPARK_LENDING_POOL)).setUserUseReserveAsCollateral(
         deposit.asset,
         true
       );
