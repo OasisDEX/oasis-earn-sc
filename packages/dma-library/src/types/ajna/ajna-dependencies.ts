@@ -52,6 +52,10 @@ export interface AjnaBorrowPayload extends AjnaCommonPayload {
   position: AjnaPosition
   quoteAmount: BigNumber
   collateralAmount: BigNumber
+  // Repay method doesn't stamp loan by default
+  // this parameter is used to force restamp only if it makes sense
+  // from user perspective
+  stamploan?: boolean
 }
 
 export interface AjnaOpenEarnPayload extends AjnaCommonPayload {
