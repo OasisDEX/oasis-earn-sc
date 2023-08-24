@@ -1,17 +1,17 @@
 import { ServiceRegistry } from '@deploy-configurations/utils/wrappers'
 import { Contract } from 'ethers'
 
-import { DeployedSystemContracts, DeploymentConfig, SystemConfig } from './deployment-config'
+import { ConfigEntry, SystemConfig, SystemContracts } from './deployment-config'
 
 export type ContractProps = {
   contract: Contract
-  config: DeploymentConfig | Record<string, unknown>
+  config: ConfigEntry | Record<string, unknown>
   hash: string
 }
 
-export type SystemTemplate = Partial<Record<DeployedSystemContracts, ContractProps>>
+export type SystemTemplate = Partial<Record<SystemContracts, ContractProps>>
 
-export type DeployedSystem = Record<DeployedSystemContracts, ContractProps>
+export type DeployedSystem = Record<SystemContracts, ContractProps>
 
 export type System = {
   system: DeployedSystem

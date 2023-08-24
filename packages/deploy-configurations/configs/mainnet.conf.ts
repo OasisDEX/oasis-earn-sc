@@ -1,4 +1,4 @@
-import { loadContractNames } from '@deploy-configurations/constants'
+import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
@@ -255,6 +255,46 @@ export const config: SystemConfig = {
         deploy: false,
         address: '0xc0BAFEa22AD2A2D92BF54B1d76eA175785aa9Eb1',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkBorrow: {
+        name: 'SparkBorrow',
+        deploy: true,
+        address: ADDRESS_ZERO,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.BORROW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkWithdraw: {
+        name: 'SparkWithdraw',
+        deploy: true,
+        address: ADDRESS_ZERO,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.WITHDRAW,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkDeposit: {
+        name: 'SparkDeposit',
+        deploy: true,
+        address: ADDRESS_ZERO,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.DEPOSIT,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkPayback: {
+        name: 'SparkPayback',
+        deploy: true,
+        address: ADDRESS_ZERO,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.PAYBACK,
+        history: [],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkSetEMode: {
+        name: 'SparkSetEMode',
+        deploy: true,
+        address: ADDRESS_ZERO,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.SET_EMODE,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
@@ -599,8 +639,8 @@ export const config: SystemConfig = {
   },
   aave: {
     v2: {
-      PriceOracle: {
-        name: 'PriceOracle',
+      Oracle: {
+        name: 'Oracle',
         address: '0xa50ba011c48153de246e5192c8f9258a2ba79ca9',
       },
       LendingPool: {
@@ -608,8 +648,8 @@ export const config: SystemConfig = {
         address: '0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.LENDING_POOL,
       },
-      ProtocolDataProvider: {
-        name: 'ProtocolDataProvider',
+      PoolDataProvider: {
+        name: 'PoolDataProvider',
         address: '0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d',
       },
       WETHGateway: {
@@ -619,23 +659,38 @@ export const config: SystemConfig = {
       },
     },
     v3: {
-      AaveOracle: {
-        name: 'AaveOracle',
+      Oracle: {
+        name: 'Oracle',
         address: '0x54586bE62E3c3580375aE3723C145253060Ca0C2',
       },
-      Pool: {
-        name: 'Pool',
+      LendingPool: {
+        name: 'LendingPool',
         address: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
       },
-      AavePoolDataProvider: {
-        name: 'AavePoolDataProvider',
+      PoolDataProvider: {
+        name: 'PoolDataProvider',
         address: '0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3',
       },
       L2Encoder: {
         name: 'L2Encoder',
         address: '0x0000000000000000000000000000000000000000',
       },
+    },
+  },
+  spark: {
+    Oracle: {
+      name: 'Oracle',
+      address: '0x8105f69D9C41644c6A0803fDA7D03Aa70996cFD9',
+    },
+    LendingPool: {
+      name: 'LendingPool',
+      address: '0xC13e21B648A5Ee794902342038FF3aDAB66BE987',
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.LENDING_POOL,
+    },
+    PoolDataProvider: {
+      name: 'PoolDataProvider',
+      address: '0xFc21d6d146E6086B8359705C8b28512a983db0cb',
     },
   },
   maker: {

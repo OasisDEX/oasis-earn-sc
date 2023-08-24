@@ -453,8 +453,8 @@ export const config: SystemConfig = {
   },
   aave: {
     v2: {
-      PriceOracle: {
-        name: 'PriceOracle',
+      Oracle: {
+        name: 'Oracle',
         address: '0xc1c6f3b788FE7F4bB896a2Fad65F5a8c0Ad509C9',
       },
       LendingPool: {
@@ -462,8 +462,8 @@ export const config: SystemConfig = {
         address: '0x4bd5643ac6f66a5237E18bfA7d47cF22f1c9F210',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.LENDING_POOL,
       },
-      ProtocolDataProvider: {
-        name: 'ProtocolDataProvider',
+      PoolDataProvider: {
+        name: 'PoolDataProvider',
         address: '0x927F584d4321C1dCcBf5e2902368124b02419a1E',
       },
       WETHGateway: {
@@ -473,17 +473,17 @@ export const config: SystemConfig = {
       },
     },
     v3: {
-      AaveOracle: {
-        name: 'AaveOracle',
+      Oracle: {
+        name: 'Oracle',
         address: '0x9F616c65b5298E24e155E4486e114516BC635b63',
       },
-      Pool: {
-        name: 'Pool',
+      LendingPool: {
+        name: 'LendingPool',
         address: '0x6060Cf73C79098D32c9b936F4B26283427f1BFAd',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
       },
-      AavePoolDataProvider: {
-        name: 'AavePoolDataProvider',
+      PoolDataProvider: {
+        name: 'PoolDataProvider',
         address: '0xa41E284482F9923E265832bE59627d91432da76C',
       },
       L2Encoder: {
@@ -937,6 +937,7 @@ export const config: SystemConfig = {
       },
     },
   },
+  spark: {},
   automation: {
     AutomationBot: {
       name: 'AutomationBot',
