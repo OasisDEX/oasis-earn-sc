@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.15;
 
-import { Executable } from "../../common/Executable.sol";
-import { Write, UseStore } from "../../common/UseStore.sol";
-import { OperationStorage } from "../../../core/OperationStorage.sol";
-import { BorrowData } from "../../../core/types/Spark.sol";
-import { SPARK_LENDING_POOL } from "../../../core/constants/Spark.sol";
-import { IPoolV3 } from "../../../interfaces/aaveV3/IPoolV3.sol";
+import { Executable } from "../common/Executable.sol";
+import { Write, UseStore } from "../common/UseStore.sol";
+import { OperationStorage } from "../../core/OperationStorage.sol";
+import { BorrowData } from "../../core/types/Spark.sol";
+import { SPARK_LENDING_POOL } from "../../core/constants/Spark.sol";
+import { IPool } from "../../interfaces/spark/IPool.sol";
 
 /**
- * @title Borrow | AAVE V3 Action contract
- * @notice Borrows token from AAVE's lending pool
+ * @title Borrow | Spark Action contract
+ * @notice Borrows tokens from Spark's lending pool
  */
-contract AaveV3Borrow is Executable, UseStore {
+contract SparkBorrow is Executable, UseStore {
   using Write for OperationStorage;
 
   constructor(address _registry) UseStore(_registry) {}
@@ -23,7 +23,7 @@ contract AaveV3Borrow is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory) external payable override {
     BorrowData memory borrow = parseInputs(data);
 
-    IPoolV3(registry.getRegisteredService(AAVE_POOL)).borrow(
+    IPool(registry.getRegisteredService(SPARK_LENDING_POOL)).borrow(
       borrow.asset,
       borrow.amount,
       2,
