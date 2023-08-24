@@ -16,7 +16,7 @@ import {
   PoolInfoUtils,
 } from "@oasisdex/ajna-contracts/typechain-types";
 import { expect } from "chai";
-import { BigNumber, ContractReceipt, Signer } from "ethers";
+import { BigNumber, Signer } from "ethers";
 import hre, { ethers } from "hardhat";
 
 import { bn } from "../scripts/common";
@@ -24,7 +24,6 @@ import { HardhatUtils, logGasUsage } from "../scripts/common/hardhat.utils";
 import { createDPMProxy } from "../scripts/prepare-env";
 import { ERC20 } from "../typechain-types/@openzeppelin/contracts/token/ERC20/";
 import { WETH as WETHContract } from "../typechain-types/contracts/ajna";
-import { CONFIG } from "@ajna-contracts/scripts/common/config";
 
 const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
