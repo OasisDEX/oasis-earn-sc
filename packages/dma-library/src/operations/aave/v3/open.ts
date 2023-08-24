@@ -4,7 +4,6 @@ import { actions } from '@dma-library/actions'
 import {
   IOperation,
   Protocol,
-  WithAaveV3StrategyAddresses,
   WithCollateral,
   WithDebtAndBorrow,
   WithEMode,
@@ -15,6 +14,7 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
+import { WithAaveLikeStrategyAddresses } from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -26,7 +26,7 @@ export type OpenOperationArgs = WithCollateral &
   WithProxy &
   WithPosition &
   WithEMode &
-  WithAaveV3StrategyAddresses &
+  WithAaveLikeStrategyAddresses &
   WithNetwork
 
 export type AaveV3OpenOperation = ({
@@ -75,7 +75,7 @@ export const open: AaveV3OpenOperation = async ({
   const setFlashloanTokenApprovalOnAave = actions.common.setApproval(network, {
     amount: flashloan.token.amount,
     asset: flashloan.token.address,
-    delegate: addresses.pool,
+    delegate: addresses.lendingPool,
     sumAmounts: false,
   })
 
@@ -110,7 +110,7 @@ export const open: AaveV3OpenOperation = async ({
     network,
     {
       asset: collateral.address,
-      delegate: addresses.pool,
+      delegate: addresses.lendingPool,
       amount: depositIsCollateral ? depositAmount : ZERO,
       sumAmounts: true,
     },

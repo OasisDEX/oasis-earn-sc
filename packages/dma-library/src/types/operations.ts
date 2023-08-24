@@ -1,10 +1,9 @@
 import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
 import { OperationNames } from '@dma-common/constants'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { BigNumber } from 'bignumber.js'
 
-import { AAVEStrategyAddresses } from '../operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '../operations/aave/v3'
 import { AjnaStrategyAddresses } from '../operations/ajna'
 import { ActionCall } from './action-call'
 import { FlashloanProvider } from './common'
@@ -110,12 +109,8 @@ type WithLockedCollateral = {
   }
 }
 
-export type WithAaveV2StrategyAddresses = {
-  addresses: AAVEStrategyAddresses
-}
-
-export type WithAaveV3StrategyAddresses = {
-  addresses: AAVEV3StrategyAddresses
+export type WithAaveLikeStrategyAddresses = {
+  addresses: AaveLikeStrategyAddresses
 }
 
 export type WithAjnaStrategyAddresses = {

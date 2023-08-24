@@ -4,7 +4,7 @@ import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import { FlashloanProvider } from '@dma-library/types/common'
 import { feeResolver } from '@dma-library/utils/swap'
 
-import { BuildOperationV2Args } from './types'
+import { BuildOperationArgs } from './types'
 
 export async function buildOperationV2({
   adjustRiskUp,
@@ -13,12 +13,12 @@ export async function buildOperationV2({
   collectFeeFrom,
   args,
   dependencies,
-  addresses,
   network,
-}: BuildOperationV2Args) {
+}: BuildOperationArgs) {
+  const addresses = dependencies.addresses
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
-    dependencies.addresses,
+    addresses,
   )
 
   const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
@@ -82,7 +82,7 @@ export async function buildOperationV2({
       flashloan: {
         token: {
           amount: flashloanAmount,
-          address: dependencies.addresses.DAI,
+          address: dependencies.addresses.tokens.DAI,
         },
         amount: flashloanAmount,
         // Aave V2 not on L2
@@ -111,7 +111,7 @@ export async function buildOperationV2({
       },
       flashloan: {
         token: {
-          address: dependencies.addresses.DAI,
+          address: dependencies.addresses.tokens.DAI,
           amount: flashloanAmount,
         },
         amount: flashloanAmount,

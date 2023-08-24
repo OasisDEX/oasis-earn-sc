@@ -8,7 +8,7 @@ import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
 
-import { BuildOperationV3Args } from './types'
+import { BuildOperationArgs } from './types'
 
 export async function buildOperationV3({
   adjustRiskUp,
@@ -17,18 +17,16 @@ export async function buildOperationV3({
   collectFeeFrom,
   args,
   dependencies,
-  addresses,
   network,
-}: BuildOperationV3Args) {
+}: BuildOperationArgs) {
+  const addresses = dependencies.addresses
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     addresses,
   )
 
   const flashloanToken =
-    dependencies.network === Network.MAINNET
-      ? dependencies.addresses.DAI
-      : dependencies.addresses.USDC
+    dependencies.network === Network.MAINNET ? addresses.tokens.DAI : addresses.tokens.USDC
 
   const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
   const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
@@ -47,7 +45,7 @@ export async function buildOperationV3({
   const flashloanProvider = resolveFlashloanProvider(await getForkedNetwork(dependencies.provider))
 
   const flashloanAmount =
-    flashloanToken === dependencies.addresses.DAI
+    flashloanToken === dependencies.addresses.tokens.DAI
       ? simulatedPositionTransition.delta.flashloanAmount.abs()
       : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12)
 

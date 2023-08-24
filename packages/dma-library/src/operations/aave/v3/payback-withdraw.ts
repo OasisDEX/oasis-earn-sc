@@ -2,7 +2,7 @@ import { getAavePaybackWithdrawV3OperationDefinition } from '@deploy-configurati
 import { Network } from '@deploy-configurations/types/network'
 import { MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3/addresses'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { IOperation } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
@@ -16,7 +16,7 @@ type PaybackWithdrawArgs = {
   debtTokenIsEth: boolean
   proxy: string
   user: string
-  addresses: AAVEV3StrategyAddresses
+  addresses: AaveLikeStrategyAddresses
   network: Network
 }
 
@@ -32,7 +32,7 @@ export const paybackWithdraw: AaveV3PaybackWithdrawOperation = async args => {
   const setDebtApprovalOnLendingPool = actions.common.setApproval(network, {
     amount: args.amountDebtToPaybackInBaseUnit,
     asset: args.debtTokenAddress,
-    delegate: args.addresses.pool,
+    delegate: args.addresses.lendingPool,
     sumAmounts: false,
   })
   const wrapEth = actions.common.wrapEth(network, {
@@ -47,7 +47,7 @@ export const paybackWithdraw: AaveV3PaybackWithdrawOperation = async args => {
     amount: new BigNumber(MAX_UINT),
   })
   const returnLeftFundFromPayback = actions.common.returnFunds(network, {
-    asset: args.debtTokenIsEth ? args.addresses.ETH : args.debtTokenAddress,
+    asset: args.debtTokenIsEth ? args.addresses.tokens.ETH : args.debtTokenAddress,
   })
 
   const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw(args.network, {
@@ -60,7 +60,7 @@ export const paybackWithdraw: AaveV3PaybackWithdrawOperation = async args => {
   })
 
   const returnFunds = actions.common.returnFunds(network, {
-    asset: args.collateralIsEth ? args.addresses.ETH : args.collateralTokenAddress,
+    asset: args.collateralIsEth ? args.addresses.tokens.ETH : args.collateralTokenAddress,
   })
 
   pullDebtTokensToProxy.skipped =

@@ -32,8 +32,8 @@ export const openDepositBorrow: AaveOpenDepositBorrow = async (args, dependencie
   const isSwapNeeded = SwapUtils.getIsSwapNeeded(
     entryTokenAddress,
     collateralTokenAddress,
-    dependencies.addresses.ETH,
-    dependencies.addresses.WETH,
+    dependencies.addresses.tokens.ETH,
+    dependencies.addresses.tokens.WETH,
   )
 
   const alwaysReturnDepositArgs = true

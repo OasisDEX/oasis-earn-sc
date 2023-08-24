@@ -2,8 +2,6 @@ import { getForkedNetwork } from '@deploy-configurations/utils/network'
 import { FEE_BASE, ONE } from '@dma-common/constants'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
 import { CloseArgs } from '@dma-library/operations/aave/v3/close'
 import { IOperation, SwapData } from '@dma-library/types'
 import { AaveVersion } from '@dma-library/types/aave'
@@ -70,10 +68,7 @@ export async function buildOperation(
       isDPMProxy: dependencies.isDPMProxy,
       network: dependencies.network,
     }
-    return await operations.aave.v2.close(
-      closeArgs,
-      dependencies.addresses as AAVEStrategyAddresses,
-    )
+    return await operations.aave.v2.close(closeArgs, dependencies.addresses)
   }
   if (args.protocolVersion === AaveVersion.v3) {
     const flashloanProvider = resolveFlashloanProvider(
@@ -113,7 +108,7 @@ export async function buildOperation(
         isDPMProxy: dependencies.isDPMProxy,
         owner: dependencies.user,
       },
-      addresses: dependencies.addresses as AAVEV3StrategyAddresses,
+      addresses: dependencies.addresses,
       network: dependencies.network,
     }
 

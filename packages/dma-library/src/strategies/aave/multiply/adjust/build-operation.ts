@@ -21,7 +21,6 @@ export async function buildOperation({
       collectFeeFrom,
       args,
       dependencies,
-      addresses: dependencies.addresses,
       network: dependencies.network,
     })
   }
@@ -34,7 +33,6 @@ export async function buildOperation({
       collectFeeFrom,
       args,
       dependencies,
-      addresses: dependencies.addresses,
       network: dependencies.network,
     })
   }

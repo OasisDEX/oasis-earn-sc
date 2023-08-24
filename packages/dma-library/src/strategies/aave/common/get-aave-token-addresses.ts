@@ -1,25 +1,13 @@
 import { EMPTY_ADDRESS } from '@dma-common/constants'
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { AAVETokens } from '@dma-library/types/aave'
 import { WithAaveStrategyArgs } from '@dma-library/types/strategy-params'
 
 export const getAaveTokenAddress = (
   token: { symbol: AAVETokens },
-  addresses: AAVEStrategyAddresses | AAVEV3StrategyAddresses,
+  addresses: AaveLikeStrategyAddresses,
 ) => {
-  const tokenAddresses: Record<AAVETokens, string> = {
-    WETH: addresses.WETH,
-    ETH: addresses.WETH,
-    STETH: 'STETH' in addresses ? addresses.STETH : EMPTY_ADDRESS,
-    WSTETH: 'WSTETH' in addresses ? addresses.WSTETH : EMPTY_ADDRESS,
-    USDC: addresses.USDC,
-    WBTC: addresses.WBTC,
-    CBETH: 'CBETH' in addresses ? addresses.CBETH : EMPTY_ADDRESS,
-    RETH: 'RETH' in addresses ? addresses.RETH : EMPTY_ADDRESS,
-    DAI: addresses.DAI,
-  }
-  const tokenAddress = tokenAddresses[token.symbol]
+  const tokenAddress = addresses.tokens[token.symbol]
 
   if (!tokenAddress || tokenAddress === EMPTY_ADDRESS)
     throw new Error('Token not recognised or address missing in dependencies')
@@ -33,7 +21,7 @@ export const getAaveTokenAddresses = (
     collateralToken: WithAaveStrategyArgs['collateralToken']
     debtToken: WithAaveStrategyArgs['debtToken']
   },
-  addresses: AAVEStrategyAddresses | AAVEV3StrategyAddresses,
+  addresses: AaveLikeStrategyAddresses,
 ): {
   collateralTokenAddress: string
   debtTokenAddress: string

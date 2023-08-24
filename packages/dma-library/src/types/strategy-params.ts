@@ -1,7 +1,6 @@
 import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { AAVETokens } from '@dma-library/types/aave'
 import { GetSwapData } from '@dma-library/types/common/get-swap-data'
 import { IPosition, IRiskRatio } from '@domain'
@@ -96,14 +95,11 @@ type SharedStrategyDependencies = {
   currentPosition: IPosition
   proxy: Address
   user: Address
+  isDPMProxy: boolean
   network: Network
 }
-export type WithAaveV2StrategyDependencies = {
-  addresses: AAVEStrategyAddresses
-} & SharedStrategyDependencies
-
-export type WithAaveV3StrategyDependencies = {
-  addresses: AAVEV3StrategyAddresses
+export type WithAaveStrategyDependencies = {
+  addresses: AaveLikeStrategyAddresses
 } & SharedStrategyDependencies
 
 export type WithSwap = {
@@ -113,6 +109,10 @@ export type WithSwap = {
     amount: BigNumber,
     slippage: BigNumber,
   ) => Promise<SwapData>
+}
+
+export type WithDebug = {
+  debug: boolean
 }
 
 export type WithOptionalSwap = Partial<WithSwap>

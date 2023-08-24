@@ -92,7 +92,7 @@ async function getAaveSwapDataToCloseToCollateral(
     debtPrice: debtTokenPrice,
     outstandingDebt: dependencies.currentPosition.debt.amount,
     slippage,
-    ETHAddress: addresses.ETH,
+    ETHAddress: addresses.tokens.ETH,
     getSwapData: dependencies.getSwapData,
   })
 }

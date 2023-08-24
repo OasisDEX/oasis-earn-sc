@@ -1,4 +1,3 @@
-import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
 import { getForkedNetwork } from '@deploy-configurations/utils/network'
 import {
@@ -12,51 +11,25 @@ import {
 import { Unbox } from '@dma-common/types/common'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
-import { AAVEStrategyAddresses, AAVEV3StrategyAddresses, operations } from '@dma-library/operations'
+import { operations } from '@dma-library/operations'
 import { OpenOperationArgs } from '@dma-library/operations/aave/v3/open'
 import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { getAaveTokenAddress, getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
-import { IOperation, PositionTransition, PositionType, SwapData } from '@dma-library/types'
-import { AAVETokens, AaveVersion } from '@dma-library/types/aave'
-import { WithV2Addresses, WithV3Addresses } from '@dma-library/types/aave/addresses'
+import { IOperation, PositionTransition, SwapData } from '@dma-library/types'
+import { AAVETokens } from '@dma-library/types/aave'
 import { WithFee } from '@dma-library/types/aave/fee'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
+import { WithAaveStrategyDependencies, WithSwap } from '@dma-library/types/strategy-params'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import * as SwapUtils from '@dma-library/utils/swap'
-import { IBaseSimulatedTransition, IRiskRatio, Position } from '@domain'
+import { IBaseSimulatedTransition, Position } from '@domain'
 import BigNumber from 'bignumber.js'
-import { providers } from 'ethers'
 
-export interface AaveOpenArgs {
-  depositedByUser?: {
-    collateralToken?: { amountInBaseUnit: BigNumber }
-    debtToken?: { amountInBaseUnit: BigNumber }
-  }
-  multiple: IRiskRatio
-  slippage: BigNumber
-  positionType: PositionType
-  collateralToken: { symbol: AAVETokens; precision?: number }
-  debtToken: { symbol: AAVETokens; precision?: number }
-}
+import { AaveOpenArgs } from './types'
 
-export interface AaveOpenSharedDependencies {
-  proxy: Address
-  user: Address
-  isDPMProxy: boolean
-  /* Services below 👇*/
-  provider: providers.Provider
-  network: Network
-  getSwapData: (
-    fromToken: string,
-    toToken: string,
-    amount: BigNumber,
-    slippage: BigNumber,
-  ) => Promise<SwapData>
-}
-
-export type AaveV2OpenDependencies = AaveOpenSharedDependencies & WithV2Addresses & WithV2Protocol
-export type AaveV3OpenDependencies = AaveOpenSharedDependencies & WithV3Addresses & WithV3Protocol
+export type AaveV2OpenDependencies = WithAaveStrategyDependencies & WithV2Protocol & WithSwap
+export type AaveV3OpenDependencies = WithAaveStrategyDependencies & WithV3Protocol & WithSwap
 export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependencies
 
 export async function open(
@@ -94,7 +67,6 @@ export async function open(
         fee,
       },
       dependencies,
-      // true,
     )
 
   const { swapData, collectFeeFrom } = await SwapUtils.getSwapDataHelper<
@@ -151,8 +123,10 @@ async function simulatePositionTransition(
 
   const flashloanTokenAddress =
     dependencies.network === Network.MAINNET
-      ? dependencies.addresses.DAI
-      : dependencies.addresses.USDC
+      ? dependencies.addresses.tokens.DAI
+      : dependencies.addresses.tokens.USDC
+
+  if (!flashloanTokenAddress) throw new Error('Flashloan token address not found')
 
   /**
    * We've add current Position into all strategy dependencies
@@ -244,8 +218,15 @@ async function simulatePositionTransition(
   // EG USDC/ETH
   const ethPerDebtToken = aaveDebtTokenPriceInEth
 
+  if (ethPerDebtToken === undefined) throw new Error('No ETH per debt token found')
+  if (ethPerFlashloanAmount === undefined) throw new Error('No ETH per flashloan amount found')
+
   // EG USDC/ETH divided by ETH/DAI = USDC/ETH times by DAI/ETH = USDC/DAI
   const oracleFLtoDebtToken = ethPerDebtToken.div(ethPerFlashloanAmount)
+
+  if (aaveCollateralTokenPriceInEth === undefined)
+    throw new Error('No ETH per collateral token found')
+  if (aaveDebtTokenPriceInEth === undefined) throw new Error('No ETH per debt token found')
 
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
   const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
@@ -255,6 +236,7 @@ async function simulatePositionTransition(
     toToken: args.collateralToken.symbol,
   })
 
+  if (dependencies.addresses.tokens.DAI === undefined) throw new Error('No DAI address found')
   const simulation = currentPosition.adjustToTargetRiskRatio(multiple, {
     fees: {
       flashLoan: flashloanFee,
@@ -268,7 +250,7 @@ async function simulatePositionTransition(
     slippage: args.slippage,
     flashloan: {
       maxLoanToValueFL: maxLoanToValueForFL,
-      tokenSymbol: flashloanTokenAddress === dependencies.addresses.DAI ? 'DAI' : 'USDC',
+      tokenSymbol: flashloanTokenAddress === dependencies.addresses.tokens.DAI ? 'DAI' : 'USDC',
     },
     depositedByUser: {
       debtInWei: depositDebtAmountInWei,
@@ -293,7 +275,6 @@ async function buildOperation(
   args: AaveOpenArgs & { flashloanToken: string },
   dependencies: AaveOpenDependencies,
 ) {
-  const protocolVersion = dependencies.protocol.version
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     dependencies.addresses,
@@ -311,7 +292,7 @@ async function buildOperation(
     isEarnPosition: args.positionType === 'Earn',
   })
 
-  if (protocolVersion === AaveVersion.v3) {
+  if (AaveCommon.isV3<AaveOpenDependencies, AaveV3OpenDependencies>(dependencies)) {
     const flashloanProvider = resolveFlashloanProvider(
       await getForkedNetwork(dependencies.provider),
     )
@@ -348,7 +329,7 @@ async function buildOperation(
       flashloan: {
         token: {
           amount:
-            args.flashloanToken === dependencies.addresses.DAI
+            args.flashloanToken === dependencies.addresses.tokens.DAI
               ? simulatedPositionTransition.delta.flashloanAmount.abs()
               : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12),
           address: args.flashloanToken,
@@ -367,13 +348,13 @@ async function buildOperation(
         isDPMProxy: dependencies.isDPMProxy,
         owner: dependencies.user,
       },
-      addresses: dependencies.addresses as AAVEV3StrategyAddresses,
+      addresses: dependencies.addresses,
       network: dependencies.network,
     }
 
     return await operations.aave.v3.open(openArgs)
   }
-  if (protocolVersion === AaveVersion.v2) {
+  if (AaveCommon.isV2(dependencies)) {
     const openArgs = {
       deposit: {
         collateralToken: {
@@ -393,7 +374,7 @@ async function buildOperation(
         receiveAtLeast: swapData.minToTokenAmount,
       },
       positionType: args.positionType,
-      addresses: dependencies.addresses as AAVEStrategyAddresses,
+      addresses: dependencies.addresses,
       flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
       borrowAmountInBaseUnit: borrowAmountInWei,
       collateralTokenAddress,

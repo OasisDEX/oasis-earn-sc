@@ -27,8 +27,8 @@ export const depositBorrow: AaveDepositBorrow = async (args, dependencies) => {
   const isSwapNeeded = SwapUtils.getIsSwapNeeded(
     entryTokenAddress,
     collateralTokenAddress,
-    dependencies.addresses.ETH,
-    dependencies.addresses.WETH,
+    dependencies.addresses.tokens.ETH,
+    dependencies.addresses.tokens.WETH,
   )
 
   const deposit = await AaveCommon.buildDepositArgs(

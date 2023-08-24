@@ -1,6 +1,5 @@
 export { actions } from './actions'
 export { ActionFactory } from './actions/action-factory'
-export type { AAVEStrategyAddresses, AAVEV3StrategyAddresses } from './operations'
 export { operations } from './operations'
 export {
   calculateAjnaApyPerDays,

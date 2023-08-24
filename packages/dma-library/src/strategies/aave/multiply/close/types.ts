@@ -1,5 +1,4 @@
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import {
   AAVETokens,
   IBasePositionTransitionArgs,
@@ -27,9 +26,7 @@ export type WithAaveValuesFromProtocol = {
 }
 
 export type AaveCloseArgsWithVersioning = AaveCloseArgs & WithVersioning
-export type AaveCloseDependencies =
-  | IPositionTransitionDependencies<AAVEStrategyAddresses>
-  | IPositionTransitionDependencies<AAVEV3StrategyAddresses>
+export type AaveCloseDependencies = IPositionTransitionDependencies<AaveLikeStrategyAddresses>
 
 export type ExpandedAaveCloseArgs = AaveCloseArgs &
   WithVersioning &
