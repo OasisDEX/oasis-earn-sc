@@ -14,5 +14,5 @@ A special script has been created to run these tasks
 yarn hardhat run scripts/run-dependent-task.ts --network local
 ```
 
-Please do not import tasks that are dependent on @dma-library into hardhat.deployment-config.ts
+Please do not import tasks that are dependent on @dma-library into hardhat.config.ts
 ```
