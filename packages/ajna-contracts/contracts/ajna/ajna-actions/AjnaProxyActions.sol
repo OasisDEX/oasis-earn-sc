@@ -321,6 +321,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @notice Repay debt
      *  @param  pool           Pool address
      *  @param  amount         Amount of debt to repay
+     *  @param  stamploan      Whether to stamp the loan or not
      */
     function repayDebt(IERC20Pool pool, uint256 amount, bool stamploan) public payable {
         address debtToken = pool.quoteTokenAddress();
@@ -375,6 +376,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  pool           Pool address
      *  @param  debtAmount     Amount of debt to repay
      *  @param  collateralAmount Amount of collateral to withdraw
+     *  @param  stamploan      Whether to stamp the loan or not
      */
     function repayWithdraw(
         IERC20Pool pool,
