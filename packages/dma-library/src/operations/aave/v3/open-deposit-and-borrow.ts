@@ -2,9 +2,11 @@ import { OperationNames } from '@deploy-configurations/constants'
 import { getAaveOpenDepositBorrowV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
-import { DepositArgs } from '@dma-library/operations/aave/common'
-import { BorrowArgs } from '@dma-library/operations/aave/common/borrow-args'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
+import {
+  AaveLikeStrategyAddresses,
+  BorrowArgs,
+  DepositArgs,
+} from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation, PositionType, Protocol } from '@dma-library/types'
 
 import { borrow } from './borrow'
@@ -32,7 +34,7 @@ export const openDepositBorrow: AaveV3OpenDepositBorrowOperation = async (
   const depositCalls = (await deposit(depositArgs, addresses, network)).calls
   const borrowCalls = (await borrow(borrowArgs, addresses, network)).calls
 
-  if (borrowArgs?.amountInBaseUnit.isZero()) {
+  if (borrowArgs?.amount.isZero()) {
     borrowCalls.forEach(call => {
       call.skipped = true
     })

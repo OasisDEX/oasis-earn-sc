@@ -1,4 +1,4 @@
-import { getAaveDepositV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getSparkDepositOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
@@ -12,7 +12,7 @@ import { ActionCall, IOperation } from '@dma-library/types'
 import { isDefined } from '@dma-library/utils/is-defined'
 import BigNumber from 'bignumber.js'
 
-export type AaveV3DepositOperation = (
+export type SparkDepositOperation = (
   args: DepositArgs,
   addresses: AaveLikeStrategyAddresses,
   network: Network,
@@ -61,7 +61,7 @@ function getSwapCalls(
   }
 }
 
-export const deposit: AaveV3DepositOperation = async (
+export const deposit: SparkDepositOperation = async (
   {
     entryTokenAddress,
     entryTokenIsEth,
@@ -129,7 +129,7 @@ export const deposit: AaveV3DepositOperation = async (
       // it will be ignored.
       // On other note, if mapping is 0, that means that no swap is required
       // therefore the actual deposited value will be used.
-      actions.aave.v3.aaveV3Deposit(
+      actions.spark.deposit(
         network,
         {
           asset: depositToken,
@@ -140,6 +140,6 @@ export const deposit: AaveV3DepositOperation = async (
         [0, isSwapNeeded ? 1 : 0, 0, 0],
       ),
     ],
-    operationName: getAaveDepositV3OperationDefinition(network).name,
+    operationName: getSparkDepositOperationDefinition(network).name,
   }
 }

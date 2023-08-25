@@ -18,7 +18,9 @@ import BigNumber from 'bignumber.js'
 
 export type AaveAdjustArgs = IPositionTransitionArgs<AAVETokens> & WithPositionType
 export type ExtendedAaveAdjustArgs = AaveAdjustArgs & WithFlashloanToken
-export type AaveAdjustSharedDependencies = WithAaveStrategyDependencies & WithSwap & WithDebug
+export type AaveAdjustSharedDependencies = WithAaveStrategyDependencies &
+  WithSwap &
+  Partial<WithDebug>
 export type AaveV2AdjustDependencies = AaveAdjustSharedDependencies & WithV2Protocol
 export type AaveV3AdjustDependencies = AaveAdjustSharedDependencies & WithV3Protocol
 export type AaveAdjustDependencies = AaveV2AdjustDependencies | AaveV3AdjustDependencies

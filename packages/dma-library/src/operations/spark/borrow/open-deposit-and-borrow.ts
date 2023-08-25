@@ -1,5 +1,6 @@
+import { OperationNames } from '@deploy-configurations/constants'
+import { getSparkOpenDepositBorrowOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
-import { OPERATION_NAMES } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import {
   AaveLikeStrategyAddresses,
@@ -11,7 +12,7 @@ import { ActionCall, IOperation, PositionType, Protocol } from '@dma-library/typ
 import { borrow } from './borrow'
 import { deposit } from './deposit'
 
-type AaveV2OpenDepositBorrowArgs = [
+type SparkOpenDepositBorrowArgs = [
   depositArgs: DepositArgs,
   borrowArgs: BorrowArgs,
   metaArgs: { protocol: Protocol; positionType: PositionType },
@@ -19,11 +20,11 @@ type AaveV2OpenDepositBorrowArgs = [
   network: Network,
 ]
 
-export type AaveV2OpenDepositBorrowOperation = (
-  ...args: AaveV2OpenDepositBorrowArgs
+export type SparkOpenDepositBorrowOperation = (
+  ...args: SparkOpenDepositBorrowArgs
 ) => Promise<IOperation>
 
-export const openDepositAndBorrow: AaveV2OpenDepositBorrowOperation = async (
+export const openDepositBorrow: SparkOpenDepositBorrowOperation = async (
   depositArgs,
   borrowArgs,
   { protocol, positionType },
@@ -33,7 +34,7 @@ export const openDepositAndBorrow: AaveV2OpenDepositBorrowOperation = async (
   const depositCalls = (await deposit(depositArgs, addresses, network)).calls
   const borrowCalls = (await borrow(borrowArgs, addresses, network)).calls
 
-  if (borrowArgs.amount.isZero()) {
+  if (borrowArgs?.amount.isZero()) {
     borrowCalls.forEach(call => {
       call.skipped = true
     })
@@ -48,10 +49,10 @@ export const openDepositAndBorrow: AaveV2OpenDepositBorrowOperation = async (
 
   return {
     calls: [...depositCalls, ...borrowCalls, positionCreatedEvent],
-    operationName: OPERATION_NAMES.aave.v2.OPEN_DEPOSIT_BORROW,
+    operationName: getSparkOpenDepositBorrowOperationDefinition(network).name,
   } as {
     // Import ActionCall as it assists type generation
     calls: ActionCall[]
-    operationName: typeof OPERATION_NAMES.aave.v2.OPEN_DEPOSIT_BORROW
+    operationName: OperationNames
   }
 }

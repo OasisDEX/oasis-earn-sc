@@ -1,9 +1,11 @@
 import { OperationNames } from '@deploy-configurations/constants'
 import { getAaveDepositBorrowV3OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
-import { DepositArgs } from '@dma-library/operations/aave/common'
-import { BorrowArgs } from '@dma-library/operations/aave/common/borrow-args'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
+import {
+  AaveLikeStrategyAddresses,
+  BorrowArgs,
+  DepositArgs,
+} from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation } from '@dma-library/types'
 
 import { borrow } from './borrow'

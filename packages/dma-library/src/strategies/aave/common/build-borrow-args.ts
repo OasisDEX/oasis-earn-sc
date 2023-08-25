@@ -25,9 +25,9 @@ export async function buildBorrowArgs(
 
   const debtTokenAddress = getAaveTokenAddress(debtToken, dependencies.addresses)
 
-  const borrowArgs = {
+  const borrowArgs: BorrowArgs = {
     account: dependencies.proxy,
-    amountInBaseUnit: borrowAmount,
+    amount: borrowAmount,
     borrowToken:
       debtTokenAddress === dependencies.addresses.tokens.ETH
         ? dependencies.addresses.tokens.WETH

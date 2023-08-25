@@ -3,9 +3,11 @@ import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
 import { ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import { DepositArgs } from '@dma-library/operations/aave/common'
-import { DepositSwapArgs } from '@dma-library/operations/aave/common/deposit-args'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
+import {
+  AaveLikeStrategyAddresses,
+  DepositArgs,
+  DepositSwapArgs,
+} from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation } from '@dma-library/types'
 import { isDefined } from '@dma-library/utils/is-defined'
 import BigNumber from 'bignumber.js'

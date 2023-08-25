@@ -1,5 +1,5 @@
 import { OperationNames } from '@deploy-configurations/constants'
-import { getAaveDepositBorrowV2OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getSparkDepositBorrowOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import {
   AaveLikeStrategyAddresses,
@@ -11,16 +11,16 @@ import { ActionCall, IOperation } from '@dma-library/types'
 import { borrow } from './borrow'
 import { deposit } from './deposit'
 
-type AaveV2DepositBorrowArgs = [
+type SparkDepositBorrowArgs = [
   depositArgs: DepositArgs | undefined,
   borrowArgs: BorrowArgs | undefined,
   addresses: AaveLikeStrategyAddresses,
   network: Network,
 ]
 
-export type AaveV2DepositBorrowOperation = (...args: AaveV2DepositBorrowArgs) => Promise<IOperation>
+export type SparkDepositBorrowOperation = (...args: SparkDepositBorrowArgs) => Promise<IOperation>
 
-export const depositBorrow: AaveV2DepositBorrowOperation = async (
+export const depositBorrow: SparkDepositBorrowOperation = async (
   depositArgs,
   borrowArgs,
   addresses,
@@ -32,7 +32,7 @@ export const depositBorrow: AaveV2DepositBorrowOperation = async (
         ...(await deposit(depositArgs, addresses, network)).calls,
         ...(await borrow(borrowArgs, addresses, network)).calls,
       ],
-      operationName: getAaveDepositBorrowV2OperationDefinition(network).name,
+      operationName: getSparkDepositBorrowOperationDefinition(network).name,
     } as {
       // Import ActionCall as it assists type generation
       calls: ActionCall[]
