@@ -20,18 +20,31 @@ const borrow = {
   openDepositBorrow: sparkOpenDepositBorrow,
   paybackWithdraw: sparkPaybackWithdraw,
 }
-const multiply = {}
+const multiply = {
+  open: {},
+  close: {},
+  adjustRiskDown: {},
+  adjustRiskUp: {},
+}
+
+type SparkBorrowOperations = {
+  borrow: SparkBorrowOperation
+  deposit: SparkDepositOperation
+  depositBorrow: SparkDepositBorrowOperation
+  openDepositBorrow: SparkOpenDepositBorrowOperation
+  paybackWithdraw: SparkPaybackWithdrawOperation
+}
+// TODO: Add multiply operations once adjusted for balancer
+type SparkMultiplyOperations = {
+  open: any
+  close: any
+  adjustRiskDown: any
+  adjustRiskUp: any
+}
 
 export type SparkOperations = {
-  borrow: {
-    borrow: SparkBorrowOperation
-    deposit: SparkDepositOperation
-    depositBorrow: SparkDepositBorrowOperation
-    openDepositBorrow: SparkOpenDepositBorrowOperation
-    paybackWithdraw: SparkPaybackWithdrawOperation
-  }
-  // TODO: Add multiply operations once adjusted for balancer
-  multiply: object
+  borrow: SparkBorrowOperations
+  multiply: SparkMultiplyOperations
 }
 
 export const sparkOperations: SparkOperations = {

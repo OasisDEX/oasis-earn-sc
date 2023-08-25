@@ -1,9 +1,8 @@
-import { AaveOperations, aaveOperations } from '@dma-library/operations/aave'
-
+import { AaveOperations, aaveOperations } from './aave'
 import { AjnaOperations, ajnaOperations } from './ajna'
 import { SparkOperations, sparkOperations } from './spark'
 
-export { AdjustRiskDownArgs, AdjustRiskUpArgs } from './aave/v2'
+export { AaveBorrowOperations, AaveMultiplyOperations } from './aave'
 export { BorrowArgs, DepositArgs } from './aave-like'
 
 const ajna = ajnaOperations

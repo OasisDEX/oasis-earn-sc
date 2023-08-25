@@ -81,7 +81,7 @@ const multiply = {
   },
 }
 
-type AaveBorrowOperations = {
+export type AaveBorrowOperations = {
   v2: {
     borrow: AaveV2BorrowOperation
     deposit: AaveV2DepositOperation
@@ -98,7 +98,7 @@ type AaveBorrowOperations = {
   }
 }
 
-type AaveMultiplyOperations = {
+export type AaveMultiplyOperations = {
   v2: {
     open: AaveV2OpenOperation
     close: AaveV2CloseOperation

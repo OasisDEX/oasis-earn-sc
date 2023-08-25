@@ -1,9 +1,9 @@
 import { CollectFeeFrom } from '@dma-common/types'
-import { BorrowArgs, DepositArgs, operations } from '@dma-library/operations'
+import { BorrowArgs, DepositArgs } from '@dma-library/operations'
+import { resolveAaveLikeOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
-import { IOperation } from '@dma-library/types'
-import { deepGet, resolveProtocolKey } from '@dma-library/utils/aave-like'
+import { IOperation, PositionType } from '@dma-library/types'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { IPosition } from '@domain'
 
@@ -76,25 +76,13 @@ async function buildOperation(
   borrowArgs: BorrowArgs | undefined,
   dependencies: AaveLikeDepositBorrowDependencies,
 ): Promise<IOperation> {
-  const protocolKey = resolveProtocolKey(dependencies.protocolType)
-  const protocolOperations = deepGet(operations, protocolKey)
-  return await protocolOperations.depositBorrow(depositArgs, borrowArgs, dependencies)
-  if (AaveCommon.isV3(dependencies)) {
-    return await operations.aave.v3.depositBorrow(
-      depositArgs,
-      borrowArgs,
-      dependencies.addresses,
-      dependencies.network,
-    )
-  }
-  if (AaveCommon.isV2(dependencies)) {
-    return await operations.aave.v2.depositBorrow(
-      depositArgs,
-      borrowArgs,
-      dependencies.addresses,
-      dependencies.network,
-    )
-  }
+  const positionType: PositionType = 'Borrow'
+  const protocolOperations = resolveAaveLikeOperations(dependencies.protocolType, positionType)
 
-  throw new Error('No operation found for Aave protocol version')
+  return protocolOperations.depositBorrow(
+    depositArgs,
+    borrowArgs,
+    dependencies.addresses,
+    dependencies.network,
+  )
 }
