@@ -328,9 +328,15 @@ contract AjnaProxyActions is IAjnaProxyActions {
         _pull(debtToken, amount);
         IERC20(debtToken).safeApprove(address(pool), amount);
         (, , , , , uint256 lupIndex_) = poolInfoUtils.poolPricesInfo(address(pool));
+        uint256 balanceBefore = IERC20(debtToken).balanceOf(address(this));
         pool.repayDebt(address(this), amount * pool.quoteTokenScale(), 0, address(this), lupIndex_);
         if (stamploan) {
             pool.stampLoan();
+        }
+        uint256 repaidAmount = balanceBefore - IERC20(debtToken).balanceOf(address(this));
+        uint256 leftoverBalance = amount - repaidAmount;
+        if (leftoverBalance > 0) {
+            _send(debtToken, leftoverBalance);
         }
         emit ProxyActionsOperation("AjnaRepay");
     }
@@ -360,6 +366,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
         _pull(debtToken, debtAmount);
         IERC20(debtToken).safeApprove(address(pool), debtAmount);
         (, , , , , uint256 lupIndex_) = poolInfoUtils.poolPricesInfo(address(pool));
+        uint256 quoteBalanceBefore = IERC20(debtToken).balanceOf(address(this));
         pool.repayDebt(
             address(this),
             debtAmount * pool.quoteTokenScale(),
@@ -368,6 +375,11 @@ contract AjnaProxyActions is IAjnaProxyActions {
             lupIndex_
         );
         _send(collateralToken, collateralAmount);
+        uint256 repaidAmount = quoteBalanceBefore - IERC20(debtToken).balanceOf(address(this));
+        uint256 quoteLeftoverBalance = debtAmount - repaidAmount;
+        if (quoteLeftoverBalance > 0) {
+            _send(debtToken, quoteLeftoverBalance);
+        }
         emit ProxyActionsOperation("AjnaRepayWithdraw");
     }
 
