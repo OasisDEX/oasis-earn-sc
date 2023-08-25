@@ -3,16 +3,13 @@ import { BorrowArgs, DepositArgs, operations } from '@dma-library/operations'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { IOperation } from '@dma-library/types'
+import { deepGet, resolveProtocolKey } from '@dma-library/utils/aave-like'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { IPosition } from '@domain'
 
-import {
-  AaveDepositBorrow,
-  AaveDepositBorrowDependencies,
-  AaveV3DepositBorrowDependencies,
-} from './types'
+import { AaveLikeDepositBorrow, AaveLikeDepositBorrowDependencies } from './types'
 
-export const depositBorrow: AaveDepositBorrow = async (args, dependencies) => {
+export const depositBorrow: AaveLikeDepositBorrow = async (args, dependencies) => {
   const {
     collateralToken,
     debtToken,
@@ -77,11 +74,12 @@ export const depositBorrow: AaveDepositBorrow = async (args, dependencies) => {
 async function buildOperation(
   depositArgs: DepositArgs | undefined,
   borrowArgs: BorrowArgs | undefined,
-  dependencies: AaveDepositBorrowDependencies,
+  dependencies: AaveLikeDepositBorrowDependencies,
 ): Promise<IOperation> {
-  if (
-    AaveCommon.isV3<AaveDepositBorrowDependencies, AaveV3DepositBorrowDependencies>(dependencies)
-  ) {
+  const protocolKey = resolveProtocolKey(dependencies.protocolType)
+  const protocolOperations = deepGet(operations, protocolKey)
+  return await protocolOperations.depositBorrow(depositArgs, borrowArgs, dependencies)
+  if (AaveCommon.isV3(dependencies)) {
     return await operations.aave.v3.depositBorrow(
       depositArgs,
       borrowArgs,

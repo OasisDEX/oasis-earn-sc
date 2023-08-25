@@ -1,15 +1,24 @@
-import { borrow as SparkBorrow, SparkBorrowOperation } from './borrow/borrow'
-import { deposit as SparkDeposit, SparkDepositOperation } from './borrow/deposit'
-import { depositBorrow as SparkDepositBorrow } from './borrow/deposit-borrow'
-import { openDepositBorrow as SparkOpenDepositBorrow } from './borrow/open-deposit-and-borrow'
-import { paybackWithdraw as SparkPaybackWithdraw } from './borrow/payback-withdraw'
+import { borrow as sparkBorrow, SparkBorrowOperation } from './borrow/borrow'
+import { deposit as sparkDeposit, SparkDepositOperation } from './borrow/deposit'
+import {
+  depositBorrow as sparkDepositBorrow,
+  SparkDepositBorrowOperation,
+} from './borrow/deposit-borrow'
+import {
+  openDepositBorrow as sparkOpenDepositBorrow,
+  SparkOpenDepositBorrowOperation,
+} from './borrow/open-deposit-and-borrow'
+import {
+  paybackWithdraw as sparkPaybackWithdraw,
+  SparkPaybackWithdrawOperation,
+} from './borrow/payback-withdraw'
 
 const borrow = {
-  borrow: SparkBorrow,
-  deposit: SparkDeposit,
-  depositBorrow: SparkDepositBorrow,
-  openDepositBorrow: SparkOpenDepositBorrow,
-  paybackWithdraw: SparkPaybackWithdraw,
+  borrow: sparkBorrow,
+  deposit: sparkDeposit,
+  depositBorrow: sparkDepositBorrow,
+  openDepositBorrow: sparkOpenDepositBorrow,
+  paybackWithdraw: sparkPaybackWithdraw,
 }
 const multiply = {}
 
@@ -17,12 +26,15 @@ export type SparkOperations = {
   borrow: {
     borrow: SparkBorrowOperation
     deposit: SparkDepositOperation
+    depositBorrow: SparkDepositBorrowOperation
+    openDepositBorrow: SparkOpenDepositBorrowOperation
+    paybackWithdraw: SparkPaybackWithdrawOperation
   }
   // TODO: Add multiply operations once adjusted for balancer
   multiply: object
 }
 
-export const sparkOperations = {
+export const sparkOperations: SparkOperations = {
   borrow,
   multiply,
 }
