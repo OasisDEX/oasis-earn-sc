@@ -23,6 +23,10 @@ export type WithAaveEntryToken = {
   entryToken: { symbol: AAVETokens; precision?: number }
 }
 
+export type WithAaveLikeEntryToken = {
+  entryToken: { symbol: AaveLikeTokens; precision?: number }
+}
+
 export type WithAaveStrategyArgs = {
   collateralToken: { symbol: AAVETokens; precision?: number }
   debtToken: { symbol: AAVETokens; precision?: number }

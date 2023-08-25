@@ -77,9 +77,12 @@ async function buildOperation(
   dependencies: AaveLikeDepositBorrowDependencies,
 ): Promise<IOperation> {
   const positionType: PositionType = 'Borrow'
-  const protocolOperations = resolveAaveLikeOperations(dependencies.protocolType, positionType)
+  const aaveLikeBorrowOperations = resolveAaveLikeOperations(
+    dependencies.protocolType,
+    positionType,
+  )
 
-  return protocolOperations.depositBorrow(
+  return aaveLikeBorrowOperations.depositBorrow(
     depositArgs,
     borrowArgs,
     dependencies.addresses,
