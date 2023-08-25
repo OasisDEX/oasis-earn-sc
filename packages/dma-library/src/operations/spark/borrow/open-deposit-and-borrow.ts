@@ -1,15 +1,18 @@
 import { OperationNames } from '@deploy-configurations/constants'
-import { getAaveOpenDepositBorrowV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getSparkOpenDepositBorrowOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
-import { DepositArgs } from '@dma-library/operations/aave/common'
-import { AaveLikeStrategyAddresses, BorrowArgs } from '@dma-library/operations/aave-like'
+import {
+  AaveLikeStrategyAddresses,
+  BorrowArgs,
+  DepositArgs,
+} from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation, PositionType, Protocol } from '@dma-library/types'
 
 import { borrow } from './borrow'
 import { deposit } from './deposit'
 
-type AaveV3OpenDepositBorrowArgs = [
+type SparkOpenDepositBorrowArgs = [
   depositArgs: DepositArgs,
   borrowArgs: BorrowArgs,
   metaArgs: { protocol: Protocol; positionType: PositionType },
@@ -17,11 +20,11 @@ type AaveV3OpenDepositBorrowArgs = [
   network: Network,
 ]
 
-export type AaveV3OpenDepositBorrowOperation = (
-  ...args: AaveV3OpenDepositBorrowArgs
+export type SparkOpenDepositBorrowOperation = (
+  ...args: SparkOpenDepositBorrowArgs
 ) => Promise<IOperation>
 
-export const openDepositBorrow: AaveV3OpenDepositBorrowOperation = async (
+export const openDepositBorrow: SparkOpenDepositBorrowOperation = async (
   depositArgs,
   borrowArgs,
   { protocol, positionType },
@@ -46,7 +49,7 @@ export const openDepositBorrow: AaveV3OpenDepositBorrowOperation = async (
 
   return {
     calls: [...depositCalls, ...borrowCalls, positionCreatedEvent],
-    operationName: getAaveOpenDepositBorrowV3OperationDefinition(network).name,
+    operationName: getSparkOpenDepositBorrowOperationDefinition(network).name,
   } as {
     // Import ActionCall as it assists type generation
     calls: ActionCall[]
