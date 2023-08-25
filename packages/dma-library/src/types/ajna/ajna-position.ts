@@ -35,12 +35,6 @@ export interface IAjnaPosition {
   netValue: BigNumber
   buyingPower: BigNumber
 
-  pnl(
-    cumulativeDepositUSD: BigNumber,
-    cumulativeWithdrawnUSD: BigNumber,
-    cumulativeFeesUSD: BigNumber,
-  ): BigNumber
-
   debtAvailable(collateralAmount: BigNumber): BigNumber
 
   originationFee(amount: BigNumber): BigNumber
@@ -65,6 +59,10 @@ export class AjnaPosition implements IAjnaPosition {
     public collateralPrice: BigNumber,
     public quotePrice: BigNumber,
     public t0NeutralPrice: BigNumber,
+    public pnl: {
+      withFees: BigNumber
+      withoutFees: BigNumber
+    },
   ) {}
 
   get liquidationPrice() {
@@ -138,22 +136,6 @@ export class AjnaPosition implements IAjnaPosition {
       .minus(this.debtAmount.times(this.quotePrice))
   }
 
-  pnl(
-    cumulativeDepositUSD: BigNumber,
-    cumulativeWithdrawnUSD: BigNumber,
-    cumulativeFeesUSD: BigNumber,
-  ): BigNumber {
-    if (cumulativeDepositUSD.isZero()) {
-      return ZERO
-    }
-
-    return cumulativeWithdrawnUSD
-      .plus(this.netValue)
-      .minus(cumulativeFeesUSD)
-      .minus(cumulativeDepositUSD)
-      .div(cumulativeDepositUSD)
-  }
-
   debtAvailable(collateralAmount?: BigNumber) {
     return calculateMaxGenerate(
       this.pool,
@@ -179,6 +161,7 @@ export class AjnaPosition implements IAjnaPosition {
       this.collateralPrice,
       this.quotePrice,
       this.t0NeutralPrice,
+      this.pnl,
     )
   }
 
@@ -192,6 +175,7 @@ export class AjnaPosition implements IAjnaPosition {
       this.collateralPrice,
       this.quotePrice,
       this.t0NeutralPrice,
+      this.pnl,
     )
   }
 
@@ -205,6 +189,7 @@ export class AjnaPosition implements IAjnaPosition {
       this.collateralPrice,
       this.quotePrice,
       this.t0NeutralPrice,
+      this.pnl,
     )
   }
 
@@ -218,6 +203,7 @@ export class AjnaPosition implements IAjnaPosition {
       this.collateralPrice,
       this.quotePrice,
       this.t0NeutralPrice,
+      this.pnl,
     )
   }
 
@@ -230,6 +216,7 @@ export class AjnaPosition implements IAjnaPosition {
       this.collateralPrice,
       this.quotePrice,
       this.t0NeutralPrice,
+      this.pnl,
     )
   }
 }

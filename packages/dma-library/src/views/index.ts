@@ -1,4 +1,4 @@
-import type { GetEarnData } from './ajna/index'
+import type { GetCumulativesData, GetEarnData } from './ajna/index'
 import { getEarnPosition, getPosition } from './ajna/index'
 
 const ajna = {
@@ -8,5 +8,5 @@ const ajna = {
 const views = {
   ajna,
 }
-export { GetEarnData }
+export { GetCumulativesData, GetEarnData }
 export { views }

@@ -31,6 +31,7 @@ export const open: AjnaOpenBorrowStrategy = async (args, dependencies) => {
       poolInfoAddress: dependencies.poolInfoAddress,
       provider: dependencies.provider,
       getPoolData: dependencies.getPoolData,
+      getCumulatives: dependencies.getCumulatives,
     },
   )
 
