@@ -24,7 +24,7 @@ export type AdjustRiskUpArgs = WithCollateral &
   WithAaveLikeStrategyAddresses &
   WithNetwork
 
-export type AaveV3AdjustUpOperation = ({
+export type SparkAdjustUpOperation = ({
   collateral,
   debt,
   deposit,
@@ -35,7 +35,8 @@ export type AaveV3AdjustUpOperation = ({
   network,
 }: AdjustRiskUpArgs) => Promise<IOperation>
 
-export const adjustRiskUp: AaveV3AdjustUpOperation = async ({
+// TODO: Adjust for Spark and make Balancer flow compatible
+export const adjustRiskUp: SparkAdjustUpOperation = async ({
   collateral,
   debt,
   deposit,

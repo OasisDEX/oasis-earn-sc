@@ -1,8 +1,8 @@
 import { borrow as SparkBorrow, SparkBorrowOperation } from './borrow/borrow'
 import { deposit as SparkDeposit, SparkDepositOperation } from './borrow/deposit'
-import { depositBorrow as SparkDepositBorrow } from './borrow/depositBorrow'
-import { openDepositBorrow as SparkOpenDepositBorrow } from './borrow/openDepositBorrow'
-import { paybackWithdraw as SparkPaybackWithdraw } from './borrow/paybackWithdraw'
+import { depositBorrow as SparkDepositBorrow } from './borrow/deposit-borrow'
+import { openDepositBorrow as SparkOpenDepositBorrow } from './borrow/open-deposit-and-borrow'
+import { paybackWithdraw as SparkPaybackWithdraw } from './borrow/payback-withdraw'
 
 const borrow = {
   borrow: SparkBorrow,
@@ -18,7 +18,8 @@ export type SparkOperations = {
     borrow: SparkBorrowOperation
     deposit: SparkDepositOperation
   }
-  multiply: {}
+  // TODO: Add multiply operations once adjusted for balancer
+  multiply: object
 }
 
 export const sparkOperations = {

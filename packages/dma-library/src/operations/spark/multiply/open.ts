@@ -29,7 +29,7 @@ export type OpenOperationArgs = WithCollateral &
   WithAaveLikeStrategyAddresses &
   WithNetwork
 
-export type AaveV3OpenOperation = ({
+export type SparkOpenOperation = ({
   collateral,
   debt,
   deposit,
@@ -42,7 +42,8 @@ export type AaveV3OpenOperation = ({
   network,
 }: OpenOperationArgs) => Promise<IOperation>
 
-export const open: AaveV3OpenOperation = async ({
+// TODO: Adjust for Spark and make Balancer flow compatible
+export const open: SparkOpenOperation = async ({
   collateral,
   debt,
   deposit,

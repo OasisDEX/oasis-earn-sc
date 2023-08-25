@@ -23,7 +23,7 @@ export type CloseArgs = WithCollateral &
   WithAaveLikeStrategyAddresses &
   WithNetwork
 
-export type AaveV3CloseOperation = ({
+export type SparkCloseOperation = ({
   collateral,
   debt,
   swap,
@@ -34,7 +34,8 @@ export type AaveV3CloseOperation = ({
   network,
 }: CloseArgs) => Promise<IOperation>
 
-export const close: AaveV3CloseOperation = async ({
+// TODO: Adjust for Spark and make Balancer flow compatible
+export const close: SparkCloseOperation = async ({
   collateral,
   debt,
   swap,
