@@ -1,2 +1,6 @@
 export { depositBorrow } from './deposit-borrow'
-export { AaveLikeDepositBorrow, AaveLikeDepositBorrowDependencies } from './types'
+export {
+  AaveLikeDepositBorrow,
+  AaveLikeDepositBorrowArgs,
+  AaveLikeDepositBorrowDependencies,
+} from './types'

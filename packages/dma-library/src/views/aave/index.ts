@@ -1,28 +1,26 @@
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveProtocolData } from '@dma-library/protocols/aave'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
-import { IViewPositionDependencies, IViewPositionParams } from '@dma-library/types'
-import { AavePosition, AAVETokens, AaveVersion } from '@dma-library/types/aave'
+import { AavePosition } from '@dma-library/types/aave'
+import {
+  AaveGetCurrentPositionArgs,
+  AaveGetCurrentPositionDependencies,
+  AaveV2GetCurrentPositionDependencies,
+  AaveV3GetCurrentPositionDependencies,
+} from '@dma-library/views/aave/types'
 import BigNumber from 'bignumber.js'
 
-export type AaveGetCurrentPositionArgs = IViewPositionParams<AAVETokens>
-export type AaveV2GetCurrentPositionDependencies =
-  IViewPositionDependencies<AaveLikeStrategyAddresses> & {
-    protocolVersion: AaveVersion.v2
-  }
-export type AaveV3GetCurrentPositionDependencies =
-  IViewPositionDependencies<AaveLikeStrategyAddresses> & {
-    protocolVersion: AaveVersion.v3
-  }
+export type AaveView = {
+  getCurrentPosition: AaveGetCurrentPosition
+  v2: AaveV2GetCurrentPosition
+  v3: AaveV3GetCurrentPosition
+}
 
-export type AaveGetCurrentPositionDependencies =
-  | AaveV2GetCurrentPositionDependencies
-  | AaveV3GetCurrentPositionDependencies
-
-export async function getCurrentPosition(
+export type AaveGetCurrentPosition = (
   args: AaveGetCurrentPositionArgs,
-  dependencies: AaveGetCurrentPositionDependencies,
-): Promise<AavePosition> {
+  addresses: AaveGetCurrentPositionDependencies,
+) => Promise<AavePosition>
+
+export const getCurrentPosition: AaveGetCurrentPosition = async (args, dependencies) => {
   if (
     AaveCommon.isV2<AaveGetCurrentPositionDependencies, AaveV2GetCurrentPositionDependencies>(
       dependencies,
@@ -40,10 +38,12 @@ export async function getCurrentPosition(
   }
 }
 
-async function getCurrentPositionAaveV2(
+export type AaveV2GetCurrentPosition = (
   args: AaveGetCurrentPositionArgs,
-  dependencies: AaveV2GetCurrentPositionDependencies,
-): Promise<AavePosition> {
+  addresses: AaveV2GetCurrentPositionDependencies,
+) => Promise<AavePosition>
+
+export const getCurrentPositionAaveV2: AaveV2GetCurrentPosition = async (args, dependencies) => {
   const debtToken = args.debtToken
   const collateralToken = args.collateralToken
   const { collateralTokenAddress, debtTokenAddress } = AaveCommon.getAaveTokenAddresses(
@@ -109,10 +109,12 @@ async function getCurrentPositionAaveV2(
   )
 }
 
-async function getCurrentPositionAaveV3(
+export type AaveV3GetCurrentPosition = (
   args: AaveGetCurrentPositionArgs,
-  dependencies: AaveV3GetCurrentPositionDependencies,
-): Promise<AavePosition> {
+  addresses: AaveV3GetCurrentPositionDependencies,
+) => Promise<AavePosition>
+
+export const getCurrentPositionAaveV3: AaveV3GetCurrentPosition = async (args, dependencies) => {
   const debtToken = args.debtToken
   const collateralToken = args.collateralToken
   const { collateralTokenAddress, debtTokenAddress } = AaveCommon.getAaveTokenAddresses(

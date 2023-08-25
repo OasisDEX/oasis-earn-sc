@@ -39,6 +39,7 @@ const resolveProtocolKeyConfig = (
 export function isAaveOperation(op: any): op is AaveBorrowOperations | AaveMultiplyOperations {
   return op && ('v2' in op || 'v3' in op)
 }
+
 export function resolveAaveLikeOperations(
   protocolType: AaveLikeProtocol,
   positionType: PositionType,
