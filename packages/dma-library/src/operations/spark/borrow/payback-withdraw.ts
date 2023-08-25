@@ -1,4 +1,4 @@
-import { getAavePaybackWithdrawV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getSparkPaybackWithdrawOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
@@ -20,9 +20,9 @@ type PaybackWithdrawArgs = {
   network: Network
 }
 
-export type AaveV3PaybackWithdrawOperation = (args: PaybackWithdrawArgs) => Promise<IOperation>
+export type SparkPaybackWithdrawOperation = (args: PaybackWithdrawArgs) => Promise<IOperation>
 
-export const paybackWithdraw: AaveV3PaybackWithdrawOperation = async args => {
+export const paybackWithdraw: SparkPaybackWithdrawOperation = async args => {
   const { network } = args
   const pullDebtTokensToProxy = actions.common.pullToken(network, {
     asset: args.debtTokenAddress,
@@ -38,7 +38,7 @@ export const paybackWithdraw: AaveV3PaybackWithdrawOperation = async args => {
   const wrapEth = actions.common.wrapEth(network, {
     amount: args.amountDebtToPaybackInBaseUnit,
   })
-  const paybackDebt = actions.aave.v3.aaveV3Payback(args.network, {
+  const paybackDebt = actions.spark.payback(args.network, {
     asset: args.debtTokenAddress,
     amount: args.amountDebtToPaybackInBaseUnit,
     paybackAll: args.isPaybackAll,
@@ -50,7 +50,7 @@ export const paybackWithdraw: AaveV3PaybackWithdrawOperation = async args => {
     asset: args.debtTokenIsEth ? args.addresses.tokens.ETH : args.debtTokenAddress,
   })
 
-  const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw(args.network, {
+  const withdrawCollateralFromAAVE = actions.spark.withdraw(args.network, {
     asset: args.collateralTokenAddress,
     amount: args.amountCollateralToWithdrawInBaseUnit,
     to: args.proxy,
@@ -89,6 +89,6 @@ export const paybackWithdraw: AaveV3PaybackWithdrawOperation = async args => {
 
   return {
     calls: calls,
-    operationName: getAavePaybackWithdrawV3OperationDefinition(args.network).name,
+    operationName: getSparkPaybackWithdrawOperationDefinition(args.network).name,
   }
 }
