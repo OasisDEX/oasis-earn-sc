@@ -12,19 +12,19 @@ export type BorrowV2Operation = (
 ) => Promise<IOperation>
 
 export const borrow: BorrowV2Operation = async (
-  { borrowToken, amountInBaseUnit, account, isEthToken },
+  { borrowToken, amount, account, isEthToken },
   addresses,
   network,
 ) => {
   // Import ActionCall as it assists type generation
   const calls: ActionCall[] = [
     actions.aave.v2.aaveBorrow(network, {
-      amount: amountInBaseUnit,
+      amount: amount,
       asset: borrowToken,
       to: account,
     }),
     actions.common.unwrapEth(network, {
-      amount: amountInBaseUnit,
+      amount: amount,
     }),
     actions.common.returnFunds(network, {
       asset: isEthToken ? addresses.tokens.ETH : borrowToken,

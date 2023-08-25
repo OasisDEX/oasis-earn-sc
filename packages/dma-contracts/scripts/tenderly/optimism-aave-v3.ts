@@ -1,19 +1,17 @@
 import { optimismConfig } from '@deploy-configurations/configs'
 import { getOneInchCall, optimismLiquidityProviders } from '@dma-common/test-utils'
-import { AaveGetCurrentPositionDependencies } from '@dma-library/views/aave'
-import { RiskRatio } from '@domain'
+import { AaveVersion, strategies } from '@dma-library'
 import {
   AaveAdjustArgs,
-  AaveCloseArgs,
-  AaveCloseDependencies,
-  AaveGetCurrentPositionArgs,
-  AaveOpenArgs,
-  AaveOpenSharedDependencies,
   AaveV3AdjustDependencies,
-  AaveVersion,
-  strategies,
-  WithV3Addresses,
-} from '@oasisdex/dma-library'
+} from '@dma-library/strategies/aave/multiply/adjust'
+import { AaveCloseArgs, AaveCloseDependencies } from '@dma-library/strategies/aave/multiply/close'
+import { AaveOpenArgs, AaveOpenDependencies } from '@dma-library/strategies/aave/multiply/open'
+import {
+  AaveGetCurrentPositionArgs,
+  AaveGetCurrentPositionDependencies,
+} from '@dma-library/views/aave'
+import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 import { ContractReceipt, ContractTransaction } from 'ethers'
 import hre from 'hardhat'
@@ -84,22 +82,24 @@ async function main() {
     },
   }
 
-  const dependencies: AaveOpenSharedDependencies & WithV3Addresses = {
+  const dependencies: Omit<AaveOpenDependencies, 'protocol'> = {
     network: 'optimism' as any,
     addresses: {
-      DAI: optimismConfig.common.DAI.address,
-      ETH: optimismConfig.common.ETH.address,
-      WETH: optimismConfig.common.WETH.address,
-      USDC: optimismConfig.common.USDC.address,
-      WBTC: optimismConfig.common.WBTC.address,
-      WSTETH: optimismConfig.common.WSTETH.address,
-      CBETH: optimismConfig.common.CBETH.address,
-      RETH: optimismConfig.common.RETH.address,
-      pool: optimismConfig.aave.v3.Pool.address,
-      aaveOracle: optimismConfig.aave.v3.AaveOracle.address,
+      tokens: {
+        DAI: optimismConfig.common.DAI.address,
+        ETH: optimismConfig.common.ETH.address,
+        WETH: optimismConfig.common.WETH.address,
+        USDC: optimismConfig.common.USDC.address,
+        WBTC: optimismConfig.common.WBTC.address,
+        WSTETH: optimismConfig.common.WSTETH.address,
+        CBETH: optimismConfig.common.CBETH.address,
+        RETH: optimismConfig.common.RETH.address,
+      },
+      lendingPool: optimismConfig.aave.v3.LendingPool.address,
+      oracle: optimismConfig.aave.v3.Oracle.address,
       operationExecutor: optimismConfig.mpa.core.OperationExecutor.address,
       chainlinkEthUsdPriceFeed: optimismConfig.common.ChainlinkPriceOracle_ETHUSD.address,
-      poolDataProvider: optimismConfig.aave.v3.AavePoolDataProvider.address,
+      poolDataProvider: optimismConfig.aave.v3.PoolDataProvider.address,
     },
     provider: hre.ethers.provider,
     user: await signer.getAddress(),

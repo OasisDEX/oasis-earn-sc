@@ -1,4 +1,6 @@
 import { AAVETokens, PositionType } from '@dma-library/types'
+import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
+import { WithAaveStrategyDependencies, WithSwap } from '@dma-library/types/strategy-params'
 import { IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 
@@ -13,3 +15,11 @@ export interface AaveOpenArgs {
   collateralToken: { symbol: AAVETokens; precision?: number }
   debtToken: { symbol: AAVETokens; precision?: number }
 }
+
+export type AaveV2OpenDependencies = Omit<WithAaveStrategyDependencies, 'currentPosition'> &
+  WithV2Protocol &
+  WithSwap
+export type AaveV3OpenDependencies = Omit<WithAaveStrategyDependencies, 'currentPosition'> &
+  WithV3Protocol &
+  WithSwap
+export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependencies

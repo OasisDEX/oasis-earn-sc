@@ -19,18 +19,19 @@ import { getAaveTokenAddress, getAaveTokenAddresses } from '@dma-library/strateg
 import { IOperation, PositionTransition, SwapData } from '@dma-library/types'
 import { AAVETokens } from '@dma-library/types/aave'
 import { WithFee } from '@dma-library/types/aave/fee'
-import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
-import { WithAaveStrategyDependencies, WithSwap } from '@dma-library/types/strategy-params'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { IBaseSimulatedTransition, Position } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { AaveOpenArgs } from './types'
+import {
+  AaveOpenArgs,
+  AaveOpenDependencies,
+  AaveV2OpenDependencies,
+  AaveV3OpenDependencies,
+} from './types'
 
-export type AaveV2OpenDependencies = WithAaveStrategyDependencies & WithV2Protocol & WithSwap
-export type AaveV3OpenDependencies = WithAaveStrategyDependencies & WithV3Protocol & WithSwap
-export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependencies
+export { AaveOpenDependencies, AaveV2OpenDependencies, AaveV3OpenDependencies } from './types'
 
 export async function open(
   args: AaveOpenArgs,
