@@ -18,6 +18,11 @@ export const getAaveTokenAddress = (
     CBETH: 'CBETH' in addresses ? addresses.CBETH : EMPTY_ADDRESS,
     RETH: 'RETH' in addresses ? addresses.RETH : EMPTY_ADDRESS,
     DAI: addresses.DAI,
+    SDAI: 'SDAI' in addresses ? addresses.SDAI : EMPTY_ADDRESS,
+    GHO: 'GHO' in addresses ? addresses.GHO : EMPTY_ADDRESS,
+    USDT: 'USDT' in addresses ? addresses.USDT : EMPTY_ADDRESS,
+    LUSD: 'LUSD' in addresses ? addresses.LUSD : EMPTY_ADDRESS,
+    FRAX: 'FRAX' in addresses ? addresses.FRAX : EMPTY_ADDRESS,
   }
   const tokenAddress = tokenAddresses[token.symbol]
 
