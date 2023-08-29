@@ -18,7 +18,7 @@ export type SparkProtocolDataArgs = {
   proxy?: string
 }
 
-export type SparkProtocolData = (args: SparkProtocolDataArgs) => Promise<{
+export type SparkProtocolData = {
   aaveFlashloanAssetPriceInEth: PriceResult
   aaveDebtTokenPriceInEth: PriceResult
   aaveCollateralTokenPriceInEth: PriceResult
@@ -28,9 +28,11 @@ export type SparkProtocolData = (args: SparkProtocolDataArgs) => Promise<{
   userReserveDataForDebtToken: any
   userReserveDataForCollateral: any
   eModeCategoryData: any
-}>
+}
 
-export const getSparkProtocolData: SparkProtocolData = async args => {
+export type GetSparkProtocolData = (args: SparkProtocolDataArgs) => Promise<SparkProtocolData>
+
+export const getSparkProtocolData: GetSparkProtocolData = async args => {
   const {
     addresses,
     provider,

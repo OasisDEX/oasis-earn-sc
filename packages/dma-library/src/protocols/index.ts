@@ -1,15 +1,25 @@
-import { AaveProtocolData, AaveProtocolDataArgs, getAaveProtocolData } from './aave'
+import {
+  AaveProtocolData,
+  AaveProtocolDataArgs,
+  GetAaveProtocolData,
+  getAaveProtocolData,
+} from './aave'
 import { calculateAjnaApyPerDays } from './ajna'
-import { getSparkProtocolData, SparkProtocolData, SparkProtocolDataArgs } from './spark'
+import {
+  GetSparkProtocolData,
+  getSparkProtocolData,
+  SparkProtocolData,
+  SparkProtocolDataArgs,
+} from './spark'
 
 const aave: {
-  getAaveProtocolData: typeof getAaveProtocolData
+  getAaveProtocolData: GetAaveProtocolData
 } = {
   getAaveProtocolData,
 }
 
 const spark: {
-  getSparkProtocolData: typeof getSparkProtocolData
+  getSparkProtocolData: GetSparkProtocolData
 } = {
   getSparkProtocolData,
 }

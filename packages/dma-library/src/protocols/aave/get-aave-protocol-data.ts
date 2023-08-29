@@ -24,7 +24,7 @@ export type AaveProtocolDataArgs =
   | (SharedAaveProtocolDataArgs & { protocolVersion: AaveVersion.v2 })
   | (SharedAaveProtocolDataArgs & { protocolVersion: AaveVersion.v3 })
 
-export type AaveProtocolData = (args: AaveProtocolDataArgs) => Promise<{
+export type AaveProtocolData = {
   aaveFlashloanAssetPriceInEth: PriceResult
   aaveDebtTokenPriceInEth: PriceResult
   aaveCollateralTokenPriceInEth: PriceResult
@@ -34,9 +34,11 @@ export type AaveProtocolData = (args: AaveProtocolDataArgs) => Promise<{
   userReserveDataForDebtToken: any
   userReserveDataForCollateral: any
   eModeCategoryData: any | undefined
-}>
+}
 
-export const getAaveProtocolData: AaveProtocolData = async args => {
+export type GetAaveProtocolData = (args: AaveProtocolDataArgs) => Promise<AaveProtocolData>
+
+export const getAaveProtocolData: GetAaveProtocolData = async args => {
   if (
     AaveCommon.isV2<
       AaveProtocolDataArgs,

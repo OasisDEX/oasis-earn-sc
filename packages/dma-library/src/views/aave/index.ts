@@ -10,6 +10,11 @@ import {
 import { ensureOraclePricesDefined } from '@dma-library/views/aave-like'
 import BigNumber from 'bignumber.js'
 
+export {
+  AaveGetCurrentPositionArgs,
+  AaveV2GetCurrentPositionDependencies,
+  AaveV3GetCurrentPositionDependencies,
+}
 export type AaveView = {
   getCurrentPosition: AaveGetCurrentPosition
   v2: AaveV2GetCurrentPosition

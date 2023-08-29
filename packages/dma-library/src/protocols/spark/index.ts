@@ -1,4 +1,5 @@
 export {
+  GetSparkProtocolData,
   getSparkProtocolData,
   SparkProtocolData,
   SparkProtocolDataArgs,
