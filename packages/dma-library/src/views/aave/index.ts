@@ -17,8 +17,14 @@ export {
 }
 export type AaveView = {
   getCurrentPosition: AaveGetCurrentPosition
-  v2: AaveV2GetCurrentPosition
-  v3: AaveV3GetCurrentPosition
+  v2: (
+    args: AaveGetCurrentPositionArgs,
+    dependencies: Omit<AaveV2GetCurrentPositionDependencies, 'protocolVersion'>,
+  ) => Promise<AavePosition>
+  v3: (
+    args: AaveGetCurrentPositionArgs,
+    dependencies: Omit<AaveV3GetCurrentPositionDependencies, 'protocolVersion'>,
+  ) => Promise<AavePosition>
 }
 
 export type AaveGetCurrentPosition = (
@@ -46,7 +52,7 @@ export const getCurrentPosition: AaveGetCurrentPosition = async (args, dependenc
 
 export type AaveV2GetCurrentPosition = (
   args: AaveGetCurrentPositionArgs,
-  addresses: AaveV2GetCurrentPositionDependencies,
+  dependencies: AaveV2GetCurrentPositionDependencies,
 ) => Promise<AavePosition>
 
 export const getCurrentPositionAaveV2: AaveV2GetCurrentPosition = async (args, dependencies) => {
@@ -117,7 +123,7 @@ export const getCurrentPositionAaveV2: AaveV2GetCurrentPosition = async (args, d
 
 export type AaveV3GetCurrentPosition = (
   args: AaveGetCurrentPositionArgs,
-  addresses: AaveV3GetCurrentPositionDependencies,
+  dependencies: AaveV3GetCurrentPositionDependencies,
 ) => Promise<AavePosition>
 
 export const getCurrentPositionAaveV3: AaveV3GetCurrentPosition = async (args, dependencies) => {
