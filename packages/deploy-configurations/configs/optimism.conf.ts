@@ -364,7 +364,7 @@ export const config: SystemConfig = {
     ETH: { name: 'ETH', address: '0x4200000000000000000000000000000000000006' },
     FRAX: {
       name: 'FRAX',
-      address: '0x853d955acef822db058eb8505911ed77f175b99e', // TODO: Change to optimism address
+      address: ADDRESS_ZERO,
     },
     GHO: { name: 'GHO', address: ADDRESS_ZERO },
     GNO: { name: 'GNO', address: ADDRESS_ZERO },
@@ -383,7 +383,7 @@ export const config: SystemConfig = {
     LRC: { name: 'LRC', address: ADDRESS_ZERO },
     LUSD: {
       name: 'LUSD',
-      address: '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0', // TODO:Change to optimism address
+      address: ADDRESS_ZERO,
     },
     MANA: { name: 'MANA', address: ADDRESS_ZERO },
     MATIC: { name: 'MATIC', address: ADDRESS_ZERO },
