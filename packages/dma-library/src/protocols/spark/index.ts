@@ -1,5 +1,5 @@
 export {
-  AaveProtocolData,
-  AaveProtocolDataArgs,
-  getAaveProtocolData,
-} from './get-aave-protocol-data'
+  getSparkProtocolData,
+  SparkProtocolData,
+  SparkProtocolDataArgs,
+} from './get-spark-protocol-data'

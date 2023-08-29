@@ -1,4 +1,3 @@
-import { getAaveProtocolData } from '@dma-library/protocols/aave'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { AavePosition } from '@dma-library/types/aave'
 import {
@@ -8,7 +7,7 @@ import {
 import BigNumber from 'bignumber.js'
 
 export type SparkView = {
-  getCurrentPosition: any
+  getCurrentPosition: SparkGetCurrentPosition
 }
 
 export type SparkGetCurrentPosition = (
@@ -27,7 +26,7 @@ export const getCurrentPosition: SparkGetCurrentPosition = async (args, dependen
     dependencies.addresses,
   )
 
-  const protocolData = await getAaveProtocolData({
+  const protocolData = await getSparkProtocolData({
     collateralTokenAddress,
     debtTokenAddress,
     addresses: dependencies.addresses,
