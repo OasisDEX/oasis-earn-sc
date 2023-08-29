@@ -111,16 +111,23 @@ type SharedStrategyDependencies = {
   currentPosition: IPosition
   proxy: Address
   user: Address
-  isDPMProxy: boolean
   network: Network
 }
+
 export type WithAaveStrategyDependencies = {
   addresses: AaveLikeStrategyAddresses
 } & SharedStrategyDependencies
+
+export type WithAaveMultiplyStrategyDependencies = WithAaveStrategyDependencies & WithDPMFlag
+
 export type WithAaveLikeStrategyDependencies = {
   addresses: AaveLikeStrategyAddresses
 } & SharedStrategyDependencies &
   WithAaveLikeProtocolType
+
+export type WithDPMFlag = {
+  isDPMProxy: boolean
+}
 
 export type WithSwap = {
   getSwapData: (
