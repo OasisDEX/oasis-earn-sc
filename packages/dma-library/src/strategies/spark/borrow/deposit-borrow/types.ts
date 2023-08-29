@@ -6,7 +6,10 @@ export type SparkDepositBorrowArgs = StrategyParams.WithAaveLikeBorrowStrategyAr
   StrategyParams.WithDepositCollateral &
   StrategyParams.WithBorrowDebt
 
-export type SparkDepositBorrowDependencies = StrategyParams.WithAaveLikeStrategyDependencies &
+export type SparkDepositBorrowDependencies = Omit<
+  StrategyParams.WithAaveLikeStrategyDependencies,
+  'protocolType'
+> &
   StrategyParams.WithOptionalSwap
 
 export type IDepositBorrowStrategy = Strategies.IStrategy & {

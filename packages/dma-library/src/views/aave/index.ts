@@ -3,7 +3,6 @@ import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { AavePosition } from '@dma-library/types/aave'
 import {
   AaveGetCurrentPositionArgs,
-  AaveGetCurrentPositionDependencies,
   AaveV2GetCurrentPositionDependencies,
   AaveV3GetCurrentPositionDependencies,
 } from '@dma-library/views/aave/types'
@@ -16,7 +15,6 @@ export {
   AaveV3GetCurrentPositionDependencies,
 }
 export type AaveView = {
-  getCurrentPosition: AaveGetCurrentPosition
   v2: (
     args: AaveGetCurrentPositionArgs,
     dependencies: Omit<AaveV2GetCurrentPositionDependencies, 'protocolVersion'>,
@@ -25,29 +23,6 @@ export type AaveView = {
     args: AaveGetCurrentPositionArgs,
     dependencies: Omit<AaveV3GetCurrentPositionDependencies, 'protocolVersion'>,
   ) => Promise<AavePosition>
-}
-
-export type AaveGetCurrentPosition = (
-  args: AaveGetCurrentPositionArgs,
-  addresses: AaveGetCurrentPositionDependencies,
-) => Promise<AavePosition>
-
-export const getCurrentPosition: AaveGetCurrentPosition = async (args, dependencies) => {
-  if (
-    AaveCommon.isV2<AaveGetCurrentPositionDependencies, AaveV2GetCurrentPositionDependencies>(
-      dependencies,
-    )
-  ) {
-    return getCurrentPositionAaveV2(args, dependencies)
-  } else if (
-    AaveCommon.isV3<AaveGetCurrentPositionDependencies, AaveV3GetCurrentPositionDependencies>(
-      dependencies,
-    )
-  ) {
-    return getCurrentPositionAaveV3(args, dependencies)
-  } else {
-    throw new Error('Invalid Aave version')
-  }
 }
 
 export type AaveV2GetCurrentPosition = (

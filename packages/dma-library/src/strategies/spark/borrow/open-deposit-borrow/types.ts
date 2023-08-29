@@ -9,7 +9,10 @@ export type SparkOpenDepositBorrowArgs = SparkDepositBorrowArgs
 
 type IOpenDepositBorrowStrategy = IDepositBorrowStrategy
 
-export type SparkOpenDepositBorrowDependencies = SparkDepositBorrowDependencies &
+export type SparkOpenDepositBorrowDependencies = Omit<
+  SparkDepositBorrowDependencies,
+  'currentPosition'
+> &
   StrategyParams.WithPositionType
 export type SparkOpenDepositBorrow = (
   args: SparkOpenDepositBorrowArgs,

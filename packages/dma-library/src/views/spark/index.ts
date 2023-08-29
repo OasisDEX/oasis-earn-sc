@@ -8,16 +8,14 @@ import {
 } from '@dma-library/views/spark/types'
 import BigNumber from 'bignumber.js'
 
-export type SparkView = {
-  getCurrentPosition: SparkGetCurrentPosition
-}
+export type SparkView = SparkGetCurrentPosition
 
 export type SparkGetCurrentPosition = (
   args: SparkGetCurrentPositionArgs,
   addresses: SparkGetCurrentPositionDependencies,
 ) => Promise<AavePosition>
 
-export const getCurrentPosition: SparkGetCurrentPosition = async (args, dependencies) => {
+export const getCurrentSparkPosition: SparkGetCurrentPosition = async (args, dependencies) => {
   const debtToken = args.debtToken
   const collateralToken = args.collateralToken
   const { collateralTokenAddress, debtTokenAddress } = AaveCommon.getAaveTokenAddresses(

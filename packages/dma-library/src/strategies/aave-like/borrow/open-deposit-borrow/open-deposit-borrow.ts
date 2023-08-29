@@ -4,7 +4,6 @@ import { resolveAaveLikeOperations } from '@dma-library/operations/aave-like'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { IOperation } from '@dma-library/types'
-import { AaveVersion } from '@dma-library/types/aave'
 import * as SwapUtils from '@dma-library/utils/swap'
 import { isAaveView, resolveAavelikeViews } from '@dma-library/views/aave-like'
 import { IPosition } from '@domain'
@@ -127,10 +126,7 @@ async function resolveCurrentPositionForProtocol(
 
   if (isAaveView(view)) {
     if (!version) throw new Error('Version must be defined when using Aave view')
-    return await view.getCurrentPosition(
-      { ...args, proxy: dependencies.proxy },
-      { ...dependencies, protocolVersion: version as AaveVersion },
-    )
+    return await view[version]({ ...args, proxy: dependencies.proxy }, { ...dependencies })
   }
-  return await view.getCurrentPosition({ ...args, proxy: dependencies.proxy }, { ...dependencies })
+  return await view({ ...args, proxy: dependencies.proxy }, { ...dependencies })
 }

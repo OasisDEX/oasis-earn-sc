@@ -1,7 +1,7 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
 import { PositionTransition } from '@dma-library/types'
 import { AaveVersion } from '@dma-library/types/aave'
-import { getCurrentPosition } from '@dma-library/views/aave'
+import { views } from '@dma-library/views'
 
 import { AaveV2ChangeDebt, changeDebt } from './borrow/change-debt'
 import { AaveV2DepositBorrow, AaveV3DepositBorrow, depositBorrow } from './borrow/deposit-borrow'
@@ -34,7 +34,7 @@ export const aave: {
     v2: {
       changeDebt: AaveV2ChangeDebt
       depositBorrow: AaveV2DepositBorrow
-      openDepositAndBorrowDebt: AaveV2OpenDepositBorrow
+      openDepositBorrow: AaveV2OpenDepositBorrow
       paybackWithdraw: AaveV2PaybackWithdraw
     }
     v3: {
@@ -82,16 +82,16 @@ export const aave: {
           ...dependencies,
           protocol: {
             version: AaveVersion.v2,
-            getCurrentPosition,
+            getCurrentPosition: views.aave.v2,
             getProtocolData: getAaveProtocolData,
           },
         }),
-      openDepositAndBorrowDebt: (args, dependencies) =>
+      openDepositBorrow: (args, dependencies) =>
         openDepositBorrow(args, {
           ...dependencies,
           protocol: {
             version: AaveVersion.v2,
-            getCurrentPosition,
+            getCurrentPosition: views.aave.v2,
             getProtocolData: getAaveProtocolData,
           },
         }),
@@ -100,7 +100,7 @@ export const aave: {
           ...dependencies,
           protocol: {
             version: AaveVersion.v2,
-            getCurrentPosition,
+            getCurrentPosition: views.aave.v2,
             getProtocolData: getAaveProtocolData,
           },
         }),
@@ -111,7 +111,7 @@ export const aave: {
           ...dependencies,
           protocol: {
             version: AaveVersion.v3,
-            getCurrentPosition,
+            getCurrentPosition: views.aave.v3,
             getProtocolData: getAaveProtocolData,
           },
         }),
@@ -120,7 +120,7 @@ export const aave: {
           ...dependencies,
           protocol: {
             version: AaveVersion.v3,
-            getCurrentPosition,
+            getCurrentPosition: views.aave.v3,
             getProtocolData: getAaveProtocolData,
           },
         }),
@@ -129,7 +129,7 @@ export const aave: {
           ...dependencies,
           protocol: {
             version: AaveVersion.v3,
-            getCurrentPosition,
+            getCurrentPosition: views.aave.v3,
             getProtocolData: getAaveProtocolData,
           },
         }),
@@ -142,7 +142,7 @@ export const aave: {
           ...dependencies,
           protocol: {
             version: AaveVersion.v2,
-            getCurrentPosition,
+            getCurrentPosition: views.aave.v2,
             getProtocolData: getAaveProtocolData,
           },
         }),
@@ -153,7 +153,7 @@ export const aave: {
           ...dependencies,
           protocol: {
             version: AaveVersion.v2,
-            getCurrentPosition,
+            getCurrentPosition: views.aave.v2,
             getProtocolData: getAaveProtocolData,
           },
         }),
@@ -164,7 +164,7 @@ export const aave: {
           ...dependencies,
           protocol: {
             version: AaveVersion.v3,
-            getCurrentPosition,
+            getCurrentPosition: views.aave.v3,
             getProtocolData: getAaveProtocolData,
           },
         }),
@@ -175,7 +175,7 @@ export const aave: {
           ...dependencies,
           protocol: {
             version: AaveVersion.v3,
-            getCurrentPosition,
+            getCurrentPosition: views.aave.v3,
             getProtocolData: getAaveProtocolData,
           },
         }),
