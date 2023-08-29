@@ -7,11 +7,9 @@ import {
   fetchUserReserveData,
   getAaveLikeSystemContracts,
 } from '@dma-library/protocols/aave-like/utils'
-import * as AaveCommon from '@dma-library/strategies/aave/common'
-import { AaveVersion } from '@dma-library/types/aave'
 import { providers } from 'ethers'
 
-type SharedAaveProtocolDataArgs = {
+export type SparkProtocolDataArgs = {
   collateralTokenAddress: string
   debtTokenAddress: string
   addresses: AaveLikeStrategyAddresses
@@ -20,93 +18,33 @@ type SharedAaveProtocolDataArgs = {
   proxy?: string
 }
 
-export type AaveProtocolDataArgs =
-  | (SharedAaveProtocolDataArgs & { protocolVersion: AaveVersion.v2 })
-  | (SharedAaveProtocolDataArgs & { protocolVersion: AaveVersion.v3 })
-
-export type AaveProtocolData = {
+export type SparkProtocolData = {
   aaveFlashloanAssetPriceInEth: PriceResult
   aaveDebtTokenPriceInEth: PriceResult
   aaveCollateralTokenPriceInEth: PriceResult
   reserveDataForFlashloan: ReserveDataResult
   reserveDataForCollateral: ReserveDataResult
-  reserveEModeCategory: number | undefined
+  reserveEModeCategory: number
   userReserveDataForDebtToken: any
   userReserveDataForCollateral: any
-  eModeCategoryData: any | undefined
+  eModeCategoryData: any
 }
 
-export type GetAaveProtocolData = (args: AaveProtocolDataArgs) => Promise<AaveProtocolData>
+export type GetSparkProtocolData = (args: SparkProtocolDataArgs) => Promise<SparkProtocolData>
 
-export const getAaveProtocolData: GetAaveProtocolData = async args => {
-  if (
-    AaveCommon.isV2<
-      AaveProtocolDataArgs,
-      SharedAaveProtocolDataArgs & { protocolVersion: AaveVersion.v2 }
-    >(args)
-  ) {
-    return getAaveV2ProtocolData(args)
-  }
-  if (AaveCommon.isV3(args)) {
-    return getAaveV3ProtocolData(args)
-  }
-
-  throw new Error('Invalid Aave version')
-}
-
-async function getAaveV2ProtocolData({
-  addresses,
-  provider,
-  debtTokenAddress,
-  collateralTokenAddress,
-  flashloanTokenAddress,
-  proxy,
-}: SharedAaveProtocolDataArgs & { protocolVersion: AaveVersion.v2 }) {
-  const { oracle, poolDataProvider } = await getAaveLikeSystemContracts(addresses, provider, 'AAVE')
-
-  const [
-    flashloanPrice,
-    debtPrice,
-    collateralPrice,
-    flashloanReserveData,
-    collateralReserveData,
-    userDebtData,
-    userCollateralData,
-  ] = await Promise.all([
-    fetchAssetPrice(oracle, flashloanTokenAddress),
-    fetchAssetPrice(oracle, debtTokenAddress),
-    fetchAssetPrice(oracle, collateralTokenAddress),
-    fetchReserveData(poolDataProvider, flashloanTokenAddress),
-    fetchReserveData(poolDataProvider, collateralTokenAddress),
-    proxy ? fetchUserReserveData(poolDataProvider, debtTokenAddress, proxy) : undefined,
-    proxy ? fetchUserReserveData(poolDataProvider, collateralTokenAddress, proxy) : undefined,
-  ])
-
-  return {
-    aaveFlashloanAssetPriceInEth: flashloanPrice,
-    aaveDebtTokenPriceInEth: debtPrice,
-    aaveCollateralTokenPriceInEth: collateralPrice,
-    reserveDataForFlashloan: flashloanReserveData,
-    reserveDataForCollateral: collateralReserveData,
-    reserveEModeCategory: undefined,
-    userReserveDataForDebtToken: userDebtData,
-    userReserveDataForCollateral: userCollateralData,
-    eModeCategoryData: undefined,
-  }
-}
-
-async function getAaveV3ProtocolData({
-  addresses,
-  provider,
-  debtTokenAddress,
-  collateralTokenAddress,
-  flashloanTokenAddress,
-  proxy,
-}: SharedAaveProtocolDataArgs & { protocolVersion: AaveVersion.v3 }) {
+export const getSparkProtocolData: GetSparkProtocolData = async args => {
+  const {
+    addresses,
+    provider,
+    flashloanTokenAddress,
+    proxy,
+    debtTokenAddress,
+    collateralTokenAddress,
+  } = args
   const { oracle, poolDataProvider, pool } = await getAaveLikeSystemContracts(
     addresses,
     provider,
-    'AAVE_V3',
+    'Spark',
   )
 
   const [

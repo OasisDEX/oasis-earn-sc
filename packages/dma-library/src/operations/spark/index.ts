@@ -27,7 +27,7 @@ const multiply = {
   adjustRiskUp: {},
 }
 
-type SparkBorrowOperations = {
+export type SparkBorrowOperations = {
   borrow: SparkBorrowOperation
   deposit: SparkDepositOperation
   depositBorrow: SparkDepositBorrowOperation

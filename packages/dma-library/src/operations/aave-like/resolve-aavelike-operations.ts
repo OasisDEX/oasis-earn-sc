@@ -1,4 +1,5 @@
 import { AaveBorrowOperations, AaveMultiplyOperations, operations } from '@dma-library/operations'
+import { SparkBorrowOperations } from '@dma-library/operations/spark'
 import { PositionType } from '@dma-library/types'
 import { AaveLikeProtocol } from '@dma-library/types/protocol'
 
@@ -43,7 +44,7 @@ export function isAaveOperation(op: any): op is AaveBorrowOperations | AaveMulti
 export function resolveAaveLikeOperations(
   protocolType: AaveLikeProtocol,
   positionType: PositionType,
-) {
+): SparkBorrowOperations | AaveBorrowOperations['v2'] | AaveBorrowOperations['v3'] {
   const { protocol, type, version } = resolveProtocolKeyConfig(protocolType, positionType)
 
   if (protocol === 'aave' && !version) {
