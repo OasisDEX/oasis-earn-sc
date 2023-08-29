@@ -8,3 +8,8 @@ export type AAVETokens =
   | 'CBETH'
   | 'RETH'
   | 'DAI'
+  | 'SDAI'
+  | 'GHO'
+  | 'USDT'
+  | 'LUSD'
+  | 'FRAX'
