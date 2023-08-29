@@ -9,11 +9,15 @@ import {
 } from './borrow/payback-withdraw'
 
 export const spark: {
-  depositBorrow: SparkDepositBorrow
-  openDepositBorrow: SparkOpenDepositBorrow
-  paybackWithdraw: SparkPaybackWithdraw
+  borrow: {
+    depositBorrow: SparkDepositBorrow
+    openDepositBorrow: SparkOpenDepositBorrow
+    paybackWithdraw: SparkPaybackWithdraw
+  }
 } = {
-  depositBorrow: sparkDepositBorrow,
-  openDepositBorrow: sparkOpenDepositBorrow,
-  paybackWithdraw: sparkPaybackWithdraw,
+  borrow: {
+    depositBorrow: sparkDepositBorrow,
+    openDepositBorrow: sparkOpenDepositBorrow,
+    paybackWithdraw: sparkPaybackWithdraw,
+  },
 }
