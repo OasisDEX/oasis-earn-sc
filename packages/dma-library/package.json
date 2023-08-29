@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/dma-library",
-  "version": "0.4.14-rc.1",
+  "version": "0.4.14",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
