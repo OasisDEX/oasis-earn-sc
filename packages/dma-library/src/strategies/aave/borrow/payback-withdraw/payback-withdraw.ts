@@ -90,13 +90,13 @@ async function buildOperation(
 
   const paybackWithdrawOperation = {
     [AaveVersion.v3]: () =>
-      operations.aave.v3.paybackWithdraw({
+      operations.aave.borrow.v3.paybackWithdraw({
         ...sharedArgs,
         addresses: dependencies.addresses,
         network: dependencies.network,
       }),
     [AaveVersion.v2]: () =>
-      operations.aave.v2.paybackWithdraw({
+      operations.aave.borrow.v2.paybackWithdraw({
         ...sharedArgs,
         addresses: dependencies.addresses,
         network: dependencies.network,
