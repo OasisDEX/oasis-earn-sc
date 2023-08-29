@@ -7,6 +7,7 @@ import {
   AaveV2GetCurrentPositionDependencies,
   AaveV3GetCurrentPositionDependencies,
 } from '@dma-library/views/aave/types'
+import { ensureOraclePricesDefined } from '@dma-library/views/aave-like'
 import BigNumber from 'bignumber.js'
 
 export type AaveView = {
@@ -182,14 +183,4 @@ export const getCurrentPositionAaveV3: AaveV3GetCurrentPosition = async (args, d
       liquidationThreshold: liquidationThreshold,
     },
   )
-}
-
-function ensureOraclePricesDefined(
-  collateralPrice: BigNumber | undefined,
-  debtPrice: BigNumber | undefined,
-): [BigNumber, BigNumber] {
-  if (collateralPrice === undefined || debtPrice === undefined) {
-    throw new Error('Cannot determine oracle price')
-  }
-  return [collateralPrice, debtPrice]
 }

@@ -1,12 +1,12 @@
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
+import { PriceResult, ReserveDataResult } from '@dma-library/protocols/aave-like/types'
 import {
   determineReserveEModeCategory,
   fetchAssetPrice,
   fetchReserveData,
   fetchUserReserveData,
   getAaveLikeSystemContracts,
-} from '@dma-library/protocols/aave-like/helpers'
-import { PriceResult, ReserveDataResult } from '@dma-library/protocols/aave-like/types'
+} from '@dma-library/protocols/aave-like/utils'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { AaveVersion } from '@dma-library/types/aave'
 import { providers } from 'ethers'

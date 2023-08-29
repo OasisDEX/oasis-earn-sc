@@ -1,5 +1,7 @@
+import { getSparkProtocolData } from '@dma-library/protocols/spark'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { AavePosition } from '@dma-library/types/aave'
+import { ensureOraclePricesDefined } from '@dma-library/views/aave-like'
 import {
   SparkGetCurrentPositionArgs,
   SparkGetCurrentPositionDependencies,
@@ -32,7 +34,6 @@ export const getCurrentPosition: SparkGetCurrentPosition = async (args, dependen
     addresses: dependencies.addresses,
     proxy: args.proxy,
     provider: dependencies.provider,
-    protocolVersion: dependencies.protocolVersion,
   })
 
   const {
