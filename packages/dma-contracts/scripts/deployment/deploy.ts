@@ -26,6 +26,11 @@ import {
   getAjnaCloseToCollateralOperationDefinition,
   getAjnaCloseToQuoteOperationDefinition,
   getAjnaOpenOperationDefinition,
+  getSparkBorrowOperationDefinition,
+  getSparkDepositBorrowOperationDefinition,
+  getSparkDepositOperationDefinition,
+  getSparkOpenDepositBorrowOperationDefinition,
+  getSparkPaybackWithdrawOperationDefinition,
 } from '@deploy-configurations/operation-definitions'
 import {
   ContractProps,
@@ -125,6 +130,18 @@ abstract class DeployedSystemHelpers {
 
   log(...args: any[]) {
     !this.hideLogging && console.log(...args)
+  }
+  logOp(op: { name: string; actions: { hash: string; optional: boolean }[]; log?: boolean }) {
+    if (op.log) {
+      const tupleOutput = [
+        op.actions.map(op => op.hash),
+        op.actions.map(op => op.optional),
+        op.name,
+      ]
+      console.log('\x1b[33m[ OP LOG ]\x1b[0m')
+      console.log(`\x1b[33m[ ${op.name} ]\x1b[0m`)
+      console.log(`\x1b[33m[ ${tupleOutput} ]\x1b[0m`)
+    }
   }
 
   useGnosisSafeServiceClient() {
@@ -744,6 +761,14 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     )
   }
 
+  /**
+   * @dev Adds operation definitions to the OperationRegistry
+   * Operations can be logged out to the console if you set the log flag
+   * in the operation definition file @oasisdex/deploy-config/operation-definitions to true
+   * Use the logOp helper function to log out the operation
+   *
+   * Read more at the README at /packages/deploy-configurations/README.md
+   */
   async addOperationEntries() {
     if (!this.signer) throw new Error('No signer set')
     if (!this.deployedSystem.OperationsRegistry) throw new Error('No OperationsRegistry deployed')
@@ -850,6 +875,44 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       getAjnaAdjustDownOperationDefinition(network).name,
       getAjnaAdjustDownOperationDefinition(network).actions,
     )
+
+    // Spark
+    const sparkBorrowOperationDefinition = getSparkBorrowOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkBorrowOperationDefinition.name,
+      sparkBorrowOperationDefinition.actions,
+    )
+    this.logOp(sparkBorrowOperationDefinition)
+
+    const sparkDepositOperationDefinition = getSparkDepositOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkDepositOperationDefinition.name,
+      sparkDepositOperationDefinition.actions,
+    )
+    this.logOp(sparkDepositOperationDefinition)
+
+    const sparkDepositBorrowOperationDefinition = getSparkDepositBorrowOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkDepositBorrowOperationDefinition.name,
+      sparkDepositBorrowOperationDefinition.actions,
+    )
+    this.logOp(sparkDepositBorrowOperationDefinition)
+
+    const sparkOpenDepositBorrowOperationDefinition =
+      getSparkOpenDepositBorrowOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkOpenDepositBorrowOperationDefinition.name,
+      sparkOpenDepositBorrowOperationDefinition.actions,
+    )
+    this.logOp(sparkOpenDepositBorrowOperationDefinition)
+
+    const sparkPaybackWithdrawOperationDefinition =
+      getSparkPaybackWithdrawOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkPaybackWithdrawOperationDefinition.name,
+      sparkPaybackWithdrawOperationDefinition.actions,
+    )
+    this.logOp(sparkPaybackWithdrawOperationDefinition)
   }
 
   async addAllEntries() {

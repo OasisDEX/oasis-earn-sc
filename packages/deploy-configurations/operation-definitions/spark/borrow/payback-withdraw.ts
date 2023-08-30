@@ -45,5 +45,6 @@ export function getSparkPaybackWithdrawOperationDefinition(network: Network) {
         optional: true,
       },
     ],
+    log: true,
   }
 }
