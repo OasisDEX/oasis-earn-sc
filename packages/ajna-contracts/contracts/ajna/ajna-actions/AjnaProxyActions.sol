@@ -338,6 +338,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
         if (leftoverBalance > 0) {
             _send(debtToken, leftoverBalance);
         }
+        IERC20(debtToken).safeApprove(address(pool), 0);
         emit ProxyActionsOperation("AjnaRepay");
     }
 
@@ -380,6 +381,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
         if (quoteLeftoverBalance > 0) {
             _send(debtToken, quoteLeftoverBalance);
         }
+        IERC20(debtToken).safeApprove(address(pool), 0);
         emit ProxyActionsOperation("AjnaRepayWithdraw");
     }
 
@@ -424,6 +426,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
 
         uint256 amountCollateral = collateral / pool.collateralScale();
         _send(collateralToken, amountCollateral);
+        IERC20(debtToken).safeApprove(address(pool), 0);
         emit ProxyActionsOperation("AjnaRepayAndClose");
     }
 
