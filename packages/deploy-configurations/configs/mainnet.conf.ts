@@ -254,7 +254,7 @@ export const config: SystemConfig = {
         name: 'AjnaRepayWithdraw',
         deploy: false,
         address: '0xc0BAFEa22AD2A2D92BF54B1d76eA175785aa9Eb1',
-        serviceRegistryName: undefined,
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.ajna.REPAY_WITHDRAW,
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
