@@ -34,6 +34,7 @@ Here are the steps to log out Operation Definitions to console:
 * Ensure that the log flag is set to true for each OpDefinition you want to log out
 * Ensure that you're chosen script has a call like `await ds.addOperationEntries()`
 * Run the script against a local node eg `yarn hardhat run scripts/deployment/deploy-local.ts` (without network specified which will default to Hardhat)
+* When run locally the addOperationEntries script will update network to use the network fork (in this case mainnet)
 
 ## Symlink contracts before Using @dma-contracts
 You need to create a symlink, to include `ajna-contracts` in `dma-contracts` for proper solc compilation.
