@@ -1,3 +1,13 @@
+# @oasisdex/deploy-configurations
+
+## Deployment configurations
+
+See configs directory. There are primary mainnet and testnet configs. There are also test deployment configs for use 
+by tests only. These are housed in /configs/test.
+
+Please review these configs before proceeding with a deployment to see what contracts are marked for deployment or
+redeployment.
+
 ## AaveLike addresses
 
 Protocol system contracts are named slightly differently across Aave V2, Aave V3 and Spark protocol.

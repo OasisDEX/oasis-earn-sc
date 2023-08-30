@@ -1,9 +1,34 @@
 # @oasisdex/dma-contracts
 
-## Run Before Using @dma-contracts
+## Deploying contracts
+Decide which network you want to deploy to. The following networks are supported:
+- `local` - local hardhat node
+- `mainnet` - mainnet
+- `goerli` - goerli testnet
+- `optimism` - optimism mainnet
+- `arbitrum` - arbitrum mainnet
+
+Then run the following command:
+```bash
+yarn hardhat run scripts/deployment/deploy-<network-name>.ts --network <network-name>
+```
+
+If the network is a protected network you will be asked to confirm the action.
+
+Finally, please review the configs in @oasisdex/deploy-configurations to see which contracts have the deploy flag set to `true`. 
+Only contracts with the deploy flag set to `true` will be deployed.
+
+For more info see the deployment configs [readme](../deploy-configurations/README.md).
+
+## Symlink contracts before Using @dma-contracts
 You need to create a symlink, to include `ajna-contracts` in `dma-contracts` for proper solc compilation.
 ```bash
 /oasis-earn-sc/packages/dma-contracts$ ln -s ~/absolute_path_to_the_repository/oasis-earn-sc/packages/ajna-contracts/contracts/ajna ./contracts/
+```
+
+You can also run the following script to create the symlink from the project root
+```
+yarn symlink
 ```
 
 ## Circular dependencies
@@ -15,4 +40,3 @@ yarn hardhat run scripts/run-dependent-task.ts --network local
 ```
 
 Please do not import tasks that are dependent on @dma-library into hardhat.config.ts
-```
