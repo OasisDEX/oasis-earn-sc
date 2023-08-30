@@ -762,7 +762,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   }
 
   /**
-   * @dev Adds operation definitions to the OperationRegistry
+   * Adds operation definitions to the OperationRegistry
    * Operations can be logged out to the console if you set the log flag
    * in the operation definition file @oasisdex/deploy-config/operation-definitions to true
    * Use the logOp helper function to log out the operation
