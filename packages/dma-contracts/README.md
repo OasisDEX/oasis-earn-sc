@@ -20,6 +20,8 @@ Only contracts with the deploy flag set to `true` will be deployed.
 
 For more info see the deployment configs [readme](../deploy-configurations/README.md).
 
+After deployment, the addresses of the deployed contracts will be saved directly in the deployment configs.
+
 ## Symlink contracts before Using @dma-contracts
 You need to create a symlink, to include `ajna-contracts` in `dma-contracts` for proper solc compilation.
 ```bash
