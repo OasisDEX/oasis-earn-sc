@@ -34,10 +34,10 @@ import {
   SystemTemplate,
 } from '@deploy-configurations/types/deployed-system'
 import {
-  DeployedSystemContracts,
-  DeploymentConfig,
+  ConfigEntry,
   SystemConfig,
-  SystemConfigItem,
+  SystemConfigEntry,
+  SystemContracts,
 } from '@deploy-configurations/types/deployment-config'
 import { EtherscanGasPrice } from '@deploy-configurations/types/etherscan'
 import { Network } from '@deploy-configurations/types/network'
@@ -125,6 +125,10 @@ abstract class DeployedSystemHelpers {
 
   log(...args: any[]) {
     !this.hideLogging && console.log(...args)
+  }
+
+  useGnosisSafeServiceClient() {
+    return gnosisSafeServiceUrl[this.network] !== ''
   }
 
   async init(hideLogging = false) {
@@ -334,11 +338,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     return configPath
   }
 
-  async postInstantiation(configItem: DeploymentConfig, contract: Contract) {
+  async postInstantiation(configItem: ConfigEntry, contract: Contract) {
     this.log('POST INITIALIZATION', configItem.name, contract.address)
   }
 
-  async postRegistryEntry(configItem: DeploymentConfig, address: string) {
+  async postRegistryEntry(configItem: ConfigEntry, address: string) {
     if (!configItem.serviceRegistryName) throw new Error('No service registry name provided')
     this.log(
       'REGISTRY ENTRY',
@@ -367,7 +371,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
-      if (gnosisSafeServiceUrl[this.network] !== '') {
+      if (this.useGnosisSafeServiceClient()) {
         /**
          * Currently throws the following error:
          * Error: Unprocessable Entity
@@ -438,19 +442,19 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     return ''
   }
 
-  async addRegistryEntries(addressesConfig: DeploymentConfig[]) {
+  async addRegistryEntries(addressesConfig: ConfigEntry[]) {
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     for (const configItem of addressesConfig) {
       if (configItem.serviceRegistryName) {
         const address =
-          this.deployedSystem?.[configItem.name as DeployedSystemContracts]?.contract.address ||
+          this.deployedSystem?.[configItem.name as SystemContracts]?.contract.address ||
           configItem.address
         await this.addRegistryEntry(configItem, address)
       }
     }
   }
 
-  async addRegistryEntry(configItem: DeploymentConfig, address: string) {
+  async addRegistryEntry(configItem: ConfigEntry, address: string) {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
     if (configItem.serviceRegistryName) {
       await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, address)
@@ -458,7 +462,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async removeRegistryEntry(configItem: DeploymentConfig) {
+  async removeRegistryEntry(configItem: ConfigEntry) {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
     if (configItem.serviceRegistryName) {
       this.serviceRegistryHelper.removeEntry(configItem.serviceRegistryName)
@@ -486,7 +490,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async instantiateContracts(addressesConfig: SystemConfigItem[]) {
+  async instantiateContracts(addressesConfig: SystemConfigEntry[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     for (const configItem of addressesConfig) {
       this.log('INSTANTIATING ', configItem.name, configItem.address)
@@ -571,7 +575,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async deployContracts(addressesConfig: SystemConfigItem[]) {
+  async deployContracts(addressesConfig: SystemConfigEntry[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     if (this.isRestrictedNetwork) {
       await this.promptBeforeDeployment()
@@ -582,10 +586,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       if (configItem.constructorArgs && configItem.constructorArgs?.length !== 0) {
         constructorParams = configItem.constructorArgs.map((param: string | number) => {
           if (typeof param === 'string' && param.indexOf('address:') >= 0) {
-            const contractName = (param as string).replace(
-              'address:',
-              '',
-            ) as DeployedSystemContracts
+            const contractName = (param as string).replace('address:', '') as SystemContracts
 
             if (!this.deployedSystem[contractName]?.contract.address) {
               throw new Error(`Contract ${contractName} not deployed`)
@@ -677,11 +678,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.instantiateContracts(
       Object.values(this.config.mpa.core).filter(
-        (item: SystemConfigItem) => item.address !== '' && !item.deploy,
+        (item: SystemConfigEntry) => item.address !== '' && !item.deploy,
       ),
     )
     await this.deployContracts(
-      Object.values(this.config.mpa.core).filter((item: SystemConfigItem) => item.deploy),
+      Object.values(this.config.mpa.core).filter((item: SystemConfigEntry) => item.deploy),
     )
   }
 
@@ -689,11 +690,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.instantiateContracts(
       Object.values(this.config.mpa.actions).filter(
-        (item: SystemConfigItem) => item.address !== '' && !item.deploy,
+        (item: SystemConfigEntry) => item.address !== '' && !item.deploy,
       ),
     )
     await this.deployContracts(
-      Object.values(this.config.mpa.actions).filter((item: SystemConfigItem) => item.deploy),
+      Object.values(this.config.mpa.actions).filter((item: SystemConfigEntry) => item.deploy),
     )
   }
 
@@ -706,7 +707,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
       Object.values(this.config.common).filter(
-        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
       ),
     )
   }
@@ -715,12 +716,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
       Object.values(this.config.aave.v2 || {}).filter(
-        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
       ),
     )
     await this.addRegistryEntries(
       Object.values(this.config.aave.v3 || {}).filter(
-        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
       ),
     )
   }
@@ -729,7 +730,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
       Object.values(this.config.maker.common).filter(
-        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
       ),
     )
   }
@@ -738,7 +739,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
       Object.values(this.config.ajna).filter(
-        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
       ),
     )
   }
