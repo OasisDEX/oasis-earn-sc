@@ -1,5 +1,7 @@
 import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '@dma-common/constants'
-import { AdjustRiskDownArgs, AdjustRiskUpArgs, operations } from '@dma-library/operations'
+import { operations } from '@dma-library/operations'
+import { AdjustRiskDownArgs } from '@dma-library/operations/aave/multiply/v2/adjust-risk-down'
+import { AdjustRiskUpArgs } from '@dma-library/operations/aave/multiply/v2/adjust-risk-up'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import { FlashloanProvider } from '@dma-library/types/common'
 import { feeResolver } from '@dma-library/utils/swap'
@@ -90,7 +92,7 @@ export async function buildOperationV2({
       },
       network,
     }
-    return await operations.aave.v2.adjustRiskUp(adjustRiskUpArgs)
+    return await operations.aave.multiply.v2.adjustRiskUp(adjustRiskUpArgs)
   }
 
   if (adjustRiskDown) {
@@ -120,7 +122,7 @@ export async function buildOperationV2({
       },
       network,
     }
-    return await operations.aave.v2.adjustRiskDown(adjustRiskDownArgs)
+    return await operations.aave.multiply.v2.adjustRiskDown(adjustRiskDownArgs)
   }
 
   throw new Error('No operation could be built')

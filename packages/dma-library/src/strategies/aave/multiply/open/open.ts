@@ -12,7 +12,7 @@ import { Unbox } from '@dma-common/types/common'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { operations } from '@dma-library/operations'
-import { OpenOperationArgs } from '@dma-library/operations/aave/v3/open'
+import { OpenOperationArgs } from '@dma-library/operations/aave/multiply/v3/open'
 import { AaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { getAaveTokenAddress, getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
@@ -353,7 +353,7 @@ async function buildOperation(
       network: dependencies.network,
     }
 
-    return await operations.aave.v3.open(openArgs)
+    return await operations.aave.multiply.v3.open(openArgs)
   }
   if (AaveCommon.isV2(dependencies)) {
     const openArgs = {
@@ -386,7 +386,7 @@ async function buildOperation(
       isDPMProxy: dependencies.isDPMProxy,
       network: dependencies.network,
     }
-    return await operations.aave.v2.open(openArgs)
+    return await operations.aave.multiply.v2.open(openArgs)
   }
 }
 

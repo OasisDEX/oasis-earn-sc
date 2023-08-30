@@ -1,49 +1,36 @@
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveProtocolData } from '@dma-library/protocols/aave'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
-import { IViewPositionDependencies, IViewPositionParams } from '@dma-library/types'
-import { AavePosition, AAVETokens, AaveVersion } from '@dma-library/types/aave'
+import { AavePosition } from '@dma-library/types/aave'
+import {
+  AaveGetCurrentPositionArgs,
+  AaveV2GetCurrentPositionDependencies,
+  AaveV3GetCurrentPositionDependencies,
+} from '@dma-library/views/aave/types'
+import { ensureOraclePricesDefined } from '@dma-library/views/aave-like'
 import BigNumber from 'bignumber.js'
 
-export type AaveGetCurrentPositionArgs = IViewPositionParams<AAVETokens>
-export type AaveV2GetCurrentPositionDependencies =
-  IViewPositionDependencies<AaveLikeStrategyAddresses> & {
-    protocolVersion: AaveVersion.v2
-  }
-export type AaveV3GetCurrentPositionDependencies =
-  IViewPositionDependencies<AaveLikeStrategyAddresses> & {
-    protocolVersion: AaveVersion.v3
-  }
-
-export type AaveGetCurrentPositionDependencies =
-  | AaveV2GetCurrentPositionDependencies
-  | AaveV3GetCurrentPositionDependencies
-
-export async function getCurrentPosition(
-  args: AaveGetCurrentPositionArgs,
-  dependencies: AaveGetCurrentPositionDependencies,
-): Promise<AavePosition> {
-  if (
-    AaveCommon.isV2<AaveGetCurrentPositionDependencies, AaveV2GetCurrentPositionDependencies>(
-      dependencies,
-    )
-  ) {
-    return getCurrentPositionAaveV2(args, dependencies)
-  } else if (
-    AaveCommon.isV3<AaveGetCurrentPositionDependencies, AaveV3GetCurrentPositionDependencies>(
-      dependencies,
-    )
-  ) {
-    return getCurrentPositionAaveV3(args, dependencies)
-  } else {
-    throw new Error('Invalid Aave version')
-  }
+export {
+  AaveGetCurrentPositionArgs,
+  AaveV2GetCurrentPositionDependencies,
+  AaveV3GetCurrentPositionDependencies,
+}
+export type AaveView = {
+  v2: (
+    args: AaveGetCurrentPositionArgs,
+    dependencies: Omit<AaveV2GetCurrentPositionDependencies, 'protocolVersion'>,
+  ) => Promise<AavePosition>
+  v3: (
+    args: AaveGetCurrentPositionArgs,
+    dependencies: Omit<AaveV3GetCurrentPositionDependencies, 'protocolVersion'>,
+  ) => Promise<AavePosition>
 }
 
-async function getCurrentPositionAaveV2(
+export type AaveV2GetCurrentPosition = (
   args: AaveGetCurrentPositionArgs,
   dependencies: AaveV2GetCurrentPositionDependencies,
-): Promise<AavePosition> {
+) => Promise<AavePosition>
+
+export const getCurrentPositionAaveV2: AaveV2GetCurrentPosition = async (args, dependencies) => {
   const debtToken = args.debtToken
   const collateralToken = args.collateralToken
   const { collateralTokenAddress, debtTokenAddress } = AaveCommon.getAaveTokenAddresses(
@@ -109,10 +96,12 @@ async function getCurrentPositionAaveV2(
   )
 }
 
-async function getCurrentPositionAaveV3(
+export type AaveV3GetCurrentPosition = (
   args: AaveGetCurrentPositionArgs,
   dependencies: AaveV3GetCurrentPositionDependencies,
-): Promise<AavePosition> {
+) => Promise<AavePosition>
+
+export const getCurrentPositionAaveV3: AaveV3GetCurrentPosition = async (args, dependencies) => {
   const debtToken = args.debtToken
   const collateralToken = args.collateralToken
   const { collateralTokenAddress, debtTokenAddress } = AaveCommon.getAaveTokenAddresses(
@@ -180,14 +169,4 @@ async function getCurrentPositionAaveV3(
       liquidationThreshold: liquidationThreshold,
     },
   )
-}
-
-function ensureOraclePricesDefined(
-  collateralPrice: BigNumber | undefined,
-  debtPrice: BigNumber | undefined,
-): [BigNumber, BigNumber] {
-  if (collateralPrice === undefined || debtPrice === undefined) {
-    throw new Error('Cannot determine oracle price')
-  }
-  return [collateralPrice, debtPrice]
 }

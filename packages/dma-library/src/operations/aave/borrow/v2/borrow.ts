@@ -5,13 +5,13 @@ import { BorrowArgs } from '@dma-library/operations'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation } from '@dma-library/types'
 
-export type BorrowV2Operation = (
+export type AaveV2BorrowOperation = (
   args: BorrowArgs,
   addresses: AaveLikeStrategyAddresses,
   network: Network,
 ) => Promise<IOperation>
 
-export const borrow: BorrowV2Operation = async (
+export const borrow: AaveV2BorrowOperation = async (
   { borrowToken, amount, account, isEthToken },
   addresses,
   network,

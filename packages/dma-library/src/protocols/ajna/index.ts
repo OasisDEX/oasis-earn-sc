@@ -224,19 +224,13 @@ function getMaxGenerate(
 ): BigNumber {
   const initialMaxDebt = positionCollateral.times(pool.lowestUtilizedPrice).minus(positionDebt)
 
-  const bucketsAboveLup = pool.buckets
-    .filter(bucket => bucket.index.lte(pool.lowestUtilizedPriceIndex))
-    .sort((a, b) => a.index.minus(b.index).toNumber())
-
-  const liquidityAvailableInLupBucket = bucketsAboveLup
-    .reduce((acc, curr) => acc.plus(curr.quoteTokens), ZERO)
-    .minus(pool.debt)
+  const liquidityAvailableInLupBucket = getLiquidityInLupBucket(pool)
 
   if (initialMaxDebt.lte(liquidityAvailableInLupBucket)) {
-    return initialMaxDebt.plus(maxDebt)
+    return initialMaxDebt.isNegative() ? maxDebt : initialMaxDebt.plus(maxDebt)
   }
 
-  const sortedBuckets = pool.buckets.sort((a, b) => a.index.minus(b.index).toNumber())
+  const sortedBuckets = [...pool.buckets].sort((a, b) => a.index.minus(b.index).toNumber())
 
   const lupBucketArrayIndex = sortedBuckets.findIndex(bucket =>
     bucket.index.isEqualTo(pool.lowestUtilizedPriceIndex),
@@ -292,7 +286,7 @@ export function calculateMaxGenerate(
 }
 
 export function calculateNewLup(pool: AjnaPool, debtChange: BigNumber): [BigNumber, BigNumber] {
-  const sortedBuckets = pool.buckets.sort((a, b) => a.index.minus(b.index).toNumber())
+  const sortedBuckets = [...pool.buckets].sort((a, b) => a.index.minus(b.index).toNumber())
   const totalPoolLiquidity = getTotalPoolLiquidity(pool.buckets)
 
   let remainingDebt = pool.debt.plus(debtChange)
@@ -372,7 +366,7 @@ export function calculateNewLupWhenAdjusting(
     })
   }
 
-  const sortedBuckets = poolBuckets.sort((a, b) => a.index.minus(b.index).toNumber())
+  const sortedBuckets = [...poolBuckets].sort((a, b) => a.index.minus(b.index).toNumber())
 
   let remainingDebt = pool.debt
 

@@ -389,6 +389,8 @@ export const config: SystemConfig = {
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DAI,
     },
     ETH: { name: 'ETH', address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' },
+    FRAX: { name: 'FRAX', address: '0x853d955aCEf822Db058eb8505911ED77F175b99e' },
+    LUSD: { name: 'LUSD', address: '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0' },
     GHO: { name: 'GHO', address: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f' },
     GNO: { name: 'GNO', address: '0x6810e776880C02933D47DB1b9fc05908e5386b96' },
     GUNIV3DAIUSDC1: {
@@ -983,7 +985,7 @@ export const config: SystemConfig = {
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x9795D8Fb5DEBFA65d2Fc666c2587e8f1512b53cF',
+      address: '0xbD4faEe14CAB5AA7c2Beb8D30f0349980f2dD4DB',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',

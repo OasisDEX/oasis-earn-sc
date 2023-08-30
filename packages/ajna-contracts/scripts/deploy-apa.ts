@@ -35,6 +35,19 @@ async function main() {
       ADDRESSES[network].GUARD,
     ]);
     console.log(`AjnaProxyActions Deployed: ${apa.address}`);
+    if (network === "mainnet" || network === "goerli") {
+      console.log(`Waiting for 60 seconds...`);
+      await new Promise(resolve => setTimeout(resolve, 60000));
+      await hre.run("verify:verify", {
+        address: apa.address,
+        constructorArguments: [
+          ADDRESSES[network].POOL_INFO_UTILS,
+          TOKENS[network].AJNA,
+          TOKENS[network].WETH,
+          ADDRESSES[network].GUARD,
+        ],
+      });
+    }
   } else {
     apa = await utils.getContract<AjnaProxyActions>("AjnaProxyActions", ADDRESSES[network].AJNA_PROXY_ACTIONS);
     if (initializeStakingRewards) {

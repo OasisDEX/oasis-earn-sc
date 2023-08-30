@@ -356,6 +356,8 @@ export const config: SystemConfig = {
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DAI,
     },
     ETH: { name: 'ETH', address: '0x4200000000000000000000000000000000000006' },
+    FRAX: { name: 'FRAX', address: ADDRESS_ZERO },
+    LUSD: { name: 'LUSD', address: ADDRESS_ZERO },
     GHO: { name: 'GHO', address: ADDRESS_ZERO },
     GNO: { name: 'GNO', address: ADDRESS_ZERO },
     GUNIV3DAIUSDC1: {

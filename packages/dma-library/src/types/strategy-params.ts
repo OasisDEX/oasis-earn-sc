@@ -2,7 +2,9 @@ import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { AAVETokens } from '@dma-library/types/aave'
+import { AaveLikeTokens } from '@dma-library/types/aave/tokens'
 import { GetSwapData } from '@dma-library/types/common/get-swap-data'
+import { AaveLikeProtocol } from '@dma-library/types/protocol'
 import { IPosition, IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
@@ -21,10 +23,24 @@ export type WithAaveEntryToken = {
   entryToken: { symbol: AAVETokens; precision?: number }
 }
 
+export type WithAaveLikeEntryToken = {
+  entryToken: { symbol: AaveLikeTokens; precision?: number }
+}
+
 export type WithAaveStrategyArgs = {
   collateralToken: { symbol: AAVETokens; precision?: number }
   debtToken: { symbol: AAVETokens; precision?: number }
   entryToken?: { symbol: AAVETokens; precision?: number }
+} & WithSlippage
+
+type WithAaveLikeProtocolType = {
+  protocolType: AaveLikeProtocol
+}
+
+export type WithAaveLikeBorrowStrategyArgs = {
+  collateralToken: { symbol: AaveLikeTokens; precision?: number }
+  debtToken: { symbol: AaveLikeTokens; precision?: number }
+  entryToken?: { symbol: AaveLikeTokens; precision?: number }
 } & WithSlippage
 
 type WithSlippage = {
@@ -95,12 +111,23 @@ type SharedStrategyDependencies = {
   currentPosition: IPosition
   proxy: Address
   user: Address
-  isDPMProxy: boolean
   network: Network
 }
+
 export type WithAaveStrategyDependencies = {
   addresses: AaveLikeStrategyAddresses
 } & SharedStrategyDependencies
+
+export type WithAaveMultiplyStrategyDependencies = WithAaveStrategyDependencies & WithDPMFlag
+
+export type WithAaveLikeStrategyDependencies = {
+  addresses: AaveLikeStrategyAddresses
+} & SharedStrategyDependencies &
+  WithAaveLikeProtocolType
+
+export type WithDPMFlag = {
+  isDPMProxy: boolean
+}
 
 export type WithSwap = {
   getSwapData: (

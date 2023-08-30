@@ -10,6 +10,7 @@ import { HardhatRuntimeEnvironment, Network } from "hardhat/types/runtime";
 import { join } from "path";
 
 import { Token, WETH } from "../../typechain-types";
+import { CONFIG } from "./config";
 
 export type BasicSimulationData = {
   data: string;
@@ -223,4 +224,8 @@ export class HardhatUtils {
       return false;
     }
   }
+}
+
+export function logGasUsage(receipt: ContractReceipt, methodName: string) {
+  CONFIG.logGasUsage ? console.log(`gas used ${methodName}`, receipt.gasUsed.toString()) : null;
 }
