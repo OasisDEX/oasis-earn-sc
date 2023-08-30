@@ -641,7 +641,7 @@ describe.only("AjnaProxyActions", function () {
       expect(borrowerInfo.debt_).to.be.eq(0);
     });
 
-    it.only("should openAndDraw and repayAndClose", async () => {
+    it("should openAndDraw and repayAndClose", async () => {
       const { wbtc, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, usdc } = await loadFixture(deploy);
       const balancesQuoteBefore = {
         borrower: await usdc.balanceOf(borrower.address),
@@ -697,7 +697,7 @@ describe.only("AjnaProxyActions", function () {
       expect(balancesQuoteAfter.proxy).to.be.eq(ZERO);
       expect(balancesCollateralAfter.proxy).to.be.eq(ZERO);
     });
-    it.only("should openAndDraw and repayDebtAndWithdrawCollateral", async () => {
+    it("should openAndDraw and repayDebtAndWithdrawCollateral", async () => {
       const { wbtc, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, usdc, poolInfoContract } =
         await loadFixture(deploy);
       const balancesQuoteBefore = {
