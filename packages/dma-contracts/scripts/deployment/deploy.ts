@@ -133,14 +133,14 @@ abstract class DeployedSystemHelpers {
   }
   logOp(op: { name: string; actions: { hash: string; optional: boolean }[]; log?: boolean }) {
     if (op.log) {
-      const tupleOutput = [
+      const tupleOutput = JSON.stringify([
         op.actions.map(op => op.hash),
         op.actions.map(op => op.optional),
         op.name,
-      ]
+      ])
       console.log('\x1b[33m[ OP LOG ]\x1b[0m')
       console.log(`\x1b[33m[ ${op.name} ]\x1b[0m`)
-      console.log(`\x1b[33m[ ${tupleOutput} ]\x1b[0m`)
+      console.log(tupleOutput)
     }
   }
 

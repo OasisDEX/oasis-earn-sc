@@ -22,6 +22,19 @@ For more info see the deployment configs [readme](../deploy-configurations/READM
 
 After deployment, the addresses of the deployed contracts will be saved directly in the deployment configs.
 
+## Add Operation Definitions to OperationRegistry
+
+Currently, the GnosisSafe integration is not working so additions are manual.
+
+To assist this process you can log out the Operation Definition using the logOp helper in `scripts/deployment/deploy.ts`
+
+Here are the steps to log out Operation Definitions to console:
+* Find the appropriate config for the network you're deploying for
+* Mark both ServiceRegistry and OperationsRegistry for deployment (deploy: true)
+* Ensure that the log flag is set to true for each OpDefinition you want to log out
+* Ensure that you're chosen script has a call like `await ds.addOperationEntries()`
+* Run the script against a local node eg `yarn hardhat run scripts/deployment/deploy-local.ts` (without network specified which will default to Hardhat)
+
 ## Symlink contracts before Using @dma-contracts
 You need to create a symlink, to include `ajna-contracts` in `dma-contracts` for proper solc compilation.
 ```bash
