@@ -376,6 +376,10 @@ export const config: SystemConfig = {
       serviceRegistryName: 'DAI',
     },
     ETH: { name: 'ETH', address: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6' },
+    FRAX: {
+      name: 'FRAX',
+      address: ADDRESS_ZERO,
+    },
     GHO: { name: 'GHO', address: ADDRESS_ZERO },
     GNO: { name: 'GNO', address: '0x86Bc432064d7F933184909975a384C7E4c9d0977' },
     GUNIV3DAIUSDC1: {
@@ -391,6 +395,10 @@ export const config: SystemConfig = {
     LDO: { name: 'LDO', address: ADDRESS_ZERO },
     LINK: { name: 'LINK', address: '0x4724A967A4F7E42474Be58AbdF64bF38603422FF' },
     LRC: { name: 'LRC', address: '0xe32aC5b19051728421A8F4A8a5757D0e127a14F6' },
+    LUSD: {
+      name: 'LUSD',
+      address: ADDRESS_ZERO,
+    },
     MANA: { name: 'MANA', address: '0x347fceA8b4fD1a46e2c0DB8F79e22d293c2F8513' },
     MATIC: { name: 'MATIC', address: '0x5B3b6CF665Cc7B4552F4347623a2A9E00600CBB5' },
     PAX: { name: 'PAX', address: '0x4547863912Fe2d17D3827704138957a8317E8dCD' },
