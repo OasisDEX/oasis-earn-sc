@@ -32,8 +32,8 @@ Here are the steps to log out Operation Definitions to console:
 * Find the appropriate config for the network you're deploying for
 * Mark both ServiceRegistry and OperationsRegistry for deployment (deploy: true)
 * Ensure that the log flag is set to true for each OpDefinition you want to log out
-* Ensure that you're chosen script has a call like `await ds.addOperationEntries()`
-* Run the script against a local node eg `yarn hardhat run scripts/deployment/deploy-local.ts` (without network specified which will default to Hardhat)
+* Ensure that your chosen script has a function call such as `await ds.addOperationEntries()` and it's not commented out
+* Run the script against a local node eg `yarn hardhat run scripts/deployment/deploy-mainnet.ts` (without network specified which will default to Hardhat)
 * When run locally the addOperationEntries script will update network to use the network fork (in this case mainnet)
 
 ## Symlink contracts before Using @dma-contracts
