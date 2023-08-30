@@ -2,7 +2,7 @@ import { getForkedNetwork } from '@deploy-configurations/utils/network'
 import { FEE_BASE, ONE } from '@dma-common/constants'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { operations } from '@dma-library/operations'
-import { CloseArgs } from '@dma-library/operations/aave/v3/close'
+import { CloseArgs } from '@dma-library/operations/aave/multiply/v3/close'
 import { IOperation, SwapData } from '@dma-library/types'
 import { AaveVersion } from '@dma-library/types/aave'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
@@ -68,7 +68,7 @@ export async function buildOperation(
       isDPMProxy: dependencies.isDPMProxy,
       network: dependencies.network,
     }
-    return await operations.aave.v2.close(closeArgs, dependencies.addresses)
+    return await operations.aave.multiply.v2.close(closeArgs, dependencies.addresses)
   }
   if (args.protocolVersion === AaveVersion.v3) {
     const flashloanProvider = resolveFlashloanProvider(
@@ -112,7 +112,7 @@ export async function buildOperation(
       network: dependencies.network,
     }
 
-    return await operations.aave.v3.close(closeArgs)
+    return await operations.aave.multiply.v3.close(closeArgs)
   }
 
   throw new Error('Unsupported AAVE version')

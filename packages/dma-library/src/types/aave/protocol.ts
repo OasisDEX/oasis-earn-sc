@@ -1,4 +1,4 @@
-import { AaveProtocolData, AaveProtocolDataArgs } from '@dma-library/protocols/aave'
+import { GetAaveProtocolData } from '@dma-library/protocols/aave'
 import { AaveVersion } from '@dma-library/types/aave'
 import {
   AaveGetCurrentPositionArgs,
@@ -15,7 +15,7 @@ export type WithV2Protocol = {
       args: AaveGetCurrentPositionArgs,
       deps: AaveV2GetCurrentPositionDependencies,
     ) => Promise<AavePosition>
-    getProtocolData: (args: AaveProtocolDataArgs) => AaveProtocolData
+    getProtocolData: GetAaveProtocolData
   }
 }
 
@@ -26,6 +26,6 @@ export type WithV3Protocol = {
       args: AaveGetCurrentPositionArgs,
       deps: AaveV3GetCurrentPositionDependencies,
     ) => Promise<AavePosition>
-    getProtocolData: (args: AaveProtocolDataArgs) => AaveProtocolData
+    getProtocolData: GetAaveProtocolData
   }
 }

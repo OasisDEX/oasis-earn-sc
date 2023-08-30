@@ -9,7 +9,7 @@ import {
 } from '@dma-library/types'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import {
-  WithAaveStrategyDependencies,
+  WithAaveMultiplyStrategyDependencies,
   WithDebug,
   WithSwap,
 } from '@dma-library/types/strategy-params'
@@ -18,7 +18,7 @@ import BigNumber from 'bignumber.js'
 
 export type AaveAdjustArgs = IPositionTransitionArgs<AAVETokens> & WithPositionType
 export type ExtendedAaveAdjustArgs = AaveAdjustArgs & WithFlashloanToken
-export type AaveAdjustSharedDependencies = WithAaveStrategyDependencies &
+export type AaveAdjustSharedDependencies = WithAaveMultiplyStrategyDependencies &
   WithSwap &
   Partial<WithDebug>
 export type AaveV2AdjustDependencies = AaveAdjustSharedDependencies & WithV2Protocol

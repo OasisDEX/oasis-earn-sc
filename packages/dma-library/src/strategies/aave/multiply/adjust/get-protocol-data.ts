@@ -9,9 +9,9 @@ export async function getProtocolData(
   args: AaveAdjustArgs,
   flashloanTokenAddress: string,
   dependencies: AaveAdjustDependencies,
-): AaveProtocolData {
+): Promise<AaveProtocolData> {
   if (AaveCommon.isV2<AaveAdjustDependencies, AaveV2AdjustDependencies>(dependencies)) {
-    return dependencies.protocol.getProtocolData({
+    return await dependencies.protocol.getProtocolData({
       flashloanTokenAddress,
       collateralTokenAddress,
       debtTokenAddress,

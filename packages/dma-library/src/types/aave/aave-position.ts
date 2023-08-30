@@ -37,3 +37,4 @@ export class AavePosition extends Position {
     this.collateral = new AavePositionBalance(collateral)
   }
 }
+export const AaveLikePosition = AavePosition
