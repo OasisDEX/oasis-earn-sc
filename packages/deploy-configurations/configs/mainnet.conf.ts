@@ -447,6 +447,10 @@ export const config: SystemConfig = {
       name: 'ETH',
       address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     },
+    FRAX: {
+      name: 'FRAX',
+      address: '0x853d955acef822db058eb8505911ed77f175b99e',
+    },
     GHO: {
       name: 'GHO',
       address: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
@@ -482,6 +486,10 @@ export const config: SystemConfig = {
     LRC: {
       name: 'LRC',
       address: '0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD',
+    },
+    LUSD: {
+      name: 'LUSD',
+      address: '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0',
     },
     MANA: {
       name: 'MANA',
@@ -1160,7 +1168,7 @@ export const config: SystemConfig = {
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x9795D8Fb5DEBFA65d2Fc666c2587e8f1512b53cF',
+      address: '0xbD4faEe14CAB5AA7c2Beb8D30f0349980f2dD4DB',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',

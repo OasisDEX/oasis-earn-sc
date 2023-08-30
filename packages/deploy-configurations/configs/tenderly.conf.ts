@@ -482,6 +482,10 @@ export const config: SystemConfig = {
       name: 'ETH',
       address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     },
+    FRAX: {
+      name: 'FRAX',
+      address: '0x853d955acef822db058eb8505911ed77f175b99e',
+    },
     GHO: { name: 'GHO', address: '0x6810e776880C02933D47DB1b9fc05908e5386b96' },
     GNO: {
       name: 'GNO',
@@ -514,6 +518,10 @@ export const config: SystemConfig = {
     LRC: {
       name: 'LRC',
       address: '0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD',
+    },
+    LUSD: {
+      name: 'LUSD',
+      address: '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0',
     },
     MANA: {
       name: 'MANA',

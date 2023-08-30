@@ -33,6 +33,7 @@ export const paybackWithdraw: AjnaPaybackWithdrawStrategy = async (args, depende
     ethers.utils
       .parseUnits(args.collateralAmount.toString(), args.collateralTokenPrecision)
       .toString(),
+    !!args.stamploan,
   ])
 
   const targetPosition = args.position.payback(args.quoteAmount).withdraw(args.collateralAmount)

@@ -306,6 +306,10 @@ export const config: SystemConfig = {
       name: 'ETH',
       address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
     },
+    FRAX: {
+      name: 'FRAX',
+      address: ADDRESS_ZERO,
+    },
     GNO: {
       name: 'GNO',
       address: ADDRESS_ZERO,
@@ -330,6 +334,10 @@ export const config: SystemConfig = {
     },
     LRC: {
       name: 'LRC',
+      address: ADDRESS_ZERO,
+    },
+    LUSD: {
+      name: 'LUSD',
       address: ADDRESS_ZERO,
     },
     MANA: {
