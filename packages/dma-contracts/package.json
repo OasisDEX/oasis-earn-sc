@@ -29,6 +29,7 @@
     "tsconfig.json"
   ],
   "devDependencies": {
+    "@openzeppelin/contracts": "^4.9.3",
     "@tenderly/hardhat-tenderly": "^1.7.7",
     "inquirer": "^8.0.0"
   }
