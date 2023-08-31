@@ -31,7 +31,6 @@ export type SparkCloseOperation = ({
   swap,
   flashloan,
   proxy,
-  position,
   addresses,
   network,
 }: CloseArgs) => Promise<IOperation>
@@ -42,7 +41,6 @@ export const close: SparkCloseOperation = async ({
   swap,
   flashloan,
   proxy,
-  position,
   addresses,
   network,
 }) => {
