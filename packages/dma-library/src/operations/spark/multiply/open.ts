@@ -73,6 +73,14 @@ export const open: SparkOpenOperation = async ({
     from: proxy.owner,
   })
 
+  // WRAP ETH GOES 'ERE
+  // SWAP GOES 'ERE
+  // SET COLL APPROVAL 'ERE
+  // DEPOSIT COLL 'ERE
+  // BORROW DEBT 'ERE
+  // SEND DEBT TO OP EXECUTOR 'ERE
+  // POS CREATED
+
   const setFlashloanTokenApprovalOnAave = actions.common.setApproval(network, {
     amount: flashloan.token.amount,
     asset: flashloan.token.address,
