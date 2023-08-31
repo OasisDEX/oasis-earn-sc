@@ -19,7 +19,7 @@
     "clean": "rm -rf .parcel-cache && lerna run clean --stream",
     "compile": "yarn symlink && lerna run compile --stream",
     "symlink": "npx ts-node symlink-contracts.ts",
-    "build": "yarn compile && lerna run build --stream",
+    "build": "yarn clean && yarn compile && lerna run build --stream",
     "format": "lerna run format --stream",
     "format:check": "lerna run format:check --stream",
     "lint": "lerna run lint --stream && yarn clean",
