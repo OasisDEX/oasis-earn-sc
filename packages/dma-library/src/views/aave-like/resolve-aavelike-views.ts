@@ -1,6 +1,7 @@
 import { AaveLikeProtocol } from '@dma-library/types/protocol'
 import { views } from '@dma-library/views'
 import { AaveView } from '@dma-library/views/aave'
+import { SparkGetCurrentPosition } from '@dma-library/views/spark'
 
 type ProtocolKeyConfig = {
   protocol: 'aave' | 'spark'
@@ -26,7 +27,7 @@ const resolveProtocolKeyConfig = (protocol: AaveLikeProtocol): ProtocolKeyConfig
   }
 }
 
-export function isAaveView(view: any): view is AaveView {
+export function isAaveView(view: AaveView | SparkGetCurrentPosition): view is AaveView {
   return view && ('v2' in view || 'v3' in view)
 }
 
