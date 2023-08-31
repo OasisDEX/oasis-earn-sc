@@ -85,7 +85,7 @@ export const open: SparkOpenOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const setCollateralApprovalOnAave = actions.common.setApproval(
+  const setCollateralApproval = actions.common.setApproval(
     network,
     {
       amount: depositAmount,
@@ -106,13 +106,13 @@ export const open: SparkOpenOperation = async ({
     [0, 0, 1, 0],
   )
 
-  const borrowDebtTokensFromAAVE = actions.spark.borrow(network, {
+  const borrowDebtTokens = actions.spark.borrow(network, {
     amount: debt.borrow.amount,
     asset: debt.address,
     to: addresses.operationExecutor,
   })
 
-  const protocol: Protocol = 'AAVE_V3'
+  const protocol: Protocol = 'Spark'
 
   const positionCreated = actions.common.positionCreated(network, {
     protocol,
@@ -131,9 +131,9 @@ export const open: SparkOpenOperation = async ({
     pullCollateralTokensToProxy,
     wrapEth,
     swapDebtTokensForCollateralTokens,
-    setCollateralApprovalOnAave,
+    setCollateralApproval,
     depositCollateral,
-    borrowDebtTokensFromAAVE,
+    borrowDebtTokens,
     setEModeOnCollateral,
     positionCreated,
   ]

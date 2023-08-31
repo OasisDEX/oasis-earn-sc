@@ -1,6 +1,8 @@
-import { getAaveCloseV3OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { MAX_UINT, ZERO } from '@dma-common/constants'
+import { getSparkCloseOperationDefinition } from '@deploy-configurations/operation-definitions'
+import { Network } from '@deploy-configurations/types/network'
+import { FEE_BASE, MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import {
   IOperation,
   WithCollateral,
@@ -34,7 +36,6 @@ export type SparkCloseOperation = ({
   network,
 }: CloseArgs) => Promise<IOperation>
 
-// TODO: Adjust for Spark and make Balancer flow compatible
 export const close: SparkCloseOperation = async ({
   collateral,
   debt,
@@ -45,23 +46,23 @@ export const close: SparkCloseOperation = async ({
   addresses,
   network,
 }) => {
-  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode(network, {
+  const setEModeOnCollateral = actions.spark.setEMode(network, {
     categoryId: 0,
   })
-  const setFlashLoanApproval = actions.common.setApproval(network, {
-    amount: flashloan.token.amount,
-    asset: flashloan.token.address,
+  const setDebtTokenApprovalOnPool = actions.common.setApproval(Network.MAINNET, {
+    asset: debt.address,
     delegate: addresses.lendingPool,
-    sumAmounts: false,
-  })
-
-  const depositFlashLoan = actions.aave.v3.aaveV3Deposit(network, {
     amount: flashloan.token.amount,
-    asset: flashloan.token.address,
     sumAmounts: false,
   })
 
-  const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw(network, {
+  const paybackDebt = actions.spark.payback(network, {
+    asset: debt.address,
+    amount: ZERO,
+    paybackAll: true,
+  })
+
+  const withdrawCollateral = actions.spark.withdraw(network, {
     asset: collateral.address,
     amount: new BigNumber(MAX_UINT),
     to: proxy.address,
@@ -70,39 +71,24 @@ export const close: SparkCloseOperation = async ({
   const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
     fromAsset: collateral.address,
     toAsset: debt.address,
-    amount: position.collateral.amount || ZERO,
+    amount: swap.amount,
     receiveAtLeast: swap.receiveAtLeast,
     fee: swap.fee,
     withData: swap.data,
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
-    network,
-    {
-      asset: debt.address,
-      delegate: addresses.lendingPool,
-      amount: new BigNumber(0),
-      sumAmounts: false,
-    },
-    [0, 0, 3, 0],
-  )
-
-  const paybackInAAVE = actions.aave.v3.aaveV3Payback(network, {
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken(Network.MAINNET, {
     asset: debt.address,
-    amount: new BigNumber(0),
-    paybackAll: true,
-  })
-
-  const withdrawFlashLoan = actions.aave.v3.aaveV3Withdraw(network, {
-    asset: flashloan.token.address,
-    amount: flashloan.token.amount,
     to: addresses.operationExecutor,
+    amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.token.amount)),
   })
 
   const unwrapEth = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
   })
+
+  unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
   const returnDebtFunds = actions.common.returnFunds(network, {
     asset: debt.isEth ? addresses.tokens.ETH : debt.address,
@@ -112,8 +98,6 @@ export const close: SparkCloseOperation = async ({
     asset: collateral.isEth ? addresses.tokens.ETH : collateral.address,
   })
 
-  unwrapEth.skipped = !debt.isEth && !collateral.isEth
-
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
     isDPMProxy: proxy.isDPMProxy,
     asset: flashloan.token.address,
@@ -121,21 +105,18 @@ export const close: SparkCloseOperation = async ({
     isProxyFlashloan: true,
     provider: flashloan.provider,
     calls: [
-      setFlashLoanApproval,
-      depositFlashLoan,
-      withdrawCollateralFromAAVE,
+      setEModeOnCollateral,
+      setDebtTokenApprovalOnPool,
+      paybackDebt,
+      withdrawCollateral,
       swapCollateralTokensForDebtTokens,
-      setDebtTokenApprovalOnLendingPool,
-      paybackInAAVE,
-      withdrawFlashLoan,
+      sendQuoteTokenToOpExecutor,
       unwrapEth,
-      returnDebtFunds,
-      returnCollateralFunds,
     ],
   })
 
   return {
-    calls: [takeAFlashLoan, setEModeOnCollateral],
-    operationName: getAaveCloseV3OperationDefinition(network).name,
+    calls: [takeAFlashLoan, returnDebtFunds, returnCollateralFunds],
+    operationName: getSparkCloseOperationDefinition(network).name,
   }
 }
