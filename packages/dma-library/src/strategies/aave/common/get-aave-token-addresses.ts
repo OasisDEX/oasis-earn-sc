@@ -9,6 +9,10 @@ export const getAaveTokenAddress = (
 ) => {
   const tokenAddress = addresses.tokens[token.symbol]
 
+  if (token.symbol === 'ETH') {
+    return addresses.tokens['WETH']
+  }
+
   if (!tokenAddress || tokenAddress === EMPTY_ADDRESS)
     throw new Error('Token not recognised or address missing in dependencies')
 
