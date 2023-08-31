@@ -17,22 +17,6 @@ export function getSparkOpenOperationDefinition(network: Network) {
         optional: true,
       },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.PULL_TOKEN),
-        optional: true,
-      },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SET_APPROVAL),
-        optional: false,
-      },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.DEPOSIT),
-        optional: false,
-      },
-      {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.BORROW),
-        optional: false,
-      },
-      {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.WRAP_ETH),
         optional: true,
       },
@@ -48,11 +32,11 @@ export function getSparkOpenOperationDefinition(network: Network) {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.DEPOSIT),
         optional: false,
       },
-      { hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.SET_EMODE), optional: true },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.WITHDRAW),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.BORROW),
         optional: false,
       },
+      { hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.SET_EMODE), optional: true },
       { hash: getActionHash(SERVICE_REGISTRY_NAMES.common.POSITION_CREATED), optional: false },
     ],
   }

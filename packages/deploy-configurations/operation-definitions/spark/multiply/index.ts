@@ -1,0 +1,1 @@
+export { getSparkOpenOperationDefinition } from './open'

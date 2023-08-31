@@ -1,4 +1,4 @@
-import { getAaveOpenV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getSparkOpenOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import {
@@ -42,7 +42,6 @@ export type SparkOpenOperation = ({
   network,
 }: OpenOperationArgs) => Promise<IOperation>
 
-// TODO: Adjust for Spark and make Balancer flow compatible
 export const open: SparkOpenOperation = async ({
   collateral,
   debt,
@@ -58,51 +57,23 @@ export const open: SparkOpenOperation = async ({
   const depositAmount = deposit?.amount || ZERO
   const depositAddress = deposit?.address || NULL_ADDRESS
 
-  const isDepositingCollateral = deposit?.address === collateral.address
-  const isDepositingDebtTokens = deposit?.address === debt.address
-
-  const pullDebtTokensToProxy = actions.common.pullToken(network, {
-    asset: debt.address,
-    amount: isDepositingDebtTokens ? depositAmount : ZERO,
-    from: proxy.owner,
-  })
+  if (depositAddress !== collateral.address) {
+    throw new Error('Deposit token must be the same as collateral token')
+  }
 
   const pullCollateralTokensToProxy = actions.common.pullToken(network, {
     asset: collateral.address,
-    amount: isDepositingCollateral ? depositAmount : ZERO,
+    amount: depositAmount,
     from: proxy.owner,
-  })
-
-  // WRAP ETH GOES 'ERE
-  // SWAP GOES 'ERE
-  // SET COLL APPROVAL 'ERE
-  // DEPOSIT COLL 'ERE
-  // BORROW DEBT 'ERE
-  // SEND DEBT TO OP EXECUTOR 'ERE
-  // POS CREATED
-
-  const setFlashloanTokenApprovalOnAave = actions.common.setApproval(network, {
-    amount: flashloan.token.amount,
-    asset: flashloan.token.address,
-    delegate: addresses.lendingPool,
-    sumAmounts: false,
-  })
-
-  const depositFlashloanAsCollateral = actions.aave.v3.aaveV3Deposit(network, {
-    amount: flashloan.token.amount,
-    asset: flashloan.token.address,
-    sumAmounts: false,
-  })
-
-  const borrowDebtTokensFromAAVE = actions.aave.v3.aaveV3Borrow(network, {
-    amount: debt.borrow.amount,
-    asset: debt.address,
-    to: proxy.address,
   })
 
   const wrapEth = actions.common.wrapEth(network, {
     amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
   })
+
+  const hasAmountToDeposit = depositAmount.gt(ZERO)
+  pullCollateralTokensToProxy.skipped = !hasAmountToDeposit || collateral.isEth
+  wrapEth.skipped = !debt.isEth && !collateral.isEth
 
   const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
     fromAsset: debt.address,
@@ -114,32 +85,30 @@ export const open: SparkOpenOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const depositIsCollateral = depositAddress === collateral.address
-  const setCollateralTokenApprovalOnLendingPool = actions.common.setApproval(
+  const setCollateralApprovalOnAave = actions.common.setApproval(
     network,
     {
-      asset: collateral.address,
+      amount: depositAmount,
+      asset: flashloan.token.address,
       delegate: addresses.lendingPool,
-      amount: depositIsCollateral ? depositAmount : ZERO,
       sumAmounts: true,
     },
-    [0, 0, 3, 0],
+    [0, 0, 1, 0],
   )
 
-  const depositCollateral = actions.aave.v3.aaveV3Deposit(
+  const depositCollateral = actions.spark.deposit(
     network,
     {
+      amount: depositAmount,
       asset: collateral.address,
-      amount: depositIsCollateral ? depositAmount : ZERO,
       sumAmounts: true,
-      setAsCollateral: true,
     },
-    [0, 3, 0, 0],
+    [0, 0, 1, 0],
   )
 
-  const withdrawFlashloanAssetFromAave = actions.aave.v3.aaveV3Withdraw(network, {
-    asset: flashloan.token.address,
-    amount: flashloan.token.amount,
+  const borrowDebtTokensFromAAVE = actions.spark.borrow(network, {
+    amount: debt.borrow.amount,
+    asset: debt.address,
     to: addresses.operationExecutor,
   })
 
@@ -152,33 +121,20 @@ export const open: SparkOpenOperation = async ({
     debtToken: debt.address,
   })
 
-  const hasAmountToDeposit = depositAmount.gt(ZERO)
-  pullDebtTokensToProxy.skipped = isDepositingCollateral || !hasAmountToDeposit || debt.isEth
-  pullCollateralTokensToProxy.skipped =
-    isDepositingDebtTokens || !hasAmountToDeposit || collateral.isEth
-  wrapEth.skipped = !debt.isEth && !collateral.isEth
-
-  depositFlashloanAsCollateral.skipped = false //flashloan.token.address === debt.address
-  borrowDebtTokensFromAAVE.skipped = false // flashloan.token.address === debt.address
-
-  const setEModeOnCollateral = actions.aave.v3.aaveV3SetEMode(network, {
+  const setEModeOnCollateral = actions.spark.setEMode(network, {
     categoryId: emode.categoryId || 0,
   })
 
   setEModeOnCollateral.skipped = !emode.categoryId || emode.categoryId === 0
 
   const flashloanCalls = [
-    pullDebtTokensToProxy,
     pullCollateralTokensToProxy,
-    setFlashloanTokenApprovalOnAave,
-    depositFlashloanAsCollateral,
-    borrowDebtTokensFromAAVE,
     wrapEth,
     swapDebtTokensForCollateralTokens,
-    setCollateralTokenApprovalOnLendingPool,
+    setCollateralApprovalOnAave,
     depositCollateral,
+    borrowDebtTokensFromAAVE,
     setEModeOnCollateral,
-    withdrawFlashloanAssetFromAave,
     positionCreated,
   ]
 
@@ -193,6 +149,6 @@ export const open: SparkOpenOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: getAaveOpenV3OperationDefinition(network).name,
+    operationName: getSparkOpenOperationDefinition(network).name,
   }
 }
