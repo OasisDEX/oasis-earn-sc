@@ -94,6 +94,12 @@ contract AjnaProxyActions is IAjnaProxyActions {
         }
     }
 
+    function _stampLoan(IERC20Pool pool, bool stamploan) internal {
+        if (stamploan) {
+            pool.stampLoan();
+        }
+    }
+
     /**
      *  @notice Mints and empty NFT for the user, NFT is bound to a specific pool.
      *  @param  pool            Address of the Ajana Pool.
@@ -242,13 +248,19 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  collateralAmount Amount of collateral to deposit
      *  @param  price          Price of the bucket
      */
-    function depositCollateral(IERC20Pool pool, uint256 collateralAmount, uint256 price) public payable {
+    function depositCollateral(
+        IERC20Pool pool,
+        uint256 collateralAmount,
+        uint256 price,
+        bool stamploan
+    ) public payable {
         address collateralToken = pool.collateralAddress();
         _pull(collateralToken, collateralAmount);
 
         uint256 index = convertPriceToIndex(price);
         IERC20(collateralToken).forceApprove(address(pool), collateralAmount);
         pool.drawDebt(address(this), 0, index, collateralAmount * pool.collateralScale());
+        _stampLoan(pool, stamploan);
         emit ProxyActionsOperation("AjnaDeposit");
     }
 
@@ -301,19 +313,21 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  debtAmount     Amount of debt to borrow
      *  @param  collateralAmount Amount of collateral to deposit
      *  @param  price          Price of the bucket
+     *  @param  stamploan      Whether to stamp the loan or not
      */
     function depositAndDraw(
         IERC20Pool pool,
         uint256 debtAmount,
         uint256 collateralAmount,
-        uint256 price
+        uint256 price,
+        bool stamploan
     ) public payable {
         if (debtAmount > 0 && collateralAmount > 0) {
             depositCollateralAndDrawDebt(pool, debtAmount, collateralAmount, price);
         } else if (debtAmount > 0) {
             drawDebt(pool, debtAmount, price);
         } else if (collateralAmount > 0) {
-            depositCollateral(pool, collateralAmount, price);
+            depositCollateral(pool, collateralAmount, price, stamploan);
         }
     }
 
@@ -330,9 +344,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
         (, , , , , uint256 lupIndex_) = poolInfoUtils.poolPricesInfo(address(pool));
         uint256 balanceBefore = IERC20(debtToken).balanceOf(address(this));
         pool.repayDebt(address(this), amount * pool.quoteTokenScale(), 0, address(this), lupIndex_);
-        if (stamploan) {
-            pool.stampLoan();
-        }
+        _stampLoan(pool, stamploan);
         uint256 repaidAmount = balanceBefore - IERC20(debtToken).balanceOf(address(this));
         uint256 leftoverBalance = amount - repaidAmount;
         if (leftoverBalance > 0) {
@@ -439,7 +451,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
      */
     function openPosition(IERC20Pool pool, uint256 debtAmount, uint256 collateralAmount, uint256 price) public payable {
         emit CreatePosition(address(this), "Ajna", "Borrow", pool.collateralAddress(), pool.quoteTokenAddress());
-        depositAndDraw(pool, debtAmount, collateralAmount, price);
+        depositAndDraw(pool, debtAmount, collateralAmount, price, false);
     }
 
     /**
