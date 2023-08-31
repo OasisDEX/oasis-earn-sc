@@ -1,5 +1,5 @@
-import { getAaveAdjustUpV3OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
+import { getSparkAdjustUpOperationDefinition } from '@deploy-configurations/operation-definitions'
+import { ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { IOperation } from '@dma-library/types'
 import {
@@ -35,7 +35,6 @@ export type SparkAdjustUpOperation = ({
   network,
 }: AdjustRiskUpArgs) => Promise<IOperation>
 
-// TODO: Adjust for Spark and make Balancer flow compatible
 export const adjustRiskUp: SparkAdjustUpOperation = async ({
   collateral,
   debt,
@@ -47,37 +46,23 @@ export const adjustRiskUp: SparkAdjustUpOperation = async ({
   network,
 }) => {
   const depositAmount = deposit?.amount || ZERO
-  const depositAddress = deposit?.address || NULL_ADDRESS
 
-  const pullDepositTokensToProxy = actions.common.pullToken(network, {
-    asset: depositAddress,
+  const pullCollateralTokensToProxy = actions.common.pullToken(network, {
+    asset: collateral.address,
     amount: depositAmount,
     from: proxy.owner,
   })
-
-  const setFlashLoanApproval = actions.common.setApproval(network, {
-    amount: flashloan.token.amount,
-    asset: flashloan.token.address,
-    delegate: addresses.lendingPool,
-    sumAmounts: false,
-  })
-
-  const depositFlashloan = actions.aave.v3.aaveV3Deposit(network, {
-    amount: flashloan.token.amount,
-    asset: flashloan.token.address,
-    sumAmounts: false,
-  })
-
-  const borrowDebtTokensFromAAVE = actions.aave.v3.aaveV3Borrow(network, {
-    amount: debt.borrow.amount,
-    asset: debt.address,
-    to: proxy.address,
-  })
+  const hasAmountToDeposit = depositAmount.gt(ZERO)
+  const shouldSkipPullCollateralTokensToProxy = !hasAmountToDeposit || collateral.isEth
+  pullCollateralTokensToProxy.skipped = shouldSkipPullCollateralTokensToProxy
 
   const wrapEth = actions.common.wrapEth(network, {
     amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
   })
+  wrapEth.skipped = !collateral.isEth
 
+  // No previous actions store values with OpStorage
+  const swapActionStorageIndex = 1
   const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
     fromAsset: debt.address,
     toAsset: collateral.address,
@@ -88,48 +73,41 @@ export const adjustRiskUp: SparkAdjustUpOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const depositIsCollateral = depositAddress === collateral.address
   const setCollateralTokenApprovalOnLendingPool = actions.common.setApproval(
     network,
     {
       asset: collateral.address,
       delegate: addresses.lendingPool,
-      amount: depositIsCollateral ? depositAmount : ZERO,
+      amount: depositAmount,
       sumAmounts: true,
     },
-    [0, 0, 3, 0],
+    [0, 0, swapActionStorageIndex, 0],
   )
 
-  const depositCollateral = actions.aave.v3.aaveV3Deposit(
+  const depositCollateral = actions.spark.deposit(
     network,
     {
       asset: collateral.address,
-      amount: depositIsCollateral ? depositAmount : ZERO,
+      amount: depositAmount,
       sumAmounts: true,
       setAsCollateral: true,
     },
-    [0, 3, 0, 0],
+    [0, swapActionStorageIndex, 0, 0],
   )
 
-  const withdrawFlashloan = actions.aave.v3.aaveV3Withdraw(network, {
+  const withdrawDebt = actions.spark.withdraw(network, {
     asset: flashloan.token.address,
     amount: flashloan.token.amount,
     to: addresses.operationExecutor,
   })
 
-  pullDepositTokensToProxy.skipped = depositAmount.eq(ZERO) || debt.isEth
-  wrapEth.skipped = !debt.isEth && !collateral.isEth
-
   const flashloanCalls = [
-    pullDepositTokensToProxy,
-    setFlashLoanApproval,
-    depositFlashloan,
-    borrowDebtTokensFromAAVE,
+    pullCollateralTokensToProxy,
     wrapEth,
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnLendingPool,
     depositCollateral,
-    withdrawFlashloan,
+    withdrawDebt,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
@@ -143,6 +121,6 @@ export const adjustRiskUp: SparkAdjustUpOperation = async ({
 
   return {
     calls: [takeAFlashLoan],
-    operationName: getAaveAdjustUpV3OperationDefinition(network).name,
+    operationName: getSparkAdjustUpOperationDefinition(network).name,
   }
 }

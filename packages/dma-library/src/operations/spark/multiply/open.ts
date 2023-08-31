@@ -75,6 +75,8 @@ export const open: SparkOpenOperation = async ({
   pullCollateralTokensToProxy.skipped = !hasAmountToDeposit || collateral.isEth
   wrapEth.skipped = !debt.isEth && !collateral.isEth
 
+  // No previous actions store values with OpStorage
+  const swapActionStorageIndex = 1
   const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
     fromAsset: debt.address,
     toAsset: collateral.address,
@@ -93,7 +95,7 @@ export const open: SparkOpenOperation = async ({
       delegate: addresses.lendingPool,
       sumAmounts: true,
     },
-    [0, 0, 1, 0],
+    [0, 0, swapActionStorageIndex, 0],
   )
 
   const depositCollateral = actions.spark.deposit(
@@ -103,7 +105,7 @@ export const open: SparkOpenOperation = async ({
       asset: collateral.address,
       sumAmounts: true,
     },
-    [0, 0, 1, 0],
+    [0, 0, swapActionStorageIndex, 0],
   )
 
   const borrowDebtTokens = actions.spark.borrow(network, {
