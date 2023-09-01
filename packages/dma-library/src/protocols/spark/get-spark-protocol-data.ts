@@ -1,6 +1,5 @@
 import {
-  PriceResult,
-  ReserveDataResult,
+  AaveLikeProtocolData,
   SharedAaveLikeProtocolDataArgs,
 } from '@dma-library/protocols/aave-like/types'
 import {
@@ -11,17 +10,7 @@ import {
   getAaveLikeSystemContracts,
 } from '@dma-library/protocols/aave-like/utils'
 
-export type SparkProtocolData = {
-  aaveFlashloanAssetPriceInEth: PriceResult
-  aaveDebtTokenPriceInEth: PriceResult
-  aaveCollateralTokenPriceInEth: PriceResult
-  reserveDataForFlashloan: ReserveDataResult
-  reserveDataForCollateral: ReserveDataResult
-  reserveEModeCategory: number
-  userReserveDataForDebtToken: any
-  userReserveDataForCollateral: any
-  eModeCategoryData: any
-}
+export type SparkProtocolData = AaveLikeProtocolData
 
 export type GetSparkProtocolData = (
   args: SharedAaveLikeProtocolDataArgs,
@@ -75,9 +64,9 @@ export const getSparkProtocolData: GetSparkProtocolData = async args => {
   }
 
   return {
-    aaveFlashloanAssetPriceInEth: flashloanPrice,
-    aaveDebtTokenPriceInEth: debtPrice,
-    aaveCollateralTokenPriceInEth: collateralPrice,
+    flashloanAssetPriceInEth: flashloanPrice,
+    debtTokenPriceInEth: debtPrice,
+    collateralTokenPriceInEth: collateralPrice,
     reserveDataForFlashloan: flashloanReserveData,
     reserveDataForCollateral: collateralReserveData,
     reserveEModeCategory: reserveEModeCategory,

@@ -1,69 +1,88 @@
 import { ADDRESSES } from '@deploy-configurations/addresses'
 import { getAaveCloseV2OperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
-import { MAX_UINT } from '@dma-common/constants'
+import { MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
-import { IOperation } from '@dma-library/types'
+import {
+  IOperation,
+  WithCollateral,
+  WithDebt,
+  WithFlashloan,
+  WithNetwork,
+  WithPositionAndLockedCollateral,
+  WithProxy,
+  WithSwap,
+} from '@dma-library/types'
 import { FlashloanProvider } from '@dma-library/types/common'
+import { WithAaveLikeStrategyAddresses } from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 
-type CloseArgs = {
-  collateralAmountToBeSwapped: BigNumber
-  flashloanAmount: BigNumber
-  receiveAtLeast: BigNumber
-  fee: number
-  swapData: string | number
-  proxy: string
-  collectFeeFrom: 'sourceToken' | 'targetToken'
-  collateralTokenAddress: string
-  collateralIsEth: boolean
-  debtTokenAddress: string
-  debtTokenIsEth: boolean
-  isDPMProxy: boolean
-  network: Network
-}
+export type CloseArgs = WithCollateral &
+  WithDebt &
+  WithSwap &
+  WithFlashloan &
+  WithProxy &
+  WithPositionAndLockedCollateral &
+  WithAaveLikeStrategyAddresses &
+  WithNetwork
 
-export type AaveV2CloseOperation = (
-  args: CloseArgs,
-  addresses: AaveLikeStrategyAddresses,
-) => Promise<IOperation>
+export type AaveV2CloseOperation = ({
+  collateral,
+  debt,
+  swap,
+  flashloan,
+  proxy,
+  position,
+  addresses,
+  network,
+}: CloseArgs) => Promise<IOperation>
 
-export const close: AaveV2CloseOperation = async (args, addresses) => {
-  const { network } = args
+export const close: AaveV2CloseOperation = async args => {
+  const {
+    collateral,
+    debt,
+    proxy,
+    position: {
+      collateral: { amount: collateralAmountToBeSwapped },
+    },
+    network,
+    swap,
+    flashloan,
+    addresses,
+  } = args
   const setDaiApprovalOnLendingPool = actions.common.setApproval(network, {
-    amount: args.flashloanAmount,
+    amount: flashloan.token.amount,
     asset: addresses.tokens.DAI,
     delegate: addresses.lendingPool,
     sumAmounts: false,
   })
 
   const depositDaiInAAVE = actions.aave.v2.aaveDeposit(network, {
-    amount: args.flashloanAmount,
+    amount: flashloan.token.amount,
     asset: addresses.tokens.DAI,
     sumAmounts: false,
   })
 
   const withdrawCollateralFromAAVE = actions.aave.v2.aaveWithdraw(network, {
-    asset: args.collateralTokenAddress,
+    asset: collateral.address,
     amount: new BigNumber(MAX_UINT),
-    to: args.proxy,
+    to: proxy.address,
   })
 
   const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
-    fromAsset: args.collateralTokenAddress,
-    toAsset: args.debtTokenAddress,
-    amount: args.collateralAmountToBeSwapped,
-    receiveAtLeast: args.receiveAtLeast,
-    fee: args.fee,
-    withData: args.swapData,
-    collectFeeInFromToken: args.collectFeeFrom === 'sourceToken',
+    fromAsset: collateral.address,
+    toAsset: debt.address,
+    amount: collateralAmountToBeSwapped || ZERO,
+    receiveAtLeast: swap.receiveAtLeast,
+    fee: swap.fee,
+    withData: swap.data,
+    collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
   const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
     network,
     {
-      asset: args.debtTokenAddress,
+      asset: debt.address,
       delegate: addresses.lendingPool,
       amount: new BigNumber(0),
       sumAmounts: false,
@@ -72,14 +91,14 @@ export const close: AaveV2CloseOperation = async (args, addresses) => {
   )
 
   const paybackInAAVE = actions.aave.v2.aavePayback(network, {
-    asset: args.debtTokenAddress,
+    asset: debt.address,
     amount: new BigNumber(0),
     paybackAll: true,
   })
 
   const withdrawDAIFromAAVE = actions.aave.v2.aaveWithdraw(network, {
     asset: addresses.tokens.DAI,
-    amount: args.flashloanAmount,
+    amount: flashloan.token.amount,
     to: addresses.operationExecutor,
   })
 
@@ -89,22 +108,20 @@ export const close: AaveV2CloseOperation = async (args, addresses) => {
 
   // Also covers the return of dust amount funds to the user - in the close to collateral scenario
   const returnDebtFunds = actions.common.returnFunds(network, {
-    asset: args.debtTokenIsEth ? ADDRESSES[Network.MAINNET].common.ETH : args.debtTokenAddress,
+    asset: debt.isEth ? ADDRESSES[Network.MAINNET].common.ETH : debt.address,
   })
 
   const returnCollateralFunds = actions.common.returnFunds(network, {
-    asset: args.collateralIsEth
-      ? ADDRESSES[Network.MAINNET].common.ETH
-      : args.collateralTokenAddress,
+    asset: collateral.isEth ? ADDRESSES[Network.MAINNET].common.ETH : collateral.address,
   })
 
-  unwrapEth.skipped = !args.debtTokenIsEth && !args.collateralIsEth
+  unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
-    flashloanAmount: args.flashloanAmount,
+    flashloanAmount: flashloan.token.amount,
     asset: addresses.tokens.DAI,
     isProxyFlashloan: true,
-    isDPMProxy: args.isDPMProxy,
+    isDPMProxy: proxy.isDPMProxy,
     provider: FlashloanProvider.DssFlash,
     calls: [
       setDaiApprovalOnLendingPool,

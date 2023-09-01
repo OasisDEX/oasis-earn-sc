@@ -1,6 +1,7 @@
 import { AaveLikeDepositBorrow, depositBorrow } from './borrow/deposit-borrow'
 import { AaveLikeOpenDepositBorrow, openDepositBorrow } from './borrow/open-deposit-borrow'
 import { AaveLikePaybackWithdraw, paybackWithdraw } from './borrow/payback-withdraw'
+import { AaveLikeClose, close } from './multiply/close'
 import { AaveLikeOpen, open } from './multiply/open'
 
 type AaveLike = {
@@ -11,6 +12,7 @@ type AaveLike = {
   }
   multiply: {
     open: AaveLikeOpen
+    close: AaveLikeClose
   }
 }
 
@@ -22,5 +24,6 @@ export const aaveLike: AaveLike = {
   },
   multiply: {
     open,
+    close,
   },
 }

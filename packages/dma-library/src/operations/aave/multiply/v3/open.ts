@@ -105,6 +105,7 @@ export const open: AaveV3OpenOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
+  const swapActionStorageIndex = 3
   const depositIsCollateral = depositAddress === collateral.address
   const setCollateralTokenApprovalOnLendingPool = actions.common.setApproval(
     network,
@@ -114,7 +115,7 @@ export const open: AaveV3OpenOperation = async ({
       amount: depositIsCollateral ? depositAmount : ZERO,
       sumAmounts: true,
     },
-    [0, 0, 3, 0],
+    [0, 0, swapActionStorageIndex, 0],
   )
 
   const depositCollateral = actions.aave.v3.aaveV3Deposit(
@@ -125,7 +126,7 @@ export const open: AaveV3OpenOperation = async ({
       sumAmounts: true,
       setAsCollateral: true,
     },
-    [0, 3, 0, 0],
+    [0, swapActionStorageIndex, 0, 0],
   )
 
   const withdrawFlashloanAssetFromAave = actions.aave.v3.aaveV3Withdraw(network, {

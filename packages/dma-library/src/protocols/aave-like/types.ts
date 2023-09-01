@@ -13,3 +13,15 @@ export type SharedAaveLikeProtocolDataArgs = {
   flashloanTokenAddress?: string
   proxy?: string
 }
+
+export type AaveLikeProtocolData = {
+  flashloanAssetPriceInEth: PriceResult
+  debtTokenPriceInEth: PriceResult
+  collateralTokenPriceInEth: PriceResult
+  reserveDataForFlashloan: ReserveDataResult
+  reserveDataForCollateral: ReserveDataResult
+  reserveEModeCategory: number | undefined
+  userReserveDataForDebtToken: any
+  userReserveDataForCollateral: any
+  eModeCategoryData: any
+}

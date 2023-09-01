@@ -1,6 +1,7 @@
 import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
+import { AaveProtocolData } from '@dma-library/protocols'
 import { AAVETokens } from '@dma-library/types/aave'
 import { AaveLikeTokens } from '@dma-library/types/aave/tokens'
 import { GetSwapData } from '@dma-library/types/common/get-swap-data'
@@ -47,6 +48,14 @@ export type WithAaveLikeBorrowStrategyArgs = {
 } & WithAaveLikeStrategyArgs
 
 export type WithAaveLikeMultiplyStrategyArgs = WithAaveLikeBorrowStrategyArgs
+
+export type WithCloseToCollateralFlag = {
+  shouldCloseToCollateral?: boolean
+}
+
+export type WithProtocolData = {
+  protocolData: AaveProtocolData
+}
 
 type WithSlippage = {
   slippage: BigNumber
@@ -119,17 +128,13 @@ type SharedStrategyDependencies = {
   network: Network
 }
 
-export type WithAaveStrategyDependencies = {
-  addresses: AaveLikeStrategyAddresses
-} & SharedStrategyDependencies
-export type WithAaveMultiplyStrategyDependencies = WithAaveStrategyDependencies & WithDPMFlag
-
 export type WithAaveLikeStrategyDependencies = {
   addresses: AaveLikeStrategyAddresses
 } & SharedStrategyDependencies &
   WithAaveLikeProtocolType
 export type WithAaveLikeMultiplyStrategyDependencies = WithAaveLikeStrategyDependencies &
   WithDPMFlag
+export type WithAaveMultiplyStrategyDependencies = WithAaveLikeMultiplyStrategyDependencies
 
 export type WithDPMFlag = {
   isDPMProxy: boolean

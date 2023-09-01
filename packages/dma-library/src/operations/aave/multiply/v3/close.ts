@@ -40,7 +40,9 @@ export const close: AaveV3CloseOperation = async ({
   swap,
   flashloan,
   proxy,
-  position,
+  position: {
+    collateral: { amount: collateralAmountToBeSwapped },
+  },
   addresses,
   network,
 }) => {
@@ -69,7 +71,7 @@ export const close: AaveV3CloseOperation = async ({
   const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
     fromAsset: collateral.address,
     toAsset: debt.address,
-    amount: position.collateral.amount || ZERO,
+    amount: collateralAmountToBeSwapped || ZERO,
     receiveAtLeast: swap.receiveAtLeast,
     fee: swap.fee,
     withData: swap.data,

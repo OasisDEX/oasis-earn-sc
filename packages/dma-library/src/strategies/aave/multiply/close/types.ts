@@ -1,36 +1,24 @@
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
-import {
-  AAVETokens,
-  IBasePositionTransitionArgs,
-  IPositionTransitionDependencies,
-  PositionType,
-  WithCollateralTokenAddress,
-  WithDebtTokenAddress,
-  WithFlashloanToken,
-} from '@dma-library/types'
-import { AaveVersion } from '@dma-library/types/aave'
+import { AaveLikeCloseArgs } from '@dma-library/strategies/aave-like/multiply/close'
+import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
+import * as Strategies from '@dma-library/types/strategies'
+import * as StrategyParams from '@dma-library/types/strategy-params'
 
-import { AaveValuesFromProtocol } from './get-values-from-protocol'
+export type AaveV2CloseDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
+  WithV2Protocol &
+  StrategyParams.WithSwap &
+  StrategyParams.WithPositionType
 
-export type AaveCloseArgs = IBasePositionTransitionArgs<AAVETokens> & {
-  positionType: PositionType
-} & {
-  shouldCloseToCollateral?: boolean
-}
-export type WithVersioning = {
-  protocolVersion: AaveVersion
-}
+export type AaveV3CloseDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
+  WithV3Protocol &
+  StrategyParams.WithSwap &
+  StrategyParams.WithPositionType
 
-export type WithAaveValuesFromProtocol = {
-  protocolValues: AaveValuesFromProtocol
-}
+export type AaveCloseArgs = AaveLikeCloseArgs & StrategyParams.WithCloseToCollateralFlag
 
-export type AaveCloseArgsWithVersioning = AaveCloseArgs & WithVersioning
-export type AaveCloseDependencies = IPositionTransitionDependencies<AaveLikeStrategyAddresses>
+export type AaveCloseDependencies = AaveV2CloseDependencies | AaveV3CloseDependencies
 
-export type ExpandedAaveCloseArgs = AaveCloseArgs &
-  WithVersioning &
-  WithAaveValuesFromProtocol &
-  WithCollateralTokenAddress &
-  WithDebtTokenAddress &
-  WithFlashloanToken
+export type ICloseStrategy = Strategies.IMultiplyStrategy
+export type AaveClose = (
+  args: AaveCloseArgs,
+  dependencies: AaveCloseDependencies,
+) => Promise<ICloseStrategy>
