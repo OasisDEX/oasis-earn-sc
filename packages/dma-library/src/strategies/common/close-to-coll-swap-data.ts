@@ -23,6 +23,7 @@ interface GetSwapDataToCloseToCollateralArgs {
   slippage: BigNumber
   ETHAddress: Address
   getSwapData: GetSwapData
+  __feeOverride?: BigNumber
 }
 
 export async function getSwapDataForCloseToCollateral({
@@ -34,6 +35,7 @@ export async function getSwapDataForCloseToCollateral({
   slippage,
   ETHAddress,
   getSwapData,
+  __feeOverride,
 }: GetSwapDataToCloseToCollateralArgs) {
   // 1.Use offset amount which will be used in the swap as well.
   // The idea is that after the debt is paid, the remaining will be transferred to the beneficiary
@@ -42,7 +44,7 @@ export async function getSwapDataForCloseToCollateral({
   // so instead of charging the user a fee, we add an offset ( equal to the fee ) to the
   // collateral amount. This means irrespective of whether the fee is collected before
   // or after the swap, there will always be sufficient debt token remaining to cover the outstanding position debt.
-  const fee = SwapUtils.feeResolver(collateralToken.symbol, debtToken.symbol)
+  const fee = __feeOverride || SwapUtils.feeResolver(collateralToken.symbol, debtToken.symbol)
 
   // 2. Calculated the needed amount of collateral to payback the debt
   // This value is calculated based on oracle prices.
