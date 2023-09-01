@@ -12,7 +12,7 @@ export async function resolveProtocolData(
   const { protocol, version } = resolveAavelikeProtocol(protocolType)
 
   if (isAaveProtocol(protocol)) {
-    if (!version) throw new Error('Version must be defined when using Aave view')
+    if (!version) throw new Error('Version must be defined when fetching Aave protocol data
     return await protocol[version](args)
   }
   return await protocol(args)
