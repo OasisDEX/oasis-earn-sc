@@ -19,6 +19,7 @@ interface GetSwapDataForCloseToDebtArgs {
   slippage: BigNumber
   swapAmountBeforeFees: BigNumber
   getSwapData: GetSwapData
+  __feeOverride?: BigNumber
 }
 
 export async function getSwapDataForCloseToDebt({
@@ -27,13 +28,14 @@ export async function getSwapDataForCloseToDebt({
   slippage,
   swapAmountBeforeFees,
   getSwapData,
+  __feeOverride,
 }: GetSwapDataForCloseToDebtArgs) {
   const collectFeeFrom = SwapUtils.acceptedFeeTokenByAddress({
     fromTokenAddress: fromToken.address,
     toTokenAddress: toToken.address,
   })
 
-  const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol)
+  const fee = __feeOverride || SwapUtils.feeResolver(fromToken.symbol, toToken.symbol)
 
   const preSwapFee =
     collectFeeFrom === 'sourceToken' ? calculateFee(swapAmountBeforeFees, fee.toNumber()) : ZERO
