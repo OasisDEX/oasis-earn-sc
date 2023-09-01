@@ -2,11 +2,11 @@ import { loadContractNames, OPERATION_NAMES } from '@deploy-configurations/const
 import { Network } from '@deploy-configurations/types/network'
 import { getActionHash } from '@deploy-configurations/utils/action-hash'
 
-export function getSparkOpenOperationDefinition(network: Network) {
+export function getSparkAdjustUpOperationDefinition(network: Network) {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
   return {
-    name: OPERATION_NAMES.spark.OPEN_POSITION,
+    name: OPERATION_NAMES.spark.ADJUST_RISK_UP,
     actions: [
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.TAKE_A_FLASHLOAN),
@@ -33,11 +33,9 @@ export function getSparkOpenOperationDefinition(network: Network) {
         optional: false,
       },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.BORROW),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.WITHDRAW),
         optional: false,
       },
-      { hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.SET_EMODE), optional: true },
-      { hash: getActionHash(SERVICE_REGISTRY_NAMES.common.POSITION_CREATED), optional: false },
     ],
   }
 }

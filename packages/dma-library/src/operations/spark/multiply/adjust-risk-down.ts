@@ -31,7 +31,6 @@ export type SparkAdjustDownOperation = ({
   network,
 }: AdjustRiskDownArgs) => Promise<IOperation>
 
-// TODO: Adjust for Spark and make Balancer flow compatible
 export const adjustRiskDown: SparkAdjustDownOperation = async ({
   collateral,
   debt,
@@ -41,23 +40,30 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
   addresses,
   network,
 }) => {
-  const setFlashloanTokenApprovalOnLendingPool = actions.common.setApproval(network, {
-    amount: flashloan.token.amount,
-    asset: flashloan.token.address,
+  // Simulation is based on worst case swap IE Max slippage
+  // Payback Debt using FL which should be equivalent to minSwapToAmount
+  // Withdraw Collateral according to simulation
+  // Swap Collateral to Debt (should get more than minSwapToAmount)
+  // Payback Debt using FL (should be equivalent to/gt minSwapToAmount)
+  // Withdraw remaining dust debt
+  // Resulting risk will be same as simulation given that dust amount is transferred to user
+  const setDebtTokenApprovalOnPool = actions.common.setApproval(network, {
+    asset: debt.address,
     delegate: addresses.lendingPool,
-    sumAmounts: false,
-  })
-
-  const depositFlashloanTokenInAave = actions.aave.v3.aaveV3Deposit(network, {
     amount: flashloan.token.amount,
-    asset: flashloan.token.address,
     sumAmounts: false,
   })
 
-  const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw(network, {
+  const paybackDebt = actions.spark.payback(network, {
+    asset: debt.address,
+    // Payback the max amount we can get from the swap
+    amount: swap.receiveAtLeast,
+    paybackAll: false,
+  })
+  const withdrawCollateral = actions.spark.withdraw(network, {
     asset: collateral.address,
     amount: collateral.withdrawal.amount,
-    to: proxy.address,
+    to: addresses.operationExecutor,
   })
 
   const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
@@ -70,36 +76,10 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
-    network,
-    {
-      amount: 0,
-      asset: debt.address,
-      delegate: addresses.lendingPool,
-      sumAmounts: false,
-    },
-    [0, 0, 3, 0],
-  )
-
-  const paybackInAAVE = actions.aave.v3.aaveV3Payback(
-    network,
-    {
-      asset: debt.address,
-      amount: new BigNumber(0),
-      paybackAll: false,
-    },
-    [0, 3, 0],
-  )
-
-  const withdrawFlashloanTokenFromAave = actions.aave.v3.aaveV3Withdraw(network, {
-    asset: flashloan.token.address,
-    amount: flashloan.token.amount,
-    to: addresses.operationExecutor,
-  })
-
   const unwrapEth = actions.common.unwrapEth(network, {
     amount: new BigNumber(MAX_UINT),
   })
+  unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
   const returnDebtFunds = actions.common.returnFunds(network, {
     asset: debt.isEth ? addresses.tokens.ETH : debt.address,
@@ -109,19 +89,12 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
     asset: collateral.isEth ? addresses.tokens.ETH : collateral.address,
   })
 
-  unwrapEth.skipped = !debt.isEth && !collateral.isEth
-
   const flashloanCalls = [
-    setFlashloanTokenApprovalOnLendingPool,
-    depositFlashloanTokenInAave,
-    withdrawCollateralFromAAVE,
+    setDebtTokenApprovalOnPool,
+    paybackDebt,
+    withdrawCollateral,
     swapCollateralTokensForDebtTokens,
-    setDebtTokenApprovalOnLendingPool,
-    paybackInAAVE,
-    withdrawFlashloanTokenFromAave,
     unwrapEth,
-    returnDebtFunds,
-    returnCollateralFunds,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
@@ -134,7 +107,7 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
   })
 
   return {
-    calls: [takeAFlashLoan],
+    calls: [takeAFlashLoan, returnDebtFunds, returnCollateralFunds],
     operationName: getAaveAdjustDownV3OperationDefinition(network).name,
   }
 }

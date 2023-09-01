@@ -58,16 +58,16 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
     amount: depositAmount,
     from: proxy.owner,
   })
+  const hasAmountToDeposit = depositAmount.gt(ZERO)
+  pullCollateralTokensToProxy.skipped = !hasAmountToDeposit || collateral.isEth
 
   const wrapEth = actions.common.wrapEth(network, {
     amount: new BigNumber(ethers.constants.MaxUint256.toHexString()),
   })
+  wrapEth.skipped = !collateral.isEth
 
-  const hasAmountToDeposit = depositAmount.gt(ZERO)
-  pullCollateralTokensToProxy.skipped = !hasAmountToDeposit || collateral.isEth
-  const shouldSkipWrapEth = !collateral.isEth
-  wrapEth.skipped = shouldSkipWrapEth
-
+  // No previous actions store values with OpStorage
+  const swapActionStorageIndex = 1
   const swapDebtTokensForCollateralTokens = actions.common.swap(network, {
     fromAsset: debt.address,
     toAsset: collateral.address,
@@ -78,8 +78,6 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const swapValueIndex = shouldSkipWrapEth ? 1 : 2
-
   const setCollateralTokenApprovalOnPool = actions.common.setApproval(
     network,
     {
@@ -88,7 +86,7 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
       amount: depositAmount,
       sumAmounts: true,
     },
-    [0, 0, swapValueIndex, 0],
+    [0, 0, swapActionStorageIndex, 0],
   )
 
   const depositBorrow = actions.ajna.ajnaDepositBorrow(
@@ -100,7 +98,7 @@ export const adjustRiskUp: AjnaAdjustRiskUpOperation = async ({
       sumDepositAmounts: true,
       price,
     },
-    [0, 0, swapValueIndex, 0, 0, 0],
+    [0, 0, swapActionStorageIndex, 0, 0, 0],
   )
 
   const sendQuoteTokenToOpExecutor = actions.common.sendToken(network, {
