@@ -23,9 +23,6 @@ const borrow = {
 }
 const multiply = {
   open: sparkOpen,
-  close: {},
-  adjustRiskDown: {},
-  adjustRiskUp: {},
 }
 
 export type SparkBorrowOperations = {
@@ -38,9 +35,6 @@ export type SparkBorrowOperations = {
 
 export type SparkMultiplyOperations = {
   open: SparkOpenOperation
-  close: any
-  adjustRiskDown: any
-  adjustRiskUp: any
 }
 
 export type SparkOperations = {

@@ -78,6 +78,7 @@ export function resolveAaveLikeMultiplyOperations(
     throw new Error('Must specify version for Aave protocol')
   }
 
+  // Note: Type can only be borrow or multiply (where Multiply covers Earn-Multiply positions also)
   if (type !== 'multiply') {
     throw new Error(`Invalid type ${type} for multiply based operation`)
   }
