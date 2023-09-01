@@ -7,7 +7,6 @@ import {
   WithAaveLikeStrategyAddresses,
   WithCollateral,
   WithDebtAndBorrow,
-  WithEMode,
   WithFlashloan,
   WithNetwork,
   WithOptionalDeposit,
@@ -26,7 +25,6 @@ export type OpenV2OperationArgs = WithCollateral &
   WithFlashloan &
   WithProxy &
   WithPosition &
-  WithEMode &
   WithAaveLikeStrategyAddresses &
   WithNetwork
 
@@ -38,7 +36,6 @@ export type AaveV2OpenOperation = ({
   flashloan,
   proxy,
   position,
-  emode,
   addresses,
   network,
 }: OpenV2OperationArgs) => Promise<IOperation>
