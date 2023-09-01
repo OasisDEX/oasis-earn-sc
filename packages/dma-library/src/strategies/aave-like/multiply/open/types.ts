@@ -12,9 +12,7 @@ export type AaveLikeOpenDependencies = Omit<
   StrategyParams.WithSwap &
   StrategyParams.WithPositionType
 
-export type IOpenStrategy = Strategies.IStrategy & {
-  simulation: Strategies.IStrategy['simulation'] & Strategies.WithOptionalSwapSimulation
-}
+export type IOpenStrategy = Strategies.IMultiplyStrategy
 
 export type AaveLikeOpen = (
   args: AaveLikeOpenArgs,

@@ -7,6 +7,7 @@ import {
   paybackWithdraw as sparkPaybackWithdraw,
   SparkPaybackWithdraw,
 } from './borrow/payback-withdraw'
+import { open as sparkOpen, SparkOpen } from './multiply/open'
 
 export const spark: {
   borrow: {
@@ -14,10 +15,16 @@ export const spark: {
     openDepositBorrow: SparkOpenDepositBorrow
     paybackWithdraw: SparkPaybackWithdraw
   }
+  multiply: {
+    open: SparkOpen
+  }
 } = {
   borrow: {
     depositBorrow: sparkDepositBorrow,
     openDepositBorrow: sparkOpenDepositBorrow,
     paybackWithdraw: sparkPaybackWithdraw,
+  },
+  multiply: {
+    open: sparkOpen,
   },
 }

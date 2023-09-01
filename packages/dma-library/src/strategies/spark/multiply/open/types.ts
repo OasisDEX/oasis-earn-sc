@@ -1,25 +1,16 @@
-import { AAVETokens, PositionType } from '@dma-library/types'
-import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
-import { WithAaveMultiplyStrategyDependencies, WithSwap } from '@dma-library/types/strategy-params'
-import { IRiskRatio } from '@domain'
-import BigNumber from 'bignumber.js'
+import { AaveLikeOpenArgs } from '@dma-library/strategies/aave-like/multiply/open'
+import * as Strategies from '@dma-library/types/strategies'
+import * as StrategyParams from '@dma-library/types/strategy-params'
 
-export interface AaveOpenArgs {
-  depositedByUser?: {
-    collateralToken?: { amountInBaseUnit: BigNumber }
-    debtToken?: { amountInBaseUnit: BigNumber }
-  }
-  multiple: IRiskRatio
-  slippage: BigNumber
-  positionType: PositionType
-  collateralToken: { symbol: AAVETokens; precision?: number }
-  debtToken: { symbol: AAVETokens; precision?: number }
-}
+export type SparkOpenDependencies = Omit<
+  StrategyParams.WithAaveMultiplyStrategyDependencies,
+  'currentPosition'
+> &
+  StrategyParams.WithSwap &
+  StrategyParams.WithPositionType
 
-export type AaveV2OpenDependencies = Omit<WithAaveMultiplyStrategyDependencies, 'currentPosition'> &
-  WithV2Protocol &
-  WithSwap
-export type AaveV3OpenDependencies = Omit<WithAaveMultiplyStrategyDependencies, 'currentPosition'> &
-  WithV3Protocol &
-  WithSwap
-export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependencies
+export type IOpenStrategy = Strategies.IMultiplyStrategy
+export type SparkOpen = (
+  args: AaveLikeOpenArgs,
+  dependencies: SparkOpenDependencies,
+) => Promise<IOpenStrategy>

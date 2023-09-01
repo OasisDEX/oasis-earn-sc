@@ -1,6 +1,7 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
 import { PositionTransition } from '@dma-library/types'
 import { AaveVersion } from '@dma-library/types/aave'
+import * as Strategies from '@dma-library/types/strategies'
 import { views } from '@dma-library/views'
 
 import { AaveV2ChangeDebt, changeDebt } from './borrow/change-debt'
@@ -48,7 +49,7 @@ export const aave: {
       open: (
         args: AaveOpenArgs,
         dependencies: Omit<AaveV2OpenDependencies, 'protocol'>,
-      ) => Promise<PositionTransition>
+      ) => Promise<Strategies.IMultiplyStrategy>
       close: (
         args: AaveCloseArgs,
         dependencies: AaveCloseDependencies,
@@ -62,7 +63,7 @@ export const aave: {
       open: (
         args: AaveOpenArgs,
         dependencies: Omit<AaveV3OpenDependencies, 'protocol' | 'protocolVersion'>,
-      ) => Promise<PositionTransition>
+      ) => Promise<Strategies.IMultiplyStrategy>
       close: (
         args: AaveCloseArgs,
         dependencies: AaveCloseDependencies,

@@ -6,12 +6,7 @@ import { AaveVersion } from '@dma-library/types/aave'
 
 import { AaveProtocol, AaveProtocolData, AaveProtocolDataArgs } from './aave'
 import { calculateAjnaApyPerDays } from './ajna'
-import {
-  getSparkProtocolData,
-  SparkProtocol,
-  SparkProtocolData,
-  SparkProtocolDataArgs,
-} from './spark'
+import { getSparkProtocolData, SparkProtocol, SparkProtocolData } from './spark'
 
 const aave: AaveProtocol = {
   v2: args =>
@@ -34,7 +29,7 @@ export const protocols = {
 }
 
 export { AaveProtocolData, AaveProtocolDataArgs }
-export { SparkProtocolData, SparkProtocolDataArgs }
+export { SparkProtocolData }
 
 export { calculateAjnaApyPerDays }
 export { calculateAjnaMaxLiquidityWithdraw, getAjnaLiquidationPrice } from './ajna/index'
