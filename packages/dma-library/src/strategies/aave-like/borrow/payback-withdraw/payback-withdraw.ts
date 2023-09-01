@@ -1,5 +1,5 @@
 import { MAX_UINT, ZERO } from '@dma-common/constants'
-import { resolveAaveLikeOperations } from '@dma-library/operations/aave-like'
+import { resolveAaveLikeBorrowOperations } from '@dma-library/operations/aave-like'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import { IOperation, PositionType } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
@@ -63,7 +63,7 @@ async function buildOperation(
     network: dependencies.network,
   }
 
-  const aaveLikeBorrowOperations = resolveAaveLikeOperations(
+  const aaveLikeBorrowOperations = resolveAaveLikeBorrowOperations(
     dependencies.protocolType,
     positionType,
   )

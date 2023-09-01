@@ -53,3 +53,7 @@ export interface IStrategy {
   }
   simulation: ISimulation
 }
+
+export type IMultiplyStrategy = IStrategy & {
+  simulation: IStrategy['simulation'] & WithOptionalSwapSimulation
+}

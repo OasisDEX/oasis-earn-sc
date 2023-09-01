@@ -1,18 +1,14 @@
 import { CollectFeeFrom } from '@dma-common/types'
 import { BorrowArgs, DepositArgs } from '@dma-library/operations'
-import { resolveAaveLikeOperations } from '@dma-library/operations/aave-like'
+import { resolveAaveLikeBorrowOperations } from '@dma-library/operations/aave-like'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
+import { resolveCurrentPositionForProtocol } from '@dma-library/strategies/aave-like/common'
 import { IOperation } from '@dma-library/types'
 import * as SwapUtils from '@dma-library/utils/swap'
-import { isAaveView, resolveAavelikeViews } from '@dma-library/views/aave-like'
 import { IPosition } from '@domain'
 
-import {
-  AaveLikeOpenDepositBorrow,
-  AaveLikeOpenDepositBorrowArgs,
-  AaveLikeOpenDepositBorrowDependencies,
-} from './types'
+import { AaveLikeOpenDepositBorrow, AaveLikeOpenDepositBorrowDependencies } from './types'
 
 export const openDepositBorrow: AaveLikeOpenDepositBorrow = async (args, dependencies) => {
   const {
@@ -96,7 +92,7 @@ async function buildOperation(
   dependencies: AaveLikeOpenDepositBorrowDependencies,
 ): Promise<IOperation> {
   const positionType = dependencies.positionType
-  const aaveLikeBorrowOperations = resolveAaveLikeOperations(
+  const aaveLikeBorrowOperations = resolveAaveLikeBorrowOperations(
     dependencies.protocolType,
     positionType,
   )
@@ -111,22 +107,4 @@ async function buildOperation(
     dependencies.addresses,
     dependencies.network,
   )
-}
-
-/**
- * Resolves the current position for the given protocol version
- * Used on open to account for dust issues when reopening a position
- * With same proxy
- */
-async function resolveCurrentPositionForProtocol(
-  args: AaveLikeOpenDepositBorrowArgs,
-  dependencies: AaveLikeOpenDepositBorrowDependencies,
-) {
-  const { view, version } = resolveAavelikeViews(dependencies.protocolType)
-
-  if (isAaveView(view)) {
-    if (!version) throw new Error('Version must be defined when using Aave view')
-    return await view[version]({ ...args, proxy: dependencies.proxy }, { ...dependencies })
-  }
-  return await view({ ...args, proxy: dependencies.proxy }, { ...dependencies })
 }

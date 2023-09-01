@@ -1,5 +1,8 @@
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
-import { PriceResult, ReserveDataResult } from '@dma-library/protocols/aave-like/types'
+import {
+  PriceResult,
+  ReserveDataResult,
+  SharedAaveLikeProtocolDataArgs,
+} from '@dma-library/protocols/aave-like/types'
 import {
   determineReserveEModeCategory,
   fetchAssetPrice,
@@ -9,20 +12,14 @@ import {
 } from '@dma-library/protocols/aave-like/utils'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { AaveVersion } from '@dma-library/types/aave'
-import { providers } from 'ethers'
 
-type SharedAaveProtocolDataArgs = {
-  collateralTokenAddress: string
-  debtTokenAddress: string
-  addresses: AaveLikeStrategyAddresses
-  provider: providers.Provider
-  flashloanTokenAddress?: string
-  proxy?: string
+export type AaveV2ProtocolDataArgs = SharedAaveLikeProtocolDataArgs & {
+  protocolVersion: AaveVersion.v2
 }
-
-export type AaveProtocolDataArgs =
-  | (SharedAaveProtocolDataArgs & { protocolVersion: AaveVersion.v2 })
-  | (SharedAaveProtocolDataArgs & { protocolVersion: AaveVersion.v3 })
+export type AaveV3ProtocolDataArgs = SharedAaveLikeProtocolDataArgs & {
+  protocolVersion: AaveVersion.v3
+}
+export type AaveProtocolDataArgs = AaveV2ProtocolDataArgs | AaveV3ProtocolDataArgs
 
 export type AaveProtocolData = {
   aaveFlashloanAssetPriceInEth: PriceResult
@@ -42,7 +39,7 @@ export const getAaveProtocolData: GetAaveProtocolData = async args => {
   if (
     AaveCommon.isV2<
       AaveProtocolDataArgs,
-      SharedAaveProtocolDataArgs & { protocolVersion: AaveVersion.v2 }
+      SharedAaveLikeProtocolDataArgs & { protocolVersion: AaveVersion.v2 }
     >(args)
   ) {
     return getAaveV2ProtocolData(args)
@@ -54,14 +51,14 @@ export const getAaveProtocolData: GetAaveProtocolData = async args => {
   throw new Error('Invalid Aave version')
 }
 
-async function getAaveV2ProtocolData({
+export async function getAaveV2ProtocolData({
   addresses,
   provider,
   debtTokenAddress,
   collateralTokenAddress,
   flashloanTokenAddress,
   proxy,
-}: SharedAaveProtocolDataArgs & { protocolVersion: AaveVersion.v2 }) {
+}: AaveV2ProtocolDataArgs) {
   const { oracle, poolDataProvider } = await getAaveLikeSystemContracts(addresses, provider, 'AAVE')
 
   const [
@@ -95,14 +92,14 @@ async function getAaveV2ProtocolData({
   }
 }
 
-async function getAaveV3ProtocolData({
+export async function getAaveV3ProtocolData({
   addresses,
   provider,
   debtTokenAddress,
   collateralTokenAddress,
   flashloanTokenAddress,
   proxy,
-}: SharedAaveProtocolDataArgs & { protocolVersion: AaveVersion.v3 }) {
+}: SharedAaveLikeProtocolDataArgs & { protocolVersion: AaveVersion.v3 }) {
   const { oracle, poolDataProvider, pool } = await getAaveLikeSystemContracts(
     addresses,
     provider,

@@ -1,6 +1,6 @@
 import { CollectFeeFrom } from '@dma-common/types'
 import { BorrowArgs, DepositArgs } from '@dma-library/operations'
-import { resolveAaveLikeOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
+import { resolveAaveLikeBorrowOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { IOperation, PositionType } from '@dma-library/types'
@@ -77,10 +77,14 @@ async function buildOperation(
   dependencies: AaveLikeDepositBorrowDependencies,
 ): Promise<IOperation> {
   const positionType: PositionType = 'Borrow'
-  const aaveLikeBorrowOperations = resolveAaveLikeOperations(
+  const aaveLikeBorrowOperations = resolveAaveLikeBorrowOperations(
     dependencies.protocolType,
     positionType,
   )
+
+  if (aaveLikeBorrowOperations?.depositBorrow === undefined) {
+    throw new Error('Operation not implemented')
+  }
 
   return aaveLikeBorrowOperations.depositBorrow(
     depositArgs,

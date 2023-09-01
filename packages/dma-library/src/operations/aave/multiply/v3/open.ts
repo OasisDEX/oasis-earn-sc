@@ -18,7 +18,7 @@ import { WithAaveLikeStrategyAddresses } from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-export type OpenOperationArgs = WithCollateral &
+export type OpenV3OperationArgs = WithCollateral &
   WithDebtAndBorrow &
   WithOptionalDeposit &
   WithSwap &
@@ -40,7 +40,7 @@ export type AaveV3OpenOperation = ({
   emode,
   addresses,
   network,
-}: OpenOperationArgs) => Promise<IOperation>
+}: OpenV3OperationArgs) => Promise<IOperation>
 
 export const open: AaveV3OpenOperation = async ({
   collateral,

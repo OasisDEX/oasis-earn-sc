@@ -37,24 +37,29 @@ type WithAaveLikeProtocolType = {
   protocolType: AaveLikeProtocol
 }
 
-export type WithAaveLikeBorrowStrategyArgs = {
+export type WithAaveLikeStrategyArgs = {
   collateralToken: { symbol: AaveLikeTokens; precision?: number }
   debtToken: { symbol: AaveLikeTokens; precision?: number }
-  entryToken?: { symbol: AaveLikeTokens; precision?: number }
 } & WithSlippage
+
+export type WithAaveLikeBorrowStrategyArgs = {
+  entryToken?: { symbol: AaveLikeTokens; precision?: number }
+} & WithAaveLikeStrategyArgs
+
+export type WithAaveLikeMultiplyStrategyArgs = WithAaveLikeBorrowStrategyArgs
 
 type WithSlippage = {
   slippage: BigNumber
 }
 
-type WithDeposit = {
+export type WithDeposit = {
   depositedByUser?: {
     collateralInWei?: BigNumber
     debtInWei?: BigNumber
   }
 }
 
-type WithMultiple = {
+export type WithMultiple = {
   multiple: IRiskRatio
 }
 
@@ -117,13 +122,14 @@ type SharedStrategyDependencies = {
 export type WithAaveStrategyDependencies = {
   addresses: AaveLikeStrategyAddresses
 } & SharedStrategyDependencies
-
 export type WithAaveMultiplyStrategyDependencies = WithAaveStrategyDependencies & WithDPMFlag
 
 export type WithAaveLikeStrategyDependencies = {
   addresses: AaveLikeStrategyAddresses
 } & SharedStrategyDependencies &
   WithAaveLikeProtocolType
+export type WithAaveLikeMultiplyStrategyDependencies = WithAaveLikeStrategyDependencies &
+  WithDPMFlag
 
 export type WithDPMFlag = {
   isDPMProxy: boolean
