@@ -1,13 +1,12 @@
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
-import { WithAaveLikeStrategyDependencies } from '@dma-library/types/strategy-params'
 
 export type AaveLikeDepositBorrowArgs = StrategyParams.WithAaveLikeBorrowStrategyArgs &
   StrategyParams.WithAaveEntryToken &
   StrategyParams.WithDepositCollateral &
   StrategyParams.WithBorrowDebt
 
-export type AaveLikeDepositBorrowDependencies = WithAaveLikeStrategyDependencies &
+export type AaveLikeDepositBorrowDependencies = StrategyParams.WithAaveLikeStrategyDependencies &
   StrategyParams.WithOptionalSwap
 
 export type IDepositBorrowStrategy = Strategies.IStrategy & {

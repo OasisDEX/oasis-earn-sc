@@ -1,28 +1,32 @@
 import {
-  AaveProtocolData,
-  AaveProtocolDataArgs,
-  GetAaveProtocolData,
-  getAaveProtocolData,
-} from './aave'
+  getAaveV2ProtocolData,
+  getAaveV3ProtocolData,
+} from '@dma-library/protocols/aave/get-aave-protocol-data'
+import { AaveVersion } from '@dma-library/types/aave'
+
+import { AaveProtocol, AaveProtocolData, AaveProtocolDataArgs } from './aave'
 import { calculateAjnaApyPerDays } from './ajna'
 import {
-  GetSparkProtocolData,
   getSparkProtocolData,
+  SparkProtocol,
   SparkProtocolData,
   SparkProtocolDataArgs,
 } from './spark'
 
-const aave: {
-  getAaveProtocolData: GetAaveProtocolData
-} = {
-  getAaveProtocolData,
+const aave: AaveProtocol = {
+  v2: args =>
+    getAaveV2ProtocolData({
+      ...args,
+      protocolVersion: AaveVersion.v2,
+    }),
+  v3: args =>
+    getAaveV3ProtocolData({
+      ...args,
+      protocolVersion: AaveVersion.v3,
+    }),
 }
 
-const spark: {
-  getSparkProtocolData: GetSparkProtocolData
-} = {
-  getSparkProtocolData,
-}
+const spark: SparkProtocol = getSparkProtocolData
 
 export const protocols = {
   aave,

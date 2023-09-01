@@ -1,5 +1,5 @@
 import { AaveBorrowOperations, AaveMultiplyOperations, operations } from '@dma-library/operations'
-import { SparkBorrowOperations } from '@dma-library/operations/spark'
+import { SparkBorrowOperations, SparkMultiplyOperations } from '@dma-library/operations/spark'
 import { PositionType } from '@dma-library/types'
 import { AaveLikeProtocol } from '@dma-library/types/protocol'
 
@@ -41,7 +41,7 @@ export function isAaveOperation(op: any): op is AaveBorrowOperations | AaveMulti
   return op && ('v2' in op || 'v3' in op)
 }
 
-export function resolveAaveLikeOperations(
+export function resolveAaveLikeBorrowOperations(
   protocolType: AaveLikeProtocol,
   positionType: PositionType,
 ): SparkBorrowOperations | AaveBorrowOperations['v2'] | AaveBorrowOperations['v3'] {
@@ -53,6 +53,33 @@ export function resolveAaveLikeOperations(
 
   if (type !== 'borrow') {
     throw new Error(`Invalid type ${type} for borrow based operation`)
+  }
+
+  const protocolOperations = operations[protocol]?.[type]
+  if (!protocolOperations) {
+    throw new Error(`No operations found for protocol ${protocol} and type ${type}`)
+  }
+
+  if (isAaveOperation(protocolOperations)) {
+    if (!version) throw new Error('Must specify version for Aave protocol')
+    return protocolOperations[version]
+  }
+
+  return protocolOperations
+}
+
+export function resolveAaveLikeMultiplyOperations(
+  protocolType: AaveLikeProtocol,
+  positionType: PositionType,
+): SparkMultiplyOperations | AaveMultiplyOperations['v2'] | AaveMultiplyOperations['v3'] {
+  const { protocol, type, version } = resolveProtocolKeyConfig(protocolType, positionType)
+
+  if (protocol === 'aave' && !version) {
+    throw new Error('Must specify version for Aave protocol')
+  }
+
+  if (type !== 'multiply') {
+    throw new Error(`Invalid type ${type} for multiply based operation`)
   }
 
   const protocolOperations = operations[protocol]?.[type]
