@@ -12,6 +12,6 @@ export {
 } from './get-aave-protocol-data'
 
 export type AaveProtocol = {
-  v2: (args: AaveV2ProtocolDataArgs) => Promise<AaveProtocolData>
-  v3: (args: AaveV3ProtocolDataArgs) => Promise<AaveProtocolData>
+  v2: (args: Omit<AaveV2ProtocolDataArgs, 'protocolVersion'>) => Promise<AaveProtocolData>
+  v3: (args: Omit<AaveV3ProtocolDataArgs, 'protocolVersion'>) => Promise<AaveProtocolData>
 }

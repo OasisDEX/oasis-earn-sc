@@ -7,7 +7,7 @@ import { isAaveView, resolveAavelikeViews } from '@dma-library/views/aave-like'
  * With same proxy
  */
 export async function resolveCurrentPositionForProtocol(
-  args: StrategyParams.WithAaveLikeBorrowStrategyArgs,
+  args: StrategyParams.WithAaveLikeStrategyArgs,
   dependencies: Omit<StrategyParams.WithAaveLikeStrategyDependencies, 'currentPosition'>,
 ) {
   const { view, version } = resolveAavelikeViews(dependencies.protocolType)

@@ -1,5 +1,8 @@
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
-import { PriceResult, ReserveDataResult } from '@dma-library/protocols/aave-like/types'
+import {
+  PriceResult,
+  ReserveDataResult,
+  SharedAaveLikeProtocolDataArgs,
+} from '@dma-library/protocols/aave-like/types'
 import {
   determineReserveEModeCategory,
   fetchAssetPrice,
@@ -7,16 +10,6 @@ import {
   fetchUserReserveData,
   getAaveLikeSystemContracts,
 } from '@dma-library/protocols/aave-like/utils'
-import { providers } from 'ethers'
-
-export type SparkProtocolDataArgs = {
-  collateralTokenAddress: string
-  debtTokenAddress: string
-  addresses: AaveLikeStrategyAddresses
-  provider: providers.Provider
-  flashloanTokenAddress?: string
-  proxy?: string
-}
 
 export type SparkProtocolData = {
   aaveFlashloanAssetPriceInEth: PriceResult
@@ -30,7 +23,9 @@ export type SparkProtocolData = {
   eModeCategoryData: any
 }
 
-export type GetSparkProtocolData = (args: SparkProtocolDataArgs) => Promise<SparkProtocolData>
+export type GetSparkProtocolData = (
+  args: SharedAaveLikeProtocolDataArgs,
+) => Promise<SparkProtocolData>
 
 export const getSparkProtocolData: GetSparkProtocolData = async args => {
   const {

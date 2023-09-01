@@ -1,4 +1,5 @@
 import { AaveLikeProtocol } from '@dma-library/types/protocol'
+import { resolveProtocolKeyConfig } from '@dma-library/utils/aave-like'
 import { views } from '@dma-library/views'
 import { AaveView } from '@dma-library/views/aave'
 import { SparkGetCurrentPosition } from '@dma-library/views/spark'

@@ -1,20 +1,19 @@
-import * as StrategyParams from '@dma-library/types/strategy-params'
-import { isAaveView, resolveAavelikeViews } from '@dma-library/views/aave-like'
+import {
+  isAaveProtocol,
+  resolveAavelikeProtocol,
+} from '@dma-library/protocols/aave-like/resolve-aavelike-protocols'
+import { SharedAaveLikeProtocolDataArgs } from '@dma-library/protocols/aave-like/types'
+import { AaveLikeProtocol } from '@dma-library/types/protocol'
 
-/**
- * Resolves the current position for the given protocol version
- * Used on open to account for dust issues when reopening a position
- * With same proxy
- */
-export async function resolveCurrentPositionForProtocol(
-  args: StrategyParams.WithAaveLikeBorrowStrategyArgs,
-  dependencies: Omit<StrategyParams.WithAaveLikeStrategyDependencies, 'currentPosition'>,
+export async function resolveProtocolData(
+  args: SharedAaveLikeProtocolDataArgs,
+  protocolType: AaveLikeProtocol,
 ) {
-  const { view, version } = resolveAavelikeViews(dependencies.protocolType)
+  const { protocol, version } = resolveAavelikeProtocol(protocolType)
 
-  if (isAaveView(view)) {
+  if (isAaveProtocol(protocol)) {
     if (!version) throw new Error('Version must be defined when using Aave view')
-    return await view[version]({ ...args, proxy: dependencies.proxy }, { ...dependencies })
+    return await protocol[version](args)
   }
-  return await view({ ...args, proxy: dependencies.proxy }, { ...dependencies })
+  return await protocol(args)
 }

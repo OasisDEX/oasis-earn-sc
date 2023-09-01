@@ -122,13 +122,14 @@ type SharedStrategyDependencies = {
 export type WithAaveStrategyDependencies = {
   addresses: AaveLikeStrategyAddresses
 } & SharedStrategyDependencies
-
 export type WithAaveMultiplyStrategyDependencies = WithAaveStrategyDependencies & WithDPMFlag
 
 export type WithAaveLikeStrategyDependencies = {
   addresses: AaveLikeStrategyAddresses
 } & SharedStrategyDependencies &
   WithAaveLikeProtocolType
+export type WithAaveLikeMultiplyStrategyDependencies = WithAaveLikeStrategyDependencies &
+  WithDPMFlag
 
 export type WithDPMFlag = {
   isDPMProxy: boolean
