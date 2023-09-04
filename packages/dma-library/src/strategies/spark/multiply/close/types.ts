@@ -3,7 +3,7 @@ import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
 export type SparkCloseDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
-  StrategyParams.WithSwap &
+  StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType
 
 export type SparkCloseArgs = AaveLikeCloseArgs & StrategyParams.WithCloseToCollateralFlag

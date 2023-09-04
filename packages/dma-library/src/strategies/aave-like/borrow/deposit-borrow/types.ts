@@ -7,7 +7,7 @@ export type AaveLikeDepositBorrowArgs = StrategyParams.WithAaveLikeBorrowStrateg
   StrategyParams.WithBorrowDebt
 
 export type AaveLikeDepositBorrowDependencies = StrategyParams.WithAaveLikeStrategyDependencies &
-  StrategyParams.WithOptionalSwap
+  StrategyParams.WithOptionalGetSwap
 
 export type IDepositBorrowStrategy = Strategies.IStrategy & {
   simulation: Strategies.IStrategy['simulation'] & Strategies.WithOptionalSwapSimulation

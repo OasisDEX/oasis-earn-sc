@@ -4,7 +4,7 @@ import { DepositArgs } from '@dma-library/operations'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
 import { AaveLikeTokens, SwapData } from '@dma-library/types'
-import { WithOptionalSwap } from '@dma-library/types/strategy-params'
+import * as StrategyParams from '@dma-library/types/strategy-params'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
@@ -17,7 +17,7 @@ export async function buildDepositArgs(
   dependencies: {
     user: Address
     addresses: AaveLikeStrategyAddresses
-  } & WithOptionalSwap,
+  } & StrategyParams.WithOptionalGetSwap,
   alwaysReturnArgs = false,
 ): Promise<{
   swap:

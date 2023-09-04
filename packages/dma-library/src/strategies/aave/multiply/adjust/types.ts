@@ -6,7 +6,7 @@ import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
 export type SharedAaveAdjustDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
-  StrategyParams.WithSwap &
+  StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType &
   Partial<StrategyParams.WithDebug>
 

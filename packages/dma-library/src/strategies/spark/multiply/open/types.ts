@@ -6,7 +6,7 @@ export type SparkOpenDependencies = Omit<
   StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
   'currentPosition'
 > &
-  StrategyParams.WithSwap &
+  StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType
 
 export type IOpenStrategy = Strategies.IMultiplyStrategy

@@ -65,9 +65,6 @@ export type WithDeposit = {
     debtInWei?: BigNumber
   }
 }
-export type WithFlashloanProvider = {
-  flashloanProvider: 'FMM' | 'Balancer'
-}
 
 export type WithMultiple = {
   multiple: IRiskRatio
@@ -117,13 +114,12 @@ export type WithAaveLikeStrategyDependencies = {
   WithAaveLikeProtocolType
 export type WithAaveLikeMultiplyStrategyDependencies = WithAaveLikeStrategyDependencies &
   WithDPMFlag
-export type WithAaveMultiplyStrategyDependencies = WithAaveLikeMultiplyStrategyDependencies
 
 export type WithDPMFlag = {
   isDPMProxy: boolean
 }
 
-export type WithSwap = {
+export type WithGetSwap = {
   getSwapData: (
     fromToken: string,
     toToken: string,
@@ -136,7 +132,7 @@ export type WithDebug = {
   debug: boolean
 }
 
-export type WithOptionalSwap = Partial<WithSwap>
+export type WithOptionalGetSwap = Partial<WithGetSwap>
 
 export interface WithViewPositionDependencies<Addresses> {
   addresses: Addresses

@@ -5,12 +5,12 @@ import * as StrategyParams from '@dma-library/types/strategy-params'
 
 export type AaveV2CloseDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
   WithV2Protocol &
-  StrategyParams.WithSwap &
+  StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType
 
 export type AaveV3CloseDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
   WithV3Protocol &
-  StrategyParams.WithSwap &
+  StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType
 
 export type AaveCloseArgs = AaveLikeCloseArgs & StrategyParams.WithCloseToCollateralFlag

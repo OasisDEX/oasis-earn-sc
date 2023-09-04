@@ -10,7 +10,7 @@ export type SparkDepositBorrowDependencies = Omit<
   StrategyParams.WithAaveLikeStrategyDependencies,
   'protocolType'
 > &
-  StrategyParams.WithOptionalSwap
+  StrategyParams.WithOptionalGetSwap
 
 export type IDepositBorrowStrategy = Strategies.IStrategy & {
   simulation: Strategies.IStrategy['simulation'] & Strategies.WithOptionalSwapSimulation

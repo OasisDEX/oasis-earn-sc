@@ -8,14 +8,14 @@ export type AaveV2OpenDependencies = Omit<
   'currentPosition'
 > &
   WithV2Protocol &
-  StrategyParams.WithSwap &
+  StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType
 export type AaveV3OpenDependencies = Omit<
   StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
   'currentPosition'
 > &
   WithV3Protocol &
-  StrategyParams.WithSwap &
+  StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType
 export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependencies
 export type AaveOpenArgs = AaveLikeOpenArgs

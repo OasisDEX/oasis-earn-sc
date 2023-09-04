@@ -50,15 +50,13 @@ export type WithWithdrawal = {
   }
 }
 
-export type WithDeposit = {
+export type WithOptionalDeposit = Partial<{
   deposit: {
     address: Address
     /* Amount to deposit in base unit */
     amount: BigNumber
   }
-}
-
-export type WithOptionalDeposit = Partial<WithDeposit>
+}>
 
 export type WithSwap = {
   swap: {

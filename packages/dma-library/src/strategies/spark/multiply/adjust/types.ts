@@ -5,7 +5,7 @@ import {
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
 export type SparkAdjustDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
-  StrategyParams.WithSwap &
+  StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType &
   Partial<StrategyParams.WithDebug>
 

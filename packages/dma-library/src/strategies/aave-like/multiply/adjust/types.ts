@@ -10,7 +10,7 @@ export type AaveLikeAdjustArgs = StrategyParams.WithAaveLikeMultiplyStrategyArgs
   StrategyParams.WithDeposit
 export type ExtendedAaveLikeAdjustArgs = AaveLikeAdjustArgs & StrategyParams.WithFlashloanToken
 export type AaveLikeAdjustDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
-  StrategyParams.WithSwap &
+  StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType &
   Partial<StrategyParams.WithDebug>
 

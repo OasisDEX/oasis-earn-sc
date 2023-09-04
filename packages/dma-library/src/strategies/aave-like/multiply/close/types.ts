@@ -13,7 +13,7 @@ export type AaveLikeExpandedCloseArgs = AaveLikeCloseArgs &
   }
 
 export type AaveLikeCloseDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
-  StrategyParams.WithSwap &
+  StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType
 
 export type ICloseStrategy = Strategies.IMultiplyStrategy

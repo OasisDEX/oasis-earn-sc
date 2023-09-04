@@ -13,7 +13,7 @@ export type AaveLikeOpenDepositBorrowDependencies = Omit<
   AaveLikeDepositBorrowDependencies,
   'currentPosition'
 > &
-  StrategyParams.WithOptionalSwap &
+  StrategyParams.WithOptionalGetSwap &
   StrategyParams.WithPositionType
 
 export type AaveLikeOpenDepositBorrow = (
