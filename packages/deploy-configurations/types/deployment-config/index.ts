@@ -5,6 +5,7 @@ export { AjnaProtocol, AjnaProtocolContracts } from './ajna-protocol'
 export { Automation, AutomationContracts } from './automation'
 export { Common, CommonContracts } from './common'
 export { ConfigEntry, Contracts, SystemContracts } from './config-entries'
+export { SystemConfigEntry } from './config-entries'
 export { CoreContracts } from './core'
 export { SystemConfig } from './deployment-config'
 export {
