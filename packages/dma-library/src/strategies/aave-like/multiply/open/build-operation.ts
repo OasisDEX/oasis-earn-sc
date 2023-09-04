@@ -6,17 +6,20 @@ import {
   AaveLikeOpenArgs,
   AaveLikeOpenDependencies,
 } from '@dma-library/strategies/aave-like/multiply/open/types'
-import { SwapData } from '@dma-library/types'
+import { FlashloanProvider, SwapData } from '@dma-library/types'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import * as SwapUtils from '@dma-library/utils/swap'
+import * as Domain from '@domain'
 import { IBaseSimulatedTransition } from '@domain'
+
+type BuildOperationArgs = AaveLikeOpenArgs & { flashloanToken: string }
 
 export async function buildOperation(
   swapData: SwapData,
   simulation: IBaseSimulatedTransition,
   collectFeeFrom: 'sourceToken' | 'targetToken',
   reserveEModeCategory: number | undefined,
-  args: AaveLikeOpenArgs & { flashloanToken: string },
+  args: BuildOperationArgs,
   dependencies: AaveLikeOpenDependencies,
 ) {
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
@@ -39,7 +42,6 @@ export async function buildOperation(
     positionType,
   )
 
-  const flashloanProvider = resolveFlashloanProvider(await getForkedNetwork(dependencies.provider))
   const hasCollateralDeposit = args.depositedByUser?.collateralInWei?.gt(ZERO)
   const depositAddress = hasCollateralDeposit ? collateralTokenAddress : debtTokenAddress
   const depositAmount = hasCollateralDeposit
@@ -70,17 +72,21 @@ export async function buildOperation(
       collectFeeFrom,
       receiveAtLeast: swapData.minToTokenAmount,
     },
-    flashloan: {
-      token: {
-        amount:
-          args.flashloanToken === dependencies.addresses.tokens.DAI
-            ? simulation.delta.flashloanAmount.abs()
-            : simulation.delta.flashloanAmount.abs().div(10 ** 12),
-        address: args.flashloanToken,
+    flashloan: await buildOpenFlashloan(
+      simulation,
+      {
+        ...args,
+        debtToken: {
+          ...args.debtToken,
+          address: debtTokenAddress,
+        },
+        collateralToken: {
+          ...args.collateralToken,
+          address: collateralTokenAddress,
+        },
       },
-      amount: simulation.delta.flashloanAmount.abs(),
-      provider: flashloanProvider,
-    },
+      dependencies,
+    ),
     position: {
       type: dependencies.positionType,
     },
@@ -97,4 +103,47 @@ export async function buildOperation(
   }
 
   return aaveLikeMultiplyOperations.open(openArgs)
+}
+
+export async function buildOpenFlashloan(
+  simulation: IBaseSimulatedTransition,
+  args: BuildOperationArgs & {
+    debtToken: { address: string }
+    collateralToken: { address: string }
+  },
+  dependencies: AaveLikeOpenDependencies,
+) {
+  const lendingProtocol = dependencies.protocolType
+  const flashloanProvider = resolveFlashloanProvider(
+    await getForkedNetwork(dependencies.provider),
+    lendingProtocol,
+  )
+
+  if (flashloanProvider === FlashloanProvider.Balancer) {
+    const swapAmountBeforeFees = simulation.swap.fromTokenAmount
+    return {
+      token: {
+        amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
+        address: args.debtToken.address,
+      },
+      amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
+      provider: FlashloanProvider.Balancer,
+    }
+  }
+
+  /**
+   * A small adjustment to amount was made here to allow for existing code
+   * to work on L2 with USDC. But, the more complete implementation for Balancer is above.
+   * */
+  return {
+    token: {
+      amount:
+        args.flashloanToken === dependencies.addresses.tokens.DAI
+          ? simulation.delta.flashloanAmount.abs()
+          : simulation.delta.flashloanAmount.abs().div(10 ** 12),
+      address: args.flashloanToken,
+    },
+    amount: simulation.delta.flashloanAmount.abs(),
+    provider: flashloanProvider,
+  }
 }

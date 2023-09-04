@@ -68,7 +68,7 @@ export const adjustRiskDown: AaveLikeAdjustDown = async (args, dependencies) => 
   const operation = await buildOperation({
     adjustRiskUp: isAdjustUp,
     swapData,
-    simulatedPositionTransition: simulatedAdjustDown,
+    simulation: simulatedAdjustDown,
     collectFeeFrom,
     args,
     dependencies,

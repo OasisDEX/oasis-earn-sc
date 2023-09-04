@@ -34,7 +34,7 @@ export type AaveLikeAdjustDown = AaveLikeAdjustWithExtendedArgs
 export type BuildOperationArgs = {
   adjustRiskUp: boolean
   swapData: SwapData
-  simulatedPositionTransition: IBaseSimulatedTransition
+  simulation: IBaseSimulatedTransition
   collectFeeFrom: 'sourceToken' | 'targetToken'
   reserveEModeCategory?: number | undefined
   args: AaveLikeAdjustArgs

@@ -1,4 +1,4 @@
-import { TEN_THOUSAND, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import {
@@ -8,10 +8,10 @@ import {
   resolveCurrentPositionForProtocol,
   resolveProtocolData,
 } from '@dma-library/strategies/aave-like/common'
+import { buildFlashloanSimArgs } from '@dma-library/strategies/aave-like/multiply/common'
 import { SwapData } from '@dma-library/types'
 import { WithFee } from '@dma-library/types/aave/fee'
 import * as SwapUtils from '@dma-library/utils/swap'
-import BigNumber from 'bignumber.js'
 
 import { AaveLikeAdjustDependencies, ExtendedAaveLikeAdjustArgs } from './types'
 
@@ -49,9 +49,6 @@ export async function simulate(
     collateralTokenPriceInEth,
     reserveDataForFlashloan,
   } = protocolData
-
-  const BASE = TEN_THOUSAND
-  const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(BASE)
 
   const multiple = args.multiple
 
@@ -104,10 +101,11 @@ export async function simulate(
         oracleFLtoDebtToken: oracleFLtoDebtToken,
       },
       slippage: args.slippage,
-      flashloan: {
-        maxLoanToValueFL: maxLoanToValueForFL,
-        tokenSymbol: args.flashloanToken.symbol,
-      },
+      flashloan: buildFlashloanSimArgs(
+        args.flashloanToken.address,
+        dependencies,
+        reserveDataForFlashloan,
+      ),
       depositedByUser: {
         debtInWei: depositDebtAmountInBaseUnits,
         collateralInWei: depositCollateralAmountInBaseUnits,
