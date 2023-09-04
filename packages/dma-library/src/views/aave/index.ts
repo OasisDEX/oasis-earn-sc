@@ -1,6 +1,6 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
-import { AavePosition } from '@dma-library/types/aave'
+import { AaveLikePosition } from '@dma-library/types/aave-like'
 import {
   AaveGetCurrentPositionArgs,
   AaveV2GetCurrentPositionDependencies,
@@ -18,17 +18,17 @@ export type AaveView = {
   v2: (
     args: AaveGetCurrentPositionArgs,
     dependencies: Omit<AaveV2GetCurrentPositionDependencies, 'protocolVersion'>,
-  ) => Promise<AavePosition>
+  ) => Promise<AaveLikePosition>
   v3: (
     args: AaveGetCurrentPositionArgs,
     dependencies: Omit<AaveV3GetCurrentPositionDependencies, 'protocolVersion'>,
-  ) => Promise<AavePosition>
+  ) => Promise<AaveLikePosition>
 }
 
 export type AaveV2GetCurrentPosition = (
   args: AaveGetCurrentPositionArgs,
   dependencies: AaveV2GetCurrentPositionDependencies,
-) => Promise<AavePosition>
+) => Promise<AaveLikePosition>
 
 export const getCurrentPositionAaveV2: AaveV2GetCurrentPosition = async (args, dependencies) => {
   const debtToken = args.debtToken
@@ -74,7 +74,7 @@ export const getCurrentPositionAaveV2: AaveV2GetCurrentPosition = async (args, d
   )
   const oracle = validatedCollateralPrice.div(validatedDebtPrice)
 
-  return new AavePosition(
+  return new AaveLikePosition(
     {
       amount: new BigNumber(userReserveDataForDebtToken.currentVariableDebt.toString()),
       symbol: debtToken.symbol,
@@ -99,7 +99,7 @@ export const getCurrentPositionAaveV2: AaveV2GetCurrentPosition = async (args, d
 export type AaveV3GetCurrentPosition = (
   args: AaveGetCurrentPositionArgs,
   dependencies: AaveV3GetCurrentPositionDependencies,
-) => Promise<AavePosition>
+) => Promise<AaveLikePosition>
 
 export const getCurrentPositionAaveV3: AaveV3GetCurrentPosition = async (args, dependencies) => {
   const debtToken = args.debtToken
@@ -149,7 +149,7 @@ export const getCurrentPositionAaveV3: AaveV3GetCurrentPosition = async (args, d
   )
   const oracle = validatedCollateralPrice.div(validatedDebtPrice)
 
-  return new AavePosition(
+  return new AaveLikePosition(
     {
       amount: new BigNumber(userReserveDataForDebtToken.currentVariableDebt.toString()),
       symbol: debtToken.symbol,

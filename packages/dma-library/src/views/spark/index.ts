@@ -1,6 +1,6 @@
 import { getSparkProtocolData } from '@dma-library/protocols/spark'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
-import { AavePosition } from '@dma-library/types/aave'
+import { AaveLikePosition } from '@dma-library/types/aave-like'
 import { ensureOraclePricesDefined } from '@dma-library/views/aave-like'
 import {
   SparkGetCurrentPositionArgs,
@@ -13,7 +13,7 @@ export type SparkView = SparkGetCurrentPosition
 export type SparkGetCurrentPosition = (
   args: SparkGetCurrentPositionArgs,
   addresses: SparkGetCurrentPositionDependencies,
-) => Promise<AavePosition>
+) => Promise<AaveLikePosition>
 
 export const getCurrentSparkPosition: SparkGetCurrentPosition = async (args, dependencies) => {
   const debtToken = args.debtToken
@@ -62,7 +62,7 @@ export const getCurrentSparkPosition: SparkGetCurrentPosition = async (args, dep
   )
   const oracle = validatedCollateralPrice.div(validatedDebtPrice)
 
-  return new AavePosition(
+  return new AaveLikePosition(
     {
       amount: new BigNumber(userReserveDataForDebtToken.currentVariableDebt.toString()),
       symbol: debtToken.symbol,

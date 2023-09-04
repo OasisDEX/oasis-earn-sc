@@ -1,20 +1,19 @@
 import { FEE_ESTIMATE_INFLATOR, ONE, ZERO } from '@dma-common/constants'
 import { amountFromWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
-import { PositionTransition } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
-import { GenerateTransitionArgs } from './types'
+import { GenerateArgs, IAdjustStrategy } from './types'
 
-export async function generateTransition({
+export async function generate({
   isIncreasingRisk,
   swapData,
   operation,
   collectFeeFrom,
   fee,
-  simulatedPositionTransition,
+  simulation,
   args,
-}: GenerateTransitionArgs): Promise<PositionTransition> {
+}: GenerateArgs): Promise<IAdjustStrategy> {
   const fromTokenPrecision = isIncreasingRisk
     ? args.debtToken.precision
     : args.collateralToken.precision
@@ -32,15 +31,13 @@ export async function generateTransition({
     toTokenAmountNormalisedWithMaxSlippage,
   )
 
-  const finalPosition = simulatedPositionTransition.position
+  const finalPosition = simulation.position
 
   // When collecting fees from the target token (collateral here), we want to calculate the fee
   // Based on the toTokenAmount NOT minToTokenAmount so that we overestimate the fee where possible
   // And do not mislead the user
   const shouldCollectFeeFromSourceToken = collectFeeFrom === 'sourceToken'
-  const sourceTokenAmount = isIncreasingRisk
-    ? simulatedPositionTransition.delta.debt
-    : simulatedPositionTransition.delta.collateral
+  const sourceTokenAmount = isIncreasingRisk ? simulation.delta.debt : simulation.delta.collateral
 
   const preSwapFee = shouldCollectFeeFromSourceToken
     ? calculateFee(sourceTokenAmount, fee.toNumber())
@@ -55,10 +52,9 @@ export async function generateTransition({
       operationName: operation.operationName,
     },
     simulation: {
-      delta: simulatedPositionTransition.delta,
-      flags: simulatedPositionTransition.flags,
+      delta: simulation.delta,
       swap: {
-        ...simulatedPositionTransition.swap,
+        ...simulation.swap,
         ...swapData,
         collectFeeFrom,
         tokenFee: preSwapFee.plus(

@@ -3,6 +3,7 @@ import { FEE_BASE, ZERO } from '@dma-common/constants'
 import { amountFromWei } from '@dma-common/utils/common'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import {
+  assertTokenPrices,
   resolveCurrentPositionForProtocol,
   resolveProtocolData,
 } from '@dma-library/strategies/aave-like/common'
@@ -77,17 +78,14 @@ export async function simulate(
   const quoteMarketPrice = fromTokenAmountNormalised.div(toTokenAmountNormalised)
   const flashloanFee = new BigNumber(0)
 
-  if (debtTokenPriceInEth === undefined) throw new Error('No ETH per debt token found')
-  if (flashloanAssetPriceInEth === undefined) throw new Error('No ETH per flashloan amount found')
+  const [_debtTokenPriceInEth, _flashloanAssetPriceInEth, _collateralTokenPriceInEth] =
+    assertTokenPrices([debtTokenPriceInEth, flashloanAssetPriceInEth, collateralTokenPriceInEth])
 
   // EG USDC/ETH divided by ETH/DAI = USDC/ETH times by DAI/ETH = USDC/DAI
-  const oracleFLtoDebtToken = debtTokenPriceInEth.div(flashloanAssetPriceInEth)
-
-  if (collateralTokenPriceInEth === undefined) throw new Error('No ETH per collateral token found')
-  if (debtTokenPriceInEth === undefined) throw new Error('No ETH per debt token found')
+  const oracleFLtoDebtToken = _debtTokenPriceInEth.div(_flashloanAssetPriceInEth)
 
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
-  const oracle = collateralTokenPriceInEth.div(debtTokenPriceInEth)
+  const oracle = _collateralTokenPriceInEth.div(_debtTokenPriceInEth)
 
   const collectFeeFrom = SwapUtils.acceptedFeeToken({
     fromToken: args.debtToken.symbol,

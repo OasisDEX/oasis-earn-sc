@@ -6,8 +6,8 @@ import { feeResolver, getSwapDataHelper } from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
 import { buildOperation } from './build-operation'
-import { generateTransition } from './generate-transition'
-import { simulatePositionTransition } from './simulate-position-transition'
+import { generate } from './generate'
+import { simulate } from './simulate'
 
 export const adjustRiskDown: AaveLikeAdjustUp = async (args, dependencies) => {
   const isAdjustDown = true
@@ -38,7 +38,7 @@ export const adjustRiskDown: AaveLikeAdjustUp = async (args, dependencies) => {
   })
 
   // SimulateAdjustDown
-  const { simulatedPositionTransition: simulatedAdjustDown } = await simulatePositionTransition(
+  const { simulatedPositionTransition: simulatedAdjustDown } = await simulate(
     isAdjustUp,
     quoteSwapData,
     { ...args, fee },
@@ -65,7 +65,6 @@ export const adjustRiskDown: AaveLikeAdjustUp = async (args, dependencies) => {
     },
   })
 
-  // buildOperation
   const operation = await buildOperation({
     adjustRiskUp: isAdjustUp,
     swapData,
@@ -78,14 +77,13 @@ export const adjustRiskDown: AaveLikeAdjustUp = async (args, dependencies) => {
 
   if (operation === undefined) throw new Error('No operation built. Check your arguments.')
 
-  // generateTransition
-  return await generateTransition({
+  return await generate({
     isIncreasingRisk: isAdjustUp,
     swapData,
     operation,
     collectFeeFrom,
     fee,
-    simulatedPositionTransition: simulatedAdjustDown,
+    simulation: simulatedAdjustDown,
     args,
     dependencies,
     quoteSwapData,

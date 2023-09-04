@@ -22,7 +22,7 @@ export class AavePositionBalance extends PositionBalance {
   }
 }
 
-export class AavePosition extends Position {
+export class AaveLikePosition extends Position {
   public debt: AavePositionBalance
   public collateral: AavePositionBalance
 
@@ -37,4 +37,3 @@ export class AavePosition extends Position {
     this.collateral = new AavePositionBalance(collateral)
   }
 }
-export const AaveLikePosition = AavePosition

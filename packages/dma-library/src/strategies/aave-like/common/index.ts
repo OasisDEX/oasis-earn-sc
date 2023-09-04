@@ -1,2 +1,5 @@
+export { assertPosition } from './assert-position'
+export { assertProtocolData } from './assert-protocol-data'
+export { assertTokenPrices } from './assert-token-prices'
 export { resolveCurrentPositionForProtocol } from './resolve-position'
 export { resolveProtocolData } from './resolve-protocol-data'

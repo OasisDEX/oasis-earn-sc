@@ -19,7 +19,9 @@ export type AaveLikeV2AdjustDependencies = AaveLikeAdjustSharedDependencies & Wi
 export type AaveLikeV3AdjustDependencies = AaveLikeAdjustSharedDependencies & WithV3Protocol
 export type AaveLikeAdjustDependencies = AaveLikeV2AdjustDependencies | AaveLikeV3AdjustDependencies
 
-export type IAdjustStrategy = Strategies.IMultiplyStrategy
+export type IAdjustStrategy = Strategies.IMultiplyStrategy & {
+  simulation: Strategies.IMultiplyStrategy['simulation'] & Strategies.WithMinConfigurableRiskRatio
+}
 
 export type AaveLikeAdjust = (
   args: AaveLikeAdjustArgs,
@@ -45,13 +47,13 @@ export type BuildOperationArgs = {
   network: Network
 }
 
-export type GenerateTransitionArgs = {
+export type GenerateArgs = {
   isIncreasingRisk: boolean
   swapData: SwapData
   operation: IOperation
   collectFeeFrom: 'sourceToken' | 'targetToken'
   fee: BigNumber
-  simulatedPositionTransition: IBaseSimulatedTransition
+  simulation: IBaseSimulatedTransition
   args: AaveLikeAdjustArgs
   dependencies: AaveLikeAdjustDependencies
   quoteSwapData: SwapData
