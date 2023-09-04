@@ -22,8 +22,8 @@ import {
   AaveV3AdjustDependencies,
   adjust,
 } from './multiply/adjust'
-import { AaveClose, close } from './multiply/close'
-import { AaveOpen, open } from './multiply/open'
+import { AaveV2Close, AaveV3Close, close } from './multiply/close'
+import { AaveV2Open, AaveV3Open, open } from './multiply/open'
 
 export const aave: {
   borrow: {
@@ -41,16 +41,16 @@ export const aave: {
   }
   multiply: {
     v2: {
-      open: AaveOpen
-      close: AaveClose
+      open: AaveV2Open
+      close: AaveV2Close
       adjust: (
         args: AaveAdjustArgs,
         dependencies: Omit<AaveV2AdjustDependencies, 'protocol'>,
       ) => Promise<PositionTransition>
     }
     v3: {
-      open: AaveOpen
-      close: AaveClose
+      open: AaveV3Open
+      close: AaveV3Close
       adjust: (
         args: AaveAdjustArgs,
         dependencies: Omit<AaveV3AdjustDependencies, 'protocol'>,

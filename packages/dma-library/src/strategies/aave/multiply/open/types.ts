@@ -3,6 +3,8 @@ import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
+import { IDepositBorrowStrategy } from './types'
+
 export type AaveV2OpenDependencies = Omit<
   StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
   'currentPosition'
@@ -21,6 +23,17 @@ export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependenci
 export type AaveOpenArgs = AaveLikeOpenArgs
 
 export type IOpenStrategy = Strategies.IMultiplyStrategy
+
+export type AaveV2Open = (
+  args: AaveOpenArgs,
+  dependencies: Omit<AaveV2OpenDependencies, 'protocol'>,
+) => Promise<IDepositBorrowStrategy>
+
+export type AaveV3Open = (
+  args: AaveOpenArgs,
+  dependencies: Omit<AaveV3OpenDependencies, 'protocol'>,
+) => Promise<IDepositBorrowStrategy>
+
 export type AaveOpen = (
   args: AaveOpenArgs,
   dependencies: AaveOpenDependencies,

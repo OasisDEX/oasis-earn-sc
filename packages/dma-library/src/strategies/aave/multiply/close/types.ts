@@ -18,6 +18,17 @@ export type AaveCloseArgs = AaveLikeCloseArgs & StrategyParams.WithCloseToCollat
 export type AaveCloseDependencies = AaveV2CloseDependencies | AaveV3CloseDependencies
 
 export type ICloseStrategy = Strategies.IMultiplyStrategy
+
+export type AaveV2Close = (
+  args: AaveCloseArgs,
+  dependencies: Omit<AaveV2CloseDependencies, 'protocol'>,
+) => Promise<ICloseStrategy>
+
+export type AaveV3Close = (
+  args: AaveCloseArgs,
+  dependencies: Omit<AaveV3CloseDependencies, 'protocol'>,
+) => Promise<ICloseStrategy>
+
 export type AaveClose = (
   args: AaveCloseArgs,
   dependencies: AaveCloseDependencies,

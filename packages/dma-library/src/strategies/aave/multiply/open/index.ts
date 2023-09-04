@@ -1,2 +1,2 @@
 export { open } from './open'
-export { AaveOpen } from './types'
+export { AaveV2Open, AaveV3Open } from './types'
