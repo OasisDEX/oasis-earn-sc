@@ -47,11 +47,7 @@ import type {
 } from './strategies'
 import type {
   IBasePositionTransitionArgs,
-  IOnlyDepositBorrowOpenPositionTransitionDependencies,
-  IOpenPositionTransitionDependencies,
   IPositionTransitionArgs,
-  IPositionTransitionDependencies,
-  IViewPositionDependencies,
   IViewPositionParams,
   WithBorrowDebt,
   WithCollateralTokenAddress,
@@ -61,6 +57,7 @@ import type {
   WithFlashloanToken,
   WithPaybackDebt,
   WithPositionType,
+  WithViewPositionDependencies,
   WithWithdrawCollateral,
 } from './strategy-params'
 import type { SwapData } from './swap-data'
@@ -118,11 +115,7 @@ export type { PositionType }
 export type { Protocol }
 export type {
   IBasePositionTransitionArgs,
-  IOnlyDepositBorrowOpenPositionTransitionDependencies,
-  IOpenPositionTransitionDependencies,
   IPositionTransitionArgs,
-  IPositionTransitionDependencies,
-  IViewPositionDependencies,
   IViewPositionParams,
   WithBorrowDebt,
   WithCollateralTokenAddress,
@@ -132,6 +125,7 @@ export type {
   WithFlashloanToken,
   WithPaybackDebt,
   WithPositionType,
+  WithViewPositionDependencies,
   WithWithdrawCollateral,
 }
 export type { SwapData }

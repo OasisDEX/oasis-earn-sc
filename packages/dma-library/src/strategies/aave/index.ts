@@ -1,6 +1,7 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
 import { PositionTransition } from '@dma-library/types'
 import { AaveVersion } from '@dma-library/types/aave'
+import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import * as Strategies from '@dma-library/types/strategies'
 import { views } from '@dma-library/views'
 
@@ -23,12 +24,7 @@ import {
   adjust,
 } from './multiply/adjust'
 import { AaveCloseArgs, AaveCloseDependencies, close } from './multiply/close'
-import {
-  AaveOpenArgs,
-  AaveV2OpenDependencies,
-  AaveV3OpenDependencies,
-  open as aaveOpen,
-} from './multiply/open'
+import { AaveOpenArgs, AaveV2OpenDependencies, AaveV3OpenDependencies, open } from './multiply/open'
 
 export const aave: {
   borrow: {
@@ -53,7 +49,7 @@ export const aave: {
       close: (
         args: AaveCloseArgs,
         dependencies: AaveCloseDependencies,
-      ) => Promise<PositionTransition>
+      ) => Promise<Strategies.IMultiplyStrategy>
       adjust: (
         args: AaveAdjustArgs,
         dependencies: Omit<AaveV2AdjustDependencies, 'protocol'>,
@@ -67,7 +63,7 @@ export const aave: {
       close: (
         args: AaveCloseArgs,
         dependencies: AaveCloseDependencies,
-      ) => Promise<PositionTransition>
+      ) => Promise<Strategies.IMultiplyStrategy>
       adjust: (
         args: AaveAdjustArgs,
         dependencies: Omit<AaveV3AdjustDependencies, 'protocol'>,
@@ -78,77 +74,22 @@ export const aave: {
   borrow: {
     v2: {
       changeDebt,
-      depositBorrow: (args, dependencies) =>
-        depositBorrow(args, {
-          ...dependencies,
-          protocol: {
-            version: AaveVersion.v2,
-            getCurrentPosition: views.aave.v2,
-            getProtocolData: getAaveProtocolData,
-          },
-        }),
+      depositBorrow: (args, dependencies) => withV2Protocol(depositBorrow, args, dependencies),
       openDepositBorrow: (args, dependencies) =>
-        openDepositBorrow(args, {
-          ...dependencies,
-          protocol: {
-            version: AaveVersion.v2,
-            getCurrentPosition: views.aave.v2,
-            getProtocolData: getAaveProtocolData,
-          },
-        }),
-      paybackWithdraw: (args, dependencies) =>
-        paybackWithdraw(args, {
-          ...dependencies,
-          protocol: {
-            version: AaveVersion.v2,
-            getCurrentPosition: views.aave.v2,
-            getProtocolData: getAaveProtocolData,
-          },
-        }),
+        withV2Protocol(openDepositBorrow, args, dependencies),
+      paybackWithdraw: (args, dependencies) => withV2Protocol(paybackWithdraw, args, dependencies),
     },
     v3: {
-      depositBorrow: (args, dependencies) =>
-        depositBorrow(args, {
-          ...dependencies,
-          protocol: {
-            version: AaveVersion.v3,
-            getCurrentPosition: views.aave.v3,
-            getProtocolData: getAaveProtocolData,
-          },
-        }),
+      depositBorrow: (args, dependencies) => withV3Protocol(depositBorrow, args, dependencies),
       openDepositBorrow: (args, dependencies) =>
-        openDepositBorrow(args, {
-          ...dependencies,
-          protocol: {
-            version: AaveVersion.v3,
-            getCurrentPosition: views.aave.v3,
-            getProtocolData: getAaveProtocolData,
-          },
-        }),
-      paybackWithdraw: (args, dependencies) =>
-        paybackWithdraw(args, {
-          ...dependencies,
-          protocol: {
-            version: AaveVersion.v3,
-            getCurrentPosition: views.aave.v3,
-            getProtocolData: getAaveProtocolData,
-          },
-        }),
+        withV3Protocol(openDepositBorrow, args, dependencies),
+      paybackWithdraw: (args, dependencies) => withV3Protocol(paybackWithdraw, args, dependencies),
     },
   },
   multiply: {
     v2: {
-      open: (args, dependencies) =>
-        aaveOpen(args, {
-          ...dependencies,
-          protocol: {
-            version: AaveVersion.v2,
-            getCurrentPosition: views.aave.v2,
-            getProtocolData: getAaveProtocolData,
-          },
-        }),
-      close: (args, dependencies) =>
-        close({ ...args, protocolVersion: AaveVersion.v2 }, dependencies),
+      open: (args, dependencies) => withV2Protocol(open, args, dependencies),
+      close: (args, dependencies) => withV2Protocol(close, args, dependencies),
       adjust: (args, dependencies) =>
         adjust(args, {
           ...dependencies,
@@ -160,17 +101,8 @@ export const aave: {
         }),
     },
     v3: {
-      open: (args, dependencies) =>
-        aaveOpen(args, {
-          ...dependencies,
-          protocol: {
-            version: AaveVersion.v3,
-            getCurrentPosition: views.aave.v3,
-            getProtocolData: getAaveProtocolData,
-          },
-        }),
-      close: (args, dependencies) =>
-        close({ ...args, protocolVersion: AaveVersion.v3 }, dependencies),
+      open: (args, dependencies) => withV3Protocol(open, args, dependencies),
+      close: (args, dependencies) => withV3Protocol(close, args, dependencies),
       adjust: (args, dependencies) =>
         adjust(args, {
           ...dependencies,
@@ -182,4 +114,37 @@ export const aave: {
         }),
     },
   },
+}
+
+type DepsWithV2Protocol<T> = T & WithV2Protocol
+type DepsWithV3Protocol<T> = T & WithV3Protocol
+
+function withV2Protocol<ArgsType, DependenciesType, ReturnType>(
+  fn: (args: ArgsType, dependencies: DepsWithV2Protocol<DependenciesType>) => ReturnType,
+  args: ArgsType,
+  dependencies: DependenciesType,
+) {
+  return fn(args, {
+    ...dependencies,
+    protocol: {
+      version: AaveVersion.v2,
+      getCurrentPosition: views.aave.v2,
+      getProtocolData: getAaveProtocolData,
+    },
+  })
+}
+
+function withV3Protocol<ArgsType, DependenciesType, ReturnType>(
+  fn: (args: ArgsType, dependencies: DepsWithV3Protocol<DependenciesType>) => ReturnType,
+  args: ArgsType,
+  dependencies: DependenciesType,
+) {
+  return fn(args, {
+    ...dependencies,
+    protocol: {
+      version: AaveVersion.v3,
+      getCurrentPosition: views.aave.v3,
+      getProtocolData: getAaveProtocolData,
+    },
+  })
 }

@@ -38,8 +38,8 @@ export const getCurrentSparkPosition: SparkGetCurrentPosition = async (args, dep
     reserveDataForCollateral,
     userReserveDataForCollateral,
     userReserveDataForDebtToken,
-    aaveCollateralTokenPriceInEth,
-    aaveDebtTokenPriceInEth,
+    collateralTokenPriceInEth,
+    debtTokenPriceInEth,
     eModeCategoryData,
   } = protocolData
 
@@ -57,8 +57,8 @@ export const getCurrentSparkPosition: SparkGetCurrentPosition = async (args, dep
   }
 
   const [validatedCollateralPrice, validatedDebtPrice] = ensureOraclePricesDefined(
-    aaveCollateralTokenPriceInEth,
-    aaveDebtTokenPriceInEth,
+    collateralTokenPriceInEth,
+    debtTokenPriceInEth,
   )
   const oracle = validatedCollateralPrice.div(validatedDebtPrice)
 

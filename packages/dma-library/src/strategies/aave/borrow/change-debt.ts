@@ -1,12 +1,16 @@
 import { ZERO } from '@dma-common/constants'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
-import { IViewPositionDependencies, IViewPositionParams, WithDebtChange } from '@dma-library/types'
+import {
+  IViewPositionParams,
+  WithDebtChange,
+  WithViewPositionDependencies,
+} from '@dma-library/types'
 import { AavePosition, AAVETokens } from '@dma-library/types/aave'
 import { views } from '@dma-library/views'
 
 export type AaveV2ChangeDebt = (
   args: IViewPositionParams<AAVETokens> & WithDebtChange<AAVETokens>,
-  { addresses, provider }: IViewPositionDependencies<AaveLikeStrategyAddresses>,
+  { addresses, provider }: WithViewPositionDependencies<AaveLikeStrategyAddresses>,
 ) => Promise<AavePosition>
 
 export const changeDebt: AaveV2ChangeDebt = async (args, { addresses, provider }) => {

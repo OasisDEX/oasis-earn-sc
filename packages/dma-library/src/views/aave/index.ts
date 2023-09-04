@@ -58,8 +58,8 @@ export const getCurrentPositionAaveV2: AaveV2GetCurrentPosition = async (args, d
     reserveDataForCollateral,
     userReserveDataForCollateral,
     userReserveDataForDebtToken,
-    aaveCollateralTokenPriceInEth,
-    aaveDebtTokenPriceInEth,
+    collateralTokenPriceInEth,
+    debtTokenPriceInEth,
   } = protocolData
 
   const BASE = new BigNumber(10000)
@@ -69,8 +69,8 @@ export const getCurrentPositionAaveV2: AaveV2GetCurrentPosition = async (args, d
   const maxLoanToValue = new BigNumber(reserveDataForCollateral.ltv.toString()).div(BASE)
 
   const [validatedCollateralPrice, validatedDebtPrice] = ensureOraclePricesDefined(
-    aaveCollateralTokenPriceInEth,
-    aaveDebtTokenPriceInEth,
+    collateralTokenPriceInEth,
+    debtTokenPriceInEth,
   )
   const oracle = validatedCollateralPrice.div(validatedDebtPrice)
 
@@ -125,8 +125,8 @@ export const getCurrentPositionAaveV3: AaveV3GetCurrentPosition = async (args, d
     reserveDataForCollateral,
     userReserveDataForCollateral,
     userReserveDataForDebtToken,
-    aaveCollateralTokenPriceInEth,
-    aaveDebtTokenPriceInEth,
+    collateralTokenPriceInEth,
+    debtTokenPriceInEth,
     eModeCategoryData,
   } = protocolData
 
@@ -144,8 +144,8 @@ export const getCurrentPositionAaveV3: AaveV3GetCurrentPosition = async (args, d
   }
 
   const [validatedCollateralPrice, validatedDebtPrice] = ensureOraclePricesDefined(
-    aaveCollateralTokenPriceInEth,
-    aaveDebtTokenPriceInEth,
+    collateralTokenPriceInEth,
+    debtTokenPriceInEth,
   )
   const oracle = validatedCollateralPrice.div(validatedDebtPrice)
 

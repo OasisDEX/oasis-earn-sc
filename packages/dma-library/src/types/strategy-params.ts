@@ -142,17 +142,7 @@ export type WithDebug = {
 
 export type WithOptionalSwap = Partial<WithSwap>
 
-export type IOpenPositionTransitionDependencies<Addresses> = Omit<
-  IPositionTransitionDependencies<Addresses>,
-  'currentPosition'
->
-
-export type IOnlyDepositBorrowOpenPositionTransitionDependencies<Addresses> = Omit<
-  IOpenPositionTransitionDependencies<Addresses>,
-  'getSwapData'
->
-
-export interface IViewPositionDependencies<Addresses> {
+export interface WithViewPositionDependencies<Addresses> {
   addresses: Addresses
   provider: providers.Provider
 }

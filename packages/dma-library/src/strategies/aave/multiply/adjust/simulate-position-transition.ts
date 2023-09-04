@@ -37,9 +37,9 @@ export async function simulatePositionTransition(
   }
 
   const {
-    aaveFlashloanAssetPriceInEth,
-    aaveDebtTokenPriceInEth,
-    aaveCollateralTokenPriceInEth,
+    flashloanAssetPriceInEth,
+    debtTokenPriceInEth,
+    collateralTokenPriceInEth,
     reserveDataForFlashloan,
   } = protocolData
 
@@ -74,17 +74,15 @@ export async function simulatePositionTransition(
 
   const flashloanFee = new BigNumber(0)
 
-  const ethPerFlashloanToken = aaveFlashloanAssetPriceInEth
-  const ethPerDebtToken = aaveDebtTokenPriceInEth
-  if (ethPerDebtToken === undefined || ethPerFlashloanToken === undefined) {
+  if (debtTokenPriceInEth === undefined || flashloanAssetPriceInEth === undefined) {
     throw new Error('Could not get ETH per debt token or ETH per flashloan token')
   }
-  const oracleFLtoDebtToken = ethPerDebtToken.div(ethPerFlashloanToken)
+  const oracleFLtoDebtToken = debtTokenPriceInEth.div(flashloanAssetPriceInEth)
 
-  if (aaveCollateralTokenPriceInEth === undefined || aaveDebtTokenPriceInEth === undefined) {
+  if (collateralTokenPriceInEth === undefined || debtTokenPriceInEth === undefined) {
     throw new Error('Could not get ETH per collateral token or ETH per debt token')
   }
-  const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+  const oracle = collateralTokenPriceInEth.div(debtTokenPriceInEth)
 
   const collectFeeFrom = acceptedFeeToken({
     fromToken: fromToken.symbol,

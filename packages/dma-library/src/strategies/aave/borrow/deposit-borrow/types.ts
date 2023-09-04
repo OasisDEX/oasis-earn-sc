@@ -7,10 +7,10 @@ export type AaveDepositBorrowArgs = StrategyParams.WithAaveStrategyArgs &
   StrategyParams.WithDepositCollateral &
   StrategyParams.WithBorrowDebt
 
-export type AaveV2DepositBorrowDependencies = StrategyParams.WithAaveStrategyDependencies &
+export type AaveV2DepositBorrowDependencies = StrategyParams.WithAaveLikeStrategyDependencies &
   AaveProtocol.WithV2Protocol &
   StrategyParams.WithOptionalSwap
-export type AaveV3DepositBorrowDependencies = StrategyParams.WithAaveStrategyDependencies &
+export type AaveV3DepositBorrowDependencies = StrategyParams.WithAaveLikeStrategyDependencies &
   AaveProtocol.WithV3Protocol &
   StrategyParams.WithOptionalSwap
 export type AaveDepositBorrowDependencies =
