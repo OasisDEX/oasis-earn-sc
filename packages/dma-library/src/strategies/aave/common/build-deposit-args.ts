@@ -3,14 +3,14 @@ import { ZERO } from '@dma-common/constants'
 import { DepositArgs } from '@dma-library/operations'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
-import { AAVETokens, SwapData } from '@dma-library/types'
+import { AaveLikeTokens, SwapData } from '@dma-library/types'
 import { WithOptionalSwap } from '@dma-library/types/strategy-params'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
 export async function buildDepositArgs(
-  entryToken: { symbol: AAVETokens },
-  collateralToken: { symbol: AAVETokens },
+  entryToken: { symbol: AaveLikeTokens },
+  collateralToken: { symbol: AaveLikeTokens },
   collateralTokenAddress: Address,
   entryTokenAmount: BigNumber,
   slippage: BigNumber,
@@ -71,7 +71,7 @@ export async function buildDepositArgs(
 
     const { swapData } = await SwapUtils.getSwapDataHelper<
       typeof dependencies.addresses,
-      AAVETokens
+      AaveLikeTokens
     >({
       args: {
         fromToken: entryToken,

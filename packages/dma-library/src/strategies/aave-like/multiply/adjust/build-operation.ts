@@ -1,43 +1,60 @@
-import { UNUSED_FLASHLOAN_AMOUNT, ZERO } from '@dma-common/constants'
-import { operations } from '@dma-library/operations'
-import { AdjustRiskDownArgs } from '@dma-library/operations/aave/multiply/v2/adjust-risk-down'
-import { AdjustRiskUpArgs } from '@dma-library/operations/aave/multiply/v2/adjust-risk-up'
+import { Network } from '@deploy-configurations/types/network'
+import { getForkedNetwork } from '@deploy-configurations/utils/network'
+import { ZERO } from '@dma-common/constants'
+import { AdjustRiskDownArgs } from '@dma-library/operations/aave/multiply/v3/adjust-risk-down'
+import { AdjustRiskUpArgs } from '@dma-library/operations/aave/multiply/v3/adjust-risk-up'
+import { resolveAaveLikeMultiplyOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
-import { FlashloanProvider } from '@dma-library/types/common'
+import { IOperation } from '@dma-library/types'
+import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
 
 import { BuildOperationArgs } from './types'
 
-export async function buildOperationV2({
+export async function buildOperation({
   adjustRiskUp,
   swapData,
   simulatedPositionTransition,
   collectFeeFrom,
   args,
   dependencies,
-  network,
-}: BuildOperationArgs) {
+}: BuildOperationArgs): Promise<IOperation | undefined> {
+  const positionType = dependencies.positionType
+  const aaveLikeMultiplyOperations = resolveAaveLikeMultiplyOperations(
+    dependencies.protocolType,
+    positionType,
+  )
+
   const addresses = dependencies.addresses
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken: args.debtToken, collateralToken: args.collateralToken },
     addresses,
   )
 
+  const flashloanToken =
+    dependencies.network === Network.MAINNET ? addresses.tokens.DAI : addresses.tokens.USDC
+
   const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
   const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
   const swapAmountBeforeFees = simulatedPositionTransition.swap.fromTokenAmount
-
-  const adjustRiskDown = !adjustRiskUp
-  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
-    isIncreasingRisk: adjustRiskUp,
-    isEarnPosition: args.positionType === 'Earn',
-  })
 
   const hasCollateralDeposit = args.depositedByUser?.collateralInWei?.gt(ZERO)
   const depositAddress = hasCollateralDeposit ? collateralTokenAddress : debtTokenAddress
   const depositAmount = hasCollateralDeposit
     ? args.depositedByUser?.collateralInWei
     : args.depositedByUser?.debtInWei
+  const adjustRiskDown = !adjustRiskUp
+  const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
+    isIncreasingRisk: adjustRiskUp,
+    isEarnPosition: dependencies.positionType === 'Earn',
+  })
+  const flashloanProvider = resolveFlashloanProvider(await getForkedNetwork(dependencies.provider))
+
+  const flashloanAmount =
+    flashloanToken === dependencies.addresses.tokens.DAI
+      ? simulatedPositionTransition.delta.flashloanAmount.abs()
+      : simulatedPositionTransition.delta.flashloanAmount.abs().div(10 ** 12)
+
   const adjustRiskArgs = {
     collateral: {
       address: collateralTokenAddress,
@@ -60,6 +77,13 @@ export async function buildOperationV2({
       collectFeeFrom,
       receiveAtLeast: swapData.minToTokenAmount,
     },
+    flashloan: {
+      token: {
+        amount: flashloanAmount,
+        address: flashloanToken,
+      },
+      provider: flashloanProvider,
+    },
     proxy: {
       address: dependencies.proxy,
       isDPMProxy: dependencies.isDPMProxy,
@@ -67,12 +91,8 @@ export async function buildOperationV2({
     },
     addresses,
   }
-
   if (adjustRiskUp) {
     const borrowAmount = simulatedPositionTransition.delta.debt.minus(depositDebtAmountInWei)
-    const flAmt = simulatedPositionTransition.delta.flashloanAmount
-    const flashloanAmount = flAmt.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : flAmt
-
     const adjustRiskUpArgs: AdjustRiskUpArgs = {
       ...adjustRiskArgs,
       debt: {
@@ -84,24 +104,17 @@ export async function buildOperationV2({
       flashloan: {
         token: {
           amount: flashloanAmount,
-          address: dependencies.addresses.tokens.DAI,
+          address: flashloanToken,
         },
         amount: flashloanAmount,
-        // Aave V2 not on L2
-        provider: FlashloanProvider.DssFlash,
+        provider: flashloanProvider,
       },
-      network,
+      network: dependencies.network,
     }
-    return await operations.aave.multiply.v2.adjustRiskUp(adjustRiskUpArgs)
+    return await aaveLikeMultiplyOperations.adjustRiskUp(adjustRiskUpArgs)
   }
 
   if (adjustRiskDown) {
-    /*
-     * The Maths can produce negative amounts for flashloan on decrease
-     * because it's calculated using Debt Delta which will be negative
-     */
-    const flAmtAbs = (simulatedPositionTransition.delta?.flashloanAmount || ZERO).abs()
-    const flashloanAmount = flAmtAbs.eq(ZERO) ? UNUSED_FLASHLOAN_AMOUNT : flAmtAbs
     const withdrawCollateralAmount = simulatedPositionTransition.delta.collateral.abs()
     const adjustRiskDownArgs: AdjustRiskDownArgs = {
       ...adjustRiskArgs,
@@ -113,16 +126,15 @@ export async function buildOperationV2({
       },
       flashloan: {
         token: {
-          address: dependencies.addresses.tokens.DAI,
           amount: flashloanAmount,
+          address: flashloanToken,
         },
         amount: flashloanAmount,
-        // Aave V2 not on L2
-        provider: FlashloanProvider.DssFlash,
+        provider: flashloanProvider,
       },
-      network,
+      network: dependencies.network,
     }
-    return await operations.aave.multiply.v2.adjustRiskDown(adjustRiskDownArgs)
+    return await aaveLikeMultiplyOperations.adjustRiskDown(adjustRiskDownArgs)
   }
 
   throw new Error('No operation could be built')

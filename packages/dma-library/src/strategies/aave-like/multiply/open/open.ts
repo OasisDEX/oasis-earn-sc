@@ -1,6 +1,6 @@
 import { amountToWei } from '@dma-common/utils/common'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
-import { AAVETokens } from '@dma-library/types/aave'
+import { AaveLikeTokens } from '@dma-library/types/aave-like'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
@@ -17,7 +17,7 @@ export const open: AaveLikeOpen = async (args, dependencies) => {
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
   const { swapData: quoteSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
-    AAVETokens
+    AaveLikeTokens
   >({
     args: {
       fromToken: args.debtToken,
@@ -45,7 +45,7 @@ export const open: AaveLikeOpen = async (args, dependencies) => {
 
   const { swapData, collectFeeFrom } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
-    AAVETokens
+    AaveLikeTokens
   >({
     args: {
       fromToken: args.debtToken,

@@ -1,34 +1,30 @@
 import { amountToWei } from '@dma-common/utils/common'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
-import { AAVETokens, PositionTransition } from '@dma-library/types'
+import { AaveLikeTokens } from '@dma-library/types'
 import { feeResolver, getSwapDataHelper } from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
 import { buildOperation } from './build-operation'
-import { generateTransition } from './generate-transition'
-import { simulatePositionTransition } from './simulate-position-transition'
-import { AaveAdjustDependencies, ExtendedAaveAdjustArgs } from './types'
+import { generate } from './generate'
+import { simulate } from './simulate'
+import { AaveLikeAdjustUp } from './types'
 
-export async function adjustRiskDown(
-  args: ExtendedAaveAdjustArgs,
-  dependencies: AaveAdjustDependencies,
-): Promise<PositionTransition> {
-  const isAdjustDown = true
-  const isAdjustUp = !isAdjustDown
+export const adjustRiskUp: AaveLikeAdjustUp = async (args, dependencies) => {
+  const isAdjustUp = true
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk: isAdjustUp,
-    isEarnPosition: args.positionType === 'Earn',
+    isEarnPosition: dependencies.positionType === 'Earn',
   })
 
   // Get quote swap
-  const estimatedSwapAmount = amountToWei(new BigNumber(1), args.collateralToken.precision)
+  const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
   const { swapData: quoteSwapData } = await getSwapDataHelper<
     typeof dependencies.addresses,
-    AAVETokens
+    AaveLikeTokens
   >({
     args: {
-      fromToken: args.collateralToken,
-      toToken: args.debtToken,
+      fromToken: args.debtToken,
+      toToken: args.collateralToken,
       slippage: args.slippage,
       fee,
       swapAmountBeforeFees: estimatedSwapAmount,
@@ -40,26 +36,27 @@ export async function adjustRiskDown(
     },
   })
 
-  // SimulateAdjustDown
-  const { simulatedPositionTransition: simulatedAdjustDown } = await simulatePositionTransition(
+  // SimulateAdjustUp
+  const { simulatedPositionTransition: simulatedAdjustUp } = await simulate(
     isAdjustUp,
     quoteSwapData,
     { ...args, fee },
     dependencies,
-    false,
+    true,
+    dependencies.debug,
   )
 
   // Get accurate swap
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
     typeof dependencies.addresses,
-    AAVETokens
+    AaveLikeTokens
   >({
     args: {
-      fromToken: args.collateralToken,
-      toToken: args.debtToken,
+      fromToken: args.debtToken,
+      toToken: args.collateralToken,
       slippage: args.slippage,
       fee,
-      swapAmountBeforeFees: simulatedAdjustDown.swap.fromTokenAmount,
+      swapAmountBeforeFees: simulatedAdjustUp.swap.fromTokenAmount,
     },
     addresses: dependencies.addresses,
     services: {
@@ -68,11 +65,10 @@ export async function adjustRiskDown(
     },
   })
 
-  // buildOperation
   const operation = await buildOperation({
     adjustRiskUp: isAdjustUp,
     swapData,
-    simulatedPositionTransition: simulatedAdjustDown,
+    simulatedPositionTransition: simulatedAdjustUp,
     collectFeeFrom,
     args,
     dependencies,
@@ -81,14 +77,13 @@ export async function adjustRiskDown(
 
   if (operation === undefined) throw new Error('No operation built. Check your arguments.')
 
-  // generateTransition
-  return await generateTransition({
+  return await generate({
     isIncreasingRisk: isAdjustUp,
     swapData,
     operation,
     collectFeeFrom,
     fee,
-    simulatedPositionTransition: simulatedAdjustDown,
+    simulation: simulatedAdjustUp,
     args,
     dependencies,
     quoteSwapData,

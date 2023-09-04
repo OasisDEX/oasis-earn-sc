@@ -2,8 +2,7 @@ import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { AaveProtocolData } from '@dma-library/protocols'
-import { AAVETokens } from '@dma-library/types/aave'
-import { AaveLikeTokens } from '@dma-library/types/aave/tokens'
+import { AaveLikeTokens } from '@dma-library/types/aave-like'
 import { AaveLikeProtocol } from '@dma-library/types/protocol'
 import { IPosition, IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
@@ -20,7 +19,7 @@ export interface IBasePositionTransitionArgs<Tokens> {
 }
 
 export type WithAaveEntryToken = {
-  entryToken: { symbol: AAVETokens; precision?: number }
+  entryToken: { symbol: AaveLikeTokens; precision?: number }
 }
 
 export type WithAaveLikeEntryToken = {
@@ -28,9 +27,9 @@ export type WithAaveLikeEntryToken = {
 }
 
 export type WithAaveStrategyArgs = {
-  collateralToken: { symbol: AAVETokens; precision?: number }
-  debtToken: { symbol: AAVETokens; precision?: number }
-  entryToken?: { symbol: AAVETokens; precision?: number }
+  collateralToken: { symbol: AaveLikeTokens; precision?: number }
+  debtToken: { symbol: AaveLikeTokens; precision?: number }
+  entryToken?: { symbol: AaveLikeTokens; precision?: number }
 } & WithSlippage
 
 type WithAaveLikeProtocolType = {
@@ -91,12 +90,6 @@ export type WithDepositCollateral = {
   amountCollateralToDepositInBaseUnit: BigNumber
 }
 
-/** @deprecated compose strategy args instead */
-export interface IPositionTransitionArgs<Tokens>
-  extends IBasePositionTransitionArgs<Tokens>,
-    WithDeposit,
-    WithMultiple {}
-
 export interface IViewPositionParams<Tokens> {
   proxy: string
   collateralToken: { symbol: Tokens; precision?: number }
@@ -148,7 +141,7 @@ export interface WithViewPositionDependencies<Addresses> {
 }
 
 export type WithFlashloanToken = {
-  flashloanToken: { symbol: AAVETokens; precision: number; address: string }
+  flashloanToken: { symbol: AaveLikeTokens; precision: number; address: string }
 }
 export type WithCollateralTokenAddress = {
   collateralTokenAddress: string

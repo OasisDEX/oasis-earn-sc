@@ -1,5 +1,3 @@
-import type { AAVETokens } from './aave'
-import { AavePosition } from './aave'
 import { ActionCall } from './action-call'
 import { calldataTypes } from './actions'
 import type { AjnaError, AjnaStrategy } from './ajna'
@@ -40,14 +38,6 @@ import type {
 import type { PositionType } from './position-type'
 import type { Protocol } from './protocol'
 import type {
-  ISimplePositionTransition,
-  ISimpleSimulatedTransition,
-  ISimulatedTransition,
-  PositionTransition,
-} from './strategies'
-import type {
-  IBasePositionTransitionArgs,
-  IPositionTransitionArgs,
   IViewPositionParams,
   WithBorrowDebt,
   WithCollateralTokenAddress,
@@ -77,8 +67,7 @@ export type {
   AjnaOpenMultiplyPayload,
 }
 
-export type { AAVETokens }
-export { AavePosition }
+export { AaveLikePosition, AaveLikeTokens } from './aave-like'
 
 export { ActionCall }
 export { calldataTypes }
@@ -105,17 +94,9 @@ export type {
   WithWithdrawal,
 }
 
-export type {
-  ISimplePositionTransition,
-  ISimpleSimulatedTransition,
-  ISimulatedTransition,
-  PositionTransition,
-}
 export type { PositionType }
 export type { Protocol }
 export type {
-  IBasePositionTransitionArgs,
-  IPositionTransitionArgs,
   IViewPositionParams,
   WithBorrowDebt,
   WithCollateralTokenAddress,

@@ -1,20 +1,25 @@
-import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { TEN_THOUSAND, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
+import {
+  assertPosition,
+  assertProtocolData,
+  assertTokenPrices,
+  resolveCurrentPositionForProtocol,
+  resolveProtocolData,
+} from '@dma-library/strategies/aave-like/common'
 import { SwapData } from '@dma-library/types'
 import { WithFee } from '@dma-library/types/aave/fee'
-import { acceptedFeeToken } from '@dma-library/utils/swap'
+import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
-import { getCurrentPosition } from './get-current-position'
-import { getProtocolData } from './get-protocol-data'
-import { AaveAdjustDependencies, ExtendedAaveAdjustArgs } from './types'
+import { AaveLikeAdjustDependencies, ExtendedAaveLikeAdjustArgs } from './types'
 
-export async function simulatePositionTransition(
+export async function simulate(
   isRiskIncreasing: boolean,
   quoteSwapData: SwapData,
-  args: ExtendedAaveAdjustArgs & WithFee,
-  dependencies: AaveAdjustDependencies,
+  args: ExtendedAaveLikeAdjustArgs & WithFee,
+  dependencies: AaveLikeAdjustDependencies,
   fromTokenIsDebt: boolean,
   debug?: boolean,
 ) {
@@ -23,18 +28,20 @@ export async function simulatePositionTransition(
     dependencies.addresses,
   )
 
-  const currentPosition = await getCurrentPosition(args, dependencies)
-  const protocolData = await getProtocolData(
-    collateralTokenAddress,
-    debtTokenAddress,
-    args,
-    args.flashloanToken.address,
-    dependencies,
+  const currentPosition = await resolveCurrentPositionForProtocol(args, dependencies)
+  const protocolData = await resolveProtocolData(
+    {
+      collateralTokenAddress,
+      debtTokenAddress,
+      flashloanTokenAddress: args.flashloanToken.address,
+      addresses: dependencies.addresses,
+      provider: dependencies.provider,
+    },
+    dependencies.protocolType,
   )
 
-  if (!currentPosition || !protocolData) {
-    throw new Error('Could not get current position or protocol data')
-  }
+  assertPosition(currentPosition)
+  assertProtocolData(protocolData)
 
   const {
     flashloanAssetPriceInEth,
@@ -43,7 +50,7 @@ export async function simulatePositionTransition(
     reserveDataForFlashloan,
   } = protocolData
 
-  const BASE = new BigNumber(10000)
+  const BASE = TEN_THOUSAND
   const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(BASE)
 
   const multiple = args.multiple
@@ -72,21 +79,17 @@ export async function simulatePositionTransition(
     ? quoteMarketPriceWhenAdjustingUp
     : quoteMarketPriceWhenAdjustingDown
 
-  const flashloanFee = new BigNumber(0)
+  const flashloanFee = ZERO
 
-  if (debtTokenPriceInEth === undefined || flashloanAssetPriceInEth === undefined) {
-    throw new Error('Could not get ETH per debt token or ETH per flashloan token')
-  }
-  const oracleFLtoDebtToken = debtTokenPriceInEth.div(flashloanAssetPriceInEth)
+  const [_debtTokenPriceInEth, _flashloanAssetPriceInEth, _collateralTokenPriceInEth] =
+    assertTokenPrices(debtTokenPriceInEth, flashloanAssetPriceInEth, collateralTokenPriceInEth)
 
-  if (collateralTokenPriceInEth === undefined || debtTokenPriceInEth === undefined) {
-    throw new Error('Could not get ETH per collateral token or ETH per debt token')
-  }
-  const oracle = collateralTokenPriceInEth.div(debtTokenPriceInEth)
+  const oracleFLtoDebtToken = _debtTokenPriceInEth.div(_flashloanAssetPriceInEth)
+  const oracle = _collateralTokenPriceInEth.div(_debtTokenPriceInEth)
 
-  const collectFeeFrom = acceptedFeeToken({
-    fromToken: fromToken.symbol,
-    toToken: toToken.symbol,
+  const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
+    fromTokenSymbol: fromToken.symbol,
+    toTokenSymbol: toToken.symbol,
   })
 
   return {

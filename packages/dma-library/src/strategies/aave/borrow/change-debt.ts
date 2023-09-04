@@ -5,13 +5,13 @@ import {
   WithDebtChange,
   WithViewPositionDependencies,
 } from '@dma-library/types'
-import { AavePosition, AAVETokens } from '@dma-library/types/aave'
+import { AaveLikePosition, AaveLikeTokens } from '@dma-library/types/aave-like'
 import { views } from '@dma-library/views'
 
 export type AaveV2ChangeDebt = (
-  args: IViewPositionParams<AAVETokens> & WithDebtChange<AAVETokens>,
+  args: IViewPositionParams<AaveLikeTokens> & WithDebtChange<AaveLikeTokens>,
   { addresses, provider }: WithViewPositionDependencies<AaveLikeStrategyAddresses>,
-) => Promise<AavePosition>
+) => Promise<AaveLikePosition>
 
 export const changeDebt: AaveV2ChangeDebt = async (args, { addresses, provider }) => {
   const currentPosition = await views.aave.v2(args, {
