@@ -1,9 +1,9 @@
 import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
+import { AaveProtocolData } from '@dma-library/protocols'
 import { AAVETokens } from '@dma-library/types/aave'
 import { AaveLikeTokens } from '@dma-library/types/aave/tokens'
-import { GetSwapData } from '@dma-library/types/common/get-swap-data'
 import { AaveLikeProtocol } from '@dma-library/types/protocol'
 import { IPosition, IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
@@ -47,6 +47,14 @@ export type WithAaveLikeBorrowStrategyArgs = {
 } & WithAaveLikeStrategyArgs
 
 export type WithAaveLikeMultiplyStrategyArgs = WithAaveLikeBorrowStrategyArgs
+
+export type WithCloseToCollateralFlag = {
+  shouldCloseToCollateral?: boolean
+}
+
+export type WithProtocolData = {
+  protocolData: AaveProtocolData
+}
 
 type WithSlippage = {
   slippage: BigNumber
@@ -99,18 +107,6 @@ export type WithDebtChange<Tokens> = {
   newDebtToken: { symbol: Tokens; precision?: number }
 }
 
-/** @deprecated See SharedStrategyDependencies and create your own */
-export interface IPositionTransitionDependencies<Addresses> {
-  addresses: Addresses
-  provider: providers.Provider
-  currentPosition: IPosition
-  getSwapData: GetSwapData
-  proxy: Address
-  user: Address
-  isDPMProxy: boolean
-  network: Network
-}
-
 type SharedStrategyDependencies = {
   provider: providers.Provider
   currentPosition: IPosition
@@ -119,17 +115,13 @@ type SharedStrategyDependencies = {
   network: Network
 }
 
-export type WithAaveStrategyDependencies = {
-  addresses: AaveLikeStrategyAddresses
-} & SharedStrategyDependencies
-export type WithAaveMultiplyStrategyDependencies = WithAaveStrategyDependencies & WithDPMFlag
-
 export type WithAaveLikeStrategyDependencies = {
   addresses: AaveLikeStrategyAddresses
 } & SharedStrategyDependencies &
   WithAaveLikeProtocolType
 export type WithAaveLikeMultiplyStrategyDependencies = WithAaveLikeStrategyDependencies &
   WithDPMFlag
+export type WithAaveMultiplyStrategyDependencies = WithAaveLikeMultiplyStrategyDependencies
 
 export type WithDPMFlag = {
   isDPMProxy: boolean
@@ -150,17 +142,7 @@ export type WithDebug = {
 
 export type WithOptionalSwap = Partial<WithSwap>
 
-export type IOpenPositionTransitionDependencies<Addresses> = Omit<
-  IPositionTransitionDependencies<Addresses>,
-  'currentPosition'
->
-
-export type IOnlyDepositBorrowOpenPositionTransitionDependencies<Addresses> = Omit<
-  IOpenPositionTransitionDependencies<Addresses>,
-  'getSwapData'
->
-
-export interface IViewPositionDependencies<Addresses> {
+export interface WithViewPositionDependencies<Addresses> {
   addresses: Addresses
   provider: providers.Provider
 }

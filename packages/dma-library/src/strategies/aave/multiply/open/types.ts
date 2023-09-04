@@ -4,14 +4,14 @@ import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
 export type AaveV2OpenDependencies = Omit<
-  StrategyParams.WithAaveMultiplyStrategyDependencies,
+  StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
   'currentPosition'
 > &
   WithV2Protocol &
   StrategyParams.WithSwap &
   StrategyParams.WithPositionType
 export type AaveV3OpenDependencies = Omit<
-  StrategyParams.WithAaveMultiplyStrategyDependencies,
+  StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
   'currentPosition'
 > &
   WithV3Protocol &
@@ -21,6 +21,17 @@ export type AaveOpenDependencies = AaveV2OpenDependencies | AaveV3OpenDependenci
 export type AaveOpenArgs = AaveLikeOpenArgs
 
 export type IOpenStrategy = Strategies.IMultiplyStrategy
+
+export type AaveV2Open = (
+  args: AaveOpenArgs,
+  dependencies: Omit<AaveV2OpenDependencies, 'protocol'>,
+) => Promise<IOpenStrategy>
+
+export type AaveV3Open = (
+  args: AaveOpenArgs,
+  dependencies: Omit<AaveV3OpenDependencies, 'protocol'>,
+) => Promise<IOpenStrategy>
+
 export type AaveOpen = (
   args: AaveOpenArgs,
   dependencies: AaveOpenDependencies,

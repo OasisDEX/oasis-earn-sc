@@ -51,9 +51,9 @@ export async function simulate(
   )
 
   const {
-    aaveFlashloanAssetPriceInEth,
-    aaveDebtTokenPriceInEth,
-    aaveCollateralTokenPriceInEth,
+    flashloanAssetPriceInEth,
+    debtTokenPriceInEth,
+    collateralTokenPriceInEth,
     reserveDataForFlashloan,
     reserveEModeCategory,
   } = protocolData
@@ -77,24 +77,17 @@ export async function simulate(
   const quoteMarketPrice = fromTokenAmountNormalised.div(toTokenAmountNormalised)
   const flashloanFee = new BigNumber(0)
 
-  // ETH/DAI
-  const ethPerFlashloanAmount = aaveFlashloanAssetPriceInEth
-
-  // EG USDC/ETH
-  const ethPerDebtToken = aaveDebtTokenPriceInEth
-
-  if (ethPerDebtToken === undefined) throw new Error('No ETH per debt token found')
-  if (ethPerFlashloanAmount === undefined) throw new Error('No ETH per flashloan amount found')
+  if (debtTokenPriceInEth === undefined) throw new Error('No ETH per debt token found')
+  if (flashloanAssetPriceInEth === undefined) throw new Error('No ETH per flashloan amount found')
 
   // EG USDC/ETH divided by ETH/DAI = USDC/ETH times by DAI/ETH = USDC/DAI
-  const oracleFLtoDebtToken = ethPerDebtToken.div(ethPerFlashloanAmount)
+  const oracleFLtoDebtToken = debtTokenPriceInEth.div(flashloanAssetPriceInEth)
 
-  if (aaveCollateralTokenPriceInEth === undefined)
-    throw new Error('No ETH per collateral token found')
-  if (aaveDebtTokenPriceInEth === undefined) throw new Error('No ETH per debt token found')
+  if (collateralTokenPriceInEth === undefined) throw new Error('No ETH per collateral token found')
+  if (debtTokenPriceInEth === undefined) throw new Error('No ETH per debt token found')
 
   // EG STETH/ETH divided by USDC/ETH = STETH/USDC
-  const oracle = aaveCollateralTokenPriceInEth.div(aaveDebtTokenPriceInEth)
+  const oracle = collateralTokenPriceInEth.div(debtTokenPriceInEth)
 
   const collectFeeFrom = SwapUtils.acceptedFeeToken({
     fromToken: args.debtToken.symbol,

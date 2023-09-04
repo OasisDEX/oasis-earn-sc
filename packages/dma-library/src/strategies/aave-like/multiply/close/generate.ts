@@ -1,26 +1,34 @@
 import { FEE_ESTIMATE_INFLATOR, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { amountFromWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
-import { IOperation, PositionTransition, SwapData } from '@dma-library/types'
+import { IOperation, SwapData } from '@dma-library/types'
 import { feeResolver } from '@dma-library/utils/swap'
 import { Position } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { AaveCloseDependencies, ExpandedAaveCloseArgs } from './types'
+import { AaveLikeCloseDependencies, AaveLikeExpandedCloseArgs } from './types'
 
-export async function generateTransition(
+export async function generate(
   swapData: SwapData,
   collectFeeFrom: 'sourceToken' | 'targetToken',
   preSwapFee: BigNumber,
   operation: IOperation,
-  args: ExpandedAaveCloseArgs,
-  dependencies: AaveCloseDependencies,
-): Promise<PositionTransition> {
+  args: AaveLikeExpandedCloseArgs,
+  dependencies: AaveLikeCloseDependencies,
+) {
   const currentPosition = dependencies.currentPosition
 
   const {
-    protocolValues: { collateralTokenPrice, debtTokenPrice },
+    protocolData: {
+      collateralTokenPriceInEth: collateralTokenPrice,
+      debtTokenPriceInEth: debtTokenPrice,
+    },
   } = args
+
+  if (!collateralTokenPrice || !debtTokenPrice) {
+    throw new Error('Missing protocol data')
+  }
+
   /*
     Final position calculated using actual swap data and the latest market price
    */

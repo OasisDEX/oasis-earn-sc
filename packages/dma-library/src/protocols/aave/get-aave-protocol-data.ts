@@ -1,6 +1,5 @@
 import {
-  PriceResult,
-  ReserveDataResult,
+  AaveLikeProtocolData,
   SharedAaveLikeProtocolDataArgs,
 } from '@dma-library/protocols/aave-like/types'
 import {
@@ -21,17 +20,7 @@ export type AaveV3ProtocolDataArgs = SharedAaveLikeProtocolDataArgs & {
 }
 export type AaveProtocolDataArgs = AaveV2ProtocolDataArgs | AaveV3ProtocolDataArgs
 
-export type AaveProtocolData = {
-  aaveFlashloanAssetPriceInEth: PriceResult
-  aaveDebtTokenPriceInEth: PriceResult
-  aaveCollateralTokenPriceInEth: PriceResult
-  reserveDataForFlashloan: ReserveDataResult
-  reserveDataForCollateral: ReserveDataResult
-  reserveEModeCategory: number | undefined
-  userReserveDataForDebtToken: any
-  userReserveDataForCollateral: any
-  eModeCategoryData: any | undefined
-}
+export type AaveProtocolData = AaveLikeProtocolData
 
 export type GetAaveProtocolData = (args: AaveProtocolDataArgs) => Promise<AaveProtocolData>
 
@@ -80,9 +69,9 @@ export async function getAaveV2ProtocolData({
   ])
 
   return {
-    aaveFlashloanAssetPriceInEth: flashloanPrice,
-    aaveDebtTokenPriceInEth: debtPrice,
-    aaveCollateralTokenPriceInEth: collateralPrice,
+    flashloanAssetPriceInEth: flashloanPrice,
+    debtTokenPriceInEth: debtPrice,
+    collateralTokenPriceInEth: collateralPrice,
     reserveDataForFlashloan: flashloanReserveData,
     reserveDataForCollateral: collateralReserveData,
     reserveEModeCategory: undefined,
@@ -139,9 +128,9 @@ export async function getAaveV3ProtocolData({
   }
 
   return {
-    aaveFlashloanAssetPriceInEth: flashloanPrice,
-    aaveDebtTokenPriceInEth: debtPrice,
-    aaveCollateralTokenPriceInEth: collateralPrice,
+    flashloanAssetPriceInEth: flashloanPrice,
+    debtTokenPriceInEth: debtPrice,
+    collateralTokenPriceInEth: collateralPrice,
     reserveDataForFlashloan: flashloanReserveData,
     reserveDataForCollateral: collateralReserveData,
     reserveEModeCategory: reserveEModeCategory,

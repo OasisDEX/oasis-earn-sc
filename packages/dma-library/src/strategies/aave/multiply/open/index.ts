@@ -1,8 +1,2 @@
 export { open } from './open'
-export {
-  AaveOpen,
-  AaveOpenArgs,
-  AaveOpenDependencies,
-  AaveV2OpenDependencies,
-  AaveV3OpenDependencies,
-} from './types'
+export { AaveV2Open, AaveV3Open } from './types'
