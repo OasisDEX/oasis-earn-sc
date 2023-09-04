@@ -2,7 +2,6 @@ import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protoc
 import { PositionTransition } from '@dma-library/types'
 import { AaveVersion } from '@dma-library/types/aave'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
-import * as Strategies from '@dma-library/types/strategies'
 import { views } from '@dma-library/views'
 
 import { AaveV2ChangeDebt, changeDebt } from './borrow/change-debt'
@@ -23,8 +22,8 @@ import {
   AaveV3AdjustDependencies,
   adjust,
 } from './multiply/adjust'
-import { AaveCloseArgs, AaveCloseDependencies, close } from './multiply/close'
-import { AaveOpenArgs, AaveV2OpenDependencies, AaveV3OpenDependencies, open } from './multiply/open'
+import { AaveClose, close } from './multiply/close'
+import { AaveOpen, open } from './multiply/open'
 
 export const aave: {
   borrow: {
@@ -42,28 +41,16 @@ export const aave: {
   }
   multiply: {
     v2: {
-      open: (
-        args: AaveOpenArgs,
-        dependencies: Omit<AaveV2OpenDependencies, 'protocol'>,
-      ) => Promise<Strategies.IMultiplyStrategy>
-      close: (
-        args: AaveCloseArgs,
-        dependencies: AaveCloseDependencies,
-      ) => Promise<Strategies.IMultiplyStrategy>
+      open: AaveOpen
+      close: AaveClose
       adjust: (
         args: AaveAdjustArgs,
         dependencies: Omit<AaveV2AdjustDependencies, 'protocol'>,
       ) => Promise<PositionTransition>
     }
     v3: {
-      open: (
-        args: AaveOpenArgs,
-        dependencies: Omit<AaveV3OpenDependencies, 'protocol' | 'protocolVersion'>,
-      ) => Promise<Strategies.IMultiplyStrategy>
-      close: (
-        args: AaveCloseArgs,
-        dependencies: AaveCloseDependencies,
-      ) => Promise<Strategies.IMultiplyStrategy>
+      open: AaveOpen
+      close: AaveClose
       adjust: (
         args: AaveAdjustArgs,
         dependencies: Omit<AaveV3AdjustDependencies, 'protocol'>,

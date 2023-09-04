@@ -1,2 +1,2 @@
 export { close } from './close'
-export { SparkCloseArgs, SparkCloseDependencies } from './types'
+export { SparkClose } from './types'

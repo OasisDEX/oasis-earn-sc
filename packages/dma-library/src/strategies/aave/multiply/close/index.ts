@@ -1,2 +1,2 @@
 export { close } from './close'
-export { AaveCloseArgs, AaveCloseDependencies } from './types'
+export { AaveClose } from './types'
