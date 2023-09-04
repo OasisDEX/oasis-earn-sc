@@ -21,6 +21,6 @@ export function getSparkBorrowOperationDefinition(network: Network) {
         optional: false,
       },
     ],
-    log: true,
+    log: false,
   }
 }

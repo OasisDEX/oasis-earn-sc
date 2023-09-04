@@ -39,5 +39,6 @@ export function getSparkOpenOperationDefinition(network: Network) {
       { hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.SET_EMODE), optional: true },
       { hash: getActionHash(SERVICE_REGISTRY_NAMES.common.POSITION_CREATED), optional: false },
     ],
+    log: true,
   }
 }
