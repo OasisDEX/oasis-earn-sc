@@ -95,6 +95,8 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
     riskIsIncreasing,
     oraclePrice,
     positionType,
+    // TODO: remove this
+    ZERO,
   )
 
   // Get swap data
@@ -104,6 +106,8 @@ const adjustRiskDown: AjnaAdjustRiskStrategy = async (args, dependencies) => {
     simulatedAdjustment,
     riskIsIncreasing,
     positionType,
+    // TODO: remove this
+    ZERO,
   )
 
   // Build operation
@@ -143,10 +147,12 @@ async function buildOperation(
   const fromTokenSymbol = riskIsIncreasing ? args.quoteTokenSymbol : args.collateralTokenSymbol
   const toTokenSymbol = riskIsIncreasing ? args.collateralTokenSymbol : args.quoteTokenSymbol
 
-  const fee = SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
-    isIncreasingRisk: riskIsIncreasing,
-    isEarnPosition: SwapUtils.isCorrelatedPosition(fromTokenSymbol, toTokenSymbol),
-  })
+  // TODO: remove this
+  const fee = ZERO
+  // const fee = SwapUtils.feeResolver(fromTokenSymbol, toTokenSymbol, {
+  //   isIncreasingRisk: riskIsIncreasing,
+  //   isEarnPosition: SwapUtils.isCorrelatedPosition(fromTokenSymbol, toTokenSymbol),
+  // })
   // When adjusting risk up we need to flashloan the swap amount before deducting fees
   // Assuming an ETH/USDC position, we'd be Flashloaning USDC to swap for ETH
   // Once the received ETH is deposited as collateral we can then increase our debt

@@ -6,7 +6,7 @@ export function getSparkDepositOperationDefinition(network: Network) {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
   return {
-    name: OPERATION_NAMES.aave.v3.DEPOSIT,
+    name: OPERATION_NAMES.spark.DEPOSIT,
     actions: [
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.WRAP_ETH),
@@ -29,5 +29,6 @@ export function getSparkDepositOperationDefinition(network: Network) {
         optional: false,
       },
     ],
+    log: true,
   }
 }

@@ -260,7 +260,7 @@ export const config: SystemConfig = {
       },
       SparkBorrow: {
         name: 'SparkBorrow',
-        deploy: true,
+        deploy: false,
         address: '0xc69156420307048c9BAAe8191f9012391521a88d',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.BORROW,
         history: ['0x0000000000000000000000000000000000000000'],
@@ -268,7 +268,7 @@ export const config: SystemConfig = {
       },
       SparkWithdraw: {
         name: 'SparkWithdraw',
-        deploy: true,
+        deploy: false,
         address: '0x0cCa782002c4fE95e1ed7A75d41bB56bEfa0C167',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.WITHDRAW,
         history: ['0x0000000000000000000000000000000000000000'],
@@ -276,7 +276,7 @@ export const config: SystemConfig = {
       },
       SparkDeposit: {
         name: 'SparkDeposit',
-        deploy: true,
+        deploy: false,
         address: '0xC58F2Ee4Ef92F2bE314743442496D6Fad0339d56',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.DEPOSIT,
         history: ['0x0000000000000000000000000000000000000000'],
@@ -284,7 +284,7 @@ export const config: SystemConfig = {
       },
       SparkPayback: {
         name: 'SparkPayback',
-        deploy: true,
+        deploy: false,
         address: '0x068875B4254aC431BE7B8a10C56D80324fA0d043',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.PAYBACK,
         history: ['0x0000000000000000000000000000000000000000'],
@@ -292,7 +292,7 @@ export const config: SystemConfig = {
       },
       SparkSetEMode: {
         name: 'SparkSetEMode',
-        deploy: true,
+        deploy: false,
         address: '0x79d428e563D946DaBe43C681f92c8D714F5157cE',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.SET_EMODE,
         history: ['0x0000000000000000000000000000000000000000'],
@@ -1168,7 +1168,7 @@ export const config: SystemConfig = {
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x0170be49C3483F98E456393E1f4de46072dFaA04',
+      address: '0xFBcB0bf3A7BcD1a368e8e8Ad2Ab601160088b39C',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',

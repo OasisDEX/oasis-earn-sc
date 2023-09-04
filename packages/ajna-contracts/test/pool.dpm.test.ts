@@ -163,7 +163,7 @@ describe.only("AjnaProxyActions", function () {
         bn.eighteen.ONE,
         ethers.utils.parseUnits("11821.273", 18),
         weth,
-        true
+        false
       );
 
       const balancesCollateralAfter = {
@@ -191,7 +191,7 @@ describe.only("AjnaProxyActions", function () {
         bn.eighteen.ONE,
         price,
         weth,
-        true
+        false
       );
 
       const gas2 = await withdrawCollateral(
@@ -429,7 +429,7 @@ describe.only("AjnaProxyActions", function () {
         bn.eighteen.TEN,
         price,
         weth,
-        true
+        false
       );
       const gas2 = await drawDebt(
         ajnaProxyActionsContract,
@@ -468,14 +468,126 @@ describe.only("AjnaProxyActions", function () {
         borrowerProxy,
         bn.eight.ONE,
         bn.eighteen.TEST_PRICE_3,
-        wbtc
+        wbtc,
+        false,
+        false
       );
+
       const balancesCollateralAfter = {
         borrower: await wbtc.balanceOf(borrower.address),
         pool: await wbtc.balanceOf(poolContract.address),
       };
 
       expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.ONE));
+    });
+    it("should depositCollateral - no stamploan", async () => {
+      const { wbtc, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, poolInfoContract } =
+        await loadFixture(deploy);
+      const balancesCollateralBefore = {
+        borrower: await wbtc.balanceOf(borrower.address),
+        pool: await wbtc.balanceOf(poolContract.address),
+      };
+
+      await depositCollateral(
+        ajnaProxyActionsContract,
+        poolContract,
+        borrower,
+        borrowerProxy,
+        bn.eight.ONE,
+        bn.eighteen.TEST_PRICE_3,
+        wbtc,
+        false,
+        false
+      );
+
+      await drawDebt(
+        ajnaProxyActionsContract,
+        poolContract,
+        borrowerProxy,
+        borrower,
+        bn.six.HUNDRED,
+        bn.eighteen.TEST_PRICE_3
+      );
+      let borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
+      const t0npBefore = borrowerInfo.t0Np_.toString();
+      console.log(`Neutral price before : ${borrowerInfo.t0Np_.toString()}`);
+
+      await depositCollateral(
+        ajnaProxyActionsContract,
+        poolContract,
+        borrower,
+        borrowerProxy,
+        bn.eight.ONE,
+        bn.eighteen.TEST_PRICE_3,
+        wbtc,
+        false,
+        false
+      );
+
+      const balancesCollateralAfter = {
+        borrower: await wbtc.balanceOf(borrower.address),
+        pool: await wbtc.balanceOf(poolContract.address),
+      };
+      borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
+      const t0npAfter = borrowerInfo.t0Np_.toString();
+      console.log(`Neutral price after stamploan : ${borrowerInfo.t0Np_.toString()}`);
+
+      expect(t0npAfter).to.be.equal(t0npBefore);
+      expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.ONE.mul(2)));
+    });
+    it("should depositCollateral - force stamploan", async () => {
+      const { wbtc, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, poolInfoContract } =
+        await loadFixture(deploy);
+      const balancesCollateralBefore = {
+        borrower: await wbtc.balanceOf(borrower.address),
+        pool: await wbtc.balanceOf(poolContract.address),
+      };
+
+      await depositCollateral(
+        ajnaProxyActionsContract,
+        poolContract,
+        borrower,
+        borrowerProxy,
+        bn.eight.ONE,
+        bn.eighteen.TEST_PRICE_3,
+        wbtc,
+        false,
+        false
+      );
+
+      await drawDebt(
+        ajnaProxyActionsContract,
+        poolContract,
+        borrowerProxy,
+        borrower,
+        bn.six.HUNDRED,
+        bn.eighteen.TEST_PRICE_3
+      );
+      let borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
+      const t0npBefore = borrowerInfo.t0Np_.toString();
+      console.log(`Neutral price before : ${borrowerInfo.t0Np_.toString()}`);
+
+      await depositCollateral(
+        ajnaProxyActionsContract,
+        poolContract,
+        borrower,
+        borrowerProxy,
+        bn.eight.ONE,
+        bn.eighteen.TEST_PRICE_3,
+        wbtc,
+        true,
+        false
+      );
+
+      const balancesCollateralAfter = {
+        borrower: await wbtc.balanceOf(borrower.address),
+        pool: await wbtc.balanceOf(poolContract.address),
+      };
+      borrowerInfo = await poolInfoContract.borrowerInfo(poolContract.address, borrowerProxy.address);
+      const t0npAfter = borrowerInfo.t0Np_.toString();
+      console.log(`Neutral price after stamploan : ${borrowerInfo.t0Np_.toString()}`);
+      expect(t0npAfter).to.not.be.equal(t0npBefore);
+      expect(balancesCollateralAfter.borrower).to.be.equal(balancesCollateralBefore.borrower.sub(bn.eight.ONE.mul(2)));
     });
     it("should depositCollateral and withdrawCollateral", async () => {
       const { wbtc, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower } = await loadFixture(deploy);
@@ -491,7 +603,9 @@ describe.only("AjnaProxyActions", function () {
         borrowerProxy,
         bn.eight.ONE,
         price,
-        wbtc
+        wbtc,
+        false,
+        false
       );
 
       await withdrawCollateral(ajnaProxyActionsContract, poolContract, wbtc, borrower, borrowerProxy, bn.eight.ONE);
@@ -780,7 +894,9 @@ describe.only("AjnaProxyActions", function () {
         borrowerProxy,
         bn.eight.TEN,
         price,
-        wbtc
+        wbtc,
+        false,
+        false
       );
 
       await drawDebt(ajnaProxyActionsContract, poolContract, borrowerProxy, borrower, bn.six.HUNDRED, price);
@@ -1793,12 +1909,14 @@ async function depositCollateral(
   amountToDeposit: BigNumber,
   price: BigNumber,
   collateralToken: DSToken | WETHContract,
-  isWeth = false
+  stamploan = false,
+  isWeth = true
 ) {
   const encodedAddCollateralData = ajnaProxyActionsContract.interface.encodeFunctionData("depositCollateral", [
     poolContract.address,
     amountToDeposit,
     price,
+    stamploan,
   ]);
   const approvalTx = await collateralToken.connect(borrower).approve(borrowerProxy.address, bn.eighteen.MILLION);
   const addCollateralTx = await borrowerProxy
