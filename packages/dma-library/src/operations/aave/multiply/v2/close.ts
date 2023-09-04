@@ -69,6 +69,7 @@ export const close: AaveV2CloseOperation = async args => {
     to: proxy.address,
   })
 
+  const swapActionStorageIndex = 3
   const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
     fromAsset: collateral.address,
     toAsset: debt.address,
@@ -87,7 +88,7 @@ export const close: AaveV2CloseOperation = async args => {
       amount: new BigNumber(0),
       sumAmounts: false,
     },
-    [0, 0, 3, 0],
+    [0, 0, swapActionStorageIndex, 0],
   )
 
   const paybackInAAVE = actions.aave.v2.aavePayback(network, {

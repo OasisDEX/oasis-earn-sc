@@ -78,6 +78,7 @@ export const close: AaveV3CloseOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
+  const swapActionStorageIndex = 3
   const setDebtTokenApprovalOnLendingPool = actions.common.setApproval(
     network,
     {
@@ -86,7 +87,7 @@ export const close: AaveV3CloseOperation = async ({
       amount: new BigNumber(0),
       sumAmounts: false,
     },
-    [0, 0, 3, 0],
+    [0, 0, swapActionStorageIndex, 0],
   )
 
   const paybackInAAVE = actions.aave.v3.aaveV3Payback(network, {
