@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/dma-library",
-  "version": "0.4.20-alpha",
+  "version": "0.4.20-alpha-2",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -10,7 +10,7 @@
     }
   },
   "files": [
-    "lib"
+    "lib/*"
   ],
   "scripts": {
     "build": "npx parcel build ./src/index.ts --dist-dir ./lib --no-source-maps",
