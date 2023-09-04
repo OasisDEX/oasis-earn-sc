@@ -1,4 +1,4 @@
-import { TEN_THOUSAND, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
+import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import {
@@ -12,7 +12,6 @@ import { buildFlashloanSimArgs } from '@dma-library/strategies/aave-like/multipl
 import { SwapData } from '@dma-library/types'
 import { WithFee } from '@dma-library/types/aave/fee'
 import * as SwapUtils from '@dma-library/utils/swap'
-import BigNumber from 'bignumber.js'
 
 import { AaveLikeAdjustDependencies, ExtendedAaveLikeAdjustArgs } from './types'
 
@@ -50,9 +49,6 @@ export async function simulate(
     collateralTokenPriceInEth,
     reserveDataForFlashloan,
   } = protocolData
-
-  const BASE = TEN_THOUSAND
-  const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(BASE)
 
   const multiple = args.multiple
 
