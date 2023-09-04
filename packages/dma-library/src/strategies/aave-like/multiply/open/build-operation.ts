@@ -6,7 +6,7 @@ import {
   AaveLikeOpenArgs,
   AaveLikeOpenDependencies,
 } from '@dma-library/strategies/aave-like/multiply/open/types'
-import { FlashloanProvider, Protocol, SwapData } from '@dma-library/types'
+import { FlashloanProvider, SwapData } from '@dma-library/types'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import * as SwapUtils from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -86,7 +86,6 @@ export async function buildOperation(
         },
       },
       dependencies,
-      dependencies.protocolType,
     ),
     position: {
       type: dependencies.positionType,
@@ -113,8 +112,8 @@ export async function buildOpenFlashloan(
     collateralToken: { address: string }
   },
   dependencies: AaveLikeOpenDependencies,
-  lendingProtocol: Protocol,
 ) {
+  const lendingProtocol = dependencies.protocolType
   const flashloanProvider = resolveFlashloanProvider(
     await getForkedNetwork(dependencies.provider),
     lendingProtocol,

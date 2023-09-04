@@ -1,5 +1,4 @@
-import { Network } from '@deploy-configurations/types/network'
-import { FEE_BASE, ZERO } from '@dma-common/constants'
+import { ZERO } from '@dma-common/constants'
 import { amountFromWei } from '@dma-common/utils/common'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import {
@@ -7,6 +6,10 @@ import {
   resolveCurrentPositionForProtocol,
   resolveProtocolData,
 } from '@dma-library/strategies/aave-like/common'
+import {
+  buildFlashloanSimArgs,
+  resolveFlashloanTokenAddress,
+} from '@dma-library/strategies/aave-like/multiply/common'
 import {
   AaveLikeOpenArgs,
   AaveLikeOpenDependencies,
@@ -102,7 +105,7 @@ export async function simulate(
       oracleFLtoDebtToken: oracleFLtoDebtToken,
     },
     slippage: args.slippage,
-    flashloan: buildFlashloanArgs(flashloanTokenAddress, dependencies, reserveDataForFlashloan),
+    flashloan: buildFlashloanSimArgs(flashloanTokenAddress, dependencies, reserveDataForFlashloan),
     depositedByUser: {
       debtInWei: depositDebtAmountInWei,
       collateralInWei: depositCollateralAmountInWei,
@@ -115,34 +118,5 @@ export async function simulate(
     simulatedPositionTransition: simulation,
     reserveEModeCategory,
     flashloanTokenAddress,
-  }
-}
-
-function resolveFlashloanTokenAddress(
-  debtTokenAddress: string,
-  dependencies: AaveLikeOpenDependencies,
-): string {
-  const lendingProtocol = dependencies.protocolType
-  if (lendingProtocol === 'AAVE' || lendingProtocol === 'AAVE_V3') {
-    return dependencies.network === Network.MAINNET
-      ? dependencies.addresses.tokens.DAI
-      : dependencies.addresses.tokens.USDC
-  }
-  return debtTokenAddress
-}
-
-function buildFlashloanArgs(
-  flashloanTokenAddress: string,
-  dependencies: AaveLikeOpenDependencies,
-  reserveDataForFlashloan: any,
-) {
-  const lendingProtocol = dependencies.protocolType
-  if (lendingProtocol === 'AAVE' || lendingProtocol === 'AAVE_V3') {
-    const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
-
-    return {
-      maxLoanToValueFL: maxLoanToValueForFL,
-      tokenSymbol: flashloanTokenAddress === dependencies.addresses.tokens.DAI ? 'DAI' : 'USDC',
-    }
   }
 }

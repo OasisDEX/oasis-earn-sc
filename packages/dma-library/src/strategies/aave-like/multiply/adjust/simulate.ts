@@ -8,6 +8,7 @@ import {
   resolveCurrentPositionForProtocol,
   resolveProtocolData,
 } from '@dma-library/strategies/aave-like/common'
+import { buildFlashloanSimArgs } from '@dma-library/strategies/aave-like/multiply/common'
 import { SwapData } from '@dma-library/types'
 import { WithFee } from '@dma-library/types/aave/fee'
 import * as SwapUtils from '@dma-library/utils/swap'
@@ -104,10 +105,11 @@ export async function simulate(
         oracleFLtoDebtToken: oracleFLtoDebtToken,
       },
       slippage: args.slippage,
-      flashloan: {
-        maxLoanToValueFL: maxLoanToValueForFL,
-        tokenSymbol: args.flashloanToken.symbol,
-      },
+      flashloan: buildFlashloanSimArgs(
+        args.flashloanToken.address,
+        dependencies,
+        reserveDataForFlashloan,
+      ),
       depositedByUser: {
         debtInWei: depositDebtAmountInBaseUnits,
         collateralInWei: depositCollateralAmountInBaseUnits,
