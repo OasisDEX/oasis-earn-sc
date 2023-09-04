@@ -1,2 +1,2 @@
 export { adjust } from './adjust'
-export type { AaveLikeAdjust } from './types'
+export type { AaveLikeAdjust, AaveLikeAdjustArgs, ExtendedAaveLikeAdjustArgs } from './types'

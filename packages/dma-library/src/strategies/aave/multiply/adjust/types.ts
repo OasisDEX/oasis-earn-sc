@@ -1,49 +1,31 @@
-import { Network } from '@deploy-configurations/types/network'
 import {
-  AAVETokens,
-  IOperation,
-  IPositionTransitionArgs,
-  SwapData,
-  WithFlashloanToken,
-  WithPositionType,
-} from '@dma-library/types'
+  AaveLikeAdjustArgs,
+  IAdjustStrategy,
+} from '@dma-library/strategies/aave-like/multiply/adjust/types'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
-import {
-  WithAaveMultiplyStrategyDependencies,
-  WithDebug,
-  WithSwap,
-} from '@dma-library/types/strategy-params'
-import { IBaseSimulatedTransition } from '@domain'
-import BigNumber from 'bignumber.js'
+import * as StrategyParams from '@dma-library/types/strategy-params'
 
-export type AaveAdjustArgs = IPositionTransitionArgs<AAVETokens> & WithPositionType
-export type ExtendedAaveAdjustArgs = AaveAdjustArgs & WithFlashloanToken
-export type AaveAdjustSharedDependencies = WithAaveMultiplyStrategyDependencies &
-  WithSwap &
-  Partial<WithDebug>
-export type AaveV2AdjustDependencies = AaveAdjustSharedDependencies & WithV2Protocol
-export type AaveV3AdjustDependencies = AaveAdjustSharedDependencies & WithV3Protocol
+export type SharedAaveAdjustDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
+  StrategyParams.WithSwap &
+  StrategyParams.WithPositionType &
+  Partial<StrategyParams.WithDebug>
+
+export type AaveV2AdjustDependencies = SharedAaveAdjustDependencies & WithV2Protocol
+export type AaveV3AdjustDependencies = SharedAaveAdjustDependencies & WithV3Protocol
 export type AaveAdjustDependencies = AaveV2AdjustDependencies | AaveV3AdjustDependencies
+export type AaveAdjustArgs = AaveLikeAdjustArgs
 
-export type BuildOperationArgs = {
-  adjustRiskUp: boolean
-  swapData: SwapData
-  simulatedPositionTransition: IBaseSimulatedTransition
-  collectFeeFrom: 'sourceToken' | 'targetToken'
-  reserveEModeCategory?: number | undefined
-  args: AaveAdjustArgs
-  dependencies: AaveAdjustDependencies
-  network: Network
-}
+export type AaveV2Adjust = (
+  args: AaveAdjustArgs,
+  dependencies: Omit<AaveV2AdjustDependencies, 'protocol'>,
+) => Promise<IAdjustStrategy>
 
-export type GenerateTransitionArgs = {
-  isIncreasingRisk: boolean
-  swapData: SwapData
-  operation: IOperation
-  collectFeeFrom: 'sourceToken' | 'targetToken'
-  fee: BigNumber
-  simulatedPositionTransition: IBaseSimulatedTransition
-  args: AaveAdjustArgs
-  dependencies: AaveAdjustDependencies
-  quoteSwapData: SwapData
-}
+export type AaveV3Adjust = (
+  args: AaveAdjustArgs,
+  dependencies: Omit<AaveV3AdjustDependencies, 'protocol'>,
+) => Promise<IAdjustStrategy>
+
+export type AaveAdjust = (
+  args: AaveAdjustArgs,
+  dependencies: AaveAdjustDependencies,
+) => Promise<IAdjustStrategy>

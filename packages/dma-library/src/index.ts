@@ -32,16 +32,10 @@ export type { IRiskRatio } from '@domain'
 export { RiskRatio } from '@domain'
 
 // TYPES
-export type {
-  ISimplePositionTransition,
-  ISimpleSimulatedTransition,
-  ISimulatedTransition,
-  PositionTransition,
-  SwapData,
-} from './types'
-export type { AAVETokens } from './types/aave'
+export type { SwapData } from './types'
 export { AaveVersion } from './types/aave'
-export { AavePosition } from './types/aave'
+export type { AaveLikeTokens } from './types/aave-like'
+export { AaveLikePosition } from './types/aave-like'
 export type { ActionCall } from './types/action-call'
 export { calldataTypes } from './types/actions'
 export type {

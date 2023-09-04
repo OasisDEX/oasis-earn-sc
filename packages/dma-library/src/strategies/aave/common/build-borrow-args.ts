@@ -3,12 +3,12 @@ import { ZERO } from '@dma-common/constants'
 import { BorrowArgs } from '@dma-library/operations'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
-import { AAVETokens } from '@dma-library/types'
+import { AaveLikeTokens } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 export async function buildBorrowArgs(
   borrowAmount: BigNumber,
-  debtToken: { symbol: AAVETokens },
+  debtToken: { symbol: AaveLikeTokens },
   dependencies: {
     user: Address
     proxy: string

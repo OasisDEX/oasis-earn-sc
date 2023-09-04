@@ -1,24 +1,18 @@
-import { getFlashloanToken } from '@dma-library/strategies/aave/common'
-import { PositionTransition } from '@dma-library/types'
-import { isRiskIncreasing } from '@domain/utils/risk-direction'
+import * as AaveCommon from '@dma-library/strategies/aave/common'
+import { aaveLike } from '@dma-library/strategies/aave-like'
 
-import { adjustRiskDown } from './adjust-risk-down'
-import { adjustRiskUp } from './adjust-risk-up'
-import { AaveAdjustArgs, AaveAdjustDependencies, ExtendedAaveAdjustArgs } from './types'
+import { AaveAdjustDependencies, AaveV2AdjustDependencies } from './types'
 
-export async function adjust(
-  args: AaveAdjustArgs,
-  dependencies: AaveAdjustDependencies,
-): Promise<PositionTransition> {
-  const expandedArgs: ExtendedAaveAdjustArgs = {
-    ...args,
-    flashloanToken: getFlashloanToken(dependencies).flashloanToken,
+export const adjust = async (args, dependencies) => {
+  if (AaveCommon.isV2<AaveAdjustDependencies, AaveV2AdjustDependencies>(dependencies)) {
+    const protocolType = 'AAVE' as const
+    return await aaveLike.multiply.adjust(args, { ...dependencies, protocolType })
   }
-  if (
-    isRiskIncreasing(args.multiple.loanToValue, dependencies.currentPosition.riskRatio.loanToValue)
-  ) {
-    return adjustRiskUp(expandedArgs, dependencies)
-  } else {
-    return adjustRiskDown(expandedArgs, dependencies)
+
+  if (AaveCommon.isV3(dependencies)) {
+    const protocolType = 'AAVE_V3' as const
+    return await aaveLike.multiply.adjust(args, { ...dependencies, protocolType })
   }
+
+  throw new Error('Unsupported protocol')
 }

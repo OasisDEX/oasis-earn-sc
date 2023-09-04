@@ -1,7 +1,7 @@
 import { amountToWei } from '@dma-common/utils/common'
 import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
-import { AaveLikeAdjustUp } from '@dma-library/strategies/aave-like/multiply/adjust/types'
-import { AAVETokens } from '@dma-library/types'
+import { AaveLikeAdjustDown } from '@dma-library/strategies/aave-like/multiply/adjust/types'
+import { AaveLikeTokens } from '@dma-library/types'
 import { feeResolver, getSwapDataHelper } from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
@@ -9,7 +9,7 @@ import { buildOperation } from './build-operation'
 import { generate } from './generate'
 import { simulate } from './simulate'
 
-export const adjustRiskDown: AaveLikeAdjustUp = async (args, dependencies) => {
+export const adjustRiskDown: AaveLikeAdjustDown = async (args, dependencies) => {
   const isAdjustDown = true
   const isAdjustUp = !isAdjustDown
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
@@ -21,7 +21,7 @@ export const adjustRiskDown: AaveLikeAdjustUp = async (args, dependencies) => {
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.collateralToken.precision)
   const { swapData: quoteSwapData } = await getSwapDataHelper<
     typeof dependencies.addresses,
-    AAVETokens
+    AaveLikeTokens
   >({
     args: {
       fromToken: args.collateralToken,
@@ -49,7 +49,7 @@ export const adjustRiskDown: AaveLikeAdjustUp = async (args, dependencies) => {
   // Get accurate swap
   const { swapData, collectFeeFrom } = await getSwapDataHelper<
     typeof dependencies.addresses,
-    AAVETokens
+    AaveLikeTokens
   >({
     args: {
       fromToken: args.collateralToken,

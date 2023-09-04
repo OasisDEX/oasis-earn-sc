@@ -1,7 +1,2 @@
 export { adjust } from './adjust'
-export type {
-  AaveAdjustArgs,
-  AaveAdjustDependencies,
-  AaveV2AdjustDependencies,
-  AaveV3AdjustDependencies,
-} from './types'
+export { AaveV2Adjust, AaveV3Adjust } from './types'

@@ -1,5 +1,4 @@
 import { getAaveProtocolData } from '@dma-library/protocols/aave/get-aave-protocol-data'
-import { PositionTransition } from '@dma-library/types'
 import { AaveVersion } from '@dma-library/types/aave'
 import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol'
 import { views } from '@dma-library/views'
@@ -16,12 +15,7 @@ import {
   AaveV3PaybackWithdraw,
   paybackWithdraw,
 } from './borrow/payback-withdraw'
-import {
-  AaveAdjustArgs,
-  AaveV2AdjustDependencies,
-  AaveV3AdjustDependencies,
-  adjust,
-} from './multiply/adjust'
+import { AaveV2Adjust, AaveV3Adjust, adjust } from './multiply/adjust'
 import { AaveV2Close, AaveV3Close, close } from './multiply/close'
 import { AaveV2Open, AaveV3Open, open } from './multiply/open'
 
@@ -43,18 +37,12 @@ export const aave: {
     v2: {
       open: AaveV2Open
       close: AaveV2Close
-      adjust: (
-        args: AaveAdjustArgs,
-        dependencies: Omit<AaveV2AdjustDependencies, 'protocol'>,
-      ) => Promise<PositionTransition>
+      adjust: AaveV2Adjust
     }
     v3: {
       open: AaveV3Open
       close: AaveV3Close
-      adjust: (
-        args: AaveAdjustArgs,
-        dependencies: Omit<AaveV3AdjustDependencies, 'protocol'>,
-      ) => Promise<PositionTransition>
+      adjust: AaveV3Adjust
     }
   }
 } = {
@@ -77,28 +65,12 @@ export const aave: {
     v2: {
       open: (args, dependencies) => withV2Protocol(open, args, dependencies),
       close: (args, dependencies) => withV2Protocol(close, args, dependencies),
-      adjust: (args, dependencies) =>
-        adjust(args, {
-          ...dependencies,
-          protocol: {
-            version: AaveVersion.v2,
-            getCurrentPosition: views.aave.v2,
-            getProtocolData: getAaveProtocolData,
-          },
-        }),
+      adjust: (args, dependencies) => withV2Protocol(adjust, args, dependencies),
     },
     v3: {
       open: (args, dependencies) => withV3Protocol(open, args, dependencies),
       close: (args, dependencies) => withV3Protocol(close, args, dependencies),
-      adjust: (args, dependencies) =>
-        adjust(args, {
-          ...dependencies,
-          protocol: {
-            version: AaveVersion.v3,
-            getCurrentPosition: views.aave.v3,
-            getProtocolData: getAaveProtocolData,
-          },
-        }),
+      adjust: (args, dependencies) => withV3Protocol(adjust, args, dependencies),
     },
   },
 }

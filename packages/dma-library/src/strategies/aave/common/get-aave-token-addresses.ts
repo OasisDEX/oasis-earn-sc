@@ -1,10 +1,10 @@
 import { EMPTY_ADDRESS } from '@dma-common/constants'
 import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
-import { AAVETokens } from '@dma-library/types/aave'
+import { AaveLikeTokens } from '@dma-library/types'
 import { WithAaveStrategyArgs } from '@dma-library/types/strategy-params'
 
 export const getAaveTokenAddress = (
-  token: { symbol: AAVETokens },
+  token: { symbol: AaveLikeTokens },
   addresses: AaveLikeStrategyAddresses,
 ) => {
   const tokenAddress = addresses.tokens[token.symbol]

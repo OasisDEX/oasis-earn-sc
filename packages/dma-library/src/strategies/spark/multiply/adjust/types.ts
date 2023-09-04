@@ -8,6 +8,7 @@ export type SparkAdjustDependencies = StrategyParams.WithAaveLikeMultiplyStrateg
   StrategyParams.WithSwap &
   StrategyParams.WithPositionType &
   Partial<StrategyParams.WithDebug>
+
 export type SparkAdjust = (
   args: AaveLikeAdjustArgs,
   dependencies: SparkAdjustDependencies,

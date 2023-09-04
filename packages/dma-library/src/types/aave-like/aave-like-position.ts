@@ -3,19 +3,19 @@ import { Optional } from '@dma-common/types/optional'
 import { IPositionCategory, Position, PositionBalance } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { AAVETokens } from './tokens'
+import { AaveLikeTokens } from './tokens'
 
-interface IAavePositionBalance {
+interface IAaveLikePositionBalance {
   amount: BigNumber
   precision: number
-  symbol: AAVETokens
+  symbol: AaveLikeTokens
   address: Address
 }
 
-export class AavePositionBalance extends PositionBalance {
-  public symbol: AAVETokens
+export class AaveLikePositionBalance extends PositionBalance {
+  public symbol: AaveLikeTokens
   public address: Address
-  constructor(args: Optional<IAavePositionBalance, 'precision'>) {
+  constructor(args: Optional<IAaveLikePositionBalance, 'precision'>) {
     super(args)
     this.symbol = args.symbol
     this.address = args.address
@@ -23,17 +23,17 @@ export class AavePositionBalance extends PositionBalance {
 }
 
 export class AaveLikePosition extends Position {
-  public debt: AavePositionBalance
-  public collateral: AavePositionBalance
+  public debt: AaveLikePositionBalance
+  public collateral: AaveLikePositionBalance
 
   constructor(
-    debt: Optional<IAavePositionBalance, 'precision'>,
-    collateral: Optional<IAavePositionBalance, 'precision'>,
+    debt: Optional<IAaveLikePositionBalance, 'precision'>,
+    collateral: Optional<IAaveLikePositionBalance, 'precision'>,
     oraclePrice: BigNumber,
     category: IPositionCategory,
   ) {
     super(debt, collateral, oraclePrice, category)
-    this.debt = new AavePositionBalance(debt)
-    this.collateral = new AavePositionBalance(collateral)
+    this.debt = new AaveLikePositionBalance(debt)
+    this.collateral = new AaveLikePositionBalance(collateral)
   }
 }
