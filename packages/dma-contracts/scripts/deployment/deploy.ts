@@ -26,10 +26,14 @@ import {
   getAjnaCloseToCollateralOperationDefinition,
   getAjnaCloseToQuoteOperationDefinition,
   getAjnaOpenOperationDefinition,
+  getSparkAdjustDownOperationDefinition,
+  getSparkAdjustUpOperationDefinition,
   getSparkBorrowOperationDefinition,
+  getSparkCloseOperationDefinition,
   getSparkDepositBorrowOperationDefinition,
   getSparkDepositOperationDefinition,
   getSparkOpenDepositBorrowOperationDefinition,
+  getSparkOpenOperationDefinition,
   getSparkPaybackWithdrawOperationDefinition,
 } from '@deploy-configurations/operation-definitions'
 import {
@@ -913,6 +917,34 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       sparkPaybackWithdrawOperationDefinition.actions,
     )
     this.logOp(sparkPaybackWithdrawOperationDefinition)
+
+    const sparkOpenOperationDefinition = getSparkOpenOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkOpenOperationDefinition.name,
+      sparkOpenOperationDefinition.actions,
+    )
+    this.logOp(sparkOpenOperationDefinition)
+
+    const sparkCloseOperationDefinition = getSparkCloseOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkCloseOperationDefinition.name,
+      sparkCloseOperationDefinition.actions,
+    )
+    this.logOp(sparkCloseOperationDefinition)
+
+    const sparkAdjustUpOperationDefinition = getSparkAdjustUpOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkAdjustUpOperationDefinition.name,
+      sparkAdjustUpOperationDefinition.actions,
+    )
+    this.logOp(sparkAdjustUpOperationDefinition)
+
+    const sparkAdjustDownOperationDefinition = getSparkAdjustDownOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkAdjustDownOperationDefinition.name,
+      sparkAdjustDownOperationDefinition.actions,
+    )
+    this.logOp(sparkAdjustDownOperationDefinition)
   }
 
   async addAllEntries() {
