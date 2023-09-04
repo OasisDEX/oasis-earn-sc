@@ -2,6 +2,7 @@ import { getForkedNetwork } from '@deploy-configurations/utils/network'
 import { FEE_BASE, ONE } from '@dma-common/constants'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { resolveAaveLikeMultiplyOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
+import { buildOpFlashloan } from '@dma-library/strategies/aave-like/multiply/common'
 import { IOperation, SwapData } from '@dma-library/types'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
@@ -79,14 +80,30 @@ export async function buildOperation(
       collectFeeFrom,
       receiveAtLeast: swapData.minToTokenAmount,
     },
-    flashloan: {
-      token: {
-        amount: amountToFlashloanInWei,
-        address: flashloanToken.address,
+    // flashloan: {
+    //   token: {
+    //     amount: amountToFlashloanInWei,
+    //     address: flashloanToken.address,
+    //   },
+    //   amount: amountToFlashloanInWei,
+    //   provider: flashloanProvider,
+    // },
+    flashloan: await buildOpFlashloan(
+      simulation,
+      {
+        ...args,
+        debtToken: {
+          ...args.debtToken,
+          address: debtTokenAddress,
+        },
+        collateralToken: {
+          ...args.collateralToken,
+          address: collateralTokenAddress,
+        },
       },
-      amount: amountToFlashloanInWei,
-      provider: flashloanProvider,
-    },
+      dependencies,
+      dependencies.protocolType,
+    ),
     position: {
       type: dependencies.positionType,
       collateral: { amount: collateralAmountToBeSwapped },

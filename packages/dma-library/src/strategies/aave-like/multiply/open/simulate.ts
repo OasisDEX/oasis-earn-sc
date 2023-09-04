@@ -27,12 +27,7 @@ export async function simulate(
     dependencies.addresses,
   )
 
-  const flashloanTokenAddress =
-    dependencies.network === Network.MAINNET
-      ? dependencies.addresses.tokens.DAI
-      : dependencies.addresses.tokens.USDC
-
-  if (!flashloanTokenAddress) throw new Error('Flashloan token address not found')
+  const flashloanTokenAddress = resolveFlashloanTokenAddress(debtTokenAddress, dependencies)
 
   /**
    * We've add current Position into all strategy dependencies
@@ -58,8 +53,6 @@ export async function simulate(
     reserveDataForFlashloan,
     reserveEModeCategory,
   } = protocolData
-
-  const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
 
   const multiple = args.multiple
 
@@ -92,7 +85,12 @@ export async function simulate(
     toToken: args.collateralToken.symbol,
   })
 
-  if (dependencies.addresses.tokens.DAI === undefined) throw new Error('No DAI address found')
+  /**
+   * If using FMM then we send maxLoanToValueForFL as part of args to simulate
+   * If using Balancer this fields is undefined
+   *
+   * Adjust logic does not need any info about flashloan so Domain should be refactored
+   */
   const simulation = currentPosition.adjustToTargetRiskRatio(multiple, {
     fees: {
       flashLoan: flashloanFee,
@@ -104,10 +102,7 @@ export async function simulate(
       oracleFLtoDebtToken: oracleFLtoDebtToken,
     },
     slippage: args.slippage,
-    flashloan: {
-      maxLoanToValueFL: maxLoanToValueForFL,
-      tokenSymbol: flashloanTokenAddress === dependencies.addresses.tokens.DAI ? 'DAI' : 'USDC',
-    },
+    flashloan: buildFlashloanArgs(flashloanTokenAddress, dependencies, reserveDataForFlashloan),
     depositedByUser: {
       debtInWei: depositDebtAmountInWei,
       collateralInWei: depositCollateralAmountInWei,
@@ -120,5 +115,34 @@ export async function simulate(
     simulatedPositionTransition: simulation,
     reserveEModeCategory,
     flashloanTokenAddress,
+  }
+}
+
+function resolveFlashloanTokenAddress(
+  debtTokenAddress: string,
+  dependencies: AaveLikeOpenDependencies,
+): string {
+  const lendingProtocol = dependencies.protocolType
+  if (lendingProtocol === 'AAVE' || lendingProtocol === 'AAVE_V3') {
+    return dependencies.network === Network.MAINNET
+      ? dependencies.addresses.tokens.DAI
+      : dependencies.addresses.tokens.USDC
+  }
+  return debtTokenAddress
+}
+
+function buildFlashloanArgs(
+  flashloanTokenAddress: string,
+  dependencies: AaveLikeOpenDependencies,
+  reserveDataForFlashloan: any,
+) {
+  const lendingProtocol = dependencies.protocolType
+  if (lendingProtocol === 'AAVE' || lendingProtocol === 'AAVE_V3') {
+    const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
+
+    return {
+      maxLoanToValueFL: maxLoanToValueForFL,
+      tokenSymbol: flashloanTokenAddress === dependencies.addresses.tokens.DAI ? 'DAI' : 'USDC',
+    }
   }
 }

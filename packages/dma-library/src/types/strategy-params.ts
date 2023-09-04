@@ -65,6 +65,9 @@ export type WithDeposit = {
     debtInWei?: BigNumber
   }
 }
+export type WithFlashloanProvider = {
+  flashloanProvider: 'FMM' | 'Balancer'
+}
 
 export type WithMultiple = {
   multiple: IRiskRatio
