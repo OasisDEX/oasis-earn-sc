@@ -82,7 +82,7 @@ export async function simulate(
   const flashloanFee = ZERO
 
   const [_debtTokenPriceInEth, _flashloanAssetPriceInEth, _collateralTokenPriceInEth] =
-    assertTokenPrices([debtTokenPriceInEth, flashloanAssetPriceInEth, collateralTokenPriceInEth])
+    assertTokenPrices(debtTokenPriceInEth, flashloanAssetPriceInEth, collateralTokenPriceInEth)
 
   const oracleFLtoDebtToken = _debtTokenPriceInEth.div(_flashloanAssetPriceInEth)
   const oracle = _collateralTokenPriceInEth.div(_debtTokenPriceInEth)

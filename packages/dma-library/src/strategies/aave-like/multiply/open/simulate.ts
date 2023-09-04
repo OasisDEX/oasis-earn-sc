@@ -79,7 +79,7 @@ export async function simulate(
   const flashloanFee = new BigNumber(0)
 
   const [_debtTokenPriceInEth, _flashloanAssetPriceInEth, _collateralTokenPriceInEth] =
-    assertTokenPrices([debtTokenPriceInEth, flashloanAssetPriceInEth, collateralTokenPriceInEth])
+    assertTokenPrices(debtTokenPriceInEth, flashloanAssetPriceInEth, collateralTokenPriceInEth)
 
   // EG USDC/ETH divided by ETH/DAI = USDC/ETH times by DAI/ETH = USDC/DAI
   const oracleFLtoDebtToken = _debtTokenPriceInEth.div(_flashloanAssetPriceInEth)
