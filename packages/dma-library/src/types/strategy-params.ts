@@ -4,7 +4,6 @@ import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { AaveProtocolData } from '@dma-library/protocols'
 import { AAVETokens } from '@dma-library/types/aave'
 import { AaveLikeTokens } from '@dma-library/types/aave/tokens'
-import { GetSwapData } from '@dma-library/types/common/get-swap-data'
 import { AaveLikeProtocol } from '@dma-library/types/protocol'
 import { IPosition, IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
@@ -106,18 +105,6 @@ export interface IViewPositionParams<Tokens> {
 
 export type WithDebtChange<Tokens> = {
   newDebtToken: { symbol: Tokens; precision?: number }
-}
-
-/** @deprecated See SharedStrategyDependencies and create your own */
-export interface IPositionTransitionDependencies<Addresses> {
-  addresses: Addresses
-  provider: providers.Provider
-  currentPosition: IPosition
-  getSwapData: GetSwapData
-  proxy: Address
-  user: Address
-  isDPMProxy: boolean
-  network: Network
 }
 
 type SharedStrategyDependencies = {
