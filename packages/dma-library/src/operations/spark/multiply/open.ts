@@ -105,7 +105,7 @@ export const open: SparkOpenOperation = async ({
       asset: collateral.address,
       sumAmounts: true,
     },
-    [0, 0, swapActionStorageIndex, 0],
+    [0, swapActionStorageIndex, 0, 0],
   )
 
   const borrowDebtTokens = actions.spark.borrow(network, {

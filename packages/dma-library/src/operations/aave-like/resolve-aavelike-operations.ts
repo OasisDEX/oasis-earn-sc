@@ -15,7 +15,7 @@ const resolveProtocolKeyConfig = (
   protocol: AaveLikeProtocol,
   type: AaveProductTypes,
 ): ProtocolKeyConfig => {
-  const aaveLikeProductType = type === 'Earn' || type === 'Multiply' ? 'multiply' : 'borrow'
+  const aaveLikeProductType = type === 'Borrow' ? 'borrow' : 'multiply'
   switch (protocol) {
     case 'AAVE':
       return {
