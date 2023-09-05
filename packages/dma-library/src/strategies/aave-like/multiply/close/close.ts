@@ -91,15 +91,17 @@ async function getAaveSwapDataToCloseToCollateral(
     debtPrice: debtTokenPrice,
     outstandingDebt: dependencies.currentPosition.debt.amount,
     slippage,
-    ETHAddress: addresses.tokens.ETH,
+    // Needs to be WETH for isETH comparison
+    ETHAddress: addresses.tokens.WETH,
     getSwapData: dependencies.getSwapData,
   })
 }
 
 async function getAaveSwapDataToCloseToDebt(
-  { debtToken, collateralToken, slippage }: AaveLikeExpandedCloseArgs,
+  args: AaveLikeExpandedCloseArgs,
   dependencies: AaveLikeCloseDependencies,
 ) {
+  const { debtToken, collateralToken, slippage } = args
   const { addresses } = dependencies
   const { collateralTokenAddress, debtTokenAddress } = getAaveTokenAddresses(
     { debtToken, collateralToken },
