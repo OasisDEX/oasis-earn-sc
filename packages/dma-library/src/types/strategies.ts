@@ -4,6 +4,8 @@ import { Delta, IPosition, IRiskRatio, Swap } from '@domain'
 import { ActionCall } from './action-call'
 import { SwapData } from './swap-data'
 
+export type { Swap }
+
 /** @deprecated use ISimulationV2 instead */
 export interface ISimulation {
   position: IPosition
@@ -29,5 +31,5 @@ export interface IStrategy {
 }
 
 export type IMultiplyStrategy = IStrategy & {
-  simulation: IStrategy['simulation'] & WithOptionalSwapSimulation
+  simulation: IStrategy['simulation'] & WithSwapSimulation
 }

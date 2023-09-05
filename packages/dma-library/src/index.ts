@@ -32,7 +32,9 @@ export type { IRiskRatio } from '@domain'
 export { RiskRatio } from '@domain'
 
 // TYPES
-export type { SwapData } from './types'
+export type { IAdjustStrategy } from './strategies/aave-like'
+export type { IMultiplyStrategy, IStrategy } from './types'
+export type { Swap, SwapData } from './types'
 export { AaveVersion } from './types/aave'
 export type { AaveLikeTokens } from './types/aave-like'
 export { AaveLikePosition } from './types/aave-like'

@@ -36,6 +36,7 @@ import type {
 } from './operations'
 import type { PositionType } from './position-type'
 import type { Protocol } from './protocol'
+import type { IMultiplyStrategy, IStrategy, Swap } from './strategies'
 import type {
   IViewPositionParams,
   WithBorrowDebt,
@@ -51,6 +52,7 @@ import type {
 } from './strategy-params'
 import type { SwapData } from './swap-data'
 
+export type { IMultiplyStrategy, IStrategy }
 export type { CommonDMADependencies } from './common'
 export { FlashloanProvider }
 export type { AjnaError, AjnaStrategy, Strategy }
@@ -108,3 +110,4 @@ export type {
   WithWithdrawCollateral,
 }
 export type { SwapData }
+export type { Swap }
