@@ -95,10 +95,17 @@ export const adjustRiskUp: SparkAdjustUpOperation = async ({
     [0, swapActionStorageIndex, 0, 0],
   )
 
-  const withdrawDebt = actions.spark.withdraw(network, {
-    asset: flashloan.token.address,
-    amount: flashloan.token.amount,
+  const borrowDebtToRepayFL = actions.spark.borrow(network, {
+    asset: debt.address,
+    amount: debt.borrow.amount,
+    // Isn't respected by the Action despite what the factory says
     to: addresses.operationExecutor,
+  })
+
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken(network, {
+    asset: debt.address,
+    to: addresses.operationExecutor,
+    amount: debt.borrow.amount,
   })
 
   const flashloanCalls = [
@@ -107,7 +114,8 @@ export const adjustRiskUp: SparkAdjustUpOperation = async ({
     swapDebtTokensForCollateralTokens,
     setCollateralTokenApprovalOnLendingPool,
     depositCollateral,
-    withdrawDebt,
+    borrowDebtToRepayFL,
+    sendQuoteTokenToOpExecutor,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {

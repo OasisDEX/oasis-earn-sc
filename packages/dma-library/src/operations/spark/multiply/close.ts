@@ -76,7 +76,7 @@ export const close: SparkCloseOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const sendQuoteTokenToOpExecutor = actions.common.sendToken(Network.MAINNET, {
+  const sendDebtToOpExecutor = actions.common.sendToken(network, {
     asset: debt.address,
     to: addresses.operationExecutor,
     amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.token.amount)),
@@ -108,7 +108,7 @@ export const close: SparkCloseOperation = async ({
       paybackDebt,
       withdrawCollateral,
       swapCollateralTokensForDebtTokens,
-      sendQuoteTokenToOpExecutor,
+      sendDebtToOpExecutor,
       unwrapEth,
     ],
   })
