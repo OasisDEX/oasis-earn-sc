@@ -1,9 +1,9 @@
 import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
-import { AAVEStrategyAddresses } from '@dma-library/operations/aave/v2'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
-import { AAVETokens } from '@dma-library/types/aave'
-import { GetSwapData } from '@dma-library/types/common/get-swap-data'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
+import { AaveProtocolData } from '@dma-library/protocols'
+import { AaveLikeTokens } from '@dma-library/types/aave-like'
+import { AaveLikeProtocol } from '@dma-library/types/protocol'
 import { IPosition, IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 import { providers } from 'ethers'
@@ -19,27 +19,54 @@ export interface IBasePositionTransitionArgs<Tokens> {
 }
 
 export type WithAaveEntryToken = {
-  entryToken: { symbol: AAVETokens; precision?: number }
+  entryToken: { symbol: AaveLikeTokens; precision?: number }
+}
+
+export type WithAaveLikeEntryToken = {
+  entryToken: { symbol: AaveLikeTokens; precision?: number }
 }
 
 export type WithAaveStrategyArgs = {
-  collateralToken: { symbol: AAVETokens; precision?: number }
-  debtToken: { symbol: AAVETokens; precision?: number }
-  entryToken?: { symbol: AAVETokens; precision?: number }
+  collateralToken: { symbol: AaveLikeTokens; precision?: number }
+  debtToken: { symbol: AaveLikeTokens; precision?: number }
+  entryToken?: { symbol: AaveLikeTokens; precision?: number }
 } & WithSlippage
+
+type WithAaveLikeProtocolType = {
+  protocolType: AaveLikeProtocol
+}
+
+export type WithAaveLikeStrategyArgs = {
+  collateralToken: { symbol: AaveLikeTokens; precision?: number }
+  debtToken: { symbol: AaveLikeTokens; precision?: number }
+} & WithSlippage
+
+export type WithAaveLikeBorrowStrategyArgs = {
+  entryToken?: { symbol: AaveLikeTokens; precision?: number }
+} & WithAaveLikeStrategyArgs
+
+export type WithAaveLikeMultiplyStrategyArgs = WithAaveLikeBorrowStrategyArgs
+
+export type WithCloseToCollateralFlag = {
+  shouldCloseToCollateral?: boolean
+}
+
+export type WithProtocolData = {
+  protocolData: AaveProtocolData
+}
 
 type WithSlippage = {
   slippage: BigNumber
 }
 
-type WithDeposit = {
+export type WithDeposit = {
   depositedByUser?: {
     collateralInWei?: BigNumber
     debtInWei?: BigNumber
   }
 }
 
-type WithMultiple = {
+export type WithMultiple = {
   multiple: IRiskRatio
 }
 
@@ -63,12 +90,6 @@ export type WithDepositCollateral = {
   amountCollateralToDepositInBaseUnit: BigNumber
 }
 
-/** @deprecated compose strategy args instead */
-export interface IPositionTransitionArgs<Tokens>
-  extends IBasePositionTransitionArgs<Tokens>,
-    WithDeposit,
-    WithMultiple {}
-
 export interface IViewPositionParams<Tokens> {
   proxy: string
   collateralToken: { symbol: Tokens; precision?: number }
@@ -79,18 +100,6 @@ export type WithDebtChange<Tokens> = {
   newDebtToken: { symbol: Tokens; precision?: number }
 }
 
-/** @deprecated See SharedStrategyDependencies and create your own */
-export interface IPositionTransitionDependencies<Addresses> {
-  addresses: Addresses
-  provider: providers.Provider
-  currentPosition: IPosition
-  getSwapData: GetSwapData
-  proxy: Address
-  user: Address
-  isDPMProxy: boolean
-  network: Network
-}
-
 type SharedStrategyDependencies = {
   provider: providers.Provider
   currentPosition: IPosition
@@ -98,15 +107,19 @@ type SharedStrategyDependencies = {
   user: Address
   network: Network
 }
-export type WithAaveV2StrategyDependencies = {
-  addresses: AAVEStrategyAddresses
-} & SharedStrategyDependencies
 
-export type WithAaveV3StrategyDependencies = {
-  addresses: AAVEV3StrategyAddresses
-} & SharedStrategyDependencies
+export type WithAaveLikeStrategyDependencies = {
+  addresses: AaveLikeStrategyAddresses
+} & SharedStrategyDependencies &
+  WithAaveLikeProtocolType
+export type WithAaveLikeMultiplyStrategyDependencies = WithAaveLikeStrategyDependencies &
+  WithDPMFlag
 
-export type WithSwap = {
+export type WithDPMFlag = {
+  isDPMProxy: boolean
+}
+
+export type WithGetSwap = {
   getSwapData: (
     fromToken: string,
     toToken: string,
@@ -115,25 +128,19 @@ export type WithSwap = {
   ) => Promise<SwapData>
 }
 
-export type WithOptionalSwap = Partial<WithSwap>
+export type WithDebug = {
+  debug: boolean
+}
 
-export type IOpenPositionTransitionDependencies<Addresses> = Omit<
-  IPositionTransitionDependencies<Addresses>,
-  'currentPosition'
->
+export type WithOptionalGetSwap = Partial<WithGetSwap>
 
-export type IOnlyDepositBorrowOpenPositionTransitionDependencies<Addresses> = Omit<
-  IOpenPositionTransitionDependencies<Addresses>,
-  'getSwapData'
->
-
-export interface IViewPositionDependencies<Addresses> {
+export interface WithViewPositionDependencies<Addresses> {
   addresses: Addresses
   provider: providers.Provider
 }
 
 export type WithFlashloanToken = {
-  flashloanToken: { symbol: AAVETokens; precision: number; address: string }
+  flashloanToken: { symbol: AaveLikeTokens; precision: number; address: string }
 }
 export type WithCollateralTokenAddress = {
   collateralTokenAddress: string

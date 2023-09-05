@@ -23,6 +23,17 @@ export const OPERATION_NAMES = {
       PAYBACK_WITHDRAW: 'AAVEV3PaybackWithdraw',
     },
   },
+  spark: {
+    OPEN_POSITION: 'SparkOpenPosition',
+    CLOSE_POSITION: 'SparkClosePosition',
+    ADJUST_RISK_UP: 'SparkAdjustRiskUp',
+    ADJUST_RISK_DOWN: 'SparkAdjustRiskDown',
+    DEPOSIT_BORROW: 'SparkDepositBorrow',
+    OPEN_DEPOSIT_BORROW: 'SparkOpenDepositBorrow',
+    DEPOSIT: 'SparkDeposit',
+    BORROW: 'SparkBorrow',
+    PAYBACK_WITHDRAW: 'SparkPaybackWithdraw',
+  },
   maker: {
     OPEN_AND_DRAW: 'OpenAndDraw',
     OPEN_DRAW_AND_CLOSE: 'OpenDrawAndClose',
@@ -53,6 +64,7 @@ type AaveV2OperationsNames = ValuesOf<(typeof OPERATION_NAMES)['aave']['v2']>
 type AaveV3OperationsNames = ValuesOf<(typeof OPERATION_NAMES)['aave']['v3']>
 type MakerOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['maker']>
 type AjnaOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['ajna']>
+type SparkOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['spark']>
 type CommonOperationsNames = ValuesOf<(typeof OPERATION_NAMES)['common']>
 export type OperationNames =
   | CommonOperationsNames
@@ -60,3 +72,4 @@ export type OperationNames =
   | AaveV3OperationsNames
   | MakerOperationsNames
   | AjnaOperationsNames
+  | SparkOperationsNames

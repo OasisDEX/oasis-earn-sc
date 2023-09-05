@@ -488,23 +488,23 @@ export const config: SystemConfig = {
   },
   aave: {
     v2: {
-      PriceOracle: { name: 'PriceOracle', address: '' },
+      Oracle: { name: 'Oracle', address: '' },
       LendingPool: { name: 'LendingPool', address: '' },
-      ProtocolDataProvider: { name: 'ProtocolDataProvider', address: '' },
+      PoolDataProvider: { name: 'PoolDataProvider', address: '' },
       WETHGateway: { name: 'WETHGateway', address: '' },
     },
     v3: {
-      AaveOracle: {
-        name: 'AaveOracle',
+      Oracle: {
+        name: 'Oracle',
         address: '0xb56c2F0B653B2e0b10C9b928C8580Ac5Df02C7C7',
       },
-      Pool: {
-        name: 'Pool',
+      LendingPool: {
+        name: 'LendingPool',
         address: '0x794a61358D6845594F94dc1DB02A252b5b4814aD',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
       },
-      AavePoolDataProvider: {
-        name: 'AavePoolDataProvider',
+      PoolDataProvider: {
+        name: 'PoolDataProvider',
         address: '0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654',
       },
       L2Encoder: {
@@ -513,6 +513,7 @@ export const config: SystemConfig = {
       },
     },
   },
+  spark: {},
   maker: {
     common: {
       FlashMintModule: { name: 'FlashMintModule', address: '' },

@@ -81,7 +81,7 @@ export interface IPositionTransitionParams {
     collateralInWei?: BigNumber
     debtInWei?: BigNumber
   }
-  flashloan: {
+  flashloan?: {
     /* Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH) */
     maxLoanToValueFL?: BigNumber
     tokenSymbol: string
@@ -141,17 +141,6 @@ export class Position implements IPosition {
   public debt: PositionBalance
   public collateral: PositionBalance
   public category: IPositionCategory
-
-  public static emptyPosition(
-    debt: Optional<IPositionBalance, 'precision'>,
-    collateral: Optional<IPositionBalance, 'precision'>,
-  ) {
-    return new Position(debt, collateral, ZERO, {
-      liquidationThreshold: ZERO,
-      maxLoanToValue: ZERO,
-      dustLimit: ZERO,
-    })
-  }
 
   constructor(
     debt: Optional<IPositionBalance, 'precision'>,
@@ -223,10 +212,21 @@ export class Position implements IPosition {
     return ONE.minus(ONE.div(this.healthFactor))
   }
 
-  // returns the percentage amount (as decimal) that the collateral price would have to
-
   public get liquidationPrice() {
     return this.debt.amount.div(this.collateral.amount.times(this.category.liquidationThreshold))
+  }
+
+  // returns the percentage amount (as decimal) that the collateral price would have to
+
+  public static emptyPosition(
+    debt: Optional<IPositionBalance, 'precision'>,
+    collateral: Optional<IPositionBalance, 'precision'>,
+  ) {
+    return new Position(debt, collateral, ZERO, {
+      liquidationThreshold: ZERO,
+      maxLoanToValue: ZERO,
+      dustLimit: ZERO,
+    })
   }
 
   // 1 unit of debt equals X units of collateral, where X is the market price.
@@ -290,6 +290,22 @@ export class Position implements IPosition {
     // Assumes we're using DAI as FL token for now
     const daiFlashloanPrecision = TYPICAL_PRECISION
 
+    /**
+     * TODO: refactor
+     * Only relevant for FMM flashloans
+     * Should be handled independently from adjust position logic
+     */
+    const flashloanAmount = mappedParams.flashloan
+      ? transientCollateralFlashloan(
+          mappedParams.fees.flashLoan,
+          mappedParams.prices.oracleFLtoDebtToken || ONE,
+          simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtInWei || ZERO),
+          daiFlashloanPrecision,
+          this.debt.precision,
+          mappedParams.flashloan.maxLoanToValueFL,
+        )
+      : ZERO
+
     return {
       ...simulatedAdjust,
       position: this._createTargetPosition(
@@ -301,14 +317,7 @@ export class Position implements IPosition {
       ),
       delta: {
         ...simulatedAdjust.delta,
-        flashloanAmount: transientCollateralFlashloan(
-          mappedParams.fees.flashLoan,
-          mappedParams.prices.oracleFLtoDebtToken || ONE,
-          simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtInWei || ZERO),
-          daiFlashloanPrecision,
-          this.debt.precision,
-          mappedParams.flashloan.maxLoanToValueFL,
-        ),
+        flashloanAmount,
       },
       flags: {
         // TODO: Flashloan is always required on adjust (multiply) currently

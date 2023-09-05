@@ -51,6 +51,14 @@ export const SERVICE_REGISTRY_NAMES = {
     },
     L2_ENCODER: 'AaveL2Encoder',
   },
+  spark: {
+    DEPOSIT: 'SparkDeposit',
+    WITHDRAW: 'SparkWithdraw',
+    BORROW: 'SparkBorrow',
+    PAYBACK: 'SparkPayback',
+    LENDING_POOL: 'SparkLendingPool',
+    SET_EMODE: 'SparkSetEMode',
+  },
   maker: {
     DEPOSIT: 'MakerDeposit',
     PAYBACK: 'MakerPayback',

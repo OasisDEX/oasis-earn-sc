@@ -11,11 +11,10 @@ import {
   StrategyDependenciesAave,
 } from '@dma-contracts/test/fixtures/types'
 import { AaveVersion, strategies } from '@dma-library'
-import { aaveV2UniqueContractName, aaveV3UniqueContractName } from '@dma-library/protocols/aave'
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
-} from '@dma-library/strategies/aave/open/open'
+} from '@dma-library/strategies/aave/multiply/open'
 import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 
@@ -140,10 +139,7 @@ export async function wbtcUsdcMultiplyAavePosition({
   })
 
   let getPosition
-  if (
-    dependencies.protocol.version === AaveVersion.v3 &&
-    aaveV3UniqueContractName in dependencies.addresses
-  ) {
+  if (isV3(dependencies)) {
     const addresses = dependencies.addresses
 
     getPosition = async () => {
@@ -163,10 +159,7 @@ export async function wbtcUsdcMultiplyAavePosition({
       )
     }
   }
-  if (
-    dependencies.protocol.version === AaveVersion.v2 &&
-    aaveV2UniqueContractName in dependencies.addresses
-  ) {
+  if (isV2(dependencies)) {
     const addresses = dependencies.addresses
     getPosition = async () => {
       return await strategies.aave.v2.view(

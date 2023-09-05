@@ -1,5 +1,3 @@
-import type { AAVETokens } from './aave'
-import { AavePosition } from './aave'
 import { ActionCall } from './action-call'
 import { calldataTypes } from './actions'
 import type { AjnaError, AjnaStrategy } from './ajna'
@@ -18,8 +16,6 @@ import type { Strategy } from './common'
 import { FlashloanProvider } from './common'
 import type {
   IOperation,
-  WithAaveV2StrategyAddresses,
-  WithAaveV3StrategyAddresses,
   WithAjnaBucketPrice,
   WithAjnaStrategyAddresses,
   WithBorrowing,
@@ -27,7 +23,6 @@ import type {
   WithCollateralAndWithdrawal,
   WithDebt,
   WithDebtAndBorrow,
-  WithDeposit,
   WithEMode,
   WithFlashloan,
   WithNetwork,
@@ -41,19 +36,8 @@ import type {
 } from './operations'
 import type { PositionType } from './position-type'
 import type { Protocol } from './protocol'
+import type { IMultiplyStrategy, IStrategy, Swap } from './strategies'
 import type {
-  ISimplePositionTransition,
-  ISimpleSimulatedTransition,
-  ISimulatedTransition,
-  PositionTransition,
-} from './strategies'
-import type {
-  IBasePositionTransitionArgs,
-  IOnlyDepositBorrowOpenPositionTransitionDependencies,
-  IOpenPositionTransitionDependencies,
-  IPositionTransitionArgs,
-  IPositionTransitionDependencies,
-  IViewPositionDependencies,
   IViewPositionParams,
   WithBorrowDebt,
   WithCollateralTokenAddress,
@@ -63,10 +47,12 @@ import type {
   WithFlashloanToken,
   WithPaybackDebt,
   WithPositionType,
+  WithViewPositionDependencies,
   WithWithdrawCollateral,
 } from './strategy-params'
 import type { SwapData } from './swap-data'
 
+export type { IMultiplyStrategy, IStrategy }
 export type { CommonDMADependencies } from './common'
 export { FlashloanProvider }
 export type { AjnaError, AjnaStrategy, Strategy }
@@ -82,16 +68,13 @@ export type {
   AjnaOpenMultiplyPayload,
 }
 
-export type { AAVETokens }
-export { AavePosition }
+export { AaveLikePosition, AaveLikeTokens } from './aave-like'
 
 export { ActionCall }
 export { calldataTypes }
 
 export type {
   IOperation,
-  WithAaveV2StrategyAddresses,
-  WithAaveV3StrategyAddresses,
   WithAjnaBucketPrice,
   WithAjnaStrategyAddresses,
   WithBorrowing,
@@ -99,7 +82,6 @@ export type {
   WithCollateralAndWithdrawal,
   WithDebt,
   WithDebtAndBorrow,
-  WithDeposit,
   WithEMode,
   WithFlashloan,
   WithNetwork,
@@ -112,21 +94,9 @@ export type {
   WithWithdrawal,
 }
 
-export type {
-  ISimplePositionTransition,
-  ISimpleSimulatedTransition,
-  ISimulatedTransition,
-  PositionTransition,
-}
 export type { PositionType }
 export type { Protocol }
 export type {
-  IBasePositionTransitionArgs,
-  IOnlyDepositBorrowOpenPositionTransitionDependencies,
-  IOpenPositionTransitionDependencies,
-  IPositionTransitionArgs,
-  IPositionTransitionDependencies,
-  IViewPositionDependencies,
   IViewPositionParams,
   WithBorrowDebt,
   WithCollateralTokenAddress,
@@ -136,6 +106,8 @@ export type {
   WithFlashloanToken,
   WithPaybackDebt,
   WithPositionType,
+  WithViewPositionDependencies,
   WithWithdrawCollateral,
 }
 export type { SwapData }
+export type { Swap }

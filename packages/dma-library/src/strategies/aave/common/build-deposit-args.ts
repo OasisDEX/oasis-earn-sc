@@ -1,24 +1,23 @@
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { DepositArgs } from '@dma-library/operations'
-import { AAVEV2StrategyAddresses } from '@dma-library/operations/aave/v2/addresses'
-import { AAVEV3StrategyAddresses } from '@dma-library/operations/aave/v3'
-import { getAaveTokenAddress } from '@dma-library/strategies'
-import { AAVETokens, SwapData } from '@dma-library/types'
-import { WithOptionalSwap } from '@dma-library/types/strategy-params'
+import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
+import { getAaveTokenAddress } from '@dma-library/strategies/aave/common'
+import { AaveLikeTokens, SwapData } from '@dma-library/types'
+import * as StrategyParams from '@dma-library/types/strategy-params'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
 
 export async function buildDepositArgs(
-  entryToken: { symbol: AAVETokens },
-  collateralToken: { symbol: AAVETokens },
+  entryToken: { symbol: AaveLikeTokens },
+  collateralToken: { symbol: AaveLikeTokens },
   collateralTokenAddress: Address,
   entryTokenAmount: BigNumber,
   slippage: BigNumber,
   dependencies: {
     user: Address
-    addresses: AAVEV3StrategyAddresses | AAVEV2StrategyAddresses
-  } & WithOptionalSwap,
+    addresses: AaveLikeStrategyAddresses
+  } & StrategyParams.WithOptionalGetSwap,
   alwaysReturnArgs = false,
 ): Promise<{
   swap:
@@ -42,8 +41,8 @@ export async function buildDepositArgs(
   const isSwapNeeded = SwapUtils.getIsSwapNeeded(
     entryTokenAddress,
     collateralTokenAddress,
-    dependencies.addresses.ETH,
-    dependencies.addresses.WETH,
+    dependencies.addresses.tokens.ETH,
+    dependencies.addresses.tokens.WETH,
   )
   const collectFeeFrom = SwapUtils.acceptedFeeTokenBySymbol({
     fromTokenSymbol: entryToken.symbol,
@@ -53,8 +52,8 @@ export async function buildDepositArgs(
   const depositArgs = {
     depositorAddress: dependencies.user,
     depositToken:
-      collateralTokenAddress.toLowerCase() === dependencies.addresses.ETH.toLowerCase()
-        ? dependencies.addresses.WETH
+      collateralTokenAddress.toLowerCase() === dependencies.addresses.tokens.ETH.toLowerCase()
+        ? dependencies.addresses.tokens.WETH
         : collateralTokenAddress,
     entryTokenAddress: entryTokenAddress,
     entryTokenIsEth,
@@ -72,7 +71,7 @@ export async function buildDepositArgs(
 
     const { swapData } = await SwapUtils.getSwapDataHelper<
       typeof dependencies.addresses,
-      AAVETokens
+      AaveLikeTokens
     >({
       args: {
         fromToken: entryToken,

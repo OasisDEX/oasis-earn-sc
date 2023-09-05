@@ -26,6 +26,7 @@ import {
   unwrapEth,
   wrapEth,
 } from './common'
+import { sparkBorrow, sparkDeposit, sparkPayback, sparkSetEMode, sparkWithdraw } from './spark'
 
 const aave = {
   v2: {
@@ -63,6 +64,14 @@ const ajna: {
   ajnaDepositBorrow,
 }
 
-const actions = { aave, ajna, common }
+const spark = {
+  borrow: sparkBorrow,
+  deposit: sparkDeposit,
+  withdraw: sparkWithdraw,
+  payback: sparkPayback,
+  setEMode: sparkSetEMode,
+}
+
+const actions = { aave, ajna, common, spark }
 
 export { actions }

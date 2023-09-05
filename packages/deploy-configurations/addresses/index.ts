@@ -7,21 +7,29 @@ import {
 import { ADDRESS_ZERO as zeroAddress } from '@deploy-configurations/constants'
 import { Address } from '@deploy-configurations/types/address'
 import {
-  AaveV2Protocol,
-  AaveV3Protocol,
   Actions,
   AjnaProtocol,
-  AutomationProtocol,
+  Automation,
   Common,
+  ConfigEntry,
   Contracts,
-  CoreContracts,
-  DeploymentConfig,
-  MakerProtocol,
-  MakerProtocolJoins,
-  MakerProtocolPips,
   SystemConfig,
   SystemKeys,
 } from '@deploy-configurations/types/deployment-config'
+import {
+  AaveV2Protocol,
+  AaveV3Protocol,
+} from '@deploy-configurations/types/deployment-config/aave-protocol'
+import { Core } from '@deploy-configurations/types/deployment-config/core'
+import {
+  MakerProtocol,
+  MakerProtocolJoins,
+  MakerProtocolPips,
+} from '@deploy-configurations/types/deployment-config/maker-protocol'
+import {
+  OptionalSparkProtocolContracts,
+  SparkProtocol,
+} from '@deploy-configurations/types/deployment-config/spark-protocol'
 import { Network } from '@deploy-configurations/types/network'
 
 enum MpaKeys {
@@ -36,7 +44,7 @@ enum AaveKeys {
 
 type DefaultDeployment = {
   [SystemKeys.MPA]: {
-    [MpaKeys.CORE]: Record<CoreContracts, Address>
+    [MpaKeys.CORE]: Record<Core, Address>
     [MpaKeys.ACTIONS]: Record<Actions, Address>
   }
   [SystemKeys.COMMON]: Record<Common, Address>
@@ -44,12 +52,13 @@ type DefaultDeployment = {
     [AaveKeys.V2]: Record<AaveV2Protocol, Address>
     [AaveKeys.V3]: Record<AaveV3Protocol, Address>
   }
+  [SystemKeys.SPARK]: Partial<Record<SparkProtocol, Address>>
   [SystemKeys.MAKER]: {
     common: Record<MakerProtocol, Address>
     joins: Record<MakerProtocolJoins, Address>
     pips: Record<MakerProtocolPips, Address>
   }
-  [SystemKeys.AUTOMATION]: Record<AutomationProtocol, Address>
+  [SystemKeys.AUTOMATION]: Record<Automation, Address>
   [SystemKeys.AJNA]: Record<AjnaProtocol, Address>
 }
 
@@ -69,7 +78,7 @@ const createAddressesStructure = (
 ): DefaultDeployment => ({
   mpa: {
     core: {
-      ...extractAddressesFromConfig<CoreContracts>(networkConfig.mpa.core),
+      ...extractAddressesFromConfig<Core>(networkConfig.mpa.core),
     },
     actions: {
       ...extractAddressesFromConfig<Actions>(networkConfig.mpa.actions),
@@ -85,6 +94,9 @@ const createAddressesStructure = (
     v3: {
       ...extractAddressesFromConfig(networkConfig.aave.v3),
     },
+  },
+  spark: {
+    ...(hasSparkConfig(networkConfig.spark) ? extractAddressesFromConfig(networkConfig.spark) : {}),
   },
   maker: {
     common: {
@@ -105,6 +117,13 @@ const createAddressesStructure = (
   },
 })
 
+// Optional guards
+function hasSparkConfig(
+  config: OptionalSparkProtocolContracts,
+): config is Record<SparkProtocol, ConfigEntry> {
+  return !!config && 'PoolDataProvider' in config && 'LendingPool' in config && 'Oracle' in config
+}
+
 export const ADDRESSES: Addresses = {
   [Network.MAINNET]: createAddressesStructure(mainnetConfig),
   [Network.OPTIMISM]: createAddressesStructure(optimismConfig),
@@ -114,13 +133,13 @@ export const ADDRESSES: Addresses = {
 
 export const ADDRESS_ZERO = zeroAddress
 
-type ExtractAddressesFromConfig<T extends Contracts> = Record<T, DeploymentConfig>
+type ExtractAddressesFromConfig<T extends Contracts> = Record<T, ConfigEntry>
 
 function extractAddressesFromConfig<T extends Contracts>(
   config: ExtractAddressesFromConfig<T>,
 ): Record<T, Address> {
-  return (Object.values(config) as DeploymentConfig[]).reduce<Record<T, Address>>(
-    (acc: Record<T, Address>, item: DeploymentConfig) => {
+  return (Object.values(config) as ConfigEntry[]).reduce<Record<T, Address>>(
+    (acc: Record<T, Address>, item: ConfigEntry) => {
       if (item.address) {
         acc[item.name as T] = item.address
       }
