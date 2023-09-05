@@ -155,7 +155,7 @@ function calculateNeededCollateralToPaybackDebt(
   // i.e AAVEv3 returns the prices in USD
   //     AAVEv2 returns the prices in ETH
   // @paybackAmount - the amount denominated in the protocol base currency ( i.e. AAVEv2 - It will be in ETH, AAVEv3 - USDC)
-  const paybackAmount = debtPrice.times(debtAmount).plus(ONE.plus(0.01))
+  const paybackAmount = debtPrice.times(debtAmount)
   const paybackAmountInclFee = paybackAmount.times(ONE.plus(fee))
   // Same rule applies for @collateralAmountNeeded. @colPrice is either in USDC ( AAVEv3 ) or ETH ( AAVEv2 )
   // or could be anything eles in the following versions.
