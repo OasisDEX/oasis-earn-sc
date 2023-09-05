@@ -2,7 +2,10 @@ import { AaveLikeCloseArgs } from '@dma-library/strategies/aave-like/multiply/cl
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
-export type SparkCloseDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
+export type SparkCloseDependencies = Omit<
+  StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
+  'protocolType'
+> &
   StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType
 

@@ -7,6 +7,7 @@ import {
   paybackWithdraw as sparkPaybackWithdraw,
   SparkPaybackWithdraw,
 } from './borrow/payback-withdraw'
+import { adjust as sparkAdjust, SparkAdjust } from './multiply/adjust'
 import { close as sparkClose, SparkClose } from './multiply/close'
 import { open as sparkOpen, SparkOpen } from './multiply/open'
 
@@ -19,6 +20,7 @@ export const spark: {
   multiply: {
     open: SparkOpen
     close: SparkClose
+    adjust: SparkAdjust
   }
 } = {
   borrow: {
@@ -29,5 +31,6 @@ export const spark: {
   multiply: {
     open: sparkOpen,
     close: sparkClose,
+    adjust: sparkAdjust,
   },
 }

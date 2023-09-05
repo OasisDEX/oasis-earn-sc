@@ -6,9 +6,15 @@ export type AavePaybackWithdrawArgs = StrategyParams.WithAaveStrategyArgs &
   StrategyParams.WithWithdrawCollateral &
   StrategyParams.WithPaybackDebt
 
-export type AaveV2PaybackWithdrawDependencies = StrategyParams.WithAaveLikeStrategyDependencies &
+export type AaveV2PaybackWithdrawDependencies = Omit<
+  StrategyParams.WithAaveLikeStrategyDependencies,
+  'protocolType'
+> &
   WithV2Protocol
-export type AaveV3PaybackWithdrawDependencies = StrategyParams.WithAaveLikeStrategyDependencies &
+export type AaveV3PaybackWithdrawDependencies = Omit<
+  StrategyParams.WithAaveLikeStrategyDependencies,
+  'protocolType'
+> &
   WithV3Protocol
 export type AavePaybackWithdrawDependencies =
   | AaveV2PaybackWithdrawDependencies

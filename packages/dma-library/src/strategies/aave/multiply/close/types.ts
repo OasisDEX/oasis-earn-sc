@@ -3,12 +3,18 @@ import { WithV2Protocol, WithV3Protocol } from '@dma-library/types/aave/protocol
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 
-export type AaveV2CloseDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
+export type AaveV2CloseDependencies = Omit<
+  StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
+  'protocolType'
+> &
   WithV2Protocol &
   StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType
 
-export type AaveV3CloseDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
+export type AaveV3CloseDependencies = Omit<
+  StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
+  'protocolType'
+> &
   WithV3Protocol &
   StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType

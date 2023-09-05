@@ -7,7 +7,10 @@ export type SparkPaybackWithdrawArgs = StrategyParams.WithAaveLikeBorrowStrategy
 
 type IPaybackWithdrawStrategy = IStrategy
 
-export type SparkPaybackWithdrawDependencies = StrategyParams.WithAaveLikeStrategyDependencies
+export type SparkPaybackWithdrawDependencies = Omit<
+  StrategyParams.WithAaveLikeStrategyDependencies,
+  'protocolType'
+>
 
 export type SparkPaybackWithdraw = (
   args: SparkPaybackWithdrawArgs,

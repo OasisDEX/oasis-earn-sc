@@ -4,7 +4,7 @@ import * as StrategyParams from '@dma-library/types/strategy-params'
 
 export type SparkOpenDependencies = Omit<
   StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
-  'currentPosition'
+  'currentPosition' | 'protocolType'
 > &
   StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType

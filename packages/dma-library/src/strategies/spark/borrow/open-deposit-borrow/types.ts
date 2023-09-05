@@ -11,7 +11,7 @@ type IOpenDepositBorrowStrategy = IDepositBorrowStrategy
 
 export type SparkOpenDepositBorrowDependencies = Omit<
   SparkDepositBorrowDependencies,
-  'currentPosition'
+  'currentPosition' | 'protocolType'
 > &
   StrategyParams.WithPositionType
 export type SparkOpenDepositBorrow = (

@@ -5,14 +5,14 @@ import * as StrategyParams from '@dma-library/types/strategy-params'
 
 export type AaveV2OpenDependencies = Omit<
   StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
-  'currentPosition'
+  'currentPosition' | 'protocolType'
 > &
   WithV2Protocol &
   StrategyParams.WithGetSwap &
   StrategyParams.WithPositionType
 export type AaveV3OpenDependencies = Omit<
   StrategyParams.WithAaveLikeMultiplyStrategyDependencies,
-  'currentPosition'
+  'currentPosition' | 'protocolType'
 > &
   WithV3Protocol &
   StrategyParams.WithGetSwap &

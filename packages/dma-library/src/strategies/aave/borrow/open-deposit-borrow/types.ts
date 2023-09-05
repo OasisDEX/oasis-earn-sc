@@ -12,13 +12,13 @@ type IOpenDepositBorrowStrategy = IDepositBorrowStrategy
 
 export type AaveV2OpenDepositBorrowDependencies = Omit<
   AaveV2DepositBorrowDependencies,
-  'currentPosition'
+  'currentPosition' | 'protocolType'
 > &
   StrategyParams.WithOptionalGetSwap &
   StrategyParams.WithPositionType
 export type AaveV3OpenDepositBorrowDependencies = Omit<
   AaveV3DepositBorrowDependencies,
-  'currentPosition'
+  'currentPosition' | 'protocolType'
 > &
   StrategyParams.WithPositionType
 export type AaveOpenDepositBorrowDependencies =
