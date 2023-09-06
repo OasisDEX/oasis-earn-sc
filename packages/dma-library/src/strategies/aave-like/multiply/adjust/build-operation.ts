@@ -10,12 +10,14 @@ import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-p
 import { feeResolver } from '@dma-library/utils/swap'
 import * as Domain from '@domain'
 import { IBaseSimulatedTransition } from '@domain'
+import BigNumber from 'bignumber.js'
 
 import { AaveLikeAdjustDependencies, BuildOperationArgs } from './types'
 
 export async function buildOperation({
   adjustRiskUp,
   swapData,
+  preSwapFee,
   simulation,
   collectFeeFrom,
   args,
@@ -35,7 +37,8 @@ export async function buildOperation({
 
   const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
   const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
-  const swapAmountBeforeFees = simulation.swap.fromTokenAmount
+  const swapAmountBeforeFees = swapData.fromTokenAmount.plus(preSwapFee)
+  console.log('swapAmountBeforeFees', swapAmountBeforeFees.toString())
 
   const hasCollateralDeposit = args.depositedByUser?.collateralInWei?.gt(ZERO)
   const depositAddress = hasCollateralDeposit ? collateralTokenAddress : debtTokenAddress
@@ -73,6 +76,7 @@ export async function buildOperation({
     flashloan: await buildAdjustFlashloan(
       adjustRiskUp,
       simulation,
+      preSwapFee,
       swapData,
       {
         ...args,
@@ -129,6 +133,7 @@ export async function buildOperation({
 export async function buildAdjustFlashloan(
   riskIsIncreasing: boolean,
   simulation: IBaseSimulatedTransition,
+  preSwapFee: BigNumber,
   swap: SwapData,
   args: BuildOperationArgs['args'] & {
     debtToken: { address: string }
@@ -143,7 +148,8 @@ export async function buildAdjustFlashloan(
   )
 
   if (flashloanProvider === FlashloanProvider.Balancer) {
-    const fromSwapAmountBeforeFees = swap.fromTokenAmount
+    // Need to add fees to the swap amount
+    const fromSwapAmountBeforeFees = swap.fromTokenAmount.plus(preSwapFee)
     const receivedAmountAfterSwap = swap.minToTokenAmount
 
     if (riskIsIncreasing) {

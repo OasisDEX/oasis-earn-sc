@@ -47,7 +47,7 @@ export const adjustRiskDown: AaveLikeAdjustDown = async (args, dependencies) => 
   )
 
   // Get accurate swap
-  const { swapData, collectFeeFrom } = await getSwapDataHelper<
+  const { swapData, collectFeeFrom, preSwapFee } = await getSwapDataHelper<
     typeof dependencies.addresses,
     AaveLikeTokens
   >({
@@ -68,6 +68,7 @@ export const adjustRiskDown: AaveLikeAdjustDown = async (args, dependencies) => 
   const operation = await buildOperation({
     adjustRiskUp: isAdjustUp,
     swapData,
+    preSwapFee,
     simulation: simulatedAdjustDown,
     collectFeeFrom,
     args,
