@@ -98,7 +98,7 @@ export const adjustRiskUp: SparkAdjustUpOperation = async ({
   const borrowDebtToRepayFL = actions.spark.borrow(network, {
     asset: debt.address,
     amount: debt.borrow.amount,
-    // Isn't respected by the Action despite what the factory says
+    // Note: Isn't respected by the Action despite what the factory says
     to: addresses.operationExecutor,
   })
 

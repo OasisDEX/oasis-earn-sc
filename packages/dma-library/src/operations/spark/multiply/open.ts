@@ -111,7 +111,7 @@ export const open: SparkOpenOperation = async ({
   const borrowDebtTokens = actions.spark.borrow(network, {
     amount: debt.borrow.amount,
     asset: debt.address,
-    // Isn't respected by the Action despite what the factory says
+    // Note: This field isn't respected by the Action despite what the factory says
     to: addresses.operationExecutor,
   })
 

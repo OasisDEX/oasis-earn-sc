@@ -1,5 +1,4 @@
 import { getSparkCloseOperationDefinition } from '@deploy-configurations/operation-definitions'
-import { Network } from '@deploy-configurations/types/network'
 import { FEE_BASE, MAX_UINT, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
@@ -47,7 +46,7 @@ export const close: SparkCloseOperation = async ({
   const setEModeOnCollateral = actions.spark.setEMode(network, {
     categoryId: 0,
   })
-  const setDebtTokenApprovalOnPool = actions.common.setApproval(Network.MAINNET, {
+  const setDebtTokenApprovalOnPool = actions.common.setApproval(network, {
     asset: debt.address,
     delegate: addresses.lendingPool,
     amount: flashloan.token.amount,

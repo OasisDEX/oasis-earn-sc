@@ -33,6 +33,10 @@ export function getSparkAdjustDownOperationDefinition(network: Network) {
         optional: true,
       },
       {
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SEND_TOKEN),
+        optional: false,
+      },
+      {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.RETURN_FUNDS),
         optional: false,
       },

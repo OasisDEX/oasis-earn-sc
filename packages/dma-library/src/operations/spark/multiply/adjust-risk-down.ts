@@ -1,4 +1,4 @@
-import { getAaveAdjustDownV3OperationDefinition } from '@deploy-configurations/operation-definitions'
+import { getSparkAdjustDownOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { FEE_BASE, MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
 import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
@@ -65,7 +65,7 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
   const withdrawCollateral = actions.spark.withdraw(network, {
     asset: collateral.address,
     amount: collateral.withdrawal.amount,
-    to: addresses.operationExecutor,
+    to: proxy.address,
   })
 
   const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
@@ -83,7 +83,7 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
   })
   unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
-  const sendQuoteTokenToOpExecutor = actions.common.sendToken(network, {
+  const sendDebtTokenToOpExecutor = actions.common.sendToken(network, {
     asset: debt.address,
     to: addresses.operationExecutor,
     amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.token.amount)),
@@ -103,7 +103,7 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
     withdrawCollateral,
     swapCollateralTokensForDebtTokens,
     unwrapEth,
-    sendQuoteTokenToOpExecutor,
+    sendDebtTokenToOpExecutor,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
@@ -117,6 +117,6 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
 
   return {
     calls: [takeAFlashLoan, returnDebtFunds, returnCollateralFunds],
-    operationName: getAaveAdjustDownV3OperationDefinition(network).name,
+    operationName: getSparkAdjustDownOperationDefinition(network).name,
   }
 }

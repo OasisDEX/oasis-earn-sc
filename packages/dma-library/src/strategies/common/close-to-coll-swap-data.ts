@@ -2,6 +2,7 @@ import { Address } from '@deploy-configurations/types/address'
 import { FEE_BASE, ONE, TEN, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { calculateFee } from '@dma-common/utils/swap'
+import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
 import { GetSwapData } from '@dma-library/types/common'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
@@ -37,6 +38,12 @@ export async function getSwapDataForCloseToCollateral({
   getSwapData,
   __feeOverride,
 }: GetSwapDataToCloseToCollateralArgs) {
+  // This covers off the situation where debt balances accrue interest
+  const _outstandingDebt = outstandingDebt.times(ONE.plus(SAFETY_MARGIN))
+
+  // We don't want to attempt a zero debt swap with 1inch as it'll fail
+  const hasZeroDebt = outstandingDebt.isZero()
+
   // 1.Use offset amount which will be used in the swap as well.
   // The idea is that after the debt is paid, the remaining will be transferred to the beneficiary
   // Debt is a complex number and interest rate is constantly applied.
@@ -55,7 +62,7 @@ export async function getSwapDataForCloseToCollateral({
     debtTokenPrecision,
     colPrice,
     collateralTokenPrecision,
-    outstandingDebt,
+    _outstandingDebt,
     fee,
     slippage,
   )
@@ -74,7 +81,7 @@ export async function getSwapDataForCloseToCollateral({
     const debtPricePreflightSwapData = await getSwapData(
       debtToken.address,
       ETHAddress,
-      outstandingDebt,
+      _outstandingDebt,
       slippage,
       undefined,
       true, // inverts swap mock in tests ignored in prod
@@ -111,7 +118,7 @@ export async function getSwapDataForCloseToCollateral({
     debtTokenPrecision,
     colPrice,
     collateralTokenPrecision,
-    outstandingDebt,
+    _outstandingDebt,
     fee.div(new BigNumber(FEE_BASE).plus(fee)),
     slippage,
   )
@@ -128,10 +135,13 @@ export async function getSwapDataForCloseToCollateral({
 
   // 5. Get Swap Data
   // The swap amount needs to be the collateral needed minus the preSwapFee
+  const amountToSwap = hasZeroDebt
+    ? TEN
+    : amountNeededToEnsureRemainingDebtIsRepaid.minus(preSwapFee)
   const swapData = await getSwapData(
     collateralToken.address,
     debtToken.address,
-    amountNeededToEnsureRemainingDebtIsRepaid.minus(preSwapFee),
+    amountToSwap,
     slippage,
   )
 
