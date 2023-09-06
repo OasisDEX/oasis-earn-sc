@@ -33,7 +33,11 @@ export function getSparkAdjustUpOperationDefinition(network: Network) {
         optional: false,
       },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.WITHDRAW),
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.BORROW),
+        optional: false,
+      },
+      {
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SEND_TOKEN),
         optional: false,
       },
     ],

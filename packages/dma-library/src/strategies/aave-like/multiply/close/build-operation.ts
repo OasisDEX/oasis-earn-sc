@@ -2,6 +2,7 @@ import { getForkedNetwork } from '@deploy-configurations/utils/network'
 import { FEE_BASE, ONE } from '@dma-common/constants'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { resolveAaveLikeMultiplyOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
+import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
 import { FlashloanProvider, IOperation, SwapData } from '@dma-library/types'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
@@ -96,15 +97,19 @@ export async function buildCloseFlashloan(
   )
 
   if (flashloanProvider === FlashloanProvider.Balancer) {
-    const amountToFlashloan = dependencies.currentPosition.debt.amount
+    // This covers off the situation where debt balances accrue interest
+    const amountToFlashloan = dependencies.currentPosition.debt.amount.times(
+      ONE.plus(SAFETY_MARGIN),
+    )
+    const amount = Domain.debtToCollateralSwapFlashloan(amountToFlashloan)
     return {
       token: {
-        amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan),
+        amount,
         address: args.debtToken.address,
       },
       // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
-      amount: Domain.debtToCollateralSwapFlashloan(amountToFlashloan),
+      amount,
     }
   }
 

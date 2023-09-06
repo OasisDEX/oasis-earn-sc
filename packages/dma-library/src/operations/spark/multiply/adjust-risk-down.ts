@@ -1,6 +1,7 @@
-import { getAaveAdjustDownV3OperationDefinition } from '@deploy-configurations/operation-definitions'
-import { MAX_UINT } from '@dma-common/constants'
+import { getSparkAdjustDownOperationDefinition } from '@deploy-configurations/operation-definitions'
+import { FEE_BASE, MAX_UINT } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
+import { BALANCER_FEE } from '@dma-library/config/flashloan-fees'
 import { IOperation } from '@dma-library/types'
 import {
   WithAaveLikeStrategyAddresses,
@@ -60,10 +61,11 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
     amount: swap.receiveAtLeast,
     paybackAll: false,
   })
+
   const withdrawCollateral = actions.spark.withdraw(network, {
     asset: collateral.address,
     amount: collateral.withdrawal.amount,
-    to: addresses.operationExecutor,
+    to: proxy.address,
   })
 
   const swapCollateralTokensForDebtTokens = actions.common.swap(network, {
@@ -81,6 +83,12 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
   })
   unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
+  const sendDebtTokenToOpExecutor = actions.common.sendToken(network, {
+    asset: debt.address,
+    to: addresses.operationExecutor,
+    amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.token.amount)),
+  })
+
   const returnDebtFunds = actions.common.returnFunds(network, {
     asset: debt.isEth ? addresses.tokens.ETH : debt.address,
   })
@@ -95,6 +103,7 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
     withdrawCollateral,
     swapCollateralTokensForDebtTokens,
     unwrapEth,
+    sendDebtTokenToOpExecutor,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
@@ -108,6 +117,6 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
 
   return {
     calls: [takeAFlashLoan, returnDebtFunds, returnCollateralFunds],
-    operationName: getAaveAdjustDownV3OperationDefinition(network).name,
+    operationName: getSparkAdjustDownOperationDefinition(network).name,
   }
 }

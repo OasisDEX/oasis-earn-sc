@@ -30,7 +30,11 @@ export async function buildDepositArgs(
   args: DepositArgs | undefined
   collateralDelta: BigNumber
 }> {
-  const entryTokenIsEth = entryToken?.symbol === 'ETH'
+  // Note: assumes when Entry token is ETH/WETH in params then we're working with ETH being wrapped into WETH
+  // And therefore Pull actions should be skipped.
+  // Assumes user's never directly send WETH
+  const entryTokenIsEth = entryToken?.symbol === 'ETH' || entryToken?.symbol === 'WETH'
+  console.log('entryTokenIsEth', entryTokenIsEth)
   const entryTokenAddress = getAaveTokenAddress(entryToken, dependencies.addresses)
   const collateralSymbol = collateralToken.symbol
 

@@ -5,7 +5,7 @@ import { AdjustRiskUpArgs } from '@dma-library/operations/aave/multiply/v3/adjus
 import { resolveAaveLikeMultiplyOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
 import { resolveFlashloanTokenAddress } from '@dma-library/strategies/aave-like/multiply/common'
-import { FlashloanProvider, IOperation } from '@dma-library/types'
+import { FlashloanProvider, IOperation, SwapData } from '@dma-library/types'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
 import * as Domain from '@domain'
@@ -71,7 +71,9 @@ export async function buildOperation({
       receiveAtLeast: swapData.minToTokenAmount,
     },
     flashloan: await buildAdjustFlashloan(
+      adjustRiskUp,
       simulation,
+      swapData,
       {
         ...args,
         debtToken: {
@@ -125,7 +127,9 @@ export async function buildOperation({
 }
 
 export async function buildAdjustFlashloan(
+  riskIsIncreasing: boolean,
   simulation: IBaseSimulatedTransition,
+  swap: SwapData,
   args: BuildOperationArgs['args'] & {
     debtToken: { address: string }
     collateralToken: { address: string }
@@ -139,14 +143,27 @@ export async function buildAdjustFlashloan(
   )
 
   if (flashloanProvider === FlashloanProvider.Balancer) {
-    const swapAmountBeforeFees = simulation.swap.fromTokenAmount
-    return {
-      token: {
-        amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
-        address: args.debtToken.address,
-      },
-      amount: Domain.debtToCollateralSwapFlashloan(swapAmountBeforeFees),
-      provider: FlashloanProvider.Balancer,
+    const fromSwapAmountBeforeFees = swap.fromTokenAmount
+    const receivedAmountAfterSwap = swap.minToTokenAmount
+
+    if (riskIsIncreasing) {
+      return {
+        token: {
+          amount: Domain.debtToCollateralSwapFlashloan(fromSwapAmountBeforeFees),
+          address: args.debtToken.address,
+        },
+        amount: Domain.debtToCollateralSwapFlashloan(fromSwapAmountBeforeFees),
+        provider: FlashloanProvider.Balancer,
+      }
+    } else {
+      return {
+        token: {
+          amount: Domain.collateralToDebtSwapFlashloan(receivedAmountAfterSwap),
+          address: args.debtToken.address,
+        },
+        amount: Domain.collateralToDebtSwapFlashloan(receivedAmountAfterSwap),
+        provider: FlashloanProvider.Balancer,
+      }
     }
   }
 

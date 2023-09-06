@@ -84,15 +84,15 @@ export const close: AaveV3CloseOperation = async ({
     {
       asset: debt.address,
       delegate: addresses.lendingPool,
-      amount: new BigNumber(0),
-      sumAmounts: false,
+      amount: ZERO,
+      sumAmounts: true,
     },
     [0, 0, swapActionStorageIndex, 0],
   )
 
   const paybackInAAVE = actions.aave.v3.aaveV3Payback(network, {
     asset: debt.address,
-    amount: new BigNumber(0),
+    amount: ZERO,
     paybackAll: true,
   })
 

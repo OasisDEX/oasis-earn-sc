@@ -91,7 +91,7 @@ export const open: SparkOpenOperation = async ({
     network,
     {
       amount: depositAmount,
-      asset: flashloan.token.address,
+      asset: collateral.address,
       delegate: addresses.lendingPool,
       sumAmounts: true,
     },
@@ -105,13 +105,20 @@ export const open: SparkOpenOperation = async ({
       asset: collateral.address,
       sumAmounts: true,
     },
-    [0, 0, swapActionStorageIndex, 0],
+    [0, swapActionStorageIndex, 0, 0],
   )
 
   const borrowDebtTokens = actions.spark.borrow(network, {
     amount: debt.borrow.amount,
     asset: debt.address,
+    // Note: This field isn't respected by the Action despite what the factory says
     to: addresses.operationExecutor,
+  })
+
+  const sendQuoteTokenToOpExecutor = actions.common.sendToken(network, {
+    asset: debt.address,
+    to: addresses.operationExecutor,
+    amount: debt.borrow.amount,
   })
 
   const protocol: Protocol = 'Spark'
@@ -137,6 +144,7 @@ export const open: SparkOpenOperation = async ({
     depositCollateral,
     borrowDebtTokens,
     setEModeOnCollateral,
+    sendQuoteTokenToOpExecutor,
     positionCreated,
   ]
 
