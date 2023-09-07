@@ -23,6 +23,8 @@ import './tasks/read-erc20-balance'
 import './tasks/user-dpm-proxies'
 import './tasks/transfer-dpm'
 import './tasks/deploy-ajna'
+import './tasks/get-hashes'
+import './tasks/list-operations'
 
 /*
  * Note, now that ABIs are not committed
@@ -51,8 +53,17 @@ tdly.setup()
 
 const networkFork = process.env.NETWORK_FORK as Network | undefined
 
-if (!networkFork || !(networkFork == Network.MAINNET || networkFork == Network.OPTIMISM || networkFork == Network.ARBITRUM)) {
-  throw new Error(`NETWORK_FORK Missing. Specify ${Network.MAINNET}, ${Network.OPTIMISM} or ${Network.ARBITRUM}`)
+if (
+  !networkFork ||
+  !(
+    networkFork == Network.MAINNET ||
+    networkFork == Network.OPTIMISM ||
+    networkFork == Network.ARBITRUM
+  )
+) {
+  throw new Error(
+    `NETWORK_FORK Missing. Specify ${Network.MAINNET}, ${Network.OPTIMISM} or ${Network.ARBITRUM}`,
+  )
 }
 
 let forkConfig: { nodeURL: string; blockNumber: string } | undefined = undefined
