@@ -146,7 +146,7 @@ export async function buildAdjustFlashloan(
     lendingProtocol,
   )
 
-  if (flashloanProvider === FlashloanProvider.Balancer) {
+  if (flashloanProvider === FlashloanProvider.Balancer && dependencies.protocolType === 'Spark') {
     // Need to add fees to the swap amount
     const fromSwapAmountBeforeFees = swap.fromTokenAmount.plus(preSwapFee)
     const receivedAmountAfterSwap = swap.minToTokenAmount
