@@ -108,6 +108,12 @@ export const open: SparkOpenOperation = async ({
     [0, swapActionStorageIndex, 0, 0],
   )
 
+  const setEModeOnCollateral = actions.spark.setEMode(network, {
+    categoryId: emode.categoryId || 0,
+  })
+
+  setEModeOnCollateral.skipped = !emode.categoryId || emode.categoryId === 0
+
   const borrowDebtTokens = actions.spark.borrow(network, {
     amount: debt.borrow.amount,
     asset: debt.address,
@@ -130,20 +136,14 @@ export const open: SparkOpenOperation = async ({
     debtToken: debt.address,
   })
 
-  const setEModeOnCollateral = actions.spark.setEMode(network, {
-    categoryId: emode.categoryId || 0,
-  })
-
-  setEModeOnCollateral.skipped = !emode.categoryId || emode.categoryId === 0
-
   const flashloanCalls = [
     pullCollateralTokensToProxy,
     wrapEth,
     swapDebtTokensForCollateralTokens,
     setCollateralApproval,
     depositCollateral,
-    borrowDebtTokens,
     setEModeOnCollateral,
+    borrowDebtTokens,
     sendQuoteTokenToOpExecutor,
     positionCreated,
   ]

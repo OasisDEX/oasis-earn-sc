@@ -9,12 +9,9 @@ import BigNumber from 'bignumber.js'
 import { Contract, ethers, providers } from 'ethers'
 
 export function determineReserveEModeCategory(
-  collateralEModeCategoryResult: number,
-  debtEModeCategoryResult: number,
+  collateralEModeCategory: number,
+  debtEModeCategory: number,
 ): number {
-  const collateralEModeCategory = Number(collateralEModeCategoryResult.toString())
-  const debtEModeCategory = Number(debtEModeCategoryResult.toString())
-
   if (collateralEModeCategory === debtEModeCategory) {
     return collateralEModeCategory
   }

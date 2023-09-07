@@ -14,6 +14,15 @@ export type SharedAaveLikeProtocolDataArgs = {
   proxy?: string
 }
 
+export type EModeCategoryData =
+  | [number, number, number, string, string] & {
+      ltv: number
+      liquidationThreshold: number
+      liquidationBonus: number
+      priceSource: string
+      label: string
+    }
+
 export type AaveLikeProtocolData = {
   flashloanAssetPriceInEth: PriceResult
   debtTokenPriceInEth: PriceResult
@@ -23,5 +32,5 @@ export type AaveLikeProtocolData = {
   reserveEModeCategory: number | undefined
   userReserveDataForDebtToken: any
   userReserveDataForCollateral: any
-  eModeCategoryData: any
+  eModeCategoryData: EModeCategoryData | undefined
 }

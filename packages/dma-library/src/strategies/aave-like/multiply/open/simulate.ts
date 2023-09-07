@@ -7,6 +7,7 @@ import {
   resolveProtocolData,
 } from '@dma-library/strategies/aave-like/common'
 import {
+  applyEmodeCategory,
   buildFlashloanSimArgs,
   resolveFlashloanTokenAddress,
 } from '@dma-library/strategies/aave-like/multiply/common'
@@ -55,6 +56,7 @@ export async function simulate(
     collateralTokenPriceInEth,
     reserveDataForFlashloan,
     reserveEModeCategory,
+    eModeCategoryData,
   } = protocolData
 
   const multiple = args.multiple
@@ -94,25 +96,32 @@ export async function simulate(
    *
    * Adjust logic does not need any info about flashloan so Domain should be refactored
    */
-  const simulation = currentPosition.adjustToTargetRiskRatio(multiple, {
-    fees: {
-      flashLoan: flashloanFee,
-      oazo: args.fee,
+  const simulation = applyEmodeCategory(currentPosition, eModeCategoryData).adjustToTargetRiskRatio(
+    multiple,
+    {
+      fees: {
+        flashLoan: flashloanFee,
+        oazo: args.fee,
+      },
+      prices: {
+        market: quoteMarketPrice,
+        oracle: oracle,
+        oracleFLtoDebtToken: oracleFLtoDebtToken,
+      },
+      slippage: args.slippage,
+      flashloan: buildFlashloanSimArgs(
+        flashloanTokenAddress,
+        dependencies,
+        reserveDataForFlashloan,
+      ),
+      depositedByUser: {
+        debtInWei: depositDebtAmountInWei,
+        collateralInWei: depositCollateralAmountInWei,
+      },
+      collectSwapFeeFrom: collectFeeFrom,
+      debug,
     },
-    prices: {
-      market: quoteMarketPrice,
-      oracle: oracle,
-      oracleFLtoDebtToken: oracleFLtoDebtToken,
-    },
-    slippage: args.slippage,
-    flashloan: buildFlashloanSimArgs(flashloanTokenAddress, dependencies, reserveDataForFlashloan),
-    depositedByUser: {
-      debtInWei: depositDebtAmountInWei,
-      collateralInWei: depositCollateralAmountInWei,
-    },
-    collectSwapFeeFrom: collectFeeFrom,
-    debug,
-  })
+  )
 
   return {
     simulatedPositionTransition: simulation,

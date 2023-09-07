@@ -8,7 +8,10 @@ import {
   resolveCurrentPositionForProtocol,
   resolveProtocolData,
 } from '@dma-library/strategies/aave-like/common'
-import { buildFlashloanSimArgs } from '@dma-library/strategies/aave-like/multiply/common'
+import {
+  applyEmodeCategory,
+  buildFlashloanSimArgs,
+} from '@dma-library/strategies/aave-like/multiply/common'
 import { SwapData } from '@dma-library/types'
 import { WithFee } from '@dma-library/types/aave/fee'
 import * as SwapUtils from '@dma-library/utils/swap'
@@ -48,6 +51,7 @@ export async function simulate(
     debtTokenPriceInEth,
     collateralTokenPriceInEth,
     reserveDataForFlashloan,
+    eModeCategoryData,
   } = protocolData
 
   const multiple = args.multiple
@@ -90,7 +94,10 @@ export async function simulate(
   })
 
   return {
-    simulatedPositionTransition: currentPosition.adjustToTargetRiskRatio(multiple, {
+    simulatedPositionTransition: applyEmodeCategory(
+      currentPosition,
+      eModeCategoryData,
+    ).adjustToTargetRiskRatio(multiple, {
       fees: {
         flashLoan: flashloanFee,
         oazo: args.fee,
