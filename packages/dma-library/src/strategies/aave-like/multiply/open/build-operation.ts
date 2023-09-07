@@ -119,7 +119,7 @@ export async function buildOpenFlashloan(
     lendingProtocol,
   )
 
-  if (flashloanProvider === FlashloanProvider.Balancer) {
+  if (flashloanProvider === FlashloanProvider.Balancer && dependencies.protocolType === 'Spark') {
     const swapAmountBeforeFees = simulation.swap.fromTokenAmount
     return {
       token: {
