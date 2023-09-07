@@ -446,12 +446,12 @@ export const config: SystemConfig = {
     },
     USDC: {
       name: 'USDC',
-      address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
+      address: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
     },
     USDT: {
       name: 'USDT',
-      address: ADDRESS_ZERO,
+      address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
     },
     WBTC: {
       name: 'WBTC',
