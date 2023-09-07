@@ -11,6 +11,7 @@ import {
 } from '@dma-library/protocols/aave-like/utils'
 import * as AaveCommon from '@dma-library/strategies/aave/common'
 import { AaveVersion } from '@dma-library/types/aave'
+import BigNumber from 'bignumber.js'
 
 export type AaveV2ProtocolDataArgs = SharedAaveLikeProtocolDataArgs & {
   protocolVersion: AaveVersion.v2
@@ -113,13 +114,17 @@ export async function getAaveV3ProtocolData({
     fetchReserveData(poolDataProvider, collateralTokenAddress),
     proxy ? fetchUserReserveData(poolDataProvider, debtTokenAddress, proxy) : undefined,
     proxy ? fetchUserReserveData(poolDataProvider, collateralTokenAddress, proxy) : undefined,
-    Number(poolDataProvider.getReserveEModeCategory(collateralTokenAddress).toString()),
-    Number(poolDataProvider.getReserveEModeCategory(debtTokenAddress).toString()),
+    poolDataProvider.getReserveEModeCategory(collateralTokenAddress),
+    poolDataProvider.getReserveEModeCategory(debtTokenAddress),
   ])
 
+  const collateralEModeCategoryAsNumber = new BigNumber(
+    (await collateralEModeCategory).toString(),
+  ).toNumber()
+  const debtEModeCategoryAsNumber = new BigNumber((await debtEModeCategory).toString()).toNumber()
   const reserveEModeCategory = determineReserveEModeCategory(
-    collateralEModeCategory,
-    debtEModeCategory,
+    collateralEModeCategoryAsNumber,
+    debtEModeCategoryAsNumber,
   )
 
   let eModeCategoryData

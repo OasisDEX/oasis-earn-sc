@@ -38,7 +38,6 @@ export async function buildOperation({
   const depositCollateralAmountInWei = args.depositedByUser?.collateralInWei || ZERO
   const depositDebtAmountInWei = args.depositedByUser?.debtInWei || ZERO
   const swapAmountBeforeFees = swapData.fromTokenAmount.plus(preSwapFee)
-  console.log('swapAmountBeforeFees', swapAmountBeforeFees.toString())
 
   const hasCollateralDeposit = args.depositedByUser?.collateralInWei?.gt(ZERO)
   const depositAddress = hasCollateralDeposit ? collateralTokenAddress : debtTokenAddress

@@ -15,5 +15,6 @@ export async function resolveProtocolData(
     if (!version) throw new Error('Version must be defined when fetching Aave protocol data')
     return await protocol[version](args)
   }
+
   return await protocol(args)
 }

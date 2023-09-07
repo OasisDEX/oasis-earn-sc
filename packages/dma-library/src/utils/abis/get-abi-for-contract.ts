@@ -10,6 +10,10 @@ import aaveV3PoolABI from '@abis/external/protocols/aave/v3/pool.json'
 import aaveV3PriceOracleOptimismABI from '@abis/external/protocols/aave/v3-l2/aaveOracle.json'
 import aaveV3ProtocolDataProviderOptimismABI from '@abis/external/protocols/aave/v3-l2/aaveProtocolDataProvider.json'
 import aaveV3PoolOptimismABI from '@abis/external/protocols/aave/v3-l2/pool.json'
+import sparkPoolABI from '@abis/external/protocols/spark/lendingPool.json'
+// ABIs for Spark
+import sparkOracleABI from '@abis/external/protocols/spark/oracle.json'
+import sparkPoolDataProviderABI from '@abis/external/protocols/spark/poolDataProvider.json'
 // Other imports
 import { AaveLikeProtocol } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
@@ -55,9 +59,9 @@ const abiByContractName: Partial<
       Oracle: aaveV3PriceOracleABI,
     },
     Spark: {
-      PoolDataProvider: aaveV3ProtocolDataProviderOptimismABI,
-      LendingPool: aaveV3PoolOptimismABI,
-      Oracle: aaveV3PriceOracleOptimismABI,
+      PoolDataProvider: sparkPoolDataProviderABI,
+      LendingPool: sparkPoolABI,
+      Oracle: sparkOracleABI,
     },
   },
   [Network.OPTIMISM]: {

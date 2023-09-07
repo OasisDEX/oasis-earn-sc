@@ -9,6 +9,7 @@ import {
   fetchUserReserveData,
   getAaveLikeSystemContracts,
 } from '@dma-library/protocols/aave-like/utils'
+import BigNumber from 'bignumber.js'
 
 export type SparkProtocolData = AaveLikeProtocolData
 
@@ -31,6 +32,17 @@ export const getSparkProtocolData: GetSparkProtocolData = async args => {
     'Spark',
   )
 
+  const data = await Promise.all([
+    fetchAssetPrice(oracle, flashloanTokenAddress),
+    fetchAssetPrice(oracle, debtTokenAddress),
+    fetchAssetPrice(oracle, collateralTokenAddress),
+    fetchReserveData(poolDataProvider, flashloanTokenAddress),
+    fetchReserveData(poolDataProvider, collateralTokenAddress),
+    proxy ? fetchUserReserveData(poolDataProvider, debtTokenAddress, proxy) : undefined,
+    proxy ? fetchUserReserveData(poolDataProvider, collateralTokenAddress, proxy) : undefined,
+    poolDataProvider.getReserveEModeCategory(collateralTokenAddress),
+    poolDataProvider.getReserveEModeCategory(debtTokenAddress),
+  ])
   const [
     flashloanPrice,
     debtPrice,
@@ -41,21 +53,15 @@ export const getSparkProtocolData: GetSparkProtocolData = async args => {
     userCollateralData,
     collateralEModeCategory,
     debtEModeCategory,
-  ] = await Promise.all([
-    fetchAssetPrice(oracle, flashloanTokenAddress),
-    fetchAssetPrice(oracle, debtTokenAddress),
-    fetchAssetPrice(oracle, collateralTokenAddress),
-    fetchReserveData(poolDataProvider, flashloanTokenAddress),
-    fetchReserveData(poolDataProvider, collateralTokenAddress),
-    proxy ? fetchUserReserveData(poolDataProvider, debtTokenAddress, proxy) : undefined,
-    proxy ? fetchUserReserveData(poolDataProvider, collateralTokenAddress, proxy) : undefined,
-    Number(poolDataProvider.getReserveEModeCategory(collateralTokenAddress).toString()),
-    Number(poolDataProvider.getReserveEModeCategory(debtTokenAddress).toString()),
-  ])
+  ] = data
 
+  const collateralEModeCategoryAsNumber = new BigNumber(
+    (await collateralEModeCategory).toString(),
+  ).toNumber()
+  const debtEModeCategoryAsNumber = new BigNumber((await debtEModeCategory).toString()).toNumber()
   const reserveEModeCategory = determineReserveEModeCategory(
-    collateralEModeCategory,
-    debtEModeCategory,
+    collateralEModeCategoryAsNumber,
+    debtEModeCategoryAsNumber,
   )
 
   let eModeCategoryData

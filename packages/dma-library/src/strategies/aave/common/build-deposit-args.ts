@@ -34,7 +34,6 @@ export async function buildDepositArgs(
   // And therefore Pull actions should be skipped.
   // Assumes user's never directly send WETH
   const entryTokenIsEth = entryToken?.symbol === 'ETH' || entryToken?.symbol === 'WETH'
-  console.log('entryTokenIsEth', entryTokenIsEth)
   const entryTokenAddress = getAaveTokenAddress(entryToken, dependencies.addresses)
   const collateralSymbol = collateralToken.symbol
 
