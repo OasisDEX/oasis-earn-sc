@@ -144,7 +144,6 @@ export const open: SparkOpenOperation = async ({
     depositCollateral,
     setEModeOnCollateral,
     borrowDebtTokens,
-    setEModeOnCollateral,
     sendQuoteTokenToOpExecutor,
     positionCreated,
   ]
