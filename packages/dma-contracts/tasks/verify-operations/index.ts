@@ -9,29 +9,7 @@ const { red, yellow, green } = color
 
 import * as OperationGetters from '@deploy-configurations/operation-definitions'
 
-type VerificationResult = {
-  success: boolean
-  totalEntries: number
-  totalValidated: number
-}
-
-function isInvalidAddress(address: string | undefined): boolean {
-  return !address || address === '' || address === '0x' || address === ADDRESS_ZERO
-}
-
-async function getOperationRegistry(ethers, config: SystemConfig): Promise<OperationsRegistry> {
-  if (
-    !config.mpa.core.OperationsRegistry ||
-    isInvalidAddress(config.mpa.core.OperationsRegistry.address)
-  ) {
-    return undefined
-  }
-
-  return OperationsRegistry__factory.connect(
-    config.mpa.core.OperationsRegistry.address,
-    ethers.provider,
-  )
-}
+type OperationRegistryMaybe = OperationsRegistry | undefined
 
 type ActionDefinition = {
   hash: string
@@ -43,11 +21,35 @@ type OperationDefinition = {
   actions: ActionDefinition[]
 }
 
-type OperationDefinitionGetter = () => OperationDefinition
+type OperationDefinitionGetter = (string) => OperationDefinition
 
 type ActionValidationResult = {
   success: boolean
   errorMessage?: string
+}
+
+type VerificationResult = {
+  success: boolean
+  totalEntries: number
+  totalValidated: number
+}
+
+function isInvalidAddress(address: string | undefined): boolean {
+  return !address || address === '' || address === '0x' || address === ADDRESS_ZERO
+}
+
+async function getOperationRegistry(ethers, config: SystemConfig): Promise<OperationRegistryMaybe> {
+  if (
+    !config.mpa.core.OperationsRegistry ||
+    isInvalidAddress(config.mpa.core.OperationsRegistry.address)
+  ) {
+    return undefined
+  }
+
+  return OperationsRegistry__factory.connect(
+    config.mpa.core.OperationsRegistry.address,
+    ethers.provider,
+  )
 }
 
 function validateActionHashes(
@@ -177,7 +179,7 @@ task('verify-operations', 'List the available operations for the current network
     }
 
     const operationDefinitions: OperationDefinition[] = Object.keys(OperationGetters).map(key =>
-      OperationGetters[key](network),
+      (OperationGetters as unknown as OperationDefinitionGetter[])[key](network),
     )
 
     const verificationResult: VerificationResult = await validateOperations(
