@@ -299,7 +299,7 @@ export const config: SystemConfig = {
     },
     DAI: {
       name: 'DAI',
-      address: '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
+      address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DAI,
     },
     ETH: {
@@ -362,7 +362,7 @@ export const config: SystemConfig = {
     },
     RETH: {
       name: 'RETH',
-      address: ADDRESS_ZERO,
+      address: '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8',
     },
     RWA001: {
       name: 'RWA001',
@@ -455,7 +455,7 @@ export const config: SystemConfig = {
     },
     WBTC: {
       name: 'WBTC',
-      address: '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
+      address: '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WBTC,
     },
     WETH: {
