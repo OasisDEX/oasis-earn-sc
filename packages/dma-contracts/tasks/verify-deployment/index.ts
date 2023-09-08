@@ -6,21 +6,17 @@ import {
   SystemConfigEntry,
 } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
-import { ServiceRegistry, ServiceRegistry__factory } from '@typechain/index'
+import { ServiceRegistry } from '@typechain/index'
 import { color } from 'console-log-colors'
 import { task } from 'hardhat/config'
+
+import {
+  getServiceRegistry,
+  isInvalidAddress,
+  ServiceRegistryMaybe,
+  VerificationResult,
+} from '../common'
 const { red, yellow, green } = color
-
-type ServiceRegistryMaybe = ServiceRegistry | undefined
-type VerificationResult = {
-  success: boolean
-  totalEntries: number
-  totalValidated: number
-}
-
-function isInvalidAddress(address: string | undefined): boolean {
-  return !address || address === '' || address === '0x' || address === ADDRESS_ZERO
-}
 
 function getValidationStatusString(verificationResult: VerificationResult): string {
   const verificationPercentage: number = Math.round(
@@ -43,17 +39,6 @@ function getValidationStatusString(verificationResult: VerificationResult): stri
       ` (${verificationResult.totalValidated}/${verificationResult.totalEntries})`
     )
   }
-}
-
-async function getServiceRegistry(ethers, config: SystemConfig): Promise<ServiceRegistryMaybe> {
-  if (
-    !config.mpa.core.ServiceRegistry ||
-    isInvalidAddress(config.mpa.core.ServiceRegistry.address)
-  ) {
-    return undefined
-  }
-
-  return ServiceRegistry__factory.connect(config.mpa.core.ServiceRegistry.address, ethers.provider)
 }
 
 async function validateContracts(

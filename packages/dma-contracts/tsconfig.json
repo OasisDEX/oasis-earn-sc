@@ -9,6 +9,7 @@
       "@ajna-contracts/scripts/*": ["../ajna-contracts/scripts/*"],
       "@dma-contracts/test/*": ["./test/*"],
       "@dma-contracts/scripts/*": ["./scripts/*"],
+      "@dma-contracts/tasks/*": ["./tasks/*"],
       "@dma-contracts/*": ["./*"],
       "@dma-library": ["../dma-library/src/index.ts"],
       "@dma-library/*": ["../dma-library/src/*"],

@@ -1,56 +1,23 @@
 import { getConfigByNetwork } from '@deploy-configurations/configs'
-import { ADDRESS_ZERO } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
-import { OperationsRegistry, OperationsRegistry__factory } from '@typechain/index'
+import { OperationsRegistry, ServiceRegistry } from '@typechain/index'
 import { color } from 'console-log-colors'
 import { task } from 'hardhat/config'
 const { red, yellow, green } = color
-
 import * as OperationGetters from '@deploy-configurations/operation-definitions'
 
-type OperationRegistryMaybe = OperationsRegistry | undefined
-
-type ActionDefinition = {
-  hash: string
-  optional: boolean
-}
-
-type OperationDefinition = {
-  name: string
-  actions: ActionDefinition[]
-}
-
-type OperationDefinitionGetter = (string) => OperationDefinition
-
-type ActionValidationResult = {
-  success: boolean
-  errorMessage?: string
-}
-
-type VerificationResult = {
-  success: boolean
-  totalEntries: number
-  totalValidated: number
-}
-
-function isInvalidAddress(address: string | undefined): boolean {
-  return !address || address === '' || address === '0x' || address === ADDRESS_ZERO
-}
-
-async function getOperationRegistry(ethers, config: SystemConfig): Promise<OperationRegistryMaybe> {
-  if (
-    !config.mpa.core.OperationsRegistry ||
-    isInvalidAddress(config.mpa.core.OperationsRegistry.address)
-  ) {
-    return undefined
-  }
-
-  return OperationsRegistry__factory.connect(
-    config.mpa.core.OperationsRegistry.address,
-    ethers.provider,
-  )
-}
+import {
+  ActionDefinition,
+  ActionsDatabase,
+  ActionValidationResult,
+  getOperationRegistry,
+  getServiceRegistry,
+  isInvalidAddress,
+  OperationDefinition,
+  OperationDefinitionGetter,
+  VerificationResult,
+} from '../common'
 
 function validateActionHashes(
   operationHashes: string[],
@@ -77,7 +44,40 @@ function validateActionHashes(
   }
 }
 
+async function validateDeployedActions(
+  actionsDatabase: ActionsDatabase,
+  serviceRegistry: ServiceRegistry,
+  actionDefinitions: ActionDefinition[],
+): Promise<ActionValidationResult> {
+  const actionsNotDeployed: string[] = []
+
+  for (let actionIndex = 0; actionIndex < actionDefinitions.length; actionIndex++) {
+    const actionAddress = await serviceRegistry.getServiceAddress(
+      actionDefinitions[actionIndex].hash,
+    )
+
+    if (isInvalidAddress(actionAddress)) {
+      const actionName = actionsDatabase.getActionName(actionDefinitions[actionIndex].hash)
+      actionsNotDeployed.push(actionName)
+      break
+    }
+  }
+
+  if (actionsNotDeployed.length > 0) {
+    return {
+      success: false,
+      errorMessage: `missing actions: [${actionsNotDeployed.join(', ')}]`,
+    }
+  } else {
+    return {
+      success: true,
+    }
+  }
+}
+
 async function validateOperations(
+  actionsDatabase: ActionsDatabase,
+  serviceRegistry: ServiceRegistry,
   operationRegistry: OperationsRegistry,
   operationDefinitions: OperationDefinition[],
 ): Promise<VerificationResult> {
@@ -94,13 +94,25 @@ async function validateOperations(
         operationDefinition.name,
       )
     } catch (e: any) {
-      console.log(
-        `${operationDefinition.name}: ❌ (${
-          JSON.stringify(e).includes("Operation doesn't exist")
-            ? 'not found in registry'
-            : 'unknown error'
-        })`,
+      const deployedActionsResult: ActionValidationResult = await validateDeployedActions(
+        actionsDatabase,
+        serviceRegistry,
+        operationDefinition.actions,
       )
+
+      if (!deployedActionsResult.success) {
+        console.log(
+          `${operationDefinition.name}: ❌ (${
+            JSON.stringify(e).includes("Operation doesn't exist")
+              ? `not found in registry and ${deployedActionsResult.errorMessage}`
+              : 'unknown error'
+          })`,
+        )
+      } else {
+        console.log(
+          `${operationDefinition.name}: ❌ (not found in registry but all actions are deployed)`,
+        )
+      }
       continue
     }
 
@@ -170,7 +182,15 @@ task('verify-operations', 'List the available operations for the current network
     console.log(`Network: ${network}`)
     console.log('================================\n')
 
+    const actionsDatabase: ActionsDatabase = new ActionsDatabase(network as Network)
+
     const config: SystemConfig = getConfigByNetwork(network as Network)
+
+    const serviceRegistry = await getServiceRegistry(ethers, config)
+    if (!serviceRegistry) {
+      console.log('ServiceRegistry not deployed, stopping verification')
+      return
+    }
 
     const operationRegistry = await getOperationRegistry(ethers, config)
     if (!operationRegistry) {
@@ -183,6 +203,8 @@ task('verify-operations', 'List the available operations for the current network
     )
 
     const verificationResult: VerificationResult = await validateOperations(
+      actionsDatabase,
+      serviceRegistry,
       operationRegistry,
       operationDefinitions,
     )
