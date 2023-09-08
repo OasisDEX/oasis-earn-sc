@@ -24,7 +24,8 @@ import './tasks/user-dpm-proxies'
 import './tasks/transfer-dpm'
 import './tasks/deploy-ajna'
 import './tasks/get-hashes'
-import './tasks/list-operations'
+import './tasks/verify-deployment'
+import './tasks/verify-operations'
 
 /*
  * Note, now that ABIs are not committed

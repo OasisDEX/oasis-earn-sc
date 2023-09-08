@@ -145,7 +145,7 @@ async function validateDependencies(config: {
   }
 }
 
-task('verify-deployment', 'List the available operations for the current network').setAction(
+task('verify-deployment', 'Verify the deployment for a certain network').setAction(
   async (_: any, hre) => {
     const { name: network } = hre.network
     const { ethers } = hre
@@ -153,7 +153,7 @@ task('verify-deployment', 'List the available operations for the current network
     // Disable the annoying duplicated definition warning
     ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.ERROR)
 
-    console.log('\n====== LIST OF OPERATIONS ======')
+    console.log('\n====== DEPLOYMENT VERIFICATION ======')
     console.log(`Network: ${network}`)
 
     const config: SystemConfig = getConfigByNetwork(network as Network)
