@@ -80,8 +80,12 @@ export class ActionsDatabase {
     this.buildActionsDatabase(network)
   }
 
-  public getActionName(hash: string): string {
-    return this.hashToActionName[hash]
+  public getActionName(hash: string): string | undefined {
+    if (hash in this.hashToActionName) {
+      return this.hashToActionName[hash]
+    } else {
+      return undefined
+    }
   }
 
   public getActionHash(name: string): string {

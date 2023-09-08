@@ -23,6 +23,7 @@ function validateActionHashes(
   operationHashes: string[],
   operationOptionals: boolean[],
   actionDefinitions: ActionDefinition[],
+  actionsDatabase: ActionsDatabase,
 ): ActionValidationResult {
   let actionsValidated = true
   let actionsErrorMessage: string | undefined = undefined
@@ -33,7 +34,17 @@ function validateActionHashes(
       actionDefinitions[actionIndex].optional !== operationOptionals[actionIndex]
     ) {
       actionsValidated = false
-      actionsErrorMessage = `Action ${actionIndex} hash mismatch: ${actionDefinitions[actionIndex].hash} !== ${operationHashes[actionIndex]}`
+
+      const actionDefinitionName = actionsDatabase.getActionName(
+        actionDefinitions[actionIndex].hash,
+      )
+      const operationHashName = actionsDatabase.getActionName(operationHashes[actionIndex])
+
+      actionsErrorMessage = `Action ${actionIndex} expected hash ${
+        actionDefinitionName ? actionDefinitionName : actionDefinitions[actionIndex].hash
+      } is different from registry ${
+        operationHashName ? operationHashName : operationHashes[actionIndex]
+      }`
       break
     }
   }
@@ -130,6 +141,7 @@ async function validateOperations(
       operationHashes,
       operationOptionals,
       operationDefinition.actions,
+      actionsDatabase,
     )
 
     console.log(
