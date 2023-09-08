@@ -39,7 +39,9 @@ export async function getSwapDataForCloseToCollateral({
   __feeOverride,
 }: GetSwapDataToCloseToCollateralArgs) {
   // This covers off the situation where debt balances accrue interest
-  const _outstandingDebt = outstandingDebt.times(ONE.plus(SAFETY_MARGIN))
+  const _outstandingDebt = outstandingDebt
+    .times(ONE.plus(SAFETY_MARGIN))
+    .integerValue(BigNumber.ROUND_DOWN)
 
   // We don't want to attempt a zero debt swap with 1inch as it'll fail
   const hasZeroDebt = outstandingDebt.isZero()
@@ -99,7 +101,12 @@ export async function getSwapDataForCloseToCollateral({
   } else {
     const colPricePreflightSwapData =
       !collateralIsEth &&
-      (await getSwapData(collateralToken.address, ETHAddress, collateralNeeded, slippage))
+      (await getSwapData(
+        collateralToken.address,
+        ETHAddress,
+        collateralNeeded.integerValue(BigNumber.ROUND_DOWN),
+        slippage,
+      ))
 
     colPrice = new BigNumber(
       colPricePreflightSwapData.toTokenAmount
@@ -135,9 +142,9 @@ export async function getSwapDataForCloseToCollateral({
 
   // 5. Get Swap Data
   // The swap amount needs to be the collateral needed minus the preSwapFee
-  const amountToSwap = hasZeroDebt
-    ? TEN
-    : amountNeededToEnsureRemainingDebtIsRepaid.minus(preSwapFee)
+  const amountToSwap = (
+    hasZeroDebt ? TEN : amountNeededToEnsureRemainingDebtIsRepaid.minus(preSwapFee)
+  ).integerValue(BigNumber.ROUND_DOWN)
   const swapData = await getSwapData(
     collateralToken.address,
     debtToken.address,
