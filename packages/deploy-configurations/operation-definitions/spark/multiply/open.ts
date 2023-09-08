@@ -40,6 +40,6 @@ export function getSparkOpenOperationDefinition(network: Network) {
       { hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SEND_TOKEN), optional: false },
       { hash: getActionHash(SERVICE_REGISTRY_NAMES.common.POSITION_CREATED), optional: false },
     ],
-    log: true,
+    log: false,
   }
 }

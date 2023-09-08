@@ -43,9 +43,6 @@ export const close: SparkCloseOperation = async ({
   addresses,
   network,
 }) => {
-  const setEModeOnCollateral = actions.spark.setEMode(network, {
-    categoryId: 0,
-  })
   const setDebtTokenApprovalOnPool = actions.common.setApproval(network, {
     asset: debt.address,
     delegate: addresses.lendingPool,
@@ -57,6 +54,10 @@ export const close: SparkCloseOperation = async ({
     asset: debt.address,
     amount: ZERO,
     paybackAll: true,
+  })
+
+  const setEModeOnCollateral = actions.spark.setEMode(network, {
+    categoryId: 0,
   })
 
   const withdrawCollateral = actions.spark.withdraw(network, {
@@ -102,9 +103,9 @@ export const close: SparkCloseOperation = async ({
     isProxyFlashloan: true,
     provider: flashloan.provider,
     calls: [
-      setEModeOnCollateral,
       setDebtTokenApprovalOnPool,
       paybackDebt,
+      setEModeOnCollateral,
       withdrawCollateral,
       swapCollateralTokensForDebtTokens,
       sendDebtToOpExecutor,

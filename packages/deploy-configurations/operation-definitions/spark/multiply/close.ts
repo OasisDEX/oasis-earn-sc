@@ -13,15 +13,15 @@ export function getSparkCloseOperationDefinition(network: Network) {
         optional: false,
       },
       {
-        hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.SET_EMODE),
-        optional: false,
-      },
-      {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.SET_APPROVAL),
         optional: false,
       },
       {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.PAYBACK),
+        optional: false,
+      },
+      {
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.spark.SET_EMODE),
         optional: false,
       },
       {
@@ -49,6 +49,6 @@ export function getSparkCloseOperationDefinition(network: Network) {
         optional: false,
       },
     ],
-    log: false,
+    log: true,
   }
 }
