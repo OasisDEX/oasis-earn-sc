@@ -49,6 +49,6 @@ export function getSparkCloseOperationDefinition(network: Network) {
         optional: false,
       },
     ],
-    log: true,
+    log: false,
   }
 }
