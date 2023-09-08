@@ -78,16 +78,16 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
     collectFeeInFromToken: swap.collectFeeFrom === 'sourceToken',
   })
 
-  const unwrapEth = actions.common.unwrapEth(network, {
-    amount: new BigNumber(MAX_UINT),
-  })
-  unwrapEth.skipped = !debt.isEth && !collateral.isEth
-
   const sendDebtTokenToOpExecutor = actions.common.sendToken(network, {
     asset: debt.address,
     to: addresses.operationExecutor,
     amount: flashloan.token.amount.plus(BALANCER_FEE.div(FEE_BASE).times(flashloan.token.amount)),
   })
+
+  const unwrapEth = actions.common.unwrapEth(network, {
+    amount: new BigNumber(MAX_UINT),
+  })
+  unwrapEth.skipped = !debt.isEth && !collateral.isEth
 
   const returnDebtFunds = actions.common.returnFunds(network, {
     asset: debt.isEth ? addresses.tokens.ETH : debt.address,
@@ -102,8 +102,8 @@ export const adjustRiskDown: SparkAdjustDownOperation = async ({
     paybackDebt,
     withdrawCollateral,
     swapCollateralTokensForDebtTokens,
-    unwrapEth,
     sendDebtTokenToOpExecutor,
+    unwrapEth,
   ]
 
   const takeAFlashLoan = actions.common.takeAFlashLoan(network, {
