@@ -24,6 +24,8 @@ import './tasks/user-dpm-proxies'
 import './tasks/transfer-dpm'
 import './tasks/deploy-ajna'
 import './tasks/get-hashes'
+
+// Comment out this two imports if it is the first time you generate the typechain types
 import './tasks/verify-deployment'
 import './tasks/verify-operations'
 
