@@ -28,6 +28,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
     address public immutable WETH;
     address public immutable GUARD;
     address public immutable deployer;
+    string public constant ajnaVersion = "Ajna_v2";
     IAjnaProxyActions public immutable self;
     IPositionManager public positionManager;
     IRewardsManager public rewardsManager;
@@ -36,6 +37,10 @@ contract AjnaProxyActions is IAjnaProxyActions {
     using SafeERC20 for IERC20;
 
     constructor(IAjnaPoolUtilsInfo _poolInfoUtils, IERC20 _ajnaToken, address _WETH, address _GUARD) {
+        require(address(_poolInfoUtils) != address(0), "apa/zero-address");
+        require(address(_ajnaToken) != address(0), "apa/zero-address");
+        require(_WETH != address(0), "apa/zero-address");
+        require(_GUARD != address(0), "apa/zero-address");
         poolInfoUtils = _poolInfoUtils;
         ajnaToken = _ajnaToken;
         WETH = _WETH;
@@ -45,6 +50,9 @@ contract AjnaProxyActions is IAjnaProxyActions {
     }
 
     function initialize(address _positionManager, address _rewardsManager, address _ARC) external {
+        require(address(_positionManager) != address(0), "apa/zero-address");
+        require(address(_rewardsManager) != address(0), "apa/zero-address");
+        require(_ARC != address(0), "apa/zero-address");
         require(msg.sender == deployer, "apa/not-deployer");
         require(
             address(positionManager) == address(0) && address(rewardsManager) == address(0) && ARC == address(0),
@@ -438,7 +446,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
      *  @param  price          Price of the bucket
      */
     function openPosition(IERC20Pool pool, uint256 debtAmount, uint256 collateralAmount, uint256 price) public payable {
-        emit CreatePosition(address(this), "Ajna", "Borrow", pool.collateralAddress(), pool.quoteTokenAddress());
+        emit CreatePosition(address(this), ajnaVersion, "Borrow", pool.collateralAddress(), pool.quoteTokenAddress());
         depositAndDraw(pool, debtAmount, collateralAmount, price);
     }
 
@@ -455,7 +463,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
         uint256 price,
         bool revertIfBelowLup
     ) public payable {
-        emit CreatePosition(address(this), "Ajna", "Earn", pool.collateralAddress(), pool.quoteTokenAddress());
+        emit CreatePosition(address(this), ajnaVersion, "Earn", pool.collateralAddress(), pool.quoteTokenAddress());
         _supplyQuote(pool, depositAmount, price, revertIfBelowLup);
         emit ProxyActionsOperation("AjnaSupplyQuote");
     }
@@ -473,7 +481,7 @@ contract AjnaProxyActions is IAjnaProxyActions {
         uint256 price,
         bool revertIfBelowLup
     ) public payable {
-        emit CreatePosition(address(this), "Ajna", "Earn", pool.collateralAddress(), pool.quoteTokenAddress());
+        emit CreatePosition(address(this), ajnaVersion, "Earn", pool.collateralAddress(), pool.quoteTokenAddress());
         supplyQuoteMintNftAndStake(pool, depositAmount, price, revertIfBelowLup);
     }
 
