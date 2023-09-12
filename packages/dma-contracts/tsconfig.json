@@ -52,5 +52,12 @@
       "path": "../ajna-contracts"
     }
   ],
-  "include": ["./test", "./tasks", "./scripts", "./bootstrap-env.ts", "./hardhat.config.ts"]
+  "include": [
+    "./test",
+    "./tasks",
+    "./scripts",
+    "./bootstrap-env.ts",
+    "./hardhat.config.base.ts",
+    "./hardhat.config.ts"
+  ]
 }

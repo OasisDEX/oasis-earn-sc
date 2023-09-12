@@ -16,9 +16,15 @@ import {
   ServiceRegistryMaybe,
   VerificationResult,
 } from '../common'
+
+// This functions help coloring strings for console output
 const { red, yellow, green } = color
 
 function getValidationStatusString(verificationResult: VerificationResult): string {
+  if (verificationResult.totalEntries === 0) {
+    return red('0%') + ' (0/0)'
+  }
+
   const verificationPercentage: number = Math.round(
     (verificationResult.totalValidated / verificationResult.totalEntries) * 100,
   )
@@ -97,31 +103,26 @@ async function validateContracts(
 async function validateDependencies(config: {
   [key: string]: ConfigEntry
 }): Promise<VerificationResult> {
-  let totalEntries = 0
-  let totalValidated = 0
-
   if (Object.keys(config).length === 0) {
     return {
       success: false,
-      totalEntries,
-      totalValidated,
+      totalEntries: 0,
+      totalValidated: 0,
     }
   }
 
-  for (const entryName in config) {
-    totalEntries++
-
-    const configEntry: ConfigEntry = config[entryName]
-
-    if (isInvalidAddress(configEntry.address)) {
-      console.log(`${entryName}: ❌ (not configured)`)
-      continue
+  const validatedEntries = Object.entries(config).filter(([name, entry]) => {
+    if (isInvalidAddress(entry.address)) {
+      console.log(`${name}: ❌ (not configured)`)
+      return false
+    } else {
+      console.log(`${name}: ✅ (${entry.address})`)
+      return true
     }
+  })
 
-    totalValidated++
-
-    console.log(`${entryName}: ✅ (${configEntry.address})`)
-  }
+  const totalEntries = Object.keys(config).length
+  const totalValidated = validatedEntries.length
 
   return {
     success: totalEntries === totalValidated,

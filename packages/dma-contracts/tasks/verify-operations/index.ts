@@ -104,7 +104,7 @@ async function validateOperations(
       ;[operationHashes, operationOptionals] = await operationRegistry.getOperation(
         operationDefinition.name,
       )
-    } catch (e: any) {
+    } catch (e: unknown) {
       const deployedActionsResult: ActionValidationResult = await validateDeployedActions(
         actionsDatabase,
         serviceRegistry,
