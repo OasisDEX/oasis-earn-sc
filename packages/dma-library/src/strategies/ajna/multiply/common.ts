@@ -30,6 +30,7 @@ export async function simulateAdjustment(
   riskIsIncreasing: boolean,
   oraclePrice: BigNumber,
   positionType: PositionType,
+  __feeOverride?: BigNumber,
 ) {
   const preFlightTokenMaxDecimals = riskIsIncreasing
     ? args.quoteTokenPrecision
@@ -38,11 +39,13 @@ export async function simulateAdjustment(
 
   const fromToken = buildFromToken(args, riskIsIncreasing)
   const toToken = buildToToken(args, riskIsIncreasing)
-  const fee = SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
-    isIncreasingRisk: riskIsIncreasing,
-    // Strategy is called open multiply (not open earn)
-    isEarnPosition: positionType === 'Earn',
-  })
+  const fee =
+    __feeOverride ||
+    SwapUtils.feeResolver(fromToken.symbol, toToken.symbol, {
+      isIncreasingRisk: riskIsIncreasing,
+      // Strategy is called open multiply (not open earn)
+      isEarnPosition: positionType === 'Earn',
+    })
   const { swapData: preFlightSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     string
@@ -128,17 +131,20 @@ export async function getSwapData(
   simulatedAdjust: Domain.ISimulationV2 & Domain.WithSwap,
   riskIsIncreasing: boolean,
   positionType: PositionType,
+  __feeOverride?: BigNumber,
 ) {
   const swapAmountBeforeFees = simulatedAdjust.swap.fromTokenAmount
-  const fee = SwapUtils.feeResolver(
-    simulatedAdjust.position.collateral.symbol,
-    simulatedAdjust.position.debt.symbol,
-    {
-      isIncreasingRisk: riskIsIncreasing,
-      // Strategy is called open multiply (not open earn)
-      isEarnPosition: positionType === 'Earn',
-    },
-  )
+  const fee =
+    __feeOverride ||
+    SwapUtils.feeResolver(
+      simulatedAdjust.position.collateral.symbol,
+      simulatedAdjust.position.debt.symbol,
+      {
+        isIncreasingRisk: riskIsIncreasing,
+        // Strategy is called open multiply (not open earn)
+        isEarnPosition: positionType === 'Earn',
+      },
+    )
   const { swapData, collectFeeFrom, preSwapFee } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     string

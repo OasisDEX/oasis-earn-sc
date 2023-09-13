@@ -394,7 +394,7 @@ export async function deploySystem(config: RuntimeConfig, debug = false, useFall
   )
   await registry.addEntry(
     SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
-    ADDRESSES[Network.MAINNET].aave.v3.Pool,
+    ADDRESSES[Network.MAINNET].aave.v3.LendingPool,
   )
 
   debug && console.log('5/ Adding operations to registry')

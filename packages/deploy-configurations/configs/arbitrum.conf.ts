@@ -299,7 +299,7 @@ export const config: SystemConfig = {
     },
     DAI: {
       name: 'DAI',
-      address: '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',
+      address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.DAI,
     },
     ETH: {
@@ -362,7 +362,7 @@ export const config: SystemConfig = {
     },
     RETH: {
       name: 'RETH',
-      address: ADDRESS_ZERO,
+      address: '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8',
     },
     RWA001: {
       name: 'RWA001',
@@ -446,16 +446,16 @@ export const config: SystemConfig = {
     },
     USDC: {
       name: 'USDC',
-      address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
+      address: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
     },
     USDT: {
       name: 'USDT',
-      address: ADDRESS_ZERO,
+      address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
     },
     WBTC: {
       name: 'WBTC',
-      address: '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
+      address: '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WBTC,
     },
     WETH: {
@@ -488,23 +488,23 @@ export const config: SystemConfig = {
   },
   aave: {
     v2: {
-      PriceOracle: { name: 'PriceOracle', address: '' },
+      Oracle: { name: 'Oracle', address: '' },
       LendingPool: { name: 'LendingPool', address: '' },
-      ProtocolDataProvider: { name: 'ProtocolDataProvider', address: '' },
+      PoolDataProvider: { name: 'PoolDataProvider', address: '' },
       WETHGateway: { name: 'WETHGateway', address: '' },
     },
     v3: {
-      AaveOracle: {
-        name: 'AaveOracle',
+      Oracle: {
+        name: 'Oracle',
         address: '0xb56c2F0B653B2e0b10C9b928C8580Ac5Df02C7C7',
       },
-      Pool: {
-        name: 'Pool',
+      LendingPool: {
+        name: 'LendingPool',
         address: '0x794a61358D6845594F94dc1DB02A252b5b4814aD',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
       },
-      AavePoolDataProvider: {
-        name: 'AavePoolDataProvider',
+      PoolDataProvider: {
+        name: 'PoolDataProvider',
         address: '0x69FA688f1Dc47d4B5d8029D5a35FB7a548310654',
       },
       L2Encoder: {
@@ -513,6 +513,7 @@ export const config: SystemConfig = {
       },
     },
   },
+  spark: {},
   maker: {
     common: {
       FlashMintModule: { name: 'FlashMintModule', address: '' },

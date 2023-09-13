@@ -56,7 +56,7 @@ export interface AjnaBorrowPayload extends AjnaCommonPayload {
   // Repay method doesn't stamp loan by default
   // this parameter is used to force restamp only if it makes sense
   // from user perspective
-  stamploan?: boolean
+  stamploanEnabled?: boolean
 }
 
 export interface AjnaOpenEarnPayload extends AjnaCommonPayload {

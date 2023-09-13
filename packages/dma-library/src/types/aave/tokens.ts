@@ -1,15 +1,3 @@
-export type AAVETokens =
-  | 'ETH'
-  | 'WETH'
-  | 'STETH'
-  | 'WSTETH'
-  | 'WBTC'
-  | 'USDC'
-  | 'CBETH'
-  | 'RETH'
-  | 'DAI'
-  | 'SDAI'
-  | 'GHO'
-  | 'USDT'
-  | 'LUSD'
-  | 'FRAX'
+import { Tokens } from '@deploy-configurations/types/deployment-config'
+
+export type AAVETokens = Tokens

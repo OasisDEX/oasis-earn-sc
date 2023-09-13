@@ -2,6 +2,7 @@ import { Address } from '@deploy-configurations/types/address'
 import { FEE_BASE, ONE, TEN, ZERO } from '@dma-common/constants'
 import { areAddressesEqual } from '@dma-common/utils/addresses'
 import { calculateFee } from '@dma-common/utils/swap'
+import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
 import { GetSwapData } from '@dma-library/types/common'
 import * as SwapUtils from '@dma-library/utils/swap'
 import BigNumber from 'bignumber.js'
@@ -23,6 +24,7 @@ interface GetSwapDataToCloseToCollateralArgs {
   slippage: BigNumber
   ETHAddress: Address
   getSwapData: GetSwapData
+  __feeOverride?: BigNumber
 }
 
 export async function getSwapDataForCloseToCollateral({
@@ -34,7 +36,16 @@ export async function getSwapDataForCloseToCollateral({
   slippage,
   ETHAddress,
   getSwapData,
+  __feeOverride,
 }: GetSwapDataToCloseToCollateralArgs) {
+  // This covers off the situation where debt balances accrue interest
+  const _outstandingDebt = outstandingDebt
+    .times(ONE.plus(SAFETY_MARGIN))
+    .integerValue(BigNumber.ROUND_DOWN)
+
+  // We don't want to attempt a zero debt swap with 1inch as it'll fail
+  const hasZeroDebt = outstandingDebt.isZero()
+
   // 1.Use offset amount which will be used in the swap as well.
   // The idea is that after the debt is paid, the remaining will be transferred to the beneficiary
   // Debt is a complex number and interest rate is constantly applied.
@@ -42,7 +53,7 @@ export async function getSwapDataForCloseToCollateral({
   // so instead of charging the user a fee, we add an offset ( equal to the fee ) to the
   // collateral amount. This means irrespective of whether the fee is collected before
   // or after the swap, there will always be sufficient debt token remaining to cover the outstanding position debt.
-  const fee = SwapUtils.feeResolver(collateralToken.symbol, debtToken.symbol)
+  const fee = __feeOverride || SwapUtils.feeResolver(collateralToken.symbol, debtToken.symbol)
 
   // 2. Calculated the needed amount of collateral to payback the debt
   // This value is calculated based on oracle prices.
@@ -53,7 +64,7 @@ export async function getSwapDataForCloseToCollateral({
     debtTokenPrecision,
     colPrice,
     collateralTokenPrecision,
-    outstandingDebt,
+    _outstandingDebt,
     fee,
     slippage,
   )
@@ -72,7 +83,7 @@ export async function getSwapDataForCloseToCollateral({
     const debtPricePreflightSwapData = await getSwapData(
       debtToken.address,
       ETHAddress,
-      outstandingDebt,
+      _outstandingDebt,
       slippage,
       undefined,
       true, // inverts swap mock in tests ignored in prod
@@ -90,7 +101,12 @@ export async function getSwapDataForCloseToCollateral({
   } else {
     const colPricePreflightSwapData =
       !collateralIsEth &&
-      (await getSwapData(collateralToken.address, ETHAddress, collateralNeeded, slippage))
+      (await getSwapData(
+        collateralToken.address,
+        ETHAddress,
+        collateralNeeded.integerValue(BigNumber.ROUND_DOWN),
+        slippage,
+      ))
 
     colPrice = new BigNumber(
       colPricePreflightSwapData.toTokenAmount
@@ -109,7 +125,7 @@ export async function getSwapDataForCloseToCollateral({
     debtTokenPrecision,
     colPrice,
     collateralTokenPrecision,
-    outstandingDebt,
+    _outstandingDebt,
     fee.div(new BigNumber(FEE_BASE).plus(fee)),
     slippage,
   )
@@ -126,10 +142,13 @@ export async function getSwapDataForCloseToCollateral({
 
   // 5. Get Swap Data
   // The swap amount needs to be the collateral needed minus the preSwapFee
+  const amountToSwap = (
+    hasZeroDebt ? TEN : amountNeededToEnsureRemainingDebtIsRepaid.minus(preSwapFee)
+  ).integerValue(BigNumber.ROUND_DOWN)
   const swapData = await getSwapData(
     collateralToken.address,
     debtToken.address,
-    amountNeededToEnsureRemainingDebtIsRepaid.minus(preSwapFee),
+    amountToSwap,
     slippage,
   )
 

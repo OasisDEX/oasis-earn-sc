@@ -1,19 +1,20 @@
-import { AaveV2Operations, aaveV2Operations } from './aave/v2'
-import { AaveV3Operations, aaveV3Operations } from './aave/v3'
+import { AaveOperations, aaveOperations } from './aave'
 import { AjnaOperations, ajnaOperations } from './ajna'
+import { SparkOperations, sparkOperations } from './spark'
 
-export { BorrowArgs, DepositArgs } from './aave/common'
-const aave = {
-  v2: aaveV2Operations,
-  v3: aaveV3Operations,
-}
+export { AaveBorrowOperations, AaveMultiplyOperations } from './aave'
+export { BorrowArgs, DepositArgs } from './aave-like'
 
 const ajna = ajnaOperations
+const spark = sparkOperations
+const aave = aaveOperations
 
 export const operations: {
   ajna: AjnaOperations
-  aave: { v2: AaveV2Operations; v3: AaveV3Operations }
+  aave: AaveOperations
+  spark: SparkOperations
 } = {
   aave,
   ajna,
+  spark,
 }

@@ -1,3 +1,11 @@
+const aaveLike = {
+  Borrow: `tuple(address asset, uint256 amount, address to)`,
+  Deposit: `tuple(address asset, uint256 amount, bool sumAmounts, bool setAsCollateral)`,
+  Payback: `tuple(address asset, uint256 amount, bool paybackAll)`,
+  Withdraw: `tuple(address asset, uint256 amount, address to)`,
+  SetEMode: `tuple(uint8 categoryId)`,
+}
+
 export const calldataTypes = {
   common: {
     Approval: 'tuple(address asset, address delegate, uint256 amount, bool sumAmounts)',
@@ -31,11 +39,10 @@ export const calldataTypes = {
     Payback: `tuple(address asset, uint256 amount, bool paybackAll)`,
   },
   aaveV3: {
-    Borrow: `tuple(address asset, uint256 amount, address to)`,
-    Deposit: `tuple(address asset, uint256 amount, bool sumAmounts, bool setAsCollateral)`,
-    Payback: `tuple(address asset, uint256 amount, bool paybackAll)`,
-    Withdraw: `tuple(address asset, uint256 amount, address to)`,
-    SetEMode: `tuple(uint8 categoryId)`,
+    ...aaveLike,
+  },
+  spark: {
+    ...aaveLike,
   },
   ajna: {
     DepositBorrow: `tuple(address quoteToken, address collateralToken, uint256 depositAmount, uint256 borrowAmount, bool sumDepositAmounts, uint256 price)`,

@@ -1,6 +1,6 @@
 import { TYPICAL_PRECISION } from '@dma-common/constants'
 import { CollectFeeFrom } from '@dma-common/types'
-import { AAVETokens, SwapData } from '@dma-library/types'
+import { AaveLikeTokens, SwapData } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
 export function buildSwap(
@@ -9,8 +9,8 @@ export function buildSwap(
     fee: BigNumber
     collectFeeFrom: 'sourceToken' | 'targetToken'
   },
-  entryToken: { symbol: AAVETokens },
-  collateralToken: { symbol: AAVETokens },
+  entryToken: { symbol: AaveLikeTokens },
+  collateralToken: { symbol: AaveLikeTokens },
   collectFeeFrom: CollectFeeFrom,
 ) {
   return {
