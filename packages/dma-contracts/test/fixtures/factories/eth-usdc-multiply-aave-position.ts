@@ -18,7 +18,7 @@ import {
 import {
   AaveV2OpenDependencies,
   AaveV3OpenDependencies,
-} from '@dma-library/strategies/aave/open/open'
+} from '@dma-library/strategies/aave/multiply/open'
 import { RiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 

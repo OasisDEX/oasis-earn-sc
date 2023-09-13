@@ -41,6 +41,7 @@ export const depositBorrow: AjnaDepositBorrowStrategy = async (args, dependencie
       .parseUnits(args.collateralAmount.toString(), args.collateralTokenPrecision)
       .toString(),
     limitIndex.toString(),
+    args.stamploanEnabled ?? false,
   ])
 
   const targetPosition = args.position.deposit(args.collateralAmount).borrow(args.quoteAmount)

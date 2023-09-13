@@ -26,6 +26,15 @@ import {
   getAjnaCloseToCollateralOperationDefinition,
   getAjnaCloseToQuoteOperationDefinition,
   getAjnaOpenOperationDefinition,
+  getSparkAdjustDownOperationDefinition,
+  getSparkAdjustUpOperationDefinition,
+  getSparkBorrowOperationDefinition,
+  getSparkCloseOperationDefinition,
+  getSparkDepositBorrowOperationDefinition,
+  getSparkDepositOperationDefinition,
+  getSparkOpenDepositBorrowOperationDefinition,
+  getSparkOpenOperationDefinition,
+  getSparkPaybackWithdrawOperationDefinition,
 } from '@deploy-configurations/operation-definitions'
 import {
   ContractProps,
@@ -34,10 +43,10 @@ import {
   SystemTemplate,
 } from '@deploy-configurations/types/deployed-system'
 import {
-  DeployedSystemContracts,
-  DeploymentConfig,
+  ConfigEntry,
   SystemConfig,
-  SystemConfigItem,
+  SystemConfigEntry,
+  SystemContracts,
 } from '@deploy-configurations/types/deployment-config'
 import { EtherscanGasPrice } from '@deploy-configurations/types/etherscan'
 import { Network } from '@deploy-configurations/types/network'
@@ -125,6 +134,22 @@ abstract class DeployedSystemHelpers {
 
   log(...args: any[]) {
     !this.hideLogging && console.log(...args)
+  }
+  logOp(op: { name: string; actions: { hash: string; optional: boolean }[]; log?: boolean }) {
+    if (op.log) {
+      const tupleOutput = JSON.stringify([
+        op.actions.map(op => op.hash),
+        op.actions.map(op => op.optional),
+        op.name,
+      ])
+      console.log('\x1b[33m[ OP LOG ]\x1b[0m')
+      console.log(`\x1b[33m[ ${op.name} ]\x1b[0m`)
+      console.log(tupleOutput)
+    }
+  }
+
+  useGnosisSafeServiceClient() {
+    return gnosisSafeServiceUrl[this.network] !== ''
   }
 
   async init(hideLogging = false) {
@@ -334,11 +359,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     return configPath
   }
 
-  async postInstantiation(configItem: DeploymentConfig, contract: Contract) {
+  async postInstantiation(configItem: ConfigEntry, contract: Contract) {
     this.log('POST INITIALIZATION', configItem.name, contract.address)
   }
 
-  async postRegistryEntry(configItem: DeploymentConfig, address: string) {
+  async postRegistryEntry(configItem: ConfigEntry, address: string) {
     if (!configItem.serviceRegistryName) throw new Error('No service registry name provided')
     this.log(
       'REGISTRY ENTRY',
@@ -367,7 +392,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
     // SERVICE REGISTRY addition
     if (configItem.serviceRegistryName) {
-      if (gnosisSafeServiceUrl[this.network] !== '') {
+      if (this.useGnosisSafeServiceClient()) {
         /**
          * Currently throws the following error:
          * Error: Unprocessable Entity
@@ -438,19 +463,19 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     return ''
   }
 
-  async addRegistryEntries(addressesConfig: DeploymentConfig[]) {
+  async addRegistryEntries(addressesConfig: ConfigEntry[]) {
     if (!this.serviceRegistryHelper) throw new Error('No service registry helper set')
     for (const configItem of addressesConfig) {
       if (configItem.serviceRegistryName) {
         const address =
-          this.deployedSystem?.[configItem.name as DeployedSystemContracts]?.contract.address ||
+          this.deployedSystem?.[configItem.name as SystemContracts]?.contract.address ||
           configItem.address
         await this.addRegistryEntry(configItem, address)
       }
     }
   }
 
-  async addRegistryEntry(configItem: DeploymentConfig, address: string) {
+  async addRegistryEntry(configItem: ConfigEntry, address: string) {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
     if (configItem.serviceRegistryName) {
       await this.serviceRegistryHelper.addEntry(configItem.serviceRegistryName, address)
@@ -458,7 +483,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async removeRegistryEntry(configItem: DeploymentConfig) {
+  async removeRegistryEntry(configItem: ConfigEntry) {
     if (!this.serviceRegistryHelper) throw new Error('ServiceRegistryHelper not initialized')
     if (configItem.serviceRegistryName) {
       this.serviceRegistryHelper.removeEntry(configItem.serviceRegistryName)
@@ -486,7 +511,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async instantiateContracts(addressesConfig: SystemConfigItem[]) {
+  async instantiateContracts(addressesConfig: SystemConfigEntry[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     for (const configItem of addressesConfig) {
       this.log('INSTANTIATING ', configItem.name, configItem.address)
@@ -571,7 +596,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     }
   }
 
-  async deployContracts(addressesConfig: SystemConfigItem[]) {
+  async deployContracts(addressesConfig: SystemConfigEntry[]) {
     if (!this.signer) throw new Error('Signer not initialized')
     if (this.isRestrictedNetwork) {
       await this.promptBeforeDeployment()
@@ -582,10 +607,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       if (configItem.constructorArgs && configItem.constructorArgs?.length !== 0) {
         constructorParams = configItem.constructorArgs.map((param: string | number) => {
           if (typeof param === 'string' && param.indexOf('address:') >= 0) {
-            const contractName = (param as string).replace(
-              'address:',
-              '',
-            ) as DeployedSystemContracts
+            const contractName = (param as string).replace('address:', '') as SystemContracts
 
             if (!this.deployedSystem[contractName]?.contract.address) {
               throw new Error(`Contract ${contractName} not deployed`)
@@ -677,11 +699,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.instantiateContracts(
       Object.values(this.config.mpa.core).filter(
-        (item: SystemConfigItem) => item.address !== '' && !item.deploy,
+        (item: SystemConfigEntry) => item.address !== '' && !item.deploy,
       ),
     )
     await this.deployContracts(
-      Object.values(this.config.mpa.core).filter((item: SystemConfigItem) => item.deploy),
+      Object.values(this.config.mpa.core).filter((item: SystemConfigEntry) => item.deploy),
     )
   }
 
@@ -689,11 +711,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.instantiateContracts(
       Object.values(this.config.mpa.actions).filter(
-        (item: SystemConfigItem) => item.address !== '' && !item.deploy,
+        (item: SystemConfigEntry) => item.address !== '' && !item.deploy,
       ),
     )
     await this.deployContracts(
-      Object.values(this.config.mpa.actions).filter((item: SystemConfigItem) => item.deploy),
+      Object.values(this.config.mpa.actions).filter((item: SystemConfigEntry) => item.deploy),
     )
   }
 
@@ -706,7 +728,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
       Object.values(this.config.common).filter(
-        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
       ),
     )
   }
@@ -715,12 +737,12 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
       Object.values(this.config.aave.v2 || {}).filter(
-        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
       ),
     )
     await this.addRegistryEntries(
       Object.values(this.config.aave.v3 || {}).filter(
-        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
       ),
     )
   }
@@ -729,7 +751,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
       Object.values(this.config.maker.common).filter(
-        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
       ),
     )
   }
@@ -738,11 +760,19 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     if (!this.config) throw new Error('No config set')
     await this.addRegistryEntries(
       Object.values(this.config.ajna).filter(
-        (item: DeploymentConfig) => item.address !== '' && item.serviceRegistryName,
+        (item: ConfigEntry) => item.address !== '' && item.serviceRegistryName,
       ),
     )
   }
 
+  /**
+   * Adds operation definitions to the OperationRegistry
+   * Operations can be logged out to the console if you set the log flag
+   * in the operation definition file @oasisdex/deploy-config/operation-definitions to true
+   * Use the logOp helper function to log out the operation
+   *
+   * Read more at the README at /packages/deploy-configurations/README.md
+   */
   async addOperationEntries() {
     if (!this.signer) throw new Error('No signer set')
     if (!this.deployedSystem.OperationsRegistry) throw new Error('No OperationsRegistry deployed')
@@ -849,6 +879,72 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       getAjnaAdjustDownOperationDefinition(network).name,
       getAjnaAdjustDownOperationDefinition(network).actions,
     )
+
+    // Spark
+    const sparkBorrowOperationDefinition = getSparkBorrowOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkBorrowOperationDefinition.name,
+      sparkBorrowOperationDefinition.actions,
+    )
+    this.logOp(sparkBorrowOperationDefinition)
+
+    const sparkDepositOperationDefinition = getSparkDepositOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkDepositOperationDefinition.name,
+      sparkDepositOperationDefinition.actions,
+    )
+    this.logOp(sparkDepositOperationDefinition)
+
+    const sparkDepositBorrowOperationDefinition = getSparkDepositBorrowOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkDepositBorrowOperationDefinition.name,
+      sparkDepositBorrowOperationDefinition.actions,
+    )
+    this.logOp(sparkDepositBorrowOperationDefinition)
+
+    const sparkOpenDepositBorrowOperationDefinition =
+      getSparkOpenDepositBorrowOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkOpenDepositBorrowOperationDefinition.name,
+      sparkOpenDepositBorrowOperationDefinition.actions,
+    )
+    this.logOp(sparkOpenDepositBorrowOperationDefinition)
+
+    const sparkPaybackWithdrawOperationDefinition =
+      getSparkPaybackWithdrawOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkPaybackWithdrawOperationDefinition.name,
+      sparkPaybackWithdrawOperationDefinition.actions,
+    )
+    this.logOp(sparkPaybackWithdrawOperationDefinition)
+
+    const sparkOpenOperationDefinition = getSparkOpenOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkOpenOperationDefinition.name,
+      sparkOpenOperationDefinition.actions,
+    )
+    this.logOp(sparkOpenOperationDefinition)
+
+    const sparkCloseOperationDefinition = getSparkCloseOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkCloseOperationDefinition.name,
+      sparkCloseOperationDefinition.actions,
+    )
+    this.logOp(sparkCloseOperationDefinition)
+
+    const sparkAdjustUpOperationDefinition = getSparkAdjustUpOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkAdjustUpOperationDefinition.name,
+      sparkAdjustUpOperationDefinition.actions,
+    )
+    this.logOp(sparkAdjustUpOperationDefinition)
+
+    const sparkAdjustDownOperationDefinition = getSparkAdjustDownOperationDefinition(network)
+    await operationsRegistry.addOp(
+      sparkAdjustDownOperationDefinition.name,
+      sparkAdjustDownOperationDefinition.actions,
+    )
+    this.logOp(sparkAdjustDownOperationDefinition)
   }
 
   async addAllEntries() {

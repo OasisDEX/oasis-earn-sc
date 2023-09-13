@@ -258,6 +258,46 @@ export const config: SystemConfig = {
         history: [],
         constructorArgs: ['address:ServiceRegistry'],
       },
+      SparkBorrow: {
+        name: 'SparkBorrow',
+        deploy: false,
+        address: '0xc69156420307048c9BAAe8191f9012391521a88d',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.BORROW,
+        history: ['0x0000000000000000000000000000000000000000'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkWithdraw: {
+        name: 'SparkWithdraw',
+        deploy: false,
+        address: '0x0cCa782002c4fE95e1ed7A75d41bB56bEfa0C167',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.WITHDRAW,
+        history: ['0x0000000000000000000000000000000000000000'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkDeposit: {
+        name: 'SparkDeposit',
+        deploy: false,
+        address: '0xC58F2Ee4Ef92F2bE314743442496D6Fad0339d56',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.DEPOSIT,
+        history: ['0x0000000000000000000000000000000000000000'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkPayback: {
+        name: 'SparkPayback',
+        deploy: false,
+        address: '0x068875B4254aC431BE7B8a10C56D80324fA0d043',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.PAYBACK,
+        history: ['0x0000000000000000000000000000000000000000'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
+      SparkSetEMode: {
+        name: 'SparkSetEMode',
+        deploy: false,
+        address: '0x79d428e563D946DaBe43C681f92c8D714F5157cE',
+        serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.SET_EMODE,
+        history: ['0x0000000000000000000000000000000000000000'],
+        constructorArgs: ['address:ServiceRegistry'],
+      },
     },
   },
   common: {
@@ -607,8 +647,8 @@ export const config: SystemConfig = {
   },
   aave: {
     v2: {
-      PriceOracle: {
-        name: 'PriceOracle',
+      Oracle: {
+        name: 'Oracle',
         address: '0xa50ba011c48153de246e5192c8f9258a2ba79ca9',
       },
       LendingPool: {
@@ -616,8 +656,8 @@ export const config: SystemConfig = {
         address: '0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v2.LENDING_POOL,
       },
-      ProtocolDataProvider: {
-        name: 'ProtocolDataProvider',
+      PoolDataProvider: {
+        name: 'PoolDataProvider',
         address: '0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d',
       },
       WETHGateway: {
@@ -627,23 +667,38 @@ export const config: SystemConfig = {
       },
     },
     v3: {
-      AaveOracle: {
-        name: 'AaveOracle',
+      Oracle: {
+        name: 'Oracle',
         address: '0x54586bE62E3c3580375aE3723C145253060Ca0C2',
       },
-      Pool: {
-        name: 'Pool',
+      LendingPool: {
+        name: 'LendingPool',
         address: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
       },
-      AavePoolDataProvider: {
-        name: 'AavePoolDataProvider',
+      PoolDataProvider: {
+        name: 'PoolDataProvider',
         address: '0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3',
       },
       L2Encoder: {
         name: 'L2Encoder',
         address: '0x0000000000000000000000000000000000000000',
       },
+    },
+  },
+  spark: {
+    Oracle: {
+      name: 'Oracle',
+      address: '0x8105f69D9C41644c6A0803fDA7D03Aa70996cFD9',
+    },
+    LendingPool: {
+      name: 'LendingPool',
+      address: '0xC13e21B648A5Ee794902342038FF3aDAB66BE987',
+      serviceRegistryName: SERVICE_REGISTRY_NAMES.spark.LENDING_POOL,
+    },
+    PoolDataProvider: {
+      name: 'PoolDataProvider',
+      address: '0xFc21d6d146E6086B8359705C8b28512a983db0cb',
     },
   },
   maker: {
@@ -1113,7 +1168,7 @@ export const config: SystemConfig = {
     },
     AjnaProxyActions: {
       name: 'AjnaProxyActions',
-      address: '0x0170be49C3483F98E456393E1f4de46072dFaA04',
+      address: '0xFBcB0bf3A7BcD1a368e8e8Ad2Ab601160088b39C',
     },
     AjnaPoolPairs_ETHDAI: {
       name: 'AjnaPoolPairs_ETHDAI',
