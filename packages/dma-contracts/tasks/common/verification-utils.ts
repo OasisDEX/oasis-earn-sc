@@ -1,5 +1,4 @@
-import { ADDRESS_ZERO } from '@deploy-configurations/constants'
-import { loadContractNames } from '@deploy-configurations/constants'
+import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constants'
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import {
   OperationsRegistry,
