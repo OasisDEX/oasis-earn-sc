@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.options.json",
+  "compilerOptions": {
+    "paths": {
+      "@typechain/*": ["./typechain/*"]
+    },
+    "typeRoots": ["../../node_modules/@types"]
+  },
+  "include": ["./bootstrap-env.ts", "./hardhat.config.ts"]
+}

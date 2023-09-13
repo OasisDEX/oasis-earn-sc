@@ -8,7 +8,7 @@ async function main() {
     {
       type: 'input',
       name: 'taskName',
-      message: "What's task called that you'd like you want to run?",
+      message: 'What task name would you like to run?',
     },
     {
       type: 'input',
@@ -20,7 +20,7 @@ async function main() {
       type: 'input',
       name: 'taskFileName',
       message:
-        "What's task file name (or directory name) you want to run? Just the filename, not the path.",
+        "What task's file name (or directory name) you want to run? Just the filename, not the path.",
     },
   ]
 
