@@ -9,6 +9,8 @@ export function loadContractNames(network: Network) {
     loadedConfig = require('./contract-names.optimism')
   } else if (network === Network.ARBITRUM) {
     loadedConfig = require('./contract-names.arbitrum')
+  } else if (network === Network.BASE) {
+    loadedConfig = require('./contract-names.base')
   } else if (network === Network.GOERLI) {
     loadedConfig = require('./contract-names.arbitrum')
   } else {

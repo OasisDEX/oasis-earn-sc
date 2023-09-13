@@ -51,8 +51,8 @@ tdly.setup()
 
 const networkFork = process.env.NETWORK_FORK as Network | undefined
 
-if (!networkFork || !(networkFork == Network.MAINNET || networkFork == Network.OPTIMISM || networkFork == Network.ARBITRUM)) {
-  throw new Error(`NETWORK_FORK Missing. Specify ${Network.MAINNET}, ${Network.OPTIMISM} or ${Network.ARBITRUM}`)
+if (!networkFork || !(networkFork == Network.MAINNET || networkFork == Network.OPTIMISM || networkFork == Network.ARBITRUM || networkFork == Network.BASE)) {
+  throw new Error(`NETWORK_FORK Missing. Specify ${Network.MAINNET}, ${Network.OPTIMISM}, ${Network.ARBITRUM} or ${Network.BASE}`)
 }
 
 let forkConfig: { nodeURL: string; blockNumber: string } | undefined = undefined
@@ -111,6 +111,24 @@ if (networkFork == Network.ARBITRUM) {
   }
 }
 
+if (networkFork == Network.BASE) {
+  const nodeURL = process.env.BASE_URL
+
+  if (!nodeURL) {
+    throw new Error(`You must provide BASE_URL value in the .env file`)
+  }
+
+  const blockNumber = process.env.BASE_BLOCK_NUMBER
+
+  if (!blockNumber) {
+    throw new Error(`You must provide a BASE_BLOCK_NUMBER value in the .env file.`)
+  }
+  forkConfig = {
+    nodeURL,
+    blockNumber,
+  }
+}
+
 if (forkConfig && !/^\d+$/.test(forkConfig.blockNumber)) {
   throw new Error(`Provide a valid block number. Provided value is ${forkConfig.blockNumber}`)
 }
@@ -125,6 +143,7 @@ const includeMainnet = !!process.env.MAINNET_URL && !!process.env.PRIV_KEY_MAINN
 const includeGoerli = !!process.env.GOERLI_URL && !!process.env.PRIV_KEY_GOERLI
 const includeOptimism = !!process.env.OPTIMISM_URL && !!process.env.PRIV_KEY_OPTIMISM
 const includeArbitrum = !!process.env.ARBITRUM_URL && !!process.env.PRIV_KEY_ARBITRUM
+const includeBase = !!process.env.BASE_URL && !!process.env.PRIV_KEY_BASE
 
 const config = {
   solidity: {
@@ -308,6 +327,14 @@ const config = {
             url: process.env.ARBITRUM_URL || '',
             accounts: [process.env.PRIV_KEY_ARBITRUM || ''],
             initialBaseFeePerGas: 1000000000,
+          },
+        }
+      : {}),
+    ...(includeBase
+      ? {
+          base: {
+            url: process.env.BASE_URL || '',
+            accounts: [process.env.PRIV_KEY_BASE || ''],
           },
         }
       : {}),
