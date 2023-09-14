@@ -1,6 +1,8 @@
+import { FlashloanProvider } from '@dma-library/types'
 import * as Strategies from '@dma-library/types/strategies'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 import { WithFlashloanToken } from '@dma-library/types/strategy-params'
+import { BigNumber } from 'bignumber.js'
 
 export type AaveLikeCloseArgs = StrategyParams.WithAaveLikeMultiplyStrategyArgs &
   StrategyParams.WithCloseToCollateralFlag
@@ -11,6 +13,16 @@ export type AaveLikeExpandedCloseArgs = AaveLikeCloseArgs &
     debtToken: AaveLikeCloseArgs['debtToken'] & { address: string }
     flashloanToken: WithFlashloanToken['flashloanToken'] & { address: string }
   }
+
+export type CloseFlashloanArgs = {
+  token: {
+    amount: BigNumber
+    precision: number
+    symbol: string
+    address: string
+  }
+  provider: FlashloanProvider
+}
 
 export type AaveLikeCloseDependencies = StrategyParams.WithAaveLikeMultiplyStrategyDependencies &
   StrategyParams.WithGetSwap &

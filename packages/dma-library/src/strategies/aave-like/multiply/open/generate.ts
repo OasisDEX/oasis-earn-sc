@@ -5,7 +5,7 @@ import { IOperation, SwapData } from '@dma-library/types'
 import { IBaseSimulatedTransition } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { AaveLikeOpenArgs, AaveLikeOpenDependencies } from './types'
+import { AaveLikeOpenArgs, AaveLikeOpenDependencies, IOpenStrategy } from './types'
 
 type GenerateTransitionArgs = {
   swapData: SwapData
@@ -25,7 +25,7 @@ export async function generate({
   fee,
   simulatedPositionTransition,
   args,
-}: GenerateTransitionArgs) {
+}: GenerateTransitionArgs): Promise<IOpenStrategy> {
   const fromTokenAmountNormalised = amountFromWei(
     swapData.fromTokenAmount,
     args.debtToken.precision,
@@ -72,6 +72,9 @@ export async function generate({
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
         expectedMarketPriceWithSlippage,
       ),
+    },
+    flashloan: {
+      ...simulatedPositionTransition.flashloan,
     },
   }
 }

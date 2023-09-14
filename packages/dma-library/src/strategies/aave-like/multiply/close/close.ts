@@ -41,13 +41,21 @@ export const close: AaveLikeClose = async (args, dependencies) => {
 
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(expandedArgs, dependencies)
 
-  const operation = await buildOperation(
+  const { operation, flashloan } = await buildOperation(
     { ...swapData, collectFeeFrom, preSwapFee },
     expandedArgs,
     dependencies,
   )
 
-  return generate(swapData, collectFeeFrom, preSwapFee, operation, expandedArgs, dependencies)
+  return generate(
+    swapData,
+    collectFeeFrom,
+    preSwapFee,
+    operation,
+    expandedArgs,
+    flashloan,
+    dependencies,
+  )
 }
 
 async function getAaveSwapDataToCloseToCollateral(

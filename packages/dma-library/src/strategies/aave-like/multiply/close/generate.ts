@@ -6,7 +6,7 @@ import { feeResolver } from '@dma-library/utils/swap'
 import { Position } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { AaveLikeCloseDependencies, AaveLikeExpandedCloseArgs } from './types'
+import { AaveLikeCloseDependencies, AaveLikeExpandedCloseArgs, CloseFlashloanArgs } from './types'
 
 export async function generate(
   swapData: SwapData,
@@ -14,6 +14,7 @@ export async function generate(
   preSwapFee: BigNumber,
   operation: IOperation,
   args: AaveLikeExpandedCloseArgs,
+  flashloanArgs: CloseFlashloanArgs,
   dependencies: AaveLikeCloseDependencies,
 ) {
   const currentPosition = dependencies.currentPosition
@@ -72,7 +73,7 @@ export async function generate(
       delta: {
         debt: currentPosition.debt.amount.negated(),
         collateral: currentPosition.collateral.amount.negated(),
-        flashloanAmount: ZERO,
+        flashloanAmount: simulatedPositionTransition.delta.flashloanAmount,
       },
       flags: flags,
       swap: {
@@ -94,6 +95,9 @@ export async function generate(
       minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
         expectedMarketPriceWithSlippage,
       ),
+    },
+    flashloan: {
+      ...flashloanArgs,
     },
   }
 }

@@ -66,5 +66,9 @@ export async function generate({
         expectedMarketPriceWithSlippage,
       ),
     },
+    flashloan: {
+      amount: simulation.delta.flashloanAmount,
+      token: simulation.flashloan.token,
+    },
   }
 }

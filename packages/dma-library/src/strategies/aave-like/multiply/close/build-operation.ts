@@ -10,7 +10,7 @@ import * as Domain from '@domain'
 import { FLASHLOAN_SAFETY_MARGIN } from '@domain/constants'
 import BigNumber from 'bignumber.js'
 
-import { AaveLikeCloseDependencies, AaveLikeExpandedCloseArgs } from './types'
+import { AaveLikeCloseDependencies, AaveLikeExpandedCloseArgs, CloseFlashloanArgs } from './types'
 
 export async function buildOperation(
   swapData: SwapData & {
@@ -19,7 +19,7 @@ export async function buildOperation(
   },
   args: AaveLikeExpandedCloseArgs,
   dependencies: AaveLikeCloseDependencies,
-): Promise<IOperation> {
+): Promise<{ operation: IOperation; flashloan: CloseFlashloanArgs } > {
   const {
     collateralToken: { address: collateralTokenAddress },
     debtToken: { address: debtTokenAddress },
@@ -35,6 +35,21 @@ export async function buildOperation(
   const aaveLikeMultiplyOperations = resolveAaveLikeMultiplyOperations(
     dependencies.protocolType,
     positionType,
+  )
+
+  const flashloanParams: CloseFlashloanArgs = await buildCloseFlashloan(
+    {
+      ...args,
+      debtToken: {
+        ...args.debtToken,
+        address: debtTokenAddress,
+      },
+      collateralToken: {
+        ...args.collateralToken,
+        address: collateralTokenAddress,
+      },
+    },
+    dependencies,
   )
 
   const closeArgs = {
@@ -53,20 +68,10 @@ export async function buildOperation(
       collectFeeFrom,
       receiveAtLeast: swapData.minToTokenAmount,
     },
-    flashloan: await buildCloseFlashloan(
-      {
-        ...args,
-        debtToken: {
-          ...args.debtToken,
-          address: debtTokenAddress,
-        },
-        collateralToken: {
-          ...args.collateralToken,
-          address: collateralTokenAddress,
-        },
-      },
-      dependencies,
-    ),
+    flashloan: {
+      ...flashloanParams,
+      amount: flashloanParams.token.amount,
+    },
     position: {
       type: dependencies.positionType,
       collateral: { amount: collateralAmountToBeSwapped },
@@ -80,7 +85,7 @@ export async function buildOperation(
     network: dependencies.network,
   }
 
-  return aaveLikeMultiplyOperations.close(closeArgs)
+  return { operation: aaveLikeMultiplyOperations.close(closeArgs), flashloan: flashloanParams }
 }
 
 export async function buildCloseFlashloan(
@@ -89,7 +94,7 @@ export async function buildCloseFlashloan(
     collateralToken: { address: string }
   },
   dependencies: AaveLikeCloseDependencies,
-) {
+): Promise<CloseFlashloanArgs> {
   const lendingProtocol = dependencies.protocolType
   const flashloanProvider = resolveFlashloanProvider(
     await getForkedNetwork(dependencies.provider),
@@ -142,6 +147,7 @@ export async function buildCloseFlashloan(
   return {
     token: {
       amount: amountToFlashloanInWei,
+      precision: args.flashloanToken.precision,
       address: args.flashloanToken.address,
     },
     amount: amountToFlashloanInWei,
