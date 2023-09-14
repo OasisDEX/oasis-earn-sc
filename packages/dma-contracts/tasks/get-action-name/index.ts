@@ -6,16 +6,24 @@ import { ActionsDatabase } from '../common'
 task('get-action-name', 'Resolves the action name for a hash')
   .addParam('hash', 'Hash of the action to resolve')
   .setAction(async (params: any, hre) => {
-    const { name: network } = hre.network
+    const { name: hreNetwork } = hre.network
+
+    const network = hreNetwork === 'hardhat' ? Network.MAINNET : (hreNetwork as Network)
+
+    console.log(`========================================`)
+    console.log(`Network: ${network}`)
+    console.log(`========================================\n`)
 
     const actionsDatabase: ActionsDatabase = new ActionsDatabase(network as Network)
 
     const actionName = actionsDatabase.getActionName(params.hash)
 
     if (!actionName) {
-      console.log(`-> No action found for hash ${params.hash}`)
+      console.log(`ERROR: No action found for hash ${params.hash}`)
       return
     }
 
-    console.log(`-> Action name for hash ${params.hash} is ${actionName}`)
+    console.log(`Hash: ${params.hash}`)
+    console.log(`Name: ${actionName}`)
+    console.log(`\n========================================\n`)
   })
