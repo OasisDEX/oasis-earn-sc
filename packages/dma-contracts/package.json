@@ -21,7 +21,8 @@
     "test:unit": "yarn clean && npx hardhat test --grep Unit",
     "deploy:tenderly": "npx hardhat run ./scripts/deployment/deploy-with-ajna.ts --network tenderly",
     "deployment:verify": "npx hardhat verify-deployment",
-    "operations:verify": "npx hardhat verify-operations"
+    "operations:verify": "npx hardhat verify-operations",
+    "action:get-name": "npx hardhat get-action-name"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.3",
