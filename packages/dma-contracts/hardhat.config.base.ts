@@ -32,7 +32,7 @@ if (
   )
 }
 
-let forkConfig: { nodeURL: string; blockNumber: string } | undefined = undefined
+let forkConfig: { nodeURL: string; blockNumber: string; chainID: number } | undefined = undefined
 
 if (networkFork == Network.MAINNET) {
   const nodeURL = process.env.MAINNET_URL
@@ -49,6 +49,7 @@ if (networkFork == Network.MAINNET) {
   forkConfig = {
     nodeURL,
     blockNumber,
+    chainID: 1,
   }
 }
 
@@ -67,6 +68,7 @@ if (networkFork == Network.OPTIMISM) {
   forkConfig = {
     nodeURL,
     blockNumber,
+    chainID: 10,
   }
 }
 
@@ -85,6 +87,7 @@ if (networkFork == Network.ARBITRUM) {
   forkConfig = {
     nodeURL,
     blockNumber,
+    chainID: 42161,
   }
 }
 
@@ -94,6 +97,7 @@ if (forkConfig && !/^\d+$/.test(forkConfig.blockNumber)) {
 
 console.log(`Forking on ${networkFork}`)
 console.log(`Forking from block number: ${forkConfig && forkConfig.blockNumber}`)
+console.log(`Forking with ChainID ${forkConfig && forkConfig.chainID}`)
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -242,7 +246,7 @@ const config = {
           balance: '10000000000000000000000000',
         },
       ],
-      chainId: ChainIdByNetwork[Network.LOCAL],
+      chainId: forkConfig ? forkConfig.chainID : ChainIdByNetwork[Network.LOCAL],
       mining: {
         auto: true,
         interval: 2000,
