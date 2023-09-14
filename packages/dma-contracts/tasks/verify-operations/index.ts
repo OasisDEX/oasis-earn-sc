@@ -5,7 +5,6 @@ import { OperationsRegistry, ServiceRegistry } from '@typechain/index'
 import { color } from 'console-log-colors'
 import { task } from 'hardhat/config'
 const { red, yellow, green } = color
-import * as OperationGetters from '@deploy-configurations/operation-definitions'
 
 import {
   ActionDefinition,
@@ -14,8 +13,8 @@ import {
   getOperationRegistry,
   getServiceRegistry,
   isInvalidAddress,
-  OperationDefinition,
-  OperationDefinitionGetter,
+  OperationDefinitionMaybe,
+  OperationsDatabase,
   VerificationResult,
 } from '../common'
 
@@ -69,7 +68,7 @@ async function validateDeployedActions(
 
     if (isInvalidAddress(actionAddress)) {
       const actionName = actionsDatabase.getActionName(actionDefinitions[actionIndex].hash)
-      actionsNotDeployed.push(actionName)
+      actionsNotDeployed.push(actionName ? actionName : actionDefinitions[actionIndex].hash)
       break
     }
   }
@@ -90,12 +89,20 @@ async function validateOperations(
   actionsDatabase: ActionsDatabase,
   serviceRegistry: ServiceRegistry,
   operationRegistry: OperationsRegistry,
-  operationDefinitions: OperationDefinition[],
+  operationsDatabase: OperationsDatabase,
 ): Promise<VerificationResult> {
   let totalValidated = 0
   let totalEntries = 0
 
-  for (const operationDefinition of operationDefinitions) {
+  const operationNames = operationsDatabase.getOperationNames()
+
+  for (const operationName of operationNames) {
+    const operationDefinition: OperationDefinitionMaybe =
+      operationsDatabase.getDefinition(operationName)
+    if (!operationDefinition) {
+      continue
+    }
+
     totalEntries++
 
     let operationHashes: string[]
@@ -210,15 +217,13 @@ task('verify-operations', 'List the available operations for the current network
       return
     }
 
-    const operationDefinitions: OperationDefinition[] = Object.keys(OperationGetters).map(key =>
-      (OperationGetters as unknown as OperationDefinitionGetter[])[key](network),
-    )
+    const operationsDatabase: OperationsDatabase = new OperationsDatabase(network as Network)
 
     const verificationResult: VerificationResult = await validateOperations(
       actionsDatabase,
       serviceRegistry,
       operationRegistry,
-      operationDefinitions,
+      operationsDatabase,
     )
 
     if (verificationResult.success) {

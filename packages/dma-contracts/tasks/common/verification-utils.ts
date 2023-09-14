@@ -18,13 +18,6 @@ export type ActionDefinition = {
   optional: boolean
 }
 
-export type OperationDefinition = {
-  name: string
-  actions: ActionDefinition[]
-}
-
-export type OperationDefinitionGetter = (string) => OperationDefinition
-
 export type ActionValidationResult = {
   success: boolean
   errorMessage?: string

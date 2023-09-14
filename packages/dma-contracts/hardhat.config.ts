@@ -32,5 +32,6 @@ import './tasks/deploy-ajna'
 import './tasks/get-hashes'
 import './tasks/verify-deployment'
 import './tasks/verify-operations'
+import './tasks/generate-op-tuple'
 
 export { default } from './hardhat.config.base'
