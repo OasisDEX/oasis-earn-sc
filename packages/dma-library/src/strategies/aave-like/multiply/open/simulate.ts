@@ -9,7 +9,6 @@ import {
 import {
   applyEmodeCategory,
   buildFlashloanSimArgs,
-  resolveFlashloanTokenAddress,
 } from '@dma-library/strategies/aave-like/multiply/common'
 import {
   AaveLikeOpenArgs,

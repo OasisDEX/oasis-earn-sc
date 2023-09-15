@@ -148,13 +148,6 @@ export async function buildCloseFlashloan(
     .div(maxLoanToValueForFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
     .integerValue(BigNumber.ROUND_DOWN)
 
-  console.info(`AAVE CLOSE: baseCurrencyPerFlashLoan: ${baseCurrencyPerFlashLoan.toString()}`)
-  console.info(
-    `AAVE CLOSE: baseCurrencyPerCollateralToken: ${baseCurrencyPerCollateralToken.toString()}`,
-  )
-  console.info(`AAVE CLOSE: oracleFLtoCollateralToken: ${oracleFLtoCollateralToken.toString()}`)
-  console.info(`AAVE CLOSE: amountToFlashloanInWei: ${amountToFlashloanInWei.toString()}`)
-
   return {
     token: {
       amount: amountToFlashloanInWei,
