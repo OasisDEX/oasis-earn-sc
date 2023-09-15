@@ -33,5 +33,6 @@ import './tasks/get-hashes'
 import './tasks/verify-deployment'
 import './tasks/verify-operations'
 import './tasks/generate-op-tuple'
+import './tasks/get-action-name'
 
 export { default } from './hardhat.config.base'
