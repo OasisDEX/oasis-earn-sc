@@ -98,7 +98,7 @@ export const close: AaveV3CloseOperation = async ({
 
   const withdrawFlashLoan = actions.aave.v3.aaveV3Withdraw(network, {
     asset: flashloan.token.address,
-    amount: flashloan.token.amount,
+    amount: new BigNumber(MAX_UINT),
     to: addresses.operationExecutor,
   })
 
