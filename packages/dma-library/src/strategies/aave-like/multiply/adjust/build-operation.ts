@@ -153,6 +153,7 @@ export async function buildAdjustFlashloan(
     if (riskIsIncreasing) {
       return {
         token: {
+          symbol: args.debtToken.symbol,
           amount: Domain.debtToCollateralSwapFlashloan(fromSwapAmountBeforeFees),
           address: args.debtToken.address,
         },
@@ -162,6 +163,7 @@ export async function buildAdjustFlashloan(
     } else {
       return {
         token: {
+          symbol: args.debtToken.symbol,
           amount: Domain.collateralToDebtSwapFlashloan(receivedAmountAfterSwap),
           address: args.debtToken.address,
         },
