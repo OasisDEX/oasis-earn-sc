@@ -109,7 +109,7 @@ export async function simulate(
         oracleFLtoDebtToken: oracleFLtoDebtToken,
       },
       slippage: args.slippage,
-      flashloan: buildFlashloanSimArgs(
+      flashloan: await buildFlashloanSimArgs(
         flashloanTokenAddress,
         dependencies,
         reserveDataForFlashloan,

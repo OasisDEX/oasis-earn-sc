@@ -67,7 +67,7 @@ export async function generate({
       ),
     },
     flashloan: {
-      amount: simulation.delta.flashloanAmount,
+      amount: simulation.flashloan.amount,
       token: simulation.flashloan.token,
     },
   }

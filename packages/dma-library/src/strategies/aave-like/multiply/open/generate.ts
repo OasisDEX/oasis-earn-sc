@@ -24,20 +24,7 @@ export async function generate({
   collectFeeFrom,
   fee,
   simulatedPositionTransition,
-  args,
 }: GenerateTransitionArgs): Promise<IOpenStrategy> {
-  const fromTokenAmountNormalised = amountFromWei(
-    swapData.fromTokenAmount,
-    args.debtToken.precision,
-  )
-  const toTokenAmountNormalisedWithMaxSlippage = amountFromWei(
-    swapData.minToTokenAmount,
-    args.collateralToken.precision,
-  )
-  const expectedMarketPriceWithSlippage = fromTokenAmountNormalised.div(
-    toTokenAmountNormalisedWithMaxSlippage,
-  )
-
   const finalPosition = simulatedPositionTransition.position
 
   // When collecting fees from the target token (collateral here), we want to calculate the fee
@@ -59,7 +46,6 @@ export async function generate({
     },
     simulation: {
       delta: simulatedPositionTransition.delta,
-      flags: simulatedPositionTransition.flags,
       swap: {
         ...simulatedPositionTransition.swap,
         ...swapData,
@@ -69,9 +55,6 @@ export async function generate({
         ),
       },
       position: finalPosition,
-      minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
-        expectedMarketPriceWithSlippage,
-      ),
     },
     flashloan: {
       ...simulatedPositionTransition.flashloan,

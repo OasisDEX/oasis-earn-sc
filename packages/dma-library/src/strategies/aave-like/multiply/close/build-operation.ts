@@ -1,5 +1,5 @@
 import { getForkedNetwork } from '@deploy-configurations/utils/network'
-import { FEE_BASE, ONE } from '@dma-common/constants'
+import {FEE_BASE, ONE, TYPICAL_PRECISION} from '@dma-common/constants'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { resolveAaveLikeMultiplyOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
 import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
@@ -19,7 +19,7 @@ export async function buildOperation(
   },
   args: AaveLikeExpandedCloseArgs,
   dependencies: AaveLikeCloseDependencies,
-): Promise<{ operation: IOperation; flashloan: CloseFlashloanArgs } > {
+): Promise<{ operation: IOperation; flashloan: CloseFlashloanArgs }> {
   const {
     collateralToken: { address: collateralTokenAddress },
     debtToken: { address: debtTokenAddress },
@@ -85,7 +85,10 @@ export async function buildOperation(
     network: dependencies.network,
   }
 
-  return { operation: aaveLikeMultiplyOperations.close(closeArgs), flashloan: flashloanParams }
+  return {
+    operation: await aaveLikeMultiplyOperations.close(closeArgs),
+    flashloan: flashloanParams,
+  }
 }
 
 export async function buildCloseFlashloan(
@@ -110,11 +113,11 @@ export async function buildCloseFlashloan(
     return {
       token: {
         amount,
+        symbol: args.debtToken.symbol,
+        precision: args.debtToken.precision ?? TYPICAL_PRECISION,
         address: args.debtToken.address,
       },
-      // Always balancer on Ajna for now
       provider: FlashloanProvider.Balancer,
-      amount,
     }
   }
 
@@ -147,10 +150,10 @@ export async function buildCloseFlashloan(
   return {
     token: {
       amount: amountToFlashloanInWei,
+      symbol: args.flashloanToken.symbol,
       precision: args.flashloanToken.precision,
       address: args.flashloanToken.address,
     },
-    amount: amountToFlashloanInWei,
     provider: flashloanProvider,
   }
 }

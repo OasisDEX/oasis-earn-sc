@@ -1,5 +1,4 @@
 import { OperationNames } from '@deploy-configurations/constants'
-import { AAVETokens } from '@dma-library/types/aave/tokens'
 import { Delta, IPosition, IRiskRatio, Swap } from '@domain'
 import { BigNumber } from 'bignumber.js'
 
@@ -22,7 +21,7 @@ export type WithFlashloan = {
   flashloan: {
     amount: BigNumber
     token: {
-      symbol: AAVETokens
+      symbol: string
       precision: number
     }
   }

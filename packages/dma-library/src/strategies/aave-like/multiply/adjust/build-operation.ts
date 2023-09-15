@@ -172,21 +172,13 @@ export async function buildAdjustFlashloan(
     }
   }
 
-  /**
-   * A small adjustment to amount was made here to allow for existing code
-   * to work on L2 with USDC. But, the more complete implementation for Balancer is above.
-   * */
-  const flashloanTokenAddress = resolveFlashloanTokenAddress(args.debtToken.address, dependencies)
-
   return {
     token: {
-      amount:
-        flashloanTokenAddress === dependencies.addresses.tokens.DAI
-          ? simulation.delta.flashloanAmount.abs()
-          : simulation.delta.flashloanAmount.abs().div(10 ** 12),
-      address: flashloanTokenAddress,
+      amount: simulation.flashloan.amount,
+      symbol: simulation.flashloan.token.symbol,
+      address: dependencies.addresses.tokens[simulation.flashloan.token.symbol],
     },
-    amount: simulation.delta.flashloanAmount.abs(),
+    amount: simulation.flashloan.amount,
     provider: flashloanProvider,
   }
 }
