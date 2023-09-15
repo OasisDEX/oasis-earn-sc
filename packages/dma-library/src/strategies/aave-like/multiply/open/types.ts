@@ -3,7 +3,8 @@ import * as StrategyParams from '@dma-library/types/strategy-params'
 
 export type AaveLikeOpenArgs = StrategyParams.WithAaveLikeMultiplyStrategyArgs &
   StrategyParams.WithDeposit &
-  StrategyParams.WithMultiple
+  StrategyParams.WithMultiple &
+  Partial<StrategyParams.WithFlashLoanArgs>
 
 export type AaveLikeOpenDependencies = Omit<
   StrategyParams.WithAaveLikeMultiplyStrategyDependencies,

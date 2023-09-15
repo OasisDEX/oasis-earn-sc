@@ -1,5 +1,4 @@
 import { FEE_ESTIMATE_INFLATOR, ONE, ZERO } from '@dma-common/constants'
-import { amountFromWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { IOperation, SwapData } from '@dma-library/types'
 import { IBaseSimulatedTransition } from '@domain'

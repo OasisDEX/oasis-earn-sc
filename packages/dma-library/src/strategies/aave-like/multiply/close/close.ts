@@ -18,13 +18,23 @@ export const close: AaveLikeClose = async (args, dependencies) => {
 
   const collateralTokenAddress = getAaveTokenAddress(args.collateralToken, dependencies.addresses)
   const debtTokenAddress = getAaveTokenAddress(args.debtToken, dependencies.addresses)
-  const { flashloanToken } = getFlashloanToken(dependencies)
+  const flashloanArgs =
+    args.flashloan ??
+    getFlashloanToken({
+      ...dependencies,
+      protocol: dependencies.protocolType,
+      debt: {
+        symbol: args.debtToken.symbol,
+        address: debtTokenAddress,
+        precision: args.debtToken.precision ?? TYPICAL_PRECISION,
+      },
+    }).flashloan
 
   const protocolData = await resolveProtocolData(
     {
       collateralTokenAddress,
       debtTokenAddress,
-      flashloanTokenAddress: flashloanToken.address,
+      flashloanTokenAddress: flashloanArgs.token.address,
       addresses: dependencies.addresses,
       provider: dependencies.provider,
     },
@@ -36,7 +46,9 @@ export const close: AaveLikeClose = async (args, dependencies) => {
     collateralToken: { ...args.collateralToken, address: collateralTokenAddress },
     debtToken: { ...args.debtToken, address: debtTokenAddress },
     protocolData: protocolData,
-    flashloanToken: { ...flashloanToken, address: flashloanToken.address },
+    flashloan: {
+      token: flashloanArgs.token,
+    },
   }
 
   const { swapData, collectFeeFrom, preSwapFee } = await getSwapData(expandedArgs, dependencies)

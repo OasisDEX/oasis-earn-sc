@@ -1,5 +1,4 @@
 import { FEE_ESTIMATE_INFLATOR, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { amountFromWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { IOperation, SwapData } from '@dma-library/types'
 import { feeResolver } from '@dma-library/utils/swap'
@@ -46,24 +45,6 @@ export async function generate(
     currentPosition.category,
   )
 
-  const flags = { requiresFlashloan: true, isIncreasingRisk: false }
-
-  // We need to estimate the fee due when collecting from the target token
-  // We use the toTokenAmount given it's the most optimistic swap scenario
-  // Meaning it corresponds with the largest fee a user can expect to pay
-  // Thus, if the swap performs poorly the fee will be less than expected
-  const fromTokenAmountNormalised = amountFromWei(
-    swapData.fromTokenAmount,
-    args.collateralToken.precision,
-  )
-  const toTokenAmountNormalisedWithMaxSlippage = amountFromWei(
-    swapData.minToTokenAmount,
-    args.debtToken.precision,
-  )
-
-  const expectedMarketPriceWithSlippage = fromTokenAmountNormalised.div(
-    toTokenAmountNormalisedWithMaxSlippage,
-  )
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
 
   const postSwapFee =

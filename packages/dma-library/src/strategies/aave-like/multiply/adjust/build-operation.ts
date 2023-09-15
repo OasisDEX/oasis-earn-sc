@@ -4,7 +4,6 @@ import { AdjustRiskDownArgs } from '@dma-library/operations/aave/multiply/v3/adj
 import { AdjustRiskUpArgs } from '@dma-library/operations/aave/multiply/v3/adjust-risk-up'
 import { resolveAaveLikeMultiplyOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
-import { resolveFlashloanTokenAddress } from '@dma-library/strategies/aave-like/multiply/common'
 import { FlashloanProvider, IOperation, SwapData } from '@dma-library/types'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'

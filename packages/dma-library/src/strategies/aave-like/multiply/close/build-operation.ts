@@ -1,5 +1,5 @@
 import { getForkedNetwork } from '@deploy-configurations/utils/network'
-import {FEE_BASE, ONE, TYPICAL_PRECISION} from '@dma-common/constants'
+import { FEE_BASE, ONE, TYPICAL_PRECISION } from '@dma-common/constants'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { resolveAaveLikeMultiplyOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
 import { SAFETY_MARGIN } from '@dma-library/strategies/aave-like/multiply/close/constants'
@@ -135,6 +135,7 @@ export async function buildCloseFlashloan(
   }
   const baseCurrencyPerFlashLoan = new BigNumber(flashloanTokenPrice.toString())
   const baseCurrencyPerCollateralToken = new BigNumber(collateralTokenPrice.toString())
+
   // EG STETH/ETH divided by ETH/DAI = STETH/ETH times by DAI/ETH = STETH/DAI
   const oracleFLtoCollateralToken = baseCurrencyPerCollateralToken.div(baseCurrencyPerFlashLoan)
   const amountToFlashloanInWei = amountToWei(
@@ -142,17 +143,22 @@ export async function buildCloseFlashloan(
       dependencies.currentPosition.collateral.amount,
       dependencies.currentPosition.collateral.precision,
     ).times(oracleFLtoCollateralToken),
-    args.flashloanToken.precision,
+    args.flashloan.token.precision,
   )
     .div(maxLoanToValueForFL.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
     .integerValue(BigNumber.ROUND_DOWN)
 
+  console.info(`AAVE CLOSE: baseCurrencyPerFlashLoan: ${baseCurrencyPerFlashLoan.toString()}`)
+  console.info(
+    `AAVE CLOSE: baseCurrencyPerCollateralToken: ${baseCurrencyPerCollateralToken.toString()}`,
+  )
+  console.info(`AAVE CLOSE: oracleFLtoCollateralToken: ${oracleFLtoCollateralToken.toString()}`)
+  console.info(`AAVE CLOSE: amountToFlashloanInWei: ${amountToFlashloanInWei.toString()}`)
+
   return {
     token: {
       amount: amountToFlashloanInWei,
-      symbol: args.flashloanToken.symbol,
-      precision: args.flashloanToken.precision,
-      address: args.flashloanToken.address,
+      ...args.flashloan.token,
     },
     provider: flashloanProvider,
   }
