@@ -64,7 +64,7 @@ export const close: AaveV3CloseOperation = async ({
 
   const withdrawCollateralFromAAVE = actions.aave.v3.aaveV3Withdraw(network, {
     asset: collateral.address,
-    amount: new BigNumber(MAX_UINT),
+    amount: new BigNumber(collateralAmountToBeSwapped),
     to: proxy.address,
   })
 
