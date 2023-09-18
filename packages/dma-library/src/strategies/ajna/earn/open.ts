@@ -72,6 +72,7 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
     position.netValue,
     position.pnl,
     position.totalEarnings,
+    false,
   )
 
   return getAjnaEarnActionOutput({

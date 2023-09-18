@@ -1,3 +1,4 @@
+import poolAbi from '@abis/external/protocols/ajna/ajnaPoolERC20.json'
 import poolInfoAbi from '@abis/external/protocols/ajna/poolInfoUtils.json'
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
@@ -66,13 +67,12 @@ export async function getPosition(
   )
 }
 
-export type GetPosition = typeof getPosition
-
 export async function getEarnPosition(
   { proxyAddress, poolAddress, quotePrice, collateralPrice }: Args,
   { poolInfoAddress, provider, getEarnData, getPoolData }: EarnDependencies,
 ): Promise<AjnaEarnPosition> {
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
+  const poolContract = new ethers.Contract(poolAddress, poolAbi, provider)
 
   const [pool, earnData] = await Promise.all([getPoolData(poolAddress), getEarnData(proxyAddress)])
   const {
@@ -90,6 +90,20 @@ export async function getEarnPosition(
           .lpToQuoteTokens(poolAddress, lps.toString(), priceIndex?.toString())
           .then((quoteTokens: ethers.BigNumberish) => ethers.utils.formatUnits(quoteTokens, 18))
           .then((res: string) => new BigNumber(res))
+
+  const poolDebtInfo: BigNumber = await poolContract
+    .debtInfo()
+    .then(([, , debt]: ethers.BigNumberish[]) => ethers.utils.formatUnits(debt, 18))
+    .then((res: string) => new BigNumber(res))
+
+  const frozenIndex: BigNumber = poolDebtInfo.isZero()
+    ? undefined
+    : await poolContract
+        .depositIndex(poolDebtInfo.shiftedBy(18).toString())
+        .then((index: ethers.BigNumberish) => ethers.utils.formatUnits(index, 0))
+        .then((res: string) => new BigNumber(res))
+
+  const isBucketFrozen = !!(frozenIndex && priceIndex && frozenIndex.eq(priceIndex))
 
   const collateralTokenAmount: BigNumber = lps.isZero()
     ? ZERO
@@ -135,5 +149,6 @@ export async function getEarnPosition(
     netValue,
     pnl,
     totalEarnings,
+    isBucketFrozen,
   )
 }
