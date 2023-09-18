@@ -22,6 +22,7 @@
     "deploy:tenderly": "npx hardhat run ./scripts/deployment/deploy-with-ajna.ts --network tenderly",
     "deployment:verify": "npx hardhat verify-deployment",
     "operations:verify": "npx hardhat verify-operations",
+    "operations:gentuple": "npx hardhat gen-op-tuple",
     "actions:get-name": "npx hardhat get-action-name"
   },
   "dependencies": {
