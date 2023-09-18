@@ -28,8 +28,6 @@ export interface IAjnaEarn {
   fundsLockedUntil: number
   earlyWithdrawPenalty: BigNumber
 
-  stakedNftId: string | null
-
   deposit(amount: BigNumber): IAjnaEarn
   withdraw(amount: BigNumber): IAjnaEarn
   claimCollateral(): IAjnaEarn
@@ -40,7 +38,6 @@ export class AjnaEarnPosition implements IAjnaEarn {
   public earlyWithdrawPenalty: BigNumber = new BigNumber(23)
   public fundsLockedUntil: number
   public price: BigNumber
-  public stakedNftId: string | null = null
 
   constructor(
     public pool: AjnaPool,
@@ -48,10 +45,8 @@ export class AjnaEarnPosition implements IAjnaEarn {
     public quoteTokenAmount: BigNumber,
     public collateralTokenAmount: BigNumber,
     public priceIndex: BigNumber | null,
-    public nftId: string | null = null,
     public collateralPrice: BigNumber,
     public quotePrice: BigNumber,
-    public rewards: BigNumber,
     public netValue: BigNumber,
     public pnl: {
       withFees: BigNumber
@@ -61,7 +56,6 @@ export class AjnaEarnPosition implements IAjnaEarn {
   ) {
     this.fundsLockedUntil = Date.now() + 5 * 60 * 60 * 1000 // MOCK funds locked until 5h from now
     this.price = priceIndex ? priceIndexToPrice(priceIndex) : ZERO
-    this.stakedNftId = nftId
     this.collateralTokenAmount = collateralTokenAmount
   }
 
@@ -138,10 +132,8 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.quoteTokenAmount,
       this.collateralTokenAmount,
       newPriceIndex,
-      this.stakedNftId,
       this.collateralPrice,
       this.quotePrice,
-      this.rewards,
       this.netValue,
       this.pnl,
       this.totalEarnings,
@@ -155,10 +147,8 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.quoteTokenAmount.plus(quoteTokenAmount),
       this.collateralTokenAmount,
       this.priceIndex,
-      this.stakedNftId,
       this.collateralPrice,
       this.quotePrice,
-      this.rewards,
       this.netValue,
       this.pnl,
       this.totalEarnings,
@@ -172,10 +162,8 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.quoteTokenAmount.minus(quoteTokenAmount),
       this.collateralTokenAmount,
       this.priceIndex,
-      this.stakedNftId,
       this.collateralPrice,
       this.quotePrice,
-      this.rewards,
       this.netValue,
       this.pnl,
       this.totalEarnings,
@@ -189,10 +177,8 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.quoteTokenAmount,
       ZERO,
       this.priceIndex,
-      this.stakedNftId,
       this.collateralPrice,
       this.quotePrice,
-      this.rewards,
       this.netValue,
       this.pnl,
       this.totalEarnings,
@@ -206,10 +192,8 @@ export class AjnaEarnPosition implements IAjnaEarn {
       quoteTokenAmount,
       this.collateralTokenAmount,
       priceIndex,
-      this.stakedNftId,
       this.collateralPrice,
       this.quotePrice,
-      this.rewards,
       this.netValue,
       this.pnl,
       this.totalEarnings,
@@ -223,10 +207,8 @@ export class AjnaEarnPosition implements IAjnaEarn {
       ZERO,
       ZERO,
       null,
-      null,
       this.collateralPrice,
       this.quotePrice,
-      ZERO,
       this.netValue,
       this.pnl,
       this.totalEarnings,

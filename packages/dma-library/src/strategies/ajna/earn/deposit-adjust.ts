@@ -19,11 +19,8 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
   const action = 'deposit-earn'
   const isLendingEth =
     args.position.pool.quoteToken.toLowerCase() === dependencies.WETH.toLowerCase()
-  const isPositionStaked = args.position.stakedNftId !== null
   const isDepositing = args.quoteAmount.gt(ZERO)
   const isAdjusting = !args.price.eq(args.position.price) && args.position.price.gt(ZERO)
-  const isReopening = args.position.price.isZero()
-  const shouldStakeNft = args.isStakingNft
   const revertIfBelowLup = false // TODO revertIfBelowLup, hardcoded for now
 
   const ajnaProxyActions = new ethers.Contract(
@@ -50,44 +47,7 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
   let data = ''
   let targetPosition: AjnaEarnPosition | null = null
 
-  if (isPositionStaked && isDepositing && isAdjusting && !isReopening) {
-    // supplyAndMoveQuoteNft
-    data = ajnaProxyActions.interface.encodeFunctionData('supplyAndMoveQuoteNft', [
-      args.poolAddress,
-      ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-      indexToPrice.toString(),
-      args.price.shiftedBy(18).toString(),
-      args.position.stakedNftId,
-      revertIfBelowLup,
-    ])
-    targetPosition = args.position.moveQuote(priceToIndex).deposit(args.quoteAmount)
-  }
-
-  if (isPositionStaked && !isDepositing && isAdjusting && !isReopening) {
-    // moveQuoteNft
-    data = ajnaProxyActions.interface.encodeFunctionData('moveQuoteNft', [
-      args.poolAddress,
-      indexToPrice.toString(),
-      args.price.shiftedBy(18).toString(),
-      args.position.stakedNftId,
-      revertIfBelowLup,
-    ])
-    targetPosition = args.position.moveQuote(priceToIndex)
-  }
-
-  if (isPositionStaked && isDepositing && !isAdjusting && !isReopening) {
-    // supplyQuoteNft
-    data = ajnaProxyActions.interface.encodeFunctionData('supplyQuoteNft', [
-      args.poolAddress,
-      ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-      args.price.shiftedBy(18).toString(),
-      args.position.stakedNftId,
-      revertIfBelowLup,
-    ])
-    targetPosition = args.position.deposit(args.quoteAmount)
-  }
-
-  if (!isPositionStaked && isDepositing && isAdjusting && !isReopening) {
+  if (isDepositing && isAdjusting) {
     // supplyAndMoveQuote
     data = ajnaProxyActions.interface.encodeFunctionData('supplyAndMoveQuote', [
       args.poolAddress,
@@ -99,7 +59,7 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
     targetPosition = args.position.moveQuote(priceToIndex).deposit(args.quoteAmount)
   }
 
-  if (!isPositionStaked && !isDepositing && isAdjusting && !isReopening) {
+  if (!isDepositing && isAdjusting) {
     // moveQuote
     data = ajnaProxyActions.interface.encodeFunctionData('moveQuote', [
       args.poolAddress,
@@ -110,7 +70,7 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
     targetPosition = args.position.moveQuote(priceToIndex)
   }
 
-  if (!isPositionStaked && isDepositing && !isAdjusting && !isReopening) {
+  if (isDepositing && !isAdjusting) {
     // supplyQuote
     data = ajnaProxyActions.interface.encodeFunctionData('supplyQuote', [
       args.poolAddress,
@@ -119,20 +79,6 @@ export const depositAndAdjust: AjnaDepositAndAdjustStrategy = async (args, depen
       revertIfBelowLup,
     ])
     targetPosition = args.position.deposit(args.quoteAmount)
-  }
-
-  if (!isPositionStaked && isDepositing && isReopening) {
-    // reopen position
-    data = ajnaProxyActions.interface.encodeFunctionData(
-      shouldStakeNft ? 'supplyQuoteMintNftAndStake' : 'supplyQuote',
-      [
-        args.poolAddress,
-        ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-        args.price.shiftedBy(18).toString(),
-        revertIfBelowLup,
-      ],
-    )
-    targetPosition = args.position.reopen(args.quoteAmount, priceToIndex)
   }
 
   if (!data || !targetPosition) throw new Error('Invalid depositAndAdjust params')

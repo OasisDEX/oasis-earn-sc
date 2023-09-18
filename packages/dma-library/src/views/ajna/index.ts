@@ -1,5 +1,4 @@
 import poolInfoAbi from '@abis/external/protocols/ajna/poolInfoUtils.json'
-import rewardsManagerAbi from '@abis/external/protocols/ajna/rewardsManager.json'
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { AjnaEarnPosition, AjnaPosition } from '@dma-library/types/ajna'
@@ -17,7 +16,6 @@ interface Args {
 interface EarnData {
   lps: BigNumber
   priceIndex: BigNumber | null
-  nftID: string | null
   earnCumulativeFeesInQuoteToken: BigNumber
   earnCumulativeQuoteTokenDeposit: BigNumber
   earnCumulativeQuoteTokenWithdraw: BigNumber
@@ -39,7 +37,6 @@ interface Dependencies {
 
 interface EarnDependencies {
   poolInfoAddress: Address
-  rewardsManagerAddress: Address
   provider: ethers.providers.Provider
   getEarnData: GetEarnData
   getPoolData: GetPoolData
@@ -73,15 +70,13 @@ export type GetPosition = typeof getPosition
 
 export async function getEarnPosition(
   { proxyAddress, poolAddress, quotePrice, collateralPrice }: Args,
-  { poolInfoAddress, rewardsManagerAddress, provider, getEarnData, getPoolData }: EarnDependencies,
+  { poolInfoAddress, provider, getEarnData, getPoolData }: EarnDependencies,
 ): Promise<AjnaEarnPosition> {
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
-  const rewardsManager = new ethers.Contract(rewardsManagerAddress, rewardsManagerAbi, provider)
 
   const [pool, earnData] = await Promise.all([getPoolData(poolAddress), getEarnData(proxyAddress)])
   const {
     lps,
-    nftID,
     priceIndex,
     earnCumulativeFeesInQuoteToken,
     earnCumulativeQuoteTokenDeposit,
@@ -104,13 +99,6 @@ export async function getEarnPosition(
           ethers.utils.formatUnits(collateralTokens, 18),
         )
         .then((res: string) => new BigNumber(res))
-
-  const rewards: BigNumber = nftID
-    ? await rewardsManager
-        .calculateRewards(nftID, pool.currentBurnEpoch.toString())
-        .then((reward: ethers.BigNumberish) => ethers.utils.formatUnits(reward, 18))
-        .then((res: ethers.BigNumberish) => new BigNumber(res.toString()))
-    : ZERO
 
   const netValue = quoteTokenAmount.times(quotePrice)
 
@@ -142,10 +130,8 @@ export async function getEarnPosition(
     quoteTokenAmount,
     collateralTokenAmount,
     earnData.priceIndex,
-    earnData.nftID,
     collateralPrice,
     quotePrice,
-    rewards,
     netValue,
     pnl,
     totalEarnings,
