@@ -53,6 +53,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       withoutFees: BigNumber
     },
     public totalEarnings: { withFees: BigNumber; withoutFees: BigNumber },
+    public isBucketFrozen: boolean,
   ) {
     this.fundsLockedUntil = Date.now() + 5 * 60 * 60 * 1000 // MOCK funds locked until 5h from now
     this.price = priceIndex ? priceIndexToPrice(priceIndex) : ZERO
@@ -137,6 +138,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.netValue,
       this.pnl,
       this.totalEarnings,
+      this.isBucketFrozen,
     )
   }
 
@@ -152,6 +154,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.netValue,
       this.pnl,
       this.totalEarnings,
+      this.isBucketFrozen,
     )
   }
 
@@ -167,6 +170,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.netValue,
       this.pnl,
       this.totalEarnings,
+      this.isBucketFrozen,
     )
   }
 
@@ -182,6 +186,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.netValue,
       this.pnl,
       this.totalEarnings,
+      this.isBucketFrozen,
     )
   }
 
@@ -197,6 +202,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.netValue,
       this.pnl,
       this.totalEarnings,
+      this.isBucketFrozen,
     )
   }
 
@@ -212,6 +218,7 @@ export class AjnaEarnPosition implements IAjnaEarn {
       this.netValue,
       this.pnl,
       this.totalEarnings,
+      this.isBucketFrozen,
     )
   }
 }
