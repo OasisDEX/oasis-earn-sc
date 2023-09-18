@@ -119,7 +119,7 @@ export async function simulate(
         oracleFLtoDebtToken: oracleFLtoDebtToken,
       },
       slippage: args.slippage,
-      flashloan: await buildFlashloanSimArgs(flashloan, dependencies, reserveDataForFlashloan),
+      flashloan: buildFlashloanSimArgs(flashloan, dependencies, reserveDataForFlashloan),
       depositedByUser: {
         debtInWei: depositDebtAmountInWei,
         collateralInWei: depositCollateralAmountInWei,
