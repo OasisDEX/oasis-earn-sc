@@ -56,7 +56,15 @@ export interface IBasePosition {
 }
 
 export type Delta = { debt: BigNumber; collateral: BigNumber }
-export type WithFlashloanDelta = { flashloanAmount: BigNumber }
+export type WithFlashloan = {
+  flashloan: {
+    amount: BigNumber
+    token: {
+      symbol: string
+      precision: number
+    }
+  }
+}
 
 export type Swap = {
   fromTokenAmount: BigNumber
@@ -69,9 +77,10 @@ export type Swap = {
 
 export type IBaseSimulatedTransition = {
   position: IPosition
-  delta: Delta & WithFlashloanDelta
+  delta: Delta
   swap: Swap
-} & WithFlags
+} & WithFlags &
+  WithFlashloan
 
 // TODO: consider multi-collateral positions
 
@@ -84,7 +93,10 @@ export interface IPositionTransitionParams {
   flashloan?: {
     /* Max Loan-to-Value when translating Flashloaned DAI into Debt tokens (EG ETH) */
     maxLoanToValueFL?: BigNumber
-    tokenSymbol: string
+    token: {
+      symbol: string
+      precision: number
+    }
   }
   fees: {
     oazo: BigNumber
@@ -287,9 +299,6 @@ export class Position implements IPosition {
     const currentCollateral = this.collateral.amount.plus(mappedParams.toDeposit.collateral)
     const currentDebt = this.debt.amount.minus(mappedParams.toDeposit.debt)
 
-    // Assumes we're using DAI as FL token for now
-    const daiFlashloanPrecision = TYPICAL_PRECISION
-
     /**
      * TODO: refactor
      * Only relevant for FMM flashloans
@@ -300,11 +309,18 @@ export class Position implements IPosition {
           mappedParams.fees.flashLoan,
           mappedParams.prices.oracleFLtoDebtToken || ONE,
           simulatedAdjust.delta.debt.minus(mappedParams.depositedByUser?.debtInWei || ZERO),
-          daiFlashloanPrecision,
+          mappedParams.flashloan.token.precision,
           this.debt.precision,
           mappedParams.flashloan.maxLoanToValueFL,
         )
       : ZERO
+
+    const flashloanToken = mappedParams.flashloan
+      ? mappedParams.flashloan.token
+      : {
+          symbol: '',
+          precision: 0,
+        }
 
     return {
       ...simulatedAdjust,
@@ -317,12 +333,15 @@ export class Position implements IPosition {
       ),
       delta: {
         ...simulatedAdjust.delta,
-        flashloanAmount,
       },
       flags: {
         // TODO: Flashloan is always required on adjust (multiply) currently
         requiresFlashloan: true,
         isIncreasingRisk: isRiskIncreasing(targetRiskRatio.loanToValue, this.riskRatio.loanToValue),
+      },
+      flashloan: {
+        amount: flashloanAmount,
+        token: flashloanToken,
       },
     }
   }

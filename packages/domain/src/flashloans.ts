@@ -39,6 +39,7 @@ export const transientCollateralFlashloan: TransientCollateralFlashloan = (
   )
     .times(oraclePrice)
     .div(maxLoanToValueWhenCollateralising.times(ONE.minus(FLASHLOAN_SAFETY_MARGIN)))
+    .abs()
     .integerValue(BigNumber.ROUND_DOWN)
 
   return flashloan

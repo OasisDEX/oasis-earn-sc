@@ -66,5 +66,9 @@ export async function generate({
         expectedMarketPriceWithSlippage,
       ),
     },
+    flashloan: {
+      amount: simulation.flashloan.amount,
+      token: simulation.flashloan.token,
+    },
   }
 }

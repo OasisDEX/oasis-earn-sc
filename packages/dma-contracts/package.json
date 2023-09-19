@@ -10,7 +10,7 @@
     "dev:mainnet": "yarn ts-node scripts/update-block-number.ts && yarn hardhat node --max-memory 8192 --fork $(grep MAINNET_URL ../../.env | cut -d '=' -f2)",
     "dev:optimism": "yarn ts-node scripts/update-block-number.ts && yarn hardhat node --max-memory 8192 --fork $(grep OPTIMISM_URL ../../.env | cut -d '=' -f2)",
     "deploy:dev": "yarn compile && yarn hardhat deploy --network local",
-    "compile": "npx hardhat compile",
+    "compile": "npx hardhat --config hardhat.config.base.ts compile",
     "clean": "rm -rf ./typechain && rm -rf ./artifacts && rm -rf ./cache",
     "format": "prettier --write contracts/**/*.sol tasks/**/*.ts test/**/*.ts scripts/**/*.ts && yarn lint:fix",
     "format:check": "prettier --check contracts/**/*.sol tasks/**/*.ts test/**/*.ts scripts/**/*.ts",
@@ -19,7 +19,11 @@
     "test": "yarn test:unit && yarn test:e2e",
     "test:e2e": "yarn clean && npx hardhat test --grep E2E",
     "test:unit": "yarn clean && npx hardhat test --grep Unit",
-    "deploy:tenderly": "npx hardhat run ./scripts/deployment/deploy-with-ajna.ts --network tenderly"
+    "deploy:tenderly": "npx hardhat run ./scripts/deployment/deploy-with-ajna.ts --network tenderly",
+    "deployment:verify": "npx hardhat verify-deployment",
+    "operations:verify": "npx hardhat verify-operations",
+    "operations:gentuple": "npx hardhat gen-op-tuple",
+    "actions:get-name": "npx hardhat get-action-name"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.3",
@@ -30,6 +34,7 @@
   ],
   "devDependencies": {
     "@tenderly/hardhat-tenderly": "^1.7.7",
+    "console-log-colors": "^0.4.0",
     "inquirer": "^8.0.0"
   }
 }

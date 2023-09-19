@@ -31,7 +31,6 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
       poolInfoAddress: dependencies.poolInfoAddress,
       provider: dependencies.provider,
       getPoolData: dependencies.getPoolData,
-      rewardsManagerAddress: dependencies.rewardsManagerAddress,
     },
   )
   const revertIfBelowLup = false // TODO revertIfBelowLup, hardcoded for now
@@ -55,15 +54,12 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
     .then((res: any) => res.toString())
     .then((res: string) => new BigNumber(res))
 
-  const data = ajnaProxyActions.interface.encodeFunctionData(
-    args.isStakingNft ? 'openEarnPositionNft' : 'openEarnPosition',
-    [
-      args.poolAddress,
-      ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
-      args.price.shiftedBy(18).toString(),
-      revertIfBelowLup,
-    ],
-  )
+  const data = ajnaProxyActions.interface.encodeFunctionData('openEarnPosition', [
+    args.poolAddress,
+    ethers.utils.parseUnits(args.quoteAmount.toString(), args.quoteTokenPrecision).toString(),
+    args.price.shiftedBy(18).toString(),
+    revertIfBelowLup,
+  ])
 
   const targetPosition = new AjnaEarnPosition(
     position.pool,
@@ -71,13 +67,12 @@ export const open: AjnaOpenEarnStrategy = async (args, dependencies) => {
     args.quoteAmount,
     ZERO,
     priceIndex,
-    position.nftId,
     args.collateralPrice,
     args.quotePrice,
-    position.rewards,
     position.netValue,
     position.pnl,
     position.totalEarnings,
+    false,
   )
 
   return getAjnaEarnActionOutput({

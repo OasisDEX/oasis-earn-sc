@@ -137,13 +137,11 @@ export async function buildOpenFlashloan(
    * */
   return {
     token: {
-      amount:
-        args.flashloanToken === dependencies.addresses.tokens.DAI
-          ? simulation.delta.flashloanAmount.abs()
-          : simulation.delta.flashloanAmount.abs().div(10 ** 12),
-      address: args.flashloanToken,
+      amount: simulation.flashloan.amount,
+      symbol: simulation.flashloan.token.symbol,
+      address: dependencies.addresses.tokens[simulation.flashloan.token.symbol],
     },
-    amount: simulation.delta.flashloanAmount.abs(),
+    amount: simulation.flashloan.amount,
     provider: flashloanProvider,
   }
 }

@@ -1,6 +1,6 @@
-import { ZERO } from '@dma-common/constants'
+import { TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
 import { amountFromWei } from '@dma-common/utils/common'
-import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
+import { getAaveTokenAddresses, getFlashloanToken } from '@dma-library/strategies/aave/common'
 import {
   assertTokenPrices,
   resolveCurrentPositionForProtocol,
@@ -9,7 +9,6 @@ import {
 import {
   applyEmodeCategory,
   buildFlashloanSimArgs,
-  resolveFlashloanTokenAddress,
 } from '@dma-library/strategies/aave-like/multiply/common'
 import {
   AaveLikeOpenArgs,
@@ -31,7 +30,18 @@ export async function simulate(
     dependencies.addresses,
   )
 
-  const flashloanTokenAddress = resolveFlashloanTokenAddress(debtTokenAddress, dependencies)
+  const flashloan =
+    args.flashloan ??
+    getFlashloanToken({
+      addresses: dependencies.addresses,
+      network: dependencies.network,
+      protocol: dependencies.protocolType,
+      debt: {
+        symbol: args.debtToken.symbol,
+        address: debtTokenAddress,
+        precision: args.debtToken.precision ?? TYPICAL_PRECISION,
+      },
+    }).flashloan
 
   /**
    * We've add current Position into all strategy dependencies
@@ -43,7 +53,7 @@ export async function simulate(
     {
       collateralTokenAddress,
       debtTokenAddress,
-      flashloanTokenAddress,
+      flashloanTokenAddress: flashloan.token.address,
       addresses: dependencies.addresses,
       provider: dependencies.provider,
     },
@@ -109,11 +119,7 @@ export async function simulate(
         oracleFLtoDebtToken: oracleFLtoDebtToken,
       },
       slippage: args.slippage,
-      flashloan: buildFlashloanSimArgs(
-        flashloanTokenAddress,
-        dependencies,
-        reserveDataForFlashloan,
-      ),
+      flashloan: buildFlashloanSimArgs(flashloan, dependencies, reserveDataForFlashloan),
       depositedByUser: {
         debtInWei: depositDebtAmountInWei,
         collateralInWei: depositCollateralAmountInWei,
@@ -126,6 +132,6 @@ export async function simulate(
   return {
     simulatedPositionTransition: simulation,
     reserveEModeCategory,
-    flashloanTokenAddress,
+    flashloanTokenAddress: flashloan.token.address,
   }
 }
