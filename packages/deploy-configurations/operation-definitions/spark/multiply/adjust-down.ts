@@ -45,6 +45,5 @@ export function getSparkAdjustDownOperationDefinition(network: Network) {
         optional: false,
       },
     ],
-    log: true,
   }
 }

@@ -139,8 +139,14 @@ export interface WithViewPositionDependencies<Addresses> {
   provider: providers.Provider
 }
 
-export type WithFlashloanToken = {
-  flashloanToken: { symbol: AaveLikeTokens; precision: number; address: string }
+export type WithFlashLoanArgs = {
+  flashloan: {
+    token: {
+      symbol: string
+      precision: number
+      address: string
+    }
+  }
 }
 export type WithCollateralTokenAddress = {
   collateralTokenAddress: string

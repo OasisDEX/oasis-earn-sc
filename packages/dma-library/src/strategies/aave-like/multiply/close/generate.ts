@@ -1,12 +1,16 @@
 import { FEE_ESTIMATE_INFLATOR, ONE, TYPICAL_PRECISION, ZERO } from '@dma-common/constants'
-import { amountFromWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { IOperation, SwapData } from '@dma-library/types'
 import { feeResolver } from '@dma-library/utils/swap'
 import { Position } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { AaveLikeCloseDependencies, AaveLikeExpandedCloseArgs } from './types'
+import {
+  AaveLikeCloseDependencies,
+  AaveLikeExpandedCloseArgs,
+  CloseFlashloanArgs,
+  ICloseStrategy,
+} from './types'
 
 export async function generate(
   swapData: SwapData,
@@ -14,8 +18,9 @@ export async function generate(
   preSwapFee: BigNumber,
   operation: IOperation,
   args: AaveLikeExpandedCloseArgs,
+  flashloanArgs: CloseFlashloanArgs,
   dependencies: AaveLikeCloseDependencies,
-) {
+): Promise<ICloseStrategy> {
   const currentPosition = dependencies.currentPosition
 
   const {
@@ -40,24 +45,6 @@ export async function generate(
     currentPosition.category,
   )
 
-  const flags = { requiresFlashloan: true, isIncreasingRisk: false }
-
-  // We need to estimate the fee due when collecting from the target token
-  // We use the toTokenAmount given it's the most optimistic swap scenario
-  // Meaning it corresponds with the largest fee a user can expect to pay
-  // Thus, if the swap performs poorly the fee will be less than expected
-  const fromTokenAmountNormalised = amountFromWei(
-    swapData.fromTokenAmount,
-    args.collateralToken.precision,
-  )
-  const toTokenAmountNormalisedWithMaxSlippage = amountFromWei(
-    swapData.minToTokenAmount,
-    args.debtToken.precision,
-  )
-
-  const expectedMarketPriceWithSlippage = fromTokenAmountNormalised.div(
-    toTokenAmountNormalisedWithMaxSlippage,
-  )
   const fee = feeResolver(args.collateralToken.symbol, args.debtToken.symbol)
 
   const postSwapFee =
@@ -72,9 +59,7 @@ export async function generate(
       delta: {
         debt: currentPosition.debt.amount.negated(),
         collateral: currentPosition.collateral.amount.negated(),
-        flashloanAmount: ZERO,
       },
-      flags: flags,
       swap: {
         ...swapData,
         tokenFee: preSwapFee.plus(
@@ -91,9 +76,13 @@ export async function generate(
         },
       },
       position: finalPosition,
-      minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
-        expectedMarketPriceWithSlippage,
-      ),
+    },
+    flashloan: {
+      amount: flashloanArgs.token.amount,
+      token: {
+        symbol: flashloanArgs.token.symbol,
+        precision: flashloanArgs.token.precision ?? TYPICAL_PRECISION,
+      },
     },
   }
 }

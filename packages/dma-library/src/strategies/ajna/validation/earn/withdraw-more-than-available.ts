@@ -7,9 +7,7 @@ export const validateWithdrawMoreThanAvailable = (
   quoteAmount: BigNumber,
   quoteTokenPrecision: number,
 ): AjnaError[] => {
-  if (
-    position.quoteTokenAmount.decimalPlaces(quoteTokenPrecision, BigNumber.ROUND_UP).lt(quoteAmount)
-  ) {
+  if (position.quoteTokenAmount.decimalPlaces(quoteTokenPrecision).lt(quoteAmount)) {
     return [
       {
         name: 'withdraw-more-than-available',

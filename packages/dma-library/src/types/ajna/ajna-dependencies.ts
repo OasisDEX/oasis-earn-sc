@@ -32,7 +32,6 @@ export type AjnaCommonDMADependencies = Omit<AjnaCommonDependencies, 'ajnaProxyA
 
 export interface AjnaOpenEarnDependencies extends AjnaCommonDependencies {
   getEarnData: GetEarnData
-  rewardsManagerAddress: Address
 }
 
 export interface AjnaCommonPayload {
@@ -60,7 +59,6 @@ export interface AjnaBorrowPayload extends AjnaCommonPayload {
 }
 
 export interface AjnaOpenEarnPayload extends AjnaCommonPayload {
-  isStakingNft: boolean
   price: BigNumber
   quoteAmount: BigNumber
 }
@@ -84,7 +82,6 @@ export type AjnaCloseMultiplyPayload = Omit<
 }
 
 export interface AjnaEarnPayload extends AjnaCommonPayload {
-  isStakingNft: boolean
   price: BigNumber
   quoteAmount: BigNumber
   collateralAmount: BigNumber

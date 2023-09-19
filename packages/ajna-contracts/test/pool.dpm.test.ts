@@ -19,6 +19,7 @@ import { ZERO } from "@oasisdex/oasis-actions";
 import { expect } from "chai";
 import { BigNumber, Signer } from "ethers";
 import hre, { ethers } from "hardhat";
+import { getEvents } from "utils/common";
 
 import { bn } from "../scripts/common";
 import { HardhatUtils, logGasUsage } from "../scripts/common/hardhat.utils";
@@ -249,6 +250,35 @@ describe.only("AjnaProxyActions", function () {
       expect(balancesCollateralAfter.borrower).to.be.equal(
         balancesCollateralBefore.borrower.sub(bn.eighteen.TEN).sub(gas)
       );
+    });
+    it("should emit correct event on open", async () => {
+      const { weth, borrowerProxy, poolContractWeth, ajnaProxyActionsContract, borrower } = await loadFixture(deploy);
+
+      const price = bn.eighteen.TEST_PRICE_3;
+
+      const encodedAOpenAndDrawData = ajnaProxyActionsContract.interface.encodeFunctionData("openPosition", [
+        poolContractWeth.address,
+        bn.six.HUNDRED,
+        bn.eighteen.TEN,
+        price,
+      ]);
+
+      await weth.connect(borrower).approve(borrowerProxy.address, bn.eighteen.MILLION);
+
+      const tx2 = await borrowerProxy
+        .connect(borrower)
+        .execute(ajnaProxyActionsContract.address, encodedAOpenAndDrawData, {
+          gasLimit: 3000000,
+          value: bn.eighteen.TEN,
+        });
+
+      const receipt = await tx2.wait();
+      const event = getEvents(
+        receipt,
+        ajnaProxyActionsContract.interface.events["CreatePosition(address,string,string,address,address)"]
+      )[0];
+
+      expect(event.args.protocol).to.be.equal(await ajnaProxyActionsContract.ajnaVersion());
     });
 
     it("should openAndDraw and repayDebt", async () => {

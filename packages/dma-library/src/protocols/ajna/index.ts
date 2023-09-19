@@ -1,4 +1,3 @@
-import { Address } from '@deploy-configurations/types/address'
 import { ONE, ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import { ajnaBuckets } from '@dma-library/strategies'
@@ -24,19 +23,6 @@ import {
 } from '@dma-library/types/ajna'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
-
-export interface AjnaEarnArgs {
-  poolAddress: Address
-  dpmProxyAddress: Address
-  collateralAmount: BigNumber
-  quoteAmount: BigNumber
-  quoteTokenPrecision: number
-  price: BigNumber
-  position: AjnaEarnPosition
-  collateralPrice: BigNumber
-  quotePrice: BigNumber
-  isStakingNft?: boolean
-}
 
 export const prepareAjnaDMAPayload = <T extends { pool: AjnaPool }>({
   dependencies,

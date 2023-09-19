@@ -1,11 +1,10 @@
 import { FEE_ESTIMATE_INFLATOR, ONE, ZERO } from '@dma-common/constants'
-import { amountFromWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { IOperation, SwapData } from '@dma-library/types'
 import { IBaseSimulatedTransition } from '@domain'
 import BigNumber from 'bignumber.js'
 
-import { AaveLikeOpenArgs, AaveLikeOpenDependencies } from './types'
+import { AaveLikeOpenArgs, AaveLikeOpenDependencies, IOpenStrategy } from './types'
 
 type GenerateTransitionArgs = {
   swapData: SwapData
@@ -24,20 +23,7 @@ export async function generate({
   collectFeeFrom,
   fee,
   simulatedPositionTransition,
-  args,
-}: GenerateTransitionArgs) {
-  const fromTokenAmountNormalised = amountFromWei(
-    swapData.fromTokenAmount,
-    args.debtToken.precision,
-  )
-  const toTokenAmountNormalisedWithMaxSlippage = amountFromWei(
-    swapData.minToTokenAmount,
-    args.collateralToken.precision,
-  )
-  const expectedMarketPriceWithSlippage = fromTokenAmountNormalised.div(
-    toTokenAmountNormalisedWithMaxSlippage,
-  )
-
+}: GenerateTransitionArgs): Promise<IOpenStrategy> {
   const finalPosition = simulatedPositionTransition.position
 
   // When collecting fees from the target token (collateral here), we want to calculate the fee
@@ -59,7 +45,6 @@ export async function generate({
     },
     simulation: {
       delta: simulatedPositionTransition.delta,
-      flags: simulatedPositionTransition.flags,
       swap: {
         ...simulatedPositionTransition.swap,
         ...swapData,
@@ -69,9 +54,9 @@ export async function generate({
         ),
       },
       position: finalPosition,
-      minConfigurableRiskRatio: finalPosition.minConfigurableRiskRatio(
-        expectedMarketPriceWithSlippage,
-      ),
+    },
+    flashloan: {
+      ...simulatedPositionTransition.flashloan,
     },
   }
 }
