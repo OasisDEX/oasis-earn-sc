@@ -279,47 +279,47 @@ const config = {
     },
     ...(includeGoerli
       ? {
-        goerli: {
-          url: process.env.GOERLI_URL || '',
-          accounts: [process.env.PRIV_KEY_GOERLI || '', process.env.PRIV_KEY_GOERLI_GNOSIS || ''],
-          initialBaseFeePerGas: 1000000000,
-        },
-      }
+          goerli: {
+            url: process.env.GOERLI_URL || '',
+            accounts: [process.env.PRIV_KEY_GOERLI || '', process.env.PRIV_KEY_GOERLI_GNOSIS || ''],
+            initialBaseFeePerGas: 1000000000,
+          },
+        }
       : {}),
     ...(includeMainnet
       ? {
-        mainnet: {
-          url: process.env.MAINNET_URL || '',
-          accounts: [process.env.PRIV_KEY_MAINNET || ''],
-          gasPrice: 50000000000,
-        },
-      }
+          mainnet: {
+            url: process.env.MAINNET_URL || '',
+            accounts: [process.env.PRIV_KEY_MAINNET || ''],
+            gasPrice: 50000000000,
+          },
+        }
       : {}),
     ...(includeOptimism
       ? {
-        optimism: {
-          url: process.env.OPTIMISM_URL || '',
-          accounts: [process.env.PRIV_KEY_OPTIMISM || ''],
-          initialBaseFeePerGas: 1000000000,
-        },
-      }
+          optimism: {
+            url: process.env.OPTIMISM_URL || '',
+            accounts: [process.env.PRIV_KEY_OPTIMISM || ''],
+            initialBaseFeePerGas: 1000000000,
+          },
+        }
       : {}),
     ...(includeArbitrum
       ? {
-        arbitrum: {
-          url: process.env.ARBITRUM_URL || '',
-          accounts: [process.env.PRIV_KEY_ARBITRUM || ''],
-          initialBaseFeePerGas: 1000000000,
-        },
-      }
+          arbitrum: {
+            url: process.env.ARBITRUM_URL || '',
+            accounts: [process.env.PRIV_KEY_ARBITRUM || ''],
+            initialBaseFeePerGas: 1000000000,
+          },
+        }
       : {}),
     ...(includeBase
       ? {
-        base: {
-          url: process.env.BASE_URL || '',
-          accounts: [process.env.PRIV_KEY_BASE || ''],
-        },
-      }
+          base: {
+            url: process.env.BASE_URL || '',
+            accounts: [process.env.PRIV_KEY_BASE || ''],
+          },
+        }
       : {}),
     devnet: {
       url: process.env.TENDERLY_FORK_URL ?? '',

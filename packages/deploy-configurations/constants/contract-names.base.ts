@@ -86,4 +86,3 @@ export const SERVICE_REGISTRY_NAMES = {
     SWAP: 'uSwap',
   },
 } as const
- 
