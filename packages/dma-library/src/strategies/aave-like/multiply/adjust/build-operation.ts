@@ -4,7 +4,6 @@ import { AdjustRiskDownArgs } from '@dma-library/operations/aave/multiply/v3/adj
 import { AdjustRiskUpArgs } from '@dma-library/operations/aave/multiply/v3/adjust-risk-up'
 import { resolveAaveLikeMultiplyOperations } from '@dma-library/operations/aave-like/resolve-aavelike-operations'
 import { getAaveTokenAddresses } from '@dma-library/strategies/aave/common'
-import { resolveFlashloanTokenAddress } from '@dma-library/strategies/aave-like/multiply/common'
 import { FlashloanProvider, IOperation, SwapData } from '@dma-library/types'
 import { resolveFlashloanProvider } from '@dma-library/utils/flashloan/resolve-provider'
 import { feeResolver } from '@dma-library/utils/swap'
@@ -154,6 +153,7 @@ export async function buildAdjustFlashloan(
     if (riskIsIncreasing) {
       return {
         token: {
+          symbol: args.debtToken.symbol,
           amount: Domain.debtToCollateralSwapFlashloan(fromSwapAmountBeforeFees),
           address: args.debtToken.address,
         },
@@ -163,6 +163,7 @@ export async function buildAdjustFlashloan(
     } else {
       return {
         token: {
+          symbol: args.debtToken.symbol,
           amount: Domain.collateralToDebtSwapFlashloan(receivedAmountAfterSwap),
           address: args.debtToken.address,
         },
@@ -172,21 +173,13 @@ export async function buildAdjustFlashloan(
     }
   }
 
-  /**
-   * A small adjustment to amount was made here to allow for existing code
-   * to work on L2 with USDC. But, the more complete implementation for Balancer is above.
-   * */
-  const flashloanTokenAddress = resolveFlashloanTokenAddress(args.debtToken.address, dependencies)
-
   return {
     token: {
-      amount:
-        flashloanTokenAddress === dependencies.addresses.tokens.DAI
-          ? simulation.delta.flashloanAmount.abs()
-          : simulation.delta.flashloanAmount.abs().div(10 ** 12),
-      address: flashloanTokenAddress,
+      amount: simulation.flashloan.amount,
+      symbol: simulation.flashloan.token.symbol,
+      address: dependencies.addresses.tokens[simulation.flashloan.token.symbol],
     },
-    amount: simulation.delta.flashloanAmount.abs(),
+    amount: simulation.flashloan.amount,
     provider: flashloanProvider,
   }
 }

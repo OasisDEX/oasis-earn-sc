@@ -110,7 +110,10 @@ describe('Calculate Position Helper', async () => {
           },
           flashloan: {
             maxLoanToValueFL: maxLoanToValueFL,
-            tokenSymbol: 'DAI',
+            token: {
+              symbol: 'DAI',
+              precision: 18,
+            },
           },
           fees: { flashLoan: flashloanFees, oazo: oazoFees.times(oazoFeeBase) },
           prices: {
@@ -153,7 +156,7 @@ describe('Calculate Position Helper', async () => {
 
         // Flashloan Amount
         debug && console.log('Flashloan Amount')
-        const expectedAmountToFlashloan = isFlashLoanRequired ? target.delta?.flashloanAmount : ZERO
+        const expectedAmountToFlashloan = isFlashLoanRequired ? target.flashloan?.amount : ZERO
         expect(expectedAmountToFlashloan.toFixed(0)).to.equal(amountToFlashloan.toFixed(0))
 
         // Target Debt
