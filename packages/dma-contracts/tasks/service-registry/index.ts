@@ -80,6 +80,8 @@ async function showRemoteConfig(configPath: string, network: string, ethers: any
 
     console.log(`[✅][ CONFIGURED ] ${service.name}: ${serviceAddress}`)
   }
+
+  console.log('\n==============================\n')
 }
 
 async function pushConfigToRemote(configPath: string, network: string, ethers: any) {
@@ -162,6 +164,8 @@ async function pushConfigToRemote(configPath: string, network: string, ethers: a
 
     console.log(`[✅][ CONFIGURED ] ${service.name}: ${serviceAddress}`)
   }
+
+  console.log('\n==============================\n')
 }
 
 task('service-registry', 'Performs several operations in the service registry')
