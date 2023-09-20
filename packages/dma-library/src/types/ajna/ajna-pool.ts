@@ -48,4 +48,5 @@ export interface AjnaPool {
   pendingInflator: BigNumber
   loansCount: BigNumber
   totalAuctionsInPool: BigNumber
+  t0debt: BigNumber
 }

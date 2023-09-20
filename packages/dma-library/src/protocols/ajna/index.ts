@@ -473,11 +473,19 @@ export function getNeutralPrice(
 ) {
   const { lowestUtilizedPrice } = simulatePool(pool, debtChange, positionDebt, positionCollateral)
 
+  // calculate current pool debt
+  const poolDebt = new BigNumber(pool.t0debt).times(pool.pendingInflator).plus(debtChange)
+
   const rate = pool.interestRate
+  const noOfLoans = pool.loansCount.plus(pool.totalAuctionsInPool)
+
+  // calculate the hypothetical MOMP and neutral price
+  const mompDebt = noOfLoans.isZero() ? ONE : poolDebt.div(noOfLoans)
+  // calculate new momp in this particular case
+  const [momp] = calculateNewLup(pool, poolDebt.minus(mompDebt).times(-1))
+
   const thresholdPrice = positionCollateral.eq(ZERO) ? ZERO : positionDebt.div(positionCollateral)
 
   // neutralPrice = (1 + rate) * momp * thresholdPrice/lup
-  return ONE.plus(rate).times(
-    pool.mostOptimisticMatchingPrice.times(thresholdPrice.div(lowestUtilizedPrice)),
-  )
+  return ONE.plus(rate).times(momp.times(thresholdPrice.div(lowestUtilizedPrice)))
 }
