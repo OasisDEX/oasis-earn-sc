@@ -205,7 +205,7 @@ task('verify-operations', 'List the available operations for the current network
 
     const config: SystemConfig = getConfigByNetwork(network as Network)
 
-    const serviceRegistry = await getServiceRegistry(ethers, config)
+    const serviceRegistry = await getServiceRegistry(ethers.provider, config)
     if (!serviceRegistry) {
       console.log('ServiceRegistry not deployed, stopping verification')
       return

@@ -146,7 +146,7 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
 
     console.log('\n== SERVICE REGISTRY ==')
     const serviceRegistry: ServiceRegistryMaybe | undefined = await getServiceRegistry(
-      ethers,
+      ethers.provider,
       config,
     )
     if (!serviceRegistry) {

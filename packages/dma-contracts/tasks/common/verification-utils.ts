@@ -6,6 +6,7 @@ import {
   ServiceRegistry,
   ServiceRegistry__factory,
 } from '@typechain/index'
+import ethers, { Signer } from 'ethers'
 
 import { getActionHash } from '../../../deploy-configurations/utils/action-hash'
 import { Network } from '../../../dma-library/src'
@@ -51,7 +52,7 @@ export async function getOperationRegistry(
 }
 
 export async function getServiceRegistry(
-  ethers,
+  signerOrProvider: Signer | ethers.providers.Provider,
   config: SystemConfig,
 ): Promise<ServiceRegistryMaybe> {
   if (
@@ -61,7 +62,7 @@ export async function getServiceRegistry(
     return undefined
   }
 
-  return ServiceRegistry__factory.connect(config.mpa.core.ServiceRegistry.address, ethers.provider)
+  return ServiceRegistry__factory.connect(config.mpa.core.ServiceRegistry.address, signerOrProvider)
 }
 
 export class ActionsDatabase {
