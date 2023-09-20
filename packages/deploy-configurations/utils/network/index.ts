@@ -40,6 +40,7 @@ export const ForkedNetworkByChainId: {
   5: Network.GOERLI,
   10: Network.OPTIMISM,
   42161: Network.ARBITRUM,
+  8453: Network.BASE,
 }
 
 export const NetworkByChainId: { [key: number]: Network } = {
@@ -52,6 +53,7 @@ export const ChainIdByNetwork: Record<Network, number> = {
   [Network.GOERLI]: 5,
   [Network.OPTIMISM]: 10,
   [Network.ARBITRUM]: 42161,
+  [Network.BASE]: 8453,
   [Network.LOCAL]: 1,
   [Network.HARDHAT]: 1,
   [Network.TENDERLY]: 1,

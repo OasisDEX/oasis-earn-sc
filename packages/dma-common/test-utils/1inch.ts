@@ -197,6 +197,7 @@ export const oneInchVersionMap: Record<
   [Network.MAINNET]: 'v4.0',
   [Network.OPTIMISM]: 'v5.0',
   [Network.ARBITRUM]: 'v5.0',
+  [Network.BASE]: 'v5.0',
   [Network.TENDERLY]: 'v5.0',
 }
 
