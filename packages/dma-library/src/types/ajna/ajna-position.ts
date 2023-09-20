@@ -4,7 +4,7 @@ import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
 import {
   calculateMaxGenerate,
   getAjnaBorrowOriginationFee,
-  getAjnaLiquidationPrice,
+  getNeutralPrice,
   simulatePool,
 } from '@dma-library/protocols/ajna'
 import { AjnaWarning } from '@dma-library/types/ajna'
@@ -21,7 +21,6 @@ export interface IAjnaPosition {
 
   marketPrice: BigNumber
   liquidationPrice: BigNumber
-  liquidationPriceT0Np: BigNumber
   liquidationToMarketPrice: BigNumber
   thresholdPrice: BigNumber
 
@@ -66,14 +65,6 @@ export class AjnaPosition implements IAjnaPosition {
   ) {}
 
   get liquidationPrice() {
-    return getAjnaLiquidationPrice({
-      pool: this.pool,
-      debtAmount: this.debtAmount,
-      collateralAmount: this.collateralAmount,
-    })
-  }
-
-  get liquidationPriceT0Np() {
     return this.t0NeutralPrice.times(this.pool.pendingInflator)
   }
 
@@ -82,7 +73,7 @@ export class AjnaPosition implements IAjnaPosition {
   }
 
   get liquidationToMarketPrice() {
-    return this.liquidationPriceT0Np.div(this.marketPrice)
+    return this.liquidationPrice.div(this.marketPrice)
   }
 
   get thresholdPrice() {
@@ -111,8 +102,7 @@ export class AjnaPosition implements IAjnaPosition {
   }
 
   get borrowRate(): BigNumber {
-    // TODO: implement
-    return ZERO
+    return this.pool.borrowApr
   }
 
   get netValue(): BigNumber {
@@ -160,7 +150,7 @@ export class AjnaPosition implements IAjnaPosition {
       this.debtAmount,
       this.collateralPrice,
       this.quotePrice,
-      this.t0NeutralPrice,
+      getNeutralPrice(this.pool, ZERO, this.debtAmount, newCollateralAmount),
       this.pnl,
     )
   }
@@ -174,7 +164,7 @@ export class AjnaPosition implements IAjnaPosition {
       this.debtAmount,
       this.collateralPrice,
       this.quotePrice,
-      this.t0NeutralPrice,
+      getNeutralPrice(this.pool, ZERO, this.debtAmount, newCollateralAmount),
       this.pnl,
     )
   }
@@ -188,7 +178,7 @@ export class AjnaPosition implements IAjnaPosition {
       newDebt,
       this.collateralPrice,
       this.quotePrice,
-      this.t0NeutralPrice,
+      getNeutralPrice(this.pool, quoteAmount, newDebt, this.collateralAmount),
       this.pnl,
     )
   }
@@ -202,7 +192,7 @@ export class AjnaPosition implements IAjnaPosition {
       newDebt,
       this.collateralPrice,
       this.quotePrice,
-      this.t0NeutralPrice,
+      getNeutralPrice(this.pool, quoteAmount.negated(), newDebt, this.collateralAmount),
       this.pnl,
     )
   }
@@ -215,7 +205,7 @@ export class AjnaPosition implements IAjnaPosition {
       ZERO,
       this.collateralPrice,
       this.quotePrice,
-      this.t0NeutralPrice,
+      getNeutralPrice(this.pool, this.debtAmount.negated(), ZERO, ZERO),
       this.pnl,
     )
   }
