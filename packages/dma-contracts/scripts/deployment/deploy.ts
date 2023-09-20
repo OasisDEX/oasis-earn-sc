@@ -82,6 +82,7 @@ const rpcUrls: any = {
   [Network.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
   [Network.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.ARBITRUM]: 'https://arb-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
+  [Network.BASE]: 'https://base-mainnet.g.alchemy.com/v2/d2-w3caSVd_wPT05UkXyA3kr3un3Wx_g',
   [Network.GOERLI]: 'https://eth-goerli.alchemyapi.io/v2/TPEGdU79CfRDkqQ4RoOCTRzUX4GUAO44',
 }
 
@@ -91,6 +92,7 @@ const gnosisSafeServiceUrl: Record<Network, string> = {
   [Network.LOCAL]: '',
   [Network.OPTIMISM]: '',
   [Network.ARBITRUM]: '',
+  [Network.BASE]: '',
   [Network.GOERLI]: 'https://safe-transaction-goerli.safe.global',
   [Network.TENDERLY]: '',
 }
