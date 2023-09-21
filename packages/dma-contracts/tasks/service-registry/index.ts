@@ -98,7 +98,7 @@ async function pushConfigToRemote(configPath: string, network: string, ethers: a
     throw new Error(`Property ${configPath} not found`)
   }
 
-  console.log('\n====== CONFIG ======')
+  console.log('\n====== ADDING CONFIG ======')
   console.log(`Network: ${network}`)
   console.log(`Path: ${configPath}`)
   console.log(`ServiceRegistry: ${serviceRegistry.address}`)
