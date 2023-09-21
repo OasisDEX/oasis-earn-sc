@@ -1,6 +1,7 @@
 import { FEE_BASE } from '@dma-common/constants'
 import * as StrategyParams from '@dma-library/types/strategy-params'
 import { WithFlashLoanArgs } from '@dma-library/types/strategy-params'
+import { isAaveLikeProtocol } from '@dma-library/utils/aave-like'
 import { IPositionTransitionParams } from '@domain'
 import BigNumber from 'bignumber.js'
 
@@ -14,7 +15,7 @@ export function buildFlashloanSimArgs(
   reserveDataForFlashloan: { ltv: BigNumber },
 ): IPositionTransitionParams['flashloan'] | undefined {
   const lendingProtocol = dependencies.protocolType
-  if (lendingProtocol === 'AAVE' || lendingProtocol === 'AAVE_V3') {
+  if (isAaveLikeProtocol(lendingProtocol)) {
     const maxLoanToValueForFL = new BigNumber(reserveDataForFlashloan.ltv.toString()).div(FEE_BASE)
 
     return {
