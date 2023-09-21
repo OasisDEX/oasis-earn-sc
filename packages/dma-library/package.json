@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/dma-library",
-  "version": "0.5.10",
+  "version": "0.5.11",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -20,7 +20,7 @@
     "test": "yarn mocha -r ts-node/register -r tsconfig-paths/register 'test/**/*.ts'",
     "linked": "yarn link",
     "unlinked": "yarn unlink",
-    "prepublish": "yarn build"
+    "prepublish": "rm -rf ../../.parcel-cache && yarn build"
   },
   "license": "Apache-2.0",
   "dependencies": {
