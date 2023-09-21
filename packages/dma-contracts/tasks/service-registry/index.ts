@@ -13,7 +13,7 @@ import {
 function showLocalConfig(configPath: string, network: string) {
   const config: SystemConfig = getConfigByNetwork(network as Network) as SystemConfig
 
-  const property = getPropertyFromPath(config, configPath)
+  const property = configPath === 'all' ? config : getPropertyFromPath(config, configPath)
 
   if (!property) {
     throw new Error(`Property ${configPath} not found`)
@@ -35,9 +35,6 @@ async function showRemoteConfig(configPath: string, network: string, ethers: any
     console.log('ServiceRegistry not deployed, cannot fetch values')
     return
   }
-
-  const owner = await serviceRegistry.owner()
-  console.log(`ServiceRegistry owner: ${owner}`)
 
   const property = getPropertyFromPath(config, configPath)
 
@@ -94,9 +91,6 @@ async function pushConfigToRemote(configPath: string, network: string, ethers: a
     console.log('ServiceRegistry not deployed, cannot fetch values')
     return
   }
-
-  const owner = await serviceRegistry.owner()
-  console.log(`ServiceRegistry owner: ${owner}`)
 
   const property = getPropertyFromPath(config, configPath)
 
@@ -175,7 +169,7 @@ task('service-registry', 'Performs several operations in the service registry')
   )
   .addOptionalParam(
     'showlocal',
-    "Shows the given property path of the local config for the selected network (i.e. property path='aave.v3')",
+    "Shows the given property path of the local config for the selected network (i.e. property path='aave.v3'). Use 'all' to show all the config",
   )
   .addOptionalParam(
     'showremote',

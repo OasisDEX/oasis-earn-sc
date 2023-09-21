@@ -10,6 +10,7 @@ import ethers, { Signer } from 'ethers'
 
 import { getActionHash } from '../../../deploy-configurations/utils/action-hash'
 import { Network } from '../../../dma-library/src'
+import { OperationDefinition, OperationsDatabase } from './operations-utils'
 
 export type OperationRegistryMaybe = OperationsRegistry | undefined
 export type ServiceRegistryMaybe = ServiceRegistry | undefined
@@ -24,10 +25,23 @@ export type ActionValidationResult = {
   errorMessage?: string
 }
 
-export type VerificationResult = {
+export type ValidationResult = {
   success: boolean
   totalEntries: number
   totalValidated: number
+}
+
+export enum OpValidationResultType {
+  CONFIGURED, // The operation is in the registrry and it matches the local configuration
+  OP_UNKNOWN, // The operation name does not exist in the local config
+  NOT_CONFIGURED, // The operation is not in the registry
+  ACTION_MISMATCH, // The operation is in the registry but it does not match the local configuration
+  CONTRACT_ERROR, // An error occurred when requesting the operation from the registry
+}
+
+export type OperationValidationResult = {
+  type: OpValidationResultType
+  error?: string
 }
 
 export function isInvalidAddress(address: string | undefined): boolean {
@@ -35,7 +49,7 @@ export function isInvalidAddress(address: string | undefined): boolean {
 }
 
 export async function getOperationRegistry(
-  ethers,
+  signerOrProvider: Signer | ethers.providers.Provider,
   config: SystemConfig,
 ): Promise<OperationRegistryMaybe> {
   if (
@@ -47,7 +61,7 @@ export async function getOperationRegistry(
 
   return OperationsRegistry__factory.connect(
     config.mpa.core.OperationsRegistry.address,
-    ethers.provider,
+    signerOrProvider,
   )
 }
 
@@ -99,5 +113,92 @@ export class ActionsDatabase {
         this.recurseActionNames(value)
       }
     })
+  }
+}
+
+export function validateActionHashes(
+  operationHashes: string[],
+  operationOptionals: boolean[],
+  actionDefinitions: ActionDefinition[],
+  actionsDatabase: ActionsDatabase,
+): ActionValidationResult {
+  let actionsValidated = true
+  let actionsErrorMessage: string | undefined = undefined
+
+  for (let actionIndex = 0; actionIndex < actionDefinitions.length; actionIndex++) {
+    if (
+      actionDefinitions[actionIndex].hash !== operationHashes[actionIndex] ||
+      actionDefinitions[actionIndex].optional !== operationOptionals[actionIndex]
+    ) {
+      actionsValidated = false
+
+      const actionDefinitionName = actionsDatabase.getActionName(
+        actionDefinitions[actionIndex].hash,
+      )
+      const operationHashName = actionsDatabase.getActionName(operationHashes[actionIndex])
+
+      actionsErrorMessage = `Action ${actionIndex} expected hash ${
+        actionDefinitionName ? actionDefinitionName : actionDefinitions[actionIndex].hash
+      } is different from registry ${
+        operationHashName ? operationHashName : operationHashes[actionIndex]
+      }`
+      break
+    }
+  }
+
+  return {
+    success: actionsValidated,
+    errorMessage: actionsErrorMessage,
+  }
+}
+
+export async function validateOperation(
+  operationName: string,
+  operationRegistry: OperationsRegistry,
+  operationsDatabase: OperationsDatabase,
+  actionsDatabase: ActionsDatabase,
+): Promise<OperationValidationResult> {
+  let operationHashes: string[]
+  let operationOptionals: boolean[]
+  try {
+    ;[operationHashes, operationOptionals] = await operationRegistry.getOperation(operationName)
+  } catch (e) {
+    if (!JSON.stringify(e).includes("Operation doesn't exist")) {
+      return {
+        type: OpValidationResultType.CONTRACT_ERROR,
+        error: JSON.stringify(e),
+      }
+    }
+
+    return {
+      type: OpValidationResultType.NOT_CONFIGURED,
+    }
+  }
+
+  const localOpDefinition: OperationDefinition | undefined =
+    operationsDatabase.getDefinition(operationName)
+
+  if (!localOpDefinition) {
+    return {
+      type: OpValidationResultType.OP_UNKNOWN,
+    }
+  }
+
+  const actionValidationResult: ActionValidationResult = validateActionHashes(
+    operationHashes,
+    operationOptionals,
+    localOpDefinition.actions,
+    actionsDatabase,
+  )
+
+  if (!actionValidationResult.success) {
+    return {
+      type: OpValidationResultType.ACTION_MISMATCH,
+      error: actionValidationResult.errorMessage,
+    }
+  }
+
+  return {
+    type: OpValidationResultType.CONFIGURED,
   }
 }

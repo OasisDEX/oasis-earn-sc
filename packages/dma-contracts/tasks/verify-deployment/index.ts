@@ -14,13 +14,13 @@ import {
   getServiceRegistry,
   isInvalidAddress,
   ServiceRegistryMaybe,
-  VerificationResult,
+  ValidationResult,
 } from '../common'
 
 // This functions help coloring strings for console output
 const { red, yellow, green } = color
 
-function getValidationStatusString(verificationResult: VerificationResult): string {
+function getValidationStatusString(verificationResult: ValidationResult): string {
   if (verificationResult.totalEntries === 0) {
     return red('0%') + ' (0/0)'
   }
@@ -50,7 +50,7 @@ function getValidationStatusString(verificationResult: VerificationResult): stri
 async function validateContracts(
   config: { [key: string]: SystemConfigEntry },
   serviceRegistry: ServiceRegistry,
-): Promise<VerificationResult> {
+): Promise<ValidationResult> {
   let totalEntries = 0
   let totalValidated = 0
 
@@ -102,7 +102,7 @@ async function validateContracts(
 
 async function validateDependencies(config: {
   [key: string]: ConfigEntry
-}): Promise<VerificationResult> {
+}): Promise<ValidationResult> {
   if (Object.keys(config).length === 0) {
     return {
       success: false,
@@ -157,7 +157,7 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
     console.log(`ServiceRegistry: ✅ ${serviceRegistry.address}`)
 
     console.log('\n== CORE ==')
-    const coreVerificationResult: VerificationResult = await validateContracts(
+    const coreVerificationResult: ValidationResult = await validateContracts(
       config.mpa.core,
       serviceRegistry,
     )
@@ -169,7 +169,7 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
     }
 
     console.log('\n== ACTIONS ==')
-    const actionVerificationResult: VerificationResult = await validateContracts(
+    const actionVerificationResult: ValidationResult = await validateContracts(
       config.mpa.actions,
       serviceRegistry,
     )
@@ -180,7 +180,7 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
     }
 
     console.log('\n== COMMON ==')
-    const commonVerificationResult: VerificationResult = await validateDependencies(config.common)
+    const commonVerificationResult: ValidationResult = await validateDependencies(config.common)
     if (!commonVerificationResult.success) {
       console.log(
         `\nSome Common contracts failed the verification (${commonVerificationResult.totalValidated}/${commonVerificationResult.totalEntries})`,
@@ -188,7 +188,7 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
     }
 
     console.log('\n== AAVE V2 ==')
-    const aaveV2VerificationResult: VerificationResult = await validateDependencies(config.aave.v2)
+    const aaveV2VerificationResult: ValidationResult = await validateDependencies(config.aave.v2)
     if (!aaveV2VerificationResult.success) {
       console.log(
         `\nSome Aave V2 contracts failed the verification (${aaveV2VerificationResult.totalValidated}/${aaveV2VerificationResult.totalEntries})`,
@@ -196,7 +196,7 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
     }
 
     console.log('\n== AAVE V3 ==')
-    const aaveV3VerificationResult: VerificationResult = await validateDependencies(config.aave.v3)
+    const aaveV3VerificationResult: ValidationResult = await validateDependencies(config.aave.v3)
     if (!aaveV3VerificationResult.success) {
       console.log(
         `\nSome Aave V3 contracts failed the verification (${aaveV3VerificationResult.totalValidated}/${aaveV3VerificationResult.totalEntries})`,
@@ -204,7 +204,7 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
     }
 
     console.log('\n== SPARK ==')
-    const sparkVerificationResult: VerificationResult = await validateDependencies(config.spark)
+    const sparkVerificationResult: ValidationResult = await validateDependencies(config.spark)
     if (!sparkVerificationResult.success) {
       console.log(
         `\nSome Spark contracts failed the verification (${sparkVerificationResult.totalValidated}/${sparkVerificationResult.totalEntries})`,
@@ -213,7 +213,7 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
 
     console.log('\n== MAKER ==')
     console.log('\n== MAKER COMMON ==')
-    const makerCommonVerificationResult: VerificationResult = await validateDependencies(
+    const makerCommonVerificationResult: ValidationResult = await validateDependencies(
       config.maker.common,
     )
     if (!makerCommonVerificationResult.success) {
@@ -223,7 +223,7 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
     }
 
     console.log('\n== MAKER JOINS ==')
-    const makerJoinsVerificationResult: VerificationResult = await validateDependencies(
+    const makerJoinsVerificationResult: ValidationResult = await validateDependencies(
       config.maker.joins,
     )
     if (!makerJoinsVerificationResult.success) {
@@ -233,7 +233,7 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
     }
 
     console.log('\n== MAKER PIPS ==')
-    const makerPipsVerificationResult: VerificationResult = await validateDependencies(
+    const makerPipsVerificationResult: ValidationResult = await validateDependencies(
       config.maker.pips,
     )
     if (!makerPipsVerificationResult.success) {
@@ -243,7 +243,7 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
     }
 
     console.log('\n== AUTOMATION ==')
-    const automationVerificationResult: VerificationResult = await validateDependencies(
+    const automationVerificationResult: ValidationResult = await validateDependencies(
       config.automation,
     )
     if (!automationVerificationResult.success) {
@@ -253,7 +253,7 @@ task('verify-deployment', 'Verify the deployment for a certain network').setActi
     }
 
     console.log('\n== AJNA ==')
-    const ajnaVerificationResult: VerificationResult = await validateDependencies(config.ajna)
+    const ajnaVerificationResult: ValidationResult = await validateDependencies(config.ajna)
     if (!ajnaVerificationResult.success) {
       console.log(
         `\nSome Ajna contracts failed the verification (${ajnaVerificationResult.totalValidated}/${ajnaVerificationResult.totalEntries})`,

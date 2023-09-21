@@ -14,5 +14,7 @@ export {
   isInvalidAddress,
   OperationRegistryMaybe,
   ServiceRegistryMaybe,
-  VerificationResult,
+  validateActionHashes,
+  validateOperation,
+  ValidationResult,
 } from './verification-utils'

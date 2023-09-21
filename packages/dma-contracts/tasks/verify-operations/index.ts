@@ -15,44 +15,9 @@ import {
   isInvalidAddress,
   OperationDefinitionMaybe,
   OperationsDatabase,
-  VerificationResult,
+  validateActionHashes,
+  ValidationResult,
 } from '../common'
-
-function validateActionHashes(
-  operationHashes: string[],
-  operationOptionals: boolean[],
-  actionDefinitions: ActionDefinition[],
-  actionsDatabase: ActionsDatabase,
-): ActionValidationResult {
-  let actionsValidated = true
-  let actionsErrorMessage: string | undefined = undefined
-
-  for (let actionIndex = 0; actionIndex < actionDefinitions.length; actionIndex++) {
-    if (
-      actionDefinitions[actionIndex].hash !== operationHashes[actionIndex] ||
-      actionDefinitions[actionIndex].optional !== operationOptionals[actionIndex]
-    ) {
-      actionsValidated = false
-
-      const actionDefinitionName = actionsDatabase.getActionName(
-        actionDefinitions[actionIndex].hash,
-      )
-      const operationHashName = actionsDatabase.getActionName(operationHashes[actionIndex])
-
-      actionsErrorMessage = `Action ${actionIndex} expected hash ${
-        actionDefinitionName ? actionDefinitionName : actionDefinitions[actionIndex].hash
-      } is different from registry ${
-        operationHashName ? operationHashName : operationHashes[actionIndex]
-      }`
-      break
-    }
-  }
-
-  return {
-    success: actionsValidated,
-    errorMessage: actionsErrorMessage,
-  }
-}
 
 async function validateDeployedActions(
   actionsDatabase: ActionsDatabase,
@@ -90,7 +55,7 @@ async function validateOperations(
   serviceRegistry: ServiceRegistry,
   operationRegistry: OperationsRegistry,
   operationsDatabase: OperationsDatabase,
-): Promise<VerificationResult> {
+): Promise<ValidationResult> {
   let totalValidated = 0
   let totalEntries = 0
 
@@ -169,7 +134,7 @@ async function validateOperations(
   }
 }
 
-function getValidationStatusString(verificationResult: VerificationResult): string {
+function getValidationStatusString(verificationResult: ValidationResult): string {
   const verificationPercentage: number = Math.round(
     (verificationResult.totalValidated / verificationResult.totalEntries) * 100,
   )
@@ -211,7 +176,7 @@ task('verify-operations', 'List the available operations for the current network
       return
     }
 
-    const operationRegistry = await getOperationRegistry(ethers, config)
+    const operationRegistry = await getOperationRegistry(ethers.provider, config)
     if (!operationRegistry) {
       console.log('OperationRegistry not deployed, stopping verification')
       return
@@ -219,7 +184,7 @@ task('verify-operations', 'List the available operations for the current network
 
     const operationsDatabase: OperationsDatabase = new OperationsDatabase(network as Network)
 
-    const verificationResult: VerificationResult = await validateOperations(
+    const verificationResult: ValidationResult = await validateOperations(
       actionsDatabase,
       serviceRegistry,
       operationRegistry,
