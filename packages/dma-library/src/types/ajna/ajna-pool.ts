@@ -46,4 +46,7 @@ export interface AjnaPool {
   currentBurnEpoch: BigNumber
   buckets: Bucket[]
   pendingInflator: BigNumber
+  loansCount: BigNumber
+  totalAuctionsInPool: BigNumber
+  t0debt: BigNumber
 }

@@ -1,5 +1,5 @@
 import { ONE, ZERO } from '@dma-common/constants'
-import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
+import { negativeToZero } from '@dma-common/utils/common'
 import { ajnaBuckets } from '@dma-library/strategies'
 import { getAjnaEarnValidations } from '@dma-library/strategies/ajna/earn/validations'
 import {
@@ -392,25 +392,6 @@ export function simulatePool(
   )
 }
 
-export const getAjnaLiquidationPrice = ({
-  pool,
-  debtAmount,
-  collateralAmount,
-}: {
-  pool: AjnaPool
-  debtAmount: BigNumber
-  collateralAmount: BigNumber
-}) =>
-  normalizeValue(
-    pool.mostOptimisticMatchingPrice
-      .times(
-        debtAmount
-          .times(pool.pendingInflator)
-          .div(pool.lowestUtilizedPrice.times(collateralAmount)),
-      )
-      .times(ONE.plus(pool.interestRate)),
-  )
-
 const resolveMaxLiquidityWithdraw = (availableToWithdraw: BigNumber, quoteTokenAmount: BigNumber) =>
   negativeToZero(availableToWithdraw.gte(quoteTokenAmount) ? quoteTokenAmount : availableToWithdraw)
 
@@ -481,4 +462,30 @@ export const calculateAjnaMaxLiquidityWithdraw = ({
     position,
     simulation,
   })
+}
+
+// it's for simulation purposes only, for current value use t0Np from borrowerInfo
+export function getNeutralPrice(
+  pool: AjnaPool,
+  debtChange: BigNumber,
+  positionDebt: BigNumber,
+  positionCollateral: BigNumber,
+) {
+  const { lowestUtilizedPrice } = simulatePool(pool, debtChange, positionDebt, positionCollateral)
+
+  // calculate current pool debt
+  const poolDebt = new BigNumber(pool.t0debt).times(pool.pendingInflator).plus(debtChange)
+
+  const rate = pool.interestRate
+  const noOfLoans = pool.loansCount.plus(pool.totalAuctionsInPool)
+
+  // calculate the hypothetical MOMP and neutral price
+  const mompDebt = noOfLoans.isZero() ? ONE : poolDebt.div(noOfLoans)
+  // calculate new momp in this particular case
+  const [momp] = calculateNewLup(pool, poolDebt.minus(mompDebt).times(-1))
+
+  const thresholdPrice = positionCollateral.eq(ZERO) ? ZERO : positionDebt.div(positionCollateral)
+
+  // neutralPrice = (1 + rate) * momp * thresholdPrice/lup
+  return ONE.plus(rate).times(momp.times(thresholdPrice.div(lowestUtilizedPrice)))
 }
