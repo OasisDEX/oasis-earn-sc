@@ -20,8 +20,7 @@
     "test": "yarn mocha -r ts-node/register -r tsconfig-paths/register 'test/**/*.ts'",
     "linked": "yarn link",
     "unlinked": "yarn unlink",
-    "prepublish": "rm -rf ../../.parcel-cache && yarn build",
-    "publisha": "echo publish"
+    "prepublish": "rm -rf ../../.parcel-cache && yarn build"
   },
   "license": "Apache-2.0",
   "dependencies": {
