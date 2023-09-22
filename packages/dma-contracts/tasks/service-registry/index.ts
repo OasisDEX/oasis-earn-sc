@@ -52,7 +52,7 @@ async function showRemoteConfig(configPath: string, network: string, ethers: any
     const service = property[serviceName] as ConfigEntry
 
     if (!service.serviceRegistryName) {
-      console.log(`[✅][LOCAL CONFIG] ${service.name}: ${service.address}`)
+      console.log(`[✅][NOT REQUIRED] ${service.name}: ${service.address}`)
       continue
     }
 

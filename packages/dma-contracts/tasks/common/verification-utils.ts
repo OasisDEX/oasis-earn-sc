@@ -31,12 +31,41 @@ export type ValidationResult = {
   totalValidated: number
 }
 
+/**
+ * Result of validating the state of the OperationRegistry. The registry is an onchain
+ * contract that holds information about which operations are allowed in the system. Each
+ * operation is a set of actions, defined by their name's hashes, pluse a list of booleans
+ * that specify whether the action is optional or not.
+ *
+ * The local configuration for the operations definitions is in @deploy-configurations/constants/operation-names.ts
+ * Each name gives access, through the OperationsDatabase, to the list of actions that are involved and its optional
+ * status.
+ *
+ * The validation process compares the local configuration with the registry's configuration and returns a result
+ */
 export enum OpValidationResultType {
-  CONFIGURED, // The operation is in the registrry and it matches the local configuration
-  OP_UNKNOWN, // The operation name does not exist in the local config
-  NOT_CONFIGURED, // The operation is not in the registry
-  ACTION_MISMATCH, // The operation is in the registry but it does not match the local configuration
-  CONTRACT_ERROR, // An error occurred when requesting the operation from the registry
+  /**
+   * The operation onchain configuration matches the local configuration
+   */
+  CONFIGURED,
+  /**
+   * The given operation name could not be found in the local configuration. This is a very unusal error and
+   * it is probably due to human mistake when querying the OperationsDatabase
+   */
+  OP_UNKNOWN,
+  /**
+   * The operation is not configured in the onchain registry
+   */
+  NOT_CONFIGURED,
+  /**
+   * The operation is currently configured in the onchain registry, but the list of actions or their optionality
+   * are different from the local configuration
+   */
+  ACTION_MISMATCH,
+  /**
+   * An unknown error has occurred when accessing the OperationsRegistry contracts
+   */
+  CONTRACT_ERROR,
 }
 
 export type OperationValidationResult = {
@@ -117,38 +146,63 @@ export class ActionsDatabase {
 }
 
 export function validateActionHashes(
-  operationHashes: string[],
-  operationOptionals: boolean[],
+  operationActionsHashes: string[],
+  operationIsActionOptional: boolean[],
   actionDefinitions: ActionDefinition[],
   actionsDatabase: ActionsDatabase,
 ): ActionValidationResult {
-  let actionsValidated = true
-  let actionsErrorMessage: string | undefined = undefined
+  const mismatchedActions: {
+    actionIndex: number
+    expectedActionNameOrHash: string
+    registryActionNameOrHash: string
+  }[] = []
 
   for (let actionIndex = 0; actionIndex < actionDefinitions.length; actionIndex++) {
     if (
-      actionDefinitions[actionIndex].hash !== operationHashes[actionIndex] ||
-      actionDefinitions[actionIndex].optional !== operationOptionals[actionIndex]
+      actionDefinitions[actionIndex].hash !== operationActionsHashes[actionIndex] ||
+      actionDefinitions[actionIndex].optional !== operationIsActionOptional[actionIndex]
     ) {
-      actionsValidated = false
-
       const actionDefinitionName = actionsDatabase.getActionName(
         actionDefinitions[actionIndex].hash,
       )
-      const operationHashName = actionsDatabase.getActionName(operationHashes[actionIndex])
+      const operationHashName = actionsDatabase.getActionName(operationActionsHashes[actionIndex])
 
-      actionsErrorMessage = `Action ${actionIndex} expected hash ${
-        actionDefinitionName ? actionDefinitionName : actionDefinitions[actionIndex].hash
-      } is different from registry ${
-        operationHashName ? operationHashName : operationHashes[actionIndex]
-      }`
+      mismatchedActions.push({
+        actionIndex,
+        expectedActionNameOrHash: actionDefinitionName
+          ? actionDefinitionName
+          : actionDefinitions[actionIndex].hash,
+        registryActionNameOrHash: operationHashName
+          ? operationHashName
+          : operationActionsHashes[actionIndex],
+      })
       break
     }
   }
 
+  if (mismatchedActions.length > 0) {
+    let errorMessage =
+      'Actions mismatch between local config and registry [(local, in registry)]: ['
+
+    errorMessage = mismatchedActions.reduce(
+      (acc, mismatchedAction) =>
+        acc +
+        `(${mismatchedAction.expectedActionNameOrHash}, ${mismatchedAction.registryActionNameOrHash}),`,
+      errorMessage,
+    )
+
+    // Remove last commma
+    errorMessage = errorMessage.slice(0, -1)
+    errorMessage += ']'
+
+    return {
+      success: false,
+      errorMessage: errorMessage,
+    }
+  }
+
   return {
-    success: actionsValidated,
-    errorMessage: actionsErrorMessage,
+    success: true,
   }
 }
 
