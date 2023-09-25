@@ -94,3 +94,11 @@ not included in the hardhat.config.ts file in @oasisdex/dma-contracts. For more 
 
 Please see the [readme](./packages/dma-contracts/README.md) in the packages/dma-contracts folder for more information
 
+## Publishing
+
+From package folder:
+
+- checkout dev
+- rum `yarn publish`
+ 
+> Prepublish will clean cache and build pkg, yarn will ask for a new version and create a new commit with a tag.
