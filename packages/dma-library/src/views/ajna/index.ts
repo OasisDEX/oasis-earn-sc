@@ -23,17 +23,31 @@ interface EarnData {
 }
 
 export interface GetEarnData {
-  (proxyAddress: Address): Promise<EarnData>
+  (proxyAddress: Address, poolAddress: Address): Promise<EarnData>
 }
 
 export interface GetPoolData {
   (poolAddress: Address): Promise<AjnaPool>
 }
 
+export interface AjnaCumulativesData {
+  borrowCumulativeDepositUSD: BigNumber
+  borrowCumulativeFeesUSD: BigNumber
+  borrowCumulativeWithdrawUSD: BigNumber
+  earnCumulativeFeesInQuoteToken: BigNumber
+  earnCumulativeQuoteTokenDeposit: BigNumber
+  earnCumulativeQuoteTokenWithdraw: BigNumber
+}
+
+export interface GetCumulativesData {
+  (proxyAddress: Address, poolAddress: Address): Promise<AjnaCumulativesData>
+}
+
 interface Dependencies {
   poolInfoAddress: Address
   provider: ethers.providers.Provider
   getPoolData: GetPoolData
+  getCumulatives: GetCumulativesData
 }
 
 interface EarnDependencies {
@@ -47,23 +61,46 @@ const WAD = new BigNumber(10).pow(18)
 
 export async function getPosition(
   { proxyAddress, poolAddress, collateralPrice, quotePrice }: Args,
-  { poolInfoAddress, provider, getPoolData }: Dependencies,
+  { poolInfoAddress, provider, getPoolData, getCumulatives }: Dependencies,
 ): Promise<AjnaPosition> {
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
 
-  const [pool, borrowerInfo] = await Promise.all([
+  const [
+    pool,
+    borrowerInfo,
+    { borrowCumulativeFeesUSD, borrowCumulativeDepositUSD, borrowCumulativeWithdrawUSD },
+  ] = await Promise.all([
     getPoolData(poolAddress),
     poolInfo.borrowerInfo(poolAddress, proxyAddress),
+    getCumulatives(proxyAddress, poolAddress),
   ])
+
+  const collateralAmount = new BigNumber(borrowerInfo.collateral_.toString()).div(WAD)
+  const debtAmount = new BigNumber(borrowerInfo.debt_.toString()).div(WAD)
+
+  const netValue = collateralAmount.times(collateralPrice).minus(debtAmount.times(quotePrice))
+
+  const pnl = {
+    withFees: borrowCumulativeWithdrawUSD
+      .plus(netValue)
+      .minus(borrowCumulativeFeesUSD)
+      .minus(borrowCumulativeDepositUSD)
+      .div(borrowCumulativeDepositUSD),
+    withoutFees: borrowCumulativeWithdrawUSD
+      .plus(netValue)
+      .minus(borrowCumulativeDepositUSD)
+      .div(borrowCumulativeDepositUSD),
+  }
 
   return new AjnaPosition(
     pool,
     proxyAddress,
-    new BigNumber(borrowerInfo.collateral_.toString()).div(WAD),
-    new BigNumber(borrowerInfo.debt_.toString()).div(WAD),
+    collateralAmount,
+    debtAmount,
     collateralPrice,
     quotePrice,
     new BigNumber(borrowerInfo.t0Np_.toString()).div(WAD),
+    pnl,
   )
 }
 
@@ -74,7 +111,10 @@ export async function getEarnPosition(
   const poolInfo = new ethers.Contract(poolInfoAddress, poolInfoAbi, provider)
   const poolContract = new ethers.Contract(poolAddress, poolAbi, provider)
 
-  const [pool, earnData] = await Promise.all([getPoolData(poolAddress), getEarnData(proxyAddress)])
+  const [pool, earnData] = await Promise.all([
+    getPoolData(poolAddress),
+    getEarnData(proxyAddress, poolAddress),
+  ])
   const {
     lps,
     priceIndex,

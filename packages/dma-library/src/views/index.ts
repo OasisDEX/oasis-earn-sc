@@ -1,7 +1,7 @@
 import { AaveVersion } from '@dma-library/types/aave'
 
 import { AaveView, getCurrentPositionAaveV2, getCurrentPositionAaveV3 } from './aave'
-import type { GetEarnData } from './ajna'
+import type { GetCumulativesData, GetEarnData } from './ajna'
 import { getEarnPosition, getPosition } from './ajna'
 import { getCurrentSparkPosition, SparkView } from './spark'
 
@@ -27,5 +27,5 @@ const views = {
   aave,
   spark,
 }
-export { GetEarnData }
+export { GetCumulativesData, GetEarnData }
 export { views }

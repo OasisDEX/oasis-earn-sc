@@ -3,7 +3,7 @@ import { Network } from '@deploy-configurations/types/network'
 import { AjnaEarnPosition, AjnaPosition } from '@dma-library/types'
 import { GetSwapData } from '@dma-library/types/common'
 import { GetEarnData } from '@dma-library/views'
-import { GetPoolData } from '@dma-library/views/ajna'
+import { GetCumulativesData, GetPoolData } from '@dma-library/views/ajna'
 import { IRiskRatio } from '@domain'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -14,6 +14,7 @@ export interface AjnaCommonDependencies {
   provider: ethers.providers.Provider
   WETH: Address
   getPoolData: GetPoolData
+  getCumulatives: GetCumulativesData
   network: Network
 }
 

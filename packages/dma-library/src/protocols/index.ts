@@ -32,4 +32,4 @@ export { AaveProtocolData, AaveProtocolDataArgs }
 export { SparkProtocolData }
 
 export { calculateAjnaApyPerDays }
-export { calculateAjnaMaxLiquidityWithdraw, getAjnaLiquidationPrice } from './ajna/index'
+export { calculateAjnaMaxLiquidityWithdraw } from './ajna/index'
