@@ -23,7 +23,14 @@
     "deployment:verify": "npx hardhat verify-deployment",
     "operations:verify": "npx hardhat verify-operations",
     "operations:gentuple": "npx hardhat gen-op-tuple",
-    "actions:get-name": "npx hardhat get-action-name"
+    "operations:showlocal": "npx hardhat operations-registry --showlocal",
+    "operations:showremote": "npx hardhat operations-registry --showremote",
+    "operations:pushconfig": "npx hardhat operations-registry --pushconfig",
+    "actions:get-name": "npx hardhat get-action-name",
+    "service:showlocal": "npx hardhat service-registry --showlocal",
+    "service:showremote": "npx hardhat service-registry --showremote",
+    "service:pushconfig": "npx hardhat service-registry --pushconfig",
+    "service:help": "npx hardhat service-registry --help"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.3",

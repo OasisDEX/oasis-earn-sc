@@ -34,5 +34,7 @@ import './tasks/verify-deployment'
 import './tasks/verify-operations'
 import './tasks/generate-op-tuple'
 import './tasks/get-action-name'
+import './tasks/service-registry'
+import './tasks/operations-registry'
 
 export { default } from './hardhat.config.base'

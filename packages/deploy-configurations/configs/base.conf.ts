@@ -599,20 +599,20 @@ export const config: SystemConfig = {
     v3: {
       Oracle: {
         name: 'Oracle',
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x2Cc0Fc26eD4563A5ce5e8bdcfe1A2878676Ae156',
       },
       LendingPool: {
         name: 'LendingPool',
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0xA238Dd80C259a72e81d7e4664a9801593F98d1c5',
         serviceRegistryName: SERVICE_REGISTRY_NAMES.aave.v3.AAVE_POOL,
       },
       PoolDataProvider: {
         name: 'PoolDataProvider',
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x2d8A3C5677189723C4cB8873CfC9C8976FDF38Ac',
       },
       L2Encoder: {
         name: 'L2Encoder',
-        address: '0x0000000000000000000000000000000000000000',
+        address: '0x39e97c588B2907Fb67F44fea256Ae3BA064207C5',
       },
     },
   },

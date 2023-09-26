@@ -1,3 +1,4 @@
+export { getPropertyFromPath } from './generic-utils'
 export {
   OperationDefinition,
   OperationDefinitionGetter,
@@ -13,5 +14,7 @@ export {
   isInvalidAddress,
   OperationRegistryMaybe,
   ServiceRegistryMaybe,
-  VerificationResult,
+  validateActionHashes,
+  validateOperation,
+  ValidationResult,
 } from './verification-utils'

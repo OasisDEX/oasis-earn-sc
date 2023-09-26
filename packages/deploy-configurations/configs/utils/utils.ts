@@ -2,6 +2,7 @@ import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
 import { config as arbitrumConfig } from '../arbitrum.conf'
+import { config as baseConfig } from '../base.conf'
 import { config as goerliConfig } from '../goerli.conf'
 import { config as localConfig } from '../local.conf'
 import { config as mainnetConfig } from '../mainnet.conf'
@@ -17,6 +18,8 @@ export function getConfigByNetwork(network: Network): SystemConfig {
     return arbitrumConfig
   } else if (network === Network.OPTIMISM) {
     return optimismConfig
+  } else if (network === Network.BASE) {
+    return baseConfig
   } else if (network === Network.LOCAL) {
     return localConfig
   } else if (network === Network.TENDERLY) {
