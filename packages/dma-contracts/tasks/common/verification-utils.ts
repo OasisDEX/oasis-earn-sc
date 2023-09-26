@@ -34,7 +34,7 @@ export type ValidationResult = {
 /**
  * Result of validating the state of the OperationRegistry. The registry is an onchain
  * contract that holds information about which operations are allowed in the system. Each
- * operation is a set of actions, defined by their name's hashes, pluse a list of booleans
+ * operation is a set of actions, defined by their name's hashes, plus a list of booleans
  * that specify whether the action is optional or not.
  *
  * The local configuration for the operations definitions is in @deploy-configurations/constants/operation-names.ts
