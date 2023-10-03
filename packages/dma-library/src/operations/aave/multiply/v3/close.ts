@@ -103,8 +103,14 @@ export const close: AaveV3CloseOperation = async ({
 
   const withdrawFlashLoan = actions.aave.v3.aaveV3Withdraw(network, {
     asset: flashloan.token.address,
-    amount: new BigNumber(MAX_UINT),
+    amount: flashloan.token.amount,
     to: addresses.operationExecutor,
+  })
+
+  const withdrawCollateral = actions.aave.v3.aaveV3Withdraw(network, {
+    asset: collateral.address,
+    amount: new BigNumber(MAX_UINT),
+    to: proxy.address,
   })
 
   const unwrapEth = actions.common.unwrapEth(network, {
@@ -135,6 +141,7 @@ export const close: AaveV3CloseOperation = async ({
       setDebtTokenApprovalOnLendingPool,
       paybackInAAVE,
       withdrawFlashLoan,
+      withdrawCollateral,
       unwrapEth,
       returnDebtFunds,
       returnCollateralFunds,
