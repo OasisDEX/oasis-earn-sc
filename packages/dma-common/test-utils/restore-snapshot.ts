@@ -1,25 +1,23 @@
-import { ServiceRegistry } from '@deploy-configurations/utils/wrappers'
 import { resetNode } from '@dma-common/utils/init'
 import { providers } from 'ethers'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { RuntimeConfig } from '../types/common'
-import { DeployedSystemInfo, deploySystem } from './deploy-system'
+import { deploySystem as deployTestSystem, TestDeploymentSystem } from './deploy-system'
 
-type System = { system: DeployedSystemInfo; registry: ServiceRegistry }
-export type Snapshot = { id: string; deployed: System }
+export type Snapshot = { id: string; testSystem: TestDeploymentSystem }
 
 // Cached values
 const snapshotCache: Record<string, Snapshot | undefined> = {}
 const testBlockNumber = Number(process.env.TESTS_BLOCK_NUMBER)
 
 export async function restoreSnapshot(args: {
-  config: RuntimeConfig
+  hre: HardhatRuntimeEnvironment
   provider: providers.JsonRpcProvider
   blockNumber: number
   useFallbackSwap?: boolean
   debug?: boolean
-}): Promise<{ snapshot: Snapshot; config: RuntimeConfig }> {
-  const { config, provider, blockNumber, useFallbackSwap, debug } = args
+}): Promise<{ snapshot: Snapshot }> {
+  const { hre, provider, blockNumber, useFallbackSwap, debug } = args
 
   const _blockNumber = blockNumber || testBlockNumber
 
@@ -44,7 +42,7 @@ export async function restoreSnapshot(args: {
     snapshot.id = nextSnapshotId
     snapshotCache[cacheKey] = snapshot
 
-    return { snapshot, config }
+    return { snapshot }
   } else {
     if (debug) {
       console.log('resetting node to:', _blockNumber)
@@ -52,16 +50,16 @@ export async function restoreSnapshot(args: {
     }
     await resetNode(provider, _blockNumber)
 
-    const system = await deploySystem(config, debug, useFallbackSwap)
+    const system = await deployTestSystem(hre, debug, useFallbackSwap)
     const snapshotId = await provider.send('evm_snapshot', [])
 
     const snapshot = {
       id: snapshotId,
-      deployed: system,
+      testSystem: system,
     }
 
     snapshotCache[cacheKey] = snapshot
 
-    return { snapshot, config: config }
+    return { snapshot }
   }
 }

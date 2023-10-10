@@ -251,6 +251,9 @@ abstract class DeployedSystemHelpers {
 export class DeploymentSystem extends DeployedSystemHelpers {
   public config: SystemConfig | undefined
   public deployedSystem: SystemTemplate = {}
+  public network: Network
+  public provider: providers.JsonRpcProvider
+  public signer: Signer
   private readonly _cache = new NodeCache()
   private readonly isLocal: boolean
 
@@ -258,6 +261,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     super()
     this.hre = hre
     this.network = hre.network.name as Network
+    this.provider = hre.ethers.provider
+    this.signer = this.provider.getSigner()
     this.isLocal = this.network === Network.LOCAL
   }
 
@@ -652,6 +657,13 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
       await this.postDeployment(configItem, contractInstance, constructorParams)
     }
+  }
+  public async deployContractByName<C extends Contract>(
+    contractName: string,
+    params: any[],
+  ): Promise<C> {
+    const factory = await this.ethers.getContractFactory(contractName, this.signer)
+    return this.deployContract(factory, params)
   }
 
   public async deployContract<F extends ContractFactory, C extends Contract>(

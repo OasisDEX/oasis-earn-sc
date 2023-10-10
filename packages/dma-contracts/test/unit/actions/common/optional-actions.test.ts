@@ -1,17 +1,17 @@
 import DummyActionABI from '@abis/system/contracts/test/DummyAction.sol/DummyAction.json'
 import { loadContractNames } from '@deploy-configurations/constants'
-import { OperationsRegistry } from '@deploy-configurations/utils/wrappers'
-import { DeployedSystemInfo, restoreSnapshot } from '@dma-common/test-utils'
-import { RuntimeConfig } from '@dma-common/types/common'
+import { OperationsRegistry as OperationRegistryWrapper } from '@deploy-configurations/utils/wrappers'
+import { restoreSnapshot, TestDeploymentSystem } from '@dma-common/test-utils'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { testBlockNumber } from '@dma-contracts/test/config'
-import { initialiseConfig } from '@dma-contracts/test/fixtures'
+import { HardhatUtils } from '@dma-contracts/utils'
 import { ActionCall, ActionFactory, calldataTypes, Network } from '@dma-library'
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { OperationsRegistry } from '@typechain'
 import { expect } from 'chai'
 import { ContractReceipt, Signer, utils } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
-import { ethers } from 'hardhat'
+import hre, { ethers } from 'hardhat'
 
 const createAction = ActionFactory.create
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
@@ -19,19 +19,20 @@ const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 const dummyActionIface = new ethers.utils.Interface(DummyActionABI)
 
 async function executeOperation(
-  system: DeployedSystemInfo,
+  testSystem: TestDeploymentSystem,
   calls: ActionCall[],
   operationName: string,
   signer: Signer,
 ) {
   const result = await executeThroughProxy(
-    system.common.userProxyAddress,
+    testSystem.userProxy.address,
     {
-      address: system.common.operationExecutor.address,
-      calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-        calls,
-        operationName,
-      ]),
+      address: testSystem.deployment.system.OperationExecutor.contract.address,
+      calldata:
+        testSystem.deployment.system.OperationExecutor.contract.interface.encodeFunctionData(
+          'executeOp',
+          [calls, operationName],
+        ),
     },
     signer,
     '0',
@@ -54,12 +55,11 @@ function getContractLogs(iface: Interface, receipt: ContractReceipt) {
 }
 
 // TODO: Fix broken test
-describe.skip(`Optional Actions | Unit`, async () => {
+describe.only(`Optional Actions | Unit`, async () => {
   let provider: JsonRpcProvider
   let signer: Signer
-  let system: DeployedSystemInfo
-  let config: RuntimeConfig
-  let operationsRegistry: OperationsRegistry
+  let testSystem: TestDeploymentSystem
+  let operationsRegistry: OperationRegistryWrapper
   let OPERATION_NAME: string
   let Action1Hash: string
   let Action2Hash: string
@@ -69,12 +69,23 @@ describe.skip(`Optional Actions | Unit`, async () => {
   let action3: ActionCall
 
   beforeEach(async () => {
-    ;({ config, provider, signer } = await initialiseConfig())
+    provider = ethers.provider
+    signer = provider.getSigner()
 
-    const { snapshot } = await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
-    system = snapshot.deployed.system
+    const { snapshot } = await restoreSnapshot({
+      hre,
+      provider,
+      blockNumber: testBlockNumber,
+    })
+    testSystem = snapshot.testSystem
 
-    operationsRegistry = new OperationsRegistry(system.common.operationRegistry.address, signer)
+    const deployUtils = new HardhatUtils(hre)
+
+    const operationsRegistryContract = await deployUtils.deployContract<OperationsRegistry>(
+      'OperationsRegistry',
+      [],
+    )
+    operationsRegistry = new OperationRegistryWrapper(operationsRegistryContract.address, signer)
 
     // Add new operation with optional Actions
     OPERATION_NAME = 'TEST_OPERATION_1'
@@ -111,10 +122,10 @@ describe.skip(`Optional Actions | Unit`, async () => {
   })
 
   afterEach(async () => {
-    await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
+    await restoreSnapshot({ hre, provider, blockNumber: testBlockNumber })
   })
 
-  describe(`New operation added to OperationRegistry`, async () => {
+  describe.only(`New operation added to OperationRegistry`, async () => {
     it(`should add new operation succesfully`, async () => {
       const OP_NAME = 'TEST_OPERATION_2'
       await operationsRegistry.addOp(OP_NAME, [
@@ -131,12 +142,39 @@ describe.skip(`Optional Actions | Unit`, async () => {
       expect(operation[0]).to.deep.equal([Action1Hash, Action2Hash, Action3Hash])
       expect(operation[1]).to.deep.equal([true, false, false])
     })
+
+    it(`should execute an Operation successfully`, async () => {
+      operationsRegistry
+      const [success, rc] = await executeOperation(
+        testSystem,
+        [action1, action2, action3],
+        OPERATION_NAME,
+        signer,
+      )
+
+      const actionLogs = getContractLogs(dummyActionIface, rc)
+
+      console.log('actionLogs', actionLogs)
+
+      expect(success).to.be.eq(true)
+      expect(actionLogs.length).to.be.eq(3)
+      expect(actionLogs[0].args[0].hash).to.be.eq(
+        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
+      )
+      expect(actionLogs[1].args[0].hash).to.be.eq(
+        ethers.utils.keccak256(utils.toUtf8Bytes('DummyOptionalActionEvent')),
+      )
+      expect(actionLogs[2].args[0].hash).to.be.eq(
+        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
+      )
+    })
   })
 
   describe(`Regular Operation successful`, async () => {
     it(`should execute an Operation successfully`, async () => {
+      operationsRegistry
       const [success, rc] = await executeOperation(
-        system,
+        testSystem,
         [action1, action2, action3],
         OPERATION_NAME,
         signer,
@@ -163,7 +201,7 @@ describe.skip(`Optional Actions | Unit`, async () => {
       action2.skipped = true
 
       const [success, rc] = await executeOperation(
-        system,
+        testSystem,
         [action1, action2, action3],
         OPERATION_NAME,
         signer,
@@ -187,7 +225,7 @@ describe.skip(`Optional Actions | Unit`, async () => {
       action3.skipped = true
 
       const [success] = await executeOperation(
-        system,
+        testSystem,
         [action1, action2, action3],
         OPERATION_NAME,
         signer,
