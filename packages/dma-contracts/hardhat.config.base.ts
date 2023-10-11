@@ -14,8 +14,7 @@ import * as tdly from '@tenderly/hardhat-tenderly'
 import * as process from 'process'
 
 import { ChainIdByNetwork } from '../deploy-configurations/utils/network'
-import { filterConsole } from './utils'
-import { getForkedNetworkConfig } from './utils/hardhat.utils'
+import { filterConsole, getForkedNetworkConfig } from './utils'
 
 // Remove the annoying duplicate definition warning from Ethers.js. In version 6 this should already be
 // removed, but it seems that our Hardhat version is still using Ethers.js 5.
