@@ -1,7 +1,7 @@
 import type { System } from '@deploy-configurations/types/deployed-system'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
 import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
-import { DSProxy, DummyAction, DummyExchange, DummyOptionalAction } from '@dma-contracts/typechain'
+import { DSProxy } from '@dma-contracts/typechain'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { showConsoleLogs } from './console'
@@ -9,12 +9,9 @@ import { showConsoleLogs } from './console'
 export type TestDeploymentSystem = {
   deployment: System
   userProxy: DSProxy
-  dummyAction: DummyAction
-  dummyOptionalAction: DummyOptionalAction
-  dummyExchange: DummyExchange
 }
 
-export async function deploySystem(
+export async function deployTestSystem(
   hre: HardhatRuntimeEnvironment,
   showLogs = false,
   useFallbackSwap = true,
@@ -35,7 +32,7 @@ export async function deploySystem(
 
   const ds = new DeploymentSystem(hre)
   await ds.init()
-  await ds.loadConfig()
+  await ds.loadConfig('test.conf')
   await ds.deployAll()
 
   const deployment = ds.getSystem()
@@ -44,17 +41,6 @@ export async function deploySystem(
     deployment.system.DSProxyRegistry.contract,
     ds.signer,
   )
-
-  // DUMMY ACTION
-  const dummyAction = await ds.deployContractByName<DummyAction>('DummyAction', [
-    deployment.system.ServiceRegistry.contract.address,
-  ])
-  const dummyOptionalAction = await ds.deployContractByName<DummyOptionalAction>(
-    'DummyOptionalAction',
-    [deployment.system.ServiceRegistry.contract.address],
-  )
-  const dummyExchange = await ds.deployContractByName<DummyExchange>('DummyExchange', [])
-
   // DUMMY EXCHANGE
   // await loadDummyExchangeFixtures(provider, signer, dummyExchange, debug)
   // const [dummyAutomation] = await deploy('DummyAutomation', [serviceRegistryAddress])
@@ -65,8 +51,5 @@ export async function deploySystem(
   return {
     deployment,
     userProxy,
-    dummyAction,
-    dummyOptionalAction,
-    dummyExchange,
   }
 }

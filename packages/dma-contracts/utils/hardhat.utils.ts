@@ -1,238 +1,126 @@
-import '@nomiclabs/hardhat-ethers'
+import { Network } from '@dma-library'
 
-import erc20abi from '@abis/external/tokens/IERC20.json'
-import { EventFragment } from '@ethersproject/abi'
-import { FactoryOptions } from '@nomiclabs/hardhat-ethers/types'
-import { BigNumber, constants, Contract, ContractReceipt, Signer } from 'ethers'
-import { writeFileSync } from 'fs'
-import { HardhatRuntimeEnvironment, Network } from 'hardhat/types/runtime'
-import { join } from 'path'
-
-export type BasicSimulationData = {
-  data: string
-  from: string
-  to: string
+export type ForkConfig = {
+  nodeURL: string
+  blockNumber: string
+  chainID: number
 }
 
-export type TraceData = BasicSimulationData & {
-  address: string
-  nonce: number
-}
+export type ForkConfigMaybe = ForkConfig | undefined
 
-export type TraceItem = TraceData & {
-  operationName: string
-}
-
-export let trace: TraceItem[] = []
-
-export class HardhatUtils {
-  constructor(public readonly hre: HardhatRuntimeEnvironment, public readonly forked?: Network) {}
-
-  public async getMainSignerTransactionCount(): Promise<number> {
-    const signer: Signer = this.hre.ethers.provider.getSigner(0)
-    const transactionCount = await signer.getTransactionCount()
-    return transactionCount
-  }
-
-  public getEvents(receipt: ContractReceipt, eventAbi: EventFragment) {
-    const iface = new this.hre.ethers.utils.Interface([eventAbi])
-    const filteredEvents = receipt.logs?.filter(
-      ({ topics }) => topics[0] === iface.getEventTopic(eventAbi.name),
+function _validateForkNetwork(networkFork: Network | undefined) {
+  if (
+    networkFork &&
+    (networkFork as string) !== '' &&
+    !(
+      networkFork == Network.MAINNET ||
+      networkFork == Network.OPTIMISM ||
+      networkFork == Network.ARBITRUM ||
+      networkFork == Network.BASE ||
+      networkFork == Network.LOCAL
     )
-    return (
-      filteredEvents?.map(x => ({
-        ...iface.parseLog(x),
-        topics: x.topics,
-        data: x.data,
-        address: x.address,
-      })) || []
-    )
-  }
-
-  public clearTrace() {
-    trace = []
-  }
-
-  public traceTransaction(operationName: string, result: TraceData) {
-    trace.push({
-      operationName,
-      address: result.address,
-      data: result.data,
-      from: result.from,
-      to: result.to,
-      nonce: result.nonce,
-    })
-  }
-
-  public getTraceSize() {
-    return trace.length
-  }
-
-  public async saveTrace(fullFileName: string) {
-    writeFileSync(join(__dirname, fullFileName), this.printTrace(), {
-      flag: 'w',
-    })
-  }
-
-  public printTrace() {
-    return JSON.stringify(trace, null, 2)
-  }
-
-  public async deployContract<T extends Contract>(
-    contractName: string,
-    args: any[],
-    signerOrOptions?: Signer | FactoryOptions | undefined,
-  ): Promise<T> {
-    const factory = await this.hre.ethers.getContractFactory(contractName, signerOrOptions)
-    const contract = (await factory.deploy(...args)) as unknown as T
-    await contract.deployed()
-    const receipt = await contract.deployTransaction.wait()
-    this.traceTransaction(contractName, {
-      address: contract.address,
-      data: contract.deployTransaction.data,
-      from: receipt.from,
-      to: receipt.to,
-      nonce: contract.deployTransaction.nonce,
-    })
-    return contract
-  }
-
-  public async getContract<T extends Contract>(
-    contractName: string,
-    contractAddress: string,
-  ): Promise<T> {
-    const contract = (await this.hre.ethers.getContractAt(contractName, contractAddress)) as T
-    return contract
-  }
-
-  public async impersonate(user: string): Promise<Signer> {
-    if (this.hre.network.name !== 'tenderly') {
-      await this.impersonateAccount(user)
-      const newSigner = await this.hre.ethers.getSigner(user)
-      return newSigner
-    } else {
-      return this.hre.ethers.getSigner(user)
-    }
-  }
-
-  private async impersonateAccount(account: string) {
-    await this.hre.network.provider.request({
-      method: 'hardhat_impersonateAccount',
-      params: [account],
-    })
-  }
-  public async findBalancesSlot(tokenAddress: string): Promise<number> {
-    const encode = (types: any[], values: any[]) =>
-      this.hre.ethers.utils.defaultAbiCoder.encode(types, values)
-    const account = constants.AddressZero
-    const probeA = encode(['uint'], [BigNumber.from('100')])
-    const probeB = encode(['uint'], [BigNumber.from('200')])
-    // const token = await this.hre.ethers.getContractAt("ERC20", tokenAddress);
-    const token = new this.hre.ethers.Contract(tokenAddress, erc20abi)
-    for (let i = 0; i < 100; i++) {
-      let probedSlot = this.hre.ethers.utils.keccak256(encode(['address', 'uint'], [account, i]))
-      // remove padding for JSON RPC
-      while (probedSlot.startsWith('0x0')) probedSlot = '0x' + probedSlot.slice(3)
-      const prev = await this.hre.network.provider.send('eth_getStorageAt', [
-        tokenAddress,
-        probedSlot,
-      ])
-      // make sure the probe will change the slot value
-      const probe = prev === probeA ? probeB : probeA
-
-      await this.hre.network.provider.send('hardhat_setStorageAt', [
-        tokenAddress,
-        probedSlot,
-        probe,
-      ])
-
-      const balance = await token.balanceOf(account)
-      // reset to previous value
-      await this.hre.network.provider.send('hardhat_setStorageAt', [tokenAddress, probedSlot, prev])
-      if (balance.eq(this.hre.ethers.BigNumber.from(probe))) return i
-    }
-    throw 'Balances slot not found!'
-  }
-  /**
-   * Set token balance to the provided value.
-   * @param {string} account  - address of the wallet holding the tokens
-   * @param {string}tokenAddress - address of the token contract
-   * @param {BigNumber} balance - token balance to set
-   * @return {Promise<boolean>} if the operation succedded
-   */
-  public async setTokenBalance(
-    account: string,
-    tokenAddress: string,
-    balance: BigNumber,
-  ): Promise<boolean> {
-    const isStorageManipulationSuccessful = await this.setTokenBalanceByStorageManipulation(
-      account,
-      tokenAddress,
-      balance,
-    )
-    if (!isStorageManipulationSuccessful) {
-      const isBridgeImpersonationSuccessful = await this.setTokenBalanceByBridgeImpersonation(
-        account,
-        tokenAddress,
-        balance,
-      )
-      return isBridgeImpersonationSuccessful
-    }
-    return isStorageManipulationSuccessful
-  }
-
-  private async setTokenBalanceByBridgeImpersonation(
-    account: string,
-    tokenAddress: string,
-    balance: BigNumber,
   ) {
-    const bridgeAddress = '0x8eb8a3b98659cce290402893d0123abb75e3ab28'
-    const signer =
-      this.hre.network.name === 'tenderly'
-        ? await this.hre.ethers.getSigner(bridgeAddress)
-        : await this.impersonate(bridgeAddress)
-    const token = await this.hre.ethers.getContractAt('ERC20', tokenAddress, signer)
-    const balanceOfSource = BigNumber.from((await token.balanceOf(bridgeAddress)).toString())
-    console.log('balanceOfSource', balanceOfSource.toString())
-    console.log('balance', balance.toString())
-    if (balanceOfSource.lt(balance)) {
-      balance = balanceOfSource.div(10)
-      console.warn(
-        'Absurd amount of money requested, even Avalanche Bridge is too poor to handle it sending only ',
-        balance.toString(),
-      )
-    }
-    try {
-      await token.transfer(account, balance.toString())
-      const balanceAfter = await token.balanceOf(account)
-      return balance < balanceAfter
-    } catch (ex) {
-      console.log(ex)
-      return false
-    }
+    throw new Error(
+      `NETWORK_FORK value not valid. Specify ${Network.MAINNET}, ${Network.OPTIMISM}, ${Network.ARBITRUM} or ${Network.BASE} or ${Network.LOCAL}`,
+    )
+  }
+}
+
+function _getForkedConfig(networkFork: Network | undefined): ForkConfigMaybe {
+  _validateForkNetwork(networkFork)
+
+  let forkConfig: ForkConfig | undefined = undefined
+
+  switch (networkFork) {
+    case Network.MAINNET:
+      {
+        if (!process.env.MAINNET_URL) {
+          throw new Error(`You must provide MAINNET_URL value in the .env file`)
+        }
+        if (!process.env.BLOCK_NUMBER) {
+          throw new Error(`You must provide a BLOCK_NUMBER value in the .env file.`)
+        }
+
+        forkConfig = {
+          nodeURL: process.env.MAINNET_URL,
+          blockNumber: process.env.BLOCK_NUMBER,
+          chainID: 1,
+        }
+      }
+      break
+    case Network.OPTIMISM:
+      {
+        if (!process.env.OPTIMISM_URL) {
+          throw new Error(`You must provide OPTIMISM_URL value in the .env file`)
+        }
+        if (!process.env.OPTIMISM_BLOCK_NUMBER) {
+          throw new Error(`You must provide a OPTIMISM_BLOCK_NUMBER value in the .env file.`)
+        }
+
+        forkConfig = {
+          nodeURL: process.env.OPTIMISM_URL,
+          blockNumber: process.env.OPTIMISM_BLOCK_NUMBER,
+          chainID: 10,
+        }
+      }
+      break
+    case Network.ARBITRUM:
+      {
+        if (!process.env.ARBITRUM_URL) {
+          throw new Error(`You must provide ARBITRUM_URL value in the .env file`)
+        }
+        if (!process.env.ARBITRUM_BLOCK_NUMBER) {
+          throw new Error(`You must provide a ARBITRUM_BLOCK_NUMBER value in the .env file.`)
+        }
+
+        forkConfig = {
+          nodeURL: process.env.ARBITRUM_URL,
+          blockNumber: process.env.ARBITRUM_BLOCK_NUMBER,
+          chainID: 42161,
+        }
+      }
+      break
+    case Network.BASE:
+      {
+        if (!process.env.BASE_URL) {
+          throw new Error(`You must provide BASE_URL value in the .env file`)
+        }
+        if (!process.env.BASE_BLOCK_NUMBER) {
+          throw new Error(`You must provide a BASE_BLOCK_NUMBER value in the .env file.`)
+        }
+
+        forkConfig = {
+          nodeURL: process.env.BASE_URL,
+          blockNumber: process.env.BASE_BLOCK_NUMBER,
+          chainID: 8453,
+        }
+      }
+      break
+    default:
+      break
   }
 
-  private async setTokenBalanceByStorageManipulation(
-    account: string,
-    tokenAddress: string,
-    balance: BigNumber,
-  ): Promise<boolean> {
-    try {
-      const slot = await this.findBalancesSlot(tokenAddress)
-      let index = this.hre.ethers.utils.solidityKeccak256(['uint256', 'uint256'], [account, slot])
-      if (index.startsWith('0x0')) index = '0x' + index.slice(3)
-
-      await this.hre.ethers.provider.send('hardhat_setStorageAt', [
-        tokenAddress,
-        index,
-        this.hre.ethers.utils.hexZeroPad(balance.toHexString(), 32),
-      ])
-      // const token = await this.hre.ethers.getContractAt("ERC20", tokenAddress);
-      const token = new this.hre.ethers.Contract(tokenAddress, erc20abi)
-      const balanceAfter = await token.balanceOf(account)
-      return balance == balanceAfter
-    } catch (ex) {
-      return false
-    }
+  if (forkConfig && !/^\d+$/.test(forkConfig.blockNumber)) {
+    throw new Error(`Provide a valid block number. Provided value is ${forkConfig.blockNumber}`)
   }
+
+  return forkConfig
+}
+
+export function getForkedNetworkConfig(): ForkConfigMaybe {
+  if (!process.env.NETWORK_FORK || process.env.NETWORK_FORK === '') {
+    return undefined
+  }
+
+  const networkFork = process.env.NETWORK_FORK as Network | undefined
+
+  const forkConfig: ForkConfigMaybe = _getForkedConfig(networkFork)
+
+  if (forkConfig) {
+    console.log(`Forking on ${networkFork}`)
+    console.log(`Forking from block number: ${forkConfig && forkConfig.blockNumber}`)
+    console.log(`Forking with ChainID ${forkConfig && forkConfig.chainID}`)
+  }
+
+  return forkConfig
 }

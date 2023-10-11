@@ -609,6 +609,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       await this.promptBeforeDeployment()
     }
     for (const configItem of addressesConfig) {
+      this.log('DEPLOYING ', configItem.name, configItem.address)
       let constructorParams: Array<string | number> = []
 
       if (configItem.constructorArgs && configItem.constructorArgs?.length !== 0) {
@@ -736,6 +737,15 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async deployAll() {
     await this.deployCore()
     await this.deployActions()
+    await this.deployTest()
+  }
+
+  async deployTest() {
+    if (!this.config) throw new Error('No config set')
+    if (!this.config.test) return
+    await this.deployContracts(
+      Object.values(this.config.test).filter((item: SystemConfigEntry) => item.deploy),
+    )
   }
 
   async addCommonEntries() {

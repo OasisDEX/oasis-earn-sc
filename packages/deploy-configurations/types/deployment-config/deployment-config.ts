@@ -11,6 +11,7 @@ import {
   MakerProtocolPipContracts,
 } from './maker-protocol'
 import { OptionalSparkProtocolContracts } from './spark-protocol'
+import { TestContracts } from './test'
 
 // System configuration for deployment configs
 export type SystemConfig = {
@@ -31,4 +32,5 @@ export type SystemConfig = {
   spark: OptionalSparkProtocolContracts
   automation: AutomationContracts
   ajna: AjnaProtocolContracts
+  test?: TestContracts
 }

@@ -4,14 +4,13 @@ import { OperationsRegistry as OperationRegistryWrapper } from '@deploy-configur
 import { restoreSnapshot, TestDeploymentSystem } from '@dma-common/test-utils'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { testBlockNumber } from '@dma-contracts/test/config'
-import { HardhatUtils } from '@dma-contracts/utils'
 import { ActionCall, ActionFactory, calldataTypes, Network } from '@dma-library'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { OperationsRegistry } from '@typechain'
 import { expect } from 'chai'
 import { ContractReceipt, Signer, utils } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import hre, { ethers } from 'hardhat'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const createAction = ActionFactory.create
 const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
@@ -19,6 +18,7 @@ const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
 const dummyActionIface = new ethers.utils.Interface(DummyActionABI)
 
 async function executeOperation(
+  hre: HardhatRuntimeEnvironment,
   testSystem: TestDeploymentSystem,
   calls: ActionCall[],
   operationName: string,
@@ -36,6 +36,8 @@ async function executeOperation(
     },
     signer,
     '0',
+    hre,
+    false,
   )
   return result
 }
@@ -54,7 +56,6 @@ function getContractLogs(iface: Interface, receipt: ContractReceipt) {
   return logs
 }
 
-// TODO: Fix broken test
 describe.only(`Optional Actions | Unit`, async () => {
   let provider: JsonRpcProvider
   let signer: Signer
@@ -79,13 +80,10 @@ describe.only(`Optional Actions | Unit`, async () => {
     })
     testSystem = snapshot.testSystem
 
-    const deployUtils = new HardhatUtils(hre)
-
-    const operationsRegistryContract = await deployUtils.deployContract<OperationsRegistry>(
-      'OperationsRegistry',
-      [],
+    operationsRegistry = new OperationRegistryWrapper(
+      testSystem.deployment.system.OperationsRegistry.contract.address,
+      signer,
     )
-    operationsRegistry = new OperationRegistryWrapper(operationsRegistryContract.address, signer)
 
     // Add new operation with optional Actions
     OPERATION_NAME = 'TEST_OPERATION_1'
@@ -98,10 +96,7 @@ describe.only(`Optional Actions | Unit`, async () => {
     await operationsRegistry.addOp(OPERATION_NAME, [
       { hash: Action1Hash, optional: false },
       { hash: Action2Hash, optional: true },
-      {
-        hash: Action3Hash,
-        optional: false,
-      },
+      { hash: Action3Hash, optional: false },
     ])
 
     action1 = createAction(
@@ -125,16 +120,13 @@ describe.only(`Optional Actions | Unit`, async () => {
     await restoreSnapshot({ hre, provider, blockNumber: testBlockNumber })
   })
 
-  describe.only(`New operation added to OperationRegistry`, async () => {
+  describe(`New operation added to OperationRegistry`, async () => {
     it(`should add new operation succesfully`, async () => {
       const OP_NAME = 'TEST_OPERATION_2'
       await operationsRegistry.addOp(OP_NAME, [
         { hash: Action1Hash, optional: true },
         { hash: Action2Hash, optional: false },
-        {
-          hash: Action3Hash,
-          optional: false,
-        },
+        { hash: Action3Hash, optional: false },
       ])
 
       const operation = await operationsRegistry.getOp(OP_NAME)
@@ -142,57 +134,37 @@ describe.only(`Optional Actions | Unit`, async () => {
       expect(operation[0]).to.deep.equal([Action1Hash, Action2Hash, Action3Hash])
       expect(operation[1]).to.deep.equal([true, false, false])
     })
-
-    it(`should execute an Operation successfully`, async () => {
-      operationsRegistry
-      const [success, rc] = await executeOperation(
-        testSystem,
-        [action1, action2, action3],
-        OPERATION_NAME,
-        signer,
-      )
-
-      const actionLogs = getContractLogs(dummyActionIface, rc)
-
-      console.log('actionLogs', actionLogs)
-
-      expect(success).to.be.eq(true)
-      expect(actionLogs.length).to.be.eq(3)
-      expect(actionLogs[0].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
-      )
-      expect(actionLogs[1].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyOptionalActionEvent')),
-      )
-      expect(actionLogs[2].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
-      )
-    })
   })
 
   describe(`Regular Operation successful`, async () => {
     it(`should execute an Operation successfully`, async () => {
       operationsRegistry
       const [success, rc] = await executeOperation(
+        hre,
         testSystem,
         [action1, action2, action3],
         OPERATION_NAME,
         signer,
       )
 
-      const actionLogs = getContractLogs(dummyActionIface, rc)
+      const dummyActionLogs = getContractLogs(
+        testSystem.deployment.system.DummyAction.contract.interface,
+        rc,
+      )
+      const dummyOptionalActionLogs = getContractLogs(
+        testSystem.deployment.system.DummyOptionalAction.contract.interface,
+        rc,
+      )
 
       expect(success).to.be.eq(true)
-      expect(actionLogs.length).to.be.eq(3)
-      expect(actionLogs[0].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
-      )
-      expect(actionLogs[1].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyOptionalActionEvent')),
-      )
-      expect(actionLogs[2].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
-      )
+      expect(dummyActionLogs.length).to.be.eq(2)
+
+      console.log(dummyActionLogs[0].name)
+      expect(dummyActionLogs[0].name).to.be.eq('DummyActionEvent')
+      expect(dummyActionLogs[1].name).to.be.eq('DummyActionEvent')
+
+      expect(dummyOptionalActionLogs.length).to.be.eq(1)
+      expect(dummyOptionalActionLogs[0].name).to.be.eq('DummyOptionalActionEvent')
     })
   })
 
@@ -201,22 +173,26 @@ describe.only(`Optional Actions | Unit`, async () => {
       action2.skipped = true
 
       const [success, rc] = await executeOperation(
+        hre,
         testSystem,
         [action1, action2, action3],
         OPERATION_NAME,
         signer,
       )
 
-      const actionLogs = getContractLogs(dummyActionIface, rc)
+      const dummyActionLogs = getContractLogs(dummyActionIface, rc)
+      const dummyOptionalActionLogs = getContractLogs(
+        testSystem.deployment.system.DummyOptionalAction.contract.interface,
+        rc,
+      )
 
       expect(success).to.be.eq(true)
-      expect(actionLogs.length).to.be.eq(2)
-      expect(actionLogs[0].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
-      )
-      expect(actionLogs[1].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
-      )
+
+      expect(dummyActionLogs.length).to.be.eq(2)
+      expect(dummyActionLogs[0].name).to.be.eq('DummyActionEvent')
+      expect(dummyActionLogs[1].name).to.be.eq('DummyActionEvent')
+
+      expect(dummyOptionalActionLogs.length).to.be.eq(0)
     })
   })
 
@@ -225,6 +201,7 @@ describe.only(`Optional Actions | Unit`, async () => {
       action3.skipped = true
 
       const [success] = await executeOperation(
+        hre,
         testSystem,
         [action1, action2, action3],
         OPERATION_NAME,

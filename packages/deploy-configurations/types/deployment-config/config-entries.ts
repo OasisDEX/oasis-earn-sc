@@ -9,6 +9,7 @@ import { Common } from './common'
 import { Core, CoreMainnetOnly, USwapContract } from './core'
 import { MakerProtocol, MakerProtocolJoins, MakerProtocolPips } from './maker-protocol'
 import { SparkProtocol } from './spark-protocol'
+import { TestContractNames } from './test'
 
 export type ExternalContracts =
   | Common
@@ -28,6 +29,7 @@ export type SystemContracts =
   | Actions
   | AaveV2Actions
   | SparkActions
+  | TestContractNames
 
 export type Contracts = SystemContracts | ExternalContracts
 

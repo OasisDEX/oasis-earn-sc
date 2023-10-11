@@ -2,7 +2,7 @@ import { resetNode } from '@dma-common/utils/init'
 import { providers } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { deploySystem as deployTestSystem, TestDeploymentSystem } from './deploy-system'
+import { deployTestSystem, TestDeploymentSystem } from './deploy-system'
 
 export type Snapshot = { id: string; testSystem: TestDeploymentSystem }
 
@@ -48,7 +48,7 @@ export async function restoreSnapshot(args: {
       console.log('resetting node to:', _blockNumber)
       console.log('deploying system again')
     }
-    await resetNode(provider, _blockNumber)
+    await resetNode(provider, _blockNumber, debug)
 
     const system = await deployTestSystem(hre, debug, useFallbackSwap)
     const snapshotId = await provider.send('evm_snapshot', [])

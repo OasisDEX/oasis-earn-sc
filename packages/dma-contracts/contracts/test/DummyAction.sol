@@ -12,9 +12,13 @@ contract DummyAction is Executable, UseStore {
   using Read for OperationStorage;
   using Write for OperationStorage;
 
+  event DummyActionEvent(address sender, uint256 amount);
+
   constructor(address _registry) UseStore(_registry) {}
 
   function execute(bytes calldata, uint8[] memory) external payable override {
     store().write(bytes32("123"));
+
+    emit DummyActionEvent(msg.sender, 123);
   }
 }

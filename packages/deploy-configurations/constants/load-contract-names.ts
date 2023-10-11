@@ -13,6 +13,8 @@ export function loadContractNames(network: Network) {
     loadedConfig = require('./contract-names.base')
   } else if (network === Network.GOERLI) {
     loadedConfig = require('./contract-names.arbitrum')
+  } else if (network === Network.LOCAL) {
+    loadedConfig = require('./contract-names.local')
   } else {
     throw new Error(`Invalid network: ${network}`)
   }
