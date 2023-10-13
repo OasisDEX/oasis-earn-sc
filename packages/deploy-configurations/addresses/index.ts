@@ -124,15 +124,6 @@ function hasSparkConfig(
   return !!config && 'PoolDataProvider' in config && 'LendingPool' in config && 'Oracle' in config
 }
 
-export const ADDRESSES: Addresses = {
-  [Network.MAINNET]: createAddressesStructure(mainnetConfig),
-  [Network.OPTIMISM]: createAddressesStructure(optimismConfig),
-  [Network.GOERLI]: createAddressesStructure(goerliConfig, goerliConfig),
-  [Network.ARBITRUM]: createAddressesStructure(arbitrumConfig, mainnetConfig),
-}
-
-export const ADDRESS_ZERO = zeroAddress
-
 type ExtractAddressesFromConfig<T extends Contracts> = Record<T, ConfigEntry>
 
 function extractAddressesFromConfig<T extends Contracts>(
@@ -148,3 +139,14 @@ function extractAddressesFromConfig<T extends Contracts>(
     {} as Record<T, Address>,
   )
 }
+
+export const ADDRESSES: Addresses = {
+  [Network.MAINNET]: createAddressesStructure(mainnetConfig),
+  [Network.OPTIMISM]: createAddressesStructure(optimismConfig),
+  [Network.GOERLI]: createAddressesStructure(goerliConfig, goerliConfig),
+  [Network.ARBITRUM]: createAddressesStructure(arbitrumConfig, mainnetConfig),
+}
+
+export const ADDRESS_ZERO = zeroAddress
+export type { Common }
+export { SystemKeys }
