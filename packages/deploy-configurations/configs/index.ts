@@ -1,4 +1,5 @@
 export { config as arbitrumConfig } from './arbitrum.conf'
+export { config as baseConfig } from './base.conf'
 export { config as goerliConfig } from './goerli.conf'
 export { config as localExtendConfig } from './local-extend.conf'
 export { config as mainnetConfig } from './mainnet.conf'
