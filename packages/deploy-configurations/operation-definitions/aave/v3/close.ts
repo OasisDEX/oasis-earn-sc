@@ -41,6 +41,10 @@ export function getAaveCloseV3OperationDefinition(network: Network) {
         optional: false,
       },
       {
+        hash: getActionHash(SERVICE_REGISTRY_NAMES.aave.v3.WITHDRAW),
+        optional: false,
+      },
+      {
         hash: getActionHash(SERVICE_REGISTRY_NAMES.common.UNWRAP_ETH),
         optional: true,
       },
