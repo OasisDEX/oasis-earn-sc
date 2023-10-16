@@ -48,6 +48,7 @@ export type Tokens =
   | 'UNIV2WBTCETH'
   | 'USDC'
   | 'USDT'
+  | 'USDBC'
   | 'WBTC'
   | 'WETH'
   | 'WLD'

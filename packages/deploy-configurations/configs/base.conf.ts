@@ -541,6 +541,10 @@ export const config: SystemConfig = {
       name: 'USDT',
       address: '0x0000000000000000000000000000000000000000',
     },
+    USDBC: {
+      name: 'USDBC',
+      address: '0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca',
+    },
     WBTC: {
       name: 'WBTC',
       address: '0x0000000000000000000000000000000000000000',

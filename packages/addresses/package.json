@@ -1,6 +1,6 @@
 {
   "name": "@oasisdex/addresses",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "build": "yarn clean && npx parcel build ../deploy-configurations/addresses/index.ts --dist-dir ./lib --no-source-maps",
+    "watch": "npx parcel watch ../deploy-configurations/addresses/index.ts --dist-dir ./lib --no-source-maps",
     "clean": "rm -rf lib",
     "prepublish": "yarn build"
   },
