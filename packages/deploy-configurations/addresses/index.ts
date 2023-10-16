@@ -1,5 +1,6 @@
 import {
   arbitrumConfig,
+  baseConfig,
   goerliConfig,
   mainnetConfig,
   optimismConfig,
@@ -66,6 +67,7 @@ export type Addresses = {
   [Network.MAINNET]: DefaultDeployment
   [Network.OPTIMISM]: DefaultDeployment
   [Network.ARBITRUM]: DefaultDeployment
+  [Network.BASE]: DefaultDeployment
   [Network.GOERLI]: DefaultDeployment
 }
 
@@ -145,6 +147,7 @@ export const ADDRESSES: Addresses = {
   [Network.OPTIMISM]: createAddressesStructure(optimismConfig),
   [Network.GOERLI]: createAddressesStructure(goerliConfig, goerliConfig),
   [Network.ARBITRUM]: createAddressesStructure(arbitrumConfig, mainnetConfig),
+  [Network.BASE]: createAddressesStructure(baseConfig, mainnetConfig),
 }
 
 export const ADDRESS_ZERO = zeroAddress
