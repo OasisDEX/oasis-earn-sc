@@ -365,7 +365,7 @@ export const config: SystemConfig = {
     },
     CBETH: {
       name: 'CBETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22',
     },
     CRVV1ETHSTETH: {
       name: 'CRVV1ETHSTETH',
@@ -541,6 +541,10 @@ export const config: SystemConfig = {
       name: 'USDT',
       address: '0x0000000000000000000000000000000000000000',
     },
+    USDBC: {
+      name: 'USDBC',
+      address: '0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca',
+    },
     WBTC: {
       name: 'WBTC',
       address: '0x0000000000000000000000000000000000000000',
@@ -548,7 +552,7 @@ export const config: SystemConfig = {
     },
     WETH: {
       name: 'WETH',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x4200000000000000000000000000000000000006',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.WETH,
     },
     WLD: {
