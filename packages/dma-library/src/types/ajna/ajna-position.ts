@@ -13,8 +13,7 @@ import { BigNumber } from 'bignumber.js'
 
 import { AjnaPool } from './ajna-pool'
 
-export interface IAjnaPosition {
-  pool: AjnaPool
+export interface BorrowishPosition {
   owner: Address
   collateralAmount: BigNumber
   debtAmount: BigNumber
@@ -22,32 +21,32 @@ export interface IAjnaPosition {
   marketPrice: BigNumber
   liquidationPrice: BigNumber
   liquidationToMarketPrice: BigNumber
-  thresholdPrice: BigNumber
 
   collateralAvailable: BigNumber
   riskRatio: IRiskRatio
   maxRiskRatio: IRiskRatio
   minRiskRatio: IRiskRatio
-  warnings: AjnaWarning[]
 
   borrowRate: BigNumber
   netValue: BigNumber
   buyingPower: BigNumber
+  pnl: {
+    withFees: BigNumber
+    withoutFees: BigNumber
+  }
 
-  debtAvailable(collateralAmount: BigNumber): BigNumber
+  debtAvailable(collateralAmount?: BigNumber): BigNumber
 
-  originationFee(amount: BigNumber): BigNumber
+  deposit(amount: BigNumber): BorrowishPosition
 
-  deposit(amount: BigNumber): IAjnaPosition
+  withdraw(amount: BigNumber): BorrowishPosition
 
-  withdraw(amount: BigNumber): IAjnaPosition
+  borrow(amount: BigNumber): BorrowishPosition
 
-  borrow(amount: BigNumber): IAjnaPosition
-
-  payback(amount: BigNumber): IAjnaPosition
+  payback(amount: BigNumber): BorrowishPosition
 }
 
-export class AjnaPosition implements IAjnaPosition {
+export class AjnaPosition implements BorrowishPosition {
   warnings: AjnaWarning[] = []
 
   constructor(
