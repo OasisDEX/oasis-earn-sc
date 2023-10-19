@@ -10,14 +10,13 @@ import { simulate } from './simulate'
 import { AaveLikeOpen } from './types'
 
 export const open: AaveLikeOpen = async (args, dependencies) => {
-  console.log("OPEN MULTIPLE")
-
   const fee = SwapUtils.feeResolver(args.collateralToken.symbol, args.debtToken.symbol, {
     isIncreasingRisk: true,
     isEarnPosition: dependencies.positionType === 'Earn',
   })
-  
+  console.log(`fee ${fee.toString()}`)
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
+  console.log(`estimatedSwapAmount ${estimatedSwapAmount.toString()}`)
   const { swapData: quoteSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     AaveLikeTokens
