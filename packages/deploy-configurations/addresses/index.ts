@@ -1,5 +1,6 @@
 import {
   arbitrumConfig,
+  baseConfig,
   goerliConfig,
   mainnetConfig,
   optimismConfig,
@@ -67,6 +68,7 @@ export type Addresses = {
   [Network.MAINNET]: DefaultDeployment
   [Network.OPTIMISM]: DefaultDeployment
   [Network.ARBITRUM]: DefaultDeployment
+  [Network.BASE]: DefaultDeployment
   [Network.GOERLI]: DefaultDeployment
   [Network.TEST]: DefaultDeployment
 }
@@ -126,16 +128,6 @@ function hasSparkConfig(
   return !!config && 'PoolDataProvider' in config && 'LendingPool' in config && 'Oracle' in config
 }
 
-export const ADDRESSES: Addresses = {
-  [Network.MAINNET]: createAddressesStructure(mainnetConfig),
-  [Network.OPTIMISM]: createAddressesStructure(optimismConfig),
-  [Network.GOERLI]: createAddressesStructure(goerliConfig, goerliConfig),
-  [Network.ARBITRUM]: createAddressesStructure(arbitrumConfig, mainnetConfig),
-  [Network.TEST]: createAddressesStructure(testConfig),
-}
-
-export const ADDRESS_ZERO = zeroAddress
-
 type ExtractAddressesFromConfig<T extends Contracts> = Record<T, ConfigEntry>
 
 function extractAddressesFromConfig<T extends Contracts>(
@@ -151,3 +143,16 @@ function extractAddressesFromConfig<T extends Contracts>(
     {} as Record<T, Address>,
   )
 }
+
+export const ADDRESSES: Addresses = {
+  [Network.MAINNET]: createAddressesStructure(mainnetConfig),
+  [Network.OPTIMISM]: createAddressesStructure(optimismConfig),
+  [Network.GOERLI]: createAddressesStructure(goerliConfig, goerliConfig),
+  [Network.ARBITRUM]: createAddressesStructure(arbitrumConfig, mainnetConfig),
+  [Network.BASE]: createAddressesStructure(baseConfig, mainnetConfig),
+  [Network.TEST]: createAddressesStructure(testConfig),
+}
+
+export const ADDRESS_ZERO = zeroAddress
+export type { Common }
+export { SystemKeys }

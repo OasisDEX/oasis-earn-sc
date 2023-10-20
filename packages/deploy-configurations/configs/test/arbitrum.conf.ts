@@ -446,6 +446,10 @@ export const config: SystemConfig = {
       address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
     },
+    USDBC: {
+      name: 'USDBC',
+      address: ADDRESS_ZERO,
+    },
     USDT: {
       name: 'USDT',
       address: ADDRESS_ZERO,
