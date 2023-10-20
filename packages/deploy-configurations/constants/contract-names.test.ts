@@ -56,7 +56,7 @@ export const SERVICE_REGISTRY_NAMES = {
     WITHDRAW: 'SparkWithdraw',
     BORROW: 'SparkBorrow',
     PAYBACK: 'SparkPayback',
-    SPARK_LENDING_POOL: 'SparkLendingPool',
+    LENDING_POOL: 'SparkLendingPool',
     SET_EMODE: 'SparkSetEMode',
   },
   maker: {
@@ -77,5 +77,18 @@ export const SERVICE_REGISTRY_NAMES = {
   ajna: {
     DEPOSIT_BORROW: 'AjnaDepositBorrow',
     REPAY_WITHDRAW: 'AjnaRepayWithdraw',
+    ERC20_POOL_FACTORY: 'ERC20PoolFactory',
+    AJNA_POOL_UTILS_INFO: 'AjnaPoolUtilsInfo',
+  },
+  test: {
+    DUMMY_ACTION: 'DummyAction',
+    DUMMY_OPTIONAL_ACTION: 'DummyOptionalAction',
+    DUMMY_SWAP: 'DummySwap',
+    DUMMY_EXCHANGE: 'MockExchange',
+    SWAP: 'uSwap',
   },
 } as const
+
+export type AllValues<T> = { [K in keyof T]: T[K] extends object ? AllValues<T[K]> : T[K] }[keyof T]
+
+export type ContractNames = AllValues<typeof SERVICE_REGISTRY_NAMES>

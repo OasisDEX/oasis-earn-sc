@@ -15,6 +15,8 @@ export function loadContractNames(network: Network) {
     loadedConfig = require('./contract-names.arbitrum')
   } else if (network === Network.LOCAL) {
     loadedConfig = require('./contract-names.local')
+  } else if (network === Network.TEST) {
+    loadedConfig = require('./contract-names.test')
   } else {
     throw new Error(`Invalid network: ${network}`)
   }

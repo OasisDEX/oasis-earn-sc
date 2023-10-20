@@ -40,6 +40,7 @@
     "tsconfig.json"
   ],
   "devDependencies": {
+    "@prb/math": "2.5.0",
     "@tenderly/hardhat-tenderly": "^1.7.7",
     "console-log-colors": "^0.4.0",
     "inquirer": "^8.0.0"

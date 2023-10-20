@@ -18,6 +18,7 @@ import { getOneInchAuthHeader, ONE_INCH_API_URL } from './1inch'
 export const FEE = 20
 export const FEE_BASE = 10000
 
+// TODO: [rcano] remove if not needed
 export interface ERC20TokenData {
   name: string
   address: string

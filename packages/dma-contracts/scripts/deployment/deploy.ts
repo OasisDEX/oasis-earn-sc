@@ -53,6 +53,7 @@ import { Network } from '@deploy-configurations/types/network'
 import { NetworkByChainId } from '@deploy-configurations/utils/network/index'
 import { OperationsRegistry, ServiceRegistry } from '@deploy-configurations/utils/wrappers/index'
 import { loadContractNames } from '@dma-contracts/../deploy-configurations/constants'
+import { RecursivePartial } from '@dma-contracts/utils/recursive-partial'
 import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
@@ -95,6 +96,7 @@ const gnosisSafeServiceUrl: Record<Network, string> = {
   [Network.BASE]: '',
   [Network.GOERLI]: 'https://safe-transaction-goerli.safe.global',
   [Network.TENDERLY]: '',
+  [Network.TEST]: '',
 }
 
 // HELPERS --------------------------
@@ -297,6 +299,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     } catch (e) {
       console.error('Could not extend config', e)
     }
+  }
+
+  addConfigOverrides(configOverrides: RecursivePartial<SystemConfig>) {
+    if (!this.config) throw new Error('Config is not defined!')
+    this.config = _.merge(this.config, configOverrides)
   }
 
   findPath = (obj, target, parentPath) => {

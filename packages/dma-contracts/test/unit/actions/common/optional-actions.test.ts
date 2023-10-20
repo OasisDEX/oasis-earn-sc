@@ -5,7 +5,6 @@ import { restoreSnapshot, TestDeploymentSystem } from '@dma-common/test-utils'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { ActionCall, ActionFactory, calldataTypes, Network } from '@dma-library'
-import { JsonRpcProvider } from '@ethersproject/providers'
 import { expect } from 'chai'
 import { ContractReceipt, Signer, utils } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
@@ -13,7 +12,7 @@ import hre, { ethers } from 'hardhat'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const createAction = ActionFactory.create
-const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.TEST)
 
 const dummyActionIface = new ethers.utils.Interface(DummyActionABI)
 
@@ -56,8 +55,7 @@ function getContractLogs(iface: Interface, receipt: ContractReceipt) {
   return logs
 }
 
-describe.only(`Optional Actions | Unit`, async () => {
-  let provider: JsonRpcProvider
+describe(`Optional Actions | Unit`, async () => {
   let signer: Signer
   let testSystem: TestDeploymentSystem
   let operationsRegistry: OperationRegistryWrapper
@@ -70,34 +68,25 @@ describe.only(`Optional Actions | Unit`, async () => {
   let action3: ActionCall
 
   beforeEach(async () => {
-    provider = ethers.provider
-    signer = provider.getSigner()
-
     const { snapshot } = await restoreSnapshot({
       hre,
-      provider,
       blockNumber: testBlockNumber,
     })
     testSystem = snapshot.testSystem
+    signer = snapshot.config.signer
 
     operationsRegistry = new OperationRegistryWrapper(
       testSystem.deployment.system.OperationsRegistry.contract.address,
       signer,
     )
 
-    // Add new operation with optional Actions
+    // Prepare the test operation
     OPERATION_NAME = 'TEST_OPERATION_1'
     Action1Hash = utils.keccak256(utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_ACTION))
     Action2Hash = utils.keccak256(
       utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_OPTIONAL_ACTION),
     )
     Action3Hash = utils.keccak256(utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_ACTION))
-
-    await operationsRegistry.addOp(OPERATION_NAME, [
-      { hash: Action1Hash, optional: false },
-      { hash: Action2Hash, optional: true },
-      { hash: Action3Hash, optional: false },
-    ])
 
     action1 = createAction(
       Action1Hash,
@@ -117,7 +106,7 @@ describe.only(`Optional Actions | Unit`, async () => {
   })
 
   afterEach(async () => {
-    await restoreSnapshot({ hre, provider, blockNumber: testBlockNumber })
+    await restoreSnapshot({ hre, blockNumber: testBlockNumber })
   })
 
   describe(`New operation added to OperationRegistry`, async () => {

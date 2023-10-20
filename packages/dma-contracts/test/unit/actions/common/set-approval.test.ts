@@ -10,9 +10,9 @@ import { calldataTypes } from '@dma-library'
 import { Contract } from '@ethersproject/contracts'
 import BigNumber from 'bignumber.js'
 import { loadFixture } from 'ethereum-waffle'
-import { ethers } from 'hardhat'
+import hre, { ethers } from 'hardhat'
 
-describe('SetApproval Action', () => {
+describe('SetApproval Action | Unit', () => {
   const AMOUNT = new BigNumber(1000)
   let config: RuntimeConfig
   let approval: Contract
@@ -22,17 +22,16 @@ describe('SetApproval Action', () => {
     ;({ config } = await loadFixture(initialiseConfig))
 
     const { snapshot } = await restoreSnapshot({
-      config,
-      provider: config.provider,
+      hre,
       blockNumber: testBlockNumber,
     })
 
-    approval = snapshot.deployed.system.common.setApproval
-    approvalActionAddress = snapshot.deployed.system.common.setApproval.address
+    approval = snapshot.testSystem.deployment.system.SetApproval.contract
+    approvalActionAddress = snapshot.testSystem.deployment.system.SetApproval.contract.address
   })
 
   afterEach(async () => {
-    await restoreSnapshot({ config, provider: config.provider, blockNumber: testBlockNumber })
+    await restoreSnapshot({ hre, blockNumber: testBlockNumber })
   })
 
   it('should set approval', async () => {

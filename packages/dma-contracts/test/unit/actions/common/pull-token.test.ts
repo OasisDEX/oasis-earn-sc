@@ -14,9 +14,9 @@ import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { ethers } from 'ethers'
+import hre from 'hardhat'
 
-// TODO: Fix broken test
-describe.skip('PullToken Action | Unit', () => {
+describe('PullToken Action | Unit', () => {
   const AMOUNT = new BigNumber(1000)
   let config: RuntimeConfig
   let pullToken: Contract
@@ -25,13 +25,12 @@ describe.skip('PullToken Action | Unit', () => {
   before(async () => {
     ;({ config } = await loadFixture(initialiseConfig))
     const { snapshot } = await restoreSnapshot({
-      config,
-      provider: config.provider,
+      hre,
       blockNumber: testBlockNumber,
     })
 
-    pullToken = snapshot.deployed.system.common.pullToken
-    pullTokenActionAddress = snapshot.deployed.system.common.pullToken.address
+    pullToken = snapshot.testSystem.deployment.system.PullToken.contract
+    pullTokenActionAddress = snapshot.testSystem.deployment.system.PullToken.contract.address
   })
 
   beforeEach(async () => {
@@ -54,7 +53,7 @@ describe.skip('PullToken Action | Unit', () => {
   })
 
   afterEach(async () => {
-    await restoreSnapshot({ config, provider: config.provider, blockNumber: testBlockNumber })
+    await restoreSnapshot({ hre, blockNumber: testBlockNumber })
   })
 
   it('should pull tokens from the caller', async () => {

@@ -16,7 +16,7 @@ import BigNumber from 'bignumber.js'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
-// TODO: Update broken test
+// TODO: OneInch swap is not working
 describe.skip('uSwap | Unit', () => {
   let uSwap: Contract
   let config: RuntimeConfig

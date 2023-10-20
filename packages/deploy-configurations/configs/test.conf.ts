@@ -2,7 +2,7 @@ import { ADDRESS_ZERO, loadContractNames } from '@deploy-configurations/constant
 import { SystemConfig } from '@deploy-configurations/types/deployment-config'
 import { Network } from '@deploy-configurations/types/network'
 
-const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.TEST)
 
 export const config: SystemConfig = {
   test: {
@@ -22,13 +22,13 @@ export const config: SystemConfig = {
       history: [],
       constructorArgs: ['address:ServiceRegistry'],
     },
-    DummyExchange: {
-      name: 'DummyExchange',
+    MockExchange: {
+      name: 'MockExchange',
       deploy: true,
       address: '',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.test.DUMMY_EXCHANGE,
       history: [],
-      constructorArgs: [],
+      constructorArgs: ['0x0000000000000000000000000000000000000000'],
     },
   },
   mpa: {
@@ -117,8 +117,8 @@ export const config: SystemConfig = {
         serviceRegistryName: SERVICE_REGISTRY_NAMES.common.SWAP,
         history: [],
         constructorArgs: [
-          '0x8E78CC7089509B568a401f593F64B3074693d25E',
-          '0x49ab24Da055B8550fF88456E701e4FAB72D6987B',
+          '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
+          '0xC7b548AD9Cf38721810246C079b2d8083aba8909',
           20,
           'address:ServiceRegistry',
         ],
@@ -308,7 +308,7 @@ export const config: SystemConfig = {
     },
     OneInchAggregator: {
       name: 'OneInchAggregator',
-      address: '0x1111111254fb6c44bac0bed2854e76f90643097d',
+      address: '0x5b2a0d171ef02f081f863a97cdcbe296847f2a57',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
     },
     AuthorizedCaller: {

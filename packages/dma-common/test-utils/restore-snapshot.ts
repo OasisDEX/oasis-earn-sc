@@ -1,10 +1,10 @@
 import { resetNode } from '@dma-common/utils/init'
-import { providers } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { deployTestSystem, TestDeploymentSystem } from './deploy-system'
+import { RuntimeConfig } from '../types'
+import { deployTestSystem, TestDeploymentSystem } from './deploy-test-system'
 
-export type Snapshot = { id: string; testSystem: TestDeploymentSystem }
+export type Snapshot = { id: string; testSystem: TestDeploymentSystem; config: RuntimeConfig }
 
 // Cached values
 const snapshotCache: Record<string, Snapshot | undefined> = {}
@@ -12,12 +12,12 @@ const testBlockNumber = Number(process.env.TESTS_BLOCK_NUMBER)
 
 export async function restoreSnapshot(args: {
   hre: HardhatRuntimeEnvironment
-  provider: providers.JsonRpcProvider
   blockNumber: number
   useFallbackSwap?: boolean
   debug?: boolean
 }): Promise<{ snapshot: Snapshot }> {
-  const { hre, provider, blockNumber, useFallbackSwap, debug } = args
+  const { hre, blockNumber, useFallbackSwap, debug } = args
+  const provider = hre.ethers.provider
 
   const _blockNumber = blockNumber || testBlockNumber
 
@@ -53,9 +53,16 @@ export async function restoreSnapshot(args: {
     const system = await deployTestSystem(hre, debug, useFallbackSwap)
     const snapshotId = await provider.send('evm_snapshot', [])
 
+    const config: RuntimeConfig = {
+      provider: provider,
+      signer: provider.getSigner(),
+      address: await provider.getSigner().getAddress(),
+    }
+
     const snapshot = {
       id: snapshotId,
       testSystem: system,
+      config,
     }
 
     snapshotCache[cacheKey] = snapshot
