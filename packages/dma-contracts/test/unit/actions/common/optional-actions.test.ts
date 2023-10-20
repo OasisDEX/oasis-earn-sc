@@ -24,7 +24,7 @@ async function executeOperation(
   signer: Signer,
 ) {
   const result = await executeThroughProxy(
-    testSystem.userProxy.address,
+    testSystem.helpers.userProxy.address,
     {
       address: testSystem.deployment.system.OperationExecutor.contract.address,
       calldata:
