@@ -181,27 +181,6 @@ export function adjustToTargetRiskRatio(
     position.debt.precision,
   ).integerValue(BigNumber.ROUND_DOWN)
 
-  console.log(`
-    targetLTV ${targetLTV.toString()}
-
-    ... ${targetLTV
-      .times(normalisedCurrentCollateral)
-      .times(oraclePrice)
-      .times(marketPriceAdjustedForSlippage).toString()}
-
-    normalisedCurrentDebt ${normalisedCurrentDebt.toString()}
-    normalisedCurrentCollateral ${normalisedCurrentCollateral.toString()}
-
-    debtDelta ${debtDelta.toString()}
-    collateralDelta ${collateralDelta.toString()}
-    debtDeltaPreFlashloanFee ${debtDeltaPreFlashloanFee.toString()}
-    shouldIncreaseDebtDeltaToAccountForFees ${shouldIncreaseDebtDeltaToAccountForFees}
-    unknownVarX ${unknownVarX.toString()}
-
-    oraclePrice ${oraclePrice.toString()}
-    
-  `)
-
   return {
     position: buildAdjustedPosition(
       position,

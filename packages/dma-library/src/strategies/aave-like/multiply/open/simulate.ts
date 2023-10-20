@@ -43,11 +43,6 @@ export async function simulate(
       },
     }).flashloan
 
-    console.log(`
-    // USDC missing address
-    FLASHLOAN: ${JSON.stringify(flashloan,null,4)}
-    
-    `)
   /**
    * We've add current Position into all strategy dependencies
    * It turned out that after opening and then closing a position there might be artifacts
@@ -133,11 +128,7 @@ export async function simulate(
       debug,
     },
   )
-
-  console.log(
-    JSON.stringify(simulation, null, 4)
-    );
-
+  
   return {
     simulatedPositionTransition: simulation,
     reserveEModeCategory,

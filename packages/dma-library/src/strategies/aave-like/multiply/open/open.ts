@@ -14,9 +14,9 @@ export const open: AaveLikeOpen = async (args, dependencies) => {
     isIncreasingRisk: true,
     isEarnPosition: dependencies.positionType === 'Earn',
   })
-  console.log(`fee ${fee.toString()}`)
+
   const estimatedSwapAmount = amountToWei(new BigNumber(1), args.debtToken.precision)
-  console.log(`estimatedSwapAmount ${estimatedSwapAmount.toString()}`)
+  
   const { swapData: quoteSwapData } = await SwapUtils.getSwapDataHelper<
     typeof dependencies.addresses,
     AaveLikeTokens
