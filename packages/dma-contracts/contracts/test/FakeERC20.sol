@@ -6,9 +6,7 @@ import {
 } from "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 
 /**
-    @title TestERC20MinterPauser
-
-    @author Roberto Cano <robercano>
+    @title FakeERC20
 
     @notice Mock contract for an ERC20 with minting and pausing capabilities
  */

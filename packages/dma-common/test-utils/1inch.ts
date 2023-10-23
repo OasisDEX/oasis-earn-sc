@@ -193,8 +193,8 @@ export async function swapOneInchTokens(
 export async function exchangeFromDAI(
   toTokenAddress: string,
   amount: string,
-  slippage: string,
   recipient: string,
+  slippage: string,
   protocols: string[] = [],
   fakeRequestEnv?: FakeRequestEnv,
 ): Promise<OneInchSwapResponse> {

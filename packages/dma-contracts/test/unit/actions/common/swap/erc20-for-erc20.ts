@@ -1,47 +1,42 @@
-import WETH_ABI from '@abis/external/tokens/IWETH.json'
 import { ADDRESSES } from '@deploy-configurations/addresses'
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
-import { ONE } from '@dma-common/constants'
+import { DEFAULT_FEE as FEE, ONE } from '@dma-common/constants'
 import {
   asPercentageValue,
   expect,
-  FEE,
   restoreSnapshot,
   swapOneInchTokens,
+  TestHelpers,
 } from '@dma-common/test-utils'
-import { RuntimeConfig } from '@dma-common/types/common'
+import { FakeRequestEnv, RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { calculateFee } from '@dma-common/utils/swap'
+import { calculateFeeOnInputAmount } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { Contract } from '@ethersproject/contracts'
-import { JsonRpcProvider } from '@ethersproject/providers'
+import { MockExchange } from '@typechain'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
-import hre, { ethers } from 'hardhat'
+import hre from 'hardhat'
 
 const ALLOWED_PROTOCOLS = ['UNISWAP_V2', 'UNISWAP_V3']
 
-// TODO: OneInch swap tests are failing
-describe.skip('Swap | Unit', async () => {
-  let provider: JsonRpcProvider
+describe('Swap | Unit', async () => {
   let signer: Signer
   let address: string
   let WETH: Contract
+  let WBTC: Contract
   let feeBeneficiaryAddress: string
   let slippage: ReturnType<typeof asPercentageValue>
   let config: RuntimeConfig
-
   let system: DeployedSystem
+  let fakeRequestEnv: FakeRequestEnv
+  let helpers: TestHelpers
 
   before(async () => {
     feeBeneficiaryAddress = ADDRESSES[Network.TEST].common.FeeRecipient
     slippage = asPercentageValue(8, 100)
-
-    WETH = new ethers.Contract(ADDRESSES[Network.TEST].common.WETH, WETH_ABI, provider).connect(
-      signer,
-    )
   })
 
   beforeEach(async () => {
@@ -50,10 +45,20 @@ describe.skip('Swap | Unit', async () => {
       blockNumber: testBlockNumber,
     })
 
-    provider = snapshot.config.provider
     signer = snapshot.config.signer
     address = snapshot.config.address
     system = snapshot.testSystem.deployment.system
+    config = snapshot.config
+    helpers = snapshot.testSystem.helpers
+
+    fakeRequestEnv = {
+      mockExchange: system.MockExchange.contract as MockExchange,
+      fakeWETH: helpers.fakeWETH,
+      fakeDAI: helpers.fakeDAI,
+    }
+
+    WETH = helpers.fakeWETH.connect(signer)
+    WBTC = helpers.fakeWBTC.connect(signer)
   })
 
   afterEach(async () => {
@@ -61,8 +66,8 @@ describe.skip('Swap | Unit', async () => {
   })
 
   describe('Between two erc20 tokens, (no DAI in the pair)', () => {
-    const fromToken = ADDRESSES[Network.MAINNET].common.WETH
-    const toToken = ADDRESSES[Network.MAINNET].common.WBTC
+    let fromToken: string
+    let toToken: string
     const amountInWei = amountToWei(10)
     const toTokenDecimals = 8
     let feeWalletBalanceWeiBefore: BigNumber
@@ -71,18 +76,11 @@ describe.skip('Swap | Unit', async () => {
     let data: string
     let wethBalanceBeforeWei: BigNumber
 
-    before(async () => {
-      const { snapshot } = await restoreSnapshot({
-        hre,
-        blockNumber: testBlockNumber,
-      })
+    beforeEach(async () => {
+      fromToken = WETH.address
+      toToken = WBTC.address
 
-      provider = snapshot.config.provider
-      signer = snapshot.config.signer
-      address = snapshot.config.address
-      system = snapshot.testSystem.deployment.system
-
-      amountWithFeeInWei = calculateFee(amountInWei).plus(amountInWei)
+      amountWithFeeInWei = calculateFeeOnInputAmount(amountInWei).plus(amountInWei)
 
       const response = await swapOneInchTokens(
         fromToken,
@@ -91,6 +89,7 @@ describe.skip('Swap | Unit', async () => {
         system.Swap.contract.address,
         slippage.value.toFixed(),
         ALLOWED_PROTOCOLS,
+        fakeRequestEnv,
       )
 
       data = response.tx.data
@@ -110,8 +109,8 @@ describe.skip('Swap | Unit', async () => {
 
       await system.Swap.contract.swapTokens(
         [
-          ADDRESSES[Network.MAINNET].common.WETH,
-          ADDRESSES[Network.MAINNET].common.WBTC,
+          WETH.address,
+          WBTC.address,
           amountWithFeeInWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
@@ -150,7 +149,7 @@ describe.skip('Swap | Unit', async () => {
       const feeWalletBalanceWeiAfter = await balanceOf(fromToken, feeBeneficiaryAddress, { config })
       const feeWalletBalanceWeiChange = feeWalletBalanceWeiAfter.minus(feeWalletBalanceWeiBefore)
 
-      expect.toBeEqual(feeWalletBalanceWeiChange, calculateFee(amountInWei))
+      expect.toBeEqual(feeWalletBalanceWeiChange, calculateFeeOnInputAmount(amountInWei))
     })
 
     it('should not leave any fromToken in Swap contract', async () => {

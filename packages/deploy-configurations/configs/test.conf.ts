@@ -28,7 +28,7 @@ export const config: SystemConfig = {
       address: '',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.test.DUMMY_EXCHANGE,
       history: [],
-      constructorArgs: ['0x0000000000000000000000000000000000000000'],
+      constructorArgs: ['0x95222290DD7278Aa3Ddd389Cc1E1d165CC4BAfe5'],
     },
   },
   mpa: {
@@ -592,6 +592,10 @@ export const config: SystemConfig = {
       name: 'USDC',
       address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.USDC,
+    },
+    USDBC: {
+      name: 'USDBC',
+      address: '0x0000000000000000000000000000000000000000',
     },
     USDT: {
       name: 'USDT',

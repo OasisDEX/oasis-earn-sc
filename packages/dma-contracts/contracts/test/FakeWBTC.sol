@@ -4,11 +4,11 @@ pragma solidity 0.8.15;
 import { FakeERC20 } from "./FakeERC20.sol";
 
 /**
-    @title FakeDAI
+    @title FakeWBTC
 
-    @notice Fake DAI token
+    @notice Fake WBTC token
  */
-contract FakeDAI is FakeERC20 {
+contract FakeWBTC is FakeERC20 {
   // solhint-disable-next-line no-empty-blocks
-  constructor() FakeERC20("Dai Stablecoin", "DAI", 18) {}
+  constructor() FakeERC20("Wrapped BTC", "WBTC", 8) {}
 }

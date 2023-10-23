@@ -1,46 +1,38 @@
-import ERC20_ABI from '@abis/external/tokens/IERC20.json'
-import { ADDRESSES } from '@deploy-configurations/addresses'
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
-import { Network } from '@deploy-configurations/types/network'
-import { ONE } from '@dma-common/constants'
+import { DEFAULT_FEE as FEE, ONE } from '@dma-common/constants'
 import {
   asPercentageValue,
   exchangeFromDAI,
   expect,
-  FEE,
   restoreSnapshot,
-  swapUniswapTokens,
+  TestHelpers,
 } from '@dma-common/test-utils'
-import { RuntimeConfig } from '@dma-common/types/common'
+import { FakeRequestEnv, RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
-import { calculateFee } from '@dma-common/utils/swap'
+import { calculateFeeOnInputAmount } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { Contract } from '@ethersproject/contracts'
-import { JsonRpcProvider } from '@ethersproject/providers'
+import { MockExchange } from '@typechain'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
-import hre, { ethers } from 'hardhat'
+import hre from 'hardhat'
 
 const ALLOWED_PROTOCOLS = ['UNISWAP_V2', 'UNISWAP_V3']
 
-// TODO: OneInch swap tests are failing
-describe.skip('Swap | Unit', async () => {
-  let provider: JsonRpcProvider
+describe('Swap | Unit', async () => {
   let signer: Signer
   let address: string
   let DAI: Contract
+  let USDT: Contract
   let slippage: ReturnType<typeof asPercentageValue>
   let config: RuntimeConfig
-
   let system: DeployedSystem
+  let fakeRequestEnv: FakeRequestEnv
+  let helpers: TestHelpers
 
   before(async () => {
     slippage = asPercentageValue(8, 100)
-
-    DAI = new ethers.Contract(ADDRESSES[Network.TEST].common.DAI, ERC20_ABI, provider).connect(
-      signer,
-    )
   })
 
   beforeEach(async () => {
@@ -49,10 +41,20 @@ describe.skip('Swap | Unit', async () => {
       blockNumber: testBlockNumber,
     })
 
-    provider = snapshot.config.provider
     signer = snapshot.config.signer
     address = snapshot.config.address
     system = snapshot.testSystem.deployment.system
+    helpers = snapshot.testSystem.helpers
+    config = snapshot.config
+
+    fakeRequestEnv = {
+      mockExchange: system.MockExchange.contract as MockExchange,
+      fakeWETH: helpers.fakeWETH,
+      fakeDAI: helpers.fakeDAI,
+    }
+
+    DAI = helpers.fakeDAI.connect(signer)
+    USDT = helpers.fakeUSDT.connect(signer)
   })
 
   afterEach(async () => {
@@ -61,38 +63,33 @@ describe.skip('Swap | Unit', async () => {
 
   describe('DAI for Asset with different precision and no fully ERC20 compliant', () => {
     let daiBalanceInWei: BigNumber
+    let amountInWei: BigNumber
     let amountWithFeeInWei: BigNumber
     let receiveAtLeastInWei: BigNumber
     let data: string
-    let localSnapshotId: string
 
     before(async () => {
-      localSnapshotId = await provider.send('evm_snapshot', [])
-      const amountInWei = amountToWei(1000)
-      amountWithFeeInWei = calculateFee(amountInWei).plus(amountInWei)
+      amountInWei = amountToWei(1000)
+      amountWithFeeInWei = calculateFeeOnInputAmount(amountInWei).plus(amountInWei)
+    })
 
-      await swapUniswapTokens(
-        ADDRESSES[Network.MAINNET].common.WETH,
-        ADDRESSES[Network.MAINNET].common.DAI,
-        amountToWei(10).toFixed(0),
-        amountWithFeeInWei.toFixed(0),
-        address,
-        config,
-      )
+    beforeEach(async () => {
+      await helpers.fakeDAI.mint(address, amountWithFeeInWei.toFixed(0))
 
       daiBalanceInWei = amountToWei(
-        await balanceOf(ADDRESSES[Network.MAINNET].common.DAI, address, {
+        await balanceOf(DAI.address, address, {
           config,
           isFormatted: true,
         }),
       )
 
       const response = await exchangeFromDAI(
-        ADDRESSES[Network.MAINNET].common.USDT,
+        USDT.address,
         amountInWei.toFixed(0),
-        slippage.value.toFixed(),
         system.Swap.contract.address,
+        slippage.value.toFixed(),
         ALLOWED_PROTOCOLS,
+        fakeRequestEnv,
       )
 
       data = response.tx.data
@@ -103,16 +100,12 @@ describe.skip('Swap | Unit', async () => {
       receiveAtLeastInWei = amountToWei(receiveAtLeast, 6)
     })
 
-    after(async () => {
-      await provider.send('evm_revert', [localSnapshotId])
-    })
-
     it(`should exchange to at least amount specified in receiveAtLeast`, async () => {
       await DAI.approve(system.Swap.contract.address, amountWithFeeInWei.toFixed(0))
       await system.Swap.contract.swapTokens(
         [
-          ADDRESSES[Network.MAINNET].common.DAI,
-          ADDRESSES[Network.MAINNET].common.USDT,
+          DAI.address,
+          USDT.address,
           amountWithFeeInWei.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
@@ -125,14 +118,14 @@ describe.skip('Swap | Unit', async () => {
         },
       )
 
-      const currentUSDTBalance = await balanceOf(ADDRESSES[Network.MAINNET].common.USDT, address, {
+      const currentUSDTBalance = await balanceOf(USDT.address, address, {
         config,
         decimals: 6,
         isFormatted: true,
       })
 
       const currentDaiBalance = amountToWei(
-        await balanceOf(ADDRESSES[Network.MAINNET].common.DAI, address, {
+        await balanceOf(DAI.address, address, {
           config,
           isFormatted: true,
         }),

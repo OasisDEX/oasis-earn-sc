@@ -4,7 +4,7 @@ import { Network } from '@deploy-configurations/types/network'
 import { OperationsRegistry as OperationRegistryWrapper } from '@deploy-configurations/utils/wrappers'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
 import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
-import { DSProxy, FakeDAI, FakeWETH } from '@dma-contracts/typechain'
+import { DSProxy, FakeDAI, FakeUSDT, FakeWBTC, FakeWETH } from '@dma-contracts/typechain'
 import { utils } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
@@ -14,6 +14,8 @@ export type TestHelpers = {
   userProxy: DSProxy
   fakeWETH: FakeWETH
   fakeDAI: FakeDAI
+  fakeUSDT: FakeUSDT
+  fakeWBTC: FakeWBTC
 }
 
 export type TestDeploymentSystem = {
@@ -94,7 +96,13 @@ export async function deployTestSystem(
   // Fake DAI
   const fakeDAI = (await ds.deployContractByName('FakeDAI', [])) as FakeDAI
 
-  // Mint DAI and WETH to MockExchange
+  // Fake USDT
+  const fakeUSDT = (await ds.deployContractByName('FakeUSDT', [])) as FakeUSDT
+
+  // Fake WBTC
+  const fakeWBTC = (await ds.deployContractByName('FakeWBTC', [])) as FakeWBTC
+
+  // Mint fake tokens for the mock exchange
   await fakeWETH.mint(
     deployment.system.MockExchange.contract.address,
     utils.parseEther('1000000000'),
@@ -103,10 +111,23 @@ export async function deployTestSystem(
     deployment.system.MockExchange.contract.address,
     utils.parseEther('1000000000'),
   )
+  await fakeUSDT.mint(
+    deployment.system.MockExchange.contract.address,
+    utils.parseUnits('1000000000', 6),
+  )
+  await fakeWBTC.mint(
+    deployment.system.MockExchange.contract.address,
+    utils.parseUnits('1000000000', 8),
+  )
 
   // Set sensible price for DAI and WETH
   await deployment.system.MockExchange.contract.setPrice(fakeWETH.address, utils.parseEther('1800'))
   await deployment.system.MockExchange.contract.setPrice(fakeDAI.address, utils.parseEther('1'))
+  await deployment.system.MockExchange.contract.setPrice(fakeUSDT.address, utils.parseEther('1'))
+  await deployment.system.MockExchange.contract.setPrice(
+    fakeWBTC.address,
+    utils.parseEther('31000'),
+  )
 
   showConsoleLogs(true)
 
@@ -116,6 +137,8 @@ export async function deployTestSystem(
       userProxy,
       fakeWETH,
       fakeDAI,
+      fakeUSDT,
+      fakeWBTC,
     },
   }
 }
