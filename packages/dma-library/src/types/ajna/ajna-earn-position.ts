@@ -12,29 +12,25 @@ function priceIndexToPrice(priceIndex: BigNumber) {
   return new BigNumber(bucketPrices[priceIndex.toNumber()]).shiftedBy(-18)
 }
 
-export interface IAjnaEarn {
-  pool: AjnaPool
+export interface SupplyPosition {
   owner: Address
   quoteTokenAmount: BigNumber
-  collateralTokenAmount: BigNumber
-  price: BigNumber
-  priceIndex: BigNumber | null
   marketPrice: BigNumber
 
-  isEarningFees: boolean
+  apy: {
+    per1d: BigNumber | undefined
+    per7d: BigNumber | undefined
+    per30d: BigNumber | undefined
+    per90d: BigNumber | undefined
+    per365d: BigNumber | undefined
+  }
 
-  getApyPerDays: (params: { amount?: BigNumber; days: number }) => BigNumber | undefined
-
-  fundsLockedUntil: number
-  earlyWithdrawPenalty: BigNumber
-
-  deposit(amount: BigNumber): IAjnaEarn
-  withdraw(amount: BigNumber): IAjnaEarn
-  claimCollateral(): IAjnaEarn
-  close(): IAjnaEarn
+  deposit(amount: BigNumber): SupplyPosition
+  withdraw(amount: BigNumber): SupplyPosition
+  close(): SupplyPosition
 }
 
-export class AjnaEarnPosition implements IAjnaEarn {
+export class AjnaEarnPosition implements SupplyPosition {
   public earlyWithdrawPenalty: BigNumber = new BigNumber(23)
   public fundsLockedUntil: number
   public price: BigNumber

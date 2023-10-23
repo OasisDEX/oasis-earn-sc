@@ -1,17 +1,8 @@
 import { Address } from '@deploy-configurations/types/address'
 import { ZERO } from '@dma-common/constants'
 import { negativeToZero, normalizeValue } from '@dma-common/utils/common'
-import {
-  calculateMaxGenerate,
-  getAjnaBorrowOriginationFee,
-  getNeutralPrice,
-  simulatePool,
-} from '@dma-library/protocols/ajna'
-import { AjnaWarning } from '@dma-library/types/ajna'
 import { IRiskRatio, RiskRatio } from '@domain'
 import { BigNumber } from 'bignumber.js'
-
-import { AjnaPool } from './ajna-pool'
 
 export interface LendingPosition {
   owner: Address
@@ -46,17 +37,13 @@ export interface LendingPosition {
   payback(amount: BigNumber): LendingPosition
 }
 
-export class AjnaPosition implements LendingPosition {
-  warnings: AjnaWarning[] = []
-
+export class MorphoPosition implements LendingPosition {
   constructor(
-    public pool: AjnaPool,
     public owner: Address,
     public collateralAmount: BigNumber,
     public debtAmount: BigNumber,
     public collateralPrice: BigNumber,
     public quotePrice: BigNumber,
-    public t0NeutralPrice: BigNumber,
     public pnl: {
       withFees: BigNumber
       withoutFees: BigNumber
@@ -64,7 +51,7 @@ export class AjnaPosition implements LendingPosition {
   ) {}
 
   get liquidationPrice() {
-    return this.t0NeutralPrice.times(this.pool.pendingInflator)
+    return new BigNumber(1234)
   }
 
   get marketPrice() {
@@ -75,33 +62,27 @@ export class AjnaPosition implements LendingPosition {
     return this.liquidationPrice.div(this.marketPrice)
   }
 
-  get thresholdPrice() {
-    const thresholdPrice = this.debtAmount.div(this.collateralAmount)
-
-    return normalizeValue(thresholdPrice)
-  }
-
   get collateralAvailable() {
-    const collateralAvailable = this.collateralAmount.minus(
-      this.debtAmount.div(this.pool.lowestUtilizedPrice),
-    )
+    const collateralAvailable = ZERO
 
     return negativeToZero(normalizeValue(collateralAvailable))
   }
 
   get riskRatio() {
-    const loanToValue = this.thresholdPrice.div(this.marketPrice)
+    const loanToValue = this.debtAmount
+      .times(this.quotePrice)
+      .div(this.collateralAmount.times(this.collateralPrice))
 
     return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
   }
 
   get maxRiskRatio() {
-    const loanToValue = this.pool.lowestUtilizedPrice.div(this.marketPrice)
+    const loanToValue = new BigNumber(0.85)
     return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
   }
 
   get borrowRate(): BigNumber {
-    return this.pool.borrowApr
+    return ZERO
   }
 
   get netValue(): BigNumber {
@@ -111,9 +92,7 @@ export class AjnaPosition implements LendingPosition {
   }
 
   get minRiskRatio() {
-    const loanToValue = this.pool.poolMinDebtAmount.div(
-      this.collateralAmount.times(this.collateralPrice),
-    )
+    const loanToValue = ZERO
 
     return new RiskRatio(normalizeValue(loanToValue), RiskRatio.TYPE.LTV)
   }
@@ -126,85 +105,64 @@ export class AjnaPosition implements LendingPosition {
   }
 
   debtAvailable(collateralAmount?: BigNumber) {
-    return calculateMaxGenerate(
-      this.pool,
-      this.debtAmount,
-      collateralAmount || this.collateralAmount,
-    )
-  }
-
-  originationFee(quoteAmount: BigNumber) {
-    return getAjnaBorrowOriginationFee({
-      interestRate: this.pool.interestRate,
-      quoteAmount,
-    })
+    return ZERO
   }
 
   deposit(collateralAmount: BigNumber) {
     const newCollateralAmount = negativeToZero(this.collateralAmount.plus(collateralAmount))
-    return new AjnaPosition(
-      simulatePool(this.pool, ZERO, this.debtAmount, newCollateralAmount),
+    return new MorphoPosition(
       this.owner,
       newCollateralAmount,
       this.debtAmount,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(this.pool, ZERO, this.debtAmount, newCollateralAmount),
       this.pnl,
     )
   }
 
   withdraw(collateralAmount: BigNumber) {
     const newCollateralAmount = negativeToZero(this.collateralAmount.minus(collateralAmount))
-    return new AjnaPosition(
-      simulatePool(this.pool, ZERO, this.debtAmount, newCollateralAmount),
+    return new MorphoPosition(
       this.owner,
       newCollateralAmount,
       this.debtAmount,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(this.pool, ZERO, this.debtAmount, newCollateralAmount),
       this.pnl,
     )
   }
 
-  borrow(quoteAmount: BigNumber): AjnaPosition {
+  borrow(quoteAmount: BigNumber): MorphoPosition {
     const newDebt = negativeToZero(this.debtAmount.plus(quoteAmount))
-    return new AjnaPosition(
-      simulatePool(this.pool, quoteAmount, newDebt, this.collateralAmount),
+    return new MorphoPosition(
       this.owner,
       this.collateralAmount,
       newDebt,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(this.pool, quoteAmount, newDebt, this.collateralAmount),
       this.pnl,
     )
   }
 
-  payback(quoteAmount: BigNumber): AjnaPosition {
+  payback(quoteAmount: BigNumber): MorphoPosition {
     const newDebt = negativeToZero(this.debtAmount.minus(quoteAmount))
-    return new AjnaPosition(
-      simulatePool(this.pool, quoteAmount.negated(), newDebt, this.collateralAmount),
+    return new MorphoPosition(
       this.owner,
       this.collateralAmount,
       newDebt,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(this.pool, quoteAmount.negated(), newDebt, this.collateralAmount),
       this.pnl,
     )
   }
 
-  close(): AjnaPosition {
-    return new AjnaPosition(
-      simulatePool(this.pool, this.debtAmount.negated(), ZERO, this.collateralAmount.negated()),
+  close(): MorphoPosition {
+    return new MorphoPosition(
       this.owner,
       ZERO,
       ZERO,
       this.collateralPrice,
       this.quotePrice,
-      getNeutralPrice(this.pool, this.debtAmount.negated(), ZERO, ZERO),
       this.pnl,
     )
   }
