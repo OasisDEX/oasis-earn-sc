@@ -2,9 +2,7 @@
   "extends": "../../tsconfig.options.json",
   "compilerOptions": {
     "types": ["node", "mocha"],
-    "typeRoots": [
-      "../../node_modules/@types"
-    ],
+    "typeRoots": ["../../node_modules/@types"],
     "resolveJsonModule": true,
     "emitDeclarationOnly": false,
     "noEmit": true,
@@ -26,7 +24,9 @@
       "@domain/*": ["../domain/src/*"],
       "@deploy-configurations/*": ["../deploy-configurations/*"],
       "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
-      "@deploy-configurations/operation-definitions": ["../deploy-configurations/operation-definitions/index.ts"],
+      "@deploy-configurations/operation-definitions": [
+        "../deploy-configurations/operation-definitions/index.ts"
+      ]
     }
   },
   "references": [
@@ -43,9 +43,5 @@
       "path": "../domain"
     }
   ],
-  "include": [
-    "./src",
-    "./src/strategies/ajna/earn/buckets.json",
-    "test"
-  ]
+  "include": ["./src/**/*", "./src/strategies/ajna/earn/buckets.json", "test"]
 }

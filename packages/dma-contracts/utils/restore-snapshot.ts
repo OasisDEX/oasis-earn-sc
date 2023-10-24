@@ -1,7 +1,7 @@
+import { RuntimeConfig } from '@dma-common/types'
 import { resetNode } from '@dma-common/utils/init'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-import { RuntimeConfig } from '../types'
 import { deployTestSystem, TestDeploymentSystem } from './deploy-test-system'
 
 export type Snapshot = { id: string; testSystem: TestDeploymentSystem; config: RuntimeConfig }

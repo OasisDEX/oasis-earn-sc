@@ -1,5 +1,4 @@
 // TODO: CHECK IF I CAN REUSE ACTION CALL and rename things
-import { DSProxy } from '@dma-contracts/typechain'
 import { ContractReceipt, Signer } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
@@ -18,7 +17,7 @@ export async function executeThroughProxy(
 ): Promise<[boolean, ContractReceipt]> {
   try {
     const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
-    const dsProxy = (await ethers.getContractAt('DSProxy', proxyAddress, signer)) as DSProxy
+    const dsProxy = await ethers.getContractAt('DSProxy', proxyAddress, signer)
 
     const tx = await dsProxy['execute(address,bytes)'](address, calldata, {
       gasLimit: 5000000,

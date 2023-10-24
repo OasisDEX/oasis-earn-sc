@@ -2,13 +2,12 @@ import { loadContractNames } from '@deploy-configurations/constants'
 import type { System } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
 import { OperationsRegistry as OperationRegistryWrapper } from '@deploy-configurations/utils/wrappers'
+import { showConsoleLogs } from '@dma-common/test-utils/console'
 import { getOrCreateProxy } from '@dma-common/utils/proxy'
 import { DeploymentSystem } from '@dma-contracts/scripts/deployment/deploy'
 import { DSProxy, FakeDAI, FakeUSDT, FakeWBTC, FakeWETH } from '@dma-contracts/typechain'
 import { utils } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-
-import { showConsoleLogs } from './console'
 
 export type TestHelpers = {
   userProxy: DSProxy

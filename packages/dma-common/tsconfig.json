@@ -10,8 +10,6 @@
       "@dma-common/test-utils": ["./test-utils/index.ts"],
       "@dma-common/test-utils/*": ["./test-utils/*"],
       "@dma-common/types/*": ["./types/*"],
-      "@dma-contracts/*": ["../dma-contracts/*"],
-      "@dma-contracts/typechain": ["../dma-contracts/typechain"],
       "@deploy-configurations/addresses": ["../deploy-configurations/addresses/index.ts"],
       "@deploy-configurations/utils/*": ["../deploy-configurations/utils/*"],
       "@deploy-configurations/types/*": ["../deploy-configurations/types/*"],
@@ -28,9 +26,6 @@
     },
     {
       "path": "../deploy-configurations"
-    },
-    {
-      "path": "../dma-contracts"
     }
   ],
   "include": ["./constants", "./utils", "./test-utils", "./types", "./hardhat.config.ts"]

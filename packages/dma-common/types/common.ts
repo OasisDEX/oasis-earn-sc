@@ -1,5 +1,4 @@
-import { FakeDAI, FakeWETH, MockExchange } from '@dma-contracts/typechain'
-import { ethers, providers } from 'ethers'
+import { Contract, ethers, providers } from 'ethers'
 
 export type UnboxPromise<T> = T extends Promise<infer U> ? U : T
 export type UnboxArray<T> = T extends Array<infer U> ? U : T
@@ -45,9 +44,9 @@ export interface OneInchSwapResponse extends OneInchBaseResponse {
 }
 
 export type FakeRequestEnv = {
-  mockExchange: MockExchange
-  fakeWETH: FakeWETH
-  fakeDAI: FakeDAI
+  mockExchange: Contract
+  fakeWETH: Contract
+  fakeDAI: Contract
 }
 
 export type OneInchSwapRequest = {
