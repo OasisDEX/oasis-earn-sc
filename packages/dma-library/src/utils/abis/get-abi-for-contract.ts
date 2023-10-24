@@ -88,6 +88,6 @@ const abiByContractName: Partial<
       PoolDataProvider: aaveV3ProtocolDataProviderOptimismABI,
       LendingPool: aaveV3PoolOptimismABI,
       Oracle: aaveV3PriceOracleOptimismABI,
-    }
-  }
+    },
+  },
 }

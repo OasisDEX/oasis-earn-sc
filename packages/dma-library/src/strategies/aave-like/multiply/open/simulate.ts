@@ -128,7 +128,7 @@ export async function simulate(
       debug,
     },
   )
-  
+
   return {
     simulatedPositionTransition: simulation,
     reserveEModeCategory,
