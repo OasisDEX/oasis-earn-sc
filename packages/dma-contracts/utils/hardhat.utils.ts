@@ -1,4 +1,4 @@
-import { Network } from '@dma-library'
+import { Network } from '@deploy-configurations/types/network'
 
 export type ForkConfig = {
   nodeURL: string
