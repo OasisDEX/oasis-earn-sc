@@ -107,9 +107,6 @@ export const close: AaveV3CloseOperation = async ({
     to: addresses.operationExecutor,
   })
 
-  // const shouldWithdrawCollateralSecondTime = !collateralToWithdraw.eq(MAX_UINT)
-  // const secondWithdrawalAmount = shouldWithdrawCollateralSecondTime ? new BigNumber(MAX_UINT) : ZERO
-
   const withdrawCollateral = actions.aave.v3.aaveV3Withdraw(network, {
     asset: collateral.address,
     amount: new BigNumber(MAX_UINT),
