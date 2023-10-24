@@ -66,10 +66,10 @@ export async function deployTestSystem(
   const deployment = ds.getSystem()
 
   // User Proxy
-  const userProxy: DSProxy = await getOrCreateProxy(
+  const userProxy: DSProxy = (await getOrCreateProxy(
     deployment.system.DSProxyRegistry.contract,
     ds.signer,
-  )
+  )) as DSProxy
 
   // Test Operation
   const operationsRegistry = new OperationRegistryWrapper(

@@ -2,18 +2,13 @@ import { ADDRESSES } from '@deploy-configurations/addresses'
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
 import { DEFAULT_FEE as FEE, ONE } from '@dma-common/constants'
-import {
-  asPercentageValue,
-  expect,
-  restoreSnapshot,
-  swapOneInchTokens,
-  TestHelpers,
-} from '@dma-common/test-utils'
+import { asPercentageValue, expect, swapOneInchTokens } from '@dma-common/test-utils'
 import { FakeRequestEnv, RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFeeOnInputAmount } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
+import { restoreSnapshot, TestHelpers } from '@dma-contracts/utils'
 import { Contract } from '@ethersproject/contracts'
 import { MockExchange } from '@typechain'
 import BigNumber from 'bignumber.js'

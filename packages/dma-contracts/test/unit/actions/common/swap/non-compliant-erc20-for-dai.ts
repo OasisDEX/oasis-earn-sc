@@ -1,17 +1,12 @@
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
 import { DEFAULT_FEE as FEE, ONE } from '@dma-common/constants'
-import {
-  asPercentageValue,
-  exchangeToDAI,
-  expect,
-  restoreSnapshot,
-  TestHelpers,
-} from '@dma-common/test-utils'
+import { asPercentageValue, exchangeToDAI, expect } from '@dma-common/test-utils'
 import { FakeRequestEnv, RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import { calculateFee } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
+import { restoreSnapshot, TestHelpers } from '@dma-contracts/utils'
 import { MockExchange } from '@typechain'
 import BigNumber from 'bignumber.js'
 import { Contract, Signer } from 'ethers'

@@ -1,4 +1,4 @@
-import { RuntimeConfig } from '@dma-common/types'
+import { RuntimeConfig } from '@dma-common/types/common'
 import { resetNode } from '@dma-common/utils/init'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
