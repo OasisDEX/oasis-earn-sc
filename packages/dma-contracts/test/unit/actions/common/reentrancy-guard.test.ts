@@ -1,52 +1,36 @@
-import CDPManagerABI from '@abis/external/protocols/maker/dss-cdp-manager.json'
-import { ADDRESSES } from '@deploy-configurations/addresses'
 import { loadContractNames } from '@deploy-configurations/constants'
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
-import { OperationsRegistry as OperationRegistryWrapper } from '@deploy-configurations/utils/wrappers'
 import { expect, restoreSnapshot } from '@dma-common/test-utils'
 import { executeThroughProxy } from '@dma-common/utils/execute'
-import { getLastVault } from '@dma-common/utils/maker'
 import { testBlockNumber } from '@dma-contracts/test/config'
-import { ActionFactory, calldataTypes } from '@dma-library'
-import { JsonRpcProvider } from '@ethersproject/providers'
+import { ActionCall, ActionFactory, calldataTypes } from '@dma-library'
 import { DsProxy } from '@typechain'
 import { Signer, utils } from 'ethers'
 import hre, { ethers } from 'hardhat'
 
 const createAction = ActionFactory.create
 
-// TODO: Fix broken test
-describe.skip(`Reentrancy guard test | Unit`, async () => {
-  let provider: JsonRpcProvider
+describe(`Reentrancy guard test | Unit`, async () => {
   let signer: Signer
   let system: DeployedSystem
   let userProxy: DsProxy
+  const SERVICE_REGISTRY_NAMES = loadContractNames(Network.TEST)
   let OPERATION_NAME: string
-  let OpenVaultActionHash: string
-  let operationsRegistry: OperationRegistryWrapper
+  let Action1Hash: string
+  let Action2Hash: string
+  let Action3Hash: string
+  let action1: ActionCall
+  let action2: ActionCall
+  let action3: ActionCall
 
-  before(async () => {
+  beforeEach(async () => {
     const { snapshot } = await restoreSnapshot({ hre, blockNumber: testBlockNumber })
     system = snapshot.testSystem.deployment.system
-    userProxy = snapshot.testSystem.userProxy
-    provider = snapshot.config.provider
+    userProxy = snapshot.testSystem.helpers.userProxy
     signer = snapshot.config.signer
 
-    operationsRegistry = new OperationRegistryWrapper(
-      snapshot.testSystem.deployment.system.OperationsRegistry.contract.address,
-      signer,
-    )
-
-    // Add new operation with optional Actions
-    const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
-
-    OPERATION_NAME = 'TEST_OPERATION_1'
-    OpenVaultActionHash = utils.keccak256(
-      utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.maker.OPEN_VAULT),
-    )
-
-    await operationsRegistry.addOp(OPERATION_NAME, [{ hash: OpenVaultActionHash, optional: true }])
+    OPERATION_NAME = 'ALL_OPTIONAL_OPERATION'
   })
 
   afterEach(async () => {
@@ -54,15 +38,26 @@ describe.skip(`Reentrancy guard test | Unit`, async () => {
   })
 
   it(`should execute an action, even if OperationStorage lock() was called by another address`, async () => {
-    const openVaultAction = createAction(
-      OpenVaultActionHash,
-      [calldataTypes.maker.Open, calldataTypes.paramsMap],
-      [
-        {
-          joinAddress: ADDRESSES[Network.MAINNET].maker.joins.MCD_JOIN_ETH_A,
-        },
-        [0],
-      ],
+    Action1Hash = utils.keccak256(utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_ACTION))
+    Action2Hash = utils.keccak256(
+      utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_OPTIONAL_ACTION),
+    )
+    Action3Hash = utils.keccak256(utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_ACTION))
+
+    action1 = createAction(
+      Action1Hash,
+      ['tuple(address to)', calldataTypes.paramsMap],
+      [{ to: ethers.constants.AddressZero }, [0]],
+    )
+    action2 = createAction(
+      Action2Hash,
+      ['tuple(address to)', calldataTypes.paramsMap],
+      [{ to: ethers.constants.AddressZero }, [0]],
+    )
+    action3 = createAction(
+      Action3Hash,
+      ['tuple(address to)', calldataTypes.paramsMap],
+      [{ to: ethers.constants.AddressZero }, [0]],
     )
 
     // LOCK OperationStorage before operation execution
@@ -73,7 +68,7 @@ describe.skip(`Reentrancy guard test | Unit`, async () => {
       {
         address: system.OperationExecutor.contract.address,
         calldata: system.OperationExecutor.contract.interface.encodeFunctionData('executeOp', [
-          [openVaultAction],
+          [action1, action2, action3],
           OPERATION_NAME,
         ]),
       },
@@ -81,15 +76,5 @@ describe.skip(`Reentrancy guard test | Unit`, async () => {
     )
 
     expect(success).to.be.eq(true)
-
-    const vault = await getLastVault(provider, signer, userProxy.address)
-
-    const cdpManagerContract = new ethers.Contract(
-      ADDRESSES[Network.MAINNET].maker.common.CdpManager,
-      CDPManagerABI,
-      provider,
-    ).connect(signer)
-    const vaultOwner = await cdpManagerContract.owns(vault.id)
-    expect.toBeEqual(vaultOwner, userProxy.address)
   })
 })

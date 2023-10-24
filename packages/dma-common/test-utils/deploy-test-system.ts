@@ -90,6 +90,12 @@ export async function deployTestSystem(
     { hash: Action3Hash, optional: false },
   ])
 
+  await operationsRegistry.addOp('ALL_OPTIONAL_OPERATION', [
+    { hash: Action1Hash, optional: true },
+    { hash: Action2Hash, optional: true },
+    { hash: Action3Hash, optional: true },
+  ])
+
   // Fake WETH
   const fakeWETH = (await ds.deployContractByName('FakeWETH', [])) as FakeWETH
 

@@ -383,7 +383,7 @@ describe('Swap | Unit', async () => {
         await DAI.approve(system.Swap.contract.address, doubleAmountWithFeeInWei.toFixed(0))
       })
 
-      it.skip('should transfer everything to the caller if the surplus is the same as the fromToken', async () => {
+      it('should transfer everything to the caller if the surplus is the same as the fromToken', async () => {
         const otherWallet = provider.getSigner(1)
         const transferredAmountWei = amountToWei(1)
         const initialWethWalletBalanceWei = amountToWei(
@@ -457,6 +457,7 @@ describe('Swap | Unit', async () => {
           }),
         )
         const expectedWethBalanceWei = initialWethWalletBalanceWei
+          .plus(wethFromExchangeInWei)
           .plus(wethFromExchangeInWei)
           .plus(transferredAmountWei)
 

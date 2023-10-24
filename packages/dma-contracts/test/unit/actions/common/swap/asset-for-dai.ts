@@ -7,7 +7,6 @@ import {
   exchangeToDAI,
   expect,
   restoreSnapshot,
-  swapUniswapTokens,
   TestHelpers,
 } from '@dma-common/test-utils'
 import { FakeRequestEnv, RuntimeConfig } from '@dma-common/types/common'
@@ -519,24 +518,12 @@ describe('Swap | Unit', async () => {
         )
       })
 
-      // TODO: [rcano] Test is not working
-      it.skip('should transfer everything to the caller if there is a surplus of DAI ', async () => {
+      it('should transfer everything to the caller if there is a surplus of DAI ', async () => {
         const otherWallet = provider.getSigner(1)
         const otherWalletAddress = await otherWallet.getAddress()
         const amountWei = amountToWei(1)
 
-        await swapUniswapTokens(
-          WETH.address,
-          DAI.address,
-          amountWei.toFixed(0), // swapping 1 ETH
-          amountWei.toFixed(0), // expecting at least 1 DAI
-          otherWalletAddress,
-          {
-            provider,
-            signer: otherWallet,
-            address: await otherWallet.getAddress(),
-          },
-        )
+        await helpers.fakeDAI.mint(otherWalletAddress, amountWei.toFixed(0))
 
         const otherWalletDaiBalance = await balanceOf(DAI.address, otherWalletAddress, {
           config,

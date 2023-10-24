@@ -1,5 +1,3 @@
-import ERC20_ABI from '@abis/external/tokens/IERC20.json'
-import WETH_ABI from '@abis/external/tokens/IWETH.json'
 import { ADDRESSES } from '@deploy-configurations/addresses'
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
 import { Network } from '@deploy-configurations/types/network'
@@ -9,14 +7,16 @@ import {
   expect,
   restoreSnapshot,
   swapOneInchTokens,
+  TestHelpers,
 } from '@dma-common/test-utils'
-import { RuntimeConfig } from '@dma-common/types/common'
+import { FakeRequestEnv, RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
-import { calculateFee } from '@dma-common/utils/swap'
+import { calculateFeeOnInputAmount } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { MockExchange } from '@typechain'
 import BigNumber from 'bignumber.js'
 import { Signer } from 'ethers'
 import hre, { ethers } from 'hardhat'
@@ -34,20 +34,14 @@ describe('Swap | Unit', async () => {
   let authorizedSigner: Signer
   let slippage: ReturnType<typeof asPercentageValue>
   let config: RuntimeConfig
-
   let system: DeployedSystem
+  let helpers: TestHelpers
+  let fakeRequestEnv: FakeRequestEnv
 
   before(async () => {
     authorizedAddress = ADDRESSES[Network.TEST].common.AuthorizedCaller
     feeBeneficiaryAddress = ADDRESSES[Network.TEST].common.FeeRecipient
     slippage = asPercentageValue(8, 100)
-
-    WETH = new ethers.Contract(ADDRESSES[Network.TEST].common.WETH, WETH_ABI, provider).connect(
-      signer,
-    )
-    DAI = new ethers.Contract(ADDRESSES[Network.TEST].common.DAI, ERC20_ABI, provider).connect(
-      signer,
-    )
   })
 
   beforeEach(async () => {
@@ -58,7 +52,18 @@ describe('Swap | Unit', async () => {
 
     provider = snapshot.config.provider
     signer = snapshot.config.signer
+    config = snapshot.config
     system = snapshot.testSystem.deployment.system
+    helpers = snapshot.testSystem.helpers
+
+    fakeRequestEnv = {
+      mockExchange: system.MockExchange.contract as MockExchange,
+      fakeWETH: helpers.fakeWETH,
+      fakeDAI: helpers.fakeDAI,
+    }
+
+    WETH = helpers.fakeWETH.connect(signer)
+    DAI = helpers.fakeDAI.connect(signer)
 
     // Transfer funds to beneficiary and authorized caller
     const toTransferAmount = ethers.utils.parseEther('100')
@@ -133,11 +138,10 @@ describe('Swap | Unit', async () => {
       await expect(tx).to.be.revertedWith('FeeTierAlreadyExists(20)')
     })
 
-    // TODO: OneInch test
-    it.skip('should allow to use different tiers', async () => {
+    it('should allow to use different tiers', async () => {
       const amountInWei = amountToWei(10)
       const fee = 50
-      const feeAmount = calculateFee(amountInWei, fee)
+      const feeAmount = calculateFeeOnInputAmount(amountInWei, fee)
       const amountInWeiWithFee = amountInWei.plus(feeAmount)
       await system.Swap.contract.connect(authorizedSigner).addFeeTier(fee)
 
@@ -148,6 +152,7 @@ describe('Swap | Unit', async () => {
         system.Swap.contract.address,
         slippage.value.toFixed(),
         ALLOWED_PROTOCOLS,
+        fakeRequestEnv,
       )
 
       const feeBeneficiaryBalanceBefore = await balanceOf(WETH.address, feeBeneficiaryAddress, {
@@ -185,11 +190,10 @@ describe('Swap | Unit', async () => {
       expect.toBeEqual(amountToWei(feeBeneficiaryBalanceChange), feeAmount)
     })
 
-    // TODO: OneInch test
-    it.skip('should throw an error when fee tier does not exist', async () => {
+    it('should throw an error when fee tier does not exist', async () => {
       const amountInWei = amountToWei(10)
       const fee = 99
-      const feeAmount = calculateFee(amountInWei, fee)
+      const feeAmount = calculateFeeOnInputAmount(amountInWei, fee)
       const amountInWeiWithFee = amountInWei.plus(feeAmount)
 
       const response = await swapOneInchTokens(
@@ -199,6 +203,7 @@ describe('Swap | Unit', async () => {
         system.Swap.contract.address,
         slippage.value.toFixed(),
         ALLOWED_PROTOCOLS,
+        fakeRequestEnv,
       )
 
       const receiveAtLeastInWei = new BigNumber(response.toTokenAmount).times(

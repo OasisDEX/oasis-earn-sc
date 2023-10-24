@@ -1,36 +1,34 @@
-import ERC20_ABI from '@abis/external/tokens/IERC20.json'
-import { ADDRESSES } from '@deploy-configurations/addresses'
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
-import { Network } from '@deploy-configurations/types/network'
-import { FEE_BASE, ONE } from '@dma-common/constants'
+import { DEFAULT_FEE as FEE, ONE } from '@dma-common/constants'
 import {
   asPercentageValue,
   exchangeToDAI,
   expect,
-  FEE,
   restoreSnapshot,
-  swapUniswapTokens,
+  TestHelpers,
 } from '@dma-common/test-utils'
-import { RuntimeConfig } from '@dma-common/types/common'
+import { FakeRequestEnv, RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
+import { calculateFee } from '@dma-common/utils/swap'
 import { testBlockNumber } from '@dma-contracts/test/config'
-import { JsonRpcProvider } from '@ethersproject/providers'
+import { MockExchange } from '@typechain'
 import BigNumber from 'bignumber.js'
-import { Signer } from 'ethers'
-import hre, { ethers } from 'hardhat'
+import { Contract, Signer } from 'ethers'
+import hre from 'hardhat'
 
 const ALLOWED_PROTOCOLS = ['UNISWAP_V2', 'UNISWAP_V3']
 
-// TODO: OneInch swap tests are failing
-describe.skip('Swap | Unit', async () => {
-  let provider: JsonRpcProvider
+describe('Swap | Unit', async () => {
   let signer: Signer
   let address: string
   let slippage: ReturnType<typeof asPercentageValue>
   let config: RuntimeConfig
-
   let system: DeployedSystem
+  let fakeRequestEnv: FakeRequestEnv
+  let helpers: TestHelpers
+  let USDT: Contract
+  let DAI: Contract
 
   before(async () => {
     slippage = asPercentageValue(8, 100)
@@ -42,10 +40,20 @@ describe.skip('Swap | Unit', async () => {
       blockNumber: testBlockNumber,
     })
 
-    provider = snapshot.config.provider
     signer = snapshot.config.signer
     address = snapshot.config.address
     system = snapshot.testSystem.deployment.system
+    config = snapshot.config
+    helpers = snapshot.testSystem.helpers
+
+    fakeRequestEnv = {
+      mockExchange: system.MockExchange.contract as MockExchange,
+      fakeWETH: helpers.fakeWETH,
+      fakeDAI: helpers.fakeDAI,
+    }
+
+    USDT = helpers.fakeUSDT.connect(signer)
+    DAI = helpers.fakeDAI.connect(signer)
   })
 
   afterEach(async () => {
@@ -54,49 +62,36 @@ describe.skip('Swap | Unit', async () => {
 
   describe('Asset with different precision and no fully ERC20 compliant for DAI', () => {
     let initialUSDTBalanceInWei: BigNumber
+    let initialUSDTBalanceInWeiWithFee: BigNumber
     let receiveAtLeastInWei: BigNumber
     let feeInUSDT: BigNumber
     let data: string
-    let localSnapshotId: string
 
-    before(async () => {
-      localSnapshotId = await provider.send('evm_snapshot', [])
+    beforeEach(async () => {
+      await helpers.fakeUSDT.mint(address, amountToWei(100, 6).toFixed(0))
 
-      await swapUniswapTokens(
-        ADDRESSES[Network.MAINNET].common.WETH,
-        ADDRESSES[Network.MAINNET].common.USDT,
-        amountToWei(1).toFixed(0),
-        amountToWei(100, 6).toFixed(0),
-        address,
-        config,
-      )
-
-      initialUSDTBalanceInWei = amountToWei(
-        await balanceOf(ADDRESSES[Network.MAINNET].common.USDT, address, {
+      initialUSDTBalanceInWeiWithFee = amountToWei(
+        await balanceOf(USDT.address, address, {
           config,
           isFormatted: true,
           decimals: 6,
         }),
         6,
       )
-      feeInUSDT = initialUSDTBalanceInWei
-        .times(FEE)
-        .div(new BigNumber(FEE_BASE).plus(FEE))
-        .integerValue(BigNumber.ROUND_DOWN)
 
-      const USDT = new ethers.Contract(
-        ADDRESSES[Network.MAINNET].common.USDT,
-        ERC20_ABI,
-        provider,
-      ).connect(signer)
-      await USDT.approve(system.Swap.contract.address, initialUSDTBalanceInWei.toFixed(0))
+      feeInUSDT = calculateFee(initialUSDTBalanceInWeiWithFee)
+
+      initialUSDTBalanceInWei = initialUSDTBalanceInWeiWithFee.minus(feeInUSDT)
+
+      await USDT.approve(system.Swap.contract.address, initialUSDTBalanceInWeiWithFee.toFixed(0))
 
       const response = await exchangeToDAI(
-        ADDRESSES[Network.MAINNET].common.USDT,
-        initialUSDTBalanceInWei.minus(feeInUSDT).toFixed(0),
+        USDT.address,
+        initialUSDTBalanceInWei.toFixed(0),
         system.Swap.contract.address,
         slippage.value.toFixed(),
         ALLOWED_PROTOCOLS,
+        fakeRequestEnv,
       )
 
       data = response.tx.data
@@ -107,16 +102,12 @@ describe.skip('Swap | Unit', async () => {
       receiveAtLeastInWei = amountToWei(receiveAtLeast)
     })
 
-    after(async () => {
-      await provider.send('evm_revert', [localSnapshotId])
-    })
-
     it(`should exchange to at least amount specified in receiveAtLeast`, async () => {
       await system.Swap.contract.swapTokens(
         [
-          ADDRESSES[Network.MAINNET].common.USDT,
-          ADDRESSES[Network.MAINNET].common.DAI,
-          initialUSDTBalanceInWei.toFixed(0),
+          USDT.address,
+          DAI.address,
+          initialUSDTBalanceInWeiWithFee.toFixed(0),
           receiveAtLeastInWei.toFixed(0),
           FEE,
           data,
@@ -128,13 +119,13 @@ describe.skip('Swap | Unit', async () => {
         },
       )
 
-      const currentUSDTBalance = await balanceOf(ADDRESSES[Network.MAINNET].common.USDT, address, {
+      const currentUSDTBalance = await balanceOf(USDT.address, address, {
         config,
         decimals: 6,
         isFormatted: true,
       })
       const currentDaiBalanceWei = amountToWei(
-        await balanceOf(ADDRESSES[Network.MAINNET].common.DAI, address, {
+        await balanceOf(DAI.address, address, {
           config,
           isFormatted: true,
         }),
