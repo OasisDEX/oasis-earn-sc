@@ -42,7 +42,7 @@ contract MockExchange is IMockExchange, Context {
     IERC20(assetFrom).safeTransferFrom(_msgSender(), address(this), amountIn);
 
     if (feeOnTransfer && feeAmount > 0) {
-      _collectFee(assetFrom, feeAmount);
+      _collectFee(assetTo, feeAmount);
     }
 
     IERC20(assetTo).safeTransfer(_msgSender(), amountOut);
@@ -83,7 +83,7 @@ contract MockExchange is IMockExchange, Context {
   }
 
   function _collectFee(address asset, uint256 feeAmount) internal {
-    IERC20(asset).safeTransferFrom(address(this), feeBeneficiaryAddress, feeAmount);
+    IERC20(asset).safeTransfer(feeBeneficiaryAddress, feeAmount);
 
     emit FeePaid(feeBeneficiaryAddress, feeAmount);
   }
