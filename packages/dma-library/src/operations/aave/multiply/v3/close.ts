@@ -174,7 +174,7 @@ export const close: AaveV3CloseOperation = async ({
     calls: [takeAFlashLoan, setEModeOnCollateral],
     operationName:
       network === Network.OPTIMISM
-        ? 'CloseAAVEV3Position_3'
+        ? 'CloseAAVEV3Position_2'
         : getAaveCloseV3OperationDefinition(network).name,
   }
 }
