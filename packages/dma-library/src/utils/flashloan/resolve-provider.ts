@@ -18,6 +18,8 @@ export function resolveFlashloanProvider(
       return FlashloanProvider.Balancer
     case Network.ARBITRUM:
       return FlashloanProvider.Balancer
+    case Network.BASE:
+      return FlashloanProvider.Balancer
     default:
       throw new Error(`Unsupported network ${network}`)
   }
