@@ -249,9 +249,12 @@ export const oneInchVersionMap: Record<
   [Network.TENDERLY]: 'v5.0',
 }
 
+export const oneInchsupportedNetworks = Object.keys(oneInchVersionMap)
+
 export function resolveOneInchVersion(network: Network): OneInchVersion {
-  if (network !== Network.MAINNET && network !== Network.OPTIMISM && network !== Network.ARBITRUM)
+  if (!oneInchsupportedNetworks.includes(network)) {
     throw new Error('Unsupported network')
+  }
 
   const version = oneInchVersionMap[network]
   if (!version) throw new Error('Unsupported network')
