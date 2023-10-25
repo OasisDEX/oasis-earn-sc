@@ -14,6 +14,7 @@ import {
 } from './ajna'
 import type { Strategy } from './common'
 import { FlashloanProvider } from './common'
+import { MorphoPosition } from './morpho'
 import type {
   IOperation,
   WithAjnaBucketPrice,
@@ -56,7 +57,7 @@ export type { IMultiplyStrategy, IStrategy }
 export type { CommonDMADependencies } from './common'
 export { FlashloanProvider }
 export type { AjnaError, AjnaStrategy, Strategy }
-export { AjnaEarnPosition, AjnaPosition }
+export { AjnaEarnPosition, AjnaPosition, MorphoPosition }
 
 export type {
   AjnaBorrowPayload,
