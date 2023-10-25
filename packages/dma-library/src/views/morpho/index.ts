@@ -19,7 +19,7 @@ interface Dependencies {
 
 export async function getMorphoPosition(
   { proxyAddress, collateralPrice, quotePrice }: Args,
-  { provider, getCumulatives }: Dependencies,
+  { getCumulatives }: Dependencies,
 ): Promise<MorphoPosition> {
   const collateralAmount = new BigNumber(5)
   const debtAmount = new BigNumber(2000)

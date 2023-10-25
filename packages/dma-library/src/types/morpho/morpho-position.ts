@@ -104,6 +104,7 @@ export class MorphoPosition implements LendingPosition {
       .minus(this.debtAmount.times(this.quotePrice))
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   debtAvailable(collateralAmount?: BigNumber) {
     return ZERO
   }
