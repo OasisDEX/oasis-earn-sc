@@ -239,7 +239,7 @@ export const config: SystemConfig = {
     },
     BalancerVault: {
       name: 'BalancerVault',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.BALANCER_VAULT,
     },
     FeeRecipient: {
