@@ -45,4 +45,5 @@ export type {
   AjnaOpenMultiplyPayload,
 } from './types/ajna'
 export { AjnaEarnPosition, AjnaPosition } from './types/ajna'
+export { MorphoPosition } from './types/morpho'
 export { Network } from '@deploy-configurations/types/network'
