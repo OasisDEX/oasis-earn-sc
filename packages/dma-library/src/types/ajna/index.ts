@@ -28,8 +28,7 @@ export type {
   AjnaNotice,
   AjnaNoticePriceBelowHtp,
   AjnaSuccess,
+  AjnaSuccessPriceaboveLup,
   AjnaSuccessPriceBetweenHtpAndLup,
-  AjnaSuccessPriceBetweenLupAndMomp,
   AjnaWarning,
-  AjnaWarningPriceAboveMomp,
 } from './ajna-validations'
