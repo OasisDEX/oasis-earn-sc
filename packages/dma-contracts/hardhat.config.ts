@@ -36,5 +36,6 @@ import './tasks/generate-op-tuple'
 import './tasks/get-action-name'
 import './tasks/service-registry'
 import './tasks/operations-registry'
+import './tasks/ownership-tool'
 
 export { default } from './hardhat.config.base'

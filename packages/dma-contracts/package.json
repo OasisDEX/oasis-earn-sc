@@ -30,7 +30,9 @@
     "service:showlocal": "npx hardhat service-registry --showlocal",
     "service:showremote": "npx hardhat service-registry --showremote",
     "service:pushconfig": "npx hardhat service-registry --pushconfig",
-    "service:help": "npx hardhat service-registry --help"
+    "service:help": "npx hardhat service-registry --help",
+    "system:checkowners": "npx hardhat ownership-tool",
+    "system:changeowners": "npx hardhat ownership-tool --changeowners"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.3",
@@ -41,6 +43,7 @@
   ],
   "devDependencies": {
     "@prb/math": "2.5.0",
+    "@inquirer/prompts": "^3.2.0",
     "@tenderly/hardhat-tenderly": "^1.7.7",
     "console-log-colors": "^0.4.0",
     "inquirer": "^8.0.0"
