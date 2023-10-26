@@ -1,9 +1,8 @@
 import {
   validateLupBelowHtp,
-  validatePriceAboveMomp,
+  validatePriceAboveLup,
   validatePriceBelowHtp,
   validatePriceBetweenHtpAndLup,
-  validatePriceBetweenLupAndMomp,
   validateWithdrawMoreThanAvailable,
 } from '@dma-library/strategies/ajna/validation'
 import {
@@ -40,10 +39,9 @@ export const getAjnaEarnValidations = ({
   // common
   notices.push(...validatePriceBelowHtp(position, price))
   successes.push(
-    ...validatePriceBetweenLupAndMomp(position, price),
     ...validatePriceBetweenHtpAndLup(position, price),
+    ...validatePriceAboveLup(position, price),
   )
-  warnings.push(...validatePriceAboveMomp(position, price))
 
   // action specific
   switch (action) {
