@@ -1,10 +1,6 @@
 {
-    "cSpell.words": [
-        "Ajna",
-        "oasisdex",
-        "Undercollateralized"
-    ],
-    "eslint.workingDirectories": [
-        { "mode": "auto" }
-    ]
+  "cSpell.words": ["Ajna", "oasisdex", "Undercollateralized"],
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "solidity.compileUsingRemoteVersion": "v0.8.15+commit.e14f2714",
+  "solidity.defaultCompiler": "remote"
 }

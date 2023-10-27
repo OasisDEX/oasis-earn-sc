@@ -17,8 +17,8 @@
     "lint:fix": "yarn eslint . --fix --ext .ts",
     "lint": "yarn eslint . --ext .ts --max-warnings=0 && prettier --list-different 'contracts/**/*.sol'",
     "test": "yarn test:unit && yarn test:e2e",
-    "test:e2e": "yarn clean && npx hardhat test --grep E2E",
-    "test:unit": "yarn clean && npx hardhat test --grep Unit",
+    "test:e2e": "yarn clean && yarn compile && npx hardhat test --grep E2E",
+    "test:unit": "yarn clean && yarn compile && npx hardhat test --grep Unit",
     "deploy:tenderly": "npx hardhat run ./scripts/deployment/deploy-with-ajna.ts --network tenderly",
     "deployment:verify": "npx hardhat verify-deployment",
     "operations:verify": "npx hardhat verify-operations",
@@ -42,6 +42,7 @@
     "tsconfig.json"
   ],
   "devDependencies": {
+    "@prb/math": "2.5.0",
     "@inquirer/prompts": "^3.2.0",
     "@tenderly/hardhat-tenderly": "^1.7.7",
     "console-log-colors": "^0.4.0",

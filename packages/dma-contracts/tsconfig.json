@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.options.json",
   "compilerOptions": {
     "paths": {
+      "@typechain": ["./typechain/index.ts"],
       "@typechain/*": ["./typechain/*"],
       "@abis/*": ["../abis/*"],
       "@ajna-contracts/*": ["../ajna-contracts/*"],
@@ -55,7 +56,9 @@
   "include": [
     "./test",
     "./tasks",
+    "./utils",
     "./scripts",
+    "./typechain",
     "./bootstrap-env.ts",
     "./hardhat.config.base.ts",
     "./hardhat.config.ts"

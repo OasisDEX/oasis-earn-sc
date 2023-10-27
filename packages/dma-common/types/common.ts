@@ -1,4 +1,4 @@
-import { ethers, providers } from 'ethers'
+import { Contract, ethers, providers } from 'ethers'
 
 export type UnboxPromise<T> = T extends Promise<infer U> ? U : T
 export type UnboxArray<T> = T extends Array<infer U> ? U : T
@@ -41,6 +41,24 @@ export interface OneInchSwapResponse extends OneInchBaseResponse {
     value: string
     gasPrice: string
   }
+}
+
+export type FakeRequestEnv = {
+  mockExchange: Contract
+  fakeWETH: Contract
+  fakeDAI: Contract
+}
+
+export type OneInchSwapRequest = {
+  fromTokenAddress: string
+  toTokenAddress: string
+  amount: string
+  recipient: string
+  slippage: string
+  protocols?: string[]
+  chainId?: number
+  version?: string
+  fakeRequestEnv?: FakeRequestEnv
 }
 
 export type SwapData = {

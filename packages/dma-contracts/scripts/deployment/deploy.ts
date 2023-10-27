@@ -53,6 +53,7 @@ import { Network } from '@deploy-configurations/types/network'
 import { NetworkByChainId } from '@deploy-configurations/utils/network/index'
 import { OperationsRegistry, ServiceRegistry } from '@deploy-configurations/utils/wrappers/index'
 import { loadContractNames } from '@dma-contracts/../deploy-configurations/constants'
+import { RecursivePartial } from '@dma-contracts/utils/recursive-partial'
 import Safe from '@safe-global/safe-core-sdk'
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
@@ -95,6 +96,7 @@ const gnosisSafeServiceUrl: Record<Network, string> = {
   [Network.BASE]: '',
   [Network.GOERLI]: 'https://safe-transaction-goerli.safe.global',
   [Network.TENDERLY]: '',
+  [Network.TEST]: '',
 }
 
 // HELPERS --------------------------
@@ -251,6 +253,9 @@ abstract class DeployedSystemHelpers {
 export class DeploymentSystem extends DeployedSystemHelpers {
   public config: SystemConfig | undefined
   public deployedSystem: SystemTemplate = {}
+  public network: Network
+  public provider: providers.JsonRpcProvider
+  public signer: Signer
   private readonly _cache = new NodeCache()
   private readonly isLocal: boolean
 
@@ -258,6 +263,8 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     super()
     this.hre = hre
     this.network = hre.network.name as Network
+    this.provider = hre.ethers.provider
+    this.signer = this.provider.getSigner()
     this.isLocal = this.network === Network.LOCAL
   }
 
@@ -292,6 +299,11 @@ export class DeploymentSystem extends DeployedSystemHelpers {
     } catch (e) {
       console.error('Could not extend config', e)
     }
+  }
+
+  addConfigOverrides(configOverrides: RecursivePartial<SystemConfig>) {
+    if (!this.config) throw new Error('Config is not defined!')
+    this.config = _.merge(this.config, configOverrides)
   }
 
   findPath = (obj, target, parentPath) => {
@@ -604,6 +616,7 @@ export class DeploymentSystem extends DeployedSystemHelpers {
       await this.promptBeforeDeployment()
     }
     for (const configItem of addressesConfig) {
+      this.log('DEPLOYING ', configItem.name, configItem.address)
       let constructorParams: Array<string | number> = []
 
       if (configItem.constructorArgs && configItem.constructorArgs?.length !== 0) {
@@ -652,6 +665,13 @@ export class DeploymentSystem extends DeployedSystemHelpers {
 
       await this.postDeployment(configItem, contractInstance, constructorParams)
     }
+  }
+  public async deployContractByName<C extends Contract>(
+    contractName: string,
+    params: any[],
+  ): Promise<C> {
+    const factory = await this.ethers.getContractFactory(contractName, this.signer)
+    return this.deployContract(factory, params)
   }
 
   public async deployContract<F extends ContractFactory, C extends Contract>(
@@ -724,6 +744,15 @@ export class DeploymentSystem extends DeployedSystemHelpers {
   async deployAll() {
     await this.deployCore()
     await this.deployActions()
+    await this.deployTest()
+  }
+
+  async deployTest() {
+    if (!this.config) throw new Error('No config set')
+    if (!this.config.test) return
+    await this.deployContracts(
+      Object.values(this.config.test).filter((item: SystemConfigEntry) => item.deploy),
+    )
   }
 
   async addCommonEntries() {

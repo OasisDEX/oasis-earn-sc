@@ -32,7 +32,7 @@ const addresses: { [key: string]: string } = {};
 
 const REVERT_IF_BELOW_LUP = false;
 
-describe.only("AjnaProxyActions", function () {
+describe("AjnaProxyActions", function () {
   async function deploy(initializeStaking = true) {
     await hre.network.provider.request({
       method: "hardhat_reset",

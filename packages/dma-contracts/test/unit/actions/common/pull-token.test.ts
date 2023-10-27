@@ -1,22 +1,23 @@
 import { ADDRESSES } from '@deploy-configurations/addresses'
 import { Network } from '@deploy-configurations/types/network'
 import { ONE, TEN, TEN_THOUSAND } from '@dma-common/constants'
-import { restoreSnapshot, swapUniswapTokens } from '@dma-common/test-utils'
+import { swapUniswapTokens } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
 import { approve } from '@dma-common/utils/tx'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
+import { restoreSnapshot } from '@dma-contracts/utils'
 import { calldataTypes } from '@dma-library'
 import { Contract } from '@ethersproject/contracts'
 import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { loadFixture } from 'ethereum-waffle'
 import { ethers } from 'ethers'
+import hre from 'hardhat'
 
-// TODO: Fix broken test
-describe.skip('PullToken Action | Unit', () => {
+describe('PullToken Action | Unit', () => {
   const AMOUNT = new BigNumber(1000)
   let config: RuntimeConfig
   let pullToken: Contract
@@ -25,13 +26,12 @@ describe.skip('PullToken Action | Unit', () => {
   before(async () => {
     ;({ config } = await loadFixture(initialiseConfig))
     const { snapshot } = await restoreSnapshot({
-      config,
-      provider: config.provider,
+      hre,
       blockNumber: testBlockNumber,
     })
 
-    pullToken = snapshot.deployed.system.common.pullToken
-    pullTokenActionAddress = snapshot.deployed.system.common.pullToken.address
+    pullToken = snapshot.testSystem.deployment.system.PullToken.contract
+    pullTokenActionAddress = snapshot.testSystem.deployment.system.PullToken.contract.address
   })
 
   beforeEach(async () => {
@@ -54,7 +54,7 @@ describe.skip('PullToken Action | Unit', () => {
   })
 
   afterEach(async () => {
-    await restoreSnapshot({ config, provider: config.provider, blockNumber: testBlockNumber })
+    await restoreSnapshot({ hre, blockNumber: testBlockNumber })
   })
 
   it('should pull tokens from the caller', async () => {

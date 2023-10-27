@@ -13,6 +13,7 @@ export async function executeThroughProxy(
   signer: Signer,
   value = '0',
   hre?: HardhatRuntimeEnvironment,
+  showLogs = true, // keep backwards compatibility
 ): Promise<[boolean, ContractReceipt]> {
   try {
     const ethers = hre ? hre.ethers : (await import('hardhat')).ethers
@@ -26,7 +27,7 @@ export async function executeThroughProxy(
     const result = await tx.wait()
     return [true, result]
   } catch (ex: any) {
-    console.error(`\x1b[91m[ ERROR ] ${ex} \x1b[0m`)
+    showLogs && console.error(`\x1b[91m[ ERROR ] ${ex} \x1b[0m`)
     let result: Partial<ContractReceipt> = ex
     if (ex?.name === 'ProviderError') {
       result = {

@@ -14,4 +14,5 @@ export {
   MakerProtocolPipContracts,
 } from './maker-protocol'
 export { SystemKeys } from './system-keys'
+export { TestConfigEntry, TestContractNames, TestContracts } from './test'
 export { Tokens } from './tokens'
