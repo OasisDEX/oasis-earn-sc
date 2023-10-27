@@ -1,7 +1,10 @@
 import DSProxyABI from '@abis/external/libs/DS/ds-proxy.json'
 import { Contract, ethers, Signer } from 'ethers'
 
-export async function getOrCreateProxy(dsProxyRegistry: Contract, signer: Signer) {
+export async function getOrCreateProxy(
+  dsProxyRegistry: Contract,
+  signer: Signer,
+): Promise<Contract> {
   const address = await signer.getAddress()
 
   let proxyAddress = await dsProxyRegistry.proxies(address)

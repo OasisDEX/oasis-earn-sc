@@ -8,7 +8,7 @@ import { ethers } from 'hardhat'
 describe('PositionCreated Action | Unit', () => {
   let positionCreated: Contract
 
-  before(async () => {
+  beforeEach(async () => {
     const config = await init()
     const deploy = await createDeploy({ config })
 

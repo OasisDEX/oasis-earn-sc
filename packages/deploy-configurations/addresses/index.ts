@@ -4,6 +4,7 @@ import {
   goerliConfig,
   mainnetConfig,
   optimismConfig,
+  testConfig,
 } from '@deploy-configurations/configs'
 import { ADDRESS_ZERO as zeroAddress } from '@deploy-configurations/constants'
 import { Address } from '@deploy-configurations/types/address'
@@ -69,6 +70,7 @@ export type Addresses = {
   [Network.ARBITRUM]: DefaultDeployment
   [Network.BASE]: DefaultDeployment
   [Network.GOERLI]: DefaultDeployment
+  [Network.TEST]: DefaultDeployment
 }
 
 if (!mainnetConfig.aave.v2) throw new Error('Missing aave v2 config on mainnet')
@@ -148,6 +150,7 @@ export const ADDRESSES: Addresses = {
   [Network.GOERLI]: createAddressesStructure(goerliConfig, goerliConfig),
   [Network.ARBITRUM]: createAddressesStructure(arbitrumConfig, mainnetConfig),
   [Network.BASE]: createAddressesStructure(baseConfig, mainnetConfig),
+  [Network.TEST]: createAddressesStructure(testConfig),
 }
 
 export const ADDRESS_ZERO = zeroAddress

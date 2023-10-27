@@ -78,11 +78,4 @@ export const SERVICE_REGISTRY_NAMES = {
     DEPOSIT_BORROW: 'AjnaDepositBorrow',
     REPAY_WITHDRAW: 'AjnaRepayWithdraw',
   },
-  test: {
-    DUMMY_ACTION: 'DummyAction',
-    DUMMY_OPTIONAL_ACTION: 'DummyOptionalAction',
-    DUMMY_SWAP: 'DummySwap',
-    DUMMY_EXCHANGE: 'DummyExchange',
-    SWAP: 'uSwap',
-  },
 } as const

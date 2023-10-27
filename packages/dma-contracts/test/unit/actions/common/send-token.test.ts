@@ -1,42 +1,40 @@
 import { ADDRESSES } from '@deploy-configurations/addresses'
 import { Network } from '@deploy-configurations/types/network'
-import { MAX_UINT, ONE, TEN_THOUSAND, ZERO } from '@dma-common/constants'
-import { expect, restoreSnapshot, Snapshot, swapUniswapTokens } from '@dma-common/test-utils'
+import { MAX_UINT, ONE, TEN_MILLION, ZERO } from '@dma-common/constants'
+import { expect, swapUniswapTokens } from '@dma-common/test-utils'
 import { BalanceOptions, RuntimeConfig } from '@dma-common/types/common'
 import { balanceOf } from '@dma-common/utils/balances'
 import { amountToWei } from '@dma-common/utils/common'
 import { send } from '@dma-common/utils/tx'
 import { testBlockNumber } from '@dma-contracts/test/config'
-import { initialiseConfig } from '@dma-contracts/test/fixtures'
+import { restoreSnapshot, Snapshot } from '@dma-contracts/utils'
 import { calldataTypes } from '@dma-library'
 import { Contract } from '@ethersproject/contracts'
 import BigNumber from 'bignumber.js'
-import { loadFixture } from 'ethereum-waffle'
-import { ethers } from 'hardhat'
+import hre, { ethers } from 'hardhat'
 
-// TODO: Fix broken test
-describe.skip('SendToken Action | Unit', () => {
+describe('SendToken Action | Unit', () => {
   const DAI = ADDRESSES[Network.MAINNET].common.DAI
   const AMOUNT = new BigNumber(1000)
   const AMOUNT_TO_WEI = amountToWei(AMOUNT).toFixed(0)
 
-  let balanceOptions: BalanceOptions
   let config: RuntimeConfig
+  let balanceOptions: BalanceOptions
   let snapshot: Snapshot
   let sendToken: Contract
   let sendTokenActionAddress: string
 
   before(async () => {
-    ;({ config } = await loadFixture(initialiseConfig))
-    balanceOptions = { config, debug: false }
     ;({ snapshot } = await restoreSnapshot({
-      config,
-      provider: config.provider,
+      hre,
       blockNumber: testBlockNumber,
     }))
 
-    sendToken = snapshot.deployed.system.common.sendToken
-    sendTokenActionAddress = snapshot.deployed.system.common.sendToken.address
+    config = snapshot.config
+    balanceOptions = { config, debug: false }
+
+    sendToken = snapshot.testSystem.deployment.system.SendToken.contract
+    sendTokenActionAddress = snapshot.testSystem.deployment.system.SendToken.contract.address
   })
 
   beforeEach(async () => {
@@ -51,7 +49,7 @@ describe.skip('SendToken Action | Unit', () => {
   })
 
   afterEach(async () => {
-    await restoreSnapshot({ config, provider: config.provider, blockNumber: testBlockNumber })
+    await restoreSnapshot({ hre, blockNumber: testBlockNumber })
   })
 
   it('should send tokens to the sender', async () => {
@@ -92,7 +90,7 @@ describe.skip('SendToken Action | Unit', () => {
       aWallet,
       balanceOptions,
     )
-    expect(aWalletEthBalance.toString()).to.equal(amountToWei(TEN_THOUSAND).toString())
+    expect(aWalletEthBalance.toString()).to.equal(amountToWei(TEN_MILLION).toString())
 
     await sendToken.execute(
       ethers.utils.defaultAbiCoder.encode(
@@ -118,7 +116,7 @@ describe.skip('SendToken Action | Unit', () => {
       aWallet,
       balanceOptions,
     )
-    expect(aWalletEthBalance.toString()).to.equal(amountToWei(TEN_THOUSAND.plus(ONE)).toString())
+    expect(aWalletEthBalance.toString()).to.equal(amountToWei(TEN_MILLION.plus(ONE)).toString())
   })
 
   it('should fail if it does not have enough ERC20 balance', async () => {
