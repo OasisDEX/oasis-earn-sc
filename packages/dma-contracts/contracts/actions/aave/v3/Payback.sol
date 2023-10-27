@@ -31,7 +31,7 @@ contract AaveV3Payback is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     PaybackData memory payback = parseInputs(data);
 
-    payback.amount = store().readUint(bytes32(payback.amount), paramsMap[1], address(this));
+    payback.amount = store().readUint(bytes32(payback.amount), paramsMap[0], address(this));
 
     IPoolV3(registry.getRegisteredService(AAVE_POOL)).repay(
       payback.asset,

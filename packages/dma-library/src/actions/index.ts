@@ -26,6 +26,12 @@ import {
   unwrapEth,
   wrapEth,
 } from './common'
+import {
+  morphoBlueBorrow,
+  morphoBlueDeposit,
+  morphoBluePayback,
+  morphoBlueWithdraw,
+} from './morphoblue'
 import { sparkBorrow, sparkDeposit, sparkPayback, sparkSetEMode, sparkWithdraw } from './spark'
 
 const aave = {
@@ -72,6 +78,13 @@ const spark = {
   setEMode: sparkSetEMode,
 }
 
-const actions = { aave, ajna, common, spark }
+const morphoblue = {
+  borrow: morphoBlueBorrow,
+  deposit: morphoBlueDeposit,
+  withdraw: morphoBlueWithdraw,
+  payback: morphoBluePayback,
+}
+
+const actions = { aave, ajna, common, spark, morphoblue }
 
 export { actions }

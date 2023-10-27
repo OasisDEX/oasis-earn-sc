@@ -80,6 +80,16 @@ export const SERVICE_REGISTRY_NAMES = {
     ERC20_POOL_FACTORY: 'ERC20PoolFactory',
     AJNA_POOL_UTILS_INFO: 'AjnaPoolUtilsInfo',
   },
+  morphoblue: {
+    MORPHO_BLUE: 'MorphoBlue',
+  },
+  test: {
+    DUMMY_ACTION: 'DummyAction',
+    DUMMY_OPTIONAL_ACTION: 'DummyOptionalAction',
+    DUMMY_SWAP: 'DummySwap',
+    DUMMY_EXCHANGE: 'DummyExchange',
+    SWAP: 'uSwap',
+  },
 } as const
 
 export type AllValues<T> = { [K in keyof T]: T[K] extends object ? AllValues<T[K]> : T[K] }[keyof T]
