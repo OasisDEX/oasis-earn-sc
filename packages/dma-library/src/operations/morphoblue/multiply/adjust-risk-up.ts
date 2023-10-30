@@ -7,6 +7,7 @@ import {
   WithCollateral,
   WithDebtAndBorrow,
   WithFlashloan,
+  WithMorphoBlueMarket,
   WithNetwork,
   WithOptionalDeposit,
   WithProxy,
@@ -15,7 +16,8 @@ import {
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-export type AdjustRiskUpArgs = WithCollateral &
+export type MorphoBlueAdjustRiskUpArgs = WithMorphoBlueMarket &
+  WithCollateral &
   WithDebtAndBorrow &
   WithOptionalDeposit &
   WithSwap &
@@ -25,6 +27,7 @@ export type AdjustRiskUpArgs = WithCollateral &
   WithNetwork
 
 export type MorphoBlueAdjustUpOperation = ({
+  morphoBlueMarket,
   collateral,
   debt,
   deposit,
@@ -33,9 +36,10 @@ export type MorphoBlueAdjustUpOperation = ({
   proxy,
   addresses,
   network,
-}: AdjustRiskUpArgs) => Promise<IOperation>
+}: MorphoBlueAdjustRiskUpArgs) => Promise<IOperation>
 
 export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
+  morphoBlueMarket,
   collateral,
   debt,
   deposit,
@@ -45,6 +49,13 @@ export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
   addresses,
   network,
 }) => {
+  if (collateral.address !== morphoBlueMarket.collateralToken) {
+    throw new Error('Collateral token must be the same as MorphoBlue market collateral token')
+  }
+  if (debt.address !== morphoBlueMarket.loanToken) {
+    throw new Error('Debt token must be the same as MorphoBlue market debt token')
+  }
+
   const depositAmount = deposit?.amount || ZERO
 
   const pullCollateralTokensToProxy = actions.common.pullToken(network, {
@@ -87,19 +98,16 @@ export const adjustRiskUp: MorphoBlueAdjustUpOperation = async ({
   const depositCollateral = actions.morphoblue.deposit(
     network,
     {
-      asset: collateral.address,
+      morphoBlueMarket: morphoBlueMarket,
       amount: depositAmount,
       sumAmounts: true,
-      setAsCollateral: true,
     },
-    [0, swapActionStorageIndex, 0, 0],
+    [swapActionStorageIndex, 0],
   )
 
   const borrowDebtToRepayFL = actions.morphoblue.borrow(network, {
-    asset: debt.address,
+    morphoBlueMarket: morphoBlueMarket,
     amount: debt.borrow.amount,
-    // Note: Isn't respected by the Action despite what the factory says
-    to: addresses.operationExecutor,
   })
 
   const sendQuoteTokenToOpExecutor = actions.common.sendToken(network, {

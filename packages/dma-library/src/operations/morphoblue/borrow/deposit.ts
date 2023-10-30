@@ -3,7 +3,8 @@ import { Address } from '@deploy-configurations/types/address'
 import { Network } from '@deploy-configurations/types/network'
 import { NULL_ADDRESS, ZERO } from '@dma-common/constants'
 import { actions } from '@dma-library/actions'
-import { AaveLikeStrategyAddresses, DepositSwapArgs } from '@dma-library/operations/aave-like'
+import { DepositSwapArgs } from '@dma-library/operations/aave-like'
+import { MorphoBlueStrategyAddresses } from '@dma-library/operations/morphoblue/addresses'
 import { ActionCall, IOperation, MorphoBlueMarket } from '@dma-library/types'
 import { isDefined } from '@dma-library/utils/is-defined'
 import { getIsSwapNeeded, getSwapInputToken } from '@dma-library/utils/swap'
@@ -23,7 +24,7 @@ export type MorphoBlueDepositArgs = {
 
 export type MorphoBlueDepositOperation = (
   args: MorphoBlueDepositArgs,
-  addresses: AaveLikeStrategyAddresses,
+  addresses: MorphoBlueStrategyAddresses,
   network: Network,
 ) => Promise<IOperation>
 
@@ -32,28 +33,39 @@ function getSwapCalls(
   userFundsTokenAmount: BigNumber,
   collateralTokenAddress: Address,
   swapArgs: DepositSwapArgs | undefined,
-  addresses: AaveLikeStrategyAddresses,
+  addresses: MorphoBlueStrategyAddresses,
   network: Network,
-) {
-   const isSwapNeeded = getIsSwapNeeded(userFundsTokenAddress, collateralTokenAddress, addresses.tokens.ETH, addresses.tokens.WETH)
+): [ActionCall[], boolean] {
+  const isSwapNeeded = getIsSwapNeeded(
+    userFundsTokenAddress,
+    collateralTokenAddress,
+    addresses.tokens.ETH,
+    addresses.tokens.WETH,
+  )
 
   if (
     isSwapNeeded &&
     isDefined(swapArgs, 'Swap arguments are needed when deposit token is not entry token')
   ) {
-  if (swapArgs) {
-    const actualAssetToSwap = getSwapInputToken(userFundsTokenAddress, addresses.tokens.ETH, addresses.tokens.WETH)
+    const actualAssetToSwap = getSwapInputToken(
+      userFundsTokenAddress,
+      addresses.tokens.ETH,
+      addresses.tokens.WETH,
+    )
 
     return [
-      actions.common.swap(network, {
-        fromAsset: actualAssetToSwap,
-        toAsset: collateralTokenAddress,
-        amount: userFundsTokenAmount,
-        receiveAtLeast: swapArgs.receiveAtLeast,
-        fee: swapArgs.fee,
-        withData: swapArgs.calldata,
-        collectFeeInFromToken: swapArgs.collectFeeInFromToken,
-      }),
+      [
+        actions.common.swap(network, {
+          fromAsset: actualAssetToSwap,
+          toAsset: collateralTokenAddress,
+          amount: userFundsTokenAmount,
+          receiveAtLeast: swapArgs.receiveAtLeast,
+          fee: swapArgs.fee,
+          withData: swapArgs.calldata,
+          collectFeeInFromToken: swapArgs.collectFeeInFromToken,
+        }),
+      ],
+      isSwapNeeded,
     ]
   } else {
     const skippedCall = actions.common.swap(network, {
@@ -67,29 +79,28 @@ function getSwapCalls(
     })
     skippedCall.skipped = true
 
-    return [skippedCall]
+    return [[skippedCall], isSwapNeeded]
   }
 }
 
 export const deposit: MorphoBlueDepositOperation = async (
-  { morphoBlueMarket, depositorAddress, swapArgs },
+  { morphoBlueMarket, userFundsTokenAddress, userFundsTokenAmount, depositorAddress, swapArgs },
   addresses,
   network,
 ) => {
-  const isAssetEth = swapArgs ? swapArgs.fromTokenIsETH : false
-
   // Import ActionCall as it assists type generation
   const tokenTransferCalls: ActionCall[] = [
     actions.common.wrapEth(network, {
-      amount: amountInBaseUnit,
+      amount: userFundsTokenAmount,
     }),
     actions.common.pullToken(network, {
-      amount: amountInBaseUnit,
-      asset: entryTokenAddress,
+      amount: userFundsTokenAmount,
+      asset: userFundsTokenAddress,
       from: depositorAddress,
     }),
   ]
 
+  const isAssetEth = userFundsTokenAddress === addresses.tokens.ETH
   if (isAssetEth) {
     //Asset IS eth
     tokenTransferCalls[1].skipped = true
@@ -98,14 +109,12 @@ export const deposit: MorphoBlueDepositOperation = async (
     tokenTransferCalls[0].skipped = true
   }
 
-  const swapCalls = getSwapCalls(
-    depositToken,
-    entryTokenAddress,
-    amountInBaseUnit,
+  const [swapCalls, isSwapNeeded] = getSwapCalls(
+    userFundsTokenAddress,
+    userFundsTokenAmount,
+    morphoBlueMarket.collateralToken,
     swapArgs,
-    addresses.tokens.ETH,
-    addresses.tokens.WETH,
-    isSwapNeeded,
+    addresses,
     network,
   )
 
@@ -116,11 +125,11 @@ export const deposit: MorphoBlueDepositOperation = async (
       actions.common.setApproval(
         network,
         {
-          asset: depositToken,
-          delegate: addresses.lendingPool,
+          asset: morphoBlueMarket.collateralToken,
+          delegate: addresses.morphoblue,
           // Check the explanation about the deposit action.
           // This approval is about the amount that's going to be deposit in the following action
-          amount: amountInBaseUnit,
+          amount: userFundsTokenAmount,
           sumAmounts: false,
         },
         [0, 0, isSwapNeeded ? 1 : 0, 0],
@@ -135,7 +144,7 @@ export const deposit: MorphoBlueDepositOperation = async (
         network,
         {
           morphoBlueMarket: morphoBlueMarket,
-          amount: amountInBaseUnit,
+          amount: userFundsTokenAmount,
           sumAmounts: false,
         },
         [0, isSwapNeeded ? 1 : 0],

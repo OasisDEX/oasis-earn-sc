@@ -1,24 +1,25 @@
 import { getMorphoBlueBorrowOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation, MorphoBlueMarket } from '@dma-library/types'
 import BigNumber from 'bignumber.js'
 
+import { MorphoBlueStrategyAddresses } from '../addresses'
+
 export type MorphoBlueBorrowArgs = {
   morphoBlueMarket: MorphoBlueMarket
-  amount: BigNumber
+  amountToBorrow: BigNumber
   isEthToken: boolean
 }
 
 export type MorphoBlueBorrowOperation = (
   args: MorphoBlueBorrowArgs,
-  addresses: AaveLikeStrategyAddresses,
+  addresses: MorphoBlueStrategyAddresses,
   network: Network,
 ) => Promise<IOperation>
 
 export const borrow: MorphoBlueBorrowOperation = async (
-  { morphoBlueMarket, amount, isEthToken },
+  { morphoBlueMarket, amountToBorrow, isEthToken },
   addresses,
   network,
 ) => {
@@ -26,10 +27,10 @@ export const borrow: MorphoBlueBorrowOperation = async (
   const calls: ActionCall[] = [
     actions.morphoblue.borrow(network, {
       morphoBlueMarket: morphoBlueMarket,
-      amount: amount,
+      amount: amountToBorrow,
     }),
     actions.common.unwrapEth(network, {
-      amount: amount,
+      amount: amountToBorrow,
     }),
     actions.common.returnFunds(network, {
       asset: isEthToken ? addresses.tokens.ETH : morphoBlueMarket.loanToken,

@@ -2,9 +2,9 @@ import { OperationNames } from '@deploy-configurations/constants'
 import { getMorphoBlueOpenDepositBorrowOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
 import { actions } from '@dma-library/actions'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation, PositionType, Protocol } from '@dma-library/types'
 
+import { MorphoBlueStrategyAddresses } from '../addresses'
 import { borrow, MorphoBlueBorrowArgs } from './borrow'
 import { deposit, MorphoBlueDepositArgs } from './deposit'
 
@@ -12,7 +12,7 @@ type MorphoBlueOpenDepositBorrowArgs = [
   depositArgs: MorphoBlueDepositArgs,
   borrowArgs: MorphoBlueBorrowArgs,
   metaArgs: { protocol: Protocol; positionType: PositionType },
-  addresses: AaveLikeStrategyAddresses,
+  addresses: MorphoBlueStrategyAddresses,
   network: Network,
 ]
 
@@ -30,7 +30,7 @@ export const openDepositBorrow: MorphoBlueOpenDepositBorrowOperation = async (
   const depositCalls = (await deposit(depositArgs, addresses, network)).calls
   const borrowCalls = (await borrow(borrowArgs, addresses, network)).calls
 
-  if (borrowArgs?.amount.isZero()) {
+  if (borrowArgs?.amountToBorrow.isZero()) {
     borrowCalls.forEach(call => {
       call.skipped = true
     })
@@ -39,8 +39,8 @@ export const openDepositBorrow: MorphoBlueOpenDepositBorrowOperation = async (
   const positionCreatedEvent = actions.common.positionCreated(network, {
     protocol,
     positionType,
-    collateralToken: depositArgs.depositToken,
-    debtToken: borrowArgs.borrowToken,
+    collateralToken: depositArgs.morphoBlueMarket.collateralToken,
+    debtToken: borrowArgs.morphoBlueMarket.loanToken,
   })
 
   return {

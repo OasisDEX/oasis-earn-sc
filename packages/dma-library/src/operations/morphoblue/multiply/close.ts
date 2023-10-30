@@ -12,10 +12,11 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
-import { WithAaveLikeStrategyAddresses } from '@dma-library/types/operations'
+import { WithAaveLikeStrategyAddresses, WithMorphoBlueMarket } from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 
-export type CloseArgs = WithCollateral &
+export type MorphoBlueCloseArgs = WithMorphoBlueMarket &
+  WithCollateral &
   WithDebt &
   WithSwap &
   WithFlashloan &
@@ -25,6 +26,7 @@ export type CloseArgs = WithCollateral &
   WithNetwork
 
 export type MorphoBlueCloseOperation = ({
+  morphoBlueMarket,
   collateral,
   debt,
   swap,
@@ -32,9 +34,10 @@ export type MorphoBlueCloseOperation = ({
   proxy,
   addresses,
   network,
-}: CloseArgs) => Promise<IOperation>
+}: MorphoBlueCloseArgs) => Promise<IOperation>
 
 export const close: MorphoBlueCloseOperation = async ({
+  morphoBlueMarket,
   collateral,
   debt,
   swap,
@@ -43,6 +46,13 @@ export const close: MorphoBlueCloseOperation = async ({
   addresses,
   network,
 }) => {
+  if (collateral.address !== morphoBlueMarket.collateralToken) {
+    throw new Error('Collateral token must be the same as MorphoBlue market collateral token')
+  }
+  if (debt.address !== morphoBlueMarket.loanToken) {
+    throw new Error('Debt token must be the same as MorphoBlue market debt token')
+  }
+
   const setDebtTokenApprovalOnPool = actions.common.setApproval(network, {
     asset: debt.address,
     delegate: addresses.lendingPool,
@@ -51,17 +61,13 @@ export const close: MorphoBlueCloseOperation = async ({
   })
 
   const paybackDebt = actions.morphoblue.payback(network, {
-    asset: debt.address,
+    morphoBlueMarket: morphoBlueMarket,
     amount: ZERO,
     paybackAll: true,
   })
 
-  const setEModeOnCollateral = actions.morphoblue.setEMode(network, {
-    categoryId: 0,
-  })
-
   const withdrawCollateral = actions.morphoblue.withdraw(network, {
-    asset: collateral.address,
+    morphoBlueMarket: morphoBlueMarket,
     amount: new BigNumber(MAX_UINT),
     to: proxy.address,
   })
@@ -105,7 +111,6 @@ export const close: MorphoBlueCloseOperation = async ({
     calls: [
       setDebtTokenApprovalOnPool,
       paybackDebt,
-      setEModeOnCollateral,
       withdrawCollateral,
       swapCollateralTokensForDebtTokens,
       sendDebtToOpExecutor,

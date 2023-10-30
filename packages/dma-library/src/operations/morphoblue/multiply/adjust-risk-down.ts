@@ -8,13 +8,15 @@ import {
   WithCollateralAndWithdrawal,
   WithDebt,
   WithFlashloan,
+  WithMorphoBlueMarket,
   WithNetwork,
   WithProxy,
   WithSwap,
 } from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 
-export type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
+export type MorphoBlueAdjustRiskDownArgs = WithMorphoBlueMarket &
+  WithCollateralAndWithdrawal &
   WithDebt &
   WithSwap &
   WithFlashloan &
@@ -23,6 +25,7 @@ export type AdjustRiskDownArgs = WithCollateralAndWithdrawal &
   WithNetwork
 
 export type MorphoBlueAdjustDownOperation = ({
+  morphoBlueMarket,
   collateral,
   debt,
   swap,
@@ -30,9 +33,10 @@ export type MorphoBlueAdjustDownOperation = ({
   proxy,
   addresses,
   network,
-}: AdjustRiskDownArgs) => Promise<IOperation>
+}: MorphoBlueAdjustRiskDownArgs) => Promise<IOperation>
 
 export const adjustRiskDown: MorphoBlueAdjustDownOperation = async ({
+  morphoBlueMarket,
   collateral,
   debt,
   swap,
@@ -41,6 +45,13 @@ export const adjustRiskDown: MorphoBlueAdjustDownOperation = async ({
   addresses,
   network,
 }) => {
+  if (collateral.address !== morphoBlueMarket.collateralToken) {
+    throw new Error('Collateral token must be the same as MorphoBlue market collateral token')
+  }
+  if (debt.address !== morphoBlueMarket.loanToken) {
+    throw new Error('Debt token must be the same as MorphoBlue market debt token')
+  }
+
   // Simulation is based on worst case swap IE Max slippage
   // Payback Debt using FL which should be equivalent to minSwapToAmount
   // Withdraw Collateral according to simulation
@@ -56,14 +67,14 @@ export const adjustRiskDown: MorphoBlueAdjustDownOperation = async ({
   })
 
   const paybackDebt = actions.morphoblue.payback(network, {
-    asset: debt.address,
+    morphoBlueMarket: morphoBlueMarket,
     // Payback the max amount we can get from the swap
     amount: swap.receiveAtLeast,
     paybackAll: false,
   })
 
   const withdrawCollateral = actions.morphoblue.withdraw(network, {
-    asset: collateral.address,
+    morphoBlueMarket: morphoBlueMarket,
     amount: collateral.withdrawal.amount,
     to: proxy.address,
   })

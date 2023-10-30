@@ -6,7 +6,6 @@ import {
   Protocol,
   WithCollateral,
   WithDebtAndBorrow,
-  WithEMode,
   WithFlashloan,
   WithNetwork,
   WithOptionalDeposit,
@@ -14,22 +13,23 @@ import {
   WithProxy,
   WithSwap,
 } from '@dma-library/types'
-import { WithAaveLikeStrategyAddresses } from '@dma-library/types/operations'
+import { WithAaveLikeStrategyAddresses, WithMorphoBlueMarket } from '@dma-library/types/operations'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
-export type OpenOperationArgs = WithCollateral &
+export type MorphoBlueOpenOperationArgs = WithMorphoBlueMarket &
+  WithCollateral &
   WithDebtAndBorrow &
   WithOptionalDeposit &
   WithSwap &
   WithFlashloan &
   WithProxy &
   WithPosition &
-  WithEMode &
   WithAaveLikeStrategyAddresses &
   WithNetwork
 
 export type MorphoBlueOpenOperation = ({
+  morphoBlueMarket,
   collateral,
   debt,
   deposit,
@@ -37,12 +37,12 @@ export type MorphoBlueOpenOperation = ({
   flashloan,
   proxy,
   position,
-  emode,
   addresses,
   network,
-}: OpenOperationArgs) => Promise<IOperation>
+}: MorphoBlueOpenOperationArgs) => Promise<IOperation>
 
 export const open: MorphoBlueOpenOperation = async ({
+  morphoBlueMarket,
   collateral,
   debt,
   deposit,
@@ -50,7 +50,6 @@ export const open: MorphoBlueOpenOperation = async ({
   flashloan,
   proxy,
   position,
-  emode,
   addresses,
   network,
 }) => {
@@ -59,6 +58,12 @@ export const open: MorphoBlueOpenOperation = async ({
 
   if (depositAddress !== collateral.address) {
     throw new Error('Deposit token must be the same as collateral token')
+  }
+  if (collateral.address !== morphoBlueMarket.collateralToken) {
+    throw new Error('Collateral token must be the same as MorphoBlue market collateral token')
+  }
+  if (debt.address !== morphoBlueMarket.loanToken) {
+    throw new Error('Debt token must be the same as MorphoBlue market debt token')
   }
 
   const pullCollateralTokensToProxy = actions.common.pullToken(network, {
@@ -101,24 +106,16 @@ export const open: MorphoBlueOpenOperation = async ({
   const depositCollateral = actions.morphoblue.deposit(
     network,
     {
+      morphoBlueMarket: morphoBlueMarket,
       amount: depositAmount,
-      asset: collateral.address,
       sumAmounts: true,
     },
-    [0, swapActionStorageIndex, 0, 0],
+    [swapActionStorageIndex, 0],
   )
 
-  const setEModeOnCollateral = actions.morphoblue.setEMode(network, {
-    categoryId: emode.categoryId || 0,
-  })
-
-  setEModeOnCollateral.skipped = !emode.categoryId || emode.categoryId === 0
-
   const borrowDebtTokens = actions.morphoblue.borrow(network, {
+    morphoBlueMarket: morphoBlueMarket,
     amount: debt.borrow.amount,
-    asset: debt.address,
-    // Note: This field isn't respected by the Action despite what the factory says
-    to: addresses.operationExecutor,
   })
 
   const sendQuoteTokenToOpExecutor = actions.common.sendToken(network, {
@@ -142,7 +139,6 @@ export const open: MorphoBlueOpenOperation = async ({
     swapDebtTokensForCollateralTokens,
     setCollateralApproval,
     depositCollateral,
-    setEModeOnCollateral,
     borrowDebtTokens,
     sendQuoteTokenToOpExecutor,
     positionCreated,

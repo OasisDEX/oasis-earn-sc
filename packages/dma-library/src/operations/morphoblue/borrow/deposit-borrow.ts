@@ -1,16 +1,16 @@
 import { OperationNames } from '@deploy-configurations/constants'
 import { getMorphoBlueDepositBorrowOperationDefinition } from '@deploy-configurations/operation-definitions'
 import { Network } from '@deploy-configurations/types/network'
-import { AaveLikeStrategyAddresses } from '@dma-library/operations/aave-like'
 import { ActionCall, IOperation } from '@dma-library/types'
 
+import { MorphoBlueStrategyAddresses } from '../addresses'
 import { borrow, MorphoBlueBorrowArgs } from './borrow'
 import { deposit, MorphoBlueDepositArgs } from './deposit'
 
 export type MorphoBlueDepositBorrowArgs = [
   depositArgs: MorphoBlueDepositArgs | undefined,
   borrowArgs: MorphoBlueBorrowArgs | undefined,
-  addresses: AaveLikeStrategyAddresses,
+  addresses: MorphoBlueStrategyAddresses,
   network: Network,
 ]
 
