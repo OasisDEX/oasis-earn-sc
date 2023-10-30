@@ -46,19 +46,27 @@ jobs:
         with:
           node-version: '16.x'
 
-      - name: Install dependencies & build packages & compile contracts
+      - name: Install dependencies
         id: install-dependencies
         if:
           (github.event.inputs.force_run_tests == 'true') ||
           (contains(steps.changed-files.outputs.all_changed_and_modified_files, 'packages/'))
-        run: yarn ; yarn build ; yarn compile
+        run: yarn
+
+      - name: Build project
+        id: build-project
+        if:
+          (github.event.inputs.force_run_tests == 'true') ||
+          (contains(steps.changed-files.outputs.all_changed_and_modified_files, 'packages/'))
+        run: yarn build
         env:
-          BLOCK_NUMBER: 15946543
+          BLOCK_NUMBER: 17776518
           NETWORK_FORK: 'mainnet'
           MAINNET_URL: ${{ secrets.MAINNET_URL }}
+          PRIV_KEY_MAINNET: ${{ secrets.PRIV_KEY_MAINNET }}
 
-      - name: Run unit tests
-        id: unit-test
+      - name: Run all tests
+        id: all-tests
         if:
           (github.event.inputs.force_run_tests == 'true') ||
           (contains(steps.changed-files.outputs.all_changed_and_modified_files, 'packages/'))
