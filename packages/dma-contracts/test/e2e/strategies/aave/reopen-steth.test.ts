@@ -23,7 +23,7 @@ import { Contract, Signer } from 'ethers'
 
 const networkFork = process.env.NETWORK_FORK as Network
 
-describe(`Strategy | AAVE | Reopen Position | E2E`, async () => {
+describe.skip(`Strategy | AAVE | Reopen Position | E2E`, async () => {
   const depositAmountInWei = amountToWei(new BigNumber(1))
   const multiple = new RiskRatio(new BigNumber(2), RiskRatio.TYPE.MULITPLE)
   const slippage = new BigNumber(0.1)

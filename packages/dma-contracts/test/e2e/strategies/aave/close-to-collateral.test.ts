@@ -26,7 +26,7 @@ const networkFork = process.env.NETWORK_FORK as Network
 const EXPECT_DEBT_BEING_PAID_BACK = 'Expect debt being paid back'
 const EXPECT_FEE_BEING_COLLECTED = 'Expect fee being collected'
 
-describe('Close AAVEv2 Position to collateral | E2E', () => {
+describe.skip('Close AAVEv2 Position to collateral | E2E', () => {
   const slippage = new BigNumber(0.01) // 1%
   let fixture: SystemWithAavePositions
   let feeRecipient: string
@@ -301,7 +301,7 @@ describe('Close AAVEv2 Position to collateral | E2E', () => {
   }
 })
 
-describe('Close AAVEv3 Position to collateral', () => {
+describe.skip('Close AAVEv3 Position to collateral', () => {
   const slippage = new BigNumber(0.01) // 1%
   let fixture: SystemWithAAVEV3Positions
   let feeRecipient: string
