@@ -61,7 +61,7 @@ jobs:
         run: yarn build
         env:
           BLOCK_NUMBER: 17776518
-          NETWORK_FORK: 'mainnet'
+          NETWORK_FORK: mainnet
           MAINNET_URL: ${{ secrets.MAINNET_URL }}
           PRIV_KEY_MAINNET: ${{ secrets.PRIV_KEY_MAINNET }}
 
