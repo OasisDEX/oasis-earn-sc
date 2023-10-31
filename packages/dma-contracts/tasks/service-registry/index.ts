@@ -97,7 +97,7 @@ async function pushEntryToRemote(serviceRegistry: ServiceRegistry, service: Conf
     return
   }
 
-  let serviceAddress
+    let serviceAddress: undefined | string
   try {
     serviceAddress = await serviceRegistry.getRegisteredService(service.serviceRegistryName)
   } catch (e) {
