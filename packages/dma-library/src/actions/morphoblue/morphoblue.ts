@@ -71,8 +71,8 @@ export function morphoBlueWithdraw(
 // Import ActionCall as it assists type generation
 export function morphoBluePayback(
   network: Network,
-  args: { morphoBlueMarket: MorphoBlueMarket; amount: BigNumber; paybackAll: boolean },
-  paramsMapping: [amount: number, paybackAll: number] = [0, 0],
+  args: { morphoBlueMarket: MorphoBlueMarket; amount: BigNumber },
+  paramsMapping: [amount: number] = [0],
 ): ActionCall {
   const SERVICE_REGISTRY_NAMES = loadContractNames(network)
 
@@ -83,7 +83,6 @@ export function morphoBluePayback(
       {
         morphoBlueMarket: args.morphoBlueMarket,
         amount: args.amount.toFixed(0),
-        paybackAll: args.paybackAll,
       },
       paramsMapping,
     ],

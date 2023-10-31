@@ -23,5 +23,4 @@ struct WithdrawData {
 struct PaybackData {
   MarketParams marketParams;
   uint256 amount;
-  bool paybackAll;
 }

@@ -20,7 +20,6 @@ contract MorphoBluePayback is Executable, UseStore {
 
   /**
    * @dev Look at UseStore.sol to get additional info on paramsMapping.
-   * @dev The paybackAll flag - when passed - will signal the user wants to repay the full debt balance for a given asset
    *
    * @param data Encoded calldata that conforms to the PaybackData struct
    * @param paramsMap Maps operation storage values by index (index offset by +1) to execute calldata params
@@ -28,12 +27,11 @@ contract MorphoBluePayback is Executable, UseStore {
   function execute(bytes calldata data, uint8[] memory paramsMap) external payable override {
     PaybackData memory paybackData = parseInputs(data);
 
-    paybackData.amount = store().readUint(bytes32(paybackData.amount), paramsMap[1], address(this));
+    paybackData.amount = store().readUint(bytes32(paybackData.amount), paramsMap[0], address(this));
 
     IMorpho morphoBlue = IMorpho(registry.getRegisteredService(MORPHO_BLUE));
 
-    uint256 paybackAmount = paybackData.paybackAll ? type(uint256).max : paybackData.amount;
-    morphoBlue.repay(paybackData.marketParams, paybackAmount, 0, address(this), bytes(""));
+    morphoBlue.repay(paybackData.marketParams, paybackData.amount, 0, address(this), bytes(""));
 
     store().write(bytes32(paybackData.amount));
   }
