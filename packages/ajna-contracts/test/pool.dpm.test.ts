@@ -148,6 +148,11 @@ describe("AjnaProxyActions", function () {
   const deployWithoutInitialization = () => deploy(false);
   describe("DPM - borrower - AjnaProxyActions - WETH", function () {
     it("should depositCollateral", async () => {
+      console.log("CONFIG INFO");
+      console.log(JSON.stringify(hre.network.config));
+      console.log("CONNECTION INFO");
+      console.log(JSON.stringify(hre.ethers.provider.connection));
+
       const { weth, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, poolContractWeth } =
         await loadFixture(deploy);
 
