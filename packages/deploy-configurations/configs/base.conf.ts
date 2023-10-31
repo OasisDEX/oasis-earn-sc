@@ -252,7 +252,7 @@ export const config: SystemConfig = {
     },
     OneInchAggregator: {
       name: 'OneInchAggregator',
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x1111111254eeb25477b68fb85ed929f73a960582',
       serviceRegistryName: SERVICE_REGISTRY_NAMES.common.ONE_INCH_AGGREGATOR,
     },
     MerkleRedeemer: {
