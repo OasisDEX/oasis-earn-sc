@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.options.json",
+  "compilerOptions": {
+    "paths": {},
+    "typeRoots": ["../../node_modules/@types"]
+  },
+  "references": [],
+  "include": [
+    "typechain",
+    "./tasks",
+    "./scripts",
+    "./bootstrap-env.ts",
+    "hardhat.config.base.ts",
+    "hardhat.config.ts",
+    "./scripts/**/*.ts",
+    "./typechain-types",
+    "scripts/deploy-config.json"
+  ]
+}
