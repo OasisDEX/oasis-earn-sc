@@ -4,18 +4,26 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { deployTestSystem, TestDeploymentSystem } from './deploy-test-system'
 
-export type Snapshot = { id: string; testSystem: TestDeploymentSystem; config: RuntimeConfig }
+export type Snapshot = {
+  id: string
+  testSystem: TestDeploymentSystem
+  config: RuntimeConfig
+  extraDeployment?: any
+}
 
 // Cached values
 const snapshotCache: Record<string, Snapshot | undefined> = {}
 const testBlockNumber = Number(process.env.TESTS_BLOCK_NUMBER)
 
-export async function restoreSnapshot(args: {
-  hre: HardhatRuntimeEnvironment
-  blockNumber: number
-  useFallbackSwap?: boolean
-  debug?: boolean
-}): Promise<{ snapshot: Snapshot }> {
+export async function restoreSnapshot(
+  args: {
+    hre: HardhatRuntimeEnvironment
+    blockNumber: number
+    useFallbackSwap?: boolean
+    debug?: boolean
+  },
+  extraDeploymentCallback?: (snapshot: Snapshot) => Promise<any>,
+): Promise<{ snapshot: Snapshot }> {
   const { hre, blockNumber, useFallbackSwap, debug } = args
   const provider = hre.ethers.provider
 
@@ -51,7 +59,6 @@ export async function restoreSnapshot(args: {
     await resetNode(provider, _blockNumber, debug)
 
     const system = await deployTestSystem(hre, debug, useFallbackSwap)
-    const snapshotId = await provider.send('evm_snapshot', [])
 
     const config: RuntimeConfig = {
       provider: provider,
@@ -59,12 +66,21 @@ export async function restoreSnapshot(args: {
       address: await provider.getSigner().getAddress(),
     }
 
-    const snapshot = {
-      id: snapshotId,
+    const snapshot: Snapshot = {
+      id: '',
       testSystem: system,
       config,
     }
 
+    // This is useful to also capture the extra deployment in the snapshot
+    let extraDeploymentResult = undefined
+    if (extraDeploymentCallback) {
+      extraDeploymentResult = await extraDeploymentCallback(snapshot)
+    }
+
+    const snapshotId = await provider.send('evm_snapshot', [])
+    snapshot.id = snapshotId
+    snapshot.extraDeployment = extraDeploymentResult
     snapshotCache[cacheKey] = snapshot
 
     return { snapshot }

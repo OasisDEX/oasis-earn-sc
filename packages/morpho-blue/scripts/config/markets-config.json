@@ -1,14 +1,4 @@
 {
-  "owner": "0x50d0dE2207989017398e33919A3ed6558eBc6644",
-  "addresses": {
-    "morphoBlue": "0xC850a9C14454131aE82C28DC7ff51c2dc6ace06e",
-    "bundler": "0xC3BE3929FD609f7843997FF4D57aA17E417Afaa8",
-    "fakeDaiWithPermit": "DAI",
-    "wbtc": "WBTC",
-    "usdc": "USDC",
-    "usdtWithAllowanceFrontrunProtection": "USDT",
-    "irm": "0x2056d9E6E323Fd06f4344c35022B19849C6402B3"
-  },
   "markets": [
     {
       "label": "DAI-WBTC-80 (deprecated)",

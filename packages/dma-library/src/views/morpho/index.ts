@@ -1,4 +1,4 @@
-import { MorphoPosition } from '@dma-library/types/morpho/morpho-position'
+import { MorphoBluePosition } from '@dma-library/types'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -20,7 +20,7 @@ interface Dependencies {
 export async function getMorphoPosition(
   { proxyAddress, collateralPrice, quotePrice }: Args,
   { getCumulatives }: Dependencies,
-): Promise<MorphoPosition> {
+): Promise<MorphoBluePosition> {
   const collateralAmount = new BigNumber(5)
   const debtAmount = new BigNumber(2000)
 
@@ -41,7 +41,7 @@ export async function getMorphoPosition(
       .div(borrowCumulativeDepositUSD),
   }
 
-  return new MorphoPosition(
+  return new MorphoBluePosition(
     proxyAddress,
     collateralAmount,
     debtAmount,

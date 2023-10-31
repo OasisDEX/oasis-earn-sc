@@ -1,19 +1,21 @@
 {
   "extends": "../../tsconfig.options.json",
   "compilerOptions": {
-    "paths": {},
+    "paths": {
+      "@typechain": ["./typechain/index.ts"],
+      "@types": ["./scripts/types.ts"],
+      "@config": ["./scripts/config/index.ts"]
+    },
     "typeRoots": ["../../node_modules/@types"]
   },
   "references": [],
   "include": [
-    "typechain",
+    "./typechain",
     "./tasks",
-    "./scripts",
     "./bootstrap-env.ts",
     "hardhat.config.base.ts",
     "hardhat.config.ts",
-    "./scripts/**/*.ts",
-    "./typechain-types",
-    "scripts/deploy-config.json"
+    "./scripts",
+    "scripts/config/markets-config.json"
   ]
 }

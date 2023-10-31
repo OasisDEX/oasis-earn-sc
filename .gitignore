@@ -42,3 +42,4 @@ abi/
 packages/dma-contracts/contracts/chainlink
 packages/dma-contracts/contracts/tokens
 packages/dma-contracts/contracts/ajna
+packages/dma-contracts/contracts/morphoblue
