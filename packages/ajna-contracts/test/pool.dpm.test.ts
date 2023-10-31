@@ -26,7 +26,6 @@ import { HardhatUtils, logGasUsage } from "../scripts/common/hardhat.utils";
 import { createDPMProxy } from "../scripts/prepare-env";
 import { ERC20 } from "../typechain-types/@openzeppelin/contracts/token/ERC20/";
 import { WETH as WETHContract } from "../typechain-types/contracts/ajna";
-import { HardhatNetworkConfig, HttpNetworkConfig } from "hardhat/types";
 
 const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
@@ -35,16 +34,6 @@ const REVERT_IF_BELOW_LUP = false;
 
 describe("AjnaProxyActions", function () {
   async function deploy(initializeStaking = true) {
-    await hre.network.provider.request({
-      method: "hardhat_reset",
-      params: [
-        {
-          forking: {
-            jsonRpcUrl: process.env.MAINNET_URL,
-          },
-        },
-      ],
-    });
     const [deployer, lender, borrower, bidder] = await hre.ethers.getSigners();
 
     const { usdc, wbtc, ajna, weth } = await deployTokens(deployer.address, false);
@@ -149,11 +138,6 @@ describe("AjnaProxyActions", function () {
   const deployWithoutInitialization = () => deploy(false);
   describe("DPM - borrower - AjnaProxyActions - WETH", function () {
     it("should depositCollateral", async () => {
-      console.log("CONFIG INFO");
-      console.log(JSON.stringify((hre.network.config as HardhatNetworkConfig).forking?.url));
-      console.log("CONNECTION INFO");
-      console.log(JSON.stringify(hre.ethers.provider.connection.url));
-
       const { weth, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, poolContractWeth } =
         await loadFixture(deploy);
 
