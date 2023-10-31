@@ -26,6 +26,7 @@ import { HardhatUtils, logGasUsage } from "../scripts/common/hardhat.utils";
 import { createDPMProxy } from "../scripts/prepare-env";
 import { ERC20 } from "../typechain-types/@openzeppelin/contracts/token/ERC20/";
 import { WETH as WETHContract } from "../typechain-types/contracts/ajna";
+import { HardhatNetworkConfig, HttpNetworkConfig } from "hardhat/types";
 
 const utils = new HardhatUtils(hre);
 const addresses: { [key: string]: string } = {};
@@ -149,9 +150,9 @@ describe("AjnaProxyActions", function () {
   describe("DPM - borrower - AjnaProxyActions - WETH", function () {
     it("should depositCollateral", async () => {
       console.log("CONFIG INFO");
-      console.log(JSON.stringify(hre.network.config));
+      console.log(JSON.stringify((hre.network.config as HardhatNetworkConfig).forking?.url));
       console.log("CONNECTION INFO");
-      console.log(JSON.stringify(hre.ethers.provider.connection));
+      console.log(JSON.stringify(hre.ethers.provider.connection.url));
 
       const { weth, borrowerProxy, poolContract, ajnaProxyActionsContract, borrower, poolContractWeth } =
         await loadFixture(deploy);
