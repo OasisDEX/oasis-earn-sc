@@ -3,16 +3,12 @@ import { CONTRACT_NAMES } from '@deploy-configurations/constants'
 import { Network } from '@deploy-configurations/types/network'
 import { ServiceRegistry } from '@deploy-configurations/utils/wrappers'
 import { OPERATION_NAMES, TEN } from '@dma-common/constants'
-import {
-  DeployedSystemInfo,
-  ensureWeiFormat,
-  expect,
-  restoreSnapshot,
-} from '@dma-common/test-utils'
+import { ensureWeiFormat, expect } from '@dma-common/test-utils'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { testBlockNumber } from '@dma-contracts/test/config'
 import { initialiseConfig } from '@dma-contracts/test/fixtures'
+import { DeployedSystemInfo, restoreSnapshot } from '@dma-contracts/utils'
 import { ActionFactory, calldataTypes } from '@dma-library'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import BigNumber from 'bignumber.js'

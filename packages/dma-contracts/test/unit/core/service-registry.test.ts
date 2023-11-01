@@ -1,5 +1,5 @@
+import { ContractNames } from '@deploy-configurations/constants'
 import { ServiceRegistry } from '@deploy-configurations/utils/wrappers'
-import { ContractNames } from '@dma-common/constants'
 import { expect } from '@dma-common/test-utils'
 import { createDeploy } from '@dma-common/utils/deploy'
 import init from '@dma-common/utils/init'

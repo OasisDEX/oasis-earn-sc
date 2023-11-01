@@ -148,7 +148,7 @@ describe('Strategy | AJNA | Close To Collateral Multiply | E2E', () => {
     address: Address
   }
 
-  describe.only('Close Positions using Close to Collateral', function () {
+  describe('Close Positions using Close to Collateral', function () {
     supportedPositions.forEach(({ name: variant }) => {
       let position: AjnaPosition
       let debtToken: Token

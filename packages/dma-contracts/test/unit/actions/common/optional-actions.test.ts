@@ -1,40 +1,42 @@
 import DummyActionABI from '@abis/system/contracts/test/DummyAction.sol/DummyAction.json'
 import { loadContractNames } from '@deploy-configurations/constants'
-import { OperationsRegistry } from '@deploy-configurations/utils/wrappers'
-import { DeployedSystemInfo, restoreSnapshot } from '@dma-common/test-utils'
-import { RuntimeConfig } from '@dma-common/types/common'
+import { OperationsRegistry as OperationRegistryWrapper } from '@deploy-configurations/utils/wrappers'
 import { executeThroughProxy } from '@dma-common/utils/execute'
 import { testBlockNumber } from '@dma-contracts/test/config'
-import { initialiseConfig } from '@dma-contracts/test/fixtures'
+import { restoreSnapshot, TestDeploymentSystem } from '@dma-contracts/utils'
 import { ActionCall, ActionFactory, calldataTypes, Network } from '@dma-library'
-import { JsonRpcProvider } from '@ethersproject/providers'
 import { expect } from 'chai'
 import { ContractReceipt, Signer, utils } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
-import { ethers } from 'hardhat'
+import hre, { ethers } from 'hardhat'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const createAction = ActionFactory.create
-const SERVICE_REGISTRY_NAMES = loadContractNames(Network.MAINNET)
+const SERVICE_REGISTRY_NAMES = loadContractNames(Network.TEST)
 
 const dummyActionIface = new ethers.utils.Interface(DummyActionABI)
 
 async function executeOperation(
-  system: DeployedSystemInfo,
+  hre: HardhatRuntimeEnvironment,
+  testSystem: TestDeploymentSystem,
   calls: ActionCall[],
   operationName: string,
   signer: Signer,
 ) {
   const result = await executeThroughProxy(
-    system.common.userProxyAddress,
+    testSystem.helpers.userProxy.address,
     {
-      address: system.common.operationExecutor.address,
-      calldata: system.common.operationExecutor.interface.encodeFunctionData('executeOp', [
-        calls,
-        operationName,
-      ]),
+      address: testSystem.deployment.system.OperationExecutor.contract.address,
+      calldata:
+        testSystem.deployment.system.OperationExecutor.contract.interface.encodeFunctionData(
+          'executeOp',
+          [calls, operationName],
+        ),
     },
     signer,
     '0',
+    hre,
+    false,
   )
   return result
 }
@@ -53,13 +55,10 @@ function getContractLogs(iface: Interface, receipt: ContractReceipt) {
   return logs
 }
 
-// TODO: Fix broken test
-describe.skip(`Optional Actions | Unit`, async () => {
-  let provider: JsonRpcProvider
+describe(`Optional Actions | Unit`, async () => {
   let signer: Signer
-  let system: DeployedSystemInfo
-  let config: RuntimeConfig
-  let operationsRegistry: OperationsRegistry
+  let testSystem: TestDeploymentSystem
+  let operationsRegistry: OperationRegistryWrapper
   let OPERATION_NAME: string
   let Action1Hash: string
   let Action2Hash: string
@@ -69,29 +68,25 @@ describe.skip(`Optional Actions | Unit`, async () => {
   let action3: ActionCall
 
   beforeEach(async () => {
-    ;({ config, provider, signer } = await initialiseConfig())
+    const { snapshot } = await restoreSnapshot({
+      hre,
+      blockNumber: testBlockNumber,
+    })
+    testSystem = snapshot.testSystem
+    signer = snapshot.config.signer
 
-    const { snapshot } = await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
-    system = snapshot.deployed.system
+    operationsRegistry = new OperationRegistryWrapper(
+      testSystem.deployment.system.OperationsRegistry.contract.address,
+      signer,
+    )
 
-    operationsRegistry = new OperationsRegistry(system.common.operationRegistry.address, signer)
-
-    // Add new operation with optional Actions
+    // Prepare the test operation
     OPERATION_NAME = 'TEST_OPERATION_1'
     Action1Hash = utils.keccak256(utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_ACTION))
     Action2Hash = utils.keccak256(
       utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_OPTIONAL_ACTION),
     )
     Action3Hash = utils.keccak256(utils.toUtf8Bytes(SERVICE_REGISTRY_NAMES.test.DUMMY_ACTION))
-
-    await operationsRegistry.addOp(OPERATION_NAME, [
-      { hash: Action1Hash, optional: false },
-      { hash: Action2Hash, optional: true },
-      {
-        hash: Action3Hash,
-        optional: false,
-      },
-    ])
 
     action1 = createAction(
       Action1Hash,
@@ -111,7 +106,7 @@ describe.skip(`Optional Actions | Unit`, async () => {
   })
 
   afterEach(async () => {
-    await restoreSnapshot({ config, provider, blockNumber: testBlockNumber })
+    await restoreSnapshot({ hre, blockNumber: testBlockNumber })
   })
 
   describe(`New operation added to OperationRegistry`, async () => {
@@ -120,10 +115,7 @@ describe.skip(`Optional Actions | Unit`, async () => {
       await operationsRegistry.addOp(OP_NAME, [
         { hash: Action1Hash, optional: true },
         { hash: Action2Hash, optional: false },
-        {
-          hash: Action3Hash,
-          optional: false,
-        },
+        { hash: Action3Hash, optional: false },
       ])
 
       const operation = await operationsRegistry.getOp(OP_NAME)
@@ -135,26 +127,33 @@ describe.skip(`Optional Actions | Unit`, async () => {
 
   describe(`Regular Operation successful`, async () => {
     it(`should execute an Operation successfully`, async () => {
+      operationsRegistry
       const [success, rc] = await executeOperation(
-        system,
+        hre,
+        testSystem,
         [action1, action2, action3],
         OPERATION_NAME,
         signer,
       )
 
-      const actionLogs = getContractLogs(dummyActionIface, rc)
+      const dummyActionLogs = getContractLogs(
+        testSystem.deployment.system.DummyAction.contract.interface,
+        rc,
+      )
+      const dummyOptionalActionLogs = getContractLogs(
+        testSystem.deployment.system.DummyOptionalAction.contract.interface,
+        rc,
+      )
 
       expect(success).to.be.eq(true)
-      expect(actionLogs.length).to.be.eq(3)
-      expect(actionLogs[0].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
-      )
-      expect(actionLogs[1].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyOptionalActionEvent')),
-      )
-      expect(actionLogs[2].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
-      )
+      expect(dummyActionLogs.length).to.be.eq(2)
+
+      console.log(dummyActionLogs[0].name)
+      expect(dummyActionLogs[0].name).to.be.eq('DummyActionEvent')
+      expect(dummyActionLogs[1].name).to.be.eq('DummyActionEvent')
+
+      expect(dummyOptionalActionLogs.length).to.be.eq(1)
+      expect(dummyOptionalActionLogs[0].name).to.be.eq('DummyOptionalActionEvent')
     })
   })
 
@@ -163,22 +162,26 @@ describe.skip(`Optional Actions | Unit`, async () => {
       action2.skipped = true
 
       const [success, rc] = await executeOperation(
-        system,
+        hre,
+        testSystem,
         [action1, action2, action3],
         OPERATION_NAME,
         signer,
       )
 
-      const actionLogs = getContractLogs(dummyActionIface, rc)
+      const dummyActionLogs = getContractLogs(dummyActionIface, rc)
+      const dummyOptionalActionLogs = getContractLogs(
+        testSystem.deployment.system.DummyOptionalAction.contract.interface,
+        rc,
+      )
 
       expect(success).to.be.eq(true)
-      expect(actionLogs.length).to.be.eq(2)
-      expect(actionLogs[0].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
-      )
-      expect(actionLogs[1].args[0].hash).to.be.eq(
-        ethers.utils.keccak256(utils.toUtf8Bytes('DummyActionEvent')),
-      )
+
+      expect(dummyActionLogs.length).to.be.eq(2)
+      expect(dummyActionLogs[0].name).to.be.eq('DummyActionEvent')
+      expect(dummyActionLogs[1].name).to.be.eq('DummyActionEvent')
+
+      expect(dummyOptionalActionLogs.length).to.be.eq(0)
     })
   })
 
@@ -187,7 +190,8 @@ describe.skip(`Optional Actions | Unit`, async () => {
       action3.skipped = true
 
       const [success] = await executeOperation(
-        system,
+        hre,
+        testSystem,
         [action1, action2, action3],
         OPERATION_NAME,
         signer,

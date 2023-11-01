@@ -1,7 +1,7 @@
 import { ADDRESSES } from '@deploy-configurations/addresses'
 import { Network } from '@deploy-configurations/types/network'
 import { ONE } from '@dma-common/constants'
-import { OneInchSwapResponse } from '@dma-common/types/common'
+import { FakeRequestEnv, OneInchSwapRequest, OneInchSwapResponse } from '@dma-common/types/common'
 import { amountFromWei, amountToWei } from '@dma-common/utils/common'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
@@ -94,36 +94,74 @@ const defaultExchangeProtocols = [
   'ROCKET_POOL',
 ]
 
-export function formatOneInchSwapUrl(
-  fromToken: string,
-  toToken: string,
-  amount: string,
-  slippage: string,
-  recipient: string,
-  protocols: string[] = defaultExchangeProtocols,
+export function formatOneInchSwapUrl({
+  fromTokenAddress,
+  toTokenAddress,
+  amount,
+  recipient,
+  slippage,
+  protocols = defaultExchangeProtocols,
   chainId = 1,
   version = 'v4.0',
-) {
+}: OneInchSwapRequest) {
   const protocolsParam = !protocols?.length ? '' : `&protocols=${protocols.join(',')}`
-  return `${ONE_INCH_API_URL}/${version}/${chainId}/swap?fromTokenAddress=${fromToken.toLowerCase()}&toTokenAddress=${toToken}&amount=${amount}&fromAddress=${recipient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`
+  return `${ONE_INCH_API_URL}/${version}/${chainId}/swap?fromTokenAddress=${fromTokenAddress.toLowerCase()}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${recipient}&slippage=${slippage}${protocolsParam}&disableEstimate=true&allowPartialFill=false`
 }
 
-export async function exchangeTokens(url: string): Promise<OneInchSwapResponse> {
-  if (!process.env.ONE_INCH_API_KEY) {
-    throw new Error('ONE_INCH_API_KEY is not defined')
+export async function exchangeTokens(request: OneInchSwapRequest): Promise<OneInchSwapResponse> {
+  if (request.fakeRequestEnv) {
+    const feeOnTransfer =
+      request.toTokenAddress === request.fakeRequestEnv.fakeDAI.address ||
+      request.fromTokenAddress === request.fakeRequestEnv.fakeDAI.address
+
+    const [toTokenAmount] = await request.fakeRequestEnv.mockExchange.calculateOutputAmount(
+      request.fromTokenAddress,
+      request.toTokenAddress,
+      request.amount,
+      feeOnTransfer,
+    )
+    const calldata = request.fakeRequestEnv.mockExchange.interface.encodeFunctionData('swap', [
+      request.fromTokenAddress,
+      request.toTokenAddress,
+      request.amount,
+      feeOnTransfer,
+    ])
+
+    // Use the deployed Fake contract
+    const response: OneInchSwapResponse = {
+      toTokenAmount: toTokenAmount.toString(),
+      fromTokenAmount: request.amount,
+      protocols: request.protocols,
+      tx: {
+        from: request.recipient,
+        to: request.fakeRequestEnv.mockExchange.address,
+        data: calldata,
+        value: '0', // assumes only ERC20 swaps
+        gasPrice: '6994090150', // just a normal gas price, taken from 1inch API docs
+      },
+    }
+
+    return response
+  } else {
+    if (!process.env.ONE_INCH_API_KEY) {
+      throw new Error(
+        'Either ONE_INCH_API_KEY in .env file or a dummy exchange in parameters is required',
+      )
+    }
+    const url = formatOneInchSwapUrl(request)
+
+    const oneInchAuthHeader = getOneInchAuthHeader()
+
+    const response = await axios.get(url, {
+      headers: oneInchAuthHeader,
+    })
+
+    if (!(response.status === 200 && response.statusText === 'OK')) {
+      throw new Error(`Error performing 1inch swap request ${url}: ${await response.data}`)
+    }
+
+    return response.data as Promise<OneInchSwapResponse>
   }
-
-  const oneInchAuthHeader = getOneInchAuthHeader()
-
-  const response = await axios.get(url, {
-    headers: oneInchAuthHeader,
-  })
-
-  if (!(response.status === 200 && response.statusText === 'OK')) {
-    throw new Error(`Error performing 1inch swap request ${url}: ${await response.data}`)
-  }
-
-  return response.data as Promise<OneInchSwapResponse>
 }
 
 export async function swapOneInchTokens(
@@ -133,65 +171,75 @@ export async function swapOneInchTokens(
   recipient: string,
   slippage: string,
   protocols?: string[],
+  fakeRequestEnv?: FakeRequestEnv,
   chainId = 1,
   version = 'v4.0',
 ): Promise<OneInchSwapResponse> {
-  const url = formatOneInchSwapUrl(
+  const request: OneInchSwapRequest = {
     fromTokenAddress,
     toTokenAddress,
     amount,
-    slippage,
     recipient,
+    slippage,
     protocols,
     chainId,
     version,
-  )
+    fakeRequestEnv,
+  }
 
-  return exchangeTokens(url)
+  return exchangeTokens(request)
 }
 
 export async function exchangeFromDAI(
   toTokenAddress: string,
   amount: string,
+  recipient: string,
   slippage: string,
-  recepient: string,
   protocols: string[] = [],
+  fakeRequestEnv?: FakeRequestEnv,
 ): Promise<OneInchSwapResponse> {
-  const url = formatOneInchSwapUrl(
-    ADDRESSES[Network.MAINNET].common.DAI,
+  const request: OneInchSwapRequest = {
+    fromTokenAddress: fakeRequestEnv
+      ? fakeRequestEnv.fakeDAI.address
+      : ADDRESSES[Network.MAINNET].common.DAI,
     toTokenAddress,
     amount,
+    recipient,
     slippage,
-    recepient,
     protocols,
-  )
+    fakeRequestEnv,
+  }
 
-  return exchangeTokens(url)
+  return exchangeTokens(request)
 }
 
 export async function exchangeToDAI(
   fromTokenAddress: string,
   amount: string,
-  recepient: string,
+  recipient: string,
   slippage: string,
   protocols: string[] = [],
+  fakeRequestEnv?: FakeRequestEnv,
 ): Promise<OneInchSwapResponse> {
-  const url = formatOneInchSwapUrl(
+  const request: OneInchSwapRequest = {
     fromTokenAddress,
-    ADDRESSES[Network.MAINNET].common.DAI,
+    toTokenAddress: fakeRequestEnv
+      ? fakeRequestEnv.fakeDAI.address
+      : ADDRESSES[Network.MAINNET].common.DAI,
     amount,
+    recipient,
     slippage,
-    recepient,
     protocols,
-  )
+    fakeRequestEnv,
+  }
 
-  return exchangeTokens(url)
+  return exchangeTokens(request)
 }
 
 type OneInchVersion = 'v4.0' | 'v5.0'
 // TODO: Let's move entirely to v5.0 on FE as well
 export const oneInchVersionMap: Record<
-  Exclude<Network, Network.LOCAL | Network.HARDHAT | Network.GOERLI>,
+  Exclude<Network, Network.LOCAL | Network.HARDHAT | Network.GOERLI | Network.TEST>,
   OneInchVersion
 > = {
   [Network.MAINNET]: 'v4.0',
@@ -239,6 +287,7 @@ export const getOneInchCall =
       swapAddress,
       slippageAsPercentage.toString(),
       protocols,
+      undefined,
       chainId,
       version,
     )

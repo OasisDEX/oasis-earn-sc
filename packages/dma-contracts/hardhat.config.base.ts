@@ -14,110 +14,15 @@ import * as tdly from '@tenderly/hardhat-tenderly'
 import * as process from 'process'
 
 import { ChainIdByNetwork } from '../deploy-configurations/utils/network'
+import { filterConsole, getForkedNetworkConfig } from './utils'
+
+// Remove the annoying duplicate definition warning from Ethers.js. In version 6 this should already be
+// removed, but it seems that our Hardhat version is still using Ethers.js 5.
+filterConsole(['duplicate definition -'], { methods: ['log'] })
 
 tdly.setup()
 
-const networkFork = process.env.NETWORK_FORK as Network | undefined
-
-if (
-  !networkFork ||
-  !(
-    networkFork == Network.MAINNET ||
-    networkFork == Network.OPTIMISM ||
-    networkFork == Network.ARBITRUM ||
-    networkFork == Network.BASE
-  )
-) {
-  throw new Error(
-    `NETWORK_FORK Missing. Specify ${Network.MAINNET}, ${Network.OPTIMISM}, ${Network.ARBITRUM} or ${Network.BASE}`,
-  )
-}
-
-let forkConfig: { nodeURL: string; blockNumber: string; chainID: number } | undefined = undefined
-
-if (networkFork == Network.MAINNET) {
-  const nodeURL = process.env.MAINNET_URL
-
-  if (!nodeURL) {
-    throw new Error(`You must provide MAINNET_URL value in the .env file`)
-  }
-
-  const blockNumber = process.env.BLOCK_NUMBER
-  if (!blockNumber) {
-    throw new Error(`You must provide a BLOCK_NUMBER value in the .env file.`)
-  }
-
-  forkConfig = {
-    nodeURL,
-    blockNumber,
-    chainID: 1,
-  }
-}
-
-if (networkFork == Network.OPTIMISM) {
-  const nodeURL = process.env.OPTIMISM_URL
-
-  if (!nodeURL) {
-    throw new Error(`You must provide OPTIMISM_URL value in the .env file`)
-  }
-
-  const blockNumber = process.env.OPTIMISM_BLOCK_NUMBER
-
-  if (!blockNumber) {
-    throw new Error(`You must provide a OPTIMISM_BLOCK_NUMBER value in the .env file.`)
-  }
-  forkConfig = {
-    nodeURL,
-    blockNumber,
-    chainID: 10,
-  }
-}
-
-if (networkFork == Network.ARBITRUM) {
-  const nodeURL = process.env.ARBITRUM_URL
-
-  if (!nodeURL) {
-    throw new Error(`You must provide ARBITRUM_URL value in the .env file`)
-  }
-
-  const blockNumber = process.env.ARBITRUM_BLOCK_NUMBER
-
-  if (!blockNumber) {
-    throw new Error(`You must provide a ARBITRUM_BLOCK_NUMBER value in the .env file.`)
-  }
-  forkConfig = {
-    nodeURL,
-    blockNumber,
-    chainID: 42161,
-  }
-}
-
-if (networkFork == Network.BASE) {
-  const nodeURL = process.env.BASE_URL
-
-  if (!nodeURL) {
-    throw new Error(`You must provide BASE_URL value in the .env file`)
-  }
-
-  const blockNumber = process.env.BASE_BLOCK_NUMBER
-
-  if (!blockNumber) {
-    throw new Error(`You must provide a BASE_BLOCK_NUMBER value in the .env file.`)
-  }
-  forkConfig = {
-    nodeURL,
-    blockNumber,
-    chainID: 8453,
-  }
-}
-
-if (forkConfig && !/^\d+$/.test(forkConfig.blockNumber)) {
-  throw new Error(`Provide a valid block number. Provided value is ${forkConfig.blockNumber}`)
-}
-
-console.log(`Forking on ${networkFork}`)
-console.log(`Forking from block number: ${forkConfig && forkConfig.blockNumber}`)
-console.log(`Forking with ChainID ${forkConfig && forkConfig.chainID}`)
+const forkConfig = getForkedNetworkConfig()
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -224,6 +129,7 @@ const config = {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         url: forkConfig ? forkConfig.nodeURL : 'http://127.0.0.1:8545',
         blockNumber: forkConfig ? parseInt(forkConfig.blockNumber) : 0,
+        enabled: !!forkConfig,
       },
       accounts: [
         {
@@ -267,7 +173,7 @@ const config = {
           balance: '10000000000000000000000000',
         },
       ],
-      chainId: forkConfig ? forkConfig.chainID : ChainIdByNetwork[Network.LOCAL],
+      chainId: ChainIdByNetwork[Network.LOCAL],
       mining: {
         auto: true,
         interval: 2000,

@@ -7,4 +7,5 @@ export enum Network {
   BASE = 'base',
   LOCAL = 'local',
   TENDERLY = 'tenderly',
+  TEST = 'test',
 }

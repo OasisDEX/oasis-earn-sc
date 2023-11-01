@@ -74,10 +74,6 @@ export type AjnaError =
   | AjnaErrorOverWithdraw
   | AjnaErrorOverRepay
 
-export type AjnaWarningPriceAboveMomp = {
-  name: 'price-above-momp'
-}
-
 type AjnaWarningGenerateCloseToMaxLtv = {
   name: 'generate-close-to-max-ltv'
   data: {
@@ -92,10 +88,7 @@ type AjnaWarningWithdrawCloseToMaxLtv = {
   }
 }
 
-export type AjnaWarning =
-  | AjnaWarningGenerateCloseToMaxLtv
-  | AjnaWarningWithdrawCloseToMaxLtv
-  | AjnaWarningPriceAboveMomp
+export type AjnaWarning = AjnaWarningGenerateCloseToMaxLtv | AjnaWarningWithdrawCloseToMaxLtv
 
 export type AjnaNoticePriceBelowHtp = {
   name: 'price-below-htp'
@@ -107,11 +100,11 @@ export type AjnaSuccessPriceBetweenHtpAndLup = {
   name: 'price-between-htp-and-lup'
 }
 
-export type AjnaSuccessPriceBetweenLupAndMomp = {
-  name: 'price-between-lup-and-momp'
+export type AjnaSuccessPriceaboveLup = {
+  name: 'price-above-lup'
   data: {
     lup: string
   }
 }
 
-export type AjnaSuccess = AjnaSuccessPriceBetweenHtpAndLup | AjnaSuccessPriceBetweenLupAndMomp
+export type AjnaSuccess = AjnaSuccessPriceBetweenHtpAndLup | AjnaSuccessPriceaboveLup
