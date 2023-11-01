@@ -24,6 +24,26 @@ type Filter = {
   value: string | number
 }
 
+type ContractParameter = {
+  name: string
+  type: string
+  value: string
+  decodedValue?: string
+}
+
+type ContractAddress = {
+  address: string
+  name?: string
+}
+
+type ContractExecution = {
+  to: ContractAddress
+  value: string
+  method: string
+  signature: string
+  parameters: ContractParameter[]
+}
+
 //  SAFE_ADDRESS: '0x85f9b7408afE6CEb5E46223451f5d4b832B522dc',
 async function getTransaction(
   hre: HardhatRuntimeEnvironment,
@@ -69,6 +89,71 @@ async function getTransaction(
   }
 
   return tx[0]
+}
+
+function parseDataDecoded(dataDecoded: any): {
+  signature: string
+  parameters: ContractParameter[]
+} {
+  const method = dataDecoded.method
+
+  const parameters: ContractParameter[] = dataDecoded.parameters.map(parameter => {
+    const { name, type, value } = parameter
+    return {
+      name,
+      type,
+      value,
+    }
+  })
+
+  const signature = parameters.reduce((acc: string, parameter: ContractParameter) => {
+    return acc + `${parameter.type} ${parameter.name}, `
+  }, `${method}(`)
+
+  return {
+    signature: signature.slice(0, -2) + ')',
+    parameters,
+  }
+}
+
+function parseTransaction(tx: SafeMultisigTransactionResponse): ContractExecution[] {
+  if (!tx.dataDecoded) {
+    throw new Error('Multisig transaction contains no decoded calldata')
+  }
+
+  const dataDecoded = tx.dataDecoded as any
+  if (!dataDecoded.method) {
+    throw new Error('Multisig transaction contains no method')
+  }
+
+  if (dataDecoded.method === 'multiSend') {
+    return dataDecoded.parameters[0].valueDecoded.map((execution: any) => {
+      const { parameters, signature } = parseDataDecoded(execution.dataDecoded)
+      return {
+        to: {
+          address: execution.to,
+        },
+        value: execution.value,
+        method: execution.method,
+        signature: signature,
+        parameters: parameters,
+      }
+    })
+  } else {
+    const { parameters, signature } = parseDataDecoded(dataDecoded)
+
+    return [
+      {
+        to: {
+          address: tx.to,
+        },
+        value: tx.value,
+        method: dataDecoded.method,
+        signature: signature,
+        parameters: parameters,
+      },
+    ]
+  }
 }
 
 function validateOperationRegistryTx(network: Network, tx: SafeMultisigTransactionResponse) {
@@ -125,6 +210,10 @@ async function validateTransaction(
   const { network } = hre
 
   const tx = await getTransaction(hre, multisigAddress, filter)
+  //console.log(JSON.stringify(tx, null, 2))
+  const executionData = parseTransaction(tx)
+  console.log(`Execution Data: ${JSON.stringify(executionData, null, 2)}`)
+  return
 
   const systemDatabase = new SystemDatabase(network.name as Network)
 
