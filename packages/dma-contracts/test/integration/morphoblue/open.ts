@@ -1,83 +1,23 @@
 import { DeployedSystem } from '@deploy-configurations/types/deployed-system'
-import { showConsoleLogs } from '@dma-common/test-utils/console'
 import { RuntimeConfig } from '@dma-common/types/common'
 import { testBlockNumber } from '@dma-contracts/test/config'
-import { restoreSnapshot, Snapshot, TestHelpers } from '@dma-contracts/utils'
+import { restoreSnapshot, TestHelpers } from '@dma-contracts/utils'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import {
-  deployMorphoBlue,
-  deployOracles,
-  getMorphoDefaultMarketsConfig,
-  getMorphoDefaultOraclesConfig,
-  MorphoMarketsConfig,
-  OraclesConfig,
-  OraclesDeployment,
-  TokensDeployment,
-} from '@morpho-blue'
-import { Morpho } from '@morpho-blue/typechain'
+import { MorphoMarketsConfig, MorphoSystem, OraclesConfig, OraclesDeployment } from '@morpho-blue'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { expect } from 'chai'
 import { Signer } from 'ethers'
 import hre from 'hardhat'
 
-async function deployMorphoBlueSystem(snapshot: Snapshot): Promise<{
-  marketsConfig: MorphoMarketsConfig
-  oraclesConfig: OraclesConfig
-  oraclesDeployment: OraclesDeployment
-  morphoBlue: Morpho
-}> {
-  const helpers = snapshot.testSystem.helpers
-  const signer = snapshot.config.signer
-  const signerAddress = snapshot.config.address
+import { deployMorphoBlueSystem } from './utils'
 
-  // Deploy Morpho Blue
-  const tokensDeployment: TokensDeployment = {
-    DAI: {
-      contract: helpers.fakeDAI.connect(signer),
-    },
-    USDT: {
-      contract: helpers.fakeUSDT.connect(signer),
-    },
-    WBTC: {
-      contract: helpers.fakeWBTC.connect(signer),
-    },
-    WETH: {
-      contract: helpers.fakeWETH.connect(signer),
-    },
-    USDC: {
-      contract: helpers.fakeUSDC.connect(signer),
-    },
-    WSTETH: {
-      contract: helpers.fakeWSTETH.connect(signer),
-    },
-  }
-
-  const marketsConfig = getMorphoDefaultMarketsConfig()
-  const oraclesConfig = getMorphoDefaultOraclesConfig()
-
-  showConsoleLogs(false)
-  const oraclesDeployment = await deployOracles(oraclesConfig, marketsConfig, signer)
-
-  const morphoBlue = await deployMorphoBlue(
-    marketsConfig,
-    tokensDeployment,
-    oraclesDeployment,
-    signer,
-    signerAddress,
-  )
-  showConsoleLogs(true)
-
-  return {
-    marketsConfig,
-    oraclesConfig,
-    oraclesDeployment,
-    morphoBlue,
-  }
-}
 describe('Open | MorphoBlue | INTEGRATION', async () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
   let provider: JsonRpcProvider
-  let signer: Signer
-  let signerAddress: string
+  let owner: Signer
+  let ownerAddress: string
+  let user: SignerWithAddress
   let config: RuntimeConfig
   let system: DeployedSystem
   let helpers: TestHelpers
@@ -92,7 +32,7 @@ describe('Open | MorphoBlue | INTEGRATION', async () => {
   let marketsConfig: MorphoMarketsConfig
   let oraclesConfig: OraclesConfig
   let oraclesDeployment: OraclesDeployment
-  let morphoBlue: Morpho
+  let morphoBlue: MorphoSystem
   /* eslint-enable @typescript-eslint/no-unused-vars */
 
   beforeEach(async () => {
@@ -105,29 +45,36 @@ describe('Open | MorphoBlue | INTEGRATION', async () => {
     )
 
     provider = snapshot.config.provider
-    signer = snapshot.config.signer
-    signerAddress = snapshot.config.address
+    owner = snapshot.config.signer
+    ownerAddress = snapshot.config.address
     config = snapshot.config
     system = snapshot.testSystem.deployment.system
     helpers = snapshot.testSystem.helpers
     marketsConfig = snapshot.extraDeployment.marketsConfig
     oraclesConfig = snapshot.extraDeployment.oraclesConfig
     oraclesDeployment = snapshot.extraDeployment.oraclesDeployment
-    morphoBlue = snapshot.extraDeployment.morphoBlue
+    morphoBlue = snapshot.extraDeployment
 
-    WETH = helpers.fakeWETH.connect(signer)
-    DAI = helpers.fakeDAI.connect(signer)
-    USDT = helpers.fakeUSDT.connect(signer)
-    WBTC = helpers.fakeWBTC.connect(signer)
-    USDC = helpers.fakeUSDC.connect(signer)
-    WSTETH = helpers.fakeWSTETH.connect(signer)
+    WETH = helpers.fakeWETH.connect(owner)
+    DAI = helpers.fakeDAI.connect(owner)
+    USDT = helpers.fakeUSDT.connect(owner)
+    WBTC = helpers.fakeWBTC.connect(owner)
+    USDC = helpers.fakeUSDC.connect(owner)
+    WSTETH = helpers.fakeWSTETH.connect(owner)
+
+    user = (await hre.ethers.getSigners())[1]
   })
 
   afterEach(async () => {
     await restoreSnapshot({ hre, blockNumber: testBlockNumber })
   })
 
-  it('should open a position', async () => {
-    console.log(`Morpho blue deployed: ${morphoBlue.address}`)
+  it('should have market liquidity', async () => {
+    for (const market of morphoBlue.marketsInfo) {
+      const marketStatus = await morphoBlue.morpho.market(market.id)
+      expect(marketStatus.totalSupplyAssets).to.be.gt(0)
+      expect(marketStatus.totalSupplyShares).to.be.gt(0)
+      expect(marketStatus.lastUpdate).to.be.gt(0)
+    }
   })
 })

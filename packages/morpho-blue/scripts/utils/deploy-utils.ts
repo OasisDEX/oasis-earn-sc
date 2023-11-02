@@ -1,12 +1,17 @@
 import { IrmMock, Morpho } from '@typechain'
+import { MarketParamsStruct } from '@typechain/contracts/Morpho'
 import type {
+  MarketSupplyConfig,
+  MorphoMarket,
+  MorphoMarketInfo,
   MorphoMarketsConfig,
+  MorphoSystem,
   OraclesConfig,
   OraclesDeployment,
   TokensConfig,
   TokensDeployment,
 } from '@types'
-import { BigNumber, Contract, Signer } from 'ethers'
+import { Contract, Signer } from 'ethers'
 import { ethers } from 'hardhat'
 
 import { MorphoLLTVPrecision, MorphoPricePrecision } from '../config'
@@ -23,18 +28,32 @@ async function deployContract<T extends Contract>(
   return contract
 }
 
-export function getMarketId(
-  loanTokenAddress: string,
-  collateralTokenAddress: string,
-  oracleAddress: string,
-  irmAddress: string,
-  lltv: BigNumber,
-) {
+export function getMarketId(market: MarketParamsStruct) {
   const encodedParams = ethers.utils.defaultAbiCoder.encode(
     ['address', 'address', 'address', 'address', 'uint256'],
-    [loanTokenAddress, collateralTokenAddress, oracleAddress, irmAddress, lltv],
+    [market.loanToken, market.collateralToken, market.oracle, market.irm, market.lltv],
   )
   return ethers.utils.keccak256(encodedParams)
+}
+
+export function getMarketParams(
+  market: MorphoMarket,
+  tokensDeployment: TokensDeployment,
+  oraclesDeployment: OraclesDeployment,
+  irm: IrmMock,
+): MarketParamsStruct {
+  const loanToken = tokensDeployment[market.loanToken]
+  const collateralToken = tokensDeployment[market.collateralToken]
+  const oracle = oraclesDeployment[market.loanToken][market.collateralToken]
+  const lltv = ethers.utils.parseUnits(market.lltv, MorphoLLTVPrecision)
+
+  return {
+    loanToken: loanToken.contract.address,
+    collateralToken: collateralToken.contract.address,
+    oracle: oracle.contract.address,
+    irm: irm.address,
+    lltv: lltv,
+  }
 }
 
 export async function deployTokens(
@@ -110,26 +129,24 @@ export async function deployOracles(
 
 export async function createMarkets(
   marketConfig: MorphoMarketsConfig,
-  tokensConfig: TokensDeployment,
+  tokensDeployment: TokensDeployment,
   oraclesDeployment: OraclesDeployment,
   morpho: Morpho,
   irm: IrmMock,
-) {
+): Promise<MorphoMarketInfo[]> {
+  const marketsInfo: MorphoMarketInfo[] = []
+
   // Create all markets
   for (const market of marketConfig.markets) {
-    const loanToken = tokensConfig[market.loanToken]
-    const collateralToken = tokensConfig[market.collateralToken]
+    const loanToken = tokensDeployment[market.loanToken]
+    const collateralToken = tokensDeployment[market.collateralToken]
     const oracle = oraclesDeployment[market.loanToken][market.collateralToken]
     const lltv = ethers.utils.parseUnits(market.lltv, MorphoLLTVPrecision)
 
+    const marketParams = getMarketParams(market, tokensDeployment, oraclesDeployment, irm)
+
     // Check that market was created correctly
-    const marketId = getMarketId(
-      loanToken.contract.address,
-      collateralToken.contract.address,
-      oracle.contract.address,
-      irm.address,
-      lltv,
-    )
+    const marketId = getMarketId(marketParams)
 
     console.log(`--------------- Market ${market.label} ----------------`)
     console.log(`  Market ID: ${marketId}`)
@@ -154,21 +171,28 @@ export async function createMarkets(
       lltv: lltv,
     })
 
-    const marketParams = await morpho.idToMarketParams(marketId)
+    const configuredParams = await morpho.idToMarketParams(marketId)
     if (
-      marketParams.loanToken.toLowerCase() !== loanToken.contract.address.toLowerCase() ||
-      marketParams.collateralToken.toLowerCase() !==
+      configuredParams.loanToken.toLowerCase() !== loanToken.contract.address.toLowerCase() ||
+      configuredParams.collateralToken.toLowerCase() !==
         collateralToken.contract.address.toLowerCase() ||
-      marketParams.oracle.toLowerCase() !== oracle.contract.address.toLowerCase() ||
-      marketParams.irm.toLowerCase() !== irm.address.toLowerCase() ||
-      !marketParams.lltv.eq(lltv)
+      configuredParams.oracle.toLowerCase() !== oracle.contract.address.toLowerCase() ||
+      configuredParams.irm.toLowerCase() !== irm.address.toLowerCase() ||
+      !configuredParams.lltv.eq(lltv)
     ) {
-      console.log(JSON.stringify(marketParams))
+      console.log(JSON.stringify(configuredParams))
       throw new Error(`Market ${market.label} was not created correctly`)
     }
 
     console.log(`\n`)
+
+    marketsInfo.push({
+      ...market,
+      id: marketId,
+    })
   }
+
+  return marketsInfo
 }
 
 export async function deployMorphoBlue(
@@ -177,7 +201,7 @@ export async function deployMorphoBlue(
   oraclesDeployment: OraclesDeployment,
   signer: Signer,
   signerAddress: string,
-): Promise<Morpho> {
+): Promise<MorphoSystem> {
   console.log('\n==================== MORPHO DEPLOYMENT =====================')
   const morpho = await deployContract<Morpho>('Morpho', [signerAddress], signer)
   const irm = await deployContract<IrmMock>('IrmMock', [], signer)
@@ -189,8 +213,61 @@ export async function deployMorphoBlue(
   await morpho.enableIrm(irm.address)
 
   console.log('\n==================== MARKET CREATION =====================\n')
-  await createMarkets(morphoMarketsConfig, tokensDeployment, oraclesDeployment, morpho, irm)
+  const marketsInfo = await createMarkets(
+    morphoMarketsConfig,
+    tokensDeployment,
+    oraclesDeployment,
+    morpho,
+    irm,
+  )
   console.log('==========================================================')
 
-  return morpho
+  return {
+    morpho: morpho,
+    irm: irm,
+    marketsInfo: marketsInfo,
+    tokensDeployment: tokensDeployment,
+    oraclesDeployment: oraclesDeployment,
+  }
+}
+
+/**
+ * @notice Adds markets liquidity
+ */
+export async function setupMarkets(
+  morphoSystem: MorphoSystem,
+  supplyConfig: MarketSupplyConfig,
+  signer: Signer,
+  signerAddress: string,
+) {
+  console.log('\n==================== MARKET SETUP =====================')
+  for (const market of morphoSystem.marketsInfo) {
+    const marketParams = getMarketParams(
+      market,
+      morphoSystem.tokensDeployment,
+      morphoSystem.oraclesDeployment,
+      morphoSystem.irm,
+    )
+
+    const supplyAmount = supplyConfig[market.loanToken]
+    if (!supplyAmount) {
+      throw new Error(`Supply amount for ${market.loanToken} not found`)
+    }
+
+    const balance = await morphoSystem.tokensDeployment[market.loanToken].contract.balanceOf(
+      signerAddress,
+    )
+    console.log(`Supplying ${supplyAmount.toString()} ${market.loanToken} to ${market.label}...`)
+
+    await morphoSystem.tokensDeployment[market.loanToken].contract
+      .connect(signer)
+      .mint(signerAddress, supplyAmount)
+    await morphoSystem.tokensDeployment[market.loanToken].contract
+      .connect(signer)
+      .approve(morphoSystem.morpho.address, supplyAmount)
+
+    await morphoSystem.morpho
+      .connect(signer)
+      .supply(marketParams, supplyAmount, 0, signerAddress, [])
+  }
 }

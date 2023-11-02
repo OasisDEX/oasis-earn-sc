@@ -22,9 +22,10 @@ export async function restoreSnapshot(
     useFallbackSwap?: boolean
     debug?: boolean
   },
-  extraDeploymentCallback?: (snapshot: Snapshot) => Promise<any>,
+  extraDeploymentCallback?: (snapshot: Snapshot, debug: boolean) => Promise<any>,
 ): Promise<{ snapshot: Snapshot }> {
-  const { hre, blockNumber, useFallbackSwap, debug } = args
+  const { hre, blockNumber, useFallbackSwap } = args
+  const debug = args.debug || false
   const provider = hre.ethers.provider
 
   const _blockNumber = blockNumber || testBlockNumber
@@ -75,7 +76,7 @@ export async function restoreSnapshot(
     // This is useful to also capture the extra deployment in the snapshot
     let extraDeploymentResult = undefined
     if (extraDeploymentCallback) {
-      extraDeploymentResult = await extraDeploymentCallback(snapshot)
+      extraDeploymentResult = await extraDeploymentCallback(snapshot, debug)
     }
 
     const snapshotId = await provider.send('evm_snapshot', [])

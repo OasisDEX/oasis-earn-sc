@@ -4,4 +4,5 @@ export {
   deployOracles,
   deployTokens,
   getMarketId,
+  setupMarkets,
 } from './deploy-utils'

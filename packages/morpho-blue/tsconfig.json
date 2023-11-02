@@ -3,6 +3,7 @@
   "compilerOptions": {
     "paths": {
       "@typechain": ["./typechain/index.ts"],
+      "@typechain/*": ["./typechain/*"],
       "@types": ["./scripts/types.ts"],
       "@config": ["./scripts/config/index.ts"]
     },
@@ -10,7 +11,7 @@
   },
   "references": [],
   "include": [
-    "./typechain",
+    "./typechain/**/*.ts",
     "./tasks",
     "./bootstrap-env.ts",
     "hardhat.config.base.ts",
